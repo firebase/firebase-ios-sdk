@@ -8,37 +8,37 @@
 
 /* Begin PBXBuildFile section */
 		400283EA23EA254B0006A298 /* MainViewController+MultiFactor.m in Sources */ = {isa = PBXBuildFile; fileRef = 400283E923EA254A0006A298 /* MainViewController+MultiFactor.m */; };
-		6282FCE72745C414004279D6 /* CustomTokenDataEntryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6282FCA72745C40F004279D6 /* CustomTokenDataEntryViewController.m */; };
-		6282FCE82745C414004279D6 /* MainViewController+OAuth.m in Sources */ = {isa = PBXBuildFile; fileRef = 6282FCA92745C40F004279D6 /* MainViewController+OAuth.m */; };
-		6282FCEB2745C414004279D6 /* MainViewController+Google.m in Sources */ = {isa = PBXBuildFile; fileRef = 6282FCB02745C410004279D6 /* MainViewController+Google.m */; };
-		6282FCED2745C414004279D6 /* MainViewController+Facebook.m in Sources */ = {isa = PBXBuildFile; fileRef = 6282FCB22745C410004279D6 /* MainViewController+Facebook.m */; };
-		6282FCEE2745C414004279D6 /* UserTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6282FCB42745C410004279D6 /* UserTableViewCell.m */; };
-		6282FCEF2745C414004279D6 /* MainViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6282FCB62745C410004279D6 /* MainViewController.xib */; };
-		6282FCF02745C414004279D6 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6282FCB82745C410004279D6 /* MainViewController.m */; };
-		6282FCF12745C414004279D6 /* MainViewController+Custom.m in Sources */ = {isa = PBXBuildFile; fileRef = 6282FCB92745C410004279D6 /* MainViewController+Custom.m */; };
-		6282FCF22745C414004279D6 /* AuthProviders.m in Sources */ = {isa = PBXBuildFile; fileRef = 6282FCBA2745C411004279D6 /* AuthProviders.m */; };
-		6282FCF32745C414004279D6 /* MainViewController+MultiFactor.m in Sources */ = {isa = PBXBuildFile; fileRef = 6282FCBC2745C411004279D6 /* MainViewController+MultiFactor.m */; };
-		6282FCF42745C414004279D6 /* UIViewController+Alerts.m in Sources */ = {isa = PBXBuildFile; fileRef = 6282FCBD2745C411004279D6 /* UIViewController+Alerts.m */; };
-		6282FCF62745C414004279D6 /* UserInfoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6282FCC02745C411004279D6 /* UserInfoViewController.m */; };
 		6282FCF72745C414004279D6 /* GoogleAuthProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 6282FCC22745C411004279D6 /* GoogleAuthProvider.m */; };
-		6282FCF82745C414004279D6 /* StaticContentTableViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6282FCC52745C411004279D6 /* StaticContentTableViewManager.m */; };
-		6282FCF92745C414004279D6 /* MainViewController+Email.m in Sources */ = {isa = PBXBuildFile; fileRef = 6282FCC72745C411004279D6 /* MainViewController+Email.m */; };
-		6282FCFA2745C414004279D6 /* SettingsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6282FCC82745C412004279D6 /* SettingsViewController.xib */; };
 		6282FCFB2745C414004279D6 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6282FCCB2745C412004279D6 /* GoogleService-Info.plist */; };
-		6282FCFC2745C414004279D6 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6282FCCC2745C412004279D6 /* Images.xcassets */; };
-		6282FCFD2745C414004279D6 /* MainViewController+Phone.m in Sources */ = {isa = PBXBuildFile; fileRef = 6282FCCD2745C412004279D6 /* MainViewController+Phone.m */; };
-		6282FCFE2745C414004279D6 /* MainViewController+User.m in Sources */ = {isa = PBXBuildFile; fileRef = 6282FCCF2745C412004279D6 /* MainViewController+User.m */; };
-		6282FD012745C414004279D6 /* MainViewController+OOB.m in Sources */ = {isa = PBXBuildFile; fileRef = 6282FCD32745C413004279D6 /* MainViewController+OOB.m */; };
-		6282FD022745C414004279D6 /* MainViewController+GameCenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 6282FCD42745C413004279D6 /* MainViewController+GameCenter.m */; };
-		6282FD032745C414004279D6 /* MainViewController+Auth.m in Sources */ = {isa = PBXBuildFile; fileRef = 6282FCD72745C413004279D6 /* MainViewController+Auth.m */; };
-		6282FD042745C414004279D6 /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6282FCD82745C413004279D6 /* SettingsViewController.m */; };
-		6282FD052745C414004279D6 /* UserInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6282FCDA2745C413004279D6 /* UserInfoViewController.xib */; };
-		6282FD062745C414004279D6 /* AppManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6282FCDD2745C413004279D6 /* AppManager.m */; };
 		6282FD072745C414004279D6 /* FacebookAuthProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 6282FCE02745C413004279D6 /* FacebookAuthProvider.m */; };
 		6282FD082745C414004279D6 /* GoogleService-Info_multi.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6282FCE12745C413004279D6 /* GoogleService-Info_multi.plist */; };
-		6282FD092745C414004279D6 /* MainViewController+AutoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6282FCE42745C414004279D6 /* MainViewController+AutoTests.m */; };
-		6282FD0A2745C414004279D6 /* MainViewController+App.m in Sources */ = {isa = PBXBuildFile; fileRef = 6282FCE62745C414004279D6 /* MainViewController+App.m */; };
 		6282FD1027471F98004279D6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6282FD0F27471F98004279D6 /* AppDelegate.swift */; };
+		6282FD11274832FB004279D6 /* AppManager.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B2D22A2F8AF00AC9A23 /* AppManager.m */; };
+		6282FD12274832FF004279D6 /* AuthProviders.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B4522A2F8AF00AC9A23 /* AuthProviders.m */; };
+		6282FD1327483302004279D6 /* CustomTokenDataEntryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B3D22A2F8AF00AC9A23 /* CustomTokenDataEntryViewController.m */; };
+		6282FD14274833D8004279D6 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DE800B3222A2F8AF00AC9A23 /* Images.xcassets */; };
+		6282FD15274833DD004279D6 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B2922A2F8AF00AC9A23 /* MainViewController.m */; };
+		6282FD16274833E3004279D6 /* MainViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = DE800B1322A2F8AF00AC9A23 /* MainViewController.xib */; };
+		6282FD1727483401004279D6 /* MainViewController+App.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B2F22A2F8AF00AC9A23 /* MainViewController+App.m */; };
+		6282FD182748340C004279D6 /* MainViewController+Auth.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B2322A2F8AF00AC9A23 /* MainViewController+Auth.m */; };
+		6282FD192748340F004279D6 /* MainViewController+AutoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B2B22A2F8AF00AC9A23 /* MainViewController+AutoTests.m */; };
+		6282FD1A27483416004279D6 /* MainViewController+Custom.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B1122A2F8AF00AC9A23 /* MainViewController+Custom.m */; };
+		6282FD1B27483419004279D6 /* MainViewController+Email.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B2222A2F8AF00AC9A23 /* MainViewController+Email.m */; };
+		6282FD1C2748341D004279D6 /* MainViewController+Facebook.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B1C22A2F8AF00AC9A23 /* MainViewController+Facebook.m */; };
+		6282FD1D2748341F004279D6 /* MainViewController+GameCenter.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B1922A2F8AF00AC9A23 /* MainViewController+GameCenter.m */; };
+		6282FD1E27483422004279D6 /* MainViewController+Google.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B3922A2F8AF00AC9A23 /* MainViewController+Google.m */; };
+		6282FD1F2748342E004279D6 /* MainViewController+MultiFactor.m in Sources */ = {isa = PBXBuildFile; fileRef = 400283E923EA254A0006A298 /* MainViewController+MultiFactor.m */; };
+		6282FD2027483431004279D6 /* MainViewController+OAuth.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B3122A2F8AF00AC9A23 /* MainViewController+OAuth.m */; };
+		6282FD2127483434004279D6 /* MainViewController+OOB.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B2C22A2F8AF00AC9A23 /* MainViewController+OOB.m */; };
+		6282FD222748343B004279D6 /* MainViewController+Phone.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B1A22A2F8AF00AC9A23 /* MainViewController+Phone.m */; };
+		6282FD232748343D004279D6 /* MainViewController+User.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B1822A2F8AF00AC9A23 /* MainViewController+User.m */; };
+		6282FD24274834E5004279D6 /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B1222A2F8AF00AC9A23 /* SettingsViewController.m */; };
+		6282FD25274834E9004279D6 /* SettingsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = DE800B4122A2F8AF00AC9A23 /* SettingsViewController.xib */; };
+		6282FD26274834F5004279D6 /* StaticContentTableViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B3622A2F8AF00AC9A23 /* StaticContentTableViewManager.m */; };
+		6282FD27274834F8004279D6 /* UIViewController+Alerts.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B2022A2F8AF00AC9A23 /* UIViewController+Alerts.m */; };
+		6282FD28274834FB004279D6 /* UserInfoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B3422A2F8AF00AC9A23 /* UserInfoViewController.m */; };
+		6282FD29274834FF004279D6 /* UserInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = DE800B2822A2F8AF00AC9A23 /* UserInfoViewController.xib */; };
+		6282FD2A27483508004279D6 /* UserTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B1B22A2F8AF00AC9A23 /* UserTableViewCell.m */; };
 		DE1865AC245B879B00F8AD70 /* TestsBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1865AB245B879B00F8AD70 /* TestsBase.swift */; };
 		DE1865AE245B8A1400F8AD70 /* AnonymousTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1865AD245B8A1400F8AD70 /* AnonymousTests.swift */; };
 		DE1865B2245C7A2B00F8AD70 /* EmailPasswordTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1865B1245C7A2B00F8AD70 /* EmailPasswordTests.swift */; };
@@ -122,65 +122,16 @@
 		6282FCA42745C40F004279D6 /* SwiftSample-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SwiftSample-Bridging-Header.h"; sourceTree = "<group>"; };
 		6282FCA52745C40F004279D6 /* FacebookAuthProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FacebookAuthProvider.h; sourceTree = "<group>"; };
 		6282FCA62745C40F004279D6 /* AuthCredentialsTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthCredentialsTemplate.h; sourceTree = "<group>"; };
-		6282FCA72745C40F004279D6 /* CustomTokenDataEntryViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomTokenDataEntryViewController.m; sourceTree = "<group>"; };
 		6282FCA82745C40F004279D6 /* AuthCredentials.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthCredentials.h; sourceTree = "<group>"; };
-		6282FCA92745C40F004279D6 /* MainViewController+OAuth.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+OAuth.m"; sourceTree = "<group>"; };
-		6282FCAA2745C40F004279D6 /* MainViewController+Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MainViewController+Internal.h"; sourceTree = "<group>"; };
-		6282FCAB2745C40F004279D6 /* MainViewController+AutoTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MainViewController+AutoTests.h"; sourceTree = "<group>"; };
 		6282FCAC2745C410004279D6 /* Application.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Application.plist; sourceTree = "<group>"; };
-		6282FCAE2745C410004279D6 /* SettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsViewController.h; sourceTree = "<group>"; };
-		6282FCB02745C410004279D6 /* MainViewController+Google.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+Google.m"; sourceTree = "<group>"; };
 		6282FCB12745C410004279D6 /* ApplicationTemplate.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = ApplicationTemplate.plist; sourceTree = "<group>"; };
-		6282FCB22745C410004279D6 /* MainViewController+Facebook.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+Facebook.m"; sourceTree = "<group>"; };
-		6282FCB32745C410004279D6 /* AuthProviders.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthProviders.h; sourceTree = "<group>"; };
-		6282FCB42745C410004279D6 /* UserTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserTableViewCell.m; sourceTree = "<group>"; };
-		6282FCB52745C410004279D6 /* MainViewController+User.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MainViewController+User.h"; sourceTree = "<group>"; };
-		6282FCB62745C410004279D6 /* MainViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainViewController.xib; sourceTree = "<group>"; };
-		6282FCB72745C410004279D6 /* MainViewController+Google.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MainViewController+Google.h"; sourceTree = "<group>"; };
-		6282FCB82745C410004279D6 /* MainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainViewController.m; sourceTree = "<group>"; };
-		6282FCB92745C410004279D6 /* MainViewController+Custom.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+Custom.m"; sourceTree = "<group>"; };
-		6282FCBA2745C411004279D6 /* AuthProviders.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AuthProviders.m; sourceTree = "<group>"; };
-		6282FCBB2745C411004279D6 /* MainViewController+GameCenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MainViewController+GameCenter.h"; sourceTree = "<group>"; };
-		6282FCBC2745C411004279D6 /* MainViewController+MultiFactor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+MultiFactor.m"; sourceTree = "<group>"; };
-		6282FCBD2745C411004279D6 /* UIViewController+Alerts.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+Alerts.m"; sourceTree = "<group>"; };
-		6282FCBE2745C411004279D6 /* UserInfoViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserInfoViewController.h; sourceTree = "<group>"; };
-		6282FCC02745C411004279D6 /* UserInfoViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserInfoViewController.m; sourceTree = "<group>"; };
-		6282FCC12745C411004279D6 /* MainViewController+Custom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MainViewController+Custom.h"; sourceTree = "<group>"; };
 		6282FCC22745C411004279D6 /* GoogleAuthProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GoogleAuthProvider.m; sourceTree = "<group>"; };
-		6282FCC32745C411004279D6 /* MainViewController+OAuth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MainViewController+OAuth.h"; sourceTree = "<group>"; };
-		6282FCC42745C411004279D6 /* MainViewController+App.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MainViewController+App.h"; sourceTree = "<group>"; };
-		6282FCC52745C411004279D6 /* StaticContentTableViewManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StaticContentTableViewManager.m; sourceTree = "<group>"; };
-		6282FCC62745C411004279D6 /* MainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainViewController.h; sourceTree = "<group>"; };
-		6282FCC72745C411004279D6 /* MainViewController+Email.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+Email.m"; sourceTree = "<group>"; };
-		6282FCC82745C412004279D6 /* SettingsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SettingsViewController.xib; sourceTree = "<group>"; };
 		6282FCC92745C412004279D6 /* SampleTemplate.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = SampleTemplate.entitlements; sourceTree = "<group>"; };
-		6282FCCA2745C412004279D6 /* MainViewController+OOB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MainViewController+OOB.h"; sourceTree = "<group>"; };
 		6282FCCB2745C412004279D6 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		6282FCCC2745C412004279D6 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		6282FCCD2745C412004279D6 /* MainViewController+Phone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+Phone.m"; sourceTree = "<group>"; };
-		6282FCCE2745C412004279D6 /* MainViewController+Auth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MainViewController+Auth.h"; sourceTree = "<group>"; };
-		6282FCCF2745C412004279D6 /* MainViewController+User.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+User.m"; sourceTree = "<group>"; };
-		6282FCD12745C412004279D6 /* MainViewController+Email.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MainViewController+Email.h"; sourceTree = "<group>"; };
-		6282FCD32745C413004279D6 /* MainViewController+OOB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+OOB.m"; sourceTree = "<group>"; };
-		6282FCD42745C413004279D6 /* MainViewController+GameCenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+GameCenter.m"; sourceTree = "<group>"; };
-		6282FCD52745C413004279D6 /* AppManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppManager.h; sourceTree = "<group>"; };
-		6282FCD62745C413004279D6 /* MainViewController+Facebook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MainViewController+Facebook.h"; sourceTree = "<group>"; };
-		6282FCD72745C413004279D6 /* MainViewController+Auth.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+Auth.m"; sourceTree = "<group>"; };
-		6282FCD82745C413004279D6 /* SettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingsViewController.m; sourceTree = "<group>"; };
-		6282FCD92745C413004279D6 /* MainViewController+Phone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MainViewController+Phone.h"; sourceTree = "<group>"; };
-		6282FCDA2745C413004279D6 /* UserInfoViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = UserInfoViewController.xib; sourceTree = "<group>"; };
-		6282FCDB2745C413004279D6 /* UserTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserTableViewCell.h; sourceTree = "<group>"; };
-		6282FCDC2745C413004279D6 /* StaticContentTableViewManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StaticContentTableViewManager.h; sourceTree = "<group>"; };
-		6282FCDD2745C413004279D6 /* AppManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppManager.m; sourceTree = "<group>"; };
-		6282FCDE2745C413004279D6 /* MainViewController+MultiFactor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MainViewController+MultiFactor.h"; sourceTree = "<group>"; };
-		6282FCDF2745C413004279D6 /* UIViewController+Alerts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+Alerts.h"; sourceTree = "<group>"; };
 		6282FCE02745C413004279D6 /* FacebookAuthProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FacebookAuthProvider.m; sourceTree = "<group>"; };
 		6282FCE12745C413004279D6 /* GoogleService-Info_multi.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info_multi.plist"; sourceTree = "<group>"; };
-		6282FCE22745C414004279D6 /* CustomTokenDataEntryViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomTokenDataEntryViewController.h; sourceTree = "<group>"; };
 		6282FCE32745C414004279D6 /* GoogleAuthProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GoogleAuthProvider.h; sourceTree = "<group>"; };
-		6282FCE42745C414004279D6 /* MainViewController+AutoTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+AutoTests.m"; sourceTree = "<group>"; };
 		6282FCE52745C414004279D6 /* Sample.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Sample.entitlements; sourceTree = "<group>"; };
-		6282FCE62745C414004279D6 /* MainViewController+App.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+App.m"; sourceTree = "<group>"; };
 		6282FD0F27471F98004279D6 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		DE1865AB245B879B00F8AD70 /* TestsBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestsBase.swift; sourceTree = "<group>"; };
 		DE1865AD245B8A1400F8AD70 /* AnonymousTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnonymousTests.swift; sourceTree = "<group>"; };
@@ -322,65 +273,16 @@
 				6282FD0F27471F98004279D6 /* AppDelegate.swift */,
 				6282FCAC2745C410004279D6 /* Application.plist */,
 				6282FCB12745C410004279D6 /* ApplicationTemplate.plist */,
-				6282FCD52745C413004279D6 /* AppManager.h */,
-				6282FCDD2745C413004279D6 /* AppManager.m */,
 				6282FCA82745C40F004279D6 /* AuthCredentials.h */,
 				6282FCA62745C40F004279D6 /* AuthCredentialsTemplate.h */,
-				6282FCB32745C410004279D6 /* AuthProviders.h */,
-				6282FCBA2745C411004279D6 /* AuthProviders.m */,
-				6282FCE22745C414004279D6 /* CustomTokenDataEntryViewController.h */,
-				6282FCA72745C40F004279D6 /* CustomTokenDataEntryViewController.m */,
 				6282FCA52745C40F004279D6 /* FacebookAuthProvider.h */,
 				6282FCE02745C413004279D6 /* FacebookAuthProvider.m */,
 				6282FCE32745C414004279D6 /* GoogleAuthProvider.h */,
 				6282FCC22745C411004279D6 /* GoogleAuthProvider.m */,
 				6282FCE12745C413004279D6 /* GoogleService-Info_multi.plist */,
 				6282FCCB2745C412004279D6 /* GoogleService-Info.plist */,
-				6282FCCC2745C412004279D6 /* Images.xcassets */,
-				6282FCC62745C411004279D6 /* MainViewController.h */,
-				6282FCB82745C410004279D6 /* MainViewController.m */,
-				6282FCB62745C410004279D6 /* MainViewController.xib */,
-				6282FCC42745C411004279D6 /* MainViewController+App.h */,
-				6282FCE62745C414004279D6 /* MainViewController+App.m */,
-				6282FCCE2745C412004279D6 /* MainViewController+Auth.h */,
-				6282FCD72745C413004279D6 /* MainViewController+Auth.m */,
-				6282FCAB2745C40F004279D6 /* MainViewController+AutoTests.h */,
-				6282FCE42745C414004279D6 /* MainViewController+AutoTests.m */,
-				6282FCC12745C411004279D6 /* MainViewController+Custom.h */,
-				6282FCB92745C410004279D6 /* MainViewController+Custom.m */,
-				6282FCD12745C412004279D6 /* MainViewController+Email.h */,
-				6282FCC72745C411004279D6 /* MainViewController+Email.m */,
-				6282FCD62745C413004279D6 /* MainViewController+Facebook.h */,
-				6282FCB22745C410004279D6 /* MainViewController+Facebook.m */,
-				6282FCBB2745C411004279D6 /* MainViewController+GameCenter.h */,
-				6282FCD42745C413004279D6 /* MainViewController+GameCenter.m */,
-				6282FCB72745C410004279D6 /* MainViewController+Google.h */,
-				6282FCB02745C410004279D6 /* MainViewController+Google.m */,
-				6282FCAA2745C40F004279D6 /* MainViewController+Internal.h */,
-				6282FCDE2745C413004279D6 /* MainViewController+MultiFactor.h */,
-				6282FCBC2745C411004279D6 /* MainViewController+MultiFactor.m */,
-				6282FCC32745C411004279D6 /* MainViewController+OAuth.h */,
-				6282FCA92745C40F004279D6 /* MainViewController+OAuth.m */,
-				6282FCCA2745C412004279D6 /* MainViewController+OOB.h */,
-				6282FCD32745C413004279D6 /* MainViewController+OOB.m */,
-				6282FCD92745C413004279D6 /* MainViewController+Phone.h */,
-				6282FCCD2745C412004279D6 /* MainViewController+Phone.m */,
-				6282FCB52745C410004279D6 /* MainViewController+User.h */,
-				6282FCCF2745C412004279D6 /* MainViewController+User.m */,
 				6282FCE52745C414004279D6 /* Sample.entitlements */,
 				6282FCC92745C412004279D6 /* SampleTemplate.entitlements */,
-				6282FCAE2745C410004279D6 /* SettingsViewController.h */,
-				6282FCD82745C413004279D6 /* SettingsViewController.m */,
-				6282FCC82745C412004279D6 /* SettingsViewController.xib */,
-				6282FCDC2745C413004279D6 /* StaticContentTableViewManager.h */,
-				6282FCC52745C411004279D6 /* StaticContentTableViewManager.m */,
-				6282FCDF2745C413004279D6 /* UIViewController+Alerts.h */,
-				6282FCBD2745C411004279D6 /* UIViewController+Alerts.m */,
-				6282FCBE2745C411004279D6 /* UserInfoViewController.h */,
-				6282FCC02745C411004279D6 /* UserInfoViewController.m */,
-				6282FCDA2745C413004279D6 /* UserInfoViewController.xib */,
-				6282FCDB2745C413004279D6 /* UserTableViewCell.h */,
-				6282FCB42745C410004279D6 /* UserTableViewCell.m */,
 				6282FCA42745C40F004279D6 /* SwiftSample-Bridging-Header.h */,
 			);
 			path = SwiftSample;
@@ -689,12 +591,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6282FCFC2745C414004279D6 /* Images.xcassets in Resources */,
-				6282FD052745C414004279D6 /* UserInfoViewController.xib in Resources */,
-				6282FCEF2745C414004279D6 /* MainViewController.xib in Resources */,
+				6282FD16274833E3004279D6 /* MainViewController.xib in Resources */,
+				6282FD14274833D8004279D6 /* Images.xcassets in Resources */,
 				6282FD082745C414004279D6 /* GoogleService-Info_multi.plist in Resources */,
-				6282FCFA2745C414004279D6 /* SettingsViewController.xib in Resources */,
+				6282FD29274834FF004279D6 /* UserInfoViewController.xib in Resources */,
 				6282FCFB2745C414004279D6 /* GoogleService-Info.plist in Resources */,
+				6282FD25274834E9004279D6 /* SettingsViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -740,31 +642,31 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6282FD1D2748341F004279D6 /* MainViewController+GameCenter.m in Sources */,
+				6282FD1A27483416004279D6 /* MainViewController+Custom.m in Sources */,
 				6282FD072745C414004279D6 /* FacebookAuthProvider.m in Sources */,
-				6282FCF32745C414004279D6 /* MainViewController+MultiFactor.m in Sources */,
-				6282FCFD2745C414004279D6 /* MainViewController+Phone.m in Sources */,
-				6282FD092745C414004279D6 /* MainViewController+AutoTests.m in Sources */,
-				6282FCFE2745C414004279D6 /* MainViewController+User.m in Sources */,
-				6282FCEE2745C414004279D6 /* UserTableViewCell.m in Sources */,
-				6282FD062745C414004279D6 /* AppManager.m in Sources */,
-				6282FD032745C414004279D6 /* MainViewController+Auth.m in Sources */,
-				6282FD012745C414004279D6 /* MainViewController+OOB.m in Sources */,
-				6282FCF92745C414004279D6 /* MainViewController+Email.m in Sources */,
-				6282FD022745C414004279D6 /* MainViewController+GameCenter.m in Sources */,
-				6282FCE82745C414004279D6 /* MainViewController+OAuth.m in Sources */,
-				6282FCF62745C414004279D6 /* UserInfoViewController.m in Sources */,
-				6282FCF02745C414004279D6 /* MainViewController.m in Sources */,
-				6282FCE72745C414004279D6 /* CustomTokenDataEntryViewController.m in Sources */,
-				6282FCF12745C414004279D6 /* MainViewController+Custom.m in Sources */,
+				6282FD1F2748342E004279D6 /* MainViewController+MultiFactor.m in Sources */,
+				6282FD11274832FB004279D6 /* AppManager.m in Sources */,
+				6282FD28274834FB004279D6 /* UserInfoViewController.m in Sources */,
+				6282FD222748343B004279D6 /* MainViewController+Phone.m in Sources */,
+				6282FD2A27483508004279D6 /* UserTableViewCell.m in Sources */,
+				6282FD24274834E5004279D6 /* SettingsViewController.m in Sources */,
+				6282FD26274834F5004279D6 /* StaticContentTableViewManager.m in Sources */,
+				6282FD1327483302004279D6 /* CustomTokenDataEntryViewController.m in Sources */,
+				6282FD27274834F8004279D6 /* UIViewController+Alerts.m in Sources */,
+				6282FD182748340C004279D6 /* MainViewController+Auth.m in Sources */,
+				6282FD2027483431004279D6 /* MainViewController+OAuth.m in Sources */,
 				6282FCF72745C414004279D6 /* GoogleAuthProvider.m in Sources */,
-				6282FCF42745C414004279D6 /* UIViewController+Alerts.m in Sources */,
-				6282FCF82745C414004279D6 /* StaticContentTableViewManager.m in Sources */,
-				6282FCED2745C414004279D6 /* MainViewController+Facebook.m in Sources */,
+				6282FD1727483401004279D6 /* MainViewController+App.m in Sources */,
+				6282FD1E27483422004279D6 /* MainViewController+Google.m in Sources */,
+				6282FD2127483434004279D6 /* MainViewController+OOB.m in Sources */,
+				6282FD15274833DD004279D6 /* MainViewController.m in Sources */,
+				6282FD192748340F004279D6 /* MainViewController+AutoTests.m in Sources */,
+				6282FD1C2748341D004279D6 /* MainViewController+Facebook.m in Sources */,
+				6282FD12274832FF004279D6 /* AuthProviders.m in Sources */,
 				6282FD1027471F98004279D6 /* AppDelegate.swift in Sources */,
-				6282FCF22745C414004279D6 /* AuthProviders.m in Sources */,
-				6282FCEB2745C414004279D6 /* MainViewController+Google.m in Sources */,
-				6282FD042745C414004279D6 /* SettingsViewController.m in Sources */,
-				6282FD0A2745C414004279D6 /* MainViewController+App.m in Sources */,
+				6282FD232748343D004279D6 /* MainViewController+User.m in Sources */,
+				6282FD1B27483419004279D6 /* MainViewController+Email.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
