@@ -52,7 +52,7 @@ NS_SWIFT_NAME(HTTPSCallable)
  *
  * Firebase Cloud Messaging sends data to the Firebase backend periodically to collect information
  * regarding the app instance. To stop this, see `Messaging.deleteData()`. It
- * resumes with a new Installations ID the next time you call this method.
+ * resumes with a new FCM Token the next time you call this method.
  *
  * @param completion The block to call when the HTTPS request has completed.
  */
