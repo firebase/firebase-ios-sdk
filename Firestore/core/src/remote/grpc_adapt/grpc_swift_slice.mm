@@ -13,34 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef FIRESTORE_CORE_SRC_REMOTE_GRPC_ADAPT_GRPC_SWIFT_MISC_H_
-#define FIRESTORE_CORE_SRC_REMOTE_GRPC_ADAPT_GRPC_SWIFT_MISC_H_
+#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_slice.h"
 
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
+#import "GRPCSwiftShim/GRPCSwiftShim-Swift.h"
 
-#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_channel.h"
-#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_status.h"
-#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_string_ref.h"
+#include <Foundation/Foundation.h>
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 namespace grpc_adapt {
 
-class ByteBuffer;
-
-class GrpcLibraryCodegen {};
-
-static std::string Version() {
-  return "";
+Slice::Slice(const void* buf, size_t len) {
+  shim_ = [[GRPCSliceShim alloc] init:buf len:len];
+}
+Slice::Slice(const std::string& s) {
+  shim_ = [[GRPCSliceShim alloc] init:s];
+}
+size_t Slice::size() const {
+  return shim_.size();
+}
+const uint8_t* Slice::begin() const {
+  return shim_.begin();
 }
 
 }  // namespace grpc_adapt
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
-
-#endif  // FIRESTORE_CORE_SRC_REMOTE_GRPC_ADAPT_GRPC_SWIFT_MISC_H_

@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef FIRESTORE_CORE_SRC_REMOTE_GRPC_ADAPT_GRPC_SWIFT_MISC_H_
-#define FIRESTORE_CORE_SRC_REMOTE_GRPC_ADAPT_GRPC_SWIFT_MISC_H_
+#ifndef FIRESTORE_CORE_SRC_REMOTE_GRPC_ADAPT_SLICE_H_
+#define FIRESTORE_CORE_SRC_REMOTE_GRPC_ADAPT_SLICE_H_
 
 #include <map>
 #include <memory>
@@ -30,17 +30,27 @@ namespace firestore {
 namespace remote {
 namespace grpc_adapt {
 
-class ByteBuffer;
+class GRPCSliceShim;
 
-class GrpcLibraryCodegen {};
+class Slice {
+ public:
+  Slice(const void* buf, size_t len);
+  Slice(const std::string& s);
+  /// Byte size.
+  size_t size() const;
 
-static std::string Version() {
-  return "";
-}
+  /// Raw pointer to the beginning (first element) of the slice.
+  const uint8_t* begin() const;
+
+ private:
+  friend class ByteBuffer;
+
+  GRPCSliceShim* shim_;
+};
 
 }  // namespace grpc_adapt
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_REMOTE_GRPC_ADAPT_GRPC_SWIFT_MISC_H_
+#endif  // FIRESTORE_CORE_SRC_REMOTE_GRPC_ADAPT_SLICE_H_

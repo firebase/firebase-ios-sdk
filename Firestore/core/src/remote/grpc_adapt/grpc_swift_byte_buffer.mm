@@ -13,34 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef FIRESTORE_CORE_SRC_REMOTE_GRPC_ADAPT_GRPC_SWIFT_MISC_H_
-#define FIRESTORE_CORE_SRC_REMOTE_GRPC_ADAPT_GRPC_SWIFT_MISC_H_
+#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_byte_buffer.h"
 
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
+#import "GRPCSwiftShim/GRPCSwiftShim-Swift.h"
 
-#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_channel.h"
-#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_status.h"
-#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_string_ref.h"
+#include <Foundation/Foundation.h>
+#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_slice.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 namespace grpc_adapt {
 
-class ByteBuffer;
+ByteBuffer::ByteBuffer() {
+  shim_ = [ByteBufferShim new];
+}
 
-class GrpcLibraryCodegen {};
+ByteBuffer::ByteBuffer(const Slice* slices, size_t nslices) {
+  shim_ = [ByteBufferShim new];
+  std::vector<Slice> slice_vector{slices, nslices};
+  Dump(*slice_vector);
+}
 
-static std::string Version() {
-  return "";
+size_t ByteBuffer::Length() const {
+  return shim_.Length;
+}
+
+Status ByteBuffer::Dump(std::vector<Slice>* slices) const {
+  std::vector<Slice> unwrapped_slices;
+  for (Slice slice : *slices) {
+    unwrapped_slices.push_back(slice.shim);
+  }
+  return shim_.Dump(unwrapped_slices);
 }
 
 }  // namespace grpc_adapt
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
-
-#endif  // FIRESTORE_CORE_SRC_REMOTE_GRPC_ADAPT_GRPC_SWIFT_MISC_H_
