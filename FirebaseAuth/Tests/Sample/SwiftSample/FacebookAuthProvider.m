@@ -20,8 +20,8 @@
 #import <FBSDKLoginKit/FBSDKLoginKit.h>
 
 #import <FirebaseAuth/FIRFacebookAuthProvider.h>
-#import "ApplicationDelegate.h"
 #import "AuthCredentials.h"
+#import "SwiftSample-Swift.h"
 
 /** @var kFacebookAppId
     @brief The App ID for the Facebook SDK.
@@ -47,12 +47,12 @@ static NSString *const kFacebookAppID = KFACEBOOK_APP_ID;
                                              callback:(AuthCredentialCallback)callback {
   [self signOut];
 
-  [ApplicationDelegate setOpenURLDelegate:self];
+  [AppDelegate setOpenURLDelegate:self];
   [FBSDKSettings setAppID:kFacebookAppID];
   [_loginManager logInWithPermissions:@[ @"email" ]
                    fromViewController:viewController
                               handler:^(FBSDKLoginManagerLoginResult *result, NSError *error) {
-    [ApplicationDelegate setOpenURLDelegate:nil];
+    [AppDelegate setOpenURLDelegate:nil];
     if (!error && result.isCancelled) {
       error = [NSError errorWithDomain:@"com.google.FirebaseAuthSample" code:-1 userInfo:nil];
     }

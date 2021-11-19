@@ -22,7 +22,7 @@
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIROptions.h>
 #import <FirebaseAuth/FIRGoogleAuthProvider.h>
-#import "ApplicationDelegate.h"
+#import "SwiftSample-Swift.h"
 
 /** @typedef GoogleSignInCallback
     @brief The type of block invoked when a @c GIDGoogleUser object is ready or an error has
@@ -89,7 +89,7 @@ typedef void (^GoogleSignInCallback)(GIDGoogleUser *user, NSError *error);
   __block GoogleAuthDelegate *delegate = [[GoogleAuthDelegate alloc]
       initWithPresentingViewController:viewController
                               callback:^(GIDGoogleUser *user, NSError *error) {
-    [ApplicationDelegate setOpenURLDelegate:nil];
+    [AppDelegate setOpenURLDelegate:nil];
     delegate = nil;
     if (error) {
       callback(nil, error);
@@ -105,7 +105,7 @@ typedef void (^GoogleSignInCallback)(GIDGoogleUser *user, NSError *error);
   signIn.shouldFetchBasicProfile = YES;
   signIn.delegate = delegate;
   signIn.presentingViewController = viewController;
-  [ApplicationDelegate setOpenURLDelegate:delegate];
+  [AppDelegate setOpenURLDelegate:delegate];
   [signIn signIn];
 }
 
