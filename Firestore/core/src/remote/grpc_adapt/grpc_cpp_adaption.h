@@ -23,6 +23,7 @@
 
 #include "Firestore/core/src/util/status_fwd.h"
 #include "Firestore/core/src/util/warnings.h"
+#include "absl/memory/memory.h"
 #include "grpcpp/client_context.h"
 #include "grpcpp/completion_queue.h"
 #include "grpcpp/support/string_ref.h"
@@ -47,7 +48,6 @@ using string_ref = grpc::string_ref;
 using CompletionQueue = grpc::CompletionQueue;
 using ClientContext = grpc::ClientContext;
 using Channel = grpc::Channel;
-using ChannelCredentials = grpc::ChannelCredentials;
 using ChannelArguments = grpc::ChannelArguments;
 using SslCredentialsOptions = grpc::SslCredentialsOptions;
 using string = grpc::string;

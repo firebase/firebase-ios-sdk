@@ -15,27 +15,89 @@
  */
 #include "Firestore/core/src/remote/grpc_adapt/grpc_swift_channel.h"
 
+#include <memory>
+
+#import "GRPCSwiftShim/GRPCSwiftShim-Swift.h"
+
+#include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/string_apple.h"
+#include "absl/memory/memory.h"
+
 namespace firebase {
 namespace firestore {
 namespace remote {
 namespace grpc_adapt {
 
-ClientContext::ClientContext() {
+using firebase::firestore::util::MakeNSString;
+using firebase::firestore::util::MakeString;
+
+class ClientContextImpl {
+ public:
+  void AddMetadata(const std::string& meta_key, const std::string& meta_value) {
+    [shim_ addMetadataWithName:MakeNSString(meta_key)
+                         value:MakeNSString(meta_value)];
+  }
+
+ private:
+  CallOptionsShim* shim_;
+};
+
+ClientContext::ClientContext() : impl_(new ClientContextImpl()) {
 }
 ClientContext::~ClientContext() {
+  delete impl_;
 }
 void ClientContext::AddMetadata(const std::string& meta_key,
                                 const std::string& meta_value) {
-  (void)meta_key;
-  (void)meta_value;
+  impl_->AddMetadata(meta_key, meta_value);
 }
-void ClientContext::TryCancel() {
+
+class ChannelImpl : public Channel {
+ public:
+  explicit ChannelImpl(ClientConnectionShim* shim) : shim_(shim) {
+  }
+
+  grpc_connectivity_state GetState(bool try_to_connect) {
+    HARD_ASSERT(!try_to_connect, "try_to_connect should be false");
+    ConnectivityStateShim state = [shim_ getConnectionState];
+    switch (state) {
+      case ConnectivityStateShimIdle:
+        return GRPC_CHANNEL_IDLE;
+      case ConnectivityStateShimReady:
+        return GRPC_CHANNEL_READY;
+
+      case ConnectivityStateShimShutdown:
+        return GRPC_CHANNEL_SHUTDOWN;
+
+      case ConnectivityStateShimConnecting:
+        return GRPC_CHANNEL_CONNECTING;
+
+      case ConnectivityStateShimTransientFailure:
+        return GRPC_CHANNEL_TRANSIENT_FAILURE;
+
+      default:
+        HARD_FAIL("Impossilbe connectivity state!");
+    }
+  }
+
+ private:
+  ClientConnectionShim* shim_;
+};
+
+std::shared_ptr<Channel> CreateCustomChannel(const std::string& target,
+                                             const std::string& certs,
+                                             const ChannelArguments& args) {
+  ClientConnectionShim* shim =
+      [ClientConnectionShim createCustomChannelWithHost:MakeNSString(target)
+                                       certiticateBytes:MakeNSString(certs)];
+  return std::make_shared<ChannelImpl>(shim);
 }
-const std::multimap<string_ref, string_ref>&
-ClientContext::GetServerInitialMetadata() const {
-  return metadata_;
-}
-void ClientContext::set_initial_metadata_corked(bool) {
+
+std::shared_ptr<Channel> CreateInsecureCustomChannel(
+    const std::string& target, const ChannelArguments& args) {
+  ClientConnectionShim* shim =
+      [ClientConnectionShim createCustomChannelWithHost:MakeNSString(target)];
+  return std::make_shared<ChannelImpl>(shim);
 }
 
 }  // namespace grpc_adapt
