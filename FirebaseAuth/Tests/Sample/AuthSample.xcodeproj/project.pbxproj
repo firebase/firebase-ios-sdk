@@ -9,9 +9,7 @@
 /* Begin PBXBuildFile section */
 		400283EA23EA254B0006A298 /* MainViewController+MultiFactor.m in Sources */ = {isa = PBXBuildFile; fileRef = 400283E923EA254A0006A298 /* MainViewController+MultiFactor.m */; };
 		6282FCF72745C414004279D6 /* GoogleAuthProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 6282FCC22745C411004279D6 /* GoogleAuthProvider.m */; };
-		6282FCFB2745C414004279D6 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6282FCCB2745C412004279D6 /* GoogleService-Info.plist */; };
 		6282FD072745C414004279D6 /* FacebookAuthProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 6282FCE02745C413004279D6 /* FacebookAuthProvider.m */; };
-		6282FD082745C414004279D6 /* GoogleService-Info_multi.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6282FCE12745C413004279D6 /* GoogleService-Info_multi.plist */; };
 		6282FD1027471F98004279D6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6282FD0F27471F98004279D6 /* AppDelegate.swift */; };
 		6282FD11274832FB004279D6 /* AppManager.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B2D22A2F8AF00AC9A23 /* AppManager.m */; };
 		6282FD12274832FF004279D6 /* AuthProviders.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B4522A2F8AF00AC9A23 /* AuthProviders.m */; };
@@ -39,6 +37,8 @@
 		6282FD28274834FB004279D6 /* UserInfoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B3422A2F8AF00AC9A23 /* UserInfoViewController.m */; };
 		6282FD29274834FF004279D6 /* UserInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = DE800B2822A2F8AF00AC9A23 /* UserInfoViewController.xib */; };
 		6282FD2A27483508004279D6 /* UserTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = DE800B1B22A2F8AF00AC9A23 /* UserTableViewCell.m */; };
+		6282FD2B27483AE6004279D6 /* GoogleService-Info_multi.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE800B6522A2FF7300AC9A23 /* GoogleService-Info_multi.plist */; };
+		6282FD2C27483AE9004279D6 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE800B6622A2FF7300AC9A23 /* GoogleService-Info.plist */; };
 		DE1865AC245B879B00F8AD70 /* TestsBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1865AB245B879B00F8AD70 /* TestsBase.swift */; };
 		DE1865AE245B8A1400F8AD70 /* AnonymousTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1865AD245B8A1400F8AD70 /* AnonymousTests.swift */; };
 		DE1865B2245C7A2B00F8AD70 /* EmailPasswordTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1865B1245C7A2B00F8AD70 /* EmailPasswordTests.swift */; };
@@ -121,17 +121,9 @@
 		6282FC902745BF4F004279D6 /* SwiftSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6282FCA42745C40F004279D6 /* SwiftSample-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SwiftSample-Bridging-Header.h"; sourceTree = "<group>"; };
 		6282FCA52745C40F004279D6 /* FacebookAuthProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FacebookAuthProvider.h; sourceTree = "<group>"; };
-		6282FCA62745C40F004279D6 /* AuthCredentialsTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthCredentialsTemplate.h; sourceTree = "<group>"; };
-		6282FCA82745C40F004279D6 /* AuthCredentials.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthCredentials.h; sourceTree = "<group>"; };
-		6282FCAC2745C410004279D6 /* Application.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Application.plist; sourceTree = "<group>"; };
-		6282FCB12745C410004279D6 /* ApplicationTemplate.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = ApplicationTemplate.plist; sourceTree = "<group>"; };
 		6282FCC22745C411004279D6 /* GoogleAuthProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GoogleAuthProvider.m; sourceTree = "<group>"; };
-		6282FCC92745C412004279D6 /* SampleTemplate.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = SampleTemplate.entitlements; sourceTree = "<group>"; };
-		6282FCCB2745C412004279D6 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		6282FCE02745C413004279D6 /* FacebookAuthProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FacebookAuthProvider.m; sourceTree = "<group>"; };
-		6282FCE12745C413004279D6 /* GoogleService-Info_multi.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info_multi.plist"; sourceTree = "<group>"; };
 		6282FCE32745C414004279D6 /* GoogleAuthProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GoogleAuthProvider.h; sourceTree = "<group>"; };
-		6282FCE52745C414004279D6 /* Sample.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Sample.entitlements; sourceTree = "<group>"; };
 		6282FD0F27471F98004279D6 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		DE1865AB245B879B00F8AD70 /* TestsBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestsBase.swift; sourceTree = "<group>"; };
 		DE1865AD245B8A1400F8AD70 /* AnonymousTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnonymousTests.swift; sourceTree = "<group>"; };
@@ -271,18 +263,10 @@
 			isa = PBXGroup;
 			children = (
 				6282FD0F27471F98004279D6 /* AppDelegate.swift */,
-				6282FCAC2745C410004279D6 /* Application.plist */,
-				6282FCB12745C410004279D6 /* ApplicationTemplate.plist */,
-				6282FCA82745C40F004279D6 /* AuthCredentials.h */,
-				6282FCA62745C40F004279D6 /* AuthCredentialsTemplate.h */,
 				6282FCA52745C40F004279D6 /* FacebookAuthProvider.h */,
 				6282FCE02745C413004279D6 /* FacebookAuthProvider.m */,
 				6282FCE32745C414004279D6 /* GoogleAuthProvider.h */,
 				6282FCC22745C411004279D6 /* GoogleAuthProvider.m */,
-				6282FCE12745C413004279D6 /* GoogleService-Info_multi.plist */,
-				6282FCCB2745C412004279D6 /* GoogleService-Info.plist */,
-				6282FCE52745C414004279D6 /* Sample.entitlements */,
-				6282FCC92745C412004279D6 /* SampleTemplate.entitlements */,
 				6282FCA42745C40F004279D6 /* SwiftSample-Bridging-Header.h */,
 			);
 			path = SwiftSample;
@@ -593,10 +577,10 @@
 			files = (
 				6282FD16274833E3004279D6 /* MainViewController.xib in Resources */,
 				6282FD14274833D8004279D6 /* Images.xcassets in Resources */,
-				6282FD082745C414004279D6 /* GoogleService-Info_multi.plist in Resources */,
+				6282FD2B27483AE6004279D6 /* GoogleService-Info_multi.plist in Resources */,
 				6282FD29274834FF004279D6 /* UserInfoViewController.xib in Resources */,
-				6282FCFB2745C414004279D6 /* GoogleService-Info.plist in Resources */,
 				6282FD25274834E9004279D6 /* SettingsViewController.xib in Resources */,
+				6282FD2C27483AE9004279D6 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -779,7 +763,7 @@
 					"$(inherited)",
 					"${SRCROOT}/../../..",
 				);
-				INFOPLIST_FILE = SwiftSample/Application.plist;
+				INFOPLIST_FILE = Sample/Application.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Firebase Auth Swift Sample";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -819,7 +803,7 @@
 					"$(inherited)",
 					"${SRCROOT}/../../..",
 				);
-				INFOPLIST_FILE = SwiftSample/Application.plist;
+				INFOPLIST_FILE = Sample/Application.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Firebase Auth Swift Sample";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
