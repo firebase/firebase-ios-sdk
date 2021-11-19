@@ -88,6 +88,11 @@ class ChannelImpl : public Channel {
   ClientConnectionShim* shim_;
 };
 
+void ChannelArguments::SetSslTargetNameOverride(const std::string& name) {
+}
+void ChannelArguments::SetInt(const std::string& key, int value) {
+}
+
 std::shared_ptr<Channel> CreateCustomChannel(const std::string& target,
                                              const std::string& certs,
                                              const ChannelArguments& args) {

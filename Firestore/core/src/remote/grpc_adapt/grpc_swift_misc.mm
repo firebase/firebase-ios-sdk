@@ -48,11 +48,6 @@ Status ByteBuffer::Dump(std::vector<Slice>* slices) const {
   return Status();
 }
 
-void ChannelArguments::SetSslTargetNameOverride(const std::string& name) {
-}
-void ChannelArguments::SetInt(const std::string& key, int value) {
-}
-
 }  // namespace grpc_adapt
 }  // namespace remote
 }  // namespace firestore

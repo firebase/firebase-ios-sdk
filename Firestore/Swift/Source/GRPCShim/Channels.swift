@@ -80,7 +80,7 @@ import NIOSSL
 }
 
 @objc public class CallOptionsShim: NSObject {
-  private var options: CallOptions
+  var options: CallOptions
   private init(ops: CallOptions) {
     options = ops
   }
