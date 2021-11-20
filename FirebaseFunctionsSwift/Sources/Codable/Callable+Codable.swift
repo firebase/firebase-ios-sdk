@@ -30,9 +30,11 @@ public extension Functions {
   func httpsCallable<Request: Encodable,
     Response: Decodable>(_ name: String,
                          requestType: Request.Type,
-                         responseType: Response.Type)
+                         responseType: Response.Type,
+                         encoder: StructureEncoder = StructureEncoder(),
+                         decoder: StructureDecoder = StructureDecoder())
     -> Callable<Request, Response> {
-    return Callable(callable: httpsCallable(name))
+      return Callable(callable: httpsCallable(name), encoder: encoder, decoder: decoder)
   }
 }
 
@@ -57,8 +59,13 @@ public struct Callable<Request: Encodable, Response: Decodable> {
   }
 
   private let callable: HTTPSCallable
-  init(callable: HTTPSCallable) {
+  private let encoder: StructureEncoder
+  private let decoder: StructureDecoder
+  
+  init(callable: HTTPSCallable, encoder: StructureEncoder, decoder: StructureDecoder) {
     self.callable = callable
+    self.encoder = encoder
+    self.decoder = decoder
   }
 
   /**
@@ -80,8 +87,6 @@ public struct Callable<Request: Encodable, Response: Decodable> {
    * - Throws: An error if any value throws an error during encoding.
    */
   public func call(_ data: Request,
-                   encoder: StructureEncoder = StructureEncoder(),
-                   decoder: StructureDecoder = StructureDecoder(),
                    completion: @escaping (Result<Response, Error>)
                      -> Void) throws {
     let encoded = try encoder.encode(data)
