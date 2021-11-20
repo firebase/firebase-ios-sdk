@@ -14,33 +14,31 @@
 
 import Foundation
 
-protocol Encoding {
+/// A type that can encode an `Encodable` object into `Data`.
+protocol AnyEncoder {
   func encode<T>(_ value: T) throws -> Data where T: Encodable
 }
 
-protocol Decoding {
-  func decode<T>(_ type: T.Type,
-                 from data: Data) throws -> T where T: Decodable
+/// A type that can decode `Data` into a `Decodable` object.
+protocol AnyDecoder {
+  func decode<T>(_ type: T.Type, from data: Data) throws -> T where T: Decodable
 }
 
-typealias Coder = Encoding & Decoding
+extension JSONEncoder: AnyEncoder {}
+extension JSONDecoder: AnyDecoder {}
 
-class JSONCoder: Coder {
-  private let encoder: JSONEncoder
-  private let decoder: JSONDecoder
+// MARK: - Encodable
 
-  init(encoder: JSONEncoder = .init(),
-       decoder: JSONDecoder = .init()) {
-    self.encoder = encoder
-    self.decoder = decoder
+extension Encodable {
+  func encoded(using encoder: AnyEncoder = JSONEncoder()) throws -> Data {
+    try encoder.encode(self)
   }
+}
 
-  func encode<T>(_ value: T) throws -> Data where T: Encodable {
-    try encoder.encode(value)
-  }
+// MARK: - Data
 
-  func decode<T>(_ type: T.Type,
-                 from data: Data) throws -> T where T: Decodable {
-    try decoder.decode(type, from: data)
+extension Data {
+  func decoded<T>(using decoder: AnyDecoder = JSONDecoder()) throws -> T where T: Decodable {
+    try decoder.decode(T.self, from: self)
   }
 }
