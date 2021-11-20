@@ -14,36 +14,15 @@
 
 import Foundation
 
-/// A factory type for `PersistentStorage`.
-protocol PersistentStorageFactory {
-  static func makeStorage(id: String) -> PersistentStorage
+/// A factory type for `Storage`.
+protocol StorageFactory {
+  static func makeStorage(id: String) -> Self
 }
 
-// TODO: - Implement synchronization strategy for storage with same ID.
+// MARK: - FileStorage + StorageFactory
 
-/// A `PersistentStorage` factory.
-enum StorageFactory: PersistentStorageFactory {
-  /// Makes a `PersistentStorage` instance using a given `String` identifier.
-  ///
-  /// The created persistent storage object is platform dependent. For tvOS, user defaults
-  /// is used as the underlying storage container due to system storage limits. For all other platforms,
-  /// the file system is used.
-  ///
-  /// - Parameter id: A `String` identifier used to create the `PersistentStorage`.
-  /// - Returns: A `PersistentStorage` instance.
-  static func makeStorage(id: String) -> PersistentStorage {
-    #if os(tvOS)
-      UserDefaultsStorage.makeStorage(id: id)
-    #else
-      FileStorage.makeStorage(id: id)
-    #endif // os(tvOS)
-  }
-}
-
-// MARK: - FileStorage + PersistentStorageFactory
-
-extension FileStorage: PersistentStorageFactory {
-  static func makeStorage(id: String) -> PersistentStorage {
+extension FileStorage: StorageFactory {
+  static func makeStorage(id: String) -> FileStorage {
     let rootDirectory = FileManager.default.applicationSupportDirectory
     let storagePath = "google-heartbeat-storage/heartbeats-\(id)"
     let storageURL = rootDirectory
@@ -53,10 +32,10 @@ extension FileStorage: PersistentStorageFactory {
   }
 }
 
-// MARK: - UserDefaultsStorage + PersistentStorageFactory
+// MARK: - UserDefaultsStorage + StorageFactory
 
-extension UserDefaultsStorage: PersistentStorageFactory {
-  static func makeStorage(id: String) -> PersistentStorage {
+extension UserDefaultsStorage: StorageFactory {
+  static func makeStorage(id: String) -> UserDefaultsStorage {
     let suiteName = "com.google.heartbeat.storage"
     let defaults = UserDefaults(suiteName: suiteName)
     return UserDefaultsStorage(defaults: defaults, key: "heartbeats-\(id)")
