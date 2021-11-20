@@ -14,7 +14,7 @@
 
 import Foundation
 
-protocol PersistentStorage {
+protocol Storage {
   func read() throws -> Data
   func write(_ value: Data?) throws
 }
@@ -26,7 +26,7 @@ enum StorageError: Error {
 
 // MARK: - FileStorage
 
-class FileStorage {
+final class FileStorage: Storage {
   private let url: URL
   private let fileManager: FileManager
 
@@ -36,20 +36,6 @@ class FileStorage {
     self.fileManager = fileManager
   }
 
-  private func createDirectories(in url: URL) throws {
-    do {
-      try fileManager.createDirectory(
-        at: url,
-        withIntermediateDirectories: true,
-        attributes: nil
-      )
-    } catch CocoaError.fileWriteFileExists {
-      // Directory already exists.
-    } catch { throw error }
-  }
-}
-
-extension FileStorage: PersistentStorage {
   func read() throws -> Data {
     do {
       return try Data(contentsOf: url)
@@ -70,11 +56,23 @@ extension FileStorage: PersistentStorage {
       throw StorageError.writeError
     }
   }
+
+  private func createDirectories(in url: URL) throws {
+    do {
+      try fileManager.createDirectory(
+        at: url,
+        withIntermediateDirectories: true,
+        attributes: nil
+      )
+    } catch CocoaError.fileWriteFileExists {
+      // Directory already exists.
+    } catch { throw error }
+  }
 }
 
 // MARK: - UserDefaultsStorage
 
-class UserDefaultsStorage {
+final class UserDefaultsStorage: Storage {
   private let defaults: UserDefaults
   private let key: String
 
@@ -83,9 +81,7 @@ class UserDefaultsStorage {
     self.defaults = defaults ?? .standard
     self.key = key
   }
-}
 
-extension UserDefaultsStorage: PersistentStorage {
   func read() throws -> Data {
     if let data = defaults.data(forKey: key) {
       return data
