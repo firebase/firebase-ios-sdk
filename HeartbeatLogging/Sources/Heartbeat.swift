@@ -21,7 +21,9 @@ enum TimePeriod: Int, CaseIterable, Codable {
   case daily = 1 // , weekly = 7, monthly = 28
 
   /// The number of seconds in a given time period.
-  var timeInterval: TimeInterval { Double(rawValue) * 86400 /* seconds in day */ }
+  var timeInterval: TimeInterval {
+    Double(rawValue) * 86400 /* seconds in day */
+  }
 
   /// All enumerated time periods.
   static var periods: AllCases { Self.allCases }
@@ -55,7 +57,7 @@ struct Heartbeat: Codable, Equatable {
   ///   - date: The date when the heartbeat was recorded. Defaults to the current date.
   ///   - version: The heartbeat's model version. Defaults to the current model version.
   init(agent: String,
-       date: Date = .init(),
+       date: Date,
        timePeriods: [TimePeriod],
        version: Int = version) {
     self.agent = agent
