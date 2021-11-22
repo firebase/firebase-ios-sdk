@@ -16,14 +16,19 @@ import Foundation
 
 // TODO: Document.
 
+/// A type that can be represented as a `HeartbeatsPayload`.
+protocol HeartbeatsPayloadConvertible {
+  func makeHeartbeatsPayload() -> HeartbeatsPayload
+}
+
 /// <#Description#>
-struct HeartbeatInfo: Codable {
+struct HeartbeatInfo: Codable, HeartbeatsPayloadConvertible {
   /// The maximum number of heartbeats.
   let capacity: Int
   /// <#Description#>
   private(set) var cache: [TimePeriod: Date]
   /// <#Description#>
-  private(set) var buffer: RingBuffer<Heartbeat>
+  private var buffer: RingBuffer<Heartbeat>
 
   static var cacheProvider: () -> [TimePeriod: Date] {
     let timePeriodsAndDates = TimePeriod.periods.map { ($0, Date.distantPast) }
@@ -31,21 +36,11 @@ struct HeartbeatInfo: Codable {
   }
 
   /// <#Description#>
-  /// - Parameter heartbeats: <#heartbeats description#>
-  init(heartbeats: [Heartbeat],
-       cache: [TimePeriod: Date] = cacheProvider()) {
-    buffer = .init(elements: heartbeats)
-    capacity = heartbeats.capacity
-    self.cache = cache
-  }
-
-  /// <#Description#>
   /// - Parameters:
   ///   - capacity: <#capacity description#>
   ///   - cacheProvider: <#cacheProvider description#>
-  init(capacity: Int,
-       cache: [TimePeriod: Date] = cacheProvider()) {
-    buffer = .init(capacity: capacity)
+  init(capacity: Int, cache: [TimePeriod: Date] = cacheProvider()) {
+    buffer = RingBuffer(capacity: capacity)
     self.capacity = capacity
     self.cache = cache
   }
@@ -67,6 +62,18 @@ struct HeartbeatInfo: Codable {
       cache[$0] = heartbeat.date
     }
   }
+
+  func makeHeartbeatsPayload() -> HeartbeatsPayload {
+    let agentAndDates = buffer.map { heartbeat in
+      (heartbeat.agent, [heartbeat.date])
+    }
+
+    let heartbeats = [String: [Date]](agentAndDates, uniquingKeysWith: +)
+      .map(HeartbeatsPayload.UserAgentPayload.init)
+      .sorted { $0.agent < $1.agent } // Sort payloads by user agent.
+
+    return HeartbeatsPayload(heartbeats: heartbeats)
+  }
 }
 
 /// <#Description#>
@@ -82,14 +89,9 @@ struct RingBuffer<Element>: Sequence {
     circularQueue = .init(repeating: nil, count: capacity)
   }
 
-  /// <#Description#>
-  /// - Parameter elements: <#elements description#>
-  init(elements: [Element]) {
-    circularQueue = elements
-  }
-
-  /// Pushes an element to the back of the buffer, returning the element that was overriten if the capacity is reached.
+  /// Pushes an element to the back of the buffer, returning the element (`Element?`) that was overriten.
   /// - Parameter element: The element to push to the back of the buffer.
+  /// - Returns: <#description#>
   /// - Complexity: O(1)
   @discardableResult
   mutating func push(_ element: Element) -> Element? {

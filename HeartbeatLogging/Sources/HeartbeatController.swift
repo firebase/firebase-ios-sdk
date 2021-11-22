@@ -64,7 +64,11 @@ public final class HeartbeatController {
       .map { timePeriod, _ in timePeriod }
 
       if !timePeriods.isEmpty {
-        let heartbeat = Heartbeat(agent: agent, date: date, timePeriods: timePeriods)
+        let heartbeat = Heartbeat(
+          agent: agent,
+          date: date,
+          timePeriods: timePeriods
+        )
         heartbeatInfo.append(heartbeat)
       }
 
@@ -95,6 +99,10 @@ public final class HeartbeatController {
     // heartbeats were retrieved/reset.
     let heartbeatInfo = try? storage.getAndReset(using: resetTransform)
 
-    return HeartbeatsPayload.makePayload(heartbeatInfo: heartbeatInfo)
+    if let heartbeatInfo = heartbeatInfo {
+      return heartbeatInfo.makeHeartbeatsPayload()
+    } else {
+      return HeartbeatsPayload.emptyPayload
+    }
   }
 }
