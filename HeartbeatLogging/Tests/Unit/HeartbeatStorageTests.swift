@@ -15,8 +15,6 @@
 import XCTest
 @testable import HeartbeatLogging
 
-// TODO: Add additional validation (#8896 comments).
-
 class HeartbeatStorageTests: XCTestCase {
   // MARK: - Instance Management
 

@@ -20,17 +20,17 @@ class TimePeriodTests: XCTestCase {
     XCTAssertEqual(TimePeriod.periods, [.daily])
   }
 
-  func testEnumeratesAllCases() {
+  func testEnumeratesAllCases() throws {
     XCTAssertEqual(TimePeriod.periods, TimePeriod.allCases)
   }
 
-  func testTimeIntervals() {
+  func testTimeIntervals() throws {
     TimePeriod.periods.forEach { period in
       XCTAssertEqual(period.timeInterval, Double(period.rawValue) * 86400)
     }
   }
 
-  func testTimePeriodRawValues() {
+  func testTimePeriodRawValues() throws {
     let dailyTimePeriod = TimePeriod.daily
     XCTAssertEqual(dailyTimePeriod.rawValue, 1)
   }
@@ -79,4 +79,3 @@ class HeartbeatTests: XCTestCase {
     XCTAssertEqual(encodedHeartbeat, heartbeatData)
   }
 }
-

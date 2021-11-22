@@ -58,7 +58,7 @@ struct Heartbeat: Codable, Equatable {
   ///   - version: The heartbeat's model version. Defaults to the current model version.
   init(agent: String,
        date: Date,
-       timePeriods: [TimePeriod],
+       timePeriods: [TimePeriod] = [],
        version: Int = version) {
     self.agent = agent
     self.date = date
