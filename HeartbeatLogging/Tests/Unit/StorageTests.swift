@@ -16,17 +16,80 @@ import XCTest
 @testable import HeartbeatLogging
 
 class FileStorageTests: XCTestCase {
-  func testRead_WhenFileDoesNotExist_ThrowsError() {}
+  func testRead_WhenFileDoesNotExist_ThrowsError() {
+    // Given
+    let fileStorage = FileStorage(url: makeTemporaryFileURL())
+    // Then
+    XCTAssertThrowsError(try fileStorage.read())
+  }
 
-  func testRead_WhenFileExists_ReturnsFilesData() {}
+  func testRead_WhenFileExists_ReturnsFileContents() throws {
+    // Given
+    let fileStorage = FileStorage(url: makeTemporaryFileURL())
 
-  func testWriteData_WhenFileDoesNotExist_CreatesFile() {}
+    let data = "data".data(using: .utf8)
+    XCTAssertNoThrow(try fileStorage.write(data))
+    // When
+    let storedData = try fileStorage.read()
+    // Then
+    XCTAssertEqual(storedData, data)
+  }
 
-  func testWriteData_WhenFileExists_ModifiesFile() {}
+  func testWriteData_WhenFileDoesNotExist_CreatesFile() throws {
+    // Given
+    let fileStorage = FileStorage(url: makeTemporaryFileURL())
+    XCTAssertThrowsError(try fileStorage.read())
+    // When
+    let data = Data()
+    XCTAssertNoThrow(try fileStorage.write(data))
+    // Then
+    let storedData = try fileStorage.read()
+    XCTAssertEqual(storedData, data)
+  }
 
-  func testWriteNil_WhenFileDoesNotExist_DoesNothing() {}
+  func testWriteData_WhenFileExists_ModifiesFile() throws {
+    // Given
+    let fileStorage = FileStorage(url: makeTemporaryFileURL())
 
-  func testWriteNil_WhenFileExists_RemovesFile() {}
+    let data = "data".data(using: .utf8)
+    XCTAssertNoThrow(try fileStorage.write(data))
+    // When
+    let modifiedData = #function.data(using: .utf8)
+    XCTAssertNoThrow(try fileStorage.write(modifiedData))
+
+    // Then
+    let storedData = try fileStorage.read()
+    XCTAssertEqual(storedData, modifiedData)
+  }
+
+  func testWriteNil_WhenFileDoesNotExist_DoesNothing() {
+    // Given
+    let fileStorage = FileStorage(url: makeTemporaryFileURL())
+    XCTAssertThrowsError(try fileStorage.read())
+    // When
+    XCTAssertNoThrow(try fileStorage.write(nil))
+    // Then
+    XCTAssertThrowsError(try fileStorage.read())
+  }
+
+  func testWriteNil_WhenFileExists_RemovesFile() {
+    // Given
+    let fileStorage = FileStorage(url: makeTemporaryFileURL())
+
+    let data = "data".data(using: .utf8)
+    XCTAssertNoThrow(try fileStorage.write(data))
+    // When
+    XCTAssertNoThrow(try fileStorage.write(nil))
+    // Then
+    XCTAssertThrowsError(try fileStorage.read())
+  }
+
+  func makeTemporaryFileURL(testName: String = #function, suffix: String = "") -> URL {
+    let temporaryPath = NSTemporaryDirectory() + testName + suffix
+    let temporaryURL = URL(fileURLWithPath: temporaryPath)
+    try? FileManager.default.removeItem(at: temporaryURL)
+    return temporaryURL
+  }
 }
 
 class UserDefaultsStorageTests: XCTestCase {
@@ -47,10 +110,12 @@ class UserDefaultsStorageTests: XCTestCase {
   }
 
   func testRead_WhenDefaultDoesNotExist_ThrowsError() throws {
+    // Given
     let defaultsStorage = UserDefaultsStorage(
       defaults: defaults,
       key: #function
     )
+    // Then
     XCTAssertThrowsError(try defaultsStorage.read())
   }
 
@@ -73,6 +138,7 @@ class UserDefaultsStorageTests: XCTestCase {
       defaults: defaults,
       key: #function
     )
+    XCTAssertThrowsError(try defaultsStorage.read())
     // When
     XCTAssertNoThrow(try defaultsStorage.write(data))
     // Then
