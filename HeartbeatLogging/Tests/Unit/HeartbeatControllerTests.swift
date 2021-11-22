@@ -46,8 +46,8 @@ class HeartbeatControllerTests: XCTestCase {
       heartbeatPayload.headerValue(),
       """
       {
-        "version": 0,
-        "payload": [
+        "version": 2,
+        "heartbeats": [
           {
             "agent": "dummy_agent",
             "dates": ["2021-11-01"]
@@ -81,8 +81,8 @@ class HeartbeatControllerTests: XCTestCase {
       heartbeatPayload.headerValue(),
       """
       {
-        "version": 0,
-        "payload": [
+        "version": 2,
+        "heartbeats": [
           {
             "agent": "dummy_agent",
             "dates": ["2021-11-01"]
@@ -127,8 +127,8 @@ class HeartbeatControllerTests: XCTestCase {
       heartbeatPayload.headerValue(),
       """
       {
-        "version": 0,
-        "payload": [
+        "version": 2,
+        "heartbeats": [
           {
             "agent": "dummy_agent",
             "dates": ["2021-11-01", "2021-11-02"]
@@ -159,8 +159,8 @@ class HeartbeatControllerTests: XCTestCase {
       heartbeatPayload.headerValue(),
       """
       {
-        "version": 0,
-        "payload": [
+        "version": 2,
+        "heartbeats": [
           {
             "agent": "dummy_agent",
             "dates": ["2021-11-01"]
@@ -188,8 +188,8 @@ class HeartbeatControllerTests: XCTestCase {
       heartbeatPayload.headerValue(),
       """
       {
-        "version": 0,
-        "payload": [
+        "version": 2,
+        "heartbeats": [
           {
             "agent": "dummy_agent",
             "dates": ["2021-11-01"]
@@ -202,10 +202,10 @@ class HeartbeatControllerTests: XCTestCase {
     // Below assertion asserts that duplicate was not logged again.
     assertHeartbeatControllerFlushesEmptyPayload(controller)
   }
-}
 
-func assertHeartbeatControllerFlushesEmptyPayload(_ controller: HeartbeatController) {
-  XCTAssertEqual(controller.flush().headerValue(), "")
+  func assertHeartbeatControllerFlushesEmptyPayload(_ controller: HeartbeatController) {
+    XCTAssertEqual(controller.flush().headerValue(), "")
+  }
 }
 
 // MARK: - Fakes
@@ -224,50 +224,38 @@ extension HeartbeatControllerTests {
       return oldHeartbeatInfo
     }
   }
+}
 
-  // TODO: - Revisit below assertion implementation.
-  // This can be simplified further by making HeartbeatsPayload conform to Equatable...
-  func assertEqualPayloadStrings(_ encoded: String, _ literal: String) throws {
-    let encodedData = try XCTUnwrap(Data(base64Encoded: encoded))
-    let literalData = try XCTUnwrap(literal.data(using: .utf8))
+func assertEqualPayloadStrings(_ encoded: String, _ literal: String) throws {
+  let encodedData = try XCTUnwrap(Data(base64Encoded: encoded))
+  let literalData = try XCTUnwrap(literal.data(using: .utf8))
 
-    let payloadFromEncoded = try XCTUnwrap(
-      try? JSONDecoder().decode(HeartbeatsPayload.self, from: encodedData),
-      "Could not convert encoded string's data to HeartbeatsPayload"
-    )
+  let decoder = JSONDecoder()
+  decoder.dateDecodingStrategy = .formatted(HeartbeatsPayload.dateFormatter)
 
-    let payloadFromLiteral = try XCTUnwrap(
-      try? JSONDecoder().decode(HeartbeatsPayload.self, from: literalData),
-      """
-      Could not convert literal string's data to HeartbeatsPayload.
-      Ensure that literal string is valid JSON.
-      """
-    )
+  let payloadFromEncoded = try? decoder.decode(HeartbeatsPayload.self, from: encodedData)
 
-    let encoder = JSONEncoder()
-    encoder.outputFormatting = [.sortedKeys, .prettyPrinted]
+  let payloadFromLiteral = try? decoder.decode(HeartbeatsPayload.self, from: literalData)
 
-    let payloadDataFromEncoded = try XCTUnwrap(encoder.encode(payloadFromEncoded))
-    let payloadDataFromLiteral = try XCTUnwrap(encoder.encode(payloadFromLiteral))
+  let encoder = JSONEncoder()
+  encoder.dateEncodingStrategy = .formatted(HeartbeatsPayload.dateFormatter)
+  encoder.outputFormatting = [.sortedKeys, .prettyPrinted]
 
-    let jsonObjectFromEncoded = try JSONSerialization
-      .jsonObject(with: payloadDataFromEncoded) as? [String: Any] ?? [:]
+  let payloadDataFromEncoded = try XCTUnwrap(encoder.encode(payloadFromEncoded))
+  let payloadDataFromLiteral = try XCTUnwrap(encoder.encode(payloadFromLiteral))
 
-    let jsonObjectFromLiteral = try JSONSerialization
-      .jsonObject(with: payloadDataFromLiteral) as? [String: Any] ?? [:]
+  XCTAssertEqual(
+    payloadFromEncoded,
+    payloadFromLiteral,
+    """
+    Mismatched payloads!
 
-    XCTAssert(
-      NSDictionary(dictionary: jsonObjectFromEncoded).isEqual(to: jsonObjectFromLiteral),
-      """
-      Mismatched payloads!
+    Payload 1:
+    \(String(data: payloadDataFromEncoded, encoding: .utf8) ?? "")
 
-      Payload 1:
-      \(String(data: payloadDataFromEncoded, encoding: .utf8) ?? "")
+    Payload 2:
+    \(String(data: payloadDataFromLiteral, encoding: .utf8) ?? "")
 
-      Payload 2:
-      \(String(data: payloadDataFromLiteral, encoding: .utf8) ?? "")
-
-      """
-    )
-  }
+    """
+  )
 }
