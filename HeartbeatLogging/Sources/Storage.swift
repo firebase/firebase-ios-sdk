@@ -50,7 +50,7 @@ final class FileStorage: Storage {
         try createDirectories(in: url.deletingLastPathComponent())
         try value.write(to: url, options: .atomic)
       } else {
-        try fileManager.removeItem(at: url)
+        try? fileManager.removeItem(at: url)
       }
     } catch {
       throw StorageError.writeError
