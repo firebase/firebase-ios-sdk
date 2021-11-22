@@ -15,6 +15,8 @@
 import XCTest
 @testable import HeartbeatLogging
 
+private let data = "test_data".data(using: .utf8)!
+
 class FileStorageTests: XCTestCase {
   func testRead_WhenFileDoesNotExist_ThrowsError() {
     // Given
@@ -27,7 +29,6 @@ class FileStorageTests: XCTestCase {
     // Given
     let fileStorage = FileStorage(url: makeTemporaryFileURL())
 
-    let data = "data".data(using: .utf8)
     XCTAssertNoThrow(try fileStorage.write(data))
     // When
     let storedData = try fileStorage.read()
@@ -40,7 +41,6 @@ class FileStorageTests: XCTestCase {
     let fileStorage = FileStorage(url: makeTemporaryFileURL())
     XCTAssertThrowsError(try fileStorage.read())
     // When
-    let data = Data()
     XCTAssertNoThrow(try fileStorage.write(data))
     // Then
     let storedData = try fileStorage.read()
@@ -51,10 +51,9 @@ class FileStorageTests: XCTestCase {
     // Given
     let fileStorage = FileStorage(url: makeTemporaryFileURL())
 
-    let data = "data".data(using: .utf8)
     XCTAssertNoThrow(try fileStorage.write(data))
     // When
-    let modifiedData = #function.data(using: .utf8)
+    let modifiedData = "modified_data".data(using: .utf8)
     XCTAssertNoThrow(try fileStorage.write(modifiedData))
 
     // Then
@@ -76,7 +75,6 @@ class FileStorageTests: XCTestCase {
     // Given
     let fileStorage = FileStorage(url: makeTemporaryFileURL())
 
-    let data = "data".data(using: .utf8)
     XCTAssertNoThrow(try fileStorage.write(data))
     // When
     XCTAssertNoThrow(try fileStorage.write(nil))
@@ -94,7 +92,6 @@ class FileStorageTests: XCTestCase {
 
 class UserDefaultsStorageTests: XCTestCase {
   var defaults: UserDefaults!
-  var data: Data!
   let suiteName = #file
 
   override func setUpWithError() throws {
@@ -102,7 +99,6 @@ class UserDefaultsStorageTests: XCTestCase {
     UserDefaults.standard.removePersistentDomain(forName: suiteName)
 
     defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
-    data = try XCTUnwrap("data".data(using: .utf8))
   }
 
   override func tearDownWithError() throws {
