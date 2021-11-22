@@ -18,7 +18,7 @@ import XCTest
 private let data = "test_data".data(using: .utf8)!
 
 class FileStorageTests: XCTestCase {
-  func testRead_WhenFileDoesNotExist_ThrowsError() {
+  func testRead_WhenFileDoesNotExist_ThrowsError() throws {
     // Given
     let fileStorage = FileStorage(url: makeTemporaryFileURL())
     // Then
@@ -61,7 +61,7 @@ class FileStorageTests: XCTestCase {
     XCTAssertEqual(storedData, modifiedData)
   }
 
-  func testWriteNil_WhenFileDoesNotExist_DoesNothing() {
+  func testWriteNil_WhenFileDoesNotExist_DoesNothing() throws {
     // Given
     let fileStorage = FileStorage(url: makeTemporaryFileURL())
     XCTAssertThrowsError(try fileStorage.read())
@@ -71,7 +71,7 @@ class FileStorageTests: XCTestCase {
     XCTAssertThrowsError(try fileStorage.read())
   }
 
-  func testWriteNil_WhenFileExists_RemovesFile() {
+  func testWriteNil_WhenFileExists_RemovesFile() throws {
     // Given
     let fileStorage = FileStorage(url: makeTemporaryFileURL())
 
