@@ -34,7 +34,7 @@ public extension Functions {
                          encoder: StructureEncoder = StructureEncoder(),
                          decoder: StructureDecoder = StructureDecoder())
     -> Callable<Request, Response> {
-      return Callable(callable: httpsCallable(name), encoder: encoder, decoder: decoder)
+    return Callable(callable: httpsCallable(name), encoder: encoder, decoder: decoder)
   }
 }
 
@@ -61,7 +61,7 @@ public struct Callable<Request: Encodable, Response: Decodable> {
   private let callable: HTTPSCallable
   private let encoder: StructureEncoder
   private let decoder: StructureDecoder
-  
+
   init(callable: HTTPSCallable, encoder: StructureEncoder, decoder: StructureDecoder) {
     self.callable = callable
     self.encoder = encoder
