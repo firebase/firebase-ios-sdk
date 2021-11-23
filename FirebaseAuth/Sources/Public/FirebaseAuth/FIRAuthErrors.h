@@ -81,7 +81,7 @@ extern NSString *const FIRAuthErrorUserInfoMultiFactorResolverKey
 /**
     @brief Error codes used by Firebase Auth.
  */
-typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
+typedef NS_ERROR_ENUM(FIRAuthErrorDomain, FIRAuthErrorCode) {
   /** Indicates a validation error with the custom token.
    */
   FIRAuthErrorCodeInvalidCustomToken = 17000,
