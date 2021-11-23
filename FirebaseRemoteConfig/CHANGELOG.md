@@ -1,4 +1,4 @@
-# Unreleased
+# v8.10.0
 - [fixed] Fixed cached config not loading if device is locked. (#8807)
 
 # v8.0.0
