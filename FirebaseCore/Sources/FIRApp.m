@@ -32,6 +32,7 @@
 
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 #import "FirebaseCore/Sources/Private/FIRCoreDiagnosticsConnector.h"
+#import "FirebaseCore/Sources/Private/FIRHeartbeatLogger.h"
 #import "FirebaseCore/Sources/Private/FIRLibrary.h"
 #import "FirebaseCore/Sources/Private/FIRLogger.h"
 #import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
@@ -338,6 +339,7 @@ static FIRApp *sDefaultApp;
     _options.editingLocked = YES;
     _isDefaultApp = [name isEqualToString:kFIRDefaultAppName];
     _container = [[FIRComponentContainer alloc] initWithApp:self];
+    _heartbeatLogger = [[FIRHeartbeatLogger alloc] initWithAppID:_options.googleAppID];
   }
   return self;
 }
