@@ -135,9 +135,11 @@ class StorageResultTests: StorageIntegrationCommon {
       switch result {
       case .success:
         XCTFail("Unexpected success from unauthorized putData")
-      case let .failure(error as NSError):
-        XCTAssertEqual(error.code, StorageErrorCode.unauthorized.rawValue)
+      case let .failure(error as StorageError):
+        XCTAssertEqual(error, StorageError.unauthorized)
         expectation.fulfill()
+      case let .failure(error):
+        XCTFail("Failed with unexpected error: \(error)")
       }
     }
     waitForExpectations()
@@ -317,8 +319,10 @@ class StorageResultTests: StorageIntegrationCommon {
       switch result {
       case .success:
         XCTFail("Unexpected success from getData too small")
-      case let .failure(error as NSError):
-        XCTAssertEqual(error.code, StorageErrorCode.downloadSizeExceeded.rawValue)
+      case let .failure(error as StorageError):
+        XCTAssertEqual(error, StorageError.downloadSizeExceeded)
+      case let .failure(error):
+        XCTFail("Failed with unexpected error: \(error)")
       }
       expectation.fulfill()
     }

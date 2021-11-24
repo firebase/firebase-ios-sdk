@@ -111,7 +111,7 @@ import XCTest
         _ = try await ref.putDataAsync(data)
         XCTFail("Unexpected success from unauthorized putData")
       } catch {
-        XCTAssertEqual((error as NSError).code, StorageErrorCode.unauthorized.rawValue)
+        XCTAssertEqual(error as! StorageError, StorageError.unauthorized)
       }
     }
 
@@ -130,8 +130,7 @@ import XCTest
         XCTFail("Unexpected success from putFile of a directory")
       } catch {
         // TODO: Investigate generating a more descriptive error code than unknown.
-        let e = error as NSError
-        XCTAssertEqual(e.code, StorageErrorCode.unknown.rawValue)
+        XCTAssertEqual(error as! StorageError, StorageError.unknown)
       }
     }
 
@@ -196,7 +195,7 @@ import XCTest
         _ = try await ref.data(maxSize: 1024)
         XCTFail("Unexpected success from getData too small")
       } catch {
-        XCTAssertEqual((error as NSError).code, StorageErrorCode.downloadSizeExceeded.rawValue)
+        XCTAssertEqual(error as! StorageError, StorageError.downloadSizeExceeded)
       }
     }
 

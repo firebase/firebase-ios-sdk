@@ -14,10 +14,6 @@
 
 import FirebaseStorage
 
-private enum DataError: Error {
-  case internalInconsistency // Thrown when both value and error are nil.
-}
-
 /// Generates a closure that returns a `Result` type from a closure that returns an optional type
 /// and `Error`.
 ///
@@ -33,9 +29,9 @@ private func getResultCallback<T>(completion: @escaping (Result<T, Error>) -> Vo
     if let value = value {
       completion(.success(value))
     } else if let error = error {
-      completion(.failure(error))
+      completion(.failure(StorageError.swiftConvert(objcError: (error as NSError).code)))
     } else {
-      completion(.failure(DataError.internalInconsistency))
+      completion(.failure(StorageError.internalError))
     }
   }
 }
