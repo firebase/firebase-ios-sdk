@@ -18,31 +18,33 @@ import GRPC
 import NIOCore
 import Darwin
 
-
 @objc public class ByteBufferShim: NSObject {
-    var buffer : ByteBuffer;
-    
+  var buffer: ByteBuffer
+
   /// Constuct an empty buffer.
-    @objc public override init() {
-            buffer = ByteBufferAllocator.init().buffer(capacity: 0);
-    }
-    
-    @objc public init(slices: [SliceShim]) {
-        buffer = ByteBufferAllocator.init().buffer(capacity: 0);
-        super.init();
-        Dump(slices: slices);
-    }
+  @objc override public init() {
+    buffer = ByteBufferAllocator().buffer(capacity: 0)
+  }
+
+  @objc public init(slices: [SliceShim]) {
+    buffer = ByteBufferAllocator().buffer(capacity: 0)
+    super.init()
+    Dump(slices: slices)
+  }
 
   /// Buffer size in bytes.
-    @objc public func Length() -> Int {
-        return buffer.readableBytes;
-    }
-    
-  /// Dump (read) the buffer contents into \a slices.
-    @objc public func Dump(slices: [SliceShim]) -> Void {
-        for slice in slices {
-            buffer.writeBytes(UnsafeRawBufferPointer(start: slice.get(), count: slice.size()));
-        }
-    }
-};
+  @objc public func Length() -> Int {
+    return buffer.readableBytes
+  }
 
+  /// Dump (read) the buffer contents into \a slices.
+  @objc public func Dump(slices: [SliceShim]) {
+    for slice in slices {
+      buffer.writeBytes(UnsafeRawBufferPointer(start: slice.begin(), count: slice.size()))
+    }
+  }
+
+  @objc public func add(begin: UnsafePointer<UInt8>, size: Int) {
+    buffer.writeBytes(UnsafeRawBufferPointer(start: begin, count: size))
+  }
+}

@@ -24,9 +24,7 @@
 namespace firebase {
 namespace firestore {
 namespace remote {
-namespace grpc_adapt {
-
-}  // namespace grpc_adapt
+namespace grpc_adapt {}  // namespace grpc_adapt
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase

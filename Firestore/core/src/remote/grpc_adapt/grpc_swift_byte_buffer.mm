@@ -18,33 +18,81 @@
 #import "GRPCSwiftShim/GRPCSwiftShim-Swift.h"
 
 #include <Foundation/Foundation.h>
-#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_slice.h"
+
+#include "Firestore/core/src/util/string_apple.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 namespace grpc_adapt {
 
+using firebase::firestore::util::MakeNSString;
+
+class SliceImpl {
+ public:
+  explicit SliceImpl(SliceShim* shim) : shim_(shim) {
+  }
+  SliceShim* shim() {
+    return shim_;
+  }
+
+ private:
+  SliceShim* shim_;
+};
+
+Slice::Slice(const std::string& s) {
+  impl_ = new SliceImpl([[SliceShim alloc] initWithStr:MakeNSString(s)]);
+}
+
+Slice::Slice(const uint8_t* begin, size_t size) {
+  impl_ = new SliceImpl([[SliceShim alloc]
+      initWithBuf:reinterpret_cast<const int8_t*>(begin)
+              len:size]);
+}
+
+size_t Slice::size() const {
+  return [impl_->shim() size];
+}
+const uint8_t* Slice::begin() const {
+  return reinterpret_cast<uint8_t*>([impl_->shim() begin]);
+}
+
+class ByteBufferImpl : public ByteBuffer {
+ public:
+  explicit ByteBufferImpl(ByteBufferShim* shim) : shim_(shim) {
+  }
+  ByteBufferShim* shim() {
+    return shim_;
+  }
+
+ private:
+  ByteBufferShim* shim_;
+};
+
 ByteBuffer::ByteBuffer() {
-  shim_ = [ByteBufferShim new];
+  ByteBufferShim* shim = [[ByteBufferShim alloc] init];
+  impl_ = new ByteBufferImpl(shim);
 }
 
 ByteBuffer::ByteBuffer(const Slice* slices, size_t nslices) {
-  shim_ = [ByteBufferShim new];
-  std::vector<Slice> slice_vector{slices, nslices};
-  Dump(*slice_vector);
+  ByteBufferShim* shim = [[ByteBufferShim alloc] init];
+  for (int i = 0; i < nslices; i++) {
+    [shim addWithBegin:slices[i].begin() size:slices[i].size()];
+  }
+  impl_ = new ByteBufferImpl(shim);
 }
 
 size_t ByteBuffer::Length() const {
-  return shim_.Length;
+  return [impl_->shim() Length];
 }
 
 Status ByteBuffer::Dump(std::vector<Slice>* slices) const {
-  std::vector<Slice> unwrapped_slices;
+  NSMutableArray<SliceShim*>* sliceShims = [[NSMutableArray alloc] init];
   for (Slice slice : *slices) {
-    unwrapped_slices.push_back(slice.shim);
+    [sliceShims addObject:slice.impl_->shim()];
   }
-  return shim_.Dump(unwrapped_slices);
+  [impl_->shim() DumpWithSlices:sliceShims];
+  return Status();
 }
 
 }  // namespace grpc_adapt

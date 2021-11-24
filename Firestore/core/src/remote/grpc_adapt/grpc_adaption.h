@@ -19,11 +19,10 @@
 
 #ifdef GRPC_SWIFT
 #include "Firestore/core/src/remote/grpc_adapt/grpc_swift_byte_buffer.h"
-#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_misc.h"
-#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_slice.h"
-#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_status.h"
 #include "Firestore/core/src/remote/grpc_adapt/grpc_swift_channel.h"
 #include "Firestore/core/src/remote/grpc_adapt/grpc_swift_client.h"
+#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_misc.h"
+#include "Firestore/core/src/remote/grpc_adapt/grpc_swift_status.h"
 #else
 #include "Firestore/core/src/remote/grpc_adapt/grpc_cpp_adaption.h"
 #endif  // GRPC_SWIFT

@@ -20,8 +20,8 @@
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/nanopb/writer.h"
-#include "Firestore/core/src/remote/grpc_util.h"
 #include "Firestore/core/src/remote/grpc_adapt/grpc_adaption.h"
+#include "Firestore/core/src/remote/grpc_util.h"
 #include "Firestore/core/src/util/status.h"
 
 namespace firebase {

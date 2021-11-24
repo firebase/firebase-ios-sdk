@@ -17,26 +17,25 @@
 import NIOCore
 
 @objc public class SliceShim: NSObject {
-    private let buffer: UnsafeMutablePointer<Int8>
-    private let length: Int;
-    
-    @objc public init(buf: UnsafePointer<Int8>, len: Int) {
-        length = len;
-        buffer = UnsafeMutablePointer<Int8>.allocate(capacity: len);
-        buffer.initialize(from: buf, count: len);
-    }
+  private let buffer: UnsafeMutablePointer<Int8>
+  private let length: Int
 
-    @objc public init(str: String) {
-        buffer = strdup(str);
-        length = str.lengthOfBytes(using: .utf8);
+  @objc public init(buf: UnsafePointer<Int8>, len: Int) {
+    length = len
+    buffer = UnsafeMutablePointer<Int8>.allocate(capacity: len)
+    buffer.initialize(from: buf, count: len)
   }
-    
+
+  @objc public init(str: String) {
+    buffer = strdup(str)
+    length = str.lengthOfBytes(using: .utf8)
+  }
+
   @objc public func size() -> Int {
-      return length;
+    return length
   }
 
-    @objc public func get() -> UnsafeMutablePointer<Int8> {
-        return buffer;
+  @objc public func begin() -> UnsafeMutablePointer<Int8> {
+    return buffer
   }
 }
-
