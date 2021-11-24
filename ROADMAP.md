@@ -49,6 +49,7 @@ improvements:
 * async/await API evaluation, tests, and augmentation
 * Fix non-Swifty APIs
 * Fill API gaps
+* Better Swift Error Handling
 * Property Wrappers (Not necessarily low hanging, but can be high value)
 * Identify larger projects for future phases
 
