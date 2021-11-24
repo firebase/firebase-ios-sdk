@@ -46,11 +46,12 @@ final class FileStorage: Storage {
 
   func write(_ value: Data?) throws {
     do {
+      try createDirectories(in: url.deletingLastPathComponent())
       if let value = value {
-        try createDirectories(in: url.deletingLastPathComponent())
         try value.write(to: url, options: .atomic)
       } else {
-        try? fileManager.removeItem(at: url)
+        let emptyData = Data()
+        try emptyData.write(to: url, options: .atomic)
       }
     } catch {
       throw StorageError.writeError
@@ -94,7 +95,8 @@ final class UserDefaultsStorage: Storage {
     if let value = value {
       defaults.set(value, forKey: key)
     } else {
-      defaults.removeObject(forKey: key)
+      let emptyData = Data()
+      defaults.set(emptyData, forKey: key)
     }
   }
 }

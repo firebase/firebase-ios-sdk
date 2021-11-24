@@ -28,7 +28,6 @@ class FileStorageTests: XCTestCase {
   func testRead_WhenFileExists_ReturnsFileContents() throws {
     // Given
     let fileStorage = FileStorage(url: makeTemporaryFileURL())
-
     XCTAssertNoThrow(try fileStorage.write(data))
     // When
     let storedData = try fileStorage.read()
@@ -61,17 +60,18 @@ class FileStorageTests: XCTestCase {
     XCTAssertEqual(storedData, modifiedData)
   }
 
-  func testWriteNil_WhenFileDoesNotExist_DoesNothing() throws {
+  func testWriteNil_WhenFileDoesNotExist_CreatesEmptyFile() throws {
     // Given
     let fileStorage = FileStorage(url: makeTemporaryFileURL())
     XCTAssertThrowsError(try fileStorage.read())
     // When
     XCTAssertNoThrow(try fileStorage.write(nil))
     // Then
-    XCTAssertThrowsError(try fileStorage.read())
+    let emptyData = try fileStorage.read()
+    XCTAssertTrue(emptyData.isEmpty)
   }
 
-  func testWriteNil_WhenFileExists_RemovesFile() throws {
+  func testWriteNil_WhenFileExists_EmptiesFile() throws {
     // Given
     let fileStorage = FileStorage(url: makeTemporaryFileURL())
 
@@ -79,7 +79,8 @@ class FileStorageTests: XCTestCase {
     // When
     XCTAssertNoThrow(try fileStorage.write(nil))
     // Then
-    XCTAssertThrowsError(try fileStorage.read())
+    let emptyData = try fileStorage.read()
+    XCTAssertTrue(emptyData.isEmpty)
   }
 
   func makeTemporaryFileURL(testName: String = #function, suffix: String = "") -> URL {
@@ -158,7 +159,7 @@ class UserDefaultsStorageTests: XCTestCase {
     XCTAssertEqual(storedData, modifiedData)
   }
 
-  func testWriteNil_WhenDefaultDoesNotExist_DoesNothing() throws {
+  func testWriteNil_WhenDefaultDoesNotExist_CreatesEmptyDefault() throws {
     // Given
     let defaultsStorage = UserDefaultsStorage(
       defaults: defaults,
@@ -168,10 +169,11 @@ class UserDefaultsStorageTests: XCTestCase {
     // When
     XCTAssertNoThrow(try defaultsStorage.write(nil))
     // Then
-    XCTAssertThrowsError(try defaultsStorage.read())
+    let emptyData = try defaultsStorage.read()
+    XCTAssertTrue(emptyData.isEmpty)
   }
 
-  func testWriteNil_WhenDefaultExists_RemovesDefault() throws {
+  func testWriteNil_WhenDefaultExists_EmptiesDefault() throws {
     // Given
     let defaultsStorage = UserDefaultsStorage(
       defaults: defaults,
@@ -181,6 +183,7 @@ class UserDefaultsStorageTests: XCTestCase {
     // When
     XCTAssertNoThrow(try defaultsStorage.write(nil))
     // Then
-    XCTAssertThrowsError(try defaultsStorage.read())
+    let emptyData = try defaultsStorage.read()
+    XCTAssertTrue(emptyData.isEmpty)
   }
 }
