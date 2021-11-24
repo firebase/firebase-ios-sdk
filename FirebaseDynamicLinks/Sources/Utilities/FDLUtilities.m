@@ -296,7 +296,7 @@ BOOL FIRDLMatchesShortLinkFormat(NSURL *URL) {
   BOOL isDismiss = [[URL.path lowercaseString] hasPrefix:@"/link/dismiss"];
 
   BOOL matchesRegularExpression =
-        ([URL.path rangeOfString:@"/[^/]+" options:NSRegularExpressionSearch].location != NSNotFound);
+      ([URL.path rangeOfString:@"/[^/]+" options:NSRegularExpressionSearch].location != NSNotFound);
 
   return hasPathOrCustomDomain && !isDismiss && canParse && matchesRegularExpression;
 }
