@@ -13,16 +13,55 @@
 // limitations under the License.
 
 import XCTest
-import HeartbeatLogging
+@testable import HeartbeatLogging
 
 class HeartbeatLoggingIntegrationTests: XCTestCase {
   override func setUpWithError() throws {
-    // Put setup code here. This method is called before the
-    // invocation of each test method in the class.
+    try removeUnderlyingHeartbeatStorageContainers()
   }
 
   override func tearDownWithError() throws {
-    // Put teardown code here. This method is called after the
-    // invocation of each test method in the class.
+    try removeUnderlyingHeartbeatStorageContainers()
+  }
+
+  func testInitWithPublicAPI_LogAndFlush() throws {
+    // Given
+    let heartbeatController = HeartbeatController(id: #file)
+    // When
+    heartbeatController.log("dummy_agent")
+    // Then
+    let payload = heartbeatController.flush()
+    // The `HeartbeatController` should have recorded the current date.
+    let dateString = HeartbeatsPayload.dateFormatter.string(from: Date())
+    try assertEqualPayloadStrings(
+      payload.headerValue(),
+      """
+      {
+        "version": 2,
+        "heartbeats": [
+          { "agent": "dummy_agent", "dates": ["\(dateString)"] }
+        ]
+      }
+      """
+    )
+  }
+
+  func removeUnderlyingHeartbeatStorageContainers() throws {
+    #if os(tvOS)
+      UserDefaults.standard
+        .removePersistentDomain(forName: kHeartbeatUserDefaultsSuiteName)
+    #else
+      let heartbeatsDirectoryURL = FileManager.default
+        .applicationSupportDirectory
+        .appendingPathComponent(
+          kHeartbeatFileStorageDirectoryPath, isDirectory: true
+        )
+
+      do {
+        try FileManager.default.removeItem(at: heartbeatsDirectoryURL)
+      } catch CocoaError.fileNoSuchFile {
+        // Do nothing.
+      }
+    #endif // os(tvOS)
   }
 }

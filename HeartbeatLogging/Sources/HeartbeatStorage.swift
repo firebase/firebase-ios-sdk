@@ -58,10 +58,27 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
     if let cachedInstance = cachedInstances[id]?.object {
       return cachedInstance
     } else {
-      let newInstance = HeartbeatStorage.makeStorage(id: id)
+      let newInstance = HeartbeatStorage.makeHeartbeatStorage(id: id)
       cachedInstances[id] = WeakContainer(object: newInstance)
       return newInstance
     }
+  }
+
+  /// Makes a `HeartbeatStorage` instance using a given `String` identifier.
+  ///
+  /// The created persistent storage object is platform dependent. For tvOS, user defaults
+  /// is used as the underlying storage container due to system storage limits. For all other platforms,
+  /// the file system is used.
+  ///
+  /// - Parameter id: A `String` identifier used to create the `HeartbeatStorage`.
+  /// - Returns: A `HeartbeatStorage` instance.
+  private static func makeHeartbeatStorage(id: String) -> HeartbeatStorage {
+    #if os(tvOS)
+      let storage = UserDefaultsStorage.makeStorage(id: id)
+    #else
+      let storage = FileStorage.makeStorage(id: id)
+    #endif // os(tvOS)
+    return HeartbeatStorage(id: id, storage: storage)
   }
 
   deinit {
@@ -103,26 +120,5 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
     } else {
       try storage.write(nil)
     }
-  }
-}
-
-// MARK: - HeartbeatStorage + StorageFactory
-
-extension HeartbeatStorage: StorageFactory {
-  /// Makes a `Storage` instance using a given `String` identifier.
-  ///
-  /// The created persistent storage object is platform dependent. For tvOS, user defaults
-  /// is used as the underlying storage container due to system storage limits. For all other platforms,
-  /// the file system is used.
-  ///
-  /// - Parameter id: A `String` identifier used to create the `Storage`.
-  /// - Returns: A `Storage` instance.
-  static func makeStorage(id: String) -> Self {
-    #if os(tvOS)
-      let storage = UserDefaultsStorage.makeStorage(id: id)
-    #else
-      let storage = FileStorage.makeStorage(id: id)
-    #endif // os(tvOS)
-    return .init(id: id, storage: storage)
   }
 }

@@ -16,37 +16,44 @@ import Foundation
 
 /// A factory type for `Storage`.
 protocol StorageFactory {
-  static func makeStorage(id: String) -> Self
+  static func makeStorage(id: String) -> Storage
 }
 
 // MARK: - FileStorage + StorageFactory
 
+/// <#Description#>
+let kHeartbeatFileStorageDirectoryPath = "google-heartbeat-storage"
+
 extension FileStorage: StorageFactory {
-  static func makeStorage(id: String) -> FileStorage {
+  static func makeStorage(id: String) -> Storage {
     let rootDirectory = FileManager.default.applicationSupportDirectory
-    let storagePath = "google-heartbeat-storage/heartbeats-\(id)"
+    let heartbeatDirectoryPath = kHeartbeatFileStorageDirectoryPath
+    let heartbeatFilePath = "heartbeats-\(id)"
+
     let storageURL = rootDirectory
-      .appendingPathComponent(storagePath, isDirectory: false)
+      .appendingPathComponent(heartbeatDirectoryPath, isDirectory: true)
+      .appendingPathComponent(heartbeatFilePath, isDirectory: false)
 
     return FileStorage(url: storageURL)
   }
 }
 
-// MARK: - UserDefaultsStorage + StorageFactory
-
-extension UserDefaultsStorage: StorageFactory {
-  static func makeStorage(id: String) -> UserDefaultsStorage {
-    let suiteName = "com.google.heartbeat.storage"
-    let defaults = UserDefaults(suiteName: suiteName)
-    return UserDefaultsStorage(defaults: defaults, key: "heartbeats-\(id)")
-  }
-}
-
-// MARK: - FileManager + Extension
-
-private extension FileManager {
+extension FileManager {
   var applicationSupportDirectory: URL {
     // TODO: The below bang! should be safe but re-evaluate.
     urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+  }
+}
+
+// MARK: - UserDefaultsStorage + StorageFactory
+
+/// <#Description#>
+let kHeartbeatUserDefaultsSuiteName = "com.google.heartbeat.storage"
+
+extension UserDefaultsStorage: StorageFactory {
+  static func makeStorage(id: String) -> Storage {
+    let suiteName = kHeartbeatUserDefaultsSuiteName
+    let defaults = UserDefaults(suiteName: suiteName)
+    return UserDefaultsStorage(defaults: defaults, key: "heartbeats-\(id)")
   }
 }
