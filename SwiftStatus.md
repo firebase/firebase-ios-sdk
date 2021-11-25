@@ -1,5 +1,4 @@
-|          | Syntax      | Description | Test Text     |
-| :---   | :---        |    :----:   |          ---: |
-| **Row Header** | Header      | Title       | Here's this   |
-| **Row Header** | Paragraph   | Text        | And more      |
-| **Row Header** | ✔           |  ❌         | n/a           |
+|          | ABTesting | Analytics | AppCheck | Auth | Core | Crashlytics | RTDB | Firestore | Functions | FIAM | Installations | Messaging | MLModel | Perf | RC | Storage  |
+|   :---   |  :---     | :----:    | :----: | :----: | :----: | :----:   | :----: | :----:   |   :----:  | :----: | :----:      | :----:    | :----:     | :----: | :----: | :----:   |
+| **Swift Library** | ✔   |  ❌       | n/a      |Auth | Core | Crashlytics | RTDB | Firestore | Functions | FIAM | Installations | Messaging | MLModel | Perf | RC | Storage  |
+| **Integration Tests** | ✔   |  ❌       | n/a      |Auth | Core | Crashlytics | RTDB | Firestore | Functions | FIAM | Installations | Messaging | MLModel | Perf | RC | Storage  |
