@@ -1,5 +1,5 @@
-| Syntax      | Description | Test Text     |
-| :---        |    :----:   |          ---: |
-| Header      | Title       | Here's this   |
-| Paragraph   | Text        | And more      |
-| ✔           |  ❌         | n/a           |
+|            | Syntax      | Description | Test Text     |
+| *Row Header* | :---        |    :----:   |          ---: |
+| *Row Header* | Header      | Title       | Here's this   |
+| *Row Header* | Paragraph   | Text        | And more      |
+| *Row Header* | ✔           |  ❌         | n/a           |
