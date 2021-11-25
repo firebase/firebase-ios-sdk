@@ -1,4 +1,4 @@
-|          | ABTesting | Analytics | AppCheck | Auth | Core | Crashlytics | RTDB | Firestore | Functions | FIAM | Installations | Messaging | MLModel | Perf | RC | Storage  |
+|          | ABT | Ana| AppC| Auth | Core | Crash | RTDB | Fst | Func | FIAM | Inst | Msg | MLM | Perf | RC | Str |
 |   :---   |  :---     | :----:    | :----: | :----: | :----: | :----:   | :----: | :----:   |   :----:  | :----: | :----:      | :----:    | :----:     | :----: | :----: | :----:   |
-| **Swift Library** | ✔   |  ❌       | n/a      |Auth | Core | Crashlytics | RTDB | Firestore | Functions | FIAM | Installations | Messaging | MLModel | Perf | RC | Storage  |
-| **Integration Tests** | ✔   |  ❌       | n/a      |Auth | Core | Crashlytics | RTDB | Firestore | Functions | FIAM | Installations | Messaging | MLModel | Perf | RC | Storage  |
+| **Swift Library** | ✔   |  ❌       | n/a      |❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌   |
+| **Integration Tests** | ✔   |  ❌       | n/a      |❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌   |
