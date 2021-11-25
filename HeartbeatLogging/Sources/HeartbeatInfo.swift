@@ -39,7 +39,8 @@ struct HeartbeatInfo: Codable, HeartbeatsPayloadConvertible {
   /// - Parameters:
   ///   - capacity: <#capacity description#>
   ///   - cacheProvider: <#cacheProvider description#>
-  init(capacity: Int, cache: [TimePeriod: Date] = cacheProvider()) {
+  init(capacity: Int,
+       cache: [TimePeriod: Date] = cacheProvider()) {
     buffer = RingBuffer(capacity: capacity)
     self.capacity = capacity
     self.cache = cache
