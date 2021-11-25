@@ -21,7 +21,7 @@ protocol StorageFactory {
 
 // MARK: - FileStorage + StorageFactory
 
-/// <#Description#>
+/// The name of the file system directory where heartbeat data is stored.
 let kHeartbeatFileStorageDirectoryPath = "google-heartbeat-storage"
 
 extension FileStorage: StorageFactory {
@@ -47,13 +47,14 @@ extension FileManager {
 
 // MARK: - UserDefaultsStorage + StorageFactory
 
-/// <#Description#>
+/// The name of the user defaults suite where heartbeat data is stored.
 let kHeartbeatUserDefaultsSuiteName = "com.google.heartbeat.storage"
 
 extension UserDefaultsStorage: StorageFactory {
   static func makeStorage(id: String) -> Storage {
     let suiteName = kHeartbeatUserDefaultsSuiteName
     let defaults = UserDefaults(suiteName: suiteName)
-    return UserDefaultsStorage(defaults: defaults, key: "heartbeats-\(id)")
+    let key = "heartbeats-\(id)"
+    return UserDefaultsStorage(defaults: defaults, key: key)
   }
 }

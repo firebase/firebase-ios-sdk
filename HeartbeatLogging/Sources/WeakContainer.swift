@@ -14,7 +14,7 @@
 
 import Foundation
 
-/// Used to weakly box reference types.
+/// A struct used to weakly box reference types.
 struct WeakContainer<Object: AnyObject> {
   weak var object: Object?
 }

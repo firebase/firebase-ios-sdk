@@ -18,8 +18,9 @@ import Foundation
 public final class HeartbeatController {
   /// The thread-safe storage object to log and flush heartbeats from.
   private let storage: HeartbeatStorageProtocol
-  // TODO: Document.
-  private let limit: Int = 30 // TODO: Decide on default value.
+  // TODO: Decide on default value.
+  /// The max capacity of heartbeats to store in storage.
+  private let heartbeatsStorageCapacity: Int = 30
   /// Current date provider. It is used instead of `Date.init` for testability.
   private let dateProvider: () -> Date
   // TODO: Verify that this standardization aligns with backend.
@@ -27,7 +28,6 @@ public final class HeartbeatController {
   static let dateStandardizer = Calendar(identifier: .gregorian).startOfDay(for:)
 
   /// Public initializer.
-  ///
   /// - Parameter id: The `id` to associate this logger's internal storage with.
   public convenience init(id: String) {
     // TODO: Sanitize id.
@@ -36,7 +36,6 @@ public final class HeartbeatController {
   }
 
   /// Designated initializer.
-  ///
   /// - Parameters:
   ///   - storage: The logger's internal storage object.
   ///   - dateProvider: TODO: Document.
@@ -46,29 +45,29 @@ public final class HeartbeatController {
     self.dateProvider = { Self.dateStandardizer(dateProvider()) }
   }
 
-  /// Asynchronously log a new heartbeat, if needed.
+  /// Asynchronously logs a new heartbeat, if needed.
   ///
   /// - Note: This API is thread-safe.
   ///
-  /// - Parameter agent: A `String` identifier to associate a new heartbeat with.
+  /// - Parameter agent: The string agent to associate the logged heartbeat with.
   public func log(_ agent: String) {
     let date = dateProvider()
-    let capacity = limit
+    let capacity = heartbeatsStorageCapacity
 
     storage.readAndWriteAsync { heartbeatInfo in
       var heartbeatInfo = heartbeatInfo ?? HeartbeatInfo(capacity: capacity)
 
+      // Filter for the time periods where the last heartbeat to be logged for
+      // that time period was logged more than one time period (i.e. day) ago.
       let timePeriods = heartbeatInfo.cache.filter { timePeriod, lastDate in
         date.timeIntervalSince(lastDate) >= timePeriod.timeInterval
       }
       .map { timePeriod, _ in timePeriod }
 
       if !timePeriods.isEmpty {
-        let heartbeat = Heartbeat(
-          agent: agent,
-          date: date,
-          timePeriods: timePeriods
-        )
+        // A heartbeat should only be logged if there is a time period(s) to
+        // associate it with.
+        let heartbeat = Heartbeat(agent: agent, date: date, timePeriods: timePeriods)
         heartbeatInfo.append(heartbeat)
       }
 
@@ -83,7 +82,7 @@ public final class HeartbeatController {
   /// - Returns: The flushed heartbeats in the form of `HeartbeatsPayload`.
   @discardableResult
   public func flush() -> HeartbeatsPayload {
-    let capacity = limit
+    let capacity = heartbeatsStorageCapacity
 
     let resetTransform: (HeartbeatInfo?) -> HeartbeatInfo? = { heartbeatInfo in
       guard let oldHeartbeatInfo = heartbeatInfo else {
