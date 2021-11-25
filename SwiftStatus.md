@@ -1,4 +1,4 @@
-|          | ABT | Ana| AppC| Auth | Core | Crash | RTDB | Fst | Func | FIAM | Inst | Msg | MLM | Perf | RC | Str |
+|          | AB | Ana| ApC| Auth | Cor | Crsh | DB | Fst | Fun | IAM | Ins | Msg | MLM | Perf | RC | Str |
 |   :---   |  :---     | :----:    | :----: | :----: | :----: | :----:   | :----: | :----:   |   :----:  | :----: | :----:      | :----:    | :----:     | :----: | :----: | :----:   |
 | **Swift Library** | ✔   |  ❌       | n/a      |❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌   |
 | **Integration Tests** | ✔   |  ❌       | n/a      |❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌  | ❌   |
