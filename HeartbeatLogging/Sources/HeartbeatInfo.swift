@@ -19,25 +19,26 @@ protocol HeartbeatsPayloadConvertible {
   func makeHeartbeatsPayload() -> HeartbeatsPayload
 }
 
-/// A value type representing
+/// A codable collection of heartbeats that has a fixed capacity and optimizations for storing heartbeats of
+/// multiple time periods.
 struct HeartbeatInfo: Codable, HeartbeatsPayloadConvertible {
-  /// The maximum number of heartbeats that can be stored.
+  /// The maximum number of heartbeats that can be stored in the buffer.
   let capacity: Int
-  /// <#Description#>
+  /// A cache used for keeping track of the last heartbeat date recorded for a given time period.
   private(set) var cache: [TimePeriod: Date]
-  /// <#Description#>
+  /// A ring buffer of heartbeats.
   private var buffer: RingBuffer<Heartbeat>
 
-  /// <#Description#>
+  /// A default cache provider that provides a dictionary of all time periods mapping to a default date.
   static var cacheProvider: () -> [TimePeriod: Date] {
     let timePeriodsAndDates = TimePeriod.periods.map { ($0, Date.distantPast) }
     return { Dictionary(uniqueKeysWithValues: timePeriodsAndDates) }
   }
 
-  /// <#Description#>
+  /// Designated initializer.
   /// - Parameters:
-  ///   - capacity: <#capacity description#>
-  ///   - cacheProvider: <#cacheProvider description#>
+  ///   - capacity: The heartbeat capacity of the inititialized collection.
+  ///   - cache: A cache of time periods mapping to dates. Defaults to using static `cacheProvider`.
   init(capacity: Int,
        cache: [TimePeriod: Date] = cacheProvider()) {
     buffer = RingBuffer(capacity: capacity)
@@ -45,8 +46,8 @@ struct HeartbeatInfo: Codable, HeartbeatsPayloadConvertible {
     self.cache = cache
   }
 
-  /// App
-  /// - Parameter heartbeat: <#heartbeat description#>
+  /// Appends a heartbeat to this collection.
+  /// - Parameter heartbeat: The heartbeat to append.
   mutating func append(_ heartbeat: Heartbeat) {
     // 1. Push the heartbeat to the back of the buffer.
     if let overwrittenHeartbeat = buffer.push(heartbeat) {
@@ -63,6 +64,8 @@ struct HeartbeatInfo: Codable, HeartbeatsPayloadConvertible {
     }
   }
 
+  /// Makes and returns a `HeartbeatsPayload` from this heartbeat info.
+  /// - Returns: A heartbeats payload.
   func makeHeartbeatsPayload() -> HeartbeatsPayload {
     let agentAndDates = buffer.map { heartbeat in
       (heartbeat.agent, [heartbeat.date])
