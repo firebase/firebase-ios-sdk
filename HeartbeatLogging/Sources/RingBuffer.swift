@@ -41,7 +41,7 @@ struct RingBuffer<Element>: Sequence {
     defer {
       // Increment index, wrapping around to the start if needed.
       tailIndex += 1
-      tailIndex %= circularQueue.capacity
+      tailIndex %= circularQueue.count
     }
 
     let replaced = circularQueue[tailIndex]
