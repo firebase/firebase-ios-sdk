@@ -14,14 +14,14 @@
 
 import Foundation
 
-/// A  logger object that provides API to log and flush heartbeats from a synchronized storage container.
+/// An object that provides API to log and flush heartbeats from a synchronized storage container.
 public final class HeartbeatController {
   /// The thread-safe storage object to log and flush heartbeats from.
   private let storage: HeartbeatStorageProtocol
   // TODO: Decide on default value.
   /// The max capacity of heartbeats to store in storage.
   private let heartbeatsStorageCapacity: Int = 30
-  /// Current date provider. It is used instead of `Date.init` for testability.
+  /// Current date provider. It is used for testability.
   private let dateProvider: () -> Date
   // TODO: Verify that this standardization aligns with backend.
   /// Used for standardizing dates for calendar-day comparision.

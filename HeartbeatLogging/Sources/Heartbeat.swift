@@ -34,7 +34,7 @@ struct Heartbeat: Codable, Equatable {
   /// An anonymous piece of information (i.e. user agent) to associate the heartbeat with.
   let agent: String
 
-  /// The date when the heartbeat was recorded (standardized to be the start of a calendar day).
+  /// The date when the heartbeat was recorded.
   let date: Date
 
   /// The heartbeat's model version.
