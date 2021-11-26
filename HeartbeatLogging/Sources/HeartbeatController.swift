@@ -28,7 +28,7 @@ public final class HeartbeatController {
   static let dateStandardizer = Calendar(identifier: .gregorian).startOfDay(for:)
 
   /// Public initializer.
-  /// - Parameter id: The `id` to associate this logger's internal storage with.
+  /// - Parameter id: The `id` to associate this controller's heartbeat storage with.
   public convenience init(id: String) {
     // TODO: Sanitize id.
     let storage = HeartbeatStorage.getInstance(id: id)
