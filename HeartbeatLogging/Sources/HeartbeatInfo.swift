@@ -31,7 +31,7 @@ struct HeartbeatInfo: Codable, HeartbeatsPayloadConvertible {
 
   /// A default cache provider that provides a dictionary of all time periods mapping to a default date.
   static var cacheProvider: () -> [TimePeriod: Date] {
-    let timePeriodsAndDates = TimePeriod.periods.map { ($0, Date.distantPast) }
+    let timePeriodsAndDates = TimePeriod.allCases.map { ($0, Date.distantPast) }
     return { Dictionary(uniqueKeysWithValues: timePeriodsAndDates) }
   }
 

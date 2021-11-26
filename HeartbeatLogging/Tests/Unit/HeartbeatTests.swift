@@ -17,15 +17,15 @@ import XCTest
 
 class TimePeriodTests: XCTestCase {
   override func setUpWithError() throws {
-    XCTAssertEqual(TimePeriod.periods, [.daily])
+    XCTAssertEqual(TimePeriod.allCases, [.daily])
   }
 
   func testEnumeratesAllCases() throws {
-    XCTAssertEqual(TimePeriod.periods, TimePeriod.allCases)
+    XCTAssertEqual(TimePeriod.allCases, TimePeriod.allCases)
   }
 
   func testTimeIntervals() throws {
-    TimePeriod.periods.forEach { period in
+    TimePeriod.allCases.forEach { period in
       XCTAssertEqual(period.timeInterval, Double(period.rawValue) * 86400)
     }
   }

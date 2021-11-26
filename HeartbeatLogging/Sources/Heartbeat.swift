@@ -24,9 +24,6 @@ enum TimePeriod: Int, CaseIterable, Codable {
   var timeInterval: TimeInterval {
     Double(rawValue) * 86400 /* seconds in day */
   }
-
-  /// All enumerated time periods.
-  static var periods: AllCases { Self.allCases }
 }
 
 /// A structure representing SDK usage.
