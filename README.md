@@ -53,7 +53,7 @@ Go to
 ### Swift Package Manager
 
 Instructions for [Swift Package Manager](https://swift.org/package-manager/) support can be
-found at [SwiftPackageManager.md](SwiftPackageManager.md).
+found at [SwiftPackageManager](SwiftPackageManager.md) Markdown file.
 
 ### Installing from GitHub
 
@@ -123,7 +123,7 @@ those platforms. Since 10.2, Xcode does not properly handle multi-platform
 CocoaPods workspaces.
 
 Firestore has a self contained Xcode project. See
-[Firestore/README.md](Firestore/README.md).
+[Firestore/README](Firestore/README.md) Markdown file.
 
 #### Development for Catalyst
 * `pod gen {name here}.podspec --local-sources=./ --auto-open --platforms=ios`
@@ -149,11 +149,11 @@ Alternatively disable signing in each target:
 
 ### Adding a New Firebase Pod
 
-See [AddNewPod.md](AddNewPod.md).
+See [AddNewPod](AddNewPod.md) Markdown file.
 
 ### Managing Headers and Imports
 
-See [HeadersImports.md](HeadersImports.md).
+See [HeadersImports](HeadersImports.md) Markdown file.
 
 ### Code Formatting
 
@@ -187,7 +187,7 @@ identifier (e.g. `com.google.Database-Example`)
 
 ### Coverage Report Generation
 
-See [scripts/code_coverage_report/README.md](scripts/code_coverage_report/README.md).
+See [scripts/code_coverage_report/README](scripts/code_coverage_report/README.md) Markdown file.
 
 ## Specific Component Instructions
 See the sections below for any special instructions for those components.
