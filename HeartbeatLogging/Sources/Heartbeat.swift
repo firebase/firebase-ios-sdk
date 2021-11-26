@@ -51,7 +51,7 @@ struct Heartbeat: Codable, Equatable {
   /// a moving average.
   let timePeriods: [TimePeriod]
 
-  /// Intializes a `Heartbeat` with given `info` and, optionally, a `date` and `version`.
+  /// Designated intializer.
   /// - Parameters:
   ///   - agent: An anonymous piece of information to associate the heartbeat with.
   ///   - date: The date when the heartbeat was recorded. Defaults to the current date.

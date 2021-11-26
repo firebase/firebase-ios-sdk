@@ -19,20 +19,56 @@ public protocol HTTPHeaderRepresentable {
   func headerValue() -> String
 }
 
-// TODO: Add documentation.
+/// A value type representing a payload of heartbeat data intended for sending in network requests.
+///
+/// This type's structure is optimized for type-safe encoding into a HTTP payload format.
+/// Here is an example of the type's encoding structure:
+///
+///     {
+///       "version": 2,
+///       "heartbeats": [
+///         {
+///           "agent": "dummy_agent_1",
+///           "dates": ["2021-11-01", "2021-11-02"]
+///         },
+///         {
+///           "agent": "dummy_agent_2",
+///           "dates": ["2021-11-03"]
+///         }
+///       ]
+///     }
+///
 public struct HeartbeatsPayload: Codable {
+  /// The version of the payload. See go/firebase-apple-heartbeats for details regarding current version.
   static let version: Int = 2
 
+  /// A payload component composed of a user agent and array of heartbeats (dates).
   struct UserAgentPayload: Codable {
+    /// An anonymous agent string.
     let agent: String
+    // TODO: Check that backend makes no assumptions about ordering.
+    /// An array of dates where each date represents a "heartbeat".
     let dates: [Date]
   }
 
-  let heartbeats: [UserAgentPayload]
+  /// An array of user agent payloads.
+  let userAgentPayloads: [UserAgentPayload]
+  /// The version of the payload structure.
   let version: Int
 
-  init(heartbeats: [UserAgentPayload], version: Int = version) {
-    self.heartbeats = heartbeats
+  /// Alternative keys for properties so encoding follows platform-wide payload structure.
+  enum CodingKeys: String, CodingKey {
+    case userAgentPayloads = "heartbeats"
+    case version
+  }
+
+  // TODO: Decide on version testing strategy.
+  /// Designated initializer.
+  /// - Parameters:
+  ///   - userAgentPayloads:
+  ///   - version: A  version of the payload. Defaults to the static default.
+  init(userAgentPayloads: [UserAgentPayload] = [], version: Int = version) {
+    self.userAgentPayloads = userAgentPayloads
     self.version = version
   }
 }
@@ -40,9 +76,10 @@ public struct HeartbeatsPayload: Codable {
 // MARK: - HTTPHeaderRepresentable
 
 extension HeartbeatsPayload: HTTPHeaderRepresentable {
+  /// Returns a processed payload string intended for use in a HTTP header.
+  /// - Returns: A string value from the heartbeats payload.
   public func headerValue() -> String {
-    // TODO: Should we return empty string when payload is empty?
-    guard !heartbeats.isEmpty else {
+    if userAgentPayloads.isEmpty {
       return ""
     }
 
@@ -57,11 +94,13 @@ extension HeartbeatsPayload: HTTPHeaderRepresentable {
   }
 }
 
-// MARK: - Defaults
+// MARK: - Static Defaults
 
 extension HeartbeatsPayload {
-  static let emptyPayload = HeartbeatsPayload(heartbeats: [])
+  /// Convenience instance that represents an empty payload.
+  static let emptyPayload = HeartbeatsPayload()
 
+  /// A default date formatter that uses `YYYY-MM-dd` format.
   static let dateFormatter: DateFormatter = {
     let formatter = DateFormatter()
     formatter.dateFormat = "YYYY-MM-dd"

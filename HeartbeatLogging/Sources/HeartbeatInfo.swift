@@ -14,16 +14,14 @@
 
 import Foundation
 
-// TODO: Document.
-
 /// A type that can be represented as a `HeartbeatsPayload`.
 protocol HeartbeatsPayloadConvertible {
   func makeHeartbeatsPayload() -> HeartbeatsPayload
 }
 
-/// <#Description#>
+/// A value type representing
 struct HeartbeatInfo: Codable, HeartbeatsPayloadConvertible {
-  /// The maximum number of heartbeats.
+  /// The maximum number of heartbeats that can be stored.
   let capacity: Int
   /// <#Description#>
   private(set) var cache: [TimePeriod: Date]
@@ -46,7 +44,7 @@ struct HeartbeatInfo: Codable, HeartbeatsPayloadConvertible {
     self.cache = cache
   }
 
-  /// <#Description#>
+  /// App
   /// - Parameter heartbeat: <#heartbeat description#>
   mutating func append(_ heartbeat: Heartbeat) {
     // 1. Push the heartbeat to the back of the buffer.
@@ -69,11 +67,11 @@ struct HeartbeatInfo: Codable, HeartbeatsPayloadConvertible {
       (heartbeat.agent, [heartbeat.date])
     }
 
-    let heartbeats = [String: [Date]](agentAndDates, uniquingKeysWith: +)
+    let userAgentPayloads = [String: [Date]](agentAndDates, uniquingKeysWith: +)
       .map(HeartbeatsPayload.UserAgentPayload.init)
       .sorted { $0.agent < $1.agent } // Sort payloads by user agent.
 
-    return HeartbeatsPayload(heartbeats: heartbeats)
+    return HeartbeatsPayload(userAgentPayloads: userAgentPayloads)
   }
 }
 

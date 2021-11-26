@@ -24,6 +24,8 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     try removeUnderlyingHeartbeatStorageContainers()
   }
 
+  // MARK: - Public API Only
+
   func testInitWithPublicAPI_LogAndFlush() throws {
     // Given
     let heartbeatController = HeartbeatController(id: #file)
@@ -46,22 +48,28 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     )
   }
 
-  func removeUnderlyingHeartbeatStorageContainers() throws {
-    #if os(tvOS)
-      UserDefaults.standard
-        .removePersistentDomain(forName: kHeartbeatUserDefaultsSuiteName)
-    #else
-      let heartbeatsDirectoryURL = FileManager.default
-        .applicationSupportDirectory
-        .appendingPathComponent(
-          kHeartbeatFileStorageDirectoryPath, isDirectory: true
-        )
+  // MARK: - Stress Tests
 
-      do {
-        try FileManager.default.removeItem(at: heartbeatsDirectoryURL)
-      } catch CocoaError.fileNoSuchFile {
-        // Do nothing.
-      }
-    #endif // os(tvOS)
-  }
+  // TODO: Add stress tests
+}
+
+/// <#Description#>
+/// - Throws: <#description#>
+private func removeUnderlyingHeartbeatStorageContainers() throws {
+  #if os(tvOS)
+    UserDefaults.standard
+      .removePersistentDomain(forName: kHeartbeatUserDefaultsSuiteName)
+  #else
+    let heartbeatsDirectoryURL = FileManager.default
+      .applicationSupportDirectory
+      .appendingPathComponent(
+        kHeartbeatFileStorageDirectoryPath, isDirectory: true
+      )
+
+    do {
+      try FileManager.default.removeItem(at: heartbeatsDirectoryURL)
+    } catch CocoaError.fileNoSuchFile {
+      // Do nothing.
+    }
+  #endif // os(tvOS)
 }

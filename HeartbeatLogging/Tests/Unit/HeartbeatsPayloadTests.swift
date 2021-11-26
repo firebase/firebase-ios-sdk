@@ -19,14 +19,14 @@ class HeartbeatsPayloadTests: XCTestCase {
   func testEmptyPayload() {
     XCTAssertEqual(
       HeartbeatsPayload.emptyPayload,
-      HeartbeatsPayload(heartbeats: [])
+      HeartbeatsPayload(userAgentPayloads: [])
     )
   }
 
   func testEncodeAndDecode() throws {
     // Given
     let heartbeatsPayload = HeartbeatsPayload(
-      heartbeats: [
+      userAgentPayloads: [
         .init(agent: "agent_1", dates: [Date()]),
       ]
     )
@@ -48,7 +48,7 @@ class HeartbeatsPayloadTests: XCTestCase {
     let date5 = date4.addingTimeInterval(60 * 60 * 24) // 2021-11-05
 
     let heartbeatsPayload = HeartbeatsPayload(
-      heartbeats: [
+      userAgentPayloads: [
         .init(agent: "agent_1", dates: [date1, date2]),
         .init(agent: "agent_2", dates: [date3, date4]),
         .init(agent: "agent_3", dates: [date5]),

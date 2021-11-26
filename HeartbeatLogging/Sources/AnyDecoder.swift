@@ -14,29 +14,14 @@
 
 import Foundation
 
-/// A type that can encode an `Encodable` object into `Data`.
-protocol AnyEncoder {
-  func encode<T>(_ value: T) throws -> Data where T: Encodable
-}
-
 /// A type that can decode `Data` into a `Decodable` object.
 protocol AnyDecoder {
   func decode<T>(_ type: T.Type, from data: Data) throws -> T where T: Decodable
 }
 
-extension JSONEncoder: AnyEncoder {}
+// MARK: - JSONDecoder + AnyDecoder
+
 extension JSONDecoder: AnyDecoder {}
-
-// MARK: - Encodable
-
-extension Encodable {
-  /// Returns the `Data` encoding of this value using the given encoder.
-  /// - Parameter encoder: An encoder used to encode the value. Defaults to `JSONEncoder`.
-  /// - Returns: The data encoding of the value.
-  func encoded(using encoder: AnyEncoder = JSONEncoder()) throws -> Data {
-    try encoder.encode(self)
-  }
-}
 
 // MARK: - Data
 

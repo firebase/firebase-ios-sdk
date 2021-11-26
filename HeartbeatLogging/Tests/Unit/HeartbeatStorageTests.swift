@@ -276,11 +276,11 @@ extension HeartbeatStorageTests {
       }
     }
 
-    func write(_ value: Data?) throws {
+    func write(_ data: Data?) throws {
       if let onWrite = onWrite {
-        return try onWrite(value)
+        return try onWrite(data)
       } else {
-        data = value
+        self.data = data
       }
     }
   }
