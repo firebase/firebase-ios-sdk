@@ -76,7 +76,7 @@ struct HeartbeatInfo: Codable, HeartbeatsPayloadConvertible {
   }
 }
 
-/// <#Description#>
+/// A value type representing a generic ring buffer with a fixed capacity.
 struct RingBuffer<Element>: Sequence {
   /// An array of heartbeats treated as a circular queue and intialized with a fixed capacity.
   private var circularQueue: [Element?]
@@ -86,12 +86,12 @@ struct RingBuffer<Element>: Sequence {
   /// Intializes a `RingBuffer` with a given `capacity`.
   /// - Parameter capacity: An `Int` representing the capacity.
   init(capacity: Int) {
-    circularQueue = .init(repeating: nil, count: capacity)
+    circularQueue = Array(repeating: nil, count: capacity)
   }
 
   /// Pushes an element to the back of the buffer, returning the element (`Element?`) that was overriten.
   /// - Parameter element: The element to push to the back of the buffer.
-  /// - Returns: <#description#>
+  /// - Returns: The element that was overwritten if an element was indeed overwritten. Else, `nil`.
   /// - Complexity: O(1)
   @discardableResult
   mutating func push(_ element: Element) -> Element? {
