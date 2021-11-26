@@ -37,8 +37,8 @@ public final class HeartbeatController {
 
   /// Designated initializer.
   /// - Parameters:
-  ///   - storage: The logger's internal storage object.
-  ///   - dateProvider: TODO: Document.
+  ///   - storage: A heartbeat storage container.
+  ///   - dateProvider: A date provider. Defaults to providing the current date.
   init(storage: HeartbeatStorageProtocol,
        dateProvider: @escaping () -> Date = Date.init) {
     self.storage = storage
