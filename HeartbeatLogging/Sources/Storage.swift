@@ -65,8 +65,8 @@ final class FileStorage: Storage {
   func write(_ data: Data?) throws {
     do {
       try createDirectories(in: url.deletingLastPathComponent())
-      if let value = value {
-        try value.write(to: url, options: .atomic)
+      if let data = data {
+        try data.write(to: url, options: .atomic)
       } else {
         let emptyData = Data()
         try emptyData.write(to: url, options: .atomic)

@@ -28,6 +28,7 @@ struct HeartbeatInfo: Codable, HeartbeatsPayloadConvertible {
   /// <#Description#>
   private var buffer: RingBuffer<Heartbeat>
 
+  /// <#Description#>
   static var cacheProvider: () -> [TimePeriod: Date] {
     let timePeriodsAndDates = TimePeriod.periods.map { ($0, Date.distantPast) }
     return { Dictionary(uniqueKeysWithValues: timePeriodsAndDates) }
