@@ -30,9 +30,19 @@ public final class HeartbeatController {
   /// Public initializer.
   /// - Parameter id: The `id` to associate this controller's heartbeat storage with.
   public convenience init(id: String) {
+    self.init(id: id, dateProvider: Date.init)
+  }
+
+  /// Convenience initializer. Mirrors the semantics of the public intializer with the added benefit of
+  /// injecting a custom date provider for improved testability.
+  /// - Parameters:
+  ///   - id: The `id` to associate this controller's heartbeat storage with.
+  ///   - dateProvider: A date provider.
+  convenience init(id: String,
+                   dateProvider: @escaping () -> Date) {
     // TODO: Sanitize id.
     let storage = HeartbeatStorage.getInstance(id: id)
-    self.init(storage: storage)
+    self.init(storage: storage, dateProvider: dateProvider)
   }
 
   /// Designated initializer.

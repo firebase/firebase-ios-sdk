@@ -24,11 +24,15 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     try removeUnderlyingHeartbeatStorageContainers()
   }
 
-  // MARK: - Public API Only
-
-  func testInitWithPublicAPI_LogAndFlush() throws {
+  func testMultipleControllersWithTheSameIDUseTheSameStorage_UsingPublicAPI() throws {
     // Given
-    let heartbeatController = HeartbeatController(id: #file)
+    // When
+    // Then
+  }
+
+  func testLogAndFlush_UsingPublicAPI() throws {
+    // Given
+    let heartbeatController = HeartbeatController(id: #function)
     // When
     heartbeatController.log("dummy_agent")
     // Then
@@ -48,13 +52,27 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     )
   }
 
+  func testDoNotLogMoreThanOnce_WhenInSingleTimePeriod_UsingPublicAPI() throws {
+    // Given
+    let heartbeatController = HeartbeatController(id: #function)
+    heartbeatController.log("dummy_agent")
+    heartbeatController.flush()
+    // When
+    heartbeatController.log("dummy_agent")
+    heartbeatController.log("dummy_agent1")
+    // Then
+    let payload = heartbeatController.flush()
+    XCTAssertEqual(payload.headerValue(), "")
+  }
+
   // MARK: - Stress Tests
 
   // TODO: Add stress tests
 }
 
-/// <#Description#>
-/// - Throws: <#description#>
+/// Removes all underlying storage containers used by the module. See `StorageFactory` for details
+/// regarding where the module stores client data.
+/// - Throws: An error if the storage container could not be removed.
 private func removeUnderlyingHeartbeatStorageContainers() throws {
   #if os(tvOS)
     UserDefaults.standard
