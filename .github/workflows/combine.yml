@@ -46,6 +46,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@v1
 
     - name: Setup build
       run:  scripts/install_prereqs.sh CombineSwift ${{ matrix.target }} xcodebuild
@@ -61,6 +62,7 @@ jobs:
     runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Install Secret GoogleService-Info.plist

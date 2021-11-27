@@ -34,6 +34,7 @@ jobs:
     runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@v1
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: iOS Unit Tests
@@ -48,6 +49,7 @@ jobs:
         target: [tvOS, macOS, catalyst]
     steps:
     - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@v1
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Unit Tests
@@ -60,6 +62,7 @@ jobs:
     runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Build Catalyst

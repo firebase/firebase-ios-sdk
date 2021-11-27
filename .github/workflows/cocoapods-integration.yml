@@ -21,6 +21,7 @@ jobs:
         config: [Cocoapods_multiprojects_frameworks, Cocoapods_multiprojects_staticLibs]
     steps:
     - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@v1
     - name: Get realpath
       run: brew install coreutils
     - name: Build and test
