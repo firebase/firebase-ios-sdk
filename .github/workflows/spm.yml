@@ -46,7 +46,7 @@ jobs:
 
   platforms:
     # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.ref == 'github-buildcache'
 
     runs-on: macos-11
     strategy:
