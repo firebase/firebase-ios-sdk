@@ -110,7 +110,7 @@ source scripts/check_secrets.sh
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
   XCODEBUILD_ARGS="$@"
-  XCODEBUILD_ARGS="CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ ${XCODEBUILD_ARGS}"
+#  XCODEBUILD_ARGS="CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ ${XCODEBUILD_ARGS}"
   echo xcodebuild $XCODEBUILD_ARGS
 
   xcpretty_cmd=(xcpretty)
