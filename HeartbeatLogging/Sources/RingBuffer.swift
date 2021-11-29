@@ -33,8 +33,8 @@ struct RingBuffer<Element>: Sequence {
   /// - Complexity: O(1)
   @discardableResult
   mutating func push(_ element: Element) -> Element? {
-    guard circularQueue.capacity > 0 else {
-      // Do not append if `capacity` is less than or equal 0.
+    guard circularQueue.count > 0 else {
+      // Do not push if circularQueue is a fixed empty array.
       return nil
     }
 
