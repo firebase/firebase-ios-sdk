@@ -24,8 +24,14 @@ public final class HeartbeatController {
   /// Current date provider. It is used for testability.
   private let dateProvider: () -> Date
   // TODO: Verify that this standardization aligns with backend.
+  // TODO: Probably should share config with HeartbeatsPayload's DateFormatter.
   /// Used for standardizing dates for calendar-day comparision.
-  static let dateStandardizer = Calendar(identifier: .gregorian).startOfDay(for:)
+  static let dateStandardizer: (Date) -> (Date) = {
+    var calendar = Calendar(identifier: .iso8601)
+    calendar.locale = Locale(identifier: "en_US_POSIX")
+    calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+    return calendar.startOfDay(for:)
+  }()
 
   /// Public initializer.
   /// - Parameter id: The `id` to associate this controller's heartbeat storage with.
@@ -40,7 +46,6 @@ public final class HeartbeatController {
   ///   - dateProvider: A date provider.
   convenience init(id: String,
                    dateProvider: @escaping () -> Date) {
-    // TODO: Sanitize id.
     let storage = HeartbeatStorage.getInstance(id: id)
     self.init(storage: storage, dateProvider: dateProvider)
   }

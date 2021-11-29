@@ -87,6 +87,7 @@ extension HeartbeatsPayload: HTTPHeaderRepresentable {
     encoder.dateEncodingStrategy = .formatted(Self.dateFormatter)
 
     if let data = try? encoded(using: encoder) {
+      // TODO: Compress the payload before base64 encoding.
       return data.base64EncodedString()
     } else {
       return "" // Return empty string if encoding failed.
@@ -104,6 +105,8 @@ extension HeartbeatsPayload {
   static let dateFormatter: DateFormatter = {
     let formatter = DateFormatter()
     formatter.dateFormat = "YYYY-MM-dd"
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.timeZone = TimeZone(secondsFromGMT: 0)
     return formatter
   }()
 }

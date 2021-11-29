@@ -15,6 +15,8 @@
 import XCTest
 @testable import HeartbeatLogging
 
+// TODO: Verify that this class is properly tested.
+
 class HeartbeatStorageTests: XCTestCase {
   // MARK: - Instance Management
 
@@ -233,10 +235,6 @@ extension HeartbeatStorageTests {
     // Then
     wait(for: expectations, timeout: 1.0, enforceOrder: true)
   }
-
-  // MARK: - HeartbeatStorage + StorageFactory
-
-  // TODO: Implement factory tests.
 
   // MARK: - Fakes
 

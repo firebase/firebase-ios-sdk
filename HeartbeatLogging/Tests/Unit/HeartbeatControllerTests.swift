@@ -62,11 +62,9 @@ class HeartbeatControllerTests: XCTestCase {
 
   func testLoggingDifferentAgentsInSameTimePeriodOnlyStoresTheFirst() throws {
     // Given
-    let testDate = date
-
     let controller = HeartbeatController(
       storage: HeartbeatStorageFake(),
-      dateProvider: { testDate }
+      dateProvider: { self.date }
     )
 
     assertHeartbeatControllerFlushesEmptyPayload(controller)
@@ -203,8 +201,10 @@ class HeartbeatControllerTests: XCTestCase {
     assertHeartbeatControllerFlushesEmptyPayload(controller)
   }
 
-  func assertHeartbeatControllerFlushesEmptyPayload(_ controller: HeartbeatController) {
-    XCTAssertEqual(controller.flush().headerValue(), "")
+  func testHeartbeatsAreLoggedAcrossTimeZones() throws {
+    // Given
+    // When
+    // Then
   }
 }
 
@@ -258,4 +258,9 @@ func assertEqualPayloadStrings(_ encoded: String, _ literal: String) throws {
 
     """
   )
+}
+
+// TODO: Fix above API so encompass this.
+func assertHeartbeatControllerFlushesEmptyPayload(_ controller: HeartbeatController) {
+  XCTAssertEqual(controller.flush().headerValue(), "")
 }

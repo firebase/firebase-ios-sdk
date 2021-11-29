@@ -16,6 +16,9 @@ import XCTest
 @testable import HeartbeatLogging
 
 class HeartbeatLoggingIntegrationTests: XCTestCase {
+  // 2021-11-01 @ 00:00:00 (EST)
+  let date = Date(timeIntervalSince1970: 1_635_739_200)
+
   override func setUpWithError() throws {
     try removeUnderlyingHeartbeatStorageContainers()
   }
@@ -24,35 +27,33 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     try removeUnderlyingHeartbeatStorageContainers()
   }
 
-  func testMultipleControllersWithTheSameIDUseTheSameStorage_UsingPublicAPI() throws {
-    // Given
-    // When
-    // Then
-  }
-
-  func testLogAndFlush_UsingPublicAPI() throws {
+  /// This test may flake if it is executed during the transtion from one day to the next.
+  func testLogAndFlush() throws {
     // Given
     let heartbeatController = HeartbeatController(id: #function)
     // When
     heartbeatController.log("dummy_agent")
     // Then
     let payload = heartbeatController.flush()
-    // The `HeartbeatController` should have recorded the current date.
-    let dateString = HeartbeatsPayload.dateFormatter.string(from: Date())
+    let expectedDate = HeartbeatsPayload.dateFormatter.string(from: Date())
     try assertEqualPayloadStrings(
       payload.headerValue(),
       """
       {
         "version": 2,
         "heartbeats": [
-          { "agent": "dummy_agent", "dates": ["\(dateString)"] }
+          {
+            "agent": "dummy_agent",
+            "dates": ["\(expectedDate)"]
+          }
         ]
       }
       """
     )
   }
 
-  func testDoNotLogMoreThanOnce_WhenInSingleTimePeriod_UsingPublicAPI() throws {
+  /// This test may flake if it is executed during the transtion from one day to the next.
+  func testDoNotLogMoreThanOnce_WhenInSingleTimePeriod() throws {
     // Given
     let heartbeatController = HeartbeatController(id: #function)
     heartbeatController.log("dummy_agent")
@@ -65,9 +66,175 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     XCTAssertEqual(payload.headerValue(), "")
   }
 
-  // MARK: - Stress Tests
+  func testMultipleControllersWithTheSameIDUseTheSameStorage() throws {
+    // Given
+    let heartbeatController1 = HeartbeatController(id: #function, dateProvider: { self.date })
+    let heartbeatController2 = HeartbeatController(id: #function, dateProvider: { self.date })
+    // When
+    heartbeatController1.log("dummy_agent")
+    // Then
+    let payload = heartbeatController2.flush()
+    try assertEqualPayloadStrings(
+      payload.headerValue(),
+      """
+      {
+        "version": 2,
+        "heartbeats": [
+          {
+            "agent": "dummy_agent",
+            "dates": ["2021-11-01"]
+          }
+        ]
+      }
+      """
+    )
+    assertHeartbeatControllerFlushesEmptyPayload(heartbeatController1)
+  }
 
-  // TODO: Add stress tests
+  func testHeartbeatControllerConcurrencyStressTest() throws {
+    // Given
+    let heartbeatController = HeartbeatController(id: #function, dateProvider: { self.date })
+    // When
+    DispatchQueue.concurrentPerform(iterations: 100) { _ in
+      heartbeatController.log("dummy_agent")
+    }
+
+    var payloads: [HeartbeatsPayload] = []
+
+    DispatchQueue.concurrentPerform(iterations: 100) { _ in
+      let payload = heartbeatController.flush()
+      payloads.append(payload)
+    }
+
+    let nonEmptyPayloads = payloads.filter { payload in
+      payload.headerValue().count > 0
+    }
+
+    XCTAssertEqual(nonEmptyPayloads.count, 1)
+    let payload = try XCTUnwrap(nonEmptyPayloads.first)
+    try assertEqualPayloadStrings(
+      payload.headerValue(),
+      """
+      {
+        "version": 2,
+        "heartbeats": [
+          {
+            "agent": "dummy_agent",
+            "dates": ["2021-11-01"]
+          }
+        ]
+      }
+      """
+    )
+  }
+
+  // TODO: Implement
+  func testLoggingDependsOnDateNotUserAgent() throws {
+    // Given
+    // When
+    // Then
+  }
+
+  // TODO: Decide on ordering.
+  func testLogRepeatedly_WithoutFlushing_LimitsOnWrite() throws {
+    // Given
+    var testdate = date
+    let heartbeatController = HeartbeatController(id: #function, dateProvider: { testdate })
+    // When
+    for i in 1 ... 30 + 5 {
+      if i < 5 {
+        heartbeatController.log("dummy_agent_1")
+      } else if i < 13 {
+        heartbeatController.log("dummy_agent_2")
+      } else {
+        heartbeatController.log("dummy_agent_3")
+      }
+
+      _ = XCTWaiter.wait(for: [expectation(description: "")], timeout: 0.05)
+      testdate.addTimeInterval(60 * 60 * 24 + 10)
+    }
+
+    let payload = heartbeatController.flush()
+    try assertEqualPayloadStrings(
+      payload.headerValue(),
+      """
+      {
+        "version": 2,
+        "heartbeats": [
+          {
+            "agent": "dummy_agent_2",
+            "dates": [
+              "2021-11-06",
+              "2021-11-07",
+              "2021-11-08",
+              "2021-11-09",
+              "2021-11-10",
+              "2021-11-11",
+              "2021-11-12"
+            ]
+          },
+          {
+            "agent": "dummy_agent_3",
+            "dates": [
+              "2021-12-01",
+              "2021-12-02",
+              "2021-12-03",
+              "2021-12-04",
+              "2021-12-05",
+              "2021-11-13",
+              "2021-11-14",
+              "2021-11-15",
+              "2021-11-16",
+              "2021-11-17",
+              "2021-11-18",
+              "2021-11-19",
+              "2021-11-20",
+              "2021-11-21",
+              "2021-11-22",
+              "2021-11-23",
+              "2021-11-24",
+              "2021-11-25",
+              "2021-11-26",
+              "2021-11-27",
+              "2021-11-28",
+              "2021-11-29",
+              "2021-11-30"
+            ]
+          }
+        ]
+      }
+      """
+    )
+  }
+
+  func testUnderlyingStorageIsDeletedBetweenOperations() throws {
+    // Given
+    let heartbeatController = HeartbeatController(id: #function, dateProvider: { self.date })
+    heartbeatController.log("dummy_agent")
+    _ = XCTWaiter.wait(for: [.init(description: "Wait for async log.")], timeout: 0.10)
+    // When
+    try removeUnderlyingHeartbeatStorageContainers()
+    // Then
+    // 1. Assert controller flushes empty payload.
+    assertHeartbeatControllerFlushesEmptyPayload(heartbeatController)
+    // 2. Assert controller can log and flush non-empty payload.
+    heartbeatController.log("dummy_agent")
+    let payload = heartbeatController.flush()
+    try assertEqualPayloadStrings(
+      payload.headerValue(),
+      """
+      {
+        "version": 2,
+        "heartbeats": [
+          {
+            "agent": "dummy_agent",
+            "dates": ["2021-11-01"]
+          }
+        ]
+      }
+      """
+    )
+  }
 }
 
 /// Removes all underlying storage containers used by the module. See `StorageFactory` for details
