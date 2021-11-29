@@ -88,7 +88,7 @@ class RingBufferTests: XCTestCase {
     }
     // Then
     XCTAssertTrue(
-      ringBuffer.elementsEqual([91, 92, 93, 94, 95, 96, 97, 98, 99, 100]),
+      ringBuffer.elementsEqual(Array(91 ... 100)),
       "Ring buffer's elements are not equal to given elements."
     )
   }
