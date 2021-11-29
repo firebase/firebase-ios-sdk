@@ -15,8 +15,6 @@
 import XCTest
 @testable import HeartbeatLogging
 
-// TODO: Unit test recording across time zones
-
 class HeartbeatControllerTests: XCTestCase {
   // 2021-11-01 @ 00:00:00 (EST)
   let date = Date(timeIntervalSince1970: 1_635_739_200)
@@ -201,10 +199,129 @@ class HeartbeatControllerTests: XCTestCase {
     assertHeartbeatControllerFlushesEmptyPayload(controller)
   }
 
+  func testHeartbeatDatesAreStandardizedForUTC() throws {
+    // Given
+    let newYorkDate = try XCTUnwrap(
+      DateComponents(
+        calendar: .current,
+        timeZone: TimeZone(identifier: "America/New_York"),
+        year: 2021,
+        month: 11,
+        day: 01,
+        hour: 23
+      ).date // 2021-11-01 @ 11 PM (New York time zone)
+    )
+    let heartbeatController = HeartbeatController(
+      storage: HeartbeatStorageFake(),
+      dateProvider: { newYorkDate }
+    )
+    // When
+    heartbeatController.log("dummy_agent")
+    let payload = heartbeatController.flush()
+    // Then
+    // Note below how the date was intepreted as UTC - 2021-11-02.
+    try assertEqualPayloadStrings(
+      payload.headerValue(),
+      """
+      {
+        "version": 2,
+        "heartbeats": [
+          {
+            "agent": "dummy_agent",
+            "dates": ["2021-11-02"]
+          }
+        ]
+      }
+      """
+    )
+  }
+
   func testHeartbeatsAreLoggedAcrossTimeZones() throws {
     // Given
+    let newYorkDate = try XCTUnwrap(
+      DateComponents(
+        calendar: .current,
+        timeZone: TimeZone(identifier: "America/New_York"),
+        year: 2021,
+        month: 11,
+        day: 01,
+        hour: 23
+      ).date // 2021-11-01 @ 11 PM (New York time zone)
+    )
+
+    let tokyoDate = try XCTUnwrap(
+      DateComponents(
+        calendar: .current,
+        timeZone: TimeZone(identifier: "Asia/Tokyo"),
+        year: 2021,
+        month: 11,
+        day: 02,
+        hour: 23
+      ).date // 2021-11-02 @ 11 PM (Tokyo time zone)
+    )
+
+    var testDate = newYorkDate
+
+    let heartbeatController = HeartbeatController(
+      storage: HeartbeatStorageFake(),
+      dateProvider: { testDate }
+    )
+
     // When
+    heartbeatController.log("dummy_agent")
+    heartbeatController.flush()
+
+    testDate = tokyoDate
+    heartbeatController.log("dummy_agent")
     // Then
+    assertHeartbeatControllerFlushesEmptyPayload(heartbeatController)
+  }
+
+  func testLoggingDependsOnDateNotUserAgent() throws {
+    // Given
+    var testDate = date
+    let heartbeatController = HeartbeatController(
+      storage: HeartbeatStorageFake(),
+      dateProvider: { testDate }
+    )
+
+    // When
+    // - Day 1
+    heartbeatController.log("dummy_agent_1")
+
+    // - Day 2
+    testDate.addTimeInterval(60 * 60 * 24)
+    heartbeatController.log("dummy_agent_2")
+
+    // - Day 3
+    testDate.addTimeInterval(60 * 60 * 24)
+    heartbeatController.log("dummy_agent_1")
+
+    // Then
+    let payload = heartbeatController.flush()
+    try assertEqualPayloadStrings(
+      payload.headerValue(),
+      """
+      {
+        "version": 2,
+        "heartbeats": [
+          {
+            "agent": "dummy_agent_1",
+            "dates": [
+              "2021-11-01",
+              "2021-11-03"
+            ]
+          },
+          {
+            "agent": "dummy_agent_2",
+            "dates": [
+              "2021-11-02"
+            ]
+          }
+        ]
+      }
+      """
+    )
   }
 }
 
