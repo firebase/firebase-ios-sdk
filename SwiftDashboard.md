@@ -30,10 +30,10 @@ to help prioritize any particular cell(s).
 * **async/await**:API tests include tests for all auto-generated async/await APIs. Implementations are added for
 asynchronous APIs that don't have auto-generated counterparts like
 [these](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseStorageSwift/Tests/Integration/StorageAsyncAwait.swift)
-for Storage. 
-* **Swift Errors**: Swift Error Codes are available instead of NSErrors.    
+for Storage.
+* **Swift Errors**: Swift Error Codes are available instead of NSErrors.
 * **Codable**: Codable is implemented where appropriate.
-* **SwiftUI Lifecycle**: Dependencies on the AppDelegate Lifecycle are migrated to the Multicast AppDelegate. 
+* **SwiftUI Lifecycle**: Dependencies on the AppDelegate Lifecycle are migrated to the Multicast AppDelegate.
 * **Property Wrappers**: Property wrappers are used to improve the API.
 
 ## Columns (Firebase Products)
