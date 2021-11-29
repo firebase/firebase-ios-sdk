@@ -17,7 +17,7 @@ to help prioritize any particular cell(s).
 ### Other Projects
 - Automatic Swift API generation and coverage validation
 
-## Row Definititions
+## Rows (Swift Capabilities)
 ### Swift Library
 A Swift implemented extension library exists. It is deployed as Firebase{Product}Swift CocoaPod and as a Swift Package Manager product.
 
@@ -48,3 +48,22 @@ Property wrappers are used to improve the API.
 3. Mostly done. Need to review open questions in the RTDB tab [here](https://docs.google.com/spreadsheets/d/1HS4iJBtTHA9E01VrcsiVn_GVOa7KOCcn5LNw3sWlGoU/edit#gid=75586175).
 4. Feature Request at #7723 and PR at #9000
 5. Started at #9007
+
+## Columns (Firebase Products)
+* AB - AB Testing
+* An - Analytics
+* ApC - App Check
+* ApD - App Distribution
+* Aut - Auth
+* Cor - Core
+* Crs - Crashlytics
+* DB - Real-time Database
+* Fst - Firestore
+* Fn - Functions
+* IAM - In App Messaging
+* Ins - Installations
+* Msg - Messaging
+* MLM - MLModel Downloader
+* Prf - Performance
+* RC - Remote Config
+* Str - Storage
