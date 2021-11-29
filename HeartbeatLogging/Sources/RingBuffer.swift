@@ -34,7 +34,7 @@ struct RingBuffer<Element>: Sequence {
   @discardableResult
   mutating func push(_ element: Element) -> Element? {
     guard circularQueue.count > 0 else {
-      // Do not push if circularQueue is a fixed empty array.
+      // Do not push if `circularQueue` is a fixed empty array.
       return nil
     }
 
