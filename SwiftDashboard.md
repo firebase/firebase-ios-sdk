@@ -15,7 +15,8 @@ to help prioritize any particular cell(s).
 | **Property Wrappers** |  ❌  |  ❌    | ❌    |❌     | ❌     | ❌     | ❌     | ❌     | ✔     | ❌     | ❌     | ❌    | ❌     | ❌    | ❌     | ❌   |❌     |
 
 ### Other Projects
-- Automatic Swift API generation and coverage validation
+- Tooling to surface full list of automatically generated Swift API from Objective C and validate.
+- Improve singleton naming scheme. Move singletons into a Firebase namespace, like `Firebase.auth()`, `Firebase.storage()`, etc.
 
 ## Notes
 1. In progress at #8854
