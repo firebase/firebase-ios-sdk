@@ -295,7 +295,11 @@ BOOL FIRDLMatchesShortLinkFormat(NSURL *URL) {
   // Path cannot be prefixed with /link/dismiss
   BOOL isDismiss = [[URL.path lowercaseString] hasPrefix:@"/link/dismiss"];
 
-  return hasPathOrCustomDomain && !isDismiss && canParse;
+  // Checks short link format by having only one path after domain prefix.
+  BOOL matchesRegularExpression =
+      ([URL.path rangeOfString:@"/[^/]+" options:NSRegularExpressionSearch].location != NSNotFound);
+
+  return hasPathOrCustomDomain && !isDismiss && canParse && matchesRegularExpression;
 }
 
 NSString *FIRDLMatchTypeStringFromServerString(NSString *_Nullable serverMatchTypeString) {

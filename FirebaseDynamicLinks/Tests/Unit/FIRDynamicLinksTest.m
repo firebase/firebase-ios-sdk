@@ -1198,7 +1198,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 - (void)testPassMatchesShortLinkFormatForCustomDomains {
   NSArray<NSString *> *urlStrings = @[
     @"https://google.com/xyz", @"https://google.com/xyz/?link=https://somedomain",
-    @"https://google.com?link=https://somedomain", @"https://google.com/?link=https://somedomain",
     @"https://google.com/xyz?link=https://somedomain",
     @"https://google.com/xyz/?link=https://somedomain", @"https://google.com/one/xyz",
     @"https://google.com/one/xyz?link=https://somedomain",
@@ -1606,7 +1605,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
     @"https://google.com/one?",               // Short FDL starting with 'https://google.com'
     @"https://google.com/one/mylink",         // Short FDL starting with  'https://google.com/one'
     @"https://a.firebase.com/mypath/mylink",  // Short FDL starting https://a.firebase.com/mypath
-    @"https://google.com?link=https://somedomain", @"https://google.com/?link=https://somedomain",
     @"https://google.com/somepath?link=https://somedomain",
     @"https://google.com/somepath/?link=https://somedomain",
     @"https://google.com/somepath/somepath2?link=https://somedomain",
