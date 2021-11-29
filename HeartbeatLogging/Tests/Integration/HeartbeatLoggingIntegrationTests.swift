@@ -60,7 +60,6 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     heartbeatController.flush()
     // When
     heartbeatController.log("dummy_agent")
-    heartbeatController.log("dummy_agent1")
     // Then
     let payload = heartbeatController.flush()
     XCTAssertEqual(payload.headerValue(), "")
@@ -128,33 +127,32 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     )
   }
 
-  // TODO: Implement
-  func testLoggingDependsOnDateNotUserAgent() throws {
-    // Given
-    // When
-    // Then
-  }
-
   // TODO: Decide on ordering.
   func testLogRepeatedly_WithoutFlushing_LimitsOnWrite() throws {
     // Given
     var testdate = date
     let heartbeatController = HeartbeatController(id: #function, dateProvider: { testdate })
     // When
-    for i in 1 ... 30 + 5 {
-      if i < 5 {
+    // Iterate over 35 days and log a heartbeat each day.
+    // - 30 is the hardcoded max number of heartbeats in storage is 30
+    // - 5 days extra means that we expect 5 heartbeats to be overwritten
+    for day in 1 ... 35 {
+      // A different user agent is logged based on the current iteration. There
+      // is no particular reason for when each user agent is used.
+      if day < 5 {
         heartbeatController.log("dummy_agent_1")
-      } else if i < 13 {
+      } else if day < 13 {
         heartbeatController.log("dummy_agent_2")
       } else {
         heartbeatController.log("dummy_agent_3")
       }
 
-      _ = XCTWaiter.wait(for: [expectation(description: "")], timeout: 0.05)
-      testdate.addTimeInterval(60 * 60 * 24 + 10)
+      testdate.addTimeInterval(60 * 60 * 24)
     }
 
     let payload = heartbeatController.flush()
+    // The first 5 days of heartbeats (associated with `dummy_agent_1`) should
+    // have been overwritten.
     try assertEqualPayloadStrings(
       payload.headerValue(),
       """
