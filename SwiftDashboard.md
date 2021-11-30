@@ -4,6 +4,9 @@ This dashboard summarizes the status of Firebase's [2022 Swift Modernization Pro
 Please upvote or create a [feature request](https://github.com/firebase/firebase-ios-sdk/issues)
 to help prioritize any particular cell(s).
 
+This dashboard is intended to track an initial full Swift review of Firebase along with addressing low-hanging fruit. I would expect it to identify additional follow up
+tasks for additional Swift improvements.
+
 |                       | AB  | An     | ApC    | ApD    | Aut    | Cor    | Crs    | DB     | Fst    | Fn     | IAM    | Ins    | Msg    | MLM    | Prf    | RC     |    Str |
 |   :---                | :--- | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
 | **Swift Library**     | ❌   |   ✔   | ❌     |❌     | ❌     | ❌     | ❌      |  ✔     |  ✔    | 1      |  ✔     | ❌    | ❌     | ✔      | ❌     | ❌    | ✔     |
