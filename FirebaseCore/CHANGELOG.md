@@ -1,6 +1,6 @@
 # Firebase 8.10.1
 - [fixed] Fixed platform availability checks in Swift Package Manager that may prevent code
-  completion for Analytics APIs  macOS and tvOS. (#9032)
+  completion for Analytics APIs macOS and tvOS. (#9032)
 
 # Firebase 8.10.0
 - [added] Firebase now includes community supported Combine publishers. More details can be found

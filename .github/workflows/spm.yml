@@ -51,7 +51,7 @@ jobs:
     strategy:
       matrix:
         target: [tvOS, macOS, catalyst]
-        # Include non iOS tests in this section.
+        # Full set of Firebase-Package tests only run on iOS.
     steps:
     - uses: actions/checkout@v2
     - name: Initialize xcodebuild
