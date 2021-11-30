@@ -109,7 +109,7 @@ source scripts/check_secrets.sh
 # Runs xcodebuild with the given flags, piping output to xcpretty
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
-  ./xcodebuild_buildcache.sh echo "$@"
+  scripts/xcodebuild_buildcache.sh echo "$@"
 
   xcpretty_cmd=(xcpretty)
   if [[ -n "${TRAVIS:-}" ]]; then
@@ -119,7 +119,7 @@ function RunXcodebuild() {
   fi
 
   result=0
-  ./xcodebuild_buildcache.sh "$@" | tee xcodebuild.log | "${xcpretty_cmd[@]}" || result=$?
+  scripts/xcodebuild_buildcache.sh "$@" | tee xcodebuild.log | "${xcpretty_cmd[@]}" || result=$?
 
   if [[ $result == 65 ]]; then
     ExportLogs "$@"
@@ -128,7 +128,7 @@ function RunXcodebuild() {
     sleep 5
 
     result=0
-     ./xcodebuild_buildcache.sh "$@" | tee xcodebuild.log | "${xcpretty_cmd[@]}" || result=$?
+    scripts/xcodebuild_buildcache.sh "$@" | tee xcodebuild.log | "${xcpretty_cmd[@]}" || result=$?
   fi
 
   if [[ $result != 0 ]]; then
