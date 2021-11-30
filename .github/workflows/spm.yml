@@ -1,7 +1,18 @@
 name: spm
 
 on:
-  push
+  pull_request:
+    paths:
+    - '.github/workflows/spm.yml'
+    - 'Package.swift'
+    - '.swiftpm/*'
+    - 'scripts/build.sh'
+    - 'SwiftPMTests/*'
+    - 'SwiftPM-PlatformExclude'
+    - 'Gemfile*'
+  schedule:
+    # Run every day at 12am (PST) - cron uses UTC times
+    - cron:  '0 8 * * *'
 
 # This workflow builds and tests the Swift Package Manager. Only iOS runs on PRs
 # because each platform takes 15-20 minutes after adding Firestore.
@@ -36,13 +47,13 @@ jobs:
 
   platforms:
     # Don't run on private repo unless it is a PR.
-    if: ${{ always() }}
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
     runs-on: macos-11
     strategy:
       matrix:
-        target: [macOS]
-        # Full set of Firebase-Package tests only run on iOS because of Analytics.
+        target: [tvOS, macOS, catalyst]
+        # Full set of Firebase-Package tests only run on iOS.
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
