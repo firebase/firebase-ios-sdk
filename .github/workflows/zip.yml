@@ -27,6 +27,7 @@ jobs:
     runs-on: macOS-10.15
     steps:
     - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@v1
     - name: Xcode 12.2
       run: sudo xcode-select -s /Applications/Xcode_12.2.app/Contents/Developer
     - name: Setup Bundler
@@ -64,6 +65,7 @@ jobs:
     runs-on: macOS-10.15
     steps:
     - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@v1
     - name: Xcode 12.2
       run: sudo xcode-select -s /Applications/Xcode_12.2.app/Contents/Developer
     - name: Setup Bundler

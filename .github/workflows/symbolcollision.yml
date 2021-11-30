@@ -20,6 +20,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Prereqs
