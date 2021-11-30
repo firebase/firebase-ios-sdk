@@ -15,8 +15,8 @@ Prior to version 8.0.0 (starting with version 6.31.0) support was in Beta.
 
 ## Limitations
 
-- Not all products are available on each platform. See [the chart on this page](https://firebase.google.com/docs/ios/learn-more#firebase_library_support_by_platform)
-  for information on product availabilty by platform.
+- Product availability varies by platform. See [the chart on this page](https://firebase.google.com/docs/ios/learn-more#firebase_library_support_by_platform)
+  for information on product availabilty for each platform.
 
 ## Installation
 
