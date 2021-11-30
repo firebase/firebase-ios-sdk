@@ -8,6 +8,7 @@ on:
     - '.swiftpm/*'
     - 'scripts/build.sh'
     - 'SwiftPMTests/*'
+    - 'SwiftPM-PlatformExclude'
     - 'Gemfile*'
   schedule:
     # Run every day at 12am (PST) - cron uses UTC times
