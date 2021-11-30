@@ -15,9 +15,8 @@ Prior to version 8.0.0 (starting with version 6.31.0) support was in Beta.
 
 ## Limitations
 
-- Analytics is only supported for iOS and cannot be used in apps that support other platforms.
-- watchOS support is available for ABTesting, Auth, Crashlytics, Messaging, Realtime Database,
-  RemoteConfig, and Storage.
+- Not all products are available on each platform. See [the chart on this page](https://firebase.google.com/docs/ios/learn-more#firebase_library_support_by_platform)
+  for information on product availabilty by platform.
 
 ## Installation
 
@@ -36,7 +35,7 @@ Search for the Firebase Apple SDK using the repo's URL:
 https://github.com/firebase/firebase-ios-sdk.git
 ```
 
-Next, set the **Dependency Rule** to be `Up to Next Major Version` and specify `8.0.0` as the lower bound.
+Next, set the **Dependency Rule** to be `Up to Next Major Version` and specify `8.10.0` as the lower bound.
 
 Then, select **Add Package**.
 
@@ -81,7 +80,7 @@ dependencies: [
   .package(
     name: "Firebase",
     url: "https://github.com/firebase/firebase-ios-sdk.git",
-    .upToNextMajor(from: "8.0.0")
+    .upToNextMajor(from: "8.10.0")
   ),
 
   // Any other dependencies you have...
