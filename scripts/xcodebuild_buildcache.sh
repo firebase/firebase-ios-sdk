@@ -1,6 +1,6 @@
 #!/bin/bash
 function FoldBuildcacheParams() {
-  local XCODEBUILD_ARGS=$1
+  local XCODEBUILD_ARGS="$1"
   XCODEBUILD_ARGS="CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ ${XCODEBUILD_ARGS}"
 }
 
