@@ -29,9 +29,9 @@ private func getResultCallback<T>(completion: @escaping (Result<T, Error>) -> Vo
     if let value = value {
       completion(.success(value))
     } else if let error = error {
-      completion(.failure(StorageError.swiftConvert(objcError: (error as NSError).code)))
+      completion(.failure(StorageError.swiftConvert(objcError: error as NSError)))
     } else {
-      completion(.failure(StorageError.internalError))
+      completion(.failure(StorageError.internalError("Internal failure in getResultCallback")))
     }
   }
 }

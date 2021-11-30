@@ -16,34 +16,78 @@ import FirebaseStorage
 
 public enum StorageError: Error {
   case unknown
-  case objectNotFound
-  case bucketNotFound
-  case projectNotFound
-  case quotaExceeded
+  case objectNotFound(String)
+  case bucketNotFound(String)
+  case projectNotFound(String)
+  case quotaExceeded(String)
   case unauthenticated
-  case unauthorized
+  case unauthorized(String, String)
   case retryLimitExceeded
   case nonMatchingChecksum
-  case downloadSizeExceeded
+  case downloadSizeExceeded(Int64, Int64)
   case cancelled
-  case invalidArgument
-  case internalError
+  case invalidArgument(String)
+  case internalError(String)
 
-  static func swiftConvert(objcError: Int) -> StorageError {
-    switch objcError {
+  static func swiftConvert(objcError: NSError) -> StorageError {
+    let userInfo = objcError.userInfo
+    switch objcError.code {
     case StorageErrorCode.unknown.rawValue: return StorageError.unknown
-    case StorageErrorCode.objectNotFound.rawValue: return StorageError.objectNotFound
-    case StorageErrorCode.bucketNotFound.rawValue: return StorageError.bucketNotFound
-    case StorageErrorCode.projectNotFound.rawValue: return StorageError.projectNotFound
-    case StorageErrorCode.quotaExceeded.rawValue: return StorageError.quotaExceeded
+    case StorageErrorCode.objectNotFound.rawValue:
+      guard let object = userInfo["object"] as? String else {
+        return StorageError
+          .internalError(
+            "Failed to decode object not found error: \(objcError.localizedDescription)"
+          )
+      }
+      return StorageError.objectNotFound(object)
+    case StorageErrorCode.bucketNotFound.rawValue:
+      guard let bucket = userInfo["bucket"] as? String else {
+        return StorageError
+          .internalError(
+            "Failed to decode bucket not found error: \(objcError.localizedDescription)"
+          )
+      }
+      return StorageError.bucketNotFound(bucket)
+    case StorageErrorCode.projectNotFound.rawValue:
+      guard let project = userInfo["project"] as? String else {
+        return StorageError
+          .internalError(
+            "Failed to decode project not found error: \(objcError.localizedDescription)"
+          )
+      }
+      return StorageError.projectNotFound(project)
+    case StorageErrorCode.quotaExceeded.rawValue:
+      guard let bucket = userInfo["bucket"] as? String else {
+        return StorageError
+          .internalError("Failed to decode quota exceeded error: \(objcError.localizedDescription)")
+      }
+      return StorageError.quotaExceeded(bucket)
     case StorageErrorCode.unauthenticated.rawValue: return StorageError.unauthenticated
-    case StorageErrorCode.unauthorized.rawValue: return StorageError.unauthorized
+    case StorageErrorCode.unauthorized.rawValue:
+      guard let bucket = userInfo["bucket"] as? String,
+        let object = userInfo["object"] as? String else {
+        return StorageError
+          .internalError(
+            "Failed to decode unauthorized error: \(objcError.localizedDescription)"
+          )
+      }
+      return StorageError.unauthorized(bucket, object)
     case StorageErrorCode.retryLimitExceeded.rawValue: return StorageError.retryLimitExceeded
     case StorageErrorCode.nonMatchingChecksum.rawValue: return StorageError.nonMatchingChecksum
-    case StorageErrorCode.downloadSizeExceeded.rawValue: return StorageError.downloadSizeExceeded
+    case StorageErrorCode.downloadSizeExceeded.rawValue:
+      guard let total = userInfo["totalSize"] as? Int64,
+        let maxSize = userInfo["maxAllowedSize"] as? Int64 else {
+        return StorageError
+          .internalError(
+            "Failed to decode downloadSizeExceeded error: \(objcError.localizedDescription)"
+          )
+      }
+      return StorageError.downloadSizeExceeded(total, maxSize)
     case StorageErrorCode.cancelled.rawValue: return StorageError.cancelled
-    case StorageErrorCode.invalidArgument.rawValue: return StorageError.invalidArgument
-    default: return StorageError.internalError
+    case StorageErrorCode.invalidArgument.rawValue: return StorageError
+      .invalidArgument(objcError.localizedDescription)
+    default: return StorageError.internalError("Internal error converting ObjC Error to Swift")
     }
   }
 }

@@ -129,15 +129,22 @@ class StorageResultTests: StorageIntegrationCommon {
 
   func testSimplePutDataUnauthorized() throws {
     let expectation = self.expectation(description: #function)
-    let ref = storage.reference(withPath: "ios/private/secretfile.txt")
+    let file = "ios/private/secretfile.txt"
+    let ref = storage.reference(withPath: file)
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
     ref.putData(data) { result in
       switch result {
       case .success:
         XCTFail("Unexpected success from unauthorized putData")
       case let .failure(error as StorageError):
-        XCTAssertEqual(error, StorageError.unauthorized)
-        expectation.fulfill()
+        switch error {
+        case let .unauthorized(bucket, object):
+          XCTAssertEqual(bucket, "ios-opensource-samples.appspot.com")
+          XCTAssertEqual(object, file)
+          expectation.fulfill()
+        default:
+          XCTFail("Failed with unexpected error: \(error)")
+        }
       case let .failure(error):
         XCTFail("Failed with unexpected error: \(error)")
       }
@@ -315,12 +322,19 @@ class StorageResultTests: StorageIntegrationCommon {
     let expectation = self.expectation(description: #function)
 
     let ref = storage.reference(withPath: "ios/public/1mb")
-    ref.getData(maxSize: 1024) { result in
+    let maxSize: Int64 = 1024
+    ref.getData(maxSize: maxSize) { result in
       switch result {
       case .success:
         XCTFail("Unexpected success from getData too small")
       case let .failure(error as StorageError):
-        XCTAssertEqual(error, StorageError.downloadSizeExceeded)
+        switch error {
+        case let .downloadSizeExceeded(total, max):
+          XCTAssertEqual(total, 1_048_576)
+          XCTAssertEqual(max, maxSize)
+        default:
+          XCTFail("Failed with unexpected error: \(error)")
+        }
       case let .failure(error):
         XCTFail("Failed with unexpected error: \(error)")
       }
@@ -507,6 +521,29 @@ class StorageResultTests: StorageIntegrationCommon {
         XCTFail("Unexpected error \(error) from list")
         expectation.fulfill()
       }
+    }
+    waitForExpectations()
+  }
+
+  func testPagedListFilesTooManyError() {
+    let expectation = self.expectation(description: #function)
+    let ref = storage.reference(withPath: "ios/public/list")
+
+    ref.list(maxResults: 22222) { result in
+      switch result {
+      case .success:
+        XCTFail("Unexpected success from list")
+      case let .failure(error as StorageError):
+        switch error {
+        case let .invalidArgument(message):
+          XCTAssertEqual(message, "Argument 'maxResults' must be between 1 and 1000 inclusive.")
+        default:
+          XCTFail("Failed with unexpected error: \(error)")
+        }
+      case let .failure(error):
+        XCTFail("Failed with unexpected error: \(error)")
+      }
+      expectation.fulfill()
     }
     waitForExpectations()
   }
