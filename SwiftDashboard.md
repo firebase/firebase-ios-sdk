@@ -12,11 +12,13 @@ to help prioritize any particular cell(s).
 | **Swift Errors**      |  ❌  |  ❌    | ❌    |❌     | 4      | ❌     | ❌     | ❌     | ❌    | ❌     | ❌     | ❌    | ❌     | ✔      | ❌     | ❌   | 5   |
 | **Codable**           | n/a  | n/a     | n/a   |n/a    | n/a     | n/a    |n/a     |  ✔     |  ✔     | 1      | n/a     | n/a   | ❌     | n/a    | n/a    | n/a   |n/a   |
 | **SwiftUI Lifecycle** | n/a  |  ❌    | n/a    |❌     | ❌     | n/a    |n/a     | n/a    | n/a    | n/a     | n/a    | n/a   | ❌     | n/a    | n/a    | n/a   |n/a  |
+| **SwiftUI Interop**   | ❌   |  ❌    | ❌     |❌    | ❌     | ❌     |❌      | ❌     | ❌    | ❌     | ✔      | ❌    | ❌     | ❌    | ❌     | ❌    |❌   |
 | **Property Wrappers** |  ❌  |  ❌    | ❌    |❌     | ❌     | ❌     | ❌     | ❌     | ✔     | ❌     | ❌     | ❌    | ❌     | ❌    | ❌     | ❌   |❌     |
 
 ### Other Projects
 - Tooling to surface full list of automatically generated Swift API from Objective C and validate.
 - Improve singleton naming scheme. Move singletons into a Firebase namespace, like `Firebase.auth()`, `Firebase.storage()`, etc.
+- Swift Generics. Update APIs that are using weakly typed information to use proper generics.
 
 ## Notes
 1. In progress at #8854
@@ -35,6 +37,9 @@ for Storage.
 * **Swift Errors**: Swift Error Codes are available instead of NSErrors.
 * **Codable**: Codable is implemented where appropriate.
 * **SwiftUI Lifecycle**: Dependencies on the AppDelegate Lifecycle are migrated to the Multicast AppDelegate.
+* **SwiftUI Interop**: Update APIs that include UIViewControllers (or implementations that depend on them) to work with SwiftUI. This will overlap with
+Property Wrappers and likely the SwiftUI lifecycle bits, but an audit and improvements could likely be made. The existing FIAM and Analytics View modifier
+APIs would fit into this category.
 * **Property Wrappers**: Property wrappers are used to improve the API.
 
 ## Columns (Firebase Products)
