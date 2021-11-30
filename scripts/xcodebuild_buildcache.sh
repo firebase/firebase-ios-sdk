@@ -8,10 +8,10 @@ XCODE_COMMAND=$1
 
 if [ "$XCODE_COMMAND" == "echo" ]; then
     XCODEBUILD_ARGS="${@:2}"
-    FoldBuildcacheParams $XCODEBUILD_ARGS
+    FoldBuildcacheParams "$XCODEBUILD_ARGS"
     echo xcodebuild ${XCODEBUILD_ARGS}
 else
     XCODEBUILD_ARGS="$@"
-    FoldBuildcacheParams $XCODEBUILD_ARGS
+    FoldBuildcacheParams "$XCODEBUILD_ARGS"
     xcodebuild ${XCODEBUILD_ARGS}
 fi
