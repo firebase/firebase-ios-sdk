@@ -4,18 +4,18 @@ This dashboard summarizes the status of Firebase's [2022 Swift Modernization Pro
 Please upvote or create a [feature request](https://github.com/firebase/firebase-ios-sdk/issues)
 to help prioritize any particular cell(s).
 
-This dashboard is intended to track an initial full Swift review of Firebase along with addressing low-hanging fruit. I would expect it to identify additional follow up
+This dashboard is intended to track an initial full Swift review of Firebase along with addressing low-hanging fruit. We would expect it to identify additional follow up
 tasks for additional Swift improvements.
 
 |                       | AB  | An     | ApC    | ApD    | Aut    | Cor    | Crs    | DB     | Fst    | Fn     | IAM    | Ins    | Msg    | MLM    | Prf    | RC     |    Str |
 |   :---                | :--- | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
 | **Swift Library**     | ❌   |   ✔   | ❌     |❌     | ❌     | ❌     | ❌      |  ✔     |  ✔    | 1      |  ✔     | ❌    | ❌     | ✔      | ❌     | ❌    | ✔     |
 | **API Tests**         | ❌   |  ❌    |  ✔    |❌     | ❌     | ✔       | ❌     | 3      | 2     |  ✔     | 2      | ✔      | ❌     | 2      | ❌    |  ✔     | ✔    |
-| **async/await**       | ❌   |  ❌    |  ✔    |❌     | ❌     |  ✔      | ❌     | 3     | ❌     | ❌     | ❌     | ❌    | ❌     | ❌    | ❌     |  ✔    | ✔    |
+| **async/await**       | ❌   |  n/a   |  ✔    |❌     | ❌     |  ✔      | ❌     | 3     | ❌     | ❌     | ❌     | ❌    | ❌     | ❌    | ❌     |  ✔    | ✔    |
 | **Swift Errors**      |  ❌  |  ❌    | ❌    |❌     | 4      | ❌     | ❌     | ❌     | ❌    | ❌     | ❌     | ❌    | ❌     | ✔      | ❌     | ❌   | 5   |
 | **Codable**           | n/a  | n/a     | n/a   |n/a    | n/a     | n/a    |n/a     |  ✔     |  ✔     | 1      | n/a     | n/a   | ❌     | n/a    | n/a    | n/a   |n/a   |
 | **SwiftUI Lifecycle** | n/a  |  ❌    | n/a    |❌     | ❌     | n/a    |n/a     | n/a    | n/a    | n/a     | n/a    | n/a   | ❌     | n/a    | n/a    | n/a   |n/a  |
-| **SwiftUI Interop**   | ❌   |  ❌    | ❌     |❌    | ❌     | ❌     |❌      | ❌     | ❌    | ❌     | ✔      | ❌    | ❌     | ❌    | ❌     | ❌    |❌   |
+| **SwiftUI Interop**   | ❌   |  ✔     | ❌     |❌    | ❌     | ❌     |❌      | ❌     | ❌    | ❌     | ✔      | ❌    | ❌     | ❌    | ❌     | ❌    |❌   |
 | **Property Wrappers** |  ❌  |  ❌    | ❌    |❌     | ❌     | ❌     | ❌     | ❌     | ✔     | ❌     | ❌     | ❌    | ❌     | ❌    | ❌     | ❌   |❌     |
 
 ### Other Projects
