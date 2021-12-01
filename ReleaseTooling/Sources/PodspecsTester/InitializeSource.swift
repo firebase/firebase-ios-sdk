@@ -65,6 +65,16 @@ struct InitializeSpecTesting {
       let version = manifest.versionString(pod)
       if !pod.isClosedSource {
         // Replace git and tag in the source of a podspec.
+        // Before:
+        //  s.source           = {
+        //    :git => 'https://github.com/firebase/firebase-ios-sdk.git',
+        //    :tag => 'CocoaPods-' + s.version.to_s
+        //  }
+        // After `sed`:
+        //  s.source           = {
+        //    :git => '\(path.path)',
+        //    :tag => 'testing-\(manifest.version)',
+        //  }
         Shell.executeCommand(
           "sed -i.bak -e \"s|\\(.*\\:git =>[[:space:]]*\\).*|\\1'\(path.path)',| ; " +
             "s|\\(.*\\:tag =>[[:space:]]*\\).*|\\1'\(Constants.testingTagPrefix + manifest.version)',|\" \(pod.name).podspec",
