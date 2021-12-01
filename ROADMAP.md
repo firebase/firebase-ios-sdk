@@ -15,6 +15,8 @@ As we go into 2022, it's a top priority for the Firebase team to improve
 usability and functionality for Swift developers. We welcome the community's
 input and contribution as we work through this.
 
+See the [Project Dashboard](SwiftDashboard.md).
+
 Please upvote existing feature requests, add new feature requests, and send PRs.
 * [Example Feature Request](https://github.com/firebase/firebase-ios-sdk/issues/8827)
 * [Example Pull Request](https://github.com/firebase/firebase-ios-sdk/pull/6568)
