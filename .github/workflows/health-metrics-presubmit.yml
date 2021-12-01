@@ -74,7 +74,7 @@ jobs:
         gcloud auth activate-service-account --key-file metrics-access.json
     - name: Build and test
       run: |
-        xcode-select --switch /Applications/Xcode_13.0.app
+        sudo xcode-select --switch /Applications/Xcode_13.0.app
         FirebaseABTesting=true \
         FirebaseAnalytics=true \
         FirebaseAppCheck=true \
