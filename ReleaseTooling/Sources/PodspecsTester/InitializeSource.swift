@@ -28,7 +28,7 @@ extension Constants {
   static let testingTagPrefix = "testing-"
 }
 
-struct InitializeSpecTesting{
+struct InitializeSpecTesting {
   static func setupRepo(sdkRepoURL: URL) {
     let manifest = FirebaseManifest.shared
     addSpecRepo(repoURL: Constants.specRepo)
@@ -38,12 +38,13 @@ struct InitializeSpecTesting{
 
   // The SpecsTesting repo will be added to `${HOME}/.cocoapods/`, and all
   // podspecs under this dir will be the source of the specs testing.
-  private static func addSpecRepo(repoURL: String, podRepoName: String = Constants.localSpecRepoName){
+  private static func addSpecRepo(repoURL: String,
+                                  podRepoName: String = Constants.localSpecRepoName) {
     let result = Shell.executeCommandFromScript("pod repo remove \(podRepoName)")
     switch result {
     case let .error(code, output):
       print("\(podRepoName) was not properly removed. \(podRepoName) probably" +
-            "does not exist in local.\n \(output)")
+        "does not exist in local.\n \(output)")
     case let .success(output):
       print("\(podRepoName) was removed.")
     }
@@ -53,7 +54,7 @@ struct InitializeSpecTesting{
   // Add a testing tag to the head of the branch.
   private static func addTestingTag(path sdkRepoPath: URL, manifest: FirebaseManifest.Manifest) {
     let manifest = FirebaseManifest.shared
-    let testingTag = Constants.testingTagPrefix+manifest.version
+    let testingTag = Constants.testingTagPrefix + manifest.version
     // Add or update the testing tag to the local sdk repo.
     Shell.executeCommand("git tag -af \(testingTag) -m 'spectesting'", workingDir: sdkRepoPath)
   }
@@ -63,10 +64,12 @@ struct InitializeSpecTesting{
     for pod in manifest.pods {
       let version = manifest.versionString(pod)
       if !pod.isClosedSource {
-          // Replace git and tag in the source of a podspec.
-          Shell.executeCommand("sed -i.bak -e \"s|\\(.*\\:git =>[[:space:]]*\\).*|\\1'\(path.path)',| ; " +
-                               "s|\\(.*\\:tag =>[[:space:]]*\\).*|\\1'\(Constants.testingTagPrefix+manifest.version)',|\" \(pod.name).podspec",
-                               workingDir: path) 
+        // Replace git and tag in the source of a podspec.
+        Shell.executeCommand(
+          "sed -i.bak -e \"s|\\(.*\\:git =>[[:space:]]*\\).*|\\1'\(path.path)',| ; " +
+            "s|\\(.*\\:tag =>[[:space:]]*\\).*|\\1'\(Constants.testingTagPrefix + manifest.version)',|\" \(pod.name).podspec",
+          workingDir: path
+        )
       }
     }
   }

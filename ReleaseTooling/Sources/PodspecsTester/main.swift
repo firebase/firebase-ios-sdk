@@ -34,12 +34,11 @@ struct PodspecsTester: ParsableCommand {
   func run() throws {
     let startDate = Date()
     print("Started at: \(startDate.dateTimeString())")
-    InitializeSpecTesting.setupRepo(sdkRepoURL:gitRoot)
+    InitializeSpecTesting.setupRepo(sdkRepoURL: gitRoot)
     let finishDate = Date()
     print("Finished at: \(finishDate.dateTimeString()). " +
       "Duration: \(startDate.formattedDurationSince(finishDate))")
   }
-
 }
 
 // Start the parsing and run the tool.

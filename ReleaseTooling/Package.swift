@@ -24,7 +24,7 @@ let package = Package(
   products: [
     .executable(name: "firebase-releaser", targets: ["FirebaseReleaser"]),
     .executable(name: "zip-builder", targets: ["ZipBuilder"]),
-    .executable(name: "podspecs-tester", targets: ["ZipBuilder"]),
+    .executable(name: "podspecs-tester", targets: ["PodspecsTester"]),
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser", .exact("0.1.0")),
