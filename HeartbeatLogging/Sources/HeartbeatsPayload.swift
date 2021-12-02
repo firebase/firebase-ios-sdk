@@ -14,7 +14,7 @@
 
 import Foundation
 
-/// A type that can be represented as an HTTP header.
+/// A type that provides a string representation for use in an HTTP header.
 public protocol HTTPHeaderRepresentable {
   func headerValue() -> String
 }
@@ -22,7 +22,7 @@ public protocol HTTPHeaderRepresentable {
 /// A value type representing a payload of heartbeat data intended for sending in network requests.
 ///
 /// This type's structure is optimized for type-safe encoding into a HTTP payload format.
-/// Here is an example of the type's encoding structure:
+/// The intended encoding format for the current version is as follows:
 ///
 ///     {
 ///       "version": 2,
@@ -42,7 +42,7 @@ public struct HeartbeatsPayload: Codable {
   /// The version of the payload. See go/firebase-apple-heartbeats for details regarding current version.
   static let version: Int = 2
 
-  /// A payload component composed of a user agent and array of heartbeats (dates).
+  /// A payload component composed of a user agent and array of dates (heartbeats).
   struct UserAgentPayload: Codable {
     /// An anonymous agent string.
     let agent: String
@@ -65,7 +65,8 @@ public struct HeartbeatsPayload: Codable {
   // TODO: Decide on version testing strategy.
   /// Designated initializer.
   /// - Parameters:
-  ///   - userAgentPayloads:
+  ///   - userAgentPayloads: An array of payloads containing heartbeat data corresponding to a
+  ///   given user agent.
   ///   - version: A  version of the payload. Defaults to the static default.
   init(userAgentPayloads: [UserAgentPayload] = [], version: Int = version) {
     self.userAgentPayloads = userAgentPayloads
@@ -88,6 +89,7 @@ extension HeartbeatsPayload: HTTPHeaderRepresentable {
 
     if let data = try? encoded(using: encoder) {
       // TODO: Compress the payload before base64 encoding.
+      // TODO: Confirm in e2e test if base64 URL safe string is needed.
       return data.base64EncodedString()
     } else {
       return "" // Return empty string if encoding failed.

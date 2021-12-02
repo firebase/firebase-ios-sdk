@@ -14,7 +14,7 @@
 
 import Foundation
 
-/// A type that can be represented as a `HeartbeatsPayload`.
+/// A type that can be converted to a `HeartbeatsPayload`.
 protocol HeartbeatsPayloadConvertible {
   func makeHeartbeatsPayload() -> HeartbeatsPayload
 }

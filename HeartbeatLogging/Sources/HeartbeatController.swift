@@ -24,7 +24,7 @@ public final class HeartbeatController {
   /// Current date provider. It is used for testability.
   private let dateProvider: () -> Date
   // TODO: Verify that this standardization aligns with backend.
-  // TODO: Probably should share config with HeartbeatsPayload's DateFormatter.
+  // TODO: Maybe share config with HeartbeatsPayload's DateFormatter?
   /// Used for standardizing dates for calendar-day comparision.
   static let dateStandardizer: (Date) -> (Date) = {
     var calendar = Calendar(identifier: .iso8601)
@@ -42,7 +42,7 @@ public final class HeartbeatController {
   /// Convenience initializer. Mirrors the semantics of the public intializer with the added benefit of
   /// injecting a custom date provider for improved testability.
   /// - Parameters:
-  ///   - id: The `id` to associate this controller's heartbeat storage with.
+  ///   - id: The id to associate this controller's heartbeat storage with.
   ///   - dateProvider: A date provider.
   convenience init(id: String,
                    dateProvider: @escaping () -> Date) {
@@ -90,7 +90,7 @@ public final class HeartbeatController {
     }
   }
 
-  /// Synchronously flushes heartbeats from storage.
+  /// Synchronously flushes heartbeats from storage into a heartbeats payload.
   ///
   /// - Note: This API is thread-safe.
   ///
@@ -104,16 +104,15 @@ public final class HeartbeatController {
         return nil // Storage was empty.
       }
 
-      // The new value that's stored will use the old's cache.
+      // The new value that's stored will use the old's cache to prevent the
+      // logging of duplicates after flushing.
       return HeartbeatInfo(capacity: capacity, cache: oldHeartbeatInfo.cache)
     }
 
-    // Synchronously gets and returns the stored heartbeats and resets storage
+    // Synchronously gets and returns the stored heartbeats, resetting storage
     // using the given transform. If the operation threw an error, assume no
-    // heartbeats were retrieved/reset.
-    let heartbeatInfo = try? storage.getAndReset(using: resetTransform)
-
-    if let heartbeatInfo = heartbeatInfo {
+    // heartbeats were retrieved or reset.
+    if let heartbeatInfo = try? storage.getAndReset(using: resetTransform) {
       return heartbeatInfo.makeHeartbeatsPayload()
     } else {
       return HeartbeatsPayload.emptyPayload

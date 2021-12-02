@@ -16,11 +16,20 @@ import XCTest
 @testable import HeartbeatLogging
 
 class HeartbeatsPayloadTests: XCTestCase {
-  func testEmptyPayload() {
+  func testEmptyPayload() throws {
     XCTAssertEqual(
       HeartbeatsPayload.emptyPayload,
       HeartbeatsPayload(userAgentPayloads: [])
     )
+  }
+
+  func testDateFormatterUses_YYYY_MM_dd_Format() throws {
+    // Given
+    let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01
+    // When
+    let dateString = HeartbeatsPayload.dateFormatter.string(from: date)
+    // Then
+    XCTAssertEqual(dateString, "2021-11-01")
   }
 
   func testEncodeAndDecode() throws {
@@ -83,13 +92,11 @@ class HeartbeatsPayloadTests: XCTestCase {
     )
   }
 
-  func testGetHeaderValue_WhenEmptyPayload_ReturnsEmptyString() {
+  func testGetHeaderValue_WhenEmptyPayload_ReturnsEmptyString() throws {
     // Given
     let heartbeatsPayload = HeartbeatsPayload.emptyPayload
-
     // When
     let headerValue = heartbeatsPayload.headerValue()
-
     // Then
     XCTAssertEqual(headerValue, "")
   }
