@@ -31,3 +31,14 @@ target 'AuthSample' do
     pod 'EarlGrey'
   end
 end
+
+target 'SwiftSample' do
+  platform :ios, '10.0'
+  pod 'FirebaseCore', :path => '../../../'
+  pod 'FirebaseCoreDiagnostics', :path => '../../../'
+  pod 'FirebaseAuth', :path => '../../../', :testspecs => ['unit']
+  pod 'FirebaseInstallations', :path => '../../..'
+  pod 'FBSDKLoginKit'
+  pod 'GoogleSignIn', '~> 5'
+  pod 'GTMSessionFetcher/Core'
+end
