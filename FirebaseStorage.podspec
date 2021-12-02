@@ -17,6 +17,8 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   }
   s.social_media_url = 'https://twitter.com/Firebase'
 
+  s.swift_version           = '5.0'
+
   ios_deployment_target = '10.0'
   osx_deployment_target = '10.12'
   tvos_deployment_target = '10.0'
@@ -31,6 +33,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   s.prefix_header_file = false
 
   s.source_files = [
+    'FirebaseStorageSwift/Sources/*.swift',
     'FirebaseStorage/Sources/**/*.[mh]',
     'Interop/Auth/Public/*.h',
     'FirebaseCore/Sources/Private/*.h',
@@ -78,11 +81,31 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   end
 
   s.test_spec 'swift-integration' do |swift_int_tests|
-    swift_int_tests.platforms = {:ios => '10.0', :osx => '10.12', :tvos => '10.0'}
+    swift_int_tests.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
     swift_int_tests.source_files = 'FirebaseStorage/Tests/SwiftIntegration/*.swift'
     swift_int_tests.requires_app_host = true
     swift_int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
                           'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist'
     swift_int_tests.dependency 'FirebaseAuth', '~> 8.0'
+  end
+
+  s.test_spec 'swift-swift-integration' do |int_tests|
+    int_tests.scheme = { :code_coverage => true }
+    int_tests.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
+    int_tests.source_files = 'FirebaseStorageSwift/Tests/Integration/*.swift'
+    int_tests.requires_app_host = true
+    # Resources are shared with FirebaseStorage's integration tests.
+    int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
+                          'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist',
+                          'FirebaseStorage/Tests/Integration/Resources/HomeImprovement.numbers'
+    int_tests.dependency 'FirebaseAuth', '~> 8.0'
   end
 end

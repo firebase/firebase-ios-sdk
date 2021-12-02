@@ -121,10 +121,6 @@ let package = Package(
     ),
     .library(
       name: "FirebaseStorage",
-      targets: ["FirebaseStorage"]
-    ),
-    .library(
-      name: "FirebaseStorageSwift-Beta",
       targets: ["FirebaseStorageSwift"]
     ),
   ],

@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseStorage
-
 #if compiler(>=5.5) && canImport(_Concurrency)
   @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
   public extension StorageReference {
