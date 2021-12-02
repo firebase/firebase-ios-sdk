@@ -233,6 +233,55 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
       """
     )
   }
+
+  func testInitializingControllerDoesNotModifyUnderlyingStorage() throws {
+    // When
+    _ = HeartbeatController(id: #function)
+    // Then
+    #if os(tvOS)
+      XCTAssertNil(
+        UserDefaults(suiteName: kHeartbeatUserDefaultsSuiteName),
+        "Specified user defaults suite should not exist."
+      )
+    #else
+      let heartbeatsDirectoryURL = FileManager.default
+        .applicationSupportDirectory
+        .appendingPathComponent(
+          kHeartbeatFileStorageDirectoryPath, isDirectory: true
+        )
+      XCTAssertFalse(
+        FileManager.default.fileExists(atPath: heartbeatsDirectoryURL.path),
+        "Specified file path should not exist."
+      )
+    #endif
+  }
+
+  func testUnderlyingStorageLocationForRegressions() throws {
+    // Given
+    let id = #function
+    let controller = HeartbeatController(id: id)
+    // When
+    controller.log("dummy_agent")
+    _ = XCTWaiter.wait(for: [.init(description: "Wait for async log.")], timeout: 0.10)
+    // Then
+    #if os(tvOS)
+      let defaults = try XCTUnwrap(
+        UserDefaults(suiteName: kHeartbeatUserDefaultsSuiteName),
+        "Specified user defaults suite should exist."
+      )
+      XCTAssertNotNil(defaults.object(forKey: id), "Data should not be nil.")
+    #else
+      let heartbeatsFileURL = FileManager.default
+        .applicationSupportDirectory
+        .appendingPathComponent(
+          kHeartbeatFileStorageDirectoryPath, isDirectory: true
+        )
+        .appendingPathComponent(
+          "heartbeats-\(id)", isDirectory: false
+        )
+      XCTAssertNotNil(try Data(contentsOf: heartbeatsFileURL), "Data should not be nil.")
+    #endif
+  }
 }
 
 /// Removes all underlying storage containers used by the module. See `StorageFactory` for details
