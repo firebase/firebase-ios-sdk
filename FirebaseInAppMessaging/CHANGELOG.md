@@ -1,4 +1,4 @@
-# 2021-12 -- v8.7.0
+# 2021-12 -- v8.11.0
 - [fixed] InApp message is shown every new session (#8907).
 
 # 2021-8 -- v8.6.0
