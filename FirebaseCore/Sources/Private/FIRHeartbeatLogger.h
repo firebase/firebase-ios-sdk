@@ -14,11 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#if SWIFT_PACKAGE
-@import HeartbeatLogging;
-#else
-#import <FirebaseCore/FirebaseCore-Swift.h>
-#endif  // SWIFT_PACKAGE
+@class FIRInteropHeartbeatData;
 
 NS_ASSUME_NONNULL_BEGIN
 

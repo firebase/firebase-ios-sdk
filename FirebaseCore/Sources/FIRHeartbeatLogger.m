@@ -14,6 +14,12 @@
 
 #import "FirebaseCore/Sources/Private/FIRHeartbeatLogger.h"
 
+#if SWIFT_PACKAGE
+@import HeartbeatLogging;
+#else
+#import <FirebaseCore/FirebaseCore-Swift.h>
+#endif  // SWIFT_PACKAGE
+
 #import "FirebaseCore/Sources/Private/FIRAppInternal.h"
 
 /// <#Description#>
