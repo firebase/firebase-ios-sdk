@@ -56,7 +56,6 @@ for internal testing only. It should not be published.
   s.dependency 'FirebaseFunctions', '~> 8.0'
   s.dependency 'FirebaseFirestore', '~> 8.0'
   s.dependency 'FirebaseStorage', '~> 8.0'
-  s.dependency 'FirebaseStorageSwift', '~> 8.0-beta'
 
   s.pod_target_xcconfig = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
