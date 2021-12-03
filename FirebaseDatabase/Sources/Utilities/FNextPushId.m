@@ -168,17 +168,17 @@ static unichar const HIGH_SURROGATE_PAIR_END = 0xDBFF;
     NSInteger replaceLocation = i;
     NSInteger replaceLength = 1;
     if (removePreviousCharacter) {
-        replaceLocation--;
-        replaceLength++;
+        --replaceLocation;
+        ++replaceLength;
     }
 
     [next replaceCharactersInRange:NSMakeRange(replaceLocation, replaceLength)
                         withString:sourcePlusOne];
     NSInteger length = i + 1;
     if (removePreviousCharacter) {
-        length--;
+        --length;
     } else if (replaceWithLowestSurrogatePair) {
-        length++;
+        ++length;
     }
     return [next substringWithRange:NSMakeRange(0, length)];
 }
@@ -280,8 +280,8 @@ static unichar const HIGH_SURROGATE_PAIR_END = 0xDBFF;
     NSInteger replaceLocation = i;
     NSInteger replaceLength = 1;
     if (removePreviousCharacter) {
-        replaceLocation--;
-        replaceLength++;
+        --replaceLocation;
+        ++replaceLength;
     }
 
     [next replaceCharactersInRange:NSMakeRange(replaceLocation, replaceLength)
@@ -289,9 +289,9 @@ static unichar const HIGH_SURROGATE_PAIR_END = 0xDBFF;
 
     NSInteger length = i + 1;
     if (removePreviousCharacter) {
-        length--;
+        --length;
     } else if (replaceWithHighestSurrogatePair) {
-        length++;
+        ++length;
     }
     return [next stringByPaddingToLength:MAX_KEY_LEN
                               withString:MAX_PUSH_CHAR

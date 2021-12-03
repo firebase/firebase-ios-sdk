@@ -93,7 +93,7 @@ static NSInteger MAX_KEY_LEN = 786;
   XCTAssertEqualObjects(expected, actual, @"predecessor(abc + MIN_PUSH_CHAR) == abc");
 }
 
-- (void)testPredecessorWild {
+- (void)testPredecessorUnicode {
   NSString *actual = [FNextPushId from:@"test" predecessor:@"\uE000"];
   NSString *expected = [@"\U0010FFFF" stringByPaddingToLength:MAX_KEY_LEN
                                                    withString:MAX_PUSH_CHAR
