@@ -83,7 +83,8 @@ static NSString *const kValidImageURL =
     [_mockExtensionHelper populateNotificationContent:content withContentHandler:handler];
     OCMVerify([_mockExtensionHelper loadAttachmentForURL:[OCMArg any]
                                        completionHandler:[OCMArg any]]);
-    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+    // Wait longer to accomodate increased network latency when running on CI.
+    [self waitForExpectationsWithTimeout:5.0 handler:nil];
   }
 }
 #endif  // COCOAPODS
