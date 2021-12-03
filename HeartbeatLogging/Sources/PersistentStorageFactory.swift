@@ -41,9 +41,9 @@ extension UserDefaultsStorage: PersistentStorageFactory {
 
 // MARK: - FileManager + Extension
 
-fileprivate extension FileManager {
+private extension FileManager {
   var applicationSupportDirectory: URL {
     // TODO: What happens if below directory cannot be found?
-    self.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+    urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
   }
 }

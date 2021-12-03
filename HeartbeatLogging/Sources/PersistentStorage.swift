@@ -25,24 +25,22 @@ class FileStorage {
   private let url: URL
   private let fileManager: FileManager
 
-  init(
-    url: URL,
-    fileManager: FileManager = .default
-  ) {
+  init(url: URL,
+       fileManager: FileManager = .default) {
     self.url = url
     self.fileManager = fileManager
   }
 
   private func createDirectories(in url: URL) throws {
-      do {
-        try fileManager.createDirectory(
-          at: url,
-          withIntermediateDirectories: true,
-          attributes: nil
-        )
-      } catch CocoaError.fileWriteFileExists {
-        // Directory already exists.
-      } catch { throw error }
+    do {
+      try fileManager.createDirectory(
+        at: url,
+        withIntermediateDirectories: true,
+        attributes: nil
+      )
+    } catch CocoaError.fileWriteFileExists {
+      // Directory already exists.
+    } catch { throw error }
   }
 }
 
@@ -67,10 +65,8 @@ class UserDefaultsStorage {
   private let defaults: UserDefaults
   private let key: String
 
-  init(
-    defaults: UserDefaults? = nil,
-    key: String
-  ) {
+  init(defaults: UserDefaults? = nil,
+       key: String) {
     self.defaults = defaults ?? .standard
     self.key = key
   }
@@ -89,4 +85,3 @@ extension UserDefaultsStorage: PersistentStorage {
     defaults.set(value, forKey: key)
   }
 }
-

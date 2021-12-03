@@ -26,7 +26,6 @@ protocol MultiQueue { // TODO: Is this necessary? thinking no but maybe for test
 
 /// <#Description#>
 public struct HeartbeatData: Codable {
-
   enum TimePeriod: Int, Codable, CaseIterable {
     case daily = 1
     case weekly = 7
@@ -56,7 +55,6 @@ public struct HeartbeatData: Codable {
   /// - Complexity: O(n)
   @discardableResult
   mutating func offer(_ heartbeat: Heartbeat, type: TimePeriod) -> Bool {
-
     let heartbeatQueue = heartbeatsDict[type] ?? []
 
     guard !heartbeatQueue.isEmpty else {
@@ -70,8 +68,8 @@ public struct HeartbeatData: Codable {
       // The `newest` has been stored for at least one time period, so
       // there is no risk of enqueuing a duplicate heartbeat.
       calendar.days(between: heartbeat.date, and: newest.date) >= type.days ||
-      // Heartbeat `info` has changed so the `heartbeat` should be enqueued.
-      heartbeat.info != newest.info
+        // Heartbeat `info` has changed so the `heartbeat` should be enqueued.
+        heartbeat.info != newest.info
     }
 
     guard shouldEnqueue() else { return false }
@@ -105,13 +103,11 @@ public struct HeartbeatData: Codable {
       return heartbeatsDict[type]?.popLast()
     }
   }
-
 }
 
 // MARK: - HTTPHeaderRepresentable
 
 extension HeartbeatData: HTTPHeaderRepresentable {
-
   public func headerValue() -> String {
     // TODO: Implement
     // - Filter out expired.
@@ -125,9 +121,9 @@ extension HeartbeatData: HTTPHeaderRepresentable {
 
 // MARK: - `Calendar`
 
-fileprivate extension Calendar {
+private extension Calendar {
   static var international: Self {
-    Self.init(identifier: .iso8601)
+    Self(identifier: .iso8601)
   }
 
   func days(between from: Date, and to: Date) -> Int {

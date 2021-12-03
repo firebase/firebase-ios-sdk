@@ -231,7 +231,7 @@ let package = Package(
       path: "FirebaseCore/Tests/Unit",
       exclude: [
         "Resources/GoogleService-Info.plist",
-        "Dummy.swift"
+        "Dummy.swift",
       ],
       cSettings: [
         .headerSearchPath("../../.."),

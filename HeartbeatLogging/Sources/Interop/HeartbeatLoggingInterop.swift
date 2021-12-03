@@ -19,7 +19,6 @@ import Foundation
 @objc(FIRInteropHeartbeatLogger)
 @objcMembers
 public final class _ObjCInteropHeartbeatLogger: NSObject {
-
   private let logger: HeartbeatLogger
 
   /// Designated initializer.
@@ -41,7 +40,6 @@ public final class _ObjCInteropHeartbeatLogger: NSObject {
   public func assertSwiftInteropWorksOnCI() -> Bool {
     true
   }
-
 }
 
 // MARK: - `HeartbeatData` ObjC Interop
@@ -52,7 +50,7 @@ public final class _ObjCInteropHeartbeatData: NSObject {
   private let heartbeatData: HeartbeatData
 
   init(_ value: HeartbeatData) {
-    self.heartbeatData = value
+    heartbeatData = value
   }
 }
 

@@ -25,7 +25,7 @@ protocol StorageInterop { // TODO: Rename to `Storage Controller`?
 
 /// A type that provides a synchronizable, block-based API for reading and writing transactions.
 protocol Synchronizable: StorageInterop {
-  typealias ReadWriteBlock = (inout Contents) -> ()
+  typealias ReadWriteBlock = (inout Contents) -> Void
   func readWriteSync(_ transform: ReadWriteBlock)
   func readWriteAsync(_ transform: @escaping ReadWriteBlock)
 }
@@ -45,25 +45,21 @@ struct HeartbeatStorage<Factory: PersistentStorageFactory> {
   private let decoder: JSONDecoder
   private let queue: DispatchQueue
 
-  init(
-    id: String, // TODO: - Sanitize!
-    encoder: JSONEncoder = .init(),
-    decoder: JSONDecoder = .init()
-  ) {
-    self.storage = Factory.makeStorage(id: id)
+  init(id: String, // TODO: - Sanitize!
+       encoder: JSONEncoder = .init(),
+       decoder: JSONDecoder = .init()) {
+    storage = Factory.makeStorage(id: id)
     self.encoder = encoder
     self.decoder = decoder
 
     let label = "com.heartbeat.storage.\(id)"
-    self.queue = DispatchQueue(label: label)
+    queue = DispatchQueue(label: label)
   }
-
 }
 
 // MARK: - ThreadSafeStorage
 
 extension HeartbeatStorage: ThreadSafeStorage {
-
   func readWriteSync(_ transform: ReadWriteBlock) {
     queue.sync { execute(transform) }
   }
@@ -73,16 +69,16 @@ extension HeartbeatStorage: ThreadSafeStorage {
   }
 
   func execute(_ transform: ReadWriteBlock) {
-    var loggingData = load(from: storage)  // Load logging data into memory.
-    transform(&loggingData)                // Transform the logging data.
-    save(loggingData, to: storage)         // Save logging data to memory.
+    var loggingData = load(from: storage) // Load logging data into memory.
+    transform(&loggingData) // Transform the logging data.
+    save(loggingData, to: storage) // Save logging data to memory.
   }
 
   func load(from storage: Storage) -> HeartbeatData {
     let data = try? self.storage.read() // TODO: Handle error.
 
-    let loggingData =                   // TODO: Handle error.
-        try? decoder.decode(Contents.self, from: data!)
+    let loggingData = // TODO: Handle error.
+      try? decoder.decode(Contents.self, from: data!)
 
     return loggingData!
   }
@@ -90,10 +86,9 @@ extension HeartbeatStorage: ThreadSafeStorage {
   func save(_ value: HeartbeatData?, to storage: Storage) {
     if let value = value {
       let data = try? encoder.encode(value) // TODO: Handle error.
-      try? storage.write(data)              // TODO: Handle error.
+      try? storage.write(data) // TODO: Handle error.
     } else {
-      try? storage.write(nil)               // TODO: Handle error.
+      try? storage.write(nil) // TODO: Handle error.
     }
   }
-
 }

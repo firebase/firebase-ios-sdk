@@ -25,24 +25,22 @@ public protocol Logger {
 
 /// A  reference type that provides API to log and flush heartbeats from a synchronized storage container.
 public final class HeartbeatLogger {
-
-#if os(tvOS)
-  /// For tvOS, user defaults is used as the underlying storage container due to system storage limits.
-  private let storage: HeartbeatStorage<UserDefaultsStorage>
-#else
-  /// The file system is used as the underlying storage container for all other platforms.
-  private let storage: HeartbeatStorage<FileStorage>
-#endif // os(tvOS)
+  #if os(tvOS)
+    /// For tvOS, user defaults is used as the underlying storage container due to system storage limits.
+    private let storage: HeartbeatStorage<UserDefaultsStorage>
+  #else
+    /// The file system is used as the underlying storage container for all other platforms.
+    private let storage: HeartbeatStorage<FileStorage>
+  #endif // os(tvOS)
 
   /// Designated initializer.
   /// - Parameter id: The `id` to associate this logger's internal storage with.
   public init(id: String) {
-    self.storage = HeartbeatStorage(id: id)
+    storage = HeartbeatStorage(id: id)
   }
 }
 
 extension HeartbeatLogger: Logger {
-
   /// Asynchronously attempts to log a new heartbeat.
   ///
   /// For each heartbeat type (i.e. daily, weekly, & monthly), a new heartbeat will be logged to a queue
@@ -93,5 +91,4 @@ extension HeartbeatLogger: Logger {
     }
     return flushed
   }
-
 }
