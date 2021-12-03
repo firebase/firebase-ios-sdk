@@ -235,13 +235,16 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
   }
 
   func testInitializingControllerDoesNotModifyUnderlyingStorage() throws {
+    // Given
+    let id = #function
     // When
-    _ = HeartbeatController(id: #function)
+    _ = HeartbeatController(id: id)
     // Then
     #if os(tvOS)
       XCTAssertNil(
-        UserDefaults(suiteName: kHeartbeatUserDefaultsSuiteName),
-        "Specified user defaults suite should not exist."
+        UserDefaults(suiteName: kHeartbeatUserDefaultsSuiteName)?
+          .object(forKey: "heartbeats-\(id)"),
+        "Specified user defaults suite should be empty."
       )
     #else
       let heartbeatsDirectoryURL = FileManager.default
@@ -262,14 +265,14 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     let controller = HeartbeatController(id: id)
     // When
     controller.log("dummy_agent")
-    _ = XCTWaiter.wait(for: [.init(description: "Wait for async log.")], timeout: 0.10)
+    _ = XCTWaiter.wait(for: [.init(description: "Wait for async log.")], timeout: 0.50)
     // Then
     #if os(tvOS)
-      let defaults = try XCTUnwrap(
-        UserDefaults(suiteName: kHeartbeatUserDefaultsSuiteName),
-        "Specified user defaults suite should exist."
+      XCTAssertNotNil(
+        UserDefaults(suiteName: kHeartbeatUserDefaultsSuiteName)?
+          .object(forKey: "heartbeats-\(id)"),
+        "Data should not be nil."
       )
-      XCTAssertNotNil(defaults.object(forKey: id), "Data should not be nil.")
     #else
       let heartbeatsFileURL = FileManager.default
         .applicationSupportDirectory
@@ -289,8 +292,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
 /// - Throws: An error if the storage container could not be removed.
 private func removeUnderlyingHeartbeatStorageContainers() throws {
   #if os(tvOS)
-    UserDefaults.standard
-      .removePersistentDomain(forName: kHeartbeatUserDefaultsSuiteName)
+    UserDefaults().removePersistentDomain(forName: kHeartbeatUserDefaultsSuiteName)
   #else
     let heartbeatsDirectoryURL = FileManager.default
       .applicationSupportDirectory

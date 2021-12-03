@@ -356,7 +356,7 @@ func assertEqualPayloadStrings(_ encoded: String, _ literal: String) throws {
 
   let encoder = JSONEncoder()
   encoder.dateEncodingStrategy = .formatted(HeartbeatsPayload.dateFormatter)
-  encoder.outputFormatting = [.sortedKeys, .prettyPrinted]
+  encoder.outputFormatting = .prettyPrinted
 
   let payloadDataFromEncoded = try XCTUnwrap(encoder.encode(payloadFromEncoded))
   let payloadDataFromLiteral = try XCTUnwrap(encoder.encode(payloadFromLiteral))
