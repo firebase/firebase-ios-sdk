@@ -660,6 +660,8 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [request setValue:clientVersion forHTTPHeaderField:kClientVersionHeader];
   NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
   [request setValue:bundleID forHTTPHeaderField:kIosBundleIdentifierHeader];
+  NSString *appID = requestConfiguration.appID;
+  [request setValue:appID forKey:kFirebaseAppIDHeader];
   NSString *userAgent = [FIRApp firebaseUserAgent];
   [request setValue:userAgent forKey:kFirebaseUserAgentHeader];
   NSString *heartbeat = @([FIRHeartbeatInfo heartbeatCodeForTag:kHeartbeatStorageTag]).stringValue;
