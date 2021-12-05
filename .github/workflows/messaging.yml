@@ -28,6 +28,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Configure test keychain
       run: scripts/configure_test_keychain.sh
     - name: Setup Bundler
@@ -66,6 +68,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Unit Tests
@@ -81,6 +85,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Unit Tests
@@ -93,6 +99,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Build Catalyst
@@ -178,6 +186,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Install Secret GoogleService-Info.plist

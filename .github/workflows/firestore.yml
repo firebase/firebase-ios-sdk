@@ -94,6 +94,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
 
     - name: Prepare ccache
       uses: actions/cache@v1
@@ -133,6 +135,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
 
     - name: Prepare ccache
       uses: actions/cache@v1
@@ -162,6 +166,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
@@ -235,6 +241,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: iOS Build Test
@@ -252,6 +260,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Build Test

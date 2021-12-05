@@ -108,6 +108,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
@@ -147,6 +149,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
@@ -167,6 +171,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
@@ -188,6 +194,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
@@ -208,6 +216,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
@@ -228,6 +238,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
@@ -248,6 +260,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
@@ -268,6 +282,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
@@ -288,6 +304,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
@@ -308,6 +326,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test

@@ -32,6 +32,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
@@ -82,6 +84,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Unit Tests
@@ -97,6 +101,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Unit Tests
@@ -108,6 +114,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Build Catalyst

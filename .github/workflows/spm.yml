@@ -25,6 +25,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Functions Integration Test Server
@@ -40,6 +42,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: iOS Device and Test Build
@@ -57,6 +61,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Objc Import Tests
