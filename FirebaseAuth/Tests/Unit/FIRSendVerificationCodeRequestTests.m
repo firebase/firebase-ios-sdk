@@ -30,6 +30,11 @@
  */
 static NSString *const kTestAPIKey = @"APIKey";
 
+/** @var kTestFirebaseAppID
+    @brief Fake Firebase app ID used for testing.
+ */
+static NSString *const kTestFirebaseAppID = @"appID";
+
 /** @var kTestPhoneNumber
     @brief Fake phone number used for testing.
  */
@@ -103,7 +108,7 @@ static NSString *const kExpectedAPIURL =
  */
 - (void)testSendVerificationCodeRequest {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey appID:kTestFirebaseAppID];
   FIRAuthAppCredential *credential = [[FIRAuthAppCredential alloc] initWithReceipt:kTestReceipt
                                                                             secret:kTestSecret];
   FIRSendVerificationCodeRequest *request =

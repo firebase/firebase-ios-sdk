@@ -28,6 +28,11 @@ static NSString *const kEndpoint = @"endpoint";
  */
 static NSString *const kAPIKey = @"APIKey";
 
+/** @var kFirebaseAppID
+    @brief A testing Firebase app ID.
+ */
+static NSString *const kFirebaseAppID = @"appID";
+
 /** @var kEmulatorHostAndPort
     @brief A testing emulator host and port.
  */
@@ -47,7 +52,7 @@ static NSString *const kEmulatorHostAndPort = @"emulatorhost:12345";
  */
 - (void)testInitWithEndpointExpectedRequestURL {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID];
   FIRIdentityToolkitRequest *request =
       [[FIRIdentityToolkitRequest alloc] initWithEndpoint:kEndpoint
                                      requestConfiguration:requestConfiguration];
@@ -64,7 +69,7 @@ static NSString *const kEmulatorHostAndPort = @"emulatorhost:12345";
  */
 - (void)testInitWithEndpointUseStagingExpectedRequestURL {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID];
   FIRIdentityToolkitRequest *request =
       [[FIRIdentityToolkitRequest alloc] initWithEndpoint:kEndpoint
                                      requestConfiguration:requestConfiguration
@@ -84,7 +89,7 @@ static NSString *const kEmulatorHostAndPort = @"emulatorhost:12345";
  */
 - (void)testInitWithEndpointUseIdentityPlatformExpectedRequestURL {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID];
   FIRIdentityToolkitRequest *request =
       [[FIRIdentityToolkitRequest alloc] initWithEndpoint:kEndpoint
                                      requestConfiguration:requestConfiguration
@@ -102,7 +107,7 @@ static NSString *const kEmulatorHostAndPort = @"emulatorhost:12345";
  */
 - (void)testInitWithEndpointUseIdentityPlatformUseStagingExpectedRequestURL {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID];
   FIRIdentityToolkitRequest *request =
       [[FIRIdentityToolkitRequest alloc] initWithEndpoint:kEndpoint
                                      requestConfiguration:requestConfiguration
@@ -121,7 +126,7 @@ static NSString *const kEmulatorHostAndPort = @"emulatorhost:12345";
  */
 - (void)testInitWithEndpointUseEmulatorExpectedRequestURL {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID];
   requestConfiguration.emulatorHostAndPort = kEmulatorHostAndPort;
   FIRIdentityToolkitRequest *request =
       [[FIRIdentityToolkitRequest alloc] initWithEndpoint:kEndpoint
@@ -139,7 +144,7 @@ static NSString *const kEmulatorHostAndPort = @"emulatorhost:12345";
  */
 - (void)testInitWithEndpointUseIdentityPlatformUseEmulatorExpectedRequestURL {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID];
   requestConfiguration.emulatorHostAndPort = kEmulatorHostAndPort;
   FIRIdentityToolkitRequest *request =
       [[FIRIdentityToolkitRequest alloc] initWithEndpoint:kEndpoint

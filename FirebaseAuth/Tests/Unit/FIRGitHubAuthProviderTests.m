@@ -31,6 +31,11 @@ static NSString *const kGitHubToken = @"Token";
  */
 static NSString *const kAPIKey = @"APIKey";
 
+/** @var kFirebaseAppID
+    @brief A testing Firebase app ID.
+ */
+static NSString *const kFirebaseAppID = @"appID";
+
 /** @class FIRGitHubAuthProviderTests
     @brief Tests for @c FIRGitHubAuthProvider
  */
@@ -44,7 +49,7 @@ static NSString *const kAPIKey = @"APIKey";
  */
 - (void)testCredentialWithToken {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID];
   FIRAuthCredential *credential = [FIRGitHubAuthProvider credentialWithToken:kGitHubToken];
   FIRVerifyAssertionRequest *request =
       [[FIRVerifyAssertionRequest alloc] initWithProviderID:FIRGitHubAuthProviderID

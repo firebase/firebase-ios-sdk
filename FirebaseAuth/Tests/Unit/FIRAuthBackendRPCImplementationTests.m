@@ -35,6 +35,11 @@ static NSString *const kFakeRequestURL = @"https://www.google.com/";
  */
 static NSString *const kFakeAPIkey = @"FAKE_API_KEY";
 
+/** @var kFakeFirebaseAppID
+    @brief Used as a fake Firebase app ID for a fake RPC request. We don't test this here.
+ */
+static NSString *const kFakeFirebaseAppID = @"FAKE_APP_ID";
+
 /** @var kFakeErrorDomain
     @brief A value to use for fake @c NSErrors.
  */
@@ -226,7 +231,7 @@ static NSString *const kTestValue = @"TestValue";
 
 - (FIRAuthRequestConfiguration *)requestConfiguration {
   FIRAuthRequestConfiguration *fakeConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kFakeAPIkey];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kFakeAPIkey appID:kFakeFirebaseAppID];
   return fakeConfiguration;
 }
 
