@@ -14,6 +14,13 @@
 
 import Foundation
 
+private enum Constants {
+  /// The name of the file system directory where heartbeat data is stored.
+  static let heartbeatFileStorageDirectoryPath = "google-heartbeat-storage"
+  /// The name of the user defaults suite where heartbeat data is stored.
+  static let heartbeatUserDefaultsSuiteName = "com.google.heartbeat.storage"
+}
+
 /// A factory type for `Storage`.
 protocol StorageFactory {
   static func makeStorage(id: String) -> Storage
@@ -21,13 +28,10 @@ protocol StorageFactory {
 
 // MARK: - FileStorage + StorageFactory
 
-/// The name of the file system directory where heartbeat data is stored.
-let kHeartbeatFileStorageDirectoryPath = "google-heartbeat-storage"
-
 extension FileStorage: StorageFactory {
   static func makeStorage(id: String) -> Storage {
     let rootDirectory = FileManager.default.applicationSupportDirectory
-    let heartbeatDirectoryPath = kHeartbeatFileStorageDirectoryPath
+    let heartbeatDirectoryPath = Constants.heartbeatFileStorageDirectoryPath
     let heartbeatFilePath = "heartbeats-\(id)"
 
     let storageURL = rootDirectory
@@ -47,13 +51,11 @@ extension FileManager {
 
 // MARK: - UserDefaultsStorage + StorageFactory
 
-/// The name of the user defaults suite where heartbeat data is stored.
-let kHeartbeatUserDefaultsSuiteName = "com.google.heartbeat.storage"
-
 extension UserDefaultsStorage: StorageFactory {
   static func makeStorage(id: String) -> Storage {
-    let suiteName = kHeartbeatUserDefaultsSuiteName
-    let defaults = UserDefaults(suiteName: suiteName)
+    let suiteName = Constants.heartbeatUserDefaultsSuiteName
+    // TODO: The below bang! should be safe but re-evaluate.
+    let defaults = UserDefaults(suiteName: suiteName)!
     let key = "heartbeats-\(id)"
     return UserDefaultsStorage(defaults: defaults, key: key)
   }

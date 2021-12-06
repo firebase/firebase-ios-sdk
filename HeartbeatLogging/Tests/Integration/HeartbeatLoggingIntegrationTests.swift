@@ -242,7 +242,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     // Then
     #if os(tvOS)
       XCTAssertNil(
-        UserDefaults(suiteName: kHeartbeatUserDefaultsSuiteName)?
+        UserDefaults(suiteName: "com.google.heartbeat.storage")?
           .object(forKey: "heartbeats-\(id)"),
         "Specified user defaults suite should be empty."
       )
@@ -250,7 +250,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
       let heartbeatsDirectoryURL = FileManager.default
         .applicationSupportDirectory
         .appendingPathComponent(
-          kHeartbeatFileStorageDirectoryPath, isDirectory: true
+          "google-heartbeat-storage", isDirectory: true
         )
       XCTAssertFalse(
         FileManager.default.fileExists(atPath: heartbeatsDirectoryURL.path),
@@ -269,7 +269,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     // Then
     #if os(tvOS)
       XCTAssertNotNil(
-        UserDefaults(suiteName: kHeartbeatUserDefaultsSuiteName)?
+        UserDefaults(suiteName: "com.google.heartbeat.storage")?
           .object(forKey: "heartbeats-\(id)"),
         "Data should not be nil."
       )
@@ -277,7 +277,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
       let heartbeatsFileURL = FileManager.default
         .applicationSupportDirectory
         .appendingPathComponent(
-          kHeartbeatFileStorageDirectoryPath, isDirectory: true
+          "google-heartbeat-storage", isDirectory: true
         )
         .appendingPathComponent(
           "heartbeats-\(id)", isDirectory: false
@@ -292,14 +292,13 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
 /// - Throws: An error if the storage container could not be removed.
 private func removeUnderlyingHeartbeatStorageContainers() throws {
   #if os(tvOS)
-    UserDefaults().removePersistentDomain(forName: kHeartbeatUserDefaultsSuiteName)
+    UserDefaults().removePersistentDomain(forName: "com.google.heartbeat.storage")
   #else
     let heartbeatsDirectoryURL = FileManager.default
       .applicationSupportDirectory
       .appendingPathComponent(
-        kHeartbeatFileStorageDirectoryPath, isDirectory: true
+        "google-heartbeat-storage", isDirectory: true
       )
-
     do {
       try FileManager.default.removeItem(at: heartbeatsDirectoryURL)
     } catch CocoaError.fileNoSuchFile {

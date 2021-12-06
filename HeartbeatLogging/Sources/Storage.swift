@@ -16,7 +16,13 @@ import Foundation
 
 /// A type that reads from and writes to an underlying storage container.
 protocol Storage {
+  /// Reads and returns the data stored by this storage type.
+  /// - Returns: The data read from storage.
+  /// - Throws: An error if the read failed.
   func read() throws -> Data
+
+  /// Writes the given data to this storage type. If the given data is `nil`, the storage container is emptied.
+  /// - Throws: An error if the write failed.
   func write(_ data: Data?) throws
 }
 
@@ -78,7 +84,7 @@ final class FileStorage: Storage {
 
   /// Creates all directories in the given file system URL.
   ///
-  /// If the directory for the given URL already exists,  the error is ignored because the directory
+  /// If the directory for the given URL already exists, the error is ignored because the directory
   /// has already been created.
   ///
   /// - Parameter url: The URL to create directories in.
@@ -105,11 +111,11 @@ final class UserDefaultsStorage: Storage {
 
   /// Designated initializer.
   /// - Parameters:
-  ///   - defaults: The defaults container. Defaults to the `standard` instance if `nil`.
+  ///   - defaults: The defaults container.
   ///   - key: The key mapping to the value stored in the defaults container.
-  init(defaults: UserDefaults? = nil,
+  init(defaults: UserDefaults,
        key: String) {
-    self.defaults = defaults ?? .standard
+    self.defaults = defaults
     self.key = key
   }
 
