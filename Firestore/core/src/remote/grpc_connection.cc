@@ -60,7 +60,7 @@ using util::StringFormat;
 const char* const kAppCheckHeader = "x-firebase-appcheck";
 const char* const kAuthorizationHeader = "authorization";
 const char* const kXGoogApiClientHeader = "x-goog-api-client";
-const char* const kGoogleCloudResourcePrefix = "google-cloud-resource-prefix";
+const char* const kGoogleCloudResourcePrefix = "x-goog-request-params";
 
 std::string MakeString(absl::string_view view) {
   return view.data() ? std::string{view.data(), view.size()} : std::string{};
