@@ -107,6 +107,26 @@ public struct Callable<Request: Encodable, Response: Decodable> {
     }
   }
 
+  /// Creates a directly callable function.
+  ///
+  /// This allows users to call a HTTPS Callable Funciton like a normal Swift function:
+  ///
+  ///     let greeter = functions.httpsCallable("greeter",
+  ///                                           requestType: GreetingRequest.self,
+  ///                                           responseType: GreetingResponse.self)
+  ///     try greeter(data) { result in
+  ///       print(result.greeting)
+  ///     }
+  ///
+  /// - Parameters:
+  ///   - data: Parameters to pass to the trigger.
+  ///   - completion: The block to call when the HTTPS request has completed.
+  public func callAsFunction(_ data: Request,
+                             completion: @escaping (Result<Response, Error>)
+                               -> Void) throws {
+    try call(data, completion: completion)
+  }
+
   #if compiler(>=5.5) && canImport(_Concurrency)
     /**
      * Executes this Callable HTTPS trigger asynchronously.
@@ -137,6 +157,24 @@ public struct Callable<Request: Encodable, Response: Decodable> {
       let encoded = try encoder.encode(data)
       let result = try await callable.call(encoded)
       return try decoder.decode(Response.self, from: result.data)
+    }
+
+    /// Creates a directly callable function.
+    ///
+    /// This allows users to call a HTTPS Callable Funciton like a normal Swift function:
+    ///
+    ///     let greeter = functions.httpsCallable("greeter",
+    ///                                           requestType: GreetingRequest.self,
+    ///                                           responseType: GreetingResponse.self)
+    ///     let result = try await greeter(data)
+    ///     print(result.greeting)
+    ///
+    /// - Parameters:
+    ///   - data: Parameters to pass to the trigger.
+    /// - Returns: The decoded `Response` value
+    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    public func callAsFunction(_ data: Request) async throws -> Response {
+      return try await call(data)
     }
   #endif
 }
