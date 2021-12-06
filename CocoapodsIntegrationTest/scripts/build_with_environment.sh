@@ -32,7 +32,7 @@ function runXcodebuild() {
     clean
     build
   )
-  
+
   parameters=("${buildcache_xcb_flags[@]}" "${parameters[@]}")
 
   echo xcodebuild "${parameters[@]}"
