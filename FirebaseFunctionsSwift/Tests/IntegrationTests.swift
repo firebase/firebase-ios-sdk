@@ -587,4 +587,58 @@ class IntegrationTests: XCTestCase {
       XCTAssertEqual(response, expected)
     }
   #endif
+
+  func testInferredTypes() throws {
+    let expectation = expectation(description: #function)
+    let data = DataTestRequest(
+      bool: true,
+      int: 2,
+      long: 9_876_543_210,
+      string: "four",
+      array: [5, 6],
+      null: nil
+    )
+    let function: Callable<DataTestRequest, DataTestResponse> = functions.httpsCallable("dataTest")
+
+    try function(data) { result in
+      do {
+        let response = try result.get()
+        let expected = DataTestResponse(
+          message: "stub response",
+          long: 420,
+          code: 42
+        )
+        XCTAssertEqual(response, expected)
+        expectation.fulfill()
+      } catch {
+        XCTAssert(false, "Failed to unwrap the function result: \(error)")
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  #if compiler(>=5.5) && canImport(_Concurrency)
+    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    func testInferredTyesAsync() async throws {
+      let data = DataTestRequest(
+        bool: true,
+        int: 2,
+        long: 9_876_543_210,
+        string: "four",
+        array: [5, 6],
+        null: nil
+      )
+
+      let function: Callable<DataTestRequest, DataTestResponse> = functions
+        .httpsCallable("dataTest")
+
+      let response = try await function(data)
+      let expected = DataTestResponse(
+        message: "stub response",
+        long: 420,
+        code: 42
+      )
+      XCTAssertEqual(response, expected)
+    }
+  #endif
 }
