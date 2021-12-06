@@ -8,7 +8,6 @@ on:
     - '.swiftpm/*'
     - 'scripts/build.sh'
     - 'SwiftPMTests/*'
-    - 'SwiftPM-PlatformExclude'
     - 'Gemfile*'
   schedule:
     # Run every day at 12am (PST) - cron uses UTC times
@@ -57,7 +56,7 @@ jobs:
     strategy:
       matrix:
         target: [tvOS, macOS, catalyst]
-        # Full set of Firebase-Package tests only run on iOS.
+        # Full set of Firebase-Package tests only run on iOS because of Analytics.
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@v1
