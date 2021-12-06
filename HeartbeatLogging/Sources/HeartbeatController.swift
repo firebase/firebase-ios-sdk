@@ -63,13 +63,13 @@ public final class HeartbeatController {
   ///
   /// - Note: This API is thread-safe.
   ///
-  /// - Parameter agent: The string agent to associate the logged heartbeat with.
+  /// - Parameter agent: The string agent to associate the logged heartbeat with. This is injected
+  /// here by the client. An example of such an agent would be the Firebase User Agent.
   public func log(_ agent: String) {
     let date = dateProvider()
-    let capacity = heartbeatsStorageCapacity
 
     storage.readAndWriteAsync { heartbeatInfo in
-      var heartbeatInfo = heartbeatInfo ?? HeartbeatInfo(capacity: capacity)
+      var heartbeatInfo = heartbeatInfo ?? HeartbeatInfo(capacity: self.heartbeatsStorageCapacity)
 
       // Filter for the time periods where the last heartbeat to be logged for
       // that time period was logged more than one time period (i.e. day) ago.
@@ -96,16 +96,16 @@ public final class HeartbeatController {
   /// - Returns: The flushed heartbeats in the form of `HeartbeatsPayload`.
   @discardableResult
   public func flush() -> HeartbeatsPayload {
-    let capacity = heartbeatsStorageCapacity
-
     let resetTransform: (HeartbeatInfo?) -> HeartbeatInfo? = { heartbeatInfo in
       guard let oldHeartbeatInfo = heartbeatInfo else {
         return nil // Storage was empty.
       }
-
       // The new value that's stored will use the old's cache to prevent the
       // logging of duplicates after flushing.
-      return HeartbeatInfo(capacity: capacity, cache: oldHeartbeatInfo.cache)
+      return HeartbeatInfo(
+        capacity: self.heartbeatsStorageCapacity,
+        cache: oldHeartbeatInfo.cache
+      )
     }
 
     // Synchronously gets and returns the stored heartbeats, resetting storage
