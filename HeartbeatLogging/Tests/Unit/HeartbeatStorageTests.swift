@@ -130,42 +130,30 @@ extension HeartbeatStorageTests {
     wait(for: [expectation], timeout: 0.5)
   }
 
-  func loadingFromStorage_WhenDecodingFails_ReturnsNil() throws {
+  func testLoadingFromStorage_WhenDecodingFails_ReturnsNil() throws {
     // Given
-    let expectation = expectation(description: #function)
-    expectation.expectedFulfillmentCount = 4
-
-    let storageFake = StorageFake()
-    let decoderFake = DecoderFake()
+    let storageFake = StorageFake(data: "BAD_DATA".data(using: .utf8))
     let heartbeatStorage = HeartbeatStorage(
       id: #file,
-      storage: storageFake,
-      decoder: decoderFake
+      storage: storageFake
     )
 
     // When
-    decoderFake.onDecode = {
-      expectation.fulfill() // Fulfilled 2 times.
-      throw DummyError.error
-    }
-
-    // Then
     heartbeatStorage.readAndWriteAsync { heartbeatInfo in
-      expectation.fulfill() // Fulfilled 1 time.
+      // Then
       XCTAssertNil(heartbeatInfo)
       return nil
     }
 
+    // When
     try heartbeatStorage.getAndReset { heartbeatInfo in
-      expectation.fulfill() // Fulfilled 1 time.
+      // Then
       XCTAssertNil(heartbeatInfo)
       return nil
     }
-
-    wait(for: [expectation], timeout: 0.5)
   }
 
-  func loadingFromStorage_WhenReadFails_ReturnsNil() throws {
+  func testLoadingFromStorage_WhenReadFails_ReturnsNil() throws {
     // Given
     let expectation = expectation(description: #function)
     expectation.expectedFulfillmentCount = 4
@@ -242,29 +230,14 @@ extension HeartbeatStorageTests {
     case error
   }
 
-  class EncoderFake: AnyEncoder {
-    var onEncode: (() throws -> Void)?
-
-    func encode<T>(_ value: T) throws -> Data where T: Encodable {
-      try onEncode?()
-      return try JSONEncoder().encode(value)
-    }
-  }
-
-  class DecoderFake: AnyDecoder {
-    var onDecode: (() throws -> Void)?
-
-    func decode<T>(_ type: T.Type, from data: Data) throws -> T where T: Decodable {
-      try onDecode?()
-      return try JSONDecoder().decode(type, from: data)
-    }
-  }
-
   class StorageFake: Storage {
     private var data: Data?
-
     var onRead: (() throws -> Data)?
     var onWrite: ((Data?) throws -> Void)?
+
+    init(data: Data? = nil) {
+      self.data = data
+    }
 
     func read() throws -> Data {
       if let onRead = onRead {

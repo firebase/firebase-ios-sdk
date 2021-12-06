@@ -36,9 +36,9 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
   /// The underlying storage container to read from and write to.
   private let storage: Storage
   /// An encoder used for encoding an `Encodable` type into `Data`.
-  private let encoder: AnyEncoder
+  private let encoder: JSONEncoder
   /// A decoder used for decoding `Data` into a `Decodable` type.
-  private let decoder: AnyDecoder
+  private let decoder: JSONDecoder
   /// The queue for synchronizing storage operations.
   private let queue: DispatchQueue
 
@@ -50,8 +50,8 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
   ///   - decoder: A decoder used for decoding heartbeat data.
   init(id: String,
        storage: Storage,
-       encoder: AnyEncoder = JSONEncoder(),
-       decoder: AnyDecoder = JSONDecoder()) {
+       encoder: JSONEncoder = .init(),
+       decoder: JSONDecoder = .init()) {
     self.id = id
     self.storage = storage
     self.encoder = encoder
@@ -153,5 +153,22 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
     } else {
       try storage.write(nil)
     }
+  }
+}
+
+private extension Data {
+  /// Returns the decoded value of this `Data` using the given decoder. Defaults to `JSONDecoder`.
+  /// - Returns: The decoded value.
+  func decoded<T>(using decoder: JSONDecoder = .init()) throws -> T where T: Decodable {
+    try decoder.decode(T.self, from: self)
+  }
+}
+
+private extension Encodable {
+  /// Returns the `Data` encoding of this value using the given encoder.
+  /// - Parameter encoder: An encoder used to encode the value. Defaults to `JSONEncoder`.
+  /// - Returns: The data encoding of the value.
+  func encoded(using encoder: JSONEncoder = .init()) throws -> Data {
+    try encoder.encode(self)
   }
 }

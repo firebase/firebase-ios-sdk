@@ -87,13 +87,14 @@ extension HeartbeatsPayload: HTTPHeaderRepresentable {
     let encoder = JSONEncoder()
     encoder.dateEncodingStrategy = .formatted(Self.dateFormatter)
 
-    if let data = try? encoded(using: encoder) {
-      // TODO: Compress the payload before base64 encoding.
-      // TODO: Confirm in e2e test if base64 URL safe string is needed.
-      return data.base64EncodedString()
-    } else {
-      return "" // Return empty string if encoding failed.
+    guard let data = try? encoder.encode(self) else {
+      // Return empty string if encoding failed.
+      return ""
     }
+
+    // TODO: Compress the payload before base64 encoding.
+    // TODO: Confirm in e2e test if base64 URL safe string is needed.
+    return data.base64EncodedString()
   }
 }
 
