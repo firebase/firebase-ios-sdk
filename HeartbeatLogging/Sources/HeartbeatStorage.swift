@@ -14,19 +14,10 @@
 
 import Foundation
 
-/// A typealias for a function that transforms a `HeartbeatInfo?` into `HeartbeatInfo?`. This
-/// typealias is used in `HeartbeatStorageProtocol` to model the transformation of the contents
-/// of heartbeat storage.
-///
-/// The parameter is marked as optional as the heartbeat info provided to the closure may be `nil` if
-/// an error occurred or storage is empty. The return type is marked as optional because the storage can
-/// be emptied by returning `nil` from the transformation closure.
-typealias HeartbeatInfoTransform = (HeartbeatInfo?) -> HeartbeatInfo?
-
 /// A type that can perform atomic operations using block-based transformations.
 protocol HeartbeatStorageProtocol {
-  func readAndWriteAsync(using transform: @escaping HeartbeatInfoTransform)
-  func getAndReset(using transform: HeartbeatInfoTransform?) throws -> HeartbeatInfo?
+  func readAndWriteAsync(using transform: @escaping (HeartbeatInfo?) -> HeartbeatInfo?)
+  func getAndReset(using transform: ((HeartbeatInfo?) -> HeartbeatInfo?)?) throws -> HeartbeatInfo?
 }
 
 /// Thread-safe storage object designed for transforming heartbeat data that is persisted to disk.
@@ -105,7 +96,7 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
 
   /// Asynchronously reads from and writes to storage using the given transform block.
   /// - Parameter transform: A block to transform `HeartbeatInfo?` to `HeartbeatInfo?`.
-  func readAndWriteAsync(using transform: @escaping HeartbeatInfoTransform) {
+  func readAndWriteAsync(using transform: @escaping (HeartbeatInfo?) -> HeartbeatInfo?) {
     queue.async { [self] in
       let oldHeartbeatInfo = try? load(from: storage)
       let newHeartbeatInfo = transform(oldHeartbeatInfo)
@@ -123,7 +114,8 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
   /// If `nil`, the storage is emptied.
   /// - Returns: The heartbeat data that was stored (before the `transform` was applied).
   @discardableResult
-  func getAndReset(using transform: HeartbeatInfoTransform? = nil) throws -> HeartbeatInfo? {
+  func getAndReset(using transform: ((HeartbeatInfo?) -> HeartbeatInfo?)? = nil) throws
+    -> HeartbeatInfo? {
     let heartbeatInfo: HeartbeatInfo? = try queue.sync {
       let oldHeartbeatInfo = try? load(from: storage)
       let newHeartbeatInfo = transform?(oldHeartbeatInfo)

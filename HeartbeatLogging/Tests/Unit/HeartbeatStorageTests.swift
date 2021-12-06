@@ -208,7 +208,7 @@ extension HeartbeatStorageTests {
 
       expectations.append(expectation)
 
-      let transform: HeartbeatInfoTransform = { heartbeatInfo in
+      let transform: (HeartbeatInfo?) -> HeartbeatInfo? = { heartbeatInfo in
         expectation.fulfill()
         return heartbeatInfo
       }

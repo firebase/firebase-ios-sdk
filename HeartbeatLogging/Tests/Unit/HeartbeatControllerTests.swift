@@ -331,11 +331,12 @@ extension HeartbeatControllerTests {
   class HeartbeatStorageFake: HeartbeatStorageProtocol {
     private var heartbeatInfo: HeartbeatInfo?
 
-    func readAndWriteAsync(using transform: @escaping HeartbeatInfoTransform) {
+    func readAndWriteAsync(using transform: @escaping (HeartbeatInfo?) -> HeartbeatInfo?) {
       heartbeatInfo = transform(heartbeatInfo)
     }
 
-    func getAndReset(using transform: HeartbeatInfoTransform?) throws -> HeartbeatInfo? {
+    func getAndReset(using transform: ((HeartbeatInfo?) -> HeartbeatInfo?)?) throws
+      -> HeartbeatInfo? {
       let oldHeartbeatInfo = heartbeatInfo
       heartbeatInfo = transform?(heartbeatInfo)
       return oldHeartbeatInfo
