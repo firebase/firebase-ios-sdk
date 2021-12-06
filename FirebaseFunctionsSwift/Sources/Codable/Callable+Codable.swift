@@ -36,6 +36,25 @@ public extension Functions {
     -> Callable<Request, Response> {
     return Callable(callable: httpsCallable(name), encoder: encoder, decoder: decoder)
   }
+
+  /// Creates a reference to the Callable HTTPS trigger with the given name. The types of the `Encodable`
+  /// request and tyhe `Decodable` response will be inferred by the compiler.
+  ///
+  /// At the call site, use the following syntax:
+  ///
+  ///     let greeter: Callable<DataTestRequest, DataTestResponse> = functions.httpsCallable("greeter")
+  ///     try greeter(data) { result in
+  ///       print(result.greeting)
+  ///     }
+  ///
+  /// - Parameters:
+  ///   - name: The name of the Callable HTTPS trigger
+  func httpsCallable<Request, Response>(_ name: String,
+                                        encoder: StructureEncoder = StructureEncoder(),
+                                        decoder: StructureDecoder = StructureDecoder())
+    -> Callable<Request, Response> where Request: Encodable, Response: Decodable {
+    return Callable(callable: httpsCallable(name), encoder: encoder, decoder: decoder)
+  }
 }
 
 /**
