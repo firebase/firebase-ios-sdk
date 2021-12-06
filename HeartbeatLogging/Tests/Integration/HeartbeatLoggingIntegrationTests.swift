@@ -15,6 +15,9 @@
 import XCTest
 @testable import HeartbeatLogging
 
+private let heartbeatsDirectoryPath = "google-heartbeat-storage"
+private let heartbeatsSuiteName = "com.google.heartbeat.storage"
+
 class HeartbeatLoggingIntegrationTests: XCTestCase {
   // 2021-11-01 @ 00:00:00 (EST)
   let date = Date(timeIntervalSince1970: 1_635_739_200)
@@ -242,7 +245,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     // Then
     #if os(tvOS)
       XCTAssertNil(
-        UserDefaults(suiteName: "com.google.heartbeat.storage")?
+        UserDefaults(suiteName: heartbeatsSuiteName)?
           .object(forKey: "heartbeats-\(id)"),
         "Specified user defaults suite should be empty."
       )
@@ -250,7 +253,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
       let heartbeatsDirectoryURL = FileManager.default
         .applicationSupportDirectory
         .appendingPathComponent(
-          "google-heartbeat-storage", isDirectory: true
+          heartbeatsDirectoryPath, isDirectory: true
         )
       XCTAssertFalse(
         FileManager.default.fileExists(atPath: heartbeatsDirectoryURL.path),
@@ -269,7 +272,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     // Then
     #if os(tvOS)
       XCTAssertNotNil(
-        UserDefaults(suiteName: "com.google.heartbeat.storage")?
+        UserDefaults(suiteName: heartbeatsSuiteName)?
           .object(forKey: "heartbeats-\(id)"),
         "Data should not be nil."
       )
@@ -277,7 +280,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
       let heartbeatsFileURL = FileManager.default
         .applicationSupportDirectory
         .appendingPathComponent(
-          "google-heartbeat-storage", isDirectory: true
+          heartbeatsDirectoryPath, isDirectory: true
         )
         .appendingPathComponent(
           "heartbeats-\(id)", isDirectory: false
@@ -292,12 +295,12 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
 /// - Throws: An error if the storage container could not be removed.
 private func removeUnderlyingHeartbeatStorageContainers() throws {
   #if os(tvOS)
-    UserDefaults().removePersistentDomain(forName: "com.google.heartbeat.storage")
+    UserDefaults().removePersistentDomain(forName: heartbeatsSuiteName)
   #else
     let heartbeatsDirectoryURL = FileManager.default
       .applicationSupportDirectory
       .appendingPathComponent(
-        "google-heartbeat-storage", isDirectory: true
+        heartbeatsDirectoryPath, isDirectory: true
       )
     do {
       try FileManager.default.removeItem(at: heartbeatsDirectoryURL)
