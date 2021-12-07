@@ -61,7 +61,6 @@ public struct HeartbeatsPayload: Codable {
     case version
   }
 
-  // TODO: Decide on version testing strategy.
   /// Designated initializer.
   /// - Parameters:
   ///   - userAgentPayloads: An array of payloads containing heartbeat data corresponding to a

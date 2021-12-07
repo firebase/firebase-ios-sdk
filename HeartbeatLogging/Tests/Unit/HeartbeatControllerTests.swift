@@ -195,7 +195,7 @@ class HeartbeatControllerTests: XCTestCase {
       """
     )
 
-    // Below assertion asserts that duplicate was not logged again.
+    // Below assertion asserts that duplicate was not logged.
     assertHeartbeatControllerFlushesEmptyPayload(controller)
   }
 
@@ -378,7 +378,6 @@ func assertEqualPayloadStrings(_ encoded: String, _ literal: String) throws {
   )
 }
 
-// TODO: Fix above API so encompass this.
 func assertHeartbeatControllerFlushesEmptyPayload(_ controller: HeartbeatController) {
   XCTAssertEqual(controller.flush().headerValue(), "")
 }

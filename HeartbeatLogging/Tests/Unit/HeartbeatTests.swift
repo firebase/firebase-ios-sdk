@@ -46,6 +46,10 @@ class HeartbeatTests: XCTestCase {
     heartbeatData = try JSONEncoder().encode(heartbeat)
   }
 
+  func testHeartbeatCurrentVersion() throws {
+    XCTAssertEqual(Heartbeat(agent: #function, date: Date()).version, 0)
+  }
+
   func testDecodeAndEncodeHeartbeat() throws {
     // Given
     let json = """

@@ -16,6 +16,10 @@ import XCTest
 @testable import HeartbeatLogging
 
 class HeartbeatsPayloadTests: XCTestCase {
+  func testPayloadCurrentVersion() throws {
+    XCTAssertEqual(HeartbeatsPayload().version, 2)
+  }
+
   func testEmptyPayload() throws {
     XCTAssertEqual(
       HeartbeatsPayload.emptyPayload,

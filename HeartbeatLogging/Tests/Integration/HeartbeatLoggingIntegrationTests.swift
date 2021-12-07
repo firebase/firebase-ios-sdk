@@ -130,7 +130,6 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     )
   }
 
-  // TODO: Decide on ordering.
   func testLogRepeatedly_WithoutFlushing_LimitsOnWrite() throws {
     // Given
     var testdate = date
