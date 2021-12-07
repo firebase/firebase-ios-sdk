@@ -32,7 +32,7 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
   private let decoder: JSONDecoder
   /// The queue for synchronizing storage operations.
   private let queue: DispatchQueue
-  
+
   /// Designated initializer.
   /// - Parameters:
   ///   - id: A string identifer.
