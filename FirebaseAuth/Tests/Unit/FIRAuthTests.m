@@ -85,6 +85,14 @@ static NSString *const kAPIKey = @"FAKE_API_KEY";
  */
 static NSString *const kAccessToken = @"ACCESS_TOKEN";
 
+/** @var kEncodedAccessToken
+    @brief A fake access token containing user_id as payload
+ */
+static NSString *const kEncodedAccessToken =
+    @"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+    @"eyJzdWIiOiJ0ZXN0IiwidXNlcl9pZCI6InRlc3RfcGFzc3Rocm91Z2giLCJpYXQiOjE1MTYyMzkwMjJ9."
+    @"4uNq61PQNjbtaEB7Kv28B0krzvF6F6JxyaWFC_cS57A";
+
 /** @var kNewAccessToken
     @brief Another fake access token used to simulate token refreshed via automatic token refresh.
  */
@@ -1513,6 +1521,40 @@ static const NSTimeInterval kWaitInterval = .5;
   OCMVerifyAll(_mockBackend);
 }
 
+/** @fn testSignInWithCustomTokenWithoutRefreshTokenSuccess
+    @brief Tests the flow of a successful @c signInWithCustomToken:completion: call without a
+   refresh token.
+ */
+- (void)testSignInWithCustomTokenWithoutRefreshTokenSuccess {
+  OCMExpect([_mockBackend verifyCustomToken:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(^(FIRVerifyCustomTokenRequest *_Nullable request,
+                       FIRVerifyCustomTokenResponseCallback callback) {
+        XCTAssertEqualObjects(request.APIKey, kAPIKey);
+        XCTAssertEqualObjects(request.token, kCustomToken);
+        XCTAssertTrue(request.returnSecureToken);
+        dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+          id mockVerifyCustomTokenResponse = OCMClassMock([FIRVerifyCustomTokenResponse class]);
+          [self stubTokensWithMockResponseNoRefreshToken:mockVerifyCustomTokenResponse];
+          callback(mockVerifyCustomTokenResponse, nil);
+        });
+      });
+  // If refreshToken is not present, GetAccountInfo is not invoked.
+  OCMReject([_mockBackend getAccountInfo:[OCMArg any] callback:[OCMArg any]]);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] signOut:NULL];
+  [[FIRAuth auth]
+      signInWithCustomToken:kCustomToken
+                 completion:^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
+                   XCTAssertTrue([NSThread isMainThread]);
+                   [self assertUserFromIDToken:result.user];
+                   XCTAssertNil(error);
+                   [expectation fulfill];
+                 }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  [self assertUserFromIDToken:[FIRAuth auth].currentUser];
+  OCMVerifyAll(_mockBackend);
+}
+
 /** @fn testSignInWithCustomTokenFailure
     @brief Tests the flow of a failed @c signInWithCustomToken:completion: call.
  */
@@ -2476,6 +2518,17 @@ static const NSTimeInterval kWaitInterval = .5;
   OCMStub([mockResponse refreshToken]).andReturn(kRefreshToken);
 }
 
+/** @fn stubTokensWithMockResponseNoRefreshToken
+    @brief Creates stubs on the mock response object with only access token, no refresh token.
+    @param mockResponse The mock response object.
+ */
+- (void)stubTokensWithMockResponseNoRefreshToken:(id)mockResponse {
+  OCMStub([mockResponse IDToken]).andReturn(kEncodedAccessToken);
+  OCMStub([mockResponse approximateExpirationDate])
+      .andReturn([NSDate dateWithTimeIntervalSinceNow:kAccessTokenTimeToLive]);
+  OCMStub([mockResponse refreshToken]).andReturn(nil);
+}
+
 /** @fn expectGetAccountInfo
     @brief Expects a GetAccountInfo request on the mock backend and calls back with fake account
         data.
@@ -2519,6 +2572,17 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertEqualObjects(user.uid, kLocalID);
   XCTAssertEqualObjects(user.displayName, kDisplayName);
   XCTAssertEqualObjects(user.email, kEmail);
+  XCTAssertFalse(user.anonymous);
+  XCTAssertEqual(user.providerData.count, 0u);
+}
+
+/** @fn assertUserFromIDToken
+    @brief Asserts the given FIRUser matching the fake data returned by a IDToken.
+    @param user The user object to be verified.
+ */
+- (void)assertUserFromIDToken:(FIRUser *)user {
+  XCTAssertNotNil(user);
+  XCTAssertEqualObjects(user.uid, @"test_passthrough");
   XCTAssertFalse(user.anonymous);
   XCTAssertEqual(user.providerData.count, 0u);
 }
