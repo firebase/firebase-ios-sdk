@@ -91,7 +91,7 @@ public extension StorageReference {
   func list(maxResults: Int64,
             pageToken: String,
             completion: @escaping (Result<StorageListResult, Error>) -> Void) {
-    list(maxResults: maxResults,
+    __list(withMaxResults: maxResults,
          pageToken: pageToken,
          completion: getResultCallback(completion: completion))
   }
@@ -112,7 +112,7 @@ public extension StorageReference {
   ///                with either the list or an `Error`.
   func list(maxResults: Int64,
             completion: @escaping (Result<StorageListResult, Error>) -> Void) {
-    list(maxResults: maxResults,
+    __list(withMaxResults: maxResults,
          completion: getResultCallback(completion: completion))
   }
 

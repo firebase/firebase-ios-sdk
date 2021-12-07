@@ -88,5 +88,51 @@ import FirebaseStorageObjC
         }
       }
     }
+
+    /// List up to `maxResults` items (files) and prefixes (folders) under this StorageReference.
+    ///
+    /// "/" is treated as a path delimiter. Firebase Storage does not support unsupported object
+    /// paths that end with "/" or contain two consecutive "/"s. All invalid objects in GCS will be
+    /// filtered.
+    ///
+    /// Only available for projects using Firebase Rules Version 2.
+    ///
+    /// - Parameters:
+    ///   - maxResults The maximum number of results to return in a single page. Must be
+    ///                greater than 0 and at most 1000.
+    /// - Returns:
+    ///   - completion A `Result` enum with either the list or an `Error`.
+    func list(maxResults: Int64) async throws -> StorageListResult {
+      typealias ListContinuation = CheckedContinuation<StorageListResult, Error>
+      return try await withCheckedThrowingContinuation { (continuation: ListContinuation) in
+        self.list(maxResults: maxResults) { result in
+          continuation.resume(with: result)
+        }
+      }
+    }
+
+    /// List up to `maxResults` items (files) and prefixes (folders) under this StorageReference.
+    ///
+    /// "/" is treated as a path delimiter. Firebase Storage does not support unsupported object
+    /// paths that end with "/" or contain two consecutive "/"s. All invalid objects in GCS will be
+    /// filtered.
+    ///
+    /// Only available for projects using Firebase Rules Version 2.
+    ///
+    /// - Parameters:
+    ///   - maxResults The maximum number of results to return in a single page. Must be
+    ///                greater than 0 and at most 1000.
+    ///   - pageToken A page token from a previous call to list.
+    /// - Returns:
+    ///   - completion A `Result` enum with either the list or an `Error`.
+    func list(maxResults: Int64, pageToken: String) async throws -> StorageListResult {
+      typealias ListContinuation = CheckedContinuation<StorageListResult, Error>
+      return try await withCheckedThrowingContinuation { (continuation: ListContinuation) in
+        self.list(maxResults: maxResults, pageToken: pageToken) { result in
+          continuation.resume(with: result)
+        }
+      }
+    }
   }
+
 #endif
