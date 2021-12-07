@@ -646,7 +646,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
   [request setValue:bundleID forHTTPHeaderField:kIosBundleIdentifierHeader];
   NSString *appID = requestConfiguration.appID;
-  [request setValue:appID forKey:kFirebaseAppIDHeader];
+  [request setValue:appID forHTTPHeaderField:kFirebaseAppIDHeader];
 
   NSArray<NSString *> *preferredLocalizations = [NSBundle mainBundle].preferredLocalizations;
   if (preferredLocalizations.count) {
