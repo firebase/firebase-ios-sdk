@@ -17,7 +17,7 @@ import Foundation
 /// A type that can perform atomic operations using block-based transformations.
 protocol HeartbeatStorageProtocol {
   func readAndWriteAsync(using transform: @escaping (HeartbeatInfo?) -> HeartbeatInfo?)
-  func getAndReset(using transform: ((HeartbeatInfo?) -> HeartbeatInfo?)?) throws -> HeartbeatInfo?
+  func getAndSet(using transform: (HeartbeatInfo?) -> HeartbeatInfo?) throws -> HeartbeatInfo?
 }
 
 /// Thread-safe storage object designed for transforming heartbeat data that is persisted to disk.
@@ -95,7 +95,8 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
   // MARK: - HeartbeatStorageProtocol
 
   /// Asynchronously reads from and writes to storage using the given transform block.
-  /// - Parameter transform: A block to transform `HeartbeatInfo?` to `HeartbeatInfo?`.
+  /// - Parameter transform: A block to transform the currently stored heartbeat info to a new
+  /// heartbeat info value.
   func readAndWriteAsync(using transform: @escaping (HeartbeatInfo?) -> HeartbeatInfo?) {
     queue.async { [self] in
       let oldHeartbeatInfo = try? load(from: storage)
@@ -111,14 +112,13 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
   /// a block to transform the current value (or, soon-to-be old value) to a new value.
   ///
   /// - Parameter transform: An optional block used to reset the currently stored heartbeat.
-  /// If `nil`, the storage is emptied.
   /// - Returns: The heartbeat data that was stored (before the `transform` was applied).
   @discardableResult
-  func getAndReset(using transform: ((HeartbeatInfo?) -> HeartbeatInfo?)? = nil) throws
+  func getAndSet(using transform: (HeartbeatInfo?) -> HeartbeatInfo?) throws
     -> HeartbeatInfo? {
     let heartbeatInfo: HeartbeatInfo? = try queue.sync {
       let oldHeartbeatInfo = try? load(from: storage)
-      let newHeartbeatInfo = transform?(oldHeartbeatInfo)
+      let newHeartbeatInfo = transform(oldHeartbeatInfo)
       try save(newHeartbeatInfo, to: storage)
       return oldHeartbeatInfo
     }

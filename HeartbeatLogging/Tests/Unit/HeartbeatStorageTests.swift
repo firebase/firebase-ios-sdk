@@ -105,9 +105,11 @@ extension HeartbeatStorageTests {
       HeartbeatInfo(capacity: 1)
     }
     // When
-    try heartbeatStorage.getAndReset()
+    try heartbeatStorage.getAndSet { _ in
+      nil
+    }
     // Then
-    try heartbeatStorage.getAndReset { heartbeatInfo in
+    try heartbeatStorage.getAndSet { heartbeatInfo in
       XCTAssertNil(heartbeatInfo)
       return heartbeatInfo
     }
@@ -126,7 +128,11 @@ extension HeartbeatStorageTests {
     }
 
     // Then
-    XCTAssertThrowsError(try heartbeatStorage.getAndReset())
+    XCTAssertThrowsError(
+      try heartbeatStorage.getAndSet { heartbeatInfo in
+        heartbeatInfo
+      }
+    )
     wait(for: [expectation], timeout: 0.5)
   }
 
@@ -146,7 +152,7 @@ extension HeartbeatStorageTests {
     }
 
     // When
-    try heartbeatStorage.getAndReset { heartbeatInfo in
+    try heartbeatStorage.getAndSet { heartbeatInfo in
       // Then
       XCTAssertNil(heartbeatInfo)
       return nil
@@ -174,7 +180,7 @@ extension HeartbeatStorageTests {
       return nil
     }
 
-    try heartbeatStorage.getAndReset { heartbeatInfo in
+    try heartbeatStorage.getAndSet { heartbeatInfo in
       expectation.fulfill() // Fulfilled 1 time.
       XCTAssertNil(heartbeatInfo)
       return nil
@@ -216,7 +222,7 @@ extension HeartbeatStorageTests {
       if /* randomChoice */ .random() {
         heartbeatStorage.readAndWriteAsync(using: transform)
       } else {
-        try heartbeatStorage.getAndReset(using: transform)
+        try heartbeatStorage.getAndSet(using: transform)
       }
     }
 

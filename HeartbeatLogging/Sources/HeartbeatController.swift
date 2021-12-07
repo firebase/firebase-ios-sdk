@@ -111,7 +111,7 @@ public final class HeartbeatController {
     // Synchronously gets and returns the stored heartbeats, resetting storage
     // using the given transform. If the operation threw an error, assume no
     // heartbeats were retrieved or reset.
-    if let heartbeatInfo = try? storage.getAndReset(using: resetTransform) {
+    if let heartbeatInfo = try? storage.getAndSet(using: resetTransform) {
       return heartbeatInfo.makeHeartbeatsPayload()
     } else {
       return HeartbeatsPayload.emptyPayload

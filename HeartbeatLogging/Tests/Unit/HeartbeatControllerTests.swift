@@ -335,10 +335,10 @@ extension HeartbeatControllerTests {
       heartbeatInfo = transform(heartbeatInfo)
     }
 
-    func getAndReset(using transform: ((HeartbeatInfo?) -> HeartbeatInfo?)?) throws
+    func getAndSet(using transform: (HeartbeatInfo?) -> HeartbeatInfo?) throws
       -> HeartbeatInfo? {
       let oldHeartbeatInfo = heartbeatInfo
-      heartbeatInfo = transform?(heartbeatInfo)
+      heartbeatInfo = transform(heartbeatInfo)
       return oldHeartbeatInfo
     }
   }
