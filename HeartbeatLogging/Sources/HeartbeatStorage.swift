@@ -26,19 +26,20 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
   private let id: String
   /// The underlying storage container to read from and write to.
   private let storage: Storage
-  /// An encoder used for encoding an `Encodable` type into `Data`.
+  /// The encoder used for encoding an heartbeat data into `Data`.
   private let encoder: JSONEncoder
-  /// A decoder used for decoding `Data` into a `Decodable` type.
+  /// The decoder used for decoding `Data` into heartbeat data.
   private let decoder: JSONDecoder
   /// The queue for synchronizing storage operations.
   private let queue: DispatchQueue
-
+  
   /// Designated initializer.
   /// - Parameters:
   ///   - id: A string identifer.
   ///   - storage: The underlying storage container where heartbeat data is stored.
   ///   - encoder: An encoder used for encoding heartbeat data.
   ///   - decoder: A decoder used for decoding heartbeat data.
+  // TODO: Consider removing JSON*coder from initializer.
   init(id: String,
        storage: Storage,
        encoder: JSONEncoder = .init(),
@@ -52,7 +53,7 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
 
   // MARK: - Instance Management
 
-  /// Statically allocated cache of `HeartbeatStorage` instances.
+  /// Statically allocated cache of `HeartbeatStorage` instances keyed by string IDs.
   private static var cachedInstances: [String: WeakContainer<HeartbeatStorage>] = [:]
 
   /// Gets an existing `HeartbeatStorage` instance with the given `id` if one exists. Otherwise,
@@ -108,7 +109,7 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
   /// Synchronously gets the current heartbeat data from storage and resets the storage using the
   /// given transform block.
   ///
-  /// This API is essentially a `getAndSet`-style API that gets (and returns) the current value and uses
+  /// This API is like any `getAndSet`-style API in that it gets (and returns) the current value and uses
   /// a block to transform the current value (or, soon-to-be old value) to a new value.
   ///
   /// - Parameter transform: An optional block used to reset the currently stored heartbeat.

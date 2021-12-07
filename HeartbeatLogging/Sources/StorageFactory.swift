@@ -44,7 +44,6 @@ extension FileStorage: StorageFactory {
 
 extension FileManager {
   var applicationSupportDirectory: URL {
-    // TODO: The below bang! should be safe but re-evaluate.
     urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
   }
 }

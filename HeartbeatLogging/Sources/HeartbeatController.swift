@@ -63,8 +63,7 @@ public final class HeartbeatController {
   ///
   /// - Note: This API is thread-safe.
   ///
-  /// - Parameter agent: The string agent to associate the logged heartbeat with. This is injected
-  /// here by the client. An example of such an agent would be the Firebase User Agent.
+  /// - Parameter agent: The string agent (i.e. Firebase User Agent) to associate the logged heartbeat with.
   public func log(_ agent: String) {
     let date = dateProvider()
 
@@ -110,7 +109,7 @@ public final class HeartbeatController {
 
     // Synchronously gets and returns the stored heartbeats, resetting storage
     // using the given transform. If the operation threw an error, assume no
-    // heartbeats were retrieved or reset.
+    // heartbeats were retrieved or set.
     if let heartbeatInfo = try? storage.getAndSet(using: resetTransform) {
       return heartbeatInfo.makeHeartbeatsPayload()
     } else {

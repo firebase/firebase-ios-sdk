@@ -22,7 +22,7 @@ public protocol HTTPHeaderRepresentable {
 /// A value type representing a payload of heartbeat data intended for sending in network requests.
 ///
 /// This type's structure is optimized for type-safe encoding into a HTTP payload format.
-/// The intended encoding format for the current version is as follows:
+/// The current encoding format for the payload's current version is:
 ///
 ///     {
 ///       "version": 2,
@@ -46,7 +46,6 @@ public struct HeartbeatsPayload: Codable {
   struct UserAgentPayload: Codable {
     /// An anonymous agent string.
     let agent: String
-    // TODO: Check that backend makes no assumptions about ordering.
     /// An array of dates where each date represents a "heartbeat".
     let dates: [Date]
   }

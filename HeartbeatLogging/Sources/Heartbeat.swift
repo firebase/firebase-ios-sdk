@@ -28,10 +28,10 @@ enum TimePeriod: Int, CaseIterable, Codable {
 
 /// A structure representing SDK usage.
 struct Heartbeat: Codable, Equatable {
-  /// The version of the model. Used for decoding/encoding. Manually incremented when model changes.
+  /// The version of the heartbeat.
   private static let version: Int = 0
 
-  /// An anonymous piece of information (i.e. user agent) to associate the heartbeat with.
+  /// An anonymous string of information (i.e. user agent) to associate the heartbeat with.
   let agent: String
 
   /// The date when the heartbeat was recorded.
@@ -50,9 +50,9 @@ struct Heartbeat: Codable, Equatable {
 
   /// Designated intializer.
   /// - Parameters:
-  ///   - agent: An anonymous piece of information to associate the heartbeat with.
-  ///   - date: The date when the heartbeat was recorded. Defaults to the current date.
-  ///   - version: The heartbeat's model version. Defaults to the current model version.
+  ///   - agent: An anonymous string of information to associate the heartbeat with.
+  ///   - date: The date when the heartbeat was recorded.
+  ///   - version: The heartbeat's version. Defaults to the current version.
   init(agent: String,
        date: Date,
        timePeriods: [TimePeriod] = [],
