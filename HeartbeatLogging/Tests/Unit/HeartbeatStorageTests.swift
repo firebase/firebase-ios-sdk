@@ -15,8 +15,6 @@
 import XCTest
 @testable import HeartbeatLogging
 
-// TODO: Verify that this class is properly tested.
-
 class HeartbeatStorageTests: XCTestCase {
   // MARK: - Instance Management
 
@@ -89,42 +87,161 @@ class HeartbeatStorageTests: XCTestCase {
     heartbeatStorage2 = nil
     XCTAssertNil(heartbeatStorage2)
   }
-}
 
-// MARK: - HeartbeatStorageProtocol
+  // MARK: - HeartbeatStorageProtocol
 
-// TODO: Do these make sense?
-func savingToStorage_WhenWriteFails_ReturnsNil() {}
-func savingToStorage_WhenEncodingFails_ReturnsNil() {}
-
-extension HeartbeatStorageTests {
-  func testGetAndResetDefaultsToClearingStorage() throws {
+  func testReadAndWrite_ReadsOldValueAndWritesNewValue() throws {
     // Given
-    let heartbeatStorage = HeartbeatStorage(id: #file, storage: StorageFake())
-    heartbeatStorage.readAndWriteAsync { _ in
-      HeartbeatInfo(capacity: 1)
-    }
+    let expectation = expectation(description: #function)
+    let heartbeatStorage = HeartbeatStorage(id: #function, storage: StorageFake())
+
+    var dummyHeartbeatInfo = HeartbeatInfo(capacity: 1)
+    dummyHeartbeatInfo.append(Heartbeat(agent: "dummy_agent", date: Date()))
+
     // When
-    try heartbeatStorage.getAndSet { _ in
-      nil
+    heartbeatStorage.readAndWriteAsync { heartbeatInfo in
+      // Assert that heartbeat storage is empty.
+      XCTAssertNil(heartbeatInfo)
+      // Write new value.
+      return dummyHeartbeatInfo
     }
+
+    heartbeatStorage.readAndWriteAsync { heartbeatInfo in
+      expectation.fulfill()
+      // Assert old value is read.
+      XCTAssertEqual(
+        heartbeatInfo?.makeHeartbeatsPayload(),
+        dummyHeartbeatInfo.makeHeartbeatsPayload()
+      )
+      // Write some new value.
+      return heartbeatInfo
+    }
+
     // Then
-    try heartbeatStorage.getAndSet { heartbeatInfo in
+    wait(for: [expectation], timeout: 0.5)
+  }
+
+  func testReadAndWrite_WhenLoadFails_PassesNilToBlock() throws {
+    // Given
+    let expectation = expectation(description: #function)
+    let heartbeatStorage = HeartbeatStorage(id: #function, storage: StorageFake())
+
+    // When
+    heartbeatStorage.readAndWriteAsync { heartbeatInfo in
+      expectation.fulfill()
       XCTAssertNil(heartbeatInfo)
       return heartbeatInfo
     }
+
+    // Then
+    wait(for: [expectation], timeout: 0.5)
   }
 
-  func testGetAndResetThrowsIfSaveFails() {
+  func testReadAndWrite_WhenSaveFails_DoesNotAttemptRecovery() throws {
+    // Given
+    let expectation = expectation(description: #function)
+    expectation.expectedFulfillmentCount = 4
+
+    let storageFake = StorageFake()
+    let heartbeatStorage = HeartbeatStorage(id: #function, storage: storageFake)
+
+    var dummyHeartbeatInfo = HeartbeatInfo(capacity: 1)
+    dummyHeartbeatInfo.append(Heartbeat(agent: "dummy_agent", date: Date()))
+
+    // When
+    storageFake.onWrite = { data in
+      expectation.fulfill() // Fulfilled 2 times.
+      throw StorageError.writeError
+    }
+
+    heartbeatStorage.readAndWriteAsync { heartbeatInfo in
+      expectation.fulfill()
+      return dummyHeartbeatInfo
+    }
+
+    // Then
+    heartbeatStorage.readAndWriteAsync { heartbeatInfo in
+      expectation.fulfill()
+      XCTAssertNotEqual(
+        heartbeatInfo?.makeHeartbeatsPayload(),
+        dummyHeartbeatInfo.makeHeartbeatsPayload(),
+        "They should not be equal because the previous save failed."
+      )
+      return dummyHeartbeatInfo
+    }
+
+    wait(for: [expectation], timeout: 0.5)
+  }
+
+  func testGetAndSet_ReturnsOldValueAndSetsNewValue() throws {
+    // Given
+    let expectation = expectation(description: #function)
+    let heartbeatStorage = HeartbeatStorage(id: #function, storage: StorageFake())
+
+    var dummyHeartbeatInfo = HeartbeatInfo(capacity: 1)
+    dummyHeartbeatInfo.append(Heartbeat(agent: "dummy_agent", date: Date()))
+
+    // When
+    XCTAssertNoThrow(
+      try heartbeatStorage.getAndSet { heartbeatInfo in
+        // Assert that heartbeat storage is empty.
+        XCTAssertNil(heartbeatInfo)
+        // Write new value.
+        return dummyHeartbeatInfo
+      }
+    )
+
+    // Then
+    XCTAssertNoThrow(
+      try heartbeatStorage.getAndSet { heartbeatInfo in
+        expectation.fulfill()
+        // Assert old value is read.
+        XCTAssertEqual(
+          heartbeatInfo?.makeHeartbeatsPayload(),
+          dummyHeartbeatInfo.makeHeartbeatsPayload()
+        )
+        // Write some new value.
+        return heartbeatInfo
+      }
+    )
+
+    wait(for: [expectation], timeout: 0.5)
+  }
+
+  func testGetAndSet_WhenLoadFails_PassesNilToBlockAndReturnsNil() throws {
+    // Given
+    let expectation = expectation(description: #function)
+    expectation.expectedFulfillmentCount = 2
+
+    let storageFake = StorageFake()
+    let heartbeatStorage = HeartbeatStorage(id: #function, storage: storageFake)
+
+    // When
+    storageFake.onRead = {
+      expectation.fulfill()
+      return try XCTUnwrap("BAD_DATA".data(using: .utf8))
+    }
+
+    // Then
+    try heartbeatStorage.getAndSet { heartbeatInfo in
+      expectation.fulfill()
+      XCTAssertNil(heartbeatInfo)
+      return heartbeatInfo
+    }
+
+    wait(for: [expectation], timeout: 0.5)
+  }
+
+  func testGetAndSet_WhenSaveFails_ThrowsError() throws {
     // Given
     let expectation = expectation(description: #function)
     let storageFake = StorageFake()
-    let heartbeatStorage = HeartbeatStorage(id: #file, storage: storageFake)
+    let heartbeatStorage = HeartbeatStorage(id: #function, storage: storageFake)
 
     // When
     storageFake.onWrite = { _ in
       expectation.fulfill()
-      throw DummyError.error
+      throw StorageError.writeError
     }
 
     // Then
@@ -133,86 +250,17 @@ extension HeartbeatStorageTests {
         heartbeatInfo
       }
     )
-    wait(for: [expectation], timeout: 0.5)
-  }
-
-  func testLoadingFromStorage_WhenDecodingFails_ReturnsNil() throws {
-    // Given
-    let storageFake = StorageFake(data: "BAD_DATA".data(using: .utf8))
-    let heartbeatStorage = HeartbeatStorage(
-      id: #file,
-      storage: storageFake
-    )
-
-    // When
-    heartbeatStorage.readAndWriteAsync { heartbeatInfo in
-      // Then
-      XCTAssertNil(heartbeatInfo)
-      return nil
-    }
-
-    // When
-    try heartbeatStorage.getAndSet { heartbeatInfo in
-      // Then
-      XCTAssertNil(heartbeatInfo)
-      return nil
-    }
-  }
-
-  func testLoadingFromStorage_WhenReadFails_ReturnsNil() throws {
-    // Given
-    let expectation = expectation(description: #function)
-    expectation.expectedFulfillmentCount = 4
-
-    let storageFake = StorageFake()
-    let heartbeatStorage = HeartbeatStorage(id: #file, storage: storageFake)
-
-    // When
-    storageFake.onRead = {
-      expectation.fulfill() // Fulfilled 2 times.
-      throw DummyError.error
-    }
-
-    // Then
-    heartbeatStorage.readAndWriteAsync { heartbeatInfo in
-      expectation.fulfill() // Fulfilled 1 time.
-      XCTAssertNil(heartbeatInfo)
-      return nil
-    }
-
-    try heartbeatStorage.getAndSet { heartbeatInfo in
-      expectation.fulfill() // Fulfilled 1 time.
-      XCTAssertNil(heartbeatInfo)
-      return nil
-    }
-
-    wait(for: [expectation], timeout: 0.5)
-  }
-
-  func testReadAndWriteThenGetAndSet() {
-    let storage = HeartbeatStorage(id: #file, storage: StorageFake())
-
-    let expectation = expectation(description: #function)
-
-    storage.readAndWriteAsync { heartbeatInfo in
-      XCTAssertNil(heartbeatInfo)
-      expectation.fulfill()
-      return heartbeatInfo
-    }
 
     wait(for: [expectation], timeout: 0.5)
   }
 
   func testOperationsAreSynrononizedSerially() throws {
     // Given
-    var expectations: [XCTestExpectation] = []
-    let heartbeatStorage = HeartbeatStorage(id: #file, storage: StorageFake())
+    let heartbeatStorage = HeartbeatStorage(id: #function, storage: StorageFake())
 
     // When
-    for i in 0 ... 1000 {
+    let expectations: [XCTestExpectation] = try (0 ... 1000).map { i in
       let expectation = expectation(description: "\(#function)_\(i)")
-
-      expectations.append(expectation)
 
       let transform: (HeartbeatInfo?) -> HeartbeatInfo? = { heartbeatInfo in
         expectation.fulfill()
@@ -222,43 +270,35 @@ extension HeartbeatStorageTests {
       if /* randomChoice */ .random() {
         heartbeatStorage.readAndWriteAsync(using: transform)
       } else {
-        try heartbeatStorage.getAndSet(using: transform)
+        XCTAssertNoThrow(try heartbeatStorage.getAndSet(using: transform))
       }
+
+      return expectation
     }
 
     // Then
     wait(for: expectations, timeout: 1.0, enforceOrder: true)
   }
+}
 
-  // MARK: - Fakes
+private class StorageFake: Storage {
+  var data: Data?
+  var onRead: (() throws -> Data)?
+  var onWrite: ((Data?) throws -> Void)?
 
-  enum DummyError: Error {
-    case error
+  func read() throws -> Data {
+    if let onRead = onRead {
+      return try onRead()
+    } else {
+      return try data ?? { throw StorageError.readError }()
+    }
   }
 
-  class StorageFake: Storage {
-    private var data: Data?
-    var onRead: (() throws -> Data)?
-    var onWrite: ((Data?) throws -> Void)?
-
-    init(data: Data? = nil) {
+  func write(_ data: Data?) throws {
+    if let onWrite = onWrite {
+      return try onWrite(data)
+    } else {
       self.data = data
-    }
-
-    func read() throws -> Data {
-      if let onRead = onRead {
-        return try onRead()
-      } else {
-        return try data ?? { throw DummyError.error }()
-      }
-    }
-
-    func write(_ data: Data?) throws {
-      if let onWrite = onWrite {
-        return try onWrite(data)
-      } else {
-        self.data = data
-      }
     }
   }
 }

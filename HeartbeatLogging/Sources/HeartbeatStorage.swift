@@ -26,10 +26,10 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
   private let id: String
   /// The underlying storage container to read from and write to.
   private let storage: Storage
-  /// The encoder used for encoding an heartbeat data into `Data`.
-  private let encoder: JSONEncoder
-  /// The decoder used for decoding `Data` into heartbeat data.
-  private let decoder: JSONDecoder
+  /// The encoder used for encoding heartbeat data.
+  private let encoder: JSONEncoder = .init()
+  /// The decoder used for decoding heartbeat data.
+  private let decoder: JSONDecoder = .init()
   /// The queue for synchronizing storage operations.
   private let queue: DispatchQueue
 
@@ -37,17 +37,10 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
   /// - Parameters:
   ///   - id: A string identifer.
   ///   - storage: The underlying storage container where heartbeat data is stored.
-  ///   - encoder: An encoder used for encoding heartbeat data.
-  ///   - decoder: A decoder used for decoding heartbeat data.
-  // TODO: Consider removing JSON*coder from initializer.
   init(id: String,
-       storage: Storage,
-       encoder: JSONEncoder = .init(),
-       decoder: JSONDecoder = .init()) {
+       storage: Storage) {
     self.id = id
     self.storage = storage
-    self.encoder = encoder
-    self.decoder = decoder
     queue = DispatchQueue(label: "com.heartbeat.storage.\(id)")
   }
 
