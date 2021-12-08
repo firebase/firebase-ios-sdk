@@ -25,6 +25,10 @@ struct HeartbeatsBundle: Codable, HeartbeatsPayloadConvertible {
   /// The maximum number of heartbeats that can be stored in the buffer.
   let capacity: Int
   /// A cache used for keeping track of the last heartbeat date recorded for a given time period.
+  ///
+  /// The cache contains the last added date for each time period. The reason only the date is cached is
+  /// because it's the only piece of information that should be used by clients to determine whether or not
+  /// to append a new heartbeat.
   private(set) var cache: [TimePeriod: Date]
   /// A ring buffer of heartbeats.
   private var buffer: RingBuffer<Heartbeat>

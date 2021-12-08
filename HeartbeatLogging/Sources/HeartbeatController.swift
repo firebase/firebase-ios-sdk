@@ -43,8 +43,7 @@ public final class HeartbeatController {
   /// - Parameters:
   ///   - id: The id to associate this controller's heartbeat storage with.
   ///   - dateProvider: A date provider.
-  convenience init(id: String,
-                   dateProvider: @escaping () -> Date) {
+  convenience init(id: String, dateProvider: @escaping () -> Date) {
     let storage = HeartbeatStorage.getInstance(id: id)
     self.init(storage: storage, dateProvider: dateProvider)
   }
