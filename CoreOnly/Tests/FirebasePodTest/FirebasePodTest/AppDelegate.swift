@@ -18,7 +18,7 @@ import Firebase
 import FirebaseAnalyticsSwift
 import FirebaseFirestoreSwift
 import FirebaseInAppMessagingSwift
-import FirebaseStorageSwift
+import FirebaseStorage
 
 class CoreExists: FirebaseApp {}
 class AnalyticsExists: Analytics {}
