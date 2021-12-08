@@ -72,7 +72,7 @@ public final class HeartbeatController {
 
       // Filter for the time periods where the last heartbeat to be logged for
       // that time period was logged more than one time period (i.e. day) ago.
-      let timePeriods = heartbeatsBundle.cache.filter { timePeriod, lastDate in
+      let timePeriods = heartbeatsBundle.lastAddedHeartbeatDates.filter { timePeriod, lastDate in
         date.timeIntervalSince(lastDate) >= timePeriod.timeInterval
       }
       .map { timePeriod, _ in timePeriod }
@@ -103,7 +103,7 @@ public final class HeartbeatController {
       // logging of duplicates after flushing.
       return HeartbeatsBundle(
         capacity: self.heartbeatsStorageCapacity,
-        cache: oldHeartbeatsBundle.cache
+        cache: oldHeartbeatsBundle.lastAddedHeartbeatDates
       )
     }
 

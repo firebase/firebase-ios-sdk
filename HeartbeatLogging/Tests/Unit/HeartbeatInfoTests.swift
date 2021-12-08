@@ -51,13 +51,13 @@ class HeartbeatsBundleTests: XCTestCase {
       """
     )
 
-    XCTAssertEqual(heartbeatsBundle.cache, [.daily: heartbeat.date])
+    XCTAssertEqual(heartbeatsBundle.lastAddedHeartbeatDates, [.daily: heartbeat.date])
   }
 
   func testAppendingHeartbeat_WhenCapacityIsZero_DoesNothing() throws {
     // Given
     var heartbeatsBundle = HeartbeatsBundle(capacity: 0)
-    let preAppendCacheSnapshot = heartbeatsBundle.cache
+    let preAppendCacheSnapshot = heartbeatsBundle.lastAddedHeartbeatDates
 
     let heartbeat = Heartbeat(
       agent: #function,
@@ -75,7 +75,7 @@ class HeartbeatsBundleTests: XCTestCase {
 
     try assertEqualPayloadStrings(heartbeatsBundleString, "")
 
-    XCTAssertEqual(heartbeatsBundle.cache, preAppendCacheSnapshot)
+    XCTAssertEqual(heartbeatsBundle.lastAddedHeartbeatDates, preAppendCacheSnapshot)
   }
 
   func testAppendingHeartbeat_AtMaxCapacity_RemovesOverwrittenFromCache() throws {
@@ -89,7 +89,7 @@ class HeartbeatsBundleTests: XCTestCase {
     var heartbeatsBundle = HeartbeatsBundle(capacity: 1)
     heartbeatsBundle.append(heartbeat1)
 
-    XCTAssertEqual(heartbeatsBundle.cache, [.daily: heartbeat1.date])
+    XCTAssertEqual(heartbeatsBundle.lastAddedHeartbeatDates, [.daily: heartbeat1.date])
 
     let heartbeat2 = Heartbeat(
       agent: "dummy_agent_2",
@@ -120,7 +120,7 @@ class HeartbeatsBundleTests: XCTestCase {
       """
     )
 
-    XCTAssertEqual(heartbeatsBundle.cache, [.daily: heartbeat2.date])
+    XCTAssertEqual(heartbeatsBundle.lastAddedHeartbeatDates, [.daily: heartbeat2.date])
   }
 
   func testMakePayload_WithMultipleUserAgents() throws {

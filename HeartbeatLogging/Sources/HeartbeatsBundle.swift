@@ -29,7 +29,7 @@ struct HeartbeatsBundle: Codable, HeartbeatsPayloadConvertible {
   /// The cache contains the last added date for each time period. The reason only the date is cached is
   /// because it's the only piece of information that should be used by clients to determine whether or not
   /// to append a new heartbeat.
-  private(set) var cache: [TimePeriod: Date]
+  private(set) var lastAddedHeartbeatDates: [TimePeriod: Date]
   /// A ring buffer of heartbeats.
   private var buffer: RingBuffer<Heartbeat>
 
@@ -47,7 +47,7 @@ struct HeartbeatsBundle: Codable, HeartbeatsPayloadConvertible {
        cache: [TimePeriod: Date] = cacheProvider()) {
     buffer = RingBuffer(capacity: capacity)
     self.capacity = capacity
-    self.cache = cache
+    lastAddedHeartbeatDates = cache
   }
 
   /// Appends a heartbeat to this collection.
@@ -61,14 +61,14 @@ struct HeartbeatsBundle: Codable, HeartbeatsPayloadConvertible {
     if let overwrittenHeartbeat = buffer.push(heartbeat) {
       // If a heartbeat was overwritten, update the cache to ensure it's date
       // is removed (if it was stored).
-      cache = cache.mapValues { date in
+      lastAddedHeartbeatDates = lastAddedHeartbeatDates.mapValues { date in
         overwrittenHeartbeat.date == date ? .distantPast : date
       }
     }
 
     // 2. Update cache with the new heartbeat's date.
     heartbeat.timePeriods.forEach {
-      cache[$0] = heartbeat.date
+      lastAddedHeartbeatDates[$0] = heartbeat.date
     }
   }
 
