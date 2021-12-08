@@ -39,7 +39,6 @@ import FirebaseMessaging
 #endif
 import FirebaseRemoteConfig
 import FirebaseStorage
-import FirebaseStorageSwift
 import GoogleDataTransport
 import GoogleUtilities_AppDelegateSwizzler
 import GoogleUtilities_Environment
