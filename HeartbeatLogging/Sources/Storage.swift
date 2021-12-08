@@ -46,8 +46,7 @@ final class FileStorage: Storage {
   /// - Parameters:
   ///   - url: A file system URL for the underlying file resource.
   ///   - fileManager: A file manager. Defaults to `default` manager.
-  init(url: URL,
-       fileManager: FileManager = .default) {
+  init(url: URL, fileManager: FileManager = .default) {
     self.url = url
     self.fileManager = fileManager
   }
@@ -114,8 +113,7 @@ final class UserDefaultsStorage: Storage {
   /// - Parameters:
   ///   - defaults: The defaults container.
   ///   - key: The key mapping to the value stored in the defaults container.
-  init(defaults: UserDefaults,
-       key: String) {
+  init(defaults: UserDefaults, key: String) {
     self.defaults = defaults
     self.key = key
   }
