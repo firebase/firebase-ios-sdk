@@ -16,7 +16,7 @@
 
   import Combine
   import FirebaseStorage
-  import FirebaseStorageSwift
+  import FirebaseStorageObjC
 
   @available(swift 5.0)
   @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
