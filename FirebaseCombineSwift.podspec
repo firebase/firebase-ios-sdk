@@ -56,7 +56,6 @@ for internal testing only. It should not be published.
   s.dependency 'FirebaseFunctions', '~> 8.12'
   s.dependency 'FirebaseFirestore', '~> 8.0'
   s.dependency 'FirebaseStorage', '~> 8.0'
-  s.dependency 'FirebaseStorageSwift', '~> 8.0-beta'
 
   s.pod_target_xcconfig = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
@@ -94,7 +93,7 @@ for internal testing only. It should not be published.
     }
     int_tests.source_files = [
       'FirebaseCombineSwift/Tests/Integration/Storage/StorageIntegration.swift',
-      'FirebaseStorage/Tests/SwiftIntegration/Credentials.swift'
+      'FirebaseStorageSwift/Tests/Integration/Credentials.swift'
     ]
     int_tests.requires_app_host = true
     # Resources are shared with FirebaseStorage's integration tests.
