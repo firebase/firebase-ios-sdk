@@ -92,8 +92,8 @@ public extension StorageReference {
             pageToken: String,
             completion: @escaping (Result<StorageListResult, Error>) -> Void) {
     __list(withMaxResults: maxResults,
-         pageToken: pageToken,
-         completion: getResultCallback(completion: completion))
+           pageToken: pageToken,
+           completion: getResultCallback(completion: completion))
   }
 
   /// List up to `maxResults` items (files) and prefixes (folders) under this StorageReference.
@@ -113,7 +113,7 @@ public extension StorageReference {
   func list(maxResults: Int64,
             completion: @escaping (Result<StorageListResult, Error>) -> Void) {
     __list(withMaxResults: maxResults,
-         completion: getResultCallback(completion: completion))
+           completion: getResultCallback(completion: completion))
   }
 
   /// List all items (files) and prefixes (folders) under this StorageReference.

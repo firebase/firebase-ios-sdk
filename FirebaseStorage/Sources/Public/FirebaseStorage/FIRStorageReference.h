@@ -251,10 +251,9 @@ NS_SWIFT_NAME(putData(_:metadata:));
  * prefixes under the current StorageReference.
  */
 - (void)listWithMaxResults:(int64_t)maxResults
-                completion:
-                    (void (^)(FIRStorageListResult *result, NSError *_Nullable error))completion
-NS_REFINED_FOR_SWIFT;
-  //  NS_SWIFT_NAME(list(maxResults:completion:));
+                completion:(void (^)(FIRStorageListResult *result,
+                                     NSError *_Nullable error))completion NS_REFINED_FOR_SWIFT;
+//  NS_SWIFT_NAME(list(maxResults:completion:));
 
 /**
  * Resumes a previous call to list(maxResults:completion:)`, starting after a pagination token.
@@ -275,9 +274,9 @@ NS_REFINED_FOR_SWIFT;
  */
 - (void)listWithMaxResults:(int64_t)maxResults
                  pageToken:(NSString *)pageToken
-                completion:
-(void (^)(FIRStorageListResult *result, NSError *_Nullable error))completion NS_REFINED_FOR_SWIFT;
-   // NS_SWIFT_NAME(list(maxResults:pageToken:completion:));
+                completion:(void (^)(FIRStorageListResult *result,
+                                     NSError *_Nullable error))completion NS_REFINED_FOR_SWIFT;
+// NS_SWIFT_NAME(list(maxResults:pageToken:completion:));
 
 #pragma mark - Metadata Operations
 

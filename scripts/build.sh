@@ -539,18 +539,20 @@ case "$product-$platform-$method" in
         "${xcb_flags[@]}" \
         build \
         test
+    fi
 
-      RunXcodebuild \
-        -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-        -scheme "FirebaseStorage-Unit-swift-integration" \
-        "${ios_flags[@]}" \
-        "${xcb_flags[@]}" \
-        build \
-        test
+    pod_gen FirebaseStorageObjC.podspec --platforms=ios
 
+    # Add GoogleService-Info.plist to generated Test Wrapper App.
+    ruby ./scripts/update_xcode_target.rb gen/FirebaseStorageObjC/Pods/Pods.xcodeproj \
+      AppHost-FirebaseStorageObjC-Unit-Tests \
+      ../../../FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
+
+    if check_secrets; then
+      # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \
-        -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-        -scheme "FirebaseStorage-Unit-swift-swift-integration" \
+        -workspace 'gen/FirebaseStorage/FirebaseStorageObjC.xcworkspace' \
+        -scheme "FirebaseStorageObjC-Unit-integration" \
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
         build \
