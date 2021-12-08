@@ -62,4 +62,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     Messaging.serviceExtension().exportDeliveryMetricsToBigQuery(withMessageInfo: userInfo)
     completionHandler(.newData)
   }
+  
+  func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    
+  }
 }
