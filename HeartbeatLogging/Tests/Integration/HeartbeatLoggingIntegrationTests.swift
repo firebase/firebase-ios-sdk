@@ -36,11 +36,11 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
   func testLogAndFlush() throws {
     // Given
     let heartbeatController = HeartbeatController(id: #function)
+    let expectedDate = HeartbeatsPayload.dateFormatter.string(from: Date())
     // When
     heartbeatController.log("dummy_agent")
     let payload = heartbeatController.flush()
     // Then
-    let expectedDate = HeartbeatsPayload.dateFormatter.string(from: Date())
     try assertEqualPayloadStrings(
       payload.headerValue(),
       """
