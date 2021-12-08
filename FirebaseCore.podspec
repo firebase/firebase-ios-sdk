@@ -36,6 +36,9 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
     'Interop/CoreDiagnostics/Public/*.h',
     'HeartbeatLogging/Sources/**/*.swift',
   ]
+
+  s.swift_version = '5.0'
+  
   s.public_header_files = [
     'FirebaseCore/Sources/Public/FirebaseCore/*.h',
     'FirebaseCore/Sources/Private/*.h',
