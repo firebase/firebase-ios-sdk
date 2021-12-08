@@ -46,7 +46,6 @@ import Combine
 import FirebaseAuth
 import FirebaseCore
 import FirebaseStorage
-import FirebaseStorageSwift
 import FirebaseCombineSwift
 import XCTest
 
