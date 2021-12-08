@@ -90,8 +90,8 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
   // MARK: - HeartbeatStorageProtocol
 
   /// Asynchronously reads from and writes to storage using the given transform block.
-  /// - Parameter transform: A block to transform the currently stored heartbeat info to a new
-  /// heartbeat info value.
+  /// - Parameter transform: A block to transform the currently stored heartbeats bundle to a new
+  /// heartbeats bundle value.
   func readAndWriteAsync(using transform: @escaping (HeartbeatsBundle?) -> HeartbeatsBundle?) {
     queue.async { [self] in
       let oldHeartbeatsBundle = try? load(from: storage)
@@ -120,7 +120,7 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
     return heartbeatsBundle
   }
 
-  /// Loads and decodes the stored heartbeat info from a given storage object.
+  /// Loads and decodes the stored heartbeats bundle from a given storage object.
   /// - Parameter storage: The storage container to read from.
   /// - Returns: The decoded `HeartbeatsBundle` that is loaded from storage.
   private func load(from storage: Storage) throws -> HeartbeatsBundle {
@@ -131,7 +131,7 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
 
   /// Saves the encoding of the given value to the given storage container.
   /// - Parameters:
-  ///   - heartbeatsBundle: The heartbeat info to encode and save.
+  ///   - heartbeatsBundle: The heartbeats bundle to encode and save.
   ///   - storage: The storage container to write to.
   private func save(_ heartbeatsBundle: HeartbeatsBundle?, to storage: Storage) throws {
     if let heartbeatsBundle = heartbeatsBundle {

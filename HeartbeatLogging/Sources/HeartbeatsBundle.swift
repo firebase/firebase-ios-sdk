@@ -68,7 +68,7 @@ struct HeartbeatsBundle: Codable, HeartbeatsPayloadConvertible {
     }
   }
 
-  /// Makes and returns a `HeartbeatsPayload` from this heartbeat info.
+  /// Makes and returns a `HeartbeatsPayload` from this heartbeats bundle.
   /// - Returns: A heartbeats payload.
   func makeHeartbeatsPayload() -> HeartbeatsPayload {
     let agentAndDates = buffer.map { heartbeat in
