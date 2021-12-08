@@ -15,6 +15,7 @@
 import XCTest
 @testable import HeartbeatLogging
 
+/// See `Sources/StorageFactory.swift` for details regarding where the module stores client data.
 private enum Constants {
   static let heartbeatsDirectoryPath = "google-heartbeat-storage"
   static let heartbeatsSuiteName = "com.google.heartbeat.storage"
@@ -298,8 +299,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
   }
 }
 
-/// Removes all underlying storage containers used by the module. See `StorageFactory` for details
-/// regarding where the module stores client data.
+/// Removes all underlying storage containers used by the module.
 /// - Throws: An error if the storage container could not be removed.
 private func removeUnderlyingHeartbeatStorageContainers() throws {
   #if os(tvOS)
