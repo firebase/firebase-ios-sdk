@@ -245,11 +245,7 @@ class HeartbeatStorageTests: XCTestCase {
     }
 
     // Then
-    XCTAssertThrowsError(
-      try heartbeatStorage.getAndSet { heartbeatInfo in
-        heartbeatInfo
-      }
-    )
+    XCTAssertThrowsError(try heartbeatStorage.getAndSet { $0 })
 
     wait(for: [expectation], timeout: 0.5)
   }
