@@ -15,7 +15,7 @@
 import FirebaseAuth
 import FirebaseCore
 import FirebaseStorage
-import FirebaseStorageSwift
+@_exported import FirebaseStorageObjC
 import XCTest
 
 #if swift(>=5.5)
@@ -352,9 +352,9 @@ import XCTest
         let _: StorageListResult = try await ref.list(maxResults: 22222)
         XCTFail("Unexpected success from ref.list")
       } catch let StorageError.invalidArgument(message) {
-        XCTAssertEqual(message, "To Do")
+        XCTAssertEqual(message, "Argument 'maxResults' must be between 1 and 1000 inclusive.")
       } catch {
-        XCTAssertEqual((error as NSError).code, StorageErrorCode.invalidArgument.rawValue)
+        XCTFail("Unexpected error")
       }
     }
 
