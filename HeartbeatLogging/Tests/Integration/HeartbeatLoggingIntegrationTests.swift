@@ -15,8 +15,10 @@
 import XCTest
 @testable import HeartbeatLogging
 
-private let heartbeatsDirectoryPath = "google-heartbeat-storage"
-private let heartbeatsSuiteName = "com.google.heartbeat.storage"
+private enum Constants {
+  static let heartbeatsDirectoryPath = "google-heartbeat-storage"
+  static let heartbeatsSuiteName = "com.google.heartbeat.storage"
+}
 
 class HeartbeatLoggingIntegrationTests: XCTestCase {
   // 2021-11-01 @ 00:00:00 (EST)
@@ -30,14 +32,14 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     try removeUnderlyingHeartbeatStorageContainers()
   }
 
-  /// This test may flake if it is executed during the transtion from one day to the next.
+  /// This test may flake if it is executed during the transition from one day to the next.
   func testLogAndFlush() throws {
     // Given
     let heartbeatController = HeartbeatController(id: #function)
     // When
     heartbeatController.log("dummy_agent")
-    // Then
     let payload = heartbeatController.flush()
+    // Then
     let expectedDate = HeartbeatsPayload.dateFormatter.string(from: Date())
     try assertEqualPayloadStrings(
       payload.headerValue(),
@@ -55,8 +57,8 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     )
   }
 
-  /// This test may flake if it is executed during the transtion from one day to the next.
-  func testDoNotLogMoreThanOnce_WhenInSingleTimePeriod() throws {
+  /// This test may flake if it is executed during the transition from one day to the next.
+  func testDoNotLogMoreThanOnceInACalendarDay() throws {
     // Given
     let heartbeatController = HeartbeatController(id: #function)
     heartbeatController.log("dummy_agent")
@@ -64,11 +66,10 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     // When
     heartbeatController.log("dummy_agent")
     // Then
-    let payload = heartbeatController.flush()
-    XCTAssertEqual(payload.headerValue(), "")
+    assertHeartbeatControllerFlushesEmptyPayload(heartbeatController)
   }
 
-  func testMultipleControllersWithTheSameIDUseTheSameStorage() throws {
+  func testMultipleControllersWithTheSameIDUseTheSameStorageInstance() throws {
     // Given
     let heartbeatController1 = HeartbeatController(id: #function, dateProvider: { self.date })
     let heartbeatController2 = HeartbeatController(id: #function, dateProvider: { self.date })
@@ -96,6 +97,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
   func testHeartbeatControllerConcurrencyStressTest() throws {
     // Given
     let heartbeatController = HeartbeatController(id: #function, dateProvider: { self.date })
+
     // When
     DispatchQueue.concurrentPerform(iterations: 100) { _ in
       heartbeatController.log("dummy_agent")
@@ -108,6 +110,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
       payloads.append(payload)
     }
 
+    // Then
     let nonEmptyPayloads = payloads.filter { payload in
       payload.headerValue().count > 0
     }
@@ -134,13 +137,16 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     // Given
     var testdate = date
     let heartbeatController = HeartbeatController(id: #function, dateProvider: { testdate })
+
     // When
     // Iterate over 35 days and log a heartbeat each day.
-    // - 30 is the hardcoded max number of heartbeats in storage is 30
-    // - 5 days extra means that we expect 5 heartbeats to be overwritten
+    // - 30: The heartbeat logging library can store a max of 30 heartbeats. See
+    //   `HeartbeatController`'s `heartbeatsStorageCapacity` property.
+    // - 5: Because of the above limit, expect 5 heartbeats to be overwritten.
     for day in 1 ... 35 {
       // A different user agent is logged based on the current iteration. There
-      // is no particular reason for when each user agent is used.
+      // is no particular reason for when each user agent is used– the goal is
+      // to achieve a payload with multiple user agent groupings.
       if day < 5 {
         heartbeatController.log("dummy_agent_1")
       } else if day < 13 {
@@ -149,9 +155,10 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
         heartbeatController.log("dummy_agent_3")
       }
 
-      testdate.addTimeInterval(60 * 60 * 24)
+      testdate.addTimeInterval(60 * 60 * 24) // Advance the test date by 1 day.
     }
 
+    // Then
     let payload = heartbeatController.flush()
     // The first 5 days of heartbeats (associated with `dummy_agent_1`) should
     // have been overwritten.
@@ -207,13 +214,15 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     )
   }
 
-  func testUnderlyingStorageIsDeletedBetweenOperations() throws {
+  func testLogAndFlush_AfterUnderlyingStorageIsDeleted_CreatesNewStorage() throws {
     // Given
     let heartbeatController = HeartbeatController(id: #function, dateProvider: { self.date })
     heartbeatController.log("dummy_agent")
-    _ = XCTWaiter.wait(for: [.init(description: "Wait for async log.")], timeout: 0.10)
+    _ = XCTWaiter.wait(for: [expectation(description: "Wait for async log.")], timeout: 0.1)
+
     // When
-    try removeUnderlyingHeartbeatStorageContainers()
+    XCTAssertNoThrow(try removeUnderlyingHeartbeatStorageContainers())
+
     // Then
     // 1. Assert controller flushes empty payload.
     assertHeartbeatControllerFlushesEmptyPayload(heartbeatController)
@@ -244,7 +253,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     // Then
     #if os(tvOS)
       XCTAssertNil(
-        UserDefaults(suiteName: heartbeatsSuiteName)?
+        UserDefaults(suiteName: Constants.heartbeatsSuiteName)?
           .object(forKey: "heartbeats-\(id)"),
         "Specified user defaults suite should be empty."
       )
@@ -252,7 +261,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
       let heartbeatsDirectoryURL = FileManager.default
         .applicationSupportDirectory
         .appendingPathComponent(
-          heartbeatsDirectoryPath, isDirectory: true
+          Constants.heartbeatsDirectoryPath, isDirectory: true
         )
       XCTAssertFalse(
         FileManager.default.fileExists(atPath: heartbeatsDirectoryURL.path),
@@ -267,11 +276,11 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     let controller = HeartbeatController(id: id)
     // When
     controller.log("dummy_agent")
-    _ = XCTWaiter.wait(for: [.init(description: "Wait for async log.")], timeout: 0.50)
+    _ = XCTWaiter.wait(for: [expectation(description: "Wait for async log.")], timeout: 0.1)
     // Then
     #if os(tvOS)
       XCTAssertNotNil(
-        UserDefaults(suiteName: heartbeatsSuiteName)?
+        UserDefaults(suiteName: Constants.heartbeatsSuiteName)?
           .object(forKey: "heartbeats-\(id)"),
         "Data should not be nil."
       )
@@ -279,7 +288,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
       let heartbeatsFileURL = FileManager.default
         .applicationSupportDirectory
         .appendingPathComponent(
-          heartbeatsDirectoryPath, isDirectory: true
+          Constants.heartbeatsDirectoryPath, isDirectory: true
         )
         .appendingPathComponent(
           "heartbeats-\(id)", isDirectory: false
@@ -294,12 +303,12 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
 /// - Throws: An error if the storage container could not be removed.
 private func removeUnderlyingHeartbeatStorageContainers() throws {
   #if os(tvOS)
-    UserDefaults().removePersistentDomain(forName: heartbeatsSuiteName)
+    UserDefaults().removePersistentDomain(forName: Constants.heartbeatsSuiteName)
   #else
     let heartbeatsDirectoryURL = FileManager.default
       .applicationSupportDirectory
       .appendingPathComponent(
-        heartbeatsDirectoryPath, isDirectory: true
+        Constants.heartbeatsDirectoryPath, isDirectory: true
       )
     do {
       try FileManager.default.removeItem(at: heartbeatsDirectoryURL)

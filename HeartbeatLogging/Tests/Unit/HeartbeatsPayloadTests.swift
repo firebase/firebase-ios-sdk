@@ -96,7 +96,7 @@ class HeartbeatsPayloadTests: XCTestCase {
     )
   }
 
-  func testGetHeaderValue_WhenEmptyPayload_ReturnsEmptyString() throws {
+  func testGetHeaderValue_WhenEmpty_ReturnsEmptyString() throws {
     // Given
     let heartbeatsPayload = HeartbeatsPayload.emptyPayload
     // When

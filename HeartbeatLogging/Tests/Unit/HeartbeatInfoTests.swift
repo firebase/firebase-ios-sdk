@@ -54,9 +54,10 @@ class HeartbeatInfoTests: XCTestCase {
     XCTAssertEqual(heartbeatInfo.cache, [.daily: heartbeat.date])
   }
 
-  func testAppendingHeartbeat_WhenCapacityIsZero_UpdatesCache() throws {
+  func testAppendingHeartbeat_WhenCapacityIsZero_DoesNothing() throws {
     // Given
     var heartbeatInfo = HeartbeatInfo(capacity: 0)
+    let preAppendCacheSnapshot = heartbeatInfo.cache
 
     let heartbeat = Heartbeat(
       agent: #function,
@@ -74,24 +75,21 @@ class HeartbeatInfoTests: XCTestCase {
 
     try assertEqualPayloadStrings(heartbeatInfoString, "")
 
-    XCTAssertEqual(heartbeatInfo.cache, [.daily: heartbeat.date])
+    XCTAssertEqual(heartbeatInfo.cache, preAppendCacheSnapshot)
   }
 
   func testAppendingHeartbeat_AtMaxCapacity_RemovesOverwrittenFromCache() throws {
     // Given
-    var heartbeatInfo = HeartbeatInfo(capacity: 1)
-
     let heartbeat1 = Heartbeat(
       agent: "dummy_agent_1",
       date: Date(),
       timePeriods: [.daily]
     )
+
+    var heartbeatInfo = HeartbeatInfo(capacity: 1)
     heartbeatInfo.append(heartbeat1)
 
-    XCTAssertEqual(
-      heartbeatInfo.cache,
-      [.daily: heartbeat1.date]
-    )
+    XCTAssertEqual(heartbeatInfo.cache, [.daily: heartbeat1.date])
 
     let heartbeat2 = Heartbeat(
       agent: "dummy_agent_2",
@@ -122,10 +120,7 @@ class HeartbeatInfoTests: XCTestCase {
       """
     )
 
-    XCTAssertEqual(
-      heartbeatInfo.cache,
-      [.daily: heartbeat2.date]
-    )
+    XCTAssertEqual(heartbeatInfo.cache, [.daily: heartbeat2.date])
   }
 
   func testMakePayload_WithMultipleUserAgents() throws {
@@ -150,8 +145,14 @@ class HeartbeatInfoTests: XCTestCase {
       {
         "version": 2,
         "heartbeats": [
-          { "agent": "dummy_agent_1", "dates": ["2021-11-01"] },
-          { "agent": "dummy_agent_2", "dates": ["2021-11-01"] }
+          {
+            "agent": "dummy_agent_1",
+            "dates": ["2021-11-01"]
+          },
+          {
+            "agent": "dummy_agent_2",
+            "dates": ["2021-11-01"]
+          }
         ]
       }
       """

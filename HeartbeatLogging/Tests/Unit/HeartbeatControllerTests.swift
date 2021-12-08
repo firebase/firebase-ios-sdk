@@ -19,7 +19,7 @@ class HeartbeatControllerTests: XCTestCase {
   // 2021-11-01 @ 00:00:00 (EST)
   let date = Date(timeIntervalSince1970: 1_635_739_200)
 
-  func testFlushWhenEmpty() throws {
+  func testFlush_WhenEmpty_ReturnsEmptyPayload() throws {
     // Given
     let controller = HeartbeatController(storage: HeartbeatStorageFake())
     // Then
@@ -37,39 +37,6 @@ class HeartbeatControllerTests: XCTestCase {
 
     // When
     controller.log("dummy_agent")
-    let heartbeatPayload = controller.flush()
-
-    // Then
-    try assertEqualPayloadStrings(
-      heartbeatPayload.headerValue(),
-      """
-      {
-        "version": 2,
-        "heartbeats": [
-          {
-            "agent": "dummy_agent",
-            "dates": ["2021-11-01"]
-          }
-        ]
-      }
-      """
-    )
-
-    assertHeartbeatControllerFlushesEmptyPayload(controller)
-  }
-
-  func testLoggingDifferentAgentsInSameTimePeriodOnlyStoresTheFirst() throws {
-    // Given
-    let controller = HeartbeatController(
-      storage: HeartbeatStorageFake(),
-      dateProvider: { self.date }
-    )
-
-    assertHeartbeatControllerFlushesEmptyPayload(controller)
-
-    // When
-    controller.log("dummy_agent")
-    controller.log("some_other_dummy_agent")
     let heartbeatPayload = controller.flush()
 
     // Then
@@ -127,7 +94,10 @@ class HeartbeatControllerTests: XCTestCase {
         "heartbeats": [
           {
             "agent": "dummy_agent",
-            "dates": ["2021-11-01", "2021-11-02"]
+            "dates": [
+              "2021-11-01",
+              "2021-11-02"
+            ]
           }
         ]
       }
@@ -137,7 +107,7 @@ class HeartbeatControllerTests: XCTestCase {
     assertHeartbeatControllerFlushesEmptyPayload(controller)
   }
 
-  func testDoNotLogDuplicate() throws {
+  func testDoNotLogMoreThanOnceInACalendarDay() throws {
     // Given
     let controller = HeartbeatController(
       storage: HeartbeatStorageFake(),
@@ -167,7 +137,7 @@ class HeartbeatControllerTests: XCTestCase {
     )
   }
 
-  func testDoNotLogDuplicateAfterFlushing() throws {
+  func testDoNotLogMoreThanOnceInACalendarDay_AfterFlushing() throws {
     // Given
     let controller = HeartbeatController(
       storage: HeartbeatStorageFake(),
@@ -209,15 +179,17 @@ class HeartbeatControllerTests: XCTestCase {
         month: 11,
         day: 01,
         hour: 23
-      ).date // 2021-11-01 @ 11 PM (New York time zone)
+      ).date // 2021-11-01 @ 11 PM (EST)
     )
     let heartbeatController = HeartbeatController(
       storage: HeartbeatStorageFake(),
       dateProvider: { newYorkDate }
     )
+
     // When
     heartbeatController.log("dummy_agent")
     let payload = heartbeatController.flush()
+
     // Then
     // Note below how the date was intepreted as UTC - 2021-11-02.
     try assertEqualPayloadStrings(
@@ -236,7 +208,7 @@ class HeartbeatControllerTests: XCTestCase {
     )
   }
 
-  func testHeartbeatsAreLoggedAcrossTimeZones() throws {
+  func testDoNotLogMoreThanOnceInACalendarDay_WhenTravelingAcrossTimeZones() throws {
     // Given
     let newYorkDate = try XCTUnwrap(
       DateComponents(
@@ -269,12 +241,30 @@ class HeartbeatControllerTests: XCTestCase {
 
     // When
     heartbeatController.log("dummy_agent")
-    heartbeatController.flush()
 
+    // Device travels from NYC to Tokyo.
     testDate = tokyoDate
+
     heartbeatController.log("dummy_agent")
+
     // Then
-    assertHeartbeatControllerFlushesEmptyPayload(heartbeatController)
+    let payload = heartbeatController.flush()
+    try assertEqualPayloadStrings(
+      payload.headerValue(),
+      """
+      {
+        "version" : 2,
+        "heartbeats" : [
+          {
+            "agent" : "dummy_agent",
+            "dates" : [
+              "2021-11-02"
+            ]
+          }
+        ]
+      }
+      """
+    )
   }
 
   func testLoggingDependsOnDateNotUserAgent() throws {
@@ -287,15 +277,15 @@ class HeartbeatControllerTests: XCTestCase {
 
     // When
     // - Day 1
-    heartbeatController.log("dummy_agent_1")
+    heartbeatController.log("dummy_agent")
 
     // - Day 2
     testDate.addTimeInterval(60 * 60 * 24)
-    heartbeatController.log("dummy_agent_2")
+    heartbeatController.log("some_other_agent")
 
     // - Day 3
     testDate.addTimeInterval(60 * 60 * 24)
-    heartbeatController.log("dummy_agent_1")
+    heartbeatController.log("dummy_agent")
 
     // Then
     let payload = heartbeatController.flush()
@@ -306,14 +296,14 @@ class HeartbeatControllerTests: XCTestCase {
         "version": 2,
         "heartbeats": [
           {
-            "agent": "dummy_agent_1",
+            "agent": "dummy_agent",
             "dates": [
               "2021-11-01",
               "2021-11-03"
             ]
           },
           {
-            "agent": "dummy_agent_2",
+            "agent": "some_other_agent",
             "dates": [
               "2021-11-02"
             ]
@@ -327,22 +317,22 @@ class HeartbeatControllerTests: XCTestCase {
 
 // MARK: - Fakes
 
-extension HeartbeatControllerTests {
-  class HeartbeatStorageFake: HeartbeatStorageProtocol {
-    private var heartbeatInfo: HeartbeatInfo?
+private class HeartbeatStorageFake: HeartbeatStorageProtocol {
+  private var heartbeatInfo: HeartbeatInfo?
 
-    func readAndWriteAsync(using transform: @escaping (HeartbeatInfo?) -> HeartbeatInfo?) {
-      heartbeatInfo = transform(heartbeatInfo)
-    }
+  func readAndWriteAsync(using transform: @escaping (HeartbeatInfo?) -> HeartbeatInfo?) {
+    heartbeatInfo = transform(heartbeatInfo)
+  }
 
-    func getAndSet(using transform: (HeartbeatInfo?) -> HeartbeatInfo?) throws
-      -> HeartbeatInfo? {
-      let oldHeartbeatInfo = heartbeatInfo
-      heartbeatInfo = transform(heartbeatInfo)
-      return oldHeartbeatInfo
-    }
+  func getAndSet(using transform: (HeartbeatInfo?) -> HeartbeatInfo?) throws
+    -> HeartbeatInfo? {
+    let oldHeartbeatInfo = heartbeatInfo
+    heartbeatInfo = transform(heartbeatInfo)
+    return oldHeartbeatInfo
   }
 }
+
+// MARK: - Assertions
 
 func assertEqualPayloadStrings(_ encoded: String, _ literal: String) throws {
   let encodedData = try XCTUnwrap(Data(base64Encoded: encoded))

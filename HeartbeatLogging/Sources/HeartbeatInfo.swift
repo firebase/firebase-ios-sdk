@@ -49,6 +49,10 @@ struct HeartbeatInfo: Codable, HeartbeatsPayloadConvertible {
   /// Appends a heartbeat to this collection.
   /// - Parameter heartbeat: The heartbeat to append.
   mutating func append(_ heartbeat: Heartbeat) {
+    guard capacity > 0 else {
+      return // Do not append if capacity is non-positive.
+    }
+
     // 1. Push the heartbeat to the back of the buffer.
     if let overwrittenHeartbeat = buffer.push(heartbeat) {
       // If a heartbeat was overwritten, update the cache to ensure it's date

@@ -50,7 +50,7 @@ class HeartbeatTests: XCTestCase {
     XCTAssertEqual(Heartbeat(agent: #function, date: Date()).version, 0)
   }
 
-  func testDecodeAndEncodeHeartbeat() throws {
+  func testDecodeAndEncode() throws {
     // Given
     let json = """
     {

@@ -149,7 +149,7 @@ class HeartbeatStorageTests: XCTestCase {
     dummyHeartbeatInfo.append(Heartbeat(agent: "dummy_agent", date: Date()))
 
     // When
-    storageFake.onWrite = { data in
+    storageFake.onWrite = { _ in
       expectation.fulfill() // Fulfilled 2 times.
       throw StorageError.writeError
     }
