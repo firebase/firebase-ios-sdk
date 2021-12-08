@@ -191,11 +191,16 @@ let package = Package(
     //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
   ],
   targets: [
+//    .target(
+//      name: "Firebase",
+//      path: "CoreOnly/Sources",
+//      publicHeadersPath: "./"
+//    ),
     .target(
       name: "Firebase",
-      path: "CoreOnly/Sources",
-      publicHeadersPath: "./"
+      path: "Firebase/Sources"
     ),
+    
     .target(
       name: "FirebaseCore",
       dependencies: [
