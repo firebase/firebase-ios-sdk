@@ -67,12 +67,13 @@ public final class HeartbeatController {
   public func log(_ agent: String) {
     let date = dateProvider()
 
-    storage.readAndWriteAsync { heartbeatInfo in
-      var heartbeatInfo = heartbeatInfo ?? HeartbeatInfo(capacity: self.heartbeatsStorageCapacity)
+    storage.readAndWriteAsync { heartbeatsBundle in
+      var heartbeatsBundle = heartbeatsBundle ??
+        HeartbeatsBundle(capacity: self.heartbeatsStorageCapacity)
 
       // Filter for the time periods where the last heartbeat to be logged for
       // that time period was logged more than one time period (i.e. day) ago.
-      let timePeriods = heartbeatInfo.cache.filter { timePeriod, lastDate in
+      let timePeriods = heartbeatsBundle.cache.filter { timePeriod, lastDate in
         date.timeIntervalSince(lastDate) >= timePeriod.timeInterval
       }
       .map { timePeriod, _ in timePeriod }
@@ -81,10 +82,10 @@ public final class HeartbeatController {
         // A heartbeat should only be logged if there is a time period(s) to
         // associate it with.
         let heartbeat = Heartbeat(agent: agent, date: date, timePeriods: timePeriods)
-        heartbeatInfo.append(heartbeat)
+        heartbeatsBundle.append(heartbeat)
       }
 
-      return heartbeatInfo
+      return heartbeatsBundle
     }
   }
 
@@ -95,23 +96,23 @@ public final class HeartbeatController {
   /// - Returns: The flushed heartbeats in the form of `HeartbeatsPayload`.
   @discardableResult
   public func flush() -> HeartbeatsPayload {
-    let resetTransform: (HeartbeatInfo?) -> HeartbeatInfo? = { heartbeatInfo in
-      guard let oldHeartbeatInfo = heartbeatInfo else {
+    let resetTransform: (HeartbeatsBundle?) -> HeartbeatsBundle? = { heartbeatsBundle in
+      guard let oldHeartbeatsBundle = heartbeatsBundle else {
         return nil // Storage was empty.
       }
       // The new value that's stored will use the old's cache to prevent the
       // logging of duplicates after flushing.
-      return HeartbeatInfo(
+      return HeartbeatsBundle(
         capacity: self.heartbeatsStorageCapacity,
-        cache: oldHeartbeatInfo.cache
+        cache: oldHeartbeatsBundle.cache
       )
     }
 
     // Synchronously gets and returns the stored heartbeats, resetting storage
     // using the given transform. If the operation threw an error, assume no
     // heartbeats were retrieved or set.
-    if let heartbeatInfo = try? storage.getAndSet(using: resetTransform) {
-      return heartbeatInfo.makeHeartbeatsPayload()
+    if let heartbeatsBundle = try? storage.getAndSet(using: resetTransform) {
+      return heartbeatsBundle.makeHeartbeatsPayload()
     } else {
       return HeartbeatsPayload.emptyPayload
     }

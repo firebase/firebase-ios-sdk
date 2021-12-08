@@ -318,17 +318,17 @@ class HeartbeatControllerTests: XCTestCase {
 // MARK: - Fakes
 
 private class HeartbeatStorageFake: HeartbeatStorageProtocol {
-  private var heartbeatInfo: HeartbeatInfo?
+  private var heartbeatsBundle: HeartbeatsBundle?
 
-  func readAndWriteAsync(using transform: @escaping (HeartbeatInfo?) -> HeartbeatInfo?) {
-    heartbeatInfo = transform(heartbeatInfo)
+  func readAndWriteAsync(using transform: @escaping (HeartbeatsBundle?) -> HeartbeatsBundle?) {
+    heartbeatsBundle = transform(heartbeatsBundle)
   }
 
-  func getAndSet(using transform: (HeartbeatInfo?) -> HeartbeatInfo?) throws
-    -> HeartbeatInfo? {
-    let oldHeartbeatInfo = heartbeatInfo
-    heartbeatInfo = transform(heartbeatInfo)
-    return oldHeartbeatInfo
+  func getAndSet(using transform: (HeartbeatsBundle?) -> HeartbeatsBundle?) throws
+    -> HeartbeatsBundle? {
+    let oldHeartbeatsBundle = heartbeatsBundle
+    heartbeatsBundle = transform(heartbeatsBundle)
+    return oldHeartbeatsBundle
   }
 }
 

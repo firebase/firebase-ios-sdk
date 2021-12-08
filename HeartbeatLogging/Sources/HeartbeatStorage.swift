@@ -16,8 +16,9 @@ import Foundation
 
 /// A type that can perform atomic operations using block-based transformations.
 protocol HeartbeatStorageProtocol {
-  func readAndWriteAsync(using transform: @escaping (HeartbeatInfo?) -> HeartbeatInfo?)
-  func getAndSet(using transform: (HeartbeatInfo?) -> HeartbeatInfo?) throws -> HeartbeatInfo?
+  func readAndWriteAsync(using transform: @escaping (HeartbeatsBundle?) -> HeartbeatsBundle?)
+  func getAndSet(using transform: (HeartbeatsBundle?) -> HeartbeatsBundle?) throws
+    -> HeartbeatsBundle?
 }
 
 /// Thread-safe storage object designed for transforming heartbeat data that is persisted to disk.
@@ -91,11 +92,11 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
   /// Asynchronously reads from and writes to storage using the given transform block.
   /// - Parameter transform: A block to transform the currently stored heartbeat info to a new
   /// heartbeat info value.
-  func readAndWriteAsync(using transform: @escaping (HeartbeatInfo?) -> HeartbeatInfo?) {
+  func readAndWriteAsync(using transform: @escaping (HeartbeatsBundle?) -> HeartbeatsBundle?) {
     queue.async { [self] in
-      let oldHeartbeatInfo = try? load(from: storage)
-      let newHeartbeatInfo = transform(oldHeartbeatInfo)
-      try? save(newHeartbeatInfo, to: storage)
+      let oldHeartbeatsBundle = try? load(from: storage)
+      let newHeartbeatsBundle = transform(oldHeartbeatsBundle)
+      try? save(newHeartbeatsBundle, to: storage)
     }
   }
 
@@ -108,33 +109,33 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
   /// - Parameter transform: An optional block used to reset the currently stored heartbeat.
   /// - Returns: The heartbeat data that was stored (before the `transform` was applied).
   @discardableResult
-  func getAndSet(using transform: (HeartbeatInfo?) -> HeartbeatInfo?) throws
-    -> HeartbeatInfo? {
-    let heartbeatInfo: HeartbeatInfo? = try queue.sync {
-      let oldHeartbeatInfo = try? load(from: storage)
-      let newHeartbeatInfo = transform(oldHeartbeatInfo)
-      try save(newHeartbeatInfo, to: storage)
-      return oldHeartbeatInfo
+  func getAndSet(using transform: (HeartbeatsBundle?) -> HeartbeatsBundle?) throws
+    -> HeartbeatsBundle? {
+    let heartbeatsBundle: HeartbeatsBundle? = try queue.sync {
+      let oldHeartbeatsBundle = try? load(from: storage)
+      let newHeartbeatsBundle = transform(oldHeartbeatsBundle)
+      try save(newHeartbeatsBundle, to: storage)
+      return oldHeartbeatsBundle
     }
-    return heartbeatInfo
+    return heartbeatsBundle
   }
 
   /// Loads and decodes the stored heartbeat info from a given storage object.
   /// - Parameter storage: The storage container to read from.
-  /// - Returns: The decoded `HeartbeatInfo` that is loaded from storage.
-  private func load(from storage: Storage) throws -> HeartbeatInfo {
+  /// - Returns: The decoded `HeartbeatsBundle` that is loaded from storage.
+  private func load(from storage: Storage) throws -> HeartbeatsBundle {
     let data = try storage.read()
-    let heartbeatData = try data.decoded(using: decoder) as HeartbeatInfo
+    let heartbeatData = try data.decoded(using: decoder) as HeartbeatsBundle
     return heartbeatData
   }
 
   /// Saves the encoding of the given value to the given storage container.
   /// - Parameters:
-  ///   - heartbeatInfo: The heartbeat info to encode and save.
+  ///   - heartbeatsBundle: The heartbeat info to encode and save.
   ///   - storage: The storage container to write to.
-  private func save(_ heartbeatInfo: HeartbeatInfo?, to storage: Storage) throws {
-    if let heartbeatInfo = heartbeatInfo {
-      let data = try heartbeatInfo.encoded(using: encoder)
+  private func save(_ heartbeatsBundle: HeartbeatsBundle?, to storage: Storage) throws {
+    if let heartbeatsBundle = heartbeatsBundle {
+      let data = try heartbeatsBundle.encoded(using: encoder)
       try storage.write(data)
     } else {
       try storage.write(nil)

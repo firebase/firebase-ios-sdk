@@ -15,13 +15,13 @@
 import XCTest
 @testable import HeartbeatLogging
 
-class HeartbeatInfoTests: XCTestCase {
+class HeartbeatsBundleTests: XCTestCase {
   // 2021-11-01 @ 00:00:00 (EST)
   let date = Date(timeIntervalSince1970: 1_635_739_200)
 
   func testAppendingHeartbeatUpdatesCache() throws {
     // Given
-    var heartbeatInfo = HeartbeatInfo(capacity: 1)
+    var heartbeatsBundle = HeartbeatsBundle(capacity: 1)
     let heartbeat = Heartbeat(
       agent: "dummy_agent",
       date: date,
@@ -29,15 +29,15 @@ class HeartbeatInfoTests: XCTestCase {
     )
 
     // When
-    heartbeatInfo.append(heartbeat)
+    heartbeatsBundle.append(heartbeat)
 
     // Then
-    let heartbeatInfoString = heartbeatInfo
+    let heartbeatsBundleString = heartbeatsBundle
       .makeHeartbeatsPayload()
       .headerValue()
 
     try assertEqualPayloadStrings(
-      heartbeatInfoString,
+      heartbeatsBundleString,
       """
       {
         "version": 2,
@@ -51,13 +51,13 @@ class HeartbeatInfoTests: XCTestCase {
       """
     )
 
-    XCTAssertEqual(heartbeatInfo.cache, [.daily: heartbeat.date])
+    XCTAssertEqual(heartbeatsBundle.cache, [.daily: heartbeat.date])
   }
 
   func testAppendingHeartbeat_WhenCapacityIsZero_DoesNothing() throws {
     // Given
-    var heartbeatInfo = HeartbeatInfo(capacity: 0)
-    let preAppendCacheSnapshot = heartbeatInfo.cache
+    var heartbeatsBundle = HeartbeatsBundle(capacity: 0)
+    let preAppendCacheSnapshot = heartbeatsBundle.cache
 
     let heartbeat = Heartbeat(
       agent: #function,
@@ -66,16 +66,16 @@ class HeartbeatInfoTests: XCTestCase {
     )
 
     // When
-    heartbeatInfo.append(heartbeat)
+    heartbeatsBundle.append(heartbeat)
 
     // Then
-    let heartbeatInfoString = heartbeatInfo
+    let heartbeatsBundleString = heartbeatsBundle
       .makeHeartbeatsPayload()
       .headerValue()
 
-    try assertEqualPayloadStrings(heartbeatInfoString, "")
+    try assertEqualPayloadStrings(heartbeatsBundleString, "")
 
-    XCTAssertEqual(heartbeatInfo.cache, preAppendCacheSnapshot)
+    XCTAssertEqual(heartbeatsBundle.cache, preAppendCacheSnapshot)
   }
 
   func testAppendingHeartbeat_AtMaxCapacity_RemovesOverwrittenFromCache() throws {
@@ -86,10 +86,10 @@ class HeartbeatInfoTests: XCTestCase {
       timePeriods: [.daily]
     )
 
-    var heartbeatInfo = HeartbeatInfo(capacity: 1)
-    heartbeatInfo.append(heartbeat1)
+    var heartbeatsBundle = HeartbeatsBundle(capacity: 1)
+    heartbeatsBundle.append(heartbeat1)
 
-    XCTAssertEqual(heartbeatInfo.cache, [.daily: heartbeat1.date])
+    XCTAssertEqual(heartbeatsBundle.cache, [.daily: heartbeat1.date])
 
     let heartbeat2 = Heartbeat(
       agent: "dummy_agent_2",
@@ -98,15 +98,15 @@ class HeartbeatInfoTests: XCTestCase {
     )
 
     // When
-    heartbeatInfo.append(heartbeat2)
+    heartbeatsBundle.append(heartbeat2)
 
     // Then
-    let heartbeatInfoString = heartbeatInfo
+    let heartbeatsBundleString = heartbeatsBundle
       .makeHeartbeatsPayload()
       .headerValue()
 
     try assertEqualPayloadStrings(
-      heartbeatInfoString,
+      heartbeatsBundleString,
       """
       {
         "version": 2,
@@ -120,27 +120,27 @@ class HeartbeatInfoTests: XCTestCase {
       """
     )
 
-    XCTAssertEqual(heartbeatInfo.cache, [.daily: heartbeat2.date])
+    XCTAssertEqual(heartbeatsBundle.cache, [.daily: heartbeat2.date])
   }
 
   func testMakePayload_WithMultipleUserAgents() throws {
     // Given
-    var heartbeatInfo = HeartbeatInfo(capacity: 2)
+    var heartbeatsBundle = HeartbeatsBundle(capacity: 2)
 
     // When
     let heartbeat1 = Heartbeat(agent: "dummy_agent_1", date: date)
-    heartbeatInfo.append(heartbeat1)
+    heartbeatsBundle.append(heartbeat1)
 
     let heartbeat2 = Heartbeat(agent: "dummy_agent_2", date: date)
-    heartbeatInfo.append(heartbeat2)
+    heartbeatsBundle.append(heartbeat2)
 
     // Then
-    let heartbeatInfoString = heartbeatInfo
+    let heartbeatsBundleString = heartbeatsBundle
       .makeHeartbeatsPayload()
       .headerValue()
 
     try assertEqualPayloadStrings(
-      heartbeatInfoString,
+      heartbeatsBundleString,
       """
       {
         "version": 2,

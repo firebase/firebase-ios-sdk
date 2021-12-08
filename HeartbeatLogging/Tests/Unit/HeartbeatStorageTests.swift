@@ -95,26 +95,26 @@ class HeartbeatStorageTests: XCTestCase {
     let expectation = expectation(description: #function)
     let heartbeatStorage = HeartbeatStorage(id: #function, storage: StorageFake())
 
-    var dummyHeartbeatInfo = HeartbeatInfo(capacity: 1)
-    dummyHeartbeatInfo.append(Heartbeat(agent: "dummy_agent", date: Date()))
+    var dummyHeartbeatsBundle = HeartbeatsBundle(capacity: 1)
+    dummyHeartbeatsBundle.append(Heartbeat(agent: "dummy_agent", date: Date()))
 
     // When
-    heartbeatStorage.readAndWriteAsync { heartbeatInfo in
+    heartbeatStorage.readAndWriteAsync { heartbeatsBundle in
       // Assert that heartbeat storage is empty.
-      XCTAssertNil(heartbeatInfo)
+      XCTAssertNil(heartbeatsBundle)
       // Write new value.
-      return dummyHeartbeatInfo
+      return dummyHeartbeatsBundle
     }
 
-    heartbeatStorage.readAndWriteAsync { heartbeatInfo in
+    heartbeatStorage.readAndWriteAsync { heartbeatsBundle in
       expectation.fulfill()
       // Assert old value is read.
       XCTAssertEqual(
-        heartbeatInfo?.makeHeartbeatsPayload(),
-        dummyHeartbeatInfo.makeHeartbeatsPayload()
+        heartbeatsBundle?.makeHeartbeatsPayload(),
+        dummyHeartbeatsBundle.makeHeartbeatsPayload()
       )
       // Write some new value.
-      return heartbeatInfo
+      return heartbeatsBundle
     }
 
     // Then
@@ -127,10 +127,10 @@ class HeartbeatStorageTests: XCTestCase {
     let heartbeatStorage = HeartbeatStorage(id: #function, storage: StorageFake())
 
     // When
-    heartbeatStorage.readAndWriteAsync { heartbeatInfo in
+    heartbeatStorage.readAndWriteAsync { heartbeatsBundle in
       expectation.fulfill()
-      XCTAssertNil(heartbeatInfo)
-      return heartbeatInfo
+      XCTAssertNil(heartbeatsBundle)
+      return heartbeatsBundle
     }
 
     // Then
@@ -145,8 +145,8 @@ class HeartbeatStorageTests: XCTestCase {
     let storageFake = StorageFake()
     let heartbeatStorage = HeartbeatStorage(id: #function, storage: storageFake)
 
-    var dummyHeartbeatInfo = HeartbeatInfo(capacity: 1)
-    dummyHeartbeatInfo.append(Heartbeat(agent: "dummy_agent", date: Date()))
+    var dummyHeartbeatsBundle = HeartbeatsBundle(capacity: 1)
+    dummyHeartbeatsBundle.append(Heartbeat(agent: "dummy_agent", date: Date()))
 
     // When
     storageFake.onWrite = { _ in
@@ -154,20 +154,20 @@ class HeartbeatStorageTests: XCTestCase {
       throw StorageError.writeError
     }
 
-    heartbeatStorage.readAndWriteAsync { heartbeatInfo in
+    heartbeatStorage.readAndWriteAsync { heartbeatsBundle in
       expectation.fulfill()
-      return dummyHeartbeatInfo
+      return dummyHeartbeatsBundle
     }
 
     // Then
-    heartbeatStorage.readAndWriteAsync { heartbeatInfo in
+    heartbeatStorage.readAndWriteAsync { heartbeatsBundle in
       expectation.fulfill()
       XCTAssertNotEqual(
-        heartbeatInfo?.makeHeartbeatsPayload(),
-        dummyHeartbeatInfo.makeHeartbeatsPayload(),
+        heartbeatsBundle?.makeHeartbeatsPayload(),
+        dummyHeartbeatsBundle.makeHeartbeatsPayload(),
         "They should not be equal because the previous save failed."
       )
-      return dummyHeartbeatInfo
+      return dummyHeartbeatsBundle
     }
 
     wait(for: [expectation], timeout: 0.5)
@@ -178,30 +178,30 @@ class HeartbeatStorageTests: XCTestCase {
     let expectation = expectation(description: #function)
     let heartbeatStorage = HeartbeatStorage(id: #function, storage: StorageFake())
 
-    var dummyHeartbeatInfo = HeartbeatInfo(capacity: 1)
-    dummyHeartbeatInfo.append(Heartbeat(agent: "dummy_agent", date: Date()))
+    var dummyHeartbeatsBundle = HeartbeatsBundle(capacity: 1)
+    dummyHeartbeatsBundle.append(Heartbeat(agent: "dummy_agent", date: Date()))
 
     // When
     XCTAssertNoThrow(
-      try heartbeatStorage.getAndSet { heartbeatInfo in
+      try heartbeatStorage.getAndSet { heartbeatsBundle in
         // Assert that heartbeat storage is empty.
-        XCTAssertNil(heartbeatInfo)
+        XCTAssertNil(heartbeatsBundle)
         // Write new value.
-        return dummyHeartbeatInfo
+        return dummyHeartbeatsBundle
       }
     )
 
     // Then
     XCTAssertNoThrow(
-      try heartbeatStorage.getAndSet { heartbeatInfo in
+      try heartbeatStorage.getAndSet { heartbeatsBundle in
         expectation.fulfill()
         // Assert old value is read.
         XCTAssertEqual(
-          heartbeatInfo?.makeHeartbeatsPayload(),
-          dummyHeartbeatInfo.makeHeartbeatsPayload()
+          heartbeatsBundle?.makeHeartbeatsPayload(),
+          dummyHeartbeatsBundle.makeHeartbeatsPayload()
         )
         // Write some new value.
-        return heartbeatInfo
+        return heartbeatsBundle
       }
     )
 
@@ -223,10 +223,10 @@ class HeartbeatStorageTests: XCTestCase {
     }
 
     // Then
-    try heartbeatStorage.getAndSet { heartbeatInfo in
+    try heartbeatStorage.getAndSet { heartbeatsBundle in
       expectation.fulfill()
-      XCTAssertNil(heartbeatInfo)
-      return heartbeatInfo
+      XCTAssertNil(heartbeatsBundle)
+      return heartbeatsBundle
     }
 
     wait(for: [expectation], timeout: 0.5)
@@ -258,9 +258,9 @@ class HeartbeatStorageTests: XCTestCase {
     let expectations: [XCTestExpectation] = try (0 ... 1000).map { i in
       let expectation = expectation(description: "\(#function)_\(i)")
 
-      let transform: (HeartbeatInfo?) -> HeartbeatInfo? = { heartbeatInfo in
+      let transform: (HeartbeatsBundle?) -> HeartbeatsBundle? = { heartbeatsBundle in
         expectation.fulfill()
-        return heartbeatInfo
+        return heartbeatsBundle
       }
 
       if /* randomChoice */ .random() {

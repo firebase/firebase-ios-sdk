@@ -21,7 +21,7 @@ protocol HeartbeatsPayloadConvertible {
 
 /// A codable collection of heartbeats that has a fixed capacity and optimizations for storing heartbeats of
 /// multiple time periods.
-struct HeartbeatInfo: Codable, HeartbeatsPayloadConvertible {
+struct HeartbeatsBundle: Codable, HeartbeatsPayloadConvertible {
   /// The maximum number of heartbeats that can be stored in the buffer.
   let capacity: Int
   /// A cache used for keeping track of the last heartbeat date recorded for a given time period.
