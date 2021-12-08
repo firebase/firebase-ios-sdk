@@ -80,6 +80,11 @@
  */
 static NSString *const kAPIKey = @"FAKE_API_KEY";
 
+/** @var kFirebaseAppID
+    @brief The fake Firebase app ID.
+ */
+static NSString *const kFirebaseAppID = @"FAKE_APP_ID";
+
 /** @var kAccessToken
     @brief The fake access token.
  */
@@ -1860,7 +1865,8 @@ static const NSTimeInterval kWaitInterval = .5;
   [self waitForSignInWithAccessToken:kTestAccessToken APIKey:kTestAPIKey completion:nil];
   NSString *kTestAPIKey2 = @"fakeAPIKey2";
   FIRUser *user2 = [FIRAuth auth].currentUser;
-  user2.requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey2];
+  user2.requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey2
+                                                                             appID:kFirebaseAppID];
   OCMExpect([_mockBackend getAccountInfo:[OCMArg any] callback:[OCMArg any]])
       .andDispatchError2([FIRAuthErrorUtils invalidAPIKeyError]);
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
@@ -1883,7 +1889,8 @@ static const NSTimeInterval kWaitInterval = .5;
   [self waitForSignInWithAccessToken:kTestAccessToken APIKey:kTestAPIKey completion:nil];
   NSString *kTestAPIKey2 = @"fakeAPIKey2";
   FIRUser *user2 = [FIRAuth auth].currentUser;
-  user2.requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey2];
+  user2.requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey2
+                                                                             appID:kFirebaseAppID];
   NSError *underlyingError = [NSError errorWithDomain:@"Test Error" code:1 userInfo:nil];
   OCMExpect([_mockBackend getAccountInfo:[OCMArg any] callback:[OCMArg any]])
       .andDispatchError2([FIRAuthErrorUtils networkErrorWithUnderlyingError:underlyingError]);
@@ -1973,7 +1980,8 @@ static const NSTimeInterval kWaitInterval = .5;
 
   FIRUser *user1 = [FIRAuth auth].currentUser;
   NSString *kTestAPIKey = @"fakeAPIKey";
-  user1.requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
+  user1.requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey
+                                                                             appID:kFirebaseAppID];
   [[FIRAuth auth] signOut:nil];
 
   NSString *kTestAccessToken2 = @"fakeAccessToken2";
@@ -2641,7 +2649,8 @@ static const NSTimeInterval kWaitInterval = .5;
                          password:kFakePassword
                        completion:^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
                          result.user.requestConfiguration =
-                             [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey];
+                             [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey
+                                                                           appID:kFirebaseAppID];
                          [expectation fulfill];
                          if (completion) {
                            completion(result.user, error);

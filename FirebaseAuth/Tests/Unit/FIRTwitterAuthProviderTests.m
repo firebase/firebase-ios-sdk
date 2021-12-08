@@ -36,6 +36,11 @@ static NSString *const kTwitterSecret = @"Secret";
  */
 static NSString *const kAPIKey = @"APIKey";
 
+/** @var kFirebaseAppID
+    @brief A testing Firebase app ID.
+ */
+static NSString *const kFirebaseAppID = @"appID";
+
 /** @class FIRTwitterAuthProviderTests
     @brief Tests for @c FIRTwitterAuthProvider
  */
@@ -51,7 +56,7 @@ static NSString *const kAPIKey = @"APIKey";
   FIRAuthCredential *credential = [FIRTwitterAuthProvider credentialWithToken:kTwitterToken
                                                                        secret:kTwitterSecret];
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID];
   FIRVerifyAssertionRequest *request =
       [[FIRVerifyAssertionRequest alloc] initWithProviderID:FIRTwitterAuthProviderID
                                        requestConfiguration:requestConfiguration];
