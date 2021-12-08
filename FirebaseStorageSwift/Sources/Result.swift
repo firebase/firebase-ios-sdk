@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseStorageObjC
+@_exported import FirebaseStorageObjC
 
 /// Generates a closure that returns a `Result` type from a closure that returns an optional type
 /// and `Error`.
