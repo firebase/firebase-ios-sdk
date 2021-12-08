@@ -51,7 +51,7 @@ final class InstallationsAPITests {
       }
     }
 
-    #if swift(>=5.5)
+    #if compiler(>=5.5) && canImport(_Concurrency)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         async {
@@ -62,7 +62,7 @@ final class InstallationsAPITests {
           }
         }
       }
-    #endif // swift(>=5.5)
+    #endif // compiler(>=5.5) && canImport(_Concurrency)
 
     // Retrieves an installation auth token
     Installations.installations().authToken { result, error in
@@ -73,7 +73,7 @@ final class InstallationsAPITests {
       }
     }
 
-    #if swift(>=5.5)
+    #if compiler(>=5.5) && canImport(_Concurrency)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         async {
@@ -84,7 +84,7 @@ final class InstallationsAPITests {
           }
         }
       }
-    #endif // swift(>=5.5)
+    #endif // compiler(>=5.5) && canImport(_Concurrency)
 
     // Retrieves an installation auth token with forcing refresh parameter
     Installations.installations().authTokenForcingRefresh(true) { result, error in
@@ -95,7 +95,7 @@ final class InstallationsAPITests {
       }
     }
 
-    #if swift(>=5.5)
+    #if compiler(>=5.5) && canImport(_Concurrency)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         async {
@@ -106,7 +106,7 @@ final class InstallationsAPITests {
           }
         }
       }
-    #endif // swift(>=5.5)
+    #endif // compiler(>=5.5) && canImport(_Concurrency)
 
     // Delete installation data
     Installations.installations().delete { error in
