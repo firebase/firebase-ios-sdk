@@ -16,14 +16,18 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-// A protocol to handle obtaining a custom token to exchange for a new Firebase ID token.
-NS_SWIFT_NAME(CustomTokenProviderDelegate) @protocol FIRCustomTokenProviderDelegate <NSObject>
+/**
+    A protocol to handle obtaining a custom token to exchange for a new Firebase ID token.
+ */
+NS_SWIFT_NAME(CustomTokenProviderDelegate) @protocol FIRCustomTokenProviderDelegate<NSObject>
 
-// This method is invoked when a new Firebase ID token is requested and no refresh token is
-// present (i.e., in passthrough mode). This method should be implemented to obtain a custom
-// token to exchange for a new Firebase ID token.
-- (void)getCustomTokenWithCompletion:(void (^)(NSString *_Nullable customToken,
-                                               NSError *_Nullable error))completion
+/** @fn getCustomTokenWithCompletion:
+    @brief This method is invoked when a new Firebase ID token is requested and no refresh token is
+        present (i.e., in passthrough mode). This method should be implemented to obtain a custom
+        token to exchange for a new Firebase ID token.
+ */
+- (void)getCustomTokenWithCompletion:
+    (void (^)(NSString *_Nullable customToken, NSError *_Nullable error))completion
     NS_SWIFT_NAME(getCustomToken(completion:));
 @end
 
