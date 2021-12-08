@@ -76,17 +76,4 @@ Objective C Implementations for FirebaseStorage. This pod should not be directly
                           'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist'
     int_tests.dependency 'FirebaseAuth', '~> 8.0'
   end
-
-  s.test_spec 'swift-integration' do |swift_int_tests|
-    swift_int_tests.platforms = {
-      :ios => ios_deployment_target,
-      :osx => osx_deployment_target,
-      :tvos => tvos_deployment_target
-    }
-    swift_int_tests.source_files = 'FirebaseStorage/Tests/SwiftIntegration/*.swift'
-    swift_int_tests.requires_app_host = true
-    swift_int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
-                          'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist'
-    swift_int_tests.dependency 'FirebaseAuth', '~> 8.0'
-  end
 end
