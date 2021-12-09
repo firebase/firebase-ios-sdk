@@ -55,7 +55,11 @@ class OAuthProviderTests: XCTestCase {
     private var _authURLPresenter: FIRAuthURLPresenter!
 
     override class func auth() -> Auth {
-      let auth = MockAuth(apiKey: Credentials.apiKey, appName: "app1")!
+      let auth = MockAuth(
+        apiKey: Credentials.apiKey,
+        appName: "app1",
+        appID: Credentials.googleAppID
+      )!
       auth._authURLPresenter = MockAuthURLPresenter()
       return auth
     }
@@ -67,7 +71,7 @@ class OAuthProviderTests: XCTestCase {
     override var authURLPresenter: FIRAuthURLPresenter { _authURLPresenter }
 
     override var requestConfiguration: FIRAuthRequestConfiguration {
-      MockRequestConfiguration(apiKey: Credentials.apiKey)!
+      MockRequestConfiguration(apiKey: Credentials.apiKey, appID: Credentials.googleAppID)!
     }
   }
 
