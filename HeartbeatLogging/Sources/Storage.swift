@@ -21,8 +21,7 @@ protocol Storage {
   /// - Throws: An error if the read failed.
   func read() throws -> Data
 
-  /// Writes the given data to this storage type. If the given data is `nil`,
-  /// the storage container is emptied.
+  /// Writes the given data to this storage type.
   /// - Throws: An error if the write failed.
   func write(_ data: Data?) throws
 }
@@ -132,15 +131,14 @@ final class UserDefaultsStorage: Storage {
 
   /// Writes the given data to this object's associated defaults.
   ///
-  /// When the given `data` is `nil`, this object's associated defaults is emptied.
+  /// When the given `data` is `nil`, the associated default is removed.
   ///
   /// - Parameter data: The `Data?` to write to this object's associated defaults.
   func write(_ data: Data?) throws {
     if let data = data {
       defaults.set(data, forKey: key)
     } else {
-      let emptyData = Data()
-      defaults.set(emptyData, forKey: key)
+      defaults.removeObject(forKey: key)
     }
   }
 }
