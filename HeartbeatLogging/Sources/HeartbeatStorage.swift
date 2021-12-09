@@ -14,54 +14,72 @@
 
 import Foundation
 
-typealias HeartbeatInfoTransform = (HeartbeatInfo?) -> HeartbeatInfo?
-
+/// A type that can perform atomic operations using block-based transformations.
 protocol HeartbeatStorageProtocol {
-  func readAndWriteAsync(using transform: @escaping HeartbeatInfoTransform)
-  // TODO: Evaluate if async variant of below API is needed.
-  func getAndReset(using transform: HeartbeatInfoTransform?) throws -> HeartbeatInfo?
+  func readAndWriteAsync(using transform: @escaping (HeartbeatsBundle?) -> HeartbeatsBundle?)
+  func getAndSet(using transform: (HeartbeatsBundle?) -> HeartbeatsBundle?) throws
+    -> HeartbeatsBundle?
 }
 
-/// Thread-safe storage object designed for storing heartbeat data.
+/// Thread-safe storage object designed for transforming heartbeat data that is persisted to disk.
 final class HeartbeatStorage: HeartbeatStorageProtocol {
-  // The identifier used to differentiate instances.
+  /// The identifier used to differentiate instances.
   private let id: String
-  // The underlying storage container to read from and write to.
+  /// The underlying storage container to read from and write to.
   private let storage: Storage
-  /// <#Description#>
-  private let encoder: AnyEncoder
-  /// <#Description#>
-  private let decoder: AnyDecoder
-  // The queue for synchronizing storage operations.
+  /// The encoder used for encoding heartbeat data.
+  private let encoder: JSONEncoder = .init()
+  /// The decoder used for decoding heartbeat data.
+  private let decoder: JSONDecoder = .init()
+  /// The queue for synchronizing storage operations.
   private let queue: DispatchQueue
 
+  /// Designated initializer.
+  /// - Parameters:
+  ///   - id: A string identifer.
+  ///   - storage: The underlying storage container where heartbeat data is stored.
   init(id: String,
-       storage: Storage,
-       encoder: AnyEncoder = JSONEncoder(),
-       decoder: AnyDecoder = JSONDecoder()) {
+       storage: Storage) {
     self.id = id
     self.storage = storage
-    self.encoder = encoder
-    self.decoder = decoder
     queue = DispatchQueue(label: "com.heartbeat.storage.\(id)")
   }
 
   // MARK: - Instance Management
 
-  /// <#Description#>
+  /// Statically allocated cache of `HeartbeatStorage` instances keyed by string IDs.
   private static var cachedInstances: [String: WeakContainer<HeartbeatStorage>] = [:]
 
-  /// <#Description#>
-  /// - Parameter id: <#id description#>
-  /// - Returns: <#description#>
+  /// Gets an existing `HeartbeatStorage` instance with the given `id` if one exists. Otherwise,
+  /// makes a new instance with the given `id`.
+  ///
+  /// - Parameter id: A string identifier.
+  /// - Returns: A `HeartbeatStorage` instance.
   static func getInstance(id: String) -> HeartbeatStorage {
     if let cachedInstance = cachedInstances[id]?.object {
       return cachedInstance
     } else {
-      let newInstance = HeartbeatStorage.makeStorage(id: id)
+      let newInstance = HeartbeatStorage.makeHeartbeatStorage(id: id)
       cachedInstances[id] = WeakContainer(object: newInstance)
       return newInstance
     }
+  }
+
+  /// Makes a `HeartbeatStorage` instance using a given `String` identifier.
+  ///
+  /// The created persistent storage object is platform dependent. For tvOS, user defaults
+  /// is used as the underlying storage container due to system storage limits. For all other platforms,
+  /// the file system is used.
+  ///
+  /// - Parameter id: A `String` identifier used to create the `HeartbeatStorage`.
+  /// - Returns: A `HeartbeatStorage` instance.
+  private static func makeHeartbeatStorage(id: String) -> HeartbeatStorage {
+    #if os(tvOS)
+      let storage = UserDefaultsStorage.makeStorage(id: id)
+    #else
+      let storage = FileStorage.makeStorage(id: id)
+    #endif // os(tvOS)
+    return HeartbeatStorage(id: id, storage: storage)
   }
 
   deinit {
@@ -71,34 +89,53 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
 
   // MARK: - HeartbeatStorageProtocol
 
-  func readAndWriteAsync(using transform: @escaping HeartbeatInfoTransform) {
+  /// Asynchronously reads from and writes to storage using the given transform block.
+  /// - Parameter transform: A block to transform the currently stored heartbeats bundle to a new
+  /// heartbeats bundle value.
+  func readAndWriteAsync(using transform: @escaping (HeartbeatsBundle?) -> HeartbeatsBundle?) {
     queue.async { [self] in
-      let oldHeartbeatInfo = try? load(from: storage)
-      let newHeartbeatInfo = transform(oldHeartbeatInfo)
-      try? save(newHeartbeatInfo, to: storage)
+      let oldHeartbeatsBundle = try? load(from: storage)
+      let newHeartbeatsBundle = transform(oldHeartbeatsBundle)
+      try? save(newHeartbeatsBundle, to: storage)
     }
   }
 
+  /// Synchronously gets the current heartbeat data from storage and resets the storage using the
+  /// given transform block.
+  ///
+  /// This API is like any `getAndSet`-style API in that it gets (and returns) the current value and uses
+  /// a block to transform the current value (or, soon-to-be old value) to a new value.
+  ///
+  /// - Parameter transform: An optional block used to reset the currently stored heartbeat.
+  /// - Returns: The heartbeat data that was stored (before the `transform` was applied).
   @discardableResult
-  func getAndReset(using transform: HeartbeatInfoTransform? = nil) throws -> HeartbeatInfo? {
-    let heartbeatInfo: HeartbeatInfo? = try queue.sync {
-      let oldHeartbeatInfo = try? load(from: storage)
-      let newHeartbeatInfo = transform?(oldHeartbeatInfo)
-      try save(newHeartbeatInfo, to: storage)
-      return oldHeartbeatInfo
+  func getAndSet(using transform: (HeartbeatsBundle?) -> HeartbeatsBundle?) throws
+    -> HeartbeatsBundle? {
+    let heartbeatsBundle: HeartbeatsBundle? = try queue.sync {
+      let oldHeartbeatsBundle = try? load(from: storage)
+      let newHeartbeatsBundle = transform(oldHeartbeatsBundle)
+      try save(newHeartbeatsBundle, to: storage)
+      return oldHeartbeatsBundle
     }
-    return heartbeatInfo
+    return heartbeatsBundle
   }
 
-  private func load(from storage: Storage) throws -> HeartbeatInfo {
+  /// Loads and decodes the stored heartbeats bundle from a given storage object.
+  /// - Parameter storage: The storage container to read from.
+  /// - Returns: The decoded `HeartbeatsBundle` that is loaded from storage.
+  private func load(from storage: Storage) throws -> HeartbeatsBundle {
     let data = try storage.read()
-    let heartbeatData = try data.decoded(using: decoder) as HeartbeatInfo
+    let heartbeatData = try data.decoded(using: decoder) as HeartbeatsBundle
     return heartbeatData
   }
 
-  private func save(_ value: HeartbeatInfo?, to storage: Storage) throws {
-    if let value = value {
-      let data = try value.encoded(using: encoder)
+  /// Saves the encoding of the given value to the given storage container.
+  /// - Parameters:
+  ///   - heartbeatsBundle: The heartbeats bundle to encode and save.
+  ///   - storage: The storage container to write to.
+  private func save(_ heartbeatsBundle: HeartbeatsBundle?, to storage: Storage) throws {
+    if let heartbeatsBundle = heartbeatsBundle {
+      let data = try heartbeatsBundle.encoded(using: encoder)
       try storage.write(data)
     } else {
       try storage.write(nil)
@@ -106,23 +143,19 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
   }
 }
 
-// MARK: - HeartbeatStorage + StorageFactory
+private extension Data {
+  /// Returns the decoded value of this `Data` using the given decoder. Defaults to `JSONDecoder`.
+  /// - Returns: The decoded value.
+  func decoded<T>(using decoder: JSONDecoder = .init()) throws -> T where T: Decodable {
+    try decoder.decode(T.self, from: self)
+  }
+}
 
-extension HeartbeatStorage: StorageFactory {
-  /// Makes a `Storage` instance using a given `String` identifier.
-  ///
-  /// The created persistent storage object is platform dependent. For tvOS, user defaults
-  /// is used as the underlying storage container due to system storage limits. For all other platforms,
-  /// the file system is used.
-  ///
-  /// - Parameter id: A `String` identifier used to create the `Storage`.
-  /// - Returns: A `Storage` instance.
-  static func makeStorage(id: String) -> Self {
-    #if os(tvOS)
-      let storage = UserDefaultsStorage.makeStorage(id: id)
-    #else
-      let storage = FileStorage.makeStorage(id: id)
-    #endif // os(tvOS)
-    return .init(id: id, storage: storage)
+private extension Encodable {
+  /// Returns the `Data` encoding of this value using the given encoder.
+  /// - Parameter encoder: An encoder used to encode the value. Defaults to `JSONEncoder`.
+  /// - Returns: The data encoding of the value.
+  func encoded(using encoder: JSONEncoder = .init()) throws -> Data {
+    try encoder.encode(self)
   }
 }
