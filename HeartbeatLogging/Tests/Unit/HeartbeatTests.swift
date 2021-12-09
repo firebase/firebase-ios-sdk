@@ -17,15 +17,11 @@ import XCTest
 
 class TimePeriodTests: XCTestCase {
   override func setUpWithError() throws {
-    XCTAssertEqual(TimePeriod.periods, [.daily])
-  }
-
-  func testEnumeratesAllCases() throws {
-    XCTAssertEqual(TimePeriod.periods, TimePeriod.allCases)
+    XCTAssertEqual(TimePeriod.allCases, [.daily])
   }
 
   func testTimeIntervals() throws {
-    TimePeriod.periods.forEach { period in
+    TimePeriod.allCases.forEach { period in
       XCTAssertEqual(period.timeInterval, Double(period.rawValue) * 86400)
     }
   }
@@ -50,7 +46,11 @@ class HeartbeatTests: XCTestCase {
     heartbeatData = try JSONEncoder().encode(heartbeat)
   }
 
-  func testDecodeAndEncodeHeartbeat() throws {
+  func testHeartbeatCurrentVersion() throws {
+    XCTAssertEqual(Heartbeat(agent: #function, date: Date()).version, 0)
+  }
+
+  func testDecodeAndEncode() throws {
     // Given
     let json = """
     {

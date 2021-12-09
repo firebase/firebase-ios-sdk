@@ -14,93 +14,104 @@
 
 import Foundation
 
-/// A  logger object that provides API to log and flush heartbeats from a synchronized storage container.
+/// An object that provides API to log and flush heartbeats from a synchronized storage container.
 public final class HeartbeatController {
   /// The thread-safe storage object to log and flush heartbeats from.
   private let storage: HeartbeatStorageProtocol
-  // TODO: Document.
-  private let limit: Int = 30 // TODO: Decide on default value.
-  /// Current date provider. It is used instead of `Date.init` for testability.
+  // TODO: Decide on default value.
+  /// The max capacity of heartbeats to store in storage.
+  private let heartbeatsStorageCapacity: Int = 30
+  /// Current date provider. It is used for testability.
   private let dateProvider: () -> Date
-  // TODO: Verify that this standardization aligns with backend.
+  // TODO: Maybe share config with HeartbeatsPayload's DateFormatter?
   /// Used for standardizing dates for calendar-day comparision.
-  static let dateStandardizer = Calendar(identifier: .gregorian).startOfDay(for:)
+  static let dateStandardizer: (Date) -> (Date) = {
+    var calendar = Calendar(identifier: .iso8601)
+    calendar.locale = Locale(identifier: "en_US_POSIX")
+    calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+    return calendar.startOfDay(for:)
+  }()
 
   /// Public initializer.
-  ///
-  /// - Parameter id: The `id` to associate this logger's internal storage with.
+  /// - Parameter id: The `id` to associate this controller's heartbeat storage with.
   public convenience init(id: String) {
-    // TODO: Sanitize id.
+    self.init(id: id, dateProvider: Date.init)
+  }
+
+  /// Convenience initializer. Mirrors the semantics of the public intializer with the added benefit of
+  /// injecting a custom date provider for improved testability.
+  /// - Parameters:
+  ///   - id: The id to associate this controller's heartbeat storage with.
+  ///   - dateProvider: A date provider.
+  convenience init(id: String, dateProvider: @escaping () -> Date) {
     let storage = HeartbeatStorage.getInstance(id: id)
-    self.init(storage: storage)
+    self.init(storage: storage, dateProvider: dateProvider)
   }
 
   /// Designated initializer.
-  ///
   /// - Parameters:
-  ///   - storage: The logger's internal storage object.
-  ///   - dateProvider: TODO: Document.
+  ///   - storage: A heartbeat storage container.
+  ///   - dateProvider: A date provider. Defaults to providing the current date.
   init(storage: HeartbeatStorageProtocol,
        dateProvider: @escaping () -> Date = Date.init) {
     self.storage = storage
     self.dateProvider = { Self.dateStandardizer(dateProvider()) }
   }
 
-  /// Asynchronously log a new heartbeat, if needed.
+  /// Asynchronously logs a new heartbeat, if needed.
   ///
   /// - Note: This API is thread-safe.
   ///
-  /// - Parameter agent: A `String` identifier to associate a new heartbeat with.
+  /// - Parameter agent: The string agent (i.e. Firebase User Agent) to associate the logged heartbeat with.
   public func log(_ agent: String) {
     let date = dateProvider()
-    let capacity = limit
 
-    storage.readAndWriteAsync { heartbeatInfo in
-      var heartbeatInfo = heartbeatInfo ?? HeartbeatInfo(capacity: capacity)
+    storage.readAndWriteAsync { heartbeatsBundle in
+      var heartbeatsBundle = heartbeatsBundle ??
+        HeartbeatsBundle(capacity: self.heartbeatsStorageCapacity)
 
-      let timePeriods = heartbeatInfo.cache.filter { timePeriod, lastDate in
+      // Filter for the time periods where the last heartbeat to be logged for
+      // that time period was logged more than one time period (i.e. day) ago.
+      let timePeriods = heartbeatsBundle.lastAddedHeartbeatDates.filter { timePeriod, lastDate in
         date.timeIntervalSince(lastDate) >= timePeriod.timeInterval
       }
       .map { timePeriod, _ in timePeriod }
 
       if !timePeriods.isEmpty {
-        let heartbeat = Heartbeat(
-          agent: agent,
-          date: date,
-          timePeriods: timePeriods
-        )
-        heartbeatInfo.append(heartbeat)
+        // A heartbeat should only be logged if there is a time period(s) to
+        // associate it with.
+        let heartbeat = Heartbeat(agent: agent, date: date, timePeriods: timePeriods)
+        heartbeatsBundle.append(heartbeat)
       }
 
-      return heartbeatInfo
+      return heartbeatsBundle
     }
   }
 
-  /// Synchronously flushes heartbeats from storage.
+  /// Synchronously flushes heartbeats from storage into a heartbeats payload.
   ///
   /// - Note: This API is thread-safe.
   ///
   /// - Returns: The flushed heartbeats in the form of `HeartbeatsPayload`.
   @discardableResult
   public func flush() -> HeartbeatsPayload {
-    let capacity = limit
-
-    let resetTransform: (HeartbeatInfo?) -> HeartbeatInfo? = { heartbeatInfo in
-      guard let oldHeartbeatInfo = heartbeatInfo else {
+    let resetTransform: (HeartbeatsBundle?) -> HeartbeatsBundle? = { heartbeatsBundle in
+      guard let oldHeartbeatsBundle = heartbeatsBundle else {
         return nil // Storage was empty.
       }
-
-      // The new value that's stored will use the old's cache.
-      return HeartbeatInfo(capacity: capacity, cache: oldHeartbeatInfo.cache)
+      // The new value that's stored will use the old's cache to prevent the
+      // logging of duplicates after flushing.
+      return HeartbeatsBundle(
+        capacity: self.heartbeatsStorageCapacity,
+        cache: oldHeartbeatsBundle.lastAddedHeartbeatDates
+      )
     }
 
-    // Synchronously gets and returns the stored heartbeats and resets storage
+    // Synchronously gets and returns the stored heartbeats, resetting storage
     // using the given transform. If the operation threw an error, assume no
-    // heartbeats were retrieved/reset.
-    let heartbeatInfo = try? storage.getAndReset(using: resetTransform)
-
-    if let heartbeatInfo = heartbeatInfo {
-      return heartbeatInfo.makeHeartbeatsPayload()
+    // heartbeats were retrieved or set.
+    if let heartbeatsBundle = try? storage.getAndSet(using: resetTransform) {
+      return heartbeatsBundle.makeHeartbeatsPayload()
     } else {
       return HeartbeatsPayload.emptyPayload
     }

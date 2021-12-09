@@ -15,13 +15,11 @@
 import XCTest
 @testable import HeartbeatLogging
 
-// TODO: Unit test recording across time zones
-
 class HeartbeatControllerTests: XCTestCase {
   // 2021-11-01 @ 00:00:00 (EST)
   let date = Date(timeIntervalSince1970: 1_635_739_200)
 
-  func testFlushWhenEmpty() throws {
+  func testFlush_WhenEmpty_ReturnsEmptyPayload() throws {
     // Given
     let controller = HeartbeatController(storage: HeartbeatStorageFake())
     // Then
@@ -39,41 +37,6 @@ class HeartbeatControllerTests: XCTestCase {
 
     // When
     controller.log("dummy_agent")
-    let heartbeatPayload = controller.flush()
-
-    // Then
-    try assertEqualPayloadStrings(
-      heartbeatPayload.headerValue(),
-      """
-      {
-        "version": 2,
-        "heartbeats": [
-          {
-            "agent": "dummy_agent",
-            "dates": ["2021-11-01"]
-          }
-        ]
-      }
-      """
-    )
-
-    assertHeartbeatControllerFlushesEmptyPayload(controller)
-  }
-
-  func testLoggingDifferentAgentsInSameTimePeriodOnlyStoresTheFirst() throws {
-    // Given
-    let testDate = date
-
-    let controller = HeartbeatController(
-      storage: HeartbeatStorageFake(),
-      dateProvider: { testDate }
-    )
-
-    assertHeartbeatControllerFlushesEmptyPayload(controller)
-
-    // When
-    controller.log("dummy_agent")
-    controller.log("some_other_dummy_agent")
     let heartbeatPayload = controller.flush()
 
     // Then
@@ -131,7 +94,10 @@ class HeartbeatControllerTests: XCTestCase {
         "heartbeats": [
           {
             "agent": "dummy_agent",
-            "dates": ["2021-11-01", "2021-11-02"]
+            "dates": [
+              "2021-11-01",
+              "2021-11-02"
+            ]
           }
         ]
       }
@@ -141,7 +107,7 @@ class HeartbeatControllerTests: XCTestCase {
     assertHeartbeatControllerFlushesEmptyPayload(controller)
   }
 
-  func testDoNotLogDuplicate() throws {
+  func testDoNotLogMoreThanOnceInACalendarDay() throws {
     // Given
     let controller = HeartbeatController(
       storage: HeartbeatStorageFake(),
@@ -171,7 +137,7 @@ class HeartbeatControllerTests: XCTestCase {
     )
   }
 
-  func testDoNotLogDuplicateAfterFlushing() throws {
+  func testDoNotLogMoreThanOnceInACalendarDay_AfterFlushing() throws {
     // Given
     let controller = HeartbeatController(
       storage: HeartbeatStorageFake(),
@@ -199,32 +165,174 @@ class HeartbeatControllerTests: XCTestCase {
       """
     )
 
-    // Below assertion asserts that duplicate was not logged again.
+    // Below assertion asserts that duplicate was not logged.
     assertHeartbeatControllerFlushesEmptyPayload(controller)
   }
 
-  func assertHeartbeatControllerFlushesEmptyPayload(_ controller: HeartbeatController) {
-    XCTAssertEqual(controller.flush().headerValue(), "")
+  func testHeartbeatDatesAreStandardizedForUTC() throws {
+    // Given
+    let newYorkDate = try XCTUnwrap(
+      DateComponents(
+        calendar: .current,
+        timeZone: TimeZone(identifier: "America/New_York"),
+        year: 2021,
+        month: 11,
+        day: 01,
+        hour: 23
+      ).date // 2021-11-01 @ 11 PM (EST)
+    )
+    let heartbeatController = HeartbeatController(
+      storage: HeartbeatStorageFake(),
+      dateProvider: { newYorkDate }
+    )
+
+    // When
+    heartbeatController.log("dummy_agent")
+    let payload = heartbeatController.flush()
+
+    // Then
+    // Note below how the date was intepreted as UTC - 2021-11-02.
+    try assertEqualPayloadStrings(
+      payload.headerValue(),
+      """
+      {
+        "version": 2,
+        "heartbeats": [
+          {
+            "agent": "dummy_agent",
+            "dates": ["2021-11-02"]
+          }
+        ]
+      }
+      """
+    )
+  }
+
+  func testDoNotLogMoreThanOnceInACalendarDay_WhenTravelingAcrossTimeZones() throws {
+    // Given
+    let newYorkDate = try XCTUnwrap(
+      DateComponents(
+        calendar: .current,
+        timeZone: TimeZone(identifier: "America/New_York"),
+        year: 2021,
+        month: 11,
+        day: 01,
+        hour: 23
+      ).date // 2021-11-01 @ 11 PM (New York time zone)
+    )
+
+    let tokyoDate = try XCTUnwrap(
+      DateComponents(
+        calendar: .current,
+        timeZone: TimeZone(identifier: "Asia/Tokyo"),
+        year: 2021,
+        month: 11,
+        day: 02,
+        hour: 23
+      ).date // 2021-11-02 @ 11 PM (Tokyo time zone)
+    )
+
+    var testDate = newYorkDate
+
+    let heartbeatController = HeartbeatController(
+      storage: HeartbeatStorageFake(),
+      dateProvider: { testDate }
+    )
+
+    // When
+    heartbeatController.log("dummy_agent")
+
+    // Device travels from NYC to Tokyo.
+    testDate = tokyoDate
+
+    heartbeatController.log("dummy_agent")
+
+    // Then
+    let payload = heartbeatController.flush()
+    try assertEqualPayloadStrings(
+      payload.headerValue(),
+      """
+      {
+        "version" : 2,
+        "heartbeats" : [
+          {
+            "agent" : "dummy_agent",
+            "dates" : [
+              "2021-11-02"
+            ]
+          }
+        ]
+      }
+      """
+    )
+  }
+
+  func testLoggingDependsOnDateNotUserAgent() throws {
+    // Given
+    var testDate = date
+    let heartbeatController = HeartbeatController(
+      storage: HeartbeatStorageFake(),
+      dateProvider: { testDate }
+    )
+
+    // When
+    // - Day 1
+    heartbeatController.log("dummy_agent")
+
+    // - Day 2
+    testDate.addTimeInterval(60 * 60 * 24)
+    heartbeatController.log("some_other_agent")
+
+    // - Day 3
+    testDate.addTimeInterval(60 * 60 * 24)
+    heartbeatController.log("dummy_agent")
+
+    // Then
+    let payload = heartbeatController.flush()
+    try assertEqualPayloadStrings(
+      payload.headerValue(),
+      """
+      {
+        "version": 2,
+        "heartbeats": [
+          {
+            "agent": "dummy_agent",
+            "dates": [
+              "2021-11-01",
+              "2021-11-03"
+            ]
+          },
+          {
+            "agent": "some_other_agent",
+            "dates": [
+              "2021-11-02"
+            ]
+          }
+        ]
+      }
+      """
+    )
   }
 }
 
 // MARK: - Fakes
 
-extension HeartbeatControllerTests {
-  class HeartbeatStorageFake: HeartbeatStorageProtocol {
-    private var heartbeatInfo: HeartbeatInfo?
+private class HeartbeatStorageFake: HeartbeatStorageProtocol {
+  private var heartbeatsBundle: HeartbeatsBundle?
 
-    func readAndWriteAsync(using transform: @escaping HeartbeatInfoTransform) {
-      heartbeatInfo = transform(heartbeatInfo)
-    }
+  func readAndWriteAsync(using transform: @escaping (HeartbeatsBundle?) -> HeartbeatsBundle?) {
+    heartbeatsBundle = transform(heartbeatsBundle)
+  }
 
-    func getAndReset(using transform: HeartbeatInfoTransform?) throws -> HeartbeatInfo? {
-      let oldHeartbeatInfo = heartbeatInfo
-      heartbeatInfo = transform?(heartbeatInfo)
-      return oldHeartbeatInfo
-    }
+  func getAndSet(using transform: (HeartbeatsBundle?) -> HeartbeatsBundle?) throws
+    -> HeartbeatsBundle? {
+    let oldHeartbeatsBundle = heartbeatsBundle
+    heartbeatsBundle = transform(heartbeatsBundle)
+    return oldHeartbeatsBundle
   }
 }
+
+// MARK: - Assertions
 
 func assertEqualPayloadStrings(_ encoded: String, _ literal: String) throws {
   let encodedData = try XCTUnwrap(Data(base64Encoded: encoded))
@@ -239,7 +347,7 @@ func assertEqualPayloadStrings(_ encoded: String, _ literal: String) throws {
 
   let encoder = JSONEncoder()
   encoder.dateEncodingStrategy = .formatted(HeartbeatsPayload.dateFormatter)
-  encoder.outputFormatting = [.sortedKeys, .prettyPrinted]
+  encoder.outputFormatting = .prettyPrinted
 
   let payloadDataFromEncoded = try XCTUnwrap(encoder.encode(payloadFromEncoded))
   let payloadDataFromLiteral = try XCTUnwrap(encoder.encode(payloadFromLiteral))
@@ -258,4 +366,8 @@ func assertEqualPayloadStrings(_ encoded: String, _ literal: String) throws {
 
     """
   )
+}
+
+func assertHeartbeatControllerFlushesEmptyPayload(_ controller: HeartbeatController) {
+  XCTAssertEqual(controller.flush().headerValue(), "")
 }

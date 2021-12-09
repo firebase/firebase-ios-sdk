@@ -24,20 +24,17 @@ enum TimePeriod: Int, CaseIterable, Codable {
   var timeInterval: TimeInterval {
     Double(rawValue) * 86400 /* seconds in day */
   }
-
-  /// All enumerated time periods.
-  static var periods: AllCases { Self.allCases }
 }
 
 /// A structure representing SDK usage.
 struct Heartbeat: Codable, Equatable {
-  /// The version of the model. Used for decoding/encoding. Manually incremented when model changes.
+  /// The version of the heartbeat.
   private static let version: Int = 0
 
-  /// An anonymous piece of information (i.e. user agent) to associate the heartbeat with.
+  /// An anonymous string of information (i.e. user agent) to associate the heartbeat with.
   let agent: String
 
-  /// The date when the heartbeat was recorded (standardized to be the start of a calendar day).
+  /// The date when the heartbeat was recorded.
   let date: Date
 
   /// The heartbeat's model version.
@@ -51,11 +48,11 @@ struct Heartbeat: Codable, Equatable {
   /// a moving average.
   let timePeriods: [TimePeriod]
 
-  /// Intializes a `Heartbeat` with given `info` and, optionally, a `date` and `version`.
+  /// Designated intializer.
   /// - Parameters:
-  ///   - agent: An anonymous piece of information to associate the heartbeat with.
-  ///   - date: The date when the heartbeat was recorded. Defaults to the current date.
-  ///   - version: The heartbeat's model version. Defaults to the current model version.
+  ///   - agent: An anonymous string of information to associate the heartbeat with.
+  ///   - date: The date when the heartbeat was recorded.
+  ///   - version: The heartbeat's version. Defaults to the current version.
   init(agent: String,
        date: Date,
        timePeriods: [TimePeriod] = [],
