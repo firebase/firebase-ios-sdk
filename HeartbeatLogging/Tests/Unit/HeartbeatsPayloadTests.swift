@@ -16,17 +16,30 @@ import XCTest
 @testable import HeartbeatLogging
 
 class HeartbeatsPayloadTests: XCTestCase {
-  func testEmptyPayload() {
+  func testPayloadCurrentVersion() throws {
+    XCTAssertEqual(HeartbeatsPayload().version, 2)
+  }
+
+  func testEmptyPayload() throws {
     XCTAssertEqual(
       HeartbeatsPayload.emptyPayload,
-      HeartbeatsPayload(heartbeats: [])
+      HeartbeatsPayload(userAgentPayloads: [])
     )
+  }
+
+  func testDateFormatterUses_YYYY_MM_dd_Format() throws {
+    // Given
+    let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01
+    // When
+    let dateString = HeartbeatsPayload.dateFormatter.string(from: date)
+    // Then
+    XCTAssertEqual(dateString, "2021-11-01")
   }
 
   func testEncodeAndDecode() throws {
     // Given
     let heartbeatsPayload = HeartbeatsPayload(
-      heartbeats: [
+      userAgentPayloads: [
         .init(agent: "agent_1", dates: [Date()]),
       ]
     )
@@ -48,7 +61,7 @@ class HeartbeatsPayloadTests: XCTestCase {
     let date5 = date4.addingTimeInterval(60 * 60 * 24) // 2021-11-05
 
     let heartbeatsPayload = HeartbeatsPayload(
-      heartbeats: [
+      userAgentPayloads: [
         .init(agent: "agent_1", dates: [date1, date2]),
         .init(agent: "agent_2", dates: [date3, date4]),
         .init(agent: "agent_3", dates: [date5]),
@@ -83,13 +96,11 @@ class HeartbeatsPayloadTests: XCTestCase {
     )
   }
 
-  func testGetHeaderValue_WhenEmptyPayload_ReturnsEmptyString() {
+  func testGetHeaderValue_WhenEmpty_ReturnsEmptyString() throws {
     // Given
     let heartbeatsPayload = HeartbeatsPayload.emptyPayload
-
     // When
     let headerValue = heartbeatsPayload.headerValue()
-
     // Then
     XCTAssertEqual(headerValue, "")
   }
