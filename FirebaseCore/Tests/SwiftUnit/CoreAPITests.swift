@@ -55,11 +55,7 @@ final class CoreAPITests {
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
-          do {
-            try await app.delete()
-          } catch {
-            // ...
-          }
+            await app.delete()
         }
       }
     #endif // compiler(>=5.5) && canImport(_Concurrency)
