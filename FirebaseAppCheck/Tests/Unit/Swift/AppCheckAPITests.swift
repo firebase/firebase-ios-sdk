@@ -76,7 +76,7 @@ final class AppCheckAPITests {
           }
         }
       }
-    #endif // swift(>=5.5)
+    #endif // compiler(>=5.5) && canImport(_Concurrency)
 
     // Set `AppCheckProviderFactory`
     AppCheck.setAppCheckProviderFactory(DummyAppCheckProviderFactory())
@@ -110,7 +110,7 @@ final class AppCheckAPITests {
             }
           }
         }
-      #endif // swift(>=5.5)
+      #endif // compiler(>=5.5) && canImport(_Concurrency)
 
       _ = debugProvider.localDebugToken()
       _ = debugProvider.currentDebugToken()
@@ -182,7 +182,7 @@ final class AppCheckAPITests {
               }
             }
           }
-        #endif // swift(>=5.5)
+        #endif // compiler(>=5.5) && canImport(_Concurrency)
       }
     }
   }
