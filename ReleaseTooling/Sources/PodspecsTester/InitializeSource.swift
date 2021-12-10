@@ -98,7 +98,7 @@ struct InitializeSpecTesting {
   }
 
   // Copy updated specs to the `${HOME}/.cocoapods/` dir.
-  private static func copyPodspecs(from specsDir: URL, manifest: FirebaseManifest.Manifest, exclude) {
+  private static func copyPodspecs(from specsDir: URL, manifest: FirebaseManifest.Manifest) {
     let path = specsDir.appendingPathComponent("*.{podspec,podspec.json}").path
     let paths = Shell.executeCommandFromScript("ls \(path)", outputToConsole: false)
     var candidateSpecs: [String]?
