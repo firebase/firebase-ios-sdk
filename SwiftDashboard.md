@@ -24,12 +24,12 @@ tasks for additional Swift improvements.
 - Swift Generics. Update APIs that are using weakly typed information to use proper generics.
 
 ## Notes
-1. In progress at #8854
+1. In progress at [#8854](https://github.com/firebase/firebase-ios-sdk/pull/8854)
 2. Tests exist. Coverage to be confirmed.
 3. Mostly done. Need to review open questions in the RTDB tab [here](https://docs.google.com/spreadsheets/d/1HS4iJBtTHA9E01VrcsiVn_GVOa7KOCcn5LNw3sWlGoU/edit#gid=75586175).
-4. Feature Request at #7723 and PR at #9000
-5. Started at #9007 and continued with breaking changes in https://github.com/firebase/firebase-ios-sdk/tree/storage-v9.
-6. One property wrapper added in #8614. More to go.
+4. Feature Request at [#7723](https://github.com/firebase/firebase-ios-sdk/pull/7723) and PR at [#9000](https://github.com/firebase/firebase-ios-sdk/pull/9000)
+5. Started at [#9007](https://github.com/firebase/firebase-ios-sdk/pull/9007) and continued with breaking changes in https://github.com/firebase/firebase-ios-sdk/tree/storage-v9.
+6. One property wrapper added in [#8614](https://github.com/firebase/firebase-ios-sdk/pull/8614). More to go.
 
 ## Rows (Swift Capabilities)
 * **Swift Library**: A Swift implemented extension library exists. It is deployed as Firebase{Product}Swift CocoaPod and as a Swift Package Manager product.
