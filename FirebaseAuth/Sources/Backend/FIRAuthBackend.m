@@ -17,6 +17,12 @@
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 
 #if SWIFT_PACKAGE
+@import HeartbeatLogging;
+#else
+#import <FirebaseCore/FirebaseCore-Swift.h>
+#endif  // SWIFT_PACKAGE
+
+#if SWIFT_PACKAGE
 @import GTMSessionFetcherCore;
 #else
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
@@ -657,6 +663,17 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   if (languageCode.length) {
     [request setValue:languageCode forHTTPHeaderField:kFirebaseLocalHeader];
   }
+
+  // There will be one shared `FIRHeartbeatLogger` instance to use.
+  FIRHeartbeatLogger *heartbeatLogger = [[FIRHeartbeatLogger alloc] initWithAppID:appID];
+
+  NSString *heartbeatsPayload = [[heartbeatLogger flush] headerValue];
+  // Another API format that reduces need for top import:
+  // NSString *heartbeatsPayload = [heartbeatLogger flushIntoPayloadString];
+  if (heartbeatsPayload.length) {
+    [request setValue:heartbeatsPayload forHTTPHeaderField:@"x-firebase-client"];
+  }
+
   GTMSessionFetcher *fetcher = [_fetcherService fetcherWithRequest:request];
   NSString *emulatorHostAndPort = requestConfiguration.emulatorHostAndPort;
   if (emulatorHostAndPort) {
