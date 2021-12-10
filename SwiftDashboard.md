@@ -11,12 +11,12 @@ tasks for additional Swift improvements.
 |   :---                | :--- | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
 | **Swift Library**     | ❌   |   ✔   | ❌     |❌     | ❌     | ❌     | ❌      |  ✔     |  ✔    | 1      |  ✔     | ❌    | ❌     | ✔      | ❌     | ❌    | ✔     |
 | **API Tests**         | ❌   |  ❌    |  ✔    |❌     | ❌     | ✔       | ❌     | 3      | 2     |  ✔     | 2      | ✔      | ❌     | 2      | ❌    |  ✔     | ✔    |
-| **async/await**       | ❌   |  n/a   |  ✔    |❌     | ❌     |  ✔      | ❌     | 3     | ❌     | ❌     | ❌     | ❌    | ❌     | ❌    | ❌     |  ✔    | ✔    |
+| **async/await**       | ❌   |  n/a   |  ✔    |❌     | ❌     |  ✔      | ❌     | 3     | ❌     |  ✔     | ❌     | ❌    | ❌     | ❌    | ❌     |  ✔    | ✔    |
 | **Swift Errors**      |  ❌  |  ❌    | ❌    |❌     | 4      | ❌     | ❌     | ❌     | ❌    | ❌     | ❌     | ❌    | ❌     | ✔      | ❌     | ❌   | 5   |
-| **Codable**           | n/a  | n/a     | n/a   |n/a    | n/a     | n/a    |n/a     |  ✔     |  ✔     | 1      | n/a     | n/a   | ❌     | n/a    | n/a    | n/a   |n/a   |
+| **Codable**           | n/a  | n/a     | n/a   |n/a    | n/a     | n/a    |n/a     |  ✔     |  ✔     | 1      | n/a     | n/a   | ❌     | n/a    | n/a    |  ❌  |n/a   |
 | **SwiftUI Lifecycle** | n/a  |  ❌    | n/a    |❌     | ❌     | n/a    |n/a     | n/a    | n/a    | n/a     | n/a    | n/a   | ❌     | n/a    | n/a    | n/a   |n/a  |
-| **SwiftUI Interop**   | ❌   |  ✔     | ❌     |❌    | ❌     | ❌     |❌      | ❌     | ❌    | ❌     | ✔      | ❌    | ❌     | ❌    | ❌     | ❌    |❌   |
-| **Property Wrappers** |  ❌  |  ❌    | ❌    |❌     | ❌     | ❌     | ❌     | ❌     | ✔     | ❌     | ❌     | ❌    | ❌     | ❌    | ❌     | ❌   |❌     |
+| **SwiftUI Interop**   | ❌   |  ✔     | ❌     |❌    | ❌     | ❌     |❌      | ❌     | ❌    | ❌     | ✔      | ❌    | ❌     | ❌    | ❌     | ❌    |n/a  |
+| **Property Wrappers** |  ❌  |  ❌    | ❌    |❌     | ❌     | ❌     | ❌     | ❌     | 6     | ❌     | ❌     | ❌    | ❌     | ❌    | ❌     | ❌   |❌     |
 
 ### Other Projects
 - Tooling to surface full list of automatically generated Swift API from Objective C and validate.
@@ -28,7 +28,8 @@ tasks for additional Swift improvements.
 2. Tests exist. Coverage to be confirmed.
 3. Mostly done. Need to review open questions in the RTDB tab [here](https://docs.google.com/spreadsheets/d/1HS4iJBtTHA9E01VrcsiVn_GVOa7KOCcn5LNw3sWlGoU/edit#gid=75586175).
 4. Feature Request at #7723 and PR at #9000
-5. Started at #9007
+5. Started at #9007 and continued with breaking changes in https://github.com/firebase/firebase-ios-sdk/tree/storage-v9.
+6. One property wrapper added in #8614. More to go.
 
 ## Rows (Swift Capabilities)
 * **Swift Library**: A Swift implemented extension library exists. It is deployed as Firebase{Product}Swift CocoaPod and as a Swift Package Manager product.
