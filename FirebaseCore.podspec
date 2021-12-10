@@ -59,8 +59,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' => 'Firebase_VERSION=' + s.version.to_s,
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
-    'OTHER_CFLAGS' => '-fno-autolink',
-    'DEFINES_MODULE' => 'YES'
+    'OTHER_CFLAGS' => '-fno-autolink'
   }
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
