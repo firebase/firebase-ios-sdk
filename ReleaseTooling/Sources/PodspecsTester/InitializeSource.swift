@@ -30,7 +30,7 @@ extension Constants {
     "\(ProcessInfo.processInfo.environment["HOME"]!)/.cocoapods/repos/\(localSpecRepoName)"
   static let versionFetchPatterns = [
     "json": "\"version\"[[:space:]]*:[[:space:]]*\"(.*)\"",
-    "podspec": "version[[:space:]]*=[[:space:]]*\'(.*)\'",
+    "podspec": "\\.version[[:space:]]*=[[:space:]]*\'([^~=><].*)\'",
   ]
 }
 
@@ -47,6 +47,7 @@ struct InitializeSpecTesting {
     addTestingTag(path: sdkRepoURL, manifest: manifest)
     updatePodspecs(path: sdkRepoURL, manifest: manifest)
     copyPodspecs(from: sdkRepoURL, manifest: manifest)
+    Shell.executeCommand("find .", workingDir: URL(fileURLWithPath:Constants.cocoapodsDir))
   }
 
   // The SpecsTesting repo will be added to `${HOME}/.cocoapods/`, and all
@@ -97,8 +98,7 @@ struct InitializeSpecTesting {
   }
 
   // Copy updated specs to the `${HOME}/.cocoapods/` dir.
-  private static func copyPodspecs(from specsDir: URL, manifest: FirebaseManifest.Manifest) {
-    // Shell.executeCommand("ls \(Constants.cocoapodsDir)")
+  private static func copyPodspecs(from specsDir: URL, manifest: FirebaseManifest.Manifest, exclude) {
     let path = specsDir.appendingPathComponent("*.{podspec,podspec.json}").path
     let paths = Shell.executeCommandFromScript("ls \(path)", outputToConsole: false)
     var candidateSpecs: [String]?
@@ -123,8 +123,6 @@ struct InitializeSpecTesting {
       )
       // Copy updated podspecs to directories `${HOME}/.cocoapods/${Pod}/${version}`
       Shell.executeCommand("cp -rf \(spec) \(podDirURL)")
-
-      print(specInfo)
     }
   }
 
@@ -160,6 +158,7 @@ struct InitializeSpecTesting {
         "A subgroup of version from Podspec, '\(path.path)', is not caught from the pattern\n\(versionPattern)"
       )
     } catch VersionFetchError.multipleMatches {
+      print("found multiple version matches from \(path.path).")
       fatalError(
         "There should have only one version matching the regex pattern, please update the pattern\n\(versionPattern)"
       )
@@ -182,6 +181,7 @@ struct InitializeSpecTesting {
     // There are more than one string matching the regex. There should be only
     // one version matching the regex.
     else if versionMatches.count > 1 {
+      print (versionMatches)
       throw VersionFetchError.multipleMatches
     }
     return versionMatches[0][1]
