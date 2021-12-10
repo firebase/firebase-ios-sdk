@@ -28,6 +28,11 @@
  */
 static NSString *const kTestAPIKey = @"APIKey";
 
+/** @var kTestFirebaseAppID
+    @brief Fake Firebase app ID used for testing.
+ */
+static NSString *const kTestFirebaseAppID = @"appID";
+
 /** @var kTestAuthUri
     @brief The test value of the "authURI" property in the json response.
  */
@@ -85,7 +90,7 @@ static NSString *const kExpectedAPIURL =
  */
 - (void)testEmailVerificationRequest {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey appID:kTestFirebaseAppID];
   FIRCreateAuthURIRequest *request =
       [[FIRCreateAuthURIRequest alloc] initWithIdentifier:kTestIdentifier
                                               continueURI:kTestContinueURI

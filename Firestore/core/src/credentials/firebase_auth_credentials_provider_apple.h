@@ -39,8 +39,8 @@ namespace firestore {
 namespace credentials {
 
 /**
- * `FirebaseCredentialsProvider` uses Firebase Auth via `FIRApp` to get an auth
- * token.
+ * `FirebaseAuthCredentialsProvider` uses Firebase Auth via `FIRApp` to get an
+ * auth token.
  *
  * NOTE: To simplify the implementation, it requires that you call
  * `SetCredentialChangeListener()` with a non-nullptr value no more than once
@@ -58,7 +58,7 @@ class FirebaseAuthCredentialsProvider
   // TODO(zxu123): Provide a ctor to accept the C++ Firebase Games App, which
   // deals all platforms. Right now, only works for FIRApp*.
   /**
-   * Initializes a new FirebaseCredentialsProvider.
+   * Initializes a new FirebaseAuthCredentialsProvider.
    *
    * @param app The Firebase app instance associated with the credentials
    *            received.
@@ -74,11 +74,9 @@ class FirebaseAuthCredentialsProvider
   void SetCredentialChangeListener(
       CredentialChangeListener<User> change_listener) override;
 
-  void InvalidateToken() override;
-
  private:
   /**
-   * Most contents of the FirebaseCredentialProvider are kept in this
+   * Most contents of the FirebaseAuthCredentialsProvider are kept in this
    * Contents object and pointed to with a shared pointer. Callbacks
    * registered with FirebaseAuth use weak pointers to the Contents to
    * avoid races between notifications arriving and C++ object destruction.
@@ -104,8 +102,6 @@ class FirebaseAuthCredentialsProvider
     int token_counter = 0;
 
     std::mutex mutex;
-
-    bool force_refresh = false;
   };
 
   /**

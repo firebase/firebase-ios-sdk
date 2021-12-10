@@ -28,6 +28,11 @@
  */
 static NSString *const kTestAPIKey = @"APIKey";
 
+/** @var kTestFirebaseAppID
+    @brief Fake Firebase app ID used for testing.
+ */
+static NSString *const kTestFirebaseAppID = @"appID";
+
 /** @var kLocalID
     @brief Fake LocalID used for testing.
  */
@@ -78,7 +83,8 @@ static NSString *const kCredentialTooOldErrorMessage = @"CREDENTIAL_TOO_OLD_LOGI
   FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
   _RPCIssuer = RPCIssuer;
-  _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
+  _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey
+                                                                        appID:kTestFirebaseAppID];
 }
 
 - (void)tearDown {

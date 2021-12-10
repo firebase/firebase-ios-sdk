@@ -1198,7 +1198,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 - (void)testPassMatchesShortLinkFormatForCustomDomains {
   NSArray<NSString *> *urlStrings = @[
     @"https://google.com/xyz", @"https://google.com/xyz/?link=https://somedomain",
-    @"https://google.com?link=https://somedomain", @"https://google.com/?link=https://somedomain",
     @"https://google.com/xyz?link=https://somedomain",
     @"https://google.com/xyz/?link=https://somedomain", @"https://google.com/one/xyz",
     @"https://google.com/one/xyz?link=https://somedomain",
@@ -1367,6 +1366,56 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 
     XCTAssertFalse(handled, @"Non DDL Universal Link was handled");
   }];
+}
+
+- (void)testHandleUniversalLinkCompletionReturnsYesForValidDDL {
+  [self.service setUpWithLaunchOptions:nil
+                                apiKey:kAPIKey
+                             urlScheme:kURLScheme
+                          userDefaults:self.userDefaults];
+
+  NSArray<NSString *> *urlStrings = @[
+    @"https://some.page.link/test", @"https://some.page.link/test-test",
+    @"https://some.page.link/test_test", @"https://some.page.link/test_test-test",
+    @"https://some.app.goo.gl/test_test-test",
+    @"https://n8r9f.app.goo.gl/?ibi=com%2Egoogle%2EGCMTestApp%2Edev&amv=0&imv=1%2E0&link=https%3A%2F%2Fwww%2Egoogle%2Ecom",
+    @"https://n8r9f.app.goo.gl/?link=https%3A%2F%2Fwww%2Egoogle%2Ecom&ibi=com%2Egoogle%2EGCMTestApp%2Edev&amv=0&imv=1%2E0"
+  ];
+
+  for (NSString *urlString in urlStrings) {
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    void (^executeRequestBlock)(id, NSDictionary *, NSString *,
+                                FIRNetworkRequestCompletionHandler) =
+        ^(id p1, NSDictionary *requestBody, NSString *requestURLString,
+          FIRNetworkRequestCompletionHandler handler) {
+          NSData *data = FIRDataWithDictionary(@{}, nil);
+          NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:url
+                                                                    statusCode:200
+                                                                   HTTPVersion:nil
+                                                                  headerFields:nil];
+          handler(data, response, nil);
+        };
+
+    SEL executeRequestSelector = @selector(executeOnePlatformRequest:forURL:completionHandler:);
+    [GULSwizzler swizzleClass:[FIRDynamicLinkNetworking class]
+                     selector:executeRequestSelector
+              isClassSelector:NO
+                    withBlock:executeRequestBlock];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"handler called"];
+
+    BOOL handled = [self.service
+        handleUniversalLink:url
+                 completion:^(FIRDynamicLink *_Nullable dynamicLink, NSError *_Nullable error) {
+                   XCTAssertNotNil(dynamicLink, @"Non DDL returned FIRDynamicLink");
+                   [expectation fulfill];
+                 }];
+
+    XCTAssertTrue(handled, @"Valid DDL Universal Link was not handled");
+
+    [self waitForExpectationsWithTimeout:kAsyncTestTimout handler:nil];
+  }
 }
 
 - (void)test_ensureInternalMethodsNotRenamed {
@@ -1556,7 +1605,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
     @"https://google.com/one?",               // Short FDL starting with 'https://google.com'
     @"https://google.com/one/mylink",         // Short FDL starting with  'https://google.com/one'
     @"https://a.firebase.com/mypath/mylink",  // Short FDL starting https://a.firebase.com/mypath
-    @"https://google.com?link=https://somedomain", @"https://google.com/?link=https://somedomain",
     @"https://google.com/somepath?link=https://somedomain",
     @"https://google.com/somepath/?link=https://somedomain",
     @"https://google.com/somepath/somepath2?link=https://somedomain",

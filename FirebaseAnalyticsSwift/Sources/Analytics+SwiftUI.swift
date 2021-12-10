@@ -17,10 +17,7 @@
   import SwiftUI
 
   /// Custom view modifier to allow for easily logging screen view events.
-  @available(iOS 13, *)
-  @available(tvOS, unavailable)
-  @available(macOS, unavailable)
-  @available(macCatalyst, unavailable)
+  @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, *)
   @available(watchOS, unavailable)
   internal struct LoggedAnalyticsModifier: ViewModifier {
     /// The name of the view to log in the `AnalyticsParameterScreenName` parameter.
@@ -45,10 +42,7 @@
     }
   }
 
-  @available(iOS 13, *)
-  @available(tvOS, unavailable)
-  @available(macOS, unavailable)
-  @available(macCatalyst, unavailable)
+  @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, *)
   @available(watchOS, unavailable)
   public extension View {
     /// Logs `screen_view` events in Google Analytics for Firebase when this view appears on screen.

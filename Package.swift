@@ -17,11 +17,11 @@
 
 import PackageDescription
 
-let firebaseVersion = "8.9.0"
+let firebaseVersion = "8.10.0"
 
 let package = Package(
   name: "Firebase",
-  platforms: [.iOS(.v11), .macOS(.v10_12), .tvOS(.v10), .watchOS(.v7)],
+  platforms: [.iOS(.v11), .macOS(.v10_12), .tvOS(.v12), .watchOS(.v7)],
   products: [
     .library(
       name: "FirebaseAnalytics",
@@ -89,7 +89,7 @@ let package = Package(
     ),
     .library(
       name: "FirebaseFunctions",
-      targets: ["FirebaseFunctionsTarget"]
+      targets: ["FirebaseFunctions"]
     ),
     .library(
       name: "FirebaseInAppMessaging-Beta",
@@ -144,17 +144,17 @@ let package = Package(
       url: "https://github.com/google/GoogleAppMeasurement.git",
       // Note that CI changes the version to the head of main for CI.
       // See scripts/setup_spm_tests.sh.
-      .exact("8.8.0")
+      .exact("8.9.1")
     ),
     .package(
       name: "GoogleDataTransport",
       url: "https://github.com/google/GoogleDataTransport.git",
-      "9.1.1" ..< "10.0.0"
+      "9.1.2" ..< "10.0.0"
     ),
     .package(
       name: "GoogleUtilities",
       url: "https://github.com/google/GoogleUtilities.git",
-      "7.5.2" ..< "8.0.0"
+      "7.6.0" ..< "8.0.0"
     ),
     .package(
       name: "GTMSessionFetcher",
@@ -169,7 +169,7 @@ let package = Package(
     .package(
       name: "abseil",
       url: "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-      "0.20200225.3" ..< "0.20200226.0"
+      "0.20200225.4" ..< "0.20200226.0"
     ),
     .package(
       name: "gRPC",
@@ -179,7 +179,7 @@ let package = Package(
     .package(
       name: "OCMock",
       url: "https://github.com/erikdoe/ocmock.git",
-      .revision("21cce26d223d49a9ab5ae47f28864f422bfe3951")
+      .revision("c5eeaa6dde7c308a5ce48ae4d4530462dd3a1110")
     ),
     .package(
       name: "leveldb",
@@ -276,17 +276,17 @@ let package = Package(
     .target(
       name: "FirebaseAnalyticsTarget",
       dependencies: [.target(name: "FirebaseAnalyticsWrapper",
-                             condition: .when(platforms: [.iOS]))],
+                             condition: .when(platforms: [.iOS, .macOS, .tvOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseAnalyticsWrap"
     ),
 
     .target(
       name: "FirebaseAnalyticsWrapper",
       dependencies: [
-        .target(name: "FirebaseAnalytics", condition: .when(platforms: [.iOS])),
+        .target(name: "FirebaseAnalytics", condition: .when(platforms: [.iOS, .macOS, .tvOS])),
         .product(name: "GoogleAppMeasurement",
                  package: "GoogleAppMeasurement",
-                 condition: .when(platforms: [.iOS])),
+                 condition: .when(platforms: [.iOS, .macOS, .tvOS])),
         "FirebaseCore",
         "FirebaseInstallations",
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
@@ -305,13 +305,13 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/8.8.0/FirebaseAnalytics.zip",
-      checksum: "819afe896c8a2c34c5e00676b4a452815b1b6bcd11b0de7043a9eed449c442ea"
+      url: "https://dl.google.com/firebase/ios/swiftpm/8.9.1/FirebaseAnalytics.zip",
+      checksum: "397688619b1d2eb2731fd06d094b95498e753519b4c0c75a6f7071bcafd9d1f1"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
       dependencies: [.target(name: "FirebaseAnalyticsSwift",
-                             condition: .when(platforms: [.iOS]))],
+                             condition: .when(platforms: [.iOS, .macOS, .tvOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseAnalyticsSwiftWrap"
     ),
     .target(
@@ -323,13 +323,13 @@ let package = Package(
     .target(
       name: "FirebaseAnalyticsWithoutAdIdSupportTarget",
       dependencies: [.target(name: "FirebaseAnalyticsWithoutAdIdSupportWrapper",
-                             condition: .when(platforms: [.iOS]))],
+                             condition: .when(platforms: [.iOS, .macOS, .tvOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseAnalyticsWithoutAdIdSupportWrap"
     ),
     .target(
       name: "FirebaseAnalyticsWithoutAdIdSupportWrapper",
       dependencies: [
-        .target(name: "FirebaseAnalytics", condition: .when(platforms: [.iOS])),
+        .target(name: "FirebaseAnalytics", condition: .when(platforms: [.iOS, .macOS, .tvOS])),
         .product(name: "GoogleAppMeasurementWithoutAdIdSupport",
                  package: "GoogleAppMeasurement",
                  condition: .when(platforms: [.iOS])),
@@ -662,14 +662,7 @@ let package = Package(
       ]
     ),
 
-    // MARK: Firebase Functions
-
-    .target(
-      name: "FirebaseFunctionsTarget",
-      dependencies: [.target(name: "FirebaseFunctions",
-                             condition: .when(platforms: [.iOS, .tvOS, .macOS]))],
-      path: "SwiftPM-PlatformExclude/FirebaseFunctionsWrap"
-    ),
+    // MARK: - Firebase Functions
 
     .target(
       name: "FirebaseFunctions",
@@ -677,7 +670,7 @@ let package = Package(
         "FirebaseCore",
         .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
       ],
-      path: "Functions/FirebaseFunctions",
+      path: "FirebaseFunctions/Sources",
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
@@ -693,13 +686,13 @@ let package = Package(
       dependencies: ["FirebaseFunctionsCombineSwift",
                      "FirebaseFunctionsTestingSupport",
                      "SharedTestUtilities"],
-      path: "Functions/Tests/CombineUnit"
+      path: "FirebaseFunctions/Tests/CombineUnit"
     ),
     .testTarget(
       name: "FunctionsUnit",
       dependencies: ["FirebaseFunctions",
                      "SharedTestUtilities"],
-      path: "Functions/Example/Tests/",
+      path: "FirebaseFunctions/Tests/Unit",
       cSettings: [
         .headerSearchPath("../../../"),
       ]
@@ -707,7 +700,23 @@ let package = Package(
     .testTarget(
       name: "FunctionsUnitSwift",
       dependencies: ["FirebaseFunctions"],
-      path: "Functions/Tests/Unit/Swift"
+      path: "FirebaseFunctions/Tests/SwiftUnit"
+    ),
+    .testTarget(
+      name: "FunctionsIntegration",
+      dependencies: ["FirebaseFunctions",
+                     "SharedTestUtilities"],
+      path: "FirebaseFunctions/Tests/Integration",
+      cSettings: [
+        .headerSearchPath("../../../"),
+      ]
+    ),
+    .testTarget(
+      name: "FunctionsSwiftIntegration",
+      dependencies: ["FirebaseFunctions",
+                     "FirebaseFunctionsTestingSupport",
+                     "SharedTestUtilities"],
+      path: "FirebaseFunctions/Tests/SwiftIntegration"
     ),
     .target(
       name: "FirebaseFunctionsTestingSupport",
@@ -718,6 +727,8 @@ let package = Package(
         .headerSearchPath("../../.."),
       ]
     ),
+
+    // MARK: - Firebase In App Messaging
 
     .target(
       name: "FirebaseInAppMessagingTarget",
@@ -1057,6 +1068,9 @@ let package = Package(
               .product(name: "GULEnvironment", package: "GoogleUtilities"),
             ],
             path: "FirebaseAppCheck/Sources",
+            exclude: [
+              "Interop/CMakeLists.txt",
+            ],
             publicHeadersPath: "Public",
             cSettings: [
               .headerSearchPath("../.."),

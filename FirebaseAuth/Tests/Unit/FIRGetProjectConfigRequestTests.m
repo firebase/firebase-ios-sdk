@@ -31,6 +31,11 @@ static NSString *const kGetProjectConfigEndPoint = @"getProjectConfig";
  */
 static NSString *const kTestAPIKey = @"APIKey";
 
+/** @var kTestFirebaseAppID
+    @brief Fake Firebase app ID used for testing.
+ */
+static NSString *const kTestFirebaseAppID = @"appID";
+
 /** @var kAPIURLFormat
     @brief URL format for server API calls.
  */
@@ -70,7 +75,7 @@ static NSString *gAPIHost = @"www.googleapis.com";
  */
 - (void)testGetProjectConfigRequest {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey appID:kTestFirebaseAppID];
   FIRGetProjectConfigRequest *request =
       [[FIRGetProjectConfigRequest alloc] initWithRequestConfiguration:requestConfiguration];
 

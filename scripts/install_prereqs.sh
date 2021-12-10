@@ -91,7 +91,7 @@ case "$project-$platform-$method" in
 
   Functions-*)
     # Start server for Functions integration tests.
-    ./Functions/Backend/start.sh synchronous
+    ./FirebaseFunctions/Backend/start.sh synchronous
     ;;
 
   Storage-*)

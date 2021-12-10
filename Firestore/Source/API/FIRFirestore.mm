@@ -142,7 +142,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDatabaseID:(model::DatabaseId)databaseID
                     persistenceKey:(std::string)persistenceKey
-               credentialsProvider:(std::shared_ptr<AuthCredentialsProvider>)credentialsProvider
+           authCredentialsProvider:
+               (std::shared_ptr<credentials::AuthCredentialsProvider>)authCredentialsProvider
+       appCheckCredentialsProvider:
+           (std::shared_ptr<credentials::AppCheckCredentialsProvider>)appCheckCredentialsProvider
                        workerQueue:(std::shared_ptr<AsyncQueue>)workerQueue
           firebaseMetadataProvider:
               (std::unique_ptr<FirebaseMetadataProvider>)firebaseMetadataProvider
@@ -150,8 +153,9 @@ NS_ASSUME_NONNULL_BEGIN
                   instanceRegistry:(nullable id<FSTFirestoreInstanceRegistry>)registry {
   if (self = [super init]) {
     _firestore = std::make_shared<Firestore>(
-        std::move(databaseID), std::move(persistenceKey), std::move(credentialsProvider),
-        std::move(workerQueue), std::move(firebaseMetadataProvider), (__bridge void *)self);
+        std::move(databaseID), std::move(persistenceKey), std::move(authCredentialsProvider),
+        std::move(appCheckCredentialsProvider), std::move(workerQueue),
+        std::move(firebaseMetadataProvider), (__bridge void *)self);
 
     _app = app;
     _registry = registry;

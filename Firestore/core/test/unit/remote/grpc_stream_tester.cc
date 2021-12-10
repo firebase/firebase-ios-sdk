@@ -225,16 +225,16 @@ void GrpcStreamTester::Shutdown() {
 
 std::unique_ptr<GrpcStream> GrpcStreamTester::CreateStream(
     GrpcStreamObserver* observer) {
-  return grpc_connection_.CreateStream("", AuthToken{"", User{}}, observer);
+  return grpc_connection_.CreateStream("", AuthToken{"", User{}}, "", observer);
 }
 
 std::unique_ptr<GrpcStreamingReader> GrpcStreamTester::CreateStreamingReader() {
-  return grpc_connection_.CreateStreamingReader("", AuthToken{"", User{}},
+  return grpc_connection_.CreateStreamingReader("", AuthToken{"", User{}}, "",
                                                 grpc::ByteBuffer{});
 }
 
 std::unique_ptr<GrpcUnaryCall> GrpcStreamTester::CreateUnaryCall() {
-  return grpc_connection_.CreateUnaryCall("", AuthToken{"", User{}},
+  return grpc_connection_.CreateUnaryCall("", AuthToken{"", User{}}, "",
                                           grpc::ByteBuffer{});
 }
 

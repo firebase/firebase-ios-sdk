@@ -1,3 +1,6 @@
+# 2021-12 -- v8.11.0
+- [fixed] InApp message is shown every new session (#8907).
+
 # 2021-8 -- v8.6.0
 - [changed] Replaced conditionally-compiled APIs with `API_UNAVAILABLE` annotations on unsupported platforms (#8480).
 

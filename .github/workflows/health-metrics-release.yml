@@ -1,0 +1,31 @@
+name: health-metrics-release
+
+on:
+  release:
+    types: [published]
+
+env:
+  gpg_passphrase: ${{ secrets.GHASecretsGPGPassphrase1 }}
+
+jobs:
+  release-diffing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+      - name: Authenticate Google Cloud SDK
+        run: |
+          scripts/decrypt_gha_secret.sh \
+            scripts/gha-encrypted/metrics_service_access.json.gpg \
+            service_account.json \
+            "${{ env.gpg_passphrase }}"
+          gcloud auth activate-service-account --key-file service_account.json
+      - name: Produce health metric diff reports
+        uses: FirebaseExtended/github-actions/health-metrics/release-diffing@master
+        with:
+          repo: ${{ github.repository }}
+          ref: ${{ github.ref }}
+          commit: ${{ github.sha }}
+          releaseId: ${{ github.event.release.id }}

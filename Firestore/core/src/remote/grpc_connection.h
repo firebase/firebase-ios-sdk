@@ -71,18 +71,22 @@ class GrpcConnection {
    */
   // PORTING NOTE: unlike Web client, the created stream is not open and has to
   // be started manually.
-  std::unique_ptr<GrpcStream> CreateStream(absl::string_view rpc_name,
-                                           const credentials::AuthToken& token,
-                                           GrpcStreamObserver* observer);
+  std::unique_ptr<GrpcStream> CreateStream(
+      absl::string_view rpc_name,
+      const credentials::AuthToken& auth_token,
+      const std::string& app_check_token,
+      GrpcStreamObserver* observer);
 
   std::unique_ptr<GrpcUnaryCall> CreateUnaryCall(
       absl::string_view rpc_name,
-      const credentials::AuthToken& token,
+      const credentials::AuthToken& auth_token,
+      const std::string& app_check_token,
       const grpc::ByteBuffer& message);
 
   std::unique_ptr<GrpcStreamingReader> CreateStreamingReader(
       absl::string_view rpc_name,
-      const credentials::AuthToken& token,
+      const credentials::AuthToken& auth_token,
+      const std::string& app_check_token,
       const grpc::ByteBuffer& message);
 
   void Register(GrpcCall* call);
@@ -106,7 +110,8 @@ class GrpcConnection {
 
  private:
   std::unique_ptr<grpc::ClientContext> CreateContext(
-      const credentials::AuthToken& credential) const;
+      const credentials::AuthToken& auth_token,
+      const std::string& app_check_token) const;
   std::shared_ptr<grpc::Channel> CreateChannel() const;
   void EnsureActiveStub();
 

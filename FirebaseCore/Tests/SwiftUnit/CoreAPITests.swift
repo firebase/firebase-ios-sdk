@@ -50,20 +50,16 @@ final class CoreAPITests {
       app.delete { _ /* succes */ in
         // ...
       }
-    }
 
-    #if swift(>=5.5)
-      if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *) {
-        // async/await is a Swift 5.5+ feature available on iOS 15+
-        async {
-          do {
-            try await app.delete()
-          } catch {
-            // ...
+      #if compiler(>=5.5) && canImport(_Concurrency)
+        if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *) {
+          // async/await is a Swift 5.5+ feature available on iOS 15+
+          Task {
+            await app.delete()
           }
         }
-      }
-    #endif // swift(>=5.5)
+      #endif // compiler(>=5.5) && canImport(_Concurrency)
+    }
 
     // Properties
     if let app = FirebaseApp.app() {

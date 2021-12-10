@@ -23,7 +23,7 @@
 
 #include "Firestore/core/test/unit/testutil/app_testing.h"
 
-namespace testutil = firebase::firestore::testutil;
+using firebase::firestore::testutil::AppForUnitTesting;
 
 @interface FIRFirestoreTests : XCTestCase
 @end
@@ -32,7 +32,7 @@ namespace testutil = firebase::firestore::testutil;
 
 - (void)testDeleteApp {
   // Ensure the app is set appropriately.
-  FIRApp *app = testutil::AppForUnitTesting();
+  FIRApp *app = AppForUnitTesting();
   NSString *appName = app.name;
   FIROptions *options = app.options;
 
@@ -66,7 +66,7 @@ namespace testutil = firebase::firestore::testutil;
 
 - (void)testSetEmulatorSettingsSetsHost {
   // Ensure the app is set appropriately.
-  FIRApp *app = testutil::AppForUnitTesting();
+  FIRApp *app = AppForUnitTesting();
 
   FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
 

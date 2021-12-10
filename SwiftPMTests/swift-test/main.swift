@@ -65,7 +65,14 @@ class importTest: XCTestCase {
     #endif
     XCTAssertFalse(GULAppEnvironmentUtil.isAppExtension())
     XCTAssertNil(FirebaseApp.app())
-    XCTAssertEqual(GULAppEnvironmentUtil.deviceModel(), "x86_64")
+    #if os(macOS) || targetEnvironment(macCatalyst)
+      // Device model should now return the appropriate hardware model on macOS.
+      XCTAssertNotEqual(GULAppEnvironmentUtil.deviceModel(), "x86_64")
+    #else
+      // Device model should show up as x86_64 for iOS, tvOS, and watchOS
+      // simulators.
+      XCTAssertEqual(GULAppEnvironmentUtil.deviceModel(), "x86_64")
+    #endif
 
     let versionParts = FirebaseVersion().split(separator: ".")
     XCTAssert(versionParts.count == 3)

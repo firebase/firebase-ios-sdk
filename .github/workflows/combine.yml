@@ -20,14 +20,23 @@ on:
     # Combine sources
     - 'FirebaseCombineSwift/**'
 
-    # Podspec
+    # Podspecs
     - 'FirebaseCombineSwift.podspec'
+    - 'FirebaseFunctionsTestingSupport.podspec'
 
     # This workflow
     - '.github/workflows/combine.yml'
 
     # Rebuild on Ruby infrastructure changes.
     - 'Gemfile'
+
+    # Dependencies
+    - 'FirebaseCore/**'
+    - 'FirebaseAuth/**'
+    - 'FirebaseFunctions/**'
+    - 'Firestore/**'
+    - 'FirebaseStorage/**'
+    - 'FirebaseStorageSwift/**'
 
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times

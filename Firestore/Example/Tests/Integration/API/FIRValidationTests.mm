@@ -29,7 +29,8 @@
 
 #include "Firestore/core/test/unit/testutil/app_testing.h"
 
-namespace testutil = firebase::firestore::testutil;
+using firebase::firestore::testutil::AppForUnitTesting;
+using firebase::firestore::testutil::OptionsForUnitTesting;
 
 // We have tests for passing nil when nil is not supposed to be allowed. So suppress the warnings.
 #pragma clang diagnostic ignored "-Wnonnull"
@@ -76,9 +77,9 @@ namespace testutil = firebase::firestore::testutil;
 }
 
 - (void)testNilProjectIDFails {
-  FIROptions *options = testutil::OptionsForUnitTesting("ignored");
+  FIROptions *options = OptionsForUnitTesting("ignored");
   options.projectID = nil;
-  FIRApp *app = testutil::AppForUnitTesting(options);
+  FIRApp *app = AppForUnitTesting(options);
   FSTAssertThrows([FIRFirestore firestoreForApp:app],
                   @"FIROptions.projectID must be set to a valid project ID.");
 }
@@ -556,8 +557,9 @@ namespace testutil = firebase::firestore::testutil;
       [collection queryWhereFieldPath:[FIRFieldPath documentID] isEqualTo:@"foo/bar/baz"], reason);
 
   reason = @"Invalid query. When querying by document ID you must provide a valid string or "
-            "DocumentReference, but it was of type: __NSCFNumber";
-  FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] isEqualTo:@1], reason);
+            "DocumentReference, but it was of type:";
+  FSTAssertExceptionPrefix([collection queryWhereFieldPath:[FIRFieldPath documentID] isEqualTo:@1],
+                           reason);
 
   reason = @"Invalid query. When querying a collection group by document ID, the value "
             "provided must result in a valid document path, but 'foo/bar/baz' is not because it "
@@ -586,9 +588,10 @@ namespace testutil = firebase::firestore::testutil;
                   reason);
 
   reason = @"Invalid query. When querying by document ID you must provide a valid string or "
-            "DocumentReference, but it was of type: __NSArrayI";
+            "DocumentReference, but it was of type:";
   NSArray *value = @[ @1, @2 ];
-  FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] in:value], reason);
+  FSTAssertExceptionPrefix([collection queryWhereFieldPath:[FIRFieldPath documentID] in:value],
+                           reason);
 
   reason = @"Invalid query. When querying a collection group by document ID, the value "
             "provided must result in a valid document path, but 'foo' is not because it "

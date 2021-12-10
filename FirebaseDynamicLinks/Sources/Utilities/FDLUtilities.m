@@ -248,7 +248,7 @@ BOOL FIRDLIsAValidDLWithFDLDomain(NSURL *_Nullable URL) {
     // Matches the *.page.link and *.app.goo.gl domains.
     matchesRegularExpression =
         ([urlStr rangeOfString:@"^https?://[a-zA-Z0-9]+((\\.app\\.goo\\.gl)|(\\.page\\.link))((\\/"
-                               @"?\\?link=https?.*)|(\\/[a-zA-Z0-9]+)((\\/?\\?.*=.*)?$|$))"
+                               @"?\\?.*link=https?.*)|(\\/[a-zA-Z0-9-_]+)((\\/?\\?.*=.*)?$|$))"
                        options:NSRegularExpressionSearch]
              .location != NSNotFound);
 
@@ -295,7 +295,11 @@ BOOL FIRDLMatchesShortLinkFormat(NSURL *URL) {
   // Path cannot be prefixed with /link/dismiss
   BOOL isDismiss = [[URL.path lowercaseString] hasPrefix:@"/link/dismiss"];
 
-  return hasPathOrCustomDomain && !isDismiss && canParse;
+  // Checks short link format by having only one path after domain prefix.
+  BOOL matchesRegularExpression =
+      ([URL.path rangeOfString:@"/[^/]+" options:NSRegularExpressionSearch].location != NSNotFound);
+
+  return hasPathOrCustomDomain && !isDismiss && canParse && matchesRegularExpression;
 }
 
 NSString *FIRDLMatchTypeStringFromServerString(NSString *_Nullable serverMatchTypeString) {

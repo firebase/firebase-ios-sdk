@@ -25,6 +25,11 @@
  */
 static NSString *const kAPIKey = @"APIKey";
 
+/** @var kFirebaseAppID
+    @brief A testing Firebase app ID.
+ */
+static NSString *const kFirebaseAppID = @"appID";
+
 /** @var kCode
     @brief A testing authorization code.
  */
@@ -49,7 +54,7 @@ static NSString *const kEmulatorHostAndPort = @"emulatorhost:12345";
  */
 - (void)testRequestURL {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID];
   FIRSecureTokenRequest *request =
       [FIRSecureTokenRequest authCodeRequestWithCode:kCode
                                 requestConfiguration:requestConfiguration];
@@ -66,7 +71,7 @@ static NSString *const kEmulatorHostAndPort = @"emulatorhost:12345";
  */
 - (void)testRequestURLUseEmulator {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID];
   requestConfiguration.emulatorHostAndPort = kEmulatorHostAndPort;
   FIRSecureTokenRequest *request =
       [FIRSecureTokenRequest authCodeRequestWithCode:kCode

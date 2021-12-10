@@ -18,14 +18,18 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
     runs-on: macos-11
+
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: GoogleAppMeasurement
-      run: scripts/third_party/travis/retry.sh pod spec lint GoogleAppMeasurement.podspec.json --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/
+      run: scripts/third_party/travis/retry.sh pod spec lint GoogleAppMeasurement.podspec.json --platforms=${{ matrix.target }} --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/
     - name: FirebaseAnalyticsSwift
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAnalyticsSwift.podspec --platforms=ios
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAnalyticsSwift.podspec --platforms=${{ matrix.target }}
 
 # TODO: Consider pushing GoogleAppMeasurement.podspec.json to SpecsDev to enable similar test
 # for FirebaseAnalytics.podspec.json

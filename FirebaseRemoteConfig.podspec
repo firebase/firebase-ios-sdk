@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfig'
-  s.version          = '8.9.0'
+  s.version          = '8.10.0'
   s.summary          = 'Firebase Remote Config'
 
   s.description      = <<-DESC
@@ -47,8 +47,8 @@ app update.
   s.dependency 'FirebaseABTesting', '~> 8.0'
   s.dependency 'FirebaseCore', '~> 8.0'
   s.dependency 'FirebaseInstallations', '~> 8.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.5'
-  s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.5'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.6'
+  s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.6'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
@@ -82,11 +82,11 @@ app update.
   # Run Swift API tests on a real backend.
   s.test_spec 'swift-api-tests' do |swift_api|
     swift_api.scheme = { :code_coverage => true }
-    swift_api.platforms = {
-      :ios => ios_deployment_target,
-      :osx => osx_deployment_target,
-      :tvos => tvos_deployment_target
-    }
+
+    # Use recent platform versions to enable async await testing
+    swift_api.ios.deployment_target = "15.0"
+    swift_api.osx.deployment_target = "12.0"
+    swift_api.tvos.deployment_target = "15.0"
     swift_api.source_files = 'FirebaseRemoteConfig/Tests/SwiftAPI/*.swift',
                              'FirebaseRemoteConfig/Tests/FakeUtils/*.[hm]',
                              'FirebaseRemoteConfig/Tests/FakeUtils/*.swift'
@@ -94,19 +94,17 @@ app update.
     swift_api.pod_target_xcconfig = {
       'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseRemoteConfig/Tests/FakeUtils/Bridging-Header.h'
     }
-    swift_api.resources = 'FirebaseRemoteConfig/Tests/SwiftAPI/GoogleService-Info.plist',
-                          'FirebaseRemoteConfig/Tests/SwiftAPI/AccessToken.json'
     swift_api.dependency 'OCMock'
   end
 
   # Run Swift API tests and tests requiring console changes on a Fake Console.
   s.test_spec 'fake-console-tests' do |fake_console|
     fake_console.scheme = { :code_coverage => true }
-    fake_console.platforms = {
-      :ios => ios_deployment_target,
-      :osx => osx_deployment_target,
-      :tvos => tvos_deployment_target
-    }
+
+    # Use recent platform versions to enable async await testing
+    fake_console.ios.deployment_target = "15.0"
+    fake_console.osx.deployment_target = "12.0"
+    fake_console.tvos.deployment_target = "15.0"
     fake_console.source_files = 'FirebaseRemoteConfig/Tests/SwiftAPI/*.swift',
                                       'FirebaseRemoteConfig/Tests/FakeUtils/*.[hm]',
                                       'FirebaseRemoteConfig/Tests/FakeUtils/*.swift',
@@ -115,7 +113,6 @@ app update.
     fake_console.pod_target_xcconfig = {
       'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseRemoteConfig/Tests/FakeUtils/Bridging-Header.h'
     }
-    fake_console.resources = 'FirebaseRemoteConfig/Tests/FakeUtils/GoogleService-Info.plist'
     fake_console.dependency 'OCMock'
   end
 end

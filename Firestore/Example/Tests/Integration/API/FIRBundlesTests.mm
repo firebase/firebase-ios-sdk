@@ -26,8 +26,9 @@
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/test/unit/testutil/bundle_builder.h"
 
-namespace testutil = firebase::firestore::testutil;
-namespace util = firebase::firestore::util;
+using firebase::firestore::testutil::CreateBundle;
+using firebase::firestore::util::MakeString;
+using firebase::firestore::util::MakeNSString;
 
 @interface FIRBundlesTests : FSTIntegrationTestCase
 @end
@@ -67,11 +68,11 @@ namespace util = firebase::firestore::util;
 }
 
 - (std::string)defaultBundle {
-  return testutil::CreateBundle(util::MakeString([FSTIntegrationTestCase projectID]));
+  return CreateBundle(MakeString([FSTIntegrationTestCase projectID]));
 }
 
 - (std::string)bundleForProject:(NSString*)projectID {
-  return testutil::CreateBundle(util::MakeString(projectID));
+  return CreateBundle(MakeString(projectID));
 }
 
 - (void)verifyQueryResults {
@@ -115,7 +116,7 @@ namespace util = firebase::firestore::util;
   __block FIRLoadBundleTaskProgress* result;
   XCTestExpectation* expectation = [self expectationWithDescription:@"loading complete"];
   FIRLoadBundleTask* task =
-      [self.db loadBundle:[util::MakeNSString(bundle) dataUsingEncoding:NSUTF8StringEncoding]
+      [self.db loadBundle:[MakeNSString(bundle) dataUsingEncoding:NSUTF8StringEncoding]
                completion:^(FIRLoadBundleTaskProgress* progress, NSError* error) {
                  result = progress;
                  XCTAssertNil(error);
@@ -147,7 +148,7 @@ namespace util = firebase::firestore::util;
   __block FIRLoadBundleTaskProgress* result;
   XCTestExpectation* expectation = [self expectationWithDescription:@"loading complete"];
   FIRLoadBundleTask* task =
-      [self.db loadBundle:[util::MakeNSString(bundle) dataUsingEncoding:NSUTF8StringEncoding]
+      [self.db loadBundle:[MakeNSString(bundle) dataUsingEncoding:NSUTF8StringEncoding]
                completion:^(FIRLoadBundleTaskProgress* progress, NSError* error) {
                  result = progress;
                  XCTAssertNil(error);
@@ -171,14 +172,14 @@ namespace util = firebase::firestore::util;
 
 - (void)testLoadForASecondTimeSkips {
   auto bundle = [self defaultBundle];
-  [self.db loadBundle:[util::MakeNSString(bundle) dataUsingEncoding:NSUTF8StringEncoding]];
+  [self.db loadBundle:[MakeNSString(bundle) dataUsingEncoding:NSUTF8StringEncoding]];
 
   // Load for a second time
   NSMutableArray* progresses = [[NSMutableArray alloc] init];
   __block FIRLoadBundleTaskProgress* result;
   XCTestExpectation* expectation = [self expectationWithDescription:@"loading complete"];
   FIRLoadBundleTask* task =
-      [self.db loadBundle:[util::MakeNSString(bundle) dataUsingEncoding:NSUTF8StringEncoding]
+      [self.db loadBundle:[MakeNSString(bundle) dataUsingEncoding:NSUTF8StringEncoding]
                completion:^(FIRLoadBundleTaskProgress* progress, NSError* error) {
                  result = progress;
                  XCTAssertNil(error);
@@ -205,7 +206,7 @@ namespace util = firebase::firestore::util;
   auto bundle = [self defaultBundle];
   __block FIRLoadBundleTaskProgress* result;
   XCTestExpectation* expectation = [self expectationWithDescription:@"loading complete"];
-  [self.db loadBundle:[util::MakeNSString(bundle) dataUsingEncoding:NSUTF8StringEncoding]
+  [self.db loadBundle:[MakeNSString(bundle) dataUsingEncoding:NSUTF8StringEncoding]
            completion:^(FIRLoadBundleTaskProgress* progress, NSError* error) {
              result = progress;
              XCTAssertNil(error);
@@ -229,7 +230,7 @@ namespace util = firebase::firestore::util;
   XCTestExpectation* expectation = [self expectationWithDescription:@"loading complete"];
   auto bundle = [self bundleForProject:@"OtherProject"];
   FIRLoadBundleTask* task =
-      [self.db loadBundle:[util::MakeNSString(bundle) dataUsingEncoding:NSUTF8StringEncoding]
+      [self.db loadBundle:[MakeNSString(bundle) dataUsingEncoding:NSUTF8StringEncoding]
                completion:^(FIRLoadBundleTaskProgress* progress, NSError* error) {
                  result = progress;
                  XCTAssertNotNil(error);

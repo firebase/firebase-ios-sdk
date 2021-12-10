@@ -1,4 +1,7 @@
 # Unreleased
+- [changed] Added a `X-Firebase-GMPID` header to network requests.
+
+# 8.9.0
 - [changed] Improved error logging. (#8704)
 - [added] Added MFA support for email link sign-in. (#8705)
 

@@ -103,6 +103,7 @@
 
   // Trigger the RC config fetch
   remoteConfig.lastFetchTime = nil;
+  configFlags.appStartConfigFetchDelayInSeconds = 0.0;
   [configFlags update];
 
   XCTAssertNil([[FIRHTTPMetric alloc] initWithURL:self.sampleURL HTTPMethod:FIRHTTPMethodGET]);

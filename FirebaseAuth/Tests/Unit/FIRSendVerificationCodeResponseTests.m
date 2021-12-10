@@ -33,6 +33,11 @@
  */
 static NSString *const kTestAPIKey = @"APIKey";
 
+/** @var kTestFirebaseAppID
+    @brief Fake Firebase app ID used for testing.
+ */
+static NSString *const kTestFirebaseAppID = @"appID";
+
 /** @var kTestPhoneNumber
     @brief Fake phone number used for testing.
  */
@@ -116,7 +121,8 @@ static NSString *const kCaptchaCheckFailedErrorMessage = @"CAPTCHA_CHECK_FAILED"
   FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
   _RPCIssuer = RPCIssuer;
-  _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
+  _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey
+                                                                        appID:kTestFirebaseAppID];
 }
 
 - (void)tearDown {

@@ -29,6 +29,11 @@
  */
 static NSString *const kTestAPIKey = @"APIKey";
 
+/** @var kTestFirebaseAppID
+    @brief Fake Firebase app ID used for testing.
+ */
+static NSString *const kTestFirebaseAppID = @"appID";
+
 /** @var kTestProjectID
     @brief Fake project ID used for testing.
  */
@@ -79,7 +84,7 @@ static NSString *const kMissingAPIKeyErrorMessage = @"MISSING_API_KEY";
  */
 - (void)testMissingAPIKeyError {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey appID:kTestFirebaseAppID];
   FIRGetProjectConfigRequest *request =
       [[FIRGetProjectConfigRequest alloc] initWithRequestConfiguration:requestConfiguration];
 
@@ -108,7 +113,7 @@ static NSString *const kMissingAPIKeyErrorMessage = @"MISSING_API_KEY";
  */
 - (void)testSuccessFulGetProjectConfigRequest {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey appID:kTestFirebaseAppID];
   FIRGetProjectConfigRequest *request =
       [[FIRGetProjectConfigRequest alloc] initWithRequestConfiguration:requestConfiguration];
 

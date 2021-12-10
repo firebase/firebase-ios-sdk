@@ -4,7 +4,8 @@ Pod::Spec.new do |s|
   s.summary                 = 'Firebase SDKs testing support types and utilities.'
 
   s.description      = <<-DESC
-  Type declarations and utilities needed for unit testing of the code dependent on Firebase SDKs
+  Type declarations and utilities needed for unit testing of the code dependent on Firebase SDKs.
+  This podspec is for internal testing only and should not be published.
                        DESC
 
   s.homepage                = 'https://developers.google.com/'
@@ -34,6 +35,8 @@ Pod::Spec.new do |s|
 
   s.source_files = [
     base_dir + 'Sources/**/*.{m,mm,h}',
+    'SharedTestUtilities/FIRAuthInteropFake*',
+    'SharedTestUtilities/FIRMessagingInteropFake*'
   ]
 
   s.public_header_files = base_dir + '**/*.h'

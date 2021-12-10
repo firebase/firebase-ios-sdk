@@ -77,7 +77,9 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
       const DatabaseInfo& database_info,
       const api::Settings& settings,
       std::shared_ptr<credentials::AuthCredentialsProvider>
-          credentials_provider,
+          auth_credentials_provider,
+      std::shared_ptr<credentials::AppCheckCredentialsProvider>
+          app_check_credentials_provider,
       std::shared_ptr<util::Executor> user_executor,
       std::shared_ptr<util::AsyncQueue> worker_queue,
       std::unique_ptr<remote::FirebaseMetadataProvider>
@@ -187,7 +189,9 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
  private:
   FirestoreClient(const DatabaseInfo& database_info,
                   std::shared_ptr<credentials::AuthCredentialsProvider>
-                      credentials_provider,
+                      auth_credentials_provider,
+                  std::shared_ptr<credentials::AppCheckCredentialsProvider>
+                      app_check_credentials_provider,
                   std::shared_ptr<util::Executor> user_executor,
                   std::shared_ptr<util::AsyncQueue> worker_queue,
                   std::unique_ptr<remote::FirebaseMetadataProvider>
@@ -202,7 +206,10 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   void ScheduleLruGarbageCollection();
 
   DatabaseInfo database_info_;
-  std::shared_ptr<credentials::AuthCredentialsProvider> credentials_provider_;
+  std::shared_ptr<credentials::AppCheckCredentialsProvider>
+      app_check_credentials_provider_;
+  std::shared_ptr<credentials::AuthCredentialsProvider>
+      auth_credentials_provider_;
   /**
    * Async queue responsible for all of our internal processing. When we get
    * incoming work from the user (via public API) or the network (incoming gRPC

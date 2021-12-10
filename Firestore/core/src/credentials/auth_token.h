@@ -65,8 +65,8 @@ class AuthToken {
   static const AuthToken& Unauthenticated();
 
  private:
-  const std::string token_;
-  const User user_;
+  std::string token_;
+  User user_;
 };
 
 }  // namespace credentials
