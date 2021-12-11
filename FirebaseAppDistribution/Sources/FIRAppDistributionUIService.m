@@ -21,6 +21,13 @@
 #import <SafariServices/SafariServices.h>
 #import <UIKit/UIKit.h>
 
+int unattachedScenesRetryTime = 1;
+int unattachedScenesRetryMax = 3;
+
+@interface FIRAppDistributionUIService ()
+@property int unattachedScenesRetryCount;
+@end
+
 @implementation FIRAppDistributionUIService
 
 API_AVAILABLE(ios(9.0))
@@ -36,6 +43,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
   self = [super init];
 
   self.safariHostingViewController = [[UIViewController alloc] init];
+  self.unattachedScenesRetryCount = 0;
 
   return self;
 }
@@ -197,29 +205,62 @@ SFAuthenticationSession *_safariAuthenticationVC;
   }
 }
 
+- (void)findForegroundedSceneWithCompletionBlock:(void (^)(UIWindowScene *scene))completionBlock
+    API_AVAILABLE(ios(13.0)) {
+  if (@available(iOS 13.0, *)) {
+    UIWindowScene *foregroundedScene = nil;
+    BOOL areAllScenesUnattached = true;
+    for (UIWindowScene *connectedScene in [UIApplication sharedApplication].connectedScenes) {
+      if (connectedScene.activationState != UISceneActivationStateUnattached) {
+        areAllScenesUnattached = false;
+      }
+      if (connectedScene.activationState == UISceneActivationStateForegroundActive) {
+        foregroundedScene = connectedScene;
+        break;
+      }
+    }
+    if (foregroundedScene == nil && areAllScenesUnattached) {
+      if (self.unattachedScenesRetryCount >= unattachedScenesRetryMax) {
+        self.unattachedScenesRetryCount = 0;
+        completionBlock(nil);
+        return;
+      }
+
+      self.unattachedScenesRetryCount += 1;
+      dispatch_after(dispatch_time(DISPATCH_TIME_NOW, unattachedScenesRetryTime * NSEC_PER_SEC),
+                     dispatch_get_main_queue(), ^{
+                       [self findForegroundedSceneWithCompletionBlock:completionBlock];
+                     });
+    } else {
+      completionBlock(foregroundedScene);
+    }
+  } else {
+    completionBlock(nil);
+  }
+}
+
 - (void)initializeUIState {
   if (self.window) {
     return;
   }
 
   if (@available(iOS 13.0, *)) {
-    UIWindowScene *foregroundedScene = nil;
-    for (UIWindowScene *connectedScene in [UIApplication sharedApplication].connectedScenes) {
-      if (connectedScene.activationState == UISceneActivationStateForegroundActive) {
-        foregroundedScene = connectedScene;
-        break;
+    [self findForegroundedSceneWithCompletionBlock:^(UIWindowScene *foregroundedScene) {
+      if (foregroundedScene) {
+        self.window = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
+      } else {
+        FIRFADInfoLog(@"No foreground scene found.");
+        self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
       }
-    }
-
-    if (foregroundedScene) {
-      self.window = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
-    } else {
-      FIRFADInfoLog(@"No foreground scene found.");
-      self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-    }
+      [self windowFinishInitialization];
+    }];
   } else {
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
   }
+  [self windowFinishInitialization];
+}
+
+- (void)windowFinishInitialization {
   self.window.rootViewController = self.safariHostingViewController;
 
   // Place it at the highest level within the stack.
