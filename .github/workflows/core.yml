@@ -34,7 +34,7 @@ jobs:
     runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@v1
+    - uses: mikehardy/buildcache-action@775c40d1cfea04da628359da45ee382cd87df551
       with:
         cache_key: ${{ matrix.os }}
     - name: Initialize xcodebuild
@@ -51,7 +51,7 @@ jobs:
         target: [tvOS, macOS, catalyst]
     steps:
     - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@v1
+    - uses: mikehardy/buildcache-action@775c40d1cfea04da628359da45ee382cd87df551
       with:
         cache_key: ${{ matrix.os }}
     - name: Initialize xcodebuild
@@ -66,7 +66,7 @@ jobs:
     runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@v1
+    - uses: mikehardy/buildcache-action@775c40d1cfea04da628359da45ee382cd87df551
       with:
         cache_key: ${{ matrix.os }}
     - name: Setup Bundler
