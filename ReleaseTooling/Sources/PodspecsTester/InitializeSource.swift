@@ -47,7 +47,6 @@ struct InitializeSpecTesting {
     addTestingTag(path: sdkRepoURL, manifest: manifest)
     updatePodspecs(path: sdkRepoURL, manifest: manifest)
     copyPodspecs(from: sdkRepoURL, manifest: manifest)
-    Shell.executeCommand("find .", workingDir: URL(fileURLWithPath: Constants.cocoapodsDir))
   }
 
   // The SpecsTesting repo will be added to `${HOME}/.cocoapods/`, and all
