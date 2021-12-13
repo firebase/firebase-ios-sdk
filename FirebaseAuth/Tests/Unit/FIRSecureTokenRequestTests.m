@@ -30,10 +30,10 @@ static NSString *const kAPIKey = @"APIKey";
  */
 static NSString *const kFirebaseAppID = @"appID";
 
-/** @var kCode
-    @brief A testing authorization code.
+/** @var kRefreshToken
+    @brief A testing refresh token.
  */
-static NSString *const kCode = @"code";
+static NSString *const kRefreshToken = @"refreshToken";
 
 /** @var kEmulatorHostAndPort
     @brief A testing emulator host and port.
@@ -56,8 +56,8 @@ static NSString *const kEmulatorHostAndPort = @"emulatorhost:12345";
   FIRAuthRequestConfiguration *requestConfiguration =
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID];
   FIRSecureTokenRequest *request =
-      [FIRSecureTokenRequest authCodeRequestWithCode:kCode
-                                requestConfiguration:requestConfiguration];
+      [FIRSecureTokenRequest refreshRequestWithRefreshToken:kRefreshToken
+                                       requestConfiguration:requestConfiguration];
 
   NSString *expectedURL =
       [NSString stringWithFormat:@"https://securetoken.googleapis.com/v1/token?key=%@", kAPIKey];
@@ -74,8 +74,8 @@ static NSString *const kEmulatorHostAndPort = @"emulatorhost:12345";
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID];
   requestConfiguration.emulatorHostAndPort = kEmulatorHostAndPort;
   FIRSecureTokenRequest *request =
-      [FIRSecureTokenRequest authCodeRequestWithCode:kCode
-                                requestConfiguration:requestConfiguration];
+      [FIRSecureTokenRequest refreshRequestWithRefreshToken:kRefreshToken
+                                       requestConfiguration:requestConfiguration];
 
   NSString *expectedURL =
       [NSString stringWithFormat:@"http://%@/securetoken.googleapis.com/v1/token?key=%@",
