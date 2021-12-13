@@ -47,7 +47,7 @@ struct InitializeSpecTesting {
     addTestingTag(path: sdkRepoURL, manifest: manifest)
     updatePodspecs(path: sdkRepoURL, manifest: manifest)
     copyPodspecs(from: sdkRepoURL, manifest: manifest)
-    Shell.executeCommand("find .", workingDir: URL(fileURLWithPath:Constants.cocoapodsDir))
+    Shell.executeCommand("find .", workingDir: URL(fileURLWithPath: Constants.cocoapodsDir))
   }
 
   // The SpecsTesting repo will be added to `${HOME}/.cocoapods/`, and all
@@ -181,7 +181,7 @@ struct InitializeSpecTesting {
     // There are more than one string matching the regex. There should be only
     // one version matching the regex.
     else if versionMatches.count > 1 {
-      print (versionMatches)
+      print(versionMatches)
       throw VersionFetchError.multipleMatches
     }
     return versionMatches[0][1]
