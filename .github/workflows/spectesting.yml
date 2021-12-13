@@ -15,7 +15,7 @@ jobs:
     - name: Init podspecs and source
       run: |
         cd ReleaseTooling
-        swift run podspecs-tester --git-root "${$GITHUB_WORKSPACE}"
+        swift run podspecs-tester --git-root "${GITHUB_WORKSPACE}"
         find "${HOME}/.cocoapods/"
         tree "${HOME}/.cocoapods/"
 
