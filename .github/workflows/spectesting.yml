@@ -17,6 +17,6 @@ jobs:
         cd ReleaseTooling
         swift run podspecs-tester --git-root "${GITHUB_WORKSPACE}"
         find "${HOME}/.cocoapods/" -type f
-    - name: Init podspecs and source
-      run: pod spec lint FirebaseABTesting.podspec
+    - name: Test
+      run: pod spec lint FirebaseABTesting.podspec --sources=https://github.com/firebase/SpecsTesting,https://cdn.cocoapods.org/
 
