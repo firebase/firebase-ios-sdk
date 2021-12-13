@@ -17,6 +17,9 @@ jobs:
         cd ReleaseTooling
         swift run podspecs-tester --git-root "${GITHUB_WORKSPACE}"
         find "${HOME}/.cocoapods/" -type f
+    - name: List spec repos
+      run: pod repo list
     - name: Test
+      # The SpecsTesting repo was updated by podspec-tester to point to the head of a PR.
       run: pod spec lint FirebaseABTesting.podspec --sources=https://github.com/firebase/SpecsTesting,https://cdn.cocoapods.org/
 
