@@ -17,6 +17,7 @@
 #import "FirebaseAuth/Sources/SystemService/FIRSecureTokenService.h"
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRCustomTokenProviderDelegate.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthSerialTaskQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
@@ -102,13 +103,16 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
 - (instancetype)initWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
                                  accessToken:(nullable NSString *)accessToken
                    accessTokenExpirationDate:(nullable NSDate *)accessTokenExpirationDate
-                                refreshToken:(nullable NSString *)refreshToken {
+                                refreshToken:(nullable NSString *)refreshToken
+                 customTokenProviderDelegate:
+                     (nullable FIRCustomTokenProviderDelegate *)customTokenProviderDelegate {
   self = [self init];
   if (self) {
     _requestConfiguration = requestConfiguration;
     _accessToken = [accessToken copy];
     _accessTokenExpirationDate = [accessTokenExpirationDate copy];
     _refreshToken = [refreshToken copy];
+    _customTokenProviderDelegate = customTokenProviderDelegate;
   }
   return self;
 }
