@@ -1,4 +1,5 @@
 Pod::Spec.new do |s|
+
   s.name             = 'FirebaseCrashlytics'
   s.version          = '8.11.0'
   s.summary          = 'Best and lightest-weight crash reporting for mobile, desktop and tvOS.'
