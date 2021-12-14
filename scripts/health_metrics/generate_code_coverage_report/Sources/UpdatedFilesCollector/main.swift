@@ -56,7 +56,7 @@ struct UpdatedFilesCollector: ParsableCommand {
         // the sdk will be turned on.
         for changedFilePath in changedFilePaths {
           let range = NSRange(location: 0, length: changedFilePath.utf16.count)
-          if regex.firstMatch(in: changedFilePath, options: [], range: range) != nil {
+          // if regex.firstMatch(in: changedFilePath, options: [], range: range) != nil {
             print("=============== paths of changed files ===============")
             print("::set-output name=\(sdkPatterns.sdk)_run_job::true")
             print("\(sdkPatterns.sdk): \(changedFilePath) is updated under the pattern, \(pattern)")
@@ -64,7 +64,7 @@ struct UpdatedFilesCollector: ParsableCommand {
             // Once this sdk run_job flag is turned to true, then the loop
             // will skip to the next sdk.
             break
-          }
+          //}
           if trigger_pod_test_for_coverage_report { break }
         }
         if trigger_pod_test_for_coverage_report { break }
