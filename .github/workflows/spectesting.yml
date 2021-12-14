@@ -18,9 +18,7 @@ jobs:
       env:
         pr_branch: ${{ github.event.pull_request.head.ref }}
       run: |
-        if [ ! -z "${{ env.METRICS_SERVICE_SECRET }}"  ]; then
-          ./scripts/health_metrics/get_updated_files.sh
-        fi
+        ./scripts/health_metrics/get_updated_files.sh
         printenv
     - name: Check updated files
       run: echo "check updated files"
