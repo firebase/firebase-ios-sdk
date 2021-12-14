@@ -18,10 +18,9 @@ jobs:
       env:
         pr_branch: ${{ github.event.pull_request.head.ref }}
       run: |
-        ./scripts/health_metrics/get_updated_files.sh
-        printenv
-    - name: Check updated files
-      run: echo "check updated files"
+        ./scripts/health_metrics/get_updated_files.sh -p output.txt
+        ls 
+        cat  output.txt
     - name: Init podspecs and source
       run: |
         cd ReleaseTooling

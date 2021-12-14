@@ -19,6 +19,7 @@ import Foundation
 
 struct SDKFilePattern: Codable {
   let sdk: String
+  let podspecs: [String]
   let filePatterns: [String]
 }
 
@@ -39,7 +40,17 @@ struct UpdatedFilesCollector: ParsableCommand {
           })
   var codeCoverageFilePatterns: [SDKFilePattern]
 
+  @Option(help: "A output file with all Podspecs with related changed files",
+          transform: { str in
+            print(FileManager.default.currentDirectoryPath)
+            let documentDir = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+            return documentDir.appendingPathComponent(str)
+          })
+  var outputSDKFileURL: URL?
+
   func run() throws {
+    let task = Process()
+    var podspecsWithChangedFiles: [String] = []
     print("=============== list changed files ===============")
     print(changedFilePaths.joined(separator: "\n"))
     // Initiate all run_job flag to false.
@@ -56,18 +67,30 @@ struct UpdatedFilesCollector: ParsableCommand {
         // the sdk will be turned on.
         for changedFilePath in changedFilePaths {
           let range = NSRange(location: 0, length: changedFilePath.utf16.count)
-          // if regex.firstMatch(in: changedFilePath, options: [], range: range) != nil {
+          if regex.firstMatch(in: changedFilePath, options: [], range: range) != nil {
             print("=============== paths of changed files ===============")
             print("::set-output name=\(sdkPatterns.sdk)_run_job::true")
+            podspecsWithChangedFiles += sdkPatterns.podspecs
             print("\(sdkPatterns.sdk): \(changedFilePath) is updated under the pattern, \(pattern)")
             trigger_pod_test_for_coverage_report = true
             // Once this sdk run_job flag is turned to true, then the loop
             // will skip to the next sdk.
             break
-          //}
+          }
           if trigger_pod_test_for_coverage_report { break }
         }
         if trigger_pod_test_for_coverage_report { break }
+      }
+    }
+    if let outputPath = outputSDKFileURL {
+      do {
+        try podspecsWithChangedFiles.joined(separator: "\n").write(
+          to: outputPath,
+          atomically: true,
+          encoding: String.Encoding.utf8
+        )
+      } catch {
+        fatalError("Error while writting in \(outputPath.path).\n\(error)")
       }
     }
   }
