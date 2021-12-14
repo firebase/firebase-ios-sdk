@@ -1,6 +1,6 @@
 # Firebase Swift Modernization Dashboard
 
-This dashboard summarizes the status of Firebase's [2022 Swift Modernization Project](Roadmap.md).
+This dashboard summarizes the status of Firebase's [2022 Swift Modernization Project](ROADMAP.md).
 Please upvote or create a [feature request](https://github.com/firebase/firebase-ios-sdk/issues)
 to help prioritize any particular cell(s).
 
