@@ -19,7 +19,7 @@ set -ex
 while getopts p: flag
 do
     case "${flag}" in
-        p) spec_ouput_file=${OPTARG};;
+        p) spec_output_file=${OPTARG};;
     esac
 done
 

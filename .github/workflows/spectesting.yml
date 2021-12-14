@@ -20,7 +20,7 @@ jobs:
       run: |
         ./scripts/health_metrics/get_updated_files.sh -p output.txt
         ls 
-        cat  output.txt
+        cat output.txt
     - name: Init podspecs and source
       run: |
         cd ReleaseTooling
@@ -30,5 +30,10 @@ jobs:
       run: pod repo list
     - name: Test
       # The SpecsTesting repo was updated by podspec-tester to point to the head of a PR.
-      run: pod spec lint FirebaseABTesting.podspec --sources=https://github.com/firebase/SpecsTesting,https://cdn.cocoapods.org/
+      run: |
+        while read -r podspec; do 
+          pod spec lint $podspec --sources=https://github.com/firebase/SpecsTesting,https://cdn.cocoapods.org/ &
+        done < output.txt
+        wait
+        echo "All done"
 
