@@ -66,7 +66,7 @@ if [[ $GHA_SECRET == "local_dev" ]]; then
     cp $SERVICE_ACCOUNT ~/.credentials/
 else
     echo "Decrypting ${SERVICE_ACCOUNT_FILE}.gpg"
-    scripts/decrypt_GHA_SECRET.sh $SERVICE_ACCOUNT ~/.credentials/$SERVICE_ACCOUNT_FILE "$plist_secret"
+    scripts/decrypt_gha_secret.sh $SERVICE_ACCOUNT ~/.credentials/$SERVICE_ACCOUNT_FILE "$GHA_SECRET"
 fi
 
 echo "GOOGLE_APPLICATION_CREDENTIALS=${HOME}/.credentials/${SERVICE_ACCOUNT_FILE}" >> $GITHUB_ENV
