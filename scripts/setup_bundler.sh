@@ -20,10 +20,6 @@
 # - Uncomment the following line and choose the alternative Xcode version.
 #sudo xcode-select -s /Applications/Xcode_13.0.app/Contents/Developer
 
-# TODO(paulb777): Remove once Xcode 13 becomes the default version in macOS 11.
-# https://github.com/actions/virtual-environments/blob/main/images/macos/macos-11-Readme.md#xcode
-sudo xcode-select -s /Applications/Xcode_13.0.app/Contents/Developer
-
 bundle update --bundler # ensure bundler version is high enough for Gemfile.lock
 bundle install
 bundle --version
