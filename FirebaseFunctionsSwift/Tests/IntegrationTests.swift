@@ -19,8 +19,8 @@ import FirebaseFunctionsSwift
 import FirebaseFunctionsTestingSupport
 import XCTest
 
-/// This file was intitialized as a direct port of the Objective C
-/// FirebaseFunctions/Tests/Integration/FIRIntegrationTests.m
+/// This file was intitialized as a direct port of `FirebaseFunctionsSwift/Tests/IntegrationTests.swift`
+/// which itself was ported from the Objective C `FirebaseFunctions/Tests/Integration/FIRIntegrationTests.m`
 ///
 /// The tests require the emulator to be running with `FirebaseFunctions/Backend/start.sh synchronous`
 /// The Firebase Functions called in the tests are implemented in `FirebaseFunctions/Backend/index.js`.
@@ -75,7 +75,7 @@ class IntegrationTests: XCTestCase {
     functions.useLocalhost()
   }
 
-  func testData() throws {
+  func testData() {
     let expectation = expectation(description: #function)
     let data = DataTestRequest(
       bool: true,
@@ -97,10 +97,10 @@ class IntegrationTests: XCTestCase {
           code: 42
         )
         XCTAssertEqual(response, expected)
-        expectation.fulfill()
       } catch {
         XCTAssert(false, "Failed to unwrap the function result: \(error)")
       }
+      expectation.fulfill()
     }
     waitForExpectations(timeout: 5)
   }
@@ -131,7 +131,7 @@ class IntegrationTests: XCTestCase {
     }
   #endif
 
-  func testScalar() throws {
+  func testScalar() {
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable(
       "scalarTest",
@@ -142,10 +142,10 @@ class IntegrationTests: XCTestCase {
       do {
         let response = try result.get()
         XCTAssertEqual(response, 76)
-        expectation.fulfill()
       } catch {
         XCTAssert(false, "Failed to unwrap the function result: \(error)")
       }
+      expectation.fulfill()
     }
     waitForExpectations(timeout: 5)
   }
@@ -172,7 +172,7 @@ class IntegrationTests: XCTestCase {
 
   #endif
 
-  func testToken() throws {
+  func testToken() {
     // Recreate functions with a token.
     let functions = FunctionsFake(
       projectID: "functions-integration-test",
@@ -193,10 +193,10 @@ class IntegrationTests: XCTestCase {
       do {
         let data = try result.get()
         XCTAssertEqual(data, [:])
-        expectation.fulfill()
       } catch {
         XCTAssert(false, "Failed to unwrap the function result: \(error)")
       }
+      expectation.fulfill()
     }
     waitForExpectations(timeout: 5)
   }
@@ -224,7 +224,7 @@ class IntegrationTests: XCTestCase {
     }
   #endif
 
-  func testFCMToken() throws {
+  func testFCMToken() {
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable(
       "FCMTokenTest",
@@ -235,10 +235,10 @@ class IntegrationTests: XCTestCase {
       do {
         let data = try result.get()
         XCTAssertEqual(data, [:])
-        expectation.fulfill()
       } catch {
         XCTAssert(false, "Failed to unwrap the function result: \(error)")
       }
+      expectation.fulfill()
     }
     waitForExpectations(timeout: 5)
   }
@@ -257,7 +257,7 @@ class IntegrationTests: XCTestCase {
     }
   #endif
 
-  func testNull() throws {
+  func testNull() {
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable(
       "nullTest",
@@ -268,10 +268,10 @@ class IntegrationTests: XCTestCase {
       do {
         let data = try result.get()
         XCTAssertEqual(data, nil)
-        expectation.fulfill()
       } catch {
         XCTAssert(false, "Failed to unwrap the function result: \(error)")
       }
+      expectation.fulfill()
     }
     waitForExpectations(timeout: 5)
   }
@@ -294,11 +294,40 @@ class IntegrationTests: XCTestCase {
   // If no parameters are required, then the non-typed API
   // is more appropriate since it specifically avoids defining
   // type.
-  //  func testParameterless() {
-  //  }
-  //
-  //
-  func testMissingResult() throws {
+  func testParameterless() {
+    let expectation = expectation(description: #function)
+    let function = functions.httpsCallable(
+      "nullTest",
+      requestAs: Int?.self,
+      responseAs: Int?.self
+    )
+    function.call { result in
+      do {
+        let data = try result.get()
+        XCTAssertEqual(data, nil)
+      } catch {
+        XCTAssert(false, "Failed to unwrap the function result: \(error)")
+      }
+      expectation.fulfill()
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  #if compiler(>=5.5) && canImport(_Concurrency)
+    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    func testParameterlessAsync() async throws {
+      let function = functions.httpsCallable(
+        "nullTest",
+        requestAs: Int?.self,
+        responseAs: Int?.self
+      )
+
+      let data = try await function.call()
+      XCTAssertEqual(data, nil)
+    }
+  #endif
+
+  func testMissingResult() {
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable(
       "missingResultTest",
@@ -313,7 +342,9 @@ class IntegrationTests: XCTestCase {
         XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
         XCTAssertEqual("Response is missing data field.", error.localizedDescription)
         expectation.fulfill()
+        return
       }
+      XCTFail("Failed to throw error for missing result")
     }
     waitForExpectations(timeout: 5)
   }
@@ -337,7 +368,7 @@ class IntegrationTests: XCTestCase {
     }
   #endif
 
-  func testUnhandledError() throws {
+  func testUnhandledError() {
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable(
       "unhandledErrorTest",
@@ -352,7 +383,9 @@ class IntegrationTests: XCTestCase {
         XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
         XCTAssertEqual("INTERNAL", error.localizedDescription)
         expectation.fulfill()
+        return
       }
+      XCTFail("Failed to throw error for missing result")
     }
     XCTAssert(true)
     waitForExpectations(timeout: 5)
@@ -377,7 +410,7 @@ class IntegrationTests: XCTestCase {
     }
   #endif
 
-  func testUnknownError() throws {
+  func testUnknownError() {
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable(
       "unknownErrorTest",
@@ -392,7 +425,9 @@ class IntegrationTests: XCTestCase {
         XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
         XCTAssertEqual("INTERNAL", error.localizedDescription)
         expectation.fulfill()
+        return
       }
+      XCTFail("Failed to throw error for missing result")
     }
     waitForExpectations(timeout: 5)
   }
@@ -416,7 +451,7 @@ class IntegrationTests: XCTestCase {
     }
   #endif
 
-  func testExplicitError() throws {
+  func testExplicitError() {
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable(
       "explicitErrorTest",
@@ -433,7 +468,9 @@ class IntegrationTests: XCTestCase {
         XCTAssertEqual(["start": 10 as Int32, "end": 20 as Int32, "long": 30],
                        error.userInfo[FunctionsErrorDetailsKey] as! [String: Int32])
         expectation.fulfill()
+        return
       }
+      XCTFail("Failed to throw error for missing result")
     }
     waitForExpectations(timeout: 5)
   }
@@ -459,7 +496,7 @@ class IntegrationTests: XCTestCase {
     }
   #endif
 
-  func testHttpError() throws {
+  func testHttpError() {
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable(
       "httpErrorTest",
@@ -474,7 +511,9 @@ class IntegrationTests: XCTestCase {
         let error = error as NSError
         XCTAssertEqual(FunctionsErrorCode.invalidArgument.rawValue, error.code)
         expectation.fulfill()
+        return
       }
+      XCTFail("Failed to throw error for missing result")
     }
     waitForExpectations(timeout: 5)
   }
@@ -497,7 +536,7 @@ class IntegrationTests: XCTestCase {
     }
   #endif
 
-  func testTimeout() throws {
+  func testTimeout() {
     let expectation = expectation(description: #function)
     var function = functions.httpsCallable(
       "timeoutTest",
@@ -514,7 +553,9 @@ class IntegrationTests: XCTestCase {
         XCTAssertEqual("DEADLINE EXCEEDED", error.localizedDescription)
         XCTAssertNil(error.userInfo[FunctionsErrorDetailsKey])
         expectation.fulfill()
+        return
       }
+      XCTFail("Failed to throw error for missing result")
     }
     waitForExpectations(timeout: 5)
   }
@@ -540,7 +581,7 @@ class IntegrationTests: XCTestCase {
     }
   #endif
 
-  func testCallAsFunction() throws {
+  func testCallAsFunction() {
     let expectation = expectation(description: #function)
     let data = DataTestRequest(
       bool: true,
@@ -596,7 +637,7 @@ class IntegrationTests: XCTestCase {
     }
   #endif
 
-  func testInferredTypes() throws {
+  func testInferredTypes() {
     let expectation = expectation(description: #function)
     let data = DataTestRequest(
       bool: true,
