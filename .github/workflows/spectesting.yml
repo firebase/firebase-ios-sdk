@@ -19,7 +19,6 @@ jobs:
         pr_branch: ${{ github.event.pull_request.head.ref }}
       run: |
         ./scripts/health_metrics/get_updated_files.sh -p output.txt
-        ls 
         cat output.txt
     - name: Init podspecs and source
       run: |
@@ -33,8 +32,7 @@ jobs:
       run: |
         set -ex
         while read -r podspec; do 
-          pod spec lint $podspec --sources=https://github.com/firebase/SpecsTesting,https://cdn.cocoapods.org/ &
+          pod spec lint $podspec --sources=https://github.com/firebase/SpecsTesting,https://cdn.cocoapods.org/
         done < output.txt
-        wait
         echo "All done"
 
