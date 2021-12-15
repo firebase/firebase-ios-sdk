@@ -20,9 +20,9 @@ import XCTest
 /// String constants used for testing.
 private enum Constants {
   static let jsonKey = "Recipe"
-  static let recipe = ["recipeName": "PB&J",
-                       "ingredients": ["bread", "peanut butter", "jelly"],
-                       "cookTime": 7] as [String: AnyHashable]
+  static let jsonValue = ["recipeName": "PB&J",
+                          "ingredients": ["bread", "peanut butter", "jelly"],
+                          "cookTime": 7] as [String: AnyHashable]
   static let nonJsonKey = "notJSON"
   static let nonJsonValue = "notJSON"
 }
@@ -32,26 +32,22 @@ private enum Constants {
   class CodableTests: APITestBase {
     var console: RemoteConfigConsole!
 
-    override func setUp() {
-      super.setUp()
-      do {
-        let jsonData = try JSONSerialization.data(
-          withJSONObject: Constants.recipe,
-          options: .prettyPrinted
-        )
-        guard let jsonValue = String(data: jsonData, encoding: .ascii) else {
-          fatalError("Failed to make json Value from jsonData")
-        }
-        if APITests.useFakeConfig {
-          fakeConsole.config = [Constants.jsonKey: jsonValue,
-                                Constants.nonJsonKey: Constants.nonJsonValue]
-        } else {
-          console = RemoteConfigConsole()
-          console.updateRemoteConfigValue(jsonValue, forKey: Constants.jsonKey)
-          console.updateRemoteConfigValue(Constants.nonJsonKey, forKey: Constants.nonJsonValue)
-        }
-      } catch {
-        print("Failed to initialize json data in fake Console \(error.localizedDescription)")
+    override func setUpWithError() throws {
+      try super.setUpWithError()
+      let jsonData = try JSONSerialization.data(
+        withJSONObject: Constants.jsonValue,
+        options: .prettyPrinted
+      )
+      guard let jsonValue = String(data: jsonData, encoding: .ascii) else {
+        fatalError("Failed to make json Value from jsonData")
+      }
+      if APITests.useFakeConfig {
+        fakeConsole.config = [Constants.jsonKey: jsonValue,
+                              Constants.nonJsonKey: Constants.nonJsonValue]
+      } else {
+        console = RemoteConfigConsole()
+        console.updateRemoteConfigValue(jsonValue, forKey: Constants.jsonKey)
+        console.updateRemoteConfigValue(Constants.nonJsonKey, forKey: Constants.nonJsonValue)
       }
     }
 
@@ -61,22 +57,21 @@ private enum Constants {
       // If using RemoteConfigConsole, reset remote config values.
       if !APITests.useFakeConfig {
         console.removeRemoteConfigValue(forKey: Constants.jsonKey)
+        console.removeRemoteConfigValue(forKey: Constants.nonJsonKey)
       }
     }
 
+    // Contrast this test with the subsequent one to see the value of the Codable API.
     func testFetchAndActivateWithoutCodable() async throws {
       let status = try await config.fetchAndActivate()
       XCTAssertEqual(status, .successFetchedFromRemote)
-      guard let dict = config[Constants.jsonKey].jsonValue as? [String: AnyHashable] else {
-        XCTFail("Failed to extract json")
-        return
-      }
+      let dict = try XCTUnwrap(config[Constants.jsonKey].jsonValue as? [String: AnyHashable])
       XCTAssertEqual(dict["recipeName"], "PB&J")
       XCTAssertEqual(dict["ingredients"], ["bread", "peanut butter", "jelly"])
       XCTAssertEqual(dict["cookTime"], 7)
       XCTAssertEqual(
         config[Constants.jsonKey].jsonValue as! [String: AnyHashable],
-        Constants.recipe
+        Constants.jsonValue
       )
     }
 
@@ -89,20 +84,26 @@ private enum Constants {
     func testFetchAndActivateWithCodable() async throws {
       let status = try await config.fetchAndActivate()
       XCTAssertEqual(status, .successFetchedFromRemote)
-      guard let value = try config[Constants.jsonKey].decode(asType: Recipe?.self) else {
-        XCTFail("Failed to extract json")
-        return
-      }
-      XCTAssertEqual(value.recipeName, "PB&J")
-      XCTAssertEqual(value.ingredients, ["bread", "peanut butter", "jelly"])
-      XCTAssertEqual(value.cookTime, 7)
+      let recipe = try XCTUnwrap(config[Constants.jsonKey].decoded(asType: Recipe.self))
+      XCTAssertEqual(recipe.recipeName, "PB&J")
+      XCTAssertEqual(recipe.ingredients, ["bread", "peanut butter", "jelly"])
+      XCTAssertEqual(recipe.cookTime, 7)
+    }
+
+    func testFetchAndActivateWithCodableAlternativeAPI() async throws {
+      let status = try await config.fetchAndActivate()
+      XCTAssertEqual(status, .successFetchedFromRemote)
+      let recipe: Recipe = try XCTUnwrap(config[Constants.jsonKey].decoded())
+      XCTAssertEqual(recipe.recipeName, "PB&J")
+      XCTAssertEqual(recipe.ingredients, ["bread", "peanut butter", "jelly"])
+      XCTAssertEqual(recipe.cookTime, 7)
     }
 
     func testFetchAndActivateWithCodableBadJson() async throws {
       let status = try await config.fetchAndActivate()
       XCTAssertEqual(status, .successFetchedFromRemote)
       do {
-        _ = try config[Constants.nonJsonKey].decode(asType: String?.self)
+        _ = try config[Constants.nonJsonKey].decoded(asType: String?.self)
       } catch RemoteConfigCodableError.jsonValueError {
         return
       }

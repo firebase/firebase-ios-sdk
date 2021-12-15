@@ -28,7 +28,7 @@ public extension RemoteConfigValue {
    *
    * - Parameter valueType: The type to decode the JSON-object to
    */
-  func decode<Value: Decodable>(asType: Value.Type) throws -> Value {
+  func decoded<Value: Decodable>(asType: Value.Type = Value.self) throws -> Value {
     guard let jsonValue = self.jsonValue else {
       throw RemoteConfigCodableError.jsonValueError
     }
