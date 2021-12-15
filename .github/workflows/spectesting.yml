@@ -31,6 +31,7 @@ jobs:
     - name: Test
       # The SpecsTesting repo was updated by podspec-tester to point to the head of a PR.
       run: |
+        set -ex
         while read -r podspec; do 
           pod spec lint $podspec --sources=https://github.com/firebase/SpecsTesting,https://cdn.cocoapods.org/ &
         done < output.txt
