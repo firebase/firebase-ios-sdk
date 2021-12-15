@@ -36,3 +36,5 @@ jobs:
         done < output.txt
         echo "All done"
 
+        cat output.txt
+
