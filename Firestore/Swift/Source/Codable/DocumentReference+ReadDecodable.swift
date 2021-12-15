@@ -18,20 +18,25 @@ import Foundation
 import FirebaseFirestore
 
 extension DocumentReference {
-  /// Encodes an instance of `Encodable` and overwrites the encoded data
-  /// to the document referred by this `DocumentReference`. If no document exists,
-  /// it is created. If a document already exists, it is overwritten.
+  /// Fetches and decodes the document referenced by this `DocumentReference`.
   ///
-  /// See `Firestore.Encoder` for more details about the encoding process.
-  ///
+  /// This allows users to retrieve a Firestore document and have it decoded to an instance of
+  /// caller-specified type.
+  /// ```swift
+  ///     ref.getDocument(as: Book.self) { result in
+  ///       do {
+  ///         let book = try result.get()
+  ///       } catch {
+  ///         // Handle error
+  ///       }
+  ///     }
+  /// ```
   /// - Parameters:
-  ///   - value: An instance of `Encodable` to be encoded to a document.
-  ///   - encoder: An encoder instance to use to run the encoding.
-  ///   - completion: A block to execute once the document has been successfully
-  ///                 written to the server. This block will not be called while
-  ///                 the client is offline, though local changes will be visible
-  ///                 immediately.
-
+  ///   - as: A `Decodable` type to convert the document fields to.
+  ///   - serverTimestampBehavior: Configures how server timestamps that have
+  ///     not yet been set to their final value are returned from the snapshot.
+  ///   - decoder: The decoder to use to convert the document. `nil` to use
+  ///   - completion: The closure to call when the document snapshot has been fetched and decoded.
   public func getDocument<T: Decodable>(as type: T.Type,
                                         with serverTimestampBehavior: ServerTimestampBehavior =
                                           .none,
@@ -50,4 +55,31 @@ extension DocumentReference {
       completion(result)
     }
   }
+
+// TODO: How do you annotate that using Xcode 13.2 you can actually compile to earlier os versions
+#if compiler(>=5.5) && canImport(_Concurrency)
+  /// Fetches and decodes the document referenced by this `DocumentReference`.
+  ///
+  /// This allows users to retrieve a Firestore document and have it decoded to an instance of
+  /// caller-specified type.
+  /// ```swift
+  ///     let book = try await ref.getDocument(as: Book.self)
+  /// ```
+  /// - Parameters:
+  ///   - as: A `Decodable` type to convert the document fields to.
+  ///   - serverTimestampBehavior: Configures how server timestamps that have
+  ///     not yet been set to their final value are returned from the snapshot.
+  ///   - decoder: The decoder to use to convert the document. `nil` to use
+  /// - Returns: This instance of the supplied `Decodable` type `T`.
+  @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+  public func getDocument<T: Decodable>(as type: T.Type,
+                                         with serverTimestampBehavior: ServerTimestampBehavior =
+                                          .none,
+                                         decoder: Firestore.Decoder? = nil) async throws -> T {
+      let snapshot = try await getDocument()
+      return try snapshot.data(as: T.self,
+                          with: serverTimestampBehavior,
+                          decoder: decoder)
+  }
+#endif
 }

@@ -19,7 +19,7 @@ import FirebaseFirestore
 
 extension DocumentSnapshot {
   /// Retrieves all fields in a document and converts them to an instance of
-  /// caller-specified type. Returns `nil` if the document does not exist.
+  /// caller-specified type. 
   ///
   /// By default, server-provided timestamps that have not yet been set to their
   /// final value will be returned as `NSNull`. Pass `serverTimestampBehavior`
