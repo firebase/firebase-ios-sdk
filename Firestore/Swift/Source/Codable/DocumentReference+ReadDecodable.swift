@@ -56,30 +56,30 @@ extension DocumentReference {
     }
   }
 
-// TODO: How do you annotate that using Xcode 13.2 you can actually compile to earlier os versions
-#if compiler(>=5.5) && canImport(_Concurrency)
-  /// Fetches and decodes the document referenced by this `DocumentReference`.
-  ///
-  /// This allows users to retrieve a Firestore document and have it decoded to an instance of
-  /// caller-specified type.
-  /// ```swift
-  ///     let book = try await ref.getDocument(as: Book.self)
-  /// ```
-  /// - Parameters:
-  ///   - as: A `Decodable` type to convert the document fields to.
-  ///   - serverTimestampBehavior: Configures how server timestamps that have
-  ///     not yet been set to their final value are returned from the snapshot.
-  ///   - decoder: The decoder to use to convert the document. `nil` to use
-  /// - Returns: This instance of the supplied `Decodable` type `T`.
-  @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
-  public func getDocument<T: Decodable>(as type: T.Type,
-                                         with serverTimestampBehavior: ServerTimestampBehavior =
-                                          .none,
-                                         decoder: Firestore.Decoder? = nil) async throws -> T {
+  // TODO: How do you annotate that using Xcode 13.2 you can actually compile to earlier os versions
+  #if compiler(>=5.5) && canImport(_Concurrency)
+    /// Fetches and decodes the document referenced by this `DocumentReference`.
+    ///
+    /// This allows users to retrieve a Firestore document and have it decoded to an instance of
+    /// caller-specified type.
+    /// ```swift
+    ///     let book = try await ref.getDocument(as: Book.self)
+    /// ```
+    /// - Parameters:
+    ///   - as: A `Decodable` type to convert the document fields to.
+    ///   - serverTimestampBehavior: Configures how server timestamps that have
+    ///     not yet been set to their final value are returned from the snapshot.
+    ///   - decoder: The decoder to use to convert the document. `nil` to use
+    /// - Returns: This instance of the supplied `Decodable` type `T`.
+    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    public func getDocument<T: Decodable>(as type: T.Type,
+                                          with serverTimestampBehavior: ServerTimestampBehavior =
+                                            .none,
+                                          decoder: Firestore.Decoder? = nil) async throws -> T {
       let snapshot = try await getDocument()
       return try snapshot.data(as: T.self,
-                          with: serverTimestampBehavior,
-                          decoder: decoder)
-  }
-#endif
+                               with: serverTimestampBehavior,
+                               decoder: decoder)
+    }
+  #endif
 }
