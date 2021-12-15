@@ -32,8 +32,8 @@ class APITestBase: XCTestCase {
     useFakeConfig = FirebaseApp.app()!.options.projectID == "FakeProject"
   }
 
-  override func setUp() {
-    super.setUp()
+  override func setUpWithError() throws {
+    try super.setUpWithError()
     app = FirebaseApp.app()
     config = RemoteConfig.remoteConfig(app: app!)
     let settings = RemoteConfigSettings()
