@@ -31,11 +31,8 @@ jobs:
       # The SpecsTesting repo was updated by podspec-tester to point to the head of a PR.
       run: |
         set -ex
-        cat output.txt
-        echo "---"
         while read -r podspec; do 
           echo $podspec
         done < output.txt
-        wait
         echo "All done"
 
