@@ -1,5 +1,6 @@
 # Unreleased
-- [changed] Added a `X-Firebase-GMPID` header to network requests.
+- [changed] Added a `X-Firebase-GMPID` header to network requests. (#9046)
+- [fixed] Added multi-tenancy support to generic OAuth providers. (#9100)
 
 # 8.9.0
 - [changed] Improved error logging. (#8704)
