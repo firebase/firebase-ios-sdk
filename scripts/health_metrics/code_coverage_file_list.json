@@ -8,11 +8,38 @@
     ]
   },
   {
+    "sdk": "analytics",
+    "filePatterns": [
+      "^FirebaseAnalytics.*",
+      "^GoogleAppMeasurement.*"
+    ]
+  },
+  {
+    "sdk": "appcheck",
+    "filePatterns": [
+      "^FirebaseAppCheck.*",
+      "\\.github/workflows/app_check\\.yml"
+    ]
+  },
+  {
+    "sdk": "appdistribution",
+    "filePatterns": [
+      "^FirebaseAppDistribution.*"
+    ]
+  },
+  {
     "sdk": "auth",
     "filePatterns": [
       "^FirebaseAuth.*",
       "Interop/Auth/Public/[^/]+\\.h",
       "\\.github/workflows/auth\\.yml"
+    ]
+  },
+  {
+    "sdk": "crashlytics",
+    "filePatterns": [
+      "^Crashlytics.*",
+      "FirebaseCrashlytics.podspec"
     ]
   },
   {
@@ -36,6 +63,7 @@
     "sdk": "firestore",
     "filePatterns": [
       "^Firestore/.*",
+      "FirebaseAppCheck/Sources/Interop/[^/]+\\.h",
       "Interop/Auth/Public/[^/]+\\.h",
       "FirebaseCore/Sources/Private",
       "FirebaseCore/Sources/Public",
@@ -60,6 +88,12 @@
       "^FirebaseInAppMessaging.*",
       "Interop/Analytics/Public/[^/]+\\.h",
       "\\.github/workflows/inappmessaging\\.yml"
+    ]
+  },
+  {
+    "sdk": "installations",
+    "filePatterns": [
+      "^FirebaseInstallations.*"
     ]
   },
   {

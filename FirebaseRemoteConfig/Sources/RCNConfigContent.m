@@ -41,10 +41,10 @@
   RCNConfigDBManager *_DBManager;
   /// Current bundle identifier;
   NSString *_bundleIdentifier;
-  /// Dispatch semaphore to block all config reads until we have read from the database. This only
+  /// Blocks all config reads until we have read from the database. This only
   /// potentially blocks on the first read. Should be a no-wait for all subsequent reads once we
   /// have data read into memory from the database.
-  dispatch_semaphore_t _configLoadFromDBSemaphore;
+  dispatch_group_t _dispatch_group;
   /// Boolean indicating if initial DB load of fetched,active and default config has succeeded.
   BOOL _isConfigLoadFromDBCompleted;
   /// Boolean indicating that the load from database has initiated at least once.
@@ -52,7 +52,7 @@
 }
 
 /// Default timeout when waiting to read data from database.
-static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
+const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
 
 /// Singleton instance of RCNConfigContent.
 + (instancetype)sharedInstance {
@@ -86,7 +86,8 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
       _bundleIdentifier = @"";
     }
     _DBManager = DBManager;
-    _configLoadFromDBSemaphore = dispatch_semaphore_create(0);
+    // Waits for both config and Personalization data to load.
+    _dispatch_group = dispatch_group_create();
     [self loadConfigFromMainTable];
   }
   return self;
@@ -112,6 +113,7 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   NSAssert(!_isDatabaseLoadAlreadyInitiated, @"Database load has already been initiated");
   _isDatabaseLoadAlreadyInitiated = true;
 
+  dispatch_group_enter(_dispatch_group);
   [_DBManager
       loadMainWithBundleIdentifier:_bundleIdentifier
                  completionHandler:^(BOOL success, NSDictionary *fetchedConfig,
@@ -119,15 +121,17 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
                    self->_fetchedConfig = [fetchedConfig mutableCopy];
                    self->_activeConfig = [activeConfig mutableCopy];
                    self->_defaultConfig = [defaultConfig mutableCopy];
-                   dispatch_semaphore_signal(self->_configLoadFromDBSemaphore);
+                   dispatch_group_leave(self->_dispatch_group);
                  }];
 
   // TODO(karenzeng): Refactor personalization to be returned in loadMainWithBundleIdentifier above
+  dispatch_group_enter(_dispatch_group);
   [_DBManager loadPersonalizationWithCompletionHandler:^(
                   BOOL success, NSDictionary *fetchedPersonalization,
                   NSDictionary *activePersonalization, NSDictionary *defaultConfig) {
     self->_fetchedPersonalization = [fetchedPersonalization copy];
     self->_activePersonalization = [activePersonalization copy];
+    dispatch_group_leave(self->_dispatch_group);
   }];
 }
 
@@ -359,12 +363,12 @@ static const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
 /// configs until load is done.
 /// @return Database load completion status.
 - (BOOL)checkAndWaitForInitialDatabaseLoad {
-  /// Wait on semaphore until done. This should be a no-op for subsequent calls.
+  /// Wait until load is done. This should be a no-op for subsequent calls.
   if (!_isConfigLoadFromDBCompleted) {
-    long result = dispatch_semaphore_wait(
-        _configLoadFromDBSemaphore,
+    intptr_t isErrorOrTimeout = dispatch_group_wait(
+        _dispatch_group,
         dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kDatabaseLoadTimeoutSecs * NSEC_PER_SEC)));
-    if (result != 0) {
+    if (isErrorOrTimeout) {
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000048",
                   @"Timed out waiting for fetched config to be loaded from DB");
       return false;

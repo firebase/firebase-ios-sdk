@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCoreDiagnostics'
-  s.version          = '8.7.0'
+  s.version          = '8.10.0'
   s.summary          = 'Firebase Core Diagnostics'
 
   s.description      = <<-DESC
@@ -56,9 +56,9 @@ non-Cocoapod integration. This library also respects the Firebase global data co
 
   s.framework = 'Foundation'
 
-  s.dependency 'GoogleDataTransport', '~> 9.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.4'
-  s.dependency 'GoogleUtilities/Logger', '~> 7.4'
+  s.dependency 'GoogleDataTransport', '~> 9.1'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.6'
+  s.dependency 'GoogleUtilities/Logger', '~> 7.6'
   s.dependency 'nanopb', '~> 2.30908.0'
 
   s.test_spec 'unit' do |unit_tests|
@@ -68,7 +68,7 @@ non-Cocoapod integration. This library also respects the Firebase global data co
       :osx => osx_deployment_target,
       :tvos => tvos_deployment_target
     }
-    unit_tests.dependency 'GoogleUtilities/UserDefaults', '~> 7.4'
+    unit_tests.dependency 'GoogleUtilities/UserDefaults', '~> 7.6'
     unit_tests.dependency 'OCMock'
     unit_tests.source_files = [
       'Example/CoreDiagnostics/Tests/**/*.[mh]',

@@ -214,7 +214,8 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
     if (!RemoteConfigCreateFilePathIfNotExist(dbPath)) {
       return;
     }
-    int flags = SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE | SQLITE_OPEN_FILEPROTECTION_COMPLETE |
+    int flags = SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE |
+                SQLITE_OPEN_FILEPROTECTION_COMPLETEUNTILFIRSTUSERAUTHENTICATION |
                 SQLITE_OPEN_FULLMUTEX;
     if (sqlite3_open_v2(databasePath, &strongSelf->_database, flags, NULL) == SQLITE_OK) {
       // Always try to create table if not exists for backward compatibility.
@@ -868,6 +869,9 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
   dispatch_async(_databaseOperationQueue, ^{
     RCNConfigDBManager *strongSelf = weakSelf;
     if (!strongSelf) {
+      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        handler(NO, [NSMutableDictionary new], [NSMutableDictionary new], nil);
+      });
       return;
     }
 
@@ -898,7 +902,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
     }
 
     if (handler) {
-      dispatch_async(dispatch_get_main_queue(), ^{
+      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         handler(YES, fetchedPersonalization, activePersonalization, nil);
       });
     }
@@ -972,6 +976,9 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder() {
   dispatch_async(_databaseOperationQueue, ^{
     RCNConfigDBManager *strongSelf = weakSelf;
     if (!strongSelf) {
+      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        handler(NO, [NSDictionary new], [NSDictionary new], [NSDictionary new]);
+      });
       return;
     }
     __block NSDictionary *fetchedConfig =

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseAnalyticsSwift'
-  s.version                 = '8.7.0-beta'
+  s.version                 = '8.10.0-beta'
   s.summary                 = 'Swift Extensions for Firebase Analytics'
 
   s.description      = <<-DESC
@@ -19,6 +19,8 @@ Firebase Analytics is a free, out-of-the-box analytics solution that inspires ac
   s.static_framework        = true
   s.swift_version           = '5.0'
   s.ios.deployment_target   = '13.0'
+  s.osx.deployment_target   = '10.15'
+  s.tvos.deployment_target  = '13.0'
 
   s.cocoapods_version       = '>= 1.10.0'
   s.prefix_header_file      = false
@@ -27,5 +29,5 @@ Firebase Analytics is a free, out-of-the-box analytics solution that inspires ac
     'FirebaseAnalyticsSwift/Sources/*.swift',
   ]
 
-  s.dependency 'FirebaseAnalytics', '~> 8.0'
+  s.dependency 'FirebaseAnalytics', '~> 8.9'
 end

@@ -1,3 +1,13 @@
+# v8.9.0
+- [fixed] Fixed Shortlink regression involving underscores and dashes introduced in 8.8.0. (#8786)
+- [fixed] Reduce memory stress on `WebKit` API. (#8847)
+- [fixed] Fixed regression introduced in 8.8.0 that failed to accept link query params after the
+  FDL domain prefix. It caused the Dynamic Links Quick Start to fail. (#8866)
+
+# v8.8.0
+- [fixed] Firebase dynamic links with custom domain will only work if the custom domain has a trailing '/'. (#7087)
+- [fixed] Fix device-only build warning for unused `processIsTranslated` function. (#8694)
+
 # v8.7.0
 - [added] Refactoring and adding helper class. (#8432)
 

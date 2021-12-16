@@ -19,9 +19,9 @@
 #include <functional>
 #include <memory>
 
-#include "Firestore/core/src/auth/user.h"
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/core/view.h"
+#include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/local_documents_view.h"
 #include "Firestore/core/src/local/memory_index_manager.h"
 #include "Firestore/core/src/local/memory_persistence.h"
@@ -39,9 +39,9 @@ namespace local {
 
 namespace {
 
-using auth::User;
 using core::View;
 using core::ViewDocumentChanges;
+using credentials::User;
 using local::LocalDocumentsView;
 using local::MemoryIndexManager;
 using local::Persistence;

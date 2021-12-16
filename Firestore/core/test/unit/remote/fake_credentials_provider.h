@@ -18,26 +18,61 @@
 #define FIRESTORE_CORE_TEST_UNIT_REMOTE_FAKE_CREDENTIALS_PROVIDER_H_
 
 #include <string>
+#include <utility>
 #include <vector>
 
-#include "Firestore/core/src/auth/empty_credentials_provider.h"
+#include "Firestore/core/src/credentials/credentials_fwd.h"
+#include "Firestore/core/src/credentials/empty_credentials_provider.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
-class FakeCredentialsProvider : public auth::EmptyCredentialsProvider {
+template <class TokenType, class ValueType>
+class FakeCredentialsProvider
+    : public credentials::EmptyCredentialsProvider<TokenType, ValueType> {
  public:
-  void GetToken(auth::TokenListener completion) override;
-  void InvalidateToken() override;
+  void GetToken(credentials::TokenListener<TokenType> completion) override {
+    observed_states_.push_back("GetToken");
+
+    if (delay_get_token_) {
+      delayed_token_listener_ = completion;
+      return;
+    }
+
+    if (fail_get_token_) {
+      fail_get_token_ = false;
+      if (completion) {
+        completion(util::Status{Error::kErrorUnknown, ""});
+      }
+    } else {
+      credentials::EmptyCredentialsProvider<TokenType, ValueType>::GetToken(
+          std::move(completion));
+    }
+  }
+
+  void InvalidateToken() override {
+    observed_states_.push_back("InvalidateToken");
+    credentials::EmptyCredentialsProvider<TokenType,
+                                          ValueType>::InvalidateToken();
+  }
 
   // `GetToken` will not invoke the completion immediately -- invoke it manually
   // using `InvokeGetToken`.
-  void DelayGetToken();
-  void InvokeGetToken();
+  void DelayGetToken() {
+    delay_get_token_ = true;
+  }
+
+  void InvokeGetToken() {
+    delay_get_token_ = false;
+    credentials::EmptyCredentialsProvider<TokenType, ValueType>::GetToken(
+        std::move(delayed_token_listener_));
+  }
 
   // Next call to `GetToken` will fail with error "Unknown".
-  void FailGetToken();
+  void FailGetToken() {
+    fail_get_token_ = true;
+  }
 
   const std::vector<std::string>& observed_states() const {
     return observed_states_;
@@ -47,7 +82,7 @@ class FakeCredentialsProvider : public auth::EmptyCredentialsProvider {
   std::vector<std::string> observed_states_;
   bool fail_get_token_ = false;
   bool delay_get_token_ = false;
-  auth::TokenListener delayed_token_listener_;
+  credentials::TokenListener<TokenType> delayed_token_listener_;
 };
 
 }  // namespace remote

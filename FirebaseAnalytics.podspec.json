@@ -5,10 +5,10 @@
     "dependencies": {
         "FirebaseCore": "~> 8.0",
         "FirebaseInstallations": "~> 8.0",
-        "GoogleUtilities/AppDelegateSwizzler": "~> 7.4",
-        "GoogleUtilities/MethodSwizzler": "~> 7.4",
-        "GoogleUtilities/NSData+zlib": "~> 7.4",
-        "GoogleUtilities/Network": "~> 7.4",
+        "GoogleUtilities/AppDelegateSwizzler": "~> 7.6",
+        "GoogleUtilities/MethodSwizzler": "~> 7.6",
+        "GoogleUtilities/NSData+zlib": "~> 7.6",
+        "GoogleUtilities/Network": "~> 7.6",
         "nanopb": "~> 2.30908.0"
     },
     "description": "Firebase Analytics is a free, out-of-the-box analytics solution that inspires actionable insights based on app usage and user engagement.",
@@ -27,16 +27,18 @@
     },
     "name": "FirebaseAnalytics",
     "platforms": {
-        "ios": "9.0"
+        "ios": "9.0",
+        "osx": "10.12",
+        "tvos": "12.0"
     },
     "source": {
-        "http": "https://dl.google.com/firebase/ios/analytics/ab3ba06f19ca4022/FirebaseAnalytics-8.7.0.tar.gz"
+        "http": "https://dl.google.com/firebase/ios/analytics/66ce3623aa8037ff/FirebaseAnalytics-8.9.1.tar.gz"
     },
     "subspecs": [
         {
             "name": "AdIdSupport",
             "dependencies": {
-                "GoogleAppMeasurement": "8.7.0"
+                "GoogleAppMeasurement": "8.10.0"
             },
             "vendored_frameworks": [
                 "Frameworks/FirebaseAnalytics.xcframework"
@@ -45,7 +47,7 @@
         {
             "name": "WithoutAdIdSupport",
             "dependencies": {
-                "GoogleAppMeasurement/WithoutAdIdSupport": "8.7.0"
+                "GoogleAppMeasurement/WithoutAdIdSupport": "8.10.0"
             },
             "vendored_frameworks": [
                 "Frameworks/FirebaseAnalytics.xcframework"
@@ -53,5 +55,5 @@
         }
     ],
     "summary": "Firebase Analytics for iOS",
-    "version": "8.7.0"
+    "version": "8.10.0"
 }

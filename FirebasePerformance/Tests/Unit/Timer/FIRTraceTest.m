@@ -83,6 +83,7 @@
 
   // Trigger the RC config fetch
   remoteConfig.lastFetchTime = nil;
+  configFlags.appStartConfigFetchDelayInSeconds = 0.0;
   [configFlags update];
 
   XCTAssertNil([[FIRTrace alloc] initWithName:@"Random"]);

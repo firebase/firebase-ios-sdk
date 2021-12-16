@@ -15,10 +15,14 @@
   "7.8.0": "https://dl.google.com/dl/firebase/ios/carthage/7.8.0/FirebaseAppDistribution-1a0219daa98184c1.zip",
   "8.0.0": "https://dl.google.com/dl/firebase/ios/carthage/8.0.0/FirebaseAppDistribution-cff93abcd0bcc51c.zip",
   "8.1.0": "https://dl.google.com/dl/firebase/ios/carthage/8.1.0/FirebaseAppDistribution-4e016552c0645ac5.zip",
+  "8.10.0": "https://dl.google.com/dl/firebase/ios/carthage/8.10.0/FirebaseAppDistribution-ee27ec3789e91355.zip",
   "8.2.0": "https://dl.google.com/dl/firebase/ios/carthage/8.2.0/FirebaseAppDistribution-94c0c90f6dc3474f.zip",
   "8.3.0": "https://dl.google.com/dl/firebase/ios/carthage/8.3.0/FirebaseAppDistribution-2f620214e81260ed.zip",
   "8.4.0": "https://dl.google.com/dl/firebase/ios/carthage/8.4.0/FirebaseAppDistribution-c4e73e84c12ee244.zip",
   "8.5.0": "https://dl.google.com/dl/firebase/ios/carthage/8.5.0/FirebaseAppDistribution-576c1a48634318a7.zip",
   "8.6.0": "https://dl.google.com/dl/firebase/ios/carthage/8.6.0/FirebaseAppDistribution-b8dec8db519a120f.zip",
-  "8.7.0": "https://dl.google.com/dl/firebase/ios/carthage/8.7.0/FirebaseAppDistribution-d790cfc064446a40.zip"
+  "8.7.0": "https://dl.google.com/dl/firebase/ios/carthage/8.7.0/FirebaseAppDistribution-d790cfc064446a40.zip",
+  "8.8.0": "https://dl.google.com/dl/firebase/ios/carthage/8.8.0/FirebaseAppDistribution-d43c274304d7c7aa.zip",
+  "8.9.0": "https://dl.google.com/dl/firebase/ios/carthage/8.9.0/FirebaseAppDistribution-84b48d975749e416.zip",
+  "8.9.1": "https://dl.google.com/dl/firebase/ios/carthage/8.9.1/FirebaseAppDistribution-97d9dd24c19f8251.zip"
 }

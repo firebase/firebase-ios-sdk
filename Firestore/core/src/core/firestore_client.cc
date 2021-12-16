@@ -27,13 +27,13 @@
 #include "Firestore/core/src/api/query_core.h"
 #include "Firestore/core/src/api/query_snapshot.h"
 #include "Firestore/core/src/api/settings.h"
-#include "Firestore/core/src/auth/credentials_provider.h"
 #include "Firestore/core/src/bundle/bundle_reader.h"
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/core/event_manager.h"
 #include "Firestore/core/src/core/query_listener.h"
 #include "Firestore/core/src/core/sync_engine.h"
 #include "Firestore/core/src/core/view.h"
+#include "Firestore/core/src/credentials/credentials_provider.h"
 #include "Firestore/core/src/local/leveldb_opener.h"
 #include "Firestore/core/src/local/leveldb_persistence.h"
 #include "Firestore/core/src/local/local_documents_view.h"
@@ -72,8 +72,8 @@ using api::QuerySnapshot;
 using api::QuerySnapshotListener;
 using api::Settings;
 using api::SnapshotMetadata;
-using auth::CredentialsProvider;
-using auth::User;
+using credentials::AuthCredentialsProvider;
+using credentials::User;
 using firestore::Error;
 using local::LevelDbOpener;
 using local::LocalStore;
@@ -106,13 +106,17 @@ static const size_t kMaxConcurrentLimboResolutions = 100;
 std::shared_ptr<FirestoreClient> FirestoreClient::Create(
     const DatabaseInfo& database_info,
     const api::Settings& settings,
-    std::shared_ptr<CredentialsProvider> credentials_provider,
+    std::shared_ptr<credentials::AuthCredentialsProvider>
+        auth_credentials_provider,
+    std::shared_ptr<credentials::AppCheckCredentialsProvider>
+        app_check_credentials_provider,
     std::shared_ptr<Executor> user_executor,
     std::shared_ptr<AsyncQueue> worker_queue,
     std::unique_ptr<FirebaseMetadataProvider> firebase_metadata_provider) {
   // Have to use `new` because `make_shared` cannot access private constructor.
   std::shared_ptr<FirestoreClient> shared_client(new FirestoreClient(
-      database_info, std::move(credentials_provider), std::move(user_executor),
+      database_info, std::move(auth_credentials_provider),
+      std::move(app_check_credentials_provider), std::move(user_executor),
       std::move(worker_queue), std::move(firebase_metadata_provider)));
 
   std::weak_ptr<FirestoreClient> weak_client(shared_client);
@@ -140,7 +144,12 @@ std::shared_ptr<FirestoreClient> FirestoreClient::Create(
     }
   };
 
-  shared_client->credentials_provider_->SetCredentialChangeListener(
+  shared_client->app_check_credentials_provider_->SetCredentialChangeListener(
+      [](std::string) {
+        // Register an empty credentials change listener to activate token
+        // refresh.
+      });
+  shared_client->auth_credentials_provider_->SetCredentialChangeListener(
       credential_change_listener);
 
   HARD_ASSERT(
@@ -152,12 +161,17 @@ std::shared_ptr<FirestoreClient> FirestoreClient::Create(
 
 FirestoreClient::FirestoreClient(
     const DatabaseInfo& database_info,
-    std::shared_ptr<CredentialsProvider> credentials_provider,
+    std::shared_ptr<credentials::AuthCredentialsProvider>
+        auth_credentials_provider,
+    std::shared_ptr<credentials::AppCheckCredentialsProvider>
+        app_check_credentials_provider,
     std::shared_ptr<Executor> user_executor,
     std::shared_ptr<AsyncQueue> worker_queue,
     std::unique_ptr<FirebaseMetadataProvider> firebase_metadata_provider)
     : database_info_(database_info),
-      credentials_provider_(std::move(credentials_provider)),
+      app_check_credentials_provider_(
+          std::move(app_check_credentials_provider)),
+      auth_credentials_provider_(std::move(auth_credentials_provider)),
       worker_queue_(std::move(worker_queue)),
       user_executor_(std::move(user_executor)),
       firebase_metadata_provider_(std::move(firebase_metadata_provider)) {
@@ -199,8 +213,9 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
                                                query_engine_.get(), user);
   connectivity_monitor_ = ConnectivityMonitor::Create(worker_queue_);
   auto datastore = std::make_shared<Datastore>(
-      database_info_, worker_queue_, credentials_provider_,
-      connectivity_monitor_.get(), firebase_metadata_provider_.get());
+      database_info_, worker_queue_, auth_credentials_provider_,
+      app_check_credentials_provider_, connectivity_monitor_.get(),
+      firebase_metadata_provider_.get());
 
   remote_store_ = absl::make_unique<RemoteStore>(
       local_store_.get(), std::move(datastore), worker_queue_,
@@ -272,8 +287,11 @@ void FirestoreClient::TerminateAsync(StatusCallback callback) {
 void FirestoreClient::TerminateInternal() {
   if (!remote_store_) return;
 
-  credentials_provider_->SetCredentialChangeListener(nullptr);
-  credentials_provider_.reset();
+  app_check_credentials_provider_->SetCredentialChangeListener(nullptr);
+  app_check_credentials_provider_.reset();
+
+  auth_credentials_provider_->SetCredentialChangeListener(nullptr);
+  auth_credentials_provider_.reset();
 
   // If we've scheduled LRU garbage collection, cancel it.
   lru_callback_.Cancel();

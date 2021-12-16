@@ -1,3 +1,9 @@
+# v8.9.0
+- [added] Added `@FirestoreQuery` property wrapper for querying data from a
+  Firestore collection.
+- [changed] FirebaseFirestoreSwift now requires a minimum iOS version of 11 for
+  all distributions.
+
 # v7.7.0
 - [feature] Added support for specifying `ServerTimestampBehavior` when
   decoding a `DocumentSnapshot`.

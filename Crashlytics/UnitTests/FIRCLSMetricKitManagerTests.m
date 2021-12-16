@@ -51,6 +51,7 @@
 
 #define TEST_GOOGLE_APP_ID (@"1:632950151350:ios:d5b0d08d4f00f4b1")
 
+API_AVAILABLE(ios(14))
 @interface FIRCLSMetricKitManagerTests : XCTestCase
 
 @property(nonatomic, strong) FIRCLSMockReportManager *reportManager;

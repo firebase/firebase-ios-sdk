@@ -14,7 +14,7 @@
 
 import SwiftUI
 import Firebase
-import FirebaseCombineSwift
+import FirebaseAuthCombineSwift
 import Combine
 
 struct AnonymousSignInView: View {

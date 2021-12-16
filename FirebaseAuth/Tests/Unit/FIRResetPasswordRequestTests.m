@@ -28,6 +28,11 @@
  */
 static NSString *const kTestAPIKey = @"APIKey";
 
+/** @var kTestFirebaseAppID
+    @brief Fake Firebase app ID used for testing.
+ */
+static NSString *const kTestFirebaseAppID = @"appID";
+
 /** @var kTestOOBCode
     @brief Fake OOBCode used for testing.
  */
@@ -86,7 +91,7 @@ static NSString *const kExpectedAPIURL =
  */
 - (void)testResetPasswordRequest {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey appID:kTestFirebaseAppID];
   FIRResetPasswordRequest *request =
       [[FIRResetPasswordRequest alloc] initWithOobCode:kTestOOBCode
                                            newPassword:kTestNewPassword

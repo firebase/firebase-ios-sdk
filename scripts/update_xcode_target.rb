@@ -30,7 +30,11 @@ file = project.new_file(file_name)
 # Add the file to the all targets
 project.targets.each do |t|
   if t.to_s == target
-    t.add_file_references([file])
+    if file_name.end_with?(".json") then
+      t.add_resources([file])
+    else
+      t.add_file_references([file])
+    end
   end
 end
 

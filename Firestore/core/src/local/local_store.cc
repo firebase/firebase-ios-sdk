@@ -42,10 +42,10 @@ namespace firestore {
 namespace local {
 namespace {
 
-using auth::User;
 using core::Query;
 using core::Target;
 using core::TargetIdGenerator;
+using credentials::User;
 using model::BatchId;
 using model::Document;
 using model::DocumentKey;

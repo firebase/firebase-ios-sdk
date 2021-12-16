@@ -43,7 +43,7 @@ typedef NS_ENUM(NSInteger, RCNDBSource) {
 /// Designated initializer;
 - (instancetype)initWithDBManager:(RCNConfigDBManager *)DBManager NS_DESIGNATED_INITIALIZER;
 
-/// Returns true if initailization succeeded.
+/// Returns true if initialization succeeded.
 - (BOOL)initializationSuccessful;
 
 /// Update config content from fetch response in JSON format.

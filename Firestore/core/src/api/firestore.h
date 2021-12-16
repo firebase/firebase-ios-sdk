@@ -25,16 +25,13 @@
 #include "Firestore/core/src/api/load_bundle_task.h"
 #include "Firestore/core/src/api/settings.h"
 #include "Firestore/core/src/core/core_fwd.h"
+#include "Firestore/core/src/credentials/credentials_fwd.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/util/byte_stream.h"
 #include "Firestore/core/src/util/status_fwd.h"
 
 namespace firebase {
 namespace firestore {
-
-namespace auth {
-class CredentialsProvider;
-}  // namespace auth
 
 namespace remote {
 class FirebaseMetadataProvider;
@@ -55,7 +52,10 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
 
   Firestore(model::DatabaseId database_id,
             std::string persistence_key,
-            std::shared_ptr<auth::CredentialsProvider> credentials_provider,
+            std::shared_ptr<credentials::AuthCredentialsProvider>
+                auth_credentials_provider,
+            std::shared_ptr<credentials::AppCheckCredentialsProvider>
+                app_check_credentials_provider,
             std::shared_ptr<util::AsyncQueue> worker_queue,
             std::unique_ptr<remote::FirebaseMetadataProvider>
                 firebase_metadata_provider,
@@ -118,7 +118,10 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
   core::DatabaseInfo MakeDatabaseInfo() const;
 
   model::DatabaseId database_id_;
-  std::shared_ptr<auth::CredentialsProvider> credentials_provider_;
+  std::shared_ptr<credentials::AppCheckCredentialsProvider>
+      app_check_credentials_provider_;
+  std::shared_ptr<credentials::AuthCredentialsProvider>
+      auth_credentials_provider_;
   std::string persistence_key_;
 
   std::shared_ptr<util::Executor> user_executor_;

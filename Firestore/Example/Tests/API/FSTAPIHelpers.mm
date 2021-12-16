@@ -42,8 +42,6 @@
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 
-namespace testutil = firebase::firestore::testutil;
-namespace util = firebase::firestore::util;
 using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::ViewSnapshot;
@@ -55,9 +53,11 @@ using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;
 using firebase::firestore::model::MutableDocument;
 using firebase::firestore::nanopb::Message;
-
-using testutil::Doc;
-using testutil::Query;
+using firebase::firestore::testutil::Doc;
+using firebase::firestore::testutil::Key;
+using firebase::firestore::testutil::Query;
+using firebase::firestore::testutil::Resource;
+using firebase::firestore::util::StringFormat;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -70,7 +70,8 @@ FIRFirestore *FSTTestFirestore() {
   dispatch_once(&onceToken, ^{
     sharedInstance = [[FIRFirestore alloc] initWithDatabaseID:DatabaseId("abc", "abc")
                                                persistenceKey:"db123"
-                                          credentialsProvider:nullptr
+                                      authCredentialsProvider:nullptr
+                                  appCheckCredentialsProvider:nullptr
                                                   workerQueue:nullptr
                                      firebaseMetadataProvider:nullptr
                                                   firebaseApp:nil
@@ -94,19 +95,19 @@ FIRDocumentSnapshot *FSTTestDocSnapshot(const char *path,
     if (hasMutations) doc->SetHasLocalMutations();
   }
   return [[FIRDocumentSnapshot alloc] initWithFirestore:FSTTestFirestore()
-                                            documentKey:testutil::Key(path)
+                                            documentKey:Key(path)
                                                document:doc
                                               fromCache:fromCache
                                        hasPendingWrites:hasMutations];
 }
 
 FIRCollectionReference *FSTTestCollectionRef(const char *path) {
-  return [[FIRCollectionReference alloc] initWithPath:testutil::Resource(path)
+  return [[FIRCollectionReference alloc] initWithPath:Resource(path)
                                             firestore:FSTTestFirestore().wrapped];
 }
 
 FIRDocumentReference *FSTTestDocRef(const char *path) {
-  return [[FIRDocumentReference alloc] initWithPath:testutil::Resource(path)
+  return [[FIRDocumentReference alloc] initWithPath:Resource(path)
                                           firestore:FSTTestFirestore().wrapped];
 }
 
@@ -124,10 +125,10 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
   DocumentKeySet mutatedKeys;
   for (NSString *key in oldDocs) {
     Message<google_firestore_v1_Value> value = [reader parsedQueryValue:oldDocs[key]];
-    std::string documentKey = util::StringFormat("%s/%s", path, key);
+    std::string documentKey = StringFormat("%s/%s", path, key);
     MutableDocument doc = Doc(documentKey, 1, std::move(value));
     if (hasPendingWrites) {
-      mutatedKeys = mutatedKeys.insert(testutil::Key(documentKey));
+      mutatedKeys = mutatedKeys.insert(Key(documentKey));
       doc.SetHasLocalMutations();
     }
     oldDocuments = oldDocuments.insert(doc);
@@ -137,11 +138,11 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
   std::vector<DocumentViewChange> documentChanges;
   for (NSString *key in docsToAdd) {
     Message<google_firestore_v1_Value> value = [reader parsedQueryValue:docsToAdd[key]];
-    std::string documentKey = util::StringFormat("%s/%s", path, key);
+    std::string documentKey = StringFormat("%s/%s", path, key);
     MutableDocument doc = Doc(documentKey, 1, std::move(value));
     documentChanges.emplace_back(doc, DocumentViewChange::Type::Added);
     if (hasPendingWrites) {
-      mutatedKeys = mutatedKeys.insert(testutil::Key(documentKey));
+      mutatedKeys = mutatedKeys.insert(Key(documentKey));
       doc.SetHasLocalMutations();
     }
     newDocuments = newDocuments.insert(doc);

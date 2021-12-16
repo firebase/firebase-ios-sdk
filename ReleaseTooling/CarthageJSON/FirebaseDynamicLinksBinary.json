@@ -68,10 +68,14 @@
   "7.8.0": "https://dl.google.com/dl/firebase/ios/carthage/7.8.0/FirebaseDynamicLinks-3265c6c3d3830db1.zip",
   "8.0.0": "https://dl.google.com/dl/firebase/ios/carthage/8.0.0/FirebaseDynamicLinks-36c7657713d9e37d.zip",
   "8.1.0": "https://dl.google.com/dl/firebase/ios/carthage/8.1.0/FirebaseDynamicLinks-5dbb15352818fd25.zip",
+  "8.10.0": "https://dl.google.com/dl/firebase/ios/carthage/8.10.0/FirebaseDynamicLinks-964de001941994a9.zip",
   "8.2.0": "https://dl.google.com/dl/firebase/ios/carthage/8.2.0/FirebaseDynamicLinks-a00bc5e3d7e2e6e9.zip",
   "8.3.0": "https://dl.google.com/dl/firebase/ios/carthage/8.3.0/FirebaseDynamicLinks-d945976ea1236dfe.zip",
   "8.4.0": "https://dl.google.com/dl/firebase/ios/carthage/8.4.0/FirebaseDynamicLinks-a257e48214c0c320.zip",
   "8.5.0": "https://dl.google.com/dl/firebase/ios/carthage/8.5.0/FirebaseDynamicLinks-c1c6fb222a07e079.zip",
   "8.6.0": "https://dl.google.com/dl/firebase/ios/carthage/8.6.0/FirebaseDynamicLinks-99ab4b5182fb9030.zip",
-  "8.7.0": "https://dl.google.com/dl/firebase/ios/carthage/8.7.0/FirebaseDynamicLinks-74899898e5878948.zip"
+  "8.7.0": "https://dl.google.com/dl/firebase/ios/carthage/8.7.0/FirebaseDynamicLinks-74899898e5878948.zip",
+  "8.8.0": "https://dl.google.com/dl/firebase/ios/carthage/8.8.0/FirebaseDynamicLinks-155097479320de7e.zip",
+  "8.9.0": "https://dl.google.com/dl/firebase/ios/carthage/8.9.0/FirebaseDynamicLinks-97662de91042207f.zip",
+  "8.9.1": "https://dl.google.com/dl/firebase/ios/carthage/8.9.1/FirebaseDynamicLinks-b78152333350b036.zip"
 }

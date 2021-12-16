@@ -22,10 +22,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRAuthRequestConfiguration
 
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey {
+- (nullable instancetype)initWithAPIKey:(NSString *)APIKey appID:(NSString *)appID {
   self = [super init];
   if (self) {
     _APIKey = [APIKey copy];
+    _appID = [appID copy];
   }
   return self;
 }

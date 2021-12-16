@@ -68,10 +68,14 @@
   "7.8.0": "https://dl.google.com/dl/firebase/ios/carthage/7.8.0/FirebaseRemoteConfig-10ebd4888b91c8f1.zip",
   "8.0.0": "https://dl.google.com/dl/firebase/ios/carthage/8.0.0/FirebaseRemoteConfig-a87a1dbfeadde790.zip",
   "8.1.0": "https://dl.google.com/dl/firebase/ios/carthage/8.1.0/FirebaseRemoteConfig-d7195c7949cddf65.zip",
+  "8.10.0": "https://dl.google.com/dl/firebase/ios/carthage/8.10.0/FirebaseRemoteConfig-2cd733e5e1df68a6.zip",
   "8.2.0": "https://dl.google.com/dl/firebase/ios/carthage/8.2.0/FirebaseRemoteConfig-8b2684df93fd5a6b.zip",
   "8.3.0": "https://dl.google.com/dl/firebase/ios/carthage/8.3.0/FirebaseRemoteConfig-dd3d21c37fcee32e.zip",
   "8.4.0": "https://dl.google.com/dl/firebase/ios/carthage/8.4.0/FirebaseRemoteConfig-4826058d7111d2b0.zip",
   "8.5.0": "https://dl.google.com/dl/firebase/ios/carthage/8.5.0/FirebaseRemoteConfig-2e750dbd57e34ee9.zip",
   "8.6.0": "https://dl.google.com/dl/firebase/ios/carthage/8.6.0/FirebaseRemoteConfig-ce6f7d70b5a1e0bb.zip",
-  "8.7.0": "https://dl.google.com/dl/firebase/ios/carthage/8.7.0/FirebaseRemoteConfig-52368aa29c7d971a.zip"
+  "8.7.0": "https://dl.google.com/dl/firebase/ios/carthage/8.7.0/FirebaseRemoteConfig-52368aa29c7d971a.zip",
+  "8.8.0": "https://dl.google.com/dl/firebase/ios/carthage/8.8.0/FirebaseRemoteConfig-d74a35b92e211b59.zip",
+  "8.9.0": "https://dl.google.com/dl/firebase/ios/carthage/8.9.0/FirebaseRemoteConfig-8037c7da3a79999a.zip",
+  "8.9.1": "https://dl.google.com/dl/firebase/ios/carthage/8.9.1/FirebaseRemoteConfig-84a4820400ef8536.zip"
 }

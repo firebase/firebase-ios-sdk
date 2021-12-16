@@ -14,7 +14,10 @@
 
 import Foundation
 import Firebase
-import FirebaseCombineSwift
+import FirebaseAuthCombineSwift
+import FirebaseFirestoreCombineSwift
+import FirebaseFunctionsCombineSwift
+import FirebaseStorageCombineSwift
 import Combine
 
 class AnonymousSignInViewModel: UserInfoViewModel {

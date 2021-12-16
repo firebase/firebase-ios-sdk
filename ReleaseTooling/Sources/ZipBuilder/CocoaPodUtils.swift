@@ -16,6 +16,7 @@
 
 import Foundation
 import Utils
+import FirebaseManifest
 
 /// CocoaPod related utility functions. The enum type is used as a namespace here instead of having
 /// root functions, and no cases should be added to it.
@@ -474,6 +475,9 @@ enum CocoaPodUtils {
     """
 
     var versionsSpecified = false
+    let firebaseVersion = FirebaseManifest.shared.version
+    let versionChunks = firebaseVersion.split(separator: ".")
+    let minorVersion = "\(versionChunks[0]).\(versionChunks[1]).0"
 
     // Loop through the subspecs passed in and use the actual Pod name.
     for pod in pods {
@@ -483,7 +487,21 @@ enum CocoaPodUtils {
         FileManager.default.fileExists(atPath: localURL.appendingPathComponent(podspec).path) {
         podfile += "  pod '\(pod.name)', :path => '\(localURL.path)'"
       } else if let podVersion = pod.version {
-        podfile += "  pod '\(pod.name)', '\(podVersion)'"
+        // To support Firebase patch versions in the Firebase zip distribution, allow patch updates
+        // for all pods except Firebase and FirebaseCore. The Firebase Swift pods are not yet in the
+        // zip distribution.
+        var podfileVersion = podVersion
+        if pod.name.starts(with: "Firebase"),
+          !pod.name.hasSuffix("Swift"),
+          pod.name != "Firebase",
+          pod.name != "FirebaseCore" {
+          podfileVersion = podfileVersion.replacingOccurrences(
+            of: firebaseVersion,
+            with: minorVersion
+          )
+          podfileVersion = "~> \(podfileVersion)"
+        }
+        podfile += "  pod '\(pod.name)', '\(podfileVersion)'"
       } else if pod.name.starts(with: "Firebase"),
         let localURL = localPodspecPath,
         FileManager.default

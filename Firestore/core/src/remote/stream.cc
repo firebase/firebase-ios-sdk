@@ -32,14 +32,17 @@ namespace firestore {
 namespace remote {
 namespace {
 
-using auth::CredentialsProvider;
-using auth::Token;
+using credentials::AuthToken;
+using credentials::CredentialsProvider;
+using credentials::User;
 using util::AsyncQueue;
 using util::LogIsDebugEnabled;
 using util::Status;
 using util::StatusOr;
 using util::StringFormat;
 using util::TimerId;
+
+using AuthCredentialsProvider = CredentialsProvider<AuthToken, User>;
 
 /**
  * Initial backoff time after an error.
@@ -50,27 +53,36 @@ const AsyncQueue::Milliseconds kBackoffInitialDelay{std::chrono::seconds(1)};
 const AsyncQueue::Milliseconds kBackoffMaxDelay{std::chrono::seconds(60)};
 /** The time a stream stays open after it is marked idle. */
 const AsyncQueue::Milliseconds kIdleTimeout{std::chrono::seconds(60)};
+/** The time a stream stays open until we consider it healthy. */
+const AsyncQueue::Milliseconds kHealthyTimeout{std::chrono::seconds(10)};
 
 }  // namespace
 
 Stream::Stream(const std::shared_ptr<AsyncQueue>& worker_queue,
-               std::shared_ptr<CredentialsProvider> credentials_provider,
+               std::shared_ptr<credentials::AuthCredentialsProvider>
+                   auth_credentials_provider,
+               std::shared_ptr<credentials::AppCheckCredentialsProvider>
+                   app_check_credentials_provider,
                GrpcConnection* grpc_connection,
                TimerId backoff_timer_id,
-               TimerId idle_timer_id)
+               TimerId idle_timer_id,
+               TimerId health_check_timer_id)
     : backoff_{worker_queue, backoff_timer_id, kBackoffFactor,
                kBackoffInitialDelay, kBackoffMaxDelay},
-      credentials_provider_{std::move(credentials_provider)},
+      app_check_credentials_provider_{
+          std::move(app_check_credentials_provider)},
+      auth_credentials_provider_{std::move(auth_credentials_provider)},
       worker_queue_{worker_queue},
       grpc_connection_{grpc_connection},
-      idle_timer_id_{idle_timer_id} {
+      idle_timer_id_{idle_timer_id},
+      health_check_timer_id_{health_check_timer_id} {
 }
 
 // Check state
 
 bool Stream::IsOpen() const {
   EnsureOnQueue();
-  return state_ == State::Open;
+  return state_ == State::Open || state_ == State::Healthy;
 }
 
 bool Stream::IsStarted() const {
@@ -99,42 +111,73 @@ void Stream::Start() {
 void Stream::RequestCredentials() {
   EnsureOnQueue();
 
-  // Auth may outlive the stream, so make sure it doesn't try to access a
-  // deleted object.
+  // Auth/AppCheck may outlive the stream, so make sure it doesn't try to access
+  // a deleted object.
   std::weak_ptr<Stream> weak_this{shared_from_this()};
+  auto credentials = std::make_shared<CallCredentials>();
   int initial_close_count = close_count_;
-  credentials_provider_->GetToken([weak_this, initial_close_count](
-                                      const StatusOr<Token>& maybe_token) {
+
+  auto done = [weak_this, credentials, initial_close_count](
+                  const absl::optional<StatusOr<AuthToken>>& auth,
+                  const absl::optional<std::string>& app_check) {
     auto strong_this = weak_this.lock();
     if (!strong_this) {
       return;
     }
 
-    strong_this->worker_queue_->EnqueueRelaxed([maybe_token, weak_this,
-                                                initial_close_count] {
-      auto strong_this = weak_this.lock();
-      // Streams can be stopped while waiting for authorization, so need
-      // to check the close count.
-      if (!strong_this || strong_this->close_count_ != initial_close_count) {
-        return;
-      }
-      strong_this->ResumeStartWithCredentials(maybe_token);
-    });
-  });
+    std::lock_guard<std::mutex> lock(credentials->mutex);
+    if (auth) {
+      credentials->auth = *auth;
+      credentials->auth_received = true;
+    }
+    if (app_check) {
+      credentials->app_check = *app_check;
+      credentials->app_check_received = true;
+    }
+
+    if (!credentials->auth_received || !credentials->app_check_received) {
+      return;
+    }
+
+    const StatusOr<AuthToken>& auth_token = credentials->auth;
+    const std::string& app_check_token = credentials->app_check;
+
+    strong_this->worker_queue_->EnqueueRelaxed(
+        [weak_this, auth_token, app_check_token, initial_close_count] {
+          auto strong_this = weak_this.lock();
+          // Streams can be stopped while waiting for authorization, so need
+          // to check the close count.
+          if (!strong_this ||
+              strong_this->close_count_ != initial_close_count) {
+            return;
+          }
+          strong_this->ResumeStartWithCredentials(auth_token, app_check_token);
+        });
+  };
+
+  auth_credentials_provider_->GetToken(
+      [done](const StatusOr<AuthToken>& auth) { done(auth, absl::nullopt); });
+
+  app_check_credentials_provider_->GetToken(
+      [done](const StatusOr<std::string>& app_check) {
+        done(absl::nullopt, app_check.ValueOrDie());  // AppCheck never fails
+      });
 }
 
-void Stream::ResumeStartWithCredentials(const StatusOr<Token>& maybe_token) {
+void Stream::ResumeStartWithCredentials(const StatusOr<AuthToken>& auth_token,
+                                        const std::string& app_check_token) {
   EnsureOnQueue();
 
   HARD_ASSERT(state_ == State::Starting,
               "State should still be 'Starting' (was %s)", state_);
 
-  if (!maybe_token.ok()) {
-    OnStreamFinish(maybe_token.status());
+  if (!auth_token.ok()) {
+    OnStreamFinish(auth_token.status());
     return;
   }
 
-  grpc_stream_ = CreateGrpcStream(grpc_connection_, maybe_token.ValueOrDie());
+  grpc_stream_ = CreateGrpcStream(grpc_connection_, auth_token.ValueOrDie(),
+                                  app_check_token);
   grpc_stream_->Start();
 }
 
@@ -143,6 +186,15 @@ void Stream::OnStreamStart() {
 
   state_ = State::Open;
   NotifyStreamOpen();
+
+  health_check_ = worker_queue_->EnqueueAfterDelay(
+      kHealthyTimeout, health_check_timer_id_, [this] {
+        {
+          if (IsOpen()) {
+            state_ = State::Healthy;
+          }
+        }
+      });
 }
 
 // Backoff
@@ -245,6 +297,7 @@ void Stream::Close(const Status& status) {
   // execute).
   CancelIdleCheck();
   backoff_.Cancel();
+  health_check_.Cancel();
 
   // Step 3 (both): increment close count, which invalidates long-lived
   // callbacks, guaranteeing they won't execute against a new instance of the
@@ -284,10 +337,16 @@ void Stream::HandleErrorStatus(const Status& status) {
         "%s Using maximum backoff delay to prevent overloading the backend.",
         GetDebugDescription());
     backoff_.ResetToMax();
-  } else if (status.code() == Error::kErrorUnauthenticated) {
-    // "unauthenticated" error means the token was rejected. Try force
-    // refreshing it in case it just expired.
-    credentials_provider_->InvalidateToken();
+  } else if (status.code() == Error::kErrorUnauthenticated &&
+             state_ != State::Healthy) {
+    // "unauthenticated" error means the token was rejected. This should rarely
+    // happen since both Auth and AppCheck ensure a sufficient TTL when we
+    // request a token. If a user manually resets their system clock this can
+    // fail, however. In this case, we should get a kErrorUnauthenticated error
+    // before we received the first message and we need to invalidate the token
+    // to ensure that we fetch a new token.
+    auth_credentials_provider_->InvalidateToken();
+    app_check_credentials_provider_->InvalidateToken();
   }
 }
 

@@ -46,7 +46,7 @@
 
 // This mock skips the normal flow of resolving the metricKitDataAvailable promise if there are no
 // fatal reports available on the device but otherwise registers as normal.
-- (void)registerMetricKitManager {
+- (void)registerMetricKitManager API_AVAILABLE(ios(14)) {
   [[MXMetricManager sharedManager] addSubscriber:self];
   self.metricKitDataAvailable = [FBLPromise pendingPromise];
 

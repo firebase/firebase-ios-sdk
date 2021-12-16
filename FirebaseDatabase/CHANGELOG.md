@@ -1,3 +1,6 @@
+# v8.10.0
+- [fixed] Fixed URL handling bug when path is a substring of host. (#8874)
+
 # v8.7.0
 - [fixed] Fixed Firebase App Check token periodic refresh. (#8544)
 

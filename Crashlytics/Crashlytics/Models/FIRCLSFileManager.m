@@ -147,6 +147,12 @@ NSString *const FIRCLSMetricKitDiagnosticPath = @"/MetricKit/Diagnostics/";
   return ([contentsOfMetricKitDirectory count] > 0);
 }
 
+- (void)createEmptyMetricKitFile:(NSString *)reportPath {
+  NSString *metricKitFile =
+      [reportPath stringByAppendingPathComponent:FIRCLSMetricKitFatalReportFile];
+  [self createFileAtPath:metricKitFile contents:nil attributes:nil];
+}
+
 - (void)enumerateFilesInDirectory:(NSString *)directory
                        usingBlock:(void (^)(NSString *filePath, NSString *extension))block {
   for (NSString *path in [[self underlyingFileManager] contentsOfDirectoryAtPath:directory

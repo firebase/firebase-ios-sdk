@@ -27,8 +27,8 @@
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
-#include "Firestore/core/src/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/core/database_info.h"
+#include "Firestore/core/src/credentials/empty_credentials_provider.h"
 #include "Firestore/core/src/local/local_documents_view.h"
 #include "Firestore/core/src/local/local_store.h"
 #include "Firestore/core/src/local/memory_persistence.h"
@@ -54,13 +54,11 @@
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "absl/memory/memory.h"
 
-namespace util = firebase::firestore::util;
-namespace testutil = firebase::firestore::testutil;
-
 using firebase::Timestamp;
-using firebase::firestore::auth::EmptyCredentialsProvider;
-using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::credentials::EmptyAppCheckCredentialsProvider;
+using firebase::firestore::credentials::EmptyAuthCredentialsProvider;
+using firebase::firestore::credentials::User;
 using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::local::LocalStore;
 using firebase::firestore::local::MemoryPersistence;
@@ -82,8 +80,11 @@ using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::remote::RemoteEvent;
 using firebase::firestore::remote::RemoteStore;
 using firebase::firestore::remote::RemoteStoreCallback;
+using firebase::firestore::testutil::AsyncQueueForTesting;
 using firebase::firestore::testutil::Map;
+using firebase::firestore::testutil::SetMutation;
 using firebase::firestore::util::AsyncQueue;
+using firebase::firestore::util::MakeString;
 using firebase::firestore::util::Status;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -236,20 +237,21 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
   NSString *projectID = [FSTIntegrationTestCase projectID];
   FIRFirestoreSettings *settings = [FSTIntegrationTestCase settings];
   if (!settings.sslEnabled) {
-    GrpcConnection::UseInsecureChannel(util::MakeString(settings.host));
+    GrpcConnection::UseInsecureChannel(MakeString(settings.host));
   }
 
-  DatabaseId database_id(util::MakeString(projectID));
+  DatabaseId database_id(MakeString(projectID));
 
   _databaseInfo =
-      DatabaseInfo(database_id, "test-key", util::MakeString(settings.host), settings.sslEnabled);
+      DatabaseInfo(database_id, "test-key", MakeString(settings.host), settings.sslEnabled);
 
-  _testWorkerQueue = testutil::AsyncQueueForTesting();
+  _testWorkerQueue = AsyncQueueForTesting();
   _connectivityMonitor = CreateNoOpConnectivityMonitor();
   _firebaseMetadataProvider = CreateFirebaseMetadataProviderNoOp();
   _datastore = std::make_shared<Datastore>(
-      _databaseInfo, _testWorkerQueue, std::make_shared<EmptyCredentialsProvider>(),
-      _connectivityMonitor.get(), _firebaseMetadataProvider.get());
+      _databaseInfo, _testWorkerQueue, std::make_shared<EmptyAuthCredentialsProvider>(),
+      std::make_shared<EmptyAppCheckCredentialsProvider>(), _connectivityMonitor.get(),
+      _firebaseMetadataProvider.get());
 
   _persistence = MemoryPersistence::WithEagerGarbageCollector();
   _localStore =
@@ -290,7 +292,7 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
 
   _remoteStore->set_sync_engine(&capture);
 
-  auto mutation = testutil::SetMutation("rooms/eros", Map("name", "Eros"));
+  auto mutation = SetMutation("rooms/eros", Map("name", "Eros"));
   MutationBatch batch = MutationBatch(23, Timestamp::Now(), {}, {mutation});
   _testWorkerQueue->Enqueue([=] {
     _remoteStore->AddToWritePipeline(batch);

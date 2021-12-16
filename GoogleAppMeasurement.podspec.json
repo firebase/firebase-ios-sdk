@@ -1,12 +1,12 @@
 {
     "authors": "Google, Inc.",
-    "cocoapods_version": ">= 1.10.0",
+    "cocoapods_version": ">= 1.10.2",
     "default_subspecs": "AdIdSupport",
     "dependencies": {
-        "GoogleUtilities/AppDelegateSwizzler": "~> 7.4",
-        "GoogleUtilities/MethodSwizzler": "~> 7.4",
-        "GoogleUtilities/NSData+zlib": "~> 7.4",
-        "GoogleUtilities/Network": "~> 7.4",
+        "GoogleUtilities/AppDelegateSwizzler": "~> 7.6",
+        "GoogleUtilities/MethodSwizzler": "~> 7.6",
+        "GoogleUtilities/NSData+zlib": "~> 7.6",
+        "GoogleUtilities/Network": "~> 7.6",
         "nanopb": "~> 2.30908.0"
     },
     "description": "Measurement methods that are shared between Google libraries. This pod does not expose any headers and isn't intended for direct use, but rather as a dependency of some Google libraries.",
@@ -25,25 +25,30 @@
     },
     "name": "GoogleAppMeasurement",
     "platforms": {
-        "ios": "9.0"
+        "ios": "9.0",
+        "osx": "10.12",
+        "tvos": "12.0"
     },
     "source": {
-        "http": "https://dl.google.com/firebase/ios/analytics/0c9c60a34587ba0e/GoogleAppMeasurement-8.7.0.tar.gz"
+        "http": "https://dl.google.com/firebase/ios/analytics/59128155f949f77d/GoogleAppMeasurement-8.9.1.tar.gz"
     },
     "subspecs": [
         {
             "name": "AdIdSupport",
+            "dependencies": {
+                "GoogleAppMeasurement/WithoutAdIdSupport": "8.10.0"
+            },
             "vendored_frameworks": [
-                "Frameworks/GoogleAppMeasurement.xcframework"
+                "Frameworks/GoogleAppMeasurementIdentitySupport.xcframework"
             ]
         },
         {
             "name": "WithoutAdIdSupport",
             "vendored_frameworks": [
-                "Frameworks/GoogleAppMeasurementWithoutAdIdSupport.xcframework"
+                "Frameworks/GoogleAppMeasurement.xcframework"
             ]
         }
     ],
     "summary": "Shared measurement methods for Google libraries. Not intended for direct use.",
-    "version": "8.7.0"
+    "version": "8.10.0"
 }

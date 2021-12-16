@@ -60,10 +60,14 @@
   "7.1.0": "https://dl.google.com/dl/firebase/ios/carthage/7.1.0/Google-Mobile-Ads-SDK-5c6542b7b9174033.zip",
   "8.0.0": "https://dl.google.com/dl/firebase/ios/carthage/8.0.0/Google-Mobile-Ads-SDK-665ae6f4a583c121.zip",
   "8.1.0": "https://dl.google.com/dl/firebase/ios/carthage/8.1.0/Google-Mobile-Ads-SDK-5de7e1df815f74c8.zip",
+  "8.10.0": "https://dl.google.com/dl/firebase/ios/carthage/8.10.0/Google-Mobile-Ads-SDK-a798c1524cd0acad.zip",
   "8.2.0": "https://dl.google.com/dl/firebase/ios/carthage/8.2.0/Google-Mobile-Ads-SDK-1fe4f506973849d2.zip",
   "8.3.0": "https://dl.google.com/dl/firebase/ios/carthage/8.3.0/Google-Mobile-Ads-SDK-6ecde0af7f67568f.zip",
   "8.4.0": "https://dl.google.com/dl/firebase/ios/carthage/8.4.0/Google-Mobile-Ads-SDK-805bdfc99d5b6046.zip",
   "8.5.0": "https://dl.google.com/dl/firebase/ios/carthage/8.5.0/Google-Mobile-Ads-SDK-af3e2d35bec1a295.zip",
   "8.6.0": "https://dl.google.com/dl/firebase/ios/carthage/8.6.0/Google-Mobile-Ads-SDK-46ae59ab217d6b0e.zip",
-  "8.7.0": "https://dl.google.com/dl/firebase/ios/carthage/8.7.0/Google-Mobile-Ads-SDK-a969d9fc19666d92.zip"
+  "8.7.0": "https://dl.google.com/dl/firebase/ios/carthage/8.7.0/Google-Mobile-Ads-SDK-a969d9fc19666d92.zip",
+  "8.8.0": "https://dl.google.com/dl/firebase/ios/carthage/8.8.0/Google-Mobile-Ads-SDK-7c9afded557e2a0f.zip",
+  "8.9.0": "https://dl.google.com/dl/firebase/ios/carthage/8.9.0/Google-Mobile-Ads-SDK-11f5691565e0c0e9.zip",
+  "8.9.1": "https://dl.google.com/dl/firebase/ios/carthage/8.9.1/Google-Mobile-Ads-SDK-869ddadaca43236d.zip"
 }

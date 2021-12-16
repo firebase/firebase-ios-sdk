@@ -51,8 +51,11 @@ namespace remote {
 
 namespace {
 
-using auth::CredentialsProvider;
 using core::DatabaseInfo;
+using credentials::AppCheckCredentialsProvider;
+using credentials::AuthCredentialsProvider;
+using credentials::AuthToken;
+using credentials::User;
 using model::DatabaseId;
 using model::Document;
 using nanopb::MakeArray;
@@ -106,12 +109,13 @@ class FakeDatastore : public Datastore {
 std::shared_ptr<FakeDatastore> CreateDatastore(
     const DatabaseInfo& database_info,
     const std::shared_ptr<AsyncQueue>& worker_queue,
-    std::shared_ptr<CredentialsProvider> credentials,
+    std::shared_ptr<AuthCredentialsProvider> auth_credentials,
+    std::shared_ptr<AppCheckCredentialsProvider> app_check_credentials,
     ConnectivityMonitor* connectivity_monitor,
     FirebaseMetadataProvider* firebase_metadata_provider) {
-  return std::make_shared<FakeDatastore>(database_info, worker_queue,
-                                         credentials, connectivity_monitor,
-                                         firebase_metadata_provider);
+  return std::make_shared<FakeDatastore>(
+      database_info, worker_queue, auth_credentials, app_check_credentials,
+      connectivity_monitor, firebase_metadata_provider);
 }
 
 }  // namespace
@@ -125,7 +129,8 @@ class DatastoreTest : public testing::Test {
         firebase_metadata_provider{CreateFirebaseMetadataProviderNoOp()},
         datastore{CreateDatastore(database_info,
                                   worker_queue,
-                                  credentials,
+                                  auth_credentials,
+                                  app_check_credentials,
                                   connectivity_monitor.get(),
                                   firebase_metadata_provider.get())},
         fake_grpc_queue{datastore->queue()} {
@@ -162,8 +167,11 @@ class DatastoreTest : public testing::Test {
 
   bool is_shut_down = false;
   DatabaseInfo database_info;
-  std::shared_ptr<FakeCredentialsProvider> credentials =
-      std::make_shared<FakeCredentialsProvider>();
+  std::shared_ptr<FakeCredentialsProvider<AuthToken, User>> auth_credentials =
+      std::make_shared<FakeCredentialsProvider<AuthToken, User>>();
+  std::shared_ptr<FakeCredentialsProvider<std::string, std::string>>
+      app_check_credentials =
+          std::make_shared<FakeCredentialsProvider<std::string, std::string>>();
 
   std::shared_ptr<AsyncQueue> worker_queue;
   std::unique_ptr<ConnectivityMonitor> connectivity_monitor;
@@ -336,7 +344,7 @@ TEST_F(DatastoreTest, LookupDocumentsErrorAfterFirstRead) {
 // Auth errors
 
 TEST_F(DatastoreTest, CommitMutationsAuthFailure) {
-  credentials->FailGetToken();
+  auth_credentials->FailGetToken();
 
   Status resulting_status;
   datastore->CommitMutations(
@@ -346,7 +354,7 @@ TEST_F(DatastoreTest, CommitMutationsAuthFailure) {
 }
 
 TEST_F(DatastoreTest, LookupDocumentsAuthFailure) {
-  credentials->FailGetToken();
+  auth_credentials->FailGetToken();
 
   Status resulting_status;
   datastore->LookupDocuments(
@@ -358,7 +366,7 @@ TEST_F(DatastoreTest, LookupDocumentsAuthFailure) {
 }
 
 TEST_F(DatastoreTest, AuthAfterDatastoreHasBeenShutDown) {
-  credentials->DelayGetToken();
+  auth_credentials->DelayGetToken();
 
   worker_queue->EnqueueBlocking([&] {
     datastore->CommitMutations(
@@ -366,11 +374,11 @@ TEST_F(DatastoreTest, AuthAfterDatastoreHasBeenShutDown) {
   });
   Shutdown();
 
-  EXPECT_NO_THROW(credentials->InvokeGetToken());
+  EXPECT_NO_THROW(auth_credentials->InvokeGetToken());
 }
 
 TEST_F(DatastoreTest, AuthOutlivesDatastore) {
-  credentials->DelayGetToken();
+  auth_credentials->DelayGetToken();
 
   worker_queue->EnqueueBlocking([&] {
     datastore->CommitMutations(
@@ -379,7 +387,7 @@ TEST_F(DatastoreTest, AuthOutlivesDatastore) {
   Shutdown();
   datastore.reset();
 
-  EXPECT_NO_THROW(credentials->InvokeGetToken());
+  EXPECT_NO_THROW(auth_credentials->InvokeGetToken());
 }
 
 // Error classification

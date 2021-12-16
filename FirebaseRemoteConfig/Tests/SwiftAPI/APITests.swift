@@ -86,6 +86,7 @@ class APITests: APITestBase {
   func testFetchAndActivate() {
     let expectation = self.expectation(description: #function)
     config.fetchAndActivate { status, error in
+      XCTAssertEqual(status, .successFetchedFromRemote)
       if let error = error {
         XCTFail("Fetch and Activate Error \(error)")
       }
@@ -154,7 +155,12 @@ class APITests: APITestBase {
       self.config.fetchAndActivate { status, error in
         XCTAssertNil(error, "Fetch & Activate Error \(error!)")
         // Since no updates to remote config have occurred we use the `.successUsingPreFetchedData`.
-        XCTAssertEqual(status, .successUsingPreFetchedData)
+        // The behavior of the next test changed in Firebase 7.0.0.
+        // It's an open question which is correct, but it should only
+        // be changed in a major release.
+        // See https://github.com/firebase/firebase-ios-sdk/pull/8788
+        // XCTAssertEqual(status, .successUsingPreFetchedData)
+        XCTAssertEqual(status, .successFetchedFromRemote)
         // The `lastETagUpdateTime` should either be older or the same time as `lastFetchTime`.
         if let lastFetchTime = try? XCTUnwrap(self.config.lastFetchTime) {
           XCTAssertLessThanOrEqual(Double(self.config.settings.lastETagUpdateTime),
@@ -277,8 +283,8 @@ class APITests: APITestBase {
   // MARK: - Private Helpers
 
   private func waitForExpectations() {
-    let kFIRStorageIntegrationTestTimeout = 10.0
-    waitForExpectations(timeout: kFIRStorageIntegrationTestTimeout,
+    let kTestTimeout = 10.0
+    waitForExpectations(timeout: kTestTimeout,
                         handler: { (error) -> Void in
                           if let error = error {
                             print(error)

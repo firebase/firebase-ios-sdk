@@ -33,7 +33,7 @@
 - (instancetype)initWithCallStackTree:(FIRCLSMockMXCallStackTree *)callStackTree
                          hangDuration:(NSMeasurement<NSUnitDuration *> *)hangDuration
                              metaData:(FIRCLSMockMXMetadata *)metaData
-                   applicationVersion:(NSString *)applicationVersion {
+                   applicationVersion:(NSString *)applicationVersion API_AVAILABLE(ios(14)) {
   self = [super init];
   _callStackTree = callStackTree;
   _hangDuration = hangDuration;

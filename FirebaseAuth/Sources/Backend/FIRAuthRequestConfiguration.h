@@ -30,6 +30,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, readonly) NSString *APIKey;
 
+/** @property appID
+    @brief The Firebase appID used in the request.
+ */
+@property(nonatomic, copy, readonly) NSString *appID;
+
 /** @property LanguageCode
     @brief The language code used in the request.
  */
@@ -47,11 +52,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
-/** @fn initWithRequestClass:APIKey:authLanguage:
+/** @fn initWithAPIKey:appID:
     @brief Designated initializer.
     @param APIKey The API key to be used in the request.
+    @param appID The Firebase app ID to be passed in the request header.
  */
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithAPIKey:(NSString *)APIKey
+                                  appID:(NSString *)appID NS_DESIGNATED_INITIALIZER;
 @end
 
 NS_ASSUME_NONNULL_END

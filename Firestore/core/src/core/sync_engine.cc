@@ -44,11 +44,11 @@ namespace core {
 
 namespace {
 
-using auth::User;
 using bundle::BundleElement;
 using bundle::BundleLoader;
 using bundle::InitialProgress;
 using bundle::SuccessProgress;
+using credentials::User;
 using firestore::Error;
 using local::LocalStore;
 using local::LocalViewChanges;
@@ -88,7 +88,7 @@ bool ErrorIsInteresting(const Status& error) {
 
 SyncEngine::SyncEngine(LocalStore* local_store,
                        remote::RemoteStore* remote_store,
-                       const auth::User& initial_user,
+                       const credentials::User& initial_user,
                        size_t max_concurrent_limbo_resolutions)
     : local_store_(local_store),
       remote_store_(remote_store),
@@ -248,7 +248,7 @@ void SyncEngine::Transaction(int retries,
   runner->Run();
 }
 
-void SyncEngine::HandleCredentialChange(const auth::User& user) {
+void SyncEngine::HandleCredentialChange(const credentials::User& user) {
   bool user_changed = (current_user_ != user);
   current_user_ = user;
 

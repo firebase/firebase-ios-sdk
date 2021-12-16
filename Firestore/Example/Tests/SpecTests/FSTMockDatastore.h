@@ -39,7 +39,8 @@ class MockDatastore : public Datastore {
  public:
   MockDatastore(const core::DatabaseInfo& database_info,
                 const std::shared_ptr<util::AsyncQueue>& worker_queue,
-                std::shared_ptr<auth::CredentialsProvider> credentials,
+                std::shared_ptr<credentials::AuthCredentialsProvider> auth_credentials,
+                std::shared_ptr<credentials::AppCheckCredentialsProvider> app_check_credentials,
                 ConnectivityMonitor* connectivity_monitor,
                 FirebaseMetadataProvider* firebase_metadata_provider);
 
@@ -96,7 +97,8 @@ class MockDatastore : public Datastore {
   // reduces the number of test-only methods in `Datastore`.
   const core::DatabaseInfo* database_info_ = nullptr;
   std::shared_ptr<util::AsyncQueue> worker_queue_;
-  std::shared_ptr<auth::CredentialsProvider> credentials_;
+  std::shared_ptr<credentials::AppCheckCredentialsProvider> app_check_credentials_;
+  std::shared_ptr<credentials::AuthCredentialsProvider> auth_credentials_;
 
   std::shared_ptr<MockWatchStream> watch_stream_;
   std::shared_ptr<MockWriteStream> write_stream_;

@@ -62,6 +62,9 @@ args=(
   "CODE_SIGN_IDENTITY=-" "CODE_SIGNING_REQUIRED=NO" "CODE_SIGNING_ALLOWED=NO"
 )
 
+source scripts/buildcache.sh
+args=("${args[@]}" "${buildcache_xcb_flags[@]}")
+
 xcodebuild -version
 xcodebuild "${args[@]}" | xcpretty
 

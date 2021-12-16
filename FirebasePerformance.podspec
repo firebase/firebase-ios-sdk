@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebasePerformance'
-  s.version          = '8.7.0'
+  s.version          = '8.10.0'
   s.summary          = 'Firebase Performance'
 
   s.description      = <<-DESC
@@ -60,10 +60,10 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   s.dependency 'FirebaseCore', '~> 8.0'
   s.dependency 'FirebaseInstallations', '~> 8.0'
   s.dependency 'FirebaseRemoteConfig', '~> 8.0'
-  s.dependency 'GoogleDataTransport', '~> 9.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.4'
-  s.dependency 'GoogleUtilities/ISASwizzler', '~> 7.4'
-  s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.4'
+  s.dependency 'GoogleDataTransport', '~> 9.1'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.6'
+  s.dependency 'GoogleUtilities/ISASwizzler', '~> 7.6'
+  s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.6'
   s.dependency 'nanopb', '~> 2.30908.0'
 
   s.test_spec 'unit' do |unit_tests|

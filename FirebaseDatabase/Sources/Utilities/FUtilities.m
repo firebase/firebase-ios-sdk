@@ -154,9 +154,13 @@ void firebaseJobsTroll(void) {
 
     // Sanitize the database URL by removing the path component, which may
     // contain invalid URL characters.
+    NSRange lastMatch = [url rangeOfString:originalPathString
+                                   options:NSBackwardsSearch];
     NSString *sanitizedUrlWithoutPath =
-        [url stringByReplacingOccurrencesOfString:originalPathString
-                                       withString:@""];
+        (lastMatch.location != NSNotFound)
+            ? [url substringToIndex:lastMatch.location]
+            : url;
+
     NSURLComponents *urlComponents =
         [NSURLComponents componentsWithString:sanitizedUrlWithoutPath];
     if (!urlComponents) {

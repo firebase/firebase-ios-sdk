@@ -56,7 +56,7 @@
  * last run of the app, this promise is immediately resolved so that the upload of any nonfatal
  * events can proceed.
  */
-- (void)registerMetricKitManager {
+- (void)registerMetricKitManager API_AVAILABLE(ios(14)) {
   [[MXMetricManager sharedManager] addSubscriber:self];
   self.metricKitDataAvailable = [FBLPromise pendingPromise];
 
@@ -95,7 +95,8 @@
  * immediately after the event. Since we send nonfatal events on the next run of the app, we can
  * write out the information but won't need to resolve the promise.
  */
-- (void)didReceiveDiagnosticPayloads:(NSArray<MXDiagnosticPayload *> *)payloads {
+- (void)didReceiveDiagnosticPayloads:(NSArray<MXDiagnosticPayload *> *)payloads
+    API_AVAILABLE(ios(14)) {
   BOOL processedFatalPayload = NO;
   for (MXDiagnosticPayload *diagnosticPayload in payloads) {
     if (!diagnosticPayload) {
@@ -118,7 +119,7 @@
 
 // Helper method to write a MetricKit payload's data to file.
 - (BOOL)processMetricKitPayload:(MXDiagnosticPayload *)diagnosticPayload
-                 skipCrashEvent:(BOOL)skipCrashEvent {
+                 skipCrashEvent:(BOOL)skipCrashEvent API_AVAILABLE(ios(14)) {
   BOOL writeFailed = NO;
 
   // Write out each type of diagnostic if it exists in the report
@@ -132,9 +133,10 @@
     return false;
   }
 
-  // TODO: Time stamp information is only available in begin and end time periods. Hopefully this
-  // is updated with iOS 15.
-  NSTimeInterval beginSecondsSince1970 = [diagnosticPayload.timeStampBegin timeIntervalSince1970];
+  // Time stamp information from MetricKit is only available in begin and end time periods. For now,
+  // we rely on the current timestamp to set the event timestamp, since this is likely more accurate
+  // that the 24 hour block we'd otherwise have.
+  NSTimeInterval beginSecondsSince1970 = [[NSDate date] timeIntervalSince1970];
   NSTimeInterval endSecondsSince1970 = [diagnosticPayload.timeStampEnd timeIntervalSince1970];
 
   // Get file path for the active reports directory.
@@ -144,7 +146,6 @@
   // Also ensure that there is a report from the last run of the app that we can write to.
   NSString *metricKitFatalReportFile;
   NSString *metricKitNonfatalReportFile;
-  NSString *metricKitReportFile;
   NSString *newestUnsentReportID =
       [self.existingReportManager.newestUnsentReport.reportID stringByAppendingString:@"/"];
   NSString *currentReportID =
@@ -316,7 +317,7 @@
  * Required for MXMetricManager subscribers. Since we aren't currently collecting any MetricKit
  * metrics, this method is left empty.
  */
-- (void)didReceiveMetricPayloads:(NSArray<MXMetricPayload *> *)payloads {
+- (void)didReceiveMetricPayloads:(NSArray<MXMetricPayload *> *)payloads API_AVAILABLE(ios(13)) {
 }
 
 - (FBLPromise *)waitForMetricKitDataAvailable {
@@ -330,7 +331,7 @@
 /*
  * Helper method to convert threads for a MetricKit fatal diagnostic event to an array of threads.
  */
-- (NSArray *)convertThreadsToArray:(MXCallStackTree *)mxCallStackTree {
+- (NSArray *)convertThreadsToArray:(MXCallStackTree *)mxCallStackTree API_AVAILABLE(ios(14)) {
   FIRCLSCallStackTree *tree = [[FIRCLSCallStackTree alloc] initWithMXCallStackTree:mxCallStackTree];
   return [tree getArrayRepresentation];
 }
@@ -338,7 +339,8 @@
 /*
  * Helper method to convert threads for a MetricKit nonfatal diagnostic event to an array of frames.
  */
-- (NSArray *)convertThreadsToArrayForNonfatal:(MXCallStackTree *)mxCallStackTree {
+- (NSArray *)convertThreadsToArrayForNonfatal:(MXCallStackTree *)mxCallStackTree
+    API_AVAILABLE(ios(14)) {
   FIRCLSCallStackTree *tree = [[FIRCLSCallStackTree alloc] initWithMXCallStackTree:mxCallStackTree];
   return [tree getFramesOfBlamedThread];
 }
@@ -347,7 +349,7 @@
  * Helper method to convert metadata for a MetricKit diagnostic event to a dictionary. MXMetadata
  * has a dictionaryRepresentation method but it is deprecated.
  */
-- (NSDictionary *)convertMetadataToDictionary:(MXMetaData *)metadata {
+- (NSDictionary *)convertMetadataToDictionary:(MXMetaData *)metadata API_AVAILABLE(ios(14)) {
   NSError *error = nil;
   NSDictionary *metadataDictionary =
       [NSJSONSerialization JSONObjectWithData:[metadata JSONRepresentation] options:0 error:&error];

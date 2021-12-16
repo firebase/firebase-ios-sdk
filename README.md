@@ -37,15 +37,13 @@ Firebase is an app development platform with tools to help you build, grow and
 monetize your app. More information about Firebase can be found on the
 [official Firebase website](https://firebase.google.com).
 
-**Note** _FirebaseCombineSwift_ contains support for Apple's Combine framework. This module is currently under development, and not yet supported for use in production environments. Fore more details, please refer to the [docs](FirebaseCombineSwift/README.md).
-
 ## Installation
 
 See the subsections below for details about the different installation methods.
-1. [Standard pod install](README.md#standard-pod-install)
-1. [Swift Package Manager](SwiftPackageManager.md)
-1. [Installing from the GitHub repo](README.md#installing-from-github)
-1. [Experimental Carthage](README.md#carthage-ios-only)
+1. [Standard pod install](#standard-pod-install)
+1. [Swift Package Manager](#swift-package-manager)
+1. [Installing from the GitHub repo](#installing-from-github)
+1. [Experimental Carthage](#carthage-ios-only)
 
 ### Standard pod install
 
@@ -55,7 +53,7 @@ Go to
 ### Swift Package Manager
 
 Instructions for [Swift Package Manager](https://swift.org/package-manager/) support can be
-found at [SwiftPackageManager.md](SwiftPackageManager.md).
+found at [SwiftPackageManager](SwiftPackageManager.md) Markdown file.
 
 ### Installing from GitHub
 
@@ -125,7 +123,7 @@ those platforms. Since 10.2, Xcode does not properly handle multi-platform
 CocoaPods workspaces.
 
 Firestore has a self contained Xcode project. See
-[Firestore/README.md](Firestore/README.md).
+[Firestore/README](Firestore/README.md) Markdown file.
 
 #### Development for Catalyst
 * `pod gen {name here}.podspec --local-sources=./ --auto-open --platforms=ios`
@@ -151,11 +149,11 @@ Alternatively disable signing in each target:
 
 ### Adding a New Firebase Pod
 
-See [AddNewPod.md](AddNewPod.md).
+See [AddNewPod](AddNewPod.md) Markdown file.
 
 ### Managing Headers and Imports
 
-See [HeadersImports.md](HeadersImports.md).
+See [HeadersImports](HeadersImports.md) Markdown file.
 
 ### Code Formatting
 
@@ -167,7 +165,7 @@ GitHub Actions will verify that any code changes are done in a style compliant
 way. Install `clang-format` and `mint`:
 
 ```console
-brew install clang-format@12
+brew install clang-format@13
 brew install mint
 ```
 
@@ -189,7 +187,7 @@ identifier (e.g. `com.google.Database-Example`)
 
 ### Coverage Report Generation
 
-See [scripts/code_coverage_report/README.md](scripts/code_coverage_report/README.md).
+See [scripts/code_coverage_report/README](scripts/code_coverage_report/README.md) Markdown file.
 
 ## Specific Component Instructions
 See the sections below for any special instructions for those components.
@@ -245,57 +243,45 @@ physical device.
 
 ## Building with Firebase on Apple platforms
 
-At this time, not all of Firebase's products are available across all Apple platforms. However,
-Firebase is constantly evolving and community supported efforts have helped expand Firebase's support.
-To keep up with the latest info regarding Firebase's support across Apple platforms, refer to
+Firebase 8.9.0 introduces official beta support for macOS, Catalyst, and tvOS. watchOS continues
+to be community supported. Thanks to community contributions for many of the multi-platform PRs.
+
+At this time, most of Firebase's products are available across Apple platforms. There are still
+a few gaps, especially on watchOS. For details about the current support matrix, see
 [this chart](https://firebase.google.com/docs/ios/learn-more#firebase_library_support_by_platform)
 in Firebase's documentation.
 
-### Community Supported Efforts
-
-We've seen an amazing amount of interest and contributions to improve the Firebase SDKs, and we are
-very grateful!  We'd like to empower as many developers as we can to be able to use Firebase and
-participate in the Firebase community.
-
-#### tvOS, macOS, watchOS and Catalyst
+### watchOS
 Thanks to contributions from the community, many of Firebase SDKs now compile, run unit tests, and
-work on tvOS, macOS, watchOS and Catalyst.
+work on watchOS. See the [Independent Watch App Sample](Example/watchOSSample).
 
-For tvOS, see the [Sample](Example/tvOSSample).
-For watchOS, currently only Messaging, Storage and Crashlytics (and their dependencies) have limited
-support. See the [Independent Watch App Sample](Example/watchOSSample).
-
-Keep in mind that macOS, tvOS, watchOS and Catalyst are not officially supported by Firebase, and
-this repository is actively developed primarily for iOS. While we can catch basic unit test issues
-with GitHub Actions, there may be some changes where the SDK no longer works as expected on macOS,
-tvOS or watchOS. If you encounter this, please
+Keep in mind that watchOS is not officially supported by Firebase. While we can catch basic unit
+test issues with GitHub Actions, there may be some changes where the SDK no longer works as expected
+on watchOS. If you encounter this, please
 [file an issue](https://github.com/firebase/firebase-ios-sdk/issues).
 
 During app setup in the console, you may get to a step that mentions something like "Checking if the
-app has communicated with our servers". This relies on Analytics and will not work on
-macOS/tvOS/watchOS/Catalyst.
+app has communicated with our servers". This relies on Analytics and will not work on watchOS.
 **It's safe to ignore the message and continue**, the rest of the SDKs will work as expected.
-
-#### Additional MacOS and Catalyst Notes
-
-* FirebaseAuth and FirebaseMessaging require adding `Keychain Sharing Capability`
-to Build Settings.
-* For Catalyst, FirebaseFirestore requires signing the
-[gRPC Resource target](https://github.com/firebase/firebase-ios-sdk/issues/3500#issuecomment-518741681).
 
 #### Additional Crashlytics Notes
 * watchOS has limited support. Due to watchOS restrictions, mach exceptions and signal crashes are
 not recorded. (Crashes in SwiftUI are generated as mach exceptions, so will not be recorded)
 
+## Combine
+Thanks to contributions from the community, _FirebaseCombineSwift_ contains support for Apple's Combine
+framework. This module is currently under development, and not yet supported for use in production
+environments. Fore more details, please refer to the [docs](FirebaseCombineSwift/README.md).
+
 ## Roadmap
 
-See [Roadmap](ROADMAP.md) for more about the Firebase iOS SDK Open Source
+See [Roadmap](ROADMAP.md) for more about the Firebase Apple SDK Open Source
 plans and directions.
 
 ## Contributing
 
 See [Contributing](CONTRIBUTING.md) for more information on contributing to the Firebase
-iOS SDK.
+Apple SDK.
 
 ## License
 

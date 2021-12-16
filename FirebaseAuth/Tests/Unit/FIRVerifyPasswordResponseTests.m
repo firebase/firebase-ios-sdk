@@ -33,6 +33,11 @@ static NSString *const kTestPassword = @"testpassword";
  */
 static NSString *const kTestAPIKey = @"_test_API_key_";
 
+/** @var kTestFirebaseAppID
+    @brief Fake Firebase app ID used for testing.
+ */
+static NSString *const kTestFirebaseAppID = @"appID";
+
 /** @var kLocalIDKey
     @brief The name of the 'localID' property in the response.
  */
@@ -189,7 +194,8 @@ static const double kAllowedTimeDifference = 0.1;
   FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
   _RPCIssuer = RPCIssuer;
-  _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
+  _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey
+                                                                        appID:kTestFirebaseAppID];
 }
 
 /** @fn testUserDisabledError

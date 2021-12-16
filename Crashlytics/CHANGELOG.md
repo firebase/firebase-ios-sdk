@@ -1,4 +1,7 @@
-# Unreleased
+# v8.9.0
+- [fixed] Fixed an issue where exceptions with `nil` reasons weren't properly recorded (#8671).
+
+# v8.8.0
 - [added] Internal SDK updates to test potential future MetricKit support.
 
 # v8.4.0

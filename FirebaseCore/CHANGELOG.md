@@ -1,3 +1,22 @@
+# Firebase 8.10.0
+- [fixed] Fixed platform availability checks in Swift Package Manager that may prevent code
+  completion for Analytics APIs on macOS and tvOS. (#9032)
+- [added] Firebase now includes community supported Combine publishers. More details can be found
+  [here](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseCombineSwift/README.md). (#7295)
+
+# Firebase 8.9.0
+- [added] Firebase introduces beta support for tvOS, macOS, and Catalyst.
+  watchOS continues to be available with community support. Individual product
+  details at
+  https://firebase.google.com/docs/ios/learn-more#firebase_library_support_by_platform (#583)
+- [changed] The minimum support tvOS version is now 12.0.
+- [fixed] Force GoogleUtilities and GoogleDataTransport CocoaPods dependencies
+  to be updated to latest minor versions. (#8733)
+
+# Firebase 8.8.1
+- [fixed] Swift Package Manager only release to force GoogleUtilities and GoogleDataTransport
+  to be updated to latest current bug-fix versions. (#8728)
+
 # Firebase 8.3.1
 - [fixed] Swift Package Manager only release to fix an 8.3.0 tagging issue impacting some users. (#8367)
 

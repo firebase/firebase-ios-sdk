@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFunctions'
-  s.version          = '8.7.0'
+  s.version          = '8.10.0'
   s.summary          = 'Cloud Functions for Firebase'
 
   s.description      = <<-DESC
@@ -24,13 +24,13 @@ Cloud Functions for Firebase.
   s.prefix_header_file = false
 
   s.source_files = [
-    'Functions/FirebaseFunctions/**/*',
+    'FirebaseFunctions/Sources/**/*',
     'Interop/Auth/Public/*.h',
     'FirebaseAppCheck/Sources/Interop/*.h',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h',
   ]
-  s.public_header_files = 'Functions/FirebaseFunctions/Public/FirebaseFunctions/*.h'
+  s.public_header_files = 'FirebaseFunctions/Sources/Public/FirebaseFunctions/*.h'
 
   s.dependency 'FirebaseCore', '~> 8.0'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.5'
@@ -43,8 +43,8 @@ Cloud Functions for Firebase.
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
     unit_tests.source_files = [
-      'Functions/Example/Test*/*.[mh]',
-      'Functions/Tests/Unit/Swift/**/*',
+      'FirebaseFunctions/Tests/Unit/*.[mh]',
+      'FirebaseFunctions/Tests/SwiftUnit/**/*',
       'SharedTestUtilities/FIRAuthInteropFake*',
       'SharedTestUtilities/FIRMessagingInteropFake*',
       'SharedTestUtilities/AppCheckFake/*.[mh]',
@@ -53,10 +53,20 @@ Cloud Functions for Firebase.
 
   s.test_spec 'integration' do |int_tests|
     int_tests.scheme = { :code_coverage => true }
-    int_tests.source_files = 'Functions/Example/IntegrationTests/*.[mh]',
-                             'Functions/Example/TestUtils/*.[mh]',
+    int_tests.source_files = 'FirebaseFunctions/Tests/Integration/*.[mh]',
                              'SharedTestUtilities/FIRAuthInteropFake*',
-                             'SharedTestUtilities/FIRMessagingInteropFake*',
-                             'Functions/Example/GoogleService-Info.plist'
+                             'SharedTestUtilities/FIRMessagingInteropFake*'
   end
+
+  #  Uncomment to use pod gen to run the Swift Integration tests. This can't be
+  #  committed because of the dependency on the unpublished FirebaseFunctionsTestingSupport.
+  #  Alternatively, use Swift Package Manager to run the swift integration tests locally.
+  #
+  #   s.test_spec 'swift-integration' do |swift_int|
+  #   swift_int.platforms = {:ios => '15.0', :osx => '12.0', :tvos => '15.0', :watchos => '8.0'}
+  #   swift_int.scheme = { :code_coverage => true }
+  #   swift_int.dependency 'FirebaseFunctionsTestingSupport'
+  #   swift_int.source_files = 'FirebaseFunctions/Tests/SwiftIntegration/*',
+  #                            'FirebaseTestingSupport/Functions/Sources/*'
+  # end
 end

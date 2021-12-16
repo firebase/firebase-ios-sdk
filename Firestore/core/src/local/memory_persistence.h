@@ -23,7 +23,7 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/src/auth/user.h"
+#include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/memory_bundle_cache.h"
 #include "Firestore/core/src/local/memory_index_manager.h"
 #include "Firestore/core/src/local/memory_mutation_queue.h"
@@ -53,9 +53,9 @@ class Sizer;
 class MemoryPersistence : public Persistence {
  public:
   using MutationQueues =
-      std::unordered_map<auth::User,
+      std::unordered_map<credentials::User,
                          std::unique_ptr<MemoryMutationQueue>,
-                         auth::HashUser>;
+                         credentials::HashUser>;
 
   static std::unique_ptr<MemoryPersistence> WithEagerGarbageCollector();
 
@@ -74,7 +74,8 @@ class MemoryPersistence : public Persistence {
 
   void Shutdown() override;
 
-  MemoryMutationQueue* GetMutationQueueForUser(const auth::User& user) override;
+  MemoryMutationQueue* GetMutationQueueForUser(
+      const credentials::User& user) override;
 
   MemoryTargetCache* target_cache() override;
 

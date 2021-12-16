@@ -22,7 +22,7 @@
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 // Firebase Functions
-#import "Functions/FirebaseFunctions/FIRFunctions+Internal.h"
+#import "FirebaseFunctions/Sources/FIRFunctions+Internal.h"
 
 // Firebase Auth
 #import <FirebaseAuth/FIRAuth.h>

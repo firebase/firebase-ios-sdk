@@ -33,8 +33,8 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-using auth::Token;
-using auth::User;
+using credentials::AuthToken;
+using credentials::User;
 using model::DatabaseId;
 using testutil::ExecutorForTesting;
 using util::AsyncQueue;
@@ -225,16 +225,16 @@ void GrpcStreamTester::Shutdown() {
 
 std::unique_ptr<GrpcStream> GrpcStreamTester::CreateStream(
     GrpcStreamObserver* observer) {
-  return grpc_connection_.CreateStream("", Token{"", User{}}, observer);
+  return grpc_connection_.CreateStream("", AuthToken{"", User{}}, "", observer);
 }
 
 std::unique_ptr<GrpcStreamingReader> GrpcStreamTester::CreateStreamingReader() {
-  return grpc_connection_.CreateStreamingReader("", Token{"", User{}},
+  return grpc_connection_.CreateStreamingReader("", AuthToken{"", User{}}, "",
                                                 grpc::ByteBuffer{});
 }
 
 std::unique_ptr<GrpcUnaryCall> GrpcStreamTester::CreateUnaryCall() {
-  return grpc_connection_.CreateUnaryCall("", Token{"", User{}},
+  return grpc_connection_.CreateUnaryCall("", AuthToken{"", User{}}, "",
                                           grpc::ByteBuffer{});
 }
 

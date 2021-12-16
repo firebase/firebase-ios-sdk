@@ -21,9 +21,9 @@
 #include <queue>
 #include <utility>
 
-#include "Firestore/core/src/auth/credentials_provider.h"
-#include "Firestore/core/src/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/core/database_info.h"
+#include "Firestore/core/src/credentials/credentials_provider.h"
+#include "Firestore/core/src/credentials/empty_credentials_provider.h"
 #include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/mutation.h"
@@ -42,9 +42,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-using firebase::firestore::auth::CredentialsProvider;
-using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::credentials::AppCheckCredentialsProvider;
+using firebase::firestore::credentials::AuthCredentialsProvider;
+using firebase::firestore::credentials::EmptyCredentialsProvider;
 using firebase::firestore::local::TargetData;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::Mutation;
@@ -68,12 +69,17 @@ namespace remote {
 class MockWatchStream : public WatchStream {
  public:
   MockWatchStream(const std::shared_ptr<AsyncQueue>& worker_queue,
-                  std::shared_ptr<CredentialsProvider> credentials_provider,
+                  std::shared_ptr<AuthCredentialsProvider> auth_credentials_provider,
+                  std::shared_ptr<AppCheckCredentialsProvider> app_check_credentials_provider,
                   Serializer serializer,
                   GrpcConnection* grpc_connection,
                   WatchStreamCallback* callback,
                   MockDatastore* datastore)
-      : WatchStream{worker_queue, credentials_provider, std::move(serializer), grpc_connection,
+      : WatchStream{worker_queue,
+                    auth_credentials_provider,
+                    app_check_credentials_provider,
+                    std::move(serializer),
+                    grpc_connection,
                     callback},
         datastore_{datastore},
         callback_{callback} {
@@ -160,12 +166,17 @@ class MockWatchStream : public WatchStream {
 class MockWriteStream : public WriteStream {
  public:
   MockWriteStream(const std::shared_ptr<AsyncQueue>& worker_queue,
-                  std::shared_ptr<CredentialsProvider> credentials_provider,
+                  std::shared_ptr<AuthCredentialsProvider> auth_credentials_provider,
+                  std::shared_ptr<AppCheckCredentialsProvider> app_check_credentials_provider,
                   Serializer serializer,
                   GrpcConnection* grpc_connection,
                   WriteStreamCallback* callback,
                   MockDatastore* datastore)
-      : WriteStream{worker_queue, credentials_provider, std::move(serializer), grpc_connection,
+      : WriteStream{worker_queue,
+                    auth_credentials_provider,
+                    app_check_credentials_provider,
+                    std::move(serializer),
+                    grpc_connection,
                     callback},
         datastore_{datastore},
         callback_{callback} {
@@ -242,30 +253,33 @@ class MockWriteStream : public WriteStream {
   WriteStreamCallback* callback_ = nullptr;
 };
 
-MockDatastore::MockDatastore(const core::DatabaseInfo& database_info,
-                             const std::shared_ptr<util::AsyncQueue>& worker_queue,
-                             std::shared_ptr<auth::CredentialsProvider> credentials,
-                             ConnectivityMonitor* connectivity_monitor,
-                             FirebaseMetadataProvider* firebase_metadata_provider)
-    : Datastore{database_info, worker_queue, credentials, connectivity_monitor,
-                firebase_metadata_provider},
+MockDatastore::MockDatastore(
+    const core::DatabaseInfo& database_info,
+    const std::shared_ptr<util::AsyncQueue>& worker_queue,
+    std::shared_ptr<credentials::AuthCredentialsProvider> auth_credentials,
+    std::shared_ptr<credentials::AppCheckCredentialsProvider> app_check_credentials,
+    ConnectivityMonitor* connectivity_monitor,
+    FirebaseMetadataProvider* firebase_metadata_provider)
+    : Datastore{database_info,         worker_queue,         auth_credentials,
+                app_check_credentials, connectivity_monitor, firebase_metadata_provider},
       database_info_{&database_info},
       worker_queue_{worker_queue},
-      credentials_{credentials} {
+      app_check_credentials_{app_check_credentials},
+      auth_credentials_{auth_credentials} {
 }
 
 std::shared_ptr<WatchStream> MockDatastore::CreateWatchStream(WatchStreamCallback* callback) {
-  watch_stream_ = std::make_shared<MockWatchStream>(worker_queue_, credentials_,
-                                                    Serializer{database_info_->database_id()},
-                                                    grpc_connection(), callback, this);
+  watch_stream_ = std::make_shared<MockWatchStream>(
+      worker_queue_, auth_credentials_, app_check_credentials_,
+      Serializer{database_info_->database_id()}, grpc_connection(), callback, this);
 
   return watch_stream_;
 }
 
 std::shared_ptr<WriteStream> MockDatastore::CreateWriteStream(WriteStreamCallback* callback) {
-  write_stream_ = std::make_shared<MockWriteStream>(worker_queue_, credentials_,
-                                                    Serializer{database_info_->database_id()},
-                                                    grpc_connection(), callback, this);
+  write_stream_ = std::make_shared<MockWriteStream>(
+      worker_queue_, auth_credentials_, app_check_credentials_,
+      Serializer{database_info_->database_id()}, grpc_connection(), callback, this);
 
   return write_stream_;
 }

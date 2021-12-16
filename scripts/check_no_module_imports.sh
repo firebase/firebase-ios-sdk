@@ -35,7 +35,8 @@ git grep "${options[@]}" \
      ':(exclude,glob)FirebaseStorage/**' \
      ':(exclude,glob)SwiftPMTests/**' \
      ':(exclude,glob)FirebaseTestingSupport/**' \
-     ':(exclude)Functions/FirebaseFunctions/FIRFunctions.m' \
+     ':(exclude)FirebaseFunctions/Sources/FIRFunctions.m' \
+     ':(exclude)FirebaseFunctions/Tests/Unit/FIRFunctionsTests.m' \
      ':(exclude)HeadersImports.md' && exit_with_error
 
 # Tests are under the Example directory, so we have to separately grep them for

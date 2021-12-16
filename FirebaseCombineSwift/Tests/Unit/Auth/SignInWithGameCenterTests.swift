@@ -106,7 +106,7 @@ class SignInWithGameCenterTests: XCTestCase {
 
     let signature = Data(base64Encoded: Self.signature)!
     let salt = Data(base64Encoded: Self.salt)!
-    let requestConfiguration = FIRAuthRequestConfiguration(apiKey: Self.testAPI)!
+    let requestConfiguration = FIRAuthRequestConfiguration(apiKey: Self.testAPI, appID: "appID")!
 
     let request = FIRSignInWithGameCenterRequest(
       playerID: Self.playerID,

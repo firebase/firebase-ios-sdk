@@ -35,9 +35,9 @@
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 
-#include "Firestore/core/src/auth/credentials_provider.h"
-#include "Firestore/core/src/auth/empty_credentials_provider.h"
-#include "Firestore/core/src/auth/user.h"
+#include "Firestore/core/src/credentials/credentials_provider.h"
+#include "Firestore/core/src/credentials/empty_credentials_provider.h"
+#include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/leveldb_opener.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider_apple.h"
@@ -52,12 +52,11 @@
 #include "Firestore/core/test/unit/testutil/status_testing.h"
 #include "absl/memory/memory.h"
 
-namespace util = firebase::firestore::util;
-
-using firebase::firestore::auth::CredentialChangeListener;
-using firebase::firestore::auth::EmptyCredentialsProvider;
-using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::credentials::CredentialChangeListener;
+using firebase::firestore::credentials::EmptyAuthCredentialsProvider;
+using firebase::firestore::credentials::EmptyAppCheckCredentialsProvider;
+using firebase::firestore::credentials::User;
 using firebase::firestore::local::LevelDbOpener;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::remote::FirebaseMetadataProviderApple;
@@ -66,6 +65,7 @@ using firebase::firestore::testutil::AsyncQueueForTesting;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::CreateAutoId;
 using firebase::firestore::util::Filesystem;
+using firebase::firestore::util::MakeString;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
@@ -85,9 +85,9 @@ static bool runningAgainstEmulator = false;
 
 // Behaves the same as `EmptyCredentialsProvider` except it can also trigger a user
 // change.
-class FakeCredentialsProvider : public EmptyCredentialsProvider {
+class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
  public:
-  void SetCredentialChangeListener(CredentialChangeListener changeListener) override {
+  void SetCredentialChangeListener(CredentialChangeListener<User> changeListener) override {
     if (changeListener) {
       listener_ = std::move(changeListener);
       listener_(User::Unauthenticated());
@@ -96,17 +96,18 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 
   void ChangeUser(NSString *new_id) {
     if (listener_) {
-      listener_(firebase::firestore::auth::User::FromUid(new_id));
+      listener_(firebase::firestore::credentials::User::FromUid(new_id));
     }
   }
 
  private:
-  CredentialChangeListener listener_;
+  CredentialChangeListener<User> listener_;
 };
 
 @implementation FSTIntegrationTestCase {
   NSMutableArray<FIRFirestore *> *_firestores;
-  std::shared_ptr<FakeCredentialsProvider> _fakeCredentialsProvider;
+  std::shared_ptr<EmptyAppCheckCredentialsProvider> _fakeAppCheckCredentialsProvider;
+  std::shared_ptr<FakeAuthCredentialsProvider> _fakeAuthCredentialsProvider;
 }
 
 - (void)setUp {
@@ -114,7 +115,8 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 
   LoadXCTestCaseAwait();
 
-  _fakeCredentialsProvider = std::make_shared<FakeCredentialsProvider>();
+  _fakeAppCheckCredentialsProvider = std::make_shared<EmptyAppCheckCredentialsProvider>();
+  _fakeAuthCredentialsProvider = std::make_shared<FakeAuthCredentialsProvider>();
 
   [self clearPersistenceOnce];
   [self primeBackend];
@@ -239,7 +241,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 }
 
 - (FIRFirestore *)firestoreWithProjectID:(NSString *)projectID {
-  FIRApp *app = AppForUnitTesting(util::MakeString(projectID));
+  FIRApp *app = AppForUnitTesting(MakeString(projectID));
   return [self firestoreWithApp:app];
 }
 
@@ -248,11 +250,12 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 
   FIRSetLoggerLevel(FIRLoggerLevelDebug);
 
-  std::string projectID = util::MakeString(app.options.projectID);
+  std::string projectID = MakeString(app.options.projectID);
   FIRFirestore *firestore =
       [[FIRFirestore alloc] initWithDatabaseID:DatabaseId(projectID)
-                                persistenceKey:util::MakeString(persistenceKey)
-                           credentialsProvider:_fakeCredentialsProvider
+                                persistenceKey:MakeString(persistenceKey)
+                       authCredentialsProvider:_fakeAuthCredentialsProvider
+                   appCheckCredentialsProvider:_fakeAppCheckCredentialsProvider
                                    workerQueue:AsyncQueueForTesting()
                       firebaseMetadataProvider:absl::make_unique<FirebaseMetadataProviderApple>(app)
                                    firebaseApp:app
@@ -264,7 +267,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
 }
 
 - (void)triggerUserChangeWithUid:(NSString *)uid {
-  _fakeCredentialsProvider->ChangeUser(uid);
+  _fakeAuthCredentialsProvider->ChangeUser(uid);
 }
 
 - (void)primeBackend {
@@ -495,7 +498,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
   [self awaitExpectation:expectation];
 }
 
-- (const std::shared_ptr<util::AsyncQueue> &)queueForFirestore:(FIRFirestore *)firestore {
+- (const std::shared_ptr<AsyncQueue> &)queueForFirestore:(FIRFirestore *)firestore {
   return [firestore workerQueue];
 }
 

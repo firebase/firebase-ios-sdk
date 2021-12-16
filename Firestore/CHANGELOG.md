@@ -1,5 +1,18 @@
+# v8.9.1
+- [fixed] Fixed a bug in the AppCheck integration that caused the SDK to respond
+  to unrelated notifications (#8895).
+
+# v8.9.0
+- [added] Added support for Firebase AppCheck.
+- [fixed] Fix a crash if `[FIRTransaction getDocument]` was called after
+  `[FIRFirestore terminateWithCompletion]` (#8760).
+- [fixed] Fixed a performance issue due to repeated schema migrations
+  at app startup (#8791).
+
 # v8.6.0
 - [changed] Internal refactor to improve serialization performance.
+- [changed] `DocumentSnapshot` objects consider the document's key and data for
+  equality comparison, but ignore the internal state and internal version.
 
 # v8.4.0
 - [fixed] Fixed handling of Unicode characters in log and assertion messages

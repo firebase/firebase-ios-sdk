@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCrashlytics'
-  s.version          = '8.7.0'
+  s.version          = '8.10.0'
   s.summary          = 'Best and lightest-weight crash reporting for mobile, desktop and tvOS.'
   s.description      = 'Firebase Crashlytics helps you track, prioritize, and fix stability issues that erode app quality.'
   s.homepage         = 'https://firebase.google.com/'
@@ -54,8 +54,8 @@ Pod::Spec.new do |s|
   s.dependency 'FirebaseCore', '~> 8.0'
   s.dependency 'FirebaseInstallations', '~> 8.0'
   s.dependency 'PromisesObjC', '>= 1.2', '< 3.0'
-  s.dependency 'GoogleDataTransport', '~> 9.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.4'
+  s.dependency 'GoogleDataTransport', '~> 9.1'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.6'
   s.dependency 'nanopb', '~> 2.30908.0'
 
   s.libraries = 'c++', 'z'

@@ -21,7 +21,7 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/src/auth/token.h"
+#include "Firestore/core/src/credentials/auth_token.h"
 #include "Firestore/core/src/remote/connectivity_monitor.h"
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/status.h"
@@ -35,9 +35,9 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-using auth::Token;
-using auth::User;
 using core::DatabaseInfo;
+using credentials::AuthToken;
+using credentials::User;
 using util::AsyncQueue;
 using util::Status;
 using util::StatusOr;
