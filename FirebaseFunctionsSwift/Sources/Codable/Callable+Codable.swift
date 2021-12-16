@@ -73,7 +73,7 @@ public struct Callable<Request: Encodable, Response: Decodable> {
   ///
   /// - Parameter data: Parameters to pass to the trigger.
   /// - Parameter completion: The block to call when the HTTPS request has completed.
-  public func call(_ data: Request? = nil,
+  public func call(_ data: Request,
                    completion: @escaping (Result<Response, Error>)
                      -> Void) {
     do {
@@ -119,7 +119,7 @@ public struct Callable<Request: Encodable, Response: Decodable> {
   /// - Parameters:
   ///   - data: Parameters to pass to the trigger.
   ///   - completion: The block to call when the HTTPS request has completed.
-  public func callAsFunction(_ data: Request? = nil,
+  public func callAsFunction(_ data: Request,
                              completion: @escaping (Result<Response, Error>)
                                -> Void) {
     call(data, completion: completion)
@@ -146,7 +146,7 @@ public struct Callable<Request: Encodable, Response: Decodable> {
     ///
     /// - Returns: The decoded `Response` value
     @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
-    public func call(_ data: Request? = nil,
+    public func call(_ data: Request,
                      encoder: FirebaseDataEncoder = FirebaseDataEncoder(),
                      decoder: FirebaseDataDecoder =
                        FirebaseDataDecoder()) async throws -> Response {
@@ -175,7 +175,7 @@ public struct Callable<Request: Encodable, Response: Decodable> {
     ///   - data: Parameters to pass to the trigger.
     /// - Returns: The decoded `Response` value
     @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
-    public func callAsFunction(_ data: Request? = nil) async throws -> Response {
+    public func callAsFunction(_ data: Request) async throws -> Response {
       return try await call(data)
     }
   #endif
