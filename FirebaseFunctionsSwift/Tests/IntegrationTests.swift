@@ -290,43 +290,6 @@ class IntegrationTests: XCTestCase {
     }
   #endif
 
-  // No parameters to call should be the same as passing nil.
-  // If no parameters are required, then the non-typed API
-  // is more appropriate since it specifically avoids defining
-  // type.
-  func testParameterless() {
-    let expectation = expectation(description: #function)
-    let function = functions.httpsCallable(
-      "nullTest",
-      requestAs: Int?.self,
-      responseAs: Int?.self
-    )
-    function.call { result in
-      do {
-        let data = try result.get()
-        XCTAssertEqual(data, nil)
-      } catch {
-        XCTAssert(false, "Failed to unwrap the function result: \(error)")
-      }
-      expectation.fulfill()
-    }
-    waitForExpectations(timeout: 5)
-  }
-
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
-    func testParameterlessAsync() async throws {
-      let function = functions.httpsCallable(
-        "nullTest",
-        requestAs: Int?.self,
-        responseAs: Int?.self
-      )
-
-      let data = try await function.call()
-      XCTAssertEqual(data, nil)
-    }
-  #endif
-
   func testMissingResult() {
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable(
