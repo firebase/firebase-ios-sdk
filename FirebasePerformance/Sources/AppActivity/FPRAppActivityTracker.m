@@ -25,6 +25,8 @@
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
 
 static NSDate *appStartTime = nil;
+static NSDate *doubleDispatchTime = nil;
+static NSDate *applicationFinishLaunchTime = nil;
 static NSTimeInterval gAppStartMaxValidDuration = 60 * 60;  // 60 minutes.
 static FPRCPUGaugeData *gAppStartCPUGaugeData = nil;
 static FPRMemoryGaugeData *gAppStartMemoryGaugeData = nil;
@@ -66,11 +68,23 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
 + (void)load {
   // This is an approximation of the app start time.
   appStartTime = [NSDate date];
+  
+  dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
+      doubleDispatchTime = [NSDate date];
+    });
+  });
+  
   gAppStartCPUGaugeData = fprCollectCPUMetric();
   gAppStartMemoryGaugeData = fprCollectMemoryMetric();
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(windowDidBecomeVisible:)
                                                name:UIWindowDidBecomeVisibleNotification
+                                             object:nil];
+  
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(applicationDidFinishLaunching:)
+                                               name:UIApplicationDidFinishLaunchingNotification
                                              object:nil];
 }
 
@@ -80,6 +94,13 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
 
   [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:UIWindowDidBecomeVisibleNotification
+                                                object:nil];
+}
+
++ (void)applicationDidFinishLaunching:(NSNotification *)notification {
+  applicationFinishLaunchTime = [NSDate date];
+  [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                  name:UIApplicationDidFinishLaunchingNotification
                                                 object:nil];
 }
 
@@ -119,6 +140,27 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
     return self.foregroundSessionTrace;
   }
   return self.backgroundSessionTrace;
+}
+
+- (BOOL)isApplicationPreWarmed {
+  
+  NSArray *versionComponents = [[UIDevice currentDevice].systemVersion componentsSeparatedByString:@"."];
+  NSInteger majorVersion = [versionComponents[0] integerValue];
+  if (majorVersion < 15) {
+    return NO;
+  }
+  
+  NSDictionary<NSString *, NSString *> *environment = [NSProcessInfo processInfo].environment;
+  if (environment[@"ActivePrewarm"] != nil &&
+      [environment[@"ActivePrewarm"] isEqualToString:@"1"]) {
+    return YES;
+  }
+  
+  if (doubleDispatchTime < applicationFinishLaunchTime) {
+    return YES;
+  }
+  
+  return NO;
 }
 
 /**
@@ -173,7 +215,7 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
       // happens a lot later.
       // Dropping the app start trace in such situations where the launch time is taking more than
       // 60 minutes. This is an approximation, but a more agreeable timelimit for app start.
-      if (currentTimeSinceEpoch - startTimeSinceEpoch < gAppStartMaxValidDuration) {
+      if ((currentTimeSinceEpoch - startTimeSinceEpoch < gAppStartMaxValidDuration) && ![self isApplicationPreWarmed]) {
         [self.appStartTrace stop];
       } else {
         [self.appStartTrace cancel];
