@@ -102,6 +102,11 @@ static NSString *const kFakeFirebaseAppID = @"1:123456789:ios:123abc456def";
  */
 static NSString *const kFakeEncodedFirebaseAppID = @"app-1-123456789-ios-123abc456def";
 
+/** @var kFakeTenantID
+    @brief A fake tenant ID.
+ */
+static NSString *const kFakeTenantID = @"tenantID";
+
 /** @var kFakeOAuthResponseURL
     @brief A fake OAuth response URL used in test.
  */
@@ -313,6 +318,111 @@ static NSString *const kUnknownErrorString =
         XCTAssertEqualObjects(params[@"apiKey"], kFakeAPIKey);
         XCTAssertEqualObjects(params[@"authType"], @"signInWithRedirect");
         XCTAssertNotNil(params[@"v"]);
+        XCTAssertNil(params[@"tid"]);
+        // `callbackMatcher` is at index 4
+        [invocation getArgument:&unretainedArgument atIndex:4];
+        FIRAuthURLCallbackMatcher callbackMatcher = unretainedArgument;
+        NSMutableString *redirectURL = [NSMutableString
+            stringWithString:[kFakeReverseClientID
+                                 stringByAppendingString:kFakeRedirectURLResponseURL]];
+        // Add fake OAuthResponse to callback.
+        [redirectURL appendString:kFakeOAuthResponseURL];
+        // Verify that the URL is rejected by the callback matcher without the event ID.
+        XCTAssertFalse(callbackMatcher([NSURL URLWithString:redirectURL]));
+        [redirectURL appendString:@"%26eventId%3D"];
+        [redirectURL appendString:params[@"eventId"]];
+        NSURLComponents *originalComponents = [[NSURLComponents alloc] initWithString:redirectURL];
+        // Verify that the URL is accepted by the callback matcher with the matching event ID.
+        XCTAssertTrue(callbackMatcher([originalComponents URL]));
+        NSURLComponents *components = [originalComponents copy];
+        components.query = @"https";
+        XCTAssertFalse(callbackMatcher([components URL]));
+        components = [originalComponents copy];
+        components.host = @"badhost";
+        XCTAssertFalse(callbackMatcher([components URL]));
+        components = [originalComponents copy];
+        components.path = @"badpath";
+        XCTAssertFalse(callbackMatcher([components URL]));
+        components = [originalComponents copy];
+        components.query = @"badquery";
+        XCTAssertFalse(callbackMatcher([components URL]));
+
+        // `completion` is at index 5
+        [invocation getArgument:&unretainedArgument atIndex:5];
+        FIRAuthURLPresentationCompletion completion = unretainedArgument;
+        dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+          completion(originalComponents.URL, nil);
+        });
+      });
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [_provider
+      getCredentialWithUIDelegate:mockUIDelegate
+                       completion:^(FIRAuthCredential *_Nullable credential,
+                                    NSError *_Nullable error) {
+                         XCTAssertTrue([NSThread isMainThread]);
+                         XCTAssertNil(error);
+                         XCTAssertTrue([credential isKindOfClass:[FIROAuthCredential class]]);
+                         FIROAuthCredential *OAuthCredential = (FIROAuthCredential *)credential;
+                         XCTAssertEqualObjects(kFakeOAuthResponseURL,
+                                               OAuthCredential.OAuthResponseURLString);
+                         [expectation fulfill];
+                       }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testGetCredentialWithUIDelegateWithTenantID
+    @brief Tests a successful invocation of @c getCredentialWithUIDelegte:completion:
+ */
+- (void)testGetCredentialWithUIDelegateWithTenantID {
+  id mockBundle = OCMClassMock([NSBundle class]);
+  OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
+  OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
+    @{@"CFBundleURLSchemes" : @[ kFakeReverseClientID ]}
+  ]);
+  OCMStub([mockBundle bundleIdentifier]).andReturn(kFakeBundleID);
+  OCMStub([_mockAuth tenantID]).andReturn(kFakeTenantID);
+
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIROAuthProvider providerWithProviderID:kFakeProviderID auth:_mockAuth];
+
+  OCMExpect([_mockBackend getProjectConfig:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(
+          ^(FIRGetProjectConfigRequest *request, FIRGetProjectConfigResponseCallback callback) {
+            XCTAssertNotNil(request);
+            dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+              id mockGetProjectConfigResponse = OCMClassMock([FIRGetProjectConfigResponse class]);
+              OCMStub([mockGetProjectConfigResponse authorizedDomains]).andReturn(@[
+                kFakeAuthorizedDomain
+              ]);
+              callback(mockGetProjectConfigResponse, nil);
+            });
+          });
+
+  id mockUIDelegate = OCMProtocolMock(@protocol(FIRAuthUIDelegate));
+
+  // Expect view controller presentation by UIDelegate.
+  OCMExpect([_mockURLPresenter presentURL:OCMOCK_ANY
+                               UIDelegate:mockUIDelegate
+                          callbackMatcher:OCMOCK_ANY
+                               completion:OCMOCK_ANY])
+      .andDo(^(NSInvocation *invocation) {
+        __unsafe_unretained id unretainedArgument;
+        // Indices 0 and 1 indicate the hidden arguments self and _cmd.
+        // `presentURL` is at index 2.
+        [invocation getArgument:&unretainedArgument atIndex:2];
+        NSURL *presentURL = unretainedArgument;
+        XCTAssertEqualObjects(presentURL.scheme, @"https");
+        XCTAssertEqualObjects(presentURL.host, kFakeAuthorizedDomain);
+        XCTAssertEqualObjects(presentURL.path, @"/__/auth/handler");
+        NSDictionary *params = [FIRAuthWebUtils dictionaryWithHttpArgumentsString:presentURL.query];
+        XCTAssertEqualObjects(params[@"ibi"], kFakeBundleID);
+        XCTAssertEqualObjects(params[@"clientId"], kFakeClientID);
+        XCTAssertEqualObjects(params[@"apiKey"], kFakeAPIKey);
+        XCTAssertEqualObjects(params[@"authType"], @"signInWithRedirect");
+        XCTAssertEqualObjects(params[@"tid"], kFakeTenantID);
+        XCTAssertNotNil(params[@"v"]);
         // `callbackMatcher` is at index 4
         [invocation getArgument:&unretainedArgument atIndex:4];
         FIRAuthURLCallbackMatcher callbackMatcher = unretainedArgument;
@@ -416,6 +526,7 @@ static NSString *const kUnknownErrorString =
         XCTAssertEqualObjects(params[@"apiKey"], kFakeAPIKey);
         XCTAssertEqualObjects(params[@"authType"], @"signInWithRedirect");
         XCTAssertNotNil(params[@"v"]);
+        XCTAssertNil(params[@"tid"]);
         // `callbackMatcher` is at index 4
         [invocation getArgument:&unretainedArgument atIndex:4];
         FIRAuthURLCallbackMatcher callbackMatcher = unretainedArgument;
@@ -516,6 +627,7 @@ static NSString *const kUnknownErrorString =
         XCTAssertEqualObjects(params[@"apiKey"], kFakeAPIKey);
         XCTAssertEqualObjects(params[@"authType"], @"signInWithRedirect");
         XCTAssertNotNil(params[@"v"]);
+        XCTAssertNil(params[@"tid"]);
         // `callbackMatcher` is at index 4
         [invocation getArgument:&unretainedArgument atIndex:4];
         FIRAuthURLCallbackMatcher callbackMatcher = unretainedArgument;
@@ -614,6 +726,7 @@ static NSString *const kUnknownErrorString =
         XCTAssertEqualObjects(params[@"apiKey"], kFakeAPIKey);
         XCTAssertEqualObjects(params[@"authType"], @"signInWithRedirect");
         XCTAssertNotNil(params[@"v"]);
+        XCTAssertNil(params[@"tid"]);
         // `callbackMatcher` is at index 4
         [invocation getArgument:&unretainedArgument atIndex:4];
         FIRAuthURLCallbackMatcher callbackMatcher = unretainedArgument;
@@ -713,6 +826,7 @@ static NSString *const kUnknownErrorString =
         XCTAssertEqualObjects(params[@"apiKey"], kFakeAPIKey);
         XCTAssertEqualObjects(params[@"authType"], @"signInWithRedirect");
         XCTAssertNotNil(params[@"v"]);
+        XCTAssertNil(params[@"tid"]);
         // `callbackMatcher` is at index 4
         [invocation getArgument:&unretainedArgument atIndex:4];
         FIRAuthURLCallbackMatcher callbackMatcher = unretainedArgument;
@@ -812,6 +926,7 @@ static NSString *const kUnknownErrorString =
         XCTAssertEqualObjects(params[@"apiKey"], kFakeAPIKey);
         XCTAssertEqualObjects(params[@"authType"], @"signInWithRedirect");
         XCTAssertNotNil(params[@"v"]);
+        XCTAssertNil(params[@"tid"]);
         // `callbackMatcher` is at index 4
         [invocation getArgument:&unretainedArgument atIndex:4];
         FIRAuthURLCallbackMatcher callbackMatcher = unretainedArgument;
@@ -910,6 +1025,7 @@ static NSString *const kUnknownErrorString =
         XCTAssertEqualObjects(params[@"apiKey"], kFakeAPIKey);
         XCTAssertEqualObjects(params[@"authType"], @"signInWithRedirect");
         XCTAssertNotNil(params[@"v"]);
+        XCTAssertNil(params[@"tid"]);
         // `callbackMatcher` is at index 4
         [invocation getArgument:&unretainedArgument atIndex:4];
         FIRAuthURLCallbackMatcher callbackMatcher = unretainedArgument;
@@ -1014,6 +1130,7 @@ static NSString *const kUnknownErrorString =
         XCTAssertEqualObjects(params[@"apiKey"], kFakeAPIKey);
         XCTAssertEqualObjects(params[@"authType"], @"signInWithRedirect");
         XCTAssertNotNil(params[@"v"]);
+        XCTAssertNil(params[@"tid"]);
         // `callbackMatcher` is at index 4
         [invocation getArgument:&unretainedArgument atIndex:4];
         FIRAuthURLCallbackMatcher callbackMatcher = unretainedArgument;
@@ -1108,6 +1225,7 @@ static NSString *const kUnknownErrorString =
         XCTAssertEqualObjects(params[@"apiKey"], kFakeAPIKey);
         XCTAssertEqualObjects(params[@"authType"], @"signInWithRedirect");
         XCTAssertNotNil(params[@"v"]);
+        XCTAssertNil(params[@"tid"]);
         // `callbackMatcher` is at index 4
         [invocation getArgument:&unretainedArgument atIndex:4];
         FIRAuthURLCallbackMatcher callbackMatcher = unretainedArgument;
