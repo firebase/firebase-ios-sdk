@@ -29,6 +29,11 @@
  */
 static NSString *const kTestAPIKey = @"APIKey";
 
+/** @var kTestFirebaseAppID
+    @brief Fake Firebase app ID used for testing.
+ */
+static NSString *const kTestFirebaseAppID = @"appID";
+
 /** @var kProviderIDKey
     @brief The name of the "providerId" property in the response.
  */
@@ -189,7 +194,8 @@ static const double kAllowedTimeDifference = 0.1;
   FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
   _RPCIssuer = RPCIssuer;
-  _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
+  _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey
+                                                                        appID:kTestFirebaseAppID];
 }
 
 - (void)tearDown {

@@ -35,6 +35,29 @@ jobs:
           private_key: ${{ secrets.CPP_WORKFLOW_TRIGGER_APP_PRIVATE_KEY }}
           repository: firebase/firebase-cpp-sdk
 
+      - name: Ensure Cocoapods repo has been updated
+        run: |
+          # If the new version is simply vX.Y.Z, wait up to an hour for its podspec to be present.
+          if [[ "$GITHUB_REF" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Checking Cocoapods repo for associated Firebase ${GITHUB_REF:1} podspec."
+            podspec_url="https://github.com/CocoaPods/Specs/blob/master/Specs/0/3/5/Firebase/${GITHUB_REF:1}/Firebase.podspec.json"
+            for retry in {1..12} error; do
+              # Check every 5 minutes, up to an hour, for the new podspec to be present.
+              # If it's still not present, trigger the update anyway.
+              if [[ $retry == "error" ]]; then
+                echo "::warning ::Firebase ${GITHUB_REF:1} podspec not found, updating anyway."
+                exit 0
+              fi
+              echo -n "Check ${podspec_url} (attempt ${retry}) ..."
+              curl -L -f -o /dev/null "${podspec_url}" 2> /dev/null && echo " success!" && break
+              echo " failed."
+              sleep 300
+            done
+          else
+            echo "Tag '$GITHUB_REF' doesn't match the 'vX.Y.Z' format, skipping Cocoapods repo check."
+          fi
+
       - name: Trigger firebase-cpp-sdk update
         run: |
+          pip install -r scripts/gha/requirements.txt
           python scripts/gha/trigger_workflow.py -t ${{ steps.generate-token.outputs.token }} -w update-dependencies.yml -p updateAndroid 0 -p updateiOS 1 -p comment "[Triggered]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID) by [firebase-ios-sdk $GITHUB_REF release]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/$GITHUB_REF)." -s 10 -A

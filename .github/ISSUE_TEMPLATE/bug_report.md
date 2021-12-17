@@ -27,6 +27,7 @@ template_path=.github/ISSUE_TEMPLATE/bug_report.md
   * Firebase SDK version: _____
   * Installation method: `CocoaPods | Carthage | Zip file | Swift Package Manager` (select one)
   * Firebase Component: _____ (Auth, Core, Database, Firestore, Messaging, Storage, etc)
+  * Target platform(s): `All | iOS | Catalyst | macOS | tvOS | watchOS`
 
 ### [REQUIRED] Step 2: Describe the problem
 

@@ -23,7 +23,7 @@ jobs:
             "${{ env.gpg_passphrase }}"
           gcloud auth activate-service-account --key-file service_account.json
       - name: Produce health metric diff reports
-        uses: yifanyang/github-actions/health-metrics/release-diffing@master
+        uses: FirebaseExtended/github-actions/health-metrics/release-diffing@master
         with:
           repo: ${{ github.repository }}
           ref: ${{ github.ref }}

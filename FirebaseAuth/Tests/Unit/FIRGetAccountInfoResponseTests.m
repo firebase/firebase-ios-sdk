@@ -30,6 +30,11 @@
  */
 static NSString *const kTestAPIKey = @"APIKey";
 
+/** @var kTestFirebaseAppID
+    @brief Fake Firebase app ID used for testing.
+ */
+static NSString *const kTestFirebaseAppID = @"appID";
+
 /** @var kUsersKey
     @brief the name of the "users" property in the response.
  */
@@ -152,7 +157,7 @@ static NSString *const kEmailVerifiedKey = @"emailVerified";
  */
 - (void)testGetAccountInfoUnexpectedResponseError {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey appID:kTestFirebaseAppID];
   FIRGetAccountInfoRequest *request =
       [[FIRGetAccountInfoRequest alloc] initWithAccessToken:kTestAccessToken
                                        requestConfiguration:requestConfiguration];
@@ -187,7 +192,7 @@ static NSString *const kEmailVerifiedKey = @"emailVerified";
  */
 - (void)testSuccessfulGetAccountInfoResponse {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey appID:kTestFirebaseAppID];
   FIRGetAccountInfoRequest *request =
       [[FIRGetAccountInfoRequest alloc] initWithAccessToken:kTestAccessToken
                                        requestConfiguration:requestConfiguration];

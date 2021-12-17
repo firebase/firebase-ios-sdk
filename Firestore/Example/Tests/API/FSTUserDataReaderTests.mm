@@ -33,7 +33,6 @@
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 
-namespace util = firebase::firestore::util;
 namespace nanopb = firebase::firestore::nanopb;
 using firebase::Timestamp;
 using firebase::firestore::GeoPoint;
@@ -62,6 +61,7 @@ using firebase::firestore::testutil::Field;
 using firebase::firestore::testutil::Map;
 using firebase::firestore::testutil::Value;
 using firebase::firestore::testutil::WrapObject;
+using firebase::firestore::util::MakeString;
 
 @interface FSTUserDataReaderTests : XCTestCase
 @end
@@ -131,7 +131,7 @@ union DoubleBits {
   for (id value in values) {
     Message<google_firestore_v1_Value> wrapped = FSTTestFieldValue(value);
     XCTAssertEqual(GetTypeOrder(*wrapped), TypeOrder::kString);
-    XCTAssertEqual(nanopb::MakeString(wrapped->string_value), util::MakeString(value));
+    XCTAssertEqual(nanopb::MakeString(wrapped->string_value), MakeString(value));
   }
 }
 

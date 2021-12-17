@@ -49,7 +49,7 @@ public enum DecodingFailureStrategy {
 ///     }
 ///
 /// `FirestoreQuery` also supports returning a `Result` type. The `.success` case
-/// returns an array of elements, whereas the `.failiure` case returns an error
+/// returns an array of elements, whereas the `.failure` case returns an error
 /// in case mapping the Firestore docments wasn't successful:
 ///
 ///     struct ContentView: View {
@@ -70,7 +70,7 @@ public enum DecodingFailureStrategy {
 ///
 /// Alternatively, the _projected value_ of the property wrapper provides access to
 /// the `error` as well. This allows you to display a list of all successfully mapped
-/// documents, as well as an error mesage with details about the documents that couldn't
+/// documents, as well as an error message with details about the documents that couldn't
 /// be mapped successfully (e.g. because of a field name mismatch).
 ///
 ///     struct ContentView: View {
