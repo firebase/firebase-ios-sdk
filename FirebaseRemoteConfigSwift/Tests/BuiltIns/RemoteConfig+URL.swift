@@ -1,11 +1,12 @@
 //
-//  File.swift
+//  RemoteConfig+URL.swift
 //  
 //
 //  Created by 伊藤史 on 2021/11/21.
 //
 
 import Foundation
+import FirebaseRemoteConfigSwift
 
 final class RemoteConfigURLSpec: RemoteConfigSerializableSpec<URL> {
     var defaultValue: URL = URL(string: "https://console.firebase.google.com/")!

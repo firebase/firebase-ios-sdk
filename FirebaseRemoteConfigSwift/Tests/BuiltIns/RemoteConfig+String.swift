@@ -1,11 +1,12 @@
 //
-//  File.swift
+//  RemoteConfig+String.swift
 //  
 //
 //  Created by 伊藤史 on 2021/11/21.
 //
 
 import Foundation
+import FirebaseRemoteConfigSwift
 
 final class RemoteConfigStringSpec: RemoteConfigSerializableSpec<String> {
     var defaultValue: String = "Firebase"

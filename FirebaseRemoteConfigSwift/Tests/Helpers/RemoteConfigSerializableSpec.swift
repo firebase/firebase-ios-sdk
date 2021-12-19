@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  RemoteConfigSerializableSpec.swift
 //  
 //
 //  Created by 伊藤史 on 2021/11/06.
@@ -7,7 +7,7 @@
 
 import Foundation
 import XCTest
-@testable import SwiftyRemoteConfig
+@testable import FirebaseRemoteConfigSwift
 import FirebaseRemoteConfig
 import FirebaseCore
 

@@ -1,11 +1,12 @@
 //
-//  File.swift
+//  RemoteConfig+Int.swift
 //  
 //
 //  Created by 伊藤史 on 2021/11/21.
 //
 
 import Foundation
+import FirebaseRemoteConfigSwift
 
 final class RemoteConfigIntSpec: RemoteConfigSerializableSpec<Int> {
     var defaultValue: Int = 1

@@ -1,12 +1,12 @@
-# SwiftyRemoteConfig
+# RemoteConfigSwift
 
 **Modern Swift API for `FirebaseRemoteConfig`**
 
-SwiftyRemoteConfig makes Firebase Remote Config enjoyable to use by combining expressive Swifty API with the benefits fo static typing. This library is strongly inspired by [SwiftyUserDefaults](https://github.com/sunshinejr/SwiftyUserDefaults).
+RemoteConfigSwift makes Firebase Remote Config enjoyable to use by combining expressive Swifty API with the benefits fo static typing. This library is strongly inspired by [SwiftyUserDefaults](https://github.com/sunshinejr/SwiftyUserDefaults).
 
 ## Features 
 
-There is only one step to start using SwiftyRemoteConfig.
+There is only one step to start using RemoteConfigSwift.
 
 Define your Keys !
 
@@ -37,7 +37,7 @@ let subColor: UIColor = RemoteConfigs.subColor
 
 ### Define your keys
 
-To get the most out of SwiftyRemoteConfig, define your remote config keys ahead of time:
+To get the most out of RemoteConfigSwift, define your remote config keys ahead of time:
 
 ```swift
 let flag = RemoteConfigKey<Bool>("flag", defaultValue: false)
@@ -72,7 +72,7 @@ RemoteConfigs[\.flag] // => false
 
 ### Supported types
 
-SwiftyRemoteConfig supports standard types as following:
+RemoteConfigSwift supports standard types as following:
 
 | Single value | Array |
 |:---:|:---:|
@@ -91,7 +91,7 @@ and that's not all !
 
 ### Codable
 
-`SwiftyRemoteConfig` supports `Codable` ! Just conform to `RemoteConfigSerializable` in your type:
+`RemoteConfigSwift` supports `Codable` ! Just conform to `RemoteConfigSerializable` in your type:
 
 ```swift
 final class UserSection: Codable, RemoteConfigSerializable {
@@ -234,7 +234,7 @@ Also, take a look at our source code or tests to see more examples of bridges. I
 
 ## KeyPath dynamicMemberLookup
 
-SwiftyRemoteConfig makes KeyPath dynamicMemberLookpu usable in Swift 5.1.
+RemoteConfigSwift makes KeyPath dynamicMemberLookpu usable in Swift 5.1.
 
 ```swift
 extension RemoteConfigKeys {
@@ -273,7 +273,7 @@ let themaColor: UIColor = RemoteConfig.themaColor
 If you're using Cocoapods, just add this line to your `Podfile`:
 
 ```ruby
-pod 'SwiftyRemoteConfig`, `~> 0.0.2`
+pod 'RemoteConfigSwift`, `~> 0.0.2`
 ```
 
 Install by running this command in your terminal:
@@ -285,7 +285,7 @@ $ pod install
 Then import the library in all files where you use it:
 
 ```swift
-import SwiftyRemoteConfig
+import RemoteConfigSwift
 ```
 
 ### Carthage
@@ -293,7 +293,7 @@ import SwiftyRemoteConfig
 Just add your Cartfile
 
 ```
-github "fumito-ito/SwiftyRemoteConfig" ~> 0.0.2
+github "fumito-ito/RemoteConfigSwift" ~> 0.0.2
 ```
 
 ### Swift Package Manager
@@ -305,9 +305,9 @@ let package = Package(
     name: "MyPackage",
     products: [...],
     dependencies: [
-        .package(url: "https://github.com/fumito-ito/SwiftyRemoteConfig.git", .upToNextMajor(from: "0.0.2"))
+        .package(url: "https://github.com/fumito-ito/RemoteConfigSwift.git", .upToNextMajor(from: "0.0.2"))
     ]
 )
 ```
 
-SwiftyRemoteConfig is available under the Apache License 2.0. See the LICENSE file for more detail.
+RemoteConfigSwift is available under the Apache License 2.0. See the LICENSE file for more detail.

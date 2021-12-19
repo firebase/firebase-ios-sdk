@@ -1,6 +1,6 @@
 //
-//  Defaults+Subscripts.swift
-//  SwiftyRemoteConfig
+//  RemoteConfig+Subscripts.swift
+//  RemoteConfigSwift
 //
 //  Created by 伊藤史 on 2020/08/21.
 //  Copyright © 2020 Fumito Ito. All rights reserved.
@@ -69,7 +69,7 @@ public extension RemoteConfig {
             } else if let defaultValue = key.defaultValue {
                 return defaultValue
             } else {
-                fatalError("Unexpected path is executed. please report to https://github.com/fumito-ito/SwiftyRemoteConfig")
+                fatalError("Unexpected path is executed. please report to https://github.com/fumito-ito/RemoteConfigSwift")
             }
         }
     }

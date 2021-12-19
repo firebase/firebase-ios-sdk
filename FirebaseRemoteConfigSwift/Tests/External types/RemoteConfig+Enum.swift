@@ -1,11 +1,12 @@
 //
-//  File.swift
+//  RemoteConfig+Enum.swift
 //  
 //
 //  Created by 伊藤史 on 2021/11/23.
 //
 
 import Foundation
+import FirebaseRemoteConfigSwift
 
 final class RemoteConfigBestFroggiesEnumSerializableSpec: RemoteConfigSerializableSpec<BestFroggiesEnum> {
     var defaultValue: BestFroggiesEnum = .Dandy

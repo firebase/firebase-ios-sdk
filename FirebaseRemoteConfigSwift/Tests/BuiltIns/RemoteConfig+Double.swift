@@ -1,11 +1,12 @@
 //
-//  File.swift
+//  RemoteConfig+Double.swift
 //  
 //
 //  Created by 伊藤史 on 2021/11/21.
 //
 
 import Foundation
+import FirebaseRemoteConfigSwift
 
 final class RemoteConfigDoubleSpec: RemoteConfigSerializableSpec<Double> {
     var defaultValue: Double = 1.0

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import FirebaseRemoteConfigSwift
 
 final class RemoteConfigBoolSpec: RemoteConfigSerializableSpec<Bool> {
     var defaultValue: Bool = true

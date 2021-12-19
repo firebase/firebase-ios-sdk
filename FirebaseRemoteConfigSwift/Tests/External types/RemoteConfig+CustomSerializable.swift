@@ -1,11 +1,12 @@
 //
-//  File.swift
+//  RemoteConfig+CustomSerializable.swift
 //  
 //
 //  Created by 伊藤史 on 2021/11/23.
 //
 
 import Foundation
+import FirebaseRemoteConfigSwift
 
 final class RemoteConfigCustomSerializableSpec: RemoteConfigSerializableSpec<FrogCustomSerializable> {
     var defaultValue: FrogCustomSerializable = FrogCustomSerializable(name: "default")

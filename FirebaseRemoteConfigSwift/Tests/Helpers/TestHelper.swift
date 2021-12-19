@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import SwiftyRemoteConfig
+import RemoteConfigSwift
 import Firebase
 import XCTest
 
