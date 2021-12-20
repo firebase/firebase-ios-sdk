@@ -18,7 +18,6 @@ import Foundation
 public final class HeartbeatController {
   /// The thread-safe storage object to log and flush heartbeats from.
   private let storage: HeartbeatStorageProtocol
-  // TODO: Decide on default value.
   /// The max capacity of heartbeats to store in storage.
   private let heartbeatsStorageCapacity: Int = 30
   /// Current date provider. It is used for testability.
@@ -61,7 +60,6 @@ public final class HeartbeatController {
   /// Asynchronously logs a new heartbeat, if needed.
   ///
   /// - Note: This API is thread-safe.
-  ///
   /// - Parameter agent: The string agent (i.e. Firebase User Agent) to associate the logged heartbeat with.
   public func log(_ agent: String) {
     let date = dateProvider()
@@ -91,11 +89,10 @@ public final class HeartbeatController {
   /// Synchronously flushes heartbeats from storage into a heartbeats payload.
   ///
   /// - Note: This API is thread-safe.
-  ///
   /// - Returns: The flushed heartbeats in the form of `HeartbeatsPayload`.
   @discardableResult
   public func flush() -> HeartbeatsPayload {
-    let resetTransform: (HeartbeatsBundle?) -> HeartbeatsBundle? = { heartbeatsBundle in
+    let resetTransform = { (heartbeatsBundle: HeartbeatsBundle?) -> HeartbeatsBundle? in
       guard let oldHeartbeatsBundle = heartbeatsBundle else {
         return nil // Storage was empty.
       }
@@ -108,12 +105,41 @@ public final class HeartbeatController {
     }
 
     // Synchronously gets and returns the stored heartbeats, resetting storage
-    // using the given transform. If the operation threw an error, assume no
-    // heartbeats were retrieved or set.
+    // using the given transform. If the operation throws, assume no
+    // heartbeat(s) were retrieved or set.
     if let heartbeatsBundle = try? storage.getAndSet(using: resetTransform) {
       return heartbeatsBundle.makeHeartbeatsPayload()
     } else {
       return HeartbeatsPayload.emptyPayload
     }
+  }
+
+  /// Synchronously flushes the heartbeat for today.
+  ///
+  /// If no heartbeat was logged today, the returned payload is empty.
+  ///
+  /// - Note: This API is thread-safe.
+  /// - Returns: A heartbeats payload for the flushed heartbeat.
+  @discardableResult
+  public func flushHeartbeatFromToday() -> HeartbeatsPayload {
+    let todaysDate = dateProvider()
+    var todaysHeartbeat: Heartbeat?
+
+    storage.readAndWriteSync { heartbeatsBundle in
+      guard var heartbeatsBundle = heartbeatsBundle else {
+        return nil // Storage was empty.
+      }
+
+      todaysHeartbeat = heartbeatsBundle.removeHeartbeat(from: todaysDate)
+
+      return heartbeatsBundle
+    }
+
+    // Note that `todaysHeartbeat` is updated in the above read/write block.
+    guard let todaysHeartbeat = todaysHeartbeat else {
+      return HeartbeatsPayload.emptyPayload
+    }
+
+    return todaysHeartbeat.makeHeartbeatsPayload()
   }
 }
