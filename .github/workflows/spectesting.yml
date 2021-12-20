@@ -31,9 +31,12 @@ jobs:
       # The SpecsTesting repo was updated by podspec-tester to point to the head of a PR.
       run: |
         set -ex
+        cust_func(){
+          echo "$1 is testing."
+          pod spec lint $1 --sources=https://github.com/firebase/SpecsTesting,https://cdn.cocoapods.org/
+        }
         { cat output.txt; echo; } | while read -r podspec; do 
-          echo "${podspec} is testing."
-          pod spec lint $podspec --sources=https://github.com/firebase/SpecsTesting,https://cdn.cocoapods.org/ &
+          cust_func ${podspec} &
         done
         wait 
         echo "All done"

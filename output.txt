@@ -1,2 +1,2 @@
-asdf
-qwer
+FirebaseAuth.podspec
+FirebaseCrashlytics.podspec
