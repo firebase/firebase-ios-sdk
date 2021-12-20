@@ -32,7 +32,8 @@ jobs:
       run: |
         set -ex
         { cat output.txt; echo; } | while read -r podspec; do 
-          pod spec lint $podspec --sources=https://github.com/firebase/SpecsTesting,https://cdn.cocoapods.org/
+          pod spec lint $podspec --sources=https://github.com/firebase/SpecsTesting,https://cdn.cocoapods.org/ &
         done
+        wait 
         echo "All done"
 
