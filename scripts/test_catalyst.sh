@@ -59,5 +59,8 @@ args=(
   "MACOSX_DEPLOYMENT_TARGET=10.15"
 )
 
+source scripts/buildcache.sh
+args=("${args[@]}" "${buildcache_xcb_flags[@]}")
+
 xcodebuild -version
 xcodebuild "${args[@]}" | xcpretty

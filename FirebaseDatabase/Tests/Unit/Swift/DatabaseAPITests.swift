@@ -123,7 +123,7 @@ final class DatabaseAPITests {
           }
         }
       }
-    #endif // swift(>=5.5)
+    #endif // compiler(>=5.5) && canImport(_Concurrency)
 
     // Observe Single Event
 
@@ -147,7 +147,7 @@ final class DatabaseAPITests {
             .observeSingleEventAndPreviousSiblingKey(of: dataEventType)
         }
       }
-    #endif // swift(>=5.5)
+    #endif // compiler(>=5.5) && canImport(_Concurrency)
 
     // observeSingleEvent(of eventType:with block:withCancel cancelBlock:)
     databaseQuery.observeSingleEvent(of: dataEventType) { dataSnapshot in
@@ -222,7 +222,7 @@ final class DatabaseAPITests {
           }
         }
       }
-    #endif // swift(>=5.5)
+    #endif // compiler(>=5.5) && canImport(_Concurrency)
 
     databaseReference.setValue(value, andPriority: priority)
 
@@ -245,7 +245,7 @@ final class DatabaseAPITests {
           }
         }
       }
-    #endif // swift(>=5.5)
+    #endif // compiler(>=5.5) && canImport(_Concurrency)
 
     // Remove value
     databaseReference.removeValue()
@@ -267,7 +267,7 @@ final class DatabaseAPITests {
           }
         }
       }
-    #endif // swift(>=5.5)
+    #endif // compiler(>=5.5) && canImport(_Concurrency)
 
     // Set priority
     databaseReference.setPriority(priority)
@@ -290,7 +290,7 @@ final class DatabaseAPITests {
           }
         }
       }
-    #endif // swift(>=5.5)
+    #endif // compiler(>=5.5) && canImport(_Concurrency)
 
     // Update child values
     databaseReference.updateChildValues(values)
@@ -314,7 +314,7 @@ final class DatabaseAPITests {
           }
         }
       }
-    #endif // swift(>=5.5)
+    #endif // compiler(>=5.5) && canImport(_Concurrency)
 
     // Observe for data
 
@@ -366,7 +366,7 @@ final class DatabaseAPITests {
             .observeSingleEventAndPreviousSiblingKey(of: dataEventType)
         }
       }
-    #endif // swift(>=5.5)
+    #endif // compiler(>=5.5) && canImport(_Concurrency)
 
     // observeSingleEvent(of eventType:with block:withCancel cancelBlock:)
     databaseReference.observeSingleEvent(of: dataEventType) { dataSnapshot in
@@ -402,7 +402,7 @@ final class DatabaseAPITests {
           }
         }
       }
-    #endif // swift(>=5.5)
+    #endif // compiler(>=5.5) && canImport(_Concurrency)
 
     // Remove Observers
     databaseReference.removeObserver(withHandle: databaseHandle)
@@ -448,7 +448,7 @@ final class DatabaseAPITests {
           }
         }
       }
-    #endif // swift(>=5.5)
+    #endif // compiler(>=5.5) && canImport(_Concurrency)
 
     databaseReference.onDisconnectSetValue(value, andPriority: priorityAny)
 
@@ -474,7 +474,7 @@ final class DatabaseAPITests {
           }
         }
       }
-    #endif // swift(>=5.5)
+    #endif // compiler(>=5.5) && canImport(_Concurrency)
 
     // onDisconnectRemoveValue
     databaseReference.onDisconnectRemoveValue()
@@ -497,7 +497,7 @@ final class DatabaseAPITests {
           }
         }
       }
-    #endif // swift(>=5.5)
+    #endif // compiler(>=5.5) && canImport(_Concurrency)
 
     // onDisconnectUpdateChildValues
     databaseReference.onDisconnectUpdateChildValues(values)
@@ -521,7 +521,7 @@ final class DatabaseAPITests {
           }
         }
       }
-    #endif // swift(>=5.5)
+    #endif // compiler(>=5.5) && canImport(_Concurrency)
 
     // cancelDisconnectOperations
     databaseReference.cancelDisconnectOperations()
@@ -544,7 +544,7 @@ final class DatabaseAPITests {
           }
         }
       }
-    #endif // swift(>=5.5)
+    #endif // compiler(>=5.5) && canImport(_Concurrency)
 
     // runTransactionBlock
 
@@ -580,7 +580,7 @@ final class DatabaseAPITests {
           }
         }
       }
-    #endif // swift(>=5.5)
+    #endif // compiler(>=5.5) && canImport(_Concurrency)
 
     // runTransactionBlock(_ block:andCompletionBlock completionBlock:withLocalEvents localEvents:)
     databaseReference.runTransactionBlock({ mutableData in

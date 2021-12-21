@@ -25,10 +25,15 @@
  */
 static NSString *const kAPIKey = @"APIKey";
 
-/** @var kCode
-    @brief A testing authorization code.
+/** @var kFirebaseAppID
+    @brief A testing Firebase app ID.
  */
-static NSString *const kCode = @"code";
+static NSString *const kFirebaseAppID = @"appID";
+
+/** @var kRefreshToken
+    @brief A testing refresh token.
+ */
+static NSString *const kRefreshToken = @"refreshToken";
 
 /** @var kEmulatorHostAndPort
     @brief A testing emulator host and port.
@@ -49,10 +54,10 @@ static NSString *const kEmulatorHostAndPort = @"emulatorhost:12345";
  */
 - (void)testRequestURL {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID];
   FIRSecureTokenRequest *request =
-      [FIRSecureTokenRequest authCodeRequestWithCode:kCode
-                                requestConfiguration:requestConfiguration];
+      [FIRSecureTokenRequest refreshRequestWithRefreshToken:kRefreshToken
+                                       requestConfiguration:requestConfiguration];
 
   NSString *expectedURL =
       [NSString stringWithFormat:@"https://securetoken.googleapis.com/v1/token?key=%@", kAPIKey];
@@ -66,11 +71,11 @@ static NSString *const kEmulatorHostAndPort = @"emulatorhost:12345";
  */
 - (void)testRequestURLUseEmulator {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID];
   requestConfiguration.emulatorHostAndPort = kEmulatorHostAndPort;
   FIRSecureTokenRequest *request =
-      [FIRSecureTokenRequest authCodeRequestWithCode:kCode
-                                requestConfiguration:requestConfiguration];
+      [FIRSecureTokenRequest refreshRequestWithRefreshToken:kRefreshToken
+                                       requestConfiguration:requestConfiguration];
 
   NSString *expectedURL =
       [NSString stringWithFormat:@"http://%@/securetoken.googleapis.com/v1/token?key=%@",

@@ -107,6 +107,9 @@ jobs:
         target: [iOS]
     steps:
     - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
@@ -145,6 +148,9 @@ jobs:
         target: [iOS]
     steps:
     - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
@@ -164,6 +170,9 @@ jobs:
         target: [iOS]
     steps:
     - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
@@ -184,6 +193,9 @@ jobs:
         target: [iOS]
     steps:
     - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
@@ -203,6 +215,9 @@ jobs:
         target: [iOS]
     steps:
     - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
@@ -222,6 +237,9 @@ jobs:
         target: [iOS]
     steps:
     - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
@@ -241,6 +259,9 @@ jobs:
         target: [iOS]
     steps:
     - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
@@ -260,6 +281,9 @@ jobs:
         target: [iOS]
     steps:
     - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
@@ -279,6 +303,9 @@ jobs:
         target: [iOS]
     steps:
     - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
@@ -298,6 +325,9 @@ jobs:
         target: [iOS]
     steps:
     - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
