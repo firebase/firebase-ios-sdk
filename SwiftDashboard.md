@@ -25,7 +25,7 @@ tasks for additional Swift improvements.
 - Swift Generics. Update APIs that are using weakly typed information to use proper generics.
 
 ## Notes
-1. In progress at [#8854](https://github.com/firebase/firebase-ios-sdk/pull/8854)
+1. Planned to release with Firebase 8.11.0
 2. Tests exist. Coverage to be confirmed.
 3. Mostly done. Need to review open questions in the RTDB tab [here](https://docs.google.com/spreadsheets/d/1HS4iJBtTHA9E01VrcsiVn_GVOa7KOCcn5LNw3sWlGoU/edit#gid=75586175).
 4. Feature Request at [#7723](https://github.com/firebase/firebase-ios-sdk/pull/7723) and PR at [#9000](https://github.com/firebase/firebase-ios-sdk/pull/9000)
