@@ -82,8 +82,8 @@ NS_SWIFT_NAME(WriteBatch)
  * @param document A reference to the document whose data should be overwritten.
  * @param mergeFields An `NSArray` that contains a list of `NSString` or `FIRFieldPath` elements
  * specifying which fields to merge. Fields can contain dots to reference nested fields within
- * the document. If your input sets any field to an empty dictionary, any nested field at this location
- * is overwritten.
+ * the document. If your input sets any field to an empty dictionary, any nested field at this
+ * location is overwritten.
  * @return This `FIRWriteBatch` instance. Used for chaining method calls.
  */
 // clang-format off
