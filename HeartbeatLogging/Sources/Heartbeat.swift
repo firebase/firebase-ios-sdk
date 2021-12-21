@@ -17,8 +17,8 @@ import Foundation
 /// An enumeration of time periods.
 enum TimePeriod: Int, CaseIterable, Codable {
   /// The raw value is the number of calendar days within each time period.
-  // TODO: Enable disabled types in future iterations.
-  case daily = 1 // , weekly = 7, monthly = 28
+  /// More types can be enabled in future iterations (i.e. `weekly = 7, monthly = 28`).
+  case daily = 1
 
   /// The number of seconds in a given time period.
   var timeInterval: TimeInterval {
@@ -61,5 +61,14 @@ struct Heartbeat: Codable, Equatable {
     self.date = date
     self.timePeriods = timePeriods
     self.version = version
+  }
+}
+
+extension Heartbeat: HeartbeatsPayloadConvertible {
+  func makeHeartbeatsPayload() -> HeartbeatsPayload {
+    let userAgentPayloads = [
+      HeartbeatsPayload.UserAgentPayload(agent: agent, dates: [date]),
+    ]
+    return HeartbeatsPayload(userAgentPayloads: userAgentPayloads)
   }
 }

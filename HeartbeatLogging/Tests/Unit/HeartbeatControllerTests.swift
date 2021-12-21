@@ -313,12 +313,86 @@ class HeartbeatControllerTests: XCTestCase {
       """
     )
   }
+
+  func testFlushHeartbeatFromToday_WhenTodayHasAHeartbeat_ReturnsPayloadWithOnlyTodaysHeartbeat() throws {
+    // Given
+    let yesterdaysDate = date.addingTimeInterval(-1 * 60 * 60 * 24)
+    let todaysDate = date
+    let tomorrowsDate = date.addingTimeInterval(60 * 60 * 24)
+
+    var testDate = yesterdaysDate
+
+    let heartbeatController = HeartbeatController(
+      storage: HeartbeatStorageFake(),
+      dateProvider: { testDate }
+    )
+
+    // When
+    heartbeatController.log("yesterdays_dummy_agent")
+    testDate = todaysDate
+    heartbeatController.log("todays_dummy_agent")
+    testDate = tomorrowsDate
+    heartbeatController.log("tomorrows_dummy_agent")
+    testDate = todaysDate
+
+    // Then
+    let payload = heartbeatController.flushHeartbeatFromToday()
+    try assertEqualPayloadStrings(
+      payload.headerValue(),
+      """
+      {
+        "version": 2,
+        "heartbeats": [
+          {
+            "agent": "todays_dummy_agent",
+            "dates": ["2021-11-01"]
+          }
+        ]
+      }
+      """
+    )
+
+    let remainingPayload = heartbeatController.flush()
+    try assertEqualPayloadStrings(
+      remainingPayload.headerValue(),
+      """
+      {
+        "version": 2,
+        "heartbeats": [
+          {
+            "agent": "tomorrows_dummy_agent",
+            "dates": ["2021-11-02"]
+          },
+          {
+            "agent": "yesterdays_dummy_agent",
+            "dates": ["2021-10-31"]
+          }
+        ]
+      }
+      """
+    )
+
+    assertHeartbeatControllerFlushesEmptyPayload(heartbeatController)
+  }
+
+  func testFlushHeartbeatFromToday_WhenTodayDoesNotHaveAHeartbeat_ReturnsEmptyPayload() throws {
+    // Given
+    let heartbeatController = HeartbeatController(id: #function, dateProvider: { self.date })
+    // When
+    heartbeatController.flushHeartbeatFromToday()
+    // Then
+    assertHeartbeatControllerFlushesEmptyPayload(heartbeatController)
+  }
 }
 
 // MARK: - Fakes
 
 private class HeartbeatStorageFake: HeartbeatStorageProtocol {
   private var heartbeatsBundle: HeartbeatsBundle?
+
+  func readAndWriteSync(using transform: (HeartbeatsBundle?) -> HeartbeatsBundle?) {
+    heartbeatsBundle = transform(heartbeatsBundle)
+  }
 
   func readAndWriteAsync(using transform: @escaping (HeartbeatsBundle?) -> HeartbeatsBundle?) {
     heartbeatsBundle = transform(heartbeatsBundle)
@@ -369,5 +443,6 @@ func assertEqualPayloadStrings(_ encoded: String, _ literal: String) throws {
 }
 
 func assertHeartbeatControllerFlushesEmptyPayload(_ controller: HeartbeatController) {
+  XCTAssertEqual(controller.flushHeartbeatFromToday().headerValue(), "")
   XCTAssertEqual(controller.flush().headerValue(), "")
 }

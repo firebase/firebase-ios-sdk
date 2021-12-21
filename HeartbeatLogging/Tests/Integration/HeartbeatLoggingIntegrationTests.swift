@@ -70,6 +70,31 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     assertHeartbeatControllerFlushesEmptyPayload(heartbeatController)
   }
 
+  /// This test may flake if it is executed during the transition from one day to the next.
+  func testFlushHeartbeatFromToday() throws {
+    // Given
+    let heartbeatController = HeartbeatController(id: #function)
+    let expectedDate = HeartbeatsPayload.dateFormatter.string(from: Date())
+    // When
+    heartbeatController.log("dummy_agent")
+    let payload = heartbeatController.flushHeartbeatFromToday()
+    // Then
+    try assertEqualPayloadStrings(
+      payload.headerValue(),
+      """
+      {
+        "version": 2,
+        "heartbeats": [
+          {
+            "agent": "dummy_agent",
+            "dates": ["\(expectedDate)"]
+          }
+        ]
+      }
+      """
+    )
+  }
+
   func testMultipleControllersWithTheSameIDUseTheSameStorageInstance() throws {
     // Given
     let heartbeatController1 = HeartbeatController(id: #function, dateProvider: { self.date })
@@ -95,7 +120,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     assertHeartbeatControllerFlushesEmptyPayload(heartbeatController1)
   }
 
-  func testHeartbeatControllerConcurrencyStressTest() throws {
+  func testLogAndFlushConcurrencyStressTest() throws {
     // Given
     let heartbeatController = HeartbeatController(id: #function, dateProvider: { self.date })
 
@@ -117,6 +142,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     }
 
     XCTAssertEqual(nonEmptyPayloads.count, 1)
+
     let payload = try XCTUnwrap(nonEmptyPayloads.first)
     try assertEqualPayloadStrings(
       payload.headerValue(),
@@ -132,6 +158,48 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
       }
       """
     )
+  }
+
+  func testLogAndFlushHeartbeatFromTodayConcurrencyStressTest() throws {
+    // Given
+    let heartbeatController = HeartbeatController(id: #function, dateProvider: { self.date })
+
+    // When
+    DispatchQueue.concurrentPerform(iterations: 100) { _ in
+      heartbeatController.log("dummy_agent")
+    }
+
+    var payloads: [HeartbeatsPayload] = []
+
+    DispatchQueue.concurrentPerform(iterations: 100) { _ in
+      let payload = heartbeatController.flushHeartbeatFromToday()
+      payloads.append(payload)
+    }
+
+    // Then
+    let nonEmptyPayloads = payloads.filter { payload in
+      payload.headerValue().count > 0
+    }
+
+    XCTAssertEqual(nonEmptyPayloads.count, 1)
+
+    let payload = try XCTUnwrap(nonEmptyPayloads.first)
+    try assertEqualPayloadStrings(
+      payload.headerValue(),
+      """
+      {
+        "version": 2,
+        "heartbeats": [
+          {
+            "agent": "dummy_agent",
+            "dates": ["2021-11-01"],
+          }
+        ]
+      }
+      """
+    )
+
+    assertHeartbeatControllerFlushesEmptyPayload(heartbeatController)
   }
 
   func testLogRepeatedly_WithoutFlushing_LimitsOnWrite() throws {

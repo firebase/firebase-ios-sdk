@@ -16,6 +16,7 @@ import Foundation
 
 /// A type that can perform atomic operations using block-based transformations.
 protocol HeartbeatStorageProtocol {
+  func readAndWriteSync(using transform: (HeartbeatsBundle?) -> HeartbeatsBundle?)
   func readAndWriteAsync(using transform: @escaping (HeartbeatsBundle?) -> HeartbeatsBundle?)
   func getAndSet(using transform: (HeartbeatsBundle?) -> HeartbeatsBundle?) throws
     -> HeartbeatsBundle?
@@ -88,6 +89,15 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
   }
 
   // MARK: - HeartbeatStorageProtocol
+
+  // TODO: Document.
+  func readAndWriteSync(using transform: (HeartbeatsBundle?) -> HeartbeatsBundle?) {
+    queue.sync {
+      let oldHeartbeatsBundle = try? load(from: storage)
+      let newHeartbeatsBundle = transform(oldHeartbeatsBundle)
+      try? save(newHeartbeatsBundle, to: storage)
+    }
+  }
 
   /// Asynchronously reads from and writes to storage using the given transform block.
   /// - Parameter transform: A block to transform the currently stored heartbeats bundle to a new
