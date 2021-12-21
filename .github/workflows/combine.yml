@@ -30,6 +30,14 @@ on:
     # Rebuild on Ruby infrastructure changes.
     - 'Gemfile'
 
+    # Dependencies
+    - 'FirebaseCore/**'
+    - 'FirebaseAuth/**'
+    - 'FirebaseFunctions/**'
+    - 'Firestore/**'
+    - 'FirebaseStorage/**'
+    - 'FirebaseStorageSwift/**'
+
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
     - cron:  '0 7 * * *'
@@ -46,6 +54,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+      with:
+        cache_key: ${{ matrix.os }}
 
     - name: Setup build
       run:  scripts/install_prereqs.sh CombineSwift ${{ matrix.target }} xcodebuild
@@ -61,6 +72,9 @@ jobs:
     runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Install Secret GoogleService-Info.plist

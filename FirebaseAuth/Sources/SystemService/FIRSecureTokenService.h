@@ -64,14 +64,6 @@ typedef void (^FIRFetchAccessTokenCallback)(NSString *_Nullable token,
  */
 @property(nonatomic, copy, readonly, nullable) NSDate *accessTokenExpirationDate;
 
-/** @fn initWithRequestConfiguration:authorizationCode:
-    @brief Creates a @c FIRSecureTokenService with an authroization code.
-    @param requestConfiguration The configuration for making requests to server.
-    @param authorizationCode An authorization code which needs to be exchanged for STS tokens.
- */
-- (instancetype)initWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                           authorizationCode:(NSString *)authorizationCode;
-
 /** @fn initWithRequestConfiguration:accessToken:accessTokenExpirationDate:refreshToken
     @brief Creates a @c FIRSecureTokenService with access and refresh tokens.
     @param requestConfiguration The configuration for making requests to server.

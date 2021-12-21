@@ -37,6 +37,11 @@ static NSString *const kTestContinueURI = @"https://www.example.com/";
  */
 static NSString *const kTestAPIKey = @"apikey_value";
 
+/** @var kTestFirebaseAppID
+    @brief A test value for the Firebase app ID
+ */
+static NSString *const kTestFirebaseAppID = @"appID";
+
 /** @var kTestExpectedRequestURL
     @brief The URL we are expecting should be requested by valid requests.
  */
@@ -69,7 +74,7 @@ static NSString *const kTestProviderID2 = @"facebook.com";
   FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey appID:kTestFirebaseAppID];
   FIRCreateAuthURIRequest *request =
       [[FIRCreateAuthURIRequest alloc] initWithIdentifier:kTestIdentifier
                                               continueURI:kTestContinueURI

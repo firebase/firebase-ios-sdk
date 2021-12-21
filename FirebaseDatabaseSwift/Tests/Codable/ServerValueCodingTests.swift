@@ -87,3 +87,105 @@ extension CurrencyAmount: ExpressibleByFloatLiteral {
     self.value = Decimal(value)
   }
 }
+
+private func assertThat(_ dictionary: [String: Any],
+                        file: StaticString = #file,
+                        line: UInt = #line) -> DictionarySubject {
+  return DictionarySubject(dictionary, file: file, line: line)
+}
+
+func assertThat<X: Equatable & Codable>(_ model: X, file: StaticString = #file,
+                                        line: UInt = #line) -> CodableSubject<X> {
+  return CodableSubject(model, file: file, line: line)
+}
+
+func assertThat<X: Equatable & Encodable>(_ model: X, file: StaticString = #file,
+                                          line: UInt = #line) -> EncodableSubject<X> {
+  return EncodableSubject(model, file: file, line: line)
+}
+
+class EncodableSubject<X: Equatable & Encodable> {
+  var subject: X
+  var file: StaticString
+  var line: UInt
+
+  init(_ subject: X, file: StaticString, line: UInt) {
+    self.subject = subject
+    self.file = file
+    self.line = line
+  }
+
+  @discardableResult
+  func encodes(to expected: [String: Any],
+               using encoder: Database.Encoder = .init()) -> DictionarySubject {
+    let encoded = assertEncodes(to: expected, using: encoder)
+    return DictionarySubject(encoded, file: file, line: line)
+  }
+
+  func failsToEncode() {
+    do {
+      let encoder = Database.Encoder()
+      encoder.keyEncodingStrategy = .convertToSnakeCase
+      _ = try encoder.encode(subject)
+    } catch {
+      return
+    }
+    XCTFail("Failed to throw")
+  }
+
+  func failsEncodingAtTopLevel() {
+    do {
+      let encoder = Database.Encoder()
+      encoder.keyEncodingStrategy = .convertToSnakeCase
+      _ = try encoder.encode(subject)
+      XCTFail("Failed to throw", file: file, line: line)
+    } catch EncodingError.invalidValue(_, _) {
+      return
+    } catch {
+      XCTFail("Unrecognized error: \(error)", file: file, line: line)
+    }
+  }
+
+  private func assertEncodes(to expected: [String: Any],
+                             using encoder: Database.Encoder = .init()) -> [String: Any] {
+    do {
+      let enc = try encoder.encode(subject)
+      XCTAssertEqual(enc as? NSDictionary, expected as NSDictionary, file: file, line: line)
+      return (enc as! NSDictionary) as! [String: Any]
+    } catch {
+      XCTFail("Failed to encode \(X.self): error: \(error)")
+      return ["": -1]
+    }
+  }
+}
+
+class CodableSubject<X: Equatable & Codable>: EncodableSubject<X> {
+  func roundTrips(to expected: [String: Any],
+                  using encoder: Database.Encoder = .init(),
+                  decoder: Database.Decoder = .init()) {
+    let reverseSubject = encodes(to: expected, using: encoder)
+    reverseSubject.decodes(to: subject, using: decoder)
+  }
+}
+
+class DictionarySubject {
+  var subject: [String: Any]
+  var file: StaticString
+  var line: UInt
+
+  init(_ subject: [String: Any], file: StaticString, line: UInt) {
+    self.subject = subject
+    self.file = file
+    self.line = line
+  }
+
+  func decodes<X: Equatable & Codable>(to expected: X,
+                                       using decoder: Database.Decoder = .init()) -> Void {
+    do {
+      let decoded = try decoder.decode(X.self, from: subject)
+      XCTAssertEqual(decoded, expected)
+    } catch {
+      XCTFail("Failed to decode \(X.self): \(error)", file: file, line: line)
+    }
+  }
+}
