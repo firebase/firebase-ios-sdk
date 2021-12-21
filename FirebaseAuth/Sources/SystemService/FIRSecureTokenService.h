@@ -17,7 +17,7 @@
 #import <Foundation/Foundation.h>
 
 @class FIRAuthRequestConfiguration;
-@class FIRCustomTokenProviderDelegate;
+@protocol FIRCustomTokenProviderDelegate;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -64,7 +64,7 @@ typedef void (^FIRFetchAccessTokenCallback)(NSString *_Nullable token,
     @brief The delegate to provide a new custom token for "refreshing" the ID token in passthrough
         mode, when no refresh token is available.
  */
-@property(nonatomic, weak, nullable) FIRCustomTokenProviderDelegate *customTokenProviderDelegate;
+@property(nonatomic, weak, nullable) id<FIRCustomTokenProviderDelegate> customTokenProviderDelegate;
 
 /** @property accessTokenExpirationDate
     @brief The expiration date of the cached access token.
@@ -83,7 +83,7 @@ typedef void (^FIRFetchAccessTokenCallback)(NSString *_Nullable token,
                    accessTokenExpirationDate:(nullable NSDate *)accessTokenExpirationDate
                                 refreshToken:(nullable NSString *)refreshToken
                  customTokenProviderDelegate:
-                     (nullable FIRCustomTokenProviderDelegate *)customTokenProviderDelegate;
+                     (nullable id<FIRCustomTokenProviderDelegate>)customTokenProviderDelegate;
 
 /** @fn fetchAccessTokenForcingRefresh:callback:
     @brief Fetch a fresh ephemeral access token for the ID associated with this instance. The token
