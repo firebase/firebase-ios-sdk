@@ -95,6 +95,7 @@ class UserTests: XCTestCase {
     fileprivate var providerCredentials: ProviderCredentials!
 
     override var phoneNumber: String? { providerCredentials.phoneNumber }
+    override var refreshToken: String? { UserTests.refreshToken }
   }
 
   class MockGetAccountInfoResponseUser: FIRGetAccountInfoResponseUser {
