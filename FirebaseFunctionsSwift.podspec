@@ -16,6 +16,8 @@ Swift SDK Extensions for Cloud Functions for Firebase.
     :tag => 'CocoaPods-' + s.version.to_s
   }
 
+  s.swift_version           = '5.1'
+
   ios_deployment_target = '10.0'
   osx_deployment_target = '10.12'
   tvos_deployment_target = '10.0'
