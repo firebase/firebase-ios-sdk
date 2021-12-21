@@ -42,7 +42,7 @@ jobs:
     # Disable - pending resolution of #9086
     # - name: IntegrationTest
     #   if: matrix.target == 'iOS'
-    #   run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig iOS integration)
+    #   run: ([ -z $plist_secret ] || scripts/build.sh RemoteConfig iOS integration)
 
   pod-lib-lint:
     # Don't run on private repo unless it is a PR.
