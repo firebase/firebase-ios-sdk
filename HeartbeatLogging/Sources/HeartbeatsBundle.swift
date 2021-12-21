@@ -72,6 +72,30 @@ struct HeartbeatsBundle: Codable, HeartbeatsPayloadConvertible {
     }
   }
 
+  /// Removes the heartbeat associated with the given date.
+  /// - Parameter date: The date of the heartbeat needing removal.
+  /// - Returns: The heartbeat that was removed or `nil` if there was no heartbeat to remove.
+  @discardableResult
+  mutating func removeHeartbeat(from date: Date) -> Heartbeat? {
+    var removedHeartbeat: Heartbeat?
+
+    var poppedHeartbeats: [Heartbeat] = []
+
+    while let poppedHeartbeat = buffer.pop() {
+      if poppedHeartbeat.date == date {
+        removedHeartbeat = poppedHeartbeat
+        break
+      }
+      poppedHeartbeats.append(poppedHeartbeat)
+    }
+
+    poppedHeartbeats.reversed().forEach {
+      buffer.push($0)
+    }
+
+    return removedHeartbeat
+  }
+
   /// Makes and returns a `HeartbeatsPayload` from this heartbeats bundle.
   /// - Returns: A heartbeats payload.
   func makeHeartbeatsPayload() -> HeartbeatsPayload {

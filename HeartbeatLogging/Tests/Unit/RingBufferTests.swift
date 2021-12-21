@@ -25,7 +25,7 @@ class RingBufferTests: XCTestCase {
     // When
     ringBuffer.push("ezra")
     // Then
-    XCTAssertFalse(ringBuffer.contains("ezra"))
+    XCTAssertEqual(Array(ringBuffer), [])
   }
 
   func testPush_WhenUnderFullCapacity_OverwritesAndReturnsTailElement() throws {
@@ -45,10 +45,7 @@ class RingBufferTests: XCTestCase {
     let overwrittenElement = ringBuffer.push("vader")
     // Then
     XCTAssertEqual(overwrittenElement, "luke")
-    XCTAssertTrue(
-      ringBuffer.elementsEqual(["vader"]),
-      "Ring buffer's elements are not equal to given elements."
-    )
+    XCTAssertEqual(Array(ringBuffer), ["vader"])
   }
 
   func testPush_WhenAtFullCapacity_FollowsFIFO_Ordering() throws {
@@ -60,10 +57,7 @@ class RingBufferTests: XCTestCase {
     ringBuffer.push("jabba") // ["chewy", "vader", "jabba"]
     ringBuffer.push("lando") // ["lando", "vader", "jabba"]
     // Then
-    XCTAssertTrue(
-      ringBuffer.elementsEqual(["lando", "vader", "jabba"]),
-      "Ring buffer's elements are not equal to given elements."
-    )
+    XCTAssertEqual(Array(ringBuffer), ["lando", "vader", "jabba"])
   }
 
   func testPushFollowsFIFO_Ordering() throws {
@@ -74,10 +68,7 @@ class RingBufferTests: XCTestCase {
     ringBuffer.push("boba")
     ringBuffer.push("jabba")
     // Then
-    XCTAssertTrue(
-      ringBuffer.elementsEqual(["han solo", "boba", "jabba"]),
-      "Ring buffer's elements are not equal to given elements."
-    )
+    XCTAssertEqual(Array(ringBuffer), ["han solo", "boba", "jabba"])
   }
 
   func testPushStressTest() throws {
@@ -88,9 +79,50 @@ class RingBufferTests: XCTestCase {
       ringBuffer.push(index)
     }
     // Then
-    XCTAssertTrue(
-      ringBuffer.elementsEqual(Array(991 ... 1000)),
-      "Ring buffer's elements are not equal to given elements."
-    )
+    XCTAssertEqual(Array(ringBuffer), Array(991 ... 1000))
+  }
+
+  func testPop_WhenCapacityIsZero_DoesNothingAndReturnsNil() throws {
+    // Given
+    var ringBuffer = RingBuffer<String>(capacity: 0)
+    // When
+    let popped = ringBuffer.pop()
+    // Then
+    XCTAssertNil(popped)
+    XCTAssertEqual(Array(ringBuffer), [])
+  }
+
+  func testPopRemovesAndReturnsLastElement() throws {
+    // Given
+    var ringBuffer = RingBuffer<Element>(capacity: 3)
+    ringBuffer.push("one")
+    ringBuffer.push("two")
+    ringBuffer.push("three")
+    // When
+    XCTAssertEqual(ringBuffer.pop(), "three")
+    XCTAssertEqual(ringBuffer.pop(), "two")
+    XCTAssertEqual(ringBuffer.pop(), "one")
+    // Then
+    XCTAssertEqual(Array(ringBuffer), [])
+  }
+
+  func testPopUndosPush_IncludingIndexingEdgeCases() throws {
+    // Given
+    var ringBuffer = RingBuffer<Int>(capacity: 10)
+    for number in Array(1 ... 15) {
+      ringBuffer.push(number)
+    }
+
+    // ringBuffer: [11, 12, 13, 14, 15, 6, 7, 8, 9, 10]
+    // tailIndex - 1: ______________/
+
+    // Then
+    for number in Array(6 ... 15).reversed() {
+      let popped = ringBuffer.pop()
+      XCTAssertEqual(popped, number)
+    }
+
+    XCTAssertNil(ringBuffer.pop())
+    XCTAssertEqual(Array(ringBuffer), [])
   }
 }
