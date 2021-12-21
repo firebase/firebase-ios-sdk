@@ -4,6 +4,17 @@ on:
   pull_request:
     # closed will be triggered when a pull request is merged. This is to keep https://github.com/firebase/SpecsTesting up to date.
     types: [closed]
+    # Temporary trigger for testing.
+    paths:
+    - 'FirebaseFunctions/**'
+    - 'FirebaseSharedSwift**'
+    - '.github/workflows/functions.yml'
+    - 'Interop/Auth/Public/*.h'
+    - 'FirebaseMessaging/Sources/Interop/*.h'
+    - 'FirebaseTestingSupport/Functions/**'
+    - 'FirebaseCombineSwift/Sources/Functions/**'
+    - 'scripts/setup_quickstart.sh'
+    - 'Gemfile*'
   workflow_dispatch:
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
