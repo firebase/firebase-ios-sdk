@@ -136,10 +136,10 @@ public final class HeartbeatController {
     }
 
     // Note that `todaysHeartbeat` is updated in the above read/write block.
-    guard let todaysHeartbeat = todaysHeartbeat else {
+    if todaysHeartbeat != nil {
+      return todaysHeartbeat!.makeHeartbeatsPayload()
+    } else {
       return HeartbeatsPayload.emptyPayload
     }
-
-    return todaysHeartbeat.makeHeartbeatsPayload()
   }
 }
