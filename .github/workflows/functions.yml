@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
     - 'FirebaseFunctions/**'
+    - 'FirebaseSharedSwift**'
     - '.github/workflows/functions.yml'
     - 'Interop/Auth/Public/*.h'
     - 'FirebaseMessaging/Sources/Interop/*.h'

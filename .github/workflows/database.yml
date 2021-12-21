@@ -5,6 +5,7 @@ on:
     paths:
     - 'FirebaseDatabase**'
     - 'Firebase/Database/**'
+    - 'FirebaseSharedSwift**'
     - 'Example/Database/**'
     - 'Interop/Auth/Public/*.h'
     - '.github/workflows/database.yml'
