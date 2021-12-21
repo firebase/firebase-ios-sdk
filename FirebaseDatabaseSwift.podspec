@@ -1,8 +1,3 @@
-#
-# Be sure to run `pod lib lint FirebaseDatabaseSwift.podspec' to ensure this is a
-# valid spec before submitting.
-#
-
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseDatabaseSwift'
   s.version                 = '8.10.0-beta'
@@ -34,4 +29,5 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   ]
 
   s.dependency 'FirebaseDatabase', '~> 8.0'
+  s.dependency 'FirebaseSharedSwift', '~> 8.11'
 end
