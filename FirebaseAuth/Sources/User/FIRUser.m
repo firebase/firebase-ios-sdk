@@ -1141,7 +1141,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                                               accessToken:response.IDToken
                                 accessTokenExpirationDate:response.approximateExpirationDate
                                              refreshToken:response.refreshToken
-                              customTokenProviderDelegate:self.auth.customTokenProviderDelegate];
+                              customTokenProviderDelegate:self->_auth.customTokenProviderDelegate];
                          [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
                                                               NSError *_Nullable error) {
                            if (error) {
