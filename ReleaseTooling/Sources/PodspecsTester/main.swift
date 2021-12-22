@@ -46,7 +46,7 @@ struct PodspecsTester: ParsableCommand {
     }
   }
 
-  func specTest(spec: String, workingDir: URL) {
+  func specTest(spec: String, workingDir: URL) -> (code, output){
     let result = Shell.executeCommandFromScript(
       "pod spec lint \(spec)",
       outputToConsole: false,
@@ -75,6 +75,7 @@ struct PodspecsTester: ParsableCommand {
   func run() throws {
     let startDate = Date()
     let globalQueue = OperationQueue()
+    var exitCode = 0
     print("Started at: \(startDate.dateTimeString())")
     // InitializeSpecTesting.setupRepo(sdkRepoURL: gitRoot)
     let manifest = FirebaseManifest.shared
@@ -83,7 +84,8 @@ struct PodspecsTester: ParsableCommand {
       for pod in manifest.pods {
         if testingPod == pod.name {
           globalQueue.addOperation {
-            specTest(spec: podspec, workingDir: gitRoot)
+            let code, _  = specTest(spec: podspec, workingDir: gitRoot)
+            exitCode += code
           }
         }
       }
@@ -92,6 +94,7 @@ struct PodspecsTester: ParsableCommand {
     let finishDate = Date()
     print("Finished at: \(finishDate.dateTimeString()). " +
       "Duration: \(startDate.formattedDurationSince(finishDate))")
+    exit(exitCode)
   }
 }
 
