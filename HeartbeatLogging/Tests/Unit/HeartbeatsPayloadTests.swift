@@ -72,7 +72,7 @@ class HeartbeatsPayloadTests: XCTestCase {
     let headerValue = heartbeatsPayload.headerValue()
 
     // Then
-    try assertEqualPayloadStrings(
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
       headerValue,
       """
       {

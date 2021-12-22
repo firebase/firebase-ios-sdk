@@ -44,7 +44,7 @@ class HeartbeatsBundleTests: XCTestCase {
       .makeHeartbeatsPayload()
       .headerValue()
 
-    try assertEqualPayloadStrings(
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
       heartbeatsBundleString,
       """
       {
@@ -76,7 +76,7 @@ class HeartbeatsBundleTests: XCTestCase {
       .makeHeartbeatsPayload()
       .headerValue()
 
-    try assertEqualPayloadStrings(heartbeatsBundleString, "")
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(heartbeatsBundleString, "")
 
     XCTAssertEqual(heartbeatsBundle.lastAddedHeartbeatDates, preAppendCacheSnapshot)
   }
@@ -99,7 +99,7 @@ class HeartbeatsBundleTests: XCTestCase {
       .makeHeartbeatsPayload()
       .headerValue()
 
-    try assertEqualPayloadStrings(
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
       heartbeatsBundleString,
       """
       {
@@ -146,7 +146,7 @@ class HeartbeatsBundleTests: XCTestCase {
       .makeHeartbeatsPayload()
       .headerValue()
 
-    try assertEqualPayloadStrings(heartbeatsBundleString, "")
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(heartbeatsBundleString, "")
 
     XCTAssertEqual(heartbeatsBundle.lastAddedHeartbeatDates, preRemoveCacheSnapshot)
   }
@@ -165,7 +165,7 @@ class HeartbeatsBundleTests: XCTestCase {
       .makeHeartbeatsPayload()
       .headerValue()
 
-    try assertEqualPayloadStrings(heartbeatsBundleString, "")
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(heartbeatsBundleString, "")
   }
 
   func testRemovingHeartbeatFromDate_WhenHeartbeatFromDateNotInBundle_RemovesNothingAndReturnsNil() throws {
@@ -182,7 +182,7 @@ class HeartbeatsBundleTests: XCTestCase {
       .makeHeartbeatsPayload()
       .headerValue()
 
-    try assertEqualPayloadStrings(
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
       heartbeatsBundleString,
       """
       {
@@ -221,7 +221,7 @@ class HeartbeatsBundleTests: XCTestCase {
       .makeHeartbeatsPayload()
       .headerValue()
 
-    try assertEqualPayloadStrings(
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
       heartbeatsBundleString,
       """
       {
@@ -264,7 +264,7 @@ class HeartbeatsBundleTests: XCTestCase {
       .makeHeartbeatsPayload()
       .headerValue()
 
-    try assertEqualPayloadStrings(
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
       heartbeatsBundleString,
       """
       {
@@ -300,7 +300,7 @@ class HeartbeatsBundleTests: XCTestCase {
       .makeHeartbeatsPayload()
       .headerValue()
 
-    try assertEqualPayloadStrings(
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
       heartbeatsBundleString,
       """
       {

@@ -17,8 +17,8 @@ import XCTest
 
 /// See `Sources/StorageFactory.swift` for details regarding where the module stores client data.
 private enum Constants {
-  static let heartbeatsDirectoryPath = "google-heartbeat-storage"
-  static let heartbeatsSuiteName = "com.google.heartbeat.storage"
+  static let heartbeatFileStorageDirectoryPath = "google-heartbeat-storage"
+  static let heartbeatUserDefaultsSuiteName = "com.google.heartbeat.storage"
 }
 
 class HeartbeatLoggingIntegrationTests: XCTestCase {
@@ -26,11 +26,11 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
   let date = Date(timeIntervalSince1970: 1_635_739_200)
 
   override func setUpWithError() throws {
-    try removeUnderlyingHeartbeatStorageContainers()
+    try HeartbeatLoggingTestUtils.removeUnderlyingHeartbeatStorageContainers()
   }
 
   override func tearDownWithError() throws {
-    try removeUnderlyingHeartbeatStorageContainers()
+    try HeartbeatLoggingTestUtils.removeUnderlyingHeartbeatStorageContainers()
   }
 
   /// This test may flake if it is executed during the transition from one day to the next.
@@ -42,7 +42,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     heartbeatController.log("dummy_agent")
     let payload = heartbeatController.flush()
     // Then
-    try assertEqualPayloadStrings(
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
       payload.headerValue(),
       """
       {
@@ -79,7 +79,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     heartbeatController.log("dummy_agent")
     let payload = heartbeatController.flushHeartbeatFromToday()
     // Then
-    try assertEqualPayloadStrings(
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
       payload.headerValue(),
       """
       {
@@ -103,7 +103,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     heartbeatController1.log("dummy_agent")
     // Then
     let payload = heartbeatController2.flush()
-    try assertEqualPayloadStrings(
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
       payload.headerValue(),
       """
       {
@@ -144,7 +144,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     XCTAssertEqual(nonEmptyPayloads.count, 1)
 
     let payload = try XCTUnwrap(nonEmptyPayloads.first)
-    try assertEqualPayloadStrings(
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
       payload.headerValue(),
       """
       {
@@ -184,7 +184,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     XCTAssertEqual(nonEmptyPayloads.count, 1)
 
     let payload = try XCTUnwrap(nonEmptyPayloads.first)
-    try assertEqualPayloadStrings(
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
       payload.headerValue(),
       """
       {
@@ -231,7 +231,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     let payload = heartbeatController.flush()
     // The first 5 days of heartbeats (associated with `dummy_agent_1`) should
     // have been overwritten.
-    try assertEqualPayloadStrings(
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
       payload.headerValue(),
       """
       {
@@ -290,7 +290,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     _ = XCTWaiter.wait(for: [expectation(description: "Wait for async log.")], timeout: 0.1)
 
     // When
-    XCTAssertNoThrow(try removeUnderlyingHeartbeatStorageContainers())
+    XCTAssertNoThrow(try HeartbeatLoggingTestUtils.removeUnderlyingHeartbeatStorageContainers())
 
     // Then
     // 1. Assert controller flushes empty payload.
@@ -298,7 +298,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     // 2. Assert controller can log and flush non-empty payload.
     heartbeatController.log("dummy_agent")
     let payload = heartbeatController.flush()
-    try assertEqualPayloadStrings(
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
       payload.headerValue(),
       """
       {
@@ -322,7 +322,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     // Then
     #if os(tvOS)
       XCTAssertNil(
-        UserDefaults(suiteName: Constants.heartbeatsSuiteName)?
+        UserDefaults(suiteName: Constants.heartbeatUserDefaultsSuiteName)?
           .object(forKey: "heartbeats-\(id)"),
         "Specified user defaults suite should be empty."
       )
@@ -330,7 +330,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
       let heartbeatsDirectoryURL = FileManager.default
         .applicationSupportDirectory
         .appendingPathComponent(
-          Constants.heartbeatsDirectoryPath, isDirectory: true
+          Constants.heartbeatFileStorageDirectoryPath, isDirectory: true
         )
       XCTAssertFalse(
         FileManager.default.fileExists(atPath: heartbeatsDirectoryURL.path),
@@ -349,7 +349,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     // Then
     #if os(tvOS)
       XCTAssertNotNil(
-        UserDefaults(suiteName: Constants.heartbeatsSuiteName)?
+        UserDefaults(suiteName: Constants.heartbeatUserDefaultsSuiteName)?
           .object(forKey: "heartbeats-\(id)"),
         "Data should not be nil."
       )
@@ -357,7 +357,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
       let heartbeatsFileURL = FileManager.default
         .applicationSupportDirectory
         .appendingPathComponent(
-          Constants.heartbeatsDirectoryPath, isDirectory: true
+          Constants.heartbeatFileStorageDirectoryPath, isDirectory: true
         )
         .appendingPathComponent(
           "heartbeats-\(id)", isDirectory: false
@@ -365,23 +365,4 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
       XCTAssertNotNil(try Data(contentsOf: heartbeatsFileURL), "Data should not be nil.")
     #endif
   }
-}
-
-/// Removes all underlying storage containers used by the module.
-/// - Throws: An error if the storage container could not be removed.
-private func removeUnderlyingHeartbeatStorageContainers() throws {
-  #if os(tvOS)
-    UserDefaults().removePersistentDomain(forName: Constants.heartbeatsSuiteName)
-  #else
-    let heartbeatsDirectoryURL = FileManager.default
-      .applicationSupportDirectory
-      .appendingPathComponent(
-        Constants.heartbeatsDirectoryPath, isDirectory: true
-      )
-    do {
-      try FileManager.default.removeItem(at: heartbeatsDirectoryURL)
-    } catch CocoaError.fileNoSuchFile {
-      // Do nothing.
-    }
-  #endif // os(tvOS)
 }

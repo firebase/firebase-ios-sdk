@@ -209,6 +209,7 @@ let package = Package(
       dependencies: [
         "Firebase",
         "FirebaseCoreDiagnostics",
+        "HeartbeatLogging",
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULLogger", package: "GoogleUtilities"),
       ],
