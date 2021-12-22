@@ -92,7 +92,7 @@ NS_SWIFT_NAME(DocumentReference)
  * document.
  * @param merge Whether to merge the provided data into any existing document. If enabled,
  * all omitted fields remain untouched. If your input sets any field to an empty dictionary, any
- * nested field at this location is overwritten.
+ * nested field is overwritten.
  */
 - (void)setData:(NSDictionary<NSString *, id> *)documentData merge:(BOOL)merge;
 
@@ -109,8 +109,8 @@ NS_SWIFT_NAME(DocumentReference)
  * to be written.
  * @param mergeFields An `NSArray` that contains a list of `NSString` or `FIRFieldPath` elements
  * specifying which fields to merge. Fields can contain dots to reference nested fields within
- * the document. If your input sets any field to an empty dictionary, any nested field at this
- * location is overwritten.
+ * the document. If your input sets any field to an empty dictionary, any nested field is
+ * overwritten.
  */
 - (void)setData:(NSDictionary<NSString *, id> *)documentData mergeFields:(NSArray<id> *)mergeFields;
 
@@ -134,7 +134,8 @@ NS_SWIFT_NAME(DocumentReference)
  *
  * @param documentData An `NSDictionary` containing the fields that make up the document
  * to be written.
- * @param merge Whether to merge the provided data into any existing document.
+ * @param merge Whether to merge the provided data into any existing document. If your input sets
+ *     any field to an empty dictionary, any nested field is overwritten.
  * @param completion A block to execute once the document has been successfully written to the
  *     server. This block will not be called while the client is offline, though local
  *     changes will be visible immediately.
@@ -156,7 +157,8 @@ NS_SWIFT_NAME(DocumentReference)
  * to be written.
  * @param mergeFields An `NSArray` that contains a list of `NSString` or `FIRFieldPath` elements
  *     specifying which fields to merge. Fields can contain dots to reference nested fields within
- *     the document.
+ *     the document. If your input sets any field to an empty dictionary, any nested field is
+ * overwritten.
  * @param completion A block to execute once the document has been successfully written to the
  *     server. This block will not be called while the client is offline, though local
  *     changes will be visible immediately.
