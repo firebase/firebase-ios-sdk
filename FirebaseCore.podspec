@@ -46,7 +46,6 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.private_header_files = 'FirebaseCore/Sources/Private/*.h'
 
   s.framework = 'Foundation'
-  s.framework = 'XCTest' # TODO: Remove this after green CI.
   s.ios.framework = 'UIKit'
   s.osx.framework = 'AppKit'
   s.tvos.framework = 'UIKit'
@@ -72,6 +71,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
     unit_tests.source_files = [
       'FirebaseCore/Tests/Unit/**/*.[mh]',
       'SharedTestUtilities/FIROptionsMock.[mh]',
+      'HeartbeatLoggingTestUtils/Sources/**',
     ]
     unit_tests.requires_app_host = true
     unit_tests.dependency 'OCMock'

@@ -14,6 +14,7 @@
 
 import XCTest
 @testable import HeartbeatLogging
+import HeartbeatLoggingTestUtils
 
 /// See `Sources/StorageFactory.swift` for details regarding where the module stores client data.
 private enum Constants {

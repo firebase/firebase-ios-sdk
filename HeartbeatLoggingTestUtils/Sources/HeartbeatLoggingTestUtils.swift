@@ -15,6 +15,18 @@
 import Foundation
 import XCTest
 
+#if SWIFT_PACKAGE
+  import HeartbeatLogging
+#endif
+
+/// This should mirror the `Constants` enum in the `HeartbeatLogging` module.
+enum Constants {
+  /// The name of the file system directory where heartbeat data is stored.
+  static let heartbeatFileStorageDirectoryPath = "google-heartbeat-storage"
+  /// The name of the user defaults suite where heartbeat data is stored.
+  static let heartbeatUserDefaultsSuiteName = "com.google.heartbeat.storage"
+}
+
 @objc(FIRHeartbeatLoggingTestUtils)
 @objcMembers
 public class HeartbeatLoggingTestUtils: NSObject {
@@ -59,8 +71,12 @@ public class HeartbeatLoggingTestUtils: NSObject {
     #if os(tvOS)
       UserDefaults().removePersistentDomain(forName: Constants.heartbeatUserDefaultsSuiteName)
     #else
-      let heartbeatsDirectoryURL = FileManager.default
-        .applicationSupportDirectory
+
+      let applicationSupportDirectory = try XCTUnwrap(
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+      )
+
+      let heartbeatsDirectoryURL = applicationSupportDirectory
         .appendingPathComponent(
           Constants.heartbeatFileStorageDirectoryPath, isDirectory: true
         )

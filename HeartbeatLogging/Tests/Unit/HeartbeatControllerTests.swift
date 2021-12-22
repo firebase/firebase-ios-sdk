@@ -14,6 +14,7 @@
 
 import XCTest
 @testable import HeartbeatLogging
+import HeartbeatLoggingTestUtils
 
 class HeartbeatControllerTests: XCTestCase {
   // 2021-11-01 @ 00:00:00 (EST)

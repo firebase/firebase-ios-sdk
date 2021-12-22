@@ -15,8 +15,9 @@
 #import <XCTest/XCTest.h>
 
 #if SWIFT_PACKAGE
-@import HeartbeatLogging;
+@import HeartbeatLoggingTestUtils;
 #else
+// FIXME: HeartbeatLoggingTestUtils will be different for CocoaPods.
 #import <FirebaseCore/FirebaseCore-Swift.h>
 #endif  // SWIFT_PACKAGE
 

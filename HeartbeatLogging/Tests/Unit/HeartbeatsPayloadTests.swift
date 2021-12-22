@@ -14,6 +14,7 @@
 
 import XCTest
 @testable import HeartbeatLogging
+import HeartbeatLoggingTestUtils
 
 class HeartbeatsPayloadTests: XCTestCase {
   func testPayloadCurrentVersion() throws {
