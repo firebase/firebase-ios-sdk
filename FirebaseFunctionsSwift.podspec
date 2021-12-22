@@ -35,16 +35,19 @@ Swift SDK Extensions for Cloud Functions for Firebase.
     'FirebaseFunctionsSwift/Sources/**/*.swift',
   ]
 
-  s.dependency 'FirebaseFunctions', '~> 8.10'
+  s.dependency 'FirebaseFunctions', '~> 8.11'
   s.dependency 'FirebaseSharedSwift', '~> 8.11'
 
-  s.test_spec 'integration' do |int_tests|
-    int_tests.platforms = {
-      :ios => ios_deployment_target,
-      :osx => osx_deployment_target,
-      :tvos => tvos_deployment_target
-    }
-    int_tests.source_files = 'FirebaseFunctionsSwift/Tests/*.swift'
-    int_tests.dependency 'FirebaseFunctionsTestingSupport'
-  end
+  # Uncomment to run via `pod gen`. It can't be saved because of the
+  # FirebaseFunctionsTestingSupport dependency.
+  #
+  # s.test_spec 'integration' do |int_tests|
+  #   int_tests.platforms = {
+  #     :ios => ios_deployment_target,
+  #     :osx => osx_deployment_target,
+  #     :tvos => tvos_deployment_target
+  #   }
+  #   int_tests.source_files = 'FirebaseFunctionsSwift/Tests/*.swift'
+  #   int_tests.dependency 'FirebaseFunctionsTestingSupport'
+  # end
 end
