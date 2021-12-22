@@ -21,7 +21,9 @@ import Foundation
     @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
     public extension CollectionReference {
         /**
-         * Adds a new document to this collection with the specified data, assigning it a document ID automatically.
+         * Adds a new document to this collection with the specified data, assigning it a document ID
+         * automatically.
+         *
          * @param data A `Dictionary` containing the data for the new document.
          * @return A `DocumentReference` pointing to the newly created document.
          */
