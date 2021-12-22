@@ -472,3 +472,24 @@ func terminateDb(database db: Firestore) {
     }
   }
 }
+
+#if swift(>=5.5)
+  @available(iOS 15, *)
+  func testAsyncAwait(database db: Firestore) async throws {
+    try await db.enableNetwork()
+    try await db.disableNetwork()
+    try await db.waitForPendingWrites()
+    try await db.terminate()
+    try await db.runTransaction { _, _ in
+      0
+    }
+
+    let collection = db.collection("coll")
+    let document = try await collection.addDocument(data: [:])
+
+    try await document.setData([:])
+    try await document.updateData([:])
+    try await document.delete()
+    try await document.getDocument()
+  }
+#endif
