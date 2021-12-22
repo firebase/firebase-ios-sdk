@@ -37,7 +37,7 @@
   return NSStringFromClass([self class]);
 }
 
-+ (NSString * (^)())dummyUserAgentProvider {
++ (NSString * (^)(void))dummyUserAgentProvider {
   return ^NSString * {
     return @"dummy_agent";
   };

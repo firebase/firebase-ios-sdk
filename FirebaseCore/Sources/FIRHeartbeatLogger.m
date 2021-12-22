@@ -49,7 +49,7 @@ NSString *FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *heartbeatsPa
   return self;
 }
 
-+ (NSString * (^)())currentUserAgentProvider {
++ (NSString * (^)(void))currentUserAgentProvider {
   return ^NSString * {
     return [FIRApp firebaseUserAgent];
   };
