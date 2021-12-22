@@ -17,6 +17,7 @@
 import Foundation
 
 import ArgumentParser
+import FirebaseManifest
 import Utils
 
 struct PodspecsTester: ParsableCommand {
@@ -25,16 +26,56 @@ struct PodspecsTester: ParsableCommand {
           transform: URL.init(fileURLWithPath:))
   var gitRoot: URL
 
+  // Read a temp file with testing podspecs. An example of a temp file:
+  // ```
+  // FirebaseAuth.podspec
+  // FirebaseCrashlytics.podspec
+  // ```
+  @Option(help: "A temp file containing podspecs that will be tested.",
+          transform: { str in
+            let url = URL(fileURLWithPath: str)
+            let temp = try String(contentsOf: url)
+            return temp.trimmingCharacters(in: CharacterSet(charactersIn:"\n ")).components(separatedBy: "\n")
+          })
+  var podspecs: [String]
+
   mutating func validate() throws {
     guard FileManager.default.fileExists(atPath: gitRoot.path) else {
       throw ValidationError("git-root does not exist: \(gitRoot.path)")
     }
   }
+  func specTest(spec: String, workingDir: URL){
+    let result = Shell.executeCommandFromScript("pod spec lint \(spec)", outputToConsole: false, workingDir: workingDir)
+    switch result {
+    case let .error(code, output):
+      print("Start ---- Failed Spec Testing: \(spec) ----")
+      print("\(output)")
+      print("End ---- Failed Spec Testing: \(spec) ----")
+
+        do {
+            try output.write(to: gitRoot.appendingPathComponent("\(spec).txt"), atomically: true, encoding: String.Encoding.utf8)
+        } catch let error{
+            print (error)
+        }
+    case let .success(output):
+      print("\(spec) passed validation.")
+    }
+  }
 
   func run() throws {
     let startDate = Date()
+    let globalQueue = OperationQueue()
     print("Started at: \(startDate.dateTimeString())")
-    InitializeSpecTesting.setupRepo(sdkRepoURL: gitRoot)
+    //InitializeSpecTesting.setupRepo(sdkRepoURL: gitRoot)
+    let manifest = FirebaseManifest.shared
+    for podspec in podspecs {
+        let testingPod = podspec.components(separatedBy: ".")[0]
+        for pod in manifest.pods{
+            if (testingPod == pod.name){
+                    self.specTest(spec: podspec, workingDir: gitRoot)
+            }
+        }
+    }
     let finishDate = Date()
     print("Finished at: \(finishDate.dateTimeString()). " +
       "Duration: \(startDate.formattedDurationSince(finishDate))")
