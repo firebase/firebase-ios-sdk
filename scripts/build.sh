@@ -115,7 +115,7 @@ function RunXcodebuild() {
   fi
 
   result=0
-  xcodebuild "$@" | tee xcodebuild.log | "${xcpretty_cmd[@]}" || result=$?
+  xcodebuild "$@" | tee xcodebuild.log || result=$?
 
   if [[ $result == 65 ]]; then
     ExportLogs "$@"
