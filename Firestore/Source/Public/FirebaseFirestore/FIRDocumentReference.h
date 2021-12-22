@@ -157,7 +157,7 @@ NS_SWIFT_NAME(DocumentReference)
  * @param mergeFields An `NSArray` that contains a list of `NSString` or `FIRFieldPath` elements
  *     specifying which fields to merge. Fields can contain dots to reference nested fields within
  *     the document. If your input sets any field to an empty dictionary, any nested field is
- * overwritten.
+ *     overwritten.
  * @param completion A block to execute once the document has been successfully written to the
  *     server. This block will not be called while the client is offline, though local
  *     changes will be visible immediately.
