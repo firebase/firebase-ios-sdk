@@ -19,25 +19,7 @@ jobs:
         pr_branch: ${{ github.event.pull_request.head.ref }}
       run: |
         ./scripts/health_metrics/get_updated_files.sh -p output.txt
-        cat output.txt
     - name: Init podspecs and source
       run: |
         cd ReleaseTooling
-        swift run podspecs-tester --git-root "${GITHUB_WORKSPACE}"
-        find "${HOME}/.cocoapods/" -type f
-    - name: List spec repos
-      run: pod repo list
-    - name: Test
-      # The SpecsTesting repo was updated by podspec-tester to point to the head of a PR.
-      run: |
-        set -ex
-        cust_func(){
-          echo "$1 is testing."
-          pod spec lint $1 --sources=https://github.com/firebase/SpecsTesting,https://cdn.cocoapods.org/
-        }
-        { cat output.txt; echo; } | while read -r podspec; do 
-          cust_func ${podspec} &
-        done
-        wait 
-        echo "All done"
-
+        swift run podspecs-tester --git-root "${GITHUB_WORKSPACE}" --podspecs output.txt
