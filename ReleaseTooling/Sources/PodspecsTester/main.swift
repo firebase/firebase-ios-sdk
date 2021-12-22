@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import Foundation
-
 import ArgumentParser
 import FirebaseManifest
+import Foundation
 import Utils
 
 struct PodspecsTester: ParsableCommand {
@@ -46,7 +45,9 @@ struct PodspecsTester: ParsableCommand {
     }
   }
 
-  func specTest(spec: String, workingDir: URL) -> (code, output){
+  func specTest(spec: String, workingDir: URL) -> (code: Int32, output: String){
+    var exitCode:Int32 = 0
+    var logOutput:String = ""
     let result = Shell.executeCommandFromScript(
       "pod spec lint \(spec)",
       outputToConsole: false,
@@ -67,15 +68,20 @@ struct PodspecsTester: ParsableCommand {
       } catch {
         print(error)
       }
+      exitCode = code
+      logOutput = output
     case let .success(output):
       print("\(spec) passed validation.")
+      exitCode = 0
+      logOutput = output
     }
+    return (exitCode, logOutput)
   }
 
   func run() throws {
     let startDate = Date()
     let globalQueue = OperationQueue()
-    var exitCode = 0
+    var exitCode:Int32 = 0
     print("Started at: \(startDate.dateTimeString())")
     // InitializeSpecTesting.setupRepo(sdkRepoURL: gitRoot)
     let manifest = FirebaseManifest.shared
@@ -84,7 +90,7 @@ struct PodspecsTester: ParsableCommand {
       for pod in manifest.pods {
         if testingPod == pod.name {
           globalQueue.addOperation {
-            let code, _  = specTest(spec: podspec, workingDir: gitRoot)
+            let code = specTest(spec: podspec, workingDir: gitRoot).code
             exitCode += code
           }
         }
@@ -94,7 +100,7 @@ struct PodspecsTester: ParsableCommand {
     let finishDate = Date()
     print("Finished at: \(finishDate.dateTimeString()). " +
       "Duration: \(startDate.formattedDurationSince(finishDate))")
-    exit(exitCode)
+    Foundation.exit(exitCode)
   }
 }
 
