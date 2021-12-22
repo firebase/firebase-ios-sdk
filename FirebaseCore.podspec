@@ -46,6 +46,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.private_header_files = 'FirebaseCore/Sources/Private/*.h'
 
   s.framework = 'Foundation'
+  s.framework = 'XCTest' # TODO: Remove this after green CI.
   s.ios.framework = 'UIKit'
   s.osx.framework = 'AppKit'
   s.tvos.framework = 'UIKit'
