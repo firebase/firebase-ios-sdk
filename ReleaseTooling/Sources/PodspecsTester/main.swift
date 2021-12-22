@@ -61,7 +61,7 @@ struct PodspecsTester: ParsableCommand {
 
       do {
         try output.write(
-          to: gitRoot.appendingPathComponent("\(spec).txt"),
+          to: gitRoot.appendingPathComponent("specTestingLogs/\(spec).txt"),
           atomically: true,
           encoding: String.Encoding.utf8
         )
@@ -80,7 +80,7 @@ struct PodspecsTester: ParsableCommand {
 
   func run() throws {
     let startDate = Date()
-    let globalQueue = OperationQueue()
+    let queue = OperationQueue()
     var exitCode:Int32 = 0
     print("Started at: \(startDate.dateTimeString())")
     // InitializeSpecTesting.setupRepo(sdkRepoURL: gitRoot)
@@ -89,14 +89,14 @@ struct PodspecsTester: ParsableCommand {
       let testingPod = podspec.components(separatedBy: ".")[0]
       for pod in manifest.pods {
         if testingPod == pod.name {
-          globalQueue.addOperation {
+          queue.addOperation {
             let code = specTest(spec: podspec, workingDir: gitRoot).code
             exitCode += code
           }
         }
       }
     }
-    globalQueue.waitUntilAllOperationsAreFinished()
+    queue.waitUntilAllOperationsAreFinished()
     let finishDate = Date()
     print("Finished at: \(finishDate.dateTimeString()). " +
       "Duration: \(startDate.formattedDurationSince(finishDate))")

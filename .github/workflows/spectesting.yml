@@ -23,3 +23,8 @@ jobs:
       run: |
         cd ReleaseTooling
         swift run podspecs-tester --git-root "${GITHUB_WORKSPACE}" --podspecs ../output.txt
+    - name: Upload Failed Testing Logs
+      uses: actions/upload-artifact@v2
+      with:
+        name: specTestingLogs
+        path: specTestingLogs
