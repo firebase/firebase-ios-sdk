@@ -82,10 +82,13 @@ struct PodspecsTester: ParsableCommand {
       let testingPod = podspec.components(separatedBy: ".")[0]
       for pod in manifest.pods {
         if testingPod == pod.name {
-          specTest(spec: podspec, workingDir: gitRoot)
+          globalQueue.addOperation {
+            specTest(spec: podspec, workingDir: gitRoot)
+          }
         }
       }
     }
+    globalQueue.waitUntilAllOperationsAreFinished()
     let finishDate = Date()
     print("Finished at: \(finishDate.dateTimeString()). " +
       "Duration: \(startDate.formattedDurationSince(finishDate))")
