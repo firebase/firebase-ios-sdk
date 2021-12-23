@@ -89,15 +89,7 @@ device, and it is completely free.
       :osx => osx_deployment_target,
       :tvos => tvos_deployment_target
     }
-    int_tests.source_files = [
-      'FirebaseMessaging/Tests/IntegrationTests/*.swift',
-      'FirebaseMessaging/Tests/IntegrationTests/*.h',
-      'SharedTestUtilities/FIROptionsMock.[mh]',
-    ]
-    int_tests.pod_target_xcconfig = {
-      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseMessaging/Tests/IntegrationTests/FirebaseMessaging-unit-Bridging-Header.h'
-    }
-    int_tests.dependency 'OCMock'
+    int_tests.source_files = 'FirebaseMessaging/Tests/IntegrationTests/*.swift'
     int_tests.requires_app_host = true
     int_tests.resources = 'FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist'
   end

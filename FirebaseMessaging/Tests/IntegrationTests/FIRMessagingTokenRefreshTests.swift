@@ -37,8 +37,6 @@
     var messaging: Messaging?
 
     override class func setUp() {
-      FIROptionsMock.mockFIROptions()
-
       FirebaseApp.configure()
     }
 
