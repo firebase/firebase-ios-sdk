@@ -14,11 +14,9 @@
 
 #import <XCTest/XCTest.h>
 
-#if SWIFT_PACKAGE
+#if __has_include(<HeartbeatLoggingTestUtils/HeartbeatLoggingTestUtils.h>)
+
 @import HeartbeatLoggingTestUtils;
-#else
-#import <HeartbeatLoggingTestUtils/HeartbeatLoggingTestUtils-Swift.h>
-#endif  // SWIFT_PACKAGE
 
 #import "FirebaseCore/Sources/Private/FIRHeartbeatLogger.h"
 
@@ -236,3 +234,5 @@
 }
 
 @end
+
+#endif  // __has_include(<HeartbeatLoggingTestUtils/HeartbeatLoggingTestUtils.h>)

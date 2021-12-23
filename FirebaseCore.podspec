@@ -74,7 +74,11 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
     ]
     unit_tests.requires_app_host = true
     unit_tests.dependency 'OCMock'
-    unit_tests.dependency 'HeartbeatLoggingTestUtils'
+    # Using environment variable because of the dependency on the unpublished
+    # HeartbeatLoggingTestUtils.
+    if ENV['POD_LIB_LINT_ONLY'] && ENV['POD_LIB_LINT_ONLY'] == '1' then
+      unit_tests.dependency 'HeartbeatLoggingTestUtils'
+    end
 
     unit_tests.resources = 'FirebaseCore/Tests/Unit/Resources/GoogleService-Info.plist'
   end
