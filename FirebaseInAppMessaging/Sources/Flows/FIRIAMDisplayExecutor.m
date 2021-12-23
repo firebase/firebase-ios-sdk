@@ -616,6 +616,8 @@
 - (void)displayForMessage:(FIRIAMMessageDefinition *)message
               triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   _currentMsgBeingDisplayed = message;
+  self.isMsgBeingDisplayed = YES;
+  
   [message.renderData.contentData
       loadImageDataWithBlock:^(NSData *_Nullable standardImageRawData,
                                NSData *_Nullable landscapeImageRawData, NSError *_Nullable error) {
@@ -633,6 +635,7 @@
                                             triggerType:triggerType];
           // short-circuit to display error handling
           [self displayErrorForMessage:erroredMessage error:error];
+          self.isMsgBeingDisplayed = NO;
           return;
         } else {
           if (standardImageRawData) {
@@ -658,11 +661,11 @@
         if (self.suppressMessageDisplay) {
           FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400042",
                       @"Message display suppressed by developer at message display time.");
+          self.isMsgBeingDisplayed = NO;
           return;
         }
 
         self.impressionRecorded = NO;
-        self.isMsgBeingDisplayed = YES;
 
         FIRInAppMessagingDisplayMessage *displayMessage =
             [self displayMessageWithMessageDefinition:message
