@@ -91,6 +91,13 @@ struct PodspecsTester: ParsableCommand {
     print("Started at: \(startDate.dateTimeString())")
     // InitializeSpecTesting.setupRepo(sdkRepoURL: gitRoot)
     let manifest = FirebaseManifest.shared
+    let t = RepeatingTimer(timeInterval: 60)
+    var minutes = 0
+    t.eventHandler = {
+        print("Tests have run \(minutes) min(s).")
+        minutes+=1
+    }
+    t.resume()
     for podspec in podspecs {
       let testingPod = podspec.components(separatedBy: ".")[0]
       for pod in manifest.pods {
@@ -103,12 +110,65 @@ struct PodspecsTester: ParsableCommand {
       }
     }
     queue.waitUntilAllOperationsAreFinished()
+    t = nil
     let finishDate = Date()
     print("Finished at: \(finishDate.dateTimeString()). " +
       "Duration: \(startDate.formattedDurationSince(finishDate))")
     Foundation.exit(exitCode)
   }
 }
+class RepeatingTimer {
 
+    let timeInterval: TimeInterval
+    
+    init(timeInterval: TimeInterval) {
+        self.timeInterval = timeInterval
+    }
+    
+    private lazy var timer: DispatchSourceTimer = {
+        let t = DispatchSource.makeTimerSource()
+        t.schedule(deadline: .now() + self.timeInterval, repeating: self.timeInterval)
+        t.setEventHandler(handler: { [weak self] in
+            self?.eventHandler?()
+        })
+        return t
+    }()
+
+    var eventHandler: (() -> Void)?
+
+    private enum State {
+        case suspended
+        case resumed
+    }
+
+    private var state: State = .suspended
+
+    deinit {
+        timer.setEventHandler {}
+        timer.cancel()
+        /*
+         If the timer is suspended, calling cancel without resuming
+         triggers a crash. This is documented here https://forums.developer.apple.com/thread/15902
+         */
+        resume()
+        eventHandler = nil
+    }
+
+    func resume() {
+        if state == .resumed {
+            return
+        }
+        state = .resumed
+        timer.resume()
+    }
+
+    func suspend() {
+        if state == .suspended {
+            return
+        }
+        state = .suspended
+        timer.suspend()
+    }
+}
 // Start the parsing and run the tool.
 PodspecsTester.main()
