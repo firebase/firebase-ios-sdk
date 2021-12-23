@@ -49,19 +49,27 @@ struct PodspecsTester: ParsableCommand {
     }
   }
 
-  func specTest(spec: String, workingDir: URL) -> (code: Int32, output: String) {
+  func specTest(spec: String, workingDir: URL, args: [String:String?]) -> (code: Int32, output: String) {
     var exitCode: Int32 = 0
     var logOutput: String = ""
+    let arguments = args.map{ key, value in
+        if let v = value {
+          return "--\(key)=\(v)"
+        } else {
+          return "--\(key)"
+        }
+    }.joined(separator:" ")
+    print( "pod spec lint \(spec) \(arguments)")
     let result = Shell.executeCommandFromScript(
-      "pod spec lint \(spec)",
+      "pod spec lint \(spec) \(arguments)",
       outputToConsole: false,
       workingDir: workingDir
     )
     switch result {
     case let .error(code, output):
-      print("Start ---- Failed Spec Testing: \(spec) ----")
+      print("---- Failed Spec Testing: \(spec) Start ----")
       print("\(output)")
-      print("End ---- Failed Spec Testing: \(spec) ----")
+      print("---- Failed Spec Testing: \(spec) End ----")
       exitCode = code
       logOutput = output
     case let .success(output):
@@ -89,85 +97,41 @@ struct PodspecsTester: ParsableCommand {
     let queue = OperationQueue()
     var exitCode: Int32 = 0
     print("Started at: \(startDate.dateTimeString())")
-    // InitializeSpecTesting.setupRepo(sdkRepoURL: gitRoot)
+    InitializeSpecTesting.setupRepo(sdkRepoURL: gitRoot)
     let manifest = FirebaseManifest.shared
-    var t: RepeatingTimer? = RepeatingTimer(timeInterval: 60)
     var minutes = 0
-    t!.eventHandler = {
-      print("Tests have run \(minutes) min(s).")
-      minutes += 1
-    }
-    t!.resume()
+    var timer: DispatchSourceTimer = {
+      let t = DispatchSource.makeTimerSource()
+      t.schedule(deadline: .now(), repeating: 60)
+      t.setEventHandler(handler: {
+          print("Tests have run \(minutes) min(s).")
+          minutes += 1
+      })
+      return t
+    }()
+    timer.resume()
     for podspec in podspecs {
       let testingPod = podspec.components(separatedBy: ".")[0]
       for pod in manifest.pods {
         if testingPod == pod.name {
+          var args:[String:String?] = [:]
+          args["platforms"] = pod.platforms.joined(separator:",")
+          if pod.allowWarnings {
+            args.updateValue(nil, forKey: "allow-warnings")
+          }
           queue.addOperation {
-            let code = specTest(spec: podspec, workingDir: gitRoot).code
+            let code = specTest(spec: podspec, workingDir: gitRoot, args: args).code
             exitCode += code
           }
         }
       }
     }
     queue.waitUntilAllOperationsAreFinished()
-    t = nil
+    timer.cancel()
     let finishDate = Date()
     print("Finished at: \(finishDate.dateTimeString()). " +
       "Duration: \(startDate.formattedDurationSince(finishDate))")
     Foundation.exit(exitCode)
-  }
-}
-
-class RepeatingTimer {
-  let timeInterval: TimeInterval
-
-  init(timeInterval: TimeInterval) {
-    self.timeInterval = timeInterval
-  }
-
-  private lazy var timer: DispatchSourceTimer = {
-    let t = DispatchSource.makeTimerSource()
-    t.schedule(deadline: .now() + self.timeInterval, repeating: self.timeInterval)
-    t.setEventHandler(handler: { [weak self] in
-      self?.eventHandler?()
-    })
-    return t
-  }()
-
-  var eventHandler: (() -> Void)?
-
-  private enum State {
-    case suspended
-    case resumed
-  }
-
-  private var state: State = .suspended
-
-  deinit {
-    timer.setEventHandler {}
-    timer.cancel()
-    /*
-     If the timer is suspended, calling cancel without resuming
-     triggers a crash. This is documented here https://forums.developer.apple.com/thread/15902
-     */
-    resume()
-    eventHandler = nil
-  }
-
-  func resume() {
-    if state == .resumed {
-      return
-    }
-    state = .resumed
-    timer.resume()
-  }
-
-  func suspend() {
-    if state == .suspended {
-      return
-    }
-    state = .suspended
-    timer.suspend()
   }
 }
 

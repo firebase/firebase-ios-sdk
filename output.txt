@@ -1,2 +1,0 @@
-FirebaseAuth.podspec
-FirebaseCrashlytics.podspec
