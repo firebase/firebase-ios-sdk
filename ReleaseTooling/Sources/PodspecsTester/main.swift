@@ -91,13 +91,13 @@ struct PodspecsTester: ParsableCommand {
     print("Started at: \(startDate.dateTimeString())")
     // InitializeSpecTesting.setupRepo(sdkRepoURL: gitRoot)
     let manifest = FirebaseManifest.shared
-    let t = RepeatingTimer(timeInterval: 60)
+    var t:RepeatingTimer?  = RepeatingTimer(timeInterval: 60)
     var minutes = 0
-    t.eventHandler = {
+    t!.eventHandler = {
         print("Tests have run \(minutes) min(s).")
         minutes+=1
     }
-    t.resume()
+    t!.resume()
     for podspec in podspecs {
       let testingPod = podspec.components(separatedBy: ".")[0]
       for pod in manifest.pods {
