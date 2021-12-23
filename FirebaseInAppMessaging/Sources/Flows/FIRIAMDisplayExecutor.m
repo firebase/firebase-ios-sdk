@@ -617,7 +617,7 @@
               triggerType:(FIRInAppMessagingDisplayTriggerType)triggerType {
   _currentMsgBeingDisplayed = message;
   self.isMsgBeingDisplayed = YES;
-  
+
   [message.renderData.contentData
       loadImageDataWithBlock:^(NSData *_Nullable standardImageRawData,
                                NSData *_Nullable landscapeImageRawData, NSError *_Nullable error) {
