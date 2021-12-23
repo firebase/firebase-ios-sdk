@@ -49,17 +49,18 @@ struct PodspecsTester: ParsableCommand {
     }
   }
 
-  func specTest(spec: String, workingDir: URL, args: [String:String?]) -> (code: Int32, output: String) {
+  func specTest(spec: String, workingDir: URL,
+                args: [String: String?]) -> (code: Int32, output: String) {
     var exitCode: Int32 = 0
     var logOutput: String = ""
-    let arguments = args.map{ key, value in
-        if let v = value {
-          return "--\(key)=\(v)"
-        } else {
-          return "--\(key)"
-        }
-    }.joined(separator:" ")
-    print( "pod spec lint \(spec) \(arguments)")
+    let arguments = args.map { key, value in
+      if let v = value {
+        return "--\(key)=\(v)"
+      } else {
+        return "--\(key)"
+      }
+    }.joined(separator: " ")
+    print("pod spec lint \(spec) \(arguments)")
     let result = Shell.executeCommandFromScript(
       "pod spec lint \(spec) \(arguments)",
       outputToConsole: false,
@@ -104,8 +105,8 @@ struct PodspecsTester: ParsableCommand {
       let t = DispatchSource.makeTimerSource()
       t.schedule(deadline: .now(), repeating: 60)
       t.setEventHandler(handler: {
-          print("Tests have run \(minutes) min(s).")
-          minutes += 1
+        print("Tests have run \(minutes) min(s).")
+        minutes += 1
       })
       return t
     }()
@@ -114,8 +115,8 @@ struct PodspecsTester: ParsableCommand {
       let testingPod = podspec.components(separatedBy: ".")[0]
       for pod in manifest.pods {
         if testingPod == pod.name {
-          var args:[String:String?] = [:]
-          args["platforms"] = pod.platforms.joined(separator:",")
+          var args: [String: String?] = [:]
+          args["platforms"] = pod.platforms.joined(separator: ",")
           if pod.allowWarnings {
             args.updateValue(nil, forKey: "allow-warnings")
           }

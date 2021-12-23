@@ -90,6 +90,7 @@ struct InitializeSpecTesting {
         Shell.executeCommand(
           "sed -i.bak -e \"s|\\(.*\\:git =>[[:space:]]*\\).*|\\1'\(path.path)',| ; " +
             "s|\\(.*\\:tag =>[[:space:]]*\\).*|\\1'\(Constants.testingTagPrefix + manifest.version)',|\" \(pod.name).podspec",
+          outputToConsole: false,
           workingDir: path
         )
       }
