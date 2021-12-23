@@ -51,3 +51,4 @@ Swift SDK Extensions for Cloud Functions for Firebase.
       int_tests.dependency 'FirebaseFunctionsTestingSupport'
     end
   end
+end
