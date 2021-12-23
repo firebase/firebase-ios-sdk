@@ -33,8 +33,14 @@ Pod::Spec.new do |s|
   s.osx.deployment_target     = osx_deployment_target
   s.tvos.deployment_target    = tvos_deployment_target
   s.watchos.deployment_target = watchos_deployment_target
-  
+
+  s.requires_arc              = false
+
   s.framework = 'XCTest'
+  s.osx.framework             = 'XCTest'
+  s.ios.framework             = 'XCTest'
+  s.tvos.framework            = 'XCTest'
+  s.watchos.framework         = 'XCTest'
 
   s.cocoapods_version         = '>= 1.4.0'
   s.prefix_header_file        = false
@@ -46,6 +52,7 @@ Pod::Spec.new do |s|
   
 
   s.pod_target_xcconfig = {
+    'ENABLE_BITCODE' => 'NO',
     'ENABLE_TESTING_SEARCH_PATHS' => 'YES',
     'DEFINES_MODULE' => 'YES'
   }
