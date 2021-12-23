@@ -60,6 +60,7 @@
 
 - (void)testDoNotLogMoreThanOnceToday {
   // Given
+  XCTFail(@"Intentionally failing test case.");
   FIRHeartbeatLogger *heartbeatLogger = self.heartbeatLogger;
   NSString *expectedDate = [[self class] formattedStringForDate:[NSDate date]];
   // When
