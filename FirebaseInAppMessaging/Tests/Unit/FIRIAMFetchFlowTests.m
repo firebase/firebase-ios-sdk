@@ -315,6 +315,7 @@ CGFloat FETCH_MIN_INTERVALS = 1;
 
   FIRIAMMessageDefinition *testMessage =
       [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:self.m2.renderData
+                                                             appData:nil
                                                    experimentPayload:nil];
 
   OCMStub([self.mockMessageFetcher
@@ -338,6 +339,7 @@ CGFloat FETCH_MIN_INTERVALS = 1;
 
   FIRIAMMessageDefinition *testMessage =
       [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:self.m2.renderData
+                                                             appData:nil
                                                    experimentPayload:nil];
 
   OCMStub([self.mockMessageFetcher
