@@ -26,7 +26,8 @@ jobs:
     runs-on: macos-11
     strategy:
       matrix:
-        target: [ios, tvos, macos, watchos]
+        # TODO: The --skip-tests might be removable with Xcode 13.2+
+        target: [ios, tvos, macos --skip-tests, watchos]
         podspec: [ 'FirebaseFunctions.podspec', 'FirebaseFunctionsSwift.podspec']
     env:
       POD_LIB_LINT_ONLY: 1
