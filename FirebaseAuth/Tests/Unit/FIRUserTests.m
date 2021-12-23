@@ -1389,7 +1389,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
  */
 - (void)testGetIDTokenResultForcingRefreshCustomTokenDelegateNoRefreshTokenSuccess {
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-  [FIRAuth auth].customTokenProviderDelegate = self;
+  [FIRAuth auth].customTokenProviderDelegate = (id<FIRCustomTokenProviderDelegate>)self;
   [self signInWithCustomTokenNoRefreshTokenWithCompletion:^(FIRUser *user) {
     OCMExpect([self->_mockBackend verifyCustomToken:[OCMArg any] callback:[OCMArg any]])
         .andCallBlock2(^(FIRVerifyCustomTokenRequest *_Nullable request,

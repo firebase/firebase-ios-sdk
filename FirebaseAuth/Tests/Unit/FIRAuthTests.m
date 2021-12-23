@@ -22,6 +22,7 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRActionCodeSettings.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAdditionalUserInfo.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthSettings.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRCustomTokenProviderDelegate.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIREmailAuthProvider.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRFacebookAuthProvider.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRGoogleAuthProvider.h"
@@ -1531,18 +1532,7 @@ static const NSTimeInterval kWaitInterval = .5;
    refresh token.
  */
 - (void)testSignInWithCustomTokenWithoutRefreshTokenSuccess {
-  OCMExpect([_mockBackend verifyCustomToken:[OCMArg any] callback:[OCMArg any]])
-      .andCallBlock2(^(FIRVerifyCustomTokenRequest *_Nullable request,
-                       FIRVerifyCustomTokenResponseCallback callback) {
-        XCTAssertEqualObjects(request.APIKey, kAPIKey);
-        XCTAssertEqualObjects(request.token, kCustomToken);
-        XCTAssertTrue(request.returnSecureToken);
-        dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-          id mockVerifyCustomTokenResponse = OCMClassMock([FIRVerifyCustomTokenResponse class]);
-          [self stubTokensWithMockResponseNoRefreshToken:mockVerifyCustomTokenResponse];
-          callback(mockVerifyCustomTokenResponse, nil);
-        });
-      });
+  [self mockVerifyCustomTokenResponseWithoutRefreshTokenWithAccessToken:kEncodedAccessToken];
   // If refreshToken is not present, GetAccountInfo is not invoked.
   OCMReject([_mockBackend getAccountInfo:[OCMArg any] callback:[OCMArg any]]);
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
@@ -2245,6 +2235,43 @@ static const NSTimeInterval kWaitInterval = .5;
   OCMVerifyAll(_mockBackend);
 }
 
+/** @fn testAutomaticTokenRefreshCustomTokenProviderNoRefreshTokenSuccess
+    @brief Tests a successful flow to automatically obtain a new access token for a signed in user
+   when no refresh token is available, but a custom token provider is set.
+ */
+- (void)testAutomaticTokenRefreshCustomTokenProviderNoRefreshTokenSuccess {
+  [[FIRAuth auth] signOut:NULL];
+  [FIRAuth auth].customTokenProviderDelegate = (id<FIRCustomTokenProviderDelegate>)self;
+
+  // Enable auto refresh
+  [self enableAutoTokenRefresh];
+
+  // Sign in a user.
+  [self waitForPassthroughSignIn];
+
+  // Set up expectation for verifyCustomToken RPC made by token refresh task.
+  [self mockVerifyCustomTokenResponseWithoutRefreshTokenWithAccessToken:kNewAccessToken];
+
+  // Verify that the current user's access token is the "old" access token before automatic token
+  // refresh.
+  XCTAssertEqualObjects(kEncodedAccessToken, [FIRAuth auth].currentUser.rawAccessToken);
+
+  // Execute saved token refresh task.
+  XCTestExpectation *dispatchAfterExpectation =
+      [self expectationWithDescription:@"dispatchAfterExpectation"];
+  dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+    XCTAssertNotNil(self->_FIRAuthDispatcherCallback);
+    self->_FIRAuthDispatcherCallback();
+    [dispatchAfterExpectation fulfill];
+  });
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+
+  // Verify that current user's access token is the "new" access token provided in the mock secure
+  // token response during automatic token refresh.
+  XCTAssertEqualObjects(kNewAccessToken, [FIRAuth auth].currentUser.rawAccessToken);
+  OCMVerifyAll(_mockBackend);
+}
+
 /** @fn testAutomaticTokenRefreshInvalidTokenFailure
     @brief Tests an unsuccessful flow to auto refresh tokens with an "invalid token" error.
         This error should cause the user to be signed out.
@@ -2470,6 +2497,13 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssert(component.protocol == @protocol(FIRAuthInterop));
 }
 
+#pragma mark - FIRCustomTokenProviderDelegate
+
+- (void)getCustomTokenWithCompletion:(void (^)(NSString *_Nullable customToken,
+                                               NSError *_Nullable error))completion {
+  completion(kCustomToken, nil);
+}
+
 #pragma mark - Helpers
 
 /** @fn mockSecureTokenResponseWithError:
@@ -2502,6 +2536,26 @@ static const NSTimeInterval kWaitInterval = .5;
           });
 }
 
+- (void)mockVerifyCustomTokenResponseWithoutRefreshTokenWithAccessToken:(NSString *)accessToken {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"verifyCustomTokenWithoutRefreshTokenExpectation"];
+  OCMExpect([_mockBackend verifyCustomToken:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(^(FIRVerifyCustomTokenRequest *_Nullable request,
+                       FIRVerifyCustomTokenResponseCallback callback) {
+        XCTAssertEqualObjects(request.token, kCustomToken);
+        XCTAssertTrue(request.returnSecureToken);
+        dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+          id mockVerifyCustomTokenResponse = OCMClassMock([FIRVerifyCustomTokenResponse class]);
+          OCMStub([mockVerifyCustomTokenResponse IDToken]).andReturn(accessToken);
+          OCMStub([mockVerifyCustomTokenResponse approximateExpirationDate])
+              .andReturn([NSDate dateWithTimeIntervalSinceNow:kAccessTokenTimeToLive]);
+          OCMStub([mockVerifyCustomTokenResponse refreshToken]).andReturn(nil);
+          callback(mockVerifyCustomTokenResponse, nil);
+          [expectation fulfill];
+        });
+      });
+}
+
 /** @fn enableAutoTokenRefresh
     @brief Enables automatic token refresh by invoking FIRAuth's implementation of FIRApp's
         |getTokenWithImplementation|.
@@ -2524,17 +2578,6 @@ static const NSTimeInterval kWaitInterval = .5;
   OCMStub([mockResponse approximateExpirationDate])
       .andReturn([NSDate dateWithTimeIntervalSinceNow:kAccessTokenTimeToLive]);
   OCMStub([mockResponse refreshToken]).andReturn(kRefreshToken);
-}
-
-/** @fn stubTokensWithMockResponseNoRefreshToken
-    @brief Creates stubs on the mock response object with only access token, no refresh token.
-    @param mockResponse The mock response object.
- */
-- (void)stubTokensWithMockResponseNoRefreshToken:(id)mockResponse {
-  OCMStub([mockResponse IDToken]).andReturn(kEncodedAccessToken);
-  OCMStub([mockResponse approximateExpirationDate])
-      .andReturn([NSDate dateWithTimeIntervalSinceNow:kAccessTokenTimeToLive]);
-  OCMStub([mockResponse refreshToken]).andReturn(nil);
 }
 
 /** @fn expectGetAccountInfo
@@ -2720,6 +2763,23 @@ static const NSTimeInterval kWaitInterval = .5;
                            completion(result.user, error);
                          }
                        }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+  XCTAssertNotNil([FIRAuth auth].currentUser);
+}
+
+- (void)waitForPassthroughSignIn {
+  [self mockVerifyCustomTokenResponseWithoutRefreshTokenWithAccessToken:kEncodedAccessToken];
+  [[FIRAuth auth] signOut:NULL];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth]
+      signInWithCustomToken:kCustomToken
+                 completion:^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
+                   XCTAssertTrue([NSThread isMainThread]);
+                   [self assertUserFromIDToken:result.user];
+                   XCTAssertNil(error);
+                   [expectation fulfill];
+                 }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
   XCTAssertNotNil([FIRAuth auth].currentUser);
