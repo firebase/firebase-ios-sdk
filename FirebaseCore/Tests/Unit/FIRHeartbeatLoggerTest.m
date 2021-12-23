@@ -43,6 +43,10 @@
   };
 }
 
++ (NSString *)formattedStringForDate:(NSDate *)date {
+  return [[FIRHeartbeatLoggingTestUtils dateFormatter] stringFromDate:date];
+}
+
 - (void)setUp {
   _heartbeatLogger =
       [[FIRHeartbeatLogger alloc] initWithAppID:[[self class] dummyAppID]
@@ -57,7 +61,7 @@
 - (void)testDoNotLogMoreThanOnceToday {
   // Given
   FIRHeartbeatLogger *heartbeatLogger = self.heartbeatLogger;
-
+  NSString *expectedDate = [[self class] formattedStringForDate:[NSDate date]];
   // When
   [heartbeatLogger log];
   [heartbeatLogger log];
@@ -68,13 +72,14 @@
   [self assertEncodedPayloadHeader:FIRHeaderValueFromHeartbeatsPayload(heartbeatsPayload)
               isEqualToPayloadJSON:@{
                 @"version" : @2,
-                @"heartbeats" : @[ @{@"agent" : @"dummy_agent", @"dates" : @[ @"2021-12-22" ]} ]
+                @"heartbeats" : @[ @{@"agent" : @"dummy_agent", @"dates" : @[ expectedDate ]} ]
               }];
 }
 
 - (void)testDoNotLogMoreThanOnceToday_AfterFlushing {
   // Given
   FIRHeartbeatLogger *heartbeatLogger = self.heartbeatLogger;
+  NSString *expectedDate = [[self class] formattedStringForDate:[NSDate date]];
   // When
   [heartbeatLogger log];
   FIRHeartbeatsPayload *firstHeartbeatsPayload = [heartbeatLogger flushHeartbeatsIntoPayload];
@@ -84,7 +89,7 @@
   [self assertEncodedPayloadHeader:FIRHeaderValueFromHeartbeatsPayload(firstHeartbeatsPayload)
               isEqualToPayloadJSON:@{
                 @"version" : @2,
-                @"heartbeats" : @[ @{@"agent" : @"dummy_agent", @"dates" : @[ @"2021-12-22" ]} ]
+                @"heartbeats" : @[ @{@"agent" : @"dummy_agent", @"dates" : @[ expectedDate ]} ]
               }];
 
   [self assertHeartbeatsPayloadIsEmpty:secondHeartbeatsPayload];
@@ -112,6 +117,7 @@
 - (void)testFlushing_UsingV2API_WhenHeartbeatsAreStored_ReturnsNonEmptyPayload {
   // Given
   FIRHeartbeatLogger *heartbeatLogger = self.heartbeatLogger;
+  NSString *expectedDate = [[self class] formattedStringForDate:[NSDate date]];
   // When
   [heartbeatLogger log];
   FIRHeartbeatsPayload *heartbeatsPayload = [heartbeatLogger flushHeartbeatsIntoPayload];
@@ -119,7 +125,7 @@
   [self assertEncodedPayloadHeader:FIRHeaderValueFromHeartbeatsPayload(heartbeatsPayload)
               isEqualToPayloadJSON:@{
                 @"version" : @2,
-                @"heartbeats" : @[ @{@"agent" : @"dummy_agent", @"dates" : @[ @"2021-12-22" ]} ]
+                @"heartbeats" : @[ @{@"agent" : @"dummy_agent", @"dates" : @[ expectedDate ]} ]
               }];
 }
 
@@ -147,6 +153,7 @@
 - (void)testLogAndFlushUsingV2API_AndThenFlushAgainUsingV1API_FlushesHeartbeatInTheFirstFlush {
   // Given
   FIRHeartbeatLogger *heartbeatLogger = self.heartbeatLogger;
+  NSString *expectedDate = [[self class] formattedStringForDate:[NSDate date]];
   [heartbeatLogger log];
   // When
   FIRHeartbeatsPayload *heartbeatsPayload = [heartbeatLogger flushHeartbeatsIntoPayload];
@@ -155,7 +162,7 @@
   [self assertEncodedPayloadHeader:FIRHeaderValueFromHeartbeatsPayload(heartbeatsPayload)
               isEqualToPayloadJSON:@{
                 @"version" : @2,
-                @"heartbeats" : @[ @{@"agent" : @"dummy_agent", @"dates" : @[ @"2021-12-22" ]} ]
+                @"heartbeats" : @[ @{@"agent" : @"dummy_agent", @"dates" : @[ expectedDate ]} ]
               }];
   XCTAssertEqual(heartbeatInfoCode, FIRHeartbeatInfoCodeNone);
 }
@@ -168,6 +175,7 @@
   FIRHeartbeatLogger *heartbeatLogger2 =
       [[FIRHeartbeatLogger alloc] initWithAppID:[[self class] dummyAppID]
                               userAgentProvider:[[self class] dummyUserAgentProvider]];
+  NSString *expectedDate = [[self class] formattedStringForDate:[NSDate date]];
   // When
   [heartbeatLogger1 log];
   // Then
@@ -175,7 +183,7 @@
   [self assertEncodedPayloadHeader:FIRHeaderValueFromHeartbeatsPayload(heartbeatsPayload)
               isEqualToPayloadJSON:@{
                 @"version" : @2,
-                @"heartbeats" : @[ @{@"agent" : @"dummy_agent", @"dates" : @[ @"2021-12-22" ]} ]
+                @"heartbeats" : @[ @{@"agent" : @"dummy_agent", @"dates" : @[ expectedDate ]} ]
               }];
   [self assertHeartbeatLoggerFlushesEmptyPayload:heartbeatLogger1];
 }
@@ -189,6 +197,7 @@
   FIRHeartbeatLogger *heartbeatLogger =
       [[FIRHeartbeatLogger alloc] initWithAppID:@"testLoggingAHeartbeatDoesNotDependOnUserAgent"
                               userAgentProvider:dummyUserAgentProvider];
+  NSString *expectedDate = [[self class] formattedStringForDate:[NSDate date]];
   [heartbeatLogger log];
   FIRHeartbeatsPayload *heartbeatsPayload = [heartbeatLogger flushHeartbeatsIntoPayload];
   // When
@@ -198,7 +207,7 @@
   [self assertEncodedPayloadHeader:FIRHeaderValueFromHeartbeatsPayload(heartbeatsPayload)
               isEqualToPayloadJSON:@{
                 @"version" : @2,
-                @"heartbeats" : @[ @{@"agent" : @"dummy_agent_1", @"dates" : @[ @"2021-12-22" ]} ]
+                @"heartbeats" : @[ @{@"agent" : @"dummy_agent_1", @"dates" : @[ expectedDate ]} ]
               }];
   [self assertHeartbeatLoggerFlushesEmptyPayload:heartbeatLogger];
 }

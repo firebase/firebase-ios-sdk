@@ -32,6 +32,10 @@ enum Constants {
 @objc(FIRHeartbeatLoggingTestUtils)
 @objcMembers
 public class HeartbeatLoggingTestUtils: NSObject {
+  public static var dateFormatter: DateFormatter {
+    HeartbeatsPayload.dateFormatter
+  }
+
   @objc(assertEncodedPayloadString:isEqualToLiteralString:withError:)
   public static func assertEqualPayloadStrings(_ encoded: String, _ literal: String) throws {
     let encodedData = try XCTUnwrap(Data(base64Encoded: encoded))
