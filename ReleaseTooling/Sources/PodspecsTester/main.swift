@@ -25,11 +25,11 @@ struct PodspecsTester: ParsableCommand {
           transform: URL.init(fileURLWithPath:))
   var gitRoot: URL
 
-  // Read a temp file with testing podspecs. An example of a temp file:
-  // ```
-  // FirebaseAuth.podspec
-  // FirebaseCrashlytics.podspec
-  // ```
+  /// Read a temp file with testing podspecs. An example of a temp file:
+  /// ```
+  /// FirebaseAuth.podspec
+  /// FirebaseCrashlytics.podspec
+  /// ```
   @Option(help: "A temp file containing podspecs that will be tested.",
           transform: { str in
             let url = URL(fileURLWithPath: str)
@@ -38,6 +38,10 @@ struct PodspecsTester: ParsableCommand {
               .components(separatedBy: "\n")
           })
   var podspecs: [String]
+
+  /// The root of the Firebase git repo.
+  @Option(help: "Spec testing log dir", transform: URL.init(fileURLWithPath:))
+  var tempLogDir: URL?
 
   mutating func validate() throws {
     guard FileManager.default.fileExists(atPath: gitRoot.path) else {
@@ -58,22 +62,24 @@ struct PodspecsTester: ParsableCommand {
       print("Start ---- Failed Spec Testing: \(spec) ----")
       print("\(output)")
       print("End ---- Failed Spec Testing: \(spec) ----")
-
-      do {
-        try output.write(
-          to: gitRoot.appendingPathComponent("specTestingLogs/\(spec).txt"),
-          atomically: true,
-          encoding: String.Encoding.utf8
-        )
-      } catch {
-        print(error)
-      }
       exitCode = code
       logOutput = output
     case let .success(output):
       print("\(spec) passed validation.")
       exitCode = 0
       logOutput = output
+    }
+
+    if let logDir = tempLogDir{
+      do {
+          try logOutput.write(
+              to: logDir.appendingPathComponent("\(spec).txt"),
+              atomically: true,
+              encoding: String.Encoding.utf8
+          )
+      } catch {
+          print(error)
+      }
     }
     return (exitCode, logOutput)
   }

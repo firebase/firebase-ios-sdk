@@ -21,8 +21,9 @@ jobs:
         ./scripts/health_metrics/get_updated_files.sh -p output.txt
     - name: Init podspecs and source
       run: |
+        mkdir specTestingLogs
         cd ReleaseTooling
-        swift run podspecs-tester --git-root "${GITHUB_WORKSPACE}" --podspecs ../output.txt
+        swift run podspecs-tester --git-root "${GITHUB_WORKSPACE}" --podspecs ../output.txt --temp-log-dir "${GITHUB_WORKSPACE}/specTestingLogs" 
     - name: Upload Failed Testing Logs
       uses: actions/upload-artifact@v2
       with:
