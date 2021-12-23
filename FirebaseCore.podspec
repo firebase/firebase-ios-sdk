@@ -62,31 +62,10 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
     'OTHER_CFLAGS' => '-fno-autolink'
   }
 
-  s.test_spec 'unit' do |unit_tests|
-    unit_tests.scheme = { :code_coverage => true }
-    unit_tests.platforms = {
-      :ios => ios_deployment_target,
-      :osx => osx_deployment_target,
-      :tvos => tvos_deployment_target
-    }
-    unit_tests.source_files = [
-      'FirebaseCore/Tests/Unit/**/*.[mh]',
-      'SharedTestUtilities/FIROptionsMock.[mh]',
-    ]
-
-    unit_tests.exclude_files = [
-      'FirebaseCore/Tests/Unit/FIRHeartbeatLoggerTest.m',
-    ]
-
-    unit_tests.requires_app_host = true
-    unit_tests.dependency 'OCMock'
-    unit_tests.resources = 'FirebaseCore/Tests/Unit/Resources/GoogleService-Info.plist'
-  end
-
   # Using environment variable because of the dependency on the unpublished
   # HeartbeatLoggingTestUtils.
   if ENV['POD_LIB_LINT_ONLY'] && ENV['POD_LIB_LINT_ONLY'] == '1' then
-    s.test_spec 'heartbeat-unit' do |unit_tests|
+    s.test_spec 'unit' do |unit_tests|
       unit_tests.scheme = { :code_coverage => true }
       unit_tests.platforms = {
         :ios => ios_deployment_target,
@@ -94,11 +73,14 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
         :tvos => tvos_deployment_target
       }
       unit_tests.source_files = [
-        'FirebaseCore/Tests/Unit/FIRHeartbeatLoggerTest.m',
-        # TODO: Is testing HeartbeatLogging on SPM enough?
-        #'HeartbeatLogging/Tests/**/*.swift',
+        'FirebaseCore/Tests/Unit/**/*.[mh]',
+        'SharedTestUtilities/FIROptionsMock.[mh]',
       ]
+
+      unit_tests.requires_app_host = true
+      unit_tests.dependency 'OCMock'
       unit_tests.dependency 'HeartbeatLoggingTestUtils'
+      unit_tests.resources = 'FirebaseCore/Tests/Unit/Resources/GoogleService-Info.plist'
     end
   end
 
