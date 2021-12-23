@@ -18,7 +18,6 @@
 // so the tests may fail. Disable integration tests on macOS so far.
 // TODO: Configure the tests to run on macOS without requesting the keychain password.
 #if !os(OSX)
-
   import FirebaseCore
   import FirebaseMessaging
   import XCTest
@@ -38,6 +37,8 @@
     var messaging: Messaging?
 
     override class func setUp() {
+      FIROptionsMock.mockFIROptions()
+
       FirebaseApp.configure()
     }
 
