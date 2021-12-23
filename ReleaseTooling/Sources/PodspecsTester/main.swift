@@ -49,9 +49,9 @@ struct PodspecsTester: ParsableCommand {
     }
   }
 
-  func specTest(spec: String, workingDir: URL) -> (code: Int32, output: String){
-    var exitCode:Int32 = 0
-    var logOutput:String = ""
+  func specTest(spec: String, workingDir: URL) -> (code: Int32, output: String) {
+    var exitCode: Int32 = 0
+    var logOutput: String = ""
     let result = Shell.executeCommandFromScript(
       "pod spec lint \(spec)",
       outputToConsole: false,
@@ -70,15 +70,15 @@ struct PodspecsTester: ParsableCommand {
       logOutput = output
     }
 
-    if let logDir = tempLogDir{
+    if let logDir = tempLogDir {
       do {
-          try logOutput.write(
-              to: logDir.appendingPathComponent("\(spec).txt"),
-              atomically: true,
-              encoding: String.Encoding.utf8
-          )
+        try logOutput.write(
+          to: logDir.appendingPathComponent("\(spec).txt"),
+          atomically: true,
+          encoding: String.Encoding.utf8
+        )
       } catch {
-          print(error)
+        print(error)
       }
     }
     return (exitCode, logOutput)
@@ -87,15 +87,15 @@ struct PodspecsTester: ParsableCommand {
   func run() throws {
     let startDate = Date()
     let queue = OperationQueue()
-    var exitCode:Int32 = 0
+    var exitCode: Int32 = 0
     print("Started at: \(startDate.dateTimeString())")
     // InitializeSpecTesting.setupRepo(sdkRepoURL: gitRoot)
     let manifest = FirebaseManifest.shared
-    var t:RepeatingTimer?  = RepeatingTimer(timeInterval: 60)
+    var t: RepeatingTimer? = RepeatingTimer(timeInterval: 60)
     var minutes = 0
     t!.eventHandler = {
-        print("Tests have run \(minutes) min(s).")
-        minutes+=1
+      print("Tests have run \(minutes) min(s).")
+      minutes += 1
     }
     t!.resume()
     for podspec in podspecs {
@@ -117,58 +117,59 @@ struct PodspecsTester: ParsableCommand {
     Foundation.exit(exitCode)
   }
 }
+
 class RepeatingTimer {
+  let timeInterval: TimeInterval
 
-    let timeInterval: TimeInterval
-    
-    init(timeInterval: TimeInterval) {
-        self.timeInterval = timeInterval
+  init(timeInterval: TimeInterval) {
+    self.timeInterval = timeInterval
+  }
+
+  private lazy var timer: DispatchSourceTimer = {
+    let t = DispatchSource.makeTimerSource()
+    t.schedule(deadline: .now() + self.timeInterval, repeating: self.timeInterval)
+    t.setEventHandler(handler: { [weak self] in
+      self?.eventHandler?()
+    })
+    return t
+  }()
+
+  var eventHandler: (() -> Void)?
+
+  private enum State {
+    case suspended
+    case resumed
+  }
+
+  private var state: State = .suspended
+
+  deinit {
+    timer.setEventHandler {}
+    timer.cancel()
+    /*
+     If the timer is suspended, calling cancel without resuming
+     triggers a crash. This is documented here https://forums.developer.apple.com/thread/15902
+     */
+    resume()
+    eventHandler = nil
+  }
+
+  func resume() {
+    if state == .resumed {
+      return
     }
-    
-    private lazy var timer: DispatchSourceTimer = {
-        let t = DispatchSource.makeTimerSource()
-        t.schedule(deadline: .now() + self.timeInterval, repeating: self.timeInterval)
-        t.setEventHandler(handler: { [weak self] in
-            self?.eventHandler?()
-        })
-        return t
-    }()
+    state = .resumed
+    timer.resume()
+  }
 
-    var eventHandler: (() -> Void)?
-
-    private enum State {
-        case suspended
-        case resumed
+  func suspend() {
+    if state == .suspended {
+      return
     }
-
-    private var state: State = .suspended
-
-    deinit {
-        timer.setEventHandler {}
-        timer.cancel()
-        /*
-         If the timer is suspended, calling cancel without resuming
-         triggers a crash. This is documented here https://forums.developer.apple.com/thread/15902
-         */
-        resume()
-        eventHandler = nil
-    }
-
-    func resume() {
-        if state == .resumed {
-            return
-        }
-        state = .resumed
-        timer.resume()
-    }
-
-    func suspend() {
-        if state == .suspended {
-            return
-        }
-        state = .suspended
-        timer.suspend()
-    }
+    state = .suspended
+    timer.suspend()
+  }
 }
+
 // Start the parsing and run the tool.
 PodspecsTester.main()
