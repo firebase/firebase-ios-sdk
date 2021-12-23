@@ -19,20 +19,18 @@ import Foundation
 
 #if compiler(>=5.5) && canImport(_Concurrency)
   @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
-  public extension CollectionReference {
-    /// Adds a new document to this collection with the specified data, assigning it a document ID
-    /// automatically.
-    /// - Parameter data: A `Dictionary` containing the data for the new document.
-    /// - Returns: A `DocumentReference` pointing to the newly created document.
-    func addDocument(data: [String: Any]) async throws -> DocumentReference {
-      typealias DataContinuation = CheckedContinuation<DocumentReference, Error>
+  public extension Firestore {
+    /// Loads a Firestore bundle into the local cache.
+    /// - Parameter bundleData: Data from the bundle to be loaded.
+    /// - Returns: The final `LoadBundleTaskProgress` that contains the total number of documents loaded.
+    func loadBundle(_ bundleData: Data) async throws -> LoadBundleTaskProgress {
+      typealias DataContinuation = CheckedContinuation<LoadBundleTaskProgress, Error>
       return try await withCheckedThrowingContinuation { (continuation: DataContinuation) in
-        var document: DocumentReference?
-        document = self.addDocument(data: data) { error in
+        self.loadBundle(bundleData) { progress, error in
           if let err = error {
             continuation.resume(throwing: err)
           } else {
-            continuation.resume(returning: document!)
+            continuation.resume(returning: progress!)
           }
         }
       }

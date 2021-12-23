@@ -18,6 +18,21 @@ import FirebaseFirestore
 import FirebaseFirestoreSwift
 import Foundation
 
+let emptyBundle = """
+{\
+   "metadata":{\
+      "id":"test",\
+      "createTime":{\
+         "seconds":0,\
+         "nanos":0\
+      },\
+      "version":1,\
+      "totalDocuments":0,\
+      "totalBytes":0\
+   }\
+}
+"""
+
 #if swift(>=5.5)
   @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
   class AsyncAwaitIntegrationTests: FSTIntegrationTestCase {
@@ -26,6 +41,12 @@ import Foundation
       let document = try await collection.addDocument(data: [:])
       let snapshot = try await document.getDocument()
       XCTAssertTrue(snapshot.exists)
+    }
+
+    func testLoadBundle() async throws {
+      let bundle = "\(emptyBundle.count)\(emptyBundle)"
+      let bundleProgress = try await db.loadBundle(Data(bundle.utf8))
+      XCTAssertEqual(LoadBundleTaskState.success, bundleProgress.state)
     }
   }
 #endif

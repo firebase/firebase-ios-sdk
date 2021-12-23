@@ -1,5 +1,6 @@
 # Unreleased
-- [added] Added async wrapper for `CollectionReference.addDocument()`.
+- [added] Added async wrapper for `CollectionReference.addDocument()` and
+  `Firestore.loadBundle()`.
 
 # v8.9.0
 - [added] Added `@FirestoreQuery` property wrapper for querying data from a
