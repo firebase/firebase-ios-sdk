@@ -36,8 +36,8 @@ func apis() {
   if #available(macOS 10.14, iOS 10.0, watchOS 3.0, tvOS 10.0, *) {
     let serviceExtension = Messaging.serviceExtension()
     let content = UNMutableNotificationContent()
-    var contentHandler: ((UNNotificationContent) -> Void)?
-    serviceExtension.populateNotificationContent(content, withContentHandler: contentHandler)
+    serviceExtension.populateNotificationContent(content) { content in
+    }
     serviceExtension.exportDeliveryMetricsToBigQuery(withMessageInfo: [:])
   }
 }
