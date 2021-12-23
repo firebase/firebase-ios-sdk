@@ -13,10 +13,12 @@
 // limitations under the License.
 
 import Foundation
-import XCTest
+import XCTest // COMPILE ERROR: No such module 'XCTest'
 
 #if SWIFT_PACKAGE
   import HeartbeatLogging
+#else
+  import FirebaseCore
 #endif
 
 /// This should mirror the `Constants` enum in the `HeartbeatLogging` module.

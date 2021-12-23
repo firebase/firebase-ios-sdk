@@ -71,10 +71,17 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
     unit_tests.source_files = [
       'FirebaseCore/Tests/Unit/**/*.[mh]',
       'SharedTestUtilities/FIROptionsMock.[mh]',
-      'HeartbeatLoggingTestUtils/Sources/**',
     ]
     unit_tests.requires_app_host = true
     unit_tests.dependency 'OCMock'
+
+    # I added the below pod_target_xcconfig but am not sure if it is needed.
+    unit_tests.pod_target_xcconfig = {
+      'ENABLE_TESTING_SEARCH_PATHS' => 'YES',
+      'DEFINES_MODULE' => 'YES'
+    }
+
+    unit_tests.dependency 'HeartbeatLoggingTestUtils'
     unit_tests.resources = 'FirebaseCore/Tests/Unit/Resources/GoogleService-Info.plist'
   end
 
