@@ -97,6 +97,30 @@
       wait(for: [expectation, notificationExpectation], timeout: 5)
     }
 
+    func testDeleteDataWithTokenRefreshDelegatesAndNotifications() {
+      let expectation = self.expectation(description: "delegate method and notification are called")
+      assertDefaultToken()
+
+      let notificationExpectation = self.expectation(forNotification: NSNotification.Name
+        .MessagingRegistrationTokenRefreshed,
+        object: nil,
+        handler: nil)
+
+      let testDelegate = fakeAppDelegate()
+      messaging?.delegate = testDelegate
+      testDelegate.delegateIsCalled = false
+
+      guard let messaging = self.messaging else {
+        return
+      }
+      messaging.deleteData { error in
+        XCTAssertNil(error)
+        XCTAssertTrue(testDelegate.delegateIsCalled)
+        expectation.fulfill()
+      }
+      wait(for: [expectation, notificationExpectation], timeout: 5)
+    }
+
     // pragma mark - Helpers
     func assertTokenWithAuthorizedEntity() {
       let expectation = self.expectation(description: "tokenWithAuthorizedEntity")
