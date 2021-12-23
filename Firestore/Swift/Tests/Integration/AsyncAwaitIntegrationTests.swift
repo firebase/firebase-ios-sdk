@@ -19,7 +19,7 @@ import FirebaseFirestoreSwift
 import Foundation
 
 #if swift(>=5.5)
-  @available(iOS 15, *)
+  @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
   class AsyncAwaitIntegrationTests: FSTIntegrationTestCase {
     func testAddData() async throws {
       let collection = collectionRef()
