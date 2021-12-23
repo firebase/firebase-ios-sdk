@@ -193,7 +193,6 @@
   XCTAssertFalse(results[1].isTestMessage);
   XCTAssertFalse(results[1].renderData.renderingEffectSettings.isTestMessage);
 
-
   XCTAssertTrue(results[2].isTestMessage);
   XCTAssertTrue(results[2].renderData.renderingEffectSettings.isTestMessage);
   XCTAssertEqual(results[2].appData.count, 2);
