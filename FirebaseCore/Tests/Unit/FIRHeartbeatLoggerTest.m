@@ -17,9 +17,6 @@
 #if SWIFT_PACKAGE
 @import HeartbeatLoggingTestUtils;
 #else
-// FIXME: This is weird. I can cmd+click on the below file and it shows me the
-// auto generated one. Yet, line 22 is currently not compiling with:
-// 'HeartbeatLoggingTestUtils/HeartbeatLoggingTestUtils-Swift.h' file not found
 #import <HeartbeatLoggingTestUtils/HeartbeatLoggingTestUtils-Swift.h>
 #endif  // SWIFT_PACKAGE
 
