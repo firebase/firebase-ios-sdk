@@ -37,7 +37,9 @@
     var messaging: Messaging!
 
     override class func setUp() {
-      FirebaseApp.configure()
+      if FirebaseApp.app() == nil {
+        FirebaseApp.configure()
+      }
     }
 
     override func setUpWithError() throws {

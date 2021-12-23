@@ -33,10 +33,11 @@ func apis() {
   messaging.unsubscribe(fromTopic: topic)
   messaging.appDidReceiveMessage([:])
 
-  if @available(macOS 10.14, iOS 10.0, watchOS 3.0, tvOS 10.0, *) {
+  if #available(macOS 10.14, iOS 10.0, watchOS 3.0, tvOS 10.0, *) {
     let serviceExtension = Messaging.serviceExtension()
     let content = UNMutableNotificationContent()
-    serviceExtension.populateNotificationContent(content, withContentHandler: nil)
-    serviceExtension.exportDeliveryMetricsToBigQuery(withMessageInfo: [])
+    var contentHandler: ((UNNotificationContent) -> Void)?
+    serviceExtension.populateNotificationContent(content, withContentHandler: contentHandler)
+    serviceExtension.exportDeliveryMetricsToBigQuery(withMessageInfo: [:])
   }
 }
