@@ -34,14 +34,14 @@
 
   class FIRMessagingTokenRefreshTests: XCTestCase {
     var app: FirebaseApp!
-    var messaging: Messaging?
+    var messaging: Messaging!
 
     override class func setUp() {
       FirebaseApp.configure()
     }
 
-    override func setUp() {
-      messaging = Messaging.messaging()
+    override func setUpWithError() throws {
+      messaging = try XCTUnwrap(Messaging.messaging())
     }
 
     override func tearDown() {
@@ -58,12 +58,9 @@
         handler: nil)
 
       let testDelegate = fakeAppDelegate()
-      messaging?.delegate = testDelegate
+      messaging.delegate = testDelegate
       testDelegate.delegateIsCalled = false
 
-      guard let messaging = self.messaging else {
-        return
-      }
       messaging.deleteFCMToken(forSenderID: tokenAuthorizedEntity(), completion: { error in
         XCTAssertNil(error)
         XCTAssertTrue(testDelegate.delegateIsCalled)

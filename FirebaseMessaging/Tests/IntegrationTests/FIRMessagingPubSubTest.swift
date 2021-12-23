@@ -25,14 +25,14 @@
 
   class FIRMessagingPubSubTest: XCTestCase {
     var app: FirebaseApp!
-    var messaging: Messaging?
+    var messaging: Messaging!
 
     override class func setUp() {
       FirebaseApp.configure()
     }
 
-    override func setUp() {
-      messaging = Messaging.messaging()
+    override func setUpWithError() throws {
+      messaging = try XCTUnwrap(Messaging.messaging())
     }
 
     override func tearDown() {
@@ -43,9 +43,6 @@
       let expectation = self.expectation(description: "Successfully subscribe topic")
       assertDefaultToken()
 
-      guard let messaging = self.messaging else {
-        return
-      }
       messaging.subscribe(toTopic: "cat_video") { error in
         XCTAssertNil(error)
         expectation.fulfill()
@@ -57,9 +54,6 @@
       let expectation = self.expectation(description: "Successfully unsubscribe topic")
       assertDefaultToken()
 
-      guard let messaging = self.messaging else {
-        return
-      }
       messaging.unsubscribe(fromTopic: "cat_video") { error in
         XCTAssertNil(error)
         expectation.fulfill()

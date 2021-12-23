@@ -16,13 +16,12 @@ import Foundation
 
 import FirebaseCore
 import FirebaseMessaging
+import UserNotifications
 
 // This file is a build-only test for the public Messaging Swift APIs not
 // exercised in the integration tests.
 func apis() {
   let messaging = Messaging.messaging()
-
-  Messaging.serviceExtension()
 
   if let _ = messaging.apnsToken {}
 
@@ -33,4 +32,11 @@ func apis() {
   messaging.subscribe(toTopic: topic)
   messaging.unsubscribe(fromTopic: topic)
   messaging.appDidReceiveMessage([:])
+
+  if @available(macOS 10.14, iOS 10.0, watchOS 3.0, tvOS 10.0, *) {
+    let serviceExtension = Messaging.serviceExtension()
+    let content = UNMutableNotificationContent()
+    serviceExtension.populateNotificationContent(content, withContentHandler: nil)
+    serviceExtension.exportDeliveryMetricsToBigQuery(withMessageInfo: [])
+  }
 }
