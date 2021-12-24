@@ -17,6 +17,7 @@
 #import "FirebaseAuth/Sources/SystemService/FIRSecureTokenService.h"
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRCustomTokenProviderDelegate.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthSerialTaskQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
@@ -24,6 +25,8 @@
 #import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSecureTokenRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSecureTokenResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenResponse.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
@@ -87,13 +90,16 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
 - (instancetype)initWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
                                  accessToken:(nullable NSString *)accessToken
                    accessTokenExpirationDate:(nullable NSDate *)accessTokenExpirationDate
-                                refreshToken:(nullable NSString *)refreshToken {
+                                refreshToken:(nullable NSString *)refreshToken
+                 customTokenProviderDelegate:
+                     (nullable id<FIRCustomTokenProviderDelegate>)customTokenProviderDelegate {
   self = [self init];
   if (self) {
     _requestConfiguration = requestConfiguration;
     _accessToken = [accessToken copy];
     _accessTokenExpirationDate = [accessTokenExpirationDate copy];
     _refreshToken = [refreshToken copy];
+    _customTokenProviderDelegate = customTokenProviderDelegate;
   }
   return self;
 }
@@ -167,36 +173,61 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
         access to and mutation of these instance variables.
  */
 - (void)requestAccessToken:(FIRFetchAccessTokenCallback)callback {
-  FIRSecureTokenRequest *request;
   if (_refreshToken.length) {
-    request = [FIRSecureTokenRequest refreshRequestWithRefreshToken:_refreshToken
-                                               requestConfiguration:_requestConfiguration];
+    FIRSecureTokenRequest *request =
+        [FIRSecureTokenRequest refreshRequestWithRefreshToken:_refreshToken
+                                         requestConfiguration:_requestConfiguration];
+    [FIRAuthBackend
+        secureToken:request
+           callback:^(FIRSecureTokenResponse *_Nullable response, NSError *_Nullable error) {
+             BOOL tokenUpdated = [self maybeUpdateAccessToken:response.accessToken
+                                    approximateExpirationDate:response.approximateExpirationDate];
+             NSString *newRefreshToken = response.refreshToken;
+             if (newRefreshToken.length && ![newRefreshToken isEqualToString:self->_refreshToken]) {
+               self->_refreshToken = [newRefreshToken copy];
+               tokenUpdated = YES;
+             }
+             callback(response.accessToken, error, tokenUpdated);
+           }];
+  } else if (_customTokenProviderDelegate) {
+    [_customTokenProviderDelegate getCustomTokenWithCompletion:^(NSString *_Nullable customToken,
+                                                                 NSError *_Nullable error) {
+      if (error) {
+        callback(nil, error, NO);
+        return;
+      }
+      FIRVerifyCustomTokenRequest *request =
+          [[FIRVerifyCustomTokenRequest alloc] initWithToken:customToken
+                                        requestConfiguration:self->_requestConfiguration];
+      [FIRAuthBackend verifyCustomToken:request
+                               callback:^(FIRVerifyCustomTokenResponse *_Nullable response,
+                                          NSError *_Nullable error) {
+                                 BOOL tokenUpdated = [self
+                                        maybeUpdateAccessToken:response.IDToken
+                                     approximateExpirationDate:response.approximateExpirationDate];
+                                 callback(response.IDToken, error, tokenUpdated);
+                               }];
+    }];
   } else {
     NSError *error = [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeInternalError
                                               message:kRefreshTokenError];
     callback(nil, error, NO);
     return;
   }
-  [FIRAuthBackend
-      secureToken:request
-         callback:^(FIRSecureTokenResponse *_Nullable response, NSError *_Nullable error) {
-           BOOL tokenUpdated = NO;
-           NSString *newAccessToken = response.accessToken;
-           if (newAccessToken.length && ![newAccessToken isEqualToString:self->_accessToken]) {
-             self->_accessToken = [newAccessToken copy];
-             self->_accessTokenExpirationDate = response.approximateExpirationDate;
-             tokenUpdated = YES;
-             FIRLogDebug(kFIRLoggerAuth, @"I-AUT000017",
-                         @"Updated access token. Estimated expiration date: %@, current date: %@",
-                         self->_accessTokenExpirationDate, [NSDate date]);
-           }
-           NSString *newRefreshToken = response.refreshToken;
-           if (newRefreshToken.length && ![newRefreshToken isEqualToString:self->_refreshToken]) {
-             self->_refreshToken = [newRefreshToken copy];
-             tokenUpdated = YES;
-           }
-           callback(newAccessToken, error, tokenUpdated);
-         }];
+}
+
+- (BOOL)maybeUpdateAccessToken:(NSString *)newAccessToken
+     approximateExpirationDate:(NSDate *)approximateExpirationDate {
+  BOOL tokenUpdated = NO;
+  if (newAccessToken.length && ![newAccessToken isEqualToString:self->_accessToken]) {
+    self->_accessToken = [newAccessToken copy];
+    self->_accessTokenExpirationDate = approximateExpirationDate;
+    tokenUpdated = YES;
+    FIRLogDebug(kFIRLoggerAuth, @"I-AUT000017",
+                @"Updated access token. Estimated expiration date: %@, current date: %@",
+                self->_accessTokenExpirationDate, [NSDate date]);
+  }
+  return tokenUpdated;
 }
 
 - (BOOL)hasValidAccessToken {

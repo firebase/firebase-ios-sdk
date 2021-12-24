@@ -19,6 +19,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthTokenResult.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRCustomTokenProviderDelegate.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIREmailAuthProvider.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRFacebookAuthProvider.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRGoogleAuthProvider.h"
@@ -1360,12 +1361,13 @@ static const NSTimeInterval kExpectationTimeout = 2;
   OCMVerifyAll(_mockBackend);
 }
 
-/** @fn testGetIDTokenResultForcingRefreshNoRefreshTokenFailure
-    @brief Tests the flow of a failed @c getIDTokenResultForcingRefresh:completion: call.
+/** @fn testGetIDTokenResultForcingRefreshNoCustomTokenDelegateNoRefreshTokenFailure
+    @brief Tests the flow of a failed @c getIDTokenResultForcingRefresh:completion: call when there
+   is no refresh token nor custom token provider.
  */
-- (void)testGetIDTokenResultForcingRefreshFailureNoRefreshToken {
+- (void)testGetIDTokenResultForcingRefreshNoCustomTokenDelegateNoRefreshTokenFailure {
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-  [self signInWithMockVerifyCustomTokenNoRefreshTokenResponse:^(FIRUser *user) {
+  [self signInWithCustomTokenNoRefreshTokenWithCompletion:^(FIRUser *user) {
     [user getIDTokenResultForcingRefresh:YES
                               completion:^(FIRAuthTokenResult *_Nullable tokenResult,
                                            NSError *_Nullable error) {
@@ -1374,6 +1376,49 @@ static const NSTimeInterval kExpectationTimeout = 2;
                                 XCTAssertEqual(error.code, FIRAuthErrorCodeInternalError);
                                 XCTAssertEqualObjects(error.userInfo[NSLocalizedDescriptionKey],
                                                       @"No refresh token is available.");
+                                [expectation fulfill];
+                              }];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testGetIDTokenResultForcingRefreshCustomTokenDelegateNoRefreshTokenSuccess
+    @brief Tests the flow of a successful @c getIDTokenResultForcingRefresh:completion: call when no
+   refresh token is available, but a custom token provider is set.
+ */
+- (void)testGetIDTokenResultForcingRefreshCustomTokenDelegateNoRefreshTokenSuccess {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [FIRAuth auth].customTokenProviderDelegate = (id<FIRCustomTokenProviderDelegate>)self;
+  [self signInWithCustomTokenNoRefreshTokenWithCompletion:^(FIRUser *user) {
+    OCMExpect([self->_mockBackend verifyCustomToken:[OCMArg any] callback:[OCMArg any]])
+        .andCallBlock2(^(FIRVerifyCustomTokenRequest *_Nullable request,
+                         FIRVerifyCustomTokenResponseCallback callback) {
+          XCTAssertEqualObjects(request.APIKey, kAPIKey);
+
+          dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+            id mockVerifyCustomTokenResponse = OCMClassMock([FIRVerifyCustomTokenResponse class]);
+            OCMStub([mockVerifyCustomTokenResponse IDToken]).andReturn(kAccessToken);
+            callback(mockVerifyCustomTokenResponse, nil);
+          });
+        });
+    [user getIDTokenResultForcingRefresh:YES
+                              completion:^(FIRAuthTokenResult *_Nullable tokenResult,
+                                           NSError *_Nullable error) {
+                                XCTAssertTrue([NSThread isMainThread]);
+                                XCTAssertNil(error);
+                                XCTAssertEqualObjects(tokenResult.token, kAccessToken);
+                                XCTAssertTrue(
+                                    tokenResult.issuedAtDate &&
+                                    [tokenResult.issuedAtDate isKindOfClass:[NSDate class]]);
+                                XCTAssertTrue(tokenResult.authDate &&
+                                              [tokenResult.authDate isKindOfClass:[NSDate class]]);
+                                XCTAssertTrue(
+                                    tokenResult.expirationDate &&
+                                    [tokenResult.expirationDate isKindOfClass:[NSDate class]]);
+                                XCTAssertTrue(
+                                    tokenResult.claims &&
+                                    [tokenResult.claims isKindOfClass:[NSDictionary class]]);
                                 [expectation fulfill];
                               }];
   }];
@@ -2815,6 +2860,13 @@ static const NSTimeInterval kExpectationTimeout = 2;
 }
 #endif
 
+#pragma mark - FIRCustomTokenProviderDelegate
+
+- (void)getCustomTokenWithCompletion:(void (^)(NSString *_Nullable customToken,
+                                               NSError *_Nullable error))completion {
+  completion(kCustomToken, nil);
+}
+
 #pragma mark - Helpers
 
 /** @fn getIDTokenResultForcingRefreshSuccess
@@ -2997,12 +3049,13 @@ static const NSTimeInterval kExpectationTimeout = 2;
       });
 }
 
-/** @fn signInWithMockVerifyCustomTokenResponse
-    @brief Signs in with a custom token with mocked backend end calls.
+/** @fn signInWithCustomTokenNoRefreshTokenWithCompletion:
+    @brief Signs in with a custom token with mocked backend calls, without returning a refresh
+        token in the response.
     @param completion The completion block that takes the newly signed-in user as the only
         parameter.
  */
-- (void)signInWithMockVerifyCustomTokenNoRefreshTokenResponse:(void (^)(FIRUser *user))completion {
+- (void)signInWithCustomTokenNoRefreshTokenWithCompletion:(void (^)(FIRUser *user))completion {
   OCMExpect([_mockBackend verifyCustomToken:[OCMArg any] callback:[OCMArg any]])
       .andCallBlock2(^(FIRVerifyCustomTokenRequest *_Nullable request,
                        FIRVerifyCustomTokenResponseCallback callback) {

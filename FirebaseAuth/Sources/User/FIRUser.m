@@ -282,7 +282,8 @@ static void callInMainThreadWithAuthDataResultAndError(
       [[FIRSecureTokenService alloc] initWithRequestConfiguration:auth.requestConfiguration
                                                       accessToken:accessToken
                                         accessTokenExpirationDate:accessTokenExpirationDate
-                                                     refreshToken:refreshToken];
+                                                     refreshToken:refreshToken
+                                      customTokenProviderDelegate:auth.customTokenProviderDelegate];
   FIRUser *user = [[self alloc] initWithTokenService:tokenService];
   user.auth = auth;
   user.tenantID = auth.tenantID;
@@ -535,7 +536,8 @@ static void callInMainThreadWithAuthDataResultAndError(
                           initWithRequestConfiguration:configuration
                                            accessToken:response.IDToken
                              accessTokenExpirationDate:response.approximateExpirationDate
-                                          refreshToken:response.refreshToken];
+                                          refreshToken:response.refreshToken
+                           customTokenProviderDelegate:self->_auth.customTokenProviderDelegate];
                       [self setTokenService:tokenService
                                    callback:^(NSError *_Nullable error) {
                                      complete();
@@ -729,39 +731,41 @@ static void callInMainThreadWithAuthDataResultAndError(
                      operation:operation
           requestConfiguration:self->_auth.requestConfiguration];
     request.accessToken = accessToken;
-    [FIRAuthBackend verifyPhoneNumber:request
-                             callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,
-                                        NSError *_Nullable error) {
-                               if (error) {
-                                 [self signOutIfTokenIsInvalidWithError:error];
-                                 completion(error);
-                                 return;
-                               }
-                               FIRAuthRequestConfiguration *requestConfiguration =
-                                   self.auth.requestConfiguration;
-                               // Update the new token and refresh user info again.
-                               self->_tokenService = [[FIRSecureTokenService alloc]
-                                   initWithRequestConfiguration:requestConfiguration
-                                                    accessToken:response.IDToken
-                                      accessTokenExpirationDate:response.approximateExpirationDate
-                                                   refreshToken:response.refreshToken];
-                               // Get account info to update cached user info.
-                               [self getAccountInfoRefreshingCache:^(
-                                         FIRGetAccountInfoResponseUser *_Nullable user,
-                                         NSError *_Nullable error) {
-                                 if (error) {
-                                   [self signOutIfTokenIsInvalidWithError:error];
-                                   completion(error);
-                                   return;
-                                 }
-                                 self.anonymous = NO;
-                                 if (![self updateKeychain:&error]) {
-                                   completion(error);
-                                   return;
-                                 }
-                                 completion(nil);
-                               }];
-                             }];
+    [FIRAuthBackend
+        verifyPhoneNumber:request
+                 callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,
+                            NSError *_Nullable error) {
+                   if (error) {
+                     [self signOutIfTokenIsInvalidWithError:error];
+                     completion(error);
+                     return;
+                   }
+                   FIRAuthRequestConfiguration *requestConfiguration =
+                       self.auth.requestConfiguration;
+                   // Update the new token and refresh user info again.
+                   self->_tokenService = [[FIRSecureTokenService alloc]
+                       initWithRequestConfiguration:requestConfiguration
+                                        accessToken:response.IDToken
+                          accessTokenExpirationDate:response.approximateExpirationDate
+                                       refreshToken:response.refreshToken
+                        customTokenProviderDelegate:self->_auth.customTokenProviderDelegate];
+                   // Get account info to update cached user info.
+                   [self getAccountInfoRefreshingCache:^(
+                             FIRGetAccountInfoResponseUser *_Nullable user,
+                             NSError *_Nullable error) {
+                     if (error) {
+                       [self signOutIfTokenIsInvalidWithError:error];
+                       completion(error);
+                       return;
+                     }
+                     self.anonymous = NO;
+                     if (![self updateKeychain:&error]) {
+                       completion(error);
+                       return;
+                     }
+                     completion(nil);
+                   }];
+                 }];
   }];
 }
 
@@ -1136,7 +1140,8 @@ static void callInMainThreadWithAuthDataResultAndError(
                              initWithRequestConfiguration:requestConfiguration
                                               accessToken:response.IDToken
                                 accessTokenExpirationDate:response.approximateExpirationDate
-                                             refreshToken:response.refreshToken];
+                                             refreshToken:response.refreshToken
+                              customTokenProviderDelegate:self->_auth.customTokenProviderDelegate];
                          [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
                                                               NSError *_Nullable error) {
                            if (error) {
@@ -1203,7 +1208,8 @@ static void callInMainThreadWithAuthDataResultAndError(
                                 initWithRequestConfiguration:requestConfiguration
                                                  accessToken:response.IDToken
                                    accessTokenExpirationDate:response.approximateExpirationDate
-                                                refreshToken:response.refreshToken];
+                                                refreshToken:response.refreshToken
+                                 customTokenProviderDelegate:self.auth.customTokenProviderDelegate];
                             [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
                                                                  NSError *_Nullable error) {
                               if (error) {
@@ -1299,7 +1305,8 @@ static void callInMainThreadWithAuthDataResultAndError(
                          initWithRequestConfiguration:requestConfiguration
                                           accessToken:response.IDToken
                             accessTokenExpirationDate:response.approximateExpirationDate
-                                         refreshToken:response.refreshToken];
+                                         refreshToken:response.refreshToken
+                          customTokenProviderDelegate:self->_auth.customTokenProviderDelegate];
                      [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
                                                           NSError *_Nullable error) {
                        if (error) {
@@ -1405,7 +1412,8 @@ static void callInMainThreadWithAuthDataResultAndError(
                             initWithRequestConfiguration:requestConfiguration
                                              accessToken:response.IDToken
                                accessTokenExpirationDate:response.approximateExpirationDate
-                                            refreshToken:response.refreshToken];
+                                            refreshToken:response.refreshToken
+                             customTokenProviderDelegate:self->_auth.customTokenProviderDelegate];
                         [self setTokenService:tokenService
                                      callback:^(NSError *_Nullable error) {
                                        completeAndCallbackWithError(error);

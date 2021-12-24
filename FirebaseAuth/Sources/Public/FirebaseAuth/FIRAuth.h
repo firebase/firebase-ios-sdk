@@ -28,6 +28,7 @@
 @class FIRAuthSettings;
 @class FIRUser;
 @protocol FIRAuthUIDelegate;
+@protocol FIRCustomTokenProviderDelegate;
 @protocol FIRFederatedAuthProvider;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -352,6 +353,12 @@ NS_SWIFT_NAME(Auth)
         by either setting this property or by calling `setAPNSToken:type:`.
  */
 @property(nonatomic, strong, nullable) NSData *APNSToken API_UNAVAILABLE(macos, tvos, watchos);
+
+/** @property customTokenProviderDelegate
+    @brief Delegate to handle obtaining a custom token to exchange for a new Firebase ID token when
+        no refresh token is present.
+ */
+@property(nonatomic, weak, nullable) id<FIRCustomTokenProviderDelegate> customTokenProviderDelegate;
 
 /** @fn init
     @brief Please access auth instances using `FIRAuth.auth` and `FIRAuth.authForApp:`.
