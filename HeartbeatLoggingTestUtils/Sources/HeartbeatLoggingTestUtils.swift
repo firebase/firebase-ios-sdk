@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-import XCTest // COMPILE ERROR: No such module 'XCTest'
+import XCTest
 
 #if SWIFT_PACKAGE
   import HeartbeatLogging
