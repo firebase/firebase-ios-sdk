@@ -89,11 +89,6 @@ device, and it is completely free.
       :osx => osx_deployment_target,
       :tvos => tvos_deployment_target
     }
-    int_tests.resource_bundles = {
-      "FIRBundleUtil" => [
-        'FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist'
-      ]
-    }
     int_tests.source_files = 'FirebaseMessaging/Tests/IntegrationTests/*.swift'
     int_tests.requires_app_host = true
     int_tests.resources = 'FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist'
