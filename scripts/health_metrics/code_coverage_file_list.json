@@ -3,6 +3,7 @@
     "sdk": "abtesting",
     "podspecs": ["FirebaseABTesting.podspec"],
     "filePatterns": [
+      "ReleaseTooling.*",
       "^FirebaseABTesting.*",
       "Interop/Analytics/Public/[^/]+\\.h",
       "\\.github/workflows/abtesting\\.yml"
@@ -12,6 +13,7 @@
     "sdk": "analytics",
     "podspecs": ["FirebaseAnalytics.podspec.json", "FirebaseAnalyticsSwift.podspec", "GoogleAppMeasurement.podspec.json"],
     "filePatterns": [
+      "ReleaseTooling.*",
       "^FirebaseAnalytics.*",
       "^GoogleAppMeasurement.*"
     ]
@@ -20,6 +22,7 @@
     "sdk": "appcheck",
     "podspecs": ["FirebaseAppCheck.podspec"],
     "filePatterns": [
+      "ReleaseTooling.*",
       "^FirebaseAppCheck.*",
       "\\.github/workflows/app_check\\.yml"
     ]
@@ -28,6 +31,7 @@
     "sdk": "appdistribution",
     "podspecs": ["FirebaseAppDistribution.podspec"],
     "filePatterns": [
+      "ReleaseTooling.*",
       "^FirebaseAppDistribution.*"
     ]
   },
@@ -35,6 +39,7 @@
     "sdk": "auth",
     "podspecs": ["FirebaseAuth.podspec"],
     "filePatterns": [
+      "ReleaseTooling.*",
       "^FirebaseAuth.*",
       "Interop/Auth/Public/[^/]+\\.h",
       "\\.github/workflows/auth\\.yml"
@@ -44,6 +49,7 @@
     "sdk": "crashlytics",
     "podspecs": ["FirebaseCrashlytics.podspec"],
     "filePatterns": [
+      "ReleaseTooling.*",
       "^Crashlytics.*",
       "FirebaseCrashlytics.podspec"
     ]
@@ -52,6 +58,7 @@
     "sdk": "database",
     "podspecs": ["FirebaseDatabase.podspec", "FirebaseDatabaseSwift.podspec"],
     "filePatterns": [
+      "ReleaseTooling.*",
       "^FirebaseDatabase.*",
       "\\.github/workflows/database\\.yml",
       "Example/Database/",
@@ -62,6 +69,7 @@
     "sdk": "dynamiclinks",
     "podspecs": ["FirebaseDynamicLinks.podspec"],
     "filePatterns": [
+      "ReleaseTooling.*",
       "^FirebaseDynamicLinks.*",
       "\\.github/workflows/dynamiclinks\\.yml",
       "Interop/Analytics/Public/[^/]+\\.h"
@@ -71,6 +79,7 @@
     "sdk": "firestore",
     "podspecs": ["FirebaseFirestore.podspec", "FirebaseFirestoreSwift.podspec"],
     "filePatterns": [
+      "ReleaseTooling.*",
       "^Firestore/.*",
       "FirebaseAppCheck/Sources/Interop/[^/]+\\.h",
       "Interop/Auth/Public/[^/]+\\.h",
@@ -86,6 +95,7 @@
     "sdk": "functions",
     "podspecs": ["FirebaseFunctions.podspec"],
     "filePatterns": [
+      "ReleaseTooling.*",
       "^Functions.*",
       "\\.github/workflows/functions\\.yml",
       "Interop/Auth/Public/.*\\.h",
@@ -96,6 +106,7 @@
     "sdk": "inappmessaging",
     "podspecs": ["FirebaseInAppMessaging.podspec", "FirebaseInAppMessagingSwift.podspec"],
     "filePatterns": [
+      "ReleaseTooling.*",
       "^FirebaseInAppMessaging.*",
       "Interop/Analytics/Public/[^/]+\\.h",
       "\\.github/workflows/inappmessaging\\.yml"
@@ -105,6 +116,7 @@
     "sdk": "installations",
     "podspecs": ["FirebaseInstallations.podspec"],
     "filePatterns": [
+      "ReleaseTooling.*",
       "^FirebaseInstallations.*"
     ]
   },
@@ -112,6 +124,7 @@
     "sdk": "messaging",
     "podspecs": ["FirebaseMessaging.podspec"],
     "filePatterns": [
+      "ReleaseTooling.*",
       "^FirebaseMessaging/.*",
       "Interop/Analytics/Public/[^/]+\\.h",
       "FirebaseMessaging\\.podspec",
@@ -122,6 +135,7 @@
     "sdk": "performance",
     "podspecs": ["FirebasePerformance.podspec"],
     "filePatterns": [
+      "ReleaseTooling.*",
       "^FirebasePerformance/.*",
       "FirebasePerformance\\.podspec",
       "\\.github/workflows/performance\\.yml"
@@ -131,6 +145,7 @@
     "sdk": "remoteconfig",
     "podspecs": ["FirebaseRemoteConfig.podspec"],
     "filePatterns": [
+      "ReleaseTooling.*",
       "^FirebaseRemoteConfig.*",
       "Interop/Analytics/Public/[^/]+\\.h",
       "\\.github/workflows/remoteconfig\\.yml",
@@ -141,6 +156,7 @@
     "sdk": "storage",
     "podspecs": ["FirebaseStorage.podspec", "FirebaseStorageSwift.podspec"],
     "filePatterns": [
+      "ReleaseTooling.*",
       "^FirebaseStorage.*",
       "Interop/Auth/Public/[^/]+\\.h",
       "\\.github/workflows/storage\\.yml"
