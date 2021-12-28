@@ -47,31 +47,26 @@ func apis() {
     do {
       try await messaging.token()
     } catch {
- 
     }
- 
+
     do {
       try await messaging.retrieveFCMToken(forSenderID: "fakeSenderID")
     } catch {
- 
     }
 
     do {
       try await messaging.deleteToken()
     } catch {
- 
     }
 
     do {
       try await messaging.deleteFCMToken(forSenderID: "fakeSenderID")
     } catch {
-     
     }
   
     do {
       try await messaging.deleteData()
     } catch {
-     
     }
   }
  
