@@ -43,9 +43,16 @@ let emptyBundle = """
       XCTAssertTrue(snapshot.exists)
     }
 
-    func testLoadBundle() async throws {
+    func testLoadBundleFromData() async throws {
       let bundle = "\(emptyBundle.count)\(emptyBundle)"
       let bundleProgress = try await db.loadBundle(Data(bundle.utf8))
+      XCTAssertEqual(LoadBundleTaskState.success, bundleProgress.state)
+    }
+
+    func testLoadBundleFromStream() async throws {
+      let bundle = "\(emptyBundle.count)\(emptyBundle)"
+      let bundleProgress = try await db
+        .loadBundle(InputStream(data: bundle.data(using: String.Encoding.utf8)!))
       XCTAssertEqual(LoadBundleTaskState.success, bundleProgress.state)
     }
   }

@@ -35,5 +35,21 @@ import Foundation
         }
       }
     }
+
+    /// Loads a Firestore bundle into the local cache.
+    /// - Parameter bundleStream: An input stream from which the bundle can be read.
+    /// - Returns: The final `LoadBundleTaskProgress` that contains the total number of documents loaded.
+    func loadBundle(_ bundleStream: InputStream) async throws -> LoadBundleTaskProgress {
+      typealias DataContinuation = CheckedContinuation<LoadBundleTaskProgress, Error>
+      return try await withCheckedThrowingContinuation { (continuation: DataContinuation) in
+        self.loadBundle(bundleStream) { progress, error in
+          if let err = error {
+            continuation.resume(throwing: err)
+          } else {
+            continuation.resume(returning: progress!)
+          }
+        }
+      }
+    }
   }
 #endif
