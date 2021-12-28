@@ -27,6 +27,16 @@
 
 @end
 
+@interface FPRAppActivityTracker (Tests)
+
+- (BOOL) isApplicationPreWarmed;
+//+ (NSDate *)doubleDispatchTime;
++ (void) setDoubleDispatchTime:(NSDate *)doubleDispatchTime;
++ (void) setApplicationFinishLaunchTime:(NSDate *)date;
+//+ (void) load;
+
+@end
+
 @implementation FPRAppActivityTrackerTest
 
 - (void)setUp {
@@ -191,6 +201,49 @@
   [defaultCenter postNotificationName:UIApplicationWillResignActiveNotification
                                object:[UIApplication sharedApplication]];
   XCTAssertEqual(appTracker.applicationState, FPRApplicationStateBackground);
+}
+
+- (void)testIsApplicationPrewarmedReturnsYesBecauseOfDoubleDispatch {
+    NSArray *versionComponents = [[UIDevice currentDevice].systemVersion componentsSeparatedByString:@"."];
+    NSInteger majorVersion = [versionComponents[0] integerValue];
+    if (majorVersion < 15) {
+        return;
+    }
+    FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
+    NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
+
+    [FPRAppActivityTracker load];
+    [defaultCenter postNotificationName:UIApplicationDidFinishLaunchingNotification
+                                 object:[UIApplication sharedApplication]];
+    
+    XCTAssertTrue(appTracker.isApplicationPreWarmed);
+}
+
+- (void)testIsApplicationPrewarmedReturnsNoBecauseOfDoubleDispatch {
+    NSArray *versionComponents = [[UIDevice currentDevice].systemVersion componentsSeparatedByString:@"."];
+    NSInteger majorVersion = [versionComponents[0] integerValue];
+    if (majorVersion < 15) {
+        return;
+    }
+    FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
+    NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
+    
+    [defaultCenter postNotificationName:UIApplicationDidFinishLaunchingNotification
+                                 object:[UIApplication sharedApplication]];
+    [FPRAppActivityTracker load];
+    
+    XCTAssertFalse(appTracker.isApplicationPreWarmed);
+}
+
+- (void)testIsApplicationPrewarmedReturnsYesBecauseOfActivePrewarm {
+    NSArray *versionComponents = [[UIDevice currentDevice].systemVersion componentsSeparatedByString:@"."];
+    NSInteger majorVersion = [versionComponents[0] integerValue];
+    if (majorVersion < 15) {
+        return;
+    }
+    setenv("ActivePrewarm", "1", 1);
+    FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
+    XCTAssertTrue(appTracker.isApplicationPreWarmed);
 }
 
 @end

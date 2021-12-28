@@ -156,7 +156,7 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
     return YES;
   }
   
-  if (doubleDispatchTime < applicationFinishLaunchTime) {
+  if ([doubleDispatchTime compare:applicationFinishLaunchTime] == NSOrderedAscending) {
     return YES;
   }
   
