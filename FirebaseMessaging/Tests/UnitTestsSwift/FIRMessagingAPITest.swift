@@ -63,13 +63,12 @@ func apis() {
       try await messaging.deleteFCMToken(forSenderID: "fakeSenderID")
     } catch {
     }
-  
+
     do {
       try await messaging.deleteData()
     } catch {
     }
   }
- 
   messaging.appDidReceiveMessage([:])
 
   if #available(macOS 10.14, iOS 10.0, watchOS 3.0, tvOS 10.0, *) {
