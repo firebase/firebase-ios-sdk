@@ -32,43 +32,37 @@ func apis() {
   messaging.subscribe(toTopic: topic)
   messaging.unsubscribe(fromTopic: topic)
 
-#if compiler(>=5.5) && canImport(_Concurrency)
-  if #available(iOS 15, tvOS 15, macOS 12, watchOS 8, *) {
-    do {
-      try await messaging.subscribe(toTopic: topic)
-    } catch {
-    }
+  #if compiler(>=5.5) && canImport(_Concurrency)
+    if #available(iOS 15, tvOS 15, macOS 12, watchOS 8, *) {
+      do {
+        try await messaging.subscribe(toTopic: topic)
+      } catch {}
 
-    do {
-      try await messaging.unsubscribe(fromTopic: topic)
-    } catch {
-    }
+      do {
+        try await messaging.unsubscribe(fromTopic: topic)
+      } catch {}
 
-    do {
-      try await messaging.token()
-    } catch {
-    }
+      do {
+        try await messaging.token()
+      } catch {}
 
-    do {
-      try await messaging.retrieveFCMToken(forSenderID: "fakeSenderID")
-    } catch {
-    }
+      do {
+        try await messaging.retrieveFCMToken(forSenderID: "fakeSenderID")
+      } catch {}
 
-    do {
-      try await messaging.deleteToken()
-    } catch {
-    }
+      do {
+        try await messaging.deleteToken()
+      } catch {}
 
-    do {
-      try await messaging.deleteFCMToken(forSenderID: "fakeSenderID")
-    } catch {
-    }
+      do {
+        try await messaging.deleteFCMToken(forSenderID: "fakeSenderID")
+      } catch {}
 
-    do {
-      try await messaging.deleteData()
-    } catch {
+      do {
+        try await messaging.deleteData()
+      } catch {}
     }
-  }
+  #endif
   messaging.appDidReceiveMessage([:])
 
   if #available(macOS 10.14, iOS 10.0, watchOS 3.0, tvOS 10.0, *) {
