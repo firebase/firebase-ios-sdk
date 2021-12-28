@@ -30,10 +30,6 @@
 @interface FPRAppActivityTracker (Tests)
 
 - (BOOL) isApplicationPreWarmed;
-//+ (NSDate *)doubleDispatchTime;
-+ (void) setDoubleDispatchTime:(NSDate *)doubleDispatchTime;
-+ (void) setApplicationFinishLaunchTime:(NSDate *)date;
-//+ (void) load;
 
 @end
 
