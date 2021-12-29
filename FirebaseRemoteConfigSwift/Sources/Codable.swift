@@ -38,9 +38,9 @@ public extension RemoteConfigValue {
 }
 
 public extension RemoteConfig {
-   ///Sets config defaults from an encodable struct.
-   ///
-   /// - Parameter value: The object to use to set the defaults.
+  /// Sets config defaults from an encodable struct.
+  ///
+  /// - Parameter value: The object to use to set the defaults.
   func setDefaults<Value: Encodable>(from value: Value,
                                      encoder: FirebaseDataEncoder = FirebaseDataEncoder()) throws {
     let encoded = try encoder.encode(value) as! [String: NSObject]

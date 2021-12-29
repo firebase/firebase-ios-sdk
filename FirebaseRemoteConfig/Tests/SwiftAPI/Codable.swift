@@ -34,30 +34,15 @@ private enum Constants {
 
     override func setUpWithError() throws {
       try super.setUpWithError()
-      let jsonData = try JSONSerialization.data(
-        withJSONObject: Constants.jsonValue,
-        options: .prettyPrinted
-      )
-      guard let jsonValue = String(data: jsonData, encoding: .ascii) else {
-        fatalError("Failed to make json Value from jsonData")
-      }
       if APITests.useFakeConfig {
+        let jsonData = try JSONSerialization.data(
+          withJSONObject: Constants.jsonValue
+        )
+        guard let jsonValue = String(data: jsonData, encoding: .ascii) else {
+          fatalError("Failed to make json Value from jsonData")
+        }
         fakeConsole.config = [Constants.jsonKey: jsonValue,
                               Constants.nonJsonKey: Constants.nonJsonValue]
-      } else {
-        console = RemoteConfigConsole()
-        console.updateRemoteConfigValue(jsonValue, forKey: Constants.jsonKey)
-        console.updateRemoteConfigValue(Constants.nonJsonKey, forKey: Constants.nonJsonValue)
-      }
-    }
-
-    override func tearDown() {
-      super.tearDown()
-
-      // If using RemoteConfigConsole, reset remote config values.
-      if !APITests.useFakeConfig {
-        console.removeRemoteConfigValue(forKey: Constants.jsonKey)
-        console.removeRemoteConfigValue(forKey: Constants.nonJsonKey)
       }
     }
 
