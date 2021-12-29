@@ -28,7 +28,7 @@ struct SDKFilePattern: Codable {
 /// [{"podspec":"FirebaseABTesting.podspec"},{"podspec":"FirebaseAnalytics.podspec.json"}]
 /// ```
 struct SDKPodspec: Codable {
-    let podspec: String
+  let podspec: String
 }
 
 struct UpdatedFilesCollector: ParsableCommand {
@@ -78,7 +78,7 @@ struct UpdatedFilesCollector: ParsableCommand {
             print("=============== paths of changed files ===============")
             print("::set-output name=\(sdkPatterns.sdk)_run_job::true")
             for podspec in sdkPatterns.podspecs {
-                podspecsWithChangedFiles.append(SDKPodspec(podspec: podspec))
+              podspecsWithChangedFiles.append(SDKPodspec(podspec: podspec))
             }
             print("\(sdkPatterns.sdk): \(changedFilePath) is updated under the pattern, \(pattern)")
             trigger_pod_test_for_coverage_report = true
@@ -95,8 +95,15 @@ struct UpdatedFilesCollector: ParsableCommand {
       do {
         // Instead of directly writing Data to a file, trasnfering Data to
         // String can help trimming whitespaces and newlines in advance.
-        let str = try String(decoding: JSONEncoder().encode(podspecsWithChangedFiles), as: UTF8.self)
-        try str.trimmingCharacters(in: .whitespacesAndNewlines).write(to: outputPath, atomically: true, encoding: String.Encoding.utf8)
+        let str = try String(
+          decoding: JSONEncoder().encode(podspecsWithChangedFiles),
+          as: UTF8.self
+        )
+        try str.trimmingCharacters(in: .whitespacesAndNewlines).write(
+          to: outputPath,
+          atomically: true,
+          encoding: String.Encoding.utf8
+        )
       } catch {
         fatalError("Error while writting in \(outputPath.path).\n\(error)")
       }

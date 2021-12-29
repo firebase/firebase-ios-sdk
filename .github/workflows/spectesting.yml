@@ -41,6 +41,7 @@ jobs:
     needs: specs_checking
     runs-on: macos-11
     strategy:
+      fail-fast: false
       matrix: ${{fromJson(needs.specs_checking.outputs.matrix)}}
     env:
       PODSPEC: ${{ matrix.podspec }}
