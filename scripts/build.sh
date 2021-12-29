@@ -370,6 +370,12 @@ case "$product-$platform-$method" in
 
   Messaging-*-xcodebuild)
     pod_gen FirebaseMessaging.podspec --platforms=ios
+
+    # Add GoogleService-Info.plist to generated Test Wrapper App.
+    ruby ./scripts/update_xcode_target.rb gen/FirebaseMessaging/Pods/Pods.xcodeproj \
+      AppHost-FirebaseMessaging-Unit-Tests \
+      ../../../FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist
+
     RunXcodebuild \
       -workspace 'gen/FirebaseMessaging/FirebaseMessaging.xcworkspace' \
       -scheme "FirebaseMessaging-Unit-unit" \
