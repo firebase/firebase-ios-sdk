@@ -73,6 +73,12 @@ private enum Constants {
       XCTAssertEqual(config[Constants.key1].stringValue, Constants.value1)
     }
 
+    func testFetchAndActivateGenericValue() async throws {
+      let status = try await config.fetchAndActivate()
+      XCTAssertEqual(status, .successFetchedFromRemote)
+      XCTAssertEqual(config[Constants.key1].stringValue, Constants.value1)
+    }
+
     // Contrast with testChangedActivateWillNotFlag in FakeConsole.swift.
     func testUnchangedActivateWillFlag() async throws {
       let status = try await config.fetch()
