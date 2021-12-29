@@ -4,10 +4,12 @@ on:
   pull_request
 
 jobs:
-  specs_testing:
+  specs_checking:
     # Don't run on private repo unless it is a PR.
     if: github.repository == 'Firebase/firebase-ios-sdk'
     runs-on: macos-11
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -18,12 +20,25 @@ jobs:
       env:
         pr_branch: ${{ github.event.pull_request.head.ref }}
       run: |
-        ./scripts/health_metrics/get_updated_files.sh -p output.txt
+        ./scripts/health_metrics/get_updated_files.sh -p output.json
+        echo "::set-output name=matrix::{\"include\":$( cat output.json)}"
+  specs_testing:
+    needs: specs_checking
+    runs-on: macos-11
+    strategy:
+      matrix: ${{fromJson(needs.specs_checking.outputs.matrix)}}
+    env:
+      PODSPEC: ${{ matrix.podsepc }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Init podspecs and source
       run: |
         mkdir specTestingLogs
         cd ReleaseTooling
-        swift run podspecs-tester --git-root "${GITHUB_WORKSPACE}" --podspecs ../output.txt --temp-log-dir "${GITHUB_WORKSPACE}/specTestingLogs" 
+        swift run podspecs-tester --git-root "${GITHUB_WORKSPACE}" --podspec ${PODSPEC} --temp-log-dir "${GITHUB_WORKSPACE}/specTestingLogs" 
     - name: Upload Failed Testing Logs
       if: failure()
       uses: actions/upload-artifact@v2

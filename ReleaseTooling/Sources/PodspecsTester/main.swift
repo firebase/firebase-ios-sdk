@@ -30,14 +30,8 @@ struct PodspecsTester: ParsableCommand {
   /// FirebaseAuth.podspec
   /// FirebaseCrashlytics.podspec
   /// ```
-  @Option(help: "A temp file containing podspecs that will be tested.",
-          transform: { str in
-            let url = URL(fileURLWithPath: str)
-            let temp = try String(contentsOf: url)
-            return temp.trimmingCharacters(in: CharacterSet(charactersIn: "\n "))
-              .components(separatedBy: "\n")
-          })
-  var podspecs: [String]
+  @Option(help: "A temp file containing podspecs that will be tested.")
+  var podspec: String
 
   /// The root of the Firebase git repo.
   @Option(help: "Spec testing log dir", transform: URL.init(fileURLWithPath:))
@@ -95,7 +89,6 @@ struct PodspecsTester: ParsableCommand {
 
   func run() throws {
     let startDate = Date()
-    let queue = OperationQueue()
     var exitCode: Int32 = 0
     print("Started at: \(startDate.dateTimeString())")
     InitializeSpecTesting.setupRepo(sdkRepoURL: gitRoot)
@@ -111,23 +104,18 @@ struct PodspecsTester: ParsableCommand {
       return t
     }()
     timer.resume()
-    for podspec in podspecs {
-      let testingPod = podspec.components(separatedBy: ".")[0]
-      for pod in manifest.pods {
-        if testingPod == pod.name {
-          var args: [String: String?] = [:]
-          args["platforms"] = pod.platforms.joined(separator: ",")
-          if pod.allowWarnings {
-            args.updateValue(nil, forKey: "allow-warnings")
-          }
-          queue.addOperation {
-            let code = specTest(spec: podspec, workingDir: gitRoot, args: args).code
-            exitCode += code
-          }
+    let testingPod = podspec.components(separatedBy: ".")[0]
+    for pod in manifest.pods {
+      if testingPod == pod.name {
+        var args: [String: String?] = [:]
+        args["platforms"] = pod.platforms.joined(separator: ",")
+        if pod.allowWarnings {
+          args.updateValue(nil, forKey: "allow-warnings")
         }
+        let code = specTest(spec: podspec, workingDir: gitRoot, args: args).code
+        exitCode = code
       }
     }
-    queue.waitUntilAllOperationsAreFinished()
     timer.cancel()
     let finishDate = Date()
     print("Finished at: \(finishDate.dateTimeString()). " +

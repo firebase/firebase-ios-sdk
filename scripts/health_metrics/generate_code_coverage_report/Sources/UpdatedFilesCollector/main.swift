@@ -23,6 +23,10 @@ struct SDKFilePattern: Codable {
   let filePatterns: [String]
 }
 
+struct SDKPodspec: Codable {
+    let podspec: String
+}
+
 struct UpdatedFilesCollector: ParsableCommand {
   @Option(help: "A txt File with updated files.",
           transform: { str in
@@ -50,7 +54,7 @@ struct UpdatedFilesCollector: ParsableCommand {
 
   func run() throws {
     let task = Process()
-    var podspecsWithChangedFiles: [String] = []
+    var podspecsWithChangedFiles: [SDKPodspec] = []
     print("=============== list changed files ===============")
     print(changedFilePaths.joined(separator: "\n"))
     // Initiate all run_job flag to false.
@@ -70,7 +74,9 @@ struct UpdatedFilesCollector: ParsableCommand {
           if regex.firstMatch(in: changedFilePath, options: [], range: range) != nil {
             print("=============== paths of changed files ===============")
             print("::set-output name=\(sdkPatterns.sdk)_run_job::true")
-            podspecsWithChangedFiles += sdkPatterns.podspecs
+            for podspec in sdkPatterns.podspecs {
+                podspecsWithChangedFiles.append(SDKPodspec(podspec: podspec))
+            }
             print("\(sdkPatterns.sdk): \(changedFilePath) is updated under the pattern, \(pattern)")
             trigger_pod_test_for_coverage_report = true
             // Once this sdk run_job flag is turned to true, then the loop
@@ -84,11 +90,7 @@ struct UpdatedFilesCollector: ParsableCommand {
     }
     if let outputPath = outputSDKFileURL {
       do {
-        try podspecsWithChangedFiles.joined(separator: "\n").write(
-          to: outputPath,
-          atomically: true,
-          encoding: String.Encoding.utf8
-        )
+        try JSONEncoder().encode(podspecsWithChangedFiles).write(to: outputPath)
       } catch {
         fatalError("Error while writting in \(outputPath.path).\n\(error)")
       }
