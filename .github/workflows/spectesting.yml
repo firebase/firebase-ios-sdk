@@ -53,13 +53,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
     - id: set-matrix
-      env:
-        pr_branch: ${{ github.event.pull_request.head.ref }}
       run: |
-        ./scripts/health_metrics/get_updated_files.sh -p output.json
         cat output.json
         echo "::set-output name=matrix::{\"include\":$( cat output.json)}"
   job2:
