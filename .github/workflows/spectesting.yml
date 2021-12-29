@@ -43,7 +43,7 @@ jobs:
     strategy:
       matrix: ${{fromJson(needs.specs_checking.outputs.matrix)}}
     env:
-      PODSPEC: ${{ matrix.podsepc }}
+      PODSPEC: ${{ matrix.podspec }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
