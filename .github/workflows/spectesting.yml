@@ -22,7 +22,12 @@ jobs:
       run: |
         ./scripts/health_metrics/get_updated_files.sh -p output.json
         cat output.json
-        echo "::set-output name=matrix::{\"include\":$( cat output.json)}"
+        echo "::set-output name=matrix::{\"include\":$( cat output.json )}"
+    - name: Upload output.json
+      uses: actions/upload-artifact@v2
+      with:
+        name: output
+        path: *.json
   specs_testing:
     needs: specs_checking
     runs-on: macos-11
