@@ -89,7 +89,8 @@ struct UpdatedFilesCollector: ParsableCommand {
     }
     if let outputPath = outputSDKFileURL {
       do {
-        try JSONEncoder().encode(podspecsWithChangedFiles).write(to: outputPath)
+        let str = try String(decoding: JSONEncoder().encode(podspecsWithChangedFiles), as: UTF8.self)
+        try str.trimmingCharacters(in: .whitespacesAndNewlines).write(to: outputPath, atomically: true, encoding: String.Encoding.utf8)
       } catch {
         fatalError("Error while writting in \(outputPath.path).\n\(error)")
       }
