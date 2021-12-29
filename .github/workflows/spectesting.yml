@@ -27,7 +27,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: output
-        path: *.json
+        path: output.json
   specs_testing:
     needs: specs_checking
     runs-on: macos-11
