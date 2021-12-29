@@ -128,7 +128,7 @@ NS_SWIFT_NAME(User)
     @remarks To retrieve the current user, use `FIRAuth.currentUser`. To sign a user
         in or out, use the methods on `FIRAuth`.
  */
-- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)init;
 
 /** @fn updateEmail:completion:
     @brief Updates the email address for the user. On success, the cached user profile data is

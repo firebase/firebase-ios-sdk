@@ -236,6 +236,8 @@ static void callInMainThreadWithAuthDataResultAndError(
  */
 @property(nonatomic, readwrite, nullable) NSString *tenantID;
 
+@property(nonatomic, readwrite, nullable) NSString *nickname;
+
 @end
 
 @implementation FIRUser {
@@ -259,6 +261,14 @@ static void callInMainThreadWithAuthDataResultAndError(
           refreshing access tokens.
    */
   FIRSecureTokenService *_tokenService;
+}
+
+- (instancetype)init {
+  self = [super init];
+  if (self) {
+    _nickname = @"nick";
+  }
+  return self;
 }
 
 #pragma mark - Properties

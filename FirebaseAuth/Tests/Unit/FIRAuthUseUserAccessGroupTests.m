@@ -56,4 +56,18 @@
   [partialMock stopMocking];
 }
 
+- (void)testBar {
+  FIRAuthStoredUserManager *manager = [[FIRAuthStoredUserManager alloc] initWithServiceName:@"service_name"];
+  NSError *error;
+  BOOL result = [manager setStoredUser:[[FIRUser alloc] init]
+          forAccessGroup:@"access_group"
+shareAuthStateAcrossDevices:YES
+       projectIdentifier:@"project_id"
+                   error:&error];
+
+  XCTAssertTrue(result);
+  XCTAssertNil(error);
+
+}
+
 @end
