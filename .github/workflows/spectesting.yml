@@ -9,7 +9,7 @@ jobs:
     if: github.repository == 'Firebase/firebase-ios-sdk'
     runs-on: macos-11
     outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      matrix: ${{ steps.check_files.outputs.matrix }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
