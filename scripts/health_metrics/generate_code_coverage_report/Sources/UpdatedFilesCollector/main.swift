@@ -23,6 +23,10 @@ struct SDKFilePattern: Codable {
   let filePatterns: [String]
 }
 
+/// SDKPodspec is to help generate an array of podspec in json file, e.g.
+/// ``` output.json
+/// [{"podspec":"FirebaseABTesting.podspec"},{"podspec":"FirebaseAnalytics.podspec.json"}]
+/// ```
 struct SDKPodspec: Codable {
     let podspec: String
 }
@@ -89,6 +93,8 @@ struct UpdatedFilesCollector: ParsableCommand {
     }
     if let outputPath = outputSDKFileURL {
       do {
+        // Instead of directly writing Data to a file, trasnfering Data to
+        // String can help trimming whitespaces and newlines in advance.
         let str = try String(decoding: JSONEncoder().encode(podspecsWithChangedFiles), as: UTF8.self)
         try str.trimmingCharacters(in: .whitespacesAndNewlines).write(to: outputPath, atomically: true, encoding: String.Encoding.utf8)
       } catch {

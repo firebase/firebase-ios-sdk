@@ -20,8 +20,17 @@ jobs:
       env:
         pr_branch: ${{ github.event.pull_request.head.ref }}
       run: |
+        # The output.json will have podspecs that will be tested.
+        # ``` output.json
+        # [{"podspec":"FirebaseABTesting.podspec"},{"podspec":"FirebaseAnalytics.podspec.json"}]
+        # ```
+        # This array will help generate a matrix for jobs in GHA, taking
+        # advantage of `include`.
+        # https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions#example-including-additional-values-into-combinations
+        # The final matrix will be set as an env var in the GHA workflow,
+        # This env var, matrx, will be passed as a matrix in the next job of
+        # the workflow. 
         ./scripts/health_metrics/get_updated_files.sh -p output.json
-        cat output.json
         echo "::set-output name=matrix::{\"include\":$( cat output.json )}"
     - name: Upload output.json
       uses: actions/upload-artifact@v2
@@ -51,24 +60,3 @@ jobs:
       with:
         name: specTestingLogs
         path: specTestingLogs/*.txt
-  job1:
-    runs-on: macos-11
-    outputs:
-      test: ${{ steps.set-matrix.outputs.test }}
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - id: set-matrix
-      run: |
-        cat output.json
-        echo "::set-output name=test::{\"include\":$( cat output.json )}"
-  job2:
-    needs: job1
-    runs-on: macos-11
-    strategy:
-      matrix: ${{fromJson(needs.job1.outputs.test)}}
-    env:
-      PODSPEC: ${{ matrix.podsepc }}
-      MATRIX: ${{ needs.job1.outputs.matrix }}
-    steps:
-    - run: echo $PODSPEC
