@@ -16,6 +16,15 @@ set -ex
 # Updated files in paths in code_coverage_file_list.json will trigger code coverage workflows.
 # Updates in a pull request will generate a code coverage report in a PR.
 
+while getopts p: flag
+do
+    case "${flag}" in
+        p) spec_output_file=${OPTARG};;
+    esac
+done
+
+dir=$(pwd)
+
 # Get most rescent ancestor commit.
 common_commit=$(git merge-base remotes/origin/${pr_branch} remotes/origin/${GITHUB_BASE_REF})
 target_branch_head=$(git rev-parse remotes/origin/${GITHUB_BASE_REF})
@@ -30,4 +39,9 @@ cd scripts/health_metrics/generate_code_coverage_report
 # merge commit to the head commit from the target branch.
 git diff --name-only remotes/origin/${GITHUB_BASE_REF} ${GITHUB_SHA} > updated_files.txt
 
+if [ -z $spec_output_file] ; then
 swift run UpdatedFilesCollector --changed-file-paths updated_files.txt --code-coverage-file-patterns ../code_coverage_file_list.json
+else
+swift run UpdatedFilesCollector --changed-file-paths updated_files.txt --code-coverage-file-patterns ../code_coverage_file_list.json --output-sdk-file-url "${spec_output_file}"
+mv "${spec_output_file}" "${dir}"
+fi
