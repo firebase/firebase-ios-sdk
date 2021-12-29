@@ -49,19 +49,19 @@ jobs:
   job1:
     runs-on: macos-11
     outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      test: ${{ steps.set-matrix.outputs.test }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
     - id: set-matrix
       run: |
         cat output.json
-        echo "::set-output name=matrix::{\"include\":$( cat output.json)}"
+        echo "::set-output name=test::{\"include\":$( cat output.json )}"
   job2:
     needs: job1
     runs-on: macos-11
     strategy:
-      matrix: ${{fromJson(needs.job1.outputs.matrix)}}
+      matrix: ${{fromJson(needs.job1.outputs.test)}}
     env:
       PODSPEC: ${{ matrix.podsepc }}
       MATRIX: ${{ needs.job1.outputs.matrix }}
