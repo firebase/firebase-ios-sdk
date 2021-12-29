@@ -53,7 +53,6 @@ struct UpdatedFilesCollector: ParsableCommand {
   var outputSDKFileURL: URL?
 
   func run() throws {
-    let task = Process()
     var podspecsWithChangedFiles: [SDKPodspec] = []
     print("=============== list changed files ===============")
     print(changedFilePaths.joined(separator: "\n"))

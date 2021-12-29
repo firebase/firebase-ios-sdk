@@ -21,6 +21,7 @@ jobs:
         pr_branch: ${{ github.event.pull_request.head.ref }}
       run: |
         ./scripts/health_metrics/get_updated_files.sh -p output.json
+        cat output.json
         echo "::set-output name=matrix::{\"include\":$( cat output.json)}"
   specs_testing:
     needs: specs_checking
