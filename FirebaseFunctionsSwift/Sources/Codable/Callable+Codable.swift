@@ -23,11 +23,11 @@ public extension Functions {
   /// - Parameter requestAs: The type of the `Encodable` entity to use for requests to this `Callable`
   /// - Parameter responseAs: The type of the `Decodable` entity to use for responses from this `Callable`
   /// - Parameter encoder: The encoder instance to use to run the encoding.
-  /// - Parameter decoder: The decoder instance to use to run the encoding.
+  /// - Parameter decoder: The decoder instance to use to run the decoding.
   func httpsCallable<Request: Encodable,
     Response: Decodable>(_ name: String,
-                         requestAs requestType: Request.Type = Request.self,
-                         responseAs responseType: Response.Type = Response.self,
+                         requestAs: Request.Type = Request.self,
+                         responseAs: Response.Type = Response.self,
                          encoder: FirebaseDataEncoder = FirebaseDataEncoder(),
                          decoder: FirebaseDataDecoder = FirebaseDataDecoder())
     -> Callable<Request, Response> {
@@ -142,10 +142,9 @@ public struct Callable<Request: Encodable, Response: Decodable> {
     ///
     /// - Parameter data: The `Request` representing the data to pass to the trigger.
     /// - Parameter encoder: The encoder instance to use to run the encoding.
-    /// - Parameter decoder: The decoder instance to use to run the encoding.
+    /// - Parameter decoder: The decoder instance to use to run the decoding.
     ///
-    /// - Throws: An error if any value throws an error during encoding.
-    /// - Throws: An error if any value throws an error during decoding.
+    /// - Throws: An error if any value throws an error during encoding or decoding.
     /// - Throws: An error if the callable fails to complete
     ///
     /// - Returns: The decoded `Response` value
