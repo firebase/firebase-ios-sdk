@@ -86,6 +86,10 @@ public extension RemoteConfig {
     return configValue(forKey: key).boolValue
   }
 
+  subscript(dataValue key: String) -> Data {
+    return configValue(forKey: key).dataValue
+  }
+
   subscript(jsonValue key: String) -> [String: AnyHashable]? {
     guard let value = configValue(forKey: key).jsonValue as? [String: AnyHashable] else {
       // nil is the historical behavior for failing to extract JSON.

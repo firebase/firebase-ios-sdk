@@ -77,6 +77,10 @@ private enum Constants {
       XCTAssertEqual(config[Constants.trueKey].boolValue, true)
       XCTAssertEqual(config[Constants.falseKey].boolValue, false)
       XCTAssertEqual(
+        config[Constants.stringKey].dataValue,
+        Constants.stringValue.data(using: .utf8)
+      )
+      XCTAssertEqual(
         config[Constants.jsonKey].jsonValue as! [String: AnyHashable],
         Constants.jsonValue
       )
@@ -101,6 +105,10 @@ private enum Constants {
       XCTAssertEqual(config[doubleValue: Constants.floatKey], Constants.doubleValue)
       XCTAssertEqual(config[boolValue: Constants.trueKey], true)
       XCTAssertEqual(config[boolValue: Constants.falseKey], false)
+      XCTAssertEqual(
+        config[dataValue: Constants.stringKey],
+        Constants.stringValue.data(using: .utf8)
+      )
       XCTAssertEqual(try XCTUnwrap(config[jsonValue: Constants.jsonKey]), Constants.jsonValue)
     }
 
