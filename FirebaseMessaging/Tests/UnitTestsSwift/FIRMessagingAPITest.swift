@@ -44,36 +44,22 @@ func apis() {
 }
 
 @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
-func apiAsync() async {
+func apiAsync() async throws {
   let messaging = Messaging.messaging()
   let topic = "cat_video"
   #if compiler(>=5.5) && canImport(_Concurrency)
-    do {
-      try await messaging.subscribe(toTopic: topic)
-    } catch {}
+    try await messaging.subscribe(toTopic: topic)
 
-    do {
-      try await messaging.unsubscribe(fromTopic: topic)
-    } catch {}
+    try await messaging.unsubscribe(fromTopic: topic)
 
-    do {
-      try await messaging.token()
-    } catch {}
+    try await messaging.token()
 
-    do {
-      try await messaging.retrieveFCMToken(forSenderID: "fakeSenderID")
-    } catch {}
+    try await messaging.retrieveFCMToken(forSenderID: "fakeSenderID")
 
-    do {
-      try await messaging.deleteToken()
-    } catch {}
+    try await messaging.deleteToken()
 
-    do {
-      try await messaging.deleteFCMToken(forSenderID: "fakeSenderID")
-    } catch {}
+    try await messaging.deleteFCMToken(forSenderID: "fakeSenderID")
 
-    do {
-      try await messaging.deleteData()
-    } catch {}
+    try await messaging.deleteData()
   #endif
 }

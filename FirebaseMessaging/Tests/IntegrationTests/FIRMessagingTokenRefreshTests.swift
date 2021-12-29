@@ -83,10 +83,6 @@
       let testDelegate = fakeAppDelegate()
       messaging?.delegate = testDelegate
       testDelegate.delegateIsCalled = false
-
-      guard let messaging = self.messaging else {
-        return
-      }
       messaging.deleteToken { error in
         XCTAssertNil(error)
         XCTAssertTrue(testDelegate.delegateIsCalled)
@@ -108,9 +104,6 @@
       messaging?.delegate = testDelegate
       testDelegate.delegateIsCalled = false
 
-      guard let messaging = self.messaging else {
-        return
-      }
       messaging.deleteData { error in
         XCTAssertNil(error)
         XCTAssertTrue(testDelegate.delegateIsCalled)
@@ -122,9 +115,7 @@
     // pragma mark - Helpers
     func assertTokenWithAuthorizedEntity() {
       let expectation = self.expectation(description: "tokenWithAuthorizedEntity")
-      guard let messaging = self.messaging else {
-        return
-      }
+
       messaging.retrieveFCMToken(forSenderID: tokenAuthorizedEntity()) { token, error in
         XCTAssertNil(error)
         XCTAssertNotNil(token)
@@ -135,9 +126,7 @@
 
     func assertDefaultToken() {
       let expectation = self.expectation(description: "getToken")
-      guard let messaging = self.messaging else {
-        return
-      }
+
       messaging.token { token, error in
         XCTAssertNil(error)
         XCTAssertNotNil(token)
