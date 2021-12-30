@@ -55,10 +55,10 @@ struct InitializeSpecTesting {
                                   podRepoName: String = Constants.localSpecRepoName) {
     let result = Shell.executeCommandFromScript("pod repo remove \(podRepoName)")
     switch result {
-    case let .error(code, output):
+    case let .error(_, output):
       print("\(podRepoName) was not properly removed. \(podRepoName) probably" +
         "does not exist in local.\n \(output)")
-    case let .success(output):
+    case .success(_):
       print("\(podRepoName) was removed.")
     }
     Shell.executeCommand("pod repo add \(podRepoName) \(repoURL)")
@@ -66,9 +66,20 @@ struct InitializeSpecTesting {
 
   // Add a testing tag to the head of the branch.
   private static func addTestingTag(path sdkRepoPath: URL, manifest: FirebaseManifest.Manifest) {
-    let testingTag = Constants.testingTagPrefix + manifest.version
-    // Add or update the testing tag to the local sdk repo.
-    Shell.executeCommand("git tag -af \(testingTag) -m 'spectesting'", workingDir: sdkRepoPath)
+    // Pods could have different versions, like `8.11.0` and `8.11.0-beta`.
+    // These versions should be part of tags, so a warning from `pod spec lint`
+    // could be avoided.
+    // ```
+    //   The version should be included in the Git tag.
+    // ```
+    // The tag should include `s.version`, e.g.
+    // If "s.version = '8.11.0-beta'", the tag should include 8.11.0-beta to
+    // avoid trigerring the warning.
+    for pod in manifest.pods {
+      let testingTag = Constants.testingTagPrefix + manifest.versionString(pod)
+      // Add or update the testing tag to the local sdk repo.
+      Shell.executeCommand("git tag -af \(testingTag) -m 'spectesting'", workingDir: sdkRepoPath)
+    }
   }
 
   // Update the podspec source.
@@ -85,11 +96,11 @@ struct InitializeSpecTesting {
         // After `sed`:
         //  s.source           = {
         //    :git => '\(path.path)',
-        //    :tag => 'testing-\(manifest.version)',
+        //    :tag => 'testing-\(version)',
         //  }
         Shell.executeCommand(
           "sed -i.bak -e \"s|\\(.*\\:git =>[[:space:]]*\\).*|\\1'\(path.path)',| ; " +
-            "s|\\(.*\\:tag =>[[:space:]]*\\).*|\\1'\(Constants.testingTagPrefix + manifest.version)',|\" \(pod.name).podspec",
+            "s|\\(.*\\:tag =>[[:space:]]*\\).*|\\1'\(Constants.testingTagPrefix + version )',|\" \(pod.name).podspec",
           workingDir: path
         )
       }
