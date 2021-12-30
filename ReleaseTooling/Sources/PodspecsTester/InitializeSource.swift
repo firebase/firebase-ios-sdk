@@ -58,7 +58,7 @@ struct InitializeSpecTesting {
     case let .error(_, output):
       print("\(podRepoName) was not properly removed. \(podRepoName) probably" +
         "does not exist in local.\n \(output)")
-    case .success(_):
+    case .success:
       print("\(podRepoName) was removed.")
     }
     Shell.executeCommand("pod repo add \(podRepoName) \(repoURL)")
@@ -100,7 +100,7 @@ struct InitializeSpecTesting {
         //  }
         Shell.executeCommand(
           "sed -i.bak -e \"s|\\(.*\\:git =>[[:space:]]*\\).*|\\1'\(path.path)',| ; " +
-            "s|\\(.*\\:tag =>[[:space:]]*\\).*|\\1'\(Constants.testingTagPrefix + version )',|\" \(pod.name).podspec",
+            "s|\\(.*\\:tag =>[[:space:]]*\\).*|\\1'\(Constants.testingTagPrefix + version)',|\" \(pod.name).podspec",
           workingDir: path
         )
       }

@@ -25,17 +25,16 @@ struct PodspecsTester: ParsableCommand {
           transform: URL.init(fileURLWithPath:))
   var gitRoot: URL
 
-  /// Read a temp file with testing podspecs. An example of a temp file:
-  /// ```
-  /// FirebaseAuth.podspec
-  /// FirebaseCrashlytics.podspec
-  /// ```
-  @Option(help: "A temp file containing podspecs that will be tested.")
+  /// A targeted testing pod, e.g. FirebaseAuth.podspec
+  @Option(help: "A podspec that will be tested.")
   var podspec: String
 
   /// The root of the Firebase git repo.
   @Option(help: "Spec testing log dir", transform: URL.init(fileURLWithPath:))
   var tempLogDir: URL?
+
+  @Flag(help: "Skip unit tests.")
+  var skipTests: Bool
 
   mutating func validate() throws {
     guard FileManager.default.fileExists(atPath: gitRoot.path) else {
@@ -54,7 +53,8 @@ struct PodspecsTester: ParsableCommand {
         return "--\(key)"
       }
     }.joined(separator: " ")
-    let command = "pod spec lint \(spec) \(arguments) --sources=https://github.com/firebase/SpecsTesting,https://cdn.cocoapods.org/"
+    let command =
+      "pod spec lint \(spec) \(arguments) --sources=https://github.com/firebase/SpecsTesting,https://cdn.cocoapods.org/"
     print(command)
     let result = Shell.executeCommandFromScript(
       command,
@@ -112,6 +112,9 @@ struct PodspecsTester: ParsableCommand {
         args["platforms"] = pod.platforms.joined(separator: ",")
         if pod.allowWarnings {
           args.updateValue(nil, forKey: "allow-warnings")
+        }
+        if skipTests {
+          args.updateValue(nil, forKey: "skip-tests")
         }
         let code = specTest(spec: podspec, workingDir: gitRoot, args: args).code
         exitCode = code
