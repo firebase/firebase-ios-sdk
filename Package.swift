@@ -208,6 +208,7 @@ let package = Package(
       dependencies: [
         "Firebase",
         "FirebaseCoreDiagnostics",
+        "HeartbeatLogging",
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULLogger", package: "GoogleUtilities"),
       ],
@@ -225,7 +226,12 @@ let package = Package(
     ),
     .testTarget(
       name: "CoreUnit",
-      dependencies: ["FirebaseCore", "SharedTestUtilities", "OCMock"],
+      dependencies: [
+        "FirebaseCore",
+        "SharedTestUtilities",
+        "HeartbeatLoggingTestUtils",
+        "OCMock",
+      ],
       path: "FirebaseCore/Tests/Unit",
       exclude: ["Resources/GoogleService-Info.plist"],
       cSettings: [
@@ -241,15 +247,27 @@ let package = Package(
         .headerSearchPath("../../"),
       ]
     ),
+
+    // MARK: - Heartbeat Logging
+
     .target(
       name: "HeartbeatLogging",
       path: "HeartbeatLogging/Sources/"
     ),
+    .target(
+      name: "HeartbeatLoggingTestUtils",
+      dependencies: ["HeartbeatLogging"],
+      path: "HeartbeatLoggingTestUtils/Sources/"
+    ),
     .testTarget(
       name: "HeartbeatLoggingTests",
-      dependencies: ["HeartbeatLogging"],
+      dependencies: [
+        "HeartbeatLogging",
+        "HeartbeatLoggingTestUtils",
+      ],
       path: "HeartbeatLogging/Tests/"
     ),
+
     .target(
       name: "FirebaseCoreDiagnostics",
       dependencies: [

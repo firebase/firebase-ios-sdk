@@ -14,6 +14,7 @@
 
 import XCTest
 @testable import HeartbeatLogging
+import HeartbeatLoggingTestUtils
 
 class HeartbeatsPayloadTests: XCTestCase {
   func testPayloadCurrentVersion() throws {
@@ -72,7 +73,7 @@ class HeartbeatsPayloadTests: XCTestCase {
     let headerValue = heartbeatsPayload.headerValue()
 
     // Then
-    try assertEqualPayloadStrings(
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
       headerValue,
       """
       {
