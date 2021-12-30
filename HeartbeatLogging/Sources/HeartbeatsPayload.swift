@@ -103,7 +103,7 @@ extension HeartbeatsPayload {
   static let emptyPayload = HeartbeatsPayload()
 
   /// A default date formatter that uses `YYYY-MM-dd` format.
-  static let dateFormatter: DateFormatter = {
+  public static let dateFormatter: DateFormatter = {
     let formatter = DateFormatter()
     formatter.dateFormat = "YYYY-MM-dd"
     formatter.locale = Locale(identifier: "en_US_POSIX")
