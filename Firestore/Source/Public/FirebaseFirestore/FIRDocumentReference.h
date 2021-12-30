@@ -109,8 +109,7 @@ NS_SWIFT_NAME(DocumentReference)
  * to be written.
  * @param mergeFields An `NSArray` that contains a list of `NSString` or `FIRFieldPath` elements
  * specifying which fields to merge. Fields can contain dots to reference nested fields within
- * the document. If your input sets any field to an empty dictionary, any nested field is
- * overwritten.
+ * the document. If your input sets any field to an empty dictionary, any nested field is overwritten.
  */
 - (void)setData:(NSDictionary<NSString *, id> *)documentData mergeFields:(NSArray<id> *)mergeFields;
 
