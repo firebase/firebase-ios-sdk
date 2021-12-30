@@ -205,12 +205,12 @@
 - (void)testIsDoubleDispatchPrewarm {
   FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
   NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
-    
-    [FPRAppActivityTracker load];
-    [defaultCenter postNotificationName:UIApplicationDidFinishLaunchingNotification
-                                 object:[UIApplication sharedApplication]];
 
-    XCTAssertTrue(appTracker.isDoubleDispatchPrewarm);
+  [FPRAppActivityTracker load];
+  [defaultCenter postNotificationName:UIApplicationDidFinishLaunchingNotification
+                               object:[UIApplication sharedApplication]];
+
+  XCTAssertTrue(appTracker.isDoubleDispatchPrewarm);
 
   [defaultCenter postNotificationName:UIApplicationDidFinishLaunchingNotification
                                object:[UIApplication sharedApplication]];
@@ -223,34 +223,34 @@
   FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
   setenv("ActivePrewarm", "1", 1);
   XCTAssertTrue(appTracker.isActivePrewarm);
-    setenv("ActivePrewarm", "0", 1);
-    XCTAssertFalse(appTracker.isActivePrewarm);
+  setenv("ActivePrewarm", "0", 1);
+  XCTAssertFalse(appTracker.isActivePrewarm);
 }
 
 - (void)testApplyPrewarmTag {
-    id partialMock = OCMPartialMock([FPRAppActivityTracker sharedInstance]);
-    OCMStub([partialMock prewarmAvailable]).andReturn(YES);
-    id traceMock = OCMClassMock([FIRTrace class]);
+  id partialMock = OCMPartialMock([FPRAppActivityTracker sharedInstance]);
+  OCMStub([partialMock prewarmAvailable]).andReturn(YES);
+  id traceMock = OCMClassMock([FIRTrace class]);
 
-    OCMExpect([partialMock isActivePrewarm]).andReturn(NO);
-    OCMExpect([partialMock isDoubleDispatchPrewarm]).andReturn(NO);
-    [partialMock applyPrewarmTag:traceMock];
-    OCMVerify([traceMock setValue:@"cold" forAttribute:@"prewarm_detection"]);
-    
-    OCMExpect([partialMock isActivePrewarm]).andReturn(YES);
-    OCMExpect([partialMock isDoubleDispatchPrewarm]).andReturn(YES);
-    [partialMock applyPrewarmTag:traceMock];
-    OCMVerify([traceMock setValue:@"both" forAttribute:@"prewarm_detection"]);
-    
-    OCMExpect([partialMock isActivePrewarm]).andReturn(YES);
-    OCMExpect([partialMock isDoubleDispatchPrewarm]).andReturn(NO);
-    [partialMock applyPrewarmTag:traceMock];
-    OCMVerify([traceMock setValue:@"active_prewarm" forAttribute:@"prewarm_detection"]);
-    
-    OCMExpect([partialMock isActivePrewarm]).andReturn(NO);
-    OCMExpect([partialMock isDoubleDispatchPrewarm]).andReturn(YES);
-    [partialMock applyPrewarmTag:traceMock];
-    OCMVerify([traceMock setValue:@"double_dispatch" forAttribute:@"prewarm_detection"]);
+  OCMExpect([partialMock isActivePrewarm]).andReturn(NO);
+  OCMExpect([partialMock isDoubleDispatchPrewarm]).andReturn(NO);
+  [partialMock applyPrewarmTag:traceMock];
+  OCMVerify([traceMock setValue:@"cold" forAttribute:@"prewarm_detection"]);
+
+  OCMExpect([partialMock isActivePrewarm]).andReturn(YES);
+  OCMExpect([partialMock isDoubleDispatchPrewarm]).andReturn(YES);
+  [partialMock applyPrewarmTag:traceMock];
+  OCMVerify([traceMock setValue:@"both" forAttribute:@"prewarm_detection"]);
+
+  OCMExpect([partialMock isActivePrewarm]).andReturn(YES);
+  OCMExpect([partialMock isDoubleDispatchPrewarm]).andReturn(NO);
+  [partialMock applyPrewarmTag:traceMock];
+  OCMVerify([traceMock setValue:@"active_prewarm" forAttribute:@"prewarm_detection"]);
+
+  OCMExpect([partialMock isActivePrewarm]).andReturn(NO);
+  OCMExpect([partialMock isDoubleDispatchPrewarm]).andReturn(YES);
+  [partialMock applyPrewarmTag:traceMock];
+  OCMVerify([traceMock setValue:@"double_dispatch" forAttribute:@"prewarm_detection"]);
 }
 
 @end

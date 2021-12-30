@@ -153,20 +153,20 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
   return [self isActivePrewarm] || [self isDoubleDispatchPrewarm];
 }
 
-- (void)applyPrewarmTag:(FIRTrace *) trace {
-    BOOL activePrewarm = [self isActivePrewarm];
-    BOOL doubleDispatchPrewarm = [self isDoubleDispatchPrewarm];
-    if (![self prewarmAvailable]) {
-      [trace setValue:@"not_applicable" forAttribute:@"prewarm_detection"];
-    } else if (!activePrewarm && !doubleDispatchPrewarm) {
-      [trace setValue:@"cold" forAttribute:@"prewarm_detection"];
-    } else if (activePrewarm && doubleDispatchPrewarm) {
-      [trace setValue:@"both" forAttribute:@"prewarm_detection"];
-    } else if (activePrewarm && !doubleDispatchPrewarm) {
-      [trace setValue:@"active_prewarm" forAttribute:@"prewarm_detection"];
-    } else {
-      [trace setValue:@"double_dispatch" forAttribute:@"prewarm_detection"];
-    }
+- (void)applyPrewarmTag:(FIRTrace *)trace {
+  BOOL activePrewarm = [self isActivePrewarm];
+  BOOL doubleDispatchPrewarm = [self isDoubleDispatchPrewarm];
+  if (![self prewarmAvailable]) {
+    [trace setValue:@"not_applicable" forAttribute:@"prewarm_detection"];
+  } else if (!activePrewarm && !doubleDispatchPrewarm) {
+    [trace setValue:@"cold" forAttribute:@"prewarm_detection"];
+  } else if (activePrewarm && doubleDispatchPrewarm) {
+    [trace setValue:@"both" forAttribute:@"prewarm_detection"];
+  } else if (activePrewarm && !doubleDispatchPrewarm) {
+    [trace setValue:@"active_prewarm" forAttribute:@"prewarm_detection"];
+  } else {
+    [trace setValue:@"double_dispatch" forAttribute:@"prewarm_detection"];
+  }
 }
 
 - (BOOL)prewarmAvailable {
@@ -250,7 +250,7 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
       } else {
         [self.appStartTrace cancel];
       }
-      
+
       [self applyPrewarmTag:self.prewarmStartTrace];
       [self.prewarmStartTrace stop];
     });
