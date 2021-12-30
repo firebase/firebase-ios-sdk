@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-import GoogleUtilities_NSData
+import GoogleUtilities
 
 /// A type that provides a string representation for use in an HTTP header.
 public protocol HTTPHeaderRepresentable {
