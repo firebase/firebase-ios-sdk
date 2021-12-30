@@ -150,7 +150,7 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
     return NO;
   }
 
-    return [self isActivePrewarm] || [self isDoubleDispatchPrewarm];
+  return [self isActivePrewarm] || [self isDoubleDispatchPrewarm];
 }
 
 - (BOOL)prewarmAvailable {
@@ -239,7 +239,8 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
           (currentTimeSinceEpoch - startTimeSinceEpoch < gAppStartMaxValidDuration)) {
         BOOL activePrewarm = [self isActivePrewarm];
         BOOL doubleDispatchPrewarm = [self isDoubleDispatchPrewarm];
-        if (!activePrewarm && !doubleDispatchPrewarm) {;
+        if (!activePrewarm && !doubleDispatchPrewarm) {
+          ;
           [self.prewarmStartTrace setValue:@"cold" forAttribute:@"prewarm_detection"];
         } else if (activePrewarm && doubleDispatchPrewarm) {
           [self.prewarmStartTrace setValue:@"both" forAttribute:@"prewarm_detection"];
