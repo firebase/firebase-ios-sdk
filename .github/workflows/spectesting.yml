@@ -10,6 +10,7 @@ jobs:
     runs-on: macos-11
     outputs:
       matrix: ${{ steps.check_files.outputs.matrix }}
+      podspecs: ${{ steps.set-matrix.outputs.podspecs }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -29,16 +30,14 @@ jobs:
         # https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions#example-including-additional-values-into-combinations
         # The final matrix will be set as an env var in the GHA workflow,
         # This env var, matrx, will be passed as a matrix in the next job of
-        # the workflow. 
+        # the workflow.
         ./scripts/health_metrics/get_updated_files.sh -p output.json
         echo "::set-output name=matrix::{\"include\":$( cat output.json )}"
-    - name: Upload output.json
-      uses: actions/upload-artifact@v2
-      with:
-        name: output
-        path: output.json
+        # `podspecs` is to help determine if specs_testing job should be run.
+        echo "::set-output name=podspecs::$( cat output.json)"
   specs_testing:
     needs: specs_checking
+    if: ${{ needs.specs_checking.outputs.podspecs != '[]' }}
     runs-on: macos-11
     strategy:
       fail-fast: false
@@ -54,7 +53,7 @@ jobs:
       run: |
         mkdir specTestingLogs
         cd ReleaseTooling
-        swift run podspecs-tester --git-root "${GITHUB_WORKSPACE}" --podspec ${PODSPEC} --skip-tests --temp-log-dir "${GITHUB_WORKSPACE}/specTestingLogs" 
+        swift run podspecs-tester --git-root "${GITHUB_WORKSPACE}" --podspec ${PODSPEC} --skip-tests --temp-log-dir "${GITHUB_WORKSPACE}/specTestingLogs"
     - name: Upload Failed Testing Logs
       if: failure()
       uses: actions/upload-artifact@v2
