@@ -89,6 +89,7 @@ extension HeartbeatsPayload: HTTPHeaderRepresentable {
     do {
       let data = try encoder.encode(self)
       let gzippedData = try data.zipped()
+      return gzippedData.base64EncodedString()
       return gzippedData.base64URLEncodedString()
     } catch {
       return "" // Return empty string if processing failed.
@@ -153,25 +154,13 @@ public extension Data {
   /// - Returns: The compressed data.
   /// - Throws: An error if compression failed.
   func zipped() throws -> Data {
-    if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *) {
-      // Use standard library's zlib implementation.
-      return try (self as NSData).compressed(using: .zlib) as Data
-    } else {
-      // Fall back to Google Utilities gzip implementation.
-      return try NSData.gul_data(byGzippingData: self)
-    }
+    try NSData.gul_data(byGzippingData: self)
   }
 
   /// Returns the uncompressed data.
   /// - Returns: The decompressed data.
   /// - Throws: An error if decompression failed.
   func unzipped() throws -> Data {
-    if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *) {
-      // Use standard library's zlib implementation.
-      return try (self as NSData).decompressed(using: .zlib) as Data
-    } else {
-      // Fall back to Google Utilities gzip implementation.
-      return try NSData.gul_data(byInflatingGzippedData: self)
-    }
+    try NSData.gul_data(byInflatingGzippedData: self)
   }
 }
