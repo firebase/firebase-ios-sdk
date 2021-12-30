@@ -89,7 +89,6 @@ extension HeartbeatsPayload: HTTPHeaderRepresentable {
     do {
       let data = try encoder.encode(self)
       let gzippedData = try data.zipped()
-      return gzippedData.base64EncodedString()
       return gzippedData.base64URLEncodedString()
     } catch {
       return "" // Return empty string if processing failed.
