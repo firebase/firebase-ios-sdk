@@ -55,9 +55,8 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
 /** Trace to measure the app start performance. */
 @property(nonatomic) FIRTrace *appStartTrace;
 
-@property(nonatomic) FIRTrace *coldStartTrace;
-
-@property(nonatomic) FIRTrace *prewarmedStartTrace;
+/** Test app start trace that identifies if it is prewarmed or not. */
+@property(nonatomic) FIRTrace *prewarmStartTrace;
 
 /** Tracks if the gauge metrics are dispatched. */
 @property(nonatomic) BOOL appStartGaugeMetricDispatched;
@@ -151,15 +150,7 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
     return NO;
   }
 
-  if ([self isActivePrewarm]) {
-    return YES;
-  }
-
-  if ([self isDoubleDispatchPrewarm]) {
-    return YES;
-  }
-
-  return NO;
+    return [self isActivePrewarm] || [self isDoubleDispatchPrewarm];
 }
 
 - (BOOL)prewarmAvailable {
@@ -197,21 +188,16 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
     // Start measuring time to first draw on the App start trace.
     [self.appStartTrace startStageNamed:kFPRAppStartStageNameTimeToFirstDraw];
 
-    self.coldStartTrace = [[FIRTrace alloc] initWithName:@"cold_start"];
-    [self.coldStartTrace startWithStartTime:appStartTime];
-    self.prewarmedStartTrace = [[FIRTrace alloc] initWithName:@"prewarmed_start"];
-    [self.prewarmedStartTrace startWithStartTime:appStartTime];
+    self.prewarmStartTrace = [[FIRTrace alloc] initWithName:@"prewarm_start"];
+    [self.prewarmStartTrace startWithStartTime:appStartTime];
   });
 
   // If ever the app start trace had it life in background stage, do not send the trace.
   if (self.appStartTrace.backgroundTraceState != FPRTraceStateForegroundOnly) {
     self.appStartTrace = nil;
   }
-  if (self.coldStartTrace.backgroundTraceState != FPRTraceStateForegroundOnly) {
-    self.coldStartTrace = nil;
-  }
-  if (self.prewarmedStartTrace.backgroundTraceState != FPRTraceStateForegroundOnly) {
-    self.prewarmedStartTrace = nil;
+  if (self.prewarmStartTrace.backgroundTraceState != FPRTraceStateForegroundOnly) {
+    self.prewarmStartTrace = nil;
   }
 
   // Stop the active background session trace.
@@ -253,23 +239,18 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
           (currentTimeSinceEpoch - startTimeSinceEpoch < gAppStartMaxValidDuration)) {
         BOOL activePrewarm = [self isActivePrewarm];
         BOOL doubleDispatchPrewarm = [self isDoubleDispatchPrewarm];
-        if (!activePrewarm && !doubleDispatchPrewarm) {
-          [self.coldStartTrace stop];
-          [self.prewarmedStartTrace cancel];
-          return;
-        }
-        if (activePrewarm && doubleDispatchPrewarm) {
-          [self.prewarmedStartTrace setValue:@"both" forAttribute:@"prewarm_detection"];
+        if (!activePrewarm && !doubleDispatchPrewarm) {;
+          [self.prewarmStartTrace setValue:@"cold" forAttribute:@"prewarm_detection"];
+        } else if (activePrewarm && doubleDispatchPrewarm) {
+          [self.prewarmStartTrace setValue:@"both" forAttribute:@"prewarm_detection"];
         } else if (activePrewarm && !doubleDispatchPrewarm) {
-          [self.prewarmedStartTrace setValue:@"double_dispatch" forAttribute:@"prewarm_detection"];
+          [self.prewarmStartTrace setValue:@"double_dispatch" forAttribute:@"prewarm_detection"];
         } else {
-          [self.prewarmedStartTrace setValue:@"active_prewarm" forAttribute:@"prewarm_detection"];
+          [self.prewarmStartTrace setValue:@"active_prewarm" forAttribute:@"prewarm_detection"];
         }
-        [self.coldStartTrace cancel];
-        [self.prewarmedStartTrace stop];
+        [self.prewarmStartTrace stop];
       } else {
-        [self.coldStartTrace cancel];
-        [self.prewarmedStartTrace cancel];
+        [self.prewarmStartTrace cancel];
       }
     });
   }
