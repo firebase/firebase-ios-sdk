@@ -17,46 +17,9 @@ import FirebaseRemoteConfigSwift
 
 import XCTest
 
-/// String constants used for testing.
-private enum Constants {
-  static let stringKey = "myString"
-  static let stringValue = "string contents"
-  static let intKey = "myInt"
-  static let intValue = 123
-  static let floatKey = "myFloat"
-  static let floatValue = 42.75 as Float
-  static let doubleValue = 42.75
-  static let trueKey = "myTrue"
-  static let falseKey = "myFalse"
-  static let jsonKey = "Recipe"
-  static let jsonValue = ["recipeName": "PB&J",
-                          "ingredients": ["bread", "peanut butter", "jelly"],
-                          "cookTime": 7] as [String: AnyHashable]
-}
-
 #if compiler(>=5.5) && canImport(_Concurrency)
   @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
   class ValueTests: APITestBase {
-    var console: RemoteConfigConsole!
-
-    override func setUpWithError() throws {
-      try super.setUpWithError()
-      if APITests.useFakeConfig {
-        let jsonData = try JSONSerialization.data(
-          withJSONObject: Constants.jsonValue
-        )
-        guard let jsonValue = String(data: jsonData, encoding: .ascii) else {
-          fatalError("Failed to make json Value from jsonData")
-        }
-        fakeConsole.config = [Constants.stringKey: Constants.stringValue,
-                              Constants.intKey: String(Constants.intValue),
-                              Constants.floatKey: String(Constants.floatValue),
-                              Constants.trueKey: String(true),
-                              Constants.falseKey: String(false),
-                              Constants.jsonKey: jsonValue]
-      }
-    }
-
     func testFetchAndActivateAllTypes() async throws {
       let status = try await config.fetchAndActivate()
       XCTAssertEqual(status, .successFetchedFromRemote)

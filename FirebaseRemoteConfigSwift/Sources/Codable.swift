@@ -38,6 +38,21 @@ public extension RemoteConfigValue {
 }
 
 public extension RemoteConfig {
+  /// Decodes a struct from the respective Remote Config values.
+  ///
+  /// - Parameter valueType: The type to decode the
+  /// - Parameter decoder: The decoder instance to use to run the encoding.
+  func decoded<Value: Decodable>(asType: Value.Type = Value.self,
+                                 decoder: FirebaseDataDecoder = FirebaseDataDecoder()) throws
+    -> Value {
+    let keys = allKeys(from: RemoteConfigSource.default) + allKeys(from: RemoteConfigSource.remote)
+    var config = [String: RCValueDecoderHelper]()
+    for key in keys {
+      config[key] = RCValueDecoderHelper(value: configValue(forKey: key))
+    }
+    return try decoder.decode(Value.self, from: config)
+  }
+
   /// Sets config defaults from an encodable struct.
   ///
   /// - Parameter value: The object to use to set the defaults.

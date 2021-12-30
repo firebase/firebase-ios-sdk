@@ -17,34 +17,10 @@ import FirebaseRemoteConfigSwift
 
 import XCTest
 
-/// String constants used for testing.
-private enum Constants {
-  static let jsonKey = "Recipe"
-  static let jsonValue = ["recipeName": "PB&J",
-                          "ingredients": ["bread", "peanut butter", "jelly"],
-                          "cookTime": 7] as [String: AnyHashable]
-  static let nonJsonKey = "notJSON"
-  static let nonJsonValue = "notJSON"
-}
-
 #if compiler(>=5.5) && canImport(_Concurrency)
   @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
   class CodableTests: APITestBase {
-    var console: RemoteConfigConsole!
-
-    override func setUpWithError() throws {
-      try super.setUpWithError()
-      if APITests.useFakeConfig {
-        let jsonData = try JSONSerialization.data(
-          withJSONObject: Constants.jsonValue
-        )
-        guard let jsonValue = String(data: jsonData, encoding: .ascii) else {
-          fatalError("Failed to make json Value from jsonData")
-        }
-        fakeConsole.config = [Constants.jsonKey: jsonValue,
-                              Constants.nonJsonKey: Constants.nonJsonValue]
-      }
-    }
+    // MARK: - Test decoding Remote Config JSON values
 
     // Contrast this test with the subsequent one to see the value of the Codable API.
     func testFetchAndActivateWithoutCodable() async throws {
@@ -95,6 +71,8 @@ private enum Constants {
       XCTFail("Failed to catch trying to decode non-JSON key as JSON")
     }
 
+    // MARK: - Test setting Remote Config defaults via an encodable struct
+
     struct DataTestDefaults: Encodable {
       var bool: Bool
       var int: Int32
@@ -118,6 +96,57 @@ private enum Constants {
       XCTAssertEqual(longValue, 9_876_543_210)
       let stringValue = try XCTUnwrap(config.defaultValue(forKey: "string")).stringValue
       XCTAssertEqual(stringValue, "four")
+    }
+
+    // MARK: - Test extracting config to an decodable struct.
+
+    struct MyConfig: Decodable {
+      var Recipe: Recipe
+      var notJSON: String
+      var myInt: Int
+    }
+
+    func testExtractConfig() async throws {
+      let status = try await config.fetchAndActivate()
+      XCTAssertEqual(status, .successFetchedFromRemote)
+      let myConfig: MyConfig = try config.decoded()
+      XCTAssertEqual(myConfig.notJSON, Constants.nonJsonValue)
+      XCTAssertEqual(myConfig.myInt, Constants.intValue)
+      XCTAssertEqual(myConfig.Recipe.recipeName, "PB&J")
+      XCTAssertEqual(myConfig.Recipe.ingredients, ["bread", "peanut butter", "jelly"])
+      XCTAssertEqual(myConfig.Recipe.cookTime, 7)
+    }
+
+    // Additional fields in config are ignored.
+    func testExtractConfigExtra() async throws {
+      guard APITests.useFakeConfig else { return }
+      fakeConsole.config["extra"] = "extra Value"
+      let status = try await config.fetchAndActivate()
+      XCTAssertEqual(status, .successFetchedFromRemote)
+      let myConfig: MyConfig = try config.decoded()
+      XCTAssertEqual(myConfig.notJSON, Constants.nonJsonValue)
+      XCTAssertEqual(myConfig.Recipe.recipeName, "PB&J")
+      XCTAssertEqual(myConfig.Recipe.ingredients, ["bread", "peanut butter", "jelly"])
+      XCTAssertEqual(myConfig.Recipe.cookTime, 7)
+    }
+
+    // Failure if requested field does not exist.
+    func testExtractConfigMissing() async throws {
+      struct MyConfig: Decodable {
+        var missing: String
+        var Recipe: String
+        var notJSON: String
+      }
+      let status = try await config.fetchAndActivate()
+      XCTAssertEqual(status, .successFetchedFromRemote)
+      do {
+        let _: MyConfig = try config.decoded()
+      } catch let DecodingError.keyNotFound(codingKey, context) {
+        XCTAssertEqual(codingKey.stringValue, "missing")
+        print(codingKey, context)
+        return
+      }
+      XCTFail("Failed to throw on missing field")
     }
   }
 #endif

@@ -17,40 +17,7 @@ import FirebaseCore
 
 import XCTest
 
-/// String constants used for testing.
-private enum Constants {
-  static let key1 = "Key1"
-  static let jedi = "Jedi"
-  static let sith = "Sith_Lord"
-  static let value1 = "Value1"
-  static let obiwan = "Obi-Wan"
-  static let yoda = "Yoda"
-  static let darthSidious = "Darth Sidious"
-}
-
 class APITests: APITestBase {
-  var console: RemoteConfigConsole!
-
-  override func setUp() {
-    super.setUp()
-    if APITests.useFakeConfig {
-      fakeConsole.config = [Constants.key1: Constants.value1]
-    } else {
-      console = RemoteConfigConsole()
-      console.updateRemoteConfigValue(Constants.obiwan, forKey: Constants.jedi)
-    }
-  }
-
-  override func tearDown() {
-    super.tearDown()
-
-    // If using RemoteConfigConsole, reset remote config values.
-    if !APITests.useFakeConfig {
-      console.removeRemoteConfigValue(forKey: Constants.sith)
-      console.removeRemoteConfigValue(forKey: Constants.jedi)
-    }
-  }
-
   func testFetchThenActivate() {
     let expectation = self.expectation(description: #function)
     config.fetch { status, error in

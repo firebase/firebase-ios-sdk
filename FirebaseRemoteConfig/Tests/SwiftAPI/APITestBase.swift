@@ -22,6 +22,7 @@ class APITestBase: XCTestCase {
   static var mockedFetch: Bool!
   var app: FirebaseApp!
   var config: RemoteConfig!
+  var console: RemoteConfigConsole!
   var fakeConsole: FakeConsole!
 
   override class func setUp() {
@@ -39,6 +40,14 @@ class APITestBase: XCTestCase {
     let settings = RemoteConfigSettings()
     settings.minimumFetchInterval = 0
     config.configSettings = settings
+
+    let jsonData = try JSONSerialization.data(
+      withJSONObject: Constants.jsonValue
+    )
+    guard let jsonValue = String(data: jsonData, encoding: .ascii) else {
+      fatalError("Failed to make json Value from jsonData")
+    }
+
     if APITests.useFakeConfig {
       if !APITests.mockedFetch {
         APITests.mockedFetch = true
@@ -46,6 +55,18 @@ class APITestBase: XCTestCase {
       }
       fakeConsole = FakeConsole()
       config.configFetch.fetchSession = URLSessionMock(with: fakeConsole)
+
+      fakeConsole.config = [Constants.key1: Constants.value1,
+                            Constants.jsonKey: jsonValue,
+                            Constants.nonJsonKey: Constants.nonJsonValue,
+                            Constants.stringKey: Constants.stringValue,
+                            Constants.intKey: String(Constants.intValue),
+                            Constants.floatKey: String(Constants.floatValue),
+                            Constants.trueKey: String(true),
+                            Constants.falseKey: String(false)]
+    } else {
+      console = RemoteConfigConsole()
+      console.updateRemoteConfigValue(Constants.obiwan, forKey: Constants.jedi)
     }
 
     // Uncomment for verbose debug logging.
@@ -55,6 +76,9 @@ class APITestBase: XCTestCase {
   override func tearDown() {
     if APITests.useFakeConfig {
       fakeConsole.empty()
+    } else {
+      console.removeRemoteConfigValue(forKey: Constants.sith)
+      console.removeRemoteConfigValue(forKey: Constants.jedi)
     }
     app = nil
     config = nil
