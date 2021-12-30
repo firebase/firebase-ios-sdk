@@ -21,17 +21,18 @@ import XCTest
   import FirebaseCore
 #endif
 
-/// This should mirror the `Constants` enum in the `HeartbeatLogging` module.
-enum Constants {
-  /// The name of the file system directory where heartbeat data is stored.
-  static let heartbeatFileStorageDirectoryPath = "google-heartbeat-storage"
-  /// The name of the user defaults suite where heartbeat data is stored.
-  static let heartbeatUserDefaultsSuiteName = "com.google.heartbeat.storage"
-}
-
 @objc(FIRHeartbeatLoggingTestUtils)
 @objcMembers
 public class HeartbeatLoggingTestUtils: NSObject {
+  /// This should mirror the `Constants` enum in the `HeartbeatLogging` module.
+  /// See `HeartbeatLogging/Sources/StorageFactory.swift`.
+  public enum Constants {
+    /// The name of the file system directory where heartbeat data is stored.
+    public static let heartbeatFileStorageDirectoryPath = "google-heartbeat-storage"
+    /// The name of the user defaults suite where heartbeat data is stored.
+    public static let heartbeatUserDefaultsSuiteName = "com.google.heartbeat.storage"
+  }
+
   public static var dateFormatter: DateFormatter {
     HeartbeatsPayload.dateFormatter
   }
