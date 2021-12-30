@@ -240,7 +240,6 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
         BOOL activePrewarm = [self isActivePrewarm];
         BOOL doubleDispatchPrewarm = [self isDoubleDispatchPrewarm];
         if (!activePrewarm && !doubleDispatchPrewarm) {
-          ;
           [self.prewarmStartTrace setValue:@"cold" forAttribute:@"prewarm_detection"];
         } else if (activePrewarm && doubleDispatchPrewarm) {
           [self.prewarmStartTrace setValue:@"both" forAttribute:@"prewarm_detection"];
