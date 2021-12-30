@@ -35,7 +35,11 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
     'FirebaseCore/Sources/**/*.[mh]',
     'FirebaseCore/Internal/*.h',
     'Interop/CoreDiagnostics/Public/*.h',
+    'HeartbeatLogging/Sources/**/*.swift',
   ]
+
+  s.swift_version = '5.3'
+
   s.public_header_files = [
     'FirebaseCore/Sources/Public/FirebaseCore/*.h',
     'FirebaseCore/Internal/*.h',
@@ -58,20 +62,27 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
     'OTHER_CFLAGS' => '-fno-autolink'
   }
-  s.test_spec 'unit' do |unit_tests|
-    unit_tests.scheme = { :code_coverage => true }
-    unit_tests.platforms = {
-      :ios => ios_deployment_target,
-      :osx => osx_deployment_target,
-      :tvos => tvos_deployment_target
-    }
-    unit_tests.source_files = [
-      'FirebaseCore/Tests/Unit/**/*.[mh]',
-      'SharedTestUtilities/FIROptionsMock.[mh]',
-    ]
-    unit_tests.requires_app_host = true
-    unit_tests.dependency 'OCMock'
-    unit_tests.resources = 'FirebaseCore/Tests/Unit/Resources/GoogleService-Info.plist'
+
+  # Using environment variable because of the dependency on the unpublished
+  # HeartbeatLoggingTestUtils.
+  if ENV['POD_LIB_LINT_ONLY'] && ENV['POD_LIB_LINT_ONLY'] == '1' then
+    s.test_spec 'unit' do |unit_tests|
+      unit_tests.scheme = { :code_coverage => true }
+      unit_tests.platforms = {
+        :ios => ios_deployment_target,
+        :osx => osx_deployment_target,
+        :tvos => tvos_deployment_target
+      }
+      unit_tests.source_files = [
+        'FirebaseCore/Tests/Unit/**/*.[mh]',
+        'SharedTestUtilities/FIROptionsMock.[mh]',
+      ]
+
+      unit_tests.requires_app_host = true
+      unit_tests.dependency 'OCMock'
+      unit_tests.dependency 'HeartbeatLoggingTestUtils'
+      unit_tests.resources = 'FirebaseCore/Tests/Unit/Resources/GoogleService-Info.plist'
+    end
   end
 
   s.test_spec 'swift-unit' do |swift_unit_tests|
