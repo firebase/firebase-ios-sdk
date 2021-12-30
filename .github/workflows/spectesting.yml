@@ -10,7 +10,7 @@ jobs:
     runs-on: macos-11
     outputs:
       matrix: ${{ steps.check_files.outputs.matrix }}
-      podspecs: ${{ steps.set-matrix.outputs.podspecs }}
+      podspecs: ${{ steps.check_files.outputs.podspecs }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -34,7 +34,7 @@ jobs:
         ./scripts/health_metrics/get_updated_files.sh -p output.json
         echo "::set-output name=matrix::{\"include\":$( cat output.json )}"
         # `podspecs` is to help determine if specs_testing job should be run.
-        echo "::set-output name=podspecs::$( cat output.json)"
+        echo "::set-output name=podspecs::$(cat output.json)"
   specs_testing:
     needs: specs_checking
     if: ${{ needs.specs_checking.outputs.podspecs != '[]' }}
