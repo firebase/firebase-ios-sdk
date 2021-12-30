@@ -317,7 +317,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     // Then
     #if os(tvOS)
       XCTAssertNil(
-        UserDefaults(suiteName: Constants.heartbeatUserDefaultsSuiteName)?
+        UserDefaults(suiteName: HeartbeatLoggingTestUtils.Constants.heartbeatUserDefaultsSuiteName)?
           .object(forKey: "heartbeats-\(id)"),
         "Specified user defaults suite should be empty."
       )
@@ -345,7 +345,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     // Then
     #if os(tvOS)
       XCTAssertNotNil(
-        UserDefaults(suiteName: Constants.heartbeatUserDefaultsSuiteName)?
+        UserDefaults(suiteName: HeartbeatLoggingTestUtils.Constants.heartbeatUserDefaultsSuiteName)?
           .object(forKey: "heartbeats-\(id)"),
         "Data should not be nil."
       )
