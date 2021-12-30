@@ -21,8 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class FIRHeartbeatsPayload;
 
-/// <#Description#>
-/// @param heartbeatsPayload <#heartbeatsPayload description#>
+/// Returns a string header value from a given heartbeats payload.
+/// @param heartbeatsPayload The heartbeats payload.
 NSString *FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *heartbeatsPayload);
 
 /// A thread safe, synchronized object that logs and flushes platform logging info.
