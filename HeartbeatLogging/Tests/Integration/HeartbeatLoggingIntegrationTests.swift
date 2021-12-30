@@ -16,12 +16,6 @@ import XCTest
 @testable import HeartbeatLogging
 import HeartbeatLoggingTestUtils
 
-/// See `Sources/StorageFactory.swift` for details regarding where the module stores client data.
-private enum Constants {
-  static let heartbeatFileStorageDirectoryPath = "google-heartbeat-storage"
-  static let heartbeatUserDefaultsSuiteName = "com.google.heartbeat.storage"
-}
-
 class HeartbeatLoggingIntegrationTests: XCTestCase {
   // 2021-11-01 @ 00:00:00 (EST)
   let date = Date(timeIntervalSince1970: 1_635_739_200)
@@ -331,7 +325,8 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
       let heartbeatsDirectoryURL = FileManager.default
         .applicationSupportDirectory
         .appendingPathComponent(
-          Constants.heartbeatFileStorageDirectoryPath, isDirectory: true
+          HeartbeatLoggingTestUtils.Constants.heartbeatFileStorageDirectoryPath,
+          isDirectory: true
         )
       XCTAssertFalse(
         FileManager.default.fileExists(atPath: heartbeatsDirectoryURL.path),
@@ -358,7 +353,8 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
       let heartbeatsFileURL = FileManager.default
         .applicationSupportDirectory
         .appendingPathComponent(
-          Constants.heartbeatFileStorageDirectoryPath, isDirectory: true
+          HeartbeatLoggingTestUtils.Constants.heartbeatFileStorageDirectoryPath,
+          isDirectory: true
         )
         .appendingPathComponent(
           "heartbeats-\(id)", isDirectory: false

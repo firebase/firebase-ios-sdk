@@ -14,7 +14,7 @@
 
 import Foundation
 
-enum Constants {
+private enum Constants {
   /// The name of the file system directory where heartbeat data is stored.
   static let heartbeatFileStorageDirectoryPath = "google-heartbeat-storage"
   /// The name of the user defaults suite where heartbeat data is stored.

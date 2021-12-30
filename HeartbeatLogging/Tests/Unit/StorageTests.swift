@@ -100,14 +100,7 @@ class UserDefaultsStorageTests: XCTestCase {
   let suiteName = #file
 
   override func setUpWithError() throws {
-    // Clean up suite in case prior test case did not complete.
-    UserDefaults.standard.removePersistentDomain(forName: suiteName)
-
-    defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
-  }
-
-  override func tearDownWithError() throws {
-    defaults.removePersistentDomain(forName: suiteName)
+    defaults = try XCTUnwrap(UserDefaultsFake(suiteName: suiteName))
   }
 
   func testRead_WhenDefaultDoesNotExist_ThrowsError() throws {
@@ -169,5 +162,19 @@ class UserDefaultsStorageTests: XCTestCase {
     XCTAssertNoThrow(try defaultsStorage.write(nil))
     // Then
     XCTAssertThrowsError(try defaultsStorage.read())
+  }
+}
+
+// MARK: - Fakes
+
+private class UserDefaultsFake: UserDefaults {
+  private var defaults = [String: Any]()
+
+  override func object(forKey defaultName: String) -> Any? {
+    defaults[defaultName]
+  }
+
+  override func set(_ value: Any?, forKey defaultName: String) {
+    defaults[defaultName] = value
   }
 }
