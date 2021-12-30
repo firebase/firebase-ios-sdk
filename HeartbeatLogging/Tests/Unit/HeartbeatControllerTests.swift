@@ -14,6 +14,7 @@
 
 import XCTest
 @testable import HeartbeatLogging
+import HeartbeatLoggingTestUtils
 
 class HeartbeatControllerTests: XCTestCase {
   // 2021-11-01 @ 00:00:00 (EST)
@@ -40,7 +41,7 @@ class HeartbeatControllerTests: XCTestCase {
     let heartbeatPayload = controller.flush()
 
     // Then
-    try assertEqualPayloadStrings(
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
       heartbeatPayload.headerValue(),
       """
       {
@@ -86,7 +87,7 @@ class HeartbeatControllerTests: XCTestCase {
     // Then
     let heartbeatPayload = controller.flush()
 
-    try assertEqualPayloadStrings(
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
       heartbeatPayload.headerValue(),
       """
       {
@@ -121,7 +122,7 @@ class HeartbeatControllerTests: XCTestCase {
     // Then
     let heartbeatPayload = controller.flush()
 
-    try assertEqualPayloadStrings(
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
       heartbeatPayload.headerValue(),
       """
       {
@@ -150,7 +151,7 @@ class HeartbeatControllerTests: XCTestCase {
     controller.log("dummy_agent")
 
     // Then
-    try assertEqualPayloadStrings(
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
       heartbeatPayload.headerValue(),
       """
       {
@@ -192,7 +193,7 @@ class HeartbeatControllerTests: XCTestCase {
 
     // Then
     // Note below how the date was intepreted as UTC - 2021-11-02.
-    try assertEqualPayloadStrings(
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
       payload.headerValue(),
       """
       {
@@ -249,7 +250,7 @@ class HeartbeatControllerTests: XCTestCase {
 
     // Then
     let payload = heartbeatController.flush()
-    try assertEqualPayloadStrings(
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
       payload.headerValue(),
       """
       {
@@ -289,7 +290,7 @@ class HeartbeatControllerTests: XCTestCase {
 
     // Then
     let payload = heartbeatController.flush()
-    try assertEqualPayloadStrings(
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
       payload.headerValue(),
       """
       {
@@ -337,7 +338,7 @@ class HeartbeatControllerTests: XCTestCase {
 
     // Then
     let payload = heartbeatController.flushHeartbeatFromToday()
-    try assertEqualPayloadStrings(
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
       payload.headerValue(),
       """
       {
@@ -353,7 +354,7 @@ class HeartbeatControllerTests: XCTestCase {
     )
 
     let remainingPayload = heartbeatController.flush()
-    try assertEqualPayloadStrings(
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
       remainingPayload.headerValue(),
       """
       {
@@ -407,40 +408,6 @@ private class HeartbeatStorageFake: HeartbeatStorageProtocol {
 }
 
 // MARK: - Assertions
-
-func assertEqualPayloadStrings(_ encoded: String, _ literal: String) throws {
-  let encodedData = try XCTUnwrap(Data(base64Encoded: encoded))
-  let literalData = try XCTUnwrap(literal.data(using: .utf8))
-
-  let decoder = JSONDecoder()
-  decoder.dateDecodingStrategy = .formatted(HeartbeatsPayload.dateFormatter)
-
-  let payloadFromEncoded = try? decoder.decode(HeartbeatsPayload.self, from: encodedData)
-
-  let payloadFromLiteral = try? decoder.decode(HeartbeatsPayload.self, from: literalData)
-
-  let encoder = JSONEncoder()
-  encoder.dateEncodingStrategy = .formatted(HeartbeatsPayload.dateFormatter)
-  encoder.outputFormatting = .prettyPrinted
-
-  let payloadDataFromEncoded = try XCTUnwrap(encoder.encode(payloadFromEncoded))
-  let payloadDataFromLiteral = try XCTUnwrap(encoder.encode(payloadFromLiteral))
-
-  XCTAssertEqual(
-    payloadFromEncoded,
-    payloadFromLiteral,
-    """
-    Mismatched payloads!
-
-    Payload 1:
-    \(String(data: payloadDataFromEncoded, encoding: .utf8) ?? "")
-
-    Payload 2:
-    \(String(data: payloadDataFromLiteral, encoding: .utf8) ?? "")
-
-    """
-  )
-}
 
 func assertHeartbeatControllerFlushesEmptyPayload(_ controller: HeartbeatController) {
   XCTAssertEqual(controller.flushHeartbeatFromToday().headerValue(), "")
