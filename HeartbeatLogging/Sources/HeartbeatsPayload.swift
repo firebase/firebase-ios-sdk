@@ -13,7 +13,12 @@
 // limitations under the License.
 
 import Foundation
-import GoogleUtilities
+
+#if SWIFT_PACKAGE
+  import GoogleUtilities_NSData
+#else
+  import GoogleUtilities
+#endif // SWIFT_PACKAGE
 
 /// A type that provides a string representation for use in an HTTP header.
 public protocol HTTPHeaderRepresentable {
