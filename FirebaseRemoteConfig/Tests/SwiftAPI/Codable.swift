@@ -107,9 +107,7 @@ import XCTest
       var myFloat: Float
       var myDecimal: Decimal
       var myTrue: Bool
-      // TODO: The ASCII encoding of RC's data type seems to be problematic for the decoder which expects
-      // to convert Data to String.
-      // var myData: Data
+      var myData: Data
     }
 
     func testExtractConfig() async throws {
@@ -121,7 +119,7 @@ import XCTest
       XCTAssertEqual(myConfig.myTrue, true)
       XCTAssertEqual(myConfig.myFloat, Constants.floatValue)
       XCTAssertEqual(myConfig.myDecimal, Decimal(Constants.decimalValue))
-      // XCTAssertEqual(myConfig.myData, Constants.dataValue.data(using: .utf8))
+      XCTAssertEqual(myConfig.myData, Constants.dataValue.data(using: .utf8))
       XCTAssertEqual(myConfig.Recipe.recipeName, "PB&J")
       XCTAssertEqual(myConfig.Recipe.ingredients, ["bread", "peanut butter", "jelly"])
       XCTAssertEqual(myConfig.Recipe.cookTime, 7)

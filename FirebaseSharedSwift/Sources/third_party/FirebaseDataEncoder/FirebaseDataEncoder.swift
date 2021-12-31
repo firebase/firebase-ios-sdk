@@ -2165,13 +2165,6 @@ extension __JSONDecoder {
     return value
   }
 
-  private func rcValDataAdaptor(_ value: Any) -> Any {
-    if let rcValue = value as? RCValueDecoding {
-      return rcValue.dataValue() as Any
-    }
-    return value
-  }
-
   fileprivate func getNumber(_ value: Any, as type: Any.Type) throws -> NSNumber {
     let val = rcValNumberAdaptor(value)
     guard let number = val as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse else {
@@ -2441,17 +2434,19 @@ extension __JSONDecoder {
   fileprivate func unbox(_ value: Any, as type: Data.Type) throws -> Data? {
     guard !(value is NSNull) else { return nil }
 
-    let val = rcValDataAdaptor(value)
+    if let rcValue = value as? RCValueDecoding {
+      return rcValue.dataValue()
+    }
 
     switch self.options.dataDecodingStrategy {
     case .deferredToData:
-      self.storage.push(container: val)
+      self.storage.push(container: value)
       defer { self.storage.popContainer() }
       return try Data(from: self)
 
     case .base64:
-      guard let string = val as? String else {
-        throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: val)
+      guard let string = value as? String else {
+        throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: value)
       }
 
       guard let data = Data(base64Encoded: string) else {
@@ -2461,7 +2456,7 @@ extension __JSONDecoder {
       return data
 
     case .custom(let closure):
-      self.storage.push(container: val)
+      self.storage.push(container: value)
       defer { self.storage.popContainer() }
       return try closure(self)
     }
