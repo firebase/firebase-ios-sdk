@@ -42,10 +42,20 @@ struct PodspecsTester: ParsableCommand {
     }
   }
 
+  /// Trigger spec test with `spec` under the `workingDir` and return an error
+  /// code and log.
+  ///
+  /// - Parameters:
+  ///   - spec: The podspec name, e.g. FirebaseAnalytics.podspec.json.
+  ///   - workingDir: The dir of the testing spec.
+  ///   - args: A dict including options with its value or/and flags with nil.
+  /// 
+  /// - Returns: A tuple with an error code and log.
   func specTest(spec: String, workingDir: URL,
                 args: [String: String?]) -> (code: Int32, output: String) {
     var exitCode: Int32 = 0
     var logOutput: String = ""
+    // If value is nil, the key will be a flag.
     let arguments = args.map { key, value in
       if let v = value {
         return "--\(key)=\(v)"
