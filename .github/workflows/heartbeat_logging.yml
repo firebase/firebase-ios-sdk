@@ -5,6 +5,7 @@ on:
     paths:
     - 'HeartbeatLogging**'
     - '.github/workflows/heartbeat_logging.yml'
+    - 'Gemfile*'
 
   # TODO(nickcooke): Schedule cron job.
 
