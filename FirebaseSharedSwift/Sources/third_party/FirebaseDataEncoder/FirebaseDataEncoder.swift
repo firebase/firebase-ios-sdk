@@ -1251,9 +1251,15 @@ fileprivate class __JSONDecoder : Decoder {
                                         DecodingError.Context(codingPath: self.codingPath,
                                                               debugDescription: "Cannot get keyed decoding container -- found null value instead."))
     }
-    let storageTopContainer = rcValJSONAdaptor(self.storage.topContainer)
-    guard let topContainer = storageTopContainer as? [String : Any] else {
-      throw DecodingError._typeMismatch(at: self.codingPath, expectation: [String : Any].self, reality: self.storage.topContainer)
+    var topContainer : [String : Any]
+    if let rcValue = self.storage.topContainer as? RCValueDecoding,
+       let top = rcValue.jsonValue() {
+      topContainer = top
+    } else {
+      guard let top = self.storage.topContainer as? [String : Any] else {
+        throw DecodingError._typeMismatch(at: self.codingPath, expectation: [String : Any].self, reality: self.storage.topContainer)
+      }
+      topContainer = top
     }
 
     let container = _JSONKeyedDecodingContainer<Key>(referencing: self, wrapping: topContainer)
@@ -2118,8 +2124,10 @@ extension __JSONDecoder {
   fileprivate func unbox(_ value: Any, as type: Bool.Type) throws -> Bool? {
     guard !(value is NSNull) else { return nil }
 
-    let val = rcValBoolAdaptor(value)
-    if let number = val as? NSNumber {
+    if let rcValue = value as? RCValueDecoding {
+      return rcValue.boolValue()
+    }
+    if let number = value as? NSNumber {
       // TODO: Add a flag to coerce non-boolean numbers into Bools?
       if number === kCFBooleanTrue as NSNumber {
         return true
@@ -2134,33 +2142,12 @@ extension __JSONDecoder {
 
     }
 
-    throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: val)
+    throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: value)
   }
 
   fileprivate func rcValNumberAdaptor(_ value: Any) -> Any {
     if let rcValue = value as? RCValueDecoding {
       return rcValue.numberValue()
-    }
-    return value
-  }
-
-  private func rcValBoolAdaptor(_ value: Any) -> Any {
-    if let rcValue = value as? RCValueDecoding {
-      return rcValue.boolValue()
-    }
-    return value
-  }
-
-  private func rcValStringAdaptor(_ value: Any) -> Any {
-    if let rcValue = value as? RCValueDecoding {
-      return rcValue.stringValue()
-    }
-    return value
-  }
-
-  private func rcValJSONAdaptor(_ value: Any) -> Any {
-    if let rcValue = value as? RCValueDecoding {
-      return rcValue.jsonValue() as Any
     }
     return value
   }
@@ -2379,9 +2366,11 @@ extension __JSONDecoder {
   fileprivate func unbox(_ value: Any, as type: String.Type) throws -> String? {
     guard !(value is NSNull) else { return nil }
 
-    let val = rcValStringAdaptor(value)
-    guard let string = val as? String else {
-      throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: val)
+    if let rcValue = value as? RCValueDecoding {
+      return rcValue.stringValue()
+    }
+    guard let string = value as? String else {
+      throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: value)
     }
 
     return string
