@@ -20,29 +20,31 @@ import FirebaseMessaging
 @main
 
 class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-          FirebaseApp.configure()
-          application.delegate = self
+  func application(_ application: UIApplication,
+                   didFinishLaunchingWithOptions launchOptions: [UIApplication
+                     .LaunchOptionsKey: Any]? = nil) -> Bool {
+    FirebaseApp.configure()
+    application.delegate = self
 
-          let center = UNUserNotificationCenter.current()
-          center.delegate = self
+    let center = UNUserNotificationCenter.current()
+    center.delegate = self
 
-          center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-            if error != nil {
-              print("Failed requesting notification permission: ", error ?? "")
-            }
-          }
-          application.registerForRemoteNotifications()
-        return true
+    center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+      if error != nil {
+        print("Failed requesting notification permission: ", error ?? "")
+      }
     }
+    application.registerForRemoteNotifications()
+    return true
+  }
 }
 
 struct SwiftUISampleApp: App {
   @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-   
+
   var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
+    WindowGroup {
+      ContentView()
     }
+  }
 }

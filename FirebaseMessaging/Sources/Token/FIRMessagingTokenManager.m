@@ -655,7 +655,8 @@
 
   // Re-fetch any invalidated tokens automatically, this time with the current APNs token, so that
   // they are up-to-date.
-  if (invalidatedTokens.count > 0) {
+  // Or this is a fresh install and no apns token stored yet.
+  if (invalidatedTokens.count > 0 || [_tokenStore cachedTokenInfos].count == 0) {
     FIRMessaging_WEAKIFY(self);
 
     [self.installations
@@ -688,6 +689,15 @@
                                             handler:^(NSString *_Nullable token,
                                                       NSError *_Nullable error){
 
+                                            }];
+          }
+          if ([self->_tokenStore cachedTokenInfos].count == 0) {
+            [self fetchNewTokenWithAuthorizedEntity:self.fcmSenderID
+                                              scope:kFIRMessagingDefaultTokenScope
+                                         instanceID:identifier
+                                            options:tokenOptions
+                                            handler:^(NSString *_Nullable FCMToken,
+                                                      NSError *_Nullable error){
                                             }];
           }
         }];
