@@ -244,6 +244,9 @@ let package = Package(
 
     .target(
       name: "HeartbeatLogging",
+      dependencies: [
+        .product(name: "GULNSData", package: "GoogleUtilities"),
+      ],
       path: "HeartbeatLogging/Sources/"
     ),
     .target(
