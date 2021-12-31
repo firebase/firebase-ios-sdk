@@ -29,7 +29,7 @@ jobs:
         # advantage of `include`.
         # https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions#example-including-additional-values-into-combinations
         # The final matrix will be set as an env var in the GHA workflow,
-        # This env var, matrx, will be passed as a matrix in the next job of
+        # This env var, matrix, will be passed as a matrix in the next job of
         # the workflow.
         ./scripts/health_metrics/get_updated_files.sh -p output.json
         echo "::set-output name=matrix::{\"include\":$( cat output.json )}"
