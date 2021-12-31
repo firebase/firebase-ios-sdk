@@ -5,6 +5,7 @@ on:
     paths:
     - 'FirebaseCore**'
     - 'Interop/CoreDiagnostics/Public/*.h'
+    - 'HeartbeatLogging**'
     - '.github/workflows/core.yml'
     - 'Gemfile*'
   schedule:
