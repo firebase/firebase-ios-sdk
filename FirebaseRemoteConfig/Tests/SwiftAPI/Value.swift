@@ -34,7 +34,10 @@ import XCTest
       XCTAssertEqual(config[Constants.intKey].numberValue.uint16Value, UInt16(Constants.intValue))
       XCTAssertEqual(config[Constants.intKey].numberValue.uint32Value, UInt32(Constants.intValue))
       XCTAssertEqual(config[Constants.intKey].numberValue.uint64Value, UInt64(Constants.intValue))
-      XCTAssertEqual(config[Constants.intKey].numberValue.decimalValue, Decimal(Constants.intValue))
+      XCTAssertEqual(
+        config[Constants.floatKey].numberValue.decimalValue,
+        Decimal(Constants.doubleValue)
+      )
       XCTAssertEqual(config[Constants.floatKey].numberValue.floatValue, Constants.floatValue)
       XCTAssertEqual(config[Constants.floatKey].numberValue.doubleValue, Constants.doubleValue)
       XCTAssertEqual(config[Constants.trueKey].boolValue, true)
@@ -63,7 +66,7 @@ import XCTest
       XCTAssertEqual(config[uint16Value: Constants.intKey], UInt16(Constants.intValue))
       XCTAssertEqual(config[uint32Value: Constants.intKey], UInt32(Constants.intValue))
       XCTAssertEqual(config[uint64Value: Constants.intKey], UInt64(Constants.intValue))
-      XCTAssertEqual(config[decimalValue: Constants.intKey], Decimal(Constants.intValue))
+      XCTAssertEqual(config[decimalValue: Constants.floatKey], Decimal(Constants.doubleValue))
       XCTAssertEqual(config[floatValue: Constants.floatKey], Constants.floatValue)
       XCTAssertEqual(config[doubleValue: Constants.floatKey], Constants.doubleValue)
       XCTAssertEqual(config[boolValue: Constants.trueKey], true)

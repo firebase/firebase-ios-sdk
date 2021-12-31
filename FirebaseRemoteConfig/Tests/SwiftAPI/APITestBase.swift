@@ -62,6 +62,7 @@ class APITestBase: XCTestCase {
                             Constants.stringKey: Constants.stringValue,
                             Constants.intKey: String(Constants.intValue),
                             Constants.floatKey: String(Constants.floatValue),
+                            Constants.decimalKey: String(Constants.decimalValue),
                             Constants.trueKey: String(true),
                             Constants.falseKey: String(false)]
     } else {

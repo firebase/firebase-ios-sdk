@@ -104,6 +104,10 @@ import XCTest
       var Recipe: Recipe
       var notJSON: String
       var myInt: Int
+      var myFloat: Float
+      // TODO: Investigate why Decimal doesn't work.
+      // var myDecimal: Decimal
+      var myTrue: Bool
     }
 
     func testExtractConfig() async throws {
@@ -112,6 +116,9 @@ import XCTest
       let myConfig: MyConfig = try config.decoded()
       XCTAssertEqual(myConfig.notJSON, Constants.nonJsonValue)
       XCTAssertEqual(myConfig.myInt, Constants.intValue)
+      XCTAssertEqual(myConfig.myTrue, true)
+      XCTAssertEqual(myConfig.myFloat, Constants.floatValue)
+      // XCTAssertEqual(myConfig.myDecimal, Decimal(Constants.doubleValue))
       XCTAssertEqual(myConfig.Recipe.recipeName, "PB&J")
       XCTAssertEqual(myConfig.Recipe.ingredients, ["bread", "peanut butter", "jelly"])
       XCTAssertEqual(myConfig.Recipe.cookTime, 7)

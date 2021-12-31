@@ -21,8 +21,17 @@ import FirebaseSharedSwift
 struct RCValueDecoderHelper: RCValueDecoding {
   let value: RemoteConfigValue
 
-  func intValue() -> Int {
-    return value.numberValue.intValue
+  /// Return maximally sized int. The decoder will cast to a smaller type.
+  func intValue() -> Int64 {
+    return value.numberValue.int64Value
+  }
+
+  func doubleValue() -> Double {
+    return value.numberValue.doubleValue
+  }
+
+  func boolValue() -> Bool {
+    return value.boolValue
   }
 
   func stringValue() -> String {

@@ -13,7 +13,9 @@
 // limitations under the License.
 
 public protocol RCValueDecoding {
-  func intValue() -> Int
+  func intValue() -> Int64
+  func doubleValue() -> Double
+  func boolValue() -> Bool
   func stringValue() -> String
   func jsonValue() -> [String: AnyHashable]?
 }

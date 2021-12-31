@@ -1382,6 +1382,41 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     }
   }
 
+  private func rcValBoolAdaptor(_ value: Any) -> Any {
+    if let rcValue = value as? RCValueDecoding {
+      return rcValue.boolValue()
+    }
+    return value
+  }
+
+  private func rcValIntAdaptor(_ value: Any) -> Any {
+    if let rcValue = value as? RCValueDecoding {
+      return rcValue.intValue()
+    }
+    return value
+  }
+
+  private func rcValDoubleAdaptor(_ value: Any) -> Any {
+    if let rcValue = value as? RCValueDecoding {
+      return rcValue.doubleValue()
+    }
+    return value
+  }
+
+  private func rcValStringAdaptor(_ value: Any) -> Any {
+    if let rcValue = value as? RCValueDecoding {
+      return rcValue.stringValue()
+    }
+    return value
+  }
+
+  private func rcValJSONAdaptor(_ value: Any) -> Any {
+    if let rcValue = value as? RCValueDecoding {
+      return rcValue.jsonValue() as Any
+    }
+    return value
+  }
+
   public func decodeNil(forKey key: Key) throws -> Bool {
     guard let entry = self.container[key.stringValue] else {
       throw DecodingError.keyNotFound(key, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "No value associated with key \(_errorDescription(of: key))."))
@@ -1398,7 +1433,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: Bool.self) else {
+    guard let value = try self.decoder.unbox(rcValBoolAdaptor(entry), as: Bool.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1413,11 +1448,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    var val = entry
-    if let rcValue = entry as? RCValueDecoding {
-      val = rcValue.intValue()
-    }
-    guard let value = try self.decoder.unbox(val, as: Int.self) else {
+    guard let value = try self.decoder.unbox(rcValIntAdaptor(entry), as: Int.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1432,7 +1463,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: Int8.self) else {
+    guard let value = try self.decoder.unbox(rcValIntAdaptor(entry), as: Int8.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1447,7 +1478,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: Int16.self) else {
+    guard let value = try self.decoder.unbox(rcValIntAdaptor(entry), as: Int16.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1462,7 +1493,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: Int32.self) else {
+    guard let value = try self.decoder.unbox(rcValIntAdaptor(entry), as: Int32.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1477,7 +1508,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: Int64.self) else {
+    guard let value = try self.decoder.unbox(rcValIntAdaptor(entry), as: Int64.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1492,7 +1523,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: UInt.self) else {
+    guard let value = try self.decoder.unbox(rcValIntAdaptor(entry), as: UInt.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1507,7 +1538,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: UInt8.self) else {
+    guard let value = try self.decoder.unbox(rcValIntAdaptor(entry), as: UInt8.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1522,7 +1553,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: UInt16.self) else {
+    guard let value = try self.decoder.unbox(rcValIntAdaptor(entry), as: UInt16.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1537,7 +1568,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: UInt32.self) else {
+    guard let value = try self.decoder.unbox(rcValIntAdaptor(entry), as: UInt32.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1552,7 +1583,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: UInt64.self) else {
+    guard let value = try self.decoder.unbox(rcValIntAdaptor(entry), as: UInt64.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1567,7 +1598,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: Float.self) else {
+    guard let value = try self.decoder.unbox(rcValDoubleAdaptor(entry), as: Float.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1582,7 +1613,23 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: Double.self) else {
+    guard let value = try self.decoder.unbox(rcValDoubleAdaptor(entry), as: Double.self) else {
+      throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
+    }
+
+    return value
+  }
+
+  // TODO: Investigate why Decimal decode doesn't get called.
+  public func decode(_ type: Decimal.Type, forKey key: Key) throws -> Decimal {
+    guard let entry = self.container[key.stringValue] else {
+      throw DecodingError.keyNotFound(key, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "No value associated with key \(_errorDescription(of: key))."))
+    }
+
+    self.decoder.codingPath.append(key)
+    defer { self.decoder.codingPath.removeLast() }
+
+    guard let value = try self.decoder.unbox(rcValDoubleAdaptor(entry), as: Decimal.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1597,11 +1644,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    var val = entry
-    if let rcValue = entry as? RCValueDecoding {
-      val = rcValue.stringValue()
-    }
-    guard let value = try self.decoder.unbox(val, as: String.self) else {
+    guard let value = try self.decoder.unbox(rcValStringAdaptor(entry), as: String.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1616,11 +1659,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    var val = entry
-    if let rcValue = entry as? RCValueDecoding {
-      val = rcValue.jsonValue() as Any
-    }
-    guard let value = try self.decoder.unbox(val, as: type) else {
+    guard let value = try self.decoder.unbox(rcValJSONAdaptor(entry), as: type) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 

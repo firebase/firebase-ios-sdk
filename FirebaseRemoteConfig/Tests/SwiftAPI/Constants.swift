@@ -29,6 +29,8 @@ enum Constants {
   static let floatKey = "myFloat"
   static let floatValue = 42.75 as Float
   static let doubleValue = 42.75
+  static let decimalKey = "myDecimal"
+  static let decimalValue = 375.785
   static let trueKey = "myTrue"
   static let falseKey = "myFalse"
   static let jsonKey = "Recipe"
