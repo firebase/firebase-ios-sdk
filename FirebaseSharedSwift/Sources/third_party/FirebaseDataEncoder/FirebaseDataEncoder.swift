@@ -1251,8 +1251,8 @@ fileprivate class __JSONDecoder : Decoder {
                                         DecodingError.Context(codingPath: self.codingPath,
                                                               debugDescription: "Cannot get keyed decoding container -- found null value instead."))
     }
-
-    guard let topContainer = self.storage.topContainer as? [String : Any] else {
+    let storageTopContainer = rcValJSONAdaptor(self.storage.topContainer)
+    guard let topContainer = storageTopContainer as? [String : Any] else {
       throw DecodingError._typeMismatch(at: self.codingPath, expectation: [String : Any].self, reality: self.storage.topContainer)
     }
 
@@ -1382,41 +1382,6 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     }
   }
 
-  private func rcValBoolAdaptor(_ value: Any) -> Any {
-    if let rcValue = value as? RCValueDecoding {
-      return rcValue.boolValue()
-    }
-    return value
-  }
-
-  private func rcValIntAdaptor(_ value: Any) -> Any {
-    if let rcValue = value as? RCValueDecoding {
-      return rcValue.intValue()
-    }
-    return value
-  }
-
-  private func rcValDoubleAdaptor(_ value: Any) -> Any {
-    if let rcValue = value as? RCValueDecoding {
-      return rcValue.doubleValue()
-    }
-    return value
-  }
-
-  private func rcValStringAdaptor(_ value: Any) -> Any {
-    if let rcValue = value as? RCValueDecoding {
-      return rcValue.stringValue()
-    }
-    return value
-  }
-
-  private func rcValJSONAdaptor(_ value: Any) -> Any {
-    if let rcValue = value as? RCValueDecoding {
-      return rcValue.jsonValue() as Any
-    }
-    return value
-  }
-
   public func decodeNil(forKey key: Key) throws -> Bool {
     guard let entry = self.container[key.stringValue] else {
       throw DecodingError.keyNotFound(key, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "No value associated with key \(_errorDescription(of: key))."))
@@ -1433,7 +1398,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(rcValBoolAdaptor(entry), as: Bool.self) else {
+    guard let value = try self.decoder.unbox(entry, as: Bool.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1448,7 +1413,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(rcValIntAdaptor(entry), as: Int.self) else {
+    guard let value = try self.decoder.unbox(entry, as: Int.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1463,7 +1428,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(rcValIntAdaptor(entry), as: Int8.self) else {
+    guard let value = try self.decoder.unbox(entry, as: Int8.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1478,7 +1443,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(rcValIntAdaptor(entry), as: Int16.self) else {
+    guard let value = try self.decoder.unbox(entry, as: Int16.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1493,7 +1458,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(rcValIntAdaptor(entry), as: Int32.self) else {
+    guard let value = try self.decoder.unbox(entry, as: Int32.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1508,7 +1473,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(rcValIntAdaptor(entry), as: Int64.self) else {
+    guard let value = try self.decoder.unbox(entry, as: Int64.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1523,7 +1488,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(rcValIntAdaptor(entry), as: UInt.self) else {
+    guard let value = try self.decoder.unbox(entry, as: UInt.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1538,7 +1503,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(rcValIntAdaptor(entry), as: UInt8.self) else {
+    guard let value = try self.decoder.unbox(entry, as: UInt8.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1553,7 +1518,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(rcValIntAdaptor(entry), as: UInt16.self) else {
+    guard let value = try self.decoder.unbox(entry, as: UInt16.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1568,7 +1533,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(rcValIntAdaptor(entry), as: UInt32.self) else {
+    guard let value = try self.decoder.unbox(entry, as: UInt32.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1583,7 +1548,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(rcValIntAdaptor(entry), as: UInt64.self) else {
+    guard let value = try self.decoder.unbox(entry, as: UInt64.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1598,7 +1563,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(rcValDoubleAdaptor(entry), as: Float.self) else {
+    guard let value = try self.decoder.unbox(entry, as: Float.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1613,23 +1578,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(rcValDoubleAdaptor(entry), as: Double.self) else {
-      throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
-    }
-
-    return value
-  }
-
-  // TODO: Investigate why Decimal decode doesn't get called.
-  public func decode(_ type: Decimal.Type, forKey key: Key) throws -> Decimal {
-    guard let entry = self.container[key.stringValue] else {
-      throw DecodingError.keyNotFound(key, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "No value associated with key \(_errorDescription(of: key))."))
-    }
-
-    self.decoder.codingPath.append(key)
-    defer { self.decoder.codingPath.removeLast() }
-
-    guard let value = try self.decoder.unbox(rcValDoubleAdaptor(entry), as: Decimal.self) else {
+    guard let value = try self.decoder.unbox(entry, as: Double.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1644,7 +1593,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(rcValStringAdaptor(entry), as: String.self) else {
+    guard let value = try self.decoder.unbox(entry, as: String.self) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -1659,7 +1608,7 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
     self.decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(rcValJSONAdaptor(entry), as: type) else {
+    guard let value = try self.decoder.unbox(entry, as: type) else {
       throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "Expected \(type) value but found null instead."))
     }
 
@@ -2169,7 +2118,8 @@ extension __JSONDecoder {
   fileprivate func unbox(_ value: Any, as type: Bool.Type) throws -> Bool? {
     guard !(value is NSNull) else { return nil }
 
-    if let number = value as? NSNumber {
+    let val = rcValBoolAdaptor(value)
+    if let number = val as? NSNumber {
       // TODO: Add a flag to coerce non-boolean numbers into Bools?
       if number === kCFBooleanTrue as NSNumber {
         return true
@@ -2184,16 +2134,56 @@ extension __JSONDecoder {
 
     }
 
-    throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: value)
+    throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: val)
+  }
+
+  fileprivate func rcValNumberAdaptor(_ value: Any) -> Any {
+    if let rcValue = value as? RCValueDecoding {
+      return rcValue.numberValue()
+    }
+    return value
+  }
+
+  private func rcValBoolAdaptor(_ value: Any) -> Any {
+    if let rcValue = value as? RCValueDecoding {
+      return rcValue.boolValue()
+    }
+    return value
+  }
+
+  private func rcValStringAdaptor(_ value: Any) -> Any {
+    if let rcValue = value as? RCValueDecoding {
+      return rcValue.stringValue()
+    }
+    return value
+  }
+
+  private func rcValJSONAdaptor(_ value: Any) -> Any {
+    if let rcValue = value as? RCValueDecoding {
+      return rcValue.jsonValue() as Any
+    }
+    return value
+  }
+
+  private func rcValDataAdaptor(_ value: Any) -> Any {
+    if let rcValue = value as? RCValueDecoding {
+      return rcValue.dataValue() as Any
+    }
+    return value
+  }
+
+  fileprivate func getNumber(_ value: Any, as type: Any.Type) throws -> NSNumber {
+    let val = rcValNumberAdaptor(value)
+    guard let number = val as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse else {
+      throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: val)
+    }
+    return number
   }
 
   fileprivate func unbox(_ value: Any, as type: Int.Type) throws -> Int? {
     guard !(value is NSNull) else { return nil }
 
-    guard let number = value as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse else {
-      throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: value)
-    }
-
+    let number = try getNumber(value, as: type)
     let int = number.intValue
     guard NSNumber(value: int) == number else {
       throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: self.codingPath, debugDescription: "Parsed JSON number <\(number)> does not fit in \(type)."))
@@ -2205,10 +2195,7 @@ extension __JSONDecoder {
   fileprivate func unbox(_ value: Any, as type: Int8.Type) throws -> Int8? {
     guard !(value is NSNull) else { return nil }
 
-    guard let number = value as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse else {
-      throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: value)
-    }
-
+    let number = try getNumber(value, as: type)
     let int8 = number.int8Value
     guard NSNumber(value: int8) == number else {
       throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: self.codingPath, debugDescription: "Parsed JSON number <\(number)> does not fit in \(type)."))
@@ -2220,10 +2207,7 @@ extension __JSONDecoder {
   fileprivate func unbox(_ value: Any, as type: Int16.Type) throws -> Int16? {
     guard !(value is NSNull) else { return nil }
 
-    guard let number = value as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse else {
-      throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: value)
-    }
-
+    let number = try getNumber(value, as: type)
     let int16 = number.int16Value
     guard NSNumber(value: int16) == number else {
       throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: self.codingPath, debugDescription: "Parsed JSON number <\(number)> does not fit in \(type)."))
@@ -2235,10 +2219,7 @@ extension __JSONDecoder {
   fileprivate func unbox(_ value: Any, as type: Int32.Type) throws -> Int32? {
     guard !(value is NSNull) else { return nil }
 
-    guard let number = value as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse else {
-      throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: value)
-    }
-
+    let number = try getNumber(value, as: type)
     let int32 = number.int32Value
     guard NSNumber(value: int32) == number else {
       throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: self.codingPath, debugDescription: "Parsed JSON number <\(number)> does not fit in \(type)."))
@@ -2250,10 +2231,7 @@ extension __JSONDecoder {
   fileprivate func unbox(_ value: Any, as type: Int64.Type) throws -> Int64? {
     guard !(value is NSNull) else { return nil }
 
-    guard let number = value as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse else {
-      throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: value)
-    }
-
+    let number = try getNumber(value, as: type)
     let int64 = number.int64Value
     guard NSNumber(value: int64) == number else {
       throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: self.codingPath, debugDescription: "Parsed JSON number <\(number)> does not fit in \(type)."))
@@ -2265,10 +2243,7 @@ extension __JSONDecoder {
   fileprivate func unbox(_ value: Any, as type: UInt.Type) throws -> UInt? {
     guard !(value is NSNull) else { return nil }
 
-    guard let number = value as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse else {
-      throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: value)
-    }
-
+    let number = try getNumber(value, as: type)
     let uint = number.uintValue
     guard NSNumber(value: uint) == number else {
       throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: self.codingPath, debugDescription: "Parsed JSON number <\(number)> does not fit in \(type)."))
@@ -2280,10 +2255,7 @@ extension __JSONDecoder {
   fileprivate func unbox(_ value: Any, as type: UInt8.Type) throws -> UInt8? {
     guard !(value is NSNull) else { return nil }
 
-    guard let number = value as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse else {
-      throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: value)
-    }
-
+    let number = try getNumber(value, as: type)
     let uint8 = number.uint8Value
     guard NSNumber(value: uint8) == number else {
       throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: self.codingPath, debugDescription: "Parsed JSON number <\(number)> does not fit in \(type)."))
@@ -2295,10 +2267,7 @@ extension __JSONDecoder {
   fileprivate func unbox(_ value: Any, as type: UInt16.Type) throws -> UInt16? {
     guard !(value is NSNull) else { return nil }
 
-    guard let number = value as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse else {
-      throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: value)
-    }
-
+    let number = try getNumber(value, as: type)
     let uint16 = number.uint16Value
     guard NSNumber(value: uint16) == number else {
       throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: self.codingPath, debugDescription: "Parsed JSON number <\(number)> does not fit in \(type)."))
@@ -2310,10 +2279,7 @@ extension __JSONDecoder {
   fileprivate func unbox(_ value: Any, as type: UInt32.Type) throws -> UInt32? {
     guard !(value is NSNull) else { return nil }
 
-    guard let number = value as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse else {
-      throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: value)
-    }
-
+    let number = try getNumber(value, as: type)
     let uint32 = number.uint32Value
     guard NSNumber(value: uint32) == number else {
       throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: self.codingPath, debugDescription: "Parsed JSON number <\(number)> does not fit in \(type)."))
@@ -2325,10 +2291,7 @@ extension __JSONDecoder {
   fileprivate func unbox(_ value: Any, as type: UInt64.Type) throws -> UInt64? {
     guard !(value is NSNull) else { return nil }
 
-    guard let number = value as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse else {
-      throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: value)
-    }
-
+    let number = try getNumber(value, as: type)
     let uint64 = number.uint64Value
     guard NSNumber(value: uint64) == number else {
       throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: self.codingPath, debugDescription: "Parsed JSON number <\(number)> does not fit in \(type)."))
@@ -2340,7 +2303,8 @@ extension __JSONDecoder {
   fileprivate func unbox(_ value: Any, as type: Float.Type) throws -> Float? {
     guard !(value is NSNull) else { return nil }
 
-    if let number = value as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse {
+    let val = rcValNumberAdaptor(value)
+    if let number = val as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse {
       // We are willing to return a Float by losing precision:
       // * If the original value was integral,
       //   * and the integral value was > Float.greatestFiniteMagnitude, we will fail
@@ -2369,7 +2333,7 @@ extension __JSONDecoder {
        overflow = true
        */
 
-    } else if let string = value as? String,
+    } else if let string = val as? String,
               case .convertFromString(let posInfString, let negInfString, let nanString) = self.options.nonConformingFloatDecodingStrategy {
       if string == posInfString {
         return Float.infinity
@@ -2386,7 +2350,8 @@ extension __JSONDecoder {
   fileprivate func unbox(_ value: Any, as type: Double.Type) throws -> Double? {
     guard !(value is NSNull) else { return nil }
 
-    if let number = value as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse {
+    let val = rcValNumberAdaptor(value)
+    if let number = val as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse {
       // We are always willing to return the number as a Double:
       // * If the original value was integral, it is guaranteed to fit in a Double; we are willing to lose precision past 2^53 if you encoded a UInt64 but requested a Double
       // * If it was a Float or Double, you will get back the precise value
@@ -2404,7 +2369,7 @@ extension __JSONDecoder {
        overflow = true
        */
 
-    } else if let string = value as? String,
+    } else if let string = val as? String,
               case .convertFromString(let posInfString, let negInfString, let nanString) = self.options.nonConformingFloatDecodingStrategy {
       if string == posInfString {
         return Double.infinity
@@ -2421,8 +2386,9 @@ extension __JSONDecoder {
   fileprivate func unbox(_ value: Any, as type: String.Type) throws -> String? {
     guard !(value is NSNull) else { return nil }
 
-    guard let string = value as? String else {
-      throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: value)
+    let val = rcValStringAdaptor(value)
+    guard let string = val as? String else {
+      throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: val)
     }
 
     return string
@@ -2475,15 +2441,17 @@ extension __JSONDecoder {
   fileprivate func unbox(_ value: Any, as type: Data.Type) throws -> Data? {
     guard !(value is NSNull) else { return nil }
 
+    let val = rcValDataAdaptor(value)
+
     switch self.options.dataDecodingStrategy {
     case .deferredToData:
-      self.storage.push(container: value)
+      self.storage.push(container: val)
       defer { self.storage.popContainer() }
       return try Data(from: self)
 
     case .base64:
-      guard let string = value as? String else {
-        throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: value)
+      guard let string = val as? String else {
+        throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: val)
       }
 
       guard let data = Data(base64Encoded: string) else {
@@ -2493,7 +2461,7 @@ extension __JSONDecoder {
       return data
 
     case .custom(let closure):
-      self.storage.push(container: value)
+      self.storage.push(container: val)
       defer { self.storage.popContainer() }
       return try closure(self)
     }
@@ -2502,11 +2470,13 @@ extension __JSONDecoder {
   fileprivate func unbox(_ value: Any, as type: Decimal.Type) throws -> Decimal? {
     guard !(value is NSNull) else { return nil }
 
+    let val = rcValNumberAdaptor(value)
+
     // Attempt to bridge from NSDecimalNumber.
-    if let decimal = value as? Decimal {
+    if let decimal = val as? Decimal {
       return decimal
     } else {
-      let doubleValue = try self.unbox(value, as: Double.self)!
+      let doubleValue = try self.unbox(val, as: Double.self)!
       return Decimal(doubleValue)
     }
   }

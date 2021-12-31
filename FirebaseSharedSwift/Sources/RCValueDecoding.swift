@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
 public protocol RCValueDecoding {
-  func intValue() -> Int64
-  func doubleValue() -> Double
+  func numberValue() -> NSNumber
   func boolValue() -> Bool
   func stringValue() -> String
+  func dataValue() -> Data
   func jsonValue() -> [String: AnyHashable]?
 }

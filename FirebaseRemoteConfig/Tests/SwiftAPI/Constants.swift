@@ -33,6 +33,8 @@ enum Constants {
   static let decimalValue = 375.785
   static let trueKey = "myTrue"
   static let falseKey = "myFalse"
+  static let dataKey = "myData"
+  static let dataValue = "data"
   static let jsonKey = "Recipe"
   static let jsonValue = ["recipeName": "PB&J",
                           "ingredients": ["bread", "peanut butter", "jelly"],

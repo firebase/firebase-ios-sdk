@@ -64,7 +64,8 @@ class APITestBase: XCTestCase {
                             Constants.floatKey: String(Constants.floatValue),
                             Constants.decimalKey: String(Constants.decimalValue),
                             Constants.trueKey: String(true),
-                            Constants.falseKey: String(false)]
+                            Constants.falseKey: String(false),
+                            Constants.dataKey: Constants.dataValue]
     } else {
       console = RemoteConfigConsole()
       console.updateRemoteConfigValue(Constants.obiwan, forKey: Constants.jedi)
