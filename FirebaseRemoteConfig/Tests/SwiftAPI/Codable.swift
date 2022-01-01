@@ -64,8 +64,10 @@ import XCTest
       let status = try await config.fetchAndActivate()
       XCTAssertEqual(status, .successFetchedFromRemote)
       do {
-        _ = try config[Constants.nonJsonKey].decoded(asType: String?.self)
-      } catch RemoteConfigCodableError.jsonValueError {
+        _ = try config[Constants.nonJsonKey].decoded(asType: Recipe.self)
+      } catch let DecodingError.typeMismatch(_, context) {
+        XCTAssertEqual(context.debugDescription,
+                       "Expected to decode Dictionary<String, Any> but found RCValueDecoderHelper instead.")
         return
       }
       XCTFail("Failed to catch trying to decode non-JSON key as JSON")

@@ -18,10 +18,6 @@ import Foundation
 import FirebaseRemoteConfig
 import FirebaseSharedSwift
 
-public enum RemoteConfigCodableError: Error {
-  case jsonValueError
-}
-
 public extension RemoteConfigValue {
   /// Extracts a RemoteConfigValue JSON-encoded object and decodes it to the requested type
   ///
@@ -30,10 +26,7 @@ public extension RemoteConfigValue {
   func decoded<Value: Decodable>(asType: Value.Type = Value.self,
                                  decoder: FirebaseDataDecoder = FirebaseDataDecoder()) throws
     -> Value {
-    guard let jsonValue = self.jsonValue else {
-      throw RemoteConfigCodableError.jsonValueError
-    }
-    return try decoder.decode(Value.self, from: jsonValue)
+    return try decoder.decode(Value.self, from: RCValueDecoderHelper(value: self))
   }
 }
 
