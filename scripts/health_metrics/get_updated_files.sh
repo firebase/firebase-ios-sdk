@@ -40,8 +40,8 @@ cd scripts/health_metrics/generate_code_coverage_report
 git diff --name-only remotes/origin/${GITHUB_BASE_REF} ${GITHUB_SHA} > updated_files.txt
 
 if [ -z $spec_output_file] ; then
-swift run UpdatedFilesCollector --changed-file-paths updated_files.txt --code-coverage-file-patterns ../code_coverage_file_list.json
+  swift run UpdatedFilesCollector --changed-file-paths updated_files.txt --code-coverage-file-patterns ../code_coverage_file_list.json
 else
-swift run UpdatedFilesCollector --changed-file-paths updated_files.txt --code-coverage-file-patterns ../code_coverage_file_list.json --output-sdk-file-url "${spec_output_file}"
-mv "${spec_output_file}" "${dir}"
+  swift run UpdatedFilesCollector --changed-file-paths updated_files.txt --code-coverage-file-patterns ../code_coverage_file_list.json --output-sdk-file-url "${spec_output_file}"
+  mv "${spec_output_file}" "${dir}"
 fi
