@@ -19,7 +19,16 @@ import Foundation
 
 struct SDKFilePattern: Codable {
   let sdk: String
+  let podspecs: [String]
   let filePatterns: [String]
+}
+
+/// SDKPodspec is to help generate an array of podspec in json file, e.g.
+/// ``` output.json
+/// [{"podspec":"FirebaseABTesting.podspec"},{"podspec":"FirebaseAnalytics.podspec.json"}]
+/// ```
+struct SDKPodspec: Codable {
+  let podspec: String
 }
 
 struct UpdatedFilesCollector: ParsableCommand {
@@ -39,7 +48,16 @@ struct UpdatedFilesCollector: ParsableCommand {
           })
   var codeCoverageFilePatterns: [SDKFilePattern]
 
+  @Option(help: "A output file with all Podspecs with related changed files",
+          transform: { str in
+            print(FileManager.default.currentDirectoryPath)
+            let documentDir = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+            return documentDir.appendingPathComponent(str)
+          })
+  var outputSDKFileURL: URL?
+
   func run() throws {
+    var podspecsWithChangedFiles: [SDKPodspec] = []
     print("=============== list changed files ===============")
     print(changedFilePaths.joined(separator: "\n"))
     // Initiate all run_job flag to false.
@@ -59,6 +77,9 @@ struct UpdatedFilesCollector: ParsableCommand {
           if regex.firstMatch(in: changedFilePath, options: [], range: range) != nil {
             print("=============== paths of changed files ===============")
             print("::set-output name=\(sdkPatterns.sdk)_run_job::true")
+            for podspec in sdkPatterns.podspecs {
+              podspecsWithChangedFiles.append(SDKPodspec(podspec: podspec))
+            }
             print("\(sdkPatterns.sdk): \(changedFilePath) is updated under the pattern, \(pattern)")
             trigger_pod_test_for_coverage_report = true
             // Once this sdk run_job flag is turned to true, then the loop
@@ -68,6 +89,23 @@ struct UpdatedFilesCollector: ParsableCommand {
           if trigger_pod_test_for_coverage_report { break }
         }
         if trigger_pod_test_for_coverage_report { break }
+      }
+    }
+    if let outputPath = outputSDKFileURL {
+      do {
+        // Instead of directly writing Data to a file, trasnferring Data to
+        // String can help trimming whitespaces and newlines in advance.
+        let str = try String(
+          decoding: JSONEncoder().encode(podspecsWithChangedFiles),
+          as: UTF8.self
+        )
+        try str.trimmingCharacters(in: .whitespacesAndNewlines).write(
+          to: outputPath,
+          atomically: true,
+          encoding: String.Encoding.utf8
+        )
+      } catch {
+        fatalError("Error while writting in \(outputPath.path).\n\(error)")
       }
     }
   }
