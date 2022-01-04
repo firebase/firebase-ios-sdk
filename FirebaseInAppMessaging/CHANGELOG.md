@@ -1,4 +1,4 @@
-# 2021-12 -- v8.12.0
+# 2022-01 -- v8.12.0
 - [fixed] Duplicate messages can occur when two campaigns are triggered by different events in In-App Messaging (#9070).
 
 # 2021-12 -- v8.11.0
