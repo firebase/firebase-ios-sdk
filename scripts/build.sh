@@ -648,7 +648,6 @@ case "$product-$platform-$method" in
       -workspace 'FirebasePerformance/Tests/FIRPerfE2E/FIRPerfE2E.xcworkspace' \
       -scheme "FIRPerfE2EAutopush" \
       FPR_AUTOPUSH_ENV=1 \
-      "${ios_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
       test
@@ -657,7 +656,6 @@ case "$product-$platform-$method" in
     RunXcodebuild \
       -workspace 'FirebasePerformance/Tests/FIRPerfE2E/FIRPerfE2E.xcworkspace' \
       -scheme "FIRPerfE2EProd" \
-      "${ios_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
       test
