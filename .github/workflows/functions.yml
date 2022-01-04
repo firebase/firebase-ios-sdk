@@ -145,17 +145,3 @@ jobs:
       run: |
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb \
           FirebaseFunctions.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
-
-  podspec-presubmit:
-    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event.pull_request.merged != true && github.event.action != 'closed'
-    runs-on: macos-11
-    strategy:
-      matrix:
-        target: [ios, tvos, macos, watchos]
-        podspec: [ 'FirebaseFunctions.podspec', 'FirebaseFunctionsSwift.podspec']
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Build and test
-      run: scripts/third_party/travis/retry.sh pod spec lint ${{ matrix.podspec }} --skip-tests --sources='https://github.com/firebase/SpecsTesting','https://github.com/firebase/SpecsDev.git','https://github.com/firebase/SpecsStaging.git','https://cdn.cocoapods.org/'
