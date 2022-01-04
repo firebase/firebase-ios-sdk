@@ -95,8 +95,8 @@ Timestamp DecodeTimestamp(JsonReader& reader, const json& version) {
     }
   } else {
     decoded = TimestampInternal::FromUntrustedSecondsAndNanos(
-        reader.RequiredInt<int64_t>("seconds", version),
-        reader.RequiredInt<int32_t>("nanos", version));
+        reader.OptionalInt<int64_t>("seconds", version, 0),
+        reader.OptionalInt<int32_t>("nanos", version, 0));
   }
 
   if (!decoded.ok()) {

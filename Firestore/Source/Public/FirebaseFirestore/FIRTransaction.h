@@ -80,7 +80,8 @@ NS_SWIFT_NAME(Transaction)
  * @param document A reference to the document whose data should be overwritten.
  * @param mergeFields An `NSArray` that contains a list of `NSString` or `FIRFieldPath` elements
  * specifying which fields to merge. Fields can contain dots to reference nested fields within
- * the document. If your input sets any field to an empty dictionary, any nested field is overwritten.
+ * the document. If your input sets any field to an empty dictionary, any nested field is
+ * overwritten.
  * @return This `FIRTransaction` instance. Used for chaining method calls.
  */
 // clang-format off
