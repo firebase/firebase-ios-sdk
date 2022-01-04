@@ -1,6 +1,6 @@
 # Remote Config Console API
 
-[`RemoteConfigConsole.swift`](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseRemoteConfig/Tests/SwiftAPI/RemoteConfigConsole.swift)
+[`RemoteConfigConsole.swift`](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseRemoteConfigSwift/Tests/SwiftAPI/RemoteConfigConsole.swift)
 provides a simple API for interacting with an app's Remote Config on the
 Firebase console.
 
@@ -12,7 +12,7 @@ then download a private key by clicking the blue button that says "Generate new 
 Rename it `ServiceAccount.json`.
 3. Within the `firebase-ios-sdk`, run:
 ```bash
-./scripts/generate_access_token.sh local_dev PATH/TO/ServiceAccount.json FirebaseRemoteConfig/Tests/SwiftAPI/AccessToken.json
+./scripts/generate_access_token.sh local_dev PATH/TO/ServiceAccount.json FirebaseRemoteConfigSwift/Tests/SwiftAPI/AccessToken.json
 ```
 4. Generate the `FirebaseRemoteConfig` project:
 ```bash
@@ -49,6 +49,6 @@ Firebase project's service account key is stored. This is set in the
 script.
 
 ### Remote Config API Tests
-There is a [section](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift#L210)
-of tests in [`APITests.swift`](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseRemoteConfig/Tests/SwiftAPI/APITests.swift)
+There is a [section](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseRemoteConfigSwift/Tests/SwiftAPI/APITests.swift#L210)
+of tests in [`APITests.swift`](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseRemoteConfigSwift/Tests/SwiftAPI/APITests.swift)
 showcasing the  `RemoteConfigConsole` in action.

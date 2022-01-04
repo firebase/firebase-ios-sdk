@@ -32,11 +32,11 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/RemoteConfigSwiftAPI/GoogleService-Info.plist.gpg \
-          FirebaseRemoteConfig/Tests/SwiftAPI/GoogleService-Info.plist "$plist_secret"
+          FirebaseRemoteConfigSwift/Tests/SwiftAPI/GoogleService-Info.plist "$plist_secret"
     - name: Generate Access Token for RemoteConfigConsoleAPI in IntegrationTests
       if: matrix.target == 'iOS'
       run: ([ -z $plist_secret ] || scripts/generate_access_token.sh "$plist_secret" scripts/gha-encrypted/RemoteConfigSwiftAPI/ServiceAccount.json.gpg
-          FirebaseRemoteConfig/Tests/SwiftAPI/AccessToken.json)
+          FirebaseRemoteConfigSwift/Tests/SwiftAPI/AccessToken.json)
     - name: Fake Console API Tests
       run: scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig iOS fakeconsole
     - name: IntegrationTest

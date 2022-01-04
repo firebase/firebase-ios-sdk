@@ -50,12 +50,12 @@ app update.
       :osx => osx_deployment_target,
       :tvos => tvos_deployment_target
     }
-    swift_api.source_files = 'FirebaseRemoteConfig/Tests/SwiftAPI/*.swift',
-                             'FirebaseRemoteConfig/Tests/FakeUtils/*.[hm]',
-                             'FirebaseRemoteConfig/Tests/FakeUtils/*.swift'
+    swift_api.source_files = 'FirebaseRemoteConfigSwift/Tests/SwiftAPI/*.swift',
+                             'FirebaseRemoteConfigSwift/Tests/FakeUtils/*.[hm]',
+                             'FirebaseRemoteConfigSwift/Tests/FakeUtils/*.swift'
     swift_api.requires_app_host = true
     swift_api.pod_target_xcconfig = {
-      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseRemoteConfig/Tests/FakeUtils/Bridging-Header.h',
+      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseRemoteConfigSwift/Tests/FakeUtils/Bridging-Header.h',
       'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
     }
     swift_api.dependency 'OCMock'
@@ -69,13 +69,13 @@ app update.
       :osx => osx_deployment_target,
       :tvos => tvos_deployment_target
     }
-    fake_console.source_files = 'FirebaseRemoteConfig/Tests/SwiftAPI/*.swift',
-                                      'FirebaseRemoteConfig/Tests/FakeUtils/*.[hm]',
-                                      'FirebaseRemoteConfig/Tests/FakeUtils/*.swift',
-                                      'FirebaseRemoteConfig/Tests/FakeConsole/*.swift'
+    fake_console.source_files = 'FirebaseRemoteConfigSwift/Tests/SwiftAPI/*.swift',
+                                      'FirebaseRemoteConfigSwift/Tests/FakeUtils/*.[hm]',
+                                      'FirebaseRemoteConfigSwift/Tests/FakeUtils/*.swift',
+                                      'FirebaseRemoteConfigSwift/Tests/FakeConsole/*.swift'
     fake_console.requires_app_host = true
     fake_console.pod_target_xcconfig = {
-      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseRemoteConfig/Tests/FakeUtils/Bridging-Header.h',
+      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseRemoteConfigSwift/Tests/FakeUtils/Bridging-Header.h',
       'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
     }
     fake_console.dependency 'OCMock'

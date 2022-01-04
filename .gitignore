@@ -8,7 +8,7 @@ FirebaseAuth/Tests/Sample/SwiftApiTests/Credentials.swift
 
 FirebaseDatabase/Tests/Resources/GoogleService-Info.plist
 
-FirebaseRemoteConfig/Tests/SwiftAPI/Resources/GoogleService-Info.plist
+FirebaseRemoteConfigSwift/Tests/SwiftAPI/Resources/GoogleService-Info.plist
 FirebaseRemoteConfig/Tests/Sample/RemoteConfigSampleApp/GoogleService-Info.plist
 FirebaseRemoteConfig/Tests/Sample/RemoteConfigSampleApp/SecondApp-GoogleService-Info.plist
 
