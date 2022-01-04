@@ -21,6 +21,9 @@ public enum RemoteConfigValueError: Error {
   case stringValueError(String)
 }
 
+/// Implements subscript overloads to enable Remote Config values to be accessed
+/// in a type-safe way directly from the current config.
+
 public extension RemoteConfig {
   subscript(stringValue key: String) -> String {
     guard let value = configValue(forKey: key).stringValue else {

@@ -21,8 +21,8 @@ import FirebaseSharedSwift
 public extension RemoteConfigValue {
   /// Extracts a RemoteConfigValue JSON-encoded object and decodes it to the requested type
   ///
-  /// - Parameter valueType: The type to decode the JSON-object to
-  /// - Parameter decoder: The decoder instance to use to run the encoding.
+  /// - Parameter asType: The type to decode the JSON-object to
+  /// - Parameter decoder: The decoder instance to use to run the decoding.
   func decoded<Value: Decodable>(asType: Value.Type = Value.self,
                                  decoder: FirebaseDataDecoder = FirebaseDataDecoder()) throws
     -> Value {
@@ -33,8 +33,8 @@ public extension RemoteConfigValue {
 public extension RemoteConfig {
   /// Decodes a struct from the respective Remote Config values.
   ///
-  /// - Parameter valueType: The type to decode the
-  /// - Parameter decoder: The decoder instance to use to run the encoding.
+  /// - Parameter asType: The type to decode to.
+  /// - Parameter decoder: The decoder instance to use to run the decoding..
   func decoded<Value: Decodable>(asType: Value.Type = Value.self,
                                  decoder: FirebaseDataDecoder = FirebaseDataDecoder()) throws
     -> Value {
@@ -49,6 +49,7 @@ public extension RemoteConfig {
   /// Sets config defaults from an encodable struct.
   ///
   /// - Parameter value: The object to use to set the defaults.
+  /// - Parameter encoder: The encoder instance to use to run the encoding.
   func setDefaults<Value: Encodable>(from value: Value,
                                      encoder: FirebaseDataEncoder = FirebaseDataEncoder()) throws {
     let encoded = try encoder.encode(value) as! [String: NSObject]

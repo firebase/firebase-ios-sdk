@@ -18,6 +18,9 @@ import Foundation
 import FirebaseRemoteConfig
 import FirebaseSharedSwift
 
+/// Implement the RCValueDecoding protocol for the shared Firebase decoder to
+/// decode Remote Config Values.
+
 struct RCValueDecoderHelper: RCValueDecoding {
   let value: RemoteConfigValue
 
