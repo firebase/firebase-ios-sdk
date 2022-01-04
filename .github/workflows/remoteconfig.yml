@@ -36,7 +36,7 @@ jobs:
     - name: Generate Access Token for RemoteConfigConsoleAPI in IntegrationTests
       if: matrix.target == 'iOS'
       run: ([ -z $plist_secret ] || scripts/generate_access_token.sh "$plist_secret" scripts/gha-encrypted/RemoteConfigSwiftAPI/ServiceAccount.json.gpg
-          FirebaseRemoteConfigSwift/Tests/SwiftAPI/AccessToken.json)
+          FirebaseRemoteConfigSwift/Tests/AccessToken.json)
     - name: Fake Console API Tests
       run: scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig iOS fakeconsole
     - name: IntegrationTest

@@ -124,6 +124,10 @@ let package = Package(
       targets: ["FirebaseRemoteConfig"]
     ),
     .library(
+      name: "FirebaseRemoteConfigSwift-Beta",
+      targets: ["FirebaseRemoteConfigSwift"]
+    ),
+    .library(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
     ),
@@ -938,6 +942,7 @@ let package = Package(
       ]
     ),
 
+    // MARK: - Firebase Remote Config
     .target(
       name: "FirebaseRemoteConfig",
       dependencies: [
@@ -973,6 +978,22 @@ let package = Package(
         .headerSearchPath("../../.."),
       ]
     ),
+    .target(
+      name: "FirebaseRemoteConfigSwift",
+      dependencies: [
+        "FirebaseRemoteConfig",
+        "FirebaseSharedSwift",
+      ],
+      path: "FirebaseRemoteConfigSwift/Sources"
+    ),
+//    .testTarget(
+//      name: "FirebaseRemoteConfigFakeConsole",
+//      dependencies: ["FirebaseRemoteConfigSwift",
+//                     "SharedTestUtilities"],
+//      path: "FirebaseRemoteConfigSwift/Tests"
+//    ),
+
+    // MARK: - Firebase Storage
     .target(
       name: "FirebaseStorage",
       dependencies: [

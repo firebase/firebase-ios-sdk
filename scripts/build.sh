@@ -490,7 +490,7 @@ case "$product-$platform-$method" in
     # Add GoogleService-Info.plist to generated Test Wrapper App.
     ruby ./scripts/update_xcode_target.rb gen/FirebaseRemoteConfigSwift/Pods/Pods.xcodeproj \
       AppHost-FirebaseRemoteConfigSwift-Unit-Tests \
-      ../../../FirebaseRemoteConfigSwift/Tests/FakeUtils/GoogleService-Info.plist
+      ../../../FirebaseRemoteConfigSwift/Tests/FakeConsoleResources/GoogleService-Info.plist
 
     RunXcodebuild \
       -workspace 'gen/FirebaseRemoteConfigSwift/FirebaseRemoteConfigSwift.xcworkspace' \
@@ -511,7 +511,7 @@ case "$product-$platform-$method" in
     # Add AccessToken to generated Test Wrapper App.
     ruby ./scripts/update_xcode_target.rb gen/FirebaseRemoteConfigSwift/Pods/Pods.xcodeproj \
       AppHost-FirebaseRemoteConfigSwift-Unit-Tests \
-      ../../../FirebaseRemoteConfigSwift/Tests/SwiftAPI/AccessToken.json
+      ../../../FirebaseRemoteConfigSwift/Tests/AccessToken.json
 
     RunXcodebuild \
       -workspace 'gen/FirebaseRemoteConfigSwift/FirebaseRemoteConfigSwift.xcworkspace' \
