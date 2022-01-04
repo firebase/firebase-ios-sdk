@@ -124,6 +124,10 @@ let package = Package(
       targets: ["FirebaseRemoteConfig"]
     ),
     .library(
+      name: "FirebaseRemoteConfigSwift-Beta",
+      targets: ["FirebaseRemoteConfigSwift"]
+    ),
+    .library(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
     ),
@@ -973,6 +977,22 @@ let package = Package(
         .headerSearchPath("../../.."),
       ]
     ),
+
+    .target(
+      name: "FirebaseRemoteConfigSwift",
+      dependencies: [
+        "FirebaseRemoteConfig",
+      ],
+      path: "FirebaseRemoteConfigSwift/Sources"
+    ),
+    .testTarget(
+      name: "FirebaseRemoteConfigSwiftUnit",
+      dependencies: [
+        "FirebaseRemoteConfigSwift",
+      ],
+      path: "FirebaseRemoteConfigSwift/Tests"
+    ),
+
     .target(
       name: "FirebaseStorage",
       dependencies: [
@@ -1030,6 +1050,7 @@ let package = Package(
         .target(name: "FirebasePerformance",
                 condition: .when(platforms: [.iOS, .tvOS])),
         "FirebaseRemoteConfig",
+        "FirebaseRemoteConfigSwift",
         "FirebaseStorage",
         "FirebaseStorageSwift",
         .product(name: "nanopb", package: "nanopb"),
