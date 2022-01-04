@@ -487,11 +487,6 @@ case "$product-$platform-$method" in
   RemoteConfig-*-fakeconsole)
     pod_gen FirebaseRemoteConfigSwift.podspec --platforms="${gen_platform}"
 
-    # Add GoogleService-Info.plist to generated Test Wrapper App.
-    ruby ./scripts/update_xcode_target.rb gen/FirebaseRemoteConfigSwift/Pods/Pods.xcodeproj \
-      AppHost-FirebaseRemoteConfigSwift-Unit-Tests \
-      ../../../FirebaseRemoteConfigSwift/Tests/FakeConsoleResources/GoogleService-Info.plist
-
     RunXcodebuild \
       -workspace 'gen/FirebaseRemoteConfigSwift/FirebaseRemoteConfigSwift.xcworkspace' \
       -scheme "FirebaseRemoteConfigSwift-Unit-fake-console-tests" \

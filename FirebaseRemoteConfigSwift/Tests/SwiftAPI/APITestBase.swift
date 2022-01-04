@@ -16,8 +16,8 @@ import FirebaseCore
 import FirebaseRemoteConfig
 
 #if SWIFT_PACKAGE
-import RemoteConfigFakeConsoleObjC
-import SharedTestUtilities
+  import RemoteConfigFakeConsoleObjC
+  import SharedTestUtilities
 #endif
 
 import XCTest

@@ -73,6 +73,8 @@ jobs:
       run: scripts/setup_spm_tests.sh
     - name: iOS Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh RemoteConfigUnit iOS spm
+    - name: iOS Unit Tests
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh RemoteConfigUnit iOS spm
 
   spm-cron:
     # Don't run on private repo.

@@ -991,8 +991,7 @@ let package = Package(
       name: "RemoteConfigFakeConsole",
       dependencies: ["FirebaseRemoteConfigSwift",
                      "RemoteConfigFakeConsoleObjC",
-                     "SharedTestUtilities",
-                    ],
+                     "SharedTestUtilities"],
       path: "FirebaseRemoteConfigSwift/Tests",
       exclude: [
         "AccessToken.json",

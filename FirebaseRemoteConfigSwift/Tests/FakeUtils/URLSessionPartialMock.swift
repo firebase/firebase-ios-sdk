@@ -15,7 +15,7 @@
 import Foundation
 
 #if SWIFT_PACKAGE
-import RemoteConfigFakeConsoleObjC
+  import RemoteConfigFakeConsoleObjC
 #endif
 
 // Create a partial mock by subclassing the URLSessionDataTask.

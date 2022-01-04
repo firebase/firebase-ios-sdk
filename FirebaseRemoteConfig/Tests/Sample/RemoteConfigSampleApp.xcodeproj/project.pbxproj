@@ -17,7 +17,7 @@
 		5BE818FB23271579004DE6BA /* RemoteConfigSampleAppUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5BE818FA23271579004DE6BA /* RemoteConfigSampleAppUITests.m */; };
 		D5C72761A16C64F0DB522FE9 /* Pods_RemoteConfigSampleAppUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1244CD4C99B6BF70752BE1B6 /* Pods_RemoteConfigSampleAppUITests.framework */; };
 		DE71200824C92CA800C28FE2 /* SecondApp-GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE71200724C92CA800C28FE2 /* SecondApp-GoogleService-Info.plist */; };
-		DEB1E8732784AD0D0054A548 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEB1E8722784AD0D0054A548 /* GoogleService-Info.plist */; };
+		DEB1E8792785018F0054A548 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEB1E8782785018F0054A548 /* GoogleService-Info.plist */; };
 		F149334D7027F03ADF9FF9FC /* Pods_RemoteConfigSampleApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D431F3C235B420372A7847C /* Pods_RemoteConfigSampleApp.framework */; };
 /* End PBXBuildFile section */
 
@@ -53,7 +53,7 @@
 		5CC24231A56D124F27682F1C /* Pods-RemoteConfigSampleApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RemoteConfigSampleApp.debug.xcconfig"; path = "Target Support Files/Pods-RemoteConfigSampleApp/Pods-RemoteConfigSampleApp.debug.xcconfig"; sourceTree = "<group>"; };
 		DA0A0BDC31A76C0D70249412 /* Pods-RemoteConfigSampleApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RemoteConfigSampleApp.release.xcconfig"; path = "Target Support Files/Pods-RemoteConfigSampleApp/Pods-RemoteConfigSampleApp.release.xcconfig"; sourceTree = "<group>"; };
 		DE71200724C92CA800C28FE2 /* SecondApp-GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "SecondApp-GoogleService-Info.plist"; path = "../../Unit/SecondApp-GoogleService-Info.plist"; sourceTree = "<group>"; };
-		DEB1E8722784AD0D0054A548 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../FirebaseRemoteConfigSwift/Tests/FakeConsoleResources/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		DEB1E8782785018F0054A548 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
 		DEB267EAC843EF4BD455C9EC /* Pods-RemoteConfigSampleAppUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RemoteConfigSampleAppUITests.debug.xcconfig"; path = "Target Support Files/Pods-RemoteConfigSampleAppUITests/Pods-RemoteConfigSampleAppUITests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -120,7 +120,7 @@
 		5BE818E023271577004DE6BA /* RemoteConfigSampleApp */ = {
 			isa = PBXGroup;
 			children = (
-				DEB1E8722784AD0D0054A548 /* GoogleService-Info.plist */,
+				DEB1E8782785018F0054A548 /* GoogleService-Info.plist */,
 				DE71200724C92CA800C28FE2 /* SecondApp-GoogleService-Info.plist */,
 				5B1A9B12232846F3001809E9 /* FRCLog.h */,
 				5B1A9B13232846F3001809E9 /* FRCLog.m */,
@@ -231,7 +231,7 @@
 			files = (
 				5BE818EB23271579004DE6BA /* Assets.xcassets in Resources */,
 				DE71200824C92CA800C28FE2 /* SecondApp-GoogleService-Info.plist in Resources */,
-				DEB1E8732784AD0D0054A548 /* GoogleService-Info.plist in Resources */,
+				DEB1E8792785018F0054A548 /* GoogleService-Info.plist in Resources */,
 				5B1A9B1723284735001809E9 /* LaunchScreen.xib in Resources */,
 				5BE818E923271577004DE6BA /* Main.storyboard in Resources */,
 			);

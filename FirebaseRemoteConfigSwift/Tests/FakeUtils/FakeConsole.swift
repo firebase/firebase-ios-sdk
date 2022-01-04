@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #if SWIFT_PACKAGE
-import RemoteConfigFakeConsoleObjC
+  import RemoteConfigFakeConsoleObjC
 #endif
 
 class FakeConsole {
