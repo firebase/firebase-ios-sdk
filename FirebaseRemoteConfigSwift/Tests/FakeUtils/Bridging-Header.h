@@ -14,4 +14,4 @@
 
 #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfig/Tests/FakeUtils/FetchMocks.h"
+#import "FirebaseRemoteConfigSwift/Tests/FakeUtils/FetchMocks.h"
