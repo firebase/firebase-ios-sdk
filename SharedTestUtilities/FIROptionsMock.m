@@ -18,7 +18,8 @@
 #import "SharedTestUtilities/FIROptionsMock.h"
 
 NSString *const kAndroidClientID = @"correct_android_client_id";
-NSString *const kAPIKey = @"correct_api_key";
+// FIS requires 39 characters starting with A.
+NSString *const kAPIKey = @"A23456789012345678901234567890123456789";
 NSString *const kCustomizedAPIKey = @"customized_api_key";
 NSString *const kClientID = @"correct_client_id";
 NSString *const kTrackingID = @"correct_tracking_id";
@@ -31,7 +32,7 @@ NSString *const kDeepLinkURLScheme = @"comgoogledeeplinkurl";
 NSString *const kNewDeepLinkURLScheme = @"newdeeplinkurlfortest";
 
 NSString *const kBundleID = @"com.google.FirebaseSDKTests";
-NSString *const kProjectID = @"abc-xyz-123";
+NSString *const kProjectID = @"Mocked Project ID";
 
 @interface FIROptionsMock ()
 

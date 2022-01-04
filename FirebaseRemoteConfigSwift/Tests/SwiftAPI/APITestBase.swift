@@ -13,7 +13,12 @@
 // limitations under the License.
 
 import FirebaseCore
-@testable import FirebaseRemoteConfig
+import FirebaseRemoteConfig
+
+#if SWIFT_PACKAGE
+import RemoteConfigFakeConsoleObjC
+import SharedTestUtilities
+#endif
 
 import XCTest
 
@@ -27,10 +32,11 @@ class APITestBase: XCTestCase {
 
   override class func setUp() {
     if FirebaseApp.app() == nil {
+      FIROptionsMock.mockFIROptions()
       FirebaseApp.configure()
       APITests.mockedFetch = false
     }
-    useFakeConfig = FirebaseApp.app()!.options.projectID == "FakeProject"
+    useFakeConfig = FirebaseApp.app()!.options.projectID == "Mocked Project ID"
   }
 
   override func setUpWithError() throws {

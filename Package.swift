@@ -943,6 +943,7 @@ let package = Package(
     ),
 
     // MARK: - Firebase Remote Config
+
     .target(
       name: "FirebaseRemoteConfig",
       dependencies: [
@@ -986,14 +987,35 @@ let package = Package(
       ],
       path: "FirebaseRemoteConfigSwift/Sources"
     ),
-//    .testTarget(
-//      name: "FirebaseRemoteConfigFakeConsole",
-//      dependencies: ["FirebaseRemoteConfigSwift",
-//                     "SharedTestUtilities"],
-//      path: "FirebaseRemoteConfigSwift/Tests"
-//    ),
+    .testTarget(
+      name: "RemoteConfigFakeConsole",
+      dependencies: ["FirebaseRemoteConfigSwift",
+                     "RemoteConfigFakeConsoleObjC",
+                     "SharedTestUtilities",
+                    ],
+      path: "FirebaseRemoteConfigSwift/Tests",
+      exclude: [
+        "AccessToken.json",
+        "FakeConsoleResources/",
+        "README.md",
+        "ObjC/",
+      ],
+      cSettings: [
+        .headerSearchPath("../../"),
+      ]
+    ),
+    .target(
+      name: "RemoteConfigFakeConsoleObjC",
+      dependencies: ["OCMock"],
+      path: "FirebaseRemoteConfigSwift/Tests/ObjC",
+      publicHeadersPath: ".",
+      cSettings: [
+        .headerSearchPath("../../../"),
+      ]
+    ),
 
     // MARK: - Firebase Storage
+
     .target(
       name: "FirebaseStorage",
       dependencies: [

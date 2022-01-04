@@ -53,6 +53,7 @@ app update.
     swift_api.source_files = ['FirebaseRemoteConfigSwift/Tests/SwiftAPI/*.swift',
                               'FirebaseRemoteConfigSwift/Tests/FakeUtils/*.swift',
                               'FirebaseRemoteConfigSwift/Tests/ObjC/*.[hm]',
+                              'SharedTestUtilities/FIROptionsMock.[mh]',
                              ]
     swift_api.requires_app_host = true
     swift_api.pod_target_xcconfig = {
@@ -74,6 +75,7 @@ app update.
                                  'FirebaseRemoteConfigSwift/Tests/FakeUtils/*.swift',
                                  'FirebaseRemoteConfigSwift/Tests/FakeConsole/*.swift',
                                  'FirebaseRemoteConfigSwift/Tests/ObjC/*.[hm]',
+                                 'SharedTestUtilities/FIROptionsMock.[mh]',
                                 ]
     fake_console.requires_app_host = true
     fake_console.pod_target_xcconfig = {
