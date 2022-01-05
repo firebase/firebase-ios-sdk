@@ -577,6 +577,18 @@ static NSString *const kFIRAuthErrorMessageRejectedCredential =
 static NSString *const kFIRAuthErrorMessageMissingOrInvalidNonce =
     @"The request contains malformed or mismatched credentials.";
 
+/** @var kFIRAuthErrorMessageUnsupportedPassthroughOperation
+    @brief Error message for @c FIRAuthErrorCodeUnsupportedPassthroughOperation errors.
+ */
+static NSString *const kFIRAuthErrorMessageUnsupportedPassthroughOperation =
+    @"This operation is not supported while in passthrough mode.";
+
+/** @var kFIRAuthErrorMessageTokenRefreshUnavailable
+    @brief Error message for @c FIRAuthErrorCodeTokenRefreshUnavailable errors.
+ */
+static NSString *const kFIRAuthErrorMessageTokenRefreshUnavailable =
+    @"No refresh token is available.";
+
 /** @var kFIRAuthErrorMessageTenantIDMismatch.
     @brief Message for @c FIRAuthErrorCodeTenantIDMismatch error code.
  */
@@ -751,6 +763,10 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageRejectedCredential;
     case FIRAuthErrorCodeMissingOrInvalidNonce:
       return kFIRAuthErrorMessageMissingOrInvalidNonce;
+    case FIRAuthErrorCodeUnsupportedPassthroughOperation:
+      return kFIRAuthErrorMessageUnsupportedPassthroughOperation;
+    case FIRAuthErrorCodeTokenRefreshUnavailable:
+      return kFIRAuthErrorMessageTokenRefreshUnavailable;
     case FIRAuthErrorCodeTenantIDMismatch:
       return kFIRAuthErrorMessageTenantIDMismatch;
     case FIRAuthErrorCodeUnsupportedTenantOperation:
@@ -918,6 +934,10 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_REJECTED_CREDENTIAL";
     case FIRAuthErrorCodeMissingOrInvalidNonce:
       return @"ERROR_MISSING_OR_INVALID_NONCE";
+    case FIRAuthErrorCodeUnsupportedPassthroughOperation:
+      return @"ERROR_UNSUPPORTED_PASSTHROUGH_OPERATION";
+    case FIRAuthErrorCodeTokenRefreshUnavailable:
+      return @"ERROR_TOKEN_REFRESH_UNAVAILABLE";
     case FIRAuthErrorCodeTenantIDMismatch:
       return @"ERROR_TENANT_ID_MISMATCH";
     case FIRAuthErrorCodeUnsupportedTenantOperation:
@@ -1387,6 +1407,15 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 
 + (NSError *)missingOrInvalidNonceErrorWithMessage:(nullable NSString *)message {
   return [self errorWithCode:FIRAuthInternalErrorCodeMissingOrInvalidNonce message:message];
+}
+
++ (NSError *)unsupportedPassthroughOperationErrorWithMessage:(nullable NSString *)message {
+  return [self errorWithCode:FIRAuthInternalErrorCodeUnsupportedPassthroughOperation
+                     message:message];
+}
+
++ (NSError *)tokenRefreshUnavailableErrorWithMessage:(nullable NSString *)message {
+  return [self errorWithCode:FIRAuthInternalErrorCodeTokenRefreshUnavailable message:message];
 }
 
 + (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status {

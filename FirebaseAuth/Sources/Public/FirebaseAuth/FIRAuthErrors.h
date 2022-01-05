@@ -413,6 +413,14 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
    */
   FIRAuthErrorCodeMissingOrInvalidNonce = 17094,
 
+  /** Indicates that the operation is not supported in passthrough mode.
+   */
+  FIRAuthErrorCodeUnsupportedPassthroughOperation = 17095,
+
+  /** Indicates that neither a refresh token nor a custom token provider is available.
+   */
+  FIRAuthErrorCodeTokenRefreshUnavailable = 17096,
+
   /** Indicates an error for when the client identifier is missing.
    */
   FIRAuthErrorCodeMissingClientIdentifier = 17993,
