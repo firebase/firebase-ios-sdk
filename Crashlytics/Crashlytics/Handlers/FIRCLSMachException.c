@@ -285,10 +285,10 @@ static bool FIRCLSMachExceptionRegister(FIRCLSMachExceptionReadContext* context)
   }
 
   // Get the desired mask, which covers all the mach exceptions we are capable of handling,
-    // but clear out any that are in our ignore list.  We do this by ANDing with the bitwise
-    // negation.  Because we are only clearing bits, there's no way to set an incorrect mask
-    // using ignoreMask.
-    context->mask = FIRCLSMachExceptionMask();
+  // but clear out any that are in our ignore list.  We do this by ANDing with the bitwise
+  // negation.  Because we are only clearing bits, there's no way to set an incorrect mask
+  // using ignoreMask.
+  context->mask = FIRCLSMachExceptionMask();
 
   // ORing with MACH_EXCEPTION_CODES will produce 64-bit exception data
   kr = task_swap_exception_ports(task, context->mask, context->port,
