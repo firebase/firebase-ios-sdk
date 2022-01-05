@@ -413,6 +413,7 @@ static void callInMainThreadWithAuthDataResultAndError(
 - (void)setAuth:(nullable FIRAuth *)auth {
   _auth = auth;
   _tokenService.requestConfiguration = auth.requestConfiguration;
+  _tokenService.customTokenProviderDelegate = auth.customTokenProviderDelegate;
 }
 
 - (NSString *)providerID {
