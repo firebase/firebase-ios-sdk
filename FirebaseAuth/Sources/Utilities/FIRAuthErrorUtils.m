@@ -1414,8 +1414,8 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
                      message:message];
 }
 
-+ (NSError *)tokenRefreshUnavailableErrorWithMessage:(nullable NSString *)message {
-  return [self errorWithCode:FIRAuthInternalErrorCodeTokenRefreshUnavailable message:message];
++ (NSError *)tokenRefreshUnavailableError {
+  return [self errorWithCode:FIRAuthInternalErrorCodeTokenRefreshUnavailable];
 }
 
 + (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status {

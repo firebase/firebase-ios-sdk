@@ -359,6 +359,13 @@ static NSString *const kSessionExpiredErrorMessage = @"SESSION_EXPIRED";
  */
 static NSString *const kMissingOrInvalidNonceErrorMessage = @"MISSING_OR_INVALID_NONCE";
 
+/** @var kUnsupportedPassthroughOperationErrorMessage
+    @brief This is the error message the server will respond with if the operation is not supported
+        in passthrough mode.
+ */
+static NSString *const kUnsupportedPassthroughOperationErrorMessage =
+    @"UNSUPPORTED_PASSTHROUGH_OPERATION";
+
 /** @var kMissingAppTokenErrorMessage
     @brief This is the error message the server will respond with if the APNS token is missing in a
         verifyClient request.
@@ -1371,6 +1378,11 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
   if ([shortErrorMessage isEqualToString:kMissingOrInvalidNonceErrorMessage]) {
     return [FIRAuthErrorUtils missingOrInvalidNonceErrorWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kUnsupportedPassthroughOperationErrorMessage]) {
+    return [FIRAuthErrorUtils
+        unsupportedPassthroughOperationErrorWithMessage:serverDetailErrorMessage];
   }
 
   if ([shortErrorMessage isEqualToString:kMissingMFAPendingCredentialErrorMessage]) {
