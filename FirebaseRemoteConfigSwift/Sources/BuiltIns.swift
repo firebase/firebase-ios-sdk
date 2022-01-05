@@ -53,7 +53,7 @@ extension RemoteConfigSerializable where Self: RawRepresentable {
 
 extension RemoteConfigSerializable where Self: NSCoding {
     public static var _remoteConfig: RemoteConfigKeyedArchiverBridge<Self> { RemoteConfigKeyedArchiverBridge() }
-    public static var _remoteConfigArray: RemoteConfigKeyedArchiverBridge<[Self]> { RemoteConfigKeyedArchiverBridge() }
+    public static var _remoteConfigArray: RemoteConfigKeyedArchiverArrayBridge<[Self]> { RemoteConfigKeyedArchiverArrayBridge() }
 }
 
 extension Dictionary: RemoteConfigSerializable where Key == String {
