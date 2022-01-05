@@ -100,6 +100,17 @@ import XCTest
       XCTAssertEqual(stringValue, "four")
     }
 
+    func testSetEncodeableDefaultsInvalid() throws {
+      do {
+        _ = try config.setDefaults(from: 7)
+      } catch let RemoteConfigCodableError.invalidSetDefaultsInput(message) {
+        XCTAssertEqual(message,
+                       "The setDefaults input 7 must be a dictionary keyed by a String")
+        return
+      }
+      XCTFail("Failed to catch trying to encode an invalid input to setDefaults.")
+    }
+
     // MARK: - Test extracting config to an decodable struct.
 
     struct MyConfig: Decodable {
@@ -120,8 +131,8 @@ import XCTest
       XCTAssertEqual(myConfig.myInt, Constants.intValue)
       XCTAssertEqual(myConfig.myTrue, true)
       XCTAssertEqual(myConfig.myFloat, Constants.floatValue)
-      XCTAssertEqual(myConfig.myDecimal, Decimal(Constants.decimalValue))
-      XCTAssertEqual(myConfig.myData, Constants.dataValue.data(using: .utf8))
+      XCTAssertEqual(myConfig.myDecimal, Constants.decimalValue)
+      XCTAssertEqual(myConfig.myData, Constants.dataValue)
       XCTAssertEqual(myConfig.Recipe.recipeName, "PB&J")
       XCTAssertEqual(myConfig.Recipe.ingredients, ["bread", "peanut butter", "jelly"])
       XCTAssertEqual(myConfig.Recipe.cookTime, 7)

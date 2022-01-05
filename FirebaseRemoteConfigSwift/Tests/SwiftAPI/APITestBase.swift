@@ -32,8 +32,7 @@ class APITestBase: XCTestCase {
 
   override class func setUp() {
     if FirebaseApp.app() == nil {
-      FIROptionsMock.mockFIROptions()
-      FirebaseApp.configure()
+      FirebaseApp.configure(options: FIROptionsFake.fakeFIROptions())
       APITests.mockedFetch = false
     }
     useFakeConfig = FirebaseApp.app()!.options.projectID == "Mocked Project ID"
@@ -68,10 +67,10 @@ class APITestBase: XCTestCase {
                             Constants.stringKey: Constants.stringValue,
                             Constants.intKey: String(Constants.intValue),
                             Constants.floatKey: String(Constants.floatValue),
-                            Constants.decimalKey: String(Constants.decimalValue),
+                            Constants.decimalKey: "\(Constants.decimalValue)",
                             Constants.trueKey: String(true),
                             Constants.falseKey: String(false),
-                            Constants.dataKey: Constants.dataValue]
+                            Constants.dataKey: String(decoding: Constants.dataValue, as: UTF8.self)]
     } else {
       console = RemoteConfigConsole()
       console.updateRemoteConfigValue(Constants.obiwan, forKey: Constants.jedi)

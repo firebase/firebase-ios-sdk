@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
 /// String constants used for testing.
 enum Constants {
   static let key1 = "Key1"
@@ -25,20 +27,20 @@ enum Constants {
   static let stringKey = "myString"
   static let stringValue = "string contents"
   static let intKey = "myInt"
-  static let intValue = 123
+  static let intValue: Int = 123
   static let floatKey = "myFloat"
-  static let floatValue = 42.75 as Float
-  static let doubleValue = 42.75
+  static let floatValue: Float = 42.75
+  static let doubleValue: Double = 42.75
   static let decimalKey = "myDecimal"
-  static let decimalValue = 375.785
+  static let decimalValue: Decimal = 375.785
   static let trueKey = "myTrue"
   static let falseKey = "myFalse"
   static let dataKey = "myData"
-  static let dataValue = "data"
+  static let dataValue: Data = "data".data(using: .utf8)!
   static let jsonKey = "Recipe"
-  static let jsonValue = ["recipeName": "PB&J",
-                          "ingredients": ["bread", "peanut butter", "jelly"],
-                          "cookTime": 7] as [String: AnyHashable]
+  static let jsonValue: [String: AnyHashable] = ["recipeName": "PB&J",
+                                                 "ingredients": ["bread", "peanut butter", "jelly"],
+                                                 "cookTime": 7]
   static let nonJsonKey = "notJSON"
   static let nonJsonValue = "notJSON"
 }

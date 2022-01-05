@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseRemoteConfigSwift'
-  s.version                 = '8.10.0-beta'
+  s.version                 = '8.11.0-beta'
   s.summary                 = 'Swift Extensions for Firebase Remote Config'
 
   s.description      = <<-DESC
@@ -41,7 +41,6 @@ app update.
   s.dependency 'FirebaseRemoteConfig', '~> 8.11'
   s.dependency 'FirebaseSharedSwift', '~> 8.11-beta'
 
-
   # Run Swift API tests on a real backend.
   s.test_spec 'swift-api-tests' do |swift_api|
     swift_api.scheme = { :code_coverage => true }
@@ -53,7 +52,7 @@ app update.
     swift_api.source_files = ['FirebaseRemoteConfigSwift/Tests/SwiftAPI/*.swift',
                               'FirebaseRemoteConfigSwift/Tests/FakeUtils/*.swift',
                               'FirebaseRemoteConfigSwift/Tests/ObjC/*.[hm]',
-                              'SharedTestUtilities/FIROptionsMock.[mh]',
+                              'SharedTestUtilities/FIROptionsFake.[mh]',
                              ]
     swift_api.requires_app_host = true
     swift_api.pod_target_xcconfig = {
@@ -75,7 +74,7 @@ app update.
                                  'FirebaseRemoteConfigSwift/Tests/FakeUtils/*.swift',
                                  'FirebaseRemoteConfigSwift/Tests/FakeConsole/*.swift',
                                  'FirebaseRemoteConfigSwift/Tests/ObjC/*.[hm]',
-                                 'SharedTestUtilities/FIROptionsMock.[mh]',
+                                 'SharedTestUtilities/FIROptionsFake.[mh]',
                                 ]
     fake_console.requires_app_host = true
     fake_console.pod_target_xcconfig = {

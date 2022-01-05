@@ -19,7 +19,7 @@ import FirebaseRemoteConfig
 import FirebaseSharedSwift
 
 public extension RemoteConfigValue {
-  /// Extracts a RemoteConfigValue JSON-encoded object and decodes it to the requested type
+  /// Extracts a RemoteConfigValue JSON-encoded object and decodes it to the requested type.
   ///
   /// - Parameter asType: The type to decode the JSON-object to
   /// - Parameter decoder: The decoder instance to use to run the decoding.
@@ -28,6 +28,10 @@ public extension RemoteConfigValue {
     -> Value {
     return try decoder.decode(Value.self, from: RCValueDecoderHelper(value: self))
   }
+}
+
+public enum RemoteConfigCodableError: Error {
+  case invalidSetDefaultsInput(String)
 }
 
 public extension RemoteConfig {
@@ -39,9 +43,8 @@ public extension RemoteConfig {
                                  decoder: FirebaseDataDecoder = FirebaseDataDecoder()) throws
     -> Value {
     let keys = allKeys(from: RemoteConfigSource.default) + allKeys(from: RemoteConfigSource.remote)
-    var config = [String: RCValueDecoderHelper]()
-    for key in keys {
-      config[key] = RCValueDecoderHelper(value: configValue(forKey: key))
+    let config = keys.reduce(into: [String: RCValueDecoderHelper]()) {
+      $0[$1] = RCValueDecoderHelper(value: configValue(forKey: $1))
     }
     return try decoder.decode(Value.self, from: config)
   }
@@ -52,7 +55,11 @@ public extension RemoteConfig {
   /// - Parameter encoder: The encoder instance to use to run the encoding.
   func setDefaults<Value: Encodable>(from value: Value,
                                      encoder: FirebaseDataEncoder = FirebaseDataEncoder()) throws {
-    let encoded = try encoder.encode(value) as! [String: NSObject]
+    guard let encoded = try encoder.encode(value) as? [String: NSObject] else {
+      throw RemoteConfigCodableError.invalidSetDefaultsInput(
+        "The setDefaults input \(value) must be a dictionary keyed by a String"
+      )
+    }
     setDefaults(encoded)
   }
 }
