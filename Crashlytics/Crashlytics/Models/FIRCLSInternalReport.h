@@ -16,6 +16,7 @@
 
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSFeatures.h"
 
+extern NSString *const FIRCLSCustomCrashIndicatorFile;
 extern NSString *const FIRCLSReportBinaryImageFile;
 extern NSString *const FIRCLSReportExceptionFile;
 extern NSString *const FIRCLSReportCustomExceptionAFile;
