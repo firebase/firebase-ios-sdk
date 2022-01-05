@@ -283,7 +283,7 @@ static bool FIRCLSMachExceptionRegister(FIRCLSMachExceptionReadContext* context)
     mach_port_deallocate(task, context->port);
     return false;
   }
-  
+
   // Get the desired mask, which covers all the mach exceptions we are capable of handling,
     // but clear out any that are in our ignore list.  We do this by ANDing with the bitwise
     // negation.  Because we are only clearing bits, there's no way to set an incorrect mask
