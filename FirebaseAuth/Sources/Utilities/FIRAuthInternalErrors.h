@@ -446,6 +446,16 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeMissingOrInvalidNonce = FIRAuthPublicErrorCodeFlag |
                                                   FIRAuthErrorCodeMissingOrInvalidNonce,
 
+  /** Indicates that the operation is not supported in passthrough mode.
+   */
+  FIRAuthInternalErrorCodeUnsupportedPassthroughOperation =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeUnsupportedPassthroughOperation,
+
+  /** Indicates that neither a refresh token nor a custom token provider is available.
+   */
+  FIRAuthInternalErrorCodeTokenRefreshUnavailable = FIRAuthPublicErrorCodeFlag |
+                                                    FIRAuthErrorCodeTokenRefreshUnavailable,
+
   /** Indicates that a non-null user was expected as an argmument to the operation but a null
         user was provided.
    */

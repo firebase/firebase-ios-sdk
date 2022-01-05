@@ -592,6 +592,20 @@ NS_ASSUME_NONNULL_BEGIN
 */
 + (NSError *)missingOrInvalidNonceErrorWithMessage:(nullable NSString *)message;
 
+/** @fn unsupportedPassthroughOperationErrorWithMessage:
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeUnsupportedPassthroughOperation and
+        message provided.
+    @param message Error message from the backend, if any.
+    @return The nullable NSError instance associated with the given error message, if one is found.
+*/
++ (NSError *)unsupportedPassthroughOperationErrorWithMessage:(nullable NSString *)message;
+
+/** @fn tokenRefreshUnavailableError:
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeTokenRefreshUnavailable code.
+    @return The nullable NSError instance associated with the given FIRAuthError.
+*/
++ (NSError *)tokenRefreshUnavailableError;
+
 /** @fn tenantIDMismatchError
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeTenantIDMismatch code.
     @remarks This error is used when an attempt is made to update the current user with a
