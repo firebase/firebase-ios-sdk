@@ -1373,7 +1373,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
                                            NSError *_Nullable error) {
                                 XCTAssertTrue([NSThread isMainThread]);
                                 XCTAssertNil(tokenResult);
-                                XCTAssertEqual(error.code, FIRAuthErrorCodeInternalError);
+                                XCTAssertEqual(error.code, FIRAuthErrorCodeTokenRefreshUnavailable);
                                 XCTAssertEqualObjects(error.userInfo[NSLocalizedDescriptionKey],
                                                       @"No refresh token is available.");
                                 [expectation fulfill];
