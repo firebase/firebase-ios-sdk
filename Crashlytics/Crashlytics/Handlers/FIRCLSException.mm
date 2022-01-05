@@ -57,8 +57,7 @@ static Method FIRCLSGetNSApplicationReportExceptionMethod(void);
 
 #pragma mark - API
 void FIRCLSExceptionInitialize(FIRCLSExceptionReadOnlyContext *roContext,
-                               FIRCLSExceptionWritableContext *rwContext,
-                               void *delegate) {
+                               FIRCLSExceptionWritableContext *rwContext) {
   if (!FIRCLSUnlinkIfExists(roContext->path)) {
     FIRCLSSDKLog("Unable to reset the exception file %s\n", strerror(errno));
   }
@@ -82,8 +81,7 @@ void FIRCLSExceptionRecordModel(FIRExceptionModel *exceptionModel) {
   const char *name = [[exceptionModel.name copy] UTF8String];
   const char *reason = [[exceptionModel.reason copy] UTF8String] ?: "";
 
-  FIRCLSExceptionRecord(FIRCLSExceptionTypeCustom, name, reason, [exceptionModel.stackTrace copy],
-                        NO);
+  FIRCLSExceptionRecord(FIRCLSExceptionTypeCustom, name, reason, [exceptionModel.stackTrace copy]);
 }
 
 void FIRCLSExceptionRecordNSException(NSException *exception) {
@@ -107,7 +105,7 @@ void FIRCLSExceptionRecordNSException(NSException *exception) {
   }
 
   FIRCLSExceptionRecord(FIRCLSExceptionTypeObjectiveC, [name UTF8String], [reason UTF8String],
-                        frames, YES);
+                        frames);
 }
 
 static void FIRCLSExceptionRecordFrame(FIRCLSFile *file, FIRStackFrame *frame) {
@@ -189,15 +187,14 @@ void FIRCLSExceptionWrite(FIRCLSFile *file,
 void FIRCLSExceptionRecord(FIRCLSExceptionType type,
                            const char *name,
                            const char *reason,
-                           NSArray<FIRStackFrame *> *frames,
-                           BOOL attemptDelivery) {
+                           NSArray<FIRStackFrame *> *frames) {
   if (!FIRCLSContextIsInitialized()) {
     return;
   }
 
   bool native = FIRCLSExceptionIsNative(type);
 
-  FIRCLSSDKLog("Recording an exception structure (%d, %d)\n", attemptDelivery, native);
+  FIRCLSSDKLog("Recording an exception structure (%d)\n", native);
 
   // exceptions can happen on multiple threads at the same time
   if (native) {
@@ -218,9 +215,6 @@ void FIRCLSExceptionRecord(FIRCLSExceptionType type,
       FIRCLSFileClose(&file);
 
       // disallow immediate delivery for non-native exceptions
-      if (attemptDelivery) {
-        FIRCLSHandlerAttemptImmediateDelivery();
-      }
     });
   } else {
     FIRCLSUserLoggingWriteAndCheckABFiles(
@@ -278,21 +272,19 @@ static void FIRCLSCatchAndRecordActiveException(std::type_info *typeInfo) {
 #endif
     }
   } catch (const char *exc) {
-    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, "const char *", exc, nil, YES);
+    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, "const char *", exc, nil);
   } catch (const std::string &exc) {
-    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, "std::string", exc.c_str(), nil, YES);
+    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, "std::string", exc.c_str(), nil);
   } catch (const std::exception &exc) {
-    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, FIRCLSExceptionDemangle(name), exc.what(), nil,
-                          YES);
+    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, FIRCLSExceptionDemangle(name), exc.what(), nil);
   } catch (const std::exception *exc) {
-    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, FIRCLSExceptionDemangle(name), exc->what(), nil,
-                          YES);
+    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, FIRCLSExceptionDemangle(name), exc->what(), nil);
   } catch (const std::bad_alloc &exc) {
     // it is especially important to avoid demangling in this case, because the expetation at this
     // point is that all allocations could fail
-    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, "std::bad_alloc", exc.what(), nil, YES);
+    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, "std::bad_alloc", exc.what(), nil);
   } catch (...) {
-    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, FIRCLSExceptionDemangle(name), "", nil, YES);
+    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, FIRCLSExceptionDemangle(name), "", nil);
   }
 }
 
