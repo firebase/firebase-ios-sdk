@@ -35,4 +35,4 @@ jobs:
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Performance/GoogleService-Info_e2e_prod.plist.gpg \
             FirebasePerformance/Tests/FIRPerfE2E/FIRPerfE2EProd/GoogleService-Info.plist "$plist_secret"
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
-      run: scripts/third_party/travis/retry.sh scripts/build.sh Performance iOS-device integration
+      run: scripts/third_party/travis/retry.sh scripts/build.sh Performance all integration
