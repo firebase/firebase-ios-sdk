@@ -131,9 +131,6 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
   NSString *accessToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:kAccessTokenKey];
   NSDate *accessTokenExpirationDate = [aDecoder decodeObjectOfClass:[NSDate class]
                                                              forKey:kAccessTokenExpirationDateKey];
-  if (!refreshToken) {
-    return nil;
-  }
   self = [self init];
   if (self) {
     _refreshToken = refreshToken;
