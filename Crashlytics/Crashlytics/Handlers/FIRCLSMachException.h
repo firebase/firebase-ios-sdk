@@ -67,7 +67,6 @@ typedef struct {
 
 #pragma mark - API
 void FIRCLSMachExceptionInit(FIRCLSMachExceptionReadContext* context);
-
 void FIRCLSMachExceptionCheckHandlers(void);
 
 #else

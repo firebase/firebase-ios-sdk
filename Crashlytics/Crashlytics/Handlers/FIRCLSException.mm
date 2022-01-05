@@ -188,7 +188,7 @@ void FIRCLSExceptionRecord(FIRCLSExceptionType type,
                            const char *name,
                            const char *reason,
                            NSArray<FIRStackFrame *> *frames,
-                           BOOL fatal) {
+                           BOOL onDemandFatal) {
   if (!FIRCLSContextIsInitialized()) {
     return;
   }
@@ -214,8 +214,6 @@ void FIRCLSExceptionRecord(FIRCLSExceptionType type,
       FIRCLSHandler(&file, mach_thread_self(), NULL);
 
       FIRCLSFileClose(&file);
-
-      // disallow immediate delivery for non-native exceptions
     });
   } else {
     FIRCLSUserLoggingWriteAndCheckABFiles(
@@ -225,7 +223,7 @@ void FIRCLSExceptionRecord(FIRCLSExceptionType type,
         });
   }
   
-  if (fatal) {
+  if (onDemandFatal) {
     // Attempt on-demand delivery
   }
 
