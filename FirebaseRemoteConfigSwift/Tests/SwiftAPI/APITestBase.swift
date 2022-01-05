@@ -17,7 +17,6 @@ import FirebaseRemoteConfig
 
 #if SWIFT_PACKAGE
   import RemoteConfigFakeConsoleObjC
-  import SharedTestUtilities
 #endif
 
 import XCTest
@@ -32,10 +31,19 @@ class APITestBase: XCTestCase {
 
   override class func setUp() {
     if FirebaseApp.app() == nil {
-      FirebaseApp.configure(options: FIROptionsFake.fakeFIROptions())
-      APITests.mockedFetch = false
+      #if USE_REAL_CONSOLE
+        useFakeConfig = false
+        FirebaseApp.configure()
+      #else
+        useFakeConfig = true
+        let options = FirebaseOptions(googleAppID: "1:123:ios:123abc",
+                                      gcmSenderID: "correct_gcm_sender_id")
+        options.apiKey = "A23456789012345678901234567890123456789"
+        options.projectID = "Fake Project"
+        FirebaseApp.configure(options: options)
+        APITests.mockedFetch = false
+      #endif
     }
-    useFakeConfig = FirebaseApp.app()!.options.projectID == "Mocked Project ID"
   }
 
   override func setUpWithError() throws {

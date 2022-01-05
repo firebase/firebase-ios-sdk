@@ -36,44 +36,12 @@ public extension RemoteConfig {
     return configValue(forKey: key).numberValue.intValue
   }
 
-  subscript(int8Value key: String) -> Int8 {
-    return configValue(forKey: key).numberValue.int8Value
-  }
-
-  subscript(int16Value key: String) -> Int16 {
-    return configValue(forKey: key).numberValue.int16Value
-  }
-
-  subscript(int32Value key: String) -> Int32 {
-    return configValue(forKey: key).numberValue.int32Value
-  }
-
-  subscript(int64Value key: String) -> Int64 {
-    return configValue(forKey: key).numberValue.int64Value
-  }
-
   subscript(uintValue key: String) -> UInt {
     return configValue(forKey: key).numberValue.uintValue
   }
 
-  subscript(uint8Value key: String) -> UInt8 {
-    return configValue(forKey: key).numberValue.uint8Value
-  }
-
-  subscript(uint16Value key: String) -> UInt16 {
-    return configValue(forKey: key).numberValue.uint16Value
-  }
-
-  subscript(uint32Value key: String) -> UInt32 {
-    return configValue(forKey: key).numberValue.uint32Value
-  }
-
-  subscript(uint64Value key: String) -> UInt64 {
-    return configValue(forKey: key).numberValue.uint64Value
-  }
-
-  subscript(decimalValue key: String) -> Decimal {
-    return configValue(forKey: key).numberValue.decimalValue
+  subscript(numberValue key: String) -> NSNumber {
+    return configValue(forKey: key).numberValue
   }
 
   subscript(floatValue key: String) -> Float {
