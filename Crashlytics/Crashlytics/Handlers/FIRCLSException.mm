@@ -224,7 +224,15 @@ void FIRCLSExceptionRecord(FIRCLSExceptionType type,
   }
   
   if (onDemandFatal) {
-    // Attempt on-demand delivery
+    // Attempt on-demand delivery. Should only be used for platforms in which exceptions do
+    // not crash the app (flutter, Unity, etc).
+    
+    // Create new report and copy into it the current state of custom keys and logs as
+    // well as the sdk.log, binary_images.clsrecord, and metadata.clsrecord files.
+    
+    // Write out the exception in the new report.
+    
+    // Close the new report and send it to the backend.
   }
 
   FIRCLSSDKLog("Finished recording an exception structure\n");
