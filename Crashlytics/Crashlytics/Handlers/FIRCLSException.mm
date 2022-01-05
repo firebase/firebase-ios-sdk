@@ -81,7 +81,7 @@ void FIRCLSExceptionRecordModel(FIRExceptionModel *exceptionModel) {
   const char *name = [[exceptionModel.name copy] UTF8String];
   const char *reason = [[exceptionModel.reason copy] UTF8String] ?: "";
 
-  FIRCLSExceptionRecord(FIRCLSExceptionTypeCustom, name, reason, [exceptionModel.stackTrace copy]);
+  FIRCLSExceptionRecord(FIRCLSExceptionTypeCustom, name, reason, [exceptionModel.stackTrace copy], NO);
 }
 
 void FIRCLSExceptionRecordNSException(NSException *exception) {
@@ -105,7 +105,7 @@ void FIRCLSExceptionRecordNSException(NSException *exception) {
   }
 
   FIRCLSExceptionRecord(FIRCLSExceptionTypeObjectiveC, [name UTF8String], [reason UTF8String],
-                        frames);
+                        frames, NO);
 }
 
 static void FIRCLSExceptionRecordFrame(FIRCLSFile *file, FIRStackFrame *frame) {
@@ -187,7 +187,8 @@ void FIRCLSExceptionWrite(FIRCLSFile *file,
 void FIRCLSExceptionRecord(FIRCLSExceptionType type,
                            const char *name,
                            const char *reason,
-                           NSArray<FIRStackFrame *> *frames) {
+                           NSArray<FIRStackFrame *> *frames,
+                           BOOL fatal) {
   if (!FIRCLSContextIsInitialized()) {
     return;
   }
@@ -222,6 +223,10 @@ void FIRCLSExceptionRecord(FIRCLSExceptionType type,
         &_firclsContext.writable->logging.activeCustomExceptionPath, ^(FIRCLSFile *file) {
           FIRCLSExceptionWrite(file, type, name, reason, frames);
         });
+  }
+  
+  if (fatal) {
+    // Attempt on-demand delivery
   }
 
   FIRCLSSDKLog("Finished recording an exception structure\n");
@@ -272,19 +277,19 @@ static void FIRCLSCatchAndRecordActiveException(std::type_info *typeInfo) {
 #endif
     }
   } catch (const char *exc) {
-    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, "const char *", exc, nil);
+    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, "const char *", exc, nil, NO);
   } catch (const std::string &exc) {
-    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, "std::string", exc.c_str(), nil);
+    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, "std::string", exc.c_str(), nil, NO);
   } catch (const std::exception &exc) {
-    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, FIRCLSExceptionDemangle(name), exc.what(), nil);
+    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, FIRCLSExceptionDemangle(name), exc.what(), nil, NO);
   } catch (const std::exception *exc) {
-    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, FIRCLSExceptionDemangle(name), exc->what(), nil);
+    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, FIRCLSExceptionDemangle(name), exc->what(), nil, NO);
   } catch (const std::bad_alloc &exc) {
     // it is especially important to avoid demangling in this case, because the expetation at this
     // point is that all allocations could fail
-    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, "std::bad_alloc", exc.what(), nil);
+    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, "std::bad_alloc", exc.what(), nil, NO);
   } catch (...) {
-    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, FIRCLSExceptionDemangle(name), "", nil);
+    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, FIRCLSExceptionDemangle(name), "", nil, NO);
   }
 }
 

@@ -65,7 +65,8 @@ void FIRCLSExceptionRecordNSException(NSException* exception);
 void FIRCLSExceptionRecord(FIRCLSExceptionType type,
                            const char* name,
                            const char* reason,
-                           NSArray<FIRStackFrame*>* frames);
+                           NSArray<FIRStackFrame*>* frames,
+                           BOOL fatal);
 #endif
 
 __END_DECLS
