@@ -48,11 +48,6 @@ static NSString *const kRefreshTokenKey = @"refreshToken";
  */
 static NSString *const kAccessTokenKey = @"accessToken";
 
-/** @var kRefreshTokenError
-    @brief Missing refresh token error message.
- */
-static NSString *const kRefreshTokenError = @"No refresh token is available.";
-
 /** @var kAccessTokenExpirationDateKey
     @brief The key used to encode the access token expiration date for NSSecureCoding.
  */
@@ -209,10 +204,8 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
                                }];
     }];
   } else {
-    NSError *error = [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeInternalError
-                                              message:kRefreshTokenError];
+    NSError *error = [FIRAuthErrorUtils tokenRefreshUnavailableError];
     callback(nil, error, NO);
-    return;
   }
 }
 
