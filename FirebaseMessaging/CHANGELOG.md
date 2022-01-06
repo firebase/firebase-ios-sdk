@@ -1,3 +1,6 @@
+# 2021-08 -- v8.11.0
+- [fixed] Fixed an issue that token is not associated with APNS token during app start. (#8738)
+
 # 2021-08 -- v8.6.0
 - [changed] Removed iOS version check from `FIRMessagingExtensionHelper.h` (#8492).
 - [added] Added new API `FIRMessagingExtensionHelper exportDeliveryMetricsToBigQuery` that allows developers to enable notification delivery metrics that exports to BigQuery. (#6181)
