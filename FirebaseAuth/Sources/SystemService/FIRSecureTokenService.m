@@ -20,6 +20,7 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRCustomTokenProviderDelegate.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthSerialTaskQueue.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuthTokenResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
@@ -194,6 +195,17 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
       [FIRAuthBackend verifyCustomToken:request
                                callback:^(FIRVerifyCustomTokenResponse *_Nullable response,
                                           NSError *_Nullable error) {
+                                 FIRAuthTokenResult *existingTokenResult =
+                                     [FIRAuthTokenResult tokenResultWithToken:self->_accessToken];
+                                 FIRAuthTokenResult *newTokenResult =
+                                     [FIRAuthTokenResult tokenResultWithToken:response.IDToken];
+                                 if (existingTokenResult && newTokenResult &&
+                                     ![newTokenResult.claims[@"user_id"]
+                                         isEqualToString:existingTokenResult.claims[@"user_id"]]) {
+                                   NSError *error = [FIRAuthErrorUtils userMismatchError];
+                                   callback(nil, error, NO);
+                                   return;
+                                 }
                                  BOOL tokenUpdated = [self
                                         maybeUpdateAccessToken:response.IDToken
                                      approximateExpirationDate:response.approximateExpirationDate];

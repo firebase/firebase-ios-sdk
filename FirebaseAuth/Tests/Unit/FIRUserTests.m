@@ -67,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
 static NSString *const kAPIKey = @"FAKE_API_KEY";
 
 /** @var kAccessToken
-    @brief The fake access token.
+    @brief A fake access token. The user ID is "testuser".
  */
 static NSString *const kAccessToken =
     @"eyJhbGciOimnuzI1NiIsImtpZCI6ImY1YjE4Mjc2YTQ4NjYxZDBhODBiYzh"
@@ -88,6 +88,22 @@ static NSString *const kAccessToken =
      "hHm7gjX_WaRmgTOvYsuDbBBGdE15yIVZ3acI4cFUgwMRhaW-"
      "dDV7jTOqZGYJlTsI5oRMehphoVnYnEedJga28r4mqVkPbW"
      "lddL4dVVm85FYmQcRc0b2CLMnSevBDlwu754ZUZmRgnuvDA";
+
+/** @var kAccessToken2
+    @brief A fake access token. The user ID is "testuser2".
+ */
+static NSString *const kAccessToken2 =
+    @"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9."
+    @"eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vZmItc2EtdXBncmFkZWQiLCJhdWQiOiJ0ZXN0X2F1Z"
+    @"CIsImF1dGhfdGltZSI6MTUyMjM2MDU0OSwidXNlcl9pZCI6InRlc3R1c2VyMiIsInN1YiI6InRlc3Rfc3ViIiwiaWF0Ij"
+    @"oxNTIyMzYwNTU3LCJleHAiOjE1MjIzNjQxNTcsImVtYWlsIjoiYXVuaXRlc3R1c2VyQGdtYWlsLmNvbSIsImVtYWlsX3Z"
+    @"lcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJhdW5pdGVzdHVzZXJAZ21haWwu"
+    @"Y29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.pLFQHyjOyN_"
+    @"ibaiPJssFIt1jq5kisazDOA2wRiPtUzZ707FZMl-7F1aFsMnYD5Ha2tNFrCOUnlLlOZRYkyxkIVDTyZfSpCHhn_"
+    @"Axs1XZwandin--gIFsxAf5Ygsf7Qkp0BioVnEd4Bcwc9CrZSRdPLuGoIPl6p6b9PM-"
+    @"4HLSj8DVuw5A0iVkPG4DHn43TUFt8gzha4A2H91UE8oMn1lWUV2RZDnIoBewKs_"
+    @"QSY0wnh6cWNbWQjHaS7t59wQQvH1YC2Scovsz2N4lkMvrRnzgnx3MfCw0BuK27MJ8iUeF0gIH2aSCYeurJuo5uvSuagDJ"
+    @"6OaUQJ6xZK_BmEzn-33H9g";
 
 /** @var kAccessTokenWithBase64URLCharacters
     @brief The fake access where the AUD value is "??????????>>>>>>>>>>" and the email value is
@@ -1419,6 +1435,38 @@ static const NSTimeInterval kExpectationTimeout = 2;
                                 XCTAssertTrue(
                                     tokenResult.claims &&
                                     [tokenResult.claims isKindOfClass:[NSDictionary class]]);
+                                [expectation fulfill];
+                              }];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testGetIDTokenResultForcingRefreshCustomTokenDelegateUserIDMismatch
+    @brief Tests the flow of a failed @c getIDTokenResultForcingRefresh:completion: call with a
+   custom token provider, when the user ID does not match the existing signed-in user.
+ */
+- (void)testGetIDTokenResultForcingRefreshCustomTokenDelegateUserIDMismatch {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [FIRAuth auth].customTokenProviderDelegate = (id<FIRCustomTokenProviderDelegate>)self;
+  [self signInWithCustomTokenNoRefreshTokenWithCompletion:^(FIRUser *user) {
+    OCMExpect([self->_mockBackend verifyCustomToken:[OCMArg any] callback:[OCMArg any]])
+        .andCallBlock2(^(FIRVerifyCustomTokenRequest *_Nullable request,
+                         FIRVerifyCustomTokenResponseCallback callback) {
+          XCTAssertEqualObjects(request.APIKey, kAPIKey);
+
+          dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+            id mockVerifyCustomTokenResponse = OCMClassMock([FIRVerifyCustomTokenResponse class]);
+            OCMStub([mockVerifyCustomTokenResponse IDToken]).andReturn(kAccessToken2);
+            callback(mockVerifyCustomTokenResponse, nil);
+          });
+        });
+    [user getIDTokenResultForcingRefresh:YES
+                              completion:^(FIRAuthTokenResult *_Nullable tokenResult,
+                                           NSError *_Nullable error) {
+                                XCTAssertTrue([NSThread isMainThread]);
+                                XCTAssertNil(tokenResult);
+                                XCTAssertEqual(error.code, FIRAuthErrorCodeUserMismatch);
                                 [expectation fulfill];
                               }];
   }];
