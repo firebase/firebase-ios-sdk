@@ -108,7 +108,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
     FIRCLSProfileMark mark = FIRCLSProfilingStart();
 
-    NSLog(@"[Firebase/Crashlytics] Version %@", FIRCLSSDKVersion());
+    NSLog(@"[FirebaseCrashlytics] Version %@", FIRCLSSDKVersion());
 
     FIRCLSDeveloperLog("Crashlytics", @"Running on %@, %@ (%@)", FIRCLSHostModelInfo(),
                        FIRCLSHostOSDisplayVersion(), FIRCLSHostOSBuildVersion());

@@ -132,7 +132,7 @@
         NSString *packagedPath = [self.fileManager.preparedPath
             stringByAppendingPathComponent:report.path.lastPathComponent];
 
-        FIRCLSInfoLog(@"[Firebase/Crashlytics] Packaged report with id '%@' for submission",
+        FIRCLSInfoLog(@"[FirebaseCrashlytics] Packaged report with id '%@' for submission",
                       report.identifier);
 
         [self uploadPackagedReportAtPath:packagedPath
