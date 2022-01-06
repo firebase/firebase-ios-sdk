@@ -43,7 +43,7 @@ Pod::Spec.new do |s|
   s.tvos.weak_framework = 'DeviceCheck'
 
   s.dependency 'FirebaseCore', '~> 8.0'
-  s.dependency 'PromisesObjC', '~> 2.0.0', '< 3.0'
+  s.dependency 'PromisesObjC', '~> 2.0'
   s.dependency 'GoogleUtilities/Environment', '~> 7.6'
 
   s.pod_target_xcconfig = {
