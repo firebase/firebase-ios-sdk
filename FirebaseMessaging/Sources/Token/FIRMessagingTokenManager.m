@@ -652,8 +652,7 @@
                                                                  isSandbox:isSandboxApp];
 
   // Re-fetch any invalidated tokens automatically, this time with the current APNs token, so that
-  // they are up-to-date.
-  // Or this is a fresh install and no apns token stored yet.
+  // they are up-to-date. Or this is a fresh install and no apns token stored yet.
   if (invalidatedTokens.count > 0 || [_tokenStore cachedTokenInfos].count == 0) {
     FIRMessaging_WEAKIFY(self);
 
@@ -686,7 +685,8 @@
                                         options:tokenOptions
                                         handler:^(NSString *_Nullable token,
                                                   NSError *_Nullable error){
-
+          // Do nothing as callback is not needed and the sub-funciton already
+          // handle errors.
                                         }];
       }
       if ([self->_tokenStore cachedTokenInfos].count == 0) {
@@ -694,7 +694,8 @@
                                   scope:kFIRMessagingDefaultTokenScope
                                 options:tokenOptions
                                 handler:^(NSString *_Nullable FCMToken, NSError *_Nullable error){
-
+          // Do nothing as callback is not needed and the sub-funciton already
+          // handle errors.
                                 }];
       }
     }];

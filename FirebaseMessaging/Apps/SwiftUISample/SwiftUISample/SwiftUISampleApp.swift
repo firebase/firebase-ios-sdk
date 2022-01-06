@@ -26,9 +26,9 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     FirebaseApp.configure()
     application.delegate = self
 
+    // Request permissions for push notifications
     let center = UNUserNotificationCenter.current()
     center.delegate = self
-
     center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
       if error != nil {
         print("Failed requesting notification permission: ", error ?? "")
@@ -40,6 +40,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 }
 
 struct SwiftUISampleApp: App {
+  // Add the adapter to access notifications APIs in AppDelegate
   @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
   var body: some Scene {
