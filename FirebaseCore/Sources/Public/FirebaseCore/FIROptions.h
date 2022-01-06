@@ -32,7 +32,7 @@ NS_SWIFT_NAME(FirebaseOptions)
 
 /**
  * An iOS API key used for authenticating requests from your app, e.g.
- * The key contains about 39 alphanumeric digits, used to identify your app to Google servers.
+ * The key must begin with "A" and contain exactly 39 alphanumeric characters, used to identify your app to Google servers.
  */
 @property(nonatomic, copy, nullable) NSString *APIKey NS_SWIFT_NAME(apiKey);
 
