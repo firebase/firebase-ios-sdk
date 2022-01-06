@@ -18,7 +18,7 @@ target 'YourApp' do
   use_frameworks!
 
   pod 'Firebase/Auth'
-  pod 'Firebase/Analytics'
+  pod 'FirebaseAnalytics'
   pod 'Firebase/FirebaseCombineSwift'
 end
 ```
