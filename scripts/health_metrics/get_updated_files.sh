@@ -28,7 +28,8 @@ dir=$(pwd)
 
 # Get most rescent ancestor commit.
 echo ${pr_branch}
-common_commit=$(git merge-base remotes/origin/${pr_branch} remotes/origin/${GITHUB_BASE_REF})
+echo ${GITHUB_REF#refs/heads/}
+common_commit=$(git merge-base $(echo ${GITHUB_REF#refs/heads/}) remotes/origin/${GITHUB_BASE_REF})
 target_branch_head=$(git rev-parse remotes/origin/${GITHUB_BASE_REF})
 echo "The common commit is ${common_commit}."
 echo "The target branch head commit is ${target_branch_head}."
