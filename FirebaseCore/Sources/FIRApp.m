@@ -242,14 +242,27 @@ static FIRApp *sDefaultApp;
   if (sDefaultApp) {
     return sDefaultApp;
   }
-  FIRLogError(kFIRLoggerCore, @"I-COR000003",
-              @"The default Firebase app has not yet been "
-              @"configured. Add `FirebaseApp.configure()` to your "
-              @"application initialization. This can be done in "
-              @"in the App Delegate's application(_:didFinishLaunchingWithOptions:)` "
-              @"(or the `@main` struct's initializer in SwiftUI). "
-              @"Read more: https://goo.gl/ctyzm8.");
   return nil;
+}
+
++ (FIRApp *)defaultApp:(BOOL)shouldAutoCreate {
+  __auto_type *defaultApp = [FIRApp defaultApp];
+  if (defaultApp) {
+    return defaultApp;
+  }
+  if (!shouldAutoCreate) {
+    FIRLogError(kFIRLoggerCore, @"I-COR000003",
+                @"The default Firebase app has not yet been "
+                @"configured. Add `FirebaseApp.configure()` to your "
+                @"application initialization. This can be done in "
+                @"in the App Delegate's application(_:didFinishLaunchingWithOptions:)` "
+                @"(or the `@main` struct's initializer in SwiftUI). "
+                @"Read more: https://goo.gl/ctyzm8.");
+    return nil;
+  } else {
+    [FIRApp configure];
+    return [FIRApp defaultApp:NO];
+  }
 }
 
 + (FIRApp *)appNamed:(NSString *)name {

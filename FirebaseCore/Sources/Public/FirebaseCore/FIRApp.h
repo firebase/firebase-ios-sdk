@@ -80,6 +80,13 @@ NS_SWIFT_NAME(FirebaseApp)
 + (nullable FIRApp *)defaultApp NS_SWIFT_NAME(app());
 
 /**
+ * Returns the default app. If the default app does not exist, autocreates it.
+ * @param shouldAutoCreate Should the default application be autocreated if does not exist.
+ Letters, Numbers and Underscore.
+ */
++ (nullable FIRApp *)defaultApp:(BOOL)shouldAutoCreate NS_SWIFT_NAME(app(shouldAutoCreate:));
+
+/**
  * Returns a previously created FIRApp instance with the given name, or nil if no such app exists.
  * This method is thread safe.
  */
