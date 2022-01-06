@@ -685,8 +685,8 @@
                                         options:tokenOptions
                                         handler:^(NSString *_Nullable token,
                                                   NSError *_Nullable error){
-          // Do nothing as callback is not needed and the sub-funciton already
-          // handle errors.
+                                            // Do nothing as callback is not needed and the
+                                            // sub-funciton already handle errors.
                                         }];
       }
       if ([self->_tokenStore cachedTokenInfos].count == 0) {
@@ -694,8 +694,8 @@
                                   scope:kFIRMessagingDefaultTokenScope
                                 options:tokenOptions
                                 handler:^(NSString *_Nullable FCMToken, NSError *_Nullable error){
-          // Do nothing as callback is not needed and the sub-funciton already
-          // handle errors.
+                                    // Do nothing as callback is not needed and the sub-funciton
+                                    // already handle errors.
                                 }];
       }
     }];
