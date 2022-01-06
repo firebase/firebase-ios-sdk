@@ -38,7 +38,7 @@ You can pass in launch arguments with Xcode by clicking "zip-builder" beside the
 
 #### Common Arguments
 
-Use `pods <pods>` to specify the CocoaPods to build.
+Use `--pods <pods>` to specify the CocoaPods to build.
 
 The `pods` option will choose whatever pods get installed from an unversioned CocoaPods install,
 typically the latest versions.

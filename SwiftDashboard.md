@@ -1,6 +1,6 @@
 # Firebase Swift Modernization Dashboard
 
-This dashboard summarizes the status of Firebase's [2022 Swift Modernization Project](Roadmap.md).
+This dashboard summarizes the status of Firebase's [2022 Swift Modernization Project](ROADMAP.md).
 Please upvote or create a [feature request](https://github.com/firebase/firebase-ios-sdk/issues)
 to help prioritize any particular cell(s).
 
@@ -10,13 +10,14 @@ tasks for additional Swift improvements.
 |                       | AB  | An     | ApC    | ApD    | Aut    | Cor    | Crs    | DB     | Fst    | Fn     | IAM    | Ins    | Msg    | MLM    | Prf    | RC     |    Str |
 |   :---                | :--- | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
 | **Swift Library**     | ❌   |   ✔   | ❌     |❌     | ❌     | ❌     | ❌      |  ✔     |  ✔    | 1      |  ✔     | ❌    | ❌     | ✔      | ❌     | ❌    | ✔     |
-| **API Tests**         | ❌   |  ❌    |  ✔    |❌     | ❌     | ✔       | ❌     | 3      | 2     |  ✔     | 2      | ✔      | ❌     | 2      | ❌    |  ✔     | ✔    |
-| **async/await**       | ❌   |  n/a   |  ✔    |❌     | ❌     |  ✔      | ❌     | 3     | ❌     |  ✔     | ❌     | ❌    | ❌     | ❌    | ❌     |  ✔    | ✔    |
+| **API Tests**         | ❌   |  ❌    |  ✔    |❌     | ❌     | ✔       | ❌     | 3      | 2     |  ✔     | 2      | ✔      | 2     | 2      | ❌    |  ✔     | ✔    |
+| **async/await**       | ❌   |  n/a   |  ✔    |❌     | ❌     |  ✔      | ❌     | 3     | ❌     |  ✔     | ❌     | ❌    | ✔     | ❌    | ❌     |  ✔    | ✔    |
 | **Swift Errors**      |  ❌  |  ❌    | ❌    |❌     | 4      | ❌     | ❌     | ❌     | ❌    | ❌     | ❌     | ❌    | ❌     | ✔      | ❌     | ❌   | 5   |
 | **Codable**           | n/a  | n/a     | n/a   |n/a    | n/a     | n/a    |n/a     |  ✔     |  ✔     | 1      | n/a     | n/a   | ❌     | n/a    | n/a    |  ❌  |n/a   |
 | **SwiftUI Lifecycle** | n/a  |  ❌    | n/a    |❌     | ❌     | n/a    |n/a     | n/a    | n/a    | n/a     | n/a    | n/a   | ❌     | n/a    | n/a    | n/a   |n/a  |
 | **SwiftUI Interop**   | ❌   |  ✔     | ❌     |❌    | ❌     | ❌     |❌      | ❌     | ❌    | ❌     | ✔      | ❌    | ❌     | ❌    | ❌     | ❌    |n/a  |
-| **Property Wrappers** |  ❌  |  ❌    | ❌    |❌     | ❌     | ❌     | ❌     | ❌     | 6     | ❌     | ❌     | ❌    | ❌     | ❌    | ❌     | ❌   |❌     |
+| **Property Wrappers** |  ❌  |  ❌    | ❌    |❌     | ❌     | ❌     | ❌     | ❌     | 6     | ❌     | ❌     | ❌    | ❌     | ❌    | ❌     | ❌   |❌    |
+| **Swift Doc Scrub**   |  ❌  |  ❌    | ❌    |❌     | ❌     | ❌     | ❌     | ❌     |  ❌   | ❌     | ❌     | ❌    | ❌     | ❌    | ❌     | ❌   |❌    |
 
 ### Other Projects
 - Tooling to surface full list of automatically generated Swift API from Objective C and validate.
@@ -24,7 +25,7 @@ tasks for additional Swift improvements.
 - Swift Generics. Update APIs that are using weakly typed information to use proper generics.
 
 ## Notes
-1. In progress at [#8854](https://github.com/firebase/firebase-ios-sdk/pull/8854)
+1. Planned to release with Firebase 8.11.0
 2. Tests exist. Coverage to be confirmed.
 3. Mostly done. Need to review open questions in the RTDB tab [here](https://docs.google.com/spreadsheets/d/1HS4iJBtTHA9E01VrcsiVn_GVOa7KOCcn5LNw3sWlGoU/edit#gid=75586175).
 4. Feature Request at [#7723](https://github.com/firebase/firebase-ios-sdk/pull/7723) and PR at [#9000](https://github.com/firebase/firebase-ios-sdk/pull/9000)
@@ -45,6 +46,8 @@ for Storage.
 Property Wrappers and likely the SwiftUI lifecycle bits, but an audit and improvements could likely be made. The existing FIAM and Analytics View modifier
 APIs would fit into this category.
 * **Property Wrappers**: Property wrappers are used to improve the API.
+* **Swift Doc Scrub**: Review and update to change Objective C types and call examples to Swift. In addition to updating the documentation content, we
+should also investigate using DocC to format the docs.
 
 ## Columns (Firebase Products)
 * AB - AB Testing

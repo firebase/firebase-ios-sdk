@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMLModelDownloader'
-  s.version          = '8.10.0-beta'
+  s.version          = '8.11.0-beta'
   s.summary          = 'Firebase ML Model Downloader'
 
   s.description      = <<-DESC
@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
     :tag => 'CocoaPods-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.swift_version = '5.0'
+  s.swift_version = '5.3'
 
   ios_deployment_target = '10.0'
   osx_deployment_target = '10.12'

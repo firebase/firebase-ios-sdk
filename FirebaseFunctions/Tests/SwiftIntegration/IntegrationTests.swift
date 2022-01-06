@@ -18,7 +18,7 @@ import FirebaseFunctions
 import FirebaseFunctionsTestingSupport
 import XCTest
 
-/// This file was intitialized as a direct port of the Objective C
+/// This file was initialized as a direct port of the Objective C
 /// FirebaseFunctions/Tests/Integration/FIRIntegrationTests.m
 ///
 /// The tests require the emulator to be running with `FirebaseFunctions/Backend/start.sh synchronous`

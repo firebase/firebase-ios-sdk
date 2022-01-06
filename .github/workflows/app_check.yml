@@ -44,6 +44,9 @@ jobs:
         diagnostic: [tsan, asan, ubsan]
     steps:
     - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: iOS Unit Tests
@@ -79,6 +82,9 @@ jobs:
     runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: iOS Unit Tests
@@ -95,6 +101,9 @@ jobs:
         target: [tvOS, macOS, catalyst]
     steps:
     - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Unit Tests

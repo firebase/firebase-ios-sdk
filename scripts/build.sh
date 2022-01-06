@@ -28,7 +28,6 @@ set -euo pipefail
 if [[ $# -lt 1 ]]; then
   cat 1>&2 <<EOF
 USAGE: $0 product [platform] [method]
-
 product can be one of:
   Firebase
   Firestore
@@ -44,7 +43,6 @@ product can be one of:
   SymbolCollision
   GoogleDataTransport
   Performance
-
 platform can be one of:
   iOS (default)
   iOS-device
@@ -52,14 +50,12 @@ platform can be one of:
   tvOS
   watchOS
   catalyst
-
 method can be one of:
   xcodebuild (default)
   cmake
   unit
   integration
   spm
-
 Optionally, reads the environment variable SANITIZERS. If set, it is expected to
 be a string containing a space-separated list with some of the following
 elements:
@@ -238,6 +234,9 @@ xcb_flags+=(
   COMPILER_INDEX_STORE_ENABLE=NO
 )
 
+source scripts/buildcache.sh
+xcb_flags=("${xcb_flags[@]}" "${buildcache_xcb_flags[@]}")
+
 # TODO(varconst): Add --warn-unused-vars and --warn-uninitialized.
 # Right now, it makes the log overflow on Travis because many of our
 # dependencies don't build cleanly this way.
@@ -371,6 +370,12 @@ case "$product-$platform-$method" in
 
   Messaging-*-xcodebuild)
     pod_gen FirebaseMessaging.podspec --platforms=ios
+
+    # Add GoogleService-Info.plist to generated Test Wrapper App.
+    ruby ./scripts/update_xcode_target.rb gen/FirebaseMessaging/Pods/Pods.xcodeproj \
+      AppHost-FirebaseMessaging-Unit-Tests \
+      ../../../FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist
+
     RunXcodebuild \
       -workspace 'gen/FirebaseMessaging/FirebaseMessaging.xcworkspace' \
       -scheme "FirebaseMessaging-Unit-unit" \

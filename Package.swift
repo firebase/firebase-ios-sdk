@@ -17,7 +17,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "8.10.0"
+let firebaseVersion = "8.11.0"
 
 let package = Package(
   name: "Firebase",
@@ -90,6 +90,10 @@ let package = Package(
     .library(
       name: "FirebaseFunctions",
       targets: ["FirebaseFunctions"]
+    ),
+    .library(
+      name: "FirebaseFunctionsSwift-Beta",
+      targets: ["FirebaseFunctionsSwift"]
     ),
     .library(
       name: "FirebaseInAppMessaging-Beta",
@@ -516,17 +520,26 @@ let package = Package(
     ),
     .target(
       name: "FirebaseDatabaseSwift",
-      dependencies: ["FirebaseDatabase"],
-      path: "FirebaseDatabaseSwift/Sources",
-      exclude: [
-        "third_party/RTDBEncoder/LICENSE",
-        "third_party/RTDBEncoder/METADATA",
-      ]
+      dependencies: ["FirebaseDatabase", "FirebaseSharedSwift"],
+      path: "FirebaseDatabaseSwift/Sources"
     ),
     .testTarget(
       name: "FirebaseDatabaseSwiftTests",
       dependencies: ["FirebaseDatabase", "FirebaseDatabaseSwift"],
       path: "FirebaseDatabaseSwift/Tests/"
+    ),
+    .target(
+      name: "FirebaseSharedSwift",
+      path: "FirebaseSharedSwift/Sources",
+      exclude: [
+        "third_party/FirebaseDataEncoder/LICENSE",
+        "third_party/FirebaseDataEncoder/METADATA",
+      ]
+    ),
+    .testTarget(
+      name: "FirebaseSharedSwiftTests",
+      dependencies: ["FirebaseSharedSwift"],
+      path: "FirebaseSharedSwift/Tests/"
     ),
     .target(
       name: "FirebaseDynamicLinksTarget",
@@ -571,6 +584,7 @@ let package = Package(
         "CHANGELOG.md",
         "CMakeLists.txt",
         "Example/",
+        "LICENSE",
         "Protos/CMakeLists.txt",
         "Protos/Podfile",
         "Protos/README.md",
@@ -635,6 +649,7 @@ let package = Package(
         "CHANGELOG.md",
         "CMakeLists.txt",
         "Example/",
+        "LICENSE",
         "Protos/",
         "README.md",
         "Source/",
@@ -667,6 +682,21 @@ let package = Package(
       cSettings: [
         .headerSearchPath("../../"),
       ]
+    ),
+    .target(
+      name: "FirebaseFunctionsSwift",
+      dependencies: [
+        "FirebaseFunctions",
+        "FirebaseSharedSwift",
+      ],
+      path: "FirebaseFunctionsSwift/Sources"
+    ),
+    .testTarget(
+      name: "FirebaseFunctionsSwiftUnit",
+      dependencies: ["FirebaseFunctionsSwift",
+                     "FirebaseFunctionsTestingSupport",
+                     "SharedTestUtilities"],
+      path: "FirebaseFunctionsSwift/Tests"
     ),
     .target(
       name: "FirebaseFunctionsCombineSwift",
