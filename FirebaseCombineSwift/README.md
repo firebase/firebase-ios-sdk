@@ -17,7 +17,7 @@ platform :ios, '14.0'
 target 'YourApp' do
   use_frameworks!
 
-  pod 'Firebase/Auth'
+  pod 'FirebaseAuth'
   pod 'FirebaseAnalytics'
   pod 'Firebase/FirebaseCombineSwift'
 end

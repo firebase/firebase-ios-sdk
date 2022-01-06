@@ -71,7 +71,7 @@ namespace firestore {
 namespace credentials {
 
 // Simulates the case where Firebase/Firestore is installed in the project but
-// Firebase/Auth is not available.
+// FirebaseAuth is not available.
 TEST(FirebaseAuthCredentialsProviderTest, GetTokenNoProvider) {
   auto token_promise = std::make_shared<std::promise<AuthToken>>();
 
