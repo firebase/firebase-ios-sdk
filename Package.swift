@@ -136,7 +136,7 @@ let package = Package(
     .package(
       name: "Promises",
       url: "https://github.com/google/promises.git",
-      "1.2.8" ..< "3.0.0"
+      "2.0.0" ..< "3.0.0"
     ),
     .package(
       name: "SwiftProtobuf",
