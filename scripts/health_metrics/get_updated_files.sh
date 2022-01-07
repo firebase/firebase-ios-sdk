@@ -27,14 +27,8 @@ dir=$(pwd)
 
 
 # Get most rescent ancestor commit.
-echo ${pr_branch}
-echo ${GITHUB_REF#refs/heads/}
-echo ${GITHUB_REF}
-echo ${GITHUB_HEAD_REF}
-common_commit=$(git merge-base HEAD remotes/origin/${GITHUB_BASE_REF})
 target_branch_head=$(git rev-parse remotes/origin/${GITHUB_BASE_REF})
 echo "The head commit is $(git rev-parse HEAD)."
-echo "The common commit is ${common_commit}."
 echo "The target branch head commit is ${target_branch_head}."
 # Set target branch head and this will be used to compare diffs of coverage to the current commit.
 echo "::set-output name=target_branch_head::${target_branch_head}"

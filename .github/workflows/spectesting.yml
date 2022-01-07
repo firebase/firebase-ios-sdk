@@ -15,7 +15,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
       with:
-        repository: granluo/firebase-ios-sdk
         fetch-depth: 0
     - name: check files
       id: check_files
