@@ -19,23 +19,20 @@ import FirebaseCore
 import FirebaseInstallations
 import FirebaseMessaging
 
-
-class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate,
+  MessagingDelegate {
   let identity = Identity()
-  let settings = UserSettings()
   var cancellables = Set<AnyCancellable>()
 
+  // Must implement the method to make swizzling work in SwiftUI lifecycle.
   func application(_ application: UIApplication,
-                   didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-    Messaging.messaging().apnsToken = deviceToken
-  }
+                   didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {}
 
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication
                      .LaunchOptionsKey: Any]? = nil) -> Bool {
-    if FirebaseApp.app() == nil {
-      FirebaseApp.configure()
-    }
+    FirebaseApp.configure()
+
     // Request permissions for push notifications
     let center = UNUserNotificationCenter.current()
     center.delegate = self
@@ -45,29 +42,50 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
       }
     }
     application.registerForRemoteNotifications()
-    // Subscribe to token refresh
-    NotificationCenter.default
-      .publisher(for: Notification.Name.MessagingRegistrationTokenRefreshed)
-      .map { $0.object as? String }
-      .receive(on: RunLoop.main)
-      .assign(to: \Identity.token, on: identity)
-      .store(in: &cancellables)
+
+    // Observe token refresh - two ways
+    // First way: use MessagingDelegate
+    let settings = UserSettings()
+    if settings.shouldUseDelegateThanNotification {
+      Messaging.messaging().delegate = self
+    } else {
+      // Second way: use notification to subscribe to token refresh
+      NotificationCenter.default
+        .publisher(for: Notification.Name.MessagingRegistrationTokenRefreshed)
+        .map { $0.object as? String }
+        .receive(on: RunLoop.main)
+        .assign(to: \Identity.token, on: identity)
+        .store(in: &cancellables)
+    }
 
     // Subscribe to fid changes
+    // Somehow FID notification is not triggered during app start, will have to invest
+    refreshInstallationsID()
     NotificationCenter.default
       .publisher(for: Notification.Name.InstallationIDDidChange)
       .receive(on: RunLoop.main)
       .sink(receiveValue: { _ in
-        Installations.installations().installationID(completion: { fid, error in
-          if let error = error as NSError? {
-            print("Failed to get FID: ", error)
-            return
-          }
-          self.identity.installationsID = fid
-        })
+        self.refreshInstallationsID()
       })
       .store(in: &cancellables)
     return true
+  }
+
+  func refreshInstallationsID() {
+    Installations.installations().installationID(completion: { fid, error in
+      if let error = error as NSError? {
+        print("Failed to get FID: ", error)
+        return
+      }
+      self.identity.installationsID = fid
+    })
+  }
+
+  func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+    identity.token = fcmToken
+    print("=============================\n")
+    print("Did refresh token:\n", identity.token ?? "")
+    print("\n=============================\n")
   }
 }
 
@@ -78,7 +96,7 @@ struct SwiftUISampleApp: App {
 
   var body: some Scene {
     WindowGroup {
-      ContentView().environmentObject(appDelegate.identity).environmentObject(appDelegate.settings)
+      ContentView().environmentObject(appDelegate.identity).environmentObject(UserSettings())
     }
   }
 }
