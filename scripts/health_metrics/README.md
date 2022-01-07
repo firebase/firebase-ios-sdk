@@ -48,8 +48,8 @@ which will run [cocoapods-size](https://github.com/google/cocoapods-size)
 to create a binary size report and either post it in PRs in presubmits or
 upload it to the Metrics Service.
 
-The cocoapods-size tool measures an iOS SDK size by getting the diff before
-and after a pod installed on an [iOS skeleton app](https://github.com/google/cocoapods-size/tree/master/sizetestproject).
+The cocoapods-size tool measures an iOS SDK size by comparing the 64 bit ARM slice
+before and after installing the pod to an [iOS skeleton app](https://github.com/google/cocoapods-size/tree/master/sizetestproject).
 More about CocoaPods Size measurement could be found [here](https://github.com/google/cocoapods-size#cocoapods-size-measurement).
 
 ### Replicate a binary size measurement for a released SDK
