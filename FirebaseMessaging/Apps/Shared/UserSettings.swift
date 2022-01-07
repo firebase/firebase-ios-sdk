@@ -25,10 +25,4 @@ public final class UserSettings: ObservableObject {
     .bool(forKey: "useDelegate") {
     didSet { UserDefaults.standard.set(shouldUseDelegateThanNotification, forKey: "useDelegate") }
   }
-
-  init() {
-    if FirebaseApp.app() == nil {
-      FirebaseApp.configure()
-    }
-  }
 }
