@@ -26,6 +26,7 @@
 
 #include <dispatch/dispatch.h>
 #include <stdbool.h>
+#include <string.h>
 
 // The purpose of the crash context is to hold values that absolutely must be read and/or written at
 // crash time.  For robustness against memory corruption, they are protected with guard pages.
@@ -96,6 +97,7 @@ typedef struct {
 bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
                              FIRCLSSettings* settings,
                              FIRCLSFileManager* fileManager);
+FIRCLSUserLoggingABStorage FIRCLSContextInitializeLogStorage(int maxLogSize, NSString* rootPath);
 
 #endif
 

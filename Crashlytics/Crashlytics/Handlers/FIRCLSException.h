@@ -61,12 +61,16 @@ void FIRCLSExceptionRaiseTestCppException(void) __attribute((noreturn));
 
 #ifdef __OBJC__
 void FIRCLSExceptionRecordModel(FIRExceptionModel* exceptionModel);
+NSString* FIRCLSExceptionRecordOnDemandModel(FIRExceptionModel* exceptionModel);
 void FIRCLSExceptionRecordNSException(NSException* exception);
 void FIRCLSExceptionRecord(FIRCLSExceptionType type,
                            const char* name,
                            const char* reason,
-                           NSArray<FIRStackFrame*>* frames,
-                           BOOL fatal);
+                           NSArray<FIRStackFrame*>* frames);
+NSString* FIRCLSExceptionRecordOnDemand(FIRCLSExceptionType type,
+                                        const char* name,
+                                        const char* reason,
+                                        NSArray<FIRStackFrame*>* frames);
 #endif
 
 __END_DECLS

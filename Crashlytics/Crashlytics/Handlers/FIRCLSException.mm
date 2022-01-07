@@ -20,15 +20,20 @@
 #import "Crashlytics/Crashlytics/Private/FIRStackFrame_Private.h"
 
 #include "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSProcess.h"
 #import "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
+
 #include "Crashlytics/Crashlytics/Handlers/FIRCLSHandler.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
 
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportManager_Private.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSExecutionIdentifierModel.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 #include "Crashlytics/Crashlytics/Operations/Symbolication/FIRCLSDemangleOperation.h"
 
 // C++/Objective-C exception handling
@@ -81,7 +86,15 @@ void FIRCLSExceptionRecordModel(FIRExceptionModel *exceptionModel) {
   const char *name = [[exceptionModel.name copy] UTF8String];
   const char *reason = [[exceptionModel.reason copy] UTF8String] ?: "";
 
-  FIRCLSExceptionRecord(FIRCLSExceptionTypeCustom, name, reason, [exceptionModel.stackTrace copy], NO);
+  FIRCLSExceptionRecord(FIRCLSExceptionTypeCustom, name, reason, [exceptionModel.stackTrace copy]);
+}
+
+NSString *FIRCLSExceptionRecordOnDemandModel(FIRExceptionModel *exceptionModel) {
+  const char *name = [[exceptionModel.name copy] UTF8String];
+  const char *reason = [[exceptionModel.reason copy] UTF8String] ?: "";
+
+  return FIRCLSExceptionRecordOnDemand(FIRCLSExceptionTypeCustom, name, reason,
+                                       [exceptionModel.stackTrace copy]);
 }
 
 void FIRCLSExceptionRecordNSException(NSException *exception) {
@@ -105,7 +118,7 @@ void FIRCLSExceptionRecordNSException(NSException *exception) {
   }
 
   FIRCLSExceptionRecord(FIRCLSExceptionTypeObjectiveC, [name UTF8String], [reason UTF8String],
-                        frames, NO);
+                        frames);
 }
 
 static void FIRCLSExceptionRecordFrame(FIRCLSFile *file, FIRStackFrame *frame) {
@@ -187,8 +200,7 @@ void FIRCLSExceptionWrite(FIRCLSFile *file,
 void FIRCLSExceptionRecord(FIRCLSExceptionType type,
                            const char *name,
                            const char *reason,
-                           NSArray<FIRStackFrame *> *frames,
-                           BOOL onDemandFatal) {
+                           NSArray<FIRStackFrame *> *frames) {
   if (!FIRCLSContextIsInitialized()) {
     return;
   }
@@ -222,20 +234,71 @@ void FIRCLSExceptionRecord(FIRCLSExceptionType type,
           FIRCLSExceptionWrite(file, type, name, reason, frames);
         });
   }
-  
-  if (onDemandFatal) {
-    // Attempt on-demand delivery. Should only be used for platforms in which exceptions do
-    // not crash the app (flutter, Unity, etc).
-    
-    // Create new report and copy into it the current state of custom keys and logs as
-    // well as the sdk.log, binary_images.clsrecord, and metadata.clsrecord files.
-    
-    // Write out the exception in the new report.
-    
-    // Close the new report and send it to the backend.
-  }
 
   FIRCLSSDKLog("Finished recording an exception structure\n");
+}
+
+// Prepares a new active report for on-demand delivery and returns the path to the report.
+// Should only be used for platforms in which exceptions do not crash the app (flutter, Unity, etc).
+NSString *FIRCLSExceptionRecordOnDemand(FIRCLSExceptionType type,
+                                        const char *name,
+                                        const char *reason,
+                                        NSArray<FIRStackFrame *> *frames) {
+  if (!FIRCLSContextIsInitialized()) {
+    return nil;
+  }
+
+  FIRCLSSDKLog("Recording an exception structure on demand\n");
+
+  NSFileManager *fileManager = [NSFileManager defaultManager];
+
+  // Create paths for new report.
+  NSString *currentLogPath = [NSString stringWithUTF8String:_firclsContext.readonly->logPath];
+  NSMutableArray *currentPathComponents = [[currentLogPath pathComponents] mutableCopy];
+  [currentPathComponents removeLastObject];  // Remove logPath.sdk component
+  NSString *currentRootPath = [currentPathComponents componentsJoinedByString:@"/"];
+  [currentPathComponents removeLastObject];  // Remove current report ID
+
+  NSString *newReportID = [[[FIRCLSExecutionIdentifierModel alloc] init] executionID];
+  [currentPathComponents addObject:newReportID];
+  NSString *newRootPath = [currentPathComponents componentsJoinedByString:@"/"];
+  [currentPathComponents addObject:FIRCLSCustomCrashIndicatorFile];
+  NSString *customExceptionIndicatorFilePath =
+      [currentPathComponents componentsJoinedByString:@"/"];
+
+  // Create new report and copy into it the current state of custom keys and log and the sdk.log,
+  // binary_images.clsrecord, and metadata.clsrecord files.
+  NSError *error = nil;
+  BOOL copied = [fileManager copyItemAtPath:currentRootPath toPath:newRootPath error:&error];
+  if (error || !copied) {
+    FIRCLSSDKLog("Unable to create a new report to record on-demand exeption.");
+    return nil;
+  }
+
+  // Write out an empty file to indicate that the report contains a fatal event. This is used
+  // to report events to Analytics for CFU calculations.
+  if (![fileManager createFileAtPath:customExceptionIndicatorFilePath
+                            contents:nil
+                          attributes:nil]) {
+    FIRCLSSDKLog("Unable to create custom exception file. On demand exception will not be logged "
+                 "with analytics.");
+  }
+
+  // Write out the exception in the new report.
+  const char *newActiveCustomExceptionPath =
+      [[newRootPath stringByAppendingPathComponent:FIRCLSReportCustomExceptionAFile] UTF8String];
+  FIRCLSFile file;
+  if (!FIRCLSFileInitWithPath(&file, newActiveCustomExceptionPath, true)) {
+    FIRCLSSDKLog("Unable to open log file for on demand custom exception\n");
+    return nil;
+  }
+  FIRCLSExceptionWrite(&file, type, name, reason, frames);
+  off_t fileSize = 0;
+  FIRCLSFileCloseWithOffset(&file, &fileSize);
+
+  // Return the path to the new report.
+  FIRCLSSDKLog("Finished recording on demand exception structure\n");
+  return newRootPath;
 }
 
 // Ignore this message here, because we know that this call will not leak.
@@ -243,7 +306,7 @@ void FIRCLSExceptionRecord(FIRCLSExceptionType type,
 #pragma clang diagnostic ignored "-Winvalid-noreturn"
 void FIRCLSExceptionRaiseTestObjCException(void) {
   [NSException raise:@"CrashlyticsTestException"
-              format:@"This is an Objective-C exception using for testing."];
+              format:@"This is an Objective-C exception used for testing."];
 }
 
 void FIRCLSExceptionRaiseTestCppException(void) {
@@ -283,19 +346,19 @@ static void FIRCLSCatchAndRecordActiveException(std::type_info *typeInfo) {
 #endif
     }
   } catch (const char *exc) {
-    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, "const char *", exc, nil, NO);
+    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, "const char *", exc, nil);
   } catch (const std::string &exc) {
-    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, "std::string", exc.c_str(), nil, NO);
+    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, "std::string", exc.c_str(), nil);
   } catch (const std::exception &exc) {
-    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, FIRCLSExceptionDemangle(name), exc.what(), nil, NO);
+    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, FIRCLSExceptionDemangle(name), exc.what(), nil);
   } catch (const std::exception *exc) {
-    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, FIRCLSExceptionDemangle(name), exc->what(), nil, NO);
+    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, FIRCLSExceptionDemangle(name), exc->what(), nil);
   } catch (const std::bad_alloc &exc) {
     // it is especially important to avoid demangling in this case, because the expetation at this
     // point is that all allocations could fail
-    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, "std::bad_alloc", exc.what(), nil, NO);
+    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, "std::bad_alloc", exc.what(), nil);
   } catch (...) {
-    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, FIRCLSExceptionDemangle(name), "", nil, NO);
+    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, FIRCLSExceptionDemangle(name), "", nil);
   }
 }
 

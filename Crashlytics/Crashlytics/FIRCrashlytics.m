@@ -25,6 +25,7 @@
 #import "Crashlytics/Crashlytics/Components/FIRCLSHost.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
+#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
 #import "Crashlytics/Crashlytics/FIRCLSUserDefaults/FIRCLSUserDefaults.h"
 #include "Crashlytics/Crashlytics/Handlers/FIRCLSException.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
@@ -45,6 +46,8 @@
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSNotificationManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportUploader.h"
+#import "Crashlytics/Crashlytics/Private/FIRCLSExistingReportManager_Private.h"
+#import "Crashlytics/Crashlytics/Private/FIRExceptionModel_Private.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
@@ -348,7 +351,22 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 }
 
 - (void)recordExceptionModel:(FIRExceptionModel *)exceptionModel {
-  FIRCLSExceptionRecordModel(exceptionModel);
+  if (exceptionModel.onDemand) {
+    // Record and attempt to submit an exception on-demand
+    FIRCLSDataCollectionToken *dataCollectionToken = [FIRCLSDataCollectionToken validToken];
+    if ([self.dataArbiter isCrashlyticsCollectionEnabled]) {
+      NSString *activeReportPath = FIRCLSExceptionRecordOnDemandModel(exceptionModel);
+      if (activeReportPath) {
+        [self.existingReportManager processExistingActiveReportPath:activeReportPath
+                                                dataCollectionToken:dataCollectionToken
+                                                           asUrgent:YES];
+        FIRCLSSDKLog("Submitted an on-demand exception\n");
+      }
+    }
+  } else {
+    // Record the exception normally
+    FIRCLSExceptionRecordModel(exceptionModel);
+  }
 }
 
 @end

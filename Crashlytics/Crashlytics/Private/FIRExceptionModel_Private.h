@@ -26,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy) NSString *name;
 @property(nonatomic, copy) NSString *reason;
 @property(nonatomic) BOOL isFatal;
+@property(nonatomic) BOOL onDemand;
 
 @end
 
