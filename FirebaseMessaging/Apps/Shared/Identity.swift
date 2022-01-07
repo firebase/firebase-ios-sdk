@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import SwiftUI
+import FirebaseCore
 import FirebaseMessaging
 import FirebaseInstallations
 
@@ -23,6 +24,9 @@ public final class Identity: ObservableObject {
   @Published public var token: String? = nil
 
   init() {
+    if FirebaseApp.app() == nil {
+      FirebaseApp.configure()
+    }
     Installations.installations().installationID(completion: { fid, error in
       if let error = error as NSError? {
         print("Failed to get FID: ", error)

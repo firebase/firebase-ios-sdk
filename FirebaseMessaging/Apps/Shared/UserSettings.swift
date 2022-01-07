@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import SwiftUI
+import FirebaseCore
 import FirebaseMessaging
 
 public final class UserSettings: ObservableObject {
@@ -23,5 +24,11 @@ public final class UserSettings: ObservableObject {
   @Published public var shouldUseDelegateThanNotification: Bool = UserDefaults.standard
     .bool(forKey: "useDelegate") {
     didSet { UserDefaults.standard.set(shouldUseDelegateThanNotification, forKey: "useDelegate") }
+  }
+
+  init() {
+    if FirebaseApp.app() == nil {
+      FirebaseApp.configure()
+    }
   }
 }

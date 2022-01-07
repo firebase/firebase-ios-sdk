@@ -7,17 +7,23 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5104EF0A2787BC590026A7C4 /* Identity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5104EF052787BC590026A7C4 /* Identity.swift */; };
+		5104EF0B2787BC590026A7C4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5104EF062787BC590026A7C4 /* ContentView.swift */; };
+		5104EF0C2787BC590026A7C4 /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5104EF072787BC590026A7C4 /* UserSettings.swift */; };
+		5104EF0E2787BC590026A7C4 /* TopicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5104EF092787BC590026A7C4 /* TopicView.swift */; };
 		5134F860277EAEC600AEE915 /* SwiftUISampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5134F85F277EAEC600AEE915 /* SwiftUISampleApp.swift */; };
-		5134F862277EAEC600AEE915 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5134F861277EAEC600AEE915 /* ContentView.swift */; };
 		5134F864277EAEC900AEE915 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5134F863277EAEC900AEE915 /* Assets.xcassets */; };
 		5134F867277EAEC900AEE915 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5134F866277EAEC900AEE915 /* Preview Assets.xcassets */; };
 		5134F86E277EAEF800AEE915 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5134F86D277EAEF800AEE915 /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		5104EF052787BC590026A7C4 /* Identity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Identity.swift; path = ../../Shared/Identity.swift; sourceTree = "<group>"; };
+		5104EF062787BC590026A7C4 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ContentView.swift; path = ../../Shared/ContentView.swift; sourceTree = "<group>"; };
+		5104EF072787BC590026A7C4 /* UserSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UserSettings.swift; path = ../../Shared/UserSettings.swift; sourceTree = "<group>"; };
+		5104EF092787BC590026A7C4 /* TopicView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TopicView.swift; path = ../../Shared/TopicView.swift; sourceTree = "<group>"; };
 		5134F85C277EAEC600AEE915 /* SwiftUISample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftUISample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5134F85F277EAEC600AEE915 /* SwiftUISampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUISampleApp.swift; sourceTree = "<group>"; };
-		5134F861277EAEC600AEE915 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		5134F863277EAEC900AEE915 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		5134F866277EAEC900AEE915 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		5134F86D277EAEF800AEE915 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../Shared/GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -56,11 +62,14 @@
 		5134F85E277EAEC600AEE915 /* SwiftUISample */ = {
 			isa = PBXGroup;
 			children = (
+				5104EF062787BC590026A7C4 /* ContentView.swift */,
+				5104EF052787BC590026A7C4 /* Identity.swift */,
+				5104EF092787BC590026A7C4 /* TopicView.swift */,
+				5104EF072787BC590026A7C4 /* UserSettings.swift */,
 				5134F870277EAF1600AEE915 /* Info.plist */,
 				5134F86F277EAF0A00AEE915 /* SwiftUISample.entitlements */,
 				5134F85F277EAEC600AEE915 /* SwiftUISampleApp.swift */,
 				5134F86D277EAEF800AEE915 /* GoogleService-Info.plist */,
-				5134F861277EAEC600AEE915 /* ContentView.swift */,
 				5134F863277EAEC900AEE915 /* Assets.xcassets */,
 				5134F865277EAEC900AEE915 /* Preview Content */,
 			);
@@ -153,8 +162,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5134F862277EAEC600AEE915 /* ContentView.swift in Sources */,
 				5134F860277EAEC600AEE915 /* SwiftUISampleApp.swift in Sources */,
+				5104EF0E2787BC590026A7C4 /* TopicView.swift in Sources */,
+				5104EF0C2787BC590026A7C4 /* UserSettings.swift in Sources */,
+				5104EF0A2787BC590026A7C4 /* Identity.swift in Sources */,
+				5104EF0B2787BC590026A7C4 /* ContentView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
