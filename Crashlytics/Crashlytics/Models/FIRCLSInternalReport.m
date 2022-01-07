@@ -82,7 +82,6 @@ NSString *const FIRCLSReportUserCompactedKVFile = @"user_compacted_kv.clsrecord"
  */
 - (instancetype)initWithPath:(NSString *)path {
   NSString *metadataPath = [path stringByAppendingPathComponent:FIRCLSReportMetadataFile];
-  [self.class readFIRCLSFileAtPath:metadataPath];
   NSString *identifier = [[[[self.class readFIRCLSFileAtPath:metadataPath] objectAtIndex:0]
       objectForKey:@"identity"] objectForKey:@"session_id"];
   if (!identifier) {
