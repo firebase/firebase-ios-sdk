@@ -19,6 +19,7 @@ import FirebaseCore
 import FirebaseInstallations
 import FirebaseMessaging
 
+
 class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
   let identity = Identity()
   let settings = UserSettings()
@@ -35,8 +36,6 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     if FirebaseApp.app() == nil {
       FirebaseApp.configure()
     }
-    application.delegate = self
-
     // Request permissions for push notifications
     let center = UNUserNotificationCenter.current()
     center.delegate = self
