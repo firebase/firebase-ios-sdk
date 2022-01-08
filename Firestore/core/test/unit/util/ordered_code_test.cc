@@ -336,7 +336,7 @@ static void TestDoubleOrdering() {
 }
 
 // Helper routine for testing TEST_SkipToNextSpecialByte
-static int FindSpecial(const std::string& x) {
+static long FindSpecial(const std::string& x) {
   const char* p = x.data();
   const char* limit = p + x.size();
   const char* result = OrderedCode::TEST_SkipToNextSpecialByte(p, limit);
@@ -648,7 +648,7 @@ TEST(OrderedCodeInvalidEncodingsTest, NonCanonical) {
     }
   }
 
-  for (int n = 2; n <= 10; ++n) {
+  for (size_t n = 2; n <= 10; ++n) {
     // Header with 1 sign bit and n-1 size bits.
     std::string header =
         std::string(n / 8, 0xff) + std::string(1, 0xff << (8 - (n % 8)));
