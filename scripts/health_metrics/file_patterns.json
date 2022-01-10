@@ -41,21 +41,6 @@
     ]
   },
   {
-    "sdk": "combine",
-    "podspecs": ["FirebaseCombineSwift.podspec"],
-    "filePatterns": [
-      "FirebaseCombineSwift/.*",
-      "FirebaseCombineSwift.podspec",
-      "FirebaseFunctionsTestingSupport.podspec",
-      "FirebaseCore/.*",
-      "FirebaseAuth/.*",
-      "FirebaseFunctions/.*",
-      "Firestore/.*",
-      "FirebaseStorage/.*",
-      "FirebaseStorageSwift/.*"
-    ]
-  },
-  {
     "sdk": "core",
     "podspecs": ["FirebaseCore.podspec"],
     "filePatterns": [
