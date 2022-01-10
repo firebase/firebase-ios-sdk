@@ -994,7 +994,6 @@ let package = Package(
       path: "FirebaseRemoteConfigSwift/Tests",
       exclude: [
         "AccessToken.json",
-        "FakeConsoleResources/",
         "README.md",
         "ObjC/",
       ],

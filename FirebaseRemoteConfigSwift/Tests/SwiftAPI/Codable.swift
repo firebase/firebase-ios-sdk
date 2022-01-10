@@ -67,7 +67,8 @@ import XCTest
         _ = try config[Constants.nonJsonKey].decoded(asType: Recipe.self)
       } catch let DecodingError.typeMismatch(_, context) {
         XCTAssertEqual(context.debugDescription,
-                       "Expected to decode Dictionary<String, Any> but found RCValueDecoderHelper instead.")
+                       "Expected to decode Dictionary<String, Any> but found " +
+                         "FirebaseRemoteConfigValueDecoderHelper instead.")
         return
       }
       XCTFail("Failed to catch trying to decode non-JSON key as JSON")

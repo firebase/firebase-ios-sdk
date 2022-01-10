@@ -26,7 +26,7 @@ public extension RemoteConfigValue {
   func decoded<Value: Decodable>(asType: Value.Type = Value.self,
                                  decoder: FirebaseDataDecoder = FirebaseDataDecoder()) throws
     -> Value {
-    return try decoder.decode(Value.self, from: RCValueDecoderHelper(value: self))
+    return try decoder.decode(Value.self, from: FirebaseRemoteConfigValueDecoderHelper(value: self))
   }
 }
 
@@ -43,8 +43,8 @@ public extension RemoteConfig {
                                  decoder: FirebaseDataDecoder = FirebaseDataDecoder()) throws
     -> Value {
     let keys = allKeys(from: RemoteConfigSource.default) + allKeys(from: RemoteConfigSource.remote)
-    let config = keys.reduce(into: [String: RCValueDecoderHelper]()) {
-      $0[$1] = RCValueDecoderHelper(value: configValue(forKey: $1))
+    let config = keys.reduce(into: [String: FirebaseRemoteConfigValueDecoderHelper]()) {
+      $0[$1] = FirebaseRemoteConfigValueDecoderHelper(value: configValue(forKey: $1))
     }
     return try decoder.decode(Value.self, from: config)
   }

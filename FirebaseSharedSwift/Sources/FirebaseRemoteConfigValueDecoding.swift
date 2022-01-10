@@ -15,7 +15,7 @@
 import Foundation
 
 /// Conform to this protocol for the Firebase Decoder to extract values as from a RemoteConfigValue object.
-public protocol RCValueDecoding {
+public protocol FirebaseRemoteConfigValueDecoding {
   func numberValue() -> NSNumber
   func boolValue() -> Bool
   func stringValue() -> String

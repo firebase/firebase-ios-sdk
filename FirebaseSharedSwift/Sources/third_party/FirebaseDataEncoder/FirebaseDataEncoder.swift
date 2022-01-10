@@ -1252,7 +1252,7 @@ fileprivate class __JSONDecoder : Decoder {
                                                               debugDescription: "Cannot get keyed decoding container -- found null value instead."))
     }
     var topContainer : [String : Any]
-    if let rcValue = self.storage.topContainer as? RCValueDecoding,
+    if let rcValue = self.storage.topContainer as? FirebaseRemoteConfigValueDecoding,
        let top = rcValue.jsonValue() {
       topContainer = top
     } else {
@@ -2124,7 +2124,7 @@ extension __JSONDecoder {
   fileprivate func unbox(_ value: Any, as type: Bool.Type) throws -> Bool? {
     guard !(value is NSNull) else { return nil }
 
-    if let rcValue = value as? RCValueDecoding {
+    if let rcValue = value as? FirebaseRemoteConfigValueDecoding {
       return rcValue.boolValue()
     }
     if let number = value as? NSNumber {
@@ -2146,7 +2146,7 @@ extension __JSONDecoder {
   }
 
   fileprivate func rcValNumberAdaptor(_ value: Any) -> Any {
-    if let rcValue = value as? RCValueDecoding {
+    if let rcValue = value as? FirebaseRemoteConfigValueDecoding {
       return rcValue.numberValue()
     }
     return value
@@ -2366,7 +2366,7 @@ extension __JSONDecoder {
   fileprivate func unbox(_ value: Any, as type: String.Type) throws -> String? {
     guard !(value is NSNull) else { return nil }
 
-    if let rcValue = value as? RCValueDecoding {
+    if let rcValue = value as? FirebaseRemoteConfigValueDecoding {
       return rcValue.stringValue()
     }
     guard let string = value as? String else {
@@ -2423,7 +2423,7 @@ extension __JSONDecoder {
   fileprivate func unbox(_ value: Any, as type: Data.Type) throws -> Data? {
     guard !(value is NSNull) else { return nil }
 
-    if let rcValue = value as? RCValueDecoding {
+    if let rcValue = value as? FirebaseRemoteConfigValueDecoding {
       return rcValue.dataValue()
     }
 
