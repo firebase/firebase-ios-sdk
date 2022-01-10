@@ -13,7 +13,7 @@
 # limitations under the License.
 
 set -ex
-# Updated files in paths in code_coverage_file_list.json will trigger code coverage workflows.
+# Updated files in paths in file_patterns.json will trigger code coverage workflows.
 # Updates in a pull request will generate a code coverage report in a PR.
 
 while getopts p: flag
@@ -37,8 +37,8 @@ cd scripts/health_metrics/generate_code_coverage_report
 git diff --name-only remotes/origin/${GITHUB_BASE_REF} ${GITHUB_SHA} > updated_files.txt
 
 if [ -z $spec_output_file] ; then
-  swift run UpdatedFilesCollector --changed-file-paths updated_files.txt --code-coverage-file-patterns ../code_coverage_file_list.json
+  swift run UpdatedFilesCollector --changed-file-paths updated_files.txt --code-coverage-file-patterns ../file_patterns.json
 else
-  swift run UpdatedFilesCollector --changed-file-paths updated_files.txt --code-coverage-file-patterns ../code_coverage_file_list.json --output-sdk-file-url "${spec_output_file}"
+  swift run UpdatedFilesCollector --changed-file-paths updated_files.txt --code-coverage-file-patterns ../file_patterns.json --output-sdk-file-url "${spec_output_file}"
   mv "${spec_output_file}" "${dir}"
 fi

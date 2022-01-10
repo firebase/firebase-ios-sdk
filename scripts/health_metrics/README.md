@@ -3,17 +3,17 @@ This directory includes code coverage report generation and binary size report g
 
 ## Code Coverage Report Generation
 
-This tool is to help generate coverage reports for pull requests. It's defined by the [test_coverage  workflow](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/health_metrics/code_coverage_file_list.json).
+This tool is to help generate coverage reports for pull requests. It's defined by the [test_coverage  workflow](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/health_metrics/file_patterns.json).
 
 Coverage reports of SDK frameworks will be displayed in a pull request if the change is under corresponding SDK file patterns.
 
-[UpdatedFilesCollector](https://github.com/firebase/firebase-ios-sdk/tree/master/scripts/health_metrics/generate_code_coverage_report/Sources/UpdatedFilesCollector) will detect file changes and compare file paths to file patterns in [code_coverage_file_list.json](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/health_metrics/code_coverage_file_list.json). If updated file paths fit any patterns, corresponding SDK coverage job will be triggered.
+[UpdatedFilesCollector](https://github.com/firebase/firebase-ios-sdk/tree/master/scripts/health_metrics/generate_code_coverage_report/Sources/UpdatedFilesCollector) will detect file changes and compare file paths to file patterns in [file_patterns.json](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/health_metrics/file_patterns.json). If updated file paths fit any patterns, corresponding SDK coverage job will be triggered.
 
 ### Add a new coverage workflow
 
 To create a code coverage workflow for a new SDK,
-1. Add `newsdk` and its patterns in [code_coverage_file_list.json](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/health_metrics/code_coverage_file_list.json).
-2. Add a new output flag, e.g. `newsdk_run_job`, in the [coverage workflow](https://github.com/firebase/firebase-ios-sdk/blob/64d50a7f7b3af104a88f9c9203285ae20ea309d4/.github/workflows/test_coverage.yml#L17). `newsdk_run_job` should be aligned with the name of SDK `newsdk` in code_coverage_file_list.json.
+1. Add `newsdk` and its patterns in [file_patterns.json](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/health_metrics/file_patterns.json).
+2. Add a new output flag, e.g. `newsdk_run_job`, in the [coverage workflow](https://github.com/firebase/firebase-ios-sdk/blob/64d50a7f7b3af104a88f9c9203285ae20ea309d4/.github/workflows/test_coverage.yml#L17). `newsdk_run_job` should be aligned with the name of SDK `newsdk` in file_patterns.json.
 3. Add a newsdk coverage job in the [workflow](https://github.com/firebase/firebase-ios-sdk/blob/master/.github/workflows/test_coverage.yml):
 ```
 pod-lib-lint-newsdk:
