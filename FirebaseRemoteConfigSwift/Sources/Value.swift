@@ -20,40 +20,8 @@ import FirebaseRemoteConfig
 /// Implements subscript overloads to enable Remote Config values to be accessed
 /// in a type-safe way directly from the current config.
 public extension RemoteConfig {
-  subscript(stringValue key: String) -> String {
-    guard let value = configValue(forKey: key).stringValue else {
-      // An empty string is the historical behavior for an non-existent key.
-      return ""
-    }
-    return value
-  }
-
-  subscript(intValue key: String) -> Int {
-    return configValue(forKey: key).numberValue.intValue
-  }
-
-  subscript(uintValue key: String) -> UInt {
-    return configValue(forKey: key).numberValue.uintValue
-  }
-
-  subscript(numberValue key: String) -> NSNumber {
-    return configValue(forKey: key).numberValue
-  }
-
-  subscript(floatValue key: String) -> Float {
-    return configValue(forKey: key).numberValue.floatValue
-  }
-
-  subscript(doubleValue key: String) -> Double {
-    return configValue(forKey: key).numberValue.doubleValue
-  }
-
-  subscript(boolValue key: String) -> Bool {
-    return configValue(forKey: key).boolValue
-  }
-
-  subscript(dataValue key: String) -> Data {
-    return configValue(forKey: key).dataValue
+  subscript<T: Decodable>(decodedValue key: String) -> T? {
+    return try? configValue(forKey: key).decoded()
   }
 
   subscript(jsonValue key: String) -> [String: AnyHashable]? {

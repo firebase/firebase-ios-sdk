@@ -55,16 +55,14 @@ import XCTest
     func testStrongTypingViaSubscriptApi() async throws {
       let status = try await config.fetchAndActivate()
       XCTAssertEqual(status, .successFetchedFromRemote)
-      XCTAssertEqual(config[stringValue: Constants.stringKey], Constants.stringValue)
-      XCTAssertEqual(config[intValue: Constants.intKey], Constants.intValue)
-      XCTAssertEqual(config[numberValue: Constants.intKey],
-                     NSNumber(integerLiteral: Constants.intValue))
-      XCTAssertEqual(config[floatValue: Constants.floatKey], Constants.floatValue)
-      XCTAssertEqual(config[doubleValue: Constants.floatKey], Constants.doubleValue)
-      XCTAssertEqual(config[boolValue: Constants.trueKey], true)
-      XCTAssertEqual(config[boolValue: Constants.falseKey], false)
+      XCTAssertEqual(config[decodedValue: Constants.stringKey], Constants.stringValue)
+      XCTAssertEqual(config[decodedValue: Constants.intKey], Constants.intValue)
+      XCTAssertEqual(config[decodedValue: Constants.floatKey], Constants.floatValue)
+      XCTAssertEqual(config[decodedValue: Constants.floatKey], Constants.doubleValue)
+      XCTAssertEqual(config[decodedValue: Constants.trueKey], true)
+      XCTAssertEqual(config[decodedValue: Constants.falseKey], false)
       XCTAssertEqual(
-        config[dataValue: Constants.stringKey],
+        config[decodedValue: Constants.stringKey],
         Constants.stringValue.data(using: .utf8)
       )
       XCTAssertEqual(try XCTUnwrap(config[jsonValue: Constants.jsonKey]), Constants.jsonValue)
@@ -174,7 +172,7 @@ import XCTest
     }
 
     func testStringFails() {
-      XCTAssertEqual(config[stringValue: "UndefinedKey"], "")
+      XCTAssertEqual(config[decodedValue: "UndefinedKey"], "")
     }
 
     func testJSONFails() {
