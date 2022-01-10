@@ -110,3 +110,4 @@ jobs:
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppCheckUnit ${{ matrix.target }} spm
     - name: Swift Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppCheckUnitSwift ${{ matrix.target }} spm
+
