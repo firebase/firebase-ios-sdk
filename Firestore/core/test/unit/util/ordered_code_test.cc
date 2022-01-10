@@ -336,7 +336,7 @@ static void TestDoubleOrdering() {
 }
 
 // Helper routine for testing TEST_SkipToNextSpecialByte
-static long FindSpecial(const std::string& x) {
+static int64_t FindSpecial(const std::string& x) {
   const char* p = x.data();
   const char* limit = p + x.size();
   const char* result = OrderedCode::TEST_SkipToNextSpecialByte(p, limit);
