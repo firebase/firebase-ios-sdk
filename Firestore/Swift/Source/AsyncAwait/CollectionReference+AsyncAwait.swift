@@ -23,15 +23,16 @@ import Foundation
     /// Adds a new document to this collection with the specified data, assigning it a document ID
     /// automatically.
     /// - Parameter data: A `Dictionary` containing the data for the new document.
+    /// - Throws: `Error` if the backend rejected the write.
     /// - Returns: A `DocumentReference` pointing to the newly created document.
     func addDocument(data: [String: Any]) async throws -> DocumentReference {
-      typealias DataContinuation = CheckedContinuation<DocumentReference, Error>
-      return try await withCheckedThrowingContinuation { (continuation: DataContinuation) in
+      return try await withCheckedThrowingContinuation { continuation in
         var document: DocumentReference?
         document = self.addDocument(data: data) { error in
           if let err = error {
             continuation.resume(throwing: err)
           } else {
+            // Our callbacks guarantee that we either return an error or a document.
             continuation.resume(returning: document!)
           }
         }

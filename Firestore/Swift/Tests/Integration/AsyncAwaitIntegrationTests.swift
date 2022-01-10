@@ -49,6 +49,16 @@ let emptyBundle = """
       XCTAssertEqual(LoadBundleTaskState.success, bundleProgress.state)
     }
 
+    func testLoadBundleFromEmptyDataFails() async throws {
+      do {
+        _ = try await db.loadBundle(Data())
+        XCTFail("Bundle loading should have failed")
+      } catch {
+        XCTAssertEqual((error as NSError).domain, FirestoreErrorDomain)
+        XCTAssertEqual((error as NSError).code, FirestoreErrorCode.unknown.rawValue)
+      }
+    }
+
     func testLoadBundleFromStream() async throws {
       let bundle = "\(emptyBundle.count)\(emptyBundle)"
       let bundleProgress = try await db

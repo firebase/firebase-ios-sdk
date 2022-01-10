@@ -22,14 +22,15 @@ import Foundation
   public extension Firestore {
     /// Loads a Firestore bundle into the local cache.
     /// - Parameter bundleData: Data from the bundle to be loaded.
+    /// - Throws: `Error` if the bundle data cannot be parsed.
     /// - Returns: The final `LoadBundleTaskProgress` that contains the total number of documents loaded.
     func loadBundle(_ bundleData: Data) async throws -> LoadBundleTaskProgress {
-      typealias DataContinuation = CheckedContinuation<LoadBundleTaskProgress, Error>
-      return try await withCheckedThrowingContinuation { (continuation: DataContinuation) in
+      return try await withCheckedThrowingContinuation { continuation in
         self.loadBundle(bundleData) { progress, error in
           if let err = error {
             continuation.resume(throwing: err)
           } else {
+            // Our callbacks guarantee that we either return an error or a progress event.
             continuation.resume(returning: progress!)
           }
         }
@@ -38,14 +39,15 @@ import Foundation
 
     /// Loads a Firestore bundle into the local cache.
     /// - Parameter bundleStream: An input stream from which the bundle can be read.
+    /// - Throws: `Error` if the bundle stream cannot be parsed.
     /// - Returns: The final `LoadBundleTaskProgress` that contains the total number of documents loaded.
     func loadBundle(_ bundleStream: InputStream) async throws -> LoadBundleTaskProgress {
-      typealias DataContinuation = CheckedContinuation<LoadBundleTaskProgress, Error>
-      return try await withCheckedThrowingContinuation { (continuation: DataContinuation) in
+      return try await withCheckedThrowingContinuation { continuation in
         self.loadBundle(bundleStream) { progress, error in
           if let err = error {
             continuation.resume(throwing: err)
           } else {
+            // Our callbacks guarantee that we either return an error or a progress event.
             continuation.resume(returning: progress!)
           }
         }
