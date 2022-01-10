@@ -232,17 +232,15 @@
           } else {
             FIRMessagingTokenInfo *cachedTokenInfo =
                 [self cachedTokenInfoWithAuthorizedEntity:authorizedEntity scope:scope];
-            if (cachedTokenInfo) {
-              FIRMessagingAPNSInfo *optionsAPNSInfo =
-                  [[FIRMessagingAPNSInfo alloc] initWithTokenOptionsDictionary:tokenOptions];
-              // Check if APNS Info is changed
-              if ((!cachedTokenInfo.APNSInfo && !optionsAPNSInfo) ||
-                  [cachedTokenInfo.APNSInfo isEqualToAPNSInfo:optionsAPNSInfo]) {
-                // check if token is fresh
-                if ([cachedTokenInfo isFreshWithIID:identifier]) {
-                  newHandler(cachedTokenInfo.token, nil);
-                  return;
-                }
+            FIRMessagingAPNSInfo *optionsAPNSInfo =
+                [[FIRMessagingAPNSInfo alloc] initWithTokenOptionsDictionary:tokenOptions];
+            // Check if APNS Info is changed
+            if ((!cachedTokenInfo.APNSInfo && !optionsAPNSInfo) ||
+                [cachedTokenInfo.APNSInfo isEqualToAPNSInfo:optionsAPNSInfo]) {
+              // check if token is fresh
+              if ([cachedTokenInfo isFreshWithIID:identifier]) {
+                newHandler(cachedTokenInfo.token, nil);
+                return;
               }
             }
             [self fetchNewTokenWithAuthorizedEntity:[authorizedEntity copy]
@@ -654,43 +652,53 @@
                                                                  isSandbox:isSandboxApp];
 
   // Re-fetch any invalidated tokens automatically, this time with the current APNs token, so that
-  // they are up-to-date.
-  if (invalidatedTokens.count > 0) {
+  // they are up-to-date. Or this is a fresh install and no apns token stored yet.
+  if (invalidatedTokens.count > 0 || [_tokenStore cachedTokenInfos].count == 0) {
     FIRMessaging_WEAKIFY(self);
 
-    [self.installations
-        installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
-          FIRMessaging_STRONGIFY(self);
-          if (self == nil) {
-            FIRMessagingLoggerError(kFIRMessagingMessageCodeInstanceID017,
-                                    @"Instance ID shut down during token reset. Aborting");
-            return;
-          }
-          if (self.currentAPNSInfo == nil) {
-            FIRMessagingLoggerError(kFIRMessagingMessageCodeInstanceID018,
-                                    @"apnsTokenData was set to nil during token reset. Aborting");
-            return;
-          }
+    [self.installations installationIDWithCompletion:^(NSString *_Nullable identifier,
+                                                       NSError *_Nullable error) {
+      FIRMessaging_STRONGIFY(self);
+      if (self == nil) {
+        FIRMessagingLoggerError(kFIRMessagingMessageCodeInstanceID017,
+                                @"Instance ID shut down during token reset. Aborting");
+        return;
+      }
+      if (self.currentAPNSInfo == nil) {
+        FIRMessagingLoggerError(kFIRMessagingMessageCodeInstanceID018,
+                                @"apnsTokenData was set to nil during token reset. Aborting");
+        return;
+      }
 
-          NSMutableDictionary *tokenOptions = [@{
-            kFIRMessagingTokenOptionsAPNSKey : self.currentAPNSInfo.deviceToken,
-            kFIRMessagingTokenOptionsAPNSIsSandboxKey : @(isSandboxApp)
-          } mutableCopy];
-          if (self.firebaseAppID) {
-            tokenOptions[kFIRMessagingTokenOptionsFirebaseAppIDKey] = self.firebaseAppID;
-          }
+      NSMutableDictionary *tokenOptions = [@{
+        kFIRMessagingTokenOptionsAPNSKey : self.currentAPNSInfo.deviceToken,
+        kFIRMessagingTokenOptionsAPNSIsSandboxKey : @(isSandboxApp)
+      } mutableCopy];
+      if (self.firebaseAppID) {
+        tokenOptions[kFIRMessagingTokenOptionsFirebaseAppIDKey] = self.firebaseAppID;
+      }
 
-          for (FIRMessagingTokenInfo *tokenInfo in invalidatedTokens) {
-            [self fetchNewTokenWithAuthorizedEntity:tokenInfo.authorizedEntity
-                                              scope:tokenInfo.scope
-                                         instanceID:identifier
-                                            options:tokenOptions
-                                            handler:^(NSString *_Nullable token,
-                                                      NSError *_Nullable error){
-
-                                            }];
-          }
-        }];
+      for (FIRMessagingTokenInfo *tokenInfo in invalidatedTokens) {
+        [self fetchNewTokenWithAuthorizedEntity:tokenInfo.authorizedEntity
+                                          scope:tokenInfo.scope
+                                     instanceID:identifier
+                                        options:tokenOptions
+                                        handler:^(NSString *_Nullable token,
+                                                  NSError *_Nullable error){
+                                            // Do nothing as callback is not needed and the
+                                            // sub-funciton already handle errors.
+                                        }];
+      }
+      if ([self->_tokenStore cachedTokenInfos].count == 0) {
+        [self tokenWithAuthorizedEntity:self.fcmSenderID
+                                  scope:kFIRMessagingDefaultTokenScope
+                                options:tokenOptions
+                                handler:^(NSString *_Nullable FCMToken, NSError *_Nullable error){
+                                    // Do nothing as callback is not needed and the sub-funciton
+                                    // already handle errors.
+                                }];
+      }
+    }];
   }
 }
 

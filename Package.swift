@@ -17,7 +17,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "8.10.0"
+let firebaseVersion = "8.11.0"
 
 let package = Package(
   name: "Firebase",
@@ -584,6 +584,7 @@ let package = Package(
         "CHANGELOG.md",
         "CMakeLists.txt",
         "Example/",
+        "LICENSE",
         "Protos/CMakeLists.txt",
         "Protos/Podfile",
         "Protos/README.md",
@@ -648,6 +649,7 @@ let package = Package(
         "CHANGELOG.md",
         "CMakeLists.txt",
         "Example/",
+        "LICENSE",
         "Protos/",
         "README.md",
         "Source/",

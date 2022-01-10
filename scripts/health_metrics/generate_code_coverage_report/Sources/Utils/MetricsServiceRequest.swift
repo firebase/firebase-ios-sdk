@@ -26,7 +26,7 @@ public func sendMetricsServiceRequest(repo: String, commits: String, jsonContent
   var request: URLRequest
   var semaphore = DispatchSemaphore(value: 0)
   let endpoint =
-    "https://sdk-metrics-service-tv5rmd4a6q-uc.a.run.app/repos/\(repo)/commits/\(commits)/reports?"
+    "https://api.firebase-sdk-health-metrics.com/repos/\(repo)/commits/\(commits)/reports?"
   var pathPara: [String] = []
   if is_presubmit {
     guard let pr = pullRequest else {
