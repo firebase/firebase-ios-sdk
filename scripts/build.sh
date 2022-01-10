@@ -35,6 +35,7 @@ product can be one of:
   InAppMessaging
   Messaging
   MessagingSample
+  SwiftUISample
   MLModelDownloaderSample
   RemoteConfig
   RemoteConfigSample
@@ -419,6 +420,16 @@ case "$product-$platform-$method" in
       RunXcodebuild \
         -workspace 'FirebaseMessaging/Apps/Sample/Sample.xcworkspace' \
         -scheme "Sample" \
+        "${xcb_flags[@]}" \
+        build
+    fi
+    ;;
+
+  SwiftUISample-*-*)
+    if check_secrets; then
+      RunXcodebuild \
+        -workspace 'FirebaseMessaging/Apps/SwiftUISample/SwiftUISample.xcworkspace' \
+        -scheme "SwiftUISample" \
         "${xcb_flags[@]}" \
         build
     fi
