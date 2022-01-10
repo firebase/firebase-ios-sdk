@@ -104,8 +104,8 @@
     "sdk": "firebase",
     "podspecs": ["Firebase.podspec"],
     "filePatterns": [
-      ".*\.podspec",
-      ".*\.podspec\.json",
+      ".*.podspec",
+      ".*.podspec.json",
       "CoreOnly/.*"
     ]
   },
