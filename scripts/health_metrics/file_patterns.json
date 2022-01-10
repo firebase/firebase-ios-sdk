@@ -41,6 +41,24 @@
     ]
   },
   {
+    "sdk": "core",
+    "podspecs": ["FirebaseCore.podspec"],
+    "filePatterns": [
+      "^FirebaseCore.*",
+      "FirebaseCore.podspec",
+      "Interop/CoreDiagnostics/Public/[^/]+\\.h"
+    ]
+  },
+  {
+    "sdk": "core-diagnostics",
+    "podspecs": ["FirebaseCoreDiagnostics.podspec"],
+    "filePatterns": [
+      "Firebase/CoreDiagnostics/.*",
+      "Example/CoreDiagnostics/.*",
+      "Interop/CoreDiagnostics/Public/[^/]+\\.h"
+    ]
+  },
+  {
     "sdk": "crashlytics",
     "podspecs": ["FirebaseCrashlytics.podspec"],
     "filePatterns": [
@@ -68,6 +86,15 @@
     ]
   },
   {
+    "sdk": "firebase",
+    "podspecs": ["Firebase.podspec"],
+    "filePatterns": [
+      ".*.podspec",
+      ".*.podspec.json",
+      "CoreOnly/.*"
+    ]
+  },
+  {
     "sdk": "firestore",
     "podspecs": ["FirebaseFirestore.podspec", "FirebaseFirestoreSwift.podspec"],
     "filePatterns": [
@@ -90,6 +117,13 @@
       "\\.github/workflows/functions\\.yml",
       "Interop/Auth/Public/.*\\.h",
       "FirebaseMessaging/Sources/Interop/[^/]+\\.h"
+    ]
+  },
+  {
+    "sdk": "google-utilities-components",
+    "podspecs": ["GoogleUtilitiesComponents.podspec"],
+    "filePatterns": [
+      "^GoogleUtilitiesComponents.*"
     ]
   },
   {
@@ -119,6 +153,14 @@
     ]
   },
   {
+    "sdk": "mlmodeldownloader",
+    "podspecs": ["FirebaseMLModelDownloader.podspec"],
+    "filePatterns": [
+      "^FirebaseMLModelDownloader/.*",
+      "FirebaseMLModelDownloader\\.podspec"
+    ]
+  },
+  {
     "sdk": "performance",
     "podspecs": ["FirebasePerformance.podspec"],
     "filePatterns": [
@@ -135,6 +177,20 @@
       "Interop/Analytics/Public/[^/]+\\.h",
       "\\.github/workflows/remoteconfig\\.yml",
       "scripts/generate_access_token\\.sh"
+    ]
+  },
+  {
+    "sdk": "segmentation",
+    "podspecs": ["FirebaseSegmentation.podspec"],
+    "filePatterns": [
+      "^FirebaseSegmentation.*"
+    ]
+  },
+  {
+    "sdk": "shared-swift",
+    "podspecs": ["FirebaseSharedSwift.podspec"],
+    "filePatterns": [
+      "^FirebaseSharedSwift.*"
     ]
   },
   {
