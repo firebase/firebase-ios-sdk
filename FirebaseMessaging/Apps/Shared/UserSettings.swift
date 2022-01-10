@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import SwiftUI
+import FirebaseCore
 import FirebaseMessaging
 
 public final class UserSettings: ObservableObject {
