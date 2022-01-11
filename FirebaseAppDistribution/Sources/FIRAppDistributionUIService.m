@@ -14,6 +14,7 @@
 
 #import "FirebaseAppDistribution/Sources/FIRAppDistributionUIService.h"
 #import "FirebaseAppDistribution/Sources/FIRFADLogger.h"
+#import "FirebaseAppDistribution/Sources/FIRSceneHelper.h"
 #import "FirebaseAppDistribution/Sources/Public/FirebaseAppDistribution/FIRAppDistribution.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
@@ -21,11 +22,8 @@
 #import <SafariServices/SafariServices.h>
 #import <UIKit/UIKit.h>
 
-int unattachedScenesRetryTime = 1;
-int unattachedScenesRetryMax = 3;
-
 @interface FIRAppDistributionUIService ()
-@property int unattachedScenesRetryCount;
+@property(nonatomic) FIRSceneHelper *sceneHelper;
 @end
 
 @implementation FIRAppDistributionUIService
@@ -43,7 +41,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
   self = [super init];
 
   self.safariHostingViewController = [[UIViewController alloc] init];
-  self.unattachedScenesRetryCount = 0;
+  self.sceneHelper = [[FIRSceneHelper alloc] init];
 
   return self;
 }
@@ -142,10 +140,11 @@ SFAuthenticationSession *_safariAuthenticationVC;
 }
 
 - (void)showUIAlert:(UIAlertController *)alertController {
-  [self initializeUIState];
-  [self.window.rootViewController presentViewController:alertController
-                                               animated:YES
-                                             completion:nil];
+  [self initializeUIStateWithCompletion:^{
+    [self.window.rootViewController presentViewController:alertController
+                                                 animated:YES
+                                               completion:nil];
+  }];
 }
 
 - (void)showUIAlertWithCompletion:(FIRFADUIActionCompletion)completion {
@@ -205,47 +204,17 @@ SFAuthenticationSession *_safariAuthenticationVC;
   }
 }
 
-- (void)findForegroundedSceneWithCompletionBlock:(void (^)(UIWindowScene *scene))completionBlock
-    API_AVAILABLE(ios(13.0)) {
-  if (@available(iOS 13.0, *)) {
-    UIWindowScene *foregroundedScene = nil;
-    BOOL areAllScenesUnattached = true;
-    for (UIWindowScene *connectedScene in [UIApplication sharedApplication].connectedScenes) {
-      if (connectedScene.activationState != UISceneActivationStateUnattached) {
-        areAllScenesUnattached = false;
-      }
-      if (connectedScene.activationState == UISceneActivationStateForegroundActive) {
-        foregroundedScene = connectedScene;
-        break;
-      }
-    }
-    if (foregroundedScene == nil && areAllScenesUnattached) {
-      if (self.unattachedScenesRetryCount >= unattachedScenesRetryMax) {
-        self.unattachedScenesRetryCount = 0;
-        completionBlock(nil);
-        return;
-      }
-
-      self.unattachedScenesRetryCount += 1;
-      dispatch_after(dispatch_time(DISPATCH_TIME_NOW, unattachedScenesRetryTime * NSEC_PER_SEC),
-                     dispatch_get_main_queue(), ^{
-                       [self findForegroundedSceneWithCompletionBlock:completionBlock];
-                     });
-    } else {
-      completionBlock(foregroundedScene);
-    }
-  } else {
-    completionBlock(nil);
-  }
+- (void)initializeUIState {
+  [self initializeUIStateWithCompletion:nil];
 }
 
-- (void)initializeUIState {
+- (void)initializeUIStateWithCompletion:(void (^_Nullable)(void))completion {
   if (self.window) {
     return;
   }
 
   if (@available(iOS 13.0, *)) {
-    [self findForegroundedSceneWithCompletionBlock:^(UIWindowScene *foregroundedScene) {
+    [self.sceneHelper findForegroundedSceneWithCompletionBlock:^(UIWindowScene *foregroundedScene) {
       if (foregroundedScene) {
         self.window = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
       } else {
@@ -253,11 +222,18 @@ SFAuthenticationSession *_safariAuthenticationVC;
         self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
       }
       [self windowFinishInitialization];
+      if (completion != nil) {
+        completion();
+      }
     }];
-  } else {
-    self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    return;
   }
+
+  self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
   [self windowFinishInitialization];
+  if (completion != nil) {
+    completion();
+  }
 }
 
 - (void)windowFinishInitialization {
