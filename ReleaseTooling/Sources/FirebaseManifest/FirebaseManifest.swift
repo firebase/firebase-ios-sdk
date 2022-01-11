@@ -23,6 +23,7 @@ import Foundation
 public let shared = Manifest(
   version: "8.11.0",
   pods: [
+    Pod("FirebaseSharedSwift"),
     Pod("FirebaseCoreDiagnostics", zip: true),
     Pod("FirebaseCore", zip: true),
     Pod("FirebaseInstallations", zip: true),
@@ -32,7 +33,7 @@ public let shared = Manifest(
     Pod("FirebaseABTesting", zip: true),
     Pod("FirebaseAppCheck", isBeta: true, zip: true),
     Pod("FirebaseRemoteConfig", zip: true),
-    Pod("FirebaseSharedSwift"),
+    Pod("FirebaseRemoteConfigSwift", isBeta: true),
     Pod("FirebaseAppDistribution", isBeta: true, platforms: ["ios"], zip: true),
     Pod("FirebaseAuth", zip: true),
     Pod("FirebaseCrashlytics", zip: true),

@@ -20,10 +20,16 @@ import FirebaseRemoteConfig
 /// Implements subscript overloads to enable Remote Config values to be accessed
 /// in a type-safe way directly from the current config.
 public extension RemoteConfig {
+  /// Return a typed RemoteConfigValue for a key.
+  /// - Parameter key: A Remote Config key.
+  /// - Returns: A typed RemoteConfigValue.
   subscript<T: Decodable>(decodedValue key: String) -> T? {
     return try? configValue(forKey: key).decoded()
   }
 
+  /// Return a Dictionary for a RemoteConfig JSON key.
+  /// - Parameter key: A Remote Config key.
+  /// - Returns: A Dictionary representing a RemoteConfig JSON value.
   subscript(jsonValue key: String) -> [String: AnyHashable]? {
     guard let value = configValue(forKey: key).jsonValue as? [String: AnyHashable] else {
       // nil is the historical behavior for failing to extract JSON.
