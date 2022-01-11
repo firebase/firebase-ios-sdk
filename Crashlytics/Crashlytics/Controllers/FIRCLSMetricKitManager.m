@@ -146,8 +146,11 @@
   // Also ensure that there is a report from the last run of the app that we can write to.
   NSString *metricKitFatalReportFile;
   NSString *metricKitNonfatalReportFile;
+
   NSString *newestUnsentReportID =
-      [self.existingReportManager.newestUnsentReport.reportID stringByAppendingString:@"/"];
+      self.existingReportManager.newestUnsentReport.reportID
+          ? [self.existingReportManager.newestUnsentReport.reportID stringByAppendingString:@"/"]
+          : nil;
   NSString *currentReportID =
       [_managerData.executionIDModel.executionID stringByAppendingString:@"/"];
   BOOL fatal = ([diagnosticPayload.crashDiagnostics count] > 0) && (newestUnsentReportID != nil) &&
