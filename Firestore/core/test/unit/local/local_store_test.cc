@@ -36,6 +36,7 @@
 #include "Firestore/core/src/model/patch_mutation.h"
 #include "Firestore/core/src/model/set_mutation.h"
 #include "Firestore/core/src/model/transform_operation.h"
+#include "Firestore/core/src/remote/existence_filter.h"
 #include "Firestore/core/src/remote/remote_event.h"
 #include "Firestore/core/src/remote/watch_change.h"
 #include "Firestore/core/test/unit/remote/fake_target_metadata_provider.h"
@@ -70,6 +71,8 @@ using model::TargetId;
 using nanopb::ByteString;
 using nanopb::Message;
 using remote::DocumentWatchChange;
+using remote::ExistenceFilter;
+using remote::ExistenceFilterWatchChange;
 using remote::FakeTargetMetadataProvider;
 using remote::RemoteEvent;
 using remote::WatchChangeAggregator;
@@ -184,6 +187,24 @@ RemoteEvent UpdateRemoteEvent(
     const std::vector<TargetId>& removed_from_targets) {
   return UpdateRemoteEventWithLimboTargets(doc, updated_in_targets,
                                            removed_from_targets, {});
+}
+
+/** Creates a remote event that inserts a list of documents. */
+RemoteEvent ExistenceFilterEvent(TargetId target_id,
+                                 const DocumentKeySet& synced_keys,
+                                 int remote_count,
+                                 int version) {
+  TargetData target_data(Query("foo").ToTarget(), target_id, 0,
+                         QueryPurpose::Listen);
+  remote::FakeTargetMetadataProvider metadata_provider;
+  metadata_provider.SetSyncedKeys(synced_keys, target_data);
+
+  ExistenceFilter existence_filter{remote_count};
+  WatchChangeAggregator aggregator{&metadata_provider};
+  ExistenceFilterWatchChange existence_filter_watch_change{existence_filter,
+                                                           target_id};
+  aggregator.HandleExistenceFilter(existence_filter_watch_change);
+  return aggregator.CreateRemoteEvent(testutil::Version(version));
 }
 
 LocalViewChanges TestViewChanges(TargetId target_id,
@@ -1166,6 +1187,41 @@ TEST_P(LocalStoreTest, UsesTargetMappingToExecuteQueries) {
   ExecuteQuery(query);
   FSTAssertRemoteDocumentsRead(/* by_key */ 2, /* by_query= */ 0);
   FSTAssertQueryReturned("foo/a", "foo/b");
+}
+
+TEST_P(LocalStoreTest, IgnoresTargetMappingAfterExistenceFilterMismatch) {
+  if (IsGcEager()) return;
+
+  core::Query query =
+      Query("foo").AddingFilter(testutil::Filter("matches", "==", true));
+  TargetId target_id = AllocateQuery(query);
+
+  ExecuteQuery(query);
+
+  // Persist a mapping with a single document
+  ApplyRemoteEvent(
+      AddedRemoteEvent({Doc("foo/a", 10, Map("matches", true))}, {target_id}));
+  ApplyRemoteEvent(NoChangeEvent(target_id, 10));
+  UpdateViews(target_id, /* from_cache= */ false);
+
+  // At this point, we have not yet confirmed that the query is limbo free.
+  TargetData cached_target_data = GetTargetData(query);
+  ASSERT_EQ(testutil::Version(10),
+            cached_target_data.last_limbo_free_snapshot_version());
+
+  // Create an existence filter mismatch and verify that the last limbo free
+  // snapshot version is deleted
+  ApplyRemoteEvent(ExistenceFilterEvent(
+      target_id, DocumentKeySet{testutil::Key("foo/a")}, 2, 20));
+  cached_target_data = GetTargetData(query);
+  ASSERT_EQ(SnapshotVersion::None(),
+            cached_target_data.last_limbo_free_snapshot_version());
+  ASSERT_EQ(ByteString{}, cached_target_data.resume_token());
+
+  // Re-run the query as a collection scan
+  ExecuteQuery(query);
+  FSTAssertRemoteDocumentsRead(/* by_key */ 0, /* by_query= */ 1);
+  FSTAssertQueryReturned("foo/a");
 }
 
 TEST_P(LocalStoreTest, LastLimboFreeSnapshotIsAdvancedDuringViewProcessing) {
