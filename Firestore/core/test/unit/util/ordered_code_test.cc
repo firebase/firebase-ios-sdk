@@ -655,7 +655,7 @@ TEST(OrderedCodeInvalidEncodingsTest, NonCanonical) {
     // There are more than 7 zero bits between header bits and "payload".
     std::string non_minimal =
         header + std::string(1, rnd.Uniform(256) & ~*header.rbegin()) +
-        RandomString(&rnd, n - header.length() - 1);
+        RandomString(&rnd, static_cast<int>(n - header.length() - 1));
     EXPECT_EQ(n, non_minimal.length());
 
     EXPECT_NE(OCWrite<int64_t>(0, INCREASING), non_minimal);
