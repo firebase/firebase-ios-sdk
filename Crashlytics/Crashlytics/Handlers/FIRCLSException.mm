@@ -94,7 +94,7 @@ NSString *FIRCLSExceptionRecordOnDemandModel(FIRExceptionModel *exceptionModel) 
   const char *reason = [[exceptionModel.reason copy] UTF8String] ?: "";
 
   return FIRCLSExceptionRecordOnDemand(FIRCLSExceptionTypeCustom, name, reason,
-                                       [exceptionModel.stackTrace copy]);
+                                       [exceptionModel.stackTrace copy], exceptionModel.isFatal);
 }
 
 void FIRCLSExceptionRecordNSException(NSException *exception) {
@@ -243,7 +243,8 @@ void FIRCLSExceptionRecord(FIRCLSExceptionType type,
 NSString *FIRCLSExceptionRecordOnDemand(FIRCLSExceptionType type,
                                         const char *name,
                                         const char *reason,
-                                        NSArray<FIRStackFrame *> *frames) {
+                                        NSArray<FIRStackFrame *> *frames,
+                                        BOOL fatal) {
   if (!FIRCLSContextIsInitialized()) {
     return nil;
   }
@@ -275,11 +276,11 @@ NSString *FIRCLSExceptionRecordOnDemand(FIRCLSExceptionType type,
     return nil;
   }
 
-  // Write out an empty file to indicate that the report contains a fatal event. This is used
-  // to report events to Analytics for CFU calculations.
-  if (![fileManager createFileAtPath:customExceptionIndicatorFilePath
-                            contents:nil
-                          attributes:nil]) {
+  // If the event was fatal, write out an empty file to indicate that the report contains a fatal
+  // event. This is used to report events to Analytics for CFU calculations.
+  if (fatal && ![fileManager createFileAtPath:customExceptionIndicatorFilePath
+                                     contents:nil
+                                   attributes:nil]) {
     FIRCLSSDKLog("Unable to create custom exception file. On demand exception will not be logged "
                  "with analytics.");
   }
