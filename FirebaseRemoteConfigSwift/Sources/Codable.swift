@@ -57,7 +57,7 @@ public extension RemoteConfig {
                                      encoder: FirebaseDataEncoder = FirebaseDataEncoder()) throws {
     guard let encoded = try encoder.encode(value) as? [String: NSObject] else {
       throw RemoteConfigCodableError.invalidSetDefaultsInput(
-        "The setDefaults input \(value) must be a Struct that encodes to a Dictionary"
+        "The setDefaults input: \(value), must be a Struct that encodes to a Dictionary"
       )
     }
     setDefaults(encoded)

@@ -106,7 +106,7 @@ import XCTest
         _ = try config.setDefaults(from: 7)
       } catch let RemoteConfigCodableError.invalidSetDefaultsInput(message) {
         XCTAssertEqual(message,
-                       "The setDefaults input 7 must be a dictionary keyed by a String")
+                       "The setDefaults input: 7, must be a Struct that encodes to a Dictionary")
         return
       }
       XCTFail("Failed to catch trying to encode an invalid input to setDefaults.")
