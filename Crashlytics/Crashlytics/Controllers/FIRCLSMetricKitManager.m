@@ -153,13 +153,13 @@
           : nil;
   NSString *currentReportID =
       [_managerData.executionIDModel.executionID stringByAppendingString:@"/"];
-  BOOL fatal = ([diagnosticPayload.crashDiagnostics count] > 0) && (newestUnsentReportID != nil) &&
+  BOOL crashlyticsFatalReported = ([diagnosticPayload.crashDiagnostics count] > 0) && (newestUnsentReportID != nil) &&
                ([self.fileManager
                    fileExistsAtPath:[activePath stringByAppendingString:newestUnsentReportID]]);
 
   // Set the MetricKit fatal path appropriately depending on whether we also captured a Crashlytics
   // fatal event and whether the diagnostic report came from a fatal or nonfatal event.
-  if (fatal) {
+  if (crashlyticsFatalReported) {
     metricKitFatalReportFile = [[activePath stringByAppendingString:newestUnsentReportID]
         stringByAppendingString:FIRCLSMetricKitFatalReportFile];
   } else {
