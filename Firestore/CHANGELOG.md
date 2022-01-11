@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed an issue that can result in incomplete Query snapshots when an
+  app is backgrounded during query execution.
+
 # v8.9.1
 - [fixed] Fixed a bug in the AppCheck integration that caused the SDK to respond
   to unrelated notifications (#8895).
