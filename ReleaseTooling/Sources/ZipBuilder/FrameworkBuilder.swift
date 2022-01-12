@@ -22,9 +22,6 @@ struct FrameworkBuilder {
   /// Platforms to be included in the built frameworks.
   private let targetPlatforms: [TargetPlatform]
 
-  /// Minimum Version
-  private let minimumVersion: Float
-
   /// The directory containing the Xcode project and Pods folder.
   private let projectDir: URL
 
@@ -37,13 +34,9 @@ struct FrameworkBuilder {
   }
 
   /// Default initializer.
-  init(projectDir: URL, platform: Platform, dynamicFrameworks: Bool) {
+  init(projectDir: URL, targetPlatforms: [TargetPlatform], dynamicFrameworks: Bool) {
     self.projectDir = projectDir
-    targetPlatforms = platform.platformTargets
-    guard let minVersion = Float(platform.minimumVersion) else {
-      fatalError("Invalid minimum version: \(platform.minimumVersion)")
-    }
-    minimumVersion = minVersion
+    self.targetPlatforms = targetPlatforms
     self.dynamicFrameworks = dynamicFrameworks
   }
 
@@ -196,7 +189,7 @@ struct FrameworkBuilder {
 
     var archs = targetPlatform.archs.map { $0.rawValue }.joined(separator: " ")
     // The 32 bit archs do not build for iOS 11.
-    if framework == "FirebaseAppCheck" || minimumVersion >= 11.0 {
+    if framework == "FirebaseAppCheck" {
       if targetPlatform == .iOSDevice {
         archs = "arm64"
       } else if targetPlatform == .iOSSimulator {
