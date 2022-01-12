@@ -229,6 +229,14 @@ struct ZipBuilderTool: ParsableCommand {
       SkipCatalyst.set()
     }
 
+    // 32 bit iOS slices should only be built if the minimum iOS version is less than 11.
+    guard let minVersion = Float(minimumIOSVersion) else {
+      fatalError("Invalid minimum iOS version: \(minimumIOSVersion)")
+    }
+    if minVersion < 11.0 {
+      Included32BitIOS.set()
+    }
+
     let paths = ZipBuilder.FilesystemPaths(repoDir: repoDir,
                                            buildRoot: buildRoot,
                                            outputDir: outputDir,
