@@ -1,4 +1,4 @@
-# Unreleased
+# v8.11.0
 - [changed] Added a `X-Firebase-GMPID` header to network requests. (#9046)
 - [fixed] Added multi-tenancy support to generic OAuth providers. (#7990)
 - [fixed] macOS Extension access to Shared Keychain by adding kSecUseDataProtectionKeychain recommended key (#6876)
