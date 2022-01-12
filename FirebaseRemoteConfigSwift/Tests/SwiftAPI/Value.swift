@@ -179,5 +179,19 @@ import XCTest
       XCTAssertNil(config[jsonValue: "UndefinedKey"])
       XCTAssertNil(config[jsonValue: Constants.stringKey])
     }
+
+    func testDateDecodingNotYetSupported() async throws {
+      let status = try await config.fetchAndActivate()
+      XCTAssertEqual(status, .successFetchedFromRemote)
+      do {
+        let _: Date = try config[Constants.stringKey].decoded()
+      } catch let RemoteConfigValueCodableError.unsupportedType(message) {
+        XCTAssertEqual(message,
+                       "Date type is not currently supported for  Remote Config Value decoding. " +
+                         "Please file a feature request")
+        return
+      }
+      XCTFail("Failed to throw unsupported Date error.")
+    }
   }
 #endif

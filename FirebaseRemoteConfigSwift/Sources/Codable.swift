@@ -18,15 +18,23 @@ import Foundation
 import FirebaseRemoteConfig
 import FirebaseSharedSwift
 
+public enum RemoteConfigValueCodableError: Error {
+  case unsupportedType(String)
+}
+
 public extension RemoteConfigValue {
   /// Extracts a RemoteConfigValue JSON-encoded object and decodes it to the requested type.
   ///
   /// - Parameter asType: The type to decode the JSON-object to
   /// - Parameter decoder: The decoder instance to use to run the decoding.
-  func decoded<Value: Decodable>(asType: Value.Type = Value.self,
-                                 decoder: FirebaseDataDecoder = FirebaseDataDecoder()) throws
-    -> Value {
-    return try decoder.decode(Value.self, from: FirebaseRemoteConfigValueDecoderHelper(value: self))
+  func decoded<Value: Decodable>(asType: Value.Type = Value.self) throws -> Value {
+    if asType == Date.self {
+      throw RemoteConfigValueCodableError
+        .unsupportedType("Date type is not currently supported for " +
+          " Remote Config Value decoding. Please file a feature request")
+    }
+    return try FirebaseDataDecoder()
+      .decode(Value.self, from: FirebaseRemoteConfigValueDecoderHelper(value: self))
   }
 }
 
@@ -39,23 +47,20 @@ public extension RemoteConfig {
   ///
   /// - Parameter asType: The type to decode to.
   /// - Parameter decoder: The decoder instance to use to run the decoding..
-  func decoded<Value: Decodable>(asType: Value.Type = Value.self,
-                                 decoder: FirebaseDataDecoder = FirebaseDataDecoder()) throws
-    -> Value {
+  func decoded<Value: Decodable>(asType: Value.Type = Value.self) throws -> Value {
     let keys = allKeys(from: RemoteConfigSource.default) + allKeys(from: RemoteConfigSource.remote)
     let config = keys.reduce(into: [String: FirebaseRemoteConfigValueDecoderHelper]()) {
       $0[$1] = FirebaseRemoteConfigValueDecoderHelper(value: configValue(forKey: $1))
     }
-    return try decoder.decode(Value.self, from: config)
+    return try FirebaseDataDecoder().decode(Value.self, from: config)
   }
 
   /// Sets config defaults from an encodable struct.
   ///
   /// - Parameter value: The object to use to set the defaults.
   /// - Parameter encoder: The encoder instance to use to run the encoding.
-  func setDefaults<Value: Encodable>(from value: Value,
-                                     encoder: FirebaseDataEncoder = FirebaseDataEncoder()) throws {
-    guard let encoded = try encoder.encode(value) as? [String: NSObject] else {
+  func setDefaults<Value: Encodable>(from value: Value) throws {
+    guard let encoded = try FirebaseDataEncoder().encode(value) as? [String: NSObject] else {
       throw RemoteConfigCodableError.invalidSetDefaultsInput(
         "The setDefaults input: \(value), must be a Struct that encodes to a Dictionary"
       )
