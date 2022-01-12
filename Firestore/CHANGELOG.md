@@ -1,4 +1,4 @@
-# Unreleased
+# v8.11.0
 - [fixed] Fixed an issue that can result in incomplete Query snapshots when an
   app is backgrounded during query execution.
 
