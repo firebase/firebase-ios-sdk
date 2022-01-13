@@ -236,21 +236,25 @@
   OCMExpect([partialMock isDoubleDispatchPrewarm]).andReturn(NO);
   [partialMock applyPrewarmTag:traceMock];
   OCMVerify([traceMock setValue:@"cold" forAttribute:@"prewarm_detection"]);
+    OCMVerify([traceMock setValue:@"no" forAttribute:@"is_prewarmed"]);
 
   OCMExpect([partialMock isActivePrewarm]).andReturn(YES);
   OCMExpect([partialMock isDoubleDispatchPrewarm]).andReturn(YES);
   [partialMock applyPrewarmTag:traceMock];
   OCMVerify([traceMock setValue:@"both" forAttribute:@"prewarm_detection"]);
+    OCMVerify([traceMock setValue:@"yes" forAttribute:@"is_prewarmed"]);
 
   OCMExpect([partialMock isActivePrewarm]).andReturn(YES);
   OCMExpect([partialMock isDoubleDispatchPrewarm]).andReturn(NO);
   [partialMock applyPrewarmTag:traceMock];
   OCMVerify([traceMock setValue:@"active_prewarm" forAttribute:@"prewarm_detection"]);
+    OCMVerify([traceMock setValue:@"yes" forAttribute:@"is_prewarmed"]);
 
   OCMExpect([partialMock isActivePrewarm]).andReturn(NO);
   OCMExpect([partialMock isDoubleDispatchPrewarm]).andReturn(YES);
   [partialMock applyPrewarmTag:traceMock];
   OCMVerify([traceMock setValue:@"double_dispatch" forAttribute:@"prewarm_detection"]);
+    OCMVerify([traceMock setValue:@"yes" forAttribute:@"is_prewarmed"]);
 }
 
 @end

@@ -157,15 +157,20 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
   BOOL activePrewarm = [self isActivePrewarm];
   BOOL doubleDispatchPrewarm = [self isDoubleDispatchPrewarm];
   if (![self prewarmAvailable]) {
-    [trace setValue:@"not_applicable" forAttribute:@"prewarm_detection"];
-  } else if (!activePrewarm && !doubleDispatchPrewarm) {
+      return;
+  }
+  if (!activePrewarm && !doubleDispatchPrewarm) {
     [trace setValue:@"cold" forAttribute:@"prewarm_detection"];
+    [trace setValue:@"no" forAttribute:@"is_prewarmed"];
   } else if (activePrewarm && doubleDispatchPrewarm) {
     [trace setValue:@"both" forAttribute:@"prewarm_detection"];
+    [trace setValue:@"yes" forAttribute:@"is_prewarmed"];
   } else if (activePrewarm && !doubleDispatchPrewarm) {
     [trace setValue:@"active_prewarm" forAttribute:@"prewarm_detection"];
+    [trace setValue:@"yes" forAttribute:@"is_prewarmed"];
   } else {
     [trace setValue:@"double_dispatch" forAttribute:@"prewarm_detection"];
+    [trace setValue:@"yes" forAttribute:@"is_prewarmed"];
   }
 }
 
@@ -204,7 +209,7 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
     // Start measuring time to first draw on the App start trace.
     [self.appStartTrace startStageNamed:kFPRAppStartStageNameTimeToFirstDraw];
 
-    self.prewarmStartTrace = [[FIRTrace alloc] initWithName:@"prewarm_start"];
+    self.prewarmStartTrace = [[FIRTrace alloc] initWithName:@"ios_15_app_start"];
     [self.prewarmStartTrace startWithStartTime:appStartTime];
   });
 
@@ -251,8 +256,12 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
         [self.appStartTrace cancel];
       }
 
-      [self applyPrewarmTag:self.prewarmStartTrace];
-      [self.prewarmStartTrace stop];
+        if ([self prewarmAvailable]) {
+            [self applyPrewarmTag:self.prewarmStartTrace];
+            [self.prewarmStartTrace stop];
+        } else {
+            [self.prewarmStartTrace cancel];
+        }
     });
   }
 
