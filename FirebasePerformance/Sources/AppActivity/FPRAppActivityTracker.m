@@ -157,7 +157,7 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
   BOOL activePrewarm = [self isActivePrewarm];
   BOOL doubleDispatchPrewarm = [self isDoubleDispatchPrewarm];
   if (![self prewarmAvailable]) {
-      return;
+    return;
   }
   if (!activePrewarm && !doubleDispatchPrewarm) {
     [trace setValue:@"cold" forAttribute:@"prewarm_detection"];
@@ -256,12 +256,12 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
         [self.appStartTrace cancel];
       }
 
-        if ([self prewarmAvailable]) {
-            [self applyPrewarmTag:self.prewarmStartTrace];
-            [self.prewarmStartTrace stop];
-        } else {
-            [self.prewarmStartTrace cancel];
-        }
+      if ([self prewarmAvailable]) {
+        [self applyPrewarmTag:self.prewarmStartTrace];
+        [self.prewarmStartTrace stop];
+      } else {
+        [self.prewarmStartTrace cancel];
+      }
     });
   }
 
