@@ -104,11 +104,12 @@ NS_SWIFT_NAME(FirebaseOptions)
  * For example:
  * ```swift
  *   if let path = Bundle.main.path(forResource:"GoogleServices-Info", ofType:"plist") {
- *       let options = FirebaseOptions.init(contentsOfFile: path)
+ *       let options = FirebaseOptions(contentsOfFile: path)
  *   }
  * ```
  * Note that it is not possible to customize FirebaseOptions for Firebase Analytics which expects a
- * static file named `GoogleServices-Info.plist`.
+ * static file named `GoogleServices-Info.plist` -
+ * https://github.com/firebase/firebase-ios-sdk/issues/230.
  * Returns nil if the plist file does not exist or is invalid.
  */
 - (nullable instancetype)initWithContentsOfFile:(NSString *)plistPath NS_DESIGNATED_INITIALIZER;
@@ -117,7 +118,7 @@ NS_SWIFT_NAME(FirebaseOptions)
  * Initializes a customized instance of FirebaseOptions with required fields. Use the mutable
  * properties to modify fields for configuring specific services. Note that it is not possible to
  * customize FirebaseOptions for Firebase Analytics which expects a static file named
- * `GoogleServices-Info.plist`.
+ * `GoogleServices-Info.plist` - https://github.com/firebase/firebase-ios-sdk/issues/230.
  */
 - (instancetype)initWithGoogleAppID:(NSString *)googleAppID
                         GCMSenderID:(NSString *)GCMSenderID
