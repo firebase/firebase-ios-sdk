@@ -26,9 +26,9 @@ namespace firestore {
 namespace model {
 
 MutableDocument MutableDocument::InvalidDocument(DocumentKey document_key) {
-  return {std::move(document_key), DocumentType::kInvalid,
-          SnapshotVersion::None(), std::make_shared<ObjectValue>(),
-          DocumentState::kSynced};
+  return {std::move(document_key),         DocumentType::kInvalid,
+          SnapshotVersion::None(),         SnapshotVersion::None(),
+          std::make_shared<ObjectValue>(), DocumentState::kSynced};
 }
 
 MutableDocument MutableDocument::FoundDocument(DocumentKey document_key,
@@ -95,10 +95,19 @@ MutableDocument& MutableDocument::SetHasLocalMutations() {
   return *this;
 }
 
+MutableDocument& MutableDocument::WithReadTime(
+    const SnapshotVersion& read_time) {
+  read_time_ = read_time;
+  return *this;
+}
+
 MutableDocument MutableDocument::Clone() const {
-  return MutableDocument(
-      key_, document_type_, version_,
-      std::make_shared<ObjectValue>(DeepClone(value_->Get())), document_state_);
+  return {key_,
+          document_type_,
+          version_,
+          read_time_,
+          std::make_shared<ObjectValue>(DeepClone(value_->Get())),
+          document_state_};
 }
 
 size_t MutableDocument::Hash() const {
