@@ -16,7 +16,7 @@
 
 #import "FirebaseSegmentation/Sources/SEGSegmentationConstants.h"
 
-NSString* const kFIRLoggerSegmentation = @"[Firebase/Segmentation]";
+NSString* const kFIRLoggerSegmentation = @"[FirebaseSegmentation]";
 
 /// Keys for values stored in the Segmentation SDK.
 NSString* const kSEGFirebaseApplicationIdentifierKey = @"firebase_app_identifier";
