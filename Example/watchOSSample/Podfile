@@ -16,8 +16,6 @@ target 'SampleWatchAppWatchKitExtension' do
   pod 'FirebaseABTesting', :path => '../../'
   pod 'FirebaseDatabase', :path => '../../'
 
-  pod 'Firebase/Storage', :path => '../../'
-
 end
 
 target 'ServiceExtension' do
