@@ -52,7 +52,7 @@ else
 'FirebaseCoreDiagnostics.podspec|FirebaseCoreDiagnosticsInterop.podspec|'\
 'FirebaseDatabase.podspec|FirebaseDynamicLinks.podspec|FirebaseMessaging.podspec|'\
 'FirebaseStorage.podspec|'\
-'InAppMessaging|Firebase/InAppMessaging|'\
+'InAppMessaging|Firebase/InAppMessaging|FirebaseInAppMessaging|'\
 'FirebaseInAppMessaging.podspec|'\
 'FirebaseInstallations|'\
 'FirebaseCrashlytics.podspec|'\

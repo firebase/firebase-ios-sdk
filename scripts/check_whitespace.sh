@@ -37,6 +37,7 @@ git grep "${options[@]}" -- \
     ':(exclude)CoreOnly/NOTICES' \
     ':(exclude)Firebase/Firebase/NOTICES' \
     ':(exclude)Firebase/InAppMessaging/ProtoSupport' \
+    ':(exclude)FirebaseInAppMessaging/ProtoSupport' \
     ':(exclude)Firebase/InAppMessaging/Analytics/Protogen/nanopb' \
     ':(exclude)Firestore/Protos/nanopb' \
     ':(exclude)Firestore/Protos/cpp' \
