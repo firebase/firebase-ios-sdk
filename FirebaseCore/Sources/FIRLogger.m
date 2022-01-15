@@ -23,8 +23,8 @@
 FIRLoggerService kFIRLoggerCore = @"[FirebaseCore]";
 
 // All the FIRLoggerService definitions should be migrated to clients. Do not add new ones!
-FIRLoggerService kFIRLoggerAnalytics = @"[Firebase/Analytics]";
-FIRLoggerService kFIRLoggerCrash = @"[Firebase/Crash]";
+FIRLoggerService kFIRLoggerAnalytics = @"[FirebaseAnalytics]";
+FIRLoggerService kFIRLoggerCrash = @"[FirebaseCrash]";
 FIRLoggerService kFIRLoggerRemoteConfig = @"[FirebaseRemoteConfig]";
 
 /// Arguments passed on launch.
