@@ -25,11 +25,11 @@ class GoogleTests: TestsBase {
     let auth = Auth.auth()
     let userInfoDict = self.getGoogleAccessToken()
     guard let googleAccessToken = userInfoDict["access_token"] as! String? else {
-      XCTAssertTrue(false, "Failed to get googleAccessToken")
+      XCTFail("Failed to get googleAccessToken")
       return
     }
     guard let googleIDToken = userInfoDict["id_token"] as! String? else {
-      XCTAssertTrue(false, "Failed to get googleIDToken")
+      XCTFail("Failed to get googleIDToken")
       return
     }
     let credential = GoogleAuthProvider.credential(withIDToken: googleIDToken,
@@ -43,6 +43,24 @@ class GoogleTests: TestsBase {
     }
     waitForExpectations(timeout:TestsBase.kExpectationsTimeout)
   }
+#if compiler(>=5.5) && canImport(_Concurrency)
+  @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+  func testSignInWithGoogleAsync() async throws {
+    let auth = Auth.auth()
+    let userInfoDict = try await self.getGoogleAccessTokenAsync()
+    guard let googleAccessToken = userInfoDict["access_token"] as! String? else {
+      XCTFail("Failed to get googleAccessToken")
+      return
+    }
+    guard let googleIDToken = userInfoDict["id_token"] as! String? else {
+      XCTFail("Failed to get googleIDToken")
+      return
+    }
+    let credential = GoogleAuthProvider.credential(withIDToken: googleIDToken,
+                                                   accessToken: googleAccessToken)
+    let _ = try await auth.signIn(with: credential)
+  }
+  #endif
 
   ///** Sends http request to Google OAuth2 token server to use refresh token to exchange for Google
   // * access token. Returns a dictionary that constains "access_token", "token_type", "expires_in" and
@@ -62,7 +80,7 @@ class GoogleTests: TestsBase {
     let expectation = self.expectation(description: "Exchanging Google account tokens finished.")
     fetcher.beginFetch { (data, error) in
       if let error = error {
-        XCTAssertTrue(false, "Exchanging Google account tokens finished with error: \(error)")
+        XCTFail("Exchanging Google account tokens finished with error: \(error)")
       } else {
         do {
           let data = try XCTUnwrap(data)
@@ -71,7 +89,7 @@ class GoogleTests: TestsBase {
           returnValue = try JSONSerialization.jsonObject(with: data, options: [])
             as! Dictionary<String, Any>
         } catch (let error) {
-          XCTAssertTrue(false, "Failed to unwrap data \(error)")
+          XCTFail("Failed to unwrap data \(error)")
         }
       }
       expectation.fulfill()
@@ -79,4 +97,32 @@ class GoogleTests: TestsBase {
     waitForExpectations(timeout:TestsBase.kExpectationsTimeout)
     return returnValue
   }
+
+#if compiler(>=5.5) && canImport(_Concurrency)
+  @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+  ///** Sends http request to Google OAuth2 token server to use refresh token to exchange for Google
+  // * access token. Returns a dictionary that constains "access_token", "token_type", "expires_in" and
+  // * sometimes the "id_token". (The id_token is not guaranteed to be returned during a refresh
+  // * exchange; see https://openid.net/specs/openid-connect-core-1_0.html#RefreshTokenResponse)
+  // */
+  func getGoogleAccessTokenAsync() async throws -> Dictionary<String, Any> {
+    let googleOauth2TokenServerUrl = "https://www.googleapis.com/oauth2/v4/token"
+    let bodyString = "client_id=\(Credentials.kGoogleClientID)&grant_type=refresh_token" +
+      "&refresh_token=\(Credentials.kGoogleTestAccountRefreshToken)"
+    let postData = bodyString.data(using: .utf8)
+    let service = GTMSessionFetcherService.init()
+    let fetcher = service.fetcher(withURLString: googleOauth2TokenServerUrl)
+    fetcher.bodyData = postData
+    fetcher.setRequestValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+    let data = try await fetcher.beginFetch()
+    let userInfo = String.init(data: data, encoding: .utf8)
+    print("The info of exchanged result is: \(String(describing: userInfo))")
+    guard let returnValue = try JSONSerialization.jsonObject(with: data, options: [])
+            as? Dictionary<String, Any> else {
+              XCTFail("Failed to serialize userInfo as a Dictionary")
+              fatalError()
+    }
+    return returnValue
+  }
+  #endif
 }
