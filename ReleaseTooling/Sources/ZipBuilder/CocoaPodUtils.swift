@@ -502,13 +502,6 @@ enum CocoaPodUtils {
           podfileVersion = "~> \(podfileVersion)"
         }
         podfile += "  pod '\(pod.name)', '\(podfileVersion)'"
-      } else if pod.name.starts(with: "Firebase"),
-        let localURL = localPodspecPath,
-        FileManager.default
-        .fileExists(atPath: localURL.appendingPathComponent("Firebase.podspec").path) {
-        // Let Firebase.podspec force the right version for unspecified closed Firebase pods.
-        let podString = pod.name.replacingOccurrences(of: "Firebase", with: "")
-        podfile += "  pod 'Firebase/\(podString)', :path => '\(localURL.path)'"
       } else {
         podfile += "  pod '\(pod.name)'"
       }

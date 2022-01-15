@@ -80,10 +80,6 @@ for line in lines {
         }
       }
       newLine = "pod '\(podName)', :path => '\(podspec)'"
-    } else if podNameRaw.starts(with: "Firebase/") {
-      // Update closed source pods referenced via a subspec from the Firebase pod.
-      let firebasePodspec = repo.appendingPathComponent("Firebase.podspec").path
-      newLine = "pod '\(podNameRaw)', :path => '\(firebasePodspec)'"
     }
   }
   outBuffer += newLine + "\n"

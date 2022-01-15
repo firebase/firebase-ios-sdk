@@ -10,8 +10,6 @@ on:
     - 'FirebaseStorage/**'
     # Sample
     - 'Example/watchOSSample/**'
-    # Firebase Podspec
-    - 'Firebase.podspec'
     # This file
     - '.github/workflows/watchos-sample.yml'
     # Rebuild on Ruby infrastructure changes

@@ -86,15 +86,6 @@
     ]
   },
   {
-    "sdk": "firebase",
-    "podspecs": ["Firebase.podspec"],
-    "filePatterns": [
-      ".*.podspec",
-      ".*.podspec.json",
-      "CoreOnly/.*"
-    ]
-  },
-  {
     "sdk": "firestore",
     "podspecs": ["FirebaseFirestore.podspec", "FirebaseFirestoreSwift.podspec"],
     "filePatterns": [

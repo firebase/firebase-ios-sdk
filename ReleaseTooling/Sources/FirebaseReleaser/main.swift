@@ -88,55 +88,6 @@ struct FirebaseReleaser: ParsableCommand {
     print("Finished at: \(finishDate.dateTimeString()). " +
       "Duration: \(startDate.formattedDurationSince(finishDate))")
   }
-
-  private func updateFirebasePod(newVersions: [String: String]) {
-    let podspecFile = gitRoot.appendingPathComponent("Firebase.podspec")
-    var contents = ""
-    do {
-      contents = try String(contentsOfFile: podspecFile.path, encoding: .utf8)
-    } catch {
-      fatalError("Could not read Firebase podspec. \(error)")
-    }
-    for (pod, version) in newVersions {
-      if pod == "Firebase" {
-        // Replace version in string like s.version = '6.9.0'
-        guard let range = contents.range(of: "s.version") else {
-          fatalError("Could not find version of Firebase pod in podspec at \(podspecFile)")
-        }
-        var versionStartIndex = contents.index(range.upperBound, offsetBy: 1)
-        while contents[versionStartIndex] != "'" {
-          versionStartIndex = contents.index(versionStartIndex, offsetBy: 1)
-        }
-        var versionEndIndex = contents.index(versionStartIndex, offsetBy: 1)
-        while contents[versionEndIndex] != "'" {
-          versionEndIndex = contents.index(versionEndIndex, offsetBy: 1)
-        }
-        contents.removeSubrange(versionStartIndex ... versionEndIndex)
-        contents.insert(contentsOf: "'" + version + "'", at: versionStartIndex)
-      } else {
-        // Replace version in string like ss.dependency 'FirebaseCore', '6.3.0'
-        guard let range = contents.range(of: pod) else {
-          // This pod is not a top-level Firebase pod dependency.
-          continue
-        }
-        var versionStartIndex = contents.index(range.upperBound, offsetBy: 2)
-        while !contents[versionStartIndex].isWholeNumber {
-          versionStartIndex = contents.index(versionStartIndex, offsetBy: 1)
-        }
-        var versionEndIndex = contents.index(versionStartIndex, offsetBy: 1)
-        while contents[versionEndIndex] != "'" {
-          versionEndIndex = contents.index(versionEndIndex, offsetBy: 1)
-        }
-        contents.removeSubrange(versionStartIndex ... versionEndIndex)
-        contents.insert(contentsOf: version + "'", at: versionStartIndex)
-      }
-    }
-    do {
-      try contents.write(to: podspecFile, atomically: false, encoding: .utf8)
-    } catch {
-      fatalError("Failed to write \(podspecFile.path). \(error)")
-    }
-  }
 }
 
 // Start the parsing and run the tool.

@@ -39,8 +39,8 @@ jobs:
         run: |
           # If the new version is simply vX.Y.Z, wait up to an hour for its podspec to be present.
           if [[ "$GITHUB_REF" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Checking Cocoapods repo for associated Firebase ${GITHUB_REF:1} podspec."
-            podspec_url="https://github.com/CocoaPods/Specs/blob/master/Specs/0/3/5/Firebase/${GITHUB_REF:1}/Firebase.podspec.json"
+            echo "Checking Cocoapods repo for associated FirebaseCore ${GITHUB_REF:1} podspec."
+            podspec_url="https://github.com/CocoaPods/Specs/blob/master/Specs/0/3/5/Firebase/${GITHUB_REF:1}/FirebaseCore.podspec.json"
             for retry in {1..12} error; do
               # Check every 5 minutes, up to an hour, for the new podspec to be present.
               # If it's still not present, trigger the update anyway.

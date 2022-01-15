@@ -60,7 +60,7 @@ else
       ;;
 
     FirebasePod-*)
-      check_changes '^(CoreOnly|Firebase.podspec)'
+      check_changes '^(CoreOnly)'
       ;;
 
     Core-*)

@@ -46,13 +46,9 @@ struct InitializeRelease {
     for pod in manifest.pods {
       let version = manifest.versionString(pod)
       if !pod.isClosedSource {
-        if pod.name == "Firebase" {
-          updateFirebasePodspec(path: path, manifest: manifest)
-        } else {
-          // Patch the new version to the podspec's version attribute.
-          Shell.executeCommand("sed -i.bak -e \"s/\\(\\.version.*=[[:space:]]*'\\).*'/\\1" +
-            "\(version)'/\" \(pod.name).podspec", workingDir: path)
-        }
+        // Patch the new version to the podspec's version attribute.
+        Shell.executeCommand("sed -i.bak -e \"s/\\(\\.version.*=[[:space:]]*'\\).*'/\\1" +
+          "\(version)'/\" \(pod.name).podspec", workingDir: path)
       } else {
         let fileName = "\(pod.name).podspec.json"
 
@@ -74,45 +70,6 @@ struct InitializeRelease {
         let command = "sed -i.bak \(scripts.joined(separator: " ")) \(fileName)"
         Shell.executeCommand(command, workingDir: path)
       }
-    }
-  }
-
-  // This function patches the versions in the Firebase.podspec. It uses Swift instead of sed
-  // like the other version patching.
-  // TODO: Choose one or the other mechanism.
-  // TODO: If we keep Swift, consider using Scanner.
-  private static func updateFirebasePodspec(path: URL, manifest: FirebaseManifest.Manifest) {
-    let podspecFile = path.appendingPathComponent("Firebase.podspec")
-    var contents = ""
-    do {
-      contents = try String(contentsOfFile: podspecFile.path, encoding: .utf8)
-    } catch {
-      fatalError("Could not read Firebase podspec. \(error)")
-    }
-    let firebaseVersion = manifest.version
-    for firebasePod in manifest.pods {
-      let pod = firebasePod.name
-      let version = firebasePod.isBeta ? firebaseVersion + "-beta" : firebaseVersion
-      if pod == "Firebase" {
-        // TODO: This block is redundant with `updatePodspecs`. Decide to go with Swift or sed.
-        guard let range = contents.range(of: "s.version") else {
-          fatalError("Could not find version of Firebase pod in podspec at \(podspecFile)")
-        }
-        // Replace version in string like s.version = '6.9.0'
-        updateVersion(&contents, in: range, to: version)
-
-      } else {
-        // Iterate through all the ranges of `pod`'s occurrences.
-        for range in contents.ranges(of: pod) {
-          // Replace version in string like ss.dependency 'FirebaseCore', '6.3.0'.
-          updateVersion(&contents, in: range, to: version)
-        }
-      }
-    }
-    do {
-      try contents.write(to: podspecFile, atomically: false, encoding: .utf8)
-    } catch {
-      fatalError("Failed to write \(podspecFile.path). \(error)")
     }
   }
 
