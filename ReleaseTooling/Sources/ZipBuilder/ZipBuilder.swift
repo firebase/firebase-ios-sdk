@@ -129,7 +129,7 @@ struct ZipBuilder {
   /// Paths needed throughout the process of packaging the Zip file.
   public let paths: FilesystemPaths
 
-  /// The targetPlatforms to target for the builds.
+  /// The platforms to target for the builds.
   public let platforms: [Platform]
 
   /// Specifies if the builder is building dynamic frameworks instead of static frameworks.
@@ -231,7 +231,7 @@ struct ZipBuilder {
           // Don't build the Firebase pod.
         } else if podInfo.isSourcePod {
           let builder = FrameworkBuilder(projectDir: projectDir,
-                                         platform: platform,
+                                         targetPlatforms: platform.platformTargets,
                                          dynamicFrameworks: dynamicFrameworks)
           let (frameworks, resourceContents) =
             builder.compileFrameworkAndResources(withName: podName,

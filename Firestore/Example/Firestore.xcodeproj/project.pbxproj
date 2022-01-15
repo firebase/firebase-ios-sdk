@@ -34,6 +34,9 @@
 		056542AD1D0F78E29E22EFA9 /* grpc_connection_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6D9649021544D4F00EB9CFB /* grpc_connection_test.cc */; };
 		0575F3004B896D94456A74CE /* status_testing.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3CAA33F964042646FDDAF9F9 /* status_testing.cc */; };
 		05D99904EA713414928DD920 /* query_listener_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7C3F995E040E9E9C5E8514BB /* query_listener_test.cc */; };
+		062072B72773A055001655D7 /* AsyncAwaitIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062072B62773A055001655D7 /* AsyncAwaitIntegrationTests.swift */; };
+		062072B82773A055001655D7 /* AsyncAwaitIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062072B62773A055001655D7 /* AsyncAwaitIntegrationTests.swift */; };
+		062072B92773A055001655D7 /* AsyncAwaitIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062072B62773A055001655D7 /* AsyncAwaitIntegrationTests.swift */; };
 		06485D6DA8F64757D72636E1 /* leveldb_target_cache_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = E76F0CDF28E5FA62D21DE648 /* leveldb_target_cache_test.cc */; };
 		06A3926F89C847846BE4D6BE /* http.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE9720B89AAC00B5BCE7 /* http.pb.cc */; };
 		06BCEB9C65DFAA142F3D3F0B /* view_testing.cc in Sources */ = {isa = PBXBuildFile; fileRef = A5466E7809AD2871FFDE6C76 /* view_testing.cc */; };
@@ -1319,6 +1322,7 @@
 		01D10113ECC5B446DB35E96D /* byte_stream_cpp_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = byte_stream_cpp_test.cc; sourceTree = "<group>"; };
 		045D39C4A7D52AF58264240F /* remote_document_cache_test.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = remote_document_cache_test.h; sourceTree = "<group>"; };
 		0473AFFF5567E667A125347B /* ordered_code_benchmark.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ordered_code_benchmark.cc; sourceTree = "<group>"; };
+		062072B62773A055001655D7 /* AsyncAwaitIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncAwaitIntegrationTests.swift; sourceTree = "<group>"; };
 		0840319686A223CC4AD3FAB1 /* leveldb_remote_document_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_remote_document_cache_test.cc; sourceTree = "<group>"; };
 		0EE5300F8233D14025EF0456 /* string_apple_test.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = string_apple_test.mm; sourceTree = "<group>"; };
 		11984BA0A99D7A7ABA5B0D90 /* Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS.release.xcconfig"; sourceTree = "<group>"; };
@@ -1792,6 +1796,7 @@
 		124C932A22C1635300CA8C2D /* Integration */ = {
 			isa = PBXGroup;
 			children = (
+				062072B62773A055001655D7 /* AsyncAwaitIntegrationTests.swift */,
 				124C932B22C1642C00CA8C2D /* CodableIntegrationTests.swift */,
 			);
 			path = Integration;
@@ -3783,6 +3788,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				062072B92773A055001655D7 /* AsyncAwaitIntegrationTests.swift in Sources */,
 				733AFC467B600967536BD70F /* BasicCompileTests.swift in Sources */,
 				79987AF2DF1FCE799008B846 /* CodableGeoPointTests.swift in Sources */,
 				1C79AE3FBFC91800E30D092C /* CodableIntegrationTests.swift in Sources */,
@@ -3986,6 +3992,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				062072B82773A055001655D7 /* AsyncAwaitIntegrationTests.swift in Sources */,
 				B896E5DE1CC27347FAC009C3 /* BasicCompileTests.swift in Sources */,
 				722F9A798F39F7D1FE7CF270 /* CodableGeoPointTests.swift in Sources */,
 				CF5DE1ED21DD0A9783383A35 /* CodableIntegrationTests.swift in Sources */,
@@ -4408,6 +4415,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				062072B72773A055001655D7 /* AsyncAwaitIntegrationTests.swift in Sources */,
 				F731A0CCD0220B370BC1BE8B /* BasicCompileTests.swift in Sources */,
 				7C5E017689012489AAB7718D /* CodableGeoPointTests.swift in Sources */,
 				54C3242322D3B627000FE6DD /* CodableIntegrationTests.swift in Sources */,
