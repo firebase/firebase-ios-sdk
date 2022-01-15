@@ -20,7 +20,7 @@
 
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 
-FIRLoggerService kFIRLoggerCore = @"[Firebase/Core]";
+FIRLoggerService kFIRLoggerCore = @"[FirebaseCore]";
 
 // All the FIRLoggerService definitions should be migrated to clients. Do not add new ones!
 FIRLoggerService kFIRLoggerAnalytics = @"[Firebase/Analytics]";
@@ -139,9 +139,9 @@ void FIRLogBasic(FIRLoggerLevel level,
  * Generates the logging functions using macros.
  *
  * Calling FIRLogError(kFIRLoggerCore, @"I-COR000001", @"Configure %@ failed.", @"blah") shows:
- * yyyy-mm-dd hh:mm:ss.SSS sender[PID] <Error> [Firebase/Core][I-COR000001] Configure blah failed.
+ * yyyy-mm-dd hh:mm:ss.SSS sender[PID] <Error> [FirebaseCore][I-COR000001] Configure blah failed.
  * Calling FIRLogDebug(kFIRLoggerCore, @"I-COR000001", @"Configure succeed.") shows:
- * yyyy-mm-dd hh:mm:ss.SSS sender[PID] <Debug> [Firebase/Core][I-COR000001] Configure succeed.
+ * yyyy-mm-dd hh:mm:ss.SSS sender[PID] <Debug> [FirebaseCore][I-COR000001] Configure succeed.
  */
 #define FIR_LOGGING_FUNCTION(level)                                                             \
   void FIRLog##level(FIRLoggerService service, NSString *messageCode, NSString *message, ...) { \

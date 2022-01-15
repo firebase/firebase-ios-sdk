@@ -12,7 +12,7 @@ target 'fiam-external-ios-testing-app' do
   # use_frameworks!
 
   # Pods for fiam-external-ios-testing-app
-  pod 'Firebase/Core'
+  pod 'FirebaseCore'
   pod 'FirebaseInAppMessaging'
   pod 'FirebaseDynamicLinks'
 end

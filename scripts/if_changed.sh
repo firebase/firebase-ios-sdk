@@ -142,7 +142,7 @@ else
       ;;
 
     Segmentation-*)
-      check_changes '^(Firebase/Core|FirebaseSegmentation|FirebaseSegmentation.podspec)'
+      check_changes '^(FirebaseCore|FirebaseSegmentation|FirebaseSegmentation.podspec)'
       ;;
 
     *)
