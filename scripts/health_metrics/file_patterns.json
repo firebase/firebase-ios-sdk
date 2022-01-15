@@ -53,7 +53,7 @@
     "sdk": "core-diagnostics",
     "podspecs": ["FirebaseCoreDiagnostics.podspec"],
     "filePatterns": [
-      "Firebase/CoreDiagnostics/.*",
+      "FirebaseCoreDiagnostics/.*",
       "Example/CoreDiagnostics/.*",
       "Interop/CoreDiagnostics/Public/[^/]+\\.h"
     ]

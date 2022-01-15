@@ -65,7 +65,7 @@ else
 
     Core-*)
       check_changes '^(FirebaseCore|Example/Core/Tests|GoogleUtilities|FirebaseCore.podspec'\
-'Firebase/CoreDiagnostics|Example/CoreDiagnostics/Tests|FirebaseCoreDiagnostics.podspec|'\
+'FirebaseCoreDiagnostics|Example/CoreDiagnostics/Tests|FirebaseCoreDiagnostics.podspec|'\
 'FirebaseCoreDiagnosticsInterop|FirebaseCoreDiagnosticsInterop.podspec)'
       ;;
 

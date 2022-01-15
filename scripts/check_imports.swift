@@ -40,7 +40,7 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration"
   [
     "FirebaseAppDistribution",
     "FirebaseCore/Sources/Private", // TODO: work through adding this back.
-    "Firebase/CoreDiagnostics",
+    "FirebaseCoreDiagnostics",
     "FirebaseDatabase/Sources/third_party/Wrap-leveldb", // Pending SwiftPM for leveldb.
     "Example",
     "FirebaseInstallations/Source/Tests/Unit/",

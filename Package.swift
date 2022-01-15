@@ -241,7 +241,7 @@ let package = Package(
         .product(name: "GULLogger", package: "GoogleUtilities"),
         .product(name: "nanopb", package: "nanopb"),
       ],
-      path: "Firebase/CoreDiagnostics/FIRCDLibrary",
+      path: "FirebaseCoreDiagnostics/FIRCDLibrary",
       publicHeadersPath: ".",
       cSettings: [
         .headerSearchPath("../../.."),

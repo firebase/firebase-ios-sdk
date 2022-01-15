@@ -3,7 +3,7 @@ name: core-diagnostics
 on:
   pull_request:
     paths:
-    - 'Firebase/CoreDiagnostics/**'
+    - 'FirebaseCoreDiagnostics/**'
     - 'Example/CoreDiagnostics/**'
     - 'Interop/CoreDiagnostics/Public/*.h'
     - '.github/workflows/core-diagnostics.yml'

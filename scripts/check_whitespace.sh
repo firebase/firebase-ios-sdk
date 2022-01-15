@@ -32,8 +32,8 @@ git grep "${options[@]}" -- \
     ':(exclude)Crashlytics/Protogen/nanopb' \
     ':(exclude)Crashlytics/ProtoSupport' \
     ':(exclude)Crashlytics/UnitTests/Data' \
-    ':(exclude)Firebase/CoreDiagnostics/FIRCDLibrary/Protogen/nanopb' \
-    ':(exclude)Firebase/CoreDiagnostics/ProtoSupport' \
+    ':(exclude)FirebaseCoreDiagnostics/FIRCDLibrary/Protogen/nanopb' \
+    ':(exclude)FirebaseCoreDiagnostics/ProtoSupport' \
     ':(exclude)CoreOnly/NOTICES' \
     ':(exclude)Firebase/Firebase/NOTICES' \
     ':(exclude)Firebase/InAppMessaging/ProtoSupport' \

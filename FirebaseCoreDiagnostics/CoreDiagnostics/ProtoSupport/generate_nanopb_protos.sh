@@ -26,9 +26,9 @@ readonly REPO_DIR="$( git rev-parse --show-toplevel )"
 readonly NANOPB_VERSION="0.3.9.8"
 readonly NANOPB_TEMPDIR="$(mktemp -d)"
 
-readonly LIBRARY_DIR="${REPO_DIR}/Firebase/CoreDiagnostics/FIRCDLibrary"
-readonly PROTO_DIR="${REPO_DIR}/Firebase/CoreDiagnostics/ProtoSupport/Protos/"
-readonly PROTOGEN_DIR="${REPO_DIR}/Firebase/CoreDiagnostics/FIRCDLibrary/Protogen/"
+readonly LIBRARY_DIR="${REPO_DIR}/FirebaseCoreDiagnostics/FIRCDLibrary"
+readonly PROTO_DIR="${REPO_DIR}/FirebaseCoreDiagnostics/ProtoSupport/Protos/"
+readonly PROTOGEN_DIR="${REPO_DIR}/FirebaseCoreDiagnostics/FIRCDLibrary/Protogen/"
 
 rm -rf "${NANOPB_TEMPDIR}"
 
@@ -46,7 +46,7 @@ echo "Removing existing generated protos..."
 rm -rf "${PROTOGEN_DIR}/*"
 
 echo "Generating nanopb protos..."
-python "${REPO_DIR}/Firebase/CoreDiagnostics/ProtoSupport/nanopb_build_protos.py" \
+python "${REPO_DIR}/FirebaseCoreDiagnostics/ProtoSupport/nanopb_build_protos.py" \
   --nanopb \
   --protos_dir="${PROTO_DIR}" \
   --pythonpath="${NANOPB_TEMPDIR}/${NANOPB_BIN_DIR}/generator" \

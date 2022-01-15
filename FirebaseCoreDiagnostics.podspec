@@ -49,10 +49,10 @@ non-Cocoapod integration. This library also respects the Firebase global data co
   }.merge(header_search_paths)
 
   s.source_files = [
-    'Firebase/CoreDiagnostics/FIRCDLibrary/**/*.[cmh]',
+    'FirebaseCoreDiagnostics/FIRCDLibrary/**/*.[cmh]',
     'Interop/CoreDiagnostics/Public/*.h',
   ]
-  s.public_header_files = 'Firebase/CoreDiagnostics/FIRCDLibrary/Public/*.h'
+  s.public_header_files = 'FirebaseCoreDiagnostics/FIRCDLibrary/Public/*.h'
 
   s.framework = 'Foundation'
 
