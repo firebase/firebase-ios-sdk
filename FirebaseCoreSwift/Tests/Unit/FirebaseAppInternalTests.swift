@@ -17,7 +17,6 @@ import FirebaseCore
 @testable import FirebaseCoreSwift
 
 class FirebaseAppTests: XCTestCase {
-
   // MARK: - Configuration
 
   func testIsConfigured() async throws {

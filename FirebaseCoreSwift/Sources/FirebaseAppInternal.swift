@@ -18,7 +18,7 @@ import ObjectiveC
 extension FirebaseApp {
   static var isDefaultAppConfigured: Bool {
     // First two arguments are the class (FirebaseApp) and the selector name.
-    typealias VoidBoolFunc = @convention(c)(AnyClass, Selector) -> Bool
+    typealias VoidBoolFunc = @convention(c) (AnyClass, Selector) -> Bool
     let sel = NSSelectorFromString("isDefaultAppConfigured")
     let isDefaultAppConfigured = generatePrivateClassFunc(sel, from: self, type: VoidBoolFunc.self)
     return isDefaultAppConfigured(self, sel)
@@ -26,7 +26,7 @@ extension FirebaseApp {
 
   static func registerLibrary(name: String, version: String) {
     // First two arguments are the class (FirebaseApp) and the selector name.
-    typealias StringStringVoidFunc = @convention(c)(AnyClass, Selector, NSString, NSString) -> Void
+    typealias StringStringVoidFunc = @convention(c) (AnyClass, Selector, NSString, NSString) -> Void
     let sel = NSSelectorFromString("registerLibrary:withVersion:")
     let registerLibFunc = generatePrivateClassFunc(sel, from: self, type: StringStringVoidFunc.self)
     registerLibFunc(self, sel, NSString(string: name), NSString(string: version))
@@ -36,7 +36,7 @@ extension FirebaseApp {
   /// Redirects to the Objective-C method of the same name.
   static func firebaseUserAgent() -> String {
     // First two arguments are the class (FirebaseApp) and the selector name.
-    typealias VoidStringFunc = @convention(c)(AnyClass, Selector) -> NSString
+    typealias VoidStringFunc = @convention(c) (AnyClass, Selector) -> NSString
     let sel = NSSelectorFromString("firebaseUserAgent")
     let userAgentFunc = generatePrivateClassFunc(sel, from: self, type: VoidStringFunc.self)
     return String(userAgentFunc(self, sel))
@@ -48,15 +48,15 @@ extension FirebaseApp {
 private func generatePrivateClassFunc<T: NSObject, U>(_ selector: Selector,
                                                       from klass: T.Type,
                                                       type: U.Type) -> U {
-  guard klass.self.responds(to: selector) else {
+  guard klass.responds(to: selector) else {
     fatalError("""
-        Firebase tried to get a method named \(selector) from a class named \(klass) but it doesn't
-        exist. It may have been changed recently. Please file an issue in the firebase-ios-sdk repo
-        if you see this error, and mention the Swift products that you're using along with this
-        message. Sorry about that!
-        https://github.com/firebase/firebase-ios-sdk/issues/new/choose
-        """)
+    Firebase tried to get a method named \(selector) from a class named \(klass) but it doesn't
+    exist. It may have been changed recently. Please file an issue in the firebase-ios-sdk repo
+    if you see this error, and mention the Swift products that you're using along with this
+    message. Sorry about that!
+    https://github.com/firebase/firebase-ios-sdk/issues/new/choose
+    """)
   }
-  let methodImp = klass.self.method(for: selector)
+  let methodImp = klass.method(for: selector)
   return unsafeBitCast(methodImp, to: type)
 }
