@@ -234,6 +234,16 @@ let package = Package(
       ]
     ),
     .target(
+      name: "FirebaseCoreSwift",
+      dependencies: ["FirebaseCore"],
+      path: "FirebaseCoreSwift/Sources"
+    ),
+    .testTarget(
+      name: "CoreUnitSwift",
+      dependencies: ["FirebaseCoreSwift"],
+      path: "FirebaseCoreSwift/Tests/Unit"
+    ),
+    .target(
       name: "FirebaseCoreDiagnostics",
       dependencies: [
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
@@ -1017,6 +1027,7 @@ let package = Package(
         "FirebaseStorageCombineSwift",
         "FirebaseCrashlytics",
         "FirebaseCore",
+        "FirebaseCoreSwift",
         "FirebaseDatabase",
         "FirebaseDynamicLinks",
         "FirebaseFirestore",

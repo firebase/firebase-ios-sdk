@@ -489,10 +489,14 @@ static FIRApp *sDefaultApp;
   return [NSError errorWithDomain:kFirebaseCoreErrorDomain code:-101 userInfo:errorDict];
 }
 
+// NOTE: This function is referenced by selector name in `FirebaseAppInternal.swift`. If this
+// signature changes, be sure to update it as well. Ideally wait until a breaking change.
 + (BOOL)isDefaultAppConfigured {
   return (sDefaultApp != nil);
 }
 
+// NOTE: This function is referenced by selector name in `FirebaseAppInternal.swift`. If this
+// signature changes, be sure to update it as well. Ideally wait until a breaking change.
 + (void)registerLibrary:(nonnull NSString *)name withVersion:(nonnull NSString *)version {
   // Create the set of characters which aren't allowed, only if this feature is used.
   NSMutableCharacterSet *allowedSet = [NSMutableCharacterSet alphanumericCharacterSet];
@@ -553,6 +557,8 @@ static FIRApp *sDefaultApp;
   return _userAgent;
 }
 
+// NOTE: This function is referenced by selector name in `FirebaseAppInternal.swift`. If this
+// signature changes, be sure to update it as well. Ideally wait until a breaking change.
 + (NSString *)firebaseUserAgent {
   return [[self userAgent] firebaseUserAgent];
 }
