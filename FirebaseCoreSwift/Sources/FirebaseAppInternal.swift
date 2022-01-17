@@ -16,6 +16,16 @@ import FirebaseCore
 import ObjectiveC
 
 extension FirebaseApp {
+  /// A flag indicating if this is the default app (has the default app name). Redirects to the
+  /// Obj-C property of the same name.
+  var isDefaultApp: Bool {
+    // First two arguments are the class (FirebaseApp) and the selector name.
+    typealias VoidBoolFunc = @convention(c) (AnyObject, Selector) -> Bool
+    let sel = NSSelectorFromString("isDefaultApp")
+    let isDefaultAppFunc = generatePrivateFunc(sel, from: self, type: VoidBoolFunc.self)
+    return isDefaultAppFunc(self, sel)
+  }
+
   /// Checks if the default app is configured without trying to configure it. Redirects to the Obj-C
   /// method of the same name.
   static var isDefaultAppConfigured: Bool {
@@ -48,6 +58,24 @@ extension FirebaseApp {
     let userAgentFunc = generatePrivateClassFunc(sel, from: self, type: VoidStringFunc.self)
     return String(userAgentFunc(self, sel))
   }
+}
+
+/// Fetches a class function of the provided type using `NSStringFromSelector` and the given class.
+/// This may crash if the selector doesn't exist, so use at your own risk.
+private func generatePrivateFunc<T: NSObject, U>(_ selector: Selector,
+                                                 from instance: T,
+                                                 type funcType: U.Type) -> U {
+  guard instance.responds(to: selector) else {
+    fatalError("""
+    Firebase tried to get a method named \(selector) from an instance of \(type(of: instance)) but
+    it doesn't exist. It may have been changed recently. Please file an issue in the
+    firebase-ios-sdk repo if you see this error, and mention the Swift products that you're using
+    along with this message. Sorry about that!
+    https://github.com/firebase/firebase-ios-sdk/issues/new/choose
+    """)
+  }
+  let methodImp = instance.method(for: selector)
+  return unsafeBitCast(methodImp, to: funcType)
 }
 
 /// Fetches a class function of the provided type using `NSStringFromSelector` and the given class.

@@ -89,6 +89,9 @@ extern NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey;
 
 /**
  * A flag indicating if this is the default app (has the default app name).
+ *
+ * @note This property is referenced by selector name in `FirebaseAppInternal.swift`. If this
+ * signature changes, be sure to update it as well. Ideally wait until a breaking change.
  */
 @property(nonatomic, readonly) BOOL isDefaultApp;
 
