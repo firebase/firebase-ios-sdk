@@ -149,6 +149,8 @@ class OrderedCode {
   OrderedCode() = delete;
   OrderedCode(const OrderedCode&) = delete;
   OrderedCode& operator=(const OrderedCode&) = delete;
+  OrderedCode(OrderedCode&&) = delete;
+  OrderedCode& operator=(OrderedCode&&) = delete;
 };
 
 // -----------------------------

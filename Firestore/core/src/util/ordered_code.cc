@@ -16,6 +16,9 @@
 
 #include "Firestore/core/src/util/ordered_code.h"
 
+#include <stddef.h>
+
+#include <cstdint>
 #include <limits>
 
 #include "Firestore/core/src/util/bits.h"
