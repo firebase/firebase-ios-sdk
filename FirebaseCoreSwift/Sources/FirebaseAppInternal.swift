@@ -16,6 +16,8 @@ import FirebaseCore
 import ObjectiveC
 
 extension FirebaseApp {
+  /// Checks if the default app is configured without trying to configure it. Redirects to the Obj-C
+  /// method of the same name.
   static var isDefaultAppConfigured: Bool {
     // First two arguments are the class (FirebaseApp) and the selector name.
     typealias VoidBoolFunc = @convention(c) (AnyClass, Selector) -> Bool
@@ -24,6 +26,11 @@ extension FirebaseApp {
     return isDefaultAppConfigured(self, sel)
   }
 
+  /// Registers a given third-party library with the given version number to be reported for
+  /// analytics. Redirects to the Obj-C method of the same name.
+  /// - Parameters:
+  ///   - name: Name of the library.
+  ///   - version: Version of the library.
   static func registerLibrary(name: String, version: String) {
     // First two arguments are the class (FirebaseApp) and the selector name.
     typealias StringStringVoidFunc = @convention(c) (AnyClass, Selector, NSString, NSString) -> Void
@@ -33,7 +40,7 @@ extension FirebaseApp {
   }
 
   /// A concatenated string representing all the third-party libraries and version numbers.
-  /// Redirects to the Objective-C method of the same name.
+  /// Redirects to the Obj-C method of the same name.
   static func firebaseUserAgent() -> String {
     // First two arguments are the class (FirebaseApp) and the selector name.
     typealias VoidStringFunc = @convention(c) (AnyClass, Selector) -> NSString
