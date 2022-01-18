@@ -27,7 +27,6 @@
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
 static NSDate *appStartTime = nil;
-static NSDate *loadEndTime = nil;
 static NSDate *doubleDispatchTime = nil;
 static NSDate *applicationFinishLaunchTime = nil;
 static NSTimeInterval gAppStartMaxValidDuration = 60 * 60;  // 60 minutes.
@@ -92,7 +91,6 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
                                            selector:@selector(applicationDidFinishLaunching:)
                                                name:UIApplicationDidFinishLaunchingNotification
                                              object:nil];
-  loadEndTime = [NSDate date];
 }
 
 + (void)windowDidBecomeVisible:(NSNotification *)notification {
