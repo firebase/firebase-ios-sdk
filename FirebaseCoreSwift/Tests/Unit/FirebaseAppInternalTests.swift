@@ -20,6 +20,7 @@ class FirebaseAppTests: XCTestCase {
   // MARK: - Configuration
 
   #if compiler(>=5.5) && canImport(_Concurrency)
+    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
     func testIsConfigured() async throws {
       XCTAssertFalse(FirebaseApp.isDefaultAppConfigured)
       FirebaseApp.configure(options: FirebaseOptions(googleAppID: "1:123:ios:123abc",
@@ -32,6 +33,7 @@ class FirebaseAppTests: XCTestCase {
       XCTAssertTrue(deleted)
     }
 
+    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
     func testIsDefaultApp() async throws {
       // Configure the default app.
       FirebaseApp.configure(options: FirebaseOptions(googleAppID: "1:123:ios:123abc",
