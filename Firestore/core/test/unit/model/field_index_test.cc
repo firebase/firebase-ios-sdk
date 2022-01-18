@@ -33,20 +33,20 @@ TEST(FieldIndexTest, ComparatorIncludesCollectionGroup) {
   FieldIndex original = MakeFieldIndex("collA");
   FieldIndex same = MakeFieldIndex("collA");
   FieldIndex different = MakeFieldIndex("collB");
-  EXPECT_EQ(ComparisonResult::Same,
-            FieldIndex::SemanticCompare(original, same));
-  EXPECT_EQ(ComparisonResult::Ascending,
-            FieldIndex::SemanticCompare(original, different));
+  EXPECT_EQ(FieldIndex::SemanticCompare(original, same),
+            ComparisonResult::Same);
+  EXPECT_EQ(FieldIndex::SemanticCompare(original, different),
+            ComparisonResult::Ascending);
 }
 
 TEST(FieldIndexTest, ComparatorIgnoresIndexId) {
   FieldIndex original = MakeFieldIndex("collA", 1, FieldIndex::InitialState());
   FieldIndex same = MakeFieldIndex("collA", 1, FieldIndex::InitialState());
   FieldIndex different = MakeFieldIndex("collA", 2, FieldIndex::InitialState());
-  EXPECT_EQ(ComparisonResult::Same,
-            FieldIndex::SemanticCompare(original, same));
-  EXPECT_EQ(ComparisonResult::Same,
-            FieldIndex::SemanticCompare(original, different));
+  EXPECT_EQ(FieldIndex::SemanticCompare(original, same),
+            ComparisonResult::Same);
+  EXPECT_EQ(FieldIndex::SemanticCompare(original, different),
+            ComparisonResult::Same);
 }
 
 TEST(FieldIndexTest, ComparatorIgnoresIndexState) {
@@ -54,10 +54,10 @@ TEST(FieldIndexTest, ComparatorIgnoresIndexState) {
   FieldIndex same = MakeFieldIndex("collA", 1, FieldIndex::InitialState());
   FieldIndex different = MakeFieldIndex(
       "collA", 1, IndexState(1, Version(2), DocumentKey::Empty()));
-  EXPECT_EQ(ComparisonResult::Same,
-            FieldIndex::SemanticCompare(original, same));
-  EXPECT_EQ(ComparisonResult::Same,
-            FieldIndex::SemanticCompare(original, different));
+  EXPECT_EQ(FieldIndex::SemanticCompare(original, same),
+            ComparisonResult::Same);
+  EXPECT_EQ(FieldIndex::SemanticCompare(original, different),
+            ComparisonResult::Same);
 }
 
 TEST(FieldIndexTest, ComparatorIncludesFieldName) {
@@ -65,10 +65,10 @@ TEST(FieldIndexTest, ComparatorIncludesFieldName) {
   FieldIndex same = MakeFieldIndex("collA", "a", Segment::Kind::kAscending);
   FieldIndex different =
       MakeFieldIndex("collA", "b", Segment::Kind::kAscending);
-  EXPECT_EQ(ComparisonResult::Same,
-            FieldIndex::SemanticCompare(original, same));
-  EXPECT_EQ(ComparisonResult::Ascending,
-            FieldIndex::SemanticCompare(original, different));
+  EXPECT_EQ(FieldIndex::SemanticCompare(original, same),
+            ComparisonResult::Same);
+  EXPECT_EQ(FieldIndex::SemanticCompare(original, different),
+            ComparisonResult::Ascending);
 }
 
 TEST(FieldIndexTest, ComparatorIncludesSegmentKind) {
@@ -76,10 +76,10 @@ TEST(FieldIndexTest, ComparatorIncludesSegmentKind) {
   FieldIndex same = MakeFieldIndex("collA", "a", Segment::Kind::kAscending);
   FieldIndex different =
       MakeFieldIndex("collA", "a", Segment::Kind::kDescending);
-  EXPECT_EQ(ComparisonResult::Same,
-            FieldIndex::SemanticCompare(original, same));
-  EXPECT_EQ(ComparisonResult::Ascending,
-            FieldIndex::SemanticCompare(original, different));
+  EXPECT_EQ(FieldIndex::SemanticCompare(original, same),
+            ComparisonResult::Same);
+  EXPECT_EQ(FieldIndex::SemanticCompare(original, different),
+            ComparisonResult::Ascending);
 }
 
 TEST(FieldIndexTest, ComparatorIncludesSegmentLength) {
@@ -87,10 +87,10 @@ TEST(FieldIndexTest, ComparatorIncludesSegmentLength) {
   FieldIndex same = MakeFieldIndex("collA", "a", Segment::Kind::kAscending);
   FieldIndex different = MakeFieldIndex("collA", "a", Segment::Kind::kAscending,
                                         "b", Segment::Kind::kDescending);
-  EXPECT_EQ(ComparisonResult::Same,
-            FieldIndex::SemanticCompare(original, same));
-  EXPECT_EQ(ComparisonResult::Ascending,
-            FieldIndex::SemanticCompare(original, different));
+  EXPECT_EQ(FieldIndex::SemanticCompare(original, same),
+            ComparisonResult::Same);
+  EXPECT_EQ(FieldIndex::SemanticCompare(original, different),
+            ComparisonResult::Ascending);
 }
 
 TEST(FieldIndexTest, IndexOffsetCompareToWorks) {
@@ -100,15 +100,15 @@ TEST(FieldIndexTest, IndexOffsetCompareToWorks) {
   IndexOffset doc_c_offset = IndexOffset(Version(2), Key("foo/c"));
   IndexOffset version_2_offset = IndexOffset::Create(Version(2));
 
-  EXPECT_EQ(ComparisonResult::Ascending, doc_a_offset.CompareTo(doc_b_offset));
-  EXPECT_EQ(ComparisonResult::Ascending,
-            doc_a_offset.CompareTo(version_1_offset));
-  EXPECT_EQ(ComparisonResult::Ascending,
-            version_1_offset.CompareTo(doc_c_offset));
-  EXPECT_EQ(ComparisonResult::Ascending,
-            version_1_offset.CompareTo(version_2_offset));
-  EXPECT_EQ(ComparisonResult::Ascending,
-            doc_c_offset.CompareTo(version_2_offset));
+  EXPECT_EQ(doc_a_offset.CompareTo(doc_b_offset), ComparisonResult::Ascending);
+  EXPECT_EQ(doc_a_offset.CompareTo(version_1_offset),
+            ComparisonResult::Ascending);
+  EXPECT_EQ(version_1_offset.CompareTo(doc_c_offset),
+            ComparisonResult::Ascending);
+  EXPECT_EQ(version_1_offset.CompareTo(version_2_offset),
+            ComparisonResult::Ascending);
+  EXPECT_EQ(doc_c_offset.CompareTo(version_2_offset),
+            ComparisonResult::Ascending);
 }
 
 TEST(FieldIndexTest, IndexOffsetAdvancesSeconds) {
@@ -116,7 +116,7 @@ TEST(FieldIndexTest, IndexOffsetAdvancesSeconds) {
       SnapshotVersion(Timestamp(1, static_cast<int32_t>(1e9) - 1)));
   IndexOffset expected =
       IndexOffset(SnapshotVersion(Timestamp(2, 0)), DocumentKey::Empty());
-  EXPECT_EQ(expected, actual);
+  EXPECT_EQ(actual, expected);
 }
 
 }  // namespace model

@@ -85,6 +85,7 @@ class IndexOffset : public util::Comparable<IndexOffset> {
   }
 
   static IndexOffset None();
+
   /**
    * Creates an offset that matches all documents with a read time higher than
    * `read_time`.
@@ -169,7 +170,7 @@ class IndexState {
 class FieldIndex {
  public:
   /** An ID for an index that has not yet been added to persistence. */
-  static int32_t UnknownId() {
+  constexpr static int32_t UnknownId() {
     return -1;
   }
 
@@ -177,7 +178,7 @@ class FieldIndex {
    * The initial sequence number for each index. Gets updated during index
    * backfill.
    */
-  static ListenSequenceNumber InitialSequenceNumber() {
+  constexpr static ListenSequenceNumber InitialSequenceNumber() {
     return 0;
   }
 

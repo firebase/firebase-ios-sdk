@@ -52,7 +52,7 @@ class Document {
     return document_.ToString();
   }
 
-  SnapshotVersion read_time() const {
+  const SnapshotVersion& read_time() const {
     return document_.read_time();
   }
 

@@ -26,7 +26,7 @@ util::ComparisonResult Segment::CompareTo(const Segment& rhs) const {
     return result;
   }
 
-  if (kind() > rhs.kind()) {
+  if (kind_ > rhs.kind_) {
     return util::ComparisonResult::Descending;
   } else if (kind() < rhs.kind()) {
     return util::ComparisonResult::Ascending;
@@ -68,11 +68,11 @@ util::ComparisonResult IndexOffset::CompareTo(const IndexOffset& rhs) const {
   return document_key_.CompareTo(rhs.document_key());
 }
 
-util::ComparisonResult IndexOffset::DocumentCompare(const Document& a,
-                                                    const Document& b) {
-  IndexOffset a_offset = IndexOffset::FromDocument(a);
-  IndexOffset b_offset = IndexOffset::FromDocument(b);
-  return a_offset.CompareTo(b_offset);
+util::ComparisonResult IndexOffset::DocumentCompare(const Document& lhs,
+                                                    const Document& rhs) {
+  IndexOffset lhs_offset = IndexOffset::FromDocument(lhs);
+  IndexOffset rhs_offset = IndexOffset::FromDocument(rhs);
+  return lhs_offset.CompareTo(rhs_offset);
 }
 
 std::vector<Segment> FieldIndex::GetDirectionalSegments() const {
