@@ -53,18 +53,12 @@ class FacebookTests: TestsBase {
   func testSignInWithFacebookAsync() async throws {
     let auth = Auth.auth()
     let userInfoDict = try await self.createFacebookTestingAccountAsync()
-    guard let facebookAccessToken = userInfoDict["access_token"] as! String? else {
-        XCTFail("Failed to get facebookAccessToken")
-        return
-      }
-      guard let facebookAccountID = userInfoDict["id"] as! String? else {
-        XCTFail("Failed to get facebookAccountID")
-        return
-      }
-      let credential = FacebookAuthProvider.credential(withAccessToken: facebookAccessToken)
+    let facebookAccessToken: String = try XCTUnwrap(userInfoDict["access_token"]) as! String
+    let facebookAccountID: String = try XCTUnwrap(userInfoDict["id"]) as! String
+    let credential = FacebookAuthProvider.credential(withAccessToken: facebookAccessToken)
 
-      try await auth.signIn(with: credential)
-          XCTAssertEqual(auth.currentUser?.displayName, Credentials.kFacebookUserName)
+    try await auth.signIn(with: credential)
+    XCTAssertEqual(auth.currentUser?.displayName, Credentials.kFacebookUserName)
 
     // Clean up the created Firebase/Facebook user for future runs.
     try await self.deleteCurrentUserAsync()
@@ -162,11 +156,6 @@ class FacebookTests: TestsBase {
       } else {
         do {
           let data = try XCTUnwrap(data)
-          guard let userInfo = String.init(data: data, encoding: .utf8) else {
-            XCTAssertTrue(false, "Failed to convert data to string")
-            return
-          }
-          print("The created Facebook testing account info is: \(String(describing: userInfo))")
           returnValue = try JSONSerialization.jsonObject(with: data, options: [])
             as! Dictionary<String, Any>
         } catch (let error) {
@@ -195,11 +184,6 @@ class FacebookTests: TestsBase {
     fetcher.bodyData = postData
     fetcher.setRequestValue("text/plain", forHTTPHeaderField: "Content-Type")
     let data = try await fetcher.beginFetch()
-    guard let userInfo = String.init(data: data, encoding: .utf8) else {
-      XCTFail("Failed to convert data to string")
-      fatalError()
-    }
-    print("The created Facebook testing account info is: \(String(describing: userInfo))")
     guard let returnValue = try JSONSerialization.jsonObject(with: data, options: [])
             as? Dictionary<String, Any> else {
               XCTFail("Failed to serialize userInfo as a Dictionary")

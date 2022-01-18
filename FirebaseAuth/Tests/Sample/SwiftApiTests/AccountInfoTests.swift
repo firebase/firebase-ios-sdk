@@ -89,10 +89,10 @@ class AccountInfoTests: TestsBase {
     }
 
     let user = try await auth.signIn(withEmail: kOldUserEmail, password: "password")
+    XCTAssertEqual(user.user.email, kOldUserEmail)
     XCTAssertEqual(auth.currentUser?.email,
                    self.kOldUserEmail,
                    "Signed user does not match request.")
-    XCTAssertEqual(user.user.email, kOldUserEmail)
 
     try await auth.currentUser?.updateEmail(to: kNewUserEmail)
     XCTAssertEqual(auth.currentUser?.email,

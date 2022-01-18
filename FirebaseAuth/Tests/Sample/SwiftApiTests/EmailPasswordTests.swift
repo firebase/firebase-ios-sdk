@@ -68,9 +68,9 @@ class EmailPasswordTests: TestsBase {
   func testSignInExistingUserWithEmailAndPasswordAsync() async throws {
     let auth = Auth.auth()
     try await auth.signIn(withEmail: kExistingEmailToSignIn, password: "password")
-      XCTAssertEqual(auth.currentUser?.email,
-                     self.kExistingEmailToSignIn,
-                     "Signed user does not match request.")
+    XCTAssertEqual(auth.currentUser?.email,
+                   self.kExistingEmailToSignIn,
+                   "Signed user does not match request.")
   }
   #endif
 }

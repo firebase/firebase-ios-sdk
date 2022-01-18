@@ -84,8 +84,6 @@ class GoogleTests: TestsBase {
       } else {
         do {
           let data = try XCTUnwrap(data)
-          let userInfo = String.init(data: data, encoding: .utf8)
-          print("The info of exchanged result is: \(String(describing: userInfo))")
           returnValue = try JSONSerialization.jsonObject(with: data, options: [])
             as! Dictionary<String, Any>
         } catch (let error) {
@@ -115,8 +113,6 @@ class GoogleTests: TestsBase {
     fetcher.bodyData = postData
     fetcher.setRequestValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
     let data = try await fetcher.beginFetch()
-    let userInfo = String.init(data: data, encoding: .utf8)
-    print("The info of exchanged result is: \(String(describing: userInfo))")
     guard let returnValue = try JSONSerialization.jsonObject(with: data, options: [])
             as? Dictionary<String, Any> else {
               XCTFail("Failed to serialize userInfo as a Dictionary")
