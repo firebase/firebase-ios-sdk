@@ -9,11 +9,11 @@ tasks for additional Swift improvements.
 
 |                       | AB  | An     | ApC    | ApD    | Aut    | Cor    | Crs    | DB     | Fst    | Fn     | IAM    | Ins    | Msg    | MLM    | Prf    | RC     |    Str |
 |   :---                | :--- | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
-| **Swift Library**     | ❌   |   ✔   | ❌     |❌     | ❌     | ❌     | ❌      |  ✔     |  ✔    | 1      |  ✔     | ❌    | ❌     | ✔      | ❌     | ❌    | ✔     |
+| **Swift Library**     | ❌   |   ✔   | ❌     |❌     | ❌     | ❌     | ❌      |  ✔     |  ✔    | 1      |  ✔     | ❌    | ❌     | ✔      | ❌     |  ✔    | ✔     |
 | **API Tests**         | ❌   |  ❌    |  ✔    |❌     | ❌     | ✔       | ❌     | 3      | 2     |  ✔     | 2      | ✔      | 2     | 2      | ❌    |  ✔     | ✔    |
-| **async/await**       | ❌   |  n/a   |  ✔    |❌     | ❌     |  ✔      | ❌     | 3     | ✔     |  ✔     | ❌     | ❌    | ✔     | ❌    | ❌     |  ✔    | ✔    |
-| **Swift Errors**      |  ❌  |  ❌    | ❌    |❌     | 4      | ❌     | ❌     | ❌     | ❌    | ❌     | ❌     | ❌    | ❌     | ✔      | ❌     | ❌   | 5   |
-| **Codable**           | n/a  | n/a     | n/a   |n/a    | n/a     | n/a    |n/a     |  ✔     |  ✔     | 1      | n/a     | n/a   | ❌     | n/a    | n/a    |  ❌  |n/a   |
+| **async/await**       | ❌   |  n/a   |  ✔    |❌     | ❌     |  ✔      | ❌     | 3     |  ✔     |  ✔     | ❌     | ❌    | ✔     | ❌    | ❌     |  ✔    | ✔    |
+| **Swift Errors**      |  ❌  |  ❌    | ❌    |❌     | 4      | ❌     | ❌     | ❌     | ❌    | ❌     | ❌     | ❌    | ❌     | ✔      | ❌     |  ✔   | 5   |
+| **Codable**           | n/a  | n/a     | n/a   |n/a    | n/a     | n/a    |n/a     |  ✔     |  ✔     | 1      | n/a     | n/a   | ❌     | n/a    | n/a    |   ✔  |n/a   |
 | **SwiftUI Lifecycle** | n/a  |  ❌    | n/a    |❌     | ❌     | n/a    |n/a     | n/a    | n/a    | n/a     | n/a    | n/a   | ❌     | n/a    | n/a    | n/a   |n/a  |
 | **SwiftUI Interop**   | ❌   |  ✔     | ❌     |❌    | ❌     | ❌     |❌      | ❌     | ❌    | ❌     | ✔      | ❌    | ❌     | ❌    | ❌     | ❌    |n/a  |
 | **Property Wrappers** |  ❌  |  ❌    | ❌    |❌     | ❌     | ❌     | ❌     | ❌     | 6     | ❌     | ❌     | ❌    | ❌     | ❌    | ❌     | ❌   |❌    |

@@ -14,6 +14,10 @@
 
 import Foundation
 
+#if SWIFT_PACKAGE
+  import RemoteConfigFakeConsoleObjC
+#endif
+
 // Create a partial mock by subclassing the URLSessionDataTask.
 class URLSessionDataTaskMock: URLSessionDataTask {
   private let closure: () -> Void
