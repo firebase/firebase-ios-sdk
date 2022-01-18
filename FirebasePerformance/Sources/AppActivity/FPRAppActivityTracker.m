@@ -24,7 +24,10 @@
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
 
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+
 static NSDate *appStartTime = nil;
+static NSDate *loadEndTime = nil;
 static NSDate *doubleDispatchTime = nil;
 static NSDate *applicationFinishLaunchTime = nil;
 static NSTimeInterval gAppStartMaxValidDuration = 60 * 60;  // 60 minutes.
@@ -89,6 +92,7 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
                                            selector:@selector(applicationDidFinishLaunching:)
                                                name:UIApplicationDidFinishLaunchingNotification
                                              object:nil];
+  loadEndTime = [NSDate date];
 }
 
 + (void)windowDidBecomeVisible:(NSNotification *)notification {
@@ -160,7 +164,6 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
     return;
   }
   if (!activePrewarm && !doubleDispatchPrewarm) {
-    [trace setValue:@"cold" forAttribute:@"prewarm_detection"];
     [trace setValue:@"no" forAttribute:@"is_prewarmed"];
   } else if (activePrewarm && doubleDispatchPrewarm) {
     [trace setValue:@"both" forAttribute:@"prewarm_detection"];
@@ -175,8 +178,14 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
 }
 
 - (BOOL)prewarmAvailable {
-  NSArray *versionComponents =
-      [[UIDevice currentDevice].systemVersion componentsSeparatedByString:@"."];
+  if (![[GULAppEnvironmentUtil applePlatform] isEqualToString:@"ios"]) {
+    return NO;
+  }
+  NSString *systemVersion = [GULAppEnvironmentUtil systemVersion];
+  if ([systemVersion length] == 0) {
+    return NO;
+  }
+  NSArray *versionComponents = [systemVersion componentsSeparatedByString:@"."];
   NSInteger majorVersion = [versionComponents[0] integerValue];
   return majorVersion >= 15;
 }
