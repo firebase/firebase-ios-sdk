@@ -180,13 +180,6 @@
     ]
   },
   {
-    "sdk": "segmentation",
-    "podspecs": ["FirebaseSegmentation.podspec"],
-    "filePatterns": [
-      "^FirebaseSegmentation.*"
-    ]
-  },
-  {
     "sdk": "shared-swift",
     "podspecs": ["FirebaseSharedSwift.podspec"],
     "filePatterns": [
