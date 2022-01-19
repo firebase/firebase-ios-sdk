@@ -24,8 +24,21 @@ class AnonymousTests: TestsBase {
     if let isAnonymous = Auth.auth().currentUser?.isAnonymous {
       XCTAssertTrue(isAnonymous)
     } else {
-      XCTAssertTrue(false, "Missing currentUser after anonymous sign in")
+      XCTFail("Missing currentUser after anonymous sign in")
     }
     self.deleteCurrentUser()
   }
+
+#if compiler(>=5.5) && canImport(_Concurrency)
+  @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+  func testUpdatingUsersEmailAsync() async throws {
+    try await self.signInAnonymouslyAsync()
+    if let isAnonymous = Auth.auth().currentUser?.isAnonymous {
+      XCTAssertTrue(isAnonymous)
+    } else {
+      XCTFail("Missing currentUser after anonymous sign in")
+    }
+    try await self.deleteCurrentUserAsync()
+  }
+  #endif
 }

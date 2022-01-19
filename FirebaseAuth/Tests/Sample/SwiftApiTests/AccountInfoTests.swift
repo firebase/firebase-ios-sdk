@@ -48,7 +48,7 @@ class AccountInfoTests: TestsBase {
                      AuthErrorCode.emailAlreadyInUse.rawValue,
                      "Created a user despite it already exiting.")
       } else {
-        XCTAssertTrue(false, "Did not get error for recreating a user")
+        XCTFail("Did not get error for recreating a user")
       }
       expectation1.fulfill()
     }
@@ -74,4 +74,30 @@ class AccountInfoTests: TestsBase {
     }
     waitForExpectations(timeout:TestsBase.kExpectationsTimeout)
   }
+
+#if compiler(>=5.5) && canImport(_Concurrency)
+  @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+  func testUpdatingUsersEmailAsync() async throws {
+    let auth = Auth.auth()
+    do {
+      let _ = try await auth.createUser(withEmail: kOldUserEmail, password: "password")
+      XCTFail("Did not get error for recreating a user")
+    } catch {
+        XCTAssertEqual((error as NSError).code,
+                     AuthErrorCode.emailAlreadyInUse.rawValue,
+                     "Created a user despite it already exiting.")
+    }
+
+    let user = try await auth.signIn(withEmail: kOldUserEmail, password: "password")
+    XCTAssertEqual(user.user.email, kOldUserEmail)
+    XCTAssertEqual(auth.currentUser?.email,
+                   self.kOldUserEmail,
+                   "Signed user does not match request.")
+
+    try await auth.currentUser?.updateEmail(to: kNewUserEmail)
+    XCTAssertEqual(auth.currentUser?.email,
+                   self.kNewUserEmail,
+                   "Signed user does not match change.")
+  }
+  #endif
 }
