@@ -14,17 +14,17 @@
 
 import XCTest
 import FirebaseCore
-@testable import FirebaseCoreSwift
+@testable import FirebaseCoreInternalSwift
 
 class FirebaseAppTests: XCTestCase {
-  // MARK: - Configuration
-
   #if compiler(>=5.5) && canImport(_Concurrency)
+
+    // MARK: - Configuration
+
     @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
     func testIsConfigured() async throws {
       XCTAssertFalse(FirebaseApp.isDefaultAppConfigured)
-      FirebaseApp.configure(options: FirebaseOptions(googleAppID: "1:123:ios:123abc",
-                                                     gcmSenderID: "fake-gcm-sender-id"))
+      FirebaseApp.configure(options: .fakeOptions)
       XCTAssertTrue(FirebaseApp.isDefaultAppConfigured)
 
       // Clean up and delete the default app we just configured.
@@ -36,8 +36,7 @@ class FirebaseAppTests: XCTestCase {
     @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
     func testIsDefaultApp() async throws {
       // Configure the default app.
-      FirebaseApp.configure(options: FirebaseOptions(googleAppID: "1:123:ios:123abc",
-                                                     gcmSenderID: "fake-gcm-sender-id"))
+      FirebaseApp.configure(options: .fakeOptions)
       let defaultApp = try XCTUnwrap(FirebaseApp.app())
       XCTAssertTrue(defaultApp.isDefaultApp)
 
@@ -46,9 +45,7 @@ class FirebaseAppTests: XCTestCase {
       XCTAssertTrue(defaultAppDeleted)
 
       // Configure a custom named app.
-      FirebaseApp.configure(name: "CUSTOM",
-                            options: FirebaseOptions(googleAppID: "1:321:ios:321cba",
-                                                     gcmSenderID: "fake-gcm-sender-id2"))
+      FirebaseApp.configure(name: "CUSTOM", options: .fakeOptions)
       let customApp = try XCTUnwrap(FirebaseApp.app(name: "CUSTOM"))
       XCTAssertFalse(customApp.isDefaultApp)
 
@@ -56,23 +53,34 @@ class FirebaseAppTests: XCTestCase {
       let customAppDeleted = await customApp.delete()
       XCTAssertTrue(customAppDeleted)
     }
+
   #else
     // Signal that the above tests were skipped.
     func testIsConfigured() { XCTSkip("This test uses async/await") }
     func testIsDefaultApp() { XCTSkip("This test uses async/await") }
   #endif // #if compiler(>=5.5) && canImport(_Concurrency)
 
-  // MARK: - Firebase User Agent
+  // MARK: - Initialization
 
-  func testRegisterLibrary() {
-    let libName = "testing"
-    let libVersion = "1.2.3"
-    let agent = FirebaseApp.firebaseUserAgent()
-    XCTAssertFalse(agent.contains("\(libName):\(libVersion)"))
+  func testAppInit() {
+    let appName = "my_custom_app"
+    let app = FirebaseApp.initializedApp(name: appName, options: .fakeOptions)
+    XCTAssertEqual(app.name, appName)
+    XCTAssertEqual(app.options, FirebaseOptions.fakeOptions)
 
-    // Register the library and verify it's in the new user agent split by a `/`.
-    FirebaseApp.registerLibrary(name: libName, version: libVersion)
-    let newAgent = FirebaseApp.firebaseUserAgent()
-    XCTAssertTrue(newAgent.contains("\(libName)/\(libVersion)"))
+    // The app shouldn't have been added to the app dictionary.
+    XCTAssertNil(FirebaseApp.app(name: appName))
+
+    // The default app shouldn't be initialized.
+    XCTAssertNil(FirebaseApp.app())
+
+    // No need to delete the instance since it wasn't added to the apps dictionary.
   }
+}
+
+private extension FirebaseOptions {
+  /// An fake instance of options for test purposes.
+  static let fakeOptions: FirebaseOptions = {
+    FirebaseOptions(googleAppID: "1:123:ios:123abc", gcmSenderID: "fake-gcm-sender-id")
+  }()
 }

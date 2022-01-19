@@ -1027,7 +1027,7 @@ let package = Package(
         "FirebaseStorageCombineSwift",
         "FirebaseCrashlytics",
         "FirebaseCore",
-        "FirebaseCoreSwift",
+        "FirebaseCoreInternalSwift",
         "FirebaseDatabase",
         "FirebaseDynamicLinks",
         "FirebaseFirestore",

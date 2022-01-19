@@ -15,7 +15,7 @@
 import FirebaseCore
 import ObjectiveC
 
-extension FirebaseApp {
+public extension FirebaseApp {
   /// A flag indicating if this is the default app (has the default app name). Redirects to the
   /// Obj-C property of the same name.
   var isDefaultApp: Bool {
@@ -36,27 +36,22 @@ extension FirebaseApp {
     return isDefaultAppConfigured(self, sel)
   }
 
-  /// Registers a given third-party library with the given version number to be reported for
-  /// analytics. Redirects to the Obj-C method of the same name.
-  /// - Parameters:
-  ///   - name: Name of the library.
-  ///   - version: Version of the library.
-  static func registerLibrary(name: String, version: String) {
-    // First two arguments are the class (FirebaseApp) and the selector name.
-    typealias StringStringVoidFunc = @convention(c) (AnyClass, Selector, NSString, NSString) -> Void
-    let sel = NSSelectorFromString("registerLibrary:withVersion:")
-    let registerLibFunc = generatePrivateClassFunc(sel, from: self, type: StringStringVoidFunc.self)
-    registerLibFunc(self, sel, NSString(string: name), NSString(string: version))
-  }
+  /// Create a Firebase app for test purposes. Calls an internal Obj-C initializer. Visible only
+  /// with `@testable import` due to its internal naming.
+  internal static func initializedApp(name: String, options: FirebaseOptions) -> FirebaseApp {
+    // Call `alloc` first to allocate memory for our new instance. The first two arguments are
+    // the class (FirebaseApp) and the selector name.
+    typealias AllocFunc = @convention(c) (AnyClass, Selector) -> FirebaseApp
+    let allocSel = NSSelectorFromString("alloc")
+    let allocFunc = generatePrivateClassFunc(allocSel, from: self, type: AllocFunc.self)
+    let allocated: FirebaseApp = allocFunc(self, allocSel)
 
-  /// A concatenated string representing all the third-party libraries and version numbers.
-  /// Redirects to the Obj-C method of the same name.
-  static func firebaseUserAgent() -> String {
-    // First two arguments are the class (FirebaseApp) and the selector name.
-    typealias VoidStringFunc = @convention(c) (AnyClass, Selector) -> NSString
-    let sel = NSSelectorFromString("firebaseUserAgent")
-    let userAgentFunc = generatePrivateClassFunc(sel, from: self, type: VoidStringFunc.self)
-    return String(userAgentFunc(self, sel))
+    // First two arguments are the object and the selector name.
+    typealias AppInitFunc = @convention(c) (AnyObject, Selector, NSString, FirebaseOptions)
+      -> FirebaseApp
+    let initSel = NSSelectorFromString("initInstanceWithName:options:")
+    let appInitFunc = generatePrivateFunc(initSel, from: allocated, type: AppInitFunc.self)
+    return appInitFunc(allocated, initSel, NSString(string: name), options)
   }
 }
 
