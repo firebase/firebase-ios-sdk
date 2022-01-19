@@ -1,10 +1,6 @@
 name: release
 
 on:
-  pull_request:
-    paths:
-    - 'scripts/release_testing_setup.sh'
-    - '.github/workflows/release.yml'
   workflow_dispatch:
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
