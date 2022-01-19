@@ -21,6 +21,7 @@ jobs:
       # the latest release branch of this repo will be validated and pushed to
       # the testing repo.
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
+      podspec_repo_branch: "${{ github.event_name == 'pull_request' && github.head_ref || 'master' }}"
     runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
