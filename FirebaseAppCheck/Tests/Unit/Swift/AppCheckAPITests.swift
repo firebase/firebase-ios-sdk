@@ -160,6 +160,7 @@ final class AppCheckAPITests {
     // MARK: - DeviceCheckProvider
 
     // `DeviceCheckProvider` initializer
+    #if !os(watchOS)
     if #available(iOS 11.0, macOS 10.15, macCatalyst 13.0, tvOS 11.0, *) {
       if let app = FirebaseApp.app(), let deviceCheckProvider = DeviceCheckProvider(app: app) {
         // Get token
@@ -185,6 +186,7 @@ final class AppCheckAPITests {
         #endif // compiler(>=5.5) && canImport(_Concurrency)
       }
     }
+    #endif // !os(watchOS)
   }
 }
 
