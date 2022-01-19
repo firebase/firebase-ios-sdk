@@ -16,9 +16,9 @@
 
 #import <XCTest/XCTest.h>
 
+#import <FirebaseAuth/FirebaseAuth.h>
 #import <FirebaseCore/FIRApp.h>
 #import "AuthCredentials.h"
-#import <FirebaseAuth/FirebaseAuth.h>
 
 #ifdef NO_NETWORK
 #import "ITUIOSTestUtil.h"
