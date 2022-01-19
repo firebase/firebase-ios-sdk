@@ -35,6 +35,7 @@ test_version=$(git tag -l --sort=-version:refname CocoaPods-*[0-9] | head -n 1)
 
 git config --global user.email "google-oss-bot@example.com"
 git config --global user.name "google-oss-bot"
+git checkout "${podspec_repo_branch}"
 if [ "$TESTINGMODE" = "release_testing" ]; then
   git checkout "${test_version}"
   echo "Podspecs tags of Nightly release testing will be updated to ${test_version}."
