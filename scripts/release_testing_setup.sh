@@ -23,6 +23,7 @@ if [ -f "${HOME}/.cocoapods/repos" ]; then
 fi
 
 mkdir -p "${local_sdk_repo_dir}"
+echo "git clone ${podspec_repo_branch} from github.com/firebase/firebase-ios-sdk.git to ${local_sdk_repo_dir}"
 set +x
 # Using token here to update tags later.
 git clone -q https://"${BOT_TOKEN}"@github.com/firebase/firebase-ios-sdk.git "${local_sdk_repo_dir}"
