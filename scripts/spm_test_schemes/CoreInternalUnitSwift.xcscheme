@@ -14,9 +14,9 @@
             buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "CoreUnitSwift"
-               BuildableName = "CoreUnitSwift"
-               BlueprintName = "CoreUnitSwift"
+               BlueprintIdentifier = "CoreInternalUnitSwift"
+               BuildableName = "CoreInternalUnitSwift"
+               BlueprintName = "CoreInternalUnitSwift"
                ReferencedContainer = "container:">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,9 +32,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "CoreUnitSwift"
-               BuildableName = "CoreUnitSwift"
-               BlueprintName = "CoreUnitSwift"
+               BlueprintIdentifier = "CoreInternalUnitSwift"
+               BuildableName = "CoreInternalUnitSwift"
+               BlueprintName = "CoreInternalUnitSwift"
                ReferencedContainer = "container:">
             </BuildableReference>
          </TestableReference>
@@ -60,9 +60,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "CoreUnitSwift"
-            BuildableName = "CoreUnitSwift"
-            BlueprintName = "CoreUnitSwift"
+            BlueprintIdentifier = "CoreInternalUnitSwift"
+            BuildableName = "CoreInternalUnitSwift"
+            BlueprintName = "CoreInternalUnitSwift"
             ReferencedContainer = "container:">
          </BuildableReference>
       </MacroExpansion>
