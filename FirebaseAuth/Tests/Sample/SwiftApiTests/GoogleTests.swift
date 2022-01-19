@@ -21,17 +21,11 @@ import XCTest
 
 class GoogleTests: TestsBase {
 
-  func testSignInWithGoogle() {
+  func testSignInWithGoogle() throws {
     let auth = Auth.auth()
     let userInfoDict = self.getGoogleAccessToken()
-    guard let googleAccessToken = userInfoDict["access_token"] as! String? else {
-      XCTFail("Failed to get googleAccessToken")
-      return
-    }
-    guard let googleIDToken = userInfoDict["id_token"] as! String? else {
-      XCTFail("Failed to get googleIDToken")
-      return
-    }
+    let googleAccessToken: String = try XCTUnwrap(userInfoDict["access_token"] as? String)
+    let googleIDToken: String = try XCTUnwrap(userInfoDict["id_token"] as? String)
     let credential = GoogleAuthProvider.credential(withIDToken: googleIDToken,
                                                    accessToken: googleAccessToken)
     let expectation = self.expectation(description: "Signing in with Google finished.")
@@ -48,14 +42,8 @@ class GoogleTests: TestsBase {
   func testSignInWithGoogleAsync() async throws {
     let auth = Auth.auth()
     let userInfoDict = try await self.getGoogleAccessTokenAsync()
-    guard let googleAccessToken = userInfoDict["access_token"] as! String? else {
-      XCTFail("Failed to get googleAccessToken")
-      return
-    }
-    guard let googleIDToken = userInfoDict["id_token"] as! String? else {
-      XCTFail("Failed to get googleIDToken")
-      return
-    }
+    let googleAccessToken: String = try XCTUnwrap(userInfoDict["access_token"] as? String)
+    let googleIDToken: String = try XCTUnwrap(userInfoDict["id_token"] as? String)
     let credential = GoogleAuthProvider.credential(withIDToken: googleIDToken,
                                                    accessToken: googleAccessToken)
     let _ = try await auth.signIn(with: credential)

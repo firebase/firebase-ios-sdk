@@ -20,17 +20,11 @@ import GTMSessionFetcher
 import XCTest
 
 class FacebookTests: TestsBase {
-  func testSignInWithFacebook() {
+  func testSignInWithFacebook() throws {
     let auth = Auth.auth()
     let userInfoDict = self.createFacebookTestingAccount()
-    guard let facebookAccessToken = userInfoDict["access_token"] as! String? else {
-      XCTFail("Failed to get facebookAccessToken")
-      return
-    }
-    guard let facebookAccountID = userInfoDict["id"] as! String? else {
-      XCTFail("Failed to get facebookAccountID")
-      return
-    }
+    let facebookAccessToken: String = try XCTUnwrap(userInfoDict["access_token"]  as? String)
+    let facebookAccountID: String = try XCTUnwrap(userInfoDict["id"] as? String)
     let credential = FacebookAuthProvider.credential(withAccessToken: facebookAccessToken)
     let expectation = self.expectation(description: "Signing in with Facebook finished.")
     auth.signIn(with: credential) { (result, error) in
@@ -53,8 +47,8 @@ class FacebookTests: TestsBase {
   func testSignInWithFacebookAsync() async throws {
     let auth = Auth.auth()
     let userInfoDict = try await self.createFacebookTestingAccountAsync()
-    let facebookAccessToken: String = try XCTUnwrap(userInfoDict["access_token"]) as! String
-    let facebookAccountID: String = try XCTUnwrap(userInfoDict["id"]) as! String
+    let facebookAccessToken: String = try XCTUnwrap(userInfoDict["access_token"]  as? String)
+    let facebookAccountID: String = try XCTUnwrap(userInfoDict["id"] as? String)
     let credential = FacebookAuthProvider.credential(withAccessToken: facebookAccessToken)
 
     try await auth.signIn(with: credential)
@@ -66,18 +60,12 @@ class FacebookTests: TestsBase {
   }
   #endif
 
-  func testLinkAnonymousAccountToFacebookAccount() {
+  func testLinkAnonymousAccountToFacebookAccount() throws {
     let auth = Auth.auth()
     self.signInAnonymously()
     let userInfoDict = self.createFacebookTestingAccount()
-    guard let facebookAccessToken = userInfoDict["access_token"] as! String? else {
-      XCTFail("Failed to get facebookAccessToken")
-      return
-    }
-    guard let facebookAccountID = userInfoDict["id"] as! String? else {
-      XCTFail("Failed to get facebookAccountID")
-      return
-    }
+    let facebookAccessToken: String = try XCTUnwrap(userInfoDict["access_token"]  as? String)
+    let facebookAccountID: String = try XCTUnwrap(userInfoDict["id"] as? String)
     let credential = FacebookAuthProvider.credential(withAccessToken: facebookAccessToken)
     let expectation = self.expectation(description: "Facebook linking finished.")
     auth.currentUser?.link(with: credential, completion: { (result, error) in
@@ -106,14 +94,8 @@ class FacebookTests: TestsBase {
     let auth = Auth.auth()
     try await self.signInAnonymouslyAsync()
     let userInfoDict = try await self.createFacebookTestingAccountAsync()
-    guard let facebookAccessToken = userInfoDict["access_token"] as! String? else {
-      XCTFail("Failed to get facebookAccessToken")
-      return
-    }
-    guard let facebookAccountID = userInfoDict["id"] as! String? else {
-      XCTFail("Failed to get facebookAccountID")
-      return
-    }
+    let facebookAccessToken: String = try XCTUnwrap(userInfoDict["access_token"]  as? String)
+    let facebookAccountID: String = try XCTUnwrap(userInfoDict["id"] as? String)
     let credential = FacebookAuthProvider.credential(withAccessToken: facebookAccessToken)
     try await auth.currentUser?.link(with: credential)
         guard let providers = (auth.currentUser?.providerData) else {
