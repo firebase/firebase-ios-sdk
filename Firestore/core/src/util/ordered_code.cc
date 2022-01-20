@@ -16,8 +16,7 @@
 
 #include "Firestore/core/src/util/ordered_code.h"
 
-#include <stddef.h>
-
+#include <cstddef>
 #include <cstdint>
 #include <limits>
 

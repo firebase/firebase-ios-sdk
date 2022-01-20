@@ -129,7 +129,7 @@ bool OCReadDecreasing<double>(absl::string_view* src, double* result) {
 template <typename T>
 std::string OCWrite(const T& val, Direction direction) {
   std::string result;
-  if (Direction::INCREASING == direction) {
+  if (INCREASING == direction) {
     OCWriteIncreasing<T>(&result, val);
   } else {
     OCWriteDecreasing<T>(&result, val);
@@ -749,7 +749,7 @@ TEST(OrderedCodeString, NullStringView) {
   EXPECT_THAT(encoding, testing::ElementsAre(0xff, 0xfe));
 }
 
-TEST(OrderedCodeStringString, EncodeDecode) {
+TEST(OrderedCodeString, EncodeDecode) {
   SecureRandom rnd;
   for (int i = 0; i < 2; ++i) {
     const Direction d = static_cast<Direction>(i);
@@ -797,7 +797,7 @@ static std::string EncodeStringIncreasing(absl::string_view value) {
   return encoded;
 }
 
-TEST(OrderedCodeStringString, Increasing) {
+TEST(OrderedCodeString, Increasing) {
   // Here are a series of strings in non-decreasing order, including
   // consecutive strings such that the second one is equal to, a proper
   // prefix of, or has the same length as the first one.  Most also contain
@@ -843,7 +843,7 @@ static std::string EncodeStringDecreasing(absl::string_view value) {
   return encoded;
 }
 
-TEST(OrderedCodeStringString, Decreasing) {
+TEST(OrderedCodeString, Decreasing) {
   // Here are a series of strings in non-decreasing order, including
   // consecutive strings such that the second one is equal to, a proper
   // prefix of, or has the same length as the first one.  Most also contain
