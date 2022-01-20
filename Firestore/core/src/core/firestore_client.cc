@@ -145,10 +145,19 @@ std::shared_ptr<FirestoreClient> FirestoreClient::Create(
   };
 
   shared_client->app_check_credentials_provider_->SetCredentialChangeListener(
-      [](std::string) {
-        // Register an empty credentials change listener to activate token
-        // refresh.
+      [weak_client](const std::string&) {
+        auto shared_client = weak_client.lock();
+        if (!shared_client) return;
+        if (shared_client->credentials_initialized_) {
+          shared_client->worker_queue_->Enqueue([shared_client] {
+            LOG_DEBUG("App Check token Changed.");
+            // This will ensure that once a new App Check token is retrieved,
+            // streams are re-established using the new token.
+            shared_client->remote_store_->HandleCredentialChange();
+          });
+        }
       });
+
   shared_client->auth_credentials_provider_->SetCredentialChangeListener(
       credential_change_listener);
 
