@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseStorage'
-  s.version          = '8.11.0'
+  s.version          = '8.12.0'
   s.summary          = 'Firebase Storage'
 
   s.description      = <<-DESC
