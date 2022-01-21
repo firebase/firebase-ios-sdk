@@ -170,7 +170,7 @@ extension CarthageUtils {
       let sortedManifest = jsonManifest.sorted { $0.0 < $1.0 }
 
       // Generate the JSON format and combine all the lines afterwards.
-      let manifestLines = sortedManifest.map { (version, url) -> String in
+      let manifestLines = sortedManifest.map { version, url -> String in
         // Two spaces at the beginning of the String are intentional.
         "  \"\(version)\": \"\(url.absoluteString)\""
       }

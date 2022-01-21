@@ -32,9 +32,9 @@ class RemoteConfigConsole {
     }
 
     guard let data = try? Data(contentsOf: fileURL),
-      let json = try? JSONSerialization.jsonObject(with: data, options: .allowFragments),
-      let jsonDict = json as? [String: Any],
-      let accessToken = jsonDict["access_token"] as? String else {
+          let json = try? JSONSerialization.jsonObject(with: data, options: .allowFragments),
+          let jsonDict = json as? [String: Any],
+          let accessToken = jsonDict["access_token"] as? String else {
       fatalError("Could not retrieve access token.")
     }
     return accessToken
@@ -178,7 +178,7 @@ class RemoteConfigConsole {
       let json = try? JSONSerialization.jsonObject(with: data, options: .fragmentsAllowed)
 
       if let response = response as? HTTPURLResponse,
-        let json = json as? [String: Any] {
+         let json = json as? [String: Any] {
         if response.statusCode >= 400 {
           print("RemoteConfigConsole Error: \(String(describing: json["error"]!))")
         }

@@ -252,7 +252,7 @@ class APITests: APITestBase {
   private func waitForExpectations() {
     let kTestTimeout = 10.0
     waitForExpectations(timeout: kTestTimeout,
-                        handler: { (error) -> Void in
+                        handler: { error in
                           if let error = error {
                             print(error)
                           }

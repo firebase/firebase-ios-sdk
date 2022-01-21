@@ -63,7 +63,7 @@ class FakeConsoleTests: APITestBase {
   private func waitForExpectations() {
     let kFIRStorageIntegrationTestTimeout = 10.0
     waitForExpectations(timeout: kFIRStorageIntegrationTestTimeout,
-                        handler: { (error) -> Void in
+                        handler: { error in
                           if let error = error {
                             print(error)
                           }

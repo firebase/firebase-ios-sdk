@@ -53,7 +53,7 @@ struct PodspecsTester: ParsableCommand {
   func specTest(spec: String, workingDir: URL,
                 args: [String: String?]) -> (code: Int32, output: String) {
     var exitCode: Int32 = 0
-    var logOutput: String = ""
+    var logOutput = ""
     // If value is nil, the key will be a flag.
     let arguments = args.map { key, value in
       if let v = value {

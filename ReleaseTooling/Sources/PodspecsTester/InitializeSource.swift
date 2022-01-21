@@ -34,7 +34,7 @@ extension Constants {
   ]
 }
 
-struct InitializeSpecTesting {
+enum InitializeSpecTesting {
   enum VersionFetchError: Error {
     case noMatchesCaught
     case multipleMatches
@@ -137,9 +137,9 @@ struct InitializeSpecTesting {
   }
 
   private static func fetchPodVersion(from path: URL) -> (name: String, version: String) {
-    var contents: String = ""
-    var podName: String = ""
-    var version: String = ""
+    var contents = ""
+    var podName = ""
+    var version = ""
     do {
       contents = try String(contentsOfFile: path.path, encoding: .utf8)
     } catch {

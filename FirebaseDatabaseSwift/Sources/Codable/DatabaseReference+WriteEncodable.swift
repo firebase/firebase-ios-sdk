@@ -17,7 +17,7 @@
 import Foundation
 import FirebaseDatabase
 
-extension DatabaseReference {
+public extension DatabaseReference {
   /// Encodes an instance of `Encodable` and overwrites the encoded data
   /// to the path referred by this `DatabaseReference`. If no value exists,
   /// it is created. If a value already exists, it is overwritten.
@@ -31,10 +31,10 @@ extension DatabaseReference {
   ///                 written to the server. This block will not be called while
   ///                 the client is offline, though local changes will be visible
   ///                 immediately.
-  public func setValue<T: Encodable>(from value: T,
-                                     encoder: Database.Encoder = Database.Encoder(),
-                                     completion: ((Error?) -> Void)? =
-                                       nil) throws {
+  func setValue<T: Encodable>(from value: T,
+                              encoder: Database.Encoder = Database.Encoder(),
+                              completion: ((Error?) -> Void)? =
+                                nil) throws {
     let encoded = try encoder.encode(value)
     if let completion = completion {
       setValue(encoded, withCompletionBlock: { error, _ in completion(error) })

@@ -19,7 +19,7 @@
 
   @available(swift 5.0)
   @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
-  extension Firestore {
+  public extension Firestore {
     /// Executes the given updateBlock and then attempts to commit the changes applied within an
     /// atomic transaction.
     ///
@@ -53,7 +53,7 @@
     /// - Parameter updateBlock: The block to execute within the transaction context.
     /// - Returns: A publisher emitting a value instance passed from the updateBlock. This block
     ///  will run even if the client is offline, unless the process is killed.
-    public func runTransaction<T>(_ updateBlock: @escaping (Transaction) throws -> T)
+    func runTransaction<T>(_ updateBlock: @escaping (Transaction) throws -> T)
       -> Future<T, Error> {
       Future { promise in
         self.runTransaction({ transaction, errorPointer in
