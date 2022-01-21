@@ -20,7 +20,7 @@
 
   @available(swift 5.0)
   @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
-  extension StorageReference {
+  public extension StorageReference {
     // MARK: - Uploads
 
     /// Asynchronously uploads data to the currently specified `StorageReference`.
@@ -34,8 +34,8 @@
     ///
     /// - Returns: A publisher emitting a `StorageMetadata` instance. The publisher will emit on the *main* thread.
     @discardableResult
-    public func putData(_ data: Data,
-                        metadata: StorageMetadata? = nil) -> Future<StorageMetadata, Error> {
+    func putData(_ data: Data,
+                 metadata: StorageMetadata? = nil) -> Future<StorageMetadata, Error> {
       var task: StorageUploadTask?
       return Future<StorageMetadata, Error> { promise in
         task = self.putData(data, metadata: metadata) { result in
@@ -58,8 +58,8 @@
     ///
     /// - Returns: A publisher emitting a `StorageMetadata` instance. The publisher will emit on the *main* thread.
     @discardableResult
-    public func putFile(from fileURL: URL,
-                        metadata: StorageMetadata? = nil)
+    func putFile(from fileURL: URL,
+                 metadata: StorageMetadata? = nil)
       -> Future<StorageMetadata, Error> {
       var task: StorageUploadTask?
       return Future<StorageMetadata, Error> { promise in
@@ -87,7 +87,7 @@
     ///
     /// - Returns: A publisher emitting a `Data` instance. The publisher will emit on the *main* thread.
     @discardableResult
-    public func getData(maxSize size: Int64) -> Future<Data, Error> {
+    func getData(maxSize size: Int64) -> Future<Data, Error> {
       var task: StorageDownloadTask?
       return Future<Data, Error> { promise in
         task = self.getData(maxSize: size) { result in
@@ -110,7 +110,7 @@
     /// - Returns: A publisher emitting a `URL`  pointing to the file path of the downloaded file
     ///   on success. The publisher will emit on the *main* thread.
     @discardableResult
-    public func write(toFile fileURL: URL) -> Future<URL, Error> {
+    func write(toFile fileURL: URL) -> Future<URL, Error> {
       var task: StorageDownloadTask?
       return Future<URL, Error> { promise in
         task = self.write(toFile: fileURL) { result in
@@ -131,7 +131,7 @@
     ///
     /// - Returns: A publisher emitting a `URL` instance. The publisher will emit on the *main* thread.
     @discardableResult
-    public func downloadURL() -> Future<URL, Error> {
+    func downloadURL() -> Future<URL, Error> {
       Future<URL, Error> { promise in
         self.downloadURL { result in
           promise(result)
@@ -154,7 +154,7 @@
     ///
     /// - Returns: A publisher emitting a `StorageListResult` instance. The publisher will emit on the *main* thread.
     @discardableResult
-    public func listAll() -> Future<StorageListResult, Error> {
+    func listAll() -> Future<StorageListResult, Error> {
       Future<StorageListResult, Error> { promise in
         self.listAll { result in
           promise(result)
@@ -179,7 +179,7 @@
     ///
     /// - Returns: A publisher emitting a `StorageListResult` instance. The publisher will emit on the *main* thread.
     @discardableResult
-    public func list(maxResults: Int64) -> Future<StorageListResult, Error> {
+    func list(maxResults: Int64) -> Future<StorageListResult, Error> {
       Future<StorageListResult, Error> { promise in
         self.list(maxResults: maxResults) { result in
           promise(result)
@@ -206,7 +206,7 @@
     ///
     /// - Returns: A publisher emitting a `StorageListResult` instance. The publisher will emit on the *main* thread.
     @discardableResult
-    public func list(maxResults: Int64, pageToken: String) -> Future<StorageListResult, Error> {
+    func list(maxResults: Int64, pageToken: String) -> Future<StorageListResult, Error> {
       Future<StorageListResult, Error> { promise in
         self.list(maxResults: maxResults, pageToken: pageToken) { result in
           promise(result)
@@ -222,7 +222,7 @@
     ///
     /// - Returns: A publisher emitting a `StorageMetadata` instance. The publisher will emit on the *main* thread.
     @discardableResult
-    public func getMetadata() -> Future<StorageMetadata, Error> {
+    func getMetadata() -> Future<StorageMetadata, Error> {
       Future<StorageMetadata, Error> { promise in
         self.getMetadata { result in
           promise(result)
@@ -239,7 +239,7 @@
     ///
     /// - Returns: A publisher emitting a `StorageMetadata` instance. The publisher will emit on the *main* thread.
     @discardableResult
-    public func updateMetadata(_ metadata: StorageMetadata) -> Future<StorageMetadata, Error> {
+    func updateMetadata(_ metadata: StorageMetadata) -> Future<StorageMetadata, Error> {
       Future<StorageMetadata, Error> { promise in
         self.updateMetadata(metadata) { result in
           promise(result)
@@ -255,7 +255,7 @@
     ///
     /// - Returns: A publisher that emits whether the call was successful or not. The publisher will emit on the *main* thread.
     @discardableResult
-    public func delete() -> Future<Bool, Error> {
+    func delete() -> Future<Bool, Error> {
       Future<Bool, Error> { promise in
         self.delete { error in
           if let error = error {

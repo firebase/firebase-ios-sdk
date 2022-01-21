@@ -17,7 +17,7 @@
 import Foundation
 import FirebaseDatabase
 
-extension DataSnapshot {
+public extension DataSnapshot {
   /// Retrieves the value of a snapshot and converts it to an instance of
   /// caller-specified type.
   /// Throws `DecodingError.valueNotFound`
@@ -29,9 +29,9 @@ extension DataSnapshot {
   ///   - type: The type to convert the document fields to.
   ///   - decoder: The decoder to use to convert the document. Defaults to use
   ///              default decoder.
-  public func data<T: Decodable>(as type: T.Type,
-                                 decoder: Database.Decoder =
-                                   Database.Decoder()) throws -> T {
+  func data<T: Decodable>(as type: T.Type,
+                          decoder: Database.Decoder =
+                            Database.Decoder()) throws -> T {
     try decoder.decode(T.self, from: value ?? NSNull())
   }
 }

@@ -137,7 +137,7 @@ struct IncrementalCoverageReportGenerator: ParsableCommand {
         from: tempOutputFile,
         changedFile: change.file
       ) {
-        var uncoveredLine: LineCoverage = LineCoverage(
+        var uncoveredLine = LineCoverage(
           fileName: coverageFile.fileName,
           coverage: [],
           xcresultBundle: coverageFile.xcresultBundle
@@ -150,7 +150,7 @@ struct IncrementalCoverageReportGenerator: ParsableCommand {
           // Indices in an array, starting from 0,  correspond to lineIndex,
           // starting from 0, minus 1.
           if addedLineIndex <= coverageFile.coverage.count,
-            let testCoverRun = coverageFile.coverage[addedLineIndex - 1], testCoverRun == 0 {
+             let testCoverRun = coverageFile.coverage[addedLineIndex - 1], testCoverRun == 0 {
             print(addedLineIndex)
             uncoveredLine.coverage.append(addedLineIndex)
           }

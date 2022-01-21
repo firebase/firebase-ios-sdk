@@ -409,7 +409,7 @@ func transactions() {
   let accB = collectionRef.document("accountB")
   let amount = 20.0
 
-  db.runTransaction({ (transaction, errorPointer) -> Any? in
+  db.runTransaction({ transaction, errorPointer -> Any? in
     do {
       let balanceA = try transaction.getDocument(accA)["balance"] as! Double
       let balanceB = try transaction.getDocument(accB)["balance"] as! Double
