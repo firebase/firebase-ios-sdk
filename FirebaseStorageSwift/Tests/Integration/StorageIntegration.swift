@@ -528,7 +528,7 @@ class StorageResultTests: StorageIntegrationCommon {
   private func waitForExpectations() {
     let kFIRStorageIntegrationTestTimeout = 60.0
     waitForExpectations(timeout: kFIRStorageIntegrationTestTimeout,
-                        handler: { (error) -> Void in
+                        handler: { error in
                           if let error = error {
                             print(error)
                           }
