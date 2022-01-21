@@ -52,6 +52,10 @@ class Document {
     return document_.ToString();
   }
 
+  const SnapshotVersion& read_time() const {
+    return document_.read_time();
+  }
+
  private:
   MutableDocument document_;
 };
