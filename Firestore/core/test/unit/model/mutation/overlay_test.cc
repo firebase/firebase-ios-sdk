@@ -60,7 +60,7 @@ TEST(OverlayTest, DefaultConstructor) {
   Overlay overlay;
 
   EXPECT_FALSE(overlay.is_valid());
-  EXPECT_EQ(overlay.largest_batch_id(), 0);
+  EXPECT_EQ(overlay.largest_batch_id(), -1);
   EXPECT_EQ(overlay.mutation(), Mutation());
 }
 
@@ -219,7 +219,8 @@ TEST(OverlayTest, ToStringOnInvalidInstance) {
 
   const std::string invalid_overlay_string = invalid_overlay.ToString();
 
-  EXPECT_THAT(invalid_overlay_string, StartsWith("Overlay(largest_batch_id="));
+  EXPECT_THAT(invalid_overlay_string, StartsWith("Overlay("));
+  EXPECT_THAT(invalid_overlay_string, EndsWith(")"));
 }
 
 TEST(OverlayTest, ToStringOnInvalidInstanceWithABatchId) {
@@ -227,7 +228,9 @@ TEST(OverlayTest, ToStringOnInvalidInstanceWithABatchId) {
 
   const std::string invalid_overlay_string = invalid_overlay.ToString();
 
-  EXPECT_THAT(invalid_overlay_string, StartsWith("Overlay(largest_batch_id=1234"));
+  EXPECT_THAT(invalid_overlay_string, StartsWith("Overlay("));
+  EXPECT_THAT(invalid_overlay_string, HasSubstr("largest_batch_id=1234"));
+  EXPECT_THAT(invalid_overlay_string, EndsWith(")"));
 }
 
 TEST(OverlayTest, ToStringOnValidInstance) {

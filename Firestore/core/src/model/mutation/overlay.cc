@@ -25,6 +25,14 @@ namespace firestore {
 namespace model {
 namespace mutation {
 
+std::size_t Overlay::Hash() const {
+  if (mutation_.is_valid()) {
+    return util::Hash(largest_batch_id_, mutation_);
+  } else {
+    return util::Hash(largest_batch_id_, -1);
+  }
+}
+
 std::string Overlay::ToString() const {
   return absl::StrCat(
       "Overlay(largest_batch_id=", largest_batch_id_,
@@ -37,14 +45,6 @@ std::ostream& operator<<(std::ostream& os, const Overlay& result) {
 
 bool operator==(const Overlay& lhs, const Overlay& rhs) {
   return lhs.largest_batch_id_ == rhs.largest_batch_id_ && lhs.mutation_ == rhs.mutation_;
-}
-
-std::size_t Overlay::Hash() const {
-  if (mutation_.is_valid()) {
-    return util::Hash(largest_batch_id_, mutation_);
-  } else {
-    return util::Hash(largest_batch_id_, -1);
-  }
 }
 
 }  // namespace mutation

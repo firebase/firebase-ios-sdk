@@ -44,7 +44,7 @@ class Overlay {
  public:
   Overlay() = default;
 
-  Overlay(int largest_batch_id, Mutation&& mutation) : largest_batch_id_(largest_batch_id), mutation_(std::move(mutation)) {
+  Overlay(int largest_batch_id, Mutation mutation) : largest_batch_id_(largest_batch_id), mutation_(std::move(mutation)) {
   }
 
   bool is_valid() const {
@@ -67,16 +67,15 @@ class Overlay {
     return mutation().key();
   }
 
-  friend bool operator==(const Overlay&, const Overlay&);
-
   std::size_t Hash() const;
 
   std::string ToString() const;
 
+  friend bool operator==(const Overlay&, const Overlay&);
   friend std::ostream& operator<<(std::ostream&, const Overlay&);
 
  private:
-  int largest_batch_id_ = 0;
+  int largest_batch_id_ = -1;
   Mutation mutation_;
 };
 
