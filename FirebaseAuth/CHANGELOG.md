@@ -1,5 +1,6 @@
 # Unreleased
 - [changed] Added a `X-Firebase-GMPID` header to network requests.
+- [added] Added note to `getStoredUser(forAccessGroup:)` documentation about tvOS keychain sharing issues. (#8878)
 
 # 8.9.0
 - [changed] Improved error logging. (#8704)
