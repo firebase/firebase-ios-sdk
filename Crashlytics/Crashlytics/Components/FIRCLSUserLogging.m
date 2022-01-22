@@ -239,37 +239,40 @@ void FIRCLSUserLoggingRecordKeysAndValues(NSDictionary *keysAndValues,
     return;
   }
 
-  if (keysAndValues.count == 0) {
-    FIRCLSSDKLogWarn("User provided empty key/value dictionary\n");
-    return;
-  }
-
-  if (!FIRCLSIsValidPointer(keysAndValues)) {
-    FIRCLSSDKLogWarn("User provided bad key/value dictionary\n");
-    return;
-  }
-
-  NSMutableDictionary *sanitizedKeysAndValues = [keysAndValues mutableCopy];
-  for (NSString *key in keysAndValues) {
-    if (!FIRCLSIsValidPointer(key)) {
-      FIRCLSSDKLogWarn("User provided bad key\n");
+  NSMutableDictionary *sanitizedKeysAndValues;
+  if (keysAndValues != nil) {
+    if (keysAndValues.count == 0) {
+      FIRCLSSDKLogWarn("User provided empty key/value dictionary\n");
       return;
     }
 
-    id value = keysAndValues[key];
-
-    // ensure that any invalid pointer is actually set to nil
-    if (!FIRCLSIsValidPointer(value) && value != nil) {
-      FIRCLSSDKLogWarn("Bad value pointer being clamped to nil\n");
-      sanitizedKeysAndValues[key] = [NSNull null];
+    if (!FIRCLSIsValidPointer(keysAndValues)) {
+      FIRCLSSDKLogWarn("User provided bad key/value dictionary\n");
+      return;
     }
 
-    if ([value respondsToSelector:@selector(description)]) {
-      sanitizedKeysAndValues[key] = [value description];
-    } else {
-      // passing nil will result in a JSON null being written, which is deserialized as [NSNull
-      // null], signaling to remove the key during compaction
-      sanitizedKeysAndValues[key] = [NSNull null];
+    sanitizedKeysAndValues = [keysAndValues mutableCopy];
+    for (NSString *key in keysAndValues) {
+      if (!FIRCLSIsValidPointer(key)) {
+        FIRCLSSDKLogWarn("User provided bad key\n");
+        return;
+      }
+
+      id value = keysAndValues[key];
+
+      // ensure that any invalid pointer is actually set to nil
+      if (!FIRCLSIsValidPointer(value) && value != nil) {
+        FIRCLSSDKLogWarn("Bad value pointer being clamped to nil\n");
+        sanitizedKeysAndValues[key] = [NSNull null];
+      }
+
+      if ([value respondsToSelector:@selector(description)]) {
+        sanitizedKeysAndValues[key] = [value description];
+      } else {
+        // passing nil will result in a JSON null being written, which is deserialized as [NSNull
+        // null], signaling to remove the key during compaction
+        sanitizedKeysAndValues[key] = [NSNull null];
+      }
     }
   }
 
@@ -295,6 +298,8 @@ static void FIRCLSUserLoggingWriteKeysAndValues(NSDictionary *keysAndValues,
 
   FIRCLSUserLoggingWriteKVEntriesToFile(keysAndValues, true, &file);
   FIRCLSFileClose(&file);
+
+  NSLog(@"FIRCLSUserLoggingWriteKeysAndValues, %@", keysAndValues);
 
   *counter += keysAndValues.count;
   if (*counter >= storage->maxIncrementalCount) {

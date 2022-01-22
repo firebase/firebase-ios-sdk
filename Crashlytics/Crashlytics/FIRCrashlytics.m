@@ -298,14 +298,26 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
   FIRCLSUserLoggingRecordInternalKeyValue(FIRCLSUserIdentifierKey, userID);
 }
 
+- (void)deleteUserID {
+  FIRCLSUserLoggingRecordInternalKeyValue(FIRCLSUserIdentifierKey, nil);
+}
+
 #pragma mark - API: setCustomValue
 
 - (void)setCustomValue:(id)value forKey:(NSString *)key {
   FIRCLSUserLoggingRecordUserKeyValue(key, value);
 }
 
+- (void)deleteCustomValueFor:(NSString *)key {
+  FIRCLSUserLoggingRecordUserKeyValue(key, nil);
+}
+
 - (void)setCustomKeysAndValues:(NSDictionary *)keysAndValues {
   FIRCLSUserLoggingRecordUserKeysAndValues(keysAndValues);
+}
+
+- (void)deleteCustomKeysAndValues {
+  FIRCLSUserLoggingRecordUserKeysAndValues(nil);
 }
 
 #pragma mark - API: Development Platform

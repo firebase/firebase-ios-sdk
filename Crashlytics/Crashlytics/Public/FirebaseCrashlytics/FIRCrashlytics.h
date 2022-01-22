@@ -85,6 +85,14 @@ NS_SWIFT_NAME(Crashlytics)
 - (void)setCustomValue:(id)value forKey:(NSString *)key;
 
 /**
+ * Deletes a value of a custom key that was previously set to be associated with subsequent fatal
+ * and non-fatal reports.
+ *
+ * @param key A unique key
+ */
+- (void)deleteCustomValueFor:(NSString *)key;
+
+/**
  * Sets custom keys and values to be associated with subsequent fatal and non-fatal reports.
  * The objects in the dictionary are converted to strings. This is
  * typically done by calling "-[NSObject description]".
@@ -92,6 +100,11 @@ NS_SWIFT_NAME(Crashlytics)
  * @param keysAndValues The values to be associated with the corresponding keys
  */
 - (void)setCustomKeysAndValues:(NSDictionary *)keysAndValues;
+
+/**
+ * Deletes custom keys and values associated with subsequent fatal and non-fatal reports.
+ */
+- (void)deleteCustomKeysAndValues;
 
 /**
  * Records a user ID (identifier) that's associated with subsequent fatal and non-fatal reports.
@@ -105,6 +118,11 @@ NS_SWIFT_NAME(Crashlytics)
  * system.
  */
 - (void)setUserID:(NSString *)userID;
+
+/**
+ * Deletes a user ID (identifier) that's associated with subsequent fatal and non-fatal reports.
+ */
+- (void)deleteUserID;
 
 /**
  * Records a non-fatal event described by an NSError object. The events are
