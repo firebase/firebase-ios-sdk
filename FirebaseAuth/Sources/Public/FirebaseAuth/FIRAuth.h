@@ -858,6 +858,8 @@ NS_SWIFT_NAME(Auth)
 
 /** @fn getStoredUserForAccessGroup:error:
     @brief Get the stored user in the given accessGroup.
+    @note This API returns `nil` on tvOS due to system issues with keychain sharing on tvOS. Please
+        refer to https://github.com/firebase/firebase-ios-sdk/issues/8878 for details.
  */
 - (nullable FIRUser *)getStoredUserForAccessGroup:(NSString *_Nullable)accessGroup
                                             error:(NSError *_Nullable *_Nullable)outError;
