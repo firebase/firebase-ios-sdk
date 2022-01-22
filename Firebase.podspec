@@ -63,14 +63,14 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '9.0'
     ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '12.0'
-    ss.dependency 'Firebase/Core'
+    ss.dependency 'FirebaseCore'
   end
 
   s.subspec 'AnalyticsWithAdIdSupport' do |ss|
     ss.ios.deployment_target = '9.0'
     ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '12.0'
-    ss.dependency 'Firebase/Core'
+    ss.dependency 'FirebaseCore'
   end
 
   s.subspec 'AnalyticsWithoutAdIdSupport' do |ss|
