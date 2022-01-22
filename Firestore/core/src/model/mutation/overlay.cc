@@ -40,7 +40,11 @@ bool operator==(const Overlay& lhs, const Overlay& rhs) {
 }
 
 std::size_t Overlay::Hash() const {
-  return util::Hash(largest_batch_id_, mutation_);
+  if (mutation_.is_valid()) {
+    return util::Hash(largest_batch_id_, mutation_);
+  } else {
+    return util::Hash(largest_batch_id_, -1);
+  }
 }
 
 }  // namespace mutation

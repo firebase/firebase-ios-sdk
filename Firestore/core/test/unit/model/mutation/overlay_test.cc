@@ -18,10 +18,10 @@
 #include <utility>
 
 #include "Firestore/core/src/model/mutation/overlay.h"
-#include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/model/patch_mutation.h"
 #include "Firestore/core/src/model/resource_path.h"
+#include "Firestore/core/test/unit/testutil/equals_tester.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "absl/strings/string_view.h"
 
@@ -196,9 +196,17 @@ TEST(OverlayTest, mutation_RvalueRefQualified) {
   EXPECT_FALSE(overlay.is_valid());
 }
 
+TEST(OverlayTest, EqualsAndHash) {
+  testutil::EqualsTester<Overlay>()
+      .AddEqualityGroup(Overlay(), Overlay())
+      .AddEqualityGroup(Overlay(SAMPLE_BATCH_ID, Mutation()), Overlay(SAMPLE_BATCH_ID, Mutation()))
+      .AddEqualityGroup(Overlay(SAMPLE_BATCH_ID, SampleMutation("col/abc")), Overlay(SAMPLE_BATCH_ID, SampleMutation("col/abc")))
+      .AddEqualityGroup(Overlay(SAMPLE_BATCH_ID + 1, SampleMutation("col/abc")), Overlay(SAMPLE_BATCH_ID + 1, SampleMutation("col/abc")))
+      .AddEqualityGroup(Overlay(SAMPLE_BATCH_ID, SampleMutation("col/xyz")), Overlay(SAMPLE_BATCH_ID, SampleMutation("col/xyz")))
+      .TestEquals();
+}
+
 // TODO(dconeybe): Add tests for:
-// bool operator==(const Overlay&, const Overlay&);
-// std::size_t Hash() const;
 // std::string ToString() const;
 // std::ostream& operator<<(std::ostream&, const Overlay&);
 
