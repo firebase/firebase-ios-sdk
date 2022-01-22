@@ -18,6 +18,7 @@
 @class FIRCLSInternalReport;
 @class FIRCLSManagerData;
 @class FIRCLSFileManager;
+@class FIRCLSOnDemandModel;
 
 @interface FIRCLSReportUploader : NSObject
 
@@ -27,6 +28,7 @@
 
 @property(nonatomic, readonly) NSOperationQueue *operationQueue;
 @property(nonatomic, readonly) FIRCLSFileManager *fileManager;
+@property(nonatomic, readonly) FIRCLSOnDemandModel *onDemandModel;
 
 - (void)prepareAndSubmitReport:(FIRCLSInternalReport *)report
            dataCollectionToken:(FIRCLSDataCollectionToken *)dataCollectionToken

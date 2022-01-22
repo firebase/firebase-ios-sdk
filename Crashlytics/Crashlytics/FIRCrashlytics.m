@@ -48,6 +48,7 @@
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportUploader.h"
 #import "Crashlytics/Crashlytics/Private/FIRCLSExistingReportManager_Private.h"
 #import "Crashlytics/Crashlytics/Private/FIRExceptionModel_Private.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSOnDemandModel_Private.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
@@ -89,6 +90,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
 // Dependencies common to each of the Controllers
 @property(nonatomic, strong) FIRCLSManagerData *managerData;
+@property(nonatomic, strong) FIRCLSSettings *settings;
 
 @end
 
@@ -126,7 +128,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     _dataArbiter = [[FIRCLSDataCollectionArbiter alloc] initWithApp:app withAppInfo:appInfo];
 
     FIRCLSApplicationIdentifierModel *appModel = [[FIRCLSApplicationIdentifierModel alloc] init];
-    FIRCLSSettings *settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager
+    _settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager
                                                                 appIDModel:appModel];
 
     _managerData = [[FIRCLSManagerData alloc] initWithGoogleAppID:_googleAppID
@@ -135,7 +137,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
                                                         analytics:analytics
                                                       fileManager:_fileManager
                                                       dataArbiter:_dataArbiter
-                                                         settings:settings];
+                                                         settings:_settings];
 
     _reportUploader = [[FIRCLSReportUploader alloc] initWithManagerData:_managerData];
 
@@ -351,21 +353,30 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 }
 
 - (void)recordExceptionModel:(FIRExceptionModel *)exceptionModel {
-  if (exceptionModel.onDemand) {
-    // Record and attempt to submit an exception on-demand
+  FIRCLSExceptionRecordModel(exceptionModel);
+}
+
+- (void)recordOnDemandExceptionModel:(FIRExceptionModel *)exceptionModel {
+  // Record the exception model into a new report if there is unused on-demand quota. Otherwise,
+  // log the occurence but drop the event.
+  if ([self.reportUploader.onDemandModel canRecordOnDemandException]) {
     FIRCLSDataCollectionToken *dataCollectionToken = [FIRCLSDataCollectionToken validToken];
+    NSString *activeReportPath = FIRCLSExceptionRecordOnDemandModel(exceptionModel);
+    
+    // Only submit an exception report if data collection is enabled. Otherwise, the report
+    // is stored until send or delete unsent reports is called.
     if ([self.dataArbiter isCrashlyticsCollectionEnabled]) {
-      NSString *activeReportPath = FIRCLSExceptionRecordOnDemandModel(exceptionModel);
       if (activeReportPath) {
-        [self.existingReportManager processExistingActiveReportPath:activeReportPath
+        [self.existingReportManager handleOnDemandReportUpload:activeReportPath
                                                 dataCollectionToken:dataCollectionToken
                                                            asUrgent:YES];
         FIRCLSSDKLog("Submitted an on-demand exception\n");
+      } else {
+        FIRCLSSDKLog("Invalid path for on-demand exception.\n");
       }
     }
   } else {
-    // Record the exception normally
-    FIRCLSExceptionRecordModel(exceptionModel);
+    FIRCLSSDKLog("No available on-demand quota.");
   }
 }
 

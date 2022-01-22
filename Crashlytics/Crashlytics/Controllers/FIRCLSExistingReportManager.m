@@ -248,4 +248,13 @@ NSInteger compareNewer(FIRCLSInternalReport *reportA,
   }];
 }
 
+- (void)handleOnDemandReportUpload:(NSString *)path
+               dataCollectionToken:(FIRCLSDataCollectionToken *)dataCollectionToken
+                          asUrgent:(BOOL)urgent {
+  
+  [self processExistingActiveReportPath:path
+                                          dataCollectionToken:dataCollectionToken
+                                                     asUrgent:YES];
+}
+
 @end

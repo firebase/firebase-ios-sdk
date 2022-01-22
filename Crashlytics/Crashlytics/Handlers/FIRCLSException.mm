@@ -276,6 +276,8 @@ NSString *FIRCLSExceptionRecordOnDemand(FIRCLSExceptionType type,
     return nil;
   }
 
+  //  FIRCLSUserLoggingRecordInternalKeyValue(FIRCLSFlutterOnDemandExceptionKey, @YES);
+
   // If the event was fatal, write out an empty file to indicate that the report contains a fatal
   // event. This is used to report events to Analytics for CFU calculations.
   if (fatal && ![fileManager createFileAtPath:customExceptionIndicatorFilePath
@@ -286,16 +288,16 @@ NSString *FIRCLSExceptionRecordOnDemand(FIRCLSExceptionType type,
   }
 
   // Write out the exception in the new report.
-  const char *newActiveCustomExceptionPath =
-      [[newRootPath stringByAppendingPathComponent:FIRCLSReportCustomExceptionAFile] UTF8String];
+  const char *newActiveCustomExceptionPath = fatal ?
+      [[newRootPath stringByAppendingPathComponent:FIRCLSReportExceptionFile] UTF8String] : [[newRootPath stringByAppendingPathComponent:FIRCLSReportCustomExceptionAFile] UTF8String];
   FIRCLSFile file;
   if (!FIRCLSFileInitWithPath(&file, newActiveCustomExceptionPath, true)) {
     FIRCLSSDKLog("Unable to open log file for on demand custom exception\n");
     return nil;
   }
   FIRCLSExceptionWrite(&file, type, name, reason, frames);
-  off_t fileSize = 0;
-  FIRCLSFileCloseWithOffset(&file, &fileSize);
+  FIRCLSHandler(&file, mach_thread_self(), NULL);
+  FIRCLSFileClose(&file);
 
   // Return the path to the new report.
   FIRCLSSDKLog("Finished recording on demand exception structure\n");
