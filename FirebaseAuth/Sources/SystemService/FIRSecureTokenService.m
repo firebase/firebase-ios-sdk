@@ -64,11 +64,6 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
    */
   FIRAuthSerialTaskQueue *_taskQueue;
 
-  /** @var _authorizationCode
-      @brief An authorization code which needs to be exchanged for Secure Token Service tokens.
-   */
-  NSString *_Nullable _authorizationCode;
-
   /** @var _accessToken
       @brief The currently cached access token. Or |nil| if no token is currently cached.
    */
@@ -79,16 +74,6 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
   self = [super init];
   if (self) {
     _taskQueue = [[FIRAuthSerialTaskQueue alloc] init];
-  }
-  return self;
-}
-
-- (instancetype)initWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                           authorizationCode:(NSString *)authorizationCode {
-  self = [self init];
-  if (self) {
-    _requestConfiguration = requestConfiguration;
-    _authorizationCode = [authorizationCode copy];
   }
   return self;
 }
@@ -176,14 +161,9 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
         access to and mutation of these instance variables.
  */
 - (void)requestAccessToken:(FIRFetchAccessTokenCallback)callback {
-  FIRSecureTokenRequest *request;
-  if (_refreshToken.length) {
-    request = [FIRSecureTokenRequest refreshRequestWithRefreshToken:_refreshToken
-                                               requestConfiguration:_requestConfiguration];
-  } else {
-    request = [FIRSecureTokenRequest authCodeRequestWithCode:_authorizationCode
-                                        requestConfiguration:_requestConfiguration];
-  }
+  FIRSecureTokenRequest *request =
+      [FIRSecureTokenRequest refreshRequestWithRefreshToken:_refreshToken
+                                       requestConfiguration:_requestConfiguration];
   [FIRAuthBackend
       secureToken:request
          callback:^(FIRSecureTokenResponse *_Nullable response, NSError *_Nullable error) {

@@ -27,6 +27,9 @@ jobs:
     runs-on: macOS-10.15
     steps:
     - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Xcode 12.2
       run: sudo xcode-select -s /Applications/Xcode_12.2.app/Contents/Developer
     - name: Setup Bundler
@@ -64,6 +67,9 @@ jobs:
     runs-on: macOS-10.15
     steps:
     - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+      with:
+        cache_key: ${{ matrix.os }}
     - name: Xcode 12.2
       run: sudo xcode-select -s /Applications/Xcode_12.2.app/Contents/Developer
     - name: Setup Bundler

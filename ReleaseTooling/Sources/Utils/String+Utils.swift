@@ -29,7 +29,7 @@ public extension String {
     var searchRange = startIndex ..< end
 
     while searchRange.lowerBound < end {
-      guard let range = self.range(
+      guard let range = range(
         of: substring,
         options: options,
         range: searchRange,

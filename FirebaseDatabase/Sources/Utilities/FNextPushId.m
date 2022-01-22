@@ -16,15 +16,21 @@
 
 #import "FirebaseDatabase/Sources/Utilities/FNextPushId.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
+#import "FirebaseDatabase/Sources/Utilities/FValidation.h"
 
 static NSString *const PUSH_CHARS =
     @"-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
 
-static NSString *const MIN_PUSH_CHAR = @"-";
+static NSString *const MIN_PUSH_CHAR = @" ";
 
-static NSString *const MAX_PUSH_CHAR = @"z";
+static NSString *const MAX_PUSH_CHAR = @"\uFFFF";
 
 static NSInteger const MAX_KEY_LEN = 786;
+
+static unichar const LOW_SURROGATE_PAIR_START = 0xDC00;
+static unichar const LOW_SURROGATE_PAIR_END = 0xDFFF;
+static unichar const HIGH_SURROGATE_PAIR_START = 0xD800;
+static unichar const HIGH_SURROGATE_PAIR_END = 0xDBFF;
 
 @implementation FNextPushId
 
@@ -65,7 +71,8 @@ static NSInteger const MAX_KEY_LEN = 786;
     return [NSString stringWithString:id];
 }
 
-+ (NSString *)successor:(NSString *_Nonnull)key {
++ (NSString *)from:(NSString *)fn successor:(NSString *_Nonnull)key {
+    [FValidation validateFrom:fn validKey:key];
     NSInteger keyAsInt;
     if ([FUtilities tryParseString:key asInt:&keyAsInt]) {
         if (keyAsInt == [FUtilities int32max]) {
@@ -93,19 +100,91 @@ static NSInteger const MAX_KEY_LEN = 786;
         return [FUtilities maxName];
     }
 
-    NSString *source =
-        [NSString stringWithFormat:@"%C", [next characterAtIndex:i]];
-    NSInteger sourceIndex = [PUSH_CHARS rangeOfString:source].location;
-    NSString *sourcePlusOne = [NSString
-        stringWithFormat:@"%C", [PUSH_CHARS characterAtIndex:sourceIndex + 1]];
+    unichar character = [next characterAtIndex:i];
+    unichar plusOne = character + 1;
+    BOOL removePreviousCharacter = NO;
+    BOOL replaceWithLowestSurrogatePair = NO;
+    switch (plusOne) {
+    case 0x23: // '#'
+    case 0x24: // '$'
+        plusOne = 0x25;
+        break;
 
-    [next replaceCharactersInRange:NSMakeRange(i, i + 1)
+    case 0x2E: // '.'
+    case 0x2F: // '/'
+        plusOne = 0x30;
+        break;
+
+    case 0x5B: // '['
+        plusOne = 0x5C;
+        break;
+
+    case 0x5D: // ']'
+        plusOne = 0x5E;
+        break;
+
+    case 0x7F: // control character: del
+        plusOne = 0x80;
+        break;
+
+    case HIGH_SURROGATE_PAIR_START: // 0xD800
+        // We added one to 0xD7FF and entered surrogate pair zone
+        // Replace with the lowest surrogate pair here
+        replaceWithLowestSurrogatePair = YES;
+
+    case LOW_SURROGATE_PAIR_END + 1: // 0xE000
+        // If the previous character is the highest surrogate value
+        // then we increment to the value 0xE000 by replacing the surrogate
+        // pair by the single value 0xE000 (the value of plusOne)
+        // Otherwise we increment the high surrogate value and set the low
+        // surrogate value to the lowest.
+        if (i == 0) {
+            // Error, encountered low surrogate without matching high surrogate
+        } else {
+            unichar high = [next characterAtIndex:i - 1];
+            if (high == HIGH_SURROGATE_PAIR_END) { /* highest value for the high
+                                                      part of the pair */
+                // Replace pair with 0xE000 (the value of plusOne)
+                removePreviousCharacter = YES;
+            } else {
+                high += 1;
+                NSString *highStr = [NSString stringWithFormat:@"%C", high];
+
+                [next replaceCharactersInRange:NSMakeRange(i - 1, i)
+                                    withString:highStr];
+                plusOne = LOW_SURROGATE_PAIR_START; /* lowest value for the low
+                                                       part of the pair */
+            }
+        }
+        break;
+    }
+
+    NSString *sourcePlusOne =
+        replaceWithLowestSurrogatePair
+            ? [NSString stringWithFormat:@"%C%C", HIGH_SURROGATE_PAIR_START,
+                                         LOW_SURROGATE_PAIR_START]
+            : [NSString stringWithFormat:@"%C", plusOne];
+
+    NSInteger replaceLocation = i;
+    NSInteger replaceLength = 1;
+    if (removePreviousCharacter) {
+        --replaceLocation;
+        ++replaceLength;
+    }
+
+    [next replaceCharactersInRange:NSMakeRange(replaceLocation, replaceLength)
                         withString:sourcePlusOne];
-    return [next substringWithRange:NSMakeRange(0, i + 1)];
+    NSInteger length = i + 1;
+    if (removePreviousCharacter) {
+        --length;
+    } else if (replaceWithLowestSurrogatePair) {
+        ++length;
+    }
+    return [next substringWithRange:NSMakeRange(0, length)];
 }
 
-// `key` is assumed to be non-empty.
-+ (NSString *)predecessor:(NSString *_Nonnull)key {
++ (NSString *)from:(NSString *)fn predecessor:(NSString *_Nonnull)key {
+    [FValidation validateFrom:fn validKey:key];
     NSInteger keyAsInt;
     if ([FUtilities tryParseString:key asInt:&keyAsInt]) {
         if (keyAsInt == [FUtilities int32min]) {
@@ -129,13 +208,91 @@ static NSInteger const MAX_KEY_LEN = 786;
     // Replace the last character with its immedate predecessor, and fill the
     // suffix of the key with MAX_PUSH_CHAR. This is the lexicographically
     // largest possible key smaller than `key`.
-    unichar curr = [next characterAtIndex:next.length - 1];
-    NSRange dstRange = NSMakeRange([next length] - 1, 1);
-    NSRange srcRange =
-        [PUSH_CHARS rangeOfString:[NSString stringWithFormat:@"%C", curr]];
-    srcRange.location -= 1;
-    [next replaceCharactersInRange:dstRange
-                        withString:[PUSH_CHARS substringWithRange:srcRange]];
+    NSUInteger i = next.length - 1;
+    unichar character = [next characterAtIndex:i];
+    unichar minusOne = character - 1;
+    BOOL removePreviousCharacter = NO;
+    BOOL replaceWithHighestSurrogatePair = NO;
+    switch (minusOne) {
+    // NOTE: We already handled the case of min char (0x20)
+    case 0x23: // '#'
+    case 0x24: // '$'
+        minusOne = 0x22;
+        break;
+
+    case 0x2E: // '.'
+    case 0x2F: // '/'
+        minusOne = 0x2D;
+        break;
+
+    case 0x5B: // '['
+        minusOne = 0x5A;
+        break;
+
+    case 0x5D: // ']'
+        minusOne = 0x5C;
+        break;
+
+    case 0x7F: // control character: del
+        minusOne = 0x7E;
+        break;
+
+    case LOW_SURROGATE_PAIR_END: // 0xDFFF
+        // Previously we had 0xE000 which is a single utf16 character,
+        // this needs to be replaced with the highest surrogate pair:
+        replaceWithHighestSurrogatePair = YES;
+        break;
+
+    case HIGH_SURROGATE_PAIR_END: // 0xDBFF
+        // If the previous character is the lowest high surrogate value
+        // then we decrement to the non-surrogate value 0xD7FF by replacing the
+        // surrogate pair by the single value 0xD7FF (HIGH_SURROGATE_PAIR_START
+        // - 1) Otherwise we decrement the high surrogate value and set the low
+        // surrogate value to the highest.
+        if (i == 0) {
+            // Error, found low surrogate without matching high surrogate
+        } else {
+            unichar high = [next characterAtIndex:i - 1];
+            if (high == HIGH_SURROGATE_PAIR_START) { /* lowest value for the
+                                                        high part of the pair */
+                // Replace pair with single 0xD7FF value
+                removePreviousCharacter = YES;
+                minusOne = HIGH_SURROGATE_PAIR_START - 1;
+            } else {
+                high -= 1;
+                NSString *highStr = [NSString stringWithFormat:@"%C", high];
+
+                [next replaceCharactersInRange:NSMakeRange(i - 1, i)
+                                    withString:highStr];
+                minusOne = LOW_SURROGATE_PAIR_END; /* highest value for the low
+                                                      part of the pair */
+            }
+        }
+        break;
+    }
+
+    NSString *sourceMinusOne =
+        replaceWithHighestSurrogatePair
+            ? [NSString stringWithFormat:@"%C%C", HIGH_SURROGATE_PAIR_END,
+                                         LOW_SURROGATE_PAIR_END]
+            : [NSString stringWithFormat:@"%C", minusOne];
+
+    NSInteger replaceLocation = i;
+    NSInteger replaceLength = 1;
+    if (removePreviousCharacter) {
+        --replaceLocation;
+        ++replaceLength;
+    }
+
+    [next replaceCharactersInRange:NSMakeRange(replaceLocation, replaceLength)
+                        withString:sourceMinusOne];
+
+    NSInteger length = i + 1;
+    if (removePreviousCharacter) {
+        --length;
+    } else if (replaceWithHighestSurrogatePair) {
+        ++length;
+    }
     return [next stringByPaddingToLength:MAX_KEY_LEN
                               withString:MAX_PUSH_CHAR
                          startingAtIndex:0];

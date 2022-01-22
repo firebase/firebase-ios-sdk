@@ -1,6 +1,10 @@
 # Unreleased
-- [changed] Added a `X-Firebase-GMPID` header to network requests.
 - [added] Added note to `getStoredUser(forAccessGroup:)` documentation about tvOS keychain sharing issues. (#8878)
+
+# v8.11.0
+- [changed] Added a `X-Firebase-GMPID` header to network requests. (#9046)
+- [fixed] Added multi-tenancy support to generic OAuth providers. (#7990)
+- [fixed] macOS Extension access to Shared Keychain by adding kSecUseDataProtectionKeychain recommended key (#6876)
 
 # 8.9.0
 - [changed] Improved error logging. (#8704)

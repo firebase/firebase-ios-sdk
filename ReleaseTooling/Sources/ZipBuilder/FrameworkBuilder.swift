@@ -34,9 +34,9 @@ struct FrameworkBuilder {
   }
 
   /// Default initializer.
-  init(projectDir: URL, platform: Platform, dynamicFrameworks: Bool) {
+  init(projectDir: URL, targetPlatforms: [TargetPlatform], dynamicFrameworks: Bool) {
     self.projectDir = projectDir
-    targetPlatforms = platform.platformTargets
+    self.targetPlatforms = targetPlatforms
     self.dynamicFrameworks = dynamicFrameworks
   }
 
@@ -189,8 +189,6 @@ struct FrameworkBuilder {
 
     var archs = targetPlatform.archs.map { $0.rawValue }.joined(separator: " ")
     // The 32 bit archs do not build for iOS 11.
-    // TODO: Make a more robust solution if we need to support more of a mix between iOS 11 and
-    // under.
     if framework == "FirebaseAppCheck" {
       if targetPlatform == .iOSDevice {
         archs = "arm64"
@@ -351,7 +349,7 @@ struct FrameworkBuilder {
 
     // Find the location of the public headers, any platform will do.
     guard let anyPlatform = targetPlatforms.first,
-      let archivePath = slicedFrameworks[anyPlatform] else {
+          let archivePath = slicedFrameworks[anyPlatform] else {
       fatalError("Could not get a path to an archive to fetch headers in \(framework).")
     }
 
@@ -394,10 +392,10 @@ struct FrameworkBuilder {
       }
       // Verify Firebase frameworks include an explicit umbrella header for Firebase.h.
       if framework.hasPrefix("Firebase") || framework == "GoogleDataTransport",
-        framework != "FirebaseCoreDiagnostics",
-        framework != "FirebaseUI",
-        framework != "FirebaseMLModelDownloader",
-        !framework.hasSuffix("Swift") {
+         framework != "FirebaseCoreDiagnostics",
+         framework != "FirebaseUI",
+         framework != "FirebaseMLModelDownloader",
+         !framework.hasSuffix("Swift") {
         // Delete CocoaPods generated umbrella and use pre-generated one.
         do {
           try fileManager.removeItem(at: umbrellaHeaderURL)
@@ -527,7 +525,7 @@ struct FrameworkBuilder {
           return true
         }
         guard let first = swiftModules.first,
-          let swiftModule = URL(string: first) else {
+              let swiftModule = URL(string: first) else {
           fatalError("Failed to get swiftmodule in \(moduleDir).")
         }
         let destModuleDir = destination.appendingPathComponent("Modules")
@@ -551,7 +549,7 @@ struct FrameworkBuilder {
               let fileURL = URL(fileURLWithPath: file)
               let projectDir = swiftModule.appendingPathComponent("Project")
               if fileURL.lastPathComponent == "Project",
-                fileManager.directoryExists(at: projectDir) {
+                 fileManager.directoryExists(at: projectDir) {
                 // The Project directory (introduced with Xcode 11.4) already exists, only copy in
                 // new contents.
                 let projectFiles = try fileManager.contentsOfDirectory(at: projectDir,
