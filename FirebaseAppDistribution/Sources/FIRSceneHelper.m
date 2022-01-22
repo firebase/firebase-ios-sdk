@@ -46,7 +46,9 @@ API_AVAILABLE(ios(13.0))
 
 - (void)onFirstSceneActivated:(NSNotification *)notification API_AVAILABLE(ios(13.0)) {
   UIWindowScene *foregroundedScene;
-  if ([notification.object isKindOfClass:[UIWindowScene class]] && ((UIWindowScene*)notification.object).activationState == UISceneActivationStateForegroundActive) {
+  if ([notification.object isKindOfClass:[UIWindowScene class]] &&
+      ((UIWindowScene *)notification.object).activationState ==
+          UISceneActivationStateForegroundActive) {
     foregroundedScene = notification.object;
   } else {
     foregroundedScene = [self findScene];
