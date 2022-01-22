@@ -29,16 +29,14 @@ API_AVAILABLE(ios(13.0))
 - (void)findForegroundedSceneWithCompletionBlock:(void (^)(UIWindowScene *scene))completionBlock
     API_AVAILABLE(ios(13.0)) {
   if (@available(iOS 13.0, *)) {
-    UIWindowScene *foregroundedScene = nil;
-    BOOL areAllScenesUnattached = YES;
-    [self findScene](&foregroundedScene, &areAllScenesUnattached);
+    UIWindowScene *foregroundedScene = [self findScene];
     if (foregroundedScene != nil) {
       completionBlock(foregroundedScene);
       return;
     }
     self.pendingCompletion = completionBlock;
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(onFirstSceneActivated)
+                                             selector:@selector(onFirstSceneActivated:)
                                                  name:UISceneDidActivateNotification
                                                object:nil];
   } else {
@@ -46,12 +44,12 @@ API_AVAILABLE(ios(13.0))
   }
 }
 
-- (void)onFirstSceneActivated API_AVAILABLE(ios(13.0)) {
-  UIWindowScene *foregroundedScene = nil;
-  BOOL areAllScenesUnattached = YES;
-  [self findScene](&foregroundedScene, &areAllScenesUnattached);
-  if (areAllScenesUnattached) {
-    return;
+- (void)onFirstSceneActivated:(NSNotification *)notification API_AVAILABLE(ios(13.0)) {
+  UIWindowScene *foregroundedScene;
+  if ([notification.object isKindOfClass:[UIWindowScene class]]) {
+    foregroundedScene = notification.object;
+  } else {
+    foregroundedScene = [self findScene];
   }
 
   [[NSNotificationCenter defaultCenter] removeObserver:self
@@ -63,20 +61,13 @@ API_AVAILABLE(ios(13.0))
   }
 }
 
-- (void (^)(UIWindowScene **, BOOL *))findScene API_AVAILABLE(ios(13.0)) {
-  return ^(UIWindowScene **foregroundedScene, BOOL *areAllScenesUnattached) {
-    *foregroundedScene = nil;
-    *areAllScenesUnattached = YES;
-    for (UIWindowScene *connectedScene in [UIApplication sharedApplication].connectedScenes) {
-      if (connectedScene.activationState != UISceneActivationStateUnattached) {
-        *areAllScenesUnattached = NO;
-      }
-      if (connectedScene.activationState == UISceneActivationStateForegroundActive) {
-        *foregroundedScene = connectedScene;
-        break;
-      }
+- (UIWindowScene *)findScene API_AVAILABLE(ios(13.0)) {
+  for (UIWindowScene *connectedScene in [UIApplication sharedApplication].connectedScenes) {
+    if (connectedScene.activationState == UISceneActivationStateForegroundActive) {
+      return connectedScene;
     }
-  };
+  }
+  return nil;
 }
 
 @end
