@@ -82,11 +82,12 @@ struct UpdatedFilesCollector: ParsableCommand {
             print("=============== paths of changed files ===============")
             print("::set-output name=\(sdkPatterns.sdk)_run_job::true")
             for podspec in sdkPatterns.podspecs {
-              if !excludePodspecs.contains(podspec){
+              if !excludePodspecs.contains(podspec) {
                 podspecsWithChangedFiles.append(SDKPodspec(podspec: podspec))
-              }
-              else if let outputPath = outputSDKFileURL {
-                print("\(podspec) was excluded and will not be written in \(outputPath.absoluteString) ")
+              } else if let outputPath = outputSDKFileURL {
+                print(
+                  "\(podspec) was excluded and will not be written in \(outputPath.absoluteString) "
+                )
               }
             }
             print("\(sdkPatterns.sdk): \(changedFilePath) is updated under the pattern, \(pattern)")
