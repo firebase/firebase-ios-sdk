@@ -56,6 +56,10 @@ struct UpdatedFilesCollector: ParsableCommand {
           })
   var outputSDKFileURL: URL?
 
+  /// Exclude pods from spec testings.
+  @Option(parsing: .upToNextOption, help: "Podspecs that will be excluded in the testings.")
+  var excludePodspecs: [String] = []
+
   func run() throws {
     var podspecsWithChangedFiles: [SDKPodspec] = []
     print("=============== list changed files ===============")
@@ -78,7 +82,12 @@ struct UpdatedFilesCollector: ParsableCommand {
             print("=============== paths of changed files ===============")
             print("::set-output name=\(sdkPatterns.sdk)_run_job::true")
             for podspec in sdkPatterns.podspecs {
-              podspecsWithChangedFiles.append(SDKPodspec(podspec: podspec))
+              if !excludePodspecs.contains(podspec){
+                podspecsWithChangedFiles.append(SDKPodspec(podspec: podspec))
+              }
+              else if let outputPath = outputSDKFileURL {
+                print("\(podspec) was excluded and will not be written in \(outputPath.absoluteString) ")
+              }
             }
             print("\(sdkPatterns.sdk): \(changedFilePath) is updated under the pattern, \(pattern)")
             trigger_pod_test_for_coverage_report = true
