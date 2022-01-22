@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <sstream>
 #include <type_traits>
 #include <utility>
 
@@ -33,6 +34,9 @@ namespace model {
 namespace mutation {
 namespace {
 
+using testing::EndsWith;
+using testing::HasSubstr;
+using testing::StartsWith;
 using testutil::Map;
 using testutil::PatchMutation;
 
@@ -88,8 +92,7 @@ TEST(OverlayTest, CopyConstructorWithValidInstance) {
 }
 
 TEST(OverlayTest, CopyConstructorWithInvalidInstance) {
-  Overlay invalid_overlay(SAMPLE_BATCH_ID, SampleMutation());
-  Overlay(std::move(invalid_overlay));
+  const Overlay invalid_overlay;
 
   Overlay overlay_copy_dest(invalid_overlay);
 
@@ -109,8 +112,7 @@ TEST(OverlayTest, MoveConstructorWithValidInstance) {
 }
 
 TEST(OverlayTest, MoveConstructorWithInvalidInstance) {
-  Overlay invalid_overlay(SAMPLE_BATCH_ID, SampleMutation());
-  Overlay(std::move(invalid_overlay));
+  Overlay invalid_overlay;
 
   Overlay overlay_move_dest(std::move(invalid_overlay));
 
@@ -130,8 +132,7 @@ TEST(OverlayTest, CopyAssignmentOperatorWithValidInstance) {
 }
 
 TEST(OverlayTest, CopyAssignmentOperatorWithInvalidInstance) {
-  Overlay invalid_overlay(123, SampleMutation("col1/doc1"));
-  Overlay(std::move(invalid_overlay));
+  const Overlay invalid_overlay;
   Overlay overlay_copy_dest(456, SampleMutation("col2/doc2"));
 
   overlay_copy_dest = invalid_overlay;
@@ -154,8 +155,7 @@ TEST(OverlayTest, MoveAssignmentOperatorWithValidInstance) {
 }
 
 TEST(OverlayTest, MoveAssignmentOperatorWithInvalidInstance) {
-  Overlay invalid_overlay(123, SampleMutation("col1/doc1"));
-  Overlay(std::move(invalid_overlay));
+  Overlay invalid_overlay;
   Overlay overlay_move_dest(456, SampleMutation("col2/doc2"));
 
   overlay_move_dest = std::move(invalid_overlay);
@@ -171,16 +171,16 @@ TEST(OverlayTest, is_valid) {
 }
 
 TEST(OverlayTest, largest_batch_id) {
-  Overlay overlay123(123, SampleMutation());
-  Overlay overlay456(456, SampleMutation());
+  const Overlay overlay123(123, SampleMutation());
+  const Overlay overlay456(456, SampleMutation());
 
   EXPECT_EQ(overlay123.largest_batch_id(), 123);
   EXPECT_EQ(overlay456.largest_batch_id(), 456);
 }
 
 TEST(OverlayTest, mutation_ConstRefQualified) {
-  Overlay overlay_abc(SAMPLE_BATCH_ID, SampleMutation("col/abc"));
-  Overlay overlay_xyz(SAMPLE_BATCH_ID, SampleMutation("col/xyz"));
+  const Overlay overlay_abc(SAMPLE_BATCH_ID, SampleMutation("col/abc"));
+  const Overlay overlay_xyz(SAMPLE_BATCH_ID, SampleMutation("col/xyz"));
 
   EXPECT_EQ(overlay_abc.mutation(), SampleMutation("col/abc"));
   EXPECT_EQ(overlay_xyz.mutation(), SampleMutation("col/xyz"));
@@ -196,6 +196,14 @@ TEST(OverlayTest, mutation_RvalueRefQualified) {
   EXPECT_FALSE(overlay.is_valid());
 }
 
+TEST(OverlayTest, key) {
+  const Overlay overlay(SAMPLE_BATCH_ID, SampleMutation());
+
+  const DocumentKey& key = overlay.key();
+
+  EXPECT_EQ(key, SampleMutation().key());
+}
+
 TEST(OverlayTest, EqualsAndHash) {
   testutil::EqualsTester<Overlay>()
       .AddEqualityGroup(Overlay(), Overlay())
@@ -206,9 +214,42 @@ TEST(OverlayTest, EqualsAndHash) {
       .TestEquals();
 }
 
-// TODO(dconeybe): Add tests for:
-// std::string ToString() const;
-// std::ostream& operator<<(std::ostream&, const Overlay&);
+TEST(OverlayTest, ToStringOnInvalidInstance) {
+  const Overlay invalid_overlay = Overlay();
+
+  const std::string invalid_overlay_string = invalid_overlay.ToString();
+
+  EXPECT_THAT(invalid_overlay_string, StartsWith("Overlay(largest_batch_id="));
+}
+
+TEST(OverlayTest, ToStringOnInvalidInstanceWithABatchId) {
+  const Overlay invalid_overlay = Overlay(1234, Mutation());
+
+  const std::string invalid_overlay_string = invalid_overlay.ToString();
+
+  EXPECT_THAT(invalid_overlay_string, StartsWith("Overlay(largest_batch_id=1234"));
+}
+
+TEST(OverlayTest, ToStringOnValidInstance) {
+  const Overlay overlay = Overlay(1234, SampleMutation("abc/xyz"));
+
+  const std::string overlay_string = overlay.ToString();
+
+  EXPECT_THAT(overlay_string, StartsWith("Overlay("));
+  EXPECT_THAT(overlay_string, EndsWith(")"));
+  EXPECT_THAT(overlay_string, HasSubstr("largest_batch_id=1234"));
+  EXPECT_THAT(overlay_string, HasSubstr("mutation="));
+  EXPECT_THAT(overlay_string, HasSubstr("abc/xyz"));
+}
+
+TEST(OverlayTest, OperatorLeftShiftIntoOstream) {
+  const Overlay overlay = Overlay(1234, SampleMutation("abc/xyz"));
+  std::ostringstream ss;
+
+  ss << overlay;
+
+  EXPECT_EQ(ss.str(), overlay.ToString());
+}
 
 }  // namespace
 }  // namespace mutation
