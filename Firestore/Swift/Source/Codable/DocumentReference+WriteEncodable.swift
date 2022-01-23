@@ -17,7 +17,7 @@
 import Foundation
 import FirebaseFirestore
 
-extension DocumentReference {
+public extension DocumentReference {
   /// Encodes an instance of `Encodable` and overwrites the encoded data
   /// to the document referred by this `DocumentReference`. If no document exists,
   /// it is created. If a document already exists, it is overwritten.
@@ -31,9 +31,9 @@ extension DocumentReference {
   ///                 written to the server. This block will not be called while
   ///                 the client is offline, though local changes will be visible
   ///                 immediately.
-  public func setData<T: Encodable>(from value: T,
-                                    encoder: Firestore.Encoder = Firestore.Encoder(),
-                                    completion: ((Error?) -> Void)? = nil) throws {
+  func setData<T: Encodable>(from value: T,
+                             encoder: Firestore.Encoder = Firestore.Encoder(),
+                             completion: ((Error?) -> Void)? = nil) throws {
     setData(try encoder.encode(value), completion: completion)
   }
 
@@ -53,10 +53,10 @@ extension DocumentReference {
   ///                 written to the server. This block will not be called while
   ///                 the client is offline, though local changes will be visible
   ///                 immediately.
-  public func setData<T: Encodable>(from value: T,
-                                    merge: Bool,
-                                    encoder: Firestore.Encoder = Firestore.Encoder(),
-                                    completion: ((Error?) -> Void)? = nil) throws {
+  func setData<T: Encodable>(from value: T,
+                             merge: Bool,
+                             encoder: Firestore.Encoder = Firestore.Encoder(),
+                             completion: ((Error?) -> Void)? = nil) throws {
     setData(try encoder.encode(value), merge: merge, completion: completion)
   }
 
@@ -80,10 +80,10 @@ extension DocumentReference {
   ///                 written to the server. This block will not be called while
   ///                 the client is offline, though local changes will be visible
   ///                 immediately.
-  public func setData<T: Encodable>(from value: T,
-                                    mergeFields: [Any],
-                                    encoder: Firestore.Encoder = Firestore.Encoder(),
-                                    completion: ((Error?) -> Void)? = nil) throws {
+  func setData<T: Encodable>(from value: T,
+                             mergeFields: [Any],
+                             encoder: Firestore.Encoder = Firestore.Encoder(),
+                             completion: ((Error?) -> Void)? = nil) throws {
     setData(try encoder.encode(value), mergeFields: mergeFields, completion: completion)
   }
 }

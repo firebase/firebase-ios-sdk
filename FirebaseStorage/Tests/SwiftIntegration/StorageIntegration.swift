@@ -95,7 +95,7 @@ class StorageIntegration: XCTestCase {
   func testGetMetadata() {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference().child("ios/public/1mb")
-    ref.getMetadata(completion: { (metadata, error) -> Void in
+    ref.getMetadata(completion: { metadata, error in
       XCTAssertNotNil(metadata, "Metadata should not be nil")
       XCTAssertNil(error, "Error should be nil")
       expectation.fulfill()
@@ -106,7 +106,7 @@ class StorageIntegration: XCTestCase {
   func testGetMetadataUnauthorized() {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference().child("ios/private/secretfile.txt")
-    ref.getMetadata(completion: { (metadata, error) -> Void in
+    ref.getMetadata(completion: { metadata, error in
       XCTAssertNil(metadata, "Metadata should be nil")
       XCTAssertNotNil(error, "Error should not be nil")
       XCTAssertEqual((error! as NSError).code, StorageErrorCode.unauthorized.rawValue)
@@ -631,7 +631,7 @@ class StorageIntegration: XCTestCase {
 
     var resumeAtBytes: Int32 = 256 * 1024
     var downloadedBytes: Int64 = 0
-    var computationResult: Double = 0.0
+    var computationResult = 0.0
 
     task.observe(StorageTaskStatus.progress, handler: { snapshot in
       XCTAssertTrue(snapshot.description.starts(with: "<State: Progress") ||
@@ -764,7 +764,7 @@ class StorageIntegration: XCTestCase {
   private func waitForExpectations() {
     let kFIRStorageIntegrationTestTimeout = 60.0
     waitForExpectations(timeout: kFIRStorageIntegrationTestTimeout,
-                        handler: { (error) -> Void in
+                        handler: { error in
                           if let error = error {
                             print(error)
                           }

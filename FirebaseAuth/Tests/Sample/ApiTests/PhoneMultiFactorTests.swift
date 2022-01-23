@@ -59,7 +59,7 @@ class PhoneMultiFactorTests: FIRAuthApiTestsBase {
                              "Phone multi factor enroll failed. Error: \(error!.localizedDescription)")
                 XCTAssertEqual(Auth.auth().currentUser?.multiFactor.enrolledFactors.first?
                   .displayName,
-                               kPhoneSecondFactorDisplayName)
+                  kPhoneSecondFactorDisplayName)
                 enrollExpectation.fulfill()
 
                 // Unenroll
@@ -70,7 +70,7 @@ class PhoneMultiFactorTests: FIRAuthApiTestsBase {
                                  "Phone multi factor unenroll failed. Error: \(error!.localizedDescription)")
                     XCTAssertEqual(Auth.auth().currentUser?.multiFactor.enrolledFactors.count, 0)
                     unenrollExpectation.fulfill()
-            })
+                  })
               }
           }
         }

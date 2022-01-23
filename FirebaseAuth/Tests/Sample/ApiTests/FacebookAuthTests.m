@@ -155,8 +155,6 @@ static NSString *const kFacebookTestAccountName = KFACEBOOK_USER_NAME;
                                            error.localizedDescription);
                                  }
                                }];
-  NSString *userInfo = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-  NSLog(@"The info of created Facebook testing account is: %@", userInfo);
   // Parses the access token from the JSON data.
   NSDictionary *userInfoDict = [NSJSONSerialization JSONObjectWithData:data
                                                                options:kNilOptions

@@ -17,7 +17,7 @@
 import Foundation
 import FirebaseFirestore
 
-extension DocumentSnapshot {
+public extension DocumentSnapshot {
   /// Retrieves all fields in a document and converts them to an instance of
   /// caller-specified type.
   ///
@@ -33,9 +33,9 @@ extension DocumentSnapshot {
   ///     not yet been set to their final value are returned from the snapshot.
   ///   - decoder: The decoder to use to convert the document. `nil` to use
   ///     default decoder.
-  public func data<T: Decodable>(as type: T.Type,
-                                 with serverTimestampBehavior: ServerTimestampBehavior = .none,
-                                 decoder: Firestore.Decoder? = nil) throws -> T {
+  func data<T: Decodable>(as type: T.Type,
+                          with serverTimestampBehavior: ServerTimestampBehavior = .none,
+                          decoder: Firestore.Decoder? = nil) throws -> T {
     let d = decoder ?? Firestore.Decoder()
     let data: Any = data(with: serverTimestampBehavior) ?? NSNull()
     return try d.decode(T.self, from: data, in: reference)

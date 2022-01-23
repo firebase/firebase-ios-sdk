@@ -17,7 +17,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "8.10.0"
+let firebaseVersion = "8.12.0"
 
 let package = Package(
   name: "Firebase",
@@ -92,6 +92,10 @@ let package = Package(
       targets: ["FirebaseFunctions"]
     ),
     .library(
+      name: "FirebaseFunctionsSwift-Beta",
+      targets: ["FirebaseFunctionsSwift"]
+    ),
+    .library(
       name: "FirebaseInAppMessaging-Beta",
       targets: ["FirebaseInAppMessagingTarget"]
     ),
@@ -118,6 +122,10 @@ let package = Package(
     .library(
       name: "FirebaseRemoteConfig",
       targets: ["FirebaseRemoteConfig"]
+    ),
+    .library(
+      name: "FirebaseRemoteConfigSwift-Beta",
+      targets: ["FirebaseRemoteConfigSwift"]
     ),
     .library(
       name: "FirebaseStorage",
@@ -516,17 +524,26 @@ let package = Package(
     ),
     .target(
       name: "FirebaseDatabaseSwift",
-      dependencies: ["FirebaseDatabase"],
-      path: "FirebaseDatabaseSwift/Sources",
-      exclude: [
-        "third_party/RTDBEncoder/LICENSE",
-        "third_party/RTDBEncoder/METADATA",
-      ]
+      dependencies: ["FirebaseDatabase", "FirebaseSharedSwift"],
+      path: "FirebaseDatabaseSwift/Sources"
     ),
     .testTarget(
       name: "FirebaseDatabaseSwiftTests",
       dependencies: ["FirebaseDatabase", "FirebaseDatabaseSwift"],
       path: "FirebaseDatabaseSwift/Tests/"
+    ),
+    .target(
+      name: "FirebaseSharedSwift",
+      path: "FirebaseSharedSwift/Sources",
+      exclude: [
+        "third_party/FirebaseDataEncoder/LICENSE",
+        "third_party/FirebaseDataEncoder/METADATA",
+      ]
+    ),
+    .testTarget(
+      name: "FirebaseSharedSwiftTests",
+      dependencies: ["FirebaseSharedSwift"],
+      path: "FirebaseSharedSwift/Tests/"
     ),
     .target(
       name: "FirebaseDynamicLinksTarget",
@@ -571,6 +588,7 @@ let package = Package(
         "CHANGELOG.md",
         "CMakeLists.txt",
         "Example/",
+        "LICENSE",
         "Protos/CMakeLists.txt",
         "Protos/Podfile",
         "Protos/README.md",
@@ -635,6 +653,7 @@ let package = Package(
         "CHANGELOG.md",
         "CMakeLists.txt",
         "Example/",
+        "LICENSE",
         "Protos/",
         "README.md",
         "Source/",
@@ -667,6 +686,21 @@ let package = Package(
       cSettings: [
         .headerSearchPath("../../"),
       ]
+    ),
+    .target(
+      name: "FirebaseFunctionsSwift",
+      dependencies: [
+        "FirebaseFunctions",
+        "FirebaseSharedSwift",
+      ],
+      path: "FirebaseFunctionsSwift/Sources"
+    ),
+    .testTarget(
+      name: "FirebaseFunctionsSwiftUnit",
+      dependencies: ["FirebaseFunctionsSwift",
+                     "FirebaseFunctionsTestingSupport",
+                     "SharedTestUtilities"],
+      path: "FirebaseFunctionsSwift/Tests"
     ),
     .target(
       name: "FirebaseFunctionsCombineSwift",
@@ -908,6 +942,8 @@ let package = Package(
       ]
     ),
 
+    // MARK: - Firebase Remote Config
+
     .target(
       name: "FirebaseRemoteConfig",
       dependencies: [
@@ -943,6 +979,40 @@ let package = Package(
         .headerSearchPath("../../.."),
       ]
     ),
+    .target(
+      name: "FirebaseRemoteConfigSwift",
+      dependencies: [
+        "FirebaseRemoteConfig",
+        "FirebaseSharedSwift",
+      ],
+      path: "FirebaseRemoteConfigSwift/Sources"
+    ),
+    .testTarget(
+      name: "RemoteConfigFakeConsole",
+      dependencies: ["FirebaseRemoteConfigSwift",
+                     "RemoteConfigFakeConsoleObjC"],
+      path: "FirebaseRemoteConfigSwift/Tests",
+      exclude: [
+        "AccessToken.json",
+        "README.md",
+        "ObjC/",
+      ],
+      cSettings: [
+        .headerSearchPath("../../"),
+      ]
+    ),
+    .target(
+      name: "RemoteConfigFakeConsoleObjC",
+      dependencies: ["OCMock"],
+      path: "FirebaseRemoteConfigSwift/Tests/ObjC",
+      publicHeadersPath: ".",
+      cSettings: [
+        .headerSearchPath("../../../"),
+      ]
+    ),
+
+    // MARK: - Firebase Storage
+
     .target(
       name: "FirebaseStorage",
       dependencies: [
@@ -1068,7 +1138,7 @@ let package = Package(
               .headerSearchPath("../.."),
             ],
             linkerSettings: [
-              .linkedFramework("DeviceCheck"),
+              .linkedFramework("DeviceCheck", .when(platforms: [.iOS, .macOS, .tvOS])),
             ]),
     .testTarget(
       name: "AppCheckUnit",

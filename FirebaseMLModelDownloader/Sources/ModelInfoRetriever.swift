@@ -511,10 +511,10 @@ extension ModelInfoRetriever {
   /// Parse error message from server response.
   private func getErrorFromResponse(_ data: Data?) -> String? {
     if let data = data,
-      let responseJSON = try? JSONSerialization
-      .jsonObject(with: data, options: []) as? [String: Any],
-      let error = responseJSON["error"] as? [String: Any],
-      let errorMessage = error["message"] as? String {
+       let responseJSON = try? JSONSerialization
+       .jsonObject(with: data, options: []) as? [String: Any],
+       let error = responseJSON["error"] as? [String: Any],
+       let errorMessage = error["message"] as? String {
       return errorMessage
     }
     return nil

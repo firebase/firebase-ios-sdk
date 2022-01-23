@@ -29,6 +29,4 @@
 
 @property(nonatomic, strong) FIRCLSLaunchMarkerModel *launchMarker;
 
-- (BOOL)potentiallySubmittableCrashOccurred;
-
 @end

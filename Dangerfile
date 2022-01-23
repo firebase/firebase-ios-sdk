@@ -50,7 +50,6 @@ def labelsForModifiedFiles()
   labels.push("api: messaging") if @has_messaging_changes
   labels.push("api: performance") if @has_performance_changes
   labels.push("api: remoteconfig") if @has_remoteconfig_changes
-  labels.push("api: segmentation") if @has_segmentation_changes
   labels.push("api: storage") if @has_storage_changes
   labels.push("release-tooling") if @has_releasetooling_changes
   labels.push("public-api-change") if @has_api_changes
@@ -92,7 +91,7 @@ has_license_changes = didModify(["LICENSE"])
 @has_dynamiclinks_api_changes = hasChangesIn("FirebaseDynamicLinks/Sources/Public/")
 @has_firestore_changes = hasChangesIn(["Firestore/", "FirebaseFirestore.podspec"])
 @has_firestore_api_changes = hasChangesIn("Firestore/Source/Public/")
-@has_functions_changes = hasChangesIn(["FirebaseFunctions/", "FirebaseFunctions.podspec"])
+@has_functions_changes = hasChangesIn(["FirebaseFunctions"])
 @has_functions_api_changes = hasChangesIn("FirebaseFunctions/Sources/Public/")
 @has_inappmessaging_changes = hasChangesIn(["FirebaseInAppMessaging"])
 @has_inappmessaging_api_changes = hasChangesIn(["FirebaseInAppMessaging/Sources/Public/"])
@@ -104,8 +103,6 @@ has_license_changes = didModify(["LICENSE"])
 @has_performance_api_changes = hasChangesIn("FirebasePerformance/Sources/Public/")
 @has_remoteconfig_changes = hasChangesIn("FirebaseRemoteConfig")
 @has_remoteconfig_api_changes = hasChangesIn("FirebaseRemoteConfig/Sources/Public/")
-@has_segmentation_changes = hasChangesIn("FirebaseSegmentation")
-@has_segmentation_api_changes = hasChangesIn("FirebaseSegmentation/Source/Public/")
 @has_storage_changes = hasChangesIn("FirebaseStorage")
 @has_storage_api_changes = hasChangesIn("FirebaseStorage/Sources/Public/")
 
@@ -127,7 +124,6 @@ has_license_changes = didModify(["LICENSE"])
                      @has_messaging_api_changes ||
                      @has_performance_api_changes ||
                      @has_remoteconfig_api_changes ||
-                     @has_segmentation_api_changes ||
                      @has_storage_api_changes ||
                      @has_gdt_api_changes
 

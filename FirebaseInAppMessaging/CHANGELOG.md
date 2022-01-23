@@ -1,5 +1,6 @@
 # 2021-12 -- v8.11.0
 - [fixed] InApp message is shown every new session (#8907).
+- [fixed] Duplicate messages can occur when two campaigns are triggered by different events in In-App Messaging (#9070).
 
 # 2021-8 -- v8.6.0
 - [changed] Replaced conditionally-compiled APIs with `API_UNAVAILABLE` annotations on unsupported platforms (#8480).

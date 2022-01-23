@@ -45,7 +45,7 @@ func getHeaderMap(_ url: URL) -> [String: String] {
     let enumerator = FileManager.default.enumerator(atPath: rootURL.path)
     while let file = enumerator?.nextObject() as? String {
       if let fType = enumerator?.fileAttributes?[FileAttributeKey.type] as? FileAttributeType,
-        fType == .typeRegular {
+         fType == .typeRegular {
         if let url = URL(string: file) {
           let filename = url.lastPathComponent
           if filename.hasSuffix(".h") {
@@ -89,12 +89,12 @@ func transformFile(_ file: String) {
       }
     }
     if line.starts(with: "#import"),
-      let importFile = getImportFile(line),
-      let path = headerMap[importFile] {
+       let importFile = getImportFile(line),
+       let path = headerMap[importFile] {
       outBuffer += "#import \"\(path)\"\n"
     } else if line.starts(with: "#include"),
-      let importFile = getImportFile(line),
-      let path = headerMap[importFile] {
+              let importFile = getImportFile(line),
+              let path = headerMap[importFile] {
       outBuffer += "#include \"\(path)\"\n"
     } else {
       outBuffer += line + "\n"
@@ -128,7 +128,7 @@ for root in changeImports {
   let enumerator = FileManager.default.enumerator(atPath: rootURL.path)
   whileLoop: while let file = enumerator?.nextObject() as? String {
     if let fType = enumerator?.fileAttributes?[FileAttributeKey.type] as? FileAttributeType,
-      fType == .typeRegular {
+       fType == .typeRegular {
       if file.starts(with: ".") {
         continue
       }

@@ -18,7 +18,7 @@ import GameKit
 extension GKLocalPlayer {
   class func mock(with cls: GKLocalPlayer.Type) {
     guard let original = class_getClassMethod(GKLocalPlayer.self, #selector(getter: local)),
-      let swizzled = class_getClassMethod(cls, #selector(getter: local))
+          let swizzled = class_getClassMethod(cls, #selector(getter: local))
     else { return }
     method_exchangeImplementations(original, swizzled)
   }
