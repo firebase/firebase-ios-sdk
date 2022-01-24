@@ -514,7 +514,6 @@ Message<google_firestore_v1_Value> MaxValue() {
   max_value->map_value.fields =
       nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
   max_value->map_value.fields[0].key = nanopb::MakeBytesArray("__type__");
-  google_firestore_v1_Value field;
   max_value->map_value.fields[0].value.which_value_type =
       google_firestore_v1_Value_string_value_tag;
   max_value->map_value.fields[0].value.string_value =
