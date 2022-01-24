@@ -1,4 +1,4 @@
-# Unreleased
+# v8.12.0
 - [added] Added note to `getStoredUser(forAccessGroup:)` documentation about tvOS keychain sharing issues. (#8878)
 
 # v8.11.0
