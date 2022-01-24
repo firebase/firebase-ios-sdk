@@ -857,8 +857,8 @@ NS_SWIFT_NAME(Auth)
 
 /** @fn getStoredUserForAccessGroup:error:
     @brief Get the stored user in the given accessGroup.
-    @note Due to tvOS system limitations, this API returns `nil` on tvOS when sharing auth state across devices
-        (`shareAuthStateAcrossDevices`) is enabled. Please refer to 
+    @note Due to tvOS system limitations, this API returns `nil` on tvOS when sharing auth state
+        across devices (`shareAuthStateAcrossDevices`) is enabled. Please refer to
         https://github.com/firebase/firebase-ios-sdk/issues/8878 for details.
  */
 - (nullable FIRUser *)getStoredUserForAccessGroup:(NSString *_Nullable)accessGroup
