@@ -20,6 +20,7 @@
 #include <unordered_map>
 
 #include "absl/strings/string_view.h"
+#include "absl/types/optional.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/model/resource_path.h"
@@ -46,9 +47,9 @@ class DocumentOverlayCache {
   /**
    * Gets the saved overlay mutation for the given document key.
    *
-   * Returns `nullptr` if there is no overlay for that key.
+   * Returns an empty optional if there is no overlay for that key.
    */
-  virtual model::mutation::Overlay GetOverlay(const model::DocumentKey& key) const = 0;
+  virtual absl::optional<model::mutation::Overlay&> GetOverlay(const model::DocumentKey& key) const = 0;
 
   /**
    * Saves the given document key to mutation map to persistence as overlays.
