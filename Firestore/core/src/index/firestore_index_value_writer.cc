@@ -16,6 +16,7 @@
 #include "Firestore/core/src/index/firestore_index_value_writer.h"
 
 #include <cmath>
+#include <limits>
 #include <string>
 
 #include "Firestore/core/src/model/resource_path.h"
@@ -153,8 +154,7 @@ void WriteIndexValueAux(const google_firestore_v1_Value& index_value,
     }
     case google_firestore_v1_Value_integer_value_tag: {
       WriteValueTypeLabel(encoder, IndexType::kNumber);
-      // Double and long sort the same
-      // TODO(wuandy): Why?
+      // Write as double instead integer so 0 and 0.0 are considered the same.
       encoder->WriteDouble(index_value.integer_value);
       break;
     }
@@ -188,13 +188,10 @@ void WriteIndexValueAux(const google_firestore_v1_Value& index_value,
       break;
     }
     case google_firestore_v1_Value_map_value_tag:
-      // TODO(wuandy): What is this for?
-      /*
-      if (model::Values::isMaxValue(index_value)) {
-        writeValueTypeLabel(encoder, Integer.MAX_VALUE);
+      if (model::IsMaxValue(index_value)) {
+        WriteValueTypeLabel(encoder, std::numeric_limits<int>::max());
         break;
       }
-       */
       WriteIndexMap(index_value.map_value, encoder);
       WriteTruncationMarker(encoder);
       break;
