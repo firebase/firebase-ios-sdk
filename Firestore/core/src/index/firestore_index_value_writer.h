@@ -17,6 +17,7 @@
 #define FIRESTORE_CORE_SRC_INDEX_FIRESTORE_INDEX_VALUE_WRITER_
 
 #include "Firestore/core/src/index/index_byte_encoder.h"
+#include "Firestore/core/src/nanopb/nanopb_util.h"
 
 namespace firebase {
 namespace firestore {

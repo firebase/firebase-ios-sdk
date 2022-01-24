@@ -16,6 +16,7 @@
 #include "Firestore/core/src/index/firestore_index_value_writer.h"
 
 #include <cmath>
+#include <string>
 
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
