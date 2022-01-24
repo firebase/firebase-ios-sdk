@@ -2261,6 +2261,15 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 #endif  // TARGET_OS_WATCH
     user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:userKey];
   } else {
+#if TARGET_OS_TV
+    if (self.shareAuthStateAcrossDevices) {
+      FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
+                        @"This API is not supported on tvOS when sharing auth state "
+                        @"across devices due to tvOS system limitations (#8878).");
+      return nil;
+    }
+#endif  // TARGET_OS_TV
+
     user = [self.storedUserManager getStoredUserForAccessGroup:accessGroup
                                    shareAuthStateAcrossDevices:self.shareAuthStateAcrossDevices
                                              projectIdentifier:self.app.options.APIKey
