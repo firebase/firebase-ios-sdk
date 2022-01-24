@@ -104,8 +104,6 @@ NSString *kGoogleTestAccountRefreshToken = KGOOGLE_TEST_ACCOUNT_REFRESH_TOKEN;
                                            error.localizedDescription);
                                  }
                                }];
-  NSString *userInfo = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-  NSLog(@"The info of exchanged result is: %@", userInfo);
   NSDictionary *userInfoDict = [NSJSONSerialization JSONObjectWithData:data
                                                                options:kNilOptions
                                                                  error:nil];

@@ -88,6 +88,11 @@ static NSString *const kIosBundleIdentifierHeader = @"X-Ios-Bundle-Identifier";
  */
 static NSString *const kFirebaseLocalHeader = @"X-Firebase-Locale";
 
+/** @var kFirebaseAppIDHeader
+    @brief HTTP header name for the Firebase app ID.
+ */
+static NSString *const kFirebaseAppIDHeader = @"X-Firebase-GMPID";
+
 /** @var kFirebaseAuthCoreFrameworkMarker
     @brief The marker in the HTTP header that indicates the request comes from Firebase Auth Core.
  */
@@ -640,6 +645,8 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [request setValue:clientVersion forHTTPHeaderField:kClientVersionHeader];
   NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
   [request setValue:bundleID forHTTPHeaderField:kIosBundleIdentifierHeader];
+  NSString *appID = requestConfiguration.appID;
+  [request setValue:appID forHTTPHeaderField:kFirebaseAppIDHeader];
 
   NSArray<NSString *> *preferredLocalizations = [NSBundle mainBundle].preferredLocalizations;
   if (preferredLocalizations.count) {
@@ -805,15 +812,31 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 - (void)emailLinkSignin:(FIREmailLinkSignInRequest *)request
                callback:(FIREmailLinkSigninResponseCallback)callback {
   FIREmailLinkSignInResponse *response = [[FIREmailLinkSignInResponse alloc] init];
-  [self postWithRequest:request
-               response:response
-               callback:^(NSError *error) {
-                 if (error) {
-                   callback(nil, error);
+  [self
+      postWithRequest:request
+             response:response
+             callback:^(NSError *error) {
+               if (error) {
+                 callback(nil, error);
+               } else {
+                 if (!response.IDToken && response.MFAInfo) {
+#if TARGET_OS_IOS
+                   NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfo = [NSMutableArray array];
+                   for (FIRAuthProtoMFAEnrollment *MFAEnrollment in response.MFAInfo) {
+                     FIRPhoneMultiFactorInfo *info =
+                         [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
+                     [multiFactorInfo addObject:info];
+                   }
+                   NSError *multiFactorRequiredError = [FIRAuthErrorUtils
+                       secondFactorRequiredErrorWithPendingCredential:response.MFAPendingCredential
+                                                                hints:multiFactorInfo];
+                   callback(nil, multiFactorRequiredError);
+#endif
                  } else {
                    callback(response, nil);
                  }
-               }];
+               }
+             }];
 }
 
 - (void)secureToken:(FIRSecureTokenRequest *)request
@@ -1003,123 +1026,127 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   }
 
   [_RPCIssuer
-    asyncPostToURLWithRequestConfiguration:[request requestConfiguration]
-                                       URL:[request requestURL]
-                                      body:bodyData
-                               contentType:kJSONContentType
-                         completionHandler:^(NSData *data, NSError *error) {
-                           // If there is an error with no body data at all, then this must be a
-                           // network error.
-                           if (error && !data) {
-                             callback([FIRAuthErrorUtils networkErrorWithUnderlyingError:error]);
-                             return;
-                           }
-
-                           // Try to decode the HTTP response data which may contain either a
-                           // successful response or error message.
-                           NSError *jsonError;
-                           NSDictionary *dictionary =
-                               [NSJSONSerialization JSONObjectWithData:data
-                                                               options:NSJSONReadingMutableLeaves
-                                                                 error:&jsonError];
-                           if (!dictionary) {
-                             if (error) {
-                               // We have an error, but we couldn't decode the body, so we have no
-                               // additional information other than the raw response and the
-                               // original NSError (the jsonError is infered by the error code
-                               // (FIRAuthErrorCodeUnexpectedHTTPResponse, and is irrelevant.)
-                               callback([FIRAuthErrorUtils unexpectedErrorResponseWithData:data
-                                                                           underlyingError:error]);
-                             } else {
-                               // This is supposed to be a "successful" response, but we couldn't
-                               // deserialize the body.
-                               callback([FIRAuthErrorUtils unexpectedResponseWithData:data
-                                                                      underlyingError:jsonError]);
+      asyncPostToURLWithRequestConfiguration:[request requestConfiguration]
+                                         URL:[request requestURL]
+                                        body:bodyData
+                                 contentType:kJSONContentType
+                           completionHandler:^(NSData *data, NSError *error) {
+                             // If there is an error with no body data at all, then this must be a
+                             // network error.
+                             if (error && !data) {
+                               callback([FIRAuthErrorUtils networkErrorWithUnderlyingError:error]);
+                               return;
                              }
-                             return;
-                           }
-                           if (![dictionary isKindOfClass:[NSDictionary class]]) {
-                             if (error) {
-                               callback([FIRAuthErrorUtils
-                                   unexpectedErrorResponseWithDeserializedResponse:dictionary]);
-                             } else {
-                               callback([FIRAuthErrorUtils
-                                   unexpectedResponseWithDeserializedResponse:dictionary]);
+
+                             // Try to decode the HTTP response data which may contain either a
+                             // successful response or error message.
+                             NSError *jsonError;
+                             NSDictionary *dictionary =
+                                 [NSJSONSerialization JSONObjectWithData:data
+                                                                 options:NSJSONReadingMutableLeaves
+                                                                   error:&jsonError];
+                             if (!dictionary) {
+                               if (error) {
+                                 // We have an error, but we couldn't decode the body, so we have no
+                                 // additional information other than the raw response and the
+                                 // original NSError (the jsonError is infered by the error code
+                                 // (FIRAuthErrorCodeUnexpectedHTTPResponse, and is irrelevant.)
+                                 callback([FIRAuthErrorUtils
+                                     unexpectedErrorResponseWithData:data
+                                                     underlyingError:error]);
+                               } else {
+                                 // This is supposed to be a "successful" response, but we couldn't
+                                 // deserialize the body.
+                                 callback([FIRAuthErrorUtils unexpectedResponseWithData:data
+                                                                        underlyingError:jsonError]);
+                               }
+                               return;
                              }
-                             return;
-                           }
+                             if (![dictionary isKindOfClass:[NSDictionary class]]) {
+                               if (error) {
+                                 callback([FIRAuthErrorUtils
+                                     unexpectedErrorResponseWithDeserializedResponse:dictionary
+                                                                     underlyingError:error]);
+                               } else {
+                                 callback([FIRAuthErrorUtils
+                                     unexpectedResponseWithDeserializedResponse:dictionary]);
+                               }
+                               return;
+                             }
 
-                           // At this point we either have an error with successfully decoded
-                           // details in the body, or we have a response which must pass further
-                           // validation before we know it's truly successful. We deal with the
-                           // case where we have an error with successfully decoded error details
-                           // first:
-                           if (error) {
-                             NSDictionary *errorDictionary = dictionary[kErrorKey];
-                             if ([errorDictionary isKindOfClass:[NSDictionary class]]) {
-                               id<NSObject> errorMessage = errorDictionary[kErrorMessageKey];
-                               if ([errorMessage isKindOfClass:[NSString class]]) {
-                                 NSString *errorMessageString = (NSString *)errorMessage;
+                             // At this point we either have an error with successfully decoded
+                             // details in the body, or we have a response which must pass further
+                             // validation before we know it's truly successful. We deal with the
+                             // case where we have an error with successfully decoded error details
+                             // first:
+                             if (error) {
+                               NSDictionary *errorDictionary = dictionary[kErrorKey];
+                               if ([errorDictionary isKindOfClass:[NSDictionary class]]) {
+                                 id<NSObject> errorMessage = errorDictionary[kErrorMessageKey];
+                                 if ([errorMessage isKindOfClass:[NSString class]]) {
+                                   NSString *errorMessageString = (NSString *)errorMessage;
 
-                                 // Contruct client error.
-                                 NSError *clientError = [[self class]
-                                     clientErrorWithServerErrorMessage:errorMessageString
-                                                       errorDictionary:errorDictionary
-                                                              response:response];
-                                 if (clientError) {
-                                   callback(clientError);
+                                   // Contruct client error.
+                                   NSError *clientError = [[self class]
+                                       clientErrorWithServerErrorMessage:errorMessageString
+                                                         errorDictionary:errorDictionary
+                                                                response:response];
+                                   if (clientError) {
+                                     callback(clientError);
+                                     return;
+                                   }
+                                 }
+                                 // Not a message we know, return the message directly.
+                                 if (errorMessage) {
+                                   NSError *unexpecterErrorResponse = [FIRAuthErrorUtils
+                                       unexpectedErrorResponseWithDeserializedResponse:
+                                           errorDictionary
+                                                                       underlyingError:error];
+                                   callback(unexpecterErrorResponse);
                                    return;
                                  }
                                }
-                               // Not a message we know, return the message directly.
-                               if (errorMessage) {
-                                 NSError *unexpecterErrorResponse = [FIRAuthErrorUtils
-                                     unexpectedErrorResponseWithDeserializedResponse:
-                                         errorDictionary];
-                                 callback(unexpecterErrorResponse);
-                                 return;
-                               }
+                               // No error message at all, return the decoded response.
+                               callback([FIRAuthErrorUtils
+                                   unexpectedErrorResponseWithDeserializedResponse:dictionary
+                                                                   underlyingError:error]);
+                               return;
                              }
-                             // No error message at all, return the decoded response.
-                             callback([FIRAuthErrorUtils
-                                 unexpectedErrorResponseWithDeserializedResponse:dictionary]);
-                             return;
-                           }
 
-                           // Finally, we try to populate the response object with the JSON
-                           // values.
-                           if (![response setWithDictionary:dictionary error:&error]) {
-                             callback([FIRAuthErrorUtils
-                                 RPCResponseDecodingErrorWithDeserializedResponse:dictionary
-                                                                  underlyingError:error]);
-                             return;
-                           }
-                           // In case returnIDPCredential of a verifyAssertion request is set to
-                           // @YES, the server may return a 200 with a response that may contain a
-                           // server error.
-                           if ([request isKindOfClass:[FIRVerifyAssertionRequest class]]) {
-                             FIRVerifyAssertionRequest *verifyAssertionRequest =
-                                 (FIRVerifyAssertionRequest *)request;
-                             if (verifyAssertionRequest.returnIDPCredential) {
-                               NSString *errorMessage =
-                                   dictionary[kReturnIDPCredentialErrorMessageKey];
-                               if ([errorMessage isKindOfClass:[NSString class]]) {
-                                 NSString *errorString = (NSString *)errorMessage;
-                                 NSError *clientError =
-                                     [[self class] clientErrorWithServerErrorMessage:errorString
-                                                                     errorDictionary:@{}
-                                                                            response:response];
-                                 if (clientError) {
-                                   callback(clientError);
-                                   return;
+                             // Finally, we try to populate the response object with the JSON
+                             // values.
+                             if (![response setWithDictionary:dictionary error:&error]) {
+                               callback([FIRAuthErrorUtils
+                                   RPCResponseDecodingErrorWithDeserializedResponse:dictionary
+                                                                    underlyingError:error]);
+                               return;
+                             }
+                             // In case returnIDPCredential of a verifyAssertion request is set to
+                             // @YES, the server may return a 200 with a response that may contain a
+                             // server error.
+                             if ([request isKindOfClass:[FIRVerifyAssertionRequest class]]) {
+                               FIRVerifyAssertionRequest *verifyAssertionRequest =
+                                   (FIRVerifyAssertionRequest *)request;
+                               if (verifyAssertionRequest.returnIDPCredential) {
+                                 NSString *errorMessage =
+                                     dictionary[kReturnIDPCredentialErrorMessageKey];
+                                 if ([errorMessage isKindOfClass:[NSString class]]) {
+                                   NSString *errorString = (NSString *)errorMessage;
+                                   NSError *clientError =
+                                       [[self class] clientErrorWithServerErrorMessage:errorString
+                                                                       errorDictionary:@{}
+                                                                              response:response];
+                                   if (clientError) {
+                                     callback(clientError);
+                                     return;
+                                   }
                                  }
                                }
                              }
-                           }
-                           // Success! The response object originally passed in can be used by the
-                           // caller.
-                           callback(nil);
-                         }];
+                             // Success! The response object originally passed in can be used by the
+                             // caller.
+                             callback(nil);
+                           }];
 }
 
 /** @fn clientErrorWithServerErrorMessage:errorDictionary:

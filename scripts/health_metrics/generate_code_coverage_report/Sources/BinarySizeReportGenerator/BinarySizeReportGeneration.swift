@@ -67,10 +67,10 @@ extension BinaryMetricsReport {
 func CreatePodConfigJSON(of sdks: [String], from sdk_dir: URL) throws {
   var pods: [Pod] = []
   for sdk in sdks {
-    let pod: Pod = Pod(sdk: sdk, path: sdk_dir.path)
+    let pod = Pod(sdk: sdk, path: sdk_dir.path)
     pods.append(pod)
   }
-  let podConfigs: PodConfigs = PodConfigs(pods: pods)
+  let podConfigs = PodConfigs(pods: pods)
   try JSONParser.writeJSON(of: podConfigs, to: "./cocoapods_source_config.json")
 }
 
@@ -87,7 +87,7 @@ func CreateMetricsRequestData(of sdks: [String], type: String,
     // that `.stdout` will print out logs in the console while pipe can assign logs a
     // variable.
     Shell.run(
-      "cd cocoapods-size && python3 measure_cocoapod_size.py --cocoapods \(sdk) --cocoapods_source_config ../cocoapods_source_config.json --json \(Constants.cocoapodSizeReportFile)",
+      "cd cocoapods-size && python3 measure_cocoapod_size.py --cocoapods \(sdk) --spec_repos specsstaging master --cocoapods_source_config ../cocoapods_source_config.json --json \(Constants.cocoapodSizeReportFile)",
       stdout: .stdout
     )
     let SDKBinarySize = try JSONParser.readJSON(
@@ -110,7 +110,7 @@ public func CreateMetricsRequestData(SDK: [String], SDKRepoDir: URL,
   try CreatePodConfigJSON(of: SDK, from: SDKRepoDir)
   let data = try CreateMetricsRequestData(
     of: SDK,
-    type: "firebase-ios-sdk",
+    type: "CocoaPods",
     log: logPath
   )
   return data

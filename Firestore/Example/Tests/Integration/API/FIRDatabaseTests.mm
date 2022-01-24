@@ -27,8 +27,8 @@
 #include "Firestore/core/src/core/firestore_client.h"
 #include "Firestore/core/test/unit/testutil/app_testing.h"
 
-namespace testutil = firebase::firestore::testutil;
-
+using firebase::firestore::testutil::AppForUnitTesting;
+using firebase::firestore::util::MakeString;
 using firebase::firestore::util::TimerId;
 
 @interface FIRDatabaseTests : FSTIntegrationTestCase
@@ -1315,6 +1315,47 @@ using firebase::firestore::util::TimerId;
                           NSException, @"The client has already been terminated.");
 }
 
+- (void)testTransactionGetAfterTerminationFail {
+  FIRDocumentReference *doc = [self documentRef];
+  FIRFirestore *firestore = doc.firestore;
+  XCTestExpectation *expectation1 = [self expectationWithDescription:@"TransactionBlockStart"];
+  XCTestExpectation *expectation2 = [self expectationWithDescription:@"FirestoreTerminated"];
+  XCTestExpectation *expectation3 = [self expectationWithDescription:@"TransactionBlockDone"];
+  __block NSError *capturedError = nil;
+
+  [firestore
+      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
+        // Tell the test thread that it can now call `terminateWithCompletion`.
+        [expectation1 fulfill];
+        // Wait for `terminateWithCompletion` to complete.
+        [self awaitExpectation:expectation2];
+        // Call `[transaction getDocument]` to make sure that it correctly reports the error.
+        [transaction getDocument:doc error:error];
+        // Save the `NSError` into a variable on which the test thread will perform assertions.
+        capturedError = *error;
+        // Tell the test thread that it can now perform assertions on the captured `NSError` object.
+        [expectation3 fulfill];
+        return @"I should have failed since the transaction was terminated";
+      }
+                   completion:^(id, NSError *){
+                   }];
+
+  // Wait for the transaction callback to start.
+  [self awaitExpectation:expectation1];
+
+  // Terminate the Firestore instance.
+  [firestore terminateWithCompletion:[self completionForExpectation:expectation2]];
+
+  // Wait for the transaction callback to "publish" the `NSError` from `[transaction getDocument]`.
+  [self awaitExpectation:expectation3];
+
+  // Verify that `[transaction getDocument]` set its `NSError` argument to a non-nil error.
+  XCTAssertNotNil(capturedError);
+  XCTAssertEqual(capturedError.code, FIRFirestoreErrorCodeFailedPrecondition);
+  XCTAssertEqualObjects(capturedError.userInfo[NSLocalizedDescriptionKey],
+                        @"The client has already been terminated.");
+}
+
 - (void)testMaintainsPersistenceAfterRestarting {
   FIRDocumentReference *doc = [self documentRef];
   FIRFirestore *firestore = doc.firestore;
@@ -1431,7 +1472,7 @@ using firebase::firestore::util::TimerId;
 }
 
 - (void)testRestartFirestoreLeadsToNewInstance {
-  FIRApp *app = testutil::AppForUnitTesting(util::MakeString([FSTIntegrationTestCase projectID]));
+  FIRApp *app = AppForUnitTesting(MakeString([FSTIntegrationTestCase projectID]));
   FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
   FIRFirestore *sameInstance = [FIRFirestore firestoreForApp:app];
   firestore.settings = [FSTIntegrationTestCase settings];
@@ -1456,7 +1497,7 @@ using firebase::firestore::util::TimerId;
 }
 
 - (void)testAppDeleteLeadsToFirestoreTermination {
-  FIRApp *app = testutil::AppForUnitTesting(util::MakeString([FSTIntegrationTestCase projectID]));
+  FIRApp *app = AppForUnitTesting(MakeString([FSTIntegrationTestCase projectID]));
   FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
   firestore.settings = [FSTIntegrationTestCase settings];
   NSDictionary<NSString *, id> *data =
@@ -1470,7 +1511,7 @@ using firebase::firestore::util::TimerId;
 
 // Ensures b/172958106 doesn't regress.
 - (void)testDeleteAppWorksWhenLastReferenceToFirestoreIsInListener {
-  FIRApp *app = testutil::AppForUnitTesting(util::MakeString([FSTIntegrationTestCase projectID]));
+  FIRApp *app = AppForUnitTesting(MakeString([FSTIntegrationTestCase projectID]));
   FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
 
   FIRDocumentReference *doc = [firestore documentWithPath:@"abc/123"];
@@ -1489,7 +1530,7 @@ using firebase::firestore::util::TimerId;
 }
 
 - (void)testTerminateCanBeCalledMultipleTimes {
-  FIRApp *app = testutil::AppForUnitTesting(util::MakeString([FSTIntegrationTestCase projectID]));
+  FIRApp *app = AppForUnitTesting(MakeString([FSTIntegrationTestCase projectID]));
   FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
 
   [firestore terminateWithCompletion:[self completionForExpectationWithName:@"Terminate1"]];
@@ -1506,7 +1547,7 @@ using firebase::firestore::util::TimerId;
 }
 
 - (void)testCanRemoveListenerAfterTermination {
-  FIRApp *app = testutil::AppForUnitTesting(util::MakeString([FSTIntegrationTestCase projectID]));
+  FIRApp *app = AppForUnitTesting(MakeString([FSTIntegrationTestCase projectID]));
   FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
   firestore.settings = [FSTIntegrationTestCase settings];
 

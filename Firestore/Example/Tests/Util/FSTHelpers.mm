@@ -33,9 +33,6 @@
 
 #import "Firestore/core/test/unit/testutil/testutil.h"
 
-namespace testutil = firebase::firestore::testutil;
-namespace util = firebase::firestore::util;
-
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::google_firestore_v1_Value;
@@ -51,6 +48,8 @@ using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SetMutation;
 using firebase::firestore::model::TypeOrder;
 using firebase::firestore::nanopb::Message;
+using firebase::firestore::testutil::Field;
+using firebase::firestore::util::MakeString;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -121,7 +120,7 @@ ObjectValue FSTTestObjectValue(NSDictionary<NSString *, id> *data) {
 }
 
 DocumentKey FSTTestDocKey(NSString *path) {
-  return DocumentKey::FromPathString(util::MakeString(path));
+  return DocumentKey::FromPathString(MakeString(path));
 }
 
 FSTDocumentKeyReference *FSTTestRef(std::string projectID, std::string database, NSString *path) {
@@ -143,7 +142,7 @@ PatchMutation FSTTestPatchMutation(NSString *path,
   NSMutableDictionary *mutableValues = [values mutableCopy];
   [mutableValues enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *) {
     if ([value isEqual:kDeleteSentinel]) {
-      const FieldPath fieldPath = testutil::Field(util::MakeString(key));
+      const FieldPath fieldPath = Field(MakeString(key));
       mutableValues[key] = [FIRFieldValue fieldValueForDelete];
     }
   }];

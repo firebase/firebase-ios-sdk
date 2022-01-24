@@ -50,9 +50,10 @@ To integrate a Firebase SDK with your app:
 9. Drag the `Firebase.h` header in this directory into your project. This will
    allow you to `#import "Firebase.h"` and start using any Firebase SDK that you
    have.
-10. If you're using Swift want to use modules, drag `module.modulemap` into
-   your project and update your User Header Search Paths to contain the
-   directory that contains your module map.
+10. If you're using Swift or want to use modules from Objective C, drag
+   `module.modulemap` into your project and update the
+   "User Header Search Paths" in your project's Build Settings to include the
+   directory that contains the added module map.
 11. You're done! Compile your target and start using Firebase.
 
 If you want to add another SDK, repeat the steps above with the frameworks for

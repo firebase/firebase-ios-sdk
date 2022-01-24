@@ -9,45 +9,52 @@ Prior to version 8.0.0 (starting with version 6.31.0) support was in Beta.
 
 ## Requirements
 
-- Requires Xcode 12.5
+- Requires Xcode 12.5 or above
 - Analytics requires clients to add `-ObjC` linker option.
 - See [Package.swift](Package.swift) for supported platform versions.
 
 ## Limitations
 
-- Analytics is only supported for iOS and cannot be used in apps that support other platforms.
-- watchOS support is available for Auth, Crashlytics, Messaging, Realtime Database, RemoteConfig,
-  and Storage.
+- Product availability varies by platform. See [the chart on this page](https://firebase.google.com/docs/ios/learn-more#firebase_library_support_by_platform)
+  for information on product availabilty for each platform.
 
 ## Installation
 
-If you've previously used CocoaPods, remove them from the project with `pod deintegrate`.
+> If you've previously used CocoaPods, remove them from the project with `pod deintegrate`.
 
-### In Xcode
+### Installing from Xcode
 
-Install Firebase via Swift Package Manager:
+Add a package by selecting `File` → `Add Packages…` in Xcode’s menu bar.
 
-<img src="docs/resources/SPMAddPackage.png">
+<img src="docs/resources/swiftpm_step1.png">
 
-Select the Firebase GitHub repository - `https://github.com/firebase/firebase-ios-sdk.git`:
+---
 
-<img src="docs/resources/SPMChoose.png">
+Search for the Firebase Apple SDK using the repo's URL:
+```console
+https://github.com/firebase/firebase-ios-sdk.git
+```
 
-Select the version.
+Next, set the **Dependency Rule** to be `Up to Next Major Version` and specify `8.10.0` as the lower bound.
 
-Note: The Swift Package Manager distribution continues to be in beta even though it now
-supports standard Swift Package Manager versioning.
+Then, select **Add Package**.
 
-<img src="docs/resources/SPMSelect.png">
+<img src="docs/resources/swiftpm_step2.png">
+
+---
 
 Choose the Firebase products that you want installed in your app.
 
-<img src="docs/resources/SPMProducts.png">
+<img src="docs/resources/swiftpm_step3.png">
 
-If you've installed FirebaseAnalytics, Add the `-ObjC` option to `Other Linker Flags`
+---
+
+If you've installed **FirebaseAnalytics**, add the `-ObjC` option to `Other Linker Flags`
 in the `Build Settings` tab.
 
-<img src="docs/resources/SPMObjC.png">
+<img src="docs/resources/swiftpm_step4.png">
+
+---
 
 If you're using FirebaseCrashlytics, you can use
 `${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run`
@@ -61,32 +68,35 @@ eg. `scripts/upload-symbols`, and make sure that the file is executable:
 This script can be used to manually upload dSYM files (for usage notes and
 additional instructions, run with the `--help` parameter).
 
+---
+
 ### Alternatively, add Firebase to a `Package.swift` manifest
 
 To integrate via a `Package.swift` manifest instead of Xcode, you can add
-Firebase to your dependencies array of your package with:
+Firebase to the dependencies array of your package:
 
-```
+```swift
 dependencies: [
-  // Substitute X.Y with the version of Firebase you want.
-  .package(name: "Firebase",
-           url: "https://github.com/firebase/firebase-ios-sdk.git",
-           .branch("X.Y-spm-beta")),
+  .package(
+    name: "Firebase",
+    url: "https://github.com/firebase/firebase-ios-sdk.git",
+    .upToNextMajor(from: "8.10.0")
+  ),
 
   // Any other dependencies you have...
 ],
 ```
 
-Then in any target that depends on a Firebase product, add it to the `dependencies`
+Then, in any target that depends on a Firebase product, add it to the `dependencies`
 array of that target:
 
-```
+```swift
 .target(
-    name: "MyTargetName",
-    dependencies: [
-      // The product name you need. In this example, FirebaseAuth.
-      .product(name: "FirebaseAuth", package: "Firebase"),
-    ]
+  name: "MyTargetName",
+  dependencies: [
+    // The product(s) you want (e.g. FirebaseAuth).
+    .product(name: "FirebaseAuth", package: "Firebase"),
+  ]
 ),
 ```
 

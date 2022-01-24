@@ -30,14 +30,14 @@
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/api/load_bundle_task.h"
-#include "Firestore/core/src/auth/empty_credentials_provider.h"
-#include "Firestore/core/src/auth/user.h"
 #include "Firestore/core/src/bundle/bundle_reader.h"
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/core/event_manager.h"
 #include "Firestore/core/src/core/listen_options.h"
 #include "Firestore/core/src/core/query_listener.h"
 #include "Firestore/core/src/core/sync_engine.h"
+#include "Firestore/core/src/credentials/empty_credentials_provider.h"
+#include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/local_store.h"
 #include "Firestore/core/src/local/persistence.h"
 #include "Firestore/core/src/local/query_engine.h"
@@ -60,13 +60,8 @@
 #include "Firestore/core/test/unit/testutil/async_testing.h"
 #include "absl/memory/memory.h"
 
-namespace testutil = firebase::firestore::testutil;
-
 using firebase::firestore::api::LoadBundleTask;
 using firebase::firestore::Error;
-using firebase::firestore::auth::EmptyCredentialsProvider;
-using firebase::firestore::auth::HashUser;
-using firebase::firestore::auth::User;
 using firebase::firestore::bundle::BundleReader;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::core::EventListener;
@@ -76,6 +71,10 @@ using firebase::firestore::core::Query;
 using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::SyncEngine;
 using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::credentials::EmptyAppCheckCredentialsProvider;
+using firebase::firestore::credentials::EmptyAuthCredentialsProvider;
+using firebase::firestore::credentials::HashUser;
+using firebase::firestore::credentials::User;
 using firebase::firestore::local::QueryEngine;
 using firebase::firestore::local::LocalStore;
 using firebase::firestore::local::Persistence;
@@ -95,6 +94,7 @@ using firebase::firestore::remote::FirebaseMetadataProvider;
 using firebase::firestore::remote::MockDatastore;
 using firebase::firestore::remote::RemoteStore;
 using firebase::firestore::remote::WatchChange;
+using firebase::firestore::testutil::AsyncQueueForTesting;
 using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::DelayedConstructor;
 using firebase::firestore::util::Empty;
@@ -225,15 +225,16 @@ NS_ASSUME_NONNULL_BEGIN
     _databaseInfo = {DatabaseId{"test-project", "(default)"}, "persistence", "host", false};
 
     // Set up the sync engine and various stores.
-    _workerQueue = testutil::AsyncQueueForTesting();
+    _workerQueue = AsyncQueueForTesting();
     _persistence = std::move(persistence);
     _localStore = absl::make_unique<LocalStore>(_persistence.get(), &_queryEngine, initialUser);
     _connectivityMonitor = CreateNoOpConnectivityMonitor();
     _firebaseMetadataProvider = CreateFirebaseMetadataProviderNoOp();
 
     _datastore = std::make_shared<MockDatastore>(
-        _databaseInfo, _workerQueue, std::make_shared<EmptyCredentialsProvider>(),
-        _connectivityMonitor.get(), _firebaseMetadataProvider.get());
+        _databaseInfo, _workerQueue, std::make_shared<EmptyAuthCredentialsProvider>(),
+        std::make_shared<EmptyAppCheckCredentialsProvider>(), _connectivityMonitor.get(),
+        _firebaseMetadataProvider.get());
     _remoteStore = absl::make_unique<RemoteStore>(
         _localStore.get(), _datastore, _workerQueue, _connectivityMonitor.get(),
         [self](OnlineState onlineState) { _syncEngine->HandleOnlineStateChange(onlineState); });

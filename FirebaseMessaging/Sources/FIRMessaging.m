@@ -48,7 +48,6 @@
 
 static NSString *const kFIRMessagingMessageViaAPNSRootKey = @"aps";
 static NSString *const kFIRMessagingReachabilityHostname = @"www.google.com";
-static NSString *const kFIRMessagingFCMTokenFetchAPNSOption = @"apns_token";
 
 #if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 const NSNotificationName FIRMessagingRegistrationTokenRefreshedNotification =
@@ -568,7 +567,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   }
   NSDictionary *options = nil;
   if (self.APNSToken) {
-    options = @{kFIRMessagingFCMTokenFetchAPNSOption : self.APNSToken};
+    options = @{kFIRMessagingTokenOptionsAPNSKey : self.APNSToken};
   } else {
     FIRMessagingLoggerWarn(kFIRMessagingMessageCodeAPNSTokenNotAvailableDuringTokenFetch,
                            @"APNS device token not set before retrieving FCM Token for Sender ID "
@@ -578,14 +577,14 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                            senderID);
   }
   [self.tokenManager
-    tokenWithAuthorizedEntity:senderID
-                        scope:kFIRMessagingDefaultTokenScope
-                      options:options
-                      handler:^(NSString *_Nullable FCMToken, NSError *_Nullable error) {
-                        if (completion) {
-                          completion(FCMToken, error);
-                        }
-                      }];
+      tokenWithAuthorizedEntity:senderID
+                          scope:kFIRMessagingDefaultTokenScope
+                        options:options
+                        handler:^(NSString *_Nullable FCMToken, NSError *_Nullable error) {
+                          if (completion) {
+                            completion(FCMToken, error);
+                          }
+                        }];
 }
 
 - (void)deleteFCMTokenForSenderID:(nonnull NSString *)senderID

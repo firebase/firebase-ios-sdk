@@ -91,7 +91,7 @@ case "$project-$platform-$method" in
 
   Functions-*)
     # Start server for Functions integration tests.
-    ./Functions/Backend/start.sh synchronous
+    ./FirebaseFunctions/Backend/start.sh synchronous
     ;;
 
   Storage-*)
@@ -142,6 +142,11 @@ case "$project-$platform-$method" in
     bundle exec pod install --project-directory=FirebaseMessaging/Apps/Sample --repo-update
     ;;
 
+  SwiftUISample-*)
+    install_xcpretty
+    bundle exec pod install --project-directory=FirebaseMessaging/Apps/SwiftUISample --repo-update
+    ;;
+
   MLModelDownloaderSample-*)
     install_xcpretty
     bundle exec pod install --project-directory=FirebaseMLModelDownloader/Apps/Sample --repo-update
@@ -150,11 +155,6 @@ case "$project-$platform-$method" in
   RemoteConfigSample-*)
     install_xcpretty
     bundle exec pod install --project-directory=FirebaseRemoteConfig/Tests/Sample --repo-update
-    ;;
-
-  SegmentationSample-*)
-    install_xcpretty
-    bundle exec pod install --project-directory=FirebaseSegmentation/Tests/Sample --repo-update
     ;;
 
   WatchOSSample-*)

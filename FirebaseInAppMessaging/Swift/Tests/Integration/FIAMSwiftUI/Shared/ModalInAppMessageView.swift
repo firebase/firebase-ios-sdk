@@ -23,7 +23,7 @@ struct ModalInAppMessageView: View {
   var body: some View {
     VStack {
       if let imageData = modalMessage.imageData?.imageRawData,
-        let image = UIImage(data: imageData) {
+         let image = UIImage(data: imageData) {
         Image(uiImage: image)
       }
       Text(modalMessage.title).padding(4)

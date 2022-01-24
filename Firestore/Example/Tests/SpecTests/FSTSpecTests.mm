@@ -38,10 +38,10 @@
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/api/load_bundle_task.h"
-#include "Firestore/core/src/auth/user.h"
 #include "Firestore/core/src/bundle/bundle_reader.h"
 #include "Firestore/core/src/bundle/bundle_serializer.h"
 #include "Firestore/core/src/core/field_filter.h"
+#include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/persistence.h"
 #include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/model/delete_mutation.h"
@@ -74,15 +74,13 @@
 #include "absl/types/optional.h"
 
 namespace objc = firebase::firestore::objc;
-namespace testutil = firebase::firestore::testutil;
-namespace util = firebase::firestore::util;
 using firebase::firestore::Error;
 using firebase::firestore::api::LoadBundleTask;
-using firebase::firestore::auth::User;
 using firebase::firestore::bundle::BundleReader;
 using firebase::firestore::bundle::BundleSerializer;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::Query;
+using firebase::firestore::credentials::User;
 using firebase::firestore::google_firestore_v1_ArrayValue;
 using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::local::Persistence;
@@ -106,15 +104,21 @@ using firebase::firestore::remote::ExistenceFilter;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
 using firebase::firestore::remote::WatchTargetChange;
 using firebase::firestore::remote::WatchTargetChangeState;
+using firebase::firestore::testutil::Doc;
+using firebase::firestore::testutil::Filter;
+using firebase::firestore::testutil::OrderBy;
+using firebase::firestore::testutil::Version;
+using firebase::firestore::util::ByteStreamCpp;
+using firebase::firestore::util::DirectoryIterator;
+using firebase::firestore::util::Executor;
 using firebase::firestore::util::MakeNSString;
 using firebase::firestore::util::MakeString;
+using firebase::firestore::util::MakeStringPtr;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::TimerId;
-
-using testutil::Doc;
-using testutil::Filter;
-using testutil::OrderBy;
+using firebase::firestore::util::WrapCompare;
+using firebase::firestore::util::ToString;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -205,7 +209,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   size_t _maxConcurrentLimboResolutions;
   BOOL _networkEnabled;
   FSTUserDataReader *_reader;
-  std::shared_ptr<util::Executor> user_executor_;
+  std::shared_ptr<Executor> user_executor_;
 }
 
 #define FSTAbstractMethodException()                                                               \
@@ -231,7 +235,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 
 - (void)setUpForSpecWithConfig:(NSDictionary *)config {
   _reader = FSTTestUserDataReader();
-  std::unique_ptr<util::Executor> user_executor = util::Executor::CreateSerial("user executor");
+  std::unique_ptr<Executor> user_executor = Executor::CreateSerial("user executor");
   user_executor_ = absl::ShareUniquePtr(std::move(user_executor));
 
   // Store GCEnabled so we can re-use it in doRestart.
@@ -273,13 +277,13 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 
 - (Query)parseQuery:(id)querySpec {
   if ([querySpec isKindOfClass:[NSString class]]) {
-    return testutil::Query(util::MakeString((NSString *)querySpec));
+    return firebase::firestore::testutil::Query(MakeString((NSString *)querySpec));
   } else if ([querySpec isKindOfClass:[NSDictionary class]]) {
     NSDictionary *queryDict = (NSDictionary *)querySpec;
     NSString *path = queryDict[@"path"];
-    ResourcePath resource_path = ResourcePath::FromString(util::MakeString(path));
+    ResourcePath resource_path = ResourcePath::FromString(MakeString(path));
     std::shared_ptr<const std::string> collectionGroup =
-        util::MakeStringPtr(queryDict[@"collectionGroup"]);
+        MakeStringPtr(queryDict[@"collectionGroup"]);
     Query query(std::move(resource_path), std::move(collectionGroup));
 
     if (queryDict[@"limit"]) {
@@ -296,8 +300,8 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     if (queryDict[@"filters"]) {
       NSArray<NSArray<id> *> *filters = queryDict[@"filters"];
       for (NSArray<id> *filter in filters) {
-        std::string key = util::MakeString(filter[0]);
-        std::string op = util::MakeString(filter[1]);
+        std::string key = MakeString(filter[0]);
+        std::string op = MakeString(filter[1]);
         Message<google_firestore_v1_Value> value = [_reader parsedQueryValue:filter[2]];
         query = query.AddingFilter(Filter(key, op, std::move(value)));
       }
@@ -306,8 +310,8 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     if (queryDict[@"orderBys"]) {
       NSArray *orderBys = queryDict[@"orderBys"];
       for (NSArray<NSString *> *orderBy in orderBys) {
-        std::string field_path = util::MakeString(orderBy[0]);
-        std::string direction = util::MakeString(orderBy[1]);
+        std::string field_path = MakeString(orderBy[0]);
+        std::string direction = MakeString(orderBy[1]);
         query = query.AddingOrderBy(OrderBy(field_path, direction));
       }
     }
@@ -319,7 +323,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 }
 
 - (SnapshotVersion)parseVersion:(NSNumber *_Nullable)version {
-  return testutil::Version(version.longLongValue);
+  return Version(version.longLongValue);
 }
 
 - (DocumentViewChange)parseChange:(NSDictionary *)jsonDoc ofType:(DocumentViewChange::Type)type {
@@ -329,7 +333,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   XCTAssert([jsonDoc[@"key"] isKindOfClass:[NSString class]]);
   Message<google_firestore_v1_Value> data = [_reader parsedQueryValue:jsonDoc[@"value"]];
   MutableDocument doc =
-      Doc(util::MakeString((NSString *)jsonDoc[@"key"]), version.longLongValue, std::move(data));
+      Doc(MakeString((NSString *)jsonDoc[@"key"]), version.longLongValue, std::move(data));
   if ([options[@"hasLocalMutations"] boolValue] == YES) {
     doc.SetHasLocalMutations();
   } else if ([options[@"hasCommittedMutations"] boolValue] == YES) {
@@ -356,8 +360,8 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 - (void)doLoadBundle:(NSString *)bundleJson {
   const auto &database_info = [self.driver databaseInfo];
   BundleSerializer bundle_serializer(remote::Serializer(database_info.database_id()));
-  auto data = util::MakeString(bundleJson);
-  auto bundle = absl::make_unique<util::ByteStreamCpp>(
+  auto data = MakeString(bundleJson);
+  auto bundle = absl::make_unique<ByteStreamCpp>(
       absl::make_unique<std::stringstream>(std::stringstream(data)));
   auto reader = std::make_shared<BundleReader>(std::move(bundle_serializer), std::move(bundle));
   auto task = std::make_shared<LoadBundleTask>(user_executor_);
@@ -703,13 +707,13 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   XCTAssertEqual(events.count, expectedEvents.count);
   events =
       [events sortedArrayUsingComparator:^NSComparisonResult(FSTQueryEvent *q1, FSTQueryEvent *q2) {
-        return util::WrapCompare(q1.query.CanonicalId(), q2.query.CanonicalId());
+        return WrapCompare(q1.query.CanonicalId(), q2.query.CanonicalId());
       }];
   expectedEvents = [expectedEvents
       sortedArrayUsingComparator:^NSComparisonResult(NSDictionary *left, NSDictionary *right) {
         Query leftQuery = [self parseQuery:left[@"query"]];
         Query rightQuery = [self parseQuery:right[@"query"]];
-        return util::WrapCompare(leftQuery.CanonicalId(), rightQuery.CanonicalId());
+        return WrapCompare(leftQuery.CanonicalId(), rightQuery.CanonicalId());
       }];
 
   NSUInteger i = 0;
@@ -898,7 +902,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   }
 
   XCTAssertTrue(actualTargets.empty(), "Unexpected active targets: %s",
-                util::ToString(actualTargets).c_str());
+                ToString(actualTargets).c_str());
 }
 
 - (void)runSpecTestSteps:(NSArray *)steps config:(NSDictionary *)config {
@@ -944,7 +948,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   auto spec_dir = source_file.Dirname();
   auto json_dir = spec_dir.AppendUtf8("json");
 
-  auto iter = util::DirectoryIterator::Create(json_dir);
+  auto iter = DirectoryIterator::Create(json_dir);
   for (; iter->Valid(); iter->Next()) {
     Path entry = iter->file();
     if (!entry.HasExtension(json_ext)) {

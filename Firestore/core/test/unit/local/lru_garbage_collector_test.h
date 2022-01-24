@@ -20,7 +20,7 @@
 #include <memory>
 #include <unordered_map>
 
-#include "Firestore/core/src/auth/user.h"
+#include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/reference_set.h"
 #include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/model/object_value.h"
@@ -212,7 +212,7 @@ class LruGarbageCollectorTest : public ::testing::TestWithParam<FactoryFunc> {
   LruDelegate* lru_delegate_ = nullptr;
   LruGarbageCollector* gc_ = nullptr;
   model::ListenSequenceNumber initial_sequence_number_ = 0;
-  auth::User user_;
+  credentials::User user_;
   ReferenceSet additional_references_;
 };
 

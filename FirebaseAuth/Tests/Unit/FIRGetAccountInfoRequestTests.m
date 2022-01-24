@@ -27,6 +27,11 @@
  */
 static NSString *const kTestAPIKey = @"APIKey";
 
+/** @var kTestFirebaseAppID
+    @brief Fake Firebase app ID used for testing.
+ */
+static NSString *const kTestFirebaseAppID = @"appID";
+
 /** @var kIDTokenKey
     @brief The key for the "idToken" value in the request. This is actually the STS Access Token,
         despite it's confusing (backwards compatiable) parameter name.
@@ -72,7 +77,7 @@ static NSString *const kExpectedAPIURL =
  */
 - (void)testGetAccountInfoRequest {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey appID:kTestFirebaseAppID];
   FIRGetAccountInfoRequest *request =
       [[FIRGetAccountInfoRequest alloc] initWithAccessToken:kTestAccessToken
                                        requestConfiguration:requestConfiguration];

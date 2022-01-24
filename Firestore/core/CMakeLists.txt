@@ -189,12 +189,12 @@ firebase_ios_glob(
   src/*.h
   src/api/*.cc
   src/api/*.h
-  src/auth/*.cc
-  src/auth/*.h
   src/bundle/*.cc
   src/bundle/*.h
   src/core/*.cc
   src/core/*.h
+  src/credentials/*.cc
+  src/credentials/*.h
   src/immutable/*.cc
   src/immutable/*.h
   src/local/*.cc
@@ -212,7 +212,8 @@ firebase_ios_glob(
 if(APPLE)
   firebase_ios_glob(
     core_sources APPEND
-    src/auth/firebase_credentials_provider_apple.*
+    src/credentials/firebase_app_check_credentials_provider_apple.*
+    src/credentials/firebase_auth_credentials_provider_apple.*
     src/remote/connectivity_monitor_apple.mm
     src/remote/firebase_metadata_provider_apple.mm
   )
@@ -305,8 +306,8 @@ add_custom_target(
 add_subdirectory(test/unit/testutil)
 add_subdirectory(test/unit)
 add_subdirectory(test/unit/api)
-add_subdirectory(test/unit/auth)
 add_subdirectory(test/unit/bundle)
+add_subdirectory(test/unit/credentials)
 add_subdirectory(test/unit/core)
 add_subdirectory(test/unit/immutable)
 add_subdirectory(test/unit/local)

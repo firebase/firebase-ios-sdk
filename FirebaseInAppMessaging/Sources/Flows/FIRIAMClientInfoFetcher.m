@@ -55,31 +55,31 @@
     return;
   }
 
-  [self.installations
-    authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
-                              NSError *_Nullable error) {
-      if (error) {
-        FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM190006", @"Error in fetching FIS token: %@",
-                      error.localizedDescription);
-        completion(nil, nil, error);
-      } else {
-        FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM190007", @"Successfully generated FIS token");
+  [self.installations authTokenWithCompletion:^(
+                          FIRInstallationsAuthTokenResult *_Nullable tokenResult,
+                          NSError *_Nullable error) {
+    if (error) {
+      FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM190006", @"Error in fetching FIS token: %@",
+                    error.localizedDescription);
+      completion(nil, nil, error);
+    } else {
+      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM190007", @"Successfully generated FIS token");
 
-        [self.installations installationIDWithCompletion:^(NSString *_Nullable identifier,
-                                                           NSError *_Nullable error) {
-          if (error) {
-            FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM190008", @"Error in fetching FID: %@",
-                          error.localizedDescription);
-            completion(nil, tokenResult.authToken, error);
-          } else {
-            FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM190009",
-                        @"Successfully in fetching both FID as %@ and FIS token as %@", identifier,
-                        tokenResult.authToken);
-            completion(identifier, tokenResult.authToken, nil);
-          }
-        }];
-      }
-    }];
+      [self.installations
+          installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
+            if (error) {
+              FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM190008", @"Error in fetching FID: %@",
+                            error.localizedDescription);
+              completion(nil, tokenResult.authToken, error);
+            } else {
+              FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM190009",
+                          @"Successfully in fetching both FID as %@ and FIS token as %@",
+                          identifier, tokenResult.authToken);
+              completion(identifier, tokenResult.authToken, nil);
+            }
+          }];
+    }
+  }];
 }
 
 - (nullable NSString *)getDeviceLanguageCode {

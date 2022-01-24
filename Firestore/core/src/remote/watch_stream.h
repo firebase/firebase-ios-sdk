@@ -84,7 +84,10 @@ class WatchStreamCallback {
 class WatchStream : public Stream {
  public:
   WatchStream(const std::shared_ptr<util::AsyncQueue>& async_queue,
-              std::shared_ptr<auth::CredentialsProvider> credentials_provider,
+              std::shared_ptr<credentials::AuthCredentialsProvider>
+                  auth_credentials_provider,
+              std::shared_ptr<credentials::AppCheckCredentialsProvider>
+                  app_check_credentials_provider,
               Serializer serializer,
               GrpcConnection* grpc_connection,
               WatchStreamCallback* callback);
@@ -107,7 +110,9 @@ class WatchStream : public Stream {
 
  private:
   std::unique_ptr<GrpcStream> CreateGrpcStream(
-      GrpcConnection* grpc_connection, const auth::Token& token) override;
+      GrpcConnection* grpc_connection,
+      const credentials::AuthToken& auth_token,
+      const std::string& app_check_token) override;
   void TearDown(GrpcStream* grpc_stream) override;
 
   void NotifyStreamOpen() override;

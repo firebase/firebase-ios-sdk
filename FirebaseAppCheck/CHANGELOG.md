@@ -1,3 +1,9 @@
+# v8.12.0 -- M111
+- [fixed] Build failures with Swift Package Manager for watchOS. (#9191)
+
+# v8.9.0 -- M106
+- [fixed] Improved error handling logic by minimizing amount of requests that are unlikely to succeed. (#8798)
+
 # v8.8.0 -- M105
 - [added] Add support for bundle ID-based API Key Restrictions (#8678)
 

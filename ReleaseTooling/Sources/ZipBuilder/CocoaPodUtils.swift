@@ -16,6 +16,7 @@
 
 import Foundation
 import Utils
+import FirebaseManifest
 
 /// CocoaPod related utility functions. The enum type is used as a namespace here instead of having
 /// root functions, and no cases should be added to it.
@@ -445,7 +446,7 @@ enum CocoaPodUtils {
                                       localPodspecPath: URL?,
                                       linkage: LinkageType) -> String {
     // Start assembling the Podfile.
-    var podfile: String = ""
+    var podfile = ""
 
     // If custom Specs repos were passed in, prefix the Podfile with the custom repos followed by
     // the CocoaPods master Specs repo.
@@ -474,20 +475,37 @@ enum CocoaPodUtils {
     """
 
     var versionsSpecified = false
+    let firebaseVersion = FirebaseManifest.shared.version
+    let versionChunks = firebaseVersion.split(separator: ".")
+    let minorVersion = "\(versionChunks[0]).\(versionChunks[1]).0"
 
     // Loop through the subspecs passed in and use the actual Pod name.
     for pod in pods {
       let podspec = String(pod.name.split(separator: "/")[0] + ".podspec")
       // Check if we want to use a local version of the podspec.
       if let localURL = localPodspecPath,
-        FileManager.default.fileExists(atPath: localURL.appendingPathComponent(podspec).path) {
+         FileManager.default.fileExists(atPath: localURL.appendingPathComponent(podspec).path) {
         podfile += "  pod '\(pod.name)', :path => '\(localURL.path)'"
       } else if let podVersion = pod.version {
-        podfile += "  pod '\(pod.name)', '\(podVersion)'"
+        // To support Firebase patch versions in the Firebase zip distribution, allow patch updates
+        // for all pods except Firebase and FirebaseCore. The Firebase Swift pods are not yet in the
+        // zip distribution.
+        var podfileVersion = podVersion
+        if pod.name.starts(with: "Firebase"),
+           !pod.name.hasSuffix("Swift"),
+           pod.name != "Firebase",
+           pod.name != "FirebaseCore" {
+          podfileVersion = podfileVersion.replacingOccurrences(
+            of: firebaseVersion,
+            with: minorVersion
+          )
+          podfileVersion = "~> \(podfileVersion)"
+        }
+        podfile += "  pod '\(pod.name)', '\(podfileVersion)'"
       } else if pod.name.starts(with: "Firebase"),
-        let localURL = localPodspecPath,
-        FileManager.default
-        .fileExists(atPath: localURL.appendingPathComponent("Firebase.podspec").path) {
+                let localURL = localPodspecPath,
+                FileManager.default
+                .fileExists(atPath: localURL.appendingPathComponent("Firebase.podspec").path) {
         // Let Firebase.podspec force the right version for unspecified closed Firebase pods.
         let podString = pod.name.replacingOccurrences(of: "Firebase", with: "")
         podfile += "  pod 'Firebase/\(podString)', :path => '\(localURL.path)'"

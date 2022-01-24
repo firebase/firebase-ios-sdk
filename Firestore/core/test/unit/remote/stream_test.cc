@@ -45,8 +45,10 @@ namespace firestore {
 namespace remote {
 namespace {
 
-using auth::CredentialsProvider;
-using auth::Token;
+using credentials::AppCheckCredentialsProvider;
+using credentials::AuthCredentialsProvider;
+using credentials::AuthToken;
+using credentials::User;
 using util::AsyncQueue;
 using util::StringFormat;
 using util::TimerId;
@@ -55,14 +57,22 @@ using Type = GrpcCompletion::Type;
 
 const auto kIdleTimerId = TimerId::ListenStreamIdle;
 const auto kBackoffTimerId = TimerId::ListenStreamConnectionBackoff;
+const auto kHealthCheckTimerId = TimerId::HealthCheckTimeout;
 
 class TestStream : public Stream {
  public:
   TestStream(const std::shared_ptr<AsyncQueue>& worker_queue,
              GrpcStreamTester* tester,
-             std::shared_ptr<CredentialsProvider> credentials_provider)
-      : Stream{worker_queue, credentials_provider,
-               /*GrpcConnection=*/nullptr, kBackoffTimerId, kIdleTimerId},
+             std::shared_ptr<AuthCredentialsProvider> auth_credentials_provider,
+             std::shared_ptr<AppCheckCredentialsProvider>
+                 app_check_credentials_provider)
+      : Stream{worker_queue,
+               auth_credentials_provider,
+               app_check_credentials_provider,
+               /*GrpcConnection=*/nullptr,
+               kBackoffTimerId,
+               kIdleTimerId,
+               kHealthCheckTimerId},
         tester_{tester} {
   }
 
@@ -84,7 +94,8 @@ class TestStream : public Stream {
 
  private:
   std::unique_ptr<GrpcStream> CreateGrpcStream(GrpcConnection*,
-                                               const Token&) override {
+                                               const AuthToken&,
+                                               const std::string&) override {
     auto result = tester_->CreateStream(this);
     context_ = result->context();
     return result;
@@ -140,9 +151,12 @@ class StreamTest : public testing::Test {
       : worker_queue{testutil::AsyncQueueForTesting()},
         connectivity_monitor{CreateNoOpConnectivityMonitor()},
         tester{worker_queue, connectivity_monitor.get()},
-        credentials{std::make_shared<FakeCredentialsProvider>()},
-        firestore_stream{
-            std::make_shared<TestStream>(worker_queue, &tester, credentials)} {
+        app_check_credentials{std::make_shared<
+            FakeCredentialsProvider<std::string, std::string>>()},
+        auth_credentials{
+            std::make_shared<FakeCredentialsProvider<AuthToken, User>>()},
+        firestore_stream{std::make_shared<TestStream>(
+            worker_queue, &tester, auth_credentials, app_check_credentials)} {
   }
 
   ~StreamTest() {
@@ -186,7 +200,9 @@ class StreamTest : public testing::Test {
   std::unique_ptr<ConnectivityMonitor> connectivity_monitor;
   GrpcStreamTester tester;
 
-  std::shared_ptr<FakeCredentialsProvider> credentials;
+  std::shared_ptr<FakeCredentialsProvider<std::string, std::string>>
+      app_check_credentials;
+  std::shared_ptr<FakeCredentialsProvider<AuthToken, User>> auth_credentials;
   std::shared_ptr<TestStream> firestore_stream;
 };
 
@@ -347,7 +363,7 @@ TEST_F(StreamTest, SeveralWrites) {
 // Auth edge cases
 
 TEST_F(StreamTest, AuthFailureOnStart) {
-  credentials->FailGetToken();
+  auth_credentials->FailGetToken();
   worker_queue->EnqueueBlocking([&] { firestore_stream->Start(); });
 
   worker_queue->EnqueueBlocking([&] {
@@ -358,18 +374,18 @@ TEST_F(StreamTest, AuthFailureOnStart) {
 }
 
 TEST_F(StreamTest, AuthWhenStreamHasBeenStopped) {
-  credentials->DelayGetToken();
+  auth_credentials->DelayGetToken();
 
   worker_queue->EnqueueBlocking([&] {
     firestore_stream->Start();
     firestore_stream->Stop();
   });
 
-  EXPECT_NO_THROW(credentials->InvokeGetToken());
+  EXPECT_NO_THROW(auth_credentials->InvokeGetToken());
 }
 
 TEST_F(StreamTest, AuthOutlivesStream) {
-  credentials->DelayGetToken();
+  auth_credentials->DelayGetToken();
 
   worker_queue->EnqueueBlocking([&] {
     firestore_stream->Start();
@@ -377,7 +393,32 @@ TEST_F(StreamTest, AuthOutlivesStream) {
     firestore_stream.reset();
   });
 
-  EXPECT_NO_THROW(credentials->InvokeGetToken());
+  EXPECT_NO_THROW(auth_credentials->InvokeGetToken());
+}
+
+// AppCheck edge cases
+
+TEST_F(StreamTest, AppCheckWhenStreamHasBeenStopped) {
+  app_check_credentials->DelayGetToken();
+
+  worker_queue->EnqueueBlocking([&] {
+    firestore_stream->Start();
+    firestore_stream->Stop();
+  });
+
+  EXPECT_NO_THROW(app_check_credentials->InvokeGetToken());
+}
+
+TEST_F(StreamTest, AppCheckOutlivesStream) {
+  app_check_credentials->DelayGetToken();
+
+  worker_queue->EnqueueBlocking([&] {
+    firestore_stream->Start();
+    firestore_stream->Stop();
+    firestore_stream.reset();
+  });
+
+  EXPECT_NO_THROW(app_check_credentials->InvokeGetToken());
 }
 
 // Idleness
@@ -507,7 +548,9 @@ TEST_F(StreamTest, RefreshesTokenUponExpiration) {
   ForceFinish({{Type::Read, CompletionResult::Error},
                {Type::Finish, grpc::Status{grpc::UNAUTHENTICATED, ""}}});
   // Error "Unauthenticated" should invalidate the token.
-  EXPECT_EQ(credentials->observed_states(),
+  EXPECT_EQ(auth_credentials->observed_states(),
+            States({"GetToken", "InvalidateToken"}));
+  EXPECT_EQ(app_check_credentials->observed_states(),
             States({"GetToken", "InvalidateToken"}));
 
   worker_queue->EnqueueBlocking([&] { firestore_stream->InhibitBackoff(); });
@@ -515,8 +558,21 @@ TEST_F(StreamTest, RefreshesTokenUponExpiration) {
   ForceFinish({{Type::Read, CompletionResult::Error},
                {Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
   // Simulate a different error -- token should not be invalidated this time.
-  EXPECT_EQ(credentials->observed_states(),
+  EXPECT_EQ(auth_credentials->observed_states(),
             States({"GetToken", "InvalidateToken", "GetToken"}));
+  EXPECT_EQ(app_check_credentials->observed_states(),
+            States({"GetToken", "InvalidateToken", "GetToken"}));
+}
+
+TEST_F(StreamTest, TokenIsNotInvalidatedOnceStreamIsHealthy) {
+  StartStream();
+  worker_queue->RunScheduledOperationsUntil(kHealthCheckTimerId);
+  ForceFinish({{Type::Read, CompletionResult::Error},
+               {Type::Finish, grpc::Status{grpc::UNAUTHENTICATED, ""}}});
+  // Error "Unauthenticated" on a healthy connection should not invalidate the
+  // token.
+  EXPECT_EQ(auth_credentials->observed_states(), States({"GetToken"}));
+  EXPECT_EQ(app_check_credentials->observed_states(), States({"GetToken"}));
 }
 
 }  // namespace remote

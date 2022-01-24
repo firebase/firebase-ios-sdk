@@ -129,7 +129,7 @@ struct ZipBuilder {
   /// Paths needed throughout the process of packaging the Zip file.
   public let paths: FilesystemPaths
 
-  /// The targetPlatforms to target for the builds.
+  /// The platforms to target for the builds.
   public let platforms: [Platform]
 
   /// Specifies if the builder is building dynamic frameworks instead of static frameworks.
@@ -231,7 +231,7 @@ struct ZipBuilder {
           // Don't build the Firebase pod.
         } else if podInfo.isSourcePod {
           let builder = FrameworkBuilder(projectDir: projectDir,
-                                         platform: platform,
+                                         targetPlatforms: platform.platformTargets,
                                          dynamicFrameworks: dynamicFrameworks)
           let (frameworks, resourceContents) =
             builder.compileFrameworkAndResources(withName: podName,
@@ -472,8 +472,8 @@ struct ZipBuilder {
 
           // Ignore anything that not an xcframework with Resources
           guard fileManager.isDirectory(at: xcPath),
-            xcPath.lastPathComponent.hasSuffix("xcframework"),
-            fileManager.directoryExists(at: xcResourceDir) else { continue }
+                xcPath.lastPathComponent.hasSuffix("xcframework"),
+                fileManager.directoryExists(at: xcResourceDir) else { continue }
 
           if packageKind == "Firebase" {
             // Move all the bundles in the frameworks out to a common "Resources" directory to
@@ -493,7 +493,7 @@ struct ZipBuilder {
 
                 // Ignore anything that not a framework.
                 guard fileManager.isDirectory(at: frameworkPath),
-                  frameworkPath.lastPathComponent.hasSuffix("framework") else { continue }
+                      frameworkPath.lastPathComponent.hasSuffix("framework") else { continue }
                 let resourcesDir = frameworkPath.appendingPathComponent("Resources")
                 try fileManager.copyItem(at: xcResourceDir, to: resourcesDir)
               }
@@ -578,7 +578,7 @@ struct ZipBuilder {
     for podName in installedPods {
       // Skip the Firebase pod and specifically ignored frameworks.
       guard podName != "Firebase",
-        !podsToIgnore.contains(podName) else {
+            !podsToIgnore.contains(podName) else {
         continue
       }
 
@@ -771,7 +771,7 @@ struct ZipBuilder {
     let sortedPods = pods.sorted { $0.key < $1.key }
 
     // Get the name and version of each pod, padding it along the way.
-    var podVersions: String = ""
+    var podVersions = ""
     for pod in sortedPods {
       // Insert the name and enough spaces to reach the end of the column.
       let podName = pod.key
@@ -808,13 +808,15 @@ struct ZipBuilder {
     }
     var frameworks: [URL] = []
 
+    // TODO: packageAllResources is disabled for binary frameworks since it's not needed for Firebase
+    // and it does not yet support xcframeworks.
     // Package all resources into the frameworks since that's how Carthage needs it packaged.
-    do {
-      // TODO: Figure out if we need to exclude bundles here or not.
-      try ResourcesManager.packageAllResources(containedIn: podInfo.installedLocation)
-    } catch {
-      fatalError("Tried to package resources for \(podName) but it failed: \(error)")
-    }
+//    do {
+//      // TODO: Figure out if we need to exclude bundles here or not.
+//      try ResourcesManager.packageAllResources(containedIn: podInfo.installedLocation)
+//    } catch {
+//      fatalError("Tried to package resources for \(podName) but it failed: \(error)")
+//    }
 
     // Copy each of the frameworks to a known temporary directory and store the location.
     for framework in podInfo.binaryFrameworks {

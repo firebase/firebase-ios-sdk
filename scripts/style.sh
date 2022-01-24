@@ -42,7 +42,7 @@ version="${version/ (*)/}"
 version="${version/.*/}"
 
 case "$version" in
-  12)
+  13)
     ;;
   google3-trunk)
     echo "Please use a publicly released clang-format; a recent LLVM release"
@@ -158,8 +158,8 @@ s%^./%%
 # Sources pulled in by the Mint package manager
 \%^Mint% d
 
-# Auth Sample is not subject to formatting
-\%^(FirebaseAuth/Tests/Sample)/% d
+# Auth Sample Objective C does not format well
+\%^(FirebaseAuth/Tests/Sample/Sample)/% d
 
 # Keep Firebase.h indenting
 \%^CoreOnly/Sources/Firebase.h% d

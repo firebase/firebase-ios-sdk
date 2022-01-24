@@ -4,7 +4,8 @@ Pod::Spec.new do |s|
   s.summary          = 'Swift extensions with Combine support for Firebase'
 
   s.description      = <<-DESC
-Combine Publishers for Firebase.
+Firebase Combine is only supported with Swift Package Manager. This podspec is
+for internal testing only. It should not be published.
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
@@ -18,7 +19,7 @@ Combine Publishers for Firebase.
 
   s.social_media_url = 'https://twitter.com/Firebase'
 
-  s.swift_version         = '5.0'
+  s.swift_version         = '5.3'
 
   ios_deployment_target = '13.0'
   osx_deployment_target = '10.15'

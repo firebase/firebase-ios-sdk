@@ -35,7 +35,7 @@ fi
 
 # install clang-format
 brew update
-brew install clang-format@12
+brew install clang-format@13
 
 # mint installs tools from Mintfile on demand.
 brew install mint

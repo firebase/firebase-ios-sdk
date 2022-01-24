@@ -17,6 +17,7 @@
 #include "Firestore/core/src/core/transaction.h"
 
 #include <algorithm>
+#include <memory>
 #include <unordered_set>
 #include <utility>
 
@@ -47,8 +48,8 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-Transaction::Transaction(Datastore* datastore)
-    : datastore_{NOT_NULL(datastore)} {
+Transaction::Transaction(std::shared_ptr<Datastore> datastore)
+    : datastore_{datastore} {
 }
 
 Status Transaction::RecordVersion(const Document& doc) {
@@ -90,7 +91,14 @@ void Transaction::Lookup(const std::vector<DocumentKey>& keys,
     return;
   }
 
-  datastore_->LookupDocuments(
+  std::shared_ptr<Datastore> datastore = datastore_.lock();
+  if (!datastore) {
+    callback(Status(Error::kErrorFailedPrecondition,
+                    "The client has already been terminated."));
+    return;
+  }
+
+  datastore->LookupDocuments(
       keys,
       [this, callback](const StatusOr<std::vector<Document>>& maybe_documents) {
         if (!maybe_documents.ok()) {
@@ -206,7 +214,15 @@ void Transaction::Commit(util::StatusCallback&& callback) {
     mutations_.push_back(VerifyMutation(key, CreatePrecondition(key)));
   }
   committed_ = true;
-  datastore_->CommitMutations(mutations_, std::move(callback));
+
+  std::shared_ptr<Datastore> datastore = datastore_.lock();
+  if (!datastore) {
+    callback(Status(Error::kErrorFailedPrecondition,
+                    "The client has already been terminated."));
+    return;
+  }
+
+  datastore->CommitMutations(mutations_, std::move(callback));
 }
 
 void Transaction::MarkPermanentlyFailed() {

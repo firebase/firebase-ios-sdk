@@ -39,8 +39,8 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-using auth::User;
 using core::Query;
+using credentials::User;
 using leveldb::DB;
 using leveldb::Iterator;
 using leveldb::Status;

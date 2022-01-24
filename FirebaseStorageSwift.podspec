@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseStorageSwift'
-  s.version                 = '8.8.0-beta'
+  s.version                 = '8.12.0-beta'
   s.summary                 = 'Swift Extensions for Google Cloud Storage'
 
   s.description      = <<-DESC
@@ -17,7 +17,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     :tag => 'CocoaPods-' + s.version.to_s
   }
 
-  s.swift_version           = '5.0'
+  s.swift_version           = '5.3'
 
   ios_deployment_target = '10.0'
   osx_deployment_target = '10.12'

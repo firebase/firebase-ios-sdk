@@ -242,7 +242,7 @@ add_external_subdirectory(nanopb)
 
 target_compile_definitions(
   protobuf-nanopb-static PUBLIC
-  -DPB_FIELD_32BIT -DPB_ENABLE_MALLOC
+  -DPB_FIELD_32BIT -DPB_ENABLE_MALLOC -DPB_NO_PACKED_STRUCTS=1
 )
 
 # Enable #include <nanopb/pb.h>
@@ -261,6 +261,7 @@ if(FIREBASE_IOS_BUILD_TESTS)
   enable_testing()
 endif()
 
+add_subdirectory(FirebaseAppCheck/Sources/Interop/)
 add_subdirectory(FirebaseCore)
 add_subdirectory(Firestore)
 add_subdirectory(Interop/Auth)

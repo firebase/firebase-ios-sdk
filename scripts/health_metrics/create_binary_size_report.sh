@@ -24,14 +24,26 @@ set -ex
 BINARY_SIZE_SDK=()
 
 # In presubmits, `check` job in the health_metrics.yml workflow will turn on SDK flags if a corresponding
-# file path, in `scripts/health_metrics/code_coverage_file_list.json` is updated.
+# file path, in `scripts/health_metrics/file_patterns.json` is updated.
 # In postsubmits, all SDKs should be measured, so binary size data of all SDKs should be uploaded to a
 # merged commit. Next time a new PR can compare the head of the PR to a commit on the base branch.
 if [[ "${POSTSUBMIT}" == true || "${FirebaseABTesting}" == 'true' ]]; then
   BINARY_SIZE_SDK+=('FirebaseABTesting')
 fi
+if [[ "${POSTSUBMIT}" == true || "${FirebaseAnalytics}" == 'true' ]]; then
+  BINARY_SIZE_SDK+=('FirebaseAnalytics')
+fi
+if [[ "${POSTSUBMIT}" == true || "${FirebaseAppCheck}" == 'true' ]]; then
+  BINARY_SIZE_SDK+=('FirebaseAppCheck')
+fi
+if [[ "${POSTSUBMIT}" == true || "${FirebaseAppDistribution}" == 'true' ]]; then
+  BINARY_SIZE_SDK+=('FirebaseAppDistribution')
+fi
 if [[ "${POSTSUBMIT}" == true || "${FirebaseAuth}" == 'true' ]]; then
   BINARY_SIZE_SDK+=('FirebaseAuth')
+fi
+if [[ "${POSTSUBMIT}" == true || "${FirebaseCrashlytics}" == 'true' ]]; then
+  BINARY_SIZE_SDK+=('FirebaseCrashlytics')
 fi
 if [[ "${POSTSUBMIT}" == true || "${FirebaseDatabase}" == 'true' ]]; then
   BINARY_SIZE_SDK+=('FirebaseDatabase')
@@ -47,6 +59,9 @@ if [[ "${POSTSUBMIT}" == true || "${FirebaseFunctions}" == 'true' ]]; then
 fi
 if [[ "${POSTSUBMIT}" == true || "${FirebaseInAppMessaging}" == 'true' ]]; then
   BINARY_SIZE_SDK+=('FirebaseInAppMessaging')
+fi
+if [[ "${POSTSUBMIT}" == true || "${FirebaseInstallations}" == 'true' ]]; then
+  BINARY_SIZE_SDK+=('FirebaseInstallations')
 fi
 if [[ "${POSTSUBMIT}" == true || "${FirebaseMessaging}" == 'true' ]]; then
   BINARY_SIZE_SDK+=('FirebaseMessaging')

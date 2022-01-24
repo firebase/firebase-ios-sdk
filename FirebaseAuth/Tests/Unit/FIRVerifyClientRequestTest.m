@@ -34,6 +34,11 @@ static NSString *const kFakeAppToken = @"appToken";
  */
 static NSString *const kFakeAPIKey = @"APIKey";
 
+/** @var kFakeFirebaseAppID
+    @brief The fake Firebase app ID to use in the test request.
+ */
+static NSString *const kFakeFirebaseAppID = @"appID";
+
 /** @var kAppTokenKey
     @brief The key for the appToken request paramenter.
  */
@@ -82,7 +87,7 @@ static NSString *const kExpectedAPIURL =
  */
 - (void)testVerifyClientRequest {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kFakeAPIKey];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kFakeAPIKey appID:kFakeFirebaseAppID];
   FIRVerifyClientRequest *request =
       [[FIRVerifyClientRequest alloc] initWithAppToken:kFakeAppToken
                                              isSandbox:YES

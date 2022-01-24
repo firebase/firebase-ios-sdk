@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCore'
-  s.version          = '8.8.0'
+  s.version          = '8.12.0'
   s.summary          = 'Firebase Core'
 
   s.description      = <<-DESC
@@ -47,8 +47,8 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.tvos.framework = 'UIKit'
 
   # Remember to also update version in `cmake/external/GoogleUtilities.cmake`
-  s.dependency 'GoogleUtilities/Environment', '~> 7.4'
-  s.dependency 'GoogleUtilities/Logger', '~> 7.4'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.7'
+  s.dependency 'GoogleUtilities/Logger', '~> 7.7'
   s.dependency 'FirebaseCoreDiagnostics', '~> 8.0'
 
   s.pod_target_xcconfig = {

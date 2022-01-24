@@ -27,6 +27,11 @@
  */
 static NSString *const kTestAPIKey = @"APIKEY";
 
+/** @var kTestFirebaseAppID
+    @brief Fake Firebase app ID used for testing.
+ */
+static NSString *const kTestFirebaseAppID = @"APPID";
+
 /** @var kExpectedAPIURL
     @brief The expected URL for the test calls.
  */
@@ -176,7 +181,8 @@ static NSString *const kAccessToken = @"ACCESSTOKEN";
   FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
   self.RPCIssuer = RPCIssuer;
-  self.requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey];
+  self.requestConfiguration =
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey appID:kTestFirebaseAppID];
 }
 
 - (void)tearDown {

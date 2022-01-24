@@ -26,7 +26,7 @@ struct CombineSampleApp: App {
       NavigationView {
         MenuView()
       }
-      // see https://stackoverflow.com/questions/63740788/swiftui-displaymodebuttonitem-is-internally-managed
+      // see https://stackoverflow.com/q/63740788/281221
       .navigationViewStyle(StackNavigationViewStyle())
     }
   }

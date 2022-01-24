@@ -31,6 +31,7 @@
 #import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestArtifactStorage.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestKeyIDStorage.h"
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
+#import "FirebaseAppCheck/Sources/Core/Backoff/FIRAppCheckBackoffWrapper.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
 
 #import "FirebaseAppCheck/Sources/Core/Utils/FIRAppCheckCryptoUtils.h"
@@ -107,6 +108,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) id<FIRAppAttestService> appAttestService;
 @property(nonatomic, readonly) id<FIRAppAttestKeyIDStorageProtocol> keyIDStorage;
 @property(nonatomic, readonly) id<FIRAppAttestArtifactStorageProtocol> artifactStorage;
+@property(nonatomic, readonly) id<FIRAppCheckBackoffWrapperProtocol> backoffWrapper;
 
 @property(nonatomic, nullable) FBLPromise<FIRAppCheckToken *> *ongoingGetTokenOperation;
 
@@ -119,13 +121,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithAppAttestService:(id<FIRAppAttestService>)appAttestService
                               APIService:(id<FIRAppAttestAPIServiceProtocol>)APIService
                             keyIDStorage:(id<FIRAppAttestKeyIDStorageProtocol>)keyIDStorage
-                         artifactStorage:(id<FIRAppAttestArtifactStorageProtocol>)artifactStorage {
+                         artifactStorage:(id<FIRAppAttestArtifactStorageProtocol>)artifactStorage
+                          backoffWrapper:(id<FIRAppCheckBackoffWrapperProtocol>)backoffWrapper {
   self = [super init];
   if (self) {
     _appAttestService = appAttestService;
     _APIService = APIService;
     _keyIDStorage = keyIDStorage;
     _artifactStorage = artifactStorage;
+    _backoffWrapper = backoffWrapper;
     _queue = dispatch_queue_create("com.firebase.FIRAppAttestProvider", DISPATCH_QUEUE_SERIAL);
   }
   return self;
@@ -155,10 +159,13 @@ NS_ASSUME_NONNULL_BEGIN
                                                      appID:app.options.googleAppID
                                                accessGroup:app.options.appGroupID];
 
+  FIRAppCheckBackoffWrapper *backoffWrapper = [[FIRAppCheckBackoffWrapper alloc] init];
+
   return [self initWithAppAttestService:DCAppAttestService.sharedService
                              APIService:appAttestAPIService
                            keyIDStorage:keyIDStorage
-                        artifactStorage:artifactStorage];
+                        artifactStorage:artifactStorage
+                         backoffWrapper:backoffWrapper];
 #else   // FIR_APP_ATTEST_SUPPORTED_TARGETS
   return nil;
 #endif  // FIR_APP_ATTEST_SUPPORTED_TARGETS
@@ -185,7 +192,7 @@ NS_ASSUME_NONNULL_BEGIN
                               // Kick off a new handshake sequence only when there is not an ongoing
                               // handshake to avoid race conditions.
                               self.ongoingGetTokenOperation =
-                                  [self createGetTokenSequencePromise]
+                                  [self createGetTokenSequenceWithBackoffPromise]
 
                                       // Release the ongoing operation promise on completion.
                                       .then(^FIRAppCheckToken *(FIRAppCheckToken *token) {
@@ -199,6 +206,14 @@ NS_ASSUME_NONNULL_BEGIN
                             }
                             return self.ongoingGetTokenOperation;
                           }];
+}
+
+- (FBLPromise<FIRAppCheckToken *> *)createGetTokenSequenceWithBackoffPromise {
+  return [self.backoffWrapper
+      applyBackoffToOperation:^FBLPromise *_Nonnull {
+        return [self createGetTokenSequencePromise];
+      }
+                 errorHandler:[self.backoffWrapper defaultAppCheckProviderErrorHandler]];
 }
 
 - (FBLPromise<FIRAppCheckToken *> *)createGetTokenSequencePromise {
