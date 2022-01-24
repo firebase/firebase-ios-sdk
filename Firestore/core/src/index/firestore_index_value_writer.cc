@@ -154,7 +154,7 @@ void WriteIndexValueAux(const google_firestore_v1_Value& index_value,
     case google_firestore_v1_Value_integer_value_tag: {
       WriteValueTypeLabel(encoder, IndexType::kNumber);
       // Double and long sort the same
-      // TODO: Why?
+      // TODO(wuandy): Why?
       encoder->WriteDouble(index_value.integer_value);
       break;
     }
@@ -188,7 +188,7 @@ void WriteIndexValueAux(const google_firestore_v1_Value& index_value,
       break;
     }
     case google_firestore_v1_Value_map_value_tag:
-      // TODO: What is this for?
+      // TODO(wuandy): What is this for?
       /*
       if (model::Values::isMaxValue(index_value)) {
         writeValueTypeLabel(encoder, Integer.MAX_VALUE);

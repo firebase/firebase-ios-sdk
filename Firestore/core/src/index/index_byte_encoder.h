@@ -16,12 +16,14 @@
 #ifndef FIRESTORE_CORE_SRC_INDEX_INDEX_BYTE_ENCODER_H_
 #define FIRESTORE_CORE_SRC_INDEX_INDEX_BYTE_ENCODER_H_
 
+#include <memory>
 #include <string>
 
 #include "Firestore/core/src/model/field_index.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/ordered_code.h"
+#include "absl/memory/memory.h"
 #include "absl/strings/string_view.h"
 
 namespace firebase {

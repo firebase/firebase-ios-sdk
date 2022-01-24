@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef FIRESTORE_CORE_SRC_INDEX_FIRESTORE_INDEX_VALUE_WRITER_
-#define FIRESTORE_CORE_SRC_INDEX_FIRESTORE_INDEX_VALUE_WRITER_
+#ifndef FIRESTORE_CORE_SRC_INDEX_FIRESTORE_INDEX_VALUE_WRITER_H_
+#define FIRESTORE_CORE_SRC_INDEX_FIRESTORE_INDEX_VALUE_WRITER_H_
 
 #include "Firestore/core/src/index/index_byte_encoder.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
@@ -35,4 +35,4 @@ void WriteIndexValue(const google_firestore_v1_Value& value,
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_INDEX_FIRESTORE_INDEX_VALUE_WRITER_
+#endif  // FIRESTORE_CORE_SRC_INDEX_FIRESTORE_INDEX_VALUE_WRITER_H_
