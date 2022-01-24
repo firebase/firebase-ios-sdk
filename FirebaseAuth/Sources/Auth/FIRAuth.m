@@ -2263,10 +2263,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   } else {
 #if TARGET_OS_TV
     if (self.shareAuthStateAcrossDevices) {
-      FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
-                  @"Due to tvOS system limitations, getting a stored user for a given access "
-                  @"group is not supported on tvOS when sharing auth state across devices "
-                  @"(`shareAuthStateAcrossDevices`) is enabled (#8878). This case will return `nil`. ");
+      FIRLogError(
+          kFIRLoggerAuth, @"I-AUT000001",
+          @"Due to tvOS system limitations, getting a stored user for a given access "
+          @"group is not supported on tvOS when sharing auth state across devices "
+          @"(`shareAuthStateAcrossDevices`) is enabled (#8878). This case will return `nil`. ");
       return nil;
     }
 #endif  // TARGET_OS_TV
