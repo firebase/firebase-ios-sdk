@@ -223,7 +223,7 @@ inline void CopyInvertedBytes(char* dst, const char* src, size_t len) {
 // Append to "*dest" the "len" bytes starting from "*src", with inversion
 // iff INVERT is true.
 template <bool INVERT>
-inline static void AppendBytes(std::string* dest, const char* src, size_t len) {
+void AppendBytes(std::string* dest, const char* src, size_t len) {
   const size_t old_size = dest->size();
   absl::strings_internal::STLStringResizeUninitialized(dest, old_size + len);
   CopyInvertedBytes<INVERT>(&(*dest)[old_size], src, len);
