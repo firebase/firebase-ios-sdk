@@ -1,5 +1,5 @@
 # v8.12.0
-- [added] Added note to `getStoredUser(forAccessGroup:)` documentation about tvOS keychain sharing issues. (#8878)
+- [added] Added documentation note and error logging to `getStoredUser(forAccessGroup:)` regarding tvOS keychain sharing issues. (#8878)
 
 # v8.11.0
 - [changed] Added a `X-Firebase-GMPID` header to network requests. (#9046)
