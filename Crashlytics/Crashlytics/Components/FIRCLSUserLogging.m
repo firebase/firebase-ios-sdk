@@ -32,7 +32,10 @@ NSString *const FIRCLSUserIdentifierKey = @"com.crashlytics.user-id";
 NSString *const FIRCLSDevelopmentPlatformNameKey = @"com.crashlytics.development-platform-name";
 NSString *const FIRCLSDevelopmentPlatformVersionKey =
     @"com.crashlytics.development-platform-version";
-NSString *const FIRCLSFlutterOnDemandExceptionKey = @"com.crashlytics.on-demand-flutter-exception";
+NSString *const FIRCLSFlutterOnDemandRecordedExceptionsKey =
+    @"com.crashlytics.on-demand-recorded-flutter-exceptions";
+NSString *const FIRCLSFlutterOnDemandDroppedExceptionsKey =
+    @"com.crashlytics.on-demand-dropped-flutter-exceptions";
 
 // Empty string object synchronized on to prevent a race condition when accessing AB file path
 NSString *const FIRCLSSynchronizedPathKey = @"";

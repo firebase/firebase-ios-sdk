@@ -23,11 +23,11 @@
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSSymbolResolver.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSOnDemandModel.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSSymbolResolver.h"
 #import "Crashlytics/Crashlytics/Models/Record/FIRCLSReportAdapter.h"
 #import "Crashlytics/Crashlytics/Operations/Reports/FIRCLSProcessReportOperation.h"
+#import "Crashlytics/Crashlytics/Private/FIRCLSOnDemandModel_Private.h"
 
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
 
@@ -62,7 +62,10 @@
   _installIDModel = managerData.installIDModel;
   _fileManager = managerData.fileManager;
   _analytics = managerData.analytics;
-  _onDemandModel = [[FIRCLSOnDemandModel alloc] initWithOnDemandUploadRate:[managerData.settings initialOnDemandUploadRate] baseExponent:[managerData.settings onDemandBackoffBaseExponent] stepDuration:[managerData.settings onDemandBackoffStepDuration]];
+  _onDemandModel = [[FIRCLSOnDemandModel alloc]
+      initWithOnDemandUploadRate:[managerData.settings initialOnDemandUploadRate]
+                    baseExponent:[managerData.settings onDemandBackoffBaseExponent]
+                    stepDuration:[managerData.settings onDemandBackoffStepDuration]];
   return self;
 }
 

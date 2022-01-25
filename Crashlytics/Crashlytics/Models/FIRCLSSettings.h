@@ -114,7 +114,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Base exponent used when exponential backoff is triggered for on-demand reporting.
  */
-@property(nonatomic, readonly) uint32_t onDemandBackoffBaseExponent;
+@property(nonatomic, readonly) double onDemandBackoffBaseExponent;
 
 /**
  * Step duration to use with exponential backoff for on-demand reporting.

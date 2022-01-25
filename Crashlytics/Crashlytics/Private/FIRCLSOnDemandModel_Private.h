@@ -18,10 +18,14 @@
 #import <Foundation/Foundation.h>
 
 #import "Crashlytics/Crashlytics/Models/FIRCLSOnDemandModel.h"
+#import "Crashlytics/Crashlytics/Private/FIRCLSExistingReportManager_Private.h"
+#import "Crashlytics/Crashlytics/Private/FIRExceptionModel_Private.h"
 
 @interface FIRCLSOnDemandModel (Private)
 
-- (BOOL)canRecordOnDemandException;
+- (BOOL)recordOnDemandExceptionIfQuota:(FIRExceptionModel*)exceptionModel
+             withDataCollectionEnabled:(BOOL)dataCollectionEnabled
+            usingExistingReportManager:(FIRCLSExistingReportManager*)existingReportManager;
 
 @end
 

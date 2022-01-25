@@ -250,11 +250,13 @@ NSInteger compareNewer(FIRCLSInternalReport *reportA,
 
 - (void)handleOnDemandReportUpload:(NSString *)path
                dataCollectionToken:(FIRCLSDataCollectionToken *)dataCollectionToken
+                         withDelay:(double)uploadDelay
                           asUrgent:(BOOL)urgent {
-  
-  [self processExistingActiveReportPath:path
-                                          dataCollectionToken:dataCollectionToken
-                                                     asUrgent:YES];
+  dispatch_after(uploadDelay, self.operationQueue.underlyingQueue, ^{
+    [self processExistingActiveReportPath:path
+                      dataCollectionToken:dataCollectionToken
+                                 asUrgent:YES];
+  });
 }
 
 @end

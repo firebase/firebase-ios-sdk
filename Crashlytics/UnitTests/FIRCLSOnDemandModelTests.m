@@ -12,18 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <Foundation/Foundation.h>
+#import <XCTest/XCTest.h>
 
-NS_SWIFT_NAME(OnDemandModel)
-@interface FIRCLSOnDemandModel : NSObject
+#import "Crashlytics/Crashlytics/Private/FIRCLSOnDemandModel_Private.h"
 
-- (instancetype)init NS_UNAVAILABLE;
+@interface FIRCLSOnDemandModelTests : XCTestCase
 
-- (instancetype)initWithOnDemandUploadRate:(int)uploadRate
-                              baseExponent:(double)baseExponent
-                              stepDuration:(int)stepDuration;
+@end
 
-- (NSInteger)getOnDemandEventCountForCurrentRun;
-- (NSInteger)getDroppedOnDemandEventCountForCurrentRun;
+@implementation FIRCLSOnDemandModelTests
+
+- (void)testRecordedExceptionsCount {
+  FIRCLSOnDemandModel *onDemandModel = [[FIRCLSOnDemandModel alloc] initWithOnDemandUploadRate:10 baseExponenet:2 stepDuration:6];
+}
+
+- (void)testDroppedExceptionsCount {
+  
+}
+
+- (void)testCompliesWithDataCollectionOff {
+  
+}
+
+- (void)testExceptionNotRecordedIfNoQuota {
+  
+}
+
+- (void)testQueueFull {
+  
+}
+
 
 @end

@@ -47,8 +47,8 @@
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportUploader.h"
 #import "Crashlytics/Crashlytics/Private/FIRCLSExistingReportManager_Private.h"
+#import "Crashlytics/Crashlytics/Private/FIRCLSOnDemandModel_Private.h"
 #import "Crashlytics/Crashlytics/Private/FIRExceptionModel_Private.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSOnDemandModel_Private.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
@@ -128,8 +128,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     _dataArbiter = [[FIRCLSDataCollectionArbiter alloc] initWithApp:app withAppInfo:appInfo];
 
     FIRCLSApplicationIdentifierModel *appModel = [[FIRCLSApplicationIdentifierModel alloc] init];
-    _settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager
-                                                                appIDModel:appModel];
+    _settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager appIDModel:appModel];
 
     _managerData = [[FIRCLSManagerData alloc] initWithGoogleAppID:_googleAppID
                                                   googleTransport:googleTransport
@@ -357,27 +356,10 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 }
 
 - (void)recordOnDemandExceptionModel:(FIRExceptionModel *)exceptionModel {
-  // Record the exception model into a new report if there is unused on-demand quota. Otherwise,
-  // log the occurence but drop the event.
-  if ([self.reportUploader.onDemandModel canRecordOnDemandException]) {
-    FIRCLSDataCollectionToken *dataCollectionToken = [FIRCLSDataCollectionToken validToken];
-    NSString *activeReportPath = FIRCLSExceptionRecordOnDemandModel(exceptionModel);
-    
-    // Only submit an exception report if data collection is enabled. Otherwise, the report
-    // is stored until send or delete unsent reports is called.
-    if ([self.dataArbiter isCrashlyticsCollectionEnabled]) {
-      if (activeReportPath) {
-        [self.existingReportManager handleOnDemandReportUpload:activeReportPath
-                                                dataCollectionToken:dataCollectionToken
-                                                           asUrgent:YES];
-        FIRCLSSDKLog("Submitted an on-demand exception\n");
-      } else {
-        FIRCLSSDKLog("Invalid path for on-demand exception.\n");
-      }
-    }
-  } else {
-    FIRCLSSDKLog("No available on-demand quota.");
-  }
+  [self.reportUploader.onDemandModel
+      recordOnDemandExceptionIfQuota:exceptionModel
+           withDataCollectionEnabled:[self.dataArbiter isCrashlyticsCollectionEnabled]
+          usingExistingReportManager:self.existingReportManager];
 }
 
 @end
