@@ -122,7 +122,7 @@ bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
         FIRCLSContextAppendToRoot(rootPath, FIRCLSReportErrorAFile);
     _firclsContext.readonly->logging.errorStorage.bPath =
         FIRCLSContextAppendToRoot(rootPath, FIRCLSReportErrorBFile);
-    
+
     _firclsContext.readonly->logging.logStorage.maxSize = initData->maxLogSize;
     _firclsContext.readonly->logging.logStorage.maxEntries = 0;
     _firclsContext.readonly->logging.logStorage.restrictBySize = true;
