@@ -626,7 +626,9 @@ NS_SWIFT_NAME(Auth)
     @param completion Optionally; a block which is invoked when the request finishes. Invoked
         asynchronously on the main thread in the future.
  */
-- (void)checkActionCode:(NSString *)code completion:(FIRCheckActionCodeCallBack)completion;
+- (void)checkActionCode:(NSString *)code
+             completion:
+                 (void (^)(FIRActionCodeInfo *_Nullable info, NSError *_Nullable error))completion;
 
 /** @fn verifyPasswordResetCode:completion:
     @brief Checks the validity of a verify password reset code.
