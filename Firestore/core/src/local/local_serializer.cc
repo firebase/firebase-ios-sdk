@@ -27,6 +27,7 @@
 #include "Firestore/Protos/nanopb/firestore/local/mutation.nanopb.h"
 #include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/Protos/nanopb/google/firestore/v1/write.nanopb.h"
 #include "Firestore/core/src/bundle/bundle_metadata.h"
 #include "Firestore/core/src/bundle/named_query.h"
 #include "Firestore/core/src/core/query.h"
