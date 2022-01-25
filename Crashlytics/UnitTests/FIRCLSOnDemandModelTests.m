@@ -23,24 +23,21 @@
 @implementation FIRCLSOnDemandModelTests
 
 - (void)testRecordedExceptionsCount {
-  FIRCLSOnDemandModel *onDemandModel = [[FIRCLSOnDemandModel alloc] initWithOnDemandUploadRate:10 baseExponenet:2 stepDuration:6];
+  FIRCLSOnDemandModel *onDemandModel = [[FIRCLSOnDemandModel alloc] initWithOnDemandUploadRate:10
+                                                                                 baseExponenet:2
+                                                                                  stepDuration:6];
 }
 
 - (void)testDroppedExceptionsCount {
-  
 }
 
 - (void)testCompliesWithDataCollectionOff {
-  
 }
 
 - (void)testExceptionNotRecordedIfNoQuota {
-  
 }
 
 - (void)testQueueFull {
-  
 }
-
 
 @end
