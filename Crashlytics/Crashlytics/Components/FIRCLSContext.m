@@ -15,6 +15,7 @@
 #include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 #import "Crashlytics/Shared/FIRCLSConstants.h"
 
@@ -76,17 +77,6 @@ FIRCLSContextInitData FIRCLSContextBuildInitData(FIRCLSInternalReport* report,
   return initData;
 }
 
-FIRCLSUserLoggingABStorage FIRCLSContextInitializeLogStorage(int maxLogSize, NSString* rootPath) {
-  FIRCLSUserLoggingABStorage logStorage;
-  logStorage.maxSize = maxLogSize;
-  logStorage.maxEntries = 0;
-  logStorage.restrictBySize = true;
-  logStorage.entryCount = NULL;
-  logStorage.aPath = FIRCLSContextAppendToRoot(rootPath, FIRCLSReportLogAFile);
-  logStorage.bPath = FIRCLSContextAppendToRoot(rootPath, FIRCLSReportLogBFile);
-  return logStorage;
-}
-
 bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
                              FIRCLSSettings* settings,
                              FIRCLSFileManager* fileManager) {
@@ -132,9 +122,14 @@ bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
         FIRCLSContextAppendToRoot(rootPath, FIRCLSReportErrorAFile);
     _firclsContext.readonly->logging.errorStorage.bPath =
         FIRCLSContextAppendToRoot(rootPath, FIRCLSReportErrorBFile);
-
-    _firclsContext.readonly->logging.logStorage =
-        FIRCLSContextInitializeLogStorage(initData->maxLogSize, rootPath);
+    _firclsContext.readonly->logging.logStorage.maxSize = initData->maxLogSize;
+    _firclsContext.readonly->logging.logStorage.maxEntries = 0;
+    _firclsContext.readonly->logging.logStorage.restrictBySize = true;
+    _firclsContext.readonly->logging.logStorage.entryCount = NULL;
+    _firclsContext.readonly->logging.logStorage.aPath =
+        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportLogAFile);
+    _firclsContext.readonly->logging.logStorage.bPath =
+        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportLogBFile);
 
     _firclsContext.readonly->logging.customExceptionStorage.aPath =
         FIRCLSContextAppendToRoot(rootPath, FIRCLSReportCustomExceptionAFile);
