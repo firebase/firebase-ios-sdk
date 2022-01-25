@@ -143,7 +143,8 @@ void WriteIndexValueAux(const google_firestore_v1_Value& index_value,
     }
     case google_firestore_v1_Value_integer_value_tag: {
       WriteValueTypeLabel(encoder, IndexType::kNumber);
-      // Write as double instead integer so 0 and 0.0 are considered the same.
+      // Write as double instead of integer so 0 and 0.0 are considered the
+      // same.
       encoder->WriteDouble(index_value.integer_value);
       break;
     }
