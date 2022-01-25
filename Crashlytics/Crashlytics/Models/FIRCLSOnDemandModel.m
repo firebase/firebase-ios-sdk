@@ -155,7 +155,6 @@ static const double SEC_PER_MINUTE = 60;
     self.lastUpdated = currentTime;
   }
 
-  NSLog(@"on-demand queue is full? %d, duration is %0.2f \n", queueIsFull, calculatedDuration);
   return calculatedDuration;
 }
 
@@ -187,9 +186,8 @@ static const double SEC_PER_MINUTE = 60;
 }
 
 - (BOOL)isQueueFull {
-  NSLog(@"queued on-demand exception count: %d", self.queuedOperations);
-  BOOL full = [self incrementQueuedOperationCount:0] >= self.uploadRate;
-  return full;
+  return [self incrementQueuedOperationCount:0] >= self.uploadRate;
+  ;
 }
 
 @end
