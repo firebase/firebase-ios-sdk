@@ -122,6 +122,7 @@ bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
         FIRCLSContextAppendToRoot(rootPath, FIRCLSReportErrorAFile);
     _firclsContext.readonly->logging.errorStorage.bPath =
         FIRCLSContextAppendToRoot(rootPath, FIRCLSReportErrorBFile);
+    
     _firclsContext.readonly->logging.logStorage.maxSize = initData->maxLogSize;
     _firclsContext.readonly->logging.logStorage.maxEntries = 0;
     _firclsContext.readonly->logging.logStorage.restrictBySize = true;
@@ -130,7 +131,6 @@ bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
         FIRCLSContextAppendToRoot(rootPath, FIRCLSReportLogAFile);
     _firclsContext.readonly->logging.logStorage.bPath =
         FIRCLSContextAppendToRoot(rootPath, FIRCLSReportLogBFile);
-
     _firclsContext.readonly->logging.customExceptionStorage.aPath =
         FIRCLSContextAppendToRoot(rootPath, FIRCLSReportCustomExceptionAFile);
     _firclsContext.readonly->logging.customExceptionStorage.bPath =
