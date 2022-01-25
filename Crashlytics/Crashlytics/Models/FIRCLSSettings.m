@@ -344,7 +344,7 @@ NSString *const AppVersion = @"app_version";
     return [value doubleValue];
   }
 
-  return 2;  // base exponent for exponential backoff
+  return 1.2;  // base exponent for exponential backoff
 }
 
 - (uint32_t)onDemandBackoffStepDuration {

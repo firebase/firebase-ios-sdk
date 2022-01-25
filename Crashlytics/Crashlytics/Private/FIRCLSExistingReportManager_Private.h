@@ -30,7 +30,6 @@
 
 - (void)handleOnDemandReportUpload:(NSString *)path
                dataCollectionToken:(FIRCLSDataCollectionToken *)dataCollectionToken
-                         withDelay:(double)uploadDelay
                           asUrgent:(BOOL)urgent;
 @end
 
