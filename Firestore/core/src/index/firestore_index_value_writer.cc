@@ -178,6 +178,8 @@ void WriteIndexValueAux(const google_firestore_v1_Value& index_value,
       break;
     }
     case google_firestore_v1_Value_map_value_tag:
+      // model::MaxValue() is sentinel map value (see the comment there).
+      // In that case, we encode the max int value instead.
       if (model::IsMaxValue(index_value)) {
         WriteValueTypeLabel(encoder, std::numeric_limits<int>::max());
         break;
