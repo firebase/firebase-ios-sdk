@@ -23,15 +23,15 @@ import FirebaseCore
 /// This file tests public methods and enums. Properties are not included.
 /// Each function maps to a public header file.
 
-class AuthApiBuildOnlyTests: XCTestCase {
+class AuthAPI_hOnlyTests: XCTestCase {
   // Each function corresponds with a public header.
-  func FIRActionCodeSettingsBuild() {
+  func FIRActionCodeSettings_h() {
     let codeSettings = FirebaseAuth.ActionCodeSettings()
     codeSettings.setIOSBundleID("abc")
     codeSettings.setAndroidPackageName("name", installIfNotAvailable: true, minimumVersion: "10.0")
   }
 
-  func FIRAuthBuild() throws {
+  func FIRAuth_h() throws {
     let auth = FirebaseAuth.Auth.auth()
     let authApp = FirebaseAuth.Auth.auth(app: FirebaseApp.app()!)
     let user = auth.currentUser!
@@ -92,7 +92,7 @@ class AuthApiBuildOnlyTests: XCTestCase {
 
   #if compiler(>=5.5) && canImport(_Concurrency)
     @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
-    func FIRAuthBuildAsync() async throws {
+    func FIRAuth_hAsync() async throws {
       let auth = FirebaseAuth.Auth.auth()
       let user = auth.currentUser!
       try await auth.updateCurrentUser(user)
@@ -120,13 +120,13 @@ class AuthApiBuildOnlyTests: XCTestCase {
     }
   #endif
 
-  func FIRAuthAPNSTokenTypeBuild() {
+  func FIRAuthAPNSTokenType_h() {
     _ = AuthAPNSTokenType.unknown
     _ = AuthAPNSTokenType.sandbox
     _ = AuthAPNSTokenType.prod
   }
 
-  func FIRAuthErrorsBuild() {
+  func FIRAuthErrors_h() {
     _ = AuthErrorCode.invalidCustomToken
     _ = AuthErrorCode.customTokenMismatch
     _ = AuthErrorCode.invalidCredential
@@ -208,7 +208,7 @@ class AuthApiBuildOnlyTests: XCTestCase {
     _ = AuthErrorCode.malformedJWT
   }
 
-  func FIRAuthUIDelegateBuild() {
+  func FIRAuthUIDelegate_h() {
     class AuthUIImpl: NSObject, AuthUIDelegate {
       func present(_ viewControllerToPresent: UIViewController, animated flag: Bool,
                    completion: (() -> Void)? = nil) {}
@@ -222,7 +222,7 @@ class AuthApiBuildOnlyTests: XCTestCase {
 
   #if compiler(>=5.5) && canImport(_Concurrency)
     @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
-    func FIRAuthUIDelegateBuildAsync() async {
+    func FIRAuthUIDelegate_hAsync() async {
       class AuthUIImpl: NSObject, AuthUIDelegate {
         func present(_ viewControllerToPresent: UIViewController, animated flag: Bool) async {}
 
@@ -234,16 +234,16 @@ class AuthApiBuildOnlyTests: XCTestCase {
     }
   #endif
 
-  func FIREmailAuthProviderBuild() {
+  func FIREmailAuthProvider_h() {
     _ = EmailAuthProvider.credential(withEmail: "e@email.com", password: "password")
     _ = EmailAuthProvider.credential(withEmail: "e@email.com", link: "link")
   }
 
-  func FIRFacebookAuthProviderBuild() {
+  func FIRFacebookAuthProvider_h() {
     _ = FacebookAuthProvider.credential(withAccessToken: "token")
   }
 
-  func FIRFdederatedAuthProviderBuild() {
+  func FIRFdederatedAuthProvider_h() {
     class FederatedAuthImplementation: NSObject, FederatedAuthProvider {
       func getCredentialWith(_ UIDelegate: AuthUIDelegate?,
                              completion: ((AuthCredential?, Error?) -> Void)? = nil) {}
@@ -255,7 +255,7 @@ class AuthApiBuildOnlyTests: XCTestCase {
 
   #if compiler(>=5.5) && canImport(_Concurrency)
     @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
-    func FIRFedederatedAuthProviderBuildAsync() async throws {
+    func FIRFedederatedAuthProvider_hAsync() async throws {
       class FederatedAuthImplementation: NSObject, FederatedAuthProvider {
         func credential(with UIDelegate: AuthUIDelegate?) async throws -> AuthCredential {
           return FacebookAuthProvider.credential(withAccessToken: "token")
@@ -266,27 +266,27 @@ class AuthApiBuildOnlyTests: XCTestCase {
     }
   #endif
 
-  func FIRGameCenterAuthProviderBuild() {
+  func FIRGameCenterAuthProvider_h() {
     GameCenterAuthProvider.getCredential { _, _ in
     }
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
     @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
-    func FIRGameCenterAuthProviderBuildAsync() async throws {
+    func FIRGameCenterAuthProvider_hAsync() async throws {
       _ = try await GameCenterAuthProvider.getCredential()
     }
   #endif
 
-  func FIRGitHubAuthProviderBuild() {
+  func FIRGitHubAuthProvider_h() {
     _ = GitHubAuthProvider.credential(withToken: "token")
   }
 
-  func FIRGoogleAuthProviderBuild() {
+  func FIRGoogleAuthProvider_h() {
     _ = GoogleAuthProvider.credential(withIDToken: "token", accessToken: "aToken")
   }
 
-  func FIRMultiFactorBuild() {
+  func FIRMultiFactor_h() {
     let obj = MultiFactor()
     obj.getSessionWithCompletion { _, _ in
     }
@@ -300,7 +300,7 @@ class AuthApiBuildOnlyTests: XCTestCase {
 
   #if compiler(>=5.5) && canImport(_Concurrency)
     @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
-    func FIRMultiFactorBuildAsync() async throws {
+    func FIRMultiFactor_hAsync() async throws {
       let obj = MultiFactor()
       try await obj.session()
       try await obj.enroll(with: MultiFactorAssertion(), displayName: "name")
@@ -309,7 +309,7 @@ class AuthApiBuildOnlyTests: XCTestCase {
     }
   #endif
 
-  func FIRMultiFactorResolverBuild() {
+  func FIRMultiFactorResolver_h() {
     let obj = MultiFactorResolver()
     obj.resolveSignIn(with: MultiFactorAssertion()) { _, _ in
     }
@@ -317,13 +317,13 @@ class AuthApiBuildOnlyTests: XCTestCase {
 
   #if compiler(>=5.5) && canImport(_Concurrency)
     @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
-    func FIRMultiFactorResolverBuildAsync() async throws {
+    func FIRMultiFactorResolver_hAsync() async throws {
       let obj = MultiFactorResolver()
       try await obj.resolveSignIn(with: MultiFactorAssertion())
     }
   #endif
 
-  func FIROAuthProviderBuild() {
+  func FIROAuthProvider_h() {
     let provider = OAuthProvider(providerID: "id", auth: FirebaseAuth.Auth.auth())
     _ = provider.providerID
     _ = OAuthProvider.credential(withProviderID: "id", idToken: "idToden", accessToken: "token")
@@ -333,7 +333,7 @@ class AuthApiBuildOnlyTests: XCTestCase {
     _ = OAuthProvider.credential(withProviderID: "id", idToken: "idToken", rawNonce: "nonce")
   }
 
-  func FIRPhoneAuthProviderBuild() {
+  func FIRPhoneAuthProvider_h() {
     _ = PhoneAuthProvider.provider()
     let provider = PhoneAuthProvider.provider(auth: FirebaseAuth.Auth.auth())
     provider.verifyPhoneNumber("123", uiDelegate: nil) { _, _ in
@@ -353,7 +353,7 @@ class AuthApiBuildOnlyTests: XCTestCase {
 
   #if compiler(>=5.5) && canImport(_Concurrency)
     @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
-    func FIRPhoneAuthProviderBuildAsync() async throws {
+    func FIRPhoneAuthProvider_hAsync() async throws {
       _ = PhoneAuthProvider.provider()
       let provider = PhoneAuthProvider.provider(auth: FirebaseAuth.Auth.auth())
       try await provider.verifyPhoneNumber("123", uiDelegate: nil)
@@ -364,17 +364,17 @@ class AuthApiBuildOnlyTests: XCTestCase {
     }
   #endif
 
-  func FIRPhoneMultiFactorGeneratorBuild() {
+  func FIRPhoneMultiFactorGenerator_h() {
     let credential = PhoneAuthProvider.provider().credential(withVerificationID: "id",
                                                              verificationCode: "code")
     PhoneMultiFactorGenerator.assertion(with: credential)
   }
 
-  func FIRTwitterAuthProviderBuild() {
+  func FIRTwitterAuthProvider_h() {
     _ = TwitterAuthProvider.credential(withToken: "token", secret: "secret")
   }
 
-  func FIRUserBuild() {
+  func FIRUser_h() {
     let auth = FirebaseAuth.Auth.auth()
     let user = auth.currentUser!
     let credential = PhoneAuthProvider.provider().credential(withVerificationID: "id",
@@ -425,7 +425,7 @@ class AuthApiBuildOnlyTests: XCTestCase {
 
   #if compiler(>=5.5) && canImport(_Concurrency)
     @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
-    func FIRUserBuildAsync() async throws {
+    func FIRUser_hAsync() async throws {
       let auth = FirebaseAuth.Auth.auth()
       let user = auth.currentUser!
       let credential = PhoneAuthProvider.provider().credential(withVerificationID: "id",
