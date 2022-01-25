@@ -148,6 +148,10 @@ std::shared_ptr<FirestoreClient> FirestoreClient::Create(
       [weak_client](const std::string&) {
         auto shared_client = weak_client.lock();
         if (!shared_client) return;
+        // It is okay to ignore an App Check token change notification if
+        // FirestoreClient::Initialize has not been invoked yet because
+        // once initialization does occur, setting up new watch streams will use
+        // the latest App Check token available.
         if (shared_client->credentials_initialized_) {
           shared_client->worker_queue_->Enqueue([shared_client] {
             LOG_DEBUG("App Check token Changed.");
