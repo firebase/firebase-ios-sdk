@@ -31,7 +31,7 @@ typedef enum {
   FIRCLSExceptionTypeCpp = 2,
   // 3 was FIRCLSExceptionTypeJavascript
   // Keeping these numbers the same just to be safe
-  FIRCLSExceptionTypeCustom = 4,
+  FIRCLSExceptionTypeCustom = 4
 } FIRCLSExceptionType;
 
 typedef struct {

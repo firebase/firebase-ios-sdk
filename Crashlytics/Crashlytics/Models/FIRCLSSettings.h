@@ -109,7 +109,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Returns the initial upload rate for on-demand exception reporting.
  */
-@property(nonatomic, readonly) uint32_t initialOnDemandUploadRate;
+@property(nonatomic, readonly) uint32_t onDemandUploadRate;
 
 /**
  * Base exponent used when exponential backoff is triggered for on-demand reporting.

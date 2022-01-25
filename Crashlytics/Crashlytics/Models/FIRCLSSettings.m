@@ -327,7 +327,7 @@ NSString *const AppVersion = @"app_version";
 
 #pragma mark - On Demand Reporting Parameters
 
-- (uint32_t)initialOnDemandUploadRate {
+- (uint32_t)onDemandUploadRate {
   NSNumber *value = [self sessionSettings][@"on_demand_upload_rate"];
 
   if (value != nil) {

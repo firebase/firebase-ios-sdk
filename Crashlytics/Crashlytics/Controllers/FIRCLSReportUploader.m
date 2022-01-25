@@ -63,7 +63,7 @@
   _fileManager = managerData.fileManager;
   _analytics = managerData.analytics;
   _onDemandModel = [[FIRCLSOnDemandModel alloc]
-      initWithOnDemandUploadRate:[managerData.settings initialOnDemandUploadRate]
+      initWithOnDemandUploadRate:[managerData.settings onDemandUploadRate]
                     baseExponent:[managerData.settings onDemandBackoffBaseExponent]
                     stepDuration:[managerData.settings onDemandBackoffStepDuration]];
   return self;
