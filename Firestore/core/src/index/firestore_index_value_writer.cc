@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "Firestore/core/src/index/firestore_index_value_writer.h"
 
 #include <cmath>
@@ -51,18 +52,6 @@ enum IndexType {
   // This must be smaller than all other type labels.
   kNotTruncated = 2
 };
-
-// The write methods below short-circuit writing terminators for values
-// containing a (terminating) truncated value.
-//
-// As an example, consider the resulting encoding for:
-//
-// ["bar", [2, "foo"]] -> (STRING, "bar", TERM, ARRAY, NUMBER, 2, STRING, "foo",
-// TERM, TERM, TERM)
-// ["bar", [2, truncated("foo")]] -> (STRING, "bar", TERM, ARRAY, NUMBER, 2,
-// STRING, "foo", TRUNC)
-// ["bar", truncated(["foo"])] -> (STRING, "bar", TERM, ARRAY. STRING, "foo",
-// TERM, TRUNC)
 
 void WriteValueTypeLabel(DirectionalIndexByteEncoder* encoder, int type_order) {
   encoder->WriteLong(type_order);

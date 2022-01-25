@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #ifndef FIRESTORE_CORE_SRC_INDEX_INDEX_BYTE_ENCODER_H_
 #define FIRESTORE_CORE_SRC_INDEX_INDEX_BYTE_ENCODER_H_
 
@@ -33,6 +34,8 @@ namespace index {
 /** An index value encoder. */
 class DirectionalIndexByteEncoder {
  public:
+  virtual ~DirectionalIndexByteEncoder() = default;
+
   virtual void WriteBytes(pb_bytes_array_t* val) = 0;
 
   virtual void WriteString(absl::string_view val) = 0;
@@ -42,8 +45,6 @@ class DirectionalIndexByteEncoder {
   virtual void WriteDouble(double val) = 0;
 
   virtual void WriteInfinity() = 0;
-
-  virtual ~DirectionalIndexByteEncoder() = default;
 };
 
 class AscendingIndexByteEncoder;
@@ -86,6 +87,7 @@ class IndexEncodingBuffer {
  private:
   friend class AscendingIndexByteEncoder;
   friend class DescendingIndexByteEncoder;
+
   std::string buffer_;
   std::unique_ptr<AscendingIndexByteEncoder> ascendingEncoder_;
   std::unique_ptr<DescendingIndexByteEncoder> descendingEncoder_;
