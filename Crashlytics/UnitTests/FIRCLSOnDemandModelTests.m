@@ -15,20 +15,28 @@
 #import <XCTest/XCTest.h>
 
 #import "Crashlytics/Crashlytics/Private/FIRCLSOnDemandModel_Private.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockOnDemandModel.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockSettings.h"
 
 @interface FIRCLSOnDemandModelTests : XCTestCase
+
+@property(nonatomic, retain) FIRCLSMockOnDemandModel *onDemandModel;
 
 @end
 
 @implementation FIRCLSOnDemandModelTests
 
-- (void)testRecordedExceptionsCount {
-  FIRCLSOnDemandModel *onDemandModel = [[FIRCLSOnDemandModel alloc] initWithOnDemandUploadRate:10
-                                                                                 baseExponenet:2
-                                                                                  stepDuration:6];
+- (void)setUp {
+  [super setUp];
+  _onDemandModel = [[FIRCLSMockOnDemandModel alloc] initWithOnDemandUploadRate:15
+                                                                  baseExponent:5
+                                                                  stepDuration:10];
 }
 
-- (void)testDroppedExceptionsCount {
+- (void)tearDown {
+  self.onDemandModel = nil;
+
+  [super tearDown];
 }
 
 - (void)testCompliesWithDataCollectionOff {
