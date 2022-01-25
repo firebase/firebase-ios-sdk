@@ -443,14 +443,21 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 
 - (void)createTableWithName:(NSString *)tableName command:(NSString *)command {
   FIRMessaging_MUST_NOT_BE_MAIN_THREAD();
-  char *error;
+  char *error = NULL;
   NSString *createDatabase = [NSString stringWithFormat:command, kTablePrefix, tableName];
   if (sqlite3_exec(self->_database, [createDatabase UTF8String], NULL, NULL, &error) != SQLITE_OK) {
     // remove db before failing
     [self removeDatabase];
-    NSString *errorMessage = [NSString
-        stringWithFormat:@"Couldn't create table: %@ %@", kCreateTableOutgoingRmqMessages,
-                         [NSString stringWithCString:error encoding:NSUTF8StringEncoding]];
+    NSString *sqlError;
+    if (error != NULL) {
+      sqlError = [NSString stringWithCString:error encoding:NSUTF8StringEncoding];
+      sqlite3_free(error);
+    } else {
+      sqlError = @"(null)";
+    }
+    NSString *errorMessage =
+        [NSString stringWithFormat:@"Couldn't create table: %@ with command: %@ error: %@",
+                                   kCreateTableOutgoingRmqMessages, createDatabase, sqlError];
     FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStoreErrorCreatingTable, @"%@",
                             errorMessage);
     NSAssert(NO, errorMessage);
