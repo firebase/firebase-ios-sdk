@@ -90,7 +90,6 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
 // Dependencies common to each of the Controllers
 @property(nonatomic, strong) FIRCLSManagerData *managerData;
-@property(nonatomic, strong) FIRCLSSettings *settings;
 
 @end
 
@@ -128,7 +127,8 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     _dataArbiter = [[FIRCLSDataCollectionArbiter alloc] initWithApp:app withAppInfo:appInfo];
 
     FIRCLSApplicationIdentifierModel *appModel = [[FIRCLSApplicationIdentifierModel alloc] init];
-    _settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager appIDModel:appModel];
+    FIRCLSSettings *settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager
+                                                                appIDModel:appModel];
 
     _managerData = [[FIRCLSManagerData alloc] initWithGoogleAppID:_googleAppID
                                                   googleTransport:googleTransport
@@ -136,7 +136,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
                                                         analytics:analytics
                                                       fileManager:_fileManager
                                                       dataArbiter:_dataArbiter
-                                                         settings:_settings];
+                                                         settings:settings];
 
     _reportUploader = [[FIRCLSReportUploader alloc] initWithManagerData:_managerData];
 
