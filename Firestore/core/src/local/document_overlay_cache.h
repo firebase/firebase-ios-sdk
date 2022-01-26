@@ -53,7 +53,7 @@ class DocumentOverlayCache {
    *
    * Returns an empty optional if there is no overlay for that key.
    */
-  virtual absl::optional<std::reference_wrapper<model::mutation::Overlay>> GetOverlay(const model::DocumentKey& key) const = 0;
+  virtual absl::optional<std::reference_wrapper<const model::mutation::Overlay>> GetOverlay(const model::DocumentKey& key) const = 0;
 
   /**
    * Saves the given document key to mutation map to persistence as overlays.

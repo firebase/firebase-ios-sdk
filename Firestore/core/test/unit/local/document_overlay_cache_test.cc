@@ -23,6 +23,9 @@
 #include "Firestore/core/src/local/document_overlay_cache.h"
 #include "Firestore/core/src/local/memory_document_overlay_cache.h"
 #include <Firestore/core/src/model/document_key.h>
+#include <Firestore/core/src/model/mutation.h>
+#include "Firestore/core/src/model/patch_mutation.h"
+#include "Firestore/core/test/unit/testutil/testutil.h"
 
 namespace firebase {
 namespace firestore {
@@ -30,6 +33,9 @@ namespace local {
 namespace {
 
 using model::DocumentKey;
+using model::Mutation;
+using testutil::Map;
+using testutil::PatchMutation;
 
 TEST(DocumentOverlayCacheTest, TypeTraits) {
   static_assert(!std::is_constructible<DocumentOverlayCache>::value, "is_constructible");
@@ -57,15 +63,27 @@ class DocumentOverlayCacheTest : public ::testing::Test {
   DocumentOverlayCacheTest() : cache_(CreateDocumentOverlayCache<T>()) {
   }
 
+  void SaveOverlays(int largest_batch_id, const Mutation& mutation) {
+    this->cache_->SaveOverlays(largest_batch_id, {{mutation.key(), mutation}});
+  }
+
   std::unique_ptr<DocumentOverlayCache> cache_;
 };
 
 TYPED_TEST_SUITE(DocumentOverlayCacheTest, ::testing::Types<MemoryDocumentOverlayCache>);
 
 TYPED_TEST(DocumentOverlayCacheTest, ReturnsNullWhenOverlayIsNotFound) {
-  const auto overlay = this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1"));
+  EXPECT_FALSE(this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1")));
+}
 
-  EXPECT_FALSE(overlay);
+TYPED_TEST(DocumentOverlayCacheTest, CanReadSavedOverlay) {
+  Mutation mutation = PatchMutation("coll/doc1", Map("foo", "bar"));
+  this->SaveOverlays(2, mutation);
+
+  auto overlay_opt = this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1"));
+
+  ASSERT_TRUE(overlay_opt);
+  EXPECT_EQ(mutation, overlay_opt.value().get().mutation());
 }
 
 }  // namespace

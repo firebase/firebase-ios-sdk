@@ -17,6 +17,9 @@
 #ifndef FIRESTORE_CORE_SRC_LOCAL_MEMORY_DOCUMENT_OVERLAY_H_
 #define FIRESTORE_CORE_SRC_LOCAL_MEMORY_DOCUMENT_OVERLAY_H_
 
+#include <unordered_map>
+#include <unordered_set>
+
 #include "Firestore/core/src/local/document_overlay_cache.h"
 
 namespace firebase {
@@ -25,7 +28,7 @@ namespace local {
 
 class MemoryDocumentOverlayCache final : public DocumentOverlayCache {
  public:
-  absl::optional<std::reference_wrapper<model::mutation::Overlay>> GetOverlay(const model::DocumentKey& key) const override;
+  absl::optional<std::reference_wrapper<const model::mutation::Overlay>> GetOverlay(const model::DocumentKey& key) const override;
 
   void SaveOverlays(int largest_batch_id, const MutationByDocumentKeyMap& overlays) override;
 
@@ -35,6 +38,13 @@ class MemoryDocumentOverlayCache final : public DocumentOverlayCache {
 
   OverlayByDocumentKeyMap GetOverlays(absl::string_view collection_group, int since_batch_id, int count) const override;
 
+ private:
+  using DocumentKeysByBatchIdMap = std::unordered_map<int, std::unordered_set<model::DocumentKey, model::DocumentKeyHash>>;
+
+  void SaveOverlay(int largest_batch_id, const model::Mutation& mutation);
+
+  OverlayByDocumentKeyMap overlay_by_document_key_;
+  DocumentKeysByBatchIdMap document_keys_by_batch_id_;
 };
 
 }  // namespace local
