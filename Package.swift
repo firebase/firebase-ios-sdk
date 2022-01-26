@@ -690,7 +690,7 @@ let package = Package(
     .target(
       name: "FirebaseFunctionsSwift",
       dependencies: [
-        "FirebaseFunctions",
+        "FirebaseCore",
         "FirebaseSharedSwift",
         .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
       ],
@@ -699,7 +699,6 @@ let package = Package(
     .testTarget(
       name: "FirebaseFunctionsSwiftUnit",
       dependencies: ["FirebaseFunctionsSwift",
-                     "FirebaseFunctionsTestingSupport",
                      "SharedTestUtilities"],
       path: "FirebaseFunctionsSwift/Tests"
     ),
