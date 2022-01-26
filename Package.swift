@@ -693,6 +693,7 @@ let package = Package(
       dependencies: [
         "FirebaseFunctions",
         "FirebaseSharedSwift",
+        .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
       ],
       path: "FirebaseFunctionsSwift/Sources"
     ),
