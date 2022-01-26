@@ -14,6 +14,34 @@
 
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockOnDemandModel.h"
 
+@interface FIRCLSMockOnDemandModel ()
+@property(nonatomic, readonly) uint32_t uploadRate;
+@end
+
 @implementation FIRCLSMockOnDemandModel
+
+- (instancetype)initWithOnDemandUploadRate:(int)uploadRate
+                              baseExponent:(double)baseExponent
+                              stepDuration:(int)stepDuration {
+  self = [super initWithOnDemandUploadRate:uploadRate
+                              baseExponent:baseExponent
+                              stepDuration:stepDuration];
+  if (!self) {
+    return nil;
+  }
+  _uploadRate = uploadRate;
+  return self;
+}
+- (void)setQueueToFull {
+  [self incrementQueuedOperationCount:self.uploadRate];
+}
+
+- (void)setQueueToEmpty {
+  [self incrementQueuedOperationCount:0];
+}
+
+- (int)getQueueMax {
+  return self.uploadRate;
+}
 
 @end

@@ -27,6 +27,9 @@
              withDataCollectionEnabled:(BOOL)dataCollectionEnabled
             usingExistingReportManager:(FIRCLSExistingReportManager*)existingReportManager;
 
+- (int)incrementQueuedOperationCount:(int)increment;
+- (int)getQueuedOperationsCount;
+
 @end
 
 #endif /* FIRCLSOnDemandModel_Private_h */

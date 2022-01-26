@@ -257,28 +257,24 @@ NSString *FIRCLSExceptionRecordOnDemand(FIRCLSExceptionType type,
 
   FIRCLSSDKLog("Recording an exception structure on demand\n");
 
-  NSFileManager *fileManager = [NSFileManager defaultManager];
+  FIRCLSFileManager *fileManager = [[FIRCLSFileManager alloc] init];
 
   // Create paths for new report.
-  NSString *currentLogPath = [NSString stringWithUTF8String:_firclsContext.readonly->logPath];
-  NSMutableArray *currentPathComponents = [[currentLogPath pathComponents] mutableCopy];
-  [currentPathComponents removeLastObject];  // Remove logPath.sdk component
-  NSString *currentRootPath = [currentPathComponents componentsJoinedByString:@"/"];
-  [currentPathComponents removeLastObject];  // Remove current report ID
-
+  NSString *currentReportPath =
+      [NSString stringWithUTF8String:_firclsContext.readonly->initialReportPath];
   NSString *newReportID = [[[FIRCLSExecutionIdentifierModel alloc] init] executionID];
-  [currentPathComponents addObject:newReportID];
-  NSString *newRootPath = [currentPathComponents componentsJoinedByString:@"/"];
-  [currentPathComponents addObject:FIRCLSCustomCrashIndicatorFile];
+  NSString *newReportPath = [fileManager.activePath stringByAppendingPathComponent:newReportID];
   NSString *customExceptionIndicatorFilePath =
-      [currentPathComponents componentsJoinedByString:@"/"];
+      [newReportPath stringByAppendingPathComponent:FIRCLSCustomCrashIndicatorFile];
   NSString *newKVPath =
-      [newRootPath stringByAppendingPathComponent:FIRCLSReportInternalIncrementalKVFile];
+      [newReportPath stringByAppendingPathComponent:FIRCLSReportInternalIncrementalKVFile];
 
   // Create new report and copy into it the current state of custom keys and log and the sdk.log,
   // binary_images.clsrecord, and metadata.clsrecord files.
   NSError *error = nil;
-  BOOL copied = [fileManager copyItemAtPath:currentRootPath toPath:newRootPath error:&error];
+  BOOL copied = [fileManager.underlyingFileManager copyItemAtPath:currentReportPath
+                                                           toPath:newReportPath
+                                                            error:&error];
   if (error || !copied) {
     FIRCLSSDKLog("Unable to create a new report to record on-demand exeption.");
     return nil;
@@ -321,8 +317,8 @@ NSString *FIRCLSExceptionRecordOnDemand(FIRCLSExceptionType type,
 
   // Write out the exception in the new report.
   const char *newActiveCustomExceptionPath =
-      fatal ? [[newRootPath stringByAppendingPathComponent:FIRCLSReportExceptionFile] UTF8String]
-            : [[newRootPath stringByAppendingPathComponent:FIRCLSReportCustomExceptionAFile]
+      fatal ? [[newReportPath stringByAppendingPathComponent:FIRCLSReportExceptionFile] UTF8String]
+            : [[newReportPath stringByAppendingPathComponent:FIRCLSReportCustomExceptionAFile]
                   UTF8String];
   FIRCLSFile file;
   if (!FIRCLSFileInitWithPath(&file, newActiveCustomExceptionPath, true)) {
@@ -335,7 +331,7 @@ NSString *FIRCLSExceptionRecordOnDemand(FIRCLSExceptionType type,
 
   // Return the path to the new report.
   FIRCLSSDKLog("Finished recording on demand exception structure\n");
-  return newRootPath;
+  return newReportPath;
 }
 
 // Ignore this message here, because we know that this call will not leak.

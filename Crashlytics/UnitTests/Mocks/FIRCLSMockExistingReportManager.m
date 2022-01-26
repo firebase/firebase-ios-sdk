@@ -54,4 +54,9 @@
   self.shouldHaveExistingReport = YES;
 }
 
+- (void)handleOnDemandReportUpload:(NSString *)path
+               dataCollectionToken:(FIRCLSDataCollectionToken *)dataCollectionToken
+                          asUrgent:(BOOL)urgent {
+}
+
 @end

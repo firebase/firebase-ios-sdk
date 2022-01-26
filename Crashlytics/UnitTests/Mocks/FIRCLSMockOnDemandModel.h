@@ -12,8 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#import "Crashlytics/Crashlytics/Models/FIRCLSOnDemandModel.h"
 #import "Crashlytics/Crashlytics/Private/FIRCLSOnDemandModel_Private.h"
 
 @interface FIRCLSMockOnDemandModel : FIRCLSOnDemandModel
+
+// Public for testing purposes
+- (void)setQueueToFull;
+- (void)setQueueToEmpty;
+- (int)getQueueMax;
 
 @end

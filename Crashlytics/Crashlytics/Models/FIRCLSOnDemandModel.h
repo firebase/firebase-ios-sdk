@@ -23,7 +23,7 @@ NS_SWIFT_NAME(OnDemandModel)
                               baseExponent:(double)baseExponent
                               stepDuration:(int)stepDuration;
 
-- (NSInteger)getOnDemandEventCountForCurrentRun;
-- (NSInteger)getDroppedOnDemandEventCountForCurrentRun;
+- (NSInteger)getOrIncrementOnDemandEventCountForCurrentRun:(BOOL)increment;
+- (NSInteger)getOrIncrementDroppedOnDemandEventCountForCurrentRun:(BOOL)increment;
 
 @end

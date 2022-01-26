@@ -20,6 +20,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setShouldHaveExistingReport;
 
+- (void)handleOnDemandReportUpload:(NSString *)path
+               dataCollectionToken:(FIRCLSDataCollectionToken *)dataCollectionToken
+                          asUrgent:(BOOL)urgent;
+
 @end
 
 NS_ASSUME_NONNULL_END

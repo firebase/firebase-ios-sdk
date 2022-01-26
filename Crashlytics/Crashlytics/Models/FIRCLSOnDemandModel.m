@@ -27,8 +27,8 @@
 
 @interface FIRCLSOnDemandModel ()
 
-@property(nonatomic) int recordedOnDemandExceptionCount;
-@property(nonatomic) int droppedOnDemandExceptionCount;
+@property(nonatomic, readonly) int recordedOnDemandExceptionCount;
+@property(nonatomic, readonly) int droppedOnDemandExceptionCount;
 
 @property(nonatomic, readonly) uint32_t uploadRate;
 @property(nonatomic, readonly) double baseExponent;
@@ -36,7 +36,7 @@
 
 @property(nonatomic, strong) NSOperationQueue *operationQueue;
 @property(nonatomic, strong) dispatch_queue_t dispatchQueue;
-@property(nonatomic) int queuedOperations;
+@property(nonatomic) int queuedOperationsCount;
 
 @property(nonatomic) double lastUpdated;
 @property(nonatomic) double currentStep;
@@ -66,7 +66,7 @@ static const double SEC_PER_MINUTE = 60;
       setName:[FIRCLSApplicationGetSDKBundleID() stringByAppendingString:@".on-demand-queue"]];
   _dispatchQueue = dispatch_queue_create("com.google.firebase.crashlytics.on.demand", 0);
   _operationQueue.underlyingQueue = _dispatchQueue;
-  _queuedOperations = 0;
+  _queuedOperationsCount = 0;
 
   _recordedOnDemandExceptionCount = 0;
   _droppedOnDemandExceptionCount = 0;
@@ -96,11 +96,12 @@ static const double SEC_PER_MINUTE = 60;
       if (dataCollectionEnabled) {
         if (activeReportPath) {
           [self incrementQueuedOperationCount:1];
+          [self getOrIncrementOnDemandEventCountForCurrentRun:YES];
           dispatch_async(self.dispatchQueue, ^{
             [existingReportManager handleOnDemandReportUpload:activeReportPath
                                           dataCollectionToken:dataCollectionToken
                                                      asUrgent:YES];
-            double uploadDelay = [self calculateUploadDelay:YES];
+            double uploadDelay = [self calculateUploadDelay];
             FIRCLSInfoLog(@"Submitted an on-demand exception, starting delay %.20f", uploadDelay);
             sleep(uploadDelay);
           });
@@ -112,12 +113,13 @@ static const double SEC_PER_MINUTE = 60;
         }
       }
       // TODO: should we update delay if data collection is off?
+      // TODO: should we update counter(s)?
       //      FIRCLSInfoLog(@"Submitted an on-demand exception with delay %d", uploadDelay);
       //      [self updateBucketsAndCountWithDelay:uploadDelay];
       return YES;  // Recorded exception but did not submit since data collection is disabled.
     } else {
       FIRCLSInfoLog(@"No available on-demand quota. Dropping report.");
-      self.droppedOnDemandExceptionCount++;
+      [self getOrIncrementDroppedOnDemandEventCountForCurrentRun:YES];
       return NO;  // Didn't record or submit the exception because no quota was available.
     }
   }
@@ -125,8 +127,8 @@ static const double SEC_PER_MINUTE = 60;
 
 // Helper methods
 
-- (double)calculateUploadDelay:(BOOL)shouldUpdate {
-  double calculatedStepDuration = [self calculateStepDuration:shouldUpdate];
+- (double)calculateUploadDelay {
+  double calculatedStepDuration = [self calculateStepDuration];
   double power = pow(self.baseExponent, calculatedStepDuration);
   NSNumber *calculatedUploadDelay =
       [NSNumber numberWithDouble:(SEC_PER_MINUTE / self.uploadRate) * power];
@@ -136,7 +138,7 @@ static const double SEC_PER_MINUTE = 60;
   return (result == NSOrderedAscending) ? MAX_DELAY_SEC : [calculatedUploadDelay doubleValue];
 }
 
-- (double)calculateStepDuration:(BOOL)shouldUpdate {
+- (double)calculateStepDuration {
   double currentTime = [NSDate timeIntervalSinceReferenceDate];
   BOOL queueIsFull = [self isQueueFull];
 
@@ -150,7 +152,7 @@ static const double SEC_PER_MINUTE = 60;
   double queueNotFullDuration = (self.currentStep - delta) < 0 ? 0 : (self.currentStep - delta);
   double calculatedDuration = queueIsFull ? queueFullDuration : queueNotFullDuration;
 
-  if (shouldUpdate && self.currentStep != calculatedDuration) {
+  if (self.currentStep != calculatedDuration) {
     self.currentStep = calculatedDuration;
     self.lastUpdated = currentTime;
   }
@@ -158,30 +160,36 @@ static const double SEC_PER_MINUTE = 60;
   return calculatedDuration;
 }
 
-- (NSInteger)getOnDemandEventCountForCurrentRun {
+- (NSInteger)getOrIncrementOnDemandEventCountForCurrentRun:(BOOL)increment {
   @synchronized(self) {
+    if (increment) {
+      _recordedOnDemandExceptionCount += 1;
+    }
     return self.recordedOnDemandExceptionCount;
   }
 }
 
-- (NSInteger)getDroppedOnDemandEventCountForCurrentRun {
+- (NSInteger)getOrIncrementDroppedOnDemandEventCountForCurrentRun:(BOOL)increment {
   @synchronized(self) {
+    if (increment) {
+      _droppedOnDemandExceptionCount += 1;
+    }
     return self.droppedOnDemandExceptionCount;
   }
 }
 
 - (int)incrementQueuedOperationCount:(int)increment {
   @synchronized(self) {
-    _queuedOperations += increment;
-    return self.queuedOperations;
+    _queuedOperationsCount += increment;
+    return self.queuedOperationsCount;
   }
 }
 
-- (int)getQueuedOperations {
+- (int)getQueuedOperationsCount {
   return [self incrementQueuedOperationCount:0];
 }
 
-- (void)setQueuedOperations:(int)queuedOperations {
+- (void)setQueuedOperationsCount:(int)queuedOperations {
   [self incrementQueuedOperationCount:queuedOperations];
 }
 

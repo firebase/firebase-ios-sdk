@@ -45,6 +45,9 @@ typedef struct {
   volatile bool debuggerAttached;
   const char* previouslyCrashedFileFullPath;
   const char* logPath;
+  // Initial report path represents the report path used to initialized the context;
+  // where non-on-demand exceptions and other crashes will be written.
+  const char* initialReportPath;
 #if CLS_USE_SIGALTSTACK
   void* signalStack;
 #endif
