@@ -25,15 +25,15 @@ namespace local {
 
 class MemoryDocumentOverlayCache final : public DocumentOverlayCache {
  public:
-  absl::optional<model::mutation::Overlay&> GetOverlay(const model::DocumentKey& key) const override;
+  absl::optional<std::reference_wrapper<model::mutation::Overlay>> GetOverlay(const model::DocumentKey& key) const override;
 
-  void SaveOverlays(int largest_batch_id, const std::unordered_map<model::DocumentKey, model::Mutation>& overlays) override;
+  void SaveOverlays(int largest_batch_id, const MutationByDocumentKeyMap& overlays) override;
 
   void RemoveOverlaysForBatchId(int batch_id) override;
 
-  std::unordered_map<model::DocumentKey, model::mutation::Overlay> GetOverlays(const model::ResourcePath& collection, int since_batch_id) const override;
+  OverlayByDocumentKeyMap GetOverlays(const model::ResourcePath& collection, int since_batch_id) const override;
 
-  virtual std::unordered_map<model::DocumentKey, model::mutation::Overlay> GetOverlays(absl::string_view collection_group, int since_batch_id, int count) const override;
+  OverlayByDocumentKeyMap GetOverlays(absl::string_view collection_group, int since_batch_id, int count) const override;
 
 };
 

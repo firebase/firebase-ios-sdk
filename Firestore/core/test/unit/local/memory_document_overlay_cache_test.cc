@@ -25,6 +25,9 @@ namespace firestore {
 namespace local {
 namespace {
 
+// NOTE: The full test suite for `MemoryDocumentOverlayCache` is located in
+// `document_overlay_cache_test.cc`.
+
 TEST(MemoryDocumentOverlayCacheTest, TypeTraits) {
   static_assert(std::is_constructible<MemoryDocumentOverlayCache>::value, "is_constructible");
   static_assert(std::is_destructible<MemoryDocumentOverlayCache>::value, "is_destructible");

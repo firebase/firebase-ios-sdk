@@ -20,6 +20,38 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
+absl::optional<std::reference_wrapper<model::mutation::Overlay>> MemoryDocumentOverlayCache::GetOverlay(const model::DocumentKey& key) const {
+  (void)key;
+  return absl::nullopt;
+}
+
+void MemoryDocumentOverlayCache::SaveOverlays(int largest_batch_id, const MutationByDocumentKeyMap& overlays) {
+  (void)largest_batch_id;
+  (void)overlays;
+  abort();
+}
+
+void MemoryDocumentOverlayCache::RemoveOverlaysForBatchId(int batch_id) {
+  (void)batch_id;
+  abort();
+}
+
+DocumentOverlayCache::OverlayByDocumentKeyMap MemoryDocumentOverlayCache::GetOverlays(const model::ResourcePath& collection, int since_batch_id) const {
+  (void)collection;
+  (void)since_batch_id;
+  abort();
+  return {};
+}
+
+DocumentOverlayCache::OverlayByDocumentKeyMap MemoryDocumentOverlayCache::GetOverlays(absl::string_view collection_group, int since_batch_id, int count) const {
+  (void)collection_group;
+  (void)since_batch_id;
+  (void)count;
+  abort();
+  return {};
+}
+
+
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
