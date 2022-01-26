@@ -69,11 +69,13 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
   // This is an approximation of the app start time.
   appStartTime = [NSDate date];
 
-  dispatch_async(dispatch_get_main_queue(), ^{
+  if (![[[NSBundle mainBundle] objectForInfoDictionaryKey:@"fireperf_disable_dd"] boolValue]) {
     dispatch_async(dispatch_get_main_queue(), ^{
-      doubleDispatchTime = [NSDate date];
+      dispatch_async(dispatch_get_main_queue(), ^{
+        doubleDispatchTime = [NSDate date];
+      });
     });
-  });
+  }
 
   gAppStartCPUGaugeData = fprCollectCPUMetric();
   gAppStartMemoryGaugeData = fprCollectMemoryMetric();
@@ -171,6 +173,7 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
  */
 - (void)appDidBecomeActiveNotification:(NSNotification *)notification {
   self.applicationState = FPRApplicationStateForeground;
+  NSLog(@"zhanl %@", doubleDispatchTime);
 
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
