@@ -417,8 +417,6 @@ class IntegrationTests: XCTestCase {
   #endif
 
   func testExplicitError() {
-#warning("This fails with a fatal error unwraping the errorDetails key")
-    XCTSkip("This fails with a fatal error unwrpaping the errorDetails key")
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable(
       "explicitErrorTest",
@@ -445,7 +443,6 @@ class IntegrationTests: XCTestCase {
   #if compiler(>=5.5) && canImport(_Concurrency)
     @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
     func testExplicitErrorAsync() async {
-      XCTSkip("This fails with a fatal error unwrpaping the errorDetails key")
       let function = functions.httpsCallable(
         "explicitErrorTest",
         requestAs: [Int].self,
