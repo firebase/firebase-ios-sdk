@@ -13,27 +13,7 @@
 // limitations under the License.
 
 import Foundation
-import FirebaseFunctions
 import FirebaseSharedSwift
-
-public extension Functions {
-  /// Creates a reference to the Callable HTTPS trigger with the given name, the type of an `Encodable`
-  /// request and the type of a `Decodable` response.
-  /// - Parameter name: The name of the Callable HTTPS trigger
-  /// - Parameter requestAs: The type of the `Encodable` entity to use for requests to this `Callable`
-  /// - Parameter responseAs: The type of the `Decodable` entity to use for responses from this `Callable`
-  /// - Parameter encoder: The encoder instance to use to run the encoding.
-  /// - Parameter decoder: The decoder instance to use to run the decoding.
-  func httpsCallable<Request: Encodable,
-    Response: Decodable>(_ name: String,
-                         requestAs: Request.Type = Request.self,
-                         responseAs: Response.Type = Response.self,
-                         encoder: FirebaseDataEncoder = FirebaseDataEncoder(),
-                         decoder: FirebaseDataDecoder = FirebaseDataDecoder())
-    -> Callable<Request, Response> {
-    return Callable(callable: httpsCallable(name), encoder: encoder, decoder: decoder)
-  }
-}
 
 // A `Callable` is reference to a particular Callable HTTPS trigger in Cloud Functions.
 public struct Callable<Request: Encodable, Response: Decodable> {
