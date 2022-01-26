@@ -62,6 +62,8 @@ FOUNDATION_EXTERN FPRConfigName kFPRConfigInstrumentationEnabled;
 
 #pragma mark - Configuration fetcher methods.
 
+- (uint32_t)prewarmDetectionMode;
+
 /**
  * Returns the percentage of instances that would send trace events. Range [0-1].
  *

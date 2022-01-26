@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRTrace.h"
+#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 
 FOUNDATION_EXTERN NSString *__nonnull const kFPRAppStartTraceName;
 FOUNDATION_EXTERN NSString *__nonnull const kFPRAppStartStageNameTimeToUI;
@@ -49,6 +50,9 @@ NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions."
 
 /** Current running state of the application. */
 @property(nonatomic, readonly) FPRApplicationState applicationState;
+
+/** Firebase Remote Configuration object */
+@property(nonatomic) FPRConfigurations *configurations;
 
 /** Accesses the singleton instance.
  *  @return Reference to the shared object if successful; <code>nil</code> if not.

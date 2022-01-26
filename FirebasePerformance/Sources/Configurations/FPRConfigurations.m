@@ -300,6 +300,18 @@ static dispatch_once_t gSharedInstanceToken;
   return logSource;
 }
 
+- (uint32_t) prewarmDetectionMode {
+  // 0 means use neither and drop all _as events
+  // 1 means use only ActivePrewarm
+  // 2 means use only double dispatch
+  // 3 means use both ActivePrewarm and double dispatch
+  int mode = 3;
+  if (self.remoteConfigFlags) {
+    mode = [self.remoteConfigFlags getIntValueForFlag:@"fpr_prewarm_detection" defaultValue:mode];
+  }
+  return mode;
+}
+
 #pragma mark - Log sampling configurations.
 
 - (float)logTraceSamplingRate {
