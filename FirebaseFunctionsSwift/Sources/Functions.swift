@@ -59,7 +59,7 @@ private enum Constants {
    * @param app The app for the Firebase project.
    * @param region The region for the http trigger, such as "us-central1".
    */
-  class func functions(app: FirebaseApp = FirebaseApp.app()!, region: String = "us-central1") -> Functions {
+  public class func functions(app: FirebaseApp = FirebaseApp.app()!, region: String = "us-central1") -> Functions {
     return Functions(app: app, region: region, customDomain: nil)
   }
 
@@ -69,7 +69,7 @@ private enum Constants {
    * @param app The app for the Firebase project.
    * @param customDomain A custom domain for the http trigger, such as "https://mydomain.com".
    */
-  class func functions(app: FirebaseApp = FirebaseApp.app()!, customDomain: String) -> Functions {
+  public class func functions(app: FirebaseApp = FirebaseApp.app()!, customDomain: String) -> Functions {
     return Functions(app: app, region: "us-central1", customDomain: customDomain)
   }
 
@@ -90,7 +90,7 @@ private enum Constants {
               appCheck: nil)
   }
 
-  private init(projectID: String,
+  internal init(projectID: String,
                region: String,
                customDomain: String?,
                auth: AuthInterop?,
@@ -111,8 +111,25 @@ private enum Constants {
    * Creates a reference to the Callable HTTPS trigger with the given name.
    * @param name The name of the Callable HTTPS trigger.
    */
-  func httpsCallable(_ name: String) -> HTTPSCallable {
+  private func httpsCallable(_ name: String) -> HTTPSCallable {
     return HTTPSCallable(functions: self, name: name)
+  }
+
+  /// Creates a reference to the Callable HTTPS trigger with the given name, the type of an `Encodable`
+  /// request and the type of a `Decodable` response.
+  /// - Parameter name: The name of the Callable HTTPS trigger
+  /// - Parameter requestAs: The type of the `Encodable` entity to use for requests to this `Callable`
+  /// - Parameter responseAs: The type of the `Decodable` entity to use for responses from this `Callable`
+  /// - Parameter encoder: The encoder instance to use to run the encoding.
+  /// - Parameter decoder: The decoder instance to use to run the decoding.
+  public func httpsCallable<Request: Encodable,
+    Response: Decodable>(_ name: String,
+                         requestAs: Request.Type = Request.self,
+                         responseAs: Response.Type = Response.self,
+                         encoder: FirebaseDataEncoder = FirebaseDataEncoder(),
+                         decoder: FirebaseDataDecoder = FirebaseDataDecoder())
+    -> Callable<Request, Response> {
+    return Callable(callable: httpsCallable(name), encoder: encoder, decoder: decoder)
   }
 
   /**
@@ -125,23 +142,6 @@ private enum Constants {
     let prefix = host.hasPrefix("http") ? "" : "http://"
     let origin = String(format: "\(prefix)\(host):%li", port)
     emulatorOrigin = origin
-  }
-
-  /// Creates a reference to the Callable HTTPS trigger with the given name, the type of an `Encodable`
-  /// request and the type of a `Decodable` response.
-  /// - Parameter name: The name of the Callable HTTPS trigger
-  /// - Parameter requestAs: The type of the `Encodable` entity to use for requests to this `Callable`
-  /// - Parameter responseAs: The type of the `Decodable` entity to use for responses from this `Callable`
-  /// - Parameter encoder: The encoder instance to use to run the encoding.
-  /// - Parameter decoder: The decoder instance to use to run the decoding.
-  func httpsCallable<Request: Encodable,
-    Response: Decodable>(_ name: String,
-                         requestAs: Request.Type = Request.self,
-                         responseAs: Response.Type = Response.self,
-                         encoder: FirebaseDataEncoder = FirebaseDataEncoder(),
-                         decoder: FirebaseDataDecoder = FirebaseDataDecoder())
-    -> Callable<Request, Response> {
-    return Callable(callable: httpsCallable(name), encoder: encoder, decoder: decoder)
   }
 
   // MARK: - Private Funcs
