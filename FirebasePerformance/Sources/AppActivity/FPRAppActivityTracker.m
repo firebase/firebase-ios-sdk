@@ -146,11 +146,13 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
 }
 
 - (BOOL)isActivePrewarmEnabled {
-  return ([self.configurations prewarmDetectionMode] == 2 || [self.configurations prewarmDetectionMode] == 3);
+  return ([self.configurations prewarmDetectionMode] == 1 ||
+          [self.configurations prewarmDetectionMode] == 3);
 }
 
 - (BOOL)isDoubleDispatchEnabled {
-  return ([self.configurations prewarmDetectionMode] == 1 || [self.configurations prewarmDetectionMode] == 3);
+  return ([self.configurations prewarmDetectionMode] == 2 ||
+          [self.configurations prewarmDetectionMode] == 3);
 }
 
 - (BOOL)isApplicationPreWarmed {
@@ -167,7 +169,8 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
     return YES;
   }
 
-  if ([self isDoubleDispatchEnabled] && [doubleDispatchTime compare:applicationFinishLaunchTime] == NSOrderedAscending) {
+  if ([self isDoubleDispatchEnabled] &&
+      [doubleDispatchTime compare:applicationFinishLaunchTime] == NSOrderedAscending) {
     return YES;
   }
 
