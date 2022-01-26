@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAppCheck'
-  s.version          = '8.10.0-beta'
+  s.version          = '8.11.0-beta'
   s.summary          = 'Firebase App Check SDK.'
 
   s.description      = <<-DESC
@@ -44,7 +44,7 @@ Pod::Spec.new do |s|
 
   s.dependency 'FirebaseCore', '~> 8.0'
   s.dependency 'PromisesObjC', '>= 1.2', '< 3.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.6'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.7'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',

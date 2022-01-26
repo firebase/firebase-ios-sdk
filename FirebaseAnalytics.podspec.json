@@ -5,10 +5,10 @@
     "dependencies": {
         "FirebaseCore": "~> 8.0",
         "FirebaseInstallations": "~> 8.0",
-        "GoogleUtilities/AppDelegateSwizzler": "~> 7.6",
-        "GoogleUtilities/MethodSwizzler": "~> 7.6",
-        "GoogleUtilities/NSData+zlib": "~> 7.6",
-        "GoogleUtilities/Network": "~> 7.6",
+        "GoogleUtilities/AppDelegateSwizzler": "~> 7.7",
+        "GoogleUtilities/MethodSwizzler": "~> 7.7",
+        "GoogleUtilities/NSData+zlib": "~> 7.7",
+        "GoogleUtilities/Network": "~> 7.7",
         "nanopb": "~> 2.30908.0"
     },
     "description": "Firebase Analytics is a free, out-of-the-box analytics solution that inspires actionable insights based on app usage and user engagement.",
@@ -38,7 +38,7 @@
         {
             "name": "AdIdSupport",
             "dependencies": {
-                "GoogleAppMeasurement": "8.10.0"
+                "GoogleAppMeasurement": "8.11.0"
             },
             "vendored_frameworks": [
                 "Frameworks/FirebaseAnalytics.xcframework"
@@ -47,7 +47,7 @@
         {
             "name": "WithoutAdIdSupport",
             "dependencies": {
-                "GoogleAppMeasurement/WithoutAdIdSupport": "8.10.0"
+                "GoogleAppMeasurement/WithoutAdIdSupport": "8.11.0"
             },
             "vendored_frameworks": [
                 "Frameworks/FirebaseAnalytics.xcframework"
@@ -55,5 +55,5 @@
         }
     ],
     "summary": "Firebase Analytics for iOS",
-    "version": "8.10.0"
+    "version": "8.11.0"
 }

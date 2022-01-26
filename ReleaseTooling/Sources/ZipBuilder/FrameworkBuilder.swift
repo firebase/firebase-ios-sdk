@@ -34,9 +34,9 @@ struct FrameworkBuilder {
   }
 
   /// Default initializer.
-  init(projectDir: URL, platform: Platform, dynamicFrameworks: Bool) {
+  init(projectDir: URL, targetPlatforms: [TargetPlatform], dynamicFrameworks: Bool) {
     self.projectDir = projectDir
-    targetPlatforms = platform.platformTargets
+    self.targetPlatforms = targetPlatforms
     self.dynamicFrameworks = dynamicFrameworks
   }
 
@@ -189,8 +189,6 @@ struct FrameworkBuilder {
 
     var archs = targetPlatform.archs.map { $0.rawValue }.joined(separator: " ")
     // The 32 bit archs do not build for iOS 11.
-    // TODO: Make a more robust solution if we need to support more of a mix between iOS 11 and
-    // under.
     if framework == "FirebaseAppCheck" {
       if targetPlatform == .iOSDevice {
         archs = "arm64"

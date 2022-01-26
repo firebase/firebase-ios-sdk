@@ -19,7 +19,7 @@ for internal testing only. It should not be published.
 
   s.social_media_url = 'https://twitter.com/Firebase'
 
-  s.swift_version         = '5.0'
+  s.swift_version         = '5.3'
 
   ios_deployment_target = '13.0'
   osx_deployment_target = '10.15'

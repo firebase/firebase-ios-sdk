@@ -35,6 +35,7 @@ product can be one of:
   InAppMessaging
   Messaging
   MessagingSample
+  SwiftUISample
   MLModelDownloaderSample
   RemoteConfig
   RemoteConfigSample
@@ -370,6 +371,12 @@ case "$product-$platform-$method" in
 
   Messaging-*-xcodebuild)
     pod_gen FirebaseMessaging.podspec --platforms=ios
+
+    # Add GoogleService-Info.plist to generated Test Wrapper App.
+    ruby ./scripts/update_xcode_target.rb gen/FirebaseMessaging/Pods/Pods.xcodeproj \
+      AppHost-FirebaseMessaging-Unit-Tests \
+      ../../../FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist
+
     RunXcodebuild \
       -workspace 'gen/FirebaseMessaging/FirebaseMessaging.xcworkspace' \
       -scheme "FirebaseMessaging-Unit-unit" \
@@ -418,6 +425,16 @@ case "$product-$platform-$method" in
     fi
     ;;
 
+  SwiftUISample-*-*)
+    if check_secrets; then
+      RunXcodebuild \
+        -workspace 'FirebaseMessaging/Apps/SwiftUISample/SwiftUISample.xcworkspace' \
+        -scheme "SwiftUISample" \
+        "${xcb_flags[@]}" \
+        build
+    fi
+    ;;
+
   MLModelDownloaderSample-*-*)
   if check_secrets; then
     RunXcodebuild \
@@ -427,14 +444,6 @@ case "$product-$platform-$method" in
       build
   fi
   ;;
-
-  SegmentationSample-*-*)
-    RunXcodebuild \
-      -workspace 'FirebaseSegmentation/Tests/Sample/SegmentationSampleApp.xcworkspace' \
-      -scheme "SegmentationSampleApp" \
-      "${xcb_flags[@]}" \
-      build
-    ;;
 
   WatchOSSample-*-*)
     RunXcodebuild \
@@ -467,48 +476,33 @@ case "$product-$platform-$method" in
       test
     ;;
 
-  RemoteConfig-*-unit)
-    pod_gen FirebaseRemoteConfig.podspec --platforms="${gen_platform}"
-    RunXcodebuild \
-      -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
-      -scheme "FirebaseRemoteConfig-Unit-unit" \
-      "${xcb_flags[@]}" \
-      build \
-      test
-    ;;
-
   RemoteConfig-*-fakeconsole)
-    pod_gen FirebaseRemoteConfig.podspec --platforms="${gen_platform}"
-
-    # Add GoogleService-Info.plist to generated Test Wrapper App.
-    ruby ./scripts/update_xcode_target.rb gen/FirebaseRemoteConfig/Pods/Pods.xcodeproj \
-      AppHost-FirebaseRemoteConfig-Unit-Tests \
-      ../../../FirebaseRemoteConfig/Tests/FakeUtils/GoogleService-Info.plist
+    pod_gen FirebaseRemoteConfigSwift.podspec --platforms="${gen_platform}"
 
     RunXcodebuild \
-      -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
-      -scheme "FirebaseRemoteConfig-Unit-fake-console-tests" \
+      -workspace 'gen/FirebaseRemoteConfigSwift/FirebaseRemoteConfigSwift.xcworkspace' \
+      -scheme "FirebaseRemoteConfigSwift-Unit-fake-console-tests" \
       "${xcb_flags[@]}" \
       build \
       test
     ;;
 
   RemoteConfig-*-integration)
-    pod_gen FirebaseRemoteConfig.podspec --platforms="${gen_platform}"
+    pod_gen FirebaseRemoteConfigSwift.podspec --platforms="${gen_platform}"
 
     # Add GoogleService-Info.plist to generated Test Wrapper App.
-    ruby ./scripts/update_xcode_target.rb gen/FirebaseRemoteConfig/Pods/Pods.xcodeproj \
-      AppHost-FirebaseRemoteConfig-Unit-Tests \
-      ../../../FirebaseRemoteConfig/Tests/SwiftAPI/GoogleService-Info.plist
+    ruby ./scripts/update_xcode_target.rb gen/FirebaseRemoteConfigSwift/Pods/Pods.xcodeproj \
+      AppHost-FirebaseRemoteConfigSwift-Unit-Tests \
+      ../../../FirebaseRemoteConfigSwift/Tests/SwiftAPI/GoogleService-Info.plist
 
     # Add AccessToken to generated Test Wrapper App.
-    ruby ./scripts/update_xcode_target.rb gen/FirebaseRemoteConfig/Pods/Pods.xcodeproj \
-      AppHost-FirebaseRemoteConfig-Unit-Tests \
-      ../../../FirebaseRemoteConfig/Tests/SwiftAPI/AccessToken.json
+    ruby ./scripts/update_xcode_target.rb gen/FirebaseRemoteConfigSwift/Pods/Pods.xcodeproj \
+      AppHost-FirebaseRemoteConfigSwift-Unit-Tests \
+      ../../../FirebaseRemoteConfigSwift/Tests/AccessToken.json
 
     RunXcodebuild \
-      -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
-      -scheme "FirebaseRemoteConfig-Unit-swift-api-tests" \
+      -workspace 'gen/FirebaseRemoteConfigSwift/FirebaseRemoteConfigSwift.xcworkspace' \
+      -scheme "FirebaseRemoteConfigSwift-Unit-swift-api-tests" \
       "${xcb_flags[@]}" \
       build \
       test

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMLModelDownloader'
-  s.version          = '8.10.0-beta'
+  s.version          = '8.11.0-beta'
   s.summary          = 'Firebase ML Model Downloader'
 
   s.description      = <<-DESC
@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
     :tag => 'CocoaPods-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.swift_version = '5.0'
+  s.swift_version = '5.3'
 
   ios_deployment_target = '10.0'
   osx_deployment_target = '10.12'
@@ -40,7 +40,7 @@ Pod::Spec.new do |s|
   s.dependency 'FirebaseInstallations', '~> 8.0'
   s.dependency 'GoogleDataTransport', '~> 9.1'
   # TODO: Revisit this dependency
-  s.dependency 'GoogleUtilities/Logger', '~> 7.6'
+  s.dependency 'GoogleUtilities/Logger', '~> 7.7'
   s.dependency 'SwiftProtobuf', '~> 1.0'
 
   s.pod_target_xcconfig = {

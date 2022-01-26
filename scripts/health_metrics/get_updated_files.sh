@@ -13,13 +13,19 @@
 # limitations under the License.
 
 set -ex
-# Updated files in paths in code_coverage_file_list.json will trigger code coverage workflows.
+# Updated files in paths in file_patterns.json will trigger code coverage workflows.
 # Updates in a pull request will generate a code coverage report in a PR.
 
-# Get most rescent ancestor commit.
-common_commit=$(git merge-base remotes/origin/${pr_branch} remotes/origin/${GITHUB_BASE_REF})
+while getopts p: flag
+do
+    case "${flag}" in
+        p) spec_output_file=${OPTARG};;
+    esac
+done
+
+dir=$(pwd)
+
 target_branch_head=$(git rev-parse remotes/origin/${GITHUB_BASE_REF})
-echo "The common commit is ${common_commit}."
 echo "The target branch head commit is ${target_branch_head}."
 # Set target branch head and this will be used to compare diffs of coverage to the current commit.
 echo "::set-output name=target_branch_head::${target_branch_head}"
@@ -30,4 +36,9 @@ cd scripts/health_metrics/generate_code_coverage_report
 # merge commit to the head commit from the target branch.
 git diff --name-only remotes/origin/${GITHUB_BASE_REF} ${GITHUB_SHA} > updated_files.txt
 
-swift run UpdatedFilesCollector --changed-file-paths updated_files.txt --code-coverage-file-patterns ../code_coverage_file_list.json
+if [ -z $spec_output_file] ; then
+  swift run UpdatedFilesCollector --changed-file-paths updated_files.txt --code-coverage-file-patterns ../file_patterns.json
+else
+  swift run UpdatedFilesCollector --changed-file-paths updated_files.txt --code-coverage-file-patterns ../file_patterns.json --output-sdk-file-url "${spec_output_file}"
+  mv "${spec_output_file}" "${dir}"
+fi
