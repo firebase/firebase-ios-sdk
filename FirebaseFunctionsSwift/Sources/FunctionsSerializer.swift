@@ -40,22 +40,22 @@ class FUNSerializer: NSObject {
       return object as AnyObject
     } else if object is NSDictionary {
       let dict = object as! NSDictionary
-      let encoded: NSDictionary = NSDictionary()
+      let encoded: NSMutableDictionary = NSMutableDictionary()
       dict.enumerateKeysAndObjects { key, obj, _ in
         // TODO(wilsonryan): Not exact translation
         let anyObj = obj as AnyObject
         let stringKey = key as! String
         let value = try! encode(anyObj)
-        encoded.setValue(value, forKey: stringKey)
+        encoded[stringKey] = value
       }
       return encoded
     } else if object is NSArray {
       let array = object as! NSArray
-      let encoded: NSArray = NSArray()
+      let encoded = NSMutableArray()
       for item in array {
         let anyItem = item as AnyObject
         let encodedItem = try encode(anyItem)
-        encoded.adding(encodedItem)
+        encoded.add(encodedItem)
       }
       return encoded
 
@@ -66,9 +66,7 @@ class FUNSerializer: NSObject {
 
   internal func decode(_ object: Any) throws -> AnyObject? {
     // Return these types as is. PORTING NOTE: Moved from the bottom of the func for readability.
-    if object is NSNumber, object is NSString, object is NSNull {
-      return object as AnyObject
-    } else if let dict = object as? NSDictionary {
+    if let dict = object as? NSDictionary {
       if dict["@type"] != nil {
         var result: AnyObject? = nil
         do {
@@ -109,6 +107,8 @@ class FUNSerializer: NSObject {
         }
       }
       return result
+    } else if object is NSNumber || object is NSString || object is NSNull {
+      return object as AnyObject
     }
 
     throw SerializerError.unsupportedType
@@ -121,27 +121,35 @@ class FUNSerializer: NSObject {
     // http://stackoverflow.com/questions/2518761/get-type-of-nsnumber
     let cType = number.objCType
 
+    // TODO: Use `CFNumberGetType(number)` instead and use that enum, although `unsigned long long`
+    // is missing.
+//    let numberType = CFNumberGetType(number)
+
     // Type Encoding values taken from
     // https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/
     // Articles/ocrtTypeEncodings.html
     switch cType[0] {
-    case CChar("q"):
+    case CChar("q".utf8.first!):
       // "long long" might be larger than JS supports, so make it a string.
       return ["@type": Constants.longType, "value": "\(number)"] as AnyObject
-    case CChar("Q"):
+    case CChar("Q".utf8.first!):
       // "unsigned long long" might be larger than JS supports, so make it a string.
       return ["@type" : Constants.unsignedLongType,
               "value" : "\(number)"] as AnyObject
 
-    case CChar("i"), CChar("s"), CChar("l"), CChar("I"), CChar("S"):
+    case CChar("i".utf8.first!),
+      CChar("s".utf8.first!),
+      CChar("l".utf8.first!),
+      CChar("I".utf8.first!),
+      CChar("S".utf8.first!):
       // If it"s an integer that isn"t too long, so just use the number.
       return number
 
-    case CChar("f"), CChar("d"):
+    case CChar("f".utf8.first!), CChar("d".utf8.first!):
       // It"s a float/double that"s not too large.
       return number
 
-    case CChar("B"), CChar("c"), CChar("C"):
+    case CChar("B".utf8.first!), CChar("c".utf8.first!), CChar("C".utf8.first!):
       // Boolean values are weird.
       //
       // On arm64, objCType of a BOOL-valued NSNumber will be "c", even though @encode(BOOL)
