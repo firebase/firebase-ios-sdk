@@ -289,7 +289,7 @@ NSString *FIRCLSExceptionRecordOnDemand(FIRCLSExceptionType type,
   FIRCLSFileWriteSectionStart(&kvFile, "kv");
   FIRCLSFileWriteHashStart(&kvFile);
   FIRCLSFileWriteHashEntryHexEncodedString(&kvFile, "key",
-                                           [FIRCLSFlutterOnDemandRecordedExceptionsKey UTF8String]);
+                                           [FIRCLSOnDemandRecordedExceptionsKey UTF8String]);
   FIRCLSFileWriteHashEntryHexEncodedString(
       &kvFile, "value",
       [[[NSNumber numberWithInt:previousRecordedOnDemandExceptions] stringValue] UTF8String]);
@@ -298,7 +298,7 @@ NSString *FIRCLSExceptionRecordOnDemand(FIRCLSExceptionType type,
   FIRCLSFileWriteSectionStart(&kvFile, "kv");
   FIRCLSFileWriteHashStart(&kvFile);
   FIRCLSFileWriteHashEntryHexEncodedString(&kvFile, "key",
-                                           [FIRCLSFlutterOnDemandDroppedExceptionsKey UTF8String]);
+                                           [FIRCLSOnDemandDroppedExceptionsKey UTF8String]);
   FIRCLSFileWriteHashEntryHexEncodedString(
       &kvFile, "value",
       [[[NSNumber numberWithInt:previousDroppedOnDemandExceptions] stringValue] UTF8String]);
