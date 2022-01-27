@@ -42,6 +42,8 @@ NSString *const kFPRAppTraceNameBackgroundSession = @"_bs";
 NSString *const kFPRAppCounterNameTraceEventsRateLimited = @"_fstec";
 NSString *const kFPRAppCounterNameNetworkTraceEventsRateLimited = @"_fsntc";
 NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
+NSString *const kFPRPrewarmedAppStartIdentifiedByActivePrewarm = @"_asap";
+NSString *const kFPRPrewarmedAppStartIdentifiedByDoubleDispatch = @"_asdd";
 
 @interface FPRAppActivityTracker ()
 
@@ -183,11 +185,13 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
   NSDictionary<NSString *, NSString *> *environment = [NSProcessInfo processInfo].environment;
   if ([self isActivePrewarmEnabled] && environment[@"ActivePrewarm"] != nil &&
       [environment[@"ActivePrewarm"] isEqualToString:@"1"]) {
+    [self.activeTrace incrementMetric:kFPRPrewarmedAppStartIdentifiedByActivePrewarm byInt:1];
     return YES;
   }
 
   if ([self isDoubleDispatchEnabled] &&
       [doubleDispatchTime compare:applicationFinishLaunchTime] == NSOrderedAscending) {
+    [self.activeTrace incrementMetric:kFPRPrewarmedAppStartIdentifiedByDoubleDispatch byInt:1];
     return YES;
   }
 
