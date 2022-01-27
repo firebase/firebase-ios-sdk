@@ -1,5 +1,5 @@
 # 2022-01 -- v8.12.0
-- [fixed] In-App Messaging's test message does not include appData in response (#9126).
+- [fixed] In-App Messaging's test message does not include appData in response. This SDK fix will work once the backend is also updated (#9126).
 
 # 2021-12 -- v8.11.0
 - [fixed] InApp message is shown every new session (#8907).
