@@ -35,13 +35,13 @@ public extension DocumentReference {
   ///   - as: A `Decodable` type to convert the document fields to.
   ///   - serverTimestampBehavior: Configures how server timestamps that have
   ///     not yet been set to their final value are returned from the snapshot.
-  ///   - decoder: The decoder to use to convert the document. `nil` to use
+  ///   - decoder: The decoder to use to convert the document. Defaults to use
   ///     default decoder.
   ///   - completion: The closure to call when the document snapshot has been fetched and decoded.
   func getDocument<T: Decodable>(as type: T.Type,
                                  with serverTimestampBehavior: ServerTimestampBehavior =
                                    .none,
-                                 decoder: Firestore.Decoder? = nil,
+                                 decoder: Firestore.Decoder = .init(),
                                  completion: @escaping (Result<T, Error>) -> Void) {
     getDocument { snapshot, error in
       guard let snapshot = snapshot else {
@@ -73,14 +73,14 @@ public extension DocumentReference {
     ///   - as: A `Decodable` type to convert the document fields to.
     ///   - serverTimestampBehavior: Configures how server timestamps that have
     ///     not yet been set to their final value are returned from the snapshot.
-    ///   - decoder: The decoder to use to convert the document. `nil` to use
+    ///   - decoder: The decoder to use to convert the document. Defaults to use
     ///     default decoder.
     /// - Returns: This instance of the supplied `Decodable` type `T`.
     @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
     func getDocument<T: Decodable>(as type: T.Type,
                                    with serverTimestampBehavior: ServerTimestampBehavior =
                                      .none,
-                                   decoder: Firestore.Decoder? = nil) async throws -> T {
+                                   decoder: Firestore.Decoder = .init()) async throws -> T {
       let snapshot = try await getDocument()
       return try snapshot.data(as: T.self,
                                with: serverTimestampBehavior,

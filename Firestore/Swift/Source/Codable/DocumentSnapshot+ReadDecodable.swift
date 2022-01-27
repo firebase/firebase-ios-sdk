@@ -31,13 +31,12 @@ public extension DocumentSnapshot {
   ///   - type: The type to convert the document fields to.
   ///   - serverTimestampBehavior: Configures how server timestamps that have
   ///     not yet been set to their final value are returned from the snapshot.
-  ///   - decoder: The decoder to use to convert the document. `nil` to use
+  ///   - decoder: The decoder to use to convert the document. Defaults to use
   ///     default decoder.
   func data<T: Decodable>(as type: T.Type,
                           with serverTimestampBehavior: ServerTimestampBehavior = .none,
-                          decoder: Firestore.Decoder? = nil) throws -> T {
-    let d = decoder ?? Firestore.Decoder()
+                          decoder: Firestore.Decoder = .init()) throws -> T {
     let data: Any = data(with: serverTimestampBehavior) ?? NSNull()
-    return try d.decode(T.self, from: data, in: reference)
+    return try decoder.decode(T.self, from: data, in: reference)
   }
 }
