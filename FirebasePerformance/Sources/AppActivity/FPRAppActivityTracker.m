@@ -42,9 +42,8 @@ NSString *const kFPRAppTraceNameBackgroundSession = @"_bs";
 NSString *const kFPRAppCounterNameTraceEventsRateLimited = @"_fstec";
 NSString *const kFPRAppCounterNameNetworkTraceEventsRateLimited = @"_fsntc";
 NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
-NSString *const kFPRPrewarmedAppStartIdentifiedByActivePrewarm = @"_pasap";
-NSString *const kFPRPrewarmedAppStartIdentifiedByDoubleDispatch = @"_pasdd";
-NSString *const kFPRPrewarmedAppStartDroppedWithDuration = @"_pasd";
+NSString *const kFPRPrewarmedAppStartIdentifiedByActivePrewarm = @"_asap";
+NSString *const kFPRPrewarmedAppStartIdentifiedByDoubleDispatch = @"_asdd";
 
 @interface FPRAppActivityTracker ()
 
@@ -256,7 +255,6 @@ NSString *const kFPRPrewarmedAppStartDroppedWithDuration = @"_pasd";
         [self.appStartTrace stop];
       } else {
         [self.appStartTrace cancel];
-        [self.activeTrace incrementMetric:kFPRPrewarmedAppStartDroppedWithDuration byInt:self.appStartTrace.totalTraceTimeInterval];
       }
     });
   }
