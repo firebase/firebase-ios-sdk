@@ -180,7 +180,8 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
              // callback is invoked less than an hour after the request is made, a token is not
              // re-requested here but the approximateExpirationDate will still be off since that is
              // computed at the time the token is received.
-             if (retryIfExpired && [tokenResult.expirationDate timeIntervalSinceNow] <= 0) {
+             if (retryIfExpired &&
+                 [tokenResult.expirationDate timeIntervalSinceNow] <= kFiveMinutes) {
                // We only retry once, to avoid an infinite loop in the case that an end-user has
                // their local time skewed by over an hour.
                [self requestAccessToken:NO callback:callback];
