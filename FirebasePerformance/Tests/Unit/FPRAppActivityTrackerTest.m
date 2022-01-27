@@ -209,8 +209,9 @@
   OCMStub([mockAppTracker isActivePrewarmEnabled]).andReturn(NO);
 
   [FPRAppActivityTracker load];
-  [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidFinishLaunchingNotification
-                               object:[UIApplication sharedApplication]];
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:UIApplicationDidFinishLaunchingNotification
+                    object:[UIApplication sharedApplication]];
 
   XCTAssertTrue([mockAppTracker isApplicationPreWarmed]);
 }
@@ -221,8 +222,9 @@
   OCMStub([mockAppTracker isDoubleDispatchEnabled]).andReturn(YES);
   OCMStub([mockAppTracker isActivePrewarmEnabled]).andReturn(NO);
 
-  [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidFinishLaunchingNotification
-                               object:[UIApplication sharedApplication]];
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:UIApplicationDidFinishLaunchingNotification
+                    object:[UIApplication sharedApplication]];
   [FPRAppActivityTracker load];
 
   XCTAssertFalse([mockAppTracker isApplicationPreWarmed]);
@@ -233,7 +235,7 @@
   OCMStub([mockAppTracker isPrewarmAvailable]).andReturn(YES);
   OCMStub([mockAppTracker isDoubleDispatchEnabled]).andReturn(NO);
   OCMStub([mockAppTracker isActivePrewarmEnabled]).andReturn(YES);
-  
+
   setenv("ActivePrewarm", "1", 1);
   XCTAssertTrue([mockAppTracker isApplicationPreWarmed]);
 }
@@ -248,7 +250,7 @@
   OCMStub([mockAppTracker isPrewarmAvailable]).andReturn(YES);
   OCMStub([mockAppTracker isActivePrewarmEnabled]).andReturn(NO);
   OCMStub([mockAppTracker isDoubleDispatchEnabled]).andReturn(NO);
-  
+
   XCTAssertTrue([mockAppTracker isApplicationPreWarmed]);
 }
 

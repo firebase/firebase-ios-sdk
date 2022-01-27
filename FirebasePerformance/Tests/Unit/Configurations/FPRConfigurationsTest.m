@@ -552,11 +552,11 @@
   NSUserDefaults *userDefaults = [[NSUserDefaults alloc] init];
   configFlags.userDefaults = userDefaults;
 
-  NSString *configKey = [NSString
-      stringWithFormat:@"%@.%@", kFPRConfigPrefix, @"fpr_prewarm_detection"];
+  NSString *configKey =
+      [NSString stringWithFormat:@"%@.%@", kFPRConfigPrefix, @"fpr_prewarm_detection"];
   [userDefaults setObject:@(0) forKey:configKey];
   XCTAssertEqual([configurations prewarmDetectionMode], 0);
-  
+
   [userDefaults setObject:@(1) forKey:configKey];
   XCTAssertEqual([configurations prewarmDetectionMode], 1);
 
