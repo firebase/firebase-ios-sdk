@@ -51,9 +51,6 @@ NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions."
 /** Current running state of the application. */
 @property(nonatomic, readonly) FPRApplicationState applicationState;
 
-/** Firebase Remote Configuration object */
-@property(nonatomic) FPRConfigurations *configurations;
-
 /** Accesses the singleton instance.
  *  @return Reference to the shared object if successful; <code>nil</code> if not.
  */

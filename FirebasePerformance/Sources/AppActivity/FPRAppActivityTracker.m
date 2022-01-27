@@ -60,6 +60,9 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
 /** Tracks if the gauge metrics are dispatched. */
 @property(nonatomic) BOOL appStartGaugeMetricDispatched;
 
+/** Firebase Performance Configuration object */
+@property(nonatomic) FPRConfigurations *configurations;
+
 /** Starts tracking app active sessions. */
 - (void)startAppActivityTracking;
 
@@ -147,6 +150,12 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
   return self.backgroundSessionTrace;
 }
 
+/**
+ * Checks if prewarming is available for the platform on current device.
+ * It is available when running iOS 15 and above.
+ *
+ * @return true if the platform could prewarm apps on the current device
+ */
 + (BOOL)isPrewarmAvailable {
   if (![[GULAppEnvironmentUtil applePlatform] isEqualToString:@"ios"]) {
     return NO;
@@ -155,21 +164,28 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
   if ([systemVersion length] == 0) {
     return NO;
   }
-  NSArray *versionComponents = [systemVersion componentsSeparatedByString:@"."];
-  NSInteger majorVersion = [versionComponents[0] integerValue];
-  return majorVersion >= 15;
+  return [systemVersion compare:@"15" options:NSNumericSearch] != NSOrderedAscending;
 }
 
+/**
+ RC flag for enabling prewarm-detection using ActivePrewarm environment variable
+ */
 - (BOOL)isActivePrewarmEnabled {
   return ([self.configurations prewarmDetectionMode] == 1 ||
           [self.configurations prewarmDetectionMode] == 3);
 }
 
+/**
+ RC flag for enabling prewarm-detection using double dispatch method
+ */
 - (BOOL)isDoubleDispatchEnabled {
   return ([self.configurations prewarmDetectionMode] == 2 ||
           [self.configurations prewarmDetectionMode] == 3);
 }
 
+/**
+ Checks if the current app start is a prewarmed app start
+ */
 - (BOOL)isApplicationPreWarmed {
   if (![FPRAppActivityTracker isPrewarmAvailable]) {
     return NO;
@@ -181,8 +197,8 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
   }
 
   NSDictionary<NSString *, NSString *> *environment = [NSProcessInfo processInfo].environment;
-  if ([self isActivePrewarmEnabled] && environment[@"ActivePrewarm"] != nil &&
-      [environment[@"ActivePrewarm"] isEqualToString:@"1"]) {
+  BOOL isActivePrewarmVariableSetToYes = [environment[@"ActivePrewarm"] boolValue];
+  if ([self isActivePrewarmEnabled] && isActivePrewarmVariableSetToYes) {
     return YES;
   }
 
