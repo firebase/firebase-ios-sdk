@@ -24,6 +24,8 @@
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
 
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+
 static NSDate *appStartTime = nil;
 static NSDate *doubleDispatchTime = nil;
 static NSDate *applicationFinishLaunchTime = nil;
@@ -145,6 +147,19 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
   return self.backgroundSessionTrace;
 }
 
++ (BOOL)isPrewarmAvailable {
+  if (![[GULAppEnvironmentUtil applePlatform] isEqualToString:@"ios"]) {
+    return NO;
+  }
+  NSString *systemVersion = [GULAppEnvironmentUtil systemVersion];
+  if ([systemVersion length] == 0) {
+    return NO;
+  }
+  NSArray *versionComponents = [systemVersion componentsSeparatedByString:@"."];
+  NSInteger majorVersion = [versionComponents[0] integerValue];
+  return majorVersion >= 15;
+}
+
 - (BOOL)isActivePrewarmEnabled {
   return ([self.configurations prewarmDetectionMode] == 1 ||
           [self.configurations prewarmDetectionMode] == 3);
@@ -156,10 +171,7 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
 }
 
 - (BOOL)isApplicationPreWarmed {
-  NSArray *versionComponents =
-      [[UIDevice currentDevice].systemVersion componentsSeparatedByString:@"."];
-  NSInteger majorVersion = [versionComponents[0] integerValue];
-  if (majorVersion < 15) {
+  if (![FPRAppActivityTracker isPrewarmAvailable]) {
     return NO;
   }
 
