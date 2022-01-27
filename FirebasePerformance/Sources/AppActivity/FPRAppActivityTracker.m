@@ -175,6 +175,11 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
     return NO;
   }
 
+  // Force drop all events according to RC flag
+  if ([self.configurations prewarmDetectionMode] == 0) {
+    return YES;
+  }
+
   NSDictionary<NSString *, NSString *> *environment = [NSProcessInfo processInfo].environment;
   if ([self isActivePrewarmEnabled] && environment[@"ActivePrewarm"] != nil &&
       [environment[@"ActivePrewarm"] isEqualToString:@"1"]) {

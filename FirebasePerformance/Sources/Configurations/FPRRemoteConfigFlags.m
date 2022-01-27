@@ -103,6 +103,7 @@ typedef NS_ENUM(NSInteger, FPRConfigValueType) {
     [keysToCache setObject:@(FPRConfigValueTypeInteger)
                     forKey:@"fpr_session_gauge_memory_capture_frequency_bg_ms"];
     [keysToCache setObject:@(FPRConfigValueTypeInteger) forKey:@"fpr_session_max_duration_min"];
+    [keysToCache setObject:@(FPRConfigValueTypeInteger) forKey:@"fpr_prewarm_detection"];
     self.configKeys = [keysToCache copy];
 
     [self update];

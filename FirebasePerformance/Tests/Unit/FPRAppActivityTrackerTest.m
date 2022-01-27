@@ -29,6 +29,9 @@
 
 @interface FPRAppActivityTracker (Tests)
 
++ (BOOL)isPrewarmAvailable;
+- (BOOL)isActivePrewarmEnabled;
+- (BOOL)isDoubleDispatchEnabled;
 - (BOOL)isApplicationPreWarmed;
 
 @end
@@ -200,49 +203,53 @@
 }
 
 - (void)testIsApplicationPrewarmedReturnsYesBecauseOfDoubleDispatch {
-  NSArray *versionComponents =
-      [[UIDevice currentDevice].systemVersion componentsSeparatedByString:@"."];
-  NSInteger majorVersion = [versionComponents[0] integerValue];
-  if (majorVersion < 15) {
-    return;
-  }
-  FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
-  NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
+  id mockAppTracker = OCMPartialMock([FPRAppActivityTracker sharedInstance]);
+  OCMStub([mockAppTracker isPrewarmAvailable]).andReturn(YES);
+  OCMStub([mockAppTracker isDoubleDispatchEnabled]).andReturn(YES);
+  OCMStub([mockAppTracker isActivePrewarmEnabled]).andReturn(NO);
 
   [FPRAppActivityTracker load];
-  [defaultCenter postNotificationName:UIApplicationDidFinishLaunchingNotification
+  [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidFinishLaunchingNotification
                                object:[UIApplication sharedApplication]];
 
-  XCTAssertTrue(appTracker.isApplicationPreWarmed);
+  XCTAssertTrue([mockAppTracker isApplicationPreWarmed]);
 }
 
 - (void)testIsApplicationPrewarmedReturnsNoBecauseOfDoubleDispatch {
-  NSArray *versionComponents =
-      [[UIDevice currentDevice].systemVersion componentsSeparatedByString:@"."];
-  NSInteger majorVersion = [versionComponents[0] integerValue];
-  if (majorVersion < 15) {
-    return;
-  }
-  FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
-  NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
+  id mockAppTracker = OCMPartialMock([FPRAppActivityTracker sharedInstance]);
+  OCMStub([mockAppTracker isPrewarmAvailable]).andReturn(YES);
+  OCMStub([mockAppTracker isDoubleDispatchEnabled]).andReturn(YES);
+  OCMStub([mockAppTracker isActivePrewarmEnabled]).andReturn(NO);
 
-  [defaultCenter postNotificationName:UIApplicationDidFinishLaunchingNotification
+  [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidFinishLaunchingNotification
                                object:[UIApplication sharedApplication]];
   [FPRAppActivityTracker load];
 
-  XCTAssertFalse(appTracker.isApplicationPreWarmed);
+  XCTAssertFalse([mockAppTracker isApplicationPreWarmed]);
 }
 
 - (void)testIsApplicationPrewarmedReturnsYesBecauseOfActivePrewarm {
-  NSArray *versionComponents =
-      [[UIDevice currentDevice].systemVersion componentsSeparatedByString:@"."];
-  NSInteger majorVersion = [versionComponents[0] integerValue];
-  if (majorVersion < 15) {
-    return;
-  }
+  id mockAppTracker = OCMPartialMock([FPRAppActivityTracker sharedInstance]);
+  OCMStub([mockAppTracker isPrewarmAvailable]).andReturn(YES);
+  OCMStub([mockAppTracker isDoubleDispatchEnabled]).andReturn(NO);
+  OCMStub([mockAppTracker isActivePrewarmEnabled]).andReturn(YES);
+  
   setenv("ActivePrewarm", "1", 1);
+  XCTAssertTrue([mockAppTracker isApplicationPreWarmed]);
+}
+
+- (void)testIsApplicationPrewarmedDropsAllEventAccordingToRCFlag {
+  id mockConfigurations = OCMClassMock([FPRConfigurations class]);
+  OCMStub([mockConfigurations prewarmDetectionMode]).andReturn(0);
+
   FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
-  XCTAssertTrue(appTracker.isApplicationPreWarmed);
+  id mockAppTracker = OCMPartialMock(appTracker);
+  appTracker.configurations = mockConfigurations;
+  OCMStub([mockAppTracker isPrewarmAvailable]).andReturn(YES);
+  OCMStub([mockAppTracker isActivePrewarmEnabled]).andReturn(NO);
+  OCMStub([mockAppTracker isDoubleDispatchEnabled]).andReturn(NO);
+  
+  XCTAssertTrue([mockAppTracker isApplicationPreWarmed]);
 }
 
 @end
