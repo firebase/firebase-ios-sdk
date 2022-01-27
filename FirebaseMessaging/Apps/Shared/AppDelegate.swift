@@ -16,8 +16,17 @@ import UIKit
 import FirebaseCore
 import FirebaseMessaging
 import FirebaseAnalytics
+import GoogleMulticastAppDelegate
 
 @UIApplicationMain
+
+class MulticastAppDelegate: GULMulticastAppDelegate {
+  override init() {
+    super.init()
+    addInterceptor(with: AppDelegate())
+  }
+}
+
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication

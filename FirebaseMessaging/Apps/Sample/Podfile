@@ -12,5 +12,6 @@ target 'Sample' do
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
   pod 'FirebaseAnalytics'
+  pod 'GoogleMulticastAppDelegate', :path => '../../../../github/GoogleUtilities/'
 
 end

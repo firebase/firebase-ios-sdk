@@ -18,15 +18,12 @@ import SwiftUI
 import FirebaseCore
 import FirebaseInstallations
 import FirebaseMessaging
+import GoogleMulticastAppDelegate
 
 class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate,
   MessagingDelegate {
   let identity = Identity()
   var cancellables = Set<AnyCancellable>()
-
-  // Must implement the method to make swizzling work in SwiftUI lifecycle.
-  func application(_ application: UIApplication,
-                   didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {}
 
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication
@@ -92,11 +89,17 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 @main
 struct SwiftUISampleApp: App {
   // Add the adapter to access notifications APIs in AppDelegate
-  @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+  @UIApplicationDelegateAdaptor(GULMulticastAppDelegate.self) var delegate
+  var appDelegate: UIApplicationDelegate
+
+  init() {
+    appDelegate = AppDelegate()
+    delegate.addInterceptor(with: appDelegate)
+  }
 
   var body: some Scene {
     WindowGroup {
-      ContentView().environmentObject(appDelegate.identity).environmentObject(UserSettings())
+      ContentView().environmentObject(Identity()).environmentObject(UserSettings())
     }
   }
 }

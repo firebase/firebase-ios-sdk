@@ -42,4 +42,6 @@
  */
 - (void)swizzleMethodsIfPossible;
 
+- (void)multicast;
+
 @end

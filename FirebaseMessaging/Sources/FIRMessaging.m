@@ -273,6 +273,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                              kFIRMessagingRemoteNotificationsProxyEnabledInfoPlistKey,
                              docsURLString);
     [[FIRMessagingRemoteNotificationsProxy sharedProxy] swizzleMethodsIfPossible];
+  } else {
+    [[FIRMessagingRemoteNotificationsProxy sharedProxy] multicast];
   }
 }
 

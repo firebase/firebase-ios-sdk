@@ -7,9 +7,10 @@ source 'https://cdn.cocoapods.org/'
 target 'SwiftUISample' do
   platform :ios, '15.0'
 
+  pod 'FirebaseAuth', :path => '../../../'
   pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseMessaging', :path => '../../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
-
+  pod 'GoogleMulticastAppDelegate', :path => '../../../../github/GoogleUtilities/'
 end

@@ -18,7 +18,9 @@
 
 #import <objc/runtime.h>
 
+#import <GoogleMulticastAppDelegate/GULMulticastAppDelegate.h>
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
+
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
@@ -80,14 +82,28 @@ static NSString *kUserNotificationDidReceiveResponseSelectorString =
   [self removeUserNotificationCenterDelegateObserver];
 }
 
+- (void)multicast {
+  id<GULMulticastAppDelegateProtocol> multicastDelegate =
+      [GULMulticastAppDelegate multicastDelegate];
+  // if (!multicastDelegate) {
+  [multicastDelegate addInterceptorWithDelegate:self];
+  //}
+}
+
 - (void)swizzleMethodsIfPossible {
   // Already swizzled.
   if (self.didSwizzleMethods) {
     return;
   }
 
-  [GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods];
-  self.appDelegateInterceptorID = [GULAppDelegateSwizzler registerAppDelegateInterceptor:self];
+  id<GULMulticastAppDelegateProtocol> multicastDelegate =
+      [GULMulticastAppDelegate multicastDelegate];
+  if (!multicastDelegate) {
+    [multicastDelegate addInterceptorWithDelegate:self];
+  } else {
+    [GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods];
+    self.appDelegateInterceptorID = [GULAppDelegateSwizzler registerAppDelegateInterceptor:self];
+  }
 
   // Add KVO listener on [UNUserNotificationCenter currentNotificationCenter]'s delegate property
   Class notificationCenterClass = NSClassFromString(@"UNUserNotificationCenter");
