@@ -97,6 +97,23 @@ namespace local {
 // named_queries:
 //   - table_name: string = "named_queries"
 //   - name: string
+//
+// index_configuration:
+//   - table_name: string = "index_configuration"
+//   - index_id: int32_t
+//
+// index_state:
+//   - table_name: string = "index_state"
+//   - index_id: int32_t
+//   - user_id: string
+//
+// index_entries:
+//   - table_name: string = "index_entries"
+//   - index_id: int32_t
+//   - user_id: string
+//   - array_value: string
+//   - directional_value: string
+//   - document_name: string
 
 /**
  * Parses the given key and returns a human readable description of its
@@ -711,6 +728,85 @@ class LevelDbNamedQueryKey {
 
  private:
   std::string name_;
+};
+
+class LevelDbIndexConfigurationKey {
+ public:
+  static std::string KeyPrefix();
+
+  static std::string Key(int32_t id);
+
+  ABSL_MUST_USE_RESULT
+  bool Decode(absl::string_view key);
+
+  int32_t index_id() const {
+    return index_id_;
+  }
+
+ private:
+  int32_t index_id_;
+};
+
+class LevelDbIndexStateKey {
+ public:
+  static std::string KeyPrefix();
+
+  static std::string Key(int32_t index_id, absl::string_view user_id);
+
+  ABSL_MUST_USE_RESULT
+  bool Decode(absl::string_view key);
+
+  int32_t index_id() const {
+    return index_id_;
+  }
+
+  const std::string& user_id() const {
+    return user_id_;
+  }
+
+ private:
+  int32_t index_id_;
+  std::string user_id_;
+};
+
+class LevelDbIndexEntryKey {
+ public:
+  static std::string KeyPrefix();
+
+  static std::string Key(int32_t index_id,
+                         absl::string_view user_id,
+                         absl::string_view array_value,
+                         absl::string_view directional_value,
+                         absl::string_view document_name);
+
+  ABSL_MUST_USE_RESULT
+  bool Decode(absl::string_view key);
+
+  int32_t index_id() const {
+    return index_id_;
+  }
+
+  const std::string& user_id() const {
+    return user_id_;
+  }
+
+  const std::string& array_value() const {
+    return array_value_;
+  }
+
+  const std::string& directional_value() const {
+    return directional_value_;
+  }
+  const std::string& document_name() const {
+    return document_name_;
+  }
+
+ private:
+  int32_t index_id_;
+  std::string user_id_;
+  std::string array_value_;
+  std::string directional_value_;
+  std::string document_name_;
 };
 
 }  // namespace local

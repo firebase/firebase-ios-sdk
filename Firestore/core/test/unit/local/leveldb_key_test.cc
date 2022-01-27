@@ -490,6 +490,154 @@ TEST(NamedQueryKeyTest, Description) {
                                LevelDbNamedQueryKey::Key("foo-bar?baz!quux"));
 }
 
+TEST(IndexConfigurationKeyTest, Prefixing) {
+  auto table_key = LevelDbIndexConfigurationKey::KeyPrefix();
+
+  ASSERT_TRUE(
+      absl::StartsWith(LevelDbIndexConfigurationKey::Key(0), table_key));
+
+  ASSERT_FALSE(absl::StartsWith(LevelDbIndexConfigurationKey::Key(1),
+                                LevelDbIndexConfigurationKey::Key(2)));
+}
+
+TEST(IndexConfigurationKeyTest, Ordering) {
+  ASSERT_LT(LevelDbIndexConfigurationKey::Key(0),
+            LevelDbIndexConfigurationKey::Key(1));
+  ASSERT_EQ(LevelDbIndexConfigurationKey::Key(1),
+            LevelDbIndexConfigurationKey::Key(1));
+}
+
+TEST(IndexConfigurationKeyTest, EncodeDecodeCycle) {
+  LevelDbIndexConfigurationKey key;
+
+  for (int32_t id = -5; id < 10; ++id) {
+    auto encoded = LevelDbIndexConfigurationKey::Key(id);
+    bool ok = key.Decode(encoded);
+    ASSERT_TRUE(ok);
+    ASSERT_EQ(id, key.index_id());
+  }
+}
+
+TEST(IndexConfigurationKeyTest, Description) {
+  AssertExpectedKeyDescription("[index_configuration: index_id=8]",
+                               LevelDbIndexConfigurationKey::Key(8));
+}
+
+TEST(IndexStateKeyTest, Prefixing) {
+  auto table_key = LevelDbIndexStateKey::KeyPrefix();
+
+  ASSERT_TRUE(
+      absl::StartsWith(LevelDbIndexStateKey::Key(0, "user_a"), table_key));
+
+  ASSERT_FALSE(absl::StartsWith(LevelDbIndexStateKey::Key(0, "user_a"),
+                                LevelDbIndexStateKey::Key(0, "user_b")));
+  ASSERT_FALSE(absl::StartsWith(LevelDbIndexStateKey::Key(0, "user_a"),
+                                LevelDbIndexStateKey::Key(1, "user_a")));
+}
+
+TEST(IndexStateKeyTest, Ordering) {
+  ASSERT_LT(LevelDbIndexStateKey::Key(0, "foo/bar"),
+            LevelDbIndexStateKey::Key(1, "foo/bar"));
+  ASSERT_LT(LevelDbIndexStateKey::Key(0, "foo/bar"),
+            LevelDbIndexStateKey::Key(0, "foo/bar1"));
+}
+
+TEST(IndexStateKeyTest, EncodeDecodeCycle) {
+  LevelDbIndexStateKey key;
+
+  std::vector<std::pair<int32_t, std::string>> ids{
+      {0, "foo/bar"}, {1, "foo/bar2"}, {-1, "foo-bar?baz!quux"}};
+  for (auto&& id : ids) {
+    auto encoded = LevelDbIndexStateKey::Key(id.first, id.second);
+    bool ok = key.Decode(encoded);
+    ASSERT_TRUE(ok);
+    ASSERT_EQ(id.first, key.index_id());
+    ASSERT_EQ(id.second, key.user_id());
+  }
+}
+
+TEST(IndexStateKeyTest, Description) {
+  AssertExpectedKeyDescription(
+      "[index_state: index_id=99 user_id=foo-bar?baz!quux]",
+      LevelDbIndexStateKey::Key(99, "foo-bar?baz!quux"));
+}
+
+TEST(IndexEntryKeyTest, Prefixing) {
+  auto table_key = LevelDbIndexEntryKey::KeyPrefix();
+
+  ASSERT_TRUE(absl::StartsWith(
+      LevelDbIndexEntryKey::Key(0, "user_id", "array_value_encoded",
+                                "directional_value_encoded", "document_id_99"),
+      table_key));
+
+  ASSERT_FALSE(absl::StartsWith(LevelDbIndexEntryKey::Key(0, "", "", "", ""),
+                                LevelDbIndexEntryKey::Key(1, "", "", "", "")));
+}
+
+struct IndexEntry {
+  int32_t index_id;
+  std::string user_id;
+  std::string array_value;
+  std::string dir_value;
+  std::string document_name;
+};
+
+TEST(IndexEntryKeyTest, Ordering) {
+  std::vector<IndexEntry> entries = {
+      {-1, "", "", "", ""},      {0, "", "", "", ""},
+      {0, "u", "", "", ""},      {0, "v", "", "", ""},
+      {0, "v", "a", "", ""},     {0, "v", "b", "", ""},
+      {0, "v", "b", "d", ""},    {0, "v", "b", "e", ""},
+      {0, "v", "b", "e", "doc"}, {0, "v", "b", "e", "eoc"},
+  };
+
+  for (size_t i = 0; i < entries.size() - 1; ++i) {
+    auto& left = entries[i];
+    auto& right = entries[i + 1];
+    ASSERT_LT(
+        LevelDbIndexEntryKey::Key(left.index_id, left.user_id, left.array_value,
+                                  left.dir_value, left.document_name),
+        LevelDbIndexEntryKey::Key(right.index_id, right.user_id,
+                                  right.array_value, right.dir_value,
+                                  right.document_name));
+  }
+}
+
+TEST(IndexEntryKeyTest, EncodeDecodeCycle) {
+  LevelDbIndexEntryKey key;
+
+  std::vector<IndexEntry> entries = {
+      {-1, "", "", "", ""},
+      {0, "foo", "bar", "baz", "did"},
+      {999, "u", "foo-bar?baz!quux", "", ""},
+      {-999, "u",
+       "اَلْعَرَبِيَّةُ, al-ʿarabiyyah [al ʕaraˈbijːa] (audio speaker iconlisten) or "
+       "عَرَبِيّ, ʿarabīy",
+       "汉语; traditional Chinese: 漢語; pinyin: Hànyǔ[b] or also 中文", "doc"},
+  };
+
+  for (auto&& entry : entries) {
+    auto encoded = LevelDbIndexEntryKey::Key(entry.index_id, entry.user_id,
+                                             entry.array_value, entry.dir_value,
+                                             entry.document_name);
+    bool ok = key.Decode(encoded);
+    ASSERT_TRUE(ok);
+    ASSERT_EQ(entry.index_id, key.index_id());
+    ASSERT_EQ(entry.user_id, key.user_id());
+    ASSERT_EQ(entry.array_value, key.array_value());
+    ASSERT_EQ(entry.dir_value, key.directional_value());
+    ASSERT_EQ(entry.document_name, key.document_name());
+  }
+}
+
+TEST(IndexEntryKeyTest, Description) {
+  AssertExpectedKeyDescription(
+      "[index_entries: index_id=1 user_id=user array_value=array "
+      "directional_value=directional document_id=foo-bar?baz!quux]",
+      LevelDbIndexEntryKey::Key(1, "user", "array", "directional",
+                                "foo-bar?baz!quux"));
+}
+
 #undef AssertExpectedKeyDescription
 
 }  // namespace local
