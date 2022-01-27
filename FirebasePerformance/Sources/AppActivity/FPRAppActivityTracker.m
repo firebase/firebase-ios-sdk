@@ -256,8 +256,7 @@ NSString *const kFPRPrewarmedAppStartDroppedWithDuration = @"_pasd";
         [self.appStartTrace stop];
       } else {
         [self.appStartTrace cancel];
-        [self.activeTrace incrementMetric:kFPRPrewarmedAppStartDroppedWithDuration
-                                    byInt:self.appStartTrace.totalTraceTimeInterval];
+        [self.activeTrace incrementMetric:kFPRPrewarmedAppStartDroppedWithDuration byInt:self.appStartTrace.totalTraceTimeInterval];
       }
     });
   }
