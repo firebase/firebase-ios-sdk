@@ -1,6 +1,7 @@
 # v8.12.0
 - [added] Added documentation note and error logging to `getStoredUser(forAccessGroup:)` regarding tvOS keychain sharing issues. (#8878)
 - [fixed] Partial fix for expired ID token issue. (#6521)
+- [added] Added `X-Firebase-Client` and `X-Firebase-Client-Log-Type` headers to network requests. (#9066)
 
 # v8.11.0
 - [changed] Added a `X-Firebase-GMPID` header to network requests. (#9046)
