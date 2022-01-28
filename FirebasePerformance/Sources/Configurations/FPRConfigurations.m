@@ -307,7 +307,7 @@ static dispatch_once_t gSharedInstanceToken;
   // 2 means use only double dispatch
   // 3 means use both ActivePrewarm and double dispatch
   // 4 means keep all _as events
-  int mode = EitherActivePrewarmOrDoubleDispatch;
+  int mode = OnlyActivePrewarm;
   if (self.remoteConfigFlags) {
     mode = [self.remoteConfigFlags getIntValueForFlag:@"fpr_prewarm_detection" defaultValue:mode];
   }

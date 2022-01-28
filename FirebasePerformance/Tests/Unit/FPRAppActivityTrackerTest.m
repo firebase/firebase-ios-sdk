@@ -219,20 +219,6 @@
   XCTAssertTrue([mockAppTracker isApplicationPreWarmed]);
 }
 
-- (void)testIsApplicationPrewarmedReturnsNoBecauseOfDoubleDispatch {
-  id mockAppTracker = OCMPartialMock([FPRAppActivityTracker sharedInstance]);
-  OCMStub([mockAppTracker isPrewarmAvailable]).andReturn(YES);
-  OCMStub([mockAppTracker isDoubleDispatchEnabled]).andReturn(YES);
-  OCMStub([mockAppTracker isActivePrewarmEnabled]).andReturn(NO);
-
-  [[NSNotificationCenter defaultCenter]
-      postNotificationName:UIApplicationDidFinishLaunchingNotification
-                    object:[UIApplication sharedApplication]];
-  [FPRAppActivityTracker load];
-
-  XCTAssertFalse([mockAppTracker isApplicationPreWarmed]);
-}
-
 - (void)testIsApplicationPrewarmedReturnsYesBecauseOfActivePrewarm {
   id mockAppTracker = OCMPartialMock([FPRAppActivityTracker sharedInstance]);
   OCMStub([mockAppTracker isPrewarmAvailable]).andReturn(YES);
