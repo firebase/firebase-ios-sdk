@@ -168,6 +168,13 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
 }
 
 /**
+ RC flag for dropping all app start events
+ */
+- (BOOL)isAppStartEnabled {
+  return [self.configurations prewarmDetectionMode] != DropAllEvents;
+}
+
+/**
  RC flag for enabling prewarm-detection using ActivePrewarm environment variable
  */
 - (BOOL)isActivePrewarmEnabled {
@@ -189,11 +196,6 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
 - (BOOL)isApplicationPreWarmed {
   if (![FPRAppActivityTracker isPrewarmAvailable]) {
     return NO;
-  }
-
-  // Force drop all events according to RC flag
-  if ([self.configurations prewarmDetectionMode] == DropAllEvents) {
-    return YES;
   }
 
   NSDictionary<NSString *, NSString *> *environment = [NSProcessInfo processInfo].environment;
@@ -263,7 +265,7 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
       // Dropping the app start trace in such situations where the launch time is taking more than
       // 60 minutes. This is an approximation, but a more agreeable timelimit for app start.
       if ((currentTimeSinceEpoch - startTimeSinceEpoch < gAppStartMaxValidDuration) &&
-          ![self isApplicationPreWarmed]) {
+          [self isAppStartEnabled] && ![self isApplicationPreWarmed]) {
         [self.appStartTrace stop];
       } else {
         [self.appStartTrace cancel];
