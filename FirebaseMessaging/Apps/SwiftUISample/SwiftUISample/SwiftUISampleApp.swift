@@ -20,20 +20,16 @@ import FirebaseInstallations
 import FirebaseMessaging
 import GoogleMulticastAppDelegate
 
-// class MulticastAppDelegate: GULMulticastAppDelegate {
-//  override init() {
-//    super.init(appDelegate: AppDelegate())
-//  }
-// }
+class MulticastAppDelegate: GULMulticastAppDelegate {
+  override init() {
+    super.init(appDelegate: AppDelegate())
+  }
+}
 
 class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate,
   MessagingDelegate {
   let identity = Identity()
   var cancellables = Set<AnyCancellable>()
-
-//  func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-//
-//  }
 
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication
@@ -99,17 +95,17 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 @main
 struct SwiftUISampleApp: App {
   // Add the adapter to access notifications APIs in AppDelegate
-  @UIApplicationDelegateAdaptor(GULMulticastAppDelegate.self) var delegate
-  var appDelegate: UIApplicationDelegate
+  @UIApplicationDelegateAdaptor(MulticastAppDelegate.self) var delegate
+  var defaultAppDelegate: AppDelegate?
 
   init() {
-    appDelegate = AppDelegate()
-    delegate.addInterceptor(with: appDelegate)
+    defaultAppDelegate = delegate.defaultAppDelegate as? AppDelegate
   }
 
   var body: some Scene {
     WindowGroup {
-      ContentView().environmentObject(Identity()).environmentObject(UserSettings())
+      ContentView().environmentObject(defaultAppDelegate?.identity ?? Identity())
+        .environmentObject(UserSettings())
     }
   }
 }
