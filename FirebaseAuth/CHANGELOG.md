@@ -1,4 +1,5 @@
-# Unreleased
+# v8.12.0
+- [added] Added documentation note and error logging to `getStoredUser(forAccessGroup:)` regarding tvOS keychain sharing issues. (#8878)
 - [fixed] Partial fix for expired ID token issue. (#6521)
 
 # v8.11.0

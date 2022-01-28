@@ -70,12 +70,13 @@
 }
 
 - (instancetype)initTestMessageWithRenderData:(FIRIAMMessageRenderData *)renderData
+                                      appData:(nullable NSDictionary *)appData
                             experimentPayload:(nullable ABTExperimentPayload *)experimentPayload {
   return [self initWithRenderData:renderData
                         startTime:0
                           endTime:0
                 triggerDefinition:@[]
-                          appData:nil
+                          appData:appData
                 experimentPayload:experimentPayload
                     isTestMessage:YES];
 }

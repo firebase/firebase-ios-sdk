@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -58,6 +58,7 @@
 		DED400C2243E571500BF6D56 /* BYOAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DED400BC243E571500BF6D56 /* BYOAuthTests.m */; };
 		DED400C3243E571500BF6D56 /* FIRAuthE2eTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DED400BE243E571500BF6D56 /* FIRAuthE2eTests.m */; };
 		DED400C4243E571500BF6D56 /* FIRAuthE2eTestsBase.m in Sources */ = {isa = PBXBuildFile; fileRef = DED400BF243E571500BF6D56 /* FIRAuthE2eTestsBase.m */; };
+		DEF68E952799B9970064CC92 /* SwiftAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEF68E942799B9970064CC92 /* SwiftAPI.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -180,6 +181,7 @@
 		DED400BD243E571500BF6D56 /* FIRAuthE2eTestsBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRAuthE2eTestsBase.h; sourceTree = "<group>"; };
 		DED400BE243E571500BF6D56 /* FIRAuthE2eTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthE2eTests.m; sourceTree = "<group>"; };
 		DED400BF243E571500BF6D56 /* FIRAuthE2eTestsBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthE2eTestsBase.m; sourceTree = "<group>"; };
+		DEF68E942799B9970064CC92 /* SwiftAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftAPI.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -214,13 +216,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A00A0EC6CCFF06F1AC46A4F9 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		DE800AEB22A2F87E00AC9A23 = {
 			isa = PBXGroup;
 			children = (
@@ -229,7 +224,6 @@
 				DE800B9622A5BD1800AC9A23 /* E2eTests */,
 				DEBEF6042450EA27005E1A8F /* SwiftApiTests */,
 				DE800AF522A2F87E00AC9A23 /* Products */,
-				A00A0EC6CCFF06F1AC46A4F9 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -360,6 +354,7 @@
 				DE1865B3245C92A600F8AD70 /* GoogleTests.swift */,
 				DE1865B5245C95DA00F8AD70 /* Credentials.swift */,
 				DE1865B7245CC6FC00F8AD70 /* FacebookTests.swift */,
+				DEF68E942799B9970064CC92 /* SwiftAPI.swift */,
 			);
 			path = SwiftApiTests;
 			sourceTree = "<group>";
@@ -589,6 +584,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DEF68E952799B9970064CC92 /* SwiftAPI.swift in Sources */,
 				DE1865B4245C92A600F8AD70 /* GoogleTests.swift in Sources */,
 				DE1865AE245B8A1400F8AD70 /* AnonymousTests.swift in Sources */,
 				DE1865B8245CC6FC00F8AD70 /* FacebookTests.swift in Sources */,
@@ -744,7 +740,6 @@
 					"${SRCROOT}/../../..",
 				);
 				INFOPLIST_FILE = Sample/Application.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -769,7 +764,6 @@
 					"${SRCROOT}/../../..",
 				);
 				INFOPLIST_FILE = Sample/Application.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

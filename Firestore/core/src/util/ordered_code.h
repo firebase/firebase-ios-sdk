@@ -47,6 +47,9 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
+template <bool INVERT>
+void AppendBytes(std::string* dest, const char* src, size_t len);
+
 class OrderedCode {
  public:
   // -------------------------------------------------------------------

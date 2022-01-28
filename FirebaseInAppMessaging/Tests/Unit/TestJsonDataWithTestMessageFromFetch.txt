@@ -66,6 +66,33 @@
           }
         }
       ]
+    },
+    {
+      "vanillaPayload": {
+        "campaignId": "2108810525516234752"
+      },
+      "content": {
+        "modal": {
+          "title": {
+            "text": "FAST",
+            "hexColor": "#000000"
+          },
+          "body": {
+            "hexColor": "#000000"
+          },
+          "backgroundHexColor": "#ffffff"
+        }
+      },
+      "triggeringConditions": [
+        {
+          "fiamTrigger": "ON_FOREGROUND"
+        }
+      ],
+      "dataBundle": {
+        "a":"b",
+        "c":"d"
+      },
+      "isTestCampaign": true
     }
   ]
 }
