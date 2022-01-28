@@ -215,6 +215,8 @@ DatastoreSerializer::EncodeCommitRequest(
   return result;
 }
 
+// TODO(readtime): Add document read time
+// TODO(readtime): Add serializer test
 Message<google_firestore_v1_BatchGetDocumentsRequest>
 DatastoreSerializer::EncodeLookupRequest(
     const std::vector<DocumentKey>& keys) const {
@@ -224,6 +226,7 @@ DatastoreSerializer::EncodeLookupRequest(
   if (!keys.empty()) {
     result->documents_count = nanopb::CheckedSize(keys.size());
     result->documents = MakeArray<pb_bytes_array_t*>(result->documents_count);
+    // TODO(readtime): Set document read time
     pb_size_t i = 0;
     for (const DocumentKey& key : keys) {
       result->documents[i] = serializer_.EncodeKey(key);

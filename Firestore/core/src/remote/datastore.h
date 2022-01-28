@@ -103,6 +103,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
 
   void CommitMutations(const std::vector<model::Mutation>& mutations,
                        CommitCallback&& callback);
+  // TODO(readtime): Add document read time
   void LookupDocuments(const std::vector<model::DocumentKey>& keys,
                        LookupCallback&& callback);
 

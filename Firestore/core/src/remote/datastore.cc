@@ -203,6 +203,7 @@ void Datastore::CommitMutationsWithCredentials(
       });
 }
 
+// TODO(readtime): Add document read time
 void Datastore::LookupDocuments(const std::vector<DocumentKey>& keys,
                                 LookupCallback&& callback) {
   ResumeRpcWithCredentials(
@@ -213,11 +214,14 @@ void Datastore::LookupDocuments(const std::vector<DocumentKey>& keys,
           callback(auth_token.status());
           return;
         }
+
+        // TODO(readtime): Add document read time
         LookupDocumentsWithCredentials(auth_token.ValueOrDie(), app_check_token,
                                        keys, std::move(callback));
       });
 }
 
+// TODO(readtime): Add document read time
 void Datastore::LookupDocumentsWithCredentials(
     const credentials::AuthToken& auth_token,
     const std::string& app_check_token,
