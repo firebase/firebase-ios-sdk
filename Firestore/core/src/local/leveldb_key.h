@@ -730,15 +730,34 @@ class LevelDbNamedQueryKey {
   std::string name_;
 };
 
+/**
+ * A key in the index_configuration table, storing the index definition proto,
+ * and the collection (group) it applies to.
+ */
 class LevelDbIndexConfigurationKey {
  public:
+  /**
+   * Creates a key prefix that points just before the first key of the table.
+   */
   static std::string KeyPrefix();
 
+  /**
+   * Creates a key that points to the key for the given index id.
+   */
   static std::string Key(int32_t id);
 
+  /**
+   * Decodes the given complete key, storing the decoded values in this
+   * instance.
+   *
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
+   */
   ABSL_MUST_USE_RESULT
   bool Decode(absl::string_view key);
 
+  /** The index id for this entry. */
   int32_t index_id() const {
     return index_id_;
   }
@@ -747,19 +766,39 @@ class LevelDbIndexConfigurationKey {
   int32_t index_id_;
 };
 
+/**
+ * A key in the index_state table, storing the per index per user state tracking
+ * backfilling state for each index.
+ */
 class LevelDbIndexStateKey {
  public:
+  /**
+   * Creates a key prefix that points just before the first key of the table.
+   */
   static std::string KeyPrefix();
 
+  /**
+   * Creates a key that points to the key for the given index id and user id.
+   */
   static std::string Key(int32_t index_id, absl::string_view user_id);
 
+  /**
+   * Decodes the given complete key, storing the decoded values in this
+   * instance.
+   *
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
+   */
   ABSL_MUST_USE_RESULT
   bool Decode(absl::string_view key);
 
+  /** The index id for this entry. */
   int32_t index_id() const {
     return index_id_;
   }
 
+  /** The user id for this entry. */
   const std::string& user_id() const {
     return user_id_;
   }
@@ -769,34 +808,60 @@ class LevelDbIndexStateKey {
   std::string user_id_;
 };
 
+/**
+ * A key in the index_entries table, storing the the encoded entries for all
+ * fields used by a given index.
+ *
+ * Note: `array_value` is expected to be set for all queries.
+ */
 class LevelDbIndexEntryKey {
  public:
+  /**
+   * Creates a key prefix that points just before the first key of the table.
+   */
   static std::string KeyPrefix();
 
+  /**
+   * Creates a key that points to the key for the given index entry fields.
+   */
   static std::string Key(int32_t index_id,
                          absl::string_view user_id,
                          absl::string_view array_value,
                          absl::string_view directional_value,
                          absl::string_view document_name);
 
+  /**
+   * Decodes the given complete key, storing the decoded values in this
+   * instance.
+   *
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
+   */
   ABSL_MUST_USE_RESULT
   bool Decode(absl::string_view key);
 
+  /** The index id for this entry. */
   int32_t index_id() const {
     return index_id_;
   }
 
+  /** The user id for this entry. */
   const std::string& user_id() const {
     return user_id_;
   }
 
+  /** The array index value encoded for this entry. */
   const std::string& array_value() const {
     return array_value_;
   }
 
+  /** The directional index value encoded for this entry. */
   const std::string& directional_value() const {
     return directional_value_;
   }
+
+  /** The document name this entry points to. */
   const std::string& document_name() const {
     return document_name_;
   }
