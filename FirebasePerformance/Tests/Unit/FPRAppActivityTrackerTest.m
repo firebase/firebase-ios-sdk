@@ -255,11 +255,11 @@
   FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
   id mockAppTracker = OCMPartialMock(appTracker);
   OCMStub([mockAppTracker isPrewarmAvailable]).andReturn(YES);
-  
+
   id mockConfigurations = OCMClassMock([FPRConfigurations class]);
   OCMStub([mockConfigurations prewarmDetectionMode]).andReturn(DropAllEvents);
   appTracker.configurations = mockConfigurations;
-  
+
   XCTAssertTrue([mockAppTracker isApplicationPreWarmed]);
 }
 
@@ -267,11 +267,11 @@
   FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
   id mockAppTracker = OCMPartialMock(appTracker);
   OCMStub([mockAppTracker isPrewarmAvailable]).andReturn(YES);
-  
+
   id mockConfigurations = OCMClassMock([FPRConfigurations class]);
   OCMStub([mockConfigurations prewarmDetectionMode]).andReturn(KeepAllEvents);
   appTracker.configurations = mockConfigurations;
-  
+
   XCTAssertFalse([mockAppTracker isApplicationPreWarmed]);
 }
 
@@ -279,7 +279,7 @@
   FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
   id mockConfigurations = OCMClassMock([FPRConfigurations class]);
   appTracker.configurations = mockConfigurations;
-  
+
   OCMStub([mockConfigurations prewarmDetectionMode]).andReturn(OnlyActivePrewarm);
   XCTAssertTrue([appTracker isActivePrewarmEnabled]);
   XCTAssertFalse([appTracker isDoubleDispatchEnabled]);
@@ -289,18 +289,20 @@
   FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
   id mockConfigurations = OCMClassMock([FPRConfigurations class]);
   appTracker.configurations = mockConfigurations;
-  
+
   OCMExpect([mockConfigurations prewarmDetectionMode]).andReturn(OnlyDoubleDispatch);
   XCTAssertFalse([appTracker isActivePrewarmEnabled]);
   XCTAssertTrue([appTracker isDoubleDispatchEnabled]);
 }
 
-- (void)testIsActivePrewarmEnabledAndIsDoubleDispatchEnabledObeysEitherActivePrewarmOrDoubleDispatchRCFlag {
+- (void)
+    testIsActivePrewarmEnabledAndIsDoubleDispatchEnabledObeysEitherActivePrewarmOrDoubleDispatchRCFlag {
   FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
   id mockConfigurations = OCMClassMock([FPRConfigurations class]);
   appTracker.configurations = mockConfigurations;
-  
-  OCMExpect([mockConfigurations prewarmDetectionMode]).andReturn(EitherActivePrewarmOrDoubleDispatch);
+
+  OCMExpect([mockConfigurations prewarmDetectionMode])
+      .andReturn(EitherActivePrewarmOrDoubleDispatch);
   XCTAssertTrue([appTracker isActivePrewarmEnabled]);
   XCTAssertTrue([appTracker isDoubleDispatchEnabled]);
 }
