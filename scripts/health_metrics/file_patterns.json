@@ -1,0 +1,198 @@
+[
+  {
+    "sdk": "abtesting",
+    "podspecs": ["FirebaseABTesting.podspec"],
+    "filePatterns": [
+      "^FirebaseABTesting.*",
+      "Interop/Analytics/Public/[^/]+\\.h",
+      "\\.github/workflows/abtesting\\.yml"
+    ]
+  },
+  {
+    "sdk": "analytics",
+    "podspecs": ["FirebaseAnalytics.podspec.json", "FirebaseAnalyticsSwift.podspec", "GoogleAppMeasurement.podspec.json"],
+    "filePatterns": [
+      "^FirebaseAnalytics.*",
+      "^GoogleAppMeasurement.*"
+    ]
+  },
+  {
+    "sdk": "appcheck",
+    "podspecs": ["FirebaseAppCheck.podspec"],
+    "filePatterns": [
+      "^FirebaseAppCheck.*",
+      "\\.github/workflows/app_check\\.yml"
+    ]
+  },
+  {
+    "sdk": "appdistribution",
+    "podspecs": ["FirebaseAppDistribution.podspec"],
+    "filePatterns": [
+      "^FirebaseAppDistribution.*"
+    ]
+  },
+  {
+    "sdk": "auth",
+    "podspecs": ["FirebaseAuth.podspec"],
+    "filePatterns": [
+      "^FirebaseAuth.*",
+      "Interop/Auth/Public/[^/]+\\.h",
+      "\\.github/workflows/auth\\.yml"
+    ]
+  },
+  {
+    "sdk": "core",
+    "podspecs": ["FirebaseCore.podspec"],
+    "filePatterns": [
+      "^FirebaseCore.*",
+      "FirebaseCore.podspec",
+      "Interop/CoreDiagnostics/Public/[^/]+\\.h"
+    ]
+  },
+  {
+    "sdk": "core-diagnostics",
+    "podspecs": ["FirebaseCoreDiagnostics.podspec"],
+    "filePatterns": [
+      "Firebase/CoreDiagnostics/.*",
+      "Example/CoreDiagnostics/.*",
+      "Interop/CoreDiagnostics/Public/[^/]+\\.h"
+    ]
+  },
+  {
+    "sdk": "crashlytics",
+    "podspecs": ["FirebaseCrashlytics.podspec"],
+    "filePatterns": [
+      "^Crashlytics.*",
+      "FirebaseCrashlytics.podspec"
+    ]
+  },
+  {
+    "sdk": "database",
+    "podspecs": ["FirebaseDatabase.podspec", "FirebaseDatabaseSwift.podspec"],
+    "filePatterns": [
+      "^FirebaseDatabase.*",
+      "\\.github/workflows/database\\.yml",
+      "Example/Database/",
+      "Interop/Auth/Public/[^/]+\\.h"
+    ]
+  },
+  {
+    "sdk": "dynamiclinks",
+    "podspecs": ["FirebaseDynamicLinks.podspec"],
+    "filePatterns": [
+      "^FirebaseDynamicLinks.*",
+      "\\.github/workflows/dynamiclinks\\.yml",
+      "Interop/Analytics/Public/[^/]+\\.h"
+    ]
+  },
+  {
+    "sdk": "firebase",
+    "podspecs": ["Firebase.podspec"],
+    "filePatterns": [
+      ".*.podspec",
+      ".*.podspec.json",
+      "CoreOnly/.*"
+    ]
+  },
+  {
+    "sdk": "firestore",
+    "podspecs": ["FirebaseFirestore.podspec", "FirebaseFirestoreSwift.podspec"],
+    "filePatterns": [
+      "^Firestore/.*",
+      "FirebaseAppCheck/Sources/Interop/[^/]+\\.h",
+      "Interop/Auth/Public/[^/]+\\.h",
+      "FirebaseCore/Sources/Private",
+      "FirebaseCore/Sources/Public",
+      "FirebaseFirestore\\.podspec",
+      "CMakeLists\\.txt",
+      "cmake/.*",
+      "\\.github/workflows/firestore\\.yml"
+    ]
+  },
+  {
+    "sdk": "functions",
+    "podspecs": ["FirebaseFunctions.podspec", "FirebaseFunctionsSwift.podspec"],
+    "filePatterns": [
+      "^Functions.*",
+      "\\.github/workflows/functions\\.yml",
+      "Interop/Auth/Public/.*\\.h",
+      "FirebaseMessaging/Sources/Interop/[^/]+\\.h"
+    ]
+  },
+  {
+    "sdk": "google-utilities-components",
+    "podspecs": ["GoogleUtilitiesComponents.podspec"],
+    "filePatterns": [
+      "^GoogleUtilitiesComponents.*"
+    ]
+  },
+  {
+    "sdk": "inappmessaging",
+    "podspecs": ["FirebaseInAppMessaging.podspec", "FirebaseInAppMessagingSwift.podspec"],
+    "filePatterns": [
+      "^FirebaseInAppMessaging.*",
+      "Interop/Analytics/Public/[^/]+\\.h",
+      "\\.github/workflows/inappmessaging\\.yml"
+    ]
+  },
+  {
+    "sdk": "installations",
+    "podspecs": ["FirebaseInstallations.podspec"],
+    "filePatterns": [
+      "^FirebaseInstallations.*"
+    ]
+  },
+  {
+    "sdk": "messaging",
+    "podspecs": ["FirebaseMessaging.podspec"],
+    "filePatterns": [
+      "^FirebaseMessaging/.*",
+      "Interop/Analytics/Public/[^/]+\\.h",
+      "FirebaseMessaging\\.podspec",
+      "\\.github/workflows/messaging\\.yml"
+    ]
+  },
+  {
+    "sdk": "mlmodeldownloader",
+    "podspecs": ["FirebaseMLModelDownloader.podspec"],
+    "filePatterns": [
+      "^FirebaseMLModelDownloader/.*",
+      "FirebaseMLModelDownloader\\.podspec"
+    ]
+  },
+  {
+    "sdk": "performance",
+    "podspecs": ["FirebasePerformance.podspec"],
+    "filePatterns": [
+      "^FirebasePerformance/.*",
+      "FirebasePerformance\\.podspec",
+      "\\.github/workflows/performance\\.yml"
+    ]
+  },
+  {
+    "sdk": "remoteconfig",
+    "podspecs": ["FirebaseRemoteConfig.podspec", "FirebaseRemoteConfigSwift.podspec"],
+    "filePatterns": [
+      "^FirebaseRemoteConfig.*",
+      "Interop/Analytics/Public/[^/]+\\.h",
+      "\\.github/workflows/remoteconfig\\.yml",
+      "scripts/generate_access_token\\.sh"
+    ]
+  },
+  {
+    "sdk": "shared-swift",
+    "podspecs": ["FirebaseSharedSwift.podspec"],
+    "filePatterns": [
+      "^FirebaseSharedSwift.*"
+    ]
+  },
+  {
+    "sdk": "storage",
+    "podspecs": ["FirebaseStorage.podspec", "FirebaseStorageSwift.podspec"],
+    "filePatterns": [
+      "^FirebaseStorage.*",
+      "Interop/Auth/Public/[^/]+\\.h",
+      "\\.github/workflows/storage\\.yml"
+    ]
+  }
+]

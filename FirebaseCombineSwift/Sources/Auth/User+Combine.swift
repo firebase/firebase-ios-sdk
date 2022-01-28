@@ -19,7 +19,7 @@
 
   @available(swift 5.0)
   @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
-  extension User {
+  public extension User {
     /// Associates a user account from a third-party identity provider with this user and
     /// returns additional identity provider data.
     ///
@@ -37,7 +37,7 @@
     ///     represented by the credential are not enabled. Enable them in the Auth section of the Firebase console.
     ///
     ///   See `FIRAuthErrors` for a list of error codes that are common to all FIRUser methods.
-    public func link(with credential: AuthCredential) -> Future<AuthDataResult, Error> {
+    func link(with credential: AuthCredential) -> Future<AuthDataResult, Error> {
       Future<AuthDataResult, Error> { promise in
         self.link(with: credential) { authDataResult, error in
           if let error = error {
@@ -83,7 +83,7 @@
     ///   - `FIRAuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
     ///
     ///   See `FIRAuthErrors` for a list of error codes that are common to all FIRUser methods.
-    public func reauthenticate(with credential: AuthCredential) -> Future<AuthDataResult, Error> {
+    func reauthenticate(with credential: AuthCredential) -> Future<AuthDataResult, Error> {
       Future<AuthDataResult, Error> { promise in
         self.reauthenticate(with: credential) { authDataResult, error in
           if let error = error {
@@ -113,7 +113,7 @@
     ///      reauthenticateWithCredential:completion: on `FIRUser`.
     ///
     ///   See `FIRAuthErrors` for a list of error codes that are common to all `FIRUser` methods.
-    public func unlink(fromProvider provider: String) -> Future<User, Error> {
+    func unlink(fromProvider provider: String) -> Future<User, Error> {
       Future<User, Error> { promise in
         self.unlink(fromProvider: provider) { user, error in
           if let user = user {
@@ -143,7 +143,7 @@
     ///   - `FIRAuthErrorCodeUserNotFound` - Indicates the user account was not found.
     ///
     ///   See `FIRAuthErrors` for a list of error codes that are common to all `FIRUser` methods.
-    public func sendEmailVerification() -> Future<Void, Error> {
+    func sendEmailVerification() -> Future<Void, Error> {
       Future<Void, Error> { promise in
         self.sendEmailVerification { error in
           if let error = error {
@@ -181,7 +181,7 @@
     ///    continue URL is not allowlisted in the Firebase console.
     ///   - `FIRAuthErrorCodeInvalidContinueURI` - Indicates that the domain specified in the
     ///    continue URI is not valid.
-    public func sendEmailVerification(with actionCodeSettings: ActionCodeSettings)
+    func sendEmailVerification(with actionCodeSettings: ActionCodeSettings)
       -> Future<Void, Error> {
       Future<Void, Error> { promise in
         self.sendEmailVerification(with: actionCodeSettings) { error in

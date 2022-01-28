@@ -140,6 +140,8 @@ class MutableDocument {
 
   MutableDocument& SetHasLocalMutations();
 
+  MutableDocument& WithReadTime(const SnapshotVersion& read_time);
+
   /** Creates a new document with a copy of the document's data and state. */
   MutableDocument Clone() const;
 
@@ -149,6 +151,10 @@ class MutableDocument {
 
   const SnapshotVersion& version() const {
     return version_;
+  }
+
+  const SnapshotVersion& read_time() const {
+    return read_time_;
   }
 
   bool has_local_mutations() const {
@@ -213,11 +219,13 @@ class MutableDocument {
   MutableDocument(DocumentKey key,
                   DocumentType document_type,
                   SnapshotVersion version,
+                  SnapshotVersion read_time,
                   std::shared_ptr<ObjectValue> value,
                   DocumentState document_state)
       : key_{std::move(key)},
         document_type_{document_type},
         version_{version},
+        read_time_{read_time},
         value_{std::move(value)},
         document_state_{document_state} {
   }
@@ -225,6 +233,7 @@ class MutableDocument {
   DocumentKey key_;
   DocumentType document_type_ = DocumentType::kInvalid;
   SnapshotVersion version_;
+  SnapshotVersion read_time_;
   // Using a shared pointer to ObjectValue makes MutableDocument copy-assignable
   // without having to manually create a deep clone of its Protobuf contents.
   std::shared_ptr<ObjectValue> value_ = std::make_shared<ObjectValue>();

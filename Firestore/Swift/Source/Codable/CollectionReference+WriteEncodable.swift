@@ -17,7 +17,7 @@
 import Foundation
 import FirebaseFirestore
 
-extension CollectionReference {
+public extension CollectionReference {
   /// Encodes an instance of `Encodable` and adds a new document to this collection
   /// with the encoded data, assigning it a document ID automatically.
   ///
@@ -31,9 +31,9 @@ extension CollectionReference {
   ///                 the client is offline, though local changes will be visible
   ///                 immediately.
   /// - Returns: A `DocumentReference` pointing to the newly created document.
-  public func addDocument<T: Encodable>(from value: T,
-                                        encoder: Firestore.Encoder = Firestore.Encoder(),
-                                        completion: ((Error?) -> Void)? = nil) throws
+  func addDocument<T: Encodable>(from value: T,
+                                 encoder: Firestore.Encoder = Firestore.Encoder(),
+                                 completion: ((Error?) -> Void)? = nil) throws
     -> DocumentReference {
     return addDocument(data: try encoder.encode(value), completion: completion)
   }

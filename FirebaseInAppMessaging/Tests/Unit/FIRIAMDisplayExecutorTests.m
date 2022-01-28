@@ -519,6 +519,7 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
 
   FIRIAMMessageDefinition *testMessage =
       [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:self.m1.renderData
+                                                             appData:nil
                                                    experimentPayload:nil];
 
   FIRInAppMessagingAction *testAction = [[FIRInAppMessagingAction alloc]
@@ -548,6 +549,7 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
   OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(10);
   FIRIAMMessageDefinition *testMessage =
       [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:self.m1.renderData
+                                                             appData:nil
                                                    experimentPayload:nil];
 
   [self.clientMessageCache setMessageData:@[ self.m2, testMessage, self.m4 ]];
@@ -756,6 +758,7 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
 
   FIRIAMMessageDefinition *testMessage =
       [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:self.m2.renderData
+                                                             appData:nil
                                                    experimentPayload:nil];
 
   [self.clientMessageCache setMessageData:@[ testMessage ]];
@@ -790,6 +793,7 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
 
   FIRIAMMessageDefinition *testMessage =
       [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:self.m2.renderData
+                                                             appData:nil
                                                    experimentPayload:nil];
 
   [self.clientMessageCache setMessageData:@[ testMessage ]];
@@ -865,6 +869,7 @@ NSTimeInterval DISPLAY_MIN_INTERVALS = 1;
 
   FIRIAMMessageDefinition *testMessage =
       [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:self.m1.renderData
+                                                             appData:nil
                                                    experimentPayload:nil];
 
   // not expecting triggering analytics recording

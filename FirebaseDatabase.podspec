@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDatabase'
-  s.version          = '8.10.0'
+  s.version          = '8.12.0'
   s.summary          = 'Firebase Realtime Database'
 
   s.description      = <<-DESC
@@ -8,7 +8,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
-  s.license          = { :type => 'Apache', :file => 'LICENSE' }
+  s.license          = { :type => 'Apache', :file => 'FirebaseDatabase/LICENSE' }
   s.authors          = 'Google, Inc.'
 
   s.source           = {
@@ -63,7 +63,6 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
       'FirebaseDatabase/Tests/Unit/*.[mh]',
       'FirebaseDatabase/Tests/Unit/Swift/*',
       'FirebaseDatabase/Tests/Helpers/*.[mh]',
-      'FirebaseDatabase/Tests/third_party/*.[mh]',
       'SharedTestUtilities/AppCheckFake/*.[mh]',
       'SharedTestUtilities/FIRAuthInteropFake.[mh]',
       'SharedTestUtilities/FIRComponentTestUtilities.[mh]',

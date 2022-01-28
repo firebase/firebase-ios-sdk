@@ -24,7 +24,7 @@
     @available(macOS, unavailable)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
-    extension MultiFactor {
+    public extension MultiFactor {
       /// Get a session for a second factor enrollment operation.
       ///
       /// The publisher will emit events on the **main** thread.
@@ -33,7 +33,7 @@
       ///   enrollment operation. This is used to identify the current user trying to enroll a second factor. The publisher will emit on
       ///   the *main* thread.
       @discardableResult
-      public func getSession() -> Future<MultiFactorSession, Error> {
+      func getSession() -> Future<MultiFactorSession, Error> {
         Future<MultiFactorSession, Error> { promise in
           self.getSessionWithCompletion { session, error in
             if let session = session {
@@ -56,8 +56,8 @@
       ///
       /// - Returns: A publisher that emits whether the call was successful or not. The publisher will emit on the *main* thread.
       @discardableResult
-      public func enroll(with assertion: MultiFactorAssertion,
-                         displayName: String?) -> Future<Void, Error> {
+      func enroll(with assertion: MultiFactorAssertion,
+                  displayName: String?) -> Future<Void, Error> {
         Future<Void, Error> { promise in
           self.enroll(with: assertion, displayName: displayName) { error in
             if let error = error {
@@ -77,7 +77,7 @@
       /// - Returns: A publisher that emits when the request to send the unenrollment verification email is complete. The publisher
       /// will emit on the *main* thread.
       @discardableResult
-      public func unenroll(with factorInfo: MultiFactorInfo) -> Future<Void, Error> {
+      func unenroll(with factorInfo: MultiFactorInfo) -> Future<Void, Error> {
         Future<Void, Error> { promise in
           self.unenroll(with: factorInfo) { error in
             if let error = error {
@@ -96,7 +96,7 @@
       /// - Returns: A publisher that emits when the request to send the unenrollment verification email is complete.
       /// The publisher will emit on the *main* thread.
       @discardableResult
-      public func unenroll(withFactorUID factorUID: String) -> Future<Void, Error> {
+      func unenroll(withFactorUID factorUID: String) -> Future<Void, Error> {
         Future<Void, Error> { promise in
           self.unenroll(withFactorUID: factorUID) { error in
             if let error = error {

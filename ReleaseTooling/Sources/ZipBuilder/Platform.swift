@@ -49,7 +49,7 @@ enum Platform: CaseIterable {
   }
 }
 
-class PlatformMinimum {
+enum PlatformMinimum {
   fileprivate static var minimumIOSVersion = ""
   fileprivate static var minimumMacOSVersion = ""
   fileprivate static var minimumTVOSVersion = ""
@@ -68,7 +68,7 @@ class PlatformMinimum {
   }
 }
 
-class SkipCatalyst {
+enum SkipCatalyst {
   fileprivate static var skip = false
   static func set() {
     skip = true

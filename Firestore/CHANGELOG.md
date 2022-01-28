@@ -1,3 +1,12 @@
+# Unreleased
+- [fixed] Fixed an AppCheck issue that caused Firestore listeners to stop
+working and receive a "Permission Denied" error. This issue only occurred for
+AppCheck users that set their expiration time to under an hour.
+
+# v8.11.0
+- [fixed] Fixed an issue that can result in incomplete Query snapshots when an
+  app is backgrounded during query execution.
+
 # v8.9.1
 - [fixed] Fixed a bug in the AppCheck integration that caused the SDK to respond
   to unrelated notifications (#8895).
