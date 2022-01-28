@@ -488,7 +488,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
     id<GULMulticastAppDelegateProtocol> multicastDelegate =
         [GULMulticastAppDelegate multicastDelegate];
-    if (!multicastDelegate) {
+    if (multicastDelegate) {
       [GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods];
     }
     [GULSceneDelegateSwizzler proxyOriginalSceneDelegate];

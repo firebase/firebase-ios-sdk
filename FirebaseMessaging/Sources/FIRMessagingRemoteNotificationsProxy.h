@@ -15,6 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <GoogleMulticastAppDelegate/GULMulticastAppDelegate.h>
 
 /**
  *  Swizzle remote-notification callbacks to invoke FIRMessaging methods
@@ -42,6 +43,9 @@
  */
 - (void)swizzleMethodsIfPossible;
 
-- (void)multicast;
+/**
+ *  Use Google Multicast App Delegate as an alternative to swizzling.
+ */
+- (void)useMulticastAppDelegate;
 
 @end

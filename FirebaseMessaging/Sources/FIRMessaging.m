@@ -274,7 +274,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                              docsURLString);
     [[FIRMessagingRemoteNotificationsProxy sharedProxy] swizzleMethodsIfPossible];
   } else {
-    [[FIRMessagingRemoteNotificationsProxy sharedProxy] multicast];
+    [[FIRMessagingRemoteNotificationsProxy sharedProxy] useMulticastAppDelegate];
   }
 }
 

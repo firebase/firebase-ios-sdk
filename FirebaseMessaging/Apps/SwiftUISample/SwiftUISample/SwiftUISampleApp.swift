@@ -20,10 +20,20 @@ import FirebaseInstallations
 import FirebaseMessaging
 import GoogleMulticastAppDelegate
 
+// class MulticastAppDelegate: GULMulticastAppDelegate {
+//  override init() {
+//    super.init(appDelegate: AppDelegate())
+//  }
+// }
+
 class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate,
   MessagingDelegate {
   let identity = Identity()
   var cancellables = Set<AnyCancellable>()
+
+//  func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+//
+//  }
 
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication

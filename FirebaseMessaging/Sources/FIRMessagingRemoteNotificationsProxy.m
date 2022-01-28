@@ -82,12 +82,12 @@ static NSString *kUserNotificationDidReceiveResponseSelectorString =
   [self removeUserNotificationCenterDelegateObserver];
 }
 
-- (void)multicast {
+- (void)useMulticastAppDelegate {
   id<GULMulticastAppDelegateProtocol> multicastDelegate =
       [GULMulticastAppDelegate multicastDelegate];
-  // if (!multicastDelegate) {
-  [multicastDelegate addInterceptorWithDelegate:self];
-  //}
+  if (multicastDelegate) {
+    [multicastDelegate addInterceptorWithDelegate:self];
+  }
 }
 
 - (void)swizzleMethodsIfPossible {
@@ -98,7 +98,7 @@ static NSString *kUserNotificationDidReceiveResponseSelectorString =
 
   id<GULMulticastAppDelegateProtocol> multicastDelegate =
       [GULMulticastAppDelegate multicastDelegate];
-  if (!multicastDelegate) {
+  if (multicastDelegate) {
     [multicastDelegate addInterceptorWithDelegate:self];
   } else {
     [GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods];
