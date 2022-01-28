@@ -298,8 +298,7 @@
   id mockConfigurations = OCMClassMock([FPRConfigurations class]);
   appTracker.configurations = mockConfigurations;
 
-  OCMStub([mockConfigurations prewarmDetectionMode])
-      .andReturn(EitherActivePrewarmOrDoubleDispatch);
+  OCMStub([mockConfigurations prewarmDetectionMode]).andReturn(EitherActivePrewarmOrDoubleDispatch);
   XCTAssertTrue([appTracker isActivePrewarmEnabled]);
   XCTAssertTrue([appTracker isDoubleDispatchEnabled]);
 }
