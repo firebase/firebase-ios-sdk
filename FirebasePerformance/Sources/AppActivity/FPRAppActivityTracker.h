@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 #import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRTrace.h"
 
 FOUNDATION_EXTERN NSString *__nonnull const kFPRAppStartTraceName;
@@ -34,6 +33,15 @@ typedef NS_ENUM(NSInteger, FPRApplicationState) {
 
   /** Application in background. */
   FPRApplicationStateBackground,
+};
+
+/** Different modes of prewarm-detection */
+typedef NS_ENUM(NSInteger, PrewarmDetectionMode) {
+  DropAllEvents = 0,
+  OnlyActivePrewarm = 1,
+  OnlyDoubleDispatch = 2,
+  EitherActivePrewarmOrDoubleDispatch = 3,
+  KeepAllEvents = 4
 };
 
 /** This class is used to track the app activity and create internal traces to capture the

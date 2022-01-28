@@ -68,7 +68,7 @@ FOUNDATION_EXTERN FPRConfigName kFPRConfigInstrumentationEnabled;
  * 1 = drop only if ActivePrewarm returns true;
  * 2 = drop only if double dispatch returns true;
  * 3 = drop if either ActivePrewarm or double dispatch returns true;
- * Other numbers = do not drop any app start traces.
+ * 4 = do not drop any app start traces.
  *
  * @return an integer representing the detection mode of prewarm app start traces.
  */

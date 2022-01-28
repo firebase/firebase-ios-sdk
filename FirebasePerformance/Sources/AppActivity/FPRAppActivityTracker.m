@@ -171,16 +171,18 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
  RC flag for enabling prewarm-detection using ActivePrewarm environment variable
  */
 - (BOOL)isActivePrewarmEnabled {
-  return ([self.configurations prewarmDetectionMode] == 1 ||
-          [self.configurations prewarmDetectionMode] == 3);
+  PrewarmDetectionMode mode = [self.configurations prewarmDetectionMode];
+  return (mode == OnlyActivePrewarm ||
+          mode == EitherActivePrewarmOrDoubleDispatch);
 }
 
 /**
  RC flag for enabling prewarm-detection using double dispatch method
  */
 - (BOOL)isDoubleDispatchEnabled {
-  return ([self.configurations prewarmDetectionMode] == 2 ||
-          [self.configurations prewarmDetectionMode] == 3);
+  PrewarmDetectionMode mode = [self.configurations prewarmDetectionMode];
+  return (mode == OnlyDoubleDispatch ||
+          mode == EitherActivePrewarmOrDoubleDispatch);
 }
 
 /**
@@ -192,7 +194,7 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
   }
 
   // Force drop all events according to RC flag
-  if ([self.configurations prewarmDetectionMode] == 0) {
+  if ([self.configurations prewarmDetectionMode] == DropAllEvents) {
     return YES;
   }
 
