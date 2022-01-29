@@ -99,7 +99,7 @@ enum Architecture: String, CaseIterable {
   case x86_64h // x86_64h, Haswell, used for Mac Catalyst
 }
 
-class Included32BitIOS {
+enum Included32BitIOS {
   fileprivate static var include32 = false
   static func set() {
     include32 = true

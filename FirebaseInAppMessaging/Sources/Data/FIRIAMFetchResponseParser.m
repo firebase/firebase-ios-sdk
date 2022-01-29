@@ -356,6 +356,7 @@
     }
     if (isTestMessage) {
       return [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:renderData
+                                                                    appData:dataBundle
                                                           experimentPayload:experimentPayload];
     } else {
       return [[FIRIAMMessageDefinition alloc] initWithRenderData:renderData

@@ -446,7 +446,7 @@ enum CocoaPodUtils {
                                       localPodspecPath: URL?,
                                       linkage: LinkageType) -> String {
     // Start assembling the Podfile.
-    var podfile: String = ""
+    var podfile = ""
 
     // If custom Specs repos were passed in, prefix the Podfile with the custom repos followed by
     // the CocoaPods master Specs repo.
@@ -484,7 +484,7 @@ enum CocoaPodUtils {
       let podspec = String(pod.name.split(separator: "/")[0] + ".podspec")
       // Check if we want to use a local version of the podspec.
       if let localURL = localPodspecPath,
-        FileManager.default.fileExists(atPath: localURL.appendingPathComponent(podspec).path) {
+         FileManager.default.fileExists(atPath: localURL.appendingPathComponent(podspec).path) {
         podfile += "  pod '\(pod.name)', :path => '\(localURL.path)'"
       } else if let podVersion = pod.version {
         // To support Firebase patch versions in the Firebase zip distribution, allow patch updates
@@ -492,9 +492,9 @@ enum CocoaPodUtils {
         // zip distribution.
         var podfileVersion = podVersion
         if pod.name.starts(with: "Firebase"),
-          !pod.name.hasSuffix("Swift"),
-          pod.name != "Firebase",
-          pod.name != "FirebaseCore" {
+           !pod.name.hasSuffix("Swift"),
+           pod.name != "Firebase",
+           pod.name != "FirebaseCore" {
           podfileVersion = podfileVersion.replacingOccurrences(
             of: firebaseVersion,
             with: minorVersion

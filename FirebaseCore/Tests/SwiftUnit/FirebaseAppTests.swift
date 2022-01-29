@@ -348,7 +348,7 @@ class FirebaseAppTests: XCTestCase {
     ]
 
     expectation(forNotification: NSNotification.Name.firAppReadyToConfigureSDK,
-                object: FirebaseApp.self, handler: { (notification) -> Bool in
+                object: FirebaseApp.self, handler: { notification -> Bool in
                   if let userInfo = notification.userInfo {
                     if expectedUserInfo.isEqual(to: userInfo) {
                       return true

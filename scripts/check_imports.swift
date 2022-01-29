@@ -185,7 +185,7 @@ private func main() -> Int32 {
     let enumerator = FileManager.default.enumerator(atPath: rootURL.path)
     whileLoop: while let file = enumerator?.nextObject() as? String {
       if let fType = enumerator?.fileAttributes?[FileAttributeKey.type] as? FileAttributeType,
-        fType == .typeRegular {
+         fType == .typeRegular {
         if file.starts(with: ".") {
           continue
         }

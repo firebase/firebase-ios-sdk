@@ -17,7 +17,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "8.11.0"
+let firebaseVersion = "8.12.0"
 
 let package = Package(
   name: "Firebase",
@@ -122,6 +122,10 @@ let package = Package(
     .library(
       name: "FirebaseRemoteConfig",
       targets: ["FirebaseRemoteConfig"]
+    ),
+    .library(
+      name: "FirebaseRemoteConfigSwift-Beta",
+      targets: ["FirebaseRemoteConfigSwift"]
     ),
     .library(
       name: "FirebaseStorage",
@@ -938,6 +942,8 @@ let package = Package(
       ]
     ),
 
+    // MARK: - Firebase Remote Config
+
     .target(
       name: "FirebaseRemoteConfig",
       dependencies: [
@@ -973,6 +979,40 @@ let package = Package(
         .headerSearchPath("../../.."),
       ]
     ),
+    .target(
+      name: "FirebaseRemoteConfigSwift",
+      dependencies: [
+        "FirebaseRemoteConfig",
+        "FirebaseSharedSwift",
+      ],
+      path: "FirebaseRemoteConfigSwift/Sources"
+    ),
+    .testTarget(
+      name: "RemoteConfigFakeConsole",
+      dependencies: ["FirebaseRemoteConfigSwift",
+                     "RemoteConfigFakeConsoleObjC"],
+      path: "FirebaseRemoteConfigSwift/Tests",
+      exclude: [
+        "AccessToken.json",
+        "README.md",
+        "ObjC/",
+      ],
+      cSettings: [
+        .headerSearchPath("../../"),
+      ]
+    ),
+    .target(
+      name: "RemoteConfigFakeConsoleObjC",
+      dependencies: ["OCMock"],
+      path: "FirebaseRemoteConfigSwift/Tests/ObjC",
+      publicHeadersPath: ".",
+      cSettings: [
+        .headerSearchPath("../../../"),
+      ]
+    ),
+
+    // MARK: - Firebase Storage
+
     .target(
       name: "FirebaseStorage",
       dependencies: [
@@ -1098,7 +1138,7 @@ let package = Package(
               .headerSearchPath("../.."),
             ],
             linkerSettings: [
-              .linkedFramework("DeviceCheck"),
+              .linkedFramework("DeviceCheck", .when(platforms: [.iOS, .macOS, .tvOS])),
             ]),
     .testTarget(
       name: "AppCheckUnit",

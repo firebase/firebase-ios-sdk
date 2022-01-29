@@ -174,7 +174,7 @@ struct ZipBuilderTool: ParsableCommand {
     }
 
     if let localPodspecPath = localPodspecPath,
-      !FileManager.default.directoryExists(at: localPodspecPath) {
+       !FileManager.default.directoryExists(at: localPodspecPath) {
       throw ValidationError("""
       `local-podspec-path` pass in does not exist. Value: \(localPodspecPath)
       """)
@@ -194,7 +194,7 @@ struct ZipBuilderTool: ParsableCommand {
   func run() throws {
     // Keep timing for how long it takes to build the zip file for information purposes.
     let buildStart = Date()
-    var cocoaPodsUpdateMessage: String = ""
+    var cocoaPodsUpdateMessage = ""
 
     // Do a `pod update` if requested.
     if updatePodRepo {

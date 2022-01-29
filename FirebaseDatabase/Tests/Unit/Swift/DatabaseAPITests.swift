@@ -32,7 +32,7 @@ final class DatabaseAPITests {
     let yes = true
 
     // Retrieve Database Instance
-    var database: Database = Database.database()
+    var database = Database.database()
 
     database = Database.database(url: url)
 
@@ -74,7 +74,7 @@ final class DatabaseAPITests {
     let priority: Any? = "priority"
 
     var databaseHandle: DatabaseHandle = uint
-    var databaseQuery: DatabaseQuery = DatabaseQuery()
+    var databaseQuery = DatabaseQuery()
 
     // Observe for data
 

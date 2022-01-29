@@ -44,6 +44,7 @@ TEST(DocumentTest, Constructor) {
   EXPECT_TRUE(doc.is_found_document());
   EXPECT_EQ(doc.key(), Key("messages/first"));
   EXPECT_EQ(doc.version(), version);
+  EXPECT_EQ(doc.read_time(), SnapshotVersion::None());
   EXPECT_EQ(doc.data(), data);
   EXPECT_EQ(doc.has_local_mutations(), false);
   EXPECT_EQ(doc.has_pending_writes(), false);
