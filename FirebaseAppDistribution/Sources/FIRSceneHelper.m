@@ -17,14 +17,22 @@
 #import <UIKit/UIKit.h>
 
 API_AVAILABLE(ios(13.0))
-typedef void (^FindSceneCompletionBlock)(UIWindowScene *scene);
+typedef void (^FIRFindSceneCompletionBlock)(UIWindowScene *scene);
 
 API_AVAILABLE(ios(13.0))
 @interface FIRSceneHelper ()
-@property(nonatomic, copy) FindSceneCompletionBlock pendingCompletion;
+@property(nonatomic, copy) NSMutableArray<FIRFindSceneCompletionBlock> *pendingCompletion;
 @end
 
 @implementation FIRSceneHelper
+
+- (instancetype)init {
+  self = [super init];
+  if (self) {
+    _pendingCompletion = [NSMutableArray new];
+  }
+  return self;
+}
 
 - (void)findForegroundedSceneWithCompletionBlock:(void (^)(UIWindowScene *scene))completionBlock
     API_AVAILABLE(ios(13.0)) {
@@ -34,7 +42,7 @@ API_AVAILABLE(ios(13.0))
       completionBlock(foregroundedScene);
       return;
     }
-    self.pendingCompletion = completionBlock;
+    [self.pendingCompletion addObject:[completionBlock copy]];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(onFirstSceneActivated:)
                                                  name:UISceneDidActivateNotification
@@ -57,9 +65,11 @@ API_AVAILABLE(ios(13.0))
   [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:UISceneDidActivateNotification
                                                 object:nil];
-  if (self.pendingCompletion != nil) {
-    self.pendingCompletion(foregroundedScene);
-    self.pendingCompletion = nil;
+  if (self.pendingCompletion.count > 0) {
+    for (FIRFindSceneCompletionBlock pendingBlock in self.pendingCompletion) {
+      pendingBlock(foregroundedScene);
+    }
+    [self.pendingCompletion removeAllObjects];
   }
 }
 
