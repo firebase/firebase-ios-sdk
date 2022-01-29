@@ -1,22 +1,35 @@
+// Copyright 2022 Google LLC
 //
-//  File.swift
-//  
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//  Created by Ryan Wilson on 2022-01-25.
+//      http://www.apache.org/licenses/LICENSE-2.0
 //
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 import Foundation
 import FirebaseCore
 import FirebaseSharedSwift
-import GTMSessionFetcherCore
+#if COCOAPODS
+  import GTMSessionFetcher
+#else
+  import GTMSessionFetcherCore
+#endif
 
 // PLACEHOLDERS
 protocol AuthInterop {
   func getToken(forcingRefresh: Bool, callback: (Result<String, Error>) -> Void)
 }
+
 protocol MessagingInterop {
   var fcmToken: String { get }
 }
+
 protocol AppCheckInterop {
   func getToken(forcingRefresh: Bool, callback: (Result<String, Error>) -> Void)
 }
@@ -31,8 +44,7 @@ private enum Constants {
 /**
  * `Functions` is the client for Cloud Functions for a Firebase project.
  */
-@objc public class Functions : NSObject {
-
+@objc public class Functions: NSObject {
   // MARK: - Private Variables
 
   /// The network client to use for http requests.
@@ -59,7 +71,8 @@ private enum Constants {
    * @param app The app for the Firebase project.
    * @param region The region for the http trigger, such as "us-central1".
    */
-  public class func functions(app: FirebaseApp = FirebaseApp.app()!, region: String = "us-central1") -> Functions {
+  public class func functions(app: FirebaseApp = FirebaseApp.app()!,
+                              region: String = "us-central1") -> Functions {
     return Functions(app: app, region: region, customDomain: nil)
   }
 
@@ -69,7 +82,8 @@ private enum Constants {
    * @param app The app for the Firebase project.
    * @param customDomain A custom domain for the http trigger, such as "https://mydomain.com".
    */
-  public class func functions(app: FirebaseApp = FirebaseApp.app()!, customDomain: String) -> Functions {
+  public class func functions(app: FirebaseApp = FirebaseApp.app()!,
+                              customDomain: String) -> Functions {
     return Functions(app: app, region: "us-central1", customDomain: customDomain)
   }
 
@@ -91,19 +105,19 @@ private enum Constants {
   }
 
   internal init(projectID: String,
-               region: String,
-               customDomain: String?,
-               auth: AuthInterop?,
-               messaging: MessagingInterop?,
-               appCheck: AppCheckInterop?,
-               fetcherService: GTMSessionFetcherService = GTMSessionFetcherService()) {
+                region: String,
+                customDomain: String?,
+                auth: AuthInterop?,
+                messaging: MessagingInterop?,
+                appCheck: AppCheckInterop?,
+                fetcherService: GTMSessionFetcherService = GTMSessionFetcherService()) {
     self.projectID = projectID
     self.region = region
     self.customDomain = customDomain
-    self.emulatorOrigin = nil
-    self.contextProvider = FunctionsContextProvider(auth: auth,
-                                                    messaging: messaging,
-                                                    appCheck: appCheck)
+    emulatorOrigin = nil
+    contextProvider = FunctionsContextProvider(auth: auth,
+                                               messaging: messaging,
+                                               appCheck: appCheck)
     self.fetcherService = fetcherService
   }
 
@@ -126,8 +140,10 @@ private enum Constants {
     Response: Decodable>(_ name: String,
                          requestAs: Request.Type = Request.self,
                          responseAs: Response.Type = Response.self,
-                         encoder: FirebaseDataEncoder = FirebaseDataEncoder(),
-                         decoder: FirebaseDataDecoder = FirebaseDataDecoder())
+                         encoder: FirebaseDataEncoder = FirebaseDataEncoder(
+                         ),
+                         decoder: FirebaseDataDecoder = FirebaseDataDecoder(
+                         ))
     -> Callable<Request, Response> {
     return Callable(callable: httpsCallable(name), encoder: encoder, decoder: decoder)
   }
@@ -180,14 +196,13 @@ private enum Constants {
                           completion: completion)
       }
     }
-
   }
 
   private func callFunction(name: String,
-                             withObject data: Any?,
-                             timeout: TimeInterval,
-                             context: FunctionsContext,
-                             completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
+                            withObject data: Any?,
+                            timeout: TimeInterval,
+                            context: FunctionsContext,
+                            completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
     let url = URL(string: urlWithName(name))!
     let request = URLRequest(url: url,
                              cachePolicy: .useProtocolCachePolicy,
@@ -237,10 +252,14 @@ private enum Constants {
 
     fetcher.beginFetch { data, error in
       // If there was an HTTP error, convert it to our own error domain.
-      var localError: Error? = nil
+      var localError: Error?
       if let error = error as NSError? {
         if error.domain == kGTMSessionFetcherStatusDomain {
-          localError = FunctionsErrorForResponse(status: error.code, body: data, serializer: self.serializer)
+          localError = FunctionsErrorForResponse(
+            status: error.code,
+            body: data,
+            serializer: self.serializer
+          )
         } else if error.domain == NSURLErrorDomain, error.code == NSURLErrorTimedOut {
           localError = FunctionsErrorCode.deadlineExceeded.generatedError(userInfo: nil)
         }
@@ -293,7 +312,9 @@ private enum Constants {
 
       // TODO: Force unwrap... gross
       let result = HTTPSCallableResult(data: resultData!)
-#warning("This copied comment appears to be incorrect - it's impossible to have a nil callable result.")
+      #warning(
+        "This copied comment appears to be incorrect - it's impossible to have a nil callable result."
+      )
       // If there's no result field, this will return nil, which is fine.
       completion(.success(result))
     }

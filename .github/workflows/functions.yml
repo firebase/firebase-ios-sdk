@@ -29,8 +29,6 @@ jobs:
         # TODO: The --skip-tests might be removable with Xcode 13.2+
         target: [ios, tvos, macos --skip-tests, watchos]
         podspec: [ 'FirebaseFunctions.podspec', 'FirebaseFunctionsSwift.podspec']
-    env:
-      POD_LIB_LINT_ONLY: 1
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler

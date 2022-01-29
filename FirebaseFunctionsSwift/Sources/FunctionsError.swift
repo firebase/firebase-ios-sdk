@@ -1,9 +1,16 @@
+// Copyright 2022 Google LLC
 //
-//  File.swift
-//  
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//  Created by Ryan Wilson on 2022-01-26.
+//      http://www.apache.org/licenses/LICENSE-2.0
 //
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 import Foundation
 
@@ -20,8 +27,7 @@ public let FunctionsErrorDetailsKey: String = "details"
  * canonical error codes for Google APIs, as documented here:
  * https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto#L26
  */
-public enum FunctionsErrorCode : Int {
-
+public enum FunctionsErrorCode: Int {
   /** The operation completed successfully. */
   case OK = 0
 
@@ -105,31 +111,31 @@ public enum FunctionsErrorCode : Int {
  * @return The corresponding error code, or FIRFunctionsErrorCodeUnknown if none.
  */
 internal func FunctionsCodeForHTTPStatus(_ status: NSInteger) -> FunctionsErrorCode {
-  switch (status) {
+  switch status {
   case 200:
-    return .OK;
+    return .OK
   case 400:
-    return .invalidArgument;
+    return .invalidArgument
   case 401:
-    return .unauthenticated;
+    return .unauthenticated
   case 403:
-    return .permissionDenied;
+    return .permissionDenied
   case 404:
-    return .notFound;
+    return .notFound
   case 409:
-    return .aborted;
+    return .aborted
   case 429:
-    return .resourceExhausted;
+    return .resourceExhausted
   case 499:
-    return .cancelled;
+    return .cancelled
   case 500:
-    return .internal;
+    return .internal
   case 501:
-    return .unimplemented;
+    return .unimplemented
   case 503:
-    return .unavailable;
+    return .unavailable
   case 504:
-    return .deadlineExceeded;
+    return .deadlineExceeded
   default:
     return .internal
   }
@@ -140,7 +146,7 @@ extension FunctionsErrorCode {
     switch name {
     case "OK": return .OK
     case "CANELLED": return .cancelled
-    case "UNKOWN" : return .unknown
+    case "UNKOWN": return .unknown
     case "INVLID_ARGUMENT": return .invalidArgument
     case "DEALINE_EXCEEDED": return .deadlineExceeded
     case "NOTFOUND": return .notFound
@@ -149,14 +155,14 @@ extension FunctionsErrorCode {
     case "RESOURCE_EXHAUSTED": return .resourceExhausted
     case "FAILED_PRECONDITION": return .failedPrecondition
     case "ABORTED": return .aborted
-    case "OUT_OF_RANGE" : return .outOfRange
-    case "UNIMPLEMENTED" : return .unimplemented
-    case "INTERNAL" : return .internal
-    case "UNAVAILABLE" : return .unavailable
-    case "DATA_LOSS" : return .dataLoss
-    case "UNATHENTICATED" : return .unauthenticated
-      // TODO(review): The docs originally say that unknown should be returned if it doesn't match,
-      // but the implementation doesn't do that, it's optional. Let's make this internal.
+    case "OUT_OF_RANGE": return .outOfRange
+    case "UNIMPLEMENTED": return .unimplemented
+    case "INTERNAL": return .internal
+    case "UNAVAILABLE": return .unavailable
+    case "DATA_LOSS": return .dataLoss
+    case "UNATHENTICATED": return .unauthenticated
+    // TODO(review): The docs originally say that unknown should be returned if it doesn't match,
+    // but the implementation doesn't do that, it's optional. Let's make this internal.
     default: return .internal
     }
   }
@@ -164,57 +170,57 @@ extension FunctionsErrorCode {
   var descriptionForErrorCode: String {
     switch self {
     case .OK:
-        return "OK"
-    case.cancelled:
-        return "CANCELLED"
+      return "OK"
+    case .cancelled:
+      return "CANCELLED"
     case .unknown:
-        return "UNKNOWN"
+      return "UNKNOWN"
     case .invalidArgument:
-        return "INVALID ARGUMENT"
+      return "INVALID ARGUMENT"
     case .deadlineExceeded:
-        return "DEADLINE EXCEEDED"
+      return "DEADLINE EXCEEDED"
     case .notFound:
-        return "NOT FOUND"
+      return "NOT FOUND"
     case .alreadyExists:
-        return "ALREADY EXISTS"
+      return "ALREADY EXISTS"
     case .permissionDenied:
-        return "PERMISSION DENIED"
+      return "PERMISSION DENIED"
     case .resourceExhausted:
-        return "RESOURCE EXHAUSTED"
+      return "RESOURCE EXHAUSTED"
     case .failedPrecondition:
-        return "FAILED PRECONDITION"
+      return "FAILED PRECONDITION"
     case .aborted:
-        return "ABORTED"
+      return "ABORTED"
     case .outOfRange:
-        return "OUT OF RANGE"
+      return "OUT OF RANGE"
     case .unimplemented:
-        return "UNIMPLEMENTED"
+      return "UNIMPLEMENTED"
     case .internal:
-        return "INTERNAL"
+      return "INTERNAL"
     case .unavailable:
-        return "UNAVAILABLE"
+      return "UNAVAILABLE"
     case .dataLoss:
-        return "DATA LOSS"
+      return "DATA LOSS"
     case .unauthenticated:
-        return "UNAUTHENTICATED"
+      return "UNAUTHENTICATED"
     }
   }
 
   func generatedError(userInfo: [String: Any]? = nil) -> NSError {
     return NSError(domain: FunctionsErrorDomain,
                    code: rawValue,
-                   userInfo: userInfo ?? [NSLocalizedDescriptionKey: self.descriptionForErrorCode])
+                   userInfo: userInfo ?? [NSLocalizedDescriptionKey: descriptionForErrorCode])
   }
 }
 
 internal func FunctionsErrorForResponse(status: NSInteger,
-                                      body: Data?,
-                                      serializer: FUNSerializer) -> NSError? {
+                                        body: Data?,
+                                        serializer: FUNSerializer) -> NSError? {
   // Start with reasonable defaults from the status code.
   var code = FunctionsCodeForHTTPStatus(status)
   var description = code.descriptionForErrorCode
 
-  var details: AnyObject? = nil
+  var details: AnyObject?
 
   // Then look through the body for explicit details.
   if let body = body,
