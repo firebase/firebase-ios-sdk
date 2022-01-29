@@ -21,7 +21,7 @@ typedef void (^FIRFindSceneCompletionBlock)(UIWindowScene *scene);
 
 API_AVAILABLE(ios(13.0))
 @interface FIRSceneHelper ()
-@property(nonatomic, copy) NSMutableArray<FIRFindSceneCompletionBlock> *pendingCompletion;
+@property(nonatomic, strong) NSMutableArray<FIRFindSceneCompletionBlock> *pendingCompletion;
 @end
 
 @implementation FIRSceneHelper
