@@ -17,25 +17,15 @@ import UIKit
 
 import FirebaseCore
 import FirebaseAuth
+import GoogleMulticastAppDelegate
+
+class MulticastAppDelegate: GULMulticastAppDelegate {
+  override init() {
+    super.init(appDelegate: AppDelegate())
+  }
+}
 
 class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
-  
-  func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-
-  }
-
-  func application(_ application: UIApplication,
-      didReceiveRemoteNotification notification: [AnyHashable : Any],
-      fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-    // This notification is not auth related, developer should handle it.
-  }
-
-  // For iOS 9+
-  func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-
-    // URL not auth related, developer should handle it.
-    return true
-  }
 
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication
@@ -75,8 +65,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 
 @main
 struct AuthSwiftUISampleApp: App {
-  @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-  
+  @UIApplicationDelegateAdaptor(MulticastAppDelegate.self) var appDelegate
   
     var body: some Scene {
         WindowGroup {
