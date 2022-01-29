@@ -17,7 +17,7 @@ import Foundation
 extension Bundle {
   class func mock(with cls: Bundle.Type) {
     guard let original = class_getClassMethod(Bundle.self, #selector(getter: main)),
-      let swizzled = class_getClassMethod(cls, #selector(getter: main))
+          let swizzled = class_getClassMethod(cls, #selector(getter: main))
     else { return }
     method_exchangeImplementations(original, swizzled)
   }

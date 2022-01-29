@@ -17,7 +17,7 @@
 import FirebaseDatabase
 import FirebaseSharedSwift
 
-extension Database {
-  public typealias Encoder = FirebaseDataEncoder
-  public typealias Decoder = FirebaseDataDecoder
+public extension Database {
+  typealias Encoder = FirebaseDataEncoder
+  typealias Decoder = FirebaseDataDecoder
 }

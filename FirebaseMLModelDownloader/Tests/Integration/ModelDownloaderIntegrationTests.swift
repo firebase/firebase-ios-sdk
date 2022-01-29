@@ -39,7 +39,7 @@ final class ModelDownloaderIntegrationTests: XCTestCase {
     // TODO: Use FirebaseApp internal for test app.
     let bundle = Bundle(for: self)
     if let plistPath = bundle.path(forResource: "GoogleService-Info", ofType: "plist"),
-      let options = FirebaseOptions(contentsOfFile: plistPath) {
+       let options = FirebaseOptions(contentsOfFile: plistPath) {
       FirebaseApp.configure(options: options)
     } else {
       XCTFail("Could not locate GoogleService-Info.plist.")

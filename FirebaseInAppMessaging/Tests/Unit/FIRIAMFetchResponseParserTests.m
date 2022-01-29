@@ -182,15 +182,22 @@
   // In our fixture file used in this test, there is no fetch expiration time
   XCTAssertNil(fetchWaitTime);
 
-  XCTAssertEqual(2, [results count]);
+  XCTAssertEqual(3, [results count]);
   XCTAssertEqual(0, discardCount);
 
   // First is a test message and the second one is not.
   XCTAssertTrue(results[0].isTestMessage);
   XCTAssertTrue(results[0].renderData.renderingEffectSettings.isTestMessage);
+  XCTAssertNil(results[0].appData);
 
   XCTAssertFalse(results[1].isTestMessage);
   XCTAssertFalse(results[1].renderData.renderingEffectSettings.isTestMessage);
+
+  XCTAssertTrue(results[2].isTestMessage);
+  XCTAssertTrue(results[2].renderData.renderingEffectSettings.isTestMessage);
+  XCTAssertEqual(results[2].appData.count, 2);
+  XCTAssertEqualObjects(results[2].appData[@"a"], @"b");
+  XCTAssertEqualObjects(results[2].appData[@"c"], @"d");
 }
 
 - (void)testParsingInvalidTestMessageNodes {

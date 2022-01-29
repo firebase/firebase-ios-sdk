@@ -20,7 +20,6 @@
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
-#import "FirebaseDatabase/Tests/Helpers/FTestAuthTokenGenerator.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestBase.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 

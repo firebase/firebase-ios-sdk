@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] Improved reporting for SQLite errors when failing to open a local database (#8699).
+
 # 2021-08 -- v8.11.0
 - [fixed] Fixed an issue that token is not associated with APNS token during app start. (#8738)
 

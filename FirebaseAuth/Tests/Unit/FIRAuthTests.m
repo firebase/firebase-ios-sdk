@@ -2180,7 +2180,9 @@ static const NSTimeInterval kWaitInterval = .5;
   // Sign in a user.
   [self waitForSignIn];
 
-  // Set up expectation for secureToken RPC made by token refresh task.
+  // Set up expectation for secureToken RPC made by token refresh task. We call this twice, because
+  // we retry once if the access token is already expired.
+  [self mockSecureTokenResponseWithError:nil];
   [self mockSecureTokenResponseWithError:nil];
 
   // Verify that the current user's access token is the "old" access token before automatic token
@@ -2266,7 +2268,9 @@ static const NSTimeInterval kWaitInterval = .5;
   // token (kNewAccessToken).
   XCTAssertEqualObjects(kAccessToken, [FIRAuth auth].currentUser.rawAccessToken);
 
-  // Set up expectation for secureToken RPC made by a successful attempt to refresh tokens.
+  // Set up expectation for secureToken RPC made by a successful attempt to refresh tokens. We call
+  // this twice, because we retry once if the access token is already expired.
+  [self mockSecureTokenResponseWithError:nil];
   [self mockSecureTokenResponseWithError:nil];
 
   // Execute saved token refresh task.
@@ -2306,7 +2310,9 @@ static const NSTimeInterval kWaitInterval = .5;
   // Verify that current user is still valid with old access token.
   XCTAssertEqualObjects(kAccessToken, [FIRAuth auth].currentUser.rawAccessToken);
 
-  // Set up expectation for secureToken RPC made by a successful attempt to refresh tokens.
+  // Set up expectation for secureToken RPC made by a successful attempt to refresh tokens. We call
+  // this twice, because we retry once if the access token is already expired.
+  [self mockSecureTokenResponseWithError:nil];
   [self mockSecureTokenResponseWithError:nil];
 
   // Execute saved token refresh task.

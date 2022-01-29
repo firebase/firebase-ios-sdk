@@ -47,6 +47,9 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
+template <bool INVERT>
+void AppendBytes(std::string* dest, const char* src, size_t len);
+
 class OrderedCode {
  public:
   // -------------------------------------------------------------------
@@ -61,21 +64,29 @@ class OrderedCode {
   // compatibility.
 
   static void WriteString(std::string* dest, absl::string_view str);
-  static void WriteNumIncreasing(std::string* dest, uint64_t val);
-  static void WriteSignedNumIncreasing(std::string* dest, int64_t val);
+  static void WriteStringDecreasing(std::string* dest, absl::string_view str);
+  static void WriteNumIncreasing(std::string* dest, uint64_t num);
+  static void WriteNumDecreasing(std::string* dest, uint64_t num);
+  static void WriteSignedNumIncreasing(std::string* dest, int64_t num);
+  static void WriteSignedNumDecreasing(std::string* dest, int64_t num);
 
-  /**
-   * Creates an encoding for the "infinite string", a value considered to
-   * be lexicographically after any real string.  Note that in the case of
-   * WriteInfinityDecreasing(), this would come before any real string as
-   * the ordering puts lexicographically greater values first.
-   */
+  // WriteDoubleIncreasing() and WriteDoubleDecreasing()
+  // provide the same functionality for IEEE 754 doubles.
+  // Guarantees about floating point:
+  //   if (d1 < d2) then WDI(d1) < WDI(d2) and WDD(d1) > WDD(d2)
+  //   if (d1 > d2) then WDI(d1) > WDI(d2) and WDD(d1) < WDD(d2)
+  static void WriteDoubleIncreasing(std::string* dest, double num);
+  static void WriteDoubleDecreasing(std::string* dest, double num);
+
+  // Creates an encoding for the "infinite string", a value considered to
+  // be lexicographically after any real string.  Note that in the case of
+  // WriteInfinityDecreasing(), this would come before any real string as
+  // the ordering puts lexicographically greater values first.
   static void WriteInfinity(std::string* dest);
+  static void WriteInfinityDecreasing(std::string* dest);
 
-  /**
-   * Special string append that can only be used at the tail end of
-   * an encoded string -- blindly appends "str" to "*dest".
-   */
+  // Special string append that can only be used at the tail end of
+  // an encoded string -- blindly appends "str" to "*dest".
   static void WriteTrailingString(std::string* dest, absl::string_view str);
 
   // -------------------------------------------------------------------
@@ -88,16 +99,37 @@ class OrderedCode {
   // otherwise.
 
   static bool ReadString(absl::string_view* src, std::string* result);
+  static bool ReadStringDecreasing(absl::string_view* src, std::string* result);
   static bool ReadNumIncreasing(absl::string_view* src, uint64_t* result);
+  static bool ReadNumDecreasing(absl::string_view* src, uint64_t* result);
   static bool ReadSignedNumIncreasing(absl::string_view* src, int64_t* result);
+  static bool ReadSignedNumDecreasing(absl::string_view* src, int64_t* result);
+
+  // If d is an IEEE 754 double, then the round trips RDI(WDI(d)) and
+  // RDD(WDD(d)) usually return the same double with all bits same.
+  // This holds if d is normal, denormal, or an infinity.
+  //
+  // If d is -zero, the round trip result may be -zero or +zero
+  // If d is +zero, the round trip result may be -zero or +zero
+  // If d is a +NaN, the round trip result may be a different positive NaN
+  // If d is a -NaN, the round trip result may be a different negative NaN.
+  static bool ReadDoubleIncreasing(absl::string_view* src, double* result);
+  static bool ReadDoubleDecreasing(absl::string_view* src, double* result);
 
   static bool ReadInfinity(absl::string_view* src);
+  static bool ReadInfinityDecreasing(absl::string_view* src);
   static bool ReadTrailingString(absl::string_view* src, std::string* result);
 
-  /** REQUIRES: next item was encoded by WriteInfinity() or WriteString(). */
+  // REQUIRES: next item was encoded by WriteInfinity() or WriteString()
   static bool ReadStringOrInfinity(absl::string_view* src,
                                    std::string* result,
                                    bool* inf);
+
+  // REQUIRES: next item was encoded by WriteInfinityDecreasing() or
+  // WriteStringDecreasing()
+  static bool ReadStringOrInfinityDecreasing(absl::string_view* src,
+                                             std::string* result,
+                                             bool* inf);
 
   /**
    * Helper for testing: corrupt "*str" by changing the kth item separator
@@ -120,7 +152,24 @@ class OrderedCode {
   OrderedCode() = delete;
   OrderedCode(const OrderedCode&) = delete;
   OrderedCode& operator=(const OrderedCode&) = delete;
+  OrderedCode(OrderedCode&&) = delete;
+  OrderedCode& operator=(OrderedCode&&) = delete;
 };
+
+// -----------------------------
+// Implementation details follow
+
+inline void OrderedCode::WriteSignedNumDecreasing(std::string* dest,
+                                                  int64_t num) {
+  WriteSignedNumIncreasing(dest, ~num);
+}
+
+inline bool OrderedCode::ReadSignedNumDecreasing(absl::string_view* src,
+                                                 int64_t* result) {
+  const bool ok = ReadSignedNumIncreasing(src, result);
+  if (ok && result != nullptr) *result = ~*result;
+  return ok;
+}
 
 }  // namespace util
 }  // namespace firestore

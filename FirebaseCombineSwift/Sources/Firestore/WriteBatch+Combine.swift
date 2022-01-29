@@ -20,14 +20,14 @@
   @available(swift 5.0)
   @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
 
-  extension WriteBatch {
+  public extension WriteBatch {
     /// Commits all of the writes in this write batch as a single atomic unit.
     ///
     /// - Returns: A publisher emitting a `Void` value once all of the writes in the batch
     ///   have been successfully written to the backend as an atomic unit. This publisher will only
     ///   emits when the client is online and the commit has completed against the server.
     ///   The changes will be visible immediately.
-    public func commit() -> Future<Void, Error> {
+    func commit() -> Future<Void, Error> {
       Future { promise in
         self.commit { error in
           if let error = error {
