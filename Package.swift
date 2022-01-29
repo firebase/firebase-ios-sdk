@@ -697,10 +697,10 @@ let package = Package(
       path: "FirebaseFunctionsSwift/Sources"
     ),
     .testTarget(
-      name: "FirebaseFunctionsSwiftUnit",
+      name: "FirebaseFunctionsSwiftIntegration",
       dependencies: ["FirebaseFunctionsSwift",
                      "SharedTestUtilities"],
-      path: "FirebaseFunctionsSwift/Tests"
+      path: "FirebaseFunctionsSwift/Tests/Integration"
     ),
     .target(
       name: "FirebaseFunctionsCombineSwift",

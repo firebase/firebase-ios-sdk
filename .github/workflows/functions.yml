@@ -59,7 +59,7 @@ jobs:
     - name: iOS Swift Integration Tests (Objective C library)
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FunctionsSwiftIntegration iOS spm
     - name: iOS Swift Integration Tests (including Swift library)
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctionsSwiftUnit iOS spm
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctionsSwiftIntegration iOS spm
     - name: iOS Objective C Integration Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FunctionsIntegration iOS spm
     - name: Combine Unit Tests
