@@ -12,28 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//#import <XCTest/XCTest.h>
+// #import <XCTest/XCTest.h>
 //
-//#import "FirebaseFunctions/Sources/FUNContext.h"
+// #import "FirebaseFunctions/Sources/FUNContext.h"
 //
-//#import "SharedTestUtilities/AppCheckFake/FIRAppCheckFake.h"
-//#import "SharedTestUtilities/AppCheckFake/FIRAppCheckTokenResultFake.h"
-//#import "SharedTestUtilities/FIRAuthInteropFake.h"
-//#import "SharedTestUtilities/FIRMessagingInteropFake.h"
+// #import "SharedTestUtilities/AppCheckFake/FIRAppCheckFake.h"
+// #import "SharedTestUtilities/AppCheckFake/FIRAppCheckTokenResultFake.h"
+// #import "SharedTestUtilities/FIRAuthInteropFake.h"
+// #import "SharedTestUtilities/FIRMessagingInteropFake.h"
 //
-//@interface FUNContextProviderTests : XCTestCase
+// @interface FUNContextProviderTests : XCTestCase
 //
-//@property(nonatomic) FIRMessagingInteropFake *messagingFake;
+// @property(nonatomic) FIRMessagingInteropFake *messagingFake;
 //
-//@property(nonatomic) FIRAppCheckFake *appCheckFake;
-//@property(strong, nonatomic) FIRAppCheckTokenResultFake *appCheckTokenSuccess;
-//@property(strong, nonatomic) FIRAppCheckTokenResultFake *appCheckTokenError;
+// @property(nonatomic) FIRAppCheckFake *appCheckFake;
+// @property(strong, nonatomic) FIRAppCheckTokenResultFake *appCheckTokenSuccess;
+// @property(strong, nonatomic) FIRAppCheckTokenResultFake *appCheckTokenError;
 //
-//@end
+// @end
 //
-//@implementation FUNContextProviderTests
+// @implementation FUNContextProviderTests
 //
-//- (void)setUp {
+// - (void)setUp {
 //  self.messagingFake = [[FIRMessagingInteropFake alloc] init];
 //  self.appCheckFake = [[FIRAppCheckFake alloc] init];
 //
@@ -42,9 +42,9 @@
 //  self.appCheckTokenError = [[FIRAppCheckTokenResultFake alloc]
 //      initWithToken:@"dummy token"
 //              error:[NSError errorWithDomain:@"testAppCheckError" code:-1 userInfo:nil]];
-//}
+// }
 //
-//- (void)testContextWithAuth {
+// - (void)testContextWithAuth {
 //  FIRAuthInteropFake *auth = [[FIRAuthInteropFake alloc] initWithToken:@"token"
 //                                                                userID:@"userID"
 //                                                                 error:nil];
@@ -62,9 +62,9 @@
 //  }];
 //
 //  [self waitForExpectations:@[ expectation ] timeout:0.1];
-//}
+// }
 //
-//- (void)testContextWithAuthError {
+// - (void)testContextWithAuthError {
 //  NSError *authError = [[NSError alloc] initWithDomain:@"com.functions.tests" code:4 userInfo:nil];
 //  FIRAuthInteropFake *auth = [[FIRAuthInteropFake alloc] initWithToken:nil
 //                                                                userID:nil
@@ -82,9 +82,9 @@
 //  }];
 //
 //  [self waitForExpectations:@[ expectation ] timeout:0.1];
-//}
+// }
 //
-//- (void)testContextWithoutAuth {
+// - (void)testContextWithoutAuth {
 //  FUNContextProvider *provider = [[FUNContextProvider alloc] initWithAuth:nil
 //                                                                messaging:nil
 //                                                                 appCheck:nil];
@@ -99,9 +99,9 @@
 //  }];
 //
 //  [self waitForExpectations:@[ expectation ] timeout:0.1];
-//}
+// }
 //
-//- (void)testContextWithAppCheckOnlySuccess {
+// - (void)testContextWithAppCheckOnlySuccess {
 //  self.appCheckFake.tokenResult = self.appCheckTokenSuccess;
 //  FUNContextProvider *provider = [[FUNContextProvider alloc] initWithAuth:nil
 //                                                                messaging:nil
@@ -118,9 +118,9 @@
 //  }];
 //
 //  [self waitForExpectations:@[ expectation ] timeout:0.1];
-//}
+// }
 //
-//- (void)testContextWithAppCheckOnlyError {
+// - (void)testContextWithAppCheckOnlyError {
 //  self.appCheckFake.tokenResult = self.appCheckTokenError;
 //  FUNContextProvider *provider = [[FUNContextProvider alloc] initWithAuth:nil
 //                                                                messaging:nil
@@ -138,9 +138,9 @@
 //  }];
 //
 //  [self waitForExpectations:@[ expectation ] timeout:0.1];
-//}
+// }
 //
-//- (void)testAllContextsAvailableSuccess {
+// - (void)testAllContextsAvailableSuccess {
 //  self.appCheckFake.tokenResult = self.appCheckTokenSuccess;
 //  FIRAuthInteropFake *auth = [[FIRAuthInteropFake alloc] initWithToken:@"token"
 //                                                                userID:@"userID"
@@ -160,9 +160,9 @@
 //  }];
 //
 //  [self waitForExpectations:@[ expectation ] timeout:0.1];
-//}
+// }
 //
-//- (void)testAllContextsAuthAndAppCheckError {
+// - (void)testAllContextsAuthAndAppCheckError {
 //  self.appCheckFake.tokenResult = self.appCheckTokenError;
 //
 //  NSError *authError = [[NSError alloc] initWithDomain:@"com.functions.tests" code:4 userInfo:nil];
@@ -187,6 +187,6 @@
 //  }];
 //
 //  [self waitForExpectations:@[ expectation ] timeout:0.1];
-//}
+// }
 //
-//@end
+// @end
