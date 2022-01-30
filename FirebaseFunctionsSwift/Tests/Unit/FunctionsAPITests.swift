@@ -19,9 +19,6 @@ import Foundation
 import FirebaseCore
 import FirebaseFunctionsSwift
 
-
-import FirebaseSharedSwift
-
 final class FunctionsAPITests {
   func usage() {
     // MARK: - Functions

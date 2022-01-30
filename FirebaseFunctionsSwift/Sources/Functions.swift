@@ -63,7 +63,7 @@ private enum Constants {
   /**
    * The current emulator origin, or nil if it is not set.
    */
-  private(set) var emulatorOrigin: String?
+  public private(set) var emulatorOrigin: String?
 
   /**
    * Creates a Cloud Functions client with the given app and region, or returns a pre-existing
@@ -125,7 +125,7 @@ private enum Constants {
    * Creates a reference to the Callable HTTPS trigger with the given name.
    * @param name The name of the Callable HTTPS trigger.
    */
-  private func httpsCallable(_ name: String) -> HTTPSCallable {
+  public func httpsCallable(_ name: String) -> HTTPSCallable {
     return HTTPSCallable(functions: self, name: name)
   }
 
@@ -154,7 +154,7 @@ private enum Constants {
    * @param host The host of the local emulator, such as "localhost".
    * @param port The port of the local emulator, for example 5005.
    */
-  func useEmulator(withHost host: String, port: Int) {
+  public func useEmulator(withHost host: String, port: Int) {
     let prefix = host.hasPrefix("http") ? "" : "http://"
     let origin = String(format: "\(prefix)\(host):%li", port)
     emulatorOrigin = origin
