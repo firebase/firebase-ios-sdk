@@ -50,6 +50,9 @@ const char* kCollectionParentsTable = "collection_parent";
 const char* kRemoteDocumentReadTimeTable = "remote_document_read_time";
 const char* kBundlesTable = "bundles";
 const char* kNamedQueriesTable = "named_queries";
+const char* kIndexConfigurationTable = "index_configuration";
+const char* kIndexStateTable = "index_state";
+const char* kIndexEntriesTable = "index_entries";
 
 /**
  * Labels for the components of keys. These serve to make keys self-describing.
@@ -114,6 +117,15 @@ enum ComponentLabel {
 
   /** A component containing the name of a named query. */
   QueryName = 18,
+
+  /** A component containing a index id. */
+  IndexId = 19,
+
+  /** A component containing an array index value. */
+  IndexArrayValue = 20,
+
+  /** A component containing a directional index value. */
+  IndexDirectionalValue = 21,
 
   /**
    * A path segment describes just a single segment in a resource path. Path
@@ -199,6 +211,18 @@ class Reader {
 
   std::string ReadQueryName() {
     return ReadLabeledString(ComponentLabel::QueryName);
+  }
+
+  int32_t ReadIndexId() {
+    return ReadLabeledInt32(ComponentLabel::IndexId);
+  }
+
+  std::string ReadIndexArrayValue() {
+    return ReadLabeledString(ComponentLabel::IndexArrayValue);
+  }
+
+  std::string ReadIndexDirectionalValue() {
+    return ReadLabeledString(ComponentLabel::IndexDirectionalValue);
   }
 
   /**
@@ -567,6 +591,21 @@ std::string Reader::Describe() {
       if (ok_) {
         absl::StrAppend(&description, " query_name=", query_name);
       }
+    } else if (label == ComponentLabel::IndexId) {
+      int32_t index_id = ReadIndexId();
+      if (ok_) {
+        absl::StrAppend(&description, " index_id=", index_id);
+      }
+    } else if (label == ComponentLabel::IndexArrayValue) {
+      std::string value = ReadIndexArrayValue();
+      if (ok_) {
+        absl::StrAppend(&description, " array_value=", std::move(value));
+      }
+    } else if (label == ComponentLabel::IndexDirectionalValue) {
+      std::string value = ReadIndexDirectionalValue();
+      if (ok_) {
+        absl::StrAppend(&description, " directional_value=", std::move(value));
+      }
     } else {
       absl::StrAppend(&description, " unknown label=", static_cast<int>(label));
       Fail();
@@ -648,6 +687,18 @@ class Writer {
       WriteComponentLabel(ComponentLabel::PathSegment);
       OrderedCode::WriteString(&dest_, segment);
     }
+  }
+
+  void WriteIndexId(int32_t id) {
+    WriteLabeledInt32(ComponentLabel::IndexId, id);
+  }
+
+  void WriteIndexArrayValue(absl::string_view value) {
+    WriteLabeledString(ComponentLabel::IndexArrayValue, value);
+  }
+
+  void WriteIndexDirectionalValue(absl::string_view value) {
+    WriteLabeledString(ComponentLabel::IndexDirectionalValue, value);
   }
 
  private:
@@ -1090,6 +1141,87 @@ bool LevelDbNamedQueryKey::Decode(absl::string_view key) {
   Reader reader{key};
   reader.ReadTableNameMatching(kNamedQueriesTable);
   name_ = reader.ReadQueryName();
+  reader.ReadTerminator();
+  return reader.ok();
+}
+
+std::string LevelDbIndexConfigurationKey::KeyPrefix() {
+  Writer writer;
+  writer.WriteTableName(kIndexConfigurationTable);
+  return writer.result();
+}
+
+std::string LevelDbIndexConfigurationKey::Key(int32_t id) {
+  Writer writer;
+  writer.WriteTableName(kIndexConfigurationTable);
+  writer.WriteIndexId(id);
+  writer.WriteTerminator();
+  return writer.result();
+}
+
+bool LevelDbIndexConfigurationKey::Decode(absl::string_view key) {
+  Reader reader{key};
+  reader.ReadTableNameMatching(kIndexConfigurationTable);
+  index_id_ = reader.ReadIndexId();
+  reader.ReadTerminator();
+  return reader.ok();
+}
+
+std::string LevelDbIndexStateKey::KeyPrefix() {
+  Writer writer;
+  writer.WriteTableName(kIndexStateTable);
+  return writer.result();
+}
+
+std::string LevelDbIndexStateKey::Key(int32_t index_id,
+                                      absl::string_view user_id) {
+  Writer writer;
+  writer.WriteTableName(kIndexStateTable);
+  writer.WriteIndexId(index_id);
+  writer.WriteUserId(user_id);
+  writer.WriteTerminator();
+  return writer.result();
+}
+
+bool LevelDbIndexStateKey::Decode(absl::string_view key) {
+  Reader reader{key};
+  reader.ReadTableNameMatching(kIndexStateTable);
+  index_id_ = reader.ReadIndexId();
+  user_id_ = reader.ReadUserId();
+  reader.ReadTerminator();
+  return reader.ok();
+}
+
+std::string LevelDbIndexEntryKey::KeyPrefix() {
+  Writer writer;
+  writer.WriteTableName(kIndexEntriesTable);
+  return writer.result();
+}
+
+std::string LevelDbIndexEntryKey::Key(int32_t index_id,
+                                      absl::string_view user_id,
+                                      absl::string_view array_value,
+                                      absl::string_view dicrectional_value,
+                                      absl::string_view document_key) {
+  Writer writer;
+  writer.WriteTableName(kIndexEntriesTable);
+  writer.WriteIndexId(index_id);
+  writer.WriteUserId(user_id);
+  writer.WriteIndexArrayValue(array_value);
+  writer.WriteIndexDirectionalValue(dicrectional_value);
+  writer.WriteDocumentId(document_key);
+  writer.WriteTerminator();
+  return writer.result();
+}
+
+bool LevelDbIndexEntryKey::Decode(absl::string_view key) {
+  Reader reader{key};
+  reader.ReadTableNameMatching(kIndexEntriesTable);
+  index_id_ = reader.ReadIndexId();
+  user_id_ = reader.ReadUserId();
+  array_value_ = reader.ReadIndexArrayValue();
+  directional_value_ = reader.ReadIndexDirectionalValue();
+  document_key_ = reader.ReadDocumentId();
   reader.ReadTerminator();
   return reader.ok();
 }
