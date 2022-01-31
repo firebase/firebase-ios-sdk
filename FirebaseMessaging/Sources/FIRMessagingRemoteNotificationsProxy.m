@@ -18,8 +18,8 @@
 
 #import <objc/runtime.h>
 
-#import <GoogleUtilitiesMulticastAppDelegate/GULMulticastAppDelegate.h>
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import <GoogleUtilitiesMulticastAppDelegate/GULMulticastAppDelegate.h>
 
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"

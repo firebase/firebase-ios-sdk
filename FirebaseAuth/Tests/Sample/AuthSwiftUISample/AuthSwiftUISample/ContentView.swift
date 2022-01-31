@@ -17,56 +17,56 @@ import FirebaseStorage
 import SwiftUI
 
 extension Image {
-    func data(url: URL) -> Self {
-        if let data = try? Data(contentsOf: url) {
-            return Image(uiImage: UIImage(data: data)!)
-                .resizable()
-        }
-        return resizable()
+  func data(url: URL) -> Self {
+    if let data = try? Data(contentsOf: url) {
+      return Image(uiImage: UIImage(data: data)!)
+        .resizable()
     }
+    return resizable()
+  }
 }
 
 struct ContentView: View {
-    @State private var imageURL = URL(string: "local")
+  @State private var imageURL = URL(string: "local")
 
-    var body: some View {
-        VStack {
-            Image(systemName: "person.fill")
-                .data(url: self.imageURL!).onAppear(perform: loadImageFromFirebase)
-            Text("Hello, world!")
-                .padding()
-            Button(action: signOut) {
-                HStack {
-                    Image(systemName: "arrow.clockwise.circle.fill")
-                    Text("Sign out")
-                        .fontWeight(.semibold)
-                }
-            }
-        }.onAppear(perform: loadImageFromFirebase)
-    }
-
-    func loadImageFromFirebase() {
-        let storageRef = Storage.storage().reference(withPath: "sparky.png")
-        storageRef.downloadURL { url, error in
-            if error != nil {
-                return
-            }
-            self.imageURL = url!
+  var body: some View {
+    VStack {
+      Image(systemName: "person.fill")
+        .data(url: self.imageURL!).onAppear(perform: loadImageFromFirebase)
+      Text("Hello, world!")
+        .padding()
+      Button(action: signOut) {
+        HStack {
+          Image(systemName: "arrow.clockwise.circle.fill")
+          Text("Sign out")
+            .fontWeight(.semibold)
         }
-    }
+      }
+    }.onAppear(perform: loadImageFromFirebase)
+  }
 
-    func signOut() {
-        do {
-            try Auth.auth().signOut()
-            loadImageFromFirebase()
-        } catch let error as NSError {
-            print(error.localizedDescription)
-        }
+  func loadImageFromFirebase() {
+    let storageRef = Storage.storage().reference(withPath: "sparky.png")
+    storageRef.downloadURL { url, error in
+      if error != nil {
+        return
+      }
+      self.imageURL = url!
     }
+  }
+
+  func signOut() {
+    do {
+      try Auth.auth().signOut()
+      loadImageFromFirebase()
+    } catch let error as NSError {
+      print(error.localizedDescription)
+    }
+  }
 }
 
 struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
+  static var previews: some View {
+    ContentView()
+  }
 }
