@@ -657,7 +657,6 @@ class IntegrationTests: XCTestCase {
   #endif
 }
 
-
 private class AuthTokenProvider: AuthInterop {
   let token: String
 
@@ -669,7 +668,6 @@ private class AuthTokenProvider: AuthInterop {
     callback(.success(token))
   }
 }
-
 
 private class MessagingTokenProvider: MessagingInterop {
   var fcmToken: String { return "fakeFCMToken" }
