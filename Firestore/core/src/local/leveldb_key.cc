@@ -120,7 +120,11 @@ enum ComponentLabel {
 
   /** A component containing a index id. */
   IndexId = 19,
+
+  /** A component containing an array index value. */
   IndexArrayValue = 20,
+
+  /** A component containing a directional index value. */
   IndexDirectionalValue = 21,
 
   /**
@@ -593,14 +597,14 @@ std::string Reader::Describe() {
         absl::StrAppend(&description, " index_id=", index_id);
       }
     } else if (label == ComponentLabel::IndexArrayValue) {
-      const std::string& value = ReadIndexArrayValue();
+      std::string value = ReadIndexArrayValue();
       if (ok_) {
-        absl::StrAppend(&description, " array_value=", value);
+        absl::StrAppend(&description, " array_value=", std::move(value));
       }
     } else if (label == ComponentLabel::IndexDirectionalValue) {
-      const std::string& value = ReadIndexDirectionalValue();
+      std::string value = ReadIndexDirectionalValue();
       if (ok_) {
-        absl::StrAppend(&description, " directional_value=", value);
+        absl::StrAppend(&description, " directional_value=", std::move(value));
       }
     } else {
       absl::StrAppend(&description, " unknown label=", static_cast<int>(label));

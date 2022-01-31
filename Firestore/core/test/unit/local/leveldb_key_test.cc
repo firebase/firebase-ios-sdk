@@ -574,37 +574,37 @@ TEST(IndexEntryKeyTest, Prefixing) {
                                 LevelDbIndexEntryKey::Key(1, "", "", "", "")));
 }
 
-struct IndexEntry {
-  int32_t index_id;
-  std::string user_id;
-  std::string array_value;
-  std::string dir_value;
-  std::string document_name;
-};
-
 TEST(IndexEntryKeyTest, Ordering) {
-  std::vector<IndexEntry> entries = {
-      {-1, "", "", "", ""},      {0, "", "", "", ""},
-      {0, "u", "", "", ""},      {0, "v", "", "", ""},
-      {0, "v", "a", "", ""},     {0, "v", "b", "", ""},
-      {0, "v", "b", "d", ""},    {0, "v", "b", "e", ""},
-      {0, "v", "b", "e", "doc"}, {0, "v", "b", "e", "eoc"},
+  std::vector<std::string> entries = {
+      LevelDbIndexEntryKey::Key(-1, "", "", "", ""),
+      LevelDbIndexEntryKey::Key(0, "", "", "", ""),
+      LevelDbIndexEntryKey::Key(0, "u", "", "", ""),
+      LevelDbIndexEntryKey::Key(0, "v", "", "", ""),
+      LevelDbIndexEntryKey::Key(0, "v", "a", "", ""),
+      LevelDbIndexEntryKey::Key(0, "v", "b", "", ""),
+      LevelDbIndexEntryKey::Key(0, "v", "b", "d", ""),
+      LevelDbIndexEntryKey::Key(0, "v", "b", "e", ""),
+      LevelDbIndexEntryKey::Key(0, "v", "b", "e", "doc"),
+      LevelDbIndexEntryKey::Key(0, "v", "b", "e", "eoc"),
   };
 
   for (size_t i = 0; i < entries.size() - 1; ++i) {
     auto& left = entries[i];
     auto& right = entries[i + 1];
-    ASSERT_LT(
-        LevelDbIndexEntryKey::Key(left.index_id, left.user_id, left.array_value,
-                                  left.dir_value, left.document_name),
-        LevelDbIndexEntryKey::Key(right.index_id, right.user_id,
-                                  right.array_value, right.dir_value,
-                                  right.document_name));
+    ASSERT_LT(left, right);
   }
 }
 
 TEST(IndexEntryKeyTest, EncodeDecodeCycle) {
   LevelDbIndexEntryKey key;
+
+  struct IndexEntry {
+    int32_t index_id;
+    std::string user_id;
+    std::string array_value;
+    std::string dir_value;
+    std::string document_name;
+  };
 
   std::vector<IndexEntry> entries = {
       {-1, "", "", "", ""},
