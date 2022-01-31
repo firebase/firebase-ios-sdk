@@ -35,20 +35,16 @@ Swift SDK Extensions for Cloud Functions for Firebase.
     'FirebaseFunctionsSwift/Sources/**/*.swift',
   ]
 
-  s.dependency 'FirebaseFunctions', '~> 8.11'
-  s.dependency 'FirebaseSharedSwift', '~> 8.11'
+  s.dependency 'FirebaseCore', '~> 8.12'
+  s.dependency 'FirebaseSharedSwift', '~> 8.12'
+  s.dependency 'GTMSessionFetcher/Core', '~> 1.5'
 
-  # Using environment variable because of the dependency on the unpublished
-  # FirebaseFunctionsTestingSupport.
-  if ENV['POD_LIB_LINT_ONLY'] && ENV['POD_LIB_LINT_ONLY'] == '1' then
-    s.test_spec 'integration' do |int_tests|
-      int_tests.platforms = {
-        :ios => ios_deployment_target,
-        :osx => osx_deployment_target,
-        :tvos => tvos_deployment_target
-      }
-      int_tests.source_files = 'FirebaseFunctionsSwift/Tests/*.swift'
-      int_tests.dependency 'FirebaseFunctionsTestingSupport'
-    end
+  s.test_spec 'integration' do |int_tests|
+    int_tests.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
+    int_tests.source_files = 'FirebaseFunctionsSwift/Tests/Integration/*.swift'
   end
 end

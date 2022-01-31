@@ -14,9 +14,9 @@
             buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "FirebaseFunctionsSwiftUnit"
-               BuildableName = "FirebaseFunctionsSwiftUnit"
-               BlueprintName = "FirebaseFunctionsSwiftUnit"
+               BlueprintIdentifier = "FirebaseFunctionsSwiftIntegration"
+               BuildableName = "FirebaseFunctionsSwiftIntegration"
+               BlueprintName = "FirebaseFunctionsSwiftIntegration"
                ReferencedContainer = "container:">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,9 +32,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "FirebaseFunctionsSwiftUnit"
-               BuildableName = "FirebaseFunctionsSwiftUnit"
-               BlueprintName = "FirebaseFunctionsSwiftUnit"
+               BlueprintIdentifier = "FirebaseFunctionsSwiftIntegration"
+               BuildableName = "FirebaseFunctionsSwiftIntegration"
+               BlueprintName = "FirebaseFunctionsSwiftIntegration"
                ReferencedContainer = "container:">
             </BuildableReference>
          </TestableReference>
@@ -60,9 +60,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "FirebaseFunctionsSwiftUnit"
-            BuildableName = "FirebaseFunctionsSwiftUnit"
-            BlueprintName = "FirebaseFunctionsSwiftUnit"
+            BlueprintIdentifier = "FirebaseFunctionsSwiftIntegration"
+            BuildableName = "FirebaseFunctionsSwiftIntegration"
+            BlueprintName = "FirebaseFunctionsSwiftIntegration"
             ReferencedContainer = "container:">
          </BuildableReference>
       </MacroExpansion>
