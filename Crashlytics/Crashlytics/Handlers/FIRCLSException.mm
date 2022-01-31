@@ -280,7 +280,21 @@ NSString *FIRCLSExceptionRecordOnDemand(FIRCLSExceptionType type,
     return nil;
   }
 
-  // Record how many on-demand exceptions occurred before this one.
+  // Once the report is copied, remove non-fatal events from current report.
+  NSLog(@"Crashlytics: non-fatal count is %u \n",
+        *_firclsContext.readonly->logging.customExceptionStorage.entryCount);
+  if (*_firclsContext.readonly->logging.customExceptionStorage.entryCount > 0) {
+    [fileManager
+        removeItemAtPath:[NSString stringWithUTF8String:_firclsContext.readonly->logging
+                                                            .customExceptionStorage.aPath]];
+    [fileManager
+        removeItemAtPath:[NSString stringWithUTF8String:_firclsContext.readonly->logging
+                                                            .customExceptionStorage.bPath]];
+    *_firclsContext.readonly->logging.customExceptionStorage.entryCount = 0;
+    _firclsContext.writable->exception.customExceptionCount = 0;
+  }
+
+  // Record how many on-demand exceptions occurred before this one as well as how many were dropped.
   FIRCLSFile kvFile;
   if (!FIRCLSFileInitWithPath(&kvFile, [newKVPath UTF8String], true)) {
     FIRCLSSDKLogError("Unable to open k-v file\n");

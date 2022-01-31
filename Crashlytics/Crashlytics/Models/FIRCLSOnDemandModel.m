@@ -78,7 +78,8 @@ static const double SEC_PER_MINUTE = 60;
 }
 
 /*
- * Called from FIRCrashlytics whenever the on-demand record exception method is called.
+ * Called from FIRCrashlytics whenever the on-demand record exception method is called. Handles
+ * rate limiting and exponential backoff.
  */
 - (BOOL)recordOnDemandExceptionIfQuota:(FIRExceptionModel *)exceptionModel
              withDataCollectionEnabled:(BOOL)dataCollectionEnabled
