@@ -64,7 +64,7 @@
   _analytics = managerData.analytics;
   _onDemandModel = [[FIRCLSOnDemandModel alloc]
       initWithOnDemandUploadRate:[managerData.settings onDemandUploadRate]
-                    baseExponent:[managerData.settings onDemandBackoffBaseExponent]
+                            base:[managerData.settings onDemandBackoffBase]
                     stepDuration:[managerData.settings onDemandBackoffStepDuration]];
   return self;
 }

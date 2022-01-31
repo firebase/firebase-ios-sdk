@@ -31,7 +31,7 @@
 @property(nonatomic, readonly) int droppedOnDemandExceptionCount;
 
 @property(nonatomic, readonly) uint32_t uploadRate;
-@property(nonatomic, readonly) double baseExponent;
+@property(nonatomic, readonly) double base;
 @property(nonatomic, readonly) uint32_t stepDuration;
 
 @property(nonatomic, strong) NSOperationQueue *operationQueue;
@@ -49,7 +49,7 @@ static const double MAX_DELAY_SEC = 3600;
 static const double SEC_PER_MINUTE = 60;
 
 - (instancetype)initWithOnDemandUploadRate:(int)uploadRate
-                              baseExponent:(double)baseExponent
+                                      base:(double)base
                               stepDuration:(int)stepDuration {
   self = [super init];
   if (!self) {
@@ -57,7 +57,7 @@ static const double SEC_PER_MINUTE = 60;
   }
 
   _uploadRate = uploadRate;
-  _baseExponent = baseExponent;
+  _base = base;
   _stepDuration = stepDuration;
 
   _operationQueue = [NSOperationQueue new];
@@ -130,7 +130,7 @@ static const double SEC_PER_MINUTE = 60;
 
 - (double)calculateUploadDelay {
   double calculatedStepDuration = [self calculateStepDuration];
-  double power = pow(self.baseExponent, calculatedStepDuration);
+  double power = pow(self.base, calculatedStepDuration);
   NSNumber *calculatedUploadDelay =
       [NSNumber numberWithDouble:(SEC_PER_MINUTE / self.uploadRate) * power];
   NSComparisonResult result =

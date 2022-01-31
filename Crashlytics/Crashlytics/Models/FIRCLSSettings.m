@@ -337,14 +337,14 @@ NSString *const AppVersion = @"app_version";
   return 10;  // on-demand uploads allowed per minute
 }
 
-- (double)onDemandBackoffBaseExponent {
-  NSNumber *value = [self sessionSettings][@"on_demand_backoff_base_exponent"];
+- (double)onDemandBackoffBase {
+  NSNumber *value = [self sessionSettings][@"on_demand_backoff_base"];
 
   if (value != nil) {
     return [value doubleValue];
   }
 
-  return 1.2;  // base exponent for exponential backoff
+  return 1.5;  // base of exponent for exponential backoff
 }
 
 - (uint32_t)onDemandBackoffStepDuration {
