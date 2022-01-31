@@ -29,8 +29,6 @@ jobs:
         # TODO: The --skip-tests might be removable with Xcode 13.2+
         target: [ios, tvos, macos --skip-tests, watchos]
         podspec: [ 'FirebaseFunctions.podspec', 'FirebaseFunctionsSwift.podspec']
-    env:
-      POD_LIB_LINT_ONLY: 1
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -59,7 +57,7 @@ jobs:
     - name: iOS Swift Integration Tests (Objective C library)
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FunctionsSwiftIntegration iOS spm
     - name: iOS Swift Integration Tests (including Swift library)
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctionsSwiftUnit iOS spm
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctionsSwiftIntegration iOS spm
     - name: iOS Objective C Integration Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FunctionsIntegration iOS spm
     - name: Combine Unit Tests

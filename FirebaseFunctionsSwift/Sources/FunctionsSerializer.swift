@@ -1,9 +1,16 @@
+// Copyright 2022 Google LLC
 //
-//  File.swift
-//  
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//  Created by Ryan Wilson on 2022-01-25.
+//      http://www.apache.org/licenses/LICENSE-2.0
 //
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 import Foundation
 
@@ -40,7 +47,7 @@ class FUNSerializer: NSObject {
       return object as AnyObject
     } else if object is NSDictionary {
       let dict = object as! NSDictionary
-      let encoded: NSMutableDictionary = NSMutableDictionary()
+      let encoded: NSMutableDictionary = .init()
       dict.enumerateKeysAndObjects { key, obj, _ in
         // TODO(wilsonryan): Not exact translation
         let anyObj = obj as AnyObject
@@ -68,7 +75,7 @@ class FUNSerializer: NSObject {
     // Return these types as is. PORTING NOTE: Moved from the bottom of the func for readability.
     if let dict = object as? NSDictionary {
       if dict["@type"] != nil {
-        var result: AnyObject? = nil
+        var result: AnyObject?
         do {
           result = try decodeWrappedType(dict)
         } catch {
@@ -81,7 +88,7 @@ class FUNSerializer: NSObject {
       }
 
       let decoded = NSMutableDictionary()
-      var decodeError: Error? = nil
+      var decodeError: Error?
       dict.enumerateKeysAndObjects { key, obj, stopPointer in
         do {
           let decodedItem = try self.decode(obj)
@@ -102,7 +109,7 @@ class FUNSerializer: NSObject {
       let result = NSMutableArray(capacity: array.count)
       for obj in array {
         // TODO: Is this data loss? The API is a bit weird.
-        if let decoded = try self.decode(obj) {
+        if let decoded = try decode(obj) {
           result.add(decoded)
         }
       }
@@ -134,14 +141,14 @@ class FUNSerializer: NSObject {
       return ["@type": Constants.longType, "value": "\(number)"] as AnyObject
     case CChar("Q".utf8.first!):
       // "unsigned long long" might be larger than JS supports, so make it a string.
-      return ["@type" : Constants.unsignedLongType,
-              "value" : "\(number)"] as AnyObject
+      return ["@type": Constants.unsignedLongType,
+              "value": "\(number)"] as AnyObject
 
     case CChar("i".utf8.first!),
-      CChar("s".utf8.first!),
-      CChar("l".utf8.first!),
-      CChar("I".utf8.first!),
-      CChar("S".utf8.first!):
+         CChar("s".utf8.first!),
+         CChar("l".utf8.first!),
+         CChar("I".utf8.first!),
+         CChar("S".utf8.first!):
       // If it"s an integer that isn"t too long, so just use the number.
       return number
 
@@ -186,30 +193,28 @@ class FUNSerializer: NSObject {
       let str = value.utf8
       // TODO: Port this atrocity
       throw SerializerError.unimplemented
-      /*
-       const char *str = value.UTF8String;
-       char *end = NULL;
-       unsigned long long n = strtoull(str, &end, 10);
-       if (errno == ERANGE) {
-         // This number was actually too big for an unsigned long long.
-         if (error != NULL) {
-           *error = FUNInvalidNumberError(value, wrapped);
-         }
-         return nil;
+    /*
+     const char *str = value.UTF8String;
+     char *end = NULL;
+     unsigned long long n = strtoull(str, &end, 10);
+     if (errno == ERANGE) {
+       // This number was actually too big for an unsigned long long.
+       if (error != NULL) {
+         *error = FUNInvalidNumberError(value, wrapped);
        }
-       if (*end) {
-         // The whole string wasn't parsed.
-         if (error != NULL) {
-           *error = FUNInvalidNumberError(value, wrapped);
-         }
-         return nil;
+       return nil;
+     }
+     if (*end) {
+       // The whole string wasn't parsed.
+       if (error != NULL) {
+         *error = FUNInvalidNumberError(value, wrapped);
        }
-       return @(n);
-       */
+       return nil;
+     }
+     return @(n);
+     */
     default:
       return nil
     }
-
   }
-
 }
