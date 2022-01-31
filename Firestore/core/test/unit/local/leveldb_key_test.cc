@@ -626,7 +626,7 @@ TEST(IndexEntryKeyTest, EncodeDecodeCycle) {
     ASSERT_EQ(entry.user_id, key.user_id());
     ASSERT_EQ(entry.array_value, key.array_value());
     ASSERT_EQ(entry.dir_value, key.directional_value());
-    ASSERT_EQ(entry.document_name, key.document_name());
+    ASSERT_EQ(entry.document_name, key.document_key());
   }
 }
 

@@ -1202,14 +1202,14 @@ std::string LevelDbIndexEntryKey::Key(int32_t index_id,
                                       absl::string_view user_id,
                                       absl::string_view array_value,
                                       absl::string_view dicrectional_value,
-                                      absl::string_view document_name) {
+                                      absl::string_view document_key) {
   Writer writer;
   writer.WriteTableName(kIndexEntriesTable);
   writer.WriteIndexId(index_id);
   writer.WriteUserId(user_id);
   writer.WriteIndexArrayValue(array_value);
   writer.WriteIndexDirectionalValue(dicrectional_value);
-  writer.WriteDocumentId(document_name);
+  writer.WriteDocumentId(document_key);
   writer.WriteTerminator();
   return writer.result();
 }
@@ -1221,7 +1221,7 @@ bool LevelDbIndexEntryKey::Decode(absl::string_view key) {
   user_id_ = reader.ReadUserId();
   array_value_ = reader.ReadIndexArrayValue();
   directional_value_ = reader.ReadIndexDirectionalValue();
-  document_name_ = reader.ReadDocumentId();
+  document_key_ = reader.ReadDocumentId();
   reader.ReadTerminator();
   return reader.ok();
 }

@@ -861,9 +861,9 @@ class LevelDbIndexEntryKey {
     return directional_value_;
   }
 
-  /** The document name this entry points to. */
-  const std::string& document_name() const {
-    return document_name_;
+  /** The document key this entry points to. */
+  const std::string& document_key() const {
+    return document_key_;
   }
 
  private:
@@ -871,7 +871,7 @@ class LevelDbIndexEntryKey {
   std::string user_id_;
   std::string array_value_;
   std::string directional_value_;
-  std::string document_name_;
+  std::string document_key_;
 };
 
 }  // namespace local
