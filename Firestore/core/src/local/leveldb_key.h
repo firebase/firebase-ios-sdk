@@ -851,7 +851,7 @@ class LevelDbIndexEntryKey {
     return user_id_;
   }
 
-  /** The array index value encoded for this entry. */
+  /** The encoded array index value for this entry. */
   const std::string& array_value() const {
     return array_value_;
   }
