@@ -856,7 +856,7 @@ class LevelDbIndexEntryKey {
     return array_value_;
   }
 
-  /** The directional index value encoded for this entry. */
+  /** The encoded directional index value for this entry. */
   const std::string& directional_value() const {
     return directional_value_;
   }
