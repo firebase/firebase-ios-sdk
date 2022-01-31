@@ -15,58 +15,57 @@
 import SwiftUI
 import UIKit
 
-import FirebaseCore
 import FirebaseAuth
+import FirebaseCore
 import GoogleMulticastAppDelegate
 
 class MulticastAppDelegate: GULMulticastAppDelegate {
-  override init() {
-    super.init(appDelegate: AppDelegate())
-  }
+    override init() {
+        super.init(appDelegate: AppDelegate())
+    }
 }
 
 class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+    func application(_: UIApplication,
+                     didFinishLaunchingWithOptions _: [UIApplication
+                         .LaunchOptionsKey: Any]? = nil) -> Bool
+    {
+        FirebaseApp.configure()
 
-  func application(_ application: UIApplication,
-                   didFinishLaunchingWithOptions launchOptions: [UIApplication
-                     .LaunchOptionsKey: Any]? = nil) -> Bool {
-    FirebaseApp.configure()
+        PhoneAuthProvider.provider()
+            .verifyPhoneNumber("+16505551234", uiDelegate: nil) { verificationID, error in
+                if let error = error {
+                    print(error)
+                    return
+                }
+                // Sign in using the verificationID and the code sent to the user
+                // ...
+                UserDefaults.standard.set(verificationID, forKey: "authVerificationID")
+                let verificationID = UserDefaults.standard.string(forKey: "authVerificationID")
+                self.signin(verificationID: verificationID ?? "")
+            }
 
-    PhoneAuthProvider.provider()
-      .verifyPhoneNumber("+16505551234", uiDelegate: nil) { verificationID, error in
-          if let error = error {
-            print(error)
-            return
-          }
-          // Sign in using the verificationID and the code sent to the user
-          // ...
-        UserDefaults.standard.set(verificationID, forKey: "authVerificationID")
-        let verificationID = UserDefaults.standard.string(forKey: "authVerificationID")
-        self.signin(verificationID: verificationID ?? "")
-      }
-    
-    return true
-  }
-  
-  func signin(verificationID: String) {
-    
-    let credential = PhoneAuthProvider.provider().credential(
-      withVerificationID: verificationID,
-      verificationCode: "654321"
-    )
-    Auth.auth().signIn(with: credential) { authResult, error in
-        if let error = error {
-          print(error.localizedDescription)
-          return
+        return true
+    }
+
+    func signin(verificationID: String) {
+        let credential = PhoneAuthProvider.provider().credential(
+            withVerificationID: verificationID,
+            verificationCode: "654321"
+        )
+        Auth.auth().signIn(with: credential) { _, error in
+            if let error = error {
+                print(error.localizedDescription)
+                return
+            }
         }
     }
-  }
 }
 
 @main
 struct AuthSwiftUISampleApp: App {
-  @UIApplicationDelegateAdaptor(MulticastAppDelegate.self) var appDelegate
-  
+    @UIApplicationDelegateAdaptor(MulticastAppDelegate.self) var appDelegate
+
     var body: some Scene {
         WindowGroup {
             ContentView()
