@@ -47,7 +47,7 @@ class DatabaseViewController: UIViewController {
   private func changeServerValue(with type: Counter) {
     let ref = Database.database().reference(withPath: Constants.databasePath)
     // Update the current value of the number.
-    ref.runTransactionBlock { (currentData) -> TransactionResult in
+    ref.runTransactionBlock { currentData -> TransactionResult in
       guard let value = currentData.value as? Int else {
         return TransactionResult.abort()
       }
@@ -77,7 +77,7 @@ class DatabaseViewController: UIViewController {
 
   // MARK: - Constants
 
-  private struct Constants {
+  private enum Constants {
     static let databasePath = "magicSyncingCounter"
   }
 }

@@ -370,6 +370,7 @@
 
   FIRIAMMessageDefinition *testMessage =
       [[FIRIAMMessageDefinition alloc] initTestMessageWithRenderData:m2.renderData
+                                                             appData:nil
                                                    experimentPayload:nil];
 
   // m1 and m3 are messages rendered on app open

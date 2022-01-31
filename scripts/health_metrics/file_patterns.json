@@ -171,19 +171,12 @@
   },
   {
     "sdk": "remoteconfig",
-    "podspecs": ["FirebaseRemoteConfig.podspec"],
+    "podspecs": ["FirebaseRemoteConfig.podspec", "FirebaseRemoteConfigSwift.podspec"],
     "filePatterns": [
       "^FirebaseRemoteConfig.*",
       "Interop/Analytics/Public/[^/]+\\.h",
       "\\.github/workflows/remoteconfig\\.yml",
       "scripts/generate_access_token\\.sh"
-    ]
-  },
-  {
-    "sdk": "segmentation",
-    "podspecs": ["FirebaseSegmentation.podspec"],
-    "filePatterns": [
-      "^FirebaseSegmentation.*"
     ]
   },
   {

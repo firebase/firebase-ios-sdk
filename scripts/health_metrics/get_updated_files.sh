@@ -15,11 +15,12 @@
 set -ex
 # Updated files in paths in file_patterns.json will trigger code coverage workflows.
 # Updates in a pull request will generate a code coverage report in a PR.
-
-while getopts p: flag
+exclude_specs=""
+while getopts "p:e:" flag
 do
     case "${flag}" in
         p) spec_output_file=${OPTARG};;
+        e) exclude_specs=${OPTARG[*]};;
     esac
 done
 
@@ -39,6 +40,7 @@ git diff --name-only remotes/origin/${GITHUB_BASE_REF} ${GITHUB_SHA} > updated_f
 if [ -z $spec_output_file] ; then
   swift run UpdatedFilesCollector --changed-file-paths updated_files.txt --code-coverage-file-patterns ../file_patterns.json
 else
-  swift run UpdatedFilesCollector --changed-file-paths updated_files.txt --code-coverage-file-patterns ../file_patterns.json --output-sdk-file-url "${spec_output_file}"
+  swift run UpdatedFilesCollector --changed-file-paths updated_files.txt --code-coverage-file-patterns ../file_patterns.json --output-sdk-file-url "${spec_output_file}" --exclude-podspecs ${exclude_specs}
+
   mv "${spec_output_file}" "${dir}"
 fi

@@ -55,7 +55,7 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
           .commit(completion: completion)
       }
     case .transaction:
-      doc.firestore.runTransaction({ (transaction, errorPointer) -> Any? in
+      doc.firestore.runTransaction({ transaction, errorPointer -> Any? in
         do {
           if let merge = merge {
             try transaction.setData(from: value, forDocument: doc, merge: merge)

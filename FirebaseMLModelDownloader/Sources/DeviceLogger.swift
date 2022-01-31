@@ -72,7 +72,7 @@ enum LoggerMessageCode: Int {
 }
 
 /// On-device logger.
-class DeviceLogger {
+enum DeviceLogger {
   /// Log identifier.
   static let service = "[Firebase/MLModelDownloader]"
 

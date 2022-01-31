@@ -19,7 +19,7 @@
 
   @available(swift 5.0)
   @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, *)
-  extension HTTPSCallable {
+  public extension HTTPSCallable {
     // MARK: - HTTPS Callable Functions
 
     /// Executes this Callable HTTPS trigger asynchronously without any parameters.
@@ -36,7 +36,7 @@
     ///
     /// - Returns: A publisher emitting a `HTTPSCallableResult` instance. The publisher will emit on the *main* thread.
     @discardableResult
-    public func call() -> Future<HTTPSCallableResult, Error> {
+    func call() -> Future<HTTPSCallableResult, Error> {
       Future<HTTPSCallableResult, Error> { promise in
         self.call { callableResult, error in
           if let error = error {
@@ -70,7 +70,7 @@
     /// - Parameter data: The data passed into the Callable Function.
     /// - Returns: A publisher emitting a `HTTPSCallableResult` instance. The publisher will emit on the *main* thread.
     @discardableResult
-    public func call(_ data: Any?) -> Future<HTTPSCallableResult, Error> {
+    func call(_ data: Any?) -> Future<HTTPSCallableResult, Error> {
       Future<HTTPSCallableResult, Error> { promise in
         self.call(data) { callableResult, error in
           if let error = error {
