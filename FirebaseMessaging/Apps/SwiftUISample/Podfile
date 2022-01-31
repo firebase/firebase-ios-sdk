@@ -11,5 +11,5 @@ target 'SwiftUISample' do
   pod 'FirebaseMessaging', :path => '../../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
-  pod 'GoogleMulticastAppDelegate', :path => '../../../../github/GoogleUtilities/'
+  pod 'GoogleUtilitiesMulticastAppDelegate', :path => '../../../../github/GoogleUtilities/'
 end

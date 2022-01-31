@@ -18,7 +18,7 @@ import SwiftUI
 import FirebaseCore
 import FirebaseInstallations
 import FirebaseMessaging
-import GoogleMulticastAppDelegate
+import GoogleUtilitiesMulticastAppDelegate
 
 class MulticastAppDelegate: GULMulticastAppDelegate {
   override init() {

@@ -18,7 +18,7 @@
 
 #import <objc/runtime.h>
 
-#import <GoogleMulticastAppDelegate/GULMulticastAppDelegate.h>
+#import <GoogleUtilitiesMulticastAppDelegate/GULMulticastAppDelegate.h>
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
@@ -86,7 +86,7 @@ static NSString *kUserNotificationDidReceiveResponseSelectorString =
   id<GULMulticastAppDelegateProtocol> multicastDelegate =
       [GULMulticastAppDelegate multicastDelegate];
   if (multicastDelegate) {
-    [multicastDelegate addInterceptorWithDelegate:self];
+    [multicastDelegate addInterceptorWithInterceptor:self];
   }
 }
 
@@ -99,7 +99,7 @@ static NSString *kUserNotificationDidReceiveResponseSelectorString =
   id<GULMulticastAppDelegateProtocol> multicastDelegate =
       [GULMulticastAppDelegate multicastDelegate];
   if (multicastDelegate) {
-    [multicastDelegate addInterceptorWithDelegate:self];
+    [multicastDelegate addInterceptorWithInterceptor:self];
   } else {
     [GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods];
     self.appDelegateInterceptorID = [GULAppDelegateSwizzler registerAppDelegateInterceptor:self];

@@ -15,8 +15,6 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <GoogleMulticastAppDelegate/GULMulticastAppDelegate.h>
-
 /**
  *  Swizzle remote-notification callbacks to invoke FIRMessaging methods
  *  before calling original implementations.
