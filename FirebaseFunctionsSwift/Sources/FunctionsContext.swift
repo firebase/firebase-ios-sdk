@@ -1,9 +1,16 @@
-// FULLY PORTED
-//  File.swift
-//  
+// Copyright 2022 Google LLC
 //
-//  Created by Ryan Wilson on 2022-01-25.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 import Foundation
 
@@ -23,7 +30,7 @@ internal class FunctionsContext: NSObject {
 internal class FunctionsContextProvider: NSObject {
   private var auth: AuthInterop?
   private var messaging: MessagingInterop?
-  private var appCheck :AppCheckInterop?
+  private var appCheck: AppCheckInterop?
 
   init(auth: AuthInterop?, messaging: MessagingInterop?, appCheck: AppCheckInterop?) {
     self.auth = auth
@@ -38,21 +45,21 @@ internal class FunctionsContextProvider: NSObject {
 //
 //  }
 
-  internal func getContext(_ completion:  @escaping ((FunctionsContext, Error?) -> Void)) {
+  internal func getContext(_ completion: @escaping ((FunctionsContext, Error?) -> Void)) {
     let dispatchGroup = DispatchGroup()
 
-    var authToken: String? = nil
-    var appCheckToken: String? = nil
-    var error: Error? = nil
+    var authToken: String?
+    var appCheckToken: String?
+    var error: Error?
 
     if let auth = auth {
       dispatchGroup.enter()
 
       auth.getToken(forcingRefresh: false) { result in
         switch result {
-        case .success(let token):
+        case let .success(token):
           authToken = token
-        case .failure(let authError):
+        case let .failure(authError):
           error = authError
         }
         dispatchGroup.leave()
@@ -64,9 +71,9 @@ internal class FunctionsContextProvider: NSObject {
 
       appCheck.getToken(forcingRefresh: false) { result in
         switch result {
-        case .success(let token):
+        case let .success(token):
           appCheckToken = token
-        case .failure(let authError):
+        case let .failure(authError):
           error = authError
         }
       }
