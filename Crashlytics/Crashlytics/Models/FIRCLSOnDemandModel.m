@@ -34,7 +34,6 @@
 @property(nonatomic, readonly) double base;
 @property(nonatomic, readonly) uint32_t stepDuration;
 
-@property(nonatomic, strong) NSOperationQueue *operationQueue;
 @property(nonatomic, strong) dispatch_queue_t dispatchQueue;
 @property(nonatomic) int queuedOperationsCount;
 
@@ -60,12 +59,7 @@ static const double SEC_PER_MINUTE = 60;
   _base = base;
   _stepDuration = stepDuration;
 
-  _operationQueue = [NSOperationQueue new];
-  [_operationQueue setMaxConcurrentOperationCount:1];
-  [_operationQueue
-      setName:[FIRCLSApplicationGetSDKBundleID() stringByAppendingString:@".on-demand-queue"]];
   _dispatchQueue = dispatch_queue_create("com.google.firebase.crashlytics.on.demand", 0);
-  _operationQueue.underlyingQueue = _dispatchQueue;
   _queuedOperationsCount = 0;
 
   _recordedOnDemandExceptionCount = 0;
