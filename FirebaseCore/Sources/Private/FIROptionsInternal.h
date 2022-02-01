@@ -55,8 +55,8 @@ extern NSString *const kServiceInfoFileType;
     NS_DESIGNATED_INITIALIZER;
 
 /**
- * `defaultOptions` and `defaultOptionsDictionary` are exposed in order to be used in FirebaseApp and
- * other first party services.
+ * `defaultOptions` and `defaultOptionsDictionary` are exposed in order to be used in FirebaseApp
+ * and other first party services.
  */
 + (FIROptions *)defaultOptions;
 
@@ -108,7 +108,8 @@ extern NSString *const kServiceInfoFileType;
 @property(nonatomic, readonly) BOOL isSignInEnabled;
 
 /**
- * Whether or not editing is locked. This should occur after `FirebaseOptions` has been set on a `FirebaseApp`.
+ * Whether or not editing is locked. This should occur after `FirebaseOptions` has been set on a
+ * `FirebaseApp`.
  */
 @property(nonatomic, getter=isEditingLocked) BOOL editingLocked;
 
