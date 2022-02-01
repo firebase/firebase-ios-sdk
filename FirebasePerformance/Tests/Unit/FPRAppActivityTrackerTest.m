@@ -244,7 +244,7 @@
   XCTAssertFalse([mockAppTracker isApplicationPreWarmed]);
 }
 
-/** Validates when RC flag fireperf_prewarm_detection is PrewarmDetectionModeNone
+/** Validates when RC flag fpr_prewarm_detection is PrewarmDetectionModeNone
  */
 - (void)test_isAppStartEnabled_PrewarmDetectionModeNone_returnsNo {
   FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
@@ -256,7 +256,7 @@
   XCTAssertFalse([appTracker isApplicationPreWarmed]);
 }
 
-/** Validates when RC flag fireperf_prewarm_detection is PrewarmDetectionModeAll
+/** Validates when RC flag fpr_prewarm_detection is PrewarmDetectionModeAll
  */
 - (void)test_isAppStartEnabled_PrewarmDetectionModeAll_returnsYes {
   FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
@@ -268,7 +268,7 @@
   XCTAssertTrue([appTracker isAppStartEnabled]);
 }
 
-/** Validates ActivePrewarm filtering is enabled when RC flag fireperf_prewarm_detection is
+/** Validates ActivePrewarm filtering is enabled when RC flag fpr_prewarm_detection is
  * PrewarmDetectionModeActivePrewarm
  */
 - (void)test_isActivePrewarmEnabled_PrewarmDetectionModeActivePrewarm_returnsYes {
@@ -280,7 +280,7 @@
   XCTAssertTrue([appTracker isActivePrewarmEnabled]);
 }
 
-/** Validates ActivePrewarm filtering is disabled when RC flag fireperf_prewarm_detection is
+/** Validates ActivePrewarm filtering is disabled when RC flag fpr_prewarm_detection is
  * PrewarmDetectionModeDoubleDispatch
  */
 - (void)test_isActivePrewarmEnabled_PrewarmDetectionModeDoubleDispatch_returnsNo {
@@ -292,7 +292,7 @@
   XCTAssertFalse([appTracker isActivePrewarmEnabled]);
 }
 
-/** Validates double dispatch filtering is disabled when RC flag fireperf_prewarm_detection is
+/** Validates double dispatch filtering is disabled when RC flag fpr_prewarm_detection is
  * PrewarmDetectionModeActivePrewarm
  */
 - (void)test_isDoubleDispatchEnabled_PrewarmDetectionModeActivePrewarm_returnsNo {
@@ -304,7 +304,7 @@
   XCTAssertFalse([appTracker isDoubleDispatchEnabled]);
 }
 
-/** Validates double dispatch filtering is enabled when RC flag fireperf_prewarm_detection is
+/** Validates double dispatch filtering is enabled when RC flag fpr_prewarm_detection is
  * PrewarmDetectionModeDoubleDispatch
  */
 - (void)test_isDoubleDispatchEnabled_PrewarmDetectionModeDoubleDispatch_returnsYes {
@@ -316,7 +316,7 @@
   XCTAssertTrue([appTracker isDoubleDispatchEnabled]);
 }
 
-/** Validates ActivePrewarm filtering is enabled when RC flag fireperf_prewarm_detection is
+/** Validates ActivePrewarm filtering is enabled when RC flag fpr_prewarm_detection is
  * PrewarmDetectionModeActivePrewarmOrDoubleDispatch
  */
 - (void)test_isActivePrewarmEnabled_PrewarmDetectionModeActivePrewarmOrDoubleDispatch_returnsYes {
@@ -329,7 +329,7 @@
   XCTAssertTrue([appTracker isActivePrewarmEnabled]);
 }
 
-/** Validates double dispatch filtering is enabled when RC flag fireperf_prewarm_detection is
+/** Validates double dispatch filtering is enabled when RC flag fpr_prewarm_detection is
  * PrewarmDetectionModeActivePrewarmOrDoubleDispatch
  */
 - (void)test_isDoubleDispatchEnabled_PrewarmDetectionModeActivePrewarmOrDoubleDispatch_returnsYes {
