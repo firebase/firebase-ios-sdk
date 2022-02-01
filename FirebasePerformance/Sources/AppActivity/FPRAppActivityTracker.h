@@ -35,15 +35,6 @@ typedef NS_ENUM(NSInteger, FPRApplicationState) {
   FPRApplicationStateBackground,
 };
 
-/** Different modes of prewarm-detection */
-typedef NS_ENUM(NSInteger, PrewarmDetectionMode) {
-  DropAllEvents = 0,
-  OnlyActivePrewarm = 1,
-  OnlyDoubleDispatch = 2,
-  EitherActivePrewarmOrDoubleDispatch = 3,
-  KeepAllEvents = 4
-};
-
 /** This class is used to track the app activity and create internal traces to capture the
  *  performance metrics.
  */

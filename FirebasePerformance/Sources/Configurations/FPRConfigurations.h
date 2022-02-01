@@ -16,6 +16,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** Different modes of prewarm-detection */
+typedef NS_ENUM(NSInteger, PrewarmDetectionMode) {
+  PrewarmDetectionModeNone = 0,
+  PrewarmDetectionModeActivePrewarm = 1,
+  PrewarmDetectionModeDoubleDispatch = 2,
+  PrewarmDetectionModeActivePrewarmOrDoubleDispatch = 3,
+  PrewarmDetectionModeAll = 4
+};
+
 /** A typedef for ensuring that config names are one of the below specified strings. */
 typedef NSString* const FPRConfigName;
 
@@ -72,7 +81,7 @@ FOUNDATION_EXTERN FPRConfigName kFPRConfigInstrumentationEnabled;
  *
  * @return an integer representing the detection mode of prewarm app start traces.
  */
-- (uint32_t)prewarmDetectionMode;
+- (PrewarmDetectionMode)prewarmDetectionMode;
 
 /**
  * Returns the percentage of instances that would send trace events. Range [0-1].

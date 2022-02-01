@@ -14,7 +14,6 @@
 
 #import <UIKit/UIKit.h>
 
-#import "FirebasePerformance/Sources/AppActivity/FPRAppActivityTracker.h"
 #import "FirebasePerformance/Sources/Common/FPRConstants.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
@@ -301,15 +300,15 @@ static dispatch_once_t gSharedInstanceToken;
   return logSource;
 }
 
-- (uint32_t)prewarmDetectionMode {
+- (PrewarmDetectionMode)prewarmDetectionMode {
   // 0 means use neither and drop all _as events
   // 1 means use only ActivePrewarm
   // 2 means use only double dispatch
   // 3 means use both ActivePrewarm and double dispatch
   // 4 means keep all _as events
-  int mode = OnlyActivePrewarm;
+  PrewarmDetectionMode mode = PrewarmDetectionModeActivePrewarm;
   if (self.remoteConfigFlags) {
-    mode = [self.remoteConfigFlags getIntValueForFlag:@"fpr_prewarm_detection" defaultValue:mode];
+    mode = [self.remoteConfigFlags getIntValueForFlag:@"fpr_prewarm_detection" defaultValue:(int)mode];
   }
   return mode;
 }

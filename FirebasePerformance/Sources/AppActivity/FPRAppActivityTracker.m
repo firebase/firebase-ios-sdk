@@ -28,7 +28,7 @@
 
 static NSDate *appStartTime = nil;
 static NSDate *doubleDispatchTime = nil;
-static NSDate *applicationFinishLaunchTime = nil;
+static NSDate *applicationDidFinishLaunchTime = nil;
 static NSTimeInterval gAppStartMaxValidDuration = 60 * 60;  // 60 minutes.
 static FPRCPUGaugeData *gAppStartCPUGaugeData = nil;
 static FPRMemoryGaugeData *gAppStartMemoryGaugeData = nil;
@@ -74,7 +74,7 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
   // This is an approximation of the app start time.
   appStartTime = [NSDate date];
 
-  if (![[[NSBundle mainBundle] objectForInfoDictionaryKey:@"fireperf_disable_dd"] boolValue]) {
+  if ([[[NSBundle mainBundle] objectForInfoDictionaryKey:@"fireperf_disable_dd"] boolValue] == NO) {
     dispatch_async(dispatch_get_main_queue(), ^{
       dispatch_async(dispatch_get_main_queue(), ^{
         doubleDispatchTime = [NSDate date];
@@ -105,7 +105,7 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
 }
 
 + (void)applicationDidFinishLaunching:(NSNotification *)notification {
-  applicationFinishLaunchTime = [NSDate date];
+  applicationDidFinishLaunchTime = [NSDate date];
   [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:UIApplicationDidFinishLaunchingNotification
                                                 object:nil];
@@ -157,7 +157,7 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
  * @return true if the platform could prewarm apps on the current device
  */
 + (BOOL)isPrewarmAvailable {
-  if (![[GULAppEnvironmentUtil applePlatform] isEqualToString:@"ios"]) {
+  if (![[[GULAppEnvironmentUtil applePlatform] lowercaseString] isEqualToString:@"ios"]) {
     return NO;
   }
   NSString *systemVersion = [GULAppEnvironmentUtil systemVersion];
@@ -171,7 +171,7 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
  RC flag for dropping all app start events
  */
 - (BOOL)isAppStartEnabled {
-  return [self.configurations prewarmDetectionMode] != DropAllEvents;
+  return [self.configurations prewarmDetectionMode] != PrewarmDetectionModeNone;
 }
 
 /**
@@ -179,7 +179,7 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
  */
 - (BOOL)isActivePrewarmEnabled {
   PrewarmDetectionMode mode = [self.configurations prewarmDetectionMode];
-  return (mode == OnlyActivePrewarm || mode == EitherActivePrewarmOrDoubleDispatch);
+  return (mode == PrewarmDetectionModeActivePrewarm || mode == PrewarmDetectionModeActivePrewarmOrDoubleDispatch);
 }
 
 /**
@@ -187,7 +187,7 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
  */
 - (BOOL)isDoubleDispatchEnabled {
   PrewarmDetectionMode mode = [self.configurations prewarmDetectionMode];
-  return (mode == OnlyDoubleDispatch || mode == EitherActivePrewarmOrDoubleDispatch);
+  return (mode == PrewarmDetectionModeDoubleDispatch || mode == PrewarmDetectionModeActivePrewarmOrDoubleDispatch);
 }
 
 /**
@@ -199,13 +199,13 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
   }
 
   NSDictionary<NSString *, NSString *> *environment = [NSProcessInfo processInfo].environment;
-  BOOL isActivePrewarmVariableSetToYes = [environment[@"ActivePrewarm"] boolValue];
-  if ([self isActivePrewarmEnabled] && isActivePrewarmVariableSetToYes) {
+  BOOL activePrewarmFlagValue = [environment[@"ActivePrewarm"] boolValue];
+  if ([self isActivePrewarmEnabled] && activePrewarmFlagValue == YES) {
     return YES;
   }
 
   if ([self isDoubleDispatchEnabled] &&
-      [doubleDispatchTime compare:applicationFinishLaunchTime] == NSOrderedAscending) {
+      [doubleDispatchTime compare:applicationDidFinishLaunchTime] == NSOrderedAscending) {
     return YES;
   }
 
