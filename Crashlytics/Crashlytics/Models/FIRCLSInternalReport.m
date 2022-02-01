@@ -21,7 +21,7 @@
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 
-NSString *const FIRCLSCustomCrashIndicatorFile = @"custom_crash.clsrecord";
+NSString *const FIRCLSCustomFatalIndicatorFile = @"custom_fatal.clsrecord";
 NSString *const FIRCLSReportBinaryImageFile = @"binary_images.clsrecord";
 NSString *const FIRCLSReportExceptionFile = @"exception.clsrecord";
 NSString *const FIRCLSReportCustomExceptionAFile = @"custom_exception_a.clsrecord";
@@ -136,7 +136,7 @@ NSString *const FIRCLSReportUserCompactedKVFile = @"user_compacted_kv.clsrecord"
 #if CLS_MACH_EXCEPTION_SUPPORTED
       FIRCLSReportMachExceptionFile,
 #endif
-      FIRCLSReportSignalFile, FIRCLSMetricKitFatalReportFile, FIRCLSCustomCrashIndicatorFile
+      FIRCLSReportSignalFile, FIRCLSMetricKitFatalReportFile, FIRCLSCustomFatalIndicatorFile
     ];
   });
   return files;

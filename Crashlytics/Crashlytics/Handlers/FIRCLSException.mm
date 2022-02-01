@@ -264,8 +264,8 @@ NSString *FIRCLSExceptionRecordOnDemand(FIRCLSExceptionType type,
       [NSString stringWithUTF8String:_firclsContext.readonly->initialReportPath];
   NSString *newReportID = [[[FIRCLSExecutionIdentifierModel alloc] init] executionID];
   NSString *newReportPath = [fileManager.activePath stringByAppendingPathComponent:newReportID];
-  NSString *customExceptionIndicatorFilePath =
-      [newReportPath stringByAppendingPathComponent:FIRCLSCustomCrashIndicatorFile];
+  NSString *customFatalIndicatorFilePath =
+      [newReportPath stringByAppendingPathComponent:FIRCLSCustomFatalIndicatorFile];
   NSString *newKVPath =
       [newReportPath stringByAppendingPathComponent:FIRCLSReportInternalIncrementalKVFile];
 
@@ -327,7 +327,7 @@ NSString *FIRCLSExceptionRecordOnDemand(FIRCLSExceptionType type,
 
   // If the event was fatal, write out an empty file to indicate that the report contains a fatal
   // event. This is used to report events to Analytics for CFU calculations.
-  if (fatal && ![fileManager createFileAtPath:customExceptionIndicatorFilePath
+  if (fatal && ![fileManager createFileAtPath:customFatalIndicatorFilePath
                                      contents:nil
                                    attributes:nil]) {
     FIRCLSSDKLog("Unable to create custom exception file. On demand exception will not be logged "
