@@ -201,7 +201,7 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
   if (![FPRAppActivityTracker isPrewarmAvailable]) {
     return NO;
   }
-  
+
   BOOL isPrewarmed = NO;
 
   NSDictionary<NSString *, NSString *> *environment = [NSProcessInfo processInfo].environment;
