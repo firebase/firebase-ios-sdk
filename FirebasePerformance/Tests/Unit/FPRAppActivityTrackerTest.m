@@ -268,7 +268,8 @@
   XCTAssertTrue([appTracker isAppStartEnabled]);
 }
 
-/** Validates ActivePrewarm filtering is enabled when RC flag fireperf_prewarm_detection is PrewarmDetectionModeActivePrewarm
+/** Validates ActivePrewarm filtering is enabled when RC flag fireperf_prewarm_detection is
+ * PrewarmDetectionModeActivePrewarm
  */
 - (void)test_isActivePrewarmEnabled_PrewarmDetectionModeActivePrewarm_returnsYes {
   FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
@@ -279,7 +280,8 @@
   XCTAssertTrue([appTracker isActivePrewarmEnabled]);
 }
 
-/** Validates ActivePrewarm filtering is disabled when RC flag fireperf_prewarm_detection is PrewarmDetectionModeDoubleDispatch
+/** Validates ActivePrewarm filtering is disabled when RC flag fireperf_prewarm_detection is
+ * PrewarmDetectionModeDoubleDispatch
  */
 - (void)test_isActivePrewarmEnabled_PrewarmDetectionModeDoubleDispatch_returnsNo {
   FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
@@ -290,7 +292,8 @@
   XCTAssertFalse([appTracker isActivePrewarmEnabled]);
 }
 
-/** Validates double dispatch filtering is disabled when RC flag fireperf_prewarm_detection is PrewarmDetectionModeActivePrewarm
+/** Validates double dispatch filtering is disabled when RC flag fireperf_prewarm_detection is
+ * PrewarmDetectionModeActivePrewarm
  */
 - (void)test_isDoubleDispatchEnabled_PrewarmDetectionModeActivePrewarm_returnsNo {
   FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
@@ -301,7 +304,8 @@
   XCTAssertFalse([appTracker isDoubleDispatchEnabled]);
 }
 
-/** Validates double dispatch filtering is enabled when RC flag fireperf_prewarm_detection is PrewarmDetectionModeDoubleDispatch
+/** Validates double dispatch filtering is enabled when RC flag fireperf_prewarm_detection is
+ * PrewarmDetectionModeDoubleDispatch
  */
 - (void)test_isDoubleDispatchEnabled_PrewarmDetectionModeDoubleDispatch_returnsYes {
   FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
@@ -312,27 +316,29 @@
   XCTAssertTrue([appTracker isDoubleDispatchEnabled]);
 }
 
-/** Validates ActivePrewarm filtering is enabled when RC flag fireperf_prewarm_detection is PrewarmDetectionModeActivePrewarmOrDoubleDispatch
+/** Validates ActivePrewarm filtering is enabled when RC flag fireperf_prewarm_detection is
+ * PrewarmDetectionModeActivePrewarmOrDoubleDispatch
  */
-- (void)
-    test_isActivePrewarmEnabled_PrewarmDetectionModeActivePrewarmOrDoubleDispatch_returnsYes {
+- (void)test_isActivePrewarmEnabled_PrewarmDetectionModeActivePrewarmOrDoubleDispatch_returnsYes {
   FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
   id mockConfigurations = OCMClassMock([FPRConfigurations class]);
   appTracker.configurations = mockConfigurations;
 
-  OCMStub([mockConfigurations prewarmDetectionMode]).andReturn(PrewarmDetectionModeActivePrewarmOrDoubleDispatch);
+  OCMStub([mockConfigurations prewarmDetectionMode])
+      .andReturn(PrewarmDetectionModeActivePrewarmOrDoubleDispatch);
   XCTAssertTrue([appTracker isActivePrewarmEnabled]);
 }
 
-/** Validates double dispatch filtering is enabled when RC flag fireperf_prewarm_detection is PrewarmDetectionModeActivePrewarmOrDoubleDispatch
+/** Validates double dispatch filtering is enabled when RC flag fireperf_prewarm_detection is
+ * PrewarmDetectionModeActivePrewarmOrDoubleDispatch
  */
-- (void)
-    test_isDoubleDispatchEnabled_PrewarmDetectionModeActivePrewarmOrDoubleDispatch_returnsYes {
+- (void)test_isDoubleDispatchEnabled_PrewarmDetectionModeActivePrewarmOrDoubleDispatch_returnsYes {
   FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
   id mockConfigurations = OCMClassMock([FPRConfigurations class]);
   appTracker.configurations = mockConfigurations;
 
-  OCMStub([mockConfigurations prewarmDetectionMode]).andReturn(PrewarmDetectionModeActivePrewarmOrDoubleDispatch);
+  OCMStub([mockConfigurations prewarmDetectionMode])
+      .andReturn(PrewarmDetectionModeActivePrewarmOrDoubleDispatch);
   XCTAssertTrue([appTracker isDoubleDispatchEnabled]);
 }
 

@@ -308,7 +308,8 @@ static dispatch_once_t gSharedInstanceToken;
   // 4 means keep all _as events
   PrewarmDetectionMode mode = PrewarmDetectionModeActivePrewarm;
   if (self.remoteConfigFlags) {
-    mode = [self.remoteConfigFlags getIntValueForFlag:@"fpr_prewarm_detection" defaultValue:(int)mode];
+    mode = [self.remoteConfigFlags getIntValueForFlag:@"fpr_prewarm_detection"
+                                         defaultValue:(int)mode];
   }
   return mode;
 }
