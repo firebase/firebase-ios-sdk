@@ -246,7 +246,7 @@
 
 /** Validates when RC flag fpr_prewarm_detection is PrewarmDetectionModeNone
  */
-- (void)test_isAppStartEnabled_PrewarmDetectionModeNone_returnsNo {
+- (void)test_isAppStartEnabled_PrewarmDetectionModeKeepNone_returnsNo {
   FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
 
   id mockConfigurations = OCMClassMock([FPRConfigurations class]);
@@ -258,7 +258,7 @@
 
 /** Validates when RC flag fpr_prewarm_detection is PrewarmDetectionModeAll
  */
-- (void)test_isAppStartEnabled_PrewarmDetectionModeAll_returnsYes {
+- (void)test_isAppStartEnabled_PrewarmDetectionModeKeepAll_returnsYes {
   FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
 
   id mockConfigurations = OCMClassMock([FPRConfigurations class]);
