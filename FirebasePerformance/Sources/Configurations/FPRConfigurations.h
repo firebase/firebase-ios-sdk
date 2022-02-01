@@ -16,6 +16,22 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * Different modes of prewarm-detection
+ * KeepNone = No app start events are allowed
+ * ActivePrewarm = Only detect prewarming using ActivePrewarm environment
+ * DoubleDispatch = Only detect prewarming using double dispatch method
+ * ActivePrewarmOrDoubleDispatch = Detect prewarming using both ActivePrewarm and double dispatch
+ * KeepAll = All app start events are allowed
+ */
+typedef NS_ENUM(NSInteger, PrewarmDetectionMode) {
+  PrewarmDetectionModeKeepNone = 0,
+  PrewarmDetectionModeActivePrewarm = 1,
+  PrewarmDetectionModeDoubleDispatch = 2,
+  PrewarmDetectionModeActivePrewarmOrDoubleDispatch = 3,
+  PrewarmDetectionModeKeepAll = 4
+};
+
 /** A typedef for ensuring that config names are one of the below specified strings. */
 typedef NSString* const FPRConfigName;
 
@@ -61,6 +77,14 @@ FOUNDATION_EXTERN FPRConfigName kFPRConfigInstrumentationEnabled;
 - (void)update;
 
 #pragma mark - Configuration fetcher methods.
+
+/**
+ * Returns the mode that prewarm-detection should drop events in.
+ *
+ * @see PrewarmDetectionMode
+ * @return filter mode of app start traces prewarm-detection
+ */
+- (PrewarmDetectionMode)prewarmDetectionMode;
 
 /**
  * Returns the percentage of instances that would send trace events. Range [0-1].
