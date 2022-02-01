@@ -74,7 +74,8 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
   // This is an approximation of the app start time.
   appStartTime = [NSDate date];
 
-  // Double dispatch is used to detect prewarming, but if it causes hang or crash in the future, developers can disable it through a plist flag
+  // Double dispatch is used to detect prewarming, but if it causes hang or crash in the future
+  // developers can disable it by setting a plist flag "fireperf_disable_dd" to true
   if ([[[NSBundle mainBundle] objectForInfoDictionaryKey:@"fireperf_disable_dd"] boolValue] == NO) {
     dispatch_async(dispatch_get_main_queue(), ^{
       dispatch_async(dispatch_get_main_queue(), ^{
