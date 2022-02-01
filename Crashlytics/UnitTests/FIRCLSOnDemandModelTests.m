@@ -119,8 +119,8 @@
 
   // Should record but not submit a report.
   XCTAssertTrue(success);
-  // Currently, we don't count this as an occurred event.
-  XCTAssertEqual([self.onDemandModel getOrIncrementOnDemandEventCountForCurrentRun:NO], 0);
+  // We still count this as an occurred event if it was recorded.
+  XCTAssertEqual([self.onDemandModel getOrIncrementOnDemandEventCountForCurrentRun:NO], 1);
   XCTAssertEqual([self contentsOfActivePath].count, 2);
 }
 
