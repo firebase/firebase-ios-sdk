@@ -19,11 +19,4 @@ NS_SWIFT_NAME(OnDemandModel)
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (instancetype)initWithOnDemandUploadRate:(int)uploadRate
-                                      base:(double)base
-                              stepDuration:(int)stepDuration;
-
-- (NSInteger)getOrIncrementOnDemandEventCountForCurrentRun:(BOOL)increment;
-- (NSInteger)getOrIncrementDroppedOnDemandEventCountForCurrentRun:(BOOL)increment;
-
 @end

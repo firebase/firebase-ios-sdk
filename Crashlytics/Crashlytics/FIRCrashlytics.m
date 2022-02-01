@@ -356,7 +356,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 }
 
 - (void)recordOnDemandExceptionModel:(FIRExceptionModel *)exceptionModel {
-  [self.reportUploader.onDemandModel
+  [self.managerData.onDemandModel
       recordOnDemandExceptionIfQuota:exceptionModel
            withDataCollectionEnabled:[self.dataArbiter isCrashlyticsCollectionEnabled]
           usingExistingReportManager:self.existingReportManager];

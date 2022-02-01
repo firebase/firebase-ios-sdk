@@ -17,6 +17,8 @@
 #import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSExecutionIdentifierModel.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
+#import "Crashlytics/Crashlytics/Private/FIRCLSOnDemandModel_Private.h"
 #import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
 
 @implementation FIRCLSManagerData
@@ -44,6 +46,10 @@
   _appIDModel = [[FIRCLSApplicationIdentifierModel alloc] init];
   _installIDModel = [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:installations];
   _executionIDModel = [[FIRCLSExecutionIdentifierModel alloc] init];
+  _onDemandModel =
+      [[FIRCLSOnDemandModel alloc] initWithOnDemandUploadRate:settings.onDemandUploadRate
+                                                         base:settings.onDemandBackoffBase
+                                                 stepDuration:settings.onDemandBackoffStepDuration];
 
   NSString *sdkBundleID = FIRCLSApplicationGetSDKBundleID();
   _operationQueue = [NSOperationQueue new];

@@ -27,7 +27,6 @@
 #import "Crashlytics/Crashlytics/Models/FIRCLSSymbolResolver.h"
 #import "Crashlytics/Crashlytics/Models/Record/FIRCLSReportAdapter.h"
 #import "Crashlytics/Crashlytics/Operations/Reports/FIRCLSProcessReportOperation.h"
-#import "Crashlytics/Crashlytics/Private/FIRCLSOnDemandModel_Private.h"
 
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
 
@@ -62,10 +61,7 @@
   _installIDModel = managerData.installIDModel;
   _fileManager = managerData.fileManager;
   _analytics = managerData.analytics;
-  _onDemandModel = [[FIRCLSOnDemandModel alloc]
-      initWithOnDemandUploadRate:managerData.settings.onDemandUploadRate
-                            base:managerData.settings.onDemandBackoffBase
-                    stepDuration:managerData.settings.onDemandBackoffStepDuration];
+
   return self;
 }
 

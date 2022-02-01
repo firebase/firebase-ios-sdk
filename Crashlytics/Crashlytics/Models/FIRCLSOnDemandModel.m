@@ -40,6 +40,9 @@
 @property(nonatomic) double lastUpdated;
 @property(nonatomic) double currentStep;
 
+@property(nonatomic, strong) NSFileManager *fileManager;
+@property(nonatomic, strong) NSMutableArray *storedActiveReportPaths;
+
 @end
 
 @implementation FIRCLSOnDemandModel
@@ -67,6 +70,9 @@ static const double SEC_PER_MINUTE = 60;
 
   _lastUpdated = [NSDate timeIntervalSinceReferenceDate];
   _currentStep = -1;
+  _fileManager = [[NSFileManager alloc] init];
+
+  self.storedActiveReportPaths = [NSMutableArray array];
 
   return self;
 }
@@ -81,42 +87,48 @@ static const double SEC_PER_MINUTE = 60;
   // Record the exception model into a new report if there is unused on-demand quota. Otherwise,
   // log the occurence but drop the event.
   @synchronized(self) {
-    if (![self isQueueFull]) {
-      FIRCLSDataCollectionToken *dataCollectionToken = [FIRCLSDataCollectionToken validToken];
-      NSString *activeReportPath = FIRCLSExceptionRecordOnDemandModel(
-          exceptionModel, self.recordedOnDemandExceptionCount, self.droppedOnDemandExceptionCount);
-
-      // Only submit an exception report if data collection is enabled. Otherwise, the report
-      // is stored until send or delete unsent reports is called.
-      if (dataCollectionEnabled) {
-        if (activeReportPath) {
-          [self incrementQueuedOperationCount:1];
-          [self getOrIncrementOnDemandEventCountForCurrentRun:YES];
-          dispatch_async(self.dispatchQueue, ^{
-            [existingReportManager handleOnDemandReportUpload:activeReportPath
-                                          dataCollectionToken:dataCollectionToken
-                                                     asUrgent:YES];
-            double uploadDelay = [self calculateUploadDelay];
-            FIRCLSInfoLog(@"Submitted an on-demand exception, starting delay %.20f", uploadDelay);
-            sleep(uploadDelay);
-          });
-          return YES;  // Recorded and submitted the exception.
-        } else {
-          FIRCLSInfoLog(@"Error recording on-demand exception");
-          return NO;  // Something went wrong when recording the exception, so we don't have a valid
-                      // path.
-        }
-      }
-      // TODO: should we update delay if data collection is off?
-      // TODO: should we update counter(s)?
-      //      FIRCLSInfoLog(@"Submitted an on-demand exception with delay %d", uploadDelay);
-      //      [self updateBucketsAndCountWithDelay:uploadDelay];
-      return YES;  // Recorded exception but did not submit since data collection is disabled.
-    } else {
-      FIRCLSInfoLog(@"No available on-demand quota. Dropping report.");
+    if ([self isQueueFull]) {
+      FIRCLSDebugLog(@"No available on-demand quota, dropping report");
       [self getOrIncrementDroppedOnDemandEventCountForCurrentRun:YES];
       return NO;  // Didn't record or submit the exception because no quota was available.
     }
+
+    FIRCLSDataCollectionToken *dataCollectionToken = [FIRCLSDataCollectionToken validToken];
+    NSString *activeReportPath = FIRCLSExceptionRecordOnDemandModel(
+        exceptionModel, self.recordedOnDemandExceptionCount, self.droppedOnDemandExceptionCount);
+
+    if (!activeReportPath) {
+      FIRCLSErrorLog(@"Error recording on-demand exception");
+      return NO;  // Something went wrong when recording the exception, so we don't have a valid
+                  // path.
+    }
+
+    // Only submit an exception report if data collection is enabled. Otherwise, the report
+    // is stored until send or delete unsent reports is called.
+    [self incrementQueuedOperationCount:1];
+    [self getOrIncrementOnDemandEventCountForCurrentRun:YES];
+    dispatch_async(self.dispatchQueue, ^{
+      if (dataCollectionEnabled) {
+        [existingReportManager handleOnDemandReportUpload:activeReportPath
+                                      dataCollectionToken:dataCollectionToken
+                                                 asUrgent:YES];
+      } else {
+        [self.storedActiveReportPaths insertObject:activeReportPath atIndex:0];
+        if ([self.storedActiveReportPaths count] > FIRCLSMaxUnsentReports) {
+          [self.fileManager removeItemAtPath:[self.storedActiveReportPaths lastObject] error:nil];
+          [self.storedActiveReportPaths removeLastObject];
+        }
+      }
+      double uploadDelay = [self calculateUploadDelay];
+      if (dataCollectionEnabled) {
+        FIRCLSDebugLog(@"Submitted an on-demand exception, starting delay %.20f", uploadDelay);
+      } else {
+        FIRCLSDebugLog(@"Stored an on-demand exception, starting delay %.20f", uploadDelay);
+      }
+      [self incrementQueuedOperationCount:-1];
+      sleep(uploadDelay);
+    });
+    return YES;  // Recorded and submitted the exception.
   }
 }
 
@@ -129,7 +141,6 @@ static const double SEC_PER_MINUTE = 60;
       [NSNumber numberWithDouble:(SEC_PER_MINUTE / self.uploadRate) * power];
   NSComparisonResult result =
       [[NSNumber numberWithDouble:MAX_DELAY_SEC] compare:calculatedUploadDelay];
-  [self incrementQueuedOperationCount:-1];
   return (result == NSOrderedAscending) ? MAX_DELAY_SEC : [calculatedUploadDelay doubleValue];
 }
 
@@ -155,7 +166,7 @@ static const double SEC_PER_MINUTE = 60;
   return calculatedDuration;
 }
 
-- (NSInteger)getOrIncrementOnDemandEventCountForCurrentRun:(BOOL)increment {
+- (int)getOrIncrementOnDemandEventCountForCurrentRun:(BOOL)increment {
   @synchronized(self) {
     if (increment) {
       _recordedOnDemandExceptionCount += 1;
@@ -164,7 +175,7 @@ static const double SEC_PER_MINUTE = 60;
   }
 }
 
-- (NSInteger)getOrIncrementDroppedOnDemandEventCountForCurrentRun:(BOOL)increment {
+- (int)getOrIncrementDroppedOnDemandEventCountForCurrentRun:(BOOL)increment {
   @synchronized(self) {
     if (increment) {
       _droppedOnDemandExceptionCount += 1;

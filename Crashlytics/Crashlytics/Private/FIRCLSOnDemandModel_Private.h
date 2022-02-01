@@ -23,12 +23,23 @@
 
 @interface FIRCLSOnDemandModel (Private)
 
-- (BOOL)recordOnDemandExceptionIfQuota:(FIRExceptionModel*)exceptionModel
+- (instancetype)initWithOnDemandUploadRate:(int)uploadRate
+                                      base:(double)base
+                              stepDuration:(int)stepDuration;
+
+- (BOOL)recordOnDemandExceptionIfQuota:(FIRExceptionModel *)exceptionModel
              withDataCollectionEnabled:(BOOL)dataCollectionEnabled
-            usingExistingReportManager:(FIRCLSExistingReportManager*)existingReportManager;
+            usingExistingReportManager:(FIRCLSExistingReportManager *)existingReportManager;
 
 - (int)incrementQueuedOperationCount:(int)increment;
 - (int)getQueuedOperationsCount;
+- (int)getOrIncrementOnDemandEventCountForCurrentRun:(BOOL)increment;
+- (int)getOrIncrementDroppedOnDemandEventCountForCurrentRun:(BOOL)increment;
+
+// When data collection is off, stores active paths that have been recorded but not dispatched for
+// upload. Kept sorted (newest at front) so that we can limit on-device reports to the newest
+// `FIRCLSMaxUnsentReports` reports.
+@property(nonatomic, strong) NSMutableArray *storedActiveReportPaths;
 
 @end
 
