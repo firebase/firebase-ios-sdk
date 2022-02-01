@@ -431,7 +431,7 @@ class IntegrationTests: XCTestCase {
         XCTAssertEqual(FunctionsErrorCode.outOfRange.rawValue, error.code)
         XCTAssertEqual("explicit nope", error.localizedDescription)
         XCTAssertEqual(["start": 10 as Int32, "end": 20 as Int32, "long": 30],
-                       error.userInfo[FunctionsErrorDetailsKey] as! [String: Int32])
+                       error.userInfo[FunctionsErrorKeys.errorDetailsKey] as! [String: Int32])
         expectation.fulfill()
         return
       }
@@ -456,7 +456,7 @@ class IntegrationTests: XCTestCase {
         XCTAssertEqual(FunctionsErrorCode.outOfRange.rawValue, error.code)
         XCTAssertEqual("explicit nope", error.localizedDescription)
         XCTAssertEqual(["start": 10 as Int32, "end": 20 as Int32, "long": 30],
-                       error.userInfo[FunctionsErrorDetailsKey] as! [String: Int32])
+                       error.userInfo[FunctionsErrorKeys.errorDetailsKey] as! [String: Int32])
       }
     }
   #endif
@@ -516,7 +516,7 @@ class IntegrationTests: XCTestCase {
         let error = error as NSError
         XCTAssertEqual(FunctionsErrorCode.deadlineExceeded.rawValue, error.code)
         XCTAssertEqual("DEADLINE EXCEEDED", error.localizedDescription)
-        XCTAssertNil(error.userInfo[FunctionsErrorDetailsKey])
+        XCTAssertNil(error.userInfo[FunctionsErrorKeys.errorDetailsKey])
         expectation.fulfill()
         return
       }
@@ -541,7 +541,7 @@ class IntegrationTests: XCTestCase {
         let error = error as NSError
         XCTAssertEqual(FunctionsErrorCode.deadlineExceeded.rawValue, error.code)
         XCTAssertEqual("DEADLINE EXCEEDED", error.localizedDescription)
-        XCTAssertNil(error.userInfo[FunctionsErrorDetailsKey])
+        XCTAssertNil(error.userInfo[FunctionsErrorKeys.errorDetailsKey])
       }
     }
   #endif
@@ -664,8 +664,8 @@ private class AuthTokenProvider: AuthInterop {
     self.token = token
   }
 
-  func getToken(forcingRefresh: Bool, callback: (Result<String, Error>) -> Void) {
-    callback(.success(token))
+  func getToken(forcingRefresh: Bool, callback: (String?, Error?) -> Void) {
+    callback(token, nil)
   }
 }
 

@@ -708,6 +708,15 @@ let package = Package(
                      "SharedTestUtilities"],
       path: "FirebaseFunctionsSwift/Tests/Integration"
     ),
+    .testTarget(
+      name: "FirebaseFunctionsSwiftObjCIntegration",
+      dependencies: ["FirebaseFunctionsSwift",
+                     "SharedTestUtilities"],
+      path: "FirebaseFunctionsSwift/Tests/ObjCIntegration",
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    ),
     .target(
       name: "FirebaseFunctionsCombineSwift",
       dependencies: ["FirebaseFunctions"],

@@ -14,20 +14,20 @@
 
 import Foundation
 
-// The error domain for codes in the FIRFunctionsErrorCode enum.
-public let FunctionsErrorDomain: String = "com.firebase.functions"
+@objc(FIRFunctionsErrorKeys) public class FunctionsErrorKeys: NSObject {
+  // The error domain for codes in the FIRFunctionsErrorCode enum.
+  @objc public static let domain: String = "com.firebase.functions"
 
-// The key for finding error details in the NSError userInfo.
-// clang-format off
-// clang-format12 merges the next two lines.
-public let FunctionsErrorDetailsKey: String = "details"
+  // The key for finding error details in the NSError userInfo.
+  @objc public static let errorDetailsKey: String = "details"
+}
 
 /**
  * The set of error status codes that can be returned from a Callable HTTPS tigger. These are the
  * canonical error codes for Google APIs, as documented here:
  * https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto#L26
  */
-public enum FunctionsErrorCode: Int {
+@objc(FIRFunctionsErrorCode) public enum FunctionsErrorCode: Int {
   /** The operation completed successfully. */
   case OK = 0
 
@@ -207,7 +207,7 @@ extension FunctionsErrorCode {
   }
 
   func generatedError(userInfo: [String: Any]? = nil) -> NSError {
-    return NSError(domain: FunctionsErrorDomain,
+    return NSError(domain: FunctionsErrorKeys.domain,
                    code: rawValue,
                    userInfo: userInfo ?? [NSLocalizedDescriptionKey: descriptionForErrorCode])
   }
@@ -257,7 +257,7 @@ internal func FunctionsErrorForResponse(status: NSInteger,
   var userInfo = [String: Any]()
   userInfo[NSLocalizedDescriptionKey] = description
   if let details = details {
-    userInfo[FunctionsErrorDetailsKey] = details
+    userInfo[FunctionsErrorKeys.errorDetailsKey] = details
   }
   return code.generatedError(userInfo: userInfo)
 }

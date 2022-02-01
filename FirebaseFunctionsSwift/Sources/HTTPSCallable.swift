@@ -26,7 +26,7 @@ public class HTTPSCallableResult: NSObject {
    * array, this object would be an NSArray. If your trigger returned a JavaScript object with
    * keys and values, this object would be an NSDictionary.
    */
-  public var data: Any
+  @objc public let data: Any
 
   internal init(data: Any) {
     self.data = data
@@ -51,7 +51,7 @@ public class HTTPSCallable: NSObject {
   /**
    * The timeout to use when calling the function. Defaults to 70 seconds.
    */
-  public var timeoutInterval: TimeInterval = 70
+  @objc public var timeoutInterval: TimeInterval = 70
 
   internal init(functions: Functions, name: String) {
     self.functions = functions
@@ -79,8 +79,9 @@ public class HTTPSCallable: NSObject {
    * @param data Parameters to pass to the trigger.
    * @param completion The block to call when the HTTPS request has completed.
    */
-  public func call(_ data: Any? = nil,
-                   completion: @escaping (HTTPSCallableResult?, Error?) -> Void) {
+  @objc(callWithObject:completion:) public func call(_ data: Any? = nil,
+                                                     completion: @escaping (HTTPSCallableResult?,
+                                                                            Error?) -> Void) {
     functions.callFunction(name: name,
                            withObject: data,
                            timeout: timeoutInterval) { result in
@@ -91,6 +92,24 @@ public class HTTPSCallable: NSObject {
         completion(nil, error)
       }
     }
+  }
+
+  /**
+   * Executes this Callable HTTPS trigger asynchronously.
+   *
+   * The request to the Cloud Functions backend made by this method automatically includes a
+   * Firebase Installations ID token to identify the app instance. If a user is logged in with
+   * Firebase Auth, an auth ID token for the user is also automatically included.
+   *
+   * Firebase Cloud Messaging sends data to the Firebase backend periodically to collect information
+   * regarding the app instance. To stop this, see `Messaging.deleteData()`. It
+   * resumes with a new FCM Token the next time you call this method.
+   *
+   * @param completion The block to call when the HTTPS request has completed.
+   */
+  @objc(callWithCompletion:) public func __call(completion: @escaping (HTTPSCallableResult?,
+                                                                       Error?) -> Void) {
+    call(nil, completion: completion)
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
