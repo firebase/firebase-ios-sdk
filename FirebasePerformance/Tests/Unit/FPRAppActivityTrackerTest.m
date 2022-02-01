@@ -250,7 +250,7 @@
   FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
 
   id mockConfigurations = OCMClassMock([FPRConfigurations class]);
-  OCMStub([mockConfigurations prewarmDetectionMode]).andReturn(PrewarmDetectionModeNone);
+  OCMStub([mockConfigurations prewarmDetectionMode]).andReturn(PrewarmDetectionModeKeepNone);
   appTracker.configurations = mockConfigurations;
 
   XCTAssertFalse([appTracker isApplicationPreWarmed]);
@@ -262,7 +262,7 @@
   FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
 
   id mockConfigurations = OCMClassMock([FPRConfigurations class]);
-  OCMStub([mockConfigurations prewarmDetectionMode]).andReturn(PrewarmDetectionModeAll);
+  OCMStub([mockConfigurations prewarmDetectionMode]).andReturn(PrewarmDetectionModeKeepAll);
   appTracker.configurations = mockConfigurations;
 
   XCTAssertTrue([appTracker isAppStartEnabled]);

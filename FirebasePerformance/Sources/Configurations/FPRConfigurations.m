@@ -301,11 +301,6 @@ static dispatch_once_t gSharedInstanceToken;
 }
 
 - (PrewarmDetectionMode)prewarmDetectionMode {
-  // 0 means use neither and drop all _as events
-  // 1 means use only ActivePrewarm
-  // 2 means use only double dispatch
-  // 3 means use both ActivePrewarm and double dispatch
-  // 4 means keep all _as events
   PrewarmDetectionMode mode = PrewarmDetectionModeActivePrewarm;
   if (self.remoteConfigFlags) {
     mode = [self.remoteConfigFlags getIntValueForFlag:@"fpr_prewarm_detection"
