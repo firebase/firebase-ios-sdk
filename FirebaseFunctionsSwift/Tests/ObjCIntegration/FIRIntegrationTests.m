@@ -120,7 +120,7 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
                                        region:@"us-central1"
                                  customDomain:nil
                                          auth:nil  //[[FIRAuthInteropFake alloc]
-                                                   //initWithToken:@"token" userID:nil error:nil]
+                                                   // initWithToken:@"token" userID:nil error:nil]
                                     messaging:_messagingFake
                                      appCheck:nil];
   if (_useLocalhost) {
