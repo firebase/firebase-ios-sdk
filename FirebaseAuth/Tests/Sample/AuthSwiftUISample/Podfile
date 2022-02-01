@@ -10,5 +10,5 @@ target 'AuthSwiftUISample' do
   pod 'FirebaseAuth', :path => '../../../../'
   pod 'FirebaseCore', :path => '../../../../'
   pod 'FirebaseStorage', :path => '../../../../'
-  pod 'GoogleMulticastAppDelegate', :path => '../../../../../github/GoogleUtilities/'
+  pod 'GoogleUtilitiesMulticastAppDelegate', :path => '../../../../../github/GoogleUtilities/'
 end

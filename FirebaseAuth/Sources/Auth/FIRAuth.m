@@ -71,7 +71,7 @@
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
 
 #if TARGET_OS_IOS
-#import <GoogleMulticastAppDelegate/GULMulticastAppDelegate.h>
+#import <GoogleUtilitiesMulticastAppDelegate/GULMulticastAppDelegate.h>
 #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
@@ -489,7 +489,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     id<GULMulticastAppDelegateProtocol> multicastDelegate =
         [GULMulticastAppDelegate multicastDelegate];
     if (multicastDelegate) {
-      [multicastDelegate addInterceptorWithDelegate:self];
+      [multicastDelegate addInterceptorWithInterceptor:self];
     } else {
       [GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods];
     }
@@ -551,7 +551,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
           appCredentialManager:strongSelf->_appCredentialManager];
 
       if (multicastDelegate) {
-        [multicastDelegate addInterceptorWithDelegate:strongSelf];
+        [multicastDelegate addInterceptorWithInterceptor:strongSelf];
       } else {
         [GULAppDelegateSwizzler registerAppDelegateInterceptor:strongSelf];
       }

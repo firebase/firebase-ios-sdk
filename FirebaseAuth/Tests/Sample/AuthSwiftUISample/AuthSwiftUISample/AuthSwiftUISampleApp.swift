@@ -17,7 +17,7 @@ import UIKit
 
 import FirebaseAuth
 import FirebaseCore
-import GoogleMulticastAppDelegate
+import GoogleUtilitiesMulticastAppDelegate
 
 class MulticastAppDelegate: GULMulticastAppDelegate {
   override init() {
