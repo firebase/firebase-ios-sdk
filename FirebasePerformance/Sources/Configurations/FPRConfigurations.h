@@ -16,13 +16,20 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** Different modes of prewarm-detection */
+/**
+ * Different modes of prewarm-detection
+ * PrewarmDetectionModeKeepNone = No app start events are allowed
+ * PrewarmDetectionModeActivePrewarm = Only detect prewarming using ActivePrewarm environment variable
+ * PrewarmDetectionModeDoubleDispatch = Only detect prewarming using double dispatch method
+ * PrewarmDetectionModeActivePrewarmOrDoubleDispatch = Detect prewarming using both ActivePrewarm and double dispatch
+ * PrewarmDetectionModeKeepAll = All app start events are allowed
+ */
 typedef NS_ENUM(NSInteger, PrewarmDetectionMode) {
-  PrewarmDetectionModeNone = 0,
+  PrewarmDetectionModeKeepNone = 0,
   PrewarmDetectionModeActivePrewarm = 1,
   PrewarmDetectionModeDoubleDispatch = 2,
   PrewarmDetectionModeActivePrewarmOrDoubleDispatch = 3,
-  PrewarmDetectionModeAll = 4
+  PrewarmDetectionModeKeepAll = 4
 };
 
 /** A typedef for ensuring that config names are one of the below specified strings. */
@@ -72,14 +79,10 @@ FOUNDATION_EXTERN FPRConfigName kFPRConfigInstrumentationEnabled;
 #pragma mark - Configuration fetcher methods.
 
 /**
- * Controls how the SDK detects and drops prewarmed app start traces:
- * 0 = drop all app start traces;
- * 1 = drop only if ActivePrewarm returns true;
- * 2 = drop only if double dispatch returns true;
- * 3 = drop if either ActivePrewarm or double dispatch returns true;
- * 4 = do not drop any app start traces.
+ * Returns the mode that prewarm-detection should drop events in.
  *
- * @return an integer representing the detection mode of prewarm app start traces.
+ * @see PrewarmDetectionMode
+ * @return filter mode of app start traces prewarm-detection
  */
 - (PrewarmDetectionMode)prewarmDetectionMode;
 
