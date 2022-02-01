@@ -191,7 +191,7 @@ NS_SWIFT_NAME(Crashlytics)
  * sendUnsentReports or deleteUnsentReports, depending on whether or not the user gives consent.
  *
  * Disable automatic collection by:
- *  - Adding the FirebaseCrashlyticsCollectionEnabled: false key to your App's Info.plist
+ *  - Adding the FirebaseCrashlyticsCollectionEnabled: NO key to your App's Info.plist
  *  - Calling `FirebaseCrashlytics.crashlytics().setCrashlyticsCollectionEnabled(false)` in your app
  *  - Setting FirebaseApp's isDataCollectionDefaultEnabled to false
  *
