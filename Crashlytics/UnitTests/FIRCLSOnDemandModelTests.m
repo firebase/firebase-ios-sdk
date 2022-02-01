@@ -80,7 +80,7 @@
   [self.fileManager
       setupNewPathForExecutionIdentifier:self.managerData.executionIDModel.executionID];
   _onDemandModel = [[FIRCLSMockOnDemandModel alloc] initWithOnDemandUploadRate:15
-                                                                  baseExponent:5
+                                                                          base:5
                                                                   stepDuration:10];
 
   NSString *name = @"exception_model_report";

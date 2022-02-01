@@ -21,11 +21,9 @@
 @implementation FIRCLSMockOnDemandModel
 
 - (instancetype)initWithOnDemandUploadRate:(int)uploadRate
-                              baseExponent:(double)baseExponent
+                                      base:(double)base
                               stepDuration:(int)stepDuration {
-  self = [super initWithOnDemandUploadRate:uploadRate
-                              baseExponent:baseExponent
-                              stepDuration:stepDuration];
+  self = [super initWithOnDemandUploadRate:uploadRate base:base stepDuration:stepDuration];
   if (!self) {
     return nil;
   }

@@ -40,7 +40,7 @@ const NSString *FIRCLSTestSettingsInverse =
     @"\"session\":{\"log_buffer_size\":128000,\"max_chained_exception_depth\":32,\"max_complete_"
     @"sessions_count\":4,\"max_custom_exception_events\":1000,\"max_custom_key_value_pairs\":2000,"
     @"\"identifier_mask\":255, \"on_demand_upload_rate\":15, "
-    @"\"on_demand_backoff_base_exponent\":3, \"on_demand_backoff_step_duration\":9}}";
+    @"\"on_demand_backoff_base\":3, \"on_demand_backoff_step_duration\":9}}";
 
 const NSString *FIRCLSTestSettingsCorrupted = @"{{{{ non_key: non\"value {}";
 
@@ -102,7 +102,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.maxCustomExceptions, 8);
   XCTAssertEqual(self.settings.maxCustomKeys, 64);
   XCTAssertEqual(self.settings.onDemandUploadRate, 10);
-  XCTAssertEqual(self.settings.onDemandBackoffBaseExponent, 1.2);
+  XCTAssertEqual(self.settings.onDemandBackoffBase, 1.5);
   XCTAssertEqual(self.settings.onDemandBackoffStepDuration, 6);
 }
 
@@ -171,7 +171,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.maxCustomExceptions, 8);
   XCTAssertEqual(self.settings.maxCustomKeys, 64);
   XCTAssertEqual(self.settings.onDemandUploadRate, 10);
-  XCTAssertEqual(self.settings.onDemandBackoffBaseExponent, 1.2);
+  XCTAssertEqual(self.settings.onDemandBackoffBase, 1.5);
   XCTAssertEqual(self.settings.onDemandBackoffStepDuration, 6);
 }
 
@@ -196,7 +196,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.maxCustomExceptions, 1000);
   XCTAssertEqual(self.settings.maxCustomKeys, 2000);
   XCTAssertEqual(self.settings.onDemandUploadRate, 15);
-  XCTAssertEqual(self.settings.onDemandBackoffBaseExponent, 3);
+  XCTAssertEqual(self.settings.onDemandBackoffBase, 3);
   XCTAssertEqual(self.settings.onDemandBackoffStepDuration, 9);
 }
 
@@ -360,7 +360,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.maxCustomExceptions, 8);
   XCTAssertEqual(self.settings.maxCustomKeys, 64);
   XCTAssertEqual(self.settings.onDemandUploadRate, 10);
-  XCTAssertEqual(self.settings.onDemandBackoffBaseExponent, 1.2);
+  XCTAssertEqual(self.settings.onDemandBackoffBase, 1.5);
   XCTAssertEqual(self.settings.onDemandBackoffStepDuration, 6);
 }
 
@@ -409,7 +409,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.cacheDurationSeconds, 12345);
   XCTAssertEqual(self.settings.errorLogBufferSize, 128000);
   XCTAssertEqual(self.settings.onDemandUploadRate, 15);
-  XCTAssertEqual(self.settings.onDemandBackoffBaseExponent, 3);
+  XCTAssertEqual(self.settings.onDemandBackoffBase, 3);
   XCTAssertEqual(self.settings.onDemandBackoffStepDuration, 9);
 
   // Then pretend we wrote a corrupted cache key and just reload it
@@ -426,7 +426,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.cacheDurationSeconds, 3600);
   XCTAssertEqual(self.settings.errorLogBufferSize, 64 * 1000);
   XCTAssertEqual(self.settings.onDemandUploadRate, 10);
-  XCTAssertEqual(self.settings.onDemandBackoffBaseExponent, 1.2);
+  XCTAssertEqual(self.settings.onDemandBackoffBase, 1.5);
   XCTAssertEqual(self.settings.onDemandBackoffStepDuration, 6);
 }
 
