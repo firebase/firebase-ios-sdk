@@ -74,7 +74,7 @@ NS_SWIFT_NAME(CrashlyticsReport)
 /**
  * Sets a custom key and value to be associated with subsequent fatal and non-fatal reports.
  * When setting an object value, the object is converted to a string. This is
- * typically done by calling "-[NSObject description]".
+ * typically done by using the object's description.
  *
  * @param value The value to be associated with the key
  * @param key A unique key
@@ -84,7 +84,7 @@ NS_SWIFT_NAME(CrashlyticsReport)
 /**
  * Sets custom keys and values to be associated with subsequent fatal and non-fatal reports.
  * The objects in the dictionary are converted to strings. This is
- * typically done by calling "-[NSObject description]".
+ * typically done by using the object's description.
  *
  * @param keysAndValues The values to be associated with the corresponding keys
  */

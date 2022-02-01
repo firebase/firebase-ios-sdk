@@ -23,33 +23,33 @@
 ///
 /// The origin of your traffic, such as an Ad network (for example, google) or partner (urban
 /// airship). Identify the advertiser, site, publication, etc. that is sending traffic to your
-/// property. Highly recommended (NSString).
+/// property. Highly recommended (String).
 /// <pre>
-///     NSDictionary *params = @{
-///       kFIRParameterSource : @"InMobi",
+///     let params = [
+///       kFIRParameterSource : "InMobi",
 ///       // ...
-///     };
+///     ]
 /// </pre>
 static NSString *const kFIRIParameterSource NS_SWIFT_NAME(AnalyticsParameterSource) = @"source";
 
 /// The advertising or marketing medium, for example: cpc, banner, email, push. Highly recommended
-/// (NSString).
+/// (String).
 /// <pre>
-///     NSDictionary *params = @{
-///       kFIRParameterMedium : @"email",
+///     let params = [
+///       kFIRParameterMedium : "email",
 ///       // ...
-///     };
+///     ]
 /// </pre>
 static NSString *const kFIRIParameterMedium NS_SWIFT_NAME(AnalyticsParameterMedium) = @"medium";
 
 /// The individual campaign name, slogan, promo code, etc. Some networks have pre-defined macro to
 /// capture campaign information, otherwise can be populated by developer. Highly Recommended
-/// (NSString).
+/// (String).
 /// <pre>
-///     NSDictionary *params = @{
-///       kFIRParameterCampaign : @"winter_promotion",
+///     let params = [
+///       kFIRParameterCampaign : "winter_promotion",
 ///       // ...
-///     };
+///     ]
 /// </pre>
 static NSString *const kFIRIParameterCampaign NS_SWIFT_NAME(AnalyticsParameterCampaign) =
                                                                 @"campaign";

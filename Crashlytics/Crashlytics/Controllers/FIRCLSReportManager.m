@@ -75,7 +75,7 @@
 #endif
 
 /**
- * A FIRReportAction is used to indicate how to handle unsent reports.
+ * A FirebaseReportAction is used to indicate how to handle unsent reports.
  */
 typedef NS_ENUM(NSInteger, FIRCLSReportAction) {
   /** Upload the reports to Crashlytics. */
@@ -85,7 +85,7 @@ typedef NS_ENUM(NSInteger, FIRCLSReportAction) {
 };
 
 /**
- * This is just a helper to make code using FIRReportAction more readable.
+ * This is just a helper to make code using FirebaseReportAction more readable.
  */
 typedef NSNumber FIRCLSWrappedReportAction;
 @implementation NSNumber (FIRCLSWrappedReportAction)
@@ -203,10 +203,9 @@ typedef NSNumber FIRCLSWrappedReportAction;
   return self;
 }
 
-// This method returns a promise that is resolved with a wrapped FIRReportAction once the user has
-// indicated whether they want to upload currently cached reports.
-// This method should only be called when we have determined there is at least 1 unsent report.
-// This method waits until either:
+// This method returns a promise that is resolved with a wrapped FirebaseReportAction once the user
+// has indicated whether they want to upload currently cached reports. This method should only be
+// called when we have determined there is at least 1 unsent report. This method waits until either:
 //    1. Data collection becomes enabled, in which case, the promise will be resolved with Send.
 //    2. The developer uses the processCrashReports API to indicate whether the report
 //       should be sent or deleted, at which point the promise will be resolved with the action.
