@@ -104,13 +104,6 @@
   XCTAssertEqualObjects(entries[0][@"kv"][@"key"],
                         FIRCLSFileHexEncodeString([FIRCLSUserIdentifierKey UTF8String]), @"");
   XCTAssertEqualObjects(entries[0][@"kv"][@"value"], FIRCLSFileHexEncodeString("12345-6"), @"");
-  
-  [report setUserID:nil];
-  entries = FIRCLSFileReadSections(
-      [[report.internalReport pathForContentFile:FIRCLSReportInternalIncrementalKVFile]
-          fileSystemRepresentation],
-      false, nil);
-  XCTAssertEqualObjects(entries[0][@"kv"][@"value"], @"", @"");
 }
 
 - (void)testCustomKeysNoExisting {
