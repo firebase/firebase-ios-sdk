@@ -42,6 +42,8 @@ NSString *const kFPRAppTraceNameBackgroundSession = @"_bs";
 NSString *const kFPRAppCounterNameTraceEventsRateLimited = @"_fstec";
 NSString *const kFPRAppCounterNameNetworkTraceEventsRateLimited = @"_fsntc";
 NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
+NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
+NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
 
 @interface FPRAppActivityTracker ()
 
@@ -202,18 +204,25 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
     return NO;
   }
 
+  BOOL isPrewarmed = NO;
+
   NSDictionary<NSString *, NSString *> *environment = [NSProcessInfo processInfo].environment;
   BOOL activePrewarmFlagValue = [environment[@"ActivePrewarm"] boolValue];
-  if ([self isActivePrewarmEnabled] && activePrewarmFlagValue == YES) {
-    return YES;
+  if (activePrewarmFlagValue == YES) {
+    isPrewarmed = isPrewarmed || [self isActivePrewarmEnabled];
+    [self.activeTrace incrementMetric:kFPRAppCounterNameActivePrewarm byInt:1];
+  } else {
+    [self.activeTrace incrementMetric:kFPRAppCounterNameActivePrewarm byInt:0];
   }
 
-  if ([self isDoubleDispatchEnabled] &&
-      [doubleDispatchTime compare:applicationDidFinishLaunchTime] == NSOrderedAscending) {
-    return YES;
+  if ([doubleDispatchTime compare:applicationDidFinishLaunchTime] == NSOrderedAscending) {
+    isPrewarmed = isPrewarmed || [self isDoubleDispatchEnabled];
+    [self.activeTrace incrementMetric:kFPRAppCounterNameDoubleDispatch byInt:1];
+  } else if (doubleDispatchTime) {
+    [self.activeTrace incrementMetric:kFPRAppCounterNameDoubleDispatch byInt:0];
   }
 
-  return NO;
+  return isPrewarmed;
 }
 
 /**
