@@ -14,7 +14,14 @@
 
 import Foundation
 
-@objc(FIRFunctionsErrorKeys) public class FunctionsErrorKeys: NSObject {
+// The error domain for codes in the FIRFunctionsErrorCode enum.
+public let FunctionsErrorDomain: String = "com.firebase.functions"
+
+// The key for finding error details in the NSError userInfo.
+public let FunctionsErrorDetailsKey: String = "details"
+
+// Swift globals are not visible from Objective C. Use these instead.
+@objc(FIRFunctionsErrorKeys) public class __FunctionsErrorKeys: NSObject {
   // The error domain for codes in the FIRFunctionsErrorCode enum.
   @objc public static let domain: String = "com.firebase.functions"
 
@@ -207,7 +214,7 @@ extension FunctionsErrorCode {
   }
 
   func generatedError(userInfo: [String: Any]? = nil) -> NSError {
-    return NSError(domain: FunctionsErrorKeys.domain,
+    return NSError(domain: FunctionsErrorDomain,
                    code: rawValue,
                    userInfo: userInfo ?? [NSLocalizedDescriptionKey: descriptionForErrorCode])
   }
@@ -257,7 +264,7 @@ internal func FunctionsErrorForResponse(status: NSInteger,
   var userInfo = [String: Any]()
   userInfo[NSLocalizedDescriptionKey] = description
   if let details = details {
-    userInfo[FunctionsErrorKeys.errorDetailsKey] = details
+    userInfo[FunctionsErrorDetailsKey] = details
   }
   return code.generatedError(userInfo: userInfo)
 }

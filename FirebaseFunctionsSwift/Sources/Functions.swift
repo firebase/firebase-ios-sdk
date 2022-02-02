@@ -104,13 +104,13 @@ private enum Constants {
               appCheck: nil)
   }
 
-  internal init(projectID: String,
-                region: String,
-                customDomain: String?,
-                auth: AuthInterop?,
-                messaging: MessagingInterop?,
-                appCheck: AppCheckInterop?,
-                fetcherService: GTMSessionFetcherService = GTMSessionFetcherService()) {
+  @objc internal init(projectID: String,
+                      region: String,
+                      customDomain: String?,
+                      auth: AuthInterop?,
+                      messaging: MessagingInterop?,
+                      appCheck: AppCheckInterop?,
+                      fetcherService: GTMSessionFetcherService = GTMSessionFetcherService()) {
     self.projectID = projectID
     self.region = region
     self.customDomain = customDomain
@@ -119,23 +119,6 @@ private enum Constants {
                                                messaging: messaging,
                                                appCheck: appCheck)
     self.fetcherService = fetcherService
-  }
-
-  @objc(initWithProjectID:region:customDomain:auth:messaging:appCheck:) internal convenience init(projectID: String,
-                                                                                                  region: String,
-                                                                                                  customDomain: String?,
-                                                                                                  auth: AuthInterop?,
-                                                                                                  messaging: MessagingInterop?,
-                                                                                                  appCheck: AppCheckInterop?) {
-    self.init(
-      projectID: projectID,
-      region: region,
-      customDomain: customDomain,
-      auth: auth,
-      messaging: messaging,
-      appCheck: appCheck,
-      fetcherService: GTMSessionFetcherService()
-    )
   }
 
   /**

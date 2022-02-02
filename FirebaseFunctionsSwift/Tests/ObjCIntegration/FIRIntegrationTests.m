@@ -18,6 +18,7 @@
 #import "FirebaseFunctionsSwift/Tests/ObjCIntegration/FIRFunctions+Internal.h"
 
 @import FirebaseFunctionsSwift;
+@import GTMSessionFetcherCore;
 
 //#import "SharedTestUtilities/FIRAuthInteropFake.h"
 //#import "SharedTestUtilities/FIRMessagingInteropFake.h"
@@ -68,7 +69,8 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
            customDomain:nil
                    auth:nil  //[[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil]
               messaging:nil  //_messagingFake
-               appCheck:nil];
+               appCheck:nil
+         fetcherService:[[GTMSessionFetcherService alloc] init]];
   if (_useLocalhost) {
     [_functions useEmulatorWithHost:@"localhost" port:5005];
   }
@@ -113,6 +115,7 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
   [self waitForExpectations:@[ expectation ] timeout:10];
 }
 
+// TODO: Fix with interop.
 - (void)SKIPtestToken {
   // Recreate _functions with a token.
   FIRFunctions *functions =
@@ -122,7 +125,8 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
                                          auth:nil  //[[FIRAuthInteropFake alloc]
                                                    // initWithToken:@"token" userID:nil error:nil]
                                     messaging:nil  //_messagingFake
-                                     appCheck:nil];
+                                     appCheck:nil
+                               fetcherService:[[GTMSessionFetcherService alloc] init]];
   if (_useLocalhost) {
     [_functions useEmulatorWithHost:@"localhost" port:5005];
   }

@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-// This file is initialized from FirebaseFunctions/Sources/FIRFunctions+Internal.h with only the
+// This file started as a copy of FirebaseFunctions/Sources/FIRFunctions+Internal.h with only the
 // next line changed from a public header import to a module import.
 @import FirebaseFunctionsSwift;
 
@@ -22,6 +22,7 @@
 @protocol FIRAuthInterop;
 @protocol FIRMessagingInterop;
 @class FIRHTTPSCallableResult;
+@class GTMSessionFetcherService;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -51,6 +52,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)useLocalhost;
 
+// Expose internal init function to objc tests.
+
 /**
  * Internal initializer for the Cloud Functions client.
  * @param projectID The project ID for the Firebase project.
@@ -64,7 +67,8 @@ NS_ASSUME_NONNULL_BEGIN
                      customDomain:(nullable NSString *)customDomain
                              auth:(nullable id<FIRAuthInterop>)auth
                         messaging:(nullable id<FIRMessagingInterop>)messaging
-                         appCheck:(nullable id<FIRAppCheckInterop>)appCheck;
+                         appCheck:(nullable id<FIRAppCheckInterop>)appCheck
+                   fetcherService:(GTMSessionFetcherService *)fetcherService;
 
 @end
 

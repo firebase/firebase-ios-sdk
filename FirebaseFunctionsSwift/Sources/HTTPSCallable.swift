@@ -95,7 +95,7 @@ public class HTTPSCallable: NSObject {
   }
 
   /**
-   * Executes this Callable HTTPS trigger asynchronously.
+   * Executes this Callable HTTPS trigger asynchronously. This API should only be used from Objective C
    *
    * The request to the Cloud Functions backend made by this method automatically includes a
    * Firebase Installations ID token to identify the app instance. If a user is logged in with
