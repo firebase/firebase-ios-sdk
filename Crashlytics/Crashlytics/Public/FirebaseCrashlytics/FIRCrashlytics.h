@@ -82,7 +82,7 @@ NS_SWIFT_NAME(Crashlytics)
  * @param value The value to be associated with the key
  * @param key A unique key
  */
-- (void)setCustomValue:(id)value forKey:(NSString *)key;
+- (void)setCustomValue:(nullable id)value forKey:(NSString *)key;
 
 /**
  * Sets custom keys and values to be associated with subsequent fatal and non-fatal reports.
@@ -104,7 +104,7 @@ NS_SWIFT_NAME(Crashlytics)
  * @param userID An arbitrary user identifier string that associates a user to a record in your
  * system.
  */
-- (void)setUserID:(NSString *)userID;
+- (void)setUserID:(nullable NSString *)userID;
 
 /**
  * Records a non-fatal event described by an NSError object. The events are
