@@ -19,7 +19,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * The Firebase Crashlytics Exception Model provides a way to report custom exceptions
+ * The Firebase Crashlytics ExceptionModel provides a way to report custom exceptions
  * to Crashlytics that came from a runtime environment outside of the native
  * platform Crashlytics is running in.
  */
@@ -30,7 +30,7 @@ NS_SWIFT_NAME(ExceptionModel)
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
- * Initializes an Exception Model model with the given required fields.
+ * Initializes an ExceptionModel with the given required fields.
  *
  * @param name - typically the type of the Exception class
  * @param reason - the human-readable reason the issue occurred
@@ -38,7 +38,7 @@ NS_SWIFT_NAME(ExceptionModel)
 - (instancetype)initWithName:(NSString *)name reason:(NSString *)reason;
 
 /**
- * Creates an Exception Model model with the given required fields.
+ * Creates an ExceptionModel with the given required fields.
  *
  * @param name - typically the type of the Exception class
  * @param reason - the human-readable reason the issue occurred
@@ -47,7 +47,7 @@ NS_SWIFT_NAME(ExceptionModel)
                                 reason:(NSString *)reason NS_SWIFT_UNAVAILABLE("");
 
 /**
- * A list of Stack Frames that make up the stack trace. The order of the stack trace is top-first,
+ * A list of stack frames that make up the stack trace. The order of the stack trace is top-first,
  * so typically the "main" function is the last element in this list.
  */
 @property(nonatomic, copy) NSArray<FIRStackFrame *> *stackTrace;

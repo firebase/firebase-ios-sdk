@@ -48,7 +48,7 @@ NSString* FIRCLSApplicationGetSDKBundleID(void);
 NSString* FIRCLSApplicationGetPlatform(void);
 
 /**
- * Returns the Operating System for filtering. Should be kept consistent with Analytics.
+ * Returns the operating system for filtering. Should be kept consistent with Analytics.
  */
 NSString* FIRCLSApplicationGetFirebasePlatform(void);
 

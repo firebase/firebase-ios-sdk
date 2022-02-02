@@ -46,31 +46,31 @@ extern "C" {
 
 /**
  * Enables or disables Analytics debug mode.
- * If set to YES, the logging level for Analytics will be set to FIRLoggerLevelDebug.
+ * If set to true, the logging level for Analytics will be set to FirebaseLoggerLevelDebug.
  * Enabling the debug mode has no effect if the app is running from App Store.
  * (required) analytics debug mode flag.
  */
 void FIRSetAnalyticsDebugMode(BOOL analyticsDebugMode);
 
 /**
- * Changes the default logging level of FIRLoggerLevelNotice to a user-specified level.
- * The default level cannot be set above FIRLoggerLevelNotice if the app is running from App Store.
- * (required) log level (one of the FIRLoggerLevel enum values).
+ * Changes the default logging level of FirebaseLoggerLevelNotice to a user-specified level.
+ * The default level cannot be set above FirebaseLoggerLevelNotice if the app is running from App
+ * Store. (required) log level (one of the FirebaseLoggerLevel enum values).
  */
 void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel);
 
 /**
  * Checks if the specified logger level is loggable given the current settings.
- * (required) log level (one of the FIRLoggerLevel enum values).
+ * (required) log level (one of the FirebaseLoggerLevel enum values).
  * (required) whether or not this function is called from the Analytics component.
  */
 BOOL FIRIsLoggableLevel(FIRLoggerLevel loggerLevel, BOOL analyticsComponent);
 
 /**
  * Logs a message to the Xcode console and the device log. If running from AppStore, will
- * not log any messages with a level higher than FIRLoggerLevelNotice to avoid log spamming.
- * (required) log level (one of the FIRLoggerLevel enum values).
- * (required) service name of type FIRLoggerService.
+ * not log any messages with a level higher than FirebaseLoggerLevelNotice to avoid log spamming.
+ * (required) log level (one of the FirebaseLoggerLevel enum values).
+ * (required) service name of type FirebaseLoggerService.
  * (required) message code starting with "I-" which means iOS, followed by a capitalized
  *            three-character service identifier and a six digit integer message ID that is unique
  *            within the service.
@@ -94,7 +94,7 @@ extern void FIRLogBasic(FIRLoggerLevel level,
 
 /**
  * The following functions accept the following parameters in order:
- * (required) service name of type FIRLoggerService.
+ * (required) service name of type FirebaseLoggerService.
  * (required) message code starting from "I-" which means iOS, followed by a capitalized
  *            three-character service identifier and a six digit integer message ID that is unique
  *            within the service.
@@ -103,7 +103,7 @@ extern void FIRLogBasic(FIRLoggerLevel level,
  * (required) message string which can be a format string.
  * (optional) the list of arguments to substitute into the format string.
  * Example usage:
- * FIRLogError(kFIRLoggerCore, @"I-COR000001", @"Configuration of %@ failed.", app.name);
+ * FirebaseLogError(kFirebaseLoggerCore, @"I-COR000001", @"Configuration of %@ failed.", app.name);
  */
 extern void FIRLogError(FIRLoggerService service, NSString *messageCode, NSString *message, ...)
     NS_FORMAT_FUNCTION(3, 4);
@@ -123,9 +123,9 @@ extern void FIRLogDebug(FIRLoggerService service, NSString *messageCode, NSStrin
 @interface FIRLoggerWrapper : NSObject
 
 /**
- * Objective-C wrapper for FIRLogBasic to allow weak linking to FIRLogger
- * (required) log level (one of the FIRLoggerLevel enum values).
- * (required) service name of type FIRLoggerService.
+ * Objective-C wrapper for FirebaseLogBasic to allow weak linking to FirebaseLogger
+ * (required) log level (one of the FirebaseLoggerLevel enum values).
+ * (required) service name of type FirebaseLoggerService.
  * (required) message code starting with "I-" which means iOS, followed by a capitalized
  *            three-character service identifier and a six digit integer message ID that is unique
  *            within the service.
