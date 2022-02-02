@@ -19,7 +19,7 @@
 
   @available(swift 5.0)
   @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
-  extension Query {
+  public extension Query {
     // MARK: - Get Documents
 
     /// Reads the documents matching this query.
@@ -28,7 +28,7 @@
     ///   (`Source.cache`), the server only (`Source.server`), or to attempt the server and fall back
     ///   to the cache (`Source.default`).
     /// - Returns: A publisher emitting a `QuerySnapshot` instance.
-    public func getDocuments(source: FirestoreSource = .default) -> Future<QuerySnapshot, Error> {
+    func getDocuments(source: FirestoreSource = .default) -> Future<QuerySnapshot, Error> {
       Future { promise in
         self.getDocuments(source: source) { snapshot, error in
           if let error = error {
@@ -47,7 +47,7 @@
     /// - Parameter includeMetadataChanges: Whether metadata-only changes (i.e. only
     ///   `QuerySnapshot.metadata` changed) should trigger snapshot events.
     /// - Returns: A publisher emitting `QuerySnapshot` instances.
-    public func snapshotPublisher(includeMetadataChanges: Bool = false)
+    func snapshotPublisher(includeMetadataChanges: Bool = false)
       -> AnyPublisher<QuerySnapshot, Error> {
       let subject = PassthroughSubject<QuerySnapshot, Error>()
       let listenerHandle =

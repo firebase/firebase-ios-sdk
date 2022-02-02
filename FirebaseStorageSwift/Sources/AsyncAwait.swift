@@ -27,8 +27,7 @@ import FirebaseStorage
     ///           the task will be cancelled and an error will be thrown.
     /// - Returns: Data object.
     func data(maxSize: Int64) async throws -> Data {
-      typealias DataContinuation = CheckedContinuation<Data, Error>
-      return try await withCheckedThrowingContinuation { (continuation: DataContinuation) in
+      return try await withCheckedThrowingContinuation { continuation in
         // TODO: Use task to handle progress and cancellation.
         _ = self.getData(maxSize: maxSize) { result in
           continuation.resume(with: result)
@@ -47,8 +46,7 @@ import FirebaseStorage
     /// - Returns: StorageMetadata with additional information about the object being uploaded.
     func putDataAsync(_ uploadData: Data,
                       metadata: StorageMetadata? = nil) async throws -> StorageMetadata {
-      typealias MetadataContinuation = CheckedContinuation<StorageMetadata, Error>
-      return try await withCheckedThrowingContinuation { (continuation: MetadataContinuation) in
+      return try await withCheckedThrowingContinuation { continuation in
         // TODO: Use task to handle progress and cancellation.
         _ = self.putData(uploadData, metadata: metadata) { result in
           continuation.resume(with: result)
@@ -65,8 +63,7 @@ import FirebaseStorage
     /// - Returns: StorageMetadata with additional information about the object being uploaded.
     func putFileAsync(from url: URL,
                       metadata: StorageMetadata? = nil) async throws -> StorageMetadata {
-      typealias MetadataContinuation = CheckedContinuation<StorageMetadata, Error>
-      return try await withCheckedThrowingContinuation { (continuation: MetadataContinuation) in
+      return try await withCheckedThrowingContinuation { continuation in
         // TODO: Use task to handle progress and cancellation.
         _ = self.putFile(from: url, metadata: metadata) { result in
           continuation.resume(with: result)
@@ -80,8 +77,7 @@ import FirebaseStorage
     ///   - fileUrl: A URL representing the system file path of the object to be uploaded.
     /// - Returns: URL pointing to the file path of the downloaded file.
     func writeAsync(toFile fileURL: URL) async throws -> URL {
-      typealias URLContinuation = CheckedContinuation<URL, Error>
-      return try await withCheckedThrowingContinuation { (continuation: URLContinuation) in
+      return try await withCheckedThrowingContinuation { continuation in
         // TODO: Use task to handle progress and cancellation.
         _ = self.write(toFile: fileURL) { result in
           continuation.resume(with: result)

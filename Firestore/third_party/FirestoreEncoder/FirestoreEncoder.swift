@@ -16,8 +16,8 @@
 import FirebaseFirestore
 import Foundation
 
-extension Firestore {
-  public struct Encoder {
+public extension Firestore {
+  struct Encoder {
     public init() {}
     /// Returns encoded data that Firestore API recognizes.
     ///
@@ -39,7 +39,7 @@ extension Firestore {
       // SelfDocumentID, DocumentReference and FieldValue cannot be
       // encoded directly.
       guard T.self != DocumentReference.self,
-        T.self != FieldValue.self else {
+            T.self != FieldValue.self else {
         throw EncodingError
           .invalidValue(value,
                         EncodingError

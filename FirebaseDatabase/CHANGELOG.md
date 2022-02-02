@@ -1,3 +1,7 @@
+# v8.11.0
+- [fixed] Race condition crash in FUtilities.m. (#9096)
+- [fixed] FNextPushId 'successor' crash. (#8790)
+
 # v8.10.0
 - [fixed] Fixed URL handling bug when path is a substring of host. (#8874)
 

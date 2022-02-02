@@ -1,11 +1,6 @@
-#
-# Be sure to run `pod lib lint FirebaseDatabaseSwift.podspec' to ensure this is a
-# valid spec before submitting.
-#
-
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseDatabaseSwift'
-  s.version                 = '8.10.0-beta'
+  s.version                 = '8.12.0-beta'
   s.summary                 = 'Swift Extensions for Firebase Realtime Database'
 
   s.description      = <<-DESC
@@ -21,7 +16,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     :tag => 'CocoaPods-' + s.version.to_s
   }
 
-  s.swift_version           = '5.1'
+  s.swift_version           = '5.3'
   s.ios.deployment_target   = '10.0'
   s.osx.deployment_target   = '10.12'
   s.tvos.deployment_target  = '10.0'
@@ -34,4 +29,5 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   ]
 
   s.dependency 'FirebaseDatabase', '~> 8.0'
+  s.dependency 'FirebaseSharedSwift', '~> 8.11'
 end

@@ -300,6 +300,15 @@ static dispatch_once_t gSharedInstanceToken;
   return logSource;
 }
 
+- (PrewarmDetectionMode)prewarmDetectionMode {
+  PrewarmDetectionMode mode = PrewarmDetectionModeActivePrewarm;
+  if (self.remoteConfigFlags) {
+    mode = [self.remoteConfigFlags getIntValueForFlag:@"fpr_prewarm_detection"
+                                         defaultValue:(int)mode];
+  }
+  return mode;
+}
+
 #pragma mark - Log sampling configurations.
 
 - (float)logTraceSamplingRate {

@@ -25,7 +25,7 @@
 
   @available(swift 5.0)
   @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
-  extension CollectionReference {
+  public extension CollectionReference {
     // MARK: - Adding Documents
 
     /// Adds a new document to this collection with the specified data, assigning it a document ID
@@ -35,7 +35,7 @@
     /// - Returns: A publisher emitting a `DocumentReference` value once the document has been successfully
     ///   written to the server. This publisher will not emit while the client is offline, though
     ///   local changes will be visible immediately.
-    public func addDocument(data: [String: Any])
+    func addDocument(data: [String: Any])
       -> Future<DocumentReference, Error> {
       var reference: DocumentReference?
       return Future { promise in
@@ -60,9 +60,9 @@
       /// - Returns: A publisher emitting a `DocumentReference` value once the document has been successfully
       /// written to the server. This publisher will not emit while the client is offline, though
       /// local changes will be visible immediately.
-      public func addDocument<T: Encodable>(from value: T,
-                                            encoder: Firestore.Encoder = Firestore
-                                              .Encoder()) -> Future<
+      func addDocument<T: Encodable>(from value: T,
+                                     encoder: Firestore.Encoder = Firestore
+                                       .Encoder()) -> Future<
         DocumentReference,
         Error
       > {
