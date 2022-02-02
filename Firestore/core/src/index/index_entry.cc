@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/index/index_entry.h"
 
+#include "Firestore/core/src/util/hashing.h"
 #include "absl/strings/str_cat.h"
 
 namespace firebase {
