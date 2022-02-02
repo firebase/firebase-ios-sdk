@@ -24,7 +24,6 @@
 
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/util/comparison.h"
-#include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
