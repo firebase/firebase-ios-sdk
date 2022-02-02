@@ -117,6 +117,8 @@ static const double SEC_PER_MINUTE = 60;
         if ([self.storedActiveReportPaths count] > FIRCLSMaxUnsentReports) {
           [self.fileManager removeItemAtPath:[self.storedActiveReportPaths lastObject] error:nil];
           [self.storedActiveReportPaths removeLastObject];
+          self->_recordedOnDemandExceptionCount -= 1;
+          self->_droppedOnDemandExceptionCount += 1;
         }
       }
       double uploadDelay = [self calculateUploadDelay];
@@ -125,8 +127,8 @@ static const double SEC_PER_MINUTE = 60;
       } else {
         FIRCLSDebugLog(@"Stored an on-demand exception, starting delay %.20f", uploadDelay);
       }
-      [self incrementQueuedOperationCount:-1];
       sleep(uploadDelay);
+      [self incrementQueuedOperationCount:-1];
     });
     return YES;  // Recorded and submitted the exception.
   }

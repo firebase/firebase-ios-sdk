@@ -186,6 +186,8 @@ NSInteger compareNewer(FIRCLSInternalReport *reportA,
                       dataCollectionToken:dataCollectionToken
                                  asUrgent:urgent];
   }
+  [self.onDemandModel.storedActiveReportPaths removeAllObjects];
+
   // deal with stuff in processing more carefully - do not process again
   [self.operationQueue addOperationWithBlock:^{
     for (NSString *path in self.processingReportPaths) {

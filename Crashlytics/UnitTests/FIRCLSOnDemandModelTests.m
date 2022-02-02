@@ -29,6 +29,7 @@
 #import "Crashlytics/UnitTests/Mocks/FIRMockInstallations.h"
 
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
+#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
 #import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
 
 #define TEST_GOOGLE_APP_ID (@"1:632950151350:ios:d5b0d08d4f00f4b1")
@@ -36,7 +37,7 @@
 @interface FIRCLSOnDemandModelTests : XCTestCase
 
 @property(nonatomic, retain) FIRCLSMockOnDemandModel *onDemandModel;
-@property(nonatomic, strong) FIRCLSMockExistingReportManager *existingReportManager;
+@property(nonatomic, strong) FIRCLSExistingReportManager *existingReportManager;
 @property(nonatomic, strong) FIRCLSManagerData *managerData;
 @property(nonatomic, strong) FIRCLSDataCollectionArbiter *dataArbiter;
 @property(nonatomic, strong) FIRCLSTempMockFileManager *fileManager;
@@ -73,9 +74,10 @@
                                                     fileManager:self.fileManager
                                                     dataArbiter:self.dataArbiter
                                                        settings:self.mockSettings];
+  _mockReportUploader = [[FIRCLSMockReportUploader alloc] initWithManagerData:self.managerData];
   _existingReportManager =
-      [[FIRCLSMockExistingReportManager alloc] initWithManagerData:self.managerData
-                                                    reportUploader:self.mockReportUploader];
+      [[FIRCLSExistingReportManager alloc] initWithManagerData:self.managerData
+                                                reportUploader:self.mockReportUploader];
   [self.fileManager createReportDirectories];
   [self.fileManager
       setupNewPathForExecutionIdentifier:self.managerData.executionIDModel.executionID];
@@ -122,6 +124,47 @@
   // We still count this as an occurred event if it was recorded.
   XCTAssertEqual([self.onDemandModel getOrIncrementOnDemandEventCountForCurrentRun:NO], 1);
   XCTAssertEqual([self contentsOfActivePath].count, 2);
+  XCTAssertEqual(self.onDemandModel.getQueuedOperationsCount, 1);
+  XCTAssertEqual([self.onDemandModel.storedActiveReportPaths count], 1);
+}
+
+- (void)testQuotaWithDataCollectionOff {
+  // This test uses the onDemandModel of managerData rather than the mockOnDemandModel to test
+  // integration with existingReportManager
+  FIRExceptionModel *exceptionModel = [self getTestExceptionModel];
+
+  for (int i = 0; i < 10; i++) {
+    BOOL success =
+        [self.managerData.onDemandModel recordOnDemandExceptionIfQuota:exceptionModel
+                                             withDataCollectionEnabled:NO
+                                            usingExistingReportManager:self.existingReportManager];
+
+    XCTAssertTrue(success);
+  }
+
+  // Once we've finished processing, there should be only FIRCLSMaxUnsentReports recorded with the
+  // rest considered dropped. The recorded events should be stored in storedActiveReportPaths which
+  // is kept in sync with the contents of the active path.
+  sleep(60);  // wait for the queue to empty
+  XCTAssertEqual([self.managerData.onDemandModel getOrIncrementOnDemandEventCountForCurrentRun:NO],
+                 FIRCLSMaxUnsentReports);
+  XCTAssertEqual(
+      [self.managerData.onDemandModel getOrIncrementDroppedOnDemandEventCountForCurrentRun:NO],
+      10 - FIRCLSMaxUnsentReports);
+  XCTAssertEqual([self contentsOfActivePath].count, FIRCLSMaxUnsentReports + 1);
+  XCTAssertEqual([self.managerData.onDemandModel.storedActiveReportPaths count],
+                 FIRCLSMaxUnsentReports);
+
+  // Once we call sendUnsentReports, stored reports should be sent immediately.
+  [self.existingReportManager sendUnsentReportsWithToken:[FIRCLSDataCollectionToken validToken]
+                                                asUrgent:YES];
+  XCTAssertEqual([self.managerData.onDemandModel getOrIncrementOnDemandEventCountForCurrentRun:NO],
+                 FIRCLSMaxUnsentReports);
+  XCTAssertEqual(
+      [self.managerData.onDemandModel getOrIncrementDroppedOnDemandEventCountForCurrentRun:NO],
+      10 - FIRCLSMaxUnsentReports);
+  XCTAssertEqual([self contentsOfActivePath].count, 1);
+  XCTAssertEqual([self.managerData.onDemandModel.storedActiveReportPaths count], 0);
 }
 
 - (void)testDropsEventIfNoQuota {
