@@ -104,11 +104,7 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      SPM: false
       LEGACY: true
-      OS: iOS
-      DEVICE: iPhone 11
-      TEST: true
     runs-on: macos-11
 
     steps:
