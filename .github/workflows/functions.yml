@@ -104,6 +104,7 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      LEGACY: true
     runs-on: macos-11
 
     steps:
@@ -114,7 +115,7 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-functions.plist.gpg \
           quickstart-ios/functions/GoogleService-Info.plist "$plist_secret"
     - name: Setup custom URL scheme
-      run: sed -i '' 's/REVERSED_CLIENT_ID/com.googleusercontent.apps.1025801074639-6p6ebi8amuklcjrto20gvpe295smm8u6/' quickstart-ios/functions/FunctionsExample/Info.plist
+      run: sed -i '' 's/REVERSED_CLIENT_ID/com.googleusercontent.apps.1025801074639-6p6ebi8amuklcjrto20gvpe295smm8u6/' quickstart-ios/functions/LegacyFunctionsQuickstart/FunctionsExample/Info.plist
     - name: Test objc quickstart
       run: ([ -z $plist_secret ] ||
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions true)
