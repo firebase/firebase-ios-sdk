@@ -162,7 +162,7 @@ let package = Package(
     .package(
       name: "GoogleUtilities",
       url: "https://github.com/google/GoogleUtilities.git",
-      "7.6.0" ..< "8.0.0"
+      .branch("char-multicast-feature")
     ),
     .package(
       name: "GTMSessionFetcher",
@@ -385,7 +385,7 @@ let package = Package(
       name: "FirebaseAuth",
       dependencies: [
         "FirebaseCore",
-        .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
+        .product(name: "GULMulticastAppDelegate", package: "GoogleUtilities"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
       ],
@@ -845,7 +845,7 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "FirebaseInstallations",
-        .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
+        .product(name: "GULMulticastAppDelegate", package: "GoogleUtilities"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULReachability", package: "GoogleUtilities"),
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
