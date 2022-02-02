@@ -30,25 +30,28 @@
 #include <google/protobuf/wire_format.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
-
-PROTOBUF_PRAGMA_INIT_SEG
 namespace google {
 namespace type {
-constexpr LatLng::LatLng(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : latitude_(0)
-  , longitude_(0){}
-struct LatLngDefaultTypeInternal {
-  constexpr LatLngDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
-  ~LatLngDefaultTypeInternal() {}
-  union {
-    LatLng _instance;
-  };
-};
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT LatLngDefaultTypeInternal _LatLng_default_instance_;
+class LatLngDefaultTypeInternal {
+ public:
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<LatLng> _instance;
+} _LatLng_default_instance_;
 }  // namespace type
 }  // namespace google
+static void InitDefaultsscc_info_LatLng_google_2ftype_2flatlng_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::google::type::_LatLng_default_instance_;
+    new (ptr) ::google::type::LatLng();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::google::type::LatLng::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_LatLng_google_2ftype_2flatlng_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_LatLng_google_2ftype_2flatlng_2eproto}, {}};
+
 static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_google_2ftype_2flatlng_2eproto[1];
 static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const** file_level_enum_descriptors_google_2ftype_2flatlng_2eproto = nullptr;
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_google_2ftype_2flatlng_2eproto = nullptr;
@@ -77,39 +80,42 @@ const char descriptor_table_protodef_google_2ftype_2flatlng_2eproto[] PROTOBUF_S
   "Z8google.golang.org/genproto/googleapis/"
   "type/latlng;latlng\242\002\003GTPb\006proto3"
   ;
-static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_google_2ftype_2flatlng_2eproto_once;
-const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_google_2ftype_2flatlng_2eproto = {
-  false, false, 192, descriptor_table_protodef_google_2ftype_2flatlng_2eproto, "google/type/latlng.proto", 
-  &descriptor_table_google_2ftype_2flatlng_2eproto_once, nullptr, 0, 1,
-  schemas, file_default_instances, TableStruct_google_2ftype_2flatlng_2eproto::offsets,
-  file_level_metadata_google_2ftype_2flatlng_2eproto, file_level_enum_descriptors_google_2ftype_2flatlng_2eproto, file_level_service_descriptors_google_2ftype_2flatlng_2eproto,
+static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_google_2ftype_2flatlng_2eproto_deps[1] = {
 };
-PROTOBUF_ATTRIBUTE_WEAK ::PROTOBUF_NAMESPACE_ID::Metadata
-descriptor_table_google_2ftype_2flatlng_2eproto_metadata_getter(int index) {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2ftype_2flatlng_2eproto);
-  return descriptor_table_google_2ftype_2flatlng_2eproto.file_level_metadata[index];
-}
+static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_google_2ftype_2flatlng_2eproto_sccs[1] = {
+  &scc_info_LatLng_google_2ftype_2flatlng_2eproto.base,
+};
+static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_google_2ftype_2flatlng_2eproto_once;
+static bool descriptor_table_google_2ftype_2flatlng_2eproto_initialized = false;
+const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_google_2ftype_2flatlng_2eproto = {
+  &descriptor_table_google_2ftype_2flatlng_2eproto_initialized, descriptor_table_protodef_google_2ftype_2flatlng_2eproto, "google/type/latlng.proto", 192,
+  &descriptor_table_google_2ftype_2flatlng_2eproto_once, descriptor_table_google_2ftype_2flatlng_2eproto_sccs, descriptor_table_google_2ftype_2flatlng_2eproto_deps, 1, 0,
+  schemas, file_default_instances, TableStruct_google_2ftype_2flatlng_2eproto::offsets,
+  file_level_metadata_google_2ftype_2flatlng_2eproto, 1, file_level_enum_descriptors_google_2ftype_2flatlng_2eproto, file_level_service_descriptors_google_2ftype_2flatlng_2eproto,
+};
 
 // Force running AddDescriptors() at dynamic initialization time.
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_google_2ftype_2flatlng_2eproto(&descriptor_table_google_2ftype_2flatlng_2eproto);
+static bool dynamic_init_dummy_google_2ftype_2flatlng_2eproto = (  ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptors(&descriptor_table_google_2ftype_2flatlng_2eproto), true);
 namespace google {
 namespace type {
 
 // ===================================================================
 
+void LatLng::InitAsDefaultInstance() {
+}
 class LatLng::_Internal {
  public:
 };
 
-LatLng::LatLng(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
+LatLng::LatLng()
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
-  RegisterArenaDtor(arena);
-  // @@protoc_insertion_point(arena_constructor:google.type.LatLng)
+  // @@protoc_insertion_point(constructor:google.type.LatLng)
 }
 LatLng::LatLng(const LatLng& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message() {
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::memcpy(&latitude_, &from.latitude_,
     static_cast<size_t>(reinterpret_cast<char*>(&longitude_) -
     reinterpret_cast<char*>(&latitude_)) + sizeof(longitude_));
@@ -117,31 +123,27 @@ LatLng::LatLng(const LatLng& from)
 }
 
 void LatLng::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&latitude_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&longitude_) -
-    reinterpret_cast<char*>(&latitude_)) + sizeof(longitude_));
+  ::memset(&latitude_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&longitude_) -
+      reinterpret_cast<char*>(&latitude_)) + sizeof(longitude_));
 }
 
 LatLng::~LatLng() {
   // @@protoc_insertion_point(destructor:google.type.LatLng)
   SharedDtor();
-  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 void LatLng::SharedDtor() {
-  GOOGLE_DCHECK(GetArena() == nullptr);
 }
 
-void LatLng::ArenaDtor(void* object) {
-  LatLng* _this = reinterpret_cast< LatLng* >(object);
-  (void)_this;
-}
-void LatLng::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
 void LatLng::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
+const LatLng& LatLng::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_LatLng_google_2ftype_2flatlng_2eproto.base);
+  return *internal_default_instance();
+}
+
 
 void LatLng::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.type.LatLng)
@@ -152,7 +154,7 @@ void LatLng::Clear() {
   ::memset(&latitude_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&longitude_) -
       reinterpret_cast<char*>(&latitude_)) + sizeof(longitude_));
-  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+  _internal_metadata_.Clear();
 }
 
 const char* LatLng::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -182,9 +184,7 @@ const char* LatLng::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
           ctx->SetLastTag(tag);
           goto success;
         }
-        ptr = UnknownFieldParse(tag,
-            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-            ptr, ctx);
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
         CHK_(ptr != nullptr);
         continue;
       }
@@ -218,7 +218,7 @@ failure:
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.type.LatLng)
   return target;
@@ -269,7 +269,7 @@ void LatLng::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 void LatLng::MergeFrom(const LatLng& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:google.type.LatLng)
   GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -301,13 +301,9 @@ bool LatLng::IsInitialized() const {
 
 void LatLng::InternalSwap(LatLng* other) {
   using std::swap;
-  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(LatLng, longitude_)
-      + sizeof(LatLng::longitude_)
-      - PROTOBUF_FIELD_OFFSET(LatLng, latitude_)>(
-          reinterpret_cast<char*>(&latitude_),
-          reinterpret_cast<char*>(&other->latitude_));
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  swap(latitude_, other->latitude_);
+  swap(longitude_, other->longitude_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata LatLng::GetMetadata() const {
@@ -320,7 +316,7 @@ void LatLng::InternalSwap(LatLng* other) {
 }  // namespace google
 PROTOBUF_NAMESPACE_OPEN
 template<> PROTOBUF_NOINLINE ::google::type::LatLng* Arena::CreateMaybeMessage< ::google::type::LatLng >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::google::type::LatLng >(arena);
+  return Arena::CreateInternal< ::google::type::LatLng >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

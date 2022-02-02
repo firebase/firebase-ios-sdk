@@ -30,40 +30,50 @@
 #include <google/protobuf/wire_format.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
-
-PROTOBUF_PRAGMA_INIT_SEG
+extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fwrite_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<5> scc_info_Write_google_2ffirestore_2fv1_2fwrite_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_google_2fprotobuf_2ftimestamp_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto;
 namespace firestore {
 namespace client {
-constexpr MutationQueue::MutationQueue(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : last_stream_token_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , last_acknowledged_batch_id_(0){}
-struct MutationQueueDefaultTypeInternal {
-  constexpr MutationQueueDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
-  ~MutationQueueDefaultTypeInternal() {}
-  union {
-    MutationQueue _instance;
-  };
-};
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MutationQueueDefaultTypeInternal _MutationQueue_default_instance_;
-constexpr WriteBatch::WriteBatch(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : writes_()
-  , base_writes_()
-  , local_write_time_(nullptr)
-  , batch_id_(0){}
-struct WriteBatchDefaultTypeInternal {
-  constexpr WriteBatchDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
-  ~WriteBatchDefaultTypeInternal() {}
-  union {
-    WriteBatch _instance;
-  };
-};
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT WriteBatchDefaultTypeInternal _WriteBatch_default_instance_;
+class MutationQueueDefaultTypeInternal {
+ public:
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<MutationQueue> _instance;
+} _MutationQueue_default_instance_;
+class WriteBatchDefaultTypeInternal {
+ public:
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<WriteBatch> _instance;
+} _WriteBatch_default_instance_;
 }  // namespace client
 }  // namespace firestore
+static void InitDefaultsscc_info_MutationQueue_firestore_2flocal_2fmutation_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::firestore::client::_MutationQueue_default_instance_;
+    new (ptr) ::firestore::client::MutationQueue();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::firestore::client::MutationQueue::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_MutationQueue_firestore_2flocal_2fmutation_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_MutationQueue_firestore_2flocal_2fmutation_2eproto}, {}};
+
+static void InitDefaultsscc_info_WriteBatch_firestore_2flocal_2fmutation_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::firestore::client::_WriteBatch_default_instance_;
+    new (ptr) ::firestore::client::WriteBatch();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::firestore::client::WriteBatch::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_WriteBatch_firestore_2flocal_2fmutation_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, 0, InitDefaultsscc_info_WriteBatch_firestore_2flocal_2fmutation_2eproto}, {
+      &scc_info_Write_google_2ffirestore_2fv1_2fwrite_2eproto.base,
+      &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,}};
+
 static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_firestore_2flocal_2fmutation_2eproto[2];
 static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const** file_level_enum_descriptors_firestore_2flocal_2fmutation_2eproto = nullptr;
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_firestore_2flocal_2fmutation_2eproto = nullptr;
@@ -113,73 +123,72 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor
   &::descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto,
   &::descriptor_table_google_2fprotobuf_2ftimestamp_2eproto,
 };
-static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_firestore_2flocal_2fmutation_2eproto_once;
-const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_firestore_2flocal_2fmutation_2eproto = {
-  false, false, 433, descriptor_table_protodef_firestore_2flocal_2fmutation_2eproto, "firestore/local/mutation.proto", 
-  &descriptor_table_firestore_2flocal_2fmutation_2eproto_once, descriptor_table_firestore_2flocal_2fmutation_2eproto_deps, 2, 2,
-  schemas, file_default_instances, TableStruct_firestore_2flocal_2fmutation_2eproto::offsets,
-  file_level_metadata_firestore_2flocal_2fmutation_2eproto, file_level_enum_descriptors_firestore_2flocal_2fmutation_2eproto, file_level_service_descriptors_firestore_2flocal_2fmutation_2eproto,
+static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_firestore_2flocal_2fmutation_2eproto_sccs[2] = {
+  &scc_info_MutationQueue_firestore_2flocal_2fmutation_2eproto.base,
+  &scc_info_WriteBatch_firestore_2flocal_2fmutation_2eproto.base,
 };
-PROTOBUF_ATTRIBUTE_WEAK ::PROTOBUF_NAMESPACE_ID::Metadata
-descriptor_table_firestore_2flocal_2fmutation_2eproto_metadata_getter(int index) {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_firestore_2flocal_2fmutation_2eproto);
-  return descriptor_table_firestore_2flocal_2fmutation_2eproto.file_level_metadata[index];
-}
+static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_firestore_2flocal_2fmutation_2eproto_once;
+static bool descriptor_table_firestore_2flocal_2fmutation_2eproto_initialized = false;
+const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_firestore_2flocal_2fmutation_2eproto = {
+  &descriptor_table_firestore_2flocal_2fmutation_2eproto_initialized, descriptor_table_protodef_firestore_2flocal_2fmutation_2eproto, "firestore/local/mutation.proto", 433,
+  &descriptor_table_firestore_2flocal_2fmutation_2eproto_once, descriptor_table_firestore_2flocal_2fmutation_2eproto_sccs, descriptor_table_firestore_2flocal_2fmutation_2eproto_deps, 2, 2,
+  schemas, file_default_instances, TableStruct_firestore_2flocal_2fmutation_2eproto::offsets,
+  file_level_metadata_firestore_2flocal_2fmutation_2eproto, 2, file_level_enum_descriptors_firestore_2flocal_2fmutation_2eproto, file_level_service_descriptors_firestore_2flocal_2fmutation_2eproto,
+};
 
 // Force running AddDescriptors() at dynamic initialization time.
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_firestore_2flocal_2fmutation_2eproto(&descriptor_table_firestore_2flocal_2fmutation_2eproto);
+static bool dynamic_init_dummy_firestore_2flocal_2fmutation_2eproto = (  ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptors(&descriptor_table_firestore_2flocal_2fmutation_2eproto), true);
 namespace firestore {
 namespace client {
 
 // ===================================================================
 
+void MutationQueue::InitAsDefaultInstance() {
+}
 class MutationQueue::_Internal {
  public:
 };
 
-MutationQueue::MutationQueue(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
+MutationQueue::MutationQueue()
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
-  RegisterArenaDtor(arena);
-  // @@protoc_insertion_point(arena_constructor:firestore.client.MutationQueue)
+  // @@protoc_insertion_point(constructor:firestore.client.MutationQueue)
 }
 MutationQueue::MutationQueue(const MutationQueue& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message() {
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
   last_stream_token_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (!from._internal_last_stream_token().empty()) {
-    last_stream_token_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_last_stream_token(), 
-      GetArena());
+    last_stream_token_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.last_stream_token_);
   }
   last_acknowledged_batch_id_ = from.last_acknowledged_batch_id_;
   // @@protoc_insertion_point(copy_constructor:firestore.client.MutationQueue)
 }
 
 void MutationQueue::SharedCtor() {
-last_stream_token_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-last_acknowledged_batch_id_ = 0;
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_MutationQueue_firestore_2flocal_2fmutation_2eproto.base);
+  last_stream_token_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  last_acknowledged_batch_id_ = 0;
 }
 
 MutationQueue::~MutationQueue() {
   // @@protoc_insertion_point(destructor:firestore.client.MutationQueue)
   SharedDtor();
-  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 void MutationQueue::SharedDtor() {
-  GOOGLE_DCHECK(GetArena() == nullptr);
   last_stream_token_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
-void MutationQueue::ArenaDtor(void* object) {
-  MutationQueue* _this = reinterpret_cast< MutationQueue* >(object);
-  (void)_this;
-}
-void MutationQueue::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
 void MutationQueue::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
+const MutationQueue& MutationQueue::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_MutationQueue_firestore_2flocal_2fmutation_2eproto.base);
+  return *internal_default_instance();
+}
+
 
 void MutationQueue::Clear() {
 // @@protoc_insertion_point(message_clear_start:firestore.client.MutationQueue)
@@ -187,9 +196,9 @@ void MutationQueue::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  last_stream_token_.ClearToEmpty();
+  last_stream_token_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   last_acknowledged_batch_id_ = 0;
-  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+  _internal_metadata_.Clear();
 }
 
 const char* MutationQueue::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -202,7 +211,7 @@ const char* MutationQueue::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
       // int32 last_acknowledged_batch_id = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
-          last_acknowledged_batch_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          last_acknowledged_batch_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -220,9 +229,7 @@ const char* MutationQueue::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
           ctx->SetLastTag(tag);
           goto success;
         }
-        ptr = UnknownFieldParse(tag,
-            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-            ptr, ctx);
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
         CHK_(ptr != nullptr);
         continue;
       }
@@ -256,7 +263,7 @@ failure:
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:firestore.client.MutationQueue)
   return target;
@@ -311,12 +318,13 @@ void MutationQueue::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 void MutationQueue::MergeFrom(const MutationQueue& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:firestore.client.MutationQueue)
   GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (from.last_stream_token().size() > 0) {
-    _internal_set_last_stream_token(from._internal_last_stream_token());
+
+    last_stream_token_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.last_stream_token_);
   }
   if (from.last_acknowledged_batch_id() != 0) {
     _internal_set_last_acknowledged_batch_id(from._internal_last_acknowledged_batch_id());
@@ -343,8 +351,9 @@ bool MutationQueue::IsInitialized() const {
 
 void MutationQueue::InternalSwap(MutationQueue* other) {
   using std::swap;
-  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
-  last_stream_token_.Swap(&other->last_stream_token_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  last_stream_token_.Swap(&other->last_stream_token_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
   swap(last_acknowledged_batch_id_, other->last_acknowledged_batch_id_);
 }
 
@@ -355,6 +364,10 @@ void MutationQueue::InternalSwap(MutationQueue* other) {
 
 // ===================================================================
 
+void WriteBatch::InitAsDefaultInstance() {
+  ::firestore::client::_WriteBatch_default_instance_._instance.get_mutable()->local_write_time_ = const_cast< PROTOBUF_NAMESPACE_ID::Timestamp*>(
+      PROTOBUF_NAMESPACE_ID::Timestamp::internal_default_instance());
+}
 class WriteBatch::_Internal {
  public:
   static const PROTOBUF_NAMESPACE_ID::Timestamp& local_write_time(const WriteBatch* msg);
@@ -368,7 +381,7 @@ void WriteBatch::clear_writes() {
   writes_.Clear();
 }
 void WriteBatch::clear_local_write_time() {
-  if (GetArena() == nullptr && local_write_time_ != nullptr) {
+  if (GetArenaNoVirtual() == nullptr && local_write_time_ != nullptr) {
     delete local_write_time_;
   }
   local_write_time_ = nullptr;
@@ -376,19 +389,17 @@ void WriteBatch::clear_local_write_time() {
 void WriteBatch::clear_base_writes() {
   base_writes_.Clear();
 }
-WriteBatch::WriteBatch(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena),
-  writes_(arena),
-  base_writes_(arena) {
+WriteBatch::WriteBatch()
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
-  RegisterArenaDtor(arena);
-  // @@protoc_insertion_point(arena_constructor:firestore.client.WriteBatch)
+  // @@protoc_insertion_point(constructor:firestore.client.WriteBatch)
 }
 WriteBatch::WriteBatch(const WriteBatch& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr),
       writes_(from.writes_),
       base_writes_(from.base_writes_) {
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
   if (from._internal_has_local_write_time()) {
     local_write_time_ = new PROTOBUF_NAMESPACE_ID::Timestamp(*from.local_write_time_);
   } else {
@@ -399,32 +410,29 @@ WriteBatch::WriteBatch(const WriteBatch& from)
 }
 
 void WriteBatch::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&local_write_time_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&batch_id_) -
-    reinterpret_cast<char*>(&local_write_time_)) + sizeof(batch_id_));
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_WriteBatch_firestore_2flocal_2fmutation_2eproto.base);
+  ::memset(&local_write_time_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&batch_id_) -
+      reinterpret_cast<char*>(&local_write_time_)) + sizeof(batch_id_));
 }
 
 WriteBatch::~WriteBatch() {
   // @@protoc_insertion_point(destructor:firestore.client.WriteBatch)
   SharedDtor();
-  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 void WriteBatch::SharedDtor() {
-  GOOGLE_DCHECK(GetArena() == nullptr);
   if (this != internal_default_instance()) delete local_write_time_;
 }
 
-void WriteBatch::ArenaDtor(void* object) {
-  WriteBatch* _this = reinterpret_cast< WriteBatch* >(object);
-  (void)_this;
-}
-void WriteBatch::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
 void WriteBatch::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
+const WriteBatch& WriteBatch::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_WriteBatch_firestore_2flocal_2fmutation_2eproto.base);
+  return *internal_default_instance();
+}
+
 
 void WriteBatch::Clear() {
 // @@protoc_insertion_point(message_clear_start:firestore.client.WriteBatch)
@@ -434,12 +442,12 @@ void WriteBatch::Clear() {
 
   writes_.Clear();
   base_writes_.Clear();
-  if (GetArena() == nullptr && local_write_time_ != nullptr) {
+  if (GetArenaNoVirtual() == nullptr && local_write_time_ != nullptr) {
     delete local_write_time_;
   }
   local_write_time_ = nullptr;
   batch_id_ = 0;
-  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+  _internal_metadata_.Clear();
 }
 
 const char* WriteBatch::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -452,7 +460,7 @@ const char* WriteBatch::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID:
       // int32 batch_id = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
-          batch_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          batch_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -493,9 +501,7 @@ const char* WriteBatch::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID:
           ctx->SetLastTag(tag);
           goto success;
         }
-        ptr = UnknownFieldParse(tag,
-            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-            ptr, ctx);
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
         CHK_(ptr != nullptr);
         continue;
       }
@@ -547,7 +553,7 @@ failure:
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:firestore.client.WriteBatch)
   return target;
@@ -616,7 +622,7 @@ void WriteBatch::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 void WriteBatch::MergeFrom(const WriteBatch& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:firestore.client.WriteBatch)
   GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -650,15 +656,11 @@ bool WriteBatch::IsInitialized() const {
 
 void WriteBatch::InternalSwap(WriteBatch* other) {
   using std::swap;
-  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
+  _internal_metadata_.Swap(&other->_internal_metadata_);
   writes_.InternalSwap(&other->writes_);
   base_writes_.InternalSwap(&other->base_writes_);
-  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(WriteBatch, batch_id_)
-      + sizeof(WriteBatch::batch_id_)
-      - PROTOBUF_FIELD_OFFSET(WriteBatch, local_write_time_)>(
-          reinterpret_cast<char*>(&local_write_time_),
-          reinterpret_cast<char*>(&other->local_write_time_));
+  swap(local_write_time_, other->local_write_time_);
+  swap(batch_id_, other->batch_id_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata WriteBatch::GetMetadata() const {
@@ -671,10 +673,10 @@ void WriteBatch::InternalSwap(WriteBatch* other) {
 }  // namespace firestore
 PROTOBUF_NAMESPACE_OPEN
 template<> PROTOBUF_NOINLINE ::firestore::client::MutationQueue* Arena::CreateMaybeMessage< ::firestore::client::MutationQueue >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::firestore::client::MutationQueue >(arena);
+  return Arena::CreateInternal< ::firestore::client::MutationQueue >(arena);
 }
 template<> PROTOBUF_NOINLINE ::firestore::client::WriteBatch* Arena::CreateMaybeMessage< ::firestore::client::WriteBatch >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::firestore::client::WriteBatch >(arena);
+  return Arena::CreateInternal< ::firestore::client::WriteBatch >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 
