@@ -30,7 +30,7 @@ class MemoryDocumentOverlayCache final : public DocumentOverlayCache {
  public:
   absl::optional<std::reference_wrapper<const model::mutation::Overlay>> GetOverlay(const model::DocumentKey& key) const override;
 
-  void SaveOverlays(int largest_batch_id, const MutationByDocumentKeyMap& overlays) override;
+  void SaveOverlays(int largest_batch_id, MutationByDocumentKeyMap&& overlays) override;
 
   void RemoveOverlaysForBatchId(int batch_id) override;
 
@@ -41,7 +41,7 @@ class MemoryDocumentOverlayCache final : public DocumentOverlayCache {
  private:
   using DocumentKeysByBatchIdMap = std::unordered_map<int, std::unordered_set<model::DocumentKey, model::DocumentKeyHash>>;
 
-  void SaveOverlay(int largest_batch_id, const model::Mutation& mutation);
+  void SaveOverlay(int largest_batch_id, model::Mutation&& mutation);
 
   OverlayByDocumentKeyMap overlay_by_document_key_;
   DocumentKeysByBatchIdMap document_keys_by_batch_id_;

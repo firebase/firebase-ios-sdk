@@ -60,7 +60,7 @@ class DocumentOverlayCache {
    *
    * All overlays will have their largest batch id set to `largestBatchId`.
    */
-  virtual void SaveOverlays(int largest_batch_id, const MutationByDocumentKeyMap& overlays) = 0;
+  virtual void SaveOverlays(int largest_batch_id, MutationByDocumentKeyMap&& overlays) = 0;
 
   /** Removes the overlay whose largest-batch-id equals to the given Id. */
   virtual void RemoveOverlaysForBatchId(int batch_id) = 0;

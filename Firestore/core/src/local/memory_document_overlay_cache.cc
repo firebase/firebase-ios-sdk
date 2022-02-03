@@ -35,26 +35,28 @@ absl::optional<std::reference_wrapper<const Overlay>> MemoryDocumentOverlayCache
   }
 }
 
-void MemoryDocumentOverlayCache::SaveOverlay(int largest_batch_id, const Mutation& mutation) {
+void MemoryDocumentOverlayCache::SaveOverlay(int largest_batch_id, Mutation&& mutation) {
+  const DocumentKey key = mutation.key();
+
   {
-    auto existing_overlay_iter = overlay_by_document_key_.find(mutation.key());
+    auto existing_overlay_iter = overlay_by_document_key_.find(key);
     if (existing_overlay_iter != overlay_by_document_key_.end()) {
       int existing_overlay_largest_batch_id = existing_overlay_iter->second.largest_batch_id();
       auto document_keys_iter = document_keys_by_batch_id_.find(existing_overlay_largest_batch_id);
       HARD_ASSERT(document_keys_iter != document_keys_by_batch_id_.end());
       auto& document_keys_for_existing_overlay_largest_batch_id = document_keys_iter->second;
-      document_keys_for_existing_overlay_largest_batch_id.erase(mutation.key());
+      document_keys_for_existing_overlay_largest_batch_id.erase(key);
     }
   }
 
-  overlay_by_document_key_.insert({mutation.key(), Overlay(largest_batch_id, mutation)});
+  overlay_by_document_key_.insert({key, Overlay(largest_batch_id, std::move(mutation))});
 
-  document_keys_by_batch_id_[largest_batch_id].emplace(mutation.key());
+  document_keys_by_batch_id_[largest_batch_id].emplace(key);
 }
 
-void MemoryDocumentOverlayCache::SaveOverlays(int largest_batch_id, const MutationByDocumentKeyMap& overlays) {
-  for (const auto& kv : overlays) {
-    SaveOverlay(largest_batch_id, kv.second);
+void MemoryDocumentOverlayCache::SaveOverlays(int largest_batch_id, MutationByDocumentKeyMap&& overlays) {
+  for (auto& kv : overlays) {
+    SaveOverlay(largest_batch_id, std::move(kv.second));
   }
 }
 
