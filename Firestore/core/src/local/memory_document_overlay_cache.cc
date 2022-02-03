@@ -62,8 +62,14 @@ void MemoryDocumentOverlayCache::SaveOverlays(int largest_batch_id, MutationByDo
 }
 
 void MemoryDocumentOverlayCache::RemoveOverlaysForBatchId(int batch_id) {
-  (void)batch_id;
-  abort();
+  const auto overlay_by_batch_id_iter = overlay_by_batch_id_.find(batch_id);
+  if (overlay_by_batch_id_iter != overlay_by_batch_id_.end()) {
+    const DocumentKeySet& keys = overlay_by_batch_id_iter->second;
+    for (const auto& key : keys) {
+      overlays_.erase(key);
+    }
+    overlay_by_batch_id_.erase(overlay_by_batch_id_iter);
+  }
 }
 
 DocumentOverlayCache::OverlayByDocumentKeyMap MemoryDocumentOverlayCache::GetOverlays(const model::ResourcePath& collection, int since_batch_id) const {
