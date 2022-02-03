@@ -61,7 +61,9 @@
 
   _onDemandModel = [[FIRCLSMockOnDemandModel alloc] initWithOnDemandUploadRate:15
                                                                           base:5
-                                                                  stepDuration:10];
+                                                                  stepDuration:10
+                                                                    sleepBlock:^(int delay){
+                                                                    }];
 
   FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_token"];
 
@@ -103,8 +105,22 @@
   [super tearDown];
 }
 
+- (void)setSleepBlock:(void (^)(int))sleepBlock {
+  ((FIRCLSMockOnDemandModel *)self.managerData.onDemandModel).sleepBlock = sleepBlock;
+}
+
 - (void)testIncrementsQueueWhenEventRecorded {
   FIRExceptionModel *exceptionModel = [self getTestExceptionModel];
+  XCTestExpectation *testComplete =
+      [[XCTestExpectation alloc] initWithDescription:@"complete test"];
+
+  // Put an expectation in the sleep block so it doesn't
+  __weak FIRCLSOnDemandModelTests *weakSelf = self;
+  [self setSleepBlock:^(int delay) {
+    XCTAssertEqual(delay, 4);
+    [weakSelf waitForExpectations:@[ testComplete ] timeout:1.0];
+  }];
+
   BOOL success = [self.onDemandModel recordOnDemandExceptionIfQuota:exceptionModel
                                           withDataCollectionEnabled:YES
                                          usingExistingReportManager:self.existingReportManager];
@@ -112,10 +128,23 @@
   XCTAssertTrue(success);
   XCTAssertEqual([self.onDemandModel recordedOnDemandExceptionCount], 1);
   XCTAssertEqual(self.onDemandModel.getQueuedOperationsCount, 1);
+
+  // Fulfill the expectation so the sleep block completes.
+  [testComplete fulfill];
 }
 
 - (void)testCompliesWithDataCollectionOff {
   FIRExceptionModel *exceptionModel = [self getTestExceptionModel];
+  XCTestExpectation *testComplete =
+      [[XCTestExpectation alloc] initWithDescription:@"complete test"];
+
+  // Put an expectation in the sleep block so it doesn't
+  __weak FIRCLSOnDemandModelTests *weakSelf = self;
+  [self setSleepBlock:^(int delay) {
+    XCTAssertEqual(delay, 4);
+    [weakSelf waitForExpectations:@[ testComplete ] timeout:1.0];
+  }];
+
   BOOL success = [self.onDemandModel recordOnDemandExceptionIfQuota:exceptionModel
                                           withDataCollectionEnabled:NO
                                          usingExistingReportManager:self.existingReportManager];
@@ -127,12 +156,20 @@
   XCTAssertEqual([self contentsOfActivePath].count, 2);
   XCTAssertEqual(self.onDemandModel.getQueuedOperationsCount, 1);
   XCTAssertEqual([self.onDemandModel.storedActiveReportPaths count], 1);
+
+  // Fulfill the expectation so the sleep block completes.
+  [testComplete fulfill];
 }
 
 - (void)testQuotaWithDataCollectionOff {
   // This test uses the onDemandModel of managerData rather than the mockOnDemandModel to test
   // integration with existingReportManager
   FIRExceptionModel *exceptionModel = [self getTestExceptionModel];
+
+  // Assert we're getting the right delay for the calls
+  [self setSleepBlock:^(int delay) {
+    XCTAssertEqual(delay, 4);
+  }];
 
   for (int i = 0; i < 10; i++) {
     BOOL success =
