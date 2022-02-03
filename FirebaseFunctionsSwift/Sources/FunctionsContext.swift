@@ -55,13 +55,9 @@ internal class FunctionsContextProvider: NSObject {
     if let auth = auth {
       dispatchGroup.enter()
 
-      auth.getToken(forcingRefresh: false) { result in
-        switch result {
-        case let .success(token):
-          authToken = token
-        case let .failure(authError):
-          error = authError
-        }
+      auth.getToken(forcingRefresh: false) { token, authError in
+        authToken = token
+        error = authError
         dispatchGroup.leave()
       }
     }
@@ -69,15 +65,11 @@ internal class FunctionsContextProvider: NSObject {
     if let appCheck = appCheck {
       dispatchGroup.enter()
 
-      appCheck.getToken(forcingRefresh: false) { result in
-        switch result {
-        case let .success(token):
-          appCheckToken = token
-        case let .failure(authError):
-          error = authError
-        }
+      appCheck.getToken(forcingRefresh: false) { token, authError in
+        appCheckToken = token
+        error = authError
+        dispatchGroup.leave()
       }
-
       dispatchGroup.leave()
     }
 
