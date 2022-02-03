@@ -22,16 +22,16 @@ import FirebaseSharedSwift
 #endif
 
 // PLACEHOLDERS
-protocol AuthInterop {
-  func getToken(forcingRefresh: Bool, callback: (Result<String, Error>) -> Void)
+@objc public protocol AuthInterop {
+  func getToken(forcingRefresh: Bool, callback: (String?, Error?) -> Void)
 }
 
-protocol MessagingInterop {
+@objc public protocol MessagingInterop {
   var fcmToken: String { get }
 }
 
-protocol AppCheckInterop {
-  func getToken(forcingRefresh: Bool, callback: (Result<String, Error>) -> Void)
+@objc public protocol AppCheckInterop {
+  func getToken(forcingRefresh: Bool, callback: (String?, Error?) -> Void)
 }
 
 // END PLACEHOLDERS
@@ -44,7 +44,7 @@ private enum Constants {
 /**
  * `Functions` is the client for Cloud Functions for a Firebase project.
  */
-@objc public class Functions: NSObject {
+@objc(FIRFunctions) public class Functions: NSObject {
   // MARK: - Private Variables
 
   /// The network client to use for http requests.
@@ -90,7 +90,7 @@ private enum Constants {
   internal convenience init(app: FirebaseApp,
                             region: String,
                             customDomain: String?) {
-    #warning("Should be fetched from the App's component container instead.")
+    // TODO: "Should be fetched from the App's component container instead.
     /*
      id<FIRFunctionsProvider> provider = FIR_COMPONENT(FIRFunctionsProvider, app.container);
      return [provider functionsForApp:app region:region customDomain:customDomain type:[self class]];
@@ -104,13 +104,13 @@ private enum Constants {
               appCheck: nil)
   }
 
-  internal init(projectID: String,
-                region: String,
-                customDomain: String?,
-                auth: AuthInterop?,
-                messaging: MessagingInterop?,
-                appCheck: AppCheckInterop?,
-                fetcherService: GTMSessionFetcherService = GTMSessionFetcherService()) {
+  @objc internal init(projectID: String,
+                      region: String,
+                      customDomain: String?,
+                      auth: AuthInterop?,
+                      messaging: MessagingInterop?,
+                      appCheck: AppCheckInterop?,
+                      fetcherService: GTMSessionFetcherService = GTMSessionFetcherService()) {
     self.projectID = projectID
     self.region = region
     self.customDomain = customDomain
@@ -125,7 +125,7 @@ private enum Constants {
    * Creates a reference to the Callable HTTPS trigger with the given name.
    * @param name The name of the Callable HTTPS trigger.
    */
-  public func httpsCallable(_ name: String) -> HTTPSCallable {
+  @objc(HTTPSCallableWithName:) public func httpsCallable(_ name: String) -> HTTPSCallable {
     return HTTPSCallable(functions: self, name: name)
   }
 
@@ -154,7 +154,7 @@ private enum Constants {
    * @param host The host of the local emulator, such as "localhost".
    * @param port The port of the local emulator, for example 5005.
    */
-  public func useEmulator(withHost host: String, port: Int) {
+  @objc public func useEmulator(withHost host: String, port: Int) {
     let prefix = host.hasPrefix("http") ? "" : "http://"
     let origin = String(format: "\(prefix)\(host):%li", port)
     emulatorOrigin = origin
@@ -312,9 +312,7 @@ private enum Constants {
 
       // TODO: Force unwrap... gross
       let result = HTTPSCallableResult(data: resultData!)
-      #warning(
-        "This copied comment appears to be incorrect - it's impossible to have a nil callable result."
-      )
+      // TODO: This copied comment appears to be incorrect - it's impossible to have a nil callable result
       // If there's no result field, this will return nil, which is fine.
       completion(.success(result))
     }

@@ -190,7 +190,7 @@ class FUNSerializer: NSObject {
       return n
     case Constants.unsignedLongType:
       // NSNumber formatter doesn't handle unsigned long long, so we have to parse it.
-      let str = value.utf8
+      // let str = value.utf8
       // TODO: Port this atrocity
       throw SerializerError.unimplemented
     /*
