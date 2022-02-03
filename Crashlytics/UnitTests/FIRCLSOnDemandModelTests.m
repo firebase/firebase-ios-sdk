@@ -114,7 +114,7 @@
   XCTestExpectation *testComplete =
       [[XCTestExpectation alloc] initWithDescription:@"complete test"];
 
-  // Put an expectation in the sleep block so it doesn't
+  // Put an expectation in the sleep block so we can test the state of the queue.
   __weak FIRCLSOnDemandModelTests *weakSelf = self;
   [self setSleepBlock:^(int delay) {
     XCTAssertEqual(delay, 4);
@@ -138,7 +138,7 @@
   XCTestExpectation *testComplete =
       [[XCTestExpectation alloc] initWithDescription:@"complete test"];
 
-  // Put an expectation in the sleep block so it doesn't
+  // Put an expectation in the sleep block so we can test the state of the queue.
   __weak FIRCLSOnDemandModelTests *weakSelf = self;
   [self setSleepBlock:^(int delay) {
     XCTAssertEqual(delay, 4);
@@ -162,11 +162,9 @@
 }
 
 - (void)testQuotaWithDataCollectionOff {
-  // This test uses the onDemandModel of managerData rather than the mockOnDemandModel to test
-  // integration with existingReportManager
   FIRExceptionModel *exceptionModel = [self getTestExceptionModel];
 
-  // Assert we're getting the right delay for the calls
+  // Assert we're getting the right delay for the calls.
   [self setSleepBlock:^(int delay) {
     XCTAssertEqual(delay, 4);
   }];
