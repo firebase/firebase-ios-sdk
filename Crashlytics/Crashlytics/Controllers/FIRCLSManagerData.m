@@ -29,7 +29,8 @@
                           analytics:(nullable id<FIRAnalyticsInterop>)analytics
                         fileManager:(FIRCLSFileManager *)fileManager
                         dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter
-                           settings:(FIRCLSSettings *)settings {
+                           settings:(FIRCLSSettings *)settings
+                      onDemandModel:(FIRCLSOnDemandModel *)onDemandModel {
   self = [super init];
   if (!self) {
     return nil;
@@ -42,14 +43,11 @@
   _fileManager = fileManager;
   _dataArbiter = dataArbiter;
   _settings = settings;
+  _onDemandModel = onDemandModel;
 
   _appIDModel = [[FIRCLSApplicationIdentifierModel alloc] init];
   _installIDModel = [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:installations];
   _executionIDModel = [[FIRCLSExecutionIdentifierModel alloc] init];
-  _onDemandModel =
-      [[FIRCLSOnDemandModel alloc] initWithOnDemandUploadRate:settings.onDemandUploadRate
-                                                         base:settings.onDemandBackoffBase
-                                                 stepDuration:settings.onDemandBackoffStepDuration];
 
   NSString *sdkBundleID = FIRCLSApplicationGetSDKBundleID();
   _operationQueue = [NSOperationQueue new];

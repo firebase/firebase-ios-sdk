@@ -31,15 +31,19 @@
              withDataCollectionEnabled:(BOOL)dataCollectionEnabled
             usingExistingReportManager:(FIRCLSExistingReportManager *)existingReportManager;
 
-- (int)incrementQueuedOperationCount:(int)increment;
+// Public for testing
 - (int)getQueuedOperationsCount;
-- (int)getOrIncrementOnDemandEventCountForCurrentRun:(BOOL)increment;
-- (int)getOrIncrementDroppedOnDemandEventCountForCurrentRun:(BOOL)increment;
+- (void)setQueuedOperationsCount:(int)count;
 
 // When data collection is off, stores active paths that have been recorded but not dispatched for
 // upload. Kept sorted (newest at front) so that we can limit on-device reports to the newest
 // `FIRCLSMaxUnsentReports` reports.
 @property(nonatomic, strong) NSMutableArray *storedActiveReportPaths;
+
+@property(nonatomic, readonly) int recordedOnDemandExceptionCount;
+@property(nonatomic, readonly) int droppedOnDemandExceptionCount;
+@property(nonatomic, readonly) int queuedOperationsCount;
+@property(nonatomic, strong) NSOperationQueue *operationQueue;
 
 @end
 

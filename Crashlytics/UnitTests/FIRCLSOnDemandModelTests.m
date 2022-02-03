@@ -59,6 +59,10 @@
 
   self.fileManager = [[FIRCLSTempMockFileManager alloc] init];
 
+  _onDemandModel = [[FIRCLSMockOnDemandModel alloc] initWithOnDemandUploadRate:15
+                                                                          base:5
+                                                                  stepDuration:10];
+
   FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_token"];
 
   FIRMockGDTCORTransport *mockGoogleTransport =
@@ -73,7 +77,8 @@
                                                       analytics:nil
                                                     fileManager:self.fileManager
                                                     dataArbiter:self.dataArbiter
-                                                       settings:self.mockSettings];
+                                                       settings:self.mockSettings
+                                                  onDemandModel:_onDemandModel];
   _mockReportUploader = [[FIRCLSMockReportUploader alloc] initWithManagerData:self.managerData];
   _existingReportManager =
       [[FIRCLSExistingReportManager alloc] initWithManagerData:self.managerData
@@ -81,9 +86,6 @@
   [self.fileManager createReportDirectories];
   [self.fileManager
       setupNewPathForExecutionIdentifier:self.managerData.executionIDModel.executionID];
-  _onDemandModel = [[FIRCLSMockOnDemandModel alloc] initWithOnDemandUploadRate:15
-                                                                          base:5
-                                                                  stepDuration:10];
 
   NSString *name = @"exception_model_report";
   NSString *reportPath = [self.fileManager.rootPath stringByAppendingPathComponent:name];
@@ -106,10 +108,9 @@
   BOOL success = [self.onDemandModel recordOnDemandExceptionIfQuota:exceptionModel
                                           withDataCollectionEnabled:YES
                                          usingExistingReportManager:self.existingReportManager];
-  [self.onDemandModel setQueueToEmpty];
   // Should record but not submit a report.
   XCTAssertTrue(success);
-  XCTAssertEqual([self.onDemandModel getOrIncrementOnDemandEventCountForCurrentRun:NO], 1);
+  XCTAssertEqual([self.onDemandModel recordedOnDemandExceptionCount], 1);
   XCTAssertEqual(self.onDemandModel.getQueuedOperationsCount, 1);
 }
 
@@ -122,7 +123,7 @@
   // Should record but not submit a report.
   XCTAssertTrue(success);
   // We still count this as an occurred event if it was recorded.
-  XCTAssertEqual([self.onDemandModel getOrIncrementOnDemandEventCountForCurrentRun:NO], 1);
+  XCTAssertEqual([self.onDemandModel recordedOnDemandExceptionCount], 1);
   XCTAssertEqual([self contentsOfActivePath].count, 2);
   XCTAssertEqual(self.onDemandModel.getQueuedOperationsCount, 1);
   XCTAssertEqual([self.onDemandModel.storedActiveReportPaths count], 1);
@@ -145,12 +146,13 @@
   // Once we've finished processing, there should be only FIRCLSMaxUnsentReports recorded with the
   // rest considered dropped. The recorded events should be stored in storedActiveReportPaths which
   // is kept in sync with the contents of the active path.
-  sleep(60);  // wait for the queue to empty
-  XCTAssertEqual([self.managerData.onDemandModel getOrIncrementOnDemandEventCountForCurrentRun:NO],
+  [self.managerData.onDemandModel.operationQueue waitUntilAllOperationsAreFinished];
+
+  // wait for the queue to empty
+  XCTAssertEqual([self.managerData.onDemandModel recordedOnDemandExceptionCount],
                  FIRCLSMaxUnsentReports);
-  XCTAssertEqual(
-      [self.managerData.onDemandModel getOrIncrementDroppedOnDemandEventCountForCurrentRun:NO],
-      10 - FIRCLSMaxUnsentReports);
+  XCTAssertEqual([self.managerData.onDemandModel droppedOnDemandExceptionCount],
+                 10 - FIRCLSMaxUnsentReports);
   XCTAssertEqual([self contentsOfActivePath].count, FIRCLSMaxUnsentReports + 1);
   XCTAssertEqual([self.managerData.onDemandModel.storedActiveReportPaths count],
                  FIRCLSMaxUnsentReports);
@@ -158,11 +160,10 @@
   // Once we call sendUnsentReports, stored reports should be sent immediately.
   [self.existingReportManager sendUnsentReportsWithToken:[FIRCLSDataCollectionToken validToken]
                                                 asUrgent:YES];
-  XCTAssertEqual([self.managerData.onDemandModel getOrIncrementOnDemandEventCountForCurrentRun:NO],
+  XCTAssertEqual([self.managerData.onDemandModel recordedOnDemandExceptionCount],
                  FIRCLSMaxUnsentReports);
-  XCTAssertEqual(
-      [self.managerData.onDemandModel getOrIncrementDroppedOnDemandEventCountForCurrentRun:NO],
-      10 - FIRCLSMaxUnsentReports);
+  XCTAssertEqual([self.managerData.onDemandModel droppedOnDemandExceptionCount],
+                 10 - FIRCLSMaxUnsentReports);
   XCTAssertEqual([self contentsOfActivePath].count, 1);
   XCTAssertEqual([self.managerData.onDemandModel.storedActiveReportPaths count], 0);
 }
@@ -178,7 +179,7 @@
   // events.
   XCTAssertFalse(success);
   XCTAssertEqual(self.onDemandModel.getQueuedOperationsCount, [self.onDemandModel getQueueMax]);
-  XCTAssertEqual([self.onDemandModel getOrIncrementDroppedOnDemandEventCountForCurrentRun:NO], 1);
+  XCTAssertEqual([self.onDemandModel droppedOnDemandExceptionCount], 1);
 }
 
 #pragma mark - Helpers

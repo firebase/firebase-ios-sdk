@@ -47,7 +47,8 @@ NS_ASSUME_NONNULL_BEGIN
                           analytics:(nullable id<FIRAnalyticsInterop>)analytics
                         fileManager:(FIRCLSFileManager *)fileManager
                         dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter
-                           settings:(FIRCLSSettings *)settings NS_DESIGNATED_INITIALIZER;
+                           settings:(FIRCLSSettings *)settings
+                      onDemandModel:(FIRCLSOnDemandModel *)onDemandModel NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;

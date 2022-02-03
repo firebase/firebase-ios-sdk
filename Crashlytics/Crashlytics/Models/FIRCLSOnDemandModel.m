@@ -29,13 +29,14 @@
 
 @property(nonatomic, readonly) int recordedOnDemandExceptionCount;
 @property(nonatomic, readonly) int droppedOnDemandExceptionCount;
+@property(nonatomic, readonly) int queuedOperationsCount;
 
 @property(nonatomic, readonly) uint32_t uploadRate;
 @property(nonatomic, readonly) double base;
 @property(nonatomic, readonly) uint32_t stepDuration;
 
+@property(nonatomic, strong) NSOperationQueue *operationQueue;
 @property(nonatomic, strong) dispatch_queue_t dispatchQueue;
-@property(nonatomic) int queuedOperationsCount;
 
 @property(nonatomic) double lastUpdated;
 @property(nonatomic) double currentStep;
@@ -46,6 +47,10 @@
 @end
 
 @implementation FIRCLSOnDemandModel
+
+@synthesize recordedOnDemandExceptionCount = _recordedOnDemandExceptionCount;
+@synthesize droppedOnDemandExceptionCount = _droppedOnDemandExceptionCount;
+@synthesize queuedOperationsCount = _queuedOperationsCount;
 
 static const double MAX_DELAY_SEC = 3600;
 static const double SEC_PER_MINUTE = 60;
@@ -62,7 +67,13 @@ static const double SEC_PER_MINUTE = 60;
   _base = base;
   _stepDuration = stepDuration;
 
+  NSString *sdkBundleID = FIRCLSApplicationGetSDKBundleID();
+  _operationQueue = [NSOperationQueue new];
+  [_operationQueue setMaxConcurrentOperationCount:1];
+  [_operationQueue setName:[sdkBundleID stringByAppendingString:@".on-demand-queue"]];
   _dispatchQueue = dispatch_queue_create("com.google.firebase.crashlytics.on.demand", 0);
+  _operationQueue.underlyingQueue = _dispatchQueue;
+
   _queuedOperationsCount = 0;
 
   _recordedOnDemandExceptionCount = 0;
@@ -89,7 +100,7 @@ static const double SEC_PER_MINUTE = 60;
   @synchronized(self) {
     if ([self isQueueFull]) {
       FIRCLSDebugLog(@"No available on-demand quota, dropping report");
-      [self getOrIncrementDroppedOnDemandEventCountForCurrentRun:YES];
+      [self incrementDroppedExceptionCount];
       return NO;  // Didn't record or submit the exception because no quota was available.
     }
 
@@ -105,36 +116,32 @@ static const double SEC_PER_MINUTE = 60;
 
     // Only submit an exception report if data collection is enabled. Otherwise, the report
     // is stored until send or delete unsent reports is called.
-    [self incrementQueuedOperationCount:1];
-    [self getOrIncrementOnDemandEventCountForCurrentRun:YES];
-    dispatch_async(self.dispatchQueue, ^{
+    [self incrementQueuedOperationCount];
+    [self incrementRecordedExceptionCount];
+    [self.operationQueue addOperationWithBlock:^{
+      double uploadDelay = [self calculateUploadDelay];
+
       if (dataCollectionEnabled) {
         [existingReportManager handleOnDemandReportUpload:activeReportPath
                                       dataCollectionToken:dataCollectionToken
                                                  asUrgent:YES];
+        FIRCLSDebugLog(@"Submitted an on-demand exception, starting delay %.20f", uploadDelay);
       } else {
         [self.storedActiveReportPaths insertObject:activeReportPath atIndex:0];
         if ([self.storedActiveReportPaths count] > FIRCLSMaxUnsentReports) {
           [self.fileManager removeItemAtPath:[self.storedActiveReportPaths lastObject] error:nil];
           [self.storedActiveReportPaths removeLastObject];
-          self->_recordedOnDemandExceptionCount -= 1;
-          self->_droppedOnDemandExceptionCount += 1;
+          [self decrementRecordedExceptionCount];
+          [self incrementDroppedExceptionCount];
         }
-      }
-      double uploadDelay = [self calculateUploadDelay];
-      if (dataCollectionEnabled) {
-        FIRCLSDebugLog(@"Submitted an on-demand exception, starting delay %.20f", uploadDelay);
-      } else {
         FIRCLSDebugLog(@"Stored an on-demand exception, starting delay %.20f", uploadDelay);
       }
-      sleep(uploadDelay);
-      [self incrementQueuedOperationCount:-1];
-    });
+      [self implementOnDemandUploadDelay:uploadDelay];
+      [self decrementQueuedOperationCount];
+    }];
     return YES;  // Recorded and submitted the exception.
   }
 }
-
-// Helper methods
 
 - (double)calculateUploadDelay {
   double calculatedStepDuration = [self calculateStepDuration];
@@ -168,42 +175,84 @@ static const double SEC_PER_MINUTE = 60;
   return calculatedDuration;
 }
 
-- (int)getOrIncrementOnDemandEventCountForCurrentRun:(BOOL)increment {
+- (void)implementOnDemandUploadDelay:(int)delay {
+  sleep(delay);
+}
+
+- (int)droppedOnDemandExceptionCount {
   @synchronized(self) {
-    if (increment) {
-      _recordedOnDemandExceptionCount += 1;
-    }
-    return self.recordedOnDemandExceptionCount;
+    return _droppedOnDemandExceptionCount;
   }
 }
 
-- (int)getOrIncrementDroppedOnDemandEventCountForCurrentRun:(BOOL)increment {
+- (void)setDroppedOnDemandExceptionCount:(int)count {
   @synchronized(self) {
-    if (increment) {
-      _droppedOnDemandExceptionCount += 1;
-    }
-    return self.droppedOnDemandExceptionCount;
+    _droppedOnDemandExceptionCount = count;
   }
 }
 
-- (int)incrementQueuedOperationCount:(int)increment {
+- (void)incrementDroppedExceptionCount {
   @synchronized(self) {
-    _queuedOperationsCount += increment;
-    return self.queuedOperationsCount;
+    [self setDroppedOnDemandExceptionCount:[self droppedOnDemandExceptionCount] + 1];
+  }
+}
+
+- (void)decrementDroppedExceptionCount {
+  @synchronized(self) {
+    [self setDroppedOnDemandExceptionCount:[self droppedOnDemandExceptionCount] - 1];
+  }
+}
+
+- (int)recordedOnDemandExceptionCount {
+  @synchronized(self) {
+    return _recordedOnDemandExceptionCount;
+  }
+}
+
+- (void)setRecordedOnDemandExceptionCount:(int)count {
+  @synchronized(self) {
+    _recordedOnDemandExceptionCount = count;
+  }
+}
+
+- (void)incrementRecordedExceptionCount {
+  @synchronized(self) {
+    [self setRecordedOnDemandExceptionCount:[self recordedOnDemandExceptionCount] + 1];
+  }
+}
+
+- (void)decrementRecordedExceptionCount {
+  @synchronized(self) {
+    [self setRecordedOnDemandExceptionCount:[self recordedOnDemandExceptionCount] - 1];
   }
 }
 
 - (int)getQueuedOperationsCount {
-  return [self incrementQueuedOperationCount:0];
+  @synchronized(self) {
+    return _queuedOperationsCount;
+  }
 }
 
-- (void)setQueuedOperationsCount:(int)queuedOperations {
-  [self incrementQueuedOperationCount:queuedOperations];
+- (void)setQueuedOperationsCount:(int)count {
+  @synchronized(self) {
+    _queuedOperationsCount = count;
+  }
+}
+
+- (void)incrementQueuedOperationCount {
+  @synchronized(self) {
+    [self setQueuedOperationsCount:[self getQueuedOperationsCount] + 1];
+  }
+}
+
+- (void)decrementQueuedOperationCount {
+  @synchronized(self) {
+    [self setQueuedOperationsCount:[self getQueuedOperationsCount] - 1];
+  }
 }
 
 - (BOOL)isQueueFull {
-  return [self incrementQueuedOperationCount:0] >= self.uploadRate;
-  ;
+  return ([self getQueuedOperationsCount] >= self.uploadRate);
 }
 
 @end

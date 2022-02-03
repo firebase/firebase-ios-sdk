@@ -31,15 +31,18 @@
   return self;
 }
 - (void)setQueueToFull {
-  [self incrementQueuedOperationCount:self.uploadRate];
+  [self setQueuedOperationsCount:self.uploadRate];
 }
 
 - (void)setQueueToEmpty {
-  [self incrementQueuedOperationCount:0];
+  [self setQueuedOperationsCount:0];
 }
 
 - (int)getQueueMax {
   return self.uploadRate;
+}
+
+- (void)implementOnDemandUploadDelay:(int)delay {
 }
 
 @end
