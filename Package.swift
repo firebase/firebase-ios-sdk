@@ -691,6 +691,7 @@ let package = Package(
       name: "FirebaseFunctionsSwift",
       dependencies: [
         "FirebaseCore",
+        "FirebaseCoreInternal",
         "FirebaseSharedSwift",
         .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
       ],
@@ -1184,6 +1185,34 @@ let package = Package(
         .headerSearchPath("../.."),
       ]
     ),
+
+    // MARK: GoogleUtilitiesComponents
+
+      .target(
+        name: "GoogleUtilitiesComponents",
+        dependencies: [
+//          .product(name: "GULEnvironment", package: "GoogleUtilities"),
+          .product(name: "GULLogger", package: "GoogleUtilities"),
+        ],
+        path: "GoogleUtilitiesComponents/Sources",
+        publicHeadersPath: "Public",
+        cSettings: [
+          .headerSearchPath("../.."),
+        ],
+        linkerSettings: [
+//          .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
+//          .linkedFramework("AppKit", .when(platforms: [.macOS])),
+        ]
+      ),
+      .testTarget(
+        name: "GoogleUtilitiesComponentsUnit",
+        dependencies: ["GoogleUtilitiesComponents", "OCMock"],
+        path: "GoogleUtilitiesComponents/Tests",
+        cSettings: [
+          .headerSearchPath("../.."),
+        ]
+      ),
+
 
     // MARK: Testing support
 
