@@ -114,6 +114,18 @@ TYPED_TEST(DocumentOverlayCacheTest, CanReadSavedOverlays) {
   EXPECT_EQ(mutation3, overlay_opt3.value().get().mutation());
 }
 
+TYPED_TEST(DocumentOverlayCacheTest, SavingOverlayOverwrites) {
+  Mutation mutation1 = PatchMutation("coll/doc1", Map("foo", "bar"));
+  Mutation mutation2 = SetMutation("coll/doc1", Map("foo", "set", "bar", 42));
+  this->SaveOverlays(2, {mutation1});
+  this->SaveOverlays(2, {mutation2});
+
+  auto overlay_opt = this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1"));
+
+  ASSERT_TRUE(overlay_opt);
+  EXPECT_EQ(mutation2, overlay_opt.value().get().mutation());
+}
+
 }  // namespace
 }  // namespace local
 }  // namespace firestore

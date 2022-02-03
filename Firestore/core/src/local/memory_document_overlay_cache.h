@@ -39,12 +39,13 @@ class MemoryDocumentOverlayCache final : public DocumentOverlayCache {
   OverlayByDocumentKeyMap GetOverlays(absl::string_view collection_group, int since_batch_id, int count) const override;
 
  private:
-  using DocumentKeysByBatchIdMap = std::unordered_map<int, std::unordered_set<model::DocumentKey, model::DocumentKeyHash>>;
+  using DocumentKeySet = std::unordered_set<model::DocumentKey, model::DocumentKeyHash>;
+  using DocumentKeysByBatchIdMap = std::unordered_map<int, DocumentKeySet>;
 
   void SaveOverlay(int largest_batch_id, model::Mutation&& mutation);
 
-  OverlayByDocumentKeyMap overlay_by_document_key_;
-  DocumentKeysByBatchIdMap document_keys_by_batch_id_;
+  OverlayByDocumentKeyMap overlays_;
+  DocumentKeysByBatchIdMap overlay_by_batch_id_;
 };
 
 }  // namespace local

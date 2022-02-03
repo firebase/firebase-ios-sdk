@@ -27,8 +27,8 @@ using model::Mutation;
 using model::mutation::Overlay;
 
 absl::optional<std::reference_wrapper<const Overlay>> MemoryDocumentOverlayCache::GetOverlay(const DocumentKey& key) const {
-  auto overlay_iter = overlay_by_document_key_.find(key);
-  if (overlay_iter == overlay_by_document_key_.end()) {
+  const auto overlay_iter = overlays_.find(key);
+  if (overlay_iter == overlays_.end()) {
     return absl::nullopt;
   } else {
     return std::cref(overlay_iter->second);
@@ -39,19 +39,20 @@ void MemoryDocumentOverlayCache::SaveOverlay(int largest_batch_id, Mutation&& mu
   const DocumentKey key = mutation.key();
 
   {
-    auto existing_overlay_iter = overlay_by_document_key_.find(key);
-    if (existing_overlay_iter != overlay_by_document_key_.end()) {
-      int existing_overlay_largest_batch_id = existing_overlay_iter->second.largest_batch_id();
-      auto document_keys_iter = document_keys_by_batch_id_.find(existing_overlay_largest_batch_id);
-      HARD_ASSERT(document_keys_iter != document_keys_by_batch_id_.end());
-      auto& document_keys_for_existing_overlay_largest_batch_id = document_keys_iter->second;
-      document_keys_for_existing_overlay_largest_batch_id.erase(key);
+    const auto overlays_iter = overlays_.find(key);
+    if (overlays_iter != overlays_.end()) {
+      const Overlay& existing = overlays_iter->second;
+      auto overlay_by_batch_id_iter = overlay_by_batch_id_.find(existing.largest_batch_id());
+      HARD_ASSERT(overlay_by_batch_id_iter != overlay_by_batch_id_.end());
+      DocumentKeySet& existing_keys = overlay_by_batch_id_iter->second;
+      existing_keys.erase(key);
+      overlays_.erase(overlays_iter);
     }
   }
 
-  overlay_by_document_key_.insert({key, Overlay(largest_batch_id, std::move(mutation))});
+  overlays_.insert({key, Overlay(largest_batch_id, std::move(mutation))});
 
-  document_keys_by_batch_id_[largest_batch_id].emplace(key);
+  overlay_by_batch_id_[largest_batch_id].insert(key);
 }
 
 void MemoryDocumentOverlayCache::SaveOverlays(int largest_batch_id, MutationByDocumentKeyMap&& overlays) {
