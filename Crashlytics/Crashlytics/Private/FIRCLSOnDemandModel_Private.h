@@ -30,7 +30,6 @@
              withDataCollectionEnabled:(BOOL)dataCollectionEnabled
             usingExistingReportManager:(FIRCLSExistingReportManager *)existingReportManager;
 
-// Public for testing
 - (int)getQueuedOperationsCount;
 - (void)setQueuedOperationsCount:(int)count;
 
@@ -42,6 +41,7 @@
 @property(nonatomic, readonly) int recordedOnDemandExceptionCount;
 @property(nonatomic, readonly) int droppedOnDemandExceptionCount;
 @property(nonatomic, readonly) int queuedOperationsCount;
+
 @property(nonatomic, strong) NSOperationQueue *operationQueue;
 
 @end

@@ -59,19 +59,17 @@
 
   self.fileManager = [[FIRCLSTempMockFileManager alloc] init];
 
-  _onDemandModel = [[FIRCLSMockOnDemandModel alloc] initWithOnDemandUploadRate:15
-                                                                          base:5
-                                                                  stepDuration:10
-                                                                    sleepBlock:^(int delay){
-                                                                    }];
+  FIRCLSApplicationIdentifierModel *appIDModel = [[FIRCLSApplicationIdentifierModel alloc] init];
+  _mockSettings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
+                                                       appIDModel:appIDModel];
+  _onDemandModel = [[FIRCLSMockOnDemandModel alloc] initWithFIRCLSSettings:_mockSettings
+                                                                sleepBlock:^(int delay){
+                                                                }];
 
   FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_token"];
 
   FIRMockGDTCORTransport *mockGoogleTransport =
       [[FIRMockGDTCORTransport alloc] initWithMappingID:@"id" transformers:nil target:0];
-  FIRCLSApplicationIdentifierModel *appIDModel = [[FIRCLSApplicationIdentifierModel alloc] init];
-  _mockSettings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
-                                                       appIDModel:appIDModel];
 
   _managerData = [[FIRCLSManagerData alloc] initWithGoogleAppID:TEST_GOOGLE_APP_ID
                                                 googleTransport:mockGoogleTransport
@@ -117,7 +115,7 @@
   // Put an expectation in the sleep block so we can test the state of the queue.
   __weak FIRCLSOnDemandModelTests *weakSelf = self;
   [self setSleepBlock:^(int delay) {
-    XCTAssertEqual(delay, 4);
+    XCTAssertEqual(delay, 60 / self.mockSettings.onDemandUploadRate);
     [weakSelf waitForExpectations:@[ testComplete ] timeout:1.0];
   }];
 
@@ -141,7 +139,7 @@
   // Put an expectation in the sleep block so we can test the state of the queue.
   __weak FIRCLSOnDemandModelTests *weakSelf = self;
   [self setSleepBlock:^(int delay) {
-    XCTAssertEqual(delay, 4);
+    XCTAssertEqual(delay, 60 / self.mockSettings.onDemandUploadRate);
     [weakSelf waitForExpectations:@[ testComplete ] timeout:1.0];
   }];
 
@@ -166,7 +164,7 @@
 
   // Assert we're getting the right delay for the calls.
   [self setSleepBlock:^(int delay) {
-    XCTAssertEqual(delay, 4);
+    XCTAssertEqual(delay, 60 / self.mockSettings.onDemandUploadRate);
   }];
 
   for (int i = 0; i < 10; i++) {

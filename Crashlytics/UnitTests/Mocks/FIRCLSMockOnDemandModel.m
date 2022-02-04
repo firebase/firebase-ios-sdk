@@ -16,26 +16,24 @@
 
 @interface FIRCLSMockOnDemandModel ()
 
-@property(nonatomic, readonly) uint32_t uploadRate;
+@property(nonatomic, readonly) FIRCLSSettings *settings;
 
 @end
 
 @implementation FIRCLSMockOnDemandModel
 
-- (instancetype)initWithOnDemandUploadRate:(int)uploadRate
-                                      base:(double)base
-                              stepDuration:(int)stepDuration
-                                sleepBlock:(void (^)(int))sleepBlock {
-  self = [super initWithOnDemandUploadRate:uploadRate base:base stepDuration:stepDuration];
+- (instancetype)initWithFIRCLSSettings:(FIRCLSSettings *)settings
+                            sleepBlock:(void (^)(int))sleepBlock {
+  self = [super initWithFIRCLSSettings:settings];
   if (!self) {
     return nil;
   }
-  _uploadRate = uploadRate;
+  _settings = settings;
   _sleepBlock = sleepBlock;
   return self;
 }
 - (void)setQueueToFull {
-  [self setQueuedOperationsCount:self.uploadRate];
+  [self setQueuedOperationsCount:self.settings.onDemandUploadRate];
 }
 
 - (void)setQueueToEmpty {
@@ -43,7 +41,7 @@
 }
 
 - (int)getQueueMax {
-  return self.uploadRate;
+  return self.settings.onDemandUploadRate;
 }
 
 - (void)implementOnDemandUploadDelay:(int)delay {

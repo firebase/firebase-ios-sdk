@@ -17,10 +17,8 @@
 
 @interface FIRCLSMockOnDemandModel : FIRCLSOnDemandModel
 
-- (instancetype)initWithOnDemandUploadRate:(int)uploadRate
-                                      base:(double)base
-                              stepDuration:(int)stepDuration
-                                sleepBlock:(void (^)(int))sleepBlock;
+- (instancetype)initWithFIRCLSSettings:(FIRCLSSettings *)settings
+                            sleepBlock:(void (^)(int))sleepBlock;
 
 // Public for testing purposes
 - (void)setQueueToFull;
