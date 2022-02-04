@@ -40,11 +40,17 @@ inline bool operator!=(const Overlay& lhs, const Overlay& rhs) {
 
 std::ostream& operator<<(std::ostream&, const Overlay&);
 
+/**
+ * Representation of an overlay computed by Firestore.
+ *
+ * Holds information about a mutation and the largest batch id in Firestore when
+ * the mutation was created.
+ */
 class Overlay {
  public:
   Overlay() = default;
 
-  Overlay(int largest_batch_id, Mutation mutation) : largest_batch_id_(largest_batch_id), mutation_(std::move(mutation)) {
+  Overlay(int largest_batch_id, const Mutation& mutation) : largest_batch_id_(largest_batch_id), mutation_(mutation) {
   }
 
   bool is_valid() const {
@@ -55,12 +61,12 @@ class Overlay {
     return largest_batch_id_;
   }
 
-  const Mutation& mutation() const {
+  Mutation mutation() const {
     return mutation_;
   }
 
-  const DocumentKey& key() const {
-    return mutation().key();
+  DocumentKey key() const {
+    return mutation_.key();
   }
 
   std::size_t Hash() const;
