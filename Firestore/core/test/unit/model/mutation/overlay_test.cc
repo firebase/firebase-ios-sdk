@@ -186,16 +186,6 @@ TEST(OverlayTest, mutation_ConstRefQualified) {
   EXPECT_EQ(overlay_xyz.mutation(), SampleMutation("col/xyz"));
 }
 
-TEST(OverlayTest, mutation_RvalueRefQualified) {
-  Overlay overlay(SAMPLE_BATCH_ID, SampleMutation());
-
-  Mutation&& mutation_rvalue_ref = std::move(overlay).mutation();
-
-  Mutation mutation_move_dest(std::move(mutation_rvalue_ref));
-  EXPECT_EQ(mutation_move_dest, SampleMutation());
-  EXPECT_FALSE(overlay.is_valid());
-}
-
 TEST(OverlayTest, key) {
   const Overlay overlay(SAMPLE_BATCH_ID, SampleMutation());
 
