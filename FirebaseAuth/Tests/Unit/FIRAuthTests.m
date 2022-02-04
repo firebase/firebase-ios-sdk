@@ -26,7 +26,7 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRFacebookAuthProvider.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRGoogleAuthProvider.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIROAuthProvider.h"
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthDispatcher.h"

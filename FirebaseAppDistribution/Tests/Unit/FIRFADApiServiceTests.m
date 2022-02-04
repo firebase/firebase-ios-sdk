@@ -18,7 +18,7 @@
 
 #import "FirebaseAppDistribution/Sources/FIRFADApiService.h"
 #import "FirebaseAppDistribution/Sources/FIRFADLogger.h"
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
 NSString *const kFakeErrorDomain = @"test.failure.domain";

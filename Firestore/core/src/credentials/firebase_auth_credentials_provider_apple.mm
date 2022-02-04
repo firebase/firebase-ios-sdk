@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/credentials/firebase_auth_credentials_provider_apple.h"
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #include "Firestore/core/src/util/error_apple.h"

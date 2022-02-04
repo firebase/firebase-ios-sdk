@@ -15,7 +15,7 @@
  */
 
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 #import "FirebaseDatabase/Sources/Constants/FConstants.h"
 #import "FirebaseDatabase/Sources/Utilities/FAtomicNumber.h"
 #import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"

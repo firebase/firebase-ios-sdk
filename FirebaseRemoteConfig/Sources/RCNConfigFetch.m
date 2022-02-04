@@ -17,7 +17,7 @@
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 
 #import <GoogleUtilities/GULNSData+zlib.h>
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"

@@ -18,7 +18,7 @@
 #if TARGET_OS_IOS || TARGET_OS_TV
 
 #import <UIKit/UIKit.h>
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 
 #import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
 #import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageContentData.h"

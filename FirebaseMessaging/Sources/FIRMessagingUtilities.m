@@ -18,7 +18,7 @@
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULUserDefaults.h>
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 
 static const uint64_t kBytesToMegabytesDivisor = 1024 * 1024LL;

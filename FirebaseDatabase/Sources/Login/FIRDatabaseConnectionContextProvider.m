@@ -16,7 +16,7 @@
 
 #import "FirebaseDatabase/Sources/Login/FIRDatabaseConnectionContextProvider.h"
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 
 #import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
 #import "FirebaseAppCheck/Sources/Interop/FIRAppCheckTokenResultInterop.h"

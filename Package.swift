@@ -237,6 +237,15 @@ let package = Package(
         .headerSearchPath("../../.."),
       ]
     ),
+    // Interal headers only for consuming from Swift.
+    .target(
+      name: "FirebaseCoreInternal",
+      path: "FirebaseCore/Internal",
+      publicHeadersPath: ".",
+      cSettings: [
+        .headerSearchPath("../../"),
+      ]
+    ),
     .target(
       name: "FirebaseCoreDiagnostics",
       dependencies: [
@@ -691,6 +700,7 @@ let package = Package(
       name: "FirebaseFunctionsSwift",
       dependencies: [
         "FirebaseCore",
+        "FirebaseCoreInternal",
         "FirebaseSharedSwift",
         .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
       ],

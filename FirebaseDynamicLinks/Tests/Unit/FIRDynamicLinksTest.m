@@ -21,7 +21,7 @@
 
 #import <GoogleUtilities/GULSwizzler+Unswizzle.h>
 #import <OCMock/OCMock.h>
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 #import "FirebaseDynamicLinks/Sources/FIRDLDefaultRetrievalProcessV2.h"
 #import "FirebaseDynamicLinks/Sources/FIRDLRetrievalProcessFactory.h"
 #import "FirebaseDynamicLinks/Sources/FIRDLRetrievalProcessResult+Private.h"
