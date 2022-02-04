@@ -18,14 +18,17 @@
 #include <type_traits>
 
 #include "absl/memory/memory.h"
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
+#include "Firestore/core/src/immutable/sorted_map.h"
 #include "Firestore/core/src/local/document_overlay_cache.h"
 #include "Firestore/core/src/local/memory_document_overlay_cache.h"
 #include <Firestore/core/src/model/document_key.h>
 #include <Firestore/core/src/model/mutation.h>
 #include "Firestore/core/src/model/delete_mutation.h"
 #include "Firestore/core/src/model/patch_mutation.h"
+#include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/set_mutation.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 
@@ -34,9 +37,11 @@ namespace firestore {
 namespace local {
 namespace {
 
+using ::testing::UnorderedElementsAreArray;
 using local::DocumentOverlayCache;
 using model::DocumentKey;
 using model::Mutation;
+using model::ResourcePath;
 using testutil::Map;
 using testutil::DeleteMutation;
 using testutil::PatchMutation;
@@ -82,6 +87,22 @@ class DocumentOverlayCacheTest : public ::testing::Test {
 
 TYPED_TEST_SUITE(DocumentOverlayCacheTest, ::testing::Types<MemoryDocumentOverlayCache>);
 
+void VerifyOverlayContains(const DocumentOverlayCache::OverlayByDocumentKeyMap& overlays, const std::unordered_set<std::string>& keys) {
+  using DocumentKeySet = std::unordered_set<DocumentKey, model::DocumentKeyHash>;
+
+  DocumentKeySet actual_keys;
+  for (const auto& overlays_entry : overlays) {
+    actual_keys.insert(overlays_entry.first);
+  }
+
+  DocumentKeySet expected_keys;
+  for (const auto& key : keys) {
+    expected_keys.insert(DocumentKey::FromPathString(key));
+  }
+
+  EXPECT_THAT(actual_keys, UnorderedElementsAreArray(expected_keys));
+}
+
 TYPED_TEST(DocumentOverlayCacheTest, ReturnsNullWhenOverlayIsNotFound) {
   EXPECT_FALSE(this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1")));
 }
@@ -97,33 +118,33 @@ TYPED_TEST(DocumentOverlayCacheTest, CanReadSavedOverlay) {
 }
 
 TYPED_TEST(DocumentOverlayCacheTest, CanReadSavedOverlays) {
-  Mutation mutation1 = PatchMutation("coll/doc1", Map("foo", "bar"));
-  Mutation mutation2 = SetMutation("coll/doc2", Map("foo", "bar"));
-  Mutation mutation3 = DeleteMutation("coll/doc3");
-  this->SaveOverlays(3, {mutation1, mutation2, mutation3});
+  Mutation m1 = PatchMutation("coll/doc1", Map("foo", "bar"));
+  Mutation m2 = SetMutation("coll/doc2", Map("foo", "bar"));
+  Mutation m3 = DeleteMutation("coll/doc3");
+  this->SaveOverlays(3, {m1, m2, m3});
 
   auto overlay_opt1 = this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1"));
   auto overlay_opt2 = this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc2"));
   auto overlay_opt3 = this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc3"));
 
   ASSERT_TRUE(overlay_opt1);
-  EXPECT_EQ(mutation1, overlay_opt1.value().get().mutation());
+  EXPECT_EQ(m1, overlay_opt1.value().get().mutation());
   ASSERT_TRUE(overlay_opt2);
-  EXPECT_EQ(mutation2, overlay_opt2.value().get().mutation());
+  EXPECT_EQ(m2, overlay_opt2.value().get().mutation());
   ASSERT_TRUE(overlay_opt3);
-  EXPECT_EQ(mutation3, overlay_opt3.value().get().mutation());
+  EXPECT_EQ(m3, overlay_opt3.value().get().mutation());
 }
 
 TYPED_TEST(DocumentOverlayCacheTest, SavingOverlayOverwrites) {
-  Mutation mutation1 = PatchMutation("coll/doc1", Map("foo", "bar"));
-  Mutation mutation2 = SetMutation("coll/doc1", Map("foo", "set", "bar", 42));
-  this->SaveOverlays(2, {mutation1});
-  this->SaveOverlays(2, {mutation2});
+  Mutation m1 = PatchMutation("coll/doc1", Map("foo", "bar"));
+  Mutation m2 = SetMutation("coll/doc1", Map("foo", "set", "bar", 42));
+  this->SaveOverlays(2, {m1});
+  this->SaveOverlays(2, {m2});
 
   auto overlay_opt = this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1"));
 
   ASSERT_TRUE(overlay_opt);
-  EXPECT_EQ(mutation2, overlay_opt.value().get().mutation());
+  EXPECT_EQ(m2, overlay_opt.value().get().mutation());
 }
 
 TYPED_TEST(DocumentOverlayCacheTest, DeleteRepeatedlyWorks) {
@@ -135,6 +156,28 @@ TYPED_TEST(DocumentOverlayCacheTest, DeleteRepeatedlyWorks) {
 
   this->cache_->RemoveOverlaysForBatchId(2);
   EXPECT_FALSE(this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1")));
+}
+
+TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysForCollection) {
+  Mutation m1 = PatchMutation("coll/doc1", Map("foo", "bar"));
+  Mutation m2 = SetMutation("coll/doc2", Map("foo", "bar"));
+  Mutation m3 = DeleteMutation("coll/doc3");
+  // m4 and m5 are not under "coll"
+  Mutation m4 = SetMutation("coll/doc1/sub/sub_doc", Map("foo", "bar"));
+  Mutation m5 = SetMutation("other/doc1", Map("foo", "bar"));
+  this->SaveOverlays(3, {m1, m2, m3, m4, m5});
+
+  const auto overlays = this->cache_->GetOverlays(ResourcePath{"coll"}, -1);
+
+  {
+    SCOPED_TRACE("verify overlay");
+    VerifyOverlayContains(overlays, {"coll/doc1", "coll/doc2", "coll/doc3"});
+  }
+}
+
+TYPED_TEST(DocumentOverlayCacheTest, SortedMatTest) {
+  immutable::SortedMap<DocumentKey, std::string> map;
+  map = map.insert(DocumentKey::FromPathString("abc/def"), "hello");
 }
 
 }  // namespace

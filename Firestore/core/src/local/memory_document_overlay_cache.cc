@@ -75,8 +75,16 @@ void MemoryDocumentOverlayCache::RemoveOverlaysForBatchId(int batch_id) {
 DocumentOverlayCache::OverlayByDocumentKeyMap MemoryDocumentOverlayCache::GetOverlays(const model::ResourcePath& collection, int since_batch_id) const {
   (void)collection;
   (void)since_batch_id;
-  abort();
-  return {};
+  OverlayByDocumentKeyMap result;
+
+  size_t immediate_children_path_length{collection.size() + 1};
+  DocumentKey prefix(collection.Append(""));
+  const auto view = overlays_.lower_bound(prefix);
+
+  (void)immediate_children_path_length;
+  (void)view;
+
+  return result;
 }
 
 DocumentOverlayCache::OverlayByDocumentKeyMap MemoryDocumentOverlayCache::GetOverlays(absl::string_view collection_group, int since_batch_id, int count) const {
