@@ -178,7 +178,7 @@ TEST(OverlayTest, largest_batch_id) {
   EXPECT_EQ(overlay456.largest_batch_id(), 456);
 }
 
-TEST(OverlayTest, mutation_ConstRefQualified) {
+TEST(OverlayTest, mutation) {
   const Overlay overlay_abc(SAMPLE_BATCH_ID, SampleMutation("col/abc"));
   const Overlay overlay_xyz(SAMPLE_BATCH_ID, SampleMutation("col/xyz"));
 
