@@ -133,10 +133,9 @@
     return false;
   }
 
-  // Time stamp information from MetricKit is only available in begin and end time periods. For now,
-  // we rely on the current timestamp to set the event timestamp, since this is likely more accurate
-  // that the 24 hour block we'd otherwise have.
-  NSTimeInterval beginSecondsSince1970 = [[NSDate date] timeIntervalSince1970];
+  // MXDiagnosticPayload have both a timeStampBegin and timeStampEnd. Now that these events are
+  // real-time, both refer to the same time - record both values anyway.
+  NSTimeInterval beginSecondsSince1970 = [diagnosticPayload.timeStampBegin timeIntervalSince1970];
   NSTimeInterval endSecondsSince1970 = [diagnosticPayload.timeStampEnd timeIntervalSince1970];
 
   // Get file path for the active reports directory.
