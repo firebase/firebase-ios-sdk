@@ -18,14 +18,13 @@
 #import <Foundation/Foundation.h>
 
 #import "Crashlytics/Crashlytics/Models/FIRCLSOnDemandModel.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
 #import "Crashlytics/Crashlytics/Private/FIRCLSExistingReportManager_Private.h"
 #import "Crashlytics/Crashlytics/Private/FIRExceptionModel_Private.h"
 
 @interface FIRCLSOnDemandModel (Private)
 
-- (instancetype)initWithOnDemandUploadRate:(int)uploadRate
-                                      base:(double)base
-                              stepDuration:(int)stepDuration;
+- (instancetype)initWithFIRCLSSettings:(FIRCLSSettings *)settings;
 
 - (BOOL)recordOnDemandExceptionIfQuota:(FIRExceptionModel *)exceptionModel
              withDataCollectionEnabled:(BOOL)dataCollectionEnabled

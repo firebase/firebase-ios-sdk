@@ -31,10 +31,7 @@
 @property(nonatomic, readonly) int droppedOnDemandExceptionCount;
 @property(nonatomic, readonly) int queuedOperationsCount;
 
-@property(nonatomic, readonly) uint32_t uploadRate;
-@property(nonatomic, readonly) double base;
-@property(nonatomic, readonly) uint32_t stepDuration;
-
+@property(nonatomic, strong) FIRCLSSettings *settings;
 @property(nonatomic, strong) NSOperationQueue *operationQueue;
 @property(nonatomic, strong) dispatch_queue_t dispatchQueue;
 
@@ -55,17 +52,13 @@
 static const double MAX_DELAY_SEC = 3600;
 static const double SEC_PER_MINUTE = 60;
 
-- (instancetype)initWithOnDemandUploadRate:(int)uploadRate
-                                      base:(double)base
-                              stepDuration:(int)stepDuration {
+- (instancetype)initWithFIRCLSSettings:(FIRCLSSettings *)settings {
   self = [super init];
   if (!self) {
     return nil;
   }
 
-  _uploadRate = uploadRate;
-  _base = base;
-  _stepDuration = stepDuration;
+  _settings = settings;
 
   NSString *sdkBundleID = FIRCLSApplicationGetSDKBundleID();
   _operationQueue = [NSOperationQueue new];
@@ -145,9 +138,9 @@ static const double SEC_PER_MINUTE = 60;
 
 - (double)calculateUploadDelay {
   double calculatedStepDuration = [self calculateStepDuration];
-  double power = pow(self.base, calculatedStepDuration);
+  double power = pow(self.settings.onDemandBackoffBase, calculatedStepDuration);
   NSNumber *calculatedUploadDelay =
-      [NSNumber numberWithDouble:(SEC_PER_MINUTE / self.uploadRate) * power];
+      [NSNumber numberWithDouble:(SEC_PER_MINUTE / self.settings.onDemandUploadRate) * power];
   NSComparisonResult result =
       [[NSNumber numberWithDouble:MAX_DELAY_SEC] compare:calculatedUploadDelay];
   return (result == NSOrderedAscending) ? MAX_DELAY_SEC : [calculatedUploadDelay doubleValue];
@@ -162,7 +155,8 @@ static const double SEC_PER_MINUTE = 60;
     self.lastUpdated = currentTime;
   }
 
-  double delta = (currentTime - self.lastUpdated) / (double)self.stepDuration;
+  double delta =
+      (currentTime - self.lastUpdated) / (double)self.settings.onDemandBackoffStepDuration;
   double queueFullDuration = (self.currentStep + delta) > 100 ? 100 : (self.currentStep + delta);
   double queueNotFullDuration = (self.currentStep - delta) < 0 ? 0 : (self.currentStep - delta);
   double calculatedDuration = queueIsFull ? queueFullDuration : queueNotFullDuration;
@@ -252,7 +246,7 @@ static const double SEC_PER_MINUTE = 60;
 }
 
 - (BOOL)isQueueFull {
-  return ([self getQueuedOperationsCount] >= self.uploadRate);
+  return ([self getQueuedOperationsCount] >= self.settings.onDemandUploadRate);
 }
 
 @end
