@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <map>
 
 #include "Firestore/core/src/local/memory_document_overlay_cache.h"
 
@@ -23,6 +24,7 @@ namespace firestore {
 namespace local {
 
 using model::DocumentKey;
+using model::DocumentKeyHash;
 using model::Mutation;
 using model::mutation::Overlay;
 
@@ -44,11 +46,10 @@ void MemoryDocumentOverlayCache::SaveOverlay(int largest_batch_id, const Mutatio
       HARD_ASSERT(overlay_by_batch_id_iter != overlay_by_batch_id_.end());
       DocumentKeySet& existing_keys = overlay_by_batch_id_iter->second;
       existing_keys.erase(mutation.key());
-      overlays_.erase(overlays_iter);
     }
   }
 
-  overlays_.insert({mutation.key(), Overlay(largest_batch_id, mutation)});
+  overlays_ = overlays_.insert(mutation.key(), Overlay(largest_batch_id, mutation));
 
   overlay_by_batch_id_[largest_batch_id].insert(mutation.key());
 }
@@ -64,35 +65,66 @@ void MemoryDocumentOverlayCache::RemoveOverlaysForBatchId(int batch_id) {
   if (overlay_by_batch_id_iter != overlay_by_batch_id_.end()) {
     const DocumentKeySet& keys = overlay_by_batch_id_iter->second;
     for (const auto& key : keys) {
-      overlays_.erase(key);
+      overlays_ = overlays_.erase(key);
     }
     overlay_by_batch_id_.erase(overlay_by_batch_id_iter);
   }
 }
 
 DocumentOverlayCache::OverlayByDocumentKeyMap MemoryDocumentOverlayCache::GetOverlays(const model::ResourcePath& collection, int since_batch_id) const {
-  (void)collection;
-  (void)since_batch_id;
   OverlayByDocumentKeyMap result;
 
   size_t immediate_children_path_length{collection.size() + 1};
   DocumentKey prefix(collection.Append(""));
-  const auto view = overlays_.lower_bound(prefix);
+  auto view = overlays_.lower_bound(prefix);
 
-  (void)immediate_children_path_length;
-  (void)view;
+  while (view != overlays_.end()) {
+    const Overlay& overlay = view->second;
+    ++view;
+
+    const DocumentKey& key = overlay.key();
+    if (! collection.IsPrefixOf(key.path())) {
+      break;
+    }
+    // Documents from sub-collections
+    if (key.path().size() != immediate_children_path_length) {
+      continue;
+    }
+
+    if (overlay.largest_batch_id() > since_batch_id) {
+      result[overlay.key()] = overlay;
+    }
+  }
 
   return result;
 }
 
-DocumentOverlayCache::OverlayByDocumentKeyMap MemoryDocumentOverlayCache::GetOverlays(absl::string_view collection_group, int since_batch_id, int count) const {
-  (void)collection_group;
-  (void)since_batch_id;
-  (void)count;
-  abort();
-  return {};
-}
+DocumentOverlayCache::OverlayByDocumentKeyMap MemoryDocumentOverlayCache::GetOverlays(const std::string& collection_group, int since_batch_id, size_t count) const {
+  using OverlaysByDocumentKeyMap = std::unordered_map<DocumentKey, Overlay, DocumentKeyHash>;
+  std::map<int, OverlaysByDocumentKeyMap> batch_id_to_overlays;
 
+  for (const auto& overlays_entry : overlays_) {
+    const Overlay& overlay = overlays_entry.second;
+    const DocumentKey& key = overlay.key();
+    if (! key.HasCollectionId(collection_group)) {
+      continue;
+    }
+    if (overlay.largest_batch_id() > since_batch_id) {
+      batch_id_to_overlays[overlay.largest_batch_id()][overlay.key()] = overlay;
+    }
+  }
+
+  OverlayByDocumentKeyMap result;
+  for (const auto& overlays_entry : batch_id_to_overlays) {
+    const auto& overlays = overlays_entry.second;
+    result.insert(overlays.cbegin(), overlays.cend());
+    if (result.size() >= count) {
+      break;
+    }
+  }
+
+  return result;
+}
 
 }  // namespace local
 }  // namespace firestore

@@ -74,12 +74,22 @@ class DocumentOverlayCacheTest : public ::testing::Test {
   }
 
   void SaveOverlays(int largest_batch_id, const std::vector<Mutation>& mutations) {
-    DocumentOverlayCache::MutationByDocumentKeyMap overlays;
+    DocumentOverlayCache::MutationByDocumentKeyMap data;
     for (const auto& mutation : mutations) {
-      ASSERT_TRUE(overlays.find(mutation.key()) == overlays.end());
-      overlays.insert({mutation.key(), mutation});
+      ASSERT_TRUE(data.find(mutation.key()) == data.end());
+      data.insert({mutation.key(), mutation});
     }
-    this->cache_->SaveOverlays(largest_batch_id, overlays);
+    this->cache_->SaveOverlays(largest_batch_id, data);
+  }
+
+  void SaveOverlays(int largest_batch_id, const std::vector<std::string>& keys) {
+    DocumentOverlayCache::MutationByDocumentKeyMap data;
+    for (const auto& key : keys) {
+      DocumentKey document_key = DocumentKey::FromPathString(key);
+      ASSERT_TRUE(data.find(document_key) == data.end());
+      data.insert({document_key, SetMutation(key, Map())});
+    }
+    this->cache_->SaveOverlays(largest_batch_id, data);
   }
 
   std::unique_ptr<DocumentOverlayCache> cache_;
@@ -169,10 +179,61 @@ TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysForCollection) {
 
   const auto overlays = this->cache_->GetOverlays(ResourcePath{"coll"}, -1);
 
-  {
-    SCOPED_TRACE("verify overlay");
-    VerifyOverlayContains(overlays, {"coll/doc1", "coll/doc2", "coll/doc3"});
-  }
+  SCOPED_TRACE("verify overlay");
+  VerifyOverlayContains(overlays, {"coll/doc1", "coll/doc2", "coll/doc3"});
+}
+
+TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysSinceBatchId) {
+  this->SaveOverlays(2, {"coll/doc1", "coll/doc2"});
+  this->SaveOverlays(3, {"coll/doc3"});
+  this->SaveOverlays(4, {"coll/doc4"});
+
+  const auto overlays = this->cache_->GetOverlays(ResourcePath{"coll"}, 2);
+
+  SCOPED_TRACE("verify overlay");
+  VerifyOverlayContains(overlays, {"coll/doc3", "coll/doc4"});
+}
+
+TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysFromCollectionGroupEnforcesCollectionGroup) {
+  this->SaveOverlays(2, {"coll1/doc1", "coll2/doc1"});
+  this->SaveOverlays(3, {"coll1/doc2"});
+  this->SaveOverlays(4, {"coll2/doc2"});
+
+  const auto overlays = this->cache_->GetOverlays("coll1", -1, 50);
+
+  SCOPED_TRACE("verify overlay");
+  VerifyOverlayContains(overlays, {"coll1/doc1", "coll1/doc2"});
+}
+
+TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysFromCollectionGroupEnforcesBatchId) {
+  this->SaveOverlays(2, {"coll/doc1"});
+  this->SaveOverlays(3, {"coll/doc2"});
+
+  const auto overlays = this->cache_->GetOverlays("coll", 2, 50);
+
+  SCOPED_TRACE("verify overlay");
+  VerifyOverlayContains(overlays, {"coll/doc2"});
+}
+
+TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysFromCollectionGroupEnforcesLimit) {
+  this->SaveOverlays(1, {"coll/doc1"});
+  this->SaveOverlays(2, {"coll/doc2"});
+  this->SaveOverlays(3, {"coll/doc3"});
+
+  const auto overlays = this->cache_->GetOverlays("coll", -1, 2);
+
+  SCOPED_TRACE("verify overlay");
+  VerifyOverlayContains(overlays, {"coll/doc1", "coll/doc2"});
+}
+
+TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysFromCollectionGroupWithLimitIncludesFullBatches) {
+  this->SaveOverlays(1, {"coll/doc1"});
+  this->SaveOverlays(2, {"coll/doc2", "coll/doc3"});
+
+  const auto overlays = this->cache_->GetOverlays("coll", -1, 2);
+
+  SCOPED_TRACE("verify overlay");
+  VerifyOverlayContains(overlays, {"coll/doc1", "coll/doc2", "coll/doc3"});
 }
 
 }  // namespace

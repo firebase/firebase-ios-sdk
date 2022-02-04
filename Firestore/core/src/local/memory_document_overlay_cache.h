@@ -20,6 +20,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "Firestore/core/src/immutable/sorted_map.h"
 #include "Firestore/core/src/local/document_overlay_cache.h"
 
 namespace firebase {
@@ -36,10 +37,10 @@ class MemoryDocumentOverlayCache final : public DocumentOverlayCache {
 
   OverlayByDocumentKeyMap GetOverlays(const model::ResourcePath& collection, int since_batch_id) const override;
 
-  OverlayByDocumentKeyMap GetOverlays(absl::string_view collection_group, int since_batch_id, int count) const override;
+  OverlayByDocumentKeyMap GetOverlays(const std::string& collection_group, int since_batch_id, size_t count) const override;
 
  private:
-  using OverlayByDocumentKeySortedMap = std::map<model::DocumentKey, model::mutation::Overlay>;
+  using OverlayByDocumentKeySortedMap = immutable::SortedMap<model::DocumentKey, model::mutation::Overlay>;
   using DocumentKeySet = std::unordered_set<model::DocumentKey, model::DocumentKeyHash>;
   using DocumentKeysByBatchIdMap = std::unordered_map<int, DocumentKeySet>;
 

@@ -17,9 +17,9 @@
 #ifndef FIRESTORE_CORE_SRC_LOCAL_DOCUMENT_OVERLAY_CACHE_H_
 #define FIRESTORE_CORE_SRC_LOCAL_DOCUMENT_OVERLAY_CACHE_H_
 
+#include <string>
 #include <unordered_map>
 
-#include "absl/strings/string_view.h"
 #include "absl/types/optional.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/mutation.h"
@@ -88,7 +88,7 @@ class DocumentOverlayCache {
    *     batch contains more entries.
    * @return Mapping of each document key in the collection group to its overlay.
    */
-  virtual OverlayByDocumentKeyMap GetOverlays(absl::string_view collection_group, int since_batch_id, int count) const = 0;
+  virtual OverlayByDocumentKeyMap GetOverlays(const std::string& collection_group, int since_batch_id, size_t count) const = 0;
 };
 
 }  // namespace local
