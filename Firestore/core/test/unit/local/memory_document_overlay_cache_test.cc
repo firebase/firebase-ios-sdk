@@ -32,10 +32,10 @@ TEST(MemoryDocumentOverlayCacheTest, TypeTraits) {
   static_assert(std::is_constructible<MemoryDocumentOverlayCache>::value, "is_constructible");
   static_assert(std::is_destructible<MemoryDocumentOverlayCache>::value, "is_destructible");
   static_assert(std::is_default_constructible<MemoryDocumentOverlayCache>::value, "is_default_constructible");
-  static_assert(std::is_copy_constructible<MemoryDocumentOverlayCache>::value, "is_copy_constructible");
-  static_assert(std::is_move_constructible<MemoryDocumentOverlayCache>::value, "is_move_constructible");
-  static_assert(std::is_copy_assignable<MemoryDocumentOverlayCache>::value, "is_copy_assignable");
-  static_assert(std::is_move_assignable<MemoryDocumentOverlayCache>::value, "is_move_assignable");
+  static_assert(!std::is_copy_constructible<MemoryDocumentOverlayCache>::value, "is_copy_constructible");
+  static_assert(!std::is_move_constructible<MemoryDocumentOverlayCache>::value, "is_move_constructible");
+  static_assert(!std::is_copy_assignable<MemoryDocumentOverlayCache>::value, "is_copy_assignable");
+  static_assert(!std::is_move_assignable<MemoryDocumentOverlayCache>::value, "is_move_assignable");
 }
 
 }  // namespace

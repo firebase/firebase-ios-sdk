@@ -29,6 +29,14 @@ namespace local {
 
 class MemoryDocumentOverlayCache final : public DocumentOverlayCache {
  public:
+  MemoryDocumentOverlayCache() = default;
+
+  MemoryDocumentOverlayCache(const MemoryDocumentOverlayCache&) = delete;
+  MemoryDocumentOverlayCache& operator=(const MemoryDocumentOverlayCache&) = delete;
+
+  MemoryDocumentOverlayCache(MemoryDocumentOverlayCache&&) = delete;
+  MemoryDocumentOverlayCache& operator=(MemoryDocumentOverlayCache&&) = delete;
+
   absl::optional<model::mutation::Overlay> GetOverlay(const model::DocumentKey& key) const override;
 
   void SaveOverlays(int largest_batch_id, const MutationByDocumentKeyMap& overlays) override;
