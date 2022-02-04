@@ -39,8 +39,8 @@ const NSString *FIRCLSTestSettingsInverse =
     @"\"fabric\":{\"org_id\":\"01e101a0000011b113115111\",\"bundle_id\":\"im.from.the.server\"},"
     @"\"session\":{\"log_buffer_size\":128000,\"max_chained_exception_depth\":32,\"max_complete_"
     @"sessions_count\":4,\"max_custom_exception_events\":1000,\"max_custom_key_value_pairs\":2000,"
-    @"\"identifier_mask\":255, \"on_demand_upload_rate\":15, "
-    @"\"on_demand_backoff_base\":3, \"on_demand_backoff_step_duration\":9}}";
+    @"\"identifier_mask\":255}, \"on_demand_upload_rate_per_minute\":15.0, "
+    @"\"on_demand_backoff_base\":3.0, \"on_demand_backoff_step_duration_seconds\":9}";
 
 const NSString *FIRCLSTestSettingsCorrupted = @"{{{{ non_key: non\"value {}";
 
