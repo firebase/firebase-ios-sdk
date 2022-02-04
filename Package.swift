@@ -1198,11 +1198,12 @@ let package = Package(
 )
 
 if ProcessInfo.processInfo.environment["FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT"] != nil {
-  if let GoogleAppMeasurementIndex = package.dependencies.firstIndex(where: {$0.name ==  "GoogleAppMeasurement"}) {
-      package.dependencies[GoogleAppMeasurementIndex] = .package(
+  if let GoogleAppMeasurementIndex = package.dependencies
+    .firstIndex(where: { $0.name == "GoogleAppMeasurement" }) {
+    package.dependencies[GoogleAppMeasurementIndex] = .package(
       name: "GoogleAppMeasurement",
       url: "https://github.com/google/GoogleAppMeasurement.git",
       .branch("main")
-     )
+    )
   }
 }
