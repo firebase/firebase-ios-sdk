@@ -35,10 +35,10 @@ protocol FunctionsProvider {
 
   /// A map of active instances, grouped by app. Keys are FirebaseApp names and values are arrays
   /// containing all instances of Functions associated with the given app.
-  private let instances: [String: [Functions]] = [:]
+  private var instances: [String: [Functions]] = [:]
 
   /// Lock to manage access to the instances array to avoid race conditions.
-  private let instancesLock: os_unfair_lock = os_unfair_lock()
+  private var instancesLock: os_unfair_lock = os_unfair_lock()
 
   // MARK: - Initializers
   required init(app: FirebaseApp) {
@@ -67,18 +67,33 @@ protocol FunctionsProvider {
                  region: String?,
                  customDomain: String?,
                  type: AnyClass) -> Functions {
-    // TODO: Check local dictionary of instances first.
+    os_unfair_lock_lock(&instancesLock)
 
-    // TODO: Slightly awkward usage now because of default arguments, we can't pass in an optional
-    // region and it select the default for us. This if statement is fine though for the time being
-    // to ensure they always stay up to date.
-    if let region = region {
-      return Functions(app: app, region: region, customDomain: customDomain)
-    } else {
-      // TODO: Fix this
-      fatalError()
-//      return Functions(app: app, customDomain: customDomain)
+    // Unlock before the function returns.
+    defer { os_unfair_lock_unlock(&instancesLock) }
+
+    if let associatedInstances = instances[app.name] {
+      for instance in associatedInstances {
+        // Domains may be nil, so handle with care.
+        var equalDomains = false
+        if let instanceCustomDomain = instance.customDomain {
+          equalDomains = instanceCustomDomain == customDomain
+        } else {
+          equalDomains = customDomain == nil
+        }
+
+        // Check if it's a match.
+        if instance.region == region && equalDomains {
+          return instance
+        }
+      }
     }
 
+    let newInstance = Functions(app: app,
+                                region: region ?? FunctionsConstants.defaultRegion,
+                                customDomain: customDomain)
+    let existingInstances = instances[app.name, default: []]
+    instances[app.name] = existingInstances + [newInstance]
+    return newInstance
   }
 }

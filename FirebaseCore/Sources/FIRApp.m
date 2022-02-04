@@ -193,6 +193,12 @@ static FIRApp *sDefaultApp;
     FIRLogDebug(kFIRLoggerCore, @"I-COR000002", @"Configuring app named %@", name);
   }
 
+  // Default instantiation, make sure we populate with Swift SDKs that can't register in time.
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    [self registerSwiftComponents];
+  });
+
   @synchronized(self) {
     FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
     if (app.isDefaultApp) {
@@ -822,6 +828,20 @@ static FIRApp *sDefaultApp;
   });
 
   return collectionEnabledPlistObject;
+}
+
+#pragma mark - Swift Components.
+
++ (void)registerSwiftComponents {
+  SEL componentsToRegisterSEL = @selector(componentsToRegister:);
+  // Dictionary of class names and their user agents.
+  NSDictionary<NSString *, NSString *> *swiftLibs = @{@"FIRFunctions": @"fire-fun"};
+  for (NSString *className in swiftLibs.allKeys) {
+    Class klass = NSClassFromString(className);
+    if (klass && [klass respondsToSelector:componentsToRegisterSEL]) {
+      [FIRApp registerInternalLibrary:klass withName:swiftLibs[className]];
+    }
+  }
 }
 
 #pragma mark - App Life Cycle
