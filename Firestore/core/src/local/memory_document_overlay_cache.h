@@ -17,7 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_LOCAL_MEMORY_DOCUMENT_OVERLAY_H_
 #define FIRESTORE_CORE_SRC_LOCAL_MEMORY_DOCUMENT_OVERLAY_H_
 
-#include <map>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -29,9 +28,9 @@ namespace local {
 
 class MemoryDocumentOverlayCache final : public DocumentOverlayCache {
  public:
-  absl::optional<std::reference_wrapper<const model::mutation::Overlay>> GetOverlay(const model::DocumentKey& key) const override;
+  absl::optional<model::mutation::Overlay> GetOverlay(const model::DocumentKey& key) const override;
 
-  void SaveOverlays(int largest_batch_id, MutationByDocumentKeyMap&& overlays) override;
+  void SaveOverlays(int largest_batch_id, const MutationByDocumentKeyMap& overlays) override;
 
   void RemoveOverlaysForBatchId(int batch_id) override;
 
@@ -44,7 +43,7 @@ class MemoryDocumentOverlayCache final : public DocumentOverlayCache {
   using DocumentKeySet = std::unordered_set<model::DocumentKey, model::DocumentKeyHash>;
   using DocumentKeysByBatchIdMap = std::unordered_map<int, DocumentKeySet>;
 
-  void SaveOverlay(int largest_batch_id, model::Mutation&& mutation);
+  void SaveOverlay(int largest_batch_id, const model::Mutation& mutation);
 
   OverlayByDocumentKeySortedMap overlays_;
   DocumentKeysByBatchIdMap overlay_by_batch_id_;

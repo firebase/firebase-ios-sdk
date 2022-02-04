@@ -79,7 +79,7 @@ class DocumentOverlayCacheTest : public ::testing::Test {
       ASSERT_TRUE(overlays.find(mutation.key()) == overlays.end());
       overlays.insert({mutation.key(), mutation});
     }
-    this->cache_->SaveOverlays(largest_batch_id, std::move(overlays));
+    this->cache_->SaveOverlays(largest_batch_id, overlays);
   }
 
   std::unique_ptr<DocumentOverlayCache> cache_;
@@ -114,7 +114,7 @@ TYPED_TEST(DocumentOverlayCacheTest, CanReadSavedOverlay) {
   auto overlay_opt = this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1"));
 
   ASSERT_TRUE(overlay_opt);
-  EXPECT_EQ(mutation, overlay_opt.value().get().mutation());
+  EXPECT_EQ(mutation, overlay_opt.value().mutation());
 }
 
 TYPED_TEST(DocumentOverlayCacheTest, CanReadSavedOverlays) {
@@ -128,11 +128,11 @@ TYPED_TEST(DocumentOverlayCacheTest, CanReadSavedOverlays) {
   auto overlay_opt3 = this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc3"));
 
   ASSERT_TRUE(overlay_opt1);
-  EXPECT_EQ(m1, overlay_opt1.value().get().mutation());
+  EXPECT_EQ(m1, overlay_opt1.value().mutation());
   ASSERT_TRUE(overlay_opt2);
-  EXPECT_EQ(m2, overlay_opt2.value().get().mutation());
+  EXPECT_EQ(m2, overlay_opt2.value().mutation());
   ASSERT_TRUE(overlay_opt3);
-  EXPECT_EQ(m3, overlay_opt3.value().get().mutation());
+  EXPECT_EQ(m3, overlay_opt3.value().mutation());
 }
 
 TYPED_TEST(DocumentOverlayCacheTest, SavingOverlayOverwrites) {
@@ -144,7 +144,7 @@ TYPED_TEST(DocumentOverlayCacheTest, SavingOverlayOverwrites) {
   auto overlay_opt = this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1"));
 
   ASSERT_TRUE(overlay_opt);
-  EXPECT_EQ(m2, overlay_opt.value().get().mutation());
+  EXPECT_EQ(m2, overlay_opt.value().mutation());
 }
 
 TYPED_TEST(DocumentOverlayCacheTest, DeleteRepeatedlyWorks) {
@@ -173,11 +173,6 @@ TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysForCollection) {
     SCOPED_TRACE("verify overlay");
     VerifyOverlayContains(overlays, {"coll/doc1", "coll/doc2", "coll/doc3"});
   }
-}
-
-TYPED_TEST(DocumentOverlayCacheTest, SortedMatTest) {
-  immutable::SortedMap<DocumentKey, std::string> map;
-  map = map.insert(DocumentKey::FromPathString("abc/def"), "hello");
 }
 
 }  // namespace

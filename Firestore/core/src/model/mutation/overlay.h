@@ -55,12 +55,8 @@ class Overlay {
     return largest_batch_id_;
   }
 
-  const Mutation& mutation() const& {
+  const Mutation& mutation() const {
     return mutation_;
-  }
-
-  Mutation&& mutation() && {
-    return std::move(mutation_);
   }
 
   const DocumentKey& key() const {

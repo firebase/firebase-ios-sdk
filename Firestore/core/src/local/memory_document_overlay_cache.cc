@@ -26,38 +26,36 @@ using model::DocumentKey;
 using model::Mutation;
 using model::mutation::Overlay;
 
-absl::optional<std::reference_wrapper<const Overlay>> MemoryDocumentOverlayCache::GetOverlay(const DocumentKey& key) const {
+absl::optional<Overlay> MemoryDocumentOverlayCache::GetOverlay(const DocumentKey& key) const {
   const auto overlay_iter = overlays_.find(key);
   if (overlay_iter == overlays_.end()) {
     return absl::nullopt;
   } else {
-    return std::cref(overlay_iter->second);
+    return overlay_iter->second;
   }
 }
 
-void MemoryDocumentOverlayCache::SaveOverlay(int largest_batch_id, Mutation&& mutation) {
-  const DocumentKey key = mutation.key();
-
+void MemoryDocumentOverlayCache::SaveOverlay(int largest_batch_id, const Mutation& mutation) {
   {
-    const auto overlays_iter = overlays_.find(key);
+    const auto overlays_iter = overlays_.find(mutation.key());
     if (overlays_iter != overlays_.end()) {
       const Overlay& existing = overlays_iter->second;
       auto overlay_by_batch_id_iter = overlay_by_batch_id_.find(existing.largest_batch_id());
       HARD_ASSERT(overlay_by_batch_id_iter != overlay_by_batch_id_.end());
       DocumentKeySet& existing_keys = overlay_by_batch_id_iter->second;
-      existing_keys.erase(key);
+      existing_keys.erase(mutation.key());
       overlays_.erase(overlays_iter);
     }
   }
 
-  overlays_.insert({key, Overlay(largest_batch_id, std::move(mutation))});
+  overlays_.insert({mutation.key(), Overlay(largest_batch_id, mutation)});
 
-  overlay_by_batch_id_[largest_batch_id].insert(key);
+  overlay_by_batch_id_[largest_batch_id].insert(mutation.key());
 }
 
-void MemoryDocumentOverlayCache::SaveOverlays(int largest_batch_id, MutationByDocumentKeyMap&& overlays) {
+void MemoryDocumentOverlayCache::SaveOverlays(int largest_batch_id, const MutationByDocumentKeyMap& overlays) {
   for (auto& kv : overlays) {
-    SaveOverlay(largest_batch_id, std::move(kv.second));
+    SaveOverlay(largest_batch_id, kv.second);
   }
 }
 

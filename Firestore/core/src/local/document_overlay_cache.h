@@ -17,7 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_LOCAL_DOCUMENT_OVERLAY_CACHE_H_
 #define FIRESTORE_CORE_SRC_LOCAL_DOCUMENT_OVERLAY_CACHE_H_
 
-#include <functional>
 #include <unordered_map>
 
 #include "absl/strings/string_view.h"
@@ -53,14 +52,14 @@ class DocumentOverlayCache {
    *
    * Returns an empty optional if there is no overlay for that key.
    */
-  virtual absl::optional<std::reference_wrapper<const model::mutation::Overlay>> GetOverlay(const model::DocumentKey& key) const = 0;
+  virtual absl::optional<model::mutation::Overlay> GetOverlay(const model::DocumentKey& key) const = 0;
 
   /**
    * Saves the given document key to mutation map to persistence as overlays.
    *
    * All overlays will have their largest batch id set to `largestBatchId`.
    */
-  virtual void SaveOverlays(int largest_batch_id, MutationByDocumentKeyMap&& overlays) = 0;
+  virtual void SaveOverlays(int largest_batch_id, const MutationByDocumentKeyMap& overlays) = 0;
 
   /** Removes the overlay whose largest-batch-id equals to the given Id. */
   virtual void RemoveOverlaysForBatchId(int batch_id) = 0;
