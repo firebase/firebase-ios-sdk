@@ -73,7 +73,7 @@ class DocumentOverlayCacheTest : public ::testing::Test {
   DocumentOverlayCacheTest() : cache_(CreateDocumentOverlayCache<T>()) {
   }
 
-  void SaveOverlays(int largest_batch_id, const std::vector<Mutation>& mutations) {
+  void SaveOverlaysWithMutations(int largest_batch_id, const std::vector<Mutation>& mutations) {
     DocumentOverlayCache::MutationByDocumentKeyMap data;
     for (const auto& mutation : mutations) {
       ASSERT_TRUE(data.find(mutation.key()) == data.end());
@@ -82,7 +82,7 @@ class DocumentOverlayCacheTest : public ::testing::Test {
     this->cache_->SaveOverlays(largest_batch_id, data);
   }
 
-  void SaveOverlays(int largest_batch_id, const std::vector<std::string>& keys) {
+  void SaveOverlaysWithSetMutations(int largest_batch_id, const std::vector<std::string>& keys) {
     DocumentOverlayCache::MutationByDocumentKeyMap data;
     for (const auto& key : keys) {
       DocumentKey document_key = DocumentKey::FromPathString(key);
@@ -119,7 +119,7 @@ TYPED_TEST(DocumentOverlayCacheTest, ReturnsNullWhenOverlayIsNotFound) {
 
 TYPED_TEST(DocumentOverlayCacheTest, CanReadSavedOverlay) {
   Mutation mutation = PatchMutation("coll/doc1", Map("foo", "bar"));
-  this->SaveOverlays(2, {mutation});
+  this->SaveOverlaysWithMutations(2, {mutation});
 
   auto overlay_opt = this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1"));
 
@@ -131,7 +131,7 @@ TYPED_TEST(DocumentOverlayCacheTest, CanReadSavedOverlays) {
   Mutation m1 = PatchMutation("coll/doc1", Map("foo", "bar"));
   Mutation m2 = SetMutation("coll/doc2", Map("foo", "bar"));
   Mutation m3 = DeleteMutation("coll/doc3");
-  this->SaveOverlays(3, {m1, m2, m3});
+  this->SaveOverlaysWithMutations(3, {m1, m2, m3});
 
   auto overlay_opt1 = this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1"));
   auto overlay_opt2 = this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc2"));
@@ -148,8 +148,8 @@ TYPED_TEST(DocumentOverlayCacheTest, CanReadSavedOverlays) {
 TYPED_TEST(DocumentOverlayCacheTest, SavingOverlayOverwrites) {
   Mutation m1 = PatchMutation("coll/doc1", Map("foo", "bar"));
   Mutation m2 = SetMutation("coll/doc1", Map("foo", "set", "bar", 42));
-  this->SaveOverlays(2, {m1});
-  this->SaveOverlays(2, {m2});
+  this->SaveOverlaysWithMutations(2, {m1});
+  this->SaveOverlaysWithMutations(2, {m2});
 
   auto overlay_opt = this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1"));
 
@@ -159,7 +159,7 @@ TYPED_TEST(DocumentOverlayCacheTest, SavingOverlayOverwrites) {
 
 TYPED_TEST(DocumentOverlayCacheTest, DeleteRepeatedlyWorks) {
   Mutation mutation = PatchMutation("coll/doc1", Map("foo", "bar"));
-  this->SaveOverlays(2, {mutation});
+  this->SaveOverlaysWithMutations(2, {mutation});
 
   this->cache_->RemoveOverlaysForBatchId(2);
   EXPECT_FALSE(this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1")));
@@ -175,7 +175,7 @@ TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysForCollection) {
   // m4 and m5 are not under "coll"
   Mutation m4 = SetMutation("coll/doc1/sub/sub_doc", Map("foo", "bar"));
   Mutation m5 = SetMutation("other/doc1", Map("foo", "bar"));
-  this->SaveOverlays(3, {m1, m2, m3, m4, m5});
+  this->SaveOverlaysWithMutations(3, {m1, m2, m3, m4, m5});
 
   const auto overlays = this->cache_->GetOverlays(ResourcePath{"coll"}, -1);
 
@@ -184,9 +184,9 @@ TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysForCollection) {
 }
 
 TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysSinceBatchId) {
-  this->SaveOverlays(2, {"coll/doc1", "coll/doc2"});
-  this->SaveOverlays(3, {"coll/doc3"});
-  this->SaveOverlays(4, {"coll/doc4"});
+  this->SaveOverlaysWithSetMutations(2, {"coll/doc1", "coll/doc2"});
+  this->SaveOverlaysWithSetMutations(3, {"coll/doc3"});
+  this->SaveOverlaysWithSetMutations(4, {"coll/doc4"});
 
   const auto overlays = this->cache_->GetOverlays(ResourcePath{"coll"}, 2);
 
@@ -195,9 +195,9 @@ TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysSinceBatchId) {
 }
 
 TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysFromCollectionGroupEnforcesCollectionGroup) {
-  this->SaveOverlays(2, {"coll1/doc1", "coll2/doc1"});
-  this->SaveOverlays(3, {"coll1/doc2"});
-  this->SaveOverlays(4, {"coll2/doc2"});
+  this->SaveOverlaysWithSetMutations(2, {"coll1/doc1", "coll2/doc1"});
+  this->SaveOverlaysWithSetMutations(3, {"coll1/doc2"});
+  this->SaveOverlaysWithSetMutations(4, {"coll2/doc2"});
 
   const auto overlays = this->cache_->GetOverlays("coll1", -1, 50);
 
@@ -206,8 +206,8 @@ TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysFromCollectionGroupEnforcesCo
 }
 
 TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysFromCollectionGroupEnforcesBatchId) {
-  this->SaveOverlays(2, {"coll/doc1"});
-  this->SaveOverlays(3, {"coll/doc2"});
+  this->SaveOverlaysWithSetMutations(2, {"coll/doc1"});
+  this->SaveOverlaysWithSetMutations(3, {"coll/doc2"});
 
   const auto overlays = this->cache_->GetOverlays("coll", 2, 50);
 
@@ -216,9 +216,9 @@ TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysFromCollectionGroupEnforcesBa
 }
 
 TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysFromCollectionGroupEnforcesLimit) {
-  this->SaveOverlays(1, {"coll/doc1"});
-  this->SaveOverlays(2, {"coll/doc2"});
-  this->SaveOverlays(3, {"coll/doc3"});
+  this->SaveOverlaysWithSetMutations(1, {"coll/doc1"});
+  this->SaveOverlaysWithSetMutations(2, {"coll/doc2"});
+  this->SaveOverlaysWithSetMutations(3, {"coll/doc3"});
 
   const auto overlays = this->cache_->GetOverlays("coll", -1, 2);
 
@@ -227,8 +227,8 @@ TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysFromCollectionGroupEnforcesLi
 }
 
 TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysFromCollectionGroupWithLimitIncludesFullBatches) {
-  this->SaveOverlays(1, {"coll/doc1"});
-  this->SaveOverlays(2, {"coll/doc2", "coll/doc3"});
+  this->SaveOverlaysWithSetMutations(1, {"coll/doc1"});
+  this->SaveOverlaysWithSetMutations(2, {"coll/doc2", "coll/doc3"});
 
   const auto overlays = this->cache_->GetOverlays("coll", -1, 2);
 
