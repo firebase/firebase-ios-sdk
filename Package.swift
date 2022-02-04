@@ -1197,9 +1197,9 @@ let package = Package(
   cxxLanguageStandard: CXXLanguageStandard.gnucxx14
 )
 
-if ProcessInfo.processInfo.environment["SWIFTCI_USE_LOCAL_DEPS"] != nil {
-  if let row = package.dependencies.firstIndex(where: {$0.name ==  "GoogleAppMeasurement"}) {
-      package.dependencies[row] = .package(
+if ProcessInfo.processInfo.environment["FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT"] != nil {
+  if let GoogleAppMeasurementIndex = package.dependencies.firstIndex(where: {$0.name ==  "GoogleAppMeasurement"}) {
+      package.dependencies[GoogleAppMeasurementIndex] = .package(
       name: "GoogleAppMeasurement",
       url: "https://github.com/google/GoogleAppMeasurement.git",
       .branch("main")
