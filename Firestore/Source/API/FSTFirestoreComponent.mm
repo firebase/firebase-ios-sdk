@@ -20,7 +20,7 @@
 #include <string>
 #include <utility>
 
-#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
+#import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
 #import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
