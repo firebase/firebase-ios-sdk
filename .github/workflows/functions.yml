@@ -45,6 +45,8 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macos-11
+    env:
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
