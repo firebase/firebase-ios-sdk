@@ -18,7 +18,7 @@ jobs:
     runs-on: macos-11
     strategy:
       matrix:
-        config: [Cocoapods_multiprojects_frameworks, Cocoapods_multiprojects_staticLibs]
+        config: [Cocoapods_multiprojects_frameworks]
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
