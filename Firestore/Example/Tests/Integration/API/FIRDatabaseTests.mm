@@ -18,7 +18,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FIRAppInternal.h"
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"

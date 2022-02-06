@@ -15,7 +15,6 @@
  */
 
 #import <FirebaseFirestore/FirebaseFirestore.h>
-#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 
 #include "Firestore/core/src/util/autoid.h"
 #include "Firestore/core/src/util/hard_assert.h"
