@@ -51,7 +51,6 @@ public let shared = Manifest(
     Pod("FirebaseStorage", zip: true),
     Pod("FirebaseStorageSwift", isBeta: true),
     Pod("FirebaseMLModelDownloader", isBeta: true, zip: true),
-    Pod("Firebase", allowWarnings: true, zip: true),
   ]
 )
 
