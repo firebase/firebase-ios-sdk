@@ -28,8 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(Library)
 @protocol FIRLibrary
 
-/// Returns one or more FIRComponents that will be registered in
-/// FIRApp and participate in dependency resolution and injection.
+/// Returns one or more Components that will be registered in
+/// FirebaseApp and participate in dependency resolution and injection.
 + (NSArray<FIRComponent *> *)componentsToRegister;
 
 @optional
