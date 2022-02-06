@@ -286,13 +286,6 @@ fi
 
 
 case "$product-$platform-$method" in
-  FirebasePod-iOS-*)
-    RunXcodebuild \
-        -workspace 'CoreOnly/Tests/FirebasePodTest/FirebasePodTest.xcworkspace' \
-        -scheme "FirebasePodTest" \
-        "${xcb_flags[@]}" \
-        build
-    ;;
 
   Auth-*-xcodebuild)
     if check_secrets; then

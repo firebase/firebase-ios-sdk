@@ -58,10 +58,6 @@ else
 'FirebaseCrashlytics.podspec)'\
       ;;
 
-    FirebasePod-*)
-      check_changes '^(CoreOnly)'
-      ;;
-
     Core-*)
       check_changes '^(FirebaseCore|Example/Core/Tests|GoogleUtilities|FirebaseCore.podspec'\
 'FirebaseCoreDiagnostics|Example/CoreDiagnostics/Tests|FirebaseCoreDiagnostics.podspec|'\

@@ -216,24 +216,6 @@ extension CarthageUtils {
       fatalError("Could not create directories for Firebase framework in Carthage. \(error)")
     }
 
-    // Copy the Firebase header and modulemap that was created in the Zip file.
-    let header = rootDir.appendingPathComponent(Constants.ProjectPath.firebaseHeader)
-    do {
-      try fm.copyItem(at: header, to: headersDir.appendingPathComponent(header.lastPathComponent))
-
-      // Generate the new modulemap since it differs from the Zip modulemap.
-      let carthageModulemap = """
-      framework module Firebase {
-        header "Firebase.h"
-        export *
-      }
-      """
-      let modulemapPath = modulesDir.appendingPathComponent("module.modulemap")
-      try carthageModulemap.write(to: modulemapPath, atomically: true, encoding: .utf8)
-    } catch {
-      fatalError("Couldn't write required files for Firebase framework in Carthage. \(error)")
-    }
-
     // Copy the dummy Firebase library.
     let dummyLib = templateDir.appendingPathComponent(Constants.ProjectPath.dummyFirebaseLib)
     do {

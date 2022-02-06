@@ -205,14 +205,8 @@ let package = Package(
   ],
   targets: [
     .target(
-      name: "Firebase",
-      path: "CoreOnly/Sources",
-      publicHeadersPath: "./"
-    ),
-    .target(
       name: "FirebaseCore",
       dependencies: [
-        "Firebase",
         "FirebaseCoreDiagnostics",
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULLogger", package: "GoogleUtilities"),
@@ -1046,7 +1040,6 @@ let package = Package(
     .testTarget(
       name: "swift-test",
       dependencies: [
-        "Firebase",
         "FirebaseAuth",
         "FirebaseAppCheck",
         "FirebaseABTesting",
@@ -1082,14 +1075,12 @@ let package = Package(
       dependencies: [
         "FirebaseAnalyticsSwiftTarget",
         "FirebaseAnalyticsWrapper",
-        "Firebase",
       ],
       path: "SwiftPMTests/analytics-import-test"
     ),
     .testTarget(
       name: "objc-import-test",
       dependencies: [
-        "Firebase",
         "FirebaseAuth",
         "FirebaseABTesting",
         "FirebaseAppCheck",

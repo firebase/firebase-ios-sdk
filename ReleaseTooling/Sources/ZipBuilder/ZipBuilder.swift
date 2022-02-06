@@ -31,10 +31,6 @@ struct Constants {
     // Required for distribution.
     static let readmeName = "README.md"
 
-    // Required from the Firebase pod.
-    static let firebaseHeader = "Firebase.h"
-    static let modulemap = "module.modulemap"
-
     /// The dummy Firebase library for Carthage distribution.
     static let dummyFirebaseLib = "dummy_Firebase_lib"
 
@@ -340,8 +336,8 @@ struct ZipBuilder {
 
     // We need the Firebase pod to get the version for Carthage and to copy the `Firebase.h` and
     // `module.modulemap` file from it.
-    guard let firebasePod = installedPods["Firebase"] else {
-      fatalError("Could not get the Firebase pod from list of installed pods. All pods " +
+    guard let firebaseCorePod = installedPods["FirebaseCore"] else {
+      fatalError("Could not get the FirebaseCore pod from list of installed pods. All pods " +
         "installed: \(installedPods)")
     }
 
@@ -352,18 +348,16 @@ struct ZipBuilder {
     let zipDir = try assembleDistributions(withPackageKind: "Firebase",
                                            podsToInstall: podsToInstall,
                                            installedPods: installedPods,
-                                           frameworksToAssemble: frameworks,
-                                           firebasePod: firebasePod)
+                                           frameworksToAssemble: frameworks)
     // Replace Core Diagnostics
     var carthageFrameworks = frameworks
     carthageFrameworks["FirebaseCoreDiagnostics"] = [carthageCoreDiagnosticsXcframework]
     let carthageDir = try assembleDistributions(withPackageKind: "CarthageFirebase",
                                                 podsToInstall: podsToInstall,
                                                 installedPods: installedPods,
-                                                frameworksToAssemble: carthageFrameworks,
-                                                firebasePod: firebasePod)
+                                                frameworksToAssemble: carthageFrameworks)
 
-    return ReleaseArtifacts(firebaseVersion: firebasePod.version,
+    return ReleaseArtifacts(firebaseVersion: firebaseCorePod.version,
                             zipDir: zipDir, carthageDir: carthageDir)
   }
 
@@ -386,8 +380,7 @@ struct ZipBuilder {
   private func assembleDistributions(withPackageKind packageKind: String,
                                      podsToInstall: [CocoaPodUtils.VersionedPod],
                                      installedPods: [String: CocoaPodUtils.PodInfo],
-                                     frameworksToAssemble: [String: [URL]],
-                                     firebasePod: CocoaPodUtils.PodInfo) throws -> URL {
+                                     frameworksToAssemble: [String: [URL]]) throws -> URL {
     // Create the directory that will hold all the contents of the Zip file.
     let fileManager = FileManager.default
     let zipDir = fileManager.temporaryDirectory(withName: packageKind)
@@ -400,10 +393,6 @@ struct ZipBuilder {
                                       withIntermediateDirectories: true,
                                       attributes: nil)
     }
-
-    // Copy all required files from the Firebase pod. This will cause a fatalError if anything
-    // fails.
-    copyFirebasePodFiles(fromDir: firebasePod.installedLocation, to: zipDir)
 
     // Start with installing Analytics, since we'll need to exclude those frameworks from the rest
     // of the folders.
@@ -438,7 +427,6 @@ struct ZipBuilder {
         $0.key != "FirebaseCore" &&
         $0.key != "FirebaseCoreDiagnostics" &&
         $0.key != "FirebaseInstallations" &&
-        $0.key != "Firebase" &&
         podsToInstall.map { $0.name }.contains($0.key)
     }.sorted { $0.key < $1.key }
     for pod in remainingPods {
@@ -576,9 +564,8 @@ struct ZipBuilder {
     // Loop through each installedPod item and get the name so we can fetch the framework and copy
     // it to the destination directory.
     for podName in installedPods {
-      // Skip the Firebase pod and specifically ignored frameworks.
-      guard podName != "Firebase",
-            !podsToIgnore.contains(podName) else {
+      // Skip specifically ignored frameworks.
+      guard !podsToIgnore.contains(podName) else {
         continue
       }
 
@@ -602,33 +589,6 @@ struct ZipBuilder {
     }
 
     return copiedFrameworkNames
-  }
-
-  /// Copies required files from the Firebase pod (`Firebase.h`, `module.modulemap`, and `NOTICES`) into
-  /// the given `zipDir`. Will cause a fatalError if anything fails since the zip file can't exist
-  /// without these files.
-  private func copyFirebasePodFiles(fromDir firebasePodDir: URL, to zipDir: URL) {
-    let firebasePodFiles = ["NOTICES", "Sources/" + Constants.ProjectPath.firebaseHeader,
-                            "Sources/" + Constants.ProjectPath.modulemap]
-    let firebaseFiles = firebasePodDir.appendingPathComponent("CoreOnly")
-    let firebaseFilesToCopy = firebasePodFiles.map {
-      firebaseFiles.appendingPathComponent($0)
-    }
-
-    // Copy each Firebase file.
-    for file in firebaseFilesToCopy {
-      // Each file should be copied to the destination project directory with the same name.
-      let destination = zipDir.appendingPathComponent(file.lastPathComponent)
-      do {
-        if !FileManager.default.fileExists(atPath: destination.path) {
-          print("Copying final distribution file \(file) to \(destination)...")
-          try FileManager.default.copyItem(at: file, to: destination)
-        }
-      } catch {
-        fatalError("Could not copy final distribution files to temporary directory before " +
-          "building. Failed while attempting to copy \(file) to \(destination). \(error)")
-      }
-    }
   }
 
   /// Creates the String required for this pod to be added to the README. Creates a header and
@@ -720,8 +680,8 @@ struct ZipBuilder {
                                              podsToIgnore: podsToIgnore)
 
     let copiedFrameworks = namedFrameworks.filter {
-      // Skip frameworks that aren't contained in the "podsToIgnore" array and the Firebase pod.
-      !(podsToIgnore.contains($0) || $0 == "Firebase")
+      // Skip frameworks that aren't contained in the "podsToIgnore" array.
+      !(podsToIgnore.contains($0))
     }
 
     return (productDir, copiedFrameworks)

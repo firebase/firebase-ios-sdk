@@ -64,12 +64,6 @@ Then do the following steps:
      in the Linking section.
   c. Double-click the setting, click the '+' button, and add "-ObjC" (without
      quotes)
-1. Add Firebase.h and module support:
-  a. In your project settings, open the Settings panel for your target
-  b. Go to the Build Settings tab and find the "User Header Search Paths"
-     setting in the Search Paths section.
-  c. Double-click the setting, click the '+' button, and add
-     `Pods/Firebase/CoreOnly/Sources`
 1. Make sure that the build target(s) includes your project's
    `GoogleService-Info.plist`
    ([how to download config file](https://support.google.com/firebase/answer/7015592)).

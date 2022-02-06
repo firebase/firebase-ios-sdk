@@ -69,11 +69,6 @@ fi
 
 case "$project-$platform-$method" in
 
-  FirebasePod-iOS-*)
-    install_xcpretty
-    bundle exec pod install --project-directory=CoreOnly/Tests/FirebasePodTest --repo-update
-    ;;
-
   Auth-*)
     # Install the workspace for integration testing.
     install_xcpretty

@@ -161,9 +161,6 @@ s%^./%%
 # Auth Sample Objective C does not format well
 \%^(FirebaseAuth/Tests/Sample/Sample)/% d
 
-# Keep Firebase.h indenting
-\%^CoreOnly/Sources/Firebase.h% d
-
 # Checked-in generated code
 \%\.pb(objc|rpc)\.% d
 \%\.pb\.% d
