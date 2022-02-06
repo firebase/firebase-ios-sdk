@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseFunctionsSwift'
-  s.version                 = '8.12.0-beta'
+  s.version                 = '9.0.0'
   s.summary                 = 'Swift Extensions for Firebase Functions'
 
   s.description      = <<-DESC
@@ -36,8 +36,13 @@ Swift SDK Extensions for Cloud Functions for Firebase.
   ]
 
   s.dependency 'FirebaseCore', '~> 8.12'
+  s.dependency 'FirebaseCoreInternal', '~> 9.0'
+  s.dependency 'FirebaseAppCheckInterop', '~> 9.0'
   s.dependency 'FirebaseSharedSwift', '~> 8.12'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.5'
+
+  # Maybe TODO: The unit tests depend on setting up a podspec for SharedTestUtilities
+  # OTOH, we are running them with SwiftPM.
 
   s.test_spec 'integration' do |int_tests|
     int_tests.platforms = {

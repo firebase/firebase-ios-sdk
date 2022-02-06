@@ -15,3 +15,5 @@ source 'https://rubygems.org'
 gem 'cocoapods', '1.11.2'
 gem 'cocoapods-generate', '2.0.1'
 gem 'danger', '6.1.0'
+
+# force building -delete me
