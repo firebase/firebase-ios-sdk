@@ -199,8 +199,6 @@ let package = Package(
       url: "https://github.com/SlaunchaMan/GCDWebServer.git",
       .revision("935e2736044e71e5341663c3cc9a335ba6867a2b")
     ),
-    // Branches need a force update with a run with the revision set like below.
-    //   .package(url: "https://github.com/paulb777/nanopb.git", .revision("564392bd87bd093c308a3aaed3997466efb95f74"))
   ],
   targets: [
     .target(
@@ -237,7 +235,7 @@ let package = Package(
         .headerSearchPath("../../.."),
       ]
     ),
-    // Interal headers only for consuming from Swift.
+    // Internal headers only for consuming from Swift.
     .target(
       name: "FirebaseCoreInternal",
       path: "FirebaseCore/Internal",
@@ -699,6 +697,7 @@ let package = Package(
     .target(
       name: "FirebaseFunctionsSwift",
       dependencies: [
+        "FirebaseAppCheckInterop",
         "FirebaseCore",
         "FirebaseCoreInternal",
         "FirebaseSharedSwift",
@@ -710,7 +709,10 @@ let package = Package(
       name: "FirebaseFunctionsSwiftUnit",
       dependencies: ["FirebaseFunctionsSwift",
                      "SharedTestUtilities"],
-      path: "FirebaseFunctionsSwift/Tests/Unit"
+      path: "FirebaseFunctionsSwift/Tests/Unit",
+      cSettings: [
+        .headerSearchPath("../../../"),
+      ]
     ),
     .testTarget(
       name: "FirebaseFunctionsSwiftIntegration",
@@ -1155,9 +1157,6 @@ let package = Package(
               .product(name: "GULEnvironment", package: "GoogleUtilities"),
             ],
             path: "FirebaseAppCheck/Sources",
-            exclude: [
-              "Interop/CMakeLists.txt",
-            ],
             publicHeadersPath: "Public",
             cSettings: [
               .headerSearchPath("../.."),
@@ -1165,6 +1164,18 @@ let package = Package(
             linkerSettings: [
               .linkedFramework("DeviceCheck", .when(platforms: [.iOS, .macOS, .tvOS])),
             ]),
+    // Internal headers only for consuming from Swift.
+    .target(
+      name: "FirebaseAppCheckInterop",
+      path: "FirebaseAppCheck/Interop",
+      exclude: [
+        "CMakeLists.txt",
+      ],
+      publicHeadersPath: ".",
+      cSettings: [
+        .headerSearchPath("../../"),
+      ]
+    ),
     .testTarget(
       name: "AppCheckUnit",
       dependencies: ["FirebaseAppCheck", "OCMock", "SharedTestUtilities"],
