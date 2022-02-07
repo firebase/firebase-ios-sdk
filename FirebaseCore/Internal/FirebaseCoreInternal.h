@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,6 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+// An umbrella header, for any other libraries in this repo to access Firebase Public and Private
+// headers. Any package manager complexity should be handled here.
 
-@objc protocol FunctionsProvider {}
+#import <FirebaseCore/FirebaseCore.h>
+
+#import "FIRAppInternal.h"
+#import "FIRComponent.h"
+#import "FIRComponentContainer.h"
+#import "FIRComponentType.h"
+#import "FIRCoreDiagnosticsConnector.h"
+#import "FIRDependency.h"
+#import "FIRHeartbeatInfo.h"
+#import "FIRLibrary.h"
+#import "FIRLogger.h"
+#import "FIROptionsInternal.h"

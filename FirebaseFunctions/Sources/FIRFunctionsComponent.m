@@ -18,7 +18,7 @@
 
 #import "FirebaseFunctions/Sources/FIRFunctions_Private.h"
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 
 #import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
 #import "FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h"

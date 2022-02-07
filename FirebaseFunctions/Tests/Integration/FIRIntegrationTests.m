@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 
 #import "FirebaseFunctions/Sources/FIRFunctions+Internal.h"
 #import "FirebaseFunctions/Sources/Public/FirebaseFunctions/FIRError.h"

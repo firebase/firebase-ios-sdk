@@ -16,7 +16,7 @@
 
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 
 FIRLoggerService kFIRLoggerMessaging = @"[Firebase/Messaging]";
 

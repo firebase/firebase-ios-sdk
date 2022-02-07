@@ -35,7 +35,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
   source = 'FirebaseAuth/Sources/'
   s.source_files = [
     source + '**/*.[mh]',
-    'FirebaseCore/Sources/Private/*.h',
+    'FirebaseCore/Internal/*.h',
     'Interop/Auth/Public/*.h',
   ]
   s.public_header_files = source + 'Public/FirebaseAuth/*.h'
