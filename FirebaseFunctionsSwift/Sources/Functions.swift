@@ -95,7 +95,10 @@ private enum Constants {
      id<FIRFunctionsProvider> provider = FIR_COMPONENT(FIRFunctionsProvider, app.container);
      return [provider functionsForApp:app region:region customDomain:customDomain type:[self class]];
      */
-    self.init(projectID: app.options.projectID!,
+    guard let projectID = app.options.projectID else {
+      fatalError("Firebase Functions requires the projectID to be set in the App's Options.")
+    }
+    self.init(projectID: projectID,
               region: region,
               customDomain: customDomain,
               // TODO: Get this out of the app.
@@ -162,7 +165,7 @@ private enum Constants {
 
   // MARK: - Private Funcs
 
-  private func urlWithName(_ name: String) -> String {
+  internal func urlWithName(_ name: String) -> String {
     assert(!name.isEmpty, "Name cannot be empty")
 
     // Check if we're using the emulator
