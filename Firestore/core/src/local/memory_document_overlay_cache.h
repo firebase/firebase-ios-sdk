@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_LOCAL_MEMORY_DOCUMENT_OVERLAY_H_
-#define FIRESTORE_CORE_SRC_LOCAL_MEMORY_DOCUMENT_OVERLAY_H_
+#ifndef FIRESTORE_CORE_SRC_LOCAL_MEMORY_DOCUMENT_OVERLAY_CACHE_H_
+#define FIRESTORE_CORE_SRC_LOCAL_MEMORY_DOCUMENT_OVERLAY_CACHE_H_
 
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -70,4 +71,4 @@ class MemoryDocumentOverlayCache final : public DocumentOverlayCache {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_LOCAL_MEMORY_DOCUMENT_OVERLAY_H_
+#endif  // FIRESTORE_CORE_SRC_LOCAL_MEMORY_DOCUMENT_OVERLAY_CACHE_H_
