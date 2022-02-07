@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <iostream>
+
 #include "Firestore/core/src/model/mutation/overlay.h"
 
 #include "Firestore/core/src/util/hashing.h"
