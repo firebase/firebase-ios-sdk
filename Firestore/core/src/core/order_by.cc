@@ -34,15 +34,17 @@ using util::ComparisonResult;
 
 namespace {
 
-void AssertBothOptionalsHaveValues(const absl::optional<google_firestore_v1_Value>& value1, const absl::optional<google_firestore_v1_Value>& value2) {
+void AssertBothOptionalsHaveValues(
+    const absl::optional<google_firestore_v1_Value>& value1,
+    const absl::optional<google_firestore_v1_Value>& value2) {
   if (value1.has_value() && value2.has_value()) {
     return;
   }
 
   std::ostringstream ss;
   ss << "Trying to compare documents on fields that don't exist;"
-      << " value1.has_value()=" << (value1.has_value() ? "true" : "false")
-      << ", value2.has_value()=" << (value2.has_value() ? "true" : "false");
+     << " value1.has_value()=" << (value1.has_value() ? "true" : "false")
+     << ", value2.has_value()=" << (value2.has_value() ? "true" : "false");
 
   if (value1.has_value()) {
     ss << ", value1=" << value1->ToString();
