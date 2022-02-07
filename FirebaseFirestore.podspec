@@ -42,7 +42,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   # version wins in the global header map. The benefit of keeping them here is
   # that "quick open" by filename in Xcode will continue to work.
   s.source_files = [
-    'FirebaseAppCheck/Sources/Interop/*.h',
+    'FirebaseAppCheck/Interop/*.h',
     'FirebaseCore/Internal/*.h',
     'Firestore/Source/Public/FirebaseFirestore/*.h',
     'Firestore/Source/**/*.{m,mm}',
