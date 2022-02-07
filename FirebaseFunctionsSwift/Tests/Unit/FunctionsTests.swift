@@ -128,8 +128,7 @@ class FunctionsTests: XCTestCase {
     FirebaseApp.configure(options: options)
 
     let functions1 = Functions.functions()
-    let functions2 = Functions
-      .functions(app: FirebaseApp.app()!, region: "") // (app:FirebaseApp.app)
+    let functions2 = Functions.functions(app: FirebaseApp.app()!)
     XCTAssertEqual(functions1, functions2)
   }
 
@@ -205,11 +204,11 @@ class FunctionsTests: XCTestCase {
 
     let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
     fetcherService.testBlock = { fetcherToTest, testResponse in
-      httpRequestExpectation.fulfill()
       let appCheckTokenHeader = fetcherToTest.request?
         .value(forHTTPHeaderField: "X-Firebase-AppCheck")
       XCTAssertEqual(appCheckTokenHeader, "valid_token")
       testResponse(nil, nil, networkError)
+      httpRequestExpectation.fulfill()
     }
 
     let completionExpectation = expectation(description: "completionExpectation")
@@ -225,76 +224,32 @@ class FunctionsTests: XCTestCase {
     waitForExpectations(timeout: 1.5)
   }
 
-  // - (void)testCallFunctionWhenAppCheckIsInstalledAndFACTokenError {
-//  NSError *appCheckError = [NSError errorWithDomain:self.name code:-1 userInfo:nil];
-//  _appCheckFake.tokenResult = [[FIRAppCheckTokenResultFake alloc] initWithToken:@"dummy_token"
-//                                                                          error:appCheckError];
-//
-//  NSError *networkError = [NSError errorWithDomain:self.name code:-2 userInfo:nil];
-//
-//  XCTestExpectation *httpRequestExpectation =
-//      [self expectationWithDescription:@"HTTPRequestExpectation"];
-//  __weak __auto_type weakSelf = self;
-//  _fetcherService.testBlock = ^(GTMSessionFetcher *_Nonnull fetcherToTest,
-//                                GTMSessionFetcherTestResponse _Nonnull testResponse) {
-//    // __unused to avoid warning in Xcode 12+ in g3.
-//    __unused __auto_type self = weakSelf;
-//    [httpRequestExpectation fulfill];
-//
-//    NSString *appCheckTokenHeader =
-//        [fetcherToTest.request valueForHTTPHeaderField:@"X-Firebase-AppCheck"];
-//    XCTAssertNil(appCheckTokenHeader);
-//
-//    testResponse(nil, nil, networkError);
-//  };
-//
-//  XCTestExpectation *completionExpectation =
-//      [self expectationWithDescription:@"completionExpectation"];
-//  [_functions callFunction:@"fake_func"
-//                withObject:nil
-//                   timeout:10
-//                completion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
-//                  XCTAssertEqualObjects(error, networkError);
-//                  [completionExpectation fulfill];
-//                }];
-//
-//  [self waitForExpectations:@[ httpRequestExpectation, completionExpectation ] timeout:1.5];
-  // }
-//
-  // - (void)testCallFunctionWhenAppCheckIsNotInstalled {
-//  NSError *networkError = [NSError errorWithDomain:@"testCallFunctionWhenAppCheckIsInstalled"
-//                                              code:-1
-//                                          userInfo:nil];
-//
-//  XCTestExpectation *httpRequestExpectation =
-//      [self expectationWithDescription:@"HTTPRequestExpectation"];
-//  __weak __auto_type weakSelf = self;
-//  _fetcherService.testBlock = ^(GTMSessionFetcher *_Nonnull fetcherToTest,
-//                                GTMSessionFetcherTestResponse _Nonnull testResponse) {
-//    // __unused to avoid warning in Xcode 12+ in g3.
-//    __unused __auto_type self = weakSelf;
-//    [httpRequestExpectation fulfill];
-//
-//    NSString *appCheckTokenHeader =
-//        [fetcherToTest.request valueForHTTPHeaderField:@"X-Firebase-AppCheck"];
-//    XCTAssertNil(appCheckTokenHeader);
-//
-//    testResponse(nil, nil, networkError);
-//  };
-//
-//  XCTestExpectation *completionExpectation =
-//      [self expectationWithDescription:@"completionExpectation"];
-//  [_functionsCustomDomain
-//      callFunction:@"fake_func"
-//        withObject:nil
-//           timeout:10
-//        completion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
-//          XCTAssertEqualObjects(error, networkError);
-//          [completionExpectation fulfill];
-//        }];
-//
-//  [self waitForExpectations:@[ httpRequestExpectation, completionExpectation ] timeout:1.5];
-  // }
-//
-  // @end
+  func testCallFunctionWhenAppCheckIsNotInstalled() {
+    let networkError = NSError(
+      domain: "testCallFunctionWhenAppCheckIsInstalled",
+      code: -1,
+      userInfo: nil
+    )
+
+    let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
+    fetcherService.testBlock = { fetcherToTest, testResponse in
+      let appCheckTokenHeader = fetcherToTest.request?
+        .value(forHTTPHeaderField: "X-Firebase-AppCheck")
+      XCTAssertNil(appCheckTokenHeader)
+      testResponse(nil, nil, networkError)
+      httpRequestExpectation.fulfill()
+    }
+
+    let completionExpectation = expectation(description: "completionExpectation")
+    functionsCustomDomain?.callFunction(name: "fake_func", withObject: nil, timeout: 10) { result in
+      switch result {
+      case .success:
+        XCTFail("Unexpected success from functions?.callFunction")
+      case let .failure(error as NSError):
+        XCTAssertEqual(error, networkError)
+      }
+      completionExpectation.fulfill()
+    }
+    waitForExpectations(timeout: 1.5)
+  }
 }

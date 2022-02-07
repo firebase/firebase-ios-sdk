@@ -35,7 +35,7 @@ target 'SymbolCollisionTest' do
 
   # Other Google Pods
 #    pod 'ARCore' Conflicts with FirebasePerformance via Clearcut and google-cast-sdk
-#    pod 'Blockly'  `Blockly` does not specify a Swift version and none of the targets
+#    pod 'Blockly'  `Blockly` does not specify a Swift version ...
     pod 'DigitsMigrationHelper'
     pod 'EarlGrey'
 #    pod 'GeoFire' -- requires Firebase/Database 4.0
