@@ -148,9 +148,11 @@ class LocalSerializer {
   bundle::NamedQuery DecodeNamedQuery(nanopb::Reader* reader,
                                       firestore_NamedQuery& proto) const;
 
-  model::Mutation DecodeMutation(nanopb::Reader* reader, google_firestore_v1_Write& mutation) const;
+  model::Mutation DecodeMutation(nanopb::Reader* reader,
+                                 google_firestore_v1_Write& mutation) const;
 
-  google_firestore_v1_Write EncodeMutation(const model::Mutation& mutation) const;
+  google_firestore_v1_Write EncodeMutation(
+      const model::Mutation& mutation) const;
 
  private:
   /**

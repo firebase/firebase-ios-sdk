@@ -32,24 +32,32 @@ class MemoryDocumentOverlayCache final : public DocumentOverlayCache {
   MemoryDocumentOverlayCache() = default;
 
   MemoryDocumentOverlayCache(const MemoryDocumentOverlayCache&) = delete;
-  MemoryDocumentOverlayCache& operator=(const MemoryDocumentOverlayCache&) = delete;
+  MemoryDocumentOverlayCache& operator=(const MemoryDocumentOverlayCache&) =
+      delete;
 
   MemoryDocumentOverlayCache(MemoryDocumentOverlayCache&&) = delete;
   MemoryDocumentOverlayCache& operator=(MemoryDocumentOverlayCache&&) = delete;
 
-  absl::optional<model::mutation::Overlay> GetOverlay(const model::DocumentKey& key) const override;
+  absl::optional<model::mutation::Overlay> GetOverlay(
+      const model::DocumentKey& key) const override;
 
-  void SaveOverlays(int largest_batch_id, const MutationByDocumentKeyMap& overlays) override;
+  void SaveOverlays(int largest_batch_id,
+                    const MutationByDocumentKeyMap& overlays) override;
 
   void RemoveOverlaysForBatchId(int batch_id) override;
 
-  OverlayByDocumentKeyMap GetOverlays(const model::ResourcePath& collection, int since_batch_id) const override;
+  OverlayByDocumentKeyMap GetOverlays(const model::ResourcePath& collection,
+                                      int since_batch_id) const override;
 
-  OverlayByDocumentKeyMap GetOverlays(const std::string& collection_group, int since_batch_id, size_t count) const override;
+  OverlayByDocumentKeyMap GetOverlays(const std::string& collection_group,
+                                      int since_batch_id,
+                                      size_t count) const override;
 
  private:
-  using OverlayByDocumentKeySortedMap = immutable::SortedMap<model::DocumentKey, model::mutation::Overlay>;
-  using DocumentKeySet = std::unordered_set<model::DocumentKey, model::DocumentKeyHash>;
+  using OverlayByDocumentKeySortedMap =
+      immutable::SortedMap<model::DocumentKey, model::mutation::Overlay>;
+  using DocumentKeySet =
+      std::unordered_set<model::DocumentKey, model::DocumentKeyHash>;
   using DocumentKeysByBatchIdMap = std::unordered_map<int, DocumentKeySet>;
 
   void SaveOverlay(int largest_batch_id, const model::Mutation& mutation);

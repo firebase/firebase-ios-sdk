@@ -21,11 +21,11 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
+#include <Firestore/core/src/model/document_key.h>
+#include <Firestore/core/src/model/mutation.h>
 #include "Firestore/core/src/immutable/sorted_map.h"
 #include "Firestore/core/src/local/document_overlay_cache.h"
 #include "Firestore/core/src/local/memory_document_overlay_cache.h"
-#include <Firestore/core/src/model/document_key.h>
-#include <Firestore/core/src/model/mutation.h>
 #include "Firestore/core/src/model/delete_mutation.h"
 #include "Firestore/core/src/model/patch_mutation.h"
 #include "Firestore/core/src/model/resource_path.h"
@@ -37,20 +37,22 @@ namespace firestore {
 namespace local {
 namespace {
 
-using ::testing::UnorderedElementsAreArray;
 using local::DocumentOverlayCache;
 using model::DocumentKey;
 using model::Mutation;
 using model::ResourcePath;
-using testutil::Map;
+using ::testing::UnorderedElementsAreArray;
 using testutil::DeleteMutation;
+using testutil::Map;
 using testutil::PatchMutation;
 using testutil::SetMutation;
 
 TEST(DocumentOverlayCacheTest, TypeTraits) {
-  static_assert(!std::is_constructible<DocumentOverlayCache>::value, "is_constructible");
+  static_assert(!std::is_constructible<DocumentOverlayCache>::value,
+                "is_constructible");
   static_assert(std::is_abstract<DocumentOverlayCache>::value, "is_abstract");
-  static_assert(std::has_virtual_destructor<DocumentOverlayCache>::value, "has_virtual_destructor");
+  static_assert(std::has_virtual_destructor<DocumentOverlayCache>::value,
+                "has_virtual_destructor");
 }
 
 // Since `DocumentOverlayCache` is a purely-abstract class, it is not tested
@@ -73,7 +75,8 @@ class DocumentOverlayCacheTest : public ::testing::Test {
   DocumentOverlayCacheTest() : cache_(CreateDocumentOverlayCache<T>()) {
   }
 
-  void SaveOverlaysWithMutations(int largest_batch_id, const std::vector<Mutation>& mutations) {
+  void SaveOverlaysWithMutations(int largest_batch_id,
+                                 const std::vector<Mutation>& mutations) {
     DocumentOverlayCache::MutationByDocumentKeyMap data;
     for (const auto& mutation : mutations) {
       ASSERT_TRUE(data.find(mutation.key()) == data.end());
@@ -82,7 +85,8 @@ class DocumentOverlayCacheTest : public ::testing::Test {
     this->cache_->SaveOverlays(largest_batch_id, data);
   }
 
-  void SaveOverlaysWithSetMutations(int largest_batch_id, const std::vector<std::string>& keys) {
+  void SaveOverlaysWithSetMutations(int largest_batch_id,
+                                    const std::vector<std::string>& keys) {
     DocumentOverlayCache::MutationByDocumentKeyMap data;
     for (const auto& key : keys) {
       DocumentKey document_key = DocumentKey::FromPathString(key);
@@ -95,10 +99,14 @@ class DocumentOverlayCacheTest : public ::testing::Test {
   std::unique_ptr<DocumentOverlayCache> cache_;
 };
 
-TYPED_TEST_SUITE(DocumentOverlayCacheTest, ::testing::Types<MemoryDocumentOverlayCache>);
+TYPED_TEST_SUITE(DocumentOverlayCacheTest,
+                 ::testing::Types<MemoryDocumentOverlayCache>);
 
-void VerifyOverlayContains(const DocumentOverlayCache::OverlayByDocumentKeyMap& overlays, const std::unordered_set<std::string>& keys) {
-  using DocumentKeySet = std::unordered_set<DocumentKey, model::DocumentKeyHash>;
+void VerifyOverlayContains(
+    const DocumentOverlayCache::OverlayByDocumentKeyMap& overlays,
+    const std::unordered_set<std::string>& keys) {
+  using DocumentKeySet =
+      std::unordered_set<DocumentKey, model::DocumentKeyHash>;
 
   DocumentKeySet actual_keys;
   for (const auto& overlays_entry : overlays) {
@@ -114,14 +122,16 @@ void VerifyOverlayContains(const DocumentOverlayCache::OverlayByDocumentKeyMap& 
 }
 
 TYPED_TEST(DocumentOverlayCacheTest, ReturnsNullWhenOverlayIsNotFound) {
-  EXPECT_FALSE(this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1")));
+  EXPECT_FALSE(
+      this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1")));
 }
 
 TYPED_TEST(DocumentOverlayCacheTest, CanReadSavedOverlay) {
   Mutation mutation = PatchMutation("coll/doc1", Map("foo", "bar"));
   this->SaveOverlaysWithMutations(2, {mutation});
 
-  auto overlay_opt = this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1"));
+  auto overlay_opt =
+      this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1"));
 
   ASSERT_TRUE(overlay_opt);
   EXPECT_EQ(mutation, overlay_opt.value().mutation());
@@ -133,9 +143,12 @@ TYPED_TEST(DocumentOverlayCacheTest, CanReadSavedOverlays) {
   Mutation m3 = DeleteMutation("coll/doc3");
   this->SaveOverlaysWithMutations(3, {m1, m2, m3});
 
-  auto overlay_opt1 = this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1"));
-  auto overlay_opt2 = this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc2"));
-  auto overlay_opt3 = this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc3"));
+  auto overlay_opt1 =
+      this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1"));
+  auto overlay_opt2 =
+      this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc2"));
+  auto overlay_opt3 =
+      this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc3"));
 
   ASSERT_TRUE(overlay_opt1);
   EXPECT_EQ(m1, overlay_opt1.value().mutation());
@@ -151,7 +164,8 @@ TYPED_TEST(DocumentOverlayCacheTest, SavingOverlayOverwrites) {
   this->SaveOverlaysWithMutations(2, {m1});
   this->SaveOverlaysWithMutations(2, {m2});
 
-  auto overlay_opt = this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1"));
+  auto overlay_opt =
+      this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1"));
 
   ASSERT_TRUE(overlay_opt);
   EXPECT_EQ(m2, overlay_opt.value().mutation());
@@ -162,10 +176,12 @@ TYPED_TEST(DocumentOverlayCacheTest, DeleteRepeatedlyWorks) {
   this->SaveOverlaysWithMutations(2, {mutation});
 
   this->cache_->RemoveOverlaysForBatchId(2);
-  EXPECT_FALSE(this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1")));
+  EXPECT_FALSE(
+      this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1")));
 
   this->cache_->RemoveOverlaysForBatchId(2);
-  EXPECT_FALSE(this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1")));
+  EXPECT_FALSE(
+      this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1")));
 }
 
 TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysForCollection) {
@@ -194,7 +210,8 @@ TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysSinceBatchId) {
   VerifyOverlayContains(overlays, {"coll/doc3", "coll/doc4"});
 }
 
-TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysFromCollectionGroupEnforcesCollectionGroup) {
+TYPED_TEST(DocumentOverlayCacheTest,
+           GetAllOverlaysFromCollectionGroupEnforcesCollectionGroup) {
   this->SaveOverlaysWithSetMutations(2, {"coll1/doc1", "coll2/doc1"});
   this->SaveOverlaysWithSetMutations(3, {"coll1/doc2"});
   this->SaveOverlaysWithSetMutations(4, {"coll2/doc2"});
@@ -205,7 +222,8 @@ TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysFromCollectionGroupEnforcesCo
   VerifyOverlayContains(overlays, {"coll1/doc1", "coll1/doc2"});
 }
 
-TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysFromCollectionGroupEnforcesBatchId) {
+TYPED_TEST(DocumentOverlayCacheTest,
+           GetAllOverlaysFromCollectionGroupEnforcesBatchId) {
   this->SaveOverlaysWithSetMutations(2, {"coll/doc1"});
   this->SaveOverlaysWithSetMutations(3, {"coll/doc2"});
 
@@ -215,7 +233,8 @@ TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysFromCollectionGroupEnforcesBa
   VerifyOverlayContains(overlays, {"coll/doc2"});
 }
 
-TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysFromCollectionGroupEnforcesLimit) {
+TYPED_TEST(DocumentOverlayCacheTest,
+           GetAllOverlaysFromCollectionGroupEnforcesLimit) {
   this->SaveOverlaysWithSetMutations(1, {"coll/doc1"});
   this->SaveOverlaysWithSetMutations(2, {"coll/doc2"});
   this->SaveOverlaysWithSetMutations(3, {"coll/doc3"});
@@ -226,7 +245,8 @@ TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysFromCollectionGroupEnforcesLi
   VerifyOverlayContains(overlays, {"coll/doc1", "coll/doc2"});
 }
 
-TYPED_TEST(DocumentOverlayCacheTest, GetAllOverlaysFromCollectionGroupWithLimitIncludesFullBatches) {
+TYPED_TEST(DocumentOverlayCacheTest,
+           GetAllOverlaysFromCollectionGroupWithLimitIncludesFullBatches) {
   this->SaveOverlaysWithSetMutations(1, {"coll/doc1"});
   this->SaveOverlaysWithSetMutations(2, {"coll/doc2", "coll/doc3"});
 

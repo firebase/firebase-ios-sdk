@@ -29,7 +29,8 @@ using model::Mutation;
 using model::ResourcePath;
 using model::mutation::Overlay;
 
-absl::optional<Overlay> MemoryDocumentOverlayCache::GetOverlay(const DocumentKey& key) const {
+absl::optional<Overlay> MemoryDocumentOverlayCache::GetOverlay(
+    const DocumentKey& key) const {
   const auto overlays_iter = overlays_.find(key);
   if (overlays_iter == overlays_.end()) {
     return absl::nullopt;
@@ -38,7 +39,8 @@ absl::optional<Overlay> MemoryDocumentOverlayCache::GetOverlay(const DocumentKey
   }
 }
 
-void MemoryDocumentOverlayCache::SaveOverlays(int largest_batch_id, const MutationByDocumentKeyMap& overlays) {
+void MemoryDocumentOverlayCache::SaveOverlays(
+    int largest_batch_id, const MutationByDocumentKeyMap& overlays) {
   for (auto& kv : overlays) {
     SaveOverlay(largest_batch_id, kv.second);
   }
@@ -55,7 +57,9 @@ void MemoryDocumentOverlayCache::RemoveOverlaysForBatchId(int batch_id) {
   }
 }
 
-DocumentOverlayCache::OverlayByDocumentKeyMap MemoryDocumentOverlayCache::GetOverlays(const ResourcePath& collection, int since_batch_id) const {
+DocumentOverlayCache::OverlayByDocumentKeyMap
+MemoryDocumentOverlayCache::GetOverlays(const ResourcePath& collection,
+                                        int since_batch_id) const {
   OverlayByDocumentKeyMap result;
 
   size_t immediate_children_path_length{collection.size() + 1};
@@ -67,7 +71,7 @@ DocumentOverlayCache::OverlayByDocumentKeyMap MemoryDocumentOverlayCache::GetOve
     ++view;
 
     const DocumentKey key = overlay.key();
-    if (! collection.IsPrefixOf(key.path())) {
+    if (!collection.IsPrefixOf(key.path())) {
       break;
     }
     // Documents from sub-collections
@@ -83,14 +87,18 @@ DocumentOverlayCache::OverlayByDocumentKeyMap MemoryDocumentOverlayCache::GetOve
   return result;
 }
 
-DocumentOverlayCache::OverlayByDocumentKeyMap MemoryDocumentOverlayCache::GetOverlays(const std::string& collection_group, int since_batch_id, size_t count) const {
-  using OverlaysByDocumentKeyMap = std::unordered_map<DocumentKey, Overlay, DocumentKeyHash>;
+DocumentOverlayCache::OverlayByDocumentKeyMap
+MemoryDocumentOverlayCache::GetOverlays(const std::string& collection_group,
+                                        int since_batch_id,
+                                        size_t count) const {
+  using OverlaysByDocumentKeyMap =
+      std::unordered_map<DocumentKey, Overlay, DocumentKeyHash>;
   std::map<int, OverlaysByDocumentKeyMap> batch_id_to_overlays;
 
   for (const auto& overlays_entry : overlays_) {
     const Overlay& overlay = overlays_entry.second;
     const DocumentKey key = overlay.key();
-    if (! key.HasCollectionId(collection_group)) {
+    if (!key.HasCollectionId(collection_group)) {
       continue;
     }
     if (overlay.largest_batch_id() > since_batch_id) {
@@ -110,19 +118,22 @@ DocumentOverlayCache::OverlayByDocumentKeyMap MemoryDocumentOverlayCache::GetOve
   return result;
 }
 
-void MemoryDocumentOverlayCache::SaveOverlay(int largest_batch_id, const Mutation& mutation) {
+void MemoryDocumentOverlayCache::SaveOverlay(int largest_batch_id,
+                                             const Mutation& mutation) {
   {
     const auto overlays_iter = overlays_.find(mutation.key());
     if (overlays_iter != overlays_.end()) {
       const Overlay& existing = overlays_iter->second;
-      auto overlay_by_batch_id_iter = overlay_by_batch_id_.find(existing.largest_batch_id());
+      auto overlay_by_batch_id_iter =
+          overlay_by_batch_id_.find(existing.largest_batch_id());
       HARD_ASSERT(overlay_by_batch_id_iter != overlay_by_batch_id_.end());
       DocumentKeySet& existing_keys = overlay_by_batch_id_iter->second;
       existing_keys.erase(mutation.key());
     }
   }
 
-  overlays_ = overlays_.insert(mutation.key(), Overlay(largest_batch_id, mutation));
+  overlays_ =
+      overlays_.insert(mutation.key(), Overlay(largest_batch_id, mutation));
 
   overlay_by_batch_id_[largest_batch_id].insert(mutation.key());
 }

@@ -454,11 +454,13 @@ BundledQuery LocalSerializer::DecodeBundledQuery(
       limit_type);
 }
 
-model::Mutation LocalSerializer::DecodeMutation(nanopb::Reader* reader, google_firestore_v1_Write& mutation) const {
+model::Mutation LocalSerializer::DecodeMutation(
+    nanopb::Reader* reader, google_firestore_v1_Write& mutation) const {
   return rpc_serializer_.DecodeMutation(reader->context(), mutation);
 }
 
-google_firestore_v1_Write LocalSerializer::EncodeMutation(const model::Mutation& mutation) const {
+google_firestore_v1_Write LocalSerializer::EncodeMutation(
+    const model::Mutation& mutation) const {
   return rpc_serializer_.EncodeMutation(mutation);
 }
 

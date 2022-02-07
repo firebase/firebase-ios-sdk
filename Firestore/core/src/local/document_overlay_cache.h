@@ -20,11 +20,11 @@
 #include <string>
 #include <unordered_map>
 
-#include "absl/types/optional.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/mutation.h"
-#include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/mutation/overlay.h"
+#include "Firestore/core/src/model/resource_path.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -42,8 +42,12 @@ namespace local {
  */
 class DocumentOverlayCache {
  public:
-  using OverlayByDocumentKeyMap = std::unordered_map<model::DocumentKey, model::mutation::Overlay, model::DocumentKeyHash>;
-  using MutationByDocumentKeyMap = std::unordered_map<model::DocumentKey, model::Mutation, model::DocumentKeyHash>;
+  using OverlayByDocumentKeyMap = std::unordered_map<model::DocumentKey,
+                                                     model::mutation::Overlay,
+                                                     model::DocumentKeyHash>;
+  using MutationByDocumentKeyMap = std::unordered_map<model::DocumentKey,
+                                                      model::Mutation,
+                                                      model::DocumentKeyHash>;
 
   virtual ~DocumentOverlayCache() = default;
 
@@ -52,14 +56,16 @@ class DocumentOverlayCache {
    *
    * Returns an empty optional if there is no overlay for that key.
    */
-  virtual absl::optional<model::mutation::Overlay> GetOverlay(const model::DocumentKey& key) const = 0;
+  virtual absl::optional<model::mutation::Overlay> GetOverlay(
+      const model::DocumentKey& key) const = 0;
 
   /**
    * Saves the given document key to mutation map to persistence as overlays.
    *
    * All overlays will have their largest batch id set to `largestBatchId`.
    */
-  virtual void SaveOverlays(int largest_batch_id, const MutationByDocumentKeyMap& overlays) = 0;
+  virtual void SaveOverlays(int largest_batch_id,
+                            const MutationByDocumentKeyMap& overlays) = 0;
 
   /** Removes the overlay whose largest-batch-id equals to the given Id. */
   virtual void RemoveOverlaysForBatchId(int batch_id) = 0;
@@ -72,7 +78,8 @@ class DocumentOverlayCache {
    *     Only overlays that contain a change past `sinceBatchId` are returned.
    * @return Mapping of each document key in the collection to its overlay.
    */
-  virtual OverlayByDocumentKeyMap GetOverlays(const model::ResourcePath& collection, int since_batch_id) const = 0;
+  virtual OverlayByDocumentKeyMap GetOverlays(
+      const model::ResourcePath& collection, int since_batch_id) const = 0;
 
   /**
    * Returns `count` overlays with a batch ID higher than `sinceBatchId` for the
@@ -86,9 +93,13 @@ class DocumentOverlayCache {
    *     Only overlays that contain a change past `sinceBatchId` are returned.
    * @param count The number of overlays to return. Can be exceeded if the last
    *     batch contains more entries.
-   * @return Mapping of each document key in the collection group to its overlay.
+   * @return Mapping of each document key in the collection group to its
+   * overlay.
    */
-  virtual OverlayByDocumentKeyMap GetOverlays(const std::string& collection_group, int since_batch_id, size_t count) const = 0;
+  virtual OverlayByDocumentKeyMap GetOverlays(
+      const std::string& collection_group,
+      int since_batch_id,
+      size_t count) const = 0;
 };
 
 }  // namespace local

@@ -18,8 +18,8 @@
 #include <type_traits>
 #include <utility>
 
-#include "Firestore/core/src/model/mutation/overlay.h"
 #include "Firestore/core/src/model/mutation.h"
+#include "Firestore/core/src/model/mutation/overlay.h"
 #include "Firestore/core/src/model/patch_mutation.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/test/unit/testutil/equals_tester.h"
@@ -49,9 +49,12 @@ Mutation SampleMutation(absl::string_view path = "doc/col") {
 TEST(OverlayTest, TypeTraits) {
   static_assert(std::is_constructible<Overlay>::value, "is_constructible");
   static_assert(std::is_destructible<Overlay>::value, "is_destructible");
-  static_assert(std::is_default_constructible<Overlay>::value, "is_default_constructible");
-  static_assert(std::is_copy_constructible<Overlay>::value, "is_copy_constructible");
-  static_assert(std::is_move_constructible<Overlay>::value, "is_move_constructible");
+  static_assert(std::is_default_constructible<Overlay>::value,
+                "is_default_constructible");
+  static_assert(std::is_copy_constructible<Overlay>::value,
+                "is_copy_constructible");
+  static_assert(std::is_move_constructible<Overlay>::value,
+                "is_move_constructible");
   static_assert(std::is_copy_assignable<Overlay>::value, "is_copy_assignable");
   static_assert(std::is_move_assignable<Overlay>::value, "is_move_assignable");
 }
@@ -197,10 +200,14 @@ TEST(OverlayTest, key) {
 TEST(OverlayTest, EqualsAndHash) {
   testutil::EqualsTester<Overlay>()
       .AddEqualityGroup(Overlay(), Overlay())
-      .AddEqualityGroup(Overlay(SAMPLE_BATCH_ID, Mutation()), Overlay(SAMPLE_BATCH_ID, Mutation()))
-      .AddEqualityGroup(Overlay(SAMPLE_BATCH_ID, SampleMutation("col/abc")), Overlay(SAMPLE_BATCH_ID, SampleMutation("col/abc")))
-      .AddEqualityGroup(Overlay(SAMPLE_BATCH_ID + 1, SampleMutation("col/abc")), Overlay(SAMPLE_BATCH_ID + 1, SampleMutation("col/abc")))
-      .AddEqualityGroup(Overlay(SAMPLE_BATCH_ID, SampleMutation("col/xyz")), Overlay(SAMPLE_BATCH_ID, SampleMutation("col/xyz")))
+      .AddEqualityGroup(Overlay(SAMPLE_BATCH_ID, Mutation()),
+                        Overlay(SAMPLE_BATCH_ID, Mutation()))
+      .AddEqualityGroup(Overlay(SAMPLE_BATCH_ID, SampleMutation("col/abc")),
+                        Overlay(SAMPLE_BATCH_ID, SampleMutation("col/abc")))
+      .AddEqualityGroup(Overlay(SAMPLE_BATCH_ID + 1, SampleMutation("col/abc")),
+                        Overlay(SAMPLE_BATCH_ID + 1, SampleMutation("col/abc")))
+      .AddEqualityGroup(Overlay(SAMPLE_BATCH_ID, SampleMutation("col/xyz")),
+                        Overlay(SAMPLE_BATCH_ID, SampleMutation("col/xyz")))
       .TestEquals();
 }
 

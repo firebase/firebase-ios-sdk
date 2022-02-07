@@ -26,7 +26,8 @@ namespace model {
 namespace mutation {
 
 bool operator==(const Overlay& lhs, const Overlay& rhs) {
-  return lhs.largest_batch_id_ == rhs.largest_batch_id_ && lhs.mutation_ == rhs.mutation_;
+  return lhs.largest_batch_id_ == rhs.largest_batch_id_ &&
+         lhs.mutation_ == rhs.mutation_;
 }
 
 std::ostream& operator<<(std::ostream& os, const Overlay& result) {
@@ -42,9 +43,8 @@ std::size_t Overlay::Hash() const {
 }
 
 std::string Overlay::ToString() const {
-  return absl::StrCat(
-      "Overlay(largest_batch_id=", largest_batch_id_,
-      ", mutation=", util::ToString(mutation_), ")");
+  return absl::StrCat("Overlay(largest_batch_id=", largest_batch_id_,
+                      ", mutation=", util::ToString(mutation_), ")");
 }
 
 }  // namespace mutation
