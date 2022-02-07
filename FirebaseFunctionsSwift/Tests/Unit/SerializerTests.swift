@@ -16,7 +16,11 @@ import Foundation
 
 import FirebaseCore
 @testable import FirebaseFunctionsSwift
-import GTMSessionFetcherCore
+#if COCOAPODS
+  import GTMSessionFetcher
+#else
+  import GTMSessionFetcherCore
+#endif
 
 import XCTest
 
