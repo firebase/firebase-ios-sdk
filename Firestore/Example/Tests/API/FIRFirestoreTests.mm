@@ -19,7 +19,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FIRAppInternal.h"
 
 #include "Firestore/core/test/unit/testutil/app_testing.h"
 

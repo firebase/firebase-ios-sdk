@@ -18,7 +18,7 @@
 
 #import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
 #import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
-#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FIRAppInternal.h"
 
 #include "Firestore/core/src/util/error_apple.h"
 #include "Firestore/core/src/util/hard_assert.h"

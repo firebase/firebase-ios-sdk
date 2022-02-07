@@ -32,10 +32,6 @@ import FirebaseSharedSwift
   var fcmToken: String { get }
 }
 
-// @objc public protocol AppCheckInterop {
-//  func getToken(forcingRefresh: Bool, callback: (String?, Error?) -> Void)
-// }
-
 // END PLACEHOLDERS
 
 /// File specific constants.
