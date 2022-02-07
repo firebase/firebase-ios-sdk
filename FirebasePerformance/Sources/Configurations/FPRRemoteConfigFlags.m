@@ -19,7 +19,7 @@
 
 #import "FirebasePerformance/Sources/FPRConsoleLogger.h"
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 
 #define ONE_DAY_SECONDS 24 * 60 * 60
 

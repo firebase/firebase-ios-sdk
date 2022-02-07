@@ -16,7 +16,7 @@
 
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabase_Private.h"

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 
 #import "FirebaseFunctions/Sources/FIRFunctions+Internal.h"
 #import "FirebaseFunctions/Sources/Public/FirebaseFunctions/FIRFunctions.h"

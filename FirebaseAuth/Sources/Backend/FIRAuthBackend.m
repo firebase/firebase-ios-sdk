@@ -62,7 +62,7 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberResponse.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 
 #if TARGET_OS_IOS
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"

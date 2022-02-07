@@ -25,7 +25,7 @@
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenOperation.h"
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 
 // We can have a static int since this error should theoretically only
 // happen once (for the first time). If it repeats there is something

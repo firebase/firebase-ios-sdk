@@ -22,7 +22,7 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigDefines.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 
 @implementation RCNConfigContent {
   /// Active config data that is currently used.

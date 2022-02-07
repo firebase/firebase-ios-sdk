@@ -15,7 +15,7 @@
  */
 
 #import "FirebaseDatabase/Sources/Persistence/FPersistenceManager.h"
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 #import "FirebaseDatabase/Sources/Core/View/FCacheNode.h"
 #import "FirebaseDatabase/Sources/FClock.h"
 #import "FirebaseDatabase/Sources/Persistence/FLevelDBStorageEngine.h"
