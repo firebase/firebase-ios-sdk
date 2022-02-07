@@ -12,6 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
+import FirebaseCore
+@testable import FirebaseFunctionsSwift
+import GTMSessionFetcherCore
+
+import XCTest
+
 // #import <XCTest/XCTest.h>
 //
 // #import "FirebaseFunctions/Sources/FIRFunctions+Internal.h"
@@ -45,16 +53,18 @@
 // @interface FIRFunctionsTests : XCTestCase
 //
 // @end
+
+class FunctionsTests: XCTestCase {
 //
-// @implementation FIRFunctionsTests {
+  // @implementation FIRFunctionsTests {
 //  FIRFunctions *_functions;
 //  FIRFunctions *_functionsCustomDomain;
 //
 //  GTMSessionFetcherService *_fetcherService;
 //  FIRAppCheckFake *_appCheckFake;
-// }
+  // }
 //
-// - (void)setUp {
+  // - (void)setUp {
 //  [super setUp];
 //  _fetcherService = [[GTMSessionFetcherService alloc] init];
 //  _appCheckFake = [[FIRAppCheckFake alloc] init];
@@ -74,16 +84,52 @@
 //                                                         messaging:nil
 //                                                          appCheck:nil
 //                                                    fetcherService:_fetcherService];
-// }
+  // }
+  var functions: Functions?
+  var functionsCustomDomain: Functions?
+  var fetcherService: GTMSessionFetcherService?
+
+  override func setUp() {
+    super.setUp()
+    fetcherService = GTMSessionFetcherService()
+    functions = Functions(
+      projectID: "my-project",
+      region: "my-region",
+      customDomain: nil,
+      auth: nil,
+      messaging: nil,
+      appCheck: nil,
+      fetcherService: fetcherService!
+    )
+    functionsCustomDomain = Functions(projectID: "my-project", region: "my-region",
+                                      customDomain: "https://mydomain.com", auth: nil,
+                                      messaging: nil, appCheck: nil,
+                                      fetcherService: fetcherService!)
+  }
+
 //
-// - (void)tearDown {
+  // - (void)tearDown {
 //  _functionsCustomDomain = nil;
 //  _functions = nil;
 //  _fetcherService = nil;
 //  [super tearDown];
-// }
+  // }
+
+  // TODO: Finish porting this test when components are done.
+  func SKIPtestFunctionsInstanceIsStablePerApp() {
+    let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
+                                  gcmSenderID: "00000000000000000-00000000000-000000000")
+    options.projectID = "myProjectID"
+    FirebaseApp.configure(options: options)
+
+    let functions1 = Functions.functions()
+    let functions2 = Functions
+      .functions(app: FirebaseApp.app()!, region: "") // (app:FirebaseApp.app)
+    XCTAssertEqual(functions1, functions2)
+  }
+
 //
-// - (void)testFunctionsInstanceIsStablePerApp {
+  // - (void)testFunctionsInstanceIsStablePerApp {
 //  FIROptions *options =
 //      [[FIROptions alloc] initWithGoogleAppID:@"0:0000000000000:ios:0000000000000000"
 //                                  GCMSenderID:@"00000000000000000-00000000000-000000000"];
@@ -112,46 +158,38 @@
 //
 //  functions2 = [FIRFunctions functionsForApp:[FIRApp defaultApp] customDomain:@"test_domain"];
 //  XCTAssertEqualObjects(functions1, functions2);
-// }
-//
-// - (void)testURLWithName {
-//  NSString *url = [_functions URLWithName:@"my-endpoint"];
-//  XCTAssertEqualObjects(@"https://my-region-my-project.cloudfunctions.net/my-endpoint", url);
-// }
-//
-// - (void)testRegionWithEmulator {
-//  [_functionsCustomDomain useEmulatorWithHost:@"localhost" port:5005];
-//  NSLog(@"%@", _functionsCustomDomain.emulatorOrigin);
-//  NSString *url = [_functionsCustomDomain URLWithName:@"my-endpoint"];
-//  XCTAssertEqualObjects(@"http://localhost:5005/my-project/my-region/my-endpoint", url);
-// }
-//
-// - (void)testRegionWithEmulatorWithScheme {
-//  [_functionsCustomDomain useEmulatorWithHost:@"http://localhost" port:5005];
-//  NSLog(@"%@", _functionsCustomDomain.emulatorOrigin);
-//  NSString *url = [_functionsCustomDomain URLWithName:@"my-endpoint"];
-//  XCTAssertEqualObjects(@"http://localhost:5005/my-project/my-region/my-endpoint", url);
-// }
-//
-// - (void)testCustomDomain {
-//  NSString *url = [_functionsCustomDomain URLWithName:@"my-endpoint"];
-//  XCTAssertEqualObjects(@"https://mydomain.com/my-endpoint", url);
-// }
-//
-// - (void)testCustomDomainWithEmulator {
-//  [_functionsCustomDomain useEmulatorWithHost:@"localhost" port:5005];
-//  NSString *url = [_functionsCustomDomain URLWithName:@"my-endpoint"];
-//  XCTAssertEqualObjects(@"http://localhost:5005/my-project/my-region/my-endpoint", url);
-// }
-//
-// - (void)testSetEmulatorSettings {
-//  [_functions useEmulatorWithHost:@"localhost" port:1000];
-//  XCTAssertEqualObjects(@"http://localhost:1000", _functions.emulatorOrigin);
-// }
-//
-// #pragma mark - App Check integration
-//
-// - (void)testCallFunctionWhenAppCheckIsInstalledAndFACTokenSuccess {
+  // }
+
+  func testURLWithName() throws {
+    let url = try XCTUnwrap(functions?.urlWithName("my-endpoint"))
+    XCTAssertEqual(url, "https://my-region-my-project.cloudfunctions.net/my-endpoint")
+  }
+
+  func testRegionWithEmulator() throws {
+    functionsCustomDomain?.useEmulator(withHost: "localhost", port: 5005)
+    let url = try XCTUnwrap(functionsCustomDomain?.urlWithName("my-endpoint"))
+    XCTAssertEqual(url, "http://localhost:5005/my-project/my-region/my-endpoint")
+  }
+
+  func testRegionWithEmulatorWithScheme() throws {
+    functionsCustomDomain?.useEmulator(withHost: "http://localhost", port: 5005)
+    let url = try XCTUnwrap(functionsCustomDomain?.urlWithName("my-endpoint"))
+    XCTAssertEqual(url, "http://localhost:5005/my-project/my-region/my-endpoint")
+  }
+
+  func testCustomDomain() throws {
+    let url = try XCTUnwrap(functionsCustomDomain?.urlWithName("my-endpoint"))
+    XCTAssertEqual(url, "https://mydomain.com/my-endpoint")
+  }
+
+  func testSetEmulatorSettings() throws {
+    functions?.useEmulator(withHost: "localhost", port: 1000)
+    XCTAssertEqual("http://localhost:1000", functions?.emulatorOrigin)
+  }
+
+  // MARK: - App Check integration
+
+  // - (void)testCallFunctionWhenAppCheckIsInstalledAndFACTokenSuccess {
 //  _appCheckFake.tokenResult = [[FIRAppCheckTokenResultFake alloc] initWithToken:@"valid_token"
 //                                                                          error:nil];
 //
@@ -186,9 +224,9 @@
 //                }];
 //
 //  [self waitForExpectations:@[ httpRequestExpectation, completionExpectation ] timeout:1.5];
-// }
+  // }
 //
-// - (void)testCallFunctionWhenAppCheckIsInstalledAndFACTokenError {
+  // - (void)testCallFunctionWhenAppCheckIsInstalledAndFACTokenError {
 //  NSError *appCheckError = [NSError errorWithDomain:self.name code:-1 userInfo:nil];
 //  _appCheckFake.tokenResult = [[FIRAppCheckTokenResultFake alloc] initWithToken:@"dummy_token"
 //                                                                          error:appCheckError];
@@ -222,9 +260,9 @@
 //                }];
 //
 //  [self waitForExpectations:@[ httpRequestExpectation, completionExpectation ] timeout:1.5];
-// }
+  // }
 //
-// - (void)testCallFunctionWhenAppCheckIsNotInstalled {
+  // - (void)testCallFunctionWhenAppCheckIsNotInstalled {
 //  NSError *networkError = [NSError errorWithDomain:@"testCallFunctionWhenAppCheckIsInstalled"
 //                                              code:-1
 //                                          userInfo:nil];
@@ -257,6 +295,7 @@
 //        }];
 //
 //  [self waitForExpectations:@[ httpRequestExpectation, completionExpectation ] timeout:1.5];
-// }
+  // }
 //
-// @end
+  // @end
+}
