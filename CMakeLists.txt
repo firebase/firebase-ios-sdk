@@ -261,7 +261,7 @@ if(FIREBASE_IOS_BUILD_TESTS)
   enable_testing()
 endif()
 
-add_subdirectory(FirebaseAppCheck/Sources/Interop/)
+add_subdirectory(FirebaseAppCheck/Interop/)
 add_subdirectory(FirebaseCore)
 add_subdirectory(Firestore)
 add_subdirectory(Interop/Auth)
