@@ -39,7 +39,7 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorage/Tests/Integration"
   // The following are temporary skips pending working through a first pass of the repo:
   [
     "FirebaseAppDistribution",
-    "FirebaseCore/Sources/Private", // TODO: work through adding this back.
+    "FirebaseCore/Internal", // TODO: work through adding this back.
     "Firebase/CoreDiagnostics",
     "FirebaseDatabase/Sources/third_party/Wrap-leveldb", // Pending SwiftPM for leveldb.
     "Example",

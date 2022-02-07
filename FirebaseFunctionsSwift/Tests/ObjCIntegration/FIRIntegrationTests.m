@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 #import "FirebaseFunctionsSwift/Tests/ObjCIntegration/FIRFunctions+Internal.h"
 
 @import FirebaseFunctionsSwift;
