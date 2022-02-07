@@ -12,58 +12,70 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// #import <XCTest/XCTest.h>
-//
-// #import "FirebaseFunctions/Sources/FUNSerializer.h"
-// #import "FirebaseFunctions/Sources/Public/FirebaseFunctions/FIRError.h"
-//
-// @interface FUNSerializerTests : XCTestCase
-// @end
-//
-// @implementation FUNSerializerTests
-//
-// - (void)setUp {
-//  [super setUp];
-// }
-//
-// - (void)tearDown {
-//  [super tearDown];
-// }
-//
-// - (void)testEncodeNull {
-//  FUNSerializer *serializer = [[FUNSerializer alloc] init];
-//  XCTAssertEqualObjects([NSNull null], [serializer encode:[NSNull null]]);
-// }
-//
-// - (void)testDecodeNull {
-//  FUNSerializer *serializer = [[FUNSerializer alloc] init];
-//  NSError *error = nil;
-//  XCTAssertEqualObjects([NSNull null], [serializer decode:[NSNull null] error:&error]);
-//  XCTAssertNil(error);
-// }
-//
-// - (void)testEncodeInt {
-//  FUNSerializer *serializer = [[FUNSerializer alloc] init];
-//  XCTAssertEqualObjects(@1, [serializer encode:@1]);
-// }
-//
-// - (void)testDecodeInt {
+import Foundation
+
+import FirebaseCore
+@testable import FirebaseFunctionsSwift
+import GTMSessionFetcherCore
+
+import XCTest
+
+class SerializerTests: XCTestCase {
+  func testEncodeNull() throws {
+    let serializer = FUNSerializer()
+    let null = NSNull()
+    XCTAssertEqual(try serializer.encode(null) as? NSNull, null)
+  }
+
+  func testDecodeNull() throws {
+    let serializer = FUNSerializer()
+    let null = NSNull()
+    XCTAssertEqual(try serializer.decode(null) as? NSNull, null)
+  }
+
+  func testEncodeInt32() throws {
+    let serializer = FUNSerializer()
+    let one = NSNumber(value: 1 as Int32)
+    XCTAssertEqual(one, try serializer.encode(one) as? NSNumber)
+  }
+
+  func testEncodeInt() throws {
+    let serializer = FUNSerializer()
+    let one = NSNumber(1)
+    let dict = try XCTUnwrap(try serializer.encode(one) as? NSDictionary)
+    XCTAssertEqual("type.googleapis.com/google.protobuf.Int64Value", dict["@type"] as? String)
+    XCTAssertEqual("1", dict["value"] as? String)
+  }
+
+  func testDecodeInt32() throws {
+    let serializer = FUNSerializer()
+    let one = NSNumber(value: 1 as Int32)
+    XCTAssertEqual(one, try serializer.decode(one) as? NSNumber)
+  }
+
+  func testDecodeInt() throws {
+    let serializer = FUNSerializer()
+    let one = NSNumber(1)
+    XCTAssertEqual(one, try serializer.decode(one) as? NSNumber)
+  }
+
+  // - (void)testDecodeInt {
 //  FUNSerializer *serializer = [[FUNSerializer alloc] init];
 //  NSError *error = nil;
 //  XCTAssertEqualObjects(@1, [serializer decode:@1 error:&error]);
 //  XCTAssertNil(error);
-// }
+  // }
 //
-// - (void)testEncodeLong {
+  // - (void)testEncodeLong {
 //  FUNSerializer *serializer = [[FUNSerializer alloc] init];
 //  NSDictionary *expected = @{
 //    @"@type" : @"type.googleapis.com/google.protobuf.Int64Value",
 //    @"value" : @"-9223372036854775800",
 //  };
 //  XCTAssertEqualObjects(expected, [serializer encode:@-9223372036854775800L]);
-// }
+  // }
 //
-// - (void)testDecodeLong {
+  // - (void)testDecodeLong {
 //  FUNSerializer *serializer = [[FUNSerializer alloc] init];
 //  NSDictionary *input = @{
 //    @"@type" : @"type.googleapis.com/google.protobuf.Int64Value",
@@ -76,9 +88,9 @@
 //  // We need to make sure it's a long long for accuracy.
 //  XCTAssertEqual('q', actual.objCType[0]);
 //  XCTAssertNil(error);
-// }
+  // }
 //
-// - (void)testDecodeInvalidLong {
+  // - (void)testDecodeInvalidLong {
 //  FUNSerializer *serializer = [[FUNSerializer alloc] init];
 //  NSDictionary *input = @{
 //    @"@type" : @"type.googleapis.com/google.protobuf.Int64Value",
@@ -90,18 +102,18 @@
 //  XCTAssertNotNil(error);
 //  XCTAssertEqualObjects(FIRFunctionsErrorDomain, error.domain);
 //  XCTAssertEqual(FIRFunctionsErrorCodeInternal, error.code);
-// }
+  // }
 //
-// - (void)testEncodeUnsignedLong {
+  // - (void)testEncodeUnsignedLong {
 //  FUNSerializer *serializer = [[FUNSerializer alloc] init];
 //  NSDictionary *expected = @{
 //    @"@type" : @"type.googleapis.com/google.protobuf.UInt64Value",
 //    @"value" : @"18446744073709551600",
 //  };
 //  XCTAssertEqualObjects(expected, [serializer encode:@18446744073709551600UL]);
-// }
+  // }
 //
-// - (void)testDecodeUnsignedLong {
+  // - (void)testDecodeUnsignedLong {
 //  FUNSerializer *serializer = [[FUNSerializer alloc] init];
 //  NSDictionary *input = @{
 //    @"@type" : @"type.googleapis.com/google.protobuf.UInt64Value",
@@ -114,45 +126,45 @@
 //  // that's close enough. We need to make sure it's an unsigned long long for accuracy.
 //  XCTAssertEqual('Q', actual.objCType[0]);
 //  XCTAssertNil(error);
-// }
+  // }
 //
-// - (void)testEncodeDouble {
+  // - (void)testEncodeDouble {
 //  FUNSerializer *serializer = [[FUNSerializer alloc] init];
 //  XCTAssertEqualObjects(@1.2, [serializer encode:@1.2]);
-// }
+  // }
 //
-// - (void)testDecodeDouble {
+  // - (void)testDecodeDouble {
 //  FUNSerializer *serializer = [[FUNSerializer alloc] init];
 //  NSError *error = nil;
 //  XCTAssertEqualObjects(@1.2, [serializer decode:@1.2 error:&error]);
 //  XCTAssertNil(error);
-// }
+  // }
 //
-// - (void)testEncodeBool {
+  // - (void)testEncodeBool {
 //  FUNSerializer *serializer = [[FUNSerializer alloc] init];
 //  XCTAssertEqualObjects(@YES, [serializer encode:@YES]);
-// }
+  // }
 //
-// - (void)testDecodeBool {
+  // - (void)testDecodeBool {
 //  FUNSerializer *serializer = [[FUNSerializer alloc] init];
 //  NSError *error = nil;
 //  XCTAssertEqualObjects(@NO, [serializer decode:@NO error:&error]);
 //  XCTAssertNil(error);
-// }
+  // }
 //
-// - (void)testEncodeString {
+  // - (void)testEncodeString {
 //  FUNSerializer *serializer = [[FUNSerializer alloc] init];
 //  XCTAssertEqualObjects(@"hello", [serializer encode:@"hello"]);
-// }
+  // }
 //
-// - (void)testDecodeString {
+  // - (void)testDecodeString {
 //  FUNSerializer *serializer = [[FUNSerializer alloc] init];
 //  NSError *error = nil;
 //  XCTAssertEqualObjects(@"hello", [serializer decode:@"hello" error:&error]);
 //  XCTAssertNil(error);
-// }
+  // }
 //
-// - (void)testEncodeArray {
+  // - (void)testEncodeArray {
 //  NSArray *input = @[ @1, @"two", @[ @3, @9876543210LL ] ];
 //  NSArray *expected = @[
 //    @1, @"two",
@@ -165,9 +177,9 @@
 //  ];
 //  FUNSerializer *serializer = [[FUNSerializer alloc] init];
 //  XCTAssertEqualObjects(expected, [serializer encode:input]);
-// }
+  // }
 //
-// - (void)testDecodeArray {
+  // - (void)testDecodeArray {
 //  NSArray *input = @[
 //    @1, @"two",
 //    @[
@@ -183,9 +195,9 @@
 //
 //  XCTAssertEqualObjects(expected, [serializer decode:input error:&error]);
 //  XCTAssertNil(error);
-// }
+  // }
 //
-// - (void)testEncodeMap {
+  // - (void)testEncodeMap {
 //  NSDictionary *input = @{@"foo" : @1, @"bar" : @"hello", @"baz" : @[ @3, @9876543210LL ]};
 //  NSDictionary *expected = @{
 //    @"foo" : @1,
@@ -199,9 +211,9 @@
 //  };
 //  FUNSerializer *serializer = [[FUNSerializer alloc] init];
 //  XCTAssertEqualObjects(expected, [serializer encode:input]);
-// }
+  // }
 //
-// - (void)testDecodeMap {
+  // - (void)testDecodeMap {
 //  NSDictionary *input = @{
 //    @"foo" : @1,
 //    @"bar" : @"hello",
@@ -217,17 +229,17 @@
 //  NSError *error = nil;
 //  XCTAssertEqualObjects(expected, [serializer decode:input error:&error]);
 //  XCTAssertNil(error);
-// }
+  // }
 //
-// - (void)testDecodeUnknownType {
+  // - (void)testDecodeUnknownType {
 //  NSDictionary *input = @{@"@type" : @"unknown", @"value" : @"whatever"};
 //  FUNSerializer *serializer = [[FUNSerializer alloc] init];
 //  NSError *error = nil;
 //  XCTAssertEqualObjects(input, [serializer decode:input error:&error]);
 //  XCTAssertNil(error);
-// }
+  // }
 //
-// - (void)testDecodeUnknownTypeWithoutValue {
+  // - (void)testDecodeUnknownTypeWithoutValue {
 //  NSDictionary *input = @{
 //    @"@type" : @"unknown",
 //  };
@@ -235,6 +247,7 @@
 //  NSError *error = nil;
 //  XCTAssertEqualObjects(input, [serializer decode:input error:&error]);
 //  XCTAssertNil(error);
-// }
+  // }
 //
-// @end
+  // @end
+}
