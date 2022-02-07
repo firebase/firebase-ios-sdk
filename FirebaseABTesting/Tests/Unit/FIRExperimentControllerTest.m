@@ -23,7 +23,7 @@
 #import "FirebaseABTesting/Tests/Unit/ABTFakeFIRAConditionalUserPropertyController.h"
 #import "FirebaseABTesting/Tests/Unit/ABTTestUniversalConstants.h"
 #import "FirebaseABTesting/Tests/Unit/Utilities/ABTTestUtilities.h"
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 extern ABTExperimentPayload *ABTDeserializeExperimentPayload(NSData *payload);

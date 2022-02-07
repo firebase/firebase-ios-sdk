@@ -14,9 +14,9 @@
 
 #import "FirebaseCore/Tests/Unit/FIRTestCase.h"
 
+#import "FirebaseCore/Internal/FIRComponentType.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 #import "FirebaseCore/Sources/FIRComponentContainerInternal.h"
-#import "FirebaseCore/Sources/Private/FIRComponentType.h"
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseCore/Tests/Unit/FIRTestComponents.h"
 #import "SharedTestUtilities/FIROptionsMock.h"
 

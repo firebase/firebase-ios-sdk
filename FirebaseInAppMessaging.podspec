@@ -38,7 +38,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 	base_dir + "Sources/Util/**/*.[cmh]",
     'Interop/Analytics/Public/*.h',
     'FirebaseABTesting/Sources/Private/*.h',
-    'FirebaseCore/Sources/Private/*.h',
+    'FirebaseCore/Internal/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
 
@@ -55,7 +55,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 	base_dir + "Sources/Util/**/*.[cmh]",
     'Interop/Analytics/Public/*.h',
     'FirebaseABTesting/Sources/Private/*.h',
-    'FirebaseCore/Sources/Private/*.h',
+    'FirebaseCore/Internal/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
 

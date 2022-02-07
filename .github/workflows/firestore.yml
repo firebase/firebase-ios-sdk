@@ -24,7 +24,7 @@ on:
     - 'Interop/Auth/Public/*.h'
 
     # FirebaseCore header change
-    - 'FirebaseCore/Sources/Private'
+    - 'FirebaseCore/Internal'
     - 'FirebaseCore/Sources/Public'
 
     # Podspec

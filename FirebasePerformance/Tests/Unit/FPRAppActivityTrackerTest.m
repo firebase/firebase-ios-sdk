@@ -20,7 +20,7 @@
 
 #import "FirebasePerformance/Tests/Unit/FPRTestCase.h"
 
-#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
+#import "FirebaseCore/Internal/FIRAppInternal.h"
 
 #import <OCMock/OCMock.h>
 

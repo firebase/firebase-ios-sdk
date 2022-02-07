@@ -18,7 +18,7 @@
 
 #import <OCMock/OCMock.h>
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 
 #import "FBLPromise+Testing.h"
 #import "FBLPromise+Then.h"

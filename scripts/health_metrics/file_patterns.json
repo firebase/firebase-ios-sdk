@@ -101,7 +101,7 @@
       "^Firestore/.*",
       "FirebaseAppCheck/Sources/Interop/[^/]+\\.h",
       "Interop/Auth/Public/[^/]+\\.h",
-      "FirebaseCore/Sources/Private",
+      "FirebaseCore/Internal",
       "FirebaseCore/Sources/Public",
       "FirebaseFirestore\\.podspec",
       "CMakeLists\\.txt",
