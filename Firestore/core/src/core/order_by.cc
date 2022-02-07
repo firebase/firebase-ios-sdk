@@ -35,15 +35,20 @@ using util::ComparisonResult;
 namespace {
 
 void AssertBothOptionalsHaveValues(
+    const model::FieldPath& field_path,
     const absl::optional<google_firestore_v1_Value>& value1,
-    const absl::optional<google_firestore_v1_Value>& value2) {
+    const absl::optional<google_firestore_v1_Value>& value2,
+    const Document& lhs,
+    const Document& rhs) {
   if (value1.has_value() && value2.has_value()) {
     return;
   }
 
   std::ostringstream ss;
   ss << "Trying to compare documents on fields that don't exist;"
-     << " value1.has_value()=" << (value1.has_value() ? "true" : "false")
+     << " field_path=" << field_path.CanonicalString()
+     << ", lhs=" << lhs->key().ToString() << ", rhs=" << rhs->key().ToString()
+     << ", value1.has_value()=" << (value1.has_value() ? "true" : "false")
      << ", value2.has_value()=" << (value2.has_value() ? "true" : "false");
 
   if (value1.has_value()) {
@@ -67,7 +72,7 @@ ComparisonResult OrderBy::Compare(const Document& lhs,
   } else {
     absl::optional<google_firestore_v1_Value> value1 = lhs->field(field_);
     absl::optional<google_firestore_v1_Value> value2 = rhs->field(field_);
-    AssertBothOptionalsHaveValues(value1, value2);
+    AssertBothOptionalsHaveValues(field_, value1, value2, lhs, rhs);
     result = model::Compare(*value1, *value2);
   }
 
