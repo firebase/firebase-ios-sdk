@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <map>
 
 #include "Firestore/core/src/local/memory_document_overlay_cache.h"
+
+#include <map>
 
 #include "Firestore/core/src/util/hard_assert.h"
 

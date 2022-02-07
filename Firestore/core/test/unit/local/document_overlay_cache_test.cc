@@ -17,10 +17,6 @@
 #include <memory>
 #include <type_traits>
 
-#include "absl/memory/memory.h"
-#include "gmock/gmock.h"
-#include "gtest/gtest.h"
-
 #include <Firestore/core/src/model/document_key.h>
 #include <Firestore/core/src/model/mutation.h>
 #include "Firestore/core/src/immutable/sorted_map.h"
@@ -31,6 +27,9 @@
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/set_mutation.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
+#include "absl/memory/memory.h"
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {

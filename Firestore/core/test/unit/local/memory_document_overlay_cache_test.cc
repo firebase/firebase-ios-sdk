@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 #include <type_traits>
 
 #include "Firestore/core/src/local/memory_document_overlay_cache.h"
-
 #include "gtest/gtest.h"
 
 namespace firebase {
