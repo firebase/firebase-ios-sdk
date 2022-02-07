@@ -19,7 +19,7 @@
 #import <OCMock/OCMock.h>
 
 #import <GoogleUtilities/GULUserDefaults.h>
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 

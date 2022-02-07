@@ -38,7 +38,7 @@ device, and it is completely free.
     base_dir + 'Sources/**/*',
     base_dir + 'Sources/Protogen/nanopb/*.h',
     'Interop/Analytics/Public/*.h',
-    'FirebaseCore/Sources/Private/*.h',
+    'FirebaseCore/Internal/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
   s.public_header_files = base_dir + 'Sources/Public/FirebaseMessaging/*.h'

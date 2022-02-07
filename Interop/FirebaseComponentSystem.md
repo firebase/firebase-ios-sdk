@@ -90,7 +90,7 @@ Each Firebase framework should register with Core in the `+load` method of the c
 dependencies before a class has a chance to be called by a developer (if called at all).
 
 ```obj-c
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 
 @interface FIRFoo <FIRLibrary>
 @end

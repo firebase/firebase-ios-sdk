@@ -19,7 +19,7 @@
 #import <OCMock/OCMock.h>
 
 #import "FBLPromise+Testing.h"
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Tests/Utils/FIRInstallations+Tests.h"
 #import "FirebaseInstallations/Source/Tests/Utils/FIRInstallationsErrorUtil+Tests.h"
 #import "FirebaseInstallations/Source/Tests/Utils/FIRInstallationsItem+Tests.h"
