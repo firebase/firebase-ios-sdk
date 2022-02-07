@@ -138,12 +138,6 @@
   XCTAssertEqualObjects(@"https://mydomain.com/my-endpoint", url);
 }
 
-- (void)testCustomDomainWithEmulator {
-  [_functionsCustomDomain useEmulatorWithHost:@"localhost" port:5005];
-  NSString *url = [_functionsCustomDomain URLWithName:@"my-endpoint"];
-  XCTAssertEqualObjects(@"http://localhost:5005/my-project/my-region/my-endpoint", url);
-}
-
 - (void)testSetEmulatorSettings {
   [_functions useEmulatorWithHost:@"localhost" port:1000];
   XCTAssertEqualObjects(@"http://localhost:1000", _functions.emulatorOrigin);
