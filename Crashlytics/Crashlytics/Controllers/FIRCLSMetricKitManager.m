@@ -133,10 +133,9 @@
     return false;
   }
 
-  // Time stamp information from MetricKit is only available in begin and end time periods. For now,
-  // we rely on the current timestamp to set the event timestamp, since this is likely more accurate
-  // that the 24 hour block we'd otherwise have.
-  NSTimeInterval beginSecondsSince1970 = [[NSDate date] timeIntervalSince1970];
+  // MXDiagnosticPayload have both a timeStampBegin and timeStampEnd. Now that these events are
+  // real-time, both refer to the same time - record both values anyway.
+  NSTimeInterval beginSecondsSince1970 = [diagnosticPayload.timeStampBegin timeIntervalSince1970];
   NSTimeInterval endSecondsSince1970 = [diagnosticPayload.timeStampEnd timeIntervalSince1970];
 
   // Get file path for the active reports directory.
@@ -146,17 +145,21 @@
   // Also ensure that there is a report from the last run of the app that we can write to.
   NSString *metricKitFatalReportFile;
   NSString *metricKitNonfatalReportFile;
+
   NSString *newestUnsentReportID =
-      [self.existingReportManager.newestUnsentReport.reportID stringByAppendingString:@"/"];
+      self.existingReportManager.newestUnsentReport.reportID
+          ? [self.existingReportManager.newestUnsentReport.reportID stringByAppendingString:@"/"]
+          : nil;
   NSString *currentReportID =
       [_managerData.executionIDModel.executionID stringByAppendingString:@"/"];
-  BOOL fatal = ([diagnosticPayload.crashDiagnostics count] > 0) && (newestUnsentReportID != nil) &&
-               ([self.fileManager
-                   fileExistsAtPath:[activePath stringByAppendingString:newestUnsentReportID]]);
+  BOOL crashlyticsFatalReported =
+      ([diagnosticPayload.crashDiagnostics count] > 0) && (newestUnsentReportID != nil) &&
+      ([self.fileManager
+          fileExistsAtPath:[activePath stringByAppendingString:newestUnsentReportID]]);
 
   // Set the MetricKit fatal path appropriately depending on whether we also captured a Crashlytics
   // fatal event and whether the diagnostic report came from a fatal or nonfatal event.
-  if (fatal) {
+  if (crashlyticsFatalReported) {
     metricKitFatalReportFile = [[activePath stringByAppendingString:newestUnsentReportID]
         stringByAppendingString:FIRCLSMetricKitFatalReportFile];
   } else {

@@ -35,8 +35,9 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)validToken;
 
 /**
- * Use this to verify that a token is valid. If this is called on a nil instance, it will return NO.
- * @return YES.
+ * Use this to verify that a token is valid. If this is called on a nil instance, it will return
+ * false.
+ * @return true.
  */
 - (BOOL)isValid;
 

@@ -20,8 +20,8 @@
 
 + (NSString *)get:(NSTimeInterval)now;
 
-+ (NSString *)successor:(NSString *)key;
++ (NSString *)from:(NSString *)fn successor:(NSString *)key;
 
-+ (NSString *)predecessor:(NSString *)key;
++ (NSString *)from:(NSString *)fn predecessor:(NSString *)key;
 
 @end

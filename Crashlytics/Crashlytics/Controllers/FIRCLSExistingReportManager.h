@@ -34,8 +34,8 @@ FOUNDATION_EXPORT NSUInteger const FIRCLSMaxUnsentReports;
  * been cleared for upload, so there isn't any point in asking for permission
  * or possibly spamming end-users if a report gets stuck.
  *
- * The tricky part is, customers will NOT be alerted in checkForUnsentReports
- * for reports in these paths, but when they choose sendUnsentReports / enable data
+ * The tricky part is, customers will NOT be alerted in `checkForUnsentReports`
+ * for reports in these paths, but when they choose `sendUnsentReports` / enable data
  * collection, reports in those directories will be re-managed. This should be ok and
  * just an edge case because reports should only be in processing or prepared for a split second as
  * they do on-device symbolication and get converted into a GDTEvent. After a report is handed off
@@ -44,10 +44,10 @@ FOUNDATION_EXPORT NSUInteger const FIRCLSMaxUnsentReports;
 @property(nonatomic, readonly) NSUInteger unsentReportsCount;
 
 /**
- * This value needs to stay in sync with numUnsentReports, so if there is > 0 numUnsentReports,
- * newestUnsentReport needs to return a value. Otherwise it needs to return null.
+ * This value needs to stay in sync with `numUnsentReports`, so if there is > 0 `numUnsentReports`,
+ * `newestUnsentReport` needs to return a value. Otherwise it needs to return nil.
  *
- * FIRCLSContext needs to be initialized before the FIRCrashlyticsReport is instantiated.
+ * `FIRCLSContext` needs to be initialized before the `CrashlyticsReport` is instantiated.
  */
 @property(nonatomic, readonly) FIRCrashlyticsReport *_Nullable newestUnsentReport;
 
@@ -60,7 +60,7 @@ FOUNDATION_EXPORT NSUInteger const FIRCLSMaxUnsentReports;
 /**
  * This is important to call once, early in startup, before the
  * new report for this run of the app has been created. Any
- * reports in ExistingReportManager will be uploaded or deleted
+ * reports in `ExistingReportManager` will be uploaded or deleted
  * and we don't want to do that for the current run of the app.
  *
  * If there are over MAX_UNSENT_REPORTS valid reports, this will delete them.
@@ -70,7 +70,7 @@ FOUNDATION_EXPORT NSUInteger const FIRCLSMaxUnsentReports;
 - (void)collectExistingReports;
 
 /**
- * This is the side-effect of calling deleteUnsentReports, or collect_reports setting
+ * This is the side-effect of calling `deleteUnsentReports`, or collect_reports setting
  * being false.
  */
 - (void)deleteUnsentReports;

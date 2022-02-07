@@ -264,9 +264,9 @@ class TelemetryLogger {
 }
 
 /// Possible error messages while logging telemetry.
-extension TelemetryLogger {
+private extension TelemetryLogger {
   /// Error descriptions.
-  fileprivate enum ErrorDescription {
+  enum ErrorDescription {
     static let encodeEvent = "Unable to encode event for Firelog."
     static let initTelemetryLogger = "Unable to create telemetry logger."
   }

@@ -67,10 +67,10 @@ extension BinaryMetricsReport {
 func CreatePodConfigJSON(of sdks: [String], from sdk_dir: URL) throws {
   var pods: [Pod] = []
   for sdk in sdks {
-    let pod: Pod = Pod(sdk: sdk, path: sdk_dir.path)
+    let pod = Pod(sdk: sdk, path: sdk_dir.path)
     pods.append(pod)
   }
-  let podConfigs: PodConfigs = PodConfigs(pods: pods)
+  let podConfigs = PodConfigs(pods: pods)
   try JSONParser.writeJSON(of: podConfigs, to: "./cocoapods_source_config.json")
 }
 

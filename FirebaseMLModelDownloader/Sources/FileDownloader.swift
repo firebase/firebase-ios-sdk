@@ -48,7 +48,7 @@ class ModelFileDownloader: NSObject, FileDownloader {
   private var downloadTask: URLSessionDownloadTask?
 
   /// URLSession to handle model downloads.
-  private lazy var downloadSession: URLSession = URLSession(
+  private lazy var downloadSession: URLSession = .init(
     configuration: configuration,
     delegate: self,
     delegateQueue: nil
@@ -99,7 +99,7 @@ extension ModelFileDownloader: URLSessionDownloadDelegate {
                   downloadTask: URLSessionDownloadTask,
                   didFinishDownloadingTo location: URL) {
     guard let response = downloadTask.response,
-      let urlResponse = response as? HTTPURLResponse else {
+          let urlResponse = response as? HTTPURLResponse else {
       completion?(.failure(FileDownloaderError.unexpectedResponseType))
       return
     }

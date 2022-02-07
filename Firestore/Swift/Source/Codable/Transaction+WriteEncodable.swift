@@ -17,7 +17,7 @@
 import Foundation
 import FirebaseFirestore
 
-extension Transaction {
+public extension Transaction {
   /// Encodes an instance of `Encodable` and overwrites the encoded data
   /// to the document referred by `doc`. If no document exists,
   /// it is created. If a document already exists, it is overwritten.
@@ -30,10 +30,10 @@ extension Transaction {
   ///   - doc: The document to create/overwrite the encoded data to.
   /// - Returns: This instance of `Transaction`. Used for chaining method calls.
   @discardableResult
-  public func setData<T: Encodable>(from value: T,
-                                    forDocument doc: DocumentReference,
-                                    encoder: Firestore.Encoder = Firestore
-                                      .Encoder()) throws -> Transaction {
+  func setData<T: Encodable>(from value: T,
+                             forDocument doc: DocumentReference,
+                             encoder: Firestore.Encoder = Firestore
+                               .Encoder()) throws -> Transaction {
     setData(try encoder.encode(value), forDocument: doc)
     return self
   }
@@ -53,11 +53,11 @@ extension Transaction {
   ///   - encoder: The encoder instance to use to run the encoding.
   /// - Returns: This instance of `Transaction`. Used for chaining method calls.
   @discardableResult
-  public func setData<T: Encodable>(from value: T,
-                                    forDocument doc: DocumentReference,
-                                    merge: Bool,
-                                    encoder: Firestore.Encoder = Firestore
-                                      .Encoder()) throws -> Transaction {
+  func setData<T: Encodable>(from value: T,
+                             forDocument doc: DocumentReference,
+                             merge: Bool,
+                             encoder: Firestore.Encoder = Firestore
+                               .Encoder()) throws -> Transaction {
     setData(try encoder.encode(value), forDocument: doc, merge: merge)
     return self
   }
@@ -81,11 +81,11 @@ extension Transaction {
   ///   - encoder: The encoder instance to use to run the encoding.
   /// - Returns: This instance of `Transaction`. Used for chaining method calls.
   @discardableResult
-  public func setData<T: Encodable>(from value: T,
-                                    forDocument doc: DocumentReference,
-                                    mergeFields: [Any],
-                                    encoder: Firestore.Encoder = Firestore
-                                      .Encoder()) throws -> Transaction {
+  func setData<T: Encodable>(from value: T,
+                             forDocument doc: DocumentReference,
+                             mergeFields: [Any],
+                             encoder: Firestore.Encoder = Firestore
+                               .Encoder()) throws -> Transaction {
     setData(try encoder.encode(value), forDocument: doc, mergeFields: mergeFields)
     return self
   }

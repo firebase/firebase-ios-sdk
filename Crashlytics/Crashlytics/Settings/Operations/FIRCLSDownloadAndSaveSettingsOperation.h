@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param settingsURL must NOT be nil. This is the URL to which a download request is made.
  * @param settingsDirectoryPath must NOT be nil. This is the directory on disk where the settings
  * are persisted.
- * @param settingsFilePath must NOT be nil. It is the full file path(including file name) in which
+ * @param settingsFilePath must NOT be nil. It is the full file path (including file name) in which
  * settings will be persisted on disk.
  * @param installIDModel must NOT be nil. This value is sent back to the backend to uniquely
  * identify the app install.

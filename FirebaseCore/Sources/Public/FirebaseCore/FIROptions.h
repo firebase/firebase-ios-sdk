@@ -32,7 +32,8 @@ NS_SWIFT_NAME(FirebaseOptions)
 
 /**
  * An iOS API key used for authenticating requests from your app, e.g.
- * @"AIzaSyDdVgKwhZl0sTTTLZ7iTmt1r3N2cJLnaDk", used to identify your app to Google servers.
+ * The key must begin with "A" and contain exactly 39 alphanumeric characters, used to identify your
+ * app to Google servers.
  */
 @property(nonatomic, copy, nullable) NSString *APIKey NS_SWIFT_NAME(apiKey);
 
@@ -98,25 +99,30 @@ NS_SWIFT_NAME(FirebaseOptions)
 @property(nonatomic, copy, nullable) NSString *appGroupID;
 
 /**
- * Initializes a customized instance of FIROptions from the file at the given plist file path. This
- * will read the file synchronously from disk.
- * For example,
- * NSString *filePath =
- *     [[NSBundle mainBundle] pathForResource:@"GoogleService-Info" ofType:@"plist"];
- * FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:filePath];
+ * Initializes a customized instance of FirebaseOptions from the file at the given plist file path.
+ * This will read the file synchronously from disk.
+ * For example:
+ * ```swift
+ *   if let path = Bundle.main.path(forResource:"GoogleServices-Info", ofType:"plist") {
+ *       let options = FirebaseOptions(contentsOfFile: path)
+ *   }
+ * ```
+ * Note that it is not possible to customize FirebaseOptions for Firebase Analytics which expects a
+ * static file named `GoogleServices-Info.plist` -
+ * https://github.com/firebase/firebase-ios-sdk/issues/230.
  * Returns nil if the plist file does not exist or is invalid.
  */
 - (nullable instancetype)initWithContentsOfFile:(NSString *)plistPath NS_DESIGNATED_INITIALIZER;
 
 /**
- * Initializes a customized instance of FIROptions with required fields. Use the mutable properties
- * to modify fields for configuring specific services.
+ * Initializes a customized instance of FirebaseOptions with required fields. Use the mutable
+ * properties to modify fields for configuring specific services. Note that it is not possible to
+ * customize FirebaseOptions for Firebase Analytics which expects a static file named
+ * `GoogleServices-Info.plist` - https://github.com/firebase/firebase-ios-sdk/issues/230.
  */
-// clang-format off
 - (instancetype)initWithGoogleAppID:(NSString *)googleAppID
                         GCMSenderID:(NSString *)GCMSenderID
-    NS_SWIFT_NAME(init(googleAppID:gcmSenderID:)) NS_DESIGNATED_INITIALIZER;
-// clang-format on
+    NS_SWIFT_NAME(init(googleAppID:gcmSenderID:))NS_DESIGNATED_INITIALIZER;
 
 /** Unavailable. Please use `init(contentsOfFile:)` or `init(googleAppID:gcmSenderID:)` instead. */
 - (instancetype)init NS_UNAVAILABLE;

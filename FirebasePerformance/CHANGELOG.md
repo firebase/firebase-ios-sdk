@@ -1,3 +1,6 @@
+# Unreleased
+* [fixed] Potentially drop pre-warmed app start traces on iOS 15 and above (#9026). App start measurements are made only for cold app starts (without pre-warming).
+
 # Version 8.10.0
 * Fix a crash related to FPRSessionDetails. (#8691)
 * Fix heap-buffer overflow when encoding sessions. (#8849)

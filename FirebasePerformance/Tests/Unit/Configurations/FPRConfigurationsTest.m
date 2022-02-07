@@ -539,4 +539,30 @@
   [configFlags resetCache];
 }
 
+- (void)testPrewarmDetectionRemoteConfigOverrides {
+  FPRConfigurations *configurations =
+      [[FPRConfigurations alloc] initWithSources:FPRConfigurationSourceRemoteConfig];
+
+  FPRFakeRemoteConfig *remoteConfig = [[FPRFakeRemoteConfig alloc] init];
+  FPRRemoteConfigFlags *configFlags =
+      [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
+  configurations.remoteConfigFlags = configFlags;
+  configFlags.lastFetchedTime = [NSDate date];
+
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] init];
+  configFlags.userDefaults = userDefaults;
+
+  NSString *configKey =
+      [NSString stringWithFormat:@"%@.%@", kFPRConfigPrefix, @"fpr_prewarm_detection"];
+  [userDefaults setObject:@(0) forKey:configKey];
+  XCTAssertEqual([configurations prewarmDetectionMode], 0);
+
+  [userDefaults setObject:@(1) forKey:configKey];
+  XCTAssertEqual([configurations prewarmDetectionMode], 1);
+
+  [userDefaults setObject:@(2) forKey:configKey];
+  XCTAssertEqual([configurations prewarmDetectionMode], 2);
+  [configFlags resetCache];
+}
+
 @end
