@@ -39,7 +39,7 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
   s.source_files = [
     base_dir + '**/*.[mh]',
    'Interop/Analytics/Public/*.h',
-   'FirebaseCore/Sources/Private/*.h',
+   'FirebaseCore/Internal/*.h',
   ]
   s.requires_arc = base_dir + '*.m'
   s.public_header_files = base_dir + 'Public/FirebaseABTesting/*.h'

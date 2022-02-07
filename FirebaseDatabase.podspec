@@ -37,7 +37,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     base_dir + 'third_party/SocketRocket/fbase64.c',
     'Interop/Auth/Public/*.h',
     'FirebaseAppCheck/Sources/Interop/*.h',
-    'FirebaseCore/Sources/Private/*.h',
+    'FirebaseCore/Internal/*.h',
   ]
   s.public_header_files = base_dir + 'Public/FirebaseDatabase/*.h'
   s.libraries = ['c++', 'icucore']

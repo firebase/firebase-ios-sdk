@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,4 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
-#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
-
-extern FIRLoggerService kFIRLoggerStorage;
-
-// FIRStorageTokenAuthorizer.m
-extern NSString *const kFIRStorageMessageCodeAppCheckError;
+// Swift Package Manager needs at least one source file.

@@ -23,7 +23,7 @@
 #include <cstdarg>
 #include <string>
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 
 #include "Firestore/core/src/util/string_apple.h"
 
