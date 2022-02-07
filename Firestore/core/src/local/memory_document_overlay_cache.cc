@@ -16,8 +16,8 @@
 
 #include "Firestore/core/src/local/memory_document_overlay_cache.h"
 
-#include <string>
 #include <map>
+#include <string>
 
 #include "Firestore/core/src/util/hard_assert.h"
 

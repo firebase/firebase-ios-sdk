@@ -17,12 +17,12 @@
 #include <memory>
 #include <type_traits>
 
-#include "Firestore/core/src/model/document_key.h"
-#include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/immutable/sorted_map.h"
 #include "Firestore/core/src/local/document_overlay_cache.h"
 #include "Firestore/core/src/local/memory_document_overlay_cache.h"
 #include "Firestore/core/src/model/delete_mutation.h"
+#include "Firestore/core/src/model/document_key.h"
+#include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/model/patch_mutation.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/set_mutation.h"
