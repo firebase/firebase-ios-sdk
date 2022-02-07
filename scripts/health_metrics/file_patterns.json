@@ -99,7 +99,7 @@
     "podspecs": ["FirebaseFirestore.podspec", "FirebaseFirestoreSwift.podspec"],
     "filePatterns": [
       "^Firestore/.*",
-      "FirebaseAppCheck/Sources/Interop/[^/]+\\.h",
+      "FirebaseAppCheck/Interop/[^/]+\\.h",
       "Interop/Auth/Public/[^/]+\\.h",
       "FirebaseCore/Internal",
       "FirebaseCore/Sources/Public",

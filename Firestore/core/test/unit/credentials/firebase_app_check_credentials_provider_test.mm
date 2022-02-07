@@ -19,8 +19,8 @@
 #include <chrono>  // NOLINT(build/c++11)
 #include <future>  // NOLINT(build/c++11)
 
-#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
-#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckTokenResultInterop.h"
+#import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
+#import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
 #import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 
 #include "Firestore/core/test/unit/testutil/app_testing.h"

@@ -15,8 +15,8 @@
 
 #import "FirebaseFunctions/Sources/FUNContext.h"
 
-#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
-#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckTokenResultInterop.h"
+#import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
+#import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
 #import "FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 

@@ -34,7 +34,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     'FirebaseStorage/Sources/**/*.[mh]',
     'Interop/Auth/Public/*.h',
     'FirebaseCore/Internal/*.h',
-    'FirebaseAppCheck/Sources/Interop/*.h',
+    'FirebaseAppCheck/Interop/*.h',
   ]
   s.public_header_files = 'FirebaseStorage/Sources/Public/FirebaseStorage/*.h'
 

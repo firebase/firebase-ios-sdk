@@ -19,6 +19,7 @@ import FirebaseCore
 import GTMSessionFetcherCore
 
 import XCTest
+import SharedTestUtilities
 
 // #import <XCTest/XCTest.h>
 //
@@ -87,24 +88,24 @@ class FunctionsTests: XCTestCase {
   // }
   var functions: Functions?
   var functionsCustomDomain: Functions?
-  var fetcherService: GTMSessionFetcherService?
+  let fetcherService = GTMSessionFetcherService()
+  let appCheckFake = FIRAppCheckFake()
 
   override func setUp() {
     super.setUp()
-    fetcherService = GTMSessionFetcherService()
     functions = Functions(
       projectID: "my-project",
       region: "my-region",
       customDomain: nil,
       auth: nil,
       messaging: nil,
-      appCheck: nil,
-      fetcherService: fetcherService!
+      appCheck: appCheckFake,
+      fetcherService: fetcherService
     )
     functionsCustomDomain = Functions(projectID: "my-project", region: "my-region",
                                       customDomain: "https://mydomain.com", auth: nil,
                                       messaging: nil, appCheck: nil,
-                                      fetcherService: fetcherService!)
+                                      fetcherService: fetcherService)
   }
 
 //
@@ -189,43 +190,37 @@ class FunctionsTests: XCTestCase {
 
   // MARK: - App Check integration
 
-  // - (void)testCallFunctionWhenAppCheckIsInstalledAndFACTokenSuccess {
-//  _appCheckFake.tokenResult = [[FIRAppCheckTokenResultFake alloc] initWithToken:@"valid_token"
-//                                                                          error:nil];
-//
-//  NSError *networkError = [NSError errorWithDomain:@"testCallFunctionWhenAppCheckIsInstalled"
-//                                              code:-1
-//                                          userInfo:nil];
-//
-//  XCTestExpectation *httpRequestExpectation =
-//      [self expectationWithDescription:@"HTTPRequestExpectation"];
-//  __weak __auto_type weakSelf = self;
-//  _fetcherService.testBlock = ^(GTMSessionFetcher *_Nonnull fetcherToTest,
-//                                GTMSessionFetcherTestResponse _Nonnull testResponse) {
-//    // __unused to avoid warning in Xcode 12+ in g3.
-//    __unused __auto_type self = weakSelf;
-//    [httpRequestExpectation fulfill];
-//
-//    NSString *appCheckTokenHeader =
-//        [fetcherToTest.request valueForHTTPHeaderField:@"X-Firebase-AppCheck"];
-//    XCTAssertEqualObjects(appCheckTokenHeader, @"valid_token");
-//
-//    testResponse(nil, nil, networkError);
-//  };
-//
-//  XCTestExpectation *completionExpectation =
-//      [self expectationWithDescription:@"completionExpectation"];
-//  [_functions callFunction:@"fake_func"
-//                withObject:nil
-//                   timeout:10
-//                completion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
-//                  XCTAssertEqualObjects(error, networkError);
-//                  [completionExpectation fulfill];
-//                }];
-//
-//  [self waitForExpectations:@[ httpRequestExpectation, completionExpectation ] timeout:1.5];
-  // }
-//
+  func testCallFunctionWhenAppCheckIsInstalledAndFACTokenSuccess() {
+    appCheckFake.tokenResult = FIRAppCheckTokenResultFake(token: "valid_token", error: nil)
+
+    let networkError = NSError(
+      domain: "testCallFunctionWhenAppCheckIsInstalled",
+      code: -1,
+      userInfo: nil
+    )
+
+    let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
+    fetcherService.testBlock = { fetcherToTest, testResponse in
+      httpRequestExpectation.fulfill()
+      let appCheckTokenHeader = fetcherToTest.request?
+        .value(forHTTPHeaderField: "X-Firebase-AppCheck")
+      XCTAssertEqual(appCheckTokenHeader, "valid_token")
+      testResponse(nil, nil, networkError)
+    }
+
+    let completionExpectation = expectation(description: "completionExpectation")
+    functions?.callFunction(name: "fake_func", withObject: nil, timeout: 10) { result in
+      switch result {
+      case .success:
+        XCTFail("Unexpected success from functions?.callFunction")
+      case let .failure(error as NSError):
+        XCTAssertEqual(error, networkError)
+      }
+      completionExpectation.fulfill()
+    }
+    waitForExpectations(timeout: 1.5)
+  }
+
   // - (void)testCallFunctionWhenAppCheckIsInstalledAndFACTokenError {
 //  NSError *appCheckError = [NSError errorWithDomain:self.name code:-1 userInfo:nil];
 //  _appCheckFake.tokenResult = [[FIRAppCheckTokenResultFake alloc] initWithToken:@"dummy_token"
