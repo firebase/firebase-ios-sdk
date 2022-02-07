@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+import FirebaseAppCheckInterop
 import FirebaseCore
 import FirebaseCoreInternal
 import FirebaseSharedSwift
@@ -31,9 +32,9 @@ import FirebaseSharedSwift
   var fcmToken: String { get }
 }
 
-@objc public protocol AppCheckInterop {
-  func getToken(forcingRefresh: Bool, callback: (String?, Error?) -> Void)
-}
+// @objc public protocol AppCheckInterop {
+//  func getToken(forcingRefresh: Bool, callback: (String?, Error?) -> Void)
+// }
 
 // END PLACEHOLDERS
 
@@ -287,15 +288,23 @@ internal enum FunctionsConstants {
         } else if error.domain == NSURLErrorDomain, error.code == NSURLErrorTimedOut {
           localError = FunctionsErrorCode.deadlineExceeded.generatedError(userInfo: nil)
         }
+        // If there was an error, report it to the user and stop.
+        if let localError = localError {
+          completion(.failure(localError))
+        } else {
+          completion(.failure(error))
+        }
+        return
       } else {
         // If there wasn't an HTTP error, see if there was an error in the body.
-        localError = FunctionsErrorForResponse(status: 200, body: data, serializer: self.serializer)
-      }
-
-      // If there was an error, report it to the user and stop.
-      if let localError = localError {
-        completion(.failure(localError))
-        return
+        if let bodyError = FunctionsErrorForResponse(
+          status: 200,
+          body: data,
+          serializer: self.serializer
+        ) {
+          completion(.failure(bodyError))
+          return
+        }
       }
 
       // Porting: this check is new since we didn't previously check if `data` was nil.
