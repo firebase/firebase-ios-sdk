@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 #include "Firestore/core/src/model/mutation/overlay.h"
 #include "Firestore/core/src/util/hashing.h"
 #include "Firestore/core/src/util/to_string.h"
-
 #include "absl/strings/str_cat.h"
 
 namespace firebase {
