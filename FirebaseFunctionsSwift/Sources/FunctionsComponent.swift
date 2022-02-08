@@ -27,7 +27,7 @@ protocol FunctionsProvider {
   // although we may be able to now port to using `@testable` instead of using the mock.
 }
 
-@objc class FunctionsComponent: NSObject, Library, FunctionsProvider {
+@objc(FIRFunctionsComponent) class FunctionsComponent: NSObject, Library, FunctionsProvider {
   // MARK: - Private Variables
 
   /// The app associated with all functions instances in this container.
