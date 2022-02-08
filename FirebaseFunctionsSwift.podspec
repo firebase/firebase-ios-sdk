@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseFunctionsSwift'
-  s.version                 = '9.0.0-beta'
+  s.version                 = '8.12.0-beta'
   s.summary                 = 'Swift Extensions for Firebase Functions'
 
   s.description      = <<-DESC
