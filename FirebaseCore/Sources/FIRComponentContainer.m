@@ -169,6 +169,11 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
 
 #pragma mark - Internal Retrieval
 
+// Redirected for Swift users.
+- (nullable id)__instanceForProtocol:(Protocol *)protocol {
+  return [self instanceForProtocol:protocol];
+}
+
 - (nullable id)instanceForProtocol:(Protocol *)protocol {
   // Check if there is a cached instance, and return it if so.
   NSString *protocolName = NSStringFromProtocol(protocol);
