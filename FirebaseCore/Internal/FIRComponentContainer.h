@@ -33,6 +33,10 @@ NS_SWIFT_NAME(FirebaseComponentContainer)
 /// A weak reference to the app that an instance of the container belongs to.
 @property(nonatomic, weak, readonly) FIRApp *app;
 
+// TODO: See if we can get improved type safety here.
+/// A Swift only API for fetching an instance since the top macro isn't available.
+- (nullable id)__instanceForProtocol:(Protocol *)protocol NS_SWIFT_NAME(instance(for:));
+
 /// Unavailable. Use the `container` property on `FirebaseApp`.
 - (instancetype)init NS_UNAVAILABLE;
 
