@@ -21,10 +21,10 @@ private enum Constants {
 }
 
 enum SerializerError: Error {
-  // TODO: Add paramters class name and value
+  // TODO: Add parameters class name and value
   case unsupportedType // (className: String, value: AnyObject)
   case unknownNumberType(charValue: String, number: NSNumber)
-  case unimplemented // TODO(wilsonryan): REMOVE
+  case invalidValueForType(value: String, requestedType: String)
 }
 
 class FUNSerializer: NSObject {
@@ -36,7 +36,7 @@ class FUNSerializer: NSObject {
     dateFormatter.timeZone = TimeZone(identifier: "UTC")
   }
 
-  // MARK: - Public APIs
+  // MARK: - Internal APIs
 
   internal func encode(_ object: Any) throws -> AnyObject {
     if object is NSNull {
@@ -74,14 +74,12 @@ class FUNSerializer: NSObject {
   internal func decode(_ object: Any) throws -> AnyObject? {
     // Return these types as is. PORTING NOTE: Moved from the bottom of the func for readability.
     if let dict = object as? NSDictionary {
-      if dict["@type"] != nil {
-        var result: AnyObject?
-        do {
-          result = try decodeWrappedType(dict)
-        } catch {
-          return nil
+      if let requestedType = dict["@type"] as? String {
+        guard let value = dict["value"] as? String else {
+          // Seems like we should throw here - but this maintains compatiblity.
+          return dict
         }
-
+        let result = try decodeWrappedType(requestedType, value)
         if result != nil { return result }
 
         // Treat unknown types as dictionaries, so we don't crash old clients when we add types.
@@ -128,10 +126,6 @@ class FUNSerializer: NSObject {
     // http://stackoverflow.com/questions/2518761/get-type-of-nsnumber
     let cType = number.objCType
 
-    // TODO: Use `CFNumberGetType(number)` instead and use that enum, although `unsigned long long`
-    // is missing.
-//    let numberType = CFNumberGetType(number)
-
     // Type Encoding values taken from
     // https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/
     // Articles/ocrtTypeEncodings.html
@@ -172,47 +166,24 @@ class FUNSerializer: NSObject {
     }
   }
 
-  private func decodeWrappedType(_ wrapped: NSDictionary) throws -> AnyObject? {
-    let type = wrapped["@type"] as! String
-
-    guard let value = wrapped["value"] as? String else {
-      return nil
-    }
-
+  private func decodeWrappedType(_ type: String, _ value: String) throws -> AnyObject? {
     switch type {
     case Constants.longType:
       let formatter = NumberFormatter()
       guard let n = formatter.number(from: value) else {
-        // TODO: Throw FUNInvalidNumberError(value, wrapped);
-        return nil
+        throw SerializerError.invalidValueForType(value: value, requestedType: type)
       }
-
       return n
     case Constants.unsignedLongType:
       // NSNumber formatter doesn't handle unsigned long long, so we have to parse it.
-      // let str = value.utf8
-      // TODO: Port this atrocity
-      throw SerializerError.unimplemented
-    /*
-     const char *str = value.UTF8String;
-     char *end = NULL;
-     unsigned long long n = strtoull(str, &end, 10);
-     if (errno == ERANGE) {
-       // This number was actually too big for an unsigned long long.
-       if (error != NULL) {
-         *error = FUNInvalidNumberError(value, wrapped);
-       }
-       return nil;
-     }
-     if (*end) {
-       // The whole string wasn't parsed.
-       if (error != NULL) {
-         *error = FUNInvalidNumberError(value, wrapped);
-       }
-       return nil;
-     }
-     return @(n);
-     */
+      let str = (value as NSString).utf8String
+      var endPtr: UnsafeMutablePointer<CChar>?
+      let returnValue = UInt64(strtoul(str, &endPtr, 10))
+      guard String(returnValue) == value else {
+        throw SerializerError.invalidValueForType(value: value, requestedType: type)
+      }
+      return NSNumber(value: returnValue)
+
     default:
       return nil
     }
