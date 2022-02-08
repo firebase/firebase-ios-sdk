@@ -20,7 +20,7 @@
 
 #import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
 #import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
-#import "Interop/Auth/Public/FIRAuthInterop.h"
+#import "FirebaseAuth/Interop/FIRAuthInterop.h"
 
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"

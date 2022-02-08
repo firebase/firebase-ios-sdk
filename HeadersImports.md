@@ -51,7 +51,7 @@ In Swift Package Manager, it's a library target.
   added to the podspec in the `source_files` attribute like:
 ```
   s.source_files = [ 'FirebaseFoo/Sources/**/*.[mh]'
-                     'Interop/Auth/Public/*.h',
+                     'FirebaseAuth/Interop/*.h',
                      'FirebaseCore/Internal/*.h',
                    ]
 ```
