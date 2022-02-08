@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseFunctionsSwift'
-  s.version                 = '9.0.0-beta'
+  s.version                 = '8.12.0-beta'
   s.summary                 = 'Swift Extensions for Firebase Functions'
 
   s.description      = <<-DESC
@@ -36,8 +36,8 @@ Swift SDK Extensions for Cloud Functions for Firebase.
   ]
 
   s.dependency 'FirebaseCore', '~> 8.12'
-  s.dependency 'FirebaseCoreInternal', '~> 9.0'
-  s.dependency 'FirebaseAppCheckInterop', '~> 9.0'
+  s.dependency 'FirebaseCoreInternal', '~> 8.12'
+  s.dependency 'FirebaseAppCheckInterop', '~> 8.12'
   s.dependency 'FirebaseSharedSwift', '~> 8.12'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.5'
 
