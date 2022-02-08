@@ -95,12 +95,11 @@ internal enum FunctionsConstants {
    */
   public class func functions(app: FirebaseApp = FirebaseApp.app()!,
                               customDomain: String? = nil) -> Functions {
-    let provider = ComponentType<FunctionsProvider>.instance(for: FunctionsProvider.self,
-                                                             in: app.container)
-    return provider.functions(for: app,
-                              region: FunctionsConstants.defaultRegion,
-                              customDomain: customDomain,
-                              type: self)
+    let provider = app.container.instance(for: FunctionsProvider.self) as? FunctionsProvider
+    return provider!.functions(for: app,
+                               region: FunctionsConstants.defaultRegion,
+                               customDomain: customDomain,
+                               type: self)
   }
 
   internal convenience init(app: FirebaseApp,
