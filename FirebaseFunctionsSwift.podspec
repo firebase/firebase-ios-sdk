@@ -36,8 +36,8 @@ Swift SDK Extensions for Cloud Functions for Firebase.
   ]
 
   s.dependency 'FirebaseCore', '~> 8.12'
-  s.dependency 'FirebaseCoreInternal', '~> 9.0'
-  s.dependency 'FirebaseAppCheckInterop', '~> 9.0'
+  s.dependency 'FirebaseCoreInternal', '~> 8.12'
+  s.dependency 'FirebaseAppCheckInterop', '~> 8.12'
   s.dependency 'FirebaseSharedSwift', '~> 8.12'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.5'
 
