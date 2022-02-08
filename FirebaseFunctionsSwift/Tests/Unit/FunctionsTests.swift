@@ -25,71 +25,7 @@ import FirebaseCore
 import XCTest
 import SharedTestUtilities
 
-// #import <XCTest/XCTest.h>
-//
-// #import "FirebaseFunctions/Sources/FIRFunctions+Internal.h"
-// #import "FirebaseFunctions/Sources/Public/FirebaseFunctions/FIRFunctions.h"
-//
-// #import "SharedTestUtilities/AppCheckFake/FIRAppCheckFake.h"
-// #import "SharedTestUtilities/AppCheckFake/FIRAppCheckTokenResultFake.h"
-//
-// #import <FirebaseCore/FirebaseCore.h>
-//
-// #if SWIFT_PACKAGE
-// @import GTMSessionFetcherCore;
-// #else
-// #import <GTMSessionFetcher/GTMSessionFetcherService.h>
-// #endif
-//
-// @interface FIRFunctions (Test)
-//
-// @property(nonatomic, readonly) NSString *emulatorOrigin;
-//
-// - (instancetype)initWithProjectID:(NSString *)projectID
-//                           region:(NSString *)region
-//                     customDomain:(nullable NSString *)customDomain
-//                             auth:(nullable id<FIRAuthInterop>)auth
-//                        messaging:(nullable id<FIRMessagingInterop>)messaging
-//                         appCheck:(nullable id<FIRAppCheckInterop>)appCheck
-//                   fetcherService:(GTMSessionFetcherService *)fetcherService;
-//
-// @end
-//
-// @interface FIRFunctionsTests : XCTestCase
-//
-// @end
-
 class FunctionsTests: XCTestCase {
-//
-  // @implementation FIRFunctionsTests {
-//  FIRFunctions *_functions;
-//  FIRFunctions *_functionsCustomDomain;
-//
-//  GTMSessionFetcherService *_fetcherService;
-//  FIRAppCheckFake *_appCheckFake;
-  // }
-//
-  // - (void)setUp {
-//  [super setUp];
-//  _fetcherService = [[GTMSessionFetcherService alloc] init];
-//  _appCheckFake = [[FIRAppCheckFake alloc] init];
-//
-//  _functions = [[FIRFunctions alloc] initWithProjectID:@"my-project"
-//                                                region:@"my-region"
-//                                          customDomain:nil
-//                                                  auth:nil
-//                                             messaging:nil
-//                                              appCheck:_appCheckFake
-//                                        fetcherService:_fetcherService];
-//
-//  _functionsCustomDomain = [[FIRFunctions alloc] initWithProjectID:@"my-project"
-//                                                            region:@"my-region"
-//                                                      customDomain:@"https://mydomain.com"
-//                                                              auth:nil
-//                                                         messaging:nil
-//                                                          appCheck:nil
-//                                                    fetcherService:_fetcherService];
-  // }
   var functions: Functions?
   var functionsCustomDomain: Functions?
   let fetcherService = GTMSessionFetcherService()
@@ -112,13 +48,11 @@ class FunctionsTests: XCTestCase {
                                       fetcherService: fetcherService)
   }
 
-//
-  // - (void)tearDown {
-//  _functionsCustomDomain = nil;
-//  _functions = nil;
-//  _fetcherService = nil;
-//  [super tearDown];
-  // }
+  override func tearDown() {
+    functions = nil
+    functionsCustomDomain = nil
+    super.tearDown()
+  }
 
   func testFunctionsInstanceIsStablePerApp() throws {
     let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",

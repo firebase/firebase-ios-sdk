@@ -3,7 +3,7 @@ name: functions
 on:
   pull_request:
     paths:
-    - 'FirebaseFunctions/**'
+    - 'FirebaseFunctions**' # TODO: Revert after tests pass.
     - 'FirebaseSharedSwift**'
     - '.github/workflows/functions.yml'
     - 'Interop/Auth/Public/*.h'
