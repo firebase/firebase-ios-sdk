@@ -670,8 +670,8 @@ private class AuthTokenProvider: AuthInterop {
     self.token = token
   }
 
-  func getToken(forcingRefresh: Bool, completion callback: (String?, Error?) -> Void) {
-    callback(token, nil)
+  func getToken(forcingRefresh: Bool, completion: (String?, Error?) -> Void) {
+    completion(token, nil)
   }
 }
 

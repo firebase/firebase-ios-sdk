@@ -46,7 +46,7 @@ class ContextProviderTests: XCTestCase {
       XCTAssertNil(error)
       expectation.fulfill()
     }
-    waitForExpectations(timeout: 1.5)
+    waitForExpectations(timeout: 0.1)
   }
 
   func testContextWithAuthError() {
