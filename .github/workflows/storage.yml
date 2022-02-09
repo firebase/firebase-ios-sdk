@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
     - 'FirebaseStorage**'
-    - 'Interop/Auth/Public/*.h'
+    - 'FirebaseAuth/Interop/*.h'
     - '.github/workflows/storage.yml'
     - 'scripts/**'
     # Rebuild on Ruby infrastructure changes.

@@ -24,8 +24,8 @@
 #import "FirebaseStorage/Sources/FIRStorage_Private.h"
 
 #import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
+#import "FirebaseAuth/Interop/FIRAuthInterop.h"
 #import "FirebaseCore/Internal/FirebaseCoreInternal.h"
-#import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #if SWIFT_PACKAGE
 @import GTMSessionFetcherCore;

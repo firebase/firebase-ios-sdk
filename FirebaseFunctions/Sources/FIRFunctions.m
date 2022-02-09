@@ -18,9 +18,9 @@
 #import "FirebaseFunctions/Sources/Public/FirebaseFunctions/FIRFunctions.h"
 
 #import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
+#import "FirebaseAuth/Interop/FIRAuthInterop.h"
 #import "FirebaseFunctions/Sources/FIRFunctionsComponent.h"
-#import "FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h"
-#import "Interop/Auth/Public/FIRAuthInterop.h"
+#import "FirebaseMessaging/Interop/FIRMessagingInterop.h"
 
 #import "FirebaseFunctions/Sources/FIRHTTPSCallable+Internal.h"
 #import "FirebaseFunctions/Sources/FUNContext.h"

@@ -21,8 +21,8 @@
 #import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 
 #import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
-#import "FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h"
-#import "Interop/Auth/Public/FIRAuthInterop.h"
+#import "FirebaseAuth/Interop/FIRAuthInterop.h"
+#import "FirebaseMessaging/Interop/FIRMessagingInterop.h"
 
 @interface FIRFunctionsComponent () <FIRLibrary, FIRFunctionsProvider>
 

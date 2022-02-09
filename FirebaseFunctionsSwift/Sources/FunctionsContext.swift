@@ -14,6 +14,8 @@
 
 import Foundation
 import FirebaseAppCheckInterop
+import FirebaseAuthInterop
+import FirebaseMessagingInterop
 
 /// FunctionsContext is a helper class for gathering metadata for a function call.
 internal class FunctionsContext: NSObject {
@@ -67,7 +69,10 @@ internal class FunctionsContextProvider: NSObject {
       dispatchGroup.enter()
 
       appCheck.getToken(forcingRefresh: false) { tokenResult in
-        appCheckToken = tokenResult.token
+        // Send only valid token to functions.
+        if tokenResult.error == nil {
+          appCheckToken = tokenResult.token
+        }
         dispatchGroup.leave()
       }
     }
