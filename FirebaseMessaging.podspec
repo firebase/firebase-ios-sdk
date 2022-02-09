@@ -37,6 +37,7 @@ device, and it is completely free.
   s.source_files = [
     base_dir + 'Sources/**/*',
     base_dir + 'Sources/Protogen/nanopb/*.h',
+    base_dir + 'Interop/*.h'
     'Interop/Analytics/Public/*.h',
     'FirebaseCore/Internal/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',

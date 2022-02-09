@@ -15,6 +15,8 @@
 import Foundation
 
 @testable import FirebaseFunctionsSwift
+import FirebaseAuthInterop
+import FirebaseMessagingInterop
 import XCTest
 
 /// This file was intitialized as a direct port of `FirebaseFunctionsSwift/Tests/IntegrationTests.swift`
@@ -658,17 +660,21 @@ class IntegrationTests: XCTestCase {
 }
 
 private class AuthTokenProvider: AuthInterop {
+  func getUserID() -> String? {
+    return "fake user"
+  }
+
   let token: String
 
   init(token: String) {
     self.token = token
   }
 
-  func getToken(forcingRefresh: Bool, callback: (String?, Error?) -> Void) {
+  func getToken(forcingRefresh: Bool, completion callback: (String?, Error?) -> Void) {
     callback(token, nil)
   }
 }
 
-private class MessagingTokenProvider: MessagingInterop {
-  var fcmToken: String { return "fakeFCMToken" }
+private class MessagingTokenProvider: NSObject, MessagingInterop {
+  var fcmToken: String? { return "fakeFCMToken" }
 }
