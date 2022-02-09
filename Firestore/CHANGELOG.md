@@ -1,4 +1,4 @@
-# Unreleased
+# v8.12.1
 - [changed] Add more details to the assertion failure in OrderBy::Compare() to
   help with future debugging (#9258).
 
