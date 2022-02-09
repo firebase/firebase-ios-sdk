@@ -1,3 +1,12 @@
+# Firebase 8.13.0
+- [changed] The Firebase CocoaPod, module, and header are now deprecated and will be removed in a
+  future release. Please specify the specific pod or import required. For example, use
+  `pod 'FirebaseStorage'` instead of `pod 'Firebase/Storage'`. Use `import FirebaseStorage` instead
+  of `import Firebase`.
+- [changed] Usage of CocoaPods library integrations is deprecated. We plan to drop support in the
+  next major release. Firebase will require Podfiles to specify either
+  `use_frameworks! :linkage => :static` or `use_frameworks!`.
+
 # Firebase 8.10.0
 - [fixed] Fixed platform availability checks in Swift Package Manager that may prevent code
   completion for Analytics APIs on macOS and tvOS. (#9032)

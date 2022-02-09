@@ -12,6 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#warning The Firebase module is deprecated. Please replace with the specific Firebase modules\
+ needed. For example, use `import FirebaseStorage`.
+#ifdef COCOAPODS
+#warning The Firebase CocoaPod is deprecated. Please replace with the specific Firebase pods\
+ needed. For example, use `pod 'FirebaseStorage'` instead of `pod 'Firebase/Storage'`.
+#endif
+
 #import <FirebaseCore/FirebaseCore.h>
 
 #if !defined(__has_include)
