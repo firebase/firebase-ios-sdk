@@ -48,11 +48,11 @@ class Overlay {
     return largest_batch_id_;
   }
 
-  Mutation mutation() const {
+  const Mutation& mutation() const {
     return mutation_;
   }
 
-  DocumentKey key() const {
+  const DocumentKey& key() const {
     return mutation_.key();
   }
 
