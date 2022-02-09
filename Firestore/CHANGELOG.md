@@ -2,11 +2,6 @@
 - [changed] Add more details to the assertion failure in OrderBy::Compare() to
   help with future debugging (#9258).
 
-# v8.12.0
-- [fixed] Fixed an AppCheck issue that caused Firestore listeners to stop
-working and receive a "Permission Denied" error. This issue only occurred for
-AppCheck users that set their expiration time to under an hour.
-
 # v8.11.0
 - [fixed] Fixed an issue that can result in incomplete Query snapshots when an
   app is backgrounded during query execution.
