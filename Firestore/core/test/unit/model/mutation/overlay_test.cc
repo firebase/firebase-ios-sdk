@@ -61,7 +61,6 @@ TEST(OverlayTest, TypeTraits) {
 TEST(OverlayTest, DefaultConstructor) {
   Overlay overlay;
 
-  EXPECT_FALSE(overlay.is_valid());
   EXPECT_EQ(overlay.largest_batch_id(), -1);
   EXPECT_EQ(overlay.mutation(), Mutation());
 }
@@ -69,7 +68,6 @@ TEST(OverlayTest, DefaultConstructor) {
 TEST(OverlayTest, ConstructorWithValidMutation) {
   Overlay overlay(SAMPLE_BATCH_ID, SampleMutation());
 
-  EXPECT_TRUE(overlay.is_valid());
   EXPECT_EQ(overlay.largest_batch_id(), SAMPLE_BATCH_ID);
   EXPECT_EQ(overlay.mutation(), SampleMutation());
   EXPECT_EQ(overlay.key(), SampleMutation().key());
@@ -78,7 +76,6 @@ TEST(OverlayTest, ConstructorWithValidMutation) {
 TEST(OverlayTest, ConstructorWithInvalidMutation) {
   Overlay overlay(SAMPLE_BATCH_ID, Mutation());
 
-  EXPECT_FALSE(overlay.is_valid());
   EXPECT_EQ(overlay.largest_batch_id(), SAMPLE_BATCH_ID);
   EXPECT_EQ(overlay.mutation(), Mutation());
 }
@@ -88,7 +85,6 @@ TEST(OverlayTest, CopyConstructorWithValidInstance) {
 
   Overlay overlay_copy_dest(overlay_copy_src);
 
-  EXPECT_TRUE(overlay_copy_dest.is_valid());
   EXPECT_EQ(overlay_copy_dest.largest_batch_id(), SAMPLE_BATCH_ID);
   EXPECT_EQ(overlay_copy_dest.mutation(), SampleMutation());
 }
@@ -97,8 +93,6 @@ TEST(OverlayTest, CopyConstructorWithInvalidInstance) {
   const Overlay invalid_overlay;
 
   Overlay overlay_copy_dest(invalid_overlay);
-
-  EXPECT_FALSE(overlay_copy_dest.is_valid());
 }
 
 TEST(OverlayTest, MoveConstructorWithValidInstance) {
@@ -106,9 +100,7 @@ TEST(OverlayTest, MoveConstructorWithValidInstance) {
 
   Overlay overlay_move_dest(std::move(overlay_move_src));
 
-  EXPECT_FALSE(overlay_move_src.is_valid());
   EXPECT_FALSE(overlay_move_src.mutation().is_valid());
-  EXPECT_TRUE(overlay_move_dest.is_valid());
   EXPECT_EQ(overlay_move_dest.largest_batch_id(), SAMPLE_BATCH_ID);
   EXPECT_EQ(overlay_move_dest.mutation(), SampleMutation());
 }
@@ -117,9 +109,6 @@ TEST(OverlayTest, MoveConstructorWithInvalidInstance) {
   Overlay invalid_overlay;
 
   Overlay overlay_move_dest(std::move(invalid_overlay));
-
-  EXPECT_FALSE(invalid_overlay.is_valid());
-  EXPECT_FALSE(overlay_move_dest.is_valid());
 }
 
 TEST(OverlayTest, CopyAssignmentOperatorWithValidInstance) {
@@ -128,7 +117,6 @@ TEST(OverlayTest, CopyAssignmentOperatorWithValidInstance) {
 
   overlay_copy_dest = overlay_copy_src;
 
-  EXPECT_TRUE(overlay_copy_dest.is_valid());
   EXPECT_EQ(overlay_copy_dest.largest_batch_id(), 123);
   EXPECT_EQ(overlay_copy_dest.mutation(), SampleMutation("col1/doc1"));
 }
@@ -138,9 +126,6 @@ TEST(OverlayTest, CopyAssignmentOperatorWithInvalidInstance) {
   Overlay overlay_copy_dest(456, SampleMutation("col2/doc2"));
 
   overlay_copy_dest = invalid_overlay;
-
-  EXPECT_FALSE(invalid_overlay.is_valid());
-  EXPECT_FALSE(overlay_copy_dest.is_valid());
 }
 
 TEST(OverlayTest, MoveAssignmentOperatorWithValidInstance) {
@@ -149,9 +134,7 @@ TEST(OverlayTest, MoveAssignmentOperatorWithValidInstance) {
 
   overlay_move_dest = std::move(overlay_move_src);
 
-  EXPECT_FALSE(overlay_move_src.is_valid());
   EXPECT_FALSE(overlay_move_src.mutation().is_valid());
-  EXPECT_TRUE(overlay_move_dest.is_valid());
   EXPECT_EQ(overlay_move_dest.largest_batch_id(), 123);
   EXPECT_EQ(overlay_move_dest.mutation(), SampleMutation("col1/doc1"));
 }
@@ -161,15 +144,6 @@ TEST(OverlayTest, MoveAssignmentOperatorWithInvalidInstance) {
   Overlay overlay_move_dest(456, SampleMutation("col2/doc2"));
 
   overlay_move_dest = std::move(invalid_overlay);
-
-  EXPECT_FALSE(invalid_overlay.is_valid());
-  EXPECT_FALSE(overlay_move_dest.is_valid());
-}
-
-TEST(OverlayTest, is_valid) {
-  EXPECT_FALSE(Overlay().is_valid());
-  EXPECT_FALSE(Overlay(123, Mutation()).is_valid());
-  EXPECT_TRUE(Overlay(123, SampleMutation()).is_valid());
 }
 
 TEST(OverlayTest, largest_batch_id) {

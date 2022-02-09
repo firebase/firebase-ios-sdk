@@ -44,10 +44,6 @@ class Overlay {
       : largest_batch_id_(largest_batch_id), mutation_(mutation) {
   }
 
-  bool is_valid() const {
-    return mutation_.is_valid();
-  }
-
   int largest_batch_id() const {
     return largest_batch_id_;
   }
