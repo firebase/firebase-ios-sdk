@@ -32,7 +32,9 @@ NS_SWIFT_NAME(AuthInterop)
 @protocol FIRAuthInterop
 
 /// Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
-- (void)getTokenForcingRefresh:(BOOL)forceRefresh withCallback:(FIRTokenCallback)callback;
+- (void)getTokenForcingRefresh:(BOOL)forceRefresh
+                  withCallback:(FIRTokenCallback)callback
+    NS_SWIFT_NAME(getToken(forcingRefresh:completion:));
 
 /// Get the current Auth user's UID. Returns nil if there is no user signed in.
 - (nullable NSString *)getUserID;

@@ -17,8 +17,8 @@
 
 #import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
 #import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
-#import "FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h"
-#import "Interop/Auth/Public/FIRAuthInterop.h"
+#import "FirebaseAuth/Interop/FIRAuthInterop.h"
+#import "FirebaseMessaging/Interop/FIRMessagingInterop.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
