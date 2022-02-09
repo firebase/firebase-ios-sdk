@@ -20,17 +20,30 @@ import FirebaseInstallations
 import FirebaseMessaging
 import GoogleUtilitiesMulticastAppDelegate
 
-class MulticastAppDelegate: GULMulticastAppDelegate {
+class MulticastUserNotificationCenterDelegate: GULMulticastUserNotificationCenterDelegate {
   override init() {
     super.init(appDelegate: AppDelegate())
   }
 }
 
-class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate,
-  MessagingDelegate {
+//class MulticastAppDelegate: GULMulticastAppDelegate {
+//  override init() {
+//    super.init(appDelegate: AppDelegate())
+//  }
+//}
+
+class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate {
   let identity = Identity()
   var cancellables = Set<AnyCancellable>()
 
+  func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+    
+  }
+  
+  func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+    
+  }
+  
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication
                      .LaunchOptionsKey: Any]? = nil) -> Bool {
@@ -95,11 +108,15 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 @main
 struct SwiftUISampleApp: App {
   // Add the adapter to access notifications APIs in AppDelegate
-  @UIApplicationDelegateAdaptor(MulticastAppDelegate.self) var delegate
+ // @UIApplicationDelegateAdaptor(MulticastUserNotificationCenterDelegate.self) var centerDelegate
+  @UIApplicationDelegateAdaptor(MulticastUserNotificationCenterDelegate.self) var delegate
+
   var defaultAppDelegate: AppDelegate?
+  //var defaultCenterDelegate: NotificationDelegate?
 
   init() {
     defaultAppDelegate = delegate.defaultAppDelegate as? AppDelegate
+   // defaultCenterDelegate = centerDelegate.defaultAppDelegate as? NotificationDelegate
   }
 
   var body: some Scene {

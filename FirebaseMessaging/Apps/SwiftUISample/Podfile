@@ -7,6 +7,7 @@ source 'https://cdn.cocoapods.org/'
 target 'SwiftUISample' do
   platform :ios, '15.0'
 
+  pod 'FirebaseAnalytics'
   pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseMessaging', :path => '../../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../../'

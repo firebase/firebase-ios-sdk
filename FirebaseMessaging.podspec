@@ -21,7 +21,7 @@ device, and it is completely free.
   s.social_media_url = 'https://twitter.com/Firebase'
 
   ios_deployment_target = '10.0'
-  osx_deployment_target = '10.12'
+  osx_deployment_target = '10.14'
   tvos_deployment_target = '10.0'
   watchos_deployment_target = '6.0'
 
@@ -54,7 +54,7 @@ device, and it is completely free.
   s.ios.framework = 'SystemConfiguration'
   s.tvos.framework = 'SystemConfiguration'
   s.osx.framework = 'SystemConfiguration'
-  s.weak_framework = 'UserNotifications'
+  s.framework = 'UserNotifications'
   s.dependency 'FirebaseInstallations', '~> 8.0'
   s.dependency 'FirebaseCore', '~> 8.0'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.7'

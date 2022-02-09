@@ -17,8 +17,10 @@
 #import "FirebaseMessaging/Sources/FIRMessagingRemoteNotificationsProxy.h"
 
 #import <objc/runtime.h>
+#import <UserNotifications/UserNotifications.h>
 
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import <GoogleUtilitiesMulticastAppDelegate/GULMulticastUserNotificationCenterDelegate.h>
 #import <GoogleUtilitiesMulticastAppDelegate/GULMulticastAppDelegate.h>
 
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
@@ -33,7 +35,8 @@ static NSString *kUserNotificationWillPresentSelectorString =
 static NSString *kUserNotificationDidReceiveResponseSelectorString =
     @"userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:";
 
-@interface FIRMessagingRemoteNotificationsProxy () <GULApplicationDelegate>
+@interface FIRMessagingRemoteNotificationsProxy () <GULApplicationDelegate, UNUserNotificationCenterDelegate>
+//@interface FIRMessagingRemoteNotificationsProxy () <GULApplicationDelegate>
 
 @property(strong, nonatomic) NSMutableDictionary<NSString *, NSValue *> *originalAppDelegateImps;
 @property(strong, nonatomic) NSMutableDictionary<NSString *, NSArray *> *swizzledSelectorsByClass;
@@ -84,6 +87,11 @@ static NSString *kUserNotificationDidReceiveResponseSelectorString =
 
 - (void)useMulticastAppDelegate {
   id<GULMulticastAppDelegateProtocol> multicastDelegate =
+      [GULMulticastUserNotificationCenterDelegate multicastDelegate];
+  if (multicastDelegate) {
+    [multicastDelegate addInterceptorWithInterceptor:self];
+  }
+  multicastDelegate =
       [GULMulticastAppDelegate multicastDelegate];
   if (multicastDelegate) {
     [multicastDelegate addInterceptorWithInterceptor:self];
@@ -97,7 +105,7 @@ static NSString *kUserNotificationDidReceiveResponseSelectorString =
   }
 
   id<GULMulticastAppDelegateProtocol> multicastDelegate =
-      [GULMulticastAppDelegate multicastDelegate];
+      [GULMulticastUserNotificationCenterDelegate multicastDelegate];
   if (multicastDelegate) {
     [multicastDelegate addInterceptorWithInterceptor:self];
   } else {
@@ -400,13 +408,6 @@ id FIRMessagingPropertyNameFromObject(id object, NSString *propertyName, Class k
 }
 
 #pragma mark - GULApplicationDelegate
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-- (void)application:(GULApplication *)application
-    didReceiveRemoteNotification:(NSDictionary *)userInfo {
-  [[FIRMessaging messaging] appDidReceiveMessage:userInfo];
-}
-#pragma clang diagnostic pop
 
 #if TARGET_OS_IOS || TARGET_OS_TV
 - (void)application:(UIApplication *)application
@@ -429,6 +430,18 @@ id FIRMessagingPropertyNameFromObject(id object, NSString *propertyName, Class k
 - (void)application:(GULApplication *)application
     didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
   [FIRMessaging messaging].APNSToken = deviceToken;
+}
+
+#pragma mark - UNUserNotificationCenterDelegate
+
+-(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
+  [[FIRMessaging messaging] appDidReceiveMessage:notification.request.content.userInfo];
+  completionHandler(UNNotificationPresentationOptionBadge | UNNotificationPresentationOptionAlert);
+}
+
+-(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
+  [[FIRMessaging messaging] appDidReceiveMessage:response.notification.request.content.userInfo];
+  completionHandler();
 }
 
 #pragma mark - Swizzled Methods
