@@ -7,7 +7,7 @@ on:
     - 'Firebase/Database/**'
     - 'FirebaseSharedSwift**'
     - 'Example/Database/**'
-    - 'Interop/Auth/Public/*.h'
+    - 'FirebaseAuth/Interop/*.h'
     - '.github/workflows/database.yml'
     - 'Gemfile*'
     - 'scripts/run_database_emulator.sh'

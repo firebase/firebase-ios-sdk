@@ -32,7 +32,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
 
   s.source_files = [
     'FirebaseStorage/Sources/**/*.[mh]',
-    'Interop/Auth/Public/*.h',
+    'FirebaseAuth/Interop/*.h',
     'FirebaseCore/Internal/*.h',
     'FirebaseAppCheck/Interop/*.h',
   ]
