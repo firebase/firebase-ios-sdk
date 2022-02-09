@@ -159,7 +159,7 @@ class RemoteStore : public TargetMetadataProvider,
    * It is a no-op if the target of the given target data is already being
    * listened to.
    */
-  void Listen(const local::TargetData& target_data);
+  void Listen(local::TargetData target_data);
 
   /**
    * Stops listening to the target with the given target ID.
