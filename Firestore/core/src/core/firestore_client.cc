@@ -145,23 +145,10 @@ std::shared_ptr<FirestoreClient> FirestoreClient::Create(
   };
 
   shared_client->app_check_credentials_provider_->SetCredentialChangeListener(
-      [weak_client](const std::string&) {
-        auto shared_client = weak_client.lock();
-        if (!shared_client) return;
-        // It is okay to ignore an App Check token change notification if
-        // FirestoreClient::Initialize has not been invoked yet because
-        // once initialization does occur, setting up new watch streams will use
-        // the latest App Check token available.
-        if (shared_client->credentials_initialized_) {
-          shared_client->worker_queue_->Enqueue([shared_client] {
-            LOG_DEBUG("App Check token Changed.");
-            // This will ensure that once a new App Check token is retrieved,
-            // streams are re-established using the new token.
-            shared_client->remote_store_->HandleCredentialChange();
-          });
-        }
+      [](std::string) {
+        // Register an empty credentials change listener to activate token
+        // refresh.
       });
-
   shared_client->auth_credentials_provider_->SetCredentialChangeListener(
       credential_change_listener);
 
