@@ -25,10 +25,10 @@ Cloud Functions for Firebase.
 
   s.source_files = [
     'FirebaseFunctions/Sources/**/*',
-    'Interop/Auth/Public/*.h',
+    'FirebaseAuth/Interop/*.h',
     'FirebaseAppCheck/Interop/*.h',
     'FirebaseCore/Internal/*.h',
-    'FirebaseMessaging/Sources/Interop/FIRMessagingInterop.h',
+    'FirebaseMessaging/Interop/FIRMessagingInterop.h',
   ]
   s.public_header_files = 'FirebaseFunctions/Sources/Public/FirebaseFunctions/*.h'
 

@@ -407,6 +407,18 @@ let package = Package(
         .linkedFramework("SafariServices", .when(platforms: [.iOS])),
       ]
     ),
+    // Internal headers only for consuming from Swift.
+    .target(
+      name: "FirebaseAuthInterop",
+      path: "FirebaseAuth/Interop",
+      exclude: [
+        "CMakeLists.txt",
+      ],
+      publicHeadersPath: ".",
+      cSettings: [
+        .headerSearchPath("../../"),
+      ]
+    ),
     .testTarget(
       name: "AuthUnit",
       dependencies: ["FirebaseAuth", "OCMock"],
@@ -699,8 +711,10 @@ let package = Package(
       name: "FirebaseFunctionsSwift",
       dependencies: [
         "FirebaseAppCheckInterop",
+        "FirebaseAuthInterop",
         "FirebaseCore",
         "FirebaseCoreInternal",
+        "FirebaseMessagingInterop",
         "FirebaseSharedSwift",
         .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
       ],
@@ -890,6 +904,15 @@ let package = Package(
       ],
       linkerSettings: [
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
+      ]
+    ),
+    // Internal headers only for consuming from Swift.
+    .target(
+      name: "FirebaseMessagingInterop",
+      path: "FirebaseMessaging/Interop",
+      publicHeadersPath: ".",
+      cSettings: [
+        .headerSearchPath("../../"),
       ]
     ),
     .testTarget(
