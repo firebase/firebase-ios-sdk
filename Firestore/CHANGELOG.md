@@ -1,5 +1,5 @@
 # Unreleased
-- [changed] Queries are now send to the backend before the SDK starts local 
+- [changed] Queries are now send to the backend before the SDK starts local
   processing, which reduces overall Query latency.
 - [changed] Add more details to the assertion failure in OrderBy::Compare() to
   help with future debugging (#9258).
