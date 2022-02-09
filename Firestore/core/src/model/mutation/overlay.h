@@ -30,20 +30,6 @@ namespace firestore {
 namespace model {
 namespace mutation {
 
-class Overlay;
-
-bool operator==(const Overlay&, const Overlay&);
-
-inline bool operator!=(const Overlay& lhs, const Overlay& rhs) {
-  return !(lhs == rhs);
-}
-
-std::ostream& operator<<(std::ostream&, const Overlay&);
-
-struct OverlayHash {
-  std::size_t operator()(const Overlay&) const;
-};
-
 /**
  * Representation of an overlay computed by Firestore.
  *
@@ -84,6 +70,18 @@ class Overlay {
  private:
   int largest_batch_id_ = -1;
   Mutation mutation_;
+};
+
+bool operator==(const Overlay&, const Overlay&);
+
+inline bool operator!=(const Overlay& lhs, const Overlay& rhs) {
+  return !(lhs == rhs);
+}
+
+std::ostream& operator<<(std::ostream&, const Overlay&);
+
+struct OverlayHash {
+  std::size_t operator()(const Overlay&) const;
 };
 
 }  // namespace mutation
