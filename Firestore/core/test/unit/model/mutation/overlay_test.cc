@@ -250,6 +250,15 @@ TEST(OverlayTest, OperatorLeftShiftIntoOstream) {
   EXPECT_EQ(ss.str(), overlay.ToString());
 }
 
+TEST(OverlayHashTest, OverlayHashTest) {
+  const OverlayHash overlay_hash;
+  const Overlay overlay1 = Overlay(1234, SampleMutation("abc/xyz"));
+  const Overlay overlay2 = Overlay(5678, SampleMutation("def/uvw"));
+
+  EXPECT_EQ(overlay_hash(overlay1), overlay1.Hash());
+  EXPECT_EQ(overlay_hash(overlay2), overlay2.Hash());
+}
+
 }  // namespace
 }  // namespace mutation
 }  // namespace model

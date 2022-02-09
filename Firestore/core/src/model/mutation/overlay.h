@@ -40,6 +40,10 @@ inline bool operator!=(const Overlay& lhs, const Overlay& rhs) {
 
 std::ostream& operator<<(std::ostream&, const Overlay&);
 
+struct OverlayHash {
+  std::size_t operator()(const Overlay&) const;
+};
+
 /**
  * Representation of an overlay computed by Firestore.
  *

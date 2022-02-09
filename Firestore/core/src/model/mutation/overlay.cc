@@ -49,6 +49,10 @@ std::string Overlay::ToString() const {
                       ", mutation=", util::ToString(mutation_), ")");
 }
 
+std::size_t OverlayHash::operator()(const Overlay& overlay) const {
+  return overlay.Hash();
+}
+
 }  // namespace mutation
 }  // namespace model
 }  // namespace firestore
