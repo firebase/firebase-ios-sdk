@@ -14,25 +14,16 @@
 
 import Foundation
 import FirebaseAppCheckInterop
+import FirebaseAuthInterop
 import FirebaseCore
 import FirebaseCoreInternal
+import FirebaseMessagingInterop
 import FirebaseSharedSwift
 #if COCOAPODS
   import GTMSessionFetcher
 #else
   import GTMSessionFetcherCore
 #endif
-
-// PLACEHOLDERS
-@objc public protocol AuthInterop {
-  func getToken(forcingRefresh: Bool, callback: (String?, Error?) -> Void)
-}
-
-@objc public protocol MessagingInterop {
-  var fcmToken: String { get }
-}
-
-// END PLACEHOLDERS
 
 /// File specific constants.
 private enum Constants {

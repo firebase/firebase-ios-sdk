@@ -18,21 +18,19 @@
 #import "FirebaseFunctionsSwift/Tests/ObjCIntegration/FIRFunctions+Internal.h"
 
 @import FirebaseFunctionsSwift;
+@import FirebaseMessagingInterop;
 @import GTMSessionFetcherCore;
-
-//#import "SharedTestUtilities/FIRAuthInteropFake.h"
-//#import "SharedTestUtilities/FIRMessagingInteropFake.h"
 
 // Project ID used by these tests.
 static NSString *const kDefaultProjectID = @"functions-integration-test";
 
-@interface MessagingTokenProvider : NSObject <MessagingInterop>
+@interface MessagingTokenProvider : NSObject <FIRMessagingInterop>
 @end
 
 @implementation MessagingTokenProvider
-@synthesize fcmToken;
+@synthesize FCMToken;
 - (instancetype)init {
-  fcmToken = @"abc";
+  FCMToken = @"abc";
 }
 
 @end

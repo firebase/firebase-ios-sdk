@@ -21,7 +21,7 @@ on:
     - 'Firestore/**'
 
     # Interop headers
-    - 'Interop/Auth/Public/*.h'
+    - 'FirebaseAuth/Interop/*.h'
 
     # FirebaseCore header change
     - 'FirebaseCore/Internal'

@@ -1,11 +1,11 @@
 Pod::Spec.new do |s|
-  s.name             = 'FirebaseAppCheckInterop'
+  s.name             = 'FirebaseAuthInterop'
   s.version          = '8.12.0'
-  s.summary          = 'Interfaces that allow other Firebase SDKs to use AppCheck functionality.'
+  s.summary          = 'Interfaces that allow other Firebase SDKs to use Auth functionality.'
 
   s.description      = <<-DESC
   Not for public use.
-  A set of protocols that other Firebase SDKs can use to interoperate with FirebaseAppCheck in a safe
+  A set of protocols that other Firebase SDKs can use to interoperate with FirebaseAuth in a safe
   and reliable manner.
                        DESC
 
@@ -20,11 +20,11 @@ Pod::Spec.new do |s|
     :tag => 'CocoaPods-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '9.0'
+  s.ios.deployment_target = '10.0'
   s.osx.deployment_target = '10.12'
   s.tvos.deployment_target = '10.0'
   s.watchos.deployment_target = '6.0'
 
-  s.source_files = 'FirebaseAppCheck/Interop/*.[hm]'
-  s.public_header_files = 'FirebaseAppCheck/Interop/*.h'
+  s.source_files = 'FirebaseAuth/Interop/*.[hm]'
+  s.public_header_files = 'FirebaseAuth/Interop/*.h'
 end

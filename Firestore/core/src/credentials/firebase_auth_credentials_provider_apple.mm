@@ -18,7 +18,7 @@
 
 #import "FirebaseCore/Internal/FIRAppInternal.h"
 
-#import "Interop/Auth/Public/FIRAuthInterop.h"
+#import "FirebaseAuth/Interop/FIRAuthInterop.h"
 
 #include "Firestore/core/src/util/error_apple.h"
 #include "Firestore/core/src/util/hard_assert.h"
