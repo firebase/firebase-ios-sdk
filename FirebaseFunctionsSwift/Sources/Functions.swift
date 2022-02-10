@@ -115,7 +115,7 @@ internal enum FunctionsConstants {
               appCheck: appCheck)
   }
 
-  public init(projectID: String,
+  @objc internal init(projectID: String,
                       region: String,
                       customDomain: String?,
                       auth: AuthInterop?,
