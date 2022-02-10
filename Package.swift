@@ -745,13 +745,12 @@ let package = Package(
     ),
     .target(
       name: "FirebaseFunctionsCombineSwift",
-      dependencies: ["FirebaseFunctions"],
+      dependencies: ["FirebaseFunctionsSwift"],
       path: "FirebaseCombineSwift/Sources/Functions"
     ),
     .testTarget(
       name: "FunctionsCombineUnit",
       dependencies: ["FirebaseFunctionsCombineSwift",
-                     "FirebaseFunctionsTestingSupport",
                      "SharedTestUtilities"],
       path: "FirebaseFunctions/Tests/CombineUnit"
     ),
