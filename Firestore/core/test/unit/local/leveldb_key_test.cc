@@ -638,6 +638,62 @@ TEST(IndexEntryKeyTest, Description) {
                                 "foo-bar?baz!quux"));
 }
 
+TEST(LevelDbDocumentOverlayKeyTest, Prefixing) {
+  const std::string table_key = LevelDbDocumentOverlayKey::KeyPrefix();
+
+  EXPECT_TRUE(absl::StartsWith(
+      LevelDbDocumentOverlayKey::Key("test_user", testutil::Key("coll/doc")),
+      table_key));
+  EXPECT_TRUE(absl::StartsWith(
+      LevelDbDocumentOverlayKey::Key("test_user", testutil::Key("coll/doc")),
+      LevelDbDocumentOverlayKey::KeyPrefix("test_user")));
+  EXPECT_FALSE(absl::StartsWith(
+      LevelDbDocumentOverlayKey::Key("test_user1", testutil::Key("coll/doc")),
+      LevelDbDocumentOverlayKey::Key("test_user2", testutil::Key("coll/doc"))));
+  EXPECT_FALSE(absl::StartsWith(
+      LevelDbDocumentOverlayKey::Key("test_user1", testutil::Key("coll/doc")),
+      LevelDbDocumentOverlayKey::KeyPrefix("test_user2")));
+}
+
+TEST(LevelDbDocumentOverlayKeyTest, Ordering) {
+  EXPECT_LT(
+      LevelDbDocumentOverlayKey::Key("test_user1", testutil::Key("coll/doc")),
+      LevelDbDocumentOverlayKey::Key("test_user2", testutil::Key("coll/doc")));
+  EXPECT_LT(
+      LevelDbDocumentOverlayKey::Key("test_user", testutil::Key("coll/doc1")),
+      LevelDbDocumentOverlayKey::Key("test_user", testutil::Key("coll/doc2")));
+  EXPECT_LT(
+      LevelDbDocumentOverlayKey::Key("test_user", testutil::Key("coll/doc")),
+      LevelDbDocumentOverlayKey::Key("test_user",
+                                     testutil::Key("coll/doc/coll/doc2")));
+}
+
+TEST(LevelDbDocumentOverlayKeyTest, EncodeDecodeCycle) {
+  LevelDbDocumentOverlayKey key;
+
+  std::vector<std::string> user_ids{"test_user", "foo/bar2",
+                                    "foo-bar?baz!quux"};
+  std::vector<std::string> document_keys{"col1/doc1", "col2/doc2/col3/doc3"};
+  for (const std::string& user_id : user_ids) {
+    for (const std::string& document_key : document_keys) {
+      SCOPED_TRACE(
+          absl::StrCat("user_name=", user_id, " document_key=", document_key));
+      const std::string encoded =
+          LevelDbDocumentOverlayKey::Key(user_id, testutil::Key(document_key));
+      EXPECT_TRUE(key.Decode(encoded));
+      EXPECT_EQ(key.user_id(), user_id);
+      EXPECT_EQ(key.document_key(), testutil::Key(document_key));
+    }
+  }
+}
+
+TEST(LevelDbDocumentOverlayKeyTest, Description) {
+  AssertExpectedKeyDescription(
+      "[document_overlays: user_id=foo-bar?baz!quux path=coll/doc]",
+      LevelDbDocumentOverlayKey::Key("foo-bar?baz!quux",
+                                     testutil::Key("coll/doc")));
+}
+
 #undef AssertExpectedKeyDescription
 
 }  // namespace local

@@ -38,6 +38,8 @@ typedef struct _firestore_client_Target firestore_client_Target;
 typedef struct _firestore_client_UnknownDocument
     firestore_client_UnknownDocument;
 typedef struct _firestore_client_WriteBatch firestore_client_WriteBatch;
+typedef struct _firestore_client_DocumentOverlay
+    firestore_client_DocumentOverlay;
 
 namespace nanopb {
 template <typename T>
@@ -147,6 +149,21 @@ class LocalSerializer {
    */
   bundle::NamedQuery DecodeNamedQuery(nanopb::Reader* reader,
                                       firestore_NamedQuery& proto) const;
+
+  /**
+   * @brief Encodes a `Overlay` to the equivalent nanopb proto for local
+   * storage.
+   */
+  nanopb::Message<firestore_client_DocumentOverlay> EncodeDocumentOverlay(
+      const model::mutation::Overlay& overlay) const;
+
+  /**
+   * Decodes nanopb proto representing a DocumentOverlay proto to the
+   * equivalent model.
+   * Modifies the provided proto to release ownership of any Value messages.
+   */
+  model::mutation::Overlay DecodeDocumentOverlay(
+      nanopb::Reader* reader, firestore_client_DocumentOverlay& proto) const;
 
  private:
   /**

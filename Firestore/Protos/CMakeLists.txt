@@ -30,6 +30,7 @@ endif()
 # excluding anything in google/protobuf.
 set(
   PROTO_FILE_ROOTS
+  firestore/local/document_overlay
   firestore/local/maybe_document
   firestore/local/mutation
   firestore/local/target

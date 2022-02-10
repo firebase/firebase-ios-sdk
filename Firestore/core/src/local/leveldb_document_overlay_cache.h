@@ -18,17 +18,29 @@
 #define FIRESTORE_CORE_SRC_LOCAL_LEVELDB_DOCUMENT_OVERLAY_CACHE_H_
 
 #include <cstdlib>
+#include <functional>
 #include <string>
 
 #include "Firestore/core/src/local/document_overlay_cache.h"
+#include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
+
+namespace credentials {
+class User;
+}  // namespace credentials
+
 namespace local {
+
+class LevelDbPersistence;
+class LocalSerializer;
 
 class LevelDbDocumentOverlayCache final : public DocumentOverlayCache {
  public:
-  LevelDbDocumentOverlayCache();
+  LevelDbDocumentOverlayCache(const credentials::User& user,
+                              LevelDbPersistence* db,
+                              LocalSerializer* serializer);
 
   LevelDbDocumentOverlayCache(const LevelDbDocumentOverlayCache&) = delete;
   LevelDbDocumentOverlayCache& operator=(const LevelDbDocumentOverlayCache&) =
@@ -52,6 +64,28 @@ class LevelDbDocumentOverlayCache final : public DocumentOverlayCache {
   OverlayByDocumentKeyMap GetOverlays(const std::string& collection_group,
                                       int since_batch_id,
                                       std::size_t count) const override;
+
+ private:
+  model::mutation::Overlay ParseOverlay(absl::string_view encoded) const;
+
+  void SaveOverlay(int largest_batch_id,
+                   const model::DocumentKey& key,
+                   const model::Mutation& mutation);
+
+  void ForEachOverlay(std::function<void(absl::string_view leveldb_key,
+                                         model::mutation::Overlay&&)>) const;
+
+  // The LevelDbDocumentOverlayCache instance is owned by LevelDbPersistence.
+  LevelDbPersistence* db_;
+
+  // Owned by LevelDbPersistence.
+  LocalSerializer* serializer_ = nullptr;
+
+  /**
+   * The normalized user_id (i.e. after converting null to empty) as used in our
+   * LevelDB keys.
+   */
+  std::string user_id_;
 };
 
 }  // namespace local

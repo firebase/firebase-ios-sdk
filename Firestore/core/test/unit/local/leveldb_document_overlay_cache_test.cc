@@ -17,6 +17,10 @@
 #include <type_traits>
 
 #include "Firestore/core/src/local/leveldb_document_overlay_cache.h"
+#include "Firestore/core/src/local/leveldb_persistence.h"
+#include "Firestore/core/src/local/persistence.h"
+#include "Firestore/core/test/unit/local/document_overlay_cache_test.h"
+#include "Firestore/core/test/unit/local/persistence_testing.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -35,9 +39,13 @@ TEST(LevelDbDocumentOverlayCacheTest, TypeTraits) {
                 "is_move_assignable");
 }
 
-// TODO(dconeybe) Add the call to INSTANTIATE_TEST_SUITE_P to add the tests for
-// LevelDbDocumentOverlayCache once its implementation is completed.
-// See memory_document_overlay_cache_test.cc for guidance.
+std::unique_ptr<Persistence> PersistenceFactory() {
+  return LevelDbPersistenceForTesting();
+}
+
+INSTANTIATE_TEST_SUITE_P(LevelDbDocumentOverlayCacheTest,
+                         DocumentOverlayCacheTest,
+                         testing::Values(PersistenceFactory));
 
 }  // namespace
 }  // namespace local

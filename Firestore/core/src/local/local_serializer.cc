@@ -23,15 +23,18 @@
 #include <utility>
 
 #include "Firestore/Protos/nanopb/firestore/bundle.nanopb.h"
+#include "Firestore/Protos/nanopb/firestore/local/document_overlay.nanopb.h"
 #include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
 #include "Firestore/Protos/nanopb/firestore/local/mutation.nanopb.h"
 #include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/Protos/nanopb/google/firestore/v1/write.nanopb.h"
 #include "Firestore/core/src/bundle/bundle_metadata.h"
 #include "Firestore/core/src/bundle/named_query.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/model/mutable_document.h"
+#include "Firestore/core/src/model/mutation/overlay.h"
 #include "Firestore/core/src/model/mutation_batch.h"
 #include "Firestore/core/src/model/snapshot_version.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
@@ -57,6 +60,7 @@ using model::Mutation;
 using model::MutationBatch;
 using model::ObjectValue;
 using model::SnapshotVersion;
+using model::mutation::Overlay;
 using nanopb::ByteString;
 using nanopb::CheckedSize;
 using nanopb::CopyBytesArray;
@@ -451,6 +455,21 @@ BundledQuery LocalSerializer::DecodeBundledQuery(
       rpc_serializer_.DecodeStructuredQuery(reader->context(), query.parent,
                                             query.structured_query),
       limit_type);
+}
+
+Message<firestore_client_DocumentOverlay>
+LocalSerializer::EncodeDocumentOverlay(const Overlay& overlay) const {
+  Message<firestore_client_DocumentOverlay> result;
+  result->largest_batch_id = overlay.largest_batch_id();
+  result->overlay_mutation = rpc_serializer_.EncodeMutation(overlay.mutation());
+  return result;
+}
+
+Overlay LocalSerializer::DecodeDocumentOverlay(
+    nanopb::Reader* reader, firestore_client_DocumentOverlay& overlay) const {
+  return Overlay(overlay.largest_batch_id,
+                 rpc_serializer_.DecodeMutation(reader->context(),
+                                                overlay.overlay_mutation));
 }
 
 }  // namespace local

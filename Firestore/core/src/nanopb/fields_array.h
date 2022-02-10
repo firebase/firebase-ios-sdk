@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_NANOPB_FIELDS_ARRAY_H_
 
 #include "Firestore/Protos/nanopb/firestore/bundle.nanopb.h"
+#include "Firestore/Protos/nanopb/firestore/local/document_overlay.nanopb.h"
 #include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
 #include "Firestore/Protos/nanopb/firestore/local/mutation.nanopb.h"
 #include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
@@ -182,6 +183,11 @@ inline const pb_field_t* FieldsArray<firestore_NamedQuery>() {
 template <>
 inline const pb_field_t* FieldsArray<google_protobuf_Empty>() {
   return google_protobuf_Empty_fields;
+}
+
+template <>
+inline const pb_field_t* FieldsArray<firestore_client_DocumentOverlay>() {
+  return firestore_client_DocumentOverlay_fields;
 }
 
 }  // namespace nanopb

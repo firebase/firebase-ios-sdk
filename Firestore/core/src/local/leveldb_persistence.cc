@@ -255,9 +255,10 @@ LevelDbBundleCache* LevelDbPersistence::bundle_cache() {
 
 LevelDbDocumentOverlayCache* LevelDbPersistence::document_overlay_cache(
     const User& user) {
-  // TODO(dconeybe) Implement this once LevelDbDocumentOverlayCache is done.
-  (void)user;
-  return nullptr;
+  users_.insert(user.uid());
+  current_document_overlay_cache_ =
+      absl::make_unique<LevelDbDocumentOverlayCache>(user, this, &serializer_);
+  return current_document_overlay_cache_.get();
 }
 
 void LevelDbPersistence::RunInternal(absl::string_view label,
