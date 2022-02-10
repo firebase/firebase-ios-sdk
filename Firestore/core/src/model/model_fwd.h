@@ -58,6 +58,12 @@ class Message;
 
 namespace model {
 
+namespace mutation {
+
+class Overlay;
+
+}  // namespace mutation
+
 class DatabaseId;
 class DeleteMutation;
 class Document;
