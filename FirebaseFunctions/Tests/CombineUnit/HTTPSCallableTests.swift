@@ -28,7 +28,7 @@ import XCTest
 private let timeoutInterval: TimeInterval = 70.0
 private let expectationTimeout: TimeInterval = 2
 
-@objc class MockFunctions: Functions {
+class MockFunctions: Functions {
   let mockCallFunction: () throws -> HTTPSCallableResult
   var verifyParameters: ((_ name: String, _ data: Any?, _ timeout: TimeInterval) throws -> Void)?
   override func callFunction(name: String,

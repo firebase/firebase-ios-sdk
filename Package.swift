@@ -1110,7 +1110,7 @@ let package = Package(
         "FirebaseDynamicLinks",
         "FirebaseFirestore",
         "FirebaseFirestoreSwift",
-        "FirebaseFunctions",
+        "FirebaseFunctionsSwift",
         "FirebaseInAppMessaging",
         .target(name: "FirebaseInAppMessagingSwift",
                 condition: .when(platforms: [.iOS, .tvOS])),
