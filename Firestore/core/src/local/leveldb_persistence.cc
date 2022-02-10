@@ -253,6 +253,13 @@ LevelDbBundleCache* LevelDbPersistence::bundle_cache() {
   return bundle_cache_.get();
 }
 
+LevelDbDocumentOverlayCache* LevelDbPersistence::document_overlay_cache(
+    const User& user) {
+  // TODO(dconeybe) Implement this once LevelDbDocumentOverlayCache is done.
+  (void)user;
+  return nullptr;
+}
+
 void LevelDbPersistence::RunInternal(absl::string_view label,
                                      std::function<void()> block) {
   HARD_ASSERT(transaction_ == nullptr,
