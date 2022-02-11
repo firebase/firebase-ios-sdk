@@ -25,11 +25,14 @@
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/model/mutation/overlay.h"
 #include "Firestore/core/src/model/resource_path.h"
+#include "absl/strings/string_view.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
 namespace local {
+
+class DocumentOverlayCacheTestHelper;
 
 /**
  * Provides methods to read and write document overlays.
@@ -101,6 +104,13 @@ class DocumentOverlayCache {
       const std::string& collection_group,
       int since_batch_id,
       std::size_t count) const = 0;
+
+ private:
+  friend class DocumentOverlayCacheTestHelper;
+
+  // Returns the total number of overlays in the database.
+  // This method exists for unit testing only.
+  virtual int GetOverlayCount() const = 0;
 };
 
 }  // namespace local

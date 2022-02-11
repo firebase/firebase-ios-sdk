@@ -125,6 +125,10 @@ MemoryDocumentOverlayCache::GetOverlays(const std::string& collection_group,
   return result;
 }
 
+int MemoryDocumentOverlayCache::GetOverlayCount() const {
+  return overlays_.size();
+}
+
 void MemoryDocumentOverlayCache::SaveOverlay(int largest_batch_id,
                                              const Mutation& mutation) {
   {

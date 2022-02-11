@@ -61,6 +61,8 @@ class MemoryDocumentOverlayCache final : public DocumentOverlayCache {
       std::unordered_set<model::DocumentKey, model::DocumentKeyHash>;
   using DocumentKeysByBatchIdMap = std::unordered_map<int, DocumentKeySet>;
 
+  int GetOverlayCount() const override;
+
   void SaveOverlay(int largest_batch_id, const model::Mutation& mutation);
 
   OverlayByDocumentKeySortedMap overlays_;

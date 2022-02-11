@@ -119,6 +119,13 @@ namespace local {
 //   - table_name: "document_overlays"
 //   - user_id: string
 //   - document_key: ResourcePath
+//   - largest_batch_id: model::BatchId
+//
+// document_overlays_largest_batch_id_index:
+//   - table_name: "document_overlays_largest_batch_id_index"
+//   - user_id: string
+//   - largest_batch_id: model::BatchId
+//   - document_overlays_key: LevelDbKey
 
 /**
  * Parses the given key and returns a human readable description of its
@@ -955,6 +962,70 @@ class LevelDbDocumentOverlayKey {
   std::string user_id_;
   model::DocumentKey document_key_;
   model::BatchId largest_batch_id_ = -1;
+};
+
+/** A key in the "largest_batch_id" index of the document_overlays table. */
+class LevelDbDocumentOverlayLargestBatchIdIndexKey {
+ public:
+  /**
+   * Creates a key prefix that points just before the first key in the table.
+   */
+  static std::string KeyPrefix();
+
+  /**
+   * Creates a key prefix that points just before the first key for the given
+   * user_id.
+   */
+  static std::string KeyPrefix(absl::string_view user_id);
+
+  /**
+   * Creates a key prefix that points just before the first key for the given
+   * user_id and largest_batch_id.
+   */
+  static std::string KeyPrefix(absl::string_view user_id,
+                               model::BatchId largest_batch_id);
+
+  /**
+   * Creates a complete key that points to a specific user_id and
+   * largest_batch_id for a given key in the document_overlays table.
+   */
+  static std::string Key(absl::string_view user_id,
+                         model::BatchId largest_batch_id,
+                         absl::string_view document_overlays_key);
+
+  /**
+   * Decodes the given complete key, storing the decoded values in this
+   * instance.
+   *
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
+   */
+  ABSL_MUST_USE_RESULT
+  bool Decode(absl::string_view key);
+
+  /** The user ID, as encoded in the key. */
+  const std::string& user_id() const {
+    return user_id_;
+  }
+
+  /** The largest_batch_id_, as encoded in the key. */
+  model::BatchId largest_batch_id() const {
+    return largest_batch_id_;
+  }
+
+  /**
+   * The key in the document_overlays table to which this index entry points,
+   * as encoded in the key.
+   */
+  const std::string& document_overlays_key() const {
+    return document_overlays_key_;
+  }
+
+ private:
+  std::string user_id_;
+  model::BatchId largest_batch_id_ = -1;
+  std::string document_overlays_key_;
 };
 
 }  // namespace local

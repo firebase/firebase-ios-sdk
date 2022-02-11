@@ -33,6 +33,7 @@ class User;
 
 namespace local {
 
+class LevelDbDocumentOverlayCacheTestHelper;
 class LevelDbDocumentOverlayKey;
 class LevelDbPersistence;
 class LocalSerializer;
@@ -67,6 +68,19 @@ class LevelDbDocumentOverlayCache final : public DocumentOverlayCache {
                                       std::size_t count) const override;
 
  private:
+  friend class LevelDbDocumentOverlayCacheTestHelper;
+
+  // Returns the number of index entries for the largest batch ID.
+  // This method exists for unit testing only.
+  int GetLargestBatchIdIndexEntryCount() const;
+
+  int GetOverlayCount() const override;
+  int CountEntriesWithKeyPrefix(const std::string& key_prefix) const;
+
+  absl::optional<model::mutation::Overlay> GetOverlay(
+      absl::string_view encoded_key,
+      const LevelDbDocumentOverlayKey& decoded_key) const;
+
   model::mutation::Overlay ParseOverlay(
       const LevelDbDocumentOverlayKey& key,
       absl::string_view encoded_mutation) const;
@@ -77,10 +91,26 @@ class LevelDbDocumentOverlayCache final : public DocumentOverlayCache {
 
   void DeleteOverlay(const model::DocumentKey& key);
 
+  void DeleteOverlay(absl::string_view encoded_key,
+                     const LevelDbDocumentOverlayKey& decoded_key);
+
   void ForEachOverlay(
       std::function<void(absl::string_view encoded_key,
                          const LevelDbDocumentOverlayKey& decoded_key,
                          absl::string_view encoded_mutation)>) const;
+
+  void DeleteLargestBatchIdIndexEntry(
+      absl::string_view encoded_key,
+      const LevelDbDocumentOverlayKey& decoded_key);
+
+  void AddLargestBatchIdIndexEntry(
+      absl::string_view encoded_key,
+      const LevelDbDocumentOverlayKey& decoded_key);
+
+  void ForEachKeyWithLargestBatchId(
+      int largest_batch_id,
+      std::function<void(absl::string_view encoded_key,
+                         LevelDbDocumentOverlayKey&& decoded_key)>) const;
 
   // The LevelDbDocumentOverlayCache instance is owned by LevelDbPersistence.
   LevelDbPersistence* db_;
