@@ -26,7 +26,7 @@ import FirebaseDatabase
 import FirebaseDynamicLinks
 import FirebaseFirestore
 import FirebaseFirestoreSwift
-import FirebaseFunctions
+import FirebaseFunctionsSwift
 #if (os(iOS) || os(tvOS)) && !targetEnvironment(macCatalyst)
   import FirebaseInAppMessaging
   @testable import FirebaseInAppMessagingSwift
