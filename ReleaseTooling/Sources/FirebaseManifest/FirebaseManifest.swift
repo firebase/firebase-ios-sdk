@@ -25,7 +25,7 @@ public let shared = Manifest(
   pods: [
     Pod("FirebaseSharedSwift"),
     Pod("FirebaseCoreDiagnostics", zip: true),
-    Pod("FirebaseCoreInternal"),
+    Pod("FirebaseCoreInternal", zip: true),
     Pod("FirebaseCore", zip: true),
     Pod("FirebaseAppCheckInterop"),
     Pod("FirebaseAuthInterop"),

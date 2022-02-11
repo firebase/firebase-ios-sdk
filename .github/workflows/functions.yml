@@ -52,11 +52,11 @@ jobs:
     - name: Integration Test Server
       run: FirebaseFunctions/Backend/start.sh synchronous
     - name: Functions Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctionsSwiftUnit iOS spm
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctionsUnit iOS spm
     - name: iOS Swift Integration Tests (including Swift library)
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctionsSwiftIntegration iOS spm
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctionsIntegration iOS spm
     - name: iOS ObjC Integration Tests (using Swift library)
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctionsSwiftObjCIntegration iOS spm
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctionsObjCIntegration iOS spm
     - name: Combine Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FunctionsCombineUnit iOS spm
 
@@ -75,7 +75,7 @@ jobs:
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctionsSwiftUnit ${{ matrix.target }} spm
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctionsUnit ${{ matrix.target }} spm
 
   quickstart:
     # Don't run on private repo unless it is a PR.

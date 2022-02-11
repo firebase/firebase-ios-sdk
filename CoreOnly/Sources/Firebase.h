@@ -50,6 +50,10 @@
     #import <FirebaseFirestore/FirebaseFirestore.h>
   #endif
 
+  #if __has_include("FirebaseFunctions-umbrella.h")
+@import FirebaseFunctions;
+  #endif
+
   #if __has_include(<FirebaseInAppMessaging/FirebaseInAppMessaging.h>)
     #import <FirebaseInAppMessaging/FirebaseInAppMessaging.h>
   #endif
