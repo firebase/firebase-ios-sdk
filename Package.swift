@@ -92,10 +92,6 @@ let package = Package(
       targets: ["FirebaseFunctions"]
     ),
     .library(
-      name: "FirebaseFunctionsSwift-Beta",
-      targets: ["FirebaseFunctionsSwift"]
-    ),
-    .library(
       name: "FirebaseInAppMessaging-Beta",
       targets: ["FirebaseInAppMessagingTarget"]
     ),
@@ -697,18 +693,6 @@ let package = Package(
     .target(
       name: "FirebaseFunctions",
       dependencies: [
-        "FirebaseCore",
-        .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
-      ],
-      path: "FirebaseFunctions/Sources",
-      publicHeadersPath: "Public",
-      cSettings: [
-        .headerSearchPath("../../"),
-      ]
-    ),
-    .target(
-      name: "FirebaseFunctionsSwift",
-      dependencies: [
         "FirebaseAppCheckInterop",
         "FirebaseAuthInterop",
         "FirebaseCore",
@@ -717,45 +701,10 @@ let package = Package(
         "FirebaseSharedSwift",
         .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
       ],
-      path: "FirebaseFunctionsSwift/Sources"
+      path: "FirebaseFunctions/Sources"
     ),
     .testTarget(
       name: "FirebaseFunctionsSwiftUnit",
-      dependencies: ["FirebaseFunctionsSwift",
-                     "SharedTestUtilities"],
-      path: "FirebaseFunctionsSwift/Tests/Unit",
-      cSettings: [
-        .headerSearchPath("../../../"),
-      ]
-    ),
-    .testTarget(
-      name: "FirebaseFunctionsSwiftIntegration",
-      dependencies: ["FirebaseFunctionsSwift",
-                     "SharedTestUtilities"],
-      path: "FirebaseFunctionsSwift/Tests/Integration"
-    ),
-    .testTarget(
-      name: "FirebaseFunctionsSwiftObjCIntegration",
-      dependencies: ["FirebaseFunctionsSwift",
-                     "SharedTestUtilities"],
-      path: "FirebaseFunctionsSwift/Tests/ObjCIntegration",
-      cSettings: [
-        .headerSearchPath("../../.."),
-      ]
-    ),
-    .target(
-      name: "FirebaseFunctionsCombineSwift",
-      dependencies: ["FirebaseFunctionsSwift"],
-      path: "FirebaseCombineSwift/Sources/Functions"
-    ),
-    .testTarget(
-      name: "FunctionsCombineUnit",
-      dependencies: ["FirebaseFunctionsCombineSwift",
-                     "SharedTestUtilities"],
-      path: "FirebaseFunctions/Tests/CombineUnit"
-    ),
-    .testTarget(
-      name: "FunctionsUnit",
       dependencies: ["FirebaseFunctions",
                      "SharedTestUtilities"],
       path: "FirebaseFunctions/Tests/Unit",
@@ -764,34 +713,30 @@ let package = Package(
       ]
     ),
     .testTarget(
-      name: "FunctionsUnitSwift",
-      dependencies: ["FirebaseFunctions"],
-      path: "FirebaseFunctions/Tests/SwiftUnit"
-    ),
-    .testTarget(
-      name: "FunctionsIntegration",
+      name: "FirebaseFunctionsSwiftIntegration",
       dependencies: ["FirebaseFunctions",
                      "SharedTestUtilities"],
-      path: "FirebaseFunctions/Tests/Integration",
-      cSettings: [
-        .headerSearchPath("../../../"),
-      ]
+      path: "FirebaseFunctions/Tests/Integration"
     ),
     .testTarget(
-      name: "FunctionsSwiftIntegration",
+      name: "FirebaseFunctionsSwiftObjCIntegration",
       dependencies: ["FirebaseFunctions",
-                     "FirebaseFunctionsTestingSupport",
                      "SharedTestUtilities"],
-      path: "FirebaseFunctions/Tests/SwiftIntegration"
-    ),
-    .target(
-      name: "FirebaseFunctionsTestingSupport",
-      dependencies: ["FirebaseFunctions"],
-      path: "FirebaseTestingSupport/Functions/Sources",
-      publicHeadersPath: "Public",
+      path: "FirebaseFunctions/Tests/ObjCIntegration",
       cSettings: [
         .headerSearchPath("../../.."),
       ]
+    ),
+    .target(
+      name: "FirebaseFunctionsCombineSwift",
+      dependencies: ["FirebaseFunctions"],
+      path: "FirebaseCombineSwift/Sources/Functions"
+    ),
+    .testTarget(
+      name: "FunctionsCombineUnit",
+      dependencies: ["FirebaseFunctionsCombineSwift",
+                     "SharedTestUtilities"],
+      path: "FirebaseFunctions/Tests/CombineUnit"
     ),
 
     // MARK: - Firebase In App Messaging
@@ -1110,7 +1055,7 @@ let package = Package(
         "FirebaseDynamicLinks",
         "FirebaseFirestore",
         "FirebaseFirestoreSwift",
-        "FirebaseFunctionsSwift",
+        "FirebaseFunctions",
         "FirebaseInAppMessaging",
         .target(name: "FirebaseInAppMessagingSwift",
                 condition: .when(platforms: [.iOS, .tvOS])),

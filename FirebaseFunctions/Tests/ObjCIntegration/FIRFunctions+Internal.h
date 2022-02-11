@@ -16,7 +16,7 @@
 
 // This file started as a copy of FirebaseFunctions/Sources/FIRFunctions+Internal.h with only the
 // next line changed from a public header import to a module import.
-@import FirebaseFunctionsSwift;
+@import FirebaseFunctions;
 
 @protocol FIRAppCheckInterop;
 @protocol FIRAuthInterop;

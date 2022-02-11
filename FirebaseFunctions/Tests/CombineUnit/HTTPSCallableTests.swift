@@ -16,7 +16,7 @@ import Foundation
 
 import Combine
 import FirebaseCore
-@testable import FirebaseFunctionsSwift
+@testable import FirebaseFunctions
 import FirebaseFunctionsCombineSwift
 import FirebaseAuthInterop
 import FirebaseAppCheckInterop
