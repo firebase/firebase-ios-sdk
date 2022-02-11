@@ -113,16 +113,16 @@ extension CarthageUtils {
                                 rootDir: packagedDir,
                                 templateDir: templateDir)
 
-        // Copy the NOTICES file from FirebaseCore.
-        let noticesName = "NOTICES"
-        let coreNotices = fullPath.appendingPathComponents(["FirebaseCore.xcframework",
-                                                            noticesName])
-        let noticesPath = packagedDir.appendingPathComponent(noticesName)
-        do {
-          try FileManager.default.copyItem(at: noticesPath, to: coreNotices)
-        } catch {
-          fatalError("Could not copy \(noticesName) to FirebaseCore for Carthage build. \(error)")
-        }
+//        // Copy the NOTICES file from FirebaseCore.
+//        let noticesName = "NOTICES"
+//        let coreNotices = fullPath.appendingPathComponents(["FirebaseCore.xcframework",
+//                                                            noticesName])
+//        let noticesPath = packagedDir.appendingPathComponent(noticesName)
+//        do {
+//          try FileManager.default.copyItem(at: noticesPath, to: coreNotices)
+//        } catch {
+//          fatalError("Could not copy \(noticesName) to FirebaseCore for Carthage build. \(error)")
+//        }
       }
 
       // Hash the contents of the directory to get a unique name for Carthage.

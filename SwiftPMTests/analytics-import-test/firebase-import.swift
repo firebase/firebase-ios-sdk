@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import XCTest
-import Firebase
+import FirebaseAnalytics
 
 class firebaseImportTest: XCTestCase {
   func testAnalyticsImported() {

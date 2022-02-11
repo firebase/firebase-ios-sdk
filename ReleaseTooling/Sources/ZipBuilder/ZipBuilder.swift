@@ -223,9 +223,7 @@ struct ZipBuilder {
         guard let podInfo = podsToBuild[podName] else {
           continue
         }
-        if podName == "Firebase" {
-          // Don't build the Firebase pod.
-        } else if podInfo.isSourcePod {
+        if podInfo.isSourcePod {
           let builder = FrameworkBuilder(projectDir: projectDir,
                                          targetPlatforms: platform.platformTargets,
                                          dynamicFrameworks: dynamicFrameworks)

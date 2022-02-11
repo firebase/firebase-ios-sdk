@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Firebase.h"
 #import "FirebaseABTesting/FirebaseABTesting.h"
 #import "FirebaseAppCheck/FirebaseAppCheck.h"
 #if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
@@ -36,7 +35,6 @@
 #import "FirebaseRemoteConfig/FirebaseRemoteConfig.h"
 #import "FirebaseStorage/FirebaseStorage.h"
 
-#import <Firebase.h>
 #import <FirebaseABTesting/FirebaseABTesting.h>
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
