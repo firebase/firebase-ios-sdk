@@ -745,13 +745,12 @@ let package = Package(
     ),
     .target(
       name: "FirebaseFunctionsCombineSwift",
-      dependencies: ["FirebaseFunctions"],
+      dependencies: ["FirebaseFunctionsSwift"],
       path: "FirebaseCombineSwift/Sources/Functions"
     ),
     .testTarget(
       name: "FunctionsCombineUnit",
       dependencies: ["FirebaseFunctionsCombineSwift",
-                     "FirebaseFunctionsTestingSupport",
                      "SharedTestUtilities"],
       path: "FirebaseFunctions/Tests/CombineUnit"
     ),
@@ -1111,7 +1110,7 @@ let package = Package(
         "FirebaseDynamicLinks",
         "FirebaseFirestore",
         "FirebaseFirestoreSwift",
-        "FirebaseFunctions",
+        "FirebaseFunctionsSwift",
         "FirebaseInAppMessaging",
         .target(name: "FirebaseInAppMessagingSwift",
                 condition: .when(platforms: [.iOS, .tvOS])),
