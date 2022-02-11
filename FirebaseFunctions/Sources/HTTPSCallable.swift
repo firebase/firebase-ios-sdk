@@ -18,7 +18,7 @@ import Foundation
  * A `HTTPSCallableResult` contains the result of calling a `HTTPSCallable`.
  */
 @objc(FIRHTTPSCallableResult)
-public class HTTPSCallableResult: NSObject {
+open class HTTPSCallableResult: NSObject {
   /**
    * The data that was returned from the Callable HTTPS trigger.
    *
@@ -37,7 +37,7 @@ public class HTTPSCallableResult: NSObject {
  * A `HTTPSCallable` is reference to a particular Callable HTTPS trigger in Cloud Functions.
  */
 @objc(FIRHTTPSCallable)
-public class HTTPSCallable: NSObject {
+open class HTTPSCallable: NSObject {
   // MARK: - Private Properties
 
   // The functions client to use for making calls.

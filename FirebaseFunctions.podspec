@@ -1,22 +1,22 @@
 Pod::Spec.new do |s|
-  s.name                    = 'FirebaseFunctions'
-  s.version                 = '8.12.0'
+  s.name             = 'FirebaseFunctions'
+  s.version          = '8.12.0'
   s.summary          = 'Cloud Functions for Firebase'
 
   s.description      = <<-DESC
 Cloud Functions for Firebase.
                        DESC
 
-  s.homepage                = 'https://developers.google.com/'
-  s.license                 = { :type => 'Apache', :file => 'LICENSE' }
-  s.authors                 = 'Google, Inc.'
+  s.homepage         = 'https://developers.google.com/'
+  s.license          = { :type => 'Apache', :file => 'LICENSE' }
+  s.authors          = 'Google, Inc.'
 
-  s.source                  = {
+  s.source           = {
     :git => 'https://github.com/Firebase/firebase-ios-sdk.git',
     :tag => 'CocoaPods-' + s.version.to_s
   }
 
-  s.swift_version           = '5.3'
+  s.swift_version    = '5.3'
 
   ios_deployment_target = '10.0'
   osx_deployment_target = '10.12'
@@ -28,8 +28,8 @@ Cloud Functions for Firebase.
   s.tvos.deployment_target = tvos_deployment_target
   s.watchos.deployment_target = watchos_deployment_target
 
-  s.cocoapods_version       = '>= 1.4.0'
-  s.prefix_header_file      = false
+  s.cocoapods_version = '>= 1.4.0'
+  s.prefix_header_file = false
 
   s.source_files = [
     'FirebaseFunctions/Sources/**/*.swift',
