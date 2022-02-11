@@ -46,4 +46,14 @@ public struct Pod {
   public func podspecName() -> String {
     return isClosedSource ? "\(name).podspec.json" : "\(name).podspec"
   }
+
+  /// The Firebase pod does not support import validation with Xcode 12 because of the deprecated
+  /// ML pods not supporting the ARM Mac slice.
+  public func skipImportValidation() -> String {
+    if name == "Firebase" {
+      return "--skip-import-validation"
+    } else {
+      return ""
+    }
+  }
 }
