@@ -109,16 +109,17 @@ TargetId SyncEngine::Listen(Query query) {
               "We already listen to query: %s", query.ToString());
 
   TargetData target_data = local_store_->AllocateTarget(query.ToTarget());
+  TargetId target_id = target_data.target_id();
+  remote_store_->Listen(std::move(target_data));
+
   ViewSnapshot view_snapshot =
-      InitializeViewAndComputeSnapshot(query, target_data.target_id());
+      InitializeViewAndComputeSnapshot(query, target_id);
   std::vector<ViewSnapshot> snapshots;
   // Not using the `std::initializer_list` constructor to avoid extra copies.
   snapshots.push_back(std::move(view_snapshot));
   sync_engine_callback_->OnViewSnapshots(std::move(snapshots));
 
-  // TODO(wuandy): move `target_data` into `Listen`.
-  remote_store_->Listen(target_data);
-  return target_data.target_id();
+  return target_id;
 }
 
 ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(const Query& query,
