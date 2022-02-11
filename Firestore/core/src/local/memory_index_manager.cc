@@ -21,6 +21,9 @@
 #include <unordered_map>
 #include <vector>
 
+#include "Firestore/core/src/core/target.h"
+#include "Firestore/core/src/model/field_index.h"
+#include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/util/hard_assert.h"
 
@@ -60,6 +63,50 @@ void MemoryIndexManager::AddToCollectionParentIndex(
 std::vector<ResourcePath> MemoryIndexManager::GetCollectionParents(
     const std::string& collection_id) {
   return collection_parents_index_.GetEntries(collection_id);
+}
+
+// Below methods are only stubs because field indices are not supported with
+// memory persistence.
+
+void MemoryIndexManager::Start() {
+}
+
+void MemoryIndexManager::AddFieldIndex(model::FieldIndex index) {
+}
+
+void MemoryIndexManager::DeleteFieldIndex(model::FieldIndex index) {
+}
+
+std::vector<model::FieldIndex> MemoryIndexManager::GetFieldIndexes(
+    const std::string& collection_group) {
+  return {};
+}
+
+std::vector<model::FieldIndex> MemoryIndexManager::GetFieldIndexes() {
+  return {};
+}
+
+absl::optional<model::FieldIndex> MemoryIndexManager::GetFieldIndex(
+    core::Target target) {
+  return absl::nullopt;
+}
+
+std::vector<model::DocumentKey> MemoryIndexManager::GetDocumentsMatchingTarget(
+    model::FieldIndex fieldIndex, core::Target target) {
+  return {};
+}
+
+absl::optional<std::string>
+MemoryIndexManager::GetNextCollectionGroupToUpdate() {
+  return absl::nullopt;
+}
+
+void MemoryIndexManager::UpdateCollectionGroup(
+    const std::string& collection_group, model::IndexOffset offset) {
+}
+
+void MemoryIndexManager::UpdateIndexEntries(model::DocumentMap documents) {
+  (void)documents;
 }
 
 }  // namespace local

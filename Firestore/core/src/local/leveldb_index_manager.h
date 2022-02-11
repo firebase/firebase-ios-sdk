@@ -34,11 +34,31 @@ class LevelDbIndexManager : public IndexManager {
  public:
   explicit LevelDbIndexManager(LevelDbPersistence* db);
 
+  void Start() override;
+
   void AddToCollectionParentIndex(
       const model::ResourcePath& collection_path) override;
 
   std::vector<model::ResourcePath> GetCollectionParents(
       const std::string& collection_id) override;
+
+  void AddFieldIndex(model::FieldIndex index) override;
+
+  void DeleteFieldIndex(model::FieldIndex index) override;
+
+  std::vector<model::FieldIndex> GetFieldIndexes(const std::string& collection_group) override;
+
+  std::vector<model::FieldIndex> GetFieldIndexes() override;
+
+  absl::optional<model::FieldIndex> GetFieldIndex(core::Target target) override;
+
+  std::vector<model::DocumentKey> GetDocumentsMatchingTarget(model::FieldIndex fieldIndex, core::Target target) override;
+
+  absl::optional<std::string> GetNextCollectionGroupToUpdate() override;
+
+  void UpdateCollectionGroup(const std::string& collection_group, model::IndexOffset offset) override;
+
+  void UpdateIndexEntries(model::DocumentMap documents) override;
 
  private:
   // The LevelDbIndexManager is owned by LevelDbPersistence.
@@ -52,6 +72,18 @@ class LevelDbIndexManager : public IndexManager {
    * be used to satisfy reads.
    */
   MemoryCollectionParentIndex collection_parents_cache_;
+
+  /**
+   * An in-memory map from collection group to a map of indexes associated with
+   * the collection groups.
+   *
+   * The map is indexes is keyed off index ids.
+   */
+  std::unordered_map<std::string, std::unordered_map<int32_t, model::FieldIndex>> memoized_indexes_;
+
+  bool started_ = false;
+
+  std::string uid_;
 };
 
 }  // namespace local

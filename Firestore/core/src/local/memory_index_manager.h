@@ -48,11 +48,31 @@ class MemoryCollectionParentIndex {
 /** An in-memory implementation of IndexManager. */
 class MemoryIndexManager : public IndexManager {
  public:
+  void Start() override;
+
   void AddToCollectionParentIndex(
       const model::ResourcePath& collection_path) override;
 
   std::vector<model::ResourcePath> GetCollectionParents(
       const std::string& collection_id) override;
+
+void AddFieldIndex(model::FieldIndex index) override;
+
+  void DeleteFieldIndex(model::FieldIndex index) override;
+
+  std::vector<model::FieldIndex> GetFieldIndexes(const std::string& collection_group) override;
+
+  std::vector<model::FieldIndex> GetFieldIndexes() override;
+
+  absl::optional<model::FieldIndex> GetFieldIndex(core::Target target) override;
+
+  std::vector<model::DocumentKey> GetDocumentsMatchingTarget(model::FieldIndex fieldIndex, core::Target target) override;
+
+  absl::optional<std::string> GetNextCollectionGroupToUpdate() override;
+
+  void UpdateCollectionGroup(const std::string& collection_group, model::IndexOffset offset) override;
+
+  void UpdateIndexEntries(model::DocumentMap documents) override;
 
  private:
   MemoryCollectionParentIndex collection_parents_index_;

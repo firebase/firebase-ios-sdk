@@ -20,10 +20,20 @@
 #include <string>
 #include <vector>
 
+#include "Firestore/core/src/model/model_fwd.h"
+
 namespace firebase {
 namespace firestore {
 
+namespace core {
+class Target;
+class SortedMap;
+}  // namespace model
+
 namespace model {
+class DocumentKey;
+class FieldIndex;
+class IndexOffset;
 class ResourcePath;
 }  // namespace model
 
@@ -38,6 +48,9 @@ namespace local {
 class IndexManager {
  public:
   virtual ~IndexManager() = default;
+
+  /** Initializes the IndexManager. */
+  virtual void Start();
 
   /**
    * Creates an index entry mapping the collection_id (last segment of the path)
@@ -58,6 +71,56 @@ class IndexManager {
    */
   virtual std::vector<model::ResourcePath> GetCollectionParents(
       const std::string& collection_id) = 0;
+
+  /**
+   * Adds a field path index.
+   *
+   * Values for this index are persisted asynchronously. The index will only be
+   * used for query execution once values are persisted.
+   */
+  virtual void AddFieldIndex(model::FieldIndex index);
+
+  /** Removes the given field index and deletes all index values. */
+  virtual void DeleteFieldIndex(model::FieldIndex index);
+
+  /**
+   * Returns a list of field indexes that correspond to the specified collection
+   * group.
+   */
+  virtual std::vector<model::FieldIndex> GetFieldIndexes(const std::string& collection_group);
+
+  /** Returns all configured field indexes. */
+  virtual std::vector<model::FieldIndex> GetFieldIndexes();
+
+  /**
+   * Returns an index that can be used to serve the provided target. Returns
+   * `nullopt` if no index is configured.
+   */
+  virtual absl::optional<model::FieldIndex> GetFieldIndex(core::Target target);
+
+  /** Returns the documents that match the given target based on the provided index. */
+  virtual std::vector<model::DocumentKey> GetDocumentsMatchingTarget(model::FieldIndex fieldIndex, core::Target target);
+
+  /**
+   * Returns the next collection group to update. Returns `nullopt` if no
+   * group exists.
+   */
+  virtual absl::optional<std::string> GetNextCollectionGroupToUpdate();
+
+  /**
+   * Sets the collection group's latest read time.
+   *
+   * This method updates the index offset for all field indices for the
+   * collection group and increments their sequence number.
+   *
+   * Subsequent calls to `getNextCollectionGroupToUpdate()` will return a
+   * different collection group (unless only one collection group is
+   * configured).
+   */
+  virtual void UpdateCollectionGroup(const std::string& collection_group, model::IndexOffset offset);
+
+  /** Updates the index entries for the provided documents. */
+  virtual void UpdateIndexEntries(model::DocumentMap documents);
 };
 
 }  // namespace local
