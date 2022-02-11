@@ -43,9 +43,6 @@ Cloud Functions for Firebase.
   s.dependency 'FirebaseSharedSwift', '~> 8.12'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.5'
 
-  # Maybe TODO: The unit tests depend on setting up a podspec for SharedTestUtilities
-  # OTOH, we are running them with SwiftPM.
-
   s.test_spec 'integration' do |int_tests|
     int_tests.platforms = {
       :ios => ios_deployment_target,

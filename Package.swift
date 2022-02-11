@@ -704,7 +704,7 @@ let package = Package(
       path: "FirebaseFunctions/Sources"
     ),
     .testTarget(
-      name: "FirebaseFunctionsSwiftUnit",
+      name: "FirebaseFunctionsUnit",
       dependencies: ["FirebaseFunctions",
                      "SharedTestUtilities"],
       path: "FirebaseFunctions/Tests/Unit",
@@ -713,13 +713,13 @@ let package = Package(
       ]
     ),
     .testTarget(
-      name: "FirebaseFunctionsSwiftIntegration",
+      name: "FirebaseFunctionsIntegration",
       dependencies: ["FirebaseFunctions",
                      "SharedTestUtilities"],
       path: "FirebaseFunctions/Tests/Integration"
     ),
     .testTarget(
-      name: "FirebaseFunctionsSwiftObjCIntegration",
+      name: "FirebaseFunctionsObjCIntegration",
       dependencies: ["FirebaseFunctions",
                      "SharedTestUtilities"],
       path: "FirebaseFunctions/Tests/ObjCIntegration",
