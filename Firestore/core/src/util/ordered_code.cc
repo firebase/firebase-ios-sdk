@@ -391,7 +391,7 @@ static inline void AppendUpto9(std::string* dst,
   dst->erase(old_size + n);
 }
 
-void OrderedCode::WriteNumIncreasing(std::string* dest, uint64_t val) {
+void OrderedCode::WriteNumIncreasing(std::string* dest, uint64_t num) {
   // Values are encoded with a single byte length prefix, followed
   // by the actual value in big-endian format with leading 0 bytes
   // dropped.
@@ -402,14 +402,14 @@ void OrderedCode::WriteNumIncreasing(std::string* dest, uint64_t val) {
   char buf[17];
 
   UNALIGNED_STORE64(buf + 1,
-                    absl::ghtonll(val));  // buf[0] may be needed for length
-  const unsigned int length = OrderedNumLength(val);
+                    absl::ghtonll(num));  // buf[0] may be needed for length
+  const unsigned int length = OrderedNumLength(num);
   char* start = buf + 9 - length - 1;
   *start = static_cast<char>(length);
   AppendUpto9(dest, start, length + 1);
 }
 
-void OrderedCode::WriteNumDecreasing(std::string* dest, uint64_t val) {
+void OrderedCode::WriteNumDecreasing(std::string* dest, uint64_t num) {
   // Values are encoded with a single byte length prefix, followed
   // by the actual value in big-endian format with leading 0 bytes
   // dropped.
@@ -420,8 +420,8 @@ void OrderedCode::WriteNumDecreasing(std::string* dest, uint64_t val) {
   char buf[17];
 
   UNALIGNED_STORE64(buf + 1,
-                    absl::ghtonll(~val));  // buf[0] may be needed for length
-  const unsigned int length = OrderedNumLength(val);
+                    absl::ghtonll(~num));  // buf[0] may be needed for length
+  const unsigned int length = OrderedNumLength(num);
   char* start = buf + 9 - length - 1;
   *start = static_cast<char>(~length);
   AppendUpto9(dest, start, length + 1);
@@ -750,19 +750,19 @@ static inline int SignedEncodingLengthPositive(int64_t n) {
   return kBitsToLength[Bits::Log2FloorNonZero64(n) + 1];
 }
 
-void OrderedCode::WriteSignedNumIncreasing(std::string* dest, int64_t val) {
-  const uint64_t x = val < 0 ? ~val : val;
+void OrderedCode::WriteSignedNumIncreasing(std::string* dest, int64_t num) {
+  const uint64_t x = num < 0 ? ~num : num;
   if (x < 64) {  // fast path for encoding length == 1
-    *dest += kLengthToHeaderBits[1][0] ^ val;
+    *dest += kLengthToHeaderBits[1][0] ^ num;
     return;
   }
-  // buf = val in network byte order, sign extended to 10 bytes
-  const char sign_byte = val < 0 ? '\xff' : '\0';
+  // buf = num in network byte order, sign extended to 10 bytes
+  const char sign_byte = num < 0 ? '\xff' : '\0';
   char buf[10] = {
       sign_byte,
       sign_byte,
   };
-  UNALIGNED_STORE64(buf + 2, absl::ghtonll(val));
+  UNALIGNED_STORE64(buf + 2, absl::ghtonll(num));
   static_assert(sizeof(buf) == kMaxSigned64Length, "max_length_size_mismatch");
   const int len = SignedEncodingLengthPositive(x);
   HARD_ASSERT(len >= 2);

@@ -1201,14 +1201,14 @@ std::string LevelDbIndexEntryKey::KeyPrefix() {
 std::string LevelDbIndexEntryKey::Key(int32_t index_id,
                                       absl::string_view user_id,
                                       absl::string_view array_value,
-                                      absl::string_view dicrectional_value,
+                                      absl::string_view directional_value,
                                       absl::string_view document_key) {
   Writer writer;
   writer.WriteTableName(kIndexEntriesTable);
   writer.WriteIndexId(index_id);
   writer.WriteUserId(user_id);
   writer.WriteIndexArrayValue(array_value);
-  writer.WriteIndexDirectionalValue(dicrectional_value);
+  writer.WriteIndexDirectionalValue(directional_value);
   writer.WriteDocumentId(document_key);
   writer.WriteTerminator();
   return writer.result();
