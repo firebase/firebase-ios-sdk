@@ -29,6 +29,7 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 #import "FirebaseRemoteConfig/Sources/RCNDevice.h"
 #import "FirebaseRemoteConfig/Sources/RCNPersonalization.h"
+#import "FirebaseRemoteConfig/Sources/RCNRealtimeConfigHttpClient.h"
 
 /// Remote Config Error Domain.
 /// TODO: Rename according to obj-c style for constants.
@@ -63,6 +64,7 @@ typedef void (^FIRRemoteConfigListener)(NSString *_Nonnull, NSDictionary *_Nonnu
   RCNConfigSettings *_settings;
   RCNConfigFetch *_configFetch;
   RCNConfigExperiment *_configExperiment;
+  RCNRealtimeConfigHttpClient *_realtimeHttpClient;
   dispatch_queue_t _queue;
   NSString *_appName;
   NSMutableArray *_listeners;
@@ -161,7 +163,9 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
                                                      queue:_queue
                                                  namespace:_FIRNamespace
                                                    options:options];
-
+    
+    _realtimeHttpClient = [[RCNRealtimeConfigHttpClient alloc] initWithClass: _configFetch];
+      
     [_settings loadConfigFromMetadataTable];
 
     if (analytics) {
@@ -564,6 +568,28 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
                 configSettings.minimumFetchInterval, configSettings.fetchTimeout);
   };
   dispatch_async(_queue, setConfigSettingsBlock);
+}
+
+#pragma mark - real time
+
+- (void)startRealTimeStream {
+    [self->_realtimeHttpClient startStream];
+}
+
+- (void)pauseRealTimeStream {
+    [self->_realtimeHttpClient pauseStream];
+}
+
+- (void)addRealTimeCallback: (id)callbackDelegate {
+    [self->_realtimeHttpClient setRealTimeDelegateCallback:callbackDelegate];
+}
+
+- (void)removeRealTimeCallback {
+    [self->_realtimeHttpClient removeRealTimeDelegateCallback];
+}
+
+- (void)monitorStream {
+    [self->_realtimeHttpClient viewDidLoad];
 }
 
 @end

@@ -283,4 +283,21 @@ NS_SWIFT_NAME(RemoteConfig)
 ///                         nil if the key doesn't exist in the default config.
 - (nullable FIRRemoteConfigValue *)defaultValueForKey:(nullable NSString *)key;
 
+#pragma mark - Real Time
+- (void)startRealTimeStream;
+
+- (void)pauseRealTimeStream;
+
+- (void)addRealTimeCallback: (nonnull id)callbackDelegate;
+
+- (void)removeRealTimeCallback;
+
+- (void)monitorStream;
+
+@end
+
+// Realtime Callback delegate
+@protocol RealTimeDelegateCallback <NSObject>
+- (void)handleRealTimeConfigFetch: (nonnull id)realTimeStream;
+
 @end
