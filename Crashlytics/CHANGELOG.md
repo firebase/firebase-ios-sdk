@@ -1,5 +1,5 @@
 # Unreleased
-- [fixed] Updated upload-symbols to 3.10 and added native support for ARM / M1 Macs (#9039)
+- [fixed] Updated upload-symbols to 3.10 and added native support for ARM / M1 Macs (#8965)
 - [fixed] Fixed an issue where passing nil as a value for a custom key or user ID did not clear the stored value as expected.
 
 # v8.9.0
