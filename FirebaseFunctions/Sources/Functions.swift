@@ -39,7 +39,7 @@ internal enum FunctionsConstants {
 /**
  * `Functions` is the client for Cloud Functions for a Firebase project.
  */
-@objc(FIRFunctions) public class Functions: NSObject {
+@objc(FIRFunctions) open class Functions: NSObject {
   // MARK: - Private Variables
 
   /// The network client to use for http requests.
