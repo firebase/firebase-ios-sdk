@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1300"
+   LastUpgradeVersion = "1320"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -11,12 +11,12 @@
             buildForRunning = "YES"
             buildForProfiling = "NO"
             buildForArchiving = "NO"
-            buildForAnalyzing = "YES">
+            buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "FunctionsUnit"
-               BuildableName = "FunctionsUnit"
-               BlueprintName = "FunctionsUnit"
+               BlueprintIdentifier = "FirebaseFunctionsIntegration"
+               BuildableName = "FirebaseFunctionsIntegration"
+               BlueprintName = "FirebaseFunctionsIntegration"
                ReferencedContainer = "container:">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,9 +32,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "FunctionsUnit"
-               BuildableName = "FunctionsUnit"
-               BlueprintName = "FunctionsUnit"
+               BlueprintIdentifier = "FirebaseFunctionsIntegration"
+               BuildableName = "FirebaseFunctionsIntegration"
+               BlueprintName = "FirebaseFunctionsIntegration"
                ReferencedContainer = "container:">
             </BuildableReference>
          </TestableReference>
@@ -60,9 +60,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "FunctionsUnit"
-            BuildableName = "FunctionsUnit"
-            BlueprintName = "FunctionsUnit"
+            BlueprintIdentifier = "FirebaseFunctionsIntegration"
+            BuildableName = "FirebaseFunctionsIntegration"
+            BlueprintName = "FirebaseFunctionsIntegration"
             ReferencedContainer = "container:">
          </BuildableReference>
       </MacroExpansion>

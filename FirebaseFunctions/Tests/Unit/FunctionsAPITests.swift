@@ -17,7 +17,7 @@
 import Foundation
 
 import FirebaseCore
-import FirebaseFunctionsSwift
+import FirebaseFunctions
 
 final class FunctionsAPITests {
   func usage() {
