@@ -21,9 +21,6 @@
 // Firebase Core
 #import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 
-// Firebase Functions
-#import "FirebaseFunctions/Sources/FIRFunctions+Internal.h"
-
 // Firebase Auth
 #import <FirebaseAuth/FIRAuth.h>
 #import <FirebaseAuth/FirebaseAuth.h>

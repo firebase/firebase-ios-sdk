@@ -43,7 +43,6 @@ public let shared = Manifest(
     Pod("FirebaseFirestore", allowWarnings: true, zip: true),
     Pod("FirebaseFirestoreSwift", isBeta: true),
     Pod("FirebaseFunctions", zip: true),
-    Pod("FirebaseFunctionsSwift", isBeta: true),
     Pod("FirebaseInAppMessaging", isBeta: true, platforms: ["ios"], zip: true),
     Pod("FirebaseInAppMessagingSwift", isBeta: true, platforms: ["ios"]),
     Pod("FirebaseMessaging", zip: true),
