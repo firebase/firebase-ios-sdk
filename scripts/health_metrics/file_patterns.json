@@ -111,7 +111,7 @@
   },
   {
     "sdk": "functions",
-    "podspecs": ["FirebaseFunctions.podspec", "FirebaseFunctionsSwift.podspec"],
+    "podspecs": ["FirebaseFunctions.podspec"],
     "filePatterns": [
       "^Functions.*",
       "\\.github/workflows/functions\\.yml",

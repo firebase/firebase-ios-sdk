@@ -21,7 +21,7 @@ public let FunctionsErrorDomain: String = "com.firebase.functions"
 public let FunctionsErrorDetailsKey: String = "details"
 
 // Swift globals are not visible from Objective C. Use these instead.
-@objc(FIRFunctionsErrorKeys) public class __FunctionsErrorKeys: NSObject {
+@objc(FIRFunctionsErrorKeys) open class __FunctionsErrorKeys: NSObject {
   // The error domain for codes in the FIRFunctionsErrorCode enum.
   @objc public static let domain: String = "com.firebase.functions"
 
