@@ -67,13 +67,13 @@ MemoryDocumentOverlayCache::GetOverlays(const ResourcePath& collection,
 
   std::size_t immediate_children_path_length{collection.size() + 1};
   DocumentKey prefix(collection.Append(""));
-  auto view = overlays_.lower_bound(prefix);
+  auto overlays_iter = overlays_.lower_bound(prefix);
 
-  while (view != overlays_.end()) {
-    const Overlay& overlay = view->second;
-    ++view;
+  while (overlays_iter != overlays_.end()) {
+    const Overlay& overlay = overlays_iter->second;
+    ++overlays_iter;
 
-    const DocumentKey key = overlay.key();
+    const DocumentKey& key = overlay.key();
     if (!collection.IsPrefixOf(key.path())) {
       break;
     }
@@ -83,7 +83,7 @@ MemoryDocumentOverlayCache::GetOverlays(const ResourcePath& collection,
     }
 
     if (overlay.largest_batch_id() > since_batch_id) {
-      result[overlay.key()] = overlay;
+      result[key] = overlay;
     }
   }
 
@@ -94,18 +94,21 @@ DocumentOverlayCache::OverlayByDocumentKeyMap
 MemoryDocumentOverlayCache::GetOverlays(const std::string& collection_group,
                                         int since_batch_id,
                                         std::size_t count) const {
+  // NOTE: This method is only used by backfiller, which will not run for
+  // memory persistence; therefore, its only value is that we do not need to
+  // have separate tests for the memory and leveldb implementations.
   using OverlaysByDocumentKeyMap =
       std::unordered_map<DocumentKey, Overlay, DocumentKeyHash>;
   std::map<int, OverlaysByDocumentKeyMap> batch_id_to_overlays;
 
   for (const auto& overlays_entry : overlays_) {
     const Overlay& overlay = overlays_entry.second;
-    const DocumentKey key = overlay.key();
+    const DocumentKey& key = overlay.key();
     if (!key.HasCollectionId(collection_group)) {
       continue;
     }
     if (overlay.largest_batch_id() > since_batch_id) {
-      batch_id_to_overlays[overlay.largest_batch_id()][overlay.key()] = overlay;
+      batch_id_to_overlays[overlay.largest_batch_id()][key] = overlay;
     }
   }
 
