@@ -95,8 +95,8 @@ class IndexOffset : public util::Comparable<IndexOffset> {
   /** Creates a new offset based on the provided document. */
   static IndexOffset FromDocument(const Document& document);
 
-  static util::ComparisonResult DocumentCompare(const Document& a,
-                                                const Document& b);
+  static util::ComparisonResult DocumentCompare(const Document& lhs,
+                                                const Document& rhs);
 
   /**
    * Returns the latest read time version that has been indexed by Firestore for
