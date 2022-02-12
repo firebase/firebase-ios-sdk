@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1310"
+   LastUpgradeVersion = "1320"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -11,12 +11,12 @@
             buildForRunning = "YES"
             buildForProfiling = "NO"
             buildForArchiving = "NO"
-            buildForAnalyzing = "YES">
+            buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "FunctionsSwiftIntegration"
-               BuildableName = "FunctionsSwiftIntegration"
-               BlueprintName = "FunctionsSwiftIntegration"
+               BlueprintIdentifier = "FirebaseFunctionsUnit"
+               BuildableName = "FirebaseFunctionsUnit"
+               BlueprintName = "FirebaseFunctionsUnit"
                ReferencedContainer = "container:">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,9 +32,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "FunctionsSwiftIntegration"
-               BuildableName = "FunctionsSwiftIntegration"
-               BlueprintName = "FunctionsSwiftIntegration"
+               BlueprintIdentifier = "FirebaseFunctionsUnit"
+               BuildableName = "FirebaseFunctionsUnit"
+               BlueprintName = "FirebaseFunctionsUnit"
                ReferencedContainer = "container:">
             </BuildableReference>
          </TestableReference>
@@ -60,9 +60,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "FunctionsSwiftIntegration"
-            BuildableName = "FunctionsSwiftIntegration"
-            BlueprintName = "FunctionsSwiftIntegration"
+            BlueprintIdentifier = "FirebaseFunctionsUnit"
+            BuildableName = "FirebaseFunctionsUnit"
+            BlueprintName = "FirebaseFunctionsUnit"
             ReferencedContainer = "container:">
          </BuildableReference>
       </MacroExpansion>
