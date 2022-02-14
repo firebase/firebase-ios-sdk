@@ -94,9 +94,10 @@ DocumentOverlayCache::OverlayByDocumentKeyMap
 MemoryDocumentOverlayCache::GetOverlays(const std::string& collection_group,
                                         int since_batch_id,
                                         std::size_t count) const {
-  // NOTE: This method is only used by backfiller, which will not run for
-  // memory persistence; therefore, its only value is that we do not need to
-  // have separate tests for the memory and leveldb implementations.
+  // NOTE: This method is only used by the backfiller, which will not run for
+  // memory persistence; therefore, this method is being implemented only so
+  // that the test suite for `LevelDbDocumentOverlayCache` can be re-used by
+  // the test suite for this class.
   using OverlaysByDocumentKeyMap =
       std::unordered_map<DocumentKey, Overlay, DocumentKeyHash>;
   std::map<int, OverlaysByDocumentKeyMap> batch_id_to_overlays;
