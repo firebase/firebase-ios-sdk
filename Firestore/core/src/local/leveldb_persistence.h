@@ -23,6 +23,7 @@
 
 #include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/leveldb_bundle_cache.h"
+#include "Firestore/core/src/local/leveldb_document_overlay_cache.h"
 #include "Firestore/core/src/local/leveldb_index_manager.h"
 #include "Firestore/core/src/local/leveldb_lru_reference_delegate.h"
 #include "Firestore/core/src/local/leveldb_mutation_queue.h"
@@ -79,6 +80,9 @@ class LevelDbPersistence : public Persistence {
   void Shutdown() override;
 
   LevelDbBundleCache* bundle_cache() override;
+
+  LevelDbDocumentOverlayCache* document_overlay_cache(
+      const credentials::User& user) override;
 
   LevelDbMutationQueue* GetMutationQueueForUser(
       const credentials::User& user) override;
