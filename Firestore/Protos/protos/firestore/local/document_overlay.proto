@@ -15,7 +15,6 @@
 syntax = "proto3";
 
 import "google/firestore/v1/write.proto";
-import "google/protobuf/timestamp.proto";
 
 package firestore.client;
 
