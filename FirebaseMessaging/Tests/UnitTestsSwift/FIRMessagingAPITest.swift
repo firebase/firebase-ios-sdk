@@ -22,15 +22,69 @@ import UserNotifications
 // exercised in the integration tests.
 func apis() {
   let messaging = Messaging.messaging()
+  let delegate = CustomDelegate()
+  messaging.delegate = delegate
+  messaging.isAutoInitEnabled = false
+  messaging.token(completion: { _, _ in
+  })
+  messaging.deleteToken { _ in
+  }
+  messaging.retrieveFCMToken(forSenderID: "fakeSenderID") { _, _ in
+  }
+  messaging.deleteData { _ in
+  }
+  messaging.deleteFCMToken(forSenderID: "fakeSenderID") { _ in
+  }
 
   if let _ = messaging.apnsToken {}
 
   let apnsToken = Data()
   messaging.setAPNSToken(apnsToken, type: .prod)
 
+  // Use random to eliminate the warning that we're evaluating to a constant.
+  let type: MessagingAPNSTokenType = Bool.random() ? .prod : .sandbox
+  switch type {
+  case .prod: ()
+  case .sandbox: ()
+  case .unknown: ()
+    // Intentionally leave the warning for not handling unknown values as that's the only way this
+    // will fail to compile if we add a case.
+  }
+
+  // Use random to eliminate the warning that we're evaluating to a constant.
+  let messagingError: MessagingError = Bool.random() ? .unknown : .authentication
+  switch messagingError {
+  case .unknown: ()
+  case .authentication: ()
+  case .noAccess: ()
+  case .timeout: ()
+  case .network: ()
+  case .operationInProgress: ()
+  case .invalidRequest: ()
+  case .invalidTopicName: ()
+    // Intentionally leave the warning for not handling unknown values as that's the only way this
+    // will fail to compile if we add a case.
+  }
+
+  // Use random to eliminate the warning that we're evaluating to a constant.
+  let status: MessagingMessageStatus = Bool.random() ? .unknown : .new
+  switch status {
+  case .new: ()
+  case .unknown: ()
+    // Intentionally leave the warning for not handling unknown values as that's the only way this
+    // will fail to compile if we add a case.
+  }
+
+  // TODO: Mark the initializer as unavialable, as devs shouldn't be able to instantiate this.
+  _ = MessagingMessageInfo().status
+
+  NotificationCenter.default.post(name: .MessagingRegistrationTokenRefreshed, object: nil)
+
   let topic = "cat_video"
   messaging.subscribe(toTopic: topic)
   messaging.unsubscribe(fromTopic: topic)
+  messaging.unsubscribe(fromTopic: topic) { _ in
+  }
 
   messaging.appDidReceiveMessage([:])
 
@@ -41,6 +95,10 @@ func apis() {
     }
     serviceExtension.exportDeliveryMetricsToBigQuery(withMessageInfo: [:])
   }
+}
+
+class CustomDelegate: NSObject, MessagingDelegate {
+  func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {}
 }
 
 @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
