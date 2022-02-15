@@ -68,8 +68,8 @@ internal enum FunctionsConstants {
    * @param app The app for the Firebase project.
    * @param region The region for the http trigger, such as "us-central1".
    */
-  @objc(functionsForApp:region:) public class func functions(app: FirebaseApp = FirebaseApp.app()!,
-                                                             region: String) -> Functions {
+  @objc(functionsForApp:region:) open class func functions(app: FirebaseApp = FirebaseApp.app()!,
+                                                           region: String) -> Functions {
     let provider = ComponentType<FunctionsProvider>.instance(for: FunctionsProvider.self,
                                                              in: app.container)
     return provider.functions(for: app,
@@ -108,7 +108,7 @@ internal enum FunctionsConstants {
    * @param app The app for the Firebase project.
    * @param customDomain A custom domain for the http trigger, such as "https://mydomain.com".
    */
-  @objc(functionsForApp:customDomain:) public class func functions(app: FirebaseApp = FirebaseApp
+  @objc(functionsForApp:customDomain:) open class func functions(app: FirebaseApp = FirebaseApp
     .app()!,
     customDomain: String? = nil) -> Functions {
     let provider = app.container.instance(for: FunctionsProvider.self) as? FunctionsProvider
@@ -171,7 +171,7 @@ internal enum FunctionsConstants {
    * Creates a reference to the Callable HTTPS trigger with the given name.
    * @param name The name of the Callable HTTPS trigger.
    */
-  @objc(HTTPSCallableWithName:) public func httpsCallable(_ name: String) -> HTTPSCallable {
+  @objc(HTTPSCallableWithName:) open func httpsCallable(_ name: String) -> HTTPSCallable {
     return HTTPSCallable(functions: self, name: name)
   }
 
@@ -182,7 +182,7 @@ internal enum FunctionsConstants {
   /// - Parameter responseAs: The type of the `Decodable` entity to use for responses from this `Callable`
   /// - Parameter encoder: The encoder instance to use to run the encoding.
   /// - Parameter decoder: The decoder instance to use to run the decoding.
-  public func httpsCallable<Request: Encodable,
+  open func httpsCallable<Request: Encodable,
     Response: Decodable>(_ name: String,
                          requestAs: Request.Type = Request.self,
                          responseAs: Response.Type = Response.self,
@@ -200,7 +200,7 @@ internal enum FunctionsConstants {
    * @param host The host of the local emulator, such as "localhost".
    * @param port The port of the local emulator, for example 5005.
    */
-  @objc public func useEmulator(withHost host: String, port: Int) {
+  @objc open func useEmulator(withHost host: String, port: Int) {
     let prefix = host.hasPrefix("http") ? "" : "http://"
     let origin = String(format: "\(prefix)\(host):%li", port)
     emulatorOrigin = origin
