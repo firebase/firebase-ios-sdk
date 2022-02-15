@@ -60,7 +60,7 @@ internal enum FunctionsConstants {
   /**
    * The current emulator origin, or nil if it is not set.
    */
-  public private(set) var emulatorOrigin: String?
+  open private(set) var emulatorOrigin: String?
 
   /**
    * Creates a Cloud Functions client with the given app and region, or returns a pre-existing
@@ -81,7 +81,7 @@ internal enum FunctionsConstants {
   /**
    * Creates a Cloud Functions client or returns a pre-existing instance if it already exists.
    */
-  @objc(functions) public class func __functions() -> Functions {
+  @objc(functions) open class func __functions() -> Functions {
     return functions()
   }
 
@@ -90,7 +90,7 @@ internal enum FunctionsConstants {
    * instance if one already exists.
    * @param app The app for the Firebase project.
    */
-  @objc(functionsForApp:) public class func __functionsForApp(app: FirebaseApp) -> Functions {
+  @objc(functionsForApp:) open class func __functionsForApp(app: FirebaseApp) -> Functions {
     return functions(app: app)
   }
 
@@ -98,7 +98,7 @@ internal enum FunctionsConstants {
    * Creates a Cloud Functions client with the default app and given region.
    * @param region The region for the http trigger, such as "us-central1".
    */
-  @objc(functionsForRegion:) public class func __functionsForRegion(region: String) -> Functions {
+  @objc(functionsForRegion:) open class func __functionsForRegion(region: String) -> Functions {
     return functions(region: region)
   }
 
@@ -123,7 +123,7 @@ internal enum FunctionsConstants {
    * instance if one already exists.
    * @param customDomain A custom domain for the http trigger, such as "https://mydomain.com".
    */
-  @objc(functionsForCustomDomain:) public class func __functionsForCustomDomain(customDomain: String?)
+  @objc(functionsForCustomDomain:) open class func __functionsForCustomDomain(customDomain: String?)
     -> Functions {
     return functions(customDomain: customDomain)
   }
