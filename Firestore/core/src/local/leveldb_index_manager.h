@@ -22,9 +22,9 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Firestore/core/src/model/field_index.h"
 #include "Firestore/core/src/local/index_manager.h"
 #include "Firestore/core/src/local/memory_index_manager.h"
+#include "Firestore/core/src/model/field_index.h"
 
 namespace firebase {
 namespace firestore {
