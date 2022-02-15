@@ -17,7 +17,9 @@
 #ifndef FIRESTORE_CORE_SRC_LOCAL_LEVELDB_INDEX_MANAGER_H_
 #define FIRESTORE_CORE_SRC_LOCAL_LEVELDB_INDEX_MANAGER_H_
 
+#include <queue>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "Firestore/core/src/local/index_manager.h"
@@ -28,11 +30,13 @@ namespace firestore {
 namespace local {
 
 class LevelDbPersistence;
+class LocalSerializer;
 
 /** A persisted implementation of IndexManager. */
 class LevelDbIndexManager : public IndexManager {
  public:
-  explicit LevelDbIndexManager(LevelDbPersistence* db);
+  explicit LevelDbIndexManager(LevelDbPersistence* db,
+                               LocalSerializer* serializer);
 
   void Start() override;
 
@@ -42,25 +46,42 @@ class LevelDbIndexManager : public IndexManager {
   std::vector<model::ResourcePath> GetCollectionParents(
       const std::string& collection_id) override;
 
-  void AddFieldIndex(model::FieldIndex index) override;
+  void AddFieldIndex(const model::FieldIndex& index) override;
 
-  void DeleteFieldIndex(model::FieldIndex index) override;
+  void DeleteFieldIndex(const model::FieldIndex& index) override;
 
-  std::vector<model::FieldIndex> GetFieldIndexes(const std::string& collection_group) override;
+  std::vector<model::FieldIndex> GetFieldIndexes(
+      const std::string& collection_group) override;
 
   std::vector<model::FieldIndex> GetFieldIndexes() override;
 
   absl::optional<model::FieldIndex> GetFieldIndex(core::Target target) override;
 
-  std::vector<model::DocumentKey> GetDocumentsMatchingTarget(model::FieldIndex fieldIndex, core::Target target) override;
+  std::vector<model::DocumentKey> GetDocumentsMatchingTarget(
+      model::FieldIndex fieldIndex, core::Target target) override;
 
   absl::optional<std::string> GetNextCollectionGroupToUpdate() override;
 
-  void UpdateCollectionGroup(const std::string& collection_group, model::IndexOffset offset) override;
+  void UpdateCollectionGroup(const std::string& collection_group,
+                             model::IndexOffset offset) override;
 
-  void UpdateIndexEntries(model::DocumentMap documents) override;
+  void UpdateIndexEntries(const model::DocumentMap& documents) override;
 
  private:
+  using QueueForNextIndexToUpdate = std::priority_queue<
+      model::FieldIndex*,
+      std::vector<model::FieldIndex*>,
+      std::function<bool(model::FieldIndex*, model::FieldIndex*)>>;
+
+  /**
+   * Stores the index in the memoized indexes table and updates
+   * `next_index_to_update_` `memoized_max_index_id_` and
+   * `memoized_max_sequence_number_`.
+   */
+  void MemoizeIndex(model::FieldIndex index);
+
+  void DeleteFromUpdateQueue(model::FieldIndex* index);
+
   // The LevelDbIndexManager is owned by LevelDbPersistence.
   LevelDbPersistence* db_;
 
@@ -79,7 +100,16 @@ class LevelDbIndexManager : public IndexManager {
    *
    * The map is indexes is keyed off index ids.
    */
-  std::unordered_map<std::string, std::unordered_map<int32_t, model::FieldIndex>> memoized_indexes_;
+  std::unordered_map<std::string,
+                     std::unordered_map<int32_t, model::FieldIndex>>
+      memoized_indexes_;
+
+  QueueForNextIndexToUpdate next_index_to_update_;
+  int32_t memoized_max_index_id_ = -1;
+  int64_t memoized_max_sequence_number_ = -1;
+
+  /* Owned by LevelDbPersistence. */
+  LocalSerializer* serializer_ = nullptr;
 
   bool started_ = false;
 

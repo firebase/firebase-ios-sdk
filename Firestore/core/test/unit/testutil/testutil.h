@@ -459,6 +459,11 @@ model::FieldIndex MakeFieldIndex(const std::string& collection_group,
                                  model::Segment::Kind kind_1,
                                  const std::string& field_2,
                                  model::Segment::Kind kind_2);
+model::FieldIndex MakeFieldIndex(const std::string& collection_group,
+                                 int32_t index_id,
+                                 model::IndexState state,
+                                 const std::string& field_1,
+                                 model::Segment::Kind kind_1);
 
 }  // namespace testutil
 }  // namespace firestore

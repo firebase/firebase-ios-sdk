@@ -744,7 +744,7 @@ class LevelDbIndexConfigurationKey {
   /**
    * Creates a key that points to the key for the given index id.
    */
-  static std::string Key(int32_t id);
+  static std::string Key(int32_t id, absl::string_view collection_group);
 
   /**
    * Decodes the given complete key, storing the decoded values in this
@@ -762,8 +762,14 @@ class LevelDbIndexConfigurationKey {
     return index_id_;
   }
 
+  /** The collection group for this index. */
+  const std::string& collection_group() const {
+    return collection_group_;
+  }
+
  private:
   int32_t index_id_;
+  std::string collection_group_;
 };
 
 /**
@@ -820,6 +826,12 @@ class LevelDbIndexEntryKey {
    * Creates a key prefix that points just before the first key of the table.
    */
   static std::string KeyPrefix();
+
+  /**
+   * Creates a key prefix that points the first entry of a given index_id for
+   * a user.
+   */
+  static std::string KeyPrefix(int32_t index_id, absl::string_view user_id);
 
   /**
    * Creates a key that points to the key for the given index entry fields.

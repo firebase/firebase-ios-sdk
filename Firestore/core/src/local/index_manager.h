@@ -28,7 +28,7 @@ namespace firestore {
 namespace core {
 class Target;
 class SortedMap;
-}  // namespace model
+}  // namespace core
 
 namespace model {
 class DocumentKey;
@@ -50,7 +50,7 @@ class IndexManager {
   virtual ~IndexManager() = default;
 
   /** Initializes the IndexManager. */
-  virtual void Start();
+  virtual void Start() = 0;
 
   /**
    * Creates an index entry mapping the collection_id (last segment of the path)
@@ -78,34 +78,38 @@ class IndexManager {
    * Values for this index are persisted asynchronously. The index will only be
    * used for query execution once values are persisted.
    */
-  virtual void AddFieldIndex(model::FieldIndex index);
+  virtual void AddFieldIndex(const model::FieldIndex& index) = 0;
 
   /** Removes the given field index and deletes all index values. */
-  virtual void DeleteFieldIndex(model::FieldIndex index);
+  virtual void DeleteFieldIndex(const model::FieldIndex& index) = 0;
 
   /**
    * Returns a list of field indexes that correspond to the specified collection
    * group.
    */
-  virtual std::vector<model::FieldIndex> GetFieldIndexes(const std::string& collection_group);
+  virtual std::vector<model::FieldIndex> GetFieldIndexes(
+      const std::string& collection_group) = 0;
 
   /** Returns all configured field indexes. */
-  virtual std::vector<model::FieldIndex> GetFieldIndexes();
+  virtual std::vector<model::FieldIndex> GetFieldIndexes() = 0;
 
   /**
    * Returns an index that can be used to serve the provided target. Returns
    * `nullopt` if no index is configured.
    */
-  virtual absl::optional<model::FieldIndex> GetFieldIndex(core::Target target);
+  virtual absl::optional<model::FieldIndex> GetFieldIndex(
+      core::Target target) = 0;
 
-  /** Returns the documents that match the given target based on the provided index. */
-  virtual std::vector<model::DocumentKey> GetDocumentsMatchingTarget(model::FieldIndex fieldIndex, core::Target target);
+  /** Returns the documents that match the given target based on the provided
+   * index. */
+  virtual std::vector<model::DocumentKey> GetDocumentsMatchingTarget(
+      model::FieldIndex fieldIndex, core::Target target) = 0;
 
   /**
    * Returns the next collection group to update. Returns `nullopt` if no
    * group exists.
    */
-  virtual absl::optional<std::string> GetNextCollectionGroupToUpdate();
+  virtual absl::optional<std::string> GetNextCollectionGroupToUpdate() = 0;
 
   /**
    * Sets the collection group's latest read time.
@@ -113,14 +117,15 @@ class IndexManager {
    * This method updates the index offset for all field indices for the
    * collection group and increments their sequence number.
    *
-   * Subsequent calls to `getNextCollectionGroupToUpdate()` will return a
+   * Subsequent calls to `GetNextCollectionGroupToUpdate()` will return a
    * different collection group (unless only one collection group is
    * configured).
    */
-  virtual void UpdateCollectionGroup(const std::string& collection_group, model::IndexOffset offset);
+  virtual void UpdateCollectionGroup(const std::string& collection_group,
+                                     model::IndexOffset offset) = 0;
 
   /** Updates the index entries for the provided documents. */
-  virtual void UpdateIndexEntries(model::DocumentMap documents);
+  virtual void UpdateIndexEntries(const model::DocumentMap& documents) = 0;
 };
 
 }  // namespace local

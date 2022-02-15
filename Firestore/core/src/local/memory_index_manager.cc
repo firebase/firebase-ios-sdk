@@ -71,14 +71,17 @@ std::vector<ResourcePath> MemoryIndexManager::GetCollectionParents(
 void MemoryIndexManager::Start() {
 }
 
-void MemoryIndexManager::AddFieldIndex(model::FieldIndex index) {
+void MemoryIndexManager::AddFieldIndex(const model::FieldIndex& index) {
+  (void)index;
 }
 
-void MemoryIndexManager::DeleteFieldIndex(model::FieldIndex index) {
+void MemoryIndexManager::DeleteFieldIndex(const model::FieldIndex& index) {
+  (void)index;
 }
 
 std::vector<model::FieldIndex> MemoryIndexManager::GetFieldIndexes(
     const std::string& collection_group) {
+  (void)collection_group;
   return {};
 }
 
@@ -88,11 +91,14 @@ std::vector<model::FieldIndex> MemoryIndexManager::GetFieldIndexes() {
 
 absl::optional<model::FieldIndex> MemoryIndexManager::GetFieldIndex(
     core::Target target) {
+  (void)target;
   return absl::nullopt;
 }
 
 std::vector<model::DocumentKey> MemoryIndexManager::GetDocumentsMatchingTarget(
     model::FieldIndex fieldIndex, core::Target target) {
+  (void)fieldIndex;
+  (void)target;
   return {};
 }
 
@@ -103,9 +109,12 @@ MemoryIndexManager::GetNextCollectionGroupToUpdate() {
 
 void MemoryIndexManager::UpdateCollectionGroup(
     const std::string& collection_group, model::IndexOffset offset) {
+  (void)collection_group;
+  (void)offset;
 }
 
-void MemoryIndexManager::UpdateIndexEntries(model::DocumentMap documents) {
+void MemoryIndexManager::UpdateIndexEntries(
+    const model::DocumentMap& documents) {
   (void)documents;
 }
 

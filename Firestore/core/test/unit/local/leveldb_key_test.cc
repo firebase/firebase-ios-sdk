@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/local/leveldb_key.h"
 
+#include "Firestore/core/src/util/autoid.h"
 #include "Firestore/core/src/util/string_util.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "absl/strings/match.h"
@@ -494,33 +495,50 @@ TEST(IndexConfigurationKeyTest, Prefixing) {
   auto table_key = LevelDbIndexConfigurationKey::KeyPrefix();
 
   ASSERT_TRUE(
-      absl::StartsWith(LevelDbIndexConfigurationKey::Key(0), table_key));
+      absl::StartsWith(LevelDbIndexConfigurationKey::Key(0, ""), table_key));
 
-  ASSERT_FALSE(absl::StartsWith(LevelDbIndexConfigurationKey::Key(1),
-                                LevelDbIndexConfigurationKey::Key(2)));
+  ASSERT_FALSE(absl::StartsWith(LevelDbIndexConfigurationKey::Key(1, ""),
+                                LevelDbIndexConfigurationKey::Key(2, "")));
+
+  ASSERT_FALSE(absl::StartsWith(LevelDbIndexConfigurationKey::Key(1, "g"),
+                                LevelDbIndexConfigurationKey::Key(1, "ag")));
 }
 
 TEST(IndexConfigurationKeyTest, Ordering) {
-  ASSERT_LT(LevelDbIndexConfigurationKey::Key(0),
-            LevelDbIndexConfigurationKey::Key(1));
-  ASSERT_EQ(LevelDbIndexConfigurationKey::Key(1),
-            LevelDbIndexConfigurationKey::Key(1));
+  ASSERT_LT(LevelDbIndexConfigurationKey::Key(0, ""),
+            LevelDbIndexConfigurationKey::Key(1, ""));
+  ASSERT_EQ(LevelDbIndexConfigurationKey::Key(1, ""),
+            LevelDbIndexConfigurationKey::Key(1, ""));
+  ASSERT_LT(LevelDbIndexConfigurationKey::Key(0, "a"),
+            LevelDbIndexConfigurationKey::Key(0, "b"));
+  ASSERT_EQ(LevelDbIndexConfigurationKey::Key(1, "a"),
+            LevelDbIndexConfigurationKey::Key(1, "a"));
 }
 
 TEST(IndexConfigurationKeyTest, EncodeDecodeCycle) {
   LevelDbIndexConfigurationKey key;
 
+  std::vector<std::string> groups = {
+      "",
+      "ab",
+      "12",
+      ",867t-b",
+      "汉语; traditional Chinese: 漢語; pinyin: Hànyǔ[b]",
+      "اَلْعَرَبِيَّةُ, al-ʿarabiyyah "};
   for (int32_t id = -5; id < 10; ++id) {
-    auto encoded = LevelDbIndexConfigurationKey::Key(id);
+    auto s = groups[(id + 5) % groups.size()];
+    auto encoded = LevelDbIndexConfigurationKey::Key(id, s);
     bool ok = key.Decode(encoded);
     ASSERT_TRUE(ok);
     ASSERT_EQ(id, key.index_id());
+    ASSERT_EQ(s, key.collection_group());
   }
 }
 
 TEST(IndexConfigurationKeyTest, Description) {
-  AssertExpectedKeyDescription("[index_configuration: index_id=8]",
-                               LevelDbIndexConfigurationKey::Key(8));
+  AssertExpectedKeyDescription(
+      "[index_configuration: index_id=8 collection_group=group]",
+      LevelDbIndexConfigurationKey::Key(8, "group"));
 }
 
 TEST(IndexStateKeyTest, Prefixing) {
@@ -569,6 +587,14 @@ TEST(IndexEntryKeyTest, Prefixing) {
       LevelDbIndexEntryKey::Key(0, "user_id", "array_value_encoded",
                                 "directional_value_encoded", "document_id_99"),
       table_key));
+
+  ASSERT_TRUE(
+      absl::StartsWith(LevelDbIndexEntryKey::Key(0, "user_id", "", "", ""),
+                       LevelDbIndexEntryKey::KeyPrefix(0, "user_id")));
+
+  ASSERT_FALSE(
+      absl::StartsWith(LevelDbIndexEntryKey::Key(0, "user_id", "", "", ""),
+                       LevelDbIndexEntryKey::KeyPrefix(0, "user_iz")));
 
   ASSERT_FALSE(absl::StartsWith(LevelDbIndexEntryKey::Key(0, "", "", "", ""),
                                 LevelDbIndexEntryKey::Key(1, "", "", "", "")));
