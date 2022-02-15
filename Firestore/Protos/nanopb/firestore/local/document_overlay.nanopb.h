@@ -23,8 +23,6 @@
 
 #include "google/firestore/v1/write.nanopb.h"
 
-#include "google/protobuf/timestamp.nanopb.h"
-
 #include <string>
 
 namespace firebase {

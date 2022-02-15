@@ -78,15 +78,14 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 const char descriptor_table_protodef_firestore_2flocal_2fdocument_5foverlay_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n&firestore/local/document_overlay.proto"
   "\022\020firestore.client\032\037google/firestore/v1/"
-  "write.proto\032\037google/protobuf/timestamp.p"
-  "roto\"a\n\017DocumentOverlay\022\030\n\020largest_batch"
-  "_id\030\001 \001(\005\0224\n\020overlay_mutation\030\002 \001(\0132\032.go"
-  "ogle.firestore.v1.WriteB/\n#com.google.fi"
-  "rebase.firestore.protoP\001\242\002\005FSTPBb\006proto3"
+  "write.proto\"a\n\017DocumentOverlay\022\030\n\020larges"
+  "t_batch_id\030\001 \001(\005\0224\n\020overlay_mutation\030\002 \001"
+  "(\0132\032.google.firestore.v1.WriteB/\n#com.go"
+  "ogle.firebase.firestore.protoP\001\242\002\005FSTPBb"
+  "\006proto3"
   ;
-static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_firestore_2flocal_2fdocument_5foverlay_2eproto_deps[2] = {
+static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_firestore_2flocal_2fdocument_5foverlay_2eproto_deps[1] = {
   &::descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto,
-  &::descriptor_table_google_2fprotobuf_2ftimestamp_2eproto,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_firestore_2flocal_2fdocument_5foverlay_2eproto_sccs[1] = {
   &scc_info_DocumentOverlay_firestore_2flocal_2fdocument_5foverlay_2eproto.base,
@@ -94,8 +93,8 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_fir
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_firestore_2flocal_2fdocument_5foverlay_2eproto_once;
 static bool descriptor_table_firestore_2flocal_2fdocument_5foverlay_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_firestore_2flocal_2fdocument_5foverlay_2eproto = {
-  &descriptor_table_firestore_2flocal_2fdocument_5foverlay_2eproto_initialized, descriptor_table_protodef_firestore_2flocal_2fdocument_5foverlay_2eproto, "firestore/local/document_overlay.proto", 280,
-  &descriptor_table_firestore_2flocal_2fdocument_5foverlay_2eproto_once, descriptor_table_firestore_2flocal_2fdocument_5foverlay_2eproto_sccs, descriptor_table_firestore_2flocal_2fdocument_5foverlay_2eproto_deps, 1, 2,
+  &descriptor_table_firestore_2flocal_2fdocument_5foverlay_2eproto_initialized, descriptor_table_protodef_firestore_2flocal_2fdocument_5foverlay_2eproto, "firestore/local/document_overlay.proto", 247,
+  &descriptor_table_firestore_2flocal_2fdocument_5foverlay_2eproto_once, descriptor_table_firestore_2flocal_2fdocument_5foverlay_2eproto_sccs, descriptor_table_firestore_2flocal_2fdocument_5foverlay_2eproto_deps, 1, 1,
   schemas, file_default_instances, TableStruct_firestore_2flocal_2fdocument_5foverlay_2eproto::offsets,
   file_level_metadata_firestore_2flocal_2fdocument_5foverlay_2eproto, 1, file_level_enum_descriptors_firestore_2flocal_2fdocument_5foverlay_2eproto, file_level_service_descriptors_firestore_2flocal_2fdocument_5foverlay_2eproto,
 };
