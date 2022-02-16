@@ -67,7 +67,7 @@ public enum StorageError: Error {
     case StorageErrorCode.unauthenticated.rawValue: return StorageError.unauthenticated
     case StorageErrorCode.unauthorized.rawValue:
       guard let bucket = userInfo["bucket"] as? String,
-        let object = userInfo["object"] as? String else {
+            let object = userInfo["object"] as? String else {
         return StorageError
           .internalError(
             "Failed to decode unauthorized error: \(objcError.localizedDescription)"
@@ -78,7 +78,7 @@ public enum StorageError: Error {
     case StorageErrorCode.nonMatchingChecksum.rawValue: return StorageError.nonMatchingChecksum
     case StorageErrorCode.downloadSizeExceeded.rawValue:
       guard let total = userInfo["totalSize"] as? Int64,
-        let maxSize = userInfo["maxAllowedSize"] as? Int64 else {
+            let maxSize = userInfo["maxAllowedSize"] as? Int64 else {
         return StorageError
           .internalError(
             "Failed to decode downloadSizeExceeded error: \(objcError.localizedDescription)"
