@@ -95,8 +95,9 @@ absl::optional<model::FieldIndex> MemoryIndexManager::GetFieldIndex(
   return absl::nullopt;
 }
 
-std::vector<model::DocumentKey> MemoryIndexManager::GetDocumentsMatchingTarget(
-    model::FieldIndex fieldIndex, core::Target target) {
+absl::optional<std::vector<model::DocumentKey>>
+MemoryIndexManager::GetDocumentsMatchingTarget(model::FieldIndex fieldIndex,
+                                               core::Target target) {
   (void)fieldIndex;
   (void)target;
   return {};

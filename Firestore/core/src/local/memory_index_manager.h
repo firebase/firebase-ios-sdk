@@ -49,6 +49,7 @@ class MemoryCollectionParentIndex {
 class MemoryIndexManager : public IndexManager {
  public:
   MemoryIndexManager() = default;
+
   void Start() override;
 
   void AddToCollectionParentIndex(
@@ -68,7 +69,7 @@ class MemoryIndexManager : public IndexManager {
 
   absl::optional<model::FieldIndex> GetFieldIndex(core::Target target) override;
 
-  std::vector<model::DocumentKey> GetDocumentsMatchingTarget(
+  absl::optional<std::vector<model::DocumentKey>> GetDocumentsMatchingTarget(
       model::FieldIndex fieldIndex, core::Target target) override;
 
   absl::optional<std::string> GetNextCollectionGroupToUpdate() override;

@@ -1192,12 +1192,19 @@ std::string LevelDbIndexStateKey::KeyPrefix() {
   return writer.result();
 }
 
-std::string LevelDbIndexStateKey::Key(int32_t index_id,
-                                      absl::string_view user_id) {
+std::string LevelDbIndexStateKey::KeyPrefix(absl::string_view user_id) {
   Writer writer;
   writer.WriteTableName(kIndexStateTable);
-  writer.WriteIndexId(index_id);
   writer.WriteUserId(user_id);
+  return writer.result();
+}
+
+std::string LevelDbIndexStateKey::Key(absl::string_view user_id,
+                                      int32_t index_id) {
+  Writer writer;
+  writer.WriteTableName(kIndexStateTable);
+  writer.WriteUserId(user_id);
+  writer.WriteIndexId(index_id);
   writer.WriteTerminator();
   return writer.result();
 }
@@ -1205,8 +1212,8 @@ std::string LevelDbIndexStateKey::Key(int32_t index_id,
 bool LevelDbIndexStateKey::Decode(absl::string_view key) {
   Reader reader{key};
   reader.ReadTableNameMatching(kIndexStateTable);
-  index_id_ = reader.ReadIndexId();
   user_id_ = reader.ReadUserId();
+  index_id_ = reader.ReadIndexId();
   reader.ReadTerminator();
   return reader.ok();
 }
@@ -1217,12 +1224,10 @@ std::string LevelDbIndexEntryKey::KeyPrefix() {
   return writer.result();
 }
 
-std::string LevelDbIndexEntryKey::KeyPrefix(int32_t index_id,
-                                            absl::string_view user_id) {
+std::string LevelDbIndexEntryKey::KeyPrefix(int32_t index_id) {
   Writer writer;
   writer.WriteTableName(kIndexEntriesTable);
   writer.WriteIndexId(index_id);
-  writer.WriteUserId(user_id);
   return writer.result();
 }
 

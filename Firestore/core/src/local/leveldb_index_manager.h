@@ -58,7 +58,7 @@ class LevelDbIndexManager : public IndexManager {
 
   absl::optional<model::FieldIndex> GetFieldIndex(core::Target target) override;
 
-  std::vector<model::DocumentKey> GetDocumentsMatchingTarget(
+  absl::optional<std::vector<model::DocumentKey>> GetDocumentsMatchingTarget(
       model::FieldIndex fieldIndex, core::Target target) override;
 
   absl::optional<std::string> GetNextCollectionGroupToUpdate() override;
@@ -99,7 +99,7 @@ class LevelDbIndexManager : public IndexManager {
    * An in-memory map from collection group to a map of indexes associated with
    * the collection groups.
    *
-   * The map is indexes is keyed off index ids.
+   * The nested map is an index_id to FieldIndex map.
    */
   std::unordered_map<std::string,
                      std::unordered_map<int32_t, model::FieldIndex>>

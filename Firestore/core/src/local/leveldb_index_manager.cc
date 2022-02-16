@@ -128,21 +128,17 @@ std::vector<ResourcePath> LevelDbIndexManager::GetCollectionParents(
 void LevelDbIndexManager::Start() {
   std::unordered_map<int32_t, IndexState> index_states;
 
-  // Fetch all index states if persisted for the user. These states contain per
-  // user information on how up to date the index is.
+  // Fetch all index states that are persisted for the user. These states
+  // contain per user information on how up to date the index is.
   {
     auto state_iter = db_->current_transaction()->NewIterator();
-    auto state_key_prefix = LevelDbIndexStateKey::KeyPrefix();
+    auto state_key_prefix = LevelDbIndexStateKey::KeyPrefix(uid_);
     LevelDbIndexStateKey state_key;
     for (state_iter->Seek(state_key_prefix); state_iter->Valid();
          state_iter->Next()) {
       if (!absl::StartsWith(state_iter->key(), state_key_prefix) ||
           !state_key.Decode(state_iter->key())) {
         break;
-      }
-
-      if (state_key.user_id() != uid_) {
-        continue;
       }
 
       index_states.insert(
@@ -184,8 +180,8 @@ void LevelDbIndexManager::Start() {
                              ? iter->second
                              : FieldIndex::InitialState();
 
-      // Store the index and update `memoizedMaxIndexId` and
-      // `memoizedMaxSequenceNumber`.
+      // Store the index and update `memoized_max_index_id` and
+      // `memoized_max_sequence_number`.
       MemoizeIndex(FieldIndex(config_key.index_id(),
                               config_key.collection_group(),
                               std::move(segments), state));
@@ -224,9 +220,6 @@ void LevelDbIndexManager::MemoizeIndex(FieldIndex index) {
 
   auto existing_index_iter = existing_indexes.find(index_id);
 
-  // Pop and save `FieldIndex*` until existing_index_iter->second is found.
-  // This is essentially deleting existing_index_iter->second from the queue
-  // because `popped_out` will be pushed back to `next_index_to_update_` later.
   if (existing_index_iter != existing_indexes.end()) {
     DeleteFromUpdateQueue(&existing_index_iter->second);
   }
@@ -261,16 +254,33 @@ void LevelDbIndexManager::DeleteFieldIndex(const FieldIndex& index) {
   db_->current_transaction()->Delete(LevelDbIndexConfigurationKey::Key(
       index.index_id(), index.collection_group()));
 
-  db_->current_transaction()->Delete(
-      LevelDbIndexStateKey::Key(index.index_id(), uid_));
+  // Delete states from all users for this index id.
+  {
+    auto state_prefix = LevelDbIndexStateKey::KeyPrefix();
+    auto iter = db_->current_transaction()->NewIterator();
+    LevelDbIndexStateKey state_key;
+    for (iter->Seek(state_prefix); iter->Valid(); iter->Next()) {
+      if (!absl::StartsWith(iter->key(), state_prefix) ||
+          !state_key.Decode(iter->key())) {
+        break;
+      }
 
-  auto entry_prefix = LevelDbIndexEntryKey::KeyPrefix(index.index_id(), uid_);
-  auto iter = db_->current_transaction()->NewIterator();
-  for (iter->Seek(entry_prefix); iter->Valid(); iter->Next()) {
-    if (!absl::StartsWith(iter->key(), entry_prefix)) {
-      break;
+      if (state_key.index_id() == index.index_id()) {
+        db_->current_transaction()->Delete(iter->key());
+      }
     }
-    db_->current_transaction()->Delete(iter->key());
+  }
+
+  // Delete entries from all users for this index id.
+  {
+    auto entry_prefix = LevelDbIndexEntryKey::KeyPrefix(index.index_id());
+    auto iter = db_->current_transaction()->NewIterator();
+    for (iter->Seek(entry_prefix); iter->Valid(); iter->Next()) {
+      if (!absl::StartsWith(iter->key(), entry_prefix)) {
+        break;
+      }
+      db_->current_transaction()->Delete(iter->key());
+    }
   }
 
   auto group_index_iter = memoized_indexes_.find(index.collection_group());
@@ -279,7 +289,7 @@ void LevelDbIndexManager::DeleteFieldIndex(const FieldIndex& index) {
     auto index_iter = index_map.find(index.index_id());
     if (index_iter != index_map.end()) {
       DeleteFromUpdateQueue(&index_iter->second);
-      index_map.erase(index.index_id());
+      index_map.erase(index_iter);
     }
   }
 }
@@ -314,8 +324,9 @@ absl::optional<model::FieldIndex> LevelDbIndexManager::GetFieldIndex(
   return {};
 }
 
-std::vector<model::DocumentKey> LevelDbIndexManager::GetDocumentsMatchingTarget(
-    model::FieldIndex field_index, core::Target target) {
+absl::optional<std::vector<model::DocumentKey>>
+LevelDbIndexManager::GetDocumentsMatchingTarget(model::FieldIndex field_index,
+                                                core::Target target) {
   (void)field_index;
   (void)target;
   return {};

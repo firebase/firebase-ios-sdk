@@ -75,8 +75,9 @@ class IndexManager {
   /**
    * Adds a field path index.
    *
-   * Values for this index are persisted asynchronously. The index will only be
-   * used for query execution once values are persisted.
+   * The actual entries for this index will be created and persisted
+   * in the background by the SDK, and the index will be used for query
+   * execution once values are persisted.
    */
   virtual void AddFieldIndex(const model::FieldIndex& index) = 0;
 
@@ -100,10 +101,13 @@ class IndexManager {
   virtual absl::optional<model::FieldIndex> GetFieldIndex(
       core::Target target) = 0;
 
-  /** Returns the documents that match the given target based on the provided
-   * index. */
-  virtual std::vector<model::DocumentKey> GetDocumentsMatchingTarget(
-      model::FieldIndex fieldIndex, core::Target target) = 0;
+  /**
+   * Returns the documents that match the given target based on the provided
+   * index, or `nullopt` if the query cannot be served from an index.
+   */
+  virtual absl::optional<std::vector<model::DocumentKey>>
+  GetDocumentsMatchingTarget(model::FieldIndex fieldIndex,
+                             core::Target target) = 0;
 
   /**
    * Returns the next collection group to update. Returns `nullopt` if no

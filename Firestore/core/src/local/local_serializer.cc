@@ -474,8 +474,8 @@ std::vector<model::Segment> LocalSerializer::DecodeFieldIndexSegments(
     }
 
     Segment::Kind kind = Segment::Kind::kContains;
-    if (field.which_value_mode !=
-        google_firestore_admin_v1_Index_IndexField_array_config_tag) {
+    if (field.which_value_mode ==
+        google_firestore_admin_v1_Index_IndexField_order_tag) {
       if (field.order ==
           google_firestore_admin_v1_Index_IndexField_Order_ASCENDING) {
         kind = Segment::Kind::kAscending;
@@ -506,19 +506,30 @@ LocalSerializer::EncodeFieldIndexSegments(
     google_firestore_admin_v1_Index_IndexField field;
     field.field_path =
         nanopb::MakeBytesArray(segment.field_path().CanonicalString());
-    if (segment.kind() == model::Segment::kContains) {
-      field.which_value_mode =
-          google_firestore_admin_v1_Index_IndexField_array_config_tag;
-      field.array_config =
-          google_firestore_admin_v1_Index_IndexField_ArrayConfig_CONTAINS;
-    } else if (segment.kind() == model::Segment::kAscending) {
-      field.which_value_mode =
-          google_firestore_admin_v1_Index_IndexField_order_tag;
-      field.order = google_firestore_admin_v1_Index_IndexField_Order_ASCENDING;
-    } else {
-      field.which_value_mode =
-          google_firestore_admin_v1_Index_IndexField_order_tag;
-      field.order = google_firestore_admin_v1_Index_IndexField_Order_DESCENDING;
+    switch (segment.kind()) {
+      case model::Segment::kContains: {
+        field.which_value_mode =
+            google_firestore_admin_v1_Index_IndexField_array_config_tag;
+        field.array_config =
+            google_firestore_admin_v1_Index_IndexField_ArrayConfig_CONTAINS;
+        break;
+      }
+      case model::Segment::kAscending: {
+        field.which_value_mode =
+            google_firestore_admin_v1_Index_IndexField_order_tag;
+        field.order =
+            google_firestore_admin_v1_Index_IndexField_Order_ASCENDING;
+        break;
+      }
+      case model::Segment::kDescending: {
+        field.which_value_mode =
+            google_firestore_admin_v1_Index_IndexField_order_tag;
+        field.order =
+            google_firestore_admin_v1_Index_IndexField_Order_DESCENDING;
+        break;
+      }
+      default:
+        HARD_FAIL("Unrecognized enum value from segment.kind()");
     }
 
     result->fields[i] = std::move(field);
