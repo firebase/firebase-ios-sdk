@@ -286,7 +286,7 @@ private class StorageFake: Storage {
     if let onRead = onRead {
       return try onRead()
     } else {
-      return try data ?? { throw StorageError.readError }()
+      return try data ?? throw StorageError.readError
     }
   }
 
