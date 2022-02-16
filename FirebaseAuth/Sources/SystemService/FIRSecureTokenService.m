@@ -19,6 +19,7 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthSerialTaskQueue.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuthTokenResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
@@ -100,11 +101,12 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
       callback(self->_accessToken, nil, NO);
     } else {
       FIRLogDebug(kFIRLoggerAuth, @"I-AUT000017", @"Fetching new token from backend.");
-      [self requestAccessToken:^(NSString *_Nullable token, NSError *_Nullable error,
+      [self requestAccessToken:YES
+                      callback:^(NSString *_Nullable token, NSError *_Nullable error,
                                  BOOL tokenUpdated) {
-        complete();
-        callback(token, error, tokenUpdated);
-      }];
+                        complete();
+                        callback(token, error, tokenUpdated);
+                      }];
     }
   }];
 }
@@ -160,7 +162,7 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
         since only one of those tasks is ever running at a time, and those tasks are the only
         access to and mutation of these instance variables.
  */
-- (void)requestAccessToken:(FIRFetchAccessTokenCallback)callback {
+- (void)requestAccessToken:(BOOL)retryIfExpired callback:(FIRFetchAccessTokenCallback)callback {
   FIRSecureTokenRequest *request =
       [FIRSecureTokenRequest refreshRequestWithRefreshToken:_refreshToken
                                        requestConfiguration:_requestConfiguration];
@@ -170,6 +172,21 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
            BOOL tokenUpdated = NO;
            NSString *newAccessToken = response.accessToken;
            if (newAccessToken.length && ![newAccessToken isEqualToString:self->_accessToken]) {
+             FIRAuthTokenResult *tokenResult =
+                 [FIRAuthTokenResult tokenResultWithToken:newAccessToken];
+             // There is an edge case where the request for a new access token may be made right
+             // before the app goes inactive, resulting in the callback being invoked much later
+             // with an expired access token. This does not fully solve the issue, as if the
+             // callback is invoked less than an hour after the request is made, a token is not
+             // re-requested here but the approximateExpirationDate will still be off since that is
+             // computed at the time the token is received.
+             if (retryIfExpired &&
+                 [tokenResult.expirationDate timeIntervalSinceNow] <= kFiveMinutes) {
+               // We only retry once, to avoid an infinite loop in the case that an end-user has
+               // their local time skewed by over an hour.
+               [self requestAccessToken:NO callback:callback];
+               return;
+             }
              self->_accessToken = [newAccessToken copy];
              self->_accessTokenExpirationDate = response.approximateExpirationDate;
              tokenUpdated = YES;

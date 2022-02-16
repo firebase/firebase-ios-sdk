@@ -207,6 +207,7 @@
 
 - (FIRDatabaseQuery *)queryStartingAfterValue:(id)startAfterValue
                                      childKey:(NSString *)childKey {
+    NSString *methodName = @"queryStartingAfterValue:childKey:";
     if ([self.queryParams.index isEqual:[FKeyIndex keyIndex]]) {
         if (childKey != nil) {
             @throw [[NSException alloc]
@@ -218,16 +219,16 @@
                     userInfo:nil];
         }
         if ([startAfterValue isKindOfClass:[NSString class]]) {
-            startAfterValue = [FNextPushId successor:startAfterValue];
+            startAfterValue = [FNextPushId from:methodName
+                                      successor:startAfterValue];
         }
     } else {
         if (childKey == nil) {
             childKey = [FUtilities maxName];
         } else {
-            childKey = [FNextPushId successor:childKey];
+            childKey = [FNextPushId from:methodName successor:childKey];
         }
     }
-    NSString *methodName = @"queryStartingAfterValue:childKey:";
     if (childKey != nil && ![childKey isEqual:[FUtilities maxName]]) {
         [FValidation validateFrom:methodName validKey:childKey];
     }
@@ -294,6 +295,7 @@
 
 - (FIRDatabaseQuery *)queryEndingBeforeValue:(id)endValue
                                     childKey:(NSString *)childKey {
+    NSString *methodName = @"queryEndingBeforeValue:childKey:";
     if ([self.queryParams.index isEqual:[FKeyIndex keyIndex]]) {
         if (childKey != nil) {
             @throw [[NSException alloc]
@@ -304,16 +306,15 @@
                     userInfo:nil];
         }
         if ([endValue isKindOfClass:[NSString class]]) {
-            endValue = [FNextPushId predecessor:endValue];
+            endValue = [FNextPushId from:methodName predecessor:endValue];
         }
     } else {
         if (childKey == nil) {
             childKey = [FUtilities minName];
         } else {
-            childKey = [FNextPushId predecessor:childKey];
+            childKey = [FNextPushId from:methodName predecessor:childKey];
         }
     }
-    NSString *methodName = @"queryEndingBeforeValue:childKey:";
     if (childKey != nil && ![childKey isEqual:[FUtilities minName]]) {
         [FValidation validateFrom:methodName validKey:childKey];
     }

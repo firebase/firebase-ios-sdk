@@ -27,7 +27,7 @@
     @available(macCatalyst, unavailable)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
-    extension PhoneAuthProvider {
+    public extension PhoneAuthProvider {
       /// Starts the phone number authentication flow by sending a verification code to the
       /// specified phone number.
       ///
@@ -52,8 +52,8 @@
       ///      invalid.
       ///   - `FIRAuthErrorCodeMissingPhoneNumber` - Indicates that a phone number was not provided.
       @discardableResult
-      public func verifyPhoneNumber(_ phoneNumber: String,
-                                    uiDelegate: AuthUIDelegate? = nil)
+      func verifyPhoneNumber(_ phoneNumber: String,
+                             uiDelegate: AuthUIDelegate? = nil)
         -> Future<String, Error> {
         Future<String, Error> { promise in
           self.verifyPhoneNumber(phoneNumber, uiDelegate: uiDelegate) { verificationID, error in
@@ -92,9 +92,9 @@
       ///      invalid.
       ///   - `FIRAuthErrorCodeMissingPhoneNumber` - Indicates that a phone number was not provided.
       @discardableResult
-      public func verifyPhoneNumber(_ phoneNumber: String,
-                                    uiDelegate: AuthUIDelegate? = nil,
-                                    multiFactorSession: MultiFactorSession?)
+      func verifyPhoneNumber(_ phoneNumber: String,
+                             uiDelegate: AuthUIDelegate? = nil,
+                             multiFactorSession: MultiFactorSession?)
         -> Future<String, Error> {
         Future<String, Error> { promise in
           self.verifyPhoneNumber(
@@ -124,9 +124,9 @@
       /// - Returns: A publisher that emits an `VerificationID` when the verification flow completed
       ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
       @discardableResult
-      public func verifyPhoneNumber(with phoneMultiFactorInfo: PhoneMultiFactorInfo,
-                                    uiDelegate: AuthUIDelegate? = nil,
-                                    multiFactorSession: MultiFactorSession?)
+      func verifyPhoneNumber(with phoneMultiFactorInfo: PhoneMultiFactorInfo,
+                             uiDelegate: AuthUIDelegate? = nil,
+                             multiFactorSession: MultiFactorSession?)
         -> Future<String, Error> {
         Future<String, Error> { promise in
           self.verifyPhoneNumber(with: phoneMultiFactorInfo,

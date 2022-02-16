@@ -17,8 +17,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * The Firebase Crashlytics Stack Frame provides a way to construct the lines of
- * a stack trace for reporting along with a recorded Exception Model.
+ * The Firebase Crashlytics `StackFrame` provides a way to construct the lines of
+ * a stack trace for reporting along with a recorded `ExceptionModel`.
  */
 NS_SWIFT_NAME(StackFrame)
 @interface FIRStackFrame : NSObject
@@ -27,8 +27,8 @@ NS_SWIFT_NAME(StackFrame)
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
- * Initializes a symbolicated Stack Frame with the given required fields. Symbolicated
- * Stack Frames will appear in the Crashlytics dashboard as reported in these fields.
+ * Initializes a symbolicated `StackFrame` with the given required fields. Symbolicated
+ * `StackFrame`s will appear in the Crashlytics dashboard as reported in these fields.
  *
  * @param symbol - The function or method name
  * @param file - the file where the exception occurred
@@ -37,9 +37,9 @@ NS_SWIFT_NAME(StackFrame)
 - (instancetype)initWithSymbol:(NSString *)symbol file:(NSString *)file line:(NSInteger)line;
 
 /**
- * Creates a symbolicated Stack Frame from an address. The address will be
+ * Creates a symbolicated `StackFrame` from an address. The address will be
  * symbolicated in the Crashlytics backend for the customer and reported in the
- * Crahslytics dashboard with the appropriate file name and line number. If an
+ * Crashlytics dashboard with the appropriate file name and line number. If an
  * invalid address is provided it will appear in the dashboard as missing.
  *
  * @param address - the address where the exception occurred
@@ -47,8 +47,8 @@ NS_SWIFT_NAME(StackFrame)
 + (instancetype)stackFrameWithAddress:(NSUInteger)address;
 
 /**
- * Creates a symbolicated Stack Frame with the given required fields. Symbolicated
- * Stack Frames will appear in the Crashlytics dashboard as reported in these fields. *
+ * Creates a symbolicated `StackFrame` with the given required fields. Symbolicated
+ * `StackFrame`s will appear in the Crashlytics dashboard as reported in these fields.
  *
  * @param symbol - The function or method name
  * @param file - the file where the exception occurred

@@ -10,8 +10,8 @@ on:
     # Don't run based on any markdown only changes.
     - '!ReleaseTooling/*.md'
   schedule:
-    # Run every day at midnight(PST) - cron uses UTC times
-    - cron:  '0 8 * * *'
+    # Run every day at 10pm(PST) - cron uses UTC times
+    - cron:  '0 6 * * *'
 
   workflow_dispatch:
     inputs:
@@ -199,9 +199,11 @@ jobs:
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Setup Swift Quickstart
-      run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
+
+      run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="FirebaseRemoteConfigSwift FirebaseSharedSwift" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
-                                               "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+                                               "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/* \
+                                               "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/*
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-config.plist.gpg \
         quickstart-ios/config/GoogleService-Info.plist "$plist_secret"

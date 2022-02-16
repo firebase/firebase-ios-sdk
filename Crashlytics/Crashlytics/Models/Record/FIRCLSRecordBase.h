@@ -25,7 +25,7 @@
 @interface FIRCLSRecordBase : NSObject
 
 /**
- * Mark the default initializer as unavailable so  the subclasses do not have to add the same line
+ * Mark the default initializer as unavailable so the subclasses do not have to add the same line
  **/
 - (instancetype)init NS_UNAVAILABLE;
 

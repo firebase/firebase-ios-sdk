@@ -136,18 +136,6 @@ bool FIRCLSUnlinkIfExists(const char* path) {
   return true;
 }
 
-/*
-NSString* FIRCLSGenerateUUID(void) {
-  NSString* string;
-
-  CFUUIDRef uuid = CFUUIDCreate(kCFAllocatorDefault);
-  string = CFBridgingRelease(CFUUIDCreateString(kCFAllocatorDefault, uuid));
-  CFRelease(uuid);
-
-  return string;
-}
-*/
-
 NSString* FIRCLSNormalizeUUID(NSString* value) {
   return [[value stringByReplacingOccurrencesOfString:@"-" withString:@""] lowercaseString];
 }
@@ -212,21 +200,6 @@ NSString* FIRCLSNSDataToNSString(NSData* data) {
 
   return string;
 }
-
-/*
-NSString* FIRCLSHashBytes(const void* bytes, size_t length) {
-  uint8_t digest[CC_SHA1_DIGEST_LENGTH] = {0};
-  CC_SHA1(bytes, (CC_LONG)length, digest);
-
-  NSData* result = [NSData dataWithBytes:digest length:CC_SHA1_DIGEST_LENGTH];
-
-  return FIRCLSNSDataToNSString(result);
-}
-
-NSString* FIRCLSHashNSData(NSData* data) {
-  return FIRCLSHashBytes([data bytes], [data length]);
-}
-*/
 
 void FIRCLSAddOperationAfter(float timeInSeconds, NSOperationQueue* queue, void (^block)(void)) {
   dispatch_queue_t afterQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);

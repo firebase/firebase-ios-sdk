@@ -16,11 +16,17 @@
 
 #include "Firestore/core/src/util/ordered_code.h"
 
+#include <cstddef>
+#include <cstdint>
+#include <limits>
+
 #include "Firestore/core/src/util/bits.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "absl/base/casts.h"
 #include "absl/base/internal/endian.h"
 #include "absl/base/internal/unaligned_access.h"
 #include "absl/base/port.h"
+#include "absl/strings/internal/resize_uninitialized.h"
 
 #if !defined(ABSL_IS_LITTLE_ENDIAN) && !defined(ABSL_IS_BIG_ENDIAN)
 #error \
@@ -28,8 +34,10 @@
        "ABSL_IS_LITTLE_ENDIAN must be defined"
 #endif
 
+#define UNALIGNED_LOAD16 ABSL_INTERNAL_UNALIGNED_LOAD16
 #define UNALIGNED_LOAD32 ABSL_INTERNAL_UNALIGNED_LOAD32
 #define UNALIGNED_LOAD64 ABSL_INTERNAL_UNALIGNED_LOAD64
+#define UNALIGNED_STORE16 ABSL_INTERNAL_UNALIGNED_STORE16
 #define UNALIGNED_STORE32 ABSL_INTERNAL_UNALIGNED_STORE32
 #define UNALIGNED_STORE64 ABSL_INTERNAL_UNALIGNED_STORE64
 
@@ -67,6 +75,67 @@
 // respective characters at the first position where they differ, which in
 // turn is the same as the ordering of the encodings of those two
 // characters.  Moreover, for every finite string x, F(x) < F(<infinity>).
+//
+//
+// Lexicographically decreasing order
+//
+// We want a string-to-string mapping G(x) such that for any two strings,
+// whether finite or not,
+//
+//      x < y   =>   G(x) > G(y)
+//
+// To achieve this, define G(x) to be the inversion of F(x): I(F(x)).  In
+// other words, invert every bit in F(x) to get G(x). For example,
+//
+//        x  = \x00\x13\xff
+//      F(x) = \x00\xff\x13\xff\x00\x00\x01  escape \0, \xff, append F(<sep>)
+//      G(x) = \xff\x00\xec\x00\xff\xff\xfe  invert every bit in F(x)
+//
+//        x  = <infinity>
+//      F(x) = \xff\xff
+//      G(x) = \x00\x00
+//
+// Another example is
+//
+//        x            F(x)        G(x) = I(F(x))
+//        -            ----        --------------
+//        <infinity>   \xff\xff    \x00\x00
+//        "foo"        foo\0\1     \x99\x90\x90\xff\xfe
+//        "aaa"        aaa\0\1     \x9e\x9e\x9e\xff\xfe
+//        "aa"         aa\0\1      \x9e\x9e\xff\xfe
+//        ""           \0\1        \xff\xfe
+//
+// More generally and rigorously, if for any two strings x and y
+//
+//      F(x) < F(y)   =>   I(F(x)) > I(F(y))                      (1)
+//
+// it would follow that x < y => G(x) > G(y) because
+//
+//      x < y   =>   F(x) < F(y)   =>   G(x) = I(F(x)) > I(F(y)) = G(y)
+//
+// We now show why (1) is true, in two parts.  Notice that for any two
+// strings x < y, F(x) is *not* a proper prefix of F(y).  Suppose x is a
+// proper prefix of y (say, x="abc" < y="abcd").  F(x) and F(y) diverge at
+// the F(<sep>) in F(x) (v. F('d') in the example).  Suppose x is not a
+// proper prefix of y (say, x="abce" < y="abd"), F(x) and F(y) diverge at
+// their respective encodings of the characters where x and y diverge
+// (F('c') v. F('d')).  Finally, if y=<infinity>, we can see that
+// F(y)=\xff\xff is not the prefix of F(x) for any finite string x, simply
+// by considering all the possible first characters of F(x).
+//
+// Given that F(x) is not a proper prefix F(y), the order of F(x) and F(y)
+// is determined by the byte where F(x) and F(y) diverge.  For example, the
+// order of F(x)="eefh" and F(y)="eeg" is determined by their third
+// characters.  I(p) inverts each byte in p, which effectively subtracts
+// each byte from 0xff.  So, in this example, I('f') > I('g'), and thus
+// I(F(x)) > I(F(y)).
+//
+//
+// Implementation
+//
+// To implement G(x) efficiently, we use C++ template to instantiate two
+// versions of the code to produce F(x), one for normal encoding (giving us
+// F(x)) and one for inverted encoding (giving us G(x) = I(F(x))).
 
 namespace firebase {
 namespace firestore {
@@ -82,29 +151,100 @@ static const char kFFCharacter = '\000';  // Combined with kEscape2
 
 static const char kEscape1_Separator[2] = {kEscape1, kSeparator};
 
-/** Append to "*dest" the "len" bytes starting from "*src". */
-inline static void AppendBytes(std::string* dest, const char* src, size_t len) {
-  dest->append(src, len);
+// Return the byte ~x if INVERT, the byte x itself if not.  We expect 'x'
+// to be a compile-time constant and the whole "function" to be inlined
+// into another compiler-time constant.
+template <bool INVERT>
+inline static constexpr char Convert(char x) {
+  return INVERT ? ~x : x;
 }
 
-inline static bool IsSpecialByte(char c) {
+template <bool INVERT>
+inline static constexpr uint16_t Convert(uint16_t x) {
+  return INVERT ? ~x : x;
+}
+
+template <bool INVERT>
+inline static constexpr uint32_t Convert(uint32_t x) {
+  return INVERT ? ~x : x;
+}
+
+template <bool INVERT>
+inline static constexpr uint64_t Convert(uint64_t x) {
+  return INVERT ? ~x : x;
+}
+
+template <bool INVERT>
+inline static uint16_t Convert(char a, char b) {
+  auto ua = static_cast<unsigned char>(a);
+  auto ub = static_cast<unsigned char>(b);
+#ifdef ABSL_IS_LITTLE_ENDIAN
+  uint16_t x = static_cast<uint16_t>(ua) | (static_cast<uint16_t>(ub) << 8);
+#else
+  uint16 x = (static_cast<uint16>(ua) << 8) | static_cast<uint16>(ub);
+#endif
+  return INVERT ? ~x : x;
+}
+// Copy to "*dest" the "len" bytes starting from "*src", with each byte
+// inverted
+template <bool INVERT>
+inline void CopyInvertedBytes(char* dst, const char* src, size_t len) {
+  switch (len) {
+    case 0:
+      return;
+    case 1:
+      *dst = Convert<INVERT>(*src);
+      return;
+    case 3:
+      *(dst + 2) = Convert<INVERT>(*(src + 2));
+      ABSL_FALLTHROUGH_INTENDED;
+    case 2:
+      UNALIGNED_STORE16(dst, Convert<INVERT>(UNALIGNED_LOAD16(src)));
+      return;
+    case 5:
+    case 6:
+    case 7:
+      UNALIGNED_STORE32(dst + len - 4,
+                        Convert<INVERT>(UNALIGNED_LOAD32(src + len - 4)));
+      ABSL_FALLTHROUGH_INTENDED;
+    case 4:
+      UNALIGNED_STORE32(dst, Convert<INVERT>(UNALIGNED_LOAD32(src)));
+      return;
+    default:
+      for (size_t done = 0; done < len - 8; done += 8) {
+        UNALIGNED_STORE64(dst + done,
+                          Convert<INVERT>(UNALIGNED_LOAD64(src + done)));
+      }
+      UNALIGNED_STORE64(dst + len - 8,
+                        Convert<INVERT>(UNALIGNED_LOAD64(src + len - 8)));
+  }
+}
+
+// Append to "*dest" the "len" bytes starting from "*src", with inversion
+// iff INVERT is true.
+template <bool INVERT>
+void AppendBytes(std::string* dest, const char* src, size_t len) {
+  const size_t old_size = dest->size();
+  absl::strings_internal::STLStringResizeUninitialized(dest, old_size + len);
+  CopyInvertedBytes<INVERT>(&(*dest)[old_size], src, len);
+}
+
+inline bool IsSpecialByte(char c) {
   return ((unsigned char)(c + 1)) < 2;
 }
 
-/**
- * Returns 0 if one or more of the bytes in the specified uint32 value
- * are the special values 0 or 255, and returns 4 otherwise.  The
- * result of this routine can be added to "p" to either advance past
- * the next 4 bytes if they do not contain a special byte, or to
- * remain on this set of four bytes if they contain the next special
- * byte occurrence.
- *
- * REQUIRES: v_32 is the value of loading the next 4 bytes from "*p" (we
- * pass in v_32 rather than loading it because in some cases, the client
- * may already have the value in a register: "p" is just used for
- * assertion checking).
- */
-inline static int AdvanceIfNoSpecialBytes(uint32_t v_32, const char* p) {
+// Returns 0 if one or more of the bytes in the specified uint32 value
+// are the special values 0 or 255, and returns 4 otherwise.  The
+// result of this routine can be added to "p" to either advance past
+// the next 4 bytes if they do not contain a special byte, or to
+// remain on this set of four bytes if they contain the next special
+// byte occurrence.
+//
+// REQUIRES: v is the value of loading the next 4 bytes from "*p" (we
+// pass in v rather than loading it because in some cases, the client
+// may already have the value in a register: "p" is just used for
+// assertion checking).
+inline int AdvanceIfNoSpecialBytes(uint32_t v_32, const char* p) {
   HARD_ASSERT(UNALIGNED_LOAD32(p) == v_32);
   // See comments in SkipToNextSpecialByte if you wish to
   // understand this expression (which checks for the occurrence
@@ -123,13 +263,10 @@ inline static int AdvanceIfNoSpecialBytes(uint32_t v_32, const char* p) {
   }
 }
 
-/**
- * Return a pointer to the first byte in the range "[start..limit)"
- * whose value is 0 or 255 (kEscape1 or kEscape2).  If no such byte
- * exists in the range, returns "limit".
- */
-inline static const char* SkipToNextSpecialByte(const char* start,
-                                                const char* limit) {
+// Return a pointer to the first byte in the range "[start..limit)"
+// whose value is 0 or 255 (kEscape1 or kEscape2).  If no such byte
+// exists in the range, returns "limit".
+inline const char* SkipToNextSpecialByte(const char* start, const char* limit) {
   // If these constants were ever changed, this routine needs to change
   static_assert(kEscape1 == 0, "bit fiddling needs readjusting");
   static_assert((kEscape2 & 0xff) == 255, "bit fiddling needs readjusting");
@@ -158,7 +295,7 @@ inline static const char* SkipToNextSpecialByte(const char* start,
       // No special values in the next 8 bytes
       p += 8;
     } else {
-// We know the next 8 bytes have a special byte: find it
+      // We know the next 8 bytes have a special byte: find it
 #ifdef ABSL_IS_LITTLE_ENDIAN
       uint32_t v_32 = static_cast<uint32_t>(v);  // Low 32 bits of v
 #else
@@ -190,69 +327,71 @@ const char* OrderedCode::TEST_SkipToNextSpecialByte(const char* start,
   return SkipToNextSpecialByte(start, limit);
 }
 
-/**
- * Helper routine to encode "s" and append to "*dest", escaping special
- * characters.
- */
+// Helper routine to encode "s" and append to "*dest", escaping special
+// characters.  Invert the output iff INVERT is true.
+template <bool INVERT>
 inline static void EncodeStringFragment(std::string* dest,
                                         absl::string_view s) {
+  if (s.empty()) return;
+
   const char* p = s.data();
-  const char* limit = p + s.size();
+  const char* const limit = p + s.size();
   const char* copy_start = p;
+
   while (true) {
     p = SkipToNextSpecialByte(p, limit);
     if (p >= limit) break;  // No more special characters that need escaping
-    char c = *(p++);
-    HARD_ASSERT(IsSpecialByte(c));
-    if (c == kEscape1) {
-      AppendBytes(dest, copy_start, static_cast<size_t>(p - copy_start) - 1);
-      dest->push_back(kEscape1);
-      dest->push_back(kNullCharacter);
-      copy_start = p;
-    } else {
-      HARD_ASSERT(c == kEscape2);
-      AppendBytes(dest, copy_start, static_cast<size_t>(p - copy_start) - 1);
-      dest->push_back(kEscape2);
-      dest->push_back(kFFCharacter);
-      copy_start = p;
-    }
+    HARD_ASSERT(IsSpecialByte(*p));
+    AppendBytes<INVERT>(dest, copy_start, p - copy_start);
+    char c = *p;
+    // This is either:
+    //   kEscape1, kNullCharacter or,
+    //   kEscape2, kFFCharacter
+    // Recall that kEscape1 == ~kNullCharacter and kEscape2 == ~kFFCharacter.
+    const char tmp[2] = {Convert<INVERT>(c), Convert<!INVERT>(c)};
+    dest->append(tmp, 2);
+    copy_start = ++p;
   }
   if (p > copy_start) {
-    AppendBytes(dest, copy_start, static_cast<size_t>(p - copy_start));
+    AppendBytes<INVERT>(dest, copy_start, p - copy_start);
   }
 }
 
 void OrderedCode::WriteString(std::string* dest, absl::string_view s) {
-  EncodeStringFragment(dest, s);
-  AppendBytes(dest, kEscape1_Separator, 2);
+  EncodeStringFragment<false>(dest, s);
+  AppendBytes<false>(dest, kEscape1_Separator, 2);
 }
 
-/**
- * Return number of bytes needed to encode the non-length portion
- * of val in ordered coding.  Returns number in range [0,8].
- */
+void OrderedCode::WriteStringDecreasing(std::string* dest,
+                                        absl::string_view s) {
+  EncodeStringFragment<true>(dest, s);
+  AppendBytes<true>(dest, kEscape1_Separator, 2);
+}
+
+// Return number of bytes needed to encode the non-length portion
+// of val in ordered coding.  Returns number in range [0,8].
 static inline unsigned int OrderedNumLength(uint64_t val) {
   const int lg = Bits::Log2Floor64(val);  // -1 if val==0
   return static_cast<unsigned int>(lg + 1 + 7) / 8;
 }
 
-/**
- * Append n bytes from src to *dst.
- * REQUIRES: n <= 9
- * REQUIRES: src[0..8] are readable bytes (even if n is smaller)
- *
- * If we use string::append() instead of this routine, it increases the
- * runtime of WriteNumIncreasing from ~9ns to ~13ns.
- */
+// Append n bytes from src to *dst.
+// REQUIRES: n <= 9
+// REQUIRES: src[0..8] are readable bytes (even if n is smaller)
+//
+// If we use string::append() instead of this routine, it increases the
+// runtime of WriteNumIncreasingSmall/WriteNumDecreasingSmall from ~7ns to
+// ~13ns.
 static inline void AppendUpto9(std::string* dst,
                                const char* src,
                                unsigned int n) {
-  dst->append(src, 9);         // Fixed-length append
-  const size_t extra = 9 - n;  // How many extra bytes we added
-  dst->erase(dst->size() - extra, extra);
+  const size_t old_size = dst->size();
+  absl::strings_internal::STLStringResizeUninitialized(dst, old_size + 9);
+  memcpy(&(*dst)[old_size], src, 9);
+  dst->erase(old_size + n);
 }
 
-void OrderedCode::WriteNumIncreasing(std::string* dest, uint64_t val) {
+void OrderedCode::WriteNumIncreasing(std::string* dest, uint64_t num) {
   // Values are encoded with a single byte length prefix, followed
   // by the actual value in big-endian format with leading 0 bytes
   // dropped.
@@ -263,21 +402,45 @@ void OrderedCode::WriteNumIncreasing(std::string* dest, uint64_t val) {
   char buf[17];
 
   UNALIGNED_STORE64(buf + 1,
-                    absl::ghtonll(val));  // buf[0] may be needed for length
-  const unsigned int length = OrderedNumLength(val);
+                    absl::ghtonll(num));  // buf[0] may be needed for length
+  const unsigned int length = OrderedNumLength(num);
   char* start = buf + 9 - length - 1;
   *start = static_cast<char>(length);
   AppendUpto9(dest, start, length + 1);
 }
 
+void OrderedCode::WriteNumDecreasing(std::string* dest, uint64_t num) {
+  // Values are encoded with a single byte length prefix, followed
+  // by the actual value in big-endian format with leading 0 bytes
+  // dropped.
+
+  // 8 bytes for value plus one byte for length.  In addition, we have
+  // 8 extra bytes at the end so that we can have a fixed-length append
+  // call on *dest.
+  char buf[17];
+
+  UNALIGNED_STORE64(buf + 1,
+                    absl::ghtonll(~num));  // buf[0] may be needed for length
+  const unsigned int length = OrderedNumLength(num);
+  char* start = buf + 9 - length - 1;
+  *start = static_cast<char>(~length);
+  AppendUpto9(dest, start, length + 1);
+}
+
+template <bool INVERT>
 inline static void WriteInfinityInternal(std::string* dest) {
   // Make an array so that we can just do one string operation for performance
-  static const char buf[2] = {kEscape2, kInfinity};
+  static constexpr char buf[2] = {Convert<INVERT>(kEscape2),
+                                  Convert<INVERT>(kInfinity)};
   dest->append(buf, 2);
 }
 
 void OrderedCode::WriteInfinity(std::string* dest) {
-  WriteInfinityInternal(dest);
+  WriteInfinityInternal<false>(dest);
+}
+
+void OrderedCode::WriteInfinityDecreasing(std::string* dest) {
+  WriteInfinityInternal<true>(dest);
 }
 
 void OrderedCode::WriteTrailingString(std::string* dest,
@@ -285,72 +448,63 @@ void OrderedCode::WriteTrailingString(std::string* dest,
   dest->append(str.data(), str.size());
 }
 
-/**
- * Parse the encoding of a string previously encoded with or without
- * inversion.  If parse succeeds, return true, consume encoding from
- * "*src", and if result != NULL append the decoded string to "*result".
- * Otherwise, return false and leave both undefined.
- */
+// Parse the encoding of a string previously encoded with or without
+// inversion.  If parse succeeds, return true, consume encoding from
+// "*src", and if result != NULL append the decoded string to "*result".
+// Otherwise, return false and leave both undefined.
+
+template <bool INVERT>
 inline static bool ReadStringInternal(absl::string_view* src,
                                       std::string* result) {
-  const char* start = src->data();
+  const char* p = src->data();
   const char* string_limit = src->data() + src->size();
 
   // We only scan up to "limit-2" since a valid string must end with
   // a two character terminator: 'kEscape1 kSeparator'
-  const char* limit = string_limit - 1;
-  const char* copy_start = start;
+  const char* const end = string_limit - 1;
+  const char* copy_start = p;
   while (true) {
-    start = SkipToNextSpecialByte(start, limit);
-    if (start >= limit) break;  // No terminator sequence found
-    const char c = *(start++);
-    // If inversion is required, instead of inverting 'c', we invert the
-    // character constants to which 'c' is compared.  We get the same
-    // behavior but save the runtime cost of inverting 'c'.
-    HARD_ASSERT(IsSpecialByte(c));
-    if (c == kEscape1) {
-      if (result) {
-        AppendBytes(result, copy_start,
-                    static_cast<size_t>(start - copy_start) - 1);
-      }
-      // kEscape1 kSeparator ends component
-      // kEscape1 kNullCharacter represents '\0'
-      const char next = *(start++);
-      if (next == kSeparator) {
-        src->remove_prefix(static_cast<size_t>(start - src->data()));
-        return true;
-      } else if (next == kNullCharacter) {
-        if (result) {
-          *result += '\0';
-        }
-      } else {
-        return false;
-      }
-      copy_start = start;
-    } else {
-      HARD_ASSERT(c == kEscape2);
-      if (result) {
-        AppendBytes(result, copy_start,
-                    static_cast<size_t>(start - copy_start) - 1);
-      }
-      // kEscape2 kFFCharacter represents '\xff'
-      // kEscape2 kInfinity is an error
-      const char next = *(start++);
-      if (next == kFFCharacter) {
-        if (result) {
-          *result += '\xff';
-        }
-      } else {
-        return false;
-      }
-      copy_start = start;
+    p = SkipToNextSpecialByte(p, end);
+    if (p >= end) return false;  // No terminator sequence found
+    HARD_ASSERT(IsSpecialByte(*p));
+    if (result) {
+      AppendBytes<INVERT>(result, copy_start, p - copy_start);
     }
+    // Load the sequence of both the escape and the next character. There are
+    // only 3 valid cases to check and this avoids complicated branches.
+    const uint16_t seq = UNALIGNED_LOAD16(p);
+    // If inversion is required, instead of inverting the sequence we invert the
+    // constants to which it is compared. This avoids the runtime overhead.
+    if (seq == Convert<INVERT>(kEscape1, kSeparator)) {
+      // kEscape1 kSeparator ends component.
+      src->remove_prefix(p - src->data() + 2);
+      return true;
+    } else if (seq == Convert<INVERT>(kEscape1, kNullCharacter)) {
+      // kEscape1 kNullCharacter represents '\0'.
+      if (result) {
+        *result += '\0';
+      }
+    } else if (seq == Convert<INVERT>(kEscape2, kFFCharacter)) {
+      // kEscape2 kFFCharacter represents '\xff'.
+      if (result) {
+        *result += '\xff';
+      }
+    } else {
+      // Anything else is an error.
+      return false;
+    }
+    p += 2;
+    copy_start = p;
   }
-  return false;
 }
 
 bool OrderedCode::ReadString(absl::string_view* src, std::string* result) {
-  return ReadStringInternal(src, result);
+  return ReadStringInternal<false>(src, result);
+}
+
+bool OrderedCode::ReadStringDecreasing(absl::string_view* src,
+                                       std::string* result) {
+  return ReadStringInternal<true>(src, result);
 }
 
 bool OrderedCode::ReadNumIncreasing(absl::string_view* src, uint64_t* result) {
@@ -382,8 +536,42 @@ bool OrderedCode::ReadNumIncreasing(absl::string_view* src, uint64_t* result) {
   return true;
 }
 
+bool OrderedCode::ReadNumDecreasing(absl::string_view* src, uint64_t* result) {
+  if (src->empty()) {
+    return false;  // Not enough bytes
+  }
+
+  const size_t len = static_cast<size_t>(~(*src)[0]);
+
+  // If len > 0 and src is longer than 1, the first byte of "payload"
+  // must be non-~zero (otherwise the encoding is not minimal).
+  // In opt mode, we don't enforce that encodings must be minimal.
+  HARD_ASSERT(0 == len || src->size() == 1 || (*src)[1] != '\xff');
+
+  if (len + 1 > src->size() || len > 8) {
+    return false;  // Not enough bytes or too many bytes
+  }
+
+  if (result) {
+    uint64_t tmp = 0;
+    if (len != 0) {
+      tmp = ~(0ull);
+      for (size_t i = 0; i < len;) {
+        tmp <<= 8;
+        tmp |= static_cast<unsigned char>((*src)[++i]);
+      }
+      tmp = ~tmp;
+    }
+    *result = tmp;
+  }
+  src->remove_prefix(len + 1);
+  return true;
+}
+
+template <bool INVERT>
 inline static bool ReadInfinityInternal(absl::string_view* src) {
-  if (src->size() >= 2 && ((*src)[0] == kEscape2) && ((*src)[1] == kInfinity)) {
+  if (src->size() >= 2 && ((*src)[0] == Convert<INVERT>(kEscape2)) &&
+      ((*src)[1] == Convert<INVERT>(kInfinity))) {
     src->remove_prefix(2);
     return true;
   } else {
@@ -392,21 +580,31 @@ inline static bool ReadInfinityInternal(absl::string_view* src) {
 }
 
 bool OrderedCode::ReadInfinity(absl::string_view* src) {
-  return ReadInfinityInternal(src);
+  return ReadInfinityInternal<false>(src);
 }
 
+bool OrderedCode::ReadInfinityDecreasing(absl::string_view* src) {
+  return ReadInfinityInternal<true>(src);
+}
+
+template <bool INVERT>
 inline static bool ReadStringOrInfinityInternal(absl::string_view* src,
                                                 std::string* result,
                                                 bool* inf) {
-  if (ReadInfinityInternal(src)) {
+  if (ReadInfinityInternal<INVERT>(src)) {
     if (inf) *inf = true;
     return true;
   }
 
-  // We don't use ReadStringInternal here because that would inline
+  // We don't use ReadStringInternal<INVERT> here because that would inline
   // the whole encoded string parsing code here.  Depending on INVERT, only
   // one of the following two calls will be generated at compile time.
-  bool success = OrderedCode::ReadString(src, result);
+  bool success;
+  if (INVERT) {
+    success = OrderedCode::ReadStringDecreasing(src, result);
+  } else {
+    success = OrderedCode::ReadString(src, result);
+  }
   if (success) {
     if (inf) *inf = false;
     return true;
@@ -418,7 +616,13 @@ inline static bool ReadStringOrInfinityInternal(absl::string_view* src,
 bool OrderedCode::ReadStringOrInfinity(absl::string_view* src,
                                        std::string* result,
                                        bool* inf) {
-  return ReadStringOrInfinityInternal(src, result, inf);
+  return ReadStringOrInfinityInternal<false>(src, result, inf);
+}
+
+bool OrderedCode::ReadStringOrInfinityDecreasing(absl::string_view* src,
+                                                 std::string* result,
+                                                 bool* inf) {
+  return ReadStringOrInfinityInternal<true>(src, result, inf);
 }
 
 bool OrderedCode::ReadTrailingString(absl::string_view* src,
@@ -462,7 +666,7 @@ void OrderedCode::TEST_Corrupt(std::string* str, int k) {
 // Example 1: number 0x424242 -> 4 byte big-endian hex string 0xf0424242:
 //
 // +---------------+---------------+---------------+---------------+
-//  1 1 1 1 0 0 0 0 0 1 0 0 0 0 1 0 0 1 0 0 0 1 0 0 0 1 0 0 0 0 1 0
+//  1 1 1 1 0 0 0 0 0 1 0 0 0 0 1 0 0 1 0 0 0 0 1 0 0 1 0 0 0 0 1 0
 // +---------------+---------------+---------------+---------------+
 //  ^ ^ ^ ^   ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^
 //  | | | |   | | | | | | | | | | | | | | | | | | | | | | | | | | |
@@ -493,7 +697,7 @@ void OrderedCode::TEST_Corrupt(std::string* str, int k) {
 //  sign bit: 0 means that the number is negative
 //
 //
-// Compared with the simpler unsigned format used for uint64_t numbers,
+// Compared with the simpler unsigned format used for uint64 numbers,
 // this format is more compact for small numbers, namely one byte encodes
 // numbers in the range [-64,64), two bytes cover the range [-2^13,2^13), etc.
 // In general, n bytes encode numbers in the range [-2^(n*7-1),2^(n*7-1)).
@@ -528,7 +732,7 @@ static const uint64_t kLengthToMask[1 + kMaxSigned64Length] = {
 // This array maps the number of bits in a number to the encoding
 // length produced by WriteSignedNumIncreasing.
 // For positive numbers, the number of bits is 1 plus the most significant
-// bit position (the highest bit position in a positive int64_t is 63).
+// bit position (the highest bit position in a positive int64 is 63).
 // For a negative number n, we count the bits in ~n.
 // That is, length = kBitsToLength[Bits::Log2Floor64(n < 0 ? ~n : n) + 1].
 static const int8_t kBitsToLength[1 + 63] = {
@@ -536,34 +740,31 @@ static const int8_t kBitsToLength[1 + 63] = {
     4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7,
     7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 10};
 
-/** Calculates the encoding length in bytes of the signed number n. */
+// Calculates the encoding length in bytes of the signed number n.
 static inline int SignedEncodingLength(int64_t n) {
-  return kBitsToLength[Bits::Log2Floor64(
-                           static_cast<uint64_t>(n < 0 ? ~n : n)) +
-                       1];
+  return kBitsToLength[Bits::Log2Floor64(n < 0 ? ~n : n) + 1];
 }
 
-/** Slightly faster version for n > 0. */
+// Slightly faster version for n > 0.
 static inline int SignedEncodingLengthPositive(int64_t n) {
-  return kBitsToLength[Bits::Log2FloorNonZero64(static_cast<uint64_t>(n)) + 1];
+  return kBitsToLength[Bits::Log2FloorNonZero64(n) + 1];
 }
 
-void OrderedCode::WriteSignedNumIncreasing(std::string* dest, int64_t val) {
-  const int64_t x = val < 0 ? ~val : val;
+void OrderedCode::WriteSignedNumIncreasing(std::string* dest, int64_t num) {
+  const uint64_t x = num < 0 ? ~num : num;
   if (x < 64) {  // fast path for encoding length == 1
-    *dest += static_cast<char>(kLengthToHeaderBits[1][0] ^ val);
+    *dest += kLengthToHeaderBits[1][0] ^ num;
     return;
   }
-  // buf = val in network byte order, sign extended to 10 bytes
-  const char sign_byte = val < 0 ? '\xff' : '\0';
+  // buf = num in network byte order, sign extended to 10 bytes
+  const char sign_byte = num < 0 ? '\xff' : '\0';
   char buf[10] = {
       sign_byte,
       sign_byte,
   };
-  UNALIGNED_STORE64(buf + 2, absl::ghtonll(static_cast<uint64_t>(val)));
-
-  HARD_ASSERT(sizeof(buf) == kMaxSigned64Length, "max length size mismatch");
-  const size_t len = static_cast<size_t>(SignedEncodingLengthPositive(x));
+  UNALIGNED_STORE64(buf + 2, absl::ghtonll(num));
+  static_assert(sizeof(buf) == kMaxSigned64Length, "max_length_size_mismatch");
+  const int len = SignedEncodingLengthPositive(x);
   HARD_ASSERT(len >= 2);
   char* const begin = buf + sizeof(buf) - len;
   begin[0] ^= kLengthToHeaderBits[len][0];
@@ -575,47 +776,127 @@ bool OrderedCode::ReadSignedNumIncreasing(absl::string_view* src,
                                           int64_t* result) {
   if (src->empty()) return false;
   const uint64_t xor_mask = (!((*src)[0] & 0x80)) ? ~0ULL : 0ULL;
-  const unsigned char first_byte = static_cast<unsigned char>(
-      static_cast<uint64_t>((*src)[0]) ^ (xor_mask & 0xff));
+  const unsigned char first_byte = (*src)[0] ^ (xor_mask & 0xff);
 
   // now calculate and test length, and set x to raw (unmasked) result
-  size_t len;
+  int len;
   uint64_t x;
   if (first_byte != 0xff) {
-    len = static_cast<size_t>(7 - Bits::Log2FloorNonZero(first_byte ^ 0xff));
-    if (src->size() < len) return false;
+    len = 7 - Bits::Log2FloorNonZero(first_byte ^ 0xff);
+    if (static_cast<int64_t>(src->size()) < len) return false;
     x = xor_mask;  // sign extend using xor_mask
-    for (size_t i = 0; i < len; ++i)
+    for (int i = 0; i < len; ++i)
       x = (x << 8) | static_cast<unsigned char>((*src)[i]);
   } else {
     len = 8;
-    if (src->size() < len) return false;
-    const unsigned char second_byte = static_cast<unsigned char>(
-        static_cast<uint64_t>((*src)[1]) ^ (xor_mask & 0xff));
+    if (static_cast<int64_t>(src->size()) < len) return false;
+    const unsigned char second_byte = (*src)[1] ^ (xor_mask & 0xff);
     if (second_byte >= 0x80) {
       if (second_byte < 0xc0) {
         len = 9;
       } else {
-        const unsigned char third_byte = static_cast<unsigned char>(
-            static_cast<uint64_t>((*src)[2]) ^ (xor_mask & 0xff));
+        const unsigned char third_byte = (*src)[2] ^ (xor_mask & 0xff);
         if (second_byte == 0xc0 && third_byte < 0x80) {
           len = 10;
         } else {
           return false;  // either len > 10 or len == 10 and #bits > 63
         }
       }
-      if (src->size() < len) return false;
+      if (static_cast<int64_t>(src->size()) < len) return false;
     }
     x = absl::gntohll(UNALIGNED_LOAD64(src->data() + len - 8));
   }
 
   x ^= kLengthToMask[len];  // remove spurious header bits
 
-  HARD_ASSERT(len == static_cast<size_t>(
-                         SignedEncodingLength(static_cast<int64_t>(x))));
+  HARD_ASSERT(len == SignedEncodingLength(x));
 
-  if (result) *result = static_cast<int64_t>(x);
-  src->remove_prefix(static_cast<size_t>(len));
+  if (result) *result = x;
+  src->remove_prefix(len);
+  return true;
+}
+
+// Double encoding/decoding //////////////////////////////////////////////
+//
+// http://en.wikipedia.org/wiki/IEEE_754-1985
+// Read this first.  You are going to need it.
+//
+// The standard specifies a double-precision 64-bit number:
+//   sign:     1 bit
+//   exponent: 11 bits
+//   fraction: 52 bits
+//
+// There are five categories of number:
+//   zero:      sign = any, exponent = all 0, fraction = 0
+//   denormal:  sign = any, exponent = all 0, fraction > 0
+//   normal:    sign = any, exponent = most,  fraction = any
+//   infinity:  sign = any, exponent = all 1, fraction = 0
+//   NaN:       sign = any, exponent = all 1, fraction > 0
+//
+// We translate positive doubles to int64 with a straight bit-cast.
+//
+// We translate negative doubles to int64 by keeping the sign bit
+// and reversing the other bits.  Except -0 which is special.
+//
+// The ordering of encoded doubles is:
+//
+//   double     int64
+//
+//   -NaN       # 0x800x_xxxx_xxxx_xxxx  (x not all 0)
+//   -infinity  # 0x8010_0000_0000_0000
+//   -normal
+//   -denormal  # 0xFFFF_FFFF_FFFF_FFFF  (denormal closest to -zero)
+//   -zero      # 0x0000_0000_0000_0000
+//   +zero      # 0x0000_0000_0000_0000
+//   +denormal  # 0x0000_0000_0000_0001  (denormal closest to +zero)
+//   +normal
+//   +infinity  # 0x7FF0_0000_0000_0000
+//   +NaN       # 0x7FFx_xxxx_xxxx_xxxx  (x not all 0)
+//
+// Both -zero and +zero encode to 0x0000_0000_0000_0000.
+// No value encodes to 0x8000_0000_0000_0000.
+//
+// Both 0x0000_0000_0000_000 and 0x8000_0000_0000_000 decode to +zero.
+// No value decodes to -zero.
+
+inline static int64_t EncodeDoubleAsInt64(double num) {
+  int64_t enc = absl::bit_cast<int64_t>(num);
+  if (enc < 0) {
+    enc = std::numeric_limits<int64_t>::min() - enc;
+  }
+  return enc;
+}
+
+inline static void DecodeDoubleFromInt64(int64_t enc, double* result) {
+  if (enc < 0) {
+    enc = std::numeric_limits<int64_t>::min() - enc;
+  }
+  *result = absl::bit_cast<double>(enc);
+}
+
+void OrderedCode::WriteDoubleIncreasing(std::string* dest, double num) {
+  OrderedCode::WriteSignedNumIncreasing(dest, EncodeDoubleAsInt64(num));
+}
+
+void OrderedCode::WriteDoubleDecreasing(std::string* dest, double num) {
+  OrderedCode::WriteSignedNumDecreasing(dest, EncodeDoubleAsInt64(num));
+}
+
+bool OrderedCode::ReadDoubleIncreasing(absl::string_view* src, double* result) {
+  int64_t enc = 0;
+  if (!OrderedCode::ReadSignedNumIncreasing(src, &enc)) {
+    return false;
+  }
+  DecodeDoubleFromInt64(enc, result);
+  return true;
+}
+
+bool OrderedCode::ReadDoubleDecreasing(absl::string_view* src, double* result) {
+  int64_t enc = 0;
+  if (!OrderedCode::ReadSignedNumDecreasing(src, &enc)) {
+    return false;
+  }
+  DecodeDoubleFromInt64(enc, result);
   return true;
 }
 

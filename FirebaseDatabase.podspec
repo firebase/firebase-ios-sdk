@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDatabase'
-  s.version          = '8.11.0'
+  s.version          = '8.12.0'
   s.summary          = 'Firebase Realtime Database'
 
   s.description      = <<-DESC
@@ -63,7 +63,6 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
       'FirebaseDatabase/Tests/Unit/*.[mh]',
       'FirebaseDatabase/Tests/Unit/Swift/*',
       'FirebaseDatabase/Tests/Helpers/*.[mh]',
-      'FirebaseDatabase/Tests/third_party/*.[mh]',
       'SharedTestUtilities/AppCheckFake/*.[mh]',
       'SharedTestUtilities/FIRAuthInteropFake.[mh]',
       'SharedTestUtilities/FIRComponentTestUtilities.[mh]',

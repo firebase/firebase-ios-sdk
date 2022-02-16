@@ -507,6 +507,24 @@ bool IsNullValue(const google_firestore_v1_Value& value) {
   return value.which_value_type == google_firestore_v1_Value_null_value_tag;
 }
 
+Message<google_firestore_v1_Value> MaxValue() {
+  Message<google_firestore_v1_Value> max_value;
+  max_value->which_value_type = google_firestore_v1_Value_map_value_tag;
+  max_value->map_value.fields_count = 1;
+  max_value->map_value.fields =
+      nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
+  max_value->map_value.fields[0].key = nanopb::MakeBytesArray("__type__");
+  max_value->map_value.fields[0].value.which_value_type =
+      google_firestore_v1_Value_string_value_tag;
+  max_value->map_value.fields[0].value.string_value =
+      nanopb::MakeBytesArray("__max__");
+  return max_value;
+}
+
+bool IsMaxValue(const google_firestore_v1_Value& value) {
+  return value == *MaxValue();
+}
+
 Message<google_firestore_v1_Value> NaNValue() {
   Message<google_firestore_v1_Value> nan_value;
   nan_value->which_value_type = google_firestore_v1_Value_double_value_tag;

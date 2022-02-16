@@ -151,20 +151,20 @@ void RemoteStore::Shutdown() {
 
 // Watch Stream
 
-void RemoteStore::Listen(const TargetData& target_data) {
+void RemoteStore::Listen(TargetData target_data) {
   TargetId target_key = target_data.target_id();
   if (listen_targets_.find(target_key) != listen_targets_.end()) {
     return;
   }
 
   // Mark this as something the client is currently listening for.
-  listen_targets_[target_key] = target_data;
+  listen_targets_[target_key] = std::move(target_data);
 
   if (ShouldStartWatchStream()) {
     // The listen will be sent in `OnWatchStreamOpen`
     StartWatchStream();
   } else if (watch_stream_->IsOpen()) {
-    SendWatchRequest(target_data);
+    SendWatchRequest(listen_targets_[target_key]);
   }
 }
 
