@@ -219,7 +219,7 @@
     FIRCLSSignalNameLookup([crashDiagnostic.signal intValue], 0, &signalName, &signalCodeName);
     // signalName is the default name, so should never be NULL
     if (signalName == NULL) {
-      signalCodeName = "UNKNOWN";
+      signalName = "UNKNOWN";
     }
     if (signalCodeName == NULL) {
       signalCodeName = "";
