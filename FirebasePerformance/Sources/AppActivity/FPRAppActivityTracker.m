@@ -32,6 +32,7 @@ static NSDate *applicationDidFinishLaunchTime = nil;
 static NSTimeInterval gAppStartMaxValidDuration = 60 * 60;  // 60 minutes.
 static FPRCPUGaugeData *gAppStartCPUGaugeData = nil;
 static FPRMemoryGaugeData *gAppStartMemoryGaugeData = nil;
+static BOOL isActivePrewarm = NO;
 
 NSString *const kFPRAppStartTraceName = @"_as";
 NSString *const kFPRAppStartStageNameTimeToUI = @"_astui";
@@ -85,6 +86,9 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
       });
     });
   }
+  
+  // ActivePrewarm is an env var set by Apple when an app is prewarmed, then cleared after didFinishLaunching
+  isActivePrewarm = [NSProcessInfo.processInfo.environment[@"ActivePrewarm"] isEqualToString:@"1"];
 
   gAppStartCPUGaugeData = fprCollectCPUMetric();
   gAppStartMemoryGaugeData = fprCollectMemoryMetric();
@@ -161,7 +165,10 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
  * @return true if the platform could prewarm apps on the current device
  */
 + (BOOL)isPrewarmAvailable {
-  if (![[[GULAppEnvironmentUtil applePlatform] lowercaseString] isEqualToString:@"ios"]) {
+  NSString *platform = [[GULAppEnvironmentUtil applePlatform] lowercaseString];
+  if (![platform isEqualToString:@"ios"] &&
+      ![platform isEqualToString:@"maccatalyst"] &&
+      ![platform isEqualToString:@"tvos"]) {
     return NO;
   }
   NSString *systemVersion = [GULAppEnvironmentUtil systemVersion];
@@ -206,9 +213,7 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
 
   BOOL isPrewarmed = NO;
 
-  NSDictionary<NSString *, NSString *> *environment = [NSProcessInfo processInfo].environment;
-  BOOL activePrewarmFlagValue = [environment[@"ActivePrewarm"] boolValue];
-  if (activePrewarmFlagValue == YES) {
+  if (isActivePrewarm == YES) {
     isPrewarmed = isPrewarmed || [self isActivePrewarmEnabled];
     [self.activeTrace incrementMetric:kFPRAppCounterNameActivePrewarm byInt:1];
   } else {
