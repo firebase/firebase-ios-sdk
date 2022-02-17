@@ -550,7 +550,7 @@ TEST(IndexStateKeyTest, Prefixing) {
   ASSERT_FALSE(absl::StartsWith(LevelDbIndexStateKey::Key("user_a", 0),
                                 LevelDbIndexStateKey::Key("user_b", 0)));
   ASSERT_FALSE(absl::StartsWith(LevelDbIndexStateKey::Key("user_a", 0),
-                                LevelDbIndexStateKey::Key("user_a", 0)));
+                                LevelDbIndexStateKey::Key("user_a", 1)));
 }
 
 TEST(IndexStateKeyTest, Ordering) {
@@ -576,7 +576,7 @@ TEST(IndexStateKeyTest, EncodeDecodeCycle) {
 
 TEST(IndexStateKeyTest, Description) {
   AssertExpectedKeyDescription(
-      "[index_state: index_id=99 user_id=foo-bar?baz!quux]",
+      "[index_state: user_id=foo-bar?baz!quux index_id=99]",
       LevelDbIndexStateKey::Key("foo-bar?baz!quux", 99));
 }
 
