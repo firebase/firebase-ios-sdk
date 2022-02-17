@@ -33,6 +33,7 @@ class User;
 
 namespace local {
 
+class LevelDbDocumentOverlayKey;
 class LevelDbPersistence;
 class LocalSerializer;
 
@@ -66,14 +67,18 @@ class LevelDbDocumentOverlayCache final : public DocumentOverlayCache {
                                       std::size_t count) const override;
 
  private:
-  model::mutation::Overlay ParseOverlay(absl::string_view encoded) const;
+  model::mutation::Overlay ParseOverlay(
+      const LevelDbDocumentOverlayKey& key,
+      absl::string_view encoded_mutation) const;
 
   void SaveOverlay(int largest_batch_id,
                    const model::DocumentKey& key,
                    const model::Mutation& mutation);
 
-  void ForEachOverlay(std::function<void(absl::string_view leveldb_key,
-                                         model::mutation::Overlay&&)>) const;
+  void ForEachOverlay(
+      std::function<void(absl::string_view encoded_key,
+                         const LevelDbDocumentOverlayKey& decoded_key,
+                         absl::string_view encoded_mutation)>) const;
 
   // The LevelDbDocumentOverlayCache instance is owned by LevelDbPersistence.
   LevelDbPersistence* db_;

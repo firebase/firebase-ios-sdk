@@ -17,7 +17,6 @@
 #include "Firestore/core/src/local/local_serializer.h"
 
 #include "Firestore/Protos/cpp/firestore/bundle.pb.h"
-#include "Firestore/Protos/cpp/firestore/local/document_overlay.pb.h"
 #include "Firestore/Protos/cpp/firestore/local/maybe_document.pb.h"
 #include "Firestore/Protos/cpp/firestore/local/mutation.pb.h"
 #include "Firestore/Protos/cpp/firestore/local/target.pb.h"
@@ -31,7 +30,6 @@
 #include "Firestore/core/src/model/field_mask.h"
 #include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/model/mutation.h"
-#include "Firestore/core/src/model/mutation/overlay.h"
 #include "Firestore/core/src/model/mutation_batch.h"
 #include "Firestore/core/src/model/patch_mutation.h"
 #include "Firestore/core/src/model/precondition.h"
@@ -76,7 +74,6 @@ using model::Precondition;
 using model::SetMutation;
 using model::SnapshotVersion;
 using model::TargetId;
-using model::mutation::Overlay;
 using nanopb::ByteString;
 using nanopb::ByteStringWriter;
 using nanopb::FreeNanopbMessage;
@@ -350,27 +347,23 @@ class LocalSerializerTest : public ::testing::Test {
     EXPECT_EQ(named_query, actual_named_query);
   }
 
-  void ExpectSerializationRoundTrip(
-      const Overlay& overlay,
-      const ::firestore::client::DocumentOverlay& proto) {
-    ByteString bytes =
-        MakeByteString(serializer.EncodeDocumentOverlay(overlay));
-    auto actual = ProtobufParse<::firestore::client::DocumentOverlay>(bytes);
+  void ExpectSerializationRoundTrip(const Mutation& mutation,
+                                    const v1::Write& proto) {
+    ByteString bytes = MakeByteString(serializer.EncodeMutation(mutation));
+    auto actual = ProtobufParse<v1::Write>(bytes);
     EXPECT_TRUE(msg_diff.Compare(proto, actual)) << message_differences;
   }
 
-  void ExpectDeserializationRoundTrip(
-      const Overlay& overlay,
-      const ::firestore::client::DocumentOverlay& proto) {
+  void ExpectDeserializationRoundTrip(const Mutation& mutation,
+                                      const v1::Write& proto) {
     ByteString bytes = ProtobufSerialize(proto);
     StringReader reader(bytes);
 
-    auto message = Message<firestore_client_DocumentOverlay>::TryParse(&reader);
-    Overlay actual_overlay =
-        serializer.DecodeDocumentOverlay(&reader, *message);
+    auto message = Message<google_firestore_v1_Write>::TryParse(&reader);
+    Mutation actual_mutation = serializer.DecodeMutation(&reader, *message);
 
     EXPECT_OK(reader.status());
-    EXPECT_EQ(overlay, actual_overlay);
+    EXPECT_EQ(mutation, actual_mutation);
   }
 
   std::string message_differences;
@@ -753,18 +746,14 @@ TEST_F(LocalSerializerTest, EncodesNamedLimitToLastQuery) {
   ExpectRoundTrip(named_query, expected_named_query);
 }
 
-TEST_F(LocalSerializerTest, EncodesOverlay) {
+TEST_F(LocalSerializerTest, EncodesMutation) {
   Mutation mutation =
       PatchMutation(Key("docs/1"), WrapObject("a", "b", "num", 1),
                     FieldMask{Field("a")}, Precondition::Exists(true));
-  Overlay overlay(1234, mutation);
 
-  v1::Write mutation_proto = PatchProto();
-  ::firestore::client::DocumentOverlay expected_overlay;
-  expected_overlay.set_largest_batch_id(1234);
-  *expected_overlay.mutable_overlay_mutation() = mutation_proto;
+  v1::Write expected_mutation = PatchProto();
 
-  ExpectRoundTrip(overlay, expected_overlay);
+  ExpectRoundTrip(mutation, expected_mutation);
 }
 
 }  // namespace

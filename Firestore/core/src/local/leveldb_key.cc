@@ -1240,12 +1240,23 @@ std::string LevelDbDocumentOverlayKey::KeyPrefix(absl::string_view user_id) {
   return writer.result();
 }
 
-std::string LevelDbDocumentOverlayKey::Key(absl::string_view user_id,
-                                           const DocumentKey& document_key) {
+std::string LevelDbDocumentOverlayKey::KeyPrefix(
+    absl::string_view user_id, const DocumentKey& document_key) {
   Writer writer;
   writer.WriteTableName(kDocumentOverlaysTable);
   writer.WriteUserId(user_id);
   writer.WriteResourcePath(document_key.path());
+  return writer.result();
+}
+
+std::string LevelDbDocumentOverlayKey::Key(absl::string_view user_id,
+                                           const DocumentKey& document_key,
+                                           model::BatchId largest_batch_id) {
+  Writer writer;
+  writer.WriteTableName(kDocumentOverlaysTable);
+  writer.WriteUserId(user_id);
+  writer.WriteResourcePath(document_key.path());
+  writer.WriteBatchId(largest_batch_id);
   writer.WriteTerminator();
   return writer.result();
 }
@@ -1255,6 +1266,7 @@ bool LevelDbDocumentOverlayKey::Decode(absl::string_view key) {
   reader.ReadTableNameMatching(kDocumentOverlaysTable);
   user_id_ = reader.ReadUserId();
   document_key_ = reader.ReadDocumentKey();
+  largest_batch_id_ = reader.ReadBatchId();
   reader.ReadTerminator();
   return reader.ok();
 }

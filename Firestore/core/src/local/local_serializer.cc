@@ -23,7 +23,6 @@
 #include <utility>
 
 #include "Firestore/Protos/nanopb/firestore/bundle.nanopb.h"
-#include "Firestore/Protos/nanopb/firestore/local/document_overlay.nanopb.h"
 #include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
 #include "Firestore/Protos/nanopb/firestore/local/mutation.nanopb.h"
 #include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
@@ -457,19 +456,15 @@ BundledQuery LocalSerializer::DecodeBundledQuery(
       limit_type);
 }
 
-Message<firestore_client_DocumentOverlay>
-LocalSerializer::EncodeDocumentOverlay(const Overlay& overlay) const {
-  Message<firestore_client_DocumentOverlay> result;
-  result->largest_batch_id = overlay.largest_batch_id();
-  result->overlay_mutation = rpc_serializer_.EncodeMutation(overlay.mutation());
-  return result;
+nanopb::Message<google_firestore_v1_Write> LocalSerializer::EncodeMutation(
+    const Mutation& mutation) const {
+  return Message<google_firestore_v1_Write>(
+      rpc_serializer_.EncodeMutation(mutation));
 }
 
-Overlay LocalSerializer::DecodeDocumentOverlay(
-    nanopb::Reader* reader, firestore_client_DocumentOverlay& overlay) const {
-  return Overlay(overlay.largest_batch_id,
-                 rpc_serializer_.DecodeMutation(reader->context(),
-                                                overlay.overlay_mutation));
+model::Mutation LocalSerializer::DecodeMutation(
+    nanopb::Reader* reader, google_firestore_v1_Write& proto) const {
+  return rpc_serializer_.DecodeMutation(reader->context(), proto);
 }
 
 }  // namespace local

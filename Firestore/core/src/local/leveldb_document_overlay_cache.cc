@@ -21,7 +21,6 @@
 #include <unordered_set>
 #include <utility>
 
-#include "Firestore/Protos/nanopb/firestore/local/document_overlay.nanopb.h"
 #include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/leveldb_key.h"
 #include "Firestore/core/src/local/leveldb_persistence.h"
@@ -55,16 +54,19 @@ LevelDbDocumentOverlayCache::LevelDbDocumentOverlayCache(
 
 absl::optional<Overlay> LevelDbDocumentOverlayCache::GetOverlay(
     const DocumentKey& key) const {
-  const std::string leveldb_key = LevelDbDocumentOverlayKey::Key(user_id_, key);
+  const std::string leveldb_key_prefix =
+      LevelDbDocumentOverlayKey::KeyPrefix(user_id_, key);
 
   auto it = db_->current_transaction()->NewIterator();
-  it->Seek(leveldb_key);
+  it->Seek(leveldb_key_prefix);
 
-  if (!(it->Valid() && it->key() == leveldb_key)) {
+  if (!(it->Valid() && absl::StartsWith(it->key(), leveldb_key_prefix))) {
     return absl::nullopt;
   }
 
-  return ParseOverlay(it->value());
+  LevelDbDocumentOverlayKey decoded_key;
+  HARD_ASSERT(decoded_key.Decode(it->key()));
+  return ParseOverlay(decoded_key, it->value());
 }
 
 void LevelDbDocumentOverlayCache::SaveOverlays(
@@ -75,9 +77,14 @@ void LevelDbDocumentOverlayCache::SaveOverlays(
 }
 
 void LevelDbDocumentOverlayCache::RemoveOverlaysForBatchId(int batch_id) {
-  ForEachOverlay([&](absl::string_view leveldb_key, Overlay&& overlay) {
-    if (overlay.largest_batch_id() == batch_id) {
-      db_->current_transaction()->Delete(leveldb_key);
+  // TODO(dconeybe) Implement an index so that this query can be performed
+  // without requiring a full table scan.
+
+  ForEachOverlay([&](absl::string_view encoded_key,
+                     const LevelDbDocumentOverlayKey& decoded_key,
+                     absl::string_view) {
+    if (decoded_key.largest_batch_id() == batch_id) {
+      db_->current_transaction()->Delete(encoded_key);
     }
   });
 }
@@ -92,8 +99,10 @@ LevelDbDocumentOverlayCache::GetOverlays(const ResourcePath& collection,
 
   const size_t immediate_children_path_length{collection.size() + 1};
 
-  ForEachOverlay([&](absl::string_view, Overlay&& overlay) {
-    const DocumentKey key = overlay.key();
+  ForEachOverlay([&](absl::string_view,
+                     const LevelDbDocumentOverlayKey& decoded_key,
+                     absl::string_view encoded_mutation) {
+    const DocumentKey key = decoded_key.document_key();
     if (!collection.IsPrefixOf(key.path())) {
       return;
     }
@@ -102,8 +111,8 @@ LevelDbDocumentOverlayCache::GetOverlays(const ResourcePath& collection,
       return;
     }
 
-    if (overlay.largest_batch_id() > since_batch_id) {
-      result[key] = std::move(overlay);
+    if (decoded_key.largest_batch_id() > since_batch_id) {
+      result[key] = ParseOverlay(decoded_key, encoded_mutation);
     }
   });
 
@@ -118,13 +127,15 @@ LevelDbDocumentOverlayCache::GetOverlays(const std::string& collection_group,
   // without requiring a full table scan.
 
   std::map<int, std::unordered_set<Overlay, OverlayHash>> overlays_by_batch_id;
-  ForEachOverlay([&](absl::string_view, Overlay&& overlay) {
-    if (overlay.largest_batch_id() <= since_batch_id) {
+  ForEachOverlay([&](absl::string_view,
+                     const LevelDbDocumentOverlayKey& decoded_key,
+                     absl::string_view encoded_mutation) {
+    if (decoded_key.largest_batch_id() <= since_batch_id) {
       return;
     }
-    if (overlay.key().HasCollectionId(collection_group)) {
-      overlays_by_batch_id[overlay.largest_batch_id()].emplace(
-          std::move(overlay));
+    if (decoded_key.document_key().HasCollectionId(collection_group)) {
+      overlays_by_batch_id[decoded_key.largest_batch_id()].emplace(
+          ParseOverlay(decoded_key, encoded_mutation));
     }
   });
 
@@ -143,36 +154,38 @@ LevelDbDocumentOverlayCache::GetOverlays(const std::string& collection_group,
 }
 
 Overlay LevelDbDocumentOverlayCache::ParseOverlay(
-    absl::string_view encoded) const {
-  StringReader reader{encoded};
-  auto maybe_message =
-      Message<firestore_client_DocumentOverlay>::TryParse(&reader);
-  auto result = serializer_->DecodeDocumentOverlay(&reader, *maybe_message);
+    const LevelDbDocumentOverlayKey& key,
+    absl::string_view encoded_mutation) const {
+  StringReader reader{encoded_mutation};
+  auto maybe_message = Message<google_firestore_v1_Write>::TryParse(&reader);
+  Mutation mutation = serializer_->DecodeMutation(&reader, *maybe_message);
   if (!reader.ok()) {
-    HARD_FAIL("DocumentOverlay proto failed to parse: %s",
-              reader.status().ToString());
+    HARD_FAIL("Mutation proto failed to parse: %s", reader.status().ToString());
   }
-
-  return result;
+  return Overlay(key.largest_batch_id(), std::move(mutation));
 }
 
 void LevelDbDocumentOverlayCache::SaveOverlay(int largest_batch_id,
                                               const DocumentKey& key,
                                               const Mutation& mutation) {
-  const std::string leveldb_key = LevelDbDocumentOverlayKey::Key(user_id_, key);
-  Overlay overlay(largest_batch_id, mutation);
-  auto serialized_overlay = serializer_->EncodeDocumentOverlay(overlay);
-  db_->current_transaction()->Put(leveldb_key, serialized_overlay);
+  const std::string leveldb_key =
+      LevelDbDocumentOverlayKey::Key(user_id_, key, largest_batch_id);
+  auto serialized_mutation = serializer_->EncodeMutation(mutation);
+  db_->current_transaction()->Put(leveldb_key, serialized_mutation);
 }
 
 void LevelDbDocumentOverlayCache::ForEachOverlay(
-    std::function<void(absl::string_view, model::mutation::Overlay&&)> callback)
-    const {
+    std::function<void(absl::string_view encoded_key,
+                       const LevelDbDocumentOverlayKey& decoded_key,
+                       absl::string_view encoded_mutation)> callback) const {
   auto it = db_->current_transaction()->NewIterator();
   const std::string user_key = LevelDbDocumentOverlayKey::KeyPrefix(user_id_);
-  it->Seek(user_key);
-  for (; it->Valid() && absl::StartsWith(it->key(), user_key); it->Next()) {
-    callback(it->key(), ParseOverlay(it->value()));
+
+  for (it->Seek(user_key); it->Valid() && absl::StartsWith(it->key(), user_key);
+       it->Next()) {
+    LevelDbDocumentOverlayKey decoded_key;
+    HARD_ASSERT(decoded_key.Decode(it->key()));
+    callback(it->key(), decoded_key, it->value());
   }
 }
 

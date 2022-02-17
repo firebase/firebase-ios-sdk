@@ -893,10 +893,20 @@ class LevelDbDocumentOverlayKey {
    */
   static std::string KeyPrefix(absl::string_view user_id);
 
-  /** Creates a complete key that points to a specific user_id and document key.
+  /**
+   * Creates a key prefix that points just before the first key for the given
+   * user_id and document key.
+   */
+  static std::string KeyPrefix(absl::string_view user_id,
+                               const model::DocumentKey& document_key);
+
+  /**
+   * Creates a complete key that points to a specific user_id, document key, and
+   * largest batch ID.
    */
   static std::string Key(absl::string_view user_id,
-                         const model::DocumentKey& document_key);
+                         const model::DocumentKey& document_key,
+                         model::BatchId largest_batch_id);
 
   /**
    * Decodes the given complete key, storing the decoded values in this
@@ -919,9 +929,15 @@ class LevelDbDocumentOverlayKey {
     return document_key_;
   }
 
+  /** The largest batch ID, as encoded in the key. */
+  model::BatchId largest_batch_id() const {
+    return largest_batch_id_;
+  }
+
  private:
   std::string user_id_;
   model::DocumentKey document_key_;
+  model::BatchId largest_batch_id_ = -1;
 };
 
 }  // namespace local
