@@ -57,6 +57,8 @@ internal enum FunctionsConstants {
   // The region to use for all function references.
   internal let region: String
 
+  // MARK: - Public APIs
+
   /**
    * The current emulator origin, or nil if it is not set.
    */
@@ -79,30 +81,6 @@ internal enum FunctionsConstants {
   }
 
   /**
-   * Creates a Cloud Functions client or returns a pre-existing instance if it already exists.
-   */
-  @objc(functions) open class func __functions() -> Functions {
-    return functions()
-  }
-
-  /**
-   * Creates a Cloud Functions client with the given app, or returns a pre-existing
-   * instance if one already exists.
-   * @param app The app for the Firebase project.
-   */
-  @objc(functionsForApp:) open class func __functionsForApp(app: FirebaseApp) -> Functions {
-    return functions(app: app)
-  }
-
-  /**
-   * Creates a Cloud Functions client with the default app and given region.
-   * @param region The region for the http trigger, such as "us-central1".
-   */
-  @objc(functionsForRegion:) open class func __functionsForRegion(region: String) -> Functions {
-    return functions(region: region)
-  }
-
-  /**
    * Creates a Cloud Functions client with the given app and region, or returns a pre-existing
    * instance if one already exists.
    * @param app The app for the Firebase project.
@@ -116,55 +94,6 @@ internal enum FunctionsConstants {
                                region: FunctionsConstants.defaultRegion,
                                customDomain: customDomain,
                                type: self)
-  }
-
-  /**
-   * Creates a Cloud Functions client with the given app and region, or returns a pre-existing
-   * instance if one already exists.
-   * @param customDomain A custom domain for the http trigger, such as "https://mydomain.com".
-   */
-  @objc(functionsForCustomDomain:) open class func __functionsForCustomDomain(customDomain: String?)
-    -> Functions {
-    return functions(customDomain: customDomain)
-  }
-
-  internal convenience init(app: FirebaseApp,
-                            region: String,
-                            customDomain: String?) {
-    // TODO: These are not optionals, but they should be.
-    let auth = ComponentType<AuthInterop>.instance(for: AuthInterop.self, in: app.container)
-    let messaging = ComponentType<MessagingInterop>.instance(for: MessagingInterop.self,
-                                                             in: app.container)
-    let appCheck = ComponentType<AppCheckInterop>.instance(for: AppCheckInterop.self,
-                                                           in: app.container)
-
-    guard let projectID = app.options.projectID else {
-      fatalError("Firebase Functions requires the projectID to be set in the App's Options.")
-    }
-    self.init(projectID: projectID,
-
-              region: region,
-              customDomain: customDomain,
-              auth: auth,
-              messaging: messaging,
-              appCheck: appCheck)
-  }
-
-  @objc internal init(projectID: String,
-                      region: String,
-                      customDomain: String?,
-                      auth: AuthInterop?,
-                      messaging: MessagingInterop?,
-                      appCheck: AppCheckInterop?,
-                      fetcherService: GTMSessionFetcherService = GTMSessionFetcherService()) {
-    self.projectID = projectID
-    self.region = region
-    self.customDomain = customDomain
-    emulatorOrigin = nil
-    contextProvider = FunctionsContextProvider(auth: auth,
-                                               messaging: messaging,
-                                               appCheck: appCheck)
-    self.fetcherService = fetcherService
   }
 
   /**
@@ -206,7 +135,82 @@ internal enum FunctionsConstants {
     emulatorOrigin = origin
   }
 
+  // MARK: - Public APIs only for Objective C
+
+  /**
+   * Creates a Cloud Functions client or returns a pre-existing instance if it already exists.
+   */
+  @objc(functions) open class func __functions() -> Functions {
+    return functions()
+  }
+
+  /**
+   * Creates a Cloud Functions client with the given app, or returns a pre-existing
+   * instance if one already exists.
+   * @param app The app for the Firebase project.
+   */
+  @objc(functionsForApp:) open class func __functionsForApp(app: FirebaseApp) -> Functions {
+    return functions(app: app)
+  }
+
+  /**
+   * Creates a Cloud Functions client with the default app and given region.
+   * @param region The region for the http trigger, such as "us-central1".
+   */
+  @objc(functionsForRegion:) open class func __functionsForRegion(region: String) -> Functions {
+    return functions(region: region)
+  }
+
+  /**
+   * Creates a Cloud Functions client with the given app and region, or returns a pre-existing
+   * instance if one already exists.
+   * @param customDomain A custom domain for the http trigger, such as "https://mydomain.com".
+   */
+  @objc(functionsForCustomDomain:) open class func __functionsForCustomDomain(customDomain: String?)
+    -> Functions {
+    return functions(customDomain: customDomain)
+  }
+
   // MARK: - Private Funcs (or Internal for tests)
+
+  @objc internal init(projectID: String,
+                      region: String,
+                      customDomain: String?,
+                      auth: AuthInterop?,
+                      messaging: MessagingInterop?,
+                      appCheck: AppCheckInterop?,
+                      fetcherService: GTMSessionFetcherService = GTMSessionFetcherService()) {
+    self.projectID = projectID
+    self.region = region
+    self.customDomain = customDomain
+    emulatorOrigin = nil
+    contextProvider = FunctionsContextProvider(auth: auth,
+                                               messaging: messaging,
+                                               appCheck: appCheck)
+    self.fetcherService = fetcherService
+  }
+
+  internal convenience init(app: FirebaseApp,
+                            region: String,
+                            customDomain: String?) {
+    // TODO: These are not optionals, but they should be.
+    let auth = ComponentType<AuthInterop>.instance(for: AuthInterop.self, in: app.container)
+    let messaging = ComponentType<MessagingInterop>.instance(for: MessagingInterop.self,
+                                                             in: app.container)
+    let appCheck = ComponentType<AppCheckInterop>.instance(for: AppCheckInterop.self,
+                                                           in: app.container)
+
+    guard let projectID = app.options.projectID else {
+      fatalError("Firebase Functions requires the projectID to be set in the App's Options.")
+    }
+    self.init(projectID: projectID,
+
+              region: region,
+              customDomain: customDomain,
+              auth: auth,
+              messaging: messaging,
+              appCheck: appCheck)
+  }
 
   internal func urlWithName(_ name: String) -> String {
     assert(!name.isEmpty, "Name cannot be empty")
