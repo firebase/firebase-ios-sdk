@@ -23,7 +23,7 @@ public extension DocumentSnapshot {
   ///
   /// By default, server-provided timestamps that have not yet been set to their
   /// final value will be returned as `NSNull`. Pass `serverTimestampBehavior`
-  /// configure this behavior.
+  /// to configure this behavior.
   ///
   /// See `Firestore.Decoder` for more details about the decoding process.
   ///
@@ -32,7 +32,7 @@ public extension DocumentSnapshot {
   ///   - serverTimestampBehavior: Configures how server timestamps that have
   ///     not yet been set to their final value are returned from the snapshot.
   ///   - decoder: The decoder to use to convert the document. Defaults to use
-  ///     default decoder.
+  ///     the default decoder.
   func data<T: Decodable>(as type: T.Type,
                           with serverTimestampBehavior: ServerTimestampBehavior = .none,
                           decoder: Firestore.Decoder = .init()) throws -> T {

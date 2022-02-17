@@ -17,7 +17,6 @@
 public enum FirestoreDecodingError: Error {
   case decodingIsNotSupported(String)
   case fieldNameConflict(String)
-  case `internal`
 }
 
 public enum FirestoreEncodingError: Error {

@@ -21,15 +21,15 @@ public extension DocumentReference {
   /// Fetches and decodes the document referenced by this `DocumentReference`.
   ///
   /// This allows users to retrieve a Firestore document and have it decoded to an instance of
-  /// caller-specified type.
+  /// caller-specified type as follows:
   /// ```swift
-  ///     ref.getDocument(as: Book.self) { result in
-  ///       do {
-  ///         let book = try result.get()
-  ///       } catch {
-  ///         // Handle error
-  ///       }
-  ///     }
+  /// ref.getDocument(as: Book.self) { result in
+  ///   do {
+  ///     let book = try result.get()
+  ///   } catch {
+  ///     // Handle error
+  ///   }
+  /// }
   /// ```
   /// - Parameters:
   ///   - as: A `Decodable` type to convert the document fields to.
@@ -45,7 +45,14 @@ public extension DocumentReference {
                                  completion: @escaping (Result<T, Error>) -> Void) {
     getDocument { snapshot, error in
       guard let snapshot = snapshot else {
-        completion(.failure(error ?? FirestoreDecodingError.internal))
+        /**
+         * Force unwrapping here is fine since this logic corresponds to the auto-synthesized
+         * async/await wrappers for Objective-C functions with callbacks taking an object and an error
+         * parameter. The API should (and does) guarantee that either object or error is set, but never both.
+         * For more details see:
+         * https://github.com/firebase/firebase-ios-sdk/pull/9101#discussion_r809117034
+         */
+        completion(.failure(error!))
         return
       }
       let result = Result {
@@ -63,11 +70,11 @@ public extension DocumentReference {
     /// This allows users to retrieve a Firestore document and have it decoded to an instance of
     /// caller-specified type.
     /// ```swift
-    ///     do {
-    ///       let book = try await ref.getDocument(as: Book.self)
-    ///     } catch {
-    ///       // Handle error
-    ///     }
+    /// do {
+    ///   let book = try await ref.getDocument(as: Book.self)
+    /// } catch {
+    ///   // Handle error
+    /// }
     /// ```
     /// - Parameters:
     ///   - as: A `Decodable` type to convert the document fields to.
