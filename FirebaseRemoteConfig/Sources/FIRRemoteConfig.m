@@ -160,9 +160,12 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
                                                  namespace:_FIRNamespace
                                                    options:options];
     
-    _realtimeHttpClient = [[RCNRealtimeConfigHttpClient alloc] initWithClass: _configFetch];
-      
     [_settings loadConfigFromMetadataTable];
+    _realtimeHttpClient = [[RCNRealtimeConfigHttpClient alloc] initWithClass: _configFetch
+                                                                    settings: _settings
+                                                                    namespace:_FIRNamespace
+                                                                    options: options
+                                                                    queue:_queue];
 
     if (analytics) {
       _listeners = [[NSMutableArray alloc] init];
