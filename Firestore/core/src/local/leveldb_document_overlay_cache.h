@@ -75,6 +75,8 @@ class LevelDbDocumentOverlayCache final : public DocumentOverlayCache {
                    const model::DocumentKey& key,
                    const model::Mutation& mutation);
 
+  void DeleteOverlay(const model::DocumentKey& key);
+
   void ForEachOverlay(
       std::function<void(absl::string_view encoded_key,
                          const LevelDbDocumentOverlayKey& decoded_key,

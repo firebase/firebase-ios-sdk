@@ -168,10 +168,22 @@ Overlay LevelDbDocumentOverlayCache::ParseOverlay(
 void LevelDbDocumentOverlayCache::SaveOverlay(int largest_batch_id,
                                               const DocumentKey& key,
                                               const Mutation& mutation) {
+  DeleteOverlay(key);
   const std::string leveldb_key =
       LevelDbDocumentOverlayKey::Key(user_id_, key, largest_batch_id);
   auto serialized_mutation = serializer_->EncodeMutation(mutation);
   db_->current_transaction()->Put(leveldb_key, serialized_mutation);
+}
+
+void LevelDbDocumentOverlayCache::DeleteOverlay(const model::DocumentKey& key) {
+  const std::string leveldb_key_prefix =
+      LevelDbDocumentOverlayKey::KeyPrefix(user_id_, key);
+  auto it = db_->current_transaction()->NewIterator();
+  for (it->Seek(leveldb_key_prefix);
+       it->Valid() && absl::StartsWith(it->key(), leveldb_key_prefix);
+       it->Next()) {
+    db_->current_transaction()->Delete(it->key());
+  }
 }
 
 void LevelDbDocumentOverlayCache::ForEachOverlay(
