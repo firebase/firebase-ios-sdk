@@ -86,8 +86,9 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
       });
     });
   }
-  
-  // ActivePrewarm is an env var set by Apple when an app is prewarmed, then cleared after didFinishLaunching
+
+  // When an app is prewarmed, Apple sets env variable ActivePrewarm to 1, then the env variable is
+  // deleted after didFinishLaunching
   isActivePrewarm = [NSProcessInfo.processInfo.environment[@"ActivePrewarm"] isEqualToString:@"1"];
 
   gAppStartCPUGaugeData = fprCollectCPUMetric();
@@ -166,8 +167,7 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
  */
 + (BOOL)isPrewarmAvailable {
   NSString *platform = [[GULAppEnvironmentUtil applePlatform] lowercaseString];
-  if (![platform isEqualToString:@"ios"] &&
-      ![platform isEqualToString:@"maccatalyst"] &&
+  if (![platform isEqualToString:@"ios"] && ![platform isEqualToString:@"maccatalyst"] &&
       ![platform isEqualToString:@"tvos"]) {
     return NO;
   }
