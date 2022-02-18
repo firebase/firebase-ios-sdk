@@ -166,7 +166,7 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
  * @return true if the platform could prewarm apps on the current device
  */
 - (BOOL)isPrewarmAvailable {
-  if (@available(iOS 15.0, macCatalyst 15.0, tvOS 15.0, *)) {
+  if (@available(iOS 13, *)) {
     NSString *systemVersion = [GULAppEnvironmentUtil systemVersion];
     return [systemVersion compare:@"15" options:NSNumericSearch] != NSOrderedAscending;
   }
