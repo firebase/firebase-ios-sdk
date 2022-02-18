@@ -24,8 +24,6 @@
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
 
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
-
 static NSDate *appStartTime = nil;
 static NSDate *doubleDispatchTime = nil;
 static NSDate *applicationDidFinishLaunchTime = nil;
@@ -166,11 +164,11 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
  * @return true if the platform could prewarm apps on the current device
  */
 - (BOOL)isPrewarmAvailable {
+  BOOL canPrewarm = NO;
   if (@available(iOS 13, *)) {
-    NSString *systemVersion = [GULAppEnvironmentUtil systemVersion];
-    return [systemVersion compare:@"15" options:NSNumericSearch] != NSOrderedAscending;
+    canPrewarm = YES;
   }
-  return NO;
+  return canPrewarm;
 }
 
 /**
