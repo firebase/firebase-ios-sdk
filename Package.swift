@@ -429,13 +429,25 @@ let package = Package(
       ]
     ),
     .target(
+      name: "FirebaseCoreCombineSwift",
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseCoreInternal"
+      ],
+      path: "FirebaseCombineSwift/Sources/Core"
+    ),
+    .target(
       name: "FirebaseAuthCombineSwift",
-      dependencies: ["FirebaseAuth"],
+      dependencies: [
+        "FirebaseCoreCombineSwift",
+        "FirebaseAuth"
+      ],
       path: "FirebaseCombineSwift/Sources/Auth"
     ),
     .target(
       name: "FirebaseFirestoreCombineSwift",
       dependencies: [
+        "FirebaseCoreCombineSwift",
         "FirebaseFirestore",
         "FirebaseFirestoreSwift",
       ],
@@ -444,6 +456,7 @@ let package = Package(
     .target(
       name: "FirebaseStorageCombineSwift",
       dependencies: [
+        "FirebaseCoreCombineSwift",
         "FirebaseStorage",
         "FirebaseStorageSwift",
       ],
