@@ -296,7 +296,7 @@ private class StorageFake: Storage {
     if let onWrite = onWrite {
       return try onWrite(data)
     } else {
-      self.fakeFile = data
+      fakeFile = data
     }
   }
 }
