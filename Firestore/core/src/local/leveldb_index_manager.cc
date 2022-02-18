@@ -174,14 +174,14 @@ void LevelDbIndexManager::Start() {
 
       // If we fetched an index state for the user above, combine it with this
       // index. We use the default state if we don't have an index state (e.g.
-      // the index was created while a different user as logged in).
+      // the index was created while a different user was logged in).
       auto iter = index_states.find(config_key.index_id());
       IndexState state = iter != index_states.end()
                              ? iter->second
                              : FieldIndex::InitialState();
 
-      // Store the index and update `memoized_max_index_id` and
-      // `memoized_max_sequence_number`.
+      // Store the index and update `memoized_max_index_id_` and
+      // `memoized_max_sequence_number_`.
       MemoizeIndex(FieldIndex(config_key.index_id(),
                               config_key.collection_group(),
                               std::move(segments), state));
@@ -226,7 +226,7 @@ void LevelDbIndexManager::MemoizeIndex(FieldIndex index) {
 
   // Moves `index` into `existing_indexes`.
   existing_indexes.insert({index_id, std::move(index)});
-  // next_index_to_update_ holds a pointer to Index owned by `existing_indexes`.
+  // next_index_to_update_ holds a pointer to the index owned by `existing_indexes`.
   next_index_to_update_.push(&existing_indexes.find(index_id)->second);
   memoized_max_index_id_ = std::max(memoized_max_index_id_, index_id);
   memoized_max_sequence_number_ =
