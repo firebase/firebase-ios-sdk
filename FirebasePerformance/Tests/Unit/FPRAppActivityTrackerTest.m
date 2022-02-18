@@ -31,7 +31,7 @@
 @interface FPRAppActivityTracker (Tests)
 
 @property(nonatomic) FPRConfigurations *configurations;
-+ (BOOL)isPrewarmAvailable;
+- (BOOL)isPrewarmAvailable;
 - (BOOL)isAppStartEnabled;
 - (BOOL)isActivePrewarmEnabled;
 - (BOOL)isDoubleDispatchEnabled;

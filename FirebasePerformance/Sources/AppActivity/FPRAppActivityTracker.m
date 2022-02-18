@@ -165,17 +165,20 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
  *
  * @return true if the platform could prewarm apps on the current device
  */
-+ (BOOL)isPrewarmAvailable {
+- (BOOL)isPrewarmAvailable {
   NSString *platform = [[GULAppEnvironmentUtil applePlatform] lowercaseString];
-  if (![platform isEqualToString:@"ios"] && ![platform isEqualToString:@"maccatalyst"] &&
-      ![platform isEqualToString:@"tvos"]) {
-    return NO;
+  BOOL iOS = [platform isEqualToString:@"ios"];
+  BOOL catalyst = [platform isEqualToString:@"maccatalyst"];
+  BOOL tvos = [platform isEqualToString:@"tvos"];
+  if (![GULAppEnvironmentUtil isSimulator] && (iOS || catalyst || tvos)) {
+    NSString *systemVersion = [GULAppEnvironmentUtil systemVersion];
+    if ([systemVersion length] > 0) {
+      return [systemVersion compare:@"15" options:NSNumericSearch] != NSOrderedAscending;
+    } else {
+      [self.activeTrace incrementMetric:kFPRAppCounterNameActivePrewarm byInt:2];
+    }
   }
-  NSString *systemVersion = [GULAppEnvironmentUtil systemVersion];
-  if ([systemVersion length] == 0) {
-    return NO;
-  }
-  return [systemVersion compare:@"15" options:NSNumericSearch] != NSOrderedAscending;
+  return NO;
 }
 
 /**
@@ -207,7 +210,7 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
  Checks if the current app start is a prewarmed app start
  */
 - (BOOL)isApplicationPreWarmed {
-  if (![FPRAppActivityTracker isPrewarmAvailable]) {
+  if (![self isPrewarmAvailable]) {
     return NO;
   }
 
