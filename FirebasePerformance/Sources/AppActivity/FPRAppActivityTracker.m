@@ -166,19 +166,13 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
  * @return true if the platform could prewarm apps on the current device
  */
 - (BOOL)isPrewarmAvailable {
-  NSString *platform = [[GULAppEnvironmentUtil applePlatform] lowercaseString];
-  BOOL iOS = [platform isEqualToString:@"ios"];
-  BOOL catalyst = [platform isEqualToString:@"maccatalyst"];
-  BOOL tvos = [platform isEqualToString:@"tvos"];
-  if (![GULAppEnvironmentUtil isSimulator] && (iOS || catalyst || tvos)) {
-    NSString *systemVersion = [GULAppEnvironmentUtil systemVersion];
-    if ([systemVersion length] > 0) {
-      return [systemVersion compare:@"15" options:NSNumericSearch] != NSOrderedAscending;
-    } else {
-      [self.activeTrace incrementMetric:kFPRAppCounterNameActivePrewarm byInt:2];
-    }
+  NSString *systemVersion = [GULAppEnvironmentUtil systemVersion];
+  if ([systemVersion length] > 0) {
+    return [systemVersion compare:@"15" options:NSNumericSearch] != NSOrderedAscending;
+  } else {
+    [self.activeTrace incrementMetric:kFPRAppCounterNameActivePrewarm byInt:2];
+    return NO;
   }
-  return NO;
 }
 
 /**
