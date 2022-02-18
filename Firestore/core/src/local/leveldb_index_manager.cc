@@ -226,7 +226,8 @@ void LevelDbIndexManager::MemoizeIndex(FieldIndex index) {
 
   // Moves `index` into `existing_indexes`.
   existing_indexes.insert({index_id, std::move(index)});
-  // next_index_to_update_ holds a pointer to the index owned by `existing_indexes`.
+  // next_index_to_update_ holds a pointer to the index owned by
+  // `existing_indexes`.
   next_index_to_update_.push(&existing_indexes.find(index_id)->second);
   memoized_max_index_id_ = std::max(memoized_max_index_id_, index_id);
   memoized_max_sequence_number_ =
