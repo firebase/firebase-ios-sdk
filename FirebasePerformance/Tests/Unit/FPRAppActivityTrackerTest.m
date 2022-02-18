@@ -230,6 +230,7 @@
   OCMStub([mockAppTracker isActivePrewarmEnabled]).andReturn(YES);
 
   setenv("ActivePrewarm", "1", 1);
+  [FPRAppActivityTracker load];
   XCTAssertTrue([mockAppTracker isApplicationPreWarmed]);
 }
 
