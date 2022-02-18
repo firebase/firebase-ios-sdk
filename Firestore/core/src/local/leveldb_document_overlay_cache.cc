@@ -126,6 +126,10 @@ LevelDbDocumentOverlayCache::GetOverlays(const std::string& collection_group,
   // TODO(dconeybe) Implement an index so that this query can be performed
   // without requiring a full table scan.
 
+  // Load ALL overlays for the given `collection_group` whose largest_batch_id
+  // are greater than the given `since_batch_id`. By using a `std::map` keyed
+  // by largest_batch_id, the loop below can iterate over it ordered by
+  // largest_batch_id.
   std::map<int, std::unordered_set<Overlay, OverlayHash>> overlays_by_batch_id;
   ForEachOverlay([&](absl::string_view,
                      const LevelDbDocumentOverlayKey& decoded_key,
@@ -139,6 +143,13 @@ LevelDbDocumentOverlayCache::GetOverlays(const std::string& collection_group,
     }
   });
 
+  // Trim down the overlays loaded above to respect the given `count`, and
+  // return them.
+  //
+  // Note that, as documented, all overlays for the largest_batch_id that pushes
+  // the size of the result set above the given `count` will be returned, even
+  // though this likely means that the size of the result set will be strictly
+  // greater than the given `count`.
   OverlayByDocumentKeyMap result;
   for (auto& overlays_by_batch_id_entry : overlays_by_batch_id) {
     for (auto& overlay : overlays_by_batch_id_entry.second) {
