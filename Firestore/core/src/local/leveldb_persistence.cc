@@ -114,7 +114,7 @@ LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
   target_cache_ = absl::make_unique<LevelDbTargetCache>(this, &serializer_);
   document_cache_ =
       absl::make_unique<LevelDbRemoteDocumentCache>(this, &serializer_);
-  index_manager_ = absl::make_unique<LevelDbIndexManager>(this);
+  index_manager_ = absl::make_unique<LevelDbIndexManager>(this, &serializer_);
   reference_delegate_ =
       absl::make_unique<LevelDbLruReferenceDelegate>(this, lru_params);
   bundle_cache_ = absl::make_unique<LevelDbBundleCache>(this, &serializer_);

@@ -21,6 +21,7 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/model/field_index.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/types.h"
 #include "Firestore/core/src/remote/serializer.h"
@@ -38,6 +39,7 @@ typedef struct _firestore_client_Target firestore_client_Target;
 typedef struct _firestore_client_UnknownDocument
     firestore_client_UnknownDocument;
 typedef struct _firestore_client_WriteBatch firestore_client_WriteBatch;
+typedef struct _google_firestore_admin_v1_Index google_firestore_admin_v1_Index;
 typedef struct _google_firestore_v1_Write google_firestore_v1_Write;
 
 namespace nanopb {
@@ -148,6 +150,12 @@ class LocalSerializer {
    */
   bundle::NamedQuery DecodeNamedQuery(nanopb::Reader* reader,
                                       firestore_NamedQuery& proto) const;
+
+  nanopb::Message<google_firestore_admin_v1_Index> EncodeFieldIndexSegments(
+      const std::vector<model::Segment>& segments) const;
+
+  std::vector<model::Segment> DecodeFieldIndexSegments(
+      nanopb::Reader* reader, google_firestore_admin_v1_Index& index) const;
 
   /**
    * @brief Encodes a `Mutation` to the equivalent nanopb proto for local

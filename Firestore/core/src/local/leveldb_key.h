@@ -749,7 +749,7 @@ class LevelDbIndexConfigurationKey {
   /**
    * Creates a key that points to the key for the given index id.
    */
-  static std::string Key(int32_t id);
+  static std::string Key(int32_t id, absl::string_view collection_group);
 
   /**
    * Decodes the given complete key, storing the decoded values in this
@@ -767,8 +767,14 @@ class LevelDbIndexConfigurationKey {
     return index_id_;
   }
 
+  /** The collection group for this index. */
+  const std::string& collection_group() const {
+    return collection_group_;
+  }
+
  private:
   int32_t index_id_;
+  std::string collection_group_;
 };
 
 /**
@@ -783,9 +789,15 @@ class LevelDbIndexStateKey {
   static std::string KeyPrefix();
 
   /**
-   * Creates a key that points to the key for the given index id and user id.
+   * Creates a key prefix that points just before the first key for a given user
+   * id.
    */
-  static std::string Key(int32_t index_id, absl::string_view user_id);
+  static std::string KeyPrefix(absl::string_view user_id);
+
+  /**
+   * Creates a key that points to the key for the given user id and index id.
+   */
+  static std::string Key(absl::string_view user_id, int32_t index_id);
 
   /**
    * Decodes the given complete key, storing the decoded values in this
@@ -798,14 +810,14 @@ class LevelDbIndexStateKey {
   ABSL_MUST_USE_RESULT
   bool Decode(absl::string_view key);
 
-  /** The index id for this entry. */
-  int32_t index_id() const {
-    return index_id_;
-  }
-
   /** The user id for this entry. */
   const std::string& user_id() const {
     return user_id_;
+  }
+
+  /** The index id for this entry. */
+  int32_t index_id() const {
+    return index_id_;
   }
 
  private:
@@ -825,6 +837,11 @@ class LevelDbIndexEntryKey {
    * Creates a key prefix that points just before the first key of the table.
    */
   static std::string KeyPrefix();
+
+  /**
+   * Creates a key prefix that points the first entry of a given index_id.
+   */
+  static std::string KeyPrefix(int32_t index_id);
 
   /**
    * Creates a key that points to the key for the given index entry fields.
