@@ -84,6 +84,7 @@ extension HeartbeatsPayload: HTTPHeaderRepresentable {
   /// Returns a processed payload string intended for use in a HTTP header.
   /// - Returns: A string value from the heartbeats payload.
   public func headerValue() -> String {
+    // TODO(ncooke3): Return a empty payload instead of empty string.
     if userAgentPayloads.isEmpty {
       return ""
     }
@@ -91,6 +92,7 @@ extension HeartbeatsPayload: HTTPHeaderRepresentable {
     let encoder = JSONEncoder()
     encoder.dateEncodingStrategy = .formatted(Self.dateFormatter)
 
+    // TODO(ncooke3): Fall back to base64URL-only if gzipping fails.
     do {
       let data = try encoder.encode(self)
       let gzippedData = try data.zipped()

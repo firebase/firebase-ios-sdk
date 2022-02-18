@@ -278,15 +278,17 @@ class HeartbeatStorageTests: XCTestCase {
 }
 
 private class StorageFake: Storage {
-  var data: Data?
+  var fakeFile: Data?
   var onRead: (() throws -> Data)?
   var onWrite: ((Data?) throws -> Void)?
 
   func read() throws -> Data {
     if let onRead = onRead {
       return try onRead()
+    } else if let data = fakeFile {
+      return data
     } else {
-      return try data ?? { throw StorageError.readError }()
+      throw StorageError.readError
     }
   }
 
@@ -294,7 +296,7 @@ private class StorageFake: Storage {
     if let onWrite = onWrite {
       return try onWrite(data)
     } else {
-      self.data = data
+      fakeFile = data
     }
   }
 }
