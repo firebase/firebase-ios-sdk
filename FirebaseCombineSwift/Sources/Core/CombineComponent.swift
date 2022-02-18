@@ -17,8 +17,7 @@ import FirebaseCore
 import FirebaseCoreInternal
 
 @objc(FIRCombineProvider)
-protocol CombineProvider {
-}
+protocol CombineProvider {}
 
 @objc(FIRCombineComponent) class CombineComponent: NSObject, Library, CombineProvider {
   // MARK: - Private Variables

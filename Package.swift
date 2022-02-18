@@ -432,7 +432,7 @@ let package = Package(
       name: "FirebaseCoreCombineSwift",
       dependencies: [
         "FirebaseCore",
-        "FirebaseCoreInternal"
+        "FirebaseCoreInternal",
       ],
       path: "FirebaseCombineSwift/Sources/Core"
     ),
@@ -440,7 +440,7 @@ let package = Package(
       name: "FirebaseAuthCombineSwift",
       dependencies: [
         "FirebaseCoreCombineSwift",
-        "FirebaseAuth"
+        "FirebaseAuth",
       ],
       path: "FirebaseCombineSwift/Sources/Auth"
     ),
