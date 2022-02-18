@@ -75,9 +75,9 @@ class IndexManager {
   /**
    * Adds a field path index.
    *
-   * The actual entries for this index will be created and persisted
-   * in the background by the SDK, and the index will be used for query
-   * execution once values are persisted.
+   * The actual entries for this index will be created and persisted in the
+   * background by the SDK, and the index will be used for query execution once
+   * values are persisted.
    */
   virtual void AddFieldIndex(const model::FieldIndex& index) = 0;
 
