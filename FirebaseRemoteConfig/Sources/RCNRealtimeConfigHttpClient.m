@@ -45,6 +45,32 @@ double RETRY_SECONDS = 5.5;
     BOOL _inBackground;
 }
 
+-(instancetype) initWithClass: (RCNConfigFetch *)configFetch
+                           settings: (RCNConfigSettings *)settings
+                           namespace: (NSString *)namespace
+                           options: (FIROptions *)options
+                           queue: (dispatch_queue_t)queue {
+    self = [super init];
+
+    if (self) {
+        _configFetch = configFetch;
+        _settings = settings;
+        _namespace = namespace;
+        _options = options;
+        _lockQueue = queue;
+        _notificationCenter = [NSNotificationCenter defaultCenter];
+        _inBackground = FALSE;
+    }
+    
+    return self;
+}
+
+- (dispatch_queue_t)dispatchQueue {
+  return dispatch_get_main_queue();
+}
+
+#pragma mark - HTTP Client Helpers
+
 - (NSString *)FIRAppNameFromFullyQualifiedNamespace {
   return [[_namespace componentsSeparatedByString:@":"] lastObject];
 }
@@ -149,7 +175,11 @@ double RETRY_SECONDS = 5.5;
 }
 // Creates NS session and requests
 -(void) setUpHTTPParameters {
-    [self refreshInstallationsTokenWithCompletionHandler:nil];
+    [self refreshInstallationsTokenWithCompletionHandler:^(FIRRemoteConfigFetchStatus status, NSError * _Nullable error) {
+        if (status != FIRRemoteConfigFetchStatusSuccess) {
+            NSLog(@"Installation token retrival failed");
+        }
+    }];
     
     _request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:hostAddress] cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:timeoutSeconds];
     [_request setHTTPMethod:kHTTPMethodGet];
@@ -171,55 +201,6 @@ double RETRY_SECONDS = 5.5;
     _session = [NSURLSession sessionWithConfiguration:sessionConfig delegate:self delegateQueue:[NSOperationQueue mainQueue]];
 }
 
--(instancetype) initWithClass: (RCNConfigFetch *)configFetch
-                           settings: (RCNConfigSettings *)settings
-                           namespace: (NSString *)namespace
-                           options: (FIROptions *)options
-                           queue: (dispatch_queue_t)queue {
-    self = [super init];
-
-    if (self) {
-        _configFetch = configFetch;
-        _settings = settings;
-        _namespace = namespace;
-        _options = options;
-        _lockQueue = queue;
-        _notificationCenter = [NSNotificationCenter defaultCenter];
-        _inBackground = FALSE;
-        [self setUpHTTPParameters];
-    }
-    
-    return self;
-}
-
-- (dispatch_queue_t)dispatchQueue {
-  return dispatch_get_main_queue();
-}
-
-// Starts HTTP connection.
-- (void)startStream {
-    if (self->_dataTask == NULL) {
-        NSLog(@"HTTP connection started.");
-        self->_dataTask = [_session dataTaskWithRequest:_request];
-        [_dataTask resume];
-        
-        if (_dataTask.state == NSURLSessionTaskStateRunning) {
-            NSLog(@"Connection made to backend.");
-            MAX_RETRY_COUNT = MAX_RETRY;
-        } else {
-            [self retryHTTPConnection];
-        }
-    }
-}
-
-// Stops data task.
-- (void)pauseStream {
-    if (self->_dataTask != NULL) {
-        [_dataTask cancel];
-        self->_dataTask = NULL;
-    }
-}
-
 // Retry mechanism for HTTP connections
 - (void)retryHTTPConnection {
     NSLog(@"Retrying connection request.");
@@ -227,12 +208,13 @@ double RETRY_SECONDS = 5.5;
         MAX_RETRY_COUNT--;
         
         [self pauseStream];
-        [self setUpHTTPParameters];
         [NSTimer scheduledTimerWithTimeInterval:RETRY_SECONDS * RETRY_MULTIPLIER target:self selector:@selector(startStream) userInfo:nil repeats:NO];
     } else {
         NSLog(@"No retries remaining");
     }
 }
+
+#pragma mark - NSURLSession Delegates
 
 // Delegate to asynchronously handle every new notification that comes over the wire then auto-fetches and runs callback for each new notification
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
@@ -276,15 +258,7 @@ completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))complet
     [self retryHTTPConnection];
 }
 
-// Sets Delegate callback
-- (void)setRealTimeDelegateCallback:(id)realTimeDelegate {
-    self->_realTimeDelegate = realTimeDelegate;
-}
-
-// Removes Delegate callback
-- (void)removeRealTimeDelegateCallback {
-    self->_realTimeDelegate = NULL;
-}
+#pragma mark - Foreground Reconnection
 
 // Stream monitoring
 - (void)viewDidLoad {
@@ -297,6 +271,43 @@ completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))complet
     NSLog(@"Foreground");
     _inBackground = FALSE;
     [self startStream];
+}
+
+#pragma mark - Exposed Realtime Methods
+
+// Starts HTTP connection.
+- (void)startStream {
+    if (self->_dataTask == NULL) {
+        NSLog(@"HTTP connection started.");
+        [self setUpHTTPParameters];
+        self->_dataTask = [_session dataTaskWithRequest:_request];
+        [_dataTask resume];
+        
+        if (_dataTask.state == NSURLSessionTaskStateRunning) {
+            NSLog(@"Connection made to backend.");
+            MAX_RETRY_COUNT = MAX_RETRY;
+        } else {
+            [self retryHTTPConnection];
+        }
+    }
+}
+
+// Stops data task.
+- (void)pauseStream {
+    if (self->_dataTask != NULL) {
+        [_dataTask cancel];
+        self->_dataTask = NULL;
+    }
+}
+
+// Sets Delegate callback
+- (void)setRealTimeDelegateCallback:(id)realTimeDelegate {
+    self->_realTimeDelegate = realTimeDelegate;
+}
+
+// Removes Delegate callback
+- (void)removeRealTimeDelegateCallback {
+    self->_realTimeDelegate = NULL;
 }
 
 @end
