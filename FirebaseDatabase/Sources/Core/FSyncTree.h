@@ -25,8 +25,9 @@
 @class FQuerySpec;
 @class FCompoundWrite;
 @class FPersistenceManager;
-@class FCompoundHash;
 @protocol FClock;
+
+@import FirebaseDatabaseSwiftCore;
 
 @protocol FSyncTreeHash <NSObject>
 

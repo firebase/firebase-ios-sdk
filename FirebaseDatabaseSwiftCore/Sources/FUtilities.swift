@@ -152,7 +152,12 @@ enum FUtilitiesSwift {
         let originalPathString = self.extractPathFromUrlString(url)
         // Sanitize the database URL by removing the path component, which may
         // contain invalid URL characters.
-        let sanitizedUrlWithoutPath = url.replacingOccurrences(of: originalPathString, with: "")
+        let sanitizedUrlWithoutPath: String
+        if let lastMatch = url.range(of: originalPathString, options: .backwards) {
+            sanitizedUrlWithoutPath = String(url[..<lastMatch.lowerBound])
+        } else {
+            sanitizedUrlWithoutPath = url
+        }
         guard let urlComponents = URLComponents(string: sanitizedUrlWithoutPath) else {
             fatalError("Failed to parse database URL: \(url)")
         }

@@ -23,7 +23,7 @@
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabase.h"
 
-#import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
+//#import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 @implementation FIRDatabaseReference

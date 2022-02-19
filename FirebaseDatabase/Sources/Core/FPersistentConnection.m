@@ -18,11 +18,9 @@
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseDatabase/Sources/Api/FIRDatabaseConfig.h"
 #import "FirebaseDatabase/Sources/Constants/FConstants.h"
-#import "FirebaseDatabase/Sources/Core/FCompoundHash.h"
 #import "FirebaseDatabase/Sources/Core/FPersistentConnection.h"
 #import "FirebaseDatabase/Sources/Core/FQueryParams.h"
 #import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
-#import "FirebaseDatabase/Sources/Core/FRangeMerge.h"
 #import "FirebaseDatabase/Sources/Core/FSyncTree.h"
 #import "FirebaseDatabase/Sources/Core/Utilities/FIRRetryHelper.h"
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
@@ -40,7 +38,7 @@
 #import <dlfcn.h>
 #import <netinet/in.h>
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabase_Private.h"
-#import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
+//#import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
 
 #if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIKit.h>

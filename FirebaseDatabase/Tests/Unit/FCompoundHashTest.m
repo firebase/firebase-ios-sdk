@@ -16,16 +16,20 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseDatabase/Sources/Core/FCompoundHash.h"
+//#import "FirebaseDatabase/Sources/Core/FCompoundHash.h"
 
-#import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
+//#import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 @interface FCompoundHashTest : XCTestCase
 
 @end
 
 @implementation FCompoundHashTest
+
+typedef BOOL (^FCompoundHashSplitStrategy)(FCompoundHashBuilder *builder);
 
 static FCompoundHashSplitStrategy NEVER_SPLIT_STRATEGY = ^BOOL(FCompoundHashBuilder *builder) {
   return NO;
