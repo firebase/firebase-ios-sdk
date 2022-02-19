@@ -16,10 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol FNode;
+@import FirebaseDatabaseSwiftCore;
+
 @class FPruneForest;
-@class FPath;
-@class FCompoundWrite;
 @class FQuerySpec;
 @class FTrackedQuery;
 

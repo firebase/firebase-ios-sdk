@@ -16,7 +16,9 @@
 
 #import "FirebaseDatabase/Sources/Core/Operation/FOperation.h"
 
-@class FCompoundWrite;
+@import FirebaseDatabaseSwiftCore;
+
+//@class FCompoundWrite;
 
 @interface FMerge : NSObject <FOperation>
 

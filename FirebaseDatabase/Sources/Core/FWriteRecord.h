@@ -16,9 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-@class FPath;
-@class FCompoundWrite;
-@protocol FNode;
+@import FirebaseDatabaseSwiftCore;
+
 
 @interface FWriteRecord : NSObject
 

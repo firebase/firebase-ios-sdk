@@ -20,7 +20,7 @@
 
 //@class FPath;
 //@protocol FNode;
-@class FCompoundWrite;
+//@class FCompoundWrite;
 @class FWriteTreeRef;
 //@class FChildrenNode;
 //@class FNamedNode;

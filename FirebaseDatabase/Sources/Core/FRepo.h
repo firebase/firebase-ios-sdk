@@ -23,7 +23,7 @@
 @class FAuthenticationManager;
 @class FIRDatabaseConfig;
 @protocol FEventRegistration;
-@class FCompoundWrite;
+//@class FCompoundWrite;
 @protocol FClock;
 @class FIRDatabase;
 

@@ -16,14 +16,14 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIndexedNode;
+//@class FIndexedNode;
 @class FListenProvider;
-@protocol FNode;
-@class FPath;
+//@protocol FNode;
+//@class FPath;
 @protocol FEventRegistration;
 @protocol FPersistedServerCache;
 @class FQuerySpec;
-@class FCompoundWrite;
+//@class FCompoundWrite;
 @class FPersistenceManager;
 @protocol FClock;
 

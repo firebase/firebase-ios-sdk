@@ -16,12 +16,14 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol FNode;
-@class FIndexedNode;
+@import FirebaseDatabaseSwiftCore;
+
+//@protocol FNode;
+//@class FIndexedNode;
 @protocol FCompleteChildSource;
 @class FChildChangeAccumulator;
-@protocol FIndex;
-@class FPath;
+//@protocol FIndex;
+//@class FPath;
 
 /**
  * FNodeFilter is used to update nodes and complete children of nodes while

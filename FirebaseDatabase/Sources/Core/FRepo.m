@@ -32,7 +32,6 @@
 #import "FirebaseDatabase/Sources/Core/FSnapshotHolder.h"
 #import "FirebaseDatabase/Sources/Core/FSyncTree.h"
 #import "FirebaseDatabase/Sources/Core/FWriteRecord.h"
-#import "FirebaseDatabase/Sources/Core/Utilities/FTree.h"
 #import "FirebaseDatabase/Sources/Core/View/FEventRaiser.h"
 #import "FirebaseDatabase/Sources/Core/View/FEventRegistration.h"
 #import "FirebaseDatabase/Sources/Core/View/FValueEventRegistration.h"
@@ -1425,7 +1424,7 @@
         }
     }
 
-    [node forEachChildMutationSafe:^(FTree *child) {
+    [node forEachChild:^(FTree *child) {
       [self pruneCompletedTransactionsBelowNode:child];
     }];
 }
