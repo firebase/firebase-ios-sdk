@@ -35,7 +35,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMLModelDownloader.podspec --verbose --platforms=${{ matrix.target }})
 
   mlmodeldownloader-cron-only:
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+    # if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     runs-on: macos-11
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}

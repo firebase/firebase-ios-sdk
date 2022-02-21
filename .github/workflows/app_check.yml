@@ -60,7 +60,7 @@ jobs:
 
   app_check-cron-only:
     runs-on: macos-11
-    if: github.event_name == 'schedule'
+    # if: github.event_name == 'schedule'
     strategy:
       matrix:
         flags: [
