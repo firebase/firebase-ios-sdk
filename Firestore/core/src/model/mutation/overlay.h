@@ -40,8 +40,8 @@ class Overlay {
  public:
   Overlay() = default;
 
-  Overlay(int largest_batch_id, const Mutation& mutation)
-      : largest_batch_id_(largest_batch_id), mutation_(mutation) {
+  Overlay(int largest_batch_id, Mutation mutation)
+      : largest_batch_id_(largest_batch_id), mutation_(std::move(mutation)) {
   }
 
   int largest_batch_id() const {

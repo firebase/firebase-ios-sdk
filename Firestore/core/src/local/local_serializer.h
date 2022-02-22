@@ -40,6 +40,7 @@ typedef struct _firestore_client_UnknownDocument
     firestore_client_UnknownDocument;
 typedef struct _firestore_client_WriteBatch firestore_client_WriteBatch;
 typedef struct _google_firestore_admin_v1_Index google_firestore_admin_v1_Index;
+typedef struct _google_firestore_v1_Write google_firestore_v1_Write;
 
 namespace nanopb {
 template <typename T>
@@ -155,6 +156,20 @@ class LocalSerializer {
 
   std::vector<model::Segment> DecodeFieldIndexSegments(
       nanopb::Reader* reader, google_firestore_admin_v1_Index& index) const;
+
+  /**
+   * @brief Encodes a `Mutation` to the equivalent nanopb proto for local
+   * storage.
+   */
+  nanopb::Message<google_firestore_v1_Write> EncodeMutation(
+      const model::Mutation& mutation) const;
+
+  /**
+   * Decodes nanopb proto representing a Mutation proto to the equivalent model.
+   * Modifies the provided proto to release ownership of any Value messages.
+   */
+  model::Mutation DecodeMutation(nanopb::Reader* reader,
+                                 google_firestore_v1_Write& proto) const;
 
  private:
   /**

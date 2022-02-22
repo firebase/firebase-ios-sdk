@@ -114,6 +114,11 @@ namespace local {
 //   - array_value: string
 //   - directional_value: string
 //   - document_name: string
+//
+// document_overlays:
+//   - table_name: "document_overlays"
+//   - user_id: string
+//   - document_key: ResourcePath
 
 /**
  * Parses the given key and returns a human readable description of its
@@ -889,6 +894,67 @@ class LevelDbIndexEntryKey {
   std::string array_value_;
   std::string directional_value_;
   std::string document_key_;
+};
+
+/** A key in the document_overlays table. */
+class LevelDbDocumentOverlayKey {
+ public:
+  /**
+   * Creates a key prefix that points just before the first key in the table.
+   */
+  static std::string KeyPrefix();
+
+  /**
+   * Creates a key prefix that points just before the first key for the given
+   * user_id.
+   */
+  static std::string KeyPrefix(absl::string_view user_id);
+
+  /**
+   * Creates a key prefix that points just before the first key for the given
+   * user_id and document key.
+   */
+  static std::string KeyPrefix(absl::string_view user_id,
+                               const model::DocumentKey& document_key);
+
+  /**
+   * Creates a complete key that points to a specific user_id, document key, and
+   * largest batch ID.
+   */
+  static std::string Key(absl::string_view user_id,
+                         const model::DocumentKey& document_key,
+                         model::BatchId largest_batch_id);
+
+  /**
+   * Decodes the given complete key, storing the decoded values in this
+   * instance.
+   *
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
+   */
+  ABSL_MUST_USE_RESULT
+  bool Decode(absl::string_view key);
+
+  /** The user ID, as encoded in the key. */
+  const std::string& user_id() const {
+    return user_id_;
+  }
+
+  /** The path to the document, as encoded in the key. */
+  const model::DocumentKey& document_key() const {
+    return document_key_;
+  }
+
+  /** The largest batch ID, as encoded in the key. */
+  model::BatchId largest_batch_id() const {
+    return largest_batch_id_;
+  }
+
+ private:
+  std::string user_id_;
+  model::DocumentKey document_key_;
+  model::BatchId largest_batch_id_ = -1;
 };
 
 }  // namespace local

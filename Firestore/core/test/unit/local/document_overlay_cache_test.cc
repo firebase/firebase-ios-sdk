@@ -266,6 +266,28 @@ TEST_P(DocumentOverlayCacheTest,
   });
 }
 
+TEST_P(DocumentOverlayCacheTest, UpdateDocumentOverlay) {
+  this->persistence_->Run("Test", [&] {
+    Mutation mutation1 = PatchMutation("coll/doc", Map("foo", "bar1"));
+    Mutation mutation2 = PatchMutation("coll/doc", Map("foo", "bar2"));
+    this->SaveOverlaysWithMutations(1, {mutation1});
+    this->SaveOverlaysWithMutations(2, {mutation2});
+
+    // Verify that `GetOverlay()` returns the updated mutation.
+    auto overlay_opt =
+        this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc"));
+    EXPECT_TRUE(overlay_opt);
+    if (overlay_opt) {
+      EXPECT_EQ(mutation2, overlay_opt.value().mutation());
+    }
+
+    // Verify that `RemoveOverlaysForBatchId()` removes the overlay completely.
+    this->cache_->RemoveOverlaysForBatchId(2);
+    EXPECT_FALSE(
+        this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc")));
+  });
+}
+
 }  // namespace
 }  // namespace local
 }  // namespace firestore

@@ -53,6 +53,7 @@ const char* kNamedQueriesTable = "named_queries";
 const char* kIndexConfigurationTable = "index_configuration";
 const char* kIndexStateTable = "index_state";
 const char* kIndexEntriesTable = "index_entries";
+const char* kDocumentOverlaysTable = "document_overlays";
 
 /**
  * Labels for the components of keys. These serve to make keys self-describing.
@@ -1255,6 +1256,50 @@ bool LevelDbIndexEntryKey::Decode(absl::string_view key) {
   array_value_ = reader.ReadIndexArrayValue();
   directional_value_ = reader.ReadIndexDirectionalValue();
   document_key_ = reader.ReadDocumentId();
+  reader.ReadTerminator();
+  return reader.ok();
+}
+
+std::string LevelDbDocumentOverlayKey::KeyPrefix() {
+  Writer writer;
+  writer.WriteTableName(kDocumentOverlaysTable);
+  return writer.result();
+}
+
+std::string LevelDbDocumentOverlayKey::KeyPrefix(absl::string_view user_id) {
+  Writer writer;
+  writer.WriteTableName(kDocumentOverlaysTable);
+  writer.WriteUserId(user_id);
+  return writer.result();
+}
+
+std::string LevelDbDocumentOverlayKey::KeyPrefix(
+    absl::string_view user_id, const DocumentKey& document_key) {
+  Writer writer;
+  writer.WriteTableName(kDocumentOverlaysTable);
+  writer.WriteUserId(user_id);
+  writer.WriteResourcePath(document_key.path());
+  return writer.result();
+}
+
+std::string LevelDbDocumentOverlayKey::Key(absl::string_view user_id,
+                                           const DocumentKey& document_key,
+                                           model::BatchId largest_batch_id) {
+  Writer writer;
+  writer.WriteTableName(kDocumentOverlaysTable);
+  writer.WriteUserId(user_id);
+  writer.WriteResourcePath(document_key.path());
+  writer.WriteBatchId(largest_batch_id);
+  writer.WriteTerminator();
+  return writer.result();
+}
+
+bool LevelDbDocumentOverlayKey::Decode(absl::string_view key) {
+  Reader reader{key};
+  reader.ReadTableNameMatching(kDocumentOverlaysTable);
+  user_id_ = reader.ReadUserId();
+  document_key_ = reader.ReadDocumentKey();
+  largest_batch_id_ = reader.ReadBatchId();
   reader.ReadTerminator();
   return reader.ok();
 }

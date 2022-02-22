@@ -660,6 +660,79 @@ TEST(IndexEntryKeyTest, Description) {
                                 "foo-bar?baz!quux"));
 }
 
+TEST(LevelDbDocumentOverlayKeyTest, Prefixing) {
+  const std::string table_key = LevelDbDocumentOverlayKey::KeyPrefix();
+  const std::string user1_key =
+      LevelDbDocumentOverlayKey::KeyPrefix("test_user1");
+  const std::string user2_key =
+      LevelDbDocumentOverlayKey::KeyPrefix("test_user2");
+  const std::string user1_doc1_key = LevelDbDocumentOverlayKey::KeyPrefix(
+      "test_user1", testutil::Key("coll/doc1"));
+  const std::string user1_doc2_key = LevelDbDocumentOverlayKey::KeyPrefix(
+      "test_user1", testutil::Key("coll/doc2"));
+  ASSERT_TRUE(absl::StartsWith(user1_key, table_key));
+  ASSERT_TRUE(absl::StartsWith(user2_key, table_key));
+  ASSERT_TRUE(absl::StartsWith(user1_doc1_key, user1_key));
+  ASSERT_FALSE(absl::StartsWith(user1_key, user2_key));
+  ASSERT_FALSE(absl::StartsWith(user2_key, user1_key));
+  ASSERT_FALSE(absl::StartsWith(user1_doc1_key, user1_doc2_key));
+  ASSERT_FALSE(absl::StartsWith(user1_doc2_key, user1_doc1_key));
+
+  const std::string user1_doc1_batch_1_key = LevelDbDocumentOverlayKey::Key(
+      "test_user1", testutil::Key("coll/doc1"), 1);
+  const std::string user2_doc1_batch_1_key = LevelDbDocumentOverlayKey::Key(
+      "test_user2", testutil::Key("coll/doc1"), 1);
+  ASSERT_TRUE(absl::StartsWith(user1_doc1_batch_1_key, user1_key));
+  ASSERT_TRUE(absl::StartsWith(user2_doc1_batch_1_key, user2_key));
+}
+
+TEST(LevelDbDocumentOverlayKeyTest, Ordering) {
+  const std::string user1_doc1_batch_1_key = LevelDbDocumentOverlayKey::Key(
+      "test_user1", testutil::Key("coll/doc1"), 1);
+  const std::string user2_doc1_batch_1_key = LevelDbDocumentOverlayKey::Key(
+      "test_user2", testutil::Key("coll/doc1"), 1);
+  const std::string user1_doc2_batch_1_key = LevelDbDocumentOverlayKey::Key(
+      "test_user1", testutil::Key("coll/doc2"), 1);
+  const std::string user1_doc1_batch_2_key = LevelDbDocumentOverlayKey::Key(
+      "test_user1", testutil::Key("coll/doc1"), 2);
+
+  ASSERT_LT(user1_doc1_batch_1_key, user2_doc1_batch_1_key);
+  ASSERT_LT(user1_doc1_batch_1_key, user1_doc2_batch_1_key);
+  ASSERT_LT(user1_doc1_batch_1_key, user1_doc1_batch_2_key);
+}
+
+TEST(LevelDbDocumentOverlayKeyTest, EncodeDecodeCycle) {
+  LevelDbDocumentOverlayKey key;
+
+  std::vector<std::string> user_ids{"test_user", "foo/bar2",
+                                    "foo-bar?baz!quux"};
+  std::vector<std::string> document_keys{"col1/doc1", "col2/doc2/col3/doc3"};
+  std::vector<model::BatchId> batch_ids{1, 2, 3};
+  for (const std::string& user_id : user_ids) {
+    for (const std::string& document_key : document_keys) {
+      for (model::BatchId batch_id : batch_ids) {
+        SCOPED_TRACE(absl::StrCat("user_name=", user_id,
+                                  " document_key=", document_key,
+                                  " largest_batch_id=", batch_id));
+        const std::string encoded = LevelDbDocumentOverlayKey::Key(
+            user_id, testutil::Key(document_key), batch_id);
+        EXPECT_TRUE(key.Decode(encoded));
+        EXPECT_EQ(key.user_id(), user_id);
+        EXPECT_EQ(key.document_key(), testutil::Key(document_key));
+        EXPECT_EQ(key.largest_batch_id(), batch_id);
+      }
+    }
+  }
+}
+
+TEST(LevelDbDocumentOverlayKeyTest, Description) {
+  AssertExpectedKeyDescription(
+      "[document_overlays: user_id=foo-bar?baz!quux path=coll/doc "
+      "batch_id=123]",
+      LevelDbDocumentOverlayKey::Key("foo-bar?baz!quux",
+                                     testutil::Key("coll/doc"), 123));
+}
+
 #undef AssertExpectedKeyDescription
 
 }  // namespace local
