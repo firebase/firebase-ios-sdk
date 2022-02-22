@@ -40,11 +40,11 @@ static NSString *const hostAddress = @"http://127.0.0.1:8080";
     FIROptions *_options;
     dispatch_queue_t _lockQueue;
     NSString *_namespace;
-    __strong id _realTimeDelegate;
-    NSNotificationCenter *_notificationCenter;
     NSMutableURLRequest *_request;
     NSURLSession *_session;
     NSURLSessionDataTask *_dataTask;
+    __strong id _realTimeDelegate;
+    NSNotificationCenter *_notificationCenter;
     BOOL _inBackground;
 }
 
@@ -62,6 +62,7 @@ static NSString *const hostAddress = @"http://127.0.0.1:8080";
         _lockQueue = queue;
         _notificationCenter = [NSNotificationCenter defaultCenter];
         _inBackground = FALSE;
+        [self setUpHttpRequest];
     }
     
     return self;
@@ -175,24 +176,28 @@ static NSString *const hostAddress = @"http://127.0.0.1:8080";
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000039", @"Starting requesting token.");
     [installations authTokenWithCompletion:installationsTokenHandler];
 }
-// Creates request and makes call to create session.
--(void) setUpHTTPParameters {
-    [self refreshInstallationsTokenWithCompletionHandler:^(FIRRemoteConfigFetchStatus status, NSError * _Nullable error) {
-        if (status != FIRRemoteConfigFetchStatusSuccess) {
-            NSLog(@"Installation token retrival failed");
-        }
-    }];
-    
+
+-(void) setUpHttpRequest {
     _request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:hostAddress] cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:timeoutSeconds];
     [_request setHTTPMethod:kHTTPMethodGet];
     [_request setValue:@"application/json" forHTTPHeaderField:kContentTypeHeaderName];
     [_request setValue:@"gzip" forHTTPHeaderField:kContentEncodingHeaderName];
     [_request setValue:@"gzip" forHTTPHeaderField:kAcceptEncodingHeaderName];
-    [_request setValue:_settings.configInstallationsToken
-        forHTTPHeaderField:kInstallationsAuthTokenHeaderName];
     [_request setValue:[[NSBundle mainBundle] bundleIdentifier]
         forHTTPHeaderField:kiOSBundleIdentifierHeaderName];
+}
+
+// Creates request and makes call to create session.
+-(void) setUpHttpSession {
     
+    [self refreshInstallationsTokenWithCompletionHandler:^(FIRRemoteConfigFetchStatus status, NSError * _Nullable error) {
+        if (status != FIRRemoteConfigFetchStatusSuccess) {
+            NSLog(@"Installation token retrival failed");
+        }
+    }];
+
+    [_request setValue:_settings.configInstallationsToken
+        forHTTPHeaderField:kInstallationsAuthTokenHeaderName];
     if (_settings.lastETag) {
       [_request setValue:_settings.lastETag forHTTPHeaderField:kIfNoneMatchETagHeaderName];
     }
@@ -281,7 +286,7 @@ completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))complet
 - (void)startStream {
     if (self->_dataTask == NULL) {
         NSLog(@"HTTP connection started.");
-        [self setUpHTTPParameters];
+        [self setUpHttpSession];
         self->_dataTask = [_session dataTaskWithRequest:_request];
         [_dataTask resume];
         
