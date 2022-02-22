@@ -34,7 +34,7 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
 
   s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
-  
+
   s.swift_version = '5.3'
 
   base_dir = "FirebaseABTesting/Sources/"

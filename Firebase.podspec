@@ -27,7 +27,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
   s.tvos.deployment_target = '12.0'
 
   s.cocoapods_version = '>= 1.4.0'
-  
+
   s.swift_version = '5.3'
 
   s.default_subspec = 'Core'
