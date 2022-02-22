@@ -54,7 +54,6 @@ static NSString *const hostAddress = @"http://127.0.0.1:8080";
                            options: (FIROptions *)options
                            queue: (dispatch_queue_t)queue {
     self = [super init];
-
     if (self) {
         _configFetch = configFetch;
         _settings = settings;
@@ -176,7 +175,7 @@ static NSString *const hostAddress = @"http://127.0.0.1:8080";
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000039", @"Starting requesting token.");
     [installations authTokenWithCompletion:installationsTokenHandler];
 }
-// Creates NS session and requests
+// Creates request and makes call to create session.
 -(void) setUpHTTPParameters {
     [self refreshInstallationsTokenWithCompletionHandler:^(FIRRemoteConfigFetchStatus status, NSError * _Nullable error) {
         if (status != FIRRemoteConfigFetchStatusSuccess) {
@@ -263,7 +262,7 @@ completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))complet
 
 #pragma mark - Foreground Reconnection
 
-// Stream monitoring
+// Checks if app is in foreground or not.
 - (void)viewDidLoad {
     [super viewDidLoad];
 
@@ -295,7 +294,7 @@ completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))complet
     }
 }
 
-// Stops data task.
+// Stops data task session.
 - (void)pauseStream {
     if (self->_dataTask != NULL) {
         [_dataTask cancel];
