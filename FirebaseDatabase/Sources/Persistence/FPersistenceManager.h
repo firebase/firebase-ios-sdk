@@ -17,7 +17,6 @@
 #import <Foundation/Foundation.h>
 
 #import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
-#import "FirebaseDatabase/Sources/Core/View/FCacheNode.h"
 #import "FirebaseDatabase/Sources/Persistence/FCachePolicy.h"
 #import "FirebaseDatabase/Sources/Persistence/FStorageEngine.h"
 

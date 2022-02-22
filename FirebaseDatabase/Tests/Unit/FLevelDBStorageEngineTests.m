@@ -17,12 +17,8 @@
 #import <XCTest/XCTest.h>
 
 #import "FirebaseDatabase/Sources/Core/FQueryParams.h"
-#import "FirebaseDatabase/Sources/Core/FWriteRecord.h"
-
 #import "FirebaseDatabase/Sources/Persistence/FLevelDBStorageEngine.h"
 #import "FirebaseDatabase/Sources/Persistence/FTrackedQuery.h"
-
-
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 
 @interface FLevelDBStorageEngineTests : XCTestCase

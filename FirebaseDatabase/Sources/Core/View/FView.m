@@ -18,11 +18,9 @@
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
 #import "FirebaseDatabase/Sources/Core/FQueryParams.h"
 #import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
-#import "FirebaseDatabase/Sources/Core/FWriteTreeRef.h"
 #import "FirebaseDatabase/Sources/Core/Operation/FOperation.h"
 #import "FirebaseDatabase/Sources/Core/Operation/FOperationSource.h"
 
-#import "FirebaseDatabase/Sources/Core/View/FCacheNode.h"
 #import "FirebaseDatabase/Sources/Core/View/FCancelEvent.h"
 #import "FirebaseDatabase/Sources/Core/View/FEventRegistration.h"
 #import "FirebaseDatabase/Sources/Core/View/FViewCache.h"
