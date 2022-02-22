@@ -34,7 +34,9 @@ public extension DocumentReference {
   ///
   /// This method attempts to provide up-to-date data when possible by waiting
   /// for data from the server, but it may return cached data or fail if you are
-  /// offline and the server cannot be reached.
+  /// offline and the server cannot be reached. If `T` denotes an optional
+  /// type, the method returns a successful status with a value of `nil` for
+  /// non-existing documents.
   ///
   /// - Parameters:
   ///   - as: A `Decodable` type to convert the document fields to.
@@ -85,7 +87,9 @@ public extension DocumentReference {
     ///
     /// This method attempts to provide up-to-date data when possible by waiting
     /// for data from the server, but it may return cached data or fail if you
-    /// are offline and the server cannot be reached.
+    /// are offline and the server cannot be reached. If `T` denotes
+    /// an optional type, the method returns a successful status with a value
+    /// of `nil` for non-existing documents.
     ///
     /// - Parameters:
     ///   - as: A `Decodable` type to convert the document fields to.
