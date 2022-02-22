@@ -20,8 +20,8 @@ import FirebaseFirestore
 public extension DocumentReference {
   /// Fetches and decodes the document referenced by this `DocumentReference`.
   ///
-  /// This allows users to retrieve a Firestore document and have it decoded to an instance of
-  /// caller-specified type as follows:
+  /// This allows users to retrieve a Firestore document and have it decoded to
+  /// an instance of caller-specified type as follows:
   /// ```swift
   /// ref.getDocument(as: Book.self) { result in
   ///   do {
@@ -31,13 +31,19 @@ public extension DocumentReference {
   ///   }
   /// }
   /// ```
+  ///
+  /// This method attempts to provide up-to-date data when possible by waiting
+  /// for data from the server, but it may return cached data or fail if you are
+  /// offline and the server cannot be reached.
+  ///
   /// - Parameters:
   ///   - as: A `Decodable` type to convert the document fields to.
   ///   - serverTimestampBehavior: Configures how server timestamps that have
   ///     not yet been set to their final value are returned from the snapshot.
   ///   - decoder: The decoder to use to convert the document. Defaults to use
-  ///     default decoder.
-  ///   - completion: The closure to call when the document snapshot has been fetched and decoded.
+  ///     the default decoder.
+  ///   - completion: The closure to call when the document snapshot has been
+  ///     fetched and decoded.
   func getDocument<T: Decodable>(as type: T.Type,
                                  with serverTimestampBehavior: ServerTimestampBehavior =
                                    .none,
@@ -67,8 +73,8 @@ public extension DocumentReference {
   #if compiler(>=5.5) && canImport(_Concurrency)
     /// Fetches and decodes the document referenced by this `DocumentReference`.
     ///
-    /// This allows users to retrieve a Firestore document and have it decoded to an instance of
-    /// caller-specified type.
+    /// This allows users to retrieve a Firestore document and have it decoded
+    /// to an instance of caller-specified type as follows:
     /// ```swift
     /// do {
     ///   let book = try await ref.getDocument(as: Book.self)
@@ -76,12 +82,18 @@ public extension DocumentReference {
     ///   // Handle error
     /// }
     /// ```
+    ///
+    /// This method attempts to provide up-to-date data when possible by waiting
+    /// for data from the server, but it may return cached data or fail if you
+    /// are offline and the server cannot be reached.
+    ///
     /// - Parameters:
     ///   - as: A `Decodable` type to convert the document fields to.
     ///   - serverTimestampBehavior: Configures how server timestamps that have
-    ///     not yet been set to their final value are returned from the snapshot.
+    ///     not yet been set to their final value are returned from the
+    ///     snapshot.
     ///   - decoder: The decoder to use to convert the document. Defaults to use
-    ///     default decoder.
+    ///     the default decoder.
     /// - Returns: This instance of the supplied `Decodable` type `T`.
     @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
     func getDocument<T: Decodable>(as type: T.Type,
