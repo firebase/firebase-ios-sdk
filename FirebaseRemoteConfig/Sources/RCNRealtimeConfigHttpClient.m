@@ -12,6 +12,7 @@
 #import "RCNConfigFetch.h"
 #import "RCNRealtimeConfigHttpClient.h"
 
+// Header names
 static NSString *const kHTTPMethodGet = @"GET";  ///< HTTP request method config fetch using
 static NSString *const kContentTypeHeaderName = @"Content-Type";  ///< HTTP Header Field Name
 static NSString *const kContentEncodingHeaderName =
@@ -24,12 +25,14 @@ static NSString *const kInstallationsAuthTokenHeaderName = @"x-goog-firebase-ins
 static NSString *const kiOSBundleIdentifierHeaderName =
     @"X-Ios-Bundle-Identifier";  ///< HTTP Header Field Name
 
-static NSString *const hostAddress = @"http://127.0.0.1:8080";
+// Retry parameters
 NSInteger MAX_RETRY = 10;
 NSInteger MAX_RETRY_COUNT = 10;
 NSInteger RETRY_MULTIPLIER = 2;
 NSTimeInterval timeoutSeconds = 432000;
 double RETRY_SECONDS = 5.5;
+
+static NSString *const hostAddress = @"http://127.0.0.1:8080";
 
 @implementation RCNRealtimeConfigHttpClient {
     RCNConfigFetch *_configFetch;
