@@ -66,6 +66,10 @@ absl::optional<Overlay> LevelDbDocumentOverlayCache::GetOverlay(
 
   LevelDbDocumentOverlayKey decoded_key;
   HARD_ASSERT(decoded_key.Decode(it->key()));
+  if (decoded_key.document_key() != key) {
+    return absl::nullopt;
+  }
+
   return ParseOverlay(decoded_key, it->value());
 }
 
@@ -193,7 +197,11 @@ void LevelDbDocumentOverlayCache::DeleteOverlay(const model::DocumentKey& key) {
   for (it->Seek(leveldb_key_prefix);
        it->Valid() && absl::StartsWith(it->key(), leveldb_key_prefix);
        it->Next()) {
-    db_->current_transaction()->Delete(it->key());
+    LevelDbDocumentOverlayKey decoded_key;
+    HARD_ASSERT(decoded_key.Decode(it->key()));
+    if (decoded_key.document_key() == key) {
+      db_->current_transaction()->Delete(it->key());
+    }
   }
 }
 

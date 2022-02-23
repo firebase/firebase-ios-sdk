@@ -152,6 +152,25 @@ TEST_P(DocumentOverlayCacheTest, CanReadSavedOverlays) {
   });
 }
 
+TEST_P(DocumentOverlayCacheTest, GetOverlayExactlyMatchesTheGivenDocumentKey) {
+  this->persistence_->Run("Test", [&] {
+    this->SaveOverlaysWithSetMutations(1, {"coll/doc1/sub/doc2"});
+
+    EXPECT_FALSE(
+        this->cache_->GetOverlay(DocumentKey::FromPathString("coll/d")));
+    EXPECT_FALSE(
+        this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1")));
+    EXPECT_FALSE(
+        this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1ZZ")));
+
+    const DocumentKey document_key =
+        DocumentKey::FromPathString("coll/doc1/sub/doc2");
+    auto overlay_opt = this->cache_->GetOverlay(document_key);
+    ASSERT_TRUE(overlay_opt);
+    EXPECT_EQ(overlay_opt->key(), document_key);
+  });
+}
+
 TEST_P(DocumentOverlayCacheTest, SavingOverlayOverwrites) {
   this->persistence_->Run("Test", [&] {
     Mutation m1 = PatchMutation("coll/doc1", Map("foo", "bar"));
@@ -285,6 +304,34 @@ TEST_P(DocumentOverlayCacheTest, UpdateDocumentOverlay) {
     this->cache_->RemoveOverlaysForBatchId(2);
     EXPECT_FALSE(
         this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc")));
+  });
+}
+
+TEST_P(DocumentOverlayCacheTest, SaveDoesntAffectSubCollections) {
+  this->persistence_->Run("Test", [&] {
+    Mutation mutation1 =
+        PatchMutation("coll/doc/subcoll/subdoc", Map("foo", "bar1"));
+    Mutation mutation2 = PatchMutation("coll/doc", Map("foo", "bar2"));
+    this->SaveOverlaysWithMutations(1, {mutation1});
+    this->SaveOverlaysWithMutations(2, {mutation2});
+
+    // Verify that `GetOverlay()` returns the correct mutations.
+    {
+      auto overlay_opt = this->cache_->GetOverlay(
+          DocumentKey::FromPathString("coll/doc/subcoll/subdoc"));
+      EXPECT_TRUE(overlay_opt);
+      if (overlay_opt) {
+        EXPECT_EQ(overlay_opt.value().mutation(), mutation1);
+      }
+    }
+    {
+      auto overlay_opt =
+          this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc"));
+      EXPECT_TRUE(overlay_opt);
+      if (overlay_opt) {
+        EXPECT_EQ(overlay_opt.value().mutation(), mutation2);
+      }
+    }
   });
 }
 
