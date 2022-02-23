@@ -94,6 +94,7 @@ static const double SEC_PER_MINUTE = 60;
     if ([self isQueueFull]) {
       FIRCLSDebugLog(@"No available on-demand quota, dropping report");
       [self incrementDroppedExceptionCount];
+      [self incrementRecordedExceptionCount];
       return NO;  // Didn't record or submit the exception because no quota was available.
     }
 
@@ -111,6 +112,8 @@ static const double SEC_PER_MINUTE = 60;
     // is stored until send or delete unsent reports is called.
     [self incrementQueuedOperationCount];
     [self incrementRecordedExceptionCount];
+    [self resetDroppedExceptionCount];
+
     [self.operationQueue addOperationWithBlock:^{
       double uploadDelay = [self calculateUploadDelay];
 
@@ -194,6 +197,12 @@ static const double SEC_PER_MINUTE = 60;
 - (void)decrementDroppedExceptionCount {
   @synchronized(self) {
     [self setDroppedOnDemandExceptionCount:[self droppedOnDemandExceptionCount] - 1];
+  }
+}
+
+- (void)resetDroppedExceptionCount {
+  @synchronized(self) {
+    [self setDroppedOnDemandExceptionCount:0];
   }
 }
 

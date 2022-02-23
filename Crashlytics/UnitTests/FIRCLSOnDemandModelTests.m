@@ -149,7 +149,7 @@
 
   // Should record but not submit a report.
   XCTAssertTrue(success);
-  // We still count this as an occurred event if it was recorded.
+  // We still count this as a recorded event if it was recorded but not submitted.
   XCTAssertEqual([self.onDemandModel recordedOnDemandExceptionCount], 1);
   XCTAssertEqual([self contentsOfActivePath].count, 2);
   XCTAssertEqual(self.onDemandModel.getQueuedOperationsCount, 1);
@@ -213,6 +213,32 @@
   XCTAssertFalse(success);
   XCTAssertEqual(self.onDemandModel.getQueuedOperationsCount, [self.onDemandModel getQueueMax]);
   XCTAssertEqual([self.onDemandModel droppedOnDemandExceptionCount], 1);
+}
+
+- (void)testDroppedEventCountResets {
+  [self.onDemandModel setQueueToFull];
+
+  FIRExceptionModel *exceptionModel = [self getTestExceptionModel];
+  BOOL success = [self.onDemandModel recordOnDemandExceptionIfQuota:exceptionModel
+                                          withDataCollectionEnabled:NO
+                                         usingExistingReportManager:self.existingReportManager];
+
+  // Should return false when attempting to record an event and increment the count of dropped
+  // events.
+  XCTAssertFalse(success);
+  XCTAssertEqual(self.onDemandModel.getQueuedOperationsCount, [self.onDemandModel getQueueMax]);
+  XCTAssertEqual([self.onDemandModel droppedOnDemandExceptionCount], 1);
+
+  // Reset the queue to empty
+  [self.onDemandModel setQueuedOperationsCount:0];
+  success = [self.onDemandModel recordOnDemandExceptionIfQuota:exceptionModel
+                                     withDataCollectionEnabled:NO
+                                    usingExistingReportManager:self.existingReportManager];
+
+  // Now have room in the queue to record the event
+  XCTAssertTrue(success);
+  // droppedOnDemandExceptionCount should be reset once we record the event
+  XCTAssertEqual([self.onDemandModel droppedOnDemandExceptionCount], 0);
 }
 
 #pragma mark - Helpers
