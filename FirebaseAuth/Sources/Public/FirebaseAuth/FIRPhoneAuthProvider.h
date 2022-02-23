@@ -47,7 +47,8 @@ extern NSString *const _Nonnull FIRPhoneAuthSignInMethod NS_SWIFT_NAME(PhoneAuth
  */
 typedef void (^FIRVerificationResultCallback)(NSString *_Nullable verificationID,
                                               NSError *_Nullable error)
-    NS_SWIFT_NAME(VerificationResultCallback) API_UNAVAILABLE(macos, tvos, watchos);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.")
+        API_UNAVAILABLE(macos, tvos, watchos);
 
 /** @class FIRPhoneAuthProvider
     @brief A concrete implementation of `FIRAuthProvider` for phone auth providers.
@@ -86,7 +87,8 @@ NS_SWIFT_NAME(PhoneAuthProvider) API_UNAVAILABLE(macos, tvos, watchos)
  */
 - (void)verifyPhoneNumber:(NSString *)phoneNumber
                UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
-               completion:(nullable FIRVerificationResultCallback)completion;
+               completion:(nullable void (^)(NSString *_Nullable verificationID,
+                                             NSError *_Nullable error))completion;
 
 /** @fn verifyPhoneNumber:UIDelegate:multiFactorSession:completion:
     @brief Verify ownership of the second factor phone number by the current user.
@@ -101,7 +103,8 @@ NS_SWIFT_NAME(PhoneAuthProvider) API_UNAVAILABLE(macos, tvos, watchos)
 - (void)verifyPhoneNumber:(NSString *)phoneNumber
                UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
        multiFactorSession:(nullable FIRMultiFactorSession *)session
-               completion:(nullable FIRVerificationResultCallback)completion;
+               completion:(nullable void (^)(NSString *_Nullable verificationID,
+                                             NSError *_Nullable error))completion;
 
 /** @fn verifyPhoneNumberWithMultiFactorInfo:UIDelegate:multiFactorSession:completion:
     @brief Verify ownership of the second factor phone number by the current user.

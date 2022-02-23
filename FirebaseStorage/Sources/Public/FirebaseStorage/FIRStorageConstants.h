@@ -34,21 +34,22 @@ typedef NSString *FIRStorageHandle NS_SWIFT_NAME(StorageHandle);
  * @param error The error describing failure, if one occurred.
  */
 typedef void (^FIRStorageVoidDataError)(NSData *_Nullable data, NSError *_Nullable error)
-    NS_SWIFT_NAME(StorageVoidDataError);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /**
  * Block typedef typically used when performing "binary" async operations such as delete,
  * where the operation either succeeds without an error or fails with an error.
  * @param error The error describing failure, if one occurred.
  */
-typedef void (^FIRStorageVoidError)(NSError *_Nullable error) NS_SWIFT_NAME(StorageVoidError);
+typedef void (^FIRStorageVoidError)(NSError *_Nullable error)
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /**
  * Block typedef typically used when retrieving metadata.
  * @param metadata The metadata returned by the operation, if metadata exists.
  */
 typedef void (^FIRStorageVoidMetadata)(FIRStorageMetadata *_Nullable metadata)
-    NS_SWIFT_NAME(StorageVoidMetadata);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /**
  * Block typedef typically used when retrieving metadata with the possibility of an error.
@@ -57,14 +58,14 @@ typedef void (^FIRStorageVoidMetadata)(FIRStorageMetadata *_Nullable metadata)
  */
 typedef void (^FIRStorageVoidMetadataError)(FIRStorageMetadata *_Nullable metadata,
                                             NSError *_Nullable error)
-    NS_SWIFT_NAME(StorageVoidMetadataError);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /**
  * Block typedef typically used to asynchronously return a storage task snapshot.
  * @param snapshot The returned task snapshot.
  */
 typedef void (^FIRStorageVoidSnapshot)(FIRStorageTaskSnapshot *snapshot)
-    NS_SWIFT_NAME(StorageVoidSnapshot);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /**
  * Block typedef typically used when retrieving a download URL.
@@ -72,7 +73,7 @@ typedef void (^FIRStorageVoidSnapshot)(FIRStorageTaskSnapshot *snapshot)
  * @param error The error describing failure, if one occurred.
  */
 typedef void (^FIRStorageVoidURLError)(NSURL *_Nullable URL, NSError *_Nullable error)
-    NS_SWIFT_NAME(StorageVoidURLError);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /**
  * Enum representing the upload and download task status.

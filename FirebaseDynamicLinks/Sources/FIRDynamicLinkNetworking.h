@@ -92,7 +92,7 @@ FOUNDATION_EXPORT NSString *const kApiaryRestBaseUrl;
  */
 - (void)resolveShortLink:(NSURL *)url
            FDLSDKVersion:(NSString *)FDLSDKVersion
-              completion:(FIRDynamicLinkResolverHandler)completion;
+              completion:(void (^)(NSURL *_Nullable url, NSError *_Nullable error))completion;
 
 /**
  * @method

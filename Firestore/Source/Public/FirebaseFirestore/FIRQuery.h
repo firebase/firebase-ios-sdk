@@ -30,7 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
  * A block type used to handle failable snapshot method callbacks.
  */
 typedef void (^FIRQuerySnapshotBlock)(FIRQuerySnapshot *_Nullable snapshot,
-                                      NSError *_Nullable error);
+                                      NSError *_Nullable error)
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /**
  * A `FIRQuery` refers to a Query which you can read or listen to. You can also construct
@@ -56,7 +57,8 @@ NS_SWIFT_NAME(Query)
  * @param completion a block to execute once the documents have been successfully read.
  *     documentSet will be `nil` only if error is `non-nil`.
  */
-- (void)getDocumentsWithCompletion:(FIRQuerySnapshotBlock)completion
+- (void)getDocumentsWithCompletion:
+    (void (^)(FIRQuerySnapshot *_Nullable snapshot, NSError *_Nullable error))completion
     NS_SWIFT_NAME(getDocuments(completion:));
 
 /**
@@ -69,7 +71,8 @@ NS_SWIFT_NAME(Query)
  *     documentSet will be `nil` only if error is `non-nil`.
  */
 - (void)getDocumentsWithSource:(FIRFirestoreSource)source
-                    completion:(FIRQuerySnapshotBlock)completion
+                    completion:(void (^)(FIRQuerySnapshot *_Nullable snapshot,
+                                         NSError *_Nullable error))completion
     NS_SWIFT_NAME(getDocuments(source:completion:));
 
 /**
@@ -79,7 +82,8 @@ NS_SWIFT_NAME(Query)
  *
  * @return A FIRListenerRegistration that can be used to remove this listener.
  */
-- (id<FIRListenerRegistration>)addSnapshotListener:(FIRQuerySnapshotBlock)listener
+- (id<FIRListenerRegistration>)addSnapshotListener:
+    (void (^)(FIRQuerySnapshot *_Nullable snapshot, NSError *_Nullable error))listener
     NS_SWIFT_NAME(addSnapshotListener(_:));
 
 /**
@@ -93,7 +97,8 @@ NS_SWIFT_NAME(Query)
  */
 - (id<FIRListenerRegistration>)
     addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
-                                         listener:(FIRQuerySnapshotBlock)listener
+                                         listener:(void (^)(FIRQuerySnapshot *_Nullable snapshot,
+                                                            NSError *_Nullable error))listener
     NS_SWIFT_NAME(addSnapshotListener(includeMetadataChanges:listener:));
 
 #pragma mark - Filtering Data
