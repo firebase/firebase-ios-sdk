@@ -152,8 +152,6 @@ TEST_P(DocumentOverlayCacheTest, CanReadSavedOverlays) {
   });
 }
 
-// Ensure that the fix in https://github.com/firebase/firebase-ios-sdk/pull/9381
-// doesn't regress.
 TEST_P(DocumentOverlayCacheTest, GetOverlayExactlyMatchesTheGivenDocumentKey) {
   this->persistence_->Run("Test", [&] {
     this->SaveOverlaysWithSetMutations(1, {"coll/doc1/sub/doc2"});
@@ -309,8 +307,6 @@ TEST_P(DocumentOverlayCacheTest, UpdateDocumentOverlay) {
   });
 }
 
-// Ensure that the fix in https://github.com/firebase/firebase-ios-sdk/pull/9381
-// doesn't regress.
 TEST_P(DocumentOverlayCacheTest, SaveDoesntAffectSubCollections) {
   this->persistence_->Run("Test", [&] {
     Mutation mutation1 =
