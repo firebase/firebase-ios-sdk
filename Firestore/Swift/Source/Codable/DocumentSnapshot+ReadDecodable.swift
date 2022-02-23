@@ -19,11 +19,11 @@ import FirebaseFirestore
 
 public extension DocumentSnapshot {
   /// Retrieves all fields in a document and converts them to an instance of
-  /// caller-specified type. Returns `nil` if the document does not exist.
+  /// caller-specified type.
   ///
   /// By default, server-provided timestamps that have not yet been set to their
   /// final value will be returned as `NSNull`. Pass `serverTimestampBehavior`
-  /// configure this behavior.
+  /// to configure this behavior.
   ///
   /// See `Firestore.Decoder` for more details about the decoding process.
   ///
@@ -31,15 +31,12 @@ public extension DocumentSnapshot {
   ///   - type: The type to convert the document fields to.
   ///   - serverTimestampBehavior: Configures how server timestamps that have
   ///     not yet been set to their final value are returned from the snapshot.
-  ///   - decoder: The decoder to use to convert the document. `nil` to use
-  ///     default decoder.
+  ///   - decoder: The decoder to use to convert the document. Defaults to use
+  ///     the default decoder.
   func data<T: Decodable>(as type: T.Type,
                           with serverTimestampBehavior: ServerTimestampBehavior = .none,
-                          decoder: Firestore.Decoder? = nil) throws -> T? {
-    let d = decoder ?? Firestore.Decoder()
-    if let data = data(with: serverTimestampBehavior) {
-      return try d.decode(T.self, from: data, in: reference)
-    }
-    return nil
+                          decoder: Firestore.Decoder = .init()) throws -> T {
+    let data: Any = data(with: serverTimestampBehavior) ?? NSNull()
+    return try decoder.decode(T.self, from: data, in: reference)
   }
 }
