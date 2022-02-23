@@ -80,8 +80,20 @@ class IndexOffset : public util::Comparable<IndexOffset> {
    * Creates an offset that matches all documents with a read time higher than
    * `read_time` or with a key higher than `key` for equal read times.
    */
-  IndexOffset(SnapshotVersion read_time, DocumentKey key)
-      : read_time_(std::move(read_time)), document_key_(std::move(key)) {
+  IndexOffset(SnapshotVersion read_time,
+              DocumentKey key,
+              model::BatchId largest_batch_id)
+      : read_time_(std::move(read_time)),
+        document_key_(std::move(key)),
+        largest_batch_id_(largest_batch_id) {
+  }
+
+  /**
+   * The initial mutation batch id for each index. Gets updated during index
+   * backfill.
+   */
+  static constexpr model::BatchId InitialLargestBatchId() {
+    return -1;
   }
 
   static IndexOffset None();
@@ -114,11 +126,20 @@ class IndexOffset : public util::Comparable<IndexOffset> {
     return document_key_;
   }
 
+  /**
+   * Returns the largest mutation batch id that's been processed by index
+   * backfilling.
+   */
+  model::BatchId largest_batch_id() const {
+    return largest_batch_id_;
+  }
+
   util::ComparisonResult CompareTo(const IndexOffset& rhs) const;
 
  private:
   SnapshotVersion read_time_;
   DocumentKey document_key_;
+  model::BatchId largest_batch_id_ = InitialLargestBatchId();
 };
 
 /**
@@ -132,9 +153,10 @@ class IndexState {
   }
   IndexState(ListenSequenceNumber sequence_number,
              SnapshotVersion read_time,
-             DocumentKey key)
+             DocumentKey key,
+             model::BatchId largest_batch_id)
       : sequence_number_(sequence_number),
-        index_offset_(std::move(read_time), std::move(key)) {
+        index_offset_(std::move(read_time), std::move(key), largest_batch_id) {
   }
 
   /**

@@ -49,21 +49,23 @@ struct DbIndexState {
   int32_t nanos;
   std::string key;
   model::ListenSequenceNumber sequence_number;
+  model::BatchId largest_batch_id;
 };
 
-// TODO(wuandy): Uncomment this when needed.
-// void to_json(json& j, const DbIndexState& s) {
-//  j = json{{"seconds", s.seconds},
-//           {"nanos", s.nanos},
-//           {"key", s.key},
-//           {"seq_num", s.sequence_number}};
-//}
+void to_json(json& j, const DbIndexState& s) {
+  j = json{{"seconds", s.seconds},
+           {"nanos", s.nanos},
+           {"key", s.key},
+           {"seq_num", s.sequence_number},
+           {"largest_batch", s.largest_batch_id}};
+}
 
 void from_json(const json& j, DbIndexState& s) {
   j.at("seconds").get_to(s.seconds);
   j.at("nanos").get_to(s.nanos);
   j.at("key").get_to(s.key);
   j.at("seq_num").get_to(s.sequence_number);
+  j.at("largest_batch").get_to(s.largest_batch_id);
 }
 
 IndexState DecodeIndexState(const std::string& encoded) {
@@ -72,7 +74,16 @@ IndexState DecodeIndexState(const std::string& encoded) {
   auto db_state = j.get<DbIndexState>();
   return {db_state.sequence_number,
           SnapshotVersion(Timestamp(db_state.seconds, db_state.nanos)),
-          DocumentKey::FromPathString(db_state.key)};
+          DocumentKey::FromPathString(db_state.key), db_state.largest_batch_id};
+}
+
+std::string EncodeIndexState(const IndexState& state) {
+  DbIndexState db_state{
+      state.index_offset().read_time().timestamp().seconds(),
+      state.index_offset().read_time().timestamp().nanoseconds(),
+      state.index_offset().document_key().ToString(), state.sequence_number(),
+      state.index_offset().largest_batch_id()};
+  return to_string(json{std::move(db_state)});
 }
 
 }  // namespace
@@ -335,13 +346,28 @@ LevelDbIndexManager::GetDocumentsMatchingTarget(model::FieldIndex field_index,
 
 absl::optional<std::string>
 LevelDbIndexManager::GetNextCollectionGroupToUpdate() {
-  return {};
+  if (next_index_to_update_.empty()) {
+    return absl::nullopt;
+  }
+
+  return next_index_to_update_.top()->collection_group();
 }
 
 void LevelDbIndexManager::UpdateCollectionGroup(
     const std::string& collection_group, model::IndexOffset offset) {
-  (void)collection_group;
-  (void)offset;
+  HARD_ASSERT(started_, "IndexManager not started");
+
+  ++memoized_max_sequence_number_;
+  for (const auto& field_index : GetFieldIndexes(collection_group)) {
+    IndexState updated_state{memoized_max_sequence_number_, offset};
+
+    auto state_key = LevelDbIndexStateKey::Key(uid_, field_index.index_id());
+    db_->current_transaction()->Put(state_key, EncodeIndexState(updated_state));
+
+    MemoizeIndex(FieldIndex{field_index.index_id(),
+                            field_index.collection_group(),
+                            field_index.segments(), std::move(updated_state)});
+  }
 }
 
 void LevelDbIndexManager::UpdateIndexEntries(
