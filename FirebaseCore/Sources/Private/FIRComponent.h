@@ -46,7 +46,7 @@ typedef NS_ENUM(NSInteger, FIRInstantiationTiming) {
 NS_SWIFT_NAME(Component)
 @interface FIRComponent : NSObject
 
-/// The protocol describing functionality provided from the Component.
+/// The protocol describing functionality provided from the `Component`.
 @property(nonatomic, strong, readonly) Protocol *protocol;
 
 /// The timing of instantiation.

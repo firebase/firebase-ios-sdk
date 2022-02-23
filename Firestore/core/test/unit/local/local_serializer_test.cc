@@ -347,6 +347,25 @@ class LocalSerializerTest : public ::testing::Test {
     EXPECT_EQ(named_query, actual_named_query);
   }
 
+  void ExpectSerializationRoundTrip(const Mutation& mutation,
+                                    const v1::Write& proto) {
+    ByteString bytes = MakeByteString(serializer.EncodeMutation(mutation));
+    auto actual = ProtobufParse<v1::Write>(bytes);
+    EXPECT_TRUE(msg_diff.Compare(proto, actual)) << message_differences;
+  }
+
+  void ExpectDeserializationRoundTrip(const Mutation& mutation,
+                                      const v1::Write& proto) {
+    ByteString bytes = ProtobufSerialize(proto);
+    StringReader reader(bytes);
+
+    auto message = Message<google_firestore_v1_Write>::TryParse(&reader);
+    Mutation actual_mutation = serializer.DecodeMutation(&reader, *message);
+
+    EXPECT_OK(reader.status());
+    EXPECT_EQ(mutation, actual_mutation);
+  }
+
   std::string message_differences;
   MessageDifferencer msg_diff;
 };
@@ -725,6 +744,16 @@ TEST_F(LocalSerializerTest, EncodesNamedLimitToLastQuery) {
       std::move(expected_bundled_query);
 
   ExpectRoundTrip(named_query, expected_named_query);
+}
+
+TEST_F(LocalSerializerTest, EncodesMutation) {
+  Mutation mutation =
+      PatchMutation(Key("docs/1"), WrapObject("a", "b", "num", 1),
+                    FieldMask{Field("a")}, Precondition::Exists(true));
+
+  v1::Write expected_mutation = PatchProto();
+
+  ExpectRoundTrip(mutation, expected_mutation);
 }
 
 }  // namespace

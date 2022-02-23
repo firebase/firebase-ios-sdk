@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/local/leveldb_key.h"
 
+#include "Firestore/core/src/util/autoid.h"
 #include "Firestore/core/src/util/string_util.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "absl/strings/match.h"
@@ -494,72 +495,89 @@ TEST(IndexConfigurationKeyTest, Prefixing) {
   auto table_key = LevelDbIndexConfigurationKey::KeyPrefix();
 
   ASSERT_TRUE(
-      absl::StartsWith(LevelDbIndexConfigurationKey::Key(0), table_key));
+      absl::StartsWith(LevelDbIndexConfigurationKey::Key(0, ""), table_key));
 
-  ASSERT_FALSE(absl::StartsWith(LevelDbIndexConfigurationKey::Key(1),
-                                LevelDbIndexConfigurationKey::Key(2)));
+  ASSERT_FALSE(absl::StartsWith(LevelDbIndexConfigurationKey::Key(1, ""),
+                                LevelDbIndexConfigurationKey::Key(2, "")));
+
+  ASSERT_FALSE(absl::StartsWith(LevelDbIndexConfigurationKey::Key(1, "g"),
+                                LevelDbIndexConfigurationKey::Key(1, "ag")));
 }
 
 TEST(IndexConfigurationKeyTest, Ordering) {
-  ASSERT_LT(LevelDbIndexConfigurationKey::Key(0),
-            LevelDbIndexConfigurationKey::Key(1));
-  ASSERT_EQ(LevelDbIndexConfigurationKey::Key(1),
-            LevelDbIndexConfigurationKey::Key(1));
+  ASSERT_LT(LevelDbIndexConfigurationKey::Key(0, ""),
+            LevelDbIndexConfigurationKey::Key(1, ""));
+  ASSERT_EQ(LevelDbIndexConfigurationKey::Key(1, ""),
+            LevelDbIndexConfigurationKey::Key(1, ""));
+  ASSERT_LT(LevelDbIndexConfigurationKey::Key(0, "a"),
+            LevelDbIndexConfigurationKey::Key(0, "b"));
+  ASSERT_EQ(LevelDbIndexConfigurationKey::Key(1, "a"),
+            LevelDbIndexConfigurationKey::Key(1, "a"));
 }
 
 TEST(IndexConfigurationKeyTest, EncodeDecodeCycle) {
   LevelDbIndexConfigurationKey key;
 
+  std::vector<std::string> groups = {
+      "",
+      "ab",
+      "12",
+      ",867t-b",
+      "汉语; traditional Chinese: 漢語; pinyin: Hànyǔ[b]",
+      "اَلْعَرَبِيَّةُ, al-ʿarabiyyah "};
   for (int32_t id = -5; id < 10; ++id) {
-    auto encoded = LevelDbIndexConfigurationKey::Key(id);
+    auto s = groups[(id + 5) % groups.size()];
+    auto encoded = LevelDbIndexConfigurationKey::Key(id, s);
     bool ok = key.Decode(encoded);
     ASSERT_TRUE(ok);
     ASSERT_EQ(id, key.index_id());
+    ASSERT_EQ(s, key.collection_group());
   }
 }
 
 TEST(IndexConfigurationKeyTest, Description) {
-  AssertExpectedKeyDescription("[index_configuration: index_id=8]",
-                               LevelDbIndexConfigurationKey::Key(8));
+  AssertExpectedKeyDescription(
+      "[index_configuration: index_id=8 collection_group=group]",
+      LevelDbIndexConfigurationKey::Key(8, "group"));
 }
 
 TEST(IndexStateKeyTest, Prefixing) {
   auto table_key = LevelDbIndexStateKey::KeyPrefix();
 
   ASSERT_TRUE(
-      absl::StartsWith(LevelDbIndexStateKey::Key(0, "user_a"), table_key));
+      absl::StartsWith(LevelDbIndexStateKey::Key("user_a", 0), table_key));
 
-  ASSERT_FALSE(absl::StartsWith(LevelDbIndexStateKey::Key(0, "user_a"),
-                                LevelDbIndexStateKey::Key(0, "user_b")));
-  ASSERT_FALSE(absl::StartsWith(LevelDbIndexStateKey::Key(0, "user_a"),
-                                LevelDbIndexStateKey::Key(1, "user_a")));
+  ASSERT_FALSE(absl::StartsWith(LevelDbIndexStateKey::Key("user_a", 0),
+                                LevelDbIndexStateKey::Key("user_b", 0)));
+  ASSERT_FALSE(absl::StartsWith(LevelDbIndexStateKey::Key("user_a", 0),
+                                LevelDbIndexStateKey::Key("user_a", 1)));
 }
 
 TEST(IndexStateKeyTest, Ordering) {
-  ASSERT_LT(LevelDbIndexStateKey::Key(0, "foo/bar"),
-            LevelDbIndexStateKey::Key(1, "foo/bar"));
-  ASSERT_LT(LevelDbIndexStateKey::Key(0, "foo/bar"),
-            LevelDbIndexStateKey::Key(0, "foo/bar1"));
+  ASSERT_LT(LevelDbIndexStateKey::Key("foo/bar", 0),
+            LevelDbIndexStateKey::Key("foo/bar", 1));
+  ASSERT_LT(LevelDbIndexStateKey::Key("foo/bar", 0),
+            LevelDbIndexStateKey::Key("foo/bar1", 0));
 }
 
 TEST(IndexStateKeyTest, EncodeDecodeCycle) {
   LevelDbIndexStateKey key;
 
-  std::vector<std::pair<int32_t, std::string>> ids{
-      {0, "foo/bar"}, {1, "foo/bar2"}, {-1, "foo-bar?baz!quux"}};
+  std::vector<std::pair<std::string, int32_t>> ids{
+      {"foo/bar", 0}, {"foo/bar2", 1}, {"foo-bar?baz!quux", -1}};
   for (auto&& id : ids) {
     auto encoded = LevelDbIndexStateKey::Key(id.first, id.second);
     bool ok = key.Decode(encoded);
     ASSERT_TRUE(ok);
-    ASSERT_EQ(id.first, key.index_id());
-    ASSERT_EQ(id.second, key.user_id());
+    ASSERT_EQ(id.first, key.user_id());
+    ASSERT_EQ(id.second, key.index_id());
   }
 }
 
 TEST(IndexStateKeyTest, Description) {
   AssertExpectedKeyDescription(
-      "[index_state: index_id=99 user_id=foo-bar?baz!quux]",
-      LevelDbIndexStateKey::Key(99, "foo-bar?baz!quux"));
+      "[index_state: user_id=foo-bar?baz!quux index_id=99]",
+      LevelDbIndexStateKey::Key("foo-bar?baz!quux", 99));
 }
 
 TEST(IndexEntryKeyTest, Prefixing) {
@@ -569,6 +587,10 @@ TEST(IndexEntryKeyTest, Prefixing) {
       LevelDbIndexEntryKey::Key(0, "user_id", "array_value_encoded",
                                 "directional_value_encoded", "document_id_99"),
       table_key));
+
+  ASSERT_TRUE(
+      absl::StartsWith(LevelDbIndexEntryKey::Key(0, "user_id", "", "", ""),
+                       LevelDbIndexEntryKey::KeyPrefix(0)));
 
   ASSERT_FALSE(absl::StartsWith(LevelDbIndexEntryKey::Key(0, "", "", "", ""),
                                 LevelDbIndexEntryKey::Key(1, "", "", "", "")));
@@ -636,6 +658,79 @@ TEST(IndexEntryKeyTest, Description) {
       "directional_value=directional document_id=foo-bar?baz!quux]",
       LevelDbIndexEntryKey::Key(1, "user", "array", "directional",
                                 "foo-bar?baz!quux"));
+}
+
+TEST(LevelDbDocumentOverlayKeyTest, Prefixing) {
+  const std::string table_key = LevelDbDocumentOverlayKey::KeyPrefix();
+  const std::string user1_key =
+      LevelDbDocumentOverlayKey::KeyPrefix("test_user1");
+  const std::string user2_key =
+      LevelDbDocumentOverlayKey::KeyPrefix("test_user2");
+  const std::string user1_doc1_key = LevelDbDocumentOverlayKey::KeyPrefix(
+      "test_user1", testutil::Key("coll/doc1"));
+  const std::string user1_doc2_key = LevelDbDocumentOverlayKey::KeyPrefix(
+      "test_user1", testutil::Key("coll/doc2"));
+  ASSERT_TRUE(absl::StartsWith(user1_key, table_key));
+  ASSERT_TRUE(absl::StartsWith(user2_key, table_key));
+  ASSERT_TRUE(absl::StartsWith(user1_doc1_key, user1_key));
+  ASSERT_FALSE(absl::StartsWith(user1_key, user2_key));
+  ASSERT_FALSE(absl::StartsWith(user2_key, user1_key));
+  ASSERT_FALSE(absl::StartsWith(user1_doc1_key, user1_doc2_key));
+  ASSERT_FALSE(absl::StartsWith(user1_doc2_key, user1_doc1_key));
+
+  const std::string user1_doc1_batch_1_key = LevelDbDocumentOverlayKey::Key(
+      "test_user1", testutil::Key("coll/doc1"), 1);
+  const std::string user2_doc1_batch_1_key = LevelDbDocumentOverlayKey::Key(
+      "test_user2", testutil::Key("coll/doc1"), 1);
+  ASSERT_TRUE(absl::StartsWith(user1_doc1_batch_1_key, user1_key));
+  ASSERT_TRUE(absl::StartsWith(user2_doc1_batch_1_key, user2_key));
+}
+
+TEST(LevelDbDocumentOverlayKeyTest, Ordering) {
+  const std::string user1_doc1_batch_1_key = LevelDbDocumentOverlayKey::Key(
+      "test_user1", testutil::Key("coll/doc1"), 1);
+  const std::string user2_doc1_batch_1_key = LevelDbDocumentOverlayKey::Key(
+      "test_user2", testutil::Key("coll/doc1"), 1);
+  const std::string user1_doc2_batch_1_key = LevelDbDocumentOverlayKey::Key(
+      "test_user1", testutil::Key("coll/doc2"), 1);
+  const std::string user1_doc1_batch_2_key = LevelDbDocumentOverlayKey::Key(
+      "test_user1", testutil::Key("coll/doc1"), 2);
+
+  ASSERT_LT(user1_doc1_batch_1_key, user2_doc1_batch_1_key);
+  ASSERT_LT(user1_doc1_batch_1_key, user1_doc2_batch_1_key);
+  ASSERT_LT(user1_doc1_batch_1_key, user1_doc1_batch_2_key);
+}
+
+TEST(LevelDbDocumentOverlayKeyTest, EncodeDecodeCycle) {
+  LevelDbDocumentOverlayKey key;
+
+  std::vector<std::string> user_ids{"test_user", "foo/bar2",
+                                    "foo-bar?baz!quux"};
+  std::vector<std::string> document_keys{"col1/doc1", "col2/doc2/col3/doc3"};
+  std::vector<model::BatchId> batch_ids{1, 2, 3};
+  for (const std::string& user_id : user_ids) {
+    for (const std::string& document_key : document_keys) {
+      for (model::BatchId batch_id : batch_ids) {
+        SCOPED_TRACE(absl::StrCat("user_name=", user_id,
+                                  " document_key=", document_key,
+                                  " largest_batch_id=", batch_id));
+        const std::string encoded = LevelDbDocumentOverlayKey::Key(
+            user_id, testutil::Key(document_key), batch_id);
+        EXPECT_TRUE(key.Decode(encoded));
+        EXPECT_EQ(key.user_id(), user_id);
+        EXPECT_EQ(key.document_key(), testutil::Key(document_key));
+        EXPECT_EQ(key.largest_batch_id(), batch_id);
+      }
+    }
+  }
+}
+
+TEST(LevelDbDocumentOverlayKeyTest, Description) {
+  AssertExpectedKeyDescription(
+      "[document_overlays: user_id=foo-bar?baz!quux path=coll/doc "
+      "batch_id=123]",
+      LevelDbDocumentOverlayKey::Key("foo-bar?baz!quux",
+                                     testutil::Key("coll/doc"), 123));
 }
 
 #undef AssertExpectedKeyDescription

@@ -405,8 +405,8 @@ API_AVAILABLE(ios(14))
           @"r-x\\/r-x SM=COW  ...pp\\/Test"]);
   XCTAssertEqual([[crashDictionary objectForKey:@"exception_code"] integerValue], 0);
   XCTAssertEqual([[crashDictionary objectForKey:@"exception_type"] integerValue], 6);
-  XCTAssertTrue([[crashDictionary objectForKey:@"name"] isEqualToString:@"SIGABRT"]);
-  XCTAssertTrue([[crashDictionary objectForKey:@"code_name"] isEqualToString:@"ABORT"]);
+  XCTAssertTrue([[crashDictionary objectForKey:@"name"] isEqualToString:@"EXC_BREAKPOINT"]);
+  XCTAssertTrue([[crashDictionary objectForKey:@"code_name"] isEqualToString:@"EXC_I386_DIVERR"]);
 
   NSDictionary *metadata = [crashDictionary objectForKey:@"metadata"];
   NSDictionary *threads =

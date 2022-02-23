@@ -16,8 +16,9 @@
 // limitations under the License.
 
 import PackageDescription
+import class Foundation.ProcessInfo
 
-let firebaseVersion = "8.12.0"
+let firebaseVersion = "8.13.0"
 
 let package = Package(
   name: "Firebase",
@@ -1196,3 +1197,14 @@ let package = Package(
   cLanguageStandard: .c99,
   cxxLanguageStandard: CXXLanguageStandard.gnucxx14
 )
+
+if ProcessInfo.processInfo.environment["FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT"] != nil {
+  if let GoogleAppMeasurementIndex = package.dependencies
+    .firstIndex(where: { $0.name == "GoogleAppMeasurement" }) {
+    package.dependencies[GoogleAppMeasurementIndex] = .package(
+      name: "GoogleAppMeasurement",
+      url: "https://github.com/google/GoogleAppMeasurement.git",
+      .branch("main")
+    )
+  }
+}

@@ -37,7 +37,7 @@ cd scripts/health_metrics/generate_code_coverage_report
 # merge commit to the head commit from the target branch.
 git diff --name-only remotes/origin/${GITHUB_BASE_REF} ${GITHUB_SHA} > updated_files.txt
 
-if [ -z $spec_output_file] ; then
+if [ -z $spec_output_file ] ; then
   swift run UpdatedFilesCollector --changed-file-paths updated_files.txt --code-coverage-file-patterns ../file_patterns.json
 else
   swift run UpdatedFilesCollector --changed-file-paths updated_files.txt --code-coverage-file-patterns ../file_patterns.json --output-sdk-file-url "${spec_output_file}" --exclude-podspecs ${exclude_specs}

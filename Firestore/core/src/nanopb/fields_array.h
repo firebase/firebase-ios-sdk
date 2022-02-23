@@ -21,6 +21,7 @@
 #include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
 #include "Firestore/Protos/nanopb/firestore/local/mutation.nanopb.h"
 #include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
+#include "Firestore/Protos/nanopb/google/firestore/admin/index.nanopb.h"
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
 #include "Firestore/Protos/nanopb/google/type/latlng.nanopb.h"
@@ -177,6 +178,11 @@ inline const pb_field_t* FieldsArray<firestore_BundleMetadata>() {
 template <>
 inline const pb_field_t* FieldsArray<firestore_NamedQuery>() {
   return firestore_NamedQuery_fields;
+}
+
+template <>
+inline const pb_field_t* FieldsArray<google_firestore_admin_v1_Index>() {
+  return google_protobuf_Empty_fields;
 }
 
 template <>

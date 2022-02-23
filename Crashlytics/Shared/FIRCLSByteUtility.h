@@ -15,11 +15,11 @@
 #import <Foundation/Foundation.h>
 
 /**
- * Returns a SHA1 Hash of the input NSData
+ * Returns a SHA1 Hash of the input `Data`
  */
 NSString *FIRCLSHashNSData(NSData *data);
 /**
- * Returns a SHA256 Hash of the input NSData
+ * Returns a SHA256 Hash of the input `Data`
  */
 NSString *FIRCLS256HashNSData(NSData *data);
 /**
@@ -33,8 +33,8 @@ NSString *FIRCLSHashBytes(const void *bytes, size_t length);
 void FIRCLSSafeHexToString(const uint8_t *value, size_t length, char *outputBuffer);
 
 /**
- * Iterates through the raw bytes of NSData in a way that is similar to
- * -[NSData enumerateByteRangesUsingBlock:], but is safe to call from older
+ * Iterates through the raw bytes of data in a way that is similar to
+ * `Data`'s `enumerateBytes(_ block:)`, but is safe to call from older
  * OSes that do not support it.
  */
 void FIRCLSEnumerateByteRangesOfNSDataUsingBlock(

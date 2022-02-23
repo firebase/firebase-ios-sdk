@@ -167,7 +167,7 @@
 
 #pragma mark - API: setUserID
 
-- (void)setUserID:(NSString *)userID {
+- (void)setUserID:(nullable NSString *)userID {
   if (![self checkContextForMethod:@"setUserID:"]) {
     return;
   }
@@ -178,7 +178,7 @@
 
 #pragma mark - API: setCustomValue
 
-- (void)setCustomValue:(id)value forKey:(NSString *)key {
+- (void)setCustomValue:(nullable id)value forKey:(NSString *)key {
   if (![self checkContextForMethod:@"setCustomValue:forKey:"]) {
     return;
   }

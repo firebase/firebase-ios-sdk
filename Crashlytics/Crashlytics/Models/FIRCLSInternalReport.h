@@ -74,7 +74,7 @@ extern NSString *const FIRCLSReportUserCompactedKVFile;
 @property(nonatomic, copy, readonly) NSString *installID;
 
 /**
- * Returns YES if report contains a signal, mach exception or unhandled exception record, NO
+ * Returns true if report contains a signal, mach exception or unhandled exception record, false
  * otherwise.
  **/
 @property(nonatomic, assign, readonly) BOOL isCrash;
