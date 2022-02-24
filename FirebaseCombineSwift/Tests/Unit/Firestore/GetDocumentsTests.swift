@@ -27,7 +27,7 @@ class GetDocumentsTests: XCTestCase {
     var verifySource: ((_ source: FirestoreSource) -> Void)?
 
     override func getDocuments(source: FirestoreSource,
-                               completion: @escaping FIRQuerySnapshotBlock) {
+                               completion: @escaping (snapshot: QuerySnapshot?, error: Error?)) {
       do {
         verifySource?(source)
         let snapshot = try mockGetDocuments()
