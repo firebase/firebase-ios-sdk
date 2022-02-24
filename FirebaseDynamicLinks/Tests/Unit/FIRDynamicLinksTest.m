@@ -100,7 +100,7 @@ typedef NSURL * (^FakeShortLinkResolverHandler)(NSURL *shortLink);
 
 - (void)resolveShortLink:(NSURL *)url
            FDLSDKVersion:(NSString *)FDLSDKVersion
-              completion:(void (^)(NSURL* _Nullable url, NSError* _Nullable error))completion {
+              completion:(FIRDynamicLinkResolverHandler)completion {
   if (_resolverHandler && completion) {
     NSURL *resolvedLink = _resolverHandler(url);
     completion(resolvedLink, nil);
