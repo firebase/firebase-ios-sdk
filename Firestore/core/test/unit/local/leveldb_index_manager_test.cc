@@ -117,6 +117,13 @@ TEST_F(LevelDbIndexManagerTest,
     index_manager->AddFieldIndex(MakeFieldIndex("coll1"));
     index_manager->AddFieldIndex(MakeFieldIndex("coll2"));
 
+    {
+      const auto& collection_group =
+          index_manager->GetNextCollectionGroupToUpdate();
+      EXPECT_TRUE(collection_group.has_value());
+      EXPECT_EQ(collection_group.value(), "coll1");
+    }
+
     index_manager->UpdateCollectionGroup("coll1", IndexOffset::None());
     {
       const auto& collection_group =

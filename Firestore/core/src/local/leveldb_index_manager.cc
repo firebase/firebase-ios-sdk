@@ -87,11 +87,15 @@ LevelDbIndexManager::LevelDbIndexManager(const User& user,
                                          LevelDbPersistence* db,
                                          LocalSerializer* serializer)
     : db_(db), serializer_(serializer), uid_(user.uid()) {
+  // The contract for this comparison expected by priority queue is
+  // `std::less`, but std::priority_queue's default order is descending.
+  // We change the order to be ascending by doing left >= right instead.
   auto cmp = [](FieldIndex* left, FieldIndex* right) {
-    // The contract for `cmp` is `std::less`, but std::priority_queue's default
-    // order is descending. We change the order to be ascending by doing
-    // left >= right.
-    return left->index_state().sequence_number() >=
+    if (left->index_state().sequence_number() ==
+        right->index_state().sequence_number()) {
+      return left->collection_group() >= right->collection_group();
+    }
+    return left->index_state().sequence_number() >
            right->index_state().sequence_number();
   };
   next_index_to_update_ = std::priority_queue<
