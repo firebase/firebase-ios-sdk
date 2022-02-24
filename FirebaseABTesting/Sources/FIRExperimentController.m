@@ -23,7 +23,7 @@
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 /// Logger Service String.
-FIRLoggerService kFIRLoggerABTesting = @"[Firebase/ABTesting]";
+FIRLoggerService kFIRLoggerABTesting = @"[FirebaseABTesting]";
 
 /// Default experiment overflow policy.
 const ABTExperimentPayloadExperimentOverflowPolicy FIRDefaultExperimentOverflowPolicy =

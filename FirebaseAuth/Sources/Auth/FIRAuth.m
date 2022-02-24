@@ -82,7 +82,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark-- Logger Service String.
-FIRLoggerService kFIRLoggerAuth = @"[Firebase/Auth]";
+FIRLoggerService kFIRLoggerAuth = @"[FirebaseAuth]";
 
 #pragma mark - Constants
 

@@ -15,7 +15,7 @@
 #import "FirebaseAppDistribution/Sources/FIRFADLogger.h"
 #import "FirebaseCore/Sources/Private/FIRLogger.h"
 
-FIRLoggerService kFIRLoggerAppDistribution = @"[Firebase/AppDistribution]";
+FIRLoggerService kFIRLoggerAppDistribution = @"[FirebaseAppDistribution]";
 
 NSString *const AppDistributionMessageCode = @"I-FAD000000";
 

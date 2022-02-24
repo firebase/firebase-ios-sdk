@@ -20,7 +20,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-FIRLoggerService kFIRLoggerAppCheck = @"[Firebase/AppCheck]";
+FIRLoggerService kFIRLoggerAppCheck = @"[FirebaseAppCheck]";
 
 NSString *const kFIRLoggerAppCheckMessageCodeUnknown = @"I-FAA001001";
 
