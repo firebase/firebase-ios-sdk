@@ -28,6 +28,11 @@
 
 namespace firebase {
 namespace firestore {
+
+namespace credentials {
+class User;
+}  // namespace credentials
+
 namespace local {
 
 class LevelDbPersistence;
@@ -36,7 +41,8 @@ class LocalSerializer;
 /** A persisted implementation of IndexManager. */
 class LevelDbIndexManager : public IndexManager {
  public:
-  explicit LevelDbIndexManager(LevelDbPersistence* db,
+  explicit LevelDbIndexManager(const credentials::User& user,
+                               LevelDbPersistence* db,
                                LocalSerializer* serializer);
 
   void Start() override;

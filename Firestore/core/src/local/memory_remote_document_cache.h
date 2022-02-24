@@ -21,6 +21,7 @@
 #include <vector>
 
 #include "Firestore/core/src/immutable/sorted_map.h"
+#include "Firestore/core/src/local/memory_index_manager.h"
 #include "Firestore/core/src/local/remote_document_cache.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/model_fwd.h"
@@ -54,6 +55,7 @@ class MemoryRemoteDocumentCache : public RemoteDocumentCache {
       model::ListenSequenceNumber upper_bound);
 
   int64_t CalculateByteSize(const Sizer& sizer);
+  void SetIndexManager(MemoryIndexManager* manager);
 
  private:
   /** Underlying cache of documents and their read times. */
@@ -64,6 +66,8 @@ class MemoryRemoteDocumentCache : public RemoteDocumentCache {
 
   // This instance is owned by MemoryPersistence; avoid a retain cycle.
   MemoryPersistence* persistence_;
+  // This instance is also owned by MemoryPersistence.
+  MemoryIndexManager* index_manager_;
 };
 
 }  // namespace local

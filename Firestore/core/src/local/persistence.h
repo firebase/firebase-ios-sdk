@@ -115,7 +115,7 @@ class Persistence {
    * extent possible (e.g. in the case of UID switching from sally=>jack=>sally,
    * sally's document overlay cache will be preserved).
    */
-  virtual DocumentOverlayCache* document_overlay_cache(
+  virtual DocumentOverlayCache* GetDocumentOverlayCacheForUser(
       const credentials::User& user) = 0;
 
   /**
@@ -125,7 +125,8 @@ class Persistence {
   virtual RemoteDocumentCache* remote_document_cache() = 0;
 
   /** Returns an IndexManager that manages our persisted query indexes. */
-  virtual IndexManager* index_manager() = 0;
+  virtual IndexManager* GetIndexManagerForUser(
+      const credentials::User& user) = 0;
 
   /**
    * This property provides access to hooks around the document reference

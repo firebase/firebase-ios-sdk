@@ -22,6 +22,7 @@
 #include <vector>
 
 #include "Firestore/Protos/nanopb/firestore/local/mutation.nanopb.h"
+#include "Firestore/core/src/local/leveldb_index_manager.h"
 #include "Firestore/core/src/local/mutation_queue.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/types.h"
@@ -114,6 +115,7 @@ class LevelDbMutationQueue : public MutationQueue {
 
   // The LevelDbMutationQueue instance is owned by LevelDbPersistence.
   LevelDbPersistence* db_;
+  LevelDbIndexManager* index_manager_;
 
   // Owned by LevelDbPersistence.
   LocalSerializer* serializer_ = nullptr;

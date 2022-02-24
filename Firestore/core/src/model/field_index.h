@@ -148,6 +148,19 @@ class IndexOffset : public util::Comparable<IndexOffset> {
  */
 class IndexState {
  public:
+  /**
+   * The initial sequence number for each index. Gets updated during index
+   * backfill.
+   */
+  constexpr static ListenSequenceNumber InitialSequenceNumber() {
+    return 0;
+  }
+
+  IndexState()
+      : sequence_number_(InitialSequenceNumber()),
+        index_offset_(IndexOffset::None()) {
+  }
+
   IndexState(ListenSequenceNumber sequence_number, IndexOffset offset)
       : sequence_number_(sequence_number), index_offset_(std::move(offset)) {
   }
@@ -196,17 +209,10 @@ class FieldIndex {
     return -1;
   }
 
-  /**
-   * The initial sequence number for each index. Gets updated during index
-   * backfill.
-   */
-  constexpr static ListenSequenceNumber InitialSequenceNumber() {
-    return 0;
-  }
-
   /** The state of an index that has not yet been backfilled. */
   static IndexState InitialState() {
-    static const IndexState kNone(InitialSequenceNumber(), IndexOffset::None());
+    static const IndexState kNone(IndexState::InitialSequenceNumber(),
+                                  IndexOffset::None());
     return kNone;
   }
 
@@ -216,6 +222,9 @@ class FieldIndex {
    */
   static util::ComparisonResult SemanticCompare(const FieldIndex& left,
                                                 const FieldIndex& right);
+
+  FieldIndex() : index_id_(UnknownId()) {
+  }
 
   FieldIndex(int32_t index_id,
              std::string collection_group,

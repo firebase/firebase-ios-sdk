@@ -128,6 +128,7 @@ LevelDbMutationQueue::LevelDbMutationQueue(const User& user,
                                            LevelDbPersistence* db,
                                            LocalSerializer* serializer)
     : db_(NOT_NULL(db)),
+      index_manager_(NOT_NULL(db->GetIndexManagerForUser(user))),
       serializer_(NOT_NULL(serializer)),
       user_id_(user.is_authenticated() ? user.uid() : "") {
 }
@@ -177,8 +178,7 @@ MutationBatch LevelDbMutationQueue::AddMutationBatch(
     key = LevelDbDocumentMutationKey::Key(user_id_, mutation.key(), batch_id);
     db_->current_transaction()->Put(key, empty_buffer);
 
-    db_->index_manager()->AddToCollectionParentIndex(
-        mutation.key().path().PopLast());
+    index_manager_->AddToCollectionParentIndex(mutation.key().path().PopLast());
   }
 
   return batch;

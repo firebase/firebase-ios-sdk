@@ -21,6 +21,7 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/leveldb_key.h"
 #include "Firestore/core/src/local/leveldb_persistence.h"
 #include "Firestore/core/src/local/local_serializer.h"
@@ -35,6 +36,7 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
+using credentials::User;
 using model::DocumentKey;
 using model::FieldIndex;
 using model::IndexState;
@@ -51,14 +53,6 @@ struct DbIndexState {
   model::ListenSequenceNumber sequence_number;
   model::BatchId largest_batch_id;
 };
-
-void to_json(json& j, const DbIndexState& s) {
-  j = json{{"seconds", s.seconds},
-           {"nanos", s.nanos},
-           {"key", s.key},
-           {"seq_num", s.sequence_number},
-           {"largest_batch", s.largest_batch_id}};
-}
 
 void from_json(const json& j, DbIndexState& s) {
   j.at("seconds").get_to(s.seconds);
@@ -78,21 +72,26 @@ IndexState DecodeIndexState(const std::string& encoded) {
 }
 
 std::string EncodeIndexState(const IndexState& state) {
-  DbIndexState db_state{
-      state.index_offset().read_time().timestamp().seconds(),
-      state.index_offset().read_time().timestamp().nanoseconds(),
-      state.index_offset().document_key().ToString(), state.sequence_number(),
-      state.index_offset().largest_batch_id()};
-  return to_string(json{std::move(db_state)});
+  return json{
+      {"seconds", state.index_offset().read_time().timestamp().seconds()},
+      {"nanos", state.index_offset().read_time().timestamp().nanoseconds()},
+      {"key", state.index_offset().document_key().ToString()},
+      {"seq_num", state.sequence_number()},
+      {"largest_batch", state.index_offset().largest_batch_id()}}
+      .dump();
 }
 
 }  // namespace
 
-LevelDbIndexManager::LevelDbIndexManager(LevelDbPersistence* db,
+LevelDbIndexManager::LevelDbIndexManager(const User& user,
+                                         LevelDbPersistence* db,
                                          LocalSerializer* serializer)
-    : db_(db), serializer_(serializer) {
+    : db_(db), serializer_(serializer), uid_(user.uid()) {
   auto cmp = [](FieldIndex* left, FieldIndex* right) {
-    return left->index_state().sequence_number() <
+    // The contract for `cmp` is `std::less`, but std::priority_queue's default
+    // order is descending. We change the order to be ascending by doing
+    // left >= right.
+    return left->index_state().sequence_number() >=
            right->index_state().sequence_number();
   };
   next_index_to_update_ = std::priority_queue<
@@ -236,7 +235,8 @@ void LevelDbIndexManager::MemoizeIndex(FieldIndex index) {
   }
 
   // Moves `index` into `existing_indexes`.
-  existing_indexes.insert({index_id, std::move(index)});
+  existing_indexes[index_id] = std::move(index);
+
   // next_index_to_update_ holds a pointer to the index owned by
   // `existing_indexes`.
   next_index_to_update_.push(&existing_indexes.find(index_id)->second);
@@ -311,9 +311,11 @@ std::vector<FieldIndex> LevelDbIndexManager::GetFieldIndexes(
   HARD_ASSERT(started_, "IndexManager not started");
 
   std::vector<FieldIndex> result;
-  const auto& indexes = memoized_indexes_[collection_group];
-  for (const auto& entry : indexes) {
-    result.push_back(entry.second);
+  const auto iter = memoized_indexes_.find(collection_group);
+  if (iter != memoized_indexes_.end()) {
+    for (const auto& entry : iter->second) {
+      result.push_back(entry.second);
+    }
   }
 
   return result;
@@ -362,6 +364,7 @@ void LevelDbIndexManager::UpdateCollectionGroup(
     IndexState updated_state{memoized_max_sequence_number_, offset};
 
     auto state_key = LevelDbIndexStateKey::Key(uid_, field_index.index_id());
+    auto val = EncodeIndexState(updated_state);
     db_->current_transaction()->Put(state_key, EncodeIndexState(updated_state));
 
     MemoizeIndex(FieldIndex{field_index.index_id(),
