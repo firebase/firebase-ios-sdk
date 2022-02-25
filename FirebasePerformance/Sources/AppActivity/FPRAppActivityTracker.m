@@ -159,9 +159,9 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
 }
 
 /**
- * Checks if prewarming is available for the platform and OS version on the current device.
+ * Checks if the prewarming feature is available on the current device.
  *
- * @return true if the platform could prewarm apps on the current device
+ * @return true if the OS could prewarm apps on the current device
  */
 - (BOOL)isPrewarmAvailable {
   BOOL canPrewarm = NO;
