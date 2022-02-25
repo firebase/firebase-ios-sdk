@@ -165,7 +165,8 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
  */
 - (BOOL)isPrewarmAvailable {
   BOOL canPrewarm = NO;
-  // Guarding for double dispatch which does not work below iOS 13
+  // Guarding for double dispatch which does not work below iOS 13, and 0.1% of app start also show
+  // signs of prewarming on iOS 14 go/paste/5533761933410304
   if (@available(iOS 13, *)) {
     canPrewarm = YES;
   }
