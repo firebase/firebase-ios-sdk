@@ -40,7 +40,7 @@ firebase_ios_glob(
   sources *.cc *.h
   EXCLUDE ${local_testing_sources}
 )
-firebase_ios_add_test(firestore_local_test ${sources})
+firebase_ios_add_test(firestore_local_test DISABLE_STRICT_WARNINGS ${sources})
 
 target_link_libraries(
   firestore_local_test PRIVATE

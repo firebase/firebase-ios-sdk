@@ -39,7 +39,7 @@ firebase_ios_glob(
   EXCLUDE ${remote_testing_sources}
 )
 
-firebase_ios_add_test(firestore_remote_test ${sources})
+firebase_ios_add_test(firestore_remote_test DISABLE_STRICT_WARNINGS ${sources})
 
 target_link_libraries(
   firestore_remote_test PRIVATE

@@ -17,7 +17,7 @@ if(NOT FIREBASE_IOS_BUILD_TESTS)
 endif()
 
 file(GLOB sources *.cc)
-firebase_ios_add_test(firestore_bundle_test ${sources})
+firebase_ios_add_test(firestore_bundle_test DISABLE_STRICT_WARNINGS ${sources})
 
 target_link_libraries(
         firestore_bundle_test PRIVATE
