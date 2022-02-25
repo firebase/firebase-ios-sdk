@@ -845,11 +845,11 @@ static FIRApp *sDefaultApp;
   }
 
   // Swift libraries that don't need component behaviour
-  NSDictionary<NSString *, NSString *> *swifLibraries = @{@"FIRCombineSDK" : @"fire-comb"};
-  for (NSString *className in swifLibraries.allKeys) {
+  NSDictionary<NSString *, NSString *> *swiftLibraries = @{@"FIRCombineSDK" : @"fire-comb"};
+  for (NSString *className in swiftLibraries.allKeys) {
     Class klass = NSClassFromString(className);
     if (klass) {
-      [FIRApp registerLibrary:swifLibraries[className] withVersion:FIRFirebaseVersion()];
+      [FIRApp registerLibrary:swiftLibraries[className] withVersion:FIRFirebaseVersion()];
     }
   }
 }
