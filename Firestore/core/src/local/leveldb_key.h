@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_LOCAL_LEVELDB_KEY_H_
 
 #include <string>
+#include <utility>
 
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/mutation_batch.h"
@@ -125,7 +126,7 @@ namespace local {
 //   - table_name: "document_overlays_largest_batch_id_index"
 //   - user_id: string
 //   - largest_batch_id: model::BatchId
-//   - document_overlays_key: LevelDbKey
+//   - document_key: ResourcePath
 
 /**
  * Parses the given key and returns a human readable description of its
@@ -906,6 +907,16 @@ class LevelDbIndexEntryKey {
 /** A key in the document_overlays table. */
 class LevelDbDocumentOverlayKey {
  public:
+  LevelDbDocumentOverlayKey() = default;
+
+  LevelDbDocumentOverlayKey(std::string user_id,
+                            model::DocumentKey document_key,
+                            model::BatchId largest_batch_id)
+      : user_id_(std::move(user_id)),
+        document_key_(std::move(document_key)),
+        largest_batch_id_(std::move(largest_batch_id)) {
+  }
+
   /**
    * Creates a key prefix that points just before the first key in the table.
    */
@@ -942,6 +953,11 @@ class LevelDbDocumentOverlayKey {
    */
   ABSL_MUST_USE_RESULT
   bool Decode(absl::string_view key);
+
+  /** Encodes the key from this object's instance variables, and returns it. */
+  std::string Encode() const {
+    return Key(user_id_, document_key_, largest_batch_id_);
+  }
 
   /** The user ID, as encoded in the key. */
   const std::string& user_id() const {
@@ -987,11 +1003,18 @@ class LevelDbDocumentOverlayLargestBatchIdIndexKey {
 
   /**
    * Creates a complete key that points to a specific user_id and
-   * largest_batch_id for a given key in the document_overlays table.
+   * largest_batch_id for a given document key.
    */
   static std::string Key(absl::string_view user_id,
                          model::BatchId largest_batch_id,
-                         absl::string_view document_overlays_key);
+                         const model::DocumentKey& document_key);
+
+  /**
+   * Creates a complete key that points to a specific key in the overlays table.
+   */
+  static std::string Key(const LevelDbDocumentOverlayKey& key) {
+    return Key(key.user_id(), key.largest_batch_id(), key.document_key());
+  }
 
   /**
    * Decodes the given complete key, storing the decoded values in this
@@ -1003,6 +1026,23 @@ class LevelDbDocumentOverlayLargestBatchIdIndexKey {
    */
   ABSL_MUST_USE_RESULT
   bool Decode(absl::string_view key);
+
+  /**
+   * Creates and returns the `LevelDbDocumentOverlayKey` to which this index
+   * entry refers.
+   */
+  LevelDbDocumentOverlayKey ToLevelDbDocumentOverlayKey() const& {
+    return LevelDbDocumentOverlayKey(user_id_, document_key_,
+                                     largest_batch_id_);
+  }
+
+  // Overload `ToLevelDbDocumentOverlayKey()` to avoid copies if invoked on
+  // an rvalue reference.
+  LevelDbDocumentOverlayKey ToLevelDbDocumentOverlayKey() && {
+    return LevelDbDocumentOverlayKey(std::move(user_id_),
+                                     std::move(document_key_),
+                                     std::move(largest_batch_id_));
+  }
 
   /** The user ID, as encoded in the key. */
   const std::string& user_id() const {
@@ -1018,14 +1058,14 @@ class LevelDbDocumentOverlayLargestBatchIdIndexKey {
    * The key in the document_overlays table to which this index entry points,
    * as encoded in the key.
    */
-  const std::string& document_overlays_key() const {
-    return document_overlays_key_;
+  const model::DocumentKey& document_key() const {
+    return document_key_;
   }
 
  private:
   std::string user_id_;
   model::BatchId largest_batch_id_ = -1;
-  std::string document_overlays_key_;
+  model::DocumentKey document_key_;
 };
 
 }  // namespace local

@@ -660,6 +660,23 @@ TEST(IndexEntryKeyTest, Description) {
                                 "foo-bar?baz!quux"));
 }
 
+TEST(LevelDbDocumentOverlayKeyTest, Constructor) {
+  LevelDbDocumentOverlayKey key("test_user", testutil::Key("coll/doc"), 123);
+  EXPECT_EQ(key.user_id(), "test_user");
+  EXPECT_EQ(key.document_key(), testutil::Key("coll/doc"));
+  EXPECT_EQ(key.largest_batch_id(), 123);
+}
+
+TEST(LevelDbDocumentOverlayKeyTest, Encode) {
+  LevelDbDocumentOverlayKey key("test_user", testutil::Key("coll/doc"), 123);
+  const std::string encoded_key = key.Encode();
+  LevelDbDocumentOverlayKey decoded_key;
+  ASSERT_TRUE(decoded_key.Decode(encoded_key));
+  EXPECT_EQ(decoded_key.user_id(), "test_user");
+  EXPECT_EQ(decoded_key.document_key(), testutil::Key("coll/doc"));
+  EXPECT_EQ(decoded_key.largest_batch_id(), 123);
+}
+
 TEST(LevelDbDocumentOverlayKeyTest, Prefixing) {
   const std::string table_key = LevelDbDocumentOverlayKey::KeyPrefix();
   const std::string user1_key =
@@ -751,66 +768,74 @@ TEST(LevelDbDocumentOverlayLargestBatchIdIndexKeyTest, Prefixing) {
   ASSERT_FALSE(absl::StartsWith(user1_batch1_key, user1_batch2_key));
   ASSERT_FALSE(absl::StartsWith(user1_batch2_key, user1_batch1_key));
 
-  const std::string user1_batch1_overlay1_key =
-      LevelDbDocumentOverlayLargestBatchIdIndexKey::Key("test_user1", 1,
-                                                        "overlay1");
-  const std::string user2_batch1_overlay1_key =
-      LevelDbDocumentOverlayLargestBatchIdIndexKey::Key("test_user2", 1,
-                                                        "overlay1");
-  ASSERT_TRUE(absl::StartsWith(user1_batch1_overlay1_key, user1_key));
-  ASSERT_FALSE(absl::StartsWith(user1_batch1_overlay1_key, user2_key));
-  ASSERT_TRUE(absl::StartsWith(user2_batch1_overlay1_key, user2_key));
-  ASSERT_FALSE(absl::StartsWith(user2_batch1_overlay1_key, user1_key));
-  ASSERT_TRUE(absl::StartsWith(user1_batch1_overlay1_key, user1_batch1_key));
-  ASSERT_FALSE(absl::StartsWith(user1_batch1_overlay1_key, user1_batch2_key));
+  const std::string user1_batch1_doc1_key =
+      LevelDbDocumentOverlayLargestBatchIdIndexKey::Key(
+          "test_user1", 1, testutil::Key("coll/doc1"));
+  const std::string user2_batch1_doc1_key =
+      LevelDbDocumentOverlayLargestBatchIdIndexKey::Key(
+          "test_user2", 1, testutil::Key("coll/doc1"));
+  ASSERT_TRUE(absl::StartsWith(user1_batch1_doc1_key, user1_key));
+  ASSERT_FALSE(absl::StartsWith(user1_batch1_doc1_key, user2_key));
+  ASSERT_TRUE(absl::StartsWith(user2_batch1_doc1_key, user2_key));
+  ASSERT_FALSE(absl::StartsWith(user2_batch1_doc1_key, user1_key));
+  ASSERT_TRUE(absl::StartsWith(user1_batch1_doc1_key, user1_batch1_key));
+  ASSERT_FALSE(absl::StartsWith(user1_batch1_doc1_key, user1_batch2_key));
 }
 
 TEST(LevelDbDocumentOverlayLargestBatchIdIndexKeyTest, Ordering) {
-  const std::string user1_batch1_overlay1_key =
-      LevelDbDocumentOverlayLargestBatchIdIndexKey::Key("user1", 1, "overlay1");
-  const std::string user2_batch1_overlay1_key =
-      LevelDbDocumentOverlayLargestBatchIdIndexKey::Key("user2", 1, "overlay1");
-  const std::string user1_batch2_overlay1_key =
-      LevelDbDocumentOverlayLargestBatchIdIndexKey::Key("user1", 2, "overlay1");
-  const std::string user2_batch2_overlay1_key =
-      LevelDbDocumentOverlayLargestBatchIdIndexKey::Key("user2", 2, "overlay1");
-  const std::string user1_batch1_overlay2_key =
-      LevelDbDocumentOverlayLargestBatchIdIndexKey::Key("user1", 1, "overlay2");
-  const std::string user2_batch1_overlay2_key =
-      LevelDbDocumentOverlayLargestBatchIdIndexKey::Key("user2", 1, "overlay2");
-  const std::string user1_batch2_overlay2_key =
-      LevelDbDocumentOverlayLargestBatchIdIndexKey::Key("user1", 2, "overlay2");
-  const std::string user2_batch2_overlay2_key =
-      LevelDbDocumentOverlayLargestBatchIdIndexKey::Key("user2", 2, "overlay2");
+  const std::string user1_batch1_doc1_key =
+      LevelDbDocumentOverlayLargestBatchIdIndexKey::Key(
+          "user1", 1, testutil::Key("coll/doc1"));
+  const std::string user2_batch1_doc1_key =
+      LevelDbDocumentOverlayLargestBatchIdIndexKey::Key(
+          "user2", 1, testutil::Key("coll/doc1"));
+  const std::string user1_batch2_doc1_key =
+      LevelDbDocumentOverlayLargestBatchIdIndexKey::Key(
+          "user1", 2, testutil::Key("coll/doc1"));
+  const std::string user2_batch2_doc1_key =
+      LevelDbDocumentOverlayLargestBatchIdIndexKey::Key(
+          "user2", 2, testutil::Key("coll/doc1"));
+  const std::string user1_batch1_doc2_key =
+      LevelDbDocumentOverlayLargestBatchIdIndexKey::Key(
+          "user1", 1, testutil::Key("coll/doc2"));
+  const std::string user2_batch1_doc2_key =
+      LevelDbDocumentOverlayLargestBatchIdIndexKey::Key(
+          "user2", 1, testutil::Key("coll/doc2"));
+  const std::string user1_batch2_doc2_key =
+      LevelDbDocumentOverlayLargestBatchIdIndexKey::Key(
+          "user1", 2, testutil::Key("coll/doc2"));
+  const std::string user2_batch2_doc2_key =
+      LevelDbDocumentOverlayLargestBatchIdIndexKey::Key(
+          "user2", 2, testutil::Key("coll/doc2"));
 
-  ASSERT_LT(user1_batch1_overlay1_key, user2_batch1_overlay1_key);
-  ASSERT_LT(user1_batch1_overlay1_key, user1_batch2_overlay1_key);
-  ASSERT_LT(user1_batch1_overlay1_key, user1_batch1_overlay2_key);
-  ASSERT_LT(user2_batch1_overlay1_key, user2_batch2_overlay1_key);
-  ASSERT_LT(user2_batch1_overlay1_key, user2_batch1_overlay2_key);
-  ASSERT_LT(user2_batch2_overlay1_key, user2_batch2_overlay2_key);
+  ASSERT_LT(user1_batch1_doc1_key, user2_batch1_doc1_key);
+  ASSERT_LT(user1_batch1_doc1_key, user1_batch2_doc1_key);
+  ASSERT_LT(user1_batch1_doc1_key, user1_batch1_doc2_key);
+  ASSERT_LT(user2_batch1_doc1_key, user2_batch2_doc1_key);
+  ASSERT_LT(user2_batch1_doc1_key, user2_batch1_doc2_key);
+  ASSERT_LT(user2_batch2_doc1_key, user2_batch2_doc2_key);
 }
 
 TEST(LevelDbDocumentOverlayLargestBatchIdIndexKeyTest, EncodeDecodeCycle) {
   const std::vector<std::string> user_ids{"test_user", "foo/bar2",
                                           "foo-bar?baz!quux"};
   const std::vector<model::BatchId> batch_ids{1, 2, 3};
-  const std::vector<std::string> document_overlays_keys{"overlay1", "overlay2",
-                                                        "overlay3"};
+  const std::vector<model::DocumentKey> document_keys{
+      testutil::Key("coll/doc1"), testutil::Key("coll/doc2"),
+      testutil::Key("coll/doc3")};
   for (const std::string& user_id : user_ids) {
     for (model::BatchId batch_id : batch_ids) {
-      for (const std::string& document_overlays_key : document_overlays_keys) {
-        SCOPED_TRACE(
-            absl::StrCat("user_name=", user_id, " batch_id=", batch_id,
-                         " document_overlay_key=", document_overlays_key));
+      for (const model::DocumentKey& document_key : document_keys) {
+        SCOPED_TRACE(absl::StrCat("user_name=", user_id, " batch_id=", batch_id,
+                                  " path=", document_key.ToString()));
         const std::string encoded =
-            LevelDbDocumentOverlayLargestBatchIdIndexKey::Key(
-                user_id, batch_id, document_overlays_key);
+            LevelDbDocumentOverlayLargestBatchIdIndexKey::Key(user_id, batch_id,
+                                                              document_key);
         LevelDbDocumentOverlayLargestBatchIdIndexKey key;
         EXPECT_TRUE(key.Decode(encoded));
         EXPECT_EQ(key.user_id(), user_id);
         EXPECT_EQ(key.largest_batch_id(), batch_id);
-        EXPECT_EQ(key.document_overlays_key(), document_overlays_key);
+        EXPECT_EQ(key.document_key(), document_key);
       }
     }
   }
@@ -819,9 +844,53 @@ TEST(LevelDbDocumentOverlayLargestBatchIdIndexKeyTest, EncodeDecodeCycle) {
 TEST(LevelDbDocumentOverlayLargestBatchIdIndexKeyTest, Description) {
   AssertExpectedKeyDescription(
       "[document_overlays_largest_batch_id_index: user_id=foo-bar?baz!quux "
-      "batch_id=123 leveldb_key=overlay321]",
-      LevelDbDocumentOverlayLargestBatchIdIndexKey::Key("foo-bar?baz!quux", 123,
-                                                        "overlay321"));
+      "batch_id=123 path=coll/docX]",
+      LevelDbDocumentOverlayLargestBatchIdIndexKey::Key(
+          "foo-bar?baz!quux", 123, testutil::Key("coll/docX")));
+}
+
+TEST(LevelDbDocumentOverlayLargestBatchIdIndexKeyTest,
+     FromLevelDbDocumentOverlayKey) {
+  LevelDbDocumentOverlayKey key("test_user", testutil::Key("coll/doc"), 123);
+  const std::string encoded_key =
+      LevelDbDocumentOverlayLargestBatchIdIndexKey::Key(key);
+  LevelDbDocumentOverlayLargestBatchIdIndexKey decoded_key;
+  ASSERT_TRUE(decoded_key.Decode(encoded_key));
+  EXPECT_EQ(decoded_key.user_id(), "test_user");
+  EXPECT_EQ(decoded_key.largest_batch_id(), 123);
+  EXPECT_EQ(decoded_key.document_key(), testutil::Key("coll/doc"));
+}
+
+TEST(LevelDbDocumentOverlayLargestBatchIdIndexKeyTest,
+     ToLevelDbDocumentOverlayKey) {
+  const std::string encoded_key =
+      LevelDbDocumentOverlayLargestBatchIdIndexKey::Key(
+          "test_user", 123, testutil::Key("coll/doc"));
+  LevelDbDocumentOverlayLargestBatchIdIndexKey decoded_key;
+  ASSERT_TRUE(decoded_key.Decode(encoded_key));
+
+  const LevelDbDocumentOverlayKey key =
+      decoded_key.ToLevelDbDocumentOverlayKey();
+
+  EXPECT_EQ(key.user_id(), "test_user");
+  EXPECT_EQ(key.document_key(), testutil::Key("coll/doc"));
+  EXPECT_EQ(key.largest_batch_id(), 123);
+}
+
+TEST(LevelDbDocumentOverlayLargestBatchIdIndexKeyTest,
+     ToLevelDbDocumentOverlayKeyOnRvalueRef) {
+  const std::string encoded_key =
+      LevelDbDocumentOverlayLargestBatchIdIndexKey::Key(
+          "test_user", 123, testutil::Key("coll/doc"));
+  LevelDbDocumentOverlayLargestBatchIdIndexKey decoded_key;
+  ASSERT_TRUE(decoded_key.Decode(encoded_key));
+
+  LevelDbDocumentOverlayKey key =
+      std::move(decoded_key).ToLevelDbDocumentOverlayKey();
+
+  EXPECT_EQ(key.user_id(), "test_user");
+  EXPECT_EQ(key.document_key(), testutil::Key("coll/doc"));
+  EXPECT_EQ(key.largest_batch_id(), 123);
 }
 
 #undef AssertExpectedKeyDescription

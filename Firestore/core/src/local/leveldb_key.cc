@@ -134,14 +134,6 @@ enum ComponentLabel {
   CollectionGroup = 22,
 
   /**
-   * A key in LevelDb; used to refer to another entry in a LevelDb database.
-   *
-   * This is similar to a "foreign key" in traditional SQL, where this value
-   * references the key of another entry in another table.
-   */
-  LevelDbKey = 23,
-
-  /**
    * A path segment describes just a single segment in a resource path. Path
    * segments that occur sequentially in a key represent successive segments in
    * a single path.
@@ -241,10 +233,6 @@ class Reader {
 
   std::string ReadIndexDirectionalValue() {
     return ReadLabeledString(ComponentLabel::IndexDirectionalValue);
-  }
-
-  std::string ReadLevelDbKey() {
-    return ReadLabeledString(ComponentLabel::LevelDbKey);
   }
 
   /**
@@ -633,11 +621,6 @@ std::string Reader::Describe() {
       if (ok_) {
         absl::StrAppend(&description, " directional_value=", std::move(value));
       }
-    } else if (label == ComponentLabel::LevelDbKey) {
-      std::string value = ReadLevelDbKey();
-      if (ok_) {
-        absl::StrAppend(&description, " leveldb_key=", std::move(value));
-      }
     } else {
       absl::StrAppend(&description, " unknown label=", static_cast<int>(label));
       Fail();
@@ -735,10 +718,6 @@ class Writer {
 
   void WriteIndexDirectionalValue(absl::string_view value) {
     WriteLabeledString(ComponentLabel::IndexDirectionalValue, value);
-  }
-
-  void WriteLevelDbKey(absl::string_view key) {
-    WriteLabeledString(ComponentLabel::LevelDbKey, key);
   }
 
  private:
@@ -1353,12 +1332,12 @@ std::string LevelDbDocumentOverlayLargestBatchIdIndexKey::KeyPrefix(
 std::string LevelDbDocumentOverlayLargestBatchIdIndexKey::Key(
     absl::string_view user_id,
     model::BatchId largest_batch_id,
-    absl::string_view document_overlays_key) {
+    const model::DocumentKey& document_key) {
   Writer writer;
   writer.WriteTableName(kDocumentOverlaysLargestBatchIdIndexTable);
   writer.WriteUserId(user_id);
   writer.WriteBatchId(largest_batch_id);
-  writer.WriteLevelDbKey(document_overlays_key);
+  writer.WriteResourcePath(document_key.path());
   writer.WriteTerminator();
   return writer.result();
 }
@@ -1369,7 +1348,7 @@ bool LevelDbDocumentOverlayLargestBatchIdIndexKey::Decode(
   reader.ReadTableNameMatching(kDocumentOverlaysLargestBatchIdIndexTable);
   user_id_ = reader.ReadUserId();
   largest_batch_id_ = reader.ReadBatchId();
-  document_overlays_key_ = reader.ReadLevelDbKey();
+  document_key_ = reader.ReadDocumentKey();
   reader.ReadTerminator();
   return reader.ok();
 }

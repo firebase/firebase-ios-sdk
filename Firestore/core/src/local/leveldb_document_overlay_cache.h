@@ -53,7 +53,7 @@ class LevelDbDocumentOverlayCache final : public DocumentOverlayCache {
       delete;
 
   absl::optional<model::mutation::Overlay> GetOverlay(
-      const model::DocumentKey& key) const override;
+      const model::DocumentKey&) const override;
 
   void SaveOverlays(int largest_batch_id,
                     const MutationByDocumentKeyMap& overlays) override;
@@ -77,40 +77,25 @@ class LevelDbDocumentOverlayCache final : public DocumentOverlayCache {
   int GetOverlayCount() const override;
   int CountEntriesWithKeyPrefix(const std::string& key_prefix) const;
 
-  absl::optional<model::mutation::Overlay> GetOverlay(
-      absl::string_view encoded_key,
-      const LevelDbDocumentOverlayKey& decoded_key) const;
-
   model::mutation::Overlay ParseOverlay(
       const LevelDbDocumentOverlayKey& key,
       absl::string_view encoded_mutation) const;
 
   void SaveOverlay(int largest_batch_id,
-                   const model::DocumentKey& key,
+                   const model::DocumentKey& document_key,
                    const model::Mutation& mutation);
 
-  void DeleteOverlay(const model::DocumentKey& key);
+  void DeleteOverlay(const model::DocumentKey&);
 
-  void DeleteOverlay(absl::string_view encoded_key,
-                     const LevelDbDocumentOverlayKey& decoded_key);
+  void DeleteOverlay(const LevelDbDocumentOverlayKey&);
 
   void ForEachOverlay(
-      std::function<void(absl::string_view encoded_key,
-                         const LevelDbDocumentOverlayKey& decoded_key,
+      std::function<void(LevelDbDocumentOverlayKey&&,
                          absl::string_view encoded_mutation)>) const;
-
-  void DeleteLargestBatchIdIndexEntry(
-      absl::string_view encoded_key,
-      const LevelDbDocumentOverlayKey& decoded_key);
-
-  void AddLargestBatchIdIndexEntry(
-      absl::string_view encoded_key,
-      const LevelDbDocumentOverlayKey& decoded_key);
 
   void ForEachKeyWithLargestBatchId(
       int largest_batch_id,
-      std::function<void(absl::string_view encoded_key,
-                         LevelDbDocumentOverlayKey&& decoded_key)>) const;
+      std::function<void(LevelDbDocumentOverlayKey&&)>) const;
 
   // The LevelDbDocumentOverlayCache instance is owned by LevelDbPersistence.
   LevelDbPersistence* db_;
