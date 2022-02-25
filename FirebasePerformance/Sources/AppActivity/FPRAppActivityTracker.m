@@ -158,13 +158,13 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
 }
 
 /**
- * Checks if prewarming is available for the platform on current device.
- * It is available when running iOS 15 and above.
+ * Checks if prewarming is available for the platform and OS version on the current device.
  *
  * @return true if the platform could prewarm apps on the current device
  */
 - (BOOL)isPrewarmAvailable {
   BOOL canPrewarm = NO;
+  // Guarding for double dispatch which is only accurate in iOS 13+
   if (@available(iOS 13, *)) {
     canPrewarm = YES;
   }
