@@ -30,131 +30,95 @@
 #include <google/protobuf/wire_format.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
-extern PROTOBUF_INTERNAL_EXPORT_firestore_2fbundle_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_BundleMetadata_firestore_2fbundle_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_firestore_2fbundle_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_BundledDocumentMetadata_firestore_2fbundle_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_firestore_2fbundle_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_BundledQuery_firestore_2fbundle_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_firestore_2fbundle_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_NamedQuery_firestore_2fbundle_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fdocument_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_Document_google_2ffirestore_2fv1_2fdocument_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fquery_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<6> scc_info_StructuredQuery_google_2ffirestore_2fv1_2fquery_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_google_2fprotobuf_2ftimestamp_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto;
+
+PROTOBUF_PRAGMA_INIT_SEG
 namespace firestore {
-class BundledQueryDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<BundledQuery> _instance;
-  const ::google::firestore::v1::StructuredQuery* structured_query_;
-} _BundledQuery_default_instance_;
-class NamedQueryDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<NamedQuery> _instance;
-} _NamedQuery_default_instance_;
-class BundledDocumentMetadataDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<BundledDocumentMetadata> _instance;
-} _BundledDocumentMetadata_default_instance_;
-class BundleMetadataDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<BundleMetadata> _instance;
-} _BundleMetadata_default_instance_;
-class BundleElementDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<BundleElement> _instance;
-  const ::firestore::BundleMetadata* metadata_;
-  const ::firestore::NamedQuery* named_query_;
-  const ::firestore::BundledDocumentMetadata* document_metadata_;
-  const ::google::firestore::v1::Document* document_;
-} _BundleElement_default_instance_;
+constexpr BundledQuery::BundledQuery(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : parent_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
+  , limit_type_(0)
+
+  , _oneof_case_{}{}
+struct BundledQueryDefaultTypeInternal {
+  constexpr BundledQueryDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~BundledQueryDefaultTypeInternal() {}
+  union {
+    BundledQuery _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT BundledQueryDefaultTypeInternal _BundledQuery_default_instance_;
+constexpr NamedQuery::NamedQuery(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : name_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
+  , bundled_query_(nullptr)
+  , read_time_(nullptr){}
+struct NamedQueryDefaultTypeInternal {
+  constexpr NamedQueryDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~NamedQueryDefaultTypeInternal() {}
+  union {
+    NamedQuery _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT NamedQueryDefaultTypeInternal _NamedQuery_default_instance_;
+constexpr BundledDocumentMetadata::BundledDocumentMetadata(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : queries_()
+  , name_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
+  , read_time_(nullptr)
+  , exists_(false){}
+struct BundledDocumentMetadataDefaultTypeInternal {
+  constexpr BundledDocumentMetadataDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~BundledDocumentMetadataDefaultTypeInternal() {}
+  union {
+    BundledDocumentMetadata _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT BundledDocumentMetadataDefaultTypeInternal _BundledDocumentMetadata_default_instance_;
+constexpr BundleMetadata::BundleMetadata(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : id_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
+  , create_time_(nullptr)
+  , version_(0u)
+  , total_documents_(0u)
+  , total_bytes_(uint64_t{0u}){}
+struct BundleMetadataDefaultTypeInternal {
+  constexpr BundleMetadataDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~BundleMetadataDefaultTypeInternal() {}
+  union {
+    BundleMetadata _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT BundleMetadataDefaultTypeInternal _BundleMetadata_default_instance_;
+constexpr BundleElement::BundleElement(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : _oneof_case_{}{}
+struct BundleElementDefaultTypeInternal {
+  constexpr BundleElementDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~BundleElementDefaultTypeInternal() {}
+  union {
+    BundleElement _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT BundleElementDefaultTypeInternal _BundleElement_default_instance_;
 }  // namespace firestore
-static void InitDefaultsscc_info_BundleElement_firestore_2fbundle_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::firestore::_BundleElement_default_instance_;
-    new (ptr) ::firestore::BundleElement();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::firestore::BundleElement::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<4> scc_info_BundleElement_firestore_2fbundle_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 4, 0, InitDefaultsscc_info_BundleElement_firestore_2fbundle_2eproto}, {
-      &scc_info_BundleMetadata_firestore_2fbundle_2eproto.base,
-      &scc_info_NamedQuery_firestore_2fbundle_2eproto.base,
-      &scc_info_BundledDocumentMetadata_firestore_2fbundle_2eproto.base,
-      &scc_info_Document_google_2ffirestore_2fv1_2fdocument_2eproto.base,}};
-
-static void InitDefaultsscc_info_BundleMetadata_firestore_2fbundle_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::firestore::_BundleMetadata_default_instance_;
-    new (ptr) ::firestore::BundleMetadata();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::firestore::BundleMetadata::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_BundleMetadata_firestore_2fbundle_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_BundleMetadata_firestore_2fbundle_2eproto}, {
-      &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,}};
-
-static void InitDefaultsscc_info_BundledDocumentMetadata_firestore_2fbundle_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::firestore::_BundledDocumentMetadata_default_instance_;
-    new (ptr) ::firestore::BundledDocumentMetadata();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::firestore::BundledDocumentMetadata::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_BundledDocumentMetadata_firestore_2fbundle_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_BundledDocumentMetadata_firestore_2fbundle_2eproto}, {
-      &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,}};
-
-static void InitDefaultsscc_info_BundledQuery_firestore_2fbundle_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::firestore::_BundledQuery_default_instance_;
-    new (ptr) ::firestore::BundledQuery();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::firestore::BundledQuery::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_BundledQuery_firestore_2fbundle_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_BundledQuery_firestore_2fbundle_2eproto}, {
-      &scc_info_StructuredQuery_google_2ffirestore_2fv1_2fquery_2eproto.base,}};
-
-static void InitDefaultsscc_info_NamedQuery_firestore_2fbundle_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::firestore::_NamedQuery_default_instance_;
-    new (ptr) ::firestore::NamedQuery();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::firestore::NamedQuery::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_NamedQuery_firestore_2fbundle_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, 0, InitDefaultsscc_info_NamedQuery_firestore_2fbundle_2eproto}, {
-      &scc_info_BundledQuery_firestore_2fbundle_2eproto.base,
-      &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,}};
-
 static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_firestore_2fbundle_2eproto[5];
 static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_firestore_2fbundle_2eproto[1];
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_firestore_2fbundle_2eproto = nullptr;
 
-const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_firestore_2fbundle_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+const uint32_t TableStruct_firestore_2fbundle_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::firestore::BundledQuery, _internal_metadata_),
   ~0u,  // no _extensions_
   PROTOBUF_FIELD_OFFSET(::firestore::BundledQuery, _oneof_case_[0]),
   ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::firestore::BundledQuery, parent_),
-  offsetof(::firestore::BundledQueryDefaultTypeInternal, structured_query_),
+  ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
   PROTOBUF_FIELD_OFFSET(::firestore::BundledQuery, limit_type_),
   PROTOBUF_FIELD_OFFSET(::firestore::BundledQuery, query_type_),
   ~0u,  // no _has_bits_
@@ -162,6 +126,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_firestore_2fbundle_2eproto::of
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::firestore::NamedQuery, name_),
   PROTOBUF_FIELD_OFFSET(::firestore::NamedQuery, bundled_query_),
   PROTOBUF_FIELD_OFFSET(::firestore::NamedQuery, read_time_),
@@ -170,6 +135,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_firestore_2fbundle_2eproto::of
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::firestore::BundledDocumentMetadata, name_),
   PROTOBUF_FIELD_OFFSET(::firestore::BundledDocumentMetadata, read_time_),
   PROTOBUF_FIELD_OFFSET(::firestore::BundledDocumentMetadata, exists_),
@@ -179,6 +145,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_firestore_2fbundle_2eproto::of
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::firestore::BundleMetadata, id_),
   PROTOBUF_FIELD_OFFSET(::firestore::BundleMetadata, create_time_),
   PROTOBUF_FIELD_OFFSET(::firestore::BundleMetadata, version_),
@@ -189,18 +156,19 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_firestore_2fbundle_2eproto::of
   ~0u,  // no _extensions_
   PROTOBUF_FIELD_OFFSET(::firestore::BundleElement, _oneof_case_[0]),
   ~0u,  // no _weak_field_map_
-  offsetof(::firestore::BundleElementDefaultTypeInternal, metadata_),
-  offsetof(::firestore::BundleElementDefaultTypeInternal, named_query_),
-  offsetof(::firestore::BundleElementDefaultTypeInternal, document_metadata_),
-  offsetof(::firestore::BundleElementDefaultTypeInternal, document_),
+  ~0u,  // no _inlined_string_donated_
+  ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
+  ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
+  ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
+  ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
   PROTOBUF_FIELD_OFFSET(::firestore::BundleElement, element_type_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, -1, sizeof(::firestore::BundledQuery)},
-  { 9, -1, sizeof(::firestore::NamedQuery)},
-  { 17, -1, sizeof(::firestore::BundledDocumentMetadata)},
-  { 26, -1, sizeof(::firestore::BundleMetadata)},
-  { 36, -1, sizeof(::firestore::BundleElement)},
+  { 0, -1, -1, sizeof(::firestore::BundledQuery)},
+  { 10, -1, -1, sizeof(::firestore::NamedQuery)},
+  { 19, -1, -1, sizeof(::firestore::BundledDocumentMetadata)},
+  { 29, -1, -1, sizeof(::firestore::BundleMetadata)},
+  { 40, -1, -1, sizeof(::firestore::BundleElement)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -247,24 +215,19 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor
   &::descriptor_table_google_2ffirestore_2fv1_2fquery_2eproto,
   &::descriptor_table_google_2fprotobuf_2ftimestamp_2eproto,
 };
-static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_firestore_2fbundle_2eproto_sccs[5] = {
-  &scc_info_BundleElement_firestore_2fbundle_2eproto.base,
-  &scc_info_BundleMetadata_firestore_2fbundle_2eproto.base,
-  &scc_info_BundledDocumentMetadata_firestore_2fbundle_2eproto.base,
-  &scc_info_BundledQuery_firestore_2fbundle_2eproto.base,
-  &scc_info_NamedQuery_firestore_2fbundle_2eproto.base,
-};
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_firestore_2fbundle_2eproto_once;
-static bool descriptor_table_firestore_2fbundle_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_firestore_2fbundle_2eproto = {
-  &descriptor_table_firestore_2fbundle_2eproto_initialized, descriptor_table_protodef_firestore_2fbundle_2eproto, "firestore/bundle.proto", 1121,
-  &descriptor_table_firestore_2fbundle_2eproto_once, descriptor_table_firestore_2fbundle_2eproto_sccs, descriptor_table_firestore_2fbundle_2eproto_deps, 5, 3,
+  false, false, 1121, descriptor_table_protodef_firestore_2fbundle_2eproto, "firestore/bundle.proto", 
+  &descriptor_table_firestore_2fbundle_2eproto_once, descriptor_table_firestore_2fbundle_2eproto_deps, 3, 5,
   schemas, file_default_instances, TableStruct_firestore_2fbundle_2eproto::offsets,
-  file_level_metadata_firestore_2fbundle_2eproto, 5, file_level_enum_descriptors_firestore_2fbundle_2eproto, file_level_service_descriptors_firestore_2fbundle_2eproto,
+  file_level_metadata_firestore_2fbundle_2eproto, file_level_enum_descriptors_firestore_2fbundle_2eproto, file_level_service_descriptors_firestore_2fbundle_2eproto,
 };
+PROTOBUF_ATTRIBUTE_WEAK const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable* descriptor_table_firestore_2fbundle_2eproto_getter() {
+  return &descriptor_table_firestore_2fbundle_2eproto;
+}
 
 // Force running AddDescriptors() at dynamic initialization time.
-static bool dynamic_init_dummy_firestore_2fbundle_2eproto = (  ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptors(&descriptor_table_firestore_2fbundle_2eproto), true);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_firestore_2fbundle_2eproto(&descriptor_table_firestore_2fbundle_2eproto);
 namespace firestore {
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* BundledQuery_LimitType_descriptor() {
   ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_firestore_2fbundle_2eproto);
@@ -280,20 +243,16 @@ bool BundledQuery_LimitType_IsValid(int value) {
   }
 }
 
-#if (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
+#if (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
 constexpr BundledQuery_LimitType BundledQuery::FIRST;
 constexpr BundledQuery_LimitType BundledQuery::LAST;
 constexpr BundledQuery_LimitType BundledQuery::LimitType_MIN;
 constexpr BundledQuery_LimitType BundledQuery::LimitType_MAX;
 constexpr int BundledQuery::LimitType_ARRAYSIZE;
-#endif  // (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
+#endif  // (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
 
 // ===================================================================
 
-void BundledQuery::InitAsDefaultInstance() {
-  ::firestore::_BundledQuery_default_instance_.structured_query_ = const_cast< ::google::firestore::v1::StructuredQuery*>(
-      ::google::firestore::v1::StructuredQuery::internal_default_instance());
-}
 class BundledQuery::_Internal {
  public:
   static const ::google::firestore::v1::StructuredQuery& structured_query(const BundledQuery* msg);
@@ -304,10 +263,13 @@ BundledQuery::_Internal::structured_query(const BundledQuery* msg) {
   return *msg->query_type_.structured_query_;
 }
 void BundledQuery::set_allocated_structured_query(::google::firestore::v1::StructuredQuery* structured_query) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
   clear_query_type();
   if (structured_query) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
+                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(structured_query));
     if (message_arena != submessage_arena) {
       structured_query = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, structured_query, submessage_arena);
@@ -319,22 +281,31 @@ void BundledQuery::set_allocated_structured_query(::google::firestore::v1::Struc
 }
 void BundledQuery::clear_structured_query() {
   if (_internal_has_structured_query()) {
-    delete query_type_.structured_query_;
+    if (GetArenaForAllocation() == nullptr) {
+      delete query_type_.structured_query_;
+    }
     clear_has_query_type();
   }
 }
-BundledQuery::BundledQuery()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
+BundledQuery::BundledQuery(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:firestore.BundledQuery)
+  if (!is_message_owned) {
+    RegisterArenaDtor(arena);
+  }
+  // @@protoc_insertion_point(arena_constructor:firestore.BundledQuery)
 }
 BundledQuery::BundledQuery(const BundledQuery& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   parent_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    parent_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if (!from._internal_parent().empty()) {
-    parent_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.parent_);
+    parent_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_parent(), 
+      GetArenaForAllocation());
   }
   limit_type_ = from.limit_type_;
   clear_has_query_type();
@@ -350,39 +321,47 @@ BundledQuery::BundledQuery(const BundledQuery& from)
   // @@protoc_insertion_point(copy_constructor:firestore.BundledQuery)
 }
 
-void BundledQuery::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_BundledQuery_firestore_2fbundle_2eproto.base);
-  parent_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  limit_type_ = 0;
-  clear_has_query_type();
+inline void BundledQuery::SharedCtor() {
+parent_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  parent_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+limit_type_ = 0;
+clear_has_query_type();
 }
 
 BundledQuery::~BundledQuery() {
   // @@protoc_insertion_point(destructor:firestore.BundledQuery)
+  if (GetArenaForAllocation() != nullptr) return;
   SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
-void BundledQuery::SharedDtor() {
+inline void BundledQuery::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
   parent_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (has_query_type()) {
     clear_query_type();
   }
 }
 
+void BundledQuery::ArenaDtor(void* object) {
+  BundledQuery* _this = reinterpret_cast< BundledQuery* >(object);
+  (void)_this;
+}
+void BundledQuery::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
 void BundledQuery::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const BundledQuery& BundledQuery::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_BundledQuery_firestore_2fbundle_2eproto.base);
-  return *internal_default_instance();
-}
-
 
 void BundledQuery::clear_query_type() {
 // @@protoc_insertion_point(one_of_clear_start:firestore.BundledQuery)
   switch (query_type_case()) {
     case kStructuredQuery: {
-      delete query_type_.structured_query_;
+      if (GetArenaForAllocation() == nullptr) {
+        delete query_type_.structured_query_;
+      }
       break;
     }
     case QUERY_TYPE_NOT_SET: {
@@ -395,75 +374,80 @@ void BundledQuery::clear_query_type() {
 
 void BundledQuery::Clear() {
 // @@protoc_insertion_point(message_clear_start:firestore.BundledQuery)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  parent_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  parent_.ClearToEmpty();
   limit_type_ = 0;
   clear_query_type();
-  _internal_metadata_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* BundledQuery::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    CHK_(ptr);
     switch (tag >> 3) {
       // string parent = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           auto str = _internal_mutable_parent();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "firestore.BundledQuery.parent"));
           CHK_(ptr);
-        } else goto handle_unusual;
+        } else
+          goto handle_unusual;
         continue;
       // .google.firestore.v1.StructuredQuery structured_query = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_structured_query(), ptr);
           CHK_(ptr);
-        } else goto handle_unusual;
+        } else
+          goto handle_unusual;
         continue;
       // .firestore.BundledQuery.LimitType limit_type = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
-          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 24)) {
+          uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
           _internal_set_limit_type(static_cast<::firestore::BundledQuery_LimitType>(val));
-        } else goto handle_unusual;
+        } else
+          goto handle_unusual;
         continue;
-      default: {
-      handle_unusual:
-        if ((tag & 7) == 4 || tag == 0) {
-          ctx->SetLastTag(tag);
-          goto success;
-        }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
-        CHK_(ptr != nullptr);
-        continue;
-      }
+      default:
+        goto handle_unusual;
     }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
   }  // while
-success:
+message_done:
   return ptr;
 failure:
   ptr = nullptr;
-  goto success;
+  goto message_done;
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* BundledQuery::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+uint8_t* BundledQuery::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:firestore.BundledQuery)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string parent = 1;
-  if (this->parent().size() > 0) {
+  if (!this->_internal_parent().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_parent().data(), static_cast<int>(this->_internal_parent().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
@@ -481,7 +465,7 @@ failure:
   }
 
   // .firestore.BundledQuery.LimitType limit_type = 3;
-  if (this->limit_type() != 0) {
+  if (this->_internal_limit_type() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
       3, this->_internal_limit_type(), target);
@@ -489,7 +473,7 @@ failure:
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:firestore.BundledQuery)
   return target;
@@ -499,19 +483,19 @@ size_t BundledQuery::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:firestore.BundledQuery)
   size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   // string parent = 1;
-  if (this->parent().size() > 0) {
+  if (!this->_internal_parent().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_parent());
   }
 
   // .firestore.BundledQuery.LimitType limit_type = 3;
-  if (this->limit_type() != 0) {
+  if (this->_internal_limit_type() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_limit_type());
   }
@@ -528,42 +512,32 @@ size_t BundledQuery::ByteSizeLong() const {
       break;
     }
   }
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
-        _internal_metadata_, total_size, &_cached_size_);
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
+  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
 }
 
-void BundledQuery::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:firestore.BundledQuery)
-  GOOGLE_DCHECK_NE(&from, this);
-  const BundledQuery* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<BundledQuery>(
-          &from);
-  if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:firestore.BundledQuery)
-    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
-  } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:firestore.BundledQuery)
-    MergeFrom(*source);
-  }
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData BundledQuery::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    BundledQuery::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*BundledQuery::GetClassData() const { return &_class_data_; }
+
+void BundledQuery::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+  static_cast<BundledQuery *>(to)->MergeFrom(
+      static_cast<const BundledQuery &>(from));
 }
+
 
 void BundledQuery::MergeFrom(const BundledQuery& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:firestore.BundledQuery)
   GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from.parent().size() > 0) {
-
-    parent_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.parent_);
+  if (!from._internal_parent().empty()) {
+    _internal_set_parent(from._internal_parent());
   }
-  if (from.limit_type() != 0) {
+  if (from._internal_limit_type() != 0) {
     _internal_set_limit_type(from._internal_limit_type());
   }
   switch (from.query_type_case()) {
@@ -575,13 +549,7 @@ void BundledQuery::MergeFrom(const BundledQuery& from) {
       break;
     }
   }
-}
-
-void BundledQuery::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:firestore.BundledQuery)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void BundledQuery::CopyFrom(const BundledQuery& from) {
@@ -597,59 +565,66 @@ bool BundledQuery::IsInitialized() const {
 
 void BundledQuery::InternalSwap(BundledQuery* other) {
   using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  parent_.Swap(&other->parent_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-    GetArenaNoVirtual());
+  auto* lhs_arena = GetArenaForAllocation();
+  auto* rhs_arena = other->GetArenaForAllocation();
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      &parent_, lhs_arena,
+      &other->parent_, rhs_arena
+  );
   swap(limit_type_, other->limit_type_);
   swap(query_type_, other->query_type_);
   swap(_oneof_case_[0], other->_oneof_case_[0]);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata BundledQuery::GetMetadata() const {
-  return GetMetadataStatic();
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_firestore_2fbundle_2eproto_getter, &descriptor_table_firestore_2fbundle_2eproto_once,
+      file_level_metadata_firestore_2fbundle_2eproto[0]);
 }
-
 
 // ===================================================================
 
-void NamedQuery::InitAsDefaultInstance() {
-  ::firestore::_NamedQuery_default_instance_._instance.get_mutable()->bundled_query_ = const_cast< ::firestore::BundledQuery*>(
-      ::firestore::BundledQuery::internal_default_instance());
-  ::firestore::_NamedQuery_default_instance_._instance.get_mutable()->read_time_ = const_cast< PROTOBUF_NAMESPACE_ID::Timestamp*>(
-      PROTOBUF_NAMESPACE_ID::Timestamp::internal_default_instance());
-}
 class NamedQuery::_Internal {
  public:
   static const ::firestore::BundledQuery& bundled_query(const NamedQuery* msg);
-  static const PROTOBUF_NAMESPACE_ID::Timestamp& read_time(const NamedQuery* msg);
+  static const ::PROTOBUF_NAMESPACE_ID::Timestamp& read_time(const NamedQuery* msg);
 };
 
 const ::firestore::BundledQuery&
 NamedQuery::_Internal::bundled_query(const NamedQuery* msg) {
   return *msg->bundled_query_;
 }
-const PROTOBUF_NAMESPACE_ID::Timestamp&
+const ::PROTOBUF_NAMESPACE_ID::Timestamp&
 NamedQuery::_Internal::read_time(const NamedQuery* msg) {
   return *msg->read_time_;
 }
 void NamedQuery::clear_read_time() {
-  if (GetArenaNoVirtual() == nullptr && read_time_ != nullptr) {
+  if (GetArenaForAllocation() == nullptr && read_time_ != nullptr) {
     delete read_time_;
   }
   read_time_ = nullptr;
 }
-NamedQuery::NamedQuery()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
+NamedQuery::NamedQuery(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:firestore.NamedQuery)
+  if (!is_message_owned) {
+    RegisterArenaDtor(arena);
+  }
+  // @@protoc_insertion_point(arena_constructor:firestore.NamedQuery)
 }
 NamedQuery::NamedQuery(const NamedQuery& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    name_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if (!from._internal_name().empty()) {
-    name_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.name_);
+    name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_name(), 
+      GetArenaForAllocation());
   }
   if (from._internal_has_bundled_query()) {
     bundled_query_ = new ::firestore::BundledQuery(*from.bundled_query_);
@@ -657,117 +632,129 @@ NamedQuery::NamedQuery(const NamedQuery& from)
     bundled_query_ = nullptr;
   }
   if (from._internal_has_read_time()) {
-    read_time_ = new PROTOBUF_NAMESPACE_ID::Timestamp(*from.read_time_);
+    read_time_ = new ::PROTOBUF_NAMESPACE_ID::Timestamp(*from.read_time_);
   } else {
     read_time_ = nullptr;
   }
   // @@protoc_insertion_point(copy_constructor:firestore.NamedQuery)
 }
 
-void NamedQuery::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_NamedQuery_firestore_2fbundle_2eproto.base);
-  name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  ::memset(&bundled_query_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&read_time_) -
-      reinterpret_cast<char*>(&bundled_query_)) + sizeof(read_time_));
+inline void NamedQuery::SharedCtor() {
+name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  name_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
+    reinterpret_cast<char*>(&bundled_query_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&read_time_) -
+    reinterpret_cast<char*>(&bundled_query_)) + sizeof(read_time_));
 }
 
 NamedQuery::~NamedQuery() {
   // @@protoc_insertion_point(destructor:firestore.NamedQuery)
+  if (GetArenaForAllocation() != nullptr) return;
   SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
-void NamedQuery::SharedDtor() {
+inline void NamedQuery::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
   name_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (this != internal_default_instance()) delete bundled_query_;
   if (this != internal_default_instance()) delete read_time_;
 }
 
+void NamedQuery::ArenaDtor(void* object) {
+  NamedQuery* _this = reinterpret_cast< NamedQuery* >(object);
+  (void)_this;
+}
+void NamedQuery::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
 void NamedQuery::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const NamedQuery& NamedQuery::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_NamedQuery_firestore_2fbundle_2eproto.base);
-  return *internal_default_instance();
-}
-
 
 void NamedQuery::Clear() {
 // @@protoc_insertion_point(message_clear_start:firestore.NamedQuery)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (GetArenaNoVirtual() == nullptr && bundled_query_ != nullptr) {
+  name_.ClearToEmpty();
+  if (GetArenaForAllocation() == nullptr && bundled_query_ != nullptr) {
     delete bundled_query_;
   }
   bundled_query_ = nullptr;
-  if (GetArenaNoVirtual() == nullptr && read_time_ != nullptr) {
+  if (GetArenaForAllocation() == nullptr && read_time_ != nullptr) {
     delete read_time_;
   }
   read_time_ = nullptr;
-  _internal_metadata_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* NamedQuery::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    CHK_(ptr);
     switch (tag >> 3) {
       // string name = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           auto str = _internal_mutable_name();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "firestore.NamedQuery.name"));
           CHK_(ptr);
-        } else goto handle_unusual;
+        } else
+          goto handle_unusual;
         continue;
       // .firestore.BundledQuery bundled_query = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_bundled_query(), ptr);
           CHK_(ptr);
-        } else goto handle_unusual;
+        } else
+          goto handle_unusual;
         continue;
       // .google.protobuf.Timestamp read_time = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           ptr = ctx->ParseMessage(_internal_mutable_read_time(), ptr);
           CHK_(ptr);
-        } else goto handle_unusual;
+        } else
+          goto handle_unusual;
         continue;
-      default: {
-      handle_unusual:
-        if ((tag & 7) == 4 || tag == 0) {
-          ctx->SetLastTag(tag);
-          goto success;
-        }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
-        CHK_(ptr != nullptr);
-        continue;
-      }
+      default:
+        goto handle_unusual;
     }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
   }  // while
-success:
+message_done:
   return ptr;
 failure:
   ptr = nullptr;
-  goto success;
+  goto message_done;
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* NamedQuery::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+uint8_t* NamedQuery::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:firestore.NamedQuery)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string name = 1;
-  if (this->name().size() > 0) {
+  if (!this->_internal_name().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_name().data(), static_cast<int>(this->_internal_name().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
@@ -777,7 +764,7 @@ failure:
   }
 
   // .firestore.BundledQuery bundled_query = 2;
-  if (this->has_bundled_query()) {
+  if (this->_internal_has_bundled_query()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -785,7 +772,7 @@ failure:
   }
 
   // .google.protobuf.Timestamp read_time = 3;
-  if (this->has_read_time()) {
+  if (this->_internal_has_read_time()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -794,7 +781,7 @@ failure:
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:firestore.NamedQuery)
   return target;
@@ -804,79 +791,63 @@ size_t NamedQuery::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:firestore.NamedQuery)
   size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   // string name = 1;
-  if (this->name().size() > 0) {
+  if (!this->_internal_name().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_name());
   }
 
   // .firestore.BundledQuery bundled_query = 2;
-  if (this->has_bundled_query()) {
+  if (this->_internal_has_bundled_query()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *bundled_query_);
   }
 
   // .google.protobuf.Timestamp read_time = 3;
-  if (this->has_read_time()) {
+  if (this->_internal_has_read_time()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *read_time_);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
-        _internal_metadata_, total_size, &_cached_size_);
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
+  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
 }
 
-void NamedQuery::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:firestore.NamedQuery)
-  GOOGLE_DCHECK_NE(&from, this);
-  const NamedQuery* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<NamedQuery>(
-          &from);
-  if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:firestore.NamedQuery)
-    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
-  } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:firestore.NamedQuery)
-    MergeFrom(*source);
-  }
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData NamedQuery::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    NamedQuery::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*NamedQuery::GetClassData() const { return &_class_data_; }
+
+void NamedQuery::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+  static_cast<NamedQuery *>(to)->MergeFrom(
+      static_cast<const NamedQuery &>(from));
 }
+
 
 void NamedQuery::MergeFrom(const NamedQuery& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:firestore.NamedQuery)
   GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from.name().size() > 0) {
-
-    name_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.name_);
+  if (!from._internal_name().empty()) {
+    _internal_set_name(from._internal_name());
   }
-  if (from.has_bundled_query()) {
+  if (from._internal_has_bundled_query()) {
     _internal_mutable_bundled_query()->::firestore::BundledQuery::MergeFrom(from._internal_bundled_query());
   }
-  if (from.has_read_time()) {
-    _internal_mutable_read_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from._internal_read_time());
+  if (from._internal_has_read_time()) {
+    _internal_mutable_read_time()->::PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from._internal_read_time());
   }
-}
-
-void NamedQuery::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:firestore.NamedQuery)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void NamedQuery::CopyFrom(const NamedQuery& from) {
@@ -892,55 +863,69 @@ bool NamedQuery::IsInitialized() const {
 
 void NamedQuery::InternalSwap(NamedQuery* other) {
   using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  name_.Swap(&other->name_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-    GetArenaNoVirtual());
-  swap(bundled_query_, other->bundled_query_);
-  swap(read_time_, other->read_time_);
+  auto* lhs_arena = GetArenaForAllocation();
+  auto* rhs_arena = other->GetArenaForAllocation();
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      &name_, lhs_arena,
+      &other->name_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(NamedQuery, read_time_)
+      + sizeof(NamedQuery::read_time_)
+      - PROTOBUF_FIELD_OFFSET(NamedQuery, bundled_query_)>(
+          reinterpret_cast<char*>(&bundled_query_),
+          reinterpret_cast<char*>(&other->bundled_query_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata NamedQuery::GetMetadata() const {
-  return GetMetadataStatic();
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_firestore_2fbundle_2eproto_getter, &descriptor_table_firestore_2fbundle_2eproto_once,
+      file_level_metadata_firestore_2fbundle_2eproto[1]);
 }
-
 
 // ===================================================================
 
-void BundledDocumentMetadata::InitAsDefaultInstance() {
-  ::firestore::_BundledDocumentMetadata_default_instance_._instance.get_mutable()->read_time_ = const_cast< PROTOBUF_NAMESPACE_ID::Timestamp*>(
-      PROTOBUF_NAMESPACE_ID::Timestamp::internal_default_instance());
-}
 class BundledDocumentMetadata::_Internal {
  public:
-  static const PROTOBUF_NAMESPACE_ID::Timestamp& read_time(const BundledDocumentMetadata* msg);
+  static const ::PROTOBUF_NAMESPACE_ID::Timestamp& read_time(const BundledDocumentMetadata* msg);
 };
 
-const PROTOBUF_NAMESPACE_ID::Timestamp&
+const ::PROTOBUF_NAMESPACE_ID::Timestamp&
 BundledDocumentMetadata::_Internal::read_time(const BundledDocumentMetadata* msg) {
   return *msg->read_time_;
 }
 void BundledDocumentMetadata::clear_read_time() {
-  if (GetArenaNoVirtual() == nullptr && read_time_ != nullptr) {
+  if (GetArenaForAllocation() == nullptr && read_time_ != nullptr) {
     delete read_time_;
   }
   read_time_ = nullptr;
 }
-BundledDocumentMetadata::BundledDocumentMetadata()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
+BundledDocumentMetadata::BundledDocumentMetadata(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
+  queries_(arena) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:firestore.BundledDocumentMetadata)
+  if (!is_message_owned) {
+    RegisterArenaDtor(arena);
+  }
+  // @@protoc_insertion_point(arena_constructor:firestore.BundledDocumentMetadata)
 }
 BundledDocumentMetadata::BundledDocumentMetadata(const BundledDocumentMetadata& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr),
       queries_(from.queries_) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    name_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if (!from._internal_name().empty()) {
-    name_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.name_);
+    name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_name(), 
+      GetArenaForAllocation());
   }
   if (from._internal_has_read_time()) {
-    read_time_ = new PROTOBUF_NAMESPACE_ID::Timestamp(*from.read_time_);
+    read_time_ = new ::PROTOBUF_NAMESPACE_ID::Timestamp(*from.read_time_);
   } else {
     read_time_ = nullptr;
   }
@@ -948,82 +933,91 @@ BundledDocumentMetadata::BundledDocumentMetadata(const BundledDocumentMetadata& 
   // @@protoc_insertion_point(copy_constructor:firestore.BundledDocumentMetadata)
 }
 
-void BundledDocumentMetadata::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_BundledDocumentMetadata_firestore_2fbundle_2eproto.base);
-  name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  ::memset(&read_time_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&exists_) -
-      reinterpret_cast<char*>(&read_time_)) + sizeof(exists_));
+inline void BundledDocumentMetadata::SharedCtor() {
+name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  name_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
+    reinterpret_cast<char*>(&read_time_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&exists_) -
+    reinterpret_cast<char*>(&read_time_)) + sizeof(exists_));
 }
 
 BundledDocumentMetadata::~BundledDocumentMetadata() {
   // @@protoc_insertion_point(destructor:firestore.BundledDocumentMetadata)
+  if (GetArenaForAllocation() != nullptr) return;
   SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
-void BundledDocumentMetadata::SharedDtor() {
+inline void BundledDocumentMetadata::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
   name_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (this != internal_default_instance()) delete read_time_;
 }
 
+void BundledDocumentMetadata::ArenaDtor(void* object) {
+  BundledDocumentMetadata* _this = reinterpret_cast< BundledDocumentMetadata* >(object);
+  (void)_this;
+}
+void BundledDocumentMetadata::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
 void BundledDocumentMetadata::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const BundledDocumentMetadata& BundledDocumentMetadata::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_BundledDocumentMetadata_firestore_2fbundle_2eproto.base);
-  return *internal_default_instance();
-}
-
 
 void BundledDocumentMetadata::Clear() {
 // @@protoc_insertion_point(message_clear_start:firestore.BundledDocumentMetadata)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   queries_.Clear();
-  name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (GetArenaNoVirtual() == nullptr && read_time_ != nullptr) {
+  name_.ClearToEmpty();
+  if (GetArenaForAllocation() == nullptr && read_time_ != nullptr) {
     delete read_time_;
   }
   read_time_ = nullptr;
   exists_ = false;
-  _internal_metadata_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* BundledDocumentMetadata::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    CHK_(ptr);
     switch (tag >> 3) {
       // string name = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           auto str = _internal_mutable_name();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "firestore.BundledDocumentMetadata.name"));
           CHK_(ptr);
-        } else goto handle_unusual;
+        } else
+          goto handle_unusual;
         continue;
       // .google.protobuf.Timestamp read_time = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_read_time(), ptr);
           CHK_(ptr);
-        } else goto handle_unusual;
+        } else
+          goto handle_unusual;
         continue;
       // bool exists = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
-          exists_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 24)) {
+          exists_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
-        } else goto handle_unusual;
+        } else
+          goto handle_unusual;
         continue;
       // repeated string queries = 4;
       case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           ptr -= 1;
           do {
             ptr += 1;
@@ -1033,36 +1027,40 @@ const char* BundledDocumentMetadata::_InternalParse(const char* ptr, ::PROTOBUF_
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
           } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<34>(ptr));
-        } else goto handle_unusual;
+        } else
+          goto handle_unusual;
         continue;
-      default: {
-      handle_unusual:
-        if ((tag & 7) == 4 || tag == 0) {
-          ctx->SetLastTag(tag);
-          goto success;
-        }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
-        CHK_(ptr != nullptr);
-        continue;
-      }
+      default:
+        goto handle_unusual;
     }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
   }  // while
-success:
+message_done:
   return ptr;
 failure:
   ptr = nullptr;
-  goto success;
+  goto message_done;
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* BundledDocumentMetadata::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+uint8_t* BundledDocumentMetadata::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:firestore.BundledDocumentMetadata)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string name = 1;
-  if (this->name().size() > 0) {
+  if (!this->_internal_name().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_name().data(), static_cast<int>(this->_internal_name().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
@@ -1072,7 +1070,7 @@ failure:
   }
 
   // .google.protobuf.Timestamp read_time = 2;
-  if (this->has_read_time()) {
+  if (this->_internal_has_read_time()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1080,7 +1078,7 @@ failure:
   }
 
   // bool exists = 3;
-  if (this->exists() != 0) {
+  if (this->_internal_exists() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(3, this->_internal_exists(), target);
   }
@@ -1097,7 +1095,7 @@ failure:
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:firestore.BundledDocumentMetadata)
   return target;
@@ -1107,7 +1105,7 @@ size_t BundledDocumentMetadata::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:firestore.BundledDocumentMetadata)
   size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
@@ -1120,73 +1118,57 @@ size_t BundledDocumentMetadata::ByteSizeLong() const {
   }
 
   // string name = 1;
-  if (this->name().size() > 0) {
+  if (!this->_internal_name().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_name());
   }
 
   // .google.protobuf.Timestamp read_time = 2;
-  if (this->has_read_time()) {
+  if (this->_internal_has_read_time()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *read_time_);
   }
 
   // bool exists = 3;
-  if (this->exists() != 0) {
+  if (this->_internal_exists() != 0) {
     total_size += 1 + 1;
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
-        _internal_metadata_, total_size, &_cached_size_);
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
+  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
 }
 
-void BundledDocumentMetadata::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:firestore.BundledDocumentMetadata)
-  GOOGLE_DCHECK_NE(&from, this);
-  const BundledDocumentMetadata* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<BundledDocumentMetadata>(
-          &from);
-  if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:firestore.BundledDocumentMetadata)
-    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
-  } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:firestore.BundledDocumentMetadata)
-    MergeFrom(*source);
-  }
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData BundledDocumentMetadata::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    BundledDocumentMetadata::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*BundledDocumentMetadata::GetClassData() const { return &_class_data_; }
+
+void BundledDocumentMetadata::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+  static_cast<BundledDocumentMetadata *>(to)->MergeFrom(
+      static_cast<const BundledDocumentMetadata &>(from));
 }
+
 
 void BundledDocumentMetadata::MergeFrom(const BundledDocumentMetadata& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:firestore.BundledDocumentMetadata)
   GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   queries_.MergeFrom(from.queries_);
-  if (from.name().size() > 0) {
-
-    name_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.name_);
+  if (!from._internal_name().empty()) {
+    _internal_set_name(from._internal_name());
   }
-  if (from.has_read_time()) {
-    _internal_mutable_read_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from._internal_read_time());
+  if (from._internal_has_read_time()) {
+    _internal_mutable_read_time()->::PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from._internal_read_time());
   }
-  if (from.exists() != 0) {
+  if (from._internal_exists() != 0) {
     _internal_set_exists(from._internal_exists());
   }
-}
-
-void BundledDocumentMetadata::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:firestore.BundledDocumentMetadata)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void BundledDocumentMetadata::CopyFrom(const BundledDocumentMetadata& from) {
@@ -1202,55 +1184,68 @@ bool BundledDocumentMetadata::IsInitialized() const {
 
 void BundledDocumentMetadata::InternalSwap(BundledDocumentMetadata* other) {
   using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
+  auto* lhs_arena = GetArenaForAllocation();
+  auto* rhs_arena = other->GetArenaForAllocation();
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   queries_.InternalSwap(&other->queries_);
-  name_.Swap(&other->name_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-    GetArenaNoVirtual());
-  swap(read_time_, other->read_time_);
-  swap(exists_, other->exists_);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      &name_, lhs_arena,
+      &other->name_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(BundledDocumentMetadata, exists_)
+      + sizeof(BundledDocumentMetadata::exists_)
+      - PROTOBUF_FIELD_OFFSET(BundledDocumentMetadata, read_time_)>(
+          reinterpret_cast<char*>(&read_time_),
+          reinterpret_cast<char*>(&other->read_time_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata BundledDocumentMetadata::GetMetadata() const {
-  return GetMetadataStatic();
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_firestore_2fbundle_2eproto_getter, &descriptor_table_firestore_2fbundle_2eproto_once,
+      file_level_metadata_firestore_2fbundle_2eproto[2]);
 }
-
 
 // ===================================================================
 
-void BundleMetadata::InitAsDefaultInstance() {
-  ::firestore::_BundleMetadata_default_instance_._instance.get_mutable()->create_time_ = const_cast< PROTOBUF_NAMESPACE_ID::Timestamp*>(
-      PROTOBUF_NAMESPACE_ID::Timestamp::internal_default_instance());
-}
 class BundleMetadata::_Internal {
  public:
-  static const PROTOBUF_NAMESPACE_ID::Timestamp& create_time(const BundleMetadata* msg);
+  static const ::PROTOBUF_NAMESPACE_ID::Timestamp& create_time(const BundleMetadata* msg);
 };
 
-const PROTOBUF_NAMESPACE_ID::Timestamp&
+const ::PROTOBUF_NAMESPACE_ID::Timestamp&
 BundleMetadata::_Internal::create_time(const BundleMetadata* msg) {
   return *msg->create_time_;
 }
 void BundleMetadata::clear_create_time() {
-  if (GetArenaNoVirtual() == nullptr && create_time_ != nullptr) {
+  if (GetArenaForAllocation() == nullptr && create_time_ != nullptr) {
     delete create_time_;
   }
   create_time_ = nullptr;
 }
-BundleMetadata::BundleMetadata()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
+BundleMetadata::BundleMetadata(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:firestore.BundleMetadata)
+  if (!is_message_owned) {
+    RegisterArenaDtor(arena);
+  }
+  // @@protoc_insertion_point(arena_constructor:firestore.BundleMetadata)
 }
 BundleMetadata::BundleMetadata(const BundleMetadata& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if (!from._internal_id().empty()) {
-    id_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.id_);
+    id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_id(), 
+      GetArenaForAllocation());
   }
   if (from._internal_has_create_time()) {
-    create_time_ = new PROTOBUF_NAMESPACE_ID::Timestamp(*from.create_time_);
+    create_time_ = new ::PROTOBUF_NAMESPACE_ID::Timestamp(*from.create_time_);
   } else {
     create_time_ = nullptr;
   }
@@ -1260,122 +1255,136 @@ BundleMetadata::BundleMetadata(const BundleMetadata& from)
   // @@protoc_insertion_point(copy_constructor:firestore.BundleMetadata)
 }
 
-void BundleMetadata::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_BundleMetadata_firestore_2fbundle_2eproto.base);
-  id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  ::memset(&create_time_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&total_bytes_) -
-      reinterpret_cast<char*>(&create_time_)) + sizeof(total_bytes_));
+inline void BundleMetadata::SharedCtor() {
+id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
+    reinterpret_cast<char*>(&create_time_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&total_bytes_) -
+    reinterpret_cast<char*>(&create_time_)) + sizeof(total_bytes_));
 }
 
 BundleMetadata::~BundleMetadata() {
   // @@protoc_insertion_point(destructor:firestore.BundleMetadata)
+  if (GetArenaForAllocation() != nullptr) return;
   SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
-void BundleMetadata::SharedDtor() {
+inline void BundleMetadata::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
   id_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (this != internal_default_instance()) delete create_time_;
 }
 
+void BundleMetadata::ArenaDtor(void* object) {
+  BundleMetadata* _this = reinterpret_cast< BundleMetadata* >(object);
+  (void)_this;
+}
+void BundleMetadata::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
 void BundleMetadata::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const BundleMetadata& BundleMetadata::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_BundleMetadata_firestore_2fbundle_2eproto.base);
-  return *internal_default_instance();
-}
-
 
 void BundleMetadata::Clear() {
 // @@protoc_insertion_point(message_clear_start:firestore.BundleMetadata)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  id_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (GetArenaNoVirtual() == nullptr && create_time_ != nullptr) {
+  id_.ClearToEmpty();
+  if (GetArenaForAllocation() == nullptr && create_time_ != nullptr) {
     delete create_time_;
   }
   create_time_ = nullptr;
   ::memset(&version_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&total_bytes_) -
       reinterpret_cast<char*>(&version_)) + sizeof(total_bytes_));
-  _internal_metadata_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* BundleMetadata::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    CHK_(ptr);
     switch (tag >> 3) {
       // string id = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           auto str = _internal_mutable_id();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "firestore.BundleMetadata.id"));
           CHK_(ptr);
-        } else goto handle_unusual;
+        } else
+          goto handle_unusual;
         continue;
       // .google.protobuf.Timestamp create_time = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_create_time(), ptr);
           CHK_(ptr);
-        } else goto handle_unusual;
+        } else
+          goto handle_unusual;
         continue;
       // uint32 version = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
-          version_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 24)) {
+          version_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
-        } else goto handle_unusual;
+        } else
+          goto handle_unusual;
         continue;
       // uint32 total_documents = 4;
       case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
-          total_documents_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 32)) {
+          total_documents_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
-        } else goto handle_unusual;
+        } else
+          goto handle_unusual;
         continue;
       // uint64 total_bytes = 5;
       case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 40)) {
-          total_bytes_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 40)) {
+          total_bytes_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
-        } else goto handle_unusual;
+        } else
+          goto handle_unusual;
         continue;
-      default: {
-      handle_unusual:
-        if ((tag & 7) == 4 || tag == 0) {
-          ctx->SetLastTag(tag);
-          goto success;
-        }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
-        CHK_(ptr != nullptr);
-        continue;
-      }
+      default:
+        goto handle_unusual;
     }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
   }  // while
-success:
+message_done:
   return ptr;
 failure:
   ptr = nullptr;
-  goto success;
+  goto message_done;
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* BundleMetadata::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+uint8_t* BundleMetadata::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:firestore.BundleMetadata)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string id = 1;
-  if (this->id().size() > 0) {
+  if (!this->_internal_id().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_id().data(), static_cast<int>(this->_internal_id().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
@@ -1385,7 +1394,7 @@ failure:
   }
 
   // .google.protobuf.Timestamp create_time = 2;
-  if (this->has_create_time()) {
+  if (this->_internal_has_create_time()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -1393,26 +1402,26 @@ failure:
   }
 
   // uint32 version = 3;
-  if (this->version() != 0) {
+  if (this->_internal_version() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(3, this->_internal_version(), target);
   }
 
   // uint32 total_documents = 4;
-  if (this->total_documents() != 0) {
+  if (this->_internal_total_documents() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(4, this->_internal_total_documents(), target);
   }
 
   // uint64 total_bytes = 5;
-  if (this->total_bytes() != 0) {
+  if (this->_internal_total_bytes() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(5, this->_internal_total_bytes(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:firestore.BundleMetadata)
   return target;
@@ -1422,99 +1431,77 @@ size_t BundleMetadata::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:firestore.BundleMetadata)
   size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   // string id = 1;
-  if (this->id().size() > 0) {
+  if (!this->_internal_id().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_id());
   }
 
   // .google.protobuf.Timestamp create_time = 2;
-  if (this->has_create_time()) {
+  if (this->_internal_has_create_time()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *create_time_);
   }
 
   // uint32 version = 3;
-  if (this->version() != 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-        this->_internal_version());
+  if (this->_internal_version() != 0) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32SizePlusOne(this->_internal_version());
   }
 
   // uint32 total_documents = 4;
-  if (this->total_documents() != 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-        this->_internal_total_documents());
+  if (this->_internal_total_documents() != 0) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32SizePlusOne(this->_internal_total_documents());
   }
 
   // uint64 total_bytes = 5;
-  if (this->total_bytes() != 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
-        this->_internal_total_bytes());
+  if (this->_internal_total_bytes() != 0) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64SizePlusOne(this->_internal_total_bytes());
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
-        _internal_metadata_, total_size, &_cached_size_);
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
+  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
 }
 
-void BundleMetadata::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:firestore.BundleMetadata)
-  GOOGLE_DCHECK_NE(&from, this);
-  const BundleMetadata* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<BundleMetadata>(
-          &from);
-  if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:firestore.BundleMetadata)
-    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
-  } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:firestore.BundleMetadata)
-    MergeFrom(*source);
-  }
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData BundleMetadata::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    BundleMetadata::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*BundleMetadata::GetClassData() const { return &_class_data_; }
+
+void BundleMetadata::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+  static_cast<BundleMetadata *>(to)->MergeFrom(
+      static_cast<const BundleMetadata &>(from));
 }
+
 
 void BundleMetadata::MergeFrom(const BundleMetadata& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:firestore.BundleMetadata)
   GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from.id().size() > 0) {
-
-    id_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.id_);
+  if (!from._internal_id().empty()) {
+    _internal_set_id(from._internal_id());
   }
-  if (from.has_create_time()) {
-    _internal_mutable_create_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from._internal_create_time());
+  if (from._internal_has_create_time()) {
+    _internal_mutable_create_time()->::PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from._internal_create_time());
   }
-  if (from.version() != 0) {
+  if (from._internal_version() != 0) {
     _internal_set_version(from._internal_version());
   }
-  if (from.total_documents() != 0) {
+  if (from._internal_total_documents() != 0) {
     _internal_set_total_documents(from._internal_total_documents());
   }
-  if (from.total_bytes() != 0) {
+  if (from._internal_total_bytes() != 0) {
     _internal_set_total_bytes(from._internal_total_bytes());
   }
-}
-
-void BundleMetadata::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:firestore.BundleMetadata)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void BundleMetadata::CopyFrom(const BundleMetadata& from) {
@@ -1530,32 +1517,30 @@ bool BundleMetadata::IsInitialized() const {
 
 void BundleMetadata::InternalSwap(BundleMetadata* other) {
   using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  id_.Swap(&other->id_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-    GetArenaNoVirtual());
-  swap(create_time_, other->create_time_);
-  swap(version_, other->version_);
-  swap(total_documents_, other->total_documents_);
-  swap(total_bytes_, other->total_bytes_);
+  auto* lhs_arena = GetArenaForAllocation();
+  auto* rhs_arena = other->GetArenaForAllocation();
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      &id_, lhs_arena,
+      &other->id_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(BundleMetadata, total_bytes_)
+      + sizeof(BundleMetadata::total_bytes_)
+      - PROTOBUF_FIELD_OFFSET(BundleMetadata, create_time_)>(
+          reinterpret_cast<char*>(&create_time_),
+          reinterpret_cast<char*>(&other->create_time_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata BundleMetadata::GetMetadata() const {
-  return GetMetadataStatic();
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_firestore_2fbundle_2eproto_getter, &descriptor_table_firestore_2fbundle_2eproto_once,
+      file_level_metadata_firestore_2fbundle_2eproto[3]);
 }
-
 
 // ===================================================================
 
-void BundleElement::InitAsDefaultInstance() {
-  ::firestore::_BundleElement_default_instance_.metadata_ = const_cast< ::firestore::BundleMetadata*>(
-      ::firestore::BundleMetadata::internal_default_instance());
-  ::firestore::_BundleElement_default_instance_.named_query_ = const_cast< ::firestore::NamedQuery*>(
-      ::firestore::NamedQuery::internal_default_instance());
-  ::firestore::_BundleElement_default_instance_.document_metadata_ = const_cast< ::firestore::BundledDocumentMetadata*>(
-      ::firestore::BundledDocumentMetadata::internal_default_instance());
-  ::firestore::_BundleElement_default_instance_.document_ = const_cast< ::google::firestore::v1::Document*>(
-      ::google::firestore::v1::Document::internal_default_instance());
-}
 class BundleElement::_Internal {
  public:
   static const ::firestore::BundleMetadata& metadata(const BundleElement* msg);
@@ -1581,10 +1566,11 @@ BundleElement::_Internal::document(const BundleElement* msg) {
   return *msg->element_type_.document_;
 }
 void BundleElement::set_allocated_metadata(::firestore::BundleMetadata* metadata) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
   clear_element_type();
   if (metadata) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+      ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::firestore::BundleMetadata>::GetOwningArena(metadata);
     if (message_arena != submessage_arena) {
       metadata = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, metadata, submessage_arena);
@@ -1595,10 +1581,11 @@ void BundleElement::set_allocated_metadata(::firestore::BundleMetadata* metadata
   // @@protoc_insertion_point(field_set_allocated:firestore.BundleElement.metadata)
 }
 void BundleElement::set_allocated_named_query(::firestore::NamedQuery* named_query) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
   clear_element_type();
   if (named_query) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+      ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::firestore::NamedQuery>::GetOwningArena(named_query);
     if (message_arena != submessage_arena) {
       named_query = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, named_query, submessage_arena);
@@ -1609,10 +1596,11 @@ void BundleElement::set_allocated_named_query(::firestore::NamedQuery* named_que
   // @@protoc_insertion_point(field_set_allocated:firestore.BundleElement.named_query)
 }
 void BundleElement::set_allocated_document_metadata(::firestore::BundledDocumentMetadata* document_metadata) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
   clear_element_type();
   if (document_metadata) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+      ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::firestore::BundledDocumentMetadata>::GetOwningArena(document_metadata);
     if (message_arena != submessage_arena) {
       document_metadata = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, document_metadata, submessage_arena);
@@ -1623,10 +1611,13 @@ void BundleElement::set_allocated_document_metadata(::firestore::BundledDocument
   // @@protoc_insertion_point(field_set_allocated:firestore.BundleElement.document_metadata)
 }
 void BundleElement::set_allocated_document(::google::firestore::v1::Document* document) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
   clear_element_type();
   if (document) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
+                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(document));
     if (message_arena != submessage_arena) {
       document = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, document, submessage_arena);
@@ -1638,19 +1629,24 @@ void BundleElement::set_allocated_document(::google::firestore::v1::Document* do
 }
 void BundleElement::clear_document() {
   if (_internal_has_document()) {
-    delete element_type_.document_;
+    if (GetArenaForAllocation() == nullptr) {
+      delete element_type_.document_;
+    }
     clear_has_element_type();
   }
 }
-BundleElement::BundleElement()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
+BundleElement::BundleElement(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:firestore.BundleElement)
+  if (!is_message_owned) {
+    RegisterArenaDtor(arena);
+  }
+  // @@protoc_insertion_point(arena_constructor:firestore.BundleElement)
 }
 BundleElement::BundleElement(const BundleElement& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   clear_has_element_type();
   switch (from.element_type_case()) {
     case kMetadata: {
@@ -1676,48 +1672,59 @@ BundleElement::BundleElement(const BundleElement& from)
   // @@protoc_insertion_point(copy_constructor:firestore.BundleElement)
 }
 
-void BundleElement::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_BundleElement_firestore_2fbundle_2eproto.base);
-  clear_has_element_type();
+inline void BundleElement::SharedCtor() {
+clear_has_element_type();
 }
 
 BundleElement::~BundleElement() {
   // @@protoc_insertion_point(destructor:firestore.BundleElement)
+  if (GetArenaForAllocation() != nullptr) return;
   SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
-void BundleElement::SharedDtor() {
+inline void BundleElement::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
   if (has_element_type()) {
     clear_element_type();
   }
 }
 
+void BundleElement::ArenaDtor(void* object) {
+  BundleElement* _this = reinterpret_cast< BundleElement* >(object);
+  (void)_this;
+}
+void BundleElement::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
 void BundleElement::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const BundleElement& BundleElement::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_BundleElement_firestore_2fbundle_2eproto.base);
-  return *internal_default_instance();
-}
-
 
 void BundleElement::clear_element_type() {
 // @@protoc_insertion_point(one_of_clear_start:firestore.BundleElement)
   switch (element_type_case()) {
     case kMetadata: {
-      delete element_type_.metadata_;
+      if (GetArenaForAllocation() == nullptr) {
+        delete element_type_.metadata_;
+      }
       break;
     }
     case kNamedQuery: {
-      delete element_type_.named_query_;
+      if (GetArenaForAllocation() == nullptr) {
+        delete element_type_.named_query_;
+      }
       break;
     }
     case kDocumentMetadata: {
-      delete element_type_.document_metadata_;
+      if (GetArenaForAllocation() == nullptr) {
+        delete element_type_.document_metadata_;
+      }
       break;
     }
     case kDocument: {
-      delete element_type_.document_;
+      if (GetArenaForAllocation() == nullptr) {
+        delete element_type_.document_;
+      }
       break;
     }
     case ELEMENT_TYPE_NOT_SET: {
@@ -1730,73 +1737,79 @@ void BundleElement::clear_element_type() {
 
 void BundleElement::Clear() {
 // @@protoc_insertion_point(message_clear_start:firestore.BundleElement)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   clear_element_type();
-  _internal_metadata_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* BundleElement::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    CHK_(ptr);
     switch (tag >> 3) {
       // .firestore.BundleMetadata metadata = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_metadata(), ptr);
           CHK_(ptr);
-        } else goto handle_unusual;
+        } else
+          goto handle_unusual;
         continue;
       // .firestore.NamedQuery named_query = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_named_query(), ptr);
           CHK_(ptr);
-        } else goto handle_unusual;
+        } else
+          goto handle_unusual;
         continue;
       // .firestore.BundledDocumentMetadata document_metadata = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           ptr = ctx->ParseMessage(_internal_mutable_document_metadata(), ptr);
           CHK_(ptr);
-        } else goto handle_unusual;
+        } else
+          goto handle_unusual;
         continue;
       // .google.firestore.v1.Document document = 4;
       case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           ptr = ctx->ParseMessage(_internal_mutable_document(), ptr);
           CHK_(ptr);
-        } else goto handle_unusual;
+        } else
+          goto handle_unusual;
         continue;
-      default: {
-      handle_unusual:
-        if ((tag & 7) == 4 || tag == 0) {
-          ctx->SetLastTag(tag);
-          goto success;
-        }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
-        CHK_(ptr != nullptr);
-        continue;
-      }
+      default:
+        goto handle_unusual;
     }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
   }  // while
-success:
+message_done:
   return ptr;
 failure:
   ptr = nullptr;
-  goto success;
+  goto message_done;
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* BundleElement::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+uint8_t* BundleElement::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:firestore.BundleElement)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   // .firestore.BundleMetadata metadata = 1;
@@ -1833,7 +1846,7 @@ failure:
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:firestore.BundleElement)
   return target;
@@ -1843,7 +1856,7 @@ size_t BundleElement::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:firestore.BundleElement)
   size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
@@ -1880,35 +1893,26 @@ size_t BundleElement::ByteSizeLong() const {
       break;
     }
   }
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
-        _internal_metadata_, total_size, &_cached_size_);
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
+  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
 }
 
-void BundleElement::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:firestore.BundleElement)
-  GOOGLE_DCHECK_NE(&from, this);
-  const BundleElement* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<BundleElement>(
-          &from);
-  if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:firestore.BundleElement)
-    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
-  } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:firestore.BundleElement)
-    MergeFrom(*source);
-  }
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData BundleElement::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    BundleElement::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*BundleElement::GetClassData() const { return &_class_data_; }
+
+void BundleElement::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+  static_cast<BundleElement *>(to)->MergeFrom(
+      static_cast<const BundleElement &>(from));
 }
+
 
 void BundleElement::MergeFrom(const BundleElement& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:firestore.BundleElement)
   GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   switch (from.element_type_case()) {
@@ -1932,13 +1936,7 @@ void BundleElement::MergeFrom(const BundleElement& from) {
       break;
     }
   }
-}
-
-void BundleElement::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:firestore.BundleElement)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void BundleElement::CopyFrom(const BundleElement& from) {
@@ -1954,33 +1952,34 @@ bool BundleElement::IsInitialized() const {
 
 void BundleElement::InternalSwap(BundleElement* other) {
   using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(element_type_, other->element_type_);
   swap(_oneof_case_[0], other->_oneof_case_[0]);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata BundleElement::GetMetadata() const {
-  return GetMetadataStatic();
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_firestore_2fbundle_2eproto_getter, &descriptor_table_firestore_2fbundle_2eproto_once,
+      file_level_metadata_firestore_2fbundle_2eproto[4]);
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace firestore
 PROTOBUF_NAMESPACE_OPEN
 template<> PROTOBUF_NOINLINE ::firestore::BundledQuery* Arena::CreateMaybeMessage< ::firestore::BundledQuery >(Arena* arena) {
-  return Arena::CreateInternal< ::firestore::BundledQuery >(arena);
+  return Arena::CreateMessageInternal< ::firestore::BundledQuery >(arena);
 }
 template<> PROTOBUF_NOINLINE ::firestore::NamedQuery* Arena::CreateMaybeMessage< ::firestore::NamedQuery >(Arena* arena) {
-  return Arena::CreateInternal< ::firestore::NamedQuery >(arena);
+  return Arena::CreateMessageInternal< ::firestore::NamedQuery >(arena);
 }
 template<> PROTOBUF_NOINLINE ::firestore::BundledDocumentMetadata* Arena::CreateMaybeMessage< ::firestore::BundledDocumentMetadata >(Arena* arena) {
-  return Arena::CreateInternal< ::firestore::BundledDocumentMetadata >(arena);
+  return Arena::CreateMessageInternal< ::firestore::BundledDocumentMetadata >(arena);
 }
 template<> PROTOBUF_NOINLINE ::firestore::BundleMetadata* Arena::CreateMaybeMessage< ::firestore::BundleMetadata >(Arena* arena) {
-  return Arena::CreateInternal< ::firestore::BundleMetadata >(arena);
+  return Arena::CreateMessageInternal< ::firestore::BundleMetadata >(arena);
 }
 template<> PROTOBUF_NOINLINE ::firestore::BundleElement* Arena::CreateMaybeMessage< ::firestore::BundleElement >(Arena* arena) {
-  return Arena::CreateInternal< ::firestore::BundleElement >(arena);
+  return Arena::CreateMessageInternal< ::firestore::BundleElement >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

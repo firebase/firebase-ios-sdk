@@ -18,9 +18,8 @@ if(TARGET RE2)
     return()
 endif()
 
-# Based on https://github.com/grpc/grpc/blob/v1.40.0/bazel/grpc_deps.bzl
-# master@{2020-05-27}
-set(commit aecba11114cf1fac5497aeb844b6966106de3eb6)
+# Based on https://github.com/grpc/grpc/blob/v1.44.0/bazel/grpc_deps.bzl
+set(commit 8e08f47b11b413302749c0d8b17a1c94777495d5)
 
 ExternalProject_Add(
   re2
@@ -28,7 +27,7 @@ ExternalProject_Add(
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
   DOWNLOAD_NAME re2-${commit}.tar.gz
   URL https://github.com/google/re2/archive/${commit}.tar.gz
-  URL_HASH SHA256=9f385e146410a8150b6f4cb1a57eab7ec806ced48d427554b1e754877ff26c3e
+  URL_HASH SHA256=319a58a58d8af295db97dfeecc4e250179c5966beaa2d842a82f0a013b6a239b
 
   PREFIX ${PROJECT_BINARY_DIR}
   SOURCE_DIR ${PROJECT_BINARY_DIR}/src/re2
