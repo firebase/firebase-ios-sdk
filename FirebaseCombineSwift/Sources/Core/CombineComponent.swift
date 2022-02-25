@@ -16,30 +16,4 @@ import Foundation
 import FirebaseCore
 import FirebaseCoreInternal
 
-@objc(FIRCombineProvider)
-protocol CombineProvider {}
-
-@objc(FIRCombineComponent) class CombineComponent: NSObject, Library, CombineProvider {
-  // MARK: - Private Variables
-
-  /// The app associated with all functions instances in this container.
-  private let app: FirebaseApp
-
-  // MARK: - Initializers
-
-  required init(app: FirebaseApp) {
-    self.app = app
-  }
-
-  // MARK: - Library conformance
-
-  static func componentsToRegister() -> [Component] {
-    return [Component(CombineProvider.self,
-                      instantiationTiming: .lazy,
-                      dependencies: [ /* authInterop */ ]) { container, isCacheable in
-        guard let app = container.app else { return nil }
-        isCacheable.pointee = true
-        return self.init(app: app)
-      }]
-  }
-}
+@objc(FIRCombineSDK) private class __CombineSDK: NSObject {}
