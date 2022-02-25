@@ -1,5 +1,6 @@
 # Unreleased
-- [fixed] Updated upload-symbols to 3.10 and added native support for ARM / M1 Macs (#8965)
+- [added] Updated upload-symbols to 3.11 and added logic to process Flutter project information (#9379)
+- [fixed] Added native support for ARM / M1 Macs in upload-symbols (#8965)
 - [fixed] Fixed an issue where passing nil as a value for a custom key or user ID did not clear the stored value as expected.
 
 # v8.9.0
