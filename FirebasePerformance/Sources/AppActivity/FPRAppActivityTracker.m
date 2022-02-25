@@ -18,6 +18,7 @@
 #import <UIKit/UIKit.h>
 
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
+#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 #import "FirebasePerformance/Sources/Gauges/CPU/FPRCPUGaugeCollector+Private.h"
 #import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
 #import "FirebasePerformance/Sources/Gauges/Memory/FPRMemoryGaugeCollector+Private.h"
