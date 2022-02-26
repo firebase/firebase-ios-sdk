@@ -70,9 +70,10 @@ class LevelDbDocumentOverlayCache final : public DocumentOverlayCache {
  private:
   friend class LevelDbDocumentOverlayCacheTestHelper;
 
-  // Returns the number of index entries for the largest batch ID.
-  // This method exists for unit testing only.
+  // Returns the number of index entries of the various types.
+  // These methods exist for unit testing only.
   int GetLargestBatchIdIndexEntryCount() const;
+  int GetCollectionIndexEntryCount() const;
 
   int GetOverlayCount() const override;
   int CountEntriesWithKeyPrefix(const std::string& key_prefix) const;
@@ -96,6 +97,14 @@ class LevelDbDocumentOverlayCache final : public DocumentOverlayCache {
   void ForEachKeyWithLargestBatchId(
       int largest_batch_id,
       std::function<void(LevelDbDocumentOverlayKey&&)>) const;
+
+  void ForEachKeyInCollection(
+      const model::ResourcePath& collection,
+      int since_batch_id,
+      std::function<void(LevelDbDocumentOverlayKey&&)>) const;
+
+  absl::optional<model::mutation::Overlay> GetOverlay(
+      const LevelDbDocumentOverlayKey& decoded_key) const;
 
   // The LevelDbDocumentOverlayCache instance is owned by LevelDbPersistence.
   LevelDbPersistence* db_;

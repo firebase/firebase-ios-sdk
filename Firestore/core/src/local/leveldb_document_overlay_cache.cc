@@ -88,28 +88,13 @@ void LevelDbDocumentOverlayCache::RemoveOverlaysForBatchId(int batch_id) {
 DocumentOverlayCache::OverlayByDocumentKeyMap
 LevelDbDocumentOverlayCache::GetOverlays(const ResourcePath& collection,
                                          int since_batch_id) const {
-  // TODO(dconeybe) Implement an index so that this query can be performed
-  // without requiring a full table scan.
-
   OverlayByDocumentKeyMap result;
-
-  const size_t immediate_children_path_length{collection.size() + 1};
-
-  ForEachOverlay([&](LevelDbDocumentOverlayKey&& key,
-                     absl::string_view encoded_mutation) {
-    if (!collection.IsPrefixOf(key.document_key().path())) {
-      return;
-    }
-    // Documents from sub-collections
-    if (key.document_key().path().size() != immediate_children_path_length) {
-      return;
-    }
-
-    if (key.largest_batch_id() > since_batch_id) {
-      result[key.document_key()] = ParseOverlay(key, encoded_mutation);
-    }
-  });
-
+  ForEachKeyInCollection(
+      collection, since_batch_id, [&](LevelDbDocumentOverlayKey&& key) {
+        absl::optional<Overlay> overlay = GetOverlay(key);
+        HARD_ASSERT(overlay.has_value());
+        result[std::move(key).document_key()] = std::move(overlay).value();
+      });
   return result;
 }
 
@@ -167,6 +152,11 @@ int LevelDbDocumentOverlayCache::GetLargestBatchIdIndexEntryCount() const {
       LevelDbDocumentOverlayLargestBatchIdIndexKey::KeyPrefix(user_id_));
 }
 
+int LevelDbDocumentOverlayCache::GetCollectionIndexEntryCount() const {
+  return CountEntriesWithKeyPrefix(
+      LevelDbDocumentOverlayCollectionIndexKey::KeyPrefix(user_id_));
+}
+
 int LevelDbDocumentOverlayCache::CountEntriesWithKeyPrefix(
     const std::string& key_prefix) const {
   int count = 0;
@@ -202,6 +192,7 @@ void LevelDbDocumentOverlayCache::SaveOverlay(int largest_batch_id,
   auto* transaction = db_->current_transaction();
   transaction->Put(key.Encode(), serializer_->EncodeMutation(mutation));
   transaction->Put(LevelDbDocumentOverlayLargestBatchIdIndexKey::Key(key), "");
+  transaction->Put(LevelDbDocumentOverlayCollectionIndexKey::Key(key), "");
 }
 
 void LevelDbDocumentOverlayCache::DeleteOverlay(
@@ -227,6 +218,7 @@ void LevelDbDocumentOverlayCache::DeleteOverlay(
   auto* transaction = db_->current_transaction();
   transaction->Delete(key.Encode());
   transaction->Delete(LevelDbDocumentOverlayLargestBatchIdIndexKey::Key(key));
+  transaction->Delete(LevelDbDocumentOverlayCollectionIndexKey::Key(key));
 }
 
 void LevelDbDocumentOverlayCache::ForEachOverlay(
@@ -256,6 +248,40 @@ void LevelDbDocumentOverlayCache::ForEachKeyWithLargestBatchId(
     HARD_ASSERT(key.Decode(it->key()));
     callback(std::move(key).ToLevelDbDocumentOverlayKey());
   }
+}
+
+void LevelDbDocumentOverlayCache::ForEachKeyInCollection(
+    const ResourcePath& collection,
+    int since_batch_id,
+    std::function<void(LevelDbDocumentOverlayKey&&)> callback) const {
+  const std::string index_start_key =
+      LevelDbDocumentOverlayCollectionIndexKey::KeyPrefix(user_id_, collection,
+                                                          since_batch_id + 1);
+  const std::string index_key_prefix =
+      LevelDbDocumentOverlayCollectionIndexKey::KeyPrefix(user_id_, collection);
+
+  auto it = db_->current_transaction()->NewIterator();
+  for (it->Seek(index_start_key);
+       it->Valid() && absl::StartsWith(it->key(), index_key_prefix);
+       it->Next()) {
+    LevelDbDocumentOverlayCollectionIndexKey key;
+    HARD_ASSERT(key.Decode(it->key()));
+    if (key.collection() != collection) {
+      break;
+    }
+    callback(std::move(key).ToLevelDbDocumentOverlayKey());
+  }
+}
+
+absl::optional<Overlay> LevelDbDocumentOverlayCache::GetOverlay(
+    const LevelDbDocumentOverlayKey& key) const {
+  auto it = db_->current_transaction()->NewIterator();
+  const std::string encoded_key = key.Encode();
+  it->Seek(encoded_key);
+  if (!(it->Valid() && it->key() == encoded_key)) {
+    return absl::nullopt;
+  }
+  return ParseOverlay(key, it->value());
 }
 
 }  // namespace local

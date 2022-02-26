@@ -42,6 +42,11 @@ class LevelDbDocumentOverlayCacheTestHelper final {
       const LevelDbDocumentOverlayCache& instance) {
     return instance.GetLargestBatchIdIndexEntryCount();
   }
+
+  static int GetCollectionIndexEntryCount(
+      const LevelDbDocumentOverlayCache& instance) {
+    return instance.GetCollectionIndexEntryCount();
+  }
 };
 
 namespace {
@@ -76,6 +81,13 @@ class LevelDbDocumentOverlayCacheTest : public DocumentOverlayCacheTestBase {
       EXPECT_EQ(LevelDbDocumentOverlayCacheTestHelper::
                     GetLargestBatchIdIndexEntryCount(cache),
                 expected_count);
+    }
+    {
+      SCOPED_TRACE("GetCollectionIndexEntryCount");
+      EXPECT_EQ(
+          LevelDbDocumentOverlayCacheTestHelper::GetCollectionIndexEntryCount(
+              cache),
+          expected_count);
     }
   }
 };
