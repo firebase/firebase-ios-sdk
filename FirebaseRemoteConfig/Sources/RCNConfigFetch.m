@@ -343,174 +343,26 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
   NSData *content = [postRequestString dataUsingEncoding:NSUTF8StringEncoding];
 
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000040", @"Start config fetch.");
-  __weak RCNConfigFetch *weakSelf = self;
-  RCNConfigFetcherCompletion fetcherCompletion = ^(NSData *data, NSURLResponse *response,
-                                                   NSError *error) {
-    FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000050",
-                @"config fetch completed. Error: %@ StatusCode: %ld", (error ? error : @"nil"),
-                (long)[((NSHTTPURLResponse *)response) statusCode]);
-
-    RCNConfigFetch *fetcherCompletionSelf = weakSelf;
-    if (fetcherCompletionSelf == nil) {
-      return;
-    }
-
-    // The fetch has completed.
-    fetcherCompletionSelf->_settings.isFetchInProgress = NO;
-
-    dispatch_async(fetcherCompletionSelf->_lockQueue, ^{
-      RCNConfigFetch *strongSelf = weakSelf;
-      if (strongSelf == nil) {
-        return;
-      }
-
-      NSInteger statusCode = [((NSHTTPURLResponse *)response) statusCode];
-
-      if (error || (statusCode != kRCNFetchResponseHTTPStatusCodeOK)) {
-        // Update metadata about fetch failure.
-        [strongSelf->_settings updateMetadataWithFetchSuccessStatus:NO];
-        if (error) {
-          if (strongSelf->_settings.lastFetchStatus == FIRRemoteConfigFetchStatusSuccess) {
-            FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000025",
-                        @"RCN Fetch failure: %@. Using cached config result.", error);
-          } else {
-            FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000026",
-                        @"RCN Fetch failure: %@. No cached config result.", error);
-          }
-        }
-        if (statusCode != kRCNFetchResponseHTTPStatusCodeOK) {
-          FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000026",
-                      @"RCN Fetch failure. Response http error code: %ld", (long)statusCode);
-          // Response error code 429, 500, 503 will trigger exponential backoff mode.
-          if (statusCode == kRCNFetchResponseHTTPStatusTooManyRequests ||
-              statusCode == kRCNFetchResponseHTTPStatusCodeInternalError ||
-              statusCode == kRCNFetchResponseHTTPStatusCodeServiceUnavailable ||
-              statusCode == kRCNFetchResponseHTTPStatusCodeGatewayTimeout) {
-            [strongSelf->_settings updateExponentialBackoffTime];
-            if ([strongSelf->_settings shouldThrottle]) {
-              // Must set lastFetchStatus before FailReason.
-              strongSelf->_settings.lastFetchStatus = FIRRemoteConfigFetchStatusThrottled;
-              strongSelf->_settings.lastFetchError = FIRRemoteConfigErrorThrottled;
-              NSTimeInterval throttledEndTime =
-                  strongSelf->_settings.exponentialBackoffThrottleEndTime;
-
-              NSError *error = [NSError
-                  errorWithDomain:FIRRemoteConfigErrorDomain
-                             code:FIRRemoteConfigErrorThrottled
-                         userInfo:@{
-                           FIRRemoteConfigThrottledEndTimeInSecondsKey : @(throttledEndTime)
-                         }];
-              return [strongSelf reportCompletionOnHandler:completionHandler
-                                                withStatus:strongSelf->_settings.lastFetchStatus
-                                                 withError:error];
-            }
-          }
-        }
-        // Return back the received error.
-        // Must set lastFetchStatus before setting Fetch Error.
-        strongSelf->_settings.lastFetchStatus = FIRRemoteConfigFetchStatusFailure;
-        strongSelf->_settings.lastFetchError = FIRRemoteConfigErrorInternalError;
-        NSDictionary<NSErrorUserInfoKey, id> *userInfo = @{
-          NSLocalizedDescriptionKey :
-              ([error localizedDescription]
-                   ?: [NSString
-                          stringWithFormat:@"Internal Error. Status code: %ld", (long)statusCode])
-        };
-        return [strongSelf
-            reportCompletionOnHandler:completionHandler
-                           withStatus:FIRRemoteConfigFetchStatusFailure
-                            withError:[NSError errorWithDomain:FIRRemoteConfigErrorDomain
-                                                          code:FIRRemoteConfigErrorInternalError
-                                                      userInfo:userInfo]];
-      }
-
-      // Fetch was successful. Check if we have data.
-      NSError *retError;
-      if (!data) {
-        FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000043", @"RCN Fetch: No data in fetch response");
-        return [strongSelf reportCompletionOnHandler:completionHandler
-                                          withStatus:FIRRemoteConfigFetchStatusSuccess
-                                           withError:nil];
-      }
-
-      // Config fetch succeeded.
-      // JSONObjectWithData is always expected to return an NSDictionary in our case
-      NSMutableDictionary *fetchedConfig =
-          [NSJSONSerialization JSONObjectWithData:data
-                                          options:NSJSONReadingMutableContainers
-                                            error:&retError];
-      if (retError) {
-        FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000042",
-                    @"RCN Fetch failure: %@. Could not parse response data as JSON", error);
-      }
-
-      // Check and log if we received an error from the server
-      if (fetchedConfig && fetchedConfig.count == 1 && fetchedConfig[RCNFetchResponseKeyError]) {
-        NSString *errStr = [NSString stringWithFormat:@"RCN Fetch Failure: Server returned error:"];
-        NSDictionary *errDict = fetchedConfig[RCNFetchResponseKeyError];
-        if (errDict[RCNFetchResponseKeyErrorCode]) {
-          errStr = [errStr
-              stringByAppendingString:[NSString
-                                          stringWithFormat:@"code: %@",
-                                                           errDict[RCNFetchResponseKeyErrorCode]]];
-        }
-        if (errDict[RCNFetchResponseKeyErrorStatus]) {
-          errStr = [errStr stringByAppendingString:
-                               [NSString stringWithFormat:@". Status: %@",
-                                                          errDict[RCNFetchResponseKeyErrorStatus]]];
-        }
-        if (errDict[RCNFetchResponseKeyErrorMessage]) {
-          errStr =
-              [errStr stringByAppendingString:
-                          [NSString stringWithFormat:@". Message: %@",
-                                                     errDict[RCNFetchResponseKeyErrorMessage]]];
-        }
-        FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000044", @"%@.", errStr);
-        return [strongSelf
-            reportCompletionOnHandler:completionHandler
-                           withStatus:FIRRemoteConfigFetchStatusFailure
-                            withError:[NSError
-                                          errorWithDomain:FIRRemoteConfigErrorDomain
-                                                     code:FIRRemoteConfigErrorInternalError
-                                                 userInfo:@{NSLocalizedDescriptionKey : errStr}]];
-      }
-
-      // Add the fetched config to the database.
-      if (fetchedConfig) {
-        // Update config content to cache and DB.
-        [strongSelf->_content updateConfigContentWithResponse:fetchedConfig
-                                                 forNamespace:strongSelf->_FIRNamespace];
-        // Update experiments only for 3p namespace
-        NSString *namespace = [strongSelf->_FIRNamespace
-            substringToIndex:[strongSelf->_FIRNamespace rangeOfString:@":"].location];
-        if ([namespace isEqualToString:FIRNamespaceGoogleMobilePlatform]) {
-          [strongSelf->_experiment updateExperimentsWithResponse:
-                                       fetchedConfig[RCNFetchResponseKeyExperimentDescriptions]];
-        }
-      } else {
-        FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000063",
-                    @"Empty response with no fetched config.");
-      }
-
-      // We had a successful fetch. Update the current eTag in settings if different.
-      NSString *latestETag = ((NSHTTPURLResponse *)response).allHeaderFields[kETagHeaderName];
-      if (!strongSelf->_settings.lastETag ||
-          !([strongSelf->_settings.lastETag isEqualToString:latestETag])) {
-        strongSelf->_settings.lastETag = latestETag;
-      }
-
-      [strongSelf->_settings updateMetadataWithFetchSuccessStatus:YES];
-      return [strongSelf reportCompletionOnHandler:completionHandler
-                                        withStatus:FIRRemoteConfigFetchStatusSuccess
-                                         withError:nil];
-    });
-  };
 
   [[[self compressedContentFromContent:content]
       then:^id _Nullable(NSData *_Nullable compressedContent) {
         FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000061", @"Making remote config fetch.");
-        NSURLSessionDataTask *task = [self URLSessionDataTaskWithContent:compressedContent
-                                                       completionHandler:fetcherCompletion];
+        NSURLSessionDataTask *task = [self
+            URLSessionDataTaskWithContent:compressedContent
+                        completionHandler:^(NSData *_Nonnull data, NSURLResponse *_Nonnull response,
+                                            NSError *_Nonnull error) {
+                          RCNConfigFetchDataTaskResult *dataTaskResult =
+                              [RCNConfigFetchDataTaskResult resultWithData:data
+                                                                  response:response
+                                                                     error:error];
+                          [[self fetchResultFromDataTaskResult:dataTaskResult]
+                              then:^id _Nullable(RCNConfigFetchResult *_Nullable fetchResult) {
+                                if (completionHandler) {
+                                  completionHandler(fetchResult.status, fetchResult.error);
+                                }
+                                return fetchResult;
+                              }];
+                        }];
         [task resume];
         return compressedContent;
       }] catch:^(NSError *_Nonnull error) {
@@ -637,6 +489,172 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
   [URLRequest setHTTPBody:content];
 
   return [_fetchSession dataTaskWithRequest:URLRequest completionHandler:fetcherCompletion];
+}
+
+- (FBLPromise<RCNConfigFetchResult *> *)fetchResultFromDataTaskResult:
+    (RCNConfigFetchDataTaskResult *)result {
+  // The fetch has completed.
+  self->_settings.isFetchInProgress = NO;
+
+  __weak RCNConfigFetch *weakSelf = self;
+  return [FBLPromise
+      onQueue:self->_lockQueue
+           do:^RCNConfigFetchResult *_Nullable {
+             FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000050",
+                         @"config fetch completed. Error: %@ StatusCode: %ld",
+                         (result.error ? result.error : @"nil"),
+                         (long)[((NSHTTPURLResponse *)result.response) statusCode]);
+
+             RCNConfigFetch *strongSelf = weakSelf;
+             if (strongSelf == nil) {
+               // TODO: Specify error
+               return [RCNConfigFetchResult resultWithStatus:FIRRemoteConfigFetchStatusFailure
+                                                       error:nil];
+             }
+
+             NSInteger statusCode = [((NSHTTPURLResponse *)result.response) statusCode];
+
+             if (result.error || (statusCode != kRCNFetchResponseHTTPStatusCodeOK)) {
+               // Update metadata about fetch failure.
+               [strongSelf->_settings updateMetadataWithFetchSuccessStatus:NO];
+               if (result.error) {
+                 if (strongSelf->_settings.lastFetchStatus == FIRRemoteConfigFetchStatusSuccess) {
+                   FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000025",
+                               @"RCN Fetch failure: %@. Using cached config result.", result.error);
+                 } else {
+                   FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000026",
+                               @"RCN Fetch failure: %@. No cached config result.", result.error);
+                 }
+               }
+               if (statusCode != kRCNFetchResponseHTTPStatusCodeOK) {
+                 FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000026",
+                             @"RCN Fetch failure. Response http error code: %ld", (long)statusCode);
+                 // Response error code 429, 500, 503 will trigger exponential backoff mode.
+                 if (statusCode == kRCNFetchResponseHTTPStatusTooManyRequests ||
+                     statusCode == kRCNFetchResponseHTTPStatusCodeInternalError ||
+                     statusCode == kRCNFetchResponseHTTPStatusCodeServiceUnavailable ||
+                     statusCode == kRCNFetchResponseHTTPStatusCodeGatewayTimeout) {
+                   [strongSelf->_settings updateExponentialBackoffTime];
+                   if ([strongSelf->_settings shouldThrottle]) {
+                     // Must set lastFetchStatus before FailReason.
+                     strongSelf->_settings.lastFetchStatus = FIRRemoteConfigFetchStatusThrottled;
+                     strongSelf->_settings.lastFetchError = FIRRemoteConfigErrorThrottled;
+                     NSTimeInterval throttledEndTime =
+                         strongSelf->_settings.exponentialBackoffThrottleEndTime;
+
+                     NSError *error = [NSError
+                         errorWithDomain:FIRRemoteConfigErrorDomain
+                                    code:FIRRemoteConfigErrorThrottled
+                                userInfo:@{
+                                  FIRRemoteConfigThrottledEndTimeInSecondsKey : @(throttledEndTime)
+                                }];
+                     return [RCNConfigFetchResult
+                         resultWithStatus:strongSelf->_settings.lastFetchStatus
+                                    error:error];
+                   }
+                 }
+               }
+               // Return back the received error.
+               // Must set lastFetchStatus before setting Fetch Error.
+               strongSelf->_settings.lastFetchStatus = FIRRemoteConfigFetchStatusFailure;
+               strongSelf->_settings.lastFetchError = FIRRemoteConfigErrorInternalError;
+               NSDictionary<NSErrorUserInfoKey, id> *userInfo = @{
+                 NSLocalizedDescriptionKey :
+                     ([result.error localizedDescription]
+                          ?: [NSString stringWithFormat:@"Internal Error. Status code: %ld",
+                                                        (long)statusCode])
+               };
+               return [RCNConfigFetchResult
+                   resultWithStatus:FIRRemoteConfigFetchStatusFailure
+                              error:[NSError errorWithDomain:FIRRemoteConfigErrorDomain
+                                                        code:FIRRemoteConfigErrorInternalError
+                                                    userInfo:userInfo]];
+             }
+
+             // Fetch was successful. Check if we have data.
+             NSError *retError;
+             if (!result.data) {
+               FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000043",
+                          @"RCN Fetch: No data in fetch response");
+               return [RCNConfigFetchResult resultWithStatus:FIRRemoteConfigFetchStatusSuccess
+                                                       error:nil];
+             }
+
+             // Config fetch succeeded.
+             // JSONObjectWithData is always expected to return an NSDictionary in our case
+             NSMutableDictionary *fetchedConfig =
+                 [NSJSONSerialization JSONObjectWithData:result.data
+                                                 options:NSJSONReadingMutableContainers
+                                                   error:&retError];
+             if (retError) {
+               FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000042",
+                           @"RCN Fetch failure: %@. Could not parse response data as JSON",
+                           result.error);
+             }
+
+             // Check and log if we received an error from the server
+             if (fetchedConfig && fetchedConfig.count == 1 &&
+                 fetchedConfig[RCNFetchResponseKeyError]) {
+               NSString *errStr =
+                   [NSString stringWithFormat:@"RCN Fetch Failure: Server returned error:"];
+               NSDictionary *errDict = fetchedConfig[RCNFetchResponseKeyError];
+               if (errDict[RCNFetchResponseKeyErrorCode]) {
+                 errStr =
+                     [errStr stringByAppendingString:
+                                 [NSString stringWithFormat:@"code: %@",
+                                                            errDict[RCNFetchResponseKeyErrorCode]]];
+               }
+               if (errDict[RCNFetchResponseKeyErrorStatus]) {
+                 errStr = [errStr
+                     stringByAppendingString:
+                         [NSString stringWithFormat:@". Status: %@",
+                                                    errDict[RCNFetchResponseKeyErrorStatus]]];
+               }
+               if (errDict[RCNFetchResponseKeyErrorMessage]) {
+                 errStr = [errStr
+                     stringByAppendingString:
+                         [NSString stringWithFormat:@". Message: %@",
+                                                    errDict[RCNFetchResponseKeyErrorMessage]]];
+               }
+               FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000044", @"%@.", errStr);
+               return [RCNConfigFetchResult
+                   resultWithStatus:FIRRemoteConfigFetchStatusFailure
+                              error:[NSError
+                                        errorWithDomain:FIRRemoteConfigErrorDomain
+                                                   code:FIRRemoteConfigErrorInternalError
+                                               userInfo:@{NSLocalizedDescriptionKey : errStr}]];
+             }
+
+             // Add the fetched config to the database.
+             if (fetchedConfig) {
+               // Update config content to cache and DB.
+               [strongSelf->_content updateConfigContentWithResponse:fetchedConfig
+                                                        forNamespace:strongSelf->_FIRNamespace];
+               // Update experiments only for 3p namespace
+               NSString *namespace = [strongSelf->_FIRNamespace
+                   substringToIndex:[strongSelf->_FIRNamespace rangeOfString:@":"].location];
+               if ([namespace isEqualToString:FIRNamespaceGoogleMobilePlatform]) {
+                 [strongSelf->_experiment
+                     updateExperimentsWithResponse:fetchedConfig
+                                                       [RCNFetchResponseKeyExperimentDescriptions]];
+               }
+             } else {
+               FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000063",
+                           @"Empty response with no fetched config.");
+             }
+
+             // We had a successful fetch. Update the current eTag in settings if different.
+             NSString *latestETag =
+                 ((NSHTTPURLResponse *)result.response).allHeaderFields[kETagHeaderName];
+             if (!strongSelf->_settings.lastETag ||
+                 !([strongSelf->_settings.lastETag isEqualToString:latestETag])) {
+               strongSelf->_settings.lastETag = latestETag;
+             }
+
+             [strongSelf->_settings updateMetadataWithFetchSuccessStatus:YES];
+             return [RCNConfigFetchResult resultWithStatus:FIRRemoteConfigFetchStatusSuccess
+                                                     error:nil];
+           }];
 }
 
 @end
