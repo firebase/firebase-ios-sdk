@@ -520,7 +520,7 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
   [dataTask resume];
 }
 
-- (NSString *)constructServerURL {
+- (NSURL *)serverURL {
   NSString *serverURLStr = [[NSString alloc] initWithString:kServerURLDomain];
   serverURLStr = [serverURLStr stringByAppendingString:kServerURLVersion];
   serverURLStr = [serverURLStr stringByAppendingString:kServerURLProjects];
@@ -542,7 +542,7 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
                 @"`FirebaseApp` is configured with `FirebaseOptions` that contains an `APIKey`.");
   }
 
-  return serverURLStr;
+  return [NSURL URLWithString:serverURLStr];
 }
 
 - (NSURLSession *)newFetchSession {
@@ -557,7 +557,7 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
 - (NSURLSessionDataTask *)URLSessionDataTaskWithContent:(NSData *)content
                                       completionHandler:
                                           (RCNConfigFetcherCompletion)fetcherCompletion {
-  NSURL *URL = [NSURL URLWithString:[self constructServerURL]];
+  NSURL *URL = [self serverURL];
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000046", @"%@",
               [NSString stringWithFormat:@"Making config request: %@", [URL absoluteString]]);
 
