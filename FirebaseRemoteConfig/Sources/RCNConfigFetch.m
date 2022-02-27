@@ -29,6 +29,7 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
+#import "FirebaseRemoteConfig/Sources/RCNConfigFetchResult.h"
 #import "FirebaseRemoteConfig/Sources/RCNDevice.h"
 
 #ifdef RCN_STAGING_SERVER
@@ -297,22 +298,28 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
 }
 
 - (void)doFetchCall:(FIRRemoteConfigFetchCompletion)completionHandler {
-  [self getAnalyticsUserPropertiesWithCompletionHandler:^(NSDictionary *userProperties) {
-    dispatch_async(self->_lockQueue, ^{
-      [self fetchWithUserProperties:userProperties completionHandler:completionHandler];
-    });
-  }];
+  [[self analyticsUserProperties]
+      onQueue:self->_lockQueue
+         then:^id _Nullable(NSDictionary<NSString *, id> *_Nullable userProperties) {
+           [self fetchWithUserProperties:userProperties completionHandler:completionHandler];
+           return userProperties;
+         }];
 }
 
-- (void)getAnalyticsUserPropertiesWithCompletionHandler:
-    (FIRAInteropUserPropertiesCallback)completionHandler {
-  FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000060", @"Fetch with user properties completed.");
-  id<FIRAnalyticsInterop> analytics = self->_analytics;
-  if (analytics == nil) {
-    completionHandler(@{});
-  } else {
-    [analytics getUserPropertiesWithCallback:completionHandler];
-  }
+- (FBLPromise<NSDictionary<NSString *, id> *> *)analyticsUserProperties {
+  return [FBLPromise async:^(FBLPromiseFulfillBlock _Nonnull fulfill,
+                             FBLPromiseRejectBlock _Nonnull reject) {
+    FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000060", @"Fetch with user properties completed.");
+    id<FIRAnalyticsInterop> analytics = self->_analytics;
+    if (analytics == nil) {
+      fulfill(@{});
+    } else {
+      [analytics
+          getUserPropertiesWithCallback:^(NSDictionary<NSString *, id> *_Nonnull userProperties) {
+            fulfill(userProperties);
+          }];
+    }
+  }];
 }
 
 - (void)reportCompletionOnHandler:(FIRRemoteConfigFetchCompletion)completionHandler
