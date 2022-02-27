@@ -134,11 +134,24 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
 
 - (void)fetchConfigWithExpirationDuration:(NSTimeInterval)expirationDuration
                         completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler {
+  [[[self fetchConfigWithExpirationDuration:expirationDuration]
+      then:^id _Nullable(RCNConfigFetchResult *_Nullable result) {
+        completionHandler(result.status, nil);
+        return result;
+      }] catch:^(NSError *_Nonnull error) {
+    completionHandler(FIRRemoteConfigFetchStatusFailure, error);
+  }];
+}
+
+- (FBLPromise<RCNConfigFetchResult *> *)fetchConfigWithExpirationDuration:
+    (NSTimeInterval)expirationDuration {
   // Note: We expect the googleAppID to always be available.
   BOOL hasDeviceContextChanged =
       FIRRemoteConfigHasDeviceContextChanged(_settings.deviceContext, _options.googleAppID);
 
   __weak RCNConfigFetch *weakSelf = self;
+  FBLPromise *promise = [FBLPromise pendingPromise];
+
   dispatch_async(_lockQueue, ^{
     RCNConfigFetch *strongSelf = weakSelf;
     if (strongSelf == nil) {
@@ -149,9 +162,9 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
     if (![strongSelf->_settings hasMinimumFetchIntervalElapsed:expirationDuration] &&
         !hasDeviceContextChanged) {
       FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000051", @"Returning cached data.");
-      return [strongSelf reportCompletionOnHandler:completionHandler
-                                        withStatus:FIRRemoteConfigFetchStatusSuccess
-                                         withError:nil];
+      return
+          [promise fulfill:[RCNConfigFetchResult resultWithStatus:FIRRemoteConfigFetchStatusSuccess
+                                                            error:nil]];
     }
 
     // Check if a fetch is already in progress.
@@ -160,9 +173,9 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
       if (strongSelf->_settings.lastFetchTimeInterval > 0) {
         FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000052",
                     @"A fetch is already in progress. Using previous fetch results.");
-        return [strongSelf reportCompletionOnHandler:completionHandler
-                                          withStatus:strongSelf->_settings.lastFetchStatus
-                                           withError:nil];
+        return [promise
+            fulfill:[RCNConfigFetchResult resultWithStatus:strongSelf->_settings.lastFetchStatus
+                                                     error:nil]];
       } else {
         FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000053",
                     @"A fetch is already in progress. Ignoring duplicate request.");
@@ -173,9 +186,7 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
                               NSLocalizedDescriptionKey :
                                   @"FetchError: Duplicate request while the previous one is pending"
                             }];
-        return [strongSelf reportCompletionOnHandler:completionHandler
-                                          withStatus:FIRRemoteConfigFetchStatusFailure
-                                           withError:error];
+        return [promise reject:error];
       }
     }
 
@@ -192,13 +203,20 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
                           userInfo:@{
                             FIRRemoteConfigThrottledEndTimeInSecondsKey : @(throttledEndTime)
                           }];
-      return [strongSelf reportCompletionOnHandler:completionHandler
-                                        withStatus:strongSelf->_settings.lastFetchStatus
-                                         withError:error];
+      return [promise reject:error];
     }
     strongSelf->_settings.isFetchInProgress = YES;
-    [strongSelf refreshInstallationsTokenWithCompletionHandler:completionHandler];
+    [strongSelf refreshInstallationsTokenWithCompletionHandler:^(FIRRemoteConfigFetchStatus status,
+                                                                 NSError *_Nullable error) {
+      if (error) {
+        [promise reject:error];
+      } else {
+        [promise fulfill:[RCNConfigFetchResult resultWithStatus:status error:nil]];
+      }
+    }];
   });
+
+  return promise;
 }
 
 #pragma mark - Fetch helpers
