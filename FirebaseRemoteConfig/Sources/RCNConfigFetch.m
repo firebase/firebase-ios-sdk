@@ -340,21 +340,6 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
 
   // Get POST request content.
   NSData *content = [postRequestString dataUsingEncoding:NSUTF8StringEncoding];
-  NSError *compressionError;
-  NSData *compressedContent = [NSData gul_dataByGzippingData:content error:&compressionError];
-  if (compressionError) {
-    NSString *errString = [NSString stringWithFormat:@"Failed to compress the config request."];
-    FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000033", @"%@", errString);
-
-    self->_settings.isFetchInProgress = NO;
-    return [self
-        reportCompletionOnHandler:completionHandler
-                       withStatus:FIRRemoteConfigFetchStatusFailure
-                        withError:[NSError
-                                      errorWithDomain:FIRRemoteConfigErrorDomain
-                                                 code:FIRRemoteConfigErrorInternalError
-                                             userInfo:@{NSLocalizedDescriptionKey : errString}]];
-  }
 
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000040", @"Start config fetch.");
   __weak RCNConfigFetch *weakSelf = self;
@@ -520,11 +505,36 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
     });
   };
 
-  FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000061", @"Making remote config fetch.");
+  [[[self compressedContentFromContent:content]
+      then:^id _Nullable(NSData *_Nullable compressedContent) {
+        FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000061", @"Making remote config fetch.");
+        NSURLSessionDataTask *task = [self URLSessionDataTaskWithContent:compressedContent
+                                                       completionHandler:fetcherCompletion];
+        [task resume];
+        return compressedContent;
+      }] catch:^(NSError *_Nonnull error) {
+    [self reportCompletionOnHandler:completionHandler
+                         withStatus:FIRRemoteConfigFetchStatusFailure
+                          withError:error];
+  }];
+}
 
-  NSURLSessionDataTask *dataTask = [self URLSessionDataTaskWithContent:compressedContent
-                                                     completionHandler:fetcherCompletion];
-  [dataTask resume];
+- (FBLPromise<NSData *> *)compressedContentFromContent:(NSData *)content {
+  return [FBLPromise do:^id _Nullable {
+    NSError *compressionError;
+    NSData *compressedContent = [NSData gul_dataByGzippingData:content error:&compressionError];
+    if (compressionError) {
+      NSString *errString = [NSString stringWithFormat:@"Failed to compress the config request."];
+      FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000033", @"%@", errString);
+
+      self->_settings.isFetchInProgress = NO;
+      return [NSError errorWithDomain:FIRRemoteConfigErrorDomain
+                                 code:FIRRemoteConfigErrorInternalError
+                             userInfo:@{NSLocalizedDescriptionKey : errString}];
+    } else {
+      return compressedContent;
+    }
+  }];
 }
 
 - (NSURL *)serverURL {
