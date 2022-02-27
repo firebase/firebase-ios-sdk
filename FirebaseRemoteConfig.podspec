@@ -49,6 +49,7 @@ app update.
   s.dependency 'FirebaseInstallations', '~> 8.0'
   s.dependency 'GoogleUtilities/Environment', '~> 7.7'
   s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.7'
+  s.dependency 'PromisesObjC'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
