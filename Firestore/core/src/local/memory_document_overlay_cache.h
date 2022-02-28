@@ -17,7 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_LOCAL_MEMORY_DOCUMENT_OVERLAY_CACHE_H_
 #define FIRESTORE_CORE_SRC_LOCAL_MEMORY_DOCUMENT_OVERLAY_CACHE_H_
 
-#include <string>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -50,7 +49,7 @@ class MemoryDocumentOverlayCache final : public DocumentOverlayCache {
   OverlayByDocumentKeyMap GetOverlays(const model::ResourcePath& collection,
                                       int since_batch_id) const override;
 
-  OverlayByDocumentKeyMap GetOverlays(const std::string& collection_group,
+  OverlayByDocumentKeyMap GetOverlays(absl::string_view collection_group,
                                       int since_batch_id,
                                       std::size_t count) const override;
 

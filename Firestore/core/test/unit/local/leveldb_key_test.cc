@@ -670,6 +670,12 @@ TEST(LevelDbDocumentOverlayKeyTest, Constructor) {
   EXPECT_EQ(key.largest_batch_id(), 123);
 }
 
+TEST(LevelDbDocumentOverlayKeyTest, RvalueOverloadedGetters) {
+  LevelDbDocumentOverlayKey key("test_user", testutil::Key("coll/doc"), 123);
+  model::DocumentKey&& document_key = std::move(key).document_key();
+  EXPECT_EQ(document_key, testutil::Key("coll/doc"));
+}
+
 TEST(LevelDbDocumentOverlayKeyTest, Encode) {
   LevelDbDocumentOverlayKey key("test_user", testutil::Key("coll/doc"), 123);
   const std::string encoded_key = key.Encode();
@@ -1032,6 +1038,147 @@ TEST(LevelDbDocumentOverlayCollectionIndexKeyTest,
   EXPECT_EQ(decoded_key.collection(), ResourcePath{"coll"});
   EXPECT_EQ(decoded_key.largest_batch_id(), 123);
   EXPECT_EQ(decoded_key.document_key(), testutil::Key("coll/doc"));
+}
+
+TEST(LevelDbDocumentOverlayCollectionGroupIndexKeyTest, Prefixing) {
+  const std::string user1_key =
+      LevelDbDocumentOverlayCollectionGroupIndexKey::KeyPrefix("test_user1");
+  const std::string user2_key =
+      LevelDbDocumentOverlayCollectionGroupIndexKey::KeyPrefix("test_user2");
+  const std::string user1_group1_key =
+      LevelDbDocumentOverlayCollectionGroupIndexKey::KeyPrefix("test_user1",
+                                                               "group1");
+  const std::string user1_group2_key =
+      LevelDbDocumentOverlayCollectionGroupIndexKey::KeyPrefix("test_user1",
+                                                               "group2");
+  const std::string user2_group2_key =
+      LevelDbDocumentOverlayCollectionGroupIndexKey::KeyPrefix("test_user2",
+                                                               "group2");
+  const std::string user1_group1_batch1_key =
+      LevelDbDocumentOverlayCollectionGroupIndexKey::KeyPrefix("test_user1",
+                                                               "group1", 1);
+  const std::string user1_group1_batch2_key =
+      LevelDbDocumentOverlayCollectionGroupIndexKey::KeyPrefix("test_user1",
+                                                               "group1", 2);
+  const std::string user2_group2_batch2_key =
+      LevelDbDocumentOverlayCollectionGroupIndexKey::KeyPrefix("test_user2",
+                                                               "group2", 2);
+
+  ASSERT_TRUE(absl::StartsWith(user1_group1_key, user1_key));
+  ASSERT_TRUE(absl::StartsWith(user1_group2_key, user1_key));
+  ASSERT_TRUE(absl::StartsWith(user2_group2_key, user2_key));
+  ASSERT_TRUE(absl::StartsWith(user1_group1_batch1_key, user1_group1_key));
+  ASSERT_TRUE(absl::StartsWith(user1_group1_batch2_key, user1_group1_key));
+  ASSERT_FALSE(absl::StartsWith(user1_key, user2_key));
+  ASSERT_FALSE(absl::StartsWith(user2_key, user1_key));
+  ASSERT_FALSE(absl::StartsWith(user1_group1_key, user1_group2_key));
+  ASSERT_FALSE(absl::StartsWith(user1_group2_key, user1_group1_key));
+  ASSERT_FALSE(
+      absl::StartsWith(user1_group1_batch1_key, user1_group1_batch2_key));
+  ASSERT_FALSE(
+      absl::StartsWith(user1_group1_batch2_key, user1_group1_batch1_key));
+
+  const std::string user1_group1_batch1_doc1_key =
+      LevelDbDocumentOverlayCollectionGroupIndexKey::Key(
+          "test_user1", "group1", 1, testutil::Key("coll/doc1"));
+  const std::string user2_group2_batch2_doc2_key =
+      LevelDbDocumentOverlayCollectionGroupIndexKey::Key(
+          "test_user2", "group2", 2, testutil::Key("coll/doc2"));
+  ASSERT_TRUE(absl::StartsWith(user1_group1_batch1_doc1_key, user1_key));
+  ASSERT_TRUE(absl::StartsWith(user2_group2_batch2_doc2_key, user2_key));
+  ASSERT_TRUE(absl::StartsWith(user1_group1_batch1_doc1_key, user1_group1_key));
+  ASSERT_TRUE(absl::StartsWith(user2_group2_batch2_doc2_key, user2_group2_key));
+  ASSERT_TRUE(
+      absl::StartsWith(user1_group1_batch1_doc1_key, user1_group1_batch1_key));
+  ASSERT_TRUE(
+      absl::StartsWith(user2_group2_batch2_doc2_key, user2_group2_batch2_key));
+}
+
+TEST(LevelDbDocumentOverlayCollectionGroupIndexKeyTest, Ordering) {
+  const std::string user1_group1_batch1_doc1_key =
+      LevelDbDocumentOverlayCollectionGroupIndexKey::Key(
+          "user1", "group1", 1, testutil::Key("coll/doc1"));
+  const std::string user2_group1_batch1_doc1_key =
+      LevelDbDocumentOverlayCollectionGroupIndexKey::Key(
+          "user2", "group1", 1, testutil::Key("coll/doc1"));
+  const std::string user2_group2_batch1_doc1_key =
+      LevelDbDocumentOverlayCollectionGroupIndexKey::Key(
+          "user2", "group2", 1, testutil::Key("coll/doc1"));
+  const std::string user2_group2_batch2_doc1_key =
+      LevelDbDocumentOverlayCollectionGroupIndexKey::Key(
+          "user2", "group2", 2, testutil::Key("coll/doc1"));
+  const std::string user2_group2_batch2_doc2_key =
+      LevelDbDocumentOverlayCollectionGroupIndexKey::Key(
+          "user2", "group2", 2, testutil::Key("coll/doc2"));
+
+  ASSERT_LT(user1_group1_batch1_doc1_key, user2_group1_batch1_doc1_key);
+  ASSERT_LT(user2_group1_batch1_doc1_key, user2_group2_batch1_doc1_key);
+  ASSERT_LT(user2_group2_batch1_doc1_key, user2_group2_batch2_doc1_key);
+  ASSERT_LT(user2_group2_batch2_doc1_key, user2_group2_batch2_doc2_key);
+}
+
+TEST(LevelDbDocumentOverlayCollectionGroupIndexKeyTest, EncodeDecodeCycle) {
+  const std::vector<std::string> user_ids{"test_user", "foo/bar2",
+                                          "foo-bar?baz!quux"};
+  const std::vector<std::string> collection_groups{"group1", "group2"};
+  const std::vector<model::BatchId> batch_ids{1, 2, 3};
+  const std::vector<model::DocumentKey> document_keys{
+      testutil::Key("coll/doc1"), testutil::Key("coll/doc2"),
+      testutil::Key("coll/doc3")};
+  for (const std::string& user_id : user_ids) {
+    for (const std::string& collection_group : collection_groups) {
+      for (const model::BatchId batch_id : batch_ids) {
+        for (const model::DocumentKey& document_key : document_keys) {
+          SCOPED_TRACE(absl::StrCat("user_name=", user_id,
+                                    " collection_group=", collection_group,
+                                    " path=", document_key.ToString()));
+          const std::string encoded =
+              LevelDbDocumentOverlayCollectionGroupIndexKey::Key(
+                  user_id, collection_group, batch_id, document_key);
+          LevelDbDocumentOverlayCollectionGroupIndexKey key;
+          EXPECT_TRUE(key.Decode(encoded));
+          EXPECT_EQ(key.user_id(), user_id);
+          EXPECT_EQ(key.collection_group(), collection_group);
+          EXPECT_EQ(key.largest_batch_id(), batch_id);
+          EXPECT_EQ(key.document_key(), document_key);
+        }
+      }
+    }
+  }
+}
+
+TEST(LevelDbDocumentOverlayCollectionGroupIndexKeyTest, Description) {
+  AssertExpectedKeyDescription(
+      "[document_overlays_collection_group_index: user_id=foo-bar?baz!quux "
+      "collection_group=group1 batch_id=123 path=coll/docX]",
+      LevelDbDocumentOverlayCollectionGroupIndexKey::Key(
+          "foo-bar?baz!quux", "group1", 123, testutil::Key("coll/docX")));
+}
+
+TEST(LevelDbDocumentOverlayCollectionGroupIndexKeyTest,
+     FromLevelDbDocumentOverlayKey) {
+  LevelDbDocumentOverlayKey key("test_user", testutil::Key("coll/doc"), 123);
+
+  const absl::optional<std::string> encoded_key =
+      LevelDbDocumentOverlayCollectionGroupIndexKey::Key(key);
+  ASSERT_TRUE(encoded_key.has_value());
+
+  LevelDbDocumentOverlayCollectionGroupIndexKey decoded_key;
+  ASSERT_TRUE(decoded_key.Decode(encoded_key.value()));
+  EXPECT_EQ(decoded_key.user_id(), "test_user");
+  EXPECT_EQ(decoded_key.collection_group(), "coll");
+  EXPECT_EQ(decoded_key.largest_batch_id(), 123);
+  EXPECT_EQ(decoded_key.document_key(), testutil::Key("coll/doc"));
+}
+
+TEST(LevelDbDocumentOverlayCollectionGroupIndexKeyTest,
+     FromLevelDbDocumentOverlayKey_KeyHasNoCollectionGroup) {
+  LevelDbDocumentOverlayKey key("test_user", DocumentKey(ResourcePath{}), 123);
+
+  const absl::optional<std::string> encoded_key =
+      LevelDbDocumentOverlayCollectionGroupIndexKey::Key(key);
+
+  ASSERT_FALSE(encoded_key.has_value());
 }
 
 #undef AssertExpectedKeyDescription

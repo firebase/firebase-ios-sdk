@@ -18,7 +18,6 @@
 #define FIRESTORE_CORE_SRC_LOCAL_DOCUMENT_OVERLAY_CACHE_H_
 
 #include <cstdlib>
-#include <string>
 #include <unordered_map>
 
 #include "Firestore/core/src/model/document_key.h"
@@ -101,7 +100,7 @@ class DocumentOverlayCache {
    * overlay.
    */
   virtual OverlayByDocumentKeyMap GetOverlays(
-      const std::string& collection_group,
+      absl::string_view collection_group,
       int since_batch_id,
       std::size_t count) const = 0;
 

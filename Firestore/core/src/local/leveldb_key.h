@@ -25,6 +25,7 @@
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/types.h"
 #include "absl/strings/string_view.h"
+#include "absl/types/optional.h"
 #include "leveldb/slice.h"
 
 namespace firebase {
@@ -134,6 +135,13 @@ namespace local {
 //   - collection: ResourcePath
 //   - largest_batch_id: model::BatchId
 //   - document_id: string
+//
+// document_overlays_collection_group_index:
+//   - table_name: "document_overlays_collection_group_index"
+//   - user_id: string
+//   - collection_group: string
+//   - largest_batch_id: model::BatchId
+//   - document_key: ResourcePath
 
 /**
  * Parses the given key and returns a human readable description of its
@@ -1143,6 +1151,73 @@ class LevelDbDocumentOverlayCollectionIndexKey
   model::ResourcePath collection() const {
     return document_key().path().PopLast();
   }
+};
+
+/** A key in the "collection group" index of the document_overlays table. */
+class LevelDbDocumentOverlayCollectionGroupIndexKey
+    : public LevelDbDocumentOverlayIndexKey {
+ public:
+  /**
+   * Creates a key prefix that points just before the first key for the given
+   * user_id.
+   */
+  static std::string KeyPrefix(absl::string_view user_id);
+
+  /**
+   * Creates a key prefix that points just before the first key for the given
+   * user_id, collection group.
+   */
+  static std::string KeyPrefix(absl::string_view user_id,
+                               absl::string_view collection_group);
+
+  /**
+   * Creates a key prefix that points just before the first key for the given
+   * user_id, collection group, and largest_batch_id.
+   */
+  static std::string KeyPrefix(absl::string_view user_id,
+                               absl::string_view collection_group,
+                               model::BatchId largest_batch_id);
+
+  /**
+   * Creates a complete key that points to a specific user_id, collection group,
+   * and largest_batch_id for a given key in the document_overlays table.
+   */
+  static std::string Key(absl::string_view user_id,
+                         absl::string_view collection_group,
+                         model::BatchId largest_batch_id,
+                         const model::DocumentKey& document_key);
+
+  /**
+   * Creates a complete key that points to a specific key in the overlays table.
+   */
+  static absl::optional<std::string> Key(const LevelDbDocumentOverlayKey& key) {
+    const absl::optional<std::string> collection_group =
+        key.document_key().GetCollectionId();
+    if (!collection_group.has_value()) {
+      return absl::nullopt;
+    }
+    return Key(key.user_id(), collection_group.value(), key.largest_batch_id(),
+               key.document_key());
+  }
+
+  /**
+   * Decodes the given complete key, storing the decoded values in this
+   * instance.
+   *
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
+   */
+  ABSL_MUST_USE_RESULT
+  bool Decode(absl::string_view key);
+
+  /** The collection_group, as encoded in the key. */
+  const std::string& collection_group() const {
+    return collection_group_;
+  }
+
+ private:
+  std::string collection_group_;
 };
 
 }  // namespace local
