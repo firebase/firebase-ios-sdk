@@ -162,11 +162,6 @@
 - (void)testQuotaWithDataCollectionOff {
   FIRExceptionModel *exceptionModel = [self getTestExceptionModel];
 
-  // Assert we're getting the right delay for the calls.
-  [self setSleepBlock:^(int delay) {
-    XCTAssertEqual(delay, 60 / self.mockSettings.onDemandUploadRate);
-  }];
-
   for (int i = 0; i < 10; i++) {
     BOOL success =
         [self.managerData.onDemandModel recordOnDemandExceptionIfQuota:exceptionModel
@@ -181,7 +176,6 @@
   // is kept in sync with the contents of the active path.
   [self.managerData.onDemandModel.operationQueue waitUntilAllOperationsAreFinished];
 
-  // wait for the queue to empty
   XCTAssertEqual([self.managerData.onDemandModel recordedOnDemandExceptionCount],
                  FIRCLSMaxUnsentReports);
   XCTAssertEqual([self.managerData.onDemandModel droppedOnDemandExceptionCount],
