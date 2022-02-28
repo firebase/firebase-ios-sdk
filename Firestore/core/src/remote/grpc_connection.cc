@@ -61,6 +61,7 @@ const char* const kAppCheckHeader = "x-firebase-appcheck";
 const char* const kAuthorizationHeader = "authorization";
 const char* const kXGoogApiClientHeader = "x-goog-api-client";
 const char* const kGoogleCloudResourcePrefix = "google-cloud-resource-prefix";
+const char* const kXGoogRequestParams = "x-goog-request-params";
 
 std::string MakeString(absl::string_view view) {
   return view.data() ? std::string{view.data(), view.size()} : std::string{};
@@ -272,7 +273,13 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
   // This header is used to improve routing and project isolation by the
   // backend.
   const DatabaseId& db_id = database_info_->database_id();
+  // TODO(b/199767712): We are keeping this until Emulators can be released with
+  // this cl/428820046. Currently blocked because Emulators are now built with
+  // Java 11 from Google3.
   context->AddMetadata(kGoogleCloudResourcePrefix,
+                       StringFormat("projects/%s/databases/%s",
+                                    db_id.project_id(), db_id.database_id()));
+  context->AddMetadata(kXGoogRequestParams,
                        StringFormat("projects/%s/databases/%s",
                                     db_id.project_id(), db_id.database_id()));
   return context;
