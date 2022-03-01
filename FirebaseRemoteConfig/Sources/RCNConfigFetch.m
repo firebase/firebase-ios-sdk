@@ -454,44 +454,6 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
   return session;
 }
 
-- (FBLPromise<RCNConfigFetchDataTaskResult *> *)dataTaskResultWithContent:(NSData *)content {
-  NSURL *URL = [self serverURL];
-  FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000046", @"%@",
-              [NSString stringWithFormat:@"Making config request: %@", [URL absoluteString]]);
-
-  NSTimeInterval timeoutInterval = _fetchSession.configuration.timeoutIntervalForResource;
-  NSMutableURLRequest *URLRequest =
-      [[NSMutableURLRequest alloc] initWithURL:URL
-                                   cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-                               timeoutInterval:timeoutInterval];
-  URLRequest.HTTPMethod = kHTTPMethodPost;
-  [URLRequest setValue:kContentTypeValueJSON forHTTPHeaderField:kContentTypeHeaderName];
-  [URLRequest setValue:_settings.configInstallationsToken
-      forHTTPHeaderField:kInstallationsAuthTokenHeaderName];
-  [URLRequest setValue:[[NSBundle mainBundle] bundleIdentifier]
-      forHTTPHeaderField:kiOSBundleIdentifierHeaderName];
-  [URLRequest setValue:@"gzip" forHTTPHeaderField:kContentEncodingHeaderName];
-  [URLRequest setValue:@"gzip" forHTTPHeaderField:kAcceptEncodingHeaderName];
-  // Set the eTag from the last successful fetch, if available.
-  if (_settings.lastETag) {
-    [URLRequest setValue:_settings.lastETag forHTTPHeaderField:kIfNoneMatchETagHeaderName];
-  }
-  [URLRequest setHTTPBody:content];
-
-  return [FBLPromise
-      async:^(FBLPromiseFulfillBlock _Nonnull fulfill, FBLPromiseRejectBlock _Nonnull reject) {
-        NSURLSessionDataTask *task = [self->_fetchSession
-            dataTaskWithRequest:URLRequest
-              completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response,
-                                  NSError *_Nullable error) {
-                fulfill([RCNConfigFetchDataTaskResult resultWithData:data
-                                                            response:response
-                                                               error:error]);
-              }];
-        [task resume];
-      }];
-}
-
 - (NSURLSessionDataTask *)URLSessionDataTaskWithContent:(NSData *)content
                                       completionHandler:
                                           (RCNConfigFetcherCompletion)fetcherCompletion {
