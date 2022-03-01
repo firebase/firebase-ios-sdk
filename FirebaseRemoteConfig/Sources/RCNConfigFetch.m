@@ -307,7 +307,13 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
 
         FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000022", @"Success to get iid : %@.",
                    strongSelfQueue->_settings.configInstallationsIdentifier);
-        [strongSelf doFetchCall:completionHandler];
+        [[strongSelf performFetchCall]
+            then:^id _Nullable(RCNConfigFetchResult *_Nullable fetchResult) {
+              if (completionHandler) {
+                completionHandler(fetchResult.status, fetchResult.error);
+              }
+              return fetchResult;
+            }];
       });
     }];
   };
@@ -316,15 +322,12 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
   [installations authTokenWithCompletion:installationsTokenHandler];
 }
 
-- (void)doFetchCall:(FIRRemoteConfigFetchCompletion)completionHandler {
-  [[[self analyticsUserProperties]
+- (FBLPromise<RCNConfigFetchResult *> *)performFetchCall {
+  return [[self analyticsUserProperties]
       onQueue:self->_lockQueue
          then:^id _Nullable(NSDictionary<NSString *, id> *_Nullable userProperties) {
            return [self fetchWithUserProperties:userProperties];
-         }] then:^id _Nullable(RCNConfigFetchResult *_Nullable fetchResult) {
-    completionHandler(fetchResult.status, fetchResult.error);
-    return fetchResult;
-  }];
+         }];
 }
 
 - (FBLPromise<NSDictionary<NSString *, id> *> *)analyticsUserProperties {
