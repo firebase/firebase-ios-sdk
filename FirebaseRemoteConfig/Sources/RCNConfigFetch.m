@@ -317,12 +317,14 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
 }
 
 - (void)doFetchCall:(FIRRemoteConfigFetchCompletion)completionHandler {
-  [[self analyticsUserProperties]
+  [[[self analyticsUserProperties]
       onQueue:self->_lockQueue
          then:^id _Nullable(NSDictionary<NSString *, id> *_Nullable userProperties) {
-           [self fetchWithUserProperties:userProperties completionHandler:completionHandler];
-           return userProperties;
-         }];
+           return [self fetchWithUserProperties:userProperties];
+         }] then:^id _Nullable(RCNConfigFetchResult *_Nullable fetchResult) {
+    completionHandler(fetchResult.status, fetchResult.error);
+    return fetchResult;
+  }];
 }
 
 - (FBLPromise<NSDictionary<NSString *, id> *> *)analyticsUserProperties {
@@ -353,6 +355,16 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
 
 - (void)fetchWithUserProperties:(NSDictionary *)userProperties
               completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler {
+  [[self fetchWithUserProperties:userProperties]
+      then:^id _Nullable(RCNConfigFetchResult *_Nullable result) {
+        if (completionHandler) {
+          completionHandler(result.status, result.error);
+        }
+        return result;
+      }];
+}
+
+- (FBLPromise<RCNConfigFetchResult *> *)fetchWithUserProperties:(NSDictionary *)userProperties {
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000061", @"Fetch with user properties initiated.");
 
   NSString *postRequestString = [_settings nextRequestWithUserProperties:userProperties];
@@ -362,31 +374,28 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
 
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000040", @"Start config fetch.");
 
-  [[[self compressedContentFromContent:content]
-      then:^id _Nullable(NSData *_Nullable compressedContent) {
-        FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000061", @"Making remote config fetch.");
-        NSURLSessionDataTask *task = [self
-            URLSessionDataTaskWithContent:compressedContent
-                        completionHandler:^(NSData *_Nonnull data, NSURLResponse *_Nonnull response,
-                                            NSError *_Nonnull error) {
-                          RCNConfigFetchDataTaskResult *dataTaskResult =
-                              [RCNConfigFetchDataTaskResult resultWithData:data
-                                                                  response:response
-                                                                     error:error];
-                          [[self fetchResultFromDataTaskResult:dataTaskResult]
-                              then:^id _Nullable(RCNConfigFetchResult *_Nullable fetchResult) {
-                                if (completionHandler) {
-                                  completionHandler(fetchResult.status, fetchResult.error);
-                                }
-                                return fetchResult;
-                              }];
-                        }];
-        [task resume];
-        return compressedContent;
-      }] catch:^(NSError *_Nonnull error) {
-    [self reportCompletionOnHandler:completionHandler
-                         withStatus:FIRRemoteConfigFetchStatusFailure
-                          withError:error];
+  return [[self compressedContentFromContent:content] then:^id _Nullable(
+                                                          NSData *_Nullable compressedContent) {
+    FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000061", @"Making remote config fetch.");
+    return [FBLPromise async:^(FBLPromiseFulfillBlock _Nonnull fulfill,
+                               FBLPromiseRejectBlock _Nonnull reject) {
+      NSURLSessionDataTask *task = [self
+          URLSessionDataTaskWithContent:compressedContent
+                      completionHandler:^(NSData *_Nonnull data, NSURLResponse *_Nonnull response,
+                                          NSError *_Nonnull error) {
+                        RCNConfigFetchDataTaskResult *dataTaskResult =
+                            [RCNConfigFetchDataTaskResult resultWithData:data
+                                                                response:response
+                                                                   error:error];
+                        [[self fetchResultFromDataTaskResult:dataTaskResult]
+                            then:^id _Nullable(RCNConfigFetchResult *_Nullable fetchResult) {
+                              fulfill(fetchResult);
+                              return fetchResult;
+                            }];
+                      }];
+      [task resume];
+    }];
+    ;
   }];
 }
 
