@@ -25,6 +25,7 @@
 #include "Firestore/core/src/local/query_engine.h"
 #include "Firestore/core/src/local/remote_document_cache.h"
 #include "Firestore/core/src/model/model_fwd.h"
+#include "Firestore/core/src/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
@@ -175,8 +176,13 @@ class WrappedRemoteDocumentCache : public RemoteDocumentCache {
       const core::Query& query,
       const model::SnapshotVersion& since_read_time) override;
 
+  void SetIndexManager(IndexManager* manager) override {
+    index_manager_ = NOT_NULL(manager);
+  }
+
  private:
   RemoteDocumentCache* subject_ = nullptr;
+  IndexManager* index_manager_ = nullptr;
   CountingQueryEngine* query_engine_ = nullptr;
 };
 

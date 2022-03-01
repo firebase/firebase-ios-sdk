@@ -46,6 +46,7 @@ void MemoryRemoteDocumentCache::Add(const MutableDocument& document,
   // Note: We create an explicit copy to prevent further modifications.
   docs_ = docs_.insert(document.key(), std::make_pair(document, read_time));
 
+  NOT_NULL(index_manager_);
   index_manager_->AddToCollectionParentIndex(document.key().path().PopLast());
 }
 
@@ -134,7 +135,7 @@ int64_t MemoryRemoteDocumentCache::CalculateByteSize(const Sizer& sizer) {
   return count;
 }
 
-void MemoryRemoteDocumentCache::SetIndexManager(MemoryIndexManager* manager) {
+void MemoryRemoteDocumentCache::SetIndexManager(IndexManager* manager) {
   index_manager_ = NOT_NULL(manager);
 }
 

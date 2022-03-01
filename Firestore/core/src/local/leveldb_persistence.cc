@@ -225,10 +225,10 @@ void LevelDbPersistence::Shutdown() {
 }
 
 LevelDbMutationQueue* LevelDbPersistence::GetMutationQueueForUser(
-    const credentials::User& user) {
+    const credentials::User& user, IndexManager* manager) {
   users_.insert(user.uid());
-  current_mutation_queue_ =
-      absl::make_unique<LevelDbMutationQueue>(user, this, &serializer_);
+  current_mutation_queue_ = absl::make_unique<LevelDbMutationQueue>(
+      user, this, dynamic_cast<LevelDbIndexManager*>(manager), &serializer_);
   return current_mutation_queue_.get();
 }
 

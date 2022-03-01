@@ -78,7 +78,7 @@ void MemoryPersistence::Shutdown() {
 }
 
 MemoryMutationQueue* MemoryPersistence::GetMutationQueueForUser(
-    const User& user) {
+    const User& user, IndexManager*) {
   auto iter = mutation_queues_.find(user);
   if (iter == mutation_queues_.end()) {
     auto queue = absl::make_unique<MemoryMutationQueue>(this, user);

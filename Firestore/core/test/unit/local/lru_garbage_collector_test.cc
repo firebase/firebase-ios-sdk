@@ -87,8 +87,11 @@ void LruGarbageCollectorTest::NewTestResources(LruParams lru_params) {
   persistence_->reference_delegate()->AddInMemoryPins(&additional_references_);
 
   target_cache_ = persistence_->target_cache();
+  index_manager_ = persistence_->GetIndexManagerForUser(user_);
   document_cache_ = persistence_->remote_document_cache();
-  mutation_queue_ = persistence_->GetMutationQueueForUser(user_);
+  document_cache_->SetIndexManager(index_manager_);
+  mutation_queue_ =
+      persistence_->GetMutationQueueForUser(user_, index_manager_);
 
   lru_delegate_ = static_cast<LruDelegate*>(persistence_->reference_delegate());
   initial_sequence_number_ = persistence_->Run("start TargetCache", [&] {

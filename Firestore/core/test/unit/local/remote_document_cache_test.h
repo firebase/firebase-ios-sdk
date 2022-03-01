@@ -34,6 +34,7 @@ class MutableDocument;
 
 namespace local {
 
+class IndexManager;
 class Persistence;
 class RemoteDocumentCache;
 
@@ -70,6 +71,7 @@ class RemoteDocumentCacheTest : public ::testing::TestWithParam<FactoryFunc> {
 
   std::unique_ptr<Persistence> persistence_;
   RemoteDocumentCache* cache_;
+  IndexManager* index_manager_;
 };
 
 }  // namespace local

@@ -54,6 +54,7 @@ class LevelDbMutationQueue : public MutationQueue {
  public:
   LevelDbMutationQueue(const credentials::User& user,
                        LevelDbPersistence* db,
+                       LevelDbIndexManager* index_manager,
                        LocalSerializer* serializer);
 
   void Start() override;

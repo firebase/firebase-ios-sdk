@@ -56,7 +56,7 @@ class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
       const core::Query& query,
       const model::SnapshotVersion& since_read_time) override;
 
-  void SetIndexManager(LevelDbIndexManager* manager);
+  void SetIndexManager(IndexManager* manager) override;
 
  private:
   /**
@@ -71,7 +71,7 @@ class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
   // The LevelDbRemoteDocumentCache instance is owned by LevelDbPersistence.
   LevelDbPersistence* db_;
   // The LevelDbIndexManager instance is owned by LevelDbPersistence.
-  LevelDbIndexManager* index_manager_;
+  IndexManager* index_manager_ = nullptr;
   // Owned by LevelDbPersistence.
   LocalSerializer* serializer_ = nullptr;
 

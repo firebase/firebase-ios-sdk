@@ -82,15 +82,17 @@ LocalStore::LocalStore(Persistence* persistence,
                        QueryEngine* query_engine,
                        const User& initial_user)
     : persistence_(persistence),
-      mutation_queue_(persistence->GetMutationQueueForUser(initial_user)),
       remote_document_cache_(persistence->remote_document_cache()),
       target_cache_(persistence->target_cache()),
       bundle_cache_(persistence->bundle_cache()),
-      query_engine_(query_engine),
-      local_documents_(absl::make_unique<LocalDocumentsView>(
-          remote_document_cache_,
-          mutation_queue_,
-          persistence->GetIndexManagerForUser(initial_user))) {
+      query_engine_(query_engine) {
+  index_manager_ = persistence->GetIndexManagerForUser(initial_user);
+  mutation_queue_ =
+      persistence->GetMutationQueueForUser(initial_user, index_manager_);
+  local_documents_ = absl::make_unique<LocalDocumentsView>(
+      remote_document_cache_, mutation_queue_, index_manager_);
+  remote_document_cache_->SetIndexManager(index_manager_);
+
   persistence->reference_delegate()->AddInMemoryPins(&local_view_references_);
   target_id_generator_ = TargetIdGenerator::TargetCacheTargetIdGenerator(0);
   query_engine_->SetLocalDocumentsView(local_documents_.get());
@@ -117,7 +119,9 @@ DocumentMap LocalStore::HandleUserChange(const User& user) {
 
   // The old one has a reference to the mutation queue, so null it out first.
   local_documents_.reset();
-  mutation_queue_ = persistence_->GetMutationQueueForUser(user);
+  index_manager_ = persistence_->GetIndexManagerForUser(user);
+  mutation_queue_ = persistence_->GetMutationQueueForUser(user, index_manager_);
+  remote_document_cache_->SetIndexManager(index_manager_);
 
   StartMutationQueue();
 
@@ -127,8 +131,7 @@ DocumentMap LocalStore::HandleUserChange(const User& user) {
 
     // Recreate our LocalDocumentsView using the new MutationQueue.
     local_documents_ = absl::make_unique<LocalDocumentsView>(
-        remote_document_cache_, mutation_queue_,
-        persistence_->GetIndexManagerForUser(user));
+        remote_document_cache_, mutation_queue_, index_manager_);
     query_engine_->SetLocalDocumentsView(local_documents_.get());
 
     // Union the old/new changed keys.

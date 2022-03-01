@@ -369,7 +369,8 @@ void LevelDbIndexManager::UpdateCollectionGroup(
 
     auto state_key = LevelDbIndexStateKey::Key(uid_, field_index.index_id());
     auto val = EncodeIndexState(updated_state);
-    db_->current_transaction()->Put(state_key, EncodeIndexState(updated_state));
+    db_->current_transaction()->Put(std::move(state_key),
+                                    EncodeIndexState(updated_state));
 
     MemoizeIndex(FieldIndex{field_index.index_id(),
                             field_index.collection_group(),

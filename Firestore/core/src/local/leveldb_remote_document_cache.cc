@@ -115,6 +115,7 @@ void LevelDbRemoteDocumentCache::Add(const MutableDocument& document,
       path.PopLast(), read_time, path.last_segment());
   db_->current_transaction()->Put(ldb_read_time_key, "");
 
+  NOT_NULL(index_manager_);
   index_manager_->AddToCollectionParentIndex(document.key().path().PopLast());
 }
 
@@ -284,7 +285,7 @@ MutableDocument LevelDbRemoteDocumentCache::DecodeMaybeDocument(
   return maybe_document;
 }
 
-void LevelDbRemoteDocumentCache::SetIndexManager(LevelDbIndexManager* manager) {
+void LevelDbRemoteDocumentCache::SetIndexManager(IndexManager* manager) {
   index_manager_ = NOT_NULL(manager);
 }
 

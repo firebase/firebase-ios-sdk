@@ -49,13 +49,13 @@ class MemoryRemoteDocumentCache : public RemoteDocumentCache {
   model::MutableDocumentMap GetMatching(
       const core::Query& query,
       const model::SnapshotVersion& since_read_time) override;
+  void SetIndexManager(IndexManager* manager) override;
 
   std::vector<model::DocumentKey> RemoveOrphanedDocuments(
       MemoryLruReferenceDelegate* reference_delegate,
       model::ListenSequenceNumber upper_bound);
 
   int64_t CalculateByteSize(const Sizer& sizer);
-  void SetIndexManager(MemoryIndexManager* manager);
 
  private:
   /** Underlying cache of documents and their read times. */
@@ -67,7 +67,7 @@ class MemoryRemoteDocumentCache : public RemoteDocumentCache {
   // This instance is owned by MemoryPersistence; avoid a retain cycle.
   MemoryPersistence* persistence_;
   // This instance is also owned by MemoryPersistence.
-  MemoryIndexManager* index_manager_;
+  IndexManager* index_manager_ = nullptr;
 };
 
 }  // namespace local

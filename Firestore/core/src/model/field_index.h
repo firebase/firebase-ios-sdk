@@ -139,7 +139,7 @@ class IndexOffset : public util::Comparable<IndexOffset> {
  private:
   SnapshotVersion read_time_;
   DocumentKey document_key_;
-  model::BatchId largest_batch_id_ = InitialLargestBatchId();
+  model::BatchId largest_batch_id_;
 };
 
 /**

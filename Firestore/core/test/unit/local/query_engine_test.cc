@@ -115,13 +115,16 @@ class QueryEngineTest : public ::testing::Test {
  public:
   QueryEngineTest()
       : persistence_(MemoryPersistence::WithEagerGarbageCollector()),
-        remote_document_cache_(persistence_->remote_document_cache()),
+        remote_document_cache_(dynamic_cast<MemoryRemoteDocumentCache*>(
+            persistence_->remote_document_cache())),
         target_cache_(persistence_->target_cache()),
-        index_manager_(absl::make_unique<MemoryIndexManager>()),
-        local_documents_view_(
-            remote_document_cache_,
-            persistence_->GetMutationQueueForUser(User::Unauthenticated()),
-            index_manager_.get()) {
+        index_manager_(dynamic_cast<MemoryIndexManager*>(
+            persistence_->GetIndexManagerForUser(User::Unauthenticated()))),
+        local_documents_view_(remote_document_cache_,
+                              persistence_->GetMutationQueueForUser(
+                                  User::Unauthenticated(), index_manager_),
+                              index_manager_) {
+    remote_document_cache_->SetIndexManager(index_manager_);
     query_engine_.SetLocalDocumentsView(&local_documents_view_);
   }
 
@@ -171,9 +174,9 @@ class QueryEngineTest : public ::testing::Test {
 
  private:
   std::unique_ptr<Persistence> persistence_;
-  RemoteDocumentCache* remote_document_cache_ = nullptr;
+  MemoryRemoteDocumentCache* remote_document_cache_ = nullptr;
   TargetCache* target_cache_ = nullptr;
-  std::unique_ptr<MemoryIndexManager> index_manager_;
+  MemoryIndexManager* index_manager_;
   QueryEngine query_engine_;
   TestLocalDocumentsView local_documents_view_;
 };

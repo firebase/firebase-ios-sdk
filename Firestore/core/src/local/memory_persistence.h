@@ -80,8 +80,8 @@ class MemoryPersistence : public Persistence {
 
   void Shutdown() override;
 
-  MemoryMutationQueue* GetMutationQueueForUser(
-      const credentials::User& user) override;
+  MemoryMutationQueue* GetMutationQueueForUser(const credentials::User& user,
+                                               IndexManager* manager) override;
 
   MemoryTargetCache* target_cache() override;
 

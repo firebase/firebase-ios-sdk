@@ -85,7 +85,7 @@ class LevelDbPersistence : public Persistence {
       const credentials::User& user) override;
 
   LevelDbMutationQueue* GetMutationQueueForUser(
-      const credentials::User& user) override;
+      const credentials::User& user, IndexManager* index_manager) override;
 
   LevelDbTargetCache* target_cache() override;
 

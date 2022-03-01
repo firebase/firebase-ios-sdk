@@ -95,7 +95,7 @@ class Persistence {
    * sally's mutation queue will be preserved).
    */
   virtual MutationQueue* GetMutationQueueForUser(
-      const credentials::User& user) = 0;
+      const credentials::User& user, IndexManager* index_manager) = 0;
 
   /** Returns a TargetCache representing the persisted cache of queries. */
   virtual TargetCache* target_cache() = 0;
