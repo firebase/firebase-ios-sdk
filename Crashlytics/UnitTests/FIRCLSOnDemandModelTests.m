@@ -175,6 +175,7 @@
   // rest considered dropped. The recorded events should be stored in storedActiveReportPaths which
   // is kept in sync with the contents of the active path.
   [self.managerData.onDemandModel.operationQueue waitUntilAllOperationsAreFinished];
+  XCTAssertEqual([self.managerData.onDemandModel.operationQueue operationCount], 0);
 
   XCTAssertEqual([self.managerData.onDemandModel recordedOnDemandExceptionCount],
                  FIRCLSMaxUnsentReports);
