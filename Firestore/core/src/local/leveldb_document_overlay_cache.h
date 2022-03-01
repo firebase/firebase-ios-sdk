@@ -33,6 +33,7 @@ class User;
 
 namespace local {
 
+class LevelDbDocumentOverlayCacheTestHelper;
 class LevelDbDocumentOverlayKey;
 class LevelDbPersistence;
 class LocalSerializer;
@@ -52,7 +53,7 @@ class LevelDbDocumentOverlayCache final : public DocumentOverlayCache {
       delete;
 
   absl::optional<model::mutation::Overlay> GetOverlay(
-      const model::DocumentKey& key) const override;
+      const model::DocumentKey&) const override;
 
   void SaveOverlays(int largest_batch_id,
                     const MutationByDocumentKeyMap& overlays) override;
@@ -67,20 +68,34 @@ class LevelDbDocumentOverlayCache final : public DocumentOverlayCache {
                                       std::size_t count) const override;
 
  private:
+  friend class LevelDbDocumentOverlayCacheTestHelper;
+
+  // Returns the number of index entries for the largest batch ID.
+  // This method exists for unit testing only.
+  int GetLargestBatchIdIndexEntryCount() const;
+
+  int GetOverlayCount() const override;
+  int CountEntriesWithKeyPrefix(const std::string& key_prefix) const;
+
   model::mutation::Overlay ParseOverlay(
       const LevelDbDocumentOverlayKey& key,
       absl::string_view encoded_mutation) const;
 
   void SaveOverlay(int largest_batch_id,
-                   const model::DocumentKey& key,
+                   const model::DocumentKey& document_key,
                    const model::Mutation& mutation);
 
-  void DeleteOverlay(const model::DocumentKey& key);
+  void DeleteOverlay(const model::DocumentKey&);
+
+  void DeleteOverlay(const LevelDbDocumentOverlayKey&);
 
   void ForEachOverlay(
-      std::function<void(absl::string_view encoded_key,
-                         const LevelDbDocumentOverlayKey& decoded_key,
+      std::function<void(LevelDbDocumentOverlayKey&&,
                          absl::string_view encoded_mutation)>) const;
+
+  void ForEachKeyWithLargestBatchId(
+      int largest_batch_id,
+      std::function<void(LevelDbDocumentOverlayKey&&)>) const;
 
   // The LevelDbDocumentOverlayCache instance is owned by LevelDbPersistence.
   LevelDbPersistence* db_;
