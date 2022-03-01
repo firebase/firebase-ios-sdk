@@ -91,9 +91,6 @@ TEST_F(LevelDbDocumentOverlayCacheTest, TypeTraits) {
                 "is_move_assignable");
 }
 
-// Verify that the index entries for `LevelDbDocumentOverlayCache` are created
-// and destroyed as they should be. When I originally wrote the indexing code
-// I got this very wrong and this test serves to keep future me honest.
 TEST_F(LevelDbDocumentOverlayCacheTest, IndexesAreCreatedAndDestroyed) {
   persistence_->Run("Test", [&] {
     // Add some overlays and ensure that an index entry is created for each one.
