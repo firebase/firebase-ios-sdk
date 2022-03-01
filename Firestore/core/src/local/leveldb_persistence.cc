@@ -224,7 +224,7 @@ void LevelDbPersistence::Shutdown() {
   db_.reset();
 }
 
-LevelDbMutationQueue* LevelDbPersistence::GetMutationQueueForUser(
+LevelDbMutationQueue* LevelDbPersistence::GetMutationQueue(
     const credentials::User& user, IndexManager* manager) {
   users_.insert(user.uid());
   current_mutation_queue_ = absl::make_unique<LevelDbMutationQueue>(
@@ -240,7 +240,7 @@ LevelDbRemoteDocumentCache* LevelDbPersistence::remote_document_cache() {
   return document_cache_.get();
 }
 
-LevelDbIndexManager* LevelDbPersistence::GetIndexManagerForUser(
+LevelDbIndexManager* LevelDbPersistence::GetIndexManager(
     const credentials::User& user) {
   users_.insert(user.uid());
   index_manager_ =
@@ -256,7 +256,7 @@ LevelDbBundleCache* LevelDbPersistence::bundle_cache() {
   return bundle_cache_.get();
 }
 
-LevelDbDocumentOverlayCache* LevelDbPersistence::GetDocumentOverlayCacheForUser(
+LevelDbDocumentOverlayCache* LevelDbPersistence::GetDocumentOverlayCache(
     const User& user) {
   users_.insert(user.uid());
   current_document_overlay_cache_ =

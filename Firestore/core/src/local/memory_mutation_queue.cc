@@ -47,7 +47,7 @@ using nanopb::ByteString;
 MemoryMutationQueue::MemoryMutationQueue(MemoryPersistence* persistence,
                                          const User& user)
     : persistence_(persistence),
-      index_manager_(persistence->GetIndexManagerForUser(user)) {
+      index_manager_(persistence->GetIndexManager(user)) {
 }
 
 bool MemoryMutationQueue::IsEmpty() {

@@ -52,7 +52,7 @@ using testutil::SetMutation;
 DocumentOverlayCacheTestBase::DocumentOverlayCacheTestBase(
     std::unique_ptr<Persistence> persistence)
     : persistence_(std::move(persistence)),
-      cache_(persistence_->GetDocumentOverlayCacheForUser(User("user"))) {
+      cache_(persistence_->GetDocumentOverlayCache(User("user"))) {
 }
 
 void DocumentOverlayCacheTestBase::SaveOverlaysWithMutations(

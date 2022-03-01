@@ -37,7 +37,7 @@ using model::ResourcePath;
 void IndexManagerTest::AssertParents(const std::string& collection_id,
                                      std::vector<std::string> expected) {
   IndexManager* index_manager =
-      persistence->GetIndexManagerForUser(User::Unauthenticated());
+      persistence->GetIndexManager(User::Unauthenticated());
   std::vector<ResourcePath> actual_paths =
       index_manager->GetCollectionParents(collection_id);
   std::vector<std::string> actual;
@@ -57,7 +57,7 @@ IndexManagerTest::~IndexManagerTest() {
 
 TEST_P(IndexManagerTest, AddAndReadCollectionParentIndexEntries) {
   IndexManager* index_manager =
-      persistence->GetIndexManagerForUser(User::Unauthenticated());
+      persistence->GetIndexManager(User::Unauthenticated());
   persistence->Run("AddAndReadCollectionParentIndexEntries", [&]() {
     index_manager->AddToCollectionParentIndex(ResourcePath{"messages"});
     index_manager->AddToCollectionParentIndex(ResourcePath{"messages"});

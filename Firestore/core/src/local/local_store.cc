@@ -86,9 +86,8 @@ LocalStore::LocalStore(Persistence* persistence,
       target_cache_(persistence->target_cache()),
       bundle_cache_(persistence->bundle_cache()),
       query_engine_(query_engine) {
-  index_manager_ = persistence->GetIndexManagerForUser(initial_user);
-  mutation_queue_ =
-      persistence->GetMutationQueueForUser(initial_user, index_manager_);
+  index_manager_ = persistence->GetIndexManager(initial_user);
+  mutation_queue_ = persistence->GetMutationQueue(initial_user, index_manager_);
   local_documents_ = absl::make_unique<LocalDocumentsView>(
       remote_document_cache_, mutation_queue_, index_manager_);
   remote_document_cache_->SetIndexManager(index_manager_);
@@ -119,8 +118,8 @@ DocumentMap LocalStore::HandleUserChange(const User& user) {
 
   // The old one has a reference to the mutation queue, so null it out first.
   local_documents_.reset();
-  index_manager_ = persistence_->GetIndexManagerForUser(user);
-  mutation_queue_ = persistence_->GetMutationQueueForUser(user, index_manager_);
+  index_manager_ = persistence_->GetIndexManager(user);
+  mutation_queue_ = persistence_->GetMutationQueue(user, index_manager_);
   remote_document_cache_->SetIndexManager(index_manager_);
 
   StartMutationQueue();

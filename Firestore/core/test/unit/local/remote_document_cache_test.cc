@@ -104,8 +104,8 @@ MATCHER_P(HasAtLeastDocs,
 RemoteDocumentCacheTest::RemoteDocumentCacheTest()
     : persistence_{GetParam()()},
       cache_{persistence_->remote_document_cache()},
-      index_manager_{persistence_->GetIndexManagerForUser(
-          credentials::User::Unauthenticated())} {
+      index_manager_{
+          persistence_->GetIndexManager(credentials::User::Unauthenticated())} {
   cache_->SetIndexManager(index_manager_);
 }
 

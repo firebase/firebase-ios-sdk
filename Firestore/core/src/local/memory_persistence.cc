@@ -77,8 +77,8 @@ void MemoryPersistence::Shutdown() {
   started_ = false;
 }
 
-MemoryMutationQueue* MemoryPersistence::GetMutationQueueForUser(
-    const User& user, IndexManager*) {
+MemoryMutationQueue* MemoryPersistence::GetMutationQueue(const User& user,
+                                                         IndexManager*) {
   auto iter = mutation_queues_.find(user);
   if (iter == mutation_queues_.end()) {
     auto queue = absl::make_unique<MemoryMutationQueue>(this, user);
@@ -99,7 +99,7 @@ MemoryBundleCache* MemoryPersistence::bundle_cache() {
   return &bundle_cache_;
 }
 
-MemoryDocumentOverlayCache* MemoryPersistence::GetDocumentOverlayCacheForUser(
+MemoryDocumentOverlayCache* MemoryPersistence::GetDocumentOverlayCache(
     const User& user) {
   auto iter = document_overlay_caches_.find(user);
   if (iter == document_overlay_caches_.end()) {
@@ -118,7 +118,7 @@ MemoryRemoteDocumentCache* MemoryPersistence::remote_document_cache() {
   return &remote_document_cache_;
 }
 
-MemoryIndexManager* MemoryPersistence::GetIndexManagerForUser(
+MemoryIndexManager* MemoryPersistence::GetIndexManager(
     const credentials::User&) {
   return &index_manager_;
 }

@@ -80,20 +80,19 @@ class MemoryPersistence : public Persistence {
 
   void Shutdown() override;
 
-  MemoryMutationQueue* GetMutationQueueForUser(const credentials::User& user,
-                                               IndexManager* manager) override;
+  MemoryMutationQueue* GetMutationQueue(const credentials::User& user,
+                                        IndexManager* manager) override;
 
   MemoryTargetCache* target_cache() override;
 
   MemoryBundleCache* bundle_cache() override;
 
-  MemoryDocumentOverlayCache* GetDocumentOverlayCacheForUser(
+  MemoryDocumentOverlayCache* GetDocumentOverlayCache(
       const credentials::User& user) override;
 
   MemoryRemoteDocumentCache* remote_document_cache() override;
 
-  MemoryIndexManager* GetIndexManagerForUser(
-      const credentials::User& user) override;
+  MemoryIndexManager* GetIndexManager(const credentials::User& user) override;
 
   ReferenceDelegate* reference_delegate() override;
 

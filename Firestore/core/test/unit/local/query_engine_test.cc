@@ -119,9 +119,9 @@ class QueryEngineTest : public ::testing::Test {
             persistence_->remote_document_cache())),
         target_cache_(persistence_->target_cache()),
         index_manager_(dynamic_cast<MemoryIndexManager*>(
-            persistence_->GetIndexManagerForUser(User::Unauthenticated()))),
+            persistence_->GetIndexManager(User::Unauthenticated()))),
         local_documents_view_(remote_document_cache_,
-                              persistence_->GetMutationQueueForUser(
+                              persistence_->GetMutationQueue(
                                   User::Unauthenticated(), index_manager_),
                               index_manager_) {
     remote_document_cache_->SetIndexManager(index_manager_);

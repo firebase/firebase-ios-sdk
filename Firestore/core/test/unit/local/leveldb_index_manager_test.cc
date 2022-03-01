@@ -70,7 +70,7 @@ class LevelDbIndexManagerTest : public ::testing::Test {
 TEST_F(LevelDbIndexManagerTest, CreateReadFieldsIndexes) {
   persistence->Run("CreateReadDeleteFieldsIndexes", [&]() {
     IndexManager* index_manager =
-        persistence->GetIndexManagerForUser(User::Unauthenticated());
+        persistence->GetIndexManager(User::Unauthenticated());
     index_manager->Start();
 
     index_manager->AddFieldIndex(
@@ -111,7 +111,7 @@ TEST_F(LevelDbIndexManagerTest,
        NextCollectionGroupAdvancesWhenCollectionIsUpdated) {
   persistence->Run("CreateReadDeleteFieldsIndexes", [&]() {
     IndexManager* index_manager =
-        persistence->GetIndexManagerForUser(User::Unauthenticated());
+        persistence->GetIndexManager(User::Unauthenticated());
     index_manager->Start();
 
     index_manager->AddFieldIndex(MakeFieldIndex("coll1"));
@@ -145,7 +145,7 @@ TEST_F(LevelDbIndexManagerTest,
 TEST_F(LevelDbIndexManagerTest, PersistsIndexOffset) {
   persistence->Run("CreateReadDeleteFieldsIndexes", [&]() {
     IndexManager* index_manager =
-        persistence->GetIndexManagerForUser(User::Unauthenticated());
+        persistence->GetIndexManager(User::Unauthenticated());
     index_manager->Start();
 
     index_manager->AddFieldIndex(
@@ -153,8 +153,8 @@ TEST_F(LevelDbIndexManagerTest, PersistsIndexOffset) {
     IndexOffset offset{Version(20), Key("coll/doc"), 42};
     index_manager->UpdateCollectionGroup("coll1", offset);
 
-    index_manager = persistence->GetIndexManagerForUser(
-        credentials::User::Unauthenticated());
+    index_manager =
+        persistence->GetIndexManager(credentials::User::Unauthenticated());
     index_manager->Start();
 
     std::vector<FieldIndex> indexes = index_manager->GetFieldIndexes("coll1");
@@ -167,7 +167,7 @@ TEST_F(LevelDbIndexManagerTest, PersistsIndexOffset) {
 TEST_F(LevelDbIndexManagerTest, DeleteFieldsIndexeRemovesAllMetadata) {
   persistence->Run("CreateReadDeleteFieldsIndexes", [&]() {
     IndexManager* index_manager =
-        persistence->GetIndexManagerForUser(User::Unauthenticated());
+        persistence->GetIndexManager(User::Unauthenticated());
     index_manager->Start();
 
     auto index = MakeFieldIndex("coll1", 0, model::FieldIndex::InitialState(),
@@ -190,7 +190,7 @@ TEST_F(LevelDbIndexManagerTest,
        DeleteFieldIndexRemovesEntryFromCollectionGroup) {
   persistence->Run("CreateReadDeleteFieldsIndexes", [&]() {
     IndexManager* index_manager =
-        persistence->GetIndexManagerForUser(User::Unauthenticated());
+        persistence->GetIndexManager(User::Unauthenticated());
     index_manager->Start();
 
     index_manager->AddFieldIndex(
@@ -214,7 +214,7 @@ TEST_F(LevelDbIndexManagerTest,
 TEST_F(LevelDbIndexManagerTest, CanChangeUser) {
   persistence->Run("CreateReadDeleteFieldsIndexes", [&]() {
     IndexManager* index_manager =
-        persistence->GetIndexManagerForUser(User::Unauthenticated());
+        persistence->GetIndexManager(User::Unauthenticated());
     index_manager->Start();
 
     // Add two indexes and mark one as updated.
@@ -229,7 +229,7 @@ TEST_F(LevelDbIndexManagerTest, CanChangeUser) {
 
     // New user signs it. The user should see all existing field indices.
     // Sequence numbers are set to 0.
-    index_manager = persistence->GetIndexManagerForUser(User("authenticated"));
+    index_manager = persistence->GetIndexManager(User("authenticated"));
     index_manager->Start();
 
     // Add a new index and mark it as updated.
@@ -243,8 +243,7 @@ TEST_F(LevelDbIndexManagerTest, CanChangeUser) {
 
     // Original user signs it. The user should also see the new index with a
     // zero sequence number.
-    index_manager =
-        persistence->GetIndexManagerForUser(User::Unauthenticated());
+    index_manager = persistence->GetIndexManager(User::Unauthenticated());
     index_manager->Start();
 
     VerifySequenceNumber(index_manager, "coll1", 0);
