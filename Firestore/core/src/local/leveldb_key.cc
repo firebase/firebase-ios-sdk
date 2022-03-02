@@ -1377,13 +1377,13 @@ std::string LevelDbDocumentOverlayCollectionIndexKey::Key(
     absl::string_view user_id,
     const model::ResourcePath& collection,
     model::BatchId largest_batch_id,
-    const model::DocumentKey& document_key) {
+    absl::string_view document_id) {
   Writer writer;
   writer.WriteTableName(kDocumentOverlaysCollectionIndexTable);
   writer.WriteUserId(user_id);
   writer.WriteResourcePath(collection);
   writer.WriteBatchId(largest_batch_id);
-  writer.WriteResourcePath(document_key.path());
+  writer.WriteDocumentId(document_id);
   writer.WriteTerminator();
   return writer.result();
 }
@@ -1392,12 +1392,12 @@ bool LevelDbDocumentOverlayCollectionIndexKey::Decode(absl::string_view key) {
   Reader reader{key};
   reader.ReadTableNameMatching(kDocumentOverlaysCollectionIndexTable);
   auto user_id = reader.ReadUserId();
-  collection_ = reader.ReadResourcePath();
+  const ResourcePath collection = reader.ReadResourcePath();
   auto largest_batch_id = reader.ReadBatchId();
-  auto document_key = reader.ReadDocumentKey();
+  const std::string document_id = reader.ReadDocumentId();
   reader.ReadTerminator();
   Reset(std::move(user_id), std::move(largest_batch_id),
-        std::move(document_key));
+        DocumentKey(collection.Append(document_id)));
   return reader.ok();
 }
 

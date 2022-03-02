@@ -133,7 +133,7 @@ namespace local {
 //   - user_id: string
 //   - collection: ResourcePath
 //   - largest_batch_id: model::BatchId
-//   - document_key: ResourcePath
+//   - document_id: string
 
 /**
  * Parses the given key and returns a human readable description of its
@@ -1118,14 +1118,15 @@ class LevelDbDocumentOverlayCollectionIndexKey
   static std::string Key(absl::string_view user_id,
                          const model::ResourcePath& collection,
                          model::BatchId largest_batch_id,
-                         const model::DocumentKey& document_key);
+                         absl::string_view document_id);
 
   /**
    * Creates a complete key that points to a specific key in the overlays table.
    */
   static std::string Key(const LevelDbDocumentOverlayKey& key) {
     return Key(key.user_id(), key.document_key().path().PopLast(),
-               key.largest_batch_id(), key.document_key());
+               key.largest_batch_id(),
+               key.document_key().path().last_segment());
   }
 
   /**
@@ -1139,13 +1140,10 @@ class LevelDbDocumentOverlayCollectionIndexKey
   ABSL_MUST_USE_RESULT
   bool Decode(absl::string_view key);
 
-  /** The collection_, as encoded in the key. */
-  const model::ResourcePath& collection() const {
-    return collection_;
+  /** The collection, as encoded in the key. */
+  model::ResourcePath collection() const {
+    return document_key().path().PopLast();
   }
-
- private:
-  model::ResourcePath collection_;
 };
 
 }  // namespace local
