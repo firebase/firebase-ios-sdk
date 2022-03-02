@@ -36,7 +36,7 @@ NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS ext
 - (void)appDidBecomeActive:(NSNotification *)notification;
 
 // Tracking the aggregate impression time for the rendered message. Used to determine when
-// we are eaching the minimal iimpression time requirements. Exposed so that sub banner vc
+// we are eaching the minimal impression time requirements. Exposed so that sub banner vc
 // class can use it for auto dismiss tracking
 @property(nonatomic) double aggregateImpressionTimeInSeconds;
 
