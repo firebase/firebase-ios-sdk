@@ -46,7 +46,7 @@ std::string RemoteDocKeyPrefix(absl::string_view path_string) {
 
 std::string DocMutationKey(absl::string_view user_id,
                            absl::string_view key,
-                           model::BatchId batch_id) {
+                           BatchId batch_id) {
   return LevelDbDocumentMutationKey::Key(user_id, testutil::Key(key), batch_id);
 }
 
@@ -726,10 +726,10 @@ TEST(LevelDbDocumentOverlayKeyTest, EncodeDecodeCycle) {
                                           "foo-bar?baz!quux"};
   const std::vector<std::string> document_keys{"col1/doc1",
                                                "col2/doc2/col3/doc3"};
-  const std::vector<model::BatchId> batch_ids{1, 2, 3};
+  const std::vector<BatchId> batch_ids{1, 2, 3};
   for (const std::string& user_id : user_ids) {
     for (const std::string& document_key : document_keys) {
-      for (model::BatchId batch_id : batch_ids) {
+      for (BatchId batch_id : batch_ids) {
         SCOPED_TRACE(absl::StrCat("user_name=", user_id,
                                   " document_key=", document_key,
                                   " largest_batch_id=", batch_id));
@@ -855,13 +855,13 @@ TEST(LevelDbDocumentOverlayLargestBatchIdIndexKeyTest, Ordering) {
 TEST(LevelDbDocumentOverlayLargestBatchIdIndexKeyTest, EncodeDecodeCycle) {
   const std::vector<std::string> user_ids{"test_user", "foo/bar2",
                                           "foo-bar?baz!quux"};
-  const std::vector<model::BatchId> batch_ids{1, 2, 3};
-  const std::vector<model::DocumentKey> document_keys{
-      testutil::Key("coll/doc1"), testutil::Key("coll/doc2"),
-      testutil::Key("coll/doc3")};
+  const std::vector<BatchId> batch_ids{1, 2, 3};
+  const std::vector<DocumentKey> document_keys{testutil::Key("coll/doc1"),
+                                               testutil::Key("coll/doc2"),
+                                               testutil::Key("coll/doc3")};
   for (const std::string& user_id : user_ids) {
-    for (model::BatchId batch_id : batch_ids) {
-      for (const model::DocumentKey& document_key : document_keys) {
+    for (BatchId batch_id : batch_ids) {
+      for (const DocumentKey& document_key : document_keys) {
         SCOPED_TRACE(absl::StrCat("user_name=", user_id, " batch_id=", batch_id,
                                   " path=", document_key.ToString()));
         const std::string encoded =
@@ -986,11 +986,11 @@ TEST(LevelDbDocumentOverlayCollectionIndexKeyTest, EncodeDecodeCycle) {
   const std::vector<ResourcePath> collections{
       ResourcePath{"coll1"}, ResourcePath{"coll2"},
       ResourcePath{"coll3", "docX", "coll4"}};
-  const std::vector<model::BatchId> batch_ids{1, 2, 3};
+  const std::vector<BatchId> batch_ids{1, 2, 3};
   const std::vector<std::string> document_ids{"doc1", "doc2", "doc3"};
   for (const std::string& user_id : user_ids) {
     for (const ResourcePath& collection : collections) {
-      for (const model::BatchId batch_id : batch_ids) {
+      for (const BatchId batch_id : batch_ids) {
         for (const std::string& document_id : document_ids) {
           SCOPED_TRACE(absl::StrCat("user_name=", user_id, " collection=",
                                     collection.CanonicalString(),
