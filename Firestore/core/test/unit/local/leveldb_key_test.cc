@@ -680,18 +680,18 @@ TEST(LevelDbDocumentOverlayKeyTest, Encode) {
 }
 
 TEST(LevelDbDocumentOverlayKeyTest, Prefixing) {
-  const std::string table_key = LevelDbDocumentOverlayKey::KeyPrefix();
   const std::string user1_key =
       LevelDbDocumentOverlayKey::KeyPrefix("test_user1");
   const std::string user2_key =
       LevelDbDocumentOverlayKey::KeyPrefix("test_user2");
   const std::string user1_doc1_key = LevelDbDocumentOverlayKey::KeyPrefix(
       "test_user1", testutil::Key("coll/doc1"));
+  const std::string user2_doc2_key = LevelDbDocumentOverlayKey::KeyPrefix(
+      "test_user2", testutil::Key("coll/doc2"));
   const std::string user1_doc2_key = LevelDbDocumentOverlayKey::KeyPrefix(
       "test_user1", testutil::Key("coll/doc2"));
-  ASSERT_TRUE(absl::StartsWith(user1_key, table_key));
-  ASSERT_TRUE(absl::StartsWith(user2_key, table_key));
   ASSERT_TRUE(absl::StartsWith(user1_doc1_key, user1_key));
+  ASSERT_TRUE(absl::StartsWith(user2_doc2_key, user2_key));
   ASSERT_FALSE(absl::StartsWith(user1_key, user2_key));
   ASSERT_FALSE(absl::StartsWith(user2_key, user1_key));
   ASSERT_FALSE(absl::StartsWith(user1_doc1_key, user1_doc2_key));
@@ -786,19 +786,18 @@ TEST(LevelDbDocumentOverlayIndexKeyTest, Getters) {
 }
 
 TEST(LevelDbDocumentOverlayLargestBatchIdIndexKeyTest, Prefixing) {
-  const std::string table_key =
-      LevelDbDocumentOverlayLargestBatchIdIndexKey::KeyPrefix();
   const std::string user1_key =
       LevelDbDocumentOverlayLargestBatchIdIndexKey::KeyPrefix("test_user1");
   const std::string user2_key =
       LevelDbDocumentOverlayLargestBatchIdIndexKey::KeyPrefix("test_user2");
   const std::string user1_batch1_key =
       LevelDbDocumentOverlayLargestBatchIdIndexKey::KeyPrefix("test_user1", 1);
+  const std::string user2_batch2_key =
+      LevelDbDocumentOverlayLargestBatchIdIndexKey::KeyPrefix("test_user2", 2);
   const std::string user1_batch2_key =
       LevelDbDocumentOverlayLargestBatchIdIndexKey::KeyPrefix("test_user1", 2);
-  ASSERT_TRUE(absl::StartsWith(user1_key, table_key));
-  ASSERT_TRUE(absl::StartsWith(user2_key, table_key));
   ASSERT_TRUE(absl::StartsWith(user1_batch1_key, user1_key));
+  ASSERT_TRUE(absl::StartsWith(user2_batch2_key, user2_key));
   ASSERT_FALSE(absl::StartsWith(user1_key, user2_key));
   ASSERT_FALSE(absl::StartsWith(user2_key, user1_key));
   ASSERT_FALSE(absl::StartsWith(user1_batch1_key, user1_batch2_key));
@@ -900,8 +899,6 @@ TEST(LevelDbDocumentOverlayLargestBatchIdIndexKeyTest,
 }
 
 TEST(LevelDbDocumentOverlayCollectionIndexKeyTest, Prefixing) {
-  const std::string table_key =
-      LevelDbDocumentOverlayCollectionIndexKey::KeyPrefix();
   const std::string user1_key =
       LevelDbDocumentOverlayCollectionIndexKey::KeyPrefix("test_user1");
   const std::string user2_key =
@@ -912,6 +909,9 @@ TEST(LevelDbDocumentOverlayCollectionIndexKeyTest, Prefixing) {
   const std::string user1_coll2_key =
       LevelDbDocumentOverlayCollectionIndexKey::KeyPrefix(
           "test_user1", model::ResourcePath::FromString("coll2"));
+  const std::string user2_coll1_key =
+      LevelDbDocumentOverlayCollectionIndexKey::KeyPrefix(
+          "test_user2", model::ResourcePath::FromString("coll1"));
   const std::string user2_coll2_key =
       LevelDbDocumentOverlayCollectionIndexKey::KeyPrefix(
           "test_user2", model::ResourcePath::FromString("coll2"));
@@ -925,10 +925,10 @@ TEST(LevelDbDocumentOverlayCollectionIndexKeyTest, Prefixing) {
       LevelDbDocumentOverlayCollectionIndexKey::KeyPrefix(
           "test_user2", model::ResourcePath::FromString("coll2"), 2);
 
-  ASSERT_TRUE(absl::StartsWith(user1_key, table_key));
-  ASSERT_TRUE(absl::StartsWith(user2_key, table_key));
   ASSERT_TRUE(absl::StartsWith(user1_coll1_key, user1_key));
   ASSERT_TRUE(absl::StartsWith(user1_coll2_key, user1_key));
+  ASSERT_TRUE(absl::StartsWith(user2_coll1_key, user2_key));
+  ASSERT_TRUE(absl::StartsWith(user2_coll2_key, user2_key));
   ASSERT_TRUE(absl::StartsWith(user1_coll1_batch1_key, user1_coll1_key));
   ASSERT_TRUE(absl::StartsWith(user1_coll1_batch2_key, user1_coll1_key));
   ASSERT_FALSE(absl::StartsWith(user1_key, user2_key));

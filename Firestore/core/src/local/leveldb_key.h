@@ -925,11 +925,6 @@ class LevelDbDocumentOverlayKey {
   }
 
   /**
-   * Creates a key prefix that points just before the first key in the table.
-   */
-  static std::string KeyPrefix();
-
-  /**
    * Creates a key prefix that points just before the first key for the given
    * user_id.
    */
@@ -1052,11 +1047,6 @@ class LevelDbDocumentOverlayLargestBatchIdIndexKey
     : public LevelDbDocumentOverlayIndexKey {
  public:
   /**
-   * Creates a key prefix that points just before the first key in the table.
-   */
-  static std::string KeyPrefix();
-
-  /**
    * Creates a key prefix that points just before the first key for the given
    * user_id.
    */
@@ -1100,11 +1090,6 @@ class LevelDbDocumentOverlayLargestBatchIdIndexKey
 class LevelDbDocumentOverlayCollectionIndexKey
     : public LevelDbDocumentOverlayIndexKey {
  public:
-  /**
-   * Creates a key prefix that points just before the first key in the table.
-   */
-  static std::string KeyPrefix();
-
   /**
    * Creates a key prefix that points just before the first key for the given
    * user_id.

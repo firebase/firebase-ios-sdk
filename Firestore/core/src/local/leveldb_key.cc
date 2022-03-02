@@ -1264,12 +1264,6 @@ bool LevelDbIndexEntryKey::Decode(absl::string_view key) {
   return reader.ok();
 }
 
-std::string LevelDbDocumentOverlayKey::KeyPrefix() {
-  Writer writer;
-  writer.WriteTableName(kDocumentOverlaysTable);
-  return writer.result();
-}
-
 std::string LevelDbDocumentOverlayKey::KeyPrefix(absl::string_view user_id) {
   Writer writer;
   writer.WriteTableName(kDocumentOverlaysTable);
@@ -1306,12 +1300,6 @@ bool LevelDbDocumentOverlayKey::Decode(absl::string_view key) {
   largest_batch_id_ = reader.ReadBatchId();
   reader.ReadTerminator();
   return reader.ok();
-}
-
-std::string LevelDbDocumentOverlayLargestBatchIdIndexKey::KeyPrefix() {
-  Writer writer;
-  writer.WriteTableName(kDocumentOverlaysLargestBatchIdIndexTable);
-  return writer.result();
 }
 
 std::string LevelDbDocumentOverlayLargestBatchIdIndexKey::KeyPrefix(
@@ -1355,12 +1343,6 @@ bool LevelDbDocumentOverlayLargestBatchIdIndexKey::Decode(
   Reset(std::move(user_id), std::move(largest_batch_id),
         std::move(document_key));
   return reader.ok();
-}
-
-std::string LevelDbDocumentOverlayCollectionIndexKey::KeyPrefix() {
-  Writer writer;
-  writer.WriteTableName(kDocumentOverlaysCollectionIndexTable);
-  return writer.result();
 }
 
 std::string LevelDbDocumentOverlayCollectionIndexKey::KeyPrefix(
