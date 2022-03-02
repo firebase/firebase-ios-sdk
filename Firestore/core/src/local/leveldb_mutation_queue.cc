@@ -126,7 +126,7 @@ BatchId LoadNextBatchIdFromDb(DB* db) {
 
 LevelDbMutationQueue::LevelDbMutationQueue(const User& user,
                                            LevelDbPersistence* db,
-                                           LevelDbIndexManager* index_manager,
+                                           IndexManager* index_manager,
                                            LocalSerializer* serializer)
     : db_(NOT_NULL(db)),
       index_manager_(NOT_NULL(index_manager)),

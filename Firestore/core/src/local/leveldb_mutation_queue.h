@@ -54,7 +54,7 @@ class LevelDbMutationQueue : public MutationQueue {
  public:
   LevelDbMutationQueue(const credentials::User& user,
                        LevelDbPersistence* db,
-                       LevelDbIndexManager* index_manager,
+                       IndexManager* index_manager,
                        LocalSerializer* serializer);
 
   void Start() override;
@@ -116,7 +116,7 @@ class LevelDbMutationQueue : public MutationQueue {
 
   // The LevelDbMutationQueue instance is owned by LevelDbPersistence.
   LevelDbPersistence* db_;
-  LevelDbIndexManager* index_manager_;
+  IndexManager* index_manager_;
 
   // Owned by LevelDbPersistence.
   LocalSerializer* serializer_ = nullptr;
