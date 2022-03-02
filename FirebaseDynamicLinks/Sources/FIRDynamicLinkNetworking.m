@@ -132,7 +132,7 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
 
 - (void)resolveShortLink:(NSURL *)url
            FDLSDKVersion:(NSString *)FDLSDKVersion
-              completion:(void (^)(NSURL *_Nullable url, NSError *_Nullable error))handler {
+              completion:(FIRDynamicLinkResolverHandler)handler {
   NSParameterAssert(handler);
   if (!url) {
     handler(nil, nil);
