@@ -26,6 +26,7 @@
 
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 
@@ -905,25 +906,25 @@ TEST(LevelDbDocumentOverlayCollectionIndexKeyTest, Prefixing) {
       LevelDbDocumentOverlayCollectionIndexKey::KeyPrefix("test_user2");
   const std::string user1_coll1_key =
       LevelDbDocumentOverlayCollectionIndexKey::KeyPrefix(
-          "test_user1", model::ResourcePath::FromString("coll1"));
+          "test_user1", ResourcePath{"coll1"});
   const std::string user1_coll2_key =
       LevelDbDocumentOverlayCollectionIndexKey::KeyPrefix(
-          "test_user1", model::ResourcePath::FromString("coll2"));
+          "test_user1", ResourcePath{"coll2"});
   const std::string user2_coll1_key =
       LevelDbDocumentOverlayCollectionIndexKey::KeyPrefix(
-          "test_user2", model::ResourcePath::FromString("coll1"));
+          "test_user2", ResourcePath{"coll1"});
   const std::string user2_coll2_key =
       LevelDbDocumentOverlayCollectionIndexKey::KeyPrefix(
-          "test_user2", model::ResourcePath::FromString("coll2"));
+          "test_user2", ResourcePath{"coll2"});
   const std::string user1_coll1_batch1_key =
       LevelDbDocumentOverlayCollectionIndexKey::KeyPrefix(
-          "test_user1", model::ResourcePath::FromString("coll1"), 1);
+          "test_user1", ResourcePath{"coll1"}, 1);
   const std::string user1_coll1_batch2_key =
       LevelDbDocumentOverlayCollectionIndexKey::KeyPrefix(
-          "test_user1", model::ResourcePath::FromString("coll1"), 2);
+          "test_user1", ResourcePath{"coll1"}, 2);
   const std::string user2_coll2_batch2_key =
       LevelDbDocumentOverlayCollectionIndexKey::KeyPrefix(
-          "test_user2", model::ResourcePath::FromString("coll2"), 2);
+          "test_user2", ResourcePath{"coll2"}, 2);
 
   ASSERT_TRUE(absl::StartsWith(user1_coll1_key, user1_key));
   ASSERT_TRUE(absl::StartsWith(user1_coll2_key, user1_key));
@@ -942,10 +943,10 @@ TEST(LevelDbDocumentOverlayCollectionIndexKeyTest, Prefixing) {
 
   const std::string user1_coll1_batch1_doc1_key =
       LevelDbDocumentOverlayCollectionIndexKey::Key(
-          "test_user1", model::ResourcePath::FromString("coll1"), 1, "doc1");
+          "test_user1", ResourcePath{"coll1"}, 1, "doc1");
   const std::string user2_coll2_batch2_doc2_key =
       LevelDbDocumentOverlayCollectionIndexKey::Key(
-          "test_user2", model::ResourcePath::FromString("coll2"), 2, "doc2");
+          "test_user2", ResourcePath{"coll2"}, 2, "doc2");
   ASSERT_TRUE(absl::StartsWith(user1_coll1_batch1_doc1_key, user1_key));
   ASSERT_TRUE(absl::StartsWith(user2_coll2_batch2_doc2_key, user2_key));
   ASSERT_TRUE(absl::StartsWith(user1_coll1_batch1_doc1_key, user1_coll1_key));
@@ -959,19 +960,19 @@ TEST(LevelDbDocumentOverlayCollectionIndexKeyTest, Prefixing) {
 TEST(LevelDbDocumentOverlayCollectionIndexKeyTest, Ordering) {
   const std::string user1_coll1_batch1_doc1_key =
       LevelDbDocumentOverlayCollectionIndexKey::Key(
-          "user1", model::ResourcePath::FromString("coll1"), 1, "doc1");
+          "user1", ResourcePath{"coll1"}, 1, "doc1");
   const std::string user2_coll1_batch1_doc1_key =
       LevelDbDocumentOverlayCollectionIndexKey::Key(
-          "user2", model::ResourcePath::FromString("coll1"), 1, "doc1");
+          "user2", ResourcePath{"coll1"}, 1, "doc1");
   const std::string user2_coll2_batch1_doc1_key =
       LevelDbDocumentOverlayCollectionIndexKey::Key(
-          "user2", model::ResourcePath::FromString("coll2"), 1, "doc1");
+          "user2", ResourcePath{"coll2"}, 1, "doc1");
   const std::string user2_coll2_batch2_doc1_key =
       LevelDbDocumentOverlayCollectionIndexKey::Key(
-          "user2", model::ResourcePath::FromString("coll2"), 2, "doc1");
+          "user2", ResourcePath{"coll2"}, 2, "doc1");
   const std::string user2_coll2_batch2_doc2_key =
       LevelDbDocumentOverlayCollectionIndexKey::Key(
-          "user2", model::ResourcePath::FromString("coll2"), 2, "doc2");
+          "user2", ResourcePath{"coll2"}, 2, "doc2");
 
   ASSERT_LT(user1_coll1_batch1_doc1_key, user2_coll1_batch1_doc1_key);
   ASSERT_LT(user2_coll1_batch1_doc1_key, user2_coll2_batch1_doc1_key);
@@ -982,14 +983,13 @@ TEST(LevelDbDocumentOverlayCollectionIndexKeyTest, Ordering) {
 TEST(LevelDbDocumentOverlayCollectionIndexKeyTest, EncodeDecodeCycle) {
   const std::vector<std::string> user_ids{"test_user", "foo/bar2",
                                           "foo-bar?baz!quux"};
-  const std::vector<model::ResourcePath> collections{
-      model::ResourcePath::FromString("coll1"),
-      model::ResourcePath::FromString("coll2"),
-      model::ResourcePath::FromString("coll3/docX/coll4")};
+  const std::vector<ResourcePath> collections{
+      ResourcePath{"coll1"}, ResourcePath{"coll2"},
+      ResourcePath{"coll3", "docX", "coll4"}};
   const std::vector<model::BatchId> batch_ids{1, 2, 3};
   const std::vector<std::string> document_ids{"doc1", "doc2", "doc3"};
   for (const std::string& user_id : user_ids) {
-    for (const model::ResourcePath& collection : collections) {
+    for (const ResourcePath& collection : collections) {
       for (const model::BatchId batch_id : batch_ids) {
         for (const std::string& document_id : document_ids) {
           SCOPED_TRACE(absl::StrCat("user_name=", user_id, " collection=",
@@ -1016,8 +1016,7 @@ TEST(LevelDbDocumentOverlayCollectionIndexKeyTest, Description) {
       "[document_overlays_collection_index: user_id=foo-bar?baz!quux "
       "path=coll1 batch_id=123 document_id=docX]",
       LevelDbDocumentOverlayCollectionIndexKey::Key(
-          "foo-bar?baz!quux", model::ResourcePath::FromString("coll1"), 123,
-          "docX"));
+          "foo-bar?baz!quux", ResourcePath{"coll1"}, 123, "docX"));
 }
 
 TEST(LevelDbDocumentOverlayCollectionIndexKeyTest,
@@ -1030,7 +1029,7 @@ TEST(LevelDbDocumentOverlayCollectionIndexKeyTest,
   LevelDbDocumentOverlayCollectionIndexKey decoded_key;
   ASSERT_TRUE(decoded_key.Decode(encoded_key));
   EXPECT_EQ(decoded_key.user_id(), "test_user");
-  EXPECT_EQ(decoded_key.collection(), model::ResourcePath::FromString("coll"));
+  EXPECT_EQ(decoded_key.collection(), ResourcePath{"coll"});
   EXPECT_EQ(decoded_key.largest_batch_id(), 123);
   EXPECT_EQ(decoded_key.document_key(), testutil::Key("coll/doc"));
 }
