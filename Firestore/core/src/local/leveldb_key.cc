@@ -1340,8 +1340,7 @@ bool LevelDbDocumentOverlayLargestBatchIdIndexKey::Decode(
   auto largest_batch_id = reader.ReadBatchId();
   auto document_key = reader.ReadDocumentKey();
   reader.ReadTerminator();
-  Reset(std::move(user_id), std::move(largest_batch_id),
-        std::move(document_key));
+  Reset(std::move(user_id), largest_batch_id, std::move(document_key));
   return reader.ok();
 }
 

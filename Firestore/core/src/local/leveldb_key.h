@@ -1029,10 +1029,10 @@ class LevelDbDocumentOverlayIndexKey {
 
   /** Sets the values of this object's instance variables. */
   void Reset(std::string&& user_id,
-             model::BatchId&& largest_batch_id,
+             model::BatchId largest_batch_id,
              model::DocumentKey&& document_key) {
     user_id_ = std::move(user_id);
-    largest_batch_id_ = std::move(largest_batch_id);
+    largest_batch_id_ = largest_batch_id;
     document_key_ = std::move(document_key);
   }
 
