@@ -186,7 +186,7 @@ class IntegrationTests: XCTestCase {
 
     let expectation = expectation(description: #function)
     let function = functions.httpsCallable(
-      "FCMTokenTest",
+      "tokenTest",
       requestAs: [String: Int].self,
       responseAs: [String: Int].self
     )
@@ -218,7 +218,7 @@ class IntegrationTests: XCTestCase {
       functions.useEmulator(withHost: "localhost", port: 5005)
 
       let function = functions.httpsCallable(
-        "FCMTokenTest",
+        "tokenTest",
         requestAs: [String: Int].self,
         responseAs: [String: Int].self
       )

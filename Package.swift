@@ -1044,6 +1044,8 @@ let package = Package(
         "FirebaseAuth",
         "FirebaseAppCheck",
         "FirebaseABTesting",
+        "FirebaseAnalytics",
+        "FirebaseAnalyticsSwift",
         .target(name: "FirebaseAppDistribution",
                 condition: .when(platforms: [.iOS])),
         "FirebaseAuthCombineSwift",
