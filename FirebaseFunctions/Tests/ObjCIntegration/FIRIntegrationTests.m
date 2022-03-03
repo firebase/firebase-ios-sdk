@@ -18,6 +18,7 @@
 #import "FirebaseFunctions/Tests/ObjCIntegration/FIRFunctions+Internal.h"
 
 @import FirebaseFunctions;
+@import FirebaseAuthInterop;
 @import FirebaseMessagingInterop;
 @import GTMSessionFetcherCore;
 
@@ -30,9 +31,33 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
 @implementation MessagingTokenProvider
 @synthesize FCMToken;
 - (instancetype)init {
-  FCMToken = @"abc";
+  if (self = [super init]) {
+    FCMToken = @"fakeFCMToken";
+  }
+  return self;
 }
 
+@end
+
+@interface AuthTokenProvider : NSObject <FIRAuthInterop>
+@property NSString *token;
+@end
+
+@implementation AuthTokenProvider
+- (instancetype)initWithToken:(NSString *)token {
+  if (self = [super init]) {
+    _token = token;
+  }
+  return self;
+}
+
+- (void)getTokenForcingRefresh:(BOOL)forceRefresh withCallback:(nonnull FIRTokenCallback)callback {
+  callback(_token, nil);
+}
+
+- (nullable NSString *)getUserID {
+  return @"dummy user id";
+}
 @end
 
 @interface FIRIntegrationTests : XCTestCase {
@@ -48,9 +73,7 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
 - (void)setUp {
   [super setUp];
 
-  //_messagingFake = [[FIRMessagingInteropFake alloc] init];
   _messagingFake = [[MessagingTokenProvider alloc] init];
-
   _projectID = kDefaultProjectID;
   _useLocalhost = YES;
 
@@ -61,14 +84,13 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
     _useLocalhost = NO;
   }
 
-  _functions = [[FIRFunctions alloc]
-      initWithProjectID:_projectID
-                 region:@"us-central1"
-           customDomain:nil
-                   auth:nil  //[[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil]
-              messaging:nil  //_messagingFake
-               appCheck:nil
-         fetcherService:[[GTMSessionFetcherService alloc] init]];
+  _functions = [[FIRFunctions alloc] initWithProjectID:_projectID
+                                                region:@"us-central1"
+                                          customDomain:nil
+                                                  auth:nil
+                                             messaging:_messagingFake
+                                              appCheck:nil
+                                        fetcherService:[[GTMSessionFetcherService alloc] init]];
   if (_useLocalhost) {
     [_functions useEmulatorWithHost:@"localhost" port:5005];
   }
@@ -113,20 +135,18 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
   [self waitForExpectations:@[ expectation ] timeout:10];
 }
 
-// TODO: Fix with interop.
-- (void)SKIPtestToken {
+- (void)testToken {
   // Recreate _functions with a token.
   FIRFunctions *functions =
       [[FIRFunctions alloc] initWithProjectID:_projectID
                                        region:@"us-central1"
                                  customDomain:nil
-                                         auth:nil  //[[FIRAuthInteropFake alloc]
-                                                   // initWithToken:@"token" userID:nil error:nil]
-                                    messaging:nil  //_messagingFake
+                                         auth:[[AuthTokenProvider alloc] initWithToken:@"token"]
+                                    messaging:_messagingFake
                                      appCheck:nil
                                fetcherService:[[GTMSessionFetcherService alloc] init]];
   if (_useLocalhost) {
-    [_functions useEmulatorWithHost:@"localhost" port:5005];
+    [functions useEmulatorWithHost:@"localhost" port:5005];
   }
 
   XCTestExpectation *expectation = [[XCTestExpectation alloc] init];
@@ -140,7 +160,7 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
   [self waitForExpectations:@[ expectation ] timeout:10];
 }
 
-- (void)SKIPtestFCMToken {
+- (void)testFCMToken {
   XCTestExpectation *expectation = [[XCTestExpectation alloc] init];
   FIRHTTPSCallable *function = [_functions HTTPSCallableWithName:@"FCMTokenTest"];
   [function callWithObject:@{}
@@ -257,25 +277,3 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
 }
 
 @end
-//
-//@interface AuthTokenProvider: AuthInterop
-//@end
-//
-//@implementation AuthTokenProvider
-//@end
-
-// private class AuthTokenProvider: AuthInterop {
-//   let token: String
-//
-//   init(token: String) {
-//     self.token = token
-//   }
-//
-//   func getToken(forcingRefresh: Bool, callback: (String?, Error?) -> Void) {
-//     callback(token, nil)
-//   }
-// }
-//
-// private class MessagingTokenProvider: MessagingInterop {
-//   var fcmToken: String { return "fakeFCMToken" }
-// }
