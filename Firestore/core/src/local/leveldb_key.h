@@ -921,7 +921,7 @@ class LevelDbDocumentOverlayKey {
                             model::BatchId largest_batch_id)
       : user_id_(std::move(user_id)),
         document_key_(std::move(document_key)),
-        largest_batch_id_(std::move(largest_batch_id)) {
+        largest_batch_id_(largest_batch_id) {
   }
 
   /**
@@ -1004,9 +1004,8 @@ class LevelDbDocumentOverlayIndexKey {
   // Overload `ToLevelDbDocumentOverlayKey()` to avoid copies if invoked on
   // an rvalue reference.
   LevelDbDocumentOverlayKey ToLevelDbDocumentOverlayKey() && {
-    return LevelDbDocumentOverlayKey(std::move(user_id_),
-                                     std::move(document_key_),
-                                     std::move(largest_batch_id_));
+    return LevelDbDocumentOverlayKey(
+        std::move(user_id_), std::move(document_key_), largest_batch_id_);
   }
 
   /** The user ID, as encoded in the key. */
