@@ -16,10 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
-
 #import "FirebaseDatabase/Sources/Persistence/FStorageEngine.h"
 
+@import FirebaseDatabaseSwiftCore;
 
 
 @class FCacheNode;

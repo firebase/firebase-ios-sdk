@@ -16,7 +16,6 @@
 
 #import "FirebaseDatabase/Sources/Core/View/FView.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
-#import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
 #import "FirebaseDatabase/Sources/Core/Operation/FOperation.h"
 #import "FirebaseDatabase/Sources/Core/Operation/FOperationSource.h"
 

@@ -20,7 +20,6 @@
 #import "FirebaseDatabase/Sources/Persistence/FCachePolicy.h"
 #import "FirebaseDatabase/Sources/Persistence/FLevelDBStorageEngine.h"
 
-#import "FirebaseDatabase/Sources/Persistence/FTrackedQuery.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 @import FirebaseDatabaseSwiftCore;

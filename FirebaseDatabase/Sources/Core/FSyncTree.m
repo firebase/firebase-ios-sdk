@@ -17,7 +17,6 @@
 #import "FirebaseDatabase/Sources/Core/FSyncTree.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseDatabase/Sources/Core/FListenProvider.h"
-#import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
 #import "FirebaseDatabase/Sources/Core/FServerValues.h"
 #import "FirebaseDatabase/Sources/Core/FSnapshotHolder.h"
 #import "FirebaseDatabase/Sources/Core/FSyncPoint.h"

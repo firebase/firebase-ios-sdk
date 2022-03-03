@@ -18,10 +18,11 @@
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
 #import "FirebaseDatabase/Sources/Constants/FConstants.h"
-#import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 #import "FirebaseDatabase/Tests/Helpers/FIRFakeApp.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestExpectations.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 @implementation FIRDatabaseQueryTests
 

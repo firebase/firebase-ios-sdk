@@ -15,15 +15,13 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
 
 #import "FirebaseDatabase/Sources/Persistence/FPersistenceManager.h"
-
-
-
 #import "FirebaseDatabase/Tests/Helpers/FMockStorageEngine.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestCachePolicy.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 @interface FPersistenceManagerTest : XCTestCase
 
