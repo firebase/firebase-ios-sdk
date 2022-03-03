@@ -21,6 +21,9 @@ include(GoogleUtilities)
 
 file(GLOB headers Sources/Private/*.h Sources/Public/FirebaseCore/*.h)
 file(GLOB sources Sources/*.m)
+# Exclude the `FIRHeartbeatLogger.m` since it depends on the Swift Heartbeat logging
+# library that is not configured to build for Cmake builds.
+list(FILTER sources EXCLUDE REGEX "FIRHeartbeatLogger.m")
 
 podspec_version(version ${PROJECT_SOURCE_DIR}/FirebaseCore.podspec)
 firebase_version(firebase_version ${PROJECT_SOURCE_DIR}/FirebaseCore.podspec)
