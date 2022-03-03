@@ -18,7 +18,6 @@
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
 #import "FirebaseDatabase/Sources/Core/View/FEventRegistration.h"
 
-
 @interface FDataEvent ()
 @property(nonatomic, strong, readwrite) id<FEventRegistration>
     eventRegistration;

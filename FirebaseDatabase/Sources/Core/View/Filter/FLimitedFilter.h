@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/View/Filter/FNodeFilter.h"
 #import <Foundation/Foundation.h>
+
+@import FirebaseDatabaseSwiftCore;
 
 @class FQueryParams;
 

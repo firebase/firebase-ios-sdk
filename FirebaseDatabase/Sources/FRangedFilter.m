@@ -16,10 +16,6 @@
 
 #import "FirebaseDatabase/Sources/FRangedFilter.h"
 #import "FirebaseDatabase/Sources/Core/FQueryParams.h"
-#import "FirebaseDatabase/Sources/Core/View/Filter/FChildChangeAccumulator.h"
-#import "FirebaseDatabase/Sources/Core/View/Filter/FIndexedFilter.h"
-
-
 
 @import FirebaseDatabaseSwiftCore;
 

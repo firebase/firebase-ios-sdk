@@ -26,7 +26,6 @@
 #import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
 #import "FirebaseDatabase/Sources/Core/FSyncTree.h"
 #import "FirebaseDatabase/Sources/Core/View/FCancelEvent.h"
-#import "FirebaseDatabase/Sources/Core/View/FChange.h"
 #import "FirebaseDatabase/Sources/Core/View/FDataEvent.h"
 #import "FirebaseDatabase/Sources/Core/View/FEventRegistration.h"
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"

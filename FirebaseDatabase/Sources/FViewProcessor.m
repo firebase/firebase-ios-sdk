@@ -20,19 +20,8 @@
 #import "FirebaseDatabase/Sources/Core/Operation/FOperation.h"
 #import "FirebaseDatabase/Sources/Core/Operation/FOperationSource.h"
 #import "FirebaseDatabase/Sources/Core/Operation/FOverwrite.h"
-
-
-#import "FirebaseDatabase/Sources/Core/View/FChange.h"
 #import "FirebaseDatabase/Sources/Core/View/FViewCache.h"
-#import "FirebaseDatabase/Sources/Core/View/Filter/FChildChangeAccumulator.h"
-#import "FirebaseDatabase/Sources/Core/View/Filter/FCompleteChildSource.h"
-#import "FirebaseDatabase/Sources/Core/View/Filter/FNodeFilter.h"
-
 #import "FirebaseDatabase/Sources/FViewProcessorResult.h"
-
-
-
-
 
 @import FirebaseDatabaseSwiftCore;
 

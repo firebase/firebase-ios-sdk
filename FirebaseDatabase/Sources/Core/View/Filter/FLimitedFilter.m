@@ -16,14 +16,10 @@
 
 #import "FirebaseDatabase/Sources/Core/View/Filter/FLimitedFilter.h"
 #import "FirebaseDatabase/Sources/Core/FQueryParams.h"
-#import "FirebaseDatabase/Sources/Core/View/FChange.h"
-#import "FirebaseDatabase/Sources/Core/View/Filter/FChildChangeAccumulator.h"
-#import "FirebaseDatabase/Sources/Core/View/Filter/FCompleteChildSource.h"
-
 
 #import "FirebaseDatabase/Sources/FRangedFilter.h"
 
-
+@import FirebaseDatabaseSwiftCore;
 
 @interface FLimitedFilter ()
 @property(nonatomic, strong) FRangedFilter *rangedFilter;

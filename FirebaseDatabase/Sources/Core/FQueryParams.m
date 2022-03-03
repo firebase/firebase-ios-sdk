@@ -16,9 +16,7 @@
 
 #import "FirebaseDatabase/Sources/Core/FQueryParams.h"
 #import "FirebaseDatabase/Sources/Constants/FConstants.h"
-#import "FirebaseDatabase/Sources/Core/View/Filter/FIndexedFilter.h"
 #import "FirebaseDatabase/Sources/Core/View/Filter/FLimitedFilter.h"
-#import "FirebaseDatabase/Sources/Core/View/Filter/FNodeFilter.h"
 #import "FirebaseDatabase/Sources/FRangedFilter.h"
 
 @import FirebaseDatabaseSwiftCore;

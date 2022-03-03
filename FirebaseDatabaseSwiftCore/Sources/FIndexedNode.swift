@@ -56,7 +56,7 @@ import Foundation
     }()
     let initialIndexed: Wrapper?
 
-    init(node: FNode, index: FIndex) {
+    init(node: FNode, index: FIndex = FPriorityIndex.priorityIndex) {
         self.node = node
         self.index = index
         self.initialIndexed = nil

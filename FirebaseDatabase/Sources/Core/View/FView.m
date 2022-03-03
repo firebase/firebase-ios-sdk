@@ -24,7 +24,6 @@
 #import "FirebaseDatabase/Sources/Core/View/FCancelEvent.h"
 #import "FirebaseDatabase/Sources/Core/View/FEventRegistration.h"
 #import "FirebaseDatabase/Sources/Core/View/FViewCache.h"
-#import "FirebaseDatabase/Sources/Core/View/Filter/FIndexedFilter.h"
 #import "FirebaseDatabase/Sources/FEventGenerator.h"
 #import "FirebaseDatabase/Sources/FViewProcessor.h"
 #import "FirebaseDatabase/Sources/FViewProcessorResult.h"

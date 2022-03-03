@@ -22,6 +22,7 @@
 #import "FirebaseDatabase/Sources/Core/View/FChildEventRegistration.h"
 #import "FirebaseDatabase/Sources/Core/View/FValueEventRegistration.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
+#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
 
 @implementation FIRDatabaseQuery
 
