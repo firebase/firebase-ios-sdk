@@ -16,9 +16,7 @@
 
 #import "FirebaseDatabase/Sources/Core/FSyncTree.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-//#import "FirebaseDatabase/Sources/Core/FCompoundHash.h"
 #import "FirebaseDatabase/Sources/Core/FListenProvider.h"
-#import "FirebaseDatabase/Sources/Core/FQueryParams.h"
 #import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
 #import "FirebaseDatabase/Sources/Core/FServerValues.h"
 #import "FirebaseDatabase/Sources/Core/FSnapshotHolder.h"
@@ -38,6 +36,8 @@
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleRemovedQueriesEvents.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 // Size after which we start including the compound hash
 static const NSUInteger kFSizeThresholdForCompoundHash = 1024;

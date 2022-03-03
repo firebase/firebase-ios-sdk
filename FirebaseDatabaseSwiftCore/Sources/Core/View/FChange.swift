@@ -22,7 +22,7 @@ import Foundation
         self.prevKey = nil
     }
 
-    @objc public init(type: DataEventType, indexedNode: FIndexedNode, childKey: String) {
+    @objc public init(type: DataEventType, indexedNode: FIndexedNode, childKey: String?) {
         self.type = type
         self.indexedNode = indexedNode
         self.childKey = childKey
@@ -30,7 +30,7 @@ import Foundation
         self.prevKey = nil
     }
 
-    @objc public init(type: DataEventType, indexedNode: FIndexedNode, childKey: String, oldIndexedNode: FIndexedNode) {
+    @objc public init(type: DataEventType, indexedNode: FIndexedNode, childKey: String?, oldIndexedNode: FIndexedNode?) {
         self.type = type
         self.indexedNode = indexedNode
         self.childKey = childKey

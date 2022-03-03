@@ -15,7 +15,6 @@
  */
 
 #import "FirebaseDatabase/Sources/Core/FSyncPoint.h"
-#import "FirebaseDatabase/Sources/Core/FQueryParams.h"
 #import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
 #import "FirebaseDatabase/Sources/Core/Operation/FOperation.h"
 #import "FirebaseDatabase/Sources/Core/Operation/FOperationSource.h"
@@ -26,9 +25,9 @@
 #import "FirebaseDatabase/Sources/Persistence/FPersistenceManager.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseQuery.h"
 
-
-
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleRemovedQueriesEvents.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 /**
  * SyncPoint represents a single location in a SyncTree with 1 or more event

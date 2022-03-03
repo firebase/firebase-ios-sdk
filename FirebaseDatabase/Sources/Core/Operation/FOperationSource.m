@@ -15,7 +15,8 @@
  */
 
 #import "FirebaseDatabase/Sources/Core/Operation/FOperationSource.h"
-#import "FirebaseDatabase/Sources/Core/FQueryParams.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 
 @interface FOperationSource ()

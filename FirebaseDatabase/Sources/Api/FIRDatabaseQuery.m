@@ -17,12 +17,13 @@
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseQuery.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
 #import "FirebaseDatabase/Sources/Constants/FConstants.h"
-#import "FirebaseDatabase/Sources/Core/FQueryParams.h"
 #import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
 #import "FirebaseDatabase/Sources/Core/View/FChildEventRegistration.h"
 #import "FirebaseDatabase/Sources/Core/View/FValueEventRegistration.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 @implementation FIRDatabaseQuery
 

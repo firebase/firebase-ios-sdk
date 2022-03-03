@@ -16,7 +16,6 @@
 
 #import "FirebaseDatabase/Sources/Core/View/FView.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
-#import "FirebaseDatabase/Sources/Core/FQueryParams.h"
 #import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
 #import "FirebaseDatabase/Sources/Core/Operation/FOperation.h"
 #import "FirebaseDatabase/Sources/Core/Operation/FOperationSource.h"
@@ -28,8 +27,6 @@
 #import "FirebaseDatabase/Sources/FViewProcessor.h"
 #import "FirebaseDatabase/Sources/FViewProcessorResult.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseQuery.h"
-
-
 
 @import FirebaseDatabaseSwiftCore;
 

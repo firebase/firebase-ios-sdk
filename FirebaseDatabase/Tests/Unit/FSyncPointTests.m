@@ -22,7 +22,6 @@
 #import "FirebaseDatabase/Sources/Api/Private/FIRDataSnapshot_Private.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
 #import "FirebaseDatabase/Sources/Core/FListenProvider.h"
-#import "FirebaseDatabase/Sources/Core/FQueryParams.h"
 #import "FirebaseDatabase/Sources/Core/FQuerySpec.h"
 #import "FirebaseDatabase/Sources/Core/FSyncTree.h"
 #import "FirebaseDatabase/Sources/Core/View/FCancelEvent.h"
@@ -30,13 +29,10 @@
 #import "FirebaseDatabase/Sources/Core/View/FEventRegistration.h"
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
 
-
-
-
-
-
 #import "FirebaseDatabase/Tests/Helpers/FTestClock.h"
 #import "FirebaseDatabase/Tests/Unit/FSyncPointTests.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 typedef NSDictionary * (^fbt_nsdictionary_void)(void);
 

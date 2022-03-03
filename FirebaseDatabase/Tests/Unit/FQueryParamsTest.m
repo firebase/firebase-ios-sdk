@@ -17,16 +17,6 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseDatabase/Sources/Core/FQueryParams.h"
-
-
-
-
-
-
-
-
-
 @import FirebaseDatabaseSwiftCore;
 
 @interface FQueryParamsTest : XCTestCase
