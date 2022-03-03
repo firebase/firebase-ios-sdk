@@ -7,17 +7,17 @@ to help prioritize any particular cell(s).
 This dashboard is intended to track an initial full Swift review of Firebase along with addressing low-hanging fruit. We would expect it to identify additional follow up
 tasks for additional Swift improvements.
 
-|                       | AB  | An     | ApC    | ApD    | Aut    | Cor    | Crs    | DB     | Fst    | Fn     | IAM    | Ins    | Msg    | MLM    | Prf    | RC     |    Str |
-|   :---                | :--- | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
-| **Swift Library**     | ❌   |   ✔   | ❌     |❌     | ❌     | ❌     | ❌      |  ✔     |  ✔    | 1      |  ✔     | ❌    | ❌     | ✔      | ❌     |  ✔    | ✔     |
-| **API Tests**         | ❌   |  ❌    |  ✔    |❌     | ✔      | ✔       | ❌     | 3      | 2     |  ✔     | 2      | ✔      | ✔     | 2      | ❌    |  ✔     | ✔    |
-| **async/await**       | ❌   |  n/a   |  ✔    |❌     | ✔      |  ✔      | ❌     | 3     |  ✔     |  ✔     | ❌     | ❌    | ✔     | ❌    | ❌     |  ✔    | ✔    |
-| **Swift Errors**      |  ❌  |  ❌    | ❌    |❌     | 4      | ❌     | ❌     | ❌     | ❌    | ❌     | ❌     | ❌    | ❌     | ✔      | ❌     |  ✔   | 5   |
-| **Codable**           | n/a  | n/a     | n/a   |n/a    | n/a     | n/a    |n/a     |  ✔     |  ✔     | 1      | n/a     | n/a   | ❌     | n/a    | n/a    |   ✔  |n/a   |
-| **SwiftUI Lifecycle** | n/a  |  ❌    | n/a    |❌     | ❌     | n/a    |n/a     | n/a    | n/a    | n/a     | n/a    | n/a   | ❌     | n/a    | n/a    | n/a   |n/a  |
-| **SwiftUI Interop**   | ❌   |  ✔     | ❌     |❌    | ❌     | ❌     |❌      | ❌     | ❌    | ❌     | ✔      | ❌    | ❌     | ❌    | ❌     | ❌    |n/a  |
-| **Property Wrappers** |  ❌  |  ❌    | ❌    |❌     | ❌     | ❌     | ❌     | ❌     | 6     | ❌     | ❌     | ❌    | ❌     | ❌    | ❌     | ❌   |❌    |
-| **Swift Doc Scrub**   |  ❌  |  ❌    | ❌    |❌     | ❌     | ❌     | ❌     | ❌     |  ❌   | ❌     | ❌     | ❌    | ❌     | ❌    | ❌     | ❌   |❌    |
+|                       | An     | ApC    | ApD    | Aut    | Cor    | Crs    | DB     | Fst    | Fn     | IAM    | Ins    | Msg    | MLM    | Prf    | RC     |    Str |
+|   :---                | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
+| **Swift Library**     |   ✔    | ❌     |❌     | ❌     | n/a     | ❌      |  ✔     |  ✔    | ✔      |  ✔     | ❌    | ❌     | ✔      | ❌        |  ✔        | ✔     |
+| **API Tests**         |  ❌    |  ✔     |❌     | ✔      | ✔       | ❌     | 3      | 2     |  ✔     | 2      | ✔      | ✔     | 2      | ❌        |  ✔      | ✔    |
+| **async/await**       |  ✔    |  ✔      |✔     | ✔      |  ✔      | ✔      | 3     |  ✔     |  ✔     | ✔      | ✔     | ✔        | ❌      | ✔      |  ✔     | ✔    |
+| **Swift Errors**      |  ❌    | ❌     |❌     | 4      | ❌     | ❌     | ❌     | ❌    | ❌     | ❌     | ❌    | ❌     | ✔      | ❌     |  ✔   | 5   |
+| **Codable**           |  n/a   | n/a   |n/a    | n/a     | n/a    |n/a     |  ✔     |  ✔     | ✔      | n/a     | n/a   | ❌     | n/a    | n/a    |   ✔  |n/a   |
+| **SwiftUI Lifecycle** |  ❌    | n/a    |❌     | ❌     | n/a    |n/a     | n/a    | n/a    | n/a     | n/a    | n/a   | ❌     | n/a    | n/a    | n/a   |n/a  |
+| **SwiftUI Interop**   |   ✔    | ❌     |❌     | ❌     | ❌     |❌      | ❌     | ❌    | ❌     | ✔      | ❌    | ❌     | ❌    | ❌     | ❌    |n/a  |
+| **Property Wrappers** |  ❌    | ❌     |❌     | ❌     | ❌     | ❌     | ❌     | 6     | ❌     | ❌     | ❌    | ❌     | ❌    | ❌     | ❌   |❌    |
+| **Swift Doc Scrub**   |  ❌    | ❌     |❌     | ❌     | ❌     | ❌     | ❌     |  ❌   | ❌     | ❌     | ❌    | ❌     | ❌    | ❌     | ❌   |❌    |
 
 ### Other Projects
 - Tooling to surface full list of automatically generated Swift API from Objective C and validate.
@@ -25,7 +25,6 @@ tasks for additional Swift improvements.
 - Swift Generics. Update APIs that are using weakly typed information to use proper generics.
 
 ## Notes
-1. Planned to release with Firebase 8.11.0
 2. Tests exist. Coverage to be confirmed.
 3. Mostly done. Need to review open questions in the RTDB tab [here](https://docs.google.com/spreadsheets/d/1HS4iJBtTHA9E01VrcsiVn_GVOa7KOCcn5LNw3sWlGoU/edit#gid=75586175).
 4. Feature Request at [#7723](https://github.com/firebase/firebase-ios-sdk/pull/7723) and PR at [#9000](https://github.com/firebase/firebase-ios-sdk/pull/9000)
@@ -50,7 +49,6 @@ APIs would fit into this category.
 should also investigate using DocC to format the docs.
 
 ## Columns (Firebase Products)
-* AB - AB Testing
 * An - Analytics
 * ApC - App Check
 * ApD - App Distribution
