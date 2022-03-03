@@ -51,7 +51,7 @@ open class HTTPSCallable: NSObject {
   /**
    * The timeout to use when calling the function. Defaults to 70 seconds.
    */
-  @objc public var timeoutInterval: TimeInterval = 70
+  @objc open var timeoutInterval: TimeInterval = 70
 
   internal init(functions: Functions, name: String) {
     self.functions = functions
@@ -79,9 +79,9 @@ open class HTTPSCallable: NSObject {
    * @param data Parameters to pass to the trigger.
    * @param completion The block to call when the HTTPS request has completed.
    */
-  @objc(callWithObject:completion:) public func call(_ data: Any? = nil,
-                                                     completion: @escaping (HTTPSCallableResult?,
-                                                                            Error?) -> Void) {
+  @objc(callWithObject:completion:) open func call(_ data: Any? = nil,
+                                                   completion: @escaping (HTTPSCallableResult?,
+                                                                          Error?) -> Void) {
     functions.callFunction(name: name,
                            withObject: data,
                            timeout: timeoutInterval) { result in
@@ -128,7 +128,7 @@ open class HTTPSCallable: NSObject {
      * @returns The result of the call.
      */
     @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
-    public func call(_ data: Any? = nil) async throws -> HTTPSCallableResult {
+    open func call(_ data: Any? = nil) async throws -> HTTPSCallableResult {
       return try await withCheckedThrowingContinuation { continuation in
         // TODO(bonus): Use task to handle and cancellation.
         self.call(data) { callableResult, error in
