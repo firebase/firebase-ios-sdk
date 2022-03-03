@@ -60,7 +60,7 @@ absl::optional<Overlay> LevelDbDocumentOverlayCache::GetOverlay(
   auto it = db_->current_transaction()->NewIterator();
   it->Seek(key_prefix);
 
-  if (!(it->Valid() && absl::StartsWith(it->key(), key_prefix))) {
+  if (!it->Valid() || !absl::StartsWith(it->key(), key_prefix)) {
     return absl::nullopt;
   }
 
@@ -202,7 +202,7 @@ void LevelDbDocumentOverlayCache::DeleteOverlay(
   auto it = db_->current_transaction()->NewIterator();
   it->Seek(key_prefix);
 
-  if (!(it->Valid() && absl::StartsWith(it->key(), key_prefix))) {
+  if (!it->Valid() || !absl::StartsWith(it->key(), key_prefix)) {
     return;
   }
 
@@ -278,7 +278,7 @@ absl::optional<Overlay> LevelDbDocumentOverlayCache::GetOverlay(
   auto it = db_->current_transaction()->NewIterator();
   const std::string encoded_key = key.Encode();
   it->Seek(encoded_key);
-  if (!(it->Valid() && it->key() == encoded_key)) {
+  if (!it->Valid() || it->key() != encoded_key) {
     return absl::nullopt;
   }
   return ParseOverlay(key, it->value());
