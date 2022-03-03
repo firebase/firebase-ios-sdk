@@ -19,11 +19,7 @@ import FirebaseCore
 import FirebaseCoreInternal
 import FirebaseMessagingInterop
 import FirebaseSharedSwift
-#if COCOAPODS
-  import GTMSessionFetcher
-#else
-  import GTMSessionFetcherCore
-#endif
+import GTMSessionFetcher
 
 /// File specific constants.
 private enum Constants {

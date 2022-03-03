@@ -27,12 +27,8 @@
 #import "FirebaseAuth/Interop/FIRAuthInterop.h"
 #import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 
-#if SWIFT_PACKAGE
-@import GTMSessionFetcherCore;
-#else
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
 #import <GTMSessionFetcher/GTMSessionFetcherLogging.h>
-#endif
 
 static NSMutableDictionary<
     NSString * /* app name */,
