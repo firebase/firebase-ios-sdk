@@ -1396,7 +1396,7 @@ bool LevelDbDocumentOverlayCollectionIndexKey::Decode(absl::string_view key) {
   auto largest_batch_id = reader.ReadBatchId();
   const std::string document_id = reader.ReadDocumentId();
   reader.ReadTerminator();
-  Reset(std::move(user_id), std::move(largest_batch_id),
+  Reset(std::move(user_id), largest_batch_id,
         DocumentKey(collection.Append(document_id)));
   return reader.ok();
 }
