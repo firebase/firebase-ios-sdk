@@ -190,7 +190,7 @@ internal enum FunctionsConstants {
     self.fetcherService = fetcherService
   }
 
-  // Using the component system for initialization.
+  /// Using the component system for initialization.
   internal convenience init(app: FirebaseApp,
                             region: String,
                             customDomain: String?) {
