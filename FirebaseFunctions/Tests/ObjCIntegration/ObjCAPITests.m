@@ -35,9 +35,6 @@
 
   FIRHTTPSCallable *callable = [func HTTPSCallableWithName:@"name"];
 
-  // Deprecated in Firebase 8, Deleted in Firebase 9
-  //[func useFunctionsEmulatorOrigin:@"my-origin"];
-
   [func useEmulatorWithHost:@"host" port:@"port"];
 
 #pragma mark - HTTPSCallable and HTTPSCallableResult

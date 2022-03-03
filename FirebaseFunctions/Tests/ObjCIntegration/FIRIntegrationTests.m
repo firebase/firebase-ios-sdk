@@ -31,7 +31,7 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
 @implementation MessagingTokenProvider
 @synthesize FCMToken;
 - (instancetype)init {
-  if (self) {
+  if (self = [super init]) {
     FCMToken = @"fakeFCMToken";
   }
   return self;
@@ -45,7 +45,7 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
 
 @implementation AuthTokenProvider
 - (instancetype)initWithToken:(NSString *)token {
-  if (self) {
+  if (self = [super init]) {
     _token = token;
   }
   return self;
