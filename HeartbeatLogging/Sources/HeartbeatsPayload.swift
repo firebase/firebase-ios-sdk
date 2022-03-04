@@ -88,7 +88,7 @@ extension HeartbeatsPayload: HTTPHeaderRepresentable {
     encoder.dateEncodingStrategy = .formatted(Self.dateFormatter)
 
     guard let data = try? encoder.encode(self) else {
-      // Because `HeartbeatsPayload` conforms to Codal
+      // If encoding fails, fall back to encoding with an empty payload.
       return Self.emptyPayload.headerValue()
     }
 
