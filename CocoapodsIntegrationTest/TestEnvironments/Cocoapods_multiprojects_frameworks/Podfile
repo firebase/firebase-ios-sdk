@@ -10,10 +10,13 @@ target 'CocoapodsIntegrationTest' do
   use_frameworks!
   pod 'FirebaseABTesting', :path => '../'
   pod 'FirebaseAppDistribution', :path => '../'
+  pod 'FirebaseAppCheckInterop', :path => '../'
   pod 'FirebaseCore', :path => '../'
   pod 'FirebaseCoreDiagnostics', :path => '../'
+  pod 'FirebaseCoreInternal', :path => '../'
   pod 'FirebaseCrashlytics', :path => '../'
   pod 'FirebaseAuth', :path => '../'
+  pod 'FirebaseAuthInterop', :path => '../'
   pod 'FirebaseDatabase', :path => '../'
   pod 'FirebaseDynamicLinks', :path => '../'
   pod 'FirebaseFirestore', :path => '../'
@@ -21,6 +24,7 @@ target 'CocoapodsIntegrationTest' do
   pod 'FirebaseInAppMessaging', :path => '../'
   pod 'FirebaseInstallations', :path => '../'
   pod 'FirebaseMessaging', :path => '../'
+  pod 'FirebaseMessagingInterop', :path => '../'
   pod 'FirebasePerformance', :path => '../'
   pod 'FirebaseStorage', :path => '../'
 end
