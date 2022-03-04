@@ -1,4 +1,8 @@
-# Unreleased
+# v8.13.0
+- [added] Added support for explicit typing to `DocumentReference.getDocument(as:)` 
+  and `DocumentSnapshot.data(as:)` to simplify mapping documents (#9101).
+  
+# 8.12.1
 - [added] Added async wrapper for `CollectionReference.addDocument()` and
   `Firestore.loadBundle()`.
 
