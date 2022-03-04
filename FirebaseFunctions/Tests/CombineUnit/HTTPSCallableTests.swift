@@ -21,7 +21,7 @@ import FirebaseFunctionsCombineSwift
 import FirebaseAuthInterop
 import FirebaseAppCheckInterop
 import FirebaseMessagingInterop
-import GTMSessionFetcherCore
+import GTMSessionFetcher
 import XCTest
 
 // hardcoded in HTTPSCallable.swift
