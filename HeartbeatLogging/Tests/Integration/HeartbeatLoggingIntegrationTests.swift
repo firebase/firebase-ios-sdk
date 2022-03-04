@@ -133,7 +133,8 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
 
     // Then
     let nonEmptyPayloads = payloads.filter { payload in
-      payload.headerValue().count > 0
+      // Filter out non-empty payloads.
+      !payload.userAgentPayloads.isEmpty
     }
 
     XCTAssertEqual(nonEmptyPayloads.count, 1)
@@ -173,7 +174,8 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
 
     // Then
     let nonEmptyPayloads = payloads.filter { payload in
-      payload.headerValue().count > 0
+      // Filter out non-empty payloads.
+      !payload.userAgentPayloads.isEmpty
     }
 
     XCTAssertEqual(nonEmptyPayloads.count, 1)

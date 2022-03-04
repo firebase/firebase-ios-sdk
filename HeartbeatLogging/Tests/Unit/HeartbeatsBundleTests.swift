@@ -77,7 +77,15 @@ class HeartbeatsBundleTests: XCTestCase {
       .makeHeartbeatsPayload()
       .headerValue()
 
-    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(heartbeatsBundleString, "")
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
+      heartbeatsBundleString,
+      """
+      {
+        "version": 2,
+        "heartbeats": []
+      }
+      """
+    )
 
     XCTAssertEqual(heartbeatsBundle.lastAddedHeartbeatDates, preAppendCacheSnapshot)
   }
@@ -147,7 +155,15 @@ class HeartbeatsBundleTests: XCTestCase {
       .makeHeartbeatsPayload()
       .headerValue()
 
-    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(heartbeatsBundleString, "")
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
+      heartbeatsBundleString,
+      """
+      {
+        "version": 2,
+        "heartbeats": []
+      }
+      """
+    )
 
     XCTAssertEqual(heartbeatsBundle.lastAddedHeartbeatDates, preRemoveCacheSnapshot)
   }
@@ -166,7 +182,15 @@ class HeartbeatsBundleTests: XCTestCase {
       .makeHeartbeatsPayload()
       .headerValue()
 
-    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(heartbeatsBundleString, "")
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
+      heartbeatsBundleString,
+      """
+      {
+        "version": 2,
+        "heartbeats": []
+      }
+      """
+    )
   }
 
   func testRemovingHeartbeatFromDate_WhenHeartbeatFromDateNotInBundle_RemovesNothingAndReturnsNil() throws {
