@@ -12,6 +12,7 @@ target 'CocoapodsIntegrationTest' do
   pod 'FirebaseAppDistribution', :path => '../'
   pod 'FirebaseCore', :path => '../'
   pod 'FirebaseCoreDiagnostics', :path => '../'
+  pod 'FirebaseCoreInternal', :path => '../'
   pod 'FirebaseCrashlytics', :path => '../'
   pod 'FirebaseAuth', :path => '../'
   pod 'FirebaseDatabase', :path => '../'
