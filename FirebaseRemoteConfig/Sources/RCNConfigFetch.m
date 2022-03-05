@@ -224,6 +224,25 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
 - (NSString *)FIRAppNameFromFullyQualifiedNamespace {
   return [[_FIRNamespace componentsSeparatedByString:@":"] lastObject];
 }
+
+- (FBLPromise<FIRInstallations *> *)installations {
+  return [FBLPromise do:^id _Nullable {
+    FIRInstallations *installations = [FIRInstallations
+        installationsWithApp:[FIRApp appNamed:[self FIRAppNameFromFullyQualifiedNamespace]]];
+    if (!installations || !self->_options.GCMSenderID) {
+      NSString *errorDescription = @"Failed to get GCMSenderID";
+      FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000074", @"%@",
+                  [NSString stringWithFormat:@"%@", errorDescription]);
+      self->_settings.isFetchInProgress = NO;
+      return [NSError errorWithDomain:FIRRemoteConfigErrorDomain
+                                 code:FIRRemoteConfigErrorInternalError
+                             userInfo:@{NSLocalizedDescriptionKey : errorDescription}];
+    }
+
+    return installations;
+  }];
+}
+
 /// Refresh installation ID token before fetching config. installation ID is now mandatory for fetch
 /// requests to work.(b/14751422).
 - (void)refreshInstallationsTokenWithCompletionHandler:
