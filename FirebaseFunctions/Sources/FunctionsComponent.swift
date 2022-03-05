@@ -13,8 +13,11 @@
 // limitations under the License.
 
 import Foundation
+import FirebaseAppCheckInterop
+import FirebaseAuthInterop
 import FirebaseCore
 import FirebaseCoreInternal
+import FirebaseMessagingInterop
 
 @objc(FIRFunctionsProvider)
 protocol FunctionsProvider {
@@ -49,13 +52,16 @@ protocol FunctionsProvider {
   // MARK: - Library conformance
 
   static func componentsToRegister() -> [Component] {
-    // TODO: We don't actually add a dependency on FCM or AppCheck here even though it's used.. is
-    // that okay?
-    // TODO: Get Auth Interop Working, we need the type.
-//    let authInterop = Dependency(with: AuthProvider.self, isRequired: false)
+    let appCheckInterop = Dependency(with: AppCheckInterop.self, isRequired: false)
+    let authInterop = Dependency(with: AuthInterop.self, isRequired: false)
+    let messagingInterop = Dependency(with: MessagingInterop.self, isRequired: false)
     return [Component(FunctionsProvider.self,
                       instantiationTiming: .lazy,
-                      dependencies: [ /* authInterop */ ]) { container, isCacheable in
+                      dependencies: [
+                        appCheckInterop,
+                        authInterop,
+                        messagingInterop,
+                      ]) { container, isCacheable in
         guard let app = container.app else { return nil }
         isCacheable.pointee = true
         return self.init(app: app)
