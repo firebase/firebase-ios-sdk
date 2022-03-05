@@ -243,6 +243,30 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
   }];
 }
 
+- (FBLPromise<FIRInstallationsAuthTokenResult *> *)authTokenFromInstallations:
+    (FIRInstallations *)installations {
+  return [FBLPromise async:^(FBLPromiseFulfillBlock _Nonnull fulfill,
+                             FBLPromiseRejectBlock _Nonnull reject) {
+    FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000039", @"Starting requesting token.");
+    [installations authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
+                                             NSError *_Nullable error) {
+      if (tokenResult && tokenResult.authToken) {
+        fulfill(tokenResult);
+      } else {
+        NSString *errorDescription =
+            [NSString stringWithFormat:@"Failed to get installations token. Error : %@.", error];
+        FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000073", @"%@",
+                    [NSString stringWithFormat:@"%@", errorDescription]);
+        self->_settings.isFetchInProgress = NO;
+        NSError *error = [NSError errorWithDomain:FIRRemoteConfigErrorDomain
+                                             code:FIRRemoteConfigErrorInternalError
+                                         userInfo:@{NSLocalizedDescriptionKey : errorDescription}];
+        reject(error);
+      }
+    }];
+  }];
+}
+
 /// Refresh installation ID token before fetching config. installation ID is now mandatory for fetch
 /// requests to work.(b/14751422).
 - (void)refreshInstallationsTokenWithCompletionHandler:
