@@ -357,16 +357,6 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
   }];
 }
 
-- (void)reportCompletionOnHandler:(FIRRemoteConfigFetchCompletion)completionHandler
-                       withStatus:(FIRRemoteConfigFetchStatus)status
-                        withError:(NSError *)error {
-  if (completionHandler) {
-    dispatch_async(dispatch_get_main_queue(), ^{
-      completionHandler(status, error);
-    });
-  }
-}
-
 - (void)fetchWithUserProperties:(NSDictionary *)userProperties
               completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler {
   [[self fetchWithUserProperties:userProperties]
