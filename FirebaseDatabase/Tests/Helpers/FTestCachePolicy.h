@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseDatabase/Sources/Persistence/FCachePolicy.h"
+@import FirebaseDatabaseSwiftCore;
 
 @interface FTestCachePolicy : NSObject <FCachePolicy>
 

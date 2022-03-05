@@ -34,7 +34,6 @@
 #import "FirebaseDatabase/Sources/Core/View/FEventRegistration.h"
 #import "FirebaseDatabase/Sources/Core/View/FValueEventRegistration.h"
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
-#import "FirebaseDatabase/Sources/Persistence/FCachePolicy.h"
 #import "FirebaseDatabase/Sources/Persistence/FLevelDBStorageEngine.h"
 #import "FirebaseDatabase/Sources/Persistence/FPersistenceManager.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDataSnapshot.h"
