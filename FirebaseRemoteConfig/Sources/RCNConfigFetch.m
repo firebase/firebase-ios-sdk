@@ -83,6 +83,7 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
   NSURLSession *_fetchSession;  /// Managed internally by the fetch instance.
   NSString *_FIRNamespace;
   FIROptions *_options;
+  FIRInstallations *_installations;
 }
 
 - (instancetype)init {
@@ -224,6 +225,19 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
   return [[_FIRNamespace componentsSeparatedByString:@":"] lastObject];
 }
 
+/// Refresh installation ID token before fetching config. installation ID is now mandatory for fetch
+/// requests to work.(b/14751422).
+- (FBLPromise<RCNConfigFetchResult *> *)refreshIntallationsToken {
+  return [[[[self installations] then:^id _Nullable(FIRInstallations *_Nullable installations) {
+    self->_installations = installations;
+    return installations;
+  }] then:^id _Nullable(FIRInstallations *_Nullable _) {
+    return [self authToken];
+  }] then:^id _Nullable(FIRInstallationsAuthTokenResult *_Nullable tokenResult) {
+    return [self fetchResultFromAuthTokenResult:tokenResult];
+  }];
+}
+
 - (FBLPromise<FIRInstallations *> *)installations {
   return [FBLPromise do:^id _Nullable {
     FIRInstallations *installations = [FIRInstallations
@@ -242,13 +256,13 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
   }];
 }
 
-- (FBLPromise<FIRInstallationsAuthTokenResult *> *)authTokenFromInstallations:
-    (FIRInstallations *)installations {
+- (FBLPromise<FIRInstallationsAuthTokenResult *> *)authToken {
   return [FBLPromise async:^(FBLPromiseFulfillBlock _Nonnull fulfill,
                              FBLPromiseRejectBlock _Nonnull reject) {
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000039", @"Starting requesting token.");
-    [installations authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
-                                             NSError *_Nullable error) {
+    [self->_installations authTokenWithCompletion:^(
+                              FIRInstallationsAuthTokenResult *_Nullable tokenResult,
+                              NSError *_Nullable error) {
       if (tokenResult && tokenResult.authToken) {
         fulfill(tokenResult);
       } else {
@@ -266,15 +280,14 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
   }];
 }
 
-- (FBLPromise<RCNConfigFetchResult *> *)
-    fetchResultFromAuthTokenResult:(FIRInstallationsAuthTokenResult *)tokenResult
-                     installations:(FIRInstallations *)installations {
+- (FBLPromise<RCNConfigFetchResult *> *)fetchResultFromAuthTokenResult:
+    (FIRInstallationsAuthTokenResult *)tokenResult {
   __weak RCNConfigFetch *weakSelf = self;
   return [FBLPromise
       async:^(FBLPromiseFulfillBlock _Nonnull fulfill, FBLPromiseRejectBlock _Nonnull reject) {
         // We have a valid token. Get the backing installationID.
-        [installations installationIDWithCompletion:^(NSString *_Nullable identifier,
-                                                      NSError *_Nullable error) {
+        [self->_installations installationIDWithCompletion:^(NSString *_Nullable identifier,
+                                                             NSError *_Nullable error) {
           RCNConfigFetch *strongSelf = weakSelf;
           if (strongSelf == nil) {
             // TODO: Reject
