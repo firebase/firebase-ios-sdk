@@ -206,13 +206,12 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
       return [promise reject:error];
     }
     strongSelf->_settings.isFetchInProgress = YES;
-    [strongSelf refreshInstallationsTokenWithCompletionHandler:^(FIRRemoteConfigFetchStatus status,
-                                                                 NSError *_Nullable error) {
-      if (error) {
-        [promise reject:error];
-      } else {
-        [promise fulfill:[RCNConfigFetchResult resultWithStatus:status error:nil]];
-      }
+    [[[strongSelf refreshIntallationsToken]
+        then:^id _Nullable(RCNConfigFetchResult *_Nullable result) {
+          [promise fulfill:result];
+          return result;
+        }] catch:^(NSError *_Nonnull error) {
+      [promise reject:error];
     }];
   });
 
