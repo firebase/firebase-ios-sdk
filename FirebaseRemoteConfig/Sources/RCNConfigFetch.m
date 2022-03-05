@@ -267,102 +267,58 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
   }];
 }
 
-/// Refresh installation ID token before fetching config. installation ID is now mandatory for fetch
-/// requests to work.(b/14751422).
-- (void)refreshInstallationsTokenWithCompletionHandler:
-    (FIRRemoteConfigFetchCompletion)completionHandler {
-  FIRInstallations *installations = [FIRInstallations
-      installationsWithApp:[FIRApp appNamed:[self FIRAppNameFromFullyQualifiedNamespace]]];
-  if (!installations || !_options.GCMSenderID) {
-    NSString *errorDescription = @"Failed to get GCMSenderID";
-    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000074", @"%@",
-                [NSString stringWithFormat:@"%@", errorDescription]);
-    self->_settings.isFetchInProgress = NO;
-    return [self
-        reportCompletionOnHandler:completionHandler
-                       withStatus:FIRRemoteConfigFetchStatusFailure
-                        withError:[NSError errorWithDomain:FIRRemoteConfigErrorDomain
-                                                      code:FIRRemoteConfigErrorInternalError
-                                                  userInfo:@{
-                                                    NSLocalizedDescriptionKey : errorDescription
-                                                  }]];
-  }
-
+- (FBLPromise<RCNConfigFetchResult *> *)
+    fetchResultFromAuthTokenResult:(FIRInstallationsAuthTokenResult *)tokenResult
+                     installations:(FIRInstallations *)installations {
   __weak RCNConfigFetch *weakSelf = self;
-  FIRInstallationsTokenHandler installationsTokenHandler = ^(
-      FIRInstallationsAuthTokenResult *tokenResult, NSError *error) {
-    RCNConfigFetch *strongSelf = weakSelf;
-    if (strongSelf == nil) {
-      return;
-    }
+  return [FBLPromise
+      async:^(FBLPromiseFulfillBlock _Nonnull fulfill, FBLPromiseRejectBlock _Nonnull reject) {
+        // We have a valid token. Get the backing installationID.
+        [installations installationIDWithCompletion:^(NSString *_Nullable identifier,
+                                                      NSError *_Nullable error) {
+          RCNConfigFetch *strongSelf = weakSelf;
+          if (strongSelf == nil) {
+            // TODO: Reject
+            return;
+          };
 
-    if (!tokenResult || !tokenResult.authToken || error) {
-      NSString *errorDescription =
-          [NSString stringWithFormat:@"Failed to get installations token. Error : %@.", error];
-      FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000073", @"%@",
-                  [NSString stringWithFormat:@"%@", errorDescription]);
-      strongSelf->_settings.isFetchInProgress = NO;
-      return [strongSelf
-          reportCompletionOnHandler:completionHandler
-                         withStatus:FIRRemoteConfigFetchStatusFailure
-                          withError:[NSError errorWithDomain:FIRRemoteConfigErrorDomain
-                                                        code:FIRRemoteConfigErrorInternalError
-                                                    userInfo:@{
-                                                      NSLocalizedDescriptionKey : errorDescription
-                                                    }]];
-    }
+          // Dispatch to the RC serial queue to update settings on the queue.
+          dispatch_async(strongSelf->_lockQueue, ^{
+            RCNConfigFetch *strongSelfQueue = weakSelf;
+            if (strongSelfQueue == nil) {
+              // TODO: Reject
+              return;
+            };
 
-    // We have a valid token. Get the backing installationID.
-    [installations installationIDWithCompletion:^(NSString *_Nullable identifier,
-                                                  NSError *_Nullable error) {
-      RCNConfigFetch *strongSelf = weakSelf;
-      if (strongSelf == nil) {
-        return;
-      }
+            // Update config settings with the IID and token.
+            strongSelfQueue->_settings.configInstallationsToken = tokenResult.authToken;
+            strongSelfQueue->_settings.configInstallationsIdentifier = identifier;
 
-      // Dispatch to the RC serial queue to update settings on the queue.
-      dispatch_async(strongSelf->_lockQueue, ^{
-        RCNConfigFetch *strongSelfQueue = weakSelf;
-        if (strongSelfQueue == nil) {
-          return;
-        }
+            if (!identifier || error) {
+              NSString *errorDescription =
+                  [NSString stringWithFormat:@"Error getting iid : %@.", error];
+              FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000055", @"%@",
+                          [NSString stringWithFormat:@"%@", errorDescription]);
+              strongSelfQueue->_settings.isFetchInProgress = NO;
+              NSError *error =
+                  [NSError errorWithDomain:FIRRemoteConfigErrorDomain
+                                      code:FIRRemoteConfigErrorInternalError
+                                  userInfo:@{NSLocalizedDescriptionKey : errorDescription}];
+              return reject(error);
+            }
 
-        // Update config settings with the IID and token.
-        strongSelfQueue->_settings.configInstallationsToken = tokenResult.authToken;
-        strongSelfQueue->_settings.configInstallationsIdentifier = identifier;
-
-        if (!identifier || error) {
-          NSString *errorDescription =
-              [NSString stringWithFormat:@"Error getting iid : %@.", error];
-          FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000055", @"%@",
-                      [NSString stringWithFormat:@"%@", errorDescription]);
-          strongSelfQueue->_settings.isFetchInProgress = NO;
-          return [strongSelfQueue
-              reportCompletionOnHandler:completionHandler
-                             withStatus:FIRRemoteConfigFetchStatusFailure
-                              withError:[NSError
-                                            errorWithDomain:FIRRemoteConfigErrorDomain
-                                                       code:FIRRemoteConfigErrorInternalError
-                                                   userInfo:@{
-                                                     NSLocalizedDescriptionKey : errorDescription
-                                                   }]];
-        }
-
-        FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000022", @"Success to get iid : %@.",
-                   strongSelfQueue->_settings.configInstallationsIdentifier);
-        [[strongSelf performFetchCall]
-            then:^id _Nullable(RCNConfigFetchResult *_Nullable fetchResult) {
-              if (completionHandler) {
-                completionHandler(fetchResult.status, fetchResult.error);
-              }
-              return fetchResult;
+            FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000022", @"Success to get iid : %@.",
+                       strongSelfQueue->_settings.configInstallationsIdentifier);
+            [[[strongSelfQueue performFetchCall]
+                then:^id _Nullable(RCNConfigFetchResult *_Nullable result) {
+                  fulfill(result);
+                  return result;
+                }] catch:^(NSError *_Nonnull error) {
+              reject(error);
             }];
-      });
-    }];
-  };
-
-  FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000039", @"Starting requesting token.");
-  [installations authTokenWithCompletion:installationsTokenHandler];
+          });
+        }];
+      }];
 }
 
 - (FBLPromise<RCNConfigFetchResult *> *)performFetchCall {
