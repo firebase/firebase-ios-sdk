@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_MODEL_MUTATION_OVERLAY_H_
-#define FIRESTORE_CORE_SRC_MODEL_MUTATION_OVERLAY_H_
+#ifndef FIRESTORE_CORE_SRC_MODEL_OVERLAY_H_
+#define FIRESTORE_CORE_SRC_MODEL_OVERLAY_H_
 
 #include <cstdlib>
 #include <iosfwd>
@@ -83,4 +83,4 @@ struct OverlayHash {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_MODEL_MUTATION_OVERLAY_H_
+#endif  // FIRESTORE_CORE_SRC_MODEL_OVERLAY_H_
