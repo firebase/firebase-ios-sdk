@@ -29,8 +29,8 @@ namespace local {
 using model::DocumentKey;
 using model::DocumentKeyHash;
 using model::Mutation;
+using model::Overlay;
 using model::ResourcePath;
-using model::mutation::Overlay;
 
 absl::optional<Overlay> MemoryDocumentOverlayCache::GetOverlay(
     const DocumentKey& key) const {

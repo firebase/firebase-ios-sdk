@@ -28,7 +28,6 @@
 namespace firebase {
 namespace firestore {
 namespace model {
-namespace mutation {
 
 /**
  * Representation of an overlay computed by Firestore.
@@ -80,7 +79,6 @@ struct OverlayHash {
   std::size_t operator()(const Overlay&) const;
 };
 
-}  // namespace mutation
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase

@@ -39,9 +39,9 @@ namespace local {
 using credentials::User;
 using model::DocumentKey;
 using model::Mutation;
+using model::Overlay;
+using model::OverlayHash;
 using model::ResourcePath;
-using model::mutation::Overlay;
-using model::mutation::OverlayHash;
 using nanopb::Message;
 using nanopb::StringReader;
 
