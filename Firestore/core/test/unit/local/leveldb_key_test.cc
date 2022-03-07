@@ -1120,6 +1120,9 @@ TEST(LevelDbDocumentOverlayCollectionGroupIndexKeyTest, Ordering) {
 TEST(LevelDbDocumentOverlayCollectionGroupIndexKeyTest, EncodeDecodeCycle) {
   const std::vector<std::string> user_ids{"test_user", "foo/bar2",
                                           "foo-bar?baz!quux"};
+  // NOTE: These collection groups do not actually match the document keys used;
+  // however, that's okay here in this unit test because the LevelDb key itself
+  // doesn't care if they match.
   const std::vector<std::string> collection_groups{"group1", "group2"};
   const std::vector<model::BatchId> batch_ids{1, 2, 3};
   const std::vector<model::DocumentKey> document_keys{
