@@ -1171,16 +1171,6 @@ TEST(LevelDbDocumentOverlayCollectionGroupIndexKeyTest,
   EXPECT_EQ(decoded_key.document_key(), testutil::Key("coll/doc"));
 }
 
-TEST(LevelDbDocumentOverlayCollectionGroupIndexKeyTest,
-     FromLevelDbDocumentOverlayKey_KeyHasNoCollectionGroup) {
-  LevelDbDocumentOverlayKey key("test_user", DocumentKey(ResourcePath{}), 123);
-
-  const absl::optional<std::string> encoded_key =
-      LevelDbDocumentOverlayCollectionGroupIndexKey::Key(key);
-
-  ASSERT_FALSE(encoded_key.has_value());
-}
-
 #undef AssertExpectedKeyDescription
 
 }  // namespace local

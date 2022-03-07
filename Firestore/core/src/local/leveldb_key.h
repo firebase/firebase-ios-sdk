@@ -25,7 +25,6 @@
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/types.h"
 #include "absl/strings/string_view.h"
-#include "absl/types/optional.h"
 #include "leveldb/slice.h"
 
 namespace firebase {
@@ -1190,15 +1189,7 @@ class LevelDbDocumentOverlayCollectionGroupIndexKey
   /**
    * Creates a complete key that points to a specific key in the overlays table.
    */
-  static absl::optional<std::string> Key(const LevelDbDocumentOverlayKey& key) {
-    const absl::optional<std::string> collection_group =
-        key.document_key().GetCollectionId();
-    if (!collection_group.has_value()) {
-      return absl::nullopt;
-    }
-    return Key(key.user_id(), collection_group.value(), key.largest_batch_id(),
-               key.document_key());
-  }
+  static std::string Key(const LevelDbDocumentOverlayKey& key);
 
   /**
    * Decodes the given complete key, storing the decoded values in this

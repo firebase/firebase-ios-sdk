@@ -21,10 +21,12 @@
 
 #include "Firestore/core/src/local/leveldb_util.h"
 #include "Firestore/core/src/model/mutation_batch.h"
+#include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/ordered_code.h"
 #include "absl/base/attributes.h"
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_cat.h"
+#include "absl/types/optional.h"
 
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ResourcePath;
@@ -1445,6 +1447,15 @@ std::string LevelDbDocumentOverlayCollectionGroupIndexKey::Key(
   writer.WriteResourcePath(document_key.path());
   writer.WriteTerminator();
   return writer.result();
+}
+
+std::string LevelDbDocumentOverlayCollectionGroupIndexKey::Key(
+    const LevelDbDocumentOverlayKey& key) {
+  const absl::optional<std::string> collection_group =
+      key.document_key().GetCollectionId();
+  HARD_ASSERT(collection_group.has_value());
+  return Key(key.user_id(), collection_group.value(), key.largest_batch_id(),
+             key.document_key());
 }
 
 bool LevelDbDocumentOverlayCollectionGroupIndexKey::Decode(
