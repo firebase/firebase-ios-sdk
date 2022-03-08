@@ -47,6 +47,11 @@ class LevelDbDocumentOverlayCacheTestHelper final {
       const LevelDbDocumentOverlayCache& instance) {
     return instance.GetCollectionIndexEntryCount();
   }
+
+  static int GetCollectionGroupIndexEntryCount(
+      const LevelDbDocumentOverlayCache& instance) {
+    return instance.GetCollectionGroupIndexEntryCount();
+  }
 };
 
 namespace {
@@ -88,6 +93,12 @@ class LevelDbDocumentOverlayCacheTest : public DocumentOverlayCacheTestBase {
           LevelDbDocumentOverlayCacheTestHelper::GetCollectionIndexEntryCount(
               cache),
           expected_count);
+    }
+    {
+      SCOPED_TRACE("GetCollectionGroupIndexEntryCount");
+      EXPECT_EQ(LevelDbDocumentOverlayCacheTestHelper::
+                    GetCollectionGroupIndexEntryCount(cache),
+                expected_count);
     }
   }
 };

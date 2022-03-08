@@ -21,10 +21,12 @@
 
 #include "Firestore/core/src/local/leveldb_util.h"
 #include "Firestore/core/src/model/mutation_batch.h"
+#include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/ordered_code.h"
 #include "absl/base/attributes.h"
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_cat.h"
+#include "absl/types/optional.h"
 
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ResourcePath;
@@ -58,6 +60,8 @@ const char* kDocumentOverlaysLargestBatchIdIndexTable =
     "document_overlays_largest_batch_id_index";
 const char* kDocumentOverlaysCollectionIndexTable =
     "document_overlays_collection_index";
+const char* kDocumentOverlaysCollectionGroupIndexTable =
+    "document_overlays_collection_group_index";
 
 /**
  * Labels for the components of keys. These serve to make keys self-describing.
@@ -1398,6 +1402,72 @@ bool LevelDbDocumentOverlayCollectionIndexKey::Decode(absl::string_view key) {
   reader.ReadTerminator();
   Reset(std::move(user_id), largest_batch_id,
         DocumentKey(collection.Append(document_id)));
+  return reader.ok();
+}
+
+std::string LevelDbDocumentOverlayCollectionGroupIndexKey::KeyPrefix(
+    absl::string_view user_id) {
+  Writer writer;
+  writer.WriteTableName(kDocumentOverlaysCollectionGroupIndexTable);
+  writer.WriteUserId(user_id);
+  return writer.result();
+}
+
+std::string LevelDbDocumentOverlayCollectionGroupIndexKey::KeyPrefix(
+    absl::string_view user_id, absl::string_view collection_group) {
+  Writer writer;
+  writer.WriteTableName(kDocumentOverlaysCollectionGroupIndexTable);
+  writer.WriteUserId(user_id);
+  writer.WriteCollectionGroup(collection_group);
+  return writer.result();
+}
+
+std::string LevelDbDocumentOverlayCollectionGroupIndexKey::KeyPrefix(
+    absl::string_view user_id,
+    absl::string_view collection_group,
+    model::BatchId largest_batch_id) {
+  Writer writer;
+  writer.WriteTableName(kDocumentOverlaysCollectionGroupIndexTable);
+  writer.WriteUserId(user_id);
+  writer.WriteCollectionGroup(collection_group);
+  writer.WriteBatchId(largest_batch_id);
+  return writer.result();
+}
+
+std::string LevelDbDocumentOverlayCollectionGroupIndexKey::Key(
+    absl::string_view user_id,
+    absl::string_view collection_group,
+    model::BatchId largest_batch_id,
+    const model::DocumentKey& document_key) {
+  Writer writer;
+  writer.WriteTableName(kDocumentOverlaysCollectionGroupIndexTable);
+  writer.WriteUserId(user_id);
+  writer.WriteCollectionGroup(collection_group);
+  writer.WriteBatchId(largest_batch_id);
+  writer.WriteResourcePath(document_key.path());
+  writer.WriteTerminator();
+  return writer.result();
+}
+
+std::string LevelDbDocumentOverlayCollectionGroupIndexKey::Key(
+    const LevelDbDocumentOverlayKey& key) {
+  const absl::optional<std::string> collection_group =
+      key.document_key().GetCollectionId();
+  HARD_ASSERT(collection_group.has_value());
+  return Key(key.user_id(), collection_group.value(), key.largest_batch_id(),
+             key.document_key());
+}
+
+bool LevelDbDocumentOverlayCollectionGroupIndexKey::Decode(
+    absl::string_view key) {
+  Reader reader{key};
+  reader.ReadTableNameMatching(kDocumentOverlaysCollectionGroupIndexTable);
+  auto user_id = reader.ReadUserId();
+  collection_group_ = reader.ReadCollectionGroup();
+  auto largest_batch_id = reader.ReadBatchId();
+  auto document_key = reader.ReadDocumentKey();
+  reader.ReadTerminator();
+  Reset(std::move(user_id), largest_batch_id, std::move(document_key));
   return reader.ok();
 }
 
