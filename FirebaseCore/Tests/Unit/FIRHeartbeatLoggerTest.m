@@ -227,7 +227,7 @@
 }
 
 - (void)assertHeartbeatsPayloadIsEmpty:(FIRHeartbeatsPayload *)heartbeatsPayload {
-  XCTAssertEqualObjects(FIRHeaderValueFromHeartbeatsPayload(heartbeatsPayload), @"");
+  XCTAssertNil(FIRHeaderValueFromHeartbeatsPayload(heartbeatsPayload));
 }
 
 - (void)assertHeartbeatLoggerFlushesEmptyPayload:(FIRHeartbeatLogger *)heartbeatLogger {

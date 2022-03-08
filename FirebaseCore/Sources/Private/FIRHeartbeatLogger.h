@@ -21,9 +21,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class FIRHeartbeatsPayload;
 
-/// Returns a string header value from a given heartbeats payload.
+/// Returns a nullable string header value from a given heartbeats payload.
+///
+/// This API returns `nil` when the given heartbeats payload is considered empty.
+///
 /// @param heartbeatsPayload The heartbeats payload.
-NSString *FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *heartbeatsPayload);
+NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *heartbeatsPayload);
 
 /// A thread safe, synchronized object that logs and flushes platform logging info.
 @interface FIRHeartbeatLogger : NSObject

@@ -76,6 +76,11 @@ public struct HeartbeatsPayload: Codable {
     self.userAgentPayloads = userAgentPayloads
     self.version = version
   }
+
+  /// A Boolean value indicating whether the payload is empty.
+  public var isEmpty: Bool {
+    userAgentPayloads.isEmpty
+  }
 }
 
 // MARK: - HTTPHeaderRepresentable
