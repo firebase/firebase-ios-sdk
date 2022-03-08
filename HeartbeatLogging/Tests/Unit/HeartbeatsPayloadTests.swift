@@ -103,6 +103,14 @@ class HeartbeatsPayloadTests: XCTestCase {
     // When
     let headerValue = heartbeatsPayload.headerValue()
     // Then
-    XCTAssertEqual(headerValue, "")
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
+      headerValue,
+      """
+      {
+        "version": 2,
+        "heartbeats": []
+      }
+      """
+    )
   }
 }
