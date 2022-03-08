@@ -113,6 +113,17 @@ let kPayloadMetadataPrefix = "."
     }
 }
 
+//struct Sko: Decodable {
+//    var node: FNode
+//    init(from decoder: Decoder) throws {
+//        do {
+//            let container = try decoder.singleValueContainer()
+//            let null = container.decode(NSNull.self)
+//        }
+//    }
+//
+//}
+
 public enum FSnapshotUtilitiesSwift {
     enum FDataHashVersion {
         case v1

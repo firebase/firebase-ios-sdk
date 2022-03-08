@@ -16,7 +16,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseDatabase/Sources/Persistence/FLevelDBStorageEngine.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 
 @import FirebaseDatabaseSwiftCore;
@@ -76,12 +75,12 @@
 
 - (void)testRecocversFromBadCache {
   NSString *dbPath = @"corrupted-db";
-  NSString *serverData = [[FLevelDBStorageEngine firebaseDir]
-      stringByAppendingPathComponent:@"corrupted-db/server_data/CURRENT"];
-  [@"Corrupted" writeToFile:serverData atomically:YES encoding:NSUTF8StringEncoding error:nil];
-  NSString *userData = [[FLevelDBStorageEngine firebaseDir]
-      stringByAppendingPathComponent:@"corrupted-db/writes/CURRENT"];
-  [@"Corrupted" writeToFile:userData atomically:YES encoding:NSUTF8StringEncoding error:nil];
+  NSURL *serverData = [[FLevelDBStorageEngine firebaseDir]
+      URLByAppendingPathComponent:@"corrupted-db/server_data/CURRENT"];
+  [@"Corrupted" writeToURL:serverData atomically:YES encoding:NSUTF8StringEncoding error:nil];
+  NSURL *userData = [[FLevelDBStorageEngine firebaseDir]
+      URLByAppendingPathComponent:@"corrupted-db/writes/CURRENT"];
+  [@"Corrupted" writeToURL:userData atomically:YES encoding:NSUTF8StringEncoding error:nil];
   FLevelDBStorageEngine *db = [[FLevelDBStorageEngine alloc] initWithPath:dbPath];
   XCTAssertNotNil(db);
 }

@@ -26,6 +26,15 @@ internal func FFLog(_ id: String, _ log: String) {
     print(id, log)
 }
 
+internal func FFWarn(_ id: String, _ log: String) {
+    print(id, log)
+}
+
+internal func FFDebug(_ id: String, _ log: String) {
+    print(id, log)
+}
+
+
 func tryParseStringToInt(_ str: String, integer: inout Int) -> Bool {
     // First do some cheap checks (NOTE: The below checks are significantly
     // faster than an equivalent regex :-( ).

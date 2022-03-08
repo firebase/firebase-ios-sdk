@@ -40,8 +40,8 @@
   self.pruneNext = YES;
 }
 
-- (BOOL)shouldPruneCacheWithSize:(NSUInteger)cacheSize
-          numberOfTrackedQueries:(NSUInteger)numTrackedQueries {
+- (BOOL)shouldPruneCacheWithSize:(NSInteger)cacheSize
+          numberOfTrackedQueries:(NSInteger)numTrackedQueries {
   if (self.pruneNext) {
     self.pruneNext = NO;
     return YES;
@@ -50,15 +50,15 @@
   }
 }
 
-- (BOOL)shouldCheckCacheSize:(NSUInteger)serverUpdatesSinceLastCheck {
+- (BOOL)shouldCheckCacheSize:(NSInteger)serverUpdatesSinceLastCheck {
   return YES;
 }
 
-- (float)percentOfQueriesToPruneAtOnce {
+- (double)percentOfQueriesToPruneAtOnce {
   return self.percentOfQueries;
 }
 
-- (NSUInteger)maxNumberOfQueriesToKeep {
+- (NSInteger)maxNumberOfQueriesToKeep {
   return self.maxTrackedQueries;
 }
 

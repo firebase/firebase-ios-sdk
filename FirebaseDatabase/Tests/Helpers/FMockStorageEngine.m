@@ -45,7 +45,7 @@
   self.closed = YES;
 }
 
-- (void)saveUserOverwrite:(id<FNode>)node atPath:(FPath *)path writeId:(NSUInteger)writeId {
+- (void)saveUserOverwrite:(id<FNode>)node atPath:(FPath *)path writeId:(NSInteger)writeId {
   FWriteRecord *writeRecord = [[FWriteRecord alloc] initWithPath:path
                                                        overwrite:node
                                                          writeId:writeId
@@ -53,12 +53,12 @@
   self.userWritesDict[@(writeId)] = writeRecord;
 }
 
-- (void)saveUserMerge:(FCompoundWrite *)merge atPath:(FPath *)path writeId:(NSUInteger)writeId {
+- (void)saveUserMerge:(FCompoundWrite *)merge atPath:(FPath *)path writeId:(NSInteger)writeId {
   FWriteRecord *writeRecord = [[FWriteRecord alloc] initWithPath:path merge:merge writeId:writeId];
   self.userWritesDict[@(writeId)] = writeRecord;
 }
 
-- (void)removeUserWrite:(NSUInteger)writeId {
+- (void)removeUserWrite:(NSInteger)writeId {
   [self.userWritesDict removeObjectForKey:@(writeId)];
 }
 
@@ -107,7 +107,7 @@
   self.serverCache = [self.serverCache addCompoundWrite:merge atPath:path];
 }
 
-- (NSUInteger)serverCacheEstimatedSizeInBytes {
+- (NSInteger)serverCacheEstimatedSizeInBytes {
   id data = [[self.serverCache applyToNode:[FEmptyNode emptyNode]] valForExport:YES];
   return [NSJSONSerialization dataWithJSONObject:data options:0 error:nil].length;
 }
@@ -142,7 +142,7 @@
   return self.trackedQueries.allValues;
 }
 
-- (void)removeTrackedQuery:(NSUInteger)queryId {
+- (void)removeTrackedQuery:(NSInteger)queryId {
   [self.trackedQueries removeObjectForKey:@(queryId)];
   [self.trackedQueryKeys removeObjectForKey:@(queryId)];
 }
@@ -151,13 +151,13 @@
   self.trackedQueries[@(query.queryId)] = query;
 }
 
-- (void)setTrackedQueryKeys:(NSSet *)keys forQueryId:(NSUInteger)queryId {
+- (void)setTrackedQueryKeys:(NSSet *)keys forQueryId:(NSInteger)queryId {
   self.trackedQueryKeys[@(queryId)] = keys;
 }
 
 - (void)updateTrackedQueryKeysWithAddedKeys:(NSSet *)added
                                 removedKeys:(NSSet *)removed
-                                 forQueryId:(NSUInteger)queryId {
+                                 forQueryId:(NSInteger)queryId {
   NSSet *oldKeys = [self trackedQueryKeysForQuery:queryId];
   NSMutableSet *newKeys = [NSMutableSet setWithSet:oldKeys];
   [newKeys minusSet:removed];
@@ -165,7 +165,7 @@
   self.trackedQueryKeys[@(queryId)] = newKeys;
 }
 
-- (NSSet *)trackedQueryKeysForQuery:(NSUInteger)queryId {
+- (NSSet *)trackedQueryKeysForQuery:(NSInteger)queryId {
   NSSet *keys = self.trackedQueryKeys[@(queryId)];
   return keys != nil ? keys : [NSSet set];
 }

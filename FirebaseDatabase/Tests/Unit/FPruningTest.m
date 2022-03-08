@@ -16,11 +16,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseDatabase/Sources/Persistence/FLevelDBStorageEngine.h"
-
-
 #import "FirebaseDatabase/Tests/Helpers/FMockStorageEngine.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 @interface FPruningTest : XCTestCase
 

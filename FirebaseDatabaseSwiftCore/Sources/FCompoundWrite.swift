@@ -22,10 +22,9 @@ import Foundation
     /**
      * Creates a compound write with NSDictionary from path string to object
      */
-    @objc public static func compoundWrite(valueDictionary dictionary: NSDictionary) -> FCompoundWrite {
+    @objc public static func compoundWrite(valueDictionary dictionary: [String: Any]) -> FCompoundWrite {
         var writeTree: FImmutableTreeSwift<FNode> = .empty()
-        dictionary.enumerateKeysAndObjects { pathString, value, _ in
-            guard let path = pathString as? String else { return }
+        for (path, value) in dictionary {
             let node = FSnapshotUtilitiesSwift.nodeFrom(value)
             let tree = FImmutableTreeSwift<FNode>(value: node)
             writeTree = writeTree.setTree(tree, atPath: FPath(with: path))
