@@ -24,7 +24,11 @@
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-NSString *FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *heartbeatsPayload) {
+NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *heartbeatsPayload) {
+  if ([heartbeatsPayload isEmpty]) {
+    return nil;
+  }
+
   return [heartbeatsPayload headerValue];
 }
 
@@ -69,11 +73,10 @@ NSString *FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *heartbeatsPa
 - (FIRHeartbeatInfoCode)heartbeatCode {
   FIRHeartbeatsPayload *todaysHeartbeatPayload = [_heartbeatController flushHeartbeatFromToday];
 
-  // If there's a heartbeat for today, the payload's header value will be non-empty.
-  if ([[todaysHeartbeatPayload headerValue] length] > 0) {
-    return FIRHeartbeatInfoCodeGlobal;
-  } else {
+  if ([todaysHeartbeatPayload isEmpty]) {
     return FIRHeartbeatInfoCodeNone;
+  } else {
+    return FIRHeartbeatInfoCodeGlobal;
   }
 }
 

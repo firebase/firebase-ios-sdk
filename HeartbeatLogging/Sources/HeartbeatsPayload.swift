@@ -76,6 +76,11 @@ public struct HeartbeatsPayload: Codable {
     self.userAgentPayloads = userAgentPayloads
     self.version = version
   }
+
+  /// A Boolean value indicating whether the payload is empty.
+  public var isEmpty: Bool {
+    userAgentPayloads.isEmpty
+  }
 }
 
 // MARK: - HTTPHeaderRepresentable
@@ -84,21 +89,20 @@ extension HeartbeatsPayload: HTTPHeaderRepresentable {
   /// Returns a processed payload string intended for use in a HTTP header.
   /// - Returns: A string value from the heartbeats payload.
   public func headerValue() -> String {
-    // TODO(ncooke3): Return a empty payload instead of empty string.
-    if userAgentPayloads.isEmpty {
-      return ""
-    }
-
     let encoder = JSONEncoder()
     encoder.dateEncodingStrategy = .formatted(Self.dateFormatter)
 
-    // TODO(ncooke3): Fall back to base64URL-only if gzipping fails.
+    guard let data = try? encoder.encode(self) else {
+      // If encoding fails, fall back to encoding with an empty payload.
+      return Self.emptyPayload.headerValue()
+    }
+
     do {
-      let data = try encoder.encode(self)
       let gzippedData = try data.zipped()
       return gzippedData.base64URLEncodedString()
     } catch {
-      return "" // Return empty string if processing failed.
+      // If gzipping fails, fall back to encoding with base64URL.
+      return data.base64URLEncodedString()
     }
   }
 }

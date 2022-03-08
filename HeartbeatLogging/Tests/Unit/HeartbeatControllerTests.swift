@@ -410,6 +410,12 @@ private class HeartbeatStorageFake: HeartbeatStorageProtocol {
 // MARK: - Assertions
 
 func assertHeartbeatControllerFlushesEmptyPayload(_ controller: HeartbeatController) {
-  XCTAssertEqual(controller.flushHeartbeatFromToday().headerValue(), "")
-  XCTAssertEqual(controller.flush().headerValue(), "")
+  XCTAssertEqual(
+    controller.flushHeartbeatFromToday().headerValue(),
+    HeartbeatsPayload.emptyPayload.headerValue()
+  )
+  XCTAssertEqual(
+    controller.flush().headerValue(),
+    HeartbeatsPayload.emptyPayload.headerValue()
+  )
 }
