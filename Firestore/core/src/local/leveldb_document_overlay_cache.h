@@ -84,9 +84,8 @@ class LevelDbDocumentOverlayCache final : public DocumentOverlayCache {
     kStop,
   };
 
-  model::Overlay ParseOverlay(
-      const LevelDbDocumentOverlayKey& key,
-      absl::string_view encoded_mutation) const;
+  model::Overlay ParseOverlay(const LevelDbDocumentOverlayKey& key,
+                              absl::string_view encoded_mutation) const;
 
   void SaveOverlay(int largest_batch_id,
                    const model::DocumentKey& document_key,
