@@ -35,7 +35,6 @@
 #include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/model/field_path.h"
 #include "Firestore/core/src/model/mutable_document.h"
-#include "Firestore/core/src/model/mutation/overlay.h"
 #include "Firestore/core/src/model/mutation_batch.h"
 #include "Firestore/core/src/model/snapshot_version.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
@@ -64,7 +63,6 @@ using model::MutationBatch;
 using model::ObjectValue;
 using model::Segment;
 using model::SnapshotVersion;
-using model::mutation::Overlay;
 using nanopb::ByteString;
 using nanopb::CheckedSize;
 using nanopb::CopyBytesArray;

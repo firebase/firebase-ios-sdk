@@ -19,7 +19,7 @@
 #include <utility>
 
 #include "Firestore/core/src/model/mutation.h"
-#include "Firestore/core/src/model/mutation/overlay.h"
+#include "Firestore/core/src/model/overlay.h"
 #include "Firestore/core/src/model/patch_mutation.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/test/unit/testutil/equals_tester.h"
@@ -30,7 +30,6 @@
 namespace firebase {
 namespace firestore {
 namespace model {
-namespace mutation {
 namespace {
 
 using testing::EndsWith;
@@ -234,7 +233,6 @@ TEST(OverlayHashTest, OverlayHashTest) {
 }
 
 }  // namespace
-}  // namespace mutation
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase

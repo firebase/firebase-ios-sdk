@@ -22,7 +22,7 @@
 
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/mutation.h"
-#include "Firestore/core/src/model/mutation/overlay.h"
+#include "Firestore/core/src/model/overlay.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "absl/strings/string_view.h"
 #include "absl/types/optional.h"
@@ -45,9 +45,8 @@ class DocumentOverlayCacheTestHelper;
  */
 class DocumentOverlayCache {
  public:
-  using OverlayByDocumentKeyMap = std::unordered_map<model::DocumentKey,
-                                                     model::mutation::Overlay,
-                                                     model::DocumentKeyHash>;
+  using OverlayByDocumentKeyMap = std::
+      unordered_map<model::DocumentKey, model::Overlay, model::DocumentKeyHash>;
   using MutationByDocumentKeyMap = std::unordered_map<model::DocumentKey,
                                                       model::Mutation,
                                                       model::DocumentKeyHash>;
@@ -59,7 +58,7 @@ class DocumentOverlayCache {
    *
    * Returns an empty optional if there is no overlay for that key.
    */
-  virtual absl::optional<model::mutation::Overlay> GetOverlay(
+  virtual absl::optional<model::Overlay> GetOverlay(
       const model::DocumentKey& key) const = 0;
 
   /**

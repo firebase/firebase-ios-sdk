@@ -38,7 +38,7 @@ class MemoryDocumentOverlayCache final : public DocumentOverlayCache {
   MemoryDocumentOverlayCache(MemoryDocumentOverlayCache&&) = delete;
   MemoryDocumentOverlayCache& operator=(MemoryDocumentOverlayCache&&) = delete;
 
-  absl::optional<model::mutation::Overlay> GetOverlay(
+  absl::optional<model::Overlay> GetOverlay(
       const model::DocumentKey& key) const override;
 
   void SaveOverlays(int largest_batch_id,
@@ -55,7 +55,7 @@ class MemoryDocumentOverlayCache final : public DocumentOverlayCache {
 
  private:
   using OverlayByDocumentKeySortedMap =
-      immutable::SortedMap<model::DocumentKey, model::mutation::Overlay>;
+      immutable::SortedMap<model::DocumentKey, model::Overlay>;
   using DocumentKeySet =
       std::unordered_set<model::DocumentKey, model::DocumentKeyHash>;
   using DocumentKeysByBatchIdMap = std::unordered_map<int, DocumentKeySet>;

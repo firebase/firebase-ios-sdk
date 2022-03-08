@@ -42,8 +42,8 @@ namespace local {
 using credentials::User;
 using model::DocumentKey;
 using model::Mutation;
+using model::Overlay;
 using model::ResourcePath;
-using model::mutation::Overlay;
 using ::testing::UnorderedElementsAreArray;
 using testutil::DeleteMutation;
 using testutil::Map;

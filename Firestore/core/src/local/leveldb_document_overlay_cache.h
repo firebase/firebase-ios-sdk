@@ -52,7 +52,7 @@ class LevelDbDocumentOverlayCache final : public DocumentOverlayCache {
   LevelDbDocumentOverlayCache& operator=(LevelDbDocumentOverlayCache&&) =
       delete;
 
-  absl::optional<model::mutation::Overlay> GetOverlay(
+  absl::optional<model::Overlay> GetOverlay(
       const model::DocumentKey&) const override;
 
   void SaveOverlays(int largest_batch_id,
@@ -84,9 +84,8 @@ class LevelDbDocumentOverlayCache final : public DocumentOverlayCache {
     kStop,
   };
 
-  model::mutation::Overlay ParseOverlay(
-      const LevelDbDocumentOverlayKey& key,
-      absl::string_view encoded_mutation) const;
+  model::Overlay ParseOverlay(const LevelDbDocumentOverlayKey& key,
+                              absl::string_view encoded_mutation) const;
 
   void SaveOverlay(int largest_batch_id,
                    const model::DocumentKey& document_key,
@@ -110,7 +109,7 @@ class LevelDbDocumentOverlayCache final : public DocumentOverlayCache {
       int since_batch_id,
       std::function<ForEachKeyAction(LevelDbDocumentOverlayKey&&)>) const;
 
-  absl::optional<model::mutation::Overlay> GetOverlay(
+  absl::optional<model::Overlay> GetOverlay(
       const LevelDbDocumentOverlayKey& decoded_key) const;
 
   // The LevelDbDocumentOverlayCache instance is owned by LevelDbPersistence.
