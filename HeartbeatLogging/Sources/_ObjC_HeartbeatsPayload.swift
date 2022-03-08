@@ -32,4 +32,9 @@ public class _ObjC_HeartbeatsPayload: NSObject, HTTPHeaderRepresentable {
   public func headerValue() -> String {
     heartbeatsPayload.headerValue()
   }
+
+  /// A Boolean value indicating whether the payload is empty.
+  public var isEmpty: Bool {
+    heartbeatsPayload.isEmpty
+  }
 }
