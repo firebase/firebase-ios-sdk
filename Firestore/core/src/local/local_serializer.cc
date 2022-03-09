@@ -499,9 +499,12 @@ LocalSerializer::EncodeFieldIndexSegments(
   result->query_scope =
       google_firestore_admin_v1_Index_QueryScope_COLLECTION_GROUP;
 
-  result->fields_count = segments.size();
+  // Explicitly cast the result of segments.size() to suppress compiler warnings
+  // about implicit conversion resulting in potential loss of precision.
+  const auto segments_size = static_cast<pb_size_t>(segments.size());
+  result->fields_count = segments_size;
   result->fields =
-      MakeArray<google_firestore_admin_v1_Index_IndexField>(segments.size());
+      MakeArray<google_firestore_admin_v1_Index_IndexField>(segments_size);
   int i = 0;
   for (const auto& segment : segments) {
     google_firestore_admin_v1_Index_IndexField field;
