@@ -15,8 +15,6 @@
  */
 
 #import "FirebaseDatabase/Sources/Core/FSyncPoint.h"
-#import "FirebaseDatabase/Sources/Core/Operation/FOperation.h"
-#import "FirebaseDatabase/Sources/Core/Operation/FOperationSource.h"
 #import "FirebaseDatabase/Sources/Core/View/FDataEvent.h"
 #import "FirebaseDatabase/Sources/Core/View/FEventRegistration.h"
 #import "FirebaseDatabase/Sources/Core/View/FView.h"

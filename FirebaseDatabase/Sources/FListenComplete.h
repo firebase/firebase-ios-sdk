@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/Operation/FOperation.h"
 #import <Foundation/Foundation.h>
-
+@import FirebaseDatabaseSwiftCore;
 @interface FListenComplete : NSObject <FOperation>
 
 - (id)initWithSource:(FOperationSource *)aSource path:(FPath *)aPath;

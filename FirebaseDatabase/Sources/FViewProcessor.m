@@ -15,11 +15,6 @@
  */
 
 #import "FirebaseDatabase/Sources/FViewProcessor.h"
-#import "FirebaseDatabase/Sources/Core/Operation/FAckUserWrite.h"
-#import "FirebaseDatabase/Sources/Core/Operation/FMerge.h"
-#import "FirebaseDatabase/Sources/Core/Operation/FOperation.h"
-#import "FirebaseDatabase/Sources/Core/Operation/FOperationSource.h"
-#import "FirebaseDatabase/Sources/Core/Operation/FOverwrite.h"
 #import "FirebaseDatabase/Sources/Core/View/FViewCache.h"
 #import "FirebaseDatabase/Sources/FViewProcessorResult.h"
 

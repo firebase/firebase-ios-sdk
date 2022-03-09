@@ -263,84 +263,71 @@ final public class WriteOptions: Options {
         leveldb_writeoptions_destroy(pointer)
     }
 }
-@objc public class APLevelDBIterator: NSObject {
+public class APLevelDBIterator {
     private let iterator: DBIterator
-    @objc public class func iterator(levelDB db: APLevelDB) -> APLevelDBIterator {
+    public class func iterator(levelDB db: APLevelDB) -> APLevelDBIterator {
         APLevelDBIterator(levelDB: db)
     }
-//
+
     // Designated initializer:
-    @objc public init(levelDB db: APLevelDB) {
+    public init(levelDB db: APLevelDB) {
         self.iterator = DBIterator(query: SequenceQuery(db: db))
     }
 
-    @objc public func seek(toKey key: String) -> Bool {
+    public func seek(toKey key: String) -> Bool {
         iterator.seek(key)
     }
 
-    @objc public func nextKey() -> String? {
+    public func nextKey() -> String? {
         iterator.nextRow()
         guard iterator.isValid else { return nil }
 
         return iterator.key.flatMap { String(data: $0, encoding: .utf8) }
     }
 
-    @objc public func key() -> String? {
+    public func key() -> String? {
         guard iterator.isValid else { return nil }
         return iterator.key.flatMap { String(data: $0, encoding: .utf8) }
     }
 
-    @objc public func valueAsString() -> String? {
+    public func valueAsString() -> String? {
         iterator.value.flatMap { String(data: $0, encoding: .utf8) }
     }
 
-    @objc public func valueAsData() -> Data? {
+    public func valueAsData() -> Data? {
         iterator.value
     }
 }
 
-//@protocol APLevelDBWriteBatch <NSObject>
-//
-//- (void)setData:(NSData *)data forKey:(NSString *)key;
-//- (void)setString:(NSString *)str forKey:(NSString *)key;
-//
-//- (void)removeKey:(NSString *)key;
-//
-//// Remove all of the buffered sets and removes:
-//- (void)clear;
-//- (BOOL)commit;
-//
-//@end
-
-@objc public protocol APLevelDBWriteBatch: NSObjectProtocol {
-    @objc func setData(_ data: Data, forKey key: String)
-    @objc func setString(_ str: String, forKey key: String)
-    @objc func removeKey(_ key: String)
-    @objc func clear()
-    @objc func commit() -> Bool
+public protocol APLevelDBWriteBatch {
+    func setData(_ data: Data, forKey key: String)
+    func setString(_ str: String, forKey key: String)
+    func removeKey(_ key: String)
+    func clear()
+    func commit() -> Bool
 
 }
 
-@objc public class APLevelDBWriteBatchImpl: NSObject, APLevelDBWriteBatch {
+public class APLevelDBWriteBatchImpl: APLevelDBWriteBatch {
     fileprivate let batch: WriteBatch = WriteBatch()
     fileprivate let db: APLevelDB
     fileprivate init(db: APLevelDB) {
         self.db = db
     }
-    @objc public func setData(_ data: Data, forKey key: String) {
+    public func setData(_ data: Data, forKey key: String) {
         batch.put(key, value: data)
     }
-    @objc public func setString(_ str: String, forKey key: String) {
+    public func setString(_ str: String, forKey key: String) {
         batch.put(key, value: str.data())
     }
-    @objc public func removeKey(_ key: String) {
+    public func removeKey(_ key: String) {
         batch.delete(key)
     }
     // Remove all of the buffered sets and removes:
-    @objc public func clear() {
+    public func clear() {
         batch.clear()
     }
-    @objc public func commit() -> Bool {
+    public func commit() -> Bool {
         var error: UnsafeMutablePointer<Int8>? = nil
 
         let options = WriteOptions(options: WriteOption.standard)
@@ -471,15 +458,15 @@ final fileprivate class DefaultComparator: Comparator {
     }
 }
 
-@objc public class APLevelDB: NSObject {
+public class APLevelDB {
     var dbPointer: OpaquePointer!
     fileprivate let comparator: Comparator
 
-    @objc public class func levelDB(withPath path: String) throws -> APLevelDB {
+    public class func levelDB(withPath path: String) throws -> APLevelDB {
         return try APLevelDB(path: path)
     }
 
-    @objc public init(path: String) throws {
+    public init(path: String) throws {
         var error: UnsafeMutablePointer<Int8>? = nil
         comparator = DefaultComparator()
 
@@ -507,7 +494,7 @@ final fileprivate class DefaultComparator: Comparator {
         close()
     }
 
-    @objc public func close() {
+    public func close() {
         guard let pointer = dbPointer else { return }
         leveldb_close(pointer)
         dbPointer = nil
@@ -554,15 +541,15 @@ final fileprivate class DefaultComparator: Comparator {
 
     }
 
-    @objc public func setData(_ data: Data?, forKey key: String) -> Bool {
+    public func setData(_ data: Data?, forKey key: String) -> Bool {
         set(slice: data, forKey: key)
     }
 
-    @objc public func setString(_ data: String?, forKey key: String) -> Bool {
+    public func setString(_ data: String?, forKey key: String) -> Bool {
         set(slice: data, forKey: key)
     }
 
-    @objc public func removeKey(_ key: String) -> Bool {
+    public func removeKey(_ key: String) -> Bool {
         var error: UnsafeMutablePointer<Int8>? = nil
         let options = WriteOptions(options: WriteOption.standard)
 
@@ -576,11 +563,11 @@ final fileprivate class DefaultComparator: Comparator {
         return error == nil
     }
 
-    @objc public func beginWriteBatch() -> APLevelDBWriteBatch {
+    public func beginWriteBatch() -> APLevelDBWriteBatch {
         APLevelDBWriteBatchImpl(db: self)
     }
 
-    @objc public func data(forKey key: String) -> Data? {
+    public func data(forKey key: String) -> Data? {
         var valueLength = 0
         var error: UnsafeMutablePointer<Int8>? = nil
         var value: UnsafeMutablePointer<Int8>? = nil
@@ -604,11 +591,11 @@ final fileprivate class DefaultComparator: Comparator {
         return Data(bytes: value!, count: valueLength)
     }
 
-    @objc public func string(forKey key: String) -> String? {
+    public func string(forKey key: String) -> String? {
         data(forKey: key).flatMap { String(data: $0, encoding: .utf8) }
     }
 
-    @objc public func allKeys() -> [String] {
+    public func allKeys() -> [String] {
         var keys: [String] = []
         enumerateKeys { key, _ in
             keys.append(key)
@@ -616,12 +603,12 @@ final fileprivate class DefaultComparator: Comparator {
         return keys
     }
 
-    @objc public func enumerateKeys(_ block: @escaping (_ key: String, _ stop: UnsafeMutablePointer<ObjCBool>) -> Void) {
+    public func enumerateKeys(_ block: @escaping (_ key: String, _ stop: inout Bool) -> Void) {
         enumerateKeys(withPrefix: "", usingBlock: block)
     }
 
-    @objc public func enumerateKeys(withPrefix prefix: String, usingBlock block: @escaping (_ key: String, _ stop: UnsafeMutablePointer<ObjCBool>) -> Void) {
-        var stop: ObjCBool = false
+    public func enumerateKeys(withPrefix prefix: String, usingBlock block: @escaping (_ key: String, _ stop: inout Bool) -> Void) {
+        var stop: Bool = false
         let query = SequenceQuery(db: self, startKey: prefix)
         let iterator = DBIterator(query: query)
 
@@ -632,15 +619,15 @@ final fileprivate class DefaultComparator: Comparator {
 
             block(key, &stop)
 
-            guard !stop.boolValue, iterator.nextRow() else { break }
+            guard !stop, iterator.nextRow() else { break }
         }
     }
 
-    @objc public func enumerateKeysAndValues(asStrings block: @escaping (_ key: String, _ value: String, _ stop: UnsafeMutablePointer<ObjCBool>) -> Void) {
+    public func enumerateKeysAndValues(asStrings block: @escaping (_ key: String, _ value: String, _ stop: inout Bool) -> Void) {
         enumerateKeys(withPrefix: "", asStrings: block)
     }
-    @objc public func enumerateKeys(withPrefix prefix: String, asStrings block: @escaping (_ key: String, _ value: String, _ stop: UnsafeMutablePointer<ObjCBool>) -> Void) {
-        var stop: ObjCBool = false
+    public func enumerateKeys(withPrefix prefix: String, asStrings block: @escaping (_ key: String, _ value: String, _ stop: inout Bool) -> Void) {
+        var stop: Bool = false
         let query = SequenceQuery(db: self, startKey: prefix)
         let iterator = DBIterator(query: query)
 
@@ -652,16 +639,16 @@ final fileprivate class DefaultComparator: Comparator {
 
             block(key, stringValue, &stop)
 
-            guard !stop.boolValue, iterator.nextRow() else { break }
+            guard !stop, iterator.nextRow() else { break }
         }
     }
 
-    @objc public func enumerateKeysAndValues(asData block: @escaping (_ key: String, _ value: Data, _ stop: UnsafeMutablePointer<ObjCBool>) -> Void) {
+    public func enumerateKeysAndValues(asData block: @escaping (_ key: String, _ value: Data, _ stop: inout Bool) -> Void) {
         enumerateKeys(withPrefix: "", asData: block)
     }
 
-    @objc public func enumerateKeys(withPrefix prefix: String, asData block: @escaping (_ key: String, _ value: Data, _ stop: UnsafeMutablePointer<ObjCBool>) -> Void) {
-        var stop: ObjCBool = false
+    public func enumerateKeys(withPrefix prefix: String, asData block: @escaping (_ key: String, _ value: Data, _ stop: inout Bool) -> Void) {
+        var stop: Bool = false
         let query = SequenceQuery(db: self, startKey: prefix)
         let iterator = DBIterator(query: query)
 
@@ -672,12 +659,12 @@ final fileprivate class DefaultComparator: Comparator {
 
             block(key, data, &stop)
 
-            guard !stop.boolValue, iterator.nextRow() else { break }
+            guard !stop, iterator.nextRow() else { break }
         }
 
     }
 
-    @objc public func exactSize(from: String, to: String) -> Int {
+    public func exactSize(from: String, to: String) -> Int {
         var size = 0
         let iterator = DBIterator(query: SequenceQuery(db: self, startKey: from, endKey: to, descending: false, options: ReadOption.standard))
         while iterator.isValid, let key = iterator.key, self.compare(key, to) != .orderedAscending {

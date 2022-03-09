@@ -309,7 +309,7 @@ private func trackedQueryKeysKey(trackedQueryId: Int, key: String) -> String {
     public var userWrites: [FWriteRecord] {
         let date = Date()
         var writes: [FWriteRecord] = []
-        writesDB.enumerateKeysAndValues { (key: String, data: Data, stop: UnsafeMutablePointer<ObjCBool>) in
+        writesDB.enumerateKeysAndValues { (key: String, data: Data, stop: inout Bool) in
             do {
                 guard let writeJSON = try JSONSerialization.jsonObject(with: data) as? [String: Any] else { return }
                 guard let writeId = writeJSON[kFUserWriteId] as? Int else { return }
