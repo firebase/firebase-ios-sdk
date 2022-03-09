@@ -22,6 +22,7 @@
 #include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/model/mutation_batch.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
+#include "Firestore/core/src/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
@@ -43,9 +44,11 @@ void CountingQueryEngine::SetLocalDocumentsView(
       local_documents->remote_document_cache(), this);
   mutation_queue_ = absl::make_unique<WrappedMutationQueue>(
       local_documents->mutation_queue(), this);
+  document_overlay_cache_ = absl::make_unique<WrappedDocumentOverlayCache>(
+      local_documents->document_overlay_cache(), this);
   local_documents_ = absl::make_unique<LocalDocumentsView>(
       remote_documents_.get(), mutation_queue_.get(),
-      local_documents->index_manager());
+      document_overlay_cache_.get(), local_documents->index_manager());
   QueryEngine::SetLocalDocumentsView(local_documents_.get());
 }
 
@@ -54,6 +57,9 @@ void CountingQueryEngine::ResetCounts() {
   mutations_read_by_key_ = 0;
   documents_read_by_query_ = 0;
   documents_read_by_key_ = 0;
+  overlays_read_by_key_ = 0;
+  overlays_read_by_collection_ = 0;
+  overlays_read_by_collection_group_ = 0;
 }
 
 // MARK: - WrappedMutationQueue
@@ -171,6 +177,37 @@ model::MutableDocumentMap WrappedRemoteDocumentCache::GetMatching(
   auto result = subject_->GetMatching(query, since_read_time);
   query_engine_->documents_read_by_query_ += result.size();
   return result;
+}
+
+// MARK: - WrappedDocumentOverlayCache
+
+absl::optional<model::Overlay> WrappedDocumentOverlayCache::GetOverlay(const model::DocumentKey& key) const {
+  ++query_engine_->overlays_read_by_key_;
+  return subject_->GetOverlay(key);
+}
+
+void WrappedDocumentOverlayCache::SaveOverlays(int largest_batch_id, const MutationByDocumentKeyMap& overlays) {
+  subject_->SaveOverlays(largest_batch_id, overlays);
+}
+
+void WrappedDocumentOverlayCache::RemoveOverlaysForBatchId(int batch_id) {
+  subject_->RemoveOverlaysForBatchId(batch_id);
+}
+
+DocumentOverlayCache::OverlayByDocumentKeyMap WrappedDocumentOverlayCache::GetOverlays(const model::ResourcePath& collection, int since_batch_id) const {
+  auto result = subject_->GetOverlays(collection, since_batch_id);
+  query_engine_->overlays_read_by_collection_ += result.size();
+  return result;
+}
+
+DocumentOverlayCache::OverlayByDocumentKeyMap WrappedDocumentOverlayCache::GetOverlays(absl::string_view collection_group, int since_batch_id, std::size_t count) const {
+  auto result = subject_->GetOverlays(collection_group, since_batch_id, count);
+  query_engine_->overlays_read_by_collection_group_ += result.size();
+  return result;
+}
+
+int WrappedDocumentOverlayCache::GetOverlayCount() const {
+  HARD_FAIL("WrappedDocumentOverlayCache::GetOverlayCount() not implemented");
 }
 
 }  // namespace local
