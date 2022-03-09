@@ -22,6 +22,8 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   tvos_deployment_target = '10.0'
   watchos_deployment_target = '7.0'
 
+  s.swift_version = '5.3'
+
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
   s.tvos.deployment_target = tvos_deployment_target
