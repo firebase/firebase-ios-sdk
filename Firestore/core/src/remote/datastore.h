@@ -177,9 +177,6 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
       const std::string& app_check_token,
       const std::vector<model::DocumentKey>& keys,
       LookupCallback&& callback);
-  void OnLookupDocumentsResponse(
-      const util::StatusOr<std::vector<grpc::ByteBuffer>>& result,
-      const LookupCallback& callback);
 
   using OnCredentials = std::function<void(
       const util::StatusOr<credentials::AuthToken>&, const std::string&)>;

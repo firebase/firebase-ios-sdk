@@ -232,28 +232,22 @@ void Datastore::LookupDocumentsWithCredentials(
   GrpcStreamingReader* call = call_owning.get();
   active_calls_.push_back(std::move(call_owning));
 
-  // TODO(c++14): move into lambda.
-  call->Start([this, call, callback](
-                  const StatusOr<std::vector<grpc::ByteBuffer>>& result) {
-    LogGrpcCallFinished("BatchGetDocuments", call, result.status());
-    HandleCallStatus(result.status());
-
-    OnLookupDocumentsResponse(result, callback);
-
+  // TODO(c++14): lambda captures using move.
+  auto messageCallback = [this,
+                          callback](std::vector<grpc::ByteBuffer> result) {
+    callback(datastore_serializer_.MergeLookupResponses(result));
+  };
+  auto onCloseCallback = [this, callback, call](const util::Status& status,
+                                                bool callUserCallBack) {
+    if (callUserCallBack) {
+      callback(status);
+    }
+    if (!status.ok()) {
+      LogGrpcCallFinished("BatchGetDocuments", call, status);
+    }
     RemoveGrpcCall(call);
-  });
-}
-
-void Datastore::OnLookupDocumentsResponse(
-    const StatusOr<std::vector<grpc::ByteBuffer>>& result,
-    const LookupCallback& callback) {
-  if (!result.ok()) {
-    callback(result.status());
-    return;
-  }
-
-  std::vector<grpc::ByteBuffer> responses = std::move(result).ValueOrDie();
-  callback(datastore_serializer_.MergeLookupResponses(responses));
+  };
+  call->Start(keys.size(), messageCallback, onCloseCallback);
 }
 
 void Datastore::ResumeRpcWithCredentials(const OnCredentials& on_credentials) {

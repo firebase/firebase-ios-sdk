@@ -42,11 +42,16 @@ GrpcStreamingReader::GrpcStreamingReader(
                                             worker_queue,
                                             grpc_connection,
                                             this)},
-      request_{request} {
+      request_{request},
+      callback_fired(false) {
 }
 
-void GrpcStreamingReader::Start(Callback&& callback) {
-  callback_ = std::move(callback);
+void GrpcStreamingReader::Start(size_t key_count,
+                                ReadCallback&& messageCallback,
+                                CloseCallback&& closeCallback) {
+  key_count_ = key_count;
+  message_callback_ = std::move(messageCallback);
+  close_callback_ = std::move(closeCallback);
   stream_->Start();
 }
 
@@ -65,20 +70,20 @@ void GrpcStreamingReader::OnStreamStart() {
 }
 
 void GrpcStreamingReader::OnStreamRead(const grpc::ByteBuffer& message) {
-  // Accumulate responses
   responses_.push_back(message);
+  if (responses_.size() == key_count_) {
+    callback_fired = true;
+    message_callback_(std::move(responses_));
+  }
 }
 
 void GrpcStreamingReader::OnStreamFinish(const util::Status& status) {
-  HARD_ASSERT(callback_,
-              "Received an event from stream after callback was unset");
   // Invoking the callback may end this reader's lifetime.
-  auto callback = std::move(callback_);
-  if (status.ok()) {
-    callback(responses_);
-  } else {
-    callback(status);
+  if (status.ok() && !callback_fired) {
+    callback_fired = true;
+    message_callback_({});
   }
+  close_callback_(status, !callback_fired);
 }
 
 }  // namespace remote
