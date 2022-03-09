@@ -67,6 +67,10 @@ class FieldMask {
     return fields_.size();
   }
 
+  bool empty() const {
+    return fields_.empty();
+  }
+
   /**
    * Verifies that `field_path` is included by at least one field in this field
    * mask.

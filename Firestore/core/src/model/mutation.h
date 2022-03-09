@@ -26,6 +26,7 @@
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/model/document_key.h"
+#include "Firestore/core/src/model/field_mask.h"
 #include "Firestore/core/src/model/field_transform.h"
 #include "Firestore/core/src/model/object_value.h"
 #include "Firestore/core/src/model/precondition.h"
@@ -208,11 +209,14 @@ class Mutation {
    * locally non-existent document and may produce a non-existent document.
    *
    * @param document The document to mutate.
+   * @param previousMask The fields that have been updated before applying this
+   * mutation.
    * @param local_write_time A timestamp indicating the local write time of the
    *     batch this mutation is a part of.
+   * @return A `FieldMask` representing the fields that are changed by applying
+   * this mutation.
    */
-  void ApplyToLocalView(MutableDocument& document,
-                        const Timestamp& local_write_time) const;
+  absl::optional<FieldMask> ApplyToLocalView(MutableDocument& document, absl::optional<FieldMask>&& previous_mask, const Timestamp& local_write_time) const;
 
   /**
    * If this mutation is not idempotent, returns the base value to persist with
@@ -245,6 +249,13 @@ class Mutation {
     return rep_ ? rep().ToString() : "(invalid)";
   }
 
+  /**
+   * A utility method to calculate an `Mutation representing the overlay from
+   * the final state of the document, and a `FieldMask` representing the fields
+   * that are mutated by the local mutations.
+   */
+  static absl::optional<Mutation> CalculateOverlayMutation(const MutableDocument& doc, const absl::optional<FieldMask>& mask);
+
   friend std::ostream& operator<<(std::ostream& os, const Mutation& mutation);
 
  protected:
@@ -276,8 +287,7 @@ class Mutation {
         MutableDocument& document,
         const MutationResult& mutation_result) const = 0;
 
-    virtual void ApplyToLocalView(MutableDocument& document,
-                                  const Timestamp& local_write_time) const = 0;
+    virtual absl::optional<FieldMask> ApplyToLocalView(MutableDocument& document, absl::optional<FieldMask>&& previous_mask, const Timestamp& local_write_time) const = 0;
 
     virtual absl::optional<ObjectValue> ExtractTransformBaseValue(
         const Document& document) const;

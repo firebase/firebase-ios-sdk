@@ -20,9 +20,12 @@
 #include <iosfwd>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/model/document_key.h"
+#include "Firestore/core/src/model/field_mask.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/model/types.h"
@@ -49,6 +52,8 @@ constexpr BatchId kBatchIdUnknown = -1;
  */
 class MutationBatch {
  public:
+  using MutationByDocumentKeyMap = std::unordered_map<DocumentKey, Mutation, DocumentKeyHash>;
+
   MutationBatch(int batch_id,
                 Timestamp local_write_time,
                 std::vector<Mutation> base_mutations,
@@ -106,14 +111,19 @@ class MutationBatch {
    * locally non-existent document and may produce a non-existent document.
    *
    * @param document The document to which to apply mutations.
+   *
+   * @return A `FieldMask` representing all the fields that are mutated.
    */
-  void ApplyToLocalDocument(MutableDocument& document) const;
+  FieldMask ApplyToLocalDocument(MutableDocument& document) const;
+
+  FieldMask ApplyToLocalDocument(MutableDocument& document, FieldMask&& mutated_fields_init) const;
 
   /**
    * Computes the local view for all provided documents given the mutations in
-   * this batch.
+   * this batch. Returns a `DocumentKey` to `Mutation` map which can be used to
+   * replace all the mutation applications.
    */
-  void ApplyToLocalDocumentSet(DocumentMap& document_map) const;
+  MutationByDocumentKeyMap ApplyToLocalDocumentSet(DocumentMap& document_map) const;
 
   /**
    * Returns the set of unique keys referenced by all mutations in the batch.
