@@ -16,12 +16,8 @@
 
 #import "FirebaseDatabase/Sources/Core/View/FView.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
-#import "FirebaseDatabase/Sources/Core/View/FCancelEvent.h"
-#import "FirebaseDatabase/Sources/Core/View/FEventRegistration.h"
-#import "FirebaseDatabase/Sources/Core/View/FViewCache.h"
 #import "FirebaseDatabase/Sources/FEventGenerator.h"
 #import "FirebaseDatabase/Sources/FViewProcessor.h"
-#import "FirebaseDatabase/Sources/FViewProcessorResult.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseQuery.h"
 
 @import FirebaseDatabaseSwiftCore;

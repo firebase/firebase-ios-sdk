@@ -16,7 +16,6 @@
 
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRMutableData.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRMutableData_Private.h"
-#import "FirebaseDatabase/Sources/Core/FSnapshotHolder.h"
 
 #import "FirebaseDatabase/Sources/FTransformedEnumerator.h"
 

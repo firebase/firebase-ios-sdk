@@ -23,9 +23,6 @@
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
 #import "FirebaseDatabase/Sources/Core/FListenProvider.h"
 #import "FirebaseDatabase/Sources/Core/FSyncTree.h"
-#import "FirebaseDatabase/Sources/Core/View/FCancelEvent.h"
-#import "FirebaseDatabase/Sources/Core/View/FDataEvent.h"
-#import "FirebaseDatabase/Sources/Core/View/FEventRegistration.h"
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
 
 #import "FirebaseDatabase/Tests/Helpers/FTestClock.h"
@@ -106,7 +103,7 @@ typedef NSDictionary * (^fbt_nsdictionary_void)(void);
   XCTAssertEqual(actual.eventType, [self stringToEventType:expected[@"type"]],
                  @"Event type should be equal");
   if (actual.eventType != FIRDataEventTypeValue) {
-    NSString *childName = actual.snapshot.key;
+    NSString *childName = ((FIRDataSnapshot *)actual.snapshot).key;
     XCTAssertEqualObjects(childName, expected[@"name"], @"Snapshot name should be equal");
     if (expected[@"prevName"] == [NSNull null]) {
       XCTAssertNil(actual.prevName, @"prevName should be nil");
@@ -114,7 +111,7 @@ typedef NSDictionary * (^fbt_nsdictionary_void)(void);
       XCTAssertEqualObjects(actual.prevName, expected[@"prevName"], @"prevName should be equal");
     }
   }
-  NSString *actualHash = [actual.snapshot.node.node dataHash];
+  NSString *actualHash = [((FIRDataSnapshot *)actual.snapshot).node.node dataHash];
   NSString *expectedHash = [[FSnapshotUtilities nodeFrom:expected[@"data"]] dataHash];
   XCTAssertEqualObjects(actualHash, expectedHash, @"Data hash should be equal");
 }
@@ -236,7 +233,7 @@ typedef NSDictionary * (^fbt_nsdictionary_void)(void);
                                                   BOOL *stop) {
         if ([self stringToEventType:expectedEvent[@"type"]] == actualEvent.eventType) {
           if ([self stringToEventType:expectedEvent[@"type"]] != FIRDataEventTypeValue) {
-            if (![expectedEvent[@"name"] isEqualToString:actualEvent.snapshot.key]) {
+            if (![expectedEvent[@"name"] isEqualToString:((FIRDataSnapshot *)actualEvent.snapshot).key]) {
               return;  // short circuit, not a match
             }
             if ([self stringToEventType:expectedEvent[@"type"]] != FIRDataEventTypeChildRemoved &&
@@ -247,7 +244,7 @@ typedef NSDictionary * (^fbt_nsdictionary_void)(void);
             }
           }
           // make sure the snapshots match
-          NSString *snapHash = [actualEvent.snapshot.node.node dataHash];
+          NSString *snapHash = [((FIRDataSnapshot *)actualEvent.snapshot).node.node dataHash];
           NSString *expectedHash = [[FSnapshotUtilities nodeFrom:expectedEvent[@"data"]] dataHash];
           if ([snapHash isEqualToString:expectedHash]) {
             indexToRemove = idx;
@@ -363,6 +360,9 @@ typedef NSDictionary * (^fbt_nsdictionary_void)(void);
     NSString *key = [weakSelf queryKeyForQuery:query tagId:tagId];
     FFLog(@"I-RDB143002", @"Stop listening at %@ for %@", path, logTag);
     id existing = listens[key];
+      if (existing == nil) {
+          NSLog(@"sko");
+      }
     XCTAssertTrue(existing != nil, @"Missing record of query that we're removing");
     [listens removeObjectForKey:key];
   };

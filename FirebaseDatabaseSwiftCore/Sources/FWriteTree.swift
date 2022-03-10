@@ -208,7 +208,7 @@ import Foundation
      * children that we have complete data for. Used when creating new views, to
      * pre-fill their complete event children snapshot.
      */
-  func calculateCompleteEventChildrenAtPath(_ treePath: FPath, completeServerChildren: FNode) -> FNode {
+  func calculateCompleteEventChildrenAtPath(_ treePath: FPath, completeServerChildren: FNode?) -> FNode {
       var completeChildren: FNode = FEmptyNode.emptyNode
       if let topLevelSet = visibleWrites.completeNodeAtPath(treePath) {
           if let topChildrenNode = topLevelSet as? FChildrenNode {
@@ -217,13 +217,13 @@ import Foundation
                   completeChildren = completeChildren.updateImmediateChild(key, withNewChild: node)
               }
           }
-          return completeChildren;
+          return completeChildren
       } else {
           // Layer any children we have on top of this
           // We know we don't have a top-level set, so just enumerate existing
           // children, and apply any updates
           let merge = visibleWrites.childCompoundWriteAtPath(treePath)
-          completeServerChildren.enumerateChildren { key, node, stop in
+          completeServerChildren?.enumerateChildren { key, node, stop in
               let childMerge = merge.childCompoundWriteAtPath(FPath(with: key))
               let newChildNode = childMerge.applyToNode(node)
               completeChildren = completeChildren.updateImmediateChild(key, withNewChild: newChildNode)

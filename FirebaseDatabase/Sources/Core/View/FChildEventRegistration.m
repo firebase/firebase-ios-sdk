@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
+#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
 #import "FirebaseDatabase/Sources/Core/View/FChildEventRegistration.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRDataSnapshot_Private.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
-#import "FirebaseDatabase/Sources/Core/View/FCancelEvent.h"
-#import "FirebaseDatabase/Sources/Core/View/FDataEvent.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 @import FirebaseDatabaseSwiftCore;

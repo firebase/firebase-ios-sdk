@@ -16,9 +16,6 @@
 
 #import "FirebaseDatabase/Sources/FEventGenerator.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
-#import "FirebaseDatabase/Sources/Core/View/FDataEvent.h"
-#import "FirebaseDatabase/Sources/Core/View/FEvent.h"
-#import "FirebaseDatabase/Sources/Core/View/FEventRegistration.h"
 
 
 @import FirebaseDatabaseSwiftCore;

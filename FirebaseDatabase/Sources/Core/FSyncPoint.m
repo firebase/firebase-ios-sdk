@@ -15,10 +15,7 @@
  */
 
 #import "FirebaseDatabase/Sources/Core/FSyncPoint.h"
-#import "FirebaseDatabase/Sources/Core/View/FDataEvent.h"
-#import "FirebaseDatabase/Sources/Core/View/FEventRegistration.h"
 #import "FirebaseDatabase/Sources/Core/View/FView.h"
-#import "FirebaseDatabase/Sources/Core/View/FViewCache.h"
 #import "FirebaseDatabase/Sources/Persistence/FPersistenceManager.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseQuery.h"
 

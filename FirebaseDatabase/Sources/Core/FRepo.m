@@ -28,10 +28,7 @@
 #import "FirebaseDatabase/Sources/Core/FRepoManager.h"
 #import "FirebaseDatabase/Sources/Core/FRepo_Private.h"
 #import "FirebaseDatabase/Sources/Core/FServerValues.h"
-#import "FirebaseDatabase/Sources/Core/FSnapshotHolder.h"
 #import "FirebaseDatabase/Sources/Core/FSyncTree.h"
-#import "FirebaseDatabase/Sources/Core/View/FEventRaiser.h"
-#import "FirebaseDatabase/Sources/Core/View/FEventRegistration.h"
 #import "FirebaseDatabase/Sources/Core/View/FValueEventRegistration.h"
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
 #import "FirebaseDatabase/Sources/Persistence/FPersistenceManager.h"
@@ -1145,7 +1142,10 @@
               [self sendAllReadyTransactions];
 
               // Finally, trigger onComplete callbacks
-              [self.eventRaiser raiseCallbacks:callbacks];
+              // XXX NOTE TODO: use raiseCallbacks when ported to swift
+              for (fbt_void_void callback in callbacks) {
+                 [self.eventRaiser raiseCallback:callback];
+              }
           } else {
               // transactions are no longer sent. Update their status
               // appropriately.
@@ -1355,7 +1355,10 @@
     [self pruneCompletedTransactionsBelowNode:self.transactionQueueTree];
 
     // Now fire callbacks, now that we're in a good, known state.
-    [self.eventRaiser raiseCallbacks:callbacks];
+    // XXX NOTE TODO: use raiseCallbacks when ported to swift
+    for (fbt_void_void callback in callbacks) {
+    [self.eventRaiser raiseCallback:callback];
+    }
 
     // Try to send the transaction result to the server
     [self sendAllReadyTransactions];
@@ -1527,7 +1530,10 @@
 
         // Now fire the callbacks
         [self.eventRaiser raiseEvents:events];
-        [self.eventRaiser raiseCallbacks:callbacks];
+        // XXX NOTE TODO: use raiseCallbacks when ported to swift
+        for (fbt_void_void callback in callbacks) {
+        [self.eventRaiser raiseCallback:callback];
+        }
     }
 }
 

@@ -50,7 +50,7 @@ import Foundation
      * children we have data for. The returned data is a mix of the given server
      * data and write data.
      */
-    @objc public func calculateCompleteEventChildren(completeServerChildren: FNode) -> FNode {
+    @objc public func calculateCompleteEventChildren(completeServerChildren: FNode?) -> FNode {
         writeTree.calculateCompleteEventChildrenAtPath(path,
                           completeServerChildren:completeServerChildren)
     }

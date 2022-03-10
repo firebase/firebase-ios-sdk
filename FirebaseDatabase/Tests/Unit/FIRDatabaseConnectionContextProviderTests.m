@@ -75,7 +75,7 @@
                       [completionExpectation fulfill];
                     }];
 
-  [self waitForExpectations:@[ completionExpectation ] timeout:0.5];
+  [self waitForExpectations:@[ completionExpectation ] timeout:10.5];
 }
 
 - (void)testFetchContextWithAppCheckNoAuthError {
@@ -97,7 +97,7 @@
                       [completionExpectation fulfill];
                     }];
 
-  [self waitForExpectations:@[ completionExpectation ] timeout:0.5];
+  [self waitForExpectations:@[ completionExpectation ] timeout:10.5];
 }
 
 - (void)testFetchContextWithAuthNoAppCheckSuccess {
@@ -119,7 +119,7 @@
                             [completionExpectation fulfill];
                           }];
 
-  [self waitForExpectations:@[ completionExpectation ] timeout:0.5];
+  [self waitForExpectations:@[ completionExpectation ] timeout:1.5];
 }
 
 - (void)testFetchContextWithAuthNoAppCheckError {
@@ -143,7 +143,7 @@
                             [completionExpectation fulfill];
                           }];
 
-  [self waitForExpectations:@[ completionExpectation ] timeout:0.5];
+  [self waitForExpectations:@[ completionExpectation ] timeout:1.5];
 }
 
 - (void)testFetchContextWithAuthSuccessAppCheckSuccess {
@@ -168,7 +168,7 @@
                       [completionExpectation fulfill];
                     }];
 
-  [self waitForExpectations:@[ completionExpectation ] timeout:0.5];
+  [self waitForExpectations:@[ completionExpectation ] timeout:1.5];
 }
 
 - (void)testFetchContextWithAuthErrorAppCheckSuccess {
@@ -196,7 +196,7 @@
                       [completionExpectation fulfill];
                     }];
 
-  [self waitForExpectations:@[ completionExpectation ] timeout:0.5];
+  [self waitForExpectations:@[ completionExpectation ] timeout:1.5];
 }
 
 - (void)testFetchContextWithAuthSuccessAppCheckError {
@@ -221,7 +221,7 @@
                       [completionExpectation fulfill];
                     }];
 
-  [self waitForExpectations:@[ completionExpectation ] timeout:0.5];
+  [self waitForExpectations:@[ completionExpectation ] timeout:1.5];
 }
 
 - (void)testListenForAuthTokenChanges {
@@ -243,7 +243,7 @@
                     object:self.authFake
                   userInfo:@{FIRAuthStateDidChangeInternalNotificationTokenKey : updatedToken}];
 
-  [self waitForExpectations:@[ callbackExpectation ] timeout:0.5];
+  [self waitForExpectations:@[ callbackExpectation ] timeout:1.5];
 }
 
 - (void)testListenForAppCheckTokenChanges {
@@ -268,7 +268,7 @@
                     [self.appCheckFake notificationAppNameKey] : @"app_name",
                   }];
 
-  [self waitForExpectations:@[ callbackExpectation ] timeout:0.5];
+  [self waitForExpectations:@[ callbackExpectation ] timeout:1.5];
 }
 
 @end
