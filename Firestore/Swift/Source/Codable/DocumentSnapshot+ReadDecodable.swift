@@ -36,7 +36,7 @@ public extension DocumentSnapshot {
   func data<T: Decodable>(as type: T.Type,
                           with serverTimestampBehavior: ServerTimestampBehavior = .none,
                           decoder: Firestore.Decoder = .init()) throws -> T {
-    let data: Any = data(with: serverTimestampBehavior) ?? NSNull()
-    return try decoder.decode(T.self, from: data, in: reference)
+    let d: Any = data(with: serverTimestampBehavior) ?? NSNull()
+    return try decoder.decode(T.self, from: d, in: reference)
   }
 }
