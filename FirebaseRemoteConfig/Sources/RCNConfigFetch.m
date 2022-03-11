@@ -357,17 +357,6 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
   }];
 }
 
-- (void)fetchWithUserProperties:(NSDictionary *)userProperties
-              completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler {
-  [[self fetchWithUserProperties:userProperties]
-      then:^id _Nullable(RCNConfigFetchResult *_Nullable result) {
-        if (completionHandler) {
-          completionHandler(result.status, result.error);
-        }
-        return result;
-      }];
-}
-
 - (FBLPromise<RCNConfigFetchResult *> *)fetchWithUserProperties:(NSDictionary *)userProperties {
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000061", @"Fetch with user properties initiated.");
 
