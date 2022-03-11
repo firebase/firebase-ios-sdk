@@ -158,7 +158,7 @@ import Foundation
         if eventSnap.isFullyInitialized {
             let isLeafOrEmpty = eventSnap.node.isLeafNode() || eventSnap.node.isEmpty
             if !changes.isEmpty || !oldViewCache.cachedEventSnap.isFullyInitialized ||
-                (isLeafOrEmpty && !eventSnap.node.isEqual(oldViewCache.completeServerSnap)) ||
+                (isLeafOrEmpty && !eventSnap.node.isEqual(oldViewCache.completeEventSnap)) ||
                 !eventSnap.node.getPriority().isEqual(oldViewCache.completeEventSnap?.getPriority()) {
                 let valueChange = FChange(type: .value, indexedNode: eventSnap.indexedNode)
                 newChanges.append(valueChange)
