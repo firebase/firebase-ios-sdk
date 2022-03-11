@@ -9,8 +9,8 @@ import Foundation
 
 @objc public class FNoCompleteChildSource: NSObject, FCompleteChildSource {
     @objc public static var instance: FNoCompleteChildSource = .init()
-    public func completeChild(_ childKey: String) -> FNode {
-        fatalError()
+    public func completeChild(_ childKey: String) -> FNode? {
+        nil
     }
     public func childByIndex(_ index: FIndex, afterChild child: FNamedNode, isReverse: Bool) -> FNamedNode? {
         nil
@@ -57,9 +57,6 @@ import Foundation
                                                  index: index)
     }
 }
-/*
-
- */
 
 
 @objc public class FViewProcessor: NSObject {
@@ -95,12 +92,12 @@ import Foundation
                                         (oldViewCache.cachedServerSnap.isFiltered &&
                                          !overwrite.path.isEmpty())
                 newViewCache = applyServerOverwriteTo(oldViewCache,
-                                                 changePath:overwrite.path,
-                                                       snap:overwrite.snap,
-                                                writesCache:writesCache,
-                                              completeCache:completeCache,
-                                           filterServerNode:filterServerNode,
-                                                accumulator:accumulator)
+                                                      changePath: overwrite.path,
+                                                      snap: overwrite.snap,
+                                                      writesCache: writesCache,
+                                                      completeCache: completeCache,
+                                                      filterServerNode: filterServerNode,
+                                                      accumulator: accumulator)
             }
         case .merge:
             let merge = operation as! FMerge
@@ -240,8 +237,9 @@ import Foundation
                 let completeChildren = (serverCache as? FChildrenNode) ?? FEmptyNode.emptyNode
                 nodeWithLocalWrites = writesCache.calculateCompleteEventChildren(completeServerChildren: completeChildren)
             } else {
-                nodeWithLocalWrites = writesCache.calculateCompleteEventChildren(completeServerChildren:
-                                                                                    viewCache.completeServerSnap)
+
+                /// XXX TODO: FORCE UNWRAP MAY HIDE A BUG
+                nodeWithLocalWrites = writesCache.calculateCompleteEventCache(completeServerCache: viewCache.completeServerSnap)!
             }
             let indexedNode = FIndexedNode(node: nodeWithLocalWrites, index: filter.index)
             newEventCache = filter.updateFullNode(viewCache.cachedEventSnap.indexedNode, withNewNode: indexedNode, accumulator: accumulator)
@@ -548,7 +546,7 @@ import Foundation
 
     }
 
-    @objc public func revertUserWriteOn(_ viewCache: FViewCache, path: FPath, writesCache: FWriteTreeRef, completeCache: FNode?, accumulator: FChildChangeAccumulator) -> FViewCache {
+    private func revertUserWriteOn(_ viewCache: FViewCache, path: FPath, writesCache: FWriteTreeRef, completeCache: FNode?, accumulator: FChildChangeAccumulator) -> FViewCache {
 
         guard writesCache.shadowingWriteAtPath(path) == nil else {
             return viewCache
