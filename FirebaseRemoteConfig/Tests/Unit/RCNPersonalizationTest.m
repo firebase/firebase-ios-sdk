@@ -17,11 +17,18 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+#if __has_include(<FBLPromises/FBLPromises.h>)
+#import <FBLPromises/FBLPromises.h>
+#else
+#import "FBLPromises.h"
+#endif
+
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
+#import "FirebaseRemoteConfig/Sources/RCNConfigFetchResult.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 #import "FirebaseRemoteConfig/Sources/RCNPersonalization.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
@@ -32,8 +39,7 @@
                                       completionHandler:
                                           (RCNConfigFetcherCompletion)fetcherCompletion;
 
-- (void)fetchWithUserProperties:(NSDictionary *)userProperties
-              completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
+- (FBLPromise<RCNConfigFetchResult *> *)fetchWithUserProperties:(NSDictionary *)userProperties;
 @end
 
 @interface RCNPersonalizationTest : XCTestCase {
@@ -243,7 +249,13 @@
       .andDo(^(NSInvocation *invocation) {
         __unsafe_unretained FIRRemoteConfigFetchCompletion handler;
         [invocation getArgument:&handler atIndex:3];
-        [configFetch fetchWithUserProperties:[[NSDictionary alloc] init] completionHandler:handler];
+        [[[configFetch fetchWithUserProperties:[[NSDictionary alloc] init]]
+            then:^id(RCNConfigFetchResult *result) {
+              handler(result.status, result.error);
+              return result;
+            }] catch:^(NSError *error) {
+          handler(FIRRemoteConfigFetchStatusFailure, error);
+        }];
       });
   OCMExpect([configFetch
                 URLSessionDataTaskWithContent:[OCMArg any]
