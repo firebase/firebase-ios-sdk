@@ -18,12 +18,19 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+#if __has_include(<FBLPromises/FBLPromises.h>)
+#import <FBLPromises/FBLPromises.h>
+#else
+#import "FBLPromises.h"
+#endif
+
 #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
+#import "FirebaseRemoteConfig/Sources/RCNConfigFetchResult.h"
 #import "FirebaseRemoteConfig/Sources/RCNUserDefaultsManager.h"
 
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
@@ -46,8 +53,7 @@
                                       completionHandler:
                                           (RCNConfigFetcherCompletion)fetcherCompletion;
 
-- (void)fetchWithUserProperties:(NSDictionary *)userProperties
-              completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
+- (FBLPromise<RCNConfigFetchResult *> *)fetchWithUserProperties:(NSDictionary *)userProperties;
 - (NSString *)constructServerURL;
 - (NSURLSession *)currentNetworkSession;
 @end
@@ -207,8 +213,13 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
       __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
                                           NSError *_Nullable error) = nil;
       [invocation getArgument:&handler atIndex:3];
-      [self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
-                                   completionHandler:handler];
+      [[[self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]]
+          then:^id(RCNConfigFetchResult *result) {
+            handler(result.status, result.error);
+            return result;
+          }] catch:^(NSError *error) {
+        handler(FIRRemoteConfigFetchStatusFailure, error);
+      }];
     });
 
     _response[i] = @{@"state" : @"UPDATE", @"entries" : _entries[i]};
@@ -567,8 +578,13 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
           __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
                                               NSError *_Nullable error) = nil;
           [invocation getArgument:&handler atIndex:3];
-          [self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
-                                       completionHandler:handler];
+          [[[self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]]
+              then:^id(RCNConfigFetchResult *result) {
+                handler(result.status, result.error);
+                return result;
+              }] catch:^(NSError *error) {
+            handler(FIRRemoteConfigFetchStatusFailure, error);
+          }];
         });
 
     _response[i] = @{};
@@ -682,8 +698,13 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
           __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
                                               NSError *_Nullable error) = nil;
           [invocation getArgument:&handler atIndex:3];
-          [self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
-                                       completionHandler:handler];
+          [[[self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]]
+              then:^id(RCNConfigFetchResult *result) {
+                handler(result.status, result.error);
+                return result;
+              }] catch:^(NSError *error) {
+            handler(FIRRemoteConfigFetchStatusFailure, error);
+          }];
         });
 
     _response[i] = @{};
@@ -776,7 +797,13 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
                                             NSError *_Nullable error) = nil;
         [invocation getArgument:&handler atIndex:3];
-        [configFetch fetchWithUserProperties:[[NSDictionary alloc] init] completionHandler:handler];
+        [[[configFetch fetchWithUserProperties:[[NSDictionary alloc] init]]
+            then:^id(RCNConfigFetchResult *result) {
+              handler(result.status, result.error);
+              return result;
+            }] catch:^(NSError *error) {
+          handler(FIRRemoteConfigFetchStatusFailure, error);
+        }];
       });
   _responseData[0] = [NSJSONSerialization dataWithJSONObject:@{} options:0 error:nil];
 
@@ -883,8 +910,13 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                               NSError *_Nullable error) = nil;
 
           [invocation getArgument:&handler atIndex:3];
-          [self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
-                                       completionHandler:handler];
+          [[[self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]]
+              then:^id(RCNConfigFetchResult *result) {
+                handler(result.status, result.error);
+                return result;
+              }] catch:^(NSError *error) {
+            handler(FIRRemoteConfigFetchStatusFailure, error);
+          }];
         });
 
     _response[i] = @{@"state" : @"NO_CHANGE"};
