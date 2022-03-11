@@ -15,9 +15,6 @@
  */
 
 #import "FirebaseDatabase/Sources/Core/View/FView.h"
-#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
-#import "FirebaseDatabase/Sources/FEventGenerator.h"
-#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseQuery.h"
 
 @import FirebaseDatabaseSwiftCore;
 
