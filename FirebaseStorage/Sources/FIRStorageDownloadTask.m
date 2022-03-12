@@ -20,13 +20,13 @@
 #import "FirebaseStorage/Sources/FIRStorageTask_Private.h"
 #import "FirebaseStorage/Sources/FIRStorage_Private.h"
 
-@implementation FIRStorageDownloadTask
+@implementation FIRIMPLStorageDownloadTask
 
 @synthesize progress = _progress;
 @synthesize fetcher = _fetcher;
 @synthesize fetcherCompletion = _fetcherCompletion;
 
-- (instancetype)initWithReference:(FIRStorageReference *)reference
+- (instancetype)initWithReference:(FIRIMPLStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
                     dispatchQueue:(dispatch_queue_t)queue
                              file:(nullable NSURL *)fileURL {
@@ -47,16 +47,16 @@
 }
 
 - (void)enqueueWithData:(nullable NSData *)resumeData {
-  __weak FIRStorageDownloadTask *weakSelf = self;
+  __weak FIRIMPLStorageDownloadTask *weakSelf = self;
 
   [self dispatchAsync:^() {
-    FIRStorageDownloadTask *strongSelf = weakSelf;
+    FIRIMPLStorageDownloadTask *strongSelf = weakSelf;
 
     if (!strongSelf) {
       return;
     }
 
-    strongSelf.state = FIRStorageTaskStateQueueing;
+    strongSelf.state = FIRIMPLStorageTaskStateQueueing;
     NSMutableURLRequest *request = [strongSelf.baseRequest mutableCopy];
     request.HTTPMethod = @"GET";
     request.timeoutInterval = strongSelf.reference.storage.maxDownloadRetryTime;
@@ -75,7 +75,7 @@
     }
 
     [fetcher setResumeDataBlock:^(NSData *data) {
-      FIRStorageDownloadTask *strong = weakSelf;
+      FIRIMPLStorageDownloadTask *strong = weakSelf;
       if (strong && data) {
         strong->_downloadData = data;
       }
@@ -88,56 +88,56 @@
       [fetcher setDestinationFileURL:strongSelf->_fileURL];
       [fetcher setDownloadProgressBlock:^(int64_t bytesWritten, int64_t totalBytesWritten,
                                           int64_t totalBytesExpectedToWrite) {
-        weakSelf.state = FIRStorageTaskStateProgress;
+        weakSelf.state = FIRIMPLStorageTaskStateProgress;
         weakSelf.progress.completedUnitCount = totalBytesWritten;
         weakSelf.progress.totalUnitCount = totalBytesExpectedToWrite;
-        FIRStorageTaskSnapshot *snapshot = weakSelf.snapshot;
-        [weakSelf fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:snapshot];
-        weakSelf.state = FIRStorageTaskStateRunning;
+        FIRIMPLStorageTaskSnapshot *snapshot = weakSelf.snapshot;
+        [weakSelf fireHandlersForStatus:FIRIMPLStorageTaskStatusProgress snapshot:snapshot];
+        weakSelf.state = FIRIMPLStorageTaskStateRunning;
       }];
     } else {
       // Handle data downloads
       [fetcher setReceivedProgressBlock:^(int64_t bytesWritten, int64_t totalBytesWritten) {
-        weakSelf.state = FIRStorageTaskStateProgress;
+        weakSelf.state = FIRIMPLStorageTaskStateProgress;
         weakSelf.progress.completedUnitCount = totalBytesWritten;
         int64_t totalLength = [[weakSelf.fetcher response] expectedContentLength];
         weakSelf.progress.totalUnitCount = totalLength;
-        FIRStorageTaskSnapshot *snapshot = weakSelf.snapshot;
-        [weakSelf fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:snapshot];
-        weakSelf.state = FIRStorageTaskStateRunning;
+        FIRIMPLStorageTaskSnapshot *snapshot = weakSelf.snapshot;
+        [weakSelf fireHandlersForStatus:FIRIMPLStorageTaskStatusProgress snapshot:snapshot];
+        weakSelf.state = FIRIMPLStorageTaskStateRunning;
       }];
     }
 
     strongSelf->_fetcher = fetcher;
     strongSelf->_fetcherCompletion = ^(NSData *data, NSError *error) {
       // Fire last progress updates
-      [self fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:self.snapshot];
+      [self fireHandlersForStatus:FIRIMPLStorageTaskStatusProgress snapshot:self.snapshot];
 
       // Handle potential issues with download
       if (error) {
-        self.state = FIRStorageTaskStateFailed;
+        self.state = FIRIMPLStorageTaskStateFailed;
         self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
-        [self fireHandlersForStatus:FIRStorageTaskStatusFailure snapshot:self.snapshot];
+        [self fireHandlersForStatus:FIRIMPLStorageTaskStatusFailure snapshot:self.snapshot];
         [self removeAllObservers];
         self->_fetcherCompletion = nil;
         return;
       }
 
       // Download completed successfully, fire completion callbacks
-      self.state = FIRStorageTaskStateSuccess;
+      self.state = FIRIMPLStorageTaskStateSuccess;
 
       if (data) {
         self->_downloadData = data;
       }
 
-      [self fireHandlersForStatus:FIRStorageTaskStatusSuccess snapshot:self.snapshot];
+      [self fireHandlersForStatus:FIRIMPLStorageTaskStatusSuccess snapshot:self.snapshot];
       [self removeAllObservers];
       self->_fetcherCompletion = nil;
     };
 
-    strongSelf.state = FIRStorageTaskStateRunning;
+    strongSelf.state = FIRIMPLStorageTaskStateRunning;
     [strongSelf.fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
-      FIRStorageDownloadTask *strongSelf = weakSelf;
+      FIRIMPLStorageDownloadTask *strongSelf = weakSelf;
       if (strongSelf.fetcherCompletion) {
         strongSelf.fetcherCompletion(data, error);
       }
@@ -148,50 +148,50 @@
 #pragma mark - Download Management
 
 - (void)cancel {
-  NSError *error = [FIRStorageErrors errorWithCode:FIRStorageErrorCodeCancelled];
+  NSError *error = [FIRStorageErrors errorWithCode:FIRIMPLStorageErrorCodeCancelled];
   [self cancelWithError:error];
 }
 
 - (void)cancelWithError:(NSError *)error {
-  __weak FIRStorageDownloadTask *weakSelf = self;
+  __weak FIRIMPLStorageDownloadTask *weakSelf = self;
   [self dispatchAsync:^() {
-    weakSelf.state = FIRStorageTaskStateCancelled;
+    weakSelf.state = FIRIMPLStorageTaskStateCancelled;
     [weakSelf.fetcher stopFetching];
     weakSelf.error = error;
-    [weakSelf fireHandlersForStatus:FIRStorageTaskStatusFailure snapshot:weakSelf.snapshot];
+    [weakSelf fireHandlersForStatus:FIRIMPLStorageTaskStatusFailure snapshot:weakSelf.snapshot];
   }];
 }
 
 - (void)pause {
-  __weak FIRStorageDownloadTask *weakSelf = self;
+  __weak FIRIMPLStorageDownloadTask *weakSelf = self;
   [self dispatchAsync:^() {
-    __strong FIRStorageDownloadTask *strongSelf = weakSelf;
-    if (!strongSelf || strongSelf.state == FIRStorageTaskStatePaused ||
-        strongSelf.state == FIRStorageTaskStatePausing) {
+    __strong FIRIMPLStorageDownloadTask *strongSelf = weakSelf;
+    if (!strongSelf || strongSelf.state == FIRIMPLStorageTaskStatePaused ||
+        strongSelf.state == FIRIMPLStorageTaskStatePausing) {
       return;
     }
-    strongSelf.state = FIRStorageTaskStatePausing;
+    strongSelf.state = FIRIMPLStorageTaskStatePausing;
     // Use the resume callback to confirm pause status since it always runs after the last
     // NSURLSession update.
     [strongSelf.fetcher setResumeDataBlock:^(NSData *data) {
       // Silence compiler warning about retain cycles
       __strong __typeof(self) strong = weakSelf;
       strong->_downloadData = data;
-      strong.state = FIRStorageTaskStatePaused;
-      FIRStorageTaskSnapshot *snapshot = strong.snapshot;
-      [strong fireHandlersForStatus:FIRStorageTaskStatusPause snapshot:snapshot];
+      strong.state = FIRIMPLStorageTaskStatePaused;
+      FIRIMPLStorageTaskSnapshot *snapshot = strong.snapshot;
+      [strong fireHandlersForStatus:FIRIMPLStorageTaskStatusPause snapshot:snapshot];
     }];
     [strongSelf.fetcher stopFetching];
   }];
 }
 
 - (void)resume {
-  __weak FIRStorageDownloadTask *weakSelf = self;
+  __weak FIRIMPLStorageDownloadTask *weakSelf = self;
   [self dispatchAsync:^() {
-    weakSelf.state = FIRStorageTaskStateResuming;
-    FIRStorageTaskSnapshot *snapshot = weakSelf.snapshot;
-    [weakSelf fireHandlersForStatus:FIRStorageTaskStatusResume snapshot:snapshot];
-    weakSelf.state = FIRStorageTaskStateRunning;
+    weakSelf.state = FIRIMPLStorageTaskStateResuming;
+    FIRIMPLStorageTaskSnapshot *snapshot = weakSelf.snapshot;
+    [weakSelf fireHandlersForStatus:FIRIMPLStorageTaskStatusResume snapshot:snapshot];
+    weakSelf.state = FIRIMPLStorageTaskStateRunning;
     [weakSelf enqueueWithData:weakSelf.downloadData];
   }];
 }

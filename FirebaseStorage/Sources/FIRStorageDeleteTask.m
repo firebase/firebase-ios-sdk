@@ -28,7 +28,7 @@
   [_fetcher stopFetching];
 }
 
-- (instancetype)initWithReference:(FIRStorageReference *)reference
+- (instancetype)initWithReference:(FIRIMPLStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
                     dispatchQueue:(dispatch_queue_t)queue
                        completion:(FIRStorageVoidError)completion {

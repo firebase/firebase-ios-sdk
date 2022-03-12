@@ -87,7 +87,7 @@
   XCTestExpectation *expectation = [self expectationWithDescription:@"testUnsuccessfulAuth"];
 
   NSError *authError = [NSError errorWithDomain:FIRStorageErrorDomain
-                                           code:FIRStorageErrorCodeUnauthenticated
+                                           code:FIRIMPLStorageErrorCodeUnauthenticated
                                        userInfo:nil];
   FIRAuthInteropFake *failedAuth = [[FIRAuthInteropFake alloc] initWithToken:nil
                                                                       userID:nil
@@ -110,7 +110,7 @@
         NSString *authHeader = [headers objectForKey:@"Authorization"];
         XCTAssertNil(authHeader);
         XCTAssertEqualObjects(error.domain, FIRStorageErrorDomain);
-        XCTAssertEqual(error.code, FIRStorageErrorCodeUnauthenticated);
+        XCTAssertEqual(error.code, FIRIMPLStorageErrorCodeUnauthenticated);
         [expectation fulfill];
       }];
 

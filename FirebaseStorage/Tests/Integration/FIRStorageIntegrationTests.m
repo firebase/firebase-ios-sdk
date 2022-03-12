@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseStorage/Sources/Public/FirebaseStorage/FirebaseStorage.h"
+@import FirebaseStorage;
 
 #import <FirebaseAuth/FirebaseAuth.h>
 
@@ -22,7 +22,7 @@
 
 #import "FirebaseStorage/Tests/Integration/Credentials.h"
 
-NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
+NSTimeInterval kFIRStorageIntegrationTestTimeout = 6000;
 
 /**
  * Firebase Storage Integration tests
@@ -558,11 +558,16 @@ NSString *const kTestPassword = KPASSWORD;
       [[tmpDirURL URLByAppendingPathComponent:@"hello"] URLByAppendingPathExtension:@"dat"];
 
   FIRStorageDownloadTask *task = [ref writeToFile:fileURL];
+  // Don't fulfill twice if a second observe failure happens before the cancel completes.
+  BOOL __block fulfilled = NO;
 
   [task observeStatus:FIRStorageTaskStatusFailure
               handler:^(FIRStorageTaskSnapshot *snapshot) {
                 XCTAssertTrue([[snapshot description] containsString:@"State: Failed"]);
-                [expectation fulfill];
+                if (!fulfilled) {
+                  fulfilled = YES;
+                  [expectation fulfill];
+                }
               }];
 
   [task observeStatus:FIRStorageTaskStatusProgress

@@ -534,18 +534,11 @@ case "$product-$platform-$method" in
         test
     fi
 
-    pod_gen FirebaseStorageObjC.podspec --platforms=ios
-
-    # Add GoogleService-Info.plist to generated Test Wrapper App.
-    ruby ./scripts/update_xcode_target.rb gen/FirebaseStorageObjC/Pods/Pods.xcodeproj \
-      AppHost-FirebaseStorageObjC-Unit-Tests \
-      ../../../FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
-
     if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \
         -workspace 'gen/FirebaseStorageObjc/FirebaseStorageObjC.xcworkspace' \
-        -scheme "FirebaseStorageObjC-Unit-integration" \
+        -scheme "FirebaseStorage-Unit-objcintegration" \
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
         build \

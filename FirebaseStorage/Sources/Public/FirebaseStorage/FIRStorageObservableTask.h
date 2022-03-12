@@ -18,27 +18,26 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FIRStorageReference;
-@class FIRStorageTaskSnapshot;
+@class FIRIMPLStorageReference;
+@class FIRIMPLStorageTaskSnapshot;
 
 /**
- * Extends FIRStorageTask to provide observable semantics such as adding and removing observers.
+ * Extends FIRIMPLStorageTask to provide observable semantics such as adding and removing observers.
  * Observers produce a FIRStorageHandle, which is used to keep track of and remove specific
  * observers at a later date.
  * This class is currently not thread safe and can only be called on the main thread.
  */
-NS_SWIFT_NAME(StorageObservableTask)
-@interface FIRStorageObservableTask : FIRStorageTask
+@interface FIRIMPLStorageObservableTask : FIRIMPLStorageTask
 
 /**
  * Observes changes in the upload status: Resume, Pause, Progress, Success, and Failure.
- * @param status The FIRStorageTaskStatus change to observe.
+ * @param status The FIRIMPLStorageTaskStatus change to observe.
  * @param handler A callback that fires every time the status event occurs,
- * returns a FIRStorageTaskSnapshot containing the state of the task.
+ * returns a FIRIMPLStorageTaskSnapshot containing the state of the task.
  * @return A task handle that can be used to remove the observer at a later date.
  */
-- (FIRStorageHandle)observeStatus:(FIRStorageTaskStatus)status
-                          handler:(void (^)(FIRStorageTaskSnapshot *snapshot))handler;
+- (FIRStorageHandle)observeStatus:(FIRIMPLStorageTaskStatus)status
+                          handler:(void (^)(FIRIMPLStorageTaskSnapshot *snapshot))handler;
 
 /**
  * Removes the single observer with the provided handle.
@@ -48,9 +47,9 @@ NS_SWIFT_NAME(StorageObservableTask)
 
 /**
  * Removes all observers for a single status.
- * @param status A FIRStorageTaskStatus to remove listeners for.
+ * @param status A FIRIMPLStorageTaskStatus to remove listeners for.
  */
-- (void)removeAllObserversForStatus:(FIRStorageTaskStatus)status;
+- (void)removeAllObserversForStatus:(FIRIMPLStorageTaskStatus)status;
 
 /**
  * Removes all observers.

@@ -13,8 +13,9 @@
 // limitations under the License.
 
 #import "FirebaseStorage/Tests/Unit/FIRStorageTestHelpers.h"
+#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorage.h"
 
-#import "FirebaseStorage/Sources/FIRStorageComponent.h"
+//#import "FirebaseStorage/Sources/FIRStorageComponent.h"
 #import "SharedTestUtilities/FIRComponentTestUtilities.h"
 
 NSString *const kGoogleHTTPErrorDomain = @"com.google.HTTPStatus";
@@ -40,22 +41,29 @@ NSString *const kFIRStorageAppName = @"app";
 @implementation FIRStorageTestHelpers
 
 + (FIRApp *)mockedApp {
-  // In order to properly instantiate a FIRStorage instance with `storageForApp:`, it needs to have
-  // the FIRStorageComponent registered. Create a class mock, and override the container with the
-  // correct contents.
-  id app = OCMClassMock([FIRApp class]);
-  NSMutableSet<Class> *registrants = [NSMutableSet setWithObject:[FIRStorageComponent class]];
-  FIRComponentContainer *container = [[FIRComponentContainer alloc] initWithApp:app
-                                                                    registrants:registrants];
-  OCMStub([app container]).andReturn(container);
-  return app;
+  id mockApp = OCMClassMock([FIRApp class]);
+  id mockOptions = OCMClassMock([FIROptions class]);
+  OCMStub([mockOptions storageBucket]).andReturn(@"bucket");
+  OCMStub([mockApp name]).andReturn(kFIRStorageAppName);
+  OCMStub([(FIRApp *)mockApp options]).andReturn(mockOptions);
+  return mockApp;
 }
 
-+ (FIRStorageReference *)rootReference {
-  FIRStorage *storage = [FIRStorage storageForApp:[FIRStorageTestHelpers mockedApp]
-                                              URL:@"gs://bucket.firebase.com"];
++ (FIRIMPLStorage *)storageWithMockedApp {
+  FIRApp *app = [FIRStorageTestHelpers mockedApp];
+  return [[FIRIMPLStorage alloc] initWithApp:app bucket:@"bucket" auth:nil appCheck:nil];
+}
+
++ (FIRIMPLStorageReference *)rootReference {
+  //  FIRIMPLStorage *storage = [FIRIMPLStorage storageForApp:[FIRStorageTestHelpers mockedApp]
+  //                                              URL:@"gs://bucket.firebase.com"];
+  FIRApp *app = [FIRStorageTestHelpers mockedApp];
+  FIRIMPLStorage *storage = [[FIRIMPLStorage alloc] initWithApp:app
+                                                         bucket:@"bucket"
+                                                           auth:nil
+                                                       appCheck:nil];
   FIRStoragePath *path = [[FIRStoragePath alloc] initWithBucket:@"bucket" object:nil];
-  return [[FIRStorageReference alloc] initWithStorage:storage path:path];
+  return [[FIRIMPLStorageReference alloc] initWithStorage:storage path:path];
 }
 
 + (NSURL *)objectURL {
@@ -86,7 +94,7 @@ NSString *const kFIRStorageAppName = @"app";
   return [FIRStorageTestHelpers successBlockWithMetadata:nil];
 }
 
-+ (GTMSessionFetcherTestBlock)successBlockWithMetadata:(nullable FIRStorageMetadata *)metadata {
++ (GTMSessionFetcherTestBlock)successBlockWithMetadata:(nullable FIRIMPLStorageMetadata *)metadata {
   NSData *data;
   if (metadata) {
     data = [NSData frs_dataFromJSONDictionary:[metadata dictionaryRepresentation]];
