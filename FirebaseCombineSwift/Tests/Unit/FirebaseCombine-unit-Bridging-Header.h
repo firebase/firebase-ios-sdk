@@ -15,9 +15,6 @@
 #import "SharedTestUtilities/FIRComponentTestUtilities.h"
 #import "SharedTestUtilities/FIROptionsMock.h"
 
-// Firebase Storage
-#import "FirebaseStorage/Sources/FIRStorageComponent.h"
-
 // Firebase Core
 #import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 

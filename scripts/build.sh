@@ -537,7 +537,7 @@ case "$product-$platform-$method" in
     if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \
-        -workspace 'gen/FirebaseStorageObjc/FirebaseStorageObjC.xcworkspace' \
+        -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
         -scheme "FirebaseStorage-Unit-objcintegration" \
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \

@@ -52,7 +52,8 @@ Objective C Implementations for FirebaseStorage. This pod should not be directly
     unit_tests.platforms = {
       :ios => ios_deployment_target,
       :osx => osx_deployment_target,
-      :tvos => tvos_deployment_target
+      :tvos => tvos_deployment_target,
+      :watchos => watchos_deployment_target,
     }
     unit_tests.source_files = [
       'FirebaseStorage/Tests/Unit/*.[mh]',

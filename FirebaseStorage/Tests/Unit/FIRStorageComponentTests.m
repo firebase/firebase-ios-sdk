@@ -22,7 +22,7 @@
 
 #import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 
-#import "FirebaseStorage/Sources/FIRStorageComponent.h"
+//#import "FirebaseStorage/Sources/FIRStorageComponent.h"
 #import "SharedTestUtilities/FIRComponentTestUtilities.h"
 
 // Make FIRComponentRegistrant conformance visible to the tests and expose the initializer.

@@ -19,7 +19,7 @@
 #ifdef TODO
 // Port the component tests to Swift
 
-#import "FirebaseStorage/Sources/FIRStorageComponent.h"
+//#import "FirebaseStorage/Sources/FIRStorageComponent.h"
 #import "FirebaseStorage/Sources/FIRStorageReference_Private.h"
 #import "FirebaseStorage/Sources/FIRStorage_Private.h"
 #import "SharedTestUtilities/FIRComponentTestUtilities.h"

@@ -715,15 +715,16 @@ let package = Package(
                      "SharedTestUtilities"],
       path: "FirebaseFunctions/Tests/Integration"
     ),
-    .testTarget(
-      name: "FirebaseFunctionsObjCIntegration",
-      dependencies: ["FirebaseFunctions",
-                     "SharedTestUtilities"],
-      path: "FirebaseFunctions/Tests/ObjCIntegration",
-      cSettings: [
-        .headerSearchPath("../../.."),
-      ]
-    ),
+    // TODO: Set up GoogleService-Info.plist to run these. They're currently run via `pod gen`.
+//    .testTarget(
+//      name: "FirebaseFunctionsObjCIntegration",
+//      dependencies: ["FirebaseFunctions",
+//                     "SharedTestUtilities"],
+//      path: "FirebaseFunctions/Tests/ObjCIntegration",
+//      cSettings: [
+//        .headerSearchPath("../../.."),
+//      ]
+//    ),
     .target(
       name: "FirebaseFunctionsCombineSwift",
       dependencies: ["FirebaseFunctions"],
@@ -1030,8 +1031,22 @@ let package = Package(
     ),
     .target(
       name: "FirebaseStorage",
-      dependencies: ["FirebaseStorageObjC"],
+      dependencies: [
+        "FirebaseAppCheckInterop",
+        "FirebaseAuthInterop",
+        "FirebaseCore",
+        "FirebaseCoreInternal",
+        "FirebaseStorageObjC",
+      ],
       path: "FirebaseStorageSwift/Sources"
+    ),
+    .testTarget(
+      name: "StorageObjcIntegration",
+      dependencies: ["FirebaseStorage"],
+      path: "FirebaseStorageSwift/Tests/ObjcIntegration",
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
     ),
     .testTarget(
       name: "swift-test",

@@ -39,6 +39,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   s.dependency 'FirebaseStorageObjC', '~> 8.13'
   s.dependency 'FirebaseAppCheckInterop', '~> 8.13'
   s.dependency 'FirebaseAuthInterop', '~> 8.13'
+  s.dependency 'FirebaseCore', '~> 8.13'
   s.dependency 'FirebaseCoreInternal', '~> 8.13'
 
   s.test_spec 'objcIntegration' do |objc_tests|
