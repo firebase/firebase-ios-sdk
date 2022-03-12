@@ -109,7 +109,7 @@ typedef NS_ENUM(NSInteger, FIRIMPLStorageTaskStatus) {
 /**
  * Firebase Storage error domain.
  */
-FOUNDATION_EXPORT NSString *const FIRStorageErrorDomain NS_SWIFT_NAME(StorageErrorDomain);
+FOUNDATION_EXPORT NSString *const FIRStorageErrorDomain;
 
 /**
  * Enum representing the errors raised by Firebase Storage.

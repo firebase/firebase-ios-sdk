@@ -22,7 +22,7 @@
 
 #import "FirebaseStorage/Tests/Integration/Credentials.h"
 
-NSTimeInterval kFIRStorageIntegrationTestTimeout = 6000;
+NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
 
 /**
  * Firebase Storage Integration tests

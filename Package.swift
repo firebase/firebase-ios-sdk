@@ -715,16 +715,15 @@ let package = Package(
                      "SharedTestUtilities"],
       path: "FirebaseFunctions/Tests/Integration"
     ),
-    // TODO: Set up GoogleService-Info.plist to run these. They're currently run via `pod gen`.
-//    .testTarget(
-//      name: "FirebaseFunctionsObjCIntegration",
-//      dependencies: ["FirebaseFunctions",
-//                     "SharedTestUtilities"],
-//      path: "FirebaseFunctions/Tests/ObjCIntegration",
-//      cSettings: [
-//        .headerSearchPath("../../.."),
-//      ]
-//    ),
+    .testTarget(
+      name: "FirebaseFunctionsObjCIntegration",
+      dependencies: ["FirebaseFunctions",
+                     "SharedTestUtilities"],
+      path: "FirebaseFunctions/Tests/ObjCIntegration",
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    ),
     .target(
       name: "FirebaseFunctionsCombineSwift",
       dependencies: ["FirebaseFunctions"],

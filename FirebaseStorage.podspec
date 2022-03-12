@@ -42,7 +42,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   s.dependency 'FirebaseCore', '~> 8.13'
   s.dependency 'FirebaseCoreInternal', '~> 8.13'
 
-  s.test_spec 'objcIntegration' do |objc_tests|
+  s.test_spec 'ObjCIntegration' do |objc_tests|
     objc_tests.scheme = { :code_coverage => true }
     objc_tests.platforms = {
       :ios => ios_deployment_target,
