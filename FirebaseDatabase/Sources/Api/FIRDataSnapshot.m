@@ -16,7 +16,6 @@
 
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDataSnapshot.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRDataSnapshot_Private.h"
-#import "FirebaseDatabase/Sources/FTransformedEnumerator.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
 
 @interface FIRDataSnapshot ()
