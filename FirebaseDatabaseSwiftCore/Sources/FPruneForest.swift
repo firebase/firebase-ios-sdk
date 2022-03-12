@@ -84,7 +84,7 @@ let keepPredicate: (Any?) -> (Bool) = { !(($0 as? Bool) ?? false) }
         }
     }
 
-    @objc public func keepPath(_ path: FPath) -> FPruneForest? {
+    @objc public func keepPath(_ path: FPath) -> FPruneForest {
         if pruneForest.rootMostValue(onPath: path, matching: keepPredicate) != nil {
             // This path will already be kept
             return self

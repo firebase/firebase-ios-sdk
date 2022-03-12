@@ -16,8 +16,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseDatabase/Sources/Persistence/FTrackedQueryManager.h"
-
 #import "FirebaseDatabase/Tests/Helpers/FMockStorageEngine.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestCachePolicy.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestClock.h"
