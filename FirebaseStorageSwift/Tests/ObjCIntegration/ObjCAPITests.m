@@ -103,7 +103,7 @@
   }];
 }
 
-#ifdef DeprecateThese
+#ifdef COCOAPODS
 - (void)FIRStorageConstantsTypedefs {
   FIRStorageHandle __unused handle;
   FIRStorageVoidDataError __unused funcPtr1;
