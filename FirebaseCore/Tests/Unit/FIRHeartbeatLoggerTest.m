@@ -20,7 +20,7 @@
 #import <HeartbeatLoggingTestUtils/HeartbeatLoggingTestUtils-Swift.h>
 #endif  // SWIFT_PACKAGE
 
-#import "FirebaseCore/Sources/Private/FIRHeartbeatLogger.h"
+#import "FirebaseCore/Internal/FIRHeartbeatLogger.h"
 
 @interface FIRHeartbeatLogger (Internal)
 - (instancetype)initWithAppID:(NSString *)appID
