@@ -189,7 +189,7 @@ struct FrameworkBuilder {
 
     var archs = targetPlatform.archs.map { $0.rawValue }.joined(separator: " ")
     // The 32 bit archs do not build for iOS 11.
-    if framework == "FirebaseAppCheck" {
+    if framework == "FirebaseAppCheck" || framework.hasSuffix("Swift") {
       if targetPlatform == .iOSDevice {
         archs = "arm64"
       } else if targetPlatform == .iOSSimulator {

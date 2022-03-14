@@ -107,7 +107,7 @@ extension CarthageUtils {
 
       // Analytics includes all the Core frameworks and Firebase module, do extra work to package
       // it.
-      if product == "FirebaseAnalytics" {
+      if product == "FirebaseAnalyticsSwift" {
         createFirebaseFramework(version: firebaseVersion,
                                 inDir: fullPath,
                                 rootDir: packagedDir,
