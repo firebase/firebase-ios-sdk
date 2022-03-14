@@ -11,6 +11,8 @@ on:
 
 jobs:
   pod_lib_lint:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macos-11
     strategy:
       matrix:
@@ -59,8 +61,9 @@ jobs:
         path: xcodebuild.log
 
   app_check-cron-only:
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     runs-on: macos-11
-    if: github.event_name == 'schedule'
     strategy:
       matrix:
         flags: [
