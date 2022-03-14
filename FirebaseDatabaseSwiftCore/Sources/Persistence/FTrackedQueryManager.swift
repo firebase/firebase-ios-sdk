@@ -22,14 +22,17 @@ import Foundation
         let trackedQueries = storageEngine.loadTrackedQueries()
         for trackedQuery in trackedQueries {
             currentQueryId = max(trackedQuery.queryId, currentQueryId)
+            let newQuery: FTrackedQuery
             if trackedQuery.isActive {
-                let newQuery = trackedQuery
+                newQuery = trackedQuery
                     .setActiveState(false)
                     .updateLastUse(lastUse)
                 FFDebug("I-RDB081001", "Setting active query \(trackedQuery.queryId) from previous app start inactive")
                 storageEngine.saveTrackedQuery(newQuery)
+            } else {
+                newQuery = trackedQuery
             }
-            cacheTrackedQuery(trackedQuery)
+            cacheTrackedQuery(newQuery)
         }
     }
     private static func assertValidTrackedQuery(_ query: FQuerySpec) {
@@ -64,7 +67,7 @@ import Foundation
 
     @objc public func removeTrackedQuery(_ query: FQuerySpec) {
         let query = FTrackedQueryManager.normalizeQuery(query)
-        guard findTrackedQuery(query) != nil else {
+        guard let trackedQuery = findTrackedQuery(query) else {
             assertionFailure("Tracked query must exist to be removed!")
             return
         }
@@ -72,7 +75,8 @@ import Foundation
             return
         }
         trackedQueries.removeValue(forKey: query.params)
-        _ = trackedQueryTree.setValue(trackedQueries, atPath: query.path)
+        trackedQueryTree = trackedQueryTree.setValue(trackedQueries, atPath: query.path)
+        storageEngine.removeTrackedQuery(trackedQuery.queryId)
     }
 
     @objc public func setQueryComplete(_ query: FQuerySpec) {
@@ -182,7 +186,7 @@ import Foundation
         let maxToKeep = cachePolicy.maxNumberOfQueriesToKeep
         let numMax = numPrunable > maxToKeep ? numPrunable - maxToKeep : 0
         // Make sure we get below number of max queries to prune
-        return max(numMax, numPercent)
+        return min(max(numMax, numPercent), numPrunable)
     }
 
     @objc public func pruneOldQueries(_ cachePolicy: FCachePolicy) -> FPruneForest {

@@ -179,7 +179,7 @@
 
   // Should remove the first two inactive queries
   FPruneForest *forest = [manager
-      pruneOldQueries:[[FTestCachePolicy alloc] initWithPercent:0.5 maxQueries:NSUIntegerMax]];
+      pruneOldQueries:[[FTestCachePolicy alloc] initWithPercent:0.5 maxQueries:NSIntegerMax]];
   [self checkPruneForest:forest
              pathsToKeep:@[
                @"active1", @"active2", @"pinned1", @"pinned2", @"inactive3", @"inactive4"
@@ -188,14 +188,14 @@
 
   // Should remove the other two inactive queries
   forest = [manager pruneOldQueries:[[FTestCachePolicy alloc] initWithPercent:1
-                                                                   maxQueries:NSUIntegerMax]];
+                                                                   maxQueries:NSIntegerMax]];
   [self checkPruneForest:forest
              pathsToKeep:@[ @"active1", @"active2", @"pinned1", @"pinned2" ]
             pathsToPrune:@[ @"inactive3", @"inactive4" ]];
 
   // Nothing left to prune
   forest = [manager pruneOldQueries:[[FTestCachePolicy alloc] initWithPercent:1
-                                                                   maxQueries:NSUIntegerMax]];
+                                                                   maxQueries:NSIntegerMax]];
   XCTAssertFalse([forest prunesAnything]);
 
   [manager verifyCache];
@@ -234,7 +234,7 @@
   [manager setQueryInactive:[FQuerySpec defaultQueryAtPath:PATH(@"foo")]];
 
   FPruneForest *forest = [manager
-      pruneOldQueries:[[FTestCachePolicy alloc] initWithPercent:1.0 maxQueries:NSUIntegerMax]];
+      pruneOldQueries:[[FTestCachePolicy alloc] initWithPercent:1.0 maxQueries:NSIntegerMax]];
   [self checkPruneForest:forest pathsToKeep:@[ @"foo/a", @"foo/b" ] pathsToPrune:@[ @"foo" ]];
   [manager verifyCache];
 }
@@ -250,7 +250,7 @@
   [manager setQueryInactive:[[FQuerySpec alloc] initWithPath:PATH(@"foo/b") params:SAMPLE_PARAMS]];
 
   FPruneForest *forest = [manager
-      pruneOldQueries:[[FTestCachePolicy alloc] initWithPercent:1.0 maxQueries:NSUIntegerMax]];
+      pruneOldQueries:[[FTestCachePolicy alloc] initWithPercent:1.0 maxQueries:NSIntegerMax]];
   [self checkPruneForest:forest pathsToKeep:@[ @"foo" ] pathsToPrune:@[]];
   [manager verifyCache];
 }
