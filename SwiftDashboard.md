@@ -56,7 +56,7 @@ should also investigate using DocC to format the docs.
 * Cor - Core
 * Crs - Crashlytics
 * DB - Real-time Database
-* DL - Dynmaic Links
+* DL - Dynamic Links
 * Fst - Firestore
 * Fn - Functions
 * IAM - In App Messaging
