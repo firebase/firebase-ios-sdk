@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseCore/Sources/Private/FIRHeartbeatLogger.h"
+#import "FirebaseCore/Internal/FIRHeartbeatLogger.h"
 
 #if SWIFT_PACKAGE
 @import HeartbeatLogging;
@@ -22,7 +22,7 @@
 #import <FirebaseCore/FirebaseCore-Swift.h>
 #endif  // SWIFT_PACKAGE
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FIRAppInternal.h"
 
 NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *heartbeatsPayload) {
   if ([heartbeatsPayload isEmpty]) {
