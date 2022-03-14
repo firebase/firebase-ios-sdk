@@ -15,7 +15,7 @@
 #import <Foundation/Foundation.h>
 
 // TODO: Remove in future PR when `FIRHeartbeatInfo` symbol is removed.
-#import "FirebaseCore/Internal/FIRHeartbeatInfo.h"
+#import "FIRHeartbeatInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
