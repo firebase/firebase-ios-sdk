@@ -20,6 +20,7 @@
 #include <vector>
 
 #include "Firestore/core/src/core/query.h"
+#include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/memory_remote_document_cache.h"
 #include "Firestore/core/src/local/persistence.h"
 #include "Firestore/core/src/local/remote_document_cache.h"
@@ -102,7 +103,10 @@ MATCHER_P(HasAtLeastDocs,
 
 RemoteDocumentCacheTest::RemoteDocumentCacheTest()
     : persistence_{GetParam()()},
-      cache_{persistence_->remote_document_cache()} {
+      cache_{persistence_->remote_document_cache()},
+      index_manager_{
+          persistence_->GetIndexManager(credentials::User::Unauthenticated())} {
+  cache_->SetIndexManager(index_manager_);
 }
 
 TEST_P(RemoteDocumentCacheTest, ReadDocumentNotInCache) {

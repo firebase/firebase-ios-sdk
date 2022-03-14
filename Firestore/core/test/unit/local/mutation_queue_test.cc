@@ -51,8 +51,11 @@ using testutil::Query;
 
 MutationQueueTestBase::MutationQueueTestBase(
     std::unique_ptr<Persistence> persistence)
-    : persistence_(std::move(persistence)),
-      mutation_queue_(persistence_->GetMutationQueueForUser(User("user"))) {
+    : persistence_(std::move(persistence)) {
+  User user("user");
+  mutation_queue_ =
+      persistence_->GetMutationQueue(user, persistence_->GetIndexManager(user));
+
   persistence_->Run("Start", [this] { mutation_queue_->Start(); });
 }
 

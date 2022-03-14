@@ -66,7 +66,7 @@ class DocumentOverlayCacheTestHelper final {
 DocumentOverlayCacheTestBase::DocumentOverlayCacheTestBase(
     std::unique_ptr<Persistence> persistence)
     : persistence_(std::move(persistence)),
-      cache_(persistence_->document_overlay_cache(User("user"))) {
+      cache_(persistence_->GetDocumentOverlayCache(User("user"))) {
 }
 
 void DocumentOverlayCacheTestBase::SaveOverlaysWithMutations(

@@ -21,6 +21,7 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/leveldb_key.h"
 #include "Firestore/core/src/local/leveldb_persistence.h"
 #include "Firestore/core/src/local/local_serializer.h"
@@ -35,6 +36,7 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
+using credentials::User;
 using model::DocumentKey;
 using model::FieldIndex;
 using model::IndexState;
@@ -49,21 +51,15 @@ struct DbIndexState {
   int32_t nanos;
   std::string key;
   model::ListenSequenceNumber sequence_number;
+  model::BatchId largest_batch_id;
 };
-
-// TODO(wuandy): Uncomment this when needed.
-// void to_json(json& j, const DbIndexState& s) {
-//  j = json{{"seconds", s.seconds},
-//           {"nanos", s.nanos},
-//           {"key", s.key},
-//           {"seq_num", s.sequence_number}};
-//}
 
 void from_json(const json& j, DbIndexState& s) {
   j.at("seconds").get_to(s.seconds);
   j.at("nanos").get_to(s.nanos);
   j.at("key").get_to(s.key);
   j.at("seq_num").get_to(s.sequence_number);
+  j.at("largest_batch").get_to(s.largest_batch_id);
 }
 
 IndexState DecodeIndexState(const std::string& encoded) {
@@ -72,16 +68,34 @@ IndexState DecodeIndexState(const std::string& encoded) {
   auto db_state = j.get<DbIndexState>();
   return {db_state.sequence_number,
           SnapshotVersion(Timestamp(db_state.seconds, db_state.nanos)),
-          DocumentKey::FromPathString(db_state.key)};
+          DocumentKey::FromPathString(db_state.key), db_state.largest_batch_id};
+}
+
+std::string EncodeIndexState(const IndexState& state) {
+  return json{
+      {"seconds", state.index_offset().read_time().timestamp().seconds()},
+      {"nanos", state.index_offset().read_time().timestamp().nanoseconds()},
+      {"key", state.index_offset().document_key().ToString()},
+      {"seq_num", state.sequence_number()},
+      {"largest_batch", state.index_offset().largest_batch_id()}}
+      .dump();
 }
 
 }  // namespace
 
-LevelDbIndexManager::LevelDbIndexManager(LevelDbPersistence* db,
+LevelDbIndexManager::LevelDbIndexManager(const User& user,
+                                         LevelDbPersistence* db,
                                          LocalSerializer* serializer)
-    : db_(db), serializer_(serializer) {
+    : db_(db), serializer_(serializer), uid_(user.uid()) {
+  // The contract for this comparison expected by priority queue is
+  // `std::less`, but std::priority_queue's default order is descending.
+  // We change the order to be ascending by doing left >= right instead.
   auto cmp = [](FieldIndex* left, FieldIndex* right) {
-    return left->index_state().sequence_number() <
+    if (left->index_state().sequence_number() ==
+        right->index_state().sequence_number()) {
+      return left->collection_group() >= right->collection_group();
+    }
+    return left->index_state().sequence_number() >
            right->index_state().sequence_number();
   };
   next_index_to_update_ = std::priority_queue<
@@ -225,7 +239,8 @@ void LevelDbIndexManager::MemoizeIndex(FieldIndex index) {
   }
 
   // Moves `index` into `existing_indexes`.
-  existing_indexes.insert({index_id, std::move(index)});
+  existing_indexes[index_id] = std::move(index);
+
   // next_index_to_update_ holds a pointer to the index owned by
   // `existing_indexes`.
   next_index_to_update_.push(&existing_indexes.find(index_id)->second);
@@ -300,9 +315,11 @@ std::vector<FieldIndex> LevelDbIndexManager::GetFieldIndexes(
   HARD_ASSERT(started_, "IndexManager not started");
 
   std::vector<FieldIndex> result;
-  const auto& indexes = memoized_indexes_[collection_group];
-  for (const auto& entry : indexes) {
-    result.push_back(entry.second);
+  const auto iter = memoized_indexes_.find(collection_group);
+  if (iter != memoized_indexes_.end()) {
+    for (const auto& entry : iter->second) {
+      result.push_back(entry.second);
+    }
   }
 
   return result;
@@ -335,13 +352,30 @@ LevelDbIndexManager::GetDocumentsMatchingTarget(model::FieldIndex field_index,
 
 absl::optional<std::string>
 LevelDbIndexManager::GetNextCollectionGroupToUpdate() {
-  return {};
+  if (next_index_to_update_.empty()) {
+    return absl::nullopt;
+  }
+
+  return next_index_to_update_.top()->collection_group();
 }
 
 void LevelDbIndexManager::UpdateCollectionGroup(
     const std::string& collection_group, model::IndexOffset offset) {
-  (void)collection_group;
-  (void)offset;
+  HARD_ASSERT(started_, "IndexManager not started");
+
+  ++memoized_max_sequence_number_;
+  for (const auto& field_index : GetFieldIndexes(collection_group)) {
+    IndexState updated_state{memoized_max_sequence_number_, offset};
+
+    auto state_key = LevelDbIndexStateKey::Key(uid_, field_index.index_id());
+    auto val = EncodeIndexState(updated_state);
+    db_->current_transaction()->Put(std::move(state_key),
+                                    EncodeIndexState(updated_state));
+
+    MemoizeIndex(FieldIndex{field_index.index_id(),
+                            field_index.collection_group(),
+                            field_index.segments(), std::move(updated_state)});
+  }
 }
 
 void LevelDbIndexManager::UpdateIndexEntries(
