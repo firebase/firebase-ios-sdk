@@ -287,7 +287,7 @@ private func trackedQueryKeysKey(trackedQueryId: Int, key: String) -> String {
     }
 
     public func removeUserWrite(_ writeId: Int) {
-        writesDB.removeKey(writeRecordKey(writeId: writeId))
+        _ = writesDB.removeKey(writeRecordKey(writeId: writeId))
     }
 
     public func removeAllUserWrites() {
@@ -331,7 +331,7 @@ private func trackedQueryKeysKey(trackedQueryId: Int, key: String) -> String {
             } catch {
                 if (error as NSError).code == kFNanFailureCode {
                     FFWarn("I-RDB076012",
-                           "Failed to deserialize write (\(String(data: data, encoding: .utf8)), likely because of out of range doubles (Error: \(error))")
+                           "Failed to deserialize write (\(String(data: data, encoding: .utf8) ?? "-"), likely because of out of range doubles (Error: \(error))")
                     FFWarn("I-RDB076013", "Removing failed write with key \(key)")
                     _ = self.writesDB.removeKey(key)
                 } else {
@@ -345,7 +345,7 @@ private func trackedQueryKeysKey(trackedQueryId: Int, key: String) -> String {
         return writes
     }
 
-    public func serverCache(atPath path: FPath) -> FNode? {
+    public func serverCache(atPath path: FPath) -> FNode {
         let start = Date()
         let data = internalNestedData(for: path)
         let node = FSnapshotUtilitiesSwift.nodeFrom(data)
@@ -360,7 +360,7 @@ private func trackedQueryKeysKey(trackedQueryId: Int, key: String) -> String {
         // is deleted before iter, you get an access violation).
         return autoreleasepool {
             let iter = APLevelDBIterator.iterator(levelDB: serverCacheDB)
-            iter.seek(toKey: baseKey)
+            _ = iter.seek(toKey: baseKey)
             if let key = iter.key() {
                 if !key.hasPrefix(baseKey) {
                     // No data.
@@ -381,7 +381,7 @@ private func trackedQueryKeysKey(trackedQueryId: Int, key: String) -> String {
         var key = iterator.key()
         if key == prefix {
             let result = deserializePrimitive(iterator.valueAsData())
-            iterator.nextKey()
+            _ = iterator.nextKey()
             return result
         } else {
             var dict: [String: Any] = [:]
@@ -477,7 +477,7 @@ private func trackedQueryKeysKey(trackedQueryId: Int, key: String) -> String {
         } catch {
             if (error as NSError).code == kFNanFailureCode {
                 FFWarn("I-RDB076034",
-                       "Failed to load primitive \(String(data: data, encoding: .utf8)), likely because doubles where out of range (Error: \(error))")
+                       "Failed to load primitive \(String(data: data, encoding: .utf8) ?? "-"), likely because doubles where out of range (Error: \(error))")
                 return NSNull()
             } else {
                 fatalError("Failed to deserialize primitive: \(error)")
@@ -487,7 +487,7 @@ private func trackedQueryKeysKey(trackedQueryId: Int, key: String) -> String {
 
     private static func ensureDir(_ path: inout URL, markAsDoNotBackup: Bool) {
         do {
-            let success = try FileManager.default.createDirectory(at: path, withIntermediateDirectories: true)
+            try FileManager.default.createDirectory(at: path, withIntermediateDirectories: true)
         } catch {
             fatalError("Failed to create persistence directory. Error: \(error) Path: \(path.path)")
         }
@@ -504,7 +504,7 @@ private func trackedQueryKeysKey(trackedQueryId: Int, key: String) -> String {
         }
     }
 
-    public func serverCache(forKeys keys: Set<String>, atPath path: FPath) -> FNode? {
+    public func serverCache(forKeys keys: Set<String>, atPath path: FPath) -> FNode {
         let start = Date()
         var node: FNode = FEmptyNode.emptyNode
         for key in keys {
@@ -512,7 +512,7 @@ private func trackedQueryKeysKey(trackedQueryId: Int, key: String) -> String {
             node = node.updateImmediateChild(key, withNewChild: FSnapshotUtilitiesSwift.nodeFrom(data))
         }
         FFDebug("I-RDB076016",
-                "Loaded node with \(node.numChildren) children for \(keys.count) keys at \(path) in \(start.timeIntervalSinceNow * -1000)ms")
+                "Loaded node with \(node.numChildren()) children for \(keys.count) keys at \(path) in \(start.timeIntervalSinceNow * -1000)ms")
         return node
     }
 
@@ -672,10 +672,10 @@ private func trackedQueryKeysKey(trackedQueryId: Int, key: String) -> String {
                 if (error as NSError).code == kFNanFailureCode {
                     FFWarn(
                         "I-RDB076023",
-                        "Failed to deserialize tracked query (\(String(data: data, encoding: .utf8))), likely because of out of range doubles (Error: \(error))")
+                        "Failed to deserialize tracked query (\(String(data: data, encoding: .utf8) ?? "-")), likely because of out of range doubles (Error: \(error))")
                     FFWarn("I-RDB076024",
                            "Removing failed tracked query with key \(key)")
-                    self.serverCacheDB.removeKey(key)
+                    _ = self.serverCacheDB.removeKey(key)
                 } else {
                     fatalError("Failed to deserialize tracked query: \(error)")
                 }
@@ -715,7 +715,7 @@ private func trackedQueryKeysKey(trackedQueryId: Int, key: String) -> String {
         ]
         do {
             let data = try JSONSerialization.data(withJSONObject: trackedQuery)
-            serverCacheDB.setData(data, forKey: trackedQueryKey(trackedQueryId: query.queryId))
+            _ = serverCacheDB.setData(data, forKey: trackedQueryKey(trackedQueryId: query.queryId))
         } catch {
             assertionFailure("Failed to serialize tracked query (Error: \(error)")
         }

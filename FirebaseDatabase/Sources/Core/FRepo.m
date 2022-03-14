@@ -31,7 +31,6 @@
 #import "FirebaseDatabase/Sources/Core/FSyncTree.h"
 #import "FirebaseDatabase/Sources/Core/View/FValueEventRegistration.h"
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
-#import "FirebaseDatabase/Sources/Persistence/FPersistenceManager.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDataSnapshot.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRMutableData.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRTransactionResult.h"

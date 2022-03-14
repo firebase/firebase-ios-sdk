@@ -34,6 +34,6 @@ import Foundation
     }
 
     public override var description: String {
-        "FOperationSource { fromUser=\(fromUser), fromServer=\(fromServer), queryParams=\(queryParams), tagged=\(isTagged) }"
+        "FOperationSource { fromUser=\(fromUser), fromServer=\(fromServer), queryParams=\(String(describing: queryParams)), tagged=\(isTagged) }"
     }
 }

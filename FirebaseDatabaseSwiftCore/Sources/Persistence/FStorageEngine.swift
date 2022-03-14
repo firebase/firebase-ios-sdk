@@ -14,8 +14,8 @@ import Foundation
     func removeUserWrite(_ writeId: Int)
     func removeAllUserWrites()
     var userWrites: [FWriteRecord] { get }
-    func serverCache(atPath path: FPath) -> FNode?
-    func serverCache(forKeys keys: Set<String>, atPath path: FPath) -> FNode? // XXX NOTE TYPE UNCERTAIN
+    func serverCache(atPath path: FPath) -> FNode
+    func serverCache(forKeys keys: Set<String>, atPath path: FPath) -> FNode
     func updateServerCache(_ node: FNode, atPath path: FPath, merge: Bool)
     func updateServerCache(merge: FCompoundWrite, atPath path: FPath)
     var serverCacheEstimatedSizeInBytes: Int { get }

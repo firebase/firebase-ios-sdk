@@ -288,7 +288,7 @@
   for (NSString *path in toKeep) {
     checkForest = [checkForest keepPath:PATH(path)];
   }
-  XCTAssertEqualObjects([pruneForest pruneForest], [checkForest pruneForest]);
+  XCTAssertEqualObjects(pruneForest, checkForest);
 }
 
 - (void)testKnownCompleteChildren {

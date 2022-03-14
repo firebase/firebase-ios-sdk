@@ -16,7 +16,6 @@
 
 #import "FirebaseDatabase/Sources/Core/FSyncPoint.h"
 #import "FirebaseDatabase/Sources/Core/View/FView.h"
-#import "FirebaseDatabase/Sources/Persistence/FPersistenceManager.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseQuery.h"
 
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleRemovedQueriesEvents.h"

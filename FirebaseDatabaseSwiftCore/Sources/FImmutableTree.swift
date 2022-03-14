@@ -731,3 +731,11 @@ internal class FImmutableTreeSwift<Element> {
         self.description
     }
 }
+
+extension FImmutableTreeSwift: Equatable where Element: Equatable {
+    static func == (lhs: FImmutableTreeSwift<Element>, rhs: FImmutableTreeSwift<Element>) -> Bool {
+        lhs.value == rhs.value && lhs.children == rhs.children
+    }
+
+
+}

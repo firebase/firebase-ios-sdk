@@ -182,7 +182,7 @@ import Foundation
 
     private func numberOfQueriesToPrune(cachePolicy: FCachePolicy,
                                         prunableCount numPrunable: Int) -> Int {
-        let numPercent = Int(ceil(Double(numPrunable) * cachePolicy.percentOfQueriesToPruneAtOnce))
+        let numPercent = Int(Double(numPrunable) * cachePolicy.percentOfQueriesToPruneAtOnce)
         let maxToKeep = cachePolicy.maxNumberOfQueriesToKeep
         let numMax = numPrunable > maxToKeep ? numPrunable - maxToKeep : 0
         // Make sure we get below number of max queries to prune

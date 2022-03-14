@@ -20,7 +20,6 @@
 #import "FirebaseDatabase/Sources/Core/FServerValues.h"
 #import "FirebaseDatabase/Sources/Core/FSyncPoint.h"
 #import "FirebaseDatabase/Sources/Core/View/FView.h"
-#import "FirebaseDatabase/Sources/Persistence/FPersistenceManager.h"
 
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 

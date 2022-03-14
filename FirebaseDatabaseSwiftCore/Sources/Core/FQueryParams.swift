@@ -333,7 +333,10 @@ private struct QueryParams: Hashable, Equatable {
     }
 
     @objc public override var description: String {
-        wireProtocolParams.description
+        // Ensure that description is always in same order, as it is (apparently) used
+        // to generate keys - at least in test cases.
+        let sortedParams = wireProtocolParams.map { ($0, $1) }.sorted(by: { $0.0 < $1.0 })
+        return "[\(sortedParams.map { "\"\($0.0)\": \($0.1)" }.joined(separator: ", "))]"
     }
 
     @objc public override func isEqual(_ object: Any?) -> Bool {

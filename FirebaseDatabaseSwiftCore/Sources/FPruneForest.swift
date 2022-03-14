@@ -12,13 +12,13 @@ let keepPredicate: (Any?) -> (Bool) = { !(($0 as? Bool) ?? false) }
 
 // TODO: When more is swiftified, FImmutableTree really, really ought to be generic
 @objc public class FPruneForest: NSObject {
-    static var pruneTree = FImmutableTree(value: true)
-    static var keepTree = FImmutableTree(value: false)
-    static var pruneForest = FPruneForest(forest: pruneTree)
-    static var keepForest = FPruneForest(forest: keepTree)
+    static var kPruneTree = FImmutableTreeSwift<Bool>(value: true)
+    static var kKeepTree = FImmutableTreeSwift<Bool>(value: false)
+    static var kPruneForest = FPruneForest(forest: kPruneTree)
+    static var kKeepForest = FPruneForest(forest: kKeepTree)
 
-    @objc public let pruneForest: FImmutableTree
-    init(forest: FImmutableTree) {
+    let pruneForest: FImmutableTreeSwift<Bool>
+    init(forest: FImmutableTreeSwift<Bool>) {
         self.pruneForest = forest
     }
     @objc public class func empty() -> FPruneForest {
@@ -26,23 +26,18 @@ let keepPredicate: (Any?) -> (Bool) = { !(($0 as? Bool) ?? false) }
     }
 
     @objc public func prunesAnything() -> Bool {
-        pruneForest.containsValue { value in
-            (value as? Bool) ?? false
-        }
+        pruneForest.containsValue { $0 }
     }
 
     @objc public func shouldPruneUnkeptDescendants(atPath path: FPath) -> Bool {
-        let value = pruneForest.leafMostValue(onPath: path) as? Bool
-        return value ?? false
+        pruneForest.leafMostValue(onPath: path) ?? false
     }
 
     @objc public func shouldKeepPath(_ path: FPath) -> Bool {
-        let value = pruneForest.leafMostValue(onPath: path) as? Bool
-        return value.map(!) ?? false
+        pruneForest.leafMostValue(onPath: path).map(!) ?? false
     }
 
     @objc public func affectsPath(_ path: FPath) -> Bool {
-        print(pruneForest)
         return pruneForest.rootMostValue(onPath: path) != nil ||
         !pruneForest.subtree(atPath: path).isEmpty()
     }
@@ -50,8 +45,7 @@ let keepPredicate: (Any?) -> (Bool) = { !(($0 as? Bool) ?? false) }
     @objc public func child(_ childKey: String) -> FPruneForest {
         guard var childPruneForest = pruneForest.children[childKey] else {
             if let value = pruneForest.value {
-                let boolValue = (value as? Bool) ?? false
-                return boolValue ? .pruneForest : .keepForest
+                return value ? .kPruneForest : .kKeepForest
             } else {
                 return .empty()
             }
@@ -80,7 +74,7 @@ let keepPredicate: (Any?) -> (Bool) = { !(($0 as? Bool) ?? false) }
             return self
         } else {
             // TODO: Clumsy - fix
-            return FPruneForest(forest: pruneForest.setTree(FPruneForest.pruneTree, atPath: path))
+            return FPruneForest(forest: pruneForest.setTree(FPruneForest.kPruneTree, atPath: path))
         }
     }
 
@@ -89,7 +83,7 @@ let keepPredicate: (Any?) -> (Bool) = { !(($0 as? Bool) ?? false) }
             // This path will already be kept
             return self
         } else {
-            return FPruneForest(forest: pruneForest.setTree(FPruneForest.keepTree, atPath: path))
+            return FPruneForest(forest: pruneForest.setTree(FPruneForest.kKeepTree, atPath: path))
         }
     }
 
@@ -98,7 +92,7 @@ let keepPredicate: (Any?) -> (Bool) = { !(($0 as? Bool) ?? false) }
             // This path will already be kept
             return self
         } else {
-            return self.setPruneValue(FPruneForest.keepTree, forAll: children, at: path)
+            return self.setPruneValue(FPruneForest.kKeepTree, forAll: children, at: path)
         }
     }
 
@@ -113,12 +107,12 @@ let keepPredicate: (Any?) -> (Bool) = { !(($0 as? Bool) ?? false) }
             // This path will already be pruned
             return self
         } else {
-            return self.setPruneValue(FPruneForest.pruneTree, forAll: children, at: path)
+            return self.setPruneValue(FPruneForest.kPruneTree, forAll: children, at: path)
         }
     }
 
     private func setPruneValue(
-        _ pruneValue: FImmutableTree,
+        _ pruneValue: FImmutableTreeSwift<Bool>,
         forAll children: Set<String>,
         at path: FPath
     ) -> FPruneForest {
@@ -129,15 +123,19 @@ let keepPredicate: (Any?) -> (Bool) = { !(($0 as? Bool) ?? false) }
         }
         // XXX TODO - replace when using a SortedDictionary
         childrenDictionary.sort()
-        let newSubtree = FImmutableTree(value: subtree.value, children: childrenDictionary)
+        let newSubtree = FImmutableTreeSwift<Bool>(value: subtree.value, children: childrenDictionary)
         return FPruneForest(forest: self.pruneForest.setTree(newSubtree, atPath: path))
     }
 
     @objc public func enumarateKeptNodes(usingBlock block: @escaping (_ path: FPath) -> Void) {
         pruneForest.forEach { path, value in
-            if !(value as? Bool ?? false) {
+            if !value {
                 block(path)
             }
         }
+    }
+    @objc public override func isEqual(_ object: Any?) -> Bool {
+        guard let other = object as? FPruneForest else { return false }
+        return pruneForest == other.pruneForest
     }
 }
