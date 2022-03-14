@@ -7,17 +7,17 @@ to help prioritize any particular cell(s).
 This dashboard is intended to track an initial full Swift review of Firebase along with addressing low-hanging fruit. We would expect it to identify additional follow up
 tasks for additional Swift improvements.
 
-|                       | An     | ApC    | ApD    | Aut    | Cor    | Crs    | DB     | Fst    | Fn     | IAM    | Ins    | Msg    | MLM    | Prf    | RC     |    Str |
-|   :---                | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
-| **Swift Library**     |   ✔    | ❌     |❌     | ❌     | n/a     | ❌      |  ✔     |  ✔    | ✔      |  ✔     | ❌    | ❌     | ✔      | ❌        |  ✔        | ✔     |
-| **API Tests**         |  ❌    |  ✔     |❌     | ✔      | ✔       | ❌     | 3      | 2     |  ✔     | 2      | ✔      | ✔     | 2      | ❌        |  ✔      | ✔    |
-| **async/await**       |  ✔    |  ✔      |✔     | ✔      |  ✔      | ✔      | 3     |  ✔     |  ✔     | ✔      | ✔     | ✔        | ❌      | ✔      |  ✔     | ✔    |
-| **Swift Errors**      |  ❌    | ❌     |❌     | 4      | ❌     | ❌     | ❌     | ❌    | ❌     | ❌     | ❌    | ❌     | ✔      | ❌     |  ✔   | 5   |
-| **Codable**           |  n/a   | n/a   |n/a    | n/a     | n/a    |n/a     |  ✔     |  ✔     | ✔      | n/a     | n/a   | ❌     | n/a    | n/a    |   ✔  |n/a   |
-| **SwiftUI Lifecycle** |  ❌    | n/a    |❌     | ❌     | n/a    |n/a     | n/a    | n/a    | n/a     | n/a    | n/a   | ❌     | n/a    | n/a    | n/a   |n/a  |
-| **SwiftUI Interop**   |   ✔    | ❌     |❌     | ❌     | ❌     |❌      | ❌     | ❌    | ❌     | ✔      | ❌    | ❌     | ❌    | ❌     | ❌    |n/a  |
-| **Property Wrappers** |  ❌    | ❌     |❌     | ❌     | ❌     | ❌     | ❌     | 6     | ❌     | ❌     | ❌    | ❌     | ❌    | ❌     | ❌   |❌    |
-| **Swift Doc Scrub**   |  ❌    | ❌     |❌     | ❌     | ❌     | ❌     | ❌     |  ❌   | ❌     | ❌     | ❌    | ❌     | ❌    | ❌     | ❌   |❌    |
+|                       | An     | ApC    | ApD    | Aut    | Cor    | Crs    | DB     | DL     | Fst    | Fn     | IAM    | Ins    | Msg    | MLM    | Prf    | RC     |    Str |
+|   :---                | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
+| **Swift Library**     |   ✔    | ❌     |❌     | ❌     | n/a     | ❌      |  ✔     | ❌     |  ✔    | ✔      |  ✔     | ❌    | ❌     | ✔      | ❌        |  ✔        | ✔     |
+| **API Tests**         |  ❌    |  ✔     |❌     | ✔      | ✔       | ❌     | 3      | ❌      | 2     |  ✔     | 2      | ✔      | ✔     | 2      | ❌        |  ✔      | ✔    |
+| **async/await**       |  ✔    |  ✔      |✔     | ✔      |  ✔      | ✔      | 3     | ❌      |  ✔     |  ✔     | ✔      | ✔     | ✔        | ❌      | ✔      |  ✔     | ✔    |
+| **Swift Errors**      |  ✔    | ❌     |❌     | 4      | ✔       | ❌      | ❌      | ❌     | ❌    | ❌     | ❌     | ❌      | ❌     | ✔      | ✔     |  ❌   | 5   |
+| **Codable**           |  n/a   | n/a   |n/a    | n/a     | n/a    |n/a     |  ✔     | ❌      |  ✔     | ✔      | n/a     | n/a   | ❌     | n/a    | n/a    |   ✔  |n/a   |
+| **SwiftUI Lifecycle** |  ❌    | n/a    |❌     | ❌     | n/a    |n/a     | n/a      | ❌    | n/a    | n/a     | n/a    | n/a   | ❌     | n/a    | n/a    | n/a   |n/a  |
+| **SwiftUI Interop**   |   ✔    | ❌     |❌     | ❌     | ❌     |❌      | ❌      | ❌     | ❌    | ❌     | ✔      | ❌    | ❌     | ❌    | ❌     | ❌    |n/a  |
+| **Property Wrappers** |  ❌    | ❌     |❌     | ❌     | ❌     | ❌     | ❌      | ❌     | 6     | ❌     | ❌     | ❌    | ❌     | ❌    | ❌     | ❌   |❌    |
+| **Swift Doc Scrub**   |  ❌    | ❌     |❌     | ❌     | ❌     | ✔     | ❌      | ❌     |  ❌   | ❌     | ❌     | ❌    | ❌     | ❌    | ❌     | ❌   |❌    |
 
 ### Other Projects
 - Tooling to surface full list of automatically generated Swift API from Objective C and validate.
@@ -56,6 +56,7 @@ should also investigate using DocC to format the docs.
 * Cor - Core
 * Crs - Crashlytics
 * DB - Real-time Database
+* DL - Dynmaic Links
 * Fst - Firestore
 * Fn - Functions
 * IAM - In App Messaging
