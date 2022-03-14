@@ -21,6 +21,7 @@
 #import "FIRCoreDiagnosticsConnector.h"
 #import "FIRDependency.h"
 #import "FIRHeartbeatInfo.h"
+#import "FIRHeartbeatLogger.h"
 #import "FIRLibrary.h"
 #import "FIRLogger.h"
 #import "FIROptionsInternal.h"
