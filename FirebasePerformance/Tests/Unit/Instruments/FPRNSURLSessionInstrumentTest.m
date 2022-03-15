@@ -584,7 +584,8 @@
   [instrument deregisterInstrumentors];
 }
 
-/** Tests that dataTaskWithRequest:completionHandler: for a POST request returns a non-nil object and collects request size. */
+/** Tests that dataTaskWithRequest:completionHandler: for a POST request returns a non-nil object
+ * and collects request size. */
 - (void)testDataTaskWithPostRequestAndCompletionHandler {
   FPRNSURLSessionInstrument *instrument = [[FPRNSURLSessionInstrument alloc] init];
   [instrument registerInstrumentors];
@@ -594,7 +595,7 @@
   request.HTTPMethod = @"POST";
   request.HTTPBody = [@"sampleData" dataUsingEncoding:NSUTF8StringEncoding];
   XCTestExpectation *expectation = [self expectationWithDescription:@"completionHandler called"];
-  
+
   void (^completionHandler)(NSData *_Nullable, NSURLResponse *_Nullable, NSError *_Nullable) =
       ^(NSData *_Nullable data, NSURLResponse *_Nullable response, NSError *_Nullable error) {
         [expectation fulfill];
