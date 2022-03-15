@@ -584,6 +584,32 @@
   [instrument deregisterInstrumentors];
 }
 
+/** Tests that dataTaskWithRequest:completionHandler: for a POST request returns a non-nil object
+ * and collects request size. */
+- (void)testDataTaskWithPostRequestAndCompletionHandler {
+  FPRNSURLSessionInstrument *instrument = [[FPRNSURLSessionInstrument alloc] init];
+  [instrument registerInstrumentors];
+  NSURLSession *session = [NSURLSession sharedSession];
+  NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"test"];
+  NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
+  request.HTTPMethod = @"POST";
+  request.HTTPBody = [@"sampleData" dataUsingEncoding:NSUTF8StringEncoding];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"completionHandler called"];
+
+  void (^completionHandler)(NSData *_Nullable, NSURLResponse *_Nullable, NSError *_Nullable) =
+      ^(NSData *_Nullable data, NSURLResponse *_Nullable response, NSError *_Nullable error) {
+        [expectation fulfill];
+      };
+  NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:request
+                                              completionHandler:completionHandler];
+  XCTAssertNotNil(dataTask);
+  [dataTask resume];
+  FPRNetworkTrace *trace = [FPRNetworkTrace networkTraceFromObject:dataTask];
+  XCTAssertEqual(trace.requestSize, 10);
+  [self waitForExpectationsWithTimeout:10.0 handler:nil];
+  [instrument deregisterInstrumentors];
+}
+
 /** Tests that dataTaskWithUrl:completionHandler: returns a non-nil object. */
 - (void)testDataTaskWithUrlAndCompletionHandler {
   FPRNSURLSessionInstrument *instrument = [[FPRNSURLSessionInstrument alloc] init];
