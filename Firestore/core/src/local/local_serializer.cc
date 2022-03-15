@@ -26,11 +26,14 @@
 #include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
 #include "Firestore/Protos/nanopb/firestore/local/mutation.nanopb.h"
 #include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
+#include "Firestore/Protos/nanopb/google/firestore/admin/index.nanopb.h"
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/Protos/nanopb/google/firestore/v1/write.nanopb.h"
 #include "Firestore/core/src/bundle/bundle_metadata.h"
 #include "Firestore/core/src/bundle/named_query.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/local/target_data.h"
+#include "Firestore/core/src/model/field_path.h"
 #include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/model/mutation_batch.h"
 #include "Firestore/core/src/model/snapshot_version.h"
@@ -38,6 +41,7 @@
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_format.h"
 #include "absl/types/span.h"
 
@@ -51,11 +55,13 @@ using bundle::BundleMetadata;
 using bundle::NamedQuery;
 using core::Target;
 using model::DeepClone;
+using model::FieldPath;
 using model::FieldTransform;
 using model::MutableDocument;
 using model::Mutation;
 using model::MutationBatch;
 using model::ObjectValue;
+using model::Segment;
 using model::SnapshotVersion;
 using nanopb::ByteString;
 using nanopb::CheckedSize;
@@ -451,6 +457,101 @@ BundledQuery LocalSerializer::DecodeBundledQuery(
       rpc_serializer_.DecodeStructuredQuery(reader->context(), query.parent,
                                             query.structured_query),
       limit_type);
+}
+
+std::vector<model::Segment> LocalSerializer::DecodeFieldIndexSegments(
+    nanopb::Reader* reader, google_firestore_admin_v1_Index& index) const {
+  std::vector<model::Segment> result;
+  for (size_t i = 0; i < index.fields_count; ++i) {
+    const auto& field = index.fields[i];
+
+    util::StatusOr<FieldPath> field_path =
+        FieldPath::FromServerFormat(nanopb::MakeString(field.field_path));
+    if (!field_path.ok()) {
+      reader->Fail(
+          StringFormat("Failed to read field path for index segment: %s",
+                       nanopb::MakeString(field.field_path)));
+      return {};
+    }
+
+    Segment::Kind kind = Segment::Kind::kContains;
+    if (field.which_value_mode ==
+        google_firestore_admin_v1_Index_IndexField_order_tag) {
+      if (field.order ==
+          google_firestore_admin_v1_Index_IndexField_Order_ASCENDING) {
+        kind = Segment::Kind::kAscending;
+      } else {
+        kind = Segment::Kind::kDescending;
+      }
+    }
+
+    result.push_back({field_path.ValueOrDie(), kind});
+  }
+
+  return result;
+}
+
+nanopb::Message<google_firestore_admin_v1_Index>
+LocalSerializer::EncodeFieldIndexSegments(
+    const std::vector<model::Segment>& segments) const {
+  Message<google_firestore_admin_v1_Index> result;
+
+  result->query_scope =
+      google_firestore_admin_v1_Index_QueryScope_COLLECTION_GROUP;
+
+  // Explicitly cast the result of segments.size() to suppress compiler warnings
+  // about implicit conversion resulting in potential loss of precision.
+  const auto segments_size = static_cast<pb_size_t>(segments.size());
+  result->fields_count = segments_size;
+  result->fields =
+      MakeArray<google_firestore_admin_v1_Index_IndexField>(segments_size);
+  int i = 0;
+  for (const auto& segment : segments) {
+    google_firestore_admin_v1_Index_IndexField field;
+    field.field_path =
+        nanopb::MakeBytesArray(segment.field_path().CanonicalString());
+    switch (segment.kind()) {
+      case model::Segment::kContains: {
+        field.which_value_mode =
+            google_firestore_admin_v1_Index_IndexField_array_config_tag;
+        field.array_config =
+            google_firestore_admin_v1_Index_IndexField_ArrayConfig_CONTAINS;
+        break;
+      }
+      case model::Segment::kAscending: {
+        field.which_value_mode =
+            google_firestore_admin_v1_Index_IndexField_order_tag;
+        field.order =
+            google_firestore_admin_v1_Index_IndexField_Order_ASCENDING;
+        break;
+      }
+      case model::Segment::kDescending: {
+        field.which_value_mode =
+            google_firestore_admin_v1_Index_IndexField_order_tag;
+        field.order =
+            google_firestore_admin_v1_Index_IndexField_Order_DESCENDING;
+        break;
+      }
+      default:
+        HARD_FAIL("Unrecognized enum value from segment.kind()");
+    }
+
+    result->fields[i] = std::move(field);
+    ++i;
+  }
+
+  return result;
+}
+
+nanopb::Message<google_firestore_v1_Write> LocalSerializer::EncodeMutation(
+    const Mutation& mutation) const {
+  return Message<google_firestore_v1_Write>(
+      rpc_serializer_.EncodeMutation(mutation));
+}
+
+model::Mutation LocalSerializer::DecodeMutation(
+    nanopb::Reader* reader, google_firestore_v1_Write& proto) const {
+  return rpc_serializer_.DecodeMutation(reader->context(), proto);
 }
 
 }  // namespace local

@@ -21,6 +21,7 @@
 #include <vector>
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/immutable/sorted_set.h"
 #include "Firestore/core/src/local/document_key_reference.h"
 #include "Firestore/core/src/local/mutation_queue.h"
@@ -33,12 +34,15 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
+class MemoryIndexManager;
 class MemoryPersistence;
 class Sizer;
 
 class MemoryMutationQueue : public MutationQueue {
  public:
-  explicit MemoryMutationQueue(MemoryPersistence* persistence);
+  explicit MemoryMutationQueue(
+      MemoryPersistence* persistence,
+      const firebase::firestore::credentials::User& user);
 
   void Start() override;
 
@@ -102,8 +106,9 @@ class MemoryMutationQueue : public MutationQueue {
    */
   int IndexOfBatchId(model::BatchId batch_id);
 
-  // This instance is owned by MemoryPersistence.
+  // These instances are owned by MemoryPersistence.
   MemoryPersistence* persistence_;
+  MemoryIndexManager* index_manager_;
 
   /**
    * A FIFO queue of all mutations to apply to the backend. Mutations are added

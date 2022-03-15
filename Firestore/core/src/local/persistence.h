@@ -34,6 +34,7 @@ class User;
 namespace local {
 
 class BundleCache;
+class DocumentOverlayCache;
 class IndexManager;
 class MutationQueue;
 class ReferenceDelegate;
@@ -93,8 +94,8 @@ class Persistence {
    * extent possible (e.g. in the case of UID switching from sally=>jack=>sally,
    * sally's mutation queue will be preserved).
    */
-  virtual MutationQueue* GetMutationQueueForUser(
-      const credentials::User& user) = 0;
+  virtual MutationQueue* GetMutationQueue(const credentials::User& user,
+                                          IndexManager* index_manager) = 0;
 
   /** Returns a TargetCache representing the persisted cache of queries. */
   virtual TargetCache* target_cache() = 0;
@@ -105,13 +106,26 @@ class Persistence {
   virtual BundleCache* bundle_cache() = 0;
 
   /**
+   * Returns a DocumentOverlayCache representing the documents that are mutated
+   * locally.
+   *
+   * Note: The implementation is free to return the same instance every time
+   * this is called for a given user. In particular, the memory-backed
+   * implementation does this to emulate the persisted implementation to the
+   * extent possible (e.g. in the case of UID switching from sally=>jack=>sally,
+   * sally's document overlay cache will be preserved).
+   */
+  virtual DocumentOverlayCache* GetDocumentOverlayCache(
+      const credentials::User& user) = 0;
+
+  /**
    * Returns a RemoteDocumentCache representing the persisted cache of remote
    * documents.
    */
   virtual RemoteDocumentCache* remote_document_cache() = 0;
 
   /** Returns an IndexManager that manages our persisted query indexes. */
-  virtual IndexManager* index_manager() = 0;
+  virtual IndexManager* GetIndexManager(const credentials::User& user) = 0;
 
   /**
    * This property provides access to hooks around the document reference

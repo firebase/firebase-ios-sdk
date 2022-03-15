@@ -52,8 +52,10 @@ TEST(FieldIndexTest, ComparatorIgnoresIndexId) {
 TEST(FieldIndexTest, ComparatorIgnoresIndexState) {
   FieldIndex original = MakeFieldIndex("collA", 1, FieldIndex::InitialState());
   FieldIndex same = MakeFieldIndex("collA", 1, FieldIndex::InitialState());
-  FieldIndex different = MakeFieldIndex(
-      "collA", 1, IndexState(1, Version(2), DocumentKey::Empty()));
+  FieldIndex different =
+      MakeFieldIndex("collA", 1,
+                     IndexState(1, Version(2), DocumentKey::Empty(),
+                                IndexOffset::InitialLargestBatchId()));
   EXPECT_EQ(FieldIndex::SemanticCompare(original, same),
             ComparisonResult::Same);
   EXPECT_EQ(FieldIndex::SemanticCompare(original, different),
@@ -94,10 +96,13 @@ TEST(FieldIndexTest, ComparatorIncludesSegmentLength) {
 }
 
 TEST(FieldIndexTest, IndexOffsetCompareToWorks) {
-  IndexOffset doc_a_offset = IndexOffset(Version(1), Key("foo/a"));
-  IndexOffset doc_b_offset = IndexOffset(Version(1), Key("foo/b"));
+  IndexOffset doc_a_offset = IndexOffset(Version(1), Key("foo/a"),
+                                         IndexOffset::InitialLargestBatchId());
+  IndexOffset doc_b_offset = IndexOffset(Version(1), Key("foo/b"),
+                                         IndexOffset::InitialLargestBatchId());
   IndexOffset version_1_offset = IndexOffset::Create(Version(1));
-  IndexOffset doc_c_offset = IndexOffset(Version(2), Key("foo/c"));
+  IndexOffset doc_c_offset = IndexOffset(Version(2), Key("foo/c"),
+                                         IndexOffset::InitialLargestBatchId());
   IndexOffset version_2_offset = IndexOffset::Create(Version(2));
 
   EXPECT_EQ(doc_a_offset.CompareTo(doc_b_offset), ComparisonResult::Ascending);
@@ -115,7 +120,8 @@ TEST(FieldIndexTest, IndexOffsetAdvancesSeconds) {
   IndexOffset actual = IndexOffset::Create(
       SnapshotVersion(Timestamp(1, static_cast<int32_t>(1e9) - 1)));
   IndexOffset expected =
-      IndexOffset(SnapshotVersion(Timestamp(2, 0)), DocumentKey::Empty());
+      IndexOffset(SnapshotVersion(Timestamp(2, 0)), DocumentKey::Empty(),
+                  IndexOffset::InitialLargestBatchId());
   EXPECT_EQ(actual, expected);
 }
 

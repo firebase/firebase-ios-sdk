@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_LOCAL_LEVELDB_KEY_H_
 
 #include <string>
+#include <utility>
 
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/mutation_batch.h"
@@ -97,6 +98,49 @@ namespace local {
 // named_queries:
 //   - table_name: string = "named_queries"
 //   - name: string
+//
+// index_configuration:
+//   - table_name: string = "index_configuration"
+//   - index_id: int32_t
+//
+// index_state:
+//   - table_name: string = "index_state"
+//   - index_id: int32_t
+//   - user_id: string
+//
+// index_entries:
+//   - table_name: string = "index_entries"
+//   - index_id: int32_t
+//   - user_id: string
+//   - array_value: string
+//   - directional_value: string
+//   - document_name: string
+//
+// document_overlays:
+//   - table_name: "document_overlays"
+//   - user_id: string
+//   - document_key: ResourcePath
+//   - largest_batch_id: model::BatchId
+//
+// document_overlays_largest_batch_id_index:
+//   - table_name: "document_overlays_largest_batch_id_index"
+//   - user_id: string
+//   - largest_batch_id: model::BatchId
+//   - document_key: ResourcePath
+//
+// document_overlays_collection_index:
+//   - table_name: "document_overlays_collection_index"
+//   - user_id: string
+//   - collection: ResourcePath
+//   - largest_batch_id: model::BatchId
+//   - document_id: string
+//
+// document_overlays_collection_group_index:
+//   - table_name: "document_overlays_collection_group_index"
+//   - user_id: string
+//   - collection_group: string
+//   - largest_batch_id: model::BatchId
+//   - document_key: ResourcePath
 
 /**
  * Parses the given key and returns a human readable description of its
@@ -711,6 +755,460 @@ class LevelDbNamedQueryKey {
 
  private:
   std::string name_;
+};
+
+/**
+ * A key in the index_configuration table, storing the index definition proto,
+ * and the collection (group) it applies to.
+ */
+class LevelDbIndexConfigurationKey {
+ public:
+  /**
+   * Creates a key prefix that points just before the first key of the table.
+   */
+  static std::string KeyPrefix();
+
+  /**
+   * Creates a key that points to the key for the given index id.
+   */
+  static std::string Key(int32_t id, absl::string_view collection_group);
+
+  /**
+   * Decodes the given complete key, storing the decoded values in this
+   * instance.
+   *
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
+   */
+  ABSL_MUST_USE_RESULT
+  bool Decode(absl::string_view key);
+
+  /** The index id for this entry. */
+  int32_t index_id() const {
+    return index_id_;
+  }
+
+  /** The collection group for this index. */
+  const std::string& collection_group() const {
+    return collection_group_;
+  }
+
+ private:
+  int32_t index_id_;
+  std::string collection_group_;
+};
+
+/**
+ * A key in the index_state table, storing the per index per user state tracking
+ * backfilling state for each index.
+ */
+class LevelDbIndexStateKey {
+ public:
+  /**
+   * Creates a key prefix that points just before the first key of the table.
+   */
+  static std::string KeyPrefix();
+
+  /**
+   * Creates a key prefix that points just before the first key for a given user
+   * id.
+   */
+  static std::string KeyPrefix(absl::string_view user_id);
+
+  /**
+   * Creates a key that points to the key for the given user id and index id.
+   */
+  static std::string Key(absl::string_view user_id, int32_t index_id);
+
+  /**
+   * Decodes the given complete key, storing the decoded values in this
+   * instance.
+   *
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
+   */
+  ABSL_MUST_USE_RESULT
+  bool Decode(absl::string_view key);
+
+  /** The user id for this entry. */
+  const std::string& user_id() const {
+    return user_id_;
+  }
+
+  /** The index id for this entry. */
+  int32_t index_id() const {
+    return index_id_;
+  }
+
+ private:
+  int32_t index_id_;
+  std::string user_id_;
+};
+
+/**
+ * A key in the index_entries table, storing the the encoded entries for all
+ * fields used by a given index.
+ *
+ * Note: `array_value` is expected to be set for all queries.
+ */
+class LevelDbIndexEntryKey {
+ public:
+  /**
+   * Creates a key prefix that points just before the first key of the table.
+   */
+  static std::string KeyPrefix();
+
+  /**
+   * Creates a key prefix that points the first entry of a given index_id.
+   */
+  static std::string KeyPrefix(int32_t index_id);
+
+  /**
+   * Creates a key that points to the key for the given index entry fields.
+   */
+  static std::string Key(int32_t index_id,
+                         absl::string_view user_id,
+                         absl::string_view array_value,
+                         absl::string_view directional_value,
+                         absl::string_view document_name);
+
+  /**
+   * Decodes the given complete key, storing the decoded values in this
+   * instance.
+   *
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
+   */
+  ABSL_MUST_USE_RESULT
+  bool Decode(absl::string_view key);
+
+  /** The index id for this entry. */
+  int32_t index_id() const {
+    return index_id_;
+  }
+
+  /** The user id for this entry. */
+  const std::string& user_id() const {
+    return user_id_;
+  }
+
+  /** The encoded array index value for this entry. */
+  const std::string& array_value() const {
+    return array_value_;
+  }
+
+  /** The encoded directional index value for this entry. */
+  const std::string& directional_value() const {
+    return directional_value_;
+  }
+
+  /** The document key this entry points to. */
+  const std::string& document_key() const {
+    return document_key_;
+  }
+
+ private:
+  int32_t index_id_;
+  std::string user_id_;
+  std::string array_value_;
+  std::string directional_value_;
+  std::string document_key_;
+};
+
+/** A key in the document_overlays table. */
+class LevelDbDocumentOverlayKey {
+ public:
+  LevelDbDocumentOverlayKey() = default;
+
+  LevelDbDocumentOverlayKey(std::string user_id,
+                            model::DocumentKey document_key,
+                            model::BatchId largest_batch_id)
+      : user_id_(std::move(user_id)),
+        document_key_(std::move(document_key)),
+        largest_batch_id_(largest_batch_id) {
+  }
+
+  /**
+   * Creates a key prefix that points just before the first key for the given
+   * user_id.
+   */
+  static std::string KeyPrefix(absl::string_view user_id);
+
+  /**
+   * Creates a key prefix that points just before the first key for the given
+   * user_id and document key.
+   */
+  static std::string KeyPrefix(absl::string_view user_id,
+                               const model::DocumentKey& document_key);
+
+  /**
+   * Creates a complete key that points to a specific user_id, document key, and
+   * largest batch ID.
+   */
+  static std::string Key(absl::string_view user_id,
+                         const model::DocumentKey& document_key,
+                         model::BatchId largest_batch_id);
+
+  /**
+   * Decodes the given complete key, storing the decoded values in this
+   * instance.
+   *
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
+   */
+  ABSL_MUST_USE_RESULT
+  bool Decode(absl::string_view key);
+
+  /** Encodes the key from this object's instance variables, and returns it. */
+  std::string Encode() const {
+    return Key(user_id_, document_key_, largest_batch_id_);
+  }
+
+  /** The user ID, as encoded in the key. */
+  const std::string& user_id() const {
+    return user_id_;
+  }
+
+  /** The path to the document, as encoded in the key. */
+  const model::DocumentKey& document_key() const& {
+    return document_key_;
+  }
+
+  // Overload document_key() to avoid copies if invoked on an rvalue reference.
+  model::DocumentKey&& document_key() && {
+    return std::move(document_key_);
+  }
+
+  /** The largest batch ID, as encoded in the key. */
+  model::BatchId largest_batch_id() const {
+    return largest_batch_id_;
+  }
+
+ private:
+  std::string user_id_;
+  model::DocumentKey document_key_;
+  model::BatchId largest_batch_id_ = -1;
+};
+
+/** A base class for an index key in the document_overlays table. */
+class LevelDbDocumentOverlayIndexKey {
+ public:
+  virtual ~LevelDbDocumentOverlayIndexKey() = default;
+
+  /**
+   * Creates and returns the `LevelDbDocumentOverlayKey` to which this index
+   * entry refers.
+   */
+  LevelDbDocumentOverlayKey ToLevelDbDocumentOverlayKey() const& {
+    return LevelDbDocumentOverlayKey(user_id_, document_key_,
+                                     largest_batch_id_);
+  }
+
+  // Overload `ToLevelDbDocumentOverlayKey()` to avoid copies if invoked on
+  // an rvalue reference.
+  LevelDbDocumentOverlayKey ToLevelDbDocumentOverlayKey() && {
+    return LevelDbDocumentOverlayKey(
+        std::move(user_id_), std::move(document_key_), largest_batch_id_);
+  }
+
+  /** The user ID, as encoded in the key. */
+  const std::string& user_id() const {
+    return user_id_;
+  }
+
+  /** The largest_batch_id_, as encoded in the key. */
+  model::BatchId largest_batch_id() const {
+    return largest_batch_id_;
+  }
+
+  /**
+   * The key in the document_overlays table to which this index entry points,
+   * as encoded in the key.
+   */
+  const model::DocumentKey& document_key() const {
+    return document_key_;
+  }
+
+  /** Sets the values of this object's instance variables. */
+  void Reset(std::string&& user_id,
+             model::BatchId largest_batch_id,
+             model::DocumentKey&& document_key) {
+    user_id_ = std::move(user_id);
+    largest_batch_id_ = largest_batch_id;
+    document_key_ = std::move(document_key);
+  }
+
+ private:
+  std::string user_id_;
+  model::BatchId largest_batch_id_ = -1;
+  model::DocumentKey document_key_;
+};
+
+/** A key in the "largest_batch_id" index of the document_overlays table. */
+class LevelDbDocumentOverlayLargestBatchIdIndexKey
+    : public LevelDbDocumentOverlayIndexKey {
+ public:
+  /**
+   * Creates a key prefix that points just before the first key for the given
+   * user_id.
+   */
+  static std::string KeyPrefix(absl::string_view user_id);
+
+  /**
+   * Creates a key prefix that points just before the first key for the given
+   * user_id and largest_batch_id.
+   */
+  static std::string KeyPrefix(absl::string_view user_id,
+                               model::BatchId largest_batch_id);
+
+  /**
+   * Creates a complete key that points to a specific user_id and
+   * largest_batch_id for a given document key.
+   */
+  static std::string Key(absl::string_view user_id,
+                         model::BatchId largest_batch_id,
+                         const model::DocumentKey& document_key);
+
+  /**
+   * Creates a complete key that points to a specific key in the overlays table.
+   */
+  static std::string Key(const LevelDbDocumentOverlayKey& key) {
+    return Key(key.user_id(), key.largest_batch_id(), key.document_key());
+  }
+
+  /**
+   * Decodes the given complete key, storing the decoded values in this
+   * instance.
+   *
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
+   */
+  ABSL_MUST_USE_RESULT
+  bool Decode(absl::string_view key);
+};
+
+/** A key in the "collection" index of the document_overlays table. */
+class LevelDbDocumentOverlayCollectionIndexKey
+    : public LevelDbDocumentOverlayIndexKey {
+ public:
+  /**
+   * Creates a key prefix that points just before the first key for the given
+   * user_id.
+   */
+  static std::string KeyPrefix(absl::string_view user_id);
+
+  /**
+   * Creates a key prefix that points just before the first key for the given
+   * user_id, collection.
+   */
+  static std::string KeyPrefix(absl::string_view user_id,
+                               const model::ResourcePath& collection);
+
+  /**
+   * Creates a key prefix that points just before the first key for the given
+   * user_id, collection, and largest_batch_id.
+   */
+  static std::string KeyPrefix(absl::string_view user_id,
+                               const model::ResourcePath& collection,
+                               model::BatchId largest_batch_id);
+
+  /**
+   * Creates a complete key that points to a specific user_id, collection, and
+   * largest_batch_id for a given key in the document_overlays table.
+   */
+  static std::string Key(absl::string_view user_id,
+                         const model::ResourcePath& collection,
+                         model::BatchId largest_batch_id,
+                         absl::string_view document_id);
+
+  /**
+   * Creates a complete key that points to a specific key in the overlays table.
+   */
+  static std::string Key(const LevelDbDocumentOverlayKey& key) {
+    return Key(key.user_id(), key.document_key().path().PopLast(),
+               key.largest_batch_id(),
+               key.document_key().path().last_segment());
+  }
+
+  /**
+   * Decodes the given complete key, storing the decoded values in this
+   * instance.
+   *
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
+   */
+  ABSL_MUST_USE_RESULT
+  bool Decode(absl::string_view key);
+
+  /** The collection, as encoded in the key. */
+  model::ResourcePath collection() const {
+    return document_key().path().PopLast();
+  }
+};
+
+/** A key in the "collection group" index of the document_overlays table. */
+class LevelDbDocumentOverlayCollectionGroupIndexKey
+    : public LevelDbDocumentOverlayIndexKey {
+ public:
+  /**
+   * Creates a key prefix that points just before the first key for the given
+   * user_id.
+   */
+  static std::string KeyPrefix(absl::string_view user_id);
+
+  /**
+   * Creates a key prefix that points just before the first key for the given
+   * user_id, collection group.
+   */
+  static std::string KeyPrefix(absl::string_view user_id,
+                               absl::string_view collection_group);
+
+  /**
+   * Creates a key prefix that points just before the first key for the given
+   * user_id, collection group, and largest_batch_id.
+   */
+  static std::string KeyPrefix(absl::string_view user_id,
+                               absl::string_view collection_group,
+                               model::BatchId largest_batch_id);
+
+  /**
+   * Creates a complete key that points to a specific user_id, collection group,
+   * and largest_batch_id for a given key in the document_overlays table.
+   */
+  static std::string Key(absl::string_view user_id,
+                         absl::string_view collection_group,
+                         model::BatchId largest_batch_id,
+                         const model::DocumentKey& document_key);
+
+  /**
+   * Creates a complete key that points to a specific key in the overlays table.
+   */
+  static std::string Key(const LevelDbDocumentOverlayKey& key);
+
+  /**
+   * Decodes the given complete key, storing the decoded values in this
+   * instance.
+   *
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
+   */
+  ABSL_MUST_USE_RESULT
+  bool Decode(absl::string_view key);
+
+  /** The collection_group, as encoded in the key. */
+  const std::string& collection_group() const {
+    return collection_group_;
+  }
+
+ private:
+  std::string collection_group_;
 };
 
 }  // namespace local

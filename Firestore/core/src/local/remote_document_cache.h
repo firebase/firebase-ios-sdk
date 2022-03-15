@@ -28,6 +28,8 @@ class Query;
 
 namespace local {
 
+class IndexManager;
+
 /**
  * Represents cached documents received from the remote backend.
  *
@@ -90,6 +92,13 @@ class RemoteDocumentCache {
   virtual model::MutableDocumentMap GetMatching(
       const core::Query& query,
       const model::SnapshotVersion& since_read_time) = 0;
+
+  /**
+   * Sets the index manager used by remote document cache.
+   *
+   * @param manager A pointer to an `IndexManager` owned by `Persistence`.
+   */
+  virtual void SetIndexManager(IndexManager* manager) = 0;
 };
 
 }  // namespace local

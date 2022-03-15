@@ -38,7 +38,7 @@ public extension Firestore {
     ///             decoded.
     /// - Returns: An instance of specified type by the first parameter.
     public func decode<T: Decodable>(_: T.Type,
-                                     from container: [String: Any],
+                                     from container: Any,
                                      in document: DocumentReference? = nil) throws -> T {
       let decoder = _FirestoreDecoder(referencing: container)
       if let doc = document {

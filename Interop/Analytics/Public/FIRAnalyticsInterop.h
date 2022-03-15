@@ -20,10 +20,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// Block typedef callback parameter to getUserPropertiesWithCallback:.
+/// Block typedef callback parameter to `getUserProperties(with:)`.
 typedef void (^FIRAInteropUserPropertiesCallback)(NSDictionary<NSString *, id> *userProperties);
 
-/// Connector for bridging communication between Firebase SDKs and FirebaseAnalytics API.
+/// Connector for bridging communication between Firebase SDKs and FirebaseAnalytics APIs.
 @protocol FIRAnalyticsInterop
 
 /// Sets user property when trigger event is logged. This API is only available in the SDK.

@@ -80,8 +80,20 @@ class IndexOffset : public util::Comparable<IndexOffset> {
    * Creates an offset that matches all documents with a read time higher than
    * `read_time` or with a key higher than `key` for equal read times.
    */
-  IndexOffset(SnapshotVersion read_time, DocumentKey key)
-      : read_time_(std::move(read_time)), document_key_(std::move(key)) {
+  IndexOffset(SnapshotVersion read_time,
+              DocumentKey key,
+              model::BatchId largest_batch_id)
+      : read_time_(std::move(read_time)),
+        document_key_(std::move(key)),
+        largest_batch_id_(largest_batch_id) {
+  }
+
+  /**
+   * The initial mutation batch id for each index. Gets updated during index
+   * backfill.
+   */
+  static constexpr model::BatchId InitialLargestBatchId() {
+    return -1;
   }
 
   static IndexOffset None();
@@ -95,8 +107,8 @@ class IndexOffset : public util::Comparable<IndexOffset> {
   /** Creates a new offset based on the provided document. */
   static IndexOffset FromDocument(const Document& document);
 
-  static util::ComparisonResult DocumentCompare(const Document& a,
-                                                const Document& b);
+  static util::ComparisonResult DocumentCompare(const Document& lhs,
+                                                const Document& rhs);
 
   /**
    * Returns the latest read time version that has been indexed by Firestore for
@@ -114,11 +126,20 @@ class IndexOffset : public util::Comparable<IndexOffset> {
     return document_key_;
   }
 
+  /**
+   * Returns the largest mutation batch id that's been processed by index
+   * backfilling.
+   */
+  model::BatchId largest_batch_id() const {
+    return largest_batch_id_;
+  }
+
   util::ComparisonResult CompareTo(const IndexOffset& rhs) const;
 
  private:
   SnapshotVersion read_time_;
   DocumentKey document_key_;
+  model::BatchId largest_batch_id_;
 };
 
 /**
@@ -127,14 +148,28 @@ class IndexOffset : public util::Comparable<IndexOffset> {
  */
 class IndexState {
  public:
+  /**
+   * The initial sequence number for each index. Gets updated during index
+   * backfill.
+   */
+  constexpr static ListenSequenceNumber InitialSequenceNumber() {
+    return 0;
+  }
+
+  IndexState()
+      : sequence_number_(InitialSequenceNumber()),
+        index_offset_(IndexOffset::None()) {
+  }
+
   IndexState(ListenSequenceNumber sequence_number, IndexOffset offset)
       : sequence_number_(sequence_number), index_offset_(std::move(offset)) {
   }
   IndexState(ListenSequenceNumber sequence_number,
              SnapshotVersion read_time,
-             DocumentKey key)
+             DocumentKey key,
+             model::BatchId largest_batch_id)
       : sequence_number_(sequence_number),
-        index_offset_(std::move(read_time), std::move(key)) {
+        index_offset_(std::move(read_time), std::move(key), largest_batch_id) {
   }
 
   /**
@@ -174,17 +209,10 @@ class FieldIndex {
     return -1;
   }
 
-  /**
-   * The initial sequence number for each index. Gets updated during index
-   * backfill.
-   */
-  constexpr static ListenSequenceNumber InitialSequenceNumber() {
-    return 0;
-  }
-
   /** The state of an index that has not yet been backfilled. */
   static IndexState InitialState() {
-    static const IndexState kNone(InitialSequenceNumber(), IndexOffset::None());
+    static const IndexState kNone(IndexState::InitialSequenceNumber(),
+                                  IndexOffset::None());
     return kNone;
   }
 
@@ -194,6 +222,9 @@ class FieldIndex {
    */
   static util::ComparisonResult SemanticCompare(const FieldIndex& left,
                                                 const FieldIndex& right);
+
+  FieldIndex() : index_id_(UnknownId()) {
+  }
 
   FieldIndex(int32_t index_id,
              std::string collection_group,

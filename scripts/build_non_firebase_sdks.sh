@@ -30,7 +30,9 @@ do
   if [ ${sdk} == "FirebaseFirestoreSwift" ]; then
     echo "{\"name\":\"FirebaseFirestoreSwift\", \"version\" : \"> 8.2-beta\"}" >>  "${ZIP_POD_JSON}"
   elif [ ${sdk} == "FirebaseStorageSwift" ]; then
-    echo "{\"name\":\"FirebaseStorageSwift\", \"version\" : \"> 8.2-beta\"}" >>  "${ZIP_POD_JSON}"
+    echo "{\"name\":\"FirebaseStorageSwift\", \"version\" : \"> 8.12-beta\"}" >>  "${ZIP_POD_JSON}"
+  elif [ ${sdk} == "FirebaseRemoteConfigSwift" ]; then
+    echo "{\"name\":\"FirebaseRemoteConfigSwift\", \"version\" : \"> 8.12-beta\"}" >>  "${ZIP_POD_JSON}"
   else
     echo "{\"name\":\"${sdk}\"}" >>  "${ZIP_POD_JSON}"
   fi

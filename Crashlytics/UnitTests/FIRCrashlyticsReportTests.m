@@ -106,6 +106,29 @@
   XCTAssertEqualObjects(entries[0][@"kv"][@"value"], FIRCLSFileHexEncodeString("12345-6"), @"");
 }
 
+- (void)testClearUserID {
+  FIRCrashlyticsReport *report = [self createTempCopyOfReportWithName:@"metadata_only_report"];
+
+  // Add a user ID
+  [report setUserID:@"12345-6"];
+  NSArray *entries = FIRCLSFileReadSections(
+      [[report.internalReport pathForContentFile:FIRCLSReportInternalIncrementalKVFile]
+          fileSystemRepresentation],
+      false, nil);
+
+  XCTAssertEqual([entries count], 1, @"");
+
+  // Now remove it
+  [report setUserID:nil];
+
+  entries = FIRCLSFileReadSections(
+      [[report.internalReport pathForContentFile:FIRCLSReportInternalCompactedKVFile]
+          fileSystemRepresentation],
+      false, nil);
+
+  XCTAssertEqual([entries count], 0, @"");
+}
+
 - (void)testCustomKeysNoExisting {
   FIRCrashlyticsReport *report = [self createTempCopyOfReportWithName:@"metadata_only_report"];
 
@@ -166,6 +189,45 @@
 
   XCTAssertEqualObjects(entries[4][@"kv"][@"key"], FIRCLSFileHexEncodeString("test_number"), @"");
   XCTAssertEqualObjects(entries[4][@"kv"][@"value"], FIRCLSFileHexEncodeString("10"), @"");
+}
+
+- (void)testClearCustomKeys {
+  FIRCrashlyticsReport *report = [self createTempCopyOfReportWithName:@"metadata_only_report"];
+
+  // Add keys
+  [report setCustomValue:@"hello" forKey:@"mykey"];
+  [report setCustomValue:@"goodbye" forKey:@"anotherkey"];
+
+  [report setCustomKeysAndValues:@{
+    @"is_test" : @(YES),
+    @"test_number" : @(10),
+  }];
+
+  NSArray *entries = FIRCLSFileReadSections(
+      [[report.internalReport pathForContentFile:FIRCLSReportUserIncrementalKVFile]
+          fileSystemRepresentation],
+      false, nil);
+
+  XCTAssertEqual([entries count], 4, @"");
+
+  // Now remove them
+  [report setCustomValue:nil forKey:@"mykey"];
+  [report setCustomValue:nil forKey:@"anotherkey"];
+  entries = FIRCLSFileReadSections(
+      [[report.internalReport pathForContentFile:FIRCLSReportUserIncrementalKVFile]
+          fileSystemRepresentation],
+      false, nil);
+  [report setCustomKeysAndValues:@{
+    @"is_test" : [NSNull null],
+    @"test_number" : [NSNull null],
+  }];
+
+  entries = FIRCLSFileReadSections(
+      [[report.internalReport pathForContentFile:FIRCLSReportInternalCompactedKVFile]
+          fileSystemRepresentation],
+      false, nil);
+
+  XCTAssertEqual([entries count], 0, @"");
 }
 
 - (void)testCustomKeysLimits {

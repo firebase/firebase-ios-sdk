@@ -9,6 +9,8 @@ on:
 
 jobs:
   check:
+    # Don't run on private repo.
+    if: github.repository == 'Firebase/firebase-ios-sdk'
     runs-on: macos-11
     env:
       MINT_PATH: ${{ github.workspace }}/mint

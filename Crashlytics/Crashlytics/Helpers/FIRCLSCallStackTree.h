@@ -23,7 +23,7 @@
 #import <MetricKit/MetricKit.h>
 
 /*
- * Helper class for parsing the MXCallStackTree that we receive from MetricKit. Flattens the
+ * Helper class for parsing the `MXCallStackTree` that we receive from MetricKit. Flattens the
  * nested structure into a structure similar to what is used in Crashlytics.
  */
 @interface FIRCLSCallStackTree : NSObject
