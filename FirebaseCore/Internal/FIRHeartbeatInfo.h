@@ -18,6 +18,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRHeartbeatInfo : NSObject
 
+// TODO: Remove this class in future PRs (it will be replaced by `FIRHeartbeatLogger`).
+
 // Enum representing the different heartbeat codes.
 typedef NS_ENUM(NSInteger, FIRHeartbeatInfoCode) {
   FIRHeartbeatInfoCodeNone = 0,
