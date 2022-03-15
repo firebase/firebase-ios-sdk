@@ -17,7 +17,7 @@ tasks for additional Swift improvements.
 | **SwiftUI Lifecycle** |  ❌    | n/a    | n/a   | ❌     | n/a    |n/a     | n/a     | ❌    | n/a    | n/a     | n/a    | n/a    | ❌     | n/a    | ❌     | n/a   |n/a  |
 | **SwiftUI Interop**   |   ✔    | n/a    | ❌    | ❌     | n/a     |❌      | ❌      | n/a    | ✔     | n/a     | ✔      | n/a   | n/a     | n/a    | ❌     | n/a   |n/a  |
 | **Property Wrappers** |  ❌    | ❌     |❌     | ❌     | ❌     | ❌     | ❌      | ❌     | 6     | ❌     | ❌     | ❌    | ❌     | ❌    | ❌     | ❌   |❌    |
-| **Swift Doc Scrub**   |  ❌    | ❌     |❌     | ❌     | ❌     | ✔     | ❌      | ❌     |  ❌   | ❌     | ❌     | ❌    | ❌     | ❌    | ❌     | ❌   |❌    |
+| **Swift Doc Scrub**   |  ❌    | ❌     |❌     | ❌     | ✔      | ✔     | ❌      | ❌     |  ❌   | ❌     | ❌     | ❌    | ❌     | ❌    | ❌     | ❌   |❌    |
 
 ### Other Projects
 - Tooling to surface full list of automatically generated Swift API from Objective C and validate.
