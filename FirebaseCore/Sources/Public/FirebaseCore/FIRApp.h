@@ -93,7 +93,7 @@ NS_SWIFT_NAME(FirebaseApp)
 @property(class, readonly, nullable) NSDictionary<NSString *, FIRApp *> *allApps;
 
 /**
- * Cleans up the current `FirebaseApp``, freeing associated data and returning its name to the pool
+ * Cleans up the current `FirebaseApp`, freeing associated data and returning its name to the pool
  * for future use. This method is thread safe.
  */
 - (void)deleteApp:(FIRAppVoidBoolCallback)completion;
