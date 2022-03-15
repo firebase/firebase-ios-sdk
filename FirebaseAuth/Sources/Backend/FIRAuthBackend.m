@@ -93,6 +93,21 @@ static NSString *const kFirebaseLocalHeader = @"X-Firebase-Locale";
  */
 static NSString *const kFirebaseAppIDHeader = @"X-Firebase-GMPID";
 
+/** @var kFirebaseUserAgentHeader
+    @brief HTTP header name for the Firebase user agent.
+ */
+static NSString *const kFirebaseUserAgentHeader = @"X-Firebase-Client";
+
+/** @var kFirebaseHeartbeatHeader
+    @brief HTTP header name for the Firebase heartbeat.
+ */
+static NSString *const kFirebaseHeartbeatHeader = @"X-Firebase-Client-Log-Type";
+
+/** @var kHeartbeatStorageTag
+    @brief Storage tag for the Firebase Auth heartbeat.
+ */
+static NSString *const kHeartbeatStorageTag = @"fire-auth";
+
 /** @var kFirebaseAuthCoreFrameworkMarker
     @brief The marker in the HTTP header that indicates the request comes from Firebase Auth Core.
  */
@@ -647,6 +662,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [request setValue:bundleID forHTTPHeaderField:kIosBundleIdentifierHeader];
   NSString *appID = requestConfiguration.appID;
   [request setValue:appID forHTTPHeaderField:kFirebaseAppIDHeader];
+  NSString *userAgent = [FIRApp firebaseUserAgent];
+  [request setValue:userAgent forHTTPHeaderField:kFirebaseUserAgentHeader];
+  NSString *heartbeat = @([FIRHeartbeatInfo heartbeatCodeForTag:kHeartbeatStorageTag]).stringValue;
+  [request setValue:heartbeat forHTTPHeaderField:kFirebaseHeartbeatHeader];
 
   NSArray<NSString *> *preferredLocalizations = [NSBundle mainBundle].preferredLocalizations;
   if (preferredLocalizations.count) {
