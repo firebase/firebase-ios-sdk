@@ -1,4 +1,4 @@
-# Pending
+# Version 8.14.0
 * [fixed] Record the request payload size for POST/PUT requests.
 
 # Version 8.13.0
