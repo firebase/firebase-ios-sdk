@@ -32,7 +32,7 @@
         "tvos": "12.0"
     },
     "source": {
-        "http": "https://dl.google.com/firebase/ios/analytics/f0f626c062170be7/FirebaseAnalytics-8.12.0.tar.gz"
+        "http": "https://dl.google.com/firebase/ios/analytics/52eebd4fc62b3d8c/FirebaseAnalytics-8.14.0.tar.gz"
     },
     "subspecs": [
         {
