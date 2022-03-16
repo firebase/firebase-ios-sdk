@@ -35,6 +35,10 @@ public extension CollectionReference {
                                  encoder: Firestore.Encoder = Firestore.Encoder(),
                                  completion: ((Error?) -> Void)? = nil) throws
     -> DocumentReference {
-    return addDocument(data: try encoder.encode(value), completion: completion)
+    let encoded = try encoder.encode(value)
+    guard let dictionaryValue = encoded as? [String: Any] else {
+      throw FirestoreEncodingError.topLevelTypesAreNotSupported
+    }
+    return addDocument(data: dictionaryValue, completion: completion)
   }
 }

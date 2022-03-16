@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-import Foundation
-import FirebaseSharedSwift
 import FirebaseFirestore
+import Foundation
 
-internal struct FirestorePassthroughTypes: StructureCodingPassthroughTypeResolver {
-  static func isPassthroughType<T>(_ t: T) -> Bool {
-    return
-      T.self == GeoPoint.self ||
-      T.self == Timestamp.self ||
-      T.self == FieldValue.self ||
-      T.self == DocumentReference.self
+extension Firestore.Encoder.DateEncodingStrategy {
+  /// Encode the `Date` as a Firestore `Timestamp`.
+  public static var timestamp: Firestore.Encoder.DateEncodingStrategy {
+    return .custom { date, encoder in
+      var container = encoder.singleValueContainer()
+      try container.encode(Timestamp(date: date))
+    }
   }
 }

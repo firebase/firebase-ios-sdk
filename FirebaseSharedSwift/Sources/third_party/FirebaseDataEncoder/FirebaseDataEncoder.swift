@@ -14,6 +14,16 @@
 
 import Foundation
 
+public protocol StructureCodingPassthroughTypeResolver {
+    static func isPassthroughType<T>(_ t: T) -> Bool
+}
+
+private struct NoPassthroughTypes: StructureCodingPassthroughTypeResolver {
+    static func isPassthroughType<T>(_ t: T) -> Bool {
+        false
+    }
+}
+
 extension DecodingError {
   /// Returns a `.typeMismatch` error describing the expected type.
   ///
@@ -233,6 +243,9 @@ public class FirebaseDataEncoder {
   /// The strategy to use for encoding keys. Defaults to `.useDefaultKeys`.
   open var keyEncodingStrategy: KeyEncodingStrategy = .useDefaultKeys
 
+  /// A type that can resolve which types to 'pass through' - or leave alone while encoding. Defaults to not passing any types through.
+  open var passthroughTypeResolver: StructureCodingPassthroughTypeResolver.Type = NoPassthroughTypes.self
+
   /// Contextual user-provided information for use during encoding.
   open var userInfo: [CodingUserInfoKey : Any] = [:]
 
@@ -242,6 +255,7 @@ public class FirebaseDataEncoder {
     let dataEncodingStrategy: DataEncodingStrategy
     let nonConformingFloatEncodingStrategy: NonConformingFloatEncodingStrategy
     let keyEncodingStrategy: KeyEncodingStrategy
+    let passthroughTypeResolver: StructureCodingPassthroughTypeResolver.Type
     let userInfo: [CodingUserInfoKey : Any]
   }
 
@@ -251,6 +265,7 @@ public class FirebaseDataEncoder {
                     dataEncodingStrategy: dataEncodingStrategy,
                     nonConformingFloatEncodingStrategy: nonConformingFloatEncodingStrategy,
                     keyEncodingStrategy: keyEncodingStrategy,
+                    passthroughTypeResolver: passthroughTypeResolver,
                     userInfo: userInfo)
   }
 
@@ -928,6 +943,8 @@ extension __JSONEncoder {
       return (value as! NSDecimalNumber)
     } else if value is _JSONStringDictionaryEncodableMarker {
       return try self.box(value as! [String : Encodable])
+    } else if let object = value as? NSObject, self.options.passthroughTypeResolver.isPassthroughType(value) {
+      return object
     }
 
     // The value should request a container from the __JSONEncoder.
@@ -1166,6 +1183,9 @@ public class FirebaseDataDecoder {
   /// The strategy to use for decoding keys. Defaults to `.useDefaultKeys`.
   open var keyDecodingStrategy: KeyDecodingStrategy = .useDefaultKeys
 
+  /// A type that can resolve which types to 'pass through' - or leave alone while decoding. Defaults to not passing any types through.
+  open var passthroughTypeResolver: StructureCodingPassthroughTypeResolver.Type = NoPassthroughTypes.self
+
   /// Contextual user-provided information for use during decoding.
   open var userInfo: [CodingUserInfoKey : Any] = [:]
 
@@ -1175,6 +1195,7 @@ public class FirebaseDataDecoder {
     let dataDecodingStrategy: DataDecodingStrategy
     let nonConformingFloatDecodingStrategy: NonConformingFloatDecodingStrategy
     let keyDecodingStrategy: KeyDecodingStrategy
+    let passthroughTypeResolver: StructureCodingPassthroughTypeResolver.Type
     let userInfo: [CodingUserInfoKey : Any]
   }
 
@@ -1184,6 +1205,7 @@ public class FirebaseDataDecoder {
                     dataDecodingStrategy: dataDecodingStrategy,
                     nonConformingFloatDecodingStrategy: nonConformingFloatDecodingStrategy,
                     keyDecodingStrategy: keyDecodingStrategy,
+                    passthroughTypeResolver: passthroughTypeResolver,
                     userInfo: userInfo)
   }
 
@@ -2510,6 +2532,9 @@ extension __JSONDecoder {
     } else {
       self.storage.push(container: value)
       defer { self.storage.popContainer() }
+      if self.options.passthroughTypeResolver.isPassthroughType(value) {
+        return value
+      }
       return try type.init(from: self)
     }
   }
