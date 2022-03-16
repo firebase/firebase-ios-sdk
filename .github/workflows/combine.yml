@@ -22,7 +22,6 @@ on:
 
     # Podspecs
     - 'FirebaseCombineSwift.podspec'
-    - 'FirebaseFunctionsTestingSupport.podspec'
 
     # This workflow
     - '.github/workflows/combine.yml'

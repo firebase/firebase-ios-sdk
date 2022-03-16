@@ -43,11 +43,25 @@ using credentials::User;
 using model::DocumentKey;
 using model::Mutation;
 using model::ResourcePath;
+using model::mutation::Overlay;
 using ::testing::UnorderedElementsAreArray;
 using testutil::DeleteMutation;
 using testutil::Map;
 using testutil::PatchMutation;
 using testutil::SetMutation;
+
+// A friend class of `DocumentOverlayCache` that can access private members.
+// This class is intentionally kept separate from `DocumentOverlayCacheTestBase`
+// and `DocumentOverlayCacheTest` to avoid accidentally accessing private
+// members of `DocumentOverlayCache` in tests.
+class DocumentOverlayCacheTestHelper final {
+ public:
+  DocumentOverlayCacheTestHelper() = delete;
+
+  static int GetOverlayCount(const DocumentOverlayCache& instance) {
+    return instance.GetOverlayCount();
+  }
+};
 
 DocumentOverlayCacheTestBase::DocumentOverlayCacheTestBase(
     std::unique_ptr<Persistence> persistence)
@@ -74,6 +88,28 @@ void DocumentOverlayCacheTestBase::SaveOverlaysWithSetMutations(
     data.insert({document_key, SetMutation(key, Map())});
   }
   this->cache_->SaveOverlays(largest_batch_id, data);
+}
+
+void DocumentOverlayCacheTestBase::ExpectCacheContainsOverlaysFor(
+    const std::vector<std::string>& keys) {
+  for (const std::string& key : keys) {
+    SCOPED_TRACE(absl::StrCat("key=", key));
+    const DocumentKey document_key = DocumentKey::FromPathString(key);
+    EXPECT_TRUE(this->cache_->GetOverlay(document_key));
+  }
+}
+
+void DocumentOverlayCacheTestBase::ExpectCacheDoesNotContainOverlaysFor(
+    const std::vector<std::string>& keys) {
+  for (const std::string& key : keys) {
+    SCOPED_TRACE(absl::StrCat("key=", key));
+    const DocumentKey document_key = DocumentKey::FromPathString(key);
+    EXPECT_FALSE(this->cache_->GetOverlay(document_key));
+  }
+}
+
+int DocumentOverlayCacheTestBase::GetOverlayCount() const {
+  return DocumentOverlayCacheTestHelper::GetOverlayCount(*cache_);
 }
 
 DocumentOverlayCacheTest::DocumentOverlayCacheTest()
@@ -194,10 +230,12 @@ TEST_P(DocumentOverlayCacheTest, DeleteRepeatedlyWorks) {
     this->cache_->RemoveOverlaysForBatchId(2);
     EXPECT_FALSE(
         this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1")));
+    EXPECT_EQ(this->GetOverlayCount(), 0);
 
     this->cache_->RemoveOverlaysForBatchId(2);
     EXPECT_FALSE(
         this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc1")));
+    EXPECT_EQ(this->GetOverlayCount(), 0);
   });
 }
 
@@ -211,10 +249,31 @@ TEST_P(DocumentOverlayCacheTest, GetAllOverlaysForCollection) {
     Mutation m5 = SetMutation("other/doc1", Map("foo", "bar"));
     this->SaveOverlaysWithMutations(3, {m1, m2, m3, m4, m5});
 
-    const auto overlays = this->cache_->GetOverlays(ResourcePath{"coll"}, -1);
+    {
+      SCOPED_TRACE("verify collection overlay");
+      const auto overlays = this->cache_->GetOverlays(ResourcePath{"coll"}, -1);
+      VerifyOverlayContains(overlays, {"coll/doc1", "coll/doc2", "coll/doc3"});
+    }
 
-    SCOPED_TRACE("verify overlay");
-    VerifyOverlayContains(overlays, {"coll/doc1", "coll/doc2", "coll/doc3"});
+    {
+      SCOPED_TRACE("verify subcollection overlay");
+      const auto overlays =
+          this->cache_->GetOverlays(ResourcePath{"coll", "doc1", "sub"}, -1);
+      VerifyOverlayContains(overlays, {"coll/doc1/sub/sub_doc"});
+    }
+
+    {
+      SCOPED_TRACE("verify no incorrect matches of collection name prefixes 1");
+      const auto overlays =
+          this->cache_->GetOverlays(ResourcePath{"collZZZ"}, -1);
+      VerifyOverlayContains(overlays, {});
+    }
+
+    {
+      SCOPED_TRACE("verify no incorrect matches of collection name prefixes 2");
+      const auto overlays = this->cache_->GetOverlays(ResourcePath{"c"}, -1);
+      VerifyOverlayContains(overlays, {});
+    }
   });
 }
 
@@ -304,6 +363,72 @@ TEST_P(DocumentOverlayCacheTest, UpdateDocumentOverlay) {
     this->cache_->RemoveOverlaysForBatchId(2);
     EXPECT_FALSE(
         this->cache_->GetOverlay(DocumentKey::FromPathString("coll/doc")));
+    EXPECT_EQ(this->GetOverlayCount(), 0);
+  });
+}
+
+TEST_P(DocumentOverlayCacheTest, OverwriteEntryUpdatesIndexes) {
+  this->persistence_->Run("Test", [&] {
+    Mutation mutation1 = PatchMutation("coll/doc1", Map("foo", "bar"));
+    this->SaveOverlaysWithMutations(100, {mutation1});
+    Mutation mutation2 = PatchMutation("coll/doc1", Map("biz", "baz"));
+    this->SaveOverlaysWithMutations(101, {mutation2});
+    const DocumentKey document_key = mutation1.key();
+
+    ASSERT_EQ(this->cache_->GetOverlay(document_key), Overlay(101, mutation2));
+    this->cache_->RemoveOverlaysForBatchId(101);
+    ASSERT_FALSE(this->cache_->GetOverlay(document_key));
+
+    // Add a new overlay for the same document and ensure that removing the
+    // original batch ID with which it was associated has no effects. This
+    // verifies that overwriting an overlay in the database removes the old
+    // index entry (something I had forgotten in my initial implementation).
+    Mutation mutation3 = PatchMutation("coll/doc1", Map("xxx", "yyy"));
+    this->SaveOverlaysWithMutations(200, {mutation3});
+    this->cache_->RemoveOverlaysForBatchId(100);
+    ASSERT_EQ(this->cache_->GetOverlay(document_key), Overlay(200, mutation3));
+    EXPECT_EQ(this->GetOverlayCount(), 1);
+  });
+}
+
+TEST_P(DocumentOverlayCacheTest, RemoveOverlaysUntilEmpty) {
+  this->persistence_->Run("Test", [&] {
+    Mutation mutation1a = PatchMutation("coll/doc1a", Map("foo", "bar"));
+    Mutation mutation1b = PatchMutation("coll/doc1b", Map("foo", "bar"));
+    this->SaveOverlaysWithMutations(1, {mutation1a, mutation1b});
+    Mutation mutation2a = PatchMutation("coll/doc2a", Map("foo", "bar"));
+    Mutation mutation2b = PatchMutation("coll/doc2b", Map("foo", "bar"));
+    this->SaveOverlaysWithMutations(2, {mutation2a, mutation2b});
+    Mutation mutation3a = PatchMutation("coll/doc3a", Map("foo", "bar"));
+    Mutation mutation3b = PatchMutation("coll/doc3b", Map("foo", "bar"));
+    this->SaveOverlaysWithMutations(3, {mutation3a, mutation3b});
+
+    {
+      SCOPED_TRACE("RemoveOverlaysForBatchId(2)");
+      this->cache_->RemoveOverlaysForBatchId(2);
+      this->ExpectCacheContainsOverlaysFor(
+          {"coll/doc1a", "coll/doc1b", "coll/doc3a", "coll/doc3b"});
+      this->ExpectCacheDoesNotContainOverlaysFor({"coll/doc2a", "coll/doc2b"});
+      EXPECT_EQ(this->GetOverlayCount(), 4);
+    }
+
+    {
+      SCOPED_TRACE("RemoveOverlaysForBatchId(3)");
+      this->cache_->RemoveOverlaysForBatchId(3);
+      this->ExpectCacheContainsOverlaysFor({"coll/doc1a", "coll/doc1b"});
+      this->ExpectCacheDoesNotContainOverlaysFor(
+          {"coll/doc2a", "coll/doc2b", "coll/doc3a", "coll/doc3b"});
+      EXPECT_EQ(this->GetOverlayCount(), 2);
+    }
+
+    {
+      SCOPED_TRACE("RemoveOverlaysForBatchId(1)");
+      this->cache_->RemoveOverlaysForBatchId(1);
+      this->ExpectCacheDoesNotContainOverlaysFor({"coll/doc1a", "coll/doc1b",
+                                                  "coll/doc2a", "coll/doc2b",
+                                                  "coll/doc3a", "coll/doc3b"});
+      EXPECT_EQ(this->GetOverlayCount(), 0);
+    }
   });
 }
 

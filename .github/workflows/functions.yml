@@ -3,19 +3,19 @@ name: functions
 on:
   pull_request:
     paths:
-    - 'FirebaseFunctions/**'
+    - 'FirebaseFunctions**'
     - 'FirebaseSharedSwift**'
     - '.github/workflows/functions.yml'
-    - 'Interop/Auth/Public/*.h'
-    - 'FirebaseMessaging/Sources/Interop/*.h'
+    - 'FirebaseAuth/Interop/*.h'
+    - 'FirebaseMessaging/Interop/*.h'
     - 'FirebaseTestingSupport/Functions/**'
     - 'FirebaseCombineSwift/Sources/Functions/**'
     - 'scripts/setup_quickstart.sh'
     - 'Gemfile*'
 
   schedule:
-    # Run every day at 3am (PST) - cron uses UTC times
-    - cron:  '0 11 * * *'
+    # Run every day at 1am (PST) - cron uses UTC times
+    - cron:  '0 9 * * *'
 
 jobs:
 
@@ -28,9 +28,6 @@ jobs:
       matrix:
         # TODO: The --skip-tests might be removable with Xcode 13.2+
         target: [ios, tvos, macos --skip-tests, watchos]
-        podspec: [ 'FirebaseFunctions.podspec', 'FirebaseFunctionsSwift.podspec']
-    env:
-      POD_LIB_LINT_ONLY: 1
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -39,9 +36,9 @@ jobs:
       run: FirebaseFunctions/Backend/start.sh synchronous
     - name: Build and test
       run: |
-        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }} --platforms=${{ matrix.target }}
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseFunctions.podspec --platforms=${{ matrix.target }}
 
-  spm:
+  spm-integration:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macos-11
@@ -54,26 +51,24 @@ jobs:
         cache_key: ${{ matrix.os }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
-    - name: iOS Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FunctionsUnit iOS spm
     - name: Integration Test Server
       run: FirebaseFunctions/Backend/start.sh synchronous
-    - name: iOS Swift Integration Tests (Objective C library)
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FunctionsSwiftIntegration iOS spm
+    - name: Functions Unit Tests
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctionsUnit iOS spm
     - name: iOS Swift Integration Tests (including Swift library)
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctionsSwiftUnit iOS spm
-    - name: iOS Objective C Integration Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FunctionsIntegration iOS spm
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctionsIntegration iOS spm
+    - name: iOS ObjC Integration Tests (using Swift library)
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctionsObjCIntegration iOS spm
     - name: Combine Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FunctionsCombineUnit iOS spm
 
-  spm-cron:
+  spm-unit:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macos-11
     strategy:
       matrix:
-        target: [tvOS, macOS, catalyst, watchOS]
+        target: [iOS, tvOS, macOS, catalyst, watchOS]
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
@@ -82,52 +77,38 @@ jobs:
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FunctionsUnit ${{ matrix.target }} spm
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctionsUnit ${{ matrix.target }} spm
 
-  catalyst:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+# TODO: Restore Quickstart when ported for Firebase 9.
+  # quickstart:
+  #   # Don't run on private repo unless it is a PR.
+  #   if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+  #   env:
+  #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+  #     signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+  #     LEGACY: true
+  #   runs-on: macos-11
 
-    runs-on: macos-11
-    steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
-      with:
-        cache_key: ${{ matrix.os }}
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Setup project and Build for Catalyst
-      run: scripts/test_catalyst.sh FirebaseFunctions test FirebaseFunctions-Unit-unit
-
-# Restore when FirebaseUI works with Firebase 7 (#6646)
-  quickstart:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      LEGACY: true
-    runs-on: macos-11
-
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup quickstart
-      run: scripts/setup_quickstart.sh functions
-    - name: install secret googleservice-info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-functions.plist.gpg \
-          quickstart-ios/functions/GoogleService-Info.plist "$plist_secret"
-    - name: Setup custom URL scheme
-      run: sed -i '' 's/REVERSED_CLIENT_ID/com.googleusercontent.apps.1025801074639-6p6ebi8amuklcjrto20gvpe295smm8u6/' quickstart-ios/functions/LegacyFunctionsQuickstart/FunctionsExample/Info.plist
-    - name: Test objc quickstart
-      run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions true)
-    - name: Test swift quickstart
-      run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions true swift)
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - name: Setup quickstart
+  #     run: scripts/setup_quickstart.sh functions
+  #   - name: install secret googleservice-info.plist
+  #     run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-functions.plist.gpg \
+  #         quickstart-ios/functions/GoogleService-Info.plist "$plist_secret"
+  #   - name: Setup custom URL scheme
+  #     run: sed -i '' 's/REVERSED_CLIENT_ID/com.googleusercontent.apps.1025801074639-6p6ebi8amuklcjrto20gvpe295smm8u6/' quickstart-ios/functions/LegacyFunctionsQuickstart/FunctionsExample/Info.plist
+  #   - name: Test objc quickstart
+  #     run: ([ -z $plist_secret ] ||
+  #           scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions true)
+  #   - name: Test swift quickstart
+  #     run: ([ -z $plist_secret ] ||
+  #           scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions true swift)
 
   functions-cron-only:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+# TODO: Uncomment below
+#    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
 
     runs-on: macos-11
     strategy:
@@ -135,7 +116,6 @@ jobs:
         target: [ios, tvos, macos]
         flags: [
           '--use-static-frameworks',
-          '--use-libraries --skip-tests'
         ]
     needs: pod-lib-lint
     steps:
@@ -147,4 +127,4 @@ jobs:
     - name: PodLibLint Functions Cron
       run: |
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb \
-          FirebaseFunctions.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+          FirebaseFunctions.podspec --platforms=${{ matrix.target }} --use-static-frameworks

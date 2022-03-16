@@ -22,6 +22,8 @@ Pod::Spec.new do |s|
   tvos_deployment_target = '10.0'
   watchos_deployment_target = '6.0'
 
+  s.swift_version = '5.3'
+
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
   s.tvos.deployment_target = tvos_deployment_target
@@ -33,7 +35,7 @@ Pod::Spec.new do |s|
   base_dir = "FirebaseInstallations/Source/"
   s.source_files = [
     base_dir + 'Library/**/*.[mh]',
-    'FirebaseCore/Sources/Private/*.h',
+    'FirebaseCore/Internal/*.h',
   ]
   s.public_header_files = [
     base_dir + 'Library/Public/FirebaseInstallations/*.h',

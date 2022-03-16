@@ -18,7 +18,7 @@
 
 #import "FirebaseDatabase/Sources/Persistence/FLevelDBStorageEngine.h"
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 #import "FirebaseDatabase/Sources/Core/FQueryParams.h"
 #import "FirebaseDatabase/Sources/Core/FWriteRecord.h"
 #import "FirebaseDatabase/Sources/Persistence/FPendingPut.h"

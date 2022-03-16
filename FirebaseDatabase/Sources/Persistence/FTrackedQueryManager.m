@@ -15,7 +15,7 @@
  */
 
 #import "FirebaseDatabase/Sources/Persistence/FTrackedQueryManager.h"
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 #import "FirebaseDatabase/Sources/Core/Utilities/FImmutableTree.h"
 #import "FirebaseDatabase/Sources/FClock.h"
 #import "FirebaseDatabase/Sources/Persistence/FCachePolicy.h"

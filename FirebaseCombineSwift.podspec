@@ -53,7 +53,7 @@ for internal testing only. It should not be published.
 
   s.dependency 'FirebaseCore', '~> 8.0'
   s.dependency 'FirebaseAuth', '~> 8.0'
-  s.dependency 'FirebaseFunctions', '~> 8.0'
+  s.dependency 'FirebaseFunctions', '~> 8.12'
   s.dependency 'FirebaseFirestore', '~> 8.0'
   s.dependency 'FirebaseStorage', '~> 8.0'
   s.dependency 'FirebaseStorageSwift', '~> 8.0-beta'
@@ -82,7 +82,6 @@ for internal testing only. It should not be published.
     }
     unit_tests.dependency 'OCMock'
     unit_tests.dependency 'FirebaseAuthTestingSupport'
-    unit_tests.dependency 'FirebaseFunctionsTestingSupport'
     unit_tests.dependency 'FirebaseFirestoreTestingSupport'
   end
 

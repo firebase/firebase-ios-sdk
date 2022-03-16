@@ -30,7 +30,7 @@
 #import "FirebaseAppCheck/Tests/Unit/Utils/FIRFixtureLoader.h"
 #import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 
 typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
 

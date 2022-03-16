@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #import "FirebaseAppDistribution/Sources/FIRFADLogger.h"
-#import "FirebaseCore/Sources/Private/FIRLogger.h"
+#import "FirebaseCore/Internal/FIRLogger.h"
 
 FIRLoggerService kFIRLoggerAppDistribution = @"[Firebase/AppDistribution]";
 

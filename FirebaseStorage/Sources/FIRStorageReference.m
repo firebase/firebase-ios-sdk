@@ -31,7 +31,7 @@
 #import "FirebaseStorage/Sources/FIRStorage_Private.h"
 #import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageTaskSnapshot.h"
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 
 #if SWIFT_PACKAGE
 @import GTMSessionFetcherCore;

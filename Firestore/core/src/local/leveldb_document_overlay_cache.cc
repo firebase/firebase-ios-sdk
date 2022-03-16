@@ -53,24 +53,24 @@ LevelDbDocumentOverlayCache::LevelDbDocumentOverlayCache(
 }
 
 absl::optional<Overlay> LevelDbDocumentOverlayCache::GetOverlay(
-    const DocumentKey& key) const {
-  const std::string leveldb_key_prefix =
-      LevelDbDocumentOverlayKey::KeyPrefix(user_id_, key);
+    const DocumentKey& document_key) const {
+  const std::string key_prefix =
+      LevelDbDocumentOverlayKey::KeyPrefix(user_id_, document_key);
 
   auto it = db_->current_transaction()->NewIterator();
-  it->Seek(leveldb_key_prefix);
+  it->Seek(key_prefix);
 
-  if (!(it->Valid() && absl::StartsWith(it->key(), leveldb_key_prefix))) {
+  if (!it->Valid() || !absl::StartsWith(it->key(), key_prefix)) {
     return absl::nullopt;
   }
 
-  LevelDbDocumentOverlayKey decoded_key;
-  HARD_ASSERT(decoded_key.Decode(it->key()));
-  if (decoded_key.document_key() != key) {
+  LevelDbDocumentOverlayKey key;
+  HARD_ASSERT(key.Decode(it->key()));
+  if (key.document_key() != document_key) {
     return absl::nullopt;
   }
 
-  return ParseOverlay(decoded_key, it->value());
+  return ParseOverlay(key, it->value());
 }
 
 void LevelDbDocumentOverlayCache::SaveOverlays(
@@ -81,45 +81,20 @@ void LevelDbDocumentOverlayCache::SaveOverlays(
 }
 
 void LevelDbDocumentOverlayCache::RemoveOverlaysForBatchId(int batch_id) {
-  // TODO(dconeybe) Implement an index so that this query can be performed
-  // without requiring a full table scan.
-
-  ForEachOverlay([&](absl::string_view encoded_key,
-                     const LevelDbDocumentOverlayKey& decoded_key,
-                     absl::string_view) {
-    if (decoded_key.largest_batch_id() == batch_id) {
-      db_->current_transaction()->Delete(encoded_key);
-    }
-  });
+  ForEachKeyWithLargestBatchId(
+      batch_id, [&](LevelDbDocumentOverlayKey&& key) { DeleteOverlay(key); });
 }
 
 DocumentOverlayCache::OverlayByDocumentKeyMap
 LevelDbDocumentOverlayCache::GetOverlays(const ResourcePath& collection,
                                          int since_batch_id) const {
-  // TODO(dconeybe) Implement an index so that this query can be performed
-  // without requiring a full table scan.
-
   OverlayByDocumentKeyMap result;
-
-  const size_t immediate_children_path_length{collection.size() + 1};
-
-  ForEachOverlay([&](absl::string_view,
-                     const LevelDbDocumentOverlayKey& decoded_key,
-                     absl::string_view encoded_mutation) {
-    const DocumentKey key = decoded_key.document_key();
-    if (!collection.IsPrefixOf(key.path())) {
-      return;
-    }
-    // Documents from sub-collections
-    if (key.path().size() != immediate_children_path_length) {
-      return;
-    }
-
-    if (decoded_key.largest_batch_id() > since_batch_id) {
-      result[key] = ParseOverlay(decoded_key, encoded_mutation);
-    }
-  });
-
+  ForEachKeyInCollection(
+      collection, since_batch_id, [&](LevelDbDocumentOverlayKey&& key) {
+        absl::optional<Overlay> overlay = GetOverlay(key);
+        HARD_ASSERT(overlay.has_value());
+        result[std::move(key).document_key()] = std::move(overlay).value();
+      });
   return result;
 }
 
@@ -135,17 +110,16 @@ LevelDbDocumentOverlayCache::GetOverlays(const std::string& collection_group,
   // by largest_batch_id, the loop below can iterate over it ordered by
   // largest_batch_id.
   std::map<int, std::unordered_set<Overlay, OverlayHash>> overlays_by_batch_id;
-  ForEachOverlay([&](absl::string_view,
-                     const LevelDbDocumentOverlayKey& decoded_key,
-                     absl::string_view encoded_mutation) {
-    if (decoded_key.largest_batch_id() <= since_batch_id) {
-      return;
-    }
-    if (decoded_key.document_key().HasCollectionId(collection_group)) {
-      overlays_by_batch_id[decoded_key.largest_batch_id()].emplace(
-          ParseOverlay(decoded_key, encoded_mutation));
-    }
-  });
+  ForEachOverlay(
+      [&](LevelDbDocumentOverlayKey&& key, absl::string_view encoded_mutation) {
+        if (key.largest_batch_id() <= since_batch_id) {
+          return;
+        }
+        if (key.document_key().HasCollectionId(collection_group)) {
+          overlays_by_batch_id[key.largest_batch_id()].emplace(
+              ParseOverlay(key, encoded_mutation));
+        }
+      });
 
   // Trim down the overlays loaded above to respect the given `count`, and
   // return them.
@@ -157,8 +131,8 @@ LevelDbDocumentOverlayCache::GetOverlays(const std::string& collection_group,
   OverlayByDocumentKeyMap result;
   for (auto& overlays_by_batch_id_entry : overlays_by_batch_id) {
     for (auto& overlay : overlays_by_batch_id_entry.second) {
-      DocumentKey key = overlay.key();
-      result[key] = std::move(overlay);
+      DocumentKey document_key = overlay.key();
+      result[document_key] = std::move(overlay);
     }
     if (result.size() >= count) {
       break;
@@ -166,6 +140,32 @@ LevelDbDocumentOverlayCache::GetOverlays(const std::string& collection_group,
   }
 
   return result;
+}
+
+int LevelDbDocumentOverlayCache::GetOverlayCount() const {
+  return CountEntriesWithKeyPrefix(
+      LevelDbDocumentOverlayKey::KeyPrefix(user_id_));
+}
+
+int LevelDbDocumentOverlayCache::GetLargestBatchIdIndexEntryCount() const {
+  return CountEntriesWithKeyPrefix(
+      LevelDbDocumentOverlayLargestBatchIdIndexKey::KeyPrefix(user_id_));
+}
+
+int LevelDbDocumentOverlayCache::GetCollectionIndexEntryCount() const {
+  return CountEntriesWithKeyPrefix(
+      LevelDbDocumentOverlayCollectionIndexKey::KeyPrefix(user_id_));
+}
+
+int LevelDbDocumentOverlayCache::CountEntriesWithKeyPrefix(
+    const std::string& key_prefix) const {
+  int count = 0;
+  auto it = db_->current_transaction()->NewIterator();
+  for (it->Seek(key_prefix);
+       it->Valid() && absl::StartsWith(it->key(), key_prefix); it->Next()) {
+    ++count;
+  }
+  return count;
 }
 
 Overlay LevelDbDocumentOverlayCache::ParseOverlay(
@@ -181,43 +181,107 @@ Overlay LevelDbDocumentOverlayCache::ParseOverlay(
 }
 
 void LevelDbDocumentOverlayCache::SaveOverlay(int largest_batch_id,
-                                              const DocumentKey& key,
+                                              const DocumentKey& document_key,
                                               const Mutation& mutation) {
-  DeleteOverlay(key);
-  const std::string leveldb_key =
-      LevelDbDocumentOverlayKey::Key(user_id_, key, largest_batch_id);
-  auto serialized_mutation = serializer_->EncodeMutation(mutation);
-  db_->current_transaction()->Put(leveldb_key, serialized_mutation);
+  // Remove the existing overlay and any index entries pointing to it.
+  DeleteOverlay(document_key);
+
+  const LevelDbDocumentOverlayKey key(user_id_, document_key, largest_batch_id);
+
+  // Add the overlay to the database and index entries pointing to it.
+  auto* transaction = db_->current_transaction();
+  transaction->Put(key.Encode(), serializer_->EncodeMutation(mutation));
+  transaction->Put(LevelDbDocumentOverlayLargestBatchIdIndexKey::Key(key), "");
+  transaction->Put(LevelDbDocumentOverlayCollectionIndexKey::Key(key), "");
 }
 
-void LevelDbDocumentOverlayCache::DeleteOverlay(const model::DocumentKey& key) {
-  const std::string leveldb_key_prefix =
-      LevelDbDocumentOverlayKey::KeyPrefix(user_id_, key);
+void LevelDbDocumentOverlayCache::DeleteOverlay(
+    const model::DocumentKey& document_key) {
+  const std::string key_prefix =
+      LevelDbDocumentOverlayKey::KeyPrefix(user_id_, document_key);
   auto it = db_->current_transaction()->NewIterator();
-  for (it->Seek(leveldb_key_prefix);
-       it->Valid() && absl::StartsWith(it->key(), leveldb_key_prefix);
-       it->Next()) {
-    LevelDbDocumentOverlayKey decoded_key;
-    HARD_ASSERT(decoded_key.Decode(it->key()));
-    if (decoded_key.document_key() == key) {
-      db_->current_transaction()->Delete(it->key());
-    }
+  it->Seek(key_prefix);
+
+  if (!it->Valid() || !absl::StartsWith(it->key(), key_prefix)) {
+    return;
+  }
+
+  LevelDbDocumentOverlayKey key;
+  HARD_ASSERT(key.Decode(it->key()));
+  if (key.document_key() == document_key) {
+    DeleteOverlay(key);
   }
 }
 
+void LevelDbDocumentOverlayCache::DeleteOverlay(
+    const LevelDbDocumentOverlayKey& key) {
+  auto* transaction = db_->current_transaction();
+  transaction->Delete(key.Encode());
+  transaction->Delete(LevelDbDocumentOverlayLargestBatchIdIndexKey::Key(key));
+  transaction->Delete(LevelDbDocumentOverlayCollectionIndexKey::Key(key));
+}
+
 void LevelDbDocumentOverlayCache::ForEachOverlay(
-    std::function<void(absl::string_view encoded_key,
-                       const LevelDbDocumentOverlayKey& decoded_key,
-                       absl::string_view encoded_mutation)> callback) const {
+    std::function<void((LevelDbDocumentOverlayKey && key,
+                        absl::string_view encoded_mutation))> callback) const {
   auto it = db_->current_transaction()->NewIterator();
   const std::string user_key = LevelDbDocumentOverlayKey::KeyPrefix(user_id_);
 
   for (it->Seek(user_key); it->Valid() && absl::StartsWith(it->key(), user_key);
        it->Next()) {
-    LevelDbDocumentOverlayKey decoded_key;
-    HARD_ASSERT(decoded_key.Decode(it->key()));
-    callback(it->key(), decoded_key, it->value());
+    LevelDbDocumentOverlayKey key;
+    HARD_ASSERT(key.Decode(it->key()));
+    callback(std::move(key), it->value());
   }
+}
+
+void LevelDbDocumentOverlayCache::ForEachKeyWithLargestBatchId(
+    int largest_batch_id,
+    std::function<void(LevelDbDocumentOverlayKey&& key)> callback) const {
+  const std::string key_prefix =
+      LevelDbDocumentOverlayLargestBatchIdIndexKey::KeyPrefix(user_id_,
+                                                              largest_batch_id);
+  auto it = db_->current_transaction()->NewIterator();
+  for (it->Seek(key_prefix);
+       it->Valid() && absl::StartsWith(it->key(), key_prefix); it->Next()) {
+    LevelDbDocumentOverlayLargestBatchIdIndexKey key;
+    HARD_ASSERT(key.Decode(it->key()));
+    callback(std::move(key).ToLevelDbDocumentOverlayKey());
+  }
+}
+
+void LevelDbDocumentOverlayCache::ForEachKeyInCollection(
+    const ResourcePath& collection,
+    int since_batch_id,
+    std::function<void(LevelDbDocumentOverlayKey&&)> callback) const {
+  const std::string index_start_key =
+      LevelDbDocumentOverlayCollectionIndexKey::KeyPrefix(user_id_, collection,
+                                                          since_batch_id + 1);
+  const std::string index_key_prefix =
+      LevelDbDocumentOverlayCollectionIndexKey::KeyPrefix(user_id_, collection);
+
+  auto it = db_->current_transaction()->NewIterator();
+  for (it->Seek(index_start_key);
+       it->Valid() && absl::StartsWith(it->key(), index_key_prefix);
+       it->Next()) {
+    LevelDbDocumentOverlayCollectionIndexKey key;
+    HARD_ASSERT(key.Decode(it->key()));
+    if (key.collection() != collection) {
+      break;
+    }
+    callback(std::move(key).ToLevelDbDocumentOverlayKey());
+  }
+}
+
+absl::optional<Overlay> LevelDbDocumentOverlayCache::GetOverlay(
+    const LevelDbDocumentOverlayKey& key) const {
+  auto it = db_->current_transaction()->NewIterator();
+  const std::string encoded_key = key.Encode();
+  it->Seek(encoded_key);
+  if (!it->Valid() || it->key() != encoded_key) {
+    return absl::nullopt;
+  }
+  return ParseOverlay(key, it->value());
 }
 
 }  // namespace local

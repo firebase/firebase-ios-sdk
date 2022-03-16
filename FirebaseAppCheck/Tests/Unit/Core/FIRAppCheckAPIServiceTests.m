@@ -31,7 +31,7 @@
 #import "SharedTestUtilities/Date/FIRDateTestUtils.h"
 #import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 
 @interface FIRAppCheckAPIServiceTests : XCTestCase
 

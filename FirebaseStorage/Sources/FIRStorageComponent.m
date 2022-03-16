@@ -16,9 +16,9 @@
 
 #import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorage.h"
 
-#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "Interop/Auth/Public/FIRAuthInterop.h"
+#import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
+#import "FirebaseAuth/Interop/FIRAuthInterop.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

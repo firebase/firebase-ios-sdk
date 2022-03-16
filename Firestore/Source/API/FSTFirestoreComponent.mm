@@ -20,10 +20,16 @@
 #include <string>
 #include <utility>
 
-#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
+#import "FirebaseAuth/Interop/FIRAuthInterop.h"
+#import "FirebaseCore/Internal/FIRAppInternal.h"
+#import "FirebaseCore/Internal/FIRComponent.h"
+#import "FirebaseCore/Internal/FIRComponentContainer.h"
+#import "FirebaseCore/Internal/FIRComponentType.h"
+#import "FirebaseCore/Internal/FIRDependency.h"
+#import "FirebaseCore/Internal/FIRLibrary.h"
+#import "FirebaseCore/Internal/FIROptionsInternal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_version.h"
 #include "Firestore/core/src/api/firestore.h"

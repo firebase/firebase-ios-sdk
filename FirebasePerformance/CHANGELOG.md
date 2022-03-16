@@ -1,5 +1,8 @@
-# Unreleased
-* [fixed] Potentially drop pre-warmed app start traces on iOS 15 and above (#9026). App start measurements are made only for cold app starts (without pre-warming).
+# Version 8.13.0
+* [fixed] Make pre-warming identification more reliable by moving the pre-warm check to the earliest phase of app start.
+
+# Version 8.12.0
+* [fixed] Attempted to fix an issue where app start trace durations are not reliable on iOS 15. App start measurements are now made only for cold app starts (without pre-warming) (#9026).
 
 # Version 8.10.0
 * Fix a crash related to FPRSessionDetails. (#8691)

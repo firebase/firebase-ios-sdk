@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseCore/Sources/Private/FIRLogger.h"
+#import "FirebaseCore/Internal/FIRLogger.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
