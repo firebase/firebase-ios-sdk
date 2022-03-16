@@ -16,7 +16,6 @@
 
 #import <XCTest/XCTest.h>
 
-// This needs to precede the GULSwizzler+Unswizzle.h import for the --use-libraries build.
 #import <GoogleUtilities/GULSwizzler.h>
 
 #import <GoogleUtilities/GULSwizzler+Unswizzle.h>

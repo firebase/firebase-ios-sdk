@@ -105,8 +105,7 @@ jobs:
         # Disable watchos because it does not support XCTest.
         target: [ios, tvos, macos, watchos --skip-tests]
         flags: [
-          '--use-static-frameworks',
-          '--use-libraries'
+          '--use-static-frameworks'
         ]
     needs: pod-lib-lint
     steps:
