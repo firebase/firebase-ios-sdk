@@ -827,14 +827,6 @@ TEST_F(BundleSerializerTest, DecodeInvalidFieldFilterOperatorFails) {
   }
 
   {
-    auto json_copy =
-        ReplacedCopy(json_string, "\"stringValue\"", "\"arrayValue\"");
-    JsonReader reader;
-    bundle_serializer.DecodeNamedQuery(reader, Parse(json_copy));
-    EXPECT_NOT_OK(reader.status());
-  }
-
-  {
     auto json_copy = ReplacedCopy(json_string, "\"op\"", "\"Op\"");
     JsonReader reader;
     bundle_serializer.DecodeNamedQuery(reader, Parse(json_copy));
@@ -849,12 +841,19 @@ TEST_F(BundleSerializerTest, DecodeInvalidFieldFilterOperatorFails) {
   }
 }
 
-TEST_F(BundleSerializerTest, DecodesCompositeFilter) {
+TEST_F(BundleSerializerTest, DecodesCompositeNotNullFilter) {
   core::Query original =
       testutil::Query("colls")
           .AddingFilter(Filter("f1", "not-in", Array(1, "2", 3.0)))
           .AddingFilter(Filter("f1", "!=", false))
           .AddingFilter(Filter("f1", "<=", 1000.0));
+  VerifyNamedQueryRoundtrip(original);
+}
+
+TEST_F(BundleSerializerTest, DecodesCompositeNullFilter) {
+  core::Query original = testutil::Query("colls")
+                             .AddingFilter(Filter("f1", "==", nullptr))
+                             .AddingFilter(Filter("f2", "==", nullptr));
   VerifyNamedQueryRoundtrip(original);
 }
 

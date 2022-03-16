@@ -7,7 +7,7 @@
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless Requiredd by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -393,6 +393,16 @@ const nlohmann::json& JsonReader::RequiredObject(const char* child_name,
   return json_object.at(child_name);
 }
 
+const nlohmann::json& JsonReader::OptionalObject(
+    const char* child_name,
+    const json& json_object,
+    const nlohmann::json& default_value) {
+  if (json_object.contains(child_name)) {
+    return json_object.at(child_name);
+  }
+  return default_value;
+}
+
 double JsonReader::RequiredDouble(const char* name, const json& json_object) {
   if (json_object.contains(name)) {
     double result = DecodeDouble(json_object.at(name));
@@ -614,11 +624,19 @@ FilterList BundleSerializer::DecodeCompositeFilter(JsonReader& reader,
     return {};
   }
 
-  auto filters = reader.RequiredArray("filters", filter);
+  std::vector<json> default_filters;
+  auto filters = reader.OptionalArray("filters", filter, default_filters);
+
+  const json default_objects;
   FilterList result;
   for (const auto& f : filters) {
-    result = result.push_back(
-        DecodeFieldFilter(reader, reader.RequiredObject("fieldFilter", f)));
+    const json& field_filter =
+        reader.OptionalObject("fieldFilter", f, default_objects);
+    const json& unary_filter =
+        reader.OptionalObject("unaryFilter", f, default_objects);
+    result = result.push_back(unary_filter.empty()
+                                  ? DecodeFieldFilter(reader, field_filter)
+                                  : DecodeUnaryFilter(reader, unary_filter));
     if (!reader.ok()) {
       return {};
     }
@@ -636,8 +654,10 @@ Bound BundleSerializer::DecodeBound(JsonReader& reader,
     return default_bound;
   }
 
+  std::vector<json> default_values;
   const json& bound_json = reader.RequiredObject(bound_name, query);
-  std::vector<json> values = reader.RequiredArray("values", bound_json);
+  std::vector<json> values =
+      reader.OptionalArray("values", bound_json, default_values);
   bool before = reader.OptionalBool("before", bound_json);
 
   auto positions = MakeSharedMessage<google_firestore_v1_ArrayValue>({});
@@ -737,7 +757,9 @@ Message<google_firestore_v1_MapValue> BundleSerializer::DecodeMapValue(
 
 Message<google_firestore_v1_ArrayValue> BundleSerializer::DecodeArrayValue(
     JsonReader& reader, const json& array_json) const {
-  const auto& values = reader.RequiredArray("values", array_json);
+  std::vector<json> default_values;
+  const auto& values =
+      reader.OptionalArray("values", array_json, default_values);
 
   Message<google_firestore_v1_ArrayValue> array_value;
   SetRepeatedField(
