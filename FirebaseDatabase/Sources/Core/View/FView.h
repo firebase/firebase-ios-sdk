@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+@import FirebaseDatabaseSwiftCore;
+
 @protocol FNode;
 @protocol FOperation;
 @protocol FEventRegistration;
