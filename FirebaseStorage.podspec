@@ -57,7 +57,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     objc_tests.requires_app_host = true
     objc_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
                           'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist'
-    objc_tests.dependency 'FirebaseAuth', '~> 8.0'
+    objc_tests.dependency 'FirebaseAuth', '~> 8.13'
     objc_tests.pod_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
     }
