@@ -17,8 +17,7 @@
 import Foundation
 import FirebaseFirestore
 
-/// FirebaseFirestore is specified to avoid ambiguity with SwiftUI.Transaction.
-public extension FirebaseFirestore.Transaction {
+public extension Transaction {
   /// Encodes an instance of `Encodable` and overwrites the encoded data
   /// to the document referred by `doc`. If no document exists,
   /// it is created. If a document already exists, it is overwritten.
