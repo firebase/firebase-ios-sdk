@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'HeartbeatLoggingTestUtils'
-  s.version                 = '8.11.0'
+  s.version                 = '8.13.0'
   s.summary                 = 'Testing utilities for testing the HeartbeatLogging module'
 
   s.description             = <<-DESC
@@ -15,6 +15,10 @@ Pod::Spec.new do |s|
   s.source                  = {
     :git => 'https://github.com/Firebase/firebase-ios-sdk.git',
     :tag => 'CocoaPods-' + s.version.to_s
+  }
+
+  s.pod_target_xcconfig = {
+    'ENABLE_TESTING_SEARCH_PATHS'=>'YES'
   }
 
   s.swift_version           = '5.3'
@@ -42,5 +46,4 @@ Pod::Spec.new do |s|
 
   s.dependency 'FirebaseCore', '~> 8.11'
   s.framework = 'XCTest'
-
 end
