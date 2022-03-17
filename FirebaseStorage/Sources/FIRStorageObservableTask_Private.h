@@ -20,31 +20,32 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FIRStorageReference;
-@class FIRStorageTaskSnapshot;
+@class FIRIMPLStorageReference;
+@class FIRIMPLStorageTaskSnapshot;
 @class GTMSessionFetcherService;
 
-@interface FIRStorageObservableTask ()
+@interface FIRIMPLStorageObservableTask ()
 
 /**
- * Creates a new FIRStorageTask initialized with a FIRStorageReference and GTMSessionFetcherService.
- * @param reference A FIRStorageReference the task will be performed on.
+ * Creates a new FIRIMPLStorageTask initialized with a FIRIMPLStorageReference and
+ * GTMSessionFetcherService.
+ * @param reference A FIRIMPLStorageReference the task will be performed on.
  * @param service A GTMSessionFetcherService which provides the fetchers and configuration for
  * requests.
  * @param queue The shared queue to use for all Storage operations.
- * @return A new FIRStorageTask representing the current task.
+ * @return A new FIRIMPLStorageTask representing the current task.
  */
-- (instancetype)initWithReference:(FIRStorageReference *)reference
+- (instancetype)initWithReference:(FIRIMPLStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
                     dispatchQueue:(dispatch_queue_t)queue;
 
 /**
  * Raise events for a given task status by passing along a snapshot of existing task state.
- * @param status A FIRStorageTaskStatus to raise events for.
- * @param snapshot A FIRStorageTaskSnapshot snapshot of task state to pass through the handler.
+ * @param status A FIRIMPLStorageTaskStatus to raise events for.
+ * @param snapshot A FIRIMPLStorageTaskSnapshot snapshot of task state to pass through the handler.
  */
-- (void)fireHandlersForStatus:(FIRStorageTaskStatus)status
-                     snapshot:(FIRStorageTaskSnapshot *)snapshot;
+- (void)fireHandlersForStatus:(FIRIMPLStorageTaskStatus)status
+                     snapshot:(FIRIMPLStorageTaskSnapshot *)snapshot;
 
 @end
 

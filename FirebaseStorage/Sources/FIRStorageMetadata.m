@@ -21,7 +21,7 @@
 #import "FirebaseStorage/Sources/FIRStorageUtils.h"
 
 // TODO: consider rewriting this using GTLR (GTLRStorageObjects.h)
-@implementation FIRStorageMetadata
+@implementation FIRIMPLStorageMetadata
 
 #pragma mark - Initializers
 
@@ -57,7 +57,7 @@
 #pragma mark - NSObject overrides
 
 - (instancetype)copyWithZone:(NSZone *)zone {
-  FIRStorageMetadata *clone =
+  FIRIMPLStorageMetadata *clone =
       [[[self class] allocWithZone:zone] initWithDictionary:[self dictionaryRepresentation]];
   clone.initialMetadata = [self.initialMetadata copy];
   return clone;
@@ -68,15 +68,15 @@
     return YES;
   }
 
-  if (![object isKindOfClass:[FIRStorageMetadata class]]) {
+  if (![object isKindOfClass:[FIRIMPLStorageMetadata class]]) {
     return NO;
   }
 
-  BOOL isEqualObject = [self isEqualToFIRStorageMetadata:(FIRStorageMetadata *)object];
+  BOOL isEqualObject = [self isEqualToFIRStorageMetadata:(FIRIMPLStorageMetadata *)object];
   return isEqualObject;
 }
 
-- (BOOL)isEqualToFIRStorageMetadata:(FIRStorageMetadata *)metadata {
+- (BOOL)isEqualToFIRStorageMetadata:(FIRIMPLStorageMetadata *)metadata {
   return [[self dictionaryRepresentation] isEqualToDictionary:[metadata dictionaryRepresentation]];
 }
 
@@ -190,7 +190,7 @@
 
 - (NSDictionary *)updatedMetadata {
   NSMutableDictionary *metadataUpdate = [[self dictionaryRepresentation] mutableCopy];
-  [FIRStorageMetadata removeMatchingMetadata:metadataUpdate oldMetadata:_initialMetadata];
+  [FIRIMPLStorageMetadata removeMatchingMetadata:metadataUpdate oldMetadata:_initialMetadata];
   return [metadataUpdate copy];
 }
 

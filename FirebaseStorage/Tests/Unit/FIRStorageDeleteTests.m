@@ -19,7 +19,7 @@
 
 @property(strong, nonatomic) GTMSessionFetcherService *fetcherService;
 @property(nonatomic) dispatch_queue_t dispatchQueue;
-@property(strong, nonatomic) FIRStorage *storage;
+@property(strong, nonatomic) FIRIMPLStorage *storage;
 @property(strong, nonatomic) id mockApp;
 
 @end
@@ -29,13 +29,6 @@
 - (void)setUp {
   [super setUp];
 
-  id mockOptions = OCMClassMock([FIROptions class]);
-  OCMStub([mockOptions storageBucket]).andReturn(@"bucket.appspot.com");
-
-  self.mockApp = [FIRStorageTestHelpers mockedApp];
-  OCMStub([self.mockApp name]).andReturn(kFIRStorageAppName);
-  OCMStub([(FIRApp *)self.mockApp options]).andReturn(mockOptions);
-
   self.fetcherService = [[GTMSessionFetcherService alloc] init];
   self.fetcherService.authorizer =
       [[FIRStorageTokenAuthorizer alloc] initWithGoogleAppID:@"dummyAppID"
@@ -44,8 +37,7 @@
                                                     appCheck:nil];
 
   self.dispatchQueue = dispatch_queue_create("Test dispatch queue", DISPATCH_QUEUE_SERIAL);
-
-  self.storage = [FIRStorage storageForApp:self.mockApp];
+  self.storage = [FIRStorageTestHelpers storageWithMockedApp];
 }
 
 - (void)tearDown {
@@ -73,7 +65,8 @@
       };
 
   FIRStoragePath *path = [FIRStorageTestHelpers objectPath];
-  FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];
+  FIRIMPLStorageReference *ref = [[FIRIMPLStorageReference alloc] initWithStorage:self.storage
+                                                                             path:path];
   FIRStorageDeleteTask *task = [[FIRStorageDeleteTask alloc] initWithReference:ref
                                                                 fetcherService:self.fetcherService
                                                                  dispatchQueue:self.dispatchQueue
@@ -90,7 +83,8 @@
 
   self.fetcherService.testBlock = [FIRStorageTestHelpers successBlock];
   FIRStoragePath *path = [FIRStorageTestHelpers objectPath];
-  FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];
+  FIRIMPLStorageReference *ref = [[FIRIMPLStorageReference alloc] initWithStorage:self.storage
+                                                                             path:path];
   FIRStorageDeleteTask *task = [[FIRStorageDeleteTask alloc] initWithReference:ref
                                                                 fetcherService:self.fetcherService
                                                                  dispatchQueue:self.dispatchQueue
@@ -113,7 +107,8 @@
       [FIRStorageTestHelpers successBlockWithURL:@"http://localhost:8080/v0/b/bucket/o/object"];
 
   FIRStoragePath *path = [FIRStorageTestHelpers objectPath];
-  FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];
+  FIRIMPLStorageReference *ref = [[FIRIMPLStorageReference alloc] initWithStorage:self.storage
+                                                                             path:path];
   FIRStorageDeleteTask *task = [[FIRStorageDeleteTask alloc] initWithReference:ref
                                                                 fetcherService:self.fetcherService
                                                                  dispatchQueue:self.dispatchQueue
@@ -132,13 +127,14 @@
 
   self.fetcherService.testBlock = [FIRStorageTestHelpers unauthenticatedBlock];
   FIRStoragePath *path = [FIRStorageTestHelpers objectPath];
-  FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];
+  FIRIMPLStorageReference *ref = [[FIRIMPLStorageReference alloc] initWithStorage:self.storage
+                                                                             path:path];
   FIRStorageDeleteTask *task = [[FIRStorageDeleteTask alloc]
       initWithReference:ref
          fetcherService:self.fetcherService
           dispatchQueue:self.dispatchQueue
              completion:^(NSError *error) {
-               XCTAssertEqual(error.code, FIRStorageErrorCodeUnauthenticated);
+               XCTAssertEqual(error.code, FIRIMPLStorageErrorCodeUnauthenticated);
                [expectation fulfill];
              }];
   [task enqueue];
@@ -152,13 +148,14 @@
 
   self.fetcherService.testBlock = [FIRStorageTestHelpers unauthorizedBlock];
   FIRStoragePath *path = [FIRStorageTestHelpers objectPath];
-  FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];
+  FIRIMPLStorageReference *ref = [[FIRIMPLStorageReference alloc] initWithStorage:self.storage
+                                                                             path:path];
   FIRStorageDeleteTask *task = [[FIRStorageDeleteTask alloc]
       initWithReference:ref
          fetcherService:self.fetcherService
           dispatchQueue:self.dispatchQueue
              completion:^(NSError *error) {
-               XCTAssertEqual(error.code, FIRStorageErrorCodeUnauthorized);
+               XCTAssertEqual(error.code, FIRIMPLStorageErrorCodeUnauthorized);
                [expectation fulfill];
              }];
   [task enqueue];
@@ -172,13 +169,14 @@
 
   self.fetcherService.testBlock = [FIRStorageTestHelpers notFoundBlock];
   FIRStoragePath *path = [FIRStorageTestHelpers notFoundPath];
-  FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];
+  FIRIMPLStorageReference *ref = [[FIRIMPLStorageReference alloc] initWithStorage:self.storage
+                                                                             path:path];
   FIRStorageDeleteTask *task = [[FIRStorageDeleteTask alloc]
       initWithReference:ref
          fetcherService:self.fetcherService
           dispatchQueue:self.dispatchQueue
              completion:^(NSError *error) {
-               XCTAssertEqual(error.code, FIRStorageErrorCodeObjectNotFound);
+               XCTAssertEqual(error.code, FIRIMPLStorageErrorCodeObjectNotFound);
                [expectation fulfill];
              }];
   [task enqueue];

@@ -21,17 +21,16 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * FIRStorageDownloadTask implements resumable downloads from an object in Firebase Storage.
+ * FIRIMPLStorageDownloadTask implements resumable downloads from an object in Firebase Storage.
  * Downloads can be returned on completion with a completion handler, and can be monitored
- * by attaching observers, or controlled by calling FIRStorageTask#pause, FIRStorageTask#resume,
- * or FIRStorageTask#cancel.
- * Downloads can currently be returned as NSData in memory, or as an NSURL to a file on disk.
- * Downloads are performed on a background queue, and callbacks are raised on the developer
- * specified callbackQueue in FIRStorage, or the main queue if left unspecified.
- * Currently all uploads must be initiated and managed on the main queue.
+ * by attaching observers, or controlled by calling FIRIMPLStorageTask#pause,
+ * FIRIMPLStorageTask#resume, or FIRIMPLStorageTask#cancel. Downloads can currently be returned as
+ * NSData in memory, or as an NSURL to a file on disk. Downloads are performed on a background
+ * queue, and callbacks are raised on the developer specified callbackQueue in FIRStorage, or the
+ * main queue if left unspecified. Currently all uploads must be initiated and managed on the main
+ * queue.
  */
-NS_SWIFT_NAME(StorageDownloadTask)
-@interface FIRStorageDownloadTask : FIRStorageObservableTask <FIRStorageTaskManagement>
+@interface FIRIMPLStorageDownloadTask : FIRIMPLStorageObservableTask <FIRIMPLStorageTaskManagement>
 
 @end
 

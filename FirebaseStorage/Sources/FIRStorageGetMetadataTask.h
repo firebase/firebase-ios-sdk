@@ -23,9 +23,9 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Task which provides the ability to get metadata on an object in Firebase Storage.
  */
-@interface FIRStorageGetMetadataTask : FIRStorageTask <FIRStorageTaskManagement>
+@interface FIRStorageGetMetadataTask : FIRIMPLStorageTask <FIRIMPLStorageTaskManagement>
 
-- (instancetype)initWithReference:(FIRStorageReference *)reference
+- (instancetype)initWithReference:(FIRIMPLStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
                     dispatchQueue:(dispatch_queue_t)queue
                        completion:(FIRStorageVoidMetadataError)completion;
