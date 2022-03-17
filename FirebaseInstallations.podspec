@@ -63,7 +63,9 @@ Pod::Spec.new do |s|
     }
     unit_tests.source_files = base_dir + 'Tests/Unit/*.[mh]',
                               base_dir + 'Tests/Utils/*.[mh]',
-                              base_dir + 'Tests/Unit/Swift/*'
+                              base_dir + 'Tests/Unit/Swift/*',
+                              # Include blank Swift file for static linking.
+                              'Empty.swift'
     unit_tests.resources = base_dir + 'Tests/Fixture/**/*'
     unit_tests.requires_app_host = true
     unit_tests.dependency 'OCMock'
@@ -76,7 +78,9 @@ Pod::Spec.new do |s|
   s.test_spec 'integration' do |int_tests|
     int_tests.scheme = { :code_coverage => true }
     int_tests.platforms = {:ios => '9.0', :osx => '10.12', :tvos => '10.0'}
-    int_tests.source_files = base_dir + 'Tests/Integration/**/*.[mh]'
+    int_tests.source_files = base_dir + 'Tests/Integration/**/*.[mh]',
+                                  # Include blank Swift file for static linking.
+                                  'Empty.swift'
     int_tests.resources = base_dir + 'Tests/Resources/**/*'
     if ENV['FIS_INTEGRATION_TESTS_REQUIRED'] && ENV['FIS_INTEGRATION_TESTS_REQUIRED'] == '1' then
       int_tests.pod_target_xcconfig = {
