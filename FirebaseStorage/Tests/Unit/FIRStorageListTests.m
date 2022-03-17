@@ -21,7 +21,7 @@ NSString *kListPath = @"object";
 
 @property(strong, nonatomic) GTMSessionFetcherService *fetcherService;
 @property(nonatomic) dispatch_queue_t dispatchQueue;
-@property(strong, nonatomic) FIRStorage *storage;
+@property(strong, nonatomic) FIRIMPLStorage *storage;
 @property(strong, nonatomic) id mockApp;
 
 @end
@@ -31,13 +31,6 @@ NSString *kListPath = @"object";
 - (void)setUp {
   [super setUp];
 
-  id mockOptions = OCMClassMock([FIROptions class]);
-  OCMStub([mockOptions storageBucket]).andReturn(@"bucket");
-
-  self.mockApp = [FIRStorageTestHelpers mockedApp];
-  OCMStub([self.mockApp name]).andReturn(kFIRStorageAppName);
-  OCMStub([(FIRApp *)self.mockApp options]).andReturn(mockOptions);
-
   self.fetcherService = [[GTMSessionFetcherService alloc] init];
   self.fetcherService.authorizer =
       [[FIRStorageTokenAuthorizer alloc] initWithGoogleAppID:@"dummyAppID"
@@ -46,8 +39,7 @@ NSString *kListPath = @"object";
                                                     appCheck:nil];
 
   self.dispatchQueue = dispatch_queue_create("Test dispatch queue", DISPATCH_QUEUE_SERIAL);
-
-  self.storage = [FIRStorage storageForApp:self.mockApp];
+  self.storage = [FIRStorageTestHelpers storageWithMockedApp];
 }
 
 - (void)tearDown {
@@ -61,17 +53,17 @@ NSString *kListPath = @"object";
   XCTestExpectation *expectation = [self expectationWithDescription:@"testValidatesInput"];
   expectation.expectedFulfillmentCount = 4;
 
-  FIRStorageVoidListError errorBlock = ^(FIRStorageListResult *result, NSError *error) {
+  FIRStorageVoidListError errorBlock = ^(FIRIMPLStorageListResult *result, NSError *error) {
     XCTAssertNil(result);
     XCTAssertNotNil(error);
 
     XCTAssertEqualObjects(error.domain, @"FIRStorageErrorDomain");
-    XCTAssertEqual(error.code, FIRStorageErrorCodeInvalidArgument);
+    XCTAssertEqual(error.code, FIRIMPLStorageErrorCodeInvalidArgument);
 
     [expectation fulfill];
   };
 
-  FIRStorageReference *ref = [self.storage referenceWithPath:kListPath];
+  FIRIMPLStorageReference *ref = [self.storage referenceWithPath:kListPath];
   [ref listWithMaxResults:0 completion:errorBlock];
   [ref listWithMaxResults:1001 completion:errorBlock];
   [ref listWithMaxResults:0 pageToken:@"foo" completion:errorBlock];
@@ -85,17 +77,17 @@ NSString *kListPath = @"object";
       [self expectationWithDescription:@"testListAllCallbackOnlyCalledOnce"];
   expectation.expectedFulfillmentCount = 1;
 
-  FIRStorageVoidListError errorBlock = ^(FIRStorageListResult *result, NSError *error) {
+  FIRStorageVoidListError errorBlock = ^(FIRIMPLStorageListResult *result, NSError *error) {
     XCTAssertNil(result);
     XCTAssertNotNil(error);
 
     XCTAssertEqualObjects(error.domain, @"FIRStorageErrorDomain");
-    XCTAssertEqual(error.code, FIRStorageErrorCodeUnknown);
+    XCTAssertEqual(error.code, FIRIMPLStorageErrorCodeUnknown);
 
     [expectation fulfill];
   };
 
-  FIRStorageReference *ref = [self.storage referenceWithPath:kListPath];
+  FIRIMPLStorageReference *ref = [self.storage referenceWithPath:kListPath];
   [ref listAllWithCompletion:errorBlock];
 
   [FIRStorageTestHelpers waitForExpectation:self];
@@ -121,14 +113,14 @@ NSString *kListPath = @"object";
         response(httpResponse, nil, nil);
       };
 
-  FIRStorageReference *ref = [self.storage referenceWithPath:kListPath];
+  FIRIMPLStorageReference *ref = [self.storage referenceWithPath:kListPath];
   FIRStorageListTask *task = [[FIRStorageListTask alloc]
       initWithReference:ref
          fetcherService:self.fetcherService
           dispatchQueue:self.dispatchQueue
                pageSize:nil
       previousPageToken:nil
-             completion:^(FIRStorageListResult *result, NSError *error) {
+             completion:^(FIRIMPLStorageListResult *result, NSError *error) {
                [expectation fulfill];
              }];
   [task enqueue];
@@ -144,14 +136,14 @@ NSString *kListPath = @"object";
   self.fetcherService.testBlock = [FIRStorageTestHelpers
       successBlockWithURL:@"http://localhost:8080/v0/b/bucket/o?prefix=object/&delimiter=/"];
 
-  FIRStorageReference *ref = [self.storage referenceWithPath:kListPath];
+  FIRIMPLStorageReference *ref = [self.storage referenceWithPath:kListPath];
   FIRStorageListTask *task = [[FIRStorageListTask alloc]
       initWithReference:ref
          fetcherService:self.fetcherService
           dispatchQueue:self.dispatchQueue
                pageSize:nil
       previousPageToken:nil
-             completion:^(FIRStorageListResult *result, NSError *error) {
+             completion:^(FIRIMPLStorageListResult *result, NSError *error) {
                XCTAssertNil(error);
                [expectation fulfill];
              }];
@@ -181,14 +173,14 @@ NSString *kListPath = @"object";
         response(httpResponse, nil, nil);
       };
 
-  FIRStorageReference *ref = [self.storage referenceWithPath:kListPath];
+  FIRIMPLStorageReference *ref = [self.storage referenceWithPath:kListPath];
   FIRStorageListTask *task = [[FIRStorageListTask alloc]
       initWithReference:ref
          fetcherService:self.fetcherService
           dispatchQueue:self.dispatchQueue
                pageSize:@(42)
       previousPageToken:@"foo"
-             completion:^(FIRStorageListResult *result, NSError *error) {
+             completion:^(FIRIMPLStorageListResult *result, NSError *error) {
                [expectation fulfill];
              }];
   [task enqueue];
@@ -216,14 +208,14 @@ NSString *kListPath = @"object";
         response(httpResponse, nil, nil);
       };
 
-  FIRStorageReference *ref = [self.storage referenceWithPath:@"+foo"];
+  FIRIMPLStorageReference *ref = [self.storage referenceWithPath:@"+foo"];
   FIRStorageListTask *task = [[FIRStorageListTask alloc]
       initWithReference:ref
          fetcherService:self.fetcherService
           dispatchQueue:self.dispatchQueue
                pageSize:nil
       previousPageToken:nil
-             completion:^(FIRStorageListResult *result, NSError *error) {
+             completion:^(FIRIMPLStorageListResult *result, NSError *error) {
                [expectation fulfill];
              }];
   [task enqueue];
@@ -263,14 +255,14 @@ NSString *kListPath = @"object";
         response(httpResponse, responseData, nil);
       };
 
-  FIRStorageReference *ref = [self.storage referenceWithPath:kListPath];
+  FIRIMPLStorageReference *ref = [self.storage referenceWithPath:kListPath];
   FIRStorageListTask *task = [[FIRStorageListTask alloc]
       initWithReference:ref
          fetcherService:self.fetcherService
           dispatchQueue:self.dispatchQueue
                pageSize:nil
       previousPageToken:nil
-             completion:^(FIRStorageListResult *result, NSError *error) {
+             completion:^(FIRIMPLStorageListResult *result, NSError *error) {
                XCTAssertNotNil(result);
                XCTAssertNil(error);
 
@@ -305,19 +297,19 @@ NSString *kListPath = @"object";
         response(httpResponse, nil, error);
       };
 
-  FIRStorageReference *ref = [self.storage referenceWithPath:kListPath];
+  FIRIMPLStorageReference *ref = [self.storage referenceWithPath:kListPath];
   FIRStorageListTask *task = [[FIRStorageListTask alloc]
       initWithReference:ref
          fetcherService:self.fetcherService
           dispatchQueue:self.dispatchQueue
                pageSize:nil
       previousPageToken:nil
-             completion:^(FIRStorageListResult *result, NSError *error) {
+             completion:^(FIRIMPLStorageListResult *result, NSError *error) {
                XCTAssertNotNil(error);
                XCTAssertNil(result);
 
                XCTAssertEqualObjects(error.domain, @"FIRStorageErrorDomain");
-               XCTAssertEqual(error.code, FIRStorageErrorCodeObjectNotFound);
+               XCTAssertEqual(error.code, FIRIMPLStorageErrorCodeObjectNotFound);
 
                [expectation fulfill];
              }];

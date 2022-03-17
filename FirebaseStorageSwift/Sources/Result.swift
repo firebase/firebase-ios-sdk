@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@_exported import FirebaseStorageObjC
+import Foundation
 
 /// Generates a closure that returns a `Result` type from a closure that returns an optional type
 /// and `Error`.
@@ -91,9 +91,9 @@ public extension StorageReference {
   func list(maxResults: Int64,
             pageToken: String,
             completion: @escaping (Result<StorageListResult, Error>) -> Void) {
-    __list(withMaxResults: maxResults,
-           pageToken: pageToken,
-           completion: getResultCallback(completion: completion))
+    list(maxResults: maxResults,
+         pageToken: pageToken,
+         completion: getResultCallback(completion: completion))
   }
 
   /// List up to `maxResults` items (files) and prefixes (folders) under this StorageReference.
@@ -112,8 +112,8 @@ public extension StorageReference {
   ///                with either the list or an `Error`.
   func list(maxResults: Int64,
             completion: @escaping (Result<StorageListResult, Error>) -> Void) {
-    __list(withMaxResults: maxResults,
-           completion: getResultCallback(completion: completion))
+    list(maxResults: maxResults,
+         completion: getResultCallback(completion: completion))
   }
 
   /// List all items (files) and prefixes (folders) under this StorageReference.

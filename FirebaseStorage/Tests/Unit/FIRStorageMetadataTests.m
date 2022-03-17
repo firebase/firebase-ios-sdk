@@ -16,8 +16,6 @@
 
 #import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageMetadata.h"
 
-#import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageMetadata.h"
-
 #import "FirebaseStorage/Sources/FIRStorageGetDownloadURLTask.h"
 #import "FirebaseStorage/Sources/FIRStorageGetDownloadURLTask_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageMetadata_Private.h"
@@ -25,18 +23,18 @@
 
 #import "FirebaseStorage/Tests/Unit/FIRStorageTestHelpers.h"
 
-@interface FIRStorageMetadataTests : XCTestCase
+@interface FIRIMPLStorageMetadataTests : XCTestCase
 
 @end
 
-@implementation FIRStorageMetadataTests
+@implementation FIRIMPLStorageMetadataTests
 
 - (void)testInitialzeNoMetadata {
-  FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:@{}];
+  FIRIMPLStorageMetadata *metadata = [[FIRIMPLStorageMetadata alloc] initWithDictionary:@{}];
   XCTAssertNotNil(metadata);
 }
 
-- (void)testInitialzeFullMetadata {
+- (void)testInitializeFullMetadata {
   NSDictionary *metaDict = @{
     kFIRStorageMetadataBucket : @"bucket",
     kFIRStorageMetadataCacheControl : @"max-age=3600, no-cache",
@@ -53,7 +51,7 @@
     kFIRStorageMetadataMd5Hash : @"d41d8cd98f00b204e9800998ecf8427e",
     kFIRStorageMetadataSize : @1337
   };
-  FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
+  FIRIMPLStorageMetadata *metadata = [[FIRIMPLStorageMetadata alloc] initWithDictionary:metaDict];
   XCTAssertNotNil(metadata);
   XCTAssertEqualObjects(metadata.bucket, metaDict[kFIRStorageMetadataBucket]);
   XCTAssertEqualObjects(metadata.cacheControl, metaDict[kFIRStorageMetadataCacheControl]);
@@ -93,7 +91,7 @@
     kFIRStorageMetadataMd5Hash : @"d41d8cd98f00b204e9800998ecf8427e",
     kFIRStorageMetadataSize : @1337
   };
-  FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
+  FIRIMPLStorageMetadata *metadata = [[FIRIMPLStorageMetadata alloc] initWithDictionary:metaDict];
   NSDictionary *dictRepresentation = [metadata dictionaryRepresentation];
   XCTAssertNotNil(dictRepresentation);
   XCTAssertEqualObjects(dictRepresentation[kFIRStorageMetadataBucket],
@@ -174,7 +172,7 @@
     kFIRStorageMetadataBucket : @"bucket",
     kFIRStorageMetadataName : @"path/to/file",
   };
-  FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
+  FIRIMPLStorageMetadata *metadata = [[FIRIMPLStorageMetadata alloc] initWithDictionary:metaDict];
   [metadata setType:FIRStorageMetadataTypeFile];
   XCTAssertEqual(metadata.isFile, YES);
   XCTAssertEqual(metadata.isFolder, NO);
@@ -185,7 +183,7 @@
     kFIRStorageMetadataBucket : @"bucket",
     kFIRStorageMetadataName : @"path/to/folder/",
   };
-  FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
+  FIRIMPLStorageMetadata *metadata = [[FIRIMPLStorageMetadata alloc] initWithDictionary:metaDict];
   [metadata setType:FIRStorageMetadataTypeFolder];
   XCTAssertEqual(metadata.isFolder, YES);
   XCTAssertEqual(metadata.isFile, NO);
@@ -196,8 +194,8 @@
     kFIRStorageMetadataBucket : @"bucket",
     kFIRStorageMetadataName : @"path/to/object",
   };
-  FIRStorageMetadata *metadata0 = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
-  FIRStorageMetadata *metadata1 = metadata0;
+  FIRIMPLStorageMetadata *metadata0 = [[FIRIMPLStorageMetadata alloc] initWithDictionary:metaDict];
+  FIRIMPLStorageMetadata *metadata1 = metadata0;
   XCTAssertEqual(metadata0, metadata1);
   XCTAssertEqualObjects(metadata0, metadata1);
 }
@@ -207,7 +205,7 @@
     kFIRStorageMetadataBucket : @"bucket",
     kFIRStorageMetadataName : @"path/to/object",
   };
-  FIRStorageMetadata *metadata0 = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
+  FIRIMPLStorageMetadata *metadata0 = [[FIRIMPLStorageMetadata alloc] initWithDictionary:metaDict];
   XCTAssertNotEqualObjects(metadata0, @"I'm not object metadata!");
 }
 
@@ -217,8 +215,8 @@
     kFIRStorageMetadataName : @"path/to/object",
     kFIRStorageMetadataMd5Hash : @"d41d8cd98f00b204e9800998ecf8427e",
   };
-  FIRStorageMetadata *metadata0 = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
-  FIRStorageMetadata *metadata1 = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
+  FIRIMPLStorageMetadata *metadata0 = [[FIRIMPLStorageMetadata alloc] initWithDictionary:metaDict];
+  FIRIMPLStorageMetadata *metadata1 = [[FIRIMPLStorageMetadata alloc] initWithDictionary:metaDict];
   XCTAssertNotEqual(metadata0, metadata1);
   XCTAssertEqualObjects(metadata0, metadata1);
 }
@@ -230,8 +228,10 @@
   NSDictionary *secondDict = @{
     kFIRStorageMetadataMd5Hash : @"foo",
   };
-  FIRStorageMetadata *firstMetadata = [[FIRStorageMetadata alloc] initWithDictionary:firstDict];
-  FIRStorageMetadata *secondMetadata = [[FIRStorageMetadata alloc] initWithDictionary:secondDict];
+  FIRIMPLStorageMetadata *firstMetadata =
+      [[FIRIMPLStorageMetadata alloc] initWithDictionary:firstDict];
+  FIRIMPLStorageMetadata *secondMetadata =
+      [[FIRIMPLStorageMetadata alloc] initWithDictionary:secondDict];
   XCTAssertNotEqualObjects(firstMetadata, secondMetadata);
 }
 
@@ -241,8 +241,8 @@
     kFIRStorageMetadataName : @"path/to/object",
     kFIRStorageMetadataMd5Hash : @"d41d8cd98f00b204e9800998ecf8427e",
   };
-  FIRStorageMetadata *metadata0 = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
-  FIRStorageMetadata *metadata1 = [metadata0 copy];
+  FIRIMPLStorageMetadata *metadata0 = [[FIRIMPLStorageMetadata alloc] initWithDictionary:metaDict];
+  FIRIMPLStorageMetadata *metadata1 = [metadata0 copy];
   XCTAssertNotEqual(metadata0, metadata1);
   XCTAssertEqualObjects(metadata0, metadata1);
 }
@@ -252,7 +252,8 @@
     kFIRStorageMetadataContentLanguage : @"old",
     kFIRStorageMetadataCustomMetadata : @{@"foo" : @"old", @"bar" : @"old"}
   };
-  FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:oldMetadata];
+  FIRIMPLStorageMetadata *metadata =
+      [[FIRIMPLStorageMetadata alloc] initWithDictionary:oldMetadata];
   metadata.contentLanguage = @"new";
   metadata.customMetadata = @{@"foo" : @"new", @"bar" : @"old"};
 
@@ -270,7 +271,8 @@
     kFIRStorageMetadataContentLanguage : @"old",
     kFIRStorageMetadataCustomMetadata : @{@"foo" : @"old", @"bar" : @"old"}
   };
-  FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:oldMetadata];
+  FIRIMPLStorageMetadata *metadata =
+      [[FIRIMPLStorageMetadata alloc] initWithDictionary:oldMetadata];
 
   NSDictionary *update = [metadata updatedMetadata];
 
@@ -283,7 +285,8 @@
     kFIRStorageMetadataContentLanguage : @"old",
     kFIRStorageMetadataCustomMetadata : @{@"foo" : @"old", @"bar" : @"old"}
   };
-  FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:oldMetadata];
+  FIRIMPLStorageMetadata *metadata =
+      [[FIRIMPLStorageMetadata alloc] initWithDictionary:oldMetadata];
   metadata.contentLanguage = nil;
   metadata.customMetadata = @{@"foo" : @"old"};
 
@@ -301,39 +304,39 @@
     kFIRStorageMetadataBucket : @"bucket",
     kFIRStorageMetadataName : @"path/to/object",
   };
-  FIRStorageMetadata *metadata0 = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
-  FIRStorageMetadata *metadata1 = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
+  FIRIMPLStorageMetadata *metadata0 = [[FIRIMPLStorageMetadata alloc] initWithDictionary:metaDict];
+  FIRIMPLStorageMetadata *metadata1 = [[FIRIMPLStorageMetadata alloc] initWithDictionary:metaDict];
   XCTAssertNotEqual(metadata0, metadata1);
   XCTAssertEqual([metadata0 hash], [metadata1 hash]);
 }
 
 - (void)testZuluTimeOffset {
   NSDictionary *metaDict = @{kFIRStorageMetadataTimeCreated : @"1992-08-07T17:22:53.108Z"};
-  FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
+  FIRIMPLStorageMetadata *metadata = [[FIRIMPLStorageMetadata alloc] initWithDictionary:metaDict];
   XCTAssertNotNil(metadata.timeCreated);
 }
 
 - (void)testZuluZeroTimeOffset {
   NSDictionary *metaDict = @{kFIRStorageMetadataTimeCreated : @"1992-08-07T17:22:53.108+0000"};
-  FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
+  FIRIMPLStorageMetadata *metadata = [[FIRIMPLStorageMetadata alloc] initWithDictionary:metaDict];
   XCTAssertNotNil(metadata.timeCreated);
 }
 
 - (void)testGoogleStandardTimeOffset {
   NSDictionary *metaDict = @{kFIRStorageMetadataTimeCreated : @"1992-08-07T17:22:53.108-0700"};
-  FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
+  FIRIMPLStorageMetadata *metadata = [[FIRIMPLStorageMetadata alloc] initWithDictionary:metaDict];
   XCTAssertNotNil(metadata.timeCreated);
 }
 
 - (void)testUnspecifiedTimeOffset {
   NSDictionary *metaDict = @{kFIRStorageMetadataTimeCreated : @"1992-08-07T17:22:53.108-0000"};
-  FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
+  FIRIMPLStorageMetadata *metadata = [[FIRIMPLStorageMetadata alloc] initWithDictionary:metaDict];
   XCTAssertNotNil(metadata.timeCreated);
 }
 
 - (void)testNoTimeOffset {
   NSDictionary *metaDict = @{kFIRStorageMetadataTimeCreated : @"1992-08-07T17:22:53.108"};
-  FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:metaDict];
+  FIRIMPLStorageMetadata *metadata = [[FIRIMPLStorageMetadata alloc] initWithDictionary:metaDict];
   XCTAssertNil(metadata.timeCreated);
 }
 

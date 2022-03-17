@@ -97,9 +97,9 @@ static NSString *const kAuthHeader = @"Authorization";
                            errorDictionary[kFIRStorageResponseErrorDomain] = error.domain;
                            errorDictionary[kFIRStorageResponseErrorCode] = @(error.code);
 
-                           NSError *tokenError =
-                               [FIRStorageErrors errorWithCode:FIRStorageErrorCodeUnauthenticated
-                                                infoDictionary:errorDictionary];
+                           NSError *tokenError = [FIRStorageErrors
+                                errorWithCode:FIRIMPLStorageErrorCodeUnauthenticated
+                               infoDictionary:errorDictionary];
                            [invocation setArgument:&tokenError atIndex:4];
                          } else if (token) {
                            NSString *firebaseToken =

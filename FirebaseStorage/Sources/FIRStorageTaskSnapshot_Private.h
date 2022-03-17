@@ -22,15 +22,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FIRStorageMetadata;
-@class FIRStorageReference;
-@class FIRStorageTask;
+@class FIRIMPLStorageMetadata;
+@class FIRIMPLStorageReference;
+@class FIRIMPLStorageTask;
 
-@interface FIRStorageTaskSnapshot ()
+@interface FIRIMPLStorageTaskSnapshot ()
 
-@property(readwrite, copy, nonatomic) FIRStorageTask *task;
-@property(readwrite, copy, nonatomic) FIRStorageMetadata *metadata;
-@property(readwrite, copy, nonatomic) FIRStorageReference *reference;
+@property(readwrite, copy, nonatomic) FIRIMPLStorageTask *task;
+@property(readwrite, copy, nonatomic) FIRIMPLStorageMetadata *metadata;
+@property(readwrite, copy, nonatomic) FIRIMPLStorageReference *reference;
 @property(readwrite, strong, nonatomic) NSProgress *progress;
 @property(readwrite, copy, nonatomic) NSError *error;
 
@@ -38,20 +38,20 @@ NS_ASSUME_NONNULL_BEGIN
  * Creates a new task snapshot from the given properties.
  * @param task The task being represented in this snapshot.
  * @param state The current state of the parent task.
- * @param metadata The FIRStorageMetadata of a task. Before upload/update, contains the metadata
+ * @param metadata The FIRIMPLStorageMetadata of a task. Before upload/update, contains the metadata
  * to be updated; after, contains the returned metadata. May be nil if no metadata is provided
  * or returned.
- * @param reference The FIRStorageReference that spawned the task this snapshot is based on.
+ * @param reference The FIRIMPLStorageReference that spawned the task this snapshot is based on.
  * @param progress An NSProgress object containing progress of the task this snapshot is based on,
  * or nil if the task doesn't report progress.
  * @param error An NSError object containing an error that occurred during the task,
  * if one occurred.
  * @return Returns the constructed snapshot.
  */
-- (instancetype)initWithTask:(__kindof FIRStorageTask *)task
-                       state:(FIRStorageTaskState)state
-                    metadata:(nullable FIRStorageMetadata *)metadata
-                   reference:(FIRStorageReference *)reference
+- (instancetype)initWithTask:(__kindof FIRIMPLStorageTask *)task
+                       state:(FIRIMPLStorageTaskState)state
+                    metadata:(nullable FIRIMPLStorageMetadata *)metadata
+                   reference:(FIRIMPLStorageReference *)reference
                     progress:(nullable NSProgress *)progress
                        error:(nullable NSError *)error;
 

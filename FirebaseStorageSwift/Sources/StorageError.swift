@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-@_exported import FirebaseStorageObjC
+import FirebaseStorageObjC
 
 public enum StorageError: Error {
   case unknown
@@ -32,9 +32,10 @@ public enum StorageError: Error {
 
   static func swiftConvert(objcError: NSError) -> StorageError {
     let userInfo = objcError.userInfo
+
     switch objcError.code {
-    case StorageErrorCode.unknown.rawValue: return StorageError.unknown
-    case StorageErrorCode.objectNotFound.rawValue:
+    case FIRIMPLStorageErrorCode.unknown.rawValue: return StorageError.unknown
+    case FIRIMPLStorageErrorCode.objectNotFound.rawValue:
       guard let object = userInfo["object"] as? String else {
         return StorageError
           .internalError(
@@ -42,7 +43,7 @@ public enum StorageError: Error {
           )
       }
       return StorageError.objectNotFound(object)
-    case StorageErrorCode.bucketNotFound.rawValue:
+    case FIRIMPLStorageErrorCode.bucketNotFound.rawValue:
       guard let bucket = userInfo["bucket"] as? String else {
         return StorageError
           .internalError(
@@ -50,7 +51,7 @@ public enum StorageError: Error {
           )
       }
       return StorageError.bucketNotFound(bucket)
-    case StorageErrorCode.projectNotFound.rawValue:
+    case FIRIMPLStorageErrorCode.projectNotFound.rawValue:
       guard let project = userInfo["project"] as? String else {
         return StorageError
           .internalError(
@@ -58,14 +59,14 @@ public enum StorageError: Error {
           )
       }
       return StorageError.projectNotFound(project)
-    case StorageErrorCode.quotaExceeded.rawValue:
+    case FIRIMPLStorageErrorCode.quotaExceeded.rawValue:
       guard let bucket = userInfo["bucket"] as? String else {
         return StorageError
           .internalError("Failed to decode quota exceeded error: \(objcError.localizedDescription)")
       }
       return StorageError.quotaExceeded(bucket)
-    case StorageErrorCode.unauthenticated.rawValue: return StorageError.unauthenticated
-    case StorageErrorCode.unauthorized.rawValue:
+    case FIRIMPLStorageErrorCode.unauthenticated.rawValue: return StorageError.unauthenticated
+    case FIRIMPLStorageErrorCode.unauthorized.rawValue:
       guard let bucket = userInfo["bucket"] as? String,
             let object = userInfo["object"] as? String else {
         return StorageError
@@ -74,9 +75,10 @@ public enum StorageError: Error {
           )
       }
       return StorageError.unauthorized(bucket, object)
-    case StorageErrorCode.retryLimitExceeded.rawValue: return StorageError.retryLimitExceeded
-    case StorageErrorCode.nonMatchingChecksum.rawValue: return StorageError.nonMatchingChecksum
-    case StorageErrorCode.downloadSizeExceeded.rawValue:
+    case FIRIMPLStorageErrorCode.retryLimitExceeded.rawValue: return StorageError.retryLimitExceeded
+    case FIRIMPLStorageErrorCode.nonMatchingChecksum.rawValue: return StorageError
+      .nonMatchingChecksum
+    case FIRIMPLStorageErrorCode.downloadSizeExceeded.rawValue:
       guard let total = userInfo["totalSize"] as? Int64,
             let maxSize = userInfo["maxAllowedSize"] as? Int64 else {
         return StorageError
@@ -85,8 +87,8 @@ public enum StorageError: Error {
           )
       }
       return StorageError.downloadSizeExceeded(total, maxSize)
-    case StorageErrorCode.cancelled.rawValue: return StorageError.cancelled
-    case StorageErrorCode.invalidArgument.rawValue: return StorageError
+    case FIRIMPLStorageErrorCode.cancelled.rawValue: return StorageError.cancelled
+    case FIRIMPLStorageErrorCode.invalidArgument.rawValue: return StorageError
       .invalidArgument(objcError.localizedDescription)
     default: return StorageError.internalError("Internal error converting ObjC Error to Swift")
     }
