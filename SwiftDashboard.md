@@ -9,15 +9,15 @@ tasks for additional Swift improvements.
 
 |                       | An     | ApC    | ApD    | Aut    | Cor    | Crs    | DB     | DL     | Fst    | Fn     | IAM    | Ins    | Msg    | MLM    | Prf    | RC     |    Str |
 |   :---                | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
-| **Swift Library**     |   ✔    | ❌     |❌     | ❌     | n/a     | ❌      |  ✔     | ❌     |  ✔    | ✔      |  ✔     | ❌    | ❌     | ✔      | ❌        |  ✔        | ✔     |
-| **API Tests**         |  ❌    |  ✔     |❌     | ✔      | ✔       | ❌     | 3      | ❌      | 2     |  ✔     | 2      | ✔      | ✔     | 2      | ❌        |  ✔      | ✔    |
-| **async/await**       |  ✔    |  ✔      |✔     | ✔      |  ✔      | ✔      | 3     | ❌      |  ✔     |  ✔     | ✔      | ✔     | ✔        | ❌      | ✔      |  ✔     | ✔    |
-| **Swift Errors**      |  ✔    | ❌     |❌     | 4      | ✔       | ❌      | ❌      | ❌     | ❌    | ❌     | ❌     | ❌      | ❌     | ✔      | ✔     |  ❌   | 5   |
-| **Codable**           |  n/a   | n/a   |n/a    | n/a     | n/a    |n/a     |  ✔     | n/a    |  ✔     | ✔      | n/a    | n/a   | n/a     | n/a    | n/a    |   ✔  |n/a   |
-| **SwiftUI Lifecycle** |  ❌    | n/a    | n/a   | ❌     | n/a    |n/a     | n/a     | ❌    | n/a    | n/a     | n/a    | n/a    | ❌     | n/a    | ❌     | n/a   |n/a  |
-| **SwiftUI Interop**   |   ✔    | n/a    | ❌    | ❌     | n/a     |❌      | ❌      | n/a    | ✔     | n/a     | ✔      | n/a   | n/a     | n/a    | ❌     | n/a   |n/a  |
-| **Property Wrappers** |  ❌    | ❌     |❌     | ❌     | ❌     | ❌     | ❌      | ❌     | 6     | ❌     | ❌     | ❌    | ❌     | ❌    | ❌     | ❌   |❌    |
-| **Swift Doc Scrub**   |  ❌    | ❌     |❌     | ❌     | ✔      | ✔     | ❌      | ❌     |  ❌   | ❌     | ❌     | ❌    | ❌     | ❌    | ❌     | ❌   |❌    |
+| **Swift Library**     |   ✔    | ❌     |❌      | ❌     | n/a   | ❌     |  ✔     | ❌     |  ✔     | ✔      |  ✔     | ❌    | ❌     | ✔      | ❌     |  ✔     | ✔      |
+| **API Tests**         |  ❌    |  ✔     |❌      | ✔      | ✔     | ❌     | 3      | ❌     | 2      |  ✔     | 2      | ✔      | ✔      | 2      | ❌     |  ✔     | ✔      |
+| **async/await**       |  ✔     |  ✔     |✔       | ✔       |  ✔    | ✔      | 3      | ❌     |  ✔     |  ✔     | ✔      | ✔      | ✔      | ❌     | ✔      |  ✔     | ✔      |
+| **Swift Errors**      |  ✔     | ❌     |❌      | 4      | ✔     | ❌     | ❌     | ❌     | ❌     | ❌    | ❌     | ❌     | ❌     | ✔      | ✔      |  ❌    | 5     |
+| **Codable**           |  n/a   | n/a    | n/a    | n/a    | n/a    | n/a    |  ✔     | n/a    |  ✔     | ✔      | n/a    | n/a    | n/a    | n/a    | n/a    |   ✔    | n/a    |
+| **SwiftUI Lifecycle** |  ❌    | n/a    | n/a    | ❌    | n/a    | n/a    | n/a    | ❌     | n/a    | n/a    | n/a    | n/a    | ❌     | n/a    | ❌     | n/a    | n/a    |
+| **SwiftUI Interop**   |   ✔    | n/a    | ❌     | ❌    | n/a    | ❌     | ❌     | n/a    | ✔      | n/a    | ✔      | n/a    | n/a    | n/a    | ❌     | n/a    | n/a    |
+| **Property Wrappers** |  ❌    | ❌     |❌     | ❌     | ❌    | ❌     | ❌     | ❌     | 6      | ❌     | ❌     | ❌    | ❌     | ❌     | ❌     | ❌    | ❌     |
+| **Swift Doc Scrub**   |  ❌    | ❌     |❌     | ❌     | ✔     | ✔      | ❌      | ❌    |  ❌    | ❌     | ❌     | ❌    | ❌     | ❌     | ❌     | ❌    | ❌     |
 
 ### Other Projects
 - Tooling to surface full list of automatically generated Swift API from Objective C and validate.
