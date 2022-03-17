@@ -27,6 +27,8 @@ Objective C Implementations for FirebaseStorage. This pod should not be directly
   s.tvos.deployment_target = tvos_deployment_target
   s.watchos.deployment_target = watchos_deployment_target
 
+  s.swift_version = '5.3'
+
   s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
 
