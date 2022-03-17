@@ -32,17 +32,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRStorageTask ()
+@interface FIRIMPLStorageTask ()
 
 /**
  * State for the current task in progress.
  */
-@property(atomic) FIRStorageTaskState state;
+@property(atomic) FIRIMPLStorageTaskState state;
 
 /**
- * FIRStorageMetadata for the task in progress, or nil if none present.
+ * FIRIMPLStorageMetadata for the task in progress, or nil if none present.
  */
-@property(strong, nonatomic, nullable) FIRStorageMetadata *metadata;
+@property(strong, nonatomic, nullable) FIRIMPLStorageMetadata *metadata;
 
 /**
  * Error which occurred during task execution, or nil if no error occurred.
@@ -57,14 +57,14 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Reference pointing to the location the task is being performed against.
  */
-@property(strong, nonatomic) FIRStorageReference *reference;
+@property(strong, nonatomic) FIRIMPLStorageReference *reference;
 
 /**
  * A serial queue for all storage operations.
  */
 @property(nonatomic, readonly) dispatch_queue_t dispatchQueue;
 
-@property(strong, readwrite, nonatomic, nonnull) FIRStorageTaskSnapshot *snapshot;
+@property(strong, readwrite, nonatomic, nonnull) FIRIMPLStorageTaskSnapshot *snapshot;
 
 @property(readonly, copy, nonatomic) NSURLRequest *baseRequest;
 
@@ -77,14 +77,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
- * Creates a new FIRStorageTask initialized with a FIRStorageReference and GTMSessionFetcherService.
- * @param reference A FIRStorageReference the task will be performed on.
+ * Creates a new FIRIMPLStorageTask initialized with a FIRIMPLStorageReference and
+ * GTMSessionFetcherService.
+ * @param reference A FIRIMPLStorageReference the task will be performed on.
  * @param service A GTMSessionFetcherService which provides the fetchers and configuration for
  * requests.
  * @param queue The shared queue to use for all Storage operations.
- * @return A new FIRStorageTask representing the current task.
+ * @return A new FIRIMPLStorageTask representing the current task.
  */
-- (instancetype)initWithReference:(FIRStorageReference *)reference
+- (instancetype)initWithReference:(FIRIMPLStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
                     dispatchQueue:(dispatch_queue_t)queue NS_DESIGNATED_INITIALIZER;
 

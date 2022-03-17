@@ -27,16 +27,16 @@
 #import <GTMSessionFetcher/GTMSessionUploadFetcher.h>
 #endif
 
-@implementation FIRStorageUploadTask
+@implementation FIRIMPLStorageUploadTask
 
 @synthesize progress = _progress;
 @synthesize fetcherCompletion = _fetcherCompletion;
 
-- (instancetype)initWithReference:(FIRStorageReference *)reference
+- (instancetype)initWithReference:(FIRIMPLStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
                     dispatchQueue:(dispatch_queue_t)queue
                              data:(NSData *)uploadData
-                         metadata:(FIRStorageMetadata *)metadata {
+                         metadata:(FIRIMPLStorageMetadata *)metadata {
   self = [super initWithReference:reference fetcherService:service dispatchQueue:queue];
   if (self) {
     _uploadMetadata = [metadata copy];
@@ -50,11 +50,11 @@
   return self;
 }
 
-- (instancetype)initWithReference:(FIRStorageReference *)reference
+- (instancetype)initWithReference:(FIRIMPLStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
                     dispatchQueue:(dispatch_queue_t)queue
                              file:(NSURL *)fileURL
-                         metadata:(FIRStorageMetadata *)metadata {
+                         metadata:(FIRIMPLStorageMetadata *)metadata {
   self = [super initWithReference:reference fetcherService:service dispatchQueue:queue];
   if (self) {
     _uploadMetadata = [metadata copy];
@@ -75,10 +75,10 @@
 }
 
 - (void)enqueue {
-  __weak FIRStorageUploadTask *weakSelf = self;
+  __weak FIRIMPLStorageUploadTask *weakSelf = self;
 
   [self dispatchAsync:^() {
-    FIRStorageUploadTask *strongSelf = weakSelf;
+    FIRIMPLStorageUploadTask *strongSelf = weakSelf;
 
     if (!strongSelf) {
       return;
@@ -87,11 +87,12 @@
     NSError *contentValidationError;
     if (![strongSelf isContentToUploadValid:&contentValidationError]) {
       strongSelf.error = contentValidationError;
-      [strongSelf finishTaskWithStatus:FIRStorageTaskStatusFailure snapshot:strongSelf.snapshot];
+      [strongSelf finishTaskWithStatus:FIRIMPLStorageTaskStatusFailure
+                              snapshot:strongSelf.snapshot];
       return;
     }
 
-    strongSelf.state = FIRStorageTaskStateQueueing;
+    strongSelf.state = FIRIMPLStorageTaskStateQueueing;
 
     NSMutableURLRequest *request = [strongSelf.baseRequest mutableCopy];
     request.HTTPMethod = @"POST";
@@ -133,52 +134,52 @@
 
     [uploadFetcher setSendProgressBlock:^(int64_t bytesSent, int64_t totalBytesSent,
                                           int64_t totalBytesExpectedToSend) {
-      weakSelf.state = FIRStorageTaskStateProgress;
+      weakSelf.state = FIRIMPLStorageTaskStateProgress;
       weakSelf.progress.completedUnitCount = totalBytesSent;
       weakSelf.progress.totalUnitCount = totalBytesExpectedToSend;
       weakSelf.metadata = self->_uploadMetadata;
-      [weakSelf fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:weakSelf.snapshot];
-      weakSelf.state = FIRStorageTaskStateRunning;
+      [weakSelf fireHandlersForStatus:FIRIMPLStorageTaskStatusProgress snapshot:weakSelf.snapshot];
+      weakSelf.state = FIRIMPLStorageTaskStateRunning;
     }];
 
     strongSelf->_uploadFetcher = uploadFetcher;
 
     // Process fetches
-    strongSelf.state = FIRStorageTaskStateRunning;
+    strongSelf.state = FIRIMPLStorageTaskStateRunning;
 
     strongSelf->_fetcherCompletion = ^(NSData *_Nullable data, NSError *_Nullable error) {
       // Fire last progress updates
-      [self fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:self.snapshot];
+      [self fireHandlersForStatus:FIRIMPLStorageTaskStatusProgress snapshot:self.snapshot];
 
       // Handle potential issues with upload
       if (error) {
-        self.state = FIRStorageTaskStateFailed;
+        self.state = FIRIMPLStorageTaskStateFailed;
         self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
         self.metadata = self->_uploadMetadata;
 
-        [self finishTaskWithStatus:FIRStorageTaskStatusFailure snapshot:self.snapshot];
+        [self finishTaskWithStatus:FIRIMPLStorageTaskStatusFailure snapshot:self.snapshot];
         return;
       }
 
       // Upload completed successfully, fire completion callbacks
-      self.state = FIRStorageTaskStateSuccess;
+      self.state = FIRIMPLStorageTaskStateSuccess;
 
       NSDictionary *responseDictionary = [NSDictionary frs_dictionaryFromJSONData:data];
       if (responseDictionary) {
-        FIRStorageMetadata *metadata =
-            [[FIRStorageMetadata alloc] initWithDictionary:responseDictionary];
+        FIRIMPLStorageMetadata *metadata =
+            [[FIRIMPLStorageMetadata alloc] initWithDictionary:responseDictionary];
         [metadata setType:FIRStorageMetadataTypeFile];
         self.metadata = metadata;
       } else {
         self.error = [FIRStorageErrors errorWithInvalidRequest:data];
       }
 
-      [self finishTaskWithStatus:FIRStorageTaskStatusSuccess snapshot:self.snapshot];
+      [self finishTaskWithStatus:FIRIMPLStorageTaskStatusSuccess snapshot:self.snapshot];
     };
 
     [strongSelf->_uploadFetcher
         beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
-          FIRStorageUploadTask *strongSelf = weakSelf;
+          FIRIMPLStorageUploadTask *strongSelf = weakSelf;
           if (strongSelf.fetcherCompletion) {
             strongSelf.fetcherCompletion(data, error);
           }
@@ -186,8 +187,8 @@
   }];
 }
 
-- (void)finishTaskWithStatus:(FIRStorageTaskStatus)status
-                    snapshot:(FIRStorageTaskSnapshot *)snapshot {
+- (void)finishTaskWithStatus:(FIRIMPLStorageTaskStatus)status
+                    snapshot:(FIRIMPLStorageTaskSnapshot *)snapshot {
   [self fireHandlersForStatus:status snapshot:self.snapshot];
   [self removeAllObservers];
   self->_fetcherCompletion = nil;
@@ -213,7 +214,7 @@
       }
 
       *outError = [NSError errorWithDomain:FIRStorageErrorDomain
-                                      code:FIRStorageErrorCodeUnknown
+                                      code:FIRIMPLStorageErrorCodeUnknown
                                   userInfo:userInfo];
     }
 
@@ -226,43 +227,43 @@
 #pragma mark - Upload Management
 
 - (void)cancel {
-  __weak FIRStorageUploadTask *weakSelf = self;
+  __weak FIRIMPLStorageUploadTask *weakSelf = self;
 
   [self dispatchAsync:^() {
-    weakSelf.state = FIRStorageTaskStateCancelled;
+    weakSelf.state = FIRIMPLStorageTaskStateCancelled;
     [weakSelf.uploadFetcher stopFetching];
-    if (weakSelf.state != FIRStorageTaskStateSuccess) {
+    if (weakSelf.state != FIRIMPLStorageTaskStateSuccess) {
       weakSelf.metadata = weakSelf.uploadMetadata;
     }
-    weakSelf.error = [FIRStorageErrors errorWithCode:FIRStorageErrorCodeCancelled];
-    [weakSelf fireHandlersForStatus:FIRStorageTaskStatusFailure snapshot:weakSelf.snapshot];
+    weakSelf.error = [FIRStorageErrors errorWithCode:FIRIMPLStorageErrorCodeCancelled];
+    [weakSelf fireHandlersForStatus:FIRIMPLStorageTaskStatusFailure snapshot:weakSelf.snapshot];
   }];
 }
 
 - (void)pause {
-  __weak FIRStorageUploadTask *weakSelf = self;
+  __weak FIRIMPLStorageUploadTask *weakSelf = self;
 
   [self dispatchAsync:^() {
-    weakSelf.state = FIRStorageTaskStatePaused;
+    weakSelf.state = FIRIMPLStorageTaskStatePaused;
     [weakSelf.uploadFetcher pauseFetching];
-    if (weakSelf.state != FIRStorageTaskStateSuccess) {
+    if (weakSelf.state != FIRIMPLStorageTaskStateSuccess) {
       weakSelf.metadata = weakSelf.uploadMetadata;
     }
-    [weakSelf fireHandlersForStatus:FIRStorageTaskStatusPause snapshot:weakSelf.snapshot];
+    [weakSelf fireHandlersForStatus:FIRIMPLStorageTaskStatusPause snapshot:weakSelf.snapshot];
   }];
 }
 
 - (void)resume {
-  __weak FIRStorageUploadTask *weakSelf = self;
+  __weak FIRIMPLStorageUploadTask *weakSelf = self;
 
   [self dispatchAsync:^() {
-    weakSelf.state = FIRStorageTaskStateResuming;
+    weakSelf.state = FIRIMPLStorageTaskStateResuming;
     [weakSelf.uploadFetcher resumeFetching];
-    if (weakSelf.state != FIRStorageTaskStateSuccess) {
+    if (weakSelf.state != FIRIMPLStorageTaskStateSuccess) {
       weakSelf.metadata = weakSelf.uploadMetadata;
     }
-    [weakSelf fireHandlersForStatus:FIRStorageTaskStatusResume snapshot:weakSelf.snapshot];
-    weakSelf.state = FIRStorageTaskStateRunning;
+    [weakSelf fireHandlersForStatus:FIRIMPLStorageTaskStatusResume snapshot:weakSelf.snapshot];
+    weakSelf.state = FIRIMPLStorageTaskStateRunning;
   }];
 }
 

@@ -27,6 +27,7 @@ target 'CocoapodsIntegrationTest' do
   pod 'FirebaseMessagingInterop', :path => '../'
   pod 'FirebasePerformance', :path => '../'
   pod 'FirebaseStorage', :path => '../'
+  pod 'FirebaseStorageObjC', :path => '../'
 end
 
 # Using the new speed-enhancing features available with CocoaPods 1.7+

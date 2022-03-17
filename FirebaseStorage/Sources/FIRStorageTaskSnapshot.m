@@ -18,12 +18,12 @@
 
 #import "FirebaseStorage/Sources/FIRStorageTask_Private.h"
 
-@implementation FIRStorageTaskSnapshot
+@implementation FIRIMPLStorageTaskSnapshot
 
-- (instancetype)initWithTask:(__kindof FIRStorageTask *)task
-                       state:(FIRStorageTaskState)state
-                    metadata:(nullable FIRStorageMetadata *)metadata
-                   reference:(FIRStorageReference *)reference
+- (instancetype)initWithTask:(__kindof FIRIMPLStorageTask *)task
+                       state:(FIRIMPLStorageTaskState)state
+                    metadata:(nullable FIRIMPLStorageMetadata *)metadata
+                   reference:(FIRIMPLStorageReference *)reference
                     progress:(nullable NSProgress *)progress
                        error:(nullable NSError *)error {
   self = [super init];
@@ -35,34 +35,34 @@
     _error = error;
 
     switch (state) {
-      case FIRStorageTaskStateQueueing:
-      case FIRStorageTaskStateRunning:
-      case FIRStorageTaskStateResuming:
-        _status = FIRStorageTaskStatusResume;
+      case FIRIMPLStorageTaskStateQueueing:
+      case FIRIMPLStorageTaskStateRunning:
+      case FIRIMPLStorageTaskStateResuming:
+        _status = FIRIMPLStorageTaskStatusResume;
         break;
 
-      case FIRStorageTaskStateProgress:
-        _status = FIRStorageTaskStatusProgress;
+      case FIRIMPLStorageTaskStateProgress:
+        _status = FIRIMPLStorageTaskStatusProgress;
         break;
 
-      case FIRStorageTaskStatePaused:
-      case FIRStorageTaskStatePausing:
-        _status = FIRStorageTaskStatusPause;
+      case FIRIMPLStorageTaskStatePaused:
+      case FIRIMPLStorageTaskStatePausing:
+        _status = FIRIMPLStorageTaskStatusPause;
         break;
 
-      case FIRStorageTaskStateSuccess:
-      case FIRStorageTaskStateCompleting:
-        _status = FIRStorageTaskStatusSuccess;
+      case FIRIMPLStorageTaskStateSuccess:
+      case FIRIMPLStorageTaskStateCompleting:
+        _status = FIRIMPLStorageTaskStatusSuccess;
         break;
 
-      case FIRStorageTaskStateCancelled:
-      case FIRStorageTaskStateFailing:
-      case FIRStorageTaskStateFailed:
-        _status = FIRStorageTaskStatusFailure;
+      case FIRIMPLStorageTaskStateCancelled:
+      case FIRIMPLStorageTaskStateFailing:
+      case FIRIMPLStorageTaskStateFailed:
+        _status = FIRIMPLStorageTaskStatusFailure;
         break;
 
       default:
-        _status = FIRStorageTaskStatusUnknown;
+        _status = FIRIMPLStorageTaskStatusUnknown;
     }
   }
   return self;
@@ -70,15 +70,15 @@
 
 - (NSString *)description {
   switch (_status) {
-    case FIRStorageTaskStatusResume:
+    case FIRIMPLStorageTaskStatusResume:
       return @"<State: Resume>";
-    case FIRStorageTaskStatusProgress:
+    case FIRIMPLStorageTaskStatusProgress:
       return [NSString stringWithFormat:@"<State: Progress, Progress: %@>", _progress];
-    case FIRStorageTaskStatusPause:
+    case FIRIMPLStorageTaskStatusPause:
       return @"<State: Paused>";
-    case FIRStorageTaskStatusSuccess:
+    case FIRIMPLStorageTaskStatusSuccess:
       return @"<State: Success>";
-    case FIRStorageTaskStatusFailure:
+    case FIRIMPLStorageTaskStatusFailure:
       return [NSString stringWithFormat:@"<State: Failed, Error: %@>", _error];
     default:
       return @"<State: Unknown>";

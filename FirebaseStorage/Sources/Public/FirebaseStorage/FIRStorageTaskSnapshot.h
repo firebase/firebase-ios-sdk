@@ -20,32 +20,31 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FIRStorageMetadata;
-@class FIRStorageReference;
-@class FIRStorageTask;
+@class FIRIMPLStorageMetadata;
+@class FIRIMPLStorageReference;
+@class FIRIMPLStorageTask;
 
 /**
- * FIRStorageTaskSnapshot represents an immutable view of a task.
+ * FIRIMPLStorageTaskSnapshot represents an immutable view of a task.
  * A Snapshot contains a task, storage reference, metadata (if it exists),
  * progress, and an error (if one occurred).
  */
-NS_SWIFT_NAME(StorageTaskSnapshot)
-@interface FIRStorageTaskSnapshot : NSObject
+@interface FIRIMPLStorageTaskSnapshot : NSObject
 
 /**
- * Subclass of FIRStorageTask this snapshot represents.
+ * Subclass of FIRIMPLStorageTask this snapshot represents.
  */
-@property(readonly, copy, nonatomic) __kindof FIRStorageTask *task;
+@property(readonly, copy, nonatomic) __kindof FIRIMPLStorageTask *task;
 
 /**
  * Metadata returned by the task, or nil if no metadata returned.
  */
-@property(readonly, copy, nonatomic, nullable) FIRStorageMetadata *metadata;
+@property(readonly, copy, nonatomic, nullable) FIRIMPLStorageMetadata *metadata;
 
 /**
- * FIRStorageReference this task is operates on.
+ * FIRIMPLStorageReference this task is operates on.
  */
-@property(readonly, copy, nonatomic) FIRStorageReference *reference;
+@property(readonly, copy, nonatomic) FIRIMPLStorageReference *reference;
 
 /**
  * NSProgress object which tracks the progress of an upload or download.
@@ -60,7 +59,7 @@ NS_SWIFT_NAME(StorageTaskSnapshot)
 /**
  * Status of the task.
  */
-@property(readonly, nonatomic) FIRStorageTaskStatus status;
+@property(readonly, nonatomic) FIRIMPLStorageTaskStatus status;
 
 @end
 

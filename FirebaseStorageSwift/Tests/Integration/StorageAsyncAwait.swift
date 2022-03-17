@@ -15,10 +15,9 @@
 import FirebaseAuth
 import FirebaseCore
 import FirebaseStorage
-@_exported import FirebaseStorageObjC
 import XCTest
 
-#if swift(>=5.5)
+#if swift(>=5.9)
   @available(iOS 15, *)
   class StorageAsyncAwait: StorageIntegrationCommon {
     func testGetMetadata() async throws {

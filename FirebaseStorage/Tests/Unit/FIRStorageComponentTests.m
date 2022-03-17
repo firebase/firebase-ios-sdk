@@ -17,9 +17,12 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+#ifdef TODO
+// Port the component tests to Swift
+
 #import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 
-#import "FirebaseStorage/Sources/FIRStorageComponent.h"
+//#import "FirebaseStorage/Sources/FIRStorageComponent.h"
 #import "SharedTestUtilities/FIRComponentTestUtilities.h"
 
 // Make FIRComponentRegistrant conformance visible to the tests and expose the initializer.
@@ -46,13 +49,13 @@
   XCTAssert(component.protocol == @protocol(FIRStorageMultiBucketProvider));
 }
 
-/// Tests that a FIRStorage instance can be created properly by the FIRStorageComponent.
+/// Tests that a FIRIMPLStorage instance can be created properly by the FIRStorageComponent.
 - (void)testStorageInstanceCreation {
   // Get a mocked app, but don't use the default helper since it uses this class in the
   // implementation.
   id app = [self appMockWithOptions];
   FIRStorageComponent *component = [[FIRStorageComponent alloc] initWithApp:app];
-  FIRStorage *storage = [component storageForBucket:@"someBucket"];
+  FIRIMPLStorage *storage = [component storageForBucket:@"someBucket"];
   XCTAssertNotNil(storage);
 }
 
@@ -75,7 +78,7 @@
   XCTAssertEqual(provider1, provider2);
 }
 
-/// Tests that instances of FIRStorage created are different.
+/// Tests that instances of FIRIMPLStorage created are different.
 - (void)testMultipleStorageInstancesCreated {
   // Get a mocked app, but don't use the default helper since is uses this class in the
   // implementation.
@@ -87,9 +90,9 @@
       FIR_COMPONENT(FIRStorageMultiBucketProvider, container);
   XCTAssertNotNil(provider);
 
-  FIRStorage *storage1 = [provider storageForBucket:@"randomBucket"];
+  FIRIMPLStorage *storage1 = [provider storageForBucket:@"randomBucket"];
   XCTAssertNotNil(storage1);
-  FIRStorage *storage2 = [provider storageForBucket:@"randomBucket"];
+  FIRIMPLStorage *storage2 = [provider storageForBucket:@"randomBucket"];
   XCTAssertNotNil(storage2);
 
   // Ensure that they're the same instance
@@ -97,7 +100,7 @@
   XCTAssertEqualObjects(storage1, storage2);
 
   // Create another bucket with a different provider from above.
-  FIRStorage *storage3 = [provider storageForBucket:@"differentBucket"];
+  FIRIMPLStorage *storage3 = [provider storageForBucket:@"differentBucket"];
   XCTAssertNotNil(storage3);
 
   // Ensure it's a different object.
@@ -117,3 +120,4 @@
 }
 
 @end
+#endif

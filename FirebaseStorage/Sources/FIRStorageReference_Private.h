@@ -20,16 +20,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRStorageReference ()
+@interface FIRIMPLStorageReference ()
 
-@property(nonatomic, readwrite) FIRStorage *storage;
+@property(nonatomic, readwrite) FIRIMPLStorage *storage;
 
 /**
  * The current path which points to an object in the Google Cloud Storage bucket.
  */
 @property(strong, nonatomic) FIRStoragePath *path;
 
-- (instancetype)initWithStorage:(FIRStorage *)storage
+- (instancetype)initWithStorage:(FIRIMPLStorage *)storage
                            path:(FIRStoragePath *)path NS_DESIGNATED_INITIALIZER;
 
 - (NSString *)stringValue;
