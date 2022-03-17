@@ -27,7 +27,7 @@
 @synthesize fetcher = _fetcher;
 @synthesize fetcherCompletion = _fetcherCompletion;
 
-- (instancetype)initWithReference:(FIRStorageReference *)reference
+- (instancetype)initWithReference:(FIRIMPLStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
                     dispatchQueue:(dispatch_queue_t)queue
                          pageSize:(nullable NSNumber *)pageSize
@@ -78,7 +78,7 @@
       queryParams[@"pageToken"] = strongSelf->_previousPageToken;
     }
 
-    FIRStorageReference *root = self.reference.root;
+    FIRIMPLStorageReference *root = self.reference.root;
     NSMutableURLRequest *request =
         [[FIRStorageUtils defaultRequestForReference:root queryParams:queryParams] mutableCopy];
 
@@ -93,14 +93,14 @@
     fetcher.comment = @"ListTask";
 
     strongSelf->_fetcherCompletion = ^(NSData *data, NSError *error) {
-      FIRStorageListResult *listResult;
+      FIRIMPLStorageListResult *listResult;
       if (error) {
         self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
       } else {
         NSDictionary *responseDictionary = [NSDictionary frs_dictionaryFromJSONData:data];
         if (responseDictionary != nil) {
-          listResult = [FIRStorageListResult fromDictionary:responseDictionary
-                                                atReference:self.reference];
+          listResult = [FIRIMPLStorageListResult fromDictionary:responseDictionary
+                                                    atReference:self.reference];
         } else {
           self.error = [FIRStorageErrors errorWithInvalidRequest:data];
         }

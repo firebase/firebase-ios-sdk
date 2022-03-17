@@ -22,20 +22,19 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * A superclass to all FIRStorage*Tasks, including FIRStorageUploadTask
- * and FIRStorageDownloadTask, to provide state transitions, event raising, and common storage
+ * A superclass to all FIRStorage*Tasks, including FIRIMPLStorageUploadTask
+ * and FIRIMPLStorageDownloadTask, to provide state transitions, event raising, and common storage
  * or metadata and errors.
  * Callbacks are always fired on the developer specified callback queue.
  * If no queue is specified by the developer, it defaults to the main queue.
  * Currently not thread safe, so only call methods on the main thread.
  */
-NS_SWIFT_NAME(StorageTask)
-@interface FIRStorageTask : NSObject
+@interface FIRIMPLStorageTask : NSObject
 
 /**
  * An immutable view of the task and associated metadata, progress, error, etc.
  */
-@property(strong, readonly, nonatomic, nonnull) FIRStorageTaskSnapshot *snapshot;
+@property(strong, readonly, nonatomic, nonnull) FIRIMPLStorageTaskSnapshot *snapshot;
 
 @end
 
@@ -45,8 +44,7 @@ NS_SWIFT_NAME(StorageTask)
  * implement pause, resume, and cancel, which operate on the task to pause, resume, and cancel
  * operations.
  */
-NS_SWIFT_NAME(StorageTaskManagement)
-@protocol FIRStorageTaskManagement <NSObject>
+@protocol FIRIMPLStorageTaskManagement <NSObject>
 
 @required
 /**

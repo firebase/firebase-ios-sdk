@@ -16,13 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRStorageReference;
+@class FIRIMPLStorageReference;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** Contains the prefixes and items returned by a `StorageReference.list()` call. */
-NS_SWIFT_NAME(StorageListResult)
-@interface FIRStorageListResult : NSObject <NSCopying>
+@interface FIRIMPLStorageListResult : NSObject <NSCopying>
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -31,14 +30,14 @@ NS_SWIFT_NAME(StorageListResult)
  *
  * @return A list of prefixes (folders).
  */
-@property(nonatomic, readonly) NSArray<FIRStorageReference *> *prefixes;
+@property(nonatomic, readonly) NSArray<FIRIMPLStorageReference *> *prefixes;
 
 /**
  * The items (files) returned by the `list()` operation.
  *
  * @return A list of items (files).
  */
-@property(nonatomic, readonly) NSArray<FIRStorageReference *> *items;
+@property(nonatomic, readonly) NSArray<FIRIMPLStorageReference *> *items;
 
 /**
  * Returns a token that can be used to resume a previous `list()` operation. `nil`

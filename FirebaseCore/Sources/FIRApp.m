@@ -838,7 +838,10 @@ static FIRApp *sDefaultApp;
   SEL componentsToRegisterSEL = @selector(componentsToRegister);
   // Dictionary of class names that conform to `FIRLibrary` and their user agents. These should only
   // be SDKs that are written in Swift but still visible to ObjC.
-  NSDictionary<NSString *, NSString *> *swiftComponents = @{@"FIRFunctionsComponent" : @"fire-fun"};
+  NSDictionary<NSString *, NSString *> *swiftComponents = @{
+                                                            @"FIRFunctionsComponent" : @"fire-fun",
+                                                               @"FIRStorageComponent" : @"fire-str",
+                                                            };
   for (NSString *className in swiftComponents.allKeys) {
     Class klass = NSClassFromString(className);
     if (klass && [klass respondsToSelector:componentsToRegisterSEL]) {

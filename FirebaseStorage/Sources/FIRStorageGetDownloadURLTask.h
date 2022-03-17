@@ -23,9 +23,9 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Task which provides the ability to get a download URL for an object in Firebase Storage.
  */
-@interface FIRStorageGetDownloadURLTask : FIRStorageTask <FIRStorageTaskManagement>
+@interface FIRStorageGetDownloadURLTask : FIRIMPLStorageTask <FIRIMPLStorageTaskManagement>
 
-- (instancetype)initWithReference:(FIRStorageReference *)reference
+- (instancetype)initWithReference:(FIRIMPLStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
                     dispatchQueue:(dispatch_queue_t)queue
                        completion:(FIRStorageVoidURLError)completion;

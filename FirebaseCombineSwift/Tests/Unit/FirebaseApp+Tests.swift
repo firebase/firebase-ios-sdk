@@ -39,8 +39,6 @@ extension FirebaseApp {
 
   static func appForStorageUnitTestsWithName(name: String) -> FirebaseApp {
     let app = FirebaseApp(instanceWithName: name, options: appOptions())
-    let registrants = NSMutableSet(object: FIRStorageComponent.self)
-    app.container = FirebaseComponentContainer(app: app, registrants: registrants)
     return app
   }
 }

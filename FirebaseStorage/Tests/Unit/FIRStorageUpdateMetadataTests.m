@@ -20,8 +20,8 @@
 
 @property(strong, nonatomic) GTMSessionFetcherService *fetcherService;
 @property(nonatomic) dispatch_queue_t dispatchQueue;
-@property(strong, nonatomic) FIRStorageMetadata *metadata;
-@property(strong, nonatomic) FIRStorage *storage;
+@property(strong, nonatomic) FIRIMPLStorageMetadata *metadata;
+@property(strong, nonatomic) FIRIMPLStorage *storage;
 @property(strong, nonatomic) id mockApp;
 
 @end
@@ -32,14 +32,7 @@
   [super setUp];
 
   NSDictionary *metadataDict = @{@"bucket" : @"bucket", @"name" : @"path/to/object"};
-  self.metadata = [[FIRStorageMetadata alloc] initWithDictionary:metadataDict];
-
-  id mockOptions = OCMClassMock([FIROptions class]);
-  OCMStub([mockOptions storageBucket]).andReturn(@"bucket.appspot.com");
-
-  self.mockApp = [FIRStorageTestHelpers mockedApp];
-  OCMStub([self.mockApp name]).andReturn(kFIRStorageAppName);
-  OCMStub([(FIRApp *)self.mockApp options]).andReturn(mockOptions);
+  self.metadata = [[FIRIMPLStorageMetadata alloc] initWithDictionary:metadataDict];
 
   self.fetcherService = [[GTMSessionFetcherService alloc] init];
   self.fetcherService.authorizer =
@@ -49,8 +42,7 @@
                                                     appCheck:nil];
 
   self.dispatchQueue = dispatch_queue_create("Test dispatch queue", DISPATCH_QUEUE_SERIAL);
-
-  self.storage = [FIRStorage storageForApp:self.mockApp];
+  self.storage = [FIRStorageTestHelpers storageWithMockedApp];
 }
 
 - (void)tearDown {
@@ -84,13 +76,14 @@
       };
 
   FIRStoragePath *path = [FIRStorageTestHelpers objectPath];
-  FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];
+  FIRIMPLStorageReference *ref = [[FIRIMPLStorageReference alloc] initWithStorage:self.storage
+                                                                             path:path];
   FIRStorageUpdateMetadataTask *task = [[FIRStorageUpdateMetadataTask alloc]
       initWithReference:ref
          fetcherService:self.fetcherService
           dispatchQueue:self.dispatchQueue
                metadata:self.metadata
-             completion:^(FIRStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
+             completion:^(FIRIMPLStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
                [expectation fulfill];
              }];
   [task enqueue];
@@ -103,13 +96,14 @@
 
   self.fetcherService.testBlock = [FIRStorageTestHelpers successBlockWithMetadata:self.metadata];
   FIRStoragePath *path = [FIRStorageTestHelpers objectPath];
-  FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];
+  FIRIMPLStorageReference *ref = [[FIRIMPLStorageReference alloc] initWithStorage:self.storage
+                                                                             path:path];
   FIRStorageUpdateMetadataTask *task = [[FIRStorageUpdateMetadataTask alloc]
       initWithReference:ref
          fetcherService:self.fetcherService
           dispatchQueue:self.dispatchQueue
                metadata:self.metadata
-             completion:^(FIRStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
+             completion:^(FIRIMPLStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
                XCTAssertEqualObjects(self.metadata.bucket, metadata.bucket);
                XCTAssertEqualObjects(self.metadata.name, metadata.name);
                XCTAssertNil(error);
@@ -126,15 +120,16 @@
 
   self.fetcherService.testBlock = [FIRStorageTestHelpers unauthenticatedBlock];
   FIRStoragePath *path = [FIRStorageTestHelpers objectPath];
-  FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];
+  FIRIMPLStorageReference *ref = [[FIRIMPLStorageReference alloc] initWithStorage:self.storage
+                                                                             path:path];
   FIRStorageUpdateMetadataTask *task = [[FIRStorageUpdateMetadataTask alloc]
       initWithReference:ref
          fetcherService:self.fetcherService
           dispatchQueue:self.dispatchQueue
                metadata:self.metadata
-             completion:^(FIRStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
+             completion:^(FIRIMPLStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
                XCTAssertNil(metadata);
-               XCTAssertEqual(error.code, FIRStorageErrorCodeUnauthenticated);
+               XCTAssertEqual(error.code, FIRIMPLStorageErrorCodeUnauthenticated);
                [expectation fulfill];
              }];
   [task enqueue];
@@ -148,15 +143,16 @@
 
   self.fetcherService.testBlock = [FIRStorageTestHelpers unauthorizedBlock];
   FIRStoragePath *path = [FIRStorageTestHelpers objectPath];
-  FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];
+  FIRIMPLStorageReference *ref = [[FIRIMPLStorageReference alloc] initWithStorage:self.storage
+                                                                             path:path];
   FIRStorageUpdateMetadataTask *task = [[FIRStorageUpdateMetadataTask alloc]
       initWithReference:ref
          fetcherService:self.fetcherService
           dispatchQueue:self.dispatchQueue
                metadata:self.metadata
-             completion:^(FIRStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
+             completion:^(FIRIMPLStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
                XCTAssertNil(metadata);
-               XCTAssertEqual(error.code, FIRStorageErrorCodeUnauthorized);
+               XCTAssertEqual(error.code, FIRIMPLStorageErrorCodeUnauthorized);
                [expectation fulfill];
              }];
   [task enqueue];
@@ -170,15 +166,16 @@
 
   self.fetcherService.testBlock = [FIRStorageTestHelpers notFoundBlock];
   FIRStoragePath *path = [FIRStorageTestHelpers notFoundPath];
-  FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];
+  FIRIMPLStorageReference *ref = [[FIRIMPLStorageReference alloc] initWithStorage:self.storage
+                                                                             path:path];
   FIRStorageUpdateMetadataTask *task = [[FIRStorageUpdateMetadataTask alloc]
       initWithReference:ref
          fetcherService:self.fetcherService
           dispatchQueue:self.dispatchQueue
                metadata:self.metadata
-             completion:^(FIRStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
+             completion:^(FIRIMPLStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
                XCTAssertNil(metadata);
-               XCTAssertEqual(error.code, FIRStorageErrorCodeObjectNotFound);
+               XCTAssertEqual(error.code, FIRIMPLStorageErrorCodeObjectNotFound);
                [expectation fulfill];
              }];
   [task enqueue];
@@ -192,15 +189,16 @@
 
   self.fetcherService.testBlock = [FIRStorageTestHelpers invalidJSONBlock];
   FIRStoragePath *path = [FIRStorageTestHelpers objectPath];
-  FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];
+  FIRIMPLStorageReference *ref = [[FIRIMPLStorageReference alloc] initWithStorage:self.storage
+                                                                             path:path];
   FIRStorageUpdateMetadataTask *task = [[FIRStorageUpdateMetadataTask alloc]
       initWithReference:ref
          fetcherService:self.fetcherService
           dispatchQueue:self.dispatchQueue
                metadata:self.metadata
-             completion:^(FIRStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
+             completion:^(FIRIMPLStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
                XCTAssertNil(metadata);
-               XCTAssertEqual(error.code, FIRStorageErrorCodeUnknown);
+               XCTAssertEqual(error.code, FIRIMPLStorageErrorCodeUnknown);
                [expectation fulfill];
              }];
   [task enqueue];

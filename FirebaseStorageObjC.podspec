@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseStorageObjC'
-  s.version          = '8.12.0'
+  s.version          = '8.13.0'
   s.summary          = 'Firebase Storage'
 
   s.description      = <<-DESC
@@ -32,15 +32,15 @@ Objective C Implementations for FirebaseStorage. This pod should not be directly
 
   s.source_files = [
     'FirebaseStorage/Sources/**/*.[mh]',
-    'Interop/Auth/Public/*.h',
     'FirebaseCore/Sources/Private/*.h',
-    'FirebaseAppCheck/Sources/Interop/*.h',
   ]
   s.public_header_files = 'FirebaseStorage/Sources/Public/FirebaseStorage/*.h'
 
   s.osx.framework = 'CoreServices'
 
-  s.dependency 'FirebaseCore', '~> 8.0'
+  s.dependency 'FirebaseCore', '~> 8.13'
+  s.dependency 'FirebaseAppCheckInterop', '~> 8.13'
+  s.dependency 'FirebaseAuthInterop', '~> 8.13'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.5'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
@@ -52,7 +52,8 @@ Objective C Implementations for FirebaseStorage. This pod should not be directly
     unit_tests.platforms = {
       :ios => ios_deployment_target,
       :osx => osx_deployment_target,
-      :tvos => tvos_deployment_target
+      :tvos => tvos_deployment_target,
+      :watchos => watchos_deployment_target,
     }
     unit_tests.source_files = [
       'FirebaseStorage/Tests/Unit/*.[mh]',
@@ -61,19 +62,5 @@ Objective C Implementations for FirebaseStorage. This pod should not be directly
       'SharedTestUtilities/AppCheckFake/*.[mh]',
   ]
     unit_tests.dependency 'OCMock'
-  end
-
-  s.test_spec 'integration' do |int_tests|
-    int_tests.scheme = { :code_coverage => true }
-    int_tests.platforms = {
-      :ios => ios_deployment_target,
-      :osx => osx_deployment_target,
-      :tvos => tvos_deployment_target
-    }
-    int_tests.source_files = 'FirebaseStorage/Tests/Integration/*.[mh]'
-    int_tests.requires_app_host = true
-    int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
-                          'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist'
-    int_tests.dependency 'FirebaseAuth', '~> 8.0'
   end
 end

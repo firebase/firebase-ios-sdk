@@ -29,7 +29,7 @@
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
 #endif
 
-@implementation FIRStorageTask
+@implementation FIRIMPLStorageTask
 
 - (instancetype)init {
   @throw [NSException exceptionWithName:@"Attempt to call unavailable initializer."
@@ -37,7 +37,7 @@
                                userInfo:nil];
 }
 
-- (instancetype)initWithReference:(FIRStorageReference *)reference
+- (instancetype)initWithReference:(FIRIMPLStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
                     dispatchQueue:(dispatch_queue_t)queue {
   self = [super init];
@@ -51,17 +51,17 @@
   return self;
 }
 
-- (FIRStorageTaskSnapshot *)snapshot {
+- (FIRIMPLStorageTaskSnapshot *)snapshot {
   @synchronized(self) {
     NSProgress *progress = [NSProgress progressWithTotalUnitCount:self.progress.totalUnitCount];
     progress.completedUnitCount = self.progress.completedUnitCount;
-    FIRStorageTaskSnapshot *snapshot =
-        [[FIRStorageTaskSnapshot alloc] initWithTask:self
-                                               state:self.state
-                                            metadata:self.metadata
-                                           reference:self.reference
-                                            progress:progress
-                                               error:[self.error copy]];
+    FIRIMPLStorageTaskSnapshot *snapshot =
+        [[FIRIMPLStorageTaskSnapshot alloc] initWithTask:self
+                                                   state:self.state
+                                                metadata:self.metadata
+                                               reference:self.reference
+                                                progress:progress
+                                                   error:[self.error copy]];
     return snapshot;
   }
 }
