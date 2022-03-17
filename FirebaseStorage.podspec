@@ -34,9 +34,34 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
 
   s.source_files = [
     'FirebaseStorageSwift/Sources/*.swift',
+    'FirebaseStorageSwift/Typedefs/*.h',
   ]
 
-  s.dependency 'FirebaseStorageObjC', '~> 8.10'
+  s.dependency 'FirebaseStorageObjC', '~> 8.13'
+  s.dependency 'FirebaseAppCheckInterop', '~> 8.13'
+  s.dependency 'FirebaseAuthInterop', '~> 8.13'
+  s.dependency 'FirebaseCore', '~> 8.13'
+  s.dependency 'FirebaseCoreInternal', '~> 8.13'
+
+  s.test_spec 'ObjCIntegration' do |objc_tests|
+    objc_tests.scheme = { :code_coverage => true }
+    objc_tests.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
+    objc_tests.source_files = [
+      'FirebaseStorage/Tests/Integration/*.[mh]',
+      'FirebaseStorageSwift/Tests/ObjCIntegration/*.m',
+    ]
+    objc_tests.requires_app_host = true
+    objc_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
+                          'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist'
+    objc_tests.dependency 'FirebaseAuth', '~> 8.13'
+    objc_tests.pod_target_xcconfig = {
+      'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
+    }
+  end
 
   s.test_spec 'integration' do |int_tests|
     int_tests.scheme = { :code_coverage => true }
@@ -50,6 +75,6 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
                           'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist',
                           'FirebaseStorage/Tests/Integration/Resources/HomeImprovement.numbers'
-    int_tests.dependency 'FirebaseAuth', '~> 8.0'
+    int_tests.dependency 'FirebaseAuth', '~> 8.13'
   end
 end

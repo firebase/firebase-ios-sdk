@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@_exported import FirebaseStorageObjC
+import Foundation
 
 #if compiler(>=5.5.2) && canImport(_Concurrency)
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)

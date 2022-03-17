@@ -21,11 +21,11 @@
 
 @implementation FIRStorageErrors
 
-+ (NSError *)errorWithCode:(FIRStorageErrorCode)code {
++ (NSError *)errorWithCode:(FIRIMPLStorageErrorCode)code {
   return [FIRStorageErrors errorWithCode:code infoDictionary:nil];
 }
 
-+ (NSError *)errorWithCode:(FIRStorageErrorCode)code
++ (NSError *)errorWithCode:(FIRIMPLStorageErrorCode)code
             infoDictionary:(nullable NSDictionary *)dictionary {
   NSMutableDictionary *errorDictionary;
   if (dictionary) {
@@ -36,29 +36,29 @@
 
   NSString *errorMessage;
   switch (code) {
-    case FIRStorageErrorCodeObjectNotFound:
+    case FIRIMPLStorageErrorCodeObjectNotFound:
       errorMessage =
           [NSString stringWithFormat:@"Object %@ does not exist.", errorDictionary[@"object"]];
       break;
 
-    case FIRStorageErrorCodeBucketNotFound:
+    case FIRIMPLStorageErrorCodeBucketNotFound:
       errorMessage =
           [NSString stringWithFormat:@"Bucket %@ does not exist.", errorDictionary[@"bucket"]];
       break;
 
-    case FIRStorageErrorCodeProjectNotFound:
+    case FIRIMPLStorageErrorCodeProjectNotFound:
       errorMessage =
           [NSString stringWithFormat:@"Project %@ does not exist.", errorDictionary[@"project"]];
       break;
 
-    case FIRStorageErrorCodeQuotaExceeded: {
+    case FIRIMPLStorageErrorCodeQuotaExceeded: {
       NSString *const kQuotaExceededFormat =
           @"Quota for bucket %@ exceeded, please view quota on firebase.google.com.";
       errorMessage = [NSString stringWithFormat:kQuotaExceededFormat, errorDictionary[@"bucket"]];
       break;
     }
 
-    case FIRStorageErrorCodeDownloadSizeExceeded: {
+    case FIRIMPLStorageErrorCodeDownloadSizeExceeded: {
       int64_t total = [errorDictionary[@"totalSize"] longLongValue];
       int64_t size = [errorDictionary[@"maxAllowedSize"] longLongValue];
       NSString *totalString = total ? @(total).stringValue : @"unknown";
@@ -67,17 +67,17 @@
           @"Attempted to download object with size of %@ bytes, "
           @"which exceeds the maximum size of %@ bytes. "
           @"Consider raising the maximum download size, or using "
-          @"[FIRStorageReference writeToFile:]";
+          @"[FIRIMPLStorageReference writeToFile:]";
       errorMessage = [NSString stringWithFormat:kSizeExceededErrorFormat, totalString, sizeString];
       break;
     }
 
-    case FIRStorageErrorCodeUnauthenticated:
+    case FIRIMPLStorageErrorCodeUnauthenticated:
       errorMessage = @"User is not authenticated, please authenticate using Firebase "
                      @"Authentication and try again.";
       break;
 
-    case FIRStorageErrorCodeUnauthorized: {
+    case FIRIMPLStorageErrorCodeUnauthorized: {
       NSString *bucket = errorDictionary[@"bucket"];
       NSString *object = errorDictionary[@"object"];
       NSString *const kUnauthorizedFormat = @"User does not have permission to access gs://%@/%@.";
@@ -85,11 +85,11 @@
       break;
     }
 
-    case FIRStorageErrorCodeRetryLimitExceeded:
+    case FIRIMPLStorageErrorCodeRetryLimitExceeded:
       errorMessage = @"Max retry time for operation exceeded, please try again.";
       break;
 
-    case FIRStorageErrorCodeNonMatchingChecksum: {
+    case FIRIMPLStorageErrorCodeNonMatchingChecksum: {
       // TODO: replace with actual checksum strings when we choose to implement.
       NSString *const kChecksumFailedErrorFormat =
           @"Uploaded/downloaded object %@ has checksum: %@ "
@@ -99,11 +99,11 @@
       break;
     }
 
-    case FIRStorageErrorCodeCancelled:
+    case FIRIMPLStorageErrorCodeCancelled:
       errorMessage = @"User cancelled the upload/download.";
       break;
 
-    case FIRStorageErrorCodeUnknown:
+    case FIRIMPLStorageErrorCodeUnknown:
       /* Fall through to default case for unknown errors */
 
     default:
@@ -118,35 +118,35 @@
 }
 
 + (nullable NSError *)errorWithServerError:(nullable NSError *)error
-                                 reference:(nullable FIRStorageReference *)reference {
+                                 reference:(nullable FIRIMPLStorageReference *)reference {
   if (error == nil) {
     return nil;
   }
 
-  FIRStorageErrorCode errorCode;
+  FIRIMPLStorageErrorCode errorCode;
   switch (error.code) {
     case 400:
-      errorCode = FIRStorageErrorCodeUnknown;
+      errorCode = FIRIMPLStorageErrorCodeUnknown;
       break;
 
     case 401:
-      errorCode = FIRStorageErrorCodeUnauthenticated;
+      errorCode = FIRIMPLStorageErrorCodeUnauthenticated;
       break;
 
     case 402:
-      errorCode = FIRStorageErrorCodeQuotaExceeded;
+      errorCode = FIRIMPLStorageErrorCodeQuotaExceeded;
       break;
 
     case 403:
-      errorCode = FIRStorageErrorCodeUnauthorized;
+      errorCode = FIRIMPLStorageErrorCodeUnauthorized;
       break;
 
     case 404:
-      errorCode = FIRStorageErrorCodeObjectNotFound;
+      errorCode = FIRIMPLStorageErrorCodeObjectNotFound;
       break;
 
     default:
-      errorCode = FIRStorageErrorCodeUnknown;
+      errorCode = FIRIMPLStorageErrorCodeUnknown;
       break;
   }
 
@@ -178,12 +178,12 @@
   if (invalidDataString.length > 0) {
     dict = @{NSLocalizedFailureReasonErrorKey : invalidDataString};
   }
-  return [FIRStorageErrors errorWithCode:FIRStorageErrorCodeUnknown infoDictionary:dict];
+  return [FIRStorageErrors errorWithCode:FIRIMPLStorageErrorCodeUnknown infoDictionary:dict];
 }
 
 + (NSError *)errorWithCustomMessage:(NSString *)errorMessage {
   return [NSError errorWithDomain:FIRStorageErrorDomain
-                             code:FIRStorageErrorCodeUnknown
+                             code:FIRIMPLStorageErrorCodeUnknown
                          userInfo:@{NSLocalizedDescriptionKey : errorMessage}];
 }
 

@@ -25,7 +25,7 @@
 @synthesize fetcher = _fetcher;
 @synthesize fetcherCompletion = _fetcherCompletion;
 
-- (instancetype)initWithReference:(FIRStorageReference *)reference
+- (instancetype)initWithReference:(FIRIMPLStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
                     dispatchQueue:(dispatch_queue_t)queue
                        completion:(FIRStorageVoidURLError)completion {

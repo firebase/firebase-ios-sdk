@@ -98,7 +98,7 @@
 }
 
 - (void)testDefaultRequestForFullPath {
-  FIRStorageReference *ref = [[FIRStorageTestHelpers rootReference] child:@"path/to/object"];
+  FIRIMPLStorageReference *ref = [[FIRStorageTestHelpers rootReference] child:@"path/to/object"];
   NSURLRequest *request = [FIRStorageUtils defaultRequestForReference:ref];
   XCTAssertEqualObjects(
       [request.URL absoluteString],
@@ -106,7 +106,7 @@
 }
 
 - (void)testDefaultRequestForNoPath {
-  FIRStorageReference *ref = [FIRStorageTestHelpers rootReference];
+  FIRIMPLStorageReference *ref = [FIRStorageTestHelpers rootReference];
   NSURLRequest *request = [FIRStorageUtils defaultRequestForReference:ref];
   XCTAssertEqualObjects([request.URL absoluteString],
                         @"https://firebasestorage.googleapis.com:443/v0/b/bucket/o");
