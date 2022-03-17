@@ -20,7 +20,7 @@ import FirebaseCoreInternal
 
 @objc(FIRStorageProvider)
 protocol StorageProvider {
-  @objc func Storage(for bucket: String) -> Storage
+  @objc func storage(for bucket: String) -> Storage
   // TODO: See if we can avoid the `type` parameter by either making it a `Storage` argument to
   // allow subclasses, or avoid it entirely and fix tests. This was done for StorageCombineUnit,
   // although we may be able to now port to using `@testable` instead of using the mock.
@@ -64,7 +64,7 @@ protocol StorageProvider {
 
   // MARK: - StorageProvider conformance
 
-  func Storage(for bucket: String) -> Storage {
+  func storage(for bucket: String) -> Storage {
     os_unfair_lock_lock(&instancesLock)
 
     // Unlock before the function returns.

@@ -99,7 +99,8 @@ import FirebaseStorageObjC
    * about the object being uploaded.
    * @return An instance of StorageUploadTask, which can be used to monitor or manage the upload.
    */
-  @objc(putData:metadata:) @discardableResult
+  @objc(putData:metadata:)
+  @discardableResult
   open func putData(_ uploadData: Data, metadata: StorageMetadata? = nil) -> StorageUploadTask {
     return StorageUploadTask(impl.put(uploadData, metadata: metadata?.impl))
   }
@@ -356,6 +357,10 @@ import FirebaseStorageObjC
 
   // MARK: - Delete
 
+  /**
+   * Deletes the object at the current path.
+   * @param completion A completion block which returns nil on success, or an error on failure.
+   */
   @objc(deleteWithCompletion:)
   open func delete(completion: ((_: Error?) -> Void)?) {
     impl.delete(completion: completion)
@@ -381,11 +386,6 @@ import FirebaseStorageObjC
   @objc override public var description: String {
     return impl.description
   }
-
-  /**
-   * Deletes the object at the current path.
-   * @param completion A completion block which returns nil on success, or an error on failure.
-   */
 
   // MARK: - Internal APIs
 
