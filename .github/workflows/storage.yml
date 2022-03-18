@@ -144,8 +144,7 @@ jobs:
       matrix:
         target: [ios, tvos, macos, watchos]
         flags: [
-          '--use-static-frameworks --skip-tests ',
-          '--use-libraries --skip-tests '
+          '--use-static-frameworks --skip-tests '
         ]
     needs: pod-lib-lint
     steps:
@@ -164,7 +163,7 @@ jobs:
       matrix:
         target: [ios, tvos, macos, watchos]
         flags: [
-          '--use-static-frameworks --skip-tests', # Swift pods do not support --use-libraries
+          '--use-static-frameworks --skip-tests'
         ]
     needs: pod-lib-lint
     steps:
