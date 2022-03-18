@@ -35,7 +35,7 @@ using model::IsArray;
 using model::NullValue;
 using nanopb::SharedMessage;
 
-using Operator = Filter::Operator;
+using Operator = FieldFilter::Operator;
 
 class NotInFilter::Rep : public FieldFilter::Rep {
  public:

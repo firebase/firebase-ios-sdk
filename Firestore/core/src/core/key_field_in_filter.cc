@@ -38,7 +38,7 @@ using model::IsArray;
 using model::TypeOrder;
 using nanopb::SharedMessage;
 
-using Operator = Filter::Operator;
+using Operator = FieldFilter::Operator;
 
 class KeyFieldInFilter::Rep : public FieldFilter::Rep {
  public:

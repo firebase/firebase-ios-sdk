@@ -20,7 +20,6 @@
 #include <ostream>
 
 #include "Firestore/core/src/core/bound.h"
-#include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/core/operator.h"
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_key.h"
@@ -37,7 +36,7 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-using Operator = Filter::Operator;
+using Operator = FieldFilter::Operator;
 using Type = Filter::Type;
 
 using model::Document;

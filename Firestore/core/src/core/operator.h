@@ -17,21 +17,21 @@
 #ifndef FIRESTORE_CORE_SRC_CORE_OPERATOR_H_
 #define FIRESTORE_CORE_SRC_CORE_OPERATOR_H_
 
-#include "Firestore/core/src/core/filter.h"
+#include "Firestore/core/src/core/field_filter.h"
 
 namespace firebase {
 namespace firestore {
 namespace core {
 
-inline bool IsArrayOperator(Filter::Operator op) {
-  return op == Filter::Operator::ArrayContains ||
-         op == Filter::Operator::ArrayContainsAny;
+inline bool IsArrayOperator(FieldFilter::Operator op) {
+  return op == FieldFilter::Operator::ArrayContains ||
+         op == FieldFilter::Operator::ArrayContainsAny;
 }
 
-inline bool IsDisjunctiveOperator(Filter::Operator op) {
-  return op == Filter::Operator::In ||
-         op == Filter::Operator::ArrayContainsAny ||
-         op == Filter::Operator::NotIn;
+inline bool IsDisjunctiveOperator(FieldFilter::Operator op) {
+  return op == FieldFilter::Operator::In ||
+         op == FieldFilter::Operator::ArrayContainsAny ||
+         op == FieldFilter::Operator::NotIn;
 }
 
 }  // namespace core

@@ -35,7 +35,7 @@ using model::DocumentKeyHash;
 using model::FieldPath;
 using nanopb::SharedMessage;
 
-using Operator = Filter::Operator;
+using Operator = FieldFilter::Operator;
 
 class KeyFieldNotInFilter::Rep : public FieldFilter::Rep {
  public:
