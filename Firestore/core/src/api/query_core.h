@@ -23,7 +23,7 @@
 
 #include "Firestore/core/src/api/api_fwd.h"
 #include "Firestore/core/src/core/core_fwd.h"
-#include "Firestore/core/src/core/filter.h"
+#include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/nanopb/message.h"
 
@@ -93,7 +93,7 @@ class Query {
    * @return The created `Query`.
    */
   Query Filter(const model::FieldPath& field_path,
-               core::Filter::Operator op,
+               core::FieldFilter::Operator op,
                nanopb::SharedMessage<google_firestore_v1_Value> value,
                const std::function<std::string()>& type_describer) const;
 
@@ -182,7 +182,7 @@ class Query {
    * array requirements.
    */
   void ValidateDisjunctiveFilterElements(const google_firestore_v1_Value& value,
-                                         core::Filter::Operator op) const;
+                                         core::FieldFilter::Operator op) const;
 
   /**
    * Parses the given FieldValue into a Reference, throwing appropriate errors
@@ -193,7 +193,7 @@ class Query {
       const google_firestore_v1_Value& value,
       const std::function<std::string()>& type_describer) const;
 
-  std::string Describe(core::Filter::Operator op) const;
+  std::string Describe(core::FieldFilter::Operator op) const;
 
   std::shared_ptr<Firestore> firestore_;
   core::Query query_;

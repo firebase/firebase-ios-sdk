@@ -73,6 +73,7 @@ using nanopb::SharedMessage;
 using nlohmann::json;
 using util::StatusOr;
 using util::StringFormat;
+using Operator = FieldFilter::Operator;
 
 template <typename T>
 const std::vector<T>& EmptyVector() {
@@ -179,32 +180,31 @@ FieldPath DecodeFieldReference(JsonReader& reader, const json& field) {
   }
 }
 
-Filter::Operator DecodeFieldFilterOperator(JsonReader& reader,
-                                           const std::string& op) {
+Operator DecodeFieldFilterOperator(JsonReader& reader, const std::string& op) {
   if (op == "LESS_THAN") {
-    return Filter::Operator::LessThan;
+    return Operator::LessThan;
   } else if (op == "LESS_THAN_OR_EQUAL") {
-    return Filter::Operator::LessThanOrEqual;
+    return Operator::LessThanOrEqual;
   } else if (op == "EQUAL") {
-    return Filter::Operator::Equal;
+    return Operator::Equal;
   } else if (op == "NOT_EQUAL") {
-    return Filter::Operator::NotEqual;
+    return Operator::NotEqual;
   } else if (op == "GREATER_THAN") {
-    return Filter::Operator::GreaterThan;
+    return Operator::GreaterThan;
   } else if (op == "GREATER_THAN_OR_EQUAL") {
-    return Filter::Operator::GreaterThanOrEqual;
+    return Operator::GreaterThanOrEqual;
   } else if (op == "ARRAY_CONTAINS") {
-    return Filter::Operator::ArrayContains;
+    return Operator::ArrayContains;
   } else if (op == "IN") {
-    return Filter::Operator::In;
+    return Operator::In;
   } else if (op == "ARRAY_CONTAINS_ANY") {
-    return Filter::Operator::ArrayContainsAny;
+    return Operator::ArrayContainsAny;
   } else if (op == "NOT_IN") {
-    return Filter::Operator::NotIn;
+    return Operator::NotIn;
   } else {
     reader.Fail("Operator in filter is not valid: " + op);
     // We have to return something.
-    return Filter::Operator::Equal;
+    return Operator::Equal;
   }
 }
 
@@ -227,13 +227,13 @@ Filter DecodeUnaryFilter(JsonReader& reader, const json& filter) {
   }
 
   if (op == "IS_NAN") {
-    return FieldFilter::Create(path, Filter::Operator::Equal, NaNValue());
+    return FieldFilter::Create(path, Operator::Equal, NaNValue());
   } else if (op == "IS_NULL") {
-    return FieldFilter::Create(path, Filter::Operator::Equal, NullValue());
+    return FieldFilter::Create(path, Operator::Equal, NullValue());
   } else if (op == "IS_NOT_NAN") {
-    return FieldFilter::Create(path, Filter::Operator::NotEqual, NaNValue());
+    return FieldFilter::Create(path, Operator::NotEqual, NaNValue());
   } else if (op == "IS_NOT_NULL") {
-    return FieldFilter::Create(path, Filter::Operator::NotEqual, NullValue());
+    return FieldFilter::Create(path, Operator::NotEqual, NullValue());
   }
 
   reader.Fail("Unexpected unary filter operator: " + op);

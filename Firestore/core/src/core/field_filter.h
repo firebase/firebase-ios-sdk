@@ -41,6 +41,24 @@ namespace core {
 class FieldFilter : public Filter {
  public:
   /**
+   * Operator is a value relation operator that can be used to filter documents.
+   * It is similar to NSPredicateOperatorType, but only has operators supported
+   * by Firestore.
+   */
+  enum class Operator {
+    LessThan,
+    LessThanOrEqual,
+    Equal,
+    NotEqual,
+    GreaterThanOrEqual,
+    GreaterThan,
+    ArrayContains,
+    In,
+    ArrayContainsAny,
+    NotIn,
+  };
+
+  /**
    * Creates a Filter instance for the provided path, operator, and value.
    */
   static FieldFilter Create(
