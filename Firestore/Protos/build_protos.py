@@ -22,7 +22,9 @@ from __future__ import print_function
 import sys
 
 import argparse
+import contextlib
 import datetime
+import io
 import os
 import os.path
 import re
@@ -104,6 +106,42 @@ def main():
     ObjcProtobufGenerator(args, proto_files).run()
 
 
+@contextlib.contextmanager
+def CppGeneratorScriptTweaked(path):
+  """
+  Set the shebang line of the CPP_GENERATOR script to use the same Python
+  interpreter as this process.
+
+  This is a workaround for the fact that `python` is hardcoded as the python
+  interpreter, which does not always exist in the new world where Python2
+  support has largely disappeared (e.g. macOS 12.3). Changing it to `python3`
+  would possibly break some builds too.
+  """
+
+  # Handle the corner case where sys.executable is None or empty.
+  if not sys.executable:
+    yield
+    return
+
+  with io.open(path, "rt", encoding="utf8") as f:
+    lines = [line for line in f]
+
+  orig_line_0 = lines[0]
+  if orig_line_0 != '#!/usr/bin/env python\n':
+    raise RuntimeError('unexpected first line of ' + path + ': ' + lines[0])
+
+  lines[0] = '#!' + sys.executable + '\n'
+  with io.open(path, "wt", encoding="utf8") as f:
+    f.writelines(lines)
+
+  try:
+    yield
+  finally:
+    lines[0] = orig_line_0
+    with io.open(path, "wt", encoding="utf8") as f:
+      f.writelines(lines)
+
+
 class NanopbGenerator(object):
   """Builds and runs the nanopb plugin to protoc."""
 
@@ -131,23 +169,24 @@ class NanopbGenerator(object):
     cmd = protoc_command(self.args)
 
     gen = os.path.join(os.path.dirname(__file__), CPP_GENERATOR)
-    cmd.append('--plugin=protoc-gen-nanopb=%s' % gen)
+    with CppGeneratorScriptTweaked(gen):
+      cmd.append('--plugin=protoc-gen-nanopb=%s' % gen)
 
-    nanopb_flags = ' '.join([
-        '--extension=.nanopb',
-        '--source-extension=.cc',
-        '--no-timestamp',
-        # Make sure Nanopb finds the `.options` files. See
-        # https://jpa.kapsi.fi/nanopb/docs/reference.html#defining-the-options-in-a-options-file
-        # "...if your .proto is in a subdirectory, nanopb may have trouble
-        # finding the associated .options file. A workaround is to specify
-        # include path separately to the nanopb plugin"
-        '-I' + self.args.protos_dir,
-    ])
-    cmd.append('--nanopb_out=%s:%s' % (nanopb_flags, out_dir))
+      nanopb_flags = ' '.join([
+          '--extension=.nanopb',
+          '--source-extension=.cc',
+          '--no-timestamp',
+          # Make sure Nanopb finds the `.options` files. See
+          # https://jpa.kapsi.fi/nanopb/docs/reference.html#defining-the-options-in-a-options-file
+          # "...if your .proto is in a subdirectory, nanopb may have trouble
+          # finding the associated .options file. A workaround is to specify
+          # include path separately to the nanopb plugin"
+          '-I' + self.args.protos_dir,
+      ])
+      cmd.append('--nanopb_out=%s:%s' % (nanopb_flags, out_dir))
 
-    cmd.extend(self.proto_files)
-    run_protoc(self.args, cmd)
+      cmd.extend(self.proto_files)
+      run_protoc(self.args, cmd)
 
 
 class ObjcProtobufGenerator(object):
