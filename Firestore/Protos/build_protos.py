@@ -117,12 +117,6 @@ def CppGeneratorScriptTweaked(path):
   support has largely disappeared (e.g. macOS 12.3). Changing it to `python3`
   would possibly break some builds too.
   """
-
-  # Handle the corner case where sys.executable is None or empty.
-  if not sys.executable:
-    yield
-    return
-
   with io.open(path, "rt", encoding="utf8") as f:
     lines = [line for line in f]
 
@@ -168,23 +162,22 @@ class NanopbGenerator(object):
     """Invokes protoc using the nanopb plugin."""
     cmd = protoc_command(self.args)
 
+    nanopb_flags = ' '.join([
+        '--extension=.nanopb',
+        '--source-extension=.cc',
+        '--no-timestamp',
+        # Make sure Nanopb finds the `.options` files. See
+        # https://jpa.kapsi.fi/nanopb/docs/reference.html#defining-the-options-in-a-options-file
+        # "...if your .proto is in a subdirectory, nanopb may have trouble
+        # finding the associated .options file. A workaround is to specify
+        # include path separately to the nanopb plugin"
+        '-I' + self.args.protos_dir,
+    ])
+    cmd.append('--nanopb_out=%s:%s' % (nanopb_flags, out_dir))
+
     gen = os.path.join(os.path.dirname(__file__), CPP_GENERATOR)
     with CppGeneratorScriptTweaked(gen):
       cmd.append('--plugin=protoc-gen-nanopb=%s' % gen)
-
-      nanopb_flags = ' '.join([
-          '--extension=.nanopb',
-          '--source-extension=.cc',
-          '--no-timestamp',
-          # Make sure Nanopb finds the `.options` files. See
-          # https://jpa.kapsi.fi/nanopb/docs/reference.html#defining-the-options-in-a-options-file
-          # "...if your .proto is in a subdirectory, nanopb may have trouble
-          # finding the associated .options file. A workaround is to specify
-          # include path separately to the nanopb plugin"
-          '-I' + self.args.protos_dir,
-      ])
-      cmd.append('--nanopb_out=%s:%s' % (nanopb_flags, out_dir))
-
       cmd.extend(self.proto_files)
       run_protoc(self.args, cmd)
 
