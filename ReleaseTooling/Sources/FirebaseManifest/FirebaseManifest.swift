@@ -24,7 +24,11 @@ public let shared = Manifest(
   version: "8.14.0",
   pods: [
     Pod("FirebaseSharedSwift"),
-    Pod("FirebaseCoreDiagnostics", zip: true),
+    Pod("FirebaseCoreDiagnostics"),
+    Pod("FirebaseCoreInternal"),
+    Pod("FirebaseAppCheckInterop"),
+    Pod("FirebaseAuthInterop"),
+    Pod("FirebaseMessagingInterop"),
     Pod("FirebaseCore", zip: true),
     Pod("FirebaseInstallations", zip: true),
     Pod("GoogleAppMeasurement", isClosedSource: true),
