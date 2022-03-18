@@ -48,7 +48,7 @@ func apis() {
   case .sandbox: ()
   case .unknown: ()
   // The following case serves to silence the warning that this
-  // enum "may have additional unknown value". In the event that the existing
+  // enum "may have additional unknown values". In the event that the existing
   // cases change, this switch statement will generate
   // a "Switch must be exhaustive" warning.
   @unknown default: ()
@@ -66,7 +66,7 @@ func apis() {
   case .invalidRequest: ()
   case .invalidTopicName: ()
   // The following case serves to silence the warning that this
-  // enum "may have additional unknown value". In the event that the existing
+  // enum "may have additional unknown values". In the event that the existing
   // cases change, this switch statement will generate
   // a "Switch must be exhaustive" warning.
   @unknown default: ()
@@ -78,7 +78,7 @@ func apis() {
   case .new: ()
   case .unknown: ()
   // The following case serves to silence the warning that this
-  // enum "may have additional unknown value". In the event that the existing
+  // enum "may have additional unknown values". In the event that the existing
   // cases change, this switch statement will generate
   // a "Switch must be exhaustive" warning.
   @unknown default: ()
