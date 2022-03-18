@@ -28,7 +28,9 @@ import io
 import os
 import os.path
 import re
+import stat
 import subprocess
+import tempfile
 
 
 CPP_GENERATOR = 'nanopb_cpp_generator.py'
@@ -117,23 +119,33 @@ def CppGeneratorScriptTweaked(path):
   support has largely disappeared (e.g. macOS 12.3). Changing it to `python3`
   would possibly break some builds too.
   """
+  # Read the script into memory.
   with io.open(path, "rt", encoding="utf8") as f:
     lines = [line for line in f]
 
-  orig_line_0 = lines[0]
-  if orig_line_0 != '#!/usr/bin/env python\n':
+  # Verify that the read file looks like the right one.
+  if lines[0] != '#!/usr/bin/env python\n':
     raise RuntimeError('unexpected first line of ' + path + ': ' + lines[0])
 
+  # Replace the shebang line with a custom one.
   lines[0] = '#!' + sys.executable + '\n'
-  with io.open(path, "wt", encoding="utf8") as f:
-    f.writelines(lines)
+
+  # Create a temporary file to which to write the tweaked script.
+  (handle, temp_path) = tempfile.mkstemp('.py', dir=os.path.dirname(path))
+  os.close(handle)
 
   try:
-    yield
-  finally:
-    lines[0] = orig_line_0
-    with io.open(path, "wt", encoding="utf8") as f:
+    # Write the lines of the tweaked script to the temporary file.
+    with io.open(temp_path, "wt", encoding="utf8") as f:
       f.writelines(lines)
+
+    # Make sure that the temporary file is executable.
+    st = os.stat(temp_path)
+    os.chmod(temp_path, st.st_mode | stat.S_IEXEC)
+
+    yield temp_path
+  finally:
+    os.unlink(temp_path)
 
 
 class NanopbGenerator(object):
@@ -176,8 +188,8 @@ class NanopbGenerator(object):
     cmd.append('--nanopb_out=%s:%s' % (nanopb_flags, out_dir))
 
     gen = os.path.join(os.path.dirname(__file__), CPP_GENERATOR)
-    with CppGeneratorScriptTweaked(gen):
-      cmd.append('--plugin=protoc-gen-nanopb=%s' % gen)
+    with CppGeneratorScriptTweaked(gen) as gen_tweaked:
+      cmd.append('--plugin=protoc-gen-nanopb=%s' % gen_tweaked)
       cmd.extend(self.proto_files)
       run_protoc(self.args, cmd)
 
