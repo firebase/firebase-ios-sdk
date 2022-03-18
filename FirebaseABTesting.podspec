@@ -58,9 +58,7 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
       :osx => osx_deployment_target,
       :tvos => tvos_deployment_target
     }
-    unit_tests.source_files = 'FirebaseABTesting/Tests/Unit/**/*.[mh]',
-                              # Include blank Swift file for static linking.
-                              'FirebaseABTesting/Tests/Empty.swift'
+    unit_tests.source_files = 'FirebaseABTesting/Tests/Unit/**/*.[mh]'
     unit_tests.resources = 'FirebaseABTesting/Tests/Unit/Resources/*.txt'
     unit_tests.requires_app_host = true
     unit_tests.dependency 'OCMock'
