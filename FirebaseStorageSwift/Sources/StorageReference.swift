@@ -208,6 +208,19 @@ import FirebaseStorageObjC
     impl.downloadURL(completion: completion)
   }
 
+  #if compiler(>=5.5) && canImport(_Concurrency)
+    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+    /**
+     * Asynchronously retrieves a long lived download URL with a revokable token.
+     * This can be used to share the file with others, but can be revoked by a developer
+     * in the Firebase Console.
+     * @returns completion The URL on success.
+     */
+    open func downloadURL() async throws -> URL {
+      return try await impl.downloadURL()
+    }
+  #endif // compiler(>=5.5) && canImport(_Concurrency)
+
   /**
    * Asynchronously downloads the object at the current path to a specified system filepath.
    * @param fileURL A file system URL representing the path the object should be downloaded to.
@@ -256,6 +269,24 @@ import FirebaseStorageObjC
       }
     }
   }
+
+  #if compiler(>=5.5) && canImport(_Concurrency)
+    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+    /**
+     * List all items (files) and prefixes (folders) under this StorageReference.
+     *
+     * This is a helper method for calling list() repeatedly until there are no more results.
+     * Consistency of the result is not guaranteed if objects are inserted or removed while this
+     * operation is executing. All results are buffered in memory.
+     *
+     * `listAll()` is only available for projects using Firebase Rules Version 2.
+     *
+     * @returns completion All items and prefixes under the current StorageReference.
+     */
+    open func listAll() async throws -> StorageListResult {
+      return try await StorageListResult(impl.listAll())
+    }
+  #endif // compiler(>=5.5) && canImport(_Concurrency)
 
   /**
    * List up to `maxResults` items (files) and prefixes (folders) under this StorageReference.
@@ -327,6 +358,17 @@ import FirebaseStorageObjC
     }
   }
 
+  #if compiler(>=5.5) && canImport(_Concurrency)
+    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+    /**
+     * Retrieves metadata associated with an object at the current path.
+     * @returns The object metadata on success.
+     */
+    open func getMetadata() async throws -> StorageMetadata {
+      return try await StorageMetadata(impl: impl.metadata())
+    }
+  #endif // compiler(>=5.5) && canImport(_Concurrency)
+
   /**
    * Updates the metadata associated with an object at the current path.
    * @param metadata An StorageMetadata object with the metadata to update.
@@ -342,6 +384,18 @@ import FirebaseStorageObjC
       }
     }
   }
+
+  #if compiler(>=5.5) && canImport(_Concurrency)
+    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+    /**
+     * Updates the metadata associated with an object at the current path.
+     * @param metadata An StorageMetadata object with the metadata to update.
+     * @returns The object metadata on success.
+     */
+    open func updateMetadata(_ metadata: StorageMetadata) async throws -> StorageMetadata {
+      return try await StorageMetadata(impl: impl.update(metadata.impl))
+    }
+  #endif // compiler(>=5.5) && canImport(_Concurrency)
 
   private func adaptMetadataCallback(completion: @escaping (StorageMetadata?, Error?) -> Void) ->
     (_: FIRIMPLStorageMetadata?, _: Error?)
@@ -365,6 +419,16 @@ import FirebaseStorageObjC
   open func delete(completion: ((_: Error?) -> Void)?) {
     impl.delete(completion: completion)
   }
+
+  #if compiler(>=5.5) && canImport(_Concurrency)
+    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+    /**
+     * Deletes the object at the current path.
+     */
+    open func delete() async throws {
+      return try await impl.delete()
+    }
+  #endif // compiler(>=5.5) && canImport(_Concurrency)
 
   // MARK: - NSObject overrides
 
