@@ -120,7 +120,7 @@ def CppGeneratorScriptTweaked(path):
   would possibly break some builds too.
   """
   # Read the script into memory.
-  with io.open(path, "rt", encoding="utf8") as f:
+  with io.open(path, 'rt', encoding='utf8') as f:
     lines = [line for line in f]
 
   # Verify that the read file looks like the right one.
@@ -136,7 +136,7 @@ def CppGeneratorScriptTweaked(path):
 
   try:
     # Write the lines of the tweaked script to the temporary file.
-    with io.open(temp_path, "wt", encoding="utf8") as f:
+    with io.open(temp_path, 'wt', encoding='utf8') as f:
       f.writelines(lines)
 
     # Make sure that the temporary file is executable.
