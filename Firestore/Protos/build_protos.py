@@ -124,11 +124,11 @@ def CppGeneratorScriptTweaked(path):
     lines = [line for line in f]
 
   # Verify that the read file looks like the right one.
-  if lines[0] != '#!/usr/bin/env python\n':
+  if lines[0] != u'#!/usr/bin/env python\n':
     raise RuntimeError('unexpected first line of ' + path + ': ' + lines[0])
 
   # Replace the shebang line with a custom one.
-  lines[0] = '#!' + sys.executable + '\n'
+  lines[0] = u'#!' + sys.executable + u'\n'
 
   # Create a temporary file to which to write the tweaked script.
   (handle, temp_path) = tempfile.mkstemp('.py', dir=os.path.dirname(path))
