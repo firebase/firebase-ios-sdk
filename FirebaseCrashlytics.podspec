@@ -112,9 +112,7 @@ Pod::Spec.new do |s|
       :tvos => tvos_deployment_target
     }
     unit_tests.source_files = 'Crashlytics/UnitTests/*.[mh]',
-                              'Crashlytics/UnitTests/*/*.[mh]',
-                              # Include blank Swift file for static linking.
-                              'Empty.swift'
+                              'Crashlytics/UnitTests/*/*.[mh]'
     unit_tests.resources = 'Crashlytics/UnitTests/Data/*',
                            'Crashlytics/UnitTests/*.clsrecord',
                            'Crashlytics/UnitTests/FIRCLSMachO/data/*'
