@@ -148,7 +148,7 @@ jobs:
       matrix:
         target: [ios, tvos, macos --skip-tests]
         flags: [
-          '--use-modular-headers --allow-warnings' #TODO(ncooke3): Revert
+          '--use-modular-headers' #TODO(ncooke3): Revert
         ]
     # needs: pod-lib-lint
     steps:
@@ -156,7 +156,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint Messaging Cron
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=${{ matrix.target }}
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=${{ matrix.target }} --allow-warnings
 
   messaging-watchos-cron-only:
     # Don't run on private repo.
@@ -165,7 +165,7 @@ jobs:
     strategy:
       matrix:
         flags: [
-          '--use-static-frameworks --allow-warnings' #TODO(ncooke3): Revert
+          '--use-static-frameworks' #TODO(ncooke3): Revert
         ]
     # needs: pod-lib-lint-watchos
     steps:
@@ -173,7 +173,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint Messaging Cron
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=watchos
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=watchos --allow-warnings
 
   # messaging-sample-build-test:
   #   # Don't run on private repo unless it is a PR.
