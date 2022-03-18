@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_LOCAL_LEVELDB_INDEX_MANAGER_H_
 
 #include <queue>
+#include <set>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -32,6 +33,10 @@ namespace firestore {
 namespace credentials {
 class User;
 }  // namespace credentials
+
+namespace index {
+class IndexEntry;
+}  // namespace index
 
 namespace local {
 
@@ -64,8 +69,7 @@ class LevelDbIndexManager : public IndexManager {
 
   absl::optional<model::FieldIndex> GetFieldIndex(core::Target target) override;
 
-  absl::optional<std::vector<model::DocumentKey>> GetDocumentsMatchingTarget(
-      model::FieldIndex fieldIndex, core::Target target) override;
+  absl::optional<std::vector<model::DocumentKey>> GetDocumentsMatchingTarget(const core::Target& target) override;
 
   absl::optional<std::string> GetNextCollectionGroupToUpdate() override;
 
@@ -88,6 +92,19 @@ class LevelDbIndexManager : public IndexManager {
   void MemoizeIndex(model::FieldIndex index);
 
   void DeleteFromUpdateQueue(model::FieldIndex* index);
+
+  std::set<index::IndexEntry> GetExistingIndexEntries(
+      const model::DocumentKey& key, const model::FieldIndex& index);
+  std::set<index::IndexEntry> ComputeIndexEntries(
+      const model::Document& document, const model::FieldIndex& index);
+  void UpdateEntries(const model::Document& document,
+                     const std::set<index::IndexEntry>& existing_entries,
+                     const std::set<index::IndexEntry>& new_entries);
+
+  void AddIndexEntry(const model::Document& document,
+                     const index::IndexEntry& entry);
+  void DeleteIndexEntry(const model::Document& document,
+                        const index::IndexEntry& entry);
 
   // The LevelDbIndexManager is owned by LevelDbPersistence.
   LevelDbPersistence* db_;
@@ -121,6 +138,9 @@ class LevelDbIndexManager : public IndexManager {
   bool started_ = false;
 
   std::string uid_;
+  absl::optional<std::string> EncodeDirectionalElements(
+      const model::FieldIndex& index, const model::Document& document);
+  std::string EncodeSingleElement(const _google_firestore_v1_Value& value);
 };
 
 }  // namespace local

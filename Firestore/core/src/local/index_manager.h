@@ -106,8 +106,7 @@ class IndexManager {
    * index, or `nullopt` if the query cannot be served from an index.
    */
   virtual absl::optional<std::vector<model::DocumentKey>>
-  GetDocumentsMatchingTarget(model::FieldIndex fieldIndex,
-                             core::Target target) = 0;
+  GetDocumentsMatchingTarget(const core::Target& target) = 0;
 
   /**
    * Returns the next collection group to update. Returns `nullopt` if no

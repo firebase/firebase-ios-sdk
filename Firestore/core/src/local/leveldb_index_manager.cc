@@ -17,14 +17,20 @@
 #include "Firestore/core/src/local/leveldb_index_manager.h"
 
 #include <algorithm>
+#include <functional>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "Firestore/core/src/credentials/user.h"
+#include "Firestore/core/src/index/firestore_index_value_writer.h"
+#include "Firestore/core/src/index/index_byte_encoder.h"
+#include "Firestore/core/src/index/index_entry.h"
 #include "Firestore/core/src/local/leveldb_key.h"
 #include "Firestore/core/src/local/leveldb_persistence.h"
 #include "Firestore/core/src/local/local_serializer.h"
+#include "Firestore/core/src/model/document_set.h"
 #include "Firestore/core/src/model/field_index.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/resource_path.h"
@@ -37,7 +43,11 @@ namespace firestore {
 namespace local {
 
 using credentials::User;
+using index::DirectionalIndexByteEncoder;
+using index::IndexEncodingBuffer;
+using index::IndexEntry;
 using model::DocumentKey;
+using model::DocumentMap;
 using model::FieldIndex;
 using model::IndexState;
 using model::ResourcePath;
@@ -343,11 +353,14 @@ absl::optional<model::FieldIndex> LevelDbIndexManager::GetFieldIndex(
 }
 
 absl::optional<std::vector<model::DocumentKey>>
-LevelDbIndexManager::GetDocumentsMatchingTarget(model::FieldIndex field_index,
-                                                core::Target target) {
-  (void)field_index;
-  (void)target;
-  return {};
+LevelDbIndexManager::GetDocumentsMatchingTarget(const core::Target& target) {
+  bool can_serve_target = true;
+  std::unordered_map<core::Target, model::FieldIndex> indexes;
+  for(const auto& sub_target: GetSubTargets(target)) {
+    auto index_opt = GetFieldIndex(sub_target);
+    can_serve_target = can_serve_target && index_opt.has_value();
+    indexes.insert(sub_target, index_opt.value());
+  }
 }
 
 absl::optional<std::string>
@@ -380,7 +393,217 @@ void LevelDbIndexManager::UpdateCollectionGroup(
 
 void LevelDbIndexManager::UpdateIndexEntries(
     const model::DocumentMap& documents) {
-  (void)documents;
+  HARD_ASSERT(started_, "IndexManager not started");
+
+  for (const auto& kv : documents) {
+    const auto group = kv.first.GetCollectionGroup();
+    std::vector<FieldIndex> indexes;
+    if (group.has_value()) {
+      indexes = GetFieldIndexes(group.value());
+    }
+
+    for (const auto& index : indexes) {
+      auto existing_entries = GetExistingIndexEntries(kv.first, index);
+      auto new_entries = ComputeIndexEntries(kv.second, index);
+      if (existing_entries != new_entries) {
+        UpdateEntries(kv.second, existing_entries, new_entries);
+      }
+    }
+  }
+}
+
+std::set<IndexEntry> LevelDbIndexManager::GetExistingIndexEntries(
+    const DocumentKey& key, const FieldIndex& index) {
+  auto document_key_index_prefix =
+      LevelDbIndexEntryDocumentKeyIndexKey::KeyPrefix(
+          index.index_id(), uid_, key.path().CanonicalString());
+  LevelDbIndexEntryDocumentKeyIndexKey document_key_index_key;
+  auto iter = db_->current_transaction()->NewIterator();
+  std::set<IndexEntry> index_entries;
+  for (iter->Seek(document_key_index_prefix); iter->Valid(); iter->Next()) {
+    if (!absl::StartsWith(iter->key(), document_key_index_prefix) ||
+        !document_key_index_key.Decode(iter->key())) {
+      break;
+    }
+    LevelDbIndexEntryKey entry_key;
+    bool decoded = entry_key.Decode(iter->value());
+    HARD_ASSERT(decoded,
+                "LevelDbIndexEntryKey cannot be decoded from document key "
+                "index table.");
+    index_entries.insert({entry_key.index_id(),
+                          DocumentKey::FromPathString(entry_key.document_key()),
+                          entry_key.array_value(),
+                          entry_key.directional_value()});
+  }
+
+  return index_entries;
+}
+
+std::set<IndexEntry> LevelDbIndexManager::ComputeIndexEntries(
+    const model::Document& document, const FieldIndex& index) {
+  std::set<IndexEntry> results;
+
+  auto directional_value = EncodeDirectionalElements(index, document);
+  if (directional_value == absl::nullopt) {
+    return results;
+  }
+
+  auto array_segment = index.GetArraySegment();
+  if (array_segment.has_value()) {
+    auto field_value = document->field(array_segment->field_path());
+    if (field_value.has_value() &&
+        field_value.value().which_value_type ==
+            google_firestore_v1_ArrayValue_values_tag) {
+      for (pb_size_t i = 0; i < field_value.value().array_value.values_count;
+           ++i) {
+        results.insert(IndexEntry(
+            index.index_id(), document->key(),
+            EncodeSingleElement(field_value.value().array_value.values[i]),
+            directional_value.value()));
+      }
+    }
+  } else {
+    results.insert(IndexEntry(index.index_id(), document->key(), "",
+                              directional_value.value()));
+  }
+
+  return results;
+}
+
+absl::optional<std::string> LevelDbIndexManager::EncodeDirectionalElements(
+    const FieldIndex& index, const model::Document& document) {
+  IndexEncodingBuffer index_buffer;
+  for (const auto& segment : index.GetDirectionalSegments()) {
+    auto field = document->field(segment.field_path());
+    if (!field.has_value()) {
+      return absl::nullopt;
+    }
+    index::WriteIndexValue(field.value(), index_buffer.ForKind(segment.kind()));
+  }
+  return index_buffer.GetEncodedBytes();
+}
+
+std::string LevelDbIndexManager::EncodeSingleElement(
+    const _google_firestore_v1_Value& value) {
+  IndexEncodingBuffer index_buffer;
+  index::WriteIndexValue(value, index_buffer.ForKind(model::Segment::kAscending));
+  return index_buffer.GetEncodedBytes();
+}
+
+void DiffSets(std::set<IndexEntry> existing,
+              std::set<IndexEntry> new_entries,
+              std::function<void(const IndexEntry&)> on_add,
+              std::function<void(const IndexEntry&)> on_remove) {
+  auto existing_iter = existing.cbegin();
+  auto new_iter = new_entries.cbegin();
+  // Walk through the two sets at the same time, using the ordering defined by
+  // `CompareTo`.
+  while (existing_iter != existing.cend() || new_iter != new_entries.cend()) {
+    bool added = false;
+    bool removed = false;
+
+    if (existing_iter != existing.cend() && new_iter != new_entries.cend()) {
+      util::ComparisonResult cmp = existing_iter->CompareTo(*new_iter);
+      if (cmp == util::ComparisonResult::Ascending) {
+        // The element was removed if the next element in our ordered
+        // walkthrough is only in `existing`.
+        removed = true;
+      } else if (cmp == util::ComparisonResult::Descending) {
+        // The element was added if the next element in our ordered
+        // walkthrough is only in `new_entries`.
+        added = true;
+      }
+    } else if (existing_iter != existing.cend()) {
+      removed = true;
+    } else {
+      added = true;
+    }
+
+    if (added) {
+      on_add(*new_iter);
+      new_iter++;
+    } else if (removed) {
+      on_remove(*existing_iter);
+      existing_iter++;
+    } else {
+      if (existing_iter != existing.cend()) {
+        existing_iter++;
+      }
+      if (new_iter != new_entries.cend()) {
+        new_iter++;
+      }
+    }
+  }
+}
+
+void LevelDbIndexManager::UpdateEntries(
+    const model::Document& document,
+    const std::set<IndexEntry>& existing_entries,
+    const std::set<IndexEntry>& new_entries) {
+  DiffSets(
+      existing_entries, new_entries,
+      [this, document](const IndexEntry& entry) {
+        this->AddIndexEntry(document, entry);
+      },
+      [this, document](const IndexEntry& entry) {
+        this->DeleteIndexEntry(document, entry);
+      });
+}
+
+void LevelDbIndexManager::AddIndexEntry(const model::Document& document,
+                                        const IndexEntry& entry) {
+  absl::string_view document_key = document->key().path().CanonicalString();
+  auto entry_key =
+      LevelDbIndexEntryKey::Key(entry.index_id(), uid_, entry.array_value(),
+                                entry.directional_value(), document_key);
+  db_->current_transaction()->Put(entry_key, "");
+
+  auto document_key_index_prefix =
+      LevelDbIndexEntryDocumentKeyIndexKey::KeyPrefix(entry.index_id(), uid_,
+                                                      document_key);
+  std::string raw_key;
+  auto iter = db_->current_transaction()->NewIterator();
+  for (iter->Seek(document_key_index_prefix); iter->Valid(); iter->Next()) {
+    if (absl::StartsWith(iter->key(), document_key_index_prefix)) {
+      raw_key = iter->key();
+    } else {
+      break;
+    }
+  }
+
+  LevelDbIndexEntryDocumentKeyIndexKey document_key_index_key(
+      entry.index_id(), uid_, document_key, 0);
+  if (!raw_key.empty()) {
+    bool decoded = document_key_index_key.Decode(raw_key);
+    HARD_ASSERT(decoded,
+                "LevelDbIndexEntryDocumentKeyIndexKey cannot be decoded from "
+                "document key index table.");
+    document_key_index_key.IncreaseSeqNumber();
+  }
+
+  db_->current_transaction()->Put(document_key_index_key.Key(), entry_key);
+}
+
+void LevelDbIndexManager::DeleteIndexEntry(const model::Document& document,
+                                           const IndexEntry& entry) {
+  absl::string_view document_key = document->key().path().CanonicalString();
+  auto entry_key =
+      LevelDbIndexEntryKey::Key(entry.index_id(), uid_, entry.array_value(),
+                                entry.directional_value(), document_key);
+  db_->current_transaction()->Delete(entry_key);
+
+  auto document_key_index_prefix =
+      LevelDbIndexEntryDocumentKeyIndexKey::KeyPrefix(entry.index_id(), uid_,
+                                                      document_key);
+  LevelDbIndexEntryDocumentKeyIndexKey document_key_index_key;
+  auto iter = db_->current_transaction()->NewIterator();
+  for (iter->Seek(document_key_index_prefix); iter->Valid(); iter->Next()) {
+    if (!absl::StartsWith(iter->key(), document_key_index_prefix) ||
+        !document_key_index_key.Decode(iter->key())) {
+      break;
+    }
+    db_->current_transaction()->Delete(iter->key());
+  }
 }
 
 }  // namespace local

@@ -114,7 +114,13 @@ namespace local {
 //   - user_id: string
 //   - array_value: string
 //   - directional_value: string
-//   - document_name: string
+//   - document_key: string
+//
+// index_entries_document_key_index:
+//   - table_name: string = "index_entries_document_key_index"
+//   - index_id: int32_t
+//   - user_id: string
+//   - document_key: string
 //
 // document_overlays:
 //   - table_name: "document_overlays"
@@ -845,6 +851,73 @@ class LevelDbIndexStateKey {
  private:
   int32_t index_id_;
   std::string user_id_;
+};
+
+/**
+ * A key in the index_entries_document_key_index table, storing the encoded
+ * entries for an given index, user id and document key.
+ */
+class LevelDbIndexEntryDocumentKeyIndexKey {
+ public:
+  /**
+   * Creates a key that points to the key for the given index entry fields.
+   */
+  static std::string KeyPrefix(int32_t index_id,
+                               absl::string_view user_id,
+                               absl::string_view document_key);
+
+  LevelDbIndexEntryDocumentKeyIndexKey() = default;
+
+  LevelDbIndexEntryDocumentKeyIndexKey(int32_t index_id,
+                                       absl::string_view user_id,
+                                       absl::string_view document_key,
+                                       int64_t seq_num)
+      : index_id_(index_id),
+        user_id_(user_id),
+        document_key_(document_key),
+        seq_number_(seq_num) {
+  }
+
+  /**
+   * Decodes the given complete key, storing the decoded values in this
+   * instance.
+   *
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
+   */
+  ABSL_MUST_USE_RESULT
+  bool Decode(absl::string_view key);
+
+  std::string Key();
+
+  /** The index id for this entry. */
+  int32_t index_id() const {
+    return index_id_;
+  }
+
+  /** The user id for this entry. */
+  const std::string& user_id() const {
+    return user_id_;
+  }
+
+  const std::string& document_key() const {
+    return document_key_;
+  }
+
+  int64_t seq_number() const {
+    return seq_number_;
+  }
+
+  void IncreaseSeqNumber() {
+    ++seq_number_;
+  }
+
+ private:
+  int32_t index_id_;
+  std::string user_id_;
+  std::string document_key_;
+  int64_t seq_number_;
 };
 
 /**
