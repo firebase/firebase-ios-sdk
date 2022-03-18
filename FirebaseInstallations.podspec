@@ -58,7 +58,7 @@ Pod::Spec.new do |s|
     unit_tests.scheme = { :code_coverage => true }
     unit_tests.platforms = {
       :ios => ios_deployment_target,
-      :osx => osx_deployment_target,
+      :osx => '10.15',
       :tvos => tvos_deployment_target
     }
     unit_tests.source_files = base_dir + 'Tests/Unit/*.[mh]',
@@ -75,7 +75,7 @@ Pod::Spec.new do |s|
 
   s.test_spec 'integration' do |int_tests|
     int_tests.scheme = { :code_coverage => true }
-    int_tests.platforms = {:ios => '9.0', :osx => '10.12', :tvos => '10.0'}
+    int_tests.platforms = {:ios => '9.0', :osx => '10.15', :tvos => '10.0'}
     int_tests.source_files = base_dir + 'Tests/Integration/**/*.[mh]'
     int_tests.resources = base_dir + 'Tests/Resources/**/*'
     if ENV['FIS_INTEGRATION_TESTS_REQUIRED'] && ENV['FIS_INTEGRATION_TESTS_REQUIRED'] == '1' then

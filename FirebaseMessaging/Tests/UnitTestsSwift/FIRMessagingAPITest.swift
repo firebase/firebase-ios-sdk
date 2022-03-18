@@ -47,8 +47,11 @@ func apis() {
   case .prod: ()
   case .sandbox: ()
   case .unknown: ()
-    // Intentionally leave the warning for not handling unknown values as that's the only way this
-    // will fail to compile if we add a case.
+  // The following case serves to silence the warning that this
+  // enum "may have additional unknown values". In the event that the existing
+  // cases change, this switch statement will generate
+  // a "Switch must be exhaustive" warning.
+  @unknown default: ()
   }
 
   // Use random to eliminate the warning that we're evaluating to a constant.
@@ -62,8 +65,11 @@ func apis() {
   case .operationInProgress: ()
   case .invalidRequest: ()
   case .invalidTopicName: ()
-    // Intentionally leave the warning for not handling unknown values as that's the only way this
-    // will fail to compile if we add a case.
+  // The following case serves to silence the warning that this
+  // enum "may have additional unknown values". In the event that the existing
+  // cases change, this switch statement will generate
+  // a "Switch must be exhaustive" warning.
+  @unknown default: ()
   }
 
   // Use random to eliminate the warning that we're evaluating to a constant.
@@ -71,8 +77,11 @@ func apis() {
   switch status {
   case .new: ()
   case .unknown: ()
-    // Intentionally leave the warning for not handling unknown values as that's the only way this
-    // will fail to compile if we add a case.
+  // The following case serves to silence the warning that this
+  // enum "may have additional unknown values". In the event that the existing
+  // cases change, this switch statement will generate
+  // a "Switch must be exhaustive" warning.
+  @unknown default: ()
   }
 
   // TODO: Mark the initializer as unavialable, as devs shouldn't be able to instantiate this.
