@@ -394,6 +394,7 @@ struct FrameworkBuilder {
       if framework.hasPrefix("Firebase") || framework == "GoogleDataTransport",
          framework != "FirebaseCoreDiagnostics",
          framework != "FirebaseUI",
+         framework != "FirebaseFunctions",
          framework != "FirebaseMLModelDownloader",
          !framework.hasSuffix("Swift") {
         // Delete CocoaPods generated umbrella and use pre-generated one.

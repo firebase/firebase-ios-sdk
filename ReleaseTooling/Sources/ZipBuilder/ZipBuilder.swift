@@ -218,6 +218,11 @@ struct ZipBuilder {
       // Also AppCheck must be built after other pods so that its restricted architecture
       // selection does not restrict any of its dependencies.
       var sortedPods = podsToBuild.keys.sorted()
+
+      // Interop pods are protocols only and should not be built.
+      sortedPods.removeAll(where: { value in
+        value.hasSuffix("Interop")
+      })
       sortedPods.removeAll(where: { value in
         value == "FirebaseAppCheck"
       })
@@ -314,7 +319,7 @@ struct ZipBuilder {
   /// - Throws: One of many errors that could have happened during the build phase.
   func buildAndAssembleFirebaseRelease(templateDir: URL) throws -> ReleaseArtifacts {
     let manifest = FirebaseManifest.shared
-    var podsToInstall = manifest.pods.filter { $0.zip }.map {
+    var podsToInstall = manifest.pods.map {
       CocoaPodUtils.VersionedPod(name: $0.name,
                                  version: manifest.versionString($0),
                                  platforms: $0.platforms)
@@ -433,13 +438,13 @@ struct ZipBuilder {
     let analyticsPods = analyticsFrameworks.map {
       $0.replacingOccurrences(of: ".framework", with: "")
     }
+    let manifest = FirebaseManifest.shared
+    let firebaseZipPods = manifest.pods.filter { $0.zip }.map { $0.name }
+
     // Skip Analytics and the pods bundled with it.
     let remainingPods = installedPods.filter {
-      $0.key != "FirebaseAnalytics" &&
+      firebaseZipPods.contains($0.key) &&
         $0.key != "FirebaseAnalyticsSwift" &&
-        $0.key != "FirebaseCore" &&
-        $0.key != "FirebaseCoreDiagnostics" &&
-        $0.key != "FirebaseInstallations" &&
         $0.key != "Firebase" &&
         podsToInstall.map { $0.name }.contains($0.key)
     }.sorted { $0.key < $1.key }
@@ -582,6 +587,7 @@ struct ZipBuilder {
     for podName in installedPods {
       // Skip the Firebase pod and specifically ignored frameworks.
       guard podName != "Firebase",
+            !podName.hasSuffix("Interop"),
             !podsToIgnore.contains(podName) else {
         continue
       }
