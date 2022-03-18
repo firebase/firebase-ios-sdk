@@ -117,7 +117,7 @@ jobs:
         flags: [
           '--use-static-frameworks',
         ]
-    # needs: pod-lib-lint
+    needs: pod-lib-lint
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
