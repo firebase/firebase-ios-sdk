@@ -133,8 +133,7 @@ jobs:
         # The macos and tvos tests can hang, and watchOS doesn't have tests.
         target: [ios, tvos --skip-tests, macos --skip-tests, watchos --skip-tests]
         flags: [
-          '--use-static-frameworks',
-          '--use-libraries'
+          '--use-static-frameworks'
         ]
     needs: pod-lib-lint
     steps:
