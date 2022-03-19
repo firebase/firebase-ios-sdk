@@ -245,11 +245,10 @@ jobs:
               cp quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Firebase/upload-symbols quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart
               chmod +x quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/run
               chmod +x quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/upload-symbols
-    # TODO(#8057): Restore Swift Quickstart
-    # - name: Setup swift quickstart
-    #   run: |
-    #           SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" NON_FIREBASE_SDKS="ReachabilitySwift" scripts/setup_quickstart_framework.sh \
-    #                                            "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/*
+    - name: Setup swift quickstart
+      run: |
+              SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" NON_FIREBASE_SDKS="ReachabilitySwift" scripts/setup_quickstart_framework.sh \
+                                               "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/*
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-crashlytics.plist.gpg \
         quickstart-ios/crashlytics/GoogleService-Info.plist "$plist_secret"
@@ -257,8 +256,8 @@ jobs:
       env:
         LEGACY: true
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
-    # - name: Test Swift Quickstart
-    #   run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
+    - name: Test Swift Quickstart
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
     - name: Remove data before upload
       env:
         LEGACY: true
