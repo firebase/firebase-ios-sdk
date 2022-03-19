@@ -391,10 +391,14 @@ struct FrameworkBuilder {
         fatalError("Error while enumerating files \(headersDir): \(error.localizedDescription)")
       }
       // Verify Firebase frameworks include an explicit umbrella header for Firebase.h.
+      // TODO: We should probably always use the CocoaPods generated umbrella which is correct
+      // for Swift pods and mixed pods.
       if framework.hasPrefix("Firebase") || framework == "GoogleDataTransport",
          framework != "FirebaseCoreDiagnostics",
          framework != "FirebaseUI",
+         framework != "FirebaseCore",
          framework != "FirebaseFunctions",
+         framework != "FirebaseSharedSwift",
          framework != "FirebaseMLModelDownloader",
          !framework.hasSuffix("Swift") {
         // Delete CocoaPods generated umbrella and use pre-generated one.
