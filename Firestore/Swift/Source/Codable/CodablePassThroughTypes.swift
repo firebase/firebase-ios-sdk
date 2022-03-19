@@ -20,10 +20,18 @@ import FirebaseFirestore
 
 internal struct FirestorePassthroughTypes: StructureCodingPassthroughTypeResolver {
   static func isPassthroughType<T>(_ t: T) -> Bool {
-    return
-      T.self == GeoPoint.self ||
-      T.self == Timestamp.self ||
-      T.self == FieldValue.self ||
-      T.self == DocumentReference.self
+// TODO: Will try to take advantage of generics rather than
+// casting later.
+//    return
+//      T.self == GeoPoint.self ||
+//      T.self == Timestamp.self ||
+//      T.self == FieldValue.self ||
+//      T.self == DocumentReference.self
+      let isPass =
+      t is GeoPoint ||
+      t is Timestamp ||
+      t is FieldValue ||
+      t is DocumentReference
+      return isPass
   }
 }

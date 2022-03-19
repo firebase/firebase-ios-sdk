@@ -180,6 +180,7 @@ if is_platform(:tvos)
     target 'Firestore_IntegrationTests_tvOS' do
       inherit! :search_paths
 
+      pod 'FirebaseSharedSwift', :path => '../../'
       pod 'FirebaseFirestoreSwift', :path => '../../'
       pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'

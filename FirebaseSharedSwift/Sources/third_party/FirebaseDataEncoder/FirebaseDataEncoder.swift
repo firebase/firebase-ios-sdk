@@ -24,6 +24,8 @@ private struct NoPassthroughTypes: StructureCodingPassthroughTypeResolver {
     }
 }
 
+public protocol StructureCodingUncodedUnkeyed {}
+
 extension DecodingError {
   /// Returns a `.typeMismatch` error describing the expected type.
   ///
@@ -516,6 +518,7 @@ fileprivate struct _JSONKeyedEncodingContainer<K : CodingKey> : KeyedEncodingCon
   }
 
   public mutating func encode<T : Encodable>(_ value: T, forKey key: Key) throws {
+    if T.self is StructureCodingUncodedUnkeyed.Type { return }
     self.encoder.codingPath.append(key)
     defer { self.encoder.codingPath.removeLast() }
     self.container[_converted(key).stringValue] = try self.encoder.box(value)
@@ -1629,6 +1632,11 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
   }
 
   public func decode<T : Decodable>(_ type: T.Type, forKey key: Key) throws -> T {
+    if type is StructureCodingUncodedUnkeyed.Type {
+      // Note: not pushing and popping key to codingPath since the key is
+      // not part of the decoded structure.
+      return try T.init(from: self.decoder)
+    }
     guard let entry = self.container[key.stringValue] else {
       throw DecodingError.keyNotFound(key, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "No value associated with key \(_errorDescription(of: key))."))
     }
@@ -2510,12 +2518,13 @@ extension __JSONDecoder {
     return try unbox_(value, as: type) as? T
   }
 
-  fileprivate func unbox_(_ value: Any, as type: Decodable.Type) throws -> Any? {
-    if type == Date.self || type == NSDate.self {
+  // XXX TODO: See if we can keep part of this generic!
+  fileprivate func unbox_(_ value: Any, as xtype: Decodable.Type) throws -> Any? {
+    if xtype == Date.self || xtype == NSDate.self {
       return try self.unbox(value, as: Date.self)
-    } else if type == Data.self || type == NSData.self {
+    } else if xtype == Data.self || xtype == NSData.self {
       return try self.unbox(value, as: Data.self)
-    } else if type == URL.self || type == NSURL.self {
+    } else if xtype == URL.self || xtype == NSURL.self {
       guard let urlString = try self.unbox(value, as: String.self) else {
         return nil
       }
@@ -2525,17 +2534,17 @@ extension __JSONDecoder {
                                                                 debugDescription: "Invalid URL string."))
       }
       return url
-    } else if type == Decimal.self || type == NSDecimalNumber.self {
+    } else if xtype == Decimal.self || xtype == NSDecimalNumber.self {
       return try self.unbox(value, as: Decimal.self)
-    } else if let stringKeyedDictType = type as? _JSONStringDictionaryDecodableMarker.Type {
+    } else if let stringKeyedDictType = xtype as? _JSONStringDictionaryDecodableMarker.Type {
       return try self.unbox(value, as: stringKeyedDictType)
     } else {
       self.storage.push(container: value)
       defer { self.storage.popContainer() }
-      if self.options.passthroughTypeResolver.isPassthroughType(value) {
+      if self.options.passthroughTypeResolver.isPassthroughType(value) && type(of: value) == xtype  {
         return value
       }
-      return try type.init(from: self)
+      return try xtype.init(from: self)
     }
   }
 }
