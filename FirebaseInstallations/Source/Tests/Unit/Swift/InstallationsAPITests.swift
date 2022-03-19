@@ -156,8 +156,8 @@ final class InstallationsAPITests {
       }
     }
     func globalStringSymbols() {
-      let _ : String = InstallationIDDidChangeAppNameKey
-      let _ : String = InstallationsErrorDomain
+      let _: String = InstallationIDDidChangeAppNameKey
+      let _: String = InstallationsErrorDomain
     }
   }
 }
