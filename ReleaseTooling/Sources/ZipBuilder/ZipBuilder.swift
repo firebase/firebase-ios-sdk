@@ -443,10 +443,12 @@ struct ZipBuilder {
 
     // Skip Analytics and the pods bundled with it.
     let remainingPods = installedPods.filter {
-      firebaseZipPods.contains($0.key) &&
-        $0.key != "FirebaseAnalyticsSwift" &&
-        $0.key != "Firebase" &&
-        podsToInstall.map { $0.name }.contains($0.key)
+      $0.key == "Google-Mobile-Ads-SDK" ||
+        $0.key == "GoogleSignIn" ||
+        (firebaseZipPods.contains($0.key) &&
+          $0.key != "FirebaseAnalyticsSwift" &&
+          $0.key != "Firebase" &&
+          podsToInstall.map { $0.name }.contains($0.key))
     }.sorted { $0.key < $1.key }
     for pod in remainingPods {
       let folder = pod.key.replacingOccurrences(of: "Swift", with: "")
