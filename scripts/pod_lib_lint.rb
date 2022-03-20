@@ -68,6 +68,7 @@ def main(args)
   podspec_file = pod_args[0]
   # Figure out which dependencies are local
   deps = find_local_deps(podspec_file, ignore_local_podspecs.to_set)
+  puts 'podspec_file: ' + podspec_file + '\n podspec_file_deps: ' + deps.join(', ')
   arg = make_include_podspecs(deps)
   command.push(arg) if arg
   command.push('--analyze') if analyze
@@ -112,6 +113,7 @@ def all_deps(specs)
   result = Set[]
 
   specs.each do |spec|
+    puts "debugme spec: #{spec} dep: #{spec.dependencies.join(', ')}"
     spec.dependencies.each do |dep|
       name = dep.name.sub(/\/.*/, '')
       result.add(name)
