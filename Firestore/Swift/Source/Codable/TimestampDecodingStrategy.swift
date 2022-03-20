@@ -31,7 +31,7 @@ extension Firestore.Decoder.DateDecodingStrategy {
   /// it will decode using the fallback strategy.
   /// Note: It may be argued that this was better left as an explicit public strategy without fallback,
   /// but this behavior is consistent with the previous implementation of Firestore.Decoder.
-  internal static func timestamp(fallback: Firestore.Decoder
+  static func timestamp(fallback: Firestore.Decoder
     .DateDecodingStrategy = .deferredToDate) -> Firestore.Decoder.DateDecodingStrategy {
     return .custom { decoder in
       let container = try decoder.singleValueContainer()

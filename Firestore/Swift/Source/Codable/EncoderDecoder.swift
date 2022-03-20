@@ -18,8 +18,8 @@ import FirebaseFirestore
 import FirebaseSharedSwift
 import Foundation
 
-extension Firestore {
-  public class Encoder {
+public extension Firestore {
+  class Encoder {
     public typealias DateEncodingStrategy = FirebaseDataEncoder.DateEncodingStrategy
     public typealias DataEncodingStrategy = FirebaseDataEncoder.DataEncodingStrategy
     public typealias NonConformingFloatEncodingStrategy = FirebaseDataEncoder
@@ -63,7 +63,7 @@ extension Firestore {
     public init() {}
   }
 
-  public class Decoder {
+  class Decoder {
     public typealias DateDecodingStrategy = FirebaseDataDecoder.DateDecodingStrategy
     public typealias DataDecodingStrategy = FirebaseDataDecoder.DataDecodingStrategy
     public typealias NonConformingFloatDecodingStrategy = FirebaseDataDecoder

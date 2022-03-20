@@ -17,9 +17,9 @@
 import FirebaseFirestore
 import Foundation
 
-extension Firestore.Encoder.DateEncodingStrategy {
+public extension Firestore.Encoder.DateEncodingStrategy {
   /// Encode the `Date` as a Firestore `Timestamp`.
-  public static var timestamp: Firestore.Encoder.DateEncodingStrategy {
+  static var timestamp: Firestore.Encoder.DateEncodingStrategy {
     return .custom { date, encoder in
       var container = encoder.singleValueContainer()
       try container.encode(Timestamp(date: date))

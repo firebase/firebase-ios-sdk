@@ -105,12 +105,12 @@ public struct DocumentID<Value: DocumentIDWrappable & Codable>:
   // MARK: - `Codable` implementation.
 
   public init(from decoder: Decoder) throws {
-      guard let reference = decoder.userInfo[documentRefUserInfoKey] as? DocumentReference else {
-        throw FirestoreDecodingError.decodingIsNotSupported(
-          "Could not find DocumentReference for user info key: \(documentRefUserInfoKey)"
-        )
-      }
-      try self.init(from: reference)
+    guard let reference = decoder.userInfo[documentRefUserInfoKey] as? DocumentReference else {
+      throw FirestoreDecodingError.decodingIsNotSupported(
+        "Could not find DocumentReference for user info key: \(documentRefUserInfoKey)"
+      )
+    }
+    try self.init(from: reference)
   }
 
   public func encode(to encoder: Encoder) throws {

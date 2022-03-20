@@ -88,8 +88,8 @@ public extension Transaction {
                              mergeFields: [Any],
                              encoder: Firestore.Encoder = Firestore
                                .Encoder()) throws -> Transaction {
-  let encoded = try encoder.encode(value)
-  setData(encoded, forDocument: doc, mergeFields: mergeFields)
+    let encoded = try encoder.encode(value)
+    setData(encoded, forDocument: doc, mergeFields: mergeFields)
     return self
   }
 }
