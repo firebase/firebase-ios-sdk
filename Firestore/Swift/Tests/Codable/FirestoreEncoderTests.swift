@@ -618,12 +618,14 @@ private class EncodableSubject<X: Equatable & Encodable> {
   @discardableResult
   func encodes(to expected: [String: Any]) -> DictionarySubject {
     let encoded = assertEncodes(to: expected)
+    print("ENC", encoded)
     return DictionarySubject(encoded, file: file, line: line)
   }
 
   func failsToEncode() {
     do {
-      _ = try Firestore.Encoder().encode(subject)
+      let x = try Firestore.Encoder().encode(subject)
+      print("XXXX", x)
     } catch {
       return
     }
@@ -643,7 +645,8 @@ private class EncodableSubject<X: Equatable & Encodable> {
 
   func failsEncodingAtTopLevel() {
     do {
-      _ = try Firestore.Encoder().encode(subject)
+      let a = try Firestore.Encoder().encode(subject)
+      print("XXX", a)
       XCTFail("Failed to throw", file: file, line: line)
     } catch EncodingError.invalidValue(_, _) {
       return
@@ -667,6 +670,7 @@ private class EncodableSubject<X: Equatable & Encodable> {
 private class CodableSubject<X: Equatable & Codable>: EncodableSubject<X> {
   func roundTrips(to expected: [String: Any]) {
     let reverseSubject = encodes(to: expected)
+    print("YYY", reverseSubject)
     reverseSubject.decodes(to: subject)
   }
 }
@@ -688,7 +692,13 @@ private class DictionarySubject {
 
   func decodes<X: Equatable & Codable>(to expected: X) -> Void {
     do {
-      let decoded = try Firestore.Decoder().decode(X.self, from: subject, in: document)
+      let decoded: X
+      if let document = document {
+        decoded = try Firestore.Decoder().decode(X.self, from: subject, in: document)
+      } else {
+        decoded = try Firestore.Decoder().decode(X.self, from: subject)
+      }
+      print("DECODED", decoded)
       XCTAssertEqual(decoded, expected)
     } catch {
       XCTFail("Failed to decode \(X.self): \(error)", file: file, line: line)
