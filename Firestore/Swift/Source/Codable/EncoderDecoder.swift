@@ -41,7 +41,7 @@ extension Firestore {
     /// Contextual user-provided information for use during encoding.
     public var userInfo: [CodingUserInfoKey: Any] = [:]
 
-    public func encode<T: Encodable>(_ value: T) throws -> Any {
+    public func encode<T: Encodable>(_ value: T) throws -> [String: Any] {
       let encoder = FirebaseDataEncoder()
       encoder.dateEncodingStrategy = dateEncodingStrategy
       encoder.dataEncodingStrategy = dataEncodingStrategy
@@ -49,7 +49,11 @@ extension Firestore {
       encoder.keyEncodingStrategy = keyEncodingStrategy
       encoder.passthroughTypeResolver = FirestorePassthroughTypes.self
       encoder.userInfo = userInfo
-      return try encoder.encode(value)
+      let encoded = try encoder.encode(value)
+      guard let dictionaryValue = encoded as? [String: Any] else {
+        throw FirestoreEncodingError.topLevelTypesAreNotSupported
+      }
+      return dictionaryValue
     }
 
     public init() {}

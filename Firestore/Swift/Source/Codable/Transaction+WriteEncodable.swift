@@ -35,10 +35,7 @@ public extension Transaction {
                              encoder: Firestore.Encoder = Firestore
                                .Encoder()) throws -> Transaction {
     let encoded = try encoder.encode(value)
-    guard let dictionaryValue = encoded as? [String: Any] else {
-      throw FirestoreEncodingError.topLevelTypesAreNotSupported
-    }
-    setData(dictionaryValue, forDocument: doc)
+    setData(encoded, forDocument: doc)
     return self
   }
 
@@ -63,10 +60,7 @@ public extension Transaction {
                              encoder: Firestore.Encoder = Firestore
                                .Encoder()) throws -> Transaction {
     let encoded = try encoder.encode(value)
-    guard let dictionaryValue = encoded as? [String: Any] else {
-      throw FirestoreEncodingError.topLevelTypesAreNotSupported
-    }
-    setData(dictionaryValue, forDocument: doc, merge: merge)
+    setData(encoded, forDocument: doc, merge: merge)
     return self
   }
 
@@ -95,10 +89,7 @@ public extension Transaction {
                              encoder: Firestore.Encoder = Firestore
                                .Encoder()) throws -> Transaction {
   let encoded = try encoder.encode(value)
-  guard let dictionaryValue = encoded as? [String: Any] else {
-    throw FirestoreEncodingError.topLevelTypesAreNotSupported
-  }
-  setData(dictionaryValue, forDocument: doc, mergeFields: mergeFields)
+  setData(encoded, forDocument: doc, mergeFields: mergeFields)
     return self
   }
 }

@@ -35,10 +35,7 @@ public extension DocumentReference {
                              encoder: Firestore.Encoder = Firestore.Encoder(),
                              completion: ((Error?) -> Void)? = nil) throws {
     let encoded = try encoder.encode(value)
-    guard let dictionaryValue = encoded as? [String: Any] else {
-      throw FirestoreEncodingError.topLevelTypesAreNotSupported
-    }
-    setData(dictionaryValue, completion: completion)
+    setData(encoded, completion: completion)
   }
 
   /// Encodes an instance of `Encodable` and overwrites the encoded data
@@ -62,10 +59,7 @@ public extension DocumentReference {
                              encoder: Firestore.Encoder = Firestore.Encoder(),
                              completion: ((Error?) -> Void)? = nil) throws {
     let encoded = try encoder.encode(value)
-    guard let dictionaryValue = encoded as? [String: Any] else {
-      throw FirestoreEncodingError.topLevelTypesAreNotSupported
-    }
-    setData(dictionaryValue, merge: merge, completion: completion)
+    setData(encoded, merge: merge, completion: completion)
   }
 
   /// Encodes an instance of `Encodable` and writes the encoded data to the document referred
@@ -93,9 +87,6 @@ public extension DocumentReference {
                              encoder: Firestore.Encoder = Firestore.Encoder(),
                              completion: ((Error?) -> Void)? = nil) throws {
     let encoded = try encoder.encode(value)
-    guard let dictionaryValue = encoded as? [String: Any] else {
-      throw FirestoreEncodingError.topLevelTypesAreNotSupported
-    }
-    setData(dictionaryValue, mergeFields: mergeFields, completion: completion)
+    setData(encoded, mergeFields: mergeFields, completion: completion)
   }
 }
