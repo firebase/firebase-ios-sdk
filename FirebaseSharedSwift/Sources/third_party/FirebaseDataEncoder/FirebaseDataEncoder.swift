@@ -2518,13 +2518,12 @@ extension __JSONDecoder {
     return try unbox_(value, as: type) as? T
   }
 
-  // XXX TODO: See if we can keep part of this generic!
-  fileprivate func unbox_(_ value: Any, as xtype: Decodable.Type) throws -> Any? {
-    if xtype == Date.self || xtype == NSDate.self {
+  fileprivate func unbox_(_ value: Any, as _type: Decodable.Type) throws -> Any? {
+    if _type == Date.self || _type == NSDate.self {
       return try self.unbox(value, as: Date.self)
-    } else if xtype == Data.self || xtype == NSData.self {
+    } else if _type == Data.self || _type == NSData.self {
       return try self.unbox(value, as: Data.self)
-    } else if xtype == URL.self || xtype == NSURL.self {
+    } else if _type == URL.self || _type == NSURL.self {
       guard let urlString = try self.unbox(value, as: String.self) else {
         return nil
       }
@@ -2534,17 +2533,17 @@ extension __JSONDecoder {
                                                                 debugDescription: "Invalid URL string."))
       }
       return url
-    } else if xtype == Decimal.self || xtype == NSDecimalNumber.self {
+    } else if _type == Decimal.self || _type == NSDecimalNumber.self {
       return try self.unbox(value, as: Decimal.self)
-    } else if let stringKeyedDictType = xtype as? _JSONStringDictionaryDecodableMarker.Type {
+    } else if let stringKeyedDictType = _type as? _JSONStringDictionaryDecodableMarker.Type {
       return try self.unbox(value, as: stringKeyedDictType)
     } else {
       self.storage.push(container: value)
       defer { self.storage.popContainer() }
-      if self.options.passthroughTypeResolver.isPassthroughType(value) && type(of: value) == xtype  {
+      if self.options.passthroughTypeResolver.isPassthroughType(value) && type(of: value) == _type  {
         return value
       }
-      return try xtype.init(from: self)
+      return try _type.init(from: self)
     }
   }
 }
