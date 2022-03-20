@@ -15,7 +15,7 @@
  */
 
 #import "FirebaseDatabase/Sources/Core/Utilities/FIRRetryHelper.h"
-#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 @interface FIRRetryHelperTask : NSObject

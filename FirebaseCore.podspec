@@ -33,18 +33,17 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
 
   s.source_files = [
     'FirebaseCore/Sources/**/*.[mh]',
-    'FirebaseCore/Internal/*.h',
-    'Interop/CoreDiagnostics/Public/*.h',
-    'HeartbeatLogging/Sources/**/*.swift',
+    'FirebaseCore/Extension/*.h',
+    'Interop/CoreDiagnostics/Public/*.h'
   ]
 
   s.swift_version = '5.3'
 
   s.public_header_files = [
     'FirebaseCore/Sources/Public/FirebaseCore/*.h',
-    'FirebaseCore/Internal/*.h',
+    'FirebaseCore/Extension/*.h',
   ]
-  s.private_header_files = 'FirebaseCore/Internal/*.h'
+  s.private_header_files = 'FirebaseCore/Extension/*.h'
 
   s.framework = 'Foundation'
   s.ios.framework = 'UIKit'
@@ -54,8 +53,8 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   # Remember to also update version in `cmake/external/GoogleUtilities.cmake`
   s.dependency 'GoogleUtilities/Environment', '~> 7.7'
   s.dependency 'GoogleUtilities/Logger', '~> 7.7'
-  s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.7'
   s.dependency 'FirebaseCoreDiagnostics', '~> 8.0'
+  s.dependency 'FirebaseCoreInternal', '~> 8.12'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
@@ -71,7 +70,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
       unit_tests.scheme = { :code_coverage => true }
       unit_tests.platforms = {
         :ios => ios_deployment_target,
-        :osx => osx_deployment_target,
+        :osx => '10.15',
         :tvos => tvos_deployment_target
       }
       unit_tests.source_files = [

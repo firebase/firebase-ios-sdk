@@ -20,7 +20,7 @@
 
 #include <limits>
 
-#import "FirebaseCore/Internal/FIROptionsInternal.h"
+#import "FirebaseCore/Extension/FIROptionsInternal.h"
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 

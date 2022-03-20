@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FirebaseCore/Internal/FIRComponent.h"
+#import "FirebaseCore/Extension/FIRComponent.h"
 
-#import "FirebaseCore/Internal/FIRComponentContainer.h"
-#import "FirebaseCore/Internal/FIRDependency.h"
+#import "FirebaseCore/Extension/FIRComponentContainer.h"
+#import "FirebaseCore/Extension/FIRDependency.h"
 
 @interface FIRComponent ()
 

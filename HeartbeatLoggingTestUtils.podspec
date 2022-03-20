@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'HeartbeatLoggingTestUtils'
-  s.version                 = '8.11.0'
+  s.version                 = '8.12.0'
   s.summary                 = 'Testing utilities for testing the HeartbeatLogging module'
 
   s.description             = <<-DESC
@@ -17,30 +17,22 @@ Pod::Spec.new do |s|
     :tag => 'CocoaPods-' + s.version.to_s
   }
 
+  s.pod_target_xcconfig = {
+    'ENABLE_TESTING_SEARCH_PATHS'=>'YES'
+  }
+
   s.swift_version           = '5.3'
-  s.cocoapods_version       = '>= 1.4.0'
-  s.prefix_header_file      = false
 
-  ios_deployment_target     = '9.0'
-  osx_deployment_target     = '10.12'
-  tvos_deployment_target    = '10.0'
-  watchos_deployment_target = '6.0'
-
-  s.ios.deployment_target     = ios_deployment_target
-  s.osx.deployment_target     = osx_deployment_target
-  s.tvos.deployment_target    = tvos_deployment_target
-  s.watchos.deployment_target = watchos_deployment_target
-
-  s.ios.deployment_target     = ios_deployment_target
-  s.osx.deployment_target     = osx_deployment_target
-  s.tvos.deployment_target    = tvos_deployment_target
-  s.watchos.deployment_target = watchos_deployment_target
+  s.ios.deployment_target     = '9.0'
+  s.osx.deployment_target     = '10.12'
+  s.tvos.deployment_target    = '10.0'
+  s.watchos.deployment_target = '6.0'
 
   s.source_files = [
     'HeartbeatLoggingTestUtils/Sources/**/*.swift',
   ]
-
-  s.dependency 'FirebaseCore', '~> 8.11'
+  
   s.framework = 'XCTest'
 
+  s.dependency 'FirebaseCoreInternal', '~> 8.11'
 end

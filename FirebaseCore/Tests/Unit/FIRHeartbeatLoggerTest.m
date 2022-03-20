@@ -14,13 +14,9 @@
 
 #import <XCTest/XCTest.h>
 
-#if SWIFT_PACKAGE
 @import HeartbeatLoggingTestUtils;
-#else
-#import <HeartbeatLoggingTestUtils/HeartbeatLoggingTestUtils-Swift.h>
-#endif  // SWIFT_PACKAGE
 
-#import "FirebaseCore/Internal/FIRHeartbeatLogger.h"
+#import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
 
 @interface FIRHeartbeatLogger (Internal)
 - (instancetype)initWithAppID:(NSString *)appID

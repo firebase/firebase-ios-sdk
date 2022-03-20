@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import XCTest
-@testable import HeartbeatLogging
+@testable import FirebaseCoreInternal
 
 class TimePeriodTests: XCTestCase {
   override func setUpWithError() throws {
