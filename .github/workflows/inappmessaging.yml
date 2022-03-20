@@ -73,8 +73,7 @@ jobs:
     strategy:
       matrix:
         flags: [
-          '--use-static-frameworks',
-          '--use-libraries'
+          '--use-static-frameworks'
         ]
         platform: [ios, tvos]
     needs: pod_lib_lint

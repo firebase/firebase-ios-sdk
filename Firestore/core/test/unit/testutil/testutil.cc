@@ -493,6 +493,48 @@ nanopb::ByteString ResumeToken(int64_t snapshot_version) {
   return nanopb::ByteString(snapshot_string);
 }
 
+model::FieldIndex MakeFieldIndex(const std::string& collection_group) {
+  return {-1, collection_group, {}, model::FieldIndex::InitialState()};
+}
+
+model::FieldIndex MakeFieldIndex(const std::string& collection_group,
+                                 int32_t index_id,
+                                 model::IndexState state) {
+  return {index_id, collection_group, {}, state};
+}
+
+model::FieldIndex MakeFieldIndex(const std::string& collection_group,
+                                 const std::string& field,
+                                 model::Segment::Kind kind) {
+  return {-1,
+          collection_group,
+          {model::Segment{Field(field), kind}},
+          model::FieldIndex::InitialState()};
+}
+
+model::FieldIndex MakeFieldIndex(const std::string& collection_group,
+                                 const std::string& field_1,
+                                 model::Segment::Kind kind_1,
+                                 const std::string& field_2,
+                                 model::Segment::Kind kind_2) {
+  return {-1,
+          collection_group,
+          {model::Segment{Field(field_1), kind_1},
+           model::Segment{Field(field_2), kind_2}},
+          model::FieldIndex::InitialState()};
+}
+
+model::FieldIndex MakeFieldIndex(const std::string& collection_group,
+                                 int32_t index_id,
+                                 model::IndexState state,
+                                 const std::string& field_1,
+                                 model::Segment::Kind kind_1) {
+  return {index_id,
+          collection_group,
+          {model::Segment{Field(field_1), kind_1}},
+          state};
+}
+
 }  // namespace testutil
 }  // namespace firestore
 }  // namespace firebase

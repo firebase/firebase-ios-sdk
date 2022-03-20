@@ -55,7 +55,7 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
           .commit(completion: completion)
       }
     case .transaction:
-      doc.firestore.runTransaction({ (transaction, errorPointer) -> Any? in
+      doc.firestore.runTransaction({ transaction, errorPointer -> Any? in
         do {
           if let merge = merge {
             try transaction.setData(from: value, forDocument: doc, merge: merge)
@@ -96,7 +96,7 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
 
       let readAfterWrite = try readDocument(forRef: docToWrite).data(as: Model.self)
 
-      XCTAssertEqual(readAfterWrite!, model, "Failed with flavor \(flavor)")
+      XCTAssertEqual(readAfterWrite, model, "Failed with flavor \(flavor)")
     }
   }
 
@@ -113,8 +113,8 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
 
       let decoded = try readDocument(forRef: docToWrite).data(as: Model.self)
 
-      XCTAssertNotNil(decoded?.ts, "Failed with flavor \(flavor)")
-      if let ts = decoded?.ts {
+      XCTAssertNotNil(decoded.ts, "Failed with flavor \(flavor)")
+      if let ts = decoded.ts {
         XCTAssertGreaterThan(ts.seconds, 1_500_000_000, "Failed with flavor \(flavor)")
       } else {
         XCTFail("Expect server timestamp is set, but getting .pending")
@@ -145,17 +145,17 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
 
     let snapshot = readDocument(forRef: docToWrite)
     var decoded = try snapshot.data(as: Model.self, with: .none)
-    XCTAssertNil(decoded?.ts)
+    XCTAssertNil(decoded.ts)
 
     decoded = try snapshot.data(as: Model.self, with: .estimate)
-    XCTAssertNotNil(decoded?.ts)
-    XCTAssertNotNil(decoded?.ts?.seconds)
-    XCTAssertGreaterThanOrEqual(decoded!.ts!.seconds, now)
+    XCTAssertNotNil(decoded.ts)
+    XCTAssertNotNil(decoded.ts?.seconds)
+    XCTAssertGreaterThanOrEqual(decoded.ts!.seconds, now)
 
     decoded = try snapshot.data(as: Model.self, with: .previous)
-    XCTAssertNotNil(decoded?.ts)
-    XCTAssertNotNil(decoded?.ts?.seconds)
-    XCTAssertEqual(decoded!.ts!.seconds, pastTimestamp.seconds)
+    XCTAssertNotNil(decoded.ts)
+    XCTAssertNotNil(decoded.ts?.seconds)
+    XCTAssertEqual(decoded.ts!.seconds, pastTimestamp.seconds)
 
     enableNetwork()
     awaitExpectations()
@@ -230,7 +230,7 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
 
     // Decoded result has "docId" auto-populated.
     let decoded = try readDocument(forRef: docToWrite).data(as: Model.self)
-    XCTAssertEqual(decoded!, Model(name: "name", docId: docToWrite))
+    XCTAssertEqual(decoded, Model(name: "name", docId: docToWrite))
   }
 
   func testSelfDocumentIDWithCustomCodable() throws {
@@ -277,7 +277,7 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
 
     // Decoded result has "docId" auto-populated.
     let decoded = try readDocument(forRef: docToWrite).data(as: Model.self)
-    XCTAssertEqual(decoded!, Model(name: "name", docId: docToWrite))
+    XCTAssertEqual(decoded, Model(name: "name", docId: docToWrite))
   }
 
   func testSetThenMerge() throws {
@@ -298,8 +298,8 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
 
       var readAfterUpdate = try readDocument(forRef: docToWrite).data(as: Model.self)
 
-      XCTAssertEqual(readAfterUpdate!, Model(name: "test",
-                                             age: 43, hobby: "No"), "Failed with flavor \(flavor)")
+      XCTAssertEqual(readAfterUpdate, Model(name: "test",
+                                            age: 43, hobby: "No"), "Failed with flavor \(flavor)")
 
       let newUpdate = Model(name: "xxxx", age: 10, hobby: "Play")
       // Note 'name' is not updated.
@@ -307,9 +307,9 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
                   mergeFields: ["age", FieldPath(["hobby"])])
 
       readAfterUpdate = try readDocument(forRef: docToWrite).data(as: Model.self)
-      XCTAssertEqual(readAfterUpdate!, Model(name: "test",
-                                             age: 10,
-                                             hobby: "Play"), "Failed with flavor \(flavor)")
+      XCTAssertEqual(readAfterUpdate, Model(name: "test",
+                                            age: 10,
+                                            hobby: "Play"), "Failed with flavor \(flavor)")
     }
   }
 

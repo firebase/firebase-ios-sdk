@@ -16,8 +16,8 @@
 import FirebaseFirestore
 import Foundation
 
-extension Firestore {
-  public struct Decoder {
+public extension Firestore {
+  struct Decoder {
     fileprivate static let documentRefUserInfoKey =
       CodingUserInfoKey(rawValue: "DocumentRefUserInfoKey")
 
@@ -38,7 +38,7 @@ extension Firestore {
     ///             decoded.
     /// - Returns: An instance of specified type by the first parameter.
     public func decode<T: Decodable>(_: T.Type,
-                                     from container: [String: Any],
+                                     from container: Any,
                                      in document: DocumentReference? = nil) throws -> T {
       let decoder = _FirestoreDecoder(referencing: container)
       if let doc = document {
@@ -836,7 +836,7 @@ extension _FirestoreDecoder {
     guard !(value is NSNull) else { return nil }
 
     guard let number = value as? NSNumber, number !== kCFBooleanTrue,
-      number !== kCFBooleanFalse else {
+          number !== kCFBooleanFalse else {
       throw DecodingError._typeMismatch(at: codingPath, expectation: type, reality: value)
     }
 
@@ -855,7 +855,7 @@ extension _FirestoreDecoder {
     guard !(value is NSNull) else { return nil }
 
     guard let number = value as? NSNumber, number !== kCFBooleanTrue,
-      number !== kCFBooleanFalse else {
+          number !== kCFBooleanFalse else {
       throw DecodingError._typeMismatch(at: codingPath, expectation: type, reality: value)
     }
 
@@ -874,7 +874,7 @@ extension _FirestoreDecoder {
     guard !(value is NSNull) else { return nil }
 
     guard let number = value as? NSNumber, number !== kCFBooleanTrue,
-      number !== kCFBooleanFalse else {
+          number !== kCFBooleanFalse else {
       throw DecodingError._typeMismatch(at: codingPath, expectation: type, reality: value)
     }
 
@@ -893,7 +893,7 @@ extension _FirestoreDecoder {
     guard !(value is NSNull) else { return nil }
 
     guard let number = value as? NSNumber, number !== kCFBooleanTrue,
-      number !== kCFBooleanFalse else {
+          number !== kCFBooleanFalse else {
       throw DecodingError._typeMismatch(at: codingPath, expectation: type, reality: value)
     }
 
@@ -912,7 +912,7 @@ extension _FirestoreDecoder {
     guard !(value is NSNull) else { return nil }
 
     guard let number = value as? NSNumber, number !== kCFBooleanTrue,
-      number !== kCFBooleanFalse else {
+          number !== kCFBooleanFalse else {
       throw DecodingError._typeMismatch(at: codingPath, expectation: type, reality: value)
     }
 
@@ -931,7 +931,7 @@ extension _FirestoreDecoder {
     guard !(value is NSNull) else { return nil }
 
     guard let number = value as? NSNumber, number !== kCFBooleanTrue,
-      number !== kCFBooleanFalse else {
+          number !== kCFBooleanFalse else {
       throw DecodingError._typeMismatch(at: codingPath, expectation: type, reality: value)
     }
 
@@ -950,7 +950,7 @@ extension _FirestoreDecoder {
     guard !(value is NSNull) else { return nil }
 
     guard let number = value as? NSNumber, number !== kCFBooleanTrue,
-      number !== kCFBooleanFalse else {
+          number !== kCFBooleanFalse else {
       throw DecodingError._typeMismatch(at: codingPath, expectation: type, reality: value)
     }
 
@@ -969,7 +969,7 @@ extension _FirestoreDecoder {
     guard !(value is NSNull) else { return nil }
 
     guard let number = value as? NSNumber, number !== kCFBooleanTrue,
-      number !== kCFBooleanFalse else {
+          number !== kCFBooleanFalse else {
       throw DecodingError._typeMismatch(at: codingPath, expectation: type, reality: value)
     }
 
@@ -988,7 +988,7 @@ extension _FirestoreDecoder {
     guard !(value is NSNull) else { return nil }
 
     guard let number = value as? NSNumber, number !== kCFBooleanTrue,
-      number !== kCFBooleanFalse else {
+          number !== kCFBooleanFalse else {
       throw DecodingError._typeMismatch(at: codingPath, expectation: type, reality: value)
     }
 
@@ -1007,7 +1007,7 @@ extension _FirestoreDecoder {
     guard !(value is NSNull) else { return nil }
 
     guard let number = value as? NSNumber, number !== kCFBooleanTrue,
-      number !== kCFBooleanFalse else {
+          number !== kCFBooleanFalse else {
       throw DecodingError._typeMismatch(at: codingPath, expectation: type, reality: value)
     }
 

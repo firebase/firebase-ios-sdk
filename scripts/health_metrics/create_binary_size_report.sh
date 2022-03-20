@@ -24,7 +24,7 @@ set -ex
 BINARY_SIZE_SDK=()
 
 # In presubmits, `check` job in the health_metrics.yml workflow will turn on SDK flags if a corresponding
-# file path, in `scripts/health_metrics/code_coverage_file_list.json` is updated.
+# file path, in `scripts/health_metrics/file_patterns.json` is updated.
 # In postsubmits, all SDKs should be measured, so binary size data of all SDKs should be uploaded to a
 # merged commit. Next time a new PR can compare the head of the PR to a commit on the base branch.
 if [[ "${POSTSUBMIT}" == true || "${FirebaseABTesting}" == 'true' ]]; then

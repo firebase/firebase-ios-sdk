@@ -19,6 +19,8 @@
 #if CLS_METRICKIT_SUPPORTED
 
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
+#include "Crashlytics/Crashlytics/Handlers/FIRCLSMachException.h"
+#include "Crashlytics/Crashlytics/Handlers/FIRCLSSignal.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSCallStackTree.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
@@ -133,10 +135,9 @@
     return false;
   }
 
-  // Time stamp information from MetricKit is only available in begin and end time periods. For now,
-  // we rely on the current timestamp to set the event timestamp, since this is likely more accurate
-  // that the 24 hour block we'd otherwise have.
-  NSTimeInterval beginSecondsSince1970 = [[NSDate date] timeIntervalSince1970];
+  // MXDiagnosticPayload have both a timeStampBegin and timeStampEnd. Now that these events are
+  // real-time, both refer to the same time - record both values anyway.
+  NSTimeInterval beginSecondsSince1970 = [diagnosticPayload.timeStampBegin timeIntervalSince1970];
   NSTimeInterval endSecondsSince1970 = [diagnosticPayload.timeStampEnd timeIntervalSince1970];
 
   // Get file path for the active reports directory.
@@ -146,17 +147,21 @@
   // Also ensure that there is a report from the last run of the app that we can write to.
   NSString *metricKitFatalReportFile;
   NSString *metricKitNonfatalReportFile;
+
   NSString *newestUnsentReportID =
-      [self.existingReportManager.newestUnsentReport.reportID stringByAppendingString:@"/"];
+      self.existingReportManager.newestUnsentReport.reportID
+          ? [self.existingReportManager.newestUnsentReport.reportID stringByAppendingString:@"/"]
+          : nil;
   NSString *currentReportID =
       [_managerData.executionIDModel.executionID stringByAppendingString:@"/"];
-  BOOL fatal = ([diagnosticPayload.crashDiagnostics count] > 0) && (newestUnsentReportID != nil) &&
-               ([self.fileManager
-                   fileExistsAtPath:[activePath stringByAppendingString:newestUnsentReportID]]);
+  BOOL crashlyticsFatalReported =
+      ([diagnosticPayload.crashDiagnostics count] > 0) && (newestUnsentReportID != nil) &&
+      ([self.fileManager
+          fileExistsAtPath:[activePath stringByAppendingString:newestUnsentReportID]]);
 
   // Set the MetricKit fatal path appropriately depending on whether we also captured a Crashlytics
   // fatal event and whether the diagnostic report came from a fatal or nonfatal event.
-  if (fatal) {
+  if (crashlyticsFatalReported) {
     metricKitFatalReportFile = [[activePath stringByAppendingString:newestUnsentReportID]
         stringByAppendingString:FIRCLSMetricKitFatalReportFile];
   } else {
@@ -206,8 +211,38 @@
     NSDictionary *metadataDict = [self convertMetadataToDictionary:crashDiagnostic.metaData];
 
     NSString *nilString = @"";
-    NSString *name = [self getExceptionName:crashDiagnostic.exceptionType];
-    NSString *codeName = [crashDiagnostic.exceptionType intValue] == SIGABRT ? @"ABORT" : @"";
+
+    // On the backend, we process name, code name, and address into the subtitle of an issue.
+    // Mach exception name and code should be preferred over signal name and code if available.
+    const char *signalName = NULL;
+    const char *signalCodeName = NULL;
+    FIRCLSSignalNameLookup([crashDiagnostic.signal intValue], 0, &signalName, &signalCodeName);
+    // signalName is the default name, so should never be NULL
+    if (signalName == NULL) {
+      signalName = "UNKNOWN";
+    }
+    if (signalCodeName == NULL) {
+      signalCodeName = "";
+    }
+
+    const char *machExceptionName = NULL;
+    const char *machExceptionCodeName = NULL;
+#if CLS_MACH_EXCEPTION_SUPPORTED
+    FIRCLSMachExceptionNameLookup(
+        [crashDiagnostic.exceptionType intValue],
+        (mach_exception_data_type_t)[crashDiagnostic.exceptionCode intValue], &machExceptionName,
+        &machExceptionCodeName);
+#endif
+    if (machExceptionCodeName == NULL) {
+      machExceptionCodeName = "";
+    }
+
+    NSString *name = machExceptionName != NULL ? [NSString stringWithUTF8String:machExceptionName]
+                                               : [NSString stringWithUTF8String:signalName];
+    NSString *codeName = machExceptionName != NULL
+                             ? [NSString stringWithUTF8String:machExceptionCodeName]
+                             : [NSString stringWithUTF8String:signalCodeName];
+
     NSDictionary *crashDictionary = @{
       @"metric_kit_fatal" : @{
         @"time" : [NSNumber numberWithLong:beginSecondsSince1970],
@@ -386,9 +421,9 @@
   return YES;
 }
 
-- (NSString *)getExceptionName:(NSNumber *)exceptionType {
-  int exception = [exceptionType intValue];
-  switch (exception) {
+- (NSString *)getSignalName:(NSNumber *)signalCode {
+  int signal = [signalCode intValue];
+  switch (signal) {
     case SIGABRT:
       return @"SIGABRT";
     case SIGBUS:

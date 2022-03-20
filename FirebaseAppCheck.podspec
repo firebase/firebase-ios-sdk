@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAppCheck'
-  s.version          = '8.11.0-beta'
+  s.version          = '8.13.0-beta'
   s.summary          = 'Firebase App Check SDK.'
 
   s.description      = <<-DESC
@@ -22,6 +22,8 @@ Pod::Spec.new do |s|
   tvos_deployment_target = '10.0'
   watchos_deployment_target = '6.0'
 
+  s.swift_version = '5.3'
+
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
   s.tvos.deployment_target = tvos_deployment_target
@@ -34,7 +36,8 @@ Pod::Spec.new do |s|
 
   s.source_files = [
     base_dir + 'Sources/**/*.[mh]',
-    'FirebaseCore/Sources/Private/*.h',
+    base_dir + 'Interop/*.h',
+    'FirebaseCore/Internal/*.h',
   ]
   s.public_header_files = base_dir + 'Sources/Public/FirebaseAppCheck/*.h'
 
@@ -44,7 +47,7 @@ Pod::Spec.new do |s|
 
   s.dependency 'FirebaseCore', '~> 8.0'
   s.dependency 'PromisesObjC', '~> 2.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.6'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.7'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',

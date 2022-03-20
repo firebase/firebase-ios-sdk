@@ -95,6 +95,21 @@ nanopb::Message<google_firestore_v1_Value> NullValue();
 /** Returns `true` if `value` is null in its Protobuf representation. */
 bool IsNullValue(const google_firestore_v1_Value& value);
 
+/**
+ * Returns a Protobuf value that is larger than any legitimate value SDK
+ * users can create.
+ *
+ * Under the hood, it is a sentinel Protobuf Map with special fields that
+ * Firestore comparison logic always return true for `MaxValue() > v`, for any
+ * v users can create, regardless `v`'s type and value.
+ */
+nanopb::Message<google_firestore_v1_Value> MaxValue();
+
+/**
+ * Returns `true` if `value` is equal to `MaxValue()`.
+ */
+bool IsMaxValue(const google_firestore_v1_Value& value);
+
 /** Returns `NaN` in its Protobuf representation. */
 nanopb::Message<google_firestore_v1_Value> NaNValue();
 

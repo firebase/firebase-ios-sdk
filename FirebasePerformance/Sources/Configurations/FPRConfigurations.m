@@ -21,7 +21,7 @@
 #import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags+Private.h"
 #import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags.h"
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 
 FPRConfigName kFPRConfigDataCollectionEnabled = @"dataCollectionEnabled";
 
@@ -298,6 +298,15 @@ static dispatch_once_t gSharedInstanceToken;
   }
 
   return logSource;
+}
+
+- (PrewarmDetectionMode)prewarmDetectionMode {
+  PrewarmDetectionMode mode = PrewarmDetectionModeActivePrewarm;
+  if (self.remoteConfigFlags) {
+    mode = [self.remoteConfigFlags getIntValueForFlag:@"fpr_prewarm_detection"
+                                         defaultValue:(int)mode];
+  }
+  return mode;
 }
 
 #pragma mark - Log sampling configurations.

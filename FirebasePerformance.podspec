@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebasePerformance'
-  s.version          = '8.11.0'
+  s.version          = '8.13.0'
   s.summary          = 'Firebase Performance'
 
   s.description      = <<-DESC
@@ -20,6 +20,8 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   ios_deployment_target = '10.0'
   tvos_deployment_target = '10.0'
 
+  s.swift_version = '5.3'
+
   s.ios.deployment_target = ios_deployment_target
   s.tvos.deployment_target = tvos_deployment_target
 
@@ -29,7 +31,7 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   base_dir = "FirebasePerformance/"
   s.source_files = [
     base_dir + 'Sources/**/*.[cmh]',
-    'FirebaseCore/Sources/Private/*.h',
+    'FirebaseCore/Internal/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
     'FirebaseRemoteConfig/Sources/Private/*.h',
   ]
@@ -61,9 +63,9 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   s.dependency 'FirebaseInstallations', '~> 8.0'
   s.dependency 'FirebaseRemoteConfig', '~> 8.0'
   s.dependency 'GoogleDataTransport', '~> 9.1'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.6'
-  s.dependency 'GoogleUtilities/ISASwizzler', '~> 7.6'
-  s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.6'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.7'
+  s.dependency 'GoogleUtilities/ISASwizzler', '~> 7.7'
+  s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.7'
   s.dependency 'nanopb', '~> 2.30908.0'
 
   s.test_spec 'unit' do |unit_tests|

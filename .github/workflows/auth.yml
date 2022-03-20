@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
     - 'FirebaseAuth**'
-    - 'Interop/Auth/Public/*.h'
+    - 'FirebaseAuth/Interop/*.h'
     - '.github/workflows/auth.yml'
     - 'Gemfile*'
   schedule:
@@ -74,7 +74,7 @@ jobs:
     runs-on: macos-11
     strategy:
       matrix:
-        target: [iOS, tvOS, macOS, catalyst]
+        target: [iOS, tvOS, macOS, catalyst, watchOS]
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
@@ -129,8 +129,7 @@ jobs:
         # The macos and tvos tests can hang, and watchOS doesn't have tests.
         target: [ios, tvos --skip-tests, macos --skip-tests, watchos --skip-tests]
         flags: [
-          '--use-static-frameworks',
-          '--use-libraries'
+          '--use-static-frameworks'
         ]
     needs: pod-lib-lint
     steps:

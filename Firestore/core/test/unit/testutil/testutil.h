@@ -28,6 +28,7 @@
 #include "Firestore/core/src/core/direction.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/document_set.h"
+#include "Firestore/core/src/model/field_index.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/precondition.h"
 #include "Firestore/core/src/model/value_util.h"
@@ -445,6 +446,24 @@ std::vector<std::unique_ptr<T>> VectorOfUniquePtrs(Elems... elems) {
   MoveIntoVector<T>(&result, std::move(elems)...);
   return result;
 }
+
+model::FieldIndex MakeFieldIndex(const std::string& collection_group);
+model::FieldIndex MakeFieldIndex(const std::string& collection_group,
+                                 int32_t index_id,
+                                 model::IndexState state);
+model::FieldIndex MakeFieldIndex(const std::string& collection_group,
+                                 const std::string& field,
+                                 model::Segment::Kind kind);
+model::FieldIndex MakeFieldIndex(const std::string& collection_group,
+                                 const std::string& field_1,
+                                 model::Segment::Kind kind_1,
+                                 const std::string& field_2,
+                                 model::Segment::Kind kind_2);
+model::FieldIndex MakeFieldIndex(const std::string& collection_group,
+                                 int32_t index_id,
+                                 model::IndexState state,
+                                 const std::string& field_1,
+                                 model::Segment::Kind kind_1);
 
 }  // namespace testutil
 }  // namespace firestore

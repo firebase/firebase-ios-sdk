@@ -114,7 +114,7 @@ LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
   target_cache_ = absl::make_unique<LevelDbTargetCache>(this, &serializer_);
   document_cache_ =
       absl::make_unique<LevelDbRemoteDocumentCache>(this, &serializer_);
-  index_manager_ = absl::make_unique<LevelDbIndexManager>(this);
+  index_manager_ = absl::make_unique<LevelDbIndexManager>(this, &serializer_);
   reference_delegate_ =
       absl::make_unique<LevelDbLruReferenceDelegate>(this, lru_params);
   bundle_cache_ = absl::make_unique<LevelDbBundleCache>(this, &serializer_);
@@ -251,6 +251,14 @@ LevelDbLruReferenceDelegate* LevelDbPersistence::reference_delegate() {
 
 LevelDbBundleCache* LevelDbPersistence::bundle_cache() {
   return bundle_cache_.get();
+}
+
+LevelDbDocumentOverlayCache* LevelDbPersistence::document_overlay_cache(
+    const User& user) {
+  users_.insert(user.uid());
+  current_document_overlay_cache_ =
+      absl::make_unique<LevelDbDocumentOverlayCache>(user, this, &serializer_);
+  return current_document_overlay_cache_.get();
 }
 
 void LevelDbPersistence::RunInternal(absl::string_view label,

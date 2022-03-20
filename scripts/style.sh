@@ -158,8 +158,8 @@ s%^./%%
 # Sources pulled in by the Mint package manager
 \%^Mint% d
 
-# Auth Sample is not subject to formatting
-\%^(FirebaseAuth/Tests/Sample)/% d
+# Auth Sample Objective C does not format well
+\%^(FirebaseAuth/Tests/Sample/Sample)/% d
 
 # Keep Firebase.h indenting
 \%^CoreOnly/Sources/Firebase.h% d

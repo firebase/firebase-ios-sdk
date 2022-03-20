@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDatabase'
-  s.version          = '8.11.0'
+  s.version          = '8.13.0'
   s.summary          = 'Firebase Realtime Database'
 
   s.description      = <<-DESC
@@ -22,6 +22,8 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   tvos_deployment_target = '10.0'
   watchos_deployment_target = '7.0'
 
+  s.swift_version = '5.3'
+
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
   s.tvos.deployment_target = tvos_deployment_target
@@ -35,9 +37,9 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     base_dir + '**/*.[mh]',
     base_dir + 'third_party/Wrap-leveldb/APLevelDB.mm',
     base_dir + 'third_party/SocketRocket/fbase64.c',
-    'Interop/Auth/Public/*.h',
-    'FirebaseAppCheck/Sources/Interop/*.h',
-    'FirebaseCore/Sources/Private/*.h',
+    'FirebaseAuth/Interop/*.h',
+    'FirebaseAppCheck/Interop/*.h',
+    'FirebaseCore/Internal/*.h',
   ]
   s.public_header_files = base_dir + 'Public/FirebaseDatabase/*.h'
   s.libraries = ['c++', 'icucore']
@@ -63,7 +65,6 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
       'FirebaseDatabase/Tests/Unit/*.[mh]',
       'FirebaseDatabase/Tests/Unit/Swift/*',
       'FirebaseDatabase/Tests/Helpers/*.[mh]',
-      'FirebaseDatabase/Tests/third_party/*.[mh]',
       'SharedTestUtilities/AppCheckFake/*.[mh]',
       'SharedTestUtilities/FIRAuthInteropFake.[mh]',
       'SharedTestUtilities/FIRComponentTestUtilities.[mh]',

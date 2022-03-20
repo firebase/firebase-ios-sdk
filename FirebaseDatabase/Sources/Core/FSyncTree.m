@@ -15,7 +15,7 @@
  */
 
 #import "FirebaseDatabase/Sources/Core/FSyncTree.h"
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 #import "FirebaseDatabase/Sources/Core/FCompoundHash.h"
 #import "FirebaseDatabase/Sources/Core/FListenProvider.h"
 #import "FirebaseDatabase/Sources/Core/FQueryParams.h"

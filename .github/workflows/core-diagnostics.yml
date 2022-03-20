@@ -9,8 +9,8 @@ on:
     - '.github/workflows/core-diagnostics.yml'
     - 'Gemfile*'
   schedule:
-    # Run every day at 2am (PST) - cron uses UTC times
-    - cron:  '0 10 * * *'
+    # Run every day at 12am (PST) - cron uses UTC times
+    - cron:  '0 8 * * *'
 
 jobs:
   pod-lib-lint:
@@ -67,8 +67,7 @@ jobs:
       matrix:
         target: [ios, tvos, macos]
         flags: [
-          '--use-static-frameworks',
-          '--use-libraries'
+          '--use-static-frameworks'
         ]
     needs: pod-lib-lint
     steps:

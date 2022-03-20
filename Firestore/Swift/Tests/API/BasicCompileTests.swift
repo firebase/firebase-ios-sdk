@@ -409,7 +409,7 @@ func transactions() {
   let accB = collectionRef.document("accountB")
   let amount = 20.0
 
-  db.runTransaction({ (transaction, errorPointer) -> Any? in
+  db.runTransaction({ transaction, errorPointer -> Any? in
     do {
       let balanceA = try transaction.getDocument(accA)["balance"] as! Double
       let balanceB = try transaction.getDocument(accB)["balance"] as! Double
@@ -472,3 +472,37 @@ func terminateDb(database db: Firestore) {
     }
   }
 }
+
+#if swift(>=5.5)
+  @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+  func testAsyncAwait(database db: Firestore) async throws {
+    try await db.enableNetwork()
+    try await db.disableNetwork()
+    try await db.waitForPendingWrites()
+    try await db.clearPersistence()
+    try await db.terminate()
+    try await db.runTransaction { _, _ in
+      0
+    }
+
+    let batch = db.batch()
+    try await batch.commit()
+
+    _ = await db.getQuery(named: "foo")
+    _ = try await db.loadBundle(Data())
+
+    let collection = db.collection("coll")
+    try await collection.getDocuments()
+    try await collection.getDocuments(source: FirestoreSource.default)
+
+    let document = try await collection.addDocument(data: [:])
+
+    try await document.setData([:])
+    try await document.setData([:], merge: true)
+    try await document.setData([:], mergeFields: [])
+    try await document.updateData([:])
+    try await document.delete()
+    try await document.getDocument()
+    try await document.getDocument(source: FirestoreSource.default)
+  }
+#endif

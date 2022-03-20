@@ -26,7 +26,7 @@
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULSceneDelegateSwizzler.h>
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FirebaseAuth.h"
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthDispatcher.h"
@@ -2261,6 +2261,16 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 #endif  // TARGET_OS_WATCH
     user = [unarchiver decodeObjectOfClass:[FIRUser class] forKey:userKey];
   } else {
+#if TARGET_OS_TV
+    if (self.shareAuthStateAcrossDevices) {
+      FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
+                  @"Getting a stored user for a given access group is not supported "
+                  @"on tvOS when `shareAuthStateAcrossDevices` is set to `true` (#8878)."
+                  @"This case will return `nil`.");
+      return nil;
+    }
+#endif  // TARGET_OS_TV
+
     user = [self.storedUserManager getStoredUserForAccessGroup:accessGroup
                                    shareAuthStateAcrossDevices:self.shareAuthStateAcrossDevices
                                              projectIdentifier:self.app.options.APIKey

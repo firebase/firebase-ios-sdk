@@ -16,9 +16,9 @@
 
 #include "Firestore/core/src/remote/firebase_metadata_provider_apple.h"
 
-#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
-#import "FirebaseCore/Sources/Private/FIRHeartbeatInfo.h"
-#import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
+#import "FirebaseCore/Internal/FIRAppInternal.h"
+#import "FirebaseCore/Internal/FIRHeartbeatInfo.h"
+#import "FirebaseCore/Internal/FIROptionsInternal.h"
 
 #include "Firestore/core/src/util/string_apple.h"
 

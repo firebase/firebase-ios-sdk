@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInAppMessaging'
-  s.version          = '8.11.0-beta'
+  s.version          = '8.13.0-beta'
   s.summary          = 'Firebase In-App Messaging for iOS'
 
   s.description      = <<-DESC
@@ -20,6 +20,8 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.ios.deployment_target = '10.0'
   s.tvos.deployment_target = '10.0'
 
+  s.swift_version = '5.3'
+
   s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
 
@@ -38,7 +40,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 	base_dir + "Sources/Util/**/*.[cmh]",
     'Interop/Analytics/Public/*.h',
     'FirebaseABTesting/Sources/Private/*.h',
-    'FirebaseCore/Sources/Private/*.h',
+    'FirebaseCore/Internal/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
 
@@ -55,7 +57,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 	base_dir + "Sources/Util/**/*.[cmh]",
     'Interop/Analytics/Public/*.h',
     'FirebaseABTesting/Sources/Private/*.h',
-    'FirebaseCore/Sources/Private/*.h',
+    'FirebaseCore/Internal/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
 
@@ -79,7 +81,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.dependency 'FirebaseCore', '~> 8.0'
   s.dependency 'FirebaseInstallations', '~> 8.0'
   s.dependency 'FirebaseABTesting', '~> 8.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.6'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.7'
   s.dependency 'nanopb', '~> 2.30908.0'
 
   s.test_spec 'unit' do |unit_tests|

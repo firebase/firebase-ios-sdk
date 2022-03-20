@@ -13,7 +13,7 @@
 # limitations under the License.
 
 firebase_ios_glob(
-  sources *.cc *.h
+  sources *.cc *.h mutation/*.cc mutation/*.h
 )
 
 if(FIREBASE_IOS_BUILD_TESTS)
@@ -22,6 +22,7 @@ if(FIREBASE_IOS_BUILD_TESTS)
   target_link_libraries(
     firestore_model_test PRIVATE
     GMock::GMock
+    absl_strings
     firestore_core
     firestore_testutil
   )

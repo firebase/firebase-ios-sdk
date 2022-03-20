@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '8.11.0'
+  s.version          = '8.13.0'
   s.summary          = 'Google Cloud Firestore'
 
   s.description      = <<-DESC
@@ -19,6 +19,8 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.ios.deployment_target = '10.0'
   s.osx.deployment_target = '10.12'
   s.tvos.deployment_target = '10.0'
+
+  s.swift_version = '5.3'
 
   s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
@@ -42,14 +44,14 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   # version wins in the global header map. The benefit of keeping them here is
   # that "quick open" by filename in Xcode will continue to work.
   s.source_files = [
-    'FirebaseAppCheck/Sources/Interop/*.h',
-    'FirebaseCore/Sources/Private/*.h',
+    'FirebaseAppCheck/Interop/*.h',
+    'FirebaseCore/Internal/*.h',
     'Firestore/Source/Public/FirebaseFirestore/*.h',
     'Firestore/Source/**/*.{m,mm}',
     'Firestore/Protos/nanopb/**/*.cc',
     'Firestore/core/include/**/*.{cc,mm}',
     'Firestore/core/src/**/*.{cc,mm}',
-    'Interop/Auth/Public/*.h',
+    'FirebaseAuth/Interop/*.h',
   ]
 
   # Internal headers that aren't necessarily globally unique. Most C++ internal

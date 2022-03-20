@@ -30,11 +30,11 @@
 #import "FirebaseCore/Sources/FIRConfigurationInternal.h"
 #import "FirebaseCore/Sources/FIRFirebaseUserAgent.h"
 
-#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
-#import "FirebaseCore/Sources/Private/FIRCoreDiagnosticsConnector.h"
-#import "FirebaseCore/Sources/Private/FIRLibrary.h"
-#import "FirebaseCore/Sources/Private/FIRLogger.h"
-#import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
+#import "FirebaseCore/Internal/FIRAppInternal.h"
+#import "FirebaseCore/Internal/FIRCoreDiagnosticsConnector.h"
+#import "FirebaseCore/Internal/FIRLibrary.h"
+#import "FirebaseCore/Internal/FIRLogger.h"
+#import "FirebaseCore/Internal/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
@@ -192,6 +192,12 @@ static FIRApp *sDefaultApp;
 
     FIRLogDebug(kFIRLoggerCore, @"I-COR000002", @"Configuring app named %@", name);
   }
+
+  // Default instantiation, make sure we populate with Swift SDKs that can't register in time.
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    [self registerSwiftComponents];
+  });
 
   @synchronized(self) {
     FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
@@ -822,6 +828,21 @@ static FIRApp *sDefaultApp;
   });
 
   return collectionEnabledPlistObject;
+}
+
+#pragma mark - Swift Components.
+
++ (void)registerSwiftComponents {
+  SEL componentsToRegisterSEL = @selector(componentsToRegister);
+  // Dictionary of class names that conform to `FIRLibrary` and their user agents. These should only
+  // be SDKs that are written in Swift but still visible to ObjC.
+  NSDictionary<NSString *, NSString *> *swiftLibs = @{@"FIRFunctionsComponent" : @"fire-fun"};
+  for (NSString *className in swiftLibs.allKeys) {
+    Class klass = NSClassFromString(className);
+    if (klass && [klass respondsToSelector:componentsToRegisterSEL]) {
+      [FIRApp registerInternalLibrary:klass withName:swiftLibs[className]];
+    }
+  }
 }
 
 #pragma mark - App Life Cycle

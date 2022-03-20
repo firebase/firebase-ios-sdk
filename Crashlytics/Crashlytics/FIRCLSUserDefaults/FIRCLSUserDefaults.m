@@ -32,12 +32,12 @@ static NSString *const FIRCLSNSUserDefaultsDataDictionaryKey =
 NSString *const FIRCLSUserDefaultsPathComponent = @"CLSUserDefaults";
 
 /**
- * This class is an isolated re-implementation of NSUserDefaults which isolates our storage
+ * This class is an isolated re-implementation of UserDefaults which isolates our storage
  * from that of our customers. This solves a number of issues we have seen in production, firstly
- * that customers often delete or clear NSUserDefaults, unintentionally deleting our data.
- * Further, we have seen thread safety issues in production with NSUserDefaults, as well as a number
- * of bugs related to accessing NSUserDefaults before the device has been unlocked due to the
- * NSFileProtection of NSUserDefaults.
+ * that customers often delete or clear UserDefaults, unintentionally deleting our data.
+ * Further, we have seen thread safety issues in production with UserDefaults, as well as a number
+ * of bugs related to accessing UserDefaults before the device has been unlocked due to the
+ * FileProtection of UserDefaults.
  */
 @interface FIRCLSUserDefaults ()
 @property(nonatomic, readwrite) BOOL synchronizeWroteToDisk;
@@ -308,13 +308,13 @@ NSString *const FIRCLSUserDefaultsPathComponent = @"CLSUserDefaults";
 
 #pragma mark - migration
 
-// This method migrates all keys specified from NSUserDefaults to FIRCLSUserDefaults
+// This method migrates all keys specified from UserDefaults to FIRCLSUserDefaults
 // To do so, we copy all known key-value pairs into FIRCLSUserDefaults, synchronize it, then
-// remove the keys from NSUserDefaults and synchronize it.
+// remove the keys from UserDefaults and synchronize it.
 - (void)migrateFromNSUserDefaults:(NSArray *)keysToMigrate {
   BOOL didFindKeys = NO;
 
-  // First, copy all of the keysToMigrate which are stored NSUserDefaults
+  // First, copy all of the keysToMigrate which are stored UserDefaults
   for (NSString *key in keysToMigrate) {
     id oldValue = [[NSUserDefaults standardUserDefaults] objectForKey:(NSString *)key];
     if (nil != oldValue) {
@@ -324,7 +324,7 @@ NSString *const FIRCLSUserDefaultsPathComponent = @"CLSUserDefaults";
   }
 
   if (didFindKeys) {
-    // First synchronize FIRCLSUserDefaults such that all keysToMigrate in NSUserDefaults are stored
+    // First synchronize FIRCLSUserDefaults such that all keysToMigrate in UserDefaults are stored
     // in FIRCLSUserDefaults. At this point, data is duplicated.
     [[FIRCLSUserDefaults standardUserDefaults] synchronize];
 
@@ -332,14 +332,14 @@ NSString *const FIRCLSUserDefaultsPathComponent = @"CLSUserDefaults";
       [[NSUserDefaults standardUserDefaults] removeObjectForKey:(NSString *)key];
     }
 
-    // This should be our last interaction with NSUserDefaults. All data is migrated into
+    // This should be our last interaction with UserDefaults. All data is migrated into
     // FIRCLSUserDefaults
     [[NSUserDefaults standardUserDefaults] synchronize];
   }
 }
 
 // This method first queries FIRCLSUserDefaults to see if the key exist, and upon failure,
-// searches for the key in NSUserDefaults, and migrates it if found.
+// searches for the key in UserDefaults, and migrates it if found.
 - (id)objectForKeyByMigratingFromNSUserDefaults:(NSString *)keyToMigrateOrNil {
   if (!keyToMigrateOrNil) {
     return nil;
@@ -353,10 +353,10 @@ NSString *const FIRCLSUserDefaultsPathComponent = @"CLSUserDefaults";
   id oldNSUserDefaultsValue =
       [[NSUserDefaults standardUserDefaults] objectForKey:keyToMigrateOrNil];
   if (!oldNSUserDefaultsValue) {
-    return nil;  // if the value also does not exist in NSUserDefaults, return nil.
+    return nil;  // if the value also does not exist in UserDefaults, return nil.
   }
 
-  // Otherwise, the key exists in NSUserDefaults. Migrate it to FIRCLSUserDefaults
+  // Otherwise, the key exists in UserDefaults. Migrate it to FIRCLSUserDefaults
   // and then return the associated value.
 
   // First store it in FIRCLSUserDefaults so in the event of a crash, data is not lost.

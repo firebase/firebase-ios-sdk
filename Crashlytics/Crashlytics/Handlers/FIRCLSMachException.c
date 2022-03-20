@@ -30,7 +30,6 @@
 #include <unistd.h>
 
 #pragma mark Prototypes
-static exception_mask_t FIRCLSMachExceptionMask(void);
 static void* FIRCLSMachExceptionServer(void* argument);
 static bool FIRCLSMachExceptionThreadStart(FIRCLSMachExceptionReadContext* context);
 static bool FIRCLSMachExceptionReadMessage(FIRCLSMachExceptionReadContext* context,
@@ -40,20 +39,19 @@ static kern_return_t FIRCLSMachExceptionDispatchMessage(FIRCLSMachExceptionReadC
 static bool FIRCLSMachExceptionReply(FIRCLSMachExceptionReadContext* context,
                                      MachExceptionMessage* message,
                                      kern_return_t result);
-static bool FIRCLSMachExceptionRegister(FIRCLSMachExceptionReadContext* context,
-                                        exception_mask_t ignoreMask);
+static bool FIRCLSMachExceptionRegister(FIRCLSMachExceptionReadContext* context);
 static bool FIRCLSMachExceptionUnregister(FIRCLSMachExceptionOriginalPorts* originalPorts,
                                           exception_mask_t mask);
 static bool FIRCLSMachExceptionRecord(FIRCLSMachExceptionReadContext* context,
                                       MachExceptionMessage* message);
 
 #pragma mark - Initialization
-void FIRCLSMachExceptionInit(FIRCLSMachExceptionReadContext* context, exception_mask_t ignoreMask) {
+void FIRCLSMachExceptionInit(FIRCLSMachExceptionReadContext* context) {
   if (!FIRCLSUnlinkIfExists(context->path)) {
     FIRCLSSDKLog("Unable to reset the mach exception file %s\n", strerror(errno));
   }
 
-  if (!FIRCLSMachExceptionRegister(context, ignoreMask)) {
+  if (!FIRCLSMachExceptionRegister(context)) {
     FIRCLSSDKLog("Unable to register mach exception handler\n");
     return;
   }
@@ -270,8 +268,7 @@ static bool FIRCLSMachExceptionReply(FIRCLSMachExceptionReadContext* context,
 }
 
 #pragma mark - Registration
-static bool FIRCLSMachExceptionRegister(FIRCLSMachExceptionReadContext* context,
-                                        exception_mask_t ignoreMask) {
+static bool FIRCLSMachExceptionRegister(FIRCLSMachExceptionReadContext* context) {
   mach_port_t task = mach_task_self();
 
   kern_return_t kr = mach_port_allocate(task, MACH_PORT_RIGHT_RECEIVE, &context->port);
@@ -291,7 +288,7 @@ static bool FIRCLSMachExceptionRegister(FIRCLSMachExceptionReadContext* context,
   // but clear out any that are in our ignore list.  We do this by ANDing with the bitwise
   // negation.  Because we are only clearing bits, there's no way to set an incorrect mask
   // using ignoreMask.
-  context->mask = FIRCLSMachExceptionMask() & ~ignoreMask;
+  context->mask = FIRCLSMachExceptionMask();
 
   // ORing with MACH_EXCEPTION_CODES will produce 64-bit exception data
   kr = task_swap_exception_ports(task, context->mask, context->port,
@@ -342,7 +339,7 @@ static bool FIRCLSMachExceptionUnregister(FIRCLSMachExceptionOriginalPorts* orig
 }
 
 #pragma mark - Recording
-static void FIRCLSMachExceptionNameLookup(exception_type_t number,
+void FIRCLSMachExceptionNameLookup(exception_type_t number,
                                           mach_exception_data_type_t code,
                                           const char** name,
                                           const char** codeName) {

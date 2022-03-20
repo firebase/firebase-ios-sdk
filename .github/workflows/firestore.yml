@@ -21,10 +21,10 @@ on:
     - 'Firestore/**'
 
     # Interop headers
-    - 'Interop/Auth/Public/*.h'
+    - 'FirebaseAuth/Interop/*.h'
 
     # FirebaseCore header change
-    - 'FirebaseCore/Sources/Private'
+    - 'FirebaseCore/Internal'
     - 'FirebaseCore/Sources/Public'
 
     # Podspec
@@ -56,8 +56,8 @@ on:
     - 'Gemfile*'
 
   schedule:
-    # Run every day at 2am (PST) - cron uses UTC times
-    - cron:  '0 10 * * *'
+    # Run every day at 12am (PST) - cron uses UTC times
+    - cron:  '0 8 * * *'
 
 jobs:
   check:

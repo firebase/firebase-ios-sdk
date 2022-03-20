@@ -65,6 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Create a test message definition.
  */
 - (instancetype)initTestMessageWithRenderData:(FIRIAMMessageRenderData *)renderData
+                                      appData:(nullable NSDictionary *)appData
                             experimentPayload:(nullable ABTExperimentPayload *)experimentPayload;
 
 - (BOOL)messageHasExpired;

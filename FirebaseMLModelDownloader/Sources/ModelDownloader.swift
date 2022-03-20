@@ -85,7 +85,7 @@ public class ModelDownloader {
   @objc private func deleteModelDownloader(notification: Notification) {
     let userInfoKey = "FIRAppNameKey"
     if let userInfo = notification.userInfo,
-      let appName = userInfo[userInfoKey] as? String {
+       let appName = userInfo[userInfoKey] as? String {
       ModelDownloader.modelDownloaderDictionary.removeValue(forKey: appName)
       // TODO: Clean up user defaults.
       // TODO: Clean up local instances of app.
@@ -476,7 +476,7 @@ extension ModelDownloader {
           self.taskSerialQueue.sync {
             // Merge duplicate requests if there is already a download in progress for the same model.
             if let downloadTask = self.currentDownloadTask[modelName],
-              downloadTask.canMergeRequests() {
+               downloadTask.canMergeRequests() {
               downloadTask.merge(
                 newProgressHandler: taskProgressHandler,
                 newCompletion: taskCompletion
@@ -557,9 +557,8 @@ public enum DownloadedModelError: Error {
 extension DownloadError {
   /// Model download URL expired before model download.
   // Model info retrieval and download is retried `numberOfRetries` times before failing.
-  static let expiredDownloadURL: DownloadError = {
-    DownloadError.internalError(description: "Expired model download URL.")
-  }()
+  static let expiredDownloadURL: DownloadError = DownloadError
+    .internalError(description: "Expired model download URL.")
 }
 
 /// Possible debug and error messages while using model downloader.

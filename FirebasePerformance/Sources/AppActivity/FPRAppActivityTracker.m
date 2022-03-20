@@ -18,6 +18,7 @@
 #import <UIKit/UIKit.h>
 
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
+#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 #import "FirebasePerformance/Sources/Gauges/CPU/FPRCPUGaugeCollector+Private.h"
 #import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
 #import "FirebasePerformance/Sources/Gauges/Memory/FPRMemoryGaugeCollector+Private.h"
@@ -25,9 +26,12 @@
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
 
 static NSDate *appStartTime = nil;
+static NSDate *doubleDispatchTime = nil;
+static NSDate *applicationDidFinishLaunchTime = nil;
 static NSTimeInterval gAppStartMaxValidDuration = 60 * 60;  // 60 minutes.
 static FPRCPUGaugeData *gAppStartCPUGaugeData = nil;
 static FPRMemoryGaugeData *gAppStartMemoryGaugeData = nil;
+static BOOL isActivePrewarm = NO;
 
 NSString *const kFPRAppStartTraceName = @"_as";
 NSString *const kFPRAppStartStageNameTimeToUI = @"_astui";
@@ -38,6 +42,8 @@ NSString *const kFPRAppTraceNameBackgroundSession = @"_bs";
 NSString *const kFPRAppCounterNameTraceEventsRateLimited = @"_fstec";
 NSString *const kFPRAppCounterNameNetworkTraceEventsRateLimited = @"_fsntc";
 NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
+NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
+NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
 
 @interface FPRAppActivityTracker ()
 
@@ -56,6 +62,9 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
 /** Tracks if the gauge metrics are dispatched. */
 @property(nonatomic) BOOL appStartGaugeMetricDispatched;
 
+/** Firebase Performance Configuration object */
+@property(nonatomic) FPRConfigurations *configurations;
+
 /** Starts tracking app active sessions. */
 - (void)startAppActivityTracking;
 
@@ -66,11 +75,31 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
 + (void)load {
   // This is an approximation of the app start time.
   appStartTime = [NSDate date];
+
+  // Double dispatch is used to detect prewarming, but if it causes hang or crash in the future
+  // developers can disable it by setting a plist flag "fireperf_disable_dd" to true
+  if ([[[NSBundle mainBundle] objectForInfoDictionaryKey:@"fireperf_disable_dd"] boolValue] == NO) {
+    dispatch_async(dispatch_get_main_queue(), ^{
+      dispatch_async(dispatch_get_main_queue(), ^{
+        doubleDispatchTime = [NSDate date];
+      });
+    });
+  }
+
+  // When an app is prewarmed, Apple sets env variable ActivePrewarm to 1, then the env variable is
+  // deleted after didFinishLaunching
+  isActivePrewarm = [NSProcessInfo.processInfo.environment[@"ActivePrewarm"] isEqualToString:@"1"];
+
   gAppStartCPUGaugeData = fprCollectCPUMetric();
   gAppStartMemoryGaugeData = fprCollectMemoryMetric();
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(windowDidBecomeVisible:)
                                                name:UIWindowDidBecomeVisibleNotification
+                                             object:nil];
+
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(applicationDidFinishLaunching:)
+                                               name:UIApplicationDidFinishLaunchingNotification
                                              object:nil];
 }
 
@@ -80,6 +109,13 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
 
   [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:UIWindowDidBecomeVisibleNotification
+                                                object:nil];
+}
+
++ (void)applicationDidFinishLaunching:(NSNotification *)notification {
+  applicationDidFinishLaunchTime = [NSDate date];
+  [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                  name:UIApplicationDidFinishLaunchingNotification
                                                 object:nil];
 }
 
@@ -99,6 +135,7 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
   self = [super init];
   _applicationState = FPRApplicationStateUnknown;
   _appStartGaugeMetricDispatched = NO;
+  _configurations = [FPRConfigurations sharedInstance];
   return self;
 }
 
@@ -119,6 +156,73 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
     return self.foregroundSessionTrace;
   }
   return self.backgroundSessionTrace;
+}
+
+/**
+ * Checks if the prewarming feature is available on the current device.
+ *
+ * @return true if the OS could prewarm apps on the current device
+ */
+- (BOOL)isPrewarmAvailable {
+  BOOL canPrewarm = NO;
+  // Guarding for double dispatch which does not work below iOS 13, and 0.1% of app start also show
+  // signs of prewarming on iOS 14 go/paste/5533761933410304
+  if (@available(iOS 13, *)) {
+    canPrewarm = YES;
+  }
+  return canPrewarm;
+}
+
+/**
+ RC flag for dropping all app start events
+ */
+- (BOOL)isAppStartEnabled {
+  return [self.configurations prewarmDetectionMode] != PrewarmDetectionModeKeepNone;
+}
+
+/**
+ RC flag for enabling prewarm-detection using ActivePrewarm environment variable
+ */
+- (BOOL)isActivePrewarmEnabled {
+  PrewarmDetectionMode mode = [self.configurations prewarmDetectionMode];
+  return (mode == PrewarmDetectionModeActivePrewarm ||
+          mode == PrewarmDetectionModeActivePrewarmOrDoubleDispatch);
+}
+
+/**
+ RC flag for enabling prewarm-detection using double dispatch method
+ */
+- (BOOL)isDoubleDispatchEnabled {
+  PrewarmDetectionMode mode = [self.configurations prewarmDetectionMode];
+  return (mode == PrewarmDetectionModeDoubleDispatch ||
+          mode == PrewarmDetectionModeActivePrewarmOrDoubleDispatch);
+}
+
+/**
+ Checks if the current app start is a prewarmed app start
+ */
+- (BOOL)isApplicationPreWarmed {
+  if (![self isPrewarmAvailable]) {
+    return NO;
+  }
+
+  BOOL isPrewarmed = NO;
+
+  if (isActivePrewarm == YES) {
+    isPrewarmed = isPrewarmed || [self isActivePrewarmEnabled];
+    [self.activeTrace incrementMetric:kFPRAppCounterNameActivePrewarm byInt:1];
+  } else {
+    [self.activeTrace incrementMetric:kFPRAppCounterNameActivePrewarm byInt:0];
+  }
+
+  if ([doubleDispatchTime compare:applicationDidFinishLaunchTime] == NSOrderedAscending) {
+    isPrewarmed = isPrewarmed || [self isDoubleDispatchEnabled];
+    [self.activeTrace incrementMetric:kFPRAppCounterNameDoubleDispatch byInt:1];
+  } else if (doubleDispatchTime) {
+    [self.activeTrace incrementMetric:kFPRAppCounterNameDoubleDispatch byInt:0];
+  }
+
+  return isPrewarmed;
 }
 
 /**
@@ -173,7 +277,8 @@ NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
       // happens a lot later.
       // Dropping the app start trace in such situations where the launch time is taking more than
       // 60 minutes. This is an approximation, but a more agreeable timelimit for app start.
-      if (currentTimeSinceEpoch - startTimeSinceEpoch < gAppStartMaxValidDuration) {
+      if ((currentTimeSinceEpoch - startTimeSinceEpoch < gAppStartMaxValidDuration) &&
+          [self isAppStartEnabled] && ![self isApplicationPreWarmed]) {
         [self.appStartTrace stop];
       } else {
         [self.appStartTrace cancel];

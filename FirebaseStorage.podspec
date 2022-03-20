@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseStorage'
-  s.version          = '8.11.0'
+  s.version          = '8.13.0'
   s.summary          = 'Firebase Storage'
 
   s.description      = <<-DESC
@@ -27,14 +27,16 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   s.tvos.deployment_target = tvos_deployment_target
   s.watchos.deployment_target = watchos_deployment_target
 
+  s.swift_version = '5.3'
+
   s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
 
   s.source_files = [
     'FirebaseStorage/Sources/**/*.[mh]',
-    'Interop/Auth/Public/*.h',
-    'FirebaseCore/Sources/Private/*.h',
-    'FirebaseAppCheck/Sources/Interop/*.h',
+    'FirebaseAuth/Interop/*.h',
+    'FirebaseCore/Internal/*.h',
+    'FirebaseAppCheck/Interop/*.h',
   ]
   s.public_header_files = 'FirebaseStorage/Sources/Public/FirebaseStorage/*.h'
 

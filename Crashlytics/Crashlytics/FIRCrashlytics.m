@@ -46,7 +46,7 @@
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportUploader.h"
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
@@ -294,13 +294,13 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 }
 
 #pragma mark - API: setUserID
-- (void)setUserID:(NSString *)userID {
+- (void)setUserID:(nullable NSString *)userID {
   FIRCLSUserLoggingRecordInternalKeyValue(FIRCLSUserIdentifierKey, userID);
 }
 
 #pragma mark - API: setCustomValue
 
-- (void)setCustomValue:(id)value forKey:(NSString *)key {
+- (void)setCustomValue:(nullable id)value forKey:(NSString *)key {
   FIRCLSUserLoggingRecordUserKeyValue(key, value);
 }
 

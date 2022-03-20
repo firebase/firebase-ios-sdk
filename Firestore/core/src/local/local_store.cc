@@ -263,6 +263,7 @@ model::DocumentMap LocalStore::ApplyRemoteEvent(
     for (const auto& entry : remote_event.target_changes()) {
       TargetId target_id = entry.first;
       const TargetChange& change = entry.second;
+      const ByteString& resume_token = change.resume_token();
 
       auto found = target_data_by_target_.find(target_id);
       if (found == target_data_by_target_.end()) {
@@ -277,24 +278,25 @@ model::DocumentMap LocalStore::ApplyRemoteEvent(
       target_cache_->RemoveMatchingKeys(change.removed_documents(), target_id);
       target_cache_->AddMatchingKeys(change.added_documents(), target_id);
 
-      // Update the resume token if the change includes one. Don't clear any
-      // preexisting value. Bump the sequence number as well, so that documents
-      // being removed now are ordered later than documents that were previously
-      // removed from this target.
-      const ByteString& resume_token = change.resume_token();
-      // Update the resume token if the change includes one.
-      if (!resume_token.empty()) {
-        TargetData new_target_data =
-            old_target_data
-                .WithResumeToken(resume_token, remote_event.snapshot_version())
-                .WithSequenceNumber(sequence_number);
-        target_data_by_target_[target_id] = new_target_data;
+      TargetData new_target_data =
+          old_target_data.WithSequenceNumber(sequence_number);
+      if (remote_event.target_mismatches().find(target_id) !=
+          remote_event.target_mismatches().end()) {
+        new_target_data =
+            new_target_data
+                .WithResumeToken(ByteString{}, SnapshotVersion::None())
+                .WithLastLimboFreeSnapshotVersion(SnapshotVersion::None());
+      } else if (!resume_token.empty()) {
+        new_target_data = old_target_data.WithResumeToken(
+            resume_token, remote_event.snapshot_version());
+      }
 
-        // Update the target data if there are target changes (or if sufficient
-        // time has passed since the last update).
-        if (ShouldPersistTargetData(new_target_data, old_target_data, change)) {
-          target_cache_->UpdateTarget(new_target_data);
-        }
+      target_data_by_target_[target_id] = new_target_data;
+
+      // Update the target data if there are target changes (or if sufficient
+      // time has passed since the last update).
+      if (ShouldPersistTargetData(new_target_data, old_target_data, change)) {
+        target_cache_->UpdateTarget(new_target_data);
       }
     }
 
@@ -330,10 +332,6 @@ model::DocumentMap LocalStore::ApplyRemoteEvent(
 bool LocalStore::ShouldPersistTargetData(const TargetData& new_target_data,
                                          const TargetData& old_target_data,
                                          const TargetChange& change) const {
-  // Avoid clearing any existing value
-  HARD_ASSERT(!new_target_data.resume_token().empty(),
-              "Attempted to persist target data with empty resume token");
-
   // Always persist target data if we don't already have a resume token.
   if (old_target_data.resume_token().empty()) return true;
 

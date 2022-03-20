@@ -197,10 +197,14 @@ firebase_ios_glob(
   src/credentials/*.h
   src/immutable/*.cc
   src/immutable/*.h
+  src/index/*.cc
+  src/index/*.h
   src/local/*.cc
   src/local/*.h
   src/model/*.cc
   src/model/*.h
+  src/model/mutation/*.cc
+  src/model/mutation/*.h
   src/nanopb/*.cc
   src/nanopb/*.h
   src/objc/*.h
