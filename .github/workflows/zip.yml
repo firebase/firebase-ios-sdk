@@ -246,6 +246,8 @@ jobs:
               chmod +x quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/run
               chmod +x quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/upload-symbols
     - name: Setup swift quickstart
+      env:
+        LEGACY: true
       run: |
               SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" NON_FIREBASE_SDKS="ReachabilitySwift" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/*
