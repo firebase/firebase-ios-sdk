@@ -51,7 +51,11 @@ extension Firestore {
       encoder.userInfo = userInfo
       let encoded = try encoder.encode(value)
       guard let dictionaryValue = encoded as? [String: Any] else {
-        throw FirestoreEncodingError.topLevelTypesAreNotSupported
+        throw EncodingError
+          .invalidValue(value,
+                        EncodingError
+                          .Context(codingPath: [],
+                                   debugDescription: "Top-level \(T.self) is not allowed."))
       }
       return dictionaryValue
     }
