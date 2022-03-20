@@ -140,4 +140,4 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint Storage Cron
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }}.podspec --platforms=${{ matrix.target }} --use-static-frameworks --skip-tests
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb Firebase${{ matrix.podspec }}.podspec --platforms=${{ matrix.target }} --use-static-frameworks --skip-tests
