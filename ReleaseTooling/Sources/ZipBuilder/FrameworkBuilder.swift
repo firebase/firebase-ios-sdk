@@ -189,7 +189,7 @@ struct FrameworkBuilder {
 
     var archs = targetPlatform.archs.map { $0.rawValue }.joined(separator: " ")
     // The 32 bit archs do not build for iOS 11.
-    if framework == "FirebaseAppCheck" {
+    if framework == "FirebaseAppCheck" || framework.hasSuffix("Swift") {
       if targetPlatform == .iOSDevice {
         archs = "arm64"
       } else if targetPlatform == .iOSSimulator {
@@ -390,26 +390,7 @@ struct FrameworkBuilder {
       } catch {
         fatalError("Error while enumerating files \(headersDir): \(error.localizedDescription)")
       }
-      // Verify Firebase frameworks include an explicit umbrella header for Firebase.h.
-      if framework.hasPrefix("Firebase") || framework == "GoogleDataTransport",
-         framework != "FirebaseCoreDiagnostics",
-         framework != "FirebaseUI",
-         framework != "FirebaseMLModelDownloader",
-         !framework.hasSuffix("Swift") {
-        // Delete CocoaPods generated umbrella and use pre-generated one.
-        do {
-          try fileManager.removeItem(at: umbrellaHeaderURL)
-        } catch let error as NSError {
-          fatalError("Failed to delete: \(umbrellaHeaderURL). Error: \(error.domain)")
-        }
-        umbrellaHeader = "\(framework).h"
-        let frameworkHeader = headersDir.appendingPathComponent(umbrellaHeader)
-        guard fileManager.fileExists(atPath: frameworkHeader.path) else {
-          fatalError("Missing explicit umbrella header for \(framework).")
-        }
-      } else {
-        umbrellaHeader = umbrellaHeaderURL.lastPathComponent
-      }
+      umbrellaHeader = umbrellaHeaderURL.lastPathComponent
     }
     // Copy the Headers over.
     let headersDestination = frameworkDir.appendingPathComponent("Headers")
