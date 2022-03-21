@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/model/target_index_matcher_test.h"
+#include "Firestore/core/src/model/target_index_matcher.h"
+
+#include <string>
+#include <vector>
 
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/model/field_index.h"
@@ -27,6 +30,7 @@ namespace model {
 namespace {
 
 using testutil::Array;
+using testutil::Field;
 using testutil::Filter;
 using testutil::MakeFieldIndex;
 using testutil::OrderBy;
@@ -45,6 +49,13 @@ std::vector<core::Query> QueriesWithInequalities() {
           testutil::Query("collId").AddingFilter(Filter("a", "!=", "a")),
           testutil::Query("collId").AddingFilter(
               Filter("a", "not-in", Array("a")))};
+}
+
+std::vector<core::Query> QueriesWithArrayContains() {
+  return {testutil::Query("collId").AddingFilter(
+              Filter("a", "array-contains", "a")),
+          testutil::Query("collId").AddingFilter(
+              Filter("a", "array-contains-any", Array("a")))};
 }
 
 void ValidateServesTarget(const core::Query& query,
@@ -66,6 +77,19 @@ void ValidateServesTarget(const core::Query& query,
   EXPECT_TRUE(matcher.ServedByIndex(expected_index));
 }
 
+void ValidateServesTarget(const core::Query& query,
+                          const std::string& field1,
+                          Segment::Kind kind1,
+                          const std::string& field2,
+                          Segment::Kind kind2,
+                          const std::string& field3,
+                          Segment::Kind kind3) {
+  FieldIndex expected_index =
+      MakeFieldIndex("collId", field1, kind1, field2, kind2, field3, kind3);
+  TargetIndexMatcher matcher(query.ToTarget());
+  EXPECT_TRUE(matcher.ServedByIndex(expected_index));
+}
+
 void ValidateDoesNotServeTarget(const core::Query& query,
                                 const std::string& field1,
                                 Segment::Kind kind1) {
@@ -81,6 +105,19 @@ void ValidateDoesNotServeTarget(const core::Query& query,
                                 Segment::Kind kind2) {
   FieldIndex expected_index =
       MakeFieldIndex("collId", field1, kind1, field2, kind2);
+  TargetIndexMatcher matcher(query.ToTarget());
+  EXPECT_FALSE(matcher.ServedByIndex(expected_index));
+}
+
+void ValidateDoesNotServeTarget(const core::Query& query,
+                                const std::string& field1,
+                                Segment::Kind kind1,
+                                const std::string& field2,
+                                Segment::Kind kind2,
+                                const std::string& field3,
+                                Segment::Kind kind3) {
+  FieldIndex expected_index =
+      MakeFieldIndex("collId", field1, kind1, field2, kind2, field3, kind3);
   TargetIndexMatcher matcher(query.ToTarget());
   EXPECT_FALSE(matcher.ServedByIndex(expected_index));
 }
@@ -179,7 +216,7 @@ TEST(TargetIndexMatcher, InequalitiesWithAscendingOrder) {
 
 TEST(TargetIndexMatcher, InequalitiesWithDescendingOrder) {
   for (const auto& q : QueriesWithInequalities()) {
-    auto query_asc = q.AddingOrderBy(OrderBy("a", "asc"));
+    auto query_asc = q.AddingOrderBy(OrderBy("a", "desc"));
     ValidateServesTarget(query_asc, "a", Segment::Kind::kDescending);
     ValidateDoesNotServeTarget(query_asc, "b", Segment::Kind::kAscending);
     ValidateDoesNotServeTarget(query_asc, "a", Segment::Kind::kContains);
@@ -203,359 +240,278 @@ TEST(TargetIndexMatcher, InQueryUsesMergeJoin) {
                        Segment::Kind::kAscending);
 }
 
-
-  TEST(TargetIndexMatcher, ValidatesCollection) {
-    {
-      TargetIndexMatcher matcher(testutil::Query("collId").ToTarget());
-      FieldIndex fieldIndex = MakeFieldIndex("collId");
-      EXPECT_NO_THROW(matcher.ServedByIndex(fieldIndex));
-    }
-
-    {
-      TargetIndexMatcher matcher(testutil::CollectionGroupQuery("collId").ToTarget());
-      FieldIndex fieldIndex = MakeFieldIndex("collId");
-      EXPECT_NO_THROW(matcher.ServedByIndex(fieldIndex));
-    }
-
-    {
-      TargetIndexMatcher matcher(testutil::Query("collId2").ToTarget());
-      FieldIndex fieldIndex = MakeFieldIndex("collId");
-      EXPECT_ANY_THROW(matcher.ServedByIndex(fieldIndex));
-    }
+TEST(TargetIndexMatcher, ValidatesCollection) {
+  {
+    TargetIndexMatcher matcher(testutil::Query("collId").ToTarget());
+    FieldIndex fieldIndex = MakeFieldIndex("collId");
+    EXPECT_NO_THROW(matcher.ServedByIndex(fieldIndex));
   }
 
-  TEST(TargetIndexMatcher, withArrayContains) {
-    for (Query query : queriesWithArrayContains) {
-      ValidateDoesNotServeTarget(query, "a", Segment::Kind::kAscending);
-      ValidateDoesNotServeTarget(query, "a", Segment::Kind::kAscending);
-      ValidateServesTarget(query, "a", Segment::Kind::kContains);
-    }
+  {
+    TargetIndexMatcher matcher(
+        testutil::CollectionGroupQuery("collId").ToTarget());
+    FieldIndex fieldIndex = MakeFieldIndex("collId");
+    EXPECT_NO_THROW(matcher.ServedByIndex(fieldIndex));
   }
 
-  TEST(TargetIndexMatcher, testArrayContainsIsIndependent) {
-    Query query =
-        query("collId").filter(filter("value", "array-contains", "foo")).orderBy(orderBy("value"));
-    ValidateServesTarget(
-        query,
-        "value",
-        Segment::Kind::kContains,
-        "value",
-        Segment::Kind::kAscending);
-    ValidateServesTarget(
-        query,
-        "value",
-        Segment::Kind::kAscending,
-        "value",
-        Segment::Kind::kContains);
+  {
+    TargetIndexMatcher matcher(testutil::Query("collId2").ToTarget());
+    FieldIndex fieldIndex = MakeFieldIndex("collId");
+    EXPECT_ANY_THROW(matcher.ServedByIndex(fieldIndex));
   }
+}
 
-  TEST(TargetIndexMatcher, withArrayContainsAndOrderBy) {
-    Query queriesMultipleFilters =
-        query("collId")
-            .filter(filter("a", "array-contains", "a"))
-            .filter(filter("a", ">", "b"))
-            .orderBy(orderBy("a", "asc"));
-    ValidateServesTarget(
-        queriesMultipleFilters,
-        "a",
-        Segment::Kind::kContains,
-        "a",
-        Segment::Kind::kAscending);
+TEST(TargetIndexMatcher, withArrayContains) {
+  for (const auto& query : QueriesWithArrayContains()) {
+    ValidateDoesNotServeTarget(query, "a", Segment::Kind::kAscending);
+    ValidateDoesNotServeTarget(query, "a", Segment::Kind::kAscending);
+    ValidateServesTarget(query, "a", Segment::Kind::kContains);
   }
+}
 
-  TEST(TargetIndexMatcher, withEqualityAndDescendingOrder) {
-    Query q = query("collId").filter(filter("a", "==", 1)).orderBy(orderBy("__name__", "desc"));
-    ValidateServesTarget(
-        q, "a", Segment::Kind::kAscending, "__name__", Segment::Kind::kDescending);
-  }
+TEST(TargetIndexMatcher, testArrayContainsIsIndependent) {
+  auto query = testutil::Query("collId")
+                   .AddingFilter(Filter("value", "array-contains", "foo"))
+                   .AddingOrderBy(OrderBy("value"));
+  ValidateServesTarget(query, "value", Segment::Kind::kContains, "value",
+                       Segment::Kind::kAscending);
+  ValidateServesTarget(query, "value", Segment::Kind::kAscending, "value",
+                       Segment::Kind::kContains);
+}
 
-  TEST(TargetIndexMatcher, withMultipleEqualities) {
-    Query queriesMultipleFilters =
-        query("collId").filter(filter("a1", "==", "a")).filter(filter("a2", "==", "b"));
-    ValidateServesTarget(
-        queriesMultipleFilters,
-        "a1",
-        Segment::Kind::kAscending,
-        "a2",
-        Segment::Kind::kAscending);
-    ValidateServesTarget(
-        queriesMultipleFilters,
-        "a2",
-        Segment::Kind::kAscending,
-        "a1",
-        Segment::Kind::kAscending);
-    ValidateDoesNotServeTarget(
-        queriesMultipleFilters,
-        "a1",
-        Segment::Kind::kAscending,
-        "a2",
-        Segment::Kind::kAscending,
-        "a3",
-        Segment::Kind::kAscending);
-  }
+TEST(TargetIndexMatcher, WithArrayContainsAndOrderBy) {
+  auto queries_multiple_filters =
+      testutil::Query("collId")
+          .AddingFilter(Filter("a", "array-contains", "a"))
+          .AddingFilter(Filter("a", ">", "b"))
+          .AddingOrderBy(OrderBy("a", "asc"));
+  ValidateServesTarget(queries_multiple_filters, "a", Segment::Kind::kContains,
+                       "a", Segment::Kind::kAscending);
+}
 
-  TEST(TargetIndexMatcher, withMultipleEqualitiesAndInequality) {
-    Query queriesMultipleFilters =
-        query("collId")
-            .filter(filter("equality1", "==", "a"))
-            .filter(filter("equality2", "==", "b"))
-            .filter(filter("inequality", ">=", "c"));
-    ValidateServesTarget(
-        queriesMultipleFilters,
-        "equality1",
-        Segment::Kind::kAscending,
-        "equality2",
-        Segment::Kind::kAscending,
-        "inequality",
-        Segment::Kind::kAscending);
-    ValidateServesTarget(
-        queriesMultipleFilters,
-        "equality2",
-        Segment::Kind::kAscending,
-        "equality1",
-        Segment::Kind::kAscending,
-        "inequality",
-        Segment::Kind::kAscending);
-    ValidateDoesNotServeTarget(
-        queriesMultipleFilters,
-        "equality2",
-        Segment::Kind::kAscending,
-        "inequality",
-        Segment::Kind::kAscending,
-        "equality1",
-        Segment::Kind::kAscending);
+TEST(TargetIndexMatcher, WithEqualityAndDescendingOrder) {
+  auto q = testutil::Query("collId")
+               .AddingFilter(Filter("a", "==", 1))
+               .AddingOrderBy(OrderBy("__name__", "desc"));
+  ValidateServesTarget(q, "a", Segment::Kind::kAscending, "__name__",
+                       Segment::Kind::kDescending);
+}
 
-    queriesMultipleFilters =
-        query("collId")
-            .filter(filter("equality1", "==", "a"))
-            .filter(filter("inequality", ">=", "c"))
-            .filter(filter("equality2", "==", "b"));
-    ValidateServesTarget(
-        queriesMultipleFilters,
-        "equality1",
-        Segment::Kind::kAscending,
-        "equality2",
-        Segment::Kind::kAscending,
-        "inequality",
-        Segment::Kind::kAscending);
-    ValidateServesTarget(
-        queriesMultipleFilters,
-        "equality2",
-        Segment::Kind::kAscending,
-        "equality1",
-        Segment::Kind::kAscending,
-        "inequality",
-        Segment::Kind::kAscending);
-    ValidateDoesNotServeTarget(
-        queriesMultipleFilters,
-        "equality1",
-        Segment::Kind::kAscending,
-        "inequality",
-        Segment::Kind::kAscending,
-        "equality2",
-        Segment::Kind::kAscending);
-  }
+TEST(TargetIndexMatcher, WithMultipleEqualities) {
+  auto queries_multiple_filters = testutil::Query("collId")
+                                      .AddingFilter(Filter("a1", "==", "a"))
+                                      .AddingFilter(Filter("a2", "==", "b"));
+  ValidateServesTarget(queries_multiple_filters, "a1",
+                       Segment::Kind::kAscending, "a2",
+                       Segment::Kind::kAscending);
+  ValidateServesTarget(queries_multiple_filters, "a2",
+                       Segment::Kind::kAscending, "a1",
+                       Segment::Kind::kAscending);
+  ValidateDoesNotServeTarget(
+      queries_multiple_filters, "a1", Segment::Kind::kAscending, "a2",
+      Segment::Kind::kAscending, "a3", Segment::Kind::kAscending);
+}
 
-  TEST(TargetIndexMatcher, withOrderBy) {
-    Query q = query("collId").orderBy(orderBy("a"));
-    ValidateServesTarget(q, "a", Segment::Kind::kAscending);
-    ValidateDoesNotServeTarget(q, "a", Segment::Kind::kDescending);
+TEST(TargetIndexMatcher, withMultipleEqualitiesAndInequality) {
+  auto queries_multiple_filters =
+      testutil::Query("collId")
+          .AddingFilter(Filter("equality1", "==", "a"))
+          .AddingFilter(Filter("equality2", "==", "b"))
+          .AddingFilter(Filter("inequality", ">=", "c"));
+  ValidateServesTarget(queries_multiple_filters, "equality1",
+                       Segment::Kind::kAscending, "equality2",
+                       Segment::Kind::kAscending, "inequality",
+                       Segment::Kind::kAscending);
+  ValidateServesTarget(queries_multiple_filters, "equality2",
+                       Segment::Kind::kAscending, "equality1",
+                       Segment::Kind::kAscending, "inequality",
+                       Segment::Kind::kAscending);
+  ValidateDoesNotServeTarget(queries_multiple_filters, "equality2",
+                             Segment::Kind::kAscending, "inequality",
+                             Segment::Kind::kAscending, "equality1",
+                             Segment::Kind::kAscending);
 
-    q = query("collId").orderBy(orderBy("a", "desc"));
-    ValidateDoesNotServeTarget(q, "a", Segment::Kind::kAscending);
-    ValidateServesTarget(q, "a", Segment::Kind::kDescending);
+  queries_multiple_filters = testutil::Query("collId")
+                                 .AddingFilter(Filter("equality1", "==", "a"))
+                                 .AddingFilter(Filter("inequality", ">=", "c"))
+                                 .AddingFilter(Filter("equality2", "==", "b"));
+  ValidateServesTarget(queries_multiple_filters, "equality1",
+                       Segment::Kind::kAscending, "equality2",
+                       Segment::Kind::kAscending, "inequality",
+                       Segment::Kind::kAscending);
+  ValidateServesTarget(queries_multiple_filters, "equality2",
+                       Segment::Kind::kAscending, "equality1",
+                       Segment::Kind::kAscending, "inequality",
+                       Segment::Kind::kAscending);
+  ValidateDoesNotServeTarget(queries_multiple_filters, "equality1",
+                             Segment::Kind::kAscending, "inequality",
+                             Segment::Kind::kAscending, "equality2",
+                             Segment::Kind::kAscending);
+}
 
-    q = query("collId").orderBy(orderBy("a")).orderBy(orderBy("__name__"));
-    ValidateServesTarget(
-        q, "a", Segment::Kind::kAscending, "__name__", Segment::Kind::kAscending);
-    ValidateDoesNotServeTarget(
-        q, "a", Segment::Kind::kAscending, "__name__", Segment::Kind::kDescending);
-  }
+TEST(TargetIndexMatcher, withOrderBy) {
+  auto q = testutil::Query("collId").AddingOrderBy(OrderBy("a"));
+  ValidateServesTarget(q, "a", Segment::Kind::kAscending);
+  ValidateDoesNotServeTarget(q, "a", Segment::Kind::kDescending);
 
-  TEST(TargetIndexMatcher, withNotEquals) {
-    Query q = query("collId").filter(filter("a", "!=", 1));
-    ValidateServesTarget(q, "a", Segment::Kind::kAscending);
+  q = testutil::Query("collId").AddingOrderBy(OrderBy("a", "desc"));
+  ValidateDoesNotServeTarget(q, "a", Segment::Kind::kAscending);
+  ValidateServesTarget(q, "a", Segment::Kind::kDescending);
 
-    q = query("collId").filter(filter("a", "!=", 1)).orderBy(orderBy("a")).orderBy(orderBy("b"));
-    ValidateServesTarget(
-        q, "a", Segment::Kind::kAscending, "b", Segment::Kind::kAscending);
-  }
+  q = testutil::Query("collId")
+          .AddingOrderBy(OrderBy("a"))
+          .AddingOrderBy(OrderBy("__name__"));
+  ValidateServesTarget(q, "a", Segment::Kind::kAscending, "__name__",
+                       Segment::Kind::kAscending);
+  ValidateDoesNotServeTarget(q, "a", Segment::Kind::kAscending, "__name__",
+                             Segment::Kind::kDescending);
+}
 
-  TEST(TargetIndexMatcher, withMultipleFilters) {
-    Query queriesMultipleFilters =
-        query("collId").filter(filter("a", "==", "a")).filter(filter("b", ">", "b"));
-    ValidateServesTarget(queriesMultipleFilters, "a", Segment::Kind::kAscending);
-    ValidateServesTarget(
-        queriesMultipleFilters,
-        "a",
-        Segment::Kind::kAscending,
-        "b",
-        Segment::Kind::kAscending);
-  }
+TEST(TargetIndexMatcher, withNotEquals) {
+  auto q = testutil::Query("collId").AddingFilter(Filter("a", "!=", 1));
+  ValidateServesTarget(q, "a", Segment::Kind::kAscending);
 
-  TEST(TargetIndexMatcher, multipleFiltersRequireMatchingPrefix) {
-    Query queriesMultipleFilters =
-        query("collId").filter(filter("a", "==", "a")).filter(filter("b", ">", "b"));
+  q = testutil::Query("collId")
+          .AddingFilter(Filter("a", "!=", 1))
+          .AddingOrderBy(OrderBy("a"))
+          .AddingOrderBy(OrderBy("b"));
+  ValidateServesTarget(q, "a", Segment::Kind::kAscending, "b",
+                       Segment::Kind::kAscending);
+}
 
-    ValidateServesTarget(queriesMultipleFilters, "b", Segment::Kind::kAscending);
-    ValidateDoesNotServeTarget(
-        queriesMultipleFilters,
-        "c",
-        Segment::Kind::kAscending,
-        "a",
-        Segment::Kind::kAscending);
-  }
+TEST(TargetIndexMatcher, withMultipleFilters) {
+  auto queriesMultipleFilters = testutil::Query("collId")
+                                    .AddingFilter(Filter("a", "==", "a"))
+                                    .AddingFilter(Filter("b", ">", "b"));
+  ValidateServesTarget(queriesMultipleFilters, "a", Segment::Kind::kAscending);
+  ValidateServesTarget(queriesMultipleFilters, "a", Segment::Kind::kAscending,
+                       "b", Segment::Kind::kAscending);
+}
 
-  TEST(TargetIndexMatcher, withMultipleFiltersAndOrderBy) {
-    Query queriesMultipleFilters =
-        query("collId")
-            .filter(filter("a1", "==", "a"))
-            .filter(filter("a2", ">", "b"))
-            .orderBy(orderBy("a2", "asc"));
-    ValidateServesTarget(
-        queriesMultipleFilters,
-        "a1",
-        Segment::Kind::kAscending,
-        "a2",
-        Segment::Kind::kAscending);
-  }
+TEST(TargetIndexMatcher, multipleFiltersRequireMatchingPrefix) {
+  auto queriesMultipleFilters = testutil::Query("collId")
+                                    .AddingFilter(Filter("a", "==", "a"))
+                                    .AddingFilter(Filter("b", ">", "b"));
 
-  TEST(TargetIndexMatcher, withMultipleInequalities) {
-    Query q =
-        query("collId")
-            .filter(filter("a", ">=", 1))
-            .filter(filter("a", "==", 5))
-            .filter(filter("a", "<=", 10));
-    ValidateServesTarget(q, "a", Segment::Kind::kAscending);
-  }
+  ValidateServesTarget(queriesMultipleFilters, "b", Segment::Kind::kAscending);
+  ValidateDoesNotServeTarget(queriesMultipleFilters, "c",
+                             Segment::Kind::kAscending, "a",
+                             Segment::Kind::kAscending);
+}
 
-  TEST(TargetIndexMatcher, withMultipleNotIn) {
-    Query q =
-        query("collId")
-            .filter(filter("a", "not-in", Arrays.asList(1, 2, 3)))
-            .filter(filter("a", ">=", 2));
-    ValidateServesTarget(q, "a", Segment::Kind::kAscending);
-  }
+TEST(TargetIndexMatcher, withMultipleFiltersAndOrderBy) {
+  auto queriesMultipleFilters = testutil::Query("collId")
+                                    .AddingFilter(Filter("a1", "==", "a"))
+                                    .AddingFilter(Filter("a2", ">", "b"))
+                                    .AddingOrderBy(OrderBy("a2", "asc"));
+  ValidateServesTarget(queriesMultipleFilters, "a1", Segment::Kind::kAscending,
+                       "a2", Segment::Kind::kAscending);
+}
 
-  TEST(TargetIndexMatcher, withMultipleOrderBys) {
-    Query q =
-        query("collId")
-            .orderBy(orderBy("fff"))
-            .orderBy(orderBy("bar", "desc"))
-            .orderBy(orderBy("__name__"));
-    ValidateServesTarget(
-        q,
-        "fff",
-        Segment::Kind::kAscending,
-        "bar",
-        Segment::Kind::kDescending,
-        "__name__",
-        Segment::Kind::kAscending);
-    ValidateDoesNotServeTarget(
-        q,
-        "fff",
-        Segment::Kind::kAscending,
-        "__name__",
-        Segment::Kind::kAscending,
-        "bar",
-        Segment::Kind::kDescending);
+TEST(TargetIndexMatcher, withMultipleInequalities) {
+  auto q = testutil::Query("collId")
+               .AddingFilter(Filter("a", ">=", 1))
+               .AddingFilter(Filter("a", "==", 5))
+               .AddingFilter(Filter("a", "<=", 10));
+  ValidateServesTarget(q, "a", Segment::Kind::kAscending);
+}
 
-    q =
-        query("collId")
-            .orderBy(orderBy("foo"))
-            .orderBy(orderBy("bar"))
-            .orderBy(orderBy("__name__", "desc"));
-    ValidateServesTarget(
-        q,
-        "foo",
-        Segment::Kind::kAscending,
-        "bar",
-        Segment::Kind::kAscending,
-        "__name__",
-        Segment::Kind::kDescending);
-    ValidateDoesNotServeTarget(
-        q,
-        "foo",
-        Segment::Kind::kAscending,
-        "__name__",
-        Segment::Kind::kDescending,
-        "bar",
-        Segment::Kind::kAscending);
-  }
+TEST(TargetIndexMatcher, withMultipleNotIn) {
+  auto q = testutil::Query("collId")
+               .AddingFilter(Filter("a", "not-in", Array(1, 2, 3)))
+               .AddingFilter(Filter("a", ">=", 2));
+  ValidateServesTarget(q, "a", Segment::Kind::kAscending);
+}
 
-  TEST(TargetIndexMatcher, withInAndNotIn) {
-    Query q =
-        query("collId")
-            .filter(filter("a", "not-in", Arrays.asList(1, 2, 3)))
-            .filter(filter("b", "in", Arrays.asList(1, 2, 3)));
-    ValidateServesTarget(q, "a", Segment::Kind::kAscending);
-    ValidateServesTarget(q, "b", Segment::Kind::kAscending);
-    ValidateServesTarget(
-        q, "b", Segment::Kind::kAscending, "a", Segment::Kind::kAscending);
-    // If provided, equalities have to come first
-    ValidateDoesNotServeTarget(
-        q, "a", Segment::Kind::kAscending, "b", Segment::Kind::kAscending);
-  }
+TEST(TargetIndexMatcher, withMultipleOrderBys) {
+  auto q = testutil::Query("collId")
+               .AddingOrderBy(OrderBy("fff"))
+               .AddingOrderBy(OrderBy("bar", "desc"))
+               .AddingOrderBy(OrderBy("__name__"));
+  ValidateServesTarget(q, "fff", Segment::Kind::kAscending, "bar",
+                       Segment::Kind::kDescending, "__name__",
+                       Segment::Kind::kAscending);
+  ValidateDoesNotServeTarget(q, "fff", Segment::Kind::kAscending, "__name__",
+                             Segment::Kind::kAscending, "bar",
+                             Segment::Kind::kDescending);
 
-  TEST(TargetIndexMatcher, withEqualityAndDifferentOrderBy) {
-    Query q =
-        query("collId")
-            .filter(filter("foo", "==", ""))
-            .filter(filter("bar", "==", ""))
-            .orderBy(orderBy("qux"));
-    ValidateServesTarget(
-        q,
-        "foo",
-        Segment::Kind::kAscending,
-        "bar",
-        Segment::Kind::kAscending,
-        "qux",
-        Segment::Kind::kAscending);
+  q = testutil::Query("collId")
+          .AddingOrderBy(OrderBy("foo"))
+          .AddingOrderBy(OrderBy("bar"))
+          .AddingOrderBy(OrderBy("__name__", "desc"));
+  ValidateServesTarget(q, "foo", Segment::Kind::kAscending, "bar",
+                       Segment::Kind::kAscending, "__name__",
+                       Segment::Kind::kDescending);
+  ValidateDoesNotServeTarget(q, "foo", Segment::Kind::kAscending, "__name__",
+                             Segment::Kind::kDescending, "bar",
+                             Segment::Kind::kAscending);
+}
 
-    q =
-        query("collId")
-            .filter(filter("aaa", "==", ""))
-            .filter(filter("qqq", "==", ""))
-            .filter(filter("ccc", "==", ""))
-            .orderBy(orderBy("fff", "desc"))
-            .orderBy(orderBy("bbb"));
-    ValidateServesTarget(
-        q,
-        "aaa",
-        Segment::Kind::kAscending,
-        "qqq",
-        Segment::Kind::kAscending,
-        "ccc",
-        Segment::Kind::kAscending,
-        "fff",
-        Segment::Kind::kDescending);
-  }
+TEST(TargetIndexMatcher, withInAndNotIn) {
+  auto q = testutil::Query("collId")
+               .AddingFilter(Filter("a", "not-in", Array(1, 2, 3)))
+               .AddingFilter(Filter("b", "in", Array(1, 2, 3)));
+  ValidateServesTarget(q, "a", Segment::Kind::kAscending);
+  ValidateServesTarget(q, "b", Segment::Kind::kAscending);
+  ValidateServesTarget(q, "b", Segment::Kind::kAscending, "a",
+                       Segment::Kind::kAscending);
+  // If provided, equalities have to come first
+  ValidateDoesNotServeTarget(q, "a", Segment::Kind::kAscending, "b",
+                             Segment::Kind::kAscending);
+}
 
-  TEST(TargetIndexMatcher, withEqualsAndNotIn) {
-    Query q =
-        query("collId")
-            .filter(filter("a", "==", 1))
-            .filter(filter("b", "not-in", Arrays.asList(1, 2, 3)));
-    ValidateServesTarget(
-        q, "a", Segment::Kind::kAscending, "b", Segment::Kind::kAscending);
-  }
+TEST(TargetIndexMatcher, withEqualityAndDifferentOrderBy) {
+  auto q = testutil::Query("collId")
+               .AddingFilter(Filter("foo", "==", ""))
+               .AddingFilter(Filter("bar", "==", ""))
+               .AddingOrderBy(OrderBy("qux"));
+  ValidateServesTarget(q, "foo", Segment::Kind::kAscending, "bar",
+                       Segment::Kind::kAscending, "qux",
+                       Segment::Kind::kAscending);
 
-  TEST(TargetIndexMatcher, withInAndOrderBy) {
-    Query q =
-        query("collId")
-            .filter(filter("a", "not-in", Arrays.asList(1, 2, 3)))
-            .orderBy(orderBy("a"))
-            .orderBy(orderBy("b"));
-    ValidateServesTarget(
-        q, "a", Segment::Kind::kAscending, "b", Segment::Kind::kAscending);
-  }
+  q = testutil::Query("collId")
+          .AddingFilter(Filter("aaa", "==", ""))
+          .AddingFilter(Filter("qqq", "==", ""))
+          .AddingFilter(Filter("ccc", "==", ""))
+          .AddingOrderBy(OrderBy("fff", "desc"))
+          .AddingOrderBy(OrderBy("bbb"));
 
-  TEST(TargetIndexMatcher, withInAndOrderBySameField) {
-    Query q =
-        query("collId").filter(filter("a", "in", Arrays.asList(1, 2, 3))).orderBy(orderBy("a"));
-    ValidateServesTarget(q, "a", Segment::Kind::kAscending);
-  }
+  model::FieldIndex index{-1,
+                          "collId",
+                          {
+                              Segment{Field("aaa"), Segment::Kind::kAscending},
+                              Segment{Field("qqq"), Segment::Kind::kAscending},
+                              Segment{Field("ccc"), Segment::Kind::kAscending},
+                              Segment{Field("fff"), Segment::Kind::kDescending},
+                          },
+                          FieldIndex::InitialState()};
+  TargetIndexMatcher matcher(q.ToTarget());
+  EXPECT_TRUE(matcher.ServedByIndex(index));
+}
 
+TEST(TargetIndexMatcher, withEqualsAndNotIn) {
+  auto q = testutil::Query("collId")
+               .AddingFilter(Filter("a", "==", 1))
+               .AddingFilter(Filter("b", "not-in", Array(1, 2, 3)));
+  ValidateServesTarget(q, "a", Segment::Kind::kAscending, "b",
+                       Segment::Kind::kAscending);
+}
+
+TEST(TargetIndexMatcher, withInAndOrderBy) {
+  auto q = testutil::Query("collId")
+               .AddingFilter(Filter("a", "not-in", Array(1, 2, 3)))
+               .AddingOrderBy(OrderBy("a"))
+               .AddingOrderBy(OrderBy("b"));
+  ValidateServesTarget(q, "a", Segment::Kind::kAscending, "b",
+                       Segment::Kind::kAscending);
+}
+
+TEST(TargetIndexMatcher, withInAndOrderBySameField) {
+  auto q = testutil::Query("collId")
+               .AddingFilter(Filter("a", "in", Array(1, 2, 3)))
+               .AddingOrderBy(OrderBy("a"));
+  ValidateServesTarget(q, "a", Segment::Kind::kAscending);
+}
 
 }  //  namespace
 }  //  namespace model

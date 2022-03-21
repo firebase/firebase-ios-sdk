@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/model/target_index_matcher_test.h"
+#include "Firestore/core/src/model/target_index_matcher.h"
 
 #include "Firestore/core/src/util/hard_assert.h"
 
@@ -120,7 +120,7 @@ bool TargetIndexMatcher::MatchesFilter(
   if (!filter.has_value()) {
     return false;
   }
-  return MatchesFilter(filter, segment);
+  return MatchesFilter(filter.value(), segment);
 }
 
 bool TargetIndexMatcher::MatchesFilter(const FieldFilter& filter,
