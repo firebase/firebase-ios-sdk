@@ -2,16 +2,16 @@ Pod::Spec.new do |s|
     s.name             = 'FirebaseCoreExtension'
     s.version          = '8.12.0'
     s.summary          = 'Extended FirebaseCore APIs for Firebase product SDKs'
-  
+
     s.description      = <<-DESC
     Not for public use.
     Common FirebaseCore APIs for use in Firebase product SDKs.
                          DESC
-  
+
     s.homepage         = 'https://firebase.google.com'
     s.license          = { :type => 'Apache', :file => 'LICENSE' }
     s.authors          = 'Google, Inc.'
-  
+
     s.source           = {
       :git => 'https://github.com/firebase/firebase-ios-sdk.git',
       :tag => 'CocoaPods-' + s.version.to_s
