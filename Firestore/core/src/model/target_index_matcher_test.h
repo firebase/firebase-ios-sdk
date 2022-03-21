@@ -80,10 +80,13 @@ class TargetIndexMatcher {
  private:
   bool HasMatchingEqualityFilter(const model::Segment& segment);
 
-  bool MatchesFilter(const core::FieldFilter& filter, const model::Segment& segment);
-  bool MatchesFilter(const absl::optional<core::FieldFilter>& filter, const model::Segment& segment);
+  bool MatchesFilter(const core::FieldFilter& filter,
+                     const model::Segment& segment);
+  bool MatchesFilter(const absl::optional<core::FieldFilter>& filter,
+                     const model::Segment& segment);
 
-  bool MatchesOrderBy(const core::OrderBy& order_by, const model::Segment& segment);
+  bool MatchesOrderBy(const core::OrderBy& order_by,
+                      const model::Segment& segment);
 
   // The collection ID (or collection group) of the query target.
   std::string collection_id_;

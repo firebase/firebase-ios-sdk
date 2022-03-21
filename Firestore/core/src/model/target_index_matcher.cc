@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/model/target_index_matcher.h"
+#include "Firestore/core/src/model/target_index_matcher_test.h"
 
 #include "Firestore/core/src/util/hard_assert.h"
 
@@ -98,7 +98,7 @@ bool TargetIndexMatcher::ServedByIndex(const model::FieldIndex& index) {
   // All remaining segments need to represent the prefix of the target's
   // OrderBy.
   for (; segment_index < segments.size(); ++segment_index) {
-    if (order_by_iter != order_bys_.end() ||
+    if (order_by_iter == order_bys_.end() ||
         !MatchesOrderBy(*(order_by_iter++), segments[segment_index])) {
       return false;
     }
@@ -108,37 +108,41 @@ bool TargetIndexMatcher::ServedByIndex(const model::FieldIndex& index) {
 }
 bool TargetIndexMatcher::HasMatchingEqualityFilter(const Segment& segment) {
   for (const auto& filter : equality_filters_) {
-      if (MatchesFilter(filter, segment)) {
-        return true;
-      }
+    if (MatchesFilter(filter, segment)) {
+      return true;
     }
-    return false;
+  }
+  return false;
 }
 
 bool TargetIndexMatcher::MatchesFilter(
     const absl::optional<core::FieldFilter>& filter, const Segment& segment) {
-  if (!filter.has_value() || filter.value().field() != segment.field_path()) {
-      return false;
-    }
-    return MatchesFilter(filter, segment);
+  if (!filter.has_value()) {
+    return false;
+  }
+  return MatchesFilter(filter, segment);
 }
 
-bool TargetIndexMatcher::MatchesFilter(const FieldFilter& filter, const Segment& segment) {
-    bool is_array_op =
-        filter.op() == FieldFilter::Operator::ArrayContains
-            || filter.op() == FieldFilter::Operator::ArrayContainsAny;
-    return (segment.kind() == Segment::kContains) == is_array_op;
+bool TargetIndexMatcher::MatchesFilter(const FieldFilter& filter,
+                                       const Segment& segment) {
+  if (filter.field() != segment.field_path()) {
+    return false;
+  }
+
+  bool is_array_op = filter.op() == FieldFilter::Operator::ArrayContains ||
+                     filter.op() == FieldFilter::Operator::ArrayContainsAny;
+  return (segment.kind() == Segment::kContains) == is_array_op;
 }
 
 bool TargetIndexMatcher::MatchesOrderBy(const OrderBy& order_by,
                                         const Segment& segment) {
-  if (order_by.field()!=segment.field_path()) {
-      return false;
-    }
-    return (segment.kind() == Segment::kAscending
-            && order_by.direction() == core::Direction::Ascending)
-        || (segment.kind() == Segment::kDescending
-            && order_by.direction() == core::Direction::Descending);
+  if (order_by.field() != segment.field_path()) {
+    return false;
+  }
+  return (segment.kind() == Segment::kAscending &&
+          order_by.direction() == core::Direction::Ascending) ||
+         (segment.kind() == Segment::kDescending &&
+          order_by.direction() == core::Direction::Descending);
 }
 
 }  // namespace model
