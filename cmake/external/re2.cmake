@@ -1,4 +1,4 @@
-# Copyright 2018 Google LLC
+# Copyright 2021 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,27 +14,26 @@
 
 include(ExternalProject)
 
-if(TARGET protobuf)
-  return()
+if(TARGET RE2)
+    return()
 endif()
 
 # Based on https://github.com/grpc/grpc/blob/v1.44.0/bazel/grpc_deps.bzl
-set(commit cb46755e6405e083b45481f5ea4754b180705529)
+set(commit 8e08f47b11b413302749c0d8b17a1c94777495d5)
 
 ExternalProject_Add(
-  protobuf
+  re2
 
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
-  DOWNLOAD_NAME protobuf-${commit}.tar.gz
-  URL https://github.com/protocolbuffers/protobuf/archive/${commit}.tar.gz
-  URL_HASH SHA256=1f11c0cb85d5006da7032ac588f87e2e3eb28e9b095f81aba8956cb3635c8d4e
+  DOWNLOAD_NAME re2-${commit}.tar.gz
+  URL https://github.com/google/re2/archive/${commit}.tar.gz
+  URL_HASH SHA256=319a58a58d8af295db97dfeecc4e250179c5966beaa2d842a82f0a013b6a239b
 
   PREFIX ${PROJECT_BINARY_DIR}
-  SOURCE_DIR ${PROJECT_BINARY_DIR}/src/protobuf
+  SOURCE_DIR ${PROJECT_BINARY_DIR}/src/re2
 
   CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
-  INSTALL_COMMAND ""
-  TEST_COMMAND ""
-  HTTP_HEADER "${EXTERNAL_PROJECT_HTTP_HEADER}"
+  BUILD_COMMAND     ""
+  INSTALL_COMMAND   ""
+  TEST_COMMAND      ""
 )
