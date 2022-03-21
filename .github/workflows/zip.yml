@@ -245,6 +245,7 @@ jobs:
               cp quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Firebase/upload-symbols quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart
               chmod +x quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/run
               chmod +x quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/upload-symbols
+    # TODO(#8057): Restore Swift Quickstart
     # - name: Setup swift quickstart
     #   env:
     #     LEGACY: true

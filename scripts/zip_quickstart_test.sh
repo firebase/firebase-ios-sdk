@@ -39,4 +39,4 @@ build \
 test \
 ) || EXIT_STATUS=$?
 
-  exit $EXIT_STATUS
+exit $EXIT_STATUS
