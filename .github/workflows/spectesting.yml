@@ -41,28 +41,29 @@ jobs:
         echo "::set-output name=matrix::{\"include\":$( cat output.json )}"
         # `podspecs` is to help determine if specs_testing job should be run.
         echo "::set-output name=podspecs::$(cat output.json)"
-  specs_testing:
-    needs: specs_checking
-    if: ${{ needs.specs_checking.outputs.podspecs != '[]' }}
-    runs-on: macos-11
-    strategy:
-      fail-fast: false
-      matrix: ${{fromJson(needs.specs_checking.outputs.matrix)}}
-    env:
-      PODSPEC: ${{ matrix.podspec }}
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-    - name: Init podspecs and source
-      run: |
-        mkdir specTestingLogs
-        cd ReleaseTooling
-        swift run podspecs-tester --git-root "${GITHUB_WORKSPACE}" --podspec ${PODSPEC} --skip-tests --temp-log-dir "${GITHUB_WORKSPACE}/specTestingLogs"
-    - name: Upload Failed Testing Logs
-      if: failure()
-      uses: actions/upload-artifact@v2
-      with:
-        name: specTestingLogs
-        path: specTestingLogs/*.txt
+# TODO(v9): Re-enable once `v9` merges back to `master`.
+#   specs_testing:
+#     needs: specs_checking
+#     if: ${{ needs.specs_checking.outputs.podspecs != '[]' }}
+#     runs-on: macos-11
+#     strategy:
+#       fail-fast: false
+#       matrix: ${{fromJson(needs.specs_checking.outputs.matrix)}}
+#     env:
+#       PODSPEC: ${{ matrix.podspec }}
+#     steps:
+#     - name: Checkout code
+#       uses: actions/checkout@v2
+#       with:
+#         fetch-depth: 0
+#     - name: Init podspecs and source
+#       run: |
+#         mkdir specTestingLogs
+#         cd ReleaseTooling
+#         swift run podspecs-tester --git-root "${GITHUB_WORKSPACE}" --podspec ${PODSPEC} --skip-tests --temp-log-dir "${GITHUB_WORKSPACE}/specTestingLogs"
+#     - name: Upload Failed Testing Logs
+#       if: failure()
+#       uses: actions/upload-artifact@v2
+#       with:
+#         name: specTestingLogs
+#         path: specTestingLogs/*.txt
