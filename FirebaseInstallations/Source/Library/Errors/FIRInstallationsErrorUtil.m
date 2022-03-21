@@ -24,8 +24,7 @@
 #import "FBLPromises.h"
 #endif
 
-NSString *const kFirebaseInstallationsErrorDomain NS_SWIFT_NAME(InstallationsErrorDomain) =
-                                                                    @"com.firebase.installations";
+NSString *const kFirebaseInstallationsErrorDomain = @"com.firebase.installations";
 
 void FIRInstallationsItemSetErrorToPointer(NSError *error, NSError **pointer) {
   if (pointer != NULL) {
