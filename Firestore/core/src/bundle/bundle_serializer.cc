@@ -632,11 +632,13 @@ FilterList BundleSerializer::DecodeCompositeFilter(JsonReader& reader,
   for (const auto& f : filters) {
     const json& field_filter =
         reader.OptionalObject("fieldFilter", f, default_objects);
-    const json& unary_filter =
-        reader.OptionalObject("unaryFilter", f, default_objects);
-    result = result.push_back(unary_filter.empty()
-                                  ? DecodeFieldFilter(reader, field_filter)
-                                  : DecodeUnaryFilter(reader, unary_filter));
+    if (!field_filter.empty()) {
+      result = result.push_back(DecodeFieldFilter(reader, field_filter));
+    } else {
+      result = result.push_back(DecodeUnaryFilter(
+          reader, reader.OptionalObject("unaryFilter", f, default_objects)));
+    }
+
     if (!reader.ok()) {
       return {};
     }
