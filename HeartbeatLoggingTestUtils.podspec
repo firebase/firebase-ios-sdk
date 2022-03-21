@@ -31,7 +31,7 @@ Pod::Spec.new do |s|
   s.source_files = [
     'HeartbeatLoggingTestUtils/Sources/**/*.swift',
   ]
-  
+
   s.framework = 'XCTest'
 
   s.dependency 'FirebaseCoreInternal', '~> 8.11'
