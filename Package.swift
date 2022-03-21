@@ -238,7 +238,9 @@ let package = Package(
         .headerSearchPath("../../.."),
       ]
     ),
+
     // MARK: - Firebase Core Extension
+
     // Extension of FirebaseCore for consuming by Swift product SDKs.
     .target(
       name: "FirebaseCoreExtension",
@@ -248,8 +250,9 @@ let package = Package(
         .headerSearchPath("../../"),
       ]
     ),
-    
+
     // MARK: - Firebase Core Internal
+
     // Shared collection of APIs for internal FirebaseCore usage.
     .target(
       name: "FirebaseCoreInternal",
