@@ -1,3 +1,7 @@
+# Firebase 9.0.0
+- [changed] Firebase now requires at least Xcode 13.2.1.
+- [added] The zip and Carthage distibutions now include the Swift extension frameworks. (#7819)
+
 # Firebase 8.10.0
 - [fixed] Fixed platform availability checks in Swift Package Manager that may prevent code
   completion for Analytics APIs on macOS and tvOS. (#9032)
