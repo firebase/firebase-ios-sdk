@@ -279,8 +279,10 @@ model::DocumentComparator Query::Comparator() const {
       break;
     }
   }
-  HARD_ASSERT(has_key_ordering,
-              "QueryComparator needs to have a key ordering.");
+
+  if (!has_key_ordering) {
+    HARD_FAIL("QueryComparator needs to have a key ordering: %s", ToString());
+  }
 
   return DocumentComparator(
       [ordering](const Document& doc1, const Document& doc2) {
