@@ -56,7 +56,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup Catalyst project and run unit tests
-      run: scripts/test_catalyst.sh FirebaseCoreInternal test FirebaseCoreInternal-Unit-unit
+      run: scripts/test_catalyst.sh FirebaseCoreInternal test FirebaseCoreInternal-Unit-Unit
     - name: Setup Catalyst project and run integration tests
       run: scripts/test_catalyst.sh FirebaseCoreInternal test FirebaseCoreInternal-Unit-Integration
 
