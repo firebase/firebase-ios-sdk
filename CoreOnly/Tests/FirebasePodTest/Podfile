@@ -33,6 +33,7 @@ target 'FirebasePodTest' do
 
   # Get dependent pods from the repo also
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
+  pod 'FirebaseSharedSwift', :path => '../../../'
 
   pod 'FirebaseAnalytics' # Analytics is not open source
 end

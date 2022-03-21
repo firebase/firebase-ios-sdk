@@ -115,6 +115,7 @@ if is_platform(:ios)
     target 'Firestore_IntegrationTests_iOS' do
       inherit! :search_paths
 
+      pod 'FirebaseSharedSwift', :path => '../../'
       pod 'FirebaseFirestoreSwift', :path => '../../'
       pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
@@ -151,6 +152,7 @@ if is_platform(:osx)
     target 'Firestore_IntegrationTests_macOS' do
       inherit! :search_paths
 
+      pod 'FirebaseSharedSwift', :path => '../../'
       pod 'FirebaseFirestoreSwift', :path => '../../'
       pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
