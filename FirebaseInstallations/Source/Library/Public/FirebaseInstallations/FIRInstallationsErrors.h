@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSString *const kFirebaseInstallationsErrorDomain;
+extern NSString *const kFirebaseInstallationsErrorDomain NS_SWIFT_NAME(InstallationsErrorDomain);
 
 typedef NS_ENUM(NSUInteger, FIRInstallationsErrorCode) {
   /** Unknown error. See `userInfo` for details. */
