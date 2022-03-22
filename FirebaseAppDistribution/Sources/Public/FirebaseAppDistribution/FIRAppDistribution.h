@@ -72,13 +72,13 @@ FOUNDATION_EXPORT NSString *const FIRAppDistributionErrorDomain
 
 /// The key for finding error details in the `NSError`'s `userInfo`.
 FOUNDATION_EXPORT NSString *const FIRAppDistributionErrorDetailsKey
-    NS_SWIFT_NAME(FunctionsErrorDetailsKey);
+    NS_SWIFT_NAME(AppDistributionErrorDetailsKey);
 // clang-format on
 
 /**
  * Error codes representing sign in or version check failure reasons.
  */
-typedef NS_ENUM(NSUInteger, FIRAppDistributionError) {
+typedef NS_ERROR_ENUM(FIRAppDistributionErrorDomain, FIRAppDistributionError) {
   /// Returned when an unknown error occurred.
   FIRAppDistributionErrorUnknown = 0,
 
