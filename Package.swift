@@ -149,7 +149,7 @@ let package = Package(
       url: "https://github.com/google/GoogleAppMeasurement.git",
       // Note that CI changes the version to the head of main for CI.
       // See scripts/setup_spm_tests.sh.
-      .branch("main")
+      .exact("8.12.0")
     ),
     .package(
       name: "GoogleDataTransport",
