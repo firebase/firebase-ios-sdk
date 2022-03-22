@@ -22,7 +22,7 @@
 #import <UIKit/UIKit.h>
 
 #ifdef FIRDynamicLinks3P
-#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseDynamicLinks/Sources/FIRDLScionLogging.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 #else

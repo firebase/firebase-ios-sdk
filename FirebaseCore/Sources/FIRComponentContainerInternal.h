@@ -15,8 +15,8 @@
  */
 #import <Foundation/Foundation.h>
 
-#import "FirebaseCore/Internal/FIRComponentContainer.h"
-#import "FirebaseCore/Internal/FIRLibrary.h"
+#import "FirebaseCore/Extension/FIRComponentContainer.h"
+#import "FirebaseCore/Extension/FIRLibrary.h"
 
 @class FIRApp;
 

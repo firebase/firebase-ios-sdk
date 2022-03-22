@@ -17,7 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #import "FirebaseAuth/Interop/FIRAuthInterop.h"
-#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "FirebaseDatabase/Sources/Api/FIRDatabaseComponent.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"

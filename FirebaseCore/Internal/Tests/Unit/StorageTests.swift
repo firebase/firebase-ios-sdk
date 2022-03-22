@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import XCTest
-@testable import HeartbeatLogging
+@testable import FirebaseCoreInternal
 
 private enum Constants {
   static let testData = "test_data".data(using: .utf8)!

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import "FirebaseCore/Internal/FIRLogger.h"
+#import "FirebaseCore/Extension/FIRLogger.h"
 
 #define ABT_MSEC_PER_SEC 1000ull
 

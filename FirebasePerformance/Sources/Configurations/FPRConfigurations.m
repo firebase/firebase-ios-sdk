@@ -21,7 +21,7 @@
 #import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags+Private.h"
 #import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags.h"
 
-#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 FPRConfigName kFPRConfigDataCollectionEnabled = @"dataCollectionEnabled";
 

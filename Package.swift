@@ -208,7 +208,7 @@ let package = Package(
       dependencies: [
         "Firebase",
         "FirebaseCoreDiagnostics",
-        "HeartbeatLogging",
+        "FirebaseCoreInternal",
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULLogger", package: "GoogleUtilities"),
       ],
@@ -238,37 +238,41 @@ let package = Package(
         .headerSearchPath("../../.."),
       ]
     ),
-    // Internal headers only for consuming from Swift.
+
+    // MARK: - Firebase Core Extension
+
+    // Extension of FirebaseCore for consuming by Swift product SDKs.
     .target(
-      name: "FirebaseCoreInternal",
-      path: "FirebaseCore/Internal",
+      name: "FirebaseCoreExtension",
+      path: "FirebaseCore/Extension",
       publicHeadersPath: ".",
       cSettings: [
         .headerSearchPath("../../"),
       ]
     ),
 
-    // MARK: - Heartbeat Logging
+    // MARK: - Firebase Core Internal
 
+    // Shared collection of APIs for internal FirebaseCore usage.
     .target(
-      name: "HeartbeatLogging",
+      name: "FirebaseCoreInternal",
       dependencies: [
         .product(name: "GULNSData", package: "GoogleUtilities"),
       ],
-      path: "HeartbeatLogging/Sources/"
+      path: "FirebaseCore/Internal/Sources"
     ),
     .target(
       name: "HeartbeatLoggingTestUtils",
-      dependencies: ["HeartbeatLogging"],
-      path: "HeartbeatLoggingTestUtils/Sources/"
+      dependencies: ["FirebaseCoreInternal"],
+      path: "HeartbeatLoggingTestUtils/Sources"
     ),
     .testTarget(
-      name: "HeartbeatLoggingTests",
+      name: "FirebaseCoreInternalTests",
       dependencies: [
-        "HeartbeatLogging",
+        "FirebaseCoreInternal",
         "HeartbeatLoggingTestUtils",
       ],
-      path: "HeartbeatLogging/Tests/"
+      path: "FirebaseCore/Internal/Tests"
     ),
 
     .target(
@@ -727,7 +731,7 @@ let package = Package(
         "FirebaseAppCheckInterop",
         "FirebaseAuthInterop",
         "FirebaseCore",
-        "FirebaseCoreInternal",
+        "FirebaseCoreExtension",
         "FirebaseMessagingInterop",
         "FirebaseSharedSwift",
         .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),

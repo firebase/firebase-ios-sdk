@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import XCTest
-@testable import HeartbeatLogging
+@testable import FirebaseCoreInternal
 import HeartbeatLoggingTestUtils
 
 class HeartbeatControllerTests: XCTestCase {
@@ -405,17 +405,4 @@ private class HeartbeatStorageFake: HeartbeatStorageProtocol {
     heartbeatsBundle = transform(heartbeatsBundle)
     return oldHeartbeatsBundle
   }
-}
-
-// MARK: - Assertions
-
-func assertHeartbeatControllerFlushesEmptyPayload(_ controller: HeartbeatController) {
-  XCTAssertEqual(
-    controller.flushHeartbeatFromToday().headerValue(),
-    HeartbeatsPayload.emptyPayload.headerValue()
-  )
-  XCTAssertEqual(
-    controller.flush().headerValue(),
-    HeartbeatsPayload.emptyPayload.headerValue()
-  )
 }

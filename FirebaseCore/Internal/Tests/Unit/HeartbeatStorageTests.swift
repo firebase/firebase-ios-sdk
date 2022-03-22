@@ -13,8 +13,7 @@
 // limitations under the License.
 
 import XCTest
-@testable import HeartbeatLogging
-
+@testable import FirebaseCoreInternal
 class HeartbeatStorageTests: XCTestCase {
   // MARK: - Instance Management
 

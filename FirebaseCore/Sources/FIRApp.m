@@ -30,11 +30,11 @@
 #import "FirebaseCore/Sources/FIRConfigurationInternal.h"
 #import "FirebaseCore/Sources/FIRFirebaseUserAgent.h"
 
-#import "FirebaseCore/Internal/FIRAppInternal.h"
-#import "FirebaseCore/Internal/FIRCoreDiagnosticsConnector.h"
-#import "FirebaseCore/Internal/FIRLibrary.h"
-#import "FirebaseCore/Internal/FIRLogger.h"
-#import "FirebaseCore/Internal/FIROptionsInternal.h"
+#import "FirebaseCore/Extension/FIRAppInternal.h"
+#import "FirebaseCore/Extension/FIRCoreDiagnosticsConnector.h"
+#import "FirebaseCore/Extension/FIRLibrary.h"
+#import "FirebaseCore/Extension/FIRLogger.h"
+#import "FirebaseCore/Extension/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
