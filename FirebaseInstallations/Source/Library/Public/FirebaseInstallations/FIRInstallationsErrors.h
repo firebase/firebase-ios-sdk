@@ -18,7 +18,7 @@
 
 extern NSString *const kFirebaseInstallationsErrorDomain NS_SWIFT_NAME(InstallationsErrorDomain);
 
-typedef NS_ENUM(NSUInteger, FIRInstallationsErrorCode) {
+typedef NS_ERROR_ENUM(kFirebaseInstallationsErrorDomain, FIRInstallationsErrorCode) {
   /** Unknown error. See `userInfo` for details. */
   FIRInstallationsErrorCodeUnknown = 0,
 
