@@ -13,7 +13,7 @@ env:
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-    cancel-in-progress: true 
+    cancel-in-progress: true
 
 jobs:
   # Check all the modified SDKs, the flags will be true if changed files match patterns in the file
