@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 typedef void (^FIRMessagingFCMTokenFetchCompletion)(NSString *_Nullable FCMToken,
                                                     NSError *_Nullable error)
-    NS_SWIFT_NAME(MessagingFCMTokenFetchCompletion);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /**
  *  @related FIRMessaging
@@ -44,7 +44,7 @@ typedef void (^FIRMessagingFCMTokenFetchCompletion)(NSString *_Nullable FCMToken
  *               will match a value from the FIRMessagingError enumeration.
  */
 typedef void (^FIRMessagingDeleteFCMTokenCompletion)(NSError *_Nullable error)
-    NS_SWIFT_NAME(MessagingDeleteFCMTokenCompletion);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /**
  *  Callback to invoke once the HTTP call to FIRMessaging backend for updating
@@ -54,7 +54,8 @@ typedef void (^FIRMessagingDeleteFCMTokenCompletion)(NSError *_Nullable error)
  *                on the FIRMessaging server. This will be nil in case the operation
  *                was successful, or if the operation was cancelled.
  */
-typedef void (^FIRMessagingTopicOperationCompletion)(NSError *_Nullable error);
+typedef void (^FIRMessagingTopicOperationCompletion)(NSError *_Nullable error)
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /**
  *  Notification sent when the FCM registration token has been refreshed. Please use the

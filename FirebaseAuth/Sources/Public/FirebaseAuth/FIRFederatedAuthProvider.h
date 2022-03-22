@@ -35,7 +35,7 @@ NS_SWIFT_NAME(FederatedAuthProvider)
  */
 typedef void (^FIRAuthCredentialCallback)(FIRAuthCredential *_Nullable credential,
                                           NSError *_Nullable error)
-    NS_SWIFT_NAME(AuthCredentialCallback);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /** @fn getCredentialWithUIDelegate:completion:
     @brief Used to obtain an auth credential via a mobile web flow.
