@@ -253,21 +253,41 @@ func readDocument(at docRef: DocumentReference) {
       if let foo = document["foo"] {
         print("Field: \(foo)")
       }
-    } else {
-      // TODO(mikelehen): There may be a better way to do this, but it at least demonstrates
-      // the swift error domain / enum codes are renamed appropriately.
-      if let errorCode = error.flatMap({
-        ($0._domain == FirestoreErrorDomain) ? FirestoreErrorCode(rawValue: $0._code) : nil
-      }) {
+    } else if let error = error {
+      // New way to handle errors.
+      switch error {
+      case FirestoreErrorCode.unavailable:
+        print("Can't read document due to being offline!")
+      default:
+        print("Failed to read.")
+      }
+
+      // Old way to handle errors.
+      let nsError = error as NSError
+      guard nsError.domain == FirestoreErrorDomain else {
+        print("Unknown error!")
+        return
+      }
+
+      // Option 1: try to initialize the error code enum.
+      if let errorCode = FirestoreErrorCode.Code(rawValue: nsError.code) {
         switch errorCode {
         case .unavailable:
           print("Can't read document due to being offline!")
-        case _:
+        default:
           print("Failed to read.")
         }
-      } else {
-        print("Unknown error!")
       }
+
+      // Option 2: switch on the code and compare agianst raw values.
+      switch nsError.code {
+      case FirestoreErrorCode.unavailable.rawValue:
+        print("Can't read document due to being offline!")
+      default:
+        print("Failed to read.")
+      }
+    } else {
+      print("No error or document. Thanks, ObjC.")
     }
   }
 }

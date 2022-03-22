@@ -22,9 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
 FOUNDATION_EXPORT NSString *const FIRFirestoreErrorDomain NS_SWIFT_NAME(FirestoreErrorDomain);
 
 /** Error codes used by Cloud Firestore. */
-typedef NS_ENUM(NSInteger, FIRFirestoreErrorCode) {
+typedef NS_ERROR_ENUM(FIRFirestoreErrorDomain, FIRFirestoreErrorCode) {
   /**
-   * The operation completed successfully. NSError objects will never have a code with this value.
+   * The operation completed successfully. NSError wobjects will never have a code with this value.
    */
   FIRFirestoreErrorCodeOK = 0,
 
