@@ -55,8 +55,8 @@ func apis() {
   }
 
   // Use random to eliminate the warning that we're evaluating to a constant.
-  let messagingError: MessagingError = Bool.random() ? .unknown : .authentication
-  switch messagingError {
+  let messagingError: MessagingError = Bool.random() ? MessagingError(.unknown) : MessagingError(.authentication)
+  switch messagingError.code {
   case .unknown: ()
   case .authentication: ()
   case .noAccess: ()
@@ -92,6 +92,18 @@ func apis() {
   let topic = "cat_video"
   messaging.subscribe(toTopic: topic)
   messaging.unsubscribe(fromTopic: topic)
+  messaging.unsubscribe(fromTopic: topic, completion: { error in
+    if let error = error {
+      switch error {
+      // Handle errors in the new format.
+      case MessagingError.timeout:
+        ()
+      default:
+        ()
+      }
+    }
+  })
+
   messaging.unsubscribe(fromTopic: topic) { _ in
   }
 
@@ -128,5 +140,12 @@ func apiAsync() async throws {
     try await messaging.deleteFCMToken(forSenderID: "fakeSenderID")
 
     try await messaging.deleteData()
+
+    // Test new handling of errors
+    do {
+      try await messaging.unsubscribe(fromTopic: topic)
+    } catch MessagingError.timeout {
+    } catch {
+    }
   #endif
 }

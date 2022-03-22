@@ -69,9 +69,13 @@ FOUNDATION_EXPORT const NSNotificationName FIRMessagingRegistrationTokenRefreshe
 // clang-format on
 
 /**
+ * The domain used for all errors in Messaging.
+ */
+FOUNDATION_EXPORT NSString *const FIRMessagingErrorDomain NS_SWIFT_NAME(MessagingErrorDomain);
+/**
  *  @enum FIRMessagingError
  */
-typedef NS_ENUM(NSUInteger, FIRMessagingError) {
+typedef NS_ERROR_ENUM(FIRMessagingErrorDomain, FIRMessagingError) {
   /// Unknown error.
   FIRMessagingErrorUnknown = 0,
 
