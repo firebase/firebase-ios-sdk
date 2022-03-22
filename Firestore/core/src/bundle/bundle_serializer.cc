@@ -624,8 +624,9 @@ FilterList BundleSerializer::DecodeCompositeFilter(JsonReader& reader,
     return {};
   }
 
-  std::vector<json> default_filters;
-  auto filters = reader.OptionalArray("filters", filter, default_filters);
+  const std::vector<json> default_filters;
+  const auto& filters =
+      reader.OptionalArray("filters", filter, default_filters);
 
   const json default_objects;
   FilterList result;

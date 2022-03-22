@@ -841,6 +841,14 @@ TEST_F(BundleSerializerTest, DecodeInvalidFieldFilterOperatorFails) {
   }
 }
 
+TEST_F(BundleSerializerTest, DecodesCompositeFilter) {
+  core::Query original = testutil::Query("colls")
+                             .AddingFilter(Filter("f1", "==", nullptr))
+                             .AddingFilter(Filter("f2", "==", true))
+                             .AddingFilter(Filter("f3", "==", 50.3));
+  VerifyNamedQueryRoundtrip(original);
+}
+
 TEST_F(BundleSerializerTest, DecodesCompositeNotNullFilter) {
   core::Query original =
       testutil::Query("colls")
