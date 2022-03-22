@@ -31,7 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 */
 typedef void (^FIRMultiFactorSessionCallback)(FIRMultiFactorSession *_Nullable session,
                                               NSError *_Nullable error)
-    NS_SWIFT_NAME(MultiFactorSessionCallback) API_UNAVAILABLE(macos, tvos, watchos);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.")
+        API_UNAVAILABLE(macos, tvos, watchos);
 
 /**
    @brief The string identifier for second factors. e.g. "phone".
