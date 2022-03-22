@@ -18,7 +18,7 @@
 
 #import <FirebaseAuth/FirebaseAuth.h>
 
-#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "FirebaseStorage/Tests/Integration/Credentials.h"
 

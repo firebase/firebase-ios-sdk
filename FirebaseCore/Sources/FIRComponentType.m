@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseCore/Internal/FIRComponentType.h"
+#import "FirebaseCore/Extension/FIRComponentType.h"
 
 #import "FirebaseCore/Sources/FIRComponentContainerInternal.h"
 

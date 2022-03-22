@@ -16,7 +16,7 @@
 #import <GoogleUtilities/GULHeartbeatDateStorage.h>
 #import <GoogleUtilities/GULHeartbeatDateStorageUserDefaults.h>
 #import <XCTest/XCTest.h>
-#import "FirebaseCore/Internal/FIRHeartbeatInfo.h"
+#import "FirebaseCore/Extension/FIRHeartbeatInfo.h"
 
 /// Taken from the implementation of `FIRHeartbeatInfo.m`.
 NSString *const kFIRCoreSuiteName = @"com.firebase.core";

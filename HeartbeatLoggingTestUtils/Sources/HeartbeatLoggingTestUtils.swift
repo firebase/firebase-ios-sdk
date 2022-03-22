@@ -14,12 +14,7 @@
 
 import Foundation
 import XCTest
-
-#if SWIFT_PACKAGE
-  import HeartbeatLogging
-#else
-  import FirebaseCore
-#endif
+import FirebaseCoreInternal
 
 @objc(FIRHeartbeatLoggingTestUtils)
 @objcMembers

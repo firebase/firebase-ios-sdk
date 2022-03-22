@@ -19,7 +19,7 @@
 
 #import <UIKit/UIKit.h>
 
-#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutLogStorage.h"
 #import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
