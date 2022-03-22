@@ -12,6 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseCore/Tests/SwiftUnit/SwiftTestingUtilities/ExceptionCatcher.h"
 #import "SharedTestUtilities/FIROptionsMock.h"

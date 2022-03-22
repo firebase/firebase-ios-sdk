@@ -16,10 +16,10 @@
 #import "FirebaseCore/Tests/Unit/FIRTestComponents.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#import "FirebaseCore/Internal/FIRAppInternal.h"
-#import "FirebaseCore/Internal/FIRComponentType.h"
-#import "FirebaseCore/Internal/FIRCoreDiagnosticsConnector.h"
-#import "FirebaseCore/Internal/FIROptionsInternal.h"
+#import "FirebaseCore/Extension/FIRAppInternal.h"
+#import "FirebaseCore/Extension/FIRComponentType.h"
+#import "FirebaseCore/Extension/FIRCoreDiagnosticsConnector.h"
+#import "FirebaseCore/Extension/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
 #import "SharedTestUtilities/FIROptionsMock.h"
 

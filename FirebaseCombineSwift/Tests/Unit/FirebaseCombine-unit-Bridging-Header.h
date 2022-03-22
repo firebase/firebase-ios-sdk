@@ -19,7 +19,7 @@
 #import "FirebaseStorage/Sources/FIRStorageComponent.h"
 
 // Firebase Core
-#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 // Firebase Auth
 #import <FirebaseAuth/FIRAuth.h>

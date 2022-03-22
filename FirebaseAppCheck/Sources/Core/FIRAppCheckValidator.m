@@ -16,7 +16,7 @@
 
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckValidator.h"
 
-#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 @implementation FIRAppCheckValidator
 

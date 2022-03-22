@@ -14,7 +14,7 @@
 
 #import "FirebaseStorage/Tests/Unit/FIRStorageTestHelpers.h"
 
-#import "FirebaseCore/Internal/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "SharedTestUtilities/AppCheckFake/FIRAppCheckFake.h"
 #import "SharedTestUtilities/AppCheckFake/FIRAppCheckTokenResultFake.h"
