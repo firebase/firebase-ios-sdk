@@ -16,7 +16,6 @@ concurrency:
     cancel-in-progress: ${{ !contains(github.event.head_commit.message, 'keep ci') }}
 
 jobs:
-
   pod-lib-lint:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
