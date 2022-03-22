@@ -1,6 +1,8 @@
 # Unreleased
 - [changed] Add more details to the assertion failure in Query::Comparator() to
   help with future debugging (#9258).
+- [fixed] Fixed an issue where returning `nil` from the update closure when
+  running a transaction caused a crash in Swift (#9426).
 
 # v8.14.0
 - [fixed] Fixed compiler warnings in `local_serializer.cc` about "implicit
