@@ -13,8 +13,6 @@
 // limitations under the License.
 
 import XCTest
-
-import XCTest
 @testable import FirebaseCoreInternal
 import HeartbeatLoggingTestUtils
 
