@@ -38,7 +38,7 @@ extern NSString *const _Nonnull FIRGameCenterAuthSignInMethod NS_SWIFT_NAME(
  */
 typedef void (^FIRGameCenterCredentialCallback)(FIRAuthCredential *_Nullable credential,
                                                 NSError *_Nullable error)
-    NS_SWIFT_NAME(GameCenterCredentialCallback);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /** @class FIRGameCenterAuthProvider
     @brief A concrete implementation of @c FIRAuthProvider for Game Center Sign In. Not available on
