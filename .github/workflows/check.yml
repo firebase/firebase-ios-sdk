@@ -7,6 +7,10 @@ on:
   push:
     branches: master
 
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: true
+
 jobs:
   check:
     runs-on: macos-11

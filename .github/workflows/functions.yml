@@ -17,6 +17,10 @@ on:
     # Run every day at 1am (PST) - cron uses UTC times
     - cron:  '0 9 * * *'
 
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: true
+
 jobs:
 
   pod-lib-lint:

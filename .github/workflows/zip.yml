@@ -20,6 +20,10 @@ on:
         required: true
         default: 'https://github.com/firebase/SpecsStaging.git'
 
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: true
+
 jobs:
   # TODO: Reenable package-release once v9 merges to master.
   # package-release:
