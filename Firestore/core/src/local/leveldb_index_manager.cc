@@ -34,7 +34,9 @@
 #include "Firestore/core/src/model/field_index.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/resource_path.h"
+#include "Firestore/core/src/model/target_index_matcher.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/log.h"
 #include "Firestore/third_party/nlohmann_json/json.hpp"
 #include "absl/strings/match.h"
 
@@ -42,6 +44,8 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
+using core::Filter;
+using core::Target;
 using credentials::User;
 using index::DirectionalIndexByteEncoder;
 using index::IndexEncodingBuffer;
@@ -52,6 +56,7 @@ using model::FieldIndex;
 using model::IndexState;
 using model::ResourcePath;
 using model::SnapshotVersion;
+using model::TargetIndexMatcher;
 using nlohmann::json;
 
 namespace {
@@ -347,19 +352,71 @@ std::vector<model::FieldIndex> LevelDbIndexManager::GetFieldIndexes() {
 }
 
 absl::optional<model::FieldIndex> LevelDbIndexManager::GetFieldIndex(
-    core::Target target) {
-  (void)target;
-  return {};
+    const core::Target& target) {
+  HARD_ASSERT(started_, "IndexManager not started");
+
+  TargetIndexMatcher target_index_matcher(target);
+  std::string collection_group = target.collection_group() != nullptr
+                                     ? (*target.collection_group())
+                                     : target.path().last_segment();
+
+  std::vector<FieldIndex> collection_indexes =
+      GetFieldIndexes(collection_group);
+  if (collection_indexes.empty()) {
+    return absl::nullopt;
+  }
+
+  absl::optional<FieldIndex> result = absl::nullopt;
+  std::vector<FieldIndex> matching_indexes;
+  for (FieldIndex index : collection_indexes) {
+    if (target_index_matcher.ServedByIndex(index)) {
+      if (result.value_or(FieldIndex()).segments().size() <
+          index.segments().size()) {
+        // `index` serves the target, and it has more segments than the current
+        // `result`.
+        result = std::move(index);
+      }
+    }
+  }
+
+  return result;
 }
 
 absl::optional<std::vector<model::DocumentKey>>
 LevelDbIndexManager::GetDocumentsMatchingTarget(const core::Target& target) {
   bool can_serve_target = true;
   std::unordered_map<core::Target, model::FieldIndex> indexes;
-  for(const auto& sub_target: GetSubTargets(target)) {
+  for (const auto& sub_target : GetSubTargets(target)) {
     auto index_opt = GetFieldIndex(sub_target);
     can_serve_target = can_serve_target && index_opt.has_value();
-    indexes.insert(sub_target, index_opt.value());
+    if (!can_serve_target) {
+      return absl::nullopt;
+    }
+
+    indexes.insert({sub_target, index_opt.value()});
+  }
+
+  model::DocumentKeySet result;
+  for (const auto& entry : indexes) {
+    const Target& sub_target = entry.first;
+    const FieldIndex& index = entry.second;
+
+    LOG_DEBUG("Using index %s to execute target %s", index.collection_group(),
+              sub_target.CanonicalId());
+
+    auto arrayValues = sub_target.GetArrayValues(index);
+    auto notInValues = sub_target.GetNotInValues(index);
+    auto lowerBound = sub_target.GetLowerBound(index);
+    auto upperBound = sub_target.GetUpperBound(index);
+
+    auto encoded_lower = EncodeBound(index, sub_target, lowerBound);
+    auto encoded_upper = EncodeBound(index, sub_target, upperBound);
+    auto encoded_not_in = EncodeValues(index, sub_target, notInValues);
+
+    auto index_ranges = GenerateIndexRanges(
+        index.index_id(), arrayValues, encoded_lower,
+        !!lowerBound && lowerBound.inclusive, encoded_upper,
+        !!upperBound && upperBound.inclusive, encoded_not_in);
   }
 }
 
@@ -486,7 +543,8 @@ absl::optional<std::string> LevelDbIndexManager::EncodeDirectionalElements(
 std::string LevelDbIndexManager::EncodeSingleElement(
     const _google_firestore_v1_Value& value) {
   IndexEncodingBuffer index_buffer;
-  index::WriteIndexValue(value, index_buffer.ForKind(model::Segment::kAscending));
+  index::WriteIndexValue(value,
+                         index_buffer.ForKind(model::Segment::kAscending));
   return index_buffer.GetEncodedBytes();
 }
 
@@ -604,6 +662,11 @@ void LevelDbIndexManager::DeleteIndexEntry(const model::Document& document,
     }
     db_->current_transaction()->Delete(iter->key());
   }
+}
+
+// TODO(OrQuery): Implement sub targets properly.
+std::vector<Target> LevelDbIndexManager::GetSubTargets(const Target& target) {
+  return {target};
 }
 
 }  // namespace local

@@ -23,6 +23,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "Firestore/core/src/core/target.h"
 #include "Firestore/core/src/local/index_manager.h"
 #include "Firestore/core/src/local/memory_index_manager.h"
 #include "Firestore/core/src/model/field_index.h"
@@ -67,9 +68,11 @@ class LevelDbIndexManager : public IndexManager {
 
   std::vector<model::FieldIndex> GetFieldIndexes() override;
 
-  absl::optional<model::FieldIndex> GetFieldIndex(core::Target target) override;
+  absl::optional<model::FieldIndex> GetFieldIndex(
+      const core::Target& target) override;
 
-  absl::optional<std::vector<model::DocumentKey>> GetDocumentsMatchingTarget(const core::Target& target) override;
+  absl::optional<std::vector<model::DocumentKey>> GetDocumentsMatchingTarget(
+      const core::Target& target) override;
 
   absl::optional<std::string> GetNextCollectionGroupToUpdate() override;
 
@@ -106,6 +109,12 @@ class LevelDbIndexManager : public IndexManager {
   void DeleteIndexEntry(const model::Document& document,
                         const index::IndexEntry& entry);
 
+  absl::optional<std::string> EncodeDirectionalElements(
+      const model::FieldIndex& index, const model::Document& document);
+  std::string EncodeSingleElement(const _google_firestore_v1_Value& value);
+
+  std::vector<core::Target> GetSubTargets(const core::Target& target);
+
   // The LevelDbIndexManager is owned by LevelDbPersistence.
   LevelDbPersistence* db_;
 
@@ -138,9 +147,6 @@ class LevelDbIndexManager : public IndexManager {
   bool started_ = false;
 
   std::string uid_;
-  absl::optional<std::string> EncodeDirectionalElements(
-      const model::FieldIndex& index, const model::Document& document);
-  std::string EncodeSingleElement(const _google_firestore_v1_Value& value);
 };
 
 }  // namespace local

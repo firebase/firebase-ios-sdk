@@ -99,7 +99,7 @@ class IndexManager {
    * `nullopt` if no index is configured.
    */
   virtual absl::optional<model::FieldIndex> GetFieldIndex(
-      core::Target target) = 0;
+      const core::Target& target) = 0;
 
   /**
    * Returns the documents that match the given target based on the provided

@@ -90,7 +90,7 @@ std::vector<model::FieldIndex> MemoryIndexManager::GetFieldIndexes() {
 }
 
 absl::optional<model::FieldIndex> MemoryIndexManager::GetFieldIndex(
-    core::Target target) {
+    const core::Target& target) {
   (void)target;
   return absl::nullopt;
 }

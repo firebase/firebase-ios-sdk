@@ -67,7 +67,8 @@ class MemoryIndexManager : public IndexManager {
 
   std::vector<model::FieldIndex> GetFieldIndexes() override;
 
-  absl::optional<model::FieldIndex> GetFieldIndex(core::Target target) override;
+  absl::optional<model::FieldIndex> GetFieldIndex(
+      const core::Target& target) override;
 
   absl::optional<std::vector<model::DocumentKey>> GetDocumentsMatchingTarget(
       const core::Target& target) override;
