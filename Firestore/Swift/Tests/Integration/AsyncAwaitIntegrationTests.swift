@@ -43,6 +43,16 @@ let emptyBundle = """
       XCTAssertTrue(snapshot.exists)
     }
 
+    func testRunTransactionDoesNotCrashOnNilSuccess() async throws {
+      let document = collectionRef().document()
+      let value = try await db.runTransaction({ transact, error in
+        transact.setData(["test": "test"], forDocument: document)
+        return nil // should not crash
+      })
+
+      XCTAssertNil(value, "value should be nil on success")
+    }
+
     func testLoadBundleFromData() async throws {
       let bundle = "\(emptyBundle.count)\(emptyBundle)"
       let bundleProgress = try await db.loadBundle(Data(bundle.utf8))
