@@ -12,7 +12,7 @@ env:
 
 
 concurrency:
-    group: ${{ github.workflow }}-${{ github.event.pull_request.head.ref }}
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
     cancel-in-progress: true
 
 jobs:
@@ -20,9 +20,6 @@ jobs:
   # scripts/health_metrics/file_patterns.json
   check:
     if: github.repository == 'Firebase/firebase-ios-sdk' && (github.event.action == 'opened' || github.event.action == 'synchronize')
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.event.pull_request.head.ref }}
-      cancel-in-progress: true
     name: Check changed files
     outputs:
       abtesting_run_job: ${{ steps.check_files.outputs.abtesting_run_job }}
@@ -66,9 +63,6 @@ jobs:
     strategy:
       matrix:
         target: [iOS]
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.event.pull_request.head.ref }}
-      cancel-in-progress: true
     steps:
     - uses: actions/checkout@v2
     - name: Access to Metrics Service
@@ -116,9 +110,6 @@ jobs:
     strategy:
       matrix:
         target: [iOS]
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.event.pull_request.head.ref }}
-      cancel-in-progress: true
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
@@ -141,9 +132,6 @@ jobs:
     strategy:
       matrix:
         target: [iOS]
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.event.pull_request.head.ref }}
-      cancel-in-progress: true
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -163,9 +151,6 @@ jobs:
     strategy:
       matrix:
         target: [iOS]
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.event.pull_request.head.ref }}
-      cancel-in-progress: true
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
@@ -188,9 +173,6 @@ jobs:
     strategy:
       matrix:
         target: [iOS]
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.event.pull_request.head.ref }}
-      cancel-in-progress: true
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
