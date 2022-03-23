@@ -280,8 +280,7 @@ NSString *FIRCLSExceptionRecordOnDemand(FIRCLSExceptionType type,
     return nil;
   }
 
-  // Once the report is copied, remove non-fatal events from current report. TODO: check both files,
-  // more removals?
+  // Once the report is copied, remove non-fatal events from current report.
   if ([fileManager
           fileExistsAtPath:[NSString stringWithUTF8String:_firclsContext.readonly->logging
                                                               .customExceptionStorage.aPath]]) {
