@@ -52,6 +52,15 @@ Query::Query(ResourcePath path, std::string collection_group)
           std::make_shared<const std::string>(std::move(collection_group))) {
 }
 
+Query Query::Copy() const {
+  Query copy(*this);
+  copy.filters_ = immutable::AppendOnlyList<Filter>();
+  for (const Filter& filter : filters_) {
+    copy.filters_ = copy.filters_.push_back(filter);
+  }
+  return copy;
+}
+
 // MARK: - Accessors
 
 bool Query::IsDocumentQuery() const {
@@ -68,9 +77,10 @@ bool Query::MatchesAllDocuments() const {
 }
 
 const FieldPath* Query::InequalityFilterField() const {
-  for (const auto& filter : filters_) {
-    if (filter.IsInequality()) {
-      return &filter.field();
+  for (const Filter& filter : filters_) {
+    const FieldPath* found = filter.GetFirstInequalityField();
+    if (found) {
+      return found;
     }
   }
   return nullptr;
@@ -162,16 +172,15 @@ int32_t Query::limit() const {
 Query Query::AddingFilter(Filter filter) const {
   HARD_ASSERT(!IsDocumentQuery(), "No filter is allowed for document query");
 
-  const FieldPath* new_inequality_field = nullptr;
-  if (filter.IsInequality()) {
-    new_inequality_field = &filter.field();
-  }
+  const FieldPath* new_inequality_field = filter.GetFirstInequalityField();
   const FieldPath* query_inequality_field = InequalityFilterField();
   HARD_ASSERT(!query_inequality_field || !new_inequality_field ||
                   *query_inequality_field == *new_inequality_field,
               "Query must only have one inequality field.");
 
-  // TODO(rsgowman): ensure first orderby must match inequality field
+  HARD_ASSERT(explicit_order_bys_.empty() || !new_inequality_field ||
+                  explicit_order_bys_[0].field() == *new_inequality_field,
+              "First orderBy must match inequality field");
 
   return Query(path_, collection_group_, filters_.push_back(std::move(filter)),
                explicit_order_bys_, limit_, limit_type_, start_at_, end_at_);

@@ -105,8 +105,11 @@ std::string EncodeIndexState(const IndexState& state) {
 
 bool IsInFilter(const Target& target, const model::FieldPath& field_path) {
   for (const auto& filter : target.filters()) {
-    if (filter.IsAFieldFilter() && filter.field() == field_path) {
+    if (filter.IsAFieldFilter()) {
       core::FieldFilter field_filter(filter);
+      if (field_filter.field() != field_path) {
+        continue;
+      }
       if (field_filter.op() == core::FieldFilter::Operator::In ||
           field_filter.op() == core::FieldFilter::Operator::NotIn) {
         return true;

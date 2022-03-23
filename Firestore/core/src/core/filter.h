@@ -20,6 +20,7 @@
 #include <iosfwd>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "Firestore/core/src/model/model_fwd.h"
 
@@ -33,15 +34,19 @@ class AppendOnlyList;
 
 namespace core {
 
+class FieldFilter;
+
 /** Interface used for all query filters. All filters are immutable. */
 class Filter {
  public:
   // For lack of RTTI, all subclasses must identify themselves so that
   // comparisons properly take type into account.
   enum class Type {
+    kFilter,
+    kFieldFilter,
+    kCompositeFilter,
     kArrayContainsAnyFilter,
     kArrayContainsFilter,
-    kFieldFilter,
     kInFilter,
     kNotInFilter,
     kKeyFieldFilter,
@@ -64,13 +69,12 @@ class Filter {
     return rep_->IsAFieldFilter();
   }
 
-  bool IsInequality() const {
-    return rep_->IsInequality();
+  bool IsACompositeFilter() const {
+    return rep_->IsACompositeFilter();
   }
 
-  /** Returns the field the Filter operates over. */
-  const model::FieldPath& field() const {
-    return rep_->field();
+  bool IsInequality() const {
+    return rep_->IsInequality();
   }
 
   /** Returns true if a document matches the filter. */
@@ -88,8 +92,20 @@ class Filter {
     return rep_->ToString();
   }
 
-  size_t Hash() const {
-    return rep_->Hash();
+  /**
+   * Returns the first inequality filter contained within this composite filter.
+   * Returns nullptr if it does not contain any inequalities.
+   */
+  const model::FieldPath* GetFirstInequalityField() const {
+    return rep_->GetFirstInequalityField();
+  }
+
+  bool IsEmpty() const {
+    return rep_->IsEmpty();
+  }
+
+  const std::vector<std::shared_ptr<FieldFilter>> GetFlattenedFilters() const {
+    return rep_->GetFlattenedFilters();
   }
 
   friend bool operator==(const Filter& lhs, const Filter& rhs);
@@ -99,18 +115,21 @@ class Filter {
    public:
     virtual ~Rep() = default;
 
-    virtual Type type() const = 0;
+    virtual Type type() const {
+      return Type::kFilter;
+    }
 
     virtual bool IsAFieldFilter() const {
+      return false;
+    }
+
+    virtual bool IsACompositeFilter() const {
       return false;
     }
 
     virtual bool IsInequality() const {
       return false;
     }
-
-    /** Returns the field the Filter operates over. */
-    virtual const model::FieldPath& field() const = 0;
 
     /** Returns true if a document matches the filter. */
     virtual bool Matches(const model::Document& doc) const = 0;
@@ -120,10 +139,15 @@ class Filter {
 
     virtual bool Equals(const Rep& other) const = 0;
 
-    virtual size_t Hash() const = 0;
-
     /** A debug description of the Filter. */
     virtual std::string ToString() const = 0;
+
+    virtual const model::FieldPath* GetFirstInequalityField() const = 0;
+
+    virtual bool IsEmpty() const = 0;
+
+    virtual const std::vector<std::shared_ptr<FieldFilter>>
+    GetFlattenedFilters() const = 0;
   };
 
   explicit Filter(std::shared_ptr<const Rep> rep) : rep_(rep) {

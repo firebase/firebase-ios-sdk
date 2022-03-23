@@ -79,6 +79,8 @@ class Query {
         end_at_(std::move(end_at)) {
   }
 
+  Query Copy() const;
+
   Query(model::ResourcePath path, std::string collection_group);
 
   // MARK: - Accessors

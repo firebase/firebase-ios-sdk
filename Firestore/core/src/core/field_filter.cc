@@ -17,7 +17,6 @@
 #include "Firestore/core/src/core/field_filter.h"
 
 #include <utility>
-#include <vector>
 
 #include "Firestore/core/src/core/array_contains_any_filter.h"
 #include "Firestore/core/src/core/array_contains_filter.h"
@@ -123,6 +122,19 @@ FieldFilter::FieldFilter(std::shared_ptr<const Filter::Rep> rep)
     : Filter(std::move(rep)) {
 }
 
+// std::vector<FieldFilter> FieldFilter::GetFilters() const {
+//  This is the only filter within this object, so we return a list of size one.
+// return std::vector<FieldFilter>{FieldFilter(*this)};
+//}
+
+const std::vector<std::shared_ptr<FieldFilter>>
+FieldFilter::Rep::GetFlattenedFilters() const {
+  // This is already a field filter, so we return a list of size one.
+  return std::vector<std::shared_ptr<FieldFilter>>{
+      std::make_shared<FieldFilter>(
+          FieldFilter(std::make_shared<const Rep>(*this)))};
+}
+
 FieldFilter::Rep::Rep(FieldPath field,
                       Operator op,
                       SharedMessage<google_firestore_v1_Value> value_rhs)
@@ -183,16 +195,19 @@ std::string FieldFilter::Rep::ToString() const {
                             model::CanonicalId(*value_rhs_));
 }
 
-size_t FieldFilter::Rep::Hash() const {
-  return util::Hash(field_, op_, model::CanonicalId(*value_rhs_));
-}
-
 bool FieldFilter::Rep::Equals(const Filter::Rep& other) const {
   if (type() != other.type()) return false;
 
   const auto& other_rep = static_cast<const FieldFilter::Rep&>(other);
   return op_ == other_rep.op_ && field_ == other_rep.field_ &&
          *value_rhs_ == *other_rep.value_rhs_;
+}
+
+const model::FieldPath* FieldFilter::Rep::GetFirstInequalityField() const {
+  if (IsInequality()) {
+    return &field_;
+  }
+  return nullptr;
 }
 
 }  // namespace core
