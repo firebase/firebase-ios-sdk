@@ -18,17 +18,31 @@
 #define FIRESTORE_CORE_SRC_LOCAL_LEVELDB_DOCUMENT_OVERLAY_CACHE_H_
 
 #include <cstdlib>
+#include <functional>
 #include <string>
 
 #include "Firestore/core/src/local/document_overlay_cache.h"
+#include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
+
+namespace credentials {
+class User;
+}  // namespace credentials
+
 namespace local {
+
+class LevelDbDocumentOverlayCacheTestHelper;
+class LevelDbDocumentOverlayKey;
+class LevelDbPersistence;
+class LocalSerializer;
 
 class LevelDbDocumentOverlayCache final : public DocumentOverlayCache {
  public:
-  LevelDbDocumentOverlayCache();
+  LevelDbDocumentOverlayCache(const credentials::User& user,
+                              LevelDbPersistence* db,
+                              LocalSerializer* serializer);
 
   LevelDbDocumentOverlayCache(const LevelDbDocumentOverlayCache&) = delete;
   LevelDbDocumentOverlayCache& operator=(const LevelDbDocumentOverlayCache&) =
@@ -38,8 +52,8 @@ class LevelDbDocumentOverlayCache final : public DocumentOverlayCache {
   LevelDbDocumentOverlayCache& operator=(LevelDbDocumentOverlayCache&&) =
       delete;
 
-  absl::optional<model::mutation::Overlay> GetOverlay(
-      const model::DocumentKey& key) const override;
+  absl::optional<model::Overlay> GetOverlay(
+      const model::DocumentKey&) const override;
 
   void SaveOverlays(int largest_batch_id,
                     const MutationByDocumentKeyMap& overlays) override;
@@ -49,9 +63,66 @@ class LevelDbDocumentOverlayCache final : public DocumentOverlayCache {
   OverlayByDocumentKeyMap GetOverlays(const model::ResourcePath& collection,
                                       int since_batch_id) const override;
 
-  OverlayByDocumentKeyMap GetOverlays(const std::string& collection_group,
+  OverlayByDocumentKeyMap GetOverlays(absl::string_view collection_group,
                                       int since_batch_id,
                                       std::size_t count) const override;
+
+ private:
+  friend class LevelDbDocumentOverlayCacheTestHelper;
+
+  // Returns the number of index entries of the various types.
+  // These methods exist for unit testing only.
+  int GetLargestBatchIdIndexEntryCount() const;
+  int GetCollectionIndexEntryCount() const;
+  int GetCollectionGroupIndexEntryCount() const;
+
+  int GetOverlayCount() const override;
+  int CountEntriesWithKeyPrefix(const std::string& key_prefix) const;
+
+  enum class ForEachKeyAction {
+    kKeepGoing,
+    kStop,
+  };
+
+  model::Overlay ParseOverlay(const LevelDbDocumentOverlayKey& key,
+                              absl::string_view encoded_mutation) const;
+
+  void SaveOverlay(int largest_batch_id,
+                   const model::DocumentKey& document_key,
+                   const model::Mutation& mutation);
+
+  void DeleteOverlay(const model::DocumentKey&);
+
+  void DeleteOverlay(const LevelDbDocumentOverlayKey&);
+
+  void ForEachKeyWithLargestBatchId(
+      int largest_batch_id,
+      std::function<void(LevelDbDocumentOverlayKey&&)>) const;
+
+  void ForEachKeyInCollection(
+      const model::ResourcePath& collection,
+      int since_batch_id,
+      std::function<void(LevelDbDocumentOverlayKey&&)>) const;
+
+  void ForEachKeyInCollectionGroup(
+      absl::string_view collection_group,
+      int since_batch_id,
+      std::function<ForEachKeyAction(LevelDbDocumentOverlayKey&&)>) const;
+
+  absl::optional<model::Overlay> GetOverlay(
+      const LevelDbDocumentOverlayKey& decoded_key) const;
+
+  // The LevelDbDocumentOverlayCache instance is owned by LevelDbPersistence.
+  LevelDbPersistence* db_;
+
+  // Owned by LevelDbPersistence.
+  LocalSerializer* serializer_ = nullptr;
+
+  /**
+   * The normalized user_id (i.e. after converting null to empty) as used in our
+   * LevelDB keys.
+   */
+  std::string user_id_;
 };
 
 }  // namespace local

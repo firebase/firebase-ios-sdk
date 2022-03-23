@@ -1,3 +1,11 @@
+# Unreleased
+- [changed] Add more details to the assertion failure in Query::Comparator() to
+  help with future debugging (#9258).
+
+# v8.14.0
+- [fixed] Fixed compiler warnings in `local_serializer.cc` about "implicit
+  conversion loses integer precision" that were introduced in 8.13.0 (#9430).
+
 # v8.12.1
 - [changed] Add more details to the assertion failure in OrderBy::Compare() to
   help with future debugging (#9258).

@@ -19,6 +19,7 @@
 #include <utility>
 
 #include "Firestore/core/src/core/query.h"
+#include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/document_key_reference.h"
 #include "Firestore/core/src/local/index_manager.h"
 #include "Firestore/core/src/local/memory_persistence.h"
@@ -33,6 +34,7 @@ namespace firestore {
 namespace local {
 
 using core::Query;
+using credentials::User;
 using model::BatchId;
 using model::DocumentKey;
 using model::DocumentKeySet;
@@ -42,8 +44,10 @@ using model::MutationBatch;
 using model::ResourcePath;
 using nanopb::ByteString;
 
-MemoryMutationQueue::MemoryMutationQueue(MemoryPersistence* persistence)
-    : persistence_(persistence) {
+MemoryMutationQueue::MemoryMutationQueue(MemoryPersistence* persistence,
+                                         const User& user)
+    : persistence_(persistence),
+      index_manager_(persistence->GetIndexManager(user)) {
 }
 
 bool MemoryMutationQueue::IsEmpty() {
@@ -99,8 +103,7 @@ MutationBatch MemoryMutationQueue::AddMutationBatch(
     batches_by_document_key_ = batches_by_document_key_.insert(
         DocumentKeyReference{mutation.key(), batch_id});
 
-    persistence_->index_manager()->AddToCollectionParentIndex(
-        mutation.key().path().PopLast());
+    index_manager_->AddToCollectionParentIndex(mutation.key().path().PopLast());
   }
 
   return batch;

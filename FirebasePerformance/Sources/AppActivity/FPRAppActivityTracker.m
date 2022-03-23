@@ -18,13 +18,12 @@
 #import <UIKit/UIKit.h>
 
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
+#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 #import "FirebasePerformance/Sources/Gauges/CPU/FPRCPUGaugeCollector+Private.h"
 #import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
 #import "FirebasePerformance/Sources/Gauges/Memory/FPRMemoryGaugeCollector+Private.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
-
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
 static NSDate *appStartTime = nil;
 static NSDate *doubleDispatchTime = nil;
@@ -32,6 +31,7 @@ static NSDate *applicationDidFinishLaunchTime = nil;
 static NSTimeInterval gAppStartMaxValidDuration = 60 * 60;  // 60 minutes.
 static FPRCPUGaugeData *gAppStartCPUGaugeData = nil;
 static FPRMemoryGaugeData *gAppStartMemoryGaugeData = nil;
+static BOOL isActivePrewarm = NO;
 
 NSString *const kFPRAppStartTraceName = @"_as";
 NSString *const kFPRAppStartStageNameTimeToUI = @"_astui";
@@ -85,6 +85,10 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
       });
     });
   }
+
+  // When an app is prewarmed, Apple sets env variable ActivePrewarm to 1, then the env variable is
+  // deleted after didFinishLaunching
+  isActivePrewarm = [NSProcessInfo.processInfo.environment[@"ActivePrewarm"] isEqualToString:@"1"];
 
   gAppStartCPUGaugeData = fprCollectCPUMetric();
   gAppStartMemoryGaugeData = fprCollectMemoryMetric();
@@ -155,20 +159,18 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
 }
 
 /**
- * Checks if prewarming is available for the platform on current device.
- * It is available when running iOS 15 and above.
+ * Checks if the prewarming feature is available on the current device.
  *
- * @return true if the platform could prewarm apps on the current device
+ * @return true if the OS could prewarm apps on the current device
  */
-+ (BOOL)isPrewarmAvailable {
-  if (![[[GULAppEnvironmentUtil applePlatform] lowercaseString] isEqualToString:@"ios"]) {
-    return NO;
+- (BOOL)isPrewarmAvailable {
+  BOOL canPrewarm = NO;
+  // Guarding for double dispatch which does not work below iOS 13, and 0.1% of app start also show
+  // signs of prewarming on iOS 14 go/paste/5533761933410304
+  if (@available(iOS 13, *)) {
+    canPrewarm = YES;
   }
-  NSString *systemVersion = [GULAppEnvironmentUtil systemVersion];
-  if ([systemVersion length] == 0) {
-    return NO;
-  }
-  return [systemVersion compare:@"15" options:NSNumericSearch] != NSOrderedAscending;
+  return canPrewarm;
 }
 
 /**
@@ -200,15 +202,13 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
  Checks if the current app start is a prewarmed app start
  */
 - (BOOL)isApplicationPreWarmed {
-  if (![FPRAppActivityTracker isPrewarmAvailable]) {
+  if (![self isPrewarmAvailable]) {
     return NO;
   }
 
   BOOL isPrewarmed = NO;
 
-  NSDictionary<NSString *, NSString *> *environment = [NSProcessInfo processInfo].environment;
-  BOOL activePrewarmFlagValue = [environment[@"ActivePrewarm"] boolValue];
-  if (activePrewarmFlagValue == YES) {
+  if (isActivePrewarm == YES) {
     isPrewarmed = isPrewarmed || [self isActivePrewarmEnabled];
     [self.activeTrace incrementMetric:kFPRAppCounterNameActivePrewarm byInt:1];
   } else {

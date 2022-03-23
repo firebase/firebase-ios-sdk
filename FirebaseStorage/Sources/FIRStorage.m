@@ -55,7 +55,7 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
 + (void)initialize {
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    _retryWhenOffline = ^(BOOL suggestedWillRetry, NSError *GTM_NULLABLE_TYPE error,
+    _retryWhenOffline = ^(BOOL suggestedWillRetry, NSError *__nullable error,
                           GTMSessionFetcherRetryResponse response) {
       bool shouldRetry = suggestedWillRetry;
       // GTMSessionFetcher does not consider being offline a retryable error, but we do, so we

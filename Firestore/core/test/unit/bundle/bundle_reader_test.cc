@@ -229,9 +229,12 @@ class BundleReaderTest : public ::testing::Test {
     value2.set_string_value("okok");
     ProtoValue value3;
     value3.set_null_value(google::protobuf::NULL_VALUE);
+    ProtoValue value4;
+    value4.mutable_array_value();
     document.mutable_fields()->insert({"\0\ud7ff\ue000\uffff\"", value1});
     document.mutable_fields()->insert({"\"(╯°□°）╯︵ ┻━┻\"", value2});
     document.mutable_fields()->insert({"nValue", value3});
+    document.mutable_fields()->insert({"emptyArray", value4});
 
     return document;
   }

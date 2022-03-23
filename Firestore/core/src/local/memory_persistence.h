@@ -56,12 +56,12 @@ class MemoryPersistence : public Persistence {
   using MutationQueues =
       std::unordered_map<credentials::User,
                          std::unique_ptr<MemoryMutationQueue>,
-                         credentials::HashUser>;
+                         firebase::firestore::credentials::HashUser>;
 
   using DocumentOverlayCaches =
       std::unordered_map<credentials::User,
                          std::unique_ptr<MemoryDocumentOverlayCache>,
-                         credentials::HashUser>;
+                         firebase::firestore::credentials::HashUser>;
 
   static std::unique_ptr<MemoryPersistence> WithEagerGarbageCollector();
 
@@ -80,19 +80,19 @@ class MemoryPersistence : public Persistence {
 
   void Shutdown() override;
 
-  MemoryMutationQueue* GetMutationQueueForUser(
-      const credentials::User& user) override;
+  MemoryMutationQueue* GetMutationQueue(const credentials::User& user,
+                                        IndexManager* manager) override;
 
   MemoryTargetCache* target_cache() override;
 
   MemoryBundleCache* bundle_cache() override;
 
-  MemoryDocumentOverlayCache* document_overlay_cache(
+  MemoryDocumentOverlayCache* GetDocumentOverlayCache(
       const credentials::User& user) override;
 
   MemoryRemoteDocumentCache* remote_document_cache() override;
 
-  MemoryIndexManager* index_manager() override;
+  MemoryIndexManager* GetIndexManager(const credentials::User& user) override;
 
   ReferenceDelegate* reference_delegate() override;
 

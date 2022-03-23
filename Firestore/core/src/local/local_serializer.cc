@@ -28,6 +28,7 @@
 #include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
 #include "Firestore/Protos/nanopb/google/firestore/admin/index.nanopb.h"
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/Protos/nanopb/google/firestore/v1/write.nanopb.h"
 #include "Firestore/core/src/bundle/bundle_metadata.h"
 #include "Firestore/core/src/bundle/named_query.h"
 #include "Firestore/core/src/core/query.h"
@@ -498,9 +499,12 @@ LocalSerializer::EncodeFieldIndexSegments(
   result->query_scope =
       google_firestore_admin_v1_Index_QueryScope_COLLECTION_GROUP;
 
-  result->fields_count = segments.size();
+  // Explicitly cast the result of segments.size() to suppress compiler warnings
+  // about implicit conversion resulting in potential loss of precision.
+  const auto segments_size = static_cast<pb_size_t>(segments.size());
+  result->fields_count = segments_size;
   result->fields =
-      MakeArray<google_firestore_admin_v1_Index_IndexField>(segments.size());
+      MakeArray<google_firestore_admin_v1_Index_IndexField>(segments_size);
   int i = 0;
   for (const auto& segment : segments) {
     google_firestore_admin_v1_Index_IndexField field;
@@ -537,6 +541,17 @@ LocalSerializer::EncodeFieldIndexSegments(
   }
 
   return result;
+}
+
+nanopb::Message<google_firestore_v1_Write> LocalSerializer::EncodeMutation(
+    const Mutation& mutation) const {
+  return Message<google_firestore_v1_Write>(
+      rpc_serializer_.EncodeMutation(mutation));
+}
+
+model::Mutation LocalSerializer::DecodeMutation(
+    nanopb::Reader* reader, google_firestore_v1_Write& proto) const {
+  return rpc_serializer_.DecodeMutation(reader->context(), proto);
 }
 
 }  // namespace local

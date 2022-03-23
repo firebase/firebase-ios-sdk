@@ -27,8 +27,8 @@ public extension DocumentReference {
   /// - Parameters:
   ///   - value: An instance of `Encodable` to be encoded to a document.
   ///   - encoder: An encoder instance to use to run the encoding.
-  ///   - completion: A block to execute once the document has been successfully
-  ///                 written to the server. This block will not be called while
+  ///   - completion: A closure to execute once the document has been successfully
+  ///                 written to the server. This closure will not be called while
   ///                 the client is offline, though local changes will be visible
   ///                 immediately.
   func setData<T: Encodable>(from value: T,
@@ -49,8 +49,8 @@ public extension DocumentReference {
   ///   - merge: Whether to merge the provided `Encodable` into any existing
   ///            document.
   ///   - encoder: An encoder instance to use to run the encoding.
-  ///   - completion: A block to execute once the document has been successfully
-  ///                 written to the server. This block will not be called while
+  ///   - completion: A closure to execute once the document has been successfully
+  ///                 written to the server. This closure will not be called while
   ///                 the client is offline, though local changes will be visible
   ///                 immediately.
   func setData<T: Encodable>(from value: T,
@@ -76,8 +76,8 @@ public extension DocumentReference {
   ///                  merge. Fields can contain dots to reference nested fields within the
   ///                  document.
   ///   - encoder: An encoder instance to use to run the encoding.
-  ///   - completion: A block to execute once the document has been successfully
-  ///                 written to the server. This block will not be called while
+  ///   - completion: A closure to execute once the document has been successfully
+  ///                 written to the server. This closure will not be called while
   ///                 the client is offline, though local changes will be visible
   ///                 immediately.
   func setData<T: Encodable>(from value: T,

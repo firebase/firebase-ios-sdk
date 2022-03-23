@@ -17,7 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_LOCAL_MEMORY_DOCUMENT_OVERLAY_CACHE_H_
 #define FIRESTORE_CORE_SRC_LOCAL_MEMORY_DOCUMENT_OVERLAY_CACHE_H_
 
-#include <string>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -39,7 +38,7 @@ class MemoryDocumentOverlayCache final : public DocumentOverlayCache {
   MemoryDocumentOverlayCache(MemoryDocumentOverlayCache&&) = delete;
   MemoryDocumentOverlayCache& operator=(MemoryDocumentOverlayCache&&) = delete;
 
-  absl::optional<model::mutation::Overlay> GetOverlay(
+  absl::optional<model::Overlay> GetOverlay(
       const model::DocumentKey& key) const override;
 
   void SaveOverlays(int largest_batch_id,
@@ -50,16 +49,18 @@ class MemoryDocumentOverlayCache final : public DocumentOverlayCache {
   OverlayByDocumentKeyMap GetOverlays(const model::ResourcePath& collection,
                                       int since_batch_id) const override;
 
-  OverlayByDocumentKeyMap GetOverlays(const std::string& collection_group,
+  OverlayByDocumentKeyMap GetOverlays(absl::string_view collection_group,
                                       int since_batch_id,
                                       std::size_t count) const override;
 
  private:
   using OverlayByDocumentKeySortedMap =
-      immutable::SortedMap<model::DocumentKey, model::mutation::Overlay>;
+      immutable::SortedMap<model::DocumentKey, model::Overlay>;
   using DocumentKeySet =
       std::unordered_set<model::DocumentKey, model::DocumentKeyHash>;
   using DocumentKeysByBatchIdMap = std::unordered_map<int, DocumentKeySet>;
+
+  int GetOverlayCount() const override;
 
   void SaveOverlay(int largest_batch_id, const model::Mutation& mutation);
 

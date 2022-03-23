@@ -31,7 +31,7 @@
 @interface FPRAppActivityTracker (Tests)
 
 @property(nonatomic) FPRConfigurations *configurations;
-+ (BOOL)isPrewarmAvailable;
+- (BOOL)isPrewarmAvailable;
 - (BOOL)isAppStartEnabled;
 - (BOOL)isActivePrewarmEnabled;
 - (BOOL)isDoubleDispatchEnabled;
@@ -230,6 +230,7 @@
   OCMStub([mockAppTracker isActivePrewarmEnabled]).andReturn(YES);
 
   setenv("ActivePrewarm", "1", 1);
+  [FPRAppActivityTracker load];
   XCTAssertTrue([mockAppTracker isApplicationPreWarmed]);
 }
 

@@ -51,6 +51,7 @@ class TargetChange;
 namespace local {
 
 class BundleCache;
+class IndexManager;
 class LocalDocumentsView;
 class LocalViewChanges;
 class LocalWriteResult;
@@ -352,6 +353,11 @@ class LocalStore : public bundle::BundleCallback {
    * indexes).
    */
   QueryEngine* query_engine_ = nullptr;
+
+  /**
+   * Manages indexes and support indexed queries.
+   */
+  IndexManager* index_manager_ = nullptr;
 
   /**
    * The "local" view of all documents (layering mutation queue on top of

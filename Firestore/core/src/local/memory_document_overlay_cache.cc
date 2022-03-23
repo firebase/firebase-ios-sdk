@@ -18,7 +18,6 @@
 
 #include <cstdlib>
 #include <map>
-#include <string>
 
 #include "Firestore/core/src/util/hard_assert.h"
 
@@ -29,8 +28,8 @@ namespace local {
 using model::DocumentKey;
 using model::DocumentKeyHash;
 using model::Mutation;
+using model::Overlay;
 using model::ResourcePath;
-using model::mutation::Overlay;
 
 absl::optional<Overlay> MemoryDocumentOverlayCache::GetOverlay(
     const DocumentKey& key) const {
@@ -91,7 +90,7 @@ MemoryDocumentOverlayCache::GetOverlays(const ResourcePath& collection,
 }
 
 DocumentOverlayCache::OverlayByDocumentKeyMap
-MemoryDocumentOverlayCache::GetOverlays(const std::string& collection_group,
+MemoryDocumentOverlayCache::GetOverlays(absl::string_view collection_group,
                                         int since_batch_id,
                                         std::size_t count) const {
   // NOTE: This method is only used by the backfiller, which will not run for
@@ -123,6 +122,10 @@ MemoryDocumentOverlayCache::GetOverlays(const std::string& collection_group,
   }
 
   return result;
+}
+
+int MemoryDocumentOverlayCache::GetOverlayCount() const {
+  return overlays_.size();
 }
 
 void MemoryDocumentOverlayCache::SaveOverlay(int largest_batch_id,

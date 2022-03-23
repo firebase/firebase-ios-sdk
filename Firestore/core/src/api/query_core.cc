@@ -67,7 +67,7 @@ using util::Status;
 using util::StatusOr;
 using util::ThrowInvalidArgument;
 
-using Operator = Filter::Operator;
+using Operator = FieldFilter::Operator;
 
 namespace {
 /**

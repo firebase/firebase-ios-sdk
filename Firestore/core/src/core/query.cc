@@ -20,7 +20,6 @@
 #include <ostream>
 
 #include "Firestore/core/src/core/bound.h"
-#include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/core/operator.h"
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_key.h"
@@ -37,7 +36,7 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-using Operator = Filter::Operator;
+using Operator = FieldFilter::Operator;
 using Type = Filter::Type;
 
 using model::Document;
@@ -280,8 +279,10 @@ model::DocumentComparator Query::Comparator() const {
       break;
     }
   }
-  HARD_ASSERT(has_key_ordering,
-              "QueryComparator needs to have a key ordering.");
+
+  if (!has_key_ordering) {
+    HARD_FAIL("QueryComparator needs to have a key ordering: %s", ToString());
+  }
 
   return DocumentComparator(
       [ordering](const Document& doc1, const Document& doc2) {

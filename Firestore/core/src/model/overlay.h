@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_MODEL_MUTATION_OVERLAY_H_
-#define FIRESTORE_CORE_SRC_MODEL_MUTATION_OVERLAY_H_
+#ifndef FIRESTORE_CORE_SRC_MODEL_OVERLAY_H_
+#define FIRESTORE_CORE_SRC_MODEL_OVERLAY_H_
 
 #include <cstdlib>
 #include <iosfwd>
@@ -28,7 +28,6 @@
 namespace firebase {
 namespace firestore {
 namespace model {
-namespace mutation {
 
 /**
  * Representation of an overlay computed by Firestore.
@@ -40,8 +39,8 @@ class Overlay {
  public:
   Overlay() = default;
 
-  Overlay(int largest_batch_id, const Mutation& mutation)
-      : largest_batch_id_(largest_batch_id), mutation_(mutation) {
+  Overlay(int largest_batch_id, Mutation mutation)
+      : largest_batch_id_(largest_batch_id), mutation_(std::move(mutation)) {
   }
 
   int largest_batch_id() const {
@@ -80,9 +79,8 @@ struct OverlayHash {
   std::size_t operator()(const Overlay&) const;
 };
 
-}  // namespace mutation
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_MODEL_MUTATION_OVERLAY_H_
+#endif  // FIRESTORE_CORE_SRC_MODEL_OVERLAY_H_

@@ -81,17 +81,17 @@ class LevelDbPersistence : public Persistence {
 
   LevelDbBundleCache* bundle_cache() override;
 
-  LevelDbDocumentOverlayCache* document_overlay_cache(
+  LevelDbDocumentOverlayCache* GetDocumentOverlayCache(
       const credentials::User& user) override;
 
-  LevelDbMutationQueue* GetMutationQueueForUser(
-      const credentials::User& user) override;
+  LevelDbMutationQueue* GetMutationQueue(const credentials::User& user,
+                                         IndexManager* index_manager) override;
 
   LevelDbTargetCache* target_cache() override;
 
   LevelDbRemoteDocumentCache* remote_document_cache() override;
 
-  LevelDbIndexManager* index_manager() override;
+  LevelDbIndexManager* GetIndexManager(const credentials::User& user) override;
 
   LevelDbLruReferenceDelegate* reference_delegate() override;
 
@@ -123,6 +123,7 @@ class LevelDbPersistence : public Persistence {
   bool started_ = false;
 
   std::unique_ptr<LevelDbBundleCache> bundle_cache_;
+  std::unique_ptr<LevelDbDocumentOverlayCache> current_document_overlay_cache_;
   std::unique_ptr<LevelDbMutationQueue> current_mutation_queue_;
   std::unique_ptr<LevelDbTargetCache> target_cache_;
   std::unique_ptr<LevelDbRemoteDocumentCache> document_cache_;

@@ -21,6 +21,7 @@
 #include <thread>  // NOLINT(build/c++11)
 #include <vector>
 
+#include "Firestore/core/src/local/leveldb_index_manager.h"
 #include "Firestore/core/src/local/remote_document_cache.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/types.h"
@@ -55,6 +56,8 @@ class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
       const core::Query& query,
       const model::SnapshotVersion& since_read_time) override;
 
+  void SetIndexManager(IndexManager* manager) override;
+
  private:
   /**
    * Looks up a set of entries in the cache, returning only existing entries of
@@ -67,6 +70,8 @@ class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
 
   // The LevelDbRemoteDocumentCache instance is owned by LevelDbPersistence.
   LevelDbPersistence* db_;
+  // The LevelDbIndexManager instance is owned by LevelDbPersistence.
+  IndexManager* index_manager_ = nullptr;
   // Owned by LevelDbPersistence.
   LocalSerializer* serializer_ = nullptr;
 

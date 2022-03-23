@@ -94,8 +94,8 @@ class Persistence {
    * extent possible (e.g. in the case of UID switching from sally=>jack=>sally,
    * sally's mutation queue will be preserved).
    */
-  virtual MutationQueue* GetMutationQueueForUser(
-      const credentials::User& user) = 0;
+  virtual MutationQueue* GetMutationQueue(const credentials::User& user,
+                                          IndexManager* index_manager) = 0;
 
   /** Returns a TargetCache representing the persisted cache of queries. */
   virtual TargetCache* target_cache() = 0;
@@ -115,7 +115,7 @@ class Persistence {
    * extent possible (e.g. in the case of UID switching from sally=>jack=>sally,
    * sally's document overlay cache will be preserved).
    */
-  virtual DocumentOverlayCache* document_overlay_cache(
+  virtual DocumentOverlayCache* GetDocumentOverlayCache(
       const credentials::User& user) = 0;
 
   /**
@@ -125,7 +125,7 @@ class Persistence {
   virtual RemoteDocumentCache* remote_document_cache() = 0;
 
   /** Returns an IndexManager that manages our persisted query indexes. */
-  virtual IndexManager* index_manager() = 0;
+  virtual IndexManager* GetIndexManager(const credentials::User& user) = 0;
 
   /**
    * This property provides access to hooks around the document reference

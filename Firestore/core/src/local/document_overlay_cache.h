@@ -18,18 +18,20 @@
 #define FIRESTORE_CORE_SRC_LOCAL_DOCUMENT_OVERLAY_CACHE_H_
 
 #include <cstdlib>
-#include <string>
 #include <unordered_map>
 
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/mutation.h"
-#include "Firestore/core/src/model/mutation/overlay.h"
+#include "Firestore/core/src/model/overlay.h"
 #include "Firestore/core/src/model/resource_path.h"
+#include "absl/strings/string_view.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
 namespace local {
+
+class DocumentOverlayCacheTestHelper;
 
 /**
  * Provides methods to read and write document overlays.
@@ -43,9 +45,8 @@ namespace local {
  */
 class DocumentOverlayCache {
  public:
-  using OverlayByDocumentKeyMap = std::unordered_map<model::DocumentKey,
-                                                     model::mutation::Overlay,
-                                                     model::DocumentKeyHash>;
+  using OverlayByDocumentKeyMap = std::
+      unordered_map<model::DocumentKey, model::Overlay, model::DocumentKeyHash>;
   using MutationByDocumentKeyMap = std::unordered_map<model::DocumentKey,
                                                       model::Mutation,
                                                       model::DocumentKeyHash>;
@@ -57,7 +58,7 @@ class DocumentOverlayCache {
    *
    * Returns an empty optional if there is no overlay for that key.
    */
-  virtual absl::optional<model::mutation::Overlay> GetOverlay(
+  virtual absl::optional<model::Overlay> GetOverlay(
       const model::DocumentKey& key) const = 0;
 
   /**
@@ -98,9 +99,16 @@ class DocumentOverlayCache {
    * overlay.
    */
   virtual OverlayByDocumentKeyMap GetOverlays(
-      const std::string& collection_group,
+      absl::string_view collection_group,
       int since_batch_id,
       std::size_t count) const = 0;
+
+ private:
+  friend class DocumentOverlayCacheTestHelper;
+
+  // Returns the total number of overlays in the database.
+  // This method exists for unit testing only.
+  virtual int GetOverlayCount() const = 0;
 };
 
 }  // namespace local

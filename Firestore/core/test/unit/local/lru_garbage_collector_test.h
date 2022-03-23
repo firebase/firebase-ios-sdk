@@ -38,6 +38,7 @@ class SetMutation;
 
 namespace local {
 
+class IndexManager;
 class LruDelegate;
 class LruGarbageCollector;
 class MutationQueue;
@@ -208,6 +209,7 @@ class LruGarbageCollectorTest : public ::testing::TestWithParam<FactoryFunc> {
   std::unique_ptr<Persistence> persistence_;
   TargetCache* target_cache_ = nullptr;
   RemoteDocumentCache* document_cache_ = nullptr;
+  IndexManager* index_manager_ = nullptr;
   MutationQueue* mutation_queue_ = nullptr;
   LruDelegate* lru_delegate_ = nullptr;
   LruGarbageCollector* gc_ = nullptr;

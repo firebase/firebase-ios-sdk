@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/model/mutation/overlay.h"
+#include "Firestore/core/src/model/overlay.h"
 
 #include <iostream>
 
@@ -25,7 +25,6 @@
 namespace firebase {
 namespace firestore {
 namespace model {
-namespace mutation {
 
 bool operator==(const Overlay& lhs, const Overlay& rhs) {
   return lhs.largest_batch_id_ == rhs.largest_batch_id_ &&
@@ -53,7 +52,6 @@ std::size_t OverlayHash::operator()(const Overlay& overlay) const {
   return overlay.Hash();
 }
 
-}  // namespace mutation
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase
