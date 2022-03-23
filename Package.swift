@@ -1068,7 +1068,7 @@ let package = Package(
         "FirebaseAppCheckInterop",
         "FirebaseAuthInterop",
         "FirebaseCore",
-        "FirebaseCoreInternal",
+        "FirebaseCoreExtension",
         "FirebaseStorageObjC",
       ],
       path: "FirebaseStorageSwift/Sources"
