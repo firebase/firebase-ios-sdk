@@ -1642,19 +1642,6 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
   }
 }
 
-- (void)testValidCustomDomainNames2 {
-  NSArray<NSString *> *longFDLURLStrings = @[
-    @"https://google.com/?some=qry&link=https://somedomain",
-  ];
-
-  for (NSString *urlString in longFDLURLStrings) {
-    NSURL *url = [NSURL URLWithString:urlString];
-    BOOL matchesLongLinkFormat = [self.service canParseUniversalLinkURL:url];
-
-    XCTAssertTrue(matchesLongLinkFormat, @"URL did not validate as long link: %@", url);
-  }
-}
-
 - (void)testInvalidCustomDomainNames {
   // Entries in plist file:
   //  https://google.com
