@@ -1615,7 +1615,13 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
   NSArray<NSString *> *longFDLURLStrings = @[
     @"https://a.firebase.com/mypath/?link=https://abcd&test=1",  // Long FDL starting with
                                                                  // https://a.firebase.com/mypath
+    @"https://google.com?link=http://abcd",  // Long FDL starting with  'https://google.com'
     @"https://google.com/?link=http://abcd",  // Long FDL starting with  'https://google.com'
+    @"https://google.com?link=https://somedomain&some=qry", //Long FDL with link param as another argument.
+    @"https://google.com/?link=https://somedomain&some=qry", //Long FDL with link param as another argument.
+    @"https://google.com?some=qry&link=https://somedomain", //Long FDL with link param as second argument.
+    @"https://google.com/?some=qry&link=https://somedomain", //Long FDL with link param as second argument
+    @"https://google.com/?a=b&c=d&link=https://somedomain&y=z", //Long FDL with link param as middle argument argument
   ];
   for (NSString *urlString in urlStrings) {
     NSURL *url = [NSURL URLWithString:urlString];
@@ -1631,6 +1637,19 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
   }
 }
 
+- (void)testValidCustomDomainNames2 {
+    NSArray<NSString *> *longFDLURLStrings = @[
+      @"https://google.com/?some=qry&link=https://somedomain",
+    ];
+    
+    for (NSString *urlString in longFDLURLStrings) {
+      NSURL *url = [NSURL URLWithString:urlString];
+      BOOL matchesLongLinkFormat = [self.service canParseUniversalLinkURL:url];
+
+      XCTAssertTrue(matchesLongLinkFormat, @"URL did not validate as long link: %@", url);
+    }
+}
+
 - (void)testInvalidCustomDomainNames {
   // Entries in plist file:
   //  https://google.com
@@ -1642,6 +1661,7 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
     @"https://google.com",                // Valid domain. No path after domainURIPrefix.
     @"https://google.com/",               // Valid domain. No path after domainURIPrefix.
     @"https://google.co.in/mylink",       // No matching domainURIPrefix.
+    @"https://google.com/?some=qry",      // Valid domain with no path and link param
     @"https://firebase.com/mypath",       // No matching domainURIPrefix: Invalid (sub)domain.
     @"https://b.firebase.com/mypath",     // No matching domainURIPrefix: Invalid subdomain.
     @"https://a.firebase.com/mypathabc",  // No matching domainURIPrefix: Invalid subdomain.
