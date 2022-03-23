@@ -530,6 +530,7 @@ enum CocoaPodUtils {
         if podspec == "FirebaseInstallations.podspec" ||
           podspec == "FirebaseCoreDiagnostics.podspec" ||
           podspec == "FirebaseCore.podspec" ||
+          podspec == "FirebaseCoreExtension.podspec" ||
           podspec == "FirebaseCoreInternal.podspec" ||
           podspec == "FirebaseAppCheck.podspec" ||
           podspec == "FirebaseAuth.podspec" ||
