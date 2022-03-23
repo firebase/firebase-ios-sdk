@@ -26,8 +26,8 @@ public extension Firestore {
       .NonConformingFloatEncodingStrategy
     public typealias KeyEncodingStrategy = FirebaseDataEncoder.KeyEncodingStrategy
 
-    /// The strategy to use in encoding dates. Defaults to `.deferredToDate`.
-    public var dateEncodingStrategy: DateEncodingStrategy = .deferredToDate
+    /// The strategy to use in encoding dates. Defaults to `.timestamp`.
+    public var dateEncodingStrategy: DateEncodingStrategy = .timestamp
 
     /// The strategy to use in encoding binary data. Defaults to `.base64`.
     public var dataEncodingStrategy: DataEncodingStrategy = .base64
