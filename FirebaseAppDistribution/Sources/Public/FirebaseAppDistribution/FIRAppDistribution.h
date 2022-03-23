@@ -78,19 +78,19 @@ FOUNDATION_EXPORT NSString *const FIRAppDistributionErrorDetailsKey
 /**
  * Error codes representing sign in or version check failure reasons.
  */
-typedef NS_ERROR_ENUM(FIRAppDistributionErrorDomain, FIRAppDistributionError) {
-  /// Returned when an unknown error occurred.
-  FIRAppDistributionErrorUnknown = 0,
+typedef NS_ERROR_ENUM(FIRAppDistributionErrorDomain, FIRAppDistributionError){
+    /// Returned when an unknown error occurred.
+    FIRAppDistributionErrorUnknown = 0,
 
-  /// Returned when App Distribution failed to authenticate the user.
-  FIRAppDistributionErrorAuthenticationFailure = 1,
+    /// Returned when App Distribution failed to authenticate the user.
+    FIRAppDistributionErrorAuthenticationFailure = 1,
 
-  /// Returned when sign-in was cancelled.
-  FIRAppDistributionErrorAuthenticationCancelled = 2,
+    /// Returned when sign-in was cancelled.
+    FIRAppDistributionErrorAuthenticationCancelled = 2,
 
-  /// Returned when the network was unavailable to make requests or
-  /// the request timed out.
-  FIRAppDistributionErrorNetworkFailure = 3,
+    /// Returned when the network was unavailable to make requests or
+    /// the request timed out.
+    FIRAppDistributionErrorNetworkFailure = 3,
 
 } NS_SWIFT_NAME(AppDistributionError);
 

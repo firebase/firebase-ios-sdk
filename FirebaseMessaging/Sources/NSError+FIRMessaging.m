@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
 #import "FirebaseMessaging.h"
+#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
 
 @implementation NSError (FIRMessaging)
 

@@ -55,7 +55,8 @@ func apis() {
   }
 
   // Use random to eliminate the warning that we're evaluating to a constant.
-  let messagingError: MessagingError = Bool.random() ? MessagingError(.unknown) : MessagingError(.authentication)
+  let messagingError: MessagingError = Bool
+    .random() ? MessagingError(.unknown) : MessagingError(.authentication)
   switch messagingError.code {
   case .unknown: ()
   case .authentication: ()
@@ -145,7 +146,6 @@ func apiAsync() async throws {
     do {
       try await messaging.unsubscribe(fromTopic: topic)
     } catch MessagingError.timeout {
-    } catch {
-    }
+    } catch {}
   #endif
 }

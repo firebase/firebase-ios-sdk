@@ -18,17 +18,18 @@
 
 extern NSString *const kFirebaseInstallationsErrorDomain NS_SWIFT_NAME(InstallationsErrorDomain);
 
-typedef NS_ERROR_ENUM(kFirebaseInstallationsErrorDomain, FIRInstallationsErrorCode) {
-  /** Unknown error. See `userInfo` for details. */
-  FIRInstallationsErrorCodeUnknown = 0,
+typedef NS_ERROR_ENUM(kFirebaseInstallationsErrorDomain, FIRInstallationsErrorCode){
+    /** Unknown error. See `userInfo` for details. */
+    FIRInstallationsErrorCodeUnknown = 0,
 
-  /** Keychain error. See `userInfo` for details. */
-  FIRInstallationsErrorCodeKeychain = 1,
+    /** Keychain error. See `userInfo` for details. */
+    FIRInstallationsErrorCodeKeychain = 1,
 
-  /** Server unreachable. A network error or server is unavailable. See `userInfo` for details. */
-  FIRInstallationsErrorCodeServerUnreachable = 2,
+    /** Server unreachable. A network error or server is unavailable. See `userInfo` for details. */
+    FIRInstallationsErrorCodeServerUnreachable = 2,
 
-  /** FirebaseApp configuration issues e.g. invalid GMP-App-ID, etc. See `userInfo` for details. */
-  FIRInstallationsErrorCodeInvalidConfiguration = 3,
+    /** FirebaseApp configuration issues e.g. invalid GMP-App-ID, etc. See `userInfo` for details.
+     */
+    FIRInstallationsErrorCodeInvalidConfiguration = 3,
 
 } NS_SWIFT_NAME(InstallationsErrorCode);

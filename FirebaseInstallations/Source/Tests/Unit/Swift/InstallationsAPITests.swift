@@ -121,7 +121,9 @@ final class InstallationsAPITests {
         Task {
           do {
             _ = try await Installations.installations().delete()
-          } catch let error as NSError where error.domain == InstallationsErrorDomain && error.code == InstallationsErrorCode.unknown.rawValue {
+          } catch let error as NSError
+            where error.domain == InstallationsErrorDomain && error.code == InstallationsErrorCode
+            .unknown.rawValue {
             // Above is the old way to handle errors.
           } catch InstallationsErrorCode.unknown {
             // Above is the new way to handle errors.
