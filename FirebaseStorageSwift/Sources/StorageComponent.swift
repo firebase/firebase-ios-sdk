@@ -16,7 +16,7 @@ import Foundation
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import FirebaseCore
-import FirebaseCoreInternal
+import FirebaseCoreExtension
 
 @objc(FIRStorageProvider)
 protocol StorageProvider {
