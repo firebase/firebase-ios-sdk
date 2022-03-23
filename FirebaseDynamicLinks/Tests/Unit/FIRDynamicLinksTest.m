@@ -1617,12 +1617,12 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
                                                                  // https://a.firebase.com/mypath
     @"https://google.com?link=http://abcd",   // Long FDL starting with  'https://google.com'
     @"https://google.com/?link=http://abcd",  // Long FDL starting with  'https://google.com'
-    @"https://google.com?link=https://somedomain&some=qry",  // Long FDL with link param as another
-                                                             // argument.
+    @"https://google.com?link=https://somedomain&some=qry",   // Long FDL with link param as another
+                                                              // argument.
     @"https://google.com/?link=https://somedomain&some=qry",  // Long FDL with link param as another
                                                               // argument.
-    @"https://google.com?some=qry&link=https://somedomain",  // Long FDL with link param as second
-                                                             // argument.
+    @"https://google.com?some=qry&link=https://somedomain",   // Long FDL with link param as second
+                                                              // argument.
     @"https://google.com/?some=qry&link=https://somedomain",  // Long FDL with link param as second
                                                               // argument
     @"https://google.com/?a=b&c=d&link=https://somedomain&y=z",  // Long FDL with link param as
@@ -1649,17 +1649,17 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
   //  https://a.firebase.com/mypath
 
   NSArray<NSString *> *urlStrings = @[
-    @"google.com",                        // Valid domain. No scheme.
-    @"https://google.com",                // Valid domain. No path after domainURIPrefix.
-    @"https://google.com/",               // Valid domain. No path after domainURIPrefix.
-    @"https://google.co.in/mylink",       // No matching domainURIPrefix.
-    @"https://google.com/?some=qry",      // Valid domain with no path and link param
-    @"https://google.com/?some=qry&link=bla",      // Valid domain with no path and no valid link param
-    @"https://firebase.com/mypath",       // No matching domainURIPrefix: Invalid (sub)domain.
-    @"https://b.firebase.com/mypath",     // No matching domainURIPrefix: Invalid subdomain.
-    @"https://a.firebase.com/mypathabc",  // No matching domainURIPrefix: Invalid subdomain.
-    @"mydomain.com",                      // https scheme not specified for domainURIPrefix.
-    @"http://mydomain",                   // Domain not in plist. No path after domainURIPrefix.
+    @"google.com",                             // Valid domain. No scheme.
+    @"https://google.com",                     // Valid domain. No path after domainURIPrefix.
+    @"https://google.com/",                    // Valid domain. No path after domainURIPrefix.
+    @"https://google.co.in/mylink",            // No matching domainURIPrefix.
+    @"https://google.com/?some=qry",           // Valid domain with no path and link param
+    @"https://google.com/?some=qry&link=bla",  // Valid domain with no path and no valid link param
+    @"https://firebase.com/mypath",            // No matching domainURIPrefix: Invalid (sub)domain.
+    @"https://b.firebase.com/mypath",          // No matching domainURIPrefix: Invalid subdomain.
+    @"https://a.firebase.com/mypathabc",       // No matching domainURIPrefix: Invalid subdomain.
+    @"mydomain.com",                           // https scheme not specified for domainURIPrefix.
+    @"http://mydomain",  // Domain not in plist. No path after domainURIPrefix.
     @"https://somecustom.com?", @"https://somecustom.com/?",
     @"https://somecustom.com?somekey=someval"
   ];
