@@ -178,7 +178,7 @@ let package = Package(
     .package(
       name: "abseil",
       url: "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-      "0.20220203.0" ..< "0.20220204.0"
+      "0.20220203.1" ..< "0.20220204.0"
     ),
     .package(
       name: "gRPC",
