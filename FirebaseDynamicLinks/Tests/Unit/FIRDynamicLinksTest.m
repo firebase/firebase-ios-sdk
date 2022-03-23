@@ -1654,6 +1654,7 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
     @"https://google.com/",               // Valid domain. No path after domainURIPrefix.
     @"https://google.co.in/mylink",       // No matching domainURIPrefix.
     @"https://google.com/?some=qry",      // Valid domain with no path and link param
+    @"https://google.com/?some=qry&link=bla",      // Valid domain with no path and no valid link param
     @"https://firebase.com/mypath",       // No matching domainURIPrefix: Invalid (sub)domain.
     @"https://b.firebase.com/mypath",     // No matching domainURIPrefix: Invalid subdomain.
     @"https://a.firebase.com/mypathabc",  // No matching domainURIPrefix: Invalid subdomain.
