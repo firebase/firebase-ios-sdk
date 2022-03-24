@@ -180,7 +180,9 @@ final class AppCheckAPITests {
                   _ = try await deviceCheckProvider.getToken()
                 } catch AppCheckErrorCode.unsupported {
                   // ...
-                } catch {}
+                } catch {
+                  // ...
+                }
               }
             }
           #endif // compiler(>=5.5) && canImport(_Concurrency)
