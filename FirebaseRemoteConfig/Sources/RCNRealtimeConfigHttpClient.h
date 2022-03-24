@@ -12,6 +12,9 @@
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 #import <UIKit/UIKit.h>
 
+@interface RealtimeListenerRegistration : NSObject
+@end
+
 @interface RCNRealtimeConfigHttpClient : UIViewController <NSURLSessionDataDelegate>
 
 @property(weak, nonatomic) IBOutlet UILabel *outputLabel;
@@ -22,10 +25,11 @@
                       namespace: (NSString *)namespace
                       options: (FIROptions *)options
                       queue: (dispatch_queue_t)queue;
-- (void)setRealTimeDelegateCallback:(id)realTimeDelegate;
-- (void)removeRealTimeDelegateCallback;
+
 - (void)startStream;
 - (void)pauseStream;
+- (RealtimeListenerRegistration *)setRealTimeDelegateCallback:(id)realTimeDelegate;
+- (void)removeRealTimeDelegateCallback;
 
 @end
 
