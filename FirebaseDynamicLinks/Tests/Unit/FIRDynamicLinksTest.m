@@ -1622,12 +1622,13 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
     @"https://google.com/?link=https://somedomain&some=qry",  // Long FDL with link param as another
                                                               // argument.
     @"https://google.com?some=qry&link=https://somedomain",   // Long FDL with link param as second
-                                                               //argument.
+                                                              // argument.
     @"https://google.com/?some=qry&link=https://somedomain",  // Long FDL with link param as second
-                                                               //argument
-    @"https://google.com/?a=b&c=d&link=https://somedomain&y=z",  // Long FDL with link param as
-                                                                 // middle argument argument
-    @"https://google.com?some=qry&link=https%3A%2F%2Fsomedomain", // Long FDL with Url encoded link param
+                                                              // argument
+    @"https://google.com/?a=b&c=d&link=https://somedomain&y=z",    // Long FDL with link param as
+                                                                   // middle argument argument
+    @"https://google.com?some=qry&link=https%3A%2F%2Fsomedomain",  // Long FDL with Url encoded link
+                                                                   // param
   ];
   for (NSString *urlString in urlStrings) {
     NSURL *url = [NSURL URLWithString:urlString];
