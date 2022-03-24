@@ -1,4 +1,4 @@
-# v8.10.0
+# v8.15.0
 - [fixed] Fixed Custom domain long url validation logic. (#6978)
 
 # v8.9.0
