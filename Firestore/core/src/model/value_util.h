@@ -67,6 +67,10 @@ void SortFields(google_firestore_v1_ArrayValue& value);
 util::ComparisonResult Compare(const google_firestore_v1_Value& left,
                                const google_firestore_v1_Value& right);
 
+util::ComparisonResult Compare(
+    const absl::optional<google_firestore_v1_Value>& left,
+    const absl::optional<google_firestore_v1_Value>& right);
+
 bool Equals(const google_firestore_v1_Value& left,
             const google_firestore_v1_Value& right);
 
@@ -78,6 +82,10 @@ bool Equals(const google_firestore_v1_ArrayValue& left,
  * serialization).
  */
 std::string CanonicalId(const google_firestore_v1_Value& value);
+
+nanopb::Message<google_firestore_v1_Value> GetLowerBound(pb_size_t value_tag);
+
+nanopb::Message<google_firestore_v1_Value> GetUpperBound(pb_size_t value_tag);
 
 /**
  * Generates the canonical ID for the provided array value (as used in Target
@@ -94,6 +102,17 @@ nanopb::Message<google_firestore_v1_Value> NullValue();
 
 /** Returns `true` if `value` is null in its Protobuf representation. */
 bool IsNullValue(const google_firestore_v1_Value& value);
+
+/**
+ * Returns a Protobuf value that is smaller than any legitimate value SDK
+ * users can create.
+ *
+ * Under the hood, it is a `NullValue()`.
+ */
+nanopb::Message<google_firestore_v1_Value> MinValue();
+
+/** Returns `true` if `value` is MinValue() in its Protobuf representation. */
+bool IsMinValue(const google_firestore_v1_Value& value);
 
 /**
  * Returns a Protobuf value that is larger than any legitimate value SDK

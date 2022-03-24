@@ -277,6 +277,20 @@ ComparisonResult Compare(const google_firestore_v1_Value& left,
   }
 }
 
+util::ComparisonResult Compare(
+    const absl::optional<google_firestore_v1_Value>& left,
+    const absl::optional<google_firestore_v1_Value>& right) {
+  if (!left.has_value() && !right.has_value()) {
+    return util::ComparisonResult::Same;
+  } else if (!left.has_value()) {
+    return util::ComparisonResult::Ascending;
+  } else if (!right.has_value()) {
+    return util::ComparisonResult::Descending;
+  } else {
+    return Compare(left.value(), right.value());
+  }
+}
+
 bool NumberEquals(const google_firestore_v1_Value& left,
                   const google_firestore_v1_Value& right) {
   if (left.which_value_type == google_firestore_v1_Value_integer_value_tag &&
@@ -486,6 +500,106 @@ std::string CanonicalId(const google_firestore_v1_ArrayValue& value) {
   return CanonifyArray(value);
 }
 
+Message<google_firestore_v1_Value> GetLowerBound(pb_size_t value_tag) {
+  switch (value_tag) {
+    case google_firestore_v1_Value_null_value_tag:
+      return NullValue();
+
+    case google_firestore_v1_Value_boolean_value_tag: {
+      Message<google_firestore_v1_Value> value;
+      value->which_value_type = value_tag;
+      value->boolean_value = false;
+      return value;
+    }
+
+    case google_firestore_v1_Value_integer_value_tag:
+    case google_firestore_v1_Value_double_value_tag: {
+      return NaNValue();
+    }
+
+    case google_firestore_v1_Value_timestamp_value_tag: {
+      Message<google_firestore_v1_Value> value;
+      value->which_value_type = value_tag;
+      value->timestamp_value.seconds = std::numeric_limits<int64_t>::min();
+      return value;
+    }
+
+    case google_firestore_v1_Value_string_value_tag: {
+      Message<google_firestore_v1_Value> value;
+      value->which_value_type = value_tag;
+      value->string_value = nanopb::MakeArray<pb_bytes_array_s>(0);
+      return value;
+    }
+
+    case google_firestore_v1_Value_bytes_value_tag: {
+      Message<google_firestore_v1_Value> value;
+      value->which_value_type = value_tag;
+      value->bytes_value = nanopb::MakeArray<pb_bytes_array_t>(0);
+      return value;
+    }
+
+    case google_firestore_v1_Value_reference_value_tag:
+      return RefValue(DatabaseId("", ""), DocumentKey::Empty());
+
+    case google_firestore_v1_Value_geo_point_value_tag: {
+      Message<google_firestore_v1_Value> value;
+      value->which_value_type = value_tag;
+      value->geo_point_value.latitude = -90.0;
+      value->geo_point_value.longitude = -180.0;
+      return value;
+    }
+
+    case google_firestore_v1_Value_array_value_tag: {
+      Message<google_firestore_v1_Value> value;
+      value->which_value_type = value_tag;
+      value->array_value.values =
+          nanopb::MakeArray<google_firestore_v1_Value>(0);
+      value->array_value.values_count = 0;
+      return value;
+    }
+
+    case google_firestore_v1_Value_map_value_tag: {
+      Message<google_firestore_v1_Value> value;
+      value->which_value_type = value_tag;
+      value->map_value.fields =
+          nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(0);
+      value->map_value.fields_count = 0;
+      return value;
+    }
+
+    default:
+      HARD_FAIL("Invalid type value: %s", value_tag);
+  }
+}
+
+Message<google_firestore_v1_Value> GetUpperBound(pb_size_t value_tag) {
+  switch (value_tag) {
+    case google_firestore_v1_Value_null_value_tag:
+      return GetLowerBound(google_protobuf_BoolValue_value_tag);
+    case google_firestore_v1_Value_boolean_value_tag:
+      return GetLowerBound(google_firestore_v1_Value_integer_value_tag);
+    case google_firestore_v1_Value_integer_value_tag:
+    case google_firestore_v1_Value_double_value_tag:
+      return GetLowerBound(google_firestore_v1_Value_timestamp_value_tag);
+    case google_firestore_v1_Value_timestamp_value_tag:
+      return GetLowerBound(google_firestore_v1_Value_string_value_tag);
+    case google_firestore_v1_Value_string_value_tag:
+      return GetLowerBound(google_firestore_v1_Value_bytes_value_tag);
+    case google_firestore_v1_Value_bytes_value_tag:
+      return GetLowerBound(google_firestore_v1_Value_reference_value_tag);
+    case google_firestore_v1_Value_reference_value_tag:
+      return GetLowerBound(google_firestore_v1_Value_geo_point_value_tag);
+    case google_firestore_v1_Value_geo_point_value_tag:
+      return GetLowerBound(google_firestore_v1_Value_array_value_tag);
+    case google_firestore_v1_Value_array_value_tag:
+      return GetLowerBound(google_firestore_v1_Value_map_value_tag);
+    case google_firestore_v1_Value_map_value_tag:
+      return MaxValue();
+    default:
+      HARD_FAIL("Invalid type value: %s", value_tag);
+  }
+}
+
 bool Contains(google_firestore_v1_ArrayValue haystack,
               google_firestore_v1_Value needle) {
   for (pb_size_t i = 0; i < haystack.values_count; ++i) {
@@ -505,6 +619,14 @@ Message<google_firestore_v1_Value> NullValue() {
 
 bool IsNullValue(const google_firestore_v1_Value& value) {
   return value.which_value_type == google_firestore_v1_Value_null_value_tag;
+}
+
+nanopb::Message<google_firestore_v1_Value> MinValue() {
+  return NullValue();
+}
+
+bool IsMinValue(const google_firestore_v1_Value& value) {
+  return IsNullValue(value);
 }
 
 Message<google_firestore_v1_Value> MaxValue() {
