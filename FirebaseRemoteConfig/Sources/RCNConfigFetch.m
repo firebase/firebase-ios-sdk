@@ -64,6 +64,8 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 // Deprecated error code previously from FirebaseCore
 static const NSInteger sFIRErrorCodeConfigFailed = -114;
 
+static NSString *const templateVersionNumberKey = @"templateVersionNumber";
+
 #pragma mark - RCNConfig
 
 @implementation RCNConfigFetch {
@@ -75,6 +77,7 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
   NSURLSession *_fetchSession;  /// Managed internally by the fetch instance.
   NSString *_FIRNamespace;
   FIROptions *_options;
+  NSString *_templateVersionNumber;
 }
 
 - (instancetype)init {
@@ -101,6 +104,10 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
     _content = content;
     _fetchSession = [self newFetchSession];
     _options = options;
+      
+    if ([content.fetchedConfig objectForKey:templateVersionNumberKey]) {
+        self->_templateVersionNumber = [content.fetchedConfig objectForKey:templateVersionNumberKey];
+    }
   }
   return self;
 }
@@ -191,6 +198,10 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
     strongSelf->_settings.isFetchInProgress = YES;
     [strongSelf refreshInstallationsTokenWithCompletionHandler:completionHandler];
   });
+}
+
+- (NSString *)getTemplateVersionNumber {
+    return self->_templateVersionNumber;
 }
 
 #pragma mark - Fetch helpers
@@ -487,6 +498,9 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
         if ([namespace isEqualToString:FIRNamespaceGoogleMobilePlatform]) {
           [strongSelf->_experiment updateExperimentsWithResponse:
                                        fetchedConfig[RCNFetchResponseKeyExperimentDescriptions]];
+        }
+        if ([fetchedConfig objectForKey:templateVersionNumberKey]) {
+            self->_templateVersionNumber = [fetchedConfig objectForKey:templateVersionNumberKey];
         }
       } else {
         FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000063",

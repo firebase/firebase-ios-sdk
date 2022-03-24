@@ -26,6 +26,35 @@ static NSString *const FIRPerfNamespace = @"fireperf";
 static NSString *const FIRDefaultFIRAppName = @"__FIRAPP_DEFAULT";
 static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
 
+@interface RemoteConfigCallback : NSObject<RealTimeDelegateCallback>
+
+@end
+
+@implementation RemoteConfigCallback {
+    FIRRemoteConfig *_remoteConfig;
+}
+
+- (instancetype) initWithClass: (FIRRemoteConfig *)remoteConfig {
+    self = [super init];
+    if (self) {
+        _remoteConfig = remoteConfig;
+    }
+    return self;
+}
+
+- (void)handleRealTimeConfigFetch: (nonnull id)realTimeStream {
+    NSLog(@"Entering callback.");
+    [self->_remoteConfig activateWithCompletion:^(BOOL changed, NSError * _Nullable error) {
+        if (changed) {
+            NSLog(@"Activation complete");
+        } else {
+            NSLog(@"Activation failed");
+        }
+    }];
+}
+
+@end
+
 @interface FIRRemoteConfig (Sample)
 + (FIRRemoteConfig *)remoteConfigWithFIRNamespace:(NSString *)remoteConfigNamespace
                                               app:(FIRApp *)app;
@@ -101,6 +130,8 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
         self.RCInstances[namespaceString][appString] =
             [FIRRemoteConfig remoteConfigWithFIRNamespace:namespaceString app:firebaseApp];
       }
+      RemoteConfigCallback *_remoteConfigCallback = [[RemoteConfigCallback alloc] initWithClass: self.RCInstances[namespaceString][appString]];
+      [self.RCInstances[namespaceString][appString] startRealTimeStream: _remoteConfigCallback];
       FIRRemoteConfigSettings *settings = [[FIRRemoteConfigSettings alloc] init];
       settings.fetchTimeout = 300;
       settings.minimumFetchInterval = 0;

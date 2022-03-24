@@ -13,7 +13,7 @@
 #import "RCNRealtimeConfigHttpClient.h"
 
 // Header names
-static NSString *const kHTTPMethodGet = @"GET";  ///< HTTP request method config fetch using
+static NSString *const kHTTPMethodPost = @"POST";  ///< HTTP request method config fetch using
 static NSString *const kContentTypeHeaderName = @"Content-Type";  ///< HTTP Header Field Name
 static NSString *const kContentEncodingHeaderName =
     @"Content-Encoding";                                                ///< HTTP Header Field Name
@@ -25,6 +25,8 @@ static NSString *const kInstallationsAuthTokenHeaderName = @"x-goog-firebase-ins
 static NSString *const kiOSBundleIdentifierHeaderName =
     @"X-Ios-Bundle-Identifier";  ///< HTTP Header Field Name
 
+static NSString *const templateVersionNumberKey = @"templateVersionNumber";
+
 // Retry parameters
 NSInteger MAX_RETRY = 10;
 NSInteger MAX_RETRY_COUNT = 10;
@@ -33,6 +35,25 @@ NSTimeInterval timeoutSeconds = 432000;
 double RETRY_SECONDS = 5.5;
 
 static NSString *const hostAddress = @"http://127.0.0.1:8080";
+
+# pragma mark - Realtime Event Listener Registration
+@implementation RealtimeListenerRegistration {
+    RCNRealtimeConfigHttpClient *_realtimeClient;
+}
+
+- (instancetype) initWithClass: (RCNRealtimeConfigHttpClient *)realtimeClient {
+    self = [super init];
+    if (self) {
+        _realtimeClient = realtimeClient;
+    }
+    return self;
+}
+
+- (void)remove {
+    [self->_realtimeClient removeRealTimeDelegateCallback];
+}
+
+@end
 
 @implementation RCNRealtimeConfigHttpClient {
     RCNConfigFetch *_configFetch;
@@ -63,6 +84,7 @@ static NSString *const hostAddress = @"http://127.0.0.1:8080";
         _notificationCenter = [NSNotificationCenter defaultCenter];
         _inBackground = FALSE;
         [self setUpHttpRequest];
+//        [self retryOnEveryNetworkConnection];
     }
     
     return self;
@@ -179,12 +201,16 @@ static NSString *const hostAddress = @"http://127.0.0.1:8080";
 
 -(void) setUpHttpRequest {
     _request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:hostAddress] cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:timeoutSeconds];
-    [_request setHTTPMethod:kHTTPMethodGet];
+    [_request setHTTPMethod:kHTTPMethodPost];
     [_request setValue:@"application/json" forHTTPHeaderField:kContentTypeHeaderName];
     [_request setValue:@"gzip" forHTTPHeaderField:kContentEncodingHeaderName];
     [_request setValue:@"gzip" forHTTPHeaderField:kAcceptEncodingHeaderName];
     [_request setValue:[[NSBundle mainBundle] bundleIdentifier]
         forHTTPHeaderField:kiOSBundleIdentifierHeaderName];
+    
+    NSString *postBody = [NSString stringWithFormat:@"project=%@&namespace=%@&templateVersionNumber=%@", [self->_options projectID], self->_namespace, [self->_configFetch getTemplateVersionNumber]];
+    NSData *postData = [postBody dataUsingEncoding:NSUTF8StringEncoding];
+    [_request setHTTPBody:postData];
 }
 
 // Creates request and makes call to create session.
@@ -219,6 +245,17 @@ static NSString *const hostAddress = @"http://127.0.0.1:8080";
     } else {
         NSLog(@"No retries remaining");
     }
+}
+
+- (void)checkNetworkConnection {
+    NSString *testString = [NSString stringWithContentsOfURL:[NSURL URLWithString:@"http://www.google.com"] encoding:NSUTF8StringEncoding error:Nil];
+    if (testString != nil) {
+        [self startStream];
+    }
+}
+
+- (void)retryOnEveryNetworkConnection {
+    [NSTimer scheduledTimerWithTimeInterval:300 target:self selector:@selector(checkNetworkConnection) userInfo:nil repeats:YES];
 }
 
 #pragma mark - NSURLSession Delegates
@@ -280,7 +317,7 @@ completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))complet
     [self startStream];
 }
 
-#pragma mark - Exposed Realtime Methods
+#pragma mark - Realtime Methods
 
 // Starts HTTP connection.
 - (void)startStream {
@@ -308,8 +345,9 @@ completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))complet
 }
 
 // Sets Delegate callback
-- (void)setRealTimeDelegateCallback:(id)realTimeDelegate {
+- (RealtimeListenerRegistration *)setRealTimeDelegateCallback:(id)realTimeDelegate {
     self->_realTimeDelegate = realTimeDelegate;
+    return [[RealtimeListenerRegistration alloc] initWithClass: self];
 }
 
 // Removes Delegate callback
