@@ -13,7 +13,7 @@ public typealias FIRDatabaseHandle = Int
     func responseTo(_ eventType: DataEventType) -> Bool
     func createEventFrom(_ change: FChange, query: FQuerySpec) -> FDataEvent
     func fireEvent(_ event: FEvent, queue: DispatchQueue)
-    func createCancelEventFromError(_ error: Error, path: FPath) -> FCancelEvent
+    func createCancelEventFromError(_ error: Error, path: FPath) -> FCancelEvent?
     /**
      * Used to figure out what event registration match the event registration that
      * needs to be removed.

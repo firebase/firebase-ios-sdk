@@ -19,7 +19,7 @@ import Foundation
     public func fireEvent(_ event: FEvent, queue: DispatchQueue) {
         fatalError("Should never raise event for FKeepSyncedEventRegistration")
     }
-    public func createCancelEventFromError(_ error: Error, path: FPath) -> FCancelEvent {
+    public func createCancelEventFromError(_ error: Error, path: FPath) -> FCancelEvent? {
         // Don't create cancel events....
         fatalError()
     }
