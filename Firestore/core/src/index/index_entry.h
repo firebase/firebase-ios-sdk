@@ -62,8 +62,7 @@ class IndexEntry : public util::Comparable<IndexEntry> {
   size_t Hash() const;
 
   std::string ToString() const;
-  friend std::ostream& operator<<(std::ostream& out,
-                                  const IndexEntry& database_id);
+  friend std::ostream& operator<<(std::ostream& out, const IndexEntry& entry);
 
  private:
   int32_t index_id_;
