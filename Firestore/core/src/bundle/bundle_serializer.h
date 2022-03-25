@@ -117,9 +117,14 @@ class BundleSerializer {
                                          const nlohmann::json& filter) const;
   nanopb::Message<google_firestore_v1_Value> DecodeValue(
       JsonReader& reader, const nlohmann::json& value) const;
-  core::Bound DecodeBound(JsonReader& reader,
-                          const nlohmann::json& query,
-                          const char* bound_name) const;
+  core::Bound DecodeStartAtBound(JsonReader& reader,
+                                 const nlohmann::json& query,
+                                 const char* bound_name) const;
+  core::Bound DecodeEndAtBound(JsonReader& reader,
+                               const nlohmann::json& query,
+                               const char* bound_name) const;
+  std::pair<bool, nanopb::SharedMessage<google_firestore_v1_ArrayValue>>
+  DecodeBoundFields(JsonReader& reader, const nlohmann::json& bound_json) const;
   model::ResourcePath DecodeName(JsonReader& reader,
                                  const nlohmann::json& name) const;
   nanopb::Message<google_firestore_v1_ArrayValue> DecodeArrayValue(

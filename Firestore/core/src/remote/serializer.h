@@ -294,8 +294,10 @@ class Serializer {
       util::ReadContext* context,
       const google_firestore_v1_StructuredQuery_Order& order_by) const;
 
-  google_firestore_v1_Cursor EncodeBound(const core::Bound& bound) const;
-  core::Bound DecodeBound(google_firestore_v1_Cursor& cursor) const;
+  google_firestore_v1_Cursor EncodeBound(const core::Bound& bound,
+                                         bool as_start) const;
+  core::Bound DecodeBound(google_firestore_v1_Cursor& cursor,
+                          bool as_start) const;
 
   std::unique_ptr<remote::WatchChange> DecodeTargetChange(
       util::ReadContext* context,

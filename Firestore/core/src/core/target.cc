@@ -17,6 +17,8 @@
 #include "Firestore/core/src/core/target.h"
 
 #include <ostream>
+#include <unordered_map>
+#include <vector>
 
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/core/operator.h"
@@ -240,7 +242,7 @@ Target::GetAscendingBound(const Segment& segment,
         if (model::Compare(segment_value, cursor_value) ==
             util::ComparisonResult::Ascending) {
           segment_value = cursor_value;
-          segment_inclusive = bound.value().before();
+          segment_inclusive = bound.value().inclusive();
         }
       }
     }
@@ -304,7 +306,7 @@ Target::GetDescendingBound(const Segment& segment,
         if (model::Compare(segment_value, cursor_value) ==
             util::ComparisonResult::Descending) {
           segment_value = cursor_value;
-          segment_inclusive = bound.value().before();
+          segment_inclusive = bound.value().inclusive();
         }
       }
     }
@@ -342,11 +344,11 @@ const std::string& Target::CanonicalId() const {
   }
 
   if (start_at_) {
-    absl::StrAppend(&result, "|lb:", start_at_->CanonicalId());
+    absl::StrAppend(&result, "|lb:", start_at_->CanonicalId(/*as_start=*/true));
   }
 
   if (end_at_) {
-    absl::StrAppend(&result, "|ub:", end_at_->CanonicalId());
+    absl::StrAppend(&result, "|ub:", end_at_->CanonicalId(/*as_start=*/false));
   }
 
   canonical_id_ = std::move(result);

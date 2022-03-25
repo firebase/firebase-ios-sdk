@@ -22,6 +22,7 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "Firestore/core/src/core/bound.h"
 #include "Firestore/core/src/core/field_filter.h"
