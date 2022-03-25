@@ -93,9 +93,9 @@ IndexedValues Target::GetArrayValues(const model::FieldIndex& field_index) {
   for (const FieldFilter& filter :
        GetFieldFiltersForPath(segment.value().field_path())) {
     switch (filter.op()) {
-      case Filter::Operator::ArrayContains:
+      case FieldFilter::Operator::ArrayContains:
         return MakeValueVector(NOT_NULL(&(filter.value().array_value)));
-      case Filter::Operator::ArrayContainsAny:
+      case FieldFilter::Operator::ArrayContainsAny:
         return std::vector<_google_firestore_v1_Value>{filter.value()};
       default:
         continue;
@@ -111,16 +111,16 @@ IndexedValues Target::GetNotInValues(const model::FieldIndex& field_index) {
     for (const auto& field_filter :
          GetFieldFiltersForPath(segment.field_path())) {
       switch (field_filter.op()) {
-        case Filter::Operator::Equal:
-        case Filter::Operator::In:
+        case FieldFilter::Operator::Equal:
+        case FieldFilter::Operator::In:
           // Encode equality prefix, which is encoded in the index value before
           // the inequality (e.g. `a == 'a' && b != 'b'` is encoded to `value !=
           // 'ab'`).
           field_value_map[segment.field_path().CanonicalString()] =
               field_filter.value();
           break;
-        case Filter::Operator::NotIn:
-        case Filter::Operator::NotEqual:
+        case FieldFilter::Operator::NotIn:
+        case FieldFilter::Operator::NotEqual:
           field_value_map[segment.field_path().CanonicalString()] =
               field_filter.value();
           return ValuesFrom(
@@ -201,22 +201,22 @@ Target::GetAscendingBound(const Segment& segment,
     bool filter_inclusive = true;
 
     switch (field_filter.op()) {
-      case Filter::Operator::LessThan:
-      case Filter::Operator::LessThanOrEqual:
+      case FieldFilter::Operator::LessThan:
+      case FieldFilter::Operator::LessThanOrEqual:
         filter_value =
             *model::GetLowerBound(field_filter.value().which_value_type);
         break;
-      case Filter::Operator::Equal:
-      case Filter::Operator::In:
-      case Filter::Operator::GreaterThanOrEqual:
+      case FieldFilter::Operator::Equal:
+      case FieldFilter::Operator::In:
+      case FieldFilter::Operator::GreaterThanOrEqual:
         filter_value = field_filter.value();
         break;
-      case Filter::Operator::GreaterThan:
+      case FieldFilter::Operator::GreaterThan:
         filter_value = field_filter.value();
         filter_inclusive = false;
         break;
-      case Filter::Operator::NotEqual:
-      case Filter::Operator::NotIn:
+      case FieldFilter::Operator::NotEqual:
+      case FieldFilter::Operator::NotIn:
         filter_value = *model::MinValue();
         break;
       default:
@@ -264,23 +264,23 @@ Target::GetDescendingBound(const Segment& segment,
     bool filter_inclusive = true;
 
     switch (field_filter.op()) {
-      case Filter::Operator::GreaterThanOrEqual:
-      case Filter::Operator::GreaterThan:
+      case FieldFilter::Operator::GreaterThanOrEqual:
+      case FieldFilter::Operator::GreaterThan:
         filter_value =
             *model::GetUpperBound(field_filter.value().which_value_type);
         filter_inclusive = false;
         break;
-      case Filter::Operator::Equal:
-      case Filter::Operator::In:
-      case Filter::Operator::LessThanOrEqual:
+      case FieldFilter::Operator::Equal:
+      case FieldFilter::Operator::In:
+      case FieldFilter::Operator::LessThanOrEqual:
         filter_value = field_filter.value();
         break;
-      case Filter::Operator::LessThan:
+      case FieldFilter::Operator::LessThan:
         filter_value = field_filter.value();
         filter_inclusive = false;
         break;
-      case Filter::Operator::NotIn:
-      case Filter::Operator::NotEqual:
+      case FieldFilter::Operator::NotIn:
+      case FieldFilter::Operator::NotEqual:
         filter_value = *model::MaxValue();
         break;
       default:
