@@ -185,9 +185,8 @@ class StorageTests: XCTestCase {
       options.storageBucket = bucket
     }
     let name = "StorageTests\(bucket)"
-    FirebaseApp.configure(name: name, options: options)
-    let app = try! XCTUnwrap(FirebaseApp.app(name: name))
+    let app = FirebaseApp(instanceWithName: name, options: options)
     StorageTests.appDictionary[bucket] = app
-    return try XCTUnwrap(app)
+    return app
   }
 }
