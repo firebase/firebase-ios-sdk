@@ -10,8 +10,8 @@ You'll need valid `GoogleService-Info.plist` files for those samples. To get you
 2. Create a new Firebase project, if you don't already have one
 3. For each sample app you want to test, create a new Firebase app with the sample app's bundle
 identifier (e.g. `com.google.FirebaseExperimental1.dev`)
-4. Download the resulting `GoogleService-Info.plist` and place it in
-[Sample/GoogleService-Info.plist](Sample/GoogleService-Info.plist)
+4. Download the resulting `GoogleService-Info.plist` and place it in the
+[`Sample/` directory](Sample/)
 
 #### GoogleService-Info\_multi.plist files
 
@@ -19,7 +19,7 @@ identifier (e.g. `com.google.FirebaseExperimental1.dev`)
 same Firebase project as the one above, or a different one.  Use a different app bundle identifier
 (e.g.  `com.google.FirebaseExperimental2.dev`).
 2. Save this plist file as `GoogleService-Info_multi.plist` in
-[Sample/GoogleService-Info\_multi.plist](Sample/GoogleService-Info_multi.plist).
+the [`Sample/` directory](Sample/).
 This enables testing that FirebaseAuth continues to work after switching the Firebase App in the
 runtime.
 
@@ -58,34 +58,6 @@ into a file named `Sample/Sample.entitlements` and replace `$KAPP_LINKS_DOMAIN` 
 relevant appLinks domain. Your appLinks domains are domains that your app will handle as universal
 links, in this particular case you can obtain this domain from the aforementioned Dynamic Links
 section of the Firebase Console.
-
-
-### Running SwiftSample Application
-
-In order to run this application, you'll need to follow the following steps!
-
-#### GoogleService-Info.plist files
-
-You'll need valid `GoogleService-Info.plist` files for those samples. To get your own
-`GoogleService-Info.plist` files:
-1. Go to the [Firebase Console](https://console.firebase.google.com/)
-2. Create a new Firebase project, if you don't already have one
-3. For each sample app you want to test, create a new Firebase app with the sample app's bundle
-identifier (e.g. `com.google.FirebaseExperimental2.dev`)
-4. Download the resulting `GoogleService-Info.plist` and place it in
-[SwiftSample/GoogleService-Info.plist](SwiftSample/GoogleService-Info.plist)
-
-#### Info.plist file
-
-Please follow the instructions in
-[SwiftSample/InfoTemplate.plist](SwiftSample/InfoTemplate.plist)
-to generate the right Info.plist file
-
-#### Getting your own Credential files
-
-Please follow the instructions in
-[SwiftSample/AuthCredentialsTemplate.swift](SwiftSample/AuthCredentialsTemplate.swift)
-to generate the AuthCredentials.swift file.
 
 ### Running API tests
 

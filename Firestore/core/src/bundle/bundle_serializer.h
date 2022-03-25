@@ -64,8 +64,12 @@ class JsonReader : public util::ReadContext {
       const char* name,
       const nlohmann::json& json_object,
       const std::vector<nlohmann::json>& default_value);
+
   const nlohmann::json& RequiredObject(const char* child_name,
                                        const nlohmann::json& json_object);
+  const nlohmann::json& OptionalObject(const char* child_name,
+                                       const nlohmann::json& json_object,
+                                       const nlohmann::json& default_value);
 
   double RequiredDouble(const char* name, const nlohmann::json& json_object);
   double OptionalDouble(const char* name,

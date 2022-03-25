@@ -65,7 +65,7 @@ class LevelDbIndexManager : public IndexManager {
   absl::optional<model::FieldIndex> GetFieldIndex(core::Target target) override;
 
   absl::optional<std::vector<model::DocumentKey>> GetDocumentsMatchingTarget(
-      model::FieldIndex fieldIndex, core::Target target) override;
+      model::FieldIndex field_index, core::Target target) override;
 
   absl::optional<std::string> GetNextCollectionGroupToUpdate() override;
 

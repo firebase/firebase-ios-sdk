@@ -31,9 +31,9 @@ NS_SWIFT_NAME(FirebaseConfiguration)
 
 /**
  * Sets the logging level for internal Firebase logging. Firebase will only log messages
- * that are logged at or below loggerLevel. The messages are logged both to the Xcode
+ * that are logged at or below `loggerLevel`. The messages are logged both to the Xcode
  * console and to the device's log. Note that if an app is running from AppStore, it will
- * never log above FIRLoggerLevelNotice even if loggerLevel is set to a higher (more verbose)
+ * never log above `.notice` even if `loggerLevel` is set to a higher (more verbose)
  * setting.
  *
  * @param loggerLevel The maximum logging level. The default level is set to FIRLoggerLevelNotice.

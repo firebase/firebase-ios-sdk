@@ -11,6 +11,10 @@ on:
     # TODO: Validate when the timer starts after job is triggered.
     - cron:  '0 */4 * * *'
 
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: true
+
 jobs:
 
   # Public repository: Build and run the Integration Tests for the Firebase performance E2E Test App.

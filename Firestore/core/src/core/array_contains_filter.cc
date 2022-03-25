@@ -32,7 +32,7 @@ using model::Document;
 using model::FieldPath;
 using model::IsArray;
 using nanopb::SharedMessage;
-using Operator = Filter::Operator;
+using Operator = FieldFilter::Operator;
 
 class ArrayContainsFilter::Rep : public FieldFilter::Rep {
  public:

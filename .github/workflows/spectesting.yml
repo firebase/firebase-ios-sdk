@@ -3,6 +3,10 @@ name: spectesting
 on:
   pull_request
 
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: true
+
 jobs:
   specs_checking:
     # Don't run on private repo unless it is a PR.
