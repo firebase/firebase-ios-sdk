@@ -34,7 +34,7 @@ class KeyFieldFilter : public FieldFilter {
  public:
   /** Creates a new document key filter. Takes ownership of `value`. */
   KeyFieldFilter(const model::FieldPath& field,
-                 core::Filter::Operator op,
+                 core::FieldFilter::Operator op,
                  nanopb::SharedMessage<google_firestore_v1_Value> value);
 
  private:

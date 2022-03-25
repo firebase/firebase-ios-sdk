@@ -7,6 +7,10 @@ on:
   release:
     types: [ published ]
 
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: true
+
 jobs:
   trigger_cpp_sdk_update:
     # Only when a new release (not just the CocoaPods-* tag) is published.

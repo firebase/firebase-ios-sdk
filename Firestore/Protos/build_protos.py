@@ -22,11 +22,15 @@ from __future__ import print_function
 import sys
 
 import argparse
+import contextlib
 import datetime
+import io
 import os
 import os.path
 import re
+import stat
 import subprocess
+import tempfile
 
 
 CPP_GENERATOR = 'nanopb_cpp_generator.py'
@@ -104,6 +108,46 @@ def main():
     ObjcProtobufGenerator(args, proto_files).run()
 
 
+@contextlib.contextmanager
+def CppGeneratorScriptTweaked(path):
+  """
+  Set the shebang line of the CPP_GENERATOR script to use the same Python
+  interpreter as this process.
+
+  This is a workaround for the fact that `python` is hardcoded as the python
+  interpreter, which does not always exist in the new world where Python2
+  support has largely disappeared (e.g. macOS 12.3). Changing it to `python3`
+  would possibly break some builds too.
+  """
+  # Read the script into memory.
+  with io.open(path, 'rt', encoding='utf8') as f:
+    lines = [line for line in f]
+
+  # Verify that the read file looks like the right one.
+  if lines[0] != u'#!/usr/bin/env python\n':
+    raise RuntimeError('unexpected first line of ' + path + ': ' + lines[0])
+
+  # Replace the shebang line with a custom one.
+  lines[0] = u'#!' + sys.executable + u'\n'
+
+  # Create a temporary file to which to write the tweaked script.
+  (handle, temp_path) = tempfile.mkstemp('.py', dir=os.path.dirname(path))
+  os.close(handle)
+
+  try:
+    # Write the lines of the tweaked script to the temporary file.
+    with io.open(temp_path, 'wt', encoding='utf8') as f:
+      f.writelines(lines)
+
+    # Make sure that the temporary file is executable.
+    st = os.stat(temp_path)
+    os.chmod(temp_path, st.st_mode | stat.S_IEXEC)
+
+    yield temp_path
+  finally:
+    os.unlink(temp_path)
+
+
 class NanopbGenerator(object):
   """Builds and runs the nanopb plugin to protoc."""
 
@@ -130,9 +174,6 @@ class NanopbGenerator(object):
     """Invokes protoc using the nanopb plugin."""
     cmd = protoc_command(self.args)
 
-    gen = os.path.join(os.path.dirname(__file__), CPP_GENERATOR)
-    cmd.append('--plugin=protoc-gen-nanopb=%s' % gen)
-
     nanopb_flags = ' '.join([
         '--extension=.nanopb',
         '--source-extension=.cc',
@@ -146,8 +187,11 @@ class NanopbGenerator(object):
     ])
     cmd.append('--nanopb_out=%s:%s' % (nanopb_flags, out_dir))
 
-    cmd.extend(self.proto_files)
-    run_protoc(self.args, cmd)
+    gen = os.path.join(os.path.dirname(__file__), CPP_GENERATOR)
+    with CppGeneratorScriptTweaked(gen) as gen_tweaked:
+      cmd.append('--plugin=protoc-gen-nanopb=%s' % gen_tweaked)
+      cmd.extend(self.proto_files)
+      run_protoc(self.args, cmd)
 
 
 class ObjcProtobufGenerator(object):

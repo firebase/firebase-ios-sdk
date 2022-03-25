@@ -29,6 +29,7 @@
 #include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
 #include "Firestore/Protos/nanopb/google/type/latlng.nanopb.h"
 #include "Firestore/core/src/core/core_fwd.h"
+#include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/core/filter.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/model_fwd.h"
@@ -279,8 +280,8 @@ class Serializer {
       const;
 
   google_firestore_v1_StructuredQuery_FieldFilter_Operator
-  EncodeFieldFilterOperator(core::Filter::Operator op) const;
-  core::Filter::Operator DecodeFieldFilterOperator(
+  EncodeFieldFilterOperator(core::FieldFilter::Operator op) const;
+  core::FieldFilter::Operator DecodeFieldFilterOperator(
       util::ReadContext* context,
       google_firestore_v1_StructuredQuery_FieldFilter_Operator op) const;
 
