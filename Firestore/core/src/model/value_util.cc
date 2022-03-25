@@ -73,6 +73,8 @@ TypeOrder GetTypeOrder(const google_firestore_v1_Value& value) {
     case google_firestore_v1_Value_map_value_tag: {
       if (IsServerTimestamp(value)) {
         return TypeOrder::kServerTimestamp;
+      } else if (IsMaxValue(value)) {
+        return TypeOrder::kMaxValue;
       }
       return TypeOrder::kMap;
     }
@@ -271,6 +273,9 @@ ComparisonResult Compare(const google_firestore_v1_Value& left,
 
     case TypeOrder::kMap:
       return CompareObjects(left, right);
+
+    case TypeOrder::kMaxValue:
+      return util::ComparisonResult::Same;
 
     default:
       HARD_FAIL("Invalid type value: %s", left_type);
@@ -644,7 +649,32 @@ Message<google_firestore_v1_Value> MaxValue() {
 }
 
 bool IsMaxValue(const google_firestore_v1_Value& value) {
-  return value == *MaxValue();
+  bool is_max =
+      (value.which_value_type == google_firestore_v1_Value_map_value_tag);
+  if (!is_max) {
+    return false;
+  }
+
+  is_max = (value.map_value.fields_count == 1);
+  if (!is_max) {
+    return false;
+  }
+
+  is_max = (nanopb::MakeStringView(value.map_value.fields->key) == "__type__");
+  if (!is_max) {
+    return false;
+  }
+
+  is_max = (value.map_value.fields->value.which_value_type ==
+            google_firestore_v1_Value_string_value_tag);
+  if (!is_max) {
+    return false;
+  }
+
+  is_max = (nanopb::MakeStringView(
+                value.map_value.fields->value.string_value) == "__max__");
+
+  return is_max;
 }
 
 Message<google_firestore_v1_Value> NaNValue() {

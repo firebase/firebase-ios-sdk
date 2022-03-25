@@ -52,7 +52,8 @@ enum class TypeOrder {
   kReference = 7,
   kGeoPoint = 8,
   kArray = 9,
-  kMap = 10
+  kMap = 10,
+  kMaxValue = 11
 };
 
 /** Returns the backend's type order of the given Value type. */
