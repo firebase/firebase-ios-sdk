@@ -38,27 +38,6 @@
 
 #pragma mark - Interoperability Tests
 
-// Tests that the right number of components are being provided for the container.
-- (void)testComponentsBeingRegistered {
-  // Check the count, because any time a new component is added it should be added to the test suite
-  // as well.
-  NSArray<FIRComponent *> *components = [FIRStorageComponent componentsToRegister];
-  XCTAssertTrue(components.count == 1);
-
-  FIRComponent *component = [components firstObject];
-  XCTAssert(component.protocol == @protocol(FIRStorageMultiBucketProvider));
-}
-
-/// Tests that a FIRIMPLStorage instance can be created properly by the FIRStorageComponent.
-- (void)testStorageInstanceCreation {
-  // Get a mocked app, but don't use the default helper since it uses this class in the
-  // implementation.
-  id app = [self appMockWithOptions];
-  FIRStorageComponent *component = [[FIRStorageComponent alloc] initWithApp:app];
-  FIRIMPLStorage *storage = [component storageForBucket:@"someBucket"];
-  XCTAssertNotNil(storage);
-}
-
 /// Tests that the component container caches instances of FIRStorageComponent.
 - (void)testMultipleComponentInstancesCreated {
   // App isn't used in any of this, so a simple class mock works for simplicity.

@@ -95,6 +95,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
       'FirebaseCore/Tests/SwiftUnit/**/*.swift',
       'FirebaseCore/Tests/SwiftUnit/**/*.h',
       'FirebaseCore/Tests/SwiftUnit/SwiftTestingUtilities/*',
+      'SharedTestUtilities/ExceptionCatcher.[mh]',
       'SharedTestUtilities/FIROptionsMock.[mh]',
     ]
     swift_unit_tests.pod_target_xcconfig = {

@@ -1074,6 +1074,15 @@ let package = Package(
       path: "FirebaseStorageSwift/Sources"
     ),
     .testTarget(
+      name: "FirebaseStorageUnit",
+      dependencies: ["FirebaseStorage",
+                     "SharedTestUtilities"],
+      path: "FirebaseStorageSwift/Tests/Unit",
+      cSettings: [
+        .headerSearchPath("../../../"),
+      ]
+    ),
+    .testTarget(
       name: "StorageObjcIntegration",
       dependencies: ["FirebaseStorage"],
       path: "FirebaseStorageSwift/Tests/ObjcIntegration",
