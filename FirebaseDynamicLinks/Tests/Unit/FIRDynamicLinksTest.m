@@ -1663,12 +1663,15 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
     @"mydomain.com",                           // https scheme not specified for domainURIPrefix.
     @"http://mydomain",  // Domain not in plist. No path after domainURIPrefix.
     @"https://somecustom.com?", @"https://somecustom.com/?",
-    @"https://somecustom.com?somekey=someval"
+    @"https://somecustom.com?somekey=someval",
+    @"https://google.com?some=qry&somelink=https%3A%2F%2Fsomedomain",  // Having somelink param
+                                                                       // instead of link param to
+                                                                       // confuse validation.
   ];
 
   for (NSString *urlString in urlStrings) {
     NSURL *url = [NSURL URLWithString:urlString];
-    BOOL matchesShortLinkFormat = [self.service matchesShortLinkFormat:url];
+    BOOL matchesShortLinkFormat = [self.service canParseUniversalLinkURL:url];
 
     XCTAssertFalse(matchesShortLinkFormat,
                    @"Non-DDL domain URL matched short link format with URL: %@", url);

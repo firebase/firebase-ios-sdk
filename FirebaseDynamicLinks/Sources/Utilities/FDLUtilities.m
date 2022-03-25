@@ -220,7 +220,8 @@ BOOL FIRDLIsURLForAllowedCustomDomain(NSURL *_Nullable URL) {
         // 2. Should have a link query param with an http/https link
         BOOL matchesRegularExpression =
             ([urlWithoutDomainURIPrefix
-                 rangeOfString:@"^((\\/[A-Za-z0-9]+)|((\\?|\\/\\?).*(\\&?)link=https?.*)$)"
+                 rangeOfString:
+                     @"^((\\/[A-Za-z0-9]+)|((\\?|\\/\\?)(link=https?.*)|(.*\\&link=https?.*))$)"
                        options:NSRegularExpressionSearch]
                  .location != NSNotFound);
 
