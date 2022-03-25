@@ -31,7 +31,7 @@ class StorageComponentTests: XCTestCase {
                                   gcmSenderID: "00000000000000000-00000000000-000000000")
     options.projectID = "myProjectID"
     FirebaseApp.configure(name: "test", options: options)
-    app = try! XCTUnwrap(FirebaseApp.app(name: "test"))
+    app = FirebaseApp(instanceWithName: "test", options: options)
   }
 
   // MARK: Interoperability Tests
@@ -49,51 +49,44 @@ class StorageComponentTests: XCTestCase {
     XCTAssertNotNil(storage)
   }
 
-  /// Tests that the component container caches instances of FIRStorageComponent.
+  /// Tests that the component container caches instances of StorageComponent.
   func testMultipleComponentInstancesCreated() throws {
     let app = try XCTUnwrap(StorageComponentTests.app)
-    var registrants = [StorageComponent.self]
-//    let container = FirebaseComponentContainer(app: app, components: registrants)
-//
-//    let provider1 = ComponentType<StorageProvider>.instance(for: StorageProvider.self,
-//                                                           in: app.container)
-//    XCTAssertNotNil(provider1)
-//
-//    let provider2 = ComponentType<StorageProvider>.instance(for: StorageProvider.self,
-//                                                           in: app.container)
-//    XCTAssertNotNil(provider2)
-//
-//    // Ensure they're the same instance.
-//    XCTAssertEqual(provider1, provider2)
+    let registrants = NSMutableSet(array: [StorageComponent.self])
+    let container = FirebaseComponentContainer(app: app, registrants: registrants)
+
+    let provider1 = ComponentType<StorageProvider>.instance(for: StorageProvider.self,
+                                                            in: container)
+    XCTAssertNotNil(provider1)
+
+    let provider2 = ComponentType<StorageProvider>.instance(for: StorageProvider.self,
+                                                            in: container)
+    XCTAssertNotNil(provider2)
+
+    // Ensure they're the same instance.
+    XCTAssert(provider1 === provider2)
   }
 
-//
-//  /// Tests that instances of FIRStorage created are different.
-//  - (void)testMultipleStorageInstancesCreated {
-//    // Get a mocked app, but don't use the default helper since is uses this class in the
-//    // implementation.
-//    id app = [self appMockWithOptions];
-//    NSMutableSet *registrants = [NSMutableSet setWithObject:[FIRStorageComponent class]];
-//    FIRComponentContainer *container = [[FIRComponentContainer alloc] initWithApp:app
-//                                                                      registrants:registrants];
-//    id<FIRStorageMultiBucketProvider> provider =
-//        FIR_COMPONENT(FIRStorageMultiBucketProvider, container);
-//    XCTAssertNotNil(provider);
-//
-//    FIRStorage *storage1 = [provider storageForBucket:@"randomBucket"];
-//    XCTAssertNotNil(storage1);
-//    FIRStorage *storage2 = [provider storageForBucket:@"randomBucket"];
-//    XCTAssertNotNil(storage2);
-//
-//    // Ensure that they're the same instance
-//    XCTAssertEqual(storage1, storage2);
-//    XCTAssertEqualObjects(storage1, storage2);
-//
-//    // Create another bucket with a different provider from above.
-//    FIRStorage *storage3 = [provider storageForBucket:@"differentBucket"];
-//    XCTAssertNotNil(storage3);
-//
-//    // Ensure it's a different object.
-//    XCTAssertNotEqualObjects(storage2, storage3);
-//  }
+  /// Tests that instances of Storage created are different.
+  func testMultipleStorageInstancesCreated() throws {
+    let app = try XCTUnwrap(StorageComponentTests.app)
+    let registrants = NSMutableSet(array: [StorageComponent.self])
+    let container = FirebaseComponentContainer(app: app, registrants: registrants)
+
+    let provider = ComponentType<StorageProvider>.instance(for: StorageProvider.self,
+                                                           in: container)
+    XCTAssertNotNil(provider)
+
+    let storage1 = provider.storage(for: "randomBucket")
+    let storage2 = provider.storage(for: "randomBucket")
+    XCTAssertNotNil(storage1)
+
+    // Ensure they're the same instance.
+    XCTAssert(storage1 === storage2)
+
+    let storage3 = provider.storage(for: "differentBucket")
+    XCTAssertNotNil(storage3)
+
+    XCTAssertNotEqual(storage1, storage3)
+  }
 }
