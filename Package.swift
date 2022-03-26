@@ -737,6 +737,9 @@ let package = Package(
     .testTarget(
       name: "FirebaseFunctionsUnit",
       dependencies: ["FirebaseFunctions",
+                     "FirebaseAppCheckInterop",
+                     "FirebaseAuthInterop",
+                     "FirebaseMessagingInterop",
                      "SharedTestUtilities"],
       path: "FirebaseFunctions/Tests/Unit",
       cSettings: [

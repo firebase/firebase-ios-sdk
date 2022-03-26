@@ -35,9 +35,7 @@ internal class FunctionsContextProvider: NSObject {
   private var messaging: MessagingInterop?
   private var appCheck: AppCheckInterop?
 
-  // The 'public' here is weird. It is sometimes needed for `@testable import FirebaseFunctions` to
-  // successfully access this 'init', but it depends upon the build configuration. Xcode 13.2.1.
-  public init(auth: AuthInterop?, messaging: MessagingInterop?, appCheck: AppCheckInterop?) {
+  init(auth: AuthInterop?, messaging: MessagingInterop?, appCheck: AppCheckInterop?) {
     self.auth = auth
     self.messaging = messaging
     self.appCheck = appCheck
