@@ -23,7 +23,6 @@
 #import "FirebaseDatabase/Sources/Api/Private/FIRMutableData_Private.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRTransactionResult_Private.h"
 #import "FirebaseDatabase/Sources/Constants/FConstants.h"
-#import "FirebaseDatabase/Sources/Core/FListenProvider.h"
 #import "FirebaseDatabase/Sources/Core/FRepo.h"
 #import "FirebaseDatabase/Sources/Core/FRepoManager.h"
 #import "FirebaseDatabase/Sources/Core/FRepo_Private.h"

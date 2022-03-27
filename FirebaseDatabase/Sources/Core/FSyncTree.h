@@ -17,7 +17,7 @@
 #import <Foundation/Foundation.h>
 
 //@class FIndexedNode;
-@class FListenProvider;
+//@class FListenProvider;
 //@protocol FNode;
 //@class FPath;
 @protocol FEventRegistration;
@@ -28,14 +28,6 @@
 @protocol FClock;
 
 @import FirebaseDatabaseSwiftCore;
-
-@protocol FSyncTreeHash <NSObject>
-
-- (NSString *)simpleHash;
-- (FCompoundHash *)compoundHash;
-- (BOOL)includeCompoundHash;
-
-@end
 
 @interface FSyncTree : NSObject
 
