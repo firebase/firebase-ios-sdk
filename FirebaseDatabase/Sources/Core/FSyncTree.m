@@ -15,53 +15,11 @@
  */
 
 #import "FirebaseDatabase/Sources/Core/FSyncTree.h"
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseDatabase/Sources/Core/FServerValues.h"
 
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 @import FirebaseDatabaseSwiftCore;
-
-// Size after which we start including the compound hash
-static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
-
-@interface FListenContainer : NSObject <FSyncTreeHash>
-
-@property(nonatomic, strong) FView *view;
-@property(nonatomic, copy) fbt_nsarray_nsstring onComplete;
-
-@end
-
-@implementation FListenContainer
-
-- (instancetype)initWithView:(FView *)view
-                  onComplete:(fbt_nsarray_nsstring)onComplete {
-    self = [super init];
-    if (self != nil) {
-        self->_view = view;
-        self->_onComplete = onComplete;
-    }
-    return self;
-}
-
-- (id<FNode>)serverCache {
-    return self.view.serverCache;
-}
-
-- (FCompoundHash *)compoundHash {
-    return [FCompoundHash fromNode:[self serverCache]];
-}
-
-- (NSString *)simpleHash {
-    return [[self serverCache] dataHash];
-}
-
-- (BOOL)includeCompoundHash {
-    return [FSnapshotUtilities estimateSerializedNodeSize:[self serverCache]] >
-           kFSizeThresholdForCompoundHash;
-}
-
-@end
 
 @interface FSyncTree ()
 
