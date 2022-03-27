@@ -534,7 +534,7 @@ Message<google_firestore_v1_Value> GetLowerBound(pb_size_t value_tag) {
     case google_firestore_v1_Value_string_value_tag: {
       Message<google_firestore_v1_Value> value;
       value->which_value_type = value_tag;
-      value->string_value = nanopb::MakeArray<pb_bytes_array_s>(0);
+      value->string_value = nanopb::MakeArray<pb_bytes_array_s>(1);
       value->string_value->size = 0;
       return value;
     }
@@ -542,7 +542,7 @@ Message<google_firestore_v1_Value> GetLowerBound(pb_size_t value_tag) {
     case google_firestore_v1_Value_bytes_value_tag: {
       Message<google_firestore_v1_Value> value;
       value->which_value_type = value_tag;
-      value->bytes_value = nanopb::MakeArray<pb_bytes_array_t>(0);
+      value->bytes_value = nanopb::MakeArray<pb_bytes_array_t>(1);
       value->bytes_value->size = 0;
       return value;
     }
