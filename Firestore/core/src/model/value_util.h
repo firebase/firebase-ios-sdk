@@ -68,7 +68,11 @@ void SortFields(google_firestore_v1_ArrayValue& value);
 util::ComparisonResult Compare(const google_firestore_v1_Value& left,
                                const google_firestore_v1_Value& right);
 
-util::ComparisonResult Compare(
+util::ComparisonResult MaxValue(
+    const absl::optional<google_firestore_v1_Value>& left,
+    const absl::optional<google_firestore_v1_Value>& right);
+
+const absl::optional<google_firestore_v1_Value>* MinValue(
     const absl::optional<google_firestore_v1_Value>& left,
     const absl::optional<google_firestore_v1_Value>& right);
 

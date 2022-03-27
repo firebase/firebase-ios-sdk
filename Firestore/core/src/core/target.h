@@ -41,7 +41,11 @@ class BundleSerializer;
 namespace core {
 
 using CollectionGroupId = std::shared_ptr<const std::string>;
-using IndexedValues = absl::optional<std::vector<google_firestore_v1_Value>>;
+using IndexedValues =
+    absl::optional<std::vector<nanopb::Message<google_firestore_v1_Value>>>;
+using IndexedBoundValue =
+    std::pair<absl::optional<nanopb::Message<_google_firestore_v1_Value>>,
+              bool>;
 
 /**
  * A Target represents the WatchTarget representation of a Query, which is
@@ -171,8 +175,8 @@ class Target {
    * @return a Pair with a nullable Value and a boolean indicating whether the
    * bound is inclusive
    */
-  std::pair<absl::optional<_google_firestore_v1_Value>, bool> GetAscendingBound(
-      const model::Segment& segment, const absl::optional<Bound>& bound);
+  IndexedBoundValue GetAscendingBound(const model::Segment& segment,
+                                      const absl::optional<Bound>& bound);
   /**
    * Returns the value for a descending bound of `segment`.
    *
@@ -181,9 +185,8 @@ class Target {
    * @return a Pair with a nullable Value and a boolean indicating whether the
    * bound is inclusive
    */
-  std::pair<absl::optional<_google_firestore_v1_Value>, bool>
-  GetDescendingBound(const model::Segment& segment,
-                     const absl::optional<Bound>& bound);
+  IndexedBoundValue GetDescendingBound(const model::Segment& segment,
+                                       const absl::optional<Bound>& bound);
 
   model::ResourcePath path_;
   std::shared_ptr<const std::string> collection_group_;

@@ -282,17 +282,19 @@ ComparisonResult Compare(const google_firestore_v1_Value& left,
   }
 }
 
-util::ComparisonResult Compare(
+const absl::optional<google_firestore_v1_Value>* MinValue(
     const absl::optional<google_firestore_v1_Value>& left,
     const absl::optional<google_firestore_v1_Value>& right) {
   if (!left.has_value() && !right.has_value()) {
-    return util::ComparisonResult::Same;
+    return &left;
   } else if (!left.has_value()) {
-    return util::ComparisonResult::Ascending;
+    return &right;
   } else if (!right.has_value()) {
-    return util::ComparisonResult::Descending;
+    return &left;
   } else {
-    return Compare(left.value(), right.value());
+    return Compare(left.value(), right.value()) == ComparisonResult::Ascending
+               ? &left
+               : &right;
   }
 }
 
