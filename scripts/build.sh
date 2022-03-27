@@ -646,7 +646,7 @@ case "$product-$platform-$method" in
       "${xcb_flags[@]}" \
       IPHONEOS_DEPLOYMENT_TARGET=13.0 \
       TVOS_DEPLOYMENT_TARGET=13.0 \
-      build test
+      test
     ;;
 
   *-*-spmbuildonly)
