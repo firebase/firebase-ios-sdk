@@ -32,6 +32,7 @@
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRCoreDiagnosticsConnector.h"
+#import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
 #import "FirebaseCore/Extension/FIRLibrary.h"
 #import "FirebaseCore/Extension/FIRLogger.h"
 #import "FirebaseCore/Extension/FIROptionsInternal.h"
@@ -338,6 +339,7 @@ static FIRApp *sDefaultApp;
     _options.editingLocked = YES;
     _isDefaultApp = [name isEqualToString:kFIRDefaultAppName];
     _container = [[FIRComponentContainer alloc] initWithApp:self];
+    _heartbeatLogger = [[FIRHeartbeatLogger alloc] initWithAppID:self.options.googleAppID];
   }
   return self;
 }
@@ -846,6 +848,8 @@ static FIRApp *sDefaultApp;
 }
 
 #pragma mark - App Life Cycle
+
+// TODO(ncooke3): Add heartbeat logging.
 
 - (void)subscribeForAppDidBecomeActiveNotifications {
 #if TARGET_OS_IOS || TARGET_OS_TV

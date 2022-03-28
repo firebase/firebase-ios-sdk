@@ -18,6 +18,7 @@
 
 @class FIRComponentContainer;
 @protocol FIRLibrary;
+@class FIRHeartbeatLogger;
 
 /**
  * The internal interface to `FirebaseApp`. This is meant for first-party integrators, who need to
@@ -96,6 +97,11 @@ extern NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey;
  * The container of interop SDKs for this app.
  */
 @property(nonatomic) FIRComponentContainer *container;
+
+/*
+ * The heartbeat logger associated with this app.
+ */
+@property(readonly) FIRHeartbeatLogger *heartbeatLogger;
 
 /**
  * Checks if the default app is configured without trying to configure it.
