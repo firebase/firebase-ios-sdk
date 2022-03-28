@@ -1678,6 +1678,7 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
                                                                                        // and comes
                                                                                        // in
                                                                                        // fragmentation.
+    @"https://google.com?link=https1://abcd",  // link query param is not a valid http link
   ];
 
   for (NSString *urlString in urlStrings) {

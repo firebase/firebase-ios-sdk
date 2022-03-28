@@ -210,22 +210,32 @@ BOOL FIRDLIsURLForAllowedCustomDomain(NSURL *URL) {
             [URL.absoluteString substringFromIndex:allowedCustomDomain.absoluteString.length];
 
         // The urlWithoutDomainURIPrefix should be starting with '/' or '?' otherwise it means the
-        // allowed domain is not
-        //  exactly matching the incoming URL domain prefix.
-        //  For a valid custom domain DL Suffix the urlWithoutDomainURIPrefix should have:
-        //  1. At least one path exists OR
-        //  2. Should have a link query param with an http/https link
-        //       2.1 The link param can be anywhere in the url but should not be in a fragment (#)
+        // allowed domain is not exactly matching the incoming URL domain prefix.
+        if ([urlWithoutDomainURIPrefix hasPrefix:@"/"] ||
+            [urlWithoutDomainURIPrefix hasPrefix:@"?"]) {
+          //  For a valid custom domain DL Suffix the urlWithoutDomainURIPrefix should have:
+          //  1. At least one path exists OR
+          //  2. Should have a link query param with an http/https link
 
-        BOOL matchesRegularExpression = (
-            [urlWithoutDomainURIPrefix
-                rangeOfString:
-                    @"^((\\/[A-Za-z0-9]+)|((\\?|\\/\\?)((link=https?.*)|([^#]*\\&link=https?.*)))$)"
-                      options:NSRegularExpressionSearch]
-                .location != NSNotFound);
+          NSURLComponents *components =
+              [[NSURLComponents alloc] initWithString:urlWithoutDomainURIPrefix];
+          if (components.path && components.path.length > 1) {
+            // Have a path exists. So valid custom domain.
+            return true;
+          }
 
-        if (matchesRegularExpression) {
-          return true;
+          if (components.queryItems && components.queryItems.count > 0) {
+            for (NSURLQueryItem *queryItem in components.queryItems) {
+              // Checks whether we have a link query param
+              if ([queryItem.name caseInsensitiveCompare:@"link"] == NSOrderedSame) {
+                // Checks whether link query param value starts with http/https
+                if (queryItem.value && ([queryItem.value hasPrefix:@"http://"] ||
+                                        [queryItem.value hasPrefix:@"https://"])) {
+                  return true;
+                }
+              }
+            }
+          }
         }
       }
     }
