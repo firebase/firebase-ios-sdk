@@ -57,6 +57,7 @@
 - (FIRHeartbeatInfoCode)heartbeatCodeForToday {
   // This API should not be used by the below tests.
   [self doesNotRecognizeSelector:_cmd];
+  return FIRHeartbeatInfoCodeNone;
 }
 
 - (void)log {
@@ -75,7 +76,6 @@
 @property(nonatomic) id mockURLSession;
 
 @property(nonatomic) NSString *APIKey;
-@property(nonatomic) NSString *projectID;
 @property(nonatomic) NSString *appID;
 
 @property(nonatomic) FIRHeartbeatLoggerFake *heartbeatLoggerFake;
@@ -88,7 +88,6 @@
   [super setUp];
 
   self.APIKey = @"api_key";
-  self.projectID = @"project_id";
   self.appID = @"app_id";
 
   self.mockURLSession = OCMStrictClassMock([NSURLSession class]);
@@ -96,7 +95,7 @@
   self.heartbeatLoggerFake = [[FIRHeartbeatLoggerFake alloc] init];
   self.APIService = [[FIRAppCheckAPIService alloc] initWithURLSession:self.mockURLSession
                                                                APIKey:self.APIKey
-                                                                appID:self.projectID
+                                                                appID:self.appID
                                                       heartbeatLogger:self.heartbeatLoggerFake];
 }
 
