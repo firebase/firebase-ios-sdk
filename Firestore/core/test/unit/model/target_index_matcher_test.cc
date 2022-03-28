@@ -261,7 +261,7 @@ TEST(TargetIndexMatcher, ValidatesCollection) {
   }
 }
 
-TEST(TargetIndexMatcher, withArrayContains) {
+TEST(TargetIndexMatcher, WithArrayContains) {
   for (const auto& query : QueriesWithArrayContains()) {
     ValidateDoesNotServeTarget(query, "a", Segment::Kind::kAscending);
     ValidateDoesNotServeTarget(query, "a", Segment::Kind::kAscending);
@@ -269,7 +269,7 @@ TEST(TargetIndexMatcher, withArrayContains) {
   }
 }
 
-TEST(TargetIndexMatcher, testArrayContainsIsIndependent) {
+TEST(TargetIndexMatcher, TestArrayContainsIsIndependent) {
   auto query = testutil::Query("collId")
                    .AddingFilter(Filter("value", "array-contains", "foo"))
                    .AddingOrderBy(OrderBy("value"));
@@ -312,7 +312,7 @@ TEST(TargetIndexMatcher, WithMultipleEqualities) {
       Segment::Kind::kAscending, "a3", Segment::Kind::kAscending);
 }
 
-TEST(TargetIndexMatcher, withMultipleEqualitiesAndInequality) {
+TEST(TargetIndexMatcher, WithMultipleEqualitiesAndInequality) {
   auto queries_multiple_filters =
       testutil::Query("collId")
           .AddingFilter(Filter("equality1", "==", "a"))
@@ -349,7 +349,7 @@ TEST(TargetIndexMatcher, withMultipleEqualitiesAndInequality) {
                              Segment::Kind::kAscending);
 }
 
-TEST(TargetIndexMatcher, withOrderBy) {
+TEST(TargetIndexMatcher, WithOrderBy) {
   auto q = testutil::Query("collId").AddingOrderBy(OrderBy("a"));
   ValidateServesTarget(q, "a", Segment::Kind::kAscending);
   ValidateDoesNotServeTarget(q, "a", Segment::Kind::kDescending);
@@ -367,7 +367,7 @@ TEST(TargetIndexMatcher, withOrderBy) {
                              Segment::Kind::kDescending);
 }
 
-TEST(TargetIndexMatcher, withNotEquals) {
+TEST(TargetIndexMatcher, WithNotEquals) {
   auto q = testutil::Query("collId").AddingFilter(Filter("a", "!=", 1));
   ValidateServesTarget(q, "a", Segment::Kind::kAscending);
 
@@ -379,7 +379,7 @@ TEST(TargetIndexMatcher, withNotEquals) {
                        Segment::Kind::kAscending);
 }
 
-TEST(TargetIndexMatcher, withMultipleFilters) {
+TEST(TargetIndexMatcher, WithMultipleFilters) {
   auto queriesMultipleFilters = testutil::Query("collId")
                                     .AddingFilter(Filter("a", "==", "a"))
                                     .AddingFilter(Filter("b", ">", "b"));
@@ -388,7 +388,7 @@ TEST(TargetIndexMatcher, withMultipleFilters) {
                        "b", Segment::Kind::kAscending);
 }
 
-TEST(TargetIndexMatcher, multipleFiltersRequireMatchingPrefix) {
+TEST(TargetIndexMatcher, MultipleFiltersRequireMatchingPrefix) {
   auto queriesMultipleFilters = testutil::Query("collId")
                                     .AddingFilter(Filter("a", "==", "a"))
                                     .AddingFilter(Filter("b", ">", "b"));
@@ -399,7 +399,7 @@ TEST(TargetIndexMatcher, multipleFiltersRequireMatchingPrefix) {
                              Segment::Kind::kAscending);
 }
 
-TEST(TargetIndexMatcher, withMultipleFiltersAndOrderBy) {
+TEST(TargetIndexMatcher, WithMultipleFiltersAndOrderBy) {
   auto queriesMultipleFilters = testutil::Query("collId")
                                     .AddingFilter(Filter("a1", "==", "a"))
                                     .AddingFilter(Filter("a2", ">", "b"))
@@ -408,7 +408,7 @@ TEST(TargetIndexMatcher, withMultipleFiltersAndOrderBy) {
                        "a2", Segment::Kind::kAscending);
 }
 
-TEST(TargetIndexMatcher, withMultipleInequalities) {
+TEST(TargetIndexMatcher, WithMultipleInequalities) {
   auto q = testutil::Query("collId")
                .AddingFilter(Filter("a", ">=", 1))
                .AddingFilter(Filter("a", "==", 5))
@@ -416,14 +416,14 @@ TEST(TargetIndexMatcher, withMultipleInequalities) {
   ValidateServesTarget(q, "a", Segment::Kind::kAscending);
 }
 
-TEST(TargetIndexMatcher, withMultipleNotIn) {
+TEST(TargetIndexMatcher, WithMultipleNotIn) {
   auto q = testutil::Query("collId")
                .AddingFilter(Filter("a", "not-in", Array(1, 2, 3)))
                .AddingFilter(Filter("a", ">=", 2));
   ValidateServesTarget(q, "a", Segment::Kind::kAscending);
 }
 
-TEST(TargetIndexMatcher, withMultipleOrderBys) {
+TEST(TargetIndexMatcher, WithMultipleOrderBys) {
   auto q = testutil::Query("collId")
                .AddingOrderBy(OrderBy("fff"))
                .AddingOrderBy(OrderBy("bar", "desc"))
@@ -447,7 +447,7 @@ TEST(TargetIndexMatcher, withMultipleOrderBys) {
                              Segment::Kind::kAscending);
 }
 
-TEST(TargetIndexMatcher, withInAndNotIn) {
+TEST(TargetIndexMatcher, WithInAndNotIn) {
   auto q = testutil::Query("collId")
                .AddingFilter(Filter("a", "not-in", Array(1, 2, 3)))
                .AddingFilter(Filter("b", "in", Array(1, 2, 3)));
@@ -460,7 +460,7 @@ TEST(TargetIndexMatcher, withInAndNotIn) {
                              Segment::Kind::kAscending);
 }
 
-TEST(TargetIndexMatcher, withEqualityAndDifferentOrderBy) {
+TEST(TargetIndexMatcher, WithEqualityAndDifferentOrderBy) {
   auto q = testutil::Query("collId")
                .AddingFilter(Filter("foo", "==", ""))
                .AddingFilter(Filter("bar", "==", ""))
@@ -489,7 +489,7 @@ TEST(TargetIndexMatcher, withEqualityAndDifferentOrderBy) {
   EXPECT_TRUE(matcher.ServedByIndex(index));
 }
 
-TEST(TargetIndexMatcher, withEqualsAndNotIn) {
+TEST(TargetIndexMatcher, WithEqualsAndNotIn) {
   auto q = testutil::Query("collId")
                .AddingFilter(Filter("a", "==", 1))
                .AddingFilter(Filter("b", "not-in", Array(1, 2, 3)));
@@ -497,7 +497,7 @@ TEST(TargetIndexMatcher, withEqualsAndNotIn) {
                        Segment::Kind::kAscending);
 }
 
-TEST(TargetIndexMatcher, withInAndOrderBy) {
+TEST(TargetIndexMatcher, WithInAndOrderBy) {
   auto q = testutil::Query("collId")
                .AddingFilter(Filter("a", "not-in", Array(1, 2, 3)))
                .AddingOrderBy(OrderBy("a"))
@@ -506,7 +506,7 @@ TEST(TargetIndexMatcher, withInAndOrderBy) {
                        Segment::Kind::kAscending);
 }
 
-TEST(TargetIndexMatcher, withInAndOrderBySameField) {
+TEST(TargetIndexMatcher, WithInAndOrderBySameField) {
   auto q = testutil::Query("collId")
                .AddingFilter(Filter("a", "in", Array(1, 2, 3)))
                .AddingOrderBy(OrderBy("a"));
