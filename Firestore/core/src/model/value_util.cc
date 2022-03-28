@@ -528,6 +528,7 @@ Message<google_firestore_v1_Value> GetLowerBound(pb_size_t value_tag) {
       Message<google_firestore_v1_Value> value;
       value->which_value_type = value_tag;
       value->timestamp_value.seconds = std::numeric_limits<int64_t>::min();
+      value->timestamp_value.nanos = 0;
       return value;
     }
 
