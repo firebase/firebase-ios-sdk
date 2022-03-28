@@ -55,12 +55,12 @@
 }
 
 - (FIRHeartbeatInfoCode)heartbeatCodeForToday {
-  // This API should be used by the below tests.
+  // This API should not be used by the below tests.
   [self doesNotRecognizeSelector:_cmd];
 }
 
 - (void)log {
-  // This API should be used by the below tests.
+  // This API should not be used by the below tests.
   [self doesNotRecognizeSelector:_cmd];
 }
 
