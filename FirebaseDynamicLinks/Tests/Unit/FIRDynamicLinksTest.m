@@ -1667,9 +1667,17 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
     @"https://google.com?some=qry&somelink=https%3A%2F%2Fsomedomain",  // Having somelink param
                                                                        // instead of link param to
                                                                        // confuse validation.
-    @"https://a.firebase.com/mypaths?some=qry&link=https%3A%2F%2Fsomedomain", //Additional 's' in path param
-    @"https://a.firebase.com/mypath/?some=qry#other=b&link=https://somedomain", // link param comes in fragmentation
-    @"https://a.firebase.com/mypath/?some=qry#other=b&link=https%3A%2F%2Fsomedomain", // link param which is url encoded and comes in fragmentation.
+    @"https://a.firebase.com/mypaths?some=qry&link=https%3A%2F%2Fsomedomain",  // Additional 's' in
+                                                                               // path param
+    @"https://a.firebase.com/mypath/?some=qry#other=b&link=https://somedomain",  // link param comes
+                                                                                 // in fragmentation
+    @"https://a.firebase.com/mypath/?some=qry#other=b&link=https%3A%2F%2Fsomedomain",  // link param
+                                                                                       // which is
+                                                                                       // url
+                                                                                       // encoded
+                                                                                       // and comes
+                                                                                       // in
+                                                                                       // fragmentation.
   ];
 
   for (NSString *urlString in urlStrings) {

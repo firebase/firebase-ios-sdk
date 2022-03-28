@@ -202,32 +202,34 @@ NSString *FIRDLDeviceTimezone() {
 }
 
 BOOL FIRDLIsURLForAllowedCustomDomain(NSURL *URL) {
-    if(URL){
-  for (NSURL *allowedCustomDomain in FIRDLCustomDomains) {
-    // At least one custom domain host name should match at a minimum.
-    if([URL.absoluteString hasPrefix:allowedCustomDomain.absoluteString]) {
-        NSString *urlWithoutDomainURIPrefix =[URL.absoluteString substringFromIndex:allowedCustomDomain.absoluteString.length];
-      
-        //The urlWithoutDomainURIPrefix should be starting with '/' or '?' otherwise it means the allowed domain is not
-        // exactly matching the incoming URL domain prefix.
-        // For a valid custom domain DL Suffix the urlWithoutDomainURIPrefix should have:
-        // 1. At least one path exists OR
-        // 2. Should have a link query param with an http/https link
-        //      2.1 The link param can be anywhere in the url but should not be in a fragment (#)
+  if (URL) {
+    for (NSURL *allowedCustomDomain in FIRDLCustomDomains) {
+      // At least one custom domain host name should match at a minimum.
+      if ([URL.absoluteString hasPrefix:allowedCustomDomain.absoluteString]) {
+        NSString *urlWithoutDomainURIPrefix =
+            [URL.absoluteString substringFromIndex:allowedCustomDomain.absoluteString.length];
 
-        BOOL matchesRegularExpression =
-            ([urlWithoutDomainURIPrefix
-                 rangeOfString:
-                     @"^((\\/[A-Za-z0-9]+)|((\\?|\\/\\?)((link=https?.*)|([^#]*\\&link=https?.*)))$)"
-                       options:NSRegularExpressionSearch]
-                 .location != NSNotFound);
+        // The urlWithoutDomainURIPrefix should be starting with '/' or '?' otherwise it means the
+        // allowed domain is not
+        //  exactly matching the incoming URL domain prefix.
+        //  For a valid custom domain DL Suffix the urlWithoutDomainURIPrefix should have:
+        //  1. At least one path exists OR
+        //  2. Should have a link query param with an http/https link
+        //       2.1 The link param can be anywhere in the url but should not be in a fragment (#)
+
+        BOOL matchesRegularExpression = (
+            [urlWithoutDomainURIPrefix
+                rangeOfString:
+                    @"^((\\/[A-Za-z0-9]+)|((\\?|\\/\\?)((link=https?.*)|([^#]*\\&link=https?.*)))$)"
+                      options:NSRegularExpressionSearch]
+                .location != NSNotFound);
 
         if (matchesRegularExpression) {
-            return true;
+          return true;
         }
       }
     }
-    }
+  }
   return false;
 }
 
