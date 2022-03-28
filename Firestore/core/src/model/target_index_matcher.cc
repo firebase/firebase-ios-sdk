@@ -83,15 +83,17 @@ bool TargetIndexMatcher::ServedByIndex(const model::FieldIndex& index) {
     return true;
   }
 
+  // `order_bys_` has at least one element.
   auto order_by_iter = order_bys_.begin();
 
   // If there is an inequality filter, the next segment must match both the
   // filter and the first OrderBy clause.
   if (inequality_filter_.has_value()) {
     if (!MatchesFilter(inequality_filter_, segments[segment_index]) ||
-        !MatchesOrderBy(*(order_by_iter++), segments[segment_index])) {
+        !MatchesOrderBy(*order_by_iter, segments[segment_index])) {
       return false;
     }
+    ++order_by_iter;
     ++segment_index;
   }
 
@@ -99,13 +101,15 @@ bool TargetIndexMatcher::ServedByIndex(const model::FieldIndex& index) {
   // OrderBy.
   for (; segment_index < segments.size(); ++segment_index) {
     if (order_by_iter == order_bys_.end() ||
-        !MatchesOrderBy(*(order_by_iter++), segments[segment_index])) {
+        !MatchesOrderBy(*order_by_iter, segments[segment_index])) {
       return false;
     }
+    ++order_by_iter;
   }
 
   return true;
 }
+
 bool TargetIndexMatcher::HasMatchingEqualityFilter(const Segment& segment) {
   for (const auto& filter : equality_filters_) {
     if (MatchesFilter(filter, segment)) {
