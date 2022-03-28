@@ -168,22 +168,20 @@ class Target {
   std::vector<FieldFilter> GetFieldFiltersForPath(const model::FieldPath& path);
 
   /**
-   * Returns the value for an ascending bound of `segment`.
+   * Returns the value for an ascending bound of `segment`, using `bound` to
+   * narrow down the result.
    *
-   * @param segment The segment to get the value for.
-   * @param bound A bound to restrict the index range.
-   * @return a Pair with a nullable Value and a boolean indicating whether the
-   * bound is inclusive
+   * The result is a pair with an absl::option<Message> representing the value
+   * and a bool to indicate if the result is inclusive
    */
   IndexedBoundValue GetAscendingBound(const model::Segment& segment,
                                       const absl::optional<Bound>& bound);
   /**
-   * Returns the value for a descending bound of `segment`.
+   * Returns the value for a descending bound of `segment`, using `bound` to
+   * narrow down the result.
    *
-   * @param segment The segment to get the value for.
-   * @param bound A bound to restrict the index range.
-   * @return a Pair with a nullable Value and a boolean indicating whether the
-   * bound is inclusive
+   * The result is a pair with an absl::option<Message> representing the value
+   * and a bool to indicate if the result is inclusive
    */
   IndexedBoundValue GetDescendingBound(const model::Segment& segment,
                                        const absl::optional<Bound>& bound);

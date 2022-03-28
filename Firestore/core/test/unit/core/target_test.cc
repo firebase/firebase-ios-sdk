@@ -63,27 +63,16 @@ using testutil::Ref;
 using testutil::Value;
 using testutil::Vector;
 
-std::vector<google_firestore_v1_Value> MakeValueVector(
-    google_firestore_v1_ArrayValue value) {
-  std::vector<google_firestore_v1_Value> result;
-  for (size_t i = 0; i < value.values_count; ++i) {
-    result.push_back(value.values[i]);
-  }
-  return result;
-}
-
 void VerifyBound(Bound bound,
                  bool inclusive,
                  std::vector<google_firestore_v1_Value> values) {
   EXPECT_EQ(inclusive, bound.inclusive());
-  std::vector<google_firestore_v1_Value> position =
-      MakeValueVector(*bound.position());
-  EXPECT_EQ(values.size(), position.size());
+  EXPECT_EQ(values.size(), bound.position()->values_count);
   for (size_t i = 0; i < values.size(); ++i) {
     const auto& expected_value = values[i];
-    EXPECT_TRUE(Equals(expected_value, position[i]))
+    EXPECT_TRUE(Equals(expected_value, bound.position()->values[i]))
         << "Values should be equal: Expected: " << CanonicalId(expected_value)
-        << ", Actual: " << CanonicalId(position[i]) << "";
+        << ", Actual: " << CanonicalId(bound.position()->values[i]) << "";
   }
 }
 
@@ -217,7 +206,7 @@ TEST(TargetTest, OrderByQueryBound) {
   EXPECT_FALSE(upper_bound.has_value());
 }
 
-TEST(TargetTest, filterWithOrderByQueryBound) {
+TEST(TargetTest, FilterWithOrderByQueryBound) {
   Target target = Query("c")
                       .AddingFilter(Filter("foo", ">", "bar"))
                       .AddingOrderBy(OrderBy("foo"))
@@ -270,7 +259,7 @@ TEST(TargetTest, StartingAtWithFilterQueryBound) {
   VerifyBound(upper_bound.value(), false, {*BlobValue(), *Value("b1")});
 }
 
-TEST(TargetTest, startAfterWithFilterQueryBound) {
+TEST(TargetTest, StartAfterWithFilterQueryBound) {
   Target target = Query("c")
                       .AddingFilter(Filter("a", ">=", "a1"))
                       .AddingFilter(Filter("b", "==", "b1"))
@@ -290,7 +279,7 @@ TEST(TargetTest, startAfterWithFilterQueryBound) {
   VerifyBound(upper_bound.value(), false, {*BlobValue(), *Value("b1")});
 }
 
-TEST(TargetTest, startAfterDoesNotChangeBoundIfNotApplicable) {
+TEST(TargetTest, StartAfterDoesNotChangeBoundIfNotApplicable) {
   Target target = Query("c")
                       .AddingFilter(Filter("a", ">=", "a2"))
                       .AddingFilter(Filter("b", "==", "b2"))
@@ -346,7 +335,7 @@ TEST(TargetTest, EndingAtWithFilterQueryBound) {
   VerifyBound(upper_bound.value(), true, {*Value("a1"), *Value("b1")});
 }
 
-TEST(TargetTest, endBeforeWithFilterQueryBound) {
+TEST(TargetTest, EndBeforeWithFilterQueryBound) {
   Target target = Query("c")
                       .AddingFilter(Filter("a", "<=", "a2"))
                       .AddingFilter(Filter("b", "==", "b2"))
@@ -362,7 +351,7 @@ TEST(TargetTest, endBeforeWithFilterQueryBound) {
   VerifyBound(upper_bound.value(), false, {*Value("a1"), *Value("b1")});
 }
 
-TEST(TargetTest, endBeforeDoesNotChangeBoundIfNotApplicable) {
+TEST(TargetTest, EndBeforeDoesNotChangeBoundIfNotApplicable) {
   Target target = Query("c")
                       .AddingFilter(Filter("a", "<=", "a1"))
                       .AddingFilter(Filter("b", "==", "b1"))
@@ -378,7 +367,7 @@ TEST(TargetTest, endBeforeDoesNotChangeBoundIfNotApplicable) {
   VerifyBound(upper_bound.value(), true, {*Value("a1"), *Value("b1")});
 }
 
-TEST(TargetTest, partialIndexMatchQueryBound) {
+TEST(TargetTest, PartialIndexMatchQueryBound) {
   Target target = Query("c")
                       .AddingFilter(Filter("a", "==", "a"))
                       .AddingFilter(Filter("b", "==", "b"))

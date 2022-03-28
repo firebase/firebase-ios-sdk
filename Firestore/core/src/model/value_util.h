@@ -88,8 +88,10 @@ bool Equals(const google_firestore_v1_ArrayValue& left,
  */
 std::string CanonicalId(const google_firestore_v1_Value& value);
 
+/** Returns the lowest value for the given value type (inclusive). */
 nanopb::Message<google_firestore_v1_Value> GetLowerBound(pb_size_t value_tag);
 
+/** Returns the largest value for the given value type (exclusive). */
 nanopb::Message<google_firestore_v1_Value> GetUpperBound(pb_size_t value_tag);
 
 /**

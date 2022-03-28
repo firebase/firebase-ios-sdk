@@ -21,14 +21,12 @@
 #include <vector>
 
 #include "Firestore/core/src/core/field_filter.h"
-#include "Firestore/core/src/core/operator.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/field_path.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/equality.h"
-#include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/hashing.h"
 #include "absl/strings/str_cat.h"
 
@@ -42,6 +40,8 @@ using model::Segment;
 
 namespace {
 
+// Takes the ownership of the given array value message, converts it to a
+// vector of value messages.
 std::vector<nanopb::Message<_google_firestore_v1_Value>> MakeValueVector(
     nanopb::Message<_google_firestore_v1_ArrayValue> array) {
   std::vector<nanopb::Message<_google_firestore_v1_Value>> result;
@@ -55,6 +55,7 @@ std::vector<nanopb::Message<_google_firestore_v1_Value>> MakeValueVector(
   return result;
 }
 
+// Moves the values from the given unordred_map into the resulting vector.
 std::vector<nanopb::Message<_google_firestore_v1_Value>> ValuesFrom(
     std::unordered_map<std::string,
                        nanopb::Message<_google_firestore_v1_Value>>&&
