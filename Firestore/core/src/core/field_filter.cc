@@ -30,6 +30,7 @@
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/util/exception.h"
+#include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/hashing.h"
 #include "absl/algorithm/container.h"
 #include "absl/strings/str_cat.h"
@@ -115,7 +116,7 @@ FieldFilter FieldFilter::Create(
 }
 
 FieldFilter::FieldFilter(const Filter& other) : Filter(other) {
-  HARD_ASSERT(IsAFieldFilter());
+  HARD_ASSERT(other.IsAFieldFilter());
 }
 
 FieldFilter::FieldFilter(std::shared_ptr<const Filter::Rep> rep)
