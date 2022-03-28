@@ -182,7 +182,7 @@ inline const pb_field_t* FieldsArray<firestore_NamedQuery>() {
 
 template <>
 inline const pb_field_t* FieldsArray<google_firestore_admin_v1_Index>() {
-  return google_protobuf_Empty_fields;
+  return google_firestore_admin_v1_Index_fields;
 }
 
 template <>
