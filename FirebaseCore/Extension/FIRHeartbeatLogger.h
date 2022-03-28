@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-// TODO: Remove in future PR when `FIRHeartbeatInfo` symbol is removed.
+// TODO(ncooke3): Remove in future PR when `FIRHeartbeatInfo` symbol is removed.
 #import "FIRHeartbeatInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -31,8 +31,6 @@ NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *he
 /// A thread safe, synchronized object that logs and flushes platform logging info.
 @interface FIRHeartbeatLogger : NSObject
 
-// TODO: Decide how clients get an instance.
-
 - (instancetype)initWithAppID:(NSString *)appID;
 
 /// Asynchronously logs a new heartbeat corresponding to the Firebase User Agent, if needed.
@@ -48,13 +46,13 @@ NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *he
 /// @return A payload of heartbeats.
 - (FIRHeartbeatsPayload *)flushHeartbeatsIntoPayload;
 
-/// Gets the corresponding heartbeat code for the current heartbeat storage state.
+/// Gets today's corresponding heartbeat code.
 ///
 /// This API is for clients using platform logging V1.
 ///
 /// @note This API is thread-safe.
 /// @return Heartbeat code indicating whether or not there is an unsent global heartbeat.
-- (FIRHeartbeatInfoCode)heartbeatCode;
+- (FIRHeartbeatInfoCode)heartbeatCodeForToday;
 
 @end
 

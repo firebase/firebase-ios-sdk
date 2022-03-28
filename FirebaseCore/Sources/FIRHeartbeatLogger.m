@@ -65,8 +65,7 @@ NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *he
   return payload;
 }
 
-// TODO: Rename to `heartbeatCodeForToday` in future PR's.
-- (FIRHeartbeatInfoCode)heartbeatCode {
+- (FIRHeartbeatInfoCode)heartbeatCodeForToday {
   FIRHeartbeatsPayload *todaysHeartbeatPayload = [_heartbeatController flushHeartbeatFromToday];
 
   if ([todaysHeartbeatPayload isEmpty]) {

@@ -60,6 +60,7 @@ NS_SWIFT_NAME(FirebaseOptions)
  */
 @property(nonatomic, copy) NSString *GCMSenderID NS_SWIFT_NAME(gcmSenderID);
 
+// TODO(v9): Can this be non-null.
 /**
  * The Project ID from the Firebase console, for example @"abc-xyz-123".
  */
