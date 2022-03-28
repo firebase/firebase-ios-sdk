@@ -20,16 +20,12 @@ NS_ASSUME_NONNULL_BEGIN
  * Different modes of prewarm-detection
  * KeepNone = No app start events are allowed
  * ActivePrewarm = Only detect prewarming using ActivePrewarm environment
- * DoubleDispatch = Only detect prewarming using double dispatch method
- * ActivePrewarmOrDoubleDispatch = Detect prewarming using both ActivePrewarm and double dispatch
  * KeepAll = All app start events are allowed
  */
 typedef NS_ENUM(NSInteger, PrewarmDetectionMode) {
   PrewarmDetectionModeKeepNone = 0,
   PrewarmDetectionModeActivePrewarm = 1,
-  PrewarmDetectionModeDoubleDispatch = 2,
-  PrewarmDetectionModeActivePrewarmOrDoubleDispatch = 3,
-  PrewarmDetectionModeKeepAll = 4
+  PrewarmDetectionModeKeepAll = 3
 };
 
 /** A typedef for ensuring that config names are one of the below specified strings. */
