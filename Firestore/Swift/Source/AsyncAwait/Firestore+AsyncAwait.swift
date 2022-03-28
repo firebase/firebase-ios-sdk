@@ -84,8 +84,8 @@ import Foundation
     /// @param updateBlock The block to execute within the transaction context.
     /// @param completion The block to call with the result or error of the transaction. This
     ///     block will run even if the client is offline, unless the process is killed.
-    func runTransaction(
-      _ updateBlock: @escaping (Transaction, NSErrorPointer) -> Any?) async throws -> Any? {
+    func runTransaction(_ updateBlock: @escaping (Transaction, NSErrorPointer)
+      -> Any?) async throws -> Any? {
       // This needs to be wrapped in order to express a nullable return value upon success.
       // See https://github.com/firebase/firebase-ios-sdk/issues/9426 for more details.
       return try await withCheckedThrowingContinuation { continuation in
