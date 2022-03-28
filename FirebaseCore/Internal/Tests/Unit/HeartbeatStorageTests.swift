@@ -24,7 +24,7 @@ class HeartbeatStorageTests: XCTestCase {
     let heartbeatStorage2 = HeartbeatStorage.getInstance(id: "sparky")
     // Then
     XCTAssert(
-      heartbeatStorage1 === heartbeatStorage1,
+      heartbeatStorage1 === heartbeatStorage2,
       "Instances should reference the same object."
     )
 

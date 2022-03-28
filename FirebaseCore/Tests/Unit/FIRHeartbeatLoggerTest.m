@@ -96,7 +96,7 @@
   FIRHeartbeatLogger *heartbeatLogger = self.heartbeatLogger;
   // When
   [heartbeatLogger log];
-  FIRHeartbeatInfoCode heartbeatInfoCode = [heartbeatLogger heartbeatCode];
+  FIRHeartbeatInfoCode heartbeatInfoCode = [heartbeatLogger heartbeatCodeForToday];
   // Then
   XCTAssertEqual(heartbeatInfoCode, FIRHeartbeatInfoCodeGlobal);
 }
@@ -105,7 +105,7 @@
   // Given
   FIRHeartbeatLogger *heartbeatLogger = self.heartbeatLogger;
   // When
-  FIRHeartbeatInfoCode heartbeatInfoCode = [heartbeatLogger heartbeatCode];
+  FIRHeartbeatInfoCode heartbeatInfoCode = [heartbeatLogger heartbeatCodeForToday];
   // Then
   XCTAssertEqual(heartbeatInfoCode, FIRHeartbeatInfoCodeNone);
 }
@@ -139,7 +139,7 @@
   FIRHeartbeatLogger *heartbeatLogger = self.heartbeatLogger;
   [heartbeatLogger log];
   // When
-  FIRHeartbeatInfoCode heartbeatInfoCode = [heartbeatLogger heartbeatCode];
+  FIRHeartbeatInfoCode heartbeatInfoCode = [heartbeatLogger heartbeatCodeForToday];
   FIRHeartbeatsPayload *heartbeatsPayload = [heartbeatLogger flushHeartbeatsIntoPayload];
   // Then
   XCTAssertEqual(heartbeatInfoCode, FIRHeartbeatInfoCodeGlobal);
@@ -153,7 +153,7 @@
   [heartbeatLogger log];
   // When
   FIRHeartbeatsPayload *heartbeatsPayload = [heartbeatLogger flushHeartbeatsIntoPayload];
-  FIRHeartbeatInfoCode heartbeatInfoCode = [heartbeatLogger heartbeatCode];
+  FIRHeartbeatInfoCode heartbeatInfoCode = [heartbeatLogger heartbeatCodeForToday];
   // Then
   [self assertEncodedPayloadHeader:FIRHeaderValueFromHeartbeatsPayload(heartbeatsPayload)
               isEqualToPayloadJSON:@{
