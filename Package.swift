@@ -178,12 +178,12 @@ let package = Package(
     .package(
       name: "abseil",
       url: "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-      "0.20220203.1" ..< "0.20220204.0"
+      "0.20200225.4" ..< "0.20200226.0"
     ),
     .package(
       name: "gRPC",
-      url: "https://github.com/grpc/grpc-ios.git",
-      "1.44.0-grpc" ..< "1.44.1-grpc"
+      url: "https://github.com/firebase/grpc-SwiftPM.git",
+      "1.28.4" ..< "1.29.0"
     ),
     .package(
       name: "OCMock",
