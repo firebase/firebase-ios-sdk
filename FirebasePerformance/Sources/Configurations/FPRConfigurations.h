@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSInteger, PrewarmDetectionMode) {
   PrewarmDetectionModeKeepNone = 0,
   PrewarmDetectionModeActivePrewarm = 1,
-  PrewarmDetectionModeKeepAll = 3
+  PrewarmDetectionModeKeepAll = 2
 };
 
 /** A typedef for ensuring that config names are one of the below specified strings. */
