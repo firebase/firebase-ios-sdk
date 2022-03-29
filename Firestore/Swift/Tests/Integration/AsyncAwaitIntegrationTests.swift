@@ -68,7 +68,7 @@ let emptyBundle = """
 
     func testRunTransactionDoesNotCrashOnNilSuccess() async throws {
       let value = try await db.runTransaction { transact, error in
-        return nil // should not crash
+        nil // should not crash
       }
 
       XCTAssertNil(value, "value should be nil on success")
