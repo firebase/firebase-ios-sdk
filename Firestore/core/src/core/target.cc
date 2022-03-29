@@ -46,10 +46,8 @@ std::vector<nanopb::Message<_google_firestore_v1_Value>> MakeValueVector(
     nanopb::Message<_google_firestore_v1_ArrayValue> array) {
   std::vector<nanopb::Message<_google_firestore_v1_Value>> result;
 
-  // `array` gives up ownership here.
-  _google_firestore_v1_ArrayValue* ptr = array.release();
-  for (pb_size_t i = 0; i < ptr->values_count; ++i) {
-    result.push_back(nanopb::MakeMessage(ptr->values[i]));
+  for (pb_size_t i = 0; i < array->values_count; ++i) {
+    result.push_back(nanopb::MakeMessage(std::move(array->values[i])));
   }
 
   return result;
