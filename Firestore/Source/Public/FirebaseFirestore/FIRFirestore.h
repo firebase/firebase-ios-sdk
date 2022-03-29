@@ -119,7 +119,7 @@ NS_SWIFT_NAME(Firestore)
  * `FieldValue.increment()` inside a transaction counts as an additional write.
  *
  * In the updateBlock, a set of reads and writes can be performed atomically using the
- * `FIRTransaction` object passed to the block. After the updateBlock is run, Firestore will attempt
+ * `Transaction` object passed to the block. After the updateBlock is run, Firestore will attempt
  * to apply the changes to the server. If any of the data read has been modified outside of this
  * transaction since being read, then the transaction will be retried by executing the updateBlock
  * again. If the transaction still fails after 5 retries, then the transaction will fail.
@@ -132,7 +132,7 @@ NS_SWIFT_NAME(Firestore)
  * parameter. If this is set, then the transaction will not attempt to commit, and the given error
  * will be passed to the completion block.
  *
- * The `FIRTransaction` object passed to the updateBlock contains methods for accessing documents
+ * The `Transaction` object passed to the updateBlock contains methods for accessing documents
  * and collections. Unlike other firestore access, data accessed with the transaction will not
  * reflect local changes that have not been committed. For this reason, it is required that all
  * reads are performed before any writes. Transactions must be performed while online. Otherwise,

@@ -61,29 +61,29 @@ import Foundation
     /// `FieldValue.serverTimestamp()`, `FieldValue.arrayUnion()`, `FieldValue.arrayRemove()`, or
     /// `FieldValue.increment()` inside a transaction counts as an additional write.
     ///
-    /// In the updateBlock, a set of reads and writes can be performed atomically using the
-    /// `FIRTransaction` object passed to the block. After the updateBlock is run, Firestore will attempt
+    /// In the `updateBlock`, a set of reads and writes can be performed atomically using the
+    /// `Transaction` object passed to the block. After the `updateBlock` is run, Firestore will attempt
     /// to apply the changes to the server. If any of the data read has been modified outside of this
-    /// transaction since being read, then the transaction will be retried by executing the updateBlock
+    /// transaction since being read, then the transaction will be retried by executing the `updateBlock`
     /// again. If the transaction still fails after 5 retries, then the transaction will fail.
     ///
-    /// Since the updateBlock may be executed multiple times, it should avoiding doing anything that
+    /// Since the `updateBlock` may be executed multiple times, it should avoiding doing anything that
     /// would cause side effects.
     ///
-    /// Any value maybe be returned from the updateBlock. If the transaction is successfully committed,
-    /// then the completion block will be passed that value. The updateBlock also has an `NSError` out
+    /// Any value maybe be returned from the `updateBlock`. If the transaction is successfully committed,
+    /// then the completion block will be passed that value. The `updateBlock` also has an `NSError` out
     /// parameter. If this is set, then the transaction will not attempt to commit, and the given error
-    /// will be passed to the completion block.
+    /// will be returned.
     ///
-    /// The `FIRTransaction` object passed to the updateBlock contains methods for accessing documents
+    /// The `Transaction` object passed to the `updateBlock` contains methods for accessing documents
     /// and collections. Unlike other firestore access, data accessed with the transaction will not
     /// reflect local changes that have not been committed. For this reason, it is required that all
     /// reads are performed before any writes. Transactions must be performed while online. Otherwise,
-    /// reads will fail, the final commit will fail, and the completion block will return an error.
+    /// reads will fail, the final commit will fail, and this function will return an error.
     ///
-    /// @param updateBlock The block to execute within the transaction context.
-    /// @param completion The block to call with the result or error of the transaction. This
-    ///     block will run even if the client is offline, unless the process is killed.
+    /// - Parameter updateBlock The block to execute within the transaction context.
+    /// - Throws Throws an error if the transaction could not be committed, or if an error was explicitly specified in the `updateBlock` parameter.
+    /// - Returns Returns the value returned in the `updateBlock` parameter if no errors occurred.
     func runTransaction(_ updateBlock: @escaping (Transaction, NSErrorPointer)
       -> Any?) async throws -> Any? {
       // This needs to be wrapped in order to express a nullable return value upon success.
