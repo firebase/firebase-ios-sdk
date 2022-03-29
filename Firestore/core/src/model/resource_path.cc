@@ -21,9 +21,9 @@
 #include <vector>
 
 #include "Firestore/core/src/util/exception.h"
+#include "Firestore/core/src/util/string_util.h"
 #include "absl/strings/match.h"
 #include "absl/strings/str_join.h"
-#include "absl/strings/str_split.h"
 
 namespace firebase {
 namespace firestore {
@@ -45,8 +45,7 @@ ResourcePath ResourcePath::FromStringView(absl::string_view path) {
 
   // SkipEmpty because we may still have an empty segment at the beginning or
   // end if they had a leading or trailing slash (which we allow).
-  std::vector<std::string> segments =
-      absl::StrSplit(path, '/', absl::SkipEmpty());
+  std::vector<std::string> segments = util::StrSplitSkipEmpty(path, '/');
   return ResourcePath{std::move(segments)};
 }
 

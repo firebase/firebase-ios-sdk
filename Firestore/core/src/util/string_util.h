@@ -26,6 +26,7 @@
 
 #include <string>
 
+#include "absl/strings/str_split.h"
 #include "absl/strings/string_view.h"
 
 namespace firebase {
@@ -69,6 +70,13 @@ std::string ImmediateSuccessor(absl::string_view s);
  * Returns an reference to a static empty string.
  */
 const std::string& EmptyString();
+
+std::vector<std::string> StrSplitSkipEmpty(absl::string_view source,
+                                           char delimiter);
+
+std::vector<std::string> StrSplit(absl::string_view source,
+                                  char delimiter,
+                                  std::function<bool(absl::string_view)>);
 
 }  // namespace util
 }  // namespace firestore

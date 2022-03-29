@@ -53,6 +53,20 @@ const std::string& EmptyString() {
   return *empty;
 }
 
+std::vector<std::string> StrSplitSkipEmpty(absl::string_view source,
+                                           char delimiter) {
+  // NOLINTNEXTLINE: absl::StrSplit triggers bugprone-move-forwarding-reference
+  return absl::StrSplit(source, delimiter, absl::SkipEmpty());
+}
+
+std::vector<std::string> StrSplit(
+    absl::string_view source,
+    char delimiter,
+    std::function<bool(absl::string_view)> predicate) {
+  // NOLINTNEXTLINE: absl::StrSplit triggers bugprone-move-forwarding-reference
+  return absl::StrSplit(source, delimiter, predicate);
+}
+
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
