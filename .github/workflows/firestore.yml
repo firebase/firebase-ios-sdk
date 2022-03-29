@@ -202,7 +202,8 @@ jobs:
       run: |
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }} \
             --platforms=ios \
-            --allow-warnings
+            --allow-warnings \
+            --no-analyze
 
   # `pod lib lint` takes a long time so only run the other platforms and static frameworks build in the cron.
   pod-lib-lint-cron:
@@ -235,7 +236,8 @@ jobs:
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }}\
             ${{ matrix.flags }} \
             --platforms=${{ matrix.platforms }} \
-            --allow-warnings
+            --allow-warnings \
+            --no-analyze
 
   spm:
     # Don't run on private repo unless it is a PR.
