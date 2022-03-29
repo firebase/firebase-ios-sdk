@@ -67,14 +67,11 @@ let emptyBundle = """
     }
 
     func testRunTransactionDoesNotCrashOnNilSuccess() async throws {
-      let document = collectionRef().document()
-      try await document.setData(["": ""]) // ensure document exists
       let value = try await db.runTransaction { transact, error in
-        transact.setData(["test": "test"], forDocument: document)
         return nil // should not crash
       }
 
-//      XCTAssertNil(value, "value should be nil on success")
+      XCTAssertNil(value, "value should be nil on success")
     }
   }
 #endif
