@@ -7,6 +7,11 @@ on:
 env:
   gpg_passphrase: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: true
+
 jobs:
   release-diffing:
     runs-on: ubuntu-latest
