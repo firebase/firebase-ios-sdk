@@ -24,7 +24,7 @@ FOUNDATION_EXPORT NSString *const FIRFirestoreErrorDomain NS_SWIFT_NAME(Firestor
 /** Error codes used by Cloud Firestore. */
 typedef NS_ERROR_ENUM(FIRFirestoreErrorDomain, FIRFirestoreErrorCode){
     /**
-     * The operation completed successfully. NSError wobjects will never have a code with this
+     * The operation completed successfully. NSError objects will never have a code with this
      * value.
      */
     FIRFirestoreErrorCodeOK = 0,
