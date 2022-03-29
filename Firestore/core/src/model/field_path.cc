@@ -23,9 +23,9 @@
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/statusor.h"
-#include "Firestore/core/src/util/string_util.h"
 #include "absl/strings/str_join.h"
 #include "absl/strings/str_replace.h"
+#include "absl/strings/str_split.h"
 
 namespace firebase {
 namespace firestore {
@@ -101,7 +101,7 @@ FieldPath FieldPath::FromDotSeparatedStringView(absl::string_view path) {
   }
 
   SegmentsT segments =
-      util::StrSplit(path, '.', [path](absl::string_view segment) {
+      absl::StrSplit(path, '.', [path](absl::string_view segment) {
         if (segment.empty()) {
           ThrowInvalidArgument(
               "Invalid field path (%s). Paths must not be empty, begin with "

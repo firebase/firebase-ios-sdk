@@ -28,10 +28,10 @@
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/comparison.h"
 #include "Firestore/core/src/util/hard_assert.h"
-#include "Firestore/core/src/util/string_util.h"
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_format.h"
 #include "absl/strings/str_join.h"
+#include "absl/strings/str_split.h"
 
 namespace firebase {
 namespace firestore {
@@ -161,10 +161,10 @@ ComparisonResult CompareBlobs(const google_firestore_v1_Value& left,
 
 ComparisonResult CompareReferences(const google_firestore_v1_Value& left,
                                    const google_firestore_v1_Value& right) {
-  std::vector<std::string> left_segments = util::StrSplitSkipEmpty(
-      nanopb::MakeStringView(left.reference_value), '/');
-  std::vector<std::string> right_segments = util::StrSplitSkipEmpty(
-      nanopb::MakeStringView(right.reference_value), '/');
+  std::vector<std::string> left_segments = absl::StrSplit(
+      nanopb::MakeStringView(left.reference_value), '/', absl::SkipEmpty());
+  std::vector<std::string> right_segments = absl::StrSplit(
+      nanopb::MakeStringView(right.reference_value), '/', absl::SkipEmpty());
 
   size_t min_length = std::min(left_segments.size(), right_segments.size());
   for (size_t i = 0; i < min_length; ++i) {
@@ -398,8 +398,8 @@ std::string CanonifyBlob(const google_firestore_v1_Value& value) {
 }
 
 std::string CanonifyReference(const google_firestore_v1_Value& value) {
-  std::vector<std::string> segments = util::StrSplitSkipEmpty(
-      nanopb::MakeStringView(value.reference_value), '/');
+  std::vector<std::string> segments = absl::StrSplit(
+      nanopb::MakeStringView(value.reference_value), '/', absl::SkipEmpty());
   HARD_ASSERT(segments.size() >= 5,
               "Reference values should have at least 5 components");
   return absl::StrJoin(segments.begin() + 5, segments.end(), "/");
