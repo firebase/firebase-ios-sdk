@@ -23,8 +23,16 @@ import SharedTestUtilities
 
 import XCTest
 
-@MainActor
 class StorageTests: XCTestCase {
+  static var app: FirebaseApp?
+  override class func setUp() {
+    let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
+                                  gcmSenderID: "00000000000000000-00000000000-000000000")
+    options.projectID = "myProjectID"
+    FirebaseApp.configure(name: "test", options: options)
+    app = FirebaseApp(instanceWithName: "test", options: options)
+  }
+
   func testBucketNotEnforced() throws {
     let app = try getApp(bucket: "")
     let storage = Storage.storage(app: app)
@@ -36,12 +44,12 @@ class StorageTests: XCTestCase {
     let app = try getApp(bucket: "bucket")
     let storage = Storage.storage(app: app, url: "gs://benwu-test1.storage.firebase.com")
     _ = storage.reference(forURL: "gs://benwu-test1.storage.firebase.com/child")
-    XCTAssertThrowsError(try ExceptionCatcher.catchException {
+    XCTAssertThrowsObjCException {
       _ = storage.reference(forURL: "gs://benwu-test2.storage.firebase.com/child")
-    })
+    }
   }
 
-  func testInitWithCustomUrl() throws {
+  func testInitWithCustomURL() throws {
     let app = try getApp(bucket: "bucket")
     let storage = Storage.storage(app: app, url: "gs://foo-bar.appspot.com")
     XCTAssertEqual("gs://foo-bar.appspot.com/", storage.reference().description)
@@ -51,33 +59,33 @@ class StorageTests: XCTestCase {
 
   func testInitWithWrongScheme() throws {
     let app = try getApp(bucket: "bucket")
-    XCTAssertThrowsError(try ExceptionCatcher.catchException {
+    XCTAssertThrowsObjCException {
       _ = Storage.storage(app: app, url: "http://foo-bar.appspot.com")
-    })
+    }
   }
 
   func testInitWithNoScheme() throws {
     let app = try getApp(bucket: "bucket")
-    XCTAssertThrowsError(try ExceptionCatcher.catchException {
+    XCTAssertThrowsObjCException {
       _ = Storage.storage(app: app, url: "foo-bar.appspot.com")
-    })
+    }
   }
 
   func testInitWithoutURL() throws {
     let app = try getApp(bucket: "bucket")
-    XCTAssertNoThrow(try ExceptionCatcher.catchException {
+    XCTAssertNoThrowObjCException {
       _ = Storage.storage(app: app)
-    })
+    }
   }
 
   func testInitWithPath() throws {
     let app = try getApp(bucket: "bucket")
-    XCTAssertThrowsError(try ExceptionCatcher.catchException {
+    XCTAssertThrowsObjCException {
       _ = Storage.storage(app: app, url: "gs://foo-bar.appspot.com/child")
-    })
+    }
   }
 
-  func testInitWithDefaultAndCustomUrl() throws {
+  func testInitWithDefaultAndCustomURL() throws {
     let app = try getApp(bucket: "bucket")
     let defaultInstance = Storage.storage(app: app)
     let customInstance = Storage.storage(app: app, url: "gs://foo-bar.appspot.com")
@@ -92,10 +100,14 @@ class StorageTests: XCTestCase {
   }
 
   func testStorageNoBucketInConfig() throws {
-    let app = try getApp(bucket: "nil") // Special case code in getApp for "nil".
-    XCTAssertThrowsError(try ExceptionCatcher.catchException {
+    XCTAssertThrowsObjCException {
+      let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
+                                    gcmSenderID: "00000000000000000-00000000000-000000000")
+      options.projectID = "myProjectID"
+      let name = "StorageTestsNil"
+      let app = FirebaseApp(instanceWithName: name, options: options)
       _ = Storage.storage(app: app)
-    })
+    }
   }
 
   func testStorageEmptyBucketInConfig() throws {
@@ -108,9 +120,9 @@ class StorageTests: XCTestCase {
   func testStorageWrongBucketInConfig() throws {
     let app = try getApp(bucket: "notMyBucket")
     let storage = Storage.storage(app: app)
-    XCTAssertThrowsError(try ExceptionCatcher.catchException {
+    XCTAssertThrowsObjCException {
       _ = storage.reference(forURL: "gs://bucket/path/to/object")
-    })
+    }
   }
 
   func testUseEmulator() throws {
@@ -123,26 +135,26 @@ class StorageTests: XCTestCase {
   func testUseEmulatorValidatesHost() throws {
     let app = try getApp(bucket: "bucket")
     let storage = Storage.storage(app: app, url: "gs://foo-bar.appspot.com")
-    XCTAssertThrowsError(try ExceptionCatcher.catchException {
+    XCTAssertThrowsObjCException {
       storage.useEmulator(withHost: "", port: 8080)
-    })
+    }
   }
 
   func testUseEmulatorValidatesPort() throws {
     let app = try getApp(bucket: "bucket")
     let storage = Storage.storage(app: app, url: "gs://foo-bar.appspot.com")
-    XCTAssertThrowsError(try ExceptionCatcher.catchException {
+    XCTAssertThrowsObjCException {
       storage.useEmulator(withHost: "localhost", port: -1)
-    })
+    }
   }
 
   func testUseEmulatorCannotBeCalledAfterObtainingReference() throws {
     let app = try getApp(bucket: "bucket")
     let storage = Storage.storage(app: app, url: "gs://benwu-test1.storage.firebase.com")
     _ = storage.reference()
-    XCTAssertThrowsError(try ExceptionCatcher.catchException {
+    XCTAssertThrowsObjCException {
       storage.useEmulator(withHost: "localhost", port: 8080)
-    })
+    }
   }
 
   func testEqual() throws {
@@ -162,7 +174,7 @@ class StorageTests: XCTestCase {
     XCTAssertNotEqual(storage.hash, storage2.hash)
   }
 
-  func testhash() throws {
+  func testHash() throws {
     let app = try getApp(bucket: "bucket")
     let storage = Storage.storage(app: app)
     let copy = try XCTUnwrap(storage.copy() as? Storage)
@@ -171,6 +183,7 @@ class StorageTests: XCTestCase {
 
   // MARK: Private Helpers
 
+  // Cache the app's associated with each Storage bucket
   private static var appDictionary: [String: FirebaseApp] = [:]
 
   private func getApp(bucket: String) throws -> FirebaseApp {
@@ -181,12 +194,22 @@ class StorageTests: XCTestCase {
     let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
                                   gcmSenderID: "00000000000000000-00000000000-000000000")
     options.projectID = "myProjectID"
-    if bucket != "nil" {
-      options.storageBucket = bucket
-    }
+    options.storageBucket = bucket
     let name = "StorageTests\(bucket)"
     let app = FirebaseApp(instanceWithName: name, options: options)
     StorageTests.appDictionary[bucket] = app
     return app
+  }
+
+  private func XCTAssertThrowsObjCException(_ closure: @escaping () -> Void) {
+    XCTAssertThrowsError(try ExceptionCatcher.catchException {
+      closure()
+    })
+  }
+
+  private func XCTAssertNoThrowObjCException(_ closure: @escaping () -> Void) {
+    XCTAssertNoThrow(try ExceptionCatcher.catchException {
+      closure()
+    })
   }
 }

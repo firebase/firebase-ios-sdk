@@ -30,7 +30,6 @@ class StorageComponentTests: XCTestCase {
     let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
                                   gcmSenderID: "00000000000000000-00000000000-000000000")
     options.projectID = "myProjectID"
-    FirebaseApp.configure(name: "test", options: options)
     app = FirebaseApp(instanceWithName: "test", options: options)
   }
 
@@ -42,7 +41,7 @@ class StorageComponentTests: XCTestCase {
     XCTAssert(components.count == 1)
   }
 
-  /// Tests that the right number of components are being provided for the container.
+  /// Tests that a Storage instance can be created properly by the StorageComponent.
   func testStorageInstanceCreation() throws {
     let component = StorageComponent(app: StorageComponentTests.app!)
     let storage = component.storage(for: "someBucket")
@@ -87,6 +86,6 @@ class StorageComponentTests: XCTestCase {
     let storage3 = provider.storage(for: "differentBucket")
     XCTAssertNotNil(storage3)
 
-    XCTAssertNotEqual(storage1, storage3)
+    XCTAssert(storage1 !== storage3)
   }
 }
