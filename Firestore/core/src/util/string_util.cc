@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/util/string_util.h"
 
+#include <vector>
+
 namespace firebase {
 namespace firestore {
 namespace util {

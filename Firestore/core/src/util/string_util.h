@@ -25,6 +25,7 @@
 #define FIRESTORE_CORE_SRC_UTIL_STRING_UTIL_H_
 
 #include <string>
+#include <vector>
 
 #include "absl/strings/str_split.h"
 #include "absl/strings/string_view.h"
