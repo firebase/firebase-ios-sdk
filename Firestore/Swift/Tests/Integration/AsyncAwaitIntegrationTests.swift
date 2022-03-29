@@ -71,7 +71,7 @@ let emptyBundle = """
       try await document.setData(["": ""]) // ensure document exists
       let value = try await db.runTransaction { transact, error in
         transact.setData(["test": "test"], forDocument: document)
-        return nil // should not crash
+        return NSNull() // should not crash
       }
 
       XCTAssertNil(value, "value should be nil on success")
