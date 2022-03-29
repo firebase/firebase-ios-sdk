@@ -27,9 +27,7 @@
 #include <string>
 #include <vector>
 
-// NOLINTBEGIN
 #include "absl/strings/str_split.h"
-// NOLINTEND
 #include "absl/strings/string_view.h"
 
 namespace firebase {
