@@ -55,8 +55,10 @@ jobs:
         cache_key: ${{ matrix.os }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
-    - name: iOS Unit Tests
+    - name: Objective-C Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh StorageUnit iOS spm
+    - name: Swift Unit Tests
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseStorageUnit iOS spm
 
   spm-cron:
     # Don't run on private repo.

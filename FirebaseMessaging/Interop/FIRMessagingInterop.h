@@ -19,7 +19,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** Connector for bridging communication between Firebase SDKs and FIRMessaging API. */
-NS_SWIFT_NAME(MessagingInterop) @protocol FIRMessagingInterop<NSObject>
+NS_SWIFT_NAME(MessagingInterop) @protocol FIRMessagingInterop
 
 /**
  * The FCM registration token is used to identify this device so that FCM can send notifications to
