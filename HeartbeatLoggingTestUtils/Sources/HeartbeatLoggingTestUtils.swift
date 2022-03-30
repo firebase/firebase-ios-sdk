@@ -14,7 +14,7 @@
 
 import Foundation
 import XCTest
-import FirebaseCoreInternal
+@testable import FirebaseCoreInternal
 
 @objc(FIRHeartbeatLoggingTestUtils)
 @objcMembers
