@@ -84,7 +84,7 @@ class Bound {
   bool SortsAfterDocument(const OrderByList& order_by,
                           const model::Document& document) const;
 
-  std::string CanonicalId(bool as_lower) const;
+  std::string PositionString() const;
 
   std::string ToString() const;
 

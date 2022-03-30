@@ -100,9 +100,8 @@ ComparisonResult Bound::CompareToDocument(
   return result;
 }
 
-std::string Bound::CanonicalId(bool as_start) const {
-  std::string result =
-      as_start ? (inclusive_ ? "b:" : "a:") : (inclusive_ ? "a:" : "b:");
+std::string Bound::PositionString() const {
+  std::string result;
   for (pb_size_t i = 0; i < position_->values_count; ++i) {
     result.append(model::CanonicalId(position_->values[i]));
   }

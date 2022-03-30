@@ -42,7 +42,7 @@ namespace core {
 
 using CollectionGroupId = std::shared_ptr<const std::string>;
 using IndexedValues =
-    absl::optional<std::vector<nanopb::Message<google_firestore_v1_Value>>>;
+    absl::optional<std::vector<google_firestore_v1_Value>>;
 using IndexedBoundValue =
     std::pair<absl::optional<nanopb::Message<_google_firestore_v1_Value>>,
               bool>;

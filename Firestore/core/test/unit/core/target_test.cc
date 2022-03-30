@@ -166,7 +166,7 @@ TEST(TargetTest, ArrayContainsQueryBound) {
   auto array_values = target.GetArrayValues(index);
   EXPECT_TRUE(array_values.has_value());
   EXPECT_EQ(array_values.value().size(), 1);
-  EXPECT_TRUE(Equals(*array_values.value()[0], *Value("bar")));
+  EXPECT_TRUE(Equals(array_values.value()[0], *Value("bar")));
 
   auto lower_bound = target.GetLowerBound(index);
   ASSERT_TRUE(lower_bound.has_value());
@@ -187,8 +187,8 @@ TEST(TargetTest, ArrayContainsAnyQueryBound) {
   auto array_values = target.GetArrayValues(index);
   ASSERT_TRUE(array_values.has_value());
   ASSERT_EQ(array_values.value().size(), 2);
-  EXPECT_TRUE(Equals(*array_values.value()[0], *Value("bar")));
-  EXPECT_TRUE(Equals(*array_values.value()[1], *Value("baz")));
+  EXPECT_TRUE(Equals(array_values.value()[0], *Value("bar")));
+  EXPECT_TRUE(Equals(array_values.value()[1], *Value("baz")));
 
   auto lower_bound = target.GetLowerBound(index);
   VerifyBound(lower_bound.value(), true, {});

@@ -40,27 +40,27 @@ using model::Segment;
 
 namespace {
 
-// Takes the ownership of the given array value message, converts it to a
+// Takes the ownership of the given array value message, converting it to a
 // vector of value messages.
-std::vector<nanopb::Message<_google_firestore_v1_Value>> MakeValueVector(
-    nanopb::Message<_google_firestore_v1_ArrayValue> array) {
-  std::vector<nanopb::Message<_google_firestore_v1_Value>> result;
+std::vector<google_firestore_v1_Value> MakeValueVector(
+    google_firestore_v1_ArrayValue array) {
+  std::vector<google_firestore_v1_Value> result;
 
-  for (pb_size_t i = 0; i < array->values_count; ++i) {
-    result.push_back(nanopb::MakeMessage(std::move(array->values[i])));
+  for (pb_size_t i = 0; i < array.values_count; ++i) {
+    result.push_back(array.values[i]);
   }
 
   return result;
 }
 
 // Moves the values from the given unordred_map into the resulting vector.
-std::vector<nanopb::Message<_google_firestore_v1_Value>> ValuesFrom(
+std::vector<google_firestore_v1_Value> ValuesFrom(
     std::unordered_map<std::string,
-                       nanopb::Message<_google_firestore_v1_Value>>&&
+                       nanopb::Message<google_firestore_v1_Value>>&&
         field_value_map) {
-  std::vector<nanopb::Message<_google_firestore_v1_Value>> result;
+  std::vector<google_firestore_v1_Value> result;
   for (auto& entry_pair : field_value_map) {
-    result.push_back(std::move(entry_pair.second));
+    result.push_back(*entry_pair.second);
   }
 
   return result;
@@ -96,12 +96,12 @@ IndexedValues Target::GetArrayValues(const model::FieldIndex& field_index) {
        GetFieldFiltersForPath(segment.value().field_path())) {
     switch (filter.op()) {
       case FieldFilter::Operator::ArrayContains: {
-        std::vector<nanopb::Message<google_firestore_v1_Value>> result;
-        result.push_back(model::DeepClone(filter.value()));
+        std::vector<google_firestore_v1_Value> result;
+        result.push_back(filter.value());
         return result;
       }
       case FieldFilter::Operator::ArrayContainsAny: {
-        return MakeValueVector(model::DeepClone(filter.value().array_value));
+        return MakeValueVector(filter.value().array_value);
       }
       default:
         continue;
@@ -112,7 +112,7 @@ IndexedValues Target::GetArrayValues(const model::FieldIndex& field_index) {
 }
 
 IndexedValues Target::GetNotInValues(const model::FieldIndex& field_index) {
-  std::unordered_map<std::string, nanopb::Message<_google_firestore_v1_Value>>
+  std::unordered_map<std::string, nanopb::Message<google_firestore_v1_Value>>
       field_value_map;
   for (const auto& segment : field_index.GetDirectionalSegments()) {
     for (const auto& field_filter :
@@ -143,7 +143,7 @@ IndexedValues Target::GetNotInValues(const model::FieldIndex& field_index) {
 
 absl::optional<Bound> Target::GetLowerBound(
     const model::FieldIndex& field_index) {
-  std::vector<nanopb::Message<_google_firestore_v1_Value>> messages;
+  std::vector<nanopb::Message<google_firestore_v1_Value>> messages;
   bool inclusive = true;
 
   // For each segment, retrieve a lower bound if there is a suitable filter or
@@ -162,22 +162,22 @@ absl::optional<Bound> Target::GetLowerBound(
     inclusive = (inclusive && segment_bound.second);
   }
 
-  // Give up message ownership and move `_google_firestore_v1_Value` into
+  // Give up message ownership and move `google_firestore_v1_Value` into
   // `values`. Their ownership will be assumed by `position` below.
-  std::vector<_google_firestore_v1_Value> values;
+  std::vector<google_firestore_v1_Value> values;
   for (auto& message : messages) {
     values.push_back(std::move(*message.release()));
   }
 
   auto position =
-      nanopb::MakeSharedMessage<_google_firestore_v1_ArrayValue>({});
+      nanopb::MakeSharedMessage<google_firestore_v1_ArrayValue>({});
   nanopb::SetRepeatedField(&position->values, &position->values_count, values);
   return Bound::FromValue(std::move(position), inclusive);
 }
 
 absl::optional<Bound> Target::GetUpperBound(
     const model::FieldIndex& field_index) {
-  std::vector<nanopb::Message<_google_firestore_v1_Value>> messages;
+  std::vector<nanopb::Message<google_firestore_v1_Value>> messages;
   bool inclusive = true;
 
   // For each segment, retrieve an upper bound if there is a suitable filter or
@@ -196,28 +196,28 @@ absl::optional<Bound> Target::GetUpperBound(
     inclusive = (inclusive && segment_bound.second);
   }
 
-  // Give up message ownership and move `_google_firestore_v1_Value` into
+  // Give up message ownership and move `google_firestore_v1_Value` into
   // `values`. Their ownership will be assumed by `position` below.
-  std::vector<_google_firestore_v1_Value> values;
+  std::vector<google_firestore_v1_Value> values;
   for (auto& message : messages) {
     values.push_back(std::move(*message.release()));
   }
 
   auto position =
-      nanopb::MakeSharedMessage<_google_firestore_v1_ArrayValue>({});
+      nanopb::MakeSharedMessage<google_firestore_v1_ArrayValue>({});
   nanopb::SetRepeatedField(&position->values, &position->values_count, values);
   return Bound::FromValue(std::move(position), inclusive);
 }
 
 IndexedBoundValue Target::GetAscendingBound(
     const Segment& segment, const absl::optional<Bound>& bound) {
-  absl::optional<nanopb::Message<_google_firestore_v1_Value>> segment_value;
+  absl::optional<nanopb::Message<google_firestore_v1_Value>> segment_value;
   bool segment_inclusive = true;
 
   // Process all filters to find a value for the current field segment
   for (const auto& field_filter :
        GetFieldFiltersForPath(segment.field_path())) {
-    absl::optional<nanopb::Message<_google_firestore_v1_Value>> filter_value;
+    absl::optional<nanopb::Message<google_firestore_v1_Value>> filter_value;
     bool filter_inclusive = true;
 
     switch (field_filter.op()) {
@@ -278,13 +278,13 @@ IndexedBoundValue Target::GetAscendingBound(
 
 IndexedBoundValue Target::GetDescendingBound(
     const Segment& segment, const absl::optional<Bound>& bound) {
-  absl::optional<nanopb::Message<_google_firestore_v1_Value>> segment_value;
+  absl::optional<nanopb::Message<google_firestore_v1_Value>> segment_value;
   bool segment_inclusive = true;
 
   // Process all filters to find a value for the current field segment
   for (const auto& field_filter :
        GetFieldFiltersForPath(segment.field_path())) {
-    absl::optional<nanopb::Message<_google_firestore_v1_Value>> filter_value;
+    absl::optional<nanopb::Message<google_firestore_v1_Value>> filter_value;
     bool filter_inclusive = true;
 
     switch (field_filter.op()) {
@@ -372,11 +372,13 @@ const std::string& Target::CanonicalId() const {
   }
 
   if (start_at_) {
-    absl::StrAppend(&result, "|lb:", start_at_->CanonicalId(/*as_start=*/true));
+    absl::StrAppend(&result, start_at_->inclusive() ? "|lb:b:" : "|lb:a:");
+    absl::StrAppend(&result, start_at_->PositionString());
   }
 
   if (end_at_) {
-    absl::StrAppend(&result, "|ub:", end_at_->CanonicalId(/*as_start=*/false));
+    absl::StrAppend(&result, end_at_->inclusive() ? "|ub:a:" : "|ub:b:");
+    absl::StrAppend(&result, end_at_->PositionString());
   }
 
   canonical_id_ = std::move(result);
