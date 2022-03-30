@@ -30,7 +30,7 @@ class StorageTests: XCTestCase {
                                   gcmSenderID: "00000000000000000-00000000000-000000000")
     options.projectID = "myProjectID"
     FirebaseApp.configure(name: "test", options: options)
-    app = FirebaseApp(instanceWithName: "test", options: options)
+    app = FirebaseApp.app(name: "test")
   }
 
   func testBucketNotEnforced() throws {
