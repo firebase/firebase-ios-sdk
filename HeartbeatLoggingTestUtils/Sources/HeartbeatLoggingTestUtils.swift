@@ -32,6 +32,47 @@ public class HeartbeatLoggingTestUtils: NSObject {
     HeartbeatsPayload.dateFormatter
   }
 
+  public static var emptyHeartbeatsPayload: _ObjC_HeartbeatsPayload {
+    let literalData = """
+       {
+         "version": 2,
+         "heartbeats": []
+       }
+    """
+    .data(using: .utf8)!
+
+    let decoder = JSONDecoder()
+    decoder.dateDecodingStrategy = .formatted(HeartbeatsPayload.dateFormatter)
+
+    let heartbeatsPayload = try! decoder.decode(HeartbeatsPayload.self, from: literalData)
+    return _ObjC_HeartbeatsPayload(heartbeatsPayload)
+  }
+
+  public static var nonEmptyHeartbeatsPayload: _ObjC_HeartbeatsPayload {
+    let literalData = """
+       {
+         "version": 2,
+         "heartbeats": [
+           {
+             "agent": "dummy_agent_1",
+             "dates": ["2021-11-01", "2021-11-02"]
+           },
+           {
+             "agent": "dummy_agent_2",
+             "dates": ["2021-11-03"]
+           }
+         ]
+       }
+    """
+    .data(using: .utf8)!
+
+    let decoder = JSONDecoder()
+    decoder.dateDecodingStrategy = .formatted(HeartbeatsPayload.dateFormatter)
+
+    let heartbeatsPayload = try! decoder.decode(HeartbeatsPayload.self, from: literalData)
+    return _ObjC_HeartbeatsPayload(heartbeatsPayload)
+  }
+
   @objc(assertEncodedPayloadString:isEqualToLiteralString:withError:)
   public static func assertEqualPayloadStrings(_ encoded: String, _ literal: String) throws {
     var encodedData = try XCTUnwrap(Data(base64URLEncoded: encoded))

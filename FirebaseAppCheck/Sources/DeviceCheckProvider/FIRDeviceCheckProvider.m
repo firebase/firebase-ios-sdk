@@ -91,8 +91,8 @@ NS_ASSUME_NONNULL_BEGIN
   FIRAppCheckAPIService *APIService =
       [[FIRAppCheckAPIService alloc] initWithURLSession:URLSession
                                                  APIKey:app.options.APIKey
-                                              projectID:app.options.projectID
-                                                  appID:app.options.googleAppID];
+                                                  appID:app.options.googleAppID
+                                        heartbeatLogger:app.heartbeatLogger];
 
   FIRDeviceCheckAPIService *deviceCheckAPIService =
       [[FIRDeviceCheckAPIService alloc] initWithAPIService:APIService

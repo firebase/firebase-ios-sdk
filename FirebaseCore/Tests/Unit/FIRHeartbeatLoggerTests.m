@@ -23,11 +23,11 @@
             userAgentProvider:(NSString * (^)(void))userAgentProvider;
 @end
 
-@interface FIRHeartbeatLoggerTest : XCTestCase
+@interface FIRHeartbeatLoggerTests : XCTestCase
 @property(nonatomic) FIRHeartbeatLogger *heartbeatLogger;
 @end
 
-@implementation FIRHeartbeatLoggerTest
+@implementation FIRHeartbeatLoggerTests
 
 + (NSString *)dummyAppID {
   return NSStringFromClass([self class]);

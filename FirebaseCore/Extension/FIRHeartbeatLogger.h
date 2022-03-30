@@ -21,6 +21,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class FIRHeartbeatsPayload;
 
+@protocol FIRHeartbeatLoggerProtocol <NSObject>
+
+/// Asynchronously logs a heartbeat.
+- (void)log;
+
+/// Flushes heartbeats from storage into a structured payload of heartbeats.
+- (FIRHeartbeatsPayload *)flushHeartbeatsIntoPayload;
+
+/// Gets the heartbeat code for today.
+- (FIRHeartbeatInfoCode)heartbeatCodeForToday;
+
+@end
+
 /// Returns a nullable string header value from a given heartbeats payload.
 ///
 /// This API returns `nil` when the given heartbeats payload is considered empty.
@@ -29,8 +42,11 @@ NS_ASSUME_NONNULL_BEGIN
 NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *heartbeatsPayload);
 
 /// A thread safe, synchronized object that logs and flushes platform logging info.
-@interface FIRHeartbeatLogger : NSObject
+@interface FIRHeartbeatLogger : NSObject <FIRHeartbeatLoggerProtocol>
 
+/// Designated initializer.
+///
+/// @param appID The app ID that this heartbeat logger corresponds to.
 - (instancetype)initWithAppID:(NSString *)appID;
 
 /// Asynchronously logs a new heartbeat corresponding to the Firebase User Agent, if needed.
