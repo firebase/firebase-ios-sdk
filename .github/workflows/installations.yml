@@ -22,12 +22,11 @@ jobs:
     runs-on: macos-11
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      # TODO(v9): Remove `POD_LIB_LINT_ONLY` after publishing `HeartbeatLoggingTestUtils`.
+      POD_LIB_LINT_ONLY: 1
     strategy:
       matrix:
         target: [ios, tvos, macos]
-    # TODO(v9): Remove `env` after publishing `HeartbeatLoggingTestUtils`.
-    env:
-      POD_LIB_LINT_ONLY: 1
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
