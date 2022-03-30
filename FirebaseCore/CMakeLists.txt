@@ -21,9 +21,6 @@ include(GoogleUtilities)
 
 file(GLOB headers Sources/Private/*.h Sources/Public/FirebaseCore/*.h)
 file(GLOB sources Sources/*.m)
-# Exclude the `FIRHeartbeatLogger.m` since it depends on the Swift Heartbeat logging
-# library that is not configured to build for CMake builds.
-list(FILTER sources EXCLUDE REGEX "FIRHeartbeatLogger.m")
 
 podspec_version(version ${PROJECT_SOURCE_DIR}/FirebaseCore.podspec)
 firebase_version(firebase_version ${PROJECT_SOURCE_DIR}/FirebaseCore.podspec)
@@ -37,6 +34,10 @@ firebase_ios_framework_public_headers(FirebaseCore ${headers})
 target_compile_definitions(
   FirebaseCore PRIVATE
   Firebase_VERSION=${firebase_version}
+  # This macro is defined and used to exclude symbols from the
+  # FirebaseCoreInternal Swift module, which is not yet configured to build
+  # for CMake builds.
+  FIREBASE_BUILD_CMAKE=1
 )
 
 target_link_libraries(

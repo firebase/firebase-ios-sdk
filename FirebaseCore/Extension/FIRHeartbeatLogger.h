@@ -19,6 +19,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#ifndef FIREBASE_BUILD_CMAKE
 @class FIRHeartbeatsPayload;
 
 @protocol FIRHeartbeatLoggerProtocol <NSObject>
@@ -40,6 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 ///
 /// @param heartbeatsPayload The heartbeats payload.
 NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *heartbeatsPayload);
+#endif  // FIREBASE_BUILD_CMAKE
 
 /// A thread safe, synchronized object that logs and flushes platform logging info.
 @interface FIRHeartbeatLogger : NSObject <FIRHeartbeatLoggerProtocol>
@@ -54,6 +56,7 @@ NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *he
 /// @note This API is thread-safe.
 - (void)log;
 
+#ifndef FIREBASE_BUILD_CMAKE
 /// Flushes heartbeats from storage into a structured payload of heartbeats.
 ///
 /// This API is for clients using platform logging V2.
@@ -69,6 +72,7 @@ NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *he
 /// @note This API is thread-safe.
 /// @return Heartbeat code indicating whether or not there is an unsent global heartbeat.
 - (FIRHeartbeatInfoCode)heartbeatCodeForToday;
+#endif  // FIREBASE_BUILD_CMAKE
 
 @end
 
