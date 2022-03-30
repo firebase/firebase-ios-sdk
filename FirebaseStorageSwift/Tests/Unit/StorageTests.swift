@@ -100,12 +100,12 @@ class StorageTests: XCTestCase {
   }
 
   func testStorageNoBucketInConfig() throws {
+    let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
+                                  gcmSenderID: "00000000000000000-00000000000-000000000")
+    options.projectID = "myProjectID"
+    let name = "StorageTestsNil"
+    let app = FirebaseApp(instanceWithName: name, options: options)
     XCTAssertThrowsObjCException {
-      let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
-                                    gcmSenderID: "00000000000000000-00000000000-000000000")
-      options.projectID = "myProjectID"
-      let name = "StorageTestsNil"
-      let app = FirebaseApp(instanceWithName: name, options: options)
       _ = Storage.storage(app: app)
     }
   }
@@ -183,7 +183,7 @@ class StorageTests: XCTestCase {
 
   // MARK: Private Helpers
 
-  // Cache the app's associated with each Storage bucket
+  // Cache the app associated with each Storage bucket
   private static var appDictionary: [String: FirebaseApp] = [:]
 
   private func getApp(bucket: String) throws -> FirebaseApp {

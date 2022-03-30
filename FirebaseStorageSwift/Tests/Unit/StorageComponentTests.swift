@@ -24,7 +24,7 @@ import SharedTestUtilities
 import XCTest
 
 class StorageComponentTests: XCTestCase {
-  static var app: FirebaseApp?
+  static var app: FirebaseApp!
 
   override class func setUp() {
     let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
@@ -43,16 +43,18 @@ class StorageComponentTests: XCTestCase {
 
   /// Tests that a Storage instance can be created properly by the StorageComponent.
   func testStorageInstanceCreation() throws {
-    let component = StorageComponent(app: StorageComponentTests.app!)
+    let component = StorageComponent(app: StorageComponentTests.app)
     let storage = component.storage(for: "someBucket")
     XCTAssertNotNil(storage)
   }
 
   /// Tests that the component container caches instances of StorageComponent.
   func testMultipleComponentInstancesCreated() throws {
-    let app = try XCTUnwrap(StorageComponentTests.app)
     let registrants = NSMutableSet(array: [StorageComponent.self])
-    let container = FirebaseComponentContainer(app: app, registrants: registrants)
+    let container = FirebaseComponentContainer(
+      app: StorageComponentTests.app,
+      registrants: registrants
+    )
 
     let provider1 = ComponentType<StorageProvider>.instance(for: StorageProvider.self,
                                                             in: container)
@@ -68,9 +70,11 @@ class StorageComponentTests: XCTestCase {
 
   /// Tests that instances of Storage created are different.
   func testMultipleStorageInstancesCreated() throws {
-    let app = try XCTUnwrap(StorageComponentTests.app)
     let registrants = NSMutableSet(array: [StorageComponent.self])
-    let container = FirebaseComponentContainer(app: app, registrants: registrants)
+    let container = FirebaseComponentContainer(
+      app: StorageComponentTests.app,
+      registrants: registrants
+    )
 
     let provider = ComponentType<StorageProvider>.instance(for: StorageProvider.self,
                                                            in: container)
