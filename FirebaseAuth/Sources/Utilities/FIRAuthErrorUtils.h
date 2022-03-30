@@ -110,7 +110,7 @@ NS_ASSUME_NONNULL_BEGIN
     @param underlyingError The error that caused this error. If this parameter is nil, the
         NSUnderlyingErrorKey value will not be set.
     @remarks This error is returned when JWT parsing fails.
-    @returns An @c FIRAuthErrorCodeMalformedJWT error wrapping an underlying error, if available.
+    @return An @c FIRAuthErrorCodeMalformedJWT error wrapping an underlying error, if available.
  */
 + (NSError *)malformedJWTErrorWithToken:(NSString *)token
                         underlyingError:(NSError *_Nullable)underlyingError;
