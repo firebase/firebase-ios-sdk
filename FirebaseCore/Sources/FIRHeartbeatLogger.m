@@ -14,12 +14,14 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
-
+#ifndef FIREBASE_BUILD_CMAKE
 @import FirebaseCoreInternal;
+#endif  // FIREBASE_BUILD_CMAKE
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
+#import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
 
+#ifndef FIREBASE_BUILD_CMAKE
 NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *heartbeatsPayload) {
   if ([heartbeatsPayload isEmpty]) {
     return nil;
@@ -27,9 +29,12 @@ NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *he
 
   return [heartbeatsPayload headerValue];
 }
+#endif  // FIREBASE_BUILD_CMAKE
 
 @interface FIRHeartbeatLogger ()
+#ifndef FIREBASE_BUILD_CMAKE
 @property(nonatomic, readonly) FIRHeartbeatController *heartbeatController;
+#endif  // FIREBASE_BUILD_CMAKE
 @property(copy, readonly) NSString * (^userAgentProvider)(void);
 @end
 
@@ -43,7 +48,9 @@ NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *he
             userAgentProvider:(NSString * (^)(void))userAgentProvider {
   self = [super init];
   if (self) {
+#ifndef FIREBASE_BUILD_CMAKE
     _heartbeatController = [[FIRHeartbeatController alloc] initWithId:[appID copy]];
+#endif  // FIREBASE_BUILD_CMAKE
     _userAgentProvider = [userAgentProvider copy];
   }
   return self;
@@ -57,9 +64,12 @@ NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *he
 
 - (void)log {
   NSString *userAgent = _userAgentProvider();
+#ifndef FIREBASE_BUILD_CMAKE
   [_heartbeatController log:userAgent];
+#endif  // FIREBASE_BUILD_CMAKE
 }
 
+#ifndef FIREBASE_BUILD_CMAKE
 - (FIRHeartbeatsPayload *)flushHeartbeatsIntoPayload {
   FIRHeartbeatsPayload *payload = [_heartbeatController flush];
   return payload;
@@ -74,5 +84,6 @@ NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *he
     return FIRHeartbeatInfoCodeGlobal;
   }
 }
+#endif  // FIREBASE_BUILD_CMAKE
 
 @end

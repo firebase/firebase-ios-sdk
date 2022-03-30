@@ -31,7 +31,7 @@ on:
     - 'FirebaseFirestore.podspec'
 
     # CMake
-    - 'CMakeLists.txt'
+    - '**CMakeLists.txt'
     - 'cmake/**'
 
     # Build scripts to which Firestore is sensitive
