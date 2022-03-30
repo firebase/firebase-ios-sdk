@@ -55,13 +55,16 @@
 }
 
 - (FIRHeartbeatInfoCode)heartbeatCodeForToday {
-  // This API should not be used by the below tests.
+  // This API should not be used by the below tests because the AppCheck SDK
+  // uses only the V2 heartbeat API (`flushHeartbeatsIntoPayload`) for getting
+  // heartbeats.
   [self doesNotRecognizeSelector:_cmd];
   return FIRHeartbeatInfoCodeNone;
 }
 
 - (void)log {
-  // This API should not be used by the below tests.
+  // This API should not be used by the below tests because the AppCheck SDK
+  // does not log heartbeats in it's networking context.
   [self doesNotRecognizeSelector:_cmd];
 }
 

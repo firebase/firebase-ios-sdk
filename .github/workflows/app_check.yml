@@ -21,6 +21,7 @@ jobs:
     strategy:
       matrix:
         target: [ios, tvos, macos]
+    # TODO(v9): Remove `env` after publishing `HeartbeatLoggingTestUtils`.
     env:
       POD_LIB_LINT_ONLY: 1
     steps:
@@ -36,6 +37,7 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macos-11
+    # TODO(v9): Remove `env` after publishing `HeartbeatLoggingTestUtils`.
     env:
       POD_LIB_LINT_ONLY: 1
     steps:
