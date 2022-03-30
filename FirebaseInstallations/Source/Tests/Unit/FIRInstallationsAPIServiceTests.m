@@ -17,6 +17,9 @@
 #import <XCTest/XCTest.h>
 
 #import <OCMock/OCMock.h>
+
+@import HeartbeatLoggingTestUtils;
+
 #import "FBLPromise+Testing.h"
 #import "FirebaseInstallations/Source/Tests/Utils/FIRInstallationsItem+Tests.h"
 
@@ -29,18 +32,58 @@
 
 typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
-@interface FIRInstallationsAPIService (Tests)
+#pragma mark - Fakes
+
+/// A fake heartbeat logger used for dependency injection during testing.
+@interface FIRHeartbeatLoggerFake : NSObject <FIRHeartbeatLoggerProtocol>
+@property(nonatomic, copy, nullable) FIRHeartbeatsPayload * (^onFlushHeartbeatsIntoPayloadHandler)
+    (void);
+@property(nonatomic, copy, nullable) FIRHeartbeatInfoCode (^onHeartbeatCodeForTodayHandler)(void);
+@end
+
+@implementation FIRHeartbeatLoggerFake
+
+- (nonnull FIRHeartbeatsPayload *)flushHeartbeatsIntoPayload {
+  if (self.onFlushHeartbeatsIntoPayloadHandler) {
+    return self.onFlushHeartbeatsIntoPayloadHandler();
+  } else {
+    return nil;
+  }
+}
+
+- (FIRHeartbeatInfoCode)heartbeatCodeForToday {
+  // This API should not be used by the below tests because the Installations
+  // SDK uses only the V2 heartbeat API (`flushHeartbeatsIntoPayload`) for
+  // getting heartbeats.
+  [self doesNotRecognizeSelector:_cmd];
+  return FIRHeartbeatInfoCodeNone;
+}
+
+- (void)log {
+  // This API should not be used by the below tests because the Installations
+  // SDK does not log heartbeats in it's networking context.
+  [self doesNotRecognizeSelector:_cmd];
+}
+
+@end
+
+#pragma mark - FIRInstallationsAPIService + Internal
+
+@interface FIRInstallationsAPIService (Internal)
 - (instancetype)initWithURLSession:(NSURLSession *)URLSession
                             APIKey:(NSString *)APIKey
-                         projectID:(NSString *)projectID;
+                         projectID:(NSString *)projectID
+                   heartbeatLogger:(id<FIRHeartbeatLoggerProtocol>)heartbeatLogger;
 @end
+
+#pragma mark - FIRInstallationsAPIServiceTests
 
 @interface FIRInstallationsAPIServiceTests : XCTestCase
 @property(nonatomic) FIRInstallationsAPIService *service;
-@property(nonatomic) id mockURLSession;
+@property(nonatomic) FIRHeartbeatLoggerFake *heartbeatLoggerFake;
 @property(nonatomic) NSString *APIKey;
 @property(nonatomic) NSString *projectID;
-@property(nonatomic) id heartbeatMock;
+@property(nonatomic) id mockURLSession;
 @end
 
 @implementation FIRInstallationsAPIServiceTests
@@ -49,40 +92,62 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   self.APIKey = @"api-key";
   self.projectID = @"project-id";
   self.mockURLSession = OCMClassMock([NSURLSession class]);
+  self.heartbeatLoggerFake = [[FIRHeartbeatLoggerFake alloc] init];
   self.service = [[FIRInstallationsAPIService alloc] initWithURLSession:self.mockURLSession
                                                                  APIKey:self.APIKey
-                                                              projectID:self.projectID];
-  self.heartbeatMock = OCMClassMock([FIRHeartbeatInfo class]);
-  OCMStub([self.heartbeatMock heartbeatCodeForTag:@"fire-installations"])
-      .andDo(^(NSInvocation *invocation) {
-        XCTAssertFalse([NSThread isMainThread]);
-      })
-      .andReturn(FIRHeartbeatInfoCodeCombined);
+                                                              projectID:self.projectID
+                                                        heartbeatLogger:self.heartbeatLoggerFake];
 }
 
 - (void)tearDown {
   self.service = nil;
+  self.heartbeatLoggerFake = nil;
   self.mockURLSession = nil;
   self.projectID = nil;
   self.APIKey = nil;
-  self.heartbeatMock = nil;
 
   // Wait for any pending promises to complete.
   XCTAssert(FBLWaitForPromisesWithTimeout(2));
 }
 
-- (void)testRegisterInstallationSuccess {
+- (void)testRegisterInstallationSuccessWhenHeartbeatsNeedSending {
+  // Given
   NSString *fixtureName = @"APIRegisterInstallationResponseSuccess.json";
+  FIRHeartbeatsPayload *nonEmptyHeartbeatsPayload =
+      [FIRHeartbeatLoggingTestUtils nonEmptyHeartbeatsPayload];
+  // When
+  self.heartbeatLoggerFake.onFlushHeartbeatsIntoPayloadHandler = ^FIRHeartbeatsPayload * {
+    return nonEmptyHeartbeatsPayload;
+  };
+  // Then
   [self assertRegisterInstallationSuccessWithResponseFixtureName:fixtureName
                                                     responseCode:201
-                                             expectedFIDOverride:@"aaaaaaaaaaaaaaaaaaaaaa"];
+                                             expectedFIDOverride:@"aaaaaaaaaaaaaaaaaaaaaa"
+                                               heartbeatsPayload:nonEmptyHeartbeatsPayload];
+}
+
+- (void)testRegisterInstallationSuccessWhenNoHeartbeatsNeedSending {
+  // Given
+  NSString *fixtureName = @"APIRegisterInstallationResponseSuccess.json";
+  FIRHeartbeatsPayload *emptyHeartbeatsPayload =
+      [FIRHeartbeatLoggingTestUtils emptyHeartbeatsPayload];
+  // When
+  self.heartbeatLoggerFake.onFlushHeartbeatsIntoPayloadHandler = ^FIRHeartbeatsPayload * {
+    return emptyHeartbeatsPayload;
+  };
+  // Then
+  [self assertRegisterInstallationSuccessWithResponseFixtureName:fixtureName
+                                                    responseCode:201
+                                             expectedFIDOverride:@"aaaaaaaaaaaaaaaaaaaaaa"
+                                               heartbeatsPayload:emptyHeartbeatsPayload];
 }
 
 - (void)testRegisterInstallationSuccess_NoFIDInResponse {
   NSString *fixtureName = @"APIRegisterInstallationResponseSuccessNoFID.json";
   [self assertRegisterInstallationSuccessWithResponseFixtureName:fixtureName
                                                     responseCode:201
-                                             expectedFIDOverride:nil];
+                                             expectedFIDOverride:nil
+                                               heartbeatsPayload:nil];
 }
 
 - (void)testRegisterInstallationSuccess_InvalidInstallation {
@@ -98,62 +163,28 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   XCTAssertNotNil(promise.error);
 }
 
-- (void)testRefreshAuthTokenSuccess {
-  FIRInstallationsItem *installation = [FIRInstallationsItem createRegisteredInstallationItem];
-  installation.firebaseInstallationID = @"qwertyuiopasdfghjklzxcvbnm";
+- (void)testRefreshAuthTokenSuccessWhenHeartbeatsNeedSending {
+  // Given
+  FIRHeartbeatsPayload *nonEmptyHeartbeatsPayload =
+      [FIRHeartbeatLoggingTestUtils nonEmptyHeartbeatsPayload];
+  // When
+  self.heartbeatLoggerFake.onFlushHeartbeatsIntoPayloadHandler = ^FIRHeartbeatsPayload * {
+    return nonEmptyHeartbeatsPayload;
+  };
+  // Then
+  [self assertRefreshAuthTokenSuccessWhenSendingHeartbeatsPayload:nonEmptyHeartbeatsPayload];
+}
 
-  // 1. Stub URL session:
-
-  // 1.1. URL request validation.
-  id URLRequestValidation = [self refreshTokenRequestValidationArgWithInstallation:installation];
-
-  // 1.2. Capture completion to call it later.
-  __block void (^taskCompletion)(NSData *, NSURLResponse *, NSError *);
-  id completionArg = [OCMArg checkWithBlock:^BOOL(id obj) {
-    taskCompletion = obj;
-    return YES;
-  }];
-
-  // 1.3. Create a data task mock.
-  id mockDataTask = OCMClassMock([NSURLSessionDataTask class]);
-  OCMExpect([(NSURLSessionDataTask *)mockDataTask resume]);
-
-  // 1.4. Expect `dataTaskWithRequest` to be called.
-  OCMExpect([self.mockURLSession dataTaskWithRequest:URLRequestValidation
-                                   completionHandler:completionArg])
-      .andReturn(mockDataTask);
-
-  // 1.5. Prepare server response data.
-  NSData *successResponseData = [self loadFixtureNamed:@"APIGenerateTokenResponseSuccess.json"];
-
-  // 2. Call
-  FBLPromise<FIRInstallationsItem *> *promise =
-      [self.service refreshAuthTokenForInstallation:installation];
-
-  // 3. Wait for `[NSURLSession dataTaskWithRequest...]` to be called
-  OCMVerifyAllWithDelay(self.mockURLSession, 0.5);
-
-  // 4. Wait for the data task `resume` to be called.
-  OCMVerifyAllWithDelay(mockDataTask, 0.5);
-
-  // 5. Call the data task completion.
-  taskCompletion(successResponseData, [self responseWithStatusCode:200], nil);
-
-  // 6. Check result.
-  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
-
-  XCTAssertNil(promise.error);
-  XCTAssertNotNil(promise.value);
-
-  XCTAssertNotEqual(promise.value, installation);
-  XCTAssertEqualObjects(promise.value.appID, installation.appID);
-  XCTAssertEqualObjects(promise.value.firebaseAppName, installation.firebaseAppName);
-  XCTAssertEqualObjects(promise.value.firebaseInstallationID, installation.firebaseInstallationID);
-  XCTAssertEqualObjects(promise.value.refreshToken, installation.refreshToken);
-  XCTAssertEqualObjects(promise.value.authToken.token,
-                        @"aaaaaaaaaaaaaa.bbbbbbbbbbbbbbbbb.cccccccccccccccccccccccc");
-  [self assertDate:promise.value.authToken.expirationDate
-      isApproximatelyEqualCurrentPlusTimeInterval:3987465];
+- (void)testRefreshAuthTokenSuccessWhenNoHeartbeatsNeedSending {
+  // Given
+  FIRHeartbeatsPayload *emptyHeartbeatsPayload =
+      [FIRHeartbeatLoggingTestUtils emptyHeartbeatsPayload];
+  // When
+  self.heartbeatLoggerFake.onFlushHeartbeatsIntoPayloadHandler = ^FIRHeartbeatsPayload * {
+    return emptyHeartbeatsPayload;
+  };
+  // Then
+  [self assertRefreshAuthTokenSuccessWhenSendingHeartbeatsPayload:emptyHeartbeatsPayload];
 }
 
 - (void)testRefreshAuthTokenAPIError {
@@ -163,7 +194,8 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   // 1. Stub URL session:
 
   // 1.1. URL request validation.
-  id URLRequestValidation = [self refreshTokenRequestValidationArgWithInstallation:installation];
+  id URLRequestValidation = [self refreshTokenRequestValidationArgWithInstallation:installation
+                                                                 heartbeatsPayload:nil];
 
   // 1.2. Capture completion to call it later.
   __block void (^taskCompletion)(NSData *, NSURLResponse *, NSError *);
@@ -212,7 +244,8 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   // 1. Stub URL session:
 
   // 1.1. URL request validation.
-  id URLRequestValidation = [self refreshTokenRequestValidationArgWithInstallation:installation];
+  id URLRequestValidation = [self refreshTokenRequestValidationArgWithInstallation:installation
+                                                                 heartbeatsPayload:nil];
 
   // 1.2. Capture completion to call it later.
   __block void (^taskCompletion)(NSData *, NSURLResponse *, NSError *);
@@ -279,7 +312,8 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   // 1. Stub URL session:
 
   // 1.1. URL request validation.
-  id URLRequestValidation = [self refreshTokenRequestValidationArgWithInstallation:installation];
+  id URLRequestValidation = [self refreshTokenRequestValidationArgWithInstallation:installation
+                                                                 heartbeatsPayload:nil];
 
   // 1.2. Capture completion to call it later.
   __block void (^taskCompletion)(NSData *, NSURLResponse *, NSError *);
@@ -319,49 +353,28 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   XCTAssertNil(promise.value);
 }
 
-- (void)testDeleteInstallationSuccess {
-  FIRInstallationsItem *installation = [FIRInstallationsItem createRegisteredInstallationItem];
+- (void)testDeleteInstallationSuccessWhenHeartbeatsNeedSending {
+  // Given
+  FIRHeartbeatsPayload *nonEmptyHeartbeatsPayload =
+      [FIRHeartbeatLoggingTestUtils nonEmptyHeartbeatsPayload];
+  // When
+  self.heartbeatLoggerFake.onFlushHeartbeatsIntoPayloadHandler = ^FIRHeartbeatsPayload * {
+    return nonEmptyHeartbeatsPayload;
+  };
+  // Then
+  [self assertDeleteInstallationSuccessWhenSendingHeartbeatsPayload:nonEmptyHeartbeatsPayload];
+}
 
-  // 1. Stub URL session:
-
-  // 1.1. URL request validation.
-  id URLRequestValidation = [self deleteInstallationRequestValidationWithInstallation:installation];
-
-  // 1.2. Capture completion to call it later.
-  __block void (^taskCompletion)(NSData *, NSURLResponse *, NSError *);
-  id completionArg = [OCMArg checkWithBlock:^BOOL(id obj) {
-    taskCompletion = obj;
-    return YES;
-  }];
-
-  // 1.3. Create a data task mock.
-  id mockDataTask = OCMClassMock([NSURLSessionDataTask class]);
-  OCMExpect([(NSURLSessionDataTask *)mockDataTask resume]);
-
-  // 1.4. Expect `dataTaskWithRequest` to be called.
-  OCMExpect([self.mockURLSession dataTaskWithRequest:URLRequestValidation
-                                   completionHandler:completionArg])
-      .andReturn(mockDataTask);
-
-  // 2. Call
-  FBLPromise<FIRInstallationsItem *> *promise = [self.service deleteInstallation:installation];
-
-  // 3. Wait for `[NSURLSession dataTaskWithRequest...]` to be called
-  OCMVerifyAllWithDelay(self.mockURLSession, 0.5);
-
-  // 4. Wait for the data task `resume` to be called.
-  OCMVerifyAllWithDelay(mockDataTask, 0.5);
-
-  // 5. Call the data task completion.
-  // HTTP 200 but no data (a potential server failure).
-  NSData *successResponseData = [@"{}" dataUsingEncoding:NSUTF8StringEncoding];
-  taskCompletion(successResponseData, [self responseWithStatusCode:200], nil);
-
-  // 6. Check result.
-  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
-
-  XCTAssertNil(promise.error);
-  XCTAssertEqual(promise.value, installation);
+- (void)testDeleteInstallationSuccessWhenNoHeartbeatsNeedSending {
+  // Given
+  FIRHeartbeatsPayload *emptyHeartbeatsPayload =
+      [FIRHeartbeatLoggingTestUtils emptyHeartbeatsPayload];
+  // When
+  self.heartbeatLoggerFake.onFlushHeartbeatsIntoPayloadHandler = ^FIRHeartbeatsPayload * {
+    return emptyHeartbeatsPayload;
+  };
+  // Then
+  [self assertDeleteInstallationSuccessWhenSendingHeartbeatsPayload:emptyHeartbeatsPayload];
 }
 
 - (void)testDeleteInstallationErrorNotFound {
@@ -370,7 +383,8 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   // 1. Stub URL session:
 
   // 1.1. URL request validation.
-  id URLRequestValidation = [self deleteInstallationRequestValidationWithInstallation:installation];
+  id URLRequestValidation = [self deleteInstallationRequestValidationWithInstallation:installation
+                                                                    heartbeatsPayload:nil];
 
   // 1.2. Capture completion to call it later.
   __block void (^taskCompletion)(NSData *, NSURLResponse *, NSError *);
@@ -414,7 +428,8 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   // 1. Stub URL session:
 
   // 1.1. URL request validation.
-  id URLRequestValidation = [self deleteInstallationRequestValidationWithInstallation:installation];
+  id URLRequestValidation = [self deleteInstallationRequestValidationWithInstallation:installation
+                                                                    heartbeatsPayload:nil];
 
   // 1.2. Capture completion to call it later.
   __block void (^taskCompletion)(NSData *, NSURLResponse *, NSError *);
@@ -471,6 +486,115 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
 #pragma mark - Helpers
 
+- (void)assertRefreshAuthTokenSuccessWhenSendingHeartbeatsPayload:
+    (FIRHeartbeatsPayload *)heartbeatsPayload {
+  FIRInstallationsItem *installation = [FIRInstallationsItem createRegisteredInstallationItem];
+  installation.firebaseInstallationID = @"qwertyuiopasdfghjklzxcvbnm";
+
+  // 1. Stub URL session:
+
+  // 1.1. URL request validation.
+  id URLRequestValidation =
+      [self refreshTokenRequestValidationArgWithInstallation:installation
+                                           heartbeatsPayload:heartbeatsPayload];
+
+  // 1.2. Capture completion to call it later.
+  __block void (^taskCompletion)(NSData *, NSURLResponse *, NSError *);
+  id completionArg = [OCMArg checkWithBlock:^BOOL(id obj) {
+    taskCompletion = obj;
+    return YES;
+  }];
+
+  // 1.3. Create a data task mock.
+  id mockDataTask = OCMClassMock([NSURLSessionDataTask class]);
+  OCMExpect([(NSURLSessionDataTask *)mockDataTask resume]);
+
+  // 1.4. Expect `dataTaskWithRequest` to be called.
+  OCMExpect([self.mockURLSession dataTaskWithRequest:URLRequestValidation
+                                   completionHandler:completionArg])
+      .andReturn(mockDataTask);
+
+  // 1.5. Prepare server response data.
+  NSData *successResponseData = [self loadFixtureNamed:@"APIGenerateTokenResponseSuccess.json"];
+
+  // 2. Call
+  FBLPromise<FIRInstallationsItem *> *promise =
+      [self.service refreshAuthTokenForInstallation:installation];
+
+  // 3. Wait for `[NSURLSession dataTaskWithRequest...]` to be called
+  OCMVerifyAllWithDelay(self.mockURLSession, 0.5);
+
+  // 4. Wait for the data task `resume` to be called.
+  OCMVerifyAllWithDelay(mockDataTask, 0.5);
+
+  // 5. Call the data task completion.
+  taskCompletion(successResponseData, [self responseWithStatusCode:200], nil);
+
+  // 6. Check result.
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  XCTAssertNil(promise.error);
+  XCTAssertNotNil(promise.value);
+
+  XCTAssertNotEqual(promise.value, installation);
+  XCTAssertEqualObjects(promise.value.appID, installation.appID);
+  XCTAssertEqualObjects(promise.value.firebaseAppName, installation.firebaseAppName);
+  XCTAssertEqualObjects(promise.value.firebaseInstallationID, installation.firebaseInstallationID);
+  XCTAssertEqualObjects(promise.value.refreshToken, installation.refreshToken);
+  XCTAssertEqualObjects(promise.value.authToken.token,
+                        @"aaaaaaaaaaaaaa.bbbbbbbbbbbbbbbbb.cccccccccccccccccccccccc");
+  [self assertDate:promise.value.authToken.expirationDate
+      isApproximatelyEqualCurrentPlusTimeInterval:3987465];
+}
+
+- (void)assertDeleteInstallationSuccessWhenSendingHeartbeatsPayload:
+    (FIRHeartbeatsPayload *)heartbeatsPayload {
+  FIRInstallationsItem *installation = [FIRInstallationsItem createRegisteredInstallationItem];
+
+  // 1. Stub URL session:
+
+  // 1.1. URL request validation.
+  id URLRequestValidation =
+      [self deleteInstallationRequestValidationWithInstallation:installation
+                                              heartbeatsPayload:heartbeatsPayload];
+
+  // 1.2. Capture completion to call it later.
+  __block void (^taskCompletion)(NSData *, NSURLResponse *, NSError *);
+  id completionArg = [OCMArg checkWithBlock:^BOOL(id obj) {
+    taskCompletion = obj;
+    return YES;
+  }];
+
+  // 1.3. Create a data task mock.
+  id mockDataTask = OCMClassMock([NSURLSessionDataTask class]);
+  OCMExpect([(NSURLSessionDataTask *)mockDataTask resume]);
+
+  // 1.4. Expect `dataTaskWithRequest` to be called.
+  OCMExpect([self.mockURLSession dataTaskWithRequest:URLRequestValidation
+                                   completionHandler:completionArg])
+      .andReturn(mockDataTask);
+
+  // 2. Call
+  FBLPromise<FIRInstallationsItem *> *promise = [self.service deleteInstallation:installation];
+
+  // 3. Wait for `[NSURLSession dataTaskWithRequest...]` to be called
+  OCMVerifyAllWithDelay(self.mockURLSession, 0.5);
+
+  // 4. Wait for the data task `resume` to be called.
+  OCMVerifyAllWithDelay(mockDataTask, 0.5);
+
+  // 5. Call the data task completion.
+  // HTTP 200 but no data (a potential server failure).
+  NSData *successResponseData = [@"{}" dataUsingEncoding:NSUTF8StringEncoding];
+  taskCompletion(successResponseData, [self responseWithStatusCode:200], nil);
+
+  // 6. Check result.
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  XCTAssertNil(promise.error);
+  XCTAssertEqual(promise.value, installation);
+}
+
 - (NSData *)loadFixtureNamed:(NSString *)fileName {
   NSURL *fileURL = [[NSBundle bundleForClass:[self class]] URLForResource:fileName
                                                             withExtension:nil];
@@ -501,23 +625,29 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
             precision, self.name);
 }
 
-- (id)refreshTokenRequestValidationArgWithInstallation:(FIRInstallationsItem *)installation {
+- (id)refreshTokenRequestValidationArgWithInstallation:(FIRInstallationsItem *)installation
+                                     heartbeatsPayload:(FIRHeartbeatsPayload *)heartbeatsPayload {
   return [OCMArg checkWithBlock:^BOOL(NSURLRequest *request) {
     XCTAssertEqualObjects(request.HTTPMethod, @"POST");
     XCTAssertEqualObjects(request.URL.absoluteString,
                           @"https://firebaseinstallations.googleapis.com/v1/projects/project-id/"
                           @"installations/qwertyuiopasdfghjklzxcvbnm/authTokens:generate");
-    XCTAssertEqualObjects([request valueForHTTPHeaderField:@"Content-Type"], @"application/json",
-                          @"%@", self.name);
-    XCTAssertEqualObjects([request valueForHTTPHeaderField:@"X-Goog-Api-Key"], self.APIKey, @"%@",
-                          self.name);
-    XCTAssertEqualObjects([request valueForHTTPHeaderField:kFIRInstallationsUserAgentKey],
-                          [FIRApp firebaseUserAgent]);
-    XCTAssertEqualObjects([request valueForHTTPHeaderField:kFIRInstallationsHeartbeatKey], @"3");
-    NSString *expectedAuthHeader =
-        [NSString stringWithFormat:@"FIS_v2 %@", installation.refreshToken];
-    XCTAssertEqualObjects(request.allHTTPHeaderFields[@"Authorization"], expectedAuthHeader, @"%@",
-                          self.name);
+
+    NSMutableDictionary<NSString *, NSString *> *expectedHTTPHeaderFields = @{
+      @"Content-Type" : @"application/json",
+      @"X-Goog-Api-Key" : self.APIKey,
+      @"X-Ios-Bundle-Identifier" : [[NSBundle mainBundle] bundleIdentifier],
+      @"Authorization" : [NSString stringWithFormat:@"FIS_v2 %@", installation.refreshToken]
+    }
+                                                                                .mutableCopy;
+
+    NSString *_Nullable heartbeatHeaderValue =
+        FIRHeaderValueFromHeartbeatsPayload(heartbeatsPayload);
+    if (heartbeatHeaderValue) {
+      expectedHTTPHeaderFields[@"X-firebase-client"] = heartbeatHeaderValue;
+    }
+
+    XCTAssertEqualObjects([request allHTTPHeaderFields], expectedHTTPHeaderFields);
 
     NSError *error;
     NSDictionary *body = [NSJSONSerialization JSONObjectWithData:request.HTTPBody
@@ -533,7 +663,9 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   }];
 }
 
-- (id)deleteInstallationRequestValidationWithInstallation:(FIRInstallationsItem *)installation {
+- (id)deleteInstallationRequestValidationWithInstallation:(FIRInstallationsItem *)installation
+                                        heartbeatsPayload:
+                                            (FIRHeartbeatsPayload *)heartbeatsPayload {
   return [OCMArg checkWithBlock:^BOOL(NSURLRequest *request) {
     XCTAssert([request isKindOfClass:[NSURLRequest class]], @"Unexpected class: %@",
               [request class]);
@@ -543,8 +675,22 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
             @"https://firebaseinstallations.googleapis.com/v1/projects/%@/installations/%@/",
             self.projectID, installation.firebaseInstallationID];
     XCTAssertEqualObjects(request.URL.absoluteString, expectedURL);
-    XCTAssertEqualObjects(request.allHTTPHeaderFields[@"Content-Type"], @"application/json");
-    XCTAssertEqualObjects(request.allHTTPHeaderFields[@"X-Goog-Api-Key"], self.APIKey);
+
+    NSMutableDictionary<NSString *, NSString *> *expectedHTTPHeaderFields = @{
+      @"Content-Type" : @"application/json",
+      @"X-Goog-Api-Key" : self.APIKey,
+      @"X-Ios-Bundle-Identifier" : [[NSBundle mainBundle] bundleIdentifier],
+      @"Authorization" : [NSString stringWithFormat:@"FIS_v2 %@", installation.refreshToken],
+    }
+                                                                                .mutableCopy;
+
+    NSString *_Nullable heartbeatHeaderValue =
+        FIRHeaderValueFromHeartbeatsPayload(heartbeatsPayload);
+    if (heartbeatHeaderValue) {
+      expectedHTTPHeaderFields[@"X-firebase-client"] = heartbeatHeaderValue;
+    }
+
+    XCTAssertEqualObjects([request allHTTPHeaderFields], expectedHTTPHeaderFields);
 
     NSString *expectedAuthHeader =
         [NSString stringWithFormat:@"FIS_v2 %@", installation.refreshToken];
@@ -564,7 +710,9 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
 - (void)assertRegisterInstallationSuccessWithResponseFixtureName:(NSString *)fixtureName
                                                     responseCode:(NSInteger)responseCode
-                                             expectedFIDOverride:(nullable NSString *)overrideFID {
+                                             expectedFIDOverride:(nullable NSString *)overrideFID
+                                               heartbeatsPayload:
+                                                   (FIRHeartbeatsPayload *)heartbeatsPayload {
   FIRInstallationsItem *installation = [FIRInstallationsItem createUnregisteredInstallationItem];
   installation.IIDDefaultToken = @"iid-auth-token";
 
@@ -578,17 +726,25 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
     XCTAssertEqualObjects(
         request.URL.absoluteString,
         @"https://firebaseinstallations.googleapis.com/v1/projects/project-id/installations/");
-    XCTAssertEqualObjects([request valueForHTTPHeaderField:@"Content-Type"], @"application/json");
-    XCTAssertEqualObjects([request valueForHTTPHeaderField:@"X-Goog-Api-Key"], self.APIKey);
-    XCTAssertEqualObjects([request valueForHTTPHeaderField:@"X-Ios-Bundle-Identifier"],
-                          [[NSBundle mainBundle] bundleIdentifier]);
-    XCTAssertEqualObjects([request valueForHTTPHeaderField:kFIRInstallationsUserAgentKey],
-                          [FIRApp firebaseUserAgent]);
-    XCTAssertEqualObjects([request valueForHTTPHeaderField:kFIRInstallationsHeartbeatKey], @"3");
 
-    NSString *expectedIIDMigrationHeader = installation.IIDDefaultToken;
-    XCTAssertEqualObjects([request valueForHTTPHeaderField:@"x-goog-fis-ios-iid-migration-auth"],
-                          expectedIIDMigrationHeader);
+    NSMutableDictionary<NSString *, NSString *> *expectedHTTPHeaderFields = @{
+      @"Content-Type" : @"application/json",
+      @"X-Goog-Api-Key" : self.APIKey,
+      @"X-Ios-Bundle-Identifier" : [[NSBundle mainBundle] bundleIdentifier],
+    }
+                                                                                .mutableCopy;
+
+    NSString *_Nullable heartbeatHeaderValue =
+        FIRHeaderValueFromHeartbeatsPayload(heartbeatsPayload);
+    if (heartbeatHeaderValue) {
+      expectedHTTPHeaderFields[@"X-firebase-client"] = heartbeatHeaderValue;
+    }
+
+    [expectedHTTPHeaderFields addEntriesFromDictionary:@{
+      @"x-goog-fis-ios-iid-migration-auth" : installation.IIDDefaultToken
+    }];
+
+    XCTAssertEqualObjects([request allHTTPHeaderFields], expectedHTTPHeaderFields);
 
     NSError *error;
     NSDictionary *body = [NSJSONSerialization JSONObjectWithData:request.HTTPBody
