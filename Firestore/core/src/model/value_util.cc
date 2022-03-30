@@ -282,22 +282,6 @@ ComparisonResult Compare(const google_firestore_v1_Value& left,
   }
 }
 
-const absl::optional<google_firestore_v1_Value>* MinValue(
-    const absl::optional<google_firestore_v1_Value>& left,
-    const absl::optional<google_firestore_v1_Value>& right) {
-  if (!left.has_value() && !right.has_value()) {
-    return &left;
-  } else if (!left.has_value()) {
-    return &right;
-  } else if (!right.has_value()) {
-    return &left;
-  } else {
-    return Compare(left.value(), right.value()) == ComparisonResult::Ascending
-               ? &left
-               : &right;
-  }
-}
-
 bool NumberEquals(const google_firestore_v1_Value& left,
                   const google_firestore_v1_Value& right) {
   if (left.which_value_type == google_firestore_v1_Value_integer_value_tag &&
@@ -535,16 +519,14 @@ Message<google_firestore_v1_Value> GetLowerBound(pb_size_t value_tag) {
     case google_firestore_v1_Value_string_value_tag: {
       Message<google_firestore_v1_Value> value;
       value->which_value_type = value_tag;
-      value->string_value = nanopb::MakeArray<pb_bytes_array_s>(1);
-      value->string_value->size = 0;
+      value->string_value = nullptr;
       return value;
     }
 
     case google_firestore_v1_Value_bytes_value_tag: {
       Message<google_firestore_v1_Value> value;
       value->which_value_type = value_tag;
-      value->bytes_value = nanopb::MakeArray<pb_bytes_array_t>(1);
-      value->bytes_value->size = 0;
+      value->bytes_value = nullptr;
       return value;
     }
 
@@ -562,8 +544,7 @@ Message<google_firestore_v1_Value> GetLowerBound(pb_size_t value_tag) {
     case google_firestore_v1_Value_array_value_tag: {
       Message<google_firestore_v1_Value> value;
       value->which_value_type = value_tag;
-      value->array_value.values =
-          nanopb::MakeArray<google_firestore_v1_Value>(0);
+      value->array_value.values = nullptr;
       value->array_value.values_count = 0;
       return value;
     }
@@ -571,8 +552,7 @@ Message<google_firestore_v1_Value> GetLowerBound(pb_size_t value_tag) {
     case google_firestore_v1_Value_map_value_tag: {
       Message<google_firestore_v1_Value> value;
       value->which_value_type = value_tag;
-      value->map_value.fields =
-          nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(0);
+      value->map_value.fields = nullptr;
       value->map_value.fields_count = 0;
       return value;
     }
@@ -654,32 +634,25 @@ Message<google_firestore_v1_Value> MaxValue() {
 }
 
 bool IsMaxValue(const google_firestore_v1_Value& value) {
-  bool is_max =
-      (value.which_value_type == google_firestore_v1_Value_map_value_tag);
-  if (!is_max) {
+  if (value.which_value_type != google_firestore_v1_Value_map_value_tag) {
     return false;
   }
 
-  is_max = (value.map_value.fields_count == 1);
-  if (!is_max) {
+  if (value.map_value.fields_count != 1) {
     return false;
   }
 
-  is_max = (nanopb::MakeStringView(value.map_value.fields->key) == "__type__");
-  if (!is_max) {
+  if (nanopb::MakeStringView(value.map_value.fields->key) != "__type__") {
     return false;
   }
 
-  is_max = (value.map_value.fields->value.which_value_type ==
-            google_firestore_v1_Value_string_value_tag);
-  if (!is_max) {
+  if (value.map_value.fields->value.which_value_type !=
+      google_firestore_v1_Value_string_value_tag) {
     return false;
   }
 
-  is_max = (nanopb::MakeStringView(
-                value.map_value.fields->value.string_value) == "__max__");
-
-  return is_max;
+  return nanopb::MakeStringView(value.map_value.fields->value.string_value) ==
+         "__max__";
 }
 
 Message<google_firestore_v1_Value> NaNValue() {

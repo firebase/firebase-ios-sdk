@@ -41,11 +41,17 @@ class BundleSerializer;
 namespace core {
 
 using CollectionGroupId = std::shared_ptr<const std::string>;
-using IndexedValues =
-    absl::optional<std::vector<google_firestore_v1_Value>>;
-using IndexedBoundValue =
-    std::pair<absl::optional<nanopb::Message<_google_firestore_v1_Value>>,
-              bool>;
+using IndexedValues = absl::optional<std::vector<google_firestore_v1_Value>>;
+
+struct IndexedBoundValue {
+  bool is_inclusive;
+  absl::optional<google_firestore_v1_Value> value;
+};
+
+struct IndexedBoundValues {
+  bool is_inclusive;
+  std::vector<google_firestore_v1_Value> values;
+};
 
 /**
  * A Target represents the WatchTarget representation of a Query, which is
@@ -118,7 +124,8 @@ class Target {
    *
    * Returns `nullopt` if no lower bound exists.
    */
-  absl::optional<Bound> GetLowerBound(const model::FieldIndex& field_index);
+  absl::optional<IndexedBoundValues> GetLowerBound(
+      const model::FieldIndex& field_index);
 
   /**
    * Returns an upper bound of field values that can be used as an ending point
@@ -126,7 +133,8 @@ class Target {
    *
    * Returns `nullopt` if no upper bound exists.
    */
-  absl::optional<Bound> GetUpperBound(const model::FieldIndex& field_index);
+  absl::optional<IndexedBoundValues> GetUpperBound(
+      const model::FieldIndex& field_index);
 
   const std::string& CanonicalId() const;
 

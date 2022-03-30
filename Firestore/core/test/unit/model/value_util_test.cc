@@ -93,6 +93,8 @@ class ValueUtilTest : public ::testing::Test {
     }
   }
 
+  // Verifies `left` is strictly smaller than `right`, unless `is_same_value`
+  // is true.
   void VerifyStrictAscending(Message<google_firestore_v1_ArrayValue>& left,
                              Message<google_firestore_v1_ArrayValue>& right,
                              bool is_same_value) {
@@ -114,15 +116,19 @@ class ValueUtilTest : public ::testing::Test {
     }
   }
 
+  // Verifies `left` is either smaller or the same as `right`.
   void VerifyRelaxedAscending(Message<google_firestore_v1_ArrayValue>& left,
                               Message<google_firestore_v1_ArrayValue>& right) {
     for (pb_size_t i = 0; i < left->values_count; ++i) {
       for (pb_size_t j = 0; j < right->values_count; ++j) {
+        // Verifies the compare result is not `Descending`, which means left
+        // is smaller or equal to right.
         EXPECT_NE(ComparisonResult::Descending,
                   Compare(left->values[i], right->values[j]))
             << "Order check failed for '" << CanonicalId(left->values[i])
             << "' and '" << CanonicalId(right->values[j])
             << "' (expected same or ascending)";
+        // Reversed order check should also pass.
         EXPECT_NE(ComparisonResult::Ascending,
                   Compare(right->values[j], left->values[i]))
             << "Reverse order check failed for '"

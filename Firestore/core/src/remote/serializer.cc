@@ -717,12 +717,13 @@ google_firestore_v1_Target_QueryTarget Serializer::EncodeQueryTarget(
 
   if (target.start_at()) {
     result.structured_query.start_at =
-        EncodeBound(*target.start_at(), /*as_start*/ true);
+        EncodeCursor(target.start_at()->position(),
+                     /*before*/ target.start_at()->inclusive());
   }
 
   if (target.end_at()) {
-    result.structured_query.end_at =
-        EncodeBound(*target.end_at(), /*as_start*/ false);
+    result.structured_query.end_at = EncodeCursor(
+        target.end_at()->position(), /*before*/ !target.end_at()->inclusive());
   }
 
   return result;
@@ -771,12 +772,14 @@ Target Serializer::DecodeStructuredQuery(
 
   absl::optional<Bound> start_at;
   if (query.start_at.values_count > 0) {
-    start_at = DecodeBound(query.start_at, /*as_start*/ true);
+    bool inclusive = query.start_at.before;
+    start_at = Bound::FromValue(DecodeCursorValue(query.start_at), inclusive);
   }
 
   absl::optional<Bound> end_at;
   if (query.end_at.values_count > 0) {
-    end_at = DecodeBound(query.end_at, /*as_start*/ false);
+    bool inclusive = !query.end_at.before;
+    end_at = Bound::FromValue(DecodeCursorValue(query.end_at), inclusive);
   }
 
   return Target(std::move(path), std::move(collection_group),
@@ -1117,22 +1120,22 @@ OrderBy Serializer::DecodeOrderBy(
   return OrderBy(std::move(field_path), direction);
 }
 
-google_firestore_v1_Cursor Serializer::EncodeBound(const Bound& bound,
-                                                   bool as_start) const {
+google_firestore_v1_Cursor Serializer::EncodeCursor(
+    const nanopb::SharedMessage<google_firestore_v1_ArrayValue>& bound,
+    bool before) const {
   google_firestore_v1_Cursor result{};
-  result.before = as_start ? bound.inclusive() : !bound.inclusive();
+  result.before = before;
   SetRepeatedField(
       &result.values, &result.values_count,
-      absl::Span<google_firestore_v1_Value>(bound.position()->values,
-                                            bound.position()->values_count),
+      absl::Span<google_firestore_v1_Value>(bound->values, bound->values_count),
       [](const google_firestore_v1_Value& value) {
         return *DeepClone(value).release();
       });
   return result;
 }
 
-Bound Serializer::DecodeBound(google_firestore_v1_Cursor& cursor,
-                              bool as_start) const {
+nanopb::SharedMessage<google_firestore_v1_ArrayValue>
+Serializer::DecodeCursorValue(google_firestore_v1_Cursor& cursor) const {
   SharedMessage<google_firestore_v1_ArrayValue> index_components{{}};
   SetRepeatedField(&index_components->values, &index_components->values_count,
                    absl::Span<google_firestore_v1_Value>(cursor.values,
@@ -1140,8 +1143,8 @@ Bound Serializer::DecodeBound(google_firestore_v1_Cursor& cursor,
   // Prevent double-freeing of the cursors's fields. The fields are now owned by
   // the bound.
   ReleaseFieldOwnership(cursor.values, cursor.values_count);
-  return Bound::FromValue(std::move(index_components),
-                          as_start ? cursor.before : !cursor.before);
+
+  return index_components;
 }
 
 /* static */
