@@ -331,7 +331,7 @@ model::DocumentMap LocalStore::ApplyRemoteEvent(
       target_cache_->SetLastRemoteSnapshotVersion(remote_version);
     }
 
-    return local_documents_->GetLocalViewOfDocuments(changed_docs);
+    return local_documents_->GetLocalViewOfDocuments(changed_docs, DocumentKeySet{});
   });
 }
 
@@ -545,7 +545,7 @@ DocumentMap LocalStore::ApplyBundledDocuments(
 
     auto changed_docs = PopulateDocumentChanges(document_updates, versions,
                                                 SnapshotVersion::None());
-    return local_documents_->GetLocalViewOfDocuments(changed_docs);
+    return local_documents_->GetLocalViewOfDocuments(changed_docs, DocumentKeySet{});
   });
 }
 

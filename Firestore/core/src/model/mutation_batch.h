@@ -29,6 +29,7 @@
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/model/types.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -101,6 +102,12 @@ class MutationBatch {
   void ApplyToRemoteDocument(
       MutableDocument& document,
       const MutationBatchResult& mutation_batch_result) const;
+
+  /**
+   * Computes the local view of a document given all the mutations in this
+   * batch. Returns a `FieldMask` representing all the fields that are mutated.
+   */
+  absl::optional<FieldMask> ApplyToLocalView(MutableDocument& document, absl::optional<FieldMask>&& mutated_fields) const;
 
   /**
    * Estimates the latency compensated view of all the mutations in this batch

@@ -23,7 +23,9 @@
 #include "Firestore/core/src/local/index_manager.h"
 #include "Firestore/core/src/local/mutation_queue.h"
 #include "Firestore/core/src/local/remote_document_cache.h"
+#include "Firestore/core/src/immutable/sorted_set.h"
 #include "Firestore/core/src/model/model_fwd.h"
+#include "Firestore/core/src/util/range.h"
 
 namespace firebase {
 namespace firestore {
@@ -61,13 +63,16 @@ class LocalDocumentsView {
   /**
    * Gets the local view of the document identified by `key`.
    *
-   * @return Local view of the document or nil if we don't have any cached state
-   * for it.
+   * @return Local view of the document or an invalid document if we don't have
+   * any cached state for it.
    */
-  const model::Document GetDocument(const model::DocumentKey& key);
+  model::Document GetDocument(const model::DocumentKey& key);
 
   /**
    * Gets the local view of the documents identified by `keys`.
+   *
+   * TODO(dconeybe) Verify that "DeletedDocument" is correct in the
+   * paragraph below; in Android javadocs, it says "NoDocument".
    *
    * If we don't have cached state for a document in `keys`, a DeletedDocument
    * will be stored for that key in the resulting set.
@@ -77,9 +82,13 @@ class LocalDocumentsView {
   /**
    * Similar to `GetDocuments`, but creates the local view from the given
    * `base_docs` without retrieving documents from the local store.
+   *
+   * @param docs The documents to apply local mutations to get the local views.
+   * @param existence_state_changed The set of document keys whose existence state
+   * is changed. This is useful to determine if some documents overlay needs to
+   * be recalculated.
    */
-  model::DocumentMap GetLocalViewOfDocuments(
-      model::MutableDocumentMap base_docs);
+  model::DocumentMap GetLocalViewOfDocuments(const model::MutableDocumentMap& docs, const model::DocumentKeySet& existence_state_changed);
 
   /**
    * Performs a query against the local view of all documents.
@@ -148,6 +157,20 @@ class LocalDocumentsView {
   }
 
  private:
+  /** Returns a base document that can be used to apply `overlay`. */
+  model::MutableDocument GetBaseDocument(const model::DocumentKey& key, const absl::optional<model::Overlay>& overlay) const;
+
+  /**
+   * Fetches the overlays for `keys` and adds them to provided overlay map if
+   * the map does not already contain an entry for the given key.
+   */
+  void PopulateOverlays(DocumentOverlayCache::OverlayByDocumentKeyMap& overlays, const model::DocumentKeySet& keys) const;
+
+  /* Computes the local view for doc */
+  model::DocumentMap ComputeViews(model::MutableDocumentMap docs, DocumentOverlayCache::OverlayByDocumentKeyMap&& overlays, const model::DocumentKeySet& existence_state_changed);
+
+  model::MutableDocumentMap RecalculateAndSaveOverlays(model::MutableDocumentMap docs);
+
   RemoteDocumentCache* remote_document_cache_;
   MutationQueue* mutation_queue_;
   DocumentOverlayCache* document_overlay_cache_;

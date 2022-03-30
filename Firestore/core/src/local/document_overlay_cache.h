@@ -62,6 +62,12 @@ class DocumentOverlayCache {
       const model::DocumentKey& key) const = 0;
 
   /**
+   * Gets the saved overlay mutation for the given document keys. Skips keys for
+   * which there are no overlays.
+   */
+  virtual void GetOverlays(OverlayByDocumentKeyMap& dest, const model::DocumentKeySet& keys) const;
+
+  /**
    * Saves the given document key to mutation map to persistence as overlays.
    *
    * All overlays will have their largest batch id set to `largestBatchId`.

@@ -57,6 +57,26 @@ void MutationBatch::ApplyToRemoteDocument(
   }
 }
 
+absl::optional<FieldMask> MutationBatch::ApplyToLocalView(MutableDocument& document, absl::optional<FieldMask>&& mutated_fields) const {
+  // First, apply the base state. This allows us to apply non-idempotent
+  // transform against a consistent set of values.
+  for (const Mutation& mutation : base_mutations_) {
+    if (mutation.key() == document.key()) {
+      mutated_fields = mutation.ApplyToLocalView(document, std::move(mutated_fields), local_write_time_);
+    }
+  }
+
+  // Second, apply all user-provided mutations.
+  for (const Mutation& mutation : mutations_) {
+    if (mutation.key() == document.key()) {
+      mutated_fields = mutation.ApplyToLocalView(document, std::move(mutated_fields), local_write_time_);
+    }
+  }
+
+  return std::move(mutated_fields);
+}
+
+
 FieldMask MutationBatch::ApplyToLocalDocument(MutableDocument& document) const {
   FieldMask mutated_fields;
   return ApplyToLocalDocument(document, std::move(mutated_fields));
