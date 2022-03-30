@@ -19,6 +19,7 @@
 
 #include <vector>
 
+#include "Firestore/core/src/local/document_overlay_cache.h"
 #include "Firestore/core/src/local/index_manager.h"
 #include "Firestore/core/src/local/mutation_queue.h"
 #include "Firestore/core/src/local/remote_document_cache.h"
@@ -47,9 +48,11 @@ class LocalDocumentsView {
  public:
   LocalDocumentsView(RemoteDocumentCache* remote_document_cache,
                      MutationQueue* mutation_queue,
+                     DocumentOverlayCache* document_overlay_cache,
                      IndexManager* index_manager)
       : remote_document_cache_{remote_document_cache},
         mutation_queue_{mutation_queue},
+        document_overlay_cache_{document_overlay_cache},
         index_manager_{index_manager} {
   }
 
@@ -136,6 +139,10 @@ class LocalDocumentsView {
     return mutation_queue_;
   }
 
+  DocumentOverlayCache* document_overlay_cache() {
+    return document_overlay_cache_;
+  }
+
   IndexManager* index_manager() {
     return index_manager_;
   }
@@ -143,6 +150,7 @@ class LocalDocumentsView {
  private:
   RemoteDocumentCache* remote_document_cache_;
   MutationQueue* mutation_queue_;
+  DocumentOverlayCache* document_overlay_cache_;
   IndexManager* index_manager_;
 };
 
