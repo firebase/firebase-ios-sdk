@@ -161,9 +161,9 @@ ComparisonResult CompareBlobs(const google_firestore_v1_Value& left,
 
 ComparisonResult CompareReferences(const google_firestore_v1_Value& left,
                                    const google_firestore_v1_Value& right) {
-  std::vector<std::string> left_segments = absl::StrSplit(
+  std::vector<absl::string_view> left_segments = absl::StrSplit(
       nanopb::MakeStringView(left.reference_value), '/', absl::SkipEmpty());
-  std::vector<std::string> right_segments = absl::StrSplit(
+  std::vector<absl::string_view> right_segments = absl::StrSplit(
       nanopb::MakeStringView(right.reference_value), '/', absl::SkipEmpty());
 
   size_t min_length = std::min(left_segments.size(), right_segments.size());
@@ -398,7 +398,7 @@ std::string CanonifyBlob(const google_firestore_v1_Value& value) {
 }
 
 std::string CanonifyReference(const google_firestore_v1_Value& value) {
-  std::vector<std::string> segments = absl::StrSplit(
+  std::vector<absl::string_view> segments = absl::StrSplit(
       nanopb::MakeStringView(value.reference_value), '/', absl::SkipEmpty());
   HARD_ASSERT(segments.size() >= 5,
               "Reference values should have at least 5 components");

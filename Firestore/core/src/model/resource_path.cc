@@ -45,9 +45,12 @@ ResourcePath ResourcePath::FromStringView(absl::string_view path) {
 
   // SkipEmpty because we may still have an empty segment at the beginning or
   // end if they had a leading or trailing slash (which we allow).
-  std::vector<std::string> segments =
+  std::vector<absl::string_view> segments =
       absl::StrSplit(path, '/', absl::SkipEmpty());
-  return ResourcePath{std::move(segments)};
+  std::vector<std::string> segment_strs =
+      std::vector<std::string>(segments.begin(), segments.end());
+
+  return ResourcePath{std::move(segment_strs)};
 }
 
 std::string ResourcePath::CanonicalString() const {

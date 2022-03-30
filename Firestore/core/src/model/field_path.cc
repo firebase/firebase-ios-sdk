@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <utility>
+#include <vector>
 
 #include "Firestore/core/src/util/exception.h"
 #include "Firestore/core/src/util/hard_assert.h"
@@ -100,7 +101,7 @@ FieldPath FieldPath::FromDotSeparatedStringView(absl::string_view path) {
         path);
   }
 
-  SegmentsT segments =
+  std::vector<absl::string_view> segments =
       absl::StrSplit(path, '.', [path](absl::string_view segment) {
         if (segment.empty()) {
           ThrowInvalidArgument(
@@ -111,7 +112,10 @@ FieldPath FieldPath::FromDotSeparatedStringView(absl::string_view path) {
         return true;
       });
 
-  return FieldPath(std::move(segments));
+  std::vector<std::string> segment_strs =
+      std::vector<std::string>(segments.begin(), segments.end());
+
+  return FieldPath(std::move(segment_strs));
 }
 
 StatusOr<FieldPath> FieldPath::FromServerFormat(const std::string& path) {
