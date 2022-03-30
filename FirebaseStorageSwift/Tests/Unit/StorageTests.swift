@@ -202,14 +202,10 @@ class StorageTests: XCTestCase {
   }
 
   private func XCTAssertThrowsObjCException(_ closure: @escaping () -> Void) {
-    XCTAssertThrowsError(try ExceptionCatcher.catchException {
-      closure()
-    })
+    XCTAssertThrowsError(try ExceptionCatcher.catchException(closure))
   }
 
   private func XCTAssertNoThrowObjCException(_ closure: @escaping () -> Void) {
-    XCTAssertNoThrow(try ExceptionCatcher.catchException {
-      closure()
-    })
+    XCTAssertNoThrow(try ExceptionCatcher.catchException(closure))
   }
 }
