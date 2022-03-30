@@ -32,9 +32,9 @@
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRCoreDiagnosticsConnector.h"
-#ifndef BUILD_WITH_CMAKE
+#ifndef FIREBASE_BUILD_CMAKE
 #import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
-#endif  // BUILD_WITH_CMAKE
+#endif  // FIREBASE_BUILD_CMAKE
 #import "FirebaseCore/Extension/FIRLibrary.h"
 #import "FirebaseCore/Extension/FIRLogger.h"
 #import "FirebaseCore/Extension/FIROptionsInternal.h"
@@ -341,9 +341,9 @@ static FIRApp *sDefaultApp;
     _options.editingLocked = YES;
     _isDefaultApp = [name isEqualToString:kFIRDefaultAppName];
     _container = [[FIRComponentContainer alloc] initWithApp:self];
-#ifndef BUILD_WITH_CMAKE
+#ifndef FIREBASE_BUILD_CMAKE
     _heartbeatLogger = [[FIRHeartbeatLogger alloc] initWithAppID:self.options.googleAppID];
-#endif  // BUILD_WITH_CMAKE
+#endif  // FIREBASE_BUILD_CMAKE
   }
   return self;
 }

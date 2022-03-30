@@ -37,7 +37,7 @@ target_compile_definitions(
   # This macro is defined and used to exclude symbols from the
   # FirebaseCoreInternal Swift module, which is not yet configured to build
   # for CMake builds.
-  BUILD_WITH_CMAKE=1
+  FIREBASE_BUILD_CMAKE=1
 )
 
 target_link_libraries(
