@@ -40,7 +40,7 @@ class EmailPasswordTests: TestsBase {
   }
 
   #if compiler(>=5.5.2) && canImport(_Concurrency)
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 6, *)
     func testCreateAccountWithEmailAndPasswordAsync() async throws {
       let auth = Auth.auth()
       try await auth.createUser(withEmail: kNewEmailToCreateUser, password: "password")
@@ -64,7 +64,7 @@ class EmailPasswordTests: TestsBase {
   }
 
   #if compiler(>=5.5.2) && canImport(_Concurrency)
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 6, *)
     func testSignInExistingUserWithEmailAndPasswordAsync() async throws {
       let auth = Auth.auth()
       try await auth.signIn(withEmail: kExistingEmailToSignIn, password: "password")

@@ -34,7 +34,7 @@ let emptyBundle = """
 """
 
 #if swift(>=5.5)
-  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 6, *)
   class AsyncAwaitIntegrationTests: FSTIntegrationTestCase {
     func testAddData() async throws {
       let collection = collectionRef()

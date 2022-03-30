@@ -127,7 +127,7 @@ open class HTTPSCallable: NSObject {
      * @param data Parameters to pass to the trigger.
      * @returns The result of the call.
      */
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 6, *)
     open func call(_ data: Any? = nil) async throws -> HTTPSCallableResult {
       return try await withCheckedThrowingContinuation { continuation in
         // TODO(bonus): Use task to handle and cancellation.

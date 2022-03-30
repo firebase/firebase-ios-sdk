@@ -18,7 +18,7 @@ import FirebaseFirestore
 import Foundation
 
 #if compiler(>=5.5.2) && canImport(_Concurrency)
-  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 6, *)
   public extension CollectionReference {
     /// Adds a new document to this collection with the specified data, assigning it a document ID
     /// automatically.

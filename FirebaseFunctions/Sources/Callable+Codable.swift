@@ -128,7 +128,7 @@ public struct Callable<Request: Encodable, Response: Decodable> {
     /// - Throws: An error if the callable fails to complete
     ///
     /// - Returns: The decoded `Response` value
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 6, *)
     public func call(_ data: Request,
                      encoder: FirebaseDataEncoder = FirebaseDataEncoder(),
                      decoder: FirebaseDataDecoder =
@@ -157,7 +157,7 @@ public struct Callable<Request: Encodable, Response: Decodable> {
     /// - Parameters:
     ///   - data: Parameters to pass to the trigger.
     /// - Returns: The decoded `Response` value
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 6, *)
     public func callAsFunction(_ data: Request) async throws -> Response {
       return try await call(data)
     }

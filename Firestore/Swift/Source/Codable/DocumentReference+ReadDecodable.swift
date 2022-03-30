@@ -99,7 +99,7 @@ public extension DocumentReference {
     ///   - decoder: The decoder to use to convert the document. Defaults to use
     ///     the default decoder.
     /// - Returns: This instance of the supplied `Decodable` type `T`.
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 6, *)
     func getDocument<T: Decodable>(as type: T.Type,
                                    with serverTimestampBehavior: ServerTimestampBehavior =
                                      .none,
