@@ -37,8 +37,8 @@ class GoogleTests: TestsBase {
     waitForExpectations(timeout: TestsBase.kExpectationsTimeout)
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+  #if compiler(>=5.5.2) && canImport(_Concurrency)
+    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
     func testSignInWithGoogleAsync() async throws {
       let auth = Auth.auth()
       let userInfoDict = try await getGoogleAccessTokenAsync()
@@ -84,8 +84,8 @@ class GoogleTests: TestsBase {
     return returnValue
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+  #if compiler(>=5.5.2) && canImport(_Concurrency)
+    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
     /// ** Sends http request to Google OAuth2 token server to use refresh token to exchange for Google
     // * access token. Returns a dictionary that constains "access_token", "token_type", "expires_in" and
     // * sometimes the "id_token". (The id_token is not guaranteed to be returned during a refresh

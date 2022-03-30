@@ -58,7 +58,7 @@ final class FunctionsAPITests {
       }
     }
 
-    #if compiler(>=5.5) && canImport(_Concurrency)
+    #if compiler(>=5.5.2) && canImport(_Concurrency)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
@@ -70,7 +70,7 @@ final class FunctionsAPITests {
           }
         }
       }
-    #endif // compiler(>=5.5) && canImport(_Concurrency)
+    #endif // compiler(>=5.5.2) && canImport(_Concurrency)
 
     callableRef.call { result, error in
       if let result = result {
@@ -80,7 +80,7 @@ final class FunctionsAPITests {
       }
     }
 
-    #if compiler(>=5.5) && canImport(_Concurrency)
+    #if compiler(>=5.5.2) && canImport(_Concurrency)
       if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
@@ -92,7 +92,7 @@ final class FunctionsAPITests {
           }
         }
       }
-    #endif // compiler(>=5.5) && canImport(_Concurrency)
+    #endif // compiler(>=5.5.2) && canImport(_Concurrency)
 
     // MARK: - FunctionsErrorCode
 

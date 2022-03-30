@@ -107,7 +107,7 @@ public struct Callable<Request: Encodable, Response: Decodable> {
     call(data, completion: completion)
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
+  #if compiler(>=5.5.2) && canImport(_Concurrency)
     /// Executes this Callable HTTPS trigger asynchronously.
     ///
     /// The data passed into the trigger must be of the generic `Request` type:
@@ -128,7 +128,7 @@ public struct Callable<Request: Encodable, Response: Decodable> {
     /// - Throws: An error if the callable fails to complete
     ///
     /// - Returns: The decoded `Response` value
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
     public func call(_ data: Request,
                      encoder: FirebaseDataEncoder = FirebaseDataEncoder(),
                      decoder: FirebaseDataDecoder =
@@ -157,7 +157,7 @@ public struct Callable<Request: Encodable, Response: Decodable> {
     /// - Parameters:
     ///   - data: Parameters to pass to the trigger.
     /// - Returns: The decoded `Response` value
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
     public func callAsFunction(_ data: Request) async throws -> Response {
       return try await call(data)
     }

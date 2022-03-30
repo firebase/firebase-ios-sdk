@@ -42,8 +42,8 @@ class FacebookTests: TestsBase {
     deleteFacebookTestingAccountbyID(facebookAccountID)
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+  #if compiler(>=5.5.2) && canImport(_Concurrency)
+    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
     func testSignInWithFacebookAsync() async throws {
       let auth = Auth.auth()
       let userInfoDict = try await createFacebookTestingAccountAsync()
@@ -88,8 +88,8 @@ class FacebookTests: TestsBase {
     deleteFacebookTestingAccountbyID(facebookAccountID)
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+  #if compiler(>=5.5.2) && canImport(_Concurrency)
+    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
     func testLinkAnonymousAccountToFacebookAccountAsync() async throws {
       let auth = Auth.auth()
       try await signInAnonymouslyAsync()
@@ -150,8 +150,8 @@ class FacebookTests: TestsBase {
     return returnValue
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+  #if compiler(>=5.5.2) && canImport(_Concurrency)
+    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
     /// ** Creates a Facebook testing account using Facebook Graph API and return a dictionary that
     // * constains "id", "access_token", "login_url", "email" and "password" of the created account.
     // */
@@ -194,8 +194,8 @@ class FacebookTests: TestsBase {
     waitForExpectations(timeout: TestsBase.kExpectationsTimeout)
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+  #if compiler(>=5.5.2) && canImport(_Concurrency)
+    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
     // ** Delete a Facebook testing account by account Id using Facebook Graph API. */
     func deleteFacebookTestingAccountbyIDAsync(_ accountID: String) async throws {
       let urltoDeleteTestUser = "https://graph.facebook.com/\(accountID)"

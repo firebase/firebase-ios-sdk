@@ -14,8 +14,8 @@
 
 import FirebaseStorage
 
-#if compiler(>=5.5) && canImport(_Concurrency)
-  @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+#if compiler(>=5.5.2) && canImport(_Concurrency)
+  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
   public extension StorageReference {
     /// Asynchronously downloads the object at the StorageReference to a Data object in memory.
     /// A Data object of the provided max size will be allocated, so ensure that the device has
