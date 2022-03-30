@@ -737,6 +737,9 @@ let package = Package(
     .testTarget(
       name: "FirebaseFunctionsUnit",
       dependencies: ["FirebaseFunctions",
+                     "FirebaseAppCheckInterop",
+                     "FirebaseAuthInterop",
+                     "FirebaseMessagingInterop",
                      "SharedTestUtilities"],
       path: "FirebaseFunctions/Tests/Unit",
       cSettings: [
@@ -959,7 +962,11 @@ let package = Package(
 
     .target(
       name: "SharedTestUtilities",
-      dependencies: ["FirebaseCore", "OCMock"],
+      dependencies: ["FirebaseCore",
+                     "FirebaseAppCheckInterop",
+                     "FirebaseAuthInterop",
+                     "FirebaseMessagingInterop",
+                     "OCMock"],
       path: "SharedTestUtilities",
       publicHeadersPath: "./",
       cSettings: [
@@ -1072,6 +1079,15 @@ let package = Package(
         "FirebaseStorageObjC",
       ],
       path: "FirebaseStorageSwift/Sources"
+    ),
+    .testTarget(
+      name: "FirebaseStorageUnit",
+      dependencies: ["FirebaseStorage",
+                     "SharedTestUtilities"],
+      path: "FirebaseStorageSwift/Tests/Unit",
+      cSettings: [
+        .headerSearchPath("../../../"),
+      ]
     ),
     .testTarget(
       name: "StorageObjcIntegration",

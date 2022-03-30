@@ -176,6 +176,10 @@ import FirebaseAuthInterop
 
   // MARK: - NSObject overrides
 
+  @objc override open func copy() -> Any {
+    return Storage(copy: self)
+  }
+
   @objc override open func isEqual(_ object: Any?) -> Bool {
     guard let ref = object as? Storage else {
       return false
@@ -202,5 +206,10 @@ import FirebaseAuthInterop
                                                            in: app.container)
     impl = FIRIMPLStorage(app: app, bucket: bucket, auth: auth, appCheck: appCheck)
     self.app = impl.app
+  }
+
+  internal init(copy: Storage) {
+    impl = copy.impl.copy() as! FIRIMPLStorage
+    app = impl.app
   }
 }
