@@ -12,14 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef BUILD_WITH_CMAKE
+#endif  // BUILD_WITH_CMAKE
+
 #import <Foundation/Foundation.h>
 
-#import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
-
+#ifndef BUILD_WITH_CMAKE
 @import FirebaseCoreInternal;
+#endif  // BUILD_WITH_CMAKE
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
+#import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
 
+#ifndef BUILD_WITH_CMAKE
 NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *heartbeatsPayload) {
   if ([heartbeatsPayload isEmpty]) {
     return nil;
@@ -27,9 +32,12 @@ NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *he
 
   return [heartbeatsPayload headerValue];
 }
+#endif  // BUILD_WITH_CMAKE
 
 @interface FIRHeartbeatLogger ()
+#ifndef BUILD_WITH_CMAKE
 @property(nonatomic, readonly) FIRHeartbeatController *heartbeatController;
+#endif  // BUILD_WITH_CMAKE
 @property(copy, readonly) NSString * (^userAgentProvider)(void);
 @end
 
@@ -43,7 +51,9 @@ NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *he
             userAgentProvider:(NSString * (^)(void))userAgentProvider {
   self = [super init];
   if (self) {
+#ifndef BUILD_WITH_CMAKE
     _heartbeatController = [[FIRHeartbeatController alloc] initWithId:[appID copy]];
+#endif  // BUILD_WITH_CMAKE
     _userAgentProvider = [userAgentProvider copy];
   }
   return self;
@@ -57,9 +67,12 @@ NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *he
 
 - (void)log {
   NSString *userAgent = _userAgentProvider();
+#ifndef BUILD_WITH_CMAKE
   [_heartbeatController log:userAgent];
+#endif  // BUILD_WITH_CMAKE
 }
 
+#ifndef BUILD_WITH_CMAKE
 - (FIRHeartbeatsPayload *)flushHeartbeatsIntoPayload {
   FIRHeartbeatsPayload *payload = [_heartbeatController flush];
   return payload;
@@ -74,5 +87,6 @@ NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *he
     return FIRHeartbeatInfoCodeGlobal;
   }
 }
+#endif  // BUILD_WITH_CMAKE
 
 @end

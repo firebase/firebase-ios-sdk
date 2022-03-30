@@ -17,8 +17,8 @@
 #import <FirebaseCore/FIRApp.h>
 
 @class FIRComponentContainer;
-@protocol FIRLibrary;
 @class FIRHeartbeatLogger;
+@protocol FIRLibrary;
 
 /**
  * The internal interface to `FirebaseApp`. This is meant for first-party integrators, who need to
