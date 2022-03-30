@@ -65,6 +65,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
 
   # Using environment variable because of the dependency on the unpublished
   # HeartbeatLoggingTestUtils.
+  # TODO(v9): Remove above comment and below conditional after publishing.
   if ENV['POD_LIB_LINT_ONLY'] && ENV['POD_LIB_LINT_ONLY'] == '1' then
     s.test_spec 'unit' do |unit_tests|
       unit_tests.scheme = { :code_coverage => true }

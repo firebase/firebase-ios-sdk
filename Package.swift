@@ -1182,7 +1182,12 @@ let package = Package(
     ),
     .testTarget(
       name: "AppCheckUnit",
-      dependencies: ["FirebaseAppCheck", "OCMock", "SharedTestUtilities"],
+      dependencies: [
+        "FirebaseAppCheck",
+        "OCMock",
+        "SharedTestUtilities",
+        "HeartbeatLoggingTestUtils",
+      ],
       path: "FirebaseAppCheck/Tests",
       exclude: [
         // Disable Swift tests as mixed targets are not supported (Xcode 12.3).

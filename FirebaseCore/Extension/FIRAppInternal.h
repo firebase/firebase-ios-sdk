@@ -93,13 +93,15 @@ extern NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey;
  */
 @property(nonatomic, readonly) BOOL isDefaultApp;
 
-/*
+/**
  * The container of interop SDKs for this app.
  */
 @property(nonatomic) FIRComponentContainer *container;
 
-/*
+/**
  * The heartbeat logger associated with this app.
+ *
+ * Firebase apps have a 1:1 relationship with heartbeat loggers.
  */
 @property(readonly) FIRHeartbeatLogger *heartbeatLogger;
 

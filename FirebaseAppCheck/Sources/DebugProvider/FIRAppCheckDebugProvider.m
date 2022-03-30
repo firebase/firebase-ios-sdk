@@ -66,8 +66,8 @@ static NSString *const kDebugTokenUserDefaultsKey = @"FIRAAppCheckDebugToken";
   FIRAppCheckAPIService *APIService =
       [[FIRAppCheckAPIService alloc] initWithURLSession:URLSession
                                                  APIKey:app.options.APIKey
-                                              projectID:app.options.projectID
-                                                  appID:app.options.googleAppID];
+                                                  appID:app.options.googleAppID
+                                        heartbeatLogger:app.heartbeatLogger];
 
   FIRAppCheckDebugProviderAPIService *debugAPIService =
       [[FIRAppCheckDebugProviderAPIService alloc] initWithAPIService:APIService
