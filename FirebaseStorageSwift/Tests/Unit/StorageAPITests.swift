@@ -30,7 +30,7 @@ final class StorageAPITests {
     storage.maxUploadRetryTime = storage.maxUploadRetryTime
     storage.maxDownloadRetryTime = storage.maxDownloadRetryTime + 1
     storage.maxOperationRetryTime = storage.maxOperationRetryTime + 1
-    let queue : DispatchQueue = storage.callbackQueue
+    let queue: DispatchQueue = storage.callbackQueue
     storage.callbackQueue = queue
     _ = storage.reference()
     _ = storage.reference(forURL: "my-url")
