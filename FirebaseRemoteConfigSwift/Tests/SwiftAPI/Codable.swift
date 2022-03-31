@@ -18,7 +18,7 @@ import FirebaseRemoteConfigSwift
 import XCTest
 
 #if compiler(>=5.5.2) && canImport(_Concurrency)
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 6, *)
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class CodableTests: APITestBase {
     // MARK: - Test decoding Remote Config JSON values
 

@@ -18,7 +18,7 @@ import FirebaseCore
 import XCTest
 
 #if compiler(>=5.5.2) && canImport(_Concurrency)
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 6, *)
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AsyncAwaitTests: APITestBase {
     func testFetchThenActivate() async throws {
       let status = try await config.fetch()

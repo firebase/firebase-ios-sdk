@@ -18,7 +18,7 @@ import FirebaseFirestore
 import Foundation
 
 #if compiler(>=5.5.2) && canImport(_Concurrency)
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 6, *)
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   public extension Firestore {
     /// Loads a Firestore bundle into the local cache.
     /// - Parameter bundleData: Data from the bundle to be loaded.

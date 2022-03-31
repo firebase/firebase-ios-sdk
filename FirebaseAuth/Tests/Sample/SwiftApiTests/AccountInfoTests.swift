@@ -76,7 +76,7 @@ class AccountInfoTests: TestsBase {
   }
 
   #if compiler(>=5.5.2) && canImport(_Concurrency)
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
+    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 7, *)
     func testUpdatingUsersEmailAsync() async throws {
       let auth = Auth.auth()
       do {
