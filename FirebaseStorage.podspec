@@ -63,6 +63,16 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     }
   end
 
+  s.test_spec 'unit' do |unit_tests|
+    unit_tests.scheme = { :code_coverage => true }
+    unit_tests.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
+    unit_tests.source_files = 'FirebaseStorageSwift/Tests/Unit/StorageAPITests.swift'
+  end
+
   s.test_spec 'integration' do |int_tests|
     int_tests.scheme = { :code_coverage => true }
     int_tests.platforms = {
