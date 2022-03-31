@@ -22,9 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
 @class FIRDocumentSnapshot;
 
 /**
- * `FIRTransaction` provides methods to read and write data within a transaction.
+ * `Transaction` provides methods to read and write data within a transaction.
  *
- * @see FIRFirestore#transaction:completion:
+ * @see Firestore#transaction:completion:
  */
 NS_SWIFT_NAME(Transaction)
 @interface FIRTransaction : NSObject
@@ -39,7 +39,7 @@ NS_SWIFT_NAME(Transaction)
  *
  * @param data An `NSDictionary` that contains the fields and data to write to the document.
  * @param document A reference to the document whose data should be overwritten.
- * @return This `FIRTransaction` instance. Used for chaining method calls.
+ * @return This `Transaction` instance. Used for chaining method calls.
  */
 // clang-format off
 - (FIRTransaction *)setData:(NSDictionary<NSString *, id> *)data
@@ -49,15 +49,15 @@ NS_SWIFT_NAME(Transaction)
 
 /**
  * Writes to the document referred to by `document`. If the document doesn't yet exist,
- * this method creates it and then sets the data. If you pass `merge:YES`, the provided data will be
- * merged into any existing document.
+ * this method creates it and then sets the data. If you pass `merge:true`, the provided data will
+ * be merged into any existing document.
  *
  * @param data An `NSDictionary` that contains the fields and data to write to the document.
  * @param document A reference to the document whose data should be overwritten.
  * @param merge Whether to merge the provided data into any existing document. If enabled,
  * all omitted fields remain untouched. If your input sets any field to an empty dictionary, any
  * nested field is overwritten.
- * @return This `FIRTransaction` instance. Used for chaining method calls.
+ * @return This `Transaction` instance. Used for chaining method calls.
  */
 // clang-format off
 - (FIRTransaction *)setData:(NSDictionary<NSString *, id> *)data
@@ -78,11 +78,11 @@ NS_SWIFT_NAME(Transaction)
  * @param data An `NSDictionary` containing the fields that make up the document
  * to be written.
  * @param document A reference to the document whose data should be overwritten.
- * @param mergeFields An `NSArray` that contains a list of `NSString` or `FIRFieldPath` elements
+ * @param mergeFields An `NSArray` that contains a list of `NSString` or `FieldPath` elements
  * specifying which fields to merge. Fields can contain dots to reference nested fields within
  * the document. If your input sets any field to an empty dictionary, any nested field is
  * overwritten.
- * @return This `FIRTransaction` instance. Used for chaining method calls.
+ * @return This `Transaction` instance. Used for chaining method calls.
  */
 // clang-format off
 - (FIRTransaction *)setData:(NSDictionary<NSString *, id> *)data
@@ -96,9 +96,9 @@ NS_SWIFT_NAME(Transaction)
  * If the document does not exist, the transaction will fail.
  *
  * @param fields An `NSDictionary` containing the fields (expressed as an `NSString` or
- * `FIRFieldPath`) and values with which to update the document.
+ * `FieldPath`) and values with which to update the document.
  * @param document A reference to the document whose data should be updated.
- * @return This `FIRTransaction` instance. Used for chaining method calls.
+ * @return This `Transaction` instance. Used for chaining method calls.
  */
 // clang-format off
 - (FIRTransaction *)updateData:(NSDictionary<id, id> *)fields
@@ -110,7 +110,7 @@ NS_SWIFT_NAME(Transaction)
  * Deletes the document referred to by `document`.
  *
  * @param document A reference to the document that should be deleted.
- * @return This `FIRTransaction` instance. Used for chaining method calls.
+ * @return This `Transaction` instance. Used for chaining method calls.
  */
 - (FIRTransaction *)deleteDocument:(FIRDocumentReference *)document
     NS_SWIFT_NAME(deleteDocument(_:));

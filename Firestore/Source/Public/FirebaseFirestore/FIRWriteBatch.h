@@ -23,9 +23,9 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * A write batch is used to perform multiple writes as a single atomic unit.
  *
- * A WriteBatch object can be acquired by calling [FIRFirestore batch]. It provides methods for
+ * A WriteBatch object can be acquired by calling `Firestore.batch()`. It provides methods for
  * adding writes to the write batch. None of the writes will be committed (or visible locally)
- * until [FIRWriteBatch commit] is called.
+ * until `WriteBatch.commit()` is called.
  *
  * Unlike transactions, write batches are persisted offline and therefore are preferable when you
  * don't need to condition your writes on read data.
@@ -43,7 +43,7 @@ NS_SWIFT_NAME(WriteBatch)
  *
  * @param data An `NSDictionary` that contains the fields and data to write to the document.
  * @param document A reference to the document whose data should be overwritten.
- * @return This `FIRWriteBatch` instance. Used for chaining method calls.
+ * @return This `WriteBatch` instance. Used for chaining method calls.
  */
 // clang-format off
 - (FIRWriteBatch *)setData:(NSDictionary<NSString *, id> *)data
@@ -52,15 +52,15 @@ NS_SWIFT_NAME(WriteBatch)
 
 /**
  * Writes to the document referred to by `document`. If the document doesn't yet exist,
- * this method creates it and then sets the data. If you pass `merge:YES`, the provided data will be
- * merged into  any existing document.
+ * this method creates it and then sets the data. If you pass `merge:true`, the provided data will
+ * be merged into  any existing document.
  *
  * @param data An `NSDictionary` that contains the fields and data to write to the document.
  * @param document A reference to the document whose data should be overwritten.
  * @param merge Whether to merge the provided data into any existing document. If enabled,
  * all omitted fields remain untouched. If your input sets any field to an empty dictionary, any
  * nested field is overwritten.
- * @return This `FIRWriteBatch` instance. Used for chaining method calls.
+ * @return This `WriteBatch` instance. Used for chaining method calls.
  */
 // clang-format off
 - (FIRWriteBatch *)setData:(NSDictionary<NSString *, id> *)data
@@ -80,11 +80,11 @@ NS_SWIFT_NAME(WriteBatch)
  *
  * @param data An `NSDictionary` that contains the fields and data to write to the document.
  * @param document A reference to the document whose data should be overwritten.
- * @param mergeFields An `NSArray` that contains a list of `NSString` or `FIRFieldPath` elements
+ * @param mergeFields An `NSArray` that contains a list of `NSString` or `FieldPath` elements
  * specifying which fields to merge. Fields can contain dots to reference nested fields within
  * the document. If your input sets any field to an empty dictionary, any nested field is
  * overwritten.
- * @return This `FIRWriteBatch` instance. Used for chaining method calls.
+ * @return This `WriteBatch` instance. Used for chaining method calls.
  */
 // clang-format off
 - (FIRWriteBatch *)setData:(NSDictionary<NSString *, id> *)data
@@ -98,9 +98,9 @@ NS_SWIFT_NAME(WriteBatch)
  * If document does not exist, the write batch will fail.
  *
  * @param fields An `NSDictionary` containing the fields (expressed as an `NSString` or
- *     `FIRFieldPath`) and values with which to update the document.
+ *     `FieldPath`) and values with which to update the document.
  * @param document A reference to the document whose data should be updated.
- * @return This `FIRWriteBatch` instance. Used for chaining method calls.
+ * @return This `WriteBatch` instance. Used for chaining method calls.
  */
 // clang-format off
 - (FIRWriteBatch *)updateData:(NSDictionary<id, id> *)fields
@@ -112,7 +112,7 @@ NS_SWIFT_NAME(WriteBatch)
  * Deletes the document referred to by `document`.
  *
  * @param document A reference to the document that should be deleted.
- * @return This `FIRWriteBatch` instance. Used for chaining method calls.
+ * @return This `WriteBatch` instance. Used for chaining method calls.
  */
 - (FIRWriteBatch *)deleteDocument:(FIRDocumentReference *)document
     NS_SWIFT_NAME(deleteDocument(_:));
