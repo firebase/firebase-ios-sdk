@@ -30,7 +30,8 @@ final class StorageAPITests {
     storage.maxUploadRetryTime = storage.maxUploadRetryTime
     storage.maxDownloadRetryTime = storage.maxDownloadRetryTime + 1
     storage.maxOperationRetryTime = storage.maxOperationRetryTime + 1
-    storage.callbackQueue = storage.callbackQueue
+    let queue : DispatchQueue = storage.callbackQueue
+    storage.callbackQueue = queue
     _ = storage.reference()
     _ = storage.reference(forURL: "my-url")
     _ = storage.reference(withPath: "path")
@@ -48,19 +49,21 @@ final class StorageAPITests {
     ref = ref.parent()!
     ref = ref.child("path")
 
+    let metadata = StorageMetadata()
+
     _ = ref.putData(Data())
-    _ = ref.putData(Data(), metadata: nil)
-    _ = ref.putData(Data(), metadata: nil) { result in
+    _ = ref.putData(Data(), metadata: metadata)
+    _ = ref.putData(Data(), metadata: metadata) { result in
     }
-    _ = ref.putData(Data(), metadata: nil) { metadata, error in
+    _ = ref.putData(Data(), metadata: metadata) { metadata, error in
     }
 
     let file = URL(string: "my-url")!
     _ = ref.putFile(from: file)
-    _ = ref.putFile(from: file, metadata: nil)
-    _ = ref.putFile(from: file, metadata: nil) { result in
+    _ = ref.putFile(from: file, metadata: metadata)
+    _ = ref.putFile(from: file, metadata: metadata) { result in
     }
-    _ = ref.putFile(from: file, metadata: nil) { metadata, error in
+    _ = ref.putFile(from: file, metadata: metadata) { metadata, error in
     }
 
     _ = ref.getData(maxSize: 122) { data, error in
