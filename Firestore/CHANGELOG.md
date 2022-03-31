@@ -1,4 +1,6 @@
 # Unreleased
+- [changed] Potentially fix a use-after-free crash that can occur during program
+  exit in `OrderBy::Compare()` (#9258).
 - [changed] Add more details to the assertion failure in Query::Comparator() to
   help with future debugging (#9258).
 
