@@ -87,6 +87,12 @@
   _mockInstallationId = @"this-id-is-fake-ccccc";
   _mockReleases = @[
     @{
+      @"codeHash" : @"this-is-the-first-code-hash",
+      @"displayVersion" : @"1.0.0",
+      @"buildVersion" : @"110",
+      @"downloadUrl" : @"http://faketyfakefake.download"
+    },
+    @{
       @"codeHash" : @"this-is-another-code-hash",
       @"displayVersion" : @"1.0.0",
       @"buildVersion" : @"111",
