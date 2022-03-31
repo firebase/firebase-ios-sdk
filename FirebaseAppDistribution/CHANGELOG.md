@@ -1,3 +1,6 @@
+# v9.0.0-beta
+- [fixed] Marked `releaseNotes` as `nullable` as they don't always exist. (#8602)
+
 # v8.3.0-beta
 - [changed] Sign out the Tester when the call to fetch releases fails with an unauthorized error (#8270).
 
