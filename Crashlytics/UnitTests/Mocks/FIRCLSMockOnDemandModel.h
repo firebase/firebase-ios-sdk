@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2022 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,24 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FIRExceptionModel_Private_h
-#define FIRExceptionModel_Private_h
+#import "Crashlytics/Crashlytics/Models/FIRCLSOnDemandModel.h"
+#import "Crashlytics/Crashlytics/Private/FIRCLSOnDemandModel_Private.h"
 
-#import <Foundation/Foundation.h>
+@interface FIRCLSMockOnDemandModel : FIRCLSOnDemandModel
 
-#import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRExceptionModel.h"
+- (instancetype)initWithFIRCLSSettings:(FIRCLSSettings *)settings
+                            sleepBlock:(void (^)(int))sleepBlock;
 
-NS_ASSUME_NONNULL_BEGIN
+// Public for testing purposes
+- (void)setQueueToFull;
+- (void)setQueueToEmpty;
+- (int)getQueueMax;
 
-@interface FIRExceptionModel (Private)
-
-@property(nonatomic, copy) NSString *name;
-@property(nonatomic, copy) NSString *reason;
-@property(nonatomic) BOOL isFatal;
-@property(nonatomic) BOOL onDemand;
+@property(nonatomic, copy) void (^sleepBlock)(int);
 
 @end
-
-NS_ASSUME_NONNULL_END
-
-#endif /* FIRExceptionModel_Private_h */
