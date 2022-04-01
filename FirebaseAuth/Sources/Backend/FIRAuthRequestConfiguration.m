@@ -22,9 +22,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRAuthRequestConfiguration
 
+- (nullable instancetype)initWithAPIKey:(NSString *)APIKey appID:(NSString *)appID {
+  return [self initWithAPIKey:APIKey appID:appID heartbeatLogger:nil];
+}
+
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey
                                   appID:(NSString *)appID
-                        heartbeatLogger:(nullable FIRHeartbeatLogger *)heartbeatLogger {
+                        heartbeatLogger:(nullable id<FIRHeartbeatLoggerProtocol>)heartbeatLogger {
   self = [super init];
   if (self) {
     _APIKey = [APIKey copy];

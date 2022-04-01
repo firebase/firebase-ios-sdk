@@ -610,6 +610,35 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                                     GTMFetcherStandardUserAgentString(nil)];
 }
 
++ (NSMutableURLRequest *)requestWithURL:(NSURL *)URL
+                            contentType:(NSString *)contentType
+                   requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+  NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
+  [request setValue:contentType forHTTPHeaderField:@"Content-Type"];
+  NSString *additionalFrameworkMarker =
+      requestConfiguration.additionalFrameworkMarker ?: kFirebaseAuthCoreFrameworkMarker;
+  NSString *clientVersion = [NSString
+      stringWithFormat:@"iOS/FirebaseSDK/%@/%@", FIRFirebaseVersion(), additionalFrameworkMarker];
+  [request setValue:clientVersion forHTTPHeaderField:kClientVersionHeader];
+  NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
+  [request setValue:bundleID forHTTPHeaderField:kIosBundleIdentifierHeader];
+  NSString *appID = requestConfiguration.appID;
+  [request setValue:appID forHTTPHeaderField:kFirebaseAppIDHeader];
+  [request setValue:FIRHeaderValueFromHeartbeatsPayload(
+                        [requestConfiguration.heartbeatLogger flushHeartbeatsIntoPayload])
+      forHTTPHeaderField:kFirebaseHeartbeatHeader];
+  NSArray<NSString *> *preferredLocalizations = [NSBundle mainBundle].preferredLocalizations;
+  if (preferredLocalizations.count) {
+    NSString *acceptLanguage = preferredLocalizations.firstObject;
+    [request setValue:acceptLanguage forHTTPHeaderField:@"Accept-Language"];
+  }
+  NSString *languageCode = requestConfiguration.languageCode;
+  if (languageCode.length) {
+    [request setValue:languageCode forHTTPHeaderField:kFirebaseLocalHeader];
+  }
+  return request;
+}
+
 @end
 
 @interface FIRAuthBackendRPCIssuerImplementation : NSObject <FIRAuthBackendRPCIssuer>
@@ -641,29 +670,9 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                                    contentType:(NSString *)contentType
                              completionHandler:
                                  (void (^)(NSData *_Nullable, NSError *_Nullable))handler {
-  NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
-  [request setValue:contentType forHTTPHeaderField:@"Content-Type"];
-  NSString *additionalFrameworkMarker =
-      requestConfiguration.additionalFrameworkMarker ?: kFirebaseAuthCoreFrameworkMarker;
-  NSString *clientVersion = [NSString
-      stringWithFormat:@"iOS/FirebaseSDK/%@/%@", FIRFirebaseVersion(), additionalFrameworkMarker];
-  [request setValue:clientVersion forHTTPHeaderField:kClientVersionHeader];
-  NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
-  [request setValue:bundleID forHTTPHeaderField:kIosBundleIdentifierHeader];
-  NSString *appID = requestConfiguration.appID;
-  [request setValue:appID forHTTPHeaderField:kFirebaseAppIDHeader];
-  [request setValue:FIRHeaderValueFromHeartbeatsPayload(
-                        [requestConfiguration.heartbeatLogger flushHeartbeatsIntoPayload])
-      forHTTPHeaderField:kFirebaseHeartbeatHeader];
-  NSArray<NSString *> *preferredLocalizations = [NSBundle mainBundle].preferredLocalizations;
-  if (preferredLocalizations.count) {
-    NSString *acceptLanguage = preferredLocalizations.firstObject;
-    [request setValue:acceptLanguage forHTTPHeaderField:@"Accept-Language"];
-  }
-  NSString *languageCode = requestConfiguration.languageCode;
-  if (languageCode.length) {
-    [request setValue:languageCode forHTTPHeaderField:kFirebaseLocalHeader];
-  }
+  NSMutableURLRequest *request = [FIRAuthBackend requestWithURL:URL
+                                                    contentType:contentType
+                                           requestConfiguration:requestConfiguration];
   GTMSessionFetcher *fetcher = [_fetcherService fetcherWithRequest:request];
   NSString *emulatorHostAndPort = requestConfiguration.emulatorHostAndPort;
   if (emulatorHostAndPort) {
