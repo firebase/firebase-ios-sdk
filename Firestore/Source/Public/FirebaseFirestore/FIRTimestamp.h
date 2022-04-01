@@ -65,9 +65,9 @@ NS_SWIFT_NAME(Timestamp)
 /**
  * Returns the result of comparing the receiver with another timestamp.
  * @param other the other timestamp to compare.
- * @return `NSOrderedAscending` if `other` is chronologically following self,
- *     `NSOrderedDescending` if `other` is chronologically preceding self,
- *     `NSOrderedSame` otherwise.
+ * @return `orderedAscending` if `other` is chronologically following self,
+ *     `orderedDescending` if `other` is chronologically preceding self,
+ *     `orderedSame` otherwise.
  */
 - (NSComparisonResult)compare:(FIRTimestamp *)other;
 

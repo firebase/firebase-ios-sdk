@@ -78,7 +78,7 @@ NS_SWIFT_NAME(DocumentReference)
  * this method creates it and then sets the data. If the document exists, this method overwrites
  * the document data with the new values.
  *
- * @param documentData An `NSDictionary` that contains the fields and data to write to the
+ * @param documentData A `Dictionary` that contains the fields and data to write to the
  * document.
  */
 - (void)setData:(NSDictionary<NSString *, id> *)documentData;
@@ -88,7 +88,7 @@ NS_SWIFT_NAME(DocumentReference)
  * exist, it will be created. If you pass `merge:true`, the provided data will be merged into
  * any existing document.
  *
- * @param documentData An `NSDictionary` that contains the fields and data to write to the
+ * @param documentData A `Dictionary` that contains the fields and data to write to the
  * document.
  * @param merge Whether to merge the provided data into any existing document. If enabled,
  * all omitted fields remain untouched. If your input sets any field to an empty dictionary, any
@@ -105,9 +105,9 @@ NS_SWIFT_NAME(DocumentReference)
  * It is an error to include a field in `mergeFields` that does not have a corresponding
  * value in the `data` dictionary.
  *
- * @param documentData An `NSDictionary` containing the fields that make up the document
+ * @param documentData A `Dictionary` containing the fields that make up the document
  * to be written.
- * @param mergeFields An `NSArray` that contains a list of `NSString` or `FieldPath` elements
+ * @param mergeFields An `Array` that contains a list of `String` or `FieldPath` elements
  * specifying which fields to merge. Fields can contain dots to reference nested fields within
  * the document. If your input sets any field to an empty dictionary, any nested field is
  * overwritten.
@@ -118,7 +118,7 @@ NS_SWIFT_NAME(DocumentReference)
  * Overwrites the document referred to by this `DocumentReference`. If no document exists, it
  * is created. If a document already exists, it is overwritten.
  *
- * @param documentData An `NSDictionary` containing the fields that make up the document
+ * @param documentData A `Dictionary` containing the fields that make up the document
  *     to be written.
  * @param completion A block to execute once the document has been successfully written to the
  *     server. This block will not be called while the client is offline, though local
@@ -132,7 +132,7 @@ NS_SWIFT_NAME(DocumentReference)
  * exist, it will be created. If you pass `merge:true`, the provided data will be merged into
  * any existing document.
  *
- * @param documentData An `NSDictionary` containing the fields that make up the document
+ * @param documentData A `Dictionary` containing the fields that make up the document
  * to be written.
  * @param merge Whether to merge the provided data into any existing document. If your input sets
  *     any field to an empty dictionary, any nested field is overwritten.
@@ -153,9 +153,9 @@ NS_SWIFT_NAME(DocumentReference)
  * It is an error to include a field in `mergeFields` that does not have a corresponding
  * value in the `data` dictionary.
  *
- * @param documentData An `NSDictionary` containing the fields that make up the document
+ * @param documentData A `Dictionary` containing the fields that make up the document
  * to be written.
- * @param mergeFields An `NSArray` that contains a list of `NSString` or `FieldPath` elements
+ * @param mergeFields An `Array` that contains a list of `String` or `FieldPath` elements
  *     specifying which fields to merge. Fields can contain dots to reference nested fields within
  *     the document. If your input sets any field to an empty dictionary, any nested field is
  *     overwritten.
@@ -171,7 +171,7 @@ NS_SWIFT_NAME(DocumentReference)
  * Updates fields in the document referred to by this `DocumentReference`.
  * If the document does not exist, the update fails (specify a completion block to be notified).
  *
- * @param fields An `NSDictionary` containing the fields (expressed as an `NSString` or
+ * @param fields A `Dictionary` containing the fields (expressed as an `String` or
  *     `FieldPath`) and values with which to update the document.
  */
 - (void)updateData:(NSDictionary<id, id> *)fields;
@@ -180,7 +180,7 @@ NS_SWIFT_NAME(DocumentReference)
  * Updates fields in the document referred to by this `DocumentReference`. If the document
  * does not exist, the update fails and the specified completion block receives an error.
  *
- * @param fields An `NSDictionary` containing the fields (expressed as an `NSString` or
+ * @param fields A `Dictionary` containing the fields (expressed as a `String` or
  *     `FieldPath`) and values with which to update the document.
  * @param completion A block to execute when the update is complete. If the update is successful the
  *     error parameter will be nil, otherwise it will give an indication of how the update failed.

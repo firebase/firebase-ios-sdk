@@ -75,13 +75,13 @@ NS_SWIFT_NAME(DocumentSnapshot)
 @property(nonatomic, strong, readonly) FIRSnapshotMetadata *metadata;
 
 /**
- * Retrieves all fields in the document as an `NSDictionary`. Returns `nil` if the document doesn't
+ * Retrieves all fields in the document as a `Dictionary`. Returns `nil` if the document doesn't
  * exist.
  *
  * Server-provided timestamps that have not yet been set to their final value will be returned as
  * `NSNull`. You can use the `data(with:)` method to configure this behavior.
  *
- * @return An `NSDictionary` containing all fields in the document or `nil` if the document doesn't
+ * @return A `Dictionary` containing all fields in the document or `nil` if the document doesn't
  *     exist.
  */
 - (nullable NSDictionary<NSString *, id> *)data;
@@ -156,12 +156,12 @@ NS_SWIFT_NAME(QueryDocumentSnapshot)
     __attribute__((unavailable("FIRQueryDocumentSnapshot cannot be created directly.")));
 
 /**
- * Retrieves all fields in the document as an `NSDictionary`.
+ * Retrieves all fields in the document as a `Dictionary`.
  *
  * Server-provided timestamps that have not yet been set to their final value will be returned as
  * `NSNull`. You can use the `data(with:)` method to configure this behavior.
  *
- * @return An `NSDictionary` containing all fields in the document.
+ * @return A `Dictionary` containing all fields in the document.
  */
 - (NSDictionary<NSString *, id> *)data;
 

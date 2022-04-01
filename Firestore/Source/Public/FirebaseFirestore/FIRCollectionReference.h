@@ -69,7 +69,7 @@ NS_SWIFT_NAME(CollectionReference)
  * Adds a new document to this collection with the specified data, assigning it a document ID
  * automatically.
  *
- * @param data An `NSDictionary` containing the data for the new document.
+ * @param data A `Dictionary` containing the data for the new document.
  *
  * @return A `DocumentReference` pointing to the newly created document.
  */
@@ -80,7 +80,7 @@ NS_SWIFT_NAME(CollectionReference)
  * Adds a new document to this collection with the specified data, assigning it a document ID
  * automatically.
  *
- * @param data An `NSDictionary` containing the data for the new document.
+ * @param data A `Dictionary` containing the data for the new document.
  * @param completion A block to execute once the document has been successfully written to
  *     the server. This block will not be called while the client is offline, though local
  *     changes will be visible immediately.

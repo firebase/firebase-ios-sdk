@@ -174,8 +174,8 @@ NS_SWIFT_NAME(Firestore)
 
 /**
  * Re-enables usage of the network by this Firestore instance after a prior call to
- * `disableNetwork`. Completion block, if provided, will be called once network uasge has been
- * enabled.
+ * `disableNetwork(completion:)`. Completion block, if provided, will be called once network uasge
+ * has been enabled.
  */
 - (void)enableNetworkWithCompletion:(nullable void (^)(NSError *_Nullable error))completion;
 
@@ -213,8 +213,8 @@ NS_SWIFT_NAME(Firestore)
  * block does not wait for writes that were added after the method is called. If you
  * wish to wait for additional writes, you have to call `waitForPendingWrites` again.
  *
- * Any outstanding `waitForPendingWrites` completion blocks are called with an error during user
- * change.
+ * Any outstanding `waitForPendingWrites(completion:)` completion blocks are called with an error
+ * during user change.
  */
 - (void)waitForPendingWritesWithCompletion:(void (^)(NSError *_Nullable error))completion;
 

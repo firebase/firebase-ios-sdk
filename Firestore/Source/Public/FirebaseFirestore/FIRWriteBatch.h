@@ -41,7 +41,7 @@ NS_SWIFT_NAME(WriteBatch)
  * this method creates it and then sets the data. If the document exists, this method overwrites
  * the document data with the new values.
  *
- * @param data An `NSDictionary` that contains the fields and data to write to the document.
+ * @param data A `Dictionary` that contains the fields and data to write to the document.
  * @param document A reference to the document whose data should be overwritten.
  * @return This `WriteBatch` instance. Used for chaining method calls.
  */
@@ -55,7 +55,7 @@ NS_SWIFT_NAME(WriteBatch)
  * this method creates it and then sets the data. If you pass `merge:true`, the provided data will
  * be merged into  any existing document.
  *
- * @param data An `NSDictionary` that contains the fields and data to write to the document.
+ * @param data A `Dictionary` that contains the fields and data to write to the document.
  * @param document A reference to the document whose data should be overwritten.
  * @param merge Whether to merge the provided data into any existing document. If enabled,
  * all omitted fields remain untouched. If your input sets any field to an empty dictionary, any
@@ -78,9 +78,9 @@ NS_SWIFT_NAME(WriteBatch)
  * It is an error to include a field in `mergeFields` that does not have a corresponding
  * value in the `data` dictionary.
  *
- * @param data An `NSDictionary` that contains the fields and data to write to the document.
+ * @param data A `Dictionary` that contains the fields and data to write to the document.
  * @param document A reference to the document whose data should be overwritten.
- * @param mergeFields An `NSArray` that contains a list of `NSString` or `FieldPath` elements
+ * @param mergeFields An `Array` that contains a list of `String` or `FieldPath` elements
  * specifying which fields to merge. Fields can contain dots to reference nested fields within
  * the document. If your input sets any field to an empty dictionary, any nested field is
  * overwritten.
@@ -97,7 +97,7 @@ NS_SWIFT_NAME(WriteBatch)
  * Updates fields in the document referred to by `document`.
  * If document does not exist, the write batch will fail.
  *
- * @param fields An `NSDictionary` containing the fields (expressed as an `NSString` or
+ * @param fields A `Dictionary` containing the fields (expressed as an `String` or
  *     `FieldPath`) and values with which to update the document.
  * @param document A reference to the document whose data should be updated.
  * @return This `WriteBatch` instance. Used for chaining method calls.
