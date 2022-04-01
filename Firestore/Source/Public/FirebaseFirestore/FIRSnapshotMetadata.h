@@ -26,18 +26,18 @@ NS_SWIFT_NAME(SnapshotMetadata)
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
- * Returns YES if the snapshot contains the result of local writes (e.g. set() or update() calls)
+ * Returns `true` if the snapshot contains the result of local writes (e.g. set() or update() calls)
  * that have not yet been committed to the backend. If your listener has opted into metadata updates
- * (via `includeMetadataChanges:YES`) you will receive another snapshot with `hasPendingWrites`
- * equal to NO once the writes have been committed to the backend.
+ * (via `includeMetadataChanges:true`) you will receive another snapshot with `hasPendingWrites`
+ * equal to `false` once the writes have been committed to the backend.
  */
 @property(nonatomic, assign, readonly, getter=hasPendingWrites) BOOL pendingWrites;
 
 /**
- * Returns YES if the snapshot was created from cached data rather than guaranteed up-to-date server
- * data. If your listener has opted into metadata updates (via `includeMetadataChanges:YES`) you
- * will receive another snapshot with `isFromCache` equal to NO once the client has received
- * up-to-date data from the backend.
+ * Returns `true` if the snapshot was created from cached data rather than guaranteed up-to-date
+ * server data. If your listener has opted into metadata updates (via `includeMetadataChanges:true`)
+ * you will receive another snapshot with `isFromCache` equal to `false` once the client has
+ * received up-to-date data from the backend.
  */
 @property(nonatomic, assign, readonly, getter=isFromCache) BOOL fromCache;
 
