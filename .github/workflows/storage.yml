@@ -109,11 +109,11 @@ jobs:
     - uses: actions/checkout@v2
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh storage
-        #- name: Install Secret GoogleService-Info.plist
-        #run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-storage.plist.gpg \
-        #quickstart-ios/storage/GoogleService-Info.plist "$plist_secret"
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-storage.plist.gpg \
+          quickstart-ios/storage/GoogleService-Info.plist "$plist_secret"
     - name: Test objc quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage true)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage)
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage true swift)
 
