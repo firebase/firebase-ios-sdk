@@ -82,7 +82,7 @@ static const NSUInteger kExpectedAPIKeyLength = 39;
                 prefetchAuthToken:NO];
 }
 
-/// The initializer is supposed to be used by tests to inject `installationsStore`.
+/// This designated initializer can be exposed for testing.
 - (instancetype)initWithAppOptions:(FIROptions *)appOptions
                            appName:(NSString *)appName
          installationsIDController:(FIRInstallationsIDController *)installationsIDController
