@@ -21,6 +21,7 @@
 
 @class FIRAuthRequestConfiguration;
 @class FIRAuthURLPresenter;
+@protocol FIRHeartbeatLoggerProtocol;
 
 #if TARGET_OS_IOS
 @class FIRAuthAPNSTokenManager;
@@ -70,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey
                                 appName:(NSString *)appName
-                                  appID:(NSString *)appID NS_DESIGNATED_INITIALIZER;
+                                  appID:(NSString *)appID;
 
 /** @fn getUserID
     @brief Gets the identifier of the current user, if any.
