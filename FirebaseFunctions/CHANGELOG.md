@@ -1,3 +1,6 @@
+# v9.0.0
+- [changed] Backported Callable async/await APIs to iOS 13, etc. (#9483).
+
 # v8.9.0
 - [fixed] Add watchOS support for Swift Package Manager (#8864).
 

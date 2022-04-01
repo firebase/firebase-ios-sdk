@@ -110,11 +110,11 @@ class CustomDelegate: NSObject, MessagingDelegate {
   func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {}
 }
 
-@available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 func apiAsync() async throws {
   let messaging = Messaging.messaging()
   let topic = "cat_video"
-  #if compiler(>=5.5) && canImport(_Concurrency)
+  #if compiler(>=5.5.2) && canImport(_Concurrency)
     try await messaging.subscribe(toTopic: topic)
 
     try await messaging.unsubscribe(fromTopic: topic)

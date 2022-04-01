@@ -112,7 +112,7 @@ open class HTTPSCallable: NSObject {
     call(nil, completion: completion)
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
+  #if compiler(>=5.5.2) && canImport(_Concurrency)
     /**
      * Executes this Callable HTTPS trigger asynchronously.
      *
@@ -127,7 +127,7 @@ open class HTTPSCallable: NSObject {
      * @param data Parameters to pass to the trigger.
      * @returns The result of the call.
      */
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     open func call(_ data: Any? = nil) async throws -> HTTPSCallableResult {
       return try await withCheckedThrowingContinuation { continuation in
         // TODO(bonus): Use task to handle and cancellation.
@@ -140,5 +140,5 @@ open class HTTPSCallable: NSObject {
         }
       }
     }
-  #endif // compiler(>=5.5) && canImport(_Concurrency)
+  #endif // compiler(>=5.5.2) && canImport(_Concurrency)
 }
