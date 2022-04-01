@@ -19,9 +19,9 @@
 @class FBLPromise<ValueType>;
 @class FIRInstallationsItem;
 
-NS_ASSUME_NONNULL_BEGIN
+@protocol FIRHeartbeatLoggerProtocol;
 
-FOUNDATION_EXPORT NSString *const kFIRInstallationsUserAgentKey;
+NS_ASSUME_NONNULL_BEGIN
 
 FOUNDATION_EXPORT NSString *const kFIRInstallationsHeartbeatKey;
 
@@ -34,8 +34,11 @@ FOUNDATION_EXPORT NSString *const kFIRInstallationsHeartbeatKey;
  * The default initializer.
  * @param APIKey The Firebase project API key (see `FIROptions.APIKey`).
  * @param projectID The Firebase project ID (see `FIROptions.projectID`).
+ * @param heartbeatLogger The heartbeat logger used to populate heartbeat data in request headers.
  */
-- (instancetype)initWithAPIKey:(NSString *)APIKey projectID:(NSString *)projectID;
+- (instancetype)initWithAPIKey:(NSString *)APIKey
+                     projectID:(NSString *)projectID
+               heartbeatLogger:(id<FIRHeartbeatLoggerProtocol>)heartbeatLogger;
 
 /**
  * Sends a request to register a new FID to get auth and refresh tokens.
