@@ -44,6 +44,8 @@ jobs:
 
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      # This env var is set because the job has a dependency on the unpublished HeatbeatLoggingTestUtils.
+      POD_LIB_LINT_ONLY: 1
     runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
