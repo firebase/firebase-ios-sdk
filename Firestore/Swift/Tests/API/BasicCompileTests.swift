@@ -473,8 +473,8 @@ func terminateDb(database db: Firestore) {
   }
 }
 
-#if swift(>=5.5)
-  @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+#if swift(>=5.5.2)
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   func testAsyncAwait(database db: Firestore) async throws {
     try await db.enableNetwork()
     try await db.disableNetwork()

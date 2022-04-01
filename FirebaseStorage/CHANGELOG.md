@@ -1,3 +1,6 @@
+# 9.0.0
+- [changed] Backported `StorageReference` async/await APIs to iOS 13, etc. (#9483).
+
 # 8.5.0
 - [fixed] Fixed an issue where Storage could not connect to local emulators using
   http (#8389).
