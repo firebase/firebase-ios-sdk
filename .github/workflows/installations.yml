@@ -22,7 +22,7 @@ jobs:
     runs-on: macos-11
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      # TODO(v9): Remove `POD_LIB_LINT_ONLY` after publishing `HeartbeatLoggingTestUtils`.
+      # This env var is set because the job has a dependency on the unpublished HeatbeatLoggingTestUtils.
       POD_LIB_LINT_ONLY: 1
     strategy:
       matrix:
