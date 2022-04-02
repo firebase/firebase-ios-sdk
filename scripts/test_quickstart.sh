@@ -30,7 +30,7 @@ if check_secrets; then
   if [ "$language" = "swift" ]; then
     have_secrets=true SAMPLE="$sample" TEST="$test" SWIFT_SUFFIX="Swift" ./scripts/test.sh
   else
-    have_secrets=false SAMPLE="$sample" TEST="$test" ./scripts/test.sh
+    have_secrets=true SAMPLE="$sample" TEST="$test" ./scripts/test.sh
   fi
 
 fi
