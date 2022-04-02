@@ -62,7 +62,6 @@ if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
     echo "Source of Podfile for prerelease testing is updated."
   fi
   cd "${WORKSPACE_DIR}"
-  pod deintegrate
 
   # To test a branch, uncomment the following line
   # git checkout {BRANCH_NAME}
@@ -76,6 +75,6 @@ if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
   fi
 
   # Add GoogleService-Info.plist to Xcode project
-  ruby ../scripts/info_script.rb "${SAMPLE}" "${LEGACY:-}"
+  # ruby ../scripts/info_script.rb "${SAMPLE}" "${LEGACY:-}"
   cd -
 fi
