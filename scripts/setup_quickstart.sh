@@ -47,7 +47,7 @@ if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
   # development pod install. This is needed for the `pod install` command.
   export FIREBASE_POD_REPO_FOR_DEV_POD=`pwd`
 
-  git clone https://github.com/firebase/quickstart-ios.git
+  git clone --branch gl/avoid_double_add_refs https://github.com/firebase/quickstart-ios.git
   $scripts_dir/localize_podfile.swift "$WORKSPACE_DIR"/Podfile "$RELEASE_TESTING"
   if [ "$RELEASE_TESTING" == "nightly_release_testing" ]; then
     set +x
@@ -75,6 +75,6 @@ if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
   fi
 
   # Add GoogleService-Info.plist to Xcode project
-  # ruby ../scripts/info_script.rb "${SAMPLE}" "${LEGACY:-}"
+  ruby ../scripts/info_script.rb "${SAMPLE}" "${LEGACY:-}"
   cd -
 fi
