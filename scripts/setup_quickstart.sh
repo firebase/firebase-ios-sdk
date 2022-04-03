@@ -69,12 +69,4 @@ if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
   bundle update --bundler
   bundle install
   pod update
-
-  if [[ ! -z "${LEGACY:-}" ]]; then
-    cd ..
-  fi
-
-  # Add GoogleService-Info.plist to Xcode project
-  # ruby ../scripts/info_script.rb "${SAMPLE}" "${LEGACY:-}"
-  cd -
 fi
