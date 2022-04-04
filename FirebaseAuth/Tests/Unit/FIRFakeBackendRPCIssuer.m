@@ -43,7 +43,7 @@ static NSString *const kFakeErrorDomain = @"fake domain";
   _requestURL = [URL copy];
   if (body) {
     _requestData = body;
-    // Use the real implementation to verify that so the complete request can
+    // Use the real implementation so that the complete request can
     // be verified during testing.
     _completeRequest = [FIRAuthBackend requestWithURL:URL
                                           contentType:contentType
