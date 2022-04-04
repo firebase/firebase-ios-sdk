@@ -39,6 +39,7 @@ NSString *const kFIRStorageResponseErrorCode = @"ResponseErrorCode";
 NSString *const kFIRStorageResponseBody = @"ResponseBody";
 
 NSString *const FIRStorageErrorDomain = @"FIRStorageErrorDomain";
+NSString *const FIRStorageErrorDomainInternal = @"FIRStorageErrorDomain";
 
 NSString *const kFIRStorageInvalidDataFormat = @"Invalid data returned from the server: %@";
 NSString *const kFIRStorageInvalidObserverStatus =

@@ -1,3 +1,7 @@
+# 8.15.0
+- [deprecated] The global variable `FIRStorageErrorDomain` is deprecated and will
+  be removed in a future release (#9569).
+
 # 8.5.0
 - [fixed] Fixed an issue where Storage could not connect to local emulators using
   http (#8389).

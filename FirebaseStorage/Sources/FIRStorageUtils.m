@@ -133,7 +133,7 @@ NSString *const kGCSObjectAllowedCharacterSet =
 }
 
 + (NSError *)storageErrorWithDescription:(NSString *)description code:(NSInteger)code {
-  return [NSError errorWithDomain:FIRStorageErrorDomain
+  return [NSError errorWithDomain:FIRStorageErrorDomainInternal
                              code:code
                          userInfo:@{NSLocalizedDescriptionKey : description}];
 }

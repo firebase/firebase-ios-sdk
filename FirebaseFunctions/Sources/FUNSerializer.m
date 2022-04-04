@@ -14,6 +14,7 @@
 
 #import "FirebaseFunctions/Sources/FUNSerializer.h"
 
+#import "FirebaseFunctions/Sources/FIRFunctions+Internal.h"
 #import "FirebaseFunctions/Sources/FUNUsageValidation.h"
 #import "FirebaseFunctions/Sources/Public/FirebaseFunctions/FIRError.h"
 
@@ -137,7 +138,7 @@ NSError *FUNInvalidNumberError(id value, id wrapped) {
   NSDictionary *userInfo = @{
     NSLocalizedDescriptionKey : description,
   };
-  return [NSError errorWithDomain:FIRFunctionsErrorDomain
+  return [NSError errorWithDomain:FIRFunctionsErrorDomainInternal
                              code:FIRFunctionsErrorCodeInternal
                          userInfo:userInfo];
 }

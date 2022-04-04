@@ -20,7 +20,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 NSString *const FIRFunctionsErrorDomain = @"com.firebase.functions";
+NSString *const FIRFunctionsErrorDomainInternal = @"com.firebase.functions";
 NSString *const FIRFunctionsErrorDetailsKey = @"details";
+NSString *const FIRFunctionsErrorDetailsKeyInternal = @"details";
 
 /**
  * Takes an HTTP status code and returns the corresponding FIRFunctionsErrorCode error code.
@@ -138,7 +140,7 @@ NSString *FUNDescriptionForErrorCode(FIRFunctionsErrorCode code) {
 
 NSError *_Nullable FUNErrorForCode(FIRFunctionsErrorCode code) {
   NSDictionary *userInfo = @{NSLocalizedDescriptionKey : FUNDescriptionForErrorCode(code)};
-  return [NSError errorWithDomain:FIRFunctionsErrorDomain code:code userInfo:userInfo];
+  return [NSError errorWithDomain:FIRFunctionsErrorDomainInternal code:code userInfo:userInfo];
 }
 
 NSError *_Nullable FUNErrorForResponse(NSInteger status,
@@ -188,9 +190,9 @@ NSError *_Nullable FUNErrorForResponse(NSInteger status,
   NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
   userInfo[NSLocalizedDescriptionKey] = description;
   if (details) {
-    userInfo[FIRFunctionsErrorDetailsKey] = details;
+    userInfo[FIRFunctionsErrorDetailsKeyInternal] = details;
   }
-  return [NSError errorWithDomain:FIRFunctionsErrorDomain code:code userInfo:userInfo];
+  return [NSError errorWithDomain:FIRFunctionsErrorDomainInternal code:code userInfo:userInfo];
 }
 
 NS_ASSUME_NONNULL_END

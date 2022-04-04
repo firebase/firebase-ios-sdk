@@ -1,3 +1,7 @@
+# v8.15.0
+- [deprecated] The global variables `FIRFunctionsErrorDomain` and `FIRFunctionsErrorDetailsKey` are
+  deprecated and will be removed in v9.0.0. (#9569)
+
 # v8.9.0
 - [fixed] Add watchOS support for Swift Package Manager (#8864).
 

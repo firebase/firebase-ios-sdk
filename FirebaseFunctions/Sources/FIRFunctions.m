@@ -296,7 +296,7 @@ NSString *const kFUNDefaultRegion = @"us-central1";
     }
     if (![responseJSON isKindOfClass:[NSDictionary class]]) {
       NSDictionary *userInfo = @{NSLocalizedDescriptionKey : @"Response was not a dictionary."};
-      error = [NSError errorWithDomain:FIRFunctionsErrorDomain
+      error = [NSError errorWithDomain:FIRFunctionsErrorDomainInternal
                                   code:FIRFunctionsErrorCodeInternal
                               userInfo:userInfo];
       if (completion) {
@@ -311,7 +311,7 @@ NSString *const kFUNDefaultRegion = @"us-central1";
     }
     if (!dataJSON) {
       NSDictionary *userInfo = @{NSLocalizedDescriptionKey : @"Response is missing data field."};
-      error = [NSError errorWithDomain:FIRFunctionsErrorDomain
+      error = [NSError errorWithDomain:FIRFunctionsErrorDomainInternal
                                   code:FIRFunctionsErrorCodeInternal
                               userInfo:userInfo];
       if (completion) {
