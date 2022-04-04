@@ -199,7 +199,7 @@ jobs:
       run: ./scripts/setup_bundler.sh
 
     - name: Pod lib lint
-      # TODO(b/227461966): Remove --no-analyze when absl is fixed.
+      # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
       run: |
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }} \
             --platforms=ios \
@@ -233,7 +233,7 @@ jobs:
       run: ./scripts/setup_bundler.sh
 
     - name: Pod lib lint
-      # TODO(b/227461966): Remove --no-analyze when absl is fixed.
+      # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
       run: |
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }}\
             ${{ matrix.flags }} \
