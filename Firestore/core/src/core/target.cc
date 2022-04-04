@@ -65,13 +65,6 @@ std::vector<google_firestore_v1_Value> ValuesFrom(
   return result;
 }
 
-// Moves the value of a `Message` into a rvalue, and release the ownership held
-// by the message (to avoid use-after-free or double free).
-google_firestore_v1_Value&& MoveOut(
-    nanopb::Message<google_firestore_v1_Value> message) {
-  return std::move(*message.release());
-}
-
 }  // namespace
 
 // MARK: - Accessors
@@ -210,8 +203,9 @@ Target::IndexBoundValue Target::GetAscendingBound(
     switch (field_filter.op()) {
       case FieldFilter::Operator::LessThan:
       case FieldFilter::Operator::LessThanOrEqual:
-        filter_value = MoveOut(
-            model::GetLowerBound(field_filter.value().which_value_type));
+        filter_value = std::move(
+            *model::GetLowerBound(field_filter.value().which_value_type)
+                 .release());
         break;
       case FieldFilter::Operator::Equal:
       case FieldFilter::Operator::In:
@@ -224,7 +218,7 @@ Target::IndexBoundValue Target::GetAscendingBound(
         break;
       case FieldFilter::Operator::NotEqual:
       case FieldFilter::Operator::NotIn:
-        filter_value = MoveOut(model::MinValue());
+        filter_value = std::move(*model::MinValue().release());
         break;
       default:
         // Remaining filters cannot be used as bound.
@@ -276,8 +270,9 @@ Target::IndexBoundValue Target::GetDescendingBound(
     switch (field_filter.op()) {
       case FieldFilter::Operator::GreaterThanOrEqual:
       case FieldFilter::Operator::GreaterThan:
-        filter_value = MoveOut(
-            model::GetUpperBound(field_filter.value().which_value_type));
+        filter_value = std::move(
+            *model::GetUpperBound(field_filter.value().which_value_type)
+                 .release());
         filter_inclusive = false;
         break;
       case FieldFilter::Operator::Equal:
@@ -291,7 +286,7 @@ Target::IndexBoundValue Target::GetDescendingBound(
         break;
       case FieldFilter::Operator::NotIn:
       case FieldFilter::Operator::NotEqual:
-        filter_value = MoveOut(model::MaxValue());
+        filter_value = std::move(*model::MaxValue().release());
         break;
       default:
         // Remaining filters cannot be used as bound.
