@@ -176,8 +176,10 @@
         [expectation fulfill];
         XCTAssertNotNil(error);
         XCTAssertNil(metadata);
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         XCTAssertEqualObjects(error.domain, FIRStorageErrorDomain);
+#pragma clang diagnostic pop
         XCTAssertEqual(error.code, FIRStorageErrorCodeUnknown);
         NSString *expectedDescription = [NSString
             stringWithFormat:@"File at URL: %@ is not reachable. "
@@ -203,8 +205,10 @@
         [expectation fulfill];
         XCTAssertNotNil(error);
         XCTAssertNil(metadata);
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         XCTAssertEqualObjects(error.domain, FIRStorageErrorDomain);
+#pragma clang diagnostic pop
         XCTAssertEqual(error.code, FIRStorageErrorCodeUnknown);
         NSString *expectedDescription = [NSString
             stringWithFormat:@"File at URL: %@ is not reachable. "
