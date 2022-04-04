@@ -718,7 +718,7 @@ google_firestore_v1_Target_QueryTarget Serializer::EncodeQueryTarget(
   if (target.start_at()) {
     result.structured_query.start_at =
         EncodeCursor(target.start_at()->position(),
-                     /*before*/ target.start_at()->inclusive());
+                     /* before= */ target.start_at()->inclusive());
   }
 
   if (target.end_at()) {

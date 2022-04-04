@@ -40,8 +40,7 @@ using model::Segment;
 
 namespace {
 
-// Takes the ownership of the given array value message, converting it to a
-// vector of value messages.
+// Copies the values of `array` into a `std::vector`.
 std::vector<google_firestore_v1_Value> MakeValueVector(
     google_firestore_v1_ArrayValue array) {
   std::vector<google_firestore_v1_Value> result;
@@ -53,17 +52,24 @@ std::vector<google_firestore_v1_Value> MakeValueVector(
   return result;
 }
 
-// Moves the values from the given unordred_map into the resulting vector.
+// Moves the values from the given unordered_map into the resulting vector.
 std::vector<google_firestore_v1_Value> ValuesFrom(
-    std::unordered_map<std::string,
-                       nanopb::Message<google_firestore_v1_Value>>&&
+    std::unordered_map<std::string, google_firestore_v1_Value>&&
         field_value_map) {
   std::vector<google_firestore_v1_Value> result;
+
   for (auto& entry_pair : field_value_map) {
-    result.push_back(*entry_pair.second);
+    result.push_back(entry_pair.second);
   }
 
   return result;
+}
+
+// Moves the value of a `Message` into a rvalue, and release the ownership held
+// by the message (to avoid use-after-free or double free).
+google_firestore_v1_Value&& MoveOut(
+    nanopb::Message<google_firestore_v1_Value> message) {
+  return std::move(*message.release());
 }
 
 }  // namespace
@@ -80,11 +86,13 @@ bool Target::IsDocumentQuery() const {
 std::vector<FieldFilter> Target::GetFieldFiltersForPath(
     const model::FieldPath& path) {
   std::vector<FieldFilter> result;
+
   for (const Filter& filter : filters_) {
     if (filter.IsAFieldFilter() && filter.field() == path) {
       result.push_back(FieldFilter(filter));
     }
   }
+
   return result;
 }
 
@@ -112,8 +120,7 @@ IndexedValues Target::GetArrayValues(const model::FieldIndex& field_index) {
 }
 
 IndexedValues Target::GetNotInValues(const model::FieldIndex& field_index) {
-  std::unordered_map<std::string, nanopb::Message<google_firestore_v1_Value>>
-      field_value_map;
+  std::unordered_map<std::string, google_firestore_v1_Value> field_value_map;
   for (const auto& segment : field_index.GetDirectionalSegments()) {
     for (const auto& field_filter :
          GetFieldFiltersForPath(segment.field_path())) {
@@ -124,12 +131,12 @@ IndexedValues Target::GetNotInValues(const model::FieldIndex& field_index) {
           // the inequality (e.g. `a == 'a' && b != 'b'` is encoded to `value !=
           // 'ab'`).
           field_value_map[segment.field_path().CanonicalString()] =
-              model::DeepClone(field_filter.value());
+              field_filter.value();
           break;
         case FieldFilter::Operator::NotIn:
         case FieldFilter::Operator::NotEqual:
           field_value_map[segment.field_path().CanonicalString()] =
-              model::DeepClone(field_filter.value());
+              field_filter.value();
           return ValuesFrom(
               std::move(field_value_map));  // NotIn/NotEqual is always a suffix
         default:
@@ -141,7 +148,7 @@ IndexedValues Target::GetNotInValues(const model::FieldIndex& field_index) {
   return absl::nullopt;
 }
 
-absl::optional<IndexedBoundValues> Target::GetLowerBound(
+absl::optional<IndexBoundValues> Target::GetLowerBound(
     const model::FieldIndex& field_index) {
   std::vector<google_firestore_v1_Value> values;
   bool inclusive = true;
@@ -159,13 +166,13 @@ absl::optional<IndexedBoundValues> Target::GetLowerBound(
     }
 
     values.push_back(std::move(segment_bound.value.value()));
-    inclusive = (inclusive && segment_bound.is_inclusive);
+    inclusive = (inclusive && segment_bound.inclusive);
   }
 
-  return IndexedBoundValues{inclusive, std::move(values)};
+  return IndexBoundValues{inclusive, std::move(values)};
 }
 
-absl::optional<IndexedBoundValues> Target::GetUpperBound(
+absl::optional<IndexBoundValues> Target::GetUpperBound(
     const model::FieldIndex& field_index) {
   std::vector<google_firestore_v1_Value> values;
   bool inclusive = true;
@@ -183,13 +190,13 @@ absl::optional<IndexedBoundValues> Target::GetUpperBound(
     }
 
     values.push_back(std::move(segment_bound.value.value()));
-    inclusive = (inclusive && segment_bound.is_inclusive);
+    inclusive = (inclusive && segment_bound.inclusive);
   }
 
-  return IndexedBoundValues{inclusive, std::move(values)};
+  return IndexBoundValues{inclusive, std::move(values)};
 }
 
-IndexedBoundValue Target::GetAscendingBound(
+Target::IndexBoundValue Target::GetAscendingBound(
     const Segment& segment, const absl::optional<Bound>& bound) {
   absl::optional<google_firestore_v1_Value> segment_value;
   bool segment_inclusive = true;
@@ -203,8 +210,8 @@ IndexedBoundValue Target::GetAscendingBound(
     switch (field_filter.op()) {
       case FieldFilter::Operator::LessThan:
       case FieldFilter::Operator::LessThanOrEqual:
-        filter_value =
-            *model::GetLowerBound(field_filter.value().which_value_type);
+        filter_value = MoveOut(
+            model::GetLowerBound(field_filter.value().which_value_type));
         break;
       case FieldFilter::Operator::Equal:
       case FieldFilter::Operator::In:
@@ -217,7 +224,7 @@ IndexedBoundValue Target::GetAscendingBound(
         break;
       case FieldFilter::Operator::NotEqual:
       case FieldFilter::Operator::NotIn:
-        filter_value = *model::MinValue();
+        filter_value = MoveOut(model::MinValue());
         break;
       default:
         // Remaining filters cannot be used as bound.
@@ -252,10 +259,10 @@ IndexedBoundValue Target::GetAscendingBound(
     }
   }
 
-  return IndexedBoundValue{segment_inclusive, std::move(segment_value)};
+  return Target::IndexBoundValue{segment_inclusive, std::move(segment_value)};
 }
 
-IndexedBoundValue Target::GetDescendingBound(
+Target::IndexBoundValue Target::GetDescendingBound(
     const Segment& segment, const absl::optional<Bound>& bound) {
   absl::optional<google_firestore_v1_Value> segment_value;
   bool segment_inclusive = true;
@@ -269,8 +276,8 @@ IndexedBoundValue Target::GetDescendingBound(
     switch (field_filter.op()) {
       case FieldFilter::Operator::GreaterThanOrEqual:
       case FieldFilter::Operator::GreaterThan:
-        filter_value =
-            *model::GetUpperBound(field_filter.value().which_value_type);
+        filter_value = MoveOut(
+            model::GetUpperBound(field_filter.value().which_value_type));
         filter_inclusive = false;
         break;
       case FieldFilter::Operator::Equal:
@@ -284,7 +291,7 @@ IndexedBoundValue Target::GetDescendingBound(
         break;
       case FieldFilter::Operator::NotIn:
       case FieldFilter::Operator::NotEqual:
-        filter_value = *model::MaxValue();
+        filter_value = MoveOut(model::MaxValue());
         break;
       default:
         // Remaining filters cannot be used as bound.
@@ -319,7 +326,7 @@ IndexedBoundValue Target::GetDescendingBound(
     }
   }
 
-  return IndexedBoundValue{segment_inclusive, std::move(segment_value)};
+  return IndexBoundValue{segment_inclusive, std::move(segment_value)};
 }
 
 // MARK: - Utilities

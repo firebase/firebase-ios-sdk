@@ -95,11 +95,9 @@ class ValueUtilTest : public ::testing::Test {
 
   // Verifies `left` is strictly smaller than `right`, unless `is_same_value`
   // is true.
-  void VerifyStrictAscending(Message<google_firestore_v1_ArrayValue>& left,
-                             Message<google_firestore_v1_ArrayValue>& right,
-                             bool is_same_value) {
-    auto expected_result =
-        is_same_value ? ComparisonResult::Same : ComparisonResult::Ascending;
+  void VerifyStrictOrdering(Message<google_firestore_v1_ArrayValue>& left,
+                            Message<google_firestore_v1_ArrayValue>& right,
+                            ComparisonResult expected_result) {
     for (pb_size_t i = 0; i < left->values_count; ++i) {
       for (pb_size_t j = 0; j < right->values_count; ++j) {
         EXPECT_EQ(expected_result, Compare(left->values[i], right->values[j]))
@@ -363,8 +361,10 @@ TEST_F(ValueUtilTest, StrictOrdering) {
 
   for (size_t i = 0; i < comparison_groups.size(); ++i) {
     for (size_t j = i; j < comparison_groups.size(); ++j) {
-      VerifyStrictAscending(comparison_groups[i], comparison_groups[j],
-                            /* is_same_value */ i == j);
+      VerifyStrictOrdering(comparison_groups[i], comparison_groups[j],
+                           /* expected_result= */ i == j
+                               ? ComparisonResult::Same
+                               : ComparisonResult::Ascending);
     }
   }
 }

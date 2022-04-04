@@ -41,15 +41,13 @@ class BundleSerializer;
 namespace core {
 
 using CollectionGroupId = std::shared_ptr<const std::string>;
+
+/** Values used by a target for a FieldIndex. */
 using IndexedValues = absl::optional<std::vector<google_firestore_v1_Value>>;
 
-struct IndexedBoundValue {
-  bool is_inclusive;
-  absl::optional<google_firestore_v1_Value> value;
-};
-
-struct IndexedBoundValues {
-  bool is_inclusive;
+/** Values representing a lower or upper bound specified by a target. */
+struct IndexBoundValues {
+  bool inclusive;
   std::vector<google_firestore_v1_Value> values;
 };
 
@@ -124,7 +122,7 @@ class Target {
    *
    * Returns `nullopt` if no lower bound exists.
    */
-  absl::optional<IndexedBoundValues> GetLowerBound(
+  absl::optional<IndexBoundValues> GetLowerBound(
       const model::FieldIndex& field_index);
 
   /**
@@ -133,7 +131,7 @@ class Target {
    *
    * Returns `nullopt` if no upper bound exists.
    */
-  absl::optional<IndexedBoundValues> GetUpperBound(
+  absl::optional<IndexBoundValues> GetUpperBound(
       const model::FieldIndex& field_index);
 
   const std::string& CanonicalId() const;
@@ -145,6 +143,15 @@ class Target {
   size_t Hash() const;
 
  private:
+  /**
+   * Represents a bound associated to one of the fields specified by this
+   * target.
+   */
+  struct IndexBoundValue {
+    bool inclusive;
+    absl::optional<google_firestore_v1_Value> value;
+  };
+
   /**
    * Initializes a Target with a path and additional query constraints.
    * Path must currently be empty if this is a collection group query.
@@ -179,20 +186,20 @@ class Target {
    * Returns the value for an ascending bound of `segment`, using `bound` to
    * narrow down the result.
    *
-   * The result is a pair with an absl::option<Message> representing the value
-   * and a bool to indicate if the result is inclusive
+   * The result is an absl::optional<Message> representing the value
+   * and a bool to indicate if the result is inclusive.
    */
-  IndexedBoundValue GetAscendingBound(const model::Segment& segment,
-                                      const absl::optional<Bound>& bound);
+  IndexBoundValue GetAscendingBound(const model::Segment& segment,
+                                    const absl::optional<Bound>& bound);
   /**
    * Returns the value for a descending bound of `segment`, using `bound` to
    * narrow down the result.
    *
-   * The result is a pair with an absl::option<Message> representing the value
-   * and a bool to indicate if the result is inclusive
+   * The result is an absl::optional<Message> representing the value
+   * and a bool to indicate if the result is inclusive.
    */
-  IndexedBoundValue GetDescendingBound(const model::Segment& segment,
-                                       const absl::optional<Bound>& bound);
+  IndexBoundValue GetDescendingBound(const model::Segment& segment,
+                                     const absl::optional<Bound>& bound);
 
   model::ResourcePath path_;
   std::shared_ptr<const std::string> collection_group_;

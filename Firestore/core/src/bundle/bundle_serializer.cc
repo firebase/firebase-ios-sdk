@@ -75,6 +75,11 @@ using util::StatusOr;
 using util::StringFormat;
 using Operator = FieldFilter::Operator;
 
+namespace {
+const Bound kDefaultBound = Bound::FromValue(
+    MakeSharedMessage<google_firestore_v1_ArrayValue>({}), false);
+}  // namespace
+
 template <typename T>
 const std::vector<T>& EmptyVector() {
   static auto* empty = new std::vector<T>;
@@ -534,13 +539,13 @@ BundledQuery BundleSerializer::DecodeBundledQuery(
   auto filters = DecodeWhere(reader, structured_query);
   auto order_bys = DecodeOrderBy(reader, structured_query);
 
-  auto start_at_bound = DecodeStartAtBound(reader, structured_query, "startAt");
+  auto start_at_bound = DecodeStartAtBound(reader, structured_query);
   absl::optional<Bound> start_at;
   if (start_at_bound.position()->values_count > 0) {
     start_at = std::move(start_at_bound);
   }
 
-  auto end_at_bound = DecodeEndAtBound(reader, structured_query, "endAt");
+  auto end_at_bound = DecodeEndAtBound(reader, structured_query);
   absl::optional<Bound> end_at;
   if (end_at_bound.position()->values_count > 0) {
     end_at = std::move(end_at_bound);
@@ -649,30 +654,24 @@ FilterList BundleSerializer::DecodeCompositeFilter(JsonReader& reader,
 }
 
 Bound BundleSerializer::DecodeStartAtBound(JsonReader& reader,
-                                           const json& query,
-                                           const char* bound_name) const {
-  Bound default_bound = Bound::FromValue(
-      MakeSharedMessage<google_firestore_v1_ArrayValue>({}), false);
-  if (!query.contains(bound_name)) {
-    return default_bound;
+                                           const json& query) const {
+  if (!query.contains("startAt")) {
+    return kDefaultBound;
   }
 
   auto result =
-      DecodeBoundFields(reader, reader.RequiredObject(bound_name, query));
+      DecodeBoundFields(reader, reader.RequiredObject("startAt", query));
   return Bound::FromValue(std::move(result.second), result.first);
 }
 
 Bound BundleSerializer::DecodeEndAtBound(JsonReader& reader,
-                                         const json& query,
-                                         const char* bound_name) const {
-  Bound default_bound = Bound::FromValue(
-      MakeSharedMessage<google_firestore_v1_ArrayValue>({}), false);
-  if (!query.contains(bound_name)) {
-    return default_bound;
+                                         const json& query) const {
+  if (!query.contains("endAt")) {
+    return kDefaultBound;
   }
 
   auto result =
-      DecodeBoundFields(reader, reader.RequiredObject(bound_name, query));
+      DecodeBoundFields(reader, reader.RequiredObject("endAt", query));
   return Bound::FromValue(std::move(result.second), !result.first);
 }
 

@@ -77,6 +77,7 @@ class Bound {
    */
   bool SortsBeforeDocument(const OrderByList& order_by,
                            const model::Document& document) const;
+
   /**
    * Returns true if the given document comes after this bound using the
    * provided sort order.

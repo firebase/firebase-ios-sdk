@@ -63,11 +63,11 @@ using testutil::Ref;
 using testutil::Value;
 using testutil::Vector;
 
-void VerifyBound(const absl::optional<IndexedBoundValues>& bound,
+void VerifyBound(const absl::optional<IndexBoundValues>& bound,
                  bool inclusive,
                  const std::vector<google_firestore_v1_Value>& values) {
   ASSERT_TRUE(bound.has_value());
-  EXPECT_EQ(inclusive, bound.value().is_inclusive);
+  EXPECT_EQ(inclusive, bound.value().inclusive);
   EXPECT_EQ(values.size(), bound.value().values.size());
   for (size_t i = 0; i < values.size(); ++i) {
     const auto& expected_value = values[i];
@@ -82,10 +82,10 @@ TEST(TargetTest, EmptyQueryBound) {
   FieldIndex index = MakeFieldIndex("c");
 
   auto lower_bound = target.GetLowerBound(index);
-  VerifyBound(lower_bound.value(), true, {});
+  VerifyBound(lower_bound, true, {});
 
   auto upper_bound = target.GetUpperBound(index);
-  VerifyBound(upper_bound.value(), true, {});
+  VerifyBound(upper_bound, true, {});
 }
 
 TEST(TargetTest, EqualsQueryBound) {
@@ -94,10 +94,10 @@ TEST(TargetTest, EqualsQueryBound) {
   FieldIndex index = MakeFieldIndex("c", "foo", Segment::Kind::kAscending);
 
   auto lower_bound = target.GetLowerBound(index);
-  VerifyBound(lower_bound.value(), true, {*Value("bar")});
+  VerifyBound(lower_bound, true, {*Value("bar")});
 
   auto upper_bound = target.GetUpperBound(index);
-  VerifyBound(upper_bound.value(), true, {*Value("bar")});
+  VerifyBound(upper_bound, true, {*Value("bar")});
 }
 
 TEST(TargetTest, LessThanQueryBound) {
@@ -105,10 +105,10 @@ TEST(TargetTest, LessThanQueryBound) {
   FieldIndex index = MakeFieldIndex("c", "foo", Segment::Kind::kDescending);
 
   auto lower_bound = target.GetLowerBound(index);
-  VerifyBound(lower_bound.value(), false, {*Value("bar")});
+  VerifyBound(lower_bound, false, {*Value("bar")});
 
   auto upper_bound = target.GetUpperBound(index);
-  VerifyBound(upper_bound.value(), true, {*Value("")});
+  VerifyBound(upper_bound, true, {*Value("")});
 }
 
 TEST(TargetTest, LessThanOrEqualsQueryBound) {
@@ -117,10 +117,10 @@ TEST(TargetTest, LessThanOrEqualsQueryBound) {
   FieldIndex index = MakeFieldIndex("c", "foo", Segment::Kind::kAscending);
 
   auto lower_bound = target.GetLowerBound(index);
-  VerifyBound(lower_bound.value(), true, {*Value("")});
+  VerifyBound(lower_bound, true, {*Value("")});
 
   auto upper_bound = target.GetUpperBound(index);
-  VerifyBound(upper_bound.value(), true, {*Value("bar")});
+  VerifyBound(upper_bound, true, {*Value("bar")});
 }
 
 TEST(TargetTest, GreaterThanQueryBound) {
@@ -128,10 +128,10 @@ TEST(TargetTest, GreaterThanQueryBound) {
   FieldIndex index = MakeFieldIndex("c", "foo", Segment::Kind::kAscending);
 
   auto lower_bound = target.GetLowerBound(index);
-  VerifyBound(lower_bound.value(), false, {*Value("bar")});
+  VerifyBound(lower_bound, false, {*Value("bar")});
 
   auto upper_bound = target.GetUpperBound(index);
-  VerifyBound(upper_bound.value(), false, {*BlobValue()});
+  VerifyBound(upper_bound, false, {*BlobValue()});
 }
 
 TEST(TargetTest, GreaterThanOrEqualsQueryBound) {
@@ -140,10 +140,10 @@ TEST(TargetTest, GreaterThanOrEqualsQueryBound) {
   FieldIndex index = MakeFieldIndex("c", "foo", Segment::Kind::kDescending);
 
   auto lower_bound = target.GetLowerBound(index);
-  VerifyBound(lower_bound.value(), false, {*BlobValue()});
+  VerifyBound(lower_bound, false, {*BlobValue()});
 
   auto upper_bound = target.GetUpperBound(index);
-  VerifyBound(upper_bound.value(), true, {*Value("bar")});
+  VerifyBound(upper_bound, true, {*Value("bar")});
 }
 
 TEST(TargetTest, ArrayContainsQueryBound) {
@@ -158,10 +158,10 @@ TEST(TargetTest, ArrayContainsQueryBound) {
   EXPECT_TRUE(Equals(array_values.value()[0], *Value("bar")));
 
   auto lower_bound = target.GetLowerBound(index);
-  VerifyBound(lower_bound.value(), true, {});
+  VerifyBound(lower_bound, true, {});
 
   auto upper_bound = target.GetUpperBound(index);
-  VerifyBound(upper_bound.value(), true, {});
+  VerifyBound(upper_bound, true, {});
 }
 
 TEST(TargetTest, ArrayContainsAnyQueryBound) {
@@ -177,9 +177,9 @@ TEST(TargetTest, ArrayContainsAnyQueryBound) {
   EXPECT_TRUE(Equals(array_values.value()[1], *Value("baz")));
 
   auto lower_bound = target.GetLowerBound(index);
-  VerifyBound(lower_bound.value(), true, {});
+  VerifyBound(lower_bound, true, {});
   auto upper_bound = target.GetUpperBound(index);
-  VerifyBound(upper_bound.value(), true, {});
+  VerifyBound(upper_bound, true, {});
 }
 
 TEST(TargetTest, OrderByQueryBound) {
@@ -200,12 +200,10 @@ TEST(TargetTest, FilterWithOrderByQueryBound) {
   FieldIndex index = MakeFieldIndex("c", "foo", Segment::Kind::kAscending);
 
   auto lower_bound = target.GetLowerBound(index);
-  EXPECT_TRUE(lower_bound.has_value());
-  VerifyBound(lower_bound.value(), false, {*Value("bar")});
+  VerifyBound(lower_bound, false, {*Value("bar")});
 
   auto upper_bound = target.GetUpperBound(index);
-  EXPECT_TRUE(upper_bound.has_value());
-  VerifyBound(upper_bound.value(), false, {*BlobValue()});
+  VerifyBound(upper_bound, false, {*BlobValue()});
 }
 
 TEST(TargetTest, StartingAtQueryBound) {
@@ -216,7 +214,7 @@ TEST(TargetTest, StartingAtQueryBound) {
   FieldIndex index = MakeFieldIndex("c", "foo", Segment::Kind::kAscending);
 
   auto lower_bound = target.GetLowerBound(index);
-  VerifyBound(lower_bound.value(), true, {*Value("bar")});
+  VerifyBound(lower_bound, true, {*Value("bar")});
 
   auto upper_bound = target.GetUpperBound(index);
   EXPECT_FALSE(upper_bound.has_value());
@@ -236,10 +234,10 @@ TEST(TargetTest, StartingAtWithFilterQueryBound) {
                                     Segment::Kind::kAscending);
 
   auto lower_bound = target.GetLowerBound(index);
-  VerifyBound(lower_bound.value(), true, {*Value("a1"), *Value("b1")});
+  VerifyBound(lower_bound, true, {*Value("a1"), *Value("b1")});
 
   auto upper_bound = target.GetUpperBound(index);
-  VerifyBound(upper_bound.value(), false, {*BlobValue(), *Value("b1")});
+  VerifyBound(upper_bound, false, {*BlobValue(), *Value("b1")});
 }
 
 TEST(TargetTest, StartAfterWithFilterQueryBound) {
@@ -254,10 +252,10 @@ TEST(TargetTest, StartAfterWithFilterQueryBound) {
                                     Segment::Kind::kAscending);
 
   auto lower_bound = target.GetLowerBound(index);
-  VerifyBound(lower_bound.value(), false, {*Value("a2"), *Value("b1")});
+  VerifyBound(lower_bound, false, {*Value("a2"), *Value("b1")});
 
   auto upper_bound = target.GetUpperBound(index);
-  VerifyBound(upper_bound.value(), false, {*BlobValue(), *Value("b1")});
+  VerifyBound(upper_bound, false, {*BlobValue(), *Value("b1")});
 }
 
 TEST(TargetTest, StartAfterDoesNotChangeBoundIfNotApplicable) {
@@ -272,10 +270,10 @@ TEST(TargetTest, StartAfterDoesNotChangeBoundIfNotApplicable) {
                                     Segment::Kind::kAscending);
 
   auto lower_bound = target.GetLowerBound(index);
-  VerifyBound(lower_bound.value(), true, {*Value("a2"), *Value("b2")});
+  VerifyBound(lower_bound, true, {*Value("a2"), *Value("b2")});
 
   auto upper_bound = target.GetUpperBound(index);
-  VerifyBound(upper_bound.value(), false, {*BlobValue(), *Value("b2")});
+  VerifyBound(upper_bound, false, {*BlobValue(), *Value("b2")});
 }
 
 TEST(TargetTest, EndingAtQueryBound) {
@@ -289,7 +287,7 @@ TEST(TargetTest, EndingAtQueryBound) {
   ASSERT_FALSE(lower_bound.has_value());
 
   auto upper_bound = target.GetUpperBound(index);
-  VerifyBound(upper_bound.value(), true, {*Value("bar")});
+  VerifyBound(upper_bound, true, {*Value("bar")});
 }
 
 TEST(TargetTest, EndingAtWithFilterQueryBound) {
@@ -305,10 +303,10 @@ TEST(TargetTest, EndingAtWithFilterQueryBound) {
                                     Segment::Kind::kAscending);
 
   auto lower_bound = target.GetLowerBound(index);
-  VerifyBound(lower_bound.value(), true, {*Value(""), *Value("b2")});
+  VerifyBound(lower_bound, true, {*Value(""), *Value("b2")});
 
   auto upper_bound = target.GetUpperBound(index);
-  VerifyBound(upper_bound.value(), true, {*Value("a1"), *Value("b1")});
+  VerifyBound(upper_bound, true, {*Value("a1"), *Value("b1")});
 }
 
 TEST(TargetTest, EndBeforeWithFilterQueryBound) {
@@ -322,9 +320,9 @@ TEST(TargetTest, EndBeforeWithFilterQueryBound) {
   FieldIndex index = MakeFieldIndex("c", "a", Segment::Kind::kAscending, "b",
                                     Segment::Kind::kAscending);
   auto lower_bound = target.GetLowerBound(index);
-  VerifyBound(lower_bound.value(), true, {*Value(""), *Value("b2")});
+  VerifyBound(lower_bound, true, {*Value(""), *Value("b2")});
   auto upper_bound = target.GetUpperBound(index);
-  VerifyBound(upper_bound.value(), false, {*Value("a1"), *Value("b1")});
+  VerifyBound(upper_bound, false, {*Value("a1"), *Value("b1")});
 }
 
 TEST(TargetTest, EndBeforeDoesNotChangeBoundIfNotApplicable) {
@@ -338,9 +336,9 @@ TEST(TargetTest, EndBeforeDoesNotChangeBoundIfNotApplicable) {
   FieldIndex index = MakeFieldIndex("c", "a", Segment::Kind::kAscending, "b",
                                     Segment::Kind::kAscending);
   auto lower_bound = target.GetLowerBound(index);
-  VerifyBound(lower_bound.value(), true, {*Value(""), *Value("b1")});
+  VerifyBound(lower_bound, true, {*Value(""), *Value("b1")});
   auto upper_bound = target.GetUpperBound(index);
-  VerifyBound(upper_bound.value(), true, {*Value("a1"), *Value("b1")});
+  VerifyBound(upper_bound, true, {*Value("a1"), *Value("b1")});
 }
 
 TEST(TargetTest, PartialIndexMatchQueryBound) {
@@ -350,9 +348,9 @@ TEST(TargetTest, PartialIndexMatchQueryBound) {
                       .ToTarget();
   FieldIndex index = MakeFieldIndex("c", "a", Segment::Kind::kAscending);
   auto lower_bound = target.GetLowerBound(index);
-  VerifyBound(lower_bound.value(), true, {*Value("a")});
+  VerifyBound(lower_bound, true, {*Value("a")});
   auto upper_bound = target.GetUpperBound(index);
-  VerifyBound(upper_bound.value(), true, {*Value("a")});
+  VerifyBound(upper_bound, true, {*Value("a")});
 }
 
 }  // namespace

@@ -123,11 +123,10 @@ class BundleSerializer {
       JsonReader& reader, const nlohmann::json& value) const;
 
   core::Bound DecodeStartAtBound(JsonReader& reader,
-                                 const nlohmann::json& query,
-                                 const char* bound_name) const;
+                                 const nlohmann::json& query) const;
   core::Bound DecodeEndAtBound(JsonReader& reader,
-                               const nlohmann::json& query,
-                               const char* bound_name) const;
+                               const nlohmann::json& query) const;
+
   // Decodes a `bound` JSON and returns a pair whose first element is the value
   // of the `before` JSON field, and second element is the array value
   // representing the bounded field values.
