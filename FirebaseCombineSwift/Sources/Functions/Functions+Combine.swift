@@ -15,6 +15,8 @@
 #if canImport(Combine) && swift(>=5.0)
 
   import Foundation
-  @objc(FIRCombineFunctionsComponent) private class __CombineFunctionsComponent: NSObject {}
+
+  // Make this class discoverable from Objective-C. Don't instantiate directly.
+  @objc(FIRCombineFunctionsLibrary) private class __CombineFunctionsLibrary: NSObject {}
 
 #endif

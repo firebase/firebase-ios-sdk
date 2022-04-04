@@ -15,6 +15,8 @@
 #if canImport(Combine) && swift(>=5.0)
 
   import Foundation
-  @objc(FIRCombineFirestoreComponent) private class __CombineFirestoreComponent: NSObject {}
+
+  // Make this class discoverable from Objective-C. Don't instantiate directly.
+  @objc(FIRCombineFirestoreLibrary) private class __CombineFirestoreLibrary: NSObject {}
 
 #endif

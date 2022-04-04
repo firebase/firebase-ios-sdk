@@ -15,6 +15,8 @@
 #if canImport(Combine) && swift(>=5.0)
 
   import Foundation
-  @objc(FIRCombineStorageComponent) private class __CombineStorageComponent: NSObject {}
+
+  // Make this class discoverable from Objective-C. Don't instantiate directly.
+  @objc(FIRCombineStorageLibrary) private class __CombineStorageLibrary: NSObject {}
 
 #endif

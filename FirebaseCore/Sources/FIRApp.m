@@ -848,10 +848,10 @@ static FIRApp *sDefaultApp;
 
   // Swift libraries that don't need component behaviour
   NSDictionary<NSString *, NSString *> *swiftLibraries = @{
-    @"FIRCombineAuthComponent" : @"comb-auth",
-    @"FIRCombineFirestoreComponent" : @"comb-firestore",
-    @"FIRCombineFunctionsComponent" : @"comb-functions",
-    @"FIRCombineStorageComponent" : @"comb-storage",
+    @"FIRCombineAuthLibrary" : @"comb-auth",
+    @"FIRCombineFirestoreLibrary" : @"comb-firestore",
+    @"FIRCombineFunctionsLibrary" : @"comb-functions",
+    @"FIRCombineStorageLibrary" : @"comb-storage",
   };
   for (NSString *className in swiftLibraries.allKeys) {
     Class klass = NSClassFromString(className);
