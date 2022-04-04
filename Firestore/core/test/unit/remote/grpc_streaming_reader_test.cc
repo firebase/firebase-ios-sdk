@@ -101,7 +101,7 @@ TEST_F(GrpcStreamingReaderTest, FinishImmediatelyIsIdempotent) {
   worker_queue->EnqueueBlocking(
       [&] { EXPECT_NO_THROW(reader->FinishImmediately()); });
 
-  StartReader(static_cast<size_t>(3));
+  StartReader(static_cast<size_t>(0));
 
   KeepPollingGrpcQueue();
   worker_queue->EnqueueBlocking([&] {
@@ -119,7 +119,7 @@ TEST_F(GrpcStreamingReaderTest, CanGetResponseHeadersAfterStarting) {
 }
 
 TEST_F(GrpcStreamingReaderTest, CanGetResponseHeadersAfterFinishing) {
-  StartReader(static_cast<size_t>(1));
+  StartReader(static_cast<size_t>(0));
 
   KeepPollingGrpcQueue();
   worker_queue->EnqueueBlocking([&] {
@@ -194,7 +194,7 @@ TEST_F(GrpcStreamingReaderTest, FinishWhileReading) {
 // Errors
 
 TEST_F(GrpcStreamingReaderTest, ErrorOnWrite) {
-  StartReader(static_cast<size_t>(2));
+  StartReader(static_cast<size_t>(1));
 
   bool failed_write = false;
   auto future = tester.ForceFinishAsync([&](GrpcCompletion* completion) {
@@ -230,7 +230,7 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnWrite) {
 }
 
 TEST_F(GrpcStreamingReaderTest, ErrorOnFirstRead) {
-  StartReader(static_cast<size_t>(2));
+  StartReader(static_cast<size_t>(1));
 
   ForceFinishAnyTypeOrder({
       {Type::Write, CompletionResult::Ok},
@@ -245,7 +245,7 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnFirstRead) {
 }
 
 TEST_F(GrpcStreamingReaderTest, ErrorOnSecondRead) {
-  StartReader(static_cast<size_t>(3));
+  StartReader(static_cast<size_t>(2));
 
   ForceFinishAnyTypeOrder({
       {Type::Write, CompletionResult::Ok},
@@ -264,7 +264,7 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnSecondRead) {
 TEST_F(GrpcStreamingReaderTest, CallbackCanDestroyReaderOnSuccess) {
   worker_queue->EnqueueBlocking([&] {
     reader->Start(
-        static_cast<size_t>(2), [&](std::vector<ResponsesT>) {},
+        static_cast<size_t>(1), [&](std::vector<ResponsesT>) {},
         [&](const util::Status&, bool) { reader.reset(); });
   });
 
@@ -282,7 +282,7 @@ TEST_F(GrpcStreamingReaderTest, CallbackCanDestroyReaderOnSuccess) {
 TEST_F(GrpcStreamingReaderTest, CallbackCanDestroyReaderOnError) {
   worker_queue->EnqueueBlocking([&] {
     reader->Start(
-        static_cast<size_t>(2), [&](std::vector<ResponsesT>) {},
+        static_cast<size_t>(1), [&](std::vector<ResponsesT>) {},
         [&](const util::Status&, bool) { reader.reset(); });
   });
 

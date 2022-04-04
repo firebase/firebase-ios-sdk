@@ -228,9 +228,8 @@ TEST_F(DatastoreTest, LookupDocumentsZeroRead) {
   bool done = false;
   std::vector<Document> resulting_docs;
   Status resulting_status;
-  const std::vector<model::DocumentKey> keys{};
   datastore->LookupDocuments(
-      keys, [&](const StatusOr<std::vector<Document>>& documents) {
+      {}, [&](const StatusOr<std::vector<Document>>& documents) {
         done = true;
         if (documents.ok()) {
           resulting_docs = documents.ValueOrDie();
@@ -240,8 +239,9 @@ TEST_F(DatastoreTest, LookupDocumentsZeroRead) {
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
 
-  ForceFinishAnyTypeOrder({{Type::Write, CompletionResult::Ok},
-                           {Type::Read, CompletionResult::Error}});
+  ForceFinishAnyTypeOrder(
+      {{Type::Write, CompletionResult::Ok},
+       /*Read after last*/ {Type::Read, CompletionResult::Error}});
   ForceFinish({{Type::Finish, grpc::Status::OK}});
 
   EXPECT_TRUE(done);
@@ -253,9 +253,9 @@ TEST_F(DatastoreTest, LookupDocumentsOneSuccessfulRead) {
   bool done = false;
   std::vector<Document> resulting_docs;
   Status resulting_status;
-  const std::vector<model::DocumentKey> keys{model::DocumentKey()};
   datastore->LookupDocuments(
-      keys, [&](const StatusOr<std::vector<Document>>& documents) {
+      {model::DocumentKey()},
+      [&](const StatusOr<std::vector<Document>>& documents) {
         done = true;
         if (documents.ok()) {
           resulting_docs = documents.ValueOrDie();
@@ -265,9 +265,10 @@ TEST_F(DatastoreTest, LookupDocumentsOneSuccessfulRead) {
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
 
-  ForceFinishAnyTypeOrder({{Type::Read, MakeFakeDocument("foo/1")},
-                           {Type::Write, CompletionResult::Ok},
-                           {Type::Read, CompletionResult::Error}});
+  ForceFinishAnyTypeOrder(
+      {{Type::Read, MakeFakeDocument("foo/1")},
+       {Type::Write, CompletionResult::Ok},
+       /*Read after last*/ {Type::Read, CompletionResult::Error}});
   ForceFinish({{Type::Finish, grpc::Status::OK}});
 
   EXPECT_TRUE(done);
@@ -292,10 +293,11 @@ TEST_F(DatastoreTest, LookupDocumentsTwoSuccessfulReads) {
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
 
-  ForceFinishAnyTypeOrder({{Type::Write, CompletionResult::Ok},
-                           {Type::Read, MakeFakeDocument("foo/1")},
-                           {Type::Read, MakeFakeDocument("foo/2")},
-                           {Type::Read, CompletionResult::Error}});
+  ForceFinishAnyTypeOrder(
+      {{Type::Write, CompletionResult::Ok},
+       {Type::Read, MakeFakeDocument("foo/1")},
+       {Type::Read, MakeFakeDocument("foo/2")},
+       /*Read after last*/ {Type::Read, CompletionResult::Error}});
   ForceFinish({{Type::Finish, grpc::Status::OK}});
 
   EXPECT_TRUE(done);
@@ -340,10 +342,11 @@ TEST_F(DatastoreTest, LookupDocumentsTwoSuccessfulReadsButFailStatus) {
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
 
-  ForceFinishAnyTypeOrder({{Type::Write, CompletionResult::Ok},
-                           {Type::Read, MakeFakeDocument("foo/1")},
-                           {Type::Read, MakeFakeDocument("foo/2")},
-                           {Type::Read, CompletionResult::Error}});
+  ForceFinishAnyTypeOrder(
+      {{Type::Write, CompletionResult::Ok},
+       {Type::Read, MakeFakeDocument("foo/1")},
+       {Type::Read, MakeFakeDocument("foo/2")},
+       /*Read after last*/ {Type::Read, CompletionResult::Error}});
   ForceFinish({{Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
 
   EXPECT_TRUE(done);
