@@ -121,6 +121,12 @@ final class InstallationsAPITests {
         Task {
           do {
             _ = try await Installations.installations().delete()
+          } catch let error as NSError
+            where error.domain == InstallationsErrorDomain && error.code == InstallationsErrorCode
+            .unknown.rawValue {
+            // Above is the old way to handle errors.
+          } catch InstallationsErrorCode.unknown {
+            // Above is the new way to handle errors.
           } catch {
             // ...
           }
@@ -141,6 +147,7 @@ final class InstallationsAPITests {
 
     Installations.installations().authToken { _, error in
       if let error = error {
+        // Old error handling.
         switch (error as NSError).code {
         case Int(InstallationsErrorCode.unknown.rawValue):
           break
@@ -150,6 +157,21 @@ final class InstallationsAPITests {
           break
         case Int(InstallationsErrorCode.invalidConfiguration.rawValue):
           break
+        default:
+          break
+        }
+
+        // New error handling.
+        switch error {
+        case InstallationsErrorCode.unknown:
+          break
+        case InstallationsErrorCode.keychain:
+          break
+        case InstallationsErrorCode.serverUnreachable:
+          break
+        case InstallationsErrorCode.invalidConfiguration:
+          break
+
         default:
           break
         }
