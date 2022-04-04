@@ -457,8 +457,8 @@ static NSString *const kTestValue = @"TestValue";
 
 /** @fn testRequest_DoesNotIncludeAHeartbeatPayload_WhenNoHeartbeatsNeedSending
     @brief This test checks the behavior of @c postWithRequest:response:callback:
-        to verify that a request header does not heartbeat data in the case
-        that there are no stored heartbeats that need sending.
+        to verify that a request header does not contain heartbeat data in the
+        case that there are no stored heartbeats that need sending.
  */
 - (void)testRequest_DoesNotIncludeAHeartbeatPayload_WhenNoHeartbeatsNeedSending {
   // Given
