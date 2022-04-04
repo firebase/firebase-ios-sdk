@@ -99,7 +99,11 @@
 
 - (void)tearDown {
   self.onDemandModel = nil;
-  [[NSFileManager defaultManager] removeItemAtPath:self.fileManager.rootPath error:nil];
+  if ([[NSFileManager defaultManager] fileExistsAtPath:[self.fileManager rootPath]]) {
+    assert([self.fileManager removeItemAtPath:[self.fileManager rootPath]]);
+  }
+
+  FIRCLSContextBaseDeinit();
   [super tearDown];
 }
 
@@ -175,7 +179,6 @@
   // rest considered dropped. The recorded events should be stored in storedActiveReportPaths which
   // is kept in sync with the contents of the active path.
   [self.managerData.onDemandModel.operationQueue waitUntilAllOperationsAreFinished];
-  sleep(3);
   XCTAssertEqual([self.managerData.onDemandModel.operationQueue operationCount], 0);
 
   XCTAssertEqual([self.managerData.onDemandModel recordedOnDemandExceptionCount],
@@ -190,7 +193,6 @@
   [self.existingReportManager sendUnsentReportsWithToken:[FIRCLSDataCollectionToken validToken]
                                                 asUrgent:YES];
   [self.managerData.onDemandModel.operationQueue waitUntilAllOperationsAreFinished];
-  sleep(3);
   XCTAssertEqual([self.managerData.onDemandModel recordedOnDemandExceptionCount],
                  FIRCLSMaxUnsentReports);
   XCTAssertEqual([self.managerData.onDemandModel droppedOnDemandExceptionCount],
