@@ -17,6 +17,8 @@
   import Combine
   import FirebaseAuth
 
+  @objc(FIRCombineAuthComponent) private class __CombineAuthComponent: NSObject {}
+
   @available(swift 5.0)
   @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
   public extension Auth {
