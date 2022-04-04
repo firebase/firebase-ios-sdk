@@ -21,7 +21,6 @@
 
 @class FIRAuthRequestConfiguration;
 @class FIRAuthURLPresenter;
-@protocol FIRHeartbeatLoggerProtocol;
 
 #if TARGET_OS_IOS
 @class FIRAuthAPNSTokenManager;
