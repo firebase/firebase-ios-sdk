@@ -104,7 +104,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 // FIRApp properties
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
 @property(nonatomic, readwrite, strong) FIRMessagingClient *client;
-@property(nonatomic, readwrite, strong) GULReachabilityChecker *reachability;
+
+@property(nonatomic, readwrite, strong, nullable) GULReachabilityChecker *reachability;
 @property(nonatomic, readwrite, strong) FIRMessagingPubSub *pubsub;
 @property(nonatomic, readwrite, strong) FIRMessagingRmqManager *rmq2Manager;
 @property(nonatomic, readwrite, strong) FIRMessagingSyncMessageManager *syncMessageManager;
@@ -143,14 +144,53 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-- (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
-                 withUserDefaults:(GULUserDefaults *)defaults {
+- (instancetype)initForApp:(FIRApp *)app
+             withAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
+              userDefaults:(GULUserDefaults *)defaults {
 #pragma clang diagnostic pop
+
+  FIRMessagingTokenManager *tokenManager =
+      [[FIRMessagingTokenManager alloc] initWithHeartbeatLogger:app.heartbeatLogger];
+
+  FIRMessagingPubSub *pubsub = [[FIRMessagingPubSub alloc] initWithTokenManager:tokenManager];
+
+  FIRMessagingRmqManager *rmq2Manager =
+      [[FIRMessagingRmqManager alloc] initWithDatabaseName:@"rmq2"];
+
+  FIRMessagingSyncMessageManager *syncMessageManager =
+      [[FIRMessagingSyncMessageManager alloc] initWithRmqManager:rmq2Manager];
+
+  return [self initWithTokenManager:tokenManager
+                             pubsub:pubsub
+                        rmq2Manager:rmq2Manager
+                 syncMessageManager:syncMessageManager
+              messagingUserDefaults:defaults
+                      installations:[FIRInstallations installations]
+                   loggedMessageIDs:[NSMutableSet set]
+                          analytics:analytics
+                       reachability:nil];
+}
+
+- (instancetype)initWithTokenManager:(FIRMessagingTokenManager *)tokenManager
+                              pubsub:(FIRMessagingPubSub *)pubsub
+                         rmq2Manager:(FIRMessagingRmqManager *)rmq2Manager
+                  syncMessageManager:(FIRMessagingSyncMessageManager *)syncMessageManager
+               messagingUserDefaults:(GULUserDefaults *)messagingUserDefaults
+                       installations:(FIRInstallations *)installations
+                    loggedMessageIDs:(NSMutableSet *)loggedMessageIDs
+                           analytics:(nullable id<FIRAnalyticsInterop>)analytics
+                        reachability:(nullable GULReachabilityChecker *)reachability {
   self = [super init];
-  if (self != nil) {
-    _loggedMessageIDs = [NSMutableSet set];
-    _messagingUserDefaults = defaults;
+  if (self) {
+    _tokenManager = tokenManager;
+    _pubsub = pubsub;
+    _rmq2Manager = rmq2Manager;
+    _syncMessageManager = syncMessageManager;
+    _messagingUserDefaults = messagingUserDefaults;
+    _installations = installations;
+    _loggedMessageIDs = loggedMessageIDs;
     _analytics = analytics;
+    _reachability = reachability;
   }
   return self;
 }
@@ -185,8 +225,9 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     FIRMessaging *messaging =
-        [[FIRMessaging alloc] initWithAnalytics:analytics
-                               withUserDefaults:[GULUserDefaults standardUserDefaults]];
+        [[FIRMessaging alloc] initForApp:container.app
+                           withAnalytics:analytics
+                            userDefaults:[GULUserDefaults standardUserDefaults]];
 #pragma clang diagnostic pop
     [messaging start];
     [messaging configureMessagingWithOptions:container.app.options];
@@ -279,24 +320,15 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 - (void)start {
   [self setupFileManagerSubDirectory];
   [self setupNotificationListeners];
+  [self setupReachabilityMonitoring];
 
-  self.tokenManager = [[FIRMessagingTokenManager alloc] init];
-  self.installations = [FIRInstallations installations];
-  [self setupTopics];
+  [self setupRmqManager];
+  [self.syncMessageManager removeExpiredSyncMessages];
 
-  // Print the library version for logging.
+  // Log the library version.
   NSString *currentLibraryVersion = FIRFirebaseVersion();
   FIRMessagingLoggerInfo(kFIRMessagingMessageCodeMessagingPrintLibraryVersion,
                          @"FIRMessaging library version %@", currentLibraryVersion);
-
-  NSString *hostname = kFIRMessagingReachabilityHostname;
-  self.reachability = [[GULReachabilityChecker alloc] initWithReachabilityDelegate:self
-                                                                          withHost:hostname];
-  [self.reachability start];
-
-  // setup FIRMessaging objects
-  [self setupRmqManager];
-  [self setupSyncMessageManager];
 }
 
 - (void)setupFileManagerSubDirectory {
@@ -318,19 +350,15 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                object:nil];
 }
 
+- (void)setupReachabilityMonitoring {
+  NSString *hostname = kFIRMessagingReachabilityHostname;
+  self.reachability = [[GULReachabilityChecker alloc] initWithReachabilityDelegate:self
+                                                                          withHost:hostname];
+  [self.reachability start];
+}
+
 - (void)setupRmqManager {
-  self.rmq2Manager = [[FIRMessagingRmqManager alloc] initWithDatabaseName:@"rmq2"];
   [self.rmq2Manager loadRmqId];
-}
-
-- (void)setupTopics {
-  self.pubsub = [[FIRMessagingPubSub alloc] initWithTokenManager:self.tokenManager];
-}
-
-- (void)setupSyncMessageManager {
-  self.syncMessageManager =
-      [[FIRMessagingSyncMessageManager alloc] initWithRmqManager:self.rmq2Manager];
-  [self.syncMessageManager removeExpiredSyncMessages];
 }
 
 - (void)teardown {
