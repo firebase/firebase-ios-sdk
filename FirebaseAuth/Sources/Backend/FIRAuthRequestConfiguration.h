@@ -60,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 
 /** @fn initWithAPIKey:appID:
-    @brief Designated initializer.
+    @brief Convenience initializer.
     @param APIKey The API key to be used in the request.
     @param appID The Firebase app ID to be passed in the request header.
  */
