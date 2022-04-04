@@ -69,32 +69,36 @@ FOUNDATION_EXPORT const NSNotificationName FIRMessagingRegistrationTokenRefreshe
 // clang-format on
 
 /**
+ * The domain used for all errors in Messaging.
+ */
+FOUNDATION_EXPORT NSString *const FIRMessagingErrorDomain NS_SWIFT_NAME(MessagingErrorDomain);
+/**
  *  @enum FIRMessagingError
  */
-typedef NS_ENUM(NSUInteger, FIRMessagingError) {
-  /// Unknown error.
-  FIRMessagingErrorUnknown = 0,
+typedef NS_ERROR_ENUM(FIRMessagingErrorDomain, FIRMessagingError){
+    /// Unknown error.
+    FIRMessagingErrorUnknown = 0,
 
-  /// FIRMessaging couldn't validate request from this client.
-  FIRMessagingErrorAuthentication = 1,
+    /// FIRMessaging couldn't validate request from this client.
+    FIRMessagingErrorAuthentication = 1,
 
-  /// InstanceID service cannot be accessed.
-  FIRMessagingErrorNoAccess = 2,
+    /// InstanceID service cannot be accessed.
+    FIRMessagingErrorNoAccess = 2,
 
-  /// Request to InstanceID backend timed out.
-  FIRMessagingErrorTimeout = 3,
+    /// Request to InstanceID backend timed out.
+    FIRMessagingErrorTimeout = 3,
 
-  /// No network available to reach the servers.
-  FIRMessagingErrorNetwork = 4,
+    /// No network available to reach the servers.
+    FIRMessagingErrorNetwork = 4,
 
-  /// Another similar operation in progress, bailing this one.
-  FIRMessagingErrorOperationInProgress = 5,
+    /// Another similar operation in progress, bailing this one.
+    FIRMessagingErrorOperationInProgress = 5,
 
-  /// Some parameters of the request were invalid.
-  FIRMessagingErrorInvalidRequest = 7,
+    /// Some parameters of the request were invalid.
+    FIRMessagingErrorInvalidRequest = 7,
 
-  /// Topic name is invalid for subscription/unsubscription.
-  FIRMessagingErrorInvalidTopicName = 8,
+    /// Topic name is invalid for subscription/unsubscription.
+    FIRMessagingErrorInvalidTopicName = 8,
 
 } NS_SWIFT_NAME(MessagingError);
 

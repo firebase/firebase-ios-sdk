@@ -178,6 +178,8 @@ final class AppCheckAPITests {
               Task {
                 do {
                   _ = try await deviceCheckProvider.getToken()
+                } catch AppCheckErrorCode.unsupported {
+                  // ...
                 } catch {
                   // ...
                 }

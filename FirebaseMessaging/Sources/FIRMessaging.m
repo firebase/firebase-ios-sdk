@@ -63,6 +63,8 @@ NSString *const kFIRMessagingUserDefaultsKeyAutoInitEnabled =
 NSString *const kFIRMessagingPlistAutoInitEnabled =
     @"FirebaseMessagingAutoInitEnabled";  // Auto Init Enabled key stored in Info.plist
 
+NSString *const FIRMessagingErrorDomain = @"com.google.fcm";
+
 const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
   if ([message[kFIRMessagingMessageViaAPNSRootKey] isKindOfClass:[NSDictionary class]]) {
     NSDictionary *aps = message[kFIRMessagingMessageViaAPNSRootKey];
@@ -208,7 +210,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   if (!GCMSenderID.length) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodeFIRApp000,
                             @"Firebase not set up correctly, nil or empty senderID.");
-    [NSException raise:kFIRMessagingDomain
+    [NSException raise:FIRMessagingErrorDomain
                 format:@"Could not configure Firebase Messaging. GCMSenderID must not be nil or "
                        @"empty."];
   }

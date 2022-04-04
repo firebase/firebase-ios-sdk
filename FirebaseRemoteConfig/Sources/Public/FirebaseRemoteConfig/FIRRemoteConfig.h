@@ -56,13 +56,13 @@ typedef NS_ENUM(NSInteger, FIRRemoteConfigFetchAndActivateStatus) {
 /// Remote Config error domain that handles errors when fetching data from the service.
 extern NSString *const _Nonnull FIRRemoteConfigErrorDomain NS_SWIFT_NAME(RemoteConfigErrorDomain);
 /// Firebase Remote Config service fetch error.
-typedef NS_ENUM(NSInteger, FIRRemoteConfigError) {
-  /// Unknown or no error.
-  FIRRemoteConfigErrorUnknown = 8001,
-  /// Frequency of fetch requests exceeds throttled limit.
-  FIRRemoteConfigErrorThrottled = 8002,
-  /// Internal error that covers all internal HTTP errors.
-  FIRRemoteConfigErrorInternalError = 8003,
+typedef NS_ERROR_ENUM(FIRRemoteConfigErrorDomain, FIRRemoteConfigError){
+    /// Unknown or no error.
+    FIRRemoteConfigErrorUnknown = 8001,
+    /// Frequency of fetch requests exceeds throttled limit.
+    FIRRemoteConfigErrorThrottled = 8002,
+    /// Internal error that covers all internal HTTP errors.
+    FIRRemoteConfigErrorInternalError = 8003,
 } NS_SWIFT_NAME(RemoteConfigError);
 
 /// Enumerated value that indicates the source of Remote Config data. Data can come from
