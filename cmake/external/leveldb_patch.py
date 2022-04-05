@@ -15,6 +15,7 @@
 import argparse
 import dataclasses
 import pathlib
+import platform
 from typing import Iterable, Sequence
 
 
@@ -102,9 +103,15 @@ class CMakeListsPatcher:
       yield line2.indent + self.snappy_binary_dir_str + line2.eol
 
   def _on_leveldb_snappy_link_line(self, line: LineComponents) -> Iterable[str]:
+    if platform.system() == "Windows":
+      # TODO(dconeybe) Dynamically determine the "Debug" subdirectory.
+      snappy_lib_path = "Debug/snappy.lib"
+    else:
+      snappy_lib_path = "libsnappy.a"
+
     yield line.indent + "# " + line.line + line.eol
     yield line.indent \
-      + f"target_link_libraries(leveldb {self.snappy_binary_dir_str}/libsnappy.a)" \
+      + f"target_link_libraries(leveldb {self.snappy_binary_dir_str}/{snappy_lib_path})" \
       + line.eol
 
   def _split_line(self, line: str) -> LineComponents:
