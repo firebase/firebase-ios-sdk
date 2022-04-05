@@ -23,6 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class FIRHeartbeatsPayload;
 #endif  // FIREBASE_BUILD_CMAKE
 
+// TODO(ncooke3): Consider annotating protocol API as `@optional`. (#9568)
 @protocol FIRHeartbeatLoggerProtocol <NSObject>
 
 /// Asynchronously logs a heartbeat.

@@ -144,16 +144,16 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-- (instancetype)initForApp:(FIRApp *)app
-             withAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
-              userDefaults:(GULUserDefaults *)defaults {
+- (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
+                     userDefaults:(GULUserDefaults *)defaults
+                  heartbeatLogger:(FIRHeartbeatLogger *)heartbeatLogger {
 #pragma clang diagnostic pop
   self = [super init];
   if (self != nil) {
     _loggedMessageIDs = [NSMutableSet set];
     _messagingUserDefaults = defaults;
     _analytics = analytics;
-    _heartbeatLogger = app.heartbeatLogger;
+    _heartbeatLogger = heartbeatLogger;
   }
   return self;
 }
@@ -188,9 +188,9 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     FIRMessaging *messaging =
-        [[FIRMessaging alloc] initForApp:container.app
-                           withAnalytics:analytics
-                            userDefaults:[GULUserDefaults standardUserDefaults]];
+        [[FIRMessaging alloc] initWithAnalytics:analytics
+                                   userDefaults:[GULUserDefaults standardUserDefaults]
+                                heartbeatLogger:container.app.heartbeatLogger];
 #pragma clang diagnostic pop
     [messaging start];
     [messaging configureMessagingWithOptions:container.app.options];
