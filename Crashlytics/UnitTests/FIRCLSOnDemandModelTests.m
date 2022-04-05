@@ -69,7 +69,7 @@
   FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_token"];
 
   FIRMockGDTCORTransport *mockGoogleTransport =
-      [[FIRMockGDTCORTransport alloc] initWithMappingID:@"id" transformers:nil target:1];
+      [[FIRMockGDTCORTransport alloc] initWithMappingID:@"id" transformers:nil target:0];
 
   _managerData = [[FIRCLSManagerData alloc] initWithGoogleAppID:TEST_GOOGLE_APP_ID
                                                 googleTransport:mockGoogleTransport
@@ -100,8 +100,6 @@
 - (void)tearDown {
   self.onDemandModel = nil;
   [[NSFileManager defaultManager] removeItemAtPath:self.fileManager.rootPath error:nil];
-
-  FIRCLSContextBaseDeinit();
   [super tearDown];
 }
 
