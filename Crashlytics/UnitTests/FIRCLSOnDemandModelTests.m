@@ -165,27 +165,15 @@
 
 - (void)testQuotaWithDataCollectionOff {
   FIRExceptionModel *exceptionModel = [self getTestExceptionModel];
+  [self.managerData.onDemandModel setSleepBlock ^ (int delay){}];
 
   for (int i = 0; i < 10; i++) {
-    XCTestExpectation *recordCalled =
-        [[XCTestExpectation alloc] initWithDescription:@"Call recordOnDemandExceptionIfQuota"];
-
-    // Put an expectation in the sleep block so we can test the state of the queue.
-    __weak FIRCLSOnDemandModelTests *weakSelf = self;
-    [self setSleepBlock:^(int delay) {
-      XCTAssertEqual(delay, 60 / self.mockSettings.onDemandUploadRate);
-      // Fulfill the expectation so the sleep block completes.
-      [recordCalled fulfill];
-    }];
-
     BOOL success =
         [self.managerData.onDemandModel recordOnDemandExceptionIfQuota:exceptionModel
                                              withDataCollectionEnabled:NO
                                             usingExistingReportManager:self.existingReportManager];
 
     XCTAssertTrue(success);
-
-    [weakSelf waitForExpectations:@[ recordCalled ] timeout:1.0];
   }
 
   // Once we've finished processing, there should be only FIRCLSMaxUnsentReports recorded with the
