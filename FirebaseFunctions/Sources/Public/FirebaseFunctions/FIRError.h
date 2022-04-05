@@ -26,7 +26,7 @@ FOUNDATION_EXPORT NSString *const FIRFunctionsErrorDomain NS_SWIFT_NAME(Function
 // clang-format14 merges the next two lines.
 FOUNDATION_EXPORT NSString *const FIRFunctionsErrorDetailsKey
     NS_SWIFT_NAME(FunctionsErrorDetailsKey)
-    DEPRECATED_MSG_ATTRIBUTE("The variable will be unavailable in a future release,"
+    DEPRECATED_MSG_ATTRIBUTE("The variable will be unavailable from Objective C in a future release,"
                              " but the string will not change.");
 // clang-format on
 
