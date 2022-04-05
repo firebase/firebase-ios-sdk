@@ -62,7 +62,7 @@ struct ModalInAppMessageView: View {
   @ViewBuilder
   func dismissButton(modalMessage: InAppMessagingModalDisplay,
                      delegate: InAppMessagingDisplayDelegate) -> some View {
-    if let _ = modalMessage.actionButton, modalMessage.actionURL == nil {
+    if (modalMessage.actionButton != nil && modalMessage.actionURL != nil) || modelMesssage.actionButton == nil {
       Button(action: {
         delegate.messageDismissed?(modalMessage, dismissType: .typeUserTapClose)
       }) {
