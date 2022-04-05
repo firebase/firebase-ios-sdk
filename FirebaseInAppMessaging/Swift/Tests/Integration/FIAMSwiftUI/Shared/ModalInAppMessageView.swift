@@ -58,7 +58,8 @@ struct ModalInAppMessageView: View {
   }
 
   // Need a dismiss button for the case where there's an action button with an action URL. Otherwise
-  // user would be forced into a clickthrough.
+  // user would be forced into a clickthrough. If there's No action button at all we also need a
+  // dismissButton, otherwise the user will not be able to close the modal!
   @ViewBuilder
   func dismissButton(modalMessage: InAppMessagingModalDisplay,
                      delegate: InAppMessagingDisplayDelegate) -> some View {
