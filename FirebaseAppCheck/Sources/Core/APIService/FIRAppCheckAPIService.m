@@ -36,7 +36,7 @@ static NSString *const kAPIKeyHeaderKey = @"X-Goog-Api-Key";
 static NSString *const kHeartbeatKey = @"X-firebase-client";
 static NSString *const kBundleIdKey = @"X-Ios-Bundle-Identifier";
 
-static NSString *const kDefaultBaseURL = @"https://firebaseappcheck.googleapis.com/v1beta";
+static NSString *const kDefaultBaseURL = @"https://firebaseappcheck.googleapis.com/v1";
 
 @interface FIRAppCheckAPIService ()
 
