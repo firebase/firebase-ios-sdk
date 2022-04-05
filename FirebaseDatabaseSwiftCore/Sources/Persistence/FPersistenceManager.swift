@@ -139,7 +139,7 @@ import Foundation
             let pruneForest = trackedQueryManager.pruneOldQueries(cachePolicy)
             if pruneForest.prunesAnything() {
                 storageEngine.pruneCache(pruneForest,
-                                         atPath: FPath.empty())
+                                         atPath: .empty)
             } else {
                 canPrune = false
             }

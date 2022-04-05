@@ -117,7 +117,7 @@ import Foundation
      *
      * @return FTupleRemovedQueriesEvents removed queries and any cancel events
      */
-    @objc public func removeEventRegistration(_ eventRegistration: FEventRegistration, forQuery query: FQuerySpec, cancelError: Error?) -> FTupleRemovedQueriesEvents {
+    @objc public func removeEventRegistration(_ eventRegistration: FEventRegistration?, forQuery query: FQuerySpec, cancelError: Error?) -> FTupleRemovedQueriesEvents {
         var removedQueries: [FQuerySpec] = []
         var cancelEvents: [FEvent] = []
         let hadCompleteView = self.hasCompleteView

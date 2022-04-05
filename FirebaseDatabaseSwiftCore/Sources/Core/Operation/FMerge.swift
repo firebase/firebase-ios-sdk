@@ -21,17 +21,17 @@ import Foundation
     }
 
     public func operationForChild(_ childKey: String) -> FOperation? {
-        if path.isEmpty() {
+        if path.isEmpty {
             let childTree = children.childCompoundWriteAtPath(FPath(with: childKey))
             if childTree.isEmpty {
                 return nil
             } else if let rootWrite = childTree.rootWrite {
                 // We have a snapshot for the child in question. This becomes an
                 // overwrite of the child.
-                return FOverwrite(source: source, path: FPath.empty(), snap: rootWrite)
+                return FOverwrite(source: source, path: .empty, snap: rootWrite)
             } else {
                 // This is a merge at a deeper level
-                return FMerge(source: source, path: .empty(), children: childTree)
+                return FMerge(source: source, path: .empty, children: childTree)
             }
         } else {
             assert(path.getFront() == childKey,

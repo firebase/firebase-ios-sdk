@@ -21,7 +21,6 @@
 
 #import "FirebaseDatabase/Sources/Api/Private/FIRDataSnapshot_Private.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
-#import "FirebaseDatabase/Sources/Core/FSyncTree.h"
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
 
 #import "FirebaseDatabase/Tests/Helpers/FTestClock.h"
@@ -405,7 +404,7 @@ typedef NSDictionary * (^fbt_nsdictionary_void)(void);
     } else if ([spec[@"type"] isEqualToString:@"serverUpdate"]) {
       id<FNode> update = [FSnapshotUtilities nodeFrom:spec[@"data"]];
       if (spec[@"tag"]) {
-        events = [syncTree applyTaggedQueryOverwriteAtPath:path newData:update tagId:spec[@"tag"]];
+        events = [syncTree applyTaggedQueryOverwriteAtPath:path newData:update tagId:[spec[@"tag"] intValue]];
       } else {
         events = [syncTree applyServerOverwriteAtPath:path newData:update];
       }
@@ -417,7 +416,7 @@ typedef NSDictionary * (^fbt_nsdictionary_void)(void);
       if (spec[@"tag"]) {
         events = [syncTree applyTaggedQueryMergeAtPath:path
                                        changedChildren:compoundWrite
-                                                 tagId:spec[@"tag"]];
+                                                 tagId:[spec[@"tag"] intValue]];
       } else {
         events = [syncTree applyServerMergeAtPath:path changedChildren:compoundWrite];
       }

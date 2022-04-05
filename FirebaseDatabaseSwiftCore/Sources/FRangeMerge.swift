@@ -23,7 +23,7 @@ import Foundation
     var updates: FNode
 
     @objc public func applyToNode(_ node: FNode) -> FNode {
-        updateRangeInNode(currentPath: FPath.empty(),
+        updateRangeInNode(currentPath: .empty,
                           node: node,
                           updates: updates)
     }

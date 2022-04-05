@@ -10,12 +10,12 @@ import Foundation
 @objc public class FTrackedQueryManager: NSObject {
     let storageEngine: FStorageEngine
     let clock: FClock
-    var trackedQueryTree: FImmutableTreeSwift<[FQueryParams: FTrackedQuery]>
+    var trackedQueryTree: FImmutableTree<[FQueryParams: FTrackedQuery]>
     var currentQueryId: Int = 0
     @objc public init(storageEngine: FStorageEngine, clock: FClock) {
         self.storageEngine = storageEngine
         self.clock = clock
-        self.trackedQueryTree = .empty()
+        self.trackedQueryTree = .empty
         super.init()
         let lastUse = clock.currentTime
 

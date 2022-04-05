@@ -14,8 +14,8 @@ import Foundation
  * existing path will modify that existing write to reflect the write added.
  */
 @objc public class FCompoundWrite: NSObject {
-    let writeTree: FImmutableTreeSwift<FNode>
-    init(writeTree: FImmutableTreeSwift<FNode>) {
+    let writeTree: FImmutableTree<FNode>
+    init(writeTree: FImmutableTree<FNode>) {
         self.writeTree = writeTree
     }
 
@@ -23,38 +23,38 @@ import Foundation
      * Creates a compound write with NSDictionary from path string to object
      */
     @objc public static func compoundWrite(valueDictionary dictionary: [String: Any]) -> FCompoundWrite {
-        var writeTree: FImmutableTreeSwift<FNode> = .empty()
+        var writeTree: FImmutableTree<FNode> = .empty
         for (path, value) in dictionary {
             let node = FSnapshotUtilitiesSwift.nodeFrom(value)
-            let tree = FImmutableTreeSwift<FNode>(value: node)
+            let tree = FImmutableTree<FNode>(value: node)
             writeTree = writeTree.setTree(tree, atPath: FPath(with: path))
         }
         return FCompoundWrite(writeTree: writeTree)
     }
 
     @objc public static func compoundWrite(nodeDictionary dictionary: NSDictionary) -> FCompoundWrite {
-        var writeTree = FImmutableTreeSwift<FNode>.empty()
+        var writeTree = FImmutableTree<FNode>.empty
         dictionary.enumerateKeysAndObjects { key, value, _ in
             guard let pathString = key as? String else { return }
             guard let node = value as? FNode else { return }
-            let tree = FImmutableTreeSwift(value: node)
+            let tree = FImmutableTree(value: node)
             writeTree = writeTree.setTree(tree, atPath: FPath(with: pathString))
         }
         return FCompoundWrite(writeTree: writeTree)
     }
 
-    @objc public static let emptyWrite: FCompoundWrite = FCompoundWrite(writeTree: .empty())
+    @objc public static let emptyWrite: FCompoundWrite = FCompoundWrite(writeTree: .empty)
 
     @objc public func addWrite(_ node: FNode, atPath path: FPath) -> FCompoundWrite {
-        if path.isEmpty() {
-            return FCompoundWrite(writeTree: FImmutableTreeSwift(value: node))
+        if path.isEmpty {
+            return FCompoundWrite(writeTree: FImmutableTree(value: node))
         } else {
             if let rootMost = writeTree.findRootMostValueAndPath(path) {
                 let relativePath = FPath.relativePath(from: rootMost.path, to: path)
                 let value = rootMost.value.updateChild(relativePath, withNewChild: node)
                 return FCompoundWrite(writeTree: self.writeTree.setValue(value, atPath: rootMost.path))
             } else {
-                let subtree = FImmutableTreeSwift<FNode>(value: node)
+                let subtree = FImmutableTree<FNode>(value: node)
                 let newWriteTree = self.writeTree.setTree(subtree, atPath: path)
                 return FCompoundWrite(writeTree: newWriteTree)
             }
@@ -82,10 +82,10 @@ import Foundation
      * @return The new FWriteCompound with the removed path.
      */
     @objc public func removeWriteAtPath(_ path: FPath) -> FCompoundWrite {
-        if path.isEmpty() {
+        if path.isEmpty {
             return FCompoundWrite.emptyWrite
         } else {
-            let newWriteTree = self.writeTree.setTree(.empty(), atPath: path)
+            let newWriteTree = self.writeTree.setTree(.empty, atPath: path)
             return FCompoundWrite(writeTree: newWriteTree)
         }
     }
@@ -145,18 +145,18 @@ import Foundation
     }
 
     @objc public func childCompoundWriteAtPath(_ path: FPath) -> FCompoundWrite {
-        if path.isEmpty() {
+        if path.isEmpty {
             return self
         } else {
             if let shadowingNode = self.completeNodeAtPath(path) {
-                return FCompoundWrite(writeTree: FImmutableTreeSwift(value: shadowingNode))
+                return FCompoundWrite(writeTree: FImmutableTree(value: shadowingNode))
             } else {
                 return FCompoundWrite(writeTree: writeTree.subtree(atPath: path))
             }
         }
     }
 
-    func applySubtreeWrite(_ subtreeWrite: FImmutableTreeSwift<FNode>, atPath relativePath: FPath, toNode node: FNode) -> FNode {
+    func applySubtreeWrite(_ subtreeWrite: FImmutableTree<FNode>, atPath relativePath: FPath, toNode node: FNode) -> FNode {
         if let value = subtreeWrite.value {
             // Since a write there is always a leaf, we're done here.
             return node.updateChild(relativePath, withNewChild: value)
@@ -194,9 +194,8 @@ import Foundation
      */
     @objc public func applyToNode(_ node: FNode) -> FNode {
         applySubtreeWrite(self.writeTree,
-                          atPath:FPath.empty(),
-                          toNode:node)
-
+                          atPath: .empty,
+                          toNode: node)
     }
 
     @objc public func enumerateWrites(_ block: @escaping (FPath, FNode,UnsafeMutablePointer<ObjCBool>) -> Void) {
@@ -223,7 +222,7 @@ import Foundation
      * @return Whether this CompoundWrite is empty
      */
     @objc public var isEmpty: Bool {
-        writeTree.isEmpty()
+        writeTree.isEmpty
     }
 
     public override var description: String {

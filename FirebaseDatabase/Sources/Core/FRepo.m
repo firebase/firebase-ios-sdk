@@ -26,8 +26,6 @@
 #import "FirebaseDatabase/Sources/Core/FRepo.h"
 #import "FirebaseDatabase/Sources/Core/FRepoManager.h"
 #import "FirebaseDatabase/Sources/Core/FRepo_Private.h"
-#import "FirebaseDatabase/Sources/Core/FServerValues.h"
-#import "FirebaseDatabase/Sources/Core/FSyncTree.h"
 #import "FirebaseDatabase/Sources/Core/View/FValueEventRegistration.h"
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDataSnapshot.h"

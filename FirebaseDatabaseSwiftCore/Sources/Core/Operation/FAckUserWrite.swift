@@ -7,17 +7,17 @@
 
 import Foundation
 
-@objc public class FAckUserWrite: NSObject, FOperation {
-    @objc public let source: FOperationSource
-    @objc public let type: FOperationType
-    @objc public let path: FPath
-    // A FImmutableTree, containing @YES for each affected path.  Affected paths
+class FAckUserWrite: NSObject, FOperation {
+    let source: FOperationSource
+    let type: FOperationType
+    let path: FPath
+    // A FImmutableTree<Bool>, containing true for each affected path.  Affected paths
     // can't overlap.
-    @objc public let affectedTree: FImmutableTree
-    @objc public let revert: Bool
-    @objc public init(path operationPath: FPath,
-                      affectedTree: FImmutableTree,
-                      revert shouldRevert: Bool) {
+    let affectedTree: FImmutableTree<Bool>
+    let revert: Bool
+    init(path operationPath: FPath,
+         affectedTree: FImmutableTree<Bool>,
+         revert shouldRevert: Bool) {
         self.source = .userInstance
         self.type = .ackUserWrite
         self.path = operationPath
@@ -26,18 +26,18 @@ import Foundation
     }
 
     public func operationForChild(_ childKey: String) -> FOperation? {
-        if !path.isEmpty() {
+        if !path.isEmpty {
             assert(path.getFront() == childKey, "operationForChild called for unrelated child.")
             return FAckUserWrite(path: path.popFront(),
                                  affectedTree: affectedTree,
                                  revert: revert)
         } else if affectedTree.value != nil {
-            assert(affectedTree.childrenIsEmpty(), "affectedTree should not have overlapping affected paths.")
+            assert(affectedTree.childrenIsEmpty, "affectedTree should not have overlapping affected paths.")
             // All child locations are affected as well; just return same operation.
             return self
         } else {
             let childTree = affectedTree.subtree(atPath: FPath(with: childKey))
-            return FAckUserWrite(path: FPath.empty(),
+            return FAckUserWrite(path: .empty,
                                  affectedTree: childTree,
                                  revert: revert)
         }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public typealias fbt_startListeningBlock = (FQuerySpec?, NSNumber?, FSyncTreeHash?, (String) -> [AnyHashable]) -> [AnyHashable]
+public typealias fbt_startListeningBlock = (FQuerySpec?, NSNumber?, FSyncTreeHash?, (String) -> [FEvent]) -> [FEvent]
 
 public typealias fbt_stopListeningBlock = (FQuerySpec?, NSNumber?) -> Void
 

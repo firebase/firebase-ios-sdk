@@ -20,8 +20,8 @@ import Foundation
         self.snap = snap
     }
     public func operationForChild(_ childKey: String) -> FOperation? {
-        if path.isEmpty() {
-            return FOverwrite(source: source, path: .empty(), snap: snap.getImmediateChild(childKey))
+        if path.isEmpty {
+            return FOverwrite(source: source, path: .empty, snap: snap.getImmediateChild(childKey))
         } else {
             return FOverwrite(source: source, path: path.popFront(), snap: snap)
         }

@@ -19,7 +19,6 @@
 #import "FirebaseDatabase/Sources/Api/FIRDatabaseConfig.h"
 #import "FirebaseDatabase/Sources/Constants/FConstants.h"
 #import "FirebaseDatabase/Sources/Core/FPersistentConnection.h"
-#import "FirebaseDatabase/Sources/Core/FSyncTree.h"
 #import "FirebaseDatabase/Sources/Core/Utilities/FIRRetryHelper.h"
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
 

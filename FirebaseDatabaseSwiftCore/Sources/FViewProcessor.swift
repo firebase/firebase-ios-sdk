@@ -90,7 +90,7 @@ import Foundation
                 // case it is ok (and necessary) to mark the node unfiltered again
                 let filterServerNode = overwrite.source.isTagged ||
                                         (oldViewCache.cachedServerSnap.isFiltered &&
-                                         !overwrite.path.isEmpty())
+                                         !overwrite.path.isEmpty)
                 newViewCache = applyServerOverwriteTo(oldViewCache,
                                                       changePath: overwrite.path,
                                                       snap: overwrite.snap,
@@ -247,7 +247,7 @@ import Foundation
 
         return viewCache.updateEventSnap(newEventCache,
                                          isComplete:(oldEventSnap.isFullyInitialized ||
-                                                     changePath.isEmpty()),
+                                                     changePath.isEmpty),
                                          isFiltered:self.filter.filtersNodes)
     }
 
@@ -290,7 +290,7 @@ import Foundation
             newServerCache = serverFilter.updateFullNode(oldServerSnap.indexedNode, withNewNode: indexed, accumulator: nil)
         }
         let newViewCache = oldViewCache.updateServerSnap(newServerCache,
-                                                         isComplete: oldServerSnap.isFullyInitialized || changePath.isEmpty(),
+                                                         isComplete: oldServerSnap.isFullyInitialized || changePath.isEmpty,
                                                          isFiltered: serverFilter.filtersNodes)
         let source = FWriteTreeCompleteChildSource(writes: writesCache,
                                                    viewCache: newViewCache,
@@ -435,7 +435,7 @@ import Foundation
         // cases when a child is in one but not the other.
         var curViewCache = viewCache
         let actualMerge: FCompoundWrite
-        if path.isEmpty() {
+        if path.isEmpty {
             actualMerge = changedChildren
         } else {
             actualMerge = FCompoundWrite
@@ -476,7 +476,7 @@ import Foundation
 
     private func ackUserWriteOn(_ viewCache: FViewCache,
                                 ackPath: FPath,
-                                affectedTree: FImmutableTree,
+                                affectedTree: FImmutableTree<Bool>,
                                 writesCache: FWriteTreeRef,
                                 completeCache: FNode?,
                                 accumulator: FChildChangeAccumulator) -> FViewCache {
@@ -492,7 +492,7 @@ import Foundation
         let serverCache = viewCache.cachedServerSnap
         if affectedTree.value != nil {
             // This is an overwrite.
-            if (ackPath.isEmpty() && serverCache.isFullyInitialized) || serverCache.isComplete(forPath: ackPath) {
+            if (ackPath.isEmpty && serverCache.isFullyInitialized) || serverCache.isComplete(forPath: ackPath) {
                 return applyServerOverwriteTo(viewCache,
                                               changePath: ackPath,
                                               snap: serverCache.node.getChild(ackPath),
@@ -500,7 +500,7 @@ import Foundation
                                               completeCache: completeCache,
                                               filterServerNode: filterServerNode,
                                               accumulator: accumulator)
-            } else if ackPath.isEmpty() {
+            } else if ackPath.isEmpty {
                 // This is a goofy edge case where we are acking data at this
                 // location but don't have full data.  We should just re-apply
                 // whatever we have in our cache as a merge.
@@ -556,7 +556,7 @@ import Foundation
                                                    serverCache: completeCache)
         let oldEventCache = viewCache.cachedEventSnap.indexedNode
         var newEventCache: FIndexedNode
-        if path.isEmpty() || path.getFront() == ".priority" {
+        if path.isEmpty || path.getFront() == ".priority" {
             let newNode: FNode
             if viewCache.cachedServerSnap.isFullyInitialized {
                 // XXX TODO: THIS FORCE UNWRAP MIGHT ACTUALLY BE A HIDDEN BUG!
@@ -598,7 +598,7 @@ import Foundation
                 }
             }
         }
-        let complete = viewCache.cachedServerSnap.isFullyInitialized || writesCache.shadowingWriteAtPath(FPath.empty()) != nil
+        let complete = viewCache.cachedServerSnap.isFullyInitialized || writesCache.shadowingWriteAtPath(.empty) != nil
         return viewCache.updateEventSnap(newEventCache, isComplete: complete, isFiltered: filter.filtersNodes)
 
     }
@@ -609,7 +609,7 @@ import Foundation
                                         serverCache: FNode?,
                                         accumulator: FChildChangeAccumulator) -> FViewCache {
         let oldServerNode = viewCache.cachedServerSnap
-        let newViewCache = viewCache.updateServerSnap(oldServerNode.indexedNode, isComplete: oldServerNode.isFullyInitialized || path.isEmpty(), isFiltered: oldServerNode.isFiltered)
+        let newViewCache = viewCache.updateServerSnap(oldServerNode.indexedNode, isComplete: oldServerNode.isFullyInitialized || path.isEmpty, isFiltered: oldServerNode.isFiltered)
         return generateEventCacheAfterServerEvent(newViewCache, path: path, writesCache: writesCache, source: FNoCompleteChildSource.instance, accumulator: accumulator)
     }
 }

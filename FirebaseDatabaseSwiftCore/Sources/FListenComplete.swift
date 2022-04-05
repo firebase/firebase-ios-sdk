@@ -20,8 +20,8 @@ import Foundation
     }
 
     public func operationForChild(_ childKey: String) -> FOperation? {
-        if path.isEmpty() {
-            return FListenComplete(source: source, path: .empty())
+        if path.isEmpty {
+            return FListenComplete(source: source, path: .empty)
         } else {
             return FListenComplete(source: source, path: path.popFront())
         }

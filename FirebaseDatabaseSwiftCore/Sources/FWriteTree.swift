@@ -170,7 +170,7 @@ import Foundation
         if subMerge.isEmpty {
           return completeServerCache
         } else if completeServerCache == nil &&
-                    !subMerge.hasCompleteWriteAtPath(.empty()) {
+                    !subMerge.hasCompleteWriteAtPath(.empty) {
           // We wouldn't have a complete snapshot since there's no
           // underlying data and no complete shadow
           return nil
@@ -187,7 +187,7 @@ import Foundation
         // If the server cache is null and we don't have a complete cache,
         // we need to return nil
         if (!includeHiddenWrites && completeServerCache == nil &&
-            !merge.hasCompleteWriteAtPath(FPath.empty())) {
+            !merge.hasCompleteWriteAtPath(.empty)) {
           return nil
         } else {
             let filter: (FWriteRecord) -> Bool = { record in
@@ -319,7 +319,7 @@ import Foundation
   func calculateNextNodeAfterPost(_ post: FNamedNode, atPath path: FPath, completeServerData: FNode?, reverse: Bool, index: FIndex) -> FNamedNode? {
       let merge = visibleWrites.childCompoundWriteAtPath(path)
       let toIterate: FNode
-      if let shadowingNode = merge.completeNodeAtPath(FPath.empty()) {
+      if let shadowingNode = merge.completeNodeAtPath(.empty) {
           toIterate = shadowingNode
       } else if let completeServerData = completeServerData {
           toIterate = merge.applyToNode(completeServerData)
@@ -368,7 +368,7 @@ import Foundation
   private func resetTree() {
     self.visibleWrites = FWriteTree.layerTreeFromWrites(self.allWrites,
                                                         filter: FWriteTree.defaultFilter,
-                                                        treeRoot: .empty())
+                                                        treeRoot: .empty)
     self.lastWriteId = allWrites.last?.writeId ?? -1
   }
 
@@ -406,7 +406,7 @@ import Foundation
           } else if writePath.contains(treeRoot) {
             let child = overwrite.getChild(FPath.relativePath(from:writePath, to:treeRoot))
             compoundWrite = compoundWrite.addWrite(child,
-                                                   atPath: .empty())
+                                                   atPath: .empty)
           } else {
             // There is no overlap between root path and write path,
             // ignore write
@@ -418,16 +418,16 @@ import Foundation
                                                            atPath:relativePath)
           } else if writePath.contains(treeRoot) {
             let relativePath = FPath.relativePath(from: writePath, to: treeRoot)
-            if relativePath.isEmpty() {
+            if relativePath.isEmpty {
               compoundWrite = compoundWrite.addCompoundWrite(merge,
-                                                             atPath: .empty())
+                                                             atPath: .empty)
             } else {
               if let child = merge.completeNodeAtPath(relativePath) {
                 // There exists a child in this node that matches the
                 // root path
                 let deepNode = child.getChild(relativePath.popFront())
                 compoundWrite = compoundWrite.addWrite(deepNode,
-                                                       atPath: .empty())
+                                                       atPath: .empty)
               }
             }
           } else {

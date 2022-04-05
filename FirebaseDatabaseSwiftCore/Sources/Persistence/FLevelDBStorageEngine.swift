@@ -523,7 +523,7 @@ private func trackedQueryKeysKey(trackedQueryId: Int, key: String) -> String {
             path = aPath.parent()
         }
         // Make sure to delete any nodes at the root
-        batch.removeKey(serverCacheKey(FPath.empty()))
+        batch.removeKey(serverCacheKey(.empty))
     }
 
     private func removeAllWrites(withPrefix prefix: String, batch: APLevelDBWriteBatch, database: APLevelDB) {

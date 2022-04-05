@@ -303,7 +303,7 @@ import Foundation
     }
 
     @objc public init(path: FPath) {
-        if path.isEmpty() || path.getFront() == ".priority" {
+        if path.isEmpty || path.getFront() == ".priority" {
             fatalError("Invalid path for PathIndex: \(path)")
         }
 

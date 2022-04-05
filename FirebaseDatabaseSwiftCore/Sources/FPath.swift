@@ -32,7 +32,7 @@ private let emptyPath = FPath(with: "")
         }
     }
 
-    @objc public class func empty() -> FPath { emptyPath }
+    @objc public class var empty: FPath { emptyPath }
 
     @objc public class func path(string: String) -> FPath {
         FPath(with: string)
@@ -118,7 +118,7 @@ private let emptyPath = FPath(with: "")
     }
 
     @objc public func wireFormat() -> String {
-        isEmpty() ? "/" : pieces[pieceNum...].joined(separator: "/")
+        isEmpty ? "/" : pieces[pieceNum...].joined(separator: "/")
     }
 
     @objc public func parent() -> FPath? {
@@ -146,7 +146,7 @@ private let emptyPath = FPath(with: "")
         return FPath(pieces: newPieces, andPieceNum: 0)
     }
 
-    @objc public func isEmpty() -> Bool {
+    @objc public var isEmpty: Bool {
         pieceNum >= pieces.count
     }
 
