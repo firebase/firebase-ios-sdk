@@ -99,9 +99,7 @@
 
 - (void)tearDown {
   self.onDemandModel = nil;
-  if ([[NSFileManager defaultManager] fileExistsAtPath:[self.fileManager rootPath]]) {
-    assert([self.fileManager removeItemAtPath:[self.fileManager rootPath]]);
-  }
+  [[NSFileManager defaultManager] removeItemAtPath:self.fileManager.rootPath error:nil];
 
   FIRCLSContextBaseDeinit();
   [super tearDown];
@@ -190,7 +188,6 @@
   // Once we call sendUnsentReports, stored reports should be sent immediately.
   [self.existingReportManager sendUnsentReportsWithToken:[FIRCLSDataCollectionToken validToken]
                                                 asUrgent:YES];
-  [self.managerData.onDemandModel.operationQueue waitUntilAllOperationsAreFinished];
   XCTAssertEqual([self.managerData.onDemandModel recordedOnDemandExceptionCount],
                  FIRCLSMaxUnsentReports);
   XCTAssertEqual([self contentsOfActivePath].count, 1);
