@@ -101,7 +101,6 @@
   self.onDemandModel = nil;
   [[NSFileManager defaultManager] removeItemAtPath:self.fileManager.rootPath error:nil];
 
-  FIRCLSContextBaseDeinit();
   [super tearDown];
 }
 
