@@ -165,8 +165,6 @@
 
 - (void)testQuotaWithDataCollectionOff {
   FIRExceptionModel *exceptionModel = [self getTestExceptionModel];
-  [self setSleepBlock:^(int delay){
-  }];
 
   for (int i = 0; i < 10; i++) {
     BOOL success =
