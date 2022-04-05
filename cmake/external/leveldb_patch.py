@@ -63,8 +63,8 @@ class CMakeListsPatcher:
       snappy_binary_dir: pathlib.Path) -> None:
     self.i = 0
     self.lines = lines
-    self.snappy_source_dir = snappy_source_dir
-    self.snappy_binary_dir = snappy_binary_dir
+    self.snappy_source_dir_str = snappy_source_dir.as_posix()
+    self.snappy_binary_dir_str = snappy_binary_dir.as_posix()
 
   def patch(self) -> Iterable[str]:
     while self.i < len(self.lines):
@@ -97,14 +97,14 @@ class CMakeListsPatcher:
     else:
       yield line1.indent + "PRIVATE" + line1.eol
 
-    if line2.line != str(self.snappy_source_dir):
-      yield line2.indent + str(self.snappy_source_dir) + line2.eol
-      yield line2.indent + str(self.snappy_binary_dir) + line2.eol
+    if line2.line != self.snappy_source_dir_str:
+      yield line2.indent + self.snappy_source_dir_str + line2.eol
+      yield line2.indent + self.snappy_binary_dir_str + line2.eol
 
   def _on_leveldb_snappy_link_line(self, line: LineComponents) -> Iterable[str]:
     yield line.indent + "# " + line.line + line.eol
     yield line.indent \
-      + f"target_link_libraries(leveldb {self.snappy_binary_dir}/libsnappy.a)" \
+      + f"target_link_libraries(leveldb {self.snappy_binary_dir_str}/libsnappy.a)" \
       + line.eol
 
   def _split_line(self, line: str) -> LineComponents:

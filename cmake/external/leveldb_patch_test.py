@@ -28,7 +28,8 @@ class CMakeListsPatcherTest(unittest.TestCase):
     lines = (
       """check_library_exists(snappy snappy_compress "" HAVE_SNAPPY)\n""",
     )
-    patcher = leveldb_patch.CMakeListsPatcher(lines, self.snappy_source_dir, self.snappy_binary_dir)
+    patcher = leveldb_patch.CMakeListsPatcher(
+        lines, self.snappy_source_dir, self.snappy_binary_dir)
 
     patched_lines = tuple(patcher.patch())
 
@@ -41,7 +42,8 @@ class CMakeListsPatcherTest(unittest.TestCase):
     lines = (
       """  check_library_exists(snappy snappy_compress "" HAVE_SNAPPY)   \n""",
     )
-    patcher = leveldb_patch.CMakeListsPatcher(lines, self.snappy_source_dir, self.snappy_binary_dir)
+    patcher = leveldb_patch.CMakeListsPatcher(
+        lines, self.snappy_source_dir, self.snappy_binary_dir)
 
     patched_lines = tuple(patcher.patch())
 
@@ -58,7 +60,8 @@ class CMakeListsPatcherTest(unittest.TestCase):
       "ccc",
       "ddd",
     )
-    patcher = leveldb_patch.CMakeListsPatcher(lines, self.snappy_source_dir, self.snappy_binary_dir)
+    patcher = leveldb_patch.CMakeListsPatcher(
+        lines, self.snappy_source_dir, self.snappy_binary_dir)
 
     patched_lines = tuple(patcher.patch())
 
@@ -79,7 +82,11 @@ class CMakeListsPatcherTest(unittest.TestCase):
       "path2",
       ")",
     )
-    patcher = leveldb_patch.CMakeListsPatcher(lines, snappy_source_dir="a/b", snappy_binary_dir="c/d")
+    patcher = leveldb_patch.CMakeListsPatcher(
+      lines,
+      snappy_source_dir=pathlib.Path("a/b"),
+      snappy_binary_dir=pathlib.Path("c/d"),
+    )
 
     patched_lines = tuple(patcher.patch())
 
@@ -102,7 +109,11 @@ class CMakeListsPatcherTest(unittest.TestCase):
       "      path2 \n",
       ")\n",
     )
-    patcher = leveldb_patch.CMakeListsPatcher(lines, snappy_source_dir="a/b", snappy_binary_dir="c/d")
+    patcher = leveldb_patch.CMakeListsPatcher(
+      lines,
+      snappy_source_dir=pathlib.Path("a/b"),
+      snappy_binary_dir=pathlib.Path("c/d"),
+    )
 
     patched_lines = tuple(patcher.patch())
 
@@ -129,7 +140,11 @@ class CMakeListsPatcherTest(unittest.TestCase):
       "ccc",
       "ddd",
     )
-    patcher = leveldb_patch.CMakeListsPatcher(lines, snappy_source_dir="a/b", snappy_binary_dir="c/d")
+    patcher = leveldb_patch.CMakeListsPatcher(
+      lines,
+      snappy_source_dir=pathlib.Path("a/b"),
+      snappy_binary_dir=pathlib.Path("c/d"),
+    )
 
     patched_lines = tuple(patcher.patch())
 
@@ -152,7 +167,11 @@ class CMakeListsPatcherTest(unittest.TestCase):
     lines = (
       "target_link_libraries(leveldb snappy)",
     )
-    patcher = leveldb_patch.CMakeListsPatcher(lines, snappy_source_dir="a/b", snappy_binary_dir="c/d")
+    patcher = leveldb_patch.CMakeListsPatcher(
+      lines,
+      snappy_source_dir=pathlib.Path("a/b"),
+      snappy_binary_dir=pathlib.Path("c/d"),
+    )
 
     patched_lines = tuple(patcher.patch())
 
@@ -165,7 +184,11 @@ class CMakeListsPatcherTest(unittest.TestCase):
     lines = (
       " target_link_libraries(leveldb snappy)   \n",
     )
-    patcher = leveldb_patch.CMakeListsPatcher(lines, snappy_source_dir="a/b", snappy_binary_dir="c/d")
+    patcher = leveldb_patch.CMakeListsPatcher(
+      lines,
+      snappy_source_dir=pathlib.Path("a/b"),
+      snappy_binary_dir=pathlib.Path("c/d"),
+    )
 
     patched_lines = tuple(patcher.patch())
 
@@ -182,7 +205,11 @@ class CMakeListsPatcherTest(unittest.TestCase):
       "ccc",
       "ddd",
     )
-    patcher = leveldb_patch.CMakeListsPatcher(lines, snappy_source_dir="a/b", snappy_binary_dir="c/d")
+    patcher = leveldb_patch.CMakeListsPatcher(
+      lines,
+      snappy_source_dir=pathlib.Path("a/b"),
+      snappy_binary_dir=pathlib.Path("c/d"),
+    )
 
     patched_lines = tuple(patcher.patch())
 
@@ -205,7 +232,11 @@ class CMakeListsPatcherTest(unittest.TestCase):
       "target_link_libraries(leveldb snappy)",
     )
 
-    patcher = leveldb_patch.CMakeListsPatcher(lines, snappy_source_dir="a/b", snappy_binary_dir="c/d")
+    patcher = leveldb_patch.CMakeListsPatcher(
+      lines,
+      snappy_source_dir=pathlib.Path("a/b"),
+      snappy_binary_dir=pathlib.Path("c/d"),
+    )
     patched_lines = tuple(patcher.patch())
 
     self.assertSequenceEqual(patched_lines, [
@@ -232,9 +263,17 @@ class CMakeListsPatcherTest(unittest.TestCase):
       "target_link_libraries(leveldb snappy)",
     )
 
-    patcher1 = leveldb_patch.CMakeListsPatcher(lines, snappy_source_dir="a/b", snappy_binary_dir="c/d")
+    patcher1 = leveldb_patch.CMakeListsPatcher(
+      lines,
+      snappy_source_dir=pathlib.Path("a/b"),
+      snappy_binary_dir=pathlib.Path("c/d"),
+    )
     patched_lines1 = tuple(patcher1.patch())
-    patcher2 = leveldb_patch.CMakeListsPatcher(patched_lines1, snappy_source_dir="a/b", snappy_binary_dir="c/d")
+    patcher2 = leveldb_patch.CMakeListsPatcher(
+      patched_lines1,
+      snappy_source_dir=pathlib.Path("a/b"),
+      snappy_binary_dir=pathlib.Path("c/d"),
+    )
     patched_lines2 = tuple(patcher2.patch())
 
     self.assertSequenceEqual(patched_lines1, patched_lines2)
