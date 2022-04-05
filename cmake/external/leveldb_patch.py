@@ -104,8 +104,7 @@ class CMakeListsPatcher:
 
   def _on_leveldb_snappy_link_line(self, line: LineComponents) -> Iterable[str]:
     if platform.system() == "Windows":
-      # TODO(dconeybe) Dynamically determine the "Debug" subdirectory.
-      snappy_lib_path = "Debug/snappy.lib"
+      snappy_lib_path = "$<CONFIG>/snappy.lib"
     else:
       snappy_lib_path = "libsnappy.a"
 
