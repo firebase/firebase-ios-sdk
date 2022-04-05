@@ -14,6 +14,7 @@
 
 import argparse
 import dataclasses
+import os
 import pathlib
 from typing import Iterable, Sequence
 
@@ -32,7 +33,13 @@ def main() -> None:
   with cmakelists_txt_file.open("rt", encoding="utf8") as f:
     lines = tuple(f)
 
-  patcher = CMakeListsPatcher(lines, snappy_source_dir, snappy_binary_dir)
+  patcher = CMakeListsPatcher(
+    lines,
+    os.path.abspath(__file__),
+    snappy_source_dir,
+    snappy_binary_dir,
+  )
+
   patched_lines = tuple(patcher.patch())
 
   with cmakelists_txt_file.open("wt", encoding="utf8") as f:
@@ -59,10 +66,12 @@ class CMakeListsPatcher:
   def __init__(
       self,
       lines: Sequence[str],
+      script_name: str,
       snappy_source_dir: pathlib.Path,
       snappy_binary_dir: pathlib.Path) -> None:
     self.i = 0
     self.lines = lines
+    self.script_name = script_name
     self.snappy_source_dir_str = snappy_source_dir.as_posix()
     self.snappy_binary_dir_str = snappy_binary_dir.as_posix()
 
@@ -82,28 +91,37 @@ class CMakeListsPatcher:
       else:
         yield full_line
 
+  def _begin_mod_line(self, mod_name: str) -> str:
+    return f"# BEGIN: {mod_name} modification by {self.script_name}"
+
+  def _end_mod_line(self, mod_name: str) -> str:
+    return f"# END: {mod_name} modification by {self.script_name}"
 
   def _on_snappy_detect_line(self, line: LineComponents) -> Iterable[str]:
+    yield self._begin_mod_line("snappy_detect_line") + line.eol
     yield line.indent + "# " + line.line + line.eol
     yield line.indent + """set(HAVE_SNAPPY ON CACHE BOOL "")""" + line.eol
+    yield self._end_mod_line("snappy_detect_line") + line.eol
 
   def _on_leveldb_include_start(self) -> Iterable[str]:
     line1 = self._split_line(self.lines[self.i])
     line2 = self._split_line(self.lines[self.i + 1])
+    begin_mod_line = self._begin_mod_line("leveldb_include_start")
 
-    if line1.line == "PRIVATE":
-      yield line1.full
-      self.i += 1
-    else:
-      yield line1.indent + "PRIVATE" + line1.eol
+    if line1.line == begin_mod_line:
+      return
 
-    if line2.line != self.snappy_source_dir_str:
-      yield line2.indent + self.snappy_source_dir_str + line2.eol
-      yield line2.indent + self.snappy_binary_dir_str + line2.eol
+    yield begin_mod_line + line1.eol
+    yield line1.indent + "PRIVATE" + line1.eol
+    yield line2.indent + self.snappy_source_dir_str + line2.eol
+    yield line2.indent + self.snappy_binary_dir_str + line2.eol
+    yield self._end_mod_line("leveldb_include_start") + line1.eol
 
   def _on_leveldb_snappy_link_line(self, line: LineComponents) -> Iterable[str]:
+    yield self._begin_mod_line("leveldb_snappy_link_line") + line.eol
     yield line.indent + "# " + line.line + line.eol
     yield line.indent + f"target_link_libraries(leveldb Snappy::Snappy)" + line.eol
+    yield self._end_mod_line("leveldb_snappy_link_line") + line.eol
 
   def _split_line(self, line: str) -> LineComponents:
     line_rstripped = line.rstrip()

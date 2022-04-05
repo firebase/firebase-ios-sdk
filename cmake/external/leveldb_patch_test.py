@@ -21,21 +21,27 @@ class CMakeListsPatcherTest(unittest.TestCase):
 
   def setUp(self):
     super().setUp()
-    self.snappy_source_dir = pathlib.Path("a/b/snappy_source_dir")
-    self.snappy_binary_dir = pathlib.Path("a/b/snappy_binary_dir")
+    self.sample_snappy_source_dir = pathlib.Path("a/b/snappy_source_dir")
+    self.sample_snappy_binary_dir = pathlib.Path("a/b/snappy_binary_dir")
 
   def test_snappy_detect_line_is_commented_and_replaced(self):
     lines = (
-      """check_library_exists(snappy snappy_compress "" HAVE_SNAPPY)\n""",
+      """check_library_exists(snappy snappy_compress "" HAVE_SNAPPY)""",
     )
     patcher = leveldb_patch.CMakeListsPatcher(
-        lines, self.snappy_source_dir, self.snappy_binary_dir)
+      lines,
+      "MyCoolScript",
+      self.sample_snappy_source_dir,
+      self.sample_snappy_binary_dir,
+    )
 
     patched_lines = tuple(patcher.patch())
 
     self.assertSequenceEqual(patched_lines, [
-      """# check_library_exists(snappy snappy_compress "" HAVE_SNAPPY)\n""",
-      """set(HAVE_SNAPPY ON CACHE BOOL "")\n""",
+      "# BEGIN: snappy_detect_line modification by MyCoolScript",
+      """# check_library_exists(snappy snappy_compress "" HAVE_SNAPPY)""",
+      """set(HAVE_SNAPPY ON CACHE BOOL "")""",
+      "# END: snappy_detect_line modification by MyCoolScript",
     ])
 
   def test_snappy_detect_line_has_indent_and_eol_preserved(self):
@@ -43,13 +49,19 @@ class CMakeListsPatcherTest(unittest.TestCase):
       """  check_library_exists(snappy snappy_compress "" HAVE_SNAPPY)   \n""",
     )
     patcher = leveldb_patch.CMakeListsPatcher(
-        lines, self.snappy_source_dir, self.snappy_binary_dir)
+      lines,
+      "MyCoolScript",
+      self.sample_snappy_source_dir,
+      self.sample_snappy_binary_dir,
+    )
 
     patched_lines = tuple(patcher.patch())
 
     self.assertSequenceEqual(patched_lines, [
+      "# BEGIN: snappy_detect_line modification by MyCoolScript   \n",
       """  # check_library_exists(snappy snappy_compress "" HAVE_SNAPPY)   \n""",
       """  set(HAVE_SNAPPY ON CACHE BOOL "")   \n""",
+      "# END: snappy_detect_line modification by MyCoolScript   \n",
     ])
 
   def test_snappy_detect_line_does_not_affect_surrounding_lines(self):
@@ -61,15 +73,21 @@ class CMakeListsPatcherTest(unittest.TestCase):
       "ddd",
     )
     patcher = leveldb_patch.CMakeListsPatcher(
-        lines, self.snappy_source_dir, self.snappy_binary_dir)
+      lines,
+      "MyCoolScript",
+      self.sample_snappy_source_dir,
+      self.sample_snappy_binary_dir,
+    )
 
     patched_lines = tuple(patcher.patch())
 
     self.assertSequenceEqual(patched_lines, [
       "aaa",
       "bbb",
+      "# BEGIN: snappy_detect_line modification by MyCoolScript",
       """# check_library_exists(snappy snappy_compress "" HAVE_SNAPPY)""",
       """set(HAVE_SNAPPY ON CACHE BOOL "")""",
+      "# END: snappy_detect_line modification by MyCoolScript",
       "ccc",
       "ddd",
     ])
@@ -84,6 +102,7 @@ class CMakeListsPatcherTest(unittest.TestCase):
     )
     patcher = leveldb_patch.CMakeListsPatcher(
       lines,
+      script_name="MyCoolSript",
       snappy_source_dir=pathlib.Path("a/b"),
       snappy_binary_dir=pathlib.Path("c/d"),
     )
@@ -92,9 +111,11 @@ class CMakeListsPatcherTest(unittest.TestCase):
 
     self.assertSequenceEqual(patched_lines, [
       "target_include_directories(leveldb",
+      "# BEGIN: leveldb_include_start modification by MyCoolSript",
       "PRIVATE",
       "a/b",
       "c/d",
+      "# END: leveldb_include_start modification by MyCoolSript",
       "PUBLIC",
       "path1",
       "path2",
@@ -111,6 +132,7 @@ class CMakeListsPatcherTest(unittest.TestCase):
     )
     patcher = leveldb_patch.CMakeListsPatcher(
       lines,
+      script_name="MyCoolSript",
       snappy_source_dir=pathlib.Path("a/b"),
       snappy_binary_dir=pathlib.Path("c/d"),
     )
@@ -119,9 +141,11 @@ class CMakeListsPatcherTest(unittest.TestCase):
 
     self.assertSequenceEqual(patched_lines, [
       "target_include_directories(leveldb\n",
+      "# BEGIN: leveldb_include_start modification by MyCoolSript   \n",
       "  PRIVATE   \n",
       "      a/b \n",
       "      c/d \n",
+      "# END: leveldb_include_start modification by MyCoolSript   \n",
       "  PUBLIC   \n",
       "      path1 \n",
       "      path2 \n",
@@ -142,6 +166,7 @@ class CMakeListsPatcherTest(unittest.TestCase):
     )
     patcher = leveldb_patch.CMakeListsPatcher(
       lines,
+      script_name="MyCoolSript",
       snappy_source_dir=pathlib.Path("a/b"),
       snappy_binary_dir=pathlib.Path("c/d"),
     )
@@ -152,9 +177,11 @@ class CMakeListsPatcherTest(unittest.TestCase):
       "aaa",
       "bbb",
       "target_include_directories(leveldb",
+      "# BEGIN: leveldb_include_start modification by MyCoolSript",
       "PRIVATE",
       "a/b",
       "c/d",
+      "# END: leveldb_include_start modification by MyCoolSript",
       "PUBLIC",
       "path1",
       "path2",
@@ -169,6 +196,7 @@ class CMakeListsPatcherTest(unittest.TestCase):
     )
     patcher = leveldb_patch.CMakeListsPatcher(
       lines,
+      script_name="MyCoolSript",
       snappy_source_dir=pathlib.Path("a/b"),
       snappy_binary_dir=pathlib.Path("c/d"),
     )
@@ -176,8 +204,10 @@ class CMakeListsPatcherTest(unittest.TestCase):
     patched_lines = tuple(patcher.patch())
 
     self.assertSequenceEqual(patched_lines, [
+      "# BEGIN: leveldb_snappy_link_line modification by MyCoolSript",
       "# target_link_libraries(leveldb snappy)",
-      "target_link_libraries(leveldb c/d/libsnappy.a)",
+      "target_link_libraries(leveldb Snappy::Snappy)",
+      "# END: leveldb_snappy_link_line modification by MyCoolSript",
     ])
 
   def test_leveldb_snappy_link_line_has_indent_and_eol_preserved(self):
@@ -186,6 +216,7 @@ class CMakeListsPatcherTest(unittest.TestCase):
     )
     patcher = leveldb_patch.CMakeListsPatcher(
       lines,
+      script_name="MyCoolSript",
       snappy_source_dir=pathlib.Path("a/b"),
       snappy_binary_dir=pathlib.Path("c/d"),
     )
@@ -193,8 +224,10 @@ class CMakeListsPatcherTest(unittest.TestCase):
     patched_lines = tuple(patcher.patch())
 
     self.assertSequenceEqual(patched_lines, [
+      "# BEGIN: leveldb_snappy_link_line modification by MyCoolSript   \n",
       " # target_link_libraries(leveldb snappy)   \n",
-      " target_link_libraries(leveldb c/d/libsnappy.a)   \n",
+      " target_link_libraries(leveldb Snappy::Snappy)   \n",
+      "# END: leveldb_snappy_link_line modification by MyCoolSript   \n",
     ])
 
   def test_leveldb_snappy_link_line_does_not_affect_surrounding_lines(self):
@@ -207,6 +240,7 @@ class CMakeListsPatcherTest(unittest.TestCase):
     )
     patcher = leveldb_patch.CMakeListsPatcher(
       lines,
+      script_name="MyCoolSript",
       snappy_source_dir=pathlib.Path("a/b"),
       snappy_binary_dir=pathlib.Path("c/d"),
     )
@@ -216,15 +250,17 @@ class CMakeListsPatcherTest(unittest.TestCase):
     self.assertSequenceEqual(patched_lines, [
       "aaa",
       "bbb",
+      "# BEGIN: leveldb_snappy_link_line modification by MyCoolSript",
       "# target_link_libraries(leveldb snappy)",
-      "target_link_libraries(leveldb c/d/libsnappy.a)",
+      "target_link_libraries(leveldb Snappy::Snappy)",
+      "# END: leveldb_snappy_link_line modification by MyCoolSript",
       "ccc",
       "ddd",
     ])
 
   def test_all_patches_combined(self):
     lines = (
-      """check_library_exists(snappy snappy_compress "" HAVE_SNAPPY)\n""",
+      """check_library_exists(snappy snappy_compress "" HAVE_SNAPPY)""",
       "target_include_directories(leveldb",
       "PUBLIC",
       "path1",
@@ -234,23 +270,30 @@ class CMakeListsPatcherTest(unittest.TestCase):
 
     patcher = leveldb_patch.CMakeListsPatcher(
       lines,
+      script_name="MyCoolSript",
       snappy_source_dir=pathlib.Path("a/b"),
       snappy_binary_dir=pathlib.Path("c/d"),
     )
     patched_lines = tuple(patcher.patch())
 
     self.assertSequenceEqual(patched_lines, [
-      """# check_library_exists(snappy snappy_compress "" HAVE_SNAPPY)\n""",
-      """set(HAVE_SNAPPY ON CACHE BOOL "")\n""",
+      "# BEGIN: snappy_detect_line modification by MyCoolSript",
+      """# check_library_exists(snappy snappy_compress "" HAVE_SNAPPY)""",
+      """set(HAVE_SNAPPY ON CACHE BOOL "")""",
+      "# END: snappy_detect_line modification by MyCoolSript",
       "target_include_directories(leveldb",
+      "# BEGIN: leveldb_include_start modification by MyCoolSript",
       "PRIVATE",
       "a/b",
       "c/d",
+      "# END: leveldb_include_start modification by MyCoolSript",
       "PUBLIC",
       "path1",
       ")",
+      "# BEGIN: leveldb_snappy_link_line modification by MyCoolSript",
       "# target_link_libraries(leveldb snappy)",
-      "target_link_libraries(leveldb c/d/libsnappy.a)",
+      "target_link_libraries(leveldb Snappy::Snappy)",
+      "# END: leveldb_snappy_link_line modification by MyCoolSript",
     ])
 
   def test_idempotence(self):
@@ -265,12 +308,14 @@ class CMakeListsPatcherTest(unittest.TestCase):
 
     patcher1 = leveldb_patch.CMakeListsPatcher(
       lines,
+      script_name="MyCoolSript",
       snappy_source_dir=pathlib.Path("a/b"),
       snappy_binary_dir=pathlib.Path("c/d"),
     )
     patched_lines1 = tuple(patcher1.patch())
     patcher2 = leveldb_patch.CMakeListsPatcher(
       patched_lines1,
+      script_name="MyCoolSript",
       snappy_source_dir=pathlib.Path("a/b"),
       snappy_binary_dir=pathlib.Path("c/d"),
     )
