@@ -104,14 +104,14 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 // FIRApp properties
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
 @property(nonatomic, readwrite, strong) FIRMessagingClient *client;
-
-@property(nonatomic, readwrite, strong, nullable) GULReachabilityChecker *reachability;
+@property(nonatomic, readwrite, strong) GULReachabilityChecker *reachability;
 @property(nonatomic, readwrite, strong) FIRMessagingPubSub *pubsub;
 @property(nonatomic, readwrite, strong) FIRMessagingRmqManager *rmq2Manager;
 @property(nonatomic, readwrite, strong) FIRMessagingSyncMessageManager *syncMessageManager;
 @property(nonatomic, readwrite, strong) GULUserDefaults *messagingUserDefaults;
 @property(nonatomic, readwrite, strong) FIRInstallations *installations;
 @property(nonatomic, readwrite, strong) FIRMessagingTokenManager *tokenManager;
+@property(nonatomic, readwrite, strong) FIRHeartbeatLogger *heartbeatLogger;
 
 /// Message ID's logged for analytics. This prevents us from logging the same message twice
 /// which can happen if the user inadvertently calls `appDidReceiveMessage` along with us
@@ -148,49 +148,12 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
              withAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
               userDefaults:(GULUserDefaults *)defaults {
 #pragma clang diagnostic pop
-
-  FIRMessagingTokenManager *tokenManager =
-      [[FIRMessagingTokenManager alloc] initWithHeartbeatLogger:app.heartbeatLogger];
-
-  FIRMessagingPubSub *pubsub = [[FIRMessagingPubSub alloc] initWithTokenManager:tokenManager];
-
-  FIRMessagingRmqManager *rmq2Manager =
-      [[FIRMessagingRmqManager alloc] initWithDatabaseName:@"rmq2"];
-
-  FIRMessagingSyncMessageManager *syncMessageManager =
-      [[FIRMessagingSyncMessageManager alloc] initWithRmqManager:rmq2Manager];
-
-  return [self initWithTokenManager:tokenManager
-                             pubsub:pubsub
-                        rmq2Manager:rmq2Manager
-                 syncMessageManager:syncMessageManager
-              messagingUserDefaults:defaults
-                      installations:[FIRInstallations installations]
-                   loggedMessageIDs:[NSMutableSet set]
-                          analytics:analytics
-                       reachability:nil];
-}
-
-- (instancetype)initWithTokenManager:(FIRMessagingTokenManager *)tokenManager
-                              pubsub:(FIRMessagingPubSub *)pubsub
-                         rmq2Manager:(FIRMessagingRmqManager *)rmq2Manager
-                  syncMessageManager:(FIRMessagingSyncMessageManager *)syncMessageManager
-               messagingUserDefaults:(GULUserDefaults *)messagingUserDefaults
-                       installations:(FIRInstallations *)installations
-                    loggedMessageIDs:(NSMutableSet *)loggedMessageIDs
-                           analytics:(nullable id<FIRAnalyticsInterop>)analytics
-                        reachability:(nullable GULReachabilityChecker *)reachability {
   self = [super init];
-  if (self) {
-    _tokenManager = tokenManager;
-    _pubsub = pubsub;
-    _rmq2Manager = rmq2Manager;
-    _syncMessageManager = syncMessageManager;
-    _messagingUserDefaults = messagingUserDefaults;
-    _installations = installations;
-    _loggedMessageIDs = loggedMessageIDs;
+  if (self != nil) {
+    _loggedMessageIDs = [NSMutableSet set];
+    _messagingUserDefaults = defaults;
     _analytics = analytics;
-    _reachability = reachability;
+    _heartbeatLogger = app.heartbeatLogger;
   }
   return self;
 }
@@ -320,15 +283,25 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 - (void)start {
   [self setupFileManagerSubDirectory];
   [self setupNotificationListeners];
-  [self setupReachabilityMonitoring];
 
-  [self setupRmqManager];
-  [self.syncMessageManager removeExpiredSyncMessages];
+  self.tokenManager =
+      [[FIRMessagingTokenManager alloc] initWithHeartbeatLogger:self.heartbeatLogger];
+  self.installations = [FIRInstallations installations];
+  [self setupTopics];
 
-  // Log the library version.
+  // Print the library version for logging.
   NSString *currentLibraryVersion = FIRFirebaseVersion();
   FIRMessagingLoggerInfo(kFIRMessagingMessageCodeMessagingPrintLibraryVersion,
                          @"FIRMessaging library version %@", currentLibraryVersion);
+
+  NSString *hostname = kFIRMessagingReachabilityHostname;
+  self.reachability = [[GULReachabilityChecker alloc] initWithReachabilityDelegate:self
+                                                                          withHost:hostname];
+  [self.reachability start];
+
+  // setup FIRMessaging objects
+  [self setupRmqManager];
+  [self setupSyncMessageManager];
 }
 
 - (void)setupFileManagerSubDirectory {
@@ -350,15 +323,19 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                object:nil];
 }
 
-- (void)setupReachabilityMonitoring {
-  NSString *hostname = kFIRMessagingReachabilityHostname;
-  self.reachability = [[GULReachabilityChecker alloc] initWithReachabilityDelegate:self
-                                                                          withHost:hostname];
-  [self.reachability start];
+- (void)setupRmqManager {
+  self.rmq2Manager = [[FIRMessagingRmqManager alloc] initWithDatabaseName:@"rmq2"];
+  [self.rmq2Manager loadRmqId];
 }
 
-- (void)setupRmqManager {
-  [self.rmq2Manager loadRmqId];
+- (void)setupTopics {
+  self.pubsub = [[FIRMessagingPubSub alloc] initWithTokenManager:self.tokenManager];
+}
+
+- (void)setupSyncMessageManager {
+  self.syncMessageManager =
+      [[FIRMessagingSyncMessageManager alloc] initWithRmqManager:self.rmq2Manager];
+  [self.syncMessageManager removeExpiredSyncMessages];
 }
 
 - (void)teardown {
