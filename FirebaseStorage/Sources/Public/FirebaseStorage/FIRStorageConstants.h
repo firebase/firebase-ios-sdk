@@ -113,8 +113,9 @@ typedef NS_ENUM(NSInteger, FIRStorageTaskStatus) {
  * Firebase Storage error domain.
  */
 FOUNDATION_EXPORT NSString *const FIRStorageErrorDomain NS_SWIFT_NAME(StorageErrorDomain)
-    DEPRECATED_MSG_ATTRIBUTE("The variable will be unavailable from Objective C in a future release,"
-                             " but the string will not change.");
+    DEPRECATED_MSG_ATTRIBUTE(
+        "The variable will be unavailable from Objective C in a future release,"
+        " but the string will not change.");
 
 /**
  * Enum representing the errors raised by Firebase Storage.
