@@ -165,7 +165,7 @@
 
 - (void)testQuotaWithDataCollectionOff {
   FIRExceptionModel *exceptionModel = [self getTestExceptionModel];
-  [self.managerData.onDemandModel setSleepBlock:^(int delay){
+  [self setSleepBlock:^(int delay){
   }];
 
   for (int i = 0; i < 10; i++) {
