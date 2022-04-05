@@ -40,9 +40,9 @@ static NSString *const kFakeSenderID = @"123456789123";
 /// Surface internal initializer to avoid singleton usage during tests.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-- (instancetype)initForApp:(nullable FIRApp *)app
-             withAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
-              userDefaults:(GULUserDefaults *)defaults;
+- (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
+                     userDefaults:(GULUserDefaults *)defaults
+                  heartbeatLogger:(nullable FIRHeartbeatLogger *)heartbeatLogger;
 #pragma clang diagnostic pop
 /// Kicks off required calls for some messaging tests.
 - (void)start;
@@ -93,7 +93,9 @@ static NSString *const kFakeSenderID = @"123456789123";
     OCMStub([self.mockInstallations installations]).andReturn(self.mockInstallations);
 
     // Create the messaging instance and call `start`.
-    _messaging = [[FIRMessaging alloc] initForApp:nil withAnalytics:nil userDefaults:userDefaults];
+    _messaging = [[FIRMessaging alloc] initWithAnalytics:nil
+                                            userDefaults:userDefaults
+                                         heartbeatLogger:nil];
     if (withRMQManager) {
       [_messaging start];
     }
