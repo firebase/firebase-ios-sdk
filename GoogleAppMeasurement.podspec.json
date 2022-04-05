@@ -30,7 +30,7 @@
         "tvos": "12.0"
     },
     "source": {
-        "http": "https://dl.google.com/firebase/ios/analytics/24abf90683b830eb/GoogleAppMeasurement-8.14.0.tar.gz"
+        "http": "https://dl.google.com/firebase/ios/analytics/07f1277f1f905d64/GoogleAppMeasurement-8.15.0.tar.gz"
     },
     "subspecs": [
         {
