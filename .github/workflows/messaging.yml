@@ -10,6 +10,7 @@ on:
     # Podspec
     - 'FirebaseMessaging.podspec'
     # This file
+    # TODO(ncooke3): Remove this line.
     - '.github/workflows/messaging.yml'
     # Rebuild on Ruby infrastructure changes
     - 'Gemfile*'
