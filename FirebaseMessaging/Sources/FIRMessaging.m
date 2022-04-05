@@ -113,6 +113,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 @property(nonatomic, readwrite, strong) GULUserDefaults *messagingUserDefaults;
 @property(nonatomic, readwrite, strong) FIRInstallations *installations;
 @property(nonatomic, readwrite, strong) FIRMessagingTokenManager *tokenManager;
+@property(nonatomic, readwrite, strong) FIRHeartbeatLogger *heartbeatLogger;
 
 /// Message ID's logged for analytics. This prevents us from logging the same message twice
 /// which can happen if the user inadvertently calls `appDidReceiveMessage` along with us
@@ -146,13 +147,15 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
-                 withUserDefaults:(GULUserDefaults *)defaults {
+                     userDefaults:(GULUserDefaults *)defaults
+                  heartbeatLogger:(FIRHeartbeatLogger *)heartbeatLogger {
 #pragma clang diagnostic pop
   self = [super init];
   if (self != nil) {
     _loggedMessageIDs = [NSMutableSet set];
     _messagingUserDefaults = defaults;
     _analytics = analytics;
+    _heartbeatLogger = heartbeatLogger;
   }
   return self;
 }
@@ -188,7 +191,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     FIRMessaging *messaging =
         [[FIRMessaging alloc] initWithAnalytics:analytics
-                               withUserDefaults:[GULUserDefaults standardUserDefaults]];
+                                   userDefaults:[GULUserDefaults standardUserDefaults]
+                                heartbeatLogger:container.app.heartbeatLogger];
 #pragma clang diagnostic pop
     [messaging start];
     [messaging configureMessagingWithOptions:container.app.options];
@@ -282,7 +286,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   [self setupFileManagerSubDirectory];
   [self setupNotificationListeners];
 
-  self.tokenManager = [[FIRMessagingTokenManager alloc] init];
+  self.tokenManager =
+      [[FIRMessagingTokenManager alloc] initWithHeartbeatLogger:self.heartbeatLogger];
   self.installations = [FIRInstallations installations];
   [self setupTopics];
 

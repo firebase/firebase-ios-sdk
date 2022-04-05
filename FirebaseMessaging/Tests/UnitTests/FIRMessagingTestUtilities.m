@@ -41,7 +41,8 @@ static NSString *const kFakeSenderID = @"123456789123";
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
-                 withUserDefaults:(GULUserDefaults *)defaults;
+                     userDefaults:(GULUserDefaults *)defaults
+                  heartbeatLogger:(nullable FIRHeartbeatLogger *)heartbeatLogger;
 #pragma clang diagnostic pop
 /// Kicks off required calls for some messaging tests.
 - (void)start;
@@ -92,7 +93,9 @@ static NSString *const kFakeSenderID = @"123456789123";
     OCMStub([self.mockInstallations installations]).andReturn(self.mockInstallations);
 
     // Create the messaging instance and call `start`.
-    _messaging = [[FIRMessaging alloc] initWithAnalytics:nil withUserDefaults:userDefaults];
+    _messaging = [[FIRMessaging alloc] initWithAnalytics:nil
+                                            userDefaults:userDefaults
+                                         heartbeatLogger:nil];
     if (withRMQManager) {
       [_messaging start];
     }
