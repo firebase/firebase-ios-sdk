@@ -12,6 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+Modify the CMakeLists.txt from LevelDb to staticly link Snappy compression
+support.
+"""
+
 import argparse
 import dataclasses
 import os
