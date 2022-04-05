@@ -1,4 +1,4 @@
-# Unreleased
+# v8.15.0
 - [changed] Potentially fixed a crash during application exit caused by an
   assertion about ordering documents by missing fields (#9258).
 - [changed] Add more details to the assertion failure in Query::Comparator() to
