@@ -179,8 +179,6 @@
 
   XCTAssertEqual([self.managerData.onDemandModel recordedOnDemandExceptionCount],
                  FIRCLSMaxUnsentReports);
-  XCTAssertEqual([self.managerData.onDemandModel droppedOnDemandExceptionCount],
-                 10 - FIRCLSMaxUnsentReports);
   XCTAssertEqual([self contentsOfActivePath].count, FIRCLSMaxUnsentReports + 1);
   XCTAssertEqual([self.managerData.onDemandModel.storedActiveReportPaths count],
                  FIRCLSMaxUnsentReports);
@@ -190,8 +188,6 @@
                                                 asUrgent:YES];
   XCTAssertEqual([self.managerData.onDemandModel recordedOnDemandExceptionCount],
                  FIRCLSMaxUnsentReports);
-  XCTAssertEqual([self.managerData.onDemandModel droppedOnDemandExceptionCount],
-                 10 - FIRCLSMaxUnsentReports);
   XCTAssertEqual([self contentsOfActivePath].count, 1);
   XCTAssertEqual([self.managerData.onDemandModel.storedActiveReportPaths count], 0);
 }
