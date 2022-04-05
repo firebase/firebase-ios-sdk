@@ -165,7 +165,7 @@
 
 - (void)testQuotaWithDataCollectionOff {
   FIRExceptionModel *exceptionModel = [self getTestExceptionModel];
-  [self.managerData.onDemandModel setSleepBlock ^ (int delay){}];
+  [self.managerData.onDemandModel setSleepBlock ^(int delay){}];
 
   for (int i = 0; i < 10; i++) {
     BOOL success =
@@ -184,6 +184,8 @@
 
   XCTAssertEqual([self.managerData.onDemandModel recordedOnDemandExceptionCount],
                  FIRCLSMaxUnsentReports);
+  XCTAssertEqual([self.managerData.onDemandModel droppedOnDemandExceptionCount],
+                 10 - FIRCLSMaxUnsentReports);
   XCTAssertEqual([self contentsOfActivePath].count, FIRCLSMaxUnsentReports + 1);
   XCTAssertEqual([self.managerData.onDemandModel.storedActiveReportPaths count],
                  FIRCLSMaxUnsentReports);
@@ -194,6 +196,8 @@
   [self.managerData.onDemandModel.operationQueue waitUntilAllOperationsAreFinished];
   XCTAssertEqual([self.managerData.onDemandModel recordedOnDemandExceptionCount],
                  FIRCLSMaxUnsentReports);
+  XCTAssertEqual([self.managerData.onDemandModel droppedOnDemandExceptionCount],
+                 10 - FIRCLSMaxUnsentReports);
   XCTAssertEqual([self contentsOfActivePath].count, 1);
   XCTAssertEqual([self.managerData.onDemandModel.storedActiveReportPaths count], 0);
 }
