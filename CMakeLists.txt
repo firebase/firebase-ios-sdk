@@ -227,6 +227,11 @@ if(NOT ZLIB_FOUND)
 endif()
 
 
+# Snappy
+set(SNAPPY_BUILD_TESTS OFF CACHE BOOL "Firestore disabled")
+set(SNAPPY_BUILD_BENCHMARKS OFF CACHE BOOL "Firestore disabled")
+add_external_subdirectory(snappy)
+
 # LevelDB
 set(LEVELDB_BUILD_TESTS OFF CACHE BOOL "Firestore disabled")
 set(LEVELDB_BUILD_BENCHMARKS OFF CACHE BOOL "Firestore disabled")
