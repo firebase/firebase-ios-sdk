@@ -261,7 +261,7 @@
 
 - (void)testAppCheckTokenResponseMissingFields {
   [self assertMissingFieldErrorWithFixture:@"DeviceCheckResponseMissingToken.json"
-                              missingField:@"attestationToken"];
+                              missingField:@"token"];
   [self assertMissingFieldErrorWithFixture:@"DeviceCheckResponseMissingTimeToLive.json"
                               missingField:@"ttl"];
 }
