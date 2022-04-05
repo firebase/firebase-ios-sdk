@@ -50,7 +50,7 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
 /**
  *  Designated intializer.
  *
- *  @param heartbeatLogger  The heartbeat logger that is injected into token operations.
+ *  @param heartbeatLogger The heartbeat logger that is injected into token operations.
  */
 - (instancetype)initWithHeartbeatLogger:(id<FIRHeartbeatLoggerProtocol>)heartbeatLogger
     NS_DESIGNATED_INITIALIZER;
