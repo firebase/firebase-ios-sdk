@@ -143,7 +143,8 @@ NS_SWIFT_NAME(Firestore)
  *     block will run even if the client is offline, unless the process is killed.
  */
 - (void)runTransactionWithBlock:(id _Nullable (^)(FIRTransaction *, NSError **))updateBlock
-                     completion:(void (^)(id _Nullable result, NSError *_Nullable error))completion;
+                     completion:(void (^)(id _Nullable result, NSError *_Nullable error))completion
+    __attribute__((swift_async(none)));  // Disable async import due to #9426.
 
 /**
  * Creates a write batch, used for performing multiple writes as a single

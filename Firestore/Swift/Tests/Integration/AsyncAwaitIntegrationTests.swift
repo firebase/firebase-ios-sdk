@@ -65,5 +65,13 @@ let emptyBundle = """
         .loadBundle(InputStream(data: bundle.data(using: String.Encoding.utf8)!))
       XCTAssertEqual(LoadBundleTaskState.success, bundleProgress.state)
     }
+
+    func testRunTransactionDoesNotCrashOnNilSuccess() async throws {
+      let value = try await db.runTransaction { transact, error in
+        nil // should not crash
+      }
+
+      XCTAssertNil(value, "value should be nil on success")
+    }
   }
 #endif
