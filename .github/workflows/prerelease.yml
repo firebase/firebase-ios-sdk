@@ -481,6 +481,7 @@ jobs:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
+      LEGACY: true
     runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
