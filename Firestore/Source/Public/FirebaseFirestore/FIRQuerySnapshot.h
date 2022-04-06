@@ -24,8 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 @class FIRSnapshotMetadata;
 
 /**
- * A `FIRQuerySnapshot` contains zero or more `FIRDocumentSnapshot` objects. It can be enumerated
- * using "for ... in documentSet.documents" and its size can be inspected with `isEmpty` and
+ * A `QuerySnapshot` contains zero or more `DocumentSnapshot` objects. It can be enumerated
+ * using the `documents` property and its size can be inspected with `isEmpty` and
  * `count`.
  */
 NS_SWIFT_NAME(QuerySnapshot)

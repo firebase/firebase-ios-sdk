@@ -27,7 +27,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * FIRStorageReference represents a reference to a Google Cloud Storage object. Developers can
+ * StorageReference represents a reference to a Google Cloud Storage object. Developers can
  * upload and download objects, as well as get/set object metadata, and delete an object at the
  * path.
  * @see https://cloud.google.com/storage/
@@ -36,49 +36,49 @@ NS_SWIFT_NAME(StorageReference)
 @interface FIRStorageReference : NSObject
 
 /**
- * The FIRStorage service object which created this reference.
+ * The Storage service object which created this reference.
  */
 @property(nonatomic, readonly) FIRStorage *storage;
 
 /**
  * The name of the Google Cloud Storage bucket associated with this reference,
- * in gs://bucket/path/to/object.txt, the bucket would be: 'bucket'
+ * in `gs://bucket/path/to/object.txt`, the bucket would be: 'bucket'
  */
 @property(nonatomic, readonly) NSString *bucket;
 
 /**
  * The full path to this object, not including the Google Cloud Storage bucket.
- * In gs://bucket/path/to/object.txt, the full path would be: 'path/to/object.txt'
+ * In `gs://bucket/path/to/object.txt`, the full path would be: 'path/to/object.txt'
  */
 @property(nonatomic, readonly) NSString *fullPath;
 
 /**
  * The short name of the object associated with this reference,
- * in gs://bucket/path/to/object.txt, the name of the object would be: 'object.txt'
+ * in `gs://bucket/path/to/object.txt`, the name of the object would be: 'object.txt'
  */
 @property(nonatomic, readonly) NSString *name;
 
 #pragma mark - Path Operations
 
 /**
- * Creates a new FIRStorageReference pointing to the root object.
- * @return A new FIRStorageReference pointing to the root object.
+ * Creates a new StorageReference pointing to the root object.
+ * @return A new StorageReference pointing to the root object.
  */
 - (FIRStorageReference *)root;
 
 /**
- * Creates a new FIRStorageReference pointing to the parent of the current reference
+ * Creates a new StorageReference pointing to the parent of the current reference
  * or nil if this instance references the root location.
  * For example:
  *   path = foo/bar/baz   parent = foo/bar
  *   path = foo           parent = (root)
  *   path = (root)        parent = nil
- * @return A new FIRStorageReference pointing to the parent of the current reference.
+ * @return A new StorageReference pointing to the parent of the current reference.
  */
 - (nullable FIRStorageReference *)parent;
 
 /**
- * Creates a new FIRStorageReference pointing to a child object of the current reference.
+ * Creates a new StorageReference pointing to a child object of the current reference.
  *   path = foo      child = bar    newPath = foo/bar
  *   path = foo/bar  child = baz    newPath = foo/bar/baz
  * All leading and trailing slashes will be removed, and consecutive slashes will be
@@ -87,28 +87,28 @@ NS_SWIFT_NAME(StorageReference)
  *   child = foo/bar/     newPath = foo/bar
  *   child = foo///bar    newPath = foo/bar
  * @param path Path to append to the current path.
- * @return A new FIRStorageReference pointing to a child location of the current reference.
+ * @return A new StorageReference pointing to a child location of the current reference.
  */
 - (FIRStorageReference *)child:(NSString *)path;
 
 #pragma mark - Uploads
 
 /**
- * Asynchronously uploads data to the currently specified FIRStorageReference,
+ * Asynchronously uploads data to the currently specified StorageReference,
  * without additional metadata.
  * This is not recommended for large files, and one should instead upload a file from disk.
- * @param uploadData The NSData to upload.
- * @return An instance of FIRStorageUploadTask, which can be used to monitor or manage the upload.
+ * @param uploadData The data to upload.
+ * @return An instance of StorageUploadTask, which can be used to monitor or manage the upload.
  */
 - (FIRStorageUploadTask *)putData:(NSData *)uploadData NS_SWIFT_NAME(putData(_:));
 
 /**
- * Asynchronously uploads data to the currently specified FIRStorageReference.
+ * Asynchronously uploads data to the currently specified StorageReference.
  * This is not recommended for large files, and one should instead upload a file from disk.
- * @param uploadData The NSData to upload.
- * @param metadata FIRStorageMetadata containing additional information (MIME type, etc.)
+ * @param uploadData The data to upload.
+ * @param metadata StorageMetadata containing additional information (MIME type, etc.)
  * about the object being uploaded.
- * @return An instance of FIRStorageUploadTask, which can be used to monitor or manage the upload.
+ * @return An instance of StorageUploadTask, which can be used to monitor or manage the upload.
  */
 // clang-format off
 - (FIRStorageUploadTask *)putData:(NSData *)uploadData
@@ -117,14 +117,14 @@ NS_SWIFT_NAME(putData(_:metadata:));
 // clang-format on
 
 /**
- * Asynchronously uploads data to the currently specified FIRStorageReference.
+ * Asynchronously uploads data to the currently specified StorageReference.
  * This is not recommended for large files, and one should instead upload a file from disk.
- * @param uploadData The NSData to upload.
- * @param metadata FIRStorageMetadata containing additional information (MIME type, etc.)
+ * @param uploadData The data to upload.
+ * @param metadata StorageMetadata containing additional information (MIME type, etc.)
  * about the object being uploaded.
  * @param completion A completion block that either returns the object metadata on success,
  * or an error on failure.
- * @return An instance of FIRStorageUploadTask, which can be used to monitor or manage the upload.
+ * @return An instance of StorageUploadTask, which can be used to monitor or manage the upload.
  */
 // clang-format off
 - (FIRStorageUploadTask *)putData:(NSData *)uploadData
@@ -135,19 +135,19 @@ NS_SWIFT_NAME(putData(_:metadata:));
 // clang-format on
 
 /**
- * Asynchronously uploads a file to the currently specified FIRStorageReference,
+ * Asynchronously uploads a file to the currently specified StorageReference,
  * without additional metadata.
  * @param fileURL A URL representing the system file path of the object to be uploaded.
- * @return An instance of FIRStorageUploadTask, which can be used to monitor or manage the upload.
+ * @return An instance of StorageUploadTask, which can be used to monitor or manage the upload.
  */
 - (FIRStorageUploadTask *)putFile:(NSURL *)fileURL NS_SWIFT_NAME(putFile(from:));
 
 /**
- * Asynchronously uploads a file to the currently specified FIRStorageReference.
+ * Asynchronously uploads a file to the currently specified StorageReference.
  * @param fileURL A URL representing the system file path of the object to be uploaded.
- * @param metadata FIRStorageMetadata containing additional information (MIME type, etc.)
+ * @param metadata StorageMetadata containing additional information (MIME type, etc.)
  * about the object being uploaded.
- * @return An instance of FIRStorageUploadTask, which can be used to monitor or manage the upload.
+ * @return An instance of StorageUploadTask, which can be used to monitor or manage the upload.
  */
 // clang-format off
 - (FIRStorageUploadTask *)putFile:(NSURL *)fileURL
@@ -156,13 +156,13 @@ NS_SWIFT_NAME(putData(_:metadata:));
 // clang-format on
 
 /**
- * Asynchronously uploads a file to the currently specified FIRStorageReference.
+ * Asynchronously uploads a file to the currently specified StorageReference.
  * @param fileURL A URL representing the system file path of the object to be uploaded.
- * @param metadata FIRStorageMetadata containing additional information (MIME type, etc.)
+ * @param metadata StorageMetadata containing additional information (MIME type, etc.)
  * about the object being uploaded.
  * @param completion A completion block that either returns the object metadata on success,
  * or an error on failure.
- * @return An instance of FIRStorageUploadTask, which can be used to monitor or manage the upload.
+ * @return An instance of StorageUploadTask, which can be used to monitor or manage the upload.
  */
 // clang-format off
 - (FIRStorageUploadTask *)putFile:(NSURL *)fileURL
@@ -175,14 +175,14 @@ NS_SWIFT_NAME(putData(_:metadata:));
 #pragma mark - Downloads
 
 /**
- * Asynchronously downloads the object at the FIRStorageReference to an NSData object in memory.
- * An NSData of the provided max size will be allocated, so ensure that the device has enough free
- * memory to complete the download. For downloading large files, writeToFile may be a better option.
+ * Asynchronously downloads the object at the StorageReference to a data object in memory.
+ * An Data buffer of the provided max size will be allocated, so ensure that the device has enough free
+ * memory to complete the download. For downloading large files, `write(toFile:)` may be a better option.
  * @param size The maximum size in bytes to download. If the download exceeds this size,
  * the task will be cancelled and an error will be returned.
  * @param completion A completion block that either returns the object data on success,
  * or an error on failure.
- * @return An FIRStorageDownloadTask that can be used to monitor or manage the download.
+ * @return A StorageDownloadTask that can be used to monitor or manage the download.
  */
 // clang-format off
 - (FIRStorageDownloadTask *)dataWithMaxSize:(int64_t)size
@@ -204,7 +204,7 @@ NS_SWIFT_NAME(putData(_:metadata:));
 /**
  * Asynchronously downloads the object at the current path to a specified system filepath.
  * @param fileURL A file system URL representing the path the object should be downloaded to.
- * @return An FIRStorageDownloadTask that can be used to monitor or manage the download.
+ * @return A StorageDownloadTask that can be used to monitor or manage the download.
  */
 - (FIRStorageDownloadTask *)writeToFile:(NSURL *)fileURL;
 
@@ -212,9 +212,9 @@ NS_SWIFT_NAME(putData(_:metadata:));
  * Asynchronously downloads the object at the current path to a specified system filepath.
  * @param fileURL A file system URL representing the path the object should be downloaded to.
  * @param completion A completion block that fires when the file download completes.
- * Returns an NSURL pointing to the file path of the downloaded file on success,
+ * Returns a URL pointing to the file path of the downloaded file on success,
  * or an error on failure.
- * @return An FIRStorageDownloadTask that can be used to monitor or manage the download.
+ * @return A StorageDownloadTask that can be used to monitor or manage the download.
  */
 - (FIRStorageDownloadTask *)writeToFile:(NSURL *)fileURL
                              completion:(nullable void (^)(NSURL *_Nullable URL,
@@ -291,8 +291,8 @@ NS_SWIFT_NAME(putData(_:metadata:));
 
 /**
  * Updates the metadata associated with an object at the current path.
- * @param metadata An FIRStorageMetadata object with the metadata to update.
- * @param completion A completion block which returns the FIRStorageMetadata on success,
+ * @param metadata A StorageMetadata object with the metadata to update.
+ * @param completion A completion block which returns the StorageMetadata on success,
  * or an error on failure.
  */
 // clang-format off
