@@ -453,7 +453,10 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 - (instancetype)initWithApp:(FIRApp *)app {
   [FIRAuth setKeychainServiceNameForApp:app];
-  self = [self initWithAPIKey:app.options.APIKey appName:app.name appID:app.options.googleAppID];
+  self = [self initWithAPIKey:app.options.APIKey
+                      appName:app.name
+                        appID:app.options.googleAppID
+              heartbeatLogger:app.heartbeatLogger];
   if (self) {
     _app = app;
 #if TARGET_OS_IOS
@@ -466,10 +469,19 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey
                                 appName:(NSString *)appName
                                   appID:(NSString *)appID {
+  return [self initWithAPIKey:APIKey appName:appName appID:appID heartbeatLogger:nil];
+}
+
+- (nullable instancetype)initWithAPIKey:(NSString *)APIKey
+                                appName:(NSString *)appName
+                                  appID:(NSString *)appID
+                        heartbeatLogger:(nullable id<FIRHeartbeatLoggerProtocol>)heartbeatLogger {
   self = [super init];
   if (self) {
     _listenerHandles = [NSMutableArray array];
-    _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey appID:appID];
+    _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey
+                                                                          appID:appID
+                                                                heartbeatLogger:heartbeatLogger];
     _firebaseAppName = [appName copy];
 #if TARGET_OS_IOS
     _settings = [[FIRAuthSettings alloc] init];

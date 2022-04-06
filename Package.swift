@@ -447,7 +447,7 @@ let package = Package(
     ),
     .testTarget(
       name: "AuthUnit",
-      dependencies: ["FirebaseAuth", "OCMock"],
+      dependencies: ["FirebaseAuth", "OCMock", "HeartbeatLoggingTestUtils"],
       path: "FirebaseAuth/Tests/Unit",
       exclude: [
         "FIRAuthKeychainServicesTests.m", // TODO: figure out SPM keychain testing
