@@ -88,7 +88,7 @@
   NSNumber *actual = [serializer decode:input error:&error];
   XCTAssertNil(actual);
   XCTAssertNotNil(error);
-  XCTAssertEqualObjects(FIRFunctionsErrorDomain, error.domain);
+  XCTAssertEqualObjects(@"com.firebase.functions", error.domain);
   XCTAssertEqual(FIRFunctionsErrorCodeInternal, error.code);
 }
 

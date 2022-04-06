@@ -17,13 +17,17 @@
 NS_ASSUME_NONNULL_BEGIN
 
 // The error domain for codes in the FIRFunctionsErrorCode enum.
-FOUNDATION_EXPORT NSString *const FIRFunctionsErrorDomain NS_SWIFT_NAME(FunctionsErrorDomain);
+FOUNDATION_EXPORT NSString *const FIRFunctionsErrorDomain NS_SWIFT_NAME(FunctionsErrorDomain)
+    DEPRECATED_MSG_ATTRIBUTE("The variable will be unavailable in a future release,"
+                             " but the string will not change.");
 
 // The key for finding error details in the NSError userInfo.
 // clang-format off
-// clang-format12 merges the next two lines.
+// clang-format14 merges the next two lines.
 FOUNDATION_EXPORT NSString *const FIRFunctionsErrorDetailsKey
-    NS_SWIFT_NAME(FunctionsErrorDetailsKey);
+    NS_SWIFT_NAME(FunctionsErrorDetailsKey)
+    DEPRECATED_MSG_ATTRIBUTE("The variable will be unavailable from Objective C in a future release,"
+                             " but the string will not change.");
 // clang-format on
 
 /**

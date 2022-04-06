@@ -377,7 +377,7 @@ class IntegrationTests: XCTestCase {
         XCTAssertEqual(FunctionsErrorCode.outOfRange.rawValue, error.code)
         XCTAssertEqual("explicit nope", error.localizedDescription)
         XCTAssertEqual(["start": 10 as Int32, "end": 20 as Int32, "long": 30],
-                       error.userInfo[FunctionsErrorDetailsKey] as! [String: Int32])
+                       error.userInfo["details"] as! [String: Int32])
         expectation.fulfill()
       } catch {
         XCTAssert(false, "Failed to unwrap the function result: \(error)")
@@ -399,7 +399,7 @@ class IntegrationTests: XCTestCase {
         XCTAssertEqual(FunctionsErrorCode.outOfRange.rawValue, error.code)
         XCTAssertEqual("explicit nope", error.localizedDescription)
         XCTAssertEqual(["start": 10 as Int32, "end": 20 as Int32, "long": 30],
-                       error.userInfo[FunctionsErrorDetailsKey] as! [String: Int32])
+                       error.userInfo["details"] as! [String: Int32])
         return
       }
       XCTAssertFalse(true, "Failed to throw error for missing result")
@@ -451,7 +451,7 @@ class IntegrationTests: XCTestCase {
         let error = try XCTUnwrap(error! as NSError)
         XCTAssertEqual(FunctionsErrorCode.deadlineExceeded.rawValue, error.code)
         XCTAssertEqual("DEADLINE EXCEEDED", error.localizedDescription)
-        XCTAssertNil(error.userInfo[FunctionsErrorDetailsKey])
+        XCTAssertNil(error.userInfo["details"])
         expectation.fulfill()
       } catch {
         XCTAssert(false, "Failed to unwrap the function result: \(error)")
@@ -473,7 +473,7 @@ class IntegrationTests: XCTestCase {
         let error = try XCTUnwrap(error) as NSError
         XCTAssertEqual(FunctionsErrorCode.deadlineExceeded.rawValue, error.code)
         XCTAssertEqual("DEADLINE EXCEEDED", error.localizedDescription)
-        XCTAssertNil(error.userInfo[FunctionsErrorDetailsKey])
+        XCTAssertNil(error.userInfo["details"])
         return
       }
       XCTAssertFalse(true, "Failed to throw error for missing result")

@@ -66,4 +66,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+// The error domain for codes in the FIRFunctionsErrorCode enum.
+FOUNDATION_EXPORT NSString *const FIRFunctionsErrorDomainInternal;
+
+// The key for finding error details in the NSError userInfo.
+FOUNDATION_EXPORT NSString *const FIRFunctionsErrorDetailsKeyInternal;
+
 NS_ASSUME_NONNULL_END
