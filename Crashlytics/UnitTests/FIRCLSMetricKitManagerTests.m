@@ -94,13 +94,18 @@ API_AVAILABLE(ios(14))
   FIRCLSMockSettings *mockSettings =
       [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager appIDModel:appIDModel];
 
+  // Allow nil values only in tests
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
   _managerData = [[FIRCLSManagerData alloc] initWithGoogleAppID:TEST_GOOGLE_APP_ID
                                                 googleTransport:mockGoogleTransport
                                                   installations:iid
                                                       analytics:nil
                                                     fileManager:self.fileManager
                                                     dataArbiter:self.dataArbiter
-                                                       settings:mockSettings];
+                                                       settings:mockSettings
+                                                  onDemandModel:nil];
+#pragma clang diagnostic pop
 
   self.mockReportUploader = [[FIRCLSMockReportUploader alloc] initWithManagerData:self.managerData];
 

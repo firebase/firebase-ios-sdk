@@ -22,14 +22,14 @@ NS_ASSUME_NONNULL_BEGIN
 FOUNDATION_EXTERN const int64_t
     kFIRFirestoreCacheSizeUnlimited NS_SWIFT_NAME(FirestoreCacheSizeUnlimited);
 
-/** Settings used to configure a `FIRFirestore` instance. */
+/** Settings used to configure a `Firestore` instance. */
 NS_SWIFT_NAME(FirestoreSettings)
 @interface FIRFirestoreSettings : NSObject <NSCopying>
 
 /**
- * Creates and returns an empty `FIRFirestoreSettings` object.
+ * Creates and returns an empty `FirestoreSettings` object.
  *
- * @return The created `FIRFirestoreSettings` object.
+ * @return The created `FirestoreSettings` object.
  */
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 
@@ -53,7 +53,7 @@ NS_SWIFT_NAME(FirestoreSettings)
  * documents. The size is not a guarantee that the cache will stay below that size, only that if
  * the cache exceeds the given size, cleanup will be attempted. Cannot be set lower than 1MB.
  *
- * Set to kFIRFirestoreCacheSizeUnlimited to disable garbage collection entirely.
+ * Set to `FirestoreCacheSizeUnlimited` to disable garbage collection entirely.
  */
 @property(nonatomic, assign) int64_t cacheSizeBytes;
 

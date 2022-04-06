@@ -98,6 +98,7 @@ jobs:
   #   env:
   #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
   #     signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+  #     LEGACY: true
   #   runs-on: macos-11
   #   steps:
   #   - uses: actions/checkout@v2

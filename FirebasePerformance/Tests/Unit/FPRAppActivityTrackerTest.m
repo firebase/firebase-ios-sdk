@@ -205,28 +205,11 @@
   XCTAssertEqual(appTracker.applicationState, FPRApplicationStateBackground);
 }
 
-/** Validates double dispatch returns true when +load occurs before didFinishLaunching
- */
-- (void)test_isApplicationPrewarmed_doubleDispatch_returnsYes {
-  id mockAppTracker = OCMPartialMock([FPRAppActivityTracker sharedInstance]);
-  OCMStub([mockAppTracker isPrewarmAvailable]).andReturn(YES);
-  OCMStub([mockAppTracker isDoubleDispatchEnabled]).andReturn(YES);
-  OCMStub([mockAppTracker isActivePrewarmEnabled]).andReturn(NO);
-
-  [FPRAppActivityTracker load];
-  [[NSNotificationCenter defaultCenter]
-      postNotificationName:UIApplicationDidFinishLaunchingNotification
-                    object:[UIApplication sharedApplication]];
-
-  XCTAssertTrue([mockAppTracker isApplicationPreWarmed]);
-}
-
 /** Validates ActivePrewarm environment variable set to true is detected by prewarm-detection
  */
 - (void)test_isApplicationPrewarmed_activePrewarm_returnsYes {
   id mockAppTracker = OCMPartialMock([FPRAppActivityTracker sharedInstance]);
   OCMStub([mockAppTracker isPrewarmAvailable]).andReturn(YES);
-  OCMStub([mockAppTracker isDoubleDispatchEnabled]).andReturn(NO);
   OCMStub([mockAppTracker isActivePrewarmEnabled]).andReturn(YES);
 
   setenv("ActivePrewarm", "1", 1);
@@ -239,7 +222,6 @@
 - (void)test_isApplicationPrewarmed_activePrewarm_returnsNo {
   id mockAppTracker = OCMPartialMock([FPRAppActivityTracker sharedInstance]);
   OCMStub([mockAppTracker isPrewarmAvailable]).andReturn(YES);
-  OCMStub([mockAppTracker isDoubleDispatchEnabled]).andReturn(NO);
   OCMStub([mockAppTracker isActivePrewarmEnabled]).andReturn(YES);
 
   XCTAssertFalse([mockAppTracker isApplicationPreWarmed]);
@@ -279,68 +261,6 @@
 
   OCMStub([mockConfigurations prewarmDetectionMode]).andReturn(PrewarmDetectionModeActivePrewarm);
   XCTAssertTrue([appTracker isActivePrewarmEnabled]);
-}
-
-/** Validates ActivePrewarm filtering is disabled when RC flag fpr_prewarm_detection is
- * PrewarmDetectionModeDoubleDispatch
- */
-- (void)test_isActivePrewarmEnabled_PrewarmDetectionModeDoubleDispatch_returnsNo {
-  FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
-  id mockConfigurations = OCMClassMock([FPRConfigurations class]);
-  appTracker.configurations = mockConfigurations;
-
-  OCMStub([mockConfigurations prewarmDetectionMode]).andReturn(PrewarmDetectionModeDoubleDispatch);
-  XCTAssertFalse([appTracker isActivePrewarmEnabled]);
-}
-
-/** Validates double dispatch filtering is disabled when RC flag fpr_prewarm_detection is
- * PrewarmDetectionModeActivePrewarm
- */
-- (void)test_isDoubleDispatchEnabled_PrewarmDetectionModeActivePrewarm_returnsNo {
-  FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
-  id mockConfigurations = OCMClassMock([FPRConfigurations class]);
-  appTracker.configurations = mockConfigurations;
-
-  OCMStub([mockConfigurations prewarmDetectionMode]).andReturn(PrewarmDetectionModeActivePrewarm);
-  XCTAssertFalse([appTracker isDoubleDispatchEnabled]);
-}
-
-/** Validates double dispatch filtering is enabled when RC flag fpr_prewarm_detection is
- * PrewarmDetectionModeDoubleDispatch
- */
-- (void)test_isDoubleDispatchEnabled_PrewarmDetectionModeDoubleDispatch_returnsYes {
-  FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
-  id mockConfigurations = OCMClassMock([FPRConfigurations class]);
-  appTracker.configurations = mockConfigurations;
-
-  OCMStub([mockConfigurations prewarmDetectionMode]).andReturn(PrewarmDetectionModeDoubleDispatch);
-  XCTAssertTrue([appTracker isDoubleDispatchEnabled]);
-}
-
-/** Validates ActivePrewarm filtering is enabled when RC flag fpr_prewarm_detection is
- * PrewarmDetectionModeActivePrewarmOrDoubleDispatch
- */
-- (void)test_isActivePrewarmEnabled_PrewarmDetectionModeActivePrewarmOrDoubleDispatch_returnsYes {
-  FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
-  id mockConfigurations = OCMClassMock([FPRConfigurations class]);
-  appTracker.configurations = mockConfigurations;
-
-  OCMStub([mockConfigurations prewarmDetectionMode])
-      .andReturn(PrewarmDetectionModeActivePrewarmOrDoubleDispatch);
-  XCTAssertTrue([appTracker isActivePrewarmEnabled]);
-}
-
-/** Validates double dispatch filtering is enabled when RC flag fpr_prewarm_detection is
- * PrewarmDetectionModeActivePrewarmOrDoubleDispatch
- */
-- (void)test_isDoubleDispatchEnabled_PrewarmDetectionModeActivePrewarmOrDoubleDispatch_returnsYes {
-  FPRAppActivityTracker *appTracker = [FPRAppActivityTracker sharedInstance];
-  id mockConfigurations = OCMClassMock([FPRConfigurations class]);
-  appTracker.configurations = mockConfigurations;
-
-  OCMStub([mockConfigurations prewarmDetectionMode])
-      .andReturn(PrewarmDetectionModeActivePrewarmOrDoubleDispatch);
-  XCTAssertTrue([appTracker isDoubleDispatchEnabled]);
 }
 
 @end

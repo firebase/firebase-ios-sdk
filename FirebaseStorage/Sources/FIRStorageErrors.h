@@ -67,4 +67,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+FOUNDATION_EXPORT NSString *const FIRStorageErrorDomainInternal;
+
 NS_ASSUME_NONNULL_END

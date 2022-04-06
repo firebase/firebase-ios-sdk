@@ -460,6 +460,13 @@ model::FieldIndex MakeFieldIndex(const std::string& collection_group,
                                  const std::string& field_2,
                                  model::Segment::Kind kind_2);
 model::FieldIndex MakeFieldIndex(const std::string& collection_group,
+                                 const std::string& field_1,
+                                 model::Segment::Kind kind_1,
+                                 const std::string& field_2,
+                                 model::Segment::Kind kind_2,
+                                 const std::string& field_3,
+                                 model::Segment::Kind kind_3);
+model::FieldIndex MakeFieldIndex(const std::string& collection_group,
                                  int32_t index_id,
                                  model::IndexState state,
                                  const std::string& field_1,
