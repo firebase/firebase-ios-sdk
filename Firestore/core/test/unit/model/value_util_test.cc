@@ -273,7 +273,7 @@ TEST_F(ValueUtilTest, StrictOrdering) {
 
   // numbers
   Add(comparison_groups,
-      GetLowerBound(google_firestore_v1_Value_integer_value_tag));
+      nanopb::MakeMessage(GetLowerBound(google_firestore_v1_Value_integer_value_tag)));
   Add(comparison_groups, -1e20);
   Add(comparison_groups, std::numeric_limits<int64_t>::min());
   Add(comparison_groups, -0.1);
@@ -287,7 +287,7 @@ TEST_F(ValueUtilTest, StrictOrdering) {
 
   // dates
   Add(comparison_groups,
-      GetLowerBound(google_firestore_v1_Value_timestamp_value_tag));
+      nanopb::MakeMessage(GetLowerBound(google_firestore_v1_Value_timestamp_value_tag)));
   Add(comparison_groups, kTimestamp1);
   Add(comparison_groups, kTimestamp2);
 
@@ -318,7 +318,7 @@ TEST_F(ValueUtilTest, StrictOrdering) {
 
   // resource names
   Add(comparison_groups,
-      GetLowerBound(google_firestore_v1_Value_reference_value_tag));
+      nanopb::MakeMessage(GetLowerBound(google_firestore_v1_Value_reference_value_tag)));
   Add(comparison_groups, RefValue(DbId("p1/d1"), Key("c1/doc1")));
   Add(comparison_groups, RefValue(DbId("p1/d1"), Key("c1/doc2")));
   Add(comparison_groups, RefValue(DbId("p1/d1"), Key("c10/doc1")));
@@ -342,7 +342,7 @@ TEST_F(ValueUtilTest, StrictOrdering) {
 
   // arrays
   Add(comparison_groups,
-      GetLowerBound(google_firestore_v1_Value_array_value_tag));
+      nanopb::MakeMessage(GetLowerBound(google_firestore_v1_Value_array_value_tag)));
   Add(comparison_groups, Array("bar"));
   Add(comparison_groups, Array("foo", 1));
   Add(comparison_groups, Array("foo", 2));
@@ -350,14 +350,14 @@ TEST_F(ValueUtilTest, StrictOrdering) {
 
   // objects
   Add(comparison_groups,
-      GetLowerBound(google_firestore_v1_Value_map_value_tag));
+      nanopb::MakeMessage(GetLowerBound(google_firestore_v1_Value_map_value_tag)));
   Add(comparison_groups, Map("bar", 0));
   Add(comparison_groups, Map("bar", 0, "foo", 1));
   Add(comparison_groups, Map("foo", 1));
   Add(comparison_groups, Map("foo", 2));
   Add(comparison_groups, Map("foo", "0"));
   Add(comparison_groups,
-      GetUpperBound(google_firestore_v1_Value_map_value_tag));
+      nanopb::MakeMessage(GetUpperBound(google_firestore_v1_Value_map_value_tag)));
 
   for (size_t i = 0; i < comparison_groups.size(); ++i) {
     for (size_t j = i; j < comparison_groups.size(); ++j) {
@@ -379,24 +379,24 @@ TEST_F(ValueUtilTest, RelaxedOrdering) {
 
   // null first
   Add(comparison_groups,
-      GetLowerBound(google_firestore_v1_Value_null_value_tag));
+      nanopb::MakeMessage(GetLowerBound(google_firestore_v1_Value_null_value_tag)));
   Add(comparison_groups, nullptr);
   Add(comparison_groups,
-      GetUpperBound(google_firestore_v1_Value_null_value_tag));
+      nanopb::MakeMessage(GetUpperBound(google_firestore_v1_Value_null_value_tag)));
 
   // booleans
   Add(comparison_groups,
-      GetLowerBound(google_firestore_v1_Value_boolean_value_tag));
+      nanopb::MakeMessage(GetLowerBound(google_firestore_v1_Value_boolean_value_tag)));
   Add(comparison_groups, false);
   Add(comparison_groups, true);
   Add(comparison_groups,
-      GetUpperBound(google_firestore_v1_Value_boolean_value_tag));
+      nanopb::MakeMessage(GetUpperBound(google_firestore_v1_Value_boolean_value_tag)));
 
   // numbers
   Add(comparison_groups,
-      GetLowerBound(google_firestore_v1_Value_integer_value_tag));
+      nanopb::MakeMessage(GetLowerBound(google_firestore_v1_Value_integer_value_tag)));
   Add(comparison_groups,
-      GetLowerBound(google_firestore_v1_Value_double_value_tag));
+      nanopb::MakeMessage(GetLowerBound(google_firestore_v1_Value_double_value_tag)));
   Add(comparison_groups, -1e20);
   Add(comparison_groups, std::numeric_limits<int64_t>::min());
   Add(comparison_groups, -0.1);
@@ -408,13 +408,13 @@ TEST_F(ValueUtilTest, RelaxedOrdering) {
   Add(comparison_groups, std::numeric_limits<int64_t>::max());
   Add(comparison_groups, 1e20);
   Add(comparison_groups,
-      GetUpperBound(google_firestore_v1_Value_integer_value_tag));
+      nanopb::MakeMessage(GetUpperBound(google_firestore_v1_Value_integer_value_tag)));
   Add(comparison_groups,
-      GetUpperBound(google_firestore_v1_Value_double_value_tag));
+      nanopb::MakeMessage(GetUpperBound(google_firestore_v1_Value_double_value_tag)));
 
   // dates
   Add(comparison_groups,
-      GetLowerBound(google_firestore_v1_Value_timestamp_value_tag));
+      nanopb::MakeMessage(GetLowerBound(google_firestore_v1_Value_timestamp_value_tag)));
   Add(comparison_groups, kTimestamp1);
   Add(comparison_groups, kTimestamp2);
 
@@ -423,11 +423,11 @@ TEST_F(ValueUtilTest, RelaxedOrdering) {
   Add(comparison_groups, EncodeServerTimestamp(kTimestamp1, absl::nullopt));
   Add(comparison_groups, EncodeServerTimestamp(kTimestamp2, absl::nullopt));
   Add(comparison_groups,
-      GetUpperBound(google_firestore_v1_Value_timestamp_value_tag));
+      nanopb::MakeMessage(GetUpperBound(google_firestore_v1_Value_timestamp_value_tag)));
 
   // strings
   Add(comparison_groups,
-      GetLowerBound(google_firestore_v1_Value_string_value_tag));
+      nanopb::MakeMessage(GetLowerBound(google_firestore_v1_Value_string_value_tag)));
   Add(comparison_groups, "");
   Add(comparison_groups, "\001\ud7ff\ue000\uffff");
   Add(comparison_groups, "(╯°□°）╯︵ ┻━┻");
@@ -440,22 +440,22 @@ TEST_F(ValueUtilTest, RelaxedOrdering) {
   // latin small letter e with acute accent + latin small letter a
   Add(comparison_groups, "\u00e9a");
   Add(comparison_groups,
-      GetUpperBound(google_firestore_v1_Value_string_value_tag));
+      nanopb::MakeMessage(GetUpperBound(google_firestore_v1_Value_string_value_tag)));
 
   // blobs
   Add(comparison_groups,
-      GetLowerBound(google_firestore_v1_Value_bytes_value_tag));
+      nanopb::MakeMessage(GetLowerBound(google_firestore_v1_Value_bytes_value_tag)));
   Add(comparison_groups, BlobValue());
   Add(comparison_groups, BlobValue(0));
   Add(comparison_groups, BlobValue(0, 1, 2, 3, 4));
   Add(comparison_groups, BlobValue(0, 1, 2, 4, 3));
   Add(comparison_groups, BlobValue(255));
   Add(comparison_groups,
-      GetUpperBound(google_firestore_v1_Value_bytes_value_tag));
+      nanopb::MakeMessage(GetUpperBound(google_firestore_v1_Value_bytes_value_tag)));
 
   // resource names
   Add(comparison_groups,
-      GetLowerBound(google_firestore_v1_Value_reference_value_tag));
+      nanopb::MakeMessage(GetLowerBound(google_firestore_v1_Value_reference_value_tag)));
   Add(comparison_groups, RefValue(DbId("p1/d1"), Key("c1/doc1")));
   Add(comparison_groups, RefValue(DbId("p1/d1"), Key("c1/doc2")));
   Add(comparison_groups, RefValue(DbId("p1/d1"), Key("c10/doc1")));
@@ -463,11 +463,11 @@ TEST_F(ValueUtilTest, RelaxedOrdering) {
   Add(comparison_groups, RefValue(DbId("p1/d2"), Key("c1/doc1")));
   Add(comparison_groups, RefValue(DbId("p2/d1"), Key("c1/doc1")));
   Add(comparison_groups,
-      GetUpperBound(google_firestore_v1_Value_reference_value_tag));
+      nanopb::MakeMessage(GetUpperBound(google_firestore_v1_Value_reference_value_tag)));
 
   // geo points
   Add(comparison_groups,
-      GetLowerBound(google_firestore_v1_Value_geo_point_value_tag));
+      nanopb::MakeMessage(GetLowerBound(google_firestore_v1_Value_geo_point_value_tag)));
   Add(comparison_groups, GeoPoint(-90, -180));
   Add(comparison_groups, GeoPoint(-90, 0));
   Add(comparison_groups, GeoPoint(-90, 180));
@@ -481,28 +481,28 @@ TEST_F(ValueUtilTest, RelaxedOrdering) {
   Add(comparison_groups, GeoPoint(90, 0));
   Add(comparison_groups, GeoPoint(90, 180));
   Add(comparison_groups,
-      GetUpperBound(google_firestore_v1_Value_geo_point_value_tag));
+      nanopb::MakeMessage(GetUpperBound(google_firestore_v1_Value_geo_point_value_tag)));
 
   // arrays
   Add(comparison_groups,
-      GetLowerBound(google_firestore_v1_Value_array_value_tag));
+      nanopb::MakeMessage(GetLowerBound(google_firestore_v1_Value_array_value_tag)));
   Add(comparison_groups, Array("bar"));
   Add(comparison_groups, Array("foo", 1));
   Add(comparison_groups, Array("foo", 2));
   Add(comparison_groups, Array("foo", "0"));
   Add(comparison_groups,
-      GetUpperBound(google_firestore_v1_Value_array_value_tag));
+      nanopb::MakeMessage(GetUpperBound(google_firestore_v1_Value_array_value_tag)));
 
   // objects
   Add(comparison_groups,
-      GetLowerBound(google_firestore_v1_Value_map_value_tag));
+      nanopb::MakeMessage(GetLowerBound(google_firestore_v1_Value_map_value_tag)));
   Add(comparison_groups, Map("bar", 0));
   Add(comparison_groups, Map("bar", 0, "foo", 1));
   Add(comparison_groups, Map("foo", 1));
   Add(comparison_groups, Map("foo", 2));
   Add(comparison_groups, Map("foo", "0"));
   Add(comparison_groups,
-      GetUpperBound(google_firestore_v1_Value_map_value_tag));
+      nanopb::MakeMessage(GetUpperBound(google_firestore_v1_Value_map_value_tag)));
 
   for (size_t i = 0; i < comparison_groups.size(); ++i) {
     for (size_t j = i; j < comparison_groups.size(); ++j) {

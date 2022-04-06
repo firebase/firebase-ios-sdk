@@ -203,9 +203,8 @@ Target::IndexBoundValue Target::GetAscendingBound(
     switch (field_filter.op()) {
       case FieldFilter::Operator::LessThan:
       case FieldFilter::Operator::LessThanOrEqual:
-        filter_value = std::move(
-            *model::GetLowerBound(field_filter.value().which_value_type)
-                 .release());
+        filter_value =
+            model::GetLowerBound(field_filter.value().which_value_type);
         break;
       case FieldFilter::Operator::Equal:
       case FieldFilter::Operator::In:
@@ -218,7 +217,7 @@ Target::IndexBoundValue Target::GetAscendingBound(
         break;
       case FieldFilter::Operator::NotEqual:
       case FieldFilter::Operator::NotIn:
-        filter_value = std::move(*model::MinValue().release());
+        filter_value = model::MinValue();
         break;
       default:
         // Remaining filters cannot be used as bound.
@@ -270,9 +269,8 @@ Target::IndexBoundValue Target::GetDescendingBound(
     switch (field_filter.op()) {
       case FieldFilter::Operator::GreaterThanOrEqual:
       case FieldFilter::Operator::GreaterThan:
-        filter_value = std::move(
-            *model::GetUpperBound(field_filter.value().which_value_type)
-                 .release());
+        filter_value =
+            model::GetUpperBound(field_filter.value().which_value_type);
         filter_inclusive = false;
         break;
       case FieldFilter::Operator::Equal:
@@ -286,7 +284,7 @@ Target::IndexBoundValue Target::GetDescendingBound(
         break;
       case FieldFilter::Operator::NotIn:
       case FieldFilter::Operator::NotEqual:
-        filter_value = std::move(*model::MaxValue().release());
+        filter_value = model::MaxValue();
         break;
       default:
         // Remaining filters cannot be used as bound.

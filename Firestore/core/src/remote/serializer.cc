@@ -921,19 +921,19 @@ Filter Serializer::DecodeUnaryFilter(
   switch (unary.op) {
     case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NULL:
       return FieldFilter::Create(field, FieldFilter::Operator::Equal,
-                                 NullValue());
+                                 nanopb::MakeSharedMessage(NullValue()));
 
     case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NAN:
       return FieldFilter::Create(field, FieldFilter::Operator::Equal,
-                                 NaNValue());
+                                 nanopb::MakeSharedMessage(NaNValue()));
 
     case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NOT_NULL:
       return FieldFilter::Create(field, FieldFilter::Operator::NotEqual,
-                                 NullValue());
+                                 nanopb::MakeSharedMessage(NullValue()));
 
     case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NOT_NAN:
       return FieldFilter::Create(field, FieldFilter::Operator::NotEqual,
-                                 NaNValue());
+                                 nanopb::MakeSharedMessage(NaNValue()));
 
     default:
       context->Fail(StringFormat("Unrecognized UnaryFilter.op %s", unary.op));

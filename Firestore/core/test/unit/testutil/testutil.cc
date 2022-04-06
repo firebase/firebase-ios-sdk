@@ -108,7 +108,7 @@ ByteString Bytes(std::initializer_list<uint8_t> octets) {
 }
 
 Message<google_firestore_v1_Value> Value(std::nullptr_t) {
-  return NullValue();
+  return nanopb::MakeMessage(NullValue());
 }
 
 Message<google_firestore_v1_Value> Value(double value) {
@@ -311,7 +311,7 @@ core::FieldFilter Filter(absl::string_view key,
 core::FieldFilter Filter(absl::string_view key,
                          absl::string_view op,
                          std::nullptr_t) {
-  return Filter(key, op, NullValue());
+  return Filter(key, op, nanopb::MakeMessage(NullValue()));
 }
 
 core::FieldFilter Filter(absl::string_view key,

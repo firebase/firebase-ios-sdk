@@ -232,13 +232,13 @@ Filter DecodeUnaryFilter(JsonReader& reader, const json& filter) {
   }
 
   if (op == "IS_NAN") {
-    return FieldFilter::Create(path, Operator::Equal, NaNValue());
+    return FieldFilter::Create(path, Operator::Equal, nanopb::MakeSharedMessage(NaNValue()));
   } else if (op == "IS_NULL") {
-    return FieldFilter::Create(path, Operator::Equal, NullValue());
+    return FieldFilter::Create(path, Operator::Equal, nanopb::MakeSharedMessage(NullValue()));
   } else if (op == "IS_NOT_NAN") {
-    return FieldFilter::Create(path, Operator::NotEqual, NaNValue());
+    return FieldFilter::Create(path, Operator::NotEqual, nanopb::MakeSharedMessage(NaNValue()));
   } else if (op == "IS_NOT_NULL") {
-    return FieldFilter::Create(path, Operator::NotEqual, NullValue());
+    return FieldFilter::Create(path, Operator::NotEqual, nanopb::MakeSharedMessage(NullValue()));
   }
 
   reader.Fail("Unexpected unary filter operator: " + op);

@@ -351,7 +351,7 @@ NS_ASSUME_NONNULL_BEGIN
     auto parsedEntry = [self parseData:entry context:context.ChildContext(idx)];
     if (!parsedEntry) {
       // Just include nulls in the array for fields being replaced with a sentinel.
-      parsedEntry = NullValue();
+      parsedEntry = nanopb::MakeMessage(NullValue());
     }
     result->array_value.values[idx] = *parsedEntry->release();
   }];
@@ -432,7 +432,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (Message<google_firestore_v1_Value>)parseScalarValue:(nullable id)input
                                                context:(ParseContext &&)context {
   if (!input || [input isMemberOfClass:[NSNull class]]) {
-    return NullValue();
+    return nanopb::MakeMessage(NullValue());
 
   } else if ([input isKindOfClass:[NSNumber class]]) {
     // Recover the underlying type of the number, using the method described here:
