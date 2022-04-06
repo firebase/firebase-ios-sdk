@@ -21,9 +21,6 @@ fi
 QS_SCRIPTS="${REPO}"/quickstart-ios/scripts
 cd quickstart-ios/"${SAMPLE}"
 
-chmod +x "${QS_SCRIPTS}"/info_script.rb
-ruby "${QS_SCRIPTS}"/info_script.rb "${SAMPLE}" "${LEGACY:-}"
-
 if [[ ! -z "$LEGACY" ]]; then
   cd "Legacy${SAMPLE}Quickstart"
 fi
