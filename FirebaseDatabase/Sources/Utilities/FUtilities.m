@@ -25,7 +25,7 @@
 #pragma mark -
 #pragma mark C functions
 
-FIRLoggerService kFIRLoggerDatabase = @"[Firebase/Database]";
+FIRLoggerService kFIRLoggerDatabase = @"[FirebaseDatabase]";
 static FLogLevel logLevel = FLogLevelInfo; // Default log level is info
 static NSMutableDictionary *options = nil;
 
