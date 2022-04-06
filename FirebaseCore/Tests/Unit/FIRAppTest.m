@@ -110,6 +110,18 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   [super tearDown];
 }
 
++ (void)tearDown {
+  // We stop mocking `FIRHeartbeatLogger` in the class `tearDown` method to
+  // prevent interfering with other tests that use the real `FIRHeartbeatLogger`.
+  // Doing this in the instance `tearDown` causes test failures due to a race
+  // condition between `NSNoticationCenter` and `OCMVerifyAllWithDelay`.
+  // Affected tests:
+  // - testCoreDiagnosticsLoggedWhenAppDidBecomeActive
+  // - testHeartbeatLogIsAttemptedWhenAppDidBecomeActive
+  [OCMClassMock([FIRHeartbeatLogger class]) stopMocking];
+  [super tearDown];
+}
+
 - (void)testConfigure {
   [self registerLibrariesWithClasses:@[
     [FIRTestClassCached class], [FIRTestClassEagerCached class]
