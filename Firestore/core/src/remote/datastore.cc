@@ -233,8 +233,8 @@ void Datastore::LookupDocumentsWithCredentials(
   active_calls_.push_back(std::move(call_owning));
 
   // TODO(c++14): lambda captures using move.
-  auto docs_callback =
-      [this, user_callback](const std::vector<grpc::ByteBuffer> result) {
+  auto messages_callback =
+      [this, user_callback](const std::vector<grpc::ByteBuffer>& result) {
         user_callback(datastore_serializer_.MergeLookupResponses(result));
       };
 
@@ -251,7 +251,7 @@ void Datastore::LookupDocumentsWithCredentials(
     RemoveGrpcCall(call);
   };
 
-  call->Start(keys.size(), docs_callback, close_callback);
+  call->Start(keys.size(), messages_callback, close_callback);
 }
 
 void Datastore::ResumeRpcWithCredentials(const OnCredentials& on_credentials) {

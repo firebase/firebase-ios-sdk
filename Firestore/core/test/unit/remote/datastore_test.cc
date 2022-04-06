@@ -254,7 +254,7 @@ TEST_F(DatastoreTest, LookupDocumentsOneSuccessfulRead) {
   std::vector<Document> resulting_docs;
   Status resulting_status;
   datastore->LookupDocuments(
-      {model::DocumentKey()},
+      {model::DocumentKey::FromPathString("foo/1")},
       [&](const StatusOr<std::vector<Document>>& documents) {
         done = true;
         if (documents.ok()) {
@@ -282,7 +282,8 @@ TEST_F(DatastoreTest, LookupDocumentsTwoSuccessfulReads) {
   std::vector<Document> resulting_docs;
   Status resulting_status;
   datastore->LookupDocuments(
-      {model::DocumentKey(), model::DocumentKey()},
+      {model::DocumentKey::FromPathString("foo/1"),
+       model::DocumentKey::FromPathString("foo/2")},
       [&](const StatusOr<std::vector<Document>>& documents) {
         done = true;
         if (documents.ok()) {
@@ -326,12 +327,13 @@ TEST_F(DatastoreTest, CommitMutationsError) {
   EXPECT_EQ(resulting_status.code(), Error::kErrorUnavailable);
 }
 
-TEST_F(DatastoreTest, LookupDocumentsTwoSuccessfulReadsButFailStatus) {
+TEST_F(DatastoreTest, LookupDocumentsTwoSuccessfulReadsButFailureStatus) {
   bool done = false;
   std::vector<Document> resulting_docs;
   Status resulting_status;
   datastore->LookupDocuments(
-      {model::DocumentKey(), model::DocumentKey()},
+      {model::DocumentKey::FromPathString("foo/1"),
+       model::DocumentKey::FromPathString("foo/2")},
       [&](const StatusOr<std::vector<Document>>& documents) {
         done = true;
         if (documents.ok()) {
