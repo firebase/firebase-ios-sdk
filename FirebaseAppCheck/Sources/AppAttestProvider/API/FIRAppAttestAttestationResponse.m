@@ -19,6 +19,9 @@
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckToken+APIResponse.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 
+static NSString *const kResponseFieldAppCheckTokenDict = @"appCheckToken";
+static NSString *const kResponseFieldArtifact = @"artifact";
+
 @implementation FIRAppAttestAttestationResponse
 
 - (instancetype)initWithArtifact:(NSData *)artifact token:(FIRAppCheckToken *)token {
@@ -52,10 +55,11 @@
     return nil;
   }
 
-  NSString *artifactBase64String = responseDict[@"artifact"];
+  NSString *artifactBase64String = responseDict[kResponseFieldArtifact];
   if (![artifactBase64String isKindOfClass:[NSString class]]) {
     FIRAppCheckSetErrorToPointer(
-        [FIRAppCheckErrorUtil appAttestAttestationResponseErrorWithMissingField:@"artifact"],
+        [FIRAppCheckErrorUtil
+            appAttestAttestationResponseErrorWithMissingField:kResponseFieldArtifact],
         outError);
     return nil;
   }
@@ -63,24 +67,24 @@
                                                              options:0];
   if (artifactData == nil) {
     FIRAppCheckSetErrorToPointer(
-        [FIRAppCheckErrorUtil appAttestAttestationResponseErrorWithMissingField:@"artifact"],
+        [FIRAppCheckErrorUtil
+            appAttestAttestationResponseErrorWithMissingField:kResponseFieldArtifact],
         outError);
     return nil;
   }
 
-  NSDictionary *attestationTokenDict = responseDict[@"attestationToken"];
-  if (![attestationTokenDict isKindOfClass:[NSDictionary class]]) {
+  NSDictionary *appCheckTokenDict = responseDict[kResponseFieldAppCheckTokenDict];
+  if (![appCheckTokenDict isKindOfClass:[NSDictionary class]]) {
     FIRAppCheckSetErrorToPointer(
         [FIRAppCheckErrorUtil
-            appAttestAttestationResponseErrorWithMissingField:@"attestationToken"],
+            appAttestAttestationResponseErrorWithMissingField:kResponseFieldAppCheckTokenDict],
         outError);
     return nil;
   }
 
-  FIRAppCheckToken *appCheckToken =
-      [[FIRAppCheckToken alloc] initWithResponseDict:attestationTokenDict
-                                         requestDate:requestDate
-                                               error:outError];
+  FIRAppCheckToken *appCheckToken = [[FIRAppCheckToken alloc] initWithResponseDict:appCheckTokenDict
+                                                                       requestDate:requestDate
+                                                                             error:outError];
 
   if (appCheckToken == nil) {
     return nil;

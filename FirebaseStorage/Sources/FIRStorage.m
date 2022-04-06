@@ -15,7 +15,6 @@
 #import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorage.h"
 #import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageReference.h"
 
-#import "FirebaseStorage/Sources/FIRStorageComponent.h"
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorage/Sources/FIRStoragePath.h"
 #import "FirebaseStorage/Sources/FIRStorageReference_Private.h"
@@ -23,9 +22,9 @@
 #import "FirebaseStorage/Sources/FIRStorageUtils.h"
 #import "FirebaseStorage/Sources/FIRStorage_Private.h"
 
-#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "Interop/Auth/Public/FIRAuthInterop.h"
+#import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
+#import "FirebaseAuth/Interop/FIRAuthInterop.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #if SWIFT_PACKAGE
 @import GTMSessionFetcherCore;
@@ -39,7 +38,7 @@ static NSMutableDictionary<
     NSMutableDictionary<NSString * /* bucket */, GTMSessionFetcherService *> *> *_fetcherServiceMap;
 static GTMSessionFetcherRetryBlock _retryWhenOffline;
 
-@interface FIRStorage () {
+@interface FIRIMPLStorage () {
   /// Stored Auth reference, if it exists. This needs to be stored for `copyWithZone:`.
   id<FIRAuthInterop> _Nullable _auth;
   id<FIRAppCheckInterop> _Nullable _appCheck;
@@ -50,7 +49,7 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
 }
 @end
 
-@implementation FIRStorage
+@implementation FIRIMPLStorage
 
 + (void)initialize {
   static dispatch_once_t onceToken;
@@ -102,16 +101,12 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
   [GTMSessionFetcher setLoggingEnabled:isLoggingEnabled];
 }
 
-+ (instancetype)storage {
-  return [self storageForApp:[FIRApp defaultApp]];
-}
-
-+ (instancetype)storageForApp:(FIRApp *)app {
++ (NSString *)bucketForApp:(FIRApp *)app {
   if (app.options.storageBucket) {
     NSString *url = [app.options.storageBucket isEqualToString:@""]
                         ? @""
                         : [@"gs://" stringByAppendingString:app.options.storageBucket];
-    return [self storageForApp:app URL:url];
+    return [self bucketForApp:app URL:url];
   } else {
     NSString *const kAppNotConfiguredMessage =
         @"No default Storage bucket found. Did you configure Firebase Storage properly?";
@@ -120,11 +115,7 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
   }
 }
 
-+ (instancetype)storageWithURL:(NSString *)url {
-  return [self storageForApp:[FIRApp defaultApp] URL:url];
-}
-
-+ (instancetype)storageForApp:(FIRApp *)app URL:(NSString *)url {
++ (NSString *)bucketForApp:(FIRApp *)app URL:(NSString *)url {
   NSString *bucket;
   if ([url isEqualToString:@""]) {
     bucket = @"";
@@ -145,11 +136,7 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
 
     bucket = path.bucket;
   }
-
-  // Retrieve the instance provider from the app's container to inject dependencies as needed.
-  id<FIRStorageMultiBucketProvider> provider =
-      FIR_COMPONENT(FIRStorageMultiBucketProvider, app.container);
-  return [provider storageForBucket:bucket];
+  return bucket;
 }
 
 - (instancetype)initWithApp:(FIRApp *)app
@@ -190,10 +177,10 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
 #pragma mark - NSObject overrides
 
 - (instancetype)copyWithZone:(NSZone *)zone {
-  FIRStorage *storage = [[[self class] allocWithZone:zone] initWithApp:_app
-                                                                bucket:_storageBucket
-                                                                  auth:_auth
-                                                              appCheck:_appCheck];
+  FIRIMPLStorage *storage = [[[self class] allocWithZone:zone] initWithApp:_app
+                                                                    bucket:_storageBucket
+                                                                      auth:_auth
+                                                                  appCheck:_appCheck];
   storage.callbackQueue = self.callbackQueue;
   return storage;
 }
@@ -204,15 +191,15 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
     return YES;
   }
 
-  if (![object isKindOfClass:[FIRStorage class]]) {
+  if (![object isKindOfClass:[FIRIMPLStorage class]]) {
     return NO;
   }
 
-  BOOL isEqualObject = [self isEqualToFIRStorage:(FIRStorage *)object];
+  BOOL isEqualObject = [self isEqualToFIRStorage:(FIRIMPLStorage *)object];
   return isEqualObject;
 }
 
-- (BOOL)isEqualToFIRStorage:(FIRStorage *)storage {
+- (BOOL)isEqualToFIRStorage:(FIRIMPLStorage *)storage {
   BOOL isEqual =
       [_app isEqual:storage.app] && [_storageBucket isEqualToString:storage.storageBucket];
   return isEqual;
@@ -273,21 +260,22 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
 
 #pragma mark - Public methods
 
-- (FIRStorageReference *)reference {
+- (FIRIMPLStorageReference *)reference {
   [self ensureConfigured];
 
   FIRStoragePath *path = [[FIRStoragePath alloc] initWithBucket:_storageBucket object:nil];
-  return [[FIRStorageReference alloc] initWithStorage:self path:path];
+  return [[FIRIMPLStorageReference alloc] initWithStorage:self path:path];
 }
 
-- (FIRStorageReference *)referenceForURL:(NSString *)string {
+- (FIRIMPLStorageReference *)referenceForURL:(NSString *)string {
   [self ensureConfigured];
 
   FIRStoragePath *path = [FIRStoragePath pathFromString:string];
 
   // If no default bucket exists (empty string), accept anything.
   if ([_storageBucket isEqual:@""]) {
-    FIRStorageReference *reference = [[FIRStorageReference alloc] initWithStorage:self path:path];
+    FIRIMPLStorageReference *reference = [[FIRIMPLStorageReference alloc] initWithStorage:self
+                                                                                     path:path];
     return reference;
   }
 
@@ -299,12 +287,13 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
                 format:kInvalidBucketFormat, path.bucket, _storageBucket];
   }
 
-  FIRStorageReference *reference = [[FIRStorageReference alloc] initWithStorage:self path:path];
+  FIRIMPLStorageReference *reference = [[FIRIMPLStorageReference alloc] initWithStorage:self
+                                                                                   path:path];
   return reference;
 }
 
-- (FIRStorageReference *)referenceWithPath:(NSString *)string {
-  FIRStorageReference *reference = [[self reference] child:string];
+- (FIRIMPLStorageReference *)referenceWithPath:(NSString *)string {
+  FIRIMPLStorageReference *reference = [[self reference] child:string];
   return reference;
 }
 
@@ -347,22 +336,22 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
   [NSException raise:NSGenericException format:@"enableBackgroundTasks not implemented"];
 }
 
-- (NSArray<FIRStorageUploadTask *> *)uploadTasks {
+- (NSArray<FIRIMPLStorageUploadTask *> *)uploadTasks {
   [NSException raise:NSGenericException format:@"getUploadTasks not implemented"];
   return nil;
 }
 
-- (NSArray<FIRStorageDownloadTask *> *)downloadTasks {
+- (NSArray<FIRIMPLStorageDownloadTask *> *)downloadTasks {
   [NSException raise:NSGenericException format:@"getDownloadTasks not implemented"];
   return nil;
 }
 
 - (void)ensureConfigured {
   if (!_fetcherServiceForApp) {
-    _fetcherServiceForApp = [FIRStorage fetcherServiceForApp:_app
-                                                      bucket:_storageBucket
-                                                        auth:_auth
-                                                    appCheck:_appCheck];
+    _fetcherServiceForApp = [FIRIMPLStorage fetcherServiceForApp:_app
+                                                          bucket:_storageBucket
+                                                            auth:_auth
+                                                        appCheck:_appCheck];
     if (_usesEmulator) {
       _fetcherServiceForApp.allowLocalhostRequest = YES;
       _fetcherServiceForApp.allowedInsecureSchemes = @[ @"http" ];

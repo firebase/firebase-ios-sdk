@@ -152,8 +152,7 @@ jobs:
       matrix:
         target: [ios, tvos, macos --skip-tests]
         flags: [
-          '--use-modular-headers',
-          '--skip-tests --use-libraries'
+          '--use-modular-headers'
         ]
     needs: pod-lib-lint
     steps:
@@ -170,8 +169,7 @@ jobs:
     strategy:
       matrix:
         flags: [
-          '--use-static-frameworks',
-          '--skip-tests --use-libraries'
+          '--use-static-frameworks'
         ]
     needs: pod-lib-lint-watchos
     steps:

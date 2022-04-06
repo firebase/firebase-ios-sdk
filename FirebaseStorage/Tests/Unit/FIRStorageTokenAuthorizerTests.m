@@ -14,7 +14,7 @@
 
 #import "FirebaseStorage/Tests/Unit/FIRStorageTestHelpers.h"
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "SharedTestUtilities/AppCheckFake/FIRAppCheckFake.h"
 #import "SharedTestUtilities/AppCheckFake/FIRAppCheckTokenResultFake.h"
@@ -86,12 +86,9 @@
 - (void)testUnsuccessfulAuth {
   XCTestExpectation *expectation = [self expectationWithDescription:@"testUnsuccessfulAuth"];
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  NSError *authError = [NSError errorWithDomain:FIRStorageErrorDomain
-                                           code:FIRStorageErrorCodeUnauthenticated
+  NSError *authError = [NSError errorWithDomain:FIRStorageErrorDomainInternal
+                                           code:FIRIMPLStorageErrorCodeUnauthenticated
                                        userInfo:nil];
-#pragma clang diagnostic pop
   FIRAuthInteropFake *failedAuth = [[FIRAuthInteropFake alloc] initWithToken:nil
                                                                       userID:nil
                                                                        error:authError];
@@ -112,11 +109,8 @@
         NSDictionary<NSString *, NSString *> *headers = self.fetcher.request.allHTTPHeaderFields;
         NSString *authHeader = [headers objectForKey:@"Authorization"];
         XCTAssertNil(authHeader);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        XCTAssertEqualObjects(error.domain, FIRStorageErrorDomain);
-#pragma clang diagnostic pop
-        XCTAssertEqual(error.code, FIRStorageErrorCodeUnauthenticated);
+        XCTAssertEqualObjects(error.domain, FIRStorageErrorDomainInternal);
+        XCTAssertEqual(error.code, FIRIMPLStorageErrorCodeUnauthenticated);
         [expectation fulfill];
       }];
 

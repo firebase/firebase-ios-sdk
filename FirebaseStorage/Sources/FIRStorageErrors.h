@@ -18,7 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FIRStorageReference;
+@class FIRIMPLStorageReference;
 
 /**
  * Adds wrappers for common Firebase Storage errors (including creating errors from GCS errors).
@@ -31,23 +31,23 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Creates a Firebase Storage error from a specific FIRStorageErrorCode.
  */
-+ (NSError *)errorWithCode:(FIRStorageErrorCode)code;
++ (NSError *)errorWithCode:(FIRIMPLStorageErrorCode)code;
 
 /**
  * Creates a Firebase Storage error from a specific FIRStorageErrorCode while adding
  * custom info from an optionally provided info dictionary.
  */
-+ (NSError *)errorWithCode:(FIRStorageErrorCode)code
++ (NSError *)errorWithCode:(FIRIMPLStorageErrorCode)code
             infoDictionary:(nullable NSDictionary *)dictionary;
 
 /**
- * Creates a Firebase Storage error from a specific GCS error and FIRStorageReference.
+ * Creates a Firebase Storage error from a specific GCS error and FIRIMPLStorageReference.
  * @param error Server error to wrap and return as a Firebase Storage error.
- * @param reference FIRStorageReference which provides context about the request being made.
+ * @param reference FIRIMPLStorageReference which provides context about the request being made.
  * @return Returns a Firebase Storage error, or nil if no error is provided.
  */
 + (nullable NSError *)errorWithServerError:(nullable NSError *)error
-                                 reference:(nullable FIRStorageReference *)reference;
+                                 reference:(nullable FIRIMPLStorageReference *)reference;
 
 /**
  * Creates a Firebase Storage error from an invalid request.

@@ -26,7 +26,7 @@
 
 #import "FirebasePerformance/Tests/Unit/FPRTestCase.h"
 
-#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
+#import "FirebaseCore/Extension/FIRAppInternal.h"
 
 @interface FIRPerformanceTest : FPRTestCase
 

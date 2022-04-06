@@ -16,12 +16,11 @@
 
 #import <XCTest/XCTest.h>
 
-// This needs to precede the GULSwizzler+Unswizzle.h import for the --use-libraries build.
 #import <GoogleUtilities/GULSwizzler.h>
 
 #import <GoogleUtilities/GULSwizzler+Unswizzle.h>
 #import <OCMock/OCMock.h>
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseDynamicLinks/Sources/FIRDLDefaultRetrievalProcessV2.h"
 #import "FirebaseDynamicLinks/Sources/FIRDLRetrievalProcessFactory.h"
 #import "FirebaseDynamicLinks/Sources/FIRDLRetrievalProcessResult+Private.h"

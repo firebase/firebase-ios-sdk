@@ -44,7 +44,7 @@ NSString *const FIRStorageErrorDomainInternal = @"FIRStorageErrorDomain";
 NSString *const kFIRStorageInvalidDataFormat = @"Invalid data returned from the server: %@";
 NSString *const kFIRStorageInvalidObserverStatus =
     @"Invalid observer status requested, use one "
-    @"of: FIRStorageTaskStatusPause, Resume, Progress, "
+    @"of: FIRIMPLStorageTaskStatusPause, Resume, Progress, "
     @"Complete, or Failure";
 
 /**
@@ -75,14 +75,15 @@ NSString *const kFIRStorageMetadataDownloadTokens = @"downloadTokens";
 NSString *const kFIRStorageMetadataMd5Hash = @"md5Hash";
 
 // TODO: add notification support
-NSString *const kFIRStorageTaskStatusResumeNotification =
-    @"kFIRStorageTaskStatusResumeNotification";
-NSString *const kFIRStorageTaskStatusPauseNotification = @"kFIRStorageTaskStatusResumeNotification";
-NSString *const kFIRStorageTaskStatusProgressNotification =
-    @"kFIRStorageTaskStatusResumeNotification";
-NSString *const kFIRStorageTaskStatusCompleteNotification =
-    @"kFIRStorageTaskStatusResumeNotification";
-NSString *const kFIRStorageTaskStatusFailureNotification =
-    @"kFIRStorageTaskStatusResumeNotification";
+NSString *const kFIRIMPLStorageTaskStatusResumeNotification =
+    @"kFIRIMPLStorageTaskStatusResumeNotification";
+NSString *const kFIRIMPLStorageTaskStatusPauseNotification =
+    @"kFIRIMPLStorageTaskStatusResumeNotification";
+NSString *const kFIRIMPLStorageTaskStatusProgressNotification =
+    @"kFIRIMPLStorageTaskStatusResumeNotification";
+NSString *const kFIRIMPLStorageTaskStatusCompleteNotification =
+    @"kFIRIMPLStorageTaskStatusResumeNotification";
+NSString *const kFIRIMPLStorageTaskStatusFailureNotification =
+    @"kFIRIMPLStorageTaskStatusResumeNotification";
 
 NSString *const kFIRStorageBundleIdentifier = @"com.google.firebase.storage";

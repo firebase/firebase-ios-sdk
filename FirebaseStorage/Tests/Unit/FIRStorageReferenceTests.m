@@ -14,29 +14,22 @@
 
 #import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorage.h"
 
-#import "FirebaseStorage/Sources/FIRStorageComponent.h"
+//#import "FirebaseStorage/Sources/FIRStorageComponent.h"
 #import "FirebaseStorage/Sources/FIRStorageReference_Private.h"
 #import "FirebaseStorage/Tests/Unit/FIRStorageTestHelpers.h"
 #import "SharedTestUtilities/FIRComponentTestUtilities.h"
 
-@interface FIRStorageReferenceTests : XCTestCase
+@interface FIRIMPLStorageReferenceTests : XCTestCase
 
-@property(strong, nonatomic) FIRStorage *storage;
+@property(strong, nonatomic) FIRIMPLStorage *storage;
 
 @end
 
-@implementation FIRStorageReferenceTests
+@implementation FIRIMPLStorageReferenceTests
 
 - (void)setUp {
   [super setUp];
-
-  id mockOptions = OCMClassMock([FIROptions class]);
-  OCMStub([mockOptions storageBucket]).andReturn(@"bucket");
-
-  id mockApp = [FIRStorageTestHelpers mockedApp];
-  OCMStub([mockApp name]).andReturn(kFIRStorageAppName);
-  OCMStub([(FIRApp *)mockApp options]).andReturn(mockOptions);
-  self.storage = [FIRStorage storageForApp:mockApp];
+  self.storage = [FIRStorageTestHelpers storageWithMockedApp];
 }
 
 - (void)tearDown {
@@ -45,126 +38,127 @@
 }
 
 - (void)testRoot {
-  FIRStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/path/to/object"];
+  FIRIMPLStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/path/to/object"];
   XCTAssertEqualObjects([ref.root stringValue], @"gs://bucket/");
 }
 
 - (void)testRootWithNoPath {
-  FIRStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/"];
+  FIRIMPLStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/"];
   XCTAssertEqualObjects([ref.root stringValue], @"gs://bucket/");
 }
 
 - (void)testSingleChild {
-  FIRStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/"];
-  FIRStorageReference *childRef = [ref child:@"path"];
+  FIRIMPLStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/"];
+  FIRIMPLStorageReference *childRef = [ref child:@"path"];
   XCTAssertEqualObjects([childRef stringValue], @"gs://bucket/path");
 }
 
 - (void)testMultipleChildrenSingleString {
-  FIRStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/"];
-  FIRStorageReference *childRef = [ref child:@"path/to/object"];
+  FIRIMPLStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/"];
+  FIRIMPLStorageReference *childRef = [ref child:@"path/to/object"];
   XCTAssertEqualObjects([childRef stringValue], @"gs://bucket/path/to/object");
 }
 
 - (void)testMultipleChildrenMultipleStrings {
-  FIRStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/"];
-  FIRStorageReference *childRef = [ref child:@"path"];
+  FIRIMPLStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/"];
+  FIRIMPLStorageReference *childRef = [ref child:@"path"];
   childRef = [childRef child:@"to"];
   childRef = [childRef child:@"object"];
   XCTAssertEqualObjects([childRef stringValue], @"gs://bucket/path/to/object");
 }
 
 - (void)testSameChildDifferentRef {
-  FIRStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/"];
-  FIRStorageReference *firstRef = [ref child:@"1"];
-  FIRStorageReference *secondRef = [ref child:@"1"];
+  FIRIMPLStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/"];
+  FIRIMPLStorageReference *firstRef = [ref child:@"1"];
+  FIRIMPLStorageReference *secondRef = [ref child:@"1"];
   XCTAssertEqualObjects([ref stringValue], @"gs://bucket/");
   XCTAssertEqualObjects(firstRef, secondRef);
   XCTAssertNotEqual(firstRef, secondRef);
 }
 
 - (void)testDifferentChildDifferentRef {
-  FIRStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/"];
-  FIRStorageReference *firstRef = [ref child:@"1"];
-  FIRStorageReference *secondRef = [ref child:@"2"];
+  FIRIMPLStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/"];
+  FIRIMPLStorageReference *firstRef = [ref child:@"1"];
+  FIRIMPLStorageReference *secondRef = [ref child:@"2"];
   XCTAssertEqualObjects([ref stringValue], @"gs://bucket/");
   XCTAssertNotEqual(firstRef, secondRef);
 }
 
 - (void)testChildWithTrailingSlash {
-  FIRStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/path/to/object/"];
+  FIRIMPLStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/path/to/object/"];
   XCTAssertEqualObjects([ref stringValue], @"gs://bucket/path/to/object");
 }
 
 - (void)testChildWithLeadingSlash {
-  FIRStorageReference *ref = [self.storage referenceForURL:@"gs://bucket//path/to/object/"];
+  FIRIMPLStorageReference *ref = [self.storage referenceForURL:@"gs://bucket//path/to/object/"];
   XCTAssertEqualObjects([ref stringValue], @"gs://bucket/path/to/object");
 }
 
 - (void)testChildCompressSlashes {
-  FIRStorageReference *ref = [self.storage referenceForURL:@"gs://bucket//path///to////object////"];
+  FIRIMPLStorageReference *ref =
+      [self.storage referenceForURL:@"gs://bucket//path///to////object////"];
   XCTAssertEqualObjects([ref stringValue], @"gs://bucket/path/to/object");
 }
 
 - (void)testParent {
-  FIRStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/path/to/object"];
-  FIRStorageReference *parentRef = [ref parent];
+  FIRIMPLStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/path/to/object"];
+  FIRIMPLStorageReference *parentRef = [ref parent];
   XCTAssertEqualObjects([parentRef stringValue], @"gs://bucket/path/to");
 }
 
 - (void)testParentToRoot {
-  FIRStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/path"];
-  FIRStorageReference *parentRef = [ref parent];
+  FIRIMPLStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/path"];
+  FIRIMPLStorageReference *parentRef = [ref parent];
   XCTAssertEqualObjects([parentRef stringValue], @"gs://bucket/");
 }
 
 - (void)testParentToRootTrailingSlash {
-  FIRStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/path/"];
-  FIRStorageReference *parentRef = [ref parent];
+  FIRIMPLStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/path/"];
+  FIRIMPLStorageReference *parentRef = [ref parent];
   XCTAssertEqualObjects([parentRef stringValue], @"gs://bucket/");
 }
 
 - (void)testParentAtRoot {
-  FIRStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/"];
-  FIRStorageReference *parentRef = [ref parent];
+  FIRIMPLStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/"];
+  FIRIMPLStorageReference *parentRef = [ref parent];
   XCTAssertNil(parentRef);
 }
 
 - (void)testBucket {
-  FIRStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/path/to/object"];
+  FIRIMPLStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/path/to/object"];
   XCTAssertEqualObjects(ref.bucket, @"bucket");
 }
 
 - (void)testName {
-  FIRStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/path/to/object"];
+  FIRIMPLStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/path/to/object"];
   XCTAssertEqualObjects(ref.name, @"object");
 }
 
 - (void)testNameNoObject {
-  FIRStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/"];
+  FIRIMPLStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/"];
   XCTAssertEqualObjects(ref.name, @"");
 }
 
 - (void)testFullPath {
-  FIRStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/path/to/object"];
+  FIRIMPLStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/path/to/object"];
   XCTAssertEqualObjects(ref.fullPath, @"path/to/object");
 }
 
 - (void)testFullPathNoObject {
-  FIRStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/"];
+  FIRIMPLStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/"];
   XCTAssertEqualObjects(ref.fullPath, @"");
 }
 
 - (void)testCopy {
-  FIRStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/"];
-  FIRStorageReference *copiedRef = [ref copy];
+  FIRIMPLStorageReference *ref = [self.storage referenceForURL:@"gs://bucket/"];
+  FIRIMPLStorageReference *copiedRef = [ref copy];
   XCTAssertEqualObjects(ref, copiedRef);
   XCTAssertNotEqual(ref, copiedRef);
 }
 
 - (void)testReferenceWithNonExistentFileFailsWithCompletion {
   NSString *tempFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"temp.data"];
-  FIRStorageReference *ref = [self.storage referenceWithPath:tempFilePath];
+  FIRIMPLStorageReference *ref = [self.storage referenceWithPath:tempFilePath];
 
   NSURL *dummyFileURL = [NSURL fileURLWithPath:@"some_non_existing-folder/file.data"];
 
@@ -172,15 +166,13 @@
 
   [ref putFile:dummyFileURL
         metadata:nil
-      completion:^(FIRStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
+      completion:^(FIRIMPLStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
         [expectation fulfill];
         XCTAssertNotNil(error);
         XCTAssertNil(metadata);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        XCTAssertEqualObjects(error.domain, FIRStorageErrorDomain);
-#pragma clang diagnostic pop
-        XCTAssertEqual(error.code, FIRStorageErrorCodeUnknown);
+
+        XCTAssertEqualObjects(error.domain, FIRStorageErrorDomainInternal);
+        XCTAssertEqual(error.code, FIRIMPLStorageErrorCodeUnknown);
         NSString *expectedDescription = [NSString
             stringWithFormat:@"File at URL: %@ is not reachable. "
                              @"Ensure file URL is not a directory, symbolic link, or invalid url.",
@@ -193,7 +185,7 @@
 
 - (void)testReferenceWithNilFileURLFailsWithCompletion {
   NSString *tempFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"temp.data"];
-  FIRStorageReference *ref = [self.storage referenceWithPath:tempFilePath];
+  FIRIMPLStorageReference *ref = [self.storage referenceWithPath:tempFilePath];
 
   NSURL *dummyFileURL = [NSURL URLWithString:@"bad-url"];
 
@@ -201,15 +193,13 @@
 
   [ref putFile:dummyFileURL
         metadata:nil
-      completion:^(FIRStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
+      completion:^(FIRIMPLStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
         [expectation fulfill];
         XCTAssertNotNil(error);
         XCTAssertNil(metadata);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        XCTAssertEqualObjects(error.domain, FIRStorageErrorDomain);
-#pragma clang diagnostic pop
-        XCTAssertEqual(error.code, FIRStorageErrorCodeUnknown);
+
+        XCTAssertEqualObjects(error.domain, FIRStorageErrorDomainInternal);
+        XCTAssertEqual(error.code, FIRIMPLStorageErrorCodeUnknown);
         NSString *expectedDescription = [NSString
             stringWithFormat:@"File at URL: %@ is not reachable. "
                              @"Ensure file URL is not a directory, symbolic link, or invalid url.",

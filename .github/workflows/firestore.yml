@@ -21,17 +21,17 @@ on:
     - 'Firestore/**'
 
     # Interop headers
-    - 'Interop/Auth/Public/*.h'
+    - 'FirebaseAuth/Interop/*.h'
 
     # FirebaseCore header change
-    - 'FirebaseCore/Sources/Private'
+    - 'FirebaseCore/Internal'
     - 'FirebaseCore/Sources/Public'
 
     # Podspec
     - 'FirebaseFirestore.podspec'
 
     # CMake
-    - 'CMakeLists.txt'
+    - '**CMakeLists.txt'
     - 'cmake/**'
 
     # Build scripts to which Firestore is sensitive

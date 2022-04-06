@@ -1,3 +1,6 @@
+# v9.0.0
+- [changed] Backported Callable async/await APIs to iOS 13, etc. (#9483).
+
 # v8.15.0
 - [deprecated] The global variables `FIRFunctionsErrorDomain` and `FIRFunctionsErrorDetailsKey` are
   deprecated and will be removed in v9.0.0. (#9569)

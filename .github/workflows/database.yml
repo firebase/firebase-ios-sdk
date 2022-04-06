@@ -7,7 +7,7 @@ on:
     - 'Firebase/Database/**'
     - 'FirebaseSharedSwift**'
     - 'Example/Database/**'
-    - 'Interop/Auth/Public/*.h'
+    - 'FirebaseAuth/Interop/*.h'
     - '.github/workflows/database.yml'
     - 'Gemfile*'
     - 'scripts/run_database_emulator.sh'
@@ -128,8 +128,7 @@ jobs:
       matrix:
         target: [ios, tvos, macos]
         flags: [
-          '--skip-tests --use-static-frameworks',
-          '--skip-tests --use-libraries'
+          '--skip-tests --use-static-frameworks'
         ]
     needs: pod-lib-lint
     steps:

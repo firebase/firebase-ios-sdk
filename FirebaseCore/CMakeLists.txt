@@ -34,6 +34,10 @@ firebase_ios_framework_public_headers(FirebaseCore ${headers})
 target_compile_definitions(
   FirebaseCore PRIVATE
   Firebase_VERSION=${firebase_version}
+  # This macro is defined and used to exclude symbols from the
+  # FirebaseCoreInternal Swift module, which is not yet configured to build
+  # for CMake builds.
+  FIREBASE_BUILD_CMAKE=1
 )
 
 target_link_libraries(
