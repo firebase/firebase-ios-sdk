@@ -171,7 +171,7 @@
         XCTAssertNotNil(error);
         XCTAssertNil(metadata);
 
-        XCTAssertEqualObjects(error.domain, FIRStorageErrorDomain);
+        XCTAssertEqualObjects(error.domain, FIRStorageErrorDomainInternal);
         XCTAssertEqual(error.code, FIRIMPLStorageErrorCodeUnknown);
         NSString *expectedDescription = [NSString
             stringWithFormat:@"File at URL: %@ is not reachable. "
@@ -198,7 +198,7 @@
         XCTAssertNotNil(error);
         XCTAssertNil(metadata);
 
-        XCTAssertEqualObjects(error.domain, FIRStorageErrorDomain);
+        XCTAssertEqualObjects(error.domain, FIRStorageErrorDomainInternal);
         XCTAssertEqual(error.code, FIRIMPLStorageErrorCodeUnknown);
         NSString *expectedDescription = [NSString
             stringWithFormat:@"File at URL: %@ is not reachable. "
