@@ -39,9 +39,9 @@ NS_SWIFT_NAME(Performance)
 @property(nonatomic, assign, getter=isDataCollectionEnabled) BOOL dataCollectionEnabled;
 
 /**
- * Controls the instrumentation of the app to capture performance data. Setting this value to false has
- * immediate effect only if it is done so before calling FirebaseApp.configure(). Otherwise it takes
- * effect on the next app start.
+ * Controls the instrumentation of the app to capture performance data. Setting this value to false
+ * has immediate effect only if it is done so before calling FirebaseApp.configure(). Otherwise it
+ * takes effect on the next app start.
  *
  * If set to false, the app will not be instrumented to collect performance
  * data (in scenarios like `app_start`, networking monitoring). Default is true.
