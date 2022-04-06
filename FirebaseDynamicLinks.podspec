@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDynamicLinks'
-  s.version          = '8.15.0'
+  s.version          = '9.0.0'
   s.summary          = 'Firebase Dynamic Links'
 
   s.description      = <<-DESC
