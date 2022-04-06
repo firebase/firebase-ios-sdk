@@ -167,24 +167,24 @@ TEST_F(GrpcConnectionTest, ConnectivityChangeWithSeveralActiveCalls) {
   foo->Start(
       static_cast<size_t>(0), [&](const std::vector<ResponsesT>) {},
       [&](const util::Status&, bool) {
-        ++changes_count;
         foo.reset();
+        ++changes_count;
       });
 
   std::unique_ptr<GrpcStreamingReader> bar = tester.CreateStreamingReader();
   bar->Start(
       static_cast<size_t>(0), [&](const std::vector<ResponsesT>) {},
       [&](const util::Status&, bool) {
-        ++changes_count;
         bar.reset();
+        ++changes_count;
       });
 
   std::unique_ptr<GrpcStreamingReader> baz = tester.CreateStreamingReader();
   baz->Start(
       static_cast<size_t>(0), [&](const std::vector<ResponsesT>) {},
       [&](const util::Status&, bool) {
-        ++changes_count;
         baz.reset();
+        ++changes_count;
       });
 
   tester.KeepPollingGrpcQueue();
