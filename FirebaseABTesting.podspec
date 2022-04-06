@@ -35,11 +35,13 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
   s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
 
+  s.swift_version = '5.3'
+
   base_dir = "FirebaseABTesting/Sources/"
   s.source_files = [
     base_dir + '**/*.[mh]',
    'Interop/Analytics/Public/*.h',
-   'FirebaseCore/Sources/Private/*.h',
+   'FirebaseCore/Internal/*.h',
   ]
   s.requires_arc = base_dir + '*.m'
   s.public_header_files = base_dir + 'Public/FirebaseABTesting/*.h'
@@ -53,7 +55,7 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
     unit_tests.scheme = { :code_coverage => true }
     unit_tests.platforms = {
       :ios => ios_deployment_target,
-      :osx => osx_deployment_target,
+      :osx => '10.15',
       :tvos => tvos_deployment_target
     }
     unit_tests.source_files = 'FirebaseABTesting/Tests/Unit/**/*.[mh]'

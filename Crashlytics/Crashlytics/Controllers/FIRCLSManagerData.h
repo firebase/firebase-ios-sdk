@@ -22,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class FIRCLSApplicationIdentifierModel;
 @class FIRCLSInstallIdentifierModel;
 @class FIRCLSExecutionIdentifierModel;
+@class FIRCLSOnDemandModel;
 @class FIRCLSSettings;
 @class FIRCLSLaunchMarkerModel;
 @class GDTCORTransport;
@@ -46,7 +47,8 @@ NS_ASSUME_NONNULL_BEGIN
                           analytics:(nullable id<FIRAnalyticsInterop>)analytics
                         fileManager:(FIRCLSFileManager *)fileManager
                         dataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter
-                           settings:(FIRCLSSettings *)settings NS_DESIGNATED_INITIALIZER;
+                           settings:(FIRCLSSettings *)settings
+                      onDemandModel:(FIRCLSOnDemandModel *)onDemandModel NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
@@ -71,6 +73,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 // Uniquely identifies a run of the app
 @property(nonatomic, strong) FIRCLSExecutionIdentifierModel *executionIDModel;
+
+// Handles storing and uploading of on-demand events
+@property(nonatomic, readonly) FIRCLSOnDemandModel *onDemandModel;
 
 // Settings fetched from the server
 @property(nonatomic, strong) FIRCLSSettings *settings;

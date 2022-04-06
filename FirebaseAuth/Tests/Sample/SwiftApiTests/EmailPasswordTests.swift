@@ -39,8 +39,8 @@ class EmailPasswordTests: TestsBase {
     deleteCurrentUser()
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+  #if compiler(>=5.5.2) && canImport(_Concurrency)
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testCreateAccountWithEmailAndPasswordAsync() async throws {
       let auth = Auth.auth()
       try await auth.createUser(withEmail: kNewEmailToCreateUser, password: "password")
@@ -63,8 +63,8 @@ class EmailPasswordTests: TestsBase {
     waitForExpectations(timeout: TestsBase.kExpectationsTimeout)
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+  #if compiler(>=5.5.2) && canImport(_Concurrency)
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testSignInExistingUserWithEmailAndPasswordAsync() async throws {
       let auth = Auth.auth()
       try await auth.signIn(withEmail: kExistingEmailToSignIn, password: "password")

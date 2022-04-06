@@ -22,7 +22,7 @@
 #import "FBLPromises.h"
 #endif
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "FirebaseInstallations/Source/Library/FIRInstallationsAuthTokenResultInternal.h"
 
@@ -72,26 +72,17 @@ static const NSUInteger kExpectedAPIKeyLength = 39;
 }
 
 - (instancetype)initWithApp:(FIRApp *)app {
-  return [self initWitAppOptions:app.options appName:app.name];
-}
-
-- (instancetype)initWitAppOptions:(FIROptions *)appOptions appName:(NSString *)appName {
   FIRInstallationsIDController *IDController =
-      [[FIRInstallationsIDController alloc] initWithGoogleAppID:appOptions.googleAppID
-                                                        appName:appName
-                                                         APIKey:appOptions.APIKey
-                                                      projectID:appOptions.projectID
-                                                    GCMSenderID:appOptions.GCMSenderID
-                                                    accessGroup:appOptions.appGroupID];
+      [[FIRInstallationsIDController alloc] initWithApp:app];
 
   // `prefetchAuthToken` is disabled due to b/156746574.
-  return [self initWithAppOptions:appOptions
-                          appName:appName
+  return [self initWithAppOptions:app.options
+                          appName:app.name
         installationsIDController:IDController
                 prefetchAuthToken:NO];
 }
 
-/// The initializer is supposed to be used by tests to inject `installationsStore`.
+/// This designated initializer can be exposed for testing.
 - (instancetype)initWithAppOptions:(FIROptions *)appOptions
                            appName:(NSString *)appName
          installationsIDController:(FIRInstallationsIDController *)installationsIDController

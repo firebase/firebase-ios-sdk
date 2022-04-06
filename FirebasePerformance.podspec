@@ -20,6 +20,8 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   ios_deployment_target = '10.0'
   tvos_deployment_target = '10.0'
 
+  s.swift_version = '5.3'
+
   s.ios.deployment_target = ios_deployment_target
   s.tvos.deployment_target = tvos_deployment_target
 
@@ -29,7 +31,7 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   base_dir = "FirebasePerformance/"
   s.source_files = [
     base_dir + 'Sources/**/*.[cmh]',
-    'FirebaseCore/Sources/Private/*.h',
+    'FirebaseCore/Internal/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
     'FirebaseRemoteConfig/Sources/Private/*.h',
   ]

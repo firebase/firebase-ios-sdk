@@ -23,7 +23,7 @@
 #include <cstdarg>
 #include <string>
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FIRLogger.h"
 
 #include "Firestore/core/src/util/string_apple.h"
 
@@ -33,7 +33,7 @@ namespace util {
 
 namespace {
 
-const FIRLoggerService kFIRLoggerFirestore = @"[Firebase/Firestore]";
+const FIRLoggerService kFIRLoggerFirestore = @"[FirebaseFirestore]";
 
 // Translates a C++ LogLevel to the equivalent Objective-C FIRLoggerLevel
 FIRLoggerLevel ToFIRLoggerLevel(LogLevel level) {

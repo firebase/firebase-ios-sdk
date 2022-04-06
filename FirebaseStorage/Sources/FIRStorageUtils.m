@@ -80,7 +80,7 @@ NSString *const kGCSObjectAllowedCharacterSet =
   return [queryItems componentsJoinedByString:@"&"];
 }
 
-+ (NSURLRequest *)defaultRequestForReference:(FIRStorageReference *)reference {
++ (NSURLRequest *)defaultRequestForReference:(FIRIMPLStorageReference *)reference {
   NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
   NSURLComponents *components = [[NSURLComponents alloc] init];
   [components setScheme:reference.storage.scheme];
@@ -92,7 +92,7 @@ NSString *const kGCSObjectAllowedCharacterSet =
   return request;
 }
 
-+ (NSURLRequest *)defaultRequestForReference:(FIRStorageReference *)reference
++ (NSURLRequest *)defaultRequestForReference:(FIRIMPLStorageReference *)reference
                                  queryParams:(NSDictionary<NSString *, NSString *> *)queryParams {
   NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
   NSURLComponents *components = [[NSURLComponents alloc] init];
@@ -133,7 +133,7 @@ NSString *const kGCSObjectAllowedCharacterSet =
 }
 
 + (NSError *)storageErrorWithDescription:(NSString *)description code:(NSInteger)code {
-  return [NSError errorWithDomain:FIRStorageErrorDomain
+  return [NSError errorWithDomain:FIRStorageErrorDomainInternal
                              code:code
                          userInfo:@{NSLocalizedDescriptionKey : description}];
 }

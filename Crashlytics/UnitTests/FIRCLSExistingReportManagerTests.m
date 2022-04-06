@@ -63,7 +63,8 @@
                                                           analytics:nil
                                                         fileManager:self.fileManager
                                                         dataArbiter:nil
-                                                           settings:nil];
+                                                           settings:nil
+                                                      onDemandModel:nil];
 #pragma clang diagnostic pop
 
   self.mockReportUploader = [[FIRCLSMockReportUploader alloc] initWithManagerData:self.managerData];

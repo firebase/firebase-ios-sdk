@@ -26,6 +26,7 @@
 #include "Firestore/core/src/bundle/bundle_metadata.h"
 #include "Firestore/core/src/bundle/named_query.h"
 #include "Firestore/core/src/core/target_id_generator.h"
+#include "Firestore/core/src/local/document_overlay_cache.h"
 #include "Firestore/core/src/local/reference_set.h"
 #include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/model/document.h"
@@ -338,6 +339,12 @@ class LocalStore : public bundle::BundleCallback {
    * the backend.
    */
   MutationQueue* mutation_queue_ = nullptr;
+
+  /**
+   * The overlays that can be used to short circuit applying all mutations from
+   * mutation queue.
+   */
+  DocumentOverlayCache* document_overlay_cache_ = nullptr;
 
   /** The set of all cached remote documents. */
   RemoteDocumentCache* remote_document_cache_ = nullptr;

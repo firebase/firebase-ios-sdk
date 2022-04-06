@@ -70,8 +70,7 @@ jobs:
       matrix:
         target: [ios]
         flags: [
-          '--use-static-frameworks',
-          '--use-libraries'
+          '--use-static-frameworks'
         ]
     needs: pod-lib-lint
     steps:

@@ -15,7 +15,6 @@
 import FirebaseAuth
 import FirebaseCore
 import FirebaseStorage
-import FirebaseStorageSwift
 import XCTest
 
 class StorageIntegrationCommon: XCTestCase {

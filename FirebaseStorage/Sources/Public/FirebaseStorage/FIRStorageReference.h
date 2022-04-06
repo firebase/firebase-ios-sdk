@@ -27,18 +27,17 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * StorageReference represents a reference to a Google Cloud Storage object. Developers can
+ * FIRIMPLStorageReference represents a reference to a Google Cloud Storage object. Developers can
  * upload and download objects, as well as get/set object metadata, and delete an object at the
  * path.
  * @see https://cloud.google.com/storage/
  */
-NS_SWIFT_NAME(StorageReference)
-@interface FIRStorageReference : NSObject
+@interface FIRIMPLStorageReference : NSObject
 
 /**
  * The Storage service object which created this reference.
  */
-@property(nonatomic, readonly) FIRStorage *storage;
+@property(nonatomic, readonly) FIRIMPLStorage *storage;
 
 /**
  * The name of the Google Cloud Storage bucket associated with this reference,
@@ -61,24 +60,24 @@ NS_SWIFT_NAME(StorageReference)
 #pragma mark - Path Operations
 
 /**
- * Creates a new StorageReference pointing to the root object.
- * @return A new StorageReference pointing to the root object.
+ * Creates a new FIRIMPLStorageReference pointing to the root object.
+ * @return A new FIRIMPLStorageReference pointing to the root object.
  */
-- (FIRStorageReference *)root;
+- (FIRIMPLStorageReference *)root;
 
 /**
- * Creates a new StorageReference pointing to the parent of the current reference
+ * Creates a new FIRIMPLStorageReference pointing to the parent of the current reference
  * or nil if this instance references the root location.
  * For example:
  *   path = foo/bar/baz   parent = foo/bar
  *   path = foo           parent = (root)
  *   path = (root)        parent = nil
- * @return A new StorageReference pointing to the parent of the current reference.
+ * @return A new FIRIMPLStorageReference pointing to the parent of the current reference.
  */
-- (nullable FIRStorageReference *)parent;
+- (nullable FIRIMPLStorageReference *)parent;
 
 /**
- * Creates a new StorageReference pointing to a child object of the current reference.
+ * Creates a new FIRIMPLStorageReference pointing to a child object of the current reference.
  *   path = foo      child = bar    newPath = foo/bar
  *   path = foo/bar  child = baz    newPath = foo/bar/baz
  * All leading and trailing slashes will be removed, and consecutive slashes will be
@@ -87,109 +86,100 @@ NS_SWIFT_NAME(StorageReference)
  *   child = foo/bar/     newPath = foo/bar
  *   child = foo///bar    newPath = foo/bar
  * @param path Path to append to the current path.
- * @return A new StorageReference pointing to a child location of the current reference.
+ * @return A new FIRIMPLStorageReference pointing to a child location of the current reference.
  */
-- (FIRStorageReference *)child:(NSString *)path;
+- (FIRIMPLStorageReference *)child:(NSString *)path;
 
 #pragma mark - Uploads
 
 /**
- * Asynchronously uploads data to the currently specified StorageReference,
+ * Asynchronously uploads data to the currently specified FIRIMPLStorageReference,
  * without additional metadata.
  * This is not recommended for large files, and one should instead upload a file from disk.
- * @param uploadData The data to upload.
- * @return An instance of StorageUploadTask, which can be used to monitor or manage the upload.
+ * @param uploadData The NSData to upload.
+ * @return An instance of FIRIMPLStorageUploadTask, which can be used to monitor or manage the
+ * upload.
  */
-- (FIRStorageUploadTask *)putData:(NSData *)uploadData NS_SWIFT_NAME(putData(_:));
+- (FIRIMPLStorageUploadTask *)putData:(NSData *)uploadData;
 
 /**
- * Asynchronously uploads data to the currently specified StorageReference.
+ * Asynchronously uploads data to the currently specified FIRIMPLStorageReference.
  * This is not recommended for large files, and one should instead upload a file from disk.
- * @param uploadData The data to upload.
- * @param metadata StorageMetadata containing additional information (MIME type, etc.)
+ * @param uploadData The NSData to upload.
+ * @param metadata FIRIMPLStorageMetadata containing additional information (MIME type, etc.)
  * about the object being uploaded.
- * @return An instance of StorageUploadTask, which can be used to monitor or manage the upload.
+ * @return An instance of FIRIMPLStorageUploadTask, which can be used to monitor or manage the
+ * upload.
  */
-// clang-format off
-- (FIRStorageUploadTask *)putData:(NSData *)uploadData
-                         metadata:(nullable FIRStorageMetadata *)metadata
-NS_SWIFT_NAME(putData(_:metadata:));
-// clang-format on
+- (FIRIMPLStorageUploadTask *)putData:(NSData *)uploadData
+                             metadata:(nullable FIRIMPLStorageMetadata *)metadata;
 
 /**
- * Asynchronously uploads data to the currently specified StorageReference.
+ * Asynchronously uploads data to the currently specified FIRIMPLStorageReference.
  * This is not recommended for large files, and one should instead upload a file from disk.
- * @param uploadData The data to upload.
- * @param metadata StorageMetadata containing additional information (MIME type, etc.)
+ * @param uploadData The NSData to upload.
+ * @param metadata FIRIMPLStorageMetadata containing additional information (MIME type, etc.)
  * about the object being uploaded.
  * @param completion A completion block that either returns the object metadata on success,
  * or an error on failure.
- * @return An instance of StorageUploadTask, which can be used to monitor or manage the upload.
+ * @return An instance of FIRIMPLStorageUploadTask, which can be used to monitor or manage the
+ * upload.
  */
-// clang-format off
-- (FIRStorageUploadTask *)putData:(NSData *)uploadData
-                         metadata:(nullable FIRStorageMetadata *)metadata
-                       completion:(nullable void (^)(FIRStorageMetadata *_Nullable metadata,
-                                                     NSError *_Nullable error))completion
-            NS_SWIFT_NAME(putData(_:metadata:completion:));
-// clang-format on
+- (FIRIMPLStorageUploadTask *)putData:(NSData *)uploadData
+                             metadata:(nullable FIRIMPLStorageMetadata *)metadata
+                           completion:(nullable void (^)(FIRIMPLStorageMetadata *_Nullable metadata,
+                                                         NSError *_Nullable error))completion;
 
 /**
- * Asynchronously uploads a file to the currently specified StorageReference,
+ * Asynchronously uploads a file to the currently specified FIRIMPLStorageReference,
  * without additional metadata.
  * @param fileURL A URL representing the system file path of the object to be uploaded.
- * @return An instance of StorageUploadTask, which can be used to monitor or manage the upload.
+ * @return An instance of FIRIMPLStorageUploadTask, which can be used to monitor or manage the
+ * upload.
  */
-- (FIRStorageUploadTask *)putFile:(NSURL *)fileURL NS_SWIFT_NAME(putFile(from:));
+- (FIRIMPLStorageUploadTask *)putFile:(NSURL *)fileURL;
 
 /**
- * Asynchronously uploads a file to the currently specified StorageReference.
+ * Asynchronously uploads a file to the currently specified FIRIMPLStorageReference.
  * @param fileURL A URL representing the system file path of the object to be uploaded.
- * @param metadata StorageMetadata containing additional information (MIME type, etc.)
+ * @param metadata FIRIMPLStorageMetadata containing additional information (MIME type, etc.)
  * about the object being uploaded.
- * @return An instance of StorageUploadTask, which can be used to monitor or manage the upload.
+ * @return An instance of FIRIMPLStorageUploadTask, which can be used to monitor or manage the
+ * upload.
  */
-// clang-format off
-- (FIRStorageUploadTask *)putFile:(NSURL *)fileURL
-                         metadata:(nullable FIRStorageMetadata *)metadata
-           NS_SWIFT_NAME(putFile(from:metadata:));
-// clang-format on
+- (FIRIMPLStorageUploadTask *)putFile:(NSURL *)fileURL
+                             metadata:(nullable FIRIMPLStorageMetadata *)metadata;
 
 /**
- * Asynchronously uploads a file to the currently specified StorageReference.
+ * Asynchronously uploads a file to the currently specified FIRIMPLStorageReference.
  * @param fileURL A URL representing the system file path of the object to be uploaded.
- * @param metadata StorageMetadata containing additional information (MIME type, etc.)
+ * @param metadata FIRIMPLStorageMetadata containing additional information (MIME type, etc.)
  * about the object being uploaded.
  * @param completion A completion block that either returns the object metadata on success,
  * or an error on failure.
- * @return An instance of StorageUploadTask, which can be used to monitor or manage the upload.
+ * @return An instance of FIRIMPLStorageUploadTask, which can be used to monitor or manage the
+ * upload.
  */
-// clang-format off
-- (FIRStorageUploadTask *)putFile:(NSURL *)fileURL
-                         metadata:(nullable FIRStorageMetadata *)metadata
-                       completion:(nullable void (^)(FIRStorageMetadata *_Nullable metadata,
-                                                     NSError *_Nullable error))completion
-           NS_SWIFT_NAME(putFile(from:metadata:completion:));
-// clang-format on
+- (FIRIMPLStorageUploadTask *)putFile:(NSURL *)fileURL
+                             metadata:(nullable FIRIMPLStorageMetadata *)metadata
+                           completion:(nullable void (^)(FIRIMPLStorageMetadata *_Nullable metadata,
+                                                         NSError *_Nullable error))completion;
 
 #pragma mark - Downloads
 
 /**
- * Asynchronously downloads the object at the StorageReference to a data object in memory.
- * An Data buffer of the provided max size will be allocated, so ensure that the device has enough free
- * memory to complete the download. For downloading large files, `write(toFile:)` may be a better option.
+ * Asynchronously downloads the object at the FIRIMPLStorageReference to an NSData object in memory.
+ * An NSData of the provided max size will be allocated, so ensure that the device has enough free
+ * memory to complete the download. For downloading large files, writeToFile may be a better option.
  * @param size The maximum size in bytes to download. If the download exceeds this size,
  * the task will be cancelled and an error will be returned.
  * @param completion A completion block that either returns the object data on success,
  * or an error on failure.
- * @return A StorageDownloadTask that can be used to monitor or manage the download.
+ * @return An FIRIMPLStorageDownloadTask that can be used to monitor or manage the download.
  */
-// clang-format off
-- (FIRStorageDownloadTask *)dataWithMaxSize:(int64_t)size
-                                 completion:(void (^)(NSData *_Nullable data,
-                                                      NSError *_Nullable error))completion
-                     NS_SWIFT_NAME(getData(maxSize:completion:));
-// clang-format on
+- (FIRIMPLStorageDownloadTask *)dataWithMaxSize:(int64_t)size
+                                     completion:(void (^)(NSData *_Nullable data,
+                                                          NSError *_Nullable error))completion;
 
 /**
  * Asynchronously retrieves a long lived download URL with a revokable token.
@@ -204,9 +194,9 @@ NS_SWIFT_NAME(putData(_:metadata:));
 /**
  * Asynchronously downloads the object at the current path to a specified system filepath.
  * @param fileURL A file system URL representing the path the object should be downloaded to.
- * @return A StorageDownloadTask that can be used to monitor or manage the download.
+ * @return An FIRIMPLStorageDownloadTask that can be used to monitor or manage the download.
  */
-- (FIRStorageDownloadTask *)writeToFile:(NSURL *)fileURL;
+- (FIRIMPLStorageDownloadTask *)writeToFile:(NSURL *)fileURL;
 
 /**
  * Asynchronously downloads the object at the current path to a specified system filepath.
@@ -214,11 +204,11 @@ NS_SWIFT_NAME(putData(_:metadata:));
  * @param completion A completion block that fires when the file download completes.
  * Returns a URL pointing to the file path of the downloaded file on success,
  * or an error on failure.
- * @return A StorageDownloadTask that can be used to monitor or manage the download.
+ * @return An FIRIMPLStorageDownloadTask that can be used to monitor or manage the download.
  */
-- (FIRStorageDownloadTask *)writeToFile:(NSURL *)fileURL
-                             completion:(nullable void (^)(NSURL *_Nullable URL,
-                                                           NSError *_Nullable error))completion;
+- (FIRIMPLStorageDownloadTask *)writeToFile:(NSURL *)fileURL
+                                 completion:(nullable void (^)(NSURL *_Nullable URL,
+                                                               NSError *_Nullable error))completion;
 #pragma mark - List Support
 
 /**
@@ -233,7 +223,7 @@ NS_SWIFT_NAME(putData(_:metadata:));
  * @param completion A completion handler that will be invoked with all items and prefixes under
  * the current StorageReference.
  */
-- (void)listAllWithCompletion:(void (^)(FIRStorageListResult *result,
+- (void)listAllWithCompletion:(void (^)(FIRIMPLStorageListResult *result,
                                         NSError *_Nullable error))completion;
 
 /**
@@ -251,9 +241,8 @@ NS_SWIFT_NAME(putData(_:metadata:));
  * prefixes under the current StorageReference.
  */
 - (void)listWithMaxResults:(int64_t)maxResults
-                completion:
-                    (void (^)(FIRStorageListResult *result, NSError *_Nullable error))completion
-    NS_SWIFT_NAME(list(maxResults:completion:));
+                completion:(void (^)(FIRIMPLStorageListResult *result,
+                                     NSError *_Nullable error))completion;
 
 /**
  * Resumes a previous call to list(maxResults:completion:)`, starting after a pagination token.
@@ -274,9 +263,8 @@ NS_SWIFT_NAME(putData(_:metadata:));
  */
 - (void)listWithMaxResults:(int64_t)maxResults
                  pageToken:(NSString *)pageToken
-                completion:
-                    (void (^)(FIRStorageListResult *result, NSError *_Nullable error))completion
-    NS_SWIFT_NAME(list(maxResults:pageToken:completion:));
+                completion:(void (^)(FIRIMPLStorageListResult *result,
+                                     NSError *_Nullable error))completion;
 
 #pragma mark - Metadata Operations
 
@@ -285,22 +273,18 @@ NS_SWIFT_NAME(putData(_:metadata:));
  * @param completion A completion block which returns the object metadata on success,
  * or an error on failure.
  */
-- (void)metadataWithCompletion:
-    (void (^)(FIRStorageMetadata *_Nullable metadata, NSError *_Nullable error))completion
-    NS_SWIFT_NAME(getMetadata(completion:));
+- (void)metadataWithCompletion:(void (^)(FIRIMPLStorageMetadata *_Nullable metadata,
+                                         NSError *_Nullable error))completion;
 
 /**
  * Updates the metadata associated with an object at the current path.
- * @param metadata A StorageMetadata object with the metadata to update.
- * @param completion A completion block which returns the StorageMetadata on success,
+ * @param metadata An FIRIMPLStorageMetadata object with the metadata to update.
+ * @param completion A completion block which returns the FIRIMPLStorageMetadata on success,
  * or an error on failure.
  */
-// clang-format off
-- (void)updateMetadata:(FIRStorageMetadata *)metadata
-            completion:(nullable void (^)(FIRStorageMetadata *_Nullable metadata,
-                                          NSError *_Nullable error))completion
-NS_SWIFT_NAME(updateMetadata(_:completion:));
-// clang-format on
+- (void)updateMetadata:(FIRIMPLStorageMetadata *)metadata
+            completion:(nullable void (^)(FIRIMPLStorageMetadata *_Nullable metadata,
+                                          NSError *_Nullable error))completion;
 
 #pragma mark - Delete
 
@@ -309,6 +293,8 @@ NS_SWIFT_NAME(updateMetadata(_:completion:));
  * @param completion A completion block which returns nil on success, or an error on failure.
  */
 - (void)deleteWithCompletion:(nullable void (^)(NSError *_Nullable error))completion;
+
+- (instancetype)init NS_UNAVAILABLE;
 
 @end
 

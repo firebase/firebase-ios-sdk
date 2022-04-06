@@ -28,6 +28,9 @@
 @property(nonatomic, strong) NSArray *processingReportPaths;
 @property(nonatomic, strong) NSArray *preparedReportPaths;
 
+- (void)handleOnDemandReportUpload:(NSString *)path
+               dataCollectionToken:(FIRCLSDataCollectionToken *)dataCollectionToken
+                          asUrgent:(BOOL)urgent;
 @end
 
 #endif /* FIRCLSExistingReportManager_Private_h */

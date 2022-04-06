@@ -25,6 +25,8 @@ device, and it is completely free.
   tvos_deployment_target = '10.0'
   watchos_deployment_target = '6.0'
 
+  s.swift_version = '5.3'
+
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
   s.tvos.deployment_target = tvos_deployment_target
@@ -37,8 +39,9 @@ device, and it is completely free.
   s.source_files = [
     base_dir + 'Sources/**/*',
     base_dir + 'Sources/Protogen/nanopb/*.h',
+    base_dir + 'Interop/*.h',
     'Interop/Analytics/Public/*.h',
-    'FirebaseCore/Sources/Private/*.h',
+    'FirebaseCore/Internal/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
   s.public_header_files = base_dir + 'Sources/Public/FirebaseMessaging/*.h'

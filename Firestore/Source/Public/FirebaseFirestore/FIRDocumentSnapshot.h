@@ -79,7 +79,7 @@ NS_SWIFT_NAME(DocumentSnapshot)
  * exist.
  *
  * Server-provided timestamps that have not yet been set to their final value will be returned as
- * `NSNull`. You can use `dataWithServerTimestampBehavior()` to configure this behavior.
+ * `NSNull`. You can use the `data(with:)` method to configure this behavior.
  *
  * @return A `Dictionary` containing all fields in the document or `nil` if the document doesn't
  *     exist.
@@ -102,7 +102,7 @@ NS_SWIFT_NAME(DocumentSnapshot)
  * Retrieves a specific field from the document. Returns `nil` if the document or the field doesn't
  * exist.
  *
- * The timestamps that have not yet been set to their final value will be returned as `NSNull`. The
+ * The timestamps that have not yet been set to their final value will be returned as `NSNull`. You
  * can use `get(_:serverTimestampBehavior:)` to configure this behavior.
  *
  * @param field The field to retrieve.
@@ -114,7 +114,7 @@ NS_SWIFT_NAME(DocumentSnapshot)
  * Retrieves a specific field from the document. Returns `nil` if the document or the field doesn't
  * exist.
  *
- * The timestamps that have not yet been set to their final value will be returned as `NSNull`. The
+ * The timestamps that have not yet been set to their final value will be returned as `NSNull`. You
  * can use `get(_:serverTimestampBehavior:)` to configure this behavior.
  *
  * @param field The field to retrieve.
@@ -156,12 +156,12 @@ NS_SWIFT_NAME(QueryDocumentSnapshot)
     __attribute__((unavailable("FIRQueryDocumentSnapshot cannot be created directly.")));
 
 /**
- * Retrieves all fields in the document as an `NSDictionary`.
+ * Retrieves all fields in the document as a `Dictionary`.
  *
  * Server-provided timestamps that have not yet been set to their final value will be returned as
- * `NSNull`. You can use `dataWithServerTimestampBehavior()` to configure this behavior.
+ * `NSNull`. You can use the `data(with:)` method to configure this behavior.
  *
- * @return An `NSDictionary` containing all fields in the document.
+ * @return A `Dictionary` containing all fields in the document.
  */
 - (NSDictionary<NSString *, id> *)data;
 

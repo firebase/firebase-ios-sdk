@@ -16,11 +16,11 @@
 #import "FirebaseCore/Tests/Unit/FIRTestComponents.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import "FirebaseCore/Extension/FIRAppInternal.h"
+#import "FirebaseCore/Extension/FIRComponentType.h"
+#import "FirebaseCore/Extension/FIRCoreDiagnosticsConnector.h"
+#import "FirebaseCore/Extension/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
-#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
-#import "FirebaseCore/Sources/Private/FIRComponentType.h"
-#import "FirebaseCore/Sources/Private/FIRCoreDiagnosticsConnector.h"
-#import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
 #import "SharedTestUtilities/FIROptionsMock.h"
 
 NSString *const kFIRTestAppName1 = @"test_app_name_1";

@@ -20,7 +20,7 @@
 
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h"
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 @interface FIRAppCheckSettingsTests : XCTestCase
 

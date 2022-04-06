@@ -50,8 +50,7 @@ jobs:
     strategy:
       matrix:
         flags: [
-          '--use-static-frameworks',
-          '--use-libraries'
+          '--use-static-frameworks'
         ]
     needs: pod_lib_lint
     steps:

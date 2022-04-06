@@ -56,15 +56,15 @@ NS_SWIFT_NAME(DocumentChange)
 @property(nonatomic, strong, readonly) FIRQueryDocumentSnapshot *document;
 
 /**
- * The index of the changed document in the result set immediately prior to this DocumentChange
- * (i.e. supposing that all prior DocumentChange objects have been applied). `NSNotFound` for
+ * The index of the changed document in the result set immediately prior to this `DocumentChange`
+ * (i.e. supposing that all prior `DocumentChange` objects have been applied). `NSNotFound` for
  * `DocumentChangeTypeAdded` events.
  */
 @property(nonatomic, readonly) NSUInteger oldIndex;
 
 /**
- * The index of the changed document in the result set immediately after this DocumentChange
- * (i.e. supposing that all prior DocumentChange objects and the current DocumentChange object
+ * The index of the changed document in the result set immediately after this `DocumentChange`
+ * (i.e. supposing that all prior `DocumentChange` objects and the current `DocumentChange` object
  * have been applied). `NSNotFound` for `DocumentChangeTypeRemoved` events.
  */
 @property(nonatomic, readonly) NSUInteger newIndex;

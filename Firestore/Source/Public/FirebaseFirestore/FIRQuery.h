@@ -30,7 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
  * A block type used to handle failable snapshot method callbacks.
  */
 typedef void (^FIRQuerySnapshotBlock)(FIRQuerySnapshot *_Nullable snapshot,
-                                      NSError *_Nullable error);
+                                      NSError *_Nullable error)
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /**
  * A `Query` refers to a query which you can read or listen to. You can also construct
@@ -56,7 +57,8 @@ NS_SWIFT_NAME(Query)
  * @param completion a block to execute once the documents have been successfully read.
  *     documentSet will be `nil` only if error is `non-nil`.
  */
-- (void)getDocumentsWithCompletion:(FIRQuerySnapshotBlock)completion
+- (void)getDocumentsWithCompletion:
+    (void (^)(FIRQuerySnapshot *_Nullable snapshot, NSError *_Nullable error))completion
     NS_SWIFT_NAME(getDocuments(completion:));
 
 /**
@@ -69,31 +71,34 @@ NS_SWIFT_NAME(Query)
  *     documentSet will be `nil` only if error is `non-nil`.
  */
 - (void)getDocumentsWithSource:(FIRFirestoreSource)source
-                    completion:(FIRQuerySnapshotBlock)completion
+                    completion:(void (^)(FIRQuerySnapshot *_Nullable snapshot,
+                                         NSError *_Nullable error))completion
     NS_SWIFT_NAME(getDocuments(source:completion:));
 
 /**
- * Attaches a listener for QuerySnapshot events.
+ * Attaches a listener for `QuerySnapshot` events.
  *
  * @param listener The listener to attach.
  *
- * @return A ListenerRegistration object that can be used to remove this listener.
+ * @return A `ListenerRegistration` object that can be used to remove this listener.
  */
-- (id<FIRListenerRegistration>)addSnapshotListener:(FIRQuerySnapshotBlock)listener
+- (id<FIRListenerRegistration>)addSnapshotListener:
+    (void (^)(FIRQuerySnapshot *_Nullable snapshot, NSError *_Nullable error))listener
     NS_SWIFT_NAME(addSnapshotListener(_:));
 
 /**
- * Attaches a listener for QuerySnapshot events.
+ * Attaches a listener for `QuerySnapshot` events.
  *
  * @param includeMetadataChanges Whether metadata-only changes (i.e. only
  *     `DocumentSnapshot.metadata` changed) should trigger snapshot events.
  * @param listener The listener to attach.
  *
- * @return A ListenerRegistration that can be used to remove this listener.
+ * @return A `ListenerRegistration` that can be used to remove this listener.
  */
 - (id<FIRListenerRegistration>)
     addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
-                                         listener:(FIRQuerySnapshotBlock)listener
+                                         listener:(void (^)(FIRQuerySnapshot *_Nullable snapshot,
+                                                            NSError *_Nullable error))listener
     NS_SWIFT_NAME(addSnapshotListener(includeMetadataChanges:listener:));
 
 #pragma mark - Filtering Data
@@ -245,7 +250,7 @@ NS_SWIFT_NAME(Query)
  * Creates and returns a new `Query` with the additional filter that documents must contain
  * the specified field, it must be an array, and the array must contain the provided value.
  *
- * A query can have only one arrayContains filter.
+ * A query can have only one `arrayContains` filter.
  *
  * @param field The name of the field containing an array to search
  * @param value The value that must be contained in the array
@@ -259,7 +264,7 @@ NS_SWIFT_NAME(Query)
  * Creates and returns a new `Query` with the additional filter that documents must contain
  * the specified field, it must be an array, and the array must contain the provided value.
  *
- * A query can have only one arrayContains filter.
+ * A query can have only one `arrayContains` filter.
  *
  * @param path The path of the field containing an array to search
  * @param value The value that must be contained in the array
@@ -437,7 +442,7 @@ NS_SWIFT_NAME(Query)
  * Creates and returns a new `Query` that only returns the last matching documents up to
  * the specified number.
  *
- * A query with a `limit(ToLast:)` clause must have at least one `orderBy` clause.
+ * A query with a `limit(toLast:)` clause must have at least one `orderBy` clause.
  *
  * @param limit The maximum number of items to return.
  *
@@ -486,8 +491,7 @@ NS_SWIFT_NAME(Query)
  * of the query. The order of the field values must match the order of the order by clauses of the
  * query.
  *
- * @param fieldValues The field values to start this query after, in order of the query's order
- *     by.
+ * @param fieldValues The field values to start this query after, in order of the query's orderBy.
  *
  * @return The created `Query`.
  */

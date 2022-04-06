@@ -21,14 +21,14 @@ import XCTest
 class TestsBase: XCTestCase {
   static let kExpectationsTimeout = 10.0
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+  #if compiler(>=5.5.2) && canImport(_Concurrency)
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func signInAnonymouslyAsync() async throws {
       let auth = Auth.auth()
       try await auth.signInAnonymously()
     }
 
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func deleteCurrentUserAsync() async throws {
       let auth = Auth.auth()
       try await auth.currentUser?.delete()

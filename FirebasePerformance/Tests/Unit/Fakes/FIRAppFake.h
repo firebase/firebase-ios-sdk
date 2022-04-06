@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
+#import "FirebaseCore/Extension/FIRAppInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -13,9 +13,9 @@
 // limitations under the License.
 
 #import "FirebaseAppDistribution/Sources/FIRFADLogger.h"
-#import "FirebaseCore/Sources/Private/FIRLogger.h"
+#import "FirebaseCore/Extension/FIRLogger.h"
 
-FIRLoggerService kFIRLoggerAppDistribution = @"[Firebase/AppDistribution]";
+FIRLoggerService kFIRLoggerAppDistribution = @"[FirebaseAppDistribution]";
 
 NSString *const AppDistributionMessageCode = @"I-FAD000000";
 

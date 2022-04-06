@@ -18,21 +18,21 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRStorageListResult (Private)
+@interface FIRIMPLStorageListResult (Private)
 
 /**
- * Creates an instance of FIRStorageListResult with the contents of a dictionary.
+ * Creates an instance of FIRIMPLStorageListResult with the contents of a dictionary.
  *
  * @param dictionary A dictionary containing the parsed JSON response from the backend.
- * @param reference The FIRStorageReference that `list()` was called on.
- * @return An instance of FIRStorageListResult that represents the contents of the dictionary.
+ * @param reference The FIRIMPLStorageReference that `list()` was called on.
+ * @return An instance of FIRIMPLStorageListResult that represents the contents of the dictionary.
  */
-+ (nullable FIRStorageListResult *)fromDictionary:(NSDictionary<NSString *, id> *)dictionary
-                                      atReference:(FIRStorageReference *)reference;
++ (nullable FIRIMPLStorageListResult *)fromDictionary:(NSDictionary<NSString *, id> *)dictionary
+                                          atReference:(FIRIMPLStorageReference *)reference;
 
-/** Initializes a new FIRStorageListResult with the given data. */
-- (nullable instancetype)initWithPrefixes:(NSArray<FIRStorageReference *> *)prefixes
-                                    items:(NSArray<FIRStorageReference *> *)items
+/** Initializes a new FIRIMPLStorageListResult with the given data. */
+- (nullable instancetype)initWithPrefixes:(NSArray<FIRIMPLStorageReference *> *)prefixes
+                                    items:(NSArray<FIRIMPLStorageReference *> *)items
                                 pageToken:(nullable NSString *)pageToken;
 
 @end

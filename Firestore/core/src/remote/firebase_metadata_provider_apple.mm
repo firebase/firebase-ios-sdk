@@ -16,9 +16,10 @@
 
 #include "Firestore/core/src/remote/firebase_metadata_provider_apple.h"
 
-#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
-#import "FirebaseCore/Sources/Private/FIRHeartbeatInfo.h"
-#import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
+#import "FirebaseCore/Extension/FIRAppInternal.h"
+#import "FirebaseCore/Extension/FIRHeartbeatInfo.h"
+#import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
+#import "FirebaseCore/Extension/FIROptionsInternal.h"
 
 #include "Firestore/core/src/util/string_apple.h"
 
@@ -35,8 +36,8 @@ std::string GetUserAgent() {
   return MakeString([FIRApp firebaseUserAgent]);
 }
 
-FIRHeartbeatInfoCode GetHeartbeat() {
-  return [FIRHeartbeatInfo heartbeatCodeForTag:@"fire-fst"];
+FIRHeartbeatInfoCode GetHeartbeat(FIRApp* app) {
+  return [app.heartbeatLogger heartbeatCodeForToday];
 }
 
 std::string GetGmpAppId(FIRApp* app) {
@@ -51,10 +52,10 @@ FirebaseMetadataProviderApple::FirebaseMetadataProviderApple(FIRApp* app)
 
 void FirebaseMetadataProviderApple::UpdateMetadata(
     grpc::ClientContext& context) {
-  FIRHeartbeatInfoCode heartbeat = GetHeartbeat();
-  // TODO(varconst): don't send any headers if the heartbeat is "none". This
-  // should only be changed once it's possible to notify the heartbeat that the
-  // previous attempt to send it has failed.
+  FIRHeartbeatInfoCode heartbeat = GetHeartbeat(app_);
+  // TODO(ncooke3): If support for notifying a heartbeat logger when a
+  // request fails is implemented, we will need to change the below
+  // code to place the heartbeat data back into heartbeat storage.
   if (heartbeat != FIRHeartbeatInfoCodeNone) {
     context.AddMetadata(kXFirebaseClientLogTypeHeader,
                         std::to_string(heartbeat));

@@ -24,11 +24,15 @@
 #import "FirebaseAppCheck/Sources/DeviceCheckProvider/API/FIRDeviceCheckAPIService.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
 
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+
 @interface FIRDeviceCheckAPIServiceE2ETests : XCTestCase
 @property(nonatomic) FIRDeviceCheckAPIService *deviceCheckAPIService;
 @property(nonatomic) FIRAppCheckAPIService *APIService;
 @property(nonatomic) NSURLSession *URLSession;
 @end
+
+// TODO(ncooke3): Fix these tests up and get them running on CI.
 
 @implementation FIRDeviceCheckAPIServiceE2ETests
 
@@ -36,10 +40,13 @@
   self.URLSession = [NSURLSession
       sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
   FIROptions *options = [self firebaseTestOptions];
+  FIRHeartbeatLogger *heartbeatLogger =
+      [[FIRHeartbeatLogger alloc] initWithAppID:options.googleAppID];
+
   self.APIService = [[FIRAppCheckAPIService alloc] initWithURLSession:self.URLSession
                                                                APIKey:options.APIKey
-                                                            projectID:options.projectID
-                                                                appID:options.googleAppID];
+                                                                appID:options.googleAppID
+                                                      heartbeatLogger:heartbeatLogger];
   self.deviceCheckAPIService =
       [[FIRDeviceCheckAPIService alloc] initWithAPIService:self.APIService
                                                  projectID:options.projectID
