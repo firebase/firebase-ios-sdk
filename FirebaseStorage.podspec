@@ -39,7 +39,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     'FirebaseAuth/Interop/*.h',
   ]
 
-  s.dependency 'FirebaseStorageObjC', '~> 9.0'
+  s.dependency 'FirebaseStorageInternal', '~> 9.0'
   s.dependency 'FirebaseAppCheckInterop', '~> 9.0'
   s.dependency 'FirebaseAuthInterop', '~> 9.0'
   s.dependency 'FirebaseCore', '~> 9.0'
@@ -53,12 +53,12 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
       :tvos => tvos_deployment_target
     }
     objc_tests.source_files = [
-      'FirebaseStorage/Tests/Integration/*.[mh]',
+      'FirebaseStorageInternal/Tests/Integration/*.[mh]',
       'FirebaseStorageSwift/Tests/ObjCIntegration/*.m',
     ]
     objc_tests.requires_app_host = true
-    objc_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
-                          'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist'
+    objc_tests.resources = 'FirebaseStorageInternal/Tests/Integration/Resources/1mb.dat',
+                          'FirebaseStorageInternal/Tests/Integration/Resources/GoogleService-Info.plist'
     objc_tests.dependency 'FirebaseAuth', '~> 9.0'
     objc_tests.pod_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
@@ -84,9 +84,9 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     }
     int_tests.source_files = 'FirebaseStorageSwift/Tests/Integration/*.swift'
     int_tests.requires_app_host = true
-    int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
-                          'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist',
-                          'FirebaseStorage/Tests/Integration/Resources/HomeImprovement.numbers'
+    int_tests.resources = 'FirebaseStorageInternal/Tests/Integration/Resources/1mb.dat',
+                          'FirebaseStorageInternal/Tests/Integration/Resources/GoogleService-Info.plist',
+                          'FirebaseStorageInternal/Tests/Integration/Resources/HomeImprovement.numbers'
     int_tests.dependency 'FirebaseAuth', '~> 9.0'
   end
 end

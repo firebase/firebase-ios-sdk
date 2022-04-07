@@ -14,7 +14,7 @@
 
 import Foundation
 
-import FirebaseStorageObjC
+import FirebaseStorageInternal
 import FirebaseCore
 import FirebaseCoreExtension
 import FirebaseAppCheckInterop

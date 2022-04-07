@@ -34,7 +34,7 @@ on:
     - 'FirebaseAuth/**'
     - 'FirebaseFunctions/**'
     - 'Firestore/**'
-    - 'FirebaseStorage/**'
+    - 'FirebaseStorageInternal/**'
     - 'FirebaseStorageSwift/**'
 
   schedule:
@@ -82,10 +82,10 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
-          FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
+          FirebaseStorageInternal/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
     - name: Install Credentials.h
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Storage/Credentials.h.gpg \
-          FirebaseStorage/Tests/Integration/Credentials.h "$plist_secret"
+          FirebaseStorageInternal/Tests/Integration/Credentials.h "$plist_secret"
     - name: Install Credentials.swift
       run: |
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Storage/Credentials.swift.gpg \

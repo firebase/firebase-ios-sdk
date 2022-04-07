@@ -33,10 +33,10 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
-          FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
+          FirebaseStorageInternal/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
     - name: Install Credentials.h
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Storage/Credentials.h.gpg \
-          FirebaseStorage/Tests/Integration/Credentials.h "$plist_secret"
+          FirebaseStorageInternal/Tests/Integration/Credentials.h "$plist_secret"
     - name: Install Credentials.swift
       run: |
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Storage/Credentials.swift.gpg \
@@ -89,7 +89,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Build for Catalyst
-      run: scripts/test_catalyst.sh FirebaseStorageObjC test FirebaseStorageObjC-Unit-unit
+      run: scripts/test_catalyst.sh FirebaseStorageInternal test FirebaseStorageInternal-Unit-unit
 
 # TODO: Restore Quickstart when ported for Firebase 9.
   # quickstart:

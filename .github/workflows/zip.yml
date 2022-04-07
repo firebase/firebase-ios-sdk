@@ -302,7 +302,7 @@ jobs:
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="FirebaseDatabaseUI" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseDatabase/* \
-                                               "${HOME}"/ios_frameworks/Firebase/FirebaseStorage/* \
+                                               "${HOME}"/ios_frameworks/Firebase/FirebaseStorageInternal/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseFirestore/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
                                                "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
@@ -517,7 +517,7 @@ jobs:
       env:
         LEGACY: true
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
-                                               "${HOME}"/ios_frameworks/Firebase/FirebaseStorage/* \
+                                               "${HOME}"/ios_frameworks/Firebase/FirebaseStorageInternal/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
     - name: Setup swift quickstart

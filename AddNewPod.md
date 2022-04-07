@@ -69,7 +69,7 @@ For top-level Firebase pods that map to documented products:
   wrapped in `__has_include`. Follow the existing examples for details.
 * Update [Firebase.podspec](Firebase.podspec).
 * Register library via registerInternalLibrary API like this
-  [Storage example](FirebaseStorage/Sources/FIRStorageComponent.m).
+  [Storage example](FirebaseStorageInternal/Sources/FIRStorageComponent.m).
 * When ready to release with Firebase, add to the
   [Firebase manifest](ReleaseTooling/Sources/FirebaseManifest/FirebaseManifest.swift).
 * Add a [quickstart](https://github.com/firebase/quickstart-ios).

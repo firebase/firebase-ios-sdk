@@ -14,7 +14,7 @@
 
 import Foundation
 
-import FirebaseStorageObjC
+import FirebaseStorageInternal
 
 /**
  * Extends FIRStorageTask to provide observable semantics such as adding and removing observers.

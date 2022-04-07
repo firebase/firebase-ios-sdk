@@ -14,7 +14,7 @@
 
 import Foundation
 
-import FirebaseStorageObjC
+import FirebaseStorageInternal
 
 /**
  * StorageReference represents a reference to a Google Cloud Storage object. Developers can

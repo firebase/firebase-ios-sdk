@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-import FirebaseStorageObjC
+import FirebaseStorageInternal
 
 public enum StorageError: Error {
   case unknown

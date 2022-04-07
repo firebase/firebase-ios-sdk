@@ -74,8 +74,8 @@
     #import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>
   #endif
 
-  #if __has_include(<FirebaseStorage/FirebaseStorage.h>)
-    #import <FirebaseStorage/FirebaseStorage.h>
+  #if __has_include(<FirebaseStorageInternal/FirebaseStorage.h>)
+    #import <FirebaseStorageInternal/FirebaseStorage.h>
   #endif
 
 #endif  // defined(__has_include)
