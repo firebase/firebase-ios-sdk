@@ -36,6 +36,23 @@
 namespace firebase {
 namespace firestore {
 namespace model {
+namespace {
+
+/** The smallest reference value. */
+pb_bytes_array_s* MinimumReferenceValue =
+    nanopb::MakeBytesArray("projects//databases//documents/");
+
+/** The field type of a maximum proto value. */
+std::string RawMaxValueFieldKey = "__type__";
+pb_bytes_array_s* MaxValueFieldKey =
+    nanopb::MakeBytesArray(RawMaxValueFieldKey);
+
+/** The field value of a maximum proto value. */
+std::string RawMaxValueFieldValue = "__max__";
+pb_bytes_array_s* MaxValueFieldValue =
+    nanopb::MakeBytesArray(RawMaxValueFieldValue);
+
+}  // namespace
 
 using nanopb::Message;
 using util::ComparisonResult;
@@ -533,8 +550,7 @@ google_firestore_v1_Value GetLowerBound(pb_size_t value_tag) {
     case google_firestore_v1_Value_reference_value_tag: {
       google_firestore_v1_Value result;
       result.which_value_type = google_firestore_v1_Value_reference_value_tag;
-      result.reference_value =
-          nanopb::MakeBytesArray("projects//databases//documents/");
+      result.reference_value = MinimumReferenceValue;
       return result;
     }
 
@@ -633,11 +649,10 @@ google_firestore_v1_Value MaxValue() {
   max_value.map_value.fields_count = 1;
   max_value.map_value.fields =
       nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
-  max_value.map_value.fields[0].key = nanopb::MakeBytesArray("__type__");
+  max_value.map_value.fields[0].key = MaxValueFieldKey;
   max_value.map_value.fields[0].value.which_value_type =
       google_firestore_v1_Value_string_value_tag;
-  max_value.map_value.fields[0].value.string_value =
-      nanopb::MakeBytesArray("__max__");
+  max_value.map_value.fields[0].value.string_value = MaxValueFieldValue;
   return max_value;
 }
 
@@ -650,7 +665,8 @@ bool IsMaxValue(const google_firestore_v1_Value& value) {
     return false;
   }
 
-  if (nanopb::MakeStringView(value.map_value.fields->key) != "__type__") {
+  if (nanopb::MakeStringView(value.map_value.fields->key) !=
+      RawMaxValueFieldKey) {
     return false;
   }
 
@@ -660,7 +676,7 @@ bool IsMaxValue(const google_firestore_v1_Value& value) {
   }
 
   return nanopb::MakeStringView(value.map_value.fields->value.string_value) ==
-         "__max__";
+         RawMaxValueFieldValue;
 }
 
 google_firestore_v1_Value NaNValue() {

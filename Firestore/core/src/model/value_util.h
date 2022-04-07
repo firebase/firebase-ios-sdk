@@ -120,6 +120,8 @@ bool IsMinValue(const google_firestore_v1_Value& value);
  * Under the hood, it is a sentinel Protobuf Map with special fields that
  * Firestore comparison logic always return true for `MaxValue() > v`, for any
  * v users can create, regardless `v`'s type and value.
+ *
+ * The caller of this function is expected to own the returned value.
  */
 google_firestore_v1_Value MaxValue();
 
