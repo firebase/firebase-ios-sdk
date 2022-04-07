@@ -15,7 +15,6 @@
  */
 
 #import "FirebaseDatabase/Sources/Core/FRepo.h"
-#import "FirebaseDatabase/Sources/Core/FSparseSnapshotTree.h"
 
 @class FSyncTree;
 @class FAtomicNumber;

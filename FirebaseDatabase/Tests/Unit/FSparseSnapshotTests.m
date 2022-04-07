@@ -15,9 +15,8 @@
  */
 
 #import "FirebaseDatabase/Tests/Unit/FSparseSnapshotTests.h"
-#import "FirebaseDatabase/Sources/Core/FSparseSnapshotTree.h"
 
-
+@import FirebaseDatabaseSwiftCore;
 
 @implementation FSparseSnapshotTests
 
