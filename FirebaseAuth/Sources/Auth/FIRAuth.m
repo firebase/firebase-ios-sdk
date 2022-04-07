@@ -420,6 +420,12 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
           UIApplicationDidEnterBackgroundNotification.
    */
   id<NSObject> _applicationDidEnterBackgroundObserver;
+
+  /** @var _protectedDataDidBecomeAvailableObserver
+      @brief An opaque object to act as the observer for
+     UIApplicationProtectedDataDidBecomeAvailable.
+   */
+  id<NSObject> _protectedDataDidBecomeAvailableObserver;
 }
 
 + (void)load {
@@ -500,70 +506,88 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     [GULSceneDelegateSwizzler proxyOriginalSceneDelegate];
 #endif  // TARGET_OS_IOS
 
-    // Continue with the rest of initialization in the work thread.
-    __weak FIRAuth *weakSelf = self;
-    dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-      // Load current user from Keychain.
-      FIRAuth *strongSelf = weakSelf;
-      if (!strongSelf) {
-        return;
-      }
-      NSString *keychainServiceName =
-          [FIRAuth keychainServiceNameForAppName:strongSelf->_firebaseAppName];
-      if (keychainServiceName) {
-        strongSelf->_keychainServices =
-            [[FIRAuthKeychainServices alloc] initWithService:keychainServiceName];
-        strongSelf.storedUserManager =
-            [[FIRAuthStoredUserManager alloc] initWithServiceName:keychainServiceName];
-      }
-
-      NSError *error;
-      NSString *storedUserAccessGroup =
-          [strongSelf.storedUserManager getStoredUserAccessGroupWithError:&error];
-      if (!error) {
-        if (!storedUserAccessGroup) {
-          FIRUser *user;
-          if ([strongSelf getUser:&user error:&error]) {
-            strongSelf.tenantID = user.tenantID;
-            [strongSelf updateCurrentUser:user byForce:NO savingToDisk:NO error:&error];
-            self->_lastNotifiedUserToken = user.rawAccessToken;
-          } else {
-            FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
-                        @"Error loading saved user when starting up: %@", error);
-          }
-        } else {
-          [strongSelf internalUseUserAccessGroup:storedUserAccessGroup error:&error];
-          if (error) {
-            FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
-                        @"Error loading saved user when starting up: %@", error);
-          }
-        }
-      } else {
-        FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
-                    @"Error loading saved user when starting up: %@", error);
-      }
-
-#if TARGET_OS_IOS
-      // Initialize for phone number auth.
-      strongSelf->_tokenManager = [[FIRAuthAPNSTokenManager alloc] initWithApplication:application];
-
-      strongSelf->_appCredentialManager =
-          [[FIRAuthAppCredentialManager alloc] initWithKeychain:strongSelf->_keychainServices];
-
-      strongSelf->_notificationManager = [[FIRAuthNotificationManager alloc]
-           initWithApplication:application
-          appCredentialManager:strongSelf->_appCredentialManager];
-
-      [GULAppDelegateSwizzler registerAppDelegateInterceptor:strongSelf];
-#if ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
-      if (@available(iOS 13, tvos 13, *)) {
-        [GULSceneDelegateSwizzler registerSceneDelegateInterceptor:strongSelf];
-      }
-#endif  // ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
-#endif  // TARGET_OS_IOS
-    });
+    if ([application isProtectedDataAvailable]) {
+      [self protectedDataInitialization:application];
+    } else {
+      // Add listener for UIApplicationProtectedDataDidBecomeAvailable.
+      self->_protectedDataDidBecomeAvailableObserver = [[NSNotificationCenter defaultCenter]
+          addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
+                      object:nil
+                       queue:nil
+                  usingBlock:^(NSNotification *notification) {
+                    [self protectedDataInitialization:application];
+                  }];
+    }
   }
   return self;
+}
+
+- (void)protectedDataInitialization:(UIApplication *)application {
+  [[NSNotificationCenter defaultCenter] removeObserver:_protectedDataDidBecomeAvailableObserver
+                                                  name:UIApplicationProtectedDataDidBecomeAvailable
+                                                object:nil];
+  // Continue with the rest of initialization in the work thread.
+  __weak FIRAuth *weakSelf = self;
+  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
+    // Load current user from Keychain.
+    FIRAuth *strongSelf = weakSelf;
+    if (!strongSelf) {
+      return;
+    }
+    NSString *keychainServiceName =
+        [FIRAuth keychainServiceNameForAppName:strongSelf->_firebaseAppName];
+    if (keychainServiceName) {
+      strongSelf->_keychainServices =
+          [[FIRAuthKeychainServices alloc] initWithService:keychainServiceName];
+      strongSelf.storedUserManager =
+          [[FIRAuthStoredUserManager alloc] initWithServiceName:keychainServiceName];
+    }
+
+    NSError *error;
+    NSString *storedUserAccessGroup =
+        [strongSelf.storedUserManager getStoredUserAccessGroupWithError:&error];
+    if (!error) {
+      if (!storedUserAccessGroup) {
+        FIRUser *user;
+        if ([strongSelf getUser:&user error:&error]) {
+          strongSelf.tenantID = user.tenantID;
+          [strongSelf updateCurrentUser:user byForce:NO savingToDisk:NO error:&error];
+          self->_lastNotifiedUserToken = user.rawAccessToken;
+        } else {
+          FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
+                      @"Error loading saved user when starting up: %@", error);
+        }
+      } else {
+        [strongSelf internalUseUserAccessGroup:storedUserAccessGroup error:&error];
+        if (error) {
+          FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
+                      @"Error loading saved user when starting up: %@", error);
+        }
+      }
+    } else {
+      FIRLogError(kFIRLoggerAuth, @"I-AUT000001", @"Error loading saved user when starting up: %@",
+                  error);
+    }
+
+#if TARGET_OS_IOS
+    // Initialize for phone number auth.
+    strongSelf->_tokenManager = [[FIRAuthAPNSTokenManager alloc] initWithApplication:application];
+
+    strongSelf->_appCredentialManager =
+        [[FIRAuthAppCredentialManager alloc] initWithKeychain:strongSelf->_keychainServices];
+
+    strongSelf->_notificationManager =
+        [[FIRAuthNotificationManager alloc] initWithApplication:application
+                                           appCredentialManager:strongSelf->_appCredentialManager];
+
+    [GULAppDelegateSwizzler registerAppDelegateInterceptor:strongSelf];
+#if ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
+    if (@available(iOS 13, tvos 13, *)) {
+      [GULSceneDelegateSwizzler registerSceneDelegateInterceptor:strongSelf];
+    }
+#endif  // ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
+#endif  // TARGET_OS_IOS
+  });
 }
 
 - (void)dealloc {
