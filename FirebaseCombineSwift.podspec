@@ -100,6 +100,6 @@ for internal testing only. It should not be published.
     int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
                           'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist',
                           'FirebaseStorage/Tests/Integration/Resources/HomeImprovement.numbers'
-    int_tests.dependency 'FirebaseAuth', '~> 8.0'
+    int_tests.dependency 'FirebaseAuth', '~> 9.0'
   end
 end
