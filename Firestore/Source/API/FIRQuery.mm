@@ -431,42 +431,42 @@ int32_t SaturatedLimitValue(NSInteger limit) {
 }
 
 - (FIRQuery *)queryStartingAtDocument:(FIRDocumentSnapshot *)snapshot {
-  Bound bound = [self boundFromSnapshot:snapshot isBefore:YES];
+  Bound bound = [self boundFromSnapshot:snapshot isInclusive:YES];
   return Wrap(_query.StartAt(std::move(bound)));
 }
 
 - (FIRQuery *)queryStartingAtValues:(NSArray *)fieldValues {
-  Bound bound = [self boundFromFieldValues:fieldValues isBefore:YES];
+  Bound bound = [self boundFromFieldValues:fieldValues isInclusive:YES];
   return Wrap(_query.StartAt(std::move(bound)));
 }
 
 - (FIRQuery *)queryStartingAfterDocument:(FIRDocumentSnapshot *)snapshot {
-  Bound bound = [self boundFromSnapshot:snapshot isBefore:NO];
+  Bound bound = [self boundFromSnapshot:snapshot isInclusive:NO];
   return Wrap(_query.StartAt(std::move(bound)));
 }
 
 - (FIRQuery *)queryStartingAfterValues:(NSArray *)fieldValues {
-  Bound bound = [self boundFromFieldValues:fieldValues isBefore:NO];
+  Bound bound = [self boundFromFieldValues:fieldValues isInclusive:NO];
   return Wrap(_query.StartAt(std::move(bound)));
 }
 
 - (FIRQuery *)queryEndingBeforeDocument:(FIRDocumentSnapshot *)snapshot {
-  Bound bound = [self boundFromSnapshot:snapshot isBefore:YES];
+  Bound bound = [self boundFromSnapshot:snapshot isInclusive:NO];
   return Wrap(_query.EndAt(std::move(bound)));
 }
 
 - (FIRQuery *)queryEndingBeforeValues:(NSArray *)fieldValues {
-  Bound bound = [self boundFromFieldValues:fieldValues isBefore:YES];
+  Bound bound = [self boundFromFieldValues:fieldValues isInclusive:NO];
   return Wrap(_query.EndAt(std::move(bound)));
 }
 
 - (FIRQuery *)queryEndingAtDocument:(FIRDocumentSnapshot *)snapshot {
-  Bound bound = [self boundFromSnapshot:snapshot isBefore:NO];
+  Bound bound = [self boundFromSnapshot:snapshot isInclusive:YES];
   return Wrap(_query.EndAt(std::move(bound)));
 }
 
 - (FIRQuery *)queryEndingAtValues:(NSArray *)fieldValues {
-  Bound bound = [self boundFromFieldValues:fieldValues isBefore:NO];
+  Bound bound = [self boundFromFieldValues:fieldValues isInclusive:YES];
   return Wrap(_query.EndAt(std::move(bound)));
 }
 
@@ -524,7 +524,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
  * the query or if any of the fields in the order by are an uncommitted server
  * timestamp.
  */
-- (Bound)boundFromSnapshot:(FIRDocumentSnapshot *)snapshot isBefore:(BOOL)isBefore {
+- (Bound)boundFromSnapshot:(FIRDocumentSnapshot *)snapshot isInclusive:(BOOL)isInclusive {
   if (![snapshot exists]) {
     ThrowInvalidArgument("Invalid query. You are trying to start or end a query using a document "
                          "that doesn't exist.");
@@ -566,11 +566,11 @@ int32_t SaturatedLimitValue(NSInteger limit) {
       }
     }
   }
-  return Bound::FromValue(std::move(components), isBefore);
+  return Bound::FromValue(std::move(components), isInclusive);
 }
 
 /** Converts a list of field values to an Bound. */
-- (Bound)boundFromFieldValues:(NSArray<id> *)fieldValues isBefore:(BOOL)isBefore {
+- (Bound)boundFromFieldValues:(NSArray<id> *)fieldValues isInclusive:(BOOL)isInclusive {
   // Use explicit sort order because it has to match the query the user made
   const OrderByList &explicitSortOrders = self.query.explicit_order_bys();
   if (fieldValues.count > explicitSortOrders.size()) {
@@ -611,7 +611,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
     }
   }
 
-  return Bound::FromValue(std::move(components), isBefore);
+  return Bound::FromValue(std::move(components), isInclusive);
 }
 
 @end

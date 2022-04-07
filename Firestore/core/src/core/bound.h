@@ -52,12 +52,12 @@ class Bound {
    * Creates a new bound.
    *
    * @param position The position relative to the sort order.
-   * @param is_before Whether this bound is just before or just after the
+   * @param inclusive Whether this bound is just before or just after the
    *     position.
    */
   static Bound FromValue(
       nanopb::SharedMessage<google_firestore_v1_ArrayValue> position,
-      bool is_before);
+      bool inclusive);
 
   /**
    * The index position of this bound represented as an array of field values.
@@ -67,8 +67,8 @@ class Bound {
   }
 
   /** Whether this bound is just before or just after the provided position */
-  bool before() const {
-    return before_;
+  bool inclusive() const {
+    return inclusive_;
   }
 
   /**
@@ -78,7 +78,14 @@ class Bound {
   bool SortsBeforeDocument(const OrderByList& order_by,
                            const model::Document& document) const;
 
-  std::string CanonicalId() const;
+  /**
+   * Returns true if the given document comes after this bound using the
+   * provided sort order.
+   */
+  bool SortsAfterDocument(const OrderByList& order_by,
+                          const model::Document& document) const;
+
+  std::string PositionString() const;
 
   std::string ToString() const;
 
@@ -86,12 +93,15 @@ class Bound {
 
  private:
   Bound(nanopb::SharedMessage<google_firestore_v1_ArrayValue> position,
-        bool is_before)
-      : position_{std::move(position)}, before_(is_before) {
+        bool inclusive)
+      : position_{std::move(position)}, inclusive_(inclusive) {
   }
 
+  util::ComparisonResult CompareToDocument(
+      const OrderByList& order_by, const model::Document& document) const;
+
   nanopb::SharedMessage<google_firestore_v1_ArrayValue> position_;
-  bool before_;
+  bool inclusive_;
 };
 
 std::ostream& operator<<(std::ostream& os, const Bound& bound);
