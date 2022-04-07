@@ -18,17 +18,17 @@
 
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
 
-@class FIRStorageReference;
+@class FIRIMPLStorageReference;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRStorageMetadata ()
+@interface FIRIMPLStorageMetadata ()
 
 @property(readwrite, nonatomic) NSString *name;
 
 @property(readwrite, nonatomic) NSString *path;
 
-@property(readwrite, nonatomic) FIRStorageReference *reference;
+@property(readwrite, nonatomic) FIRIMPLStorageReference *reference;
 
 /**
  * The type of the object, either a "File" or a "Folder".

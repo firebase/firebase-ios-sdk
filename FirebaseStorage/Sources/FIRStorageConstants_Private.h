@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRStorageMetadata;
+@class FIRIMPLStorageMetadata;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -42,11 +42,11 @@ FOUNDATION_EXPORT NSString *const kFIRStorageResponseErrorDomain;
 FOUNDATION_EXPORT NSString *const kFIRStorageResponseErrorCode;
 FOUNDATION_EXPORT NSString *const kFIRStorageResponseBody;
 
-FOUNDATION_EXPORT NSString *const kFIRStorageTaskStatusResumeNotification;
-FOUNDATION_EXPORT NSString *const kFIRStorageTaskStatusPauseNotification;
-FOUNDATION_EXPORT NSString *const kFIRStorageTaskStatusProgressNotification;
-FOUNDATION_EXPORT NSString *const kFIRStorageTaskStatusCompleteNotification;
-FOUNDATION_EXPORT NSString *const kFIRStorageTaskStatusFailureNotification;
+FOUNDATION_EXPORT NSString *const kFIRIMPLStorageTaskStatusResumeNotification;
+FOUNDATION_EXPORT NSString *const kFIRIMPLStorageTaskStatusPauseNotification;
+FOUNDATION_EXPORT NSString *const kFIRIMPLStorageTaskStatusProgressNotification;
+FOUNDATION_EXPORT NSString *const kFIRIMPLStorageTaskStatusCompleteNotification;
+FOUNDATION_EXPORT NSString *const kFIRIMPLStorageTaskStatusFailureNotification;
 
 FOUNDATION_EXPORT NSString *const kFIRStorageListPrefixes;
 FOUNDATION_EXPORT NSString *const kFIRStorageListItems;
@@ -77,66 +77,66 @@ FOUNDATION_EXPORT NSString *const kFIRStorageBundleIdentifier;
 /**
  * Enum representing the internal state of an upload or download task.
  */
-typedef NS_ENUM(NSInteger, FIRStorageTaskState) {
+typedef NS_ENUM(NSInteger, FIRIMPLStorageTaskState) {
   /**
    * Unknown task state
    */
-  FIRStorageTaskStateUnknown,
+  FIRIMPLStorageTaskStateUnknown,
 
   /**
    * Task is being queued is ready to run
    */
-  FIRStorageTaskStateQueueing,
+  FIRIMPLStorageTaskStateQueueing,
 
   /**
    * Task is resuming from a paused state
    */
-  FIRStorageTaskStateResuming,
+  FIRIMPLStorageTaskStateResuming,
 
   /**
    * Task is currently running
    */
-  FIRStorageTaskStateRunning,
+  FIRIMPLStorageTaskStateRunning,
 
   /**
    * Task reporting a progress event
    */
-  FIRStorageTaskStateProgress,
+  FIRIMPLStorageTaskStateProgress,
 
   /**
    * Task is pausing
    */
-  FIRStorageTaskStatePausing,
+  FIRIMPLStorageTaskStatePausing,
 
   /**
    * Task is completing successfully
    */
-  FIRStorageTaskStateCompleting,
+  FIRIMPLStorageTaskStateCompleting,
 
   /**
    * Task is failing unrecoverably
    */
-  FIRStorageTaskStateFailing,
+  FIRIMPLStorageTaskStateFailing,
 
   /**
    * Task paused successfully
    */
-  FIRStorageTaskStatePaused,
+  FIRIMPLStorageTaskStatePaused,
 
   /**
    * Task cancelled successfully
    */
-  FIRStorageTaskStateCancelled,
+  FIRIMPLStorageTaskStateCancelled,
 
   /**
    * Task completed successfully
    */
-  FIRStorageTaskStateSuccess,
+  FIRIMPLStorageTaskStateSuccess,
 
   /**
    * Task failed unrecoverably
    */
-  FIRStorageTaskStateFailed
+  FIRIMPLStorageTaskStateFailed
 };
 
 /**

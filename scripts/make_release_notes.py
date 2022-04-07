@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Copyright 2019 Google LLC
 #
@@ -149,8 +149,9 @@ class Renderer(object):
     """
     issue_link_list = []
     issue_list = issues.split(", ")
+    translate = str.maketrans('', '', string.punctuation)
     for issue in issue_list:
-      issue = issue.translate(None, string.punctuation)
+      issue = issue.translate(translate)
       link = '//github.com/%s/issues/%s' % (self.local_repo, issue)
       issue_link_list.append('[#%s](%s)' % (issue, link))
     return "(" + ", ".join(issue_link_list) + ")"

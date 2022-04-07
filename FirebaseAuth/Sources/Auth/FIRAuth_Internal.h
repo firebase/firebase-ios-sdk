@@ -15,9 +15,9 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "FirebaseAuth/Interop/FIRAuthInterop.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
-#import "FirebaseCore/Sources/Private/FIRLogger.h"
-#import "Interop/Auth/Public/FIRAuthInterop.h"
+#import "FirebaseCore/Extension/FIRLogger.h"
 
 @class FIRAuthRequestConfiguration;
 @class FIRAuthURLPresenter;
@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey
                                 appName:(NSString *)appName
-                                  appID:(NSString *)appID NS_DESIGNATED_INITIALIZER;
+                                  appID:(NSString *)appID;
 
 /** @fn getUserID
     @brief Gets the identifier of the current user, if any.

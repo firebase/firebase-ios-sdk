@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseCore/Sources/Private/FIRHeartbeatInfo.h"
+#import "FirebaseCore/Extension/FIRHeartbeatInfo.h"
 #import <GoogleUtilities/GULHeartbeatDateStorable.h>
 #import <GoogleUtilities/GULHeartbeatDateStorage.h>
 #import <GoogleUtilities/GULHeartbeatDateStorageUserDefaults.h>
 #import <GoogleUtilities/GULLogger.h>
-#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
+#import "FirebaseCore/Extension/FIRAppInternal.h"
 
 const static long secondsInDay = 86400;
 @implementation FIRHeartbeatInfo : NSObject

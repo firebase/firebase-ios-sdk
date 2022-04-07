@@ -1,3 +1,6 @@
+# Pending
+* Remove the unused code for pre-warm detection.
+
 # Version 8.14.0
 * [fixed] Record the request payload size for POST/PUT requests.
 

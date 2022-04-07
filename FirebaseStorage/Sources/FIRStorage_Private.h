@@ -19,7 +19,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRStorage ()
+@interface FIRIMPLStorage ()
 
 @property(strong, nonatomic, readwrite) FIRApp *app;
 

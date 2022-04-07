@@ -29,17 +29,18 @@
 
 const NSString *FIRCLSTestSettingsActivated =
     @"{\"settings_version\":3,\"cache_duration\":60,\"features\":{\"collect_logged_exceptions\":"
-    @"true,\"collect_reports\":true},"
+    @"true,\"collect_reports\":true, \"collect_metric_kit\":true},"
     @"\"fabric\":{\"org_id\":\"010101000000111111111111\",\"bundle_id\":\"com.lets.test."
     @"crashlytics\"}}";
 
 const NSString *FIRCLSTestSettingsInverse =
     @"{\"settings_version\":3,\"cache_duration\":12345,\"features\":{\"collect_logged_exceptions\":"
-    @"false,\"collect_reports\":false},"
+    @"false,\"collect_reports\":false, \"collect_metric_kit\":false},"
     @"\"fabric\":{\"org_id\":\"01e101a0000011b113115111\",\"bundle_id\":\"im.from.the.server\"},"
     @"\"session\":{\"log_buffer_size\":128000,\"max_chained_exception_depth\":32,\"max_complete_"
     @"sessions_count\":4,\"max_custom_exception_events\":1000,\"max_custom_key_value_pairs\":2000,"
-    @"\"identifier_mask\":255}}";
+    @"\"identifier_mask\":255}, \"on_demand_upload_rate_per_minute\":15.0, "
+    @"\"on_demand_backoff_base\":3.0, \"on_demand_backoff_step_duration_seconds\":9}";
 
 const NSString *FIRCLSTestSettingsCorrupted = @"{{{{ non_key: non\"value {}";
 
@@ -94,11 +95,15 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertTrue(self.settings.collectReportsEnabled);
   XCTAssertTrue(self.settings.errorReportingEnabled);
   XCTAssertTrue(self.settings.customExceptionsEnabled);
+  XCTAssertFalse(self.settings.metricKitCollectionEnabled);
 
   XCTAssertEqual(self.settings.errorLogBufferSize, 64 * 1000);
   XCTAssertEqual(self.settings.logBufferSize, 64 * 1000);
   XCTAssertEqual(self.settings.maxCustomExceptions, 8);
   XCTAssertEqual(self.settings.maxCustomKeys, 64);
+  XCTAssertEqual(self.settings.onDemandUploadRate, 10);
+  XCTAssertEqual(self.settings.onDemandBackoffBase, 1.5);
+  XCTAssertEqual(self.settings.onDemandBackoffStepDuration, 6);
 }
 
 - (BOOL)writeSettings:(const NSString *)settings error:(NSError **)error {
@@ -159,11 +164,15 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertTrue(self.settings.collectReportsEnabled);
   XCTAssertTrue(self.settings.errorReportingEnabled);
   XCTAssertTrue(self.settings.customExceptionsEnabled);
+  XCTAssertTrue(self.settings.metricKitCollectionEnabled);
 
   XCTAssertEqual(self.settings.errorLogBufferSize, 64 * 1000);
   XCTAssertEqual(self.settings.logBufferSize, 64 * 1000);
   XCTAssertEqual(self.settings.maxCustomExceptions, 8);
   XCTAssertEqual(self.settings.maxCustomKeys, 64);
+  XCTAssertEqual(self.settings.onDemandUploadRate, 10);
+  XCTAssertEqual(self.settings.onDemandBackoffBase, 1.5);
+  XCTAssertEqual(self.settings.onDemandBackoffStepDuration, 6);
 }
 
 - (void)testInverseDefaultSettingsCached {
@@ -180,11 +189,15 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertFalse(self.settings.collectReportsEnabled);
   XCTAssertFalse(self.settings.errorReportingEnabled);
   XCTAssertFalse(self.settings.customExceptionsEnabled);
+  XCTAssertFalse(self.settings.metricKitCollectionEnabled);
 
   XCTAssertEqual(self.settings.errorLogBufferSize, 128000);
   XCTAssertEqual(self.settings.logBufferSize, 128000);
   XCTAssertEqual(self.settings.maxCustomExceptions, 1000);
   XCTAssertEqual(self.settings.maxCustomKeys, 2000);
+  XCTAssertEqual(self.settings.onDemandUploadRate, 15);
+  XCTAssertEqual(self.settings.onDemandBackoffBase, 3);
+  XCTAssertEqual(self.settings.onDemandBackoffStepDuration, 9);
 }
 
 - (void)testCacheExpiredFromTTL {
@@ -340,11 +353,15 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertTrue(self.settings.collectReportsEnabled);
   XCTAssertTrue(self.settings.errorReportingEnabled);
   XCTAssertTrue(self.settings.customExceptionsEnabled);
+  XCTAssertFalse(self.settings.metricKitCollectionEnabled);
 
   XCTAssertEqual(self.settings.errorLogBufferSize, 64 * 1000);
   XCTAssertEqual(self.settings.logBufferSize, 64 * 1000);
   XCTAssertEqual(self.settings.maxCustomExceptions, 8);
   XCTAssertEqual(self.settings.maxCustomKeys, 64);
+  XCTAssertEqual(self.settings.onDemandUploadRate, 10);
+  XCTAssertEqual(self.settings.onDemandBackoffBase, 1.5);
+  XCTAssertEqual(self.settings.onDemandBackoffStepDuration, 6);
 }
 
 // These tests are partially to make sure the SDK doesn't crash when it
@@ -391,6 +408,9 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.isCacheExpired, NO);
   XCTAssertEqual(self.settings.cacheDurationSeconds, 12345);
   XCTAssertEqual(self.settings.errorLogBufferSize, 128000);
+  XCTAssertEqual(self.settings.onDemandUploadRate, 15);
+  XCTAssertEqual(self.settings.onDemandBackoffBase, 3);
+  XCTAssertEqual(self.settings.onDemandBackoffStepDuration, 9);
 
   // Then pretend we wrote a corrupted cache key and just reload it
   [self writeSettings:FIRCLSTestSettingsCorrupted error:&error isCacheKey:YES];
@@ -405,6 +425,9 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.isCacheExpired, YES);
   XCTAssertEqual(self.settings.cacheDurationSeconds, 3600);
   XCTAssertEqual(self.settings.errorLogBufferSize, 64 * 1000);
+  XCTAssertEqual(self.settings.onDemandUploadRate, 10);
+  XCTAssertEqual(self.settings.onDemandBackoffBase, 1.5);
+  XCTAssertEqual(self.settings.onDemandBackoffStepDuration, 6);
 }
 
 - (void)testNewReportEndpointSettings {

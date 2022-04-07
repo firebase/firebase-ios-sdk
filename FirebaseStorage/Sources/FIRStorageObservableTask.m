@@ -16,7 +16,7 @@
 #import "FirebaseStorage/Sources/FIRStorageObservableTask_Private.h"
 #import "FirebaseStorage/Sources/FIRStorageTask_Private.h"
 
-@implementation FIRStorageObservableTask {
+@implementation FIRIMPLStorageObservableTask {
  @private
   // Handlers for pause, resume, progress, success, and failure callbacks
   NSMutableDictionary<NSString *, FIRStorageVoidSnapshot> *_resumeHandlers;
@@ -30,7 +30,7 @@
 
 @synthesize state = _state;
 
-- (instancetype)initWithReference:(FIRStorageReference *)reference
+- (instancetype)initWithReference:(FIRIMPLStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
                     dispatchQueue:(dispatch_queue_t)queue {
   self = [super initWithReference:reference fetcherService:service dispatchQueue:queue];
@@ -47,61 +47,61 @@
 
 #pragma mark - Observers
 
-- (FIRStorageHandle)observeStatus:(FIRStorageTaskStatus)status
+- (FIRStorageHandle)observeStatus:(FIRIMPLStorageTaskStatus)status
                           handler:(FIRStorageVoidSnapshot)handler {
   FIRStorageVoidSnapshot callback = handler;
 
   // Note: self.snapshot is synchronized
-  FIRStorageTaskSnapshot *snapshot = self.snapshot;
+  FIRIMPLStorageTaskSnapshot *snapshot = self.snapshot;
   // TODO: use an increasing counter instead of a random UUID
   NSString *UUIDString = [[NSUUID UUID] UUIDString];
   switch (status) {
-    case FIRStorageTaskStatusPause:
+    case FIRIMPLStorageTaskStatusPause:
       @synchronized(self) {
         [_pauseHandlers setValue:callback forKey:UUIDString];
       }  // @synchronized(self)
-      if (_state == FIRStorageTaskStatePausing || _state == FIRStorageTaskStatePaused) {
+      if (_state == FIRIMPLStorageTaskStatePausing || _state == FIRIMPLStorageTaskStatePaused) {
         [self fireHandlers:_pauseHandlers snapshot:snapshot];
       }
       break;
 
-    case FIRStorageTaskStatusResume:
+    case FIRIMPLStorageTaskStatusResume:
       @synchronized(self) {
         [_resumeHandlers setValue:callback forKey:UUIDString];
       }  // @synchronized(self)
-      if (_state == FIRStorageTaskStateResuming || _state == FIRStorageTaskStateRunning) {
+      if (_state == FIRIMPLStorageTaskStateResuming || _state == FIRIMPLStorageTaskStateRunning) {
         [self fireHandlers:_resumeHandlers snapshot:snapshot];
       }
       break;
 
-    case FIRStorageTaskStatusProgress:
+    case FIRIMPLStorageTaskStatusProgress:
       @synchronized(self) {
         [_progressHandlers setValue:callback forKey:UUIDString];
       }  // @synchronized(self)
-      if (_state == FIRStorageTaskStateRunning || _state == FIRStorageTaskStateProgress) {
+      if (_state == FIRIMPLStorageTaskStateRunning || _state == FIRIMPLStorageTaskStateProgress) {
         [self fireHandlers:_progressHandlers snapshot:snapshot];
       }
       break;
 
-    case FIRStorageTaskStatusSuccess:
+    case FIRIMPLStorageTaskStatusSuccess:
       @synchronized(self) {
         [_successHandlers setValue:callback forKey:UUIDString];
       }  // @synchronized(self)
-      if (_state == FIRStorageTaskStateSuccess) {
+      if (_state == FIRIMPLStorageTaskStateSuccess) {
         [self fireHandlers:_successHandlers snapshot:snapshot];
       }
       break;
 
-    case FIRStorageTaskStatusFailure:
+    case FIRIMPLStorageTaskStatusFailure:
       @synchronized(self) {
         [_failureHandlers setValue:callback forKey:UUIDString];
       }  // @synchronized(self)
-      if (_state == FIRStorageTaskStateFailing || _state == FIRStorageTaskStateFailed) {
+      if (_state == FIRIMPLStorageTaskStateFailing || _state == FIRIMPLStorageTaskStateFailed) {
         [self fireHandlers:_failureHandlers snapshot:snapshot];
       }
       break;
 
-    case FIRStorageTaskStatusUnknown:
+    case FIRIMPLStorageTaskStatusUnknown:
       // Fall through to exception case if an unknown status is passed
 
     default:
@@ -118,7 +118,7 @@
 }
 
 - (void)removeObserverWithHandle:(FIRStorageHandle)handle {
-  FIRStorageTaskStatus status = [_handleToStatusMap[handle] intValue];
+  FIRIMPLStorageTaskStatus status = [_handleToStatusMap[handle] intValue];
   NSMutableDictionary<NSString *, FIRStorageVoidSnapshot> *observerDictionary =
       [self handlerDictionaryForStatus:status];
 
@@ -128,7 +128,7 @@
   }  // @synchronized(self)
 }
 
-- (void)removeAllObserversForStatus:(FIRStorageTaskStatus)status {
+- (void)removeAllObserversForStatus:(FIRIMPLStorageTaskStatus)status {
   NSMutableDictionary<NSString *, FIRStorageVoidSnapshot> *observerDictionary =
       [self handlerDictionaryForStatus:status];
   [self removeHandlersFromStatusMapForDictionary:observerDictionary];
@@ -150,24 +150,24 @@
 }
 
 - (NSMutableDictionary<NSString *, FIRStorageVoidSnapshot> *)handlerDictionaryForStatus:
-    (FIRStorageTaskStatus)status {
+    (FIRIMPLStorageTaskStatus)status {
   switch (status) {
-    case FIRStorageTaskStatusPause:
+    case FIRIMPLStorageTaskStatusPause:
       return _pauseHandlers;
 
-    case FIRStorageTaskStatusResume:
+    case FIRIMPLStorageTaskStatusResume:
       return _resumeHandlers;
 
-    case FIRStorageTaskStatusProgress:
+    case FIRIMPLStorageTaskStatusProgress:
       return _progressHandlers;
 
-    case FIRStorageTaskStatusSuccess:
+    case FIRIMPLStorageTaskStatusSuccess:
       return _successHandlers;
 
-    case FIRStorageTaskStatusFailure:
+    case FIRIMPLStorageTaskStatusFailure:
       return _failureHandlers;
 
-    case FIRStorageTaskStatusUnknown:
+    case FIRIMPLStorageTaskStatusUnknown:
       return [NSMutableDictionary dictionary];
 
     default:
@@ -184,15 +184,15 @@
   }  // @synchronized(self)
 }
 
-- (void)fireHandlersForStatus:(FIRStorageTaskStatus)status
-                     snapshot:(FIRStorageTaskSnapshot *)snapshot {
+- (void)fireHandlersForStatus:(FIRIMPLStorageTaskStatus)status
+                     snapshot:(FIRIMPLStorageTaskSnapshot *)snapshot {
   NSMutableDictionary<NSString *, FIRStorageVoidSnapshot> *observerDictionary =
       [self handlerDictionaryForStatus:status];
   [self fireHandlers:observerDictionary snapshot:snapshot];
 }
 
 - (void)fireHandlers:(NSMutableDictionary<NSString *, FIRStorageVoidSnapshot> *)handlers
-            snapshot:(FIRStorageTaskSnapshot *)snapshot {
+            snapshot:(FIRIMPLStorageTaskSnapshot *)snapshot {
   dispatch_queue_t callbackQueue = self.fetcherService.callbackQueue;
   if (!callbackQueue) {
     callbackQueue = dispatch_get_main_queue();

@@ -12,6 +12,10 @@ on:
     # Run every day at 12am (PST) - cron uses UTC times
     - cron:  '0 8 * * *'
 
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: true
+
 jobs:
 
   remoteconfig:
@@ -135,8 +139,7 @@ jobs:
       matrix:
         target: [ios, tvos, macos]
         flags: [
-          '--skip-tests --use-static-frameworks',
-          '--skip-tests --use-libraries'
+          '--skip-tests --use-static-frameworks'
         ]
     needs: pod-lib-lint
     steps:

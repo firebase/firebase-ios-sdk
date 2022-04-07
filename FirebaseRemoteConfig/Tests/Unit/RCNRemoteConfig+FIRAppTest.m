@@ -18,7 +18,7 @@
 #import <XCTest/XCTest.h>
 
 //#import "FIRRemoteConfig+FIRApp.h"
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
 //#import "third_party/firebase/ios/Releases/FirebaseCore/Tests/FIRTestCase.h"
 

@@ -849,8 +849,8 @@ google_firestore_v1_StructuredQuery_Filter Serializer::EncodeSingularFilter(
     const FieldFilter& filter) const {
   google_firestore_v1_StructuredQuery_Filter result{};
 
-  bool is_unary = (filter.op() == Filter::Operator::Equal ||
-                   filter.op() == Filter::Operator::NotEqual) &&
+  bool is_unary = (filter.op() == FieldFilter::Operator::Equal ||
+                   filter.op() == FieldFilter::Operator::NotEqual) &&
                   (IsNaNValue(filter.value()) || IsNullValue(filter.value()));
   if (is_unary) {
     result.which_filter_type =
@@ -859,7 +859,7 @@ google_firestore_v1_StructuredQuery_Filter Serializer::EncodeSingularFilter(
         google_firestore_v1_StructuredQuery_UnaryFilter_field_tag;
     result.unary_filter.field.field_path = EncodeFieldPath(filter.field());
 
-    bool is_equality = filter.op() == Filter::Operator::Equal;
+    bool is_equality = filter.op() == FieldFilter::Operator::Equal;
     if (IsNaNValue(filter.value())) {
       result.unary_filter.op =
           is_equality
@@ -895,7 +895,8 @@ Filter Serializer::DecodeFieldFilter(
     google_firestore_v1_StructuredQuery_FieldFilter& field_filter) const {
   FieldPath field_path =
       DecodeFieldPath(context, field_filter.field.field_path);
-  Filter::Operator op = DecodeFieldFilterOperator(context, field_filter.op);
+  FieldFilter::Operator op =
+      DecodeFieldFilterOperator(context, field_filter.op);
   Filter result = FieldFilter::Create(std::move(field_path), op,
                                       MakeSharedMessage(field_filter.value));
   field_filter.value = {};  // Release field ownership
@@ -914,17 +915,20 @@ Filter Serializer::DecodeUnaryFilter(
 
   switch (unary.op) {
     case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NULL:
-      return FieldFilter::Create(field, Filter::Operator::Equal, NullValue());
+      return FieldFilter::Create(field, FieldFilter::Operator::Equal,
+                                 NullValue());
 
     case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NAN:
-      return FieldFilter::Create(field, Filter::Operator::Equal, NaNValue());
+      return FieldFilter::Create(field, FieldFilter::Operator::Equal,
+                                 NaNValue());
 
     case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NOT_NULL:
-      return FieldFilter::Create(field, Filter::Operator::NotEqual,
+      return FieldFilter::Create(field, FieldFilter::Operator::NotEqual,
                                  NullValue());
 
     case google_firestore_v1_StructuredQuery_UnaryFilter_Operator_IS_NOT_NAN:
-      return FieldFilter::Create(field, Filter::Operator::NotEqual, NaNValue());
+      return FieldFilter::Create(field, FieldFilter::Operator::NotEqual,
+                                 NaNValue());
 
     default:
       context->Fail(StringFormat("Unrecognized UnaryFilter.op %s", unary.op));
@@ -974,36 +978,36 @@ FilterList Serializer::DecodeCompositeFilter(
 }
 
 google_firestore_v1_StructuredQuery_FieldFilter_Operator
-Serializer::EncodeFieldFilterOperator(Filter::Operator op) const {
+Serializer::EncodeFieldFilterOperator(FieldFilter::Operator op) const {
   switch (op) {
-    case Filter::Operator::LessThan:
+    case FieldFilter::Operator::LessThan:
       return google_firestore_v1_StructuredQuery_FieldFilter_Operator_LESS_THAN;
 
-    case Filter::Operator::LessThanOrEqual:
+    case FieldFilter::Operator::LessThanOrEqual:
       return google_firestore_v1_StructuredQuery_FieldFilter_Operator_LESS_THAN_OR_EQUAL;  // NOLINT
 
-    case Filter::Operator::GreaterThan:
+    case FieldFilter::Operator::GreaterThan:
       return google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN;  // NOLINT
 
-    case Filter::Operator::GreaterThanOrEqual:
+    case FieldFilter::Operator::GreaterThanOrEqual:
       return google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN_OR_EQUAL;  // NOLINT
 
-    case Filter::Operator::Equal:
+    case FieldFilter::Operator::Equal:
       return google_firestore_v1_StructuredQuery_FieldFilter_Operator_EQUAL;
 
-    case Filter::Operator::NotEqual:
+    case FieldFilter::Operator::NotEqual:
       return google_firestore_v1_StructuredQuery_FieldFilter_Operator_NOT_EQUAL;
 
-    case Filter::Operator::ArrayContains:
+    case FieldFilter::Operator::ArrayContains:
       return google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS;  // NOLINT
 
-    case Filter::Operator::In:
+    case FieldFilter::Operator::In:
       return google_firestore_v1_StructuredQuery_FieldFilter_Operator_IN;
 
-    case Filter::Operator::ArrayContainsAny:
+    case FieldFilter::Operator::ArrayContainsAny:
       return google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS_ANY;  // NOLINT
 
-    case Filter::Operator::NotIn:
+    case FieldFilter::Operator::NotIn:
       return google_firestore_v1_StructuredQuery_FieldFilter_Operator_NOT_IN;  // NOLINT
 
     default:
@@ -1011,43 +1015,43 @@ Serializer::EncodeFieldFilterOperator(Filter::Operator op) const {
   }
 }
 
-Filter::Operator Serializer::DecodeFieldFilterOperator(
+FieldFilter::Operator Serializer::DecodeFieldFilterOperator(
     ReadContext* context,
     google_firestore_v1_StructuredQuery_FieldFilter_Operator op) const {
   switch (op) {
     case google_firestore_v1_StructuredQuery_FieldFilter_Operator_LESS_THAN:
-      return Filter::Operator::LessThan;
+      return FieldFilter::Operator::LessThan;
 
     case google_firestore_v1_StructuredQuery_FieldFilter_Operator_LESS_THAN_OR_EQUAL:  // NOLINT
-      return Filter::Operator::LessThanOrEqual;
+      return FieldFilter::Operator::LessThanOrEqual;
 
     case google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN:
-      return Filter::Operator::GreaterThan;
+      return FieldFilter::Operator::GreaterThan;
 
     case google_firestore_v1_StructuredQuery_FieldFilter_Operator_GREATER_THAN_OR_EQUAL:  // NOLINT
-      return Filter::Operator::GreaterThanOrEqual;
+      return FieldFilter::Operator::GreaterThanOrEqual;
 
     case google_firestore_v1_StructuredQuery_FieldFilter_Operator_EQUAL:
-      return Filter::Operator::Equal;
+      return FieldFilter::Operator::Equal;
 
     case google_firestore_v1_StructuredQuery_FieldFilter_Operator_NOT_EQUAL:
-      return Filter::Operator::NotEqual;
+      return FieldFilter::Operator::NotEqual;
 
     case google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS:  // NOLINT
-      return Filter::Operator::ArrayContains;
+      return FieldFilter::Operator::ArrayContains;
 
     case google_firestore_v1_StructuredQuery_FieldFilter_Operator_IN:
-      return Filter::Operator::In;
+      return FieldFilter::Operator::In;
 
     case google_firestore_v1_StructuredQuery_FieldFilter_Operator_ARRAY_CONTAINS_ANY:  // NOLINT
-      return Filter::Operator::ArrayContainsAny;
+      return FieldFilter::Operator::ArrayContainsAny;
 
     case google_firestore_v1_StructuredQuery_FieldFilter_Operator_NOT_IN:  // NOLINT
-      return Filter::Operator::NotIn;
+      return FieldFilter::Operator::NotIn;
 
     default:
       context->Fail(StringFormat("Unhandled FieldFilter.op: %s", op));
-      return Filter::Operator{};
+      return FieldFilter::Operator{};
   }
 }
 

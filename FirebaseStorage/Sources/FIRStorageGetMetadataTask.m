@@ -28,7 +28,7 @@
 @synthesize fetcher = _fetcher;
 @synthesize fetcherCompletion = _fetcherCompletion;
 
-- (instancetype)initWithReference:(FIRStorageReference *)reference
+- (instancetype)initWithReference:(FIRIMPLStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
                     dispatchQueue:(dispatch_queue_t)queue
                        completion:(FIRStorageVoidMetadataError)completion {
@@ -65,7 +65,7 @@
     fetcher.comment = @"GetMetadataTask";
 
     strongSelf->_fetcherCompletion = ^(NSData *data, NSError *error) {
-      FIRStorageMetadata *metadata;
+      FIRIMPLStorageMetadata *metadata;
       if (error) {
         if (!self.error) {
           self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
@@ -73,7 +73,7 @@
       } else {
         NSDictionary *responseDictionary = [NSDictionary frs_dictionaryFromJSONData:data];
         if (responseDictionary != nil) {
-          metadata = [[FIRStorageMetadata alloc] initWithDictionary:responseDictionary];
+          metadata = [[FIRIMPLStorageMetadata alloc] initWithDictionary:responseDictionary];
           [metadata setType:FIRStorageMetadataTypeFile];
         } else {
           self.error = [FIRStorageErrors errorWithInvalidRequest:data];

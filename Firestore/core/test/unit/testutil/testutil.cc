@@ -266,29 +266,29 @@ DocumentSet DocSet(DocumentComparator comp, std::vector<Document> docs) {
   return set;
 }
 
-core::Filter::Operator OperatorFromString(absl::string_view s) {
+core::FieldFilter::Operator OperatorFromString(absl::string_view s) {
   if (s == "<") {
-    return core::Filter::Operator::LessThan;
+    return core::FieldFilter::Operator::LessThan;
   } else if (s == "<=") {
-    return core::Filter::Operator::LessThanOrEqual;
+    return core::FieldFilter::Operator::LessThanOrEqual;
   } else if (s == "==") {
-    return core::Filter::Operator::Equal;
+    return core::FieldFilter::Operator::Equal;
   } else if (s == "!=") {
-    return core::Filter::Operator::NotEqual;
+    return core::FieldFilter::Operator::NotEqual;
   } else if (s == ">") {
-    return core::Filter::Operator::GreaterThan;
+    return core::FieldFilter::Operator::GreaterThan;
   } else if (s == ">=") {
-    return core::Filter::Operator::GreaterThanOrEqual;
+    return core::FieldFilter::Operator::GreaterThanOrEqual;
     // Both are accepted for compatibility with spec tests and existing
     // canonical ids.
   } else if (s == "array_contains" || s == "array-contains") {
-    return core::Filter::Operator::ArrayContains;
+    return core::FieldFilter::Operator::ArrayContains;
   } else if (s == "in") {
-    return core::Filter::Operator::In;
+    return core::FieldFilter::Operator::In;
   } else if (s == "array-contains-any") {
-    return core::Filter::Operator::ArrayContainsAny;
+    return core::FieldFilter::Operator::ArrayContainsAny;
   } else if (s == "not-in") {
-    return core::Filter::Operator::NotIn;
+    return core::FieldFilter::Operator::NotIn;
   } else {
     HARD_FAIL("Unknown operator: %s", s);
   }
@@ -521,6 +521,21 @@ model::FieldIndex MakeFieldIndex(const std::string& collection_group,
           collection_group,
           {model::Segment{Field(field_1), kind_1},
            model::Segment{Field(field_2), kind_2}},
+          model::FieldIndex::InitialState()};
+}
+
+model::FieldIndex MakeFieldIndex(const std::string& collection_group,
+                                 const std::string& field_1,
+                                 model::Segment::Kind kind_1,
+                                 const std::string& field_2,
+                                 model::Segment::Kind kind_2,
+                                 const std::string& field_3,
+                                 model::Segment::Kind kind_3) {
+  return {-1,
+          collection_group,
+          {model::Segment{Field(field_1), kind_1},
+           model::Segment{Field(field_2), kind_2},
+           model::Segment{Field(field_3), kind_3}},
           model::FieldIndex::InitialState()};
 }
 

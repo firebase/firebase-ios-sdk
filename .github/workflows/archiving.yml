@@ -9,6 +9,10 @@ on:
     # This is set to 3 hours after zip workflow finishes so zip testing can run after.
     - cron:  '0 10 * * *'
 
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: true
+
 jobs:
   # Archive tests for pods that support iOS only.
   pods-ios-only-cron:

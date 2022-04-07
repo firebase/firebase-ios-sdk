@@ -16,6 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
+@import HeartbeatLoggingTestUtils;
+
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthRPCRequest.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthRPCResponse.h"
@@ -23,6 +25,8 @@
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthInternalErrors.h"
 #import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
+
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 /** @var kFakeRequestURL
     @brief Used as a fake URL for a fake RPC request. We don't test this here, since it's tested
@@ -110,6 +114,8 @@ static NSString *const kServerErrorDetailMarker = @" : ";
  */
 static NSString *const kTestValue = @"TestValue";
 
+#pragma mark - FIRAuthBackendRPCImplementation
+
 /** @class FIRAuthBackendRPCImplementation
     @brief Exposes an otherwise private class to these tests. See the real implementation for
         documentation.
@@ -134,6 +140,43 @@ static NSString *const kTestValue = @"TestValue";
                callback:(void (^)(NSError *error))callback;
 
 @end
+
+#pragma mark - FIRFakeHeartbeatLogger
+
+/// A fake heartbeat logger used for dependency injection during testing.
+@interface FIRFakeHeartbeatLogger : NSObject <FIRHeartbeatLoggerProtocol>
+@property(nonatomic, copy, nullable) FIRHeartbeatsPayload * (^onFlushHeartbeatsIntoPayloadHandler)
+    (void);
+@property(nonatomic, copy, nullable) FIRHeartbeatInfoCode (^onHeartbeatCodeForTodayHandler)(void);
+@end
+
+@implementation FIRFakeHeartbeatLogger
+
+- (nonnull FIRHeartbeatsPayload *)flushHeartbeatsIntoPayload {
+  if (self.onFlushHeartbeatsIntoPayloadHandler) {
+    return self.onFlushHeartbeatsIntoPayloadHandler();
+  } else {
+    return nil;
+  }
+}
+
+- (FIRHeartbeatInfoCode)heartbeatCodeForToday {
+  // This API should not be used by the below tests because the Auth
+  // SDK uses only the V2 heartbeat API (`flushHeartbeatsIntoPayload`) for
+  // getting heartbeats.
+  [self doesNotRecognizeSelector:_cmd];
+  return FIRHeartbeatInfoCodeNone;
+}
+
+- (void)log {
+  // This API should not be used by the below tests because the Auth
+  // SDK does not log heartbeats in it's networking context.
+  [self doesNotRecognizeSelector:_cmd];
+}
+
+@end
+
+#pragma mark - FIRFakeRequest
 
 /** @class FIRFakeRequest
     @brief Allows us to fake a request with deterministic request bodies and encoding errors
@@ -174,9 +217,12 @@ static NSString *const kTestValue = @"TestValue";
         invoked.
     @param encodingError The fake error to return when @c unencodedHTTPRequestBodyWithError is
         invoked.
+    @param requestConfiguration The request configuration associated with the fake request.
  */
 - (nullable instancetype)initWithRequestBody:(nullable id)requestBody
                                encodingError:(nullable NSError *)encodingError
+                        requestConfiguration:
+                            (nullable FIRAuthRequestConfiguration *)requestConfiguration
     NS_DESIGNATED_INITIALIZER;
 
 @end
@@ -193,30 +239,47 @@ static NSString *const kTestValue = @"TestValue";
           is invoked.
    */
   NSError *_Nullable _requestEncodingError;
+
+  /** @var _requestConfiguration
+      @brief The request configuration to return.
+   */
+  FIRAuthRequestConfiguration *_Nullable _requestConfiguration;
 }
 
 + (nullable instancetype)fakeRequest {
-  return [[self alloc] initWithRequestBody:@{} encodingError:nil];
+  return [[self alloc] initWithRequestBody:@{} encodingError:nil requestConfiguration:nil];
+}
+
++ (nullable instancetype)fakeRequestWithRequestConfiguration:
+    (FIRAuthRequestConfiguration *)requestConfiguration {
+  return [[self alloc] initWithRequestBody:@{}
+                             encodingError:nil
+                      requestConfiguration:requestConfiguration];
 }
 
 + (nullable instancetype)fakeRequestWithEncodingError:(NSError *)error {
-  return [[self alloc] initWithRequestBody:nil encodingError:error];
+  return [[self alloc] initWithRequestBody:nil encodingError:error requestConfiguration:nil];
 }
 
 + (nullable instancetype)fakeRequestWithUnserializableRequestBody {
-  return [[self alloc] initWithRequestBody:@{@"unencodableValue" : self} encodingError:nil];
+  return [[self alloc] initWithRequestBody:@{@"unencodableValue" : self}
+                             encodingError:nil
+                      requestConfiguration:nil];
 }
 
 + (nullable instancetype)fakeRequestWithNoBody {
-  return [[self alloc] initWithRequestBody:nil encodingError:nil];
+  return [[self alloc] initWithRequestBody:nil encodingError:nil requestConfiguration:nil];
 }
 
 - (nullable instancetype)initWithRequestBody:(nullable id)requestBody
-                               encodingError:(nullable NSError *)encodingError {
+                               encodingError:(nullable NSError *)encodingError
+                        requestConfiguration:
+                            (nullable FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super init];
   if (self) {
     _requestBody = requestBody;
     _requestEncodingError = encodingError;
+    _requestConfiguration = requestConfiguration;
   }
   return self;
 }
@@ -230,9 +293,11 @@ static NSString *const kTestValue = @"TestValue";
 }
 
 - (FIRAuthRequestConfiguration *)requestConfiguration {
-  FIRAuthRequestConfiguration *fakeConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kFakeAPIkey appID:kFakeFirebaseAppID];
-  return fakeConfiguration;
+  if (!_requestConfiguration) {
+    _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kFakeAPIkey
+                                                                          appID:kFakeFirebaseAppID];
+  }
+  return _requestConfiguration;
 }
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *_Nullable *_Nullable)error {
@@ -243,6 +308,8 @@ static NSString *const kTestValue = @"TestValue";
 }
 
 @end
+
+#pragma mark - FIRFakeResponse
 
 /** @class FIRFakeResponse
     @brief Allows us to inspect the dictionaries received by @c FIRAuthRPCResponse classes, and
@@ -314,6 +381,8 @@ static NSString *const kTestValue = @"TestValue";
 
 @end
 
+#pragma mark - FIRAuthBackendRPCImplementationTests
+
 /** @class FIRAuthBackendRPCImplementationTests
     @brief This set of unit tests is designed primarily to test the possible outcomes of the
         @c FIRAuthBackendRPCImplementation.postWithRequest:response:callback: method.
@@ -345,6 +414,82 @@ static NSString *const kTestValue = @"TestValue";
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:nil];
   _RPCIssuer = nil;
   _RPCImplementation = nil;
+}
+
+/** @fn testRequest_IncludesHeartbeatPayload_WhenHeartbeatsNeedSending
+    @brief This test checks the behavior of @c postWithRequest:response:callback:
+        to verify that a heartbeats payload is attached as a header to an
+        outgoing request when there are stored heartbeats that need sending.
+ */
+- (void)testRequest_IncludesHeartbeatPayload_WhenHeartbeatsNeedSending {
+  // Given
+  FIRFakeHeartbeatLogger *fakeHeartbeatLogger = [[FIRFakeHeartbeatLogger alloc] init];
+  FIRAuthRequestConfiguration *requestConfiguration =
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kFakeAPIkey
+                                                    appID:kFakeFirebaseAppID
+                                          heartbeatLogger:fakeHeartbeatLogger];
+  FIRFakeRequest *request =
+      [FIRFakeRequest fakeRequestWithRequestConfiguration:requestConfiguration];
+  FIRFakeResponse *response = [FIRFakeResponse fakeResponse];
+
+  // When
+  FIRHeartbeatsPayload *nonEmptyHeartbeatsPayload =
+      [FIRHeartbeatLoggingTestUtils nonEmptyHeartbeatsPayload];
+
+  fakeHeartbeatLogger.onFlushHeartbeatsIntoPayloadHandler = ^FIRHeartbeatsPayload * {
+    return nonEmptyHeartbeatsPayload;
+  };
+
+  __block NSError *callbackError;
+  __block BOOL callbackInvoked;
+  [_RPCImplementation postWithRequest:request
+                             response:response
+                             callback:^(NSError *error) {
+                               callbackInvoked = YES;
+                               callbackError = error;
+                             }];
+
+  // Then
+  NSString *expectedHeader = FIRHeaderValueFromHeartbeatsPayload(nonEmptyHeartbeatsPayload);
+  XCTAssertEqualObjects([_RPCIssuer.completeRequest valueForHTTPHeaderField:@"X-Firebase-Client"],
+                        expectedHeader);
+}
+
+/** @fn testRequest_DoesNotIncludeAHeartbeatPayload_WhenNoHeartbeatsNeedSending
+    @brief This test checks the behavior of @c postWithRequest:response:callback:
+        to verify that a request header does not contain heartbeat data in the
+        case that there are no stored heartbeats that need sending.
+ */
+- (void)testRequest_DoesNotIncludeAHeartbeatPayload_WhenNoHeartbeatsNeedSending {
+  // Given
+  FIRFakeHeartbeatLogger *fakeHeartbeatLogger = [[FIRFakeHeartbeatLogger alloc] init];
+  FIRAuthRequestConfiguration *requestConfiguration =
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kFakeAPIkey
+                                                    appID:kFakeFirebaseAppID
+                                          heartbeatLogger:fakeHeartbeatLogger];
+  FIRFakeRequest *request =
+      [FIRFakeRequest fakeRequestWithRequestConfiguration:requestConfiguration];
+  FIRFakeResponse *response = [FIRFakeResponse fakeResponse];
+
+  // When
+  FIRHeartbeatsPayload *emptyHeartbeatsPayload =
+      [FIRHeartbeatLoggingTestUtils emptyHeartbeatsPayload];
+
+  fakeHeartbeatLogger.onFlushHeartbeatsIntoPayloadHandler = ^FIRHeartbeatsPayload * {
+    return emptyHeartbeatsPayload;
+  };
+
+  __block NSError *callbackError;
+  __block BOOL callbackInvoked;
+  [_RPCImplementation postWithRequest:request
+                             response:response
+                             callback:^(NSError *error) {
+                               callbackInvoked = YES;
+                               callbackError = error;
+                             }];
+
+  // Then
+  XCTAssertNil([_RPCIssuer.completeRequest valueForHTTPHeaderField:@"X-Firebase-Client"]);
 }
 
 /** @fn testRequestEncodingError

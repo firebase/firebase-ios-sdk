@@ -7,7 +7,7 @@
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless Requiredd by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -73,6 +73,7 @@ using nanopb::SharedMessage;
 using nlohmann::json;
 using util::StatusOr;
 using util::StringFormat;
+using Operator = FieldFilter::Operator;
 
 template <typename T>
 const std::vector<T>& EmptyVector() {
@@ -179,32 +180,31 @@ FieldPath DecodeFieldReference(JsonReader& reader, const json& field) {
   }
 }
 
-Filter::Operator DecodeFieldFilterOperator(JsonReader& reader,
-                                           const std::string& op) {
+Operator DecodeFieldFilterOperator(JsonReader& reader, const std::string& op) {
   if (op == "LESS_THAN") {
-    return Filter::Operator::LessThan;
+    return Operator::LessThan;
   } else if (op == "LESS_THAN_OR_EQUAL") {
-    return Filter::Operator::LessThanOrEqual;
+    return Operator::LessThanOrEqual;
   } else if (op == "EQUAL") {
-    return Filter::Operator::Equal;
+    return Operator::Equal;
   } else if (op == "NOT_EQUAL") {
-    return Filter::Operator::NotEqual;
+    return Operator::NotEqual;
   } else if (op == "GREATER_THAN") {
-    return Filter::Operator::GreaterThan;
+    return Operator::GreaterThan;
   } else if (op == "GREATER_THAN_OR_EQUAL") {
-    return Filter::Operator::GreaterThanOrEqual;
+    return Operator::GreaterThanOrEqual;
   } else if (op == "ARRAY_CONTAINS") {
-    return Filter::Operator::ArrayContains;
+    return Operator::ArrayContains;
   } else if (op == "IN") {
-    return Filter::Operator::In;
+    return Operator::In;
   } else if (op == "ARRAY_CONTAINS_ANY") {
-    return Filter::Operator::ArrayContainsAny;
+    return Operator::ArrayContainsAny;
   } else if (op == "NOT_IN") {
-    return Filter::Operator::NotIn;
+    return Operator::NotIn;
   } else {
     reader.Fail("Operator in filter is not valid: " + op);
     // We have to return something.
-    return Filter::Operator::Equal;
+    return Operator::Equal;
   }
 }
 
@@ -227,13 +227,13 @@ Filter DecodeUnaryFilter(JsonReader& reader, const json& filter) {
   }
 
   if (op == "IS_NAN") {
-    return FieldFilter::Create(path, Filter::Operator::Equal, NaNValue());
+    return FieldFilter::Create(path, Operator::Equal, NaNValue());
   } else if (op == "IS_NULL") {
-    return FieldFilter::Create(path, Filter::Operator::Equal, NullValue());
+    return FieldFilter::Create(path, Operator::Equal, NullValue());
   } else if (op == "IS_NOT_NAN") {
-    return FieldFilter::Create(path, Filter::Operator::NotEqual, NaNValue());
+    return FieldFilter::Create(path, Operator::NotEqual, NaNValue());
   } else if (op == "IS_NOT_NULL") {
-    return FieldFilter::Create(path, Filter::Operator::NotEqual, NullValue());
+    return FieldFilter::Create(path, Operator::NotEqual, NullValue());
   }
 
   reader.Fail("Unexpected unary filter operator: " + op);
@@ -391,6 +391,16 @@ const nlohmann::json& JsonReader::RequiredObject(const char* child_name,
     return json_object;
   }
   return json_object.at(child_name);
+}
+
+const nlohmann::json& JsonReader::OptionalObject(
+    const char* child_name,
+    const json& json_object,
+    const nlohmann::json& default_value) {
+  if (json_object.contains(child_name)) {
+    return json_object.at(child_name);
+  }
+  return default_value;
 }
 
 double JsonReader::RequiredDouble(const char* name, const json& json_object) {
@@ -614,11 +624,22 @@ FilterList BundleSerializer::DecodeCompositeFilter(JsonReader& reader,
     return {};
   }
 
-  auto filters = reader.RequiredArray("filters", filter);
+  const std::vector<json> default_filters;
+  const auto& filters =
+      reader.OptionalArray("filters", filter, default_filters);
+
+  const json default_objects;
   FilterList result;
   for (const auto& f : filters) {
-    result = result.push_back(
-        DecodeFieldFilter(reader, reader.RequiredObject("fieldFilter", f)));
+    const json& field_filter =
+        reader.OptionalObject("fieldFilter", f, default_objects);
+    if (!field_filter.empty()) {
+      result = result.push_back(DecodeFieldFilter(reader, field_filter));
+    } else {
+      result = result.push_back(DecodeUnaryFilter(
+          reader, reader.OptionalObject("unaryFilter", f, default_objects)));
+    }
+
     if (!reader.ok()) {
       return {};
     }
@@ -636,8 +657,10 @@ Bound BundleSerializer::DecodeBound(JsonReader& reader,
     return default_bound;
   }
 
+  std::vector<json> default_values;
   const json& bound_json = reader.RequiredObject(bound_name, query);
-  std::vector<json> values = reader.RequiredArray("values", bound_json);
+  std::vector<json> values =
+      reader.OptionalArray("values", bound_json, default_values);
   bool before = reader.OptionalBool("before", bound_json);
 
   auto positions = MakeSharedMessage<google_firestore_v1_ArrayValue>({});
@@ -737,7 +760,9 @@ Message<google_firestore_v1_MapValue> BundleSerializer::DecodeMapValue(
 
 Message<google_firestore_v1_ArrayValue> BundleSerializer::DecodeArrayValue(
     JsonReader& reader, const json& array_json) const {
-  const auto& values = reader.RequiredArray("values", array_json);
+  std::vector<json> default_values;
+  const auto& values =
+      reader.OptionalArray("values", array_json, default_values);
 
   Message<google_firestore_v1_ArrayValue> array_value;
   SetRepeatedField(

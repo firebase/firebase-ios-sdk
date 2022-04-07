@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseCore/Sources/Private/FIRLogger.h"
+#import "FirebaseCore/Extension/FIRLogger.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULLogger.h>
@@ -20,12 +20,12 @@
 
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 
-FIRLoggerService kFIRLoggerCore = @"[Firebase/Core]";
+FIRLoggerService kFIRLoggerCore = @"[FirebaseCore]";
 
 // All the FIRLoggerService definitions should be migrated to clients. Do not add new ones!
-FIRLoggerService kFIRLoggerAnalytics = @"[Firebase/Analytics]";
-FIRLoggerService kFIRLoggerCrash = @"[Firebase/Crash]";
-FIRLoggerService kFIRLoggerRemoteConfig = @"[Firebase/RemoteConfig]";
+FIRLoggerService kFIRLoggerAnalytics = @"[FirebaseAnalytics]";
+FIRLoggerService kFIRLoggerCrash = @"[FirebaseCrash]";
+FIRLoggerService kFIRLoggerRemoteConfig = @"[FirebaseRemoteConfig]";
 
 /// Arguments passed on launch.
 NSString *const kFIRDisableDebugModeApplicationArgument = @"-FIRDebugDisabled";

@@ -16,7 +16,7 @@
 
 #import "FirebaseStorage/Sources/FIRStorageLogger.h"
 
-FIRLoggerService kFIRLoggerStorage = @"[Firebase/Storage]";
+FIRLoggerService kFIRLoggerStorage = @"[FirebaseStorage]";
 
 // FIRStorageTokenAuthorizer.m
 NSString *const kFIRStorageMessageCodeAppCheckError = @"I-STR000001";

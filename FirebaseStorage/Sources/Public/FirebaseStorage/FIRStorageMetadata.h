@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRStorageReference;
+@class FIRIMPLStorageReference;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -27,8 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Objects#resource docs.
  * @see https://cloud.google.com/storage/docs/json_api/v1/objects#resource
  */
-NS_SWIFT_NAME(StorageMetadata)
-@interface FIRStorageMetadata : NSObject <NSCopying>
+@interface FIRIMPLStorageMetadata : NSObject <NSCopying>
 
 /**
  * The name of the bucket containing this object.
@@ -110,11 +109,11 @@ NS_SWIFT_NAME(StorageMetadata)
 /**
  * A reference to the object in Firebase Storage.
  */
-@property(strong, nonatomic, readonly, nullable) FIRStorageReference *storageReference;
+@property(strong, nonatomic, readonly, nullable) FIRIMPLStorageReference *storageReference;
 
 /**
- * Creates an instance of FIRStorageMetadata from the contents of a dictionary.
- * @return An instance of FIRStorageMetadata that represents the contents of a dictionary.
+ * Creates an instance of FIRIMPLStorageMetadata from the contents of a dictionary.
+ * @return An instance of FIRIMPLStorageMetadata that represents the contents of a dictionary.
  */
 - (nullable instancetype)initWithDictionary:(NSDictionary<NSString *, id> *)dictionary
     NS_DESIGNATED_INITIALIZER;

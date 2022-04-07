@@ -1,5 +1,5 @@
 # v8.14.0
-- [added] Added `X-Firebase-Client` and `X-Firebase-Client-Log-Type` headers to network requests. (#9066)
+- [added] Started to collect the Firebase user agent for Firebase Auth. (#9066)
 
 # v8.12.0
 - [added] Added documentation note and error logging to `getStoredUser(forAccessGroup:)` regarding tvOS keychain sharing issues. (#8878)

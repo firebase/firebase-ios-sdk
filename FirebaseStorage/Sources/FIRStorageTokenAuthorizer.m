@@ -21,11 +21,11 @@
 #import "FirebaseStorage/Sources/FIRStorageErrors.h"
 #import "FirebaseStorage/Sources/FIRStorageLogger.h"
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
-#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
-#import "FirebaseAppCheck/Sources/Interop/FIRAppCheckTokenResultInterop.h"
-#import "Interop/Auth/Public/FIRAuthInterop.h"
+#import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
+#import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
+#import "FirebaseAuth/Interop/FIRAuthInterop.h"
 
 static NSString *const kAppCheckTokenHeader = @"X-Firebase-AppCheck";
 static NSString *const kAuthHeader = @"Authorization";
@@ -97,9 +97,9 @@ static NSString *const kAuthHeader = @"Authorization";
                            errorDictionary[kFIRStorageResponseErrorDomain] = error.domain;
                            errorDictionary[kFIRStorageResponseErrorCode] = @(error.code);
 
-                           NSError *tokenError =
-                               [FIRStorageErrors errorWithCode:FIRStorageErrorCodeUnauthenticated
-                                                infoDictionary:errorDictionary];
+                           NSError *tokenError = [FIRStorageErrors
+                                errorWithCode:FIRIMPLStorageErrorCodeUnauthenticated
+                               infoDictionary:errorDictionary];
                            [invocation setArgument:&tokenError atIndex:4];
                          } else if (token) {
                            NSString *firebaseToken =

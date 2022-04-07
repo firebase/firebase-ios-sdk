@@ -56,13 +56,13 @@ typedef NS_ENUM(NSInteger, FIRRemoteConfigFetchAndActivateStatus) {
 /// Remote Config error domain that handles errors when fetching data from the service.
 extern NSString *const _Nonnull FIRRemoteConfigErrorDomain NS_SWIFT_NAME(RemoteConfigErrorDomain);
 /// Firebase Remote Config service fetch error.
-typedef NS_ENUM(NSInteger, FIRRemoteConfigError) {
-  /// Unknown or no error.
-  FIRRemoteConfigErrorUnknown = 8001,
-  /// Frequency of fetch requests exceeds throttled limit.
-  FIRRemoteConfigErrorThrottled = 8002,
-  /// Internal error that covers all internal HTTP errors.
-  FIRRemoteConfigErrorInternalError = 8003,
+typedef NS_ERROR_ENUM(FIRRemoteConfigErrorDomain, FIRRemoteConfigError){
+    /// Unknown or no error.
+    FIRRemoteConfigErrorUnknown = 8001,
+    /// Frequency of fetch requests exceeds throttled limit.
+    FIRRemoteConfigErrorThrottled = 8002,
+    /// Internal error that covers all internal HTTP errors.
+    FIRRemoteConfigErrorInternalError = 8003,
 } NS_SWIFT_NAME(RemoteConfigError);
 
 /// Enumerated value that indicates the source of Remote Config data. Data can come from
@@ -80,18 +80,18 @@ typedef NS_ENUM(NSInteger, FIRRemoteConfigSource) {
 /// @param error  Error message on failure.
 typedef void (^FIRRemoteConfigFetchCompletion)(FIRRemoteConfigFetchStatus status,
                                                NSError *_Nullable error)
-    NS_SWIFT_NAME(RemoteConfigFetchCompletion);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /// Completion handler invoked by activate method upon completion.
 /// @param error  Error message on failure. Nil if activation was successful.
 typedef void (^FIRRemoteConfigActivateCompletion)(NSError *_Nullable error)
-    NS_SWIFT_NAME(RemoteConfigActivateCompletion);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /// Completion handler invoked upon completion of Remote Config initialization.
 ///
 /// @param initializationError nil if initialization succeeded.
 typedef void (^FIRRemoteConfigInitializationCompletion)(NSError *_Nullable initializationError)
-    NS_SWIFT_NAME(RemoteConfigInitializationCompletion);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /// Completion handler invoked by the fetchAndActivate method. Used to convey status of fetch and,
 /// if successful, resultant activate call
@@ -99,7 +99,7 @@ typedef void (^FIRRemoteConfigInitializationCompletion)(NSError *_Nullable initi
 /// @param error  Error message on failure of config fetch
 typedef void (^FIRRemoteConfigFetchAndActivateCompletion)(
     FIRRemoteConfigFetchAndActivateStatus status, NSError *_Nullable error)
-    NS_SWIFT_NAME(RemoteConfigFetchAndActivateCompletion);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 #pragma mark - FIRRemoteConfigValue
 /// This class provides a wrapper for Remote Config parameter values, with methods to get parameter

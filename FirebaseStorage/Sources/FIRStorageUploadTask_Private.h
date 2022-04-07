@@ -18,7 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRStorageUploadTask ()
+@interface FIRIMPLStorageUploadTask ()
 
 /**
  * The data to be uploaded (if uploading bytes).
@@ -31,9 +31,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property(readonly, copy, nonatomic, nullable) NSURL *fileURL;
 
 /**
- * The FIRStorageMetadata about the object being uploaded.
+ * The FIRIMPLStorageMetadata about the object being uploaded.
  */
-@property(readonly, copy, nonatomic) FIRStorageMetadata *uploadMetadata;
+@property(readonly, copy, nonatomic) FIRIMPLStorageMetadata *uploadMetadata;
 
 /**
  * GTMSessionUploadFetcher used by all uploads.
@@ -41,32 +41,32 @@ NS_ASSUME_NONNULL_BEGIN
 @property(strong, atomic) GTMSessionUploadFetcher *uploadFetcher;
 
 /**
- * Initializes an upload task with a base FIRStorageReference and GTMSessionFetcherService.
- * @param reference The base FIRStorageReference which fetchers use for configuration.
+ * Initializes an upload task with a base FIRIMPLStorageReference and GTMSessionFetcherService.
+ * @param reference The base FIRIMPLStorageReference which fetchers use for configuration.
  * @param service The GTMSessionFetcherService which will create fetchers.
  * @param queue The shared queue to use for all Storage operations.
  * @param uploadData The NSData object to be uploaded.
- * @return Returns an instance of FIRStorageUploadTask.
+ * @return Returns an instance of FIRIMPLStorageUploadTask.
  */
-- (instancetype)initWithReference:(FIRStorageReference *)reference
+- (instancetype)initWithReference:(FIRIMPLStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
                     dispatchQueue:(dispatch_queue_t)queue
                              data:(NSData *)uploadData
-                         metadata:(FIRStorageMetadata *)metadata;
+                         metadata:(FIRIMPLStorageMetadata *)metadata;
 
 /**
- * Initializes an upload task with a base FIRStorageReference and GTMSessionFetcherService.
- * @param reference The base FIRStorageReference which fetchers use for configuration.
+ * Initializes an upload task with a base FIRIMPLStorageReference and GTMSessionFetcherService.
+ * @param reference The base FIRIMPLStorageReference which fetchers use for configuration.
  * @param service The GTMSessionFetcherService which will create fetchers.
  * @param queue The shared queue to use for all Storage operations.
  * @param fileURL The system file URL to upload from.
- * @return Returns an instance of FIRStorageUploadTask.
+ * @return Returns an instance of FIRIMPLStorageUploadTask.
  */
-- (instancetype)initWithReference:(FIRStorageReference *)reference
+- (instancetype)initWithReference:(FIRIMPLStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
                     dispatchQueue:(dispatch_queue_t)queue
                              file:(NSURL *)fileURL
-                         metadata:(FIRStorageMetadata *)metadata;
+                         metadata:(FIRIMPLStorageMetadata *)metadata;
 
 @end
 

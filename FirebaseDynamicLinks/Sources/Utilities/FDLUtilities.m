@@ -201,37 +201,46 @@ NSString *FIRDLDeviceTimezone() {
   return timeZoneName;
 }
 
-BOOL FIRDLIsURLForAllowedCustomDomain(NSURL *_Nullable URL) {
-  BOOL customDomainMatchFound = false;
-  for (NSURL *allowedCustomDomain in FIRDLCustomDomains) {
-    // At least one custom domain host name should match at a minimum.
-    if ([allowedCustomDomain.host isEqualToString:URL.host]) {
-      NSString *urlStr = URL.absoluteString;
-      NSString *domainURIPrefixStr = allowedCustomDomain.absoluteString;
+BOOL FIRDLIsURLForAllowedCustomDomain(NSURL *URL) {
+  if (URL) {
+    for (NSURL *allowedCustomDomain in FIRDLCustomDomains) {
+      // At least one custom domain host name should match at a minimum.
+      if ([URL.absoluteString hasPrefix:allowedCustomDomain.absoluteString]) {
+        NSString *urlWithoutDomainURIPrefix =
+            [URL.absoluteString substringFromIndex:allowedCustomDomain.absoluteString.length];
 
-      // Next, do a string compare to check if entire domainURIPrefix matches as well.
-      if (([urlStr rangeOfString:domainURIPrefixStr
-                         options:NSCaseInsensitiveSearch | NSAnchoredSearch]
-               .location) == 0) {
-        NSString *urlWithoutDomainURIPrefix = [urlStr substringFromIndex:domainURIPrefixStr.length];
+        // The urlWithoutDomainURIPrefix should be starting with '/' or '?' otherwise it means the
+        // allowed domain is not exactly matching the incoming URL domain prefix.
+        if ([urlWithoutDomainURIPrefix hasPrefix:@"/"] ||
+            [urlWithoutDomainURIPrefix hasPrefix:@"?"]) {
+          //  For a valid custom domain DL Suffix the urlWithoutDomainURIPrefix should have:
+          //  1. At least one path exists OR
+          //  2. Should have a link query param with an http/https link
 
-        // For a valid custom domain DL Suffix:
-        // 1. At least one path exists OR
-        // 2. Should have a link query param with an http/https link
-        BOOL matchesRegularExpression =
-            ([urlWithoutDomainURIPrefix
-                 rangeOfString:@"((\\/[A-Za-z0-9]+)|((\\?|\\/\\?)link=https?.*))"
-                       options:NSRegularExpressionSearch]
-                 .location != NSNotFound);
+          NSURLComponents *components =
+              [[NSURLComponents alloc] initWithString:urlWithoutDomainURIPrefix];
+          if (components.path && components.path.length > 1) {
+            // Have a path exists. So valid custom domain.
+            return true;
+          }
 
-        if (matchesRegularExpression) {
-          customDomainMatchFound = true;
-          break;
+          if (components.queryItems && components.queryItems.count > 0) {
+            for (NSURLQueryItem *queryItem in components.queryItems) {
+              // Checks whether we have a link query param
+              if ([queryItem.name caseInsensitiveCompare:@"link"] == NSOrderedSame) {
+                // Checks whether link query param value starts with http/https
+                if (queryItem.value && ([queryItem.value hasPrefix:@"http://"] ||
+                                        [queryItem.value hasPrefix:@"https://"])) {
+                  return true;
+                }
+              }
+            }
+          }
         }
       }
     }
   }
-  return customDomainMatchFound;
+  return false;
 }
 
 /* We are validating following domains in proper format.

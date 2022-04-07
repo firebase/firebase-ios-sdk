@@ -23,14 +23,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Block typedef typically used in `list()` and `listAll()`.
- * @param listResult The FIRStorageListResult returned by the operation, if it exists.
+ * @param listResult The FIRIMPLStorageListResult returned by the operation, if it exists.
  * @param error The error describing failure, if one occurred.
  */
-typedef void (^FIRStorageVoidListError)(FIRStorageListResult *_Nullable listResult,
+typedef void (^FIRStorageVoidListError)(FIRIMPLStorageListResult *_Nullable listResult,
                                         NSError *_Nullable error);
 
 /** A Task that lists the entries under a {@link StorageReference} */
-@interface FIRStorageListTask : FIRStorageTask <FIRStorageTaskManagement>
+@interface FIRStorageListTask : FIRIMPLStorageTask <FIRIMPLStorageTaskManagement>
 
 /**
  * Initializes a new List Task.
@@ -43,9 +43,9 @@ typedef void (^FIRStorageVoidListError)(FIRStorageListResult *_Nullable listResu
  * @param pageSize An optional pageSize, denoting the maximum size of the result set. If
  * set to `nil`, the backend will use the default page size.
  * @param previousPageToken An optional pageToken, used to resume a previous invocation.
- * @param completion The completion handler to be called with the FIRStorageListResult.
+ * @param completion The completion handler to be called with the FIRIMPLStorageListResult.
  */
-- (instancetype)initWithReference:(FIRStorageReference *)reference
+- (instancetype)initWithReference:(FIRIMPLStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
                     dispatchQueue:(dispatch_queue_t)queue
                          pageSize:(nullable NSNumber *)pageSize

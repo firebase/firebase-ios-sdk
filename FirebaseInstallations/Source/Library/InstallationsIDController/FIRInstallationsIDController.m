@@ -23,7 +23,7 @@
 #endif
 
 #import <GoogleUtilities/GULKeychainStorage.h>
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
 #import "FirebaseInstallations/Source/Library/FIRInstallationsItem.h"
@@ -71,29 +71,28 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
 
 @implementation FIRInstallationsIDController
 
-- (instancetype)initWithGoogleAppID:(NSString *)appID
-                            appName:(NSString *)appName
-                             APIKey:(NSString *)APIKey
-                          projectID:(NSString *)projectID
-                        GCMSenderID:(NSString *)GCMSenderID
-                        accessGroup:(nullable NSString *)accessGroup {
-  NSString *serviceName = [FIRInstallationsIDController keychainServiceWithAppID:appID];
+- (instancetype)initWithApp:(FIRApp *)app {
+  NSString *serviceName =
+      [FIRInstallationsIDController keychainServiceWithAppID:app.options.googleAppID];
   GULKeychainStorage *secureStorage = [[GULKeychainStorage alloc] initWithService:serviceName];
   FIRInstallationsStore *installationsStore =
-      [[FIRInstallationsStore alloc] initWithSecureStorage:secureStorage accessGroup:accessGroup];
+      [[FIRInstallationsStore alloc] initWithSecureStorage:secureStorage
+                                               accessGroup:app.options.appGroupID];
 
   FIRInstallationsAPIService *apiService =
-      [[FIRInstallationsAPIService alloc] initWithAPIKey:APIKey projectID:projectID];
+      [[FIRInstallationsAPIService alloc] initWithAPIKey:app.options.APIKey
+                                               projectID:app.options.projectID
+                                         heartbeatLogger:app.heartbeatLogger];
 
   FIRInstallationsIIDStore *IIDStore = [[FIRInstallationsIIDStore alloc] init];
   FIRInstallationsIIDTokenStore *IIDCheckingStore =
-      [[FIRInstallationsIIDTokenStore alloc] initWithGCMSenderID:GCMSenderID];
+      [[FIRInstallationsIIDTokenStore alloc] initWithGCMSenderID:app.options.GCMSenderID];
 
   FIRInstallationsBackoffController *backoffController =
       [[FIRInstallationsBackoffController alloc] init];
 
-  return [self initWithGoogleAppID:appID
-                           appName:appName
+  return [self initWithGoogleAppID:app.options.googleAppID
+                           appName:app.name
                 installationsStore:installationsStore
                         APIService:apiService
                           IIDStore:IIDStore
