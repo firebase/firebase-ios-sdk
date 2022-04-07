@@ -1,3 +1,6 @@
+# 9.0.0
+- [added] `FirebaseRemoteConfigSwift` has exited beta and is now generally available for use.
+
 # 8.12.0-beta
 - Initial public beta release with Codable support. See example usage in
   https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseRemoteConfigSwift/Tests/Codable.swift

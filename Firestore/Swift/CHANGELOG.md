@@ -1,3 +1,6 @@
+# v9.0.0
+- [added] `FirebaseFirestoreSwift` has exited beta and is now generally available for use.
+
 # v8.13.0
 - [added] Added support for explicit typing to `DocumentReference.getDocument(as:)`
   and `DocumentSnapshot.data(as:)` to simplify mapping documents (#9101).

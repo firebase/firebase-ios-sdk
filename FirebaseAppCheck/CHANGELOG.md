@@ -1,3 +1,6 @@
+# v9.0.0 -- M115
+- [added] `FirebaseAppCheck` has exited beta and is now generally available for use.
+
 # v8.12.0 -- M111
 - [fixed] Build failures with Swift Package Manager for watchOS. (#9191)
 

@@ -1,3 +1,6 @@
+# 9.0.0
+- [added] `FirebaseDatabaseSwift` has exited beta and is now generally available for use.
+
 # 8.11.0-beta
 - Refactored Codable implementation to share common source with Firebase Functions. This should be
   generally transparent with the exception of custom decoder use cases which may need to be updated. (#8854)
