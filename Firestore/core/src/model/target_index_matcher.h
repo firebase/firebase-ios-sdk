@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #ifndef FIRESTORE_CORE_SRC_MODEL_TARGET_INDEX_MATCHER_H_
 #define FIRESTORE_CORE_SRC_MODEL_TARGET_INDEX_MATCHER_H_
 
@@ -49,7 +50,6 @@ namespace model {
  * where('a', 'array-contains', 'a').orderBy('b')      | a CONTAINS, b ASCENDING
  * where('a', 'array-contains', 'a').orderBy('b')      | a CONTAINS
  */
-
 class TargetIndexMatcher {
  public:
   explicit TargetIndexMatcher(const core::Target& target);

@@ -40,7 +40,7 @@ typedef NS_ENUM(NSInteger, FIRDocumentChangeType)
 } NS_SWIFT_NAME(DocumentChangeType);
 
 /**
- * A `FIRDocumentChange` represents a change to the documents matching a query. It contains the
+ * A `DocumentChange` represents a change to the documents matching a query. It contains the
  * document affected and the type of change that occurred (added, modified, or removed).
  */
 NS_SWIFT_NAME(DocumentChange)
@@ -56,16 +56,16 @@ NS_SWIFT_NAME(DocumentChange)
 @property(nonatomic, strong, readonly) FIRQueryDocumentSnapshot *document;
 
 /**
- * The index of the changed document in the result set immediately prior to this FIRDocumentChange
- * (i.e. supposing that all prior FIRDocumentChange objects have been applied). NSNotFound for
- * FIRDocumentChangeTypeAdded events.
+ * The index of the changed document in the result set immediately prior to this `DocumentChange`
+ * (i.e. supposing that all prior `DocumentChange` objects have been applied). `NSNotFound` for
+ * `DocumentChangeTypeAdded` events.
  */
 @property(nonatomic, readonly) NSUInteger oldIndex;
 
 /**
- * The index of the changed document in the result set immediately after this FIRDocumentChange
- * (i.e. supposing that all prior FIRDocumentChange objects and the current FIRDocumentChange object
- * have been applied). NSNotFound for FIRDocumentChangeTypeRemoved events.
+ * The index of the changed document in the result set immediately after this `DocumentChange`
+ * (i.e. supposing that all prior `DocumentChange` objects and the current `DocumentChange` object
+ * have been applied). `NSNotFound` for `DocumentChangeTypeRemoved` events.
  */
 @property(nonatomic, readonly) NSUInteger newIndex;
 

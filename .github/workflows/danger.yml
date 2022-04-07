@@ -3,6 +3,10 @@ name: danger
 on:
   pull_request
 
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: true
+
 jobs:
   danger:
     runs-on: macos-11

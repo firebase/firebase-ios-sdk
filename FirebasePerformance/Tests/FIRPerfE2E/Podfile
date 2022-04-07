@@ -12,6 +12,7 @@ target 'FIRPerfE2EAutopush' do
   # Pods for FIRPerfE2EAutopush
   # Firebase dependencies
   pod 'FirebaseCore', :path => '../../../'
+  pod 'FirebaseCoreInternal', :path => '../../../'
   pod 'FirebasePerformance', :path => '../../../'
   pod 'FirebaseRemoteConfig', :path => '../../../'
   pod 'FirebaseABTesting', :path => '../../../'
@@ -33,6 +34,7 @@ target 'FIRPerfE2EProd' do
 
   # Pods for FIRPerfE2EProd
   pod 'FirebaseCore', :path => '../../../'
+  pod 'FirebaseCoreInternal', :path => '../../../'
   pod 'FirebasePerformance', :path => '../../../'
   pod 'FirebaseRemoteConfig', :path => '../../../'
   pod 'FirebaseABTesting', :path => '../../../'

@@ -43,7 +43,6 @@ NSString *const kFPRAppCounterNameTraceEventsRateLimited = @"_fstec";
 NSString *const kFPRAppCounterNameNetworkTraceEventsRateLimited = @"_fsntc";
 NSString *const kFPRAppCounterNameTraceNotStopped = @"_tsns";
 NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
-NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
 
 @interface FPRAppActivityTracker ()
 
@@ -75,16 +74,6 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
 + (void)load {
   // This is an approximation of the app start time.
   appStartTime = [NSDate date];
-
-  // Double dispatch is used to detect prewarming, but if it causes hang or crash in the future
-  // developers can disable it by setting a plist flag "fireperf_disable_dd" to true
-  if ([[[NSBundle mainBundle] objectForInfoDictionaryKey:@"fireperf_disable_dd"] boolValue] == NO) {
-    dispatch_async(dispatch_get_main_queue(), ^{
-      dispatch_async(dispatch_get_main_queue(), ^{
-        doubleDispatchTime = [NSDate date];
-      });
-    });
-  }
 
   // When an app is prewarmed, Apple sets env variable ActivePrewarm to 1, then the env variable is
   // deleted after didFinishLaunching
@@ -185,17 +174,7 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
  */
 - (BOOL)isActivePrewarmEnabled {
   PrewarmDetectionMode mode = [self.configurations prewarmDetectionMode];
-  return (mode == PrewarmDetectionModeActivePrewarm ||
-          mode == PrewarmDetectionModeActivePrewarmOrDoubleDispatch);
-}
-
-/**
- RC flag for enabling prewarm-detection using double dispatch method
- */
-- (BOOL)isDoubleDispatchEnabled {
-  PrewarmDetectionMode mode = [self.configurations prewarmDetectionMode];
-  return (mode == PrewarmDetectionModeDoubleDispatch ||
-          mode == PrewarmDetectionModeActivePrewarmOrDoubleDispatch);
+  return (mode == PrewarmDetectionModeActivePrewarm);
 }
 
 /**
@@ -213,13 +192,6 @@ NSString *const kFPRAppCounterNameDoubleDispatch = @"_fsddc";
     [self.activeTrace incrementMetric:kFPRAppCounterNameActivePrewarm byInt:1];
   } else {
     [self.activeTrace incrementMetric:kFPRAppCounterNameActivePrewarm byInt:0];
-  }
-
-  if ([doubleDispatchTime compare:applicationDidFinishLaunchTime] == NSOrderedAscending) {
-    isPrewarmed = isPrewarmed || [self isDoubleDispatchEnabled];
-    [self.activeTrace incrementMetric:kFPRAppCounterNameDoubleDispatch byInt:1];
-  } else if (doubleDispatchTime) {
-    [self.activeTrace incrementMetric:kFPRAppCounterNameDoubleDispatch byInt:0];
   }
 
   return isPrewarmed;

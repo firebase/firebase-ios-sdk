@@ -120,10 +120,12 @@ class QueryEngineTest : public ::testing::Test {
         target_cache_(persistence_->target_cache()),
         index_manager_(dynamic_cast<MemoryIndexManager*>(
             persistence_->GetIndexManager(User::Unauthenticated()))),
-        local_documents_view_(remote_document_cache_,
-                              persistence_->GetMutationQueue(
-                                  User::Unauthenticated(), index_manager_),
-                              index_manager_) {
+        local_documents_view_(
+            remote_document_cache_,
+            persistence_->GetMutationQueue(User::Unauthenticated(),
+                                           index_manager_),
+            persistence_->GetDocumentOverlayCache(User::Unauthenticated()),
+            index_manager_) {
     remote_document_cache_->SetIndexManager(index_manager_);
     query_engine_.SetLocalDocumentsView(&local_documents_view_);
   }

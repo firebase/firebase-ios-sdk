@@ -18,7 +18,7 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageConstants.h"
 #import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageMetadata.h"
@@ -65,6 +65,11 @@ static NSTimeInterval kExpectationTimeoutSeconds = 10;
 + (FIRApp *)mockedApp;
 
 /**
+ * Returns a FIRIMPLStorage inialized with a mockedApp.
+ */
++ (FIRIMPLStorage *)storageWithMockedApp;
+
+/**
  * Returns a valid URL for an object stored.
  */
 + (NSURL *)objectURL;
@@ -95,9 +100,9 @@ static NSTimeInterval kExpectationTimeoutSeconds = 10;
 + (FIRStoragePath *)notFoundPath;
 
 /**
- * Returns a FIRStorageReference that is backed by a mocked FIRApp.
+ * Returns a FIRIMPLStorageReference that is backed by a mocked FIRApp.
  */
-+ (FIRStorageReference *)rootReference;
++ (FIRIMPLStorageReference *)rootReference;
 
 /**
  * Returns a successful response block.
@@ -113,7 +118,7 @@ static NSTimeInterval kExpectationTimeoutSeconds = 10;
  * Returns a successful response block containing object metadata.
  * @param metadata Metadata returned in the request.
  */
-+ (GTMSessionFetcherTestBlock)successBlockWithMetadata:(nullable FIRStorageMetadata *)metadata;
++ (GTMSessionFetcherTestBlock)successBlockWithMetadata:(nullable FIRIMPLStorageMetadata *)metadata;
 
 /**
  * Returns a unsuccessful response block due to improper authentication.

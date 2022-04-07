@@ -199,6 +199,10 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
     self.backgroundActivityTracker = [[FPRTraceBackgroundActivityTracker alloc] init];
     [self checkpointState:FPRNetworkTraceCheckpointStateInitiated];
 
+    if ([self.URLRequest.HTTPMethod isEqualToString:@"POST"] ||
+        [self.URLRequest.HTTPMethod isEqualToString:@"PUT"]) {
+      self.requestSize = self.URLRequest.HTTPBody.length;
+    }
     FPRSessionManager *sessionManager = [FPRSessionManager sharedInstance];
     [self updateTraceWithCurrentSession:[sessionManager.sessionDetails copy]];
     [sessionManager.sessionNotificationCenter addObserver:self

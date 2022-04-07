@@ -11,6 +11,10 @@ on:
     # Run every day at 10pm (PST) - cron uses UTC times
     - cron:  '0 6 * * *'
 
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: true
+
 jobs:
 
   pod_lib_lint:
@@ -73,8 +77,7 @@ jobs:
     strategy:
       matrix:
         flags: [
-          '--use-static-frameworks',
-          '--use-libraries'
+          '--use-static-frameworks'
         ]
         platform: [ios, tvos]
     needs: pod_lib_lint

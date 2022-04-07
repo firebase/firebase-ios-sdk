@@ -108,7 +108,7 @@ ByteString Bytes(std::initializer_list<uint8_t> octets) {
 }
 
 Message<google_firestore_v1_Value> Value(std::nullptr_t) {
-  return NullValue();
+  return DeepClone(NullValue());
 }
 
 Message<google_firestore_v1_Value> Value(double value) {
@@ -266,29 +266,29 @@ DocumentSet DocSet(DocumentComparator comp, std::vector<Document> docs) {
   return set;
 }
 
-core::Filter::Operator OperatorFromString(absl::string_view s) {
+core::FieldFilter::Operator OperatorFromString(absl::string_view s) {
   if (s == "<") {
-    return core::Filter::Operator::LessThan;
+    return core::FieldFilter::Operator::LessThan;
   } else if (s == "<=") {
-    return core::Filter::Operator::LessThanOrEqual;
+    return core::FieldFilter::Operator::LessThanOrEqual;
   } else if (s == "==") {
-    return core::Filter::Operator::Equal;
+    return core::FieldFilter::Operator::Equal;
   } else if (s == "!=") {
-    return core::Filter::Operator::NotEqual;
+    return core::FieldFilter::Operator::NotEqual;
   } else if (s == ">") {
-    return core::Filter::Operator::GreaterThan;
+    return core::FieldFilter::Operator::GreaterThan;
   } else if (s == ">=") {
-    return core::Filter::Operator::GreaterThanOrEqual;
+    return core::FieldFilter::Operator::GreaterThanOrEqual;
     // Both are accepted for compatibility with spec tests and existing
     // canonical ids.
   } else if (s == "array_contains" || s == "array-contains") {
-    return core::Filter::Operator::ArrayContains;
+    return core::FieldFilter::Operator::ArrayContains;
   } else if (s == "in") {
-    return core::Filter::Operator::In;
+    return core::FieldFilter::Operator::In;
   } else if (s == "array-contains-any") {
-    return core::Filter::Operator::ArrayContainsAny;
+    return core::FieldFilter::Operator::ArrayContainsAny;
   } else if (s == "not-in") {
-    return core::Filter::Operator::NotIn;
+    return core::FieldFilter::Operator::NotIn;
   } else {
     HARD_FAIL("Unknown operator: %s", s);
   }
@@ -311,7 +311,7 @@ core::FieldFilter Filter(absl::string_view key,
 core::FieldFilter Filter(absl::string_view key,
                          absl::string_view op,
                          std::nullptr_t) {
-  return Filter(key, op, NullValue());
+  return Filter(key, op, DeepClone(NullValue()));
 }
 
 core::FieldFilter Filter(absl::string_view key,

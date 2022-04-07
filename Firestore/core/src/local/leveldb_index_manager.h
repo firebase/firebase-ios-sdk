@@ -72,7 +72,7 @@ class LevelDbIndexManager : public IndexManager {
       const core::Target& target) override;
 
   absl::optional<std::vector<model::DocumentKey>> GetDocumentsMatchingTarget(
-      const core::Target& target) override;
+      model::FieldIndex field_index, const core::Target& target) override;
 
   absl::optional<std::string> GetNextCollectionGroupToUpdate() override;
 

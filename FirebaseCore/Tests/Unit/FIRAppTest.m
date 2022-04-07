@@ -16,11 +16,12 @@
 #import "FirebaseCore/Tests/Unit/FIRTestComponents.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import "FirebaseCore/Extension/FIRAppInternal.h"
+#import "FirebaseCore/Extension/FIRComponentType.h"
+#import "FirebaseCore/Extension/FIRCoreDiagnosticsConnector.h"
+#import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
+#import "FirebaseCore/Extension/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
-#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
-#import "FirebaseCore/Sources/Private/FIRComponentType.h"
-#import "FirebaseCore/Sources/Private/FIRCoreDiagnosticsConnector.h"
-#import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
 #import "SharedTestUtilities/FIROptionsMock.h"
 
 NSString *const kFIRTestAppName1 = @"test_app_name_1";
@@ -55,6 +56,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 @property(nonatomic) id appClassMock;
 @property(nonatomic) id mockCoreDiagnosticsConnector;
 @property(nonatomic) NSNotificationCenter *notificationCenter;
+@property(nonatomic) id mockHeartbeatLogger;
 
 /// If `YES` then throws when `logCoreTelemetryWithOptions:` method is called.
 @property(nonatomic) BOOL assertNoLogCoreTelemetry;
@@ -70,6 +72,11 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   // TODO: Don't mock the class we are testing.
   _appClassMock = OCMClassMock([FIRApp class]);
   _mockCoreDiagnosticsConnector = OCMClassMock([FIRCoreDiagnosticsConnector class]);
+
+  // Set up mocks for all instances of `FIRHeartbeatLogger`.
+  _mockHeartbeatLogger = OCMClassMock([FIRHeartbeatLogger class]);
+  OCMStub([_mockHeartbeatLogger alloc]).andReturn(_mockHeartbeatLogger);
+  OCMStub([_mockHeartbeatLogger initWithAppID:OCMOCK_ANY]).andReturn(_mockHeartbeatLogger);
 
   [FIROptionsMock mockFIROptions];
 
@@ -98,7 +105,20 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   _appClassMock = nil;
   _notificationCenter = nil;
   _mockCoreDiagnosticsConnector = nil;
+  _mockHeartbeatLogger = nil;
 
+  [super tearDown];
+}
+
++ (void)tearDown {
+  // We stop mocking `FIRHeartbeatLogger` in the class `tearDown` method to
+  // prevent interfering with other tests that use the real `FIRHeartbeatLogger`.
+  // Doing this in the instance `tearDown` causes test failures due to a race
+  // condition between `NSNoticationCenter` and `OCMVerifyAllWithDelay`.
+  // Affected tests:
+  // - testCoreDiagnosticsLoggedWhenAppDidBecomeActive
+  // - testHeartbeatLogIsAttemptedWhenAppDidBecomeActive
+  [OCMClassMock([FIRHeartbeatLogger class]) stopMocking];
   [super tearDown];
 }
 
@@ -113,7 +133,12 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
       [self expectNotificationNamed:kFIRAppReadyToConfigureSDKNotification
                              object:[FIRApp class]
                            userInfo:expectedUserInfo];
+
+  // Expect that calling `+[FIRApp configure]` attempts to log a heartbeat.
+  OCMExpect([self.mockHeartbeatLogger log]).andDo(nil);
   XCTAssertNoThrow([FIRApp configure]);
+  OCMVerifyAll(self.mockHeartbeatLogger);
+
   [self waitForExpectations:@[ notificationExpectation ] timeout:0.1];
 
   FIRApp *app = [FIRApp defaultApp];
@@ -154,7 +179,12 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
                                                     GCMSenderID:kGCMSenderID];
   options.clientID = kClientID;
+
+  // Expect that calling `+[FIRApp configure]` attempts to log a heartbeat.
+  OCMExpect([self.mockHeartbeatLogger log]).andDo(nil);
   XCTAssertNoThrow([FIRApp configureWithOptions:options]);
+  OCMVerifyAll(self.mockHeartbeatLogger);
+
   [self waitForExpectations:@[ notificationExpectation ] timeout:0.1];
 
   // Verify the default app instance is created.
@@ -186,7 +216,12 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
       [self expectNotificationNamed:kFIRAppReadyToConfigureSDKNotification
                              object:[FIRApp class]
                            userInfo:expectedUserInfo];
+
+  // Expect that calling `+[FIRApp configure]` attempts to log a heartbeat.
+  OCMExpect([self.mockHeartbeatLogger log]).andDo(nil);
   XCTAssertNoThrow([FIRApp configureWithName:kFIRTestAppName1 options:options]);
+  OCMVerifyAll(self.mockHeartbeatLogger);
+
   [self waitForExpectations:@[ notificationExpectation ] timeout:0.1];
 
   XCTAssertTrue([FIRApp allApps].count == 1);
@@ -916,7 +951,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:expectedComponent]);
 }
 
-#pragma mark - Core Diagnostics
+#pragma mark - Core Telemetry
 
 - (void)testCoreDiagnosticsLoggedWhenAppDidBecomeActive {
   FIRApp *app = [self createConfiguredAppWithName:NSStringFromSelector(_cmd)];
@@ -926,6 +961,14 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
                                          object:nil];
 
   OCMVerifyAllWithDelay(self.mockCoreDiagnosticsConnector, 0.5);
+}
+
+- (void)testHeartbeatLogIsAttemptedWhenAppDidBecomeActive {
+  [self createConfiguredAppWithName:NSStringFromSelector(_cmd)];
+  OCMExpect([self.mockHeartbeatLogger log]).andDo(nil);
+  [self.notificationCenter postNotificationName:[self appDidBecomeActiveNotificationName]
+                                         object:nil];
+  OCMVerifyAll(self.mockHeartbeatLogger);
 }
 
 #pragma mark - private

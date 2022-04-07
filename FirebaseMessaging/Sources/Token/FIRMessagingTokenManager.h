@@ -20,6 +20,8 @@
 @class FIRMessagingCheckinPreferences;
 @class FIRMessagingTokenInfo;
 
+@protocol FIRHeartbeatLoggerProtocol;
+
 typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
   FIRMessagingInvalidTokenReasonNone = 0,               // 0
   FIRMessagingInvalidTokenReasonAppVersion = (1 << 0),  // 0...00001
@@ -42,6 +44,16 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
 
 /// Expose the auth service, so it can be used by others
 @property(nonatomic, readonly, strong) FIRMessagingAuthService *authService;
+
+- (instancetype)init NS_UNAVAILABLE;
+
+/**
+ *  Designated intializer.
+ *
+ *  @param heartbeatLogger The heartbeat logger that is injected into token operations.
+ */
+- (instancetype)initWithHeartbeatLogger:(id<FIRHeartbeatLoggerProtocol>)heartbeatLogger
+    NS_DESIGNATED_INITIALIZER;
 
 /**
  *  Fetch new token for the given authorizedEntity and scope. This makes an

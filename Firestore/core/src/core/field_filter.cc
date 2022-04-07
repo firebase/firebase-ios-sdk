@@ -30,6 +30,7 @@
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/util/exception.h"
+#include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/hashing.h"
 #include "absl/algorithm/container.h"
 #include "absl/strings/str_cat.h"
@@ -49,31 +50,31 @@ using util::ComparisonResult;
 
 namespace {
 
-const char* CanonicalName(Filter::Operator op) {
+const char* CanonicalName(FieldFilter::Operator op) {
   switch (op) {
-    case Filter::Operator::LessThan:
+    case FieldFilter::Operator::LessThan:
       return "<";
-    case Filter::Operator::LessThanOrEqual:
+    case FieldFilter::Operator::LessThanOrEqual:
       return "<=";
-    case Filter::Operator::Equal:
+    case FieldFilter::Operator::Equal:
       return "==";
-    case Filter::Operator::NotEqual:
+    case FieldFilter::Operator::NotEqual:
       return "!=";
-    case Filter::Operator::GreaterThanOrEqual:
+    case FieldFilter::Operator::GreaterThanOrEqual:
       return ">=";
-    case Filter::Operator::GreaterThan:
+    case FieldFilter::Operator::GreaterThan:
       return ">";
-    case Filter::Operator::ArrayContains:
+    case FieldFilter::Operator::ArrayContains:
       // The canonical name for this is array_contains for compatibility with
       // existing entries in `query_targets` stored on user devices. This cannot
       // be changed without causing users to lose their associated resume
       // tokens.
       return "array_contains";
-    case Filter::Operator::In:
+    case FieldFilter::Operator::In:
       return "in";
-    case Filter::Operator::ArrayContainsAny:
+    case FieldFilter::Operator::ArrayContainsAny:
       return "array-contains-any";
-    case Filter::Operator::NotIn:
+    case FieldFilter::Operator::NotIn:
       return "not-in";
   }
 
@@ -89,9 +90,9 @@ FieldFilter FieldFilter::Create(
   google_firestore_v1_Value& value = *value_rhs;
   model::SortFields(value);
   if (path.IsKeyFieldPath()) {
-    if (op == Filter::Operator::In) {
+    if (op == Operator::In) {
       return KeyFieldInFilter(path, std::move(value_rhs));
-    } else if (op == Filter::Operator::NotIn) {
+    } else if (op == Operator::NotIn) {
       return KeyFieldNotInFilter(path, std::move(value_rhs));
     } else {
       HARD_ASSERT(!IsArrayOperator(op),
@@ -115,7 +116,7 @@ FieldFilter FieldFilter::Create(
 }
 
 FieldFilter::FieldFilter(const Filter& other) : Filter(other) {
-  HARD_ASSERT(IsAFieldFilter());
+  HARD_ASSERT(other.IsAFieldFilter());
 }
 
 FieldFilter::FieldFilter(std::shared_ptr<const Filter::Rep> rep)

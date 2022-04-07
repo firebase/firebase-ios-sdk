@@ -20,7 +20,7 @@
 // TODO - FIRLoggerTest should be split into a separate FIRLoggerTest and GULLoggerTest.
 // No test should include both includes.
 #import <GoogleUtilities/GULLogger.h>
-#import "FirebaseCore/Sources/Private/FIRLogger.h"
+#import "FirebaseCore/Extension/FIRLogger.h"
 
 #import <asl.h>
 
@@ -73,8 +73,8 @@ static NSString *const kMessageCode = @"I-COR000001";
 // Test some stable variables to make sure they weren't accidently changed.
 - (void)testStableVariables {
   // Strings of type FIRLoggerServices.
-  XCTAssertEqualObjects(kFIRLoggerAnalytics, @"[Firebase/Analytics]");
-  XCTAssertEqualObjects(kFIRLoggerCore, @"[Firebase/Core]");
+  XCTAssertEqualObjects(kFIRLoggerAnalytics, @"[FirebaseAnalytics]");
+  XCTAssertEqualObjects(kFIRLoggerCore, @"[FirebaseCore]");
 }
 
 - (void)testInitializeASLForNonDebugMode {

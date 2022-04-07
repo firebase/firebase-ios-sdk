@@ -58,7 +58,7 @@ FIRDocumentReference *FSTTestDocRef(const char *path);
  * contents.
  * @param hasPendingWrites Whether the query snapshot has pending writes to the server.
  * @param fromCache Whether the query snapshot is cache result.
- * @returns A query snapshot that consists of both sets of documents.
+ * @return A query snapshot that consists of both sets of documents.
  */
 FIRQuerySnapshot *FSTTestQuerySnapshot(
     const char *path,

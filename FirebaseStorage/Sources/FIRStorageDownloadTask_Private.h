@@ -18,12 +18,12 @@
 
 #import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageDownloadTask.h"
 
-@class FIRStorageReference;
+@class FIRIMPLStorageReference;
 @class GTMSessionFetcherService;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRStorageDownloadTask ()
+@interface FIRIMPLStorageDownloadTask ()
 
 /**
  * Bytes which have been downloaded so far.
@@ -36,14 +36,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property(copy, nonatomic) NSURL *fileURL;
 
 /**
- * Initializes a download task with a base FIRStorageReference and GTMSessionFetcherService.
- * @param reference The base FIRStorageReference which fetchers use for configuration.
+ * Initializes a download task with a base FIRIMPLStorageReference and GTMSessionFetcherService.
+ * @param reference The base FIRIMPLStorageReference which fetchers use for configuration.
  * @param service The GTMSessionFetcherService which will create fetchers.
  * @param queue The shared queue to use for all Storage operations.
  * @param fileURL The system URL to download to. If nil, download in memory as bytes.
- * @return Returns an instance of FIRStorageDownloadTask
+ * @return Returns an instance of FIRIMPLStorageDownloadTask
  */
-- (instancetype)initWithReference:(FIRStorageReference *)reference
+- (instancetype)initWithReference:(FIRIMPLStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
                     dispatchQueue:(dispatch_queue_t)queue
                              file:(nullable NSURL *)fileURL;

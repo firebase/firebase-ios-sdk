@@ -31,7 +31,7 @@
 #import "FirebaseStorage/Sources/FIRStorage_Private.h"
 #import "FirebaseStorage/Sources/Public/FirebaseStorage/FIRStorageTaskSnapshot.h"
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #if SWIFT_PACKAGE
 @import GTMSessionFetcherCore;
@@ -40,17 +40,9 @@
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
 #endif
 
-@implementation FIRStorageReference
+@implementation FIRIMPLStorageReference
 
-- (instancetype)init {
-  FIRStorage *storage = [FIRStorage storage];
-  NSString *storageBucket = storage.app.options.storageBucket;
-  FIRStoragePath *path = [[FIRStoragePath alloc] initWithBucket:storageBucket object:nil];
-  FIRStorageReference *reference = [self initWithStorage:storage path:path];
-  return reference;
-}
-
-- (instancetype)initWithStorage:(FIRStorage *)storage path:(FIRStoragePath *)path {
+- (instancetype)initWithStorage:(FIRIMPLStorage *)storage path:(FIRStoragePath *)path {
   self = [super init];
   if (self) {
     _storage = storage;
@@ -62,8 +54,8 @@
 #pragma mark - NSObject overrides
 
 - (instancetype)copyWithZone:(NSZone *)zone {
-  FIRStorageReference *copiedReference = [[[self class] allocWithZone:zone] initWithStorage:_storage
-                                                                                       path:_path];
+  FIRIMPLStorageReference *copiedReference =
+      [[[self class] allocWithZone:zone] initWithStorage:_storage path:_path];
   return copiedReference;
 }
 
@@ -72,15 +64,15 @@
     return YES;
   }
 
-  if (![object isKindOfClass:[FIRStorageReference class]]) {
+  if (![object isKindOfClass:[FIRIMPLStorageReference class]]) {
     return NO;
   }
 
-  BOOL isObjectEqual = [self isEqualToFIRStorageReference:(FIRStorageReference *)object];
+  BOOL isObjectEqual = [self isEqualToFIRIMPLStorageReference:(FIRIMPLStorageReference *)object];
   return isObjectEqual;
 }
 
-- (BOOL)isEqualToFIRStorageReference:(FIRStorageReference *)reference {
+- (BOOL)isEqualToFIRIMPLStorageReference:(FIRIMPLStorageReference *)reference {
   BOOL isEqual = [_storage isEqual:reference.storage] && [_path isEqual:reference.path];
   return isEqual;
 }
@@ -124,57 +116,57 @@
 
 #pragma mark - Path Operations
 
-- (FIRStorageReference *)root {
+- (FIRIMPLStorageReference *)root {
   FIRStoragePath *rootPath = [_path root];
-  FIRStorageReference *rootReference = [[FIRStorageReference alloc] initWithStorage:_storage
-                                                                               path:rootPath];
+  FIRIMPLStorageReference *rootReference =
+      [[FIRIMPLStorageReference alloc] initWithStorage:_storage path:rootPath];
   return rootReference;
 }
 
-- (nullable FIRStorageReference *)parent {
+- (nullable FIRIMPLStorageReference *)parent {
   FIRStoragePath *parentPath = [_path parent];
   if (!parentPath) {
     return nil;
   }
 
-  FIRStorageReference *parentReference = [[FIRStorageReference alloc] initWithStorage:_storage
-                                                                                 path:parentPath];
+  FIRIMPLStorageReference *parentReference =
+      [[FIRIMPLStorageReference alloc] initWithStorage:_storage path:parentPath];
   return parentReference;
 }
 
-- (FIRStorageReference *)child:(NSString *)path {
+- (FIRIMPLStorageReference *)child:(NSString *)path {
   FIRStoragePath *childPath = [_path child:path];
-  FIRStorageReference *childReference = [[FIRStorageReference alloc] initWithStorage:_storage
-                                                                                path:childPath];
+  FIRIMPLStorageReference *childReference =
+      [[FIRIMPLStorageReference alloc] initWithStorage:_storage path:childPath];
   return childReference;
 }
 
 #pragma mark - Uploads
 
-- (FIRStorageUploadTask *)putData:(NSData *)uploadData {
+- (FIRIMPLStorageUploadTask *)putData:(NSData *)uploadData {
   return [self putData:uploadData metadata:nil completion:nil];
 }
 
-- (FIRStorageUploadTask *)putData:(NSData *)uploadData
-                         metadata:(nullable FIRStorageMetadata *)metadata {
+- (FIRIMPLStorageUploadTask *)putData:(NSData *)uploadData
+                             metadata:(nullable FIRIMPLStorageMetadata *)metadata {
   return [self putData:uploadData metadata:metadata completion:nil];
 }
 
-- (FIRStorageUploadTask *)putData:(NSData *)uploadData
-                         metadata:(nullable FIRStorageMetadata *)metadata
-                       completion:(nullable FIRStorageVoidMetadataError)completion {
+- (FIRIMPLStorageUploadTask *)putData:(NSData *)uploadData
+                             metadata:(nullable FIRIMPLStorageMetadata *)metadata
+                           completion:(nullable FIRStorageVoidMetadataError)completion {
   if (!metadata) {
-    metadata = [[FIRStorageMetadata alloc] init];
+    metadata = [[FIRIMPLStorageMetadata alloc] init];
   }
 
   metadata.path = _path.object;
   metadata.name = [_path.object lastPathComponent];
-  FIRStorageUploadTask *task =
-      [[FIRStorageUploadTask alloc] initWithReference:self
-                                       fetcherService:_storage.fetcherServiceForApp
-                                        dispatchQueue:_storage.dispatchQueue
-                                                 data:uploadData
-                                             metadata:metadata];
+  FIRIMPLStorageUploadTask *task =
+      [[FIRIMPLStorageUploadTask alloc] initWithReference:self
+                                           fetcherService:_storage.fetcherServiceForApp
+                                            dispatchQueue:_storage.dispatchQueue
+                                                     data:uploadData
+                                                 metadata:metadata];
 
   if (completion) {
     __block BOOL completed = NO;
@@ -183,8 +175,8 @@
       callbackQueue = dispatch_get_main_queue();
     }
 
-    [task observeStatus:FIRStorageTaskStatusSuccess
-                handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
+    [task observeStatus:FIRIMPLStorageTaskStatusSuccess
+                handler:^(FIRIMPLStorageTaskSnapshot *_Nonnull snapshot) {
                   dispatch_async(callbackQueue, ^{
                     if (!completed) {
                       completed = YES;
@@ -192,8 +184,8 @@
                     }
                   });
                 }];
-    [task observeStatus:FIRStorageTaskStatusFailure
-                handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
+    [task observeStatus:FIRIMPLStorageTaskStatusFailure
+                handler:^(FIRIMPLStorageTaskSnapshot *_Nonnull snapshot) {
                   dispatch_async(callbackQueue, ^{
                     if (!completed) {
                       completed = YES;
@@ -206,30 +198,30 @@
   return task;
 }
 
-- (FIRStorageUploadTask *)putFile:(NSURL *)fileURL {
+- (FIRIMPLStorageUploadTask *)putFile:(NSURL *)fileURL {
   return [self putFile:fileURL metadata:nil completion:nil];
 }
 
-- (FIRStorageUploadTask *)putFile:(NSURL *)fileURL
-                         metadata:(nullable FIRStorageMetadata *)metadata {
+- (FIRIMPLStorageUploadTask *)putFile:(NSURL *)fileURL
+                             metadata:(nullable FIRIMPLStorageMetadata *)metadata {
   return [self putFile:fileURL metadata:metadata completion:nil];
 }
 
-- (FIRStorageUploadTask *)putFile:(NSURL *)fileURL
-                         metadata:(nullable FIRStorageMetadata *)metadata
-                       completion:(nullable FIRStorageVoidMetadataError)completion {
+- (FIRIMPLStorageUploadTask *)putFile:(NSURL *)fileURL
+                             metadata:(nullable FIRIMPLStorageMetadata *)metadata
+                           completion:(nullable FIRStorageVoidMetadataError)completion {
   if (!metadata) {
-    metadata = [[FIRStorageMetadata alloc] init];
+    metadata = [[FIRIMPLStorageMetadata alloc] init];
   }
 
   metadata.path = _path.object;
   metadata.name = [_path.object lastPathComponent];
-  FIRStorageUploadTask *task =
-      [[FIRStorageUploadTask alloc] initWithReference:self
-                                       fetcherService:_storage.fetcherServiceForApp
-                                        dispatchQueue:_storage.dispatchQueue
-                                                 file:fileURL
-                                             metadata:metadata];
+  FIRIMPLStorageUploadTask *task =
+      [[FIRIMPLStorageUploadTask alloc] initWithReference:self
+                                           fetcherService:_storage.fetcherServiceForApp
+                                            dispatchQueue:_storage.dispatchQueue
+                                                     file:fileURL
+                                                 metadata:metadata];
 
   if (completion) {
     __block BOOL completed = NO;
@@ -238,8 +230,8 @@
       callbackQueue = dispatch_get_main_queue();
     }
 
-    [task observeStatus:FIRStorageTaskStatusSuccess
-                handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
+    [task observeStatus:FIRIMPLStorageTaskStatusSuccess
+                handler:^(FIRIMPLStorageTaskSnapshot *_Nonnull snapshot) {
                   dispatch_async(callbackQueue, ^{
                     if (!completed) {
                       completed = YES;
@@ -247,8 +239,8 @@
                     }
                   });
                 }];
-    [task observeStatus:FIRStorageTaskStatusFailure
-                handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
+    [task observeStatus:FIRIMPLStorageTaskStatusFailure
+                handler:^(FIRIMPLStorageTaskSnapshot *_Nonnull snapshot) {
                   dispatch_async(callbackQueue, ^{
                     if (!completed) {
                       completed = YES;
@@ -263,23 +255,23 @@
 
 #pragma mark - Downloads
 
-- (FIRStorageDownloadTask *)dataWithMaxSize:(int64_t)size
-                                 completion:(FIRStorageVoidDataError)completion {
+- (FIRIMPLStorageDownloadTask *)dataWithMaxSize:(int64_t)size
+                                     completion:(FIRStorageVoidDataError)completion {
   __block BOOL completed = NO;
-  FIRStorageDownloadTask *task =
-      [[FIRStorageDownloadTask alloc] initWithReference:self
-                                         fetcherService:_storage.fetcherServiceForApp
-                                          dispatchQueue:_storage.dispatchQueue
-                                                   file:nil];
+  FIRIMPLStorageDownloadTask *task =
+      [[FIRIMPLStorageDownloadTask alloc] initWithReference:self
+                                             fetcherService:_storage.fetcherServiceForApp
+                                              dispatchQueue:_storage.dispatchQueue
+                                                       file:nil];
 
   dispatch_queue_t callbackQueue = _storage.fetcherServiceForApp.callbackQueue;
   if (!callbackQueue) {
     callbackQueue = dispatch_get_main_queue();
   }
 
-  [task observeStatus:FIRStorageTaskStatusSuccess
-              handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
-                FIRStorageDownloadTask *task = snapshot.task;
+  [task observeStatus:FIRIMPLStorageTaskStatusSuccess
+              handler:^(FIRIMPLStorageTaskSnapshot *_Nonnull snapshot) {
+                FIRIMPLStorageDownloadTask *task = snapshot.task;
                 dispatch_async(callbackQueue, ^{
                   if (!completed) {
                     completed = YES;
@@ -288,8 +280,8 @@
                 });
               }];
 
-  [task observeStatus:FIRStorageTaskStatusFailure
-              handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
+  [task observeStatus:FIRIMPLStorageTaskStatusFailure
+              handler:^(FIRIMPLStorageTaskSnapshot *_Nonnull snapshot) {
                 dispatch_async(callbackQueue, ^{
                   if (!completed) {
                     completed = YES;
@@ -298,15 +290,15 @@
                 });
               }];
   [task
-      observeStatus:FIRStorageTaskStatusProgress
-            handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
-              FIRStorageDownloadTask *task = snapshot.task;
+      observeStatus:FIRIMPLStorageTaskStatusProgress
+            handler:^(FIRIMPLStorageTaskSnapshot *_Nonnull snapshot) {
+              FIRIMPLStorageDownloadTask *task = snapshot.task;
               if (task.progress.totalUnitCount > size || task.progress.completedUnitCount > size) {
                 NSDictionary *infoDictionary =
                     @{@"totalSize" : @(task.progress.totalUnitCount),
                       @"maxAllowedSize" : @(size)};
                 NSError *error =
-                    [FIRStorageErrors errorWithCode:FIRStorageErrorCodeDownloadSizeExceeded
+                    [FIRStorageErrors errorWithCode:FIRIMPLStorageErrorCodeDownloadSizeExceeded
                                      infoDictionary:infoDictionary];
                 [task cancelWithError:error];
               }
@@ -315,17 +307,17 @@
   return task;
 }
 
-- (FIRStorageDownloadTask *)writeToFile:(NSURL *)fileURL {
+- (FIRIMPLStorageDownloadTask *)writeToFile:(NSURL *)fileURL {
   return [self writeToFile:fileURL completion:nil];
 }
 
-- (FIRStorageDownloadTask *)writeToFile:(NSURL *)fileURL
-                             completion:(FIRStorageVoidURLError)completion {
-  FIRStorageDownloadTask *task =
-      [[FIRStorageDownloadTask alloc] initWithReference:self
-                                         fetcherService:_storage.fetcherServiceForApp
-                                          dispatchQueue:_storage.dispatchQueue
-                                                   file:fileURL];
+- (FIRIMPLStorageDownloadTask *)writeToFile:(NSURL *)fileURL
+                                 completion:(FIRStorageVoidURLError)completion {
+  FIRIMPLStorageDownloadTask *task =
+      [[FIRIMPLStorageDownloadTask alloc] initWithReference:self
+                                             fetcherService:_storage.fetcherServiceForApp
+                                              dispatchQueue:_storage.dispatchQueue
+                                                       file:fileURL];
   if (completion) {
     __block BOOL completed = NO;
     dispatch_queue_t callbackQueue = _storage.fetcherServiceForApp.callbackQueue;
@@ -333,8 +325,8 @@
       callbackQueue = dispatch_get_main_queue();
     }
 
-    [task observeStatus:FIRStorageTaskStatusSuccess
-                handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
+    [task observeStatus:FIRIMPLStorageTaskStatusSuccess
+                handler:^(FIRIMPLStorageTaskSnapshot *_Nonnull snapshot) {
                   dispatch_async(callbackQueue, ^{
                     if (!completed) {
                       completed = YES;
@@ -342,8 +334,8 @@
                     }
                   });
                 }];
-    [task observeStatus:FIRStorageTaskStatusFailure
-                handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
+    [task observeStatus:FIRIMPLStorageTaskStatusFailure
+                handler:^(FIRIMPLStorageTaskSnapshot *_Nonnull snapshot) {
                   dispatch_async(callbackQueue, ^{
                     if (!completed) {
                       completed = YES;
@@ -369,10 +361,10 @@
 
 - (void)listWithMaxResults:(int64_t)maxResults completion:(FIRStorageVoidListError)completion {
   if (maxResults <= 0 || maxResults > 1000) {
-    completion(nil,
-               [FIRStorageUtils storageErrorWithDescription:
-                                    @"Argument 'maxResults' must be between 1 and 1000 inclusive."
-                                                       code:FIRStorageErrorCodeInvalidArgument]);
+    completion(
+        nil, [FIRStorageUtils storageErrorWithDescription:
+                                  @"Argument 'maxResults' must be between 1 and 1000 inclusive."
+                                                     code:FIRIMPLStorageErrorCodeInvalidArgument]);
   } else {
     FIRStorageListTask *task =
         [[FIRStorageListTask alloc] initWithReference:self
@@ -389,10 +381,10 @@
                  pageToken:(NSString *)pageToken
                 completion:(FIRStorageVoidListError)completion {
   if (maxResults <= 0 || maxResults > 1000) {
-    completion(nil,
-               [FIRStorageUtils storageErrorWithDescription:
-                                    @"Argument 'maxResults' must be between 1 and 1000 inclusive."
-                                                       code:FIRStorageErrorCodeInvalidArgument]);
+    completion(
+        nil, [FIRStorageUtils storageErrorWithDescription:
+                                  @"Argument 'maxResults' must be between 1 and 1000 inclusive."
+                                                     code:FIRIMPLStorageErrorCodeInvalidArgument]);
   } else {
     FIRStorageListTask *task =
         [[FIRStorageListTask alloc] initWithReference:self
@@ -409,41 +401,41 @@
   NSMutableArray *prefixes = [NSMutableArray new];
   NSMutableArray *items = [NSMutableArray new];
 
-  __weak FIRStorageReference *weakSelf = self;
+  __weak FIRIMPLStorageReference *weakSelf = self;
 
-  __block FIRStorageVoidListError paginatedCompletion =
-      ^(FIRStorageListResult *listResult, NSError *error) {
-        if (error) {
-          completion(nil, error);
-          return;
-        }
+  __block FIRStorageVoidListError paginatedCompletion = ^(FIRIMPLStorageListResult *listResult,
+                                                          NSError *error) {
+    if (error) {
+      completion(nil, error);
+      return;
+    }
 
-        FIRStorageReference *strongSelf = weakSelf;
-        if (!strongSelf) {
-          return;
-        }
+    FIRIMPLStorageReference *strongSelf = weakSelf;
+    if (!strongSelf) {
+      return;
+    }
 
-        [prefixes addObjectsFromArray:listResult.prefixes];
-        [items addObjectsFromArray:listResult.items];
+    [prefixes addObjectsFromArray:listResult.prefixes];
+    [items addObjectsFromArray:listResult.items];
 
-        if (listResult.pageToken) {
-          FIRStorageListTask *nextPage = [[FIRStorageListTask alloc]
-              initWithReference:self
-                 fetcherService:strongSelf->_storage.fetcherServiceForApp
-                  dispatchQueue:strongSelf->_storage.dispatchQueue
-                       pageSize:nil
-              previousPageToken:listResult.pageToken
-                     completion:paginatedCompletion];
-          [nextPage enqueue];
-        } else {
-          FIRStorageListResult *result = [[FIRStorageListResult alloc] initWithPrefixes:prefixes
-                                                                                  items:items
-                                                                              pageToken:nil];
-          // Break the retain cycle we set up indirectly by passing the callback to `nextPage`.
-          paginatedCompletion = nil;
-          completion(result, nil);
-        }
-      };
+    if (listResult.pageToken) {
+      FIRStorageListTask *nextPage =
+          [[FIRStorageListTask alloc] initWithReference:self
+                                         fetcherService:strongSelf->_storage.fetcherServiceForApp
+                                          dispatchQueue:strongSelf->_storage.dispatchQueue
+                                               pageSize:nil
+                                      previousPageToken:listResult.pageToken
+                                             completion:paginatedCompletion];
+      [nextPage enqueue];
+    } else {
+      FIRIMPLStorageListResult *result = [[FIRIMPLStorageListResult alloc] initWithPrefixes:prefixes
+                                                                                      items:items
+                                                                                  pageToken:nil];
+      // Break the retain cycle we set up indirectly by passing the callback to `nextPage`.
+      paginatedCompletion = nil;
+      completion(result, nil);
+    }
+  };
 
   FIRStorageListTask *task =
       [[FIRStorageListTask alloc] initWithReference:self
@@ -467,7 +459,7 @@
   [task enqueue];
 }
 
-- (void)updateMetadata:(FIRStorageMetadata *)metadata
+- (void)updateMetadata:(FIRIMPLStorageMetadata *)metadata
             completion:(nullable FIRStorageVoidMetadataError)completion {
   FIRStorageUpdateMetadataTask *task =
       [[FIRStorageUpdateMetadataTask alloc] initWithReference:self

@@ -19,6 +19,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class FBLPromise<ValueType>;
+@class FIRApp;
 @class FIRInstallationsItem;
 
 /**
@@ -26,12 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FIRInstallationsIDController : NSObject
 
-- (instancetype)initWithGoogleAppID:(NSString *)appID
-                            appName:(NSString *)appName
-                             APIKey:(NSString *)APIKey
-                          projectID:(NSString *)projectID
-                        GCMSenderID:(NSString *)GCMSenderID
-                        accessGroup:(nullable NSString *)accessGroup;
+- (instancetype)initWithApp:(FIRApp *)app;
 
 - (FBLPromise<FIRInstallationsItem *> *)getInstallationItem;
 

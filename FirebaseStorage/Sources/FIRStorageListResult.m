@@ -17,14 +17,14 @@
 
 #import "FirebaseStorage/Sources/FIRStorageConstants_Private.h"
 
-@implementation FIRStorageListResult
+@implementation FIRIMPLStorageListResult
 
-+ (nullable FIRStorageListResult *)fromDictionary:(NSDictionary<NSString *, id> *)dictionary
-                                      atReference:(FIRStorageReference *)reference {
-  NSMutableArray<FIRStorageReference *> *prefixes = [NSMutableArray new];
-  NSMutableArray<FIRStorageReference *> *items = [NSMutableArray new];
++ (nullable FIRIMPLStorageListResult *)fromDictionary:(NSDictionary<NSString *, id> *)dictionary
+                                          atReference:(FIRIMPLStorageReference *)reference {
+  NSMutableArray<FIRIMPLStorageReference *> *prefixes = [NSMutableArray new];
+  NSMutableArray<FIRIMPLStorageReference *> *items = [NSMutableArray new];
 
-  FIRStorageReference *rootReference = reference.root;
+  FIRIMPLStorageReference *rootReference = reference.root;
 
   NSArray<NSString *> *prefixEntries = dictionary[kFIRStorageListPrefixes];
   for (NSString *prefixEntry in prefixEntries) {
@@ -33,22 +33,25 @@
       pathWithoutTrailingSlash = [pathWithoutTrailingSlash substringToIndex:prefixEntry.length - 1];
     }
 
-    FIRStorageReference *prefixReference = [rootReference child:pathWithoutTrailingSlash];
+    FIRIMPLStorageReference *prefixReference = [rootReference child:pathWithoutTrailingSlash];
     [prefixes addObject:prefixReference];
   }
 
   NSArray<NSDictionary<NSString *, NSString *> *> *itemEntries = dictionary[kFIRStorageListItems];
   for (NSDictionary<NSString *, NSString *> *itemEntry in itemEntries) {
-    FIRStorageReference *itemReference = [rootReference child:itemEntry[kFIRStorageListItemName]];
+    FIRIMPLStorageReference *itemReference =
+        [rootReference child:itemEntry[kFIRStorageListItemName]];
     [items addObject:itemReference];
   }
 
   NSString *pageToken = dictionary[kFIRStorageListPageToken];
-  return [[FIRStorageListResult alloc] initWithPrefixes:prefixes items:items pageToken:pageToken];
+  return [[FIRIMPLStorageListResult alloc] initWithPrefixes:prefixes
+                                                      items:items
+                                                  pageToken:pageToken];
 }
 
-- (nullable instancetype)initWithPrefixes:(NSArray<FIRStorageReference *> *)prefixes
-                                    items:(NSArray<FIRStorageReference *> *)items
+- (nullable instancetype)initWithPrefixes:(NSArray<FIRIMPLStorageReference *> *)prefixes
+                                    items:(NSArray<FIRIMPLStorageReference *> *)items
                                 pageToken:(nullable NSString *)pageToken {
   self = [super init];
   if (self) {
@@ -60,9 +63,9 @@
 }
 
 - (instancetype)copyWithZone:(NSZone *)zone {
-  FIRStorageListResult *clone = [[[self class] allocWithZone:zone] initWithPrefixes:_prefixes
-                                                                              items:_items
-                                                                          pageToken:_pageToken];
+  FIRIMPLStorageListResult *clone = [[[self class] allocWithZone:zone] initWithPrefixes:_prefixes
+                                                                                  items:_items
+                                                                              pageToken:_pageToken];
 
   return clone;
 }

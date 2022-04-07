@@ -23,8 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 @class FIRDocumentReference;
 
 /**
- * A `FIRCollectionReference` object can be used for adding documents, getting document references,
- * and querying for documents (using the methods inherited from `FIRQuery`).
+ * A `CollectionReference` object can be used for adding documents, getting document references,
+ * and querying for documents (using the methods inherited from `Query`).
  */
 NS_SWIFT_NAME(CollectionReference)
 @interface FIRCollectionReference : FIRQuery
@@ -36,32 +36,32 @@ NS_SWIFT_NAME(CollectionReference)
 @property(nonatomic, strong, readonly) NSString *collectionID;
 
 /**
- * For subcollections, `parent` returns the containing `FIRDocumentReference`.  For root
- * collections, nil is returned.
+ * For subcollections, `parent` returns the containing `DocumentReference`.  For root collections,
+ * `nil` is returned.
  */
 @property(nonatomic, strong, nullable, readonly) FIRDocumentReference *parent;
 
 /**
- * A string containing the slash-separated path to this this `FIRCollectionReference` (relative to
- * the root of the database).
+ * A string containing the slash-separated path to this this `CollectionReference` (relative to the
+ * root of the database).
  */
 @property(nonatomic, strong, readonly) NSString *path;
 
 /**
- * Returns a FIRDocumentReference pointing to a new document with an auto-generated ID.
+ * Returns a `DocumentReference` pointing to a new document with an auto-generated ID.
  *
- * @return A FIRDocumentReference pointing to a new document with an auto-generated ID.
+ * @return A `DocumentReference` pointing to a new document with an auto-generated ID.
  */
 - (FIRDocumentReference *)documentWithAutoID NS_SWIFT_NAME(document());
 
 /**
- * Gets a `FIRDocumentReference` referring to the document at the specified path, relative to this
+ * Gets a `DocumentReference` referring to the document at the specified path, relative to this
  * collection's own path.
  *
  * @param documentPath The slash-separated relative path of the document for which to get a
- * `FIRDocumentReference`.
+ * `DocumentReference`.
  *
- * @return The `FIRDocumentReference` for the specified document path.
+ * @return The `DocumentReference` for the specified document path.
  */
 - (FIRDocumentReference *)documentWithPath:(NSString *)documentPath NS_SWIFT_NAME(document(_:));
 
@@ -69,9 +69,9 @@ NS_SWIFT_NAME(CollectionReference)
  * Adds a new document to this collection with the specified data, assigning it a document ID
  * automatically.
  *
- * @param data An `NSDictionary` containing the data for the new document.
+ * @param data A `Dictionary` containing the data for the new document.
  *
- * @return A `FIRDocumentReference` pointing to the newly created document.
+ * @return A `DocumentReference` pointing to the newly created document.
  */
 - (FIRDocumentReference *)addDocumentWithData:(NSDictionary<NSString *, id> *)data
     NS_SWIFT_NAME(addDocument(data:));
@@ -80,12 +80,12 @@ NS_SWIFT_NAME(CollectionReference)
  * Adds a new document to this collection with the specified data, assigning it a document ID
  * automatically.
  *
- * @param data An `NSDictionary` containing the data for the new document.
+ * @param data A `Dictionary` containing the data for the new document.
  * @param completion A block to execute once the document has been successfully written to
  *     the server. This block will not be called while the client is offline, though local
  *     changes will be visible immediately.
  *
- * @return A `FIRDocumentReference` pointing to the newly created document.
+ * @return A `DocumentReference` pointing to the newly created document.
  */
 // clang-format off
 // clang-format breaks the NS_SWIFT_NAME attribute

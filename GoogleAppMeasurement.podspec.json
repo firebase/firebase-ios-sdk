@@ -30,13 +30,13 @@
         "tvos": "12.0"
     },
     "source": {
-        "http": "https://dl.google.com/firebase/ios/analytics/e018b55bdeb1f6a1/GoogleAppMeasurement-8.12.0.tar.gz"
+        "http": "https://dl.google.com/firebase/ios/analytics/07f1277f1f905d64/GoogleAppMeasurement-8.15.0.tar.gz"
     },
     "subspecs": [
         {
             "name": "AdIdSupport",
             "dependencies": {
-                "GoogleAppMeasurement/WithoutAdIdSupport": "8.14.0"
+                "GoogleAppMeasurement/WithoutAdIdSupport": "9.0.0"
             },
             "vendored_frameworks": [
                 "Frameworks/GoogleAppMeasurementIdentitySupport.xcframework"
@@ -50,5 +50,5 @@
         }
     ],
     "summary": "Shared measurement methods for Google libraries. Not intended for direct use.",
-    "version": "8.14.0"
+    "version": "9.0.0"
 }

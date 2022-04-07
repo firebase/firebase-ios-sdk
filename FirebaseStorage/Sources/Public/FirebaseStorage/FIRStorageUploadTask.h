@@ -21,17 +21,15 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * FIRStorageUploadTask implements resumable uploads to a file in Firebase Storage.
+ * FIRIMPLStorageUploadTask implements resumable uploads to a file in Firebase Storage.
  * Uploads can be returned on completion with a completion callback, and can be monitored
- * by attaching observers, or controlled by calling FIRStorageTask#pause, FIRStorageTask#resume,
- * or FIRStorageTask#cancel.
- * Uploads can take NSData in memory, or an NSURL to a file on disk.
- * Uploads are performed on a background queue, and callbacks are raised on the developer
- * specified callbackQueue in FIRStorage, or the main queue if left unspecified.
+ * by attaching observers, or controlled by calling FIRIMPLStorageTask#pause,
+ * FIRIMPLStorageTask#resume, or FIRIMPLStorageTask#cancel. Uploads can take NSData in memory, or an
+ * NSURL to a file on disk. Uploads are performed on a background queue, and callbacks are raised on
+ * the developer specified callbackQueue in FIRStorage, or the main queue if left unspecified.
  * Currently all uploads must be initiated and managed on the main queue.
  */
-NS_SWIFT_NAME(StorageUploadTask)
-@interface FIRStorageUploadTask : FIRStorageObservableTask <FIRStorageTaskManagement>
+@interface FIRIMPLStorageUploadTask : FIRIMPLStorageObservableTask <FIRIMPLStorageTaskManagement>
 
 @end
 

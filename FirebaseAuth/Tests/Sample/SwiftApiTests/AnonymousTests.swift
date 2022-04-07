@@ -29,8 +29,8 @@ class AnonymousTests: TestsBase {
     deleteCurrentUser()
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+  #if compiler(>=5.5.2) && canImport(_Concurrency)
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testUpdatingUsersEmailAsync() async throws {
       try await signInAnonymouslyAsync()
       if let isAnonymous = Auth.auth().currentUser?.isAnonymous {

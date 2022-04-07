@@ -1,3 +1,6 @@
+# v8.15.0
+- [fixed] Fixed Custom domain long url validation logic. (#6978)
+
 # v8.9.0
 - [fixed] Fixed Shortlink regression involving underscores and dashes introduced in 8.8.0. (#8786)
 - [fixed] Reduce memory stress on `WebKit` API. (#8847)

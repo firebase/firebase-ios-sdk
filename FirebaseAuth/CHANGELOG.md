@@ -1,3 +1,6 @@
+# v8.14.0
+- [added] Started to collect the Firebase user agent for Firebase Auth. (#9066)
+
 # v8.12.0
 - [added] Added documentation note and error logging to `getStoredUser(forAccessGroup:)` regarding tvOS keychain sharing issues. (#8878)
 - [fixed] Partial fix for expired ID token issue. (#6521)

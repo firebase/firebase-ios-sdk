@@ -17,7 +17,7 @@
 @interface FIRAppDistributionRelease ()
 @property(nonatomic, copy) NSString *displayVersion;
 @property(nonatomic, copy) NSString *buildVersion;
-@property(nonatomic, copy) NSString *releaseNotes;
+@property(nonatomic, nullable, copy) NSString *releaseNotes;
 @property(nonatomic, strong) NSURL *downloadURL;
 @property(nonatomic) NSDate *expirationTime;
 @end

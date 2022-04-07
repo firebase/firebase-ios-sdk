@@ -1,3 +1,9 @@
+# Pending
+* Remove the unused code for pre-warm detection.
+
+# Version 8.14.0
+* [fixed] Record the request payload size for POST/PUT requests.
+
 # Version 8.13.0
 * [fixed] Make pre-warming identification more reliable by moving the pre-warm check to the earliest phase of app start.
 

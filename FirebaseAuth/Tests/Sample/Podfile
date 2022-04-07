@@ -12,7 +12,10 @@ target 'AuthSample' do
   platform :ios, '10.0'
   pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
+  pod 'FirebaseCoreInternal', :path => '../../../'
   pod 'FirebaseAuth', :path => '../../../', :testspecs => ['unit']
+  # `HeartbeatLoggingTestUtils` is unpublished.
+  pod 'HeartbeatLoggingTestUtils', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../..'
   pod 'FBSDKLoginKit'
   pod 'GoogleSignIn', '~> 5'

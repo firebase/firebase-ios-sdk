@@ -29,6 +29,7 @@
 #include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
 #include "Firestore/Protos/nanopb/google/type/latlng.nanopb.h"
 #include "Firestore/core/src/core/core_fwd.h"
+#include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/core/filter.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/model_fwd.h"
@@ -279,8 +280,8 @@ class Serializer {
       const;
 
   google_firestore_v1_StructuredQuery_FieldFilter_Operator
-  EncodeFieldFilterOperator(core::Filter::Operator op) const;
-  core::Filter::Operator DecodeFieldFilterOperator(
+  EncodeFieldFilterOperator(core::FieldFilter::Operator op) const;
+  core::FieldFilter::Operator DecodeFieldFilterOperator(
       util::ReadContext* context,
       google_firestore_v1_StructuredQuery_FieldFilter_Operator op) const;
 
@@ -294,8 +295,11 @@ class Serializer {
       util::ReadContext* context,
       const google_firestore_v1_StructuredQuery_Order& order_by) const;
 
-  google_firestore_v1_Cursor EncodeBound(const core::Bound& bound) const;
-  core::Bound DecodeBound(google_firestore_v1_Cursor& cursor) const;
+  google_firestore_v1_Cursor EncodeCursor(
+      const nanopb::SharedMessage<_google_firestore_v1_ArrayValue>& bound,
+      bool before) const;
+  nanopb::SharedMessage<_google_firestore_v1_ArrayValue> DecodeCursorValue(
+      google_firestore_v1_Cursor& cursor) const;
 
   std::unique_ptr<remote::WatchChange> DecodeTargetChange(
       util::ReadContext* context,

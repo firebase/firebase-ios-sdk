@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
     @remarks One of: `token` or `error` will always be non-nil.
  */
 typedef void (^FIRAuthTokenCallback)(NSString *_Nullable token, NSError *_Nullable error)
-    NS_SWIFT_NAME(AuthTokenCallback);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /** @typedef FIRAuthTokenResultCallback
     @brief The type of block called when a token is ready for use.
@@ -55,7 +55,7 @@ typedef void (^FIRAuthTokenCallback)(NSString *_Nullable token, NSError *_Nullab
  */
 typedef void (^FIRAuthTokenResultCallback)(FIRAuthTokenResult *_Nullable tokenResult,
                                            NSError *_Nullable error)
-    NS_SWIFT_NAME(AuthTokenResultCallback);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /** @typedef FIRUserProfileChangeCallback
     @brief The type of block called when a user profile change has finished.
@@ -63,7 +63,7 @@ typedef void (^FIRAuthTokenResultCallback)(FIRAuthTokenResult *_Nullable tokenRe
     @param error Optionally; the error which occurred - or nil if the request was successful.
  */
 typedef void (^FIRUserProfileChangeCallback)(NSError *_Nullable error)
-    NS_SWIFT_NAME(UserProfileChangeCallback);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /** @typedef FIRSendEmailVerificationCallback
     @brief The type of block called when a request to send an email verification has finished.
@@ -71,7 +71,7 @@ typedef void (^FIRUserProfileChangeCallback)(NSError *_Nullable error)
     @param error Optionally; the error which occurred - or nil if the request was successful.
  */
 typedef void (^FIRSendEmailVerificationCallback)(NSError *_Nullable error)
-    NS_SWIFT_NAME(SendEmailVerificationCallback);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /** @class FIRUser
     @brief Represents a user. Firebase Auth does not attempt to validate users

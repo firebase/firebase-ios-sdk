@@ -9,12 +9,21 @@ on:
     # Run every day at 11pm (PST) - cron uses UTC times
     - cron:  '0 7 * * *'
 
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: true
+
 jobs:
   pod_lib_lint:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macos-11
     strategy:
       matrix:
         target: [ios, tvos, macos]
+    env:
+      # This env var is set because the job has a dependency on the unpublished HeatbeatLoggingTestUtils.
+      POD_LIB_LINT_ONLY: 1
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -28,6 +37,9 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macos-11
+    env:
+      # This env var is set because the job has a dependency on the unpublished HeatbeatLoggingTestUtils.
+      POD_LIB_LINT_ONLY: 1
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -59,13 +71,13 @@ jobs:
         path: xcodebuild.log
 
   app_check-cron-only:
+    # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     runs-on: macos-11
-    if: github.event_name == 'schedule'
     strategy:
       matrix:
         flags: [
-          '--skip-tests --use-modular-headers',
-          '--skip-tests --use-libraries'
+          '--skip-tests --use-modular-headers'
         ]
     needs: pod_lib_lint
     steps:

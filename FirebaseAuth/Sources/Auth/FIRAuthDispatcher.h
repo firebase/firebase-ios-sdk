@@ -54,7 +54,7 @@ typedef void (^FIRAuthDispatcherImplBlock)(NSTimeInterval delay,
 
 /** @fn sharedInstance
     @brief Gets the shared instance of this class.
-    @returns The shared instance of this clss
+    @return The shared instance of this clss
  */
 + (instancetype)sharedInstance;
 

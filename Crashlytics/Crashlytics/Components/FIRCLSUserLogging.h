@@ -31,6 +31,8 @@ extern NSString* const FIRCLSUserNameKey;
 extern NSString* const FIRCLSUserEmailKey;
 extern NSString* const FIRCLSDevelopmentPlatformNameKey;
 extern NSString* const FIRCLSDevelopmentPlatformVersionKey;
+extern NSString* const FIRCLSOnDemandRecordedExceptionsKey;
+extern NSString* const FIRCLSOnDemandDroppedExceptionsKey;
 #endif
 
 extern const uint32_t FIRCLSUserLoggingMaxKVEntries;

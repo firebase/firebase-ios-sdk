@@ -15,11 +15,10 @@
 import FirebaseAuth
 import FirebaseCore
 import FirebaseStorage
-import FirebaseStorageSwift
 import XCTest
 
-#if swift(>=5.5)
-  @available(iOS 15, *)
+#if swift(>=5.5) && canImport(_Concurrency)
+  @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
   class StorageAsyncAwait: StorageIntegrationCommon {
     func testGetMetadata() async throws {
       let ref = storage.reference().child("ios/public/1mb2")
@@ -43,8 +42,10 @@ import XCTest
                      metadata.customMetadata!["shinkansen"])
     }
 
+    // TODO: update this test to use Swift error codes.
     func testDelete() async throws {
-      let ref = storage.reference(withPath: "ios/public/fileToDelete")
+      let objectLocation = "ios/public/fileToDelete"
+      let ref = storage.reference(withPath: objectLocation)
       let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
       let result = try await ref.putDataAsync(data)
       XCTAssertNotNil(result)
@@ -105,13 +106,17 @@ import XCTest
     }
 
     func testSimplePutDataUnauthorized() async throws {
-      let ref = storage.reference(withPath: "ios/private/secretfile.txt")
+      let objectLocation = "ios/private/secretfile.txt"
+      let ref = storage.reference(withPath: objectLocation)
       let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
       do {
         _ = try await ref.putDataAsync(data)
         XCTFail("Unexpected success from unauthorized putData")
+      } catch let StorageError.unauthorized(bucket, object) {
+        XCTAssertEqual(bucket, "ios-opensource-samples.appspot.com")
+        XCTAssertEqual(object, objectLocation)
       } catch {
-        XCTAssertEqual((error as NSError).code, StorageErrorCode.unauthorized.rawValue)
+        XCTFail("error failed to convert to StorageError.unauthorized")
       }
     }
 
@@ -128,10 +133,10 @@ import XCTest
       do {
         _ = try await ref.putFileAsync(from: fileURL)
         XCTFail("Unexpected success from putFile of a directory")
+      } catch StorageError.unknown {
+        XCTAssertTrue(true)
       } catch {
-        // TODO: Investigate generating a more descriptive error code than unknown.
-        let e = error as NSError
-        XCTAssertEqual(e.code, StorageErrorCode.unknown.rawValue)
+        XCTFail("error failed to convert to StorageError.unknown")
       }
     }
 
@@ -192,11 +197,15 @@ import XCTest
 
     func testSimpleGetDataTooSmall() async {
       let ref = storage.reference(withPath: "ios/public/1mb2")
+      let max: Int64 = 1024
       do {
-        _ = try await ref.data(maxSize: 1024)
+        _ = try await ref.data(maxSize: max)
         XCTFail("Unexpected success from getData too small")
+      } catch let StorageError.downloadSizeExceeded(total, maxSize) {
+        XCTAssertEqual(total, 1_048_576)
+        XCTAssertEqual(maxSize, max)
       } catch {
-        XCTAssertEqual((error as NSError).code, StorageErrorCode.downloadSizeExceeded.rawValue)
+        XCTFail("error failed to convert to StorageError.downloadSizeExceeded")
       }
     }
 
@@ -333,6 +342,19 @@ import XCTest
       XCTAssertEqual(listResult2.items, [])
       XCTAssertEqual(listResult2.prefixes, [ref.child("prefix")])
       XCTAssertNil(listResult2.pageToken, "pageToken should be nil")
+    }
+
+    // TODO: Update to Swift error codes.
+    func testPagedListFilesError() async throws {
+      let ref = storage.reference(withPath: "ios/public/list")
+      do {
+        let _: StorageListResult = try await ref.list(maxResults: 22222)
+        XCTFail("Unexpected success from ref.list")
+      } catch let StorageError.invalidArgument(message) {
+        XCTAssertEqual(message, "Argument 'maxResults' must be between 1 and 1000 inclusive.")
+      } catch {
+        XCTFail("Unexpected error")
+      }
     }
 
     func testListAllFiles() async throws {

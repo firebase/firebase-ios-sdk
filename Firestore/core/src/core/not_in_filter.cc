@@ -35,7 +35,7 @@ using model::IsArray;
 using model::NullValue;
 using nanopb::SharedMessage;
 
-using Operator = Filter::Operator;
+using Operator = FieldFilter::Operator;
 
 class NotInFilter::Rep : public FieldFilter::Rep {
  public:
@@ -58,7 +58,7 @@ NotInFilter::NotInFilter(const FieldPath& field,
 
 bool NotInFilter::Rep::Matches(const Document& doc) const {
   const google_firestore_v1_ArrayValue& array_value = value().array_value;
-  if (Contains(array_value, *NullValue())) {
+  if (Contains(array_value, NullValue())) {
     return false;
   }
   absl::optional<google_firestore_v1_Value> maybe_lhs = doc->field(field());
