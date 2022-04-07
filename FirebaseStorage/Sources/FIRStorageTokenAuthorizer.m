@@ -23,9 +23,9 @@
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
-#import <FirebaseAppCheckInterop/FIRAppCheckInterop.h>
-#import <FirebaseAppCheckInterop/FIRAppCheckTokenResultInterop.h>
-#import <FirebaseAuthInterop/FIRAuthInterop.h>
+#import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
+#import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
+#import "FirebaseAuth/Interop/FIRAuthInterop.h"
 
 static NSString *const kAppCheckTokenHeader = @"X-Firebase-AppCheck";
 static NSString *const kAuthHeader = @"Authorization";
