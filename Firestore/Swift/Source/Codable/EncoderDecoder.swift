@@ -70,8 +70,8 @@ public extension Firestore {
       .NonConformingFloatDecodingStrategy
     public typealias KeyDecodingStrategy = FirebaseDataDecoder.KeyDecodingStrategy
 
-    /// The strategy to use in decoding dates. Defaults to `.deferredToDate`.
-    public var dateDecodingStrategy: DateDecodingStrategy = .deferredToDate
+    /// The strategy to use in decoding dates. Defaults to `.timestamp`.
+    public var dateDecodingStrategy: DateDecodingStrategy = .timestamp
 
     /// The strategy to use in decoding binary data. Defaults to `.base64`.
     public var dataDecodingStrategy: DataDecodingStrategy = .base64
@@ -87,7 +87,7 @@ public extension Firestore {
 
     public func decode<T: Decodable>(_ t: T.Type, from data: Any) throws -> T {
       let decoder = FirebaseDataDecoder()
-      decoder.dateDecodingStrategy = .timestamp(fallback: dateDecodingStrategy)
+      decoder.dateDecodingStrategy = dateDecodingStrategy
       decoder.dataDecodingStrategy = dataDecodingStrategy
       decoder.nonConformingFloatDecodingStrategy = nonConformingFloatDecodingStrategy
       decoder.keyDecodingStrategy = keyDecodingStrategy
