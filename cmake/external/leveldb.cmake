@@ -18,7 +18,7 @@ if(TARGET leveldb)
   return()
 endif()
 
-set(version 1.22)
+set(version 1.23)
 
 ExternalProject_Add(
   leveldb
