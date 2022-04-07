@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseStorage'
-  s.version          = '8.15.0'
+  s.version          = '9.0.0'
   s.summary          = 'Firebase Storage'
 
   s.description      = <<-DESC
@@ -35,13 +35,15 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   s.source_files = [
     'FirebaseStorageSwift/Sources/*.swift',
     'FirebaseStorageSwift/Typedefs/*.h',
+    'FirebaseAppCheck/Interop/*.h',
+    'FirebaseAuth/Interop/*.h',
   ]
 
-  s.dependency 'FirebaseStorageObjC', '~> 8.15'
-  s.dependency 'FirebaseAppCheckInterop', '~> 8.15'
-  s.dependency 'FirebaseAuthInterop', '~> 8.15'
-  s.dependency 'FirebaseCore', '~> 8.15'
-  s.dependency 'FirebaseCoreExtension', '~> 8.15'
+  s.dependency 'FirebaseStorageObjC', '~> 9.0'
+  s.dependency 'FirebaseAppCheckInterop', '~> 9.0'
+  s.dependency 'FirebaseAuthInterop', '~> 9.0'
+  s.dependency 'FirebaseCore', '~> 9.0'
+  s.dependency 'FirebaseCoreExtension', '~> 9.0'
 
   s.test_spec 'ObjCIntegration' do |objc_tests|
     objc_tests.scheme = { :code_coverage => true }
@@ -57,7 +59,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     objc_tests.requires_app_host = true
     objc_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
                           'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist'
-    objc_tests.dependency 'FirebaseAuth', '~> 8.13'
+    objc_tests.dependency 'FirebaseAuth', '~> 9.0'
     objc_tests.pod_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
     }
@@ -85,6 +87,6 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
                           'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist',
                           'FirebaseStorage/Tests/Integration/Resources/HomeImprovement.numbers'
-    int_tests.dependency 'FirebaseAuth', '~> 8.13'
+    int_tests.dependency 'FirebaseAuth', '~> 9.0'
   end
 end

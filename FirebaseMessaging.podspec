@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMessaging'
-  s.version          = '8.15.0'
+  s.version          = '9.0.0'
   s.summary          = 'Firebase Messaging'
 
   s.description      = <<-DESC
@@ -41,7 +41,7 @@ device, and it is completely free.
     base_dir + 'Sources/Protogen/nanopb/*.h',
     base_dir + 'Interop/*.h',
     'Interop/Analytics/Public/*.h',
-    'FirebaseCore/Internal/*.h',
+    'FirebaseCore/Extension/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
   s.public_header_files = base_dir + 'Sources/Public/FirebaseMessaging/*.h'
@@ -58,8 +58,8 @@ device, and it is completely free.
   s.tvos.framework = 'SystemConfiguration'
   s.osx.framework = 'SystemConfiguration'
   s.weak_framework = 'UserNotifications'
-  s.dependency 'FirebaseInstallations', '~> 8.0'
-  s.dependency 'FirebaseCore', '~> 8.0'
+  s.dependency 'FirebaseInstallations', '~> 9.0'
+  s.dependency 'FirebaseCore', '~> 9.0'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.7'
   s.dependency 'GoogleUtilities/Reachability', '~> 7.7'
   s.dependency 'GoogleUtilities/Environment', '~> 7.7'

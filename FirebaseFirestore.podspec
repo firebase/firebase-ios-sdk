@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '8.15.0'
+  s.version          = '9.0.0'
   s.summary          = 'Google Cloud Firestore'
 
   s.description      = <<-DESC
@@ -45,7 +45,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   # that "quick open" by filename in Xcode will continue to work.
   s.source_files = [
     'FirebaseAppCheck/Interop/*.h',
-    'FirebaseCore/Internal/*.h',
+    'FirebaseCore/Extension/*.h',
     'Firestore/Source/Public/FirebaseFirestore/*.h',
     'Firestore/Source/**/*.{m,mm}',
     'Firestore/Protos/nanopb/**/*.cc',
@@ -88,7 +88,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/core/src/util/secure_random_openssl.cc'
   ]
 
-  s.dependency 'FirebaseCore', '~> 8.0'
+  s.dependency 'FirebaseCore', '~> 9.0'
 
   abseil_version = '~> 1.20211102.0'
   s.dependency 'abseil/algorithm', abseil_version

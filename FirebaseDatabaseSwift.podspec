@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseDatabaseSwift'
-  s.version                 = '8.15.0-beta'
+  s.version                 = '9.0.0-beta'
   s.summary                 = 'Swift Extensions for Firebase Realtime Database'
 
   s.description      = <<-DESC
@@ -28,6 +28,6 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     'FirebaseDatabaseSwift/Sources/**/*.swift',
   ]
 
-  s.dependency 'FirebaseDatabase', '~> 8.0'
-  s.dependency 'FirebaseSharedSwift', '~> 8.11'
+  s.dependency 'FirebaseDatabase', '~> 9.0'
+  s.dependency 'FirebaseSharedSwift', '~> 9.0'
 end
