@@ -40,7 +40,7 @@ NS_SWIFT_NAME(GitHubAuthProvider)
     @brief Creates an `AuthCredential` for a GitHub sign in.
 
     @param token The GitHub OAuth access token.
-    @return A FIRAuthCredential containing the GitHub credential.
+    @return An AuthCredential containing the GitHub credential.
  */
 + (FIRAuthCredential *)credentialWithToken:(NSString *)token;
 

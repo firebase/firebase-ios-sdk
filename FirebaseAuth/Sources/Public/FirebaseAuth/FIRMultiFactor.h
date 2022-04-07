@@ -60,7 +60,7 @@ NS_SWIFT_NAME(MultiFactor) API_UNAVAILABLE(macos, tvos, watchos) @interface FIRM
                                                     NSError *_Nullable error))completion;
 
 /** @fn enrollWithAssertion:displayName:completion:
-    @brief Enrolls a second factor as identified by the `FIRMultiFactorAssertion` parameter for the
+    @brief Enrolls a second factor as identified by the `MultiFactorAssertion` parameter for the
         current user.
     @param displayName An optional display name associated with the multi factor to enroll.
     @param completion The block invoked when the request is complete, or fails.

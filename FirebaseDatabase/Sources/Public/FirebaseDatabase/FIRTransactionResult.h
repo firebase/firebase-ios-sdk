@@ -41,7 +41,7 @@ NS_SWIFT_NAME(TransactionResult)
  * should no longer proceed.
  *
  * @return A `TransactionResult` instance that can be used as a return value
- * from the block given to runTransactionBlock(_:)
+ * from the block given to `runTransactionBlock(_:)`
  */
 + (FIRTransactionResult *)abort;
 

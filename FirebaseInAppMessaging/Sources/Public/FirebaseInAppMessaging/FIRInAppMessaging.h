@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
  * The root object for in-app messaging iOS SDK.
  *
  * Note: Firebase In-App Messaging depends on using a Firebase Installation ID and token pair to be
- *able to retrieve messages defined for the current app instance. By default, the Firebase In-App
+ * able to retrieve messages defined for the current app instance. By default, the Firebase In-App
  * Messaging SDK will obtain the ID and token pair on app/SDK startup. In its default configuration
  * the in-app messaging SDK will send some device and client data (linked to the installation ID)
  * to the Firebase backend periodically.
@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
  *   1. Dynamically turning on or off data collection behavior by setting the
  *     `automaticDataCollectionEnabled` property on the `InAppMessaging` instance to true or false.
  *   2. Setting `FirebaseInAppMessagingAutomaticDataCollectionEnabled` to false in the app's plist
- *file.
+ *      file.
  *   3. Disabling data collection via the global Firebase data collection setting.
  *
  * This class is unavailable on macOS, macOS Catalyst, and watchOS.
