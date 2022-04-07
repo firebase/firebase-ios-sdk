@@ -22,8 +22,9 @@
 #import "FirebaseStorage/Sources/FIRStorageUtils.h"
 #import "FirebaseStorage/Sources/FIRStorage_Private.h"
 
-#import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
-#import "FirebaseAuth/Interop/FIRAuthInterop.h"
+#import <FirebaseAppCheckInterop/FIRAppCheckInterop.h>
+#import <FirebaseAuthInterop/FIRAuthInterop.h>
+
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #if SWIFT_PACKAGE
