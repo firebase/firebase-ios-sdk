@@ -258,10 +258,10 @@ The [./scripts/style.sh] script makes it easy to style your
 code during development. Running the style script on the folder you worked in is
 the most efficient way to only format your changes changes.
 
-For example, if your changes were done in `FirebaseStorageInternal/Sources/`:
+For example, if your changes were done in `FirebaseStorage/Sources/`:
 
 ```console
-./scripts/style.sh FirebaseStorageInternal/Sources/
+./scripts/style.sh FirebaseStorage/Sources/
 ```
 
 Alternatively, the script can be work on branch names or filenames.
