@@ -33,7 +33,7 @@ enum Push {
   }
 
   private static func push(to destination: Destination, gitRoot: URL) {
-    let stagingRepo = "git@github.com:firebase/SpecsDev"
+    let stagingRepo = "git@github.com:firebase/SpecsStaging"
     let stagingLocation = findOrRegisterPrivateCocoaPodsRepo(
       repo: stagingRepo,
       gitRoot: gitRoot,
