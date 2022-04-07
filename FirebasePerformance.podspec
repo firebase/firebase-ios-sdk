@@ -31,7 +31,7 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   base_dir = "FirebasePerformance/"
   s.source_files = [
     base_dir + 'Sources/**/*.[cmh]',
-    'FirebaseCore/Internal/*.h',
+    'FirebaseCore/Extension/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
     'FirebaseRemoteConfig/Sources/Private/*.h',
   ]
@@ -59,9 +59,9 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   s.ios.framework = 'CoreTelephony'
   s.framework = 'QuartzCore'
   s.framework = 'SystemConfiguration'
-  s.dependency 'FirebaseCore', '~> 8.0'
-  s.dependency 'FirebaseInstallations', '~> 8.0'
-  s.dependency 'FirebaseRemoteConfig', '~> 8.0'
+  s.dependency 'FirebaseCore', '~> 9.0'
+  s.dependency 'FirebaseInstallations', '~> 9.0'
+  s.dependency 'FirebaseRemoteConfig', '~> 9.0'
   s.dependency 'GoogleDataTransport', '~> 9.1'
   s.dependency 'GoogleUtilities/Environment', '~> 7.7'
   s.dependency 'GoogleUtilities/ISASwizzler', '~> 7.7'

@@ -41,7 +41,7 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
   s.source_files = [
     base_dir + '**/*.[mh]',
    'Interop/Analytics/Public/*.h',
-   'FirebaseCore/Internal/*.h',
+   'FirebaseCore/Extension/*.h',
   ]
   s.requires_arc = base_dir + '*.m'
   s.public_header_files = base_dir + 'Public/FirebaseABTesting/*.h'
@@ -49,7 +49,7 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
-  s.dependency 'FirebaseCore', '~> 8.0'
+  s.dependency 'FirebaseCore', '~> 9.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }

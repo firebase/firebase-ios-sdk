@@ -37,11 +37,11 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     'FirebaseStorageSwift/Typedefs/*.h',
   ]
 
-  s.dependency 'FirebaseStorageObjC', '~> 8.15'
-  s.dependency 'FirebaseAppCheckInterop', '~> 8.15'
-  s.dependency 'FirebaseAuthInterop', '~> 8.15'
-  s.dependency 'FirebaseCore', '~> 8.15'
-  s.dependency 'FirebaseCoreExtension', '~> 8.15'
+  s.dependency 'FirebaseStorageObjC', '~> 9.0'
+  s.dependency 'FirebaseAppCheckInterop', '~> 9.0'
+  s.dependency 'FirebaseAuthInterop', '~> 9.0'
+  s.dependency 'FirebaseCore', '~> 9.0'
+  s.dependency 'FirebaseCoreExtension', '~> 9.0'
 
   s.test_spec 'ObjCIntegration' do |objc_tests|
     objc_tests.scheme = { :code_coverage => true }

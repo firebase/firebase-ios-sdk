@@ -28,6 +28,6 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     'FirebaseDatabaseSwift/Sources/**/*.swift',
   ]
 
-  s.dependency 'FirebaseDatabase', '~> 8.0'
-  s.dependency 'FirebaseSharedSwift', '~> 8.11'
+  s.dependency 'FirebaseDatabase', '~> 9.0'
+  s.dependency 'FirebaseSharedSwift', '~> 9.0'
 end

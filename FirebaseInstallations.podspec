@@ -35,14 +35,14 @@ Pod::Spec.new do |s|
   base_dir = "FirebaseInstallations/Source/"
   s.source_files = [
     base_dir + 'Library/**/*.[mh]',
-    'FirebaseCore/Internal/*.h',
+    'FirebaseCore/Extension/*.h',
   ]
   s.public_header_files = [
     base_dir + 'Library/Public/FirebaseInstallations/*.h',
   ]
 
   s.framework = 'Security'
-  s.dependency 'FirebaseCore', '~> 8.0'
+  s.dependency 'FirebaseCore', '~> 9.0'
   s.dependency 'PromisesObjC', '~> 2.0'
   s.dependency 'GoogleUtilities/Environment', '~> 7.7'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 7.7'
@@ -76,21 +76,21 @@ Pod::Spec.new do |s|
         unit_tests.source_files += base_dir + 'Tests/Unit/IIDStoreTests/*.[mh]'
       end
     end
-  end
 
-  s.test_spec 'integration' do |int_tests|
-    int_tests.scheme = { :code_coverage => true }
-    int_tests.platforms = {:ios => '9.0', :osx => '10.15', :tvos => '10.0'}
-    int_tests.source_files = base_dir + 'Tests/Integration/**/*.[mh]'
-    int_tests.resources = base_dir + 'Tests/Resources/**/*'
-    if ENV['FIS_INTEGRATION_TESTS_REQUIRED'] && ENV['FIS_INTEGRATION_TESTS_REQUIRED'] == '1' then
-      int_tests.pod_target_xcconfig = {
-      'GCC_PREPROCESSOR_DEFINITIONS' =>
-        'FIR_INSTALLATIONS_INTEGRATION_TESTS_REQUIRED=1'
-      }
+    s.test_spec 'integration' do |int_tests|
+      int_tests.scheme = { :code_coverage => true }
+      int_tests.platforms = {:ios => '9.0', :osx => '10.15', :tvos => '10.0'}
+      int_tests.source_files = base_dir + 'Tests/Integration/**/*.[mh]'
+      int_tests.resources = base_dir + 'Tests/Resources/**/*'
+      if ENV['FIS_INTEGRATION_TESTS_REQUIRED'] && ENV['FIS_INTEGRATION_TESTS_REQUIRED'] == '1' then
+        int_tests.pod_target_xcconfig = {
+        'GCC_PREPROCESSOR_DEFINITIONS' =>
+          'FIR_INSTALLATIONS_INTEGRATION_TESTS_REQUIRED=1'
+        }
+      end
+      int_tests.requires_app_host = true
+      int_tests.dependency 'OCMock'
+      int_tests.dependency 'HeartbeatLoggingTestUtils'
     end
-    int_tests.requires_app_host = true
-    int_tests.dependency 'OCMock'
-    int_tests.dependency 'HeartbeatLoggingTestUtils'
   end
 end

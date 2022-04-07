@@ -31,7 +31,7 @@ Pod::Spec.new do |s|
     'Crashlytics/Protogen/**/*.{c,h,m,mm}',
     'Crashlytics/Shared/**/*.{c,h,m,mm}',
     'Crashlytics/third_party/**/*.{c,h,m,mm}',
-    'FirebaseCore/Internal/*.h',
+    'FirebaseCore/Extension/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
     'Interop/Analytics/Public/*.h',
   ]
@@ -53,8 +53,8 @@ Pod::Spec.new do |s|
     cp -f ./Crashlytics/upload-symbols ./upload-symbols
   PREPARE_COMMAND_END
 
-  s.dependency 'FirebaseCore', '~> 8.0'
-  s.dependency 'FirebaseInstallations', '~> 8.0'
+  s.dependency 'FirebaseCore', '~> 9.0'
+  s.dependency 'FirebaseInstallations', '~> 9.0'
   s.dependency 'PromisesObjC', '~> 2.0'
   s.dependency 'GoogleDataTransport', '~> 9.1'
   s.dependency 'GoogleUtilities/Environment', '~> 7.7'

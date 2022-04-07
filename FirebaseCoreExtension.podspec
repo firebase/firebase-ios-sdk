@@ -28,5 +28,5 @@ Pod::Spec.new do |s|
     s.source_files = 'FirebaseCore/Extension/*.[hm]'
     s.public_header_files = 'FirebaseCore/Extension/*.h'
 
-    s.dependency 'FirebaseCore', '~> 8.12'
+    s.dependency 'FirebaseCore', '~> 9.0'
   end
