@@ -56,6 +56,7 @@ using core::LimitType;
 using core::OrderBy;
 using core::OrderByList;
 using core::Target;
+using model::DeepClone;
 using model::Document;
 using model::DocumentKey;
 using model::FieldPath;
@@ -232,17 +233,14 @@ Filter DecodeUnaryFilter(JsonReader& reader, const json& filter) {
   }
 
   if (op == "IS_NAN") {
-    return FieldFilter::Create(path, Operator::Equal,
-                               nanopb::MakeSharedMessage(NaNValue()));
+    return FieldFilter::Create(path, Operator::Equal, DeepClone(NaNValue()));
   } else if (op == "IS_NULL") {
-    return FieldFilter::Create(path, Operator::Equal,
-                               nanopb::MakeSharedMessage(NullValue()));
+    return FieldFilter::Create(path, Operator::Equal, DeepClone(NullValue()));
   } else if (op == "IS_NOT_NAN") {
-    return FieldFilter::Create(path, Operator::NotEqual,
-                               nanopb::MakeSharedMessage(NaNValue()));
+    return FieldFilter::Create(path, Operator::NotEqual, DeepClone(NaNValue()));
   } else if (op == "IS_NOT_NULL") {
     return FieldFilter::Create(path, Operator::NotEqual,
-                               nanopb::MakeSharedMessage(NullValue()));
+                               DeepClone(NullValue()));
   }
 
   reader.Fail("Unexpected unary filter operator: " + op);

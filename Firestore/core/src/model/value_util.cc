@@ -39,18 +39,18 @@ namespace model {
 namespace {
 
 /** The smallest reference value. */
-pb_bytes_array_s* MinimumReferenceValue =
+pb_bytes_array_s* kMinimumReferenceValue =
     nanopb::MakeBytesArray("projects//databases//documents/");
 
 /** The field type of a maximum proto value. */
-std::string RawMaxValueFieldKey = "__type__";
-pb_bytes_array_s* MaxValueFieldKey =
-    nanopb::MakeBytesArray(RawMaxValueFieldKey);
+std::string kRawMaxValueFieldKey = "__type__";
+pb_bytes_array_s* kMaxValueFieldKey =
+    nanopb::MakeBytesArray(kRawMaxValueFieldKey);
 
 /** The field value of a maximum proto value. */
-std::string RawMaxValueFieldValue = "__max__";
-pb_bytes_array_s* MaxValueFieldValue =
-    nanopb::MakeBytesArray(RawMaxValueFieldValue);
+std::string kRawMaxValueFieldValue = "__max__";
+pb_bytes_array_s* kMaxValueFieldValue =
+    nanopb::MakeBytesArray(kRawMaxValueFieldValue);
 
 }  // namespace
 
@@ -550,7 +550,7 @@ google_firestore_v1_Value GetLowerBound(pb_size_t value_tag) {
     case google_firestore_v1_Value_reference_value_tag: {
       google_firestore_v1_Value result;
       result.which_value_type = google_firestore_v1_Value_reference_value_tag;
-      result.reference_value = MinimumReferenceValue;
+      result.reference_value = kMinimumReferenceValue;
       return result;
     }
 
@@ -649,10 +649,10 @@ google_firestore_v1_Value MaxValue() {
   max_value.map_value.fields_count = 1;
   max_value.map_value.fields =
       nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
-  max_value.map_value.fields[0].key = MaxValueFieldKey;
+  max_value.map_value.fields[0].key = kMaxValueFieldKey;
   max_value.map_value.fields[0].value.which_value_type =
       google_firestore_v1_Value_string_value_tag;
-  max_value.map_value.fields[0].value.string_value = MaxValueFieldValue;
+  max_value.map_value.fields[0].value.string_value = kMaxValueFieldValue;
   return max_value;
 }
 
@@ -665,8 +665,11 @@ bool IsMaxValue(const google_firestore_v1_Value& value) {
     return false;
   }
 
-  if (nanopb::MakeStringView(value.map_value.fields->key) !=
-      RawMaxValueFieldKey) {
+  // Comparing the pointer address, then actual content if addresses are
+  // different.
+  if (value.map_value.fields[0].key != kMaxValueFieldKey &&
+      nanopb::MakeStringView(value.map_value.fields[0].key) !=
+          kRawMaxValueFieldKey) {
     return false;
   }
 
@@ -675,8 +678,11 @@ bool IsMaxValue(const google_firestore_v1_Value& value) {
     return false;
   }
 
-  return nanopb::MakeStringView(value.map_value.fields->value.string_value) ==
-         RawMaxValueFieldValue;
+  // Comparing the pointer address, then actual content if addresses are
+  // different.
+  return value.map_value.fields[0].value.string_value == kMaxValueFieldValue ||
+         nanopb::MakeStringView(value.map_value.fields[0].value.string_value) ==
+             kRawMaxValueFieldValue;
 }
 
 google_firestore_v1_Value NaNValue() {
