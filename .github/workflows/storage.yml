@@ -119,14 +119,14 @@ jobs:
     strategy:
       matrix:
         target: [ios, tvos, macos, watchos]
-        podspec: [Storage, StorageObjC]
+        podspec: [FirebaseStorage, FirebaseStorageInternal]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
       run: |
-       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb Firebase${{ matrix.podspec }}.podspec --test-specs=unit --platforms=${{ matrix.target }}
+       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }}.podspec --test-specs=unit --platforms=${{ matrix.target }}
 
   storage-cron-only:
     # Don't run on private repo.

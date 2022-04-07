@@ -33,7 +33,7 @@ Objective C Implementations for FirebaseStorage. This pod should not be directly
   s.prefix_header_file = false
 
   s.source_files = [
-    'FirebaseStorageInernal/Sources/**/*.[mh]',
+    'FirebaseStorageInternal/Sources/**/*.[mh]',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseCore/Extension/*.h',
   ]
@@ -63,7 +63,7 @@ Objective C Implementations for FirebaseStorage. This pod should not be directly
       'SharedTestUtilities/FIRComponentTestUtilities.*',
       'SharedTestUtilities/FIRAuthInteropFake.*',
       'SharedTestUtilities/AppCheckFake/*.[mh]',
-  ]
+    ]
     unit_tests.dependency 'OCMock'
   end
 end
