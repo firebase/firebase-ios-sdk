@@ -119,7 +119,7 @@ jobs:
     strategy:
       matrix:
         target: [ios, tvos, macos, watchos]
-        podspec: [FirebaseStorage.podspec, FirebaseStorageObjC.podspec]
+        podspec: [FirebaseStorage.podspec, FirebaseStorageInternal.podspec]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Bundler
@@ -135,7 +135,7 @@ jobs:
     strategy:
       matrix:
         target: [ios, tvos, macos, watchos]
-        podspec: [FirebaseStorage.podspec, FirebaseStorageObjC.podspec]
+        podspec: [FirebaseStorage.podspec, FirebaseStorageInternal.podspec]
     needs: pod-lib-lint
     steps:
     - uses: actions/checkout@v2
