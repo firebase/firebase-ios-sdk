@@ -27,7 +27,7 @@ num_sdk="${#NON_FIREBASE_SDKS[@]}"
 echo "[" >> "${ZIP_POD_JSON}"
 for sdk in "${NON_FIREBASE_SDKS[@]}"
 do
-  echo "{\"name\":\"${sdk}\"}" >>  "${ZIP_POD_JSON}"\
+  echo "{\"name\":\"${sdk}\"}" >>  "${ZIP_POD_JSON}"
   if [ "$num_sdk" -ne 1 ]; then
     echo ",">>  "${ZIP_POD_JSON}"
   fi
