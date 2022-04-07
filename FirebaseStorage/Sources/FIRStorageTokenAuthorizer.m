@@ -25,7 +25,6 @@
 
 #import <FirebaseAppCheckInterop/FIRAppCheckInterop.h>
 #import <FirebaseAppCheckInterop/FIRAppCheckTokenResultInterop.h>
-
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
 
 static NSString *const kAppCheckTokenHeader = @"X-Firebase-AppCheck";
