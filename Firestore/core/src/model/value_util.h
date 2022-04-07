@@ -83,16 +83,16 @@ std::string CanonicalId(const google_firestore_v1_Value& value);
 /**
  * Returns the lowest value for the given value type (inclusive).
  *
- * The returned value might point to global variables, and the caller is not
- * supposed to own or release it, without calling `DeepClone`.
+ * The returned value might point to heap allocated memory that is owned by
+ * this function. To take ownership of this memory, call `DeepClone`.
  */
 google_firestore_v1_Value GetLowerBound(pb_size_t value_tag);
 
 /**
  * Returns the largest value for the given value type (exclusive).
  *
- * The returned value might point to global variables, and the caller is not
- * supposed to own or release it, without calling `DeepClone`.
+ * The returned value might point to heap allocated memory that is owned by
+ * this function. To take ownership of this memory, call `DeepClone`.
  */
 google_firestore_v1_Value GetUpperBound(pb_size_t value_tag);
 
@@ -109,8 +109,8 @@ bool Contains(google_firestore_v1_ArrayValue haystack,
 /**
  * Returns a null Protobuf value.
  *
- * The returned value might point to global variables, and the caller is not
- * supposed to own or release it, without calling `DeepClone`.
+ * The returned value might point to heap allocated memory that is owned by
+ * this function. To take ownership of this memory, call `DeepClone`.
  */
 google_firestore_v1_Value NullValue();
 
@@ -121,8 +121,8 @@ bool IsNullValue(const google_firestore_v1_Value& value);
  * Returns a Protobuf value that is smaller than any legitimate value SDK
  * users can create. Under the hood, it is a `NullValue()`.
  *
- * The returned value might point to global variables, and the caller is not
- * supposed to own or release it, without calling `DeepClone`.
+ * The returned value might point to heap allocated memory that is owned by
+ * this function. To take ownership of this memory, call `DeepClone`.
  */
 google_firestore_v1_Value MinValue();
 
@@ -137,8 +137,8 @@ bool IsMinValue(const google_firestore_v1_Value& value);
  * Firestore comparison logic always return true for `MaxValue() > v`, for any
  * v users can create, regardless `v`'s type and value.
  *
- * The returned value points to global variables, and the caller is not supposed
- * to own or release it, without calling `DeepClone`.
+ * The returned value might point to heap allocated memory that is owned by
+ * this function. To take ownership of this memory, call `DeepClone`.
  */
 google_firestore_v1_Value MaxValue();
 
@@ -150,8 +150,8 @@ bool IsMaxValue(const google_firestore_v1_Value& value);
 /**
  * Returns `NaN` in its Protobuf representation.
  *
- * The returned value might point to global variables, and the caller is not
- * supposed to own or release it, without calling `DeepClone`.
+ * The returned value might point to heap allocated memory that is owned by
+ * this function. To take ownership of this memory, call `DeepClone`.
  */
 google_firestore_v1_Value NaNValue();
 
@@ -161,8 +161,8 @@ bool IsNaNValue(const google_firestore_v1_Value& value);
 /**
  * Returns a Protobuf reference value representing the given location.
  *
- * The returned value might point to global variables, and the caller is not
- * supposed to own or release it, without calling `DeepClone`.
+ * The returned value might point to heap allocated memory that is owned by
+ * this function. To take ownership of this memory, call `DeepClone`.
  */
 nanopb::Message<google_firestore_v1_Value> RefValue(
     const DatabaseId& database_id, const DocumentKey& document_key);
