@@ -126,7 +126,7 @@ TEST_F(GrpcConnectionTest, GrpcStreamingCallsNoticeChangeInConnectivity) {
   std::unique_ptr<GrpcStreamingReader> streaming_call =
       tester.CreateStreamingReader();
   streaming_call->Start(
-      static_cast<size_t>(0), [&](const std::vector<ResponsesT>) {},
+      0, [&](const std::vector<ResponsesT>) {},
       [&](const util::Status& st, bool) {
         if (IsConnectivityChange(st)) {
           ++change_count;
@@ -165,7 +165,7 @@ TEST_F(GrpcConnectionTest, ConnectivityChangeWithSeveralActiveCalls) {
 
   std::unique_ptr<GrpcStreamingReader> foo = tester.CreateStreamingReader();
   foo->Start(
-      static_cast<size_t>(0), [&](const std::vector<ResponsesT>) {},
+      0, [&](const std::vector<ResponsesT>) {},
       [&](const util::Status&, bool) {
         ++changes_count;
         foo.reset();
@@ -173,7 +173,7 @@ TEST_F(GrpcConnectionTest, ConnectivityChangeWithSeveralActiveCalls) {
 
   std::unique_ptr<GrpcStreamingReader> bar = tester.CreateStreamingReader();
   bar->Start(
-      static_cast<size_t>(0), [&](const std::vector<ResponsesT>) {},
+      0, [&](const std::vector<ResponsesT>) {},
       [&](const util::Status&, bool) {
         ++changes_count;
         bar.reset();
@@ -181,7 +181,7 @@ TEST_F(GrpcConnectionTest, ConnectivityChangeWithSeveralActiveCalls) {
 
   std::unique_ptr<GrpcStreamingReader> baz = tester.CreateStreamingReader();
   baz->Start(
-      static_cast<size_t>(0), [&](const std::vector<ResponsesT>) {},
+      0, [&](const std::vector<ResponsesT>) {},
       [&](const util::Status&, bool) {
         ++changes_count;
         baz.reset();
@@ -212,7 +212,7 @@ TEST_F(GrpcConnectionTest, ShutdownFastFinishesActiveCalls) {
 
   std::unique_ptr<GrpcStreamingReader> bar = tester.CreateStreamingReader();
   bar->Start(
-      static_cast<size_t>(0), [&](const std::vector<ResponsesT>) {},
+      0, [&](const std::vector<ResponsesT>) {},
       [&](const util::Status&, bool) {
         FAIL() << "Callback shouldn't have been invoked";
       });

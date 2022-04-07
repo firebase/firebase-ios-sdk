@@ -62,7 +62,7 @@ class GrpcStreamingReader : public GrpcCall, public GrpcStreamObserver {
    * results of the call. If the call fails, the `callback` will be invoked with
    * a non-ok status.
    */
-  void Start(size_t key_count,
+  void Start(size_t expected_response_count,
              MessagesCallback&& messageCallback,
              CloseCallback&& closeCallback);
 

@@ -74,10 +74,10 @@ class GrpcStreamingReaderTest : public testing::Test {
     tester.KeepPollingGrpcQueue();
   }
 
-  void StartReader(size_t key_count) {
+  void StartReader(size_t expected_response_count) {
     worker_queue->EnqueueBlocking([&] {
       reader->Start(
-          key_count,
+          expected_response_count,
           [&](std::vector<ResponsesT> result) {
             responses = std::move(result);
           },
@@ -101,7 +101,7 @@ TEST_F(GrpcStreamingReaderTest, FinishImmediatelyIsIdempotent) {
   worker_queue->EnqueueBlocking(
       [&] { EXPECT_NO_THROW(reader->FinishImmediately()); });
 
-  StartReader(static_cast<size_t>(0));
+  StartReader(0);
 
   KeepPollingGrpcQueue();
   worker_queue->EnqueueBlocking([&] {
@@ -114,12 +114,12 @@ TEST_F(GrpcStreamingReaderTest, FinishImmediatelyIsIdempotent) {
 // Method prerequisites -- correct usage of `GetResponseHeaders`
 
 TEST_F(GrpcStreamingReaderTest, CanGetResponseHeadersAfterStarting) {
-  StartReader(static_cast<size_t>(0));
+  StartReader(0);
   EXPECT_NO_THROW(reader->GetResponseHeaders());
 }
 
 TEST_F(GrpcStreamingReaderTest, CanGetResponseHeadersAfterFinishing) {
-  StartReader(static_cast<size_t>(0));
+  StartReader(0);
 
   KeepPollingGrpcQueue();
   worker_queue->EnqueueBlocking([&] {
@@ -139,7 +139,7 @@ TEST_F(GrpcStreamingReaderTest, CannotFinishAndNotifyBeforeStarting) {
 // Normal operation
 
 TEST_F(GrpcStreamingReaderTest, OneSuccessfulRead) {
-  StartReader(static_cast<size_t>(1));
+  StartReader(1);
 
   ForceFinishAnyTypeOrder({
       {Type::Write, CompletionResult::Ok},
@@ -158,7 +158,7 @@ TEST_F(GrpcStreamingReaderTest, OneSuccessfulRead) {
 }
 
 TEST_F(GrpcStreamingReaderTest, TwoSuccessfulReads) {
-  StartReader(static_cast<size_t>(2));
+  StartReader(2);
 
   ForceFinishAnyTypeOrder({
       {Type::Write, CompletionResult::Ok},
@@ -178,7 +178,7 @@ TEST_F(GrpcStreamingReaderTest, TwoSuccessfulReads) {
 }
 
 TEST_F(GrpcStreamingReaderTest, FinishWhileReading) {
-  StartReader(static_cast<size_t>(1));
+  StartReader(1);
 
   ForceFinishAnyTypeOrder({{Type::Write, CompletionResult::Ok},
                            {Type::Read, CompletionResult::Ok}});
@@ -194,7 +194,7 @@ TEST_F(GrpcStreamingReaderTest, FinishWhileReading) {
 // Errors
 
 TEST_F(GrpcStreamingReaderTest, ErrorOnWrite) {
-  StartReader(static_cast<size_t>(1));
+  StartReader(1);
 
   bool failed_write = false;
   auto future = tester.ForceFinishAsync([&](GrpcCompletion* completion) {
@@ -230,7 +230,7 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnWrite) {
 }
 
 TEST_F(GrpcStreamingReaderTest, ErrorOnFirstRead) {
-  StartReader(static_cast<size_t>(1));
+  StartReader(1);
 
   ForceFinishAnyTypeOrder({
       {Type::Write, CompletionResult::Ok},
@@ -245,7 +245,7 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnFirstRead) {
 }
 
 TEST_F(GrpcStreamingReaderTest, ErrorOnSecondRead) {
-  StartReader(static_cast<size_t>(2));
+  StartReader(2);
 
   ForceFinishAnyTypeOrder({
       {Type::Write, CompletionResult::Ok},
@@ -264,7 +264,7 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnSecondRead) {
 TEST_F(GrpcStreamingReaderTest, CallbackCanDestroyReaderOnSuccess) {
   worker_queue->EnqueueBlocking([&] {
     reader->Start(
-        static_cast<size_t>(1), [&](std::vector<ResponsesT>) {},
+        1, [&](std::vector<ResponsesT>) {},
         [&](const util::Status&, bool) { reader.reset(); });
   });
 
@@ -282,7 +282,7 @@ TEST_F(GrpcStreamingReaderTest, CallbackCanDestroyReaderOnSuccess) {
 TEST_F(GrpcStreamingReaderTest, CallbackCanDestroyReaderOnError) {
   worker_queue->EnqueueBlocking([&] {
     reader->Start(
-        static_cast<size_t>(1), [&](std::vector<ResponsesT>) {},
+        1, [&](std::vector<ResponsesT>) {},
         [&](const util::Status&, bool) { reader.reset(); });
   });
 
