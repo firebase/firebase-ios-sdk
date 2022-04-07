@@ -43,12 +43,12 @@ pb_bytes_array_s* kMinimumReferenceValue =
     nanopb::MakeBytesArray("projects//databases//documents/");
 
 /** The field type of a maximum proto value. */
-std::string kRawMaxValueFieldKey = "__type__";
+const char* kRawMaxValueFieldKey = "__type__";
 pb_bytes_array_s* kMaxValueFieldKey =
     nanopb::MakeBytesArray(kRawMaxValueFieldKey);
 
 /** The field value of a maximum proto value. */
-std::string kRawMaxValueFieldValue = "__max__";
+const char* kRawMaxValueFieldValue = "__max__";
 pb_bytes_array_s* kMaxValueFieldValue =
     nanopb::MakeBytesArray(kRawMaxValueFieldValue);
 
