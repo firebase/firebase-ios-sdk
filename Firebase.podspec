@@ -62,21 +62,21 @@ Simplify your app development, grow your user base, and monetize more effectivel
   end
 
   s.subspec 'Analytics' do |ss|
-    ss.ios.deployment_target = '9.0'
+    ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '12.0'
     ss.dependency 'Firebase/Core'
   end
 
   s.subspec 'AnalyticsWithAdIdSupport' do |ss|
-    ss.ios.deployment_target = '9.0'
+    ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '12.0'
     ss.dependency 'Firebase/Core'
   end
 
   s.subspec 'AnalyticsWithoutAdIdSupport' do |ss|
-    ss.ios.deployment_target = '9.0'
+    ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '12.0'
     ss.ios.dependency 'FirebaseAnalytics/WithoutAdIdSupport', '~> 9.0.0'

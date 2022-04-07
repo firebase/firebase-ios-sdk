@@ -25,7 +25,7 @@
     },
     "name": "GoogleAppMeasurement",
     "platforms": {
-        "ios": "9.0",
+        "ios": "10.0",
         "osx": "10.12",
         "tvos": "12.0"
     },
