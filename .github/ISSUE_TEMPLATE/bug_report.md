@@ -9,7 +9,7 @@ template_path=.github/ISSUE_TEMPLATE/bug_report.md
 ### Step 0: Are you in the right place?
 
   * For issues or feature requests related to __the code in this repository__
-    file a Github issue.
+    file a GitHub issue.
     * If this is a __feature request__ please use the Feature Request template.
   * For general technical questions, post a question on [StackOverflow](http://stackoverflow.com/)
     with the `firebase` tag.
