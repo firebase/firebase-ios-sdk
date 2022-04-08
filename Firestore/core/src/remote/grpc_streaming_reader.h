@@ -47,7 +47,7 @@ class GrpcConnection;
 class GrpcStreamingReader : public GrpcCall, public GrpcStreamObserver {
  public:
   using ResponsesT = grpc::ByteBuffer;
-  using MessagesCallback = std::function<void(const std::vector<ResponsesT>)>;
+  using ResponsesCallback = std::function<void(const std::vector<ResponsesT>)>;
   using CloseCallback = std::function<void(const util::Status&, bool)>;
 
   GrpcStreamingReader(
@@ -63,8 +63,8 @@ class GrpcStreamingReader : public GrpcCall, public GrpcStreamObserver {
    * a non-ok status.
    */
   void Start(size_t expected_response_count,
-             MessagesCallback&& messageCallback,
-             CloseCallback&& closeCallback);
+             ResponsesCallback&& responses_callback,
+             CloseCallback&& close_callback);
 
   /**
    * If the call is in progress, attempts to cancel the call; otherwise, it's
@@ -105,7 +105,7 @@ class GrpcStreamingReader : public GrpcCall, public GrpcStreamObserver {
 
   size_t expected_response_count_;
   bool callback_fired_ = false;
-  MessagesCallback docs_callback_;
+  ResponsesCallback responses_callback_;
   CloseCallback close_callback_;
   std::vector<ResponsesT> responses_;
 };
