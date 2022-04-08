@@ -1,5 +1,6 @@
 // swift-tools-version:5.3
-// The swift-tools-version declares the minimum version of Swift required to build this package.
+// The swift-tools-version declares the minimum version of Swift required to
+// build this package.
 
 // Copyright 2020 Google LLC
 //
@@ -33,7 +34,7 @@ let package = Package(
       targets: ["FirebaseAnalyticsWithoutAdIdSupportTarget"]
     ),
     .library(
-      name: "FirebaseAnalyticsSwift-Beta",
+      name: "FirebaseAnalyticsSwift",
       targets: ["FirebaseAnalyticsSwiftTarget"]
     ),
     .library(
@@ -73,7 +74,7 @@ let package = Package(
       targets: ["FirebaseDatabase"]
     ),
     .library(
-      name: "FirebaseDatabaseSwift-Beta",
+      name: "FirebaseDatabaseSwift",
       targets: ["FirebaseDatabaseSwift"]
     ),
     .library(
@@ -85,7 +86,7 @@ let package = Package(
       targets: ["FirebaseFirestoreTarget"]
     ),
     .library(
-      name: "FirebaseFirestoreSwift-Beta",
+      name: "FirebaseFirestoreSwift",
       targets: ["FirebaseFirestoreSwiftTarget"]
     ),
     .library(
@@ -121,7 +122,7 @@ let package = Package(
       targets: ["FirebaseRemoteConfig"]
     ),
     .library(
-      name: "FirebaseRemoteConfigSwift-Beta",
+      name: "FirebaseRemoteConfigSwift",
       targets: ["FirebaseRemoteConfigSwift"]
     ),
     .library(
