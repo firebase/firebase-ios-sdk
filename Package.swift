@@ -1078,13 +1078,13 @@ let package = Package(
         "FirebaseCoreExtension",
         "FirebaseStorageInternal",
       ],
-      path: "FirebaseStorageSwift/Sources"
+      path: "FirebaseStorage/Sources"
     ),
     .testTarget(
       name: "FirebaseStorageUnit",
       dependencies: ["FirebaseStorage",
                      "SharedTestUtilities"],
-      path: "FirebaseStorageSwift/Tests/Unit",
+      path: "FirebaseStorage/Tests/Unit",
       cSettings: [
         .headerSearchPath("../../../"),
       ]
@@ -1092,7 +1092,7 @@ let package = Package(
     .testTarget(
       name: "StorageObjcIntegration",
       dependencies: ["FirebaseStorage"],
-      path: "FirebaseStorageSwift/Tests/ObjcIntegration",
+      path: "FirebaseStorage/Tests/ObjcIntegration",
       cSettings: [
         .headerSearchPath("../../.."),
       ]
