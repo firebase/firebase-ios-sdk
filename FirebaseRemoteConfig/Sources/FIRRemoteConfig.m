@@ -573,17 +573,13 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
   dispatch_async(_queue, setConfigSettingsBlock);
 }
 
-#pragma mark - real time
+#pragma mark - Realtime
 
-- (RealtimeListenerRegistration *)startRealTimeStream: (id)callbackDelegate {
+- (ListenerRegistration *)setOnNewConfigListener: (id)eventListener {
     [self->_realtimeHttpClient viewDidLoad];
-    RealtimeListenerRegistration *registration = [self->_realtimeHttpClient setRealTimeDelegateCallback:callbackDelegate];
-    [self->_realtimeHttpClient startStream];
+    ListenerRegistration *registration = [self->_realtimeHttpClient setRealtimeEventListener:eventListener];
+    [self->_realtimeHttpClient startRealtimeConnection];
     return registration;
-}
-
-- (void)pauseRealTimeStream {
-    [self->_realtimeHttpClient pauseStream];
 }
 
 @end

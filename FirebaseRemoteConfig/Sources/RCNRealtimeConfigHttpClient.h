@@ -12,13 +12,14 @@
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 #import <UIKit/UIKit.h>
 
-@interface RealtimeListenerRegistration : NSObject
+@interface ListenerRegistration : NSObject
+- (void) remove;
 @end
 
 @interface RCNRealtimeConfigHttpClient : UIViewController <NSURLSessionDataDelegate>
 
 @property(weak, nonatomic) IBOutlet UILabel *outputLabel;
-@property(strong, atomic) id <RealTimeDelegateCallback> realTimeDelegate;
+@property(strong, atomic) id <EventListener> eventListener;
 
 - (instancetype) initWithClass:(RCNConfigFetch *) configFetch
                       settings: (RCNConfigSettings *)settings
@@ -26,10 +27,10 @@
                       options: (FIROptions *)options
                       queue: (dispatch_queue_t)queue;
 
-- (void)startStream;
-- (void)pauseStream;
-- (RealtimeListenerRegistration *)setRealTimeDelegateCallback:(id)realTimeDelegate;
-- (void)removeRealTimeDelegateCallback;
+- (void)startRealtimeConnection;
+- (void)pauseRealtimeConnection;
+- (ListenerRegistration *)setRealtimeEventListener:(id)eventListener;
+- (void)removeRealtimeEventListener;
 
 @end
 

@@ -25,19 +25,23 @@ static NSString *const kInstallationsAuthTokenHeaderName = @"x-goog-firebase-ins
 static NSString *const kiOSBundleIdentifierHeaderName =
     @"X-Ios-Bundle-Identifier";  ///< HTTP Header Field Name
 
-static NSString *const templateVersionNumberKey = @"templateVersionNumber";
+static NSString *const templateVersionNumberKey = @"templateVersion";
 
 // Retry parameters
 NSInteger MAX_RETRY = 10;
 NSInteger MAX_RETRY_COUNT = 10;
 NSInteger RETRY_MULTIPLIER = 2;
-NSTimeInterval timeoutSeconds = 432000;
+NSTimeInterval timeoutSeconds = 4320;
 double RETRY_SECONDS = 5.5;
+bool isFirstConnection = true;
+
+NSInteger FETCH_DELAY = 120;
+NSInteger FETCH_ATTEMPTS = 5;
 
 static NSString *const hostAddress = @"http://127.0.0.1:8080";
 
 # pragma mark - Realtime Event Listener Registration
-@implementation RealtimeListenerRegistration {
+@implementation ListenerRegistration {
     RCNRealtimeConfigHttpClient *_realtimeClient;
 }
 
@@ -50,7 +54,8 @@ static NSString *const hostAddress = @"http://127.0.0.1:8080";
 }
 
 - (void)remove {
-    [self->_realtimeClient removeRealTimeDelegateCallback];
+    [self-> _realtimeClient removeRealtimeEventListener];
+    [self-> _realtimeClient pauseRealtimeConnection];
 }
 
 @end
@@ -64,7 +69,7 @@ static NSString *const hostAddress = @"http://127.0.0.1:8080";
     NSMutableURLRequest *_request;
     NSURLSession *_session;
     NSURLSessionDataTask *_dataTask;
-    __strong id _realTimeDelegate;
+    __strong id _eventListener;
     NSNotificationCenter *_notificationCenter;
     BOOL _inBackground;
 }
@@ -84,7 +89,6 @@ static NSString *const hostAddress = @"http://127.0.0.1:8080";
         _notificationCenter = [NSNotificationCenter defaultCenter];
         _inBackground = FALSE;
         [self setUpHttpRequest];
-//        [self retryOnEveryNetworkConnection];
     }
     
     return self;
@@ -199,23 +203,7 @@ static NSString *const hostAddress = @"http://127.0.0.1:8080";
     [installations authTokenWithCompletion:installationsTokenHandler];
 }
 
--(void) setUpHttpRequest {
-    _request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:hostAddress] cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:timeoutSeconds];
-    [_request setHTTPMethod:kHTTPMethodPost];
-    [_request setValue:@"application/json" forHTTPHeaderField:kContentTypeHeaderName];
-    [_request setValue:@"gzip" forHTTPHeaderField:kContentEncodingHeaderName];
-    [_request setValue:@"gzip" forHTTPHeaderField:kAcceptEncodingHeaderName];
-    [_request setValue:[[NSBundle mainBundle] bundleIdentifier]
-        forHTTPHeaderField:kiOSBundleIdentifierHeaderName];
-    
-    NSString *postBody = [NSString stringWithFormat:@"project=%@&namespace=%@&templateVersionNumber=%@", [self->_options projectID], self->_namespace, [self->_configFetch getTemplateVersionNumber]];
-    NSData *postData = [postBody dataUsingEncoding:NSUTF8StringEncoding];
-    [_request setHTTPBody:postData];
-}
-
-// Creates request and makes call to create session.
--(void) setUpHttpSession {
-    
+-(void) setRequestBody {
     [self refreshInstallationsTokenWithCompletionHandler:^(FIRRemoteConfigFetchStatus status, NSError * _Nullable error) {
         if (status != FIRRemoteConfigFetchStatusSuccess) {
             NSLog(@"Installation token retrival failed");
@@ -227,11 +215,113 @@ static NSString *const hostAddress = @"http://127.0.0.1:8080";
     if (_settings.lastETag) {
       [_request setValue:_settings.lastETag forHTTPHeaderField:kIfNoneMatchETagHeaderName];
     }
+    
+    NSString *postBody = [NSString stringWithFormat:@"project=%@&namespace=%@&templateVersionNumber=%@", [self->_options projectID], self->_namespace, [self->_configFetch getTemplateVersionNumber]];
+    NSData *postData = [postBody dataUsingEncoding:NSUTF8StringEncoding];
+    [_request setHTTPBody:postData];
+}
 
+// Creates request.
+-(void) setUpHttpRequest {
+    _request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:hostAddress] cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:timeoutSeconds];
+    [_request setHTTPMethod:kHTTPMethodPost];
+    [_request setValue:@"application/json" forHTTPHeaderField:kContentTypeHeaderName];
+//    [_request setValue:@"Transfer-Encoding" forKey:@"Chunked"];
+    [_request setValue:@"gzip" forHTTPHeaderField:kContentEncodingHeaderName];
+    [_request setValue:@"gzip" forHTTPHeaderField:kAcceptEncodingHeaderName];
+    [_request setValue:[[NSBundle mainBundle] bundleIdentifier]
+        forHTTPHeaderField:kiOSBundleIdentifierHeaderName];
+}
+
+// Makes call to create session.
+-(void) setUpHttpSession {
     NSURLSessionConfiguration *sessionConfig=[NSURLSessionConfiguration defaultSessionConfiguration];
     [sessionConfig setTimeoutIntervalForResource:timeoutSeconds];
     
     _session = [NSURLSession sessionWithConfiguration:sessionConfig delegate:self delegateQueue:[NSOperationQueue mainQueue]];
+}
+
+#pragma mark - NSURLSession Delegates
+
+// Perform fetch and handle developers callbacks
+-(void) fetchConfigAndHandleCallbacks:(NSInteger)remainingAttempts currentVersion:(NSInteger) currentVersion {
+    if (remainingAttempts == 0) {
+        return;
+    }
+    
+    [self->_configFetch fetchConfigWithExpirationDuration: 0
+        completionHandler: ^(FIRRemoteConfigFetchStatus status, NSError *error) {
+            NSLog(@"Fetching new config");
+            if (status == FIRRemoteConfigFetchStatusSuccess) {
+                if ([[self->_configFetch getTemplateVersionNumber] integerValue] > currentVersion) {
+                    NSLog(@"Executing callback delegate");
+                    [self->_eventListener onEvent:self];
+                } else {
+                    NSLog(@"Fetched config's template version is the same or less then the current version, re-fetching");
+                    [self fetchConfigAndHandleCallbacks:remainingAttempts - 1 currentVersion:currentVersion];
+                }
+            } else {
+                NSLog(@"Config not fetched");
+                if (error != nil) {
+                    NSLog(@"Error received: %@", error.localizedDescription);
+                }
+            }
+        }
+    ];
+}
+
+// Delegate to asynchronously handle every new notification that comes over the wire. Auto-fetches and runs callback for each new notification
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
+    didReceiveData:(NSData *)data
+{
+    NSLog(@"Received invalidation notification from server.");
+    [self fetchConfigAndHandleCallbacks:FETCH_ATTEMPTS currentVersion:[[self->_configFetch getTemplateVersionNumber] integerValue]];
+}
+
+// Delegate that checks the final response of the connection and retries if necessary
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response
+completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
+    NSHTTPURLResponse * _httpURLResponse = (NSHTTPURLResponse*) response;
+    if ([_httpURLResponse statusCode] != 200) {
+        [self retryHTTPConnection];
+    }
+    completionHandler(NSURLSessionResponseAllow);
+}
+
+// Delegate that checks the final response of the connection and retries if allowed
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
+    if (error != nil) {
+        NSLog(@"Error received: %@", error.localizedDescription);
+    }
+    [self retryHTTPConnection];
+}
+
+// Delegate that checks the final response of the connection and retries if allowed
+- (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(NSError *)error {
+    if (error != nil) {
+        NSLog(@"Error received: %@", error.localizedDescription);
+    }
+    [self retryHTTPConnection];
+}
+
+#pragma mark - Reconnection Helpers
+
+// Checks if app is in foreground or not.
+- (void)viewDidLoad {
+    [super viewDidLoad];
+
+    [self->_notificationCenter addObserver:self selector:@selector(isInForeground) name:UIApplicationWillEnterForegroundNotification object:nil];
+    [self->_notificationCenter addObserver:self selector:@selector(isInBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
+}
+
+- (void)isInBackground {
+    _inBackground = TRUE;
+}
+
+- (void)isInForeground {
+    NSLog(@"Foreground");
+    _inBackground = FALSE;
+    [self startRealtimeConnection];
 }
 
 // Retry mechanism for HTTP connections
@@ -239,9 +329,9 @@ static NSString *const hostAddress = @"http://127.0.0.1:8080";
     NSLog(@"Retrying connection request.");
     if (!_inBackground && MAX_RETRY_COUNT > 0) {
         MAX_RETRY_COUNT--;
-        
-        [self pauseStream];
-        [NSTimer scheduledTimerWithTimeInterval:RETRY_SECONDS * RETRY_MULTIPLIER target:self selector:@selector(startStream) userInfo:nil repeats:NO];
+        RETRY_MULTIPLIER++;
+        [self pauseRealtimeConnection];
+        [NSTimer scheduledTimerWithTimeInterval:RETRY_SECONDS * RETRY_MULTIPLIER target:self selector:@selector(startRealtimeConnection) userInfo:nil repeats:NO];
     } else {
         NSLog(@"No retries remaining");
     }
@@ -250,7 +340,7 @@ static NSString *const hostAddress = @"http://127.0.0.1:8080";
 - (void)checkNetworkConnection {
     NSString *testString = [NSString stringWithContentsOfURL:[NSURL URLWithString:@"http://www.google.com"] encoding:NSUTF8StringEncoding error:Nil];
     if (testString != nil) {
-        [self startStream];
+        [self startRealtimeConnection];
     }
 }
 
@@ -258,78 +348,30 @@ static NSString *const hostAddress = @"http://127.0.0.1:8080";
     [NSTimer scheduledTimerWithTimeInterval:300 target:self selector:@selector(checkNetworkConnection) userInfo:nil repeats:YES];
 }
 
-#pragma mark - NSURLSession Delegates
+#pragma mark - Realtime Helper Methods
 
-// Delegate to asynchronously handle every new notification that comes over the wire then auto-fetches and runs callback for each new notification
-- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
-    didReceiveData:(NSData *)data
-{
-    NSLog(@"Received invalidation notification from server.");
-    [self->_configFetch fetchConfigWithExpirationDuration: 0
-        completionHandler: ^(FIRRemoteConfigFetchStatus status, NSError *error) {
-            NSLog(@"Fetching new config");
-            if (status == FIRRemoteConfigFetchStatusSuccess) {
-                if (self->_realTimeDelegate != NULL && self->_realTimeDelegate != nil) {
-                    NSLog(@"Executing callback delegate");
-                    [self->_realTimeDelegate handleRealTimeConfigFetch:self];
-                }
-            } else {
-                NSLog(@"Config not fetched");
-                NSLog(@"Error %@", error.localizedDescription);
-            }
-        }
-    ];
+-(bool) isThereNoRunningConnection {
+    return self->_dataTask == NULL || self->_dataTask.state != NSURLSessionTaskStateRunning;
 }
-
-// Delegate that checks the final response of the connection and retries if necessary
-- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response
-completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
-    NSHTTPURLResponse * _httpURLResponse = (NSHTTPURLResponse*) response;
-    if (_httpURLResponse.statusCode != (NSInteger) 200) {
-        [self retryHTTPConnection];
-    }
-
-    completionHandler(NSURLSessionResponseAllow);
-}
-
-// Delegate that checks the final response of the connection and retries if allowed
-- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
-    [self retryHTTPConnection];
-}
-
-// Delegate that checks the final response of the connection and retries if allowed
-- (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(NSError *)error {
-    [self retryHTTPConnection];
-}
-
-#pragma mark - Foreground Reconnection
-
-// Checks if app is in foreground or not.
-- (void)viewDidLoad {
-    [super viewDidLoad];
-
-    [self->_notificationCenter addObserver:self selector:@selector(isInForeground) name:UIApplicationWillEnterForegroundNotification object:nil];
-}
-
-- (void)isInForeground {
-    NSLog(@"Foreground");
-    _inBackground = FALSE;
-    [self startStream];
-}
-
-#pragma mark - Realtime Methods
 
 // Starts HTTP connection.
-- (void)startStream {
-    if (self->_dataTask == NULL) {
-        NSLog(@"HTTP connection started.");
+- (void)startRealtimeConnection {
+    if (isFirstConnection) {
+        [self retryOnEveryNetworkConnection];
         [self setUpHttpSession];
+        isFirstConnection = false;
+    }
+    
+    if (!_inBackground && [self isThereNoRunningConnection] && self->_eventListener != nil) {
+        NSLog(@"HTTP connection started.");
+        [self setRequestBody];
         self->_dataTask = [_session dataTaskWithRequest:_request];
         [_dataTask resume];
         
         if (_dataTask.state == NSURLSessionTaskStateRunning) {
             NSLog(@"Connection made to backend.");
             MAX_RETRY_COUNT = MAX_RETRY;
+            RETRY_MULTIPLIER = arc4random_uniform(10) + 1;
         } else {
             [self retryHTTPConnection];
         }
@@ -337,7 +379,7 @@ completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))complet
 }
 
 // Stops data task session.
-- (void)pauseStream {
+- (void)pauseRealtimeConnection {
     if (self->_dataTask != NULL) {
         [_dataTask cancel];
         self->_dataTask = NULL;
@@ -345,14 +387,14 @@ completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))complet
 }
 
 // Sets Delegate callback
-- (RealtimeListenerRegistration *)setRealTimeDelegateCallback:(id)realTimeDelegate {
-    self->_realTimeDelegate = realTimeDelegate;
-    return [[RealtimeListenerRegistration alloc] initWithClass: self];
+- (ListenerRegistration *)setRealtimeEventListener:(id)eventListener {
+    self->_eventListener = eventListener;
+    return [[ListenerRegistration alloc] initWithClass: self];
 }
 
 // Removes Delegate callback
-- (void)removeRealTimeDelegateCallback {
-    self->_realTimeDelegate = NULL;
+- (void)removeRealtimeEventListener {
+    self->_eventListener = NULL;
 }
 
 @end

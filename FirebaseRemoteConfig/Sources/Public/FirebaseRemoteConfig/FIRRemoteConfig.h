@@ -284,15 +284,13 @@ NS_SWIFT_NAME(RemoteConfig)
 - (nullable FIRRemoteConfigValue *)defaultValueForKey:(nullable NSString *)key;
 
 #pragma mark - Real Time
-- (nonnull NSObject *)startRealTimeStream: (nonnull id)callbackDelegate;
-
-- (void)pauseRealTimeStream;
+- (nonnull NSObject *)setOnNewConfigListener: (nonnull id)eventListener;
 
 @end
 
 
 // Realtime Callback delegate
-@protocol RealTimeDelegateCallback <NSObject>
-- (void)handleRealTimeConfigFetch: (nonnull id)realTimeStream;
+@protocol EventListener <NSObject>
+- (void)onEvent: (nonnull id)realTimeStream;
 
 @end

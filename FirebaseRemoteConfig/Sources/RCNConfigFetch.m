@@ -64,7 +64,7 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 // Deprecated error code previously from FirebaseCore
 static const NSInteger sFIRErrorCodeConfigFailed = -114;
 
-static NSString *const templateVersionNumberKey = @"templateVersionNumber";
+static NSString *const templateVersionNumberKey = @"templateVersion";
 
 #pragma mark - RCNConfig
 
@@ -106,7 +106,9 @@ static NSString *const templateVersionNumberKey = @"templateVersionNumber";
     _options = options;
       
     if ([content.fetchedConfig objectForKey:templateVersionNumberKey]) {
-        self->_templateVersionNumber = [content.fetchedConfig objectForKey:templateVersionNumberKey];
+        self->_templateVersionNumber = [content.activeConfig objectForKey:templateVersionNumberKey];
+    } else {
+        self->_templateVersionNumber = @"1";
     }
   }
   return self;
@@ -451,6 +453,7 @@ static NSString *const templateVersionNumberKey = @"templateVersionNumber";
           [NSJSONSerialization JSONObjectWithData:data
                                           options:NSJSONReadingMutableContainers
                                             error:&retError];
+        NSLog(@"Fetched config is %@", [fetchedConfig description]);
       if (retError) {
         FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000042",
                     @"RCN Fetch failure: %@. Could not parse response data as JSON", error);
