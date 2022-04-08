@@ -35,25 +35,25 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRIMPLStorageReference : NSObject
 
 /**
- * The Storage service object which created this reference.
+ * The FIRStorage service object which created this reference.
  */
 @property(nonatomic, readonly) FIRIMPLStorage *storage;
 
 /**
  * The name of the Google Cloud Storage bucket associated with this reference,
- * in `gs://bucket/path/to/object.txt`, the bucket would be: 'bucket'
+ * in gs://bucket/path/to/object.txt, the bucket would be: 'bucket'
  */
 @property(nonatomic, readonly) NSString *bucket;
 
 /**
  * The full path to this object, not including the Google Cloud Storage bucket.
- * In `gs://bucket/path/to/object.txt`, the full path would be: 'path/to/object.txt'
+ * In gs://bucket/path/to/object.txt, the full path would be: 'path/to/object.txt'
  */
 @property(nonatomic, readonly) NSString *fullPath;
 
 /**
  * The short name of the object associated with this reference,
- * in `gs://bucket/path/to/object.txt`, the name of the object would be: 'object.txt'
+ * in gs://bucket/path/to/object.txt, the name of the object would be: 'object.txt'
  */
 @property(nonatomic, readonly) NSString *name;
 
@@ -202,7 +202,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Asynchronously downloads the object at the current path to a specified system filepath.
  * @param fileURL A file system URL representing the path the object should be downloaded to.
  * @param completion A completion block that fires when the file download completes.
- * Returns a URL pointing to the file path of the downloaded file on success,
+ * Returns an NSURL pointing to the file path of the downloaded file on success,
  * or an error on failure.
  * @return An FIRIMPLStorageDownloadTask that can be used to monitor or manage the download.
  */
