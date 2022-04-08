@@ -146,7 +146,7 @@ NS_SWIFT_NAME(DocumentSnapshot)
  *
  * A `QueryDocumentSnapshot` offers the same API surface as a `DocumentSnapshot`. As
  * deleted documents are not returned from queries, its `exists` property will always be true and
- * `data:` will never return `nil`.
+ * `data()` will never return `nil`.
  */
 NS_SWIFT_NAME(QueryDocumentSnapshot)
 @interface FIRQueryDocumentSnapshot : FIRDocumentSnapshot

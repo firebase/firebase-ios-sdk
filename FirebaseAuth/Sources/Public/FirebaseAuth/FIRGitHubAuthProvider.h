@@ -37,10 +37,10 @@ NS_SWIFT_NAME(GitHubAuthProvider)
 @interface FIRGitHubAuthProvider : NSObject
 
 /** @fn credentialWithToken:
-    @brief Creates an `FIRAuthCredential` for a GitHub sign in.
+    @brief Creates an `AuthCredential` for a GitHub sign in.
 
     @param token The GitHub OAuth access token.
-    @return A FIRAuthCredential containing the GitHub credential.
+    @return An AuthCredential containing the GitHub credential.
  */
 + (FIRAuthCredential *)credentialWithToken:(NSString *)token;
 

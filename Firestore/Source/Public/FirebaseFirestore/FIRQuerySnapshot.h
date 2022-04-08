@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * A `QuerySnapshot` contains zero or more `DocumentSnapshot` objects. It can be enumerated
- * using "for ... in documentSet.documents" and its size can be inspected with `isEmpty` and
+ * using the `documents` property and its size can be inspected with `isEmpty` and
  * `count`.
  */
 NS_SWIFT_NAME(QuerySnapshot)
