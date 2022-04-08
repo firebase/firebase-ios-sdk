@@ -14,7 +14,7 @@
 
 import Foundation
 
-import FirebaseStorageObjC
+import FirebaseStorageInternal
 
 /** Contains the prefixes and items returned by a `StorageReference.list()` call. */
 @objc(FIRStorageListResult) open class StorageListResult: NSObject {

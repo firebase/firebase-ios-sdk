@@ -14,7 +14,7 @@
 
 import Foundation
 
-import FirebaseStorageObjC
+import FirebaseStorageInternal
 
 /**
  * StorageDownloadTask implements resumable downloads from an object in Firebase Storage.

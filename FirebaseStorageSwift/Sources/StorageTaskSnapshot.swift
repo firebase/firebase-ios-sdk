@@ -14,7 +14,7 @@
 
 import Foundation
 
-import FirebaseStorageObjC
+import FirebaseStorageInternal
 
 /**
  * StorageTaskSnapshot represents an immutable view of a task.

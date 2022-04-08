@@ -14,7 +14,7 @@
 
 import Foundation
 
-import FirebaseStorageObjC
+import FirebaseStorageInternal
 
 /**
  * A superclass to all Storage*Tasks, including StorageUploadTask

@@ -14,7 +14,7 @@
 
 import Foundation
 
-import FirebaseStorageObjC
+import FirebaseStorageInternal
 
 /**
  * Class which represents the metadata on an object in Firebase Storage. This metadata is

@@ -14,7 +14,7 @@
 
 import Foundation
 
-import FirebaseStorageObjC
+import FirebaseStorageInternal
 
 /**
  * StorageUploadTask implements resumable uploads to a file in Firebase Storage.
