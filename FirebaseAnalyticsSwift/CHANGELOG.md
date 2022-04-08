@@ -1,5 +1,6 @@
 # v9.0.0
-- [added] `FirebaseAnalyticsSwift` has exited beta and is now generally available for use.
+- [added] **Breaking change:** `FirebaseAnalyticsSwift` has exited beta and is
+  now generally available for use.
 
 # v7.9.0-beta
 - Initial public beta release. Introduces new SwiftUI friendly APIs for
