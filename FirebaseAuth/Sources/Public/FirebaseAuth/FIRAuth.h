@@ -866,7 +866,8 @@ NS_SWIFT_NAME(Auth)
         Please refer to https://github.com/firebase/firebase-ios-sdk/issues/8878 for details.
  */
 - (nullable FIRUser *)getStoredUserForAccessGroup:(NSString *_Nullable)accessGroup
-                                            error:(NSError *_Nullable *_Nullable)outError;
+                                            error:(NSError *_Nullable *_Nullable)outError
+    __attribute__((swift_error(nonnull_error)));  // This method can return `nil` on success.
 
 @end
 
