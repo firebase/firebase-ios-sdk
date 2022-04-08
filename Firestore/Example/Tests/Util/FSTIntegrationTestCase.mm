@@ -85,6 +85,10 @@ static FIRFirestoreSettings *defaultSettings;
 
 static bool runningAgainstEmulator = false;
 
+static bool runningAgainstCustomFirestore = false;
+static FIROptions *optionsForCustomFirestore = nil;
+static FIRApp *appForCustomFirestore = nil;
+
 // Behaves the same as `EmptyCredentialsProvider` except it can also trigger a user
 // change.
 class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
@@ -164,6 +168,13 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
 }
 
 - (FIRFirestore *)firestore {
+  if (runningAgainstCustomFirestore) {
+    if (appForCustomFirestore == nil) {
+      [FIRApp configureWithName:@"custome-backend-testing-app" options:optionsForCustomFirestore];
+      appForCustomFirestore = [FIRApp appNamed:@"custome-backend-testing-app"];
+    }
+    return [self firestoreWithApp:appForCustomFirestore];
+  }
   return [self firestoreWithProjectID:[FSTIntegrationTestCase projectID]];
 }
 
@@ -186,38 +197,46 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
 
   // Check for a MobileHarness configuration, running against nightly or prod, which have live
   // SSL certs.
-  NSString *project = [[NSProcessInfo processInfo] environment][@"PROJECT_ID"];
-  NSString *host = [[NSProcessInfo processInfo] environment][@"DATASTORE_HOST"];
-  if (project && host) {
+  NSString *project = [[NSProcessInfo processInfo] environment][@"CUSTOM_FIRESTORE_PROJECT_ID"];
+  NSString *host = [[NSProcessInfo processInfo] environment][@"CUSTOM_FIRESTORE_HOST"];
+  NSString *apiKey = [[NSProcessInfo processInfo] environment][@"CUSTOM_FIRESTORE_API_KEY"];
+  if (project && host && apiKey) {
     defaultProjectId = project;
     defaultSettings.host = host;
 
-    NSLog(@"Integration tests running against %@/%@", defaultSettings.host, defaultProjectId);
-    return;
-  }
+    optionsForCustomFirestore = [[FIROptions alloc] initWithGoogleAppID:@"1:123:ios:123ab"
+                                                            GCMSenderID:@"gcm_sender_id"];
+    optionsForCustomFirestore.projectID = project;
+    optionsForCustomFirestore.APIKey = apiKey;
+    runningAgainstCustomFirestore = true;
 
-  // Check for configuration of a prod project via GoogleServices-Info.plist.
-  FIROptions *options = [FIROptions defaultOptions];
-  if (options && ![options.projectID isEqualToString:@"abc-xyz-123"]) {
-    defaultProjectId = options.projectID;
-    if (host) {
-      // Allow access to nightly or other hosts via this mechanism too.
-      defaultSettings.host = host;
+    NSLog(@"Integration tests running against custome Firestore %@/%@", defaultSettings.host,
+          defaultProjectId);
+
+  } else {
+    // Check for configuration of a prod project via GoogleServices-Info.plist.
+    FIROptions *options = [FIROptions defaultOptions];
+    if (options && ![options.projectID isEqualToString:@"abc-xyz-123"]) {
+      defaultProjectId = options.projectID;
+      if (host) {
+        // Allow access to nightly or other hosts via this mechanism too.
+        defaultSettings.host = host;
+      }
+
+      NSLog(@"Integration tests running against %@/%@", defaultSettings.host, defaultProjectId);
+      return;
     }
 
-    NSLog(@"Integration tests running against %@/%@", defaultSettings.host, defaultProjectId);
-    return;
+    // Otherwise fall back on assuming the emulator or localhost.
+    defaultProjectId = @"test-db";
+
+    defaultSettings.host = @"localhost:8080";
+    defaultSettings.sslEnabled = false;
+    runningAgainstEmulator = true;
+
+    NSLog(@"Integration tests running against the emulator at %@/%@", defaultSettings.host,
+          defaultProjectId);
   }
-
-  // Otherwise fall back on assuming the emulator or localhost.
-  defaultProjectId = @"test-db";
-
-  defaultSettings.host = @"localhost:8080";
-  defaultSettings.sslEnabled = false;
-  runningAgainstEmulator = true;
-
-  NSLog(@"Integration tests running against the emulator at %@/%@", defaultSettings.host,
-        defaultProjectId);
 }
 
 + (NSString *)projectID {
