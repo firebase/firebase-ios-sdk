@@ -14,10 +14,10 @@
 
 import Foundation
 
-// The error domain for codes in the FIRFunctionsErrorCode enum.
+/// The error domain for codes in the `FunctionsErrorCode` enum.
 public let FunctionsErrorDomain: String = "com.firebase.functions"
 
-// The key for finding error details in the NSError userInfo.
+/// The key for finding error details in the `NSError` userInfo.
 public let FunctionsErrorDetailsKey: String = "details"
 
 /**
