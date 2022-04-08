@@ -33,8 +33,8 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   s.prefix_header_file = false
 
   s.source_files = [
-    'FirebaseStorageSwift/Sources/*.swift',
-    'FirebaseStorageSwift/Typedefs/*.h',
+    'FirebaseStorage/Sources/*.swift',
+    'FirebaseStorage/Typedefs/*.h',
     'FirebaseAppCheck/Interop/*.h',
     'FirebaseAuth/Interop/*.h',
   ]
@@ -54,7 +54,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     }
     objc_tests.source_files = [
       'FirebaseStorageInternal/Tests/Integration/*.[mh]',
-      'FirebaseStorageSwift/Tests/ObjCIntegration/*.m',
+      'FirebaseStorage/Tests/ObjCIntegration/*.m',
     ]
     objc_tests.requires_app_host = true
     objc_tests.resources = 'FirebaseStorageInternal/Tests/Integration/Resources/1mb.dat',
@@ -72,7 +72,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
       :osx => osx_deployment_target,
       :tvos => tvos_deployment_target
     }
-    unit_tests.source_files = 'FirebaseStorageSwift/Tests/Unit/StorageAPITests.swift'
+    unit_tests.source_files = 'FirebaseStorage/Tests/Unit/StorageAPITests.swift'
   end
 
   s.test_spec 'integration' do |int_tests|
@@ -82,7 +82,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
       :osx => osx_deployment_target,
       :tvos => tvos_deployment_target
     }
-    int_tests.source_files = 'FirebaseStorageSwift/Tests/Integration/*.swift'
+    int_tests.source_files = 'FirebaseStorage/Tests/Integration/*.swift'
     int_tests.requires_app_host = true
     int_tests.resources = 'FirebaseStorageInternal/Tests/Integration/Resources/1mb.dat',
                           'FirebaseStorageInternal/Tests/Integration/Resources/GoogleService-Info.plist',
