@@ -34,6 +34,8 @@ Objective C Implementations for FirebaseStorage. This pod should not be directly
 
   s.source_files = [
     'FirebaseStorageInternal/Sources/**/*.[mh]',
+    'FirebaseAppCheck/Interop/*.h',
+    'FirebaseAuth/Interop/*.h',
     'FirebaseCore/Sources/Private/*.h',
     'FirebaseCore/Extension/*.h',
   ]
@@ -42,8 +44,6 @@ Objective C Implementations for FirebaseStorage. This pod should not be directly
   s.osx.framework = 'CoreServices'
 
   s.dependency 'FirebaseCore', '~> 9.0'
-  s.dependency 'FirebaseAppCheckInterop', '~> 9.0'
-  s.dependency 'FirebaseAuthInterop', '~> 9.0'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.5'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
