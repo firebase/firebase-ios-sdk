@@ -242,8 +242,7 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
             XCTAssertEqual(FIRFunctionsErrorCodeOutOfRange, error.code);
             XCTAssertEqualObjects(@"explicit nope", error.userInfo[NSLocalizedDescriptionKey]);
             NSDictionary *expectedDetails = @{@"start" : @10, @"end" : @20, @"long" : @30L};
-            XCTAssertEqualObjects(expectedDetails,
-                                  error.userInfo[@"details"]);
+            XCTAssertEqualObjects(expectedDetails, error.userInfo[@"details"]);
             [expectation fulfill];
           }];
   [self waitForExpectations:@[ expectation ] timeout:10];
