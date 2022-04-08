@@ -5,7 +5,7 @@
 //  Created by Quan Pham on 2/8/22.
 //
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import <Foundation/Foundation.h>
