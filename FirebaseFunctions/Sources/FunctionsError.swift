@@ -20,15 +20,6 @@ public let FunctionsErrorDomain: String = "com.firebase.functions"
 // The key for finding error details in the NSError userInfo.
 public let FunctionsErrorDetailsKey: String = "details"
 
-// Swift globals are not visible from Objective C. Use these instead.
-@objc(FIRFunctionsErrorKeys) open class __FunctionsErrorKeys: NSObject {
-  // The error domain for codes in the FIRFunctionsErrorCode enum.
-  @objc public static let domain: String = "com.firebase.functions"
-
-  // The key for finding error details in the NSError userInfo.
-  @objc public static let errorDetailsKey: String = "details"
-}
-
 /**
  * The set of error status codes that can be returned from a Callable HTTPS tigger. These are the
  * canonical error codes for Google APIs, as documented here:

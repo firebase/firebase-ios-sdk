@@ -14,8 +14,6 @@ target 'AuthSample' do
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
   pod 'FirebaseCoreInternal', :path => '../../../'
   pod 'FirebaseAuth', :path => '../../../', :testspecs => ['unit']
-  # `HeartbeatLoggingTestUtils` is unpublished.
-  pod 'HeartbeatLoggingTestUtils', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../..'
   pod 'FBSDKLoginKit'
   pod 'GoogleSignIn', '~> 5'
@@ -23,6 +21,8 @@ target 'AuthSample' do
 
   target 'Auth_ApiTests' do
     inherit! :search_paths
+    # `HeartbeatLoggingTestUtils` is unpublished.
+    pod 'HeartbeatLoggingTestUtils', :path => '../../../'
   end
 
   target 'SwiftApiTests' do
