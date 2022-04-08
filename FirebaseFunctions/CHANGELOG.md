@@ -1,5 +1,10 @@
 # v9.0.0
+- [changed] The FirebaseFunctionsSwift library has been removed. All of its APIs are now included
+  in the FirebaseFunctions. Please remove references to FirebaseFunctionsSwift from Podfile's and
+  Swift Package Manager configurations.
 - [changed] Backported Callable async/await APIs to iOS 13, etc. (#9483).
+- [changed] The global variables `FunctionsErrorDomain` and `FunctionsErrorDetailsKey` are
+  restored for Swift only.
 
 # v8.15.0
 - [deprecated] The global variables `FIRFunctionsErrorDomain` and `FIRFunctionsErrorDetailsKey` are

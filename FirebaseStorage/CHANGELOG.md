@@ -1,5 +1,9 @@
 # 9.0.0
+- [changed] The FirebaseStorageSwift library has been removed. All of its APIs are now included
+  in the FirebaseStorage. Please remove references to FirebaseStorageSwift from Podfile's and
+  Swift Package Manager configurations.
 - [changed] Backported `StorageReference` async/await APIs to iOS 13, etc. (#9483).
+- [changed] The global variable `StorageErrorDomain` is restored for Swift only.
 
 # 8.15.0
 - [deprecated] The global variable `FIRStorageErrorDomain` is deprecated and will
