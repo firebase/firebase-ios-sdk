@@ -1,7 +1,8 @@
 # 9.0.0
 - [changed] The FirebaseStorageSwift library has been removed. All of its APIs are now included
-  in the FirebaseStorage. Please remove references to FirebaseStorageSwift from Podfile's and
-  Swift Package Manager configurations.
+  in the FirebaseStorage library. Please remove references to FirebaseStorageSwift from Podfiles and
+  Swift Package Manager configurations. `import FirebaseStorageSwift` should be replaced with
+  `import FirebaseStorage`.
 - [changed] Backported `StorageReference` async/await APIs to iOS 13, etc. (#9483).
 - [changed] The global variable `StorageErrorDomain` is restored for Swift only.
 
