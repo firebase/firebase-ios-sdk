@@ -491,38 +491,46 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     _firebaseAppName = [appName copy];
 #if TARGET_OS_IOS
     _settings = [[FIRAuthSettings alloc] init];
-    static Class applicationClass = nil;
-    // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication
-    // responds to it.
-    if (![GULAppEnvironmentUtil isAppExtension]) {
-      Class cls = NSClassFromString(@"UIApplication");
-      if (cls && [cls respondsToSelector:NSSelectorFromString(@"sharedApplication")]) {
-        applicationClass = cls;
-      }
-    }
-    UIApplication *application = [applicationClass sharedApplication];
 
     [GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods];
     [GULSceneDelegateSwizzler proxyOriginalSceneDelegate];
 #endif  // TARGET_OS_IOS
 
-    if ([application isProtectedDataAvailable]) {
-      [self protectedDataInitialization:application];
-    } else {
-      // Add listener for UIApplicationProtectedDataDidBecomeAvailable.
-      self->_protectedDataDidBecomeAvailableObserver = [[NSNotificationCenter defaultCenter]
-          addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
-                      object:nil
-                       queue:nil
-                  usingBlock:^(NSNotification *notification) {
-                    [self protectedDataInitialization:application];
-                  }];
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
+    static Class applicationClass = nil;
+    // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication
+    // responds to it.
+    if (![GULAppEnvironmentUtil isAppExtension]) {
+      Class cls = NSClassFromString(@"UIApplication");
+      if (cls && [cls respondsToSelector:@selector(sharedApplication)]) {
+        applicationClass = cls;
+      }
     }
+    UIApplication *application = [applicationClass sharedApplication];
+    if ([application respondsToSelector:@selector(isProtectedDataAvailable)]) {
+      if ([application isProtectedDataAvailable]) {
+        [self protectedDataInitialization];
+      } else {
+        // Add listener for UIApplicationProtectedDataDidBecomeAvailable.
+        self->_protectedDataDidBecomeAvailableObserver = [[NSNotificationCenter defaultCenter]
+            addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
+                        object:nil
+                         queue:nil
+                    usingBlock:^(NSNotification *notification) {
+                      [self protectedDataInitialization];
+                    }];
+      }
+    } else {
+      [self protectedDataInitialization];
+    }
+#else
+    [self protectedDataInitialization];
+#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
   }
   return self;
 }
 
-- (void)protectedDataInitialization:(UIApplication *)application {
+- (void)protectedDataInitialization {
   [[NSNotificationCenter defaultCenter] removeObserver:_protectedDataDidBecomeAvailableObserver
                                                   name:UIApplicationProtectedDataDidBecomeAvailable
                                                 object:nil];
@@ -570,6 +578,17 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     }
 
 #if TARGET_OS_IOS
+    static Class applicationClass = nil;
+    // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication
+    // responds to it.
+    if (![GULAppEnvironmentUtil isAppExtension]) {
+      Class cls = NSClassFromString(@"UIApplication");
+      if (cls && [cls respondsToSelector:@selector(sharedApplication)]) {
+        applicationClass = cls;
+      }
+    }
+    UIApplication *application = [applicationClass sharedApplication];
+
     // Initialize for phone number auth.
     strongSelf->_tokenManager = [[FIRAuthAPNSTokenManager alloc] initWithApplication:application];
 
