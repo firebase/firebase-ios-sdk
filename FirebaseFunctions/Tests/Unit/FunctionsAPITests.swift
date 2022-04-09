@@ -20,7 +20,7 @@ import XCTest
 import FirebaseCore
 import FirebaseFunctions
 
-final class FunctionsAPITests : XCTestCase {
+final class FunctionsAPITests: XCTestCase {
   func usage() {
     // MARK: - Functions
 
@@ -140,6 +140,7 @@ final class FunctionsAPITests : XCTestCase {
       }
     }
   }
+
   func testErrorGlobals() {
     XCTAssertEqual(FunctionsErrorDetailsKey, "details")
     XCTAssertEqual(FunctionsErrorDomain, "com.firebase.functions")
