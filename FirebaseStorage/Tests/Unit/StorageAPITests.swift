@@ -20,7 +20,7 @@ import XCTest
 import FirebaseCore
 import FirebaseStorage
 
-final class StorageAPITests : XCTestCase {
+final class StorageAPITests: XCTestCase {
   func StorageAPIs() {
     let app = FirebaseApp.app()
     _ = Storage.storage()
