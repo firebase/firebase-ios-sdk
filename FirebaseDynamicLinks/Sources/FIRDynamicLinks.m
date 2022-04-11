@@ -440,7 +440,7 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
       }
     }
   }
-  mainQueueCompletion(nil, nil);
+  mainQueueCompletion(nil, [NSError errorWithDomain:@"" code:0 userInfo:[NSDictionary dictionaryWithObject:@"Failed to parse!" forKey:@"Reason"]]);
   return nil;
 }
 
