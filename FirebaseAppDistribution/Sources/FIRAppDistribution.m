@@ -286,10 +286,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
       }
     }
 
-    // At this point, no release matches the "latest release". An error should be returned.
-    NSError *notFound = [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
-                                                    message:@"Could not find the latest release."];
-    completion(nil, notFound);
+    completion(nil, nil);
   }];
 }
 
