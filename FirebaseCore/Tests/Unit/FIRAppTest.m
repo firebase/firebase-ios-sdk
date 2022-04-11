@@ -133,12 +133,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
       [self expectNotificationNamed:kFIRAppReadyToConfigureSDKNotification
                              object:[FIRApp class]
                            userInfo:expectedUserInfo];
-
-  // Expect that calling `+[FIRApp configure]` attempts to log a heartbeat.
-  OCMExpect([self.mockHeartbeatLogger log]).andDo(nil);
   XCTAssertNoThrow([FIRApp configure]);
-  OCMVerifyAll(self.mockHeartbeatLogger);
-
   [self waitForExpectations:@[ notificationExpectation ] timeout:0.1];
 
   FIRApp *app = [FIRApp defaultApp];
@@ -179,12 +174,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
                                                     GCMSenderID:kGCMSenderID];
   options.clientID = kClientID;
-
-  // Expect that calling `+[FIRApp configure]` attempts to log a heartbeat.
-  OCMExpect([self.mockHeartbeatLogger log]).andDo(nil);
   XCTAssertNoThrow([FIRApp configureWithOptions:options]);
-  OCMVerifyAll(self.mockHeartbeatLogger);
-
   [self waitForExpectations:@[ notificationExpectation ] timeout:0.1];
 
   // Verify the default app instance is created.
@@ -216,12 +206,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
       [self expectNotificationNamed:kFIRAppReadyToConfigureSDKNotification
                              object:[FIRApp class]
                            userInfo:expectedUserInfo];
-
-  // Expect that calling `+[FIRApp configure]` attempts to log a heartbeat.
-  OCMExpect([self.mockHeartbeatLogger log]).andDo(nil);
   XCTAssertNoThrow([FIRApp configureWithName:kFIRTestAppName1 options:options]);
-  OCMVerifyAll(self.mockHeartbeatLogger);
-
   [self waitForExpectations:@[ notificationExpectation ] timeout:0.1];
 
   XCTAssertTrue([FIRApp allApps].count == 1);
