@@ -245,49 +245,52 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 
 - (void)fetchNewLatestRelease:(void (^)(FIRAppDistributionRelease *_Nullable release,
                                         NSError *_Nullable error))completion {
-  [FIRFADApiService
-      fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
-        if (error) {
-          if ([error code] == FIRFADApiErrorUnauthenticated) {
-            FIRFADErrorLog(@"Tester authentication failed when fetching releases. Tester will need "
-                           @"to sign in again.");
-            [self signOutTester];
-          } else if ([error code] == FIRFADApiErrorUnauthorized) {
-            FIRFADErrorLog(@"Tester is not authorized to view releases for this app. Tester will "
-                           @"need to sign in again.");
-            [self signOutTester];
-          }
+  [FIRFADApiService fetchReleasesWithCompletion:^(NSArray *_Nullable releases,
+                                                  NSError *_Nullable error) {
+    if (error) {
+      if ([error code] == FIRFADApiErrorUnauthenticated) {
+        FIRFADErrorLog(@"Tester authentication failed when fetching releases. Tester will need "
+                       @"to sign in again.");
+        [self signOutTester];
+      } else if ([error code] == FIRFADApiErrorUnauthorized) {
+        FIRFADErrorLog(@"Tester is not authorized to view releases for this app. Tester will "
+                       @"need to sign in again.");
+        [self signOutTester];
+      }
 
+      dispatch_async(dispatch_get_main_queue(), ^{
+        completion(nil, [self mapFetchReleasesError:error]);
+      });
+      return;
+    }
+
+    for (NSDictionary *releaseDict in releases) {
+      if ([[releaseDict objectForKey:kLatestReleaseKey] boolValue]) {
+        FIRFADInfoLog(@"Tester API - found latest release in response.");
+        NSString *displayVersion = [releaseDict objectForKey:kDisplayVersionKey];
+        NSString *buildVersion = [releaseDict objectForKey:kBuildVersionKey];
+
+        NSString *codeHash = [releaseDict objectForKey:kCodeHashKey];
+
+        if (![self isCurrentVersion:displayVersion buildVersion:buildVersion] ||
+            ![self isCodeHashIdentical:codeHash]) {
+          FIRAppDistributionRelease *release =
+              [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
           dispatch_async(dispatch_get_main_queue(), ^{
-            completion(nil, [self mapFetchReleasesError:error]);
+            FIRFADInfoLog(@"Found new release with version: %@ (%@)", [release displayVersion],
+                          [release buildVersion]);
+            completion(release, nil);
           });
           return;
         }
+      }
+    }
 
-        for (NSDictionary *releaseDict in releases) {
-          if ([[releaseDict objectForKey:kLatestReleaseKey] boolValue]) {
-            FIRFADInfoLog(@"Tester API - found latest release in response.");
-            NSString *displayVersion = [releaseDict objectForKey:kDisplayVersionKey];
-            NSString *buildVersion = [releaseDict objectForKey:kBuildVersionKey];
-
-            NSString *codeHash = [releaseDict objectForKey:kCodeHashKey];
-
-            if (![self isCurrentVersion:displayVersion buildVersion:buildVersion] ||
-                ![self isCodeHashIdentical:codeHash]) {
-              FIRAppDistributionRelease *release =
-                  [[FIRAppDistributionRelease alloc] initWithDictionary:releaseDict];
-              dispatch_async(dispatch_get_main_queue(), ^{
-                FIRFADInfoLog(@"Found new release with version: %@ (%@)", [release displayVersion],
-                              [release buildVersion]);
-                completion(release, nil);
-              });
-              return;
-            }
-          }
-        }
-
-        completion(nil, nil);
-      }];
+    // At this point, no release matches the "latest release". An error should be returned.
+    NSError *notFound = [self NSErrorForErrorCodeAndMessage:FIRAppDistributionErrorUnknown
+                                                    message:@"Could not find the latest release."];
+    completion(nil, notFound);
+  }];
 }
 
 - (void)checkForUpdateWithCompletion:(void (^)(FIRAppDistributionRelease *_Nullable release,

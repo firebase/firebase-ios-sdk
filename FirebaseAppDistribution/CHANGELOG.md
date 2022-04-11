@@ -1,5 +1,6 @@
 # v9.0.0-beta
 - [fixed] Marked `releaseNotes` as `nullable` as they don't always exist. (#8602)
+- [fixed] Fixed `checkForUpdate()` to return an error when no release is marked as "latest". (#9604)
 
 # v8.3.0-beta
 - [changed] Sign out the Tester when the call to fetch releases fails with an unauthorized error (#8270).
