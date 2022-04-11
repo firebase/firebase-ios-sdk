@@ -1,4 +1,4 @@
-# Unreleased
+# v9.0.0
 - [fixed] **Breaking change:** Fixed an ObjC-to-Swift API conversion error where `getStoredUser(forAccessGroup:)` returned a non-optional type. This change is breaking for Swift users only (#8599).
 
 # v8.14.0

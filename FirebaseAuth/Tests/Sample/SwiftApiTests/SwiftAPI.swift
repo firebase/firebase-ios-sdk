@@ -88,8 +88,12 @@ class AuthAPI_hOnlyTests: XCTestCase {
     auth.canHandleNotification([:])
     try auth.useUserAccessGroup("abc")
     let nilUser = try auth.getStoredUser(forAccessGroup: "def")
-    // This comparison doesn't need to execute, but it should compile.
-    _ = nilUser == nil
+    // If nilUser is not optional, this will raise a compiler error.
+    // This condition does not need to execute, and may not if prior
+    // functions throw.
+    if let value = nilUser {
+      XCTAssert(true)
+    }
   }
 
   #if compiler(>=5.5.2) && canImport(_Concurrency)
