@@ -1,4 +1,4 @@
-# Pending
+# Version 8.15.0
 * Remove the unused code for pre-warm detection.
 
 # Version 8.14.0
