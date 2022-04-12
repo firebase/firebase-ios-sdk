@@ -410,9 +410,18 @@ let package = Package(
       name: "AppDistributionUnit",
       dependencies: ["FirebaseAppDistribution", "OCMock"],
       path: "FirebaseAppDistribution/Tests/Unit",
+      exclude: ["Swift/"],
       resources: [.process("Resources")],
       cSettings: [
         .headerSearchPath("../../.."),
+      ]
+    ),
+    .testTarget(
+      name: "AppDistributionUnitSwift",
+      dependencies: ["FirebaseAppDistribution"],
+      path: "FirebaseAppDistribution/Tests/Unit/Swift",
+      cSettings: [
+        .headerSearchPath("../../../.."),
       ]
     ),
 

@@ -15,11 +15,12 @@
 // MARK: This file is used to evaluate the experience of using Firebase APIs in Swift.
 
 import Foundation
+import XCTest
 
 import FirebaseCore
 import FirebaseStorage
 
-final class StorageAPITests {
+final class StorageAPITests: XCTestCase {
   func StorageAPIs() {
     let app = FirebaseApp.app()
     _ = Storage.storage()
@@ -115,11 +116,11 @@ final class StorageAPITests {
       var _: StorageVoidSnapshot
       var _: StorageVoidURLError
     }
-
-    func StorageConstantsGlobal() -> String {
-      return StorageErrorDomain
-    }
   #endif
+
+  func testStorageConstantsGlobal() {
+    XCTAssertEqual(StorageErrorDomain, "FIRStorageErrorDomain")
+  }
 
   func StorageListResultApis(result: StorageListResult) {
     _ = result.prefixes

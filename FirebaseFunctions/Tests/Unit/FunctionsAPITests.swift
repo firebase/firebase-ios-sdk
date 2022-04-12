@@ -15,11 +15,12 @@
 // MARK: This file is used to evaluate the experience of using Firebase APIs in Swift.
 
 import Foundation
+import XCTest
 
 import FirebaseCore
 import FirebaseFunctions
 
-final class FunctionsAPITests {
+final class FunctionsAPITests: XCTestCase {
   func usage() {
     // MARK: - Functions
 
@@ -138,5 +139,10 @@ final class FunctionsAPITests {
         }
       }
     }
+  }
+
+  func testErrorGlobals() {
+    XCTAssertEqual(FunctionsErrorDetailsKey, "details")
+    XCTAssertEqual(FunctionsErrorDomain, "com.firebase.functions")
   }
 }

@@ -375,7 +375,6 @@ static FIRApp *sDefaultApp;
     }
   }
 
-  [self.heartbeatLogger log];
   [self subscribeForAppDidBecomeActiveNotifications];
 
   return YES;
