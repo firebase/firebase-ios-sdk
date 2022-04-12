@@ -48,7 +48,7 @@ NS_SWIFT_NAME(AppDistribution)
  */
 - (void)checkForUpdateWithCompletion:
     (void (^)(FIRAppDistributionRelease *_Nullable_result release, NSError *_Nullable error))completion
-    NS_SWIFT_NAME(checkForUpdate(completion:)) ;
+    NS_SWIFT_NAME(checkForUpdate(completion:));
 
 /**
  * Sign out App Distribution tester
