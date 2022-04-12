@@ -440,9 +440,14 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
       }
     }
   }
-    
+
   mainQueueCompletion(
-                      nil, [[NSError alloc] initWithDomain:@"com.firebase.dynamicLinks" code:1 userInfo:@{ NSLocalizedFailureReasonErrorKey:@"Universal link URL could not be parsed by Dynamic Links."}]);
+      nil, [[NSError alloc] initWithDomain:@"com.firebase.dynamicLinks"
+                                      code:1
+                                  userInfo:@{
+                                    NSLocalizedFailureReasonErrorKey :
+                                        @"Universal link URL could not be parsed by Dynamic Links."
+                                  }]);
   return nil;
 }
 
