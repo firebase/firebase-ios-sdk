@@ -146,7 +146,7 @@ let package = Package(
       url: "https://github.com/google/GoogleAppMeasurement.git",
       // Note that CI changes the version to the head of main for CI.
       // See scripts/setup_spm_tests.sh.
-      .exact("8.15.0")
+      .exact("8.14.0")
     ),
     .package(
       name: "GoogleDataTransport",
@@ -410,9 +410,18 @@ let package = Package(
       name: "AppDistributionUnit",
       dependencies: ["FirebaseAppDistribution", "OCMock"],
       path: "FirebaseAppDistribution/Tests/Unit",
+      exclude: ["Swift/"],
       resources: [.process("Resources")],
       cSettings: [
         .headerSearchPath("../../.."),
+      ]
+    ),
+    .testTarget(
+      name: "AppDistributionUnitSwift",
+      dependencies: ["FirebaseAppDistribution"],
+      path: "FirebaseAppDistribution/Tests/Unit/Swift",
+      cSettings: [
+        .headerSearchPath("../../../.."),
       ]
     ),
 
