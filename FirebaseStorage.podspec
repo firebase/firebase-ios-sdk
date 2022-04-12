@@ -54,7 +54,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     }
     objc_tests.source_files = [
       'FirebaseStorageInternal/Tests/Integration/*.[mh]',
-      'FirebaseStorage/Tests/ObjCIntegration/*.m',
+      'FirebaseStorage/Tests/ObjCIntegration/*.m*',
     ]
     objc_tests.requires_app_host = true
     objc_tests.resources = 'FirebaseStorageInternal/Tests/Integration/Resources/1mb.dat',

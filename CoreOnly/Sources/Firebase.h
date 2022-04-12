@@ -51,7 +51,7 @@
   #endif
 
   #if __has_include("FirebaseFunctions-umbrella.h")
-@import FirebaseFunctions;
+    #import <FirebaseFunctions/FirebaseFunctions-Swift.h>
   #endif
 
   #if __has_include(<FirebaseInAppMessaging/FirebaseInAppMessaging.h>)
@@ -75,7 +75,7 @@
   #endif
 
   #if __has_include("FirebaseStorage-umbrella.h")
-@import FirebaseStorage;
+    #import <FirebaseStorage/FirebaseStorage-Swift.h>
   #endif
 
 #endif  // defined(__has_include)

@@ -767,6 +767,10 @@ let package = Package(
       dependencies: ["FirebaseFunctions",
                      "SharedTestUtilities"],
       path: "FirebaseFunctions/Tests/ObjCIntegration",
+      // TODO: Figure out how to access Swift libraries from Objective C++.
+      exclude: [
+        "ObjCPPAPITests.mm",
+      ],
       cSettings: [
         .headerSearchPath("../../.."),
       ]

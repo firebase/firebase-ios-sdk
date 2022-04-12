@@ -3,6 +3,7 @@
 - [added] The zip and Carthage distibutions now include the Swift extension frameworks. (#7819)
 - [changed] **Breaking change**: Update the minimum supported versions for the zip and Carthage
   distributions to iOS 11.0, tvOS 11.0 and macOS 10.13. (#9633)
+- [changed] **Breaking change**: CocoaPods Podfiles must include  (#9633)
 
 # Firebase 8.10.0
 - [fixed] Fixed platform availability checks in Swift Package Manager that may prevent code
