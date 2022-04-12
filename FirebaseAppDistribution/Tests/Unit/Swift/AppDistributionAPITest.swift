@@ -16,7 +16,6 @@ import XCTest
 @testable import FirebaseAppDistribution
 
 class AppDistributionAPITests: XCTestCase {
-
   @available(iOS 13.0.0, *)
   func asyncAPIs() async throws {
     let distro = AppDistribution.appDistribution()
