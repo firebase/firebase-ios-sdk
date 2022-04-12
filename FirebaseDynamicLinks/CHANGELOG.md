@@ -1,5 +1,5 @@
 # v9.0.0
-- [fixed] Async/await violation for Dynamic Links (#9612)
+- [fixed] Fixed async/await crash when retrieving a dynamic link from a universal link fails. (#9612)
 
 # v8.15.0
 - [fixed] Fixed Custom domain long url validation logic. (#6978)
