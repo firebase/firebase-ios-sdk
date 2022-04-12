@@ -46,8 +46,8 @@ NS_SWIFT_NAME(AppDistribution)
 /**
  * Check to see whether a new distribution is available
  */
-- (void)checkForUpdateWithCompletion:
-    (void (^)(FIRAppDistributionRelease *_Nullable_result release, NSError *_Nullable error))completion
+- (void)checkForUpdateWithCompletion:(void (^)(FIRAppDistributionRelease *_Nullable_result release,
+                                               NSError *_Nullable error))completion
     NS_SWIFT_NAME(checkForUpdate(completion:));
 
 /**
