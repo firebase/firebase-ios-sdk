@@ -12,6 +12,14 @@
 #import "RCNConfigFetch.h"
 #import "RCNRealtimeConfigHttpClient.h"
 
+// URL params
+static NSString *const kServerURLDomain = @"https://firebaseremoteconfig.googleapis.com";
+static NSString *const kServerURLVersion = @"/v1";
+static NSString *const kServerURLProjects = @"/projects/";
+static NSString *const kServerURLNamespaces = @"/namespaces/";
+static NSString *const kServerURLQuery = @":fetch?";
+static NSString *const kServerURLKey = @"key=";
+
 // Header names
 static NSString *const kHTTPMethodPost = @"POST";  ///< HTTP request method config fetch using
 static NSString *const kContentTypeHeaderName = @"Content-Type";  ///< HTTP Header Field Name
@@ -24,21 +32,19 @@ static NSString *const kInstallationsAuthTokenHeaderName = @"x-goog-firebase-ins
 // Sends the bundle ID. Refer to b/130301479 for details.
 static NSString *const kiOSBundleIdentifierHeaderName =
     @"X-Ios-Bundle-Identifier";  ///< HTTP Header Field Name
-
 static NSString *const templateVersionNumberKey = @"templateVersion";
+static NSString *const hostAddress = @"http://127.0.0.1:8080";
 
 // Retry parameters
 NSInteger MAX_RETRY = 10;
 NSInteger MAX_RETRY_COUNT = 10;
 NSInteger RETRY_MULTIPLIER = 2;
-NSTimeInterval timeoutSeconds = 4320;
-double RETRY_SECONDS = 5.5;
-bool isFirstConnection = true;
 
+bool isFirstConnection = true;
 NSInteger FETCH_DELAY = 120;
 NSInteger FETCH_ATTEMPTS = 5;
+NSTimeInterval timeoutSeconds = 4320;
 
-static NSString *const hostAddress = @"http://127.0.0.1:8080";
 
 # pragma mark - Realtime Event Listener Registration
 @implementation ListenerRegistration {
@@ -99,6 +105,31 @@ static NSString *const hostAddress = @"http://127.0.0.1:8080";
 }
 
 #pragma mark - HTTP Client Helpers
+
+- (NSString *)constructServerURL {
+  NSString *serverURLStr = [[NSString alloc] initWithString:kServerURLDomain];
+  serverURLStr = [serverURLStr stringByAppendingString:kServerURLVersion];
+  serverURLStr = [serverURLStr stringByAppendingString:kServerURLProjects];
+  serverURLStr = [serverURLStr stringByAppendingString:_options.projectID];
+  serverURLStr = [serverURLStr stringByAppendingString:kServerURLNamespaces];
+
+  // Get the namespace from the fully qualified namespace string of "namespace:FIRAppName".
+  NSString *namespace =
+      [_namespace substringToIndex:[_namespace rangeOfString:@":"].location];
+  serverURLStr = [serverURLStr stringByAppendingString:namespace];
+  serverURLStr = [serverURLStr stringByAppendingString:kServerURLQuery];
+
+  if (_options.APIKey) {
+    serverURLStr = [serverURLStr stringByAppendingString:kServerURLKey];
+    serverURLStr = [serverURLStr stringByAppendingString:_options.APIKey];
+  } else {
+    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000071",
+                @"Missing `APIKey` from `FirebaseOptions`, please ensure the configured "
+                @"`FirebaseApp` is configured with `FirebaseOptions` that contains an `APIKey`.");
+  }
+
+  return serverURLStr;
+}
 
 - (NSString *)FIRAppNameFromFullyQualifiedNamespace {
   return [[_namespace componentsSeparatedByString:@":"] lastObject];
@@ -331,6 +362,7 @@ completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))complet
         MAX_RETRY_COUNT--;
         RETRY_MULTIPLIER++;
         [self pauseRealtimeConnection];
+        double RETRY_SECONDS = arc4random_uniform(60) + 100;
         [NSTimer scheduledTimerWithTimeInterval:RETRY_SECONDS * RETRY_MULTIPLIER target:self selector:@selector(startRealtimeConnection) userInfo:nil repeats:NO];
     } else {
         NSLog(@"No retries remaining");
