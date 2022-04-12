@@ -100,15 +100,15 @@ struct ZipBuilderTool: ParsableCommand {
   // MARK: - Platform Arguments
 
   /// The minimum iOS Version to build for.
-  @Option(default: "11.0", help: ArgumentHelp("The minimum supported iOS version."))
+  @Option(default: "10.0", help: ArgumentHelp("The minimum supported iOS version."))
   var minimumIOSVersion: String
 
   /// The minimum macOS Version to build for.
-  @Option(default: "10.13", help: ArgumentHelp("The minimum supported macOS version."))
+  @Option(default: "10.12", help: ArgumentHelp("The minimum supported macOS version."))
   var minimumMacOSVersion: String
 
   /// The minimum tvOS Version to build for.
-  @Option(default: "11.0", help: ArgumentHelp("The minimum supported tvOS version."))
+  @Option(default: "10.0", help: ArgumentHelp("The minimum supported tvOS version."))
   var minimumTVOSVersion: String
 
   /// The list of platforms to build for.
