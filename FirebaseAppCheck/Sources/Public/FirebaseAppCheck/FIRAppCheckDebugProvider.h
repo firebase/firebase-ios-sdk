@@ -45,6 +45,13 @@ NS_ASSUME_NONNULL_BEGIN
 /// '3BA09C8C-8A0D-4030-ACD5-B96D99DB73F9'".
 /// 4. Register the debug token in the Firebase console.
 ///
+/// NOTE: A local debug token is only logged to the console when it is first
+/// created. After its creation, it is cached in local storage and not logged
+/// in future application runs. To inspect the debug token after it has been
+/// created, inspect the result of `AppCheckDebugProvider`'s
+/// `localDebugToken` API, or re-install the app and look for a log with the
+/// debug token on the application's first run.
+///
 /// Once the debug token is registered the debug provider will be able to provide a valid Firebase
 /// App Check token.
 ///
