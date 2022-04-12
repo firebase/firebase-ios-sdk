@@ -1,5 +1,4 @@
 # v9.0.0 -- M115
-- [fixed] Improved documentation for retrieving an existing debug token. (#9547)
 - [added] **Breaking change:** `FirebaseAppCheck` has exited beta and is now
   generally available for use.
 
