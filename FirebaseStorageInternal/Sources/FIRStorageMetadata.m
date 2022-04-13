@@ -40,6 +40,7 @@
     _contentEncoding = dictionary[kFIRStorageMetadataContentEncoding];
     _contentLanguage = dictionary[kFIRStorageMetadataContentLanguage];
     _contentType = dictionary[kFIRStorageMetadataContentType];
+    _customTime = [self dateFromRFC3339String:dictionary[kFIRStorageMetadataCustomTime]];
     _customMetadata = dictionary[kFIRStorageMetadataCustomMetadata];
     _size = [dictionary[kFIRStorageMetadataSize] longLongValue];
     _generation = [dictionary[kFIRStorageMetadataGeneration] longLongValue];
@@ -117,6 +118,10 @@
 
   if (_contentType) {
     metadataDictionary[kFIRStorageMetadataContentType] = _contentType;
+  }
+
+  if (_customTime) {
+    metadataDictionary[kFIRStorageMetadataCustomTime] = [self RFC3339StringFromDate:_customTime];
   }
 
   if (_md5Hash) {
