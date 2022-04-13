@@ -11,9 +11,9 @@
 - [changed] For Swift Package Manager installations, `import Firebase` will no longer implicitly
   import Firebase Storage and Firebase Functions APIs. Use `import FirebaseStorage` and
   `import FirebaseFunctions`.
-- [changed] Objective C++ clients should use `#import <FirebaseFunctions/FirebaseFunctions-Swift.h>`
+- [changed] C++/Objective C++ clients should use `#import <FirebaseFunctions/FirebaseFunctions-Swift.h>`
   and `#import <FirebaseStorage/FirebaseStorage-Swift.h>` to access Functions and Storage APIs,
-  respectively. Objective C++ clients using Swift Package Manager should find alternative
+  respectively. C++/Objective C++ clients using Swift Package Manager should find alternative
   workarounds at https://forums.swift.org/t/importing-swift-libraries-from-objective-c/56730.
 
 # Firebase 8.10.0

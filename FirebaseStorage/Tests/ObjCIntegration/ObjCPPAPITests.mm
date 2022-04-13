@@ -116,12 +116,6 @@
 }
 #endif
 
-#ifdef Firebase9Breaking
-- (NSString *)FIRStorageConstantsGlobal {
-  return FIRStorageErrorDomain;
-}
-#endif
-
 - (void)FIRStorageListResultApis:(FIRStorageListResult *)result {
   NSArray<FIRStorageReference *> __unused *prefixes = [result prefixes];
   NSArray<FIRStorageReference *> __unused *items = [result items];
