@@ -24,7 +24,6 @@
 #include "Firestore/core/src/local/leveldb_util.h"
 #include "Firestore/core/src/util/filesystem.h"
 #include "Firestore/core/src/util/path.h"
-#include "Firestore/core/test/unit/local/persistence_testing.h"
 
 #include "gtest/gtest.h"
 #include "leveldb/db.h"
@@ -258,8 +257,21 @@ const std::array<unsigned char, 0x000000C2> LevelDbSnappyFile_MANIFEST_000084{
     0x04, 0x0D,
 };
 
+Path LevelDbDir() {
+  Filesystem* fs = Filesystem::Default();
+  Path dir = fs->TempDir().AppendUtf8("LevelDbSnappyTest");
+
+  // Delete the directory first to ensure isolation between runs.
+  auto status = fs->RecursivelyRemove(dir);
+  EXPECT_TRUE(status.ok()) << "Failed to clean up leveldb in directory "
+                           << dir.ToUtf8String() << ": " << status.ToString();
+
+  return dir;
+}
+
 Path CreateLevelDbDatabaseThatUsesSnappyCompression() {
-  Path leveldb_dir = ::firebase::firestore::local::LevelDbDir();
+  Path leveldb_dir = LevelDbDir();
+
   WriteFile(leveldb_dir, "000005.ldb", LevelDbSnappyFile_000005_ldb);
   WriteFile(leveldb_dir, "000017.ldb", LevelDbSnappyFile_000017_ldb);
   WriteFile(leveldb_dir, "000085.ldb", LevelDbSnappyFile_000085_ldb);
