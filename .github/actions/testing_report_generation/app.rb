@@ -103,8 +103,8 @@ for wf in get_workflows(client, REPO_NAME_WITH_OWNER) do
   puts "workflow_file: %s" % [workflow_file]
   workflow_text = "[%s](%s)" % [wf.name, wf.html_url]
   runs = client.workflow_runs(REPO_NAME_WITH_OWNER, File.basename(wf.path), :event => "schedule").workflow_runs
+  puts "%s : %s" % [wf.name, runs]
   runs = runs.sort_by { |run| -run.created_at.to_i }
-  puts "%s : %s" % [wf.name, runs[0,5]]
   latest_run = runs[0]
   if latest_run.nil?
     puts "no schedule runs found."
