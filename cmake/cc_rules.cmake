@@ -116,6 +116,14 @@ function(firebase_ios_add_test target)
 
   firebase_ios_set_common_target_options(${target} ${flag_OPTIONS})
 
+  # Set a preprocessor define so that tests can distinguish between having been
+  # built by Xcode vs. cmake.
+  target_compile_definitions(
+    ${target}
+    PRIVATE
+    FIREBASE_TESTS_BUILT_BY_CMAKE
+  )
+
   target_link_libraries(${target} PRIVATE GTest::GTest GTest::Main)
 endfunction()
 

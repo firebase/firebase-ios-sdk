@@ -49,7 +49,7 @@ Path CreateLevelDbDatabaseThatUsesSnappyCompression();
 void IterateOverLevelDbDatabaseThatUsesSnappyCompression(
     std::function<void(const leveldb::Status&)>);
 
-#if FIRESTORE_TESTS_CMAKE_BUILD
+#if FIREBASE_TESTS_BUILT_BY_CMAKE
 
 // Ensure that LevelDb is compiled with Snappy compression support.
 // See https://github.com/firebase/firebase-ios-sdk/pull/9596 for details.
@@ -60,7 +60,7 @@ TEST(LevelDbSnappy, LevelDbSupportsSnappy) {
       });
 }
 
-#else  // FIRESTORE_TESTS_CMAKE_BUILD
+#else  // FIREBASE_TESTS_BUILT_BY_CMAKE
 
 // Ensure that LevelDb is NOT compiled with Snappy compression support.
 TEST(LevelDbSnappy, LevelDbDoesNotSupportSnappy) {
@@ -81,7 +81,7 @@ TEST(LevelDbSnappy, LevelDbDoesNotSupportSnappy) {
   }
 }
 
-#endif  // FIRESTORE_TESTS_CMAKE_BUILD
+#endif  // FIREBASE_TESTS_BUILT_BY_CMAKE
 
 void IterateOverLevelDbDatabaseThatUsesSnappyCompression(
     std::function<void(const leveldb::Status&)> callback) {
