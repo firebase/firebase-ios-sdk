@@ -42,6 +42,14 @@ firebase_ios_glob(
 )
 firebase_ios_add_test(firestore_local_test ${sources})
 
+# Set a preprocessor define so that tests can distinguish between having been
+# built by Xcode vs. cmake.
+target_compile_definitions(
+  firestore_local_test
+  PRIVATE
+  FIRESTORE_TESTS_CMAKE_BUILD
+)
+
 target_link_libraries(
   firestore_local_test PRIVATE
   GMock::GMock
