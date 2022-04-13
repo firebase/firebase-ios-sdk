@@ -34,6 +34,7 @@ ExternalProject_Add(
   BUILD_COMMAND     ""
   INSTALL_COMMAND   ""
   TEST_COMMAND      ""
+  PATCH_COMMAND     patch -Np1 -i ${CMAKE_CURRENT_LIST_DIR}/snappy.patch
 
   HTTP_HEADER "${EXTERNAL_PROJECT_HTTP_HEADER}"
 )
