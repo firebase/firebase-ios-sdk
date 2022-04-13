@@ -48,7 +48,7 @@ Cloud Functions for Firebase.
   s.test_spec 'objc' do |objc_tests|
     objc_tests.platforms = {
       :ios => ios_deployment_target,
-      :osx => osx_deployment_target,
+      :osx => '10.15',
       :tvos => tvos_deployment_target
     }
     objc_tests.source_files = [

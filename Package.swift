@@ -767,7 +767,7 @@ let package = Package(
       dependencies: ["FirebaseFunctions",
                      "SharedTestUtilities"],
       path: "FirebaseFunctions/Tests/ObjCIntegration",
-      // TODO: Figure out how to access Swift libraries from Objective C++.
+      // See https://forums.swift.org/t/importing-swift-libraries-from-objective-c/56730
       exclude: [
         "ObjCPPAPITests.mm",
       ],
@@ -1108,7 +1108,7 @@ let package = Package(
       dependencies: ["FirebaseStorage"],
       path: "FirebaseStorage/Tests/ObjcIntegration",
       exclude: [
-        // CocoaPods only test for now.
+        // See https://forums.swift.org/t/importing-swift-libraries-from-objective-c/56730
         "ObjCPPAPITests.mm",
       ],
       cSettings: [
