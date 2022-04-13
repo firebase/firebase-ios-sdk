@@ -23,6 +23,9 @@ To integrate a Firebase SDK with your app:
    want the framework to be added to has a checkmark next to it, and that
    you've selected "Copy items if needed".
 
+   *To disable AdId support, do not copy
+   `GoogleAppMeasurementIdentitySupport.xcframework`.*
+
    *If the app does not use any Firebase Swift specific APIs, you do not need
    to copy any xcframeworks whose name includes "Swift" for this and the next
    step.*

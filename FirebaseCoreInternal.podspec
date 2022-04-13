@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCoreInternal'
-  s.version          = '8.13.0'
+  s.version          = '9.0.0'
   s.summary          = 'APIs for internal FirebaseCore usage.'
 
   s.description      = <<-DESC

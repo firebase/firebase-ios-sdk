@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * `Transaction` provides methods to read and write data within a transaction.
  *
- * @see Firestore#transaction:completion:
+ * @see `Firestore.runTransaction(_:)`
  */
 NS_SWIFT_NAME(Transaction)
 @interface FIRTransaction : NSObject

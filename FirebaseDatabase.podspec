@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDatabase'
-  s.version          = '8.15.0'
+  s.version          = '9.0.0'
   s.summary          = 'Firebase Realtime Database'
 
   s.description      = <<-DESC
@@ -39,7 +39,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     base_dir + 'third_party/SocketRocket/fbase64.c',
     'FirebaseAuth/Interop/*.h',
     'FirebaseAppCheck/Interop/*.h',
-    'FirebaseCore/Internal/*.h',
+    'FirebaseCore/Extension/*.h',
   ]
   s.public_header_files = base_dir + 'Public/FirebaseDatabase/*.h'
   s.libraries = ['c++', 'icucore']
@@ -48,7 +48,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.macos.frameworks = 'CFNetwork', 'Security', 'SystemConfiguration'
   s.watchos.frameworks = 'CFNetwork', 'Security', 'WatchKit'
   s.dependency 'leveldb-library', '~> 1.22'
-  s.dependency 'FirebaseCore', '~> 8.0'
+  s.dependency 'FirebaseCore', '~> 9.0'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'

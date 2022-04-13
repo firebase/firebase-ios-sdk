@@ -25,7 +25,7 @@
     },
     "name": "GoogleAppMeasurement",
     "platforms": {
-        "ios": "9.0",
+        "ios": "10.0",
         "osx": "10.12",
         "tvos": "12.0"
     },
@@ -36,7 +36,7 @@
         {
             "name": "AdIdSupport",
             "dependencies": {
-                "GoogleAppMeasurement/WithoutAdIdSupport": "8.15.0"
+                "GoogleAppMeasurement/WithoutAdIdSupport": "9.0.0"
             },
             "vendored_frameworks": [
                 "Frameworks/GoogleAppMeasurementIdentitySupport.xcframework"
@@ -50,5 +50,5 @@
         }
     ],
     "summary": "Shared measurement methods for Google libraries. Not intended for direct use.",
-    "version": "8.15.0"
+    "version": "9.0.0"
 }

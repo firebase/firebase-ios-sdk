@@ -1,5 +1,10 @@
 # 9.0.0
+- [changed] The FirebaseStorageSwift library has been removed. All of its APIs are now included
+  in the FirebaseStorage library. Please remove references to FirebaseStorageSwift from Podfiles and
+  Swift Package Manager configurations. `import FirebaseStorageSwift` should be replaced with
+  `import FirebaseStorage`.
 - [changed] Backported `StorageReference` async/await APIs to iOS 13, etc. (#9483).
+- [changed] The global variable `StorageErrorDomain` is restored for Swift only.
 
 # 8.15.0
 - [deprecated] The global variable `FIRStorageErrorDomain` is deprecated and will
@@ -8,6 +13,10 @@
 # 8.5.0
 - [fixed] Fixed an issue where Storage could not connect to local emulators using
   http (#8389).
+- [added] Added four APIs to augment automatically generated `async/await` APIs. See
+  details via Xcode completion and at the
+  [source](https://github.com/firebase/firebase-ios-sdk/blob/96d60a6d472b6fed1651d5e7a0e7495230c220ec/FirebaseStorageSwift/Sources/AsyncAwait.swift).
+  Feedback appreciated about Firebase and `async/await`. (#8289)
 
 # 8.3.0
 - [changed] Removed usage of a deprecated GTMSessionFetcher method (#8294).

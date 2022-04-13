@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFunctions'
-  s.version          = '8.15.0'
+  s.version          = '9.0.0'
   s.summary          = 'Cloud Functions for Firebase'
 
   s.description      = <<-DESC
@@ -37,12 +37,12 @@ Cloud Functions for Firebase.
     'FirebaseFunctions/Sources/**/*.swift',
   ]
 
-  s.dependency 'FirebaseCore', '~> 8.12'
-  s.dependency 'FirebaseCoreExtension', '~> 8.12'
-  s.dependency 'FirebaseAppCheckInterop', '~> 8.12'
-  s.dependency 'FirebaseAuthInterop', '~> 8.12'
-  s.dependency 'FirebaseMessagingInterop', '~> 8.12'
-  s.dependency 'FirebaseSharedSwift', '~> 8.12'
+  s.dependency 'FirebaseCore', '~> 9.0'
+  s.dependency 'FirebaseCoreExtension', '~> 9.0'
+  s.dependency 'FirebaseAppCheckInterop', '~> 9.0'
+  s.dependency 'FirebaseAuthInterop', '~> 9.0'
+  s.dependency 'FirebaseMessagingInterop', '~> 9.0'
+  s.dependency 'FirebaseSharedSwift', '~> 9.0'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.5'
 
   s.test_spec 'integration' do |int_tests|

@@ -43,6 +43,7 @@ using util::Status;
 using util::StatusOr;
 
 using NetworkStatus = ConnectivityMonitor::NetworkStatus;
+using ResponsesT = grpc::ByteBuffer;
 
 namespace {
 
@@ -125,8 +126,9 @@ TEST_F(GrpcConnectionTest, GrpcStreamingCallsNoticeChangeInConnectivity) {
   std::unique_ptr<GrpcStreamingReader> streaming_call =
       tester.CreateStreamingReader();
   streaming_call->Start(
-      [&](const StatusOr<std::vector<grpc::ByteBuffer>>& result) {
-        if (IsConnectivityChange(result.status())) {
+      0, [&](const std::vector<ResponsesT>) {},
+      [&](const util::Status& st, bool) {
+        if (IsConnectivityChange(st)) {
           ++change_count;
         }
       });
@@ -162,22 +164,28 @@ TEST_F(GrpcConnectionTest, ConnectivityChangeWithSeveralActiveCalls) {
   int changes_count = 0;
 
   std::unique_ptr<GrpcStreamingReader> foo = tester.CreateStreamingReader();
-  foo->Start([&](const StatusOr<std::vector<grpc::ByteBuffer>>&) {
-    foo.reset();
-    ++changes_count;
-  });
+  foo->Start(
+      0, [&](const std::vector<ResponsesT>) {},
+      [&](const util::Status&, bool) {
+        ++changes_count;
+        foo.reset();
+      });
 
   std::unique_ptr<GrpcStreamingReader> bar = tester.CreateStreamingReader();
-  bar->Start([&](const StatusOr<std::vector<grpc::ByteBuffer>>&) {
-    bar.reset();
-    ++changes_count;
-  });
+  bar->Start(
+      0, [&](const std::vector<ResponsesT>) {},
+      [&](const util::Status&, bool) {
+        ++changes_count;
+        bar.reset();
+      });
 
   std::unique_ptr<GrpcStreamingReader> baz = tester.CreateStreamingReader();
-  baz->Start([&](const StatusOr<std::vector<grpc::ByteBuffer>>&) {
-    baz.reset();
-    ++changes_count;
-  });
+  baz->Start(
+      0, [&](const std::vector<ResponsesT>) {},
+      [&](const util::Status&, bool) {
+        ++changes_count;
+        baz.reset();
+      });
 
   tester.KeepPollingGrpcQueue();
   // Calls will be unregistering themselves with `GrpcConnection` as it notifies
@@ -203,9 +211,11 @@ TEST_F(GrpcConnectionTest, ShutdownFastFinishesActiveCalls) {
   foo->Start();
 
   std::unique_ptr<GrpcStreamingReader> bar = tester.CreateStreamingReader();
-  bar->Start([](const StatusOr<std::vector<grpc::ByteBuffer>>&) {
-    FAIL() << "Callback shouldn't have been invoked";
-  });
+  bar->Start(
+      0, [&](const std::vector<ResponsesT>) {},
+      [&](const util::Status&, bool) {
+        FAIL() << "Callback shouldn't have been invoked";
+      });
 
   std::unique_ptr<GrpcUnaryCall> baz = tester.CreateUnaryCall();
   baz->Start([](const StatusOr<grpc::ByteBuffer>&) {

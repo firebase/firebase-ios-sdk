@@ -866,8 +866,6 @@ static FIRApp *sDefaultApp;
 
 #pragma mark - App Life Cycle
 
-// TODO(ncooke3): Add heartbeat logging.
-
 - (void)subscribeForAppDidBecomeActiveNotifications {
 #if TARGET_OS_IOS || TARGET_OS_TV
   NSNotificationName notificationName = UIApplicationDidBecomeActiveNotification;
@@ -889,6 +887,8 @@ static FIRApp *sDefaultApp;
 
 - (void)logCoreTelemetryIfEnabled {
   if ([self isDataCollectionDefaultEnabled]) {
+    [self.heartbeatLogger log];
+    // TODO(ncooke3): Remove below code when CoreDiagnostics is removed.
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0), ^{
       [FIRCoreDiagnosticsConnector logCoreTelemetryWithOptions:[self options]];
     });

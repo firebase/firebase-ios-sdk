@@ -24,6 +24,7 @@
 
 #include "Firestore/core/src/remote/grpc_stream.h"
 #include "Firestore/core/src/remote/grpc_stream_observer.h"
+#include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/status_fwd.h"
 #include "Firestore/core/src/util/warnings.h"
 #include "grpcpp/client_context.h"
@@ -45,8 +46,9 @@ class GrpcConnection;
  */
 class GrpcStreamingReader : public GrpcCall, public GrpcStreamObserver {
  public:
-  using ResponsesT = std::vector<grpc::ByteBuffer>;
-  using Callback = std::function<void(const util::StatusOr<ResponsesT>&)>;
+  using ResponsesT = grpc::ByteBuffer;
+  using ResponsesCallback = std::function<void(const std::vector<ResponsesT>)>;
+  using CloseCallback = std::function<void(const util::Status&, bool)>;
 
   GrpcStreamingReader(
       std::unique_ptr<grpc::ClientContext> context,
@@ -60,7 +62,9 @@ class GrpcStreamingReader : public GrpcCall, public GrpcStreamObserver {
    * results of the call. If the call fails, the `callback` will be invoked with
    * a non-ok status.
    */
-  void Start(Callback&& callback);
+  void Start(size_t expected_response_count,
+             ResponsesCallback&& responses_callback,
+             CloseCallback&& close_callback);
 
   /**
    * If the call is in progress, attempts to cancel the call; otherwise, it's
@@ -99,8 +103,11 @@ class GrpcStreamingReader : public GrpcCall, public GrpcStreamObserver {
   std::unique_ptr<GrpcStream> stream_;
   grpc::ByteBuffer request_;
 
-  Callback callback_;
-  ResponsesT responses_;
+  size_t expected_response_count_;
+  bool callback_fired_ = false;
+  ResponsesCallback responses_callback_;
+  CloseCallback close_callback_;
+  std::vector<ResponsesT> responses_;
 };
 
 }  // namespace remote

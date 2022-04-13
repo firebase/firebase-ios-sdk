@@ -48,16 +48,9 @@
                 }];
   callable.timeoutInterval = 60;
   [callable timeoutInterval];
+}
 
 #pragma mark - FunctionsError
-  // Deleted in Firebase 9
-  //__unused NSString *str = FIRFunctionsErrorDomain;
-  //__unused NSString *str2 = FIRFunctionsErrorDetailsKey;
-
-  // Replaced in Firebase 9
-  __unused NSString *str = FIRFunctionsErrorKeys.domain;
-  __unused NSString *str2 = FIRFunctionsErrorKeys.errorDetailsKey;
-}
 
 - (FIRFunctionsErrorCode)errorCodes:(NSError *)error {
   switch (error.code) {

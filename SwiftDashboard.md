@@ -17,7 +17,7 @@ tasks for additional Swift improvements.
 | **SwiftUI Lifecycle** |  ❌   | n/a   | n/a   | ❌   | n/a   | n/a   | n/a   | ❌    | n/a   | n/a   | n/a   | n/a   | ❌    | n/a   | ❌    | n/a   | n/a   |
 | **SwiftUI Interop**   |   ✔   | n/a   | ❌    | ❌   | n/a   | ❌    | ❌    | n/a   | ✔     | n/a   | ✔     | n/a   | n/a   | n/a   | ❌    | n/a   | n/a   |
 | **Property Wrappers** |  n/a  | n/a   | n/a   | ❌    | n/a  | n/a   | ❌    | n/a   | 6     | n/a   | n/a   | n/a   | n/a   | n/a   | n/a    | ❌   | n/a   |
-| **Swift Doc Scrub**   |  ❌   | ❌    |❌    | ❌    | ✔     | ✔     | ❌    | ❌   |  ✔   | ❌    | ❌    | ❌   | ❌    | ✔     | ❌    | ❌   | ❌    |
+| **Swift Doc Scrub**   |   ✔   |  ✔    | ✔     | ✔     | ✔     | ✔     |  ✔    |  ✔    |  ✔   |  ✔    |  ✔     | ✔     |  ✔    | ✔     |  ✔    |  ✔    |  ✔    |
 
 ### Other Projects
 - Tooling to surface full list of automatically generated Swift API from Objective C and validate.
@@ -36,7 +36,7 @@ tasks for additional Swift improvements.
 * **API Tests**: Tests exist for all Swift APIs. Integration tests are preferred, but compile-only tests are acceptable.
 * **async/await**:API tests include tests for all auto-generated async/await APIs. Implementations are added for
 asynchronous APIs that don't have auto-generated counterparts like
-[these](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseStorageSwift/Tests/Integration/StorageAsyncAwait.swift)
+[these](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseStorage/Tests/Integration/StorageAsyncAwait.swift)
 for Storage.
 * **Swift Errors**: Swift Error Codes are available instead of NSErrors.
 * **Codable**: Codable is implemented where appropriate.

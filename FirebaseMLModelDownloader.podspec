@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMLModelDownloader'
-  s.version          = '8.15.0-beta'
+  s.version          = '9.0.0-beta'
   s.summary          = 'Firebase ML Model Downloader'
 
   s.description      = <<-DESC
@@ -36,8 +36,8 @@ Pod::Spec.new do |s|
   ]
 
   s.framework = 'Foundation'
-  s.dependency 'FirebaseCore', '~> 8.0'
-  s.dependency 'FirebaseInstallations', '~> 8.0'
+  s.dependency 'FirebaseCore', '~> 9.0'
+  s.dependency 'FirebaseInstallations', '~> 9.0'
   s.dependency 'GoogleDataTransport', '~> 9.1'
   # TODO: Revisit this dependency
   s.dependency 'GoogleUtilities/Logger', '~> 7.7'

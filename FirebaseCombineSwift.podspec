@@ -51,11 +51,11 @@ for internal testing only. It should not be published.
   s.osx.framework = 'AppKit'
   s.tvos.framework = 'UIKit'
 
-  s.dependency 'FirebaseCore', '~> 8.0'
-  s.dependency 'FirebaseAuth', '~> 8.0'
-  s.dependency 'FirebaseFunctions', '~> 8.12'
-  s.dependency 'FirebaseFirestore', '~> 8.0'
-  s.dependency 'FirebaseStorage', '~> 8.0'
+  s.dependency 'FirebaseCore', '~> 9.0'
+  s.dependency 'FirebaseAuth', '~> 9.0'
+  s.dependency 'FirebaseFunctions', '~> 9.0'
+  s.dependency 'FirebaseFirestore', '~> 9.0'
+  s.dependency 'FirebaseStorage', '~> 9.0'
 
   s.pod_target_xcconfig = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
@@ -93,13 +93,13 @@ for internal testing only. It should not be published.
     }
     int_tests.source_files = [
       'FirebaseCombineSwift/Tests/Integration/Storage/StorageIntegration.swift',
-      'FirebaseStorageSwift/Tests/Integration/Credentials.swift'
+      'FirebaseStorage/Tests/Integration/Credentials.swift'
     ]
     int_tests.requires_app_host = true
     # Resources are shared with FirebaseStorage's integration tests.
-    int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
-                          'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist',
-                          'FirebaseStorage/Tests/Integration/Resources/HomeImprovement.numbers'
-    int_tests.dependency 'FirebaseAuth', '~> 8.0'
+    int_tests.resources = 'FirebaseStorageInternal/Tests/Integration/Resources/1mb.dat',
+                          'FirebaseStorageInternal/Tests/Integration/Resources/GoogleService-Info.plist',
+                          'FirebaseStorageInternal/Tests/Integration/Resources/HomeImprovement.numbers'
+    int_tests.dependency 'FirebaseAuth', '~> 9.0'
   end
 end
