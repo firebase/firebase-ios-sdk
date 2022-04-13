@@ -591,15 +591,17 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     }
     UIApplication *application = [applicationClass sharedApplication];
 
-    // Initialize for phone number auth.
-    strongSelf->_tokenManager = [[FIRAuthAPNSTokenManager alloc] initWithApplication:application];
+    if (application) {
+      // Initialize for phone number auth.
+      strongSelf->_tokenManager = [[FIRAuthAPNSTokenManager alloc] initWithApplication:application];
 
-    strongSelf->_appCredentialManager =
-        [[FIRAuthAppCredentialManager alloc] initWithKeychain:strongSelf->_keychainServices];
+      strongSelf->_appCredentialManager =
+          [[FIRAuthAppCredentialManager alloc] initWithKeychain:strongSelf->_keychainServices];
 
-    strongSelf->_notificationManager =
-        [[FIRAuthNotificationManager alloc] initWithApplication:application
-                                           appCredentialManager:strongSelf->_appCredentialManager];
+      strongSelf->_notificationManager = [[FIRAuthNotificationManager alloc]
+           initWithApplication:application
+          appCredentialManager:strongSelf->_appCredentialManager];
+    }
 
     [GULAppDelegateSwizzler registerAppDelegateInterceptor:strongSelf];
 #if ((TARGET_OS_IOS || TARGET_OS_TV) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000))
