@@ -14,13 +14,13 @@
 
 #import <XCTest/XCTest.h>
 
-@import FirebaseCore;
-@import FirebaseFunctions;
+#import <FirebaseFunctions/FirebaseFunctions-Swift.h>
+#import "FirebaseCore/FirebaseCore.h"
 
-@interface ObjCAPICoverage : XCTestCase
+@interface ObjCPPAPICoverage : XCTestCase
 @end
 
-@implementation ObjCAPICoverage
+@implementation ObjCPPAPICoverage
 
 - (void)apis {
 #pragma mark - Functions
@@ -71,8 +71,8 @@
     case FIRFunctionsErrorCodeUnavailable:
     case FIRFunctionsErrorCodeDataLoss:
     case FIRFunctionsErrorCodeUnauthenticated:
-      return error.code;
+      return (FIRFunctionsErrorCode)error.code;
   }
-  return error.code;
+  return (FIRFunctionsErrorCode)error.code;
 }
 @end
