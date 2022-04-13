@@ -87,6 +87,9 @@ void IterateOverLevelDbDatabaseThatUsesSnappyCompression(
   std::unique_ptr<leveldb::DB> db;
   {
     Path leveldb_path = CreateLevelDbDatabaseThatUsesSnappyCompression();
+    if (leveldb_path.empty()) {
+      return;
+    }
 
     leveldb::Options options;
     options.create_if_missing = false;
@@ -265,12 +268,18 @@ Path LevelDbDir() {
   auto status = fs->RecursivelyRemove(dir);
   EXPECT_TRUE(status.ok()) << "Failed to clean up leveldb in directory "
                            << dir.ToUtf8String() << ": " << status.ToString();
+  if (! status.ok()) {
+    return {};
+  }
 
   return dir;
 }
 
 Path CreateLevelDbDatabaseThatUsesSnappyCompression() {
   Path leveldb_dir = LevelDbDir();
+  if (leveldb_dir.empty()){
+    return {};
+  }
 
   WriteFile(leveldb_dir, "000005.ldb", LevelDbSnappyFile_000005_ldb);
   WriteFile(leveldb_dir, "000017.ldb", LevelDbSnappyFile_000017_ldb);
@@ -279,6 +288,7 @@ Path CreateLevelDbDatabaseThatUsesSnappyCompression() {
   WriteFile(leveldb_dir, "LOG.old", LevelDbSnappyFile_LOG_old);
   WriteFile(leveldb_dir, "LOG", LevelDbSnappyFile_LOG);
   WriteFile(leveldb_dir, "MANIFEST-000084", LevelDbSnappyFile_MANIFEST_000084);
+
   return leveldb_dir;
 }
 
