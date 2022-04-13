@@ -268,7 +268,7 @@ Path LevelDbDir() {
   auto status = fs->RecursivelyRemove(dir);
   EXPECT_TRUE(status.ok()) << "Failed to clean up leveldb in directory "
                            << dir.ToUtf8String() << ": " << status.ToString();
-  if (! status.ok()) {
+  if (!status.ok()) {
     return {};
   }
 
@@ -277,7 +277,7 @@ Path LevelDbDir() {
 
 Path CreateLevelDbDatabaseThatUsesSnappyCompression() {
   Path leveldb_dir = LevelDbDir();
-  if (leveldb_dir.empty()){
+  if (leveldb_dir.empty()) {
     return {};
   }
 
