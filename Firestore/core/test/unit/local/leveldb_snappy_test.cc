@@ -16,6 +16,7 @@
 
 #include <array>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -40,39 +41,106 @@ using ::firebase::firestore::util::Path;
 // with reason "corruption".
 Path CreateLevelDbDatabaseThatUsesSnappyCompression();
 
-// This test ensures that we don't accidentally regress having added in Snappy
-// compression support (https://github.com/firebase/firebase-ios-sdk/pull/9596).
-TEST(LevelDbSnappy, LevelDbHasSnappySupportCompiledIn) {
-// Only run this test in cmake builds, since Snappy support is not included
-// when pulling in LevelDb via CocoaPods or Swift Package Manager.
+// Creates and opens a LevelDb database that contains at least one block that
+// is compressed with Snappy compression, then iterates over it, invoking the
+// given callback with the status at each point in the iteration. Once the
+// callback is invoked with a `status` where `status.ok()` is not true, then
+// iteration will stop and the callback will not be invoked again.
+void IterateOverLevelDbDatabaseThatUsesSnappyCompression(
+    std::function<void(const leveldb::Status&)>);
+
 #if FIRESTORE_TESTS_CMAKE_BUILD
-  GTEST_SKIP() << "Snappy support is only present in cmake builds";
-#endif
 
-  Path leveldb_path = CreateLevelDbDatabaseThatUsesSnappyCompression();
-  if (HasFatalFailure()) return;
+// Ensure that LevelDb is compiled with Snappy compression support.
+// See https://github.com/firebase/firebase-ios-sdk/pull/9596 for details.
+TEST(LevelDbSnappy, LevelDbSupportsSnappy) {
+  IterateOverLevelDbDatabaseThatUsesSnappyCompression(
+      [](const leveldb::Status& status) {
+        ASSERT_TRUE(status.ok()) << ConvertStatus(status);
+      });
+}
 
-  leveldb::Options options;
-  options.create_if_missing = false;
+#else  // FIRESTORE_TESTS_CMAKE_BUILD
 
+// Ensure that LevelDb is NOT compiled with Snappy compression support.
+TEST(LevelDbSnappy, LevelDbDoesNotSupportSnappy) {
+  bool got_failed_status = false;
+  IterateOverLevelDbDatabaseThatUsesSnappyCompression(
+      [&](const leveldb::Status& status) {
+        if (!status.ok()) {
+          got_failed_status = true;
+          ASSERT_TRUE(status.IsCorruption()) << ConvertStatus(status);
+        }
+      });
+
+  if (!HasFailure()) {
+    ASSERT_TRUE(got_failed_status)
+        << "Reading a Snappy-compressed LevelDb database was successful; "
+           "however, it should NOT have been successful "
+           "since Snappy support is expected to NOT be available.";
+  }
+}
+
+#endif  // FIRESTORE_TESTS_CMAKE_BUILD
+
+void IterateOverLevelDbDatabaseThatUsesSnappyCompression(
+    std::function<void(const leveldb::Status&)> callback) {
   std::unique_ptr<leveldb::DB> db;
   {
+    Path leveldb_path = CreateLevelDbDatabaseThatUsesSnappyCompression();
+
+    leveldb::Options options;
+    options.create_if_missing = false;
+
     leveldb::DB* db_ptr;
     leveldb::Status status =
         leveldb::DB::Open(options, leveldb_path.ToUtf8String(), &db_ptr);
-    ASSERT_TRUE(status.ok());
+
+    ASSERT_TRUE(status.ok())
+        << "Opening LevelDb database " << leveldb_path.ToUtf8String()
+        << " failed: " << ConvertStatus(status);
+
     db.reset(db_ptr);
   }
 
-  // One of the assertions below will fail when LevelDb attempts to read a block
-  // that is compressed with Snappy and Snappy compression support is not
-  // compiled in.
   std::unique_ptr<leveldb::Iterator> it(
       db->NewIterator(leveldb::ReadOptions()));
   for (it->SeekToFirst(); it->Valid(); it->Next()) {
-    ASSERT_TRUE(it->status().ok()) << ConvertStatus(it->status());
+    callback(it->status());
+    if (!it->status().ok()) {
+      return;
+    }
   }
-  ASSERT_TRUE(it->status().ok()) << ConvertStatus(it->status());
+
+  // Invoke the callback on the final status.
+  callback(it->status());
+}
+
+template <typename T>
+void WriteFile(const Path& dir,
+               const std::string& file_name,
+               const T& data_array) {
+  Filesystem* fs = Filesystem::Default();
+  {
+    auto status = fs->RecursivelyCreateDir(dir);
+    if (!status.ok()) {
+      FAIL() << "Creating directory failed: " << dir.ToUtf8String() << " ("
+             << status.error_message() << ")";
+    }
+  }
+
+  Path file = dir.AppendUtf8(file_name);
+  std::ofstream out_file(file.native_value(), std::ios::binary);
+  if (!out_file) {
+    FAIL() << "Unable to open file for writing: " << file.ToUtf8String();
+  }
+
+  out_file.write(reinterpret_cast<const char*>(data_array.data()),
+                 data_array.size());
+  out_file.close();
+  if (!out_file) {
+    FAIL() << "Writing to file failed: " << file.ToUtf8String();
+  }
 }
 
 const std::array<unsigned char, 0x00000165> LevelDbSnappyFile_000005_ldb{
@@ -189,33 +257,6 @@ const std::array<unsigned char, 0x000000C2> LevelDbSnappyFile_MANIFEST_000084{
     0x03, 0xAC, 0xBA, 0x08, 0x00, 0x01, 0x02, 0x55, 0x09, 0x00, 0x03, 0x56,
     0x04, 0x0D,
 };
-
-template <typename T>
-void WriteFile(const Path& dir,
-               const std::string& file_name,
-               const T& data_array) {
-  Filesystem* fs = Filesystem::Default();
-  {
-    auto status = fs->RecursivelyCreateDir(dir);
-    if (!status.ok()) {
-      FAIL() << "Creating directory failed: " << dir.ToUtf8String() << " ("
-             << status.error_message() << ")";
-    }
-  }
-
-  Path file = dir.AppendUtf8(file_name);
-  std::ofstream out_file(file.native_value(), std::ios::binary);
-  if (!out_file) {
-    FAIL() << "Unable to open file for writing: " << file.ToUtf8String();
-  }
-
-  out_file.write(reinterpret_cast<const char*>(data_array.data()),
-                 data_array.size());
-  out_file.close();
-  if (!out_file) {
-    FAIL() << "Writing to file failed: " << file.ToUtf8String();
-  }
-}
 
 Path CreateLevelDbDatabaseThatUsesSnappyCompression() {
   Path leveldb_dir = ::firebase::firestore::local::LevelDbDir();
