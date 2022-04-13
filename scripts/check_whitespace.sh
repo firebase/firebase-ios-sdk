@@ -29,6 +29,7 @@ options=(
 # likely in a nanopb release after 0.3.9.7.
 
 git grep "${options[@]}" -- \
+    ':(exclude)cmake/external/snappy.patch' \
     ':(exclude)Crashlytics/Protogen/nanopb' \
     ':(exclude)Crashlytics/ProtoSupport' \
     ':(exclude)Crashlytics/UnitTests/Data' \
