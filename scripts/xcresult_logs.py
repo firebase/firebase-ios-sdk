@@ -64,7 +64,19 @@ def main():
     # but also makes it harder to deal with.
     log_id = find_log_id(xcresult_path)
     log = export_log(xcresult_path, log_id)
-    sys.stdout.write(log)
+
+    # Avoid UnicodeEncodeError by adapting the code example from
+    # https://docs.python.org/3/library/sys.html#sys.displayhook
+    try:
+      sys.stdout.write(log)
+    except UnicodeEncodeError:
+      log_encoded = log.encode(sys.stdout.encoding, errors='backslashreplace')
+      if hasattr(sys.stdout, 'buffer'):
+        sys.stdout.flush()
+        sys.stdout.buffer.write(log_encoded)
+      else:
+        log_decoded = log_encoded.decode(sys.stdout.encoding, errors='strict')
+        sys.stdout.write(log_decoded)
 
 
 # Most flags on the xcodebuild command-line are uninteresting, so only pull
