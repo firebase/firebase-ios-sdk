@@ -32,8 +32,7 @@
 @property(nonatomic, strong) FIRDatabaseConfig *_Nullable config;
 
 - (id _Nonnull)initWithRepoInfo:(FRepoInfo *_Nullable)info
-                         config:(FIRDatabaseConfig *_Nullable)config
-                       database:(FIRDatabase *_Nullable)database;
+                         config:(FIRDatabaseConfig *_Nullable)config;
 
 - (void)set:(FPath *_Nullable)path
         withNode:(id _Nullable)node

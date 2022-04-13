@@ -15,7 +15,7 @@
  */
 
 #import "FirebaseDatabase/Tests/Integration/FDotInfo.h"
-#import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
+
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 
 @implementation FDotInfo

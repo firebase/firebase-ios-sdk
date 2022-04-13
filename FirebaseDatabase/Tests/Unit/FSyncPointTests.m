@@ -21,7 +21,7 @@
 
 #import "FirebaseDatabase/Sources/Api/Private/FIRDataSnapshot_Private.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
-#import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
+
 
 #import "FirebaseDatabase/Tests/Helpers/FTestClock.h"
 #import "FirebaseDatabase/Tests/Unit/FSyncPointTests.h"

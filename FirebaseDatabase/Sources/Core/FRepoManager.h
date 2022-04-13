@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Api/FIRDatabaseConfig.h"
 #import "FirebaseDatabase/Sources/Core/FRepo.h"
 #import <Foundation/Foundation.h>
+
+@import FirebaseDatabaseSwiftCore;
 
 @interface FRepoManager : NSObject
 

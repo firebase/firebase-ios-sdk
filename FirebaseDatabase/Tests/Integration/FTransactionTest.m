@@ -16,7 +16,7 @@
 
 #import "FirebaseDatabase/Tests/Integration/FTransactionTest.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
-#import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
+
 #import "FirebaseDatabase/Tests/Helpers/FEventTester.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 #import "FirebaseDatabase/Tests/Helpers/FTupleEventTypeString.h"

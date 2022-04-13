@@ -18,12 +18,14 @@
 
 #import <OCMock/OCMock.h>
 
-#import "FirebaseDatabase/Sources/Login/FIRDatabaseConnectionContextProvider.h"
+#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "SharedTestUtilities/AppCheckFake/FIRAppCheckFake.h"
 #import "SharedTestUtilities/AppCheckFake/FIRAppCheckTokenResultFake.h"
 #import "SharedTestUtilities/FIRAuthInteropFake.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 @interface FIRDatabaseConnectionContextProviderTests : XCTestCase
 
@@ -60,7 +62,7 @@
   self.appCheckFake.tokenResult = self.appCheckTokenSuccess;
 
   __auto_type provider =
-      [FIRDatabaseConnectionContextProvider contextProviderWithAuth:nil appCheck:self.appCheckFake];
+      [FIRDatabaseConnectionContextProvider contextProviderWithAuth:nil appCheck:self.appCheckFake dispatchQueue: [FIRDatabaseQuery sharedQueue]];
 
   XCTestExpectation *completionExpectation =
       [self expectationWithDescription:@"completionExpectation"];
@@ -82,7 +84,7 @@
   self.appCheckFake.tokenResult = self.appCheckTokenError;
 
   __auto_type provider =
-      [FIRDatabaseConnectionContextProvider contextProviderWithAuth:nil appCheck:self.appCheckFake];
+      [FIRDatabaseConnectionContextProvider contextProviderWithAuth:nil appCheck:self.appCheckFake dispatchQueue: [FIRDatabaseQuery sharedQueue]];
 
   XCTestExpectation *completionExpectation =
       [self expectationWithDescription:@"completionExpectation"];
@@ -105,7 +107,7 @@
   self.authFake.token = expectedAuthToken;
 
   __auto_type provider = [FIRDatabaseConnectionContextProvider contextProviderWithAuth:self.authFake
-                                                                              appCheck:nil];
+                                                                              appCheck:nil dispatchQueue: [FIRDatabaseQuery sharedQueue]];
 
   XCTestExpectation *completionExpectation =
       [self expectationWithDescription:@"completionExpectation"];
@@ -129,7 +131,7 @@
   self.authFake.error = expectedAuthError;
 
   __auto_type provider = [FIRDatabaseConnectionContextProvider contextProviderWithAuth:self.authFake
-                                                                              appCheck:nil];
+                                                                              appCheck:nil dispatchQueue: [FIRDatabaseQuery sharedQueue]];
 
   XCTestExpectation *completionExpectation =
       [self expectationWithDescription:@"completionExpectation"];
@@ -153,7 +155,7 @@
 
   __auto_type provider =
       [FIRDatabaseConnectionContextProvider contextProviderWithAuth:self.authFake
-                                                           appCheck:self.appCheckFake];
+                                                           appCheck:self.appCheckFake dispatchQueue: [FIRDatabaseQuery sharedQueue]];
 
   XCTestExpectation *completionExpectation =
       [self expectationWithDescription:@"completionExpectation"];
@@ -181,7 +183,8 @@
 
   __auto_type provider =
       [FIRDatabaseConnectionContextProvider contextProviderWithAuth:self.authFake
-                                                           appCheck:self.appCheckFake];
+                                                           appCheck:self.appCheckFake
+                                                      dispatchQueue: [FIRDatabaseQuery sharedQueue]];
 
   XCTestExpectation *completionExpectation =
       [self expectationWithDescription:@"completionExpectation"];
@@ -206,7 +209,8 @@
 
   __auto_type provider =
       [FIRDatabaseConnectionContextProvider contextProviderWithAuth:self.authFake
-                                                           appCheck:self.appCheckFake];
+                                                           appCheck:self.appCheckFake
+                                                      dispatchQueue: [FIRDatabaseQuery sharedQueue]];
 
   XCTestExpectation *completionExpectation =
       [self expectationWithDescription:@"completionExpectation"];
@@ -228,7 +232,9 @@
   NSString *updatedToken = @"updated_auth_token";
   __auto_type provider =
       [FIRDatabaseConnectionContextProvider contextProviderWithAuth:self.authFake
-                                                           appCheck:self.appCheckFake];
+                                                           appCheck:self.appCheckFake
+                                                      dispatchQueue: [FIRDatabaseQuery sharedQueue]
+      ];
 
   XCTestExpectation *callbackExpectation = [self expectationWithDescription:@"callbackExpectation"];
 
@@ -250,7 +256,8 @@
   NSString *updatedToken = @"updated_app_check_token";
   __auto_type provider =
       [FIRDatabaseConnectionContextProvider contextProviderWithAuth:self.authFake
-                                                           appCheck:self.appCheckFake];
+                                                           appCheck:self.appCheckFake
+                                                      dispatchQueue: [FIRDatabaseQuery sharedQueue]];
 
   XCTestExpectation *callbackExpectation = [self expectationWithDescription:@"callbackExpectation"];
 

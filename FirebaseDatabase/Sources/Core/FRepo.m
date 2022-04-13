@@ -27,7 +27,7 @@
 #import "FirebaseDatabase/Sources/Core/FRepoManager.h"
 #import "FirebaseDatabase/Sources/Core/FRepo_Private.h"
 #import "FirebaseDatabase/Sources/Core/View/FValueEventRegistration.h"
-#import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
+
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDataSnapshot.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRMutableData.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRTransactionResult.h"
@@ -45,7 +45,6 @@
 
 @property(nonatomic, strong) FOffsetClock *serverClock;
 @property(nonatomic, strong) FPersistenceManager *persistenceManager;
-@property(nonatomic, strong) FIRDatabase *database;
 @property(nonatomic, strong, readwrite) FAuthenticationManager *auth;
 @property(nonatomic, strong) FSyncTree *infoSyncTree;
 @property(nonatomic) NSInteger writeIdCounter;
@@ -63,13 +62,11 @@
 @implementation FRepo
 
 - (id)initWithRepoInfo:(FRepoInfo *)info
-                config:(FIRDatabaseConfig *)config
-              database:(FIRDatabase *)database {
+                config:(FIRDatabaseConfig *)config {
     self = [super init];
     if (self) {
         self.repoInfo = info;
         self.config = config;
-        self.database = database;
 
         // Access can occur outside of shared queue, so the clock needs to be
         // initialized here

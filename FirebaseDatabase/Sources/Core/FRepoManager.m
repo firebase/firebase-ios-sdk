@@ -19,7 +19,7 @@
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabase_Private.h"
 #import "FirebaseDatabase/Sources/Core/FRepo.h"
-#import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
+
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 @implementation FRepoManager
@@ -71,8 +71,7 @@ typedef NSMutableDictionary<NSString *,
         FRepo *repo = repos[repoInfo];
         if (repo == nil) {
             repo = [[FRepo alloc] initWithRepoInfo:repoInfo
-                                            config:config
-                                          database:database];
+                                            config:config];
             repos[repoInfo] = repo;
             return repo;
         } else {

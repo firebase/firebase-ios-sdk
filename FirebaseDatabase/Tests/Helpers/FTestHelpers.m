@@ -20,8 +20,9 @@
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabase_Private.h"
+#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
 #import "FirebaseDatabase/Sources/Constants/FConstants.h"
-#import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
+
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestAuthTokenGenerator.h"
 
@@ -60,7 +61,7 @@
   id<FIRAuthInterop> auth = [[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil];
   id<FIRAppCheckInterop> appCheck = [[FIRAppCheckFake alloc] init];
   id<FIRDatabaseConnectionContextProvider> contextProvider =
-      [FIRDatabaseConnectionContextProvider contextProviderWithAuth:auth appCheck:appCheck];
+    [FIRDatabaseConnectionContextProvider contextProviderWithAuth:auth appCheck:appCheck dispatchQueue: [FIRDatabaseQuery sharedQueue]];
   return [[FIRDatabaseConfig alloc] initWithSessionIdentifier:name
                                                   googleAppID:@"fake-app-id"
                                               contextProvider:contextProvider];

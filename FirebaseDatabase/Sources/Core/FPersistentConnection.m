@@ -16,13 +16,10 @@
 #import <Foundation/Foundation.h>
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "FirebaseDatabase/Sources/Api/FIRDatabaseConfig.h"
 #import "FirebaseDatabase/Sources/Constants/FConstants.h"
 #import "FirebaseDatabase/Sources/Core/FPersistentConnection.h"
-#import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
 
-#import "FirebaseDatabase/Sources/Login/FIRDatabaseConnectionContextProvider.h"
-#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
+
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleCallbackStatus.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleOnDisconnect.h"

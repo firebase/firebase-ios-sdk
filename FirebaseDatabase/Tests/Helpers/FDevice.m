@@ -21,7 +21,7 @@
 
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseReference_Private.h"
 #import "FirebaseDatabase/Sources/Core/FRepoManager.h"
-#import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
+
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 #import "FirebaseDatabase/Tests/Helpers/SenTest+FWaiter.h"
 

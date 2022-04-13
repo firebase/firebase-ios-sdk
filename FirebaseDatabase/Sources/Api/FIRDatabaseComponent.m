@@ -18,9 +18,11 @@
 
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabase_Private.h"
 #import "FirebaseDatabase/Sources/Core/FRepoManager.h"
-#import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
+#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
+
 
 #import "FirebaseAppCheck/Sources/Interop/FIRAppCheckInterop.h"
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckTokenResult.h"
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "Interop/Auth/Public/FIRAuthInterop.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
@@ -35,6 +37,9 @@ typedef NSMutableDictionary<NSString *, FIRDatabase *> FIRDatabaseDictionary;
 @property(nonatomic) FIRDatabaseDictionary *instances;
 /// Internal intializer.
 - (instancetype)initWithApp:(FIRApp *)app;
+@end
+
+@interface FIRAppCheckTokenResult () <FIRDatabaseAppCheckTokenResultInterop>
 @end
 
 @implementation FIRDatabaseComponent
@@ -142,7 +147,8 @@ typedef NSMutableDictionary<NSString *, FIRDatabase *> FIRDatabaseDictionary;
                     contextProviderWithAuth:FIR_COMPONENT(FIRAuthInterop,
                                                           app.container)
                                    appCheck:FIR_COMPONENT(FIRAppCheckInterop,
-                                                          app.container)];
+                                                          app.container)
+                 dispatchQueue: [FIRDatabaseQuery sharedQueue]];
 
             // If this is the default app, don't set the session persistence key
             // so that we use our default ("default") instead of the FIRApp

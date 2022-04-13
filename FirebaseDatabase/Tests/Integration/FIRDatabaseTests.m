@@ -19,7 +19,7 @@
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseReference_Private.h"
-#import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
+
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabase.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
 #import "FirebaseDatabase/Tests/Helpers/FIRFakeApp.h"
