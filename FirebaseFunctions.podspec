@@ -52,7 +52,7 @@ Cloud Functions for Firebase.
       :tvos => tvos_deployment_target
     }
     objc_tests.source_files = [
-      'FirebaseFunctions/Tests/ObjCIntegration/*'
+      'FirebaseFunctions/Tests/ObjCIntegration/ObjC*'
     ]
   end
 

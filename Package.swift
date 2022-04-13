@@ -1107,6 +1107,10 @@ let package = Package(
       name: "StorageObjcIntegration",
       dependencies: ["FirebaseStorage"],
       path: "FirebaseStorage/Tests/ObjcIntegration",
+      exclude: [
+        // CocoaPods only test for now.
+        "ObjCPPAPITests.mm",
+      ],
       cSettings: [
         .headerSearchPath("../../.."),
       ]
