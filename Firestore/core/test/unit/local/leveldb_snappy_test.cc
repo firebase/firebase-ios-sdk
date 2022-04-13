@@ -43,11 +43,11 @@ Path CreateLevelDbDatabaseThatUsesSnappyCompression();
 // This test ensures that we don't accidentally regress having added in Snappy
 // compression support (https://github.com/firebase/firebase-ios-sdk/pull/9596).
 TEST(LevelDbSnappy, LevelDbHasSnappySupportCompiledIn) {
-  // Only run this test in cmake builds, since Snappy support is not included
-  // when pulling in LevelDb via CocoaPods or Swift Package Manager.
-  #if FIRESTORE_TESTS_CMAKE_BUILD
+// Only run this test in cmake builds, since Snappy support is not included
+// when pulling in LevelDb via CocoaPods or Swift Package Manager.
+#if FIRESTORE_TESTS_CMAKE_BUILD
   GTEST_SKIP() << "Snappy support is only present in cmake builds";
-  #endif
+#endif
 
   Path leveldb_path = CreateLevelDbDatabaseThatUsesSnappyCompression();
   if (HasFatalFailure()) return;
