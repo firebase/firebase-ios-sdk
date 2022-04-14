@@ -64,7 +64,6 @@ NSString *const kFIRStorageMetadataContentDisposition = @"contentDisposition";
 NSString *const kFIRStorageMetadataContentEncoding = @"contentEncoding";
 NSString *const kFIRStorageMetadataContentLanguage = @"contentLanguage";
 NSString *const kFIRStorageMetadataContentType = @"contentType";
-NSString *const kFIRStorageMetadataCustomTime = @"customTime";
 NSString *const kFIRStorageMetadataCustomMetadata = @"metadata";
 NSString *const kFIRStorageMetadataSize = @"size";
 NSString *const kFIRStorageMetadataGeneration = @"generation";

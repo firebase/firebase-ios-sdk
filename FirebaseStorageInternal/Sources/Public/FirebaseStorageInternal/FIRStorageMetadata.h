@@ -60,11 +60,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property(copy, nonatomic, nullable) NSString *contentType;
 
 /**
- * Custom-Time of the object data.
- */
-@property(copy, nonatomic, nullable) NSDate *customTime;
-
-/**
  * MD5 hash of the data; encoded using base64.
  */
 @property(copy, nonatomic, nullable, readonly) NSString *md5Hash;
