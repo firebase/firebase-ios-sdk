@@ -356,7 +356,7 @@ case "$product-$platform-$method" in
 
       echo "Building cmake build ..."
       ninja -k 10 all
-      ctest --output-on-failure
+      ctest --verbose
     )
     ;;
 
