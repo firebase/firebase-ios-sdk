@@ -197,9 +197,9 @@ jobs:
 
     - name: Build and test
       env:
-        CUSTOM_FIRESTORE_PROJECT_ID: ${{ CUSTOM_FIRESTORE_PROJECT_ID }}
-        CUSTOM_FIRESTORE_HOST: ${{ CUSTOM_FIRESTORE_HOST }}
-        CUSTOM_FIRESTORE_API_KEY: ${{ CUSTOM_FIRESTORE_API_KEY}}
+        CUSTOM_FIRESTORE_PROJECT_ID: ${{ secrets.CUSTOM_FIRESTORE_PROJECT_ID }}
+        CUSTOM_FIRESTORE_HOST: ${{ secrets.CUSTOM_FIRESTORE_HOST }}
+        CUSTOM_FIRESTORE_API_KEY: ${{ secrets.CUSTOM_FIRESTORE_API_KEY}}
       run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore macOS xcodebuild
 
 #  spm:
