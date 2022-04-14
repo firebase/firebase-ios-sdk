@@ -42,7 +42,7 @@ NS_SWIFT_NAME(Query)
 /** :nodoc: */
 - (id)init __attribute__((unavailable("FIRQuery cannot be created directly.")));
 
-/** The `Firestore` for the Firestore database (useful for performing transactions, etc.). */
+/** The `Firestore` instance that created this query (useful for performing transactions, etc.). */
 @property(nonatomic, strong, readonly) FIRFirestore *firestore;
 
 #pragma mark - Retrieving Data
@@ -80,7 +80,7 @@ NS_SWIFT_NAME(Query)
  *
  * @param listener The listener to attach.
  *
- * @return A `ListenerRegistration` that can be used to remove this listener.
+ * @return A `ListenerRegistration` object that can be used to remove this listener.
  */
 - (id<FIRListenerRegistration>)addSnapshotListener:
     (void (^)(FIRQuerySnapshot *_Nullable snapshot, NSError *_Nullable error))listener

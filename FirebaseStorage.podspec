@@ -33,13 +33,13 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   s.prefix_header_file = false
 
   s.source_files = [
-    'FirebaseStorageSwift/Sources/*.swift',
-    'FirebaseStorageSwift/Typedefs/*.h',
+    'FirebaseStorage/Sources/*.swift',
+    'FirebaseStorage/Typedefs/*.h',
     'FirebaseAppCheck/Interop/*.h',
     'FirebaseAuth/Interop/*.h',
   ]
 
-  s.dependency 'FirebaseStorageObjC', '~> 9.0'
+  s.dependency 'FirebaseStorageInternal', '~> 9.0'
   s.dependency 'FirebaseAppCheckInterop', '~> 9.0'
   s.dependency 'FirebaseAuthInterop', '~> 9.0'
   s.dependency 'FirebaseCore', '~> 9.0'
@@ -53,12 +53,12 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
       :tvos => tvos_deployment_target
     }
     objc_tests.source_files = [
-      'FirebaseStorage/Tests/Integration/*.[mh]',
-      'FirebaseStorageSwift/Tests/ObjCIntegration/*.m',
+      'FirebaseStorageInternal/Tests/Integration/*.[mh]',
+      'FirebaseStorage/Tests/ObjCIntegration/*.{m,mm}',
     ]
     objc_tests.requires_app_host = true
-    objc_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
-                          'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist'
+    objc_tests.resources = 'FirebaseStorageInternal/Tests/Integration/Resources/1mb.dat',
+                          'FirebaseStorageInternal/Tests/Integration/Resources/GoogleService-Info.plist'
     objc_tests.dependency 'FirebaseAuth', '~> 9.0'
     objc_tests.pod_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
@@ -72,7 +72,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
       :osx => osx_deployment_target,
       :tvos => tvos_deployment_target
     }
-    unit_tests.source_files = 'FirebaseStorageSwift/Tests/Unit/StorageAPITests.swift'
+    unit_tests.source_files = 'FirebaseStorage/Tests/Unit/StorageAPITests.swift'
   end
 
   s.test_spec 'integration' do |int_tests|
@@ -82,11 +82,11 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
       :osx => osx_deployment_target,
       :tvos => tvos_deployment_target
     }
-    int_tests.source_files = 'FirebaseStorageSwift/Tests/Integration/*.swift'
+    int_tests.source_files = 'FirebaseStorage/Tests/Integration/*.swift'
     int_tests.requires_app_host = true
-    int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
-                          'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist',
-                          'FirebaseStorage/Tests/Integration/Resources/HomeImprovement.numbers'
+    int_tests.resources = 'FirebaseStorageInternal/Tests/Integration/Resources/1mb.dat',
+                          'FirebaseStorageInternal/Tests/Integration/Resources/GoogleService-Info.plist',
+                          'FirebaseStorageInternal/Tests/Integration/Resources/HomeImprovement.numbers'
     int_tests.dependency 'FirebaseAuth', '~> 9.0'
   end
 end

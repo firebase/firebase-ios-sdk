@@ -51,19 +51,19 @@ typedef void (^FIRVerificationResultCallback)(NSString *_Nullable verificationID
         API_UNAVAILABLE(macos, tvos, watchos);
 
 /** @class FIRPhoneAuthProvider
-    @brief A concrete implementation of `FIRAuthProvider` for phone auth providers.
+    @brief A concrete implementation of `AuthProvider` for phone auth providers.
         This class is available on iOS only.
  */
 NS_SWIFT_NAME(PhoneAuthProvider) API_UNAVAILABLE(macos, tvos, watchos)
     @interface FIRPhoneAuthProvider : NSObject
 
 /** @fn provider
-    @brief Returns an instance of `FIRPhoneAuthProvider` for the default `FIRAuth` object.
+    @brief Returns an instance of `PhoneAuthProvider` for the default `Auth` object.
  */
 + (instancetype)provider NS_SWIFT_NAME(provider());
 
 /** @fn providerWithAuth:
-    @brief Returns an instance of `FIRPhoneAuthProvider` for the provided `FIRAuth` object.
+    @brief Returns an instance of `PhoneAuthProvider` for the provided `Auth` object.
     @param auth The auth object to associate with the phone auth provider instance.
  */
 + (instancetype)providerWithAuth:(FIRAuth *)auth NS_SWIFT_NAME(provider(auth:));
@@ -77,13 +77,13 @@ NS_SWIFT_NAME(PhoneAuthProvider) API_UNAVAILABLE(macos, tvos, watchos)
     @param completion The callback to be invoked when the verification flow is finished.
     @remarks Possible error codes:
 
-        + `FIRAuthErrorCodeCaptchaCheckFailed` - Indicates that the reCAPTCHA token obtained by
+        + `AuthErrorCodeCaptchaCheckFailed` - Indicates that the reCAPTCHA token obtained by
             the Firebase Auth is invalid or has expired.
-        + `FIRAuthErrorCodeQuotaExceeded` - Indicates that the phone verification quota for this
+        + `AuthErrorCodeQuotaExceeded` - Indicates that the phone verification quota for this
             project has been exceeded.
-        + `FIRAuthErrorCodeInvalidPhoneNumber` - Indicates that the phone number provided is
+        + `AuthErrorCodeInvalidPhoneNumber` - Indicates that the phone number provided is
             invalid.
-        + `FIRAuthErrorCodeMissingPhoneNumber` - Indicates that a phone number was not provided.
+        + `AuthErrorCodeMissingPhoneNumber` - Indicates that a phone number was not provided.
  */
 - (void)verifyPhoneNumber:(NSString *)phoneNumber
                UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
@@ -124,7 +124,7 @@ NS_SWIFT_NAME(PhoneAuthProvider) API_UNAVAILABLE(macos, tvos, watchos)
                                                          NSError *_Nullable error))completion;
 
 /** @fn credentialWithVerificationID:verificationCode:
-    @brief Creates an `FIRAuthCredential` for the phone number provider identified by the
+    @brief Creates an `AuthCredential` for the phone number provider identified by the
         verification ID and verification code.
 
     @param verificationID The verification ID obtained from invoking
@@ -137,8 +137,8 @@ NS_SWIFT_NAME(PhoneAuthProvider) API_UNAVAILABLE(macos, tvos, watchos)
                                         verificationCode:(NSString *)verificationCode;
 
 /** @fn init
-    @brief Please use the `provider` or `providerWithAuth:` methods to obtain an instance of
-        `FIRPhoneAuthProvider`.
+    @brief Please use the `provider()` or `provider(auth:)` methods to obtain an instance of
+        `PhoneAuthProvider`.
  */
 - (instancetype)init NS_UNAVAILABLE;
 

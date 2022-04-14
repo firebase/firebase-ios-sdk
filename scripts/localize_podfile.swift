@@ -38,7 +38,7 @@ let implicitPods = [
   "FirebaseCoreDiagnostics", "FirebaseRemoteConfig",
   "FirebaseCoreExtension", "FirebaseAppCheckInterop",
   "FirebaseAuthInterop", "FirebaseMessagingInterop",
-  "FirebaseStorageObjC", "FirebaseCoreInternal",
+  "FirebaseStorageInternal", "FirebaseCoreInternal",
 ]
 var didImplicits = false
 

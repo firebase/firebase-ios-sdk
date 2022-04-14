@@ -21,14 +21,14 @@ NS_ASSUME_NONNULL_BEGIN
 @class FIRDatabaseReference;
 
 /**
- * A FIRDataSnapshot contains data from a Firebase Database location. Any time
- * you read Firebase data, you receive the data as a FIRDataSnapshot.
+ * A DataSnapshot contains data from a Firebase Database location. Any time
+ * you read Firebase data, you receive the data as a DataSnapshot.
  *
- * FIRDataSnapshots are passed to the blocks you attach with
- * observeEventType:withBlock: or observeSingleEvent:withBlock:. They are
+ * DataSnapshots are passed to the blocks you attach with
+ * `observe(_:with:)` or `observeSingleEvent(of:with:)`. They are
  * efficiently-generated immutable copies of the data at a Firebase Database
  * location. They can't be modified and will never change. To modify data at a
- * location, use a FIRDatabaseReference (e.g. with setValue:).
+ * location, use a DatabaseReference (e.g. with `setValue(_:)`).
  */
 NS_SWIFT_NAME(DataSnapshot)
 @interface FIRDataSnapshot : NSObject
@@ -36,35 +36,35 @@ NS_SWIFT_NAME(DataSnapshot)
 #pragma mark - Navigating and inspecting a snapshot
 
 /**
- * Gets a FIRDataSnapshot for the location at the specified relative path.
+ * Gets a DataSnapshot for the location at the specified relative path.
  * The relative path can either be a simple child key (e.g. 'fred')
  * or a deeper slash-separated path (e.g. 'fred/name/first'). If the child
- * location has no data, an empty FIRDataSnapshot is returned.
+ * location has no data, an empty DataSnapshot is returned.
  *
  * @param childPathString A relative path to the location of child data.
- * @return The FIRDataSnapshot for the child location.
+ * @return The DataSnapshot for the child location.
  */
 - (FIRDataSnapshot *)childSnapshotForPath:(NSString *)childPathString;
 
 /**
- * Return YES if the specified child exists.
+ * Return true if the specified child exists.
  *
  * @param childPathString A relative path to the location of a potential child.
- * @return YES if data exists at the specified childPathString, else NO.
+ * @return true if data exists at the specified childPathString, else false.
  */
 - (BOOL)hasChild:(NSString *)childPathString;
 
 /**
- * Return YES if the DataSnapshot has any children.
+ * Return true if the DataSnapshot has any children.
  *
- * @return YES if this snapshot has any children, else NO.
+ * @return true if this snapshot has any children, else false.
  */
 - (BOOL)hasChildren;
 
 /**
- * Return YES if the DataSnapshot contains a non-null value.
+ * Return true if the DataSnapshot contains a non-null value.
  *
- * @return YES if this snapshot contains a non-null value, else NO.
+ * @return true if this snapshot contains a non-null value, else false.
  */
 - (BOOL)exists;
 
@@ -78,7 +78,7 @@ NS_SWIFT_NAME(DataSnapshot)
  * instances of NSDictionary. For leaf locations with priorities, the value will
  * be under the ".value" key.
  */
-- (id __nullable)valueInExportFormat;
+- (id _Nullable)valueInExportFormat;
 
 #pragma mark - Properties
 
@@ -86,10 +86,10 @@ NS_SWIFT_NAME(DataSnapshot)
  * Returns the contents of this data snapshot as native types.
  *
  * Data types returned:
- * + NSDictionary
- * + NSArray
- * + NSNumber (also includes booleans)
- * + NSString
+ * + `Dictionary`
+ * + `Array`
+ * + `NSNumber`-bridgeable types, including `Bool`
+ * + `String`
  *
  * @return The data as a native object.
  */
@@ -103,27 +103,28 @@ NS_SWIFT_NAME(DataSnapshot)
 @property(readonly, nonatomic) NSUInteger childrenCount;
 
 /**
- * Gets a FIRDatabaseReference for the location that this data came from.
+ * Gets a DatabaseReference for the location that this data came from.
  *
- * @return A FIRDatabaseReference instance for the location of this data.
+ * @return A DatabaseReference instance for the location of this data.
  */
 @property(nonatomic, readonly, strong) FIRDatabaseReference *ref;
 
 /**
- * The key of the location that generated this FIRDataSnapshot.
+ * The key of the location that generated this DataSnapshot.
  *
- * @return An NSString containing the key for the location of this
- * FIRDataSnapshot.
+ * @return A `String` containing the key for the location of this
+ * DataSnapshot.
  */
 @property(strong, readonly, nonatomic) NSString *key;
 
 /**
  * An iterator for snapshots of the child nodes in this snapshot.
- * You can use the native for..in syntax:
  *
- * for (FIRDataSnapshot* child in snapshot.children) {
- *     ...
+ * ```
+ * for var child in snapshot.children {
+ *   // ...
  * }
+ * ```
  *
  * @return An NSEnumerator of the children.
  */
@@ -131,9 +132,9 @@ NS_SWIFT_NAME(DataSnapshot)
     NSEnumerator<FIRDataSnapshot *> *children;
 
 /**
- * The priority of the data in this FIRDataSnapshot.
+ * The priority of the data in this DataSnapshot.
  *
- * @return The priority as a string, or nil if no priority was set.
+ * @return The priority as a `String`, or `nil` if no priority was set.
  */
 @property(strong, readonly, nonatomic, nullable) id priority;
 
