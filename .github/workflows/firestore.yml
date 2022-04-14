@@ -48,6 +48,7 @@ on:
     - 'scripts/sync_project.rb'
     - 'scripts/test_quickstart.sh'
     - 'scripts/xcresult_logs.py'
+    - 'scripts/check_*'
 
     # This workflow
     - '.github/workflows/firestore.yml'
