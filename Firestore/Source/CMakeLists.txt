@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Objective C files
 if(NOT APPLE)
   return()
 endif()
