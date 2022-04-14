@@ -27,10 +27,10 @@ tasks for additional Swift improvements.
 
 ## Notes
 2. Tests exist. Coverage to be confirmed.
-4. NSErrorEnum used but a larger audit is still needed for more localized errors.
+4. `NS_ERROR_ENUM` used but a larger audit is still needed for more localized errors.
 5. Still needs to unify Objective C and Swift errors.
 6. One property wrapper added in [#8614](https://github.com/firebase/firebase-ios-sdk/pull/8614). More to go.
-7. `record(Error)` API needs to handle Swift Errors more appropriately
+7. `record(Error)` API should be expanded to collect Swift Errors as well as NSErrors.
 
 ## Rows (Swift Capabilities)
 * **Swift Library**: A Swift implemented extension library exists. It is deployed as Firebase{Product}Swift CocoaPod and as a Swift Package Manager product.
