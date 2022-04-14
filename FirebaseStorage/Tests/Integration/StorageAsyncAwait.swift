@@ -286,8 +286,7 @@ import XCTest
       XCTAssertEqual(actualMetadata.customTime, expectedCustomTime)
       XCTAssertEqual(actualMetadata.md5Hash?.count, 24)
       for (key, value) in expectedCustomMetadata {
-        print("key is \(key), value is \(value)")
-        XCTAssertEqual(actualMetadata.customMetadata![key], value, key)
+        XCTAssertEqual(actualMetadata.customMetadata![key], value)
       }
     }
 
