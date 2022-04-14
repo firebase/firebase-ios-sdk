@@ -1,0 +1,24 @@
+name: 'Testing Report'
+description: 'Generate a testing report'
+inputs:
+  access-token:
+    description: 'access token'
+    required: true
+  issue-labels:
+    description: 'Testing labels(delimited by comma)'
+    required: true
+    default: 'nightly-testing'
+  issue-title:
+    description: 'Title of a GitHub Issue'
+    required: true
+    default: 'Nightly Testing Report'
+  assignee:
+    description: 'Assignee of this issue'
+    required: false
+    default: ''
+  exclude-workflow-files:
+    description: 'Excluded yml files(delimited by comma)'
+    required: false
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
