@@ -17,7 +17,6 @@
 require 'octokit'
 require 'optparse'
 require 'json'
-require 'tzinfo'
 
 REPO_NAME_WITH_OWNER = ENV['GITHUB_REPOSITORY']
 GITHUB_WORKFLOW_URL = "https://github.com/#{REPO_NAME_WITH_OWNER}/actions/runs/#{ENV['GITHUB_RUN_ID']}"
