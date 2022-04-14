@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/test/unit/local/index_manager_test.h"
+#include <array>
 
+#include "Firestore/core/src/core/bound.h"
 #include "Firestore/core/src/local/leveldb_index_manager.h"
 #include "Firestore/core/src/local/leveldb_persistence.h"
 #include "Firestore/core/src/model/field_index.h"
+#include "Firestore/core/test/unit/local/index_manager_test.h"
 #include "Firestore/core/test/unit/local/persistence_testing.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "absl/memory/memory.h"
@@ -30,14 +32,23 @@ namespace local {
 
 namespace {
 
+using core::Bound;
 using credentials::User;
 using model::FieldIndex;
 using model::IndexOffset;
 using model::IndexState;
 using model::ResourcePath;
 using model::Segment;
+using testutil::Array;
+using testutil::CollectionGroupQuery;
+using testutil::DeletedDoc;
+using testutil::Doc;
+using testutil::Filter;
 using testutil::Key;
 using testutil::MakeFieldIndex;
+using testutil::Map;
+using testutil::OrderBy;
+using testutil::Query;
 using testutil::Version;
 
 std::unique_ptr<Persistence> PersistenceFactory() {
@@ -62,10 +73,983 @@ class LevelDbIndexManagerTest : public ::testing::Test {
  public:
   // `GetParam()` must return a factory function.
   LevelDbIndexManagerTest() : persistence{PersistenceFactory()} {
+    index_manager = persistence->GetIndexManager(User::Unauthenticated());
+  }
+
+  void AddDocs(const std::vector<model::MutableDocument>& docs) {
+    model::DocumentMap map;
+    for (const auto& doc : docs) {
+      map = map.insert(doc.key(), doc);
+    }
+    index_manager->UpdateIndexEntries(std::move(map));
+  }
+
+  void AddDoc(const std::string& key,
+              nanopb::Message<google_firestore_v1_Value> data) {
+    AddDocs({Doc(key, 1, std::move(data))});
+  }
+
+  void SetUpSingleValueFilter() {
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "count", model::Segment::kAscending));
+    AddDoc("coll/val1", Map("count", 1));
+    AddDoc("coll/val2", Map("count", 2));
+    AddDoc("coll/val3", Map("count", 3));
+  }
+
+  void SetUpArrayValueFilter() {
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "values", model::Segment::kContains));
+    AddDoc("coll/arr1", Map("values", Array(1, 2, 3)));
+    AddDoc("coll/arr2", Map("values", Array(4, 5, 6)));
+    AddDoc("coll/arr3", Map("values", Array(7, 8, 9)));
+  }
+
+  void SetUpMultipleOrderBys() {
+    index_manager->AddFieldIndex(MakeFieldIndex(
+        "coll", "a", model::Segment::kAscending, "b",
+        model::Segment::kDescending, "c", model::Segment::kAscending));
+    index_manager->AddFieldIndex(MakeFieldIndex(
+        "coll", "a", model::Segment::kDescending, "b",
+        model::Segment::kAscending, "c", model::Segment::kDescending));
+    AddDoc("coll/val1", Map("a", 1, "b", 1, "c", 3));
+    AddDoc("coll/val2", Map("a", 2, "b", 2, "c", 2));
+    AddDoc("coll/val3", Map("a", 2, "b", 2, "c", 3));
+    AddDoc("coll/val4", Map("a", 2, "b", 2, "c", 4));
+    AddDoc("coll/val5", Map("a", 2, "b", 2, "c", 5));
+    AddDoc("coll/val6", Map("a", 3, "b", 3, "c", 6));
+  }
+
+  void VerifyResults(const core::Query& query,
+                     const std::vector<std::string>& documents) {
+    auto target = query.ToTarget();
+    absl::optional<std::vector<model::DocumentKey>> results =
+        index_manager->GetDocumentsMatchingTarget(target);
+    EXPECT_TRUE(results.has_value()) << "Target cannot be served from index.";
+    std::vector<model::DocumentKey> expected;
+    for (const auto& key : documents) {
+      expected.push_back(Key(key));
+    }
+    EXPECT_EQ(expected, results.value())
+        << "Query returned unexpected documents.";
   }
 
   std::unique_ptr<Persistence> persistence;
+  IndexManager* index_manager;
 };
+
+TEST_F(LevelDbIndexManagerTest, AddsDocuments) {
+  persistence->Run("AddsDocuments", [&]() {
+    index_manager->Start();
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "exists", model::Segment::kAscending));
+    AddDoc("coll/doc1", Map("exists", 1));
+    AddDoc("coll/doc2", Map());
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestOrderByFilter) {
+  persistence->Run("TestOrderByFilter", [&]() {
+    index_manager->Start();
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "count", model::Segment::kAscending));
+    AddDoc("coll/val1", Map("count", 1));
+    AddDoc("coll/val2", Map("not-count", 2));
+    AddDoc("coll/val3", Map("count", 3));
+    auto query = Query("coll").AddingOrderBy(OrderBy("count"));
+    VerifyResults(query, {"coll/val1", "coll/val3"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestOrderByKeyFilter) {
+  persistence->Run("TestOrderByKeyFilter", [&]() {
+    index_manager->Start();
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "count", model::Segment::kAscending));
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "count", model::Segment::kDescending));
+    AddDoc("coll/val1", Map("count", 1));
+    AddDoc("coll/val2", Map("count", 1));
+    AddDoc("coll/val3", Map("count", 3));
+
+    {
+      SCOPED_TRACE("Verifing OrderByKey ASC");
+      auto query = Query("coll").AddingOrderBy(OrderBy("count"));
+      VerifyResults(query, {"coll/val1", "coll/val2", "coll/val3"});
+    }
+
+    {
+      SCOPED_TRACE("Verifing OrderByKey DESC");
+      auto query = Query("coll").AddingOrderBy(OrderBy("count", "desc"));
+      VerifyResults(query, {"coll/val3", "coll/val2", "coll/val1"});
+    }
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestAscendingOrderWithLessThanFilter) {
+  persistence->Run("TestAscendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpMultipleOrderBys();
+
+    auto originalQuery = Query("coll")
+                             .AddingFilter(Filter("a", "==", 2))
+                             .AddingFilter(Filter("b", "==", 2))
+                             .AddingFilter(Filter("c", "<", 5))
+                             .AddingOrderBy(OrderBy("c", "asc"));
+    auto queryWithNonRestrictedBound =
+        originalQuery
+            .StartingAt(Bound::FromValue(Array(1), /* inclusive= */ false))
+            .EndingAt(Bound::FromValue(Array(6), /* inclusive= */ false));
+    auto queryWithRestrictedBound =
+        originalQuery
+            .StartingAt(Bound::FromValue(Array(2), /* inclusive= */ false))
+            .EndingAt(Bound::FromValue(Array(4), /* inclusive= */ false));
+
+    {
+      SCOPED_TRACE("Verifing original");
+      VerifyResults(originalQuery, {"coll/val2", "coll/val3", "coll/val4"});
+    }
+    {
+      SCOPED_TRACE("Verifing non restricted bound");
+      VerifyResults(queryWithNonRestrictedBound,
+                    {"coll/val2", "coll/val3", "coll/val4"});
+    }
+    {
+      SCOPED_TRACE("Verifing restricted bound");
+      VerifyResults(queryWithRestrictedBound, {"coll/val3"});
+    }
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestDescendingOrderWithLessThanFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpMultipleOrderBys();
+
+    auto originalQuery = Query("coll")
+                             .AddingFilter(Filter("a", "==", 2))
+                             .AddingFilter(Filter("b", "==", 2))
+                             .AddingFilter(Filter("c", "<", 5))
+                             .AddingOrderBy(OrderBy("c", "desc"));
+    auto queryWithNonRestrictedBound =
+        originalQuery
+            .StartingAt(Bound::FromValue(Array(6), /* inclusive= */ false))
+            .EndingAt(Bound::FromValue(Array(1), /* inclusive= */ false));
+    auto queryWithRestrictedBound =
+        originalQuery
+            .StartingAt(Bound::FromValue(Array(4), /* inclusive= */ false))
+            .EndingAt(Bound::FromValue(Array(2), /* inclusive= */ false));
+
+    {
+      SCOPED_TRACE("Verifying original");
+      VerifyResults(originalQuery, {"coll/val4", "coll/val3", "coll/val2"});
+    }
+    {
+      SCOPED_TRACE("Verifying non restricted bound");
+      VerifyResults(queryWithNonRestrictedBound,
+                    {"coll/val4", "coll/val3", "coll/val2"});
+    }
+    {
+      SCOPED_TRACE("Verifying restricted bound");
+      VerifyResults(queryWithRestrictedBound, {"coll/val3"});
+    }
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestAscendingOrderWithGreaterThanFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpMultipleOrderBys();
+
+    auto originalQuery = Query("coll")
+                             .AddingFilter(Filter("a", "==", 2))
+                             .AddingFilter(Filter("b", "==", 2))
+                             .AddingFilter(Filter("c", ">", 2))
+                             .AddingOrderBy(OrderBy("c", "asc"));
+    auto queryWithNonRestrictedBound =
+        originalQuery
+            .StartingAt(Bound::FromValue(Array(2), /* inclusive= */ false))
+            .EndingAt(Bound::FromValue(Array(6), /* inclusive= */ false));
+    auto queryWithRestrictedBound =
+        originalQuery
+            .StartingAt(Bound::FromValue(Array(3), /* inclusive= */ false))
+            .EndingAt(Bound::FromValue(Array(5), /* inclusive= */ false));
+
+    VerifyResults(originalQuery, {"coll/val3", "coll/val4", "coll/val5"});
+    VerifyResults(queryWithNonRestrictedBound,
+                  {"coll/val3", "coll/val4", "coll/val5"});
+    VerifyResults(queryWithRestrictedBound, {"coll/val4"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestDescendingOrderWithGreaterThanFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpMultipleOrderBys();
+
+    auto originalQuery = Query("coll")
+                             .AddingFilter(Filter("a", "==", 2))
+                             .AddingFilter(Filter("b", "==", 2))
+                             .AddingFilter(Filter("c", ">", 2))
+                             .AddingOrderBy(OrderBy("c", "desc"));
+    auto queryWithNonRestrictedBound =
+        originalQuery
+            .StartingAt(Bound::FromValue(Array(6), /* inclusive= */ false))
+            .EndingAt(Bound::FromValue(Array(2), /* inclusive= */ false));
+    auto queryWithRestrictedBound =
+        originalQuery
+            .StartingAt(Bound::FromValue(Array(5), /* inclusive= */ false))
+            .EndingAt(Bound::FromValue(Array(3), /* inclusive= */ false));
+
+    VerifyResults(originalQuery, {"coll/val5", "coll/val4", "coll/val3"});
+    VerifyResults(queryWithNonRestrictedBound,
+                  {"coll/val5", "coll/val4", "coll/val3"});
+    VerifyResults(queryWithRestrictedBound, {"coll/val4"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestEqualityFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpSingleValueFilter();
+    auto query = Query("coll").AddingFilter(Filter("count", "==", 2));
+    VerifyResults(query, {"coll/val2"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestOrderByWithNotEqualsFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "count", model::Segment::kAscending));
+    AddDoc("coll/val1", Map("count", 1));
+    AddDoc("coll/val2", Map("count", 2));
+
+    auto query = Query("coll")
+                     .AddingFilter(Filter("count", "!=", 2))
+                     .AddingOrderBy(OrderBy("count"));
+    VerifyResults(query, {"coll/val1"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestNestedFieldEqualityFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "a.b", model::Segment::kAscending));
+    AddDoc("coll/doc1", Map("a", Map("b", 1)));
+    AddDoc("coll/doc2", Map("a", Map("b", 2)));
+    auto query = Query("coll").AddingFilter(Filter("a.b", "==", 2));
+    VerifyResults(query, {"coll/doc2"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestNotEqualsFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpSingleValueFilter();
+    auto query = Query("coll").AddingFilter(Filter("count", "!=", 2));
+    VerifyResults(query, {"coll/val1", "coll/val3"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestEqualsWithNotEqualsFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    index_manager->AddFieldIndex(MakeFieldIndex("coll", "a",
+                                                model::Segment::kAscending, "b",
+                                                model::Segment::kAscending));
+    AddDoc("coll/val1", Map("a", 1, "b", 1));
+    AddDoc("coll/val2", Map("a", 1, "b", 2));
+    AddDoc("coll/val3", Map("a", 2, "b", 1));
+    AddDoc("coll/val4", Map("a", 2, "b", 2));
+
+    // Verifies that we apply the filter in the order of the field index
+    auto query = Query("coll")
+                     .AddingFilter(Filter("a", "==", 1))
+                     .AddingFilter(Filter("b", "!=", 1));
+    VerifyResults(query, {"coll/val2"});
+
+    query = Query("coll")
+                .AddingFilter(Filter("b", "!=", 1))
+                .AddingFilter(Filter("a", "==", 1));
+    VerifyResults(query, {"coll/val2"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestEqualsWithNotEqualsFilterSameField) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpSingleValueFilter();
+    auto query = Query("coll")
+                     .AddingFilter(Filter("count", ">", 1))
+                     .AddingFilter(Filter("count", "!=", 2));
+    VerifyResults(query, {"coll/val3"});
+
+    query = Query("coll")
+                .AddingFilter(Filter("count", "==", 1))
+                .AddingFilter(Filter("count", "!=", 2));
+    VerifyResults(query, {"coll/val1"});
+
+    query = Query("coll")
+                .AddingFilter(Filter("count", "==", 1))
+                .AddingFilter(Filter("count", "!=", 1));
+    VerifyResults(query, {});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestLessThanFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpSingleValueFilter();
+    auto query = Query("coll").AddingFilter(Filter("count", "<", 2));
+    VerifyResults(query, {"coll/val1"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestLessThanOrEqualsFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpSingleValueFilter();
+    auto query = Query("coll").AddingFilter(Filter("count", "<=", 2));
+    VerifyResults(query, {"coll/val1", "coll/val2"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestGreaterThanOrEqualsFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpSingleValueFilter();
+    auto query = Query("coll").AddingFilter(Filter("count", ">=", 2));
+    VerifyResults(query, {"coll/val2", "coll/val3"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestGreaterThanFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpSingleValueFilter();
+    auto query = Query("coll").AddingFilter(Filter("count", ">", 2));
+    VerifyResults(query, {"coll/val3"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestRangeFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpSingleValueFilter();
+    auto query = Query("coll")
+                     .AddingFilter(Filter("count", ">", 1))
+                     .AddingFilter(Filter("count", "<", 3));
+    VerifyResults(query, {"coll/val2"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestStartAtFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpSingleValueFilter();
+    auto query =
+        Query("coll")
+            .AddingOrderBy(OrderBy("count"))
+            .StartingAt(Bound::FromValue(Array(2), /* inclusive= */ true));
+    VerifyResults(query, {"coll/val2", "coll/val3"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestAppliesStartAtFilterWithNotIn) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpSingleValueFilter();
+    auto query =
+        Query("coll")
+            .AddingFilter(Filter("count", "!=", 2))
+            .AddingOrderBy(OrderBy("count"))
+            .StartingAt(Bound::FromValue(Array(2), /* inclusive= */ true));
+    VerifyResults(query, {"coll/val3"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestStartAfterFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpSingleValueFilter();
+    auto query =
+        Query("coll")
+            .AddingOrderBy(OrderBy("count"))
+            .StartingAt(Bound::FromValue(Array(2), /* inclusive= */ false));
+    VerifyResults(query, {"coll/val3"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestEndAtFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpSingleValueFilter();
+    auto query =
+        Query("coll")
+            .AddingOrderBy(OrderBy("count"))
+            .EndingAt(Bound::FromValue(Array(2), /* inclusive= */ true));
+    VerifyResults(query, {"coll/val1", "coll/val2"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestEndBeforeFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpSingleValueFilter();
+    auto query =
+        Query("coll")
+            .AddingOrderBy(OrderBy("count"))
+            .EndingAt(Bound::FromValue(Array(2), /* inclusive= */ false));
+    VerifyResults(query, {"coll/val1"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestRangeWithBoundFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpSingleValueFilter();
+    auto startAt =
+        Query("coll")
+            .AddingFilter(Filter("count", ">=", 1))
+            .AddingFilter(Filter("count", "<=", 3))
+            .AddingOrderBy(OrderBy("count"))
+            .StartingAt(Bound::FromValue(Array(1), /* inclusive= */ false))
+            .EndingAt(Bound::FromValue(Array(2), /* inclusive= */ true));
+    VerifyResults(startAt, {"coll/val2"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestInFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpSingleValueFilter();
+    auto query = Query("coll").AddingFilter(Filter("count", "in", Array(1, 3)));
+    VerifyResults(query, {"coll/val1", "coll/val3"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestNotInFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpSingleValueFilter();
+    auto query =
+        Query("coll").AddingFilter(Filter("count", "not-in", Array(1, 2)));
+    VerifyResults(query, {"coll/val3"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestNotInWithGreaterThanFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpSingleValueFilter();
+    auto query = Query("coll")
+                     .AddingFilter(Filter("count", ">", 1))
+                     .AddingFilter(Filter("count", "not-in", Array(2)));
+    VerifyResults(query, {"coll/val3"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestOutOfBoundsNotInWithGreaterThanFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpSingleValueFilter();
+    auto query = Query("coll")
+                     .AddingFilter(Filter("count", ">", 2))
+                     .AddingFilter(Filter("count", "not-in", Array(1)));
+    VerifyResults(query, {"coll/val3"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestArrayContainsFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpArrayValueFilter();
+    auto query =
+        Query("coll").AddingFilter(Filter("values", "array-contains", 1));
+    VerifyResults(query, {"coll/arr1"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestArrayContainsWithNotEqualsFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    index_manager->AddFieldIndex(MakeFieldIndex("coll", "a",
+                                                model::Segment::kContains, "b",
+                                                model::Segment::kAscending));
+    AddDoc("coll/val1", Map("a", Array(1), "b", 1));
+    AddDoc("coll/val2", Map("a", Array(1), "b", 2));
+    AddDoc("coll/val3", Map("a", Array(2), "b", 1));
+    AddDoc("coll/val4", Map("a", Array(2), "b", 2));
+
+    auto query = Query("coll")
+                     .AddingFilter(Filter("a", "array-contains", 1))
+                     .AddingFilter(Filter("b", "!=", 1));
+    VerifyResults(query, {"coll/val2"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest,
+       TestArrayContainsWithNotEqualsFilterOnSameField) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    index_manager->AddFieldIndex(MakeFieldIndex("coll", "a",
+                                                model::Segment::kContains, "a",
+                                                model::Segment::kAscending));
+    AddDoc("coll/val1", Map("a", Array(1, 1)));
+    AddDoc("coll/val2", Map("a", Array(1, 2)));
+    AddDoc("coll/val3", Map("a", Array(2, 1)));
+    AddDoc("coll/val4", Map("a", Array(2, 2)));
+
+    auto query = Query("coll")
+                     .AddingFilter(Filter("a", "array-contains", 1))
+                     .AddingFilter(Filter("a", "!=", Array(1, 2)));
+    VerifyResults(query, {"coll/val1", "coll/val3"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestEqualsWithNotEqualsOnSameField) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpSingleValueFilter();
+
+    std::vector<
+        std::pair<std::vector<core::FieldFilter>, std::vector<std::string>>>
+        filtersAndResults = {
+            {{Filter("count", ">", 1), Filter("count", "!=", 2)},
+             {"coll/val3"}},
+            {{Filter("count", "==", 1), Filter("count", "!=", 2)},
+             {"coll/val1"}},
+            {{Filter("count", "==", 1), Filter("count", "!=", 1)}, {}},
+            {{Filter("count", ">", 2), Filter("count", "!=", 2)},
+             {"coll/val3"}},
+            {{Filter("count", ">=", 2), Filter("count", "!=", 2)},
+             {"coll/val3"}},
+            {{Filter("count", "<=", 2), Filter("count", "!=", 2)},
+             {"coll/val1"}},
+            {{Filter("count", "<=", 2), Filter("count", "!=", 1)},
+             {"coll/val2"}},
+            {{Filter("count", "<", 2), Filter("count", "!=", 2)},
+             {"coll/val1"}},
+            {{Filter("count", "<", 2), Filter("count", "!=", 1)}, {}},
+            {{Filter("count", ">", 2), Filter("count", "not-in", Array(3))},
+             {}},
+            {{Filter("count", ">=", 2), Filter("count", "not-in", Array(3))},
+             {"coll/val2"}},
+            {{Filter("count", ">=", 2), Filter("count", "not-in", Array(3, 3))},
+             {"coll/val2"}},
+            {{Filter("count", ">", 1), Filter("count", "<", 3),
+              Filter("count", "!=", 2)},
+             {}},
+            {{Filter("count", ">=", 1), Filter("count", "<", 3),
+              Filter("count", "!=", 2)},
+             {"coll/val1"}},
+            {{Filter("count", ">=", 1), Filter("count", "<=", 3),
+              Filter("count", "!=", 2)},
+             {"coll/val1", "coll/val3"}},
+            {{Filter("count", ">", 1), Filter("count", "<=", 3),
+              Filter("count", "!=", 2)},
+             {"coll/val3"}}};
+
+    for (const auto& filter_result_pair : filtersAndResults) {
+      auto query = Query("coll");
+      for (const auto& filter : filter_result_pair.first) {
+        query = query.AddingFilter(filter);
+      }
+      VerifyResults(query, filter_result_pair.second);
+    }
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestArrayContainsAnyFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpArrayValueFilter();
+    auto query = Query("coll").AddingFilter(
+        Filter("values", "array-contains-any", Array(1, 2, 4)));
+    VerifyResults(query, {"coll/arr1", "coll/arr2"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestArrayContainsDoesNotMatchNonArray) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    // Set up two field indices. This causes two index entries to be written,
+    // but our query should only use one index.
+    SetUpArrayValueFilter();
+    SetUpSingleValueFilter();
+    AddDoc("coll/nonmatching", Map("values", 1));
+    auto query = Query("coll").AddingFilter(
+        Filter("values", "array-contains-any", Array(1)));
+    VerifyResults(query, {"coll/arr1"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestNoMatchingFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpSingleValueFilter();
+    auto query = Query("coll").AddingFilter(Filter("unknown", "==", true));
+    EXPECT_FALSE(index_manager->GetFieldIndex(query.ToTarget()).has_value());
+    EXPECT_FALSE(index_manager->GetDocumentsMatchingTarget(query.ToTarget())
+                     .has_value());
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestNoMatchingDocs) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    SetUpSingleValueFilter();
+    auto query = Query("coll").AddingFilter(Filter("count", "==", -1));
+    VerifyResults(query, {});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestEqualityFilterWithNonMatchingType) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "value", model::Segment::kAscending));
+    AddDoc("coll/boolean", Map("value", true));
+    AddDoc("coll/string", Map("value", "true"));
+    AddDoc("coll/number", Map("value", 1));
+    auto query = Query("coll").AddingFilter(Filter("value", "==", true));
+    VerifyResults(query, {"coll/boolean"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestCollectionGroup) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll1", "value", model::Segment::kAscending));
+    AddDoc("coll1/doc1", Map("value", true));
+    AddDoc("coll2/doc2/coll1/doc1", Map("value", true));
+    AddDoc("coll2/doc2", Map("value", true));
+    auto query =
+        CollectionGroupQuery("coll1").AddingFilter(Filter("value", "==", true));
+    VerifyResults(query, {"coll1/doc1", "coll2/doc2/coll1/doc1"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestLimitFilter) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "value", model::Segment::kAscending));
+    AddDoc("coll/doc1", Map("value", 1));
+    AddDoc("coll/doc2", Map("value", 1));
+    AddDoc("coll/doc3", Map("value", 1));
+    auto query = Query("coll")
+                     .AddingFilter(Filter("value", "==", 1))
+                     .WithLimitToFirst(2);
+    VerifyResults(query, {"coll/doc1", "coll/doc2"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestLimitAppliesOrdering) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "value", model::Segment::kContains, "value",
+                       model::Segment::kAscending));
+    AddDoc("coll/doc1", Map("value", Array(1, "foo")));
+    AddDoc("coll/doc2", Map("value", Array(3, "foo")));
+    AddDoc("coll/doc3", Map("value", Array(2, "foo")));
+    auto query = Query("coll")
+                     .AddingFilter(Filter("value", "array-contains", "foo"))
+                     .AddingOrderBy(OrderBy("value"))
+                     .WithLimitToFirst(2);
+    VerifyResults(query, {"coll/doc1", "coll/doc3"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestIndexEntriesAreUpdated) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "value", model::Segment::kAscending));
+    auto query = Query("coll").AddingOrderBy(OrderBy("value"));
+
+    AddDoc("coll/doc1", Map("value", true));
+    VerifyResults(query, {"coll/doc1"});
+
+    AddDocs(
+        {Doc("coll/doc1", 1, Map()), Doc("coll/doc2", 1, Map("value", true))});
+    VerifyResults(query, {"coll/doc2"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestIndexEntriesAreUpdatedWithDeletedDoc) {
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "value", model::Segment::kAscending));
+    auto query = Query("coll").AddingOrderBy(OrderBy("value"));
+
+    AddDoc("coll/doc1", Map("value", true));
+    VerifyResults(query, {"coll/doc1"});
+
+    AddDocs({DeletedDoc("coll/doc1", 1)});
+    VerifyResults(query, {});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, TestAdvancedQueries) {
+  // This test compares local query results with those received from the Java
+  // Server SDK.
+  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager->Start();
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "null", model::Segment::kAscending));
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "int", model::Segment::kAscending));
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "float", model::Segment::kAscending));
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "string", model::Segment::kAscending));
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "multi", model::Segment::kAscending));
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "array", model::Segment::kAscending));
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "array", model::Segment::kDescending));
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "array", model::Segment::kContains));
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "map", model::Segment::kAscending));
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "map.field", model::Segment::kAscending));
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "prefix", model::Segment::kAscending));
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "prefix", model::Segment::kAscending, "suffix",
+                       model::Segment::kAscending));
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "a", model::Segment::kAscending));
+    index_manager->AddFieldIndex(MakeFieldIndex("coll", "a",
+                                                model::Segment::kAscending, "b",
+                                                model::Segment::kAscending));
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "a", model::Segment::kDescending, "b",
+                       model::Segment::kAscending));
+    index_manager->AddFieldIndex(MakeFieldIndex("coll", "a",
+                                                model::Segment::kAscending, "b",
+                                                model::Segment::kDescending));
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "a", model::Segment::kDescending, "b",
+                       model::Segment::kDescending));
+    index_manager->AddFieldIndex(MakeFieldIndex("coll", "b",
+                                                model::Segment::kAscending, "a",
+                                                model::Segment::kAscending));
+
+    std::vector<nanopb::Message<google_firestore_v1_Value>> data;
+    data.push_back(Map());
+    data.push_back(Map("int", 1, "array", Array(1, "foo")));
+    data.push_back(Map("array", Array(2, "foo")));
+    data.push_back(Map("int", 3, "array", Array(3, "foo")));
+    data.push_back(Map("array", "foo"));
+    data.push_back(Map("array", Array(1)));
+    data.push_back(Map("float", -0.0, "string", "a"));
+    data.push_back(Map("float", 0, "string", "ab"));
+    data.push_back(Map("float", 0.0, "string", "b"));
+    data.push_back(Map("float", std::numeric_limits<double>::quiet_NaN()));
+    data.push_back(Map("multi", true));
+    data.push_back(Map("multi", 1));
+    data.push_back(Map("multi", "string"));
+    data.push_back(Map("multi", Array()));
+    data.push_back(Map("null", nullptr));
+    data.push_back(Map("prefix", Array(1, 2), "suffix", nullptr));
+    data.push_back(Map("prefix", Array(1), "suffix", 2));
+    data.push_back(Map("map", Map()));
+    data.push_back(Map("map", Map("field", true)));
+    data.push_back(Map("map", Map("field", false)));
+    data.push_back(Map("a", 0, "b", 0));
+    data.push_back(Map("a", 0, "b", 1));
+    data.push_back(Map("a", 1, "b", 0));
+    data.push_back(Map("a", 1, "b", 1));
+    data.push_back(Map("a", 2, "b", 0));
+    data.push_back(Map("a", 2, "b", 1));
+
+    for (auto& map : data) {
+      auto doc_id = "coll/" + model::CanonicalId(*map);
+      AddDoc(doc_id, std::move(map));
+    }
+
+    auto q = Query("coll");
+
+    VerifyResults(q.AddingOrderBy(OrderBy("int")),
+                  {"coll/{array:[1,foo],int:1}", "coll/{array:[3,foo],int:3}"});
+    VerifyResults(q.AddingFilter(Filter(
+                      "float", "==", std::numeric_limits<double>::quiet_NaN())),
+                  {"coll/{float:nan}"});
+    VerifyResults(q.AddingFilter(Filter("float", "==", -0.0)),
+                  {"coll/{float:-0.0,string:a}", "coll/{float:0,string:ab}",
+                   "coll/{float:0.0,string:b}"});
+    VerifyResults(q.AddingFilter(Filter("float", "==", 0)),
+                  {"coll/{float:-0.0,string:a}", "coll/{float:0,string:ab}",
+                   "coll/{float:0.0,string:b}"});
+    VerifyResults(q.AddingFilter(Filter("float", "==", 0.0)),
+                  {"coll/{float:-0.0,string:a}", "coll/{float:0,string:ab}",
+                   "coll/{float:0.0,string:b}"});
+    VerifyResults(q.AddingFilter(Filter("string", "==", "a")),
+                  {"coll/{float:-0.0,string:a}"});
+    VerifyResults(q.AddingFilter(Filter("string", ">", "a")),
+                  {"coll/{float:0,string:ab}", "coll/{float:0.0,string:b}"});
+    VerifyResults(q.AddingFilter(Filter("string", ">=", "a")),
+                  {"coll/{float:-0.0,string:a}", "coll/{float:0,string:ab}",
+                   "coll/{float:0.0,string:b}"});
+    VerifyResults(q.AddingFilter(Filter("string", "<", "b")),
+                  {"coll/{float:-0.0,string:a}", "coll/{float:0,string:ab}"});
+    VerifyResults(q.AddingFilter(Filter("string", "<", "coll")),
+                  {"coll/{float:-0.0,string:a}", "coll/{float:0,string:ab}",
+                   "coll/{float:0.0,string:b}"});
+    VerifyResults(q.AddingFilter(Filter("string", ">", "a"))
+                      .AddingFilter(Filter("string", "<", "b")),
+                  {"coll/{float:0,string:ab}"});
+    VerifyResults(q.AddingFilter(Filter("array", "array-contains", "foo")),
+                  {"coll/{array:[1,foo],int:1}", "coll/{array:[2,foo]}",
+                   "coll/{array:[3,foo],int:3}"});
+    VerifyResults(
+        q.AddingFilter(Filter("array", "array-contains-any", Array(1, "foo"))),
+        {"coll/{array:[1,foo],int:1}", "coll/{array:[1]}",
+         "coll/{array:[2,foo]}", "coll/{array:[3,foo],int:3}"});
+    VerifyResults(q.AddingFilter(Filter("multi", ">=", true)),
+                  {"coll/{multi:true}"});
+    VerifyResults(q.AddingFilter(Filter("multi", ">=", 0)), {"coll/{multi:1}"});
+    VerifyResults(q.AddingFilter(Filter("multi", ">=", "")),
+                  {"coll/{multi:string}"});
+    VerifyResults(q.AddingFilter(Filter("multi", ">=", Array())),
+                  {"coll/{multi:[]}"});
+    VerifyResults(q.AddingFilter(Filter("multi", "!=", true)),
+                  {"coll/{multi:1}", "coll/{multi:string}", "coll/{multi:[]}"});
+    VerifyResults(q.AddingFilter(Filter("multi", "in", Array(true, 1))),
+                  {"coll/{multi:true}", "coll/{multi:1}"});
+    VerifyResults(q.AddingFilter(Filter("multi", "not-in", Array(true, 1))),
+                  {"coll/{multi:string}", "coll/{multi:[]}"});
+    VerifyResults(q.AddingOrderBy(OrderBy("array"))
+                      .StartingAt(Bound::FromValue(Array(Array(2)), true)),
+                  {"coll/{array:[2,foo]}", "coll/{array:[3,foo],int:3}"});
+    VerifyResults(
+        q.AddingOrderBy(OrderBy("array", "desc"))
+            .StartingAt(Bound::FromValue(Array(Array(2)), true)),
+        {"coll/{array:[1,foo],int:1}", "coll/{array:[1]}", "coll/{array:foo}"});
+    VerifyResults(q.AddingOrderBy(OrderBy("array", "desc"))
+                      .StartingAt(Bound::FromValue(Array(Array(2)), true))
+                      .WithLimitToFirst(2),
+                  {"coll/{array:[1,foo],int:1}", "coll/{array:[1]}"});
+    VerifyResults(q.AddingOrderBy(OrderBy("array"))
+                      .StartingAt(Bound::FromValue(Array(Array(2)), false)),
+                  {"coll/{array:[2,foo]}", "coll/{array:[3,foo],int:3}"});
+    VerifyResults(
+        q.AddingOrderBy(OrderBy("array", "desc"))
+            .StartingAt(Bound::FromValue(Array(Array(2)), false)),
+        {"coll/{array:[1,foo],int:1}", "coll/{array:[1]}", "coll/{array:foo}"});
+    VerifyResults(q.AddingOrderBy(OrderBy("array", "desc"))
+                      .StartingAt(Bound::FromValue(Array(Array(2)), false))
+                      .WithLimitToFirst(2),
+                  {"coll/{array:[1,foo],int:1}", "coll/{array:[1]}"});
+    VerifyResults(
+        q.AddingOrderBy(OrderBy("array"))
+            .StartingAt(Bound::FromValue(Array(Array(2, "foo")), false)),
+        {"coll/{array:[3,foo],int:3}"});
+    VerifyResults(
+        q.AddingOrderBy(OrderBy("array", "desc"))
+            .StartingAt(Bound::FromValue(Array(Array(2, "foo")), false)),
+        {"coll/{array:[1,foo],int:1}", "coll/{array:[1]}", "coll/{array:foo}"});
+    VerifyResults(
+        q.AddingOrderBy(OrderBy("array", "desc"))
+            .StartingAt(Bound::FromValue(Array(Array(2, "foo")), false))
+            .WithLimitToFirst(2),
+        {"coll/{array:[1,foo],int:1}", "coll/{array:[1]}"});
+    VerifyResults(
+        q.AddingOrderBy(OrderBy("array"))
+            .EndingAt(Bound::FromValue(Array(Array(2)), true)),
+        {"coll/{array:foo}", "coll/{array:[1]}", "coll/{array:[1,foo],int:1}"});
+    VerifyResults(q.AddingOrderBy(OrderBy("array", "desc"))
+                      .EndingAt(Bound::FromValue(Array(Array(2)), true)),
+                  {"coll/{array:[3,foo],int:3}", "coll/{array:[2,foo]}"});
+    VerifyResults(
+        q.AddingOrderBy(OrderBy("array"))
+            .EndingAt(Bound::FromValue(Array(Array(2)), false)),
+        {"coll/{array:foo}", "coll/{array:[1]}", "coll/{array:[1,foo],int:1}"});
+    VerifyResults(q.AddingOrderBy(OrderBy("array"))
+                      .EndingAt(Bound::FromValue(Array(Array(2)), false))
+                      .WithLimitToFirst(2),
+                  {"coll/{array:foo}", "coll/{array:[1]}"});
+    VerifyResults(q.AddingOrderBy(OrderBy("array", "desc"))
+                      .EndingAt(Bound::FromValue(Array(Array(2)), false)),
+                  {"coll/{array:[3,foo],int:3}", "coll/{array:[2,foo]}"});
+    VerifyResults(
+        q.AddingOrderBy(OrderBy("array"))
+            .EndingAt(Bound::FromValue(Array(Array(2, "foo")), false)),
+        {"coll/{array:foo}", "coll/{array:[1]}", "coll/{array:[1,foo],int:1}"});
+    VerifyResults(q.AddingOrderBy(OrderBy("array"))
+                      .EndingAt(Bound::FromValue(Array(Array(2, "foo")), false))
+                      .WithLimitToFirst(2),
+                  {"coll/{array:foo}", "coll/{array:[1]}"});
+    VerifyResults(
+        q.AddingOrderBy(OrderBy("array", "desc"))
+            .EndingAt(Bound::FromValue(Array(Array(2, "foo")), false)),
+        {"coll/{array:[3,foo],int:3}"});
+    VerifyResults(q.AddingOrderBy(OrderBy("a"))
+                      .AddingOrderBy(OrderBy("b"))
+                      .WithLimitToFirst(1),
+                  {"coll/{a:0,b:0}"});
+    VerifyResults(q.AddingOrderBy(OrderBy("a", "desc"))
+                      .AddingOrderBy(OrderBy("b"))
+                      .WithLimitToFirst(1),
+                  {"coll/{a:2,b:0}"});
+    VerifyResults(q.AddingOrderBy(OrderBy("a"))
+                      .AddingOrderBy(OrderBy("b", "desc"))
+                      .WithLimitToFirst(1),
+                  {"coll/{a:0,b:1}"});
+    VerifyResults(q.AddingOrderBy(OrderBy("a", "desc"))
+                      .AddingOrderBy(OrderBy("b", "desc"))
+                      .WithLimitToFirst(1),
+                  {"coll/{a:2,b:1}"});
+    VerifyResults(
+        q.AddingFilter(Filter("a", ">", 0)).AddingFilter(Filter("b", "==", 1)),
+        {"coll/{a:1,b:1}", "coll/{a:2,b:1}"});
+    VerifyResults(
+        q.AddingFilter(Filter("a", "==", 1)).AddingFilter(Filter("b", "==", 1)),
+        {"coll/{a:1,b:1}"});
+    VerifyResults(
+        q.AddingFilter(Filter("a", "!=", 0)).AddingFilter(Filter("b", "==", 1)),
+        {"coll/{a:1,b:1}", "coll/{a:2,b:1}"});
+    VerifyResults(
+        q.AddingFilter(Filter("b", "==", 1)).AddingFilter(Filter("a", "!=", 0)),
+        {"coll/{a:1,b:1}", "coll/{a:2,b:1}"});
+    VerifyResults(q.AddingFilter(Filter("a", "not-in", Array(0, 1))),
+                  {"coll/{a:2,b:0}", "coll/{a:2,b:1}"});
+    VerifyResults(q.AddingFilter(Filter("a", "not-in", Array(0, 1)))
+                      .AddingFilter(Filter("b", "==", 1)),
+                  {"coll/{a:2,b:1}"});
+    VerifyResults(q.AddingFilter(Filter("b", "==", 1))
+                      .AddingFilter(Filter("a", "not-in", Array(0, 1))),
+                  {"coll/{a:2,b:1}"});
+    VerifyResults(q.AddingFilter(Filter("null", "==", nullptr)),
+                  {"coll/{null:null}"});
+    VerifyResults(q.AddingOrderBy(OrderBy("null")), {"coll/{null:null}"});
+    VerifyResults(q.AddingFilter(Filter("prefix", "==", Array(1, 2))),
+                  {"coll/{prefix:[1,2],suffix:null}"});
+    VerifyResults(q.AddingFilter(Filter("prefix", "==", Array(1)))
+                      .AddingFilter(Filter("suffix", "==", 2)),
+                  {"coll/{prefix:[1],suffix:2}"});
+    VerifyResults(q.AddingFilter(Filter("map", "==", Map())),
+                  {"coll/{map:{}}"});
+    VerifyResults(q.AddingFilter(Filter("map", "==", Map("field", true))),
+                  {"coll/{map:{field:true}}"});
+    VerifyResults(q.AddingFilter(Filter("map.field", "==", true)),
+                  {"coll/{map:{field:true}}"});
+    VerifyResults(q.AddingOrderBy(OrderBy("map")),
+                  {"coll/{map:{}}", "coll/{map:{field:false}}",
+                   "coll/{map:{field:true}}"});
+    VerifyResults(q.AddingOrderBy(OrderBy("map.field")),
+                  {"coll/{map:{field:false}}", "coll/{map:{field:true}}"});
+  });
+}
 
 TEST_F(LevelDbIndexManagerTest, CreateReadFieldsIndexes) {
   persistence->Run("CreateReadDeleteFieldsIndexes", [&]() {

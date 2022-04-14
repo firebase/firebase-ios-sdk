@@ -20,6 +20,7 @@
 #include <functional>
 #include <set>
 #include <string>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -94,6 +95,77 @@ std::string EncodeIndexState(const IndexState& state) {
       {"seq_num", state.sequence_number()},
       {"largest_batch", state.index_offset().largest_batch_id()}}
       .dump();
+}
+
+const char* kEmptyValue = "";
+
+bool IsInFilter(const Target& target, const model::FieldPath& field_path) {
+  for (const auto& filter : target.filters()) {
+    if (filter.IsAFieldFilter() && filter.field() == field_path) {
+      core::FieldFilter field_filter(filter);
+      if (field_filter.op() == core::FieldFilter::Operator::In ||
+          field_filter.op() == core::FieldFilter::Operator::NotIn) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+std::vector<IndexEncodingBuffer> ExpandIndexValues(
+    const std::vector<IndexEncodingBuffer>& buffers,
+    const model::Segment& segment,
+    const google_firestore_v1_Value& value) {
+  std::vector<IndexEncodingBuffer> results;
+  for (size_t idx = 0; idx < value.array_value.values_count; ++idx) {
+    for (const IndexEncodingBuffer& buf : buffers) {
+      IndexEncodingBuffer cloned_buf;
+      cloned_buf.Seed(buf.GetEncodedBytes());
+      WriteIndexValue(value.array_value.values[idx],
+                      cloned_buf.ForKind(segment.kind()));
+      results.push_back(std::move(cloned_buf));
+    }
+  }
+  return results;
+}
+
+/** Returns the byte representation for all encoders. */
+std::vector<std::string> GetEncodedBytes(
+    const std::vector<IndexEncodingBuffer>& buffers) {
+  std::vector<std::string> result;
+  for (const auto& buf : buffers) {
+    result.push_back(buf.GetEncodedBytes());
+  }
+  return result;
+}
+
+/** Generates the lower bound for `arrayValue` and `directionalValue`. */
+IndexEntry GenerateLowerBound(int32_t index_id,
+                              const std::string& array_value,
+                              const std::string& directional_value,
+                              bool inclusive) {
+  IndexEntry entry{index_id, DocumentKey::Empty(), array_value,
+                   directional_value};
+  return inclusive ? entry : entry.Successor();
+}
+
+/** Generates the upper bound for `arrayValue` and `directionalValue`. */
+IndexEntry GenerateUpperBound(int32_t index_id,
+                              const std::string& array_value,
+                              const std::string& directional_value,
+                              bool inclusive) {
+  IndexEntry entry{index_id, DocumentKey::Empty(), array_value,
+                   directional_value};
+  return inclusive ? entry.Successor() : entry;
+}
+
+/**
+ * Generates an empty bound that scopes the index scan to the current index
+ * and user.
+ */
+IndexEntry GenerateEmptyBound(int32_t index_id) {
+  return {index_id, DocumentKey::Empty(), kEmptyValue, kEmptyValue};
 }
 
 }  // namespace
@@ -396,7 +468,8 @@ LevelDbIndexManager::GetDocumentsMatchingTarget(const core::Target& target) {
     indexes.insert({sub_target, index_opt.value()});
   }
 
-  model::DocumentKeySet result;
+  std::vector<DocumentKey> result;
+  std::unordered_set<std::string> existing_keys;
   for (const auto& entry : indexes) {
     const Target& sub_target = entry.first;
     const FieldIndex& index = entry.second;
@@ -404,20 +477,188 @@ LevelDbIndexManager::GetDocumentsMatchingTarget(const core::Target& target) {
     LOG_DEBUG("Using index %s to execute target %s", index.collection_group(),
               sub_target.CanonicalId());
 
-    auto arrayValues = sub_target.GetArrayValues(index);
-    auto notInValues = sub_target.GetNotInValues(index);
-    auto lowerBound = sub_target.GetLowerBound(index);
-    auto upperBound = sub_target.GetUpperBound(index);
+    auto array_values = sub_target.GetArrayValues(index);
+    auto not_in_values = sub_target.GetNotInValues(index);
+    auto lower_bound = sub_target.GetLowerBound(index);
+    auto upper_bound = sub_target.GetUpperBound(index);
 
-    auto encoded_lower = EncodeBound(index, sub_target, lowerBound);
-    auto encoded_upper = EncodeBound(index, sub_target, upperBound);
-    auto encoded_not_in = EncodeValues(index, sub_target, notInValues);
+    auto encoded_lower = EncodeBound(index, sub_target, lower_bound);
+    auto encoded_upper = EncodeBound(index, sub_target, upper_bound);
+    auto encoded_not_in = EncodeValues(index, sub_target, not_in_values);
 
     auto index_ranges = GenerateIndexRanges(
-        index.index_id(), arrayValues, encoded_lower,
-        !!lowerBound && lowerBound.inclusive, encoded_upper,
-        !!upperBound && upperBound.inclusive, encoded_not_in);
+        index.index_id(), array_values, encoded_lower,
+        lower_bound.has_value() && lower_bound->inclusive, encoded_upper,
+        upper_bound.has_value() && upper_bound->inclusive, encoded_not_in);
+
+    auto iter = db_->current_transaction()->NewIterator();
+    for (const auto& range : index_ranges) {
+      int32_t count = 0;
+      for (iter->Seek(range.lower); iter->Valid() && count < target.limit() &&
+                                    iter->key() <= range.upper;
+           iter->Next()) {
+        LevelDbIndexEntryKey entry_key;
+        if (!entry_key.Decode(iter->key())) {
+          break;
+        }
+
+        ++count;
+        if (existing_keys.find(entry_key.document_key()) ==
+            existing_keys.end()) {
+          result.push_back(
+              DocumentKey::FromPathString(entry_key.document_key()));
+        }
+        existing_keys.insert(entry_key.document_key());
+      }
+    }
   }
+
+  return result;
+}
+
+absl::optional<std::vector<std::string>> LevelDbIndexManager::EncodeBound(
+    const FieldIndex& index,
+    const Target& target,
+    absl::optional<core::IndexBoundValues> bound) {
+  if (!bound.has_value()) {
+    return absl::nullopt;
+  }
+  return EncodeValues(index, target, bound.value().values);
+}
+
+std::vector<std::string> LevelDbIndexManager::EncodeValues(
+    const FieldIndex& index,
+    const Target& target,
+    core::IndexedValues bound_values) {
+  if (!bound_values.has_value()) {
+    return {};
+  }
+
+  std::vector<IndexEncodingBuffer> buffers = {};
+  buffers.emplace_back();
+
+  size_t bound_idx = 0;
+  for (const auto& segment : index.GetDirectionalSegments()) {
+    const google_firestore_v1_Value& value = bound_values.value()[bound_idx++];
+    if (IsInFilter(target, segment.field_path()) && model::IsArray(value)) {
+      buffers = ExpandIndexValues(buffers, segment, value);
+    } else {
+      for (auto& buffer : buffers) {
+        auto* encoder = buffer.ForKind(segment.kind());
+        WriteIndexValue(value, encoder);
+      }
+    }
+  }
+  return GetEncodedBytes(buffers);
+}
+
+std::vector<LevelDbIndexManager::IndexRange>
+LevelDbIndexManager::GenerateIndexRanges(
+    int32_t index_id,
+    core::IndexedValues array_values,
+    absl::optional<std::vector<std::string>> lower_bounds,
+    bool lower_bounds_inclusive,
+    absl::optional<std::vector<std::string>> upper_bounds,
+    bool upper_bounds_inclusive,
+    std::vector<std::string> not_in_values) {
+  // The number of total index scans we union together. This is similar to a
+  // distributed normal form, but adapted for array values. We create a single
+  // index range per value in an ARRAY_CONTAINS or ARRAY_CONTAINS_ANY filter
+  // combined with the values from the query bounds.
+  size_t total_scans =
+      (array_values.has_value() ? array_values->size() : 1) *
+      std::max(lower_bounds.has_value() ? lower_bounds->size() : 1,
+               upper_bounds.has_value() ? upper_bounds->size() : 1);
+  size_t scans_per_array_element =
+      total_scans / (array_values.has_value() ? array_values->size() : 1);
+
+  std::vector<IndexRange> index_ranges;
+  for (size_t i = 0; i < total_scans; ++i) {
+    std::string array_value =
+        array_values.has_value()
+            ? EncodeSingleElement(
+                  array_values.value()[i / scans_per_array_element])
+            : "";
+
+    IndexEntry lower_bound =
+        lower_bounds.has_value()
+            ? GenerateLowerBound(
+                  index_id, array_value,
+                  lower_bounds.value()[i % scans_per_array_element],
+                  lower_bounds_inclusive)
+            : GenerateEmptyBound(index_id);
+    IndexEntry upper_bound =
+        upper_bounds.has_value()
+            ? GenerateUpperBound(
+                  index_id, array_value,
+                  upper_bounds.value()[i % scans_per_array_element],
+                  upper_bounds_inclusive)
+            : GenerateEmptyBound(index_id + 1);
+
+    std::vector<IndexEntry> not_in_bounds;
+    for (const auto& not_in : not_in_values) {
+      not_in_bounds.push_back(GenerateLowerBound(index_id, array_value, not_in,
+                                                 /* inclusive= */ true));
+    }
+
+    auto new_range = CreateRange(lower_bound, upper_bound, not_in_bounds);
+    index_ranges.insert(index_ranges.end(), new_range.begin(), new_range.end());
+  }
+
+  return index_ranges;
+}
+
+std::vector<LevelDbIndexManager::IndexRange> LevelDbIndexManager::CreateRange(
+    const index::IndexEntry& lower_bound,
+    const index::IndexEntry& upper_bound,
+    std::vector<index::IndexEntry>& not_in_values) const {
+  // The notIb values need to be sorted and unique so that we can return a
+  // sorted set of non-overlapping ranges.
+  std::sort(not_in_values.begin(), not_in_values.end(),
+            [](const IndexEntry& left, const IndexEntry& right) {
+              return left.CompareTo(right) == util::ComparisonResult::Ascending;
+            });
+  std::vector<index::IndexEntry> sorted_unique_not_in;
+  for (size_t idx = 0; idx < not_in_values.size(); ++idx) {
+    if (idx == 0 || not_in_values[idx].CompareTo(not_in_values[idx - 1]) !=
+                        util::ComparisonResult::Same) {
+      sorted_unique_not_in.push_back(not_in_values[idx]);
+    }
+  }
+
+  std::vector<IndexEntry> bounds;
+  bounds.push_back(lower_bound);
+  for (const auto& not_in_value : sorted_unique_not_in) {
+    auto cmp_to_lower = not_in_value.CompareTo(lower_bound);
+    auto cmp_to_upper = not_in_value.CompareTo(upper_bound);
+
+    if (cmp_to_lower == util::ComparisonResult::Same) {
+      // `notInValue` is the lower bound. We therefore need to raise the bound
+      // to the next value.
+      bounds[0] = lower_bound.Successor();
+    } else if (cmp_to_lower == util::ComparisonResult::Descending &&
+               cmp_to_upper == util::ComparisonResult::Ascending) {
+      // `notInValue` is in the middle of the range
+      bounds.push_back(not_in_value);
+      bounds.push_back(not_in_value.Successor());
+    } else if (cmp_to_upper > util::ComparisonResult::Descending) {
+      // `notInValue` (and all following values) are out of the range
+      break;
+    }
+  }
+  bounds.push_back(upper_bound);
+
+  std::vector<LevelDbIndexManager::IndexRange> ranges;
+  for (size_t i = 0; i < bounds.size(); i += 2) {
+    ranges.push_back(LevelDbIndexManager::IndexRange{
+        LevelDbIndexEntryKey::KeyPrefix(bounds[i].index_id(), uid_,
+                                        bounds[i].array_value(),
+                                        bounds[i].directional_value()),
+        LevelDbIndexEntryKey::KeyPrefix(bounds[i + 1].index_id(), uid_,
+                                        bounds[i + 1].array_value(),
+                                        bounds[i + 1].directional_value())});
+  }
+  return ranges;
 }
 
 absl::optional<std::string>
@@ -463,7 +704,7 @@ void LevelDbIndexManager::UpdateIndexEntries(
       auto existing_entries = GetExistingIndexEntries(kv.first, index);
       auto new_entries = ComputeIndexEntries(kv.second, index);
       if (existing_entries != new_entries) {
-        UpdateEntries(kv.second, existing_entries, new_entries);
+        UpdateEntries(kv.second, index, existing_entries, new_entries);
       }
     }
   }
@@ -510,7 +751,7 @@ std::set<IndexEntry> LevelDbIndexManager::ComputeIndexEntries(
     auto field_value = document->field(array_segment->field_path());
     if (field_value.has_value() &&
         field_value.value().which_value_type ==
-            google_firestore_v1_ArrayValue_values_tag) {
+            google_firestore_v1_Value_array_value_tag) {
       for (pb_size_t i = 0; i < field_value.value().array_value.values_count;
            ++i) {
         results.insert(IndexEntry(
@@ -596,24 +837,26 @@ void DiffSets(std::set<IndexEntry> existing,
 
 void LevelDbIndexManager::UpdateEntries(
     const model::Document& document,
+    const FieldIndex& index,
     const std::set<IndexEntry>& existing_entries,
     const std::set<IndexEntry>& new_entries) {
   DiffSets(
       existing_entries, new_entries,
-      [this, document](const IndexEntry& entry) {
-        this->AddIndexEntry(document, entry);
+      [this, document, index](const IndexEntry& entry) {
+        this->AddIndexEntry(document, index, entry);
       },
-      [this, document](const IndexEntry& entry) {
-        this->DeleteIndexEntry(document, entry);
+      [this, document, index](const IndexEntry& entry) {
+        this->DeleteIndexEntry(document, index, entry);
       });
 }
 
 void LevelDbIndexManager::AddIndexEntry(const model::Document& document,
+                                        const FieldIndex& index,
                                         const IndexEntry& entry) {
-  absl::string_view document_key = document->key().path().CanonicalString();
-  auto entry_key =
-      LevelDbIndexEntryKey::Key(entry.index_id(), uid_, entry.array_value(),
-                                entry.directional_value(), document_key);
+  std::string document_key = document->key().path().CanonicalString();
+  auto entry_key = LevelDbIndexEntryKey::Key(
+      entry.index_id(), uid_, entry.array_value(), entry.directional_value(),
+      EncodedDirectionalKey(index, document_key), document_key);
   db_->current_transaction()->Put(entry_key, "");
 
   auto document_key_index_prefix =
@@ -642,12 +885,23 @@ void LevelDbIndexManager::AddIndexEntry(const model::Document& document,
   db_->current_transaction()->Put(document_key_index_key.Key(), entry_key);
 }
 
+std::string LevelDbIndexManager::EncodedDirectionalKey(const FieldIndex& index,
+                                                       absl::string_view key) {
+  auto kind = index.GetDirectionalSegments().empty()
+                  ? model::Segment::kAscending
+                  : index.GetDirectionalSegments().rbegin()->kind();
+  IndexEncodingBuffer buffer;
+  buffer.ForKind(kind)->WriteString(key);
+  return buffer.GetEncodedBytes();
+}
+
 void LevelDbIndexManager::DeleteIndexEntry(const model::Document& document,
+                                           const FieldIndex& index,
                                            const IndexEntry& entry) {
   absl::string_view document_key = document->key().path().CanonicalString();
-  auto entry_key =
-      LevelDbIndexEntryKey::Key(entry.index_id(), uid_, entry.array_value(),
-                                entry.directional_value(), document_key);
+  auto entry_key = LevelDbIndexEntryKey::Key(
+      entry.index_id(), uid_, entry.array_value(), entry.directional_value(),
+      EncodedDirectionalKey(index, document_key), document_key);
   db_->current_transaction()->Delete(entry_key);
 
   auto document_key_index_prefix =

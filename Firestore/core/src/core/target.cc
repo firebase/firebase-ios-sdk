@@ -52,18 +52,27 @@ std::vector<google_firestore_v1_Value> MakeValueVector(
   return result;
 }
 
-// Moves the values from the given unordered_map into the resulting vector.
-std::vector<google_firestore_v1_Value> ValuesFrom(
-    std::unordered_map<std::string, google_firestore_v1_Value>&&
-        field_value_map) {
-  std::vector<google_firestore_v1_Value> result;
-
-  for (auto& entry_pair : field_value_map) {
-    result.push_back(entry_pair.second);
+class MapWithInsertionOrder {
+ public:
+  void Put(const std::string& key, const google_firestore_v1_Value& value) {
+    if (field_value_map_.find(key) != field_value_map_.end()) {
+      *field_value_map_[key] = value;
+    } else {
+      values_.push_back(value);
+      field_value_map_[key] = values_.end() - 1;
+    }
   }
 
-  return result;
-}
+  std::vector<google_firestore_v1_Value>&& ConsumeValues() {
+    return std::move(values_);
+  }
+
+ private:
+  std::vector<google_firestore_v1_Value> values_;
+  std::unordered_map<std::string,
+                     std::vector<google_firestore_v1_Value>::iterator>
+      field_value_map_;
+};
 
 }  // namespace
 
@@ -77,7 +86,7 @@ bool Target::IsDocumentQuery() const {
 // MARK: - Indexing support
 
 std::vector<FieldFilter> Target::GetFieldFiltersForPath(
-    const model::FieldPath& path) {
+    const model::FieldPath& path) const {
   std::vector<FieldFilter> result;
 
   for (const Filter& filter : filters_) {
@@ -89,7 +98,8 @@ std::vector<FieldFilter> Target::GetFieldFiltersForPath(
   return result;
 }
 
-IndexedValues Target::GetArrayValues(const model::FieldIndex& field_index) {
+IndexedValues Target::GetArrayValues(
+    const model::FieldIndex& field_index) const {
   auto segment = field_index.GetArraySegment();
   if (!segment.has_value()) return absl::nullopt;
 
@@ -112,8 +122,9 @@ IndexedValues Target::GetArrayValues(const model::FieldIndex& field_index) {
   return absl::nullopt;
 }
 
-IndexedValues Target::GetNotInValues(const model::FieldIndex& field_index) {
-  std::unordered_map<std::string, google_firestore_v1_Value> field_value_map;
+IndexedValues Target::GetNotInValues(
+    const model::FieldIndex& field_index) const {
+  MapWithInsertionOrder field_value_map;
   for (const auto& segment : field_index.GetDirectionalSegments()) {
     for (const auto& field_filter :
          GetFieldFiltersForPath(segment.field_path())) {
@@ -123,15 +134,15 @@ IndexedValues Target::GetNotInValues(const model::FieldIndex& field_index) {
           // Encode equality prefix, which is encoded in the index value before
           // the inequality (e.g. `a == 'a' && b != 'b'` is encoded to `value !=
           // 'ab'`).
-          field_value_map[segment.field_path().CanonicalString()] =
-              field_filter.value();
+          field_value_map.Put(segment.field_path().CanonicalString(),
+                              field_filter.value());
           break;
         case FieldFilter::Operator::NotIn:
         case FieldFilter::Operator::NotEqual:
-          field_value_map[segment.field_path().CanonicalString()] =
-              field_filter.value();
-          return ValuesFrom(
-              std::move(field_value_map));  // NotIn/NotEqual is always a suffix
+          field_value_map.Put(segment.field_path().CanonicalString(),
+                              field_filter.value());
+          return field_value_map
+              .ConsumeValues();  // NotIn/NotEqual is always a suffix
         default:
           continue;
       }
@@ -142,7 +153,7 @@ IndexedValues Target::GetNotInValues(const model::FieldIndex& field_index) {
 }
 
 absl::optional<IndexBoundValues> Target::GetLowerBound(
-    const model::FieldIndex& field_index) {
+    const model::FieldIndex& field_index) const {
   std::vector<google_firestore_v1_Value> values;
   bool inclusive = true;
 
@@ -166,7 +177,7 @@ absl::optional<IndexBoundValues> Target::GetLowerBound(
 }
 
 absl::optional<IndexBoundValues> Target::GetUpperBound(
-    const model::FieldIndex& field_index) {
+    const model::FieldIndex& field_index) const {
   std::vector<google_firestore_v1_Value> values;
   bool inclusive = true;
 
@@ -190,7 +201,7 @@ absl::optional<IndexBoundValues> Target::GetUpperBound(
 }
 
 Target::IndexBoundValue Target::GetAscendingBound(
-    const Segment& segment, const absl::optional<Bound>& bound) {
+    const Segment& segment, const absl::optional<Bound>& bound) const {
   absl::optional<google_firestore_v1_Value> segment_value;
   bool segment_inclusive = true;
 
@@ -242,11 +253,18 @@ Target::IndexBoundValue Target::GetAscendingBound(
       const auto& order_by = order_bys_[i];
       if (order_by.field() == segment.field_path()) {
         auto cursor_value = bound.value().position()->values[i];
-        if (!segment_value.has_value() ||
-            model::Compare(segment_value.value(), cursor_value) ==
-                util::ComparisonResult::Ascending) {
+        if (!segment_value.has_value()) {
           segment_value = cursor_value;
           segment_inclusive = bound.value().inclusive();
+        } else {
+          auto cmp = model::Compare(segment_value.value(), cursor_value);
+          if (cmp == util::ComparisonResult::Same) {
+            segment_inclusive =
+                (segment_inclusive && bound.value().inclusive());
+          } else if (cmp == util::ComparisonResult::Ascending) {
+            segment_value = cursor_value;
+            segment_inclusive = bound.value().inclusive();
+          }
         }
       }
     }
@@ -256,7 +274,7 @@ Target::IndexBoundValue Target::GetAscendingBound(
 }
 
 Target::IndexBoundValue Target::GetDescendingBound(
-    const Segment& segment, const absl::optional<Bound>& bound) {
+    const Segment& segment, const absl::optional<Bound>& bound) const {
   absl::optional<google_firestore_v1_Value> segment_value;
   bool segment_inclusive = true;
 
@@ -309,11 +327,18 @@ Target::IndexBoundValue Target::GetDescendingBound(
       const auto& order_by = order_bys_[i];
       if (order_by.field() == segment.field_path()) {
         auto cursor_value = bound.value().position()->values[i];
-        if (!segment_value.has_value() ||
-            model::Compare(segment_value.value(), cursor_value) ==
-                util::ComparisonResult::Descending) {
+        if (!segment_value.has_value()) {
           segment_value = cursor_value;
           segment_inclusive = bound.value().inclusive();
+        } else {
+          auto cmp = model::Compare(segment_value.value(), cursor_value);
+          if (cmp == util::ComparisonResult::Same) {
+            segment_inclusive =
+                (segment_inclusive && bound.value().inclusive());
+          } else if (cmp == util::ComparisonResult::Descending) {
+            segment_value = cursor_value;
+            segment_inclusive = bound.value().inclusive();
+          }
         }
       }
     }

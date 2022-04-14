@@ -42,6 +42,8 @@ class IndexEntry : public util::Comparable<IndexEntry> {
         directional_value_(std::move(directional_value)) {
   }
 
+  IndexEntry Successor() const;
+
   int32_t index_id() const {
     return index_id_;
   }

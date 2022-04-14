@@ -939,13 +939,23 @@ class LevelDbIndexEntryKey {
   static std::string KeyPrefix(int32_t index_id);
 
   /**
+   * Creates a key prefix that points the first entry of a given index_id,
+   * user_id, array_value and directional_value.
+   */
+  static std::string KeyPrefix(int32_t index_id,
+                               absl::string_view user_id,
+                               absl::string_view array_value,
+                               absl::string_view directional_value);
+
+  /**
    * Creates a key that points to the key for the given index entry fields.
    */
   static std::string Key(int32_t index_id,
                          absl::string_view user_id,
                          absl::string_view array_value,
                          absl::string_view directional_value,
-                         absl::string_view document_name);
+                         absl::string_view ordered_document_key,
+                         absl::string_view document_key);
 
   /**
    * Decodes the given complete key, storing the decoded values in this
@@ -988,6 +998,7 @@ class LevelDbIndexEntryKey {
   std::string user_id_;
   std::string array_value_;
   std::string directional_value_;
+  std::string ordered_document_key_;
   std::string document_key_;
 };
 

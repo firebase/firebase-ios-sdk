@@ -25,6 +25,7 @@
 
 #include "Firestore/core/src/core/target.h"
 #include "Firestore/core/src/local/index_manager.h"
+#include "Firestore/core/src/local/leveldb_key.h"
 #include "Firestore/core/src/local/memory_index_manager.h"
 #include "Firestore/core/src/model/field_index.h"
 
@@ -72,7 +73,7 @@ class LevelDbIndexManager : public IndexManager {
       const core::Target& target) override;
 
   absl::optional<std::vector<model::DocumentKey>> GetDocumentsMatchingTarget(
-      model::FieldIndex field_index, const core::Target& target) override;
+      const core::Target& target) override;
 
   absl::optional<std::string> GetNextCollectionGroupToUpdate() override;
 
@@ -86,6 +87,11 @@ class LevelDbIndexManager : public IndexManager {
       model::FieldIndex*,
       std::vector<model::FieldIndex*>,
       std::function<bool(model::FieldIndex*, model::FieldIndex*)>>;
+
+  struct IndexRange {
+    std::string lower;
+    std::string upper;
+  };
 
   /**
    * Stores the index in the memoized indexes table and updates
@@ -101,12 +107,15 @@ class LevelDbIndexManager : public IndexManager {
   std::set<index::IndexEntry> ComputeIndexEntries(
       const model::Document& document, const model::FieldIndex& index);
   void UpdateEntries(const model::Document& document,
+                     const model::FieldIndex& index,
                      const std::set<index::IndexEntry>& existing_entries,
                      const std::set<index::IndexEntry>& new_entries);
 
   void AddIndexEntry(const model::Document& document,
+                     const model::FieldIndex& index,
                      const index::IndexEntry& entry);
   void DeleteIndexEntry(const model::Document& document,
+                        const model::FieldIndex& index,
                         const index::IndexEntry& entry);
 
   absl::optional<std::string> EncodeDirectionalElements(
@@ -114,6 +123,28 @@ class LevelDbIndexManager : public IndexManager {
   std::string EncodeSingleElement(const _google_firestore_v1_Value& value);
 
   std::vector<core::Target> GetSubTargets(const core::Target& target);
+
+  absl::optional<std::vector<std::string>> EncodeBound(
+      const model::FieldIndex& index,
+      const core::Target& target,
+      absl::optional<core::IndexBoundValues> anOptional);
+  std::vector<std::string> EncodeValues(const model::FieldIndex& index,
+                                        const core::Target& target,
+                                        core::IndexedValues anOptional);
+
+  std::vector<IndexRange> GenerateIndexRanges(
+      int32_t id,
+      core::IndexedValues anOptional,
+      absl::optional<std::vector<std::string>> vector1,
+      bool b,
+      absl::optional<std::vector<std::string>> vector2,
+      bool b1,
+      std::vector<std::string> vector3);
+
+  std::vector<IndexRange> CreateRange(
+      const index::IndexEntry& lower_bound,
+      const index::IndexEntry& upper_bound,
+      std::vector<index::IndexEntry>& not_in_bounds) const;
 
   // The LevelDbIndexManager is owned by LevelDbPersistence.
   LevelDbPersistence* db_;
@@ -147,6 +178,8 @@ class LevelDbIndexManager : public IndexManager {
   bool started_ = false;
 
   std::string uid_;
+  std::string EncodedDirectionalKey(const model::FieldIndex& index,
+                                    absl::string_view view);
 };
 
 }  // namespace local

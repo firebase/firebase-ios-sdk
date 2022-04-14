@@ -145,6 +145,12 @@ enum ComponentLabel {
   SequenceNumber = 23,
 
   /**
+   * A component containing an encoded document ID with either ASC or DESC
+   * ordering.
+   */
+  OrderedDocumentId = 24,
+
+  /**
    * A path segment describes just a single segment in a resource path. Path
    * segments that occur sequentially in a key represent successive segments in
    * a single path.
@@ -220,6 +226,10 @@ class Reader {
 
   std::string ReadDocumentId() {
     return ReadLabeledString(ComponentLabel::DocumentId);
+  }
+
+  std::string ReadOrderedDocumentId() {
+    return ReadLabeledString(ComponentLabel::OrderedDocumentId);
   }
 
   std::string ReadBundleId() {
@@ -617,7 +627,11 @@ std::string Reader::Describe() {
       if (ok_) {
         absl::StrAppend(&description, " document_id=", document_id);
       }
-
+    } else if (label == ComponentLabel::OrderedDocumentId) {
+      ReadOrderedDocumentId();
+      if (ok_) {
+        absl::StrAppend(&description, " ordered_document_id=<skipped>");
+      }
     } else if (label == ComponentLabel::SnapshotVersion) {
       model::SnapshotVersion snapshot_version = ReadSnapshotVersion();
       if (ok_) {
@@ -707,6 +721,10 @@ class Writer {
 
   void WriteDocumentId(absl::string_view document_id) {
     WriteLabeledString(ComponentLabel::DocumentId, document_id);
+  }
+
+  void WriteOrderedDocumentId(absl::string_view document_id) {
+    WriteLabeledString(ComponentLabel::OrderedDocumentId, document_id);
   }
 
   void WriteSnapshotVersion(model::SnapshotVersion snapshot_version) {
@@ -1279,18 +1297,34 @@ std::string LevelDbIndexEntryKey::KeyPrefix(int32_t index_id) {
   return writer.result();
 }
 
-std::string LevelDbIndexEntryKey::Key(int32_t index_id,
-                                      absl::string_view user_id,
-                                      absl::string_view array_value,
-                                      absl::string_view directional_value,
-                                      absl::string_view document_name) {
+std::string LevelDbIndexEntryKey::KeyPrefix(
+    int32_t index_id,
+    absl::string_view user_id,
+    absl::string_view array_value,
+    absl::string_view directional_value) {
   Writer writer;
   writer.WriteTableName(kIndexEntriesTable);
   writer.WriteIndexId(index_id);
   writer.WriteUserId(user_id);
   writer.WriteIndexArrayValue(array_value);
   writer.WriteIndexDirectionalValue(directional_value);
-  writer.WriteDocumentId(document_name);
+  return writer.result();
+}
+
+std::string LevelDbIndexEntryKey::Key(int32_t index_id,
+                                      absl::string_view user_id,
+                                      absl::string_view array_value,
+                                      absl::string_view directional_value,
+                                      absl::string_view ordered_document_key,
+                                      absl::string_view document_key) {
+  Writer writer;
+  writer.WriteTableName(kIndexEntriesTable);
+  writer.WriteIndexId(index_id);
+  writer.WriteUserId(user_id);
+  writer.WriteIndexArrayValue(array_value);
+  writer.WriteIndexDirectionalValue(directional_value);
+  writer.WriteOrderedDocumentId(ordered_document_key);
+  writer.WriteDocumentId(document_key);
   writer.WriteTerminator();
   return writer.result();
 }
@@ -1302,6 +1336,7 @@ bool LevelDbIndexEntryKey::Decode(absl::string_view key) {
   user_id_ = reader.ReadUserId();
   array_value_ = reader.ReadIndexArrayValue();
   directional_value_ = reader.ReadIndexDirectionalValue();
+  ordered_document_key_ = reader.ReadOrderedDocumentId();
   document_key_ = reader.ReadDocumentId();
   reader.ReadTerminator();
   return reader.ok();
