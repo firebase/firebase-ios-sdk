@@ -92,18 +92,6 @@ import FirebaseStorageInternal
   }
 
   /**
-   * Custom-Time of the object data.
-   */
-  @objc public var customTime: Date? {
-    get {
-      return impl.customTime
-    }
-    set(newValue) {
-      impl.customTime = newValue
-    }
-  }
-
-  /**
    * MD5 hash of the data; encoded using base64.
    */
   @objc public let md5Hash: String?
