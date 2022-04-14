@@ -9,12 +9,10 @@
 #define RealtimeConfigHttpClient_h
 
 #import <Foundation/Foundation.h>
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 #import <UIKit/UIKit.h>
 
-@interface ListenerRegistration : NSObject
-- (void) remove;
-@end
+@class RCNConfigFetch;
+@class RCNConfigSettings;
 
 @interface RCNRealtimeConfigHttpClient : UIViewController <NSURLSessionDataDelegate>
 

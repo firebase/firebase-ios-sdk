@@ -41,10 +41,15 @@ NSInteger MAX_RETRY_COUNT = 10;
 NSInteger RETRY_MULTIPLIER = 2;
 
 bool isFirstConnection = true;
+bool inBackground = false;
 NSInteger FETCH_DELAY = 120;
 NSInteger FETCH_ATTEMPTS = 5;
 NSTimeInterval timeoutSeconds = 4320;
 
+NSMutableURLRequest *request;
+NSURLSession *session;
+NSURLSessionDataTask *dataTask;
+NSNotificationCenter *notificationCenter;
 
 # pragma mark - Realtime Event Listener Registration
 @implementation ListenerRegistration {
@@ -72,12 +77,7 @@ NSTimeInterval timeoutSeconds = 4320;
     FIROptions *_options;
     dispatch_queue_t _lockQueue;
     NSString *_namespace;
-    NSMutableURLRequest *_request;
-    NSURLSession *_session;
-    NSURLSessionDataTask *_dataTask;
     __strong id _eventListener;
-    NSNotificationCenter *_notificationCenter;
-    BOOL _inBackground;
 }
 
 -(instancetype) initWithClass: (RCNConfigFetch *)configFetch
@@ -92,8 +92,7 @@ NSTimeInterval timeoutSeconds = 4320;
         _namespace = namespace;
         _options = options;
         _lockQueue = queue;
-        _notificationCenter = [NSNotificationCenter defaultCenter];
-        _inBackground = FALSE;
+        notificationCenter = [NSNotificationCenter defaultCenter];
         [self setUpHttpRequest];
     }
     
@@ -241,26 +240,25 @@ NSTimeInterval timeoutSeconds = 4320;
         }
     }];
 
-    [_request setValue:_settings.configInstallationsToken
+    [request setValue:_settings.configInstallationsToken
         forHTTPHeaderField:kInstallationsAuthTokenHeaderName];
     if (_settings.lastETag) {
-      [_request setValue:_settings.lastETag forHTTPHeaderField:kIfNoneMatchETagHeaderName];
+      [request setValue:_settings.lastETag forHTTPHeaderField:kIfNoneMatchETagHeaderName];
     }
     
     NSString *postBody = [NSString stringWithFormat:@"project=%@&namespace=%@&templateVersionNumber=%@", [self->_options projectID], self->_namespace, [self->_configFetch getTemplateVersionNumber]];
     NSData *postData = [postBody dataUsingEncoding:NSUTF8StringEncoding];
-    [_request setHTTPBody:postData];
+    [request setHTTPBody:postData];
 }
 
 // Creates request.
 -(void) setUpHttpRequest {
-    _request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:hostAddress] cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:timeoutSeconds];
-    [_request setHTTPMethod:kHTTPMethodPost];
-    [_request setValue:@"application/json" forHTTPHeaderField:kContentTypeHeaderName];
-//    [_request setValue:@"Transfer-Encoding" forKey:@"Chunked"];
-    [_request setValue:@"gzip" forHTTPHeaderField:kContentEncodingHeaderName];
-    [_request setValue:@"gzip" forHTTPHeaderField:kAcceptEncodingHeaderName];
-    [_request setValue:[[NSBundle mainBundle] bundleIdentifier]
+    request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:hostAddress] cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:timeoutSeconds];
+    [request setHTTPMethod:kHTTPMethodPost];
+    [request setValue:@"application/json" forHTTPHeaderField:kContentTypeHeaderName];
+    [request setValue:@"gzip" forHTTPHeaderField:kContentEncodingHeaderName];
+    [request setValue:@"gzip" forHTTPHeaderField:kAcceptEncodingHeaderName];
+    [request setValue:[[NSBundle mainBundle] bundleIdentifier]
         forHTTPHeaderField:kiOSBundleIdentifierHeaderName];
 }
 
@@ -269,7 +267,7 @@ NSTimeInterval timeoutSeconds = 4320;
     NSURLSessionConfiguration *sessionConfig=[NSURLSessionConfiguration defaultSessionConfiguration];
     [sessionConfig setTimeoutIntervalForResource:timeoutSeconds];
     
-    _session = [NSURLSession sessionWithConfiguration:sessionConfig delegate:self delegateQueue:[NSOperationQueue mainQueue]];
+    session = [NSURLSession sessionWithConfiguration:sessionConfig delegate:self delegateQueue:[NSOperationQueue mainQueue]];
 }
 
 #pragma mark - NSURLSession Delegates
@@ -314,6 +312,7 @@ NSTimeInterval timeoutSeconds = 4320;
 completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
     NSHTTPURLResponse * _httpURLResponse = (NSHTTPURLResponse*) response;
     if ([_httpURLResponse statusCode] != 200) {
+        [self pauseRealtimeConnection];
         [self retryHTTPConnection];
     }
     completionHandler(NSURLSessionResponseAllow);
@@ -324,6 +323,7 @@ completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))complet
     if (error != nil) {
         NSLog(@"Error received: %@", error.localizedDescription);
     }
+    [self pauseRealtimeConnection];
     [self retryHTTPConnection];
 }
 
@@ -332,6 +332,7 @@ completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))complet
     if (error != nil) {
         NSLog(@"Error received: %@", error.localizedDescription);
     }
+    [self pauseRealtimeConnection];
     [self retryHTTPConnection];
 }
 
@@ -341,29 +342,28 @@ completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))complet
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    [self->_notificationCenter addObserver:self selector:@selector(isInForeground) name:UIApplicationWillEnterForegroundNotification object:nil];
-    [self->_notificationCenter addObserver:self selector:@selector(isInBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
+    [notificationCenter addObserver:self selector:@selector(isInForeground) name:UIApplicationWillEnterForegroundNotification object:nil];
+    [notificationCenter addObserver:self selector:@selector(isInBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
 }
 
 - (void)isInBackground {
-    _inBackground = TRUE;
+    inBackground = TRUE;
 }
 
 - (void)isInForeground {
     NSLog(@"Foreground");
-    _inBackground = FALSE;
+    inBackground = FALSE;
     [self startRealtimeConnection];
 }
 
 // Retry mechanism for HTTP connections
 - (void)retryHTTPConnection {
     NSLog(@"Retrying connection request.");
-    if (!_inBackground && MAX_RETRY_COUNT > 0) {
+    if ([self canMakeConnection] && MAX_RETRY_COUNT > 0) {
         MAX_RETRY_COUNT--;
         RETRY_MULTIPLIER++;
-        [self pauseRealtimeConnection];
-        double RETRY_SECONDS = arc4random_uniform(60) + 100;
-        [NSTimer scheduledTimerWithTimeInterval:RETRY_SECONDS * RETRY_MULTIPLIER target:self selector:@selector(startRealtimeConnection) userInfo:nil repeats:NO];
+        double RETRY_SECONDS = arc4random_uniform(60) + 10;
+        [NSTimer scheduledTimerWithTimeInterval:RETRY_SECONDS target:self selector:@selector(startRealtimeConnection) userInfo:nil repeats:NO];
     } else {
         NSLog(@"No retries remaining");
     }
@@ -382,8 +382,12 @@ completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))complet
 
 #pragma mark - Realtime Helper Methods
 
--(bool) isThereNoRunningConnection {
-    return self->_dataTask == NULL || self->_dataTask.state != NSURLSessionTaskStateRunning;
+-(bool) noRunningConnection {
+    return dataTask == NULL || dataTask.state != NSURLSessionTaskStateRunning;
+}
+
+-(bool) canMakeConnection {
+    return [self noRunningConnection] && !inBackground && self->_eventListener != nil;
 }
 
 // Starts HTTP connection.
@@ -394,17 +398,18 @@ completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))complet
         isFirstConnection = false;
     }
     
-    if (!_inBackground && [self isThereNoRunningConnection] && self->_eventListener != nil) {
+    if ([self canMakeConnection]) {
         NSLog(@"HTTP connection started.");
         [self setRequestBody];
-        self->_dataTask = [_session dataTaskWithRequest:_request];
-        [_dataTask resume];
+        dataTask = [session dataTaskWithRequest:request];
+        [dataTask resume];
         
-        if (_dataTask.state == NSURLSessionTaskStateRunning) {
+        if (dataTask.state == NSURLSessionTaskStateRunning) {
             NSLog(@"Connection made to backend.");
             MAX_RETRY_COUNT = MAX_RETRY;
             RETRY_MULTIPLIER = arc4random_uniform(10) + 1;
         } else {
+            [self pauseRealtimeConnection];
             [self retryHTTPConnection];
         }
     }
@@ -412,9 +417,9 @@ completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))complet
 
 // Stops data task session.
 - (void)pauseRealtimeConnection {
-    if (self->_dataTask != NULL) {
-        [_dataTask cancel];
-        self->_dataTask = NULL;
+    if (dataTask != NULL) {
+        [dataTask cancel];
+        dataTask = NULL;
     }
 }
 

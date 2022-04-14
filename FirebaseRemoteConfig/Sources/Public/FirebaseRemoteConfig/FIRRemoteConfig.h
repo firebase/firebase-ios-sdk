@@ -30,6 +30,10 @@ extern NSString *const _Nonnull FIRNamespaceGoogleMobilePlatform NS_SWIFT_NAME(
 extern NSString *const _Nonnull FIRRemoteConfigThrottledEndTimeInSecondsKey NS_SWIFT_NAME(
     RemoteConfigThrottledEndTimeInSecondsKey);
 
+extern @interface ListenerRegistration : NSObject
+- (void) remove;
+@end
+
 /// Indicates whether updated data was successfully fetched.
 typedef NS_ENUM(NSInteger, FIRRemoteConfigFetchStatus) {
   /// Config has never been fetched.
@@ -284,10 +288,9 @@ NS_SWIFT_NAME(RemoteConfig)
 - (nullable FIRRemoteConfigValue *)defaultValueForKey:(nullable NSString *)key;
 
 #pragma mark - Real Time
-- (nonnull NSObject *)setOnNewConfigListener: (nonnull id)eventListener;
+- (nonnull ListenerRegistration *)setOnNewConfigListener: (nonnull id)eventListener;
 
 @end
-
 
 // Realtime Callback delegate
 @protocol EventListener <NSObject>
