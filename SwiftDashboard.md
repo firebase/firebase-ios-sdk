@@ -33,7 +33,7 @@ tasks for additional Swift improvements.
 7. `record(Error)` API should be expanded to collect Swift Errors as well as NSErrors.
 
 ## Rows (Swift Capabilities)
-* **Swift Library**: A Swift implemented extension library exists. It is deployed as Firebase{Product}Swift CocoaPod and as a Swift Package Manager product.
+* **Swift Library**: SDK includes public APIs written in Swift, either in the main product library or a Swift-specific extension.
 * **Single Module**: Public API surface in a single module.
 * **API Tests**: Tests exist for all Swift APIs. Integration tests are preferred, but compile-only tests are acceptable.
 * **async/await**:API tests include tests for all auto-generated async/await APIs. Implementations are added for
