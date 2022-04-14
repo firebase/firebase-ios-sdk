@@ -83,6 +83,10 @@ if [[ -n "${SANITIZERS:-}" ]]; then
   echo "Using sanitizers: $SANITIZERS"
 fi
 
+if [[ -n "${CUSTOM_FIRESTORE_PROJECT_ID:-}" ]]; then
+  echo "Using firestore staging project: $CUSTOM_FIRESTORE_PROJECT_ID"
+fi
+
 scripts_dir=$(dirname "${BASH_SOURCE[0]}")
 firestore_emulator="${scripts_dir}/run_firestore_emulator.sh"
 database_emulator="${scripts_dir}/run_database_emulator.sh"
