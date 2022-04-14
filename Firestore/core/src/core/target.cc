@@ -52,8 +52,12 @@ std::vector<google_firestore_v1_Value> MakeValueVector(
   return result;
 }
 
+/**
+ * A map supports consuming values in the insertion order.
+ */
 class MapWithInsertionOrder {
  public:
+  /** Adds or replaces a key and its associated value in the map. */
   void Put(const std::string& key, const google_firestore_v1_Value& value) {
     if (field_value_map_.find(key) != field_value_map_.end()) {
       *field_value_map_[key] = value;
@@ -63,6 +67,7 @@ class MapWithInsertionOrder {
     }
   }
 
+  /** Consumes the values added to the map in the insertion order. */
   std::vector<google_firestore_v1_Value>&& ConsumeValues() {
     return std::move(values_);
   }
@@ -259,6 +264,8 @@ Target::IndexBoundValue Target::GetAscendingBound(
         } else {
           auto cmp = model::Compare(segment_value.value(), cursor_value);
           if (cmp == util::ComparisonResult::Same) {
+            // Set it to false if one of `segment_inclusive` or
+            // `bound.value().inclusive()` is false.
             segment_inclusive =
                 (segment_inclusive && bound.value().inclusive());
           } else if (cmp == util::ComparisonResult::Ascending) {
@@ -333,6 +340,8 @@ Target::IndexBoundValue Target::GetDescendingBound(
         } else {
           auto cmp = model::Compare(segment_value.value(), cursor_value);
           if (cmp == util::ComparisonResult::Same) {
+            // Set it to false if one of `segment_inclusive` or
+            // `bound.value().inclusive()` is false.
             segment_inclusive =
                 (segment_inclusive && bound.value().inclusive());
           } else if (cmp == util::ComparisonResult::Descending) {

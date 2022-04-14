@@ -88,6 +88,7 @@ class LevelDbIndexManager : public IndexManager {
       std::vector<model::FieldIndex*>,
       std::function<bool(model::FieldIndex*, model::FieldIndex*)>>;
 
+  // Convenient struct to hold two LevelDb keys as a range in LevelDb.
   struct IndexRange {
     std::string lower;
     std::string upper;
@@ -104,13 +105,20 @@ class LevelDbIndexManager : public IndexManager {
 
   std::set<index::IndexEntry> GetExistingIndexEntries(
       const model::DocumentKey& key, const model::FieldIndex& index);
+
+  /** Creates the index entries for the given document. */
   std::set<index::IndexEntry> ComputeIndexEntries(
       const model::Document& document, const model::FieldIndex& index);
+
+  /**
+   * Updates the index entries for the provided document by deleting entries
+   * that are no longer referenced in `new_entries` and adding all newly added
+   * entries.
+   */
   void UpdateEntries(const model::Document& document,
                      const model::FieldIndex& index,
                      const std::set<index::IndexEntry>& existing_entries,
                      const std::set<index::IndexEntry>& new_entries);
-
   void AddIndexEntry(const model::Document& document,
                      const model::FieldIndex& index,
                      const index::IndexEntry& entry);
@@ -118,29 +126,63 @@ class LevelDbIndexManager : public IndexManager {
                         const model::FieldIndex& index,
                         const index::IndexEntry& entry);
 
+  /**
+   * Returns the byte encoded form of the directional values in the field index.
+   * Returns `nullopt` if the document does not have all fields specified in the
+   * index.
+   */
   absl::optional<std::string> EncodeDirectionalElements(
       const model::FieldIndex& index, const model::Document& document);
+
+  /** Encodes a single value to the ascending index format. */
   std::string EncodeSingleElement(const _google_firestore_v1_Value& value);
+
+  /**
+   * Returns an encoded form of the document key that sorts based on the key
+   * ordering of the field index.
+   */
+  std::string EncodedDirectionalKey(const model::FieldIndex& index,
+                                    absl::string_view view);
 
   std::vector<core::Target> GetSubTargets(const core::Target& target);
 
+  /**
+   * Encodes the given bounds according to the specification in `target`. For IN
+   * queries, a list of possible values is returned.
+   */
   absl::optional<std::vector<std::string>> EncodeBound(
       const model::FieldIndex& index,
       const core::Target& target,
-      absl::optional<core::IndexBoundValues> anOptional);
+      absl::optional<core::IndexBoundValues> bound_values);
+
+  /**
+   * Encodes the given field values according to the specification in `target`.
+   * For IN queries, a list of possible values is returned.
+   */
   std::vector<std::string> EncodeValues(const model::FieldIndex& index,
                                         const core::Target& target,
-                                        core::IndexedValues anOptional);
+                                        core::IndexedValues values);
 
+  /**
+   * Constructs a vector of LevelDb key ranges that unions all bounds.
+   * Representing the ranges in the index entry table satisfying the given
+   * bounds.
+   */
   std::vector<IndexRange> GenerateIndexRanges(
-      int32_t id,
-      core::IndexedValues anOptional,
-      absl::optional<std::vector<std::string>> vector1,
-      bool b,
-      absl::optional<std::vector<std::string>> vector2,
-      bool b1,
-      std::vector<std::string> vector3);
+      int32_t index_id,
+      core::IndexedValues array_values,
+      absl::optional<std::vector<std::string>> lower_bounds,
+      bool lower_bounds_inclusive,
+      absl::optional<std::vector<std::string>> upper_bounds,
+      bool upper_bounds_inclusive,
+      std::vector<std::string> not_in_values);
 
+  /**
+   * Returns a new set of LeveDb ranges that splits the existing range and
+   * excludes any values that match the `not_in_values` from these ranges. As an
+   * example,
+   * '[foo > 2 && foo != 3]` becomes  `[foo > 2 && < 3, foo > 3]`.
+   */
   std::vector<IndexRange> CreateRange(
       const index::IndexEntry& lower_bound,
       const index::IndexEntry& upper_bound,
@@ -178,8 +220,6 @@ class LevelDbIndexManager : public IndexManager {
   bool started_ = false;
 
   std::string uid_;
-  std::string EncodedDirectionalKey(const model::FieldIndex& index,
-                                    absl::string_view view);
 };
 
 }  // namespace local

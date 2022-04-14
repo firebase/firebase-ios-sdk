@@ -113,6 +113,13 @@ bool IsInFilter(const Target& target, const model::FieldPath& field_path) {
   return false;
 }
 
+/**
+ * Creates a separate encoder buffer for each element of an array.
+ *
+ * The method appends each value to all existing encoders (e.g. filter("a",
+ * "==", "a1").filter("b", "in", ["b1", "b2"]) becomes ["a1,b1", "a1,b2"]). A
+ * list of new encoders is returned.
+ */
 std::vector<IndexEncodingBuffer> ExpandIndexValues(
     const std::vector<IndexEncodingBuffer>& buffers,
     const model::Segment& segment,
@@ -898,7 +905,7 @@ std::string LevelDbIndexManager::EncodedDirectionalKey(const FieldIndex& index,
 void LevelDbIndexManager::DeleteIndexEntry(const model::Document& document,
                                            const FieldIndex& index,
                                            const IndexEntry& entry) {
-  absl::string_view document_key = document->key().path().CanonicalString();
+  std::string document_key = document->key().path().CanonicalString();
   auto entry_key = LevelDbIndexEntryKey::Key(
       entry.index_id(), uid_, entry.array_value(), entry.directional_value(),
       EncodedDirectionalKey(index, document_key), document_key);

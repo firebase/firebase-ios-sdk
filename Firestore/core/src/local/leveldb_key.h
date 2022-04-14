@@ -114,6 +114,7 @@ namespace local {
 //   - user_id: string
 //   - array_value: string
 //   - directional_value: string
+//   - ordered_document_key: string
 //   - document_key: string
 //
 // index_entries_document_key_index:

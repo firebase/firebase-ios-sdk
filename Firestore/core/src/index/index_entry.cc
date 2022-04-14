@@ -36,10 +36,6 @@ util::ComparisonResult IndexEntry::CompareTo(const IndexEntry& rhs) const {
   return util::Compare(array_value(), rhs.array_value());
 }
 
-/**
- * Returns an IndexEntry entry that sorts immediately after the current
- * directional value.
- */
 IndexEntry IndexEntry::Successor() const {
   size_t current_length = directional_value_.size();
   size_t new_length =
