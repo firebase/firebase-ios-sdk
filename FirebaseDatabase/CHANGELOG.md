@@ -1,5 +1,5 @@
 # v8.12.0
-- [fixed] Mark `getData()` snapshot as nullable to fix swift API. (#9655)
+- [fixed] **Breaking change:** Mark `getData()` snapshot as nullable to fix swift API. (#9655)
 
 # v8.11.0
 - [fixed] Race condition crash in FUtilities.m. (#9096)
