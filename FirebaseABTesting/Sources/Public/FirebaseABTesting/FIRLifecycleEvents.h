@@ -37,27 +37,27 @@ extern NSString *const FIRExpireExperimentEventName NS_SWIFT_NAME(DefaultExpireE
 NS_SWIFT_NAME(LifecycleEvents)
 @interface FIRLifecycleEvents : NSObject
 
-/// Event name for when an experiment is set. It is default to FIRSetExperimentEventName and can be
-/// overridden. If experiment payload has a valid string of this field, always use experiment
-/// payload.
+/// Event name for when an experiment is set. It defaults to `SetExperimentEventName` and can be
+/// overridden. If experiment payload has a valid string of this field, always use
+/// experiment payload.
 @property(nonatomic, copy) NSString *setExperimentEventName;
 
-/// Event name for when an experiment is activated. It is default to FIRActivateExperimentEventName
+/// Event name for when an experiment is activated. It defaults to `ActivateExperimentEventName`
 /// and can be overridden. If experiment payload has a valid string of this field, always use
 /// experiment payload.
 @property(nonatomic, copy) NSString *activateExperimentEventName;
 
-/// Event name for when an experiment is cleared. It is default to FIRClearExperimentEventName and
+/// Event name for when an experiment is cleared. It is default to `ClearExperimentEventName` and
 /// can be overridden. If experiment payload has a valid string of this field, always use experiment
 /// payload.
 @property(nonatomic, copy) NSString *clearExperimentEventName;
 /// Event name for when an experiment is timeout from being STANDBY. It is default to
-/// FIRTimeoutExperimentEventName and can be overridden. If experiment payload has a valid string
+/// `TimeoutExperimentEventName` and can be overridden. If experiment payload has a valid string
 /// of this field, always use experiment payload.
 @property(nonatomic, copy) NSString *timeoutExperimentEventName;
 
 /// Event name when an experiment is expired when it reaches the end of its TTL.
-/// It is default to FIRExpireExperimentEventName and can be overridden. If experiment payload has a
+/// It is default to `ExpireExperimentEventName` and can be overridden. If experiment payload has a
 /// valid string of this field, always use experiment payload.
 @property(nonatomic, copy) NSString *expireExperimentEventName;
 

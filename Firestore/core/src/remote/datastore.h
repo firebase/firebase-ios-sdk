@@ -104,7 +104,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   void CommitMutations(const std::vector<model::Mutation>& mutations,
                        CommitCallback&& callback);
   void LookupDocuments(const std::vector<model::DocumentKey>& keys,
-                       LookupCallback&& callback);
+                       LookupCallback&& user_callback);
 
   /** Returns true if the given error is a gRPC ABORTED error. */
   static bool IsAbortedError(const util::Status& error);
@@ -176,10 +176,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
       const credentials::AuthToken& auth_token,
       const std::string& app_check_token,
       const std::vector<model::DocumentKey>& keys,
-      LookupCallback&& callback);
-  void OnLookupDocumentsResponse(
-      const util::StatusOr<std::vector<grpc::ByteBuffer>>& result,
-      const LookupCallback& callback);
+      LookupCallback&& user_callback);
 
   using OnCredentials = std::function<void(
       const util::StatusOr<credentials::AuthToken>&, const std::string&)>;

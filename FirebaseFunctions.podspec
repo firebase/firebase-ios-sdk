@@ -45,6 +45,17 @@ Cloud Functions for Firebase.
   s.dependency 'FirebaseSharedSwift', '~> 9.0'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.5'
 
+  s.test_spec 'objc' do |objc_tests|
+    objc_tests.platforms = {
+      :ios => ios_deployment_target,
+      :osx => '10.15',
+      :tvos => tvos_deployment_target
+    }
+    objc_tests.source_files = [
+      'FirebaseFunctions/Tests/ObjCIntegration/ObjC*'
+    ]
+  end
+
   s.test_spec 'integration' do |int_tests|
     int_tests.platforms = {
       :ios => ios_deployment_target,

@@ -87,7 +87,13 @@ class AuthAPI_hOnlyTests: XCTestCase {
     auth.setAPNSToken(Data(), type: AuthAPNSTokenType(rawValue: 2)!)
     auth.canHandleNotification([:])
     try auth.useUserAccessGroup("abc")
-    try auth.getStoredUser(forAccessGroup: "def")
+    let nilUser = try auth.getStoredUser(forAccessGroup: "def")
+    // If nilUser is not optional, this will raise a compiler error.
+    // This condition does not need to execute, and may not if prior
+    // functions throw.
+    if let value = nilUser {
+      XCTAssert(true)
+    }
   }
 
   #if compiler(>=5.5.2) && canImport(_Concurrency)

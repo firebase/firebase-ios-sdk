@@ -20,28 +20,28 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * Used for runTransactionBlock:. An FIRTransactionResult instance is a
+ * Used for `runTransactionBlock(_:)`. A `TransactionResult` instance is a
  * container for the results of the transaction.
  */
 NS_SWIFT_NAME(TransactionResult)
 @interface FIRTransactionResult : NSObject
 
 /**
- * Used for runTransactionBlock:. Indicates that the new value should be saved
- * at this location
+ * Used for `runTransactionBlock(_:)`. Indicates that the new value should be
+ * saved at this location.
  *
- * @param value A FIRMutableData instance containing the new value to be set
- * @return An FIRTransactionResult instance that can be used as a return value
- * from the block given to runTransactionBlock:
+ * @param value A `MutableData` instance containing the new value to be set
+ * @return A `TransactionResult` instance that can be used as a return value
+ *     from the block given to `runTransactionBlock(_:)`.
  */
 + (FIRTransactionResult *)successWithValue:(FIRMutableData *)value;
 
 /**
- * Used for runTransactionBlock:. Indicates that the current transaction should
- * no longer proceed.
+ * Used for `runTransactionBlock(_:)`. Indicates that the current transaction
+ * should no longer proceed.
  *
- * @return An FIRTransactionResult instance that can be used as a return value
- * from the block given to runTransactionBlock:
+ * @return A `TransactionResult` instance that can be used as a return value
+ * from the block given to `runTransactionBlock(_:)`
  */
 + (FIRTransactionResult *)abort;
 

@@ -21,8 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Represents the state of bundle loading tasks.
  *
- * Both `error` and `inProgress` are final states: task will be in either aborted or completed state
- * and there will be no more updates after they are reported.
+ * Both `error` and `inProgress` are final states: the task will be in either an aborted or
+ * completed state and there will be no more subsequent updates.
  */
 typedef NS_ENUM(NSInteger, FIRLoadBundleTaskState) {
 
