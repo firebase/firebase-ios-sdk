@@ -141,7 +141,7 @@ NS_SWIFT_NAME(DatabaseQuery)
  */
 - (void)getDataWithCompletionBlock:
     (void (^_Nonnull)(NSError *__nullable error,
-                      FIRDataSnapshot *snapshot))block
+                      FIRDataSnapshot *__nullable snapshot))block
     NS_SWIFT_NAME(getData(completion:));
 
 /**
