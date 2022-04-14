@@ -417,12 +417,14 @@ class StorageResultTests: StorageIntegrationCommon {
 
   private func assertMetadata(actualMetadata: StorageMetadata,
                               expectedContentType: String,
+                              expectedCustomTime: Date,
                               expectedCustomMetadata: [String: String]) {
     XCTAssertEqual(actualMetadata.cacheControl, "cache-control")
     XCTAssertEqual(actualMetadata.contentDisposition, "content-disposition")
     XCTAssertEqual(actualMetadata.contentEncoding, "gzip")
     XCTAssertEqual(actualMetadata.contentLanguage, "de")
     XCTAssertEqual(actualMetadata.contentType, expectedContentType)
+    XCTAssertEqual(actualMetadata.customTime, expectedCustomTime)
     XCTAssertEqual(actualMetadata.md5Hash?.count, 24)
     for (key, value) in expectedCustomMetadata {
       XCTAssertEqual(actualMetadata.customMetadata![key], value)
@@ -435,6 +437,7 @@ class StorageResultTests: StorageIntegrationCommon {
     XCTAssertEqual(actualMetadata.contentEncoding, "identity")
     XCTAssertNil(actualMetadata.contentLanguage)
     XCTAssertNil(actualMetadata.contentType)
+    XCTAssertNil(actualMetadata.customTime)
     XCTAssertEqual(actualMetadata.md5Hash?.count, 24)
     XCTAssertNil(actualMetadata.customMetadata)
   }
@@ -449,6 +452,7 @@ class StorageResultTests: StorageIntegrationCommon {
     metadata.contentEncoding = "gzip"
     metadata.contentLanguage = "de"
     metadata.contentType = "content-type-a"
+    metadata.customTime = Date(timeIntervalSince1970: 0)
     metadata.customMetadata = ["a": "b"]
 
     ref.updateMetadata(metadata) { updatedMetadata, error in
@@ -460,10 +464,12 @@ class StorageResultTests: StorageIntegrationCommon {
       }
       self.assertMetadata(actualMetadata: updatedMetadata,
                           expectedContentType: "content-type-a",
+                          expectedCustomTime: Date(timeIntervalSince1970: 0),
                           expectedCustomMetadata: ["a": "b"])
 
       let metadata = updatedMetadata
       metadata.contentType = "content-type-b"
+      metadata.customTime = Date(timeIntervalSince1970: 100)
       metadata.customMetadata = ["a": "b", "c": "d"]
 
       ref.updateMetadata(metadata) { result in
@@ -471,12 +477,14 @@ class StorageResultTests: StorageIntegrationCommon {
         case let .success(updatedMetadata):
           self.assertMetadata(actualMetadata: updatedMetadata,
                               expectedContentType: "content-type-b",
+                              expectedCustomTime: Date(timeIntervalSince1970: 100),
                               expectedCustomMetadata: ["a": "b", "c": "d"])
           metadata.cacheControl = nil
           metadata.contentDisposition = nil
           metadata.contentEncoding = nil
           metadata.contentLanguage = nil
           metadata.contentType = nil
+          metadata.customTime = nil
           metadata.customMetadata = nil
           ref.updateMetadata(metadata) { result in
             self.assertResultSuccess(result)

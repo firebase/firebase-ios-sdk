@@ -767,6 +767,10 @@ let package = Package(
       dependencies: ["FirebaseFunctions",
                      "SharedTestUtilities"],
       path: "FirebaseFunctions/Tests/ObjCIntegration",
+      // See https://forums.swift.org/t/importing-swift-libraries-from-objective-c/56730
+      exclude: [
+        "ObjCPPAPITests.mm",
+      ],
       cSettings: [
         .headerSearchPath("../../.."),
       ]
@@ -1103,6 +1107,10 @@ let package = Package(
       name: "StorageObjcIntegration",
       dependencies: ["FirebaseStorage"],
       path: "FirebaseStorage/Tests/ObjcIntegration",
+      exclude: [
+        // See https://forums.swift.org/t/importing-swift-libraries-from-objective-c/56730
+        "ObjCPPAPITests.mm",
+      ],
       cSettings: [
         .headerSearchPath("../../.."),
       ]

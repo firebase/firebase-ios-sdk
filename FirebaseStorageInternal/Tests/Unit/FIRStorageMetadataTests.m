@@ -42,6 +42,7 @@
     kFIRStorageMetadataContentEncoding : @"gzip",
     kFIRStorageMetadataContentLanguage : @"en-us",
     kFIRStorageMetadataContentType : @"application/octet-stream",
+    kFIRStorageMetadataCustomTime : @"2016-03-01T20:16:01.673Z",
     kFIRStorageMetadataCustomMetadata : @{@"foo" : @{@"bar" : @"baz"}},
     kFIRStorageMetadataGeneration : @"12345",
     kFIRStorageMetadataMetageneration : @"67890",
@@ -59,6 +60,8 @@
                         metaDict[kFIRStorageMetadataContentDisposition]);
   XCTAssertEqualObjects(metadata.contentEncoding, metaDict[kFIRStorageMetadataContentEncoding], );
   XCTAssertEqualObjects(metadata.contentType, metaDict[kFIRStorageMetadataContentType]);
+  XCTAssertEqualObjects([metadata RFC3339StringFromDate:metadata.customTime],
+                        metaDict[kFIRStorageMetadataCustomTime]);
   XCTAssertEqualObjects(metadata.customMetadata, metaDict[kFIRStorageMetadataCustomMetadata]);
   XCTAssertEqualObjects(metadata.md5Hash, metaDict[kFIRStorageMetadataMd5Hash]);
   NSString *generation = [NSString stringWithFormat:@"%lld", metadata.generation];
@@ -82,6 +85,7 @@
     kFIRStorageMetadataContentEncoding : @"gzip",
     kFIRStorageMetadataContentLanguage : @"en-us",
     kFIRStorageMetadataContentType : @"application/octet-stream",
+    kFIRStorageMetadataCustomTime : @"2016-03-01T20:16:01.673Z",
     kFIRStorageMetadataCustomMetadata : @{@"foo" : @{@"bar" : @"baz"}},
     kFIRStorageMetadataGeneration : @"12345",
     kFIRStorageMetadataMetageneration : @"67890",
@@ -106,6 +110,8 @@
                         metaDict[kFIRStorageMetadataContentLanguage]);
   XCTAssertEqualObjects(dictRepresentation[kFIRStorageMetadataContentType],
                         metaDict[kFIRStorageMetadataContentType]);
+  XCTAssertEqualObjects(dictRepresentation[kFIRStorageMetadataCustomTime],
+                        metaDict[kFIRStorageMetadataCustomTime]);
   XCTAssertEqualObjects(dictRepresentation[kFIRStorageMetadataCustomMetadata],
                         metaDict[kFIRStorageMetadataCustomMetadata]);
   XCTAssertEqualObjects(dictRepresentation[kFIRStorageMetadataDownloadTokens],
