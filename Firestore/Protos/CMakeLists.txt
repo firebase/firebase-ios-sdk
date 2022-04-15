@@ -12,6 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+include(python_setup)
+FirebaseSetupPythonInterpreter(
+  OUTVAR MY_PYTHON_EXECUTABLE
+  KEY FirestoreProtos
+  REQUIREMENTS six
+)
+
 # Generate output in-place. So long as the build is idempotent this helps
 # verify that the protoc-generated output isn't changing.
 set(OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
@@ -198,7 +205,7 @@ if(FIREBASE_IOS_PROTOC_GENERATE_SOURCES)
     COMMENT "Generating nanopb sources"
     OUTPUT ${NANOPB_GENERATED_SOURCES}
     COMMAND
-      ${FIREBASE_PYTHON_EXECUTABLE}
+      ${MY_PYTHON_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
         --nanopb
         --protoc=$<TARGET_FILE:protoc>
@@ -230,7 +237,7 @@ if(FIREBASE_IOS_PROTOC_GENERATE_SOURCES)
     COMMENT "Generating C++ protobuf sources"
     OUTPUT ${PROTOBUF_CPP_GENERATED_SOURCES}
     COMMAND
-      ${FIREBASE_PYTHON_EXECUTABLE}
+      ${MY_PYTHON_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
         --cpp
         --protoc=$<TARGET_FILE:protoc>

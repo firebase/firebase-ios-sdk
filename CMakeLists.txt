@@ -72,22 +72,6 @@ option(
   ON
 )
 
-# Find a Python interpreter using the best available mechanism.
-if(${CMAKE_VERSION} VERSION_LESS "3.12")
-  include(FindPythonInterp)
-  set(DEFAULT_FIREBASE_PYTHON_EXECUTABLE "${PYTHON_EXECUTABLE}")
-else()
-  find_package(Python3 COMPONENTS Interpreter)
-  set(DEFAULT_FIREBASE_PYTHON_EXECUTABLE "${Python3_EXECUTABLE}")
-endif()
-
-set(
-  FIREBASE_PYTHON_EXECUTABLE
-  "${DEFAULT_FIREBASE_PYTHON_EXECUTABLE}"
-  CACHE FILEPATH
-  "The Python interpreter to use"
-)
-
 list(INSERT CMAKE_MODULE_PATH 0 ${PROJECT_SOURCE_DIR}/cmake)
 include(compiler_setup)
 include(sanitizer_options)

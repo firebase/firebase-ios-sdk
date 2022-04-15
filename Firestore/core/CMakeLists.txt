@@ -15,6 +15,11 @@
 include(CheckSymbolExists)
 include(CheckIncludeFiles)
 
+include(python_setup)
+FirebaseSetupPythonInterpreter(
+  OUTVAR MY_PYTHON_EXECUTABLE
+  KEY FirestoreCore
+)
 
 ## firestore_util
 
@@ -285,7 +290,7 @@ add_custom_command(
   OUTPUT
   ${GRPC_ROOT_CERTIFICATE_SOURCES}
   COMMAND
-  ${FIREBASE_PYTHON_EXECUTABLE} ${FIREBASE_SOURCE_DIR}/scripts/binary_to_array.py
+  ${MY_PYTHON_EXECUTABLE} ${FIREBASE_SOURCE_DIR}/scripts/binary_to_array.py
   --output_header=${OUTPUT_DIR}/grpc_root_certificates_generated.h
   --output_source=${OUTPUT_DIR}/grpc_root_certificates_generated.cc
   --cpp_namespace=firebase::firestore::remote
