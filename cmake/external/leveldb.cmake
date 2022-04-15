@@ -14,14 +14,11 @@
 
 include(ExternalProject)
 
-# Find a Python interpreter using the best available mechanism.
-if(${CMAKE_VERSION} VERSION_LESS "3.12")
-  include(FindPythonInterp)
-  set(PATCH_PYTHON_EXECUTABLE "${PYTHON_EXECUTABLE}")
-else()
-  find_package(Python3 COMPONENTS Interpreter)
-  set(PATCH_PYTHON_EXECUTABLE "${Python3_EXECUTABLE}")
-endif()
+include(python_setup)
+FirebaseSetupPythonInterpreter(
+  OUTVAR MY_PYTHON_EXECUTABLE
+  KEY LevelDbPatch
+)
 
 if(TARGET leveldb)
   return()
@@ -50,7 +47,7 @@ ExternalProject_Add(
   BUILD_COMMAND     ""
   INSTALL_COMMAND   ""
   TEST_COMMAND      ""
-  PATCH_COMMAND     ${PATCH_PYTHON_EXECUTABLE} ${CMAKE_CURRENT_LIST_DIR}/leveldb_patch.py --snappy-source-dir ${snappy_source_dir} --snappy-binary-dir ${snappy_binary_dir}
+  PATCH_COMMAND     "${MY_PYTHON_EXECUTABLE}" ${CMAKE_CURRENT_LIST_DIR}/leveldb_patch.py --snappy-source-dir ${snappy_source_dir} --snappy-binary-dir ${snappy_binary_dir}
 
   HTTP_HEADER "${EXTERNAL_PROJECT_HTTP_HEADER}"
 )

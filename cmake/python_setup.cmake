@@ -68,6 +68,8 @@ function(FirebaseSetupPythonInterpreter)
   # Python interpreter path.
   set(CACHEVAR "FIREBASE_PYTHON_EXECUTABLE_${ARG_KEY}")
 
+  set(LOG_PREFIX "${CMAKE_CURRENT_FUNCTION}(${ARG_KEY})")
+
   # Find a Python interpreter using the best available mechanism.
   if(${CMAKE_VERSION} VERSION_LESS "3.12")
     include(FindPythonInterp)
@@ -105,17 +107,15 @@ function(FirebaseSetupPythonInterpreter)
       ("${STAMP_FILE2_CONTENTS}" STREQUAL "${ARG_REQUIREMENTS}")
     )
       set("${ARG_OUTVAR}" "$CACHE{${CACHEVAR}}" PARENT_SCOPE)
-      message(STATUS
-        "${CMAKE_CURRENT_FUNCTION}: Using Python interpreter: $CACHE{${CACHEVAR}}"
-      )
+      message(STATUS "${LOG_PREFIX}: Using Python interpreter: $CACHE{${CACHEVAR}}")
       return()
     endif()
   endif()
 
   # Create the virtualenv.
   message(STATUS
-    "${CMAKE_CURRENT_FUNCTION}: Creating Python virtualenv in "
-    "${PYVENV_DIRECTORY} using ${FIREBASE_PYTHON_HOST_EXECUTABLE}"
+    "${LOG_PREFIX}: Creating Python virtualenv in ${PYVENV_DIRECTORY} "
+    "using ${FIREBASE_PYTHON_HOST_EXECUTABLE}"
   )
   file(REMOVE_RECURSE "${PYVENV_DIRECTORY}")
   execute_process(
@@ -124,7 +124,6 @@ function(FirebaseSetupPythonInterpreter)
       -m
       venv
       "${PYVENV_DIRECTORY}"
-      --upgrade-deps
     RESULT_VARIABLE
       FIREBASE_PYVENV_CREATE_RESULT
   )
@@ -147,16 +146,13 @@ function(FirebaseSetupPythonInterpreter)
     message(FATAL_ERROR "Unable to find Python executable in ${PYVENV_DIRECTORY}")
   else()
     set(PYTHON_EXECUTABLE "$CACHE{${CACHEVAR}}")
-    message(STATUS
-      "${CMAKE_CURRENT_FUNCTION}: Found Python executable in virtualenv: "
-      "${PYTHON_EXECUTABLE}"
-    )
+    message(STATUS "${LOG_PREFIX}: Found Python executable in virtualenv: ${PYTHON_EXECUTABLE}")
   endif()
 
   # Install the dependencies in the virtualenv, if any are requested.
   if(NOT ("${ARG_REQUIREMENTS}" STREQUAL ""))
     message(STATUS
-      "${CMAKE_CURRENT_FUNCTION}: Installing Python dependencies into "
+      "${LOG_PREFIX}: Installing Python dependencies into "
       "${PYVENV_DIRECTORY}: ${ARG_REQUIREMENTS}"
     )
     execute_process(
