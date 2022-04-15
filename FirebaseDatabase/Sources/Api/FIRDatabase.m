@@ -97,7 +97,6 @@
 }
 
 + (NSString *)buildVersion {
-    // TODO: Restore git hash when build moves back to git
     return [NSString stringWithFormat:@"%@_%s", FIRFirebaseVersion(), __DATE__];
 }
 
