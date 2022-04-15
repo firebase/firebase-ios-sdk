@@ -16,6 +16,10 @@ if(NOT APPLE)
   return()
 endif()
 
+if(NOT FIRESTORE_INCLUDE_OBJC)
+  return()
+endif()
+
 file(GLOB headers Public/FirebaseFirestore/*.h)
 file(GLOB sources API/*.h API/*.m API/*.mm)
 
