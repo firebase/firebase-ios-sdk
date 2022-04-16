@@ -6,6 +6,7 @@
 - [changed] Backported Callable async/await APIs to iOS 13, etc. (#9483).
 - [changed] The global variables `FunctionsErrorDomain` and `FunctionsErrorDetailsKey` are
   restored for Swift only.
+- [added] Added a new method httpsCallableWithURL to create callables with URLs other than cloudfunctions.net.
 
 # v8.15.0
 - [deprecated] The global variables `FIRFunctionsErrorDomain` and `FIRFunctionsErrorDetailsKey` are

@@ -240,7 +240,28 @@ internal enum FunctionsConstants {
       if let error = error {
         completion(.failure(error))
       } else {
-        self.callFunction(name: name,
+        let url = self.urlWithName(name)
+        self.callFunction(url: url,
+                          withObject: data,
+                          timeout: timeout,
+                          context: context,
+                          completion: completion)
+      }
+    }
+  }
+  
+  internal func callFunction(url: String,
+                             withObject data: Any?,
+                             timeout: TimeInterval,
+                             completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
+    // Get context first.
+    contextProvider.getContext { context, error in
+      // Note: context is always non-nil since some checks could succeed, we're only failing if
+      // there's an error.
+      if let error = error {
+        completion(.failure(error))
+      } else {
+        self.callFunction(url: url,
                           withObject: data,
                           timeout: timeout,
                           context: context,
@@ -249,13 +270,13 @@ internal enum FunctionsConstants {
     }
   }
 
-  private func callFunction(name: String,
+
+  private func callFunction(url: String,
                             withObject data: Any?,
                             timeout: TimeInterval,
                             context: FunctionsContext,
                             completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
-    let url = URL(string: urlWithName(name))!
-    let request = URLRequest(url: url,
+    let request = URLRequest(url: URL(string: url)!,
                              cachePolicy: .useProtocolCachePolicy,
                              timeoutInterval: timeout)
     let fetcher = fetcherService.fetcher(with: request)
