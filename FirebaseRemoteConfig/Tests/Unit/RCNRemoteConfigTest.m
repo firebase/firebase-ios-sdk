@@ -79,6 +79,10 @@
 + (NSUserDefaults *)sharedUserDefaultsForBundleIdentifier:(NSString *)bundleIdentifier;
 @end
 
+@interface RCNConfigSettings (Test)
+- (NSString *)nextRequestWithUserProperties:(NSDictionary *)userProperties;
+@end
+
 typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   RCNTestRCInstanceDefault,
   RCNTestRCInstanceSecondNamespace,
@@ -1413,6 +1417,29 @@ static NSString *UTCToLocal(NSString *utcTime) {
     XCTAssertEqual(networkSession.configuration.timeoutIntervalForResource, 1);
     XCTAssertEqual(networkSession.configuration.timeoutIntervalForRequest, 1);
   }
+}
+
+- (void)testFetchRequestWithUserProperties {
+  NSDictionary *userProperties = @{@"user_key" : @"user_value"};
+  NSString *req = [_settings nextRequestWithUserProperties:userProperties];
+
+  XCTAssertTrue([req containsString:@"analytics_user_properties:{\"user_key\":\"user_value\"}"]);
+}
+
+- (void)testFetchRequestWithFirstOpenTimeAndUserProperties {
+  NSDictionary *userProperties = @{@"_fot" : @1649116800000, @"user_key" : @"user_value"};
+  NSString *req = [_settings nextRequestWithUserProperties:userProperties];
+
+  XCTAssertTrue([req containsString:@"first_open_time:'2022-04-05T00:00:00Z'"]);
+  XCTAssertTrue([req containsString:@"analytics_user_properties:{\"user_key\":\"user_value\"}"]);
+}
+
+- (void)testFetchRequestFirstOpenTimeOnly {
+  NSDictionary *userProperties = @{@"_fot" : @1649116800000};
+  NSString *req = [_settings nextRequestWithUserProperties:userProperties];
+
+  XCTAssertTrue([req containsString:@"first_open_time:'2022-04-05T00:00:00Z'"]);
+  XCTAssertFalse([req containsString:@"analytics_user_properties"]);
 }
 
 #pragma mark - Public Factory Methods
