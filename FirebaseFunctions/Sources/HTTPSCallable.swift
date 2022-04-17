@@ -45,7 +45,7 @@ open class HTTPSCallable: NSObject {
 
   // The name of the http endpoint this reference refers to.
   private let name: String?
-  
+
   private let url: String?
 
   // MARK: - Public Properties
@@ -58,14 +58,15 @@ open class HTTPSCallable: NSObject {
   internal init(functions: Functions, name: String) {
     self.functions = functions
     self.name = name
-    self.url = nil
+    url = nil
   }
 
   internal init(functions: Functions, url: String) {
     self.functions = functions
-    self.name = nil
+    name = nil
     self.url = url
   }
+
   /**
    * Executes this Callable HTTPS trigger asynchronously.
    *
@@ -98,17 +99,17 @@ open class HTTPSCallable: NSObject {
         completion(nil, error)
       }
     }
-    
-    if (name != nil) {
+
+    if name != nil {
       functions.callFunction(name: name!,
                              withObject: data,
                              timeout: timeoutInterval,
-                             completion:callback)
+                             completion: callback)
     } else {
       functions.callFunction(url: url!,
-                             withObject:data,
-                             timeout:timeoutInterval,
-                             completion:callback)
+                             withObject: data,
+                             timeout: timeoutInterval,
+                             completion: callback)
     }
   }
 

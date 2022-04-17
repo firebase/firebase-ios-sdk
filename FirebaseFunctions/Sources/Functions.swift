@@ -103,7 +103,7 @@ internal enum FunctionsConstants {
   @objc(HTTPSCallableWithName:) open func httpsCallable(_ name: String) -> HTTPSCallable {
     return HTTPSCallable(functions: self, name: name)
   }
-  
+
   @objc(HTTPSCallableWithUrl:) open func httpsCallable(url: String) -> HTTPSCallable {
     return HTTPSCallable(functions: self, url: url)
   }
@@ -253,7 +253,7 @@ internal enum FunctionsConstants {
       }
     }
   }
-  
+
   internal func callFunction(url: String,
                              withObject data: Any?,
                              timeout: TimeInterval,
@@ -273,7 +273,6 @@ internal enum FunctionsConstants {
       }
     }
   }
-
 
   private func callFunction(url: String,
                             withObject data: Any?,
