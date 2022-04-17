@@ -103,6 +103,10 @@ internal enum FunctionsConstants {
   @objc(HTTPSCallableWithName:) open func httpsCallable(_ name: String) -> HTTPSCallable {
     return HTTPSCallable(functions: self, name: name)
   }
+  
+  @objc(HTTPSCallableWithUrl:) open func httpsCallable(url: String) -> HTTPSCallable {
+    return HTTPSCallable(functions: self, url: url)
+  }
 
   /// Creates a reference to the Callable HTTPS trigger with the given name, the type of an `Encodable`
   /// request and the type of a `Decodable` response.
