@@ -1435,10 +1435,10 @@ static NSString *UTCToLocal(NSString *utcTime) {
 }
 
 - (void)testFetchRequestFirstOpenTimeOnly {
-  NSDictionary *userProperties = @{@"_fot" : @1649116800000};
+  NSDictionary *userProperties = @{@"_fot" : @1650312375543};
   NSString *req = [_settings nextRequestWithUserProperties:userProperties];
 
-  XCTAssertTrue([req containsString:@"first_open_time:'2022-04-05T00:00:00Z'"]);
+  XCTAssertTrue([req containsString:@"first_open_time:'2022-04-18T20:06:15Z'"]);
   XCTAssertFalse([req containsString:@"analytics_user_properties"]);
 }
 

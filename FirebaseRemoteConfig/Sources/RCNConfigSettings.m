@@ -28,7 +28,7 @@
 static NSString *const kRCNGroupPrefix = @"frc.group.";
 static NSString *const kRCNUserDefaultsKeyNamelastETag = @"lastETag";
 static NSString *const kRCNUserDefaultsKeyNameLastSuccessfulFetchTime = @"lastSuccessfulFetchTime";
-static NSString *const kRCNAnlyticsFirstOpenTimePropertyName = @"_fot";
+static NSString *const kRCNAnalyticsFirstOpenTimePropertyName = @"_fot";
 static const int kRCNExponentialBackoffMinimumInterval = 60 * 2;       // 2 mins.
 static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hours.
 
@@ -362,20 +362,19 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
     NSError *error;
 
     // Extract first open time from user properties and send as a separate field
-    NSNumber *firstOpenTime = [userProperties valueForKey:kRCNAnlyticsFirstOpenTimePropertyName];
-    if (firstOpenTime) {
+    NSNumber *firstOpenTime = userProperties[kRCNAnalyticsFirstOpenTimePropertyName];
+    NSMutableDictionary *remainingUserProperties = [userProperties mutableCopy];
+    if (firstOpenTime != nil) {
       NSDate *date = [NSDate dateWithTimeIntervalSince1970:([firstOpenTime longValue] / 1000)];
       NSISO8601DateFormatter *formatter = [[NSISO8601DateFormatter alloc] init];
       NSString *firstOpenTimeISOString = [formatter stringFromDate:date];
       ret = [ret stringByAppendingString:[NSString stringWithFormat:@", first_open_time:'%@'",
                                                                     firstOpenTimeISOString]];
 
-      NSMutableDictionary *userPropertiesCopy = [userProperties mutableCopy];
-      [userPropertiesCopy removeObjectForKey:kRCNAnlyticsFirstOpenTimePropertyName];
-      userProperties = userPropertiesCopy;
+      [remainingUserProperties removeObjectForKey:kRCNAnalyticsFirstOpenTimePropertyName];
     }
-    if (userProperties.count > 0) {
-      NSData *jsonData = [NSJSONSerialization dataWithJSONObject:userProperties
+    if (remainingUserProperties.count > 0) {
+      NSData *jsonData = [NSJSONSerialization dataWithJSONObject:remainingUserProperties
                                                          options:0
                                                            error:&error];
       if (!error) {
