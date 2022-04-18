@@ -1419,11 +1419,12 @@ static NSString *UTCToLocal(NSString *utcTime) {
   }
 }
 
-- (void)testFetchRequestWithUserProperties {
+- (void)testFetchRequestWithUserPropertiesOnly {
   NSDictionary *userProperties = @{@"user_key" : @"user_value"};
   NSString *req = [_settings nextRequestWithUserProperties:userProperties];
 
   XCTAssertTrue([req containsString:@"analytics_user_properties:{\"user_key\":\"user_value\"}"]);
+  XCTAssertFalse([req containsString:@"first_open_time"]);
 }
 
 - (void)testFetchRequestWithFirstOpenTimeAndUserProperties {
@@ -1435,10 +1436,10 @@ static NSString *UTCToLocal(NSString *utcTime) {
 }
 
 - (void)testFetchRequestFirstOpenTimeOnly {
-  NSDictionary *userProperties = @{@"_fot" : @1650312375543};
+  NSDictionary *userProperties = @{@"_fot" : @1650315600000};
   NSString *req = [_settings nextRequestWithUserProperties:userProperties];
 
-  XCTAssertTrue([req containsString:@"first_open_time:'2022-04-18T20:06:15Z'"]);
+  XCTAssertTrue([req containsString:@"first_open_time:'2022-04-18T21:00:00Z'"]);
   XCTAssertFalse([req containsString:@"analytics_user_properties"]);
 }
 
