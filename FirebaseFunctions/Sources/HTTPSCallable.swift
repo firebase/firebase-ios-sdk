@@ -105,11 +105,13 @@ open class HTTPSCallable: NSObject {
                              withObject: data,
                              timeout: timeoutInterval,
                              completion: callback)
-    } else {
-      functions.callFunction(url: url!,
+    } else if let url = url {
+      functions.callFunction(url: url,
                              withObject: data,
                              timeout: timeoutInterval,
                              completion: callback)
+    } else {
+      preconditionFailure("name or url must be set via constructor")
     }
   }
 
