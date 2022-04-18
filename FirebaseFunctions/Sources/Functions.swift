@@ -126,6 +126,7 @@ internal enum FunctionsConstants {
     -> Callable<Request, Response> {
     return Callable(callable: httpsCallable(name), encoder: encoder, decoder: decoder)
   }
+
   /// Creates a reference to the Callable HTTPS trigger with the given name, the type of an `Encodable`
   /// request and the type of a `Decodable` response.
   /// - Parameter url: The url of the Callable HTTPS trigger
@@ -142,9 +143,9 @@ internal enum FunctionsConstants {
                          decoder: FirebaseDataDecoder = FirebaseDataDecoder(
                          ))
     -> Callable<Request, Response> {
-    return Callable(callable: httpsCallable(url:url), encoder: encoder, decoder: decoder)
+    return Callable(callable: httpsCallable(url: url), encoder: encoder, decoder: decoder)
   }
-  
+
   /**
    * Changes this instance to point to a Cloud Functions emulator running locally.
    * See https://firebase.google.com/docs/functions/local-emulator
@@ -263,7 +264,7 @@ internal enum FunctionsConstants {
         completion(.failure(error))
       } else {
         let url = self.urlWithName(name)
-        self.callFunction(url: URL(string:url)!,
+        self.callFunction(url: URL(string: url)!,
                           withObject: data,
                           timeout: timeout,
                           context: context,
