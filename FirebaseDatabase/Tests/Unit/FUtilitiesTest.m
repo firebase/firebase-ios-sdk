@@ -116,9 +116,8 @@
 
 // This test is here for a lack of a better place to put it
 - (void)testUserAgentString {
-  FPersistentConnection *conn = [[FPersistentConnection alloc] init];
 
-  NSString *agent = [conn userAgent];
+  NSString *agent = [FPersistentConnection userAgent];
 
   NSArray *parts = [agent componentsSeparatedByString:@"/"];
   XCTAssertEqual(parts.count, (NSUInteger)5);

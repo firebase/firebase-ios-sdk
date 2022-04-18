@@ -111,7 +111,7 @@ public class FWebSocketConnection {
     public init(with connectionURL: String,
                       andQueue queue: DispatchQueue,
                       googleAppID: String,
-                      appCheckToken: String,
+                      appCheckToken: String?,
                       userAgent: String) {
         self.everConnected = false
         self.isClosed = false
@@ -233,10 +233,12 @@ public class FWebSocketConnection {
 private  func createHeaders(with url: String,
                             userAgent: String,
                             googleAppID: String,
-                            appCheckToken: String) -> HTTPHeaders {
+                            appCheckToken: String?) -> HTTPHeaders {
 
     var headers = HTTPHeaders()
-    headers.add(name: kAppCheckTokenHeader, value: appCheckToken)
+    if let appCheckToken = appCheckToken {
+        headers.add(name: kAppCheckTokenHeader, value: appCheckToken)
+    }
     headers.add(name: kUserAgentHeader, value: userAgent)
     headers.add(name: kGoogleAppIDHeader, value: googleAppID)
     return headers
@@ -245,6 +247,15 @@ private  func createHeaders(with url: String,
 @objc public enum FDisconnectReason: Int {
     case DISCONNECT_REASON_SERVER_RESET = 0
     case DISCONNECT_REASON_OTHER = 1
+
+    var description: String {
+        switch self {
+        case .DISCONNECT_REASON_OTHER:
+            return "other"
+        case .DISCONNECT_REASON_SERVER_RESET:
+            return "server_reset"
+        }
+    }
 }
 
 @objc public protocol FConnectionDelegate: NSObjectProtocol {

@@ -24,7 +24,7 @@ import Foundation
         andDispatchQueue queue: DispatchQueue,
         googleAppID: String,
         lastSessionID: String?,
-        appCheckToken: String,
+        appCheckToken: String?,
         userAgent: String
     ) {
         self.state = .connecting
@@ -68,6 +68,19 @@ import Foundation
     @objc public func close() {
         close(with: .DISCONNECT_REASON_OTHER)
     }
+
+    // XXX TODO: Verify that this works
+    internal func sendRequestSwift(_ dataMsg: [String: Any?], sensitive: Bool) throws {
+        // since this came from the persistent connection, wrap it in a data message
+        // envelope
+        let msg: [String: Any] = [
+            kFWPRequestType: kFWPRequestTypeData,
+            kFWPRequestDataPayload: dataMsg
+        ]
+
+        try sendData(msg, sensitive: sensitive)
+    }
+
 
     @objc public func sendRequest(_ dataMsg: NSDictionary, sensitive: Bool) throws {
         // since this came from the persistent connection, wrap it in a data message

@@ -36,8 +36,6 @@ let kFirebaseMaxLeafSize = 1024 * 1024 * 10 // 10 MB
     }
 }
 
-let kDotInfoPrefix = ".info"
-
 public enum FValidationSwift {
 
     // NOTE: This error can only happen when bridging from Objective-C.

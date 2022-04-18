@@ -109,7 +109,7 @@ func tryParseStringToInt(_ str: String, integer: inout Int) -> Bool {
 }
 
 let kFErrorWriteCanceled = "write_canceled"
-let kFWPResponseForActionStatusOk = "ok"
+//let kFWPResponseForActionStatusOk = "ok"
 let kFErrorDomain = "com.firebase"
 
 func firebaseJobsTroll() {
