@@ -18,7 +18,7 @@ if(TARGET googletest OR NOT DOWNLOAD_GOOGLETEST)
   return()
 endif()
 
-set(version 1.10.0)
+set(version 1.11.0)
 
 ExternalProject_Add(
   googletest
@@ -26,7 +26,7 @@ ExternalProject_Add(
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
   DOWNLOAD_NAME googletest-${version}.tar.gz
   URL https://github.com/google/googletest/archive/release-${version}.tar.gz
-  URL_HASH SHA256=9dc9157a9a1551ec7a7e43daea9a694a0bb5fb8bec81235d8a1e6ef64c716dcb
+  URL_HASH SHA256=b4870bf121ff7795ba20d20bcdd8627b8e088f2d1dab299a031c1034eddc93d5
 
   PREFIX ${PROJECT_BINARY_DIR}
 
