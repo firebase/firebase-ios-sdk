@@ -46,7 +46,7 @@ open class HTTPSCallable: NSObject {
   // The name of the http endpoint this reference refers to.
   private let name: String?
 
-  private let url: String?
+  private let url: URL?
 
   // MARK: - Public Properties
 
@@ -61,7 +61,7 @@ open class HTTPSCallable: NSObject {
     url = nil
   }
 
-  internal init(functions: Functions, url: String) {
+  internal init(functions: Functions, url: URL) {
     self.functions = functions
     name = nil
     self.url = url
@@ -100,8 +100,8 @@ open class HTTPSCallable: NSObject {
       }
     }
 
-    if name != nil {
-      functions.callFunction(name: name!,
+    if let name = name {
+      functions.callFunction(name: name,
                              withObject: data,
                              timeout: timeoutInterval,
                              completion: callback)

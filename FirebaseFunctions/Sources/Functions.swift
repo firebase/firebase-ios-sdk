@@ -104,7 +104,7 @@ internal enum FunctionsConstants {
     return HTTPSCallable(functions: self, name: name)
   }
 
-  @objc(HTTPSCallableWithUrl:) open func httpsCallable(url: String) -> HTTPSCallable {
+  @objc(HTTPSCallableWithURL:) open func httpsCallable(url: URL) -> HTTPSCallable {
     return HTTPSCallable(functions: self, url: url)
   }
 
@@ -126,7 +126,25 @@ internal enum FunctionsConstants {
     -> Callable<Request, Response> {
     return Callable(callable: httpsCallable(name), encoder: encoder, decoder: decoder)
   }
-
+  /// Creates a reference to the Callable HTTPS trigger with the given name, the type of an `Encodable`
+  /// request and the type of a `Decodable` response.
+  /// - Parameter url: The url of the Callable HTTPS trigger
+  /// - Parameter requestAs: The type of the `Encodable` entity to use for requests to this `Callable`
+  /// - Parameter responseAs: The type of the `Decodable` entity to use for responses from this `Callable`
+  /// - Parameter encoder: The encoder instance to use to run the encoding.
+  /// - Parameter decoder: The decoder instance to use to run the decoding.
+  open func httpsCallable<Request: Encodable,
+    Response: Decodable>(url: URL,
+                         requestAs: Request.Type = Request.self,
+                         responseAs: Response.Type = Response.self,
+                         encoder: FirebaseDataEncoder = FirebaseDataEncoder(
+                         ),
+                         decoder: FirebaseDataDecoder = FirebaseDataDecoder(
+                         ))
+    -> Callable<Request, Response> {
+    return Callable(callable: httpsCallable(url:url), encoder: encoder, decoder: decoder)
+  }
+  
   /**
    * Changes this instance to point to a Cloud Functions emulator running locally.
    * See https://firebase.google.com/docs/functions/local-emulator
@@ -245,7 +263,7 @@ internal enum FunctionsConstants {
         completion(.failure(error))
       } else {
         let url = self.urlWithName(name)
-        self.callFunction(url: url,
+        self.callFunction(url: URL(string:url)!,
                           withObject: data,
                           timeout: timeout,
                           context: context,
@@ -254,7 +272,7 @@ internal enum FunctionsConstants {
     }
   }
 
-  internal func callFunction(url: String,
+  internal func callFunction(url: URL,
                              withObject data: Any?,
                              timeout: TimeInterval,
                              completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
@@ -274,12 +292,12 @@ internal enum FunctionsConstants {
     }
   }
 
-  private func callFunction(url: String,
+  private func callFunction(url: URL,
                             withObject data: Any?,
                             timeout: TimeInterval,
                             context: FunctionsContext,
                             completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
-    let request = URLRequest(url: URL(string: url)!,
+    let request = URLRequest(url: url,
                              cachePolicy: .useProtocolCachePolicy,
                              timeoutInterval: timeout)
     let fetcher = fetcherService.fetcher(with: request)
