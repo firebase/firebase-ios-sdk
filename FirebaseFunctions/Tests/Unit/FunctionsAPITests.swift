@@ -48,7 +48,7 @@ final class FunctionsAPITests: XCTestCase {
     // MARK: - HTTPSCallable
 
     var callableRef = Functions.functions().httpsCallable("setCourseForAlderaan")
-    let url = new URL("https://localhost:8080/setCourseForAlderaan")
+    let url = URL(string:"https://localhost:8080/setCourseForAlderaan")!
     callableRef = Functions.functions().httpsCallable(url: url)
     callableRef.timeoutInterval = 60
 
