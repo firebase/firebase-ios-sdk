@@ -570,10 +570,10 @@
                }];
            } else {
                node = [FSnapshotUtilities nodeFrom:data];
-               [self.eventRaiser
-                   raiseEvents:[self.serverSyncTree
-                                   applyServerOverwriteAtPath:[query path]
-                                                      newData:node]];
+//               [self.eventRaiser
+//                   raiseEvents:[self.serverSyncTree
+//                                   applyServerOverwriteAtPath:[query path]
+//                                                      newData:node]];
                [self.eventRaiser raiseCallback:^{
                  block(
                      nil,
