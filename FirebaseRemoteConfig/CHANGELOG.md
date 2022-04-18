@@ -1,3 +1,7 @@
+# v9.0.0
+- [changed] The `remoteConfig()` singleton now throws an exception when called before
+  `FirebaseApp.configure()`. (#8640)
+
 # v8.10.0
 - [fixed] Fixed cached config not loading if device is locked. (#8807)
 

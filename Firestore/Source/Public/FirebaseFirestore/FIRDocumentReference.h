@@ -29,13 +29,14 @@ NS_ASSUME_NONNULL_BEGIN
  * A block type used to handle snapshot updates.
  */
 typedef void (^FIRDocumentSnapshotBlock)(FIRDocumentSnapshot *_Nullable snapshot,
-                                         NSError *_Nullable error);
+                                         NSError *_Nullable error)
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /**
- * A `FIRDocumentReference` refers to a document location in a Firestore database and can be
+ * A `DocumentReference` refers to a document location in a Firestore database and can be
  * used to write, read, or listen to the location. The document at the referenced location
- * may or may not exist. A `FIRDocumentReference` can also be used to create a
- * `FIRCollectionReference` to a subcollection.
+ * may or may not exist. A `DocumentReference` can also be used to create a `CollectionReference` to
+ * a subcollection.
  */
 NS_SWIFT_NAME(DocumentReference)
 @interface FIRDocumentReference : NSObject
@@ -50,7 +51,7 @@ NS_SWIFT_NAME(DocumentReference)
 /** A reference to the collection to which this `DocumentReference` belongs. */
 @property(nonatomic, strong, readonly) FIRCollectionReference *parent;
 
-/** The `FIRFirestore` for the Firestore database (useful for performing transactions, etc.). */
+/** The `Firestore` for the Firestore database (useful for performing transactions, etc.). */
 @property(nonatomic, strong, readonly) FIRFirestore *firestore;
 
 /**
@@ -60,13 +61,13 @@ NS_SWIFT_NAME(DocumentReference)
 @property(nonatomic, strong, readonly) NSString *path;
 
 /**
- * Gets a `FIRCollectionReference` referring to the collection at the specified
- * path, relative to this document.
+ * Gets a `CollectionReference` referring to the collection at the specified path, relative to this
+ * document.
  *
  * @param collectionPath The slash-separated relative path of the collection for which to get a
- * `FIRCollectionReference`.
+ * `CollectionReference`.
  *
- * @return The `FIRCollectionReference` at the specified _collectionPath_.
+ * @return The `CollectionReference` at the specified _collectionPath_.
  */
 - (FIRCollectionReference *)collectionWithPath:(NSString *)collectionPath
     NS_SWIFT_NAME(collection(_:));
@@ -74,21 +75,21 @@ NS_SWIFT_NAME(DocumentReference)
 #pragma mark - Writing Data
 
 /**
- * Writes to the document referred to by `FIRDocumentReference`. If the document doesn't yet exist,
+ * Writes to the document referred to by `DocumentReference`. If the document doesn't yet exist,
  * this method creates it and then sets the data. If the document exists, this method overwrites
  * the document data with the new values.
  *
- * @param documentData An `NSDictionary` that contains the fields and data to write to the
+ * @param documentData A `Dictionary` that contains the fields and data to write to the
  * document.
  */
 - (void)setData:(NSDictionary<NSString *, id> *)documentData;
 
 /**
- * Writes to the document referred to by this DocumentReference. If the document does not yet
- * exist, it will be created. If you pass `merge:YES`, the provided data will be merged into
+ * Writes to the document referred to by this `DocumentReference`. If the document does not yet
+ * exist, it will be created. If you pass `merge:true`, the provided data will be merged into
  * any existing document.
  *
- * @param documentData An `NSDictionary` that contains the fields and data to write to the
+ * @param documentData A `Dictionary` that contains the fields and data to write to the
  * document.
  * @param merge Whether to merge the provided data into any existing document. If enabled,
  * all omitted fields remain untouched. If your input sets any field to an empty dictionary, any
@@ -105,9 +106,9 @@ NS_SWIFT_NAME(DocumentReference)
  * It is an error to include a field in `mergeFields` that does not have a corresponding
  * value in the `data` dictionary.
  *
- * @param documentData An `NSDictionary` containing the fields that make up the document
+ * @param documentData A `Dictionary` containing the fields that make up the document
  * to be written.
- * @param mergeFields An `NSArray` that contains a list of `NSString` or `FIRFieldPath` elements
+ * @param mergeFields An `Array` that contains a list of `String` or `FieldPath` elements
  * specifying which fields to merge. Fields can contain dots to reference nested fields within
  * the document. If your input sets any field to an empty dictionary, any nested field is
  * overwritten.
@@ -115,10 +116,10 @@ NS_SWIFT_NAME(DocumentReference)
 - (void)setData:(NSDictionary<NSString *, id> *)documentData mergeFields:(NSArray<id> *)mergeFields;
 
 /**
- * Overwrites the document referred to by this `FIRDocumentReference`. If no document exists, it
+ * Overwrites the document referred to by this `DocumentReference`. If no document exists, it
  * is created. If a document already exists, it is overwritten.
  *
- * @param documentData An `NSDictionary` containing the fields that make up the document
+ * @param documentData A `Dictionary` containing the fields that make up the document
  *     to be written.
  * @param completion A block to execute once the document has been successfully written to the
  *     server. This block will not be called while the client is offline, though local
@@ -128,11 +129,11 @@ NS_SWIFT_NAME(DocumentReference)
      completion:(nullable void (^)(NSError *_Nullable error))completion;
 
 /**
- * Writes to the document referred to by this DocumentReference. If the document does not yet
- * exist, it will be created. If you pass `merge:YES`, the provided data will be merged into
+ * Writes to the document referred to by this `DocumentReference`. If the document does not yet
+ * exist, it will be created. If you pass `merge:true`, the provided data will be merged into
  * any existing document.
  *
- * @param documentData An `NSDictionary` containing the fields that make up the document
+ * @param documentData A `Dictionary` containing the fields that make up the document
  * to be written.
  * @param merge Whether to merge the provided data into any existing document. If your input sets
  *     any field to an empty dictionary, any nested field is overwritten.
@@ -153,9 +154,9 @@ NS_SWIFT_NAME(DocumentReference)
  * It is an error to include a field in `mergeFields` that does not have a corresponding
  * value in the `data` dictionary.
  *
- * @param documentData An `NSDictionary` containing the fields that make up the document
+ * @param documentData A `Dictionary` containing the fields that make up the document
  * to be written.
- * @param mergeFields An `NSArray` that contains a list of `NSString` or `FIRFieldPath` elements
+ * @param mergeFields An `Array` that contains a list of `String` or `FieldPath` elements
  *     specifying which fields to merge. Fields can contain dots to reference nested fields within
  *     the document. If your input sets any field to an empty dictionary, any nested field is
  *     overwritten.
@@ -168,20 +169,20 @@ NS_SWIFT_NAME(DocumentReference)
      completion:(nullable void (^)(NSError *_Nullable error))completion;
 
 /**
- * Updates fields in the document referred to by this `FIRDocumentReference`.
+ * Updates fields in the document referred to by this `DocumentReference`.
  * If the document does not exist, the update fails (specify a completion block to be notified).
  *
- * @param fields An `NSDictionary` containing the fields (expressed as an `NSString` or
- *     `FIRFieldPath`) and values with which to update the document.
+ * @param fields A `Dictionary` containing the fields (expressed as an `String` or
+ *     `FieldPath`) and values with which to update the document.
  */
 - (void)updateData:(NSDictionary<id, id> *)fields;
 
 /**
- * Updates fields in the document referred to by this `FIRDocumentReference`. If the document
+ * Updates fields in the document referred to by this `DocumentReference`. If the document
  * does not exist, the update fails and the specified completion block receives an error.
  *
- * @param fields An `NSDictionary` containing the fields (expressed as an `NSString` or
- *     `FIRFieldPath`) and values with which to update the document.
+ * @param fields A `Dictionary` containing the fields (expressed as a `String` or
+ *     `FieldPath`) and values with which to update the document.
  * @param completion A block to execute when the update is complete. If the update is successful the
  *     error parameter will be nil, otherwise it will give an indication of how the update failed.
  *     This block will only execute when the client is online and the commit has completed against
@@ -191,14 +192,15 @@ NS_SWIFT_NAME(DocumentReference)
 - (void)updateData:(NSDictionary<id, id> *)fields
         completion:(nullable void (^)(NSError *_Nullable error))completion;
 
-// NOTE: this is named 'deleteDocument' because 'delete' is a keyword in Objective-C++.
-/** Deletes the document referred to by this `FIRDocumentReference`. */
+// NOTE: this method is named 'deleteDocument' in Objective-C because 'delete' is a keyword in
+// Objective-C++.
+/** Deletes the document referred to by this `DocumentReference`. */
 // clang-format off
 - (void)deleteDocument NS_SWIFT_NAME(delete());
 // clang-format on
 
 /**
- * Deletes the document referred to by this `FIRDocumentReference`.
+ * Deletes the document referred to by this `DocumentReference`.
  *
  * @param completion A block to execute once the document has been successfully written to the
  *     server. This block will not be called while the client is offline, though local
@@ -212,7 +214,7 @@ NS_SWIFT_NAME(DocumentReference)
 #pragma mark - Retrieving Data
 
 /**
- * Reads the document referenced by this `FIRDocumentReference`.
+ * Reads the document referenced by this `DocumentReference`.
  *
  * This method attempts to provide up-to-date data when possible by waiting for
  * data from the server, but it may return cached data or fail if you are
@@ -221,11 +223,12 @@ NS_SWIFT_NAME(DocumentReference)
  *
  * @param completion a block to execute once the document has been successfully read.
  */
-- (void)getDocumentWithCompletion:(FIRDocumentSnapshotBlock)completion
+- (void)getDocumentWithCompletion:
+    (void (^)(FIRDocumentSnapshot *_Nullable snapshot, NSError *_Nullable error))completion
     NS_SWIFT_NAME(getDocument(completion:));
 
 /**
- * Reads the document referenced by this `FIRDocumentReference`.
+ * Reads the document referenced by this `DocumentReference`.
  *
  * @param source indicates whether the results should be fetched from the cache
  *     only (`Source.cache`), the server only (`Source.server`), or to attempt
@@ -234,33 +237,36 @@ NS_SWIFT_NAME(DocumentReference)
  */
 // clang-format off
 - (void)getDocumentWithSource:(FIRFirestoreSource)source
-                   completion:(FIRDocumentSnapshotBlock)completion
+                   completion:(void (^)(FIRDocumentSnapshot *_Nullable snapshot,
+                                        NSError *_Nullable error))completion
     NS_SWIFT_NAME(getDocument(source:completion:));
 // clang-format on
 
 /**
- * Attaches a listener for DocumentSnapshot events.
+ * Attaches a listener for `DocumentSnapshot` events.
  *
  * @param listener The listener to attach.
  *
- * @return A FIRListenerRegistration that can be used to remove this listener.
+ * @return A `ListenerRegistration` that can be used to remove this listener.
  */
-- (id<FIRListenerRegistration>)addSnapshotListener:(FIRDocumentSnapshotBlock)listener
+- (id<FIRListenerRegistration>)addSnapshotListener:
+    (void (^)(FIRDocumentSnapshot *_Nullable snapshot, NSError *_Nullable error))listener
     NS_SWIFT_NAME(addSnapshotListener(_:));
 
 /**
- * Attaches a listener for DocumentSnapshot events.
+ * Attaches a listener for `DocumentSnapshot` events.
  *
  * @param includeMetadataChanges Whether metadata-only changes (i.e. only
- *     `FIRDocumentSnapshot.metadata` changed) should trigger snapshot events.
+ *     `DocumentSnapshot.metadata` changed) should trigger snapshot events.
  * @param listener The listener to attach.
  *
- * @return A FIRListenerRegistration that can be used to remove this listener.
+ * @return A `ListenerRegistration` that can be used to remove this listener.
  */
 // clang-format off
 - (id<FIRListenerRegistration>)
 addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
-                                     listener:(FIRDocumentSnapshotBlock)listener
+                                     listener:(void (^)(FIRDocumentSnapshot *_Nullable snapshot,
+                                                        NSError *_Nullable error))listener
     NS_SWIFT_NAME(addSnapshotListener(includeMetadataChanges:listener:));
 // clang-format on
 

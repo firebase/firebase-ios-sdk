@@ -108,7 +108,7 @@ ByteString Bytes(std::initializer_list<uint8_t> octets) {
 }
 
 Message<google_firestore_v1_Value> Value(std::nullptr_t) {
-  return NullValue();
+  return DeepClone(NullValue());
 }
 
 Message<google_firestore_v1_Value> Value(double value) {
@@ -311,7 +311,7 @@ core::FieldFilter Filter(absl::string_view key,
 core::FieldFilter Filter(absl::string_view key,
                          absl::string_view op,
                          std::nullptr_t) {
-  return Filter(key, op, NullValue());
+  return Filter(key, op, DeepClone(NullValue()));
 }
 
 core::FieldFilter Filter(absl::string_view key,
@@ -521,6 +521,21 @@ model::FieldIndex MakeFieldIndex(const std::string& collection_group,
           collection_group,
           {model::Segment{Field(field_1), kind_1},
            model::Segment{Field(field_2), kind_2}},
+          model::FieldIndex::InitialState()};
+}
+
+model::FieldIndex MakeFieldIndex(const std::string& collection_group,
+                                 const std::string& field_1,
+                                 model::Segment::Kind kind_1,
+                                 const std::string& field_2,
+                                 model::Segment::Kind kind_2,
+                                 const std::string& field_3,
+                                 model::Segment::Kind kind_3) {
+  return {-1,
+          collection_group,
+          {model::Segment{Field(field_1), kind_1},
+           model::Segment{Field(field_2), kind_2},
+           model::Segment{Field(field_3), kind_3}},
           model::FieldIndex::InitialState()};
 }
 

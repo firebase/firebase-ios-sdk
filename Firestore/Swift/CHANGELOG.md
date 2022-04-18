@@ -1,6 +1,16 @@
+# v9.0.0
+- [added] **Breaking change:** `FirebaseFirestoreSwift` has exited beta and is
+  now generally available for use.
+
 # v8.13.0
 - [added] Added support for explicit typing to `DocumentReference.getDocument(as:)`
   and `DocumentSnapshot.data(as:)` to simplify mapping documents (#9101).
+- [changed] `DocumentSnapshot.data(as:)` will decode the document to the type
+  provided. If you expect that a document might *not exist*, use an optional
+  type (e.g. `Book?.self`) to account for this. See
+  [the documentation](https://firebase.google.com/docs/firestore/query-data/get-data#custom_objects)
+  and this [blog post](https://peterfriese.dev/posts/firestore-codable-the-comprehensive-guide/#mapping-simple-types-using-codable)
+  for an in-depth discussion.
 
 # 8.12.1
 - [added] Added async wrapper for `CollectionReference.addDocument()` and

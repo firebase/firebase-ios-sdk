@@ -67,7 +67,7 @@ void AssertBothOptionalsHaveValues(
 ComparisonResult OrderBy::Compare(const Document& lhs,
                                   const Document& rhs) const {
   ComparisonResult result;
-  if (field_ == FieldPath::KeyFieldPath()) {
+  if (field_.IsKeyFieldPath()) {
     result = lhs->key().CompareTo(rhs->key());
   } else {
     absl::optional<google_firestore_v1_Value> value1 = lhs->field(field_);

@@ -22,20 +22,20 @@
 #import <SafariServices/SafariServices.h>
 #endif
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 NSString *const kGoogleAppIDPlistKey = @"GOOGLE_APP_ID";
 // Dummy plist GOOGLE_APP_ID
 NSString *const kDummyGoogleAppID = @"1:123:ios:123abc";
-// Github Repo URL String
-NSString *const kGithubRepoURLString = @"https://github.com/firebase/firebase-ios-sdk/";
+// GitHub Repo URL String
+NSString *const kGitHubRepoURLString = @"https://github.com/firebase/firebase-ios-sdk/";
 // Alert contents
 NSString *const kInvalidPlistAlertTitle = @"GoogleService-Info.plist";
 NSString *const kInvalidPlistAlertMessage = @"This sample app needs to be updated with a valid "
                                             @"GoogleService-Info.plist file in order to configure "
                                             @"Firebase.\n\n"
                                             @"Please update the app with a valid plist file, "
-                                            @"following the instructions in the Firebase Github "
+                                            @"following the instructions in the Firebase GitHub "
                                             @"repository at: %@";
 
 @implementation FIRSampleAppUtilities
@@ -81,16 +81,16 @@ NSString *const kInvalidPlistAlertMessage = @"This sample app needs to be update
 
 + (void)presentAlertForInvalidServiceInfoPlistFromViewController:
     (UIViewController *)viewController {
-  NSString *message = [NSString stringWithFormat:kInvalidPlistAlertMessage, kGithubRepoURLString];
+  NSString *message = [NSString stringWithFormat:kInvalidPlistAlertMessage, kGitHubRepoURLString];
   UIAlertController *alertController =
       [UIAlertController alertControllerWithTitle:kInvalidPlistAlertTitle
                                           message:message
                                    preferredStyle:UIAlertControllerStyleAlert];
   UIAlertAction *viewReadmeAction = [UIAlertAction
-      actionWithTitle:@"View Github"
+      actionWithTitle:@"View GitHub"
                 style:UIAlertActionStyleDefault
               handler:^(UIAlertAction *_Nonnull action) {
-                NSURL *githubURL = [NSURL URLWithString:kGithubRepoURLString];
+                NSURL *githubURL = [NSURL URLWithString:kGitHubRepoURLString];
                 [FIRSampleAppUtilities navigateToURL:githubURL fromViewController:viewController];
               }];
   [alertController addAction:viewReadmeAction];

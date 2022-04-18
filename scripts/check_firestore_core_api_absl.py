@@ -19,7 +19,7 @@ Absl references in core/src/api public interface will cause link error for
 the Unity SDK, when it is built from google3.
 """
 
-# TODO(b/192129206) : Remove this check once Unity SDK is built from Github.
+# TODO(b/192129206) : Remove this check once Unity SDK is built from GitHub.
 import argparse
 import logging
 import six

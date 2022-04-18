@@ -46,6 +46,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, readonly) NSString *contentType;
 
+/** @property completeRequest
+    @brief The last request to be processed by the backend.
+ */
+@property(atomic, readonly) NSURLRequest *completeRequest;
+
 /** @fn respondWithData:error:
     @brief Responds to a pending RPC request with data and an error.
     @remarks This is useful for simulating an error response with bogus data or unexpected data

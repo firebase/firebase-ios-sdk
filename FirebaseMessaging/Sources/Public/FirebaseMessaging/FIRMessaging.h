@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 typedef void (^FIRMessagingFCMTokenFetchCompletion)(NSString *_Nullable FCMToken,
                                                     NSError *_Nullable error)
-    NS_SWIFT_NAME(MessagingFCMTokenFetchCompletion);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /**
  *  @related FIRMessaging
@@ -44,7 +44,7 @@ typedef void (^FIRMessagingFCMTokenFetchCompletion)(NSString *_Nullable FCMToken
  *               will match a value from the FIRMessagingError enumeration.
  */
 typedef void (^FIRMessagingDeleteFCMTokenCompletion)(NSError *_Nullable error)
-    NS_SWIFT_NAME(MessagingDeleteFCMTokenCompletion);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /**
  *  Callback to invoke once the HTTP call to FIRMessaging backend for updating
@@ -54,7 +54,8 @@ typedef void (^FIRMessagingDeleteFCMTokenCompletion)(NSError *_Nullable error)
  *                on the FIRMessaging server. This will be nil in case the operation
  *                was successful, or if the operation was cancelled.
  */
-typedef void (^FIRMessagingTopicOperationCompletion)(NSError *_Nullable error);
+typedef void (^FIRMessagingTopicOperationCompletion)(NSError *_Nullable error)
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /**
  *  Notification sent when the FCM registration token has been refreshed. Please use the
@@ -68,32 +69,36 @@ FOUNDATION_EXPORT const NSNotificationName FIRMessagingRegistrationTokenRefreshe
 // clang-format on
 
 /**
+ * The domain used for all errors in Messaging.
+ */
+FOUNDATION_EXPORT NSString *const FIRMessagingErrorDomain NS_SWIFT_NAME(MessagingErrorDomain);
+/**
  *  @enum FIRMessagingError
  */
-typedef NS_ENUM(NSUInteger, FIRMessagingError) {
-  /// Unknown error.
-  FIRMessagingErrorUnknown = 0,
+typedef NS_ERROR_ENUM(FIRMessagingErrorDomain, FIRMessagingError){
+    /// Unknown error.
+    FIRMessagingErrorUnknown = 0,
 
-  /// FIRMessaging couldn't validate request from this client.
-  FIRMessagingErrorAuthentication = 1,
+    /// FIRMessaging couldn't validate request from this client.
+    FIRMessagingErrorAuthentication = 1,
 
-  /// InstanceID service cannot be accessed.
-  FIRMessagingErrorNoAccess = 2,
+    /// InstanceID service cannot be accessed.
+    FIRMessagingErrorNoAccess = 2,
 
-  /// Request to InstanceID backend timed out.
-  FIRMessagingErrorTimeout = 3,
+    /// Request to InstanceID backend timed out.
+    FIRMessagingErrorTimeout = 3,
 
-  /// No network available to reach the servers.
-  FIRMessagingErrorNetwork = 4,
+    /// No network available to reach the servers.
+    FIRMessagingErrorNetwork = 4,
 
-  /// Another similar operation in progress, bailing this one.
-  FIRMessagingErrorOperationInProgress = 5,
+    /// Another similar operation in progress, bailing this one.
+    FIRMessagingErrorOperationInProgress = 5,
 
-  /// Some parameters of the request were invalid.
-  FIRMessagingErrorInvalidRequest = 7,
+    /// Some parameters of the request were invalid.
+    FIRMessagingErrorInvalidRequest = 7,
 
-  /// Topic name is invalid for subscription/unsubscription.
-  FIRMessagingErrorInvalidTopicName = 8,
+    /// Topic name is invalid for subscription/unsubscription.
+    FIRMessagingErrorInvalidTopicName = 8,
 
 } NS_SWIFT_NAME(MessagingError);
 
@@ -160,8 +165,9 @@ NS_SWIFT_NAME(MessagingDelegate)
  *  registration token. This token authorizes an
  *  app server to send messages to an app instance.
  *
- *  In order to receive FIRMessaging messages, declare
- *  `application:didReceiveRemoteNotification::fetchCompletionHandler:`.
+ *  In order to handle incoming Messaging messages, set the
+ *  `UNUserNotificationCenter`'s `delegate` property
+ *  and implement the appropriate methods.
  */
 NS_SWIFT_NAME(Messaging)
 @interface FIRMessaging : NSObject
@@ -174,18 +180,17 @@ NS_SWIFT_NAME(Messaging)
 /**
  *  FIRMessaging
  *
- *  @return An instance of FIRMessaging.
+ *  @return An instance of Messaging.
  */
 + (instancetype)messaging NS_SWIFT_NAME(messaging());
 
 /**
- * FIRMessagingExtensionHelper
+ * Use the MessagingExtensionHelper to populate rich UI content for your notifications.
+ * For example, if an image URL is set in your notification payload or on the console,
+ * you can use the MessagingExtensionHelper instance returned from this method to render
+ * the image in your notification.
  *
- * Use FIRMessagingExtensionHelper to populate rich UI contents for your notifications.
- * e.g. If an image URL is set in your notification payload or on the console, call
- * FIRMessagingExtensionHelper API to render it on your notification.
- *
- * @return An instance of FIRMessagingExtensionHelper that handles the extensions API.
+ * @return An instance of MessagingExtensionHelper that handles the extensions API.
  */
 + (FIRMessagingExtensionHelper *)extensionHelper NS_SWIFT_NAME(serviceExtension())
     NS_AVAILABLE(10.14, 10.0);
@@ -200,27 +205,27 @@ NS_SWIFT_NAME(Messaging)
 /**
  *  This property is used to set the APNs Token received by the application delegate.
  *
- *  FIRMessaging uses method swizzling to ensure that the APNs token is set
+ *  Messaging uses method swizzling to ensure that the APNs token is set
  *  automatically. However, if you have disabled swizzling by setting
  *  `FirebaseAppDelegateProxyEnabled` to `NO` in your app's
  *  Info.plist, you should manually set the APNs token in your application
- *  delegate's `-application:didRegisterForRemoteNotificationsWithDeviceToken:`
+ *  delegate's `application(_:didRegisterForRemoteNotificationsWithDeviceToken:)`
  *  method.
  *
  *  If you would like to set the type of the APNs token, rather than relying on
- *  automatic detection, see: `-setAPNSToken:type:`.
+ *  automatic detection, see `setAPNSToken(_:type:)`.
  */
 @property(nonatomic, copy, nullable) NSData *APNSToken NS_SWIFT_NAME(apnsToken);
 
 /**
- *  Set APNs token for the application. This APNs token will be used to register
- *  with Firebase Messaging using `FCMToken` or
- *  `tokenWithAuthorizedEntity:scope:options:handler`.
+ *  Set the APNs token for the application. This token will be used to register
+ *  with Firebase Messaging, and will be associated with the app's installation ID
+ *  in the form of an FCM token.
  *
  *  @param apnsToken The APNs token for the application.
- *  @param type  The type of APNs token. Debug builds should use
- *  FIRMessagingAPNSTokenTypeSandbox. Alternatively, you can supply
- *  FIRMessagingAPNSTokenTypeUnknown to have the type automatically
+ *  @param type The type of APNs token. Debug builds should use
+ *  `MessagingAPNSTokenTypeSandbox`. Alternatively, you can supply
+ *  `MessagingAPNSTokenTypeUnknown` to have the type automatically
  *  detected based on your provisioning profile.
  */
 - (void)setAPNSToken:(NSData *)apnsToken type:(FIRMessagingAPNSTokenType)type;
@@ -228,20 +233,20 @@ NS_SWIFT_NAME(Messaging)
 #pragma mark - FCM Tokens
 
 /**
- * Is Firebase Messaging token auto generation enabled?  If this flag is disabled, Firebase
- * Messaging will not generate token automatically for message delivery.
+ * Is Firebase Messaging token auto generation enabled? If this flag is disabled, Firebase
+ * Messaging will not generate an FCM token automatically for message delivery.
  *
  * If this flag is disabled, Firebase Messaging does not generate new tokens automatically for
  * message delivery. If this flag is enabled, FCM generates a registration token on application
  * start when there is no existing valid token and periodically refreshes the token and sends
- * data to Firebase backend.
+ * data to the Firebase backend.
  *
- * This setting is persisted, and is applied on future invocations of your application.  Once
+ * This setting is persisted, and is applied on future invocations of your application. Once
  * explicitly set, it overrides any settings in your Info.plist.
  *
  * By default, FCM automatic initialization is enabled.  If you need to change the
- * default (for example, because you want to prompt the user before getting token)
- * set FirebaseMessagingAutoInitEnabled to false in your application's Info.plist.
+ * default (for example, because you want to prompt the user before getting a token),
+ * set `FirebaseMessagingAutoInitEnabled` to NO in your application's Info.plist.
  */
 @property(nonatomic, assign, getter=isAutoInitEnabled) BOOL autoInitEnabled;
 
@@ -250,13 +255,13 @@ NS_SWIFT_NAME(Messaging)
  * it. It is associated with your APNs token when the APNs token is supplied, so messages sent to
  * the FCM token will be delivered over APNs.
  *
- * The FCM registration token is sometimes refreshed automatically. In your FIRMessaging delegate,
- * the delegate method `messaging:didReceiveRegistrationToken:` will be called once a token is
+ * The FCM registration token is sometimes refreshed automatically. In your Messaging delegate,
+ * the delegate method `messaging(_:didReceiveRegistrationToken:)` will be called once a token is
  * available, or has been refreshed. Typically it should be called once per app start, but
  * may be called more often if the token is invalidated or updated.
  *
- * Once you have an FCM registration token, you should send it to your application server, so it can
- * use the FCM token to send notifications to your device.
+ * Once you have an FCM registration token, you should send it to your application server, where
+ * it can be used to send notifications to your device.
  */
 @property(nonatomic, readonly, nullable) NSString *FCMToken NS_SWIFT_NAME(fcmToken);
 
@@ -271,8 +276,8 @@ NS_SWIFT_NAME(Messaging)
  * @param completion The completion handler to handle the token request.
  */
 
-- (void)tokenWithCompletion:(void (^)(NSString *__nullable token,
-                                      NSError *__nullable error))completion;
+- (void)tokenWithCompletion:(void (^)(NSString *_Nullable token,
+                                      NSError *_Nullable error))completion;
 
 /**
  * Asynchronously deletes the default FCM registration token.
@@ -283,7 +288,7 @@ NS_SWIFT_NAME(Messaging)
  * @param completion The completion handler to handle the token deletion.
  */
 
-- (void)deleteTokenWithCompletion:(void (^)(NSError *__nullable error))completion;
+- (void)deleteTokenWithCompletion:(void (^)(NSError *_Nullable error))completion;
 
 /**
  *  Retrieves an FCM registration token for a particular Sender ID. This can be used to allow
@@ -340,8 +345,8 @@ NS_SWIFT_NAME(Messaging)
  *
  * @param topic       The topic name to subscribe to, for example, @"sports".
  * @param completion  The completion that is invoked once the subscribe call ends.
- *                     In case of success, nil error is returned. Otherwise, an
- *                     appropriate error object is returned.
+ *                    On success, the error parameter is always `nil`. Otherwise, an
+ *                    appropriate error object is returned.
  */
 - (void)subscribeToTopic:(nonnull NSString *)topic
               completion:(void (^_Nullable)(NSError *_Nullable error))completion;

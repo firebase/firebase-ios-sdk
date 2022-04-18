@@ -56,13 +56,13 @@ typedef NS_ENUM(NSInteger, FIRRemoteConfigFetchAndActivateStatus) {
 /// Remote Config error domain that handles errors when fetching data from the service.
 extern NSString *const _Nonnull FIRRemoteConfigErrorDomain NS_SWIFT_NAME(RemoteConfigErrorDomain);
 /// Firebase Remote Config service fetch error.
-typedef NS_ENUM(NSInteger, FIRRemoteConfigError) {
-  /// Unknown or no error.
-  FIRRemoteConfigErrorUnknown = 8001,
-  /// Frequency of fetch requests exceeds throttled limit.
-  FIRRemoteConfigErrorThrottled = 8002,
-  /// Internal error that covers all internal HTTP errors.
-  FIRRemoteConfigErrorInternalError = 8003,
+typedef NS_ERROR_ENUM(FIRRemoteConfigErrorDomain, FIRRemoteConfigError){
+    /// Unknown or no error.
+    FIRRemoteConfigErrorUnknown = 8001,
+    /// Frequency of fetch requests exceeds throttled limit.
+    FIRRemoteConfigErrorThrottled = 8002,
+    /// Internal error that covers all internal HTTP errors.
+    FIRRemoteConfigErrorInternalError = 8003,
 } NS_SWIFT_NAME(RemoteConfigError);
 
 /// Enumerated value that indicates the source of Remote Config data. Data can come from
@@ -80,18 +80,18 @@ typedef NS_ENUM(NSInteger, FIRRemoteConfigSource) {
 /// @param error  Error message on failure.
 typedef void (^FIRRemoteConfigFetchCompletion)(FIRRemoteConfigFetchStatus status,
                                                NSError *_Nullable error)
-    NS_SWIFT_NAME(RemoteConfigFetchCompletion);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /// Completion handler invoked by activate method upon completion.
 /// @param error  Error message on failure. Nil if activation was successful.
 typedef void (^FIRRemoteConfigActivateCompletion)(NSError *_Nullable error)
-    NS_SWIFT_NAME(RemoteConfigActivateCompletion);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /// Completion handler invoked upon completion of Remote Config initialization.
 ///
 /// @param initializationError nil if initialization succeeded.
 typedef void (^FIRRemoteConfigInitializationCompletion)(NSError *_Nullable initializationError)
-    NS_SWIFT_NAME(RemoteConfigInitializationCompletion);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /// Completion handler invoked by the fetchAndActivate method. Used to convey status of fetch and,
 /// if successful, resultant activate call
@@ -99,7 +99,7 @@ typedef void (^FIRRemoteConfigInitializationCompletion)(NSError *_Nullable initi
 /// @param error  Error message on failure of config fetch
 typedef void (^FIRRemoteConfigFetchAndActivateCompletion)(
     FIRRemoteConfigFetchAndActivateStatus status, NSError *_Nullable error)
-    NS_SWIFT_NAME(RemoteConfigFetchAndActivateCompletion);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 #pragma mark - FIRRemoteConfigValue
 /// This class provides a wrapper for Remote Config parameter values, with methods to get parameter
@@ -129,46 +129,44 @@ NS_SWIFT_NAME(RemoteConfigSettings)
 /// before a fetch request can again be made to the Remote Config backend. After a fetch request to
 /// the backend has succeeded, no additional fetch requests to the backend will be allowed until the
 /// minimum fetch interval expires. Note that you can override this default on a per-fetch request
-/// basis using -[FIRRemoteConfig fetchWithExpirationDuration:completionHandler]. For E.g. setting
-/// the expiration duration to 0 in the fetch request will override the minimumFetchInterval and
-/// allow the request to the backend.
+/// basis using `RemoteConfig.fetch(withExpirationDuration:)`. For example, setting
+/// the expiration duration to 0 in the fetch request will override the `minimumFetchInterval` and
+/// allow the request to proceed.
 @property(nonatomic, assign) NSTimeInterval minimumFetchInterval;
 /// Indicates the default value in seconds to abandon a pending fetch request made to the backend.
-/// This value is set for outgoing requests as the timeoutIntervalForRequest as well as the
-/// timeoutIntervalForResource on the NSURLSession's configuration.
+/// This value is set for outgoing requests as the `timeoutIntervalForRequest` as well as the
+/// `timeoutIntervalForResource` on the `NSURLSession`'s configuration.
 @property(nonatomic, assign) NSTimeInterval fetchTimeout;
 @end
 
 #pragma mark - FIRRemoteConfig
-/// Firebase Remote Config class. The shared instance method +remoteConfig can be created and used
-/// to fetch, activate and read config results and set default config results.
+/// Firebase Remote Config class. The class method `remoteConfig()` can be used
+/// to fetch, activate and read config results and set default config results on the default
+/// Remote Config instance.
 NS_SWIFT_NAME(RemoteConfig)
 @interface FIRRemoteConfig : NSObject <NSFastEnumeration>
 /// Last successful fetch completion time.
 @property(nonatomic, readonly, strong, nullable) NSDate *lastFetchTime;
-/// Last fetch status. The status can be any enumerated value from FIRRemoteConfigFetchStatus.
+/// Last fetch status. The status can be any enumerated value from `RemoteConfigFetchStatus`.
 @property(nonatomic, readonly, assign) FIRRemoteConfigFetchStatus lastFetchStatus;
 /// Config settings are custom settings.
 @property(nonatomic, readwrite, strong, nonnull) FIRRemoteConfigSettings *configSettings;
 
-/// Returns the FIRRemoteConfig instance configured for the default Firebase app. This singleton
+/// Returns the `RemoteConfig` instance configured for the default Firebase app. This singleton
 /// object contains the complete set of Remote Config parameter values available to the app,
 /// including the Active Config and Default Config. This object also caches values fetched from the
-/// Remote Config Server until they are copied to the Active Config by calling
-/// `activateWithCompletion:`. When you fetch values from the Remote Config Server using the default
-/// Firebase namespace service, you should use this class method to create a shared instance of the
-/// FIRRemoteConfig object to ensure that your app will function properly with the Remote Config
-/// Server and the Firebase service.
+/// Remote Config server until they are copied to the Active Config by calling `activate()`. When
+/// you fetch values from the Remote Config server using the default Firebase app, you should use
+/// this class method to create and reuse a shared instance of `RemoteConfig`.
 + (nonnull FIRRemoteConfig *)remoteConfig NS_SWIFT_NAME(remoteConfig());
 
-/// Returns the FIRRemoteConfig instance for your (non-default) Firebase appID. Note that Firebase
+/// Returns the `RemoteConfig` instance for your (non-default) Firebase appID. Note that Firebase
 /// analytics does not work for non-default app instances. This singleton object contains the
 /// complete set of Remote Config parameter values available to the app, including the Active Config
 /// and Default Config. This object also caches values fetched from the Remote Config Server until
-/// they are copied to the Active Config by calling `activateWithCompletion:`. When you fetch values
-/// from the Remote Config Server using the default Firebase namespace service, you should use this
-/// class method to create a shared instance of the FIRRemoteConfig object to ensure that your app
-/// will function properly with the Remote Config Server and the Firebase service.
+/// they are copied to the Active Config by calling `activate())`. When you fetch values
+/// from the Remote Config Server using the non-default Firebase app, you should use this
+/// class method to create and reuse shared instance of `RemoteConfig`.
 + (nonnull FIRRemoteConfig *)remoteConfigWithApp:(nonnull FIRApp *)app
     NS_SWIFT_NAME(remoteConfig(app:));
 
@@ -180,13 +178,13 @@ NS_SWIFT_NAME(RemoteConfig)
 - (void)ensureInitializedWithCompletionHandler:
     (void (^_Nonnull)(NSError *_Nullable initializationError))completionHandler;
 #pragma mark - Fetch
-/// Fetches Remote Config data with a callback. Call `activateWithCompletion:` to make fetched data
+/// Fetches Remote Config data with a callback. Call `activate()` to make fetched data
 /// available to your app.
 ///
 /// Note: This method uses a Firebase Installations token to identify the app instance, and once
 /// it's called, it periodically sends data to the Firebase backend. (see
-/// `[FIRInstallations authTokenWithCompletion:]`).
-/// To stop the periodic sync, developers need to call `[FIRInstallations deleteWithCompletion:]`
+/// `Installations.authToken(completion:)`).
+/// To stop the periodic sync, call `Installations.delete(completion:)`
 /// and avoid calling this method again.
 ///
 /// @param completionHandler Fetch operation callback with status and error parameters.
@@ -198,13 +196,13 @@ NS_SWIFT_NAME(RemoteConfig)
 ///
 /// Note: This method uses a Firebase Installations token to identify the app instance, and once
 /// it's called, it periodically sends data to the Firebase backend. (see
-/// `[FIRInstallations authTokenWithCompletion:]`).
-/// To stop the periodic sync, developers need to call `[FIRInstallations deleteWithCompletion:]`
+/// `Installations.authToken(completion:)`).
+/// To stop the periodic sync, call `Installations.delete(completion:)`
 /// and avoid calling this method again.
 ///
-/// @param expirationDuration  Override the (default or optionally set minimumFetchInterval property
-/// in FIRRemoteConfigSettings) minimumFetchInterval for only the current request, in seconds.
-/// Setting a value of 0 seconds will force a fetch to the backend.
+/// @param expirationDuration  Override the (default or optionally set `minimumFetchInterval`
+/// property in RemoteConfigSettings) `minimumFetchInterval` for only the current request, in
+/// seconds. Setting a value of 0 seconds will force a fetch to the backend.
 /// @param completionHandler   Fetch operation callback with status and error parameters.
 - (void)fetchWithExpirationDuration:(NSTimeInterval)expirationDuration
                   completionHandler:(void (^_Nullable)(FIRRemoteConfigFetchStatus status,
@@ -215,8 +213,8 @@ NS_SWIFT_NAME(RemoteConfig)
 ///
 /// Note: This method uses a Firebase Installations token to identify the app instance, and once
 /// it's called, it periodically sends data to the Firebase backend. (see
-/// `[FIRInstallations authTokenWithCompletion:]`).
-/// To stop the periodic sync, developers need to call `[FIRInstallations deleteWithCompletion:]`
+/// `Installations.authToken(completion:)`).
+/// To stop the periodic sync, call `Installations.delete(completion:)`
 /// and avoid calling this method again.
 ///
 /// @param completionHandler Fetch operation callback with status and error parameters.
@@ -234,13 +232,11 @@ NS_SWIFT_NAME(RemoteConfig)
 
 #pragma mark - Get Config
 /// Enables access to configuration values by using object subscripting syntax.
-/// <pre>
-/// // Example:
-/// FIRRemoteConfig *config = [FIRRemoteConfig remoteConfig];
-/// FIRRemoteConfigValue *value = config[@"yourKey"];
-/// BOOL b = value.boolValue;
-/// NSNumber *number = config[@"yourKey"].numberValue;
-/// </pre>
+/// For example:
+///     let config = RemoteConfig.remoteConfig()
+///     let value = config["yourKey"]
+///     let boolValue = value.boolValue
+///     let number = config["yourKey"].numberValue
 - (nonnull FIRRemoteConfigValue *)objectForKeyedSubscript:(nonnull NSString *)key;
 
 /// Gets the config value.
@@ -275,8 +271,8 @@ NS_SWIFT_NAME(RemoteConfig)
 /// Sets default configs from plist for default namespace.
 ///
 /// @param fileName The plist file name, with no file name extension. For example, if the plist file
-///                 is defaultSamples.plist, call:
-///                 [[FIRRemoteConfig remoteConfig] setDefaultsFromPlistFileName:@"defaultSamples"];
+///                 is named `defaultSamples.plist`:
+///                 `RemoteConfig.remoteConfig().setDefaults(fromPlist: "defaultSamples")`
 - (void)setDefaultsFromPlistFileName:(nullable NSString *)fileName
     NS_SWIFT_NAME(setDefaults(fromPlist:));
 

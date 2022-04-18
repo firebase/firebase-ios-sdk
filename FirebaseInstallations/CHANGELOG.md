@@ -1,3 +1,7 @@
+# v9.0.0 -- M115
+- [fixed] Swift-only: Updated symbol name kFirebaseInstallationsErrorDomain to
+  InstallationsErrorDomain. (#9275)
+
 # v8.4.0 -- M100
 - [fixed] Bump Promises dependency. (#8365)
 

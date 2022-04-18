@@ -87,11 +87,17 @@ class AuthAPI_hOnlyTests: XCTestCase {
     auth.setAPNSToken(Data(), type: AuthAPNSTokenType(rawValue: 2)!)
     auth.canHandleNotification([:])
     try auth.useUserAccessGroup("abc")
-    try auth.getStoredUser(forAccessGroup: "def")
+    let nilUser = try auth.getStoredUser(forAccessGroup: "def")
+    // If nilUser is not optional, this will raise a compiler error.
+    // This condition does not need to execute, and may not if prior
+    // functions throw.
+    if let value = nilUser {
+      XCTAssert(true)
+    }
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+  #if compiler(>=5.5.2) && canImport(_Concurrency)
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func FIRAuth_hAsync() async throws {
       let auth = FirebaseAuth.Auth.auth()
       let user = auth.currentUser!
@@ -220,8 +226,8 @@ class AuthAPI_hOnlyTests: XCTestCase {
     obj.dismiss(animated: false) {}
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+  #if compiler(>=5.5.2) && canImport(_Concurrency)
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func FIRAuthUIDelegate_hAsync() async {
       class AuthUIImpl: NSObject, AuthUIDelegate {
         func present(_ viewControllerToPresent: UIViewController, animated flag: Bool) async {}
@@ -253,8 +259,8 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+  #if compiler(>=5.5.2) && canImport(_Concurrency)
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func FIRFedederatedAuthProvider_hAsync() async throws {
       class FederatedAuthImplementation: NSObject, FederatedAuthProvider {
         func credential(with UIDelegate: AuthUIDelegate?) async throws -> AuthCredential {
@@ -271,8 +277,8 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+  #if compiler(>=5.5.2) && canImport(_Concurrency)
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func FIRGameCenterAuthProvider_hAsync() async throws {
       _ = try await GameCenterAuthProvider.getCredential()
     }
@@ -298,8 +304,8 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+  #if compiler(>=5.5.2) && canImport(_Concurrency)
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func FIRMultiFactor_hAsync() async throws {
       let obj = MultiFactor()
       try await obj.session()
@@ -315,8 +321,8 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+  #if compiler(>=5.5.2) && canImport(_Concurrency)
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func FIRMultiFactorResolver_hAsync() async throws {
       let obj = MultiFactorResolver()
       try await obj.resolveSignIn(with: MultiFactorAssertion())
@@ -351,8 +357,8 @@ class AuthAPI_hOnlyTests: XCTestCase {
     provider.credential(withVerificationID: "id", verificationCode: "code")
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+  #if compiler(>=5.5.2) && canImport(_Concurrency)
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func FIRPhoneAuthProvider_hAsync() async throws {
       _ = PhoneAuthProvider.provider()
       let provider = PhoneAuthProvider.provider(auth: FirebaseAuth.Auth.auth())
@@ -423,8 +429,8 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+  #if compiler(>=5.5.2) && canImport(_Concurrency)
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func FIRUser_hAsync() async throws {
       let auth = FirebaseAuth.Auth.auth()
       let user = auth.currentUser!

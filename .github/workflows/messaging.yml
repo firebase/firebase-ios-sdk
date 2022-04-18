@@ -17,6 +17,10 @@ on:
     # Run every day at 10pm (PST) - cron uses UTC times
     - cron:  '0 6 * * *'
 
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: true
+
 jobs:
 
   messaging:
@@ -148,8 +152,7 @@ jobs:
       matrix:
         target: [ios, tvos, macos --skip-tests]
         flags: [
-          '--use-modular-headers',
-          '--skip-tests --use-libraries'
+          '--use-modular-headers'
         ]
     needs: pod-lib-lint
     steps:
@@ -166,8 +169,7 @@ jobs:
     strategy:
       matrix:
         flags: [
-          '--use-static-frameworks',
-          '--skip-tests --use-libraries'
+          '--use-static-frameworks'
         ]
     needs: pod-lib-lint-watchos
     steps:

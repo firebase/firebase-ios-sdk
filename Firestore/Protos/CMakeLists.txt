@@ -38,6 +38,7 @@ set(
   firestore/bundle
   google/api/annotations
   google/api/http
+  google/firestore/admin/index
   google/firestore/v1/common
   google/firestore/v1/document
   google/firestore/v1/firestore

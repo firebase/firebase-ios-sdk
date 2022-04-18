@@ -130,7 +130,7 @@ To develop Firebase software, **install**:
    To install [clang-format] and [mint] using [Homebrew]:
 
     ```console
-    brew install clang-format@13
+    brew install clang-format@14
     brew install mint
     ```
 
@@ -271,7 +271,7 @@ Alternatively, the script can be work on branch names or filenames.
 ```
 
 ```console
-./scripts/style.sh FirebaseStorage/Sources/FIRStorage.m
+./scripts/style.sh FirebaseStorageInternal/Sources/FIRStorage.m
 ```
 
 <details>

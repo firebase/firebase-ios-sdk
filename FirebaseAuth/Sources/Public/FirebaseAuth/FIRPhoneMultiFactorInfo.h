@@ -21,7 +21,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRPhoneMultiFactorInfo
-    @brief Extends the FIRMultiFactorInfo class for phone number second factors.
+    @brief Extends the MultiFactorInfo class for phone number second factors.
         The identifier of this second factor is "phone".
         This class is available on iOS only.
 */

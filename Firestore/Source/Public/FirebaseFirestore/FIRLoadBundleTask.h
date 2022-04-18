@@ -21,9 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Represents the state of bundle loading tasks.
  *
- * Both `FIRLoadBundleTaskStateError` and `FIRLoadBundleTaskStateSuccess` are final states: task
- * will be in either aborted or completed state and there will be no more updates after they are
- * reported.
+ * Both `error` and `inProgress` are final states: the task will be in either an aborted or
+ * completed state and there will be no more subsequent updates.
  */
 typedef NS_ENUM(NSInteger, FIRLoadBundleTaskState) {
 
@@ -51,7 +50,7 @@ NS_SWIFT_NAME(LoadBundleTaskProgress)
 /** The total number of bytes in the bundle. 0 if the bundle failed to parse. */
 @property(readonly, nonatomic) NSInteger totalBytes;
 
-/** The current state of `FIRLoadBundleTask` (`LoadBundleTask` in Swift). */
+/** The current state of `LoadBundleTask`. */
 @property(readonly, nonatomic) FIRLoadBundleTaskState state;
 
 @end

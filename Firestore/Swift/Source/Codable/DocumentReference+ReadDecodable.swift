@@ -72,7 +72,7 @@ public extension DocumentReference {
     }
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
+  #if compiler(>=5.5.2) && canImport(_Concurrency)
     /// Fetches and decodes the document referenced by this `DocumentReference`.
     ///
     /// This allows users to retrieve a Firestore document and have it decoded
@@ -99,7 +99,7 @@ public extension DocumentReference {
     ///   - decoder: The decoder to use to convert the document. Defaults to use
     ///     the default decoder.
     /// - Returns: This instance of the supplied `Decodable` type `T`.
-    @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func getDocument<T: Decodable>(as type: T.Type,
                                    with serverTimestampBehavior: ServerTimestampBehavior =
                                      .none,

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDynamicLinks'
-  s.version          = '8.14.0'
+  s.version          = '9.0.0'
   s.summary          = 'Firebase Dynamic Links'
 
   s.description      = <<-DESC
@@ -18,18 +18,20 @@ Firebase Dynamic Links are deep links that enhance user experience and increase 
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '10.0'
 
+  s.swift_version = '5.3'
+
   s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
 
   s.source_files = [
     'FirebaseDynamicLinks/Sources/**/*.[mh]',
     'Interop/Analytics/Public/*.h',
-    'FirebaseCore/Sources/Private/*.h',
+    'FirebaseCore/Extension/*.h',
   ]
   s.public_header_files = 'FirebaseDynamicLinks/Sources/Public/FirebaseDynamicLinks/*.h'
   s.frameworks = 'QuartzCore'
   s.weak_framework = 'WebKit'
-  s.dependency 'FirebaseCore', '~> 8.0'
+  s.dependency 'FirebaseCore', '~> 9.0'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',

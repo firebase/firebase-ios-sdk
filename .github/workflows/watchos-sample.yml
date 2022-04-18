@@ -7,7 +7,7 @@ on:
     - 'FirebaseABTesting/**'
     - 'FirebaseDatabase/**'
     - 'FirebaseRemoteConfig/**'
-    - 'FirebaseStorage/**'
+    - 'FirebaseStorageInternal/**'
     # Sample
     - 'Example/watchOSSample/**'
     # Firebase Podspec
@@ -19,6 +19,10 @@ on:
   schedule:
     # Run every day at 10pm (PST) - cron uses UTC times
     - cron:  '0 6 * * *'
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: true
 
 jobs:
 

@@ -16,17 +16,20 @@ set -ex
 
 REPO=`pwd`
 if [ ! -d "quickstart-ios" ]; then
-  git clone https://github.com/firebase/quickstart-ios.git
+  #TODO: Delete the branch option after the 9.0 release.
+  git clone --branch v9 https://github.com/firebase/quickstart-ios.git
 fi
 QS_SCRIPTS="${REPO}"/quickstart-ios/scripts
 cd quickstart-ios/"${SAMPLE}"
 
-chmod +x "${QS_SCRIPTS}"/info_script.rb
-ruby "${QS_SCRIPTS}"/info_script.rb "${SAMPLE}" "${LEGACY:-}"
-
 if [[ ! -z "$LEGACY" ]]; then
   cd "Legacy${SAMPLE}Quickstart"
 fi
+
+# Make sure the Xcode project has at least one Swift file.
+# See https://forums.swift.org/t/using-binary-swift-sdks-from-non-swift-apps/55989
+touch foo.swift
+"${REPO}"/scripts/update_xcode_target.rb "${SAMPLE}Example.xcodeproj" "${SAMPLE}Example" foo.swift
 
 mkdir -p Firebase/
 # Create non Firebase Frameworks and move to Firebase/ dir.

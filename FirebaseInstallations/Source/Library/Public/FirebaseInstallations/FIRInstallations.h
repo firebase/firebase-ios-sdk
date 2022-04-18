@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 // clang-format12 merges the next two lines.
 FOUNDATION_EXPORT const NSNotificationName FIRInstallationIDDidChangeNotification
     NS_SWIFT_NAME(InstallationIDDidChange);
-/** `userInfo` key for the `FirebaseApp.name` in `FIRInstallationIDDidChangeNotification`. */
+/** `userInfo` key for the `FirebaseApp.name` in `InstallationIDDidChangeNotification`. */
 FOUNDATION_EXPORT NSString *const kFIRInstallationIDDidChangeNotificationAppNameKey
     NS_SWIFT_NAME(InstallationIDDidChangeAppNameKey);
 // clang-format on
@@ -38,7 +38,7 @@ FOUNDATION_EXPORT NSString *const kFIRInstallationIDDidChangeNotificationAppName
  */
 typedef void (^FIRInstallationsIDHandler)(NSString *__nullable identifier,
                                           NSError *__nullable error)
-    NS_SWIFT_NAME(InstallationsIDHandler);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /**
  * An authorization token handler block.
@@ -48,7 +48,7 @@ typedef void (^FIRInstallationsIDHandler)(NSString *__nullable identifier,
  */
 typedef void (^FIRInstallationsTokenHandler)(
     FIRInstallationsAuthTokenResult *__nullable tokenResult, NSError *__nullable error)
-    NS_SWIFT_NAME(InstallationsTokenHandler);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /**
  * The class provides API for Firebase Installations.
@@ -64,7 +64,7 @@ NS_SWIFT_NAME(Installations)
 
 /**
  * Returns a default instance of `Installations`.
- * @returns An instance of `Installations` for `FirebaseApp.defaultApp().
+ * @return An instance of `Installations` for `FirebaseApp.defaultApp().
  * @throw Throws an exception if the default app is not configured yet or required  `FirebaseApp`
  * options are missing.
  */
@@ -73,45 +73,45 @@ NS_SWIFT_NAME(Installations)
 /**
  * Returns an instance of `Installations` for an application.
  * @param application A configured `FirebaseApp` instance.
- * @returns An instance of `Installations` corresponding to the passed application.
+ * @return An instance of `Installations` corresponding to the passed application.
  * @throw Throws an exception if required `FirebaseApp` options are missing.
  */
-+ (FIRInstallations *)installationsWithApp:(FIRApp *)application
-    NS_SWIFT_NAME(installations(app:));
++ (FIRInstallations *)installationsWithApp:(FIRApp *)application NS_SWIFT_NAME(installations(app:));
 
 /**
  * The method creates or retrieves an installation ID. The installation ID is a stable identifier
  * that uniquely identifies the app instance. NOTE: If the application already has an existing
  * FirebaseInstanceID then the InstanceID identifier will be used.
- * @param completion A completion handler which is invoked when the operation completes. See
- * `InstallationsIDHandler` for additional details.
+ * @param completion A completion handler which is invoked when the operation completes.
  */
-- (void)installationIDWithCompletion:(FIRInstallationsIDHandler)completion;
+- (void)installationIDWithCompletion:(void (^)(NSString *__nullable identifier,
+                                               NSError *__nullable error))completion;
 
 /**
  * Retrieves (locally if it exists or from the server) a valid installation auth token. An existing
  * token may be invalidated or expired, so it is recommended to fetch the installation auth token
- * before each server request. The method does the same as `Installations.authTokenForcingRefresh(:,
- * completion:)` with forcing refresh `NO`.
- * @param completion A completion handler which is invoked when the operation completes. See
- * `InstallationsTokenHandler` for additional details.
+ * before each server request. The method does the same as
+ * `Installations.authToken(forcingRefresh:completion:)` with forcing refresh `false`.
+ * @param completion A completion handler which is invoked when the operation completes.
  */
-- (void)authTokenWithCompletion:(FIRInstallationsTokenHandler)completion;
+- (void)authTokenWithCompletion:(void (^)(FIRInstallationsAuthTokenResult *__nullable tokenResult,
+                                          NSError *__nullable error))completion;
 
 /**
  * Retrieves (locally or from the server depending on `forceRefresh` value) a valid installation
  * auth token. An existing token may be invalidated or expire, so it is recommended to fetch the
  * installation auth token before each server request. This method should be used with `forceRefresh
- * == YES` when e.g. a request with the previously fetched installation auth token failed with "Not
+ * == true` when e.g. a request with the previously fetched installation auth token failed with "Not
  * Authorized" error.
- * @param forceRefresh If `YES` then the locally cached installation auth token will be ignored and
- * a new one will be requested from the server. If `NO`, then the locally cached installation auth
- * token will be returned if exists and has not expired yet.
+ * @param forceRefresh If `true` then the locally cached installation auth token will be ignored and
+ * a new one will be requested from the server. If `false`, then the locally cached installation
+ * auth token will be returned if exists and has not expired yet.
  * @param completion  A completion handler which is invoked when the operation completes. See
  * `InstallationsTokenHandler` for additional details.
  */
 - (void)authTokenForcingRefresh:(BOOL)forceRefresh
-                     completion:(FIRInstallationsTokenHandler)completion;
+                     completion:(void (^)(FIRInstallationsAuthTokenResult *__nullable tokenResult,
+                                          NSError *__nullable error))completion;
 
 /**
  * Deletes all the installation data including the unique identifier, auth tokens and

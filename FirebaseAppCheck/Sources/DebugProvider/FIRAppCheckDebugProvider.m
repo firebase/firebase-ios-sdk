@@ -28,7 +28,7 @@
 #import "FirebaseAppCheck/Sources/DebugProvider/API/FIRAppCheckDebugProviderAPIService.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -66,8 +66,8 @@ static NSString *const kDebugTokenUserDefaultsKey = @"FIRAAppCheckDebugToken";
   FIRAppCheckAPIService *APIService =
       [[FIRAppCheckAPIService alloc] initWithURLSession:URLSession
                                                  APIKey:app.options.APIKey
-                                              projectID:app.options.projectID
-                                                  appID:app.options.googleAppID];
+                                                  appID:app.options.googleAppID
+                                        heartbeatLogger:app.heartbeatLogger];
 
   FIRAppCheckDebugProviderAPIService *debugAPIService =
       [[FIRAppCheckDebugProviderAPIService alloc] initWithAPIService:APIService

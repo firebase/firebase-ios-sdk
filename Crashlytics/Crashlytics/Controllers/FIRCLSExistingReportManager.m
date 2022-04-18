@@ -22,6 +22,7 @@
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
+#import "Crashlytics/Crashlytics/Private/FIRCLSOnDemandModel_Private.h"
 #import "Crashlytics/Crashlytics/Private/FIRCrashlyticsReport_Private.h"
 #import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlyticsReport.h"
 
@@ -35,6 +36,7 @@ NSUInteger const FIRCLSMaxUnsentReports = 4;
 @property(nonatomic, strong) NSOperationQueue *operationQueue;
 @property(nonatomic, strong) FIRCLSSettings *settings;
 @property(nonatomic, strong) FIRCLSDataCollectionArbiter *dataArbiter;
+@property(nonatomic, strong) FIRCLSOnDemandModel *onDemandModel;
 
 // This list of active reports excludes the brand new active report that will be created this run of
 // the app.
@@ -60,6 +62,7 @@ NSUInteger const FIRCLSMaxUnsentReports = 4;
   _operationQueue = managerData.operationQueue;
   _dataArbiter = managerData.dataArbiter;
   _reportUploader = reportUploader;
+  _onDemandModel = managerData.onDemandModel;
 
   return self;
 }
@@ -178,6 +181,13 @@ NSInteger compareNewer(FIRCLSInternalReport *reportA,
                                  asUrgent:urgent];
   }
 
+  for (NSString *path in self.onDemandModel.storedActiveReportPaths) {
+    [self processExistingActiveReportPath:path
+                      dataCollectionToken:dataCollectionToken
+                                 asUrgent:urgent];
+  }
+  [self.onDemandModel.storedActiveReportPaths removeAllObjects];
+
   // deal with stuff in processing more carefully - do not process again
   [self.operationQueue addOperationWithBlock:^{
     for (NSString *path in self.processingReportPaths) {
@@ -246,6 +256,16 @@ NSInteger compareNewer(FIRCLSInternalReport *reportA,
       [self.fileManager removeItemAtPath:path];
     }
   }];
+}
+
+- (void)handleOnDemandReportUpload:(NSString *)path
+               dataCollectionToken:(FIRCLSDataCollectionToken *)dataCollectionToken
+                          asUrgent:(BOOL)urgent {
+  dispatch_async(self.operationQueue.underlyingQueue, ^{
+    [self processExistingActiveReportPath:path
+                      dataCollectionToken:dataCollectionToken
+                                 asUrgent:YES];
+  });
 }
 
 @end

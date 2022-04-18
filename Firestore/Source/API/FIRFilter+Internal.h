@@ -44,12 +44,10 @@ NS_SWIFT_NAME(Filter)
                   isGreaterThan:(nonnull id)value NS_SWIFT_NAME(whereField(_:isGreaterThan:));
 
 + (FIRFilter *)filterWhereFieldPath:(nonnull FIRFieldPath *)field
-                      isGreaterThan:(nonnull id)value
-    NS_SWIFT_NAME(whereField(_:isGreaterThan:));
+                      isGreaterThan:(nonnull id)value NS_SWIFT_NAME(whereField(_:isGreaterThan:));
 
 + (FIRFilter *)filterWhereField:(nonnull NSString *)field
-         isGreaterThanOrEqualTo:(nonnull id)value
-    NS_SWIFT_NAME(whereField(_:isGreaterOrEqualTo:));
+         isGreaterThanOrEqualTo:(nonnull id)value NS_SWIFT_NAME(whereField(_:isGreaterOrEqualTo:));
 
 + (FIRFilter *)filterWhereFieldPath:(nonnull FIRFieldPath *)field
              isGreaterThanOrEqualTo:(nonnull id)value
@@ -62,8 +60,7 @@ NS_SWIFT_NAME(Filter)
                          isLessThan:(nonnull id)value NS_SWIFT_NAME(whereField(_:isLessThan:));
 
 + (FIRFilter *)filterWhereField:(nonnull NSString *)field
-            isLessThanOrEqualTo:(nonnull id)value
-    NS_SWIFT_NAME(whereField(_:isLessThanOrEqualTo:));
+            isLessThanOrEqualTo:(nonnull id)value NS_SWIFT_NAME(whereField(_:isLessThanOrEqualTo:));
 
 + (FIRFilter *)filterWhereFieldPath:(nonnull FIRFieldPath *)field
                 isLessThanOrEqualTo:(nonnull id)value
@@ -73,8 +70,7 @@ NS_SWIFT_NAME(Filter)
                   arrayContains:(nonnull id)value NS_SWIFT_NAME(whereField(_:arrayContains:));
 
 + (FIRFilter *)filterWhereFieldPath:(nonnull FIRFieldPath *)field
-                      arrayContains:(nonnull id)value
-    NS_SWIFT_NAME(whereField(_:arrayContains:));
+                      arrayContains:(nonnull id)value NS_SWIFT_NAME(whereField(_:arrayContains:));
 
 + (FIRFilter *)filterWhereField:(nonnull NSString *)field
                arrayContainsAny:(nonnull NSArray<id> *)values
@@ -88,12 +84,10 @@ NS_SWIFT_NAME(Filter)
                              in:(nonnull NSArray<id> *)values NS_SWIFT_NAME(whereField(_:in:));
 
 + (FIRFilter *)filterWhereFieldPath:(nonnull FIRFieldPath *)field
-                                 in:(nonnull NSArray<id> *)values
-    NS_SWIFT_NAME(whereField(_:in:));
+                                 in:(nonnull NSArray<id> *)values NS_SWIFT_NAME(whereField(_:in:));
 
 + (FIRFilter *)filterWhereField:(nonnull NSString *)field
-                          notIn:(nonnull NSArray<id> *)values
-    NS_SWIFT_NAME(whereField(_:notIn:));
+                          notIn:(nonnull NSArray<id> *)values NS_SWIFT_NAME(whereField(_:notIn:));
 
 + (FIRFilter *)filterWhereFieldPath:(nonnull FIRFieldPath *)field
                               notIn:(nonnull NSArray<id> *)values

@@ -1320,9 +1320,9 @@ TEST_F(SerializerTest, EncodesSortOrders) {
 TEST_F(SerializerTest, EncodesBounds) {
   core::Query q = Query("docs")
                       .StartingAt(Bound::FromValue(Array("prop", 42),
-                                                   /*is_before=*/false))
+                                                   /*inclusive=*/false))
                       .EndingAt(Bound::FromValue(Array("author", "dimond"),
-                                                 /*is_before=*/true));
+                                                 /*inclusive=*/false));
   TargetData model = CreateTargetData(std::move(q));
 
   v1::Target proto;

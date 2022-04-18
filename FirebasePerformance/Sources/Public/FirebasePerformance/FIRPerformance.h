@@ -21,9 +21,9 @@
  * interfaces to create timers and enable or disable automatic metrics capture.
  *
  * This SDK uses a Firebase Installations ID to identify the app instance and periodically sends
- * data to the Firebase backend. (see `[FIRInstallations installationIDWithCompletion:]`).
- * To stop the periodic sync, call `[FIRInstallations deleteWithCompletion:]` and
- * either disable this SDK or set FIRPerformance.dataCollectionEnabled to NO.
+ * data to the Firebase backend (see `Installations.installationID(completion:)`).
+ * To stop this periodic sync, call `Installations.delete(completion:)` and
+ * either disable this SDK or set Performance.dataCollectionEnabled to false.
  */
 NS_EXTENSION_UNAVAILABLE("FirebasePerformance does not support app extensions at this time.")
 NS_SWIFT_NAME(Performance)
@@ -31,7 +31,7 @@ NS_SWIFT_NAME(Performance)
 
 /**
  * Controls the capture of performance data. When this value is set to NO, none of the performance
- * data will sent to the server. Default is YES.
+ * data will sent to the server. Default is true.
  *
  * This setting is persisted, and is applied on future invocations of your application. Once
  * explicitly set, it overrides any settings in your Info.plist.
@@ -39,15 +39,15 @@ NS_SWIFT_NAME(Performance)
 @property(nonatomic, assign, getter=isDataCollectionEnabled) BOOL dataCollectionEnabled;
 
 /**
- * Controls the instrumentation of the app to capture performance data. Setting this value to NO has
- * immediate effect only if it is done so before calling [FIRApp configure]. Otherwise it takes
- * effect after the app starts again the next time.
+ * Controls the instrumentation of the app to capture performance data. Setting this value to false
+ * has immediate effect only if it is done so before calling FirebaseApp.configure(). Otherwise it
+ * takes effect on the next app start.
  *
- * If set to NO, the app will not be instrumented to collect performance
- * data (in scenarios like app_start, networking monitoring). Default is YES.
+ * If set to false, the app will not be instrumented to collect performance
+ * data (in scenarios like `app_start`, networking monitoring). Default is true.
  *
  * This setting is persisted, and is applied on future invocations of your application. Once
- * explicitly set, it overrides any settings in your Info.plist.
+ * explicitly set, it overrides any settings in your `Info.plist`.
  */
 @property(nonatomic, assign, getter=isInstrumentationEnabled) BOOL instrumentationEnabled;
 
@@ -55,19 +55,18 @@ NS_SWIFT_NAME(Performance)
 + (nonnull instancetype)sharedInstance NS_SWIFT_NAME(sharedInstance());
 
 /**
- * Creates an instance of FIRTrace after creating the shared instance of FIRPerformance. The trace
- * will automatically be started on a successful creation of the instance. The |name| of the trace
+ * Creates an instance of Trace after creating the shared instance of Performance. The trace
+ * will automatically be started on a successful creation of the instance. The `name` of the trace
  * cannot be an empty string.
  *
- * @param name The name of the Trace.
- * @return The FIRTrace object.
+ * @param name The name of the trace.
+ * @return The Trace object.
  */
-+ (nullable FIRTrace *)startTraceWithName:(nonnull NSString *)name
-    NS_SWIFT_NAME(startTrace(name:));
++ (nullable FIRTrace *)startTraceWithName:(nonnull NSString *)name NS_SWIFT_NAME(startTrace(name:));
 
 /**
- * Creates an instance of FIRTrace. This API does not start the trace. To start the trace, use the
- * -start API on the returned |FIRTrace| object. The |name| cannot be an empty string.
+ * Creates an instance of Trace. This API does not start the trace. To start the trace, use the
+ * `start()` method on the returned Trace object. The `name` cannot be an empty string.
  *
  * @param name The name of the Trace.
  * @return The FIRTrace object.

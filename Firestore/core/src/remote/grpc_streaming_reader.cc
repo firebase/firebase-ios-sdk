@@ -45,8 +45,12 @@ GrpcStreamingReader::GrpcStreamingReader(
       request_{request} {
 }
 
-void GrpcStreamingReader::Start(Callback&& callback) {
-  callback_ = std::move(callback);
+void GrpcStreamingReader::Start(size_t expected_response_count,
+                                ResponsesCallback&& responses_callback,
+                                CloseCallback&& close_callback) {
+  expected_response_count_ = expected_response_count;
+  responses_callback_ = std::move(responses_callback);
+  close_callback_ = std::move(close_callback);
   stream_->Start();
 }
 
@@ -65,20 +69,26 @@ void GrpcStreamingReader::OnStreamStart() {
 }
 
 void GrpcStreamingReader::OnStreamRead(const grpc::ByteBuffer& message) {
-  // Accumulate responses
+  // Accumulate responses, responses_callback_ will be fired if
+  // GrpcStreamingReader has received all the responses.
   responses_.push_back(message);
+  if (responses_.size() == expected_response_count_) {
+    callback_fired_ = true;
+    responses_callback_(responses_);
+  }
 }
 
 void GrpcStreamingReader::OnStreamFinish(const util::Status& status) {
-  HARD_ASSERT(callback_,
-              "Received an event from stream after callback was unset");
-  // Invoking the callback may end this reader's lifetime.
-  auto callback = std::move(callback_);
-  if (status.ok()) {
-    callback(responses_);
-  } else {
-    callback(status);
+  // Handle the case where 0 document reads required.
+  // OnStreamRead will never be triggered,
+  // but we still need to return an empty vector of documents.
+  if (status.ok() && !callback_fired_) {
+    callback_fired_ = true;
+    responses_callback_(responses_);
   }
+
+  // Invoking the callback ends this reader's lifetime.
+  close_callback_(status, callback_fired_);
 }
 
 }  // namespace remote

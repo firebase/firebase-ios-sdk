@@ -64,8 +64,12 @@ class JsonReader : public util::ReadContext {
       const char* name,
       const nlohmann::json& json_object,
       const std::vector<nlohmann::json>& default_value);
+
   const nlohmann::json& RequiredObject(const char* child_name,
                                        const nlohmann::json& json_object);
+  const nlohmann::json& OptionalObject(const char* child_name,
+                                       const nlohmann::json& json_object,
+                                       const nlohmann::json& default_value);
 
   double RequiredDouble(const char* name, const nlohmann::json& json_object);
   double OptionalDouble(const char* name,
@@ -117,9 +121,18 @@ class BundleSerializer {
                                          const nlohmann::json& filter) const;
   nanopb::Message<google_firestore_v1_Value> DecodeValue(
       JsonReader& reader, const nlohmann::json& value) const;
-  core::Bound DecodeBound(JsonReader& reader,
-                          const nlohmann::json& query,
-                          const char* bound_name) const;
+
+  core::Bound DecodeStartAtBound(JsonReader& reader,
+                                 const nlohmann::json& query) const;
+  core::Bound DecodeEndAtBound(JsonReader& reader,
+                               const nlohmann::json& query) const;
+
+  // Decodes a `bound` JSON and returns a pair whose first element is the value
+  // of the `before` JSON field, and second element is the array value
+  // representing the bounded field values.
+  std::pair<bool, nanopb::SharedMessage<google_firestore_v1_ArrayValue>>
+  DecodeBoundFields(JsonReader& reader, const nlohmann::json& bound_json) const;
+
   model::ResourcePath DecodeName(JsonReader& reader,
                                  const nlohmann::json& name) const;
   nanopb::Message<google_firestore_v1_ArrayValue> DecodeArrayValue(

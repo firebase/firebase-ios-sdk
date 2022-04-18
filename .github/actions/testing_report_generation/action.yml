@@ -9,7 +9,7 @@ inputs:
     required: true
     default: 'nightly-testing'
   issue-title:
-    description: 'Title of a Github Issue'
+    description: 'Title of a GitHub Issue'
     required: true
     default: 'Nightly Testing Report'
   assignee:

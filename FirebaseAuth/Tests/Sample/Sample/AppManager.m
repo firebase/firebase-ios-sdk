@@ -97,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @fn appNameWithIndex:
     @brief Gets the app name for the given index.
     @param index The index of the app managed by this instance.
-    @returns The app name for the FIRApp instance.
+    @return The app name for the FIRApp instance.
  */
 - (NSString *)appNameWithIndex:(int)index {
   return [NSString stringWithFormat:@"APP_%02d", index];

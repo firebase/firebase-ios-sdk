@@ -24,20 +24,20 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * The root object for in-app messaging iOS SDK.
  *
- * Note: Firebase InApp Messaging depends on using a Firebase Instance ID & token pair to be able
- * to retrieve FIAM messages defined for the current app instance. By default, Firebase in-app
- * messaging SDK would obtain the ID & token pair on app/SDK startup. As a result of using
- * ID & token pair, some device client data (linked to the instance ID) would be collected and sent
- * over to Firebase backend periodically.
+ * Note: Firebase In-App Messaging depends on using a Firebase Installation ID and token pair to be
+ * able to retrieve messages defined for the current app instance. By default, the Firebase In-App
+ * Messaging SDK will obtain the ID and token pair on app/SDK startup. In its default configuration
+ * the in-app messaging SDK will send some device and client data (linked to the installation ID)
+ * to the Firebase backend periodically.
  *
  * The app can tune the default data collection behavior via certain controls. They are listed in
  * descending order below. If a higher-priority setting exists, lower level settings are ignored.
  *
- *   1. Dynamically turn on/off data collection behavior by setting the
- *     `automaticDataCollectionEnabled` property on the `FIRInAppMessaging` instance to true/false
- *      Swift or YES/NO (objective-c).
- *   2. Set `FirebaseInAppMessagingAutomaticDataCollectionEnabled` to false in the app's plist file.
- *   3. Global Firebase data collection setting.
+ *   1. Dynamically turning on or off data collection behavior by setting the
+ *     `automaticDataCollectionEnabled` property on the `InAppMessaging` instance to true or false.
+ *   2. Setting `FirebaseInAppMessagingAutomaticDataCollectionEnabled` to false in the app's plist
+ *      file.
+ *   3. Disabling data collection via the global Firebase data collection setting.
  *
  * This class is unavailable on macOS, macOS Catalyst, and watchOS.
  **/
@@ -47,7 +47,7 @@ API_UNAVAILABLE(macos, watchos)
 NS_SWIFT_NAME(InAppMessaging)
 @interface FIRInAppMessaging : NSObject
 /** @fn inAppMessaging
-    @brief Gets the singleton FIRInAppMessaging object constructed from default Firebase App
+    @brief Gets the singleton InAppMessaging object constructed from the default Firebase app
     settings.
 */
 + (FIRInAppMessaging *)inAppMessaging NS_SWIFT_NAME(inAppMessaging());
@@ -58,27 +58,25 @@ NS_SWIFT_NAME(InAppMessaging)
 - (instancetype)init __attribute__((unavailable("Use +inAppMessaging instead.")));
 
 /**
- * A boolean flag that can be used to suppress messaging display at runtime. It's
- * initialized to false at app startup. Once set to true, fiam SDK would stop rendering any
- * new messages until it's set back to false.
+ * A boolean flag that can be used to suppress messaging display at runtime,
+ * initialized to false at app startup. Once set to true, the in-app messaging SDK will stop
+ * rendering any new messages until this flag is set back to false.
  */
 @property(nonatomic) BOOL messageDisplaySuppressed;
 
 /**
- * A boolean flag that can be set at runtime to allow/disallow fiam SDK automatically
- * collect user data on app startup. Settings made via this property is persisted across app
- * restarts and has higher priority over FirebaseInAppMessagingAutomaticDataCollectionEnabled
- * flag (if present) in plist file.
+ * A boolean flag that can be set at runtime to allow or disallow
+ * collecting user data on app startup. This property is persisted across app
+ * restarts and has higher priority over the `FirebaseInAppMessagingAutomaticDataCollectionEnabled`
+ * flag (if present) in your app's `Info.plist` file.
  */
 @property(nonatomic) BOOL automaticDataCollectionEnabled;
 
 /**
- * This is the display component that will be used by FirebaseInAppMessaging to render messages.
- * If it's nil (the default case when FirebaseIAppMessaging SDK starts), FirebaseInAppMessaging
- * would only perform other non-rendering flows (fetching messages for example). SDK
- * FirebaseInAppMessagingDisplay would set itself as the display component if it's included by
- * the app. Any other custom implementation of FIRInAppMessagingDisplay would need to set this
- * property so that it can be used for rendering fiam message UIs.
+ * This is the display component that will be used by InAppMessaging to render messages.
+ * If it's `nil`, InAppMessaging will only perform other non-rendering flows (fetching messages for
+ * example). Any custom implementations of `InAppMessagingDisplay` require setting this property in
+ * order to take effect.
  */
 @property(nonatomic) id<FIRInAppMessagingDisplay> messageDisplayComponent;
 
@@ -88,7 +86,7 @@ NS_SWIFT_NAME(InAppMessaging)
 - (void)triggerEvent:(NSString *)eventName;
 
 /**
- * This delegate should be set on the app side to receive message lifecycle events in app runtime.
+ * This delegate should be set on the app side to receive message lifecycle events.
  */
 @property(nonatomic, weak) id<FIRInAppMessagingDisplayDelegate> delegate;
 

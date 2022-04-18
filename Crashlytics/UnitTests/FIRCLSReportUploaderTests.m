@@ -67,13 +67,18 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
   FIRMockInstallations *mockInstallations =
       [[FIRMockInstallations alloc] initWithFID:@"test_token"];
 
+  // Allow nil values only in tests
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
   self.managerData = [[FIRCLSManagerData alloc] initWithGoogleAppID:@"someGoogleAppId"
                                                     googleTransport:self.mockDataTransport
                                                       installations:mockInstallations
                                                           analytics:nil
                                                         fileManager:self.fileManager
                                                         dataArbiter:dataArbiter
-                                                           settings:self.mockSettings];
+                                                           settings:self.mockSettings
+                                                      onDemandModel:nil];
+#pragma clang diagnostic pop
 
   self.uploader = [[FIRCLSReportUploader alloc] initWithManagerData:_managerData];
 }
