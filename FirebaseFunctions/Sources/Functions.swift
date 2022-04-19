@@ -104,6 +104,10 @@ internal enum FunctionsConstants {
     return HTTPSCallable(functions: self, name: name)
   }
 
+  @objc(HTTPSCallableWithURL:) open func httpsCallable(url: URL) -> HTTPSCallable {
+    return HTTPSCallable(functions: self, url: url)
+  }
+
   /// Creates a reference to the Callable HTTPS trigger with the given name, the type of an `Encodable`
   /// request and the type of a `Decodable` response.
   /// - Parameter name: The name of the Callable HTTPS trigger
@@ -121,6 +125,25 @@ internal enum FunctionsConstants {
                          ))
     -> Callable<Request, Response> {
     return Callable(callable: httpsCallable(name), encoder: encoder, decoder: decoder)
+  }
+
+  /// Creates a reference to the Callable HTTPS trigger with the given name, the type of an `Encodable`
+  /// request and the type of a `Decodable` response.
+  /// - Parameter url: The url of the Callable HTTPS trigger
+  /// - Parameter requestAs: The type of the `Encodable` entity to use for requests to this `Callable`
+  /// - Parameter responseAs: The type of the `Decodable` entity to use for responses from this `Callable`
+  /// - Parameter encoder: The encoder instance to use to run the encoding.
+  /// - Parameter decoder: The decoder instance to use to run the decoding.
+  open func httpsCallable<Request: Encodable,
+    Response: Decodable>(url: URL,
+                         requestAs: Request.Type = Request.self,
+                         responseAs: Response.Type = Response.self,
+                         encoder: FirebaseDataEncoder = FirebaseDataEncoder(
+                         ),
+                         decoder: FirebaseDataDecoder = FirebaseDataDecoder(
+                         ))
+    -> Callable<Request, Response> {
+    return Callable(callable: httpsCallable(url: url), encoder: encoder, decoder: decoder)
   }
 
   /**
@@ -240,7 +263,8 @@ internal enum FunctionsConstants {
       if let error = error {
         completion(.failure(error))
       } else {
-        self.callFunction(name: name,
+        let url = self.urlWithName(name)
+        self.callFunction(url: URL(string: url)!,
                           withObject: data,
                           timeout: timeout,
                           context: context,
@@ -249,12 +273,31 @@ internal enum FunctionsConstants {
     }
   }
 
-  private func callFunction(name: String,
+  internal func callFunction(url: URL,
+                             withObject data: Any?,
+                             timeout: TimeInterval,
+                             completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
+    // Get context first.
+    contextProvider.getContext { context, error in
+      // Note: context is always non-nil since some checks could succeed, we're only failing if
+      // there's an error.
+      if let error = error {
+        completion(.failure(error))
+      } else {
+        self.callFunction(url: url,
+                          withObject: data,
+                          timeout: timeout,
+                          context: context,
+                          completion: completion)
+      }
+    }
+  }
+
+  private func callFunction(url: URL,
                             withObject data: Any?,
                             timeout: TimeInterval,
                             context: FunctionsContext,
                             completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
-    let url = URL(string: urlWithName(name))!
     let request = URLRequest(url: url,
                              cachePolicy: .useProtocolCachePolicy,
                              timeoutInterval: timeout)
