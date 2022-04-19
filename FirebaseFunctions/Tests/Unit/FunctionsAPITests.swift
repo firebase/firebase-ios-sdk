@@ -51,13 +51,13 @@ final class FunctionsAPITests: XCTestCase {
     let callableRef = Functions.functions().httpsCallable("setCourseForAlderaan")
     callableRef.timeoutInterval = 60
     let url = URL(string: "https://localhost:8080/setCourseForAlderaan")!
-    let callableRefByURL = Functions.functions().httpsCallable<String, String>(url: url)
+    let callableRefByURL = Functions.functions().httpsCallable(url: url)
     let codableByName = Functions.functions().httpsCallable<String, String>("woop",
                                                                             encoder: FirebaseDataEncoder(
                                                                             ),
                                                                             decoder: FirebaseDataDecoder(
                                                                             ))
-    let codableByUrl = Functions.functions().httpsCallable(
+    let codableByUrl = Functions.functions().httpsCallable<String, String>(
       url: url, encoder: FirebaseDataEncoder(), decoder: FirebaseDataDecoder()
     )
 
