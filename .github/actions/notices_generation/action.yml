@@ -20,11 +20,14 @@ runs:
   #image: 'Dockerfile'
   using: 'composite'
   steps:
+  - uses: actions/setup-ruby@v1
+    with:
+      ruby-version: "2.7"
   - name: First step
     run: |
+      cd .github/actions/notices_generation/
       pwd
       ls
-      cd .github/actions/notices_generation/
       bundle install
       ruby app.rb
     shell: bash
