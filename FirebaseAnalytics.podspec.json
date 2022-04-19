@@ -22,7 +22,7 @@
         "z"
     ],
     "license": {
-        "text": "Copyright 2021 Google",
+        "text": "Copyright 2022 Google",
         "type": "Copyright"
     },
     "name": "FirebaseAnalytics",
@@ -32,7 +32,7 @@
         "tvos": "12.0"
     },
     "source": {
-        "http": "https://dl.google.com/firebase/ios/analytics/dcdcf15b4c4831d9/FirebaseAnalytics-8.15.0.tar.gz"
+        "http": "https://dl.google.com/firebase/ios/analytics/a596b932b0fcdc4b/FirebaseAnalytics-9.0.0.tar.gz"
     },
     "subspecs": [
         {
