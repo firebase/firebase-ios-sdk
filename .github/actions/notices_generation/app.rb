@@ -34,8 +34,8 @@ end
 if not ENV['INPUT_SOURCES'].nil?
   SOURCES = ENV['INPUT_SOURCES'].split(/[ ,]/)
 end
-if not ENV['INPUT_MIN-IOS-VERSION'].nil?
-  MIN_IOS_VERSION = ENV['INPUT_MIN-IOS-VERSION']
+if not ENV['INPUT_MIN_IOS_VERSION'].nil?
+  MIN_IOS_VERSION = ENV['INPUT_MIN_IOS_VERSION']
 end
 
 def create_podfile(path: , sources: , target: , pods: [], min_ios_version: )
