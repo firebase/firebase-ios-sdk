@@ -30,6 +30,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Create a nightly report
+      id: notices
       uses: ./.github/actions/notices_generation/
       with:
         pods: "FirebaseABTesting"
+    - name: print notices
+      run: echo "The notice is ${{ steps.notices.outputs.notices_contents }}"
