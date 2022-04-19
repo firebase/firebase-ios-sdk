@@ -96,6 +96,7 @@ end
 def main()
   content = generate_notices_content()
   `echo "::set-output name=notices_contents::#{content}"`
+  puts content
 end 
 
 main()
