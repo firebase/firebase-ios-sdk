@@ -5,19 +5,17 @@ on:
     paths:
     - '.github/workflows/testing_actions.yml'
     - '.github/actions/notices_generation**'
-  schedule:
-    # Run every day at 5am (PST) - cron uses UTC times
-    - cron:  '0 13 * * *'
 jobs:
   generate_a_notice:
     # Don't run on private repo.
     if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name != 'schedule'
     runs-on: ubuntu-latest
-    name: Test nightly notices generations
+    name: Generate NOTICES
     steps:
     - uses: actions/checkout@v2
     - name: Create a NOTICES file
       id: notices
       uses: ./.github/actions/notices_generation/
       with:
-        pods: "FirebaseABTesting,Firebase,FirebaseFunctions"
+        pods: "Firebase,FirebaseFunctions"
+        sources: "https://cdn.cocoapods.org"

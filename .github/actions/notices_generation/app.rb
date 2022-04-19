@@ -23,20 +23,25 @@ require 'plist'
 
 DEFAULT_TESTAPP_TARGET = "testApp"
 
-# TODO: Inputs
-PODS=["FirebaseABTesting"]
-MIN_IOS_VERSION='10.0'
+# Default sources of min iOS version
 SOURCES=["https://cdn.cocoapods.org/"]
+MIN_IOS_VERSION='10.0'
 
-if not ENV['INPUT_PODS'].nil?
-  PODS = ENV['INPUT_PODS'].split(/[ ,]/)
-end
-if not ENV['INPUT_SOURCES'].nil?
-  SOURCES = ENV['INPUT_SOURCES'].split(/[ ,]/)
-end
-if not ENV['INPUT_MIN_IOS_VERSION'].nil?
-  MIN_IOS_VERSION = ENV['INPUT_MIN_IOS_VERSION']
-end
+@options = {
+    sources: SOURCES
+    min_ios_version: MIN_IOS_VERSION
+}
+OptionParser.new do |opts|
+  opts.banner = "Usage: app.rb [options]"
+  opts.on('-n', '--pods PODS', 'Pods seperated by space or comma.') { |v| @options[:pods] = v.split(/[ ,]/) }
+  opts.on('-h', '--sources SOURCES', 'Sources of Pods') { |v| @options[:sources] = v.split(/[ ,]/) }
+  opts.on('-p', '--min_ios_version MIN_IOS_VERSION', 'Minimum iOS version') { |v| @options[:min_ios_version] = v }
+end.parse!
+
+raise OptionParser::MissingArgument if @options[:pods].nil?
+
+SOURCES = @options[:sources]
+MIN_IOS_VERSION = @options[:min_ios_version]
 
 def create_podfile(path: , sources: , target: , pods: [], min_ios_version: )
   output = ""
