@@ -146,7 +146,7 @@ TEST_F(LevelDbIndexManagerTest, AddsDocuments) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestOrderByFilter) {
+TEST_F(LevelDbIndexManagerTest, OrderByFilter) {
   persistence->Run("TestOrderByFilter", [&]() {
     index_manager->Start();
     index_manager->AddFieldIndex(
@@ -159,7 +159,7 @@ TEST_F(LevelDbIndexManagerTest, TestOrderByFilter) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestOrderByKeyFilter) {
+TEST_F(LevelDbIndexManagerTest, OrderByKeyFilter) {
   persistence->Run("TestOrderByKeyFilter", [&]() {
     index_manager->Start();
     index_manager->AddFieldIndex(
@@ -184,7 +184,7 @@ TEST_F(LevelDbIndexManagerTest, TestOrderByKeyFilter) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestAscendingOrderWithLessThanFilter) {
+TEST_F(LevelDbIndexManagerTest, AscendingOrderWithLessThanFilter) {
   persistence->Run("TestAscendingOrderWithLessThanFilter", [&]() {
     index_manager->Start();
     SetUpMultipleOrderBys();
@@ -194,32 +194,32 @@ TEST_F(LevelDbIndexManagerTest, TestAscendingOrderWithLessThanFilter) {
                               .AddingFilter(Filter("b", "==", 2))
                               .AddingFilter(Filter("c", "<", 5))
                               .AddingOrderBy(OrderBy("c", "asc"));
-    auto query_with_non_restricted_bound =
-        original_query
-            .StartingAt(Bound::FromValue(Array(1), /* inclusive= */ false))
-            .EndingAt(Bound::FromValue(Array(6), /* inclusive= */ false));
-    auto query_with_restricted_bound =
-        original_query
-            .StartingAt(Bound::FromValue(Array(2), /* inclusive= */ false))
-            .EndingAt(Bound::FromValue(Array(4), /* inclusive= */ false));
-
     {
       SCOPED_TRACE("Verifing original");
       VerifyResults(original_query, {"coll/val2", "coll/val3", "coll/val4"});
     }
     {
-      SCOPED_TRACE("Verifing non restricted bound");
+      SCOPED_TRACE("Verifing non-restricted bound");
+      auto query_with_non_restricted_bound =
+          original_query
+              .StartingAt(Bound::FromValue(Array(1), /* inclusive= */ false))
+              .EndingAt(Bound::FromValue(Array(6), /* inclusive= */ false));
       VerifyResults(query_with_non_restricted_bound,
                     {"coll/val2", "coll/val3", "coll/val4"});
     }
     {
       SCOPED_TRACE("Verifing restricted bound");
+      auto query_with_restricted_bound =
+          original_query
+              .StartingAt(Bound::FromValue(Array(2), /* inclusive= */ false))
+              .EndingAt(Bound::FromValue(Array(4), /* inclusive= */ false));
+
       VerifyResults(query_with_restricted_bound, {"coll/val3"});
     }
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestDescendingOrderWithLessThanFilter) {
+TEST_F(LevelDbIndexManagerTest, DescendingOrderWithLessThanFilter) {
   persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
     index_manager->Start();
     SetUpMultipleOrderBys();
@@ -229,32 +229,31 @@ TEST_F(LevelDbIndexManagerTest, TestDescendingOrderWithLessThanFilter) {
                               .AddingFilter(Filter("b", "==", 2))
                               .AddingFilter(Filter("c", "<", 5))
                               .AddingOrderBy(OrderBy("c", "desc"));
-    auto query_with_non_restricted_bound =
-        original_query
-            .StartingAt(Bound::FromValue(Array(6), /* inclusive= */ false))
-            .EndingAt(Bound::FromValue(Array(1), /* inclusive= */ false));
-    auto query_with_restricted_bound =
-        original_query
-            .StartingAt(Bound::FromValue(Array(4), /* inclusive= */ false))
-            .EndingAt(Bound::FromValue(Array(2), /* inclusive= */ false));
-
     {
       SCOPED_TRACE("Verifying original");
       VerifyResults(original_query, {"coll/val4", "coll/val3", "coll/val2"});
     }
     {
-      SCOPED_TRACE("Verifying non restricted bound");
+      SCOPED_TRACE("Verifying non-restricted bound");
+      auto query_with_non_restricted_bound =
+          original_query
+              .StartingAt(Bound::FromValue(Array(6), /* inclusive= */ false))
+              .EndingAt(Bound::FromValue(Array(1), /* inclusive= */ false));
       VerifyResults(query_with_non_restricted_bound,
                     {"coll/val4", "coll/val3", "coll/val2"});
     }
     {
       SCOPED_TRACE("Verifying restricted bound");
+      auto query_with_restricted_bound =
+          original_query
+              .StartingAt(Bound::FromValue(Array(4), /* inclusive= */ false))
+              .EndingAt(Bound::FromValue(Array(2), /* inclusive= */ false));
       VerifyResults(query_with_restricted_bound, {"coll/val3"});
     }
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestAscendingOrderWithGreaterThanFilter) {
+TEST_F(LevelDbIndexManagerTest, AscendingOrderWithGreaterThanFilter) {
   persistence->Run("TestAscendingOrderWithGreaterThanFilter", [&]() {
     index_manager->Start();
     SetUpMultipleOrderBys();
@@ -264,32 +263,31 @@ TEST_F(LevelDbIndexManagerTest, TestAscendingOrderWithGreaterThanFilter) {
                               .AddingFilter(Filter("b", "==", 2))
                               .AddingFilter(Filter("c", ">", 2))
                               .AddingOrderBy(OrderBy("c", "asc"));
-    auto query_with_non_restricted_bound =
-        original_query
-            .StartingAt(Bound::FromValue(Array(2), /* inclusive= */ false))
-            .EndingAt(Bound::FromValue(Array(6), /* inclusive= */ false));
-    auto query_with_restricted_bound =
-        original_query
-            .StartingAt(Bound::FromValue(Array(3), /* inclusive= */ false))
-            .EndingAt(Bound::FromValue(Array(5), /* inclusive= */ false));
-
     {
       SCOPED_TRACE("Verifying original");
       VerifyResults(original_query, {"coll/val3", "coll/val4", "coll/val5"});
     }
     {
+      auto query_with_non_restricted_bound =
+          original_query
+              .StartingAt(Bound::FromValue(Array(2), /* inclusive= */ false))
+              .EndingAt(Bound::FromValue(Array(6), /* inclusive= */ false));
       SCOPED_TRACE("Verifying non-restricted bound");
       VerifyResults(query_with_non_restricted_bound,
                     {"coll/val3", "coll/val4", "coll/val5"});
     }
     {
+      auto query_with_restricted_bound =
+          original_query
+              .StartingAt(Bound::FromValue(Array(3), /* inclusive= */ false))
+              .EndingAt(Bound::FromValue(Array(5), /* inclusive= */ false));
       SCOPED_TRACE("Verifying restricted bound");
       VerifyResults(query_with_restricted_bound, {"coll/val4"});
     }
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestDescendingOrderWithGreaterThanFilter) {
+TEST_F(LevelDbIndexManagerTest, DescendingOrderWithGreaterThanFilter) {
   persistence->Run("TestDescendingOrderWithGreaterThanFilter", [&]() {
     index_manager->Start();
     SetUpMultipleOrderBys();
@@ -299,14 +297,6 @@ TEST_F(LevelDbIndexManagerTest, TestDescendingOrderWithGreaterThanFilter) {
                               .AddingFilter(Filter("b", "==", 2))
                               .AddingFilter(Filter("c", ">", 2))
                               .AddingOrderBy(OrderBy("c", "desc"));
-    auto query_with_non_restricted_bound =
-        original_query
-            .StartingAt(Bound::FromValue(Array(6), /* inclusive= */ false))
-            .EndingAt(Bound::FromValue(Array(2), /* inclusive= */ false));
-    auto query_with_restricted_bound =
-        original_query
-            .StartingAt(Bound::FromValue(Array(5), /* inclusive= */ false))
-            .EndingAt(Bound::FromValue(Array(3), /* inclusive= */ false));
 
     {
       SCOPED_TRACE("Verifying original");
@@ -314,17 +304,43 @@ TEST_F(LevelDbIndexManagerTest, TestDescendingOrderWithGreaterThanFilter) {
     }
     {
       SCOPED_TRACE("Verifying non-restricted bound");
+      auto query_with_non_restricted_bound =
+          original_query
+              .StartingAt(Bound::FromValue(Array(6), /* inclusive= */ false))
+              .EndingAt(Bound::FromValue(Array(2), /* inclusive= */ false));
       VerifyResults(query_with_non_restricted_bound,
                     {"coll/val5", "coll/val4", "coll/val3"});
     }
     {
       SCOPED_TRACE("Verifying restricted bound");
+      auto query_with_restricted_bound =
+          original_query
+              .StartingAt(Bound::FromValue(Array(5), /* inclusive= */ false))
+              .EndingAt(Bound::FromValue(Array(3), /* inclusive= */ false));
       VerifyResults(query_with_restricted_bound, {"coll/val4"});
     }
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestEqualityFilter) {
+TEST_F(LevelDbIndexManagerTest, CursorCannotExpandResult) {
+  persistence->Run("TestDescendingOrderWithGreaterThanFilter", [&]() {
+    index_manager->Start();
+
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "c", model::Segment::kAscending));
+    AddDoc("coll/val1", Map("a", 1, "b", 1, "c", 3));
+    AddDoc("coll/val2", Map("a", 2, "b", 2, "c", 2));
+
+    auto query =
+        Query("coll")
+            .AddingFilter(Filter("c", ">", 2))
+            .AddingOrderBy(OrderBy("c", "asc"))
+            .StartingAt(Bound::FromValue(Array(2), /* inclusive */ true));
+    VerifyResults(query, {"coll/val1"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, EqualityFilter) {
   persistence->Run("TestEqualityFilter", [&]() {
     index_manager->Start();
     SetUpSingleValueFilter();
@@ -333,7 +349,7 @@ TEST_F(LevelDbIndexManagerTest, TestEqualityFilter) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestOrderByWithNotEqualsFilter) {
+TEST_F(LevelDbIndexManagerTest, OrderByWithNotEqualsFilter) {
   persistence->Run("TestOrderByWithNotEqualsFilter", [&]() {
     index_manager->Start();
     index_manager->AddFieldIndex(
@@ -348,7 +364,7 @@ TEST_F(LevelDbIndexManagerTest, TestOrderByWithNotEqualsFilter) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestNestedFieldEqualityFilter) {
+TEST_F(LevelDbIndexManagerTest, NestedFieldEqualityFilter) {
   persistence->Run("TestNestedFieldEqualityFilter", [&]() {
     index_manager->Start();
     index_manager->AddFieldIndex(
@@ -360,7 +376,7 @@ TEST_F(LevelDbIndexManagerTest, TestNestedFieldEqualityFilter) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestNotEqualsFilter) {
+TEST_F(LevelDbIndexManagerTest, NotEqualsFilter) {
   persistence->Run("TestNotEqualsFilter", [&]() {
     index_manager->Start();
     SetUpSingleValueFilter();
@@ -369,7 +385,7 @@ TEST_F(LevelDbIndexManagerTest, TestNotEqualsFilter) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestEqualsWithNotEqualsFilter) {
+TEST_F(LevelDbIndexManagerTest, EqualsWithNotEqualsFilter) {
   persistence->Run("TestEqualsWithNotEqualsFilter", [&]() {
     index_manager->Start();
     index_manager->AddFieldIndex(MakeFieldIndex("coll", "a",
@@ -399,7 +415,7 @@ TEST_F(LevelDbIndexManagerTest, TestEqualsWithNotEqualsFilter) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestEqualsWithNotEqualsFilterSameField) {
+TEST_F(LevelDbIndexManagerTest, EqualsWithNotEqualsFilterSameField) {
   persistence->Run("TestEqualsWithNotEqualsFilterSameField", [&]() {
     index_manager->Start();
     SetUpSingleValueFilter();
@@ -427,7 +443,7 @@ TEST_F(LevelDbIndexManagerTest, TestEqualsWithNotEqualsFilterSameField) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestLessThanFilter) {
+TEST_F(LevelDbIndexManagerTest, LessThanFilter) {
   persistence->Run("TestLessThanFilter", [&]() {
     index_manager->Start();
     SetUpSingleValueFilter();
@@ -436,7 +452,7 @@ TEST_F(LevelDbIndexManagerTest, TestLessThanFilter) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestLessThanOrEqualsFilter) {
+TEST_F(LevelDbIndexManagerTest, LessThanOrEqualsFilter) {
   persistence->Run("TestLessThanOrEqualsFilter", [&]() {
     index_manager->Start();
     SetUpSingleValueFilter();
@@ -445,7 +461,7 @@ TEST_F(LevelDbIndexManagerTest, TestLessThanOrEqualsFilter) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestGreaterThanOrEqualsFilter) {
+TEST_F(LevelDbIndexManagerTest, GreaterThanOrEqualsFilter) {
   persistence->Run("TestGreaterThanOrEqualsFilter", [&]() {
     index_manager->Start();
     SetUpSingleValueFilter();
@@ -454,7 +470,7 @@ TEST_F(LevelDbIndexManagerTest, TestGreaterThanOrEqualsFilter) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestGreaterThanFilter) {
+TEST_F(LevelDbIndexManagerTest, GreaterThanFilter) {
   persistence->Run("TestGreaterThanFilter", [&]() {
     index_manager->Start();
     SetUpSingleValueFilter();
@@ -463,7 +479,7 @@ TEST_F(LevelDbIndexManagerTest, TestGreaterThanFilter) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestRangeFilter) {
+TEST_F(LevelDbIndexManagerTest, RangeFilter) {
   persistence->Run("TestRangeFilter", [&]() {
     index_manager->Start();
     SetUpSingleValueFilter();
@@ -474,7 +490,7 @@ TEST_F(LevelDbIndexManagerTest, TestRangeFilter) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestStartAtFilter) {
+TEST_F(LevelDbIndexManagerTest, StartAtFilter) {
   persistence->Run("TestStartAtFilter", [&]() {
     index_manager->Start();
     SetUpSingleValueFilter();
@@ -486,7 +502,7 @@ TEST_F(LevelDbIndexManagerTest, TestStartAtFilter) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestAppliesStartAtFilterWithNotIn) {
+TEST_F(LevelDbIndexManagerTest, AppliesStartAtFilterWithNotIn) {
   persistence->Run("TestAppliesStartAtFilterWithNotIn", [&]() {
     index_manager->Start();
     SetUpSingleValueFilter();
@@ -499,7 +515,7 @@ TEST_F(LevelDbIndexManagerTest, TestAppliesStartAtFilterWithNotIn) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestStartAfterFilter) {
+TEST_F(LevelDbIndexManagerTest, StartAfterFilter) {
   persistence->Run("TestStartAfterFilter", [&]() {
     index_manager->Start();
     SetUpSingleValueFilter();
@@ -511,7 +527,7 @@ TEST_F(LevelDbIndexManagerTest, TestStartAfterFilter) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestEndAtFilter) {
+TEST_F(LevelDbIndexManagerTest, EndAtFilter) {
   persistence->Run("TestEndAtFilter", [&]() {
     index_manager->Start();
     SetUpSingleValueFilter();
@@ -523,7 +539,7 @@ TEST_F(LevelDbIndexManagerTest, TestEndAtFilter) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestEndBeforeFilter) {
+TEST_F(LevelDbIndexManagerTest, EndBeforeFilter) {
   persistence->Run("TestEndBeforeFilter", [&]() {
     index_manager->Start();
     SetUpSingleValueFilter();
@@ -535,7 +551,7 @@ TEST_F(LevelDbIndexManagerTest, TestEndBeforeFilter) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestRangeWithBoundFilter) {
+TEST_F(LevelDbIndexManagerTest, RangeWithBoundFilter) {
   persistence->Run("TestRangeWithBoundFilter", [&]() {
     index_manager->Start();
     SetUpSingleValueFilter();
@@ -550,7 +566,7 @@ TEST_F(LevelDbIndexManagerTest, TestRangeWithBoundFilter) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestInFilter) {
+TEST_F(LevelDbIndexManagerTest, InFilter) {
   persistence->Run("TestInFilter", [&]() {
     index_manager->Start();
     SetUpSingleValueFilter();
@@ -559,7 +575,7 @@ TEST_F(LevelDbIndexManagerTest, TestInFilter) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestNotInFilter) {
+TEST_F(LevelDbIndexManagerTest, NotInFilter) {
   persistence->Run("TestNotInFilter", [&]() {
     index_manager->Start();
     SetUpSingleValueFilter();
@@ -569,7 +585,7 @@ TEST_F(LevelDbIndexManagerTest, TestNotInFilter) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestNotInWithGreaterThanFilter) {
+TEST_F(LevelDbIndexManagerTest, NotInWithGreaterThanFilter) {
   persistence->Run("TestNotInWithGreaterThanFilter", [&]() {
     index_manager->Start();
     SetUpSingleValueFilter();
@@ -580,7 +596,7 @@ TEST_F(LevelDbIndexManagerTest, TestNotInWithGreaterThanFilter) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestOutOfBoundsNotInWithGreaterThanFilter) {
+TEST_F(LevelDbIndexManagerTest, OutOfBoundsNotInWithGreaterThanFilter) {
   persistence->Run("TestOutOfBoundsNotInWithGreaterThanFilter", [&]() {
     index_manager->Start();
     SetUpSingleValueFilter();
@@ -591,7 +607,7 @@ TEST_F(LevelDbIndexManagerTest, TestOutOfBoundsNotInWithGreaterThanFilter) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestArrayContainsFilter) {
+TEST_F(LevelDbIndexManagerTest, ArrayContainsFilter) {
   persistence->Run("TestArrayContainsFilter", [&]() {
     index_manager->Start();
     SetUpArrayValueFilter();
@@ -601,7 +617,7 @@ TEST_F(LevelDbIndexManagerTest, TestArrayContainsFilter) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestArrayContainsWithNotEqualsFilter) {
+TEST_F(LevelDbIndexManagerTest, ArrayContainsWithNotEqualsFilter) {
   persistence->Run("TestArrayContainsWithNotEqualsFilter", [&]() {
     index_manager->Start();
     index_manager->AddFieldIndex(MakeFieldIndex("coll", "a",
@@ -638,7 +654,7 @@ TEST_F(LevelDbIndexManagerTest,
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestEqualsWithNotEqualsOnSameField) {
+TEST_F(LevelDbIndexManagerTest, EqualsWithNotEqualsOnSameField) {
   persistence->Run("TestEqualsWithNotEqualsOnSameField", [&]() {
     index_manager->Start();
     SetUpSingleValueFilter();
@@ -687,15 +703,13 @@ TEST_F(LevelDbIndexManagerTest, TestEqualsWithNotEqualsOnSameField) {
       for (const auto& filter : filter_result_pair.first) {
         query = query.AddingFilter(filter);
       }
-      {
-        SCOPED_TRACE(absl::StrCat("Verifing case#", counter++));
-        VerifyResults(query, filter_result_pair.second);
-      }
+      SCOPED_TRACE(absl::StrCat("Verifing case#", counter++));
+      VerifyResults(query, filter_result_pair.second);
     }
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestArrayContainsAnyFilter) {
+TEST_F(LevelDbIndexManagerTest, ArrayContainsAnyFilter) {
   persistence->Run("TestArrayContainsAnyFilter", [&]() {
     index_manager->Start();
     SetUpArrayValueFilter();
@@ -705,7 +719,7 @@ TEST_F(LevelDbIndexManagerTest, TestArrayContainsAnyFilter) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestArrayContainsDoesNotMatchNonArray) {
+TEST_F(LevelDbIndexManagerTest, ArrayContainsDoesNotMatchNonArray) {
   persistence->Run("TestArrayContainsDoesNotMatchNonArray", [&]() {
     index_manager->Start();
     // Set up two field indices. This causes two index entries to be written,
@@ -719,7 +733,7 @@ TEST_F(LevelDbIndexManagerTest, TestArrayContainsDoesNotMatchNonArray) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestNoMatchingFilter) {
+TEST_F(LevelDbIndexManagerTest, NoMatchingFilter) {
   persistence->Run("TestNoMatchingFilter", [&]() {
     index_manager->Start();
     SetUpSingleValueFilter();
@@ -730,7 +744,7 @@ TEST_F(LevelDbIndexManagerTest, TestNoMatchingFilter) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestNoMatchingDocs) {
+TEST_F(LevelDbIndexManagerTest, NoMatchingDocs) {
   persistence->Run("TestNoMatchingDocs", [&]() {
     index_manager->Start();
     SetUpSingleValueFilter();
@@ -739,7 +753,7 @@ TEST_F(LevelDbIndexManagerTest, TestNoMatchingDocs) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestEqualityFilterWithNonMatchingType) {
+TEST_F(LevelDbIndexManagerTest, EqualityFilterWithNonMatchingType) {
   persistence->Run("TestEqualityFilterWithNonMatchingType", [&]() {
     index_manager->Start();
     index_manager->AddFieldIndex(
@@ -752,7 +766,7 @@ TEST_F(LevelDbIndexManagerTest, TestEqualityFilterWithNonMatchingType) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestCollectionGroup) {
+TEST_F(LevelDbIndexManagerTest, CollectionGroup) {
   persistence->Run("TestCollectionGroup", [&]() {
     index_manager->Start();
     index_manager->AddFieldIndex(
@@ -766,7 +780,7 @@ TEST_F(LevelDbIndexManagerTest, TestCollectionGroup) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestLimitFilter) {
+TEST_F(LevelDbIndexManagerTest, LimitFilter) {
   persistence->Run("TestLimitFilter", [&]() {
     index_manager->Start();
     index_manager->AddFieldIndex(
@@ -781,7 +795,7 @@ TEST_F(LevelDbIndexManagerTest, TestLimitFilter) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestLimitAppliesOrdering) {
+TEST_F(LevelDbIndexManagerTest, LimitAppliesOrdering) {
   persistence->Run("TestLimitAppliesOrdering", [&]() {
     index_manager->Start();
     index_manager->AddFieldIndex(
@@ -798,7 +812,7 @@ TEST_F(LevelDbIndexManagerTest, TestLimitAppliesOrdering) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestIndexEntriesAreUpdated) {
+TEST_F(LevelDbIndexManagerTest, IndexEntriesAreUpdated) {
   persistence->Run("TestIndexEntriesAreUpdated", [&]() {
     index_manager->Start();
     index_manager->AddFieldIndex(
@@ -814,13 +828,13 @@ TEST_F(LevelDbIndexManagerTest, TestIndexEntriesAreUpdated) {
     AddDocs(
         {Doc("coll/doc1", 1, Map()), Doc("coll/doc2", 1, Map("value", true))});
     {
-      SCOPED_TRACE("With doc1 and doc2");
+      SCOPED_TRACE("With doc1 (non-matching) and doc2");
       VerifyResults(query, {"coll/doc2"});
     }
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestIndexEntriesAreUpdatedWithDeletedDoc) {
+TEST_F(LevelDbIndexManagerTest, IndexEntriesAreUpdatedWithDeletedDoc) {
   persistence->Run("TestIndexEntriesAreUpdatedWithDeletedDoc", [&]() {
     index_manager->Start();
     index_manager->AddFieldIndex(
@@ -841,7 +855,7 @@ TEST_F(LevelDbIndexManagerTest, TestIndexEntriesAreUpdatedWithDeletedDoc) {
   });
 }
 
-TEST_F(LevelDbIndexManagerTest, TestAdvancedQueries) {
+TEST_F(LevelDbIndexManagerTest, AdvancedQueries) {
   // This test compares local query results with those received from the Java
   // Server SDK.
   persistence->Run("TestAdvancedQueries", [&]() {
@@ -891,9 +905,9 @@ TEST_F(LevelDbIndexManagerTest, TestAdvancedQueries) {
 
     std::vector<nanopb::Message<google_firestore_v1_Value>> data;
     data.push_back(Map());
-    data.push_back(Map("int", 1, "array", Array(1, "foo")));
+    data.push_back(Map("array", Array(1, "foo"), "int", 1));
     data.push_back(Map("array", Array(2, "foo")));
-    data.push_back(Map("int", 3, "array", Array(3, "foo")));
+    data.push_back(Map("array", Array(3, "foo"), "int", 3));
     data.push_back(Map("array", "foo"));
     data.push_back(Map("array", Array(1)));
     data.push_back(Map("float", -0.0, "string", "a"));
@@ -918,6 +932,12 @@ TEST_F(LevelDbIndexManagerTest, TestAdvancedQueries) {
     data.push_back(Map("a", 2, "b", 1));
 
     for (auto& map : data) {
+      for (size_t idx = 1; idx < map->map_value.fields_count; ++idx) {
+        ASSERT_LE(nanopb::MakeStringView(map->map_value.fields[idx - 1].key),
+                  nanopb::MakeStringView(map->map_value.fields[idx].key))
+            << "Expect fields in testing documents to be sorted by key.";
+      }
+
       auto doc_id = "coll/" + model::CanonicalId(*map);
       AddDoc(doc_id, std::move(map));
     }
@@ -973,7 +993,6 @@ TEST_F(LevelDbIndexManagerTest, TestAdvancedQueries) {
         {q.AddingOrderBy(OrderBy("array"))
              .StartingAt(Bound::FromValue(Array(Array(2)), true)),
          {"coll/{array:[2,foo]}", "coll/{array:[3,foo],int:3}"}},
-
         {q.AddingOrderBy(OrderBy("array", "desc"))
              .StartingAt(Bound::FromValue(Array(Array(2)), true)),
          {"coll/{array:[1,foo],int:1}", "coll/{array:[1]}",
@@ -985,7 +1004,6 @@ TEST_F(LevelDbIndexManagerTest, TestAdvancedQueries) {
         {q.AddingOrderBy(OrderBy("array"))
              .StartingAt(Bound::FromValue(Array(Array(2)), false)),
          {"coll/{array:[2,foo]}", "coll/{array:[3,foo],int:3}"}},
-
         {q.AddingOrderBy(OrderBy("array", "desc"))
              .StartingAt(Bound::FromValue(Array(Array(2)), false)),
          {"coll/{array:[1,foo],int:1}", "coll/{array:[1]}",
@@ -994,21 +1012,17 @@ TEST_F(LevelDbIndexManagerTest, TestAdvancedQueries) {
              .StartingAt(Bound::FromValue(Array(Array(2)), false))
              .WithLimitToFirst(2),
          {"coll/{array:[1,foo],int:1}", "coll/{array:[1]}"}},
-
         {q.AddingOrderBy(OrderBy("array"))
              .StartingAt(Bound::FromValue(Array(Array(2, "foo")), false)),
          {"coll/{array:[3,foo],int:3}"}},
-
         {q.AddingOrderBy(OrderBy("array", "desc"))
              .StartingAt(Bound::FromValue(Array(Array(2, "foo")), false)),
          {"coll/{array:[1,foo],int:1}", "coll/{array:[1]}",
           "coll/{array:foo}"}},
-
         {q.AddingOrderBy(OrderBy("array", "desc"))
              .StartingAt(Bound::FromValue(Array(Array(2, "foo")), false))
              .WithLimitToFirst(2),
          {"coll/{array:[1,foo],int:1}", "coll/{array:[1]}"}},
-
         {q.AddingOrderBy(OrderBy("array"))
              .EndingAt(Bound::FromValue(Array(Array(2)), true)),
          {"coll/{array:foo}", "coll/{array:[1]}",
@@ -1016,7 +1030,6 @@ TEST_F(LevelDbIndexManagerTest, TestAdvancedQueries) {
         {q.AddingOrderBy(OrderBy("array", "desc"))
              .EndingAt(Bound::FromValue(Array(Array(2)), true)),
          {"coll/{array:[3,foo],int:3}", "coll/{array:[2,foo]}"}},
-
         {q.AddingOrderBy(OrderBy("array"))
              .EndingAt(Bound::FromValue(Array(Array(2)), false)),
          {"coll/{array:foo}", "coll/{array:[1]}",
@@ -1028,7 +1041,6 @@ TEST_F(LevelDbIndexManagerTest, TestAdvancedQueries) {
         {q.AddingOrderBy(OrderBy("array", "desc"))
              .EndingAt(Bound::FromValue(Array(Array(2)), false)),
          {"coll/{array:[3,foo],int:3}", "coll/{array:[2,foo]}"}},
-
         {q.AddingOrderBy(OrderBy("array"))
              .EndingAt(Bound::FromValue(Array(Array(2, "foo")), false)),
          {"coll/{array:foo}", "coll/{array:[1]}",
@@ -1037,7 +1049,6 @@ TEST_F(LevelDbIndexManagerTest, TestAdvancedQueries) {
              .EndingAt(Bound::FromValue(Array(Array(2, "foo")), false))
              .WithLimitToFirst(2),
          {"coll/{array:foo}", "coll/{array:[1]}"}},
-
         {q.AddingOrderBy(OrderBy("array", "desc"))
              .EndingAt(Bound::FromValue(Array(Array(2, "foo")), false)),
          {"coll/{array:[3,foo],int:3}"}},
@@ -1057,18 +1068,14 @@ TEST_F(LevelDbIndexManagerTest, TestAdvancedQueries) {
              .AddingOrderBy(OrderBy("b", "desc"))
              .WithLimitToFirst(1),
          {"coll/{a:2,b:1}"}},
-
         {q.AddingFilter(Filter("a", ">", 0)).AddingFilter(Filter("b", "==", 1)),
          {"coll/{a:1,b:1}", "coll/{a:2,b:1}"}},
-
         {q.AddingFilter(Filter("a", "==", 1))
              .AddingFilter(Filter("b", "==", 1)),
          {"coll/{a:1,b:1}"}},
-
         {q.AddingFilter(Filter("a", "!=", 0))
              .AddingFilter(Filter("b", "==", 1)),
          {"coll/{a:1,b:1}", "coll/{a:2,b:1}"}},
-
         {q.AddingFilter(Filter("b", "==", 1))
              .AddingFilter(Filter("a", "!=", 0)),
          {"coll/{a:1,b:1}", "coll/{a:2,b:1}"}},

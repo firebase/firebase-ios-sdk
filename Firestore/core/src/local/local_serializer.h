@@ -171,6 +171,10 @@ class LocalSerializer {
   model::Mutation DecodeMutation(nanopb::Reader* reader,
                                  google_firestore_v1_Write& proto) const;
 
+  const model::DatabaseId& database_id() const {
+    return rpc_serializer_.database_id();
+  }
+
  private:
   /**
    * Encodes a Document for local storage. This differs from the v1 RPC

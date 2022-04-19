@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <memory>
 #include <set>
 #include <string>
 #include <unordered_set>
@@ -30,6 +31,7 @@
 #include "Firestore/core/src/index/index_entry.h"
 #include "Firestore/core/src/local/leveldb_key.h"
 #include "Firestore/core/src/local/leveldb_persistence.h"
+#include "Firestore/core/src/local/leveldb_util.h"
 #include "Firestore/core/src/local/local_serializer.h"
 #include "Firestore/core/src/model/document_set.h"
 #include "Firestore/core/src/model/field_index.h"
@@ -38,8 +40,11 @@
 #include "Firestore/core/src/model/target_index_matcher.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
+#include "Firestore/core/src/util/set_util.h"
+#include "Firestore/core/src/util/string_util.h"
 #include "Firestore/third_party/nlohmann_json/json.hpp"
 #include "absl/strings/match.h"
+#include "leveldb/iterator.h"
 
 namespace firebase {
 namespace firestore {
@@ -445,12 +450,11 @@ absl::optional<model::FieldIndex> LevelDbIndexManager::GetFieldIndex(
     return absl::nullopt;
   }
 
-  absl::optional<FieldIndex> result = absl::nullopt;
-  std::vector<FieldIndex> matching_indexes;
+  absl::optional<FieldIndex> result;
   for (FieldIndex index : collection_indexes) {
     if (target_index_matcher.ServedByIndex(index)) {
-      if (result.value_or(FieldIndex()).segments().size() <
-          index.segments().size()) {
+      if (!result.has_value() ||
+          result.value().segments().size() < index.segments().size()) {
         // `index` serves the target, and it has more segments than the current
         // `result`.
         result = std::move(index);
@@ -514,8 +518,8 @@ LevelDbIndexManager::GetDocumentsMatchingTarget(const core::Target& target) {
             existing_keys.end()) {
           result.push_back(
               DocumentKey::FromPathString(entry_key.document_key()));
+          existing_keys.insert(entry_key.document_key());
         }
-        existing_keys.insert(entry_key.document_key());
       }
     }
   }
@@ -608,7 +612,8 @@ LevelDbIndexManager::GenerateIndexRanges(
                                                  /* inclusive= */ true));
     }
 
-    auto new_range = CreateRange(lower_bound, upper_bound, not_in_bounds);
+    auto new_range =
+        CreateRange(lower_bound, upper_bound, std::move(not_in_bounds));
     index_ranges.insert(index_ranges.end(), new_range.begin(), new_range.end());
   }
 
@@ -618,8 +623,8 @@ LevelDbIndexManager::GenerateIndexRanges(
 std::vector<LevelDbIndexManager::IndexRange> LevelDbIndexManager::CreateRange(
     const index::IndexEntry& lower_bound,
     const index::IndexEntry& upper_bound,
-    std::vector<index::IndexEntry>& not_in_values) const {
-  // The notIb values need to be sorted and unique so that we can return a
+    std::vector<index::IndexEntry> not_in_values) const {
+  // The `not_in_values` need to be sorted and unique so that we can return a
   // sorted set of non-overlapping ranges.
   std::sort(not_in_values.begin(), not_in_values.end(),
             [](const IndexEntry& left, const IndexEntry& right) {
@@ -702,10 +707,10 @@ void LevelDbIndexManager::UpdateIndexEntries(
 
   for (const auto& kv : documents) {
     const auto group = kv.first.GetCollectionGroup();
+    HARD_ASSERT(group.has_value(),
+                "Document key is expected to have a collection group");
     std::vector<FieldIndex> indexes;
-    if (group.has_value()) {
-      indexes = GetFieldIndexes(group.value());
-    }
+    indexes = GetFieldIndexes(group.value());
 
     for (const auto& index : indexes) {
       auto existing_entries = GetExistingIndexEntries(kv.first, index);
@@ -735,9 +740,7 @@ std::set<IndexEntry> LevelDbIndexManager::GetExistingIndexEntries(
     HARD_ASSERT(decoded,
                 "LevelDbIndexEntryKey cannot be decoded from document key "
                 "index table.");
-    index_entries.insert({entry_key.index_id(),
-                          DocumentKey::FromPathString(entry_key.document_key()),
-                          entry_key.array_value(),
+    index_entries.insert({entry_key.index_id(), key, entry_key.array_value(),
                           entry_key.directional_value()});
   }
 
@@ -796,59 +799,13 @@ std::string LevelDbIndexManager::EncodeSingleElement(
   return index_buffer.GetEncodedBytes();
 }
 
-void DiffSets(std::set<IndexEntry> existing,
-              std::set<IndexEntry> new_entries,
-              std::function<void(const IndexEntry&)> on_add,
-              std::function<void(const IndexEntry&)> on_remove) {
-  auto existing_iter = existing.cbegin();
-  auto new_iter = new_entries.cbegin();
-  // Walk through the two sets at the same time, using the ordering defined by
-  // `CompareTo`.
-  while (existing_iter != existing.cend() || new_iter != new_entries.cend()) {
-    bool added = false;
-    bool removed = false;
-
-    if (existing_iter != existing.cend() && new_iter != new_entries.cend()) {
-      util::ComparisonResult cmp = existing_iter->CompareTo(*new_iter);
-      if (cmp == util::ComparisonResult::Ascending) {
-        // The element was removed if the next element in our ordered
-        // walkthrough is only in `existing`.
-        removed = true;
-      } else if (cmp == util::ComparisonResult::Descending) {
-        // The element was added if the next element in our ordered
-        // walkthrough is only in `new_entries`.
-        added = true;
-      }
-    } else if (existing_iter != existing.cend()) {
-      removed = true;
-    } else {
-      added = true;
-    }
-
-    if (added) {
-      on_add(*new_iter);
-      new_iter++;
-    } else if (removed) {
-      on_remove(*existing_iter);
-      existing_iter++;
-    } else {
-      if (existing_iter != existing.cend()) {
-        existing_iter++;
-      }
-      if (new_iter != new_entries.cend()) {
-        new_iter++;
-      }
-    }
-  }
-}
-
 void LevelDbIndexManager::UpdateEntries(
     const model::Document& document,
     const FieldIndex& index,
     const std::set<IndexEntry>& existing_entries,
     const std::set<IndexEntry>& new_entries) {
-  DiffSets(
-      existing_entries, new_entries,
+  util::DiffSets<IndexEntry>(
+      existing_entries, new_entries, {},
       [this, document, index](const IndexEntry& entry) {
         this->AddIndexEntry(document, index, entry);
       },
@@ -863,20 +820,20 @@ void LevelDbIndexManager::AddIndexEntry(const model::Document& document,
   std::string document_key = document->key().path().CanonicalString();
   auto entry_key = LevelDbIndexEntryKey::Key(
       entry.index_id(), uid_, entry.array_value(), entry.directional_value(),
-      EncodedDirectionalKey(index, document_key), document_key);
+      EncodedDirectionalKey(index, document->key()), document_key);
   db_->current_transaction()->Put(entry_key, "");
 
   auto document_key_index_prefix =
       LevelDbIndexEntryDocumentKeyIndexKey::KeyPrefix(entry.index_id(), uid_,
                                                       document_key);
-  std::string raw_key;
-  auto iter = db_->current_transaction()->NewIterator();
-  for (iter->Seek(document_key_index_prefix); iter->Valid(); iter->Next()) {
-    if (absl::StartsWith(iter->key(), document_key_index_prefix)) {
-      raw_key = iter->key();
-    } else {
-      break;
-    }
+  std::unique_ptr<leveldb::Iterator> iter(
+      db_->ptr()->NewIterator(LevelDbTransaction::DefaultReadOptions()));
+  iter->Seek(util::PrefixSuccessor(document_key_index_prefix));
+  iter->Prev();
+  absl::string_view raw_key;
+  if (iter->Valid() && absl::StartsWith(local::MakeStringView(iter->key()),
+                                        document_key_index_prefix)) {
+    raw_key = local::MakeStringView(iter->key());
   }
 
   LevelDbIndexEntryDocumentKeyIndexKey document_key_index_key(
@@ -892,13 +849,14 @@ void LevelDbIndexManager::AddIndexEntry(const model::Document& document,
   db_->current_transaction()->Put(document_key_index_key.Key(), entry_key);
 }
 
-std::string LevelDbIndexManager::EncodedDirectionalKey(const FieldIndex& index,
-                                                       absl::string_view key) {
+std::string LevelDbIndexManager::EncodedDirectionalKey(
+    const FieldIndex& index, const model::DocumentKey& key) {
   auto kind = index.GetDirectionalSegments().empty()
                   ? model::Segment::kAscending
                   : index.GetDirectionalSegments().rbegin()->kind();
   IndexEncodingBuffer buffer;
-  buffer.ForKind(kind)->WriteString(key);
+  index::WriteIndexValue(*model::RefValue(serializer_->database_id(), key),
+                         buffer.ForKind(kind));
   return buffer.GetEncodedBytes();
 }
 
@@ -908,7 +866,7 @@ void LevelDbIndexManager::DeleteIndexEntry(const model::Document& document,
   std::string document_key = document->key().path().CanonicalString();
   auto entry_key = LevelDbIndexEntryKey::Key(
       entry.index_id(), uid_, entry.array_value(), entry.directional_value(),
-      EncodedDirectionalKey(index, document_key), document_key);
+      EncodedDirectionalKey(index, document->key()), document_key);
   db_->current_transaction()->Delete(entry_key);
 
   auto document_key_index_prefix =

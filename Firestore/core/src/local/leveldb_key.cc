@@ -144,11 +144,14 @@ enum ComponentLabel {
   /** A general component to differentiate indexes with same prefixes. */
   SequenceNumber = 23,
 
+  // TODO(wuandy) We use document id and document key to mean the same thing.
+  // This is because there is a `ReadDocumentKey` method that returns a
+  // `DocumentKey`, which conflicts with the names we want to use here.
   /**
-   * A component containing an encoded document ID with either ASC or DESC
+   * A component containing an encoded document key with either ASC or DESC
    * ordering.
    */
-  OrderedDocumentId = 24,
+  OrderedDocumentKey = 24,
 
   /**
    * A path segment describes just a single segment in a resource path. Path
@@ -228,8 +231,8 @@ class Reader {
     return ReadLabeledString(ComponentLabel::DocumentId);
   }
 
-  std::string ReadOrderedDocumentId() {
-    return ReadLabeledString(ComponentLabel::OrderedDocumentId);
+  std::string ReadOrderedDocumentKey() {
+    return ReadLabeledString(ComponentLabel::OrderedDocumentKey);
   }
 
   std::string ReadBundleId() {
@@ -627,8 +630,8 @@ std::string Reader::Describe() {
       if (ok_) {
         absl::StrAppend(&description, " document_id=", document_id);
       }
-    } else if (label == ComponentLabel::OrderedDocumentId) {
-      ReadOrderedDocumentId();
+    } else if (label == ComponentLabel::OrderedDocumentKey) {
+      ReadOrderedDocumentKey();
       if (ok_) {
         absl::StrAppend(&description, " ordered_document_id=<skipped>");
       }
@@ -723,8 +726,8 @@ class Writer {
     WriteLabeledString(ComponentLabel::DocumentId, document_id);
   }
 
-  void WriteOrderedDocumentId(absl::string_view document_id) {
-    WriteLabeledString(ComponentLabel::OrderedDocumentId, document_id);
+  void WriteOrderedDocumentKey(absl::string_view document_key) {
+    WriteLabeledString(ComponentLabel::OrderedDocumentKey, document_key);
   }
 
   void WriteSnapshotVersion(model::SnapshotVersion snapshot_version) {
@@ -1323,7 +1326,7 @@ std::string LevelDbIndexEntryKey::Key(int32_t index_id,
   writer.WriteUserId(user_id);
   writer.WriteIndexArrayValue(array_value);
   writer.WriteIndexDirectionalValue(directional_value);
-  writer.WriteOrderedDocumentId(ordered_document_key);
+  writer.WriteOrderedDocumentKey(ordered_document_key);
   writer.WriteDocumentId(document_key);
   writer.WriteTerminator();
   return writer.result();
@@ -1336,7 +1339,7 @@ bool LevelDbIndexEntryKey::Decode(absl::string_view key) {
   user_id_ = reader.ReadUserId();
   array_value_ = reader.ReadIndexArrayValue();
   directional_value_ = reader.ReadIndexDirectionalValue();
-  ordered_document_key_ = reader.ReadOrderedDocumentId();
+  ordered_document_key_ = reader.ReadOrderedDocumentKey();
   document_key_ = reader.ReadDocumentId();
   reader.ReadTerminator();
   return reader.ok();

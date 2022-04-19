@@ -28,6 +28,7 @@
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/equality.h"
 #include "Firestore/core/src/util/hashing.h"
+#include "Firestore/core/src/util/maps.h"
 #include "absl/strings/str_cat.h"
 
 namespace firebase {
@@ -37,6 +38,7 @@ namespace core {
 using model::DocumentKey;
 using model::FieldPath;
 using model::Segment;
+using util::MapWithInsertionOrder;
 
 namespace {
 
@@ -51,33 +53,6 @@ std::vector<google_firestore_v1_Value> MakeValueVector(
 
   return result;
 }
-
-/**
- * A map supports consuming values in the insertion order.
- */
-class MapWithInsertionOrder {
- public:
-  /** Adds or replaces a key and its associated value in the map. */
-  void Put(const std::string& key, const google_firestore_v1_Value& value) {
-    if (field_value_map_.find(key) != field_value_map_.end()) {
-      *field_value_map_[key] = value;
-    } else {
-      values_.push_back(value);
-      field_value_map_[key] = values_.end() - 1;
-    }
-  }
-
-  /** Consumes the values added to the map in the insertion order. */
-  std::vector<google_firestore_v1_Value>&& ConsumeValues() {
-    return std::move(values_);
-  }
-
- private:
-  std::vector<google_firestore_v1_Value> values_;
-  std::unordered_map<std::string,
-                     std::vector<google_firestore_v1_Value>::iterator>
-      field_value_map_;
-};
 
 }  // namespace
 
@@ -129,7 +104,7 @@ IndexedValues Target::GetArrayValues(
 
 IndexedValues Target::GetNotInValues(
     const model::FieldIndex& field_index) const {
-  MapWithInsertionOrder field_value_map;
+  MapWithInsertionOrder<std::string, google_firestore_v1_Value> field_value_map;
   for (const auto& segment : field_index.GetDirectionalSegments()) {
     for (const auto& field_filter :
          GetFieldFiltersForPath(segment.field_path())) {

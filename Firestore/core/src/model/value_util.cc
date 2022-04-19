@@ -449,17 +449,19 @@ std::string CanonifyObject(const google_firestore_v1_Value& value) {
   pb_size_t fields_count = value.map_value.fields_count;
   const auto& fields = value.map_value.fields;
 
-  std::vector<std::string> fields_string;
+  // Porting Note: MapValues in iOS are always kept in sorted order. We
+  // therefore do no need to sort them before generating the canonical ID.
+  std::string result = "{";
   for (pb_size_t i = 0; i < fields_count; ++i) {
-    std::string field;
-    absl::StrAppend(&field, nanopb::MakeStringView(fields[i].key), ":",
+    absl::StrAppend(&result, nanopb::MakeStringView(fields[i].key), ":",
                     CanonicalId(fields[i].value));
-    fields_string.push_back(std::move(field));
+    if (i != fields_count - 1) {
+      absl::StrAppend(&result, ",");
+    }
   }
-  std::sort(fields_string.begin(), fields_string.end());
-  std::string result = absl::StrJoin(fields_string, ",");
+  result += "}";
 
-  return absl::StrCat("{", result, "}");
+  return result;
 }
 
 std::string CanonicalId(const google_firestore_v1_Value& value) {

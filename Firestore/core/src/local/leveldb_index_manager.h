@@ -119,6 +119,7 @@ class LevelDbIndexManager : public IndexManager {
                      const model::FieldIndex& index,
                      const std::set<index::IndexEntry>& existing_entries,
                      const std::set<index::IndexEntry>& new_entries);
+
   void AddIndexEntry(const model::Document& document,
                      const model::FieldIndex& index,
                      const index::IndexEntry& entry);
@@ -142,7 +143,7 @@ class LevelDbIndexManager : public IndexManager {
    * ordering of the field index.
    */
   std::string EncodedDirectionalKey(const model::FieldIndex& index,
-                                    absl::string_view view);
+                                    const model::DocumentKey& key);
 
   std::vector<core::Target> GetSubTargets(const core::Target& target);
 
@@ -165,8 +166,9 @@ class LevelDbIndexManager : public IndexManager {
 
   /**
    * Constructs a vector of LevelDb key ranges that unions all bounds.
-   * Representing the ranges in the index entry table satisfying the given
-   * bounds.
+   *
+   * These ranges represent the sections in the index entry table that contain
+   * the given bounds.
    */
   std::vector<IndexRange> GenerateIndexRanges(
       int32_t index_id,
@@ -186,7 +188,7 @@ class LevelDbIndexManager : public IndexManager {
   std::vector<IndexRange> CreateRange(
       const index::IndexEntry& lower_bound,
       const index::IndexEntry& upper_bound,
-      std::vector<index::IndexEntry>& not_in_bounds) const;
+      std::vector<index::IndexEntry> not_in_bounds) const;
 
   // The LevelDbIndexManager is owned by LevelDbPersistence.
   LevelDbPersistence* db_;
