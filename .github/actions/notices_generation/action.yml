@@ -26,14 +26,11 @@ runs:
   - name: First step
     run: |
       cd .github/actions/notices_generation/
-      pwd
-      ls
       bundle install
-      ruby app.rb
+      INPUT_PODS=${{ inputs.pods }} INPUT_SOURCES=${{ inputs.sources }} INPUT_MIN-IOS-VERSION=${{ inputs.min-ios-version }} ruby app.rb
     shell: bash
   - name: Upload artifacts
     uses: actions/upload-artifact@v3
     with: 
       name: notices
       path: .github/actions/notices_generation/NOTICES
-
