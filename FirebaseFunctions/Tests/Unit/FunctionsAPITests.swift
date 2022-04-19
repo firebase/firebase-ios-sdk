@@ -19,6 +19,7 @@ import XCTest
 
 import FirebaseCore
 import FirebaseFunctions
+import FirebaseSharedSwift
 
 final class FunctionsAPITests: XCTestCase {
   func usage() {
@@ -51,6 +52,11 @@ final class FunctionsAPITests: XCTestCase {
     callableRef.timeoutInterval = 60
     let url = URL(string: "https://localhost:8080/setCourseForAlderaan")!
     let callableRefByURL = Functions.functions().httpsCallable(url: url)
+    let codable = new Callable(
+      callable: callableRef,
+      encoder: new FirebaseDataDecoder(),
+      decoder: new FirebaseDataDecoder()
+    )
 
     let data: Any? = nil
     callableRef.call(data) { result, error in
