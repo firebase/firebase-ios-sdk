@@ -1,3 +1,6 @@
+# v9.0.0
+- [fixed] Fixed an iOS 15 keychain access issue related to prewarming. (#8695)
+
 # v8.14.0
 - [added] Started to collect the Firebase user agent for Firebase Auth. (#9066)
 
