@@ -95,8 +95,6 @@ end
 
 def main()
   content = generate_notices_content()
-  `echo "::set-output name=notices_contents::#{content}"`
-  puts content
   notices = File.new("./NOTICES", "w")
   notices.puts(content)
   notices.close

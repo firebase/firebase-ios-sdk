@@ -35,6 +35,5 @@ runs:
     uses: actions/upload-artifact@v3
     with: 
       name: notices
-      path: |
-        ./
+      path: .github/actions/notices_generation/NOTICES
 
