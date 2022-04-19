@@ -43,10 +43,12 @@ open class HTTPSCallable: NSObject {
   // The functions client to use for making calls.
   private let functions: Functions
 
-  // The name of the http endpoint this reference refers to.
-  private let name: String?
+  private enum EndpointType {
+    case name(String)
+    case url(URL)
+  }
 
-  private let url: URL?
+  private let endpoint: EndpointType
 
   // MARK: - Public Properties
 
@@ -57,14 +59,12 @@ open class HTTPSCallable: NSObject {
 
   internal init(functions: Functions, name: String) {
     self.functions = functions
-    self.name = name
-    url = nil
+    endpoint = .name(name)
   }
 
   internal init(functions: Functions, url: URL) {
     self.functions = functions
-    name = nil
-    self.url = url
+    endpoint = .url(url)
   }
 
   /**
@@ -100,18 +100,17 @@ open class HTTPSCallable: NSObject {
       }
     }
 
-    if let name = name {
+    switch endpoint {
+    case let .name(name):
       functions.callFunction(name: name,
                              withObject: data,
                              timeout: timeoutInterval,
                              completion: callback)
-    } else if let url = url {
+    case let .url(url):
       functions.callFunction(url: url,
                              withObject: data,
                              timeout: timeoutInterval,
                              completion: callback)
-    } else {
-      preconditionFailure("name or url must be set via constructor")
     }
   }
 
