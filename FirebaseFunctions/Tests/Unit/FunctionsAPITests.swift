@@ -20,6 +20,14 @@ import XCTest
 import FirebaseCore
 import FirebaseFunctions
 
+private struct MyRequest: Codable {
+  let question: String
+}
+
+private struct MyResponse: Codable {
+  let answer: String
+}
+
 final class FunctionsAPITests: XCTestCase {
   func usage() {
     // MARK: - Functions
@@ -90,6 +98,84 @@ final class FunctionsAPITests: XCTestCase {
           do {
             let result = try await callableRef.call()
             _ = result.data
+          } catch {
+            // ...
+          }
+        }
+      }
+    #endif // compiler(>=5.5.2) && canImport(_Concurrency)
+
+    // MARK: - HTTPSCallable Codable
+
+    let myRequest = MyRequest(question: "WhereIsIt?")
+    let callableCodableRef = Functions.functions().httpsCallable("setCourseForAlderaan",
+                                                                 requestAs: MyRequest.self,
+                                                                 responseAs: MyResponse.self)
+    callableCodableRef.timeoutInterval = 60
+    callableCodableRef.call(myRequest) { result in
+      switch result {
+      case let .success(response):
+        let _: MyResponse = response
+      case let .failure(error):
+        print("error: \(error)")
+      }
+    }
+
+    // Call as a function.
+    callableCodableRef(myRequest) { result in
+      switch result {
+      case let .success(response):
+        let _: MyResponse = response
+      case let .failure(error):
+        print("error: \(error)")
+      }
+    }
+
+    #if compiler(>=5.5.2) && canImport(_Concurrency)
+      if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
+        // async/await is a Swift 5.5+ feature available on iOS 15+
+        Task {
+          do {
+            let _: MyResponse = try await callableCodableRef.call()
+            let _: MyResponse = try await callableCodableRef()
+          } catch {
+            // ...
+          }
+        }
+      }
+    #endif // compiler(>=5.5.2) && canImport(_Concurrency)
+
+    let callableCodableRefByURL = Functions.functions().httpsCallable(url,
+                                                                      requestAs: MyRequest.self,
+                                                                      responseAs: MyResponse.self)
+    callableCodableRefByURL.timeoutInterval = 60
+    callableCodableRefByURL.call(myRequest) { result in
+      switch result {
+      case let .success(response):
+        let _: MyResponse = response
+      case let .failure(error):
+        print("error: \(error)")
+      }
+    }
+
+    // Call as function.
+    callableCodableRefByURL(myRequest) { result in
+      switch result {
+      case let .success(response):
+        let _: MyResponse = response
+      case let .failure(error):
+        print("error: \(error)")
+      }
+    }
+
+    #if compiler(>=5.5.2) && canImport(_Concurrency)
+      if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
+        // async/await is a Swift 5.5+ feature available on iOS 15+
+        Task {
+          do {
+            let _: MyResponse = try await callableCodableRefByURL.call()
+            // Call as a function.
+            let _: MyResponse = try await callableCodableRefByURL()
           } catch {
             // ...
           }
