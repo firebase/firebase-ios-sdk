@@ -24,7 +24,9 @@ runs:
     run: |
       pwd
       ls
-      ruby .github/actions/notices_generation/app.rb
+      cd .github/actions/notices_generation/
+      bundle install
+      ruby app.rb
     shell: bash
   - name: Upload artifacts
     uses: actions/upload-artifact@v3
@@ -32,5 +34,4 @@ runs:
       name: notices
       path: |
         ./
-        ./NOTICES
 
