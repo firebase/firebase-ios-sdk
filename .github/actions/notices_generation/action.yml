@@ -16,5 +16,19 @@ outputs:
   notices_contents:
     description: 'contents of notices'
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
+  #using: 'docker'
+  #image: 'Dockerfile'
+  using: 'composite'
+  steps:
+  - name: First step
+    run: |
+      pwd
+      ls
+      ruby app.rb
+  - name: Upload artifacts
+    uses: actions/upload-artifact@v3
+    with: 
+      name: my-artifact
+      path: |
+        ./
+
