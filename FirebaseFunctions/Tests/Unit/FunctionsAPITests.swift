@@ -52,10 +52,11 @@ final class FunctionsAPITests: XCTestCase {
     callableRef.timeoutInterval = 60
     let url = URL(string: "https://localhost:8080/setCourseForAlderaan")!
     let callableRefByURL = Functions.functions().httpsCallable(url: url)
-    let codable = new Callable(
-      callable: callableRef,
-      encoder: new FirebaseDataDecoder(),
-      decoder: new FirebaseDataDecoder()
+    let codableByName = Functions.functions().httpsCallable("woop",
+                                                            encoder: FirebaseDataEncoder(),
+                                                            decoder: FirebaseDataDecoder())
+    let codableByUrl = Functions.functions().httpsCallable(
+      url: url, encoder: FirebaseDataEncoder(), decoder: FirebaseDataDecoder()
     )
 
     let data: Any? = nil
