@@ -81,7 +81,7 @@ def generate_notices_content(sources: SOURCES, pods: PODS, min_ios_version: MIN_
       project.new_target(:application, DEFAULT_TESTAPP_TARGET, :ios)
       project.save()
       create_podfile(path: temp_dir, sources: sources, target: DEFAULT_TESTAPP_TARGET,pods: pods, min_ios_version: min_ios_version)
-      pod_install_result = `pod install`
+      pod_install_result = `pod install --allow-root`
       puts pod_install_result
       licences = Plist.parse_xml("Pods/Target Support Files/Pods-testApp/Pods-testApp-acknowledgements.plist")
       for licence in licences["PreferenceSpecifiers"] do
