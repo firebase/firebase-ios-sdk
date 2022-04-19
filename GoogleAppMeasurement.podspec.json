@@ -20,7 +20,7 @@
         "z"
     ],
     "license": {
-        "text": "Copyright 2021 Google",
+        "text": "Copyright 2022 Google",
         "type": "Copyright"
     },
     "name": "GoogleAppMeasurement",
@@ -30,7 +30,7 @@
         "tvos": "12.0"
     },
     "source": {
-        "http": "https://dl.google.com/firebase/ios/analytics/07f1277f1f905d64/GoogleAppMeasurement-8.15.0.tar.gz"
+        "http": "https://dl.google.com/firebase/ios/analytics/c7d26f9ba4e99374/GoogleAppMeasurement-9.0.0.tar.gz"
     },
     "subspecs": [
         {
