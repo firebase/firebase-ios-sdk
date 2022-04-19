@@ -65,6 +65,7 @@ def create_podfile(path: , sources: , target: , pods: [], min_ios_version: )
       end
     end
   "
+  puts output
   podfile = File.new("#{path}/Podfile", "w")
   podfile.puts(output)
   podfile.close

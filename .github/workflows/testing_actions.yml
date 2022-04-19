@@ -19,7 +19,6 @@ jobs:
     - name: Create a nightly report
       uses: ./.github/actions/notices_generation/
       with:
-        access-token: '${{ secrets.GITHUB_TOKEN }}'
         # This is to exclude workflows that will be searched in the nightly report.
         exclude-workflow-files: 'performance-integration-tests.yml'
 
@@ -32,3 +31,5 @@ jobs:
     - uses: actions/checkout@v2
     - name: Create a nightly report
       uses: ./.github/actions/notices_generation/
+      with:
+        pods: "FirebaseABTesting"
