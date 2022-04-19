@@ -25,8 +25,7 @@ runs:
       ruby-version: "2.7"
   - name: First step
     run: |
-      echo "${{ github.action_path }}"
-      cd .github/actions/notices_generation/
+      cd "${{ github.action_path }}"
       bundle install
       INPUT_PODS=${{ inputs.pods }} INPUT_SOURCES=${{ inputs.sources }} INPUT_MIN_IOS_VERSION=${{ inputs.min-ios-version }} ruby app.rb
     shell: bash
