@@ -43,8 +43,12 @@ open class HTTPSCallable: NSObject {
   // The functions client to use for making calls.
   private let functions: Functions
 
-  // The name of the http endpoint this reference refers to.
-  private let name: String
+  private enum EndpointType {
+    case name(String)
+    case url(URL)
+  }
+
+  private let endpoint: EndpointType
 
   // MARK: - Public Properties
 
@@ -55,7 +59,12 @@ open class HTTPSCallable: NSObject {
 
   internal init(functions: Functions, name: String) {
     self.functions = functions
-    self.name = name
+    endpoint = .name(name)
+  }
+
+  internal init(functions: Functions, url: URL) {
+    self.functions = functions
+    endpoint = .url(url)
   }
 
   /**
@@ -82,15 +91,26 @@ open class HTTPSCallable: NSObject {
   @objc(callWithObject:completion:) open func call(_ data: Any? = nil,
                                                    completion: @escaping (HTTPSCallableResult?,
                                                                           Error?) -> Void) {
-    functions.callFunction(name: name,
-                           withObject: data,
-                           timeout: timeoutInterval) { result in
+    let callback: ((Result<HTTPSCallableResult, Error>) -> Void) = { result in
       switch result {
       case let .success(callableResult):
         completion(callableResult, nil)
       case let .failure(error):
         completion(nil, error)
       }
+    }
+
+    switch endpoint {
+    case let .name(name):
+      functions.callFunction(name: name,
+                             withObject: data,
+                             timeout: timeoutInterval,
+                             completion: callback)
+    case let .url(url):
+      functions.callFunction(url: url,
+                             withObject: data,
+                             timeout: timeoutInterval,
+                             completion: callback)
     }
   }
 

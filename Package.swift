@@ -410,9 +410,18 @@ let package = Package(
       name: "AppDistributionUnit",
       dependencies: ["FirebaseAppDistribution", "OCMock"],
       path: "FirebaseAppDistribution/Tests/Unit",
+      exclude: ["Swift/"],
       resources: [.process("Resources")],
       cSettings: [
         .headerSearchPath("../../.."),
+      ]
+    ),
+    .testTarget(
+      name: "AppDistributionUnitSwift",
+      dependencies: ["FirebaseAppDistribution"],
+      path: "FirebaseAppDistribution/Tests/Unit/Swift",
+      cSettings: [
+        .headerSearchPath("../../../.."),
       ]
     ),
 
@@ -758,6 +767,10 @@ let package = Package(
       dependencies: ["FirebaseFunctions",
                      "SharedTestUtilities"],
       path: "FirebaseFunctions/Tests/ObjCIntegration",
+      // See https://forums.swift.org/t/importing-swift-libraries-from-objective-c/56730
+      exclude: [
+        "ObjCPPAPITests.mm",
+      ],
       cSettings: [
         .headerSearchPath("../../.."),
       ]
@@ -1094,6 +1107,10 @@ let package = Package(
       name: "StorageObjcIntegration",
       dependencies: ["FirebaseStorage"],
       path: "FirebaseStorage/Tests/ObjcIntegration",
+      exclude: [
+        // See https://forums.swift.org/t/importing-swift-libraries-from-objective-c/56730
+        "ObjCPPAPITests.mm",
+      ],
       cSettings: [
         .headerSearchPath("../../.."),
       ]

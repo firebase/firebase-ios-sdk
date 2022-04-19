@@ -36,11 +36,11 @@ NS_SWIFT_NAME(TwitterAuthProvider)
 @interface FIRTwitterAuthProvider : NSObject
 
 /** @fn credentialWithToken:secret:
-    @brief Creates an `FIRAuthCredential` for a Twitter sign in.
+    @brief Creates an `AuthCredential` for a Twitter sign in.
 
     @param token The Twitter OAuth token.
     @param secret The Twitter OAuth secret.
-    @return A FIRAuthCredential containing the Twitter credential.
+    @return An AuthCredential containing the Twitter credential.
  */
 + (FIRAuthCredential *)credentialWithToken:(NSString *)token secret:(NSString *)secret;
 

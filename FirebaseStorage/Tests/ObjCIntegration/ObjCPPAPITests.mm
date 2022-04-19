@@ -14,13 +14,14 @@
 
 #import <XCTest/XCTest.h>
 
-@import FirebaseCore;
-@import FirebaseStorage;
+#import "FirebaseCore/FirebaseCore.h"
+#import "FirebaseStorage/FIRStorageTypedefs.h"
+#import "FirebaseStorage/FirebaseStorage-Swift.h"
 
-@interface ObjCAPICoverage : XCTestCase
+@interface ObjCPPAPICoverage : XCTestCase
 @end
 
-@implementation ObjCAPICoverage
+@implementation ObjCPPAPICoverage
 
 - (void)FIRStorageApis {
   FIRApp *app = [FIRApp defaultApp];
@@ -147,9 +148,10 @@
     case FIRStorageErrorCodeDownloadSizeExceeded:
     case FIRStorageErrorCodeCancelled:
     case FIRStorageErrorCodeInvalidArgument:
-      return error.code;
+      return (FIRStorageErrorCode)error.code;
   }
-  return error.code;
+  // The cast is not needed in plain Objective C.
+  return (FIRStorageErrorCode)error.code;
 }
 
 - (void)FIRStorageMetadataApis {

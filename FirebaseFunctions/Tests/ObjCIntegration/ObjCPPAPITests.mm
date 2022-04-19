@@ -14,13 +14,13 @@
 
 #import <XCTest/XCTest.h>
 
-@import FirebaseCore;
-@import FirebaseFunctions;
+#import <FirebaseFunctions/FirebaseFunctions-Swift.h>
+#import "FirebaseCore/FirebaseCore.h"
 
-@interface ObjCAPICoverage : XCTestCase
+@interface ObjCPPAPICoverage : XCTestCase
 @end
 
-@implementation ObjCAPICoverage
+@implementation ObjCPPAPICoverage
 
 - (void)apis {
 #pragma mark - Functions
@@ -33,9 +33,9 @@
   func = [FIRFunctions functionsForApp:app region:@"my-region"];
   func = [FIRFunctions functionsForApp:app customDomain:@"my-domain"];
 
-  NSURL *url = [NSURL URLWithString:@"http://localhost:5050/project/location/name"];
-  FIRHTTPSCallable *callable = [func HTTPSCallableWithURL:url];
-  callable = [func HTTPSCallableWithName:@"name"];
+  FIRHTTPSCallable *callable = [func HTTPSCallableWithName:@"name"];
+  NSURL *url = [NSURL URLWithString:@"http://host:123/project/location/name"];
+  callable = [func HTTPSCallableWithURL:url];
 
   [func useEmulatorWithHost:@"host" port:123];
 
@@ -73,8 +73,8 @@
     case FIRFunctionsErrorCodeUnavailable:
     case FIRFunctionsErrorCodeDataLoss:
     case FIRFunctionsErrorCodeUnauthenticated:
-      return error.code;
+      return (FIRFunctionsErrorCode)error.code;
   }
-  return error.code;
+  return (FIRFunctionsErrorCode)error.code;
 }
 @end

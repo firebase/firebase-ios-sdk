@@ -29,7 +29,7 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorageInternal/Tests/Inte
                        "FirebaseInAppMessaging/Tests/Integration/",
                        "SymbolCollisionTest/", "/gen/",
                        "CocoapodsIntegrationTest/", "FirebasePerformance/Tests/TestApp/",
-                       "cmake-build-debug/", "build/",
+                       "cmake-build-debug/", "build/", "ObjCIntegration/",
                        "FirebasePerformance/Tests/FIRPerfE2E/"] +
   [
     "CoreOnly/Sources", // Skip Firebase.h.
@@ -38,12 +38,9 @@ let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseStorageInternal/Tests/Inte
 
   // The following are temporary skips pending working through a first pass of the repo:
   [
-    "FirebaseAppDistribution",
-    "FirebaseCore/Extension", // TODO(v9): work through adding this back.
-    "Firebase/CoreDiagnostics",
+    "Firebase/CoreDiagnostics/FIRCDLibrary/Protogen/nanopb",
     "FirebaseDatabase/Sources/third_party/Wrap-leveldb", // Pending SwiftPM for leveldb.
     "Example",
-    "FirebaseInstallations/Source/Tests/Unit/",
     "Firestore",
     "GoogleUtilitiesComponents",
     "FirebasePerformance/ProtoSupport/",
@@ -77,13 +74,11 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL)
     // Not a source file, give up and return.
     return
   }
-  let isPublic = file.range(of: "/Public/") != nil &&
-    // TODO: Skip legacy GDTCCTLibrary file that isn't Public and should be moved.
-    file.range(of: "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h") == nil
+  let isPublic = file.range(of: "/Public/") != nil
   let isPrivate = file.range(of: "/Sources/Private/") != nil ||
     // Delete when FirebaseInstallations fixes directory structure.
     file.range(of: "Source/Library/Private/FirebaseInstallationsInternal.h") != nil ||
-    file.range(of: "GDTCORLibrary/Internal/GoogleDataTransportInternal.h") != nil
+    file.range(of: "FirebaseCore/Extension") != nil
 
   // Treat all files with names finishing on "Test" or "Tests" as files with tests.
   let isTestFile = file.contains("Test.m") || file.contains("Tests.m") ||

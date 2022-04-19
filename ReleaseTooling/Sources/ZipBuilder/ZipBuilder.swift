@@ -219,10 +219,6 @@ struct ZipBuilder {
       // selection does not restrict any of its dependencies.
       var sortedPods = podsToBuild.keys.sorted()
 
-      // Interop pods are protocols only and should not be built.
-      sortedPods.removeAll(where: { value in
-        value.hasSuffix("Interop")
-      })
       sortedPods.removeAll(where: { value in
         value == "FirebaseAppCheck"
       })
@@ -589,7 +585,6 @@ struct ZipBuilder {
     for podName in installedPods {
       // Skip the Firebase pod and specifically ignored frameworks.
       guard podName != "Firebase",
-            !podName.hasSuffix("Interop"),
             !podsToIgnore.contains(podName) else {
         continue
       }
