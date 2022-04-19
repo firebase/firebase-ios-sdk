@@ -24,12 +24,13 @@ runs:
     run: |
       pwd
       ls
-      ruby app.rb
+      ruby .github/actions/notices_generation/app.rb
     shell: bash
   - name: Upload artifacts
     uses: actions/upload-artifact@v3
     with: 
-      name: my-artifact
+      name: notices
       path: |
         ./
+        ./NOTICES
 
