@@ -1,24 +1,20 @@
 name: 'Testing Report'
 description: 'Generate a testing report'
 inputs:
-  access-token:
-    description: 'access token'
+  pods:
+    description: 'Targeted Pods for licences'
     required: true
-  issue-labels:
-    description: 'Testing labels(delimited by comma)'
+  sources:
+    description: 'Sources of PodSpecs'
     required: true
-    default: 'nightly-testing'
-  issue-title:
-    description: 'Title of a GitHub Issue'
+    default: 'https://cdn.cocoapods.org'
+  min-ios-version:
+    description: 'The minimum version of iOS'
     required: true
-    default: 'Nightly Testing Report'
-  assignee:
-    description: 'Assignee of this issue'
-    required: false
-    default: ''
-  exclude-workflow-files:
-    description: 'Excluded yml files(delimited by comma)'
-    required: false
+    default: '10.0'
+outputs:
+  notices_contents:
+    description: 'contents of notices'
 runs:
   using: 'docker'
   image: 'Dockerfile'
