@@ -151,10 +151,10 @@ class LevelDbIndexManager : public IndexManager {
    * Encodes the given bounds according to the specification in `target`. For IN
    * queries, a list of possible values is returned.
    */
-  absl::optional<std::vector<std::string>> EncodeBound(
+  std::vector<std::string> EncodeBound(
       const model::FieldIndex& index,
       const core::Target& target,
-      absl::optional<core::IndexBoundValues> bound_values);
+      const core::IndexBoundValues& bound_values);
 
   /**
    * Encodes the given field values according to the specification in `target`.
@@ -173,9 +173,9 @@ class LevelDbIndexManager : public IndexManager {
   std::vector<IndexRange> GenerateIndexRanges(
       int32_t index_id,
       core::IndexedValues array_values,
-      absl::optional<std::vector<std::string>> lower_bounds,
+      const std::vector<std::string>& lower_bounds,
       bool lower_bounds_inclusive,
-      absl::optional<std::vector<std::string>> upper_bounds,
+      const std::vector<std::string>& upper_bounds,
       bool upper_bounds_inclusive,
       std::vector<std::string> not_in_values);
 

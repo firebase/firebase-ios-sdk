@@ -132,7 +132,7 @@ IndexedValues Target::GetNotInValues(
   return absl::nullopt;
 }
 
-absl::optional<IndexBoundValues> Target::GetLowerBound(
+IndexBoundValues Target::GetLowerBound(
     const model::FieldIndex& field_index) const {
   std::vector<google_firestore_v1_Value> values;
   bool inclusive = true;
@@ -144,19 +144,14 @@ absl::optional<IndexBoundValues> Target::GetLowerBound(
                              ? GetAscendingBound(segment, start_at_)
                              : GetDescendingBound(segment, start_at_);
 
-    if (!segment_bound.value.has_value()) {
-      // No lower bound exists
-      return absl::nullopt;
-    }
-
-    values.push_back(std::move(segment_bound.value.value()));
+    values.push_back(std::move(segment_bound.value));
     inclusive = (inclusive && segment_bound.inclusive);
   }
 
   return IndexBoundValues{inclusive, std::move(values)};
 }
 
-absl::optional<IndexBoundValues> Target::GetUpperBound(
+IndexBoundValues Target::GetUpperBound(
     const model::FieldIndex& field_index) const {
   std::vector<google_firestore_v1_Value> values;
   bool inclusive = true;
@@ -168,12 +163,7 @@ absl::optional<IndexBoundValues> Target::GetUpperBound(
                              ? GetDescendingBound(segment, end_at_)
                              : GetAscendingBound(segment, end_at_);
 
-    if (!segment_bound.value.has_value()) {
-      // No lower bound exists
-      return absl::nullopt;
-    }
-
-    values.push_back(std::move(segment_bound.value.value()));
+    values.push_back(std::move(segment_bound.value));
     inclusive = (inclusive && segment_bound.inclusive);
   }
 
@@ -182,13 +172,13 @@ absl::optional<IndexBoundValues> Target::GetUpperBound(
 
 Target::IndexBoundValue Target::GetAscendingBound(
     const Segment& segment, const absl::optional<Bound>& bound) const {
-  absl::optional<google_firestore_v1_Value> segment_value;
+  google_firestore_v1_Value segment_value = model::MinValue();
   bool segment_inclusive = true;
 
   // Process all filters to find a value for the current field segment
   for (const auto& field_filter :
        GetFieldFiltersForPath(segment.field_path())) {
-    absl::optional<google_firestore_v1_Value> filter_value;
+    google_firestore_v1_Value filter_value = model::MinValue();
     bool filter_inclusive = true;
 
     switch (field_filter.op()) {
@@ -215,14 +205,11 @@ Target::IndexBoundValue Target::GetAscendingBound(
         continue;
     }
 
-    // Set segment_value to max(segment_value, filter_value)
-    if (filter_value.has_value()) {
-      if (!segment_value.has_value() ||
-          (model::Compare(segment_value.value(), filter_value.value()) ==
-           util::ComparisonResult::Ascending)) {
-        segment_value = std::move(filter_value);
-        segment_inclusive = filter_inclusive;
-      }
+    // Increase segment_value to filter_value if filter_value is larger.
+    if (model::Compare(segment_value, segment_inclusive, filter_value,
+                       filter_inclusive) == util::ComparisonResult::Ascending) {
+      segment_value = std::move(filter_value);
+      segment_inclusive = filter_inclusive;
     }
   }
 
@@ -233,20 +220,12 @@ Target::IndexBoundValue Target::GetAscendingBound(
       const auto& order_by = order_bys_[i];
       if (order_by.field() == segment.field_path()) {
         auto cursor_value = bound.value().position()->values[i];
-        if (!segment_value.has_value()) {
+        // Increase segment_value to cursor_value if cursor_value is larger.
+        if (model::Compare(segment_value, segment_inclusive, cursor_value,
+                           bound.value().inclusive()) ==
+            util::ComparisonResult::Ascending) {
           segment_value = cursor_value;
           segment_inclusive = bound.value().inclusive();
-        } else {
-          auto cmp = model::Compare(segment_value.value(), cursor_value);
-          if (cmp == util::ComparisonResult::Same) {
-            // Set it to false if one of `segment_inclusive` or
-            // `bound.value().inclusive()` is false.
-            segment_inclusive =
-                (segment_inclusive && bound.value().inclusive());
-          } else if (cmp == util::ComparisonResult::Ascending) {
-            segment_value = cursor_value;
-            segment_inclusive = bound.value().inclusive();
-          }
         }
       }
     }
@@ -257,13 +236,13 @@ Target::IndexBoundValue Target::GetAscendingBound(
 
 Target::IndexBoundValue Target::GetDescendingBound(
     const Segment& segment, const absl::optional<Bound>& bound) const {
-  absl::optional<google_firestore_v1_Value> segment_value;
+  google_firestore_v1_Value segment_value = model::MaxValue();
   bool segment_inclusive = true;
 
   // Process all filters to find a value for the current field segment
   for (const auto& field_filter :
        GetFieldFiltersForPath(segment.field_path())) {
-    absl::optional<google_firestore_v1_Value> filter_value;
+    google_firestore_v1_Value filter_value = model::MaxValue();
     bool filter_inclusive = true;
 
     switch (field_filter.op()) {
@@ -291,14 +270,12 @@ Target::IndexBoundValue Target::GetDescendingBound(
         continue;
     }
 
-    // Set segment_value to min(segment_value, filter_value)
-    if (filter_value.has_value()) {
-      if (!segment_value.has_value() ||
-          (model::Compare(segment_value.value(), filter_value.value()) ==
-           util::ComparisonResult::Descending)) {
-        segment_value = std::move(filter_value);
-        segment_inclusive = filter_inclusive;
-      }
+    // Decrease segment_value to filter_value if filter_value is smaller.
+    if (model::Compare(segment_value, segment_inclusive, filter_value,
+                       filter_inclusive) ==
+        util::ComparisonResult::Descending) {
+      segment_value = std::move(filter_value);
+      segment_inclusive = filter_inclusive;
     }
   }
 
@@ -309,20 +286,12 @@ Target::IndexBoundValue Target::GetDescendingBound(
       const auto& order_by = order_bys_[i];
       if (order_by.field() == segment.field_path()) {
         auto cursor_value = bound.value().position()->values[i];
-        if (!segment_value.has_value()) {
+        // Decrease segment_value to cursor_value if cursor_value is smaller.
+        if (model::Compare(segment_value, segment_inclusive, cursor_value,
+                           bound.value().inclusive()) ==
+            util::ComparisonResult::Descending) {
           segment_value = cursor_value;
           segment_inclusive = bound.value().inclusive();
-        } else {
-          auto cmp = model::Compare(segment_value.value(), cursor_value);
-          if (cmp == util::ComparisonResult::Same) {
-            // Set it to false if one of `segment_inclusive` or
-            // `bound.value().inclusive()` is false.
-            segment_inclusive =
-                (segment_inclusive && bound.value().inclusive());
-          } else if (cmp == util::ComparisonResult::Descending) {
-            segment_value = cursor_value;
-            segment_inclusive = bound.value().inclusive();
-          }
         }
       }
     }

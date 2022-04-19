@@ -102,8 +102,6 @@ std::string EncodeIndexState(const IndexState& state) {
       .dump();
 }
 
-const char* kEmptyValue = "";
-
 bool IsInFilter(const Target& target, const model::FieldPath& field_path) {
   for (const auto& filter : target.filters()) {
     if (filter.IsAFieldFilter() && filter.field() == field_path) {
@@ -170,14 +168,6 @@ IndexEntry GenerateUpperBound(int32_t index_id,
   IndexEntry entry{index_id, DocumentKey::Empty(), array_value,
                    directional_value};
   return inclusive ? entry.Successor() : entry;
-}
-
-/**
- * Generates an empty bound that scopes the index scan to the current index
- * and user.
- */
-IndexEntry GenerateEmptyBound(int32_t index_id) {
-  return {index_id, DocumentKey::Empty(), kEmptyValue, kEmptyValue};
 }
 
 }  // namespace
@@ -498,9 +488,8 @@ LevelDbIndexManager::GetDocumentsMatchingTarget(const core::Target& target) {
     auto encoded_not_in = EncodeValues(index, sub_target, not_in_values);
 
     auto index_ranges = GenerateIndexRanges(
-        index.index_id(), array_values, encoded_lower,
-        lower_bound.has_value() && lower_bound->inclusive, encoded_upper,
-        upper_bound.has_value() && upper_bound->inclusive, encoded_not_in);
+        index.index_id(), array_values, encoded_lower, lower_bound.inclusive,
+        encoded_upper, upper_bound.inclusive, encoded_not_in);
 
     auto iter = db_->current_transaction()->NewIterator();
     for (const auto& range : index_ranges) {
@@ -527,14 +516,11 @@ LevelDbIndexManager::GetDocumentsMatchingTarget(const core::Target& target) {
   return result;
 }
 
-absl::optional<std::vector<std::string>> LevelDbIndexManager::EncodeBound(
+std::vector<std::string> LevelDbIndexManager::EncodeBound(
     const FieldIndex& index,
     const Target& target,
-    absl::optional<core::IndexBoundValues> bound) {
-  if (!bound.has_value()) {
-    return absl::nullopt;
-  }
-  return EncodeValues(index, target, bound.value().values);
+    const core::IndexBoundValues& bound) {
+  return EncodeValues(index, target, bound.values);
 }
 
 std::vector<std::string> LevelDbIndexManager::EncodeValues(
@@ -567,19 +553,17 @@ std::vector<LevelDbIndexManager::IndexRange>
 LevelDbIndexManager::GenerateIndexRanges(
     int32_t index_id,
     core::IndexedValues array_values,
-    absl::optional<std::vector<std::string>> lower_bounds,
+    const std::vector<std::string>& lower_bounds,
     bool lower_bounds_inclusive,
-    absl::optional<std::vector<std::string>> upper_bounds,
+    const std::vector<std::string>& upper_bounds,
     bool upper_bounds_inclusive,
     std::vector<std::string> not_in_values) {
   // The number of total index scans we union together. This is similar to a
   // distributed normal form, but adapted for array values. We create a single
   // index range per value in an ARRAY_CONTAINS or ARRAY_CONTAINS_ANY filter
   // combined with the values from the query bounds.
-  size_t total_scans =
-      (array_values.has_value() ? array_values->size() : 1) *
-      std::max(lower_bounds.has_value() ? lower_bounds->size() : 1,
-               upper_bounds.has_value() ? upper_bounds->size() : 1);
+  size_t total_scans = (array_values.has_value() ? array_values->size() : 1) *
+                       std::max(lower_bounds.size(), upper_bounds.size());
   size_t scans_per_array_element =
       total_scans / (array_values.has_value() ? array_values->size() : 1);
 
@@ -591,20 +575,12 @@ LevelDbIndexManager::GenerateIndexRanges(
                   array_values.value()[i / scans_per_array_element])
             : "";
 
-    IndexEntry lower_bound =
-        lower_bounds.has_value()
-            ? GenerateLowerBound(
-                  index_id, array_value,
-                  lower_bounds.value()[i % scans_per_array_element],
-                  lower_bounds_inclusive)
-            : GenerateEmptyBound(index_id);
-    IndexEntry upper_bound =
-        upper_bounds.has_value()
-            ? GenerateUpperBound(
-                  index_id, array_value,
-                  upper_bounds.value()[i % scans_per_array_element],
-                  upper_bounds_inclusive)
-            : GenerateEmptyBound(index_id + 1);
+    IndexEntry lower_bound = GenerateLowerBound(
+        index_id, array_value, lower_bounds[i % scans_per_array_element],
+        lower_bounds_inclusive);
+    IndexEntry upper_bound = GenerateUpperBound(
+        index_id, array_value, upper_bounds[i % scans_per_array_element],
+        upper_bounds_inclusive);
 
     std::vector<IndexEntry> not_in_bounds;
     for (const auto& not_in : not_in_values) {

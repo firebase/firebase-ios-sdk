@@ -125,19 +125,17 @@ class Target {
    * Returns a lower bound of field values that can be used as a starting point
    * to scan the index defined by `field_index`.
    *
-   * Returns `nullopt` if no lower bound exists.
+   * Returns `model::MinValue()` if no lower bound exists.
    */
-  absl::optional<IndexBoundValues> GetLowerBound(
-      const model::FieldIndex& field_index) const;
+  IndexBoundValues GetLowerBound(const model::FieldIndex& field_index) const;
 
   /**
    * Returns an upper bound of field values that can be used as an ending point
    * when scanning the index defined by `field_index`.
    *
-   * Returns `nullopt` if no upper bound exists.
+   * Returns `model::MaxValue()` if no upper bound exists.
    */
-  absl::optional<IndexBoundValues> GetUpperBound(
-      const model::FieldIndex& field_index) const;
+  IndexBoundValues GetUpperBound(const model::FieldIndex& field_index) const;
 
   const std::string& CanonicalId() const;
 
@@ -154,7 +152,7 @@ class Target {
    */
   struct IndexBoundValue {
     bool inclusive;
-    absl::optional<google_firestore_v1_Value> value;
+    google_firestore_v1_Value value;
   };
 
   /**
