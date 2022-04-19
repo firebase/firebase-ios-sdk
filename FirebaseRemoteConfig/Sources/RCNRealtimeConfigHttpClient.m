@@ -35,6 +35,8 @@ static NSString *const kiOSBundleIdentifierHeaderName =
 static NSString *const templateVersionNumberKey = @"templateVersion";
 static NSString *const hostAddress = @"http://127.0.0.1:8080";
 
+static NSInteger const kRCNFetchResponseHTTPStatusCodeServiceUnavailable = 503;
+
 // Retry parameters
 NSInteger MAX_RETRY = 10;
 NSInteger MAX_RETRY_COUNT = 10;
@@ -270,13 +272,12 @@ NSNotificationCenter *notificationCenter;
     session = [NSURLSession sessionWithConfiguration:sessionConfig delegate:self delegateQueue:[NSOperationQueue mainQueue]];
 }
 
-#pragma mark - NSURLSession Delegates
+#pragma mark - Autofetch Helpers
 
-// Perform fetch and handle developers callbacks
--(void) fetchConfigAndHandleCallbacks:(NSInteger)remainingAttempts currentVersion:(NSInteger) currentVersion {
-    if (remainingAttempts == 0) {
-        return;
-    }
+- (void) fetchLatestConfig: (NSTimer *)timer {
+    NSArray *input = [[[timer userInfo] objectForKey:@"key"] componentsSeparatedByString:@"-"];
+    NSInteger remainingAttempts = [input[0] integerValue];
+    NSInteger currentVersion = [input[1] integerValue];
     
     [self->_configFetch fetchConfigWithExpirationDuration: 0
         completionHandler: ^(FIRRemoteConfigFetchStatus status, NSError *error) {
@@ -287,7 +288,7 @@ NSNotificationCenter *notificationCenter;
                     [self->_eventListener onEvent:self];
                 } else {
                     NSLog(@"Fetched config's template version is the same or less then the current version, re-fetching");
-                    [self fetchConfigAndHandleCallbacks:remainingAttempts - 1 currentVersion:currentVersion];
+                    [self autoFetch:remainingAttempts - 1 currentVersion:currentVersion];
                 }
             } else {
                 NSLog(@"Config not fetched");
@@ -299,12 +300,42 @@ NSNotificationCenter *notificationCenter;
     ];
 }
 
+- (void) scheduleFetch: (NSInteger)remainingAttempts currentVersion:(NSInteger) currentVersion {
+    NSString *inputKey = [NSString stringWithFormat:@"%ld-%ld", (long)remainingAttempts, (long)currentVersion];
+    NSDictionary *dictionary = [NSDictionary dictionaryWithObject:inputKey forKey:@"key"];
+
+    if (remainingAttempts == FETCH_ATTEMPTS) {
+        [NSTimer scheduledTimerWithTimeInterval:0 target:self selector:@selector(fetchLatestConfig:) userInfo:dictionary repeats:NO];
+    } else {
+        [NSTimer scheduledTimerWithTimeInterval:arc4random_uniform(11) + 2 target:self selector:@selector(fetchLatestConfig:) userInfo:dictionary repeats:NO];
+    }
+}
+
+// Perform fetch and handle developers callbacks
+-(void) autoFetch:(NSInteger)remainingAttempts currentVersion:(NSInteger) currentVersion {
+    if (remainingAttempts == 0) {
+        NSError *error =
+            [NSError errorWithDomain:FIRRemoteConfigErrorDomain
+                                code:kRCNFetchResponseHTTPStatusCodeServiceUnavailable
+                            userInfo:@{
+                              NSLocalizedDescriptionKey :
+                                  @"FetchError: Unable to retrieve the latest config."
+                            }];
+        [self->_eventListener onError:error];
+        return;
+    }
+    
+    [self scheduleFetch:remainingAttempts currentVersion:currentVersion];
+}
+
+#pragma mark - NSURLSession Delegates
+
 // Delegate to asynchronously handle every new notification that comes over the wire. Auto-fetches and runs callback for each new notification
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveData:(NSData *)data
 {
     NSLog(@"Received invalidation notification from server.");
-    [self fetchConfigAndHandleCallbacks:FETCH_ATTEMPTS currentVersion:[[self->_configFetch getTemplateVersionNumber] integerValue]];
+    [self autoFetch:FETCH_ATTEMPTS currentVersion:[[self->_configFetch getTemplateVersionNumber] integerValue]];
 }
 
 // Delegate that checks the final response of the connection and retries if necessary
@@ -365,7 +396,15 @@ completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))complet
         double RETRY_SECONDS = arc4random_uniform(60) + 10;
         [NSTimer scheduledTimerWithTimeInterval:RETRY_SECONDS target:self selector:@selector(startRealtimeConnection) userInfo:nil repeats:NO];
     } else {
-        NSLog(@"No retries remaining");
+        NSLog(@"Cannot establish connection.");
+        NSError *error =
+            [NSError errorWithDomain:FIRRemoteConfigErrorDomain
+                                code:kRCNFetchResponseHTTPStatusCodeServiceUnavailable
+                            userInfo:@{
+                              NSLocalizedDescriptionKey :
+                                  @"StreamError: Can't establish Realtime stream connection."
+                            }];
+        [self->_eventListener onError:error];
     }
 }
 

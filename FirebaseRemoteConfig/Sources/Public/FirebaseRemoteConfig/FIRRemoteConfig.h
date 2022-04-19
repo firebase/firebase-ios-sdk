@@ -290,10 +290,12 @@ NS_SWIFT_NAME(RemoteConfig)
 #pragma mark - Real Time
 - (nonnull ListenerRegistration *)setOnNewConfigListener: (nonnull id)eventListener;
 
+- (void)stopRealtime;
+
 @end
 
 // Realtime Callback delegate
 @protocol EventListener <NSObject>
 - (void)onEvent: (nonnull id)realTimeStream;
-
+- (void)onError: (nonnull NSError *)error;
 @end
