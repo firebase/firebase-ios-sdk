@@ -25,6 +25,7 @@ runs:
       pwd
       ls
       ruby app.rb
+    shell: zsh
   - name: Upload artifacts
     uses: actions/upload-artifact@v3
     with: 
