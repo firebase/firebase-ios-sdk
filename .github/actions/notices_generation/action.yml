@@ -29,6 +29,6 @@ runs:
     shell: bash
   - name: Upload artifacts
     uses: actions/upload-artifact@v3
-    with: 
+    with:
       name: notices
       path: .github/actions/notices_generation/NOTICES
