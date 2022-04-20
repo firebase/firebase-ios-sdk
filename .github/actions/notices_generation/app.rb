@@ -48,9 +48,9 @@ rescue OptionParser::MissingArgument
 end
 
 PODS = @options[:pods]
-SOURCES = @options[:sources]
-MIN_IOS_VERSION = @options[:min_ios_version]
-NOTICES_OUTPUT_PATH = @options[:output_path]
+SOURCES = @options[:sources] if @options[:sources]
+MIN_IOS_VERSION = @options[:min_ios_version] if @options[:min_ios_version]
+NOTICES_OUTPUT_PATH = @options[:output_path] if @options[:output_path]
 
 def create_podfile(path: , sources: , target: , pods: [], min_ios_version: )
   output = ""
