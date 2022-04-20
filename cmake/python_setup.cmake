@@ -91,12 +91,24 @@ function(FirebaseSetupPythonInterpreter)
     "The Python interpreter on the host system to use"
   )
 
+  # Use a custom directory for the pyvenv directories, if specified.
+  set(
+    FIREBASE_PYTHON_PYVENV_DEST_DIR
+    ""
+    CACHE FILEPATH
+    "The directory into which to create the Python virtualenv in FirebaseSetupPythonInterpreter"
+  )
+
   # Check if the virtualenv is already up-to-date by examining the contents of
   # its stamp files. The stamp files store the path of the host Python
   # interpreter and the dependencies that were installed by pip. If both of
   # these files exist and contain the same Python interpreter and dependencies
   # then just re-use the virtualenv; otherwise, re-create it.
-  set(PYVENV_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/pyvenv/${ARG_KEY}")
+  if("${FIREBASE_PYTHON_PYVENV_DEST_DIR}" STREQUAL "")
+    set(PYVENV_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/pyvenv/${ARG_KEY}")
+  else()
+    set(PYVENV_DIRECTORY "${FIREBASE_PYTHON_PYVENV_DEST_DIR}/${ARG_KEY}")
+  endif()
   set(STAMP_FILE1 "${PYVENV_DIRECTORY}/cmake_firebase_python_stamp1.txt")
   set(STAMP_FILE2 "${PYVENV_DIRECTORY}/cmake_firebase_python_stamp2.txt")
 
