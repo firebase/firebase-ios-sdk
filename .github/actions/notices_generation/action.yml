@@ -16,8 +16,6 @@ outputs:
   notices_contents:
     description: 'contents of notices'
 runs:
-  #using: 'docker'
-  #image: 'Dockerfile'
   using: 'composite'
   steps:
   - uses: actions/setup-ruby@v1
@@ -27,7 +25,7 @@ runs:
     run: |
       cd "${{ github.action_path }}"
       bundle install
-      INPUT_PODS=${{ inputs.pods }} INPUT_SOURCES=${{ inputs.sources }} INPUT_MIN_IOS_VERSION=${{ inputs.min-ios-version }} ruby app.rb
+      ruby app.rb --pods ${{ inputs.pods }} --sources ${{ inputs.sources }} --min_ios_version ${{ inputs.min-ios-version }}
     shell: bash
   - name: Upload artifacts
     uses: actions/upload-artifact@v3

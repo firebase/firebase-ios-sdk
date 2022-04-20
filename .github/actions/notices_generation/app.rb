@@ -25,23 +25,32 @@ DEFAULT_TESTAPP_TARGET = "testApp"
 
 # Default sources of min iOS version
 SOURCES=["https://cdn.cocoapods.org/"]
-MIN_IOS_VERSION='10.0'
+MIN_IOS_VERSION="10.0"
+NOTICES_OUTPUT_PATH="./NOTICES"
 
 @options = {
-    sources: SOURCES
+    sources: SOURCES,
     min_ios_version: MIN_IOS_VERSION
 }
-OptionParser.new do |opts|
-  opts.banner = "Usage: app.rb [options]"
-  opts.on('-n', '--pods PODS', 'Pods seperated by space or comma.') { |v| @options[:pods] = v.split(/[ ,]/) }
-  opts.on('-h', '--sources SOURCES', 'Sources of Pods') { |v| @options[:sources] = v.split(/[ ,]/) }
-  opts.on('-p', '--min_ios_version MIN_IOS_VERSION', 'Minimum iOS version') { |v| @options[:min_ios_version] = v }
-end.parse!
+begin
+  OptionParser.new do |opts|
+    opts.banner = "Usage: app.rb [options]"
+    opts.on('-p', '--pods PODS', 'Pods seperated by space or comma.') { |v| @options[:pods] = v.split(/[ ,]/) }
+    opts.on('-s', '--sources SOURCES', 'Sources of Pods') { |v| @options[:sources] = v.split(/[ ,]/) }
+    opts.on('-m', '--min_ios_version MIN_IOS_VERSION', 'Minimum iOS version') { |v| @options[:min_ios_version] = v }
+    opts.on('-n', '--output_path OUTPUT_PATH', 'The output path of NOTICES') { |v| @options[:output_path] = v }
+  end.parse!
 
-raise OptionParser::MissingArgument if @options[:pods].nil?
+  raise OptionParser::MissingArgument if @options[:pods].nil?
+rescue OptionParser::MissingArgument
+  puts "Argument `--pods` should not be empty."
+  raise
+end
 
+PODS = @options[:pods]
 SOURCES = @options[:sources]
 MIN_IOS_VERSION = @options[:min_ios_version]
+NOTICES_OUTPUT_PATH = @options[:output_path]
 
 def create_podfile(path: , sources: , target: , pods: [], min_ios_version: )
   output = ""
@@ -99,8 +108,8 @@ def generate_notices_content(sources: SOURCES, pods: PODS, min_ios_version: MIN_
 end
 
 def main()
-  content = generate_notices_content()
-  notices = File.new("./NOTICES", "w")
+  content = generate_notices_content(sources: SOURCES, pods: PODS, min_ios_version: MIN_IOS_VERSION)
+  notices = File.new(NOTICES_OUTPUT_PATH, "w")
   notices.puts(content)
   notices.close
 end 
