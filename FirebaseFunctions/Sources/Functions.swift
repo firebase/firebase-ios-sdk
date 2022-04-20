@@ -104,7 +104,7 @@ internal enum FunctionsConstants {
     return HTTPSCallable(functions: self, name: name)
   }
 
-  @objc(HTTPSCallableWithURL:) open func httpsCallable(url: URL) -> HTTPSCallable {
+  @objc(HTTPSCallableWithURL:) open func httpsCallable(_ url: URL) -> HTTPSCallable {
     return HTTPSCallable(functions: self, url: url)
   }
 
@@ -135,7 +135,7 @@ internal enum FunctionsConstants {
   /// - Parameter encoder: The encoder instance to use to run the encoding.
   /// - Parameter decoder: The decoder instance to use to run the decoding.
   open func httpsCallable<Request: Encodable,
-    Response: Decodable>(url: URL,
+    Response: Decodable>(_ url: URL,
                          requestAs: Request.Type = Request.self,
                          responseAs: Response.Type = Response.self,
                          encoder: FirebaseDataEncoder = FirebaseDataEncoder(
@@ -143,7 +143,7 @@ internal enum FunctionsConstants {
                          decoder: FirebaseDataDecoder = FirebaseDataDecoder(
                          ))
     -> Callable<Request, Response> {
-    return Callable(callable: httpsCallable(url: url), encoder: encoder, decoder: decoder)
+    return Callable(callable: httpsCallable(url), encoder: encoder, decoder: decoder)
   }
 
   /**

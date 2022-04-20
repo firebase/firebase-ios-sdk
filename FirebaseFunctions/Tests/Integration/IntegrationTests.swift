@@ -90,7 +90,7 @@ class IntegrationTests: XCTestCase {
     let byName = functions.httpsCallable("dataTest",
                                          requestAs: DataTestRequest.self,
                                          responseAs: DataTestResponse.self)
-    let byURL = functions.httpsCallable(url: emulatorURL("dataTest"),
+    let byURL = functions.httpsCallable(emulatorURL("dataTest"),
                                         requestAs: DataTestRequest.self,
                                         responseAs: DataTestResponse.self)
 
@@ -129,7 +129,7 @@ class IntegrationTests: XCTestCase {
       let byName = functions.httpsCallable("dataTest",
                                            requestAs: DataTestRequest.self,
                                            responseAs: DataTestResponse.self)
-      let byUrl = functions.httpsCallable(url: emulatorURL("dataTest"),
+      let byUrl = functions.httpsCallable(emulatorURL("dataTest"),
                                           requestAs: DataTestRequest.self,
                                           responseAs: DataTestResponse.self)
 
@@ -152,7 +152,7 @@ class IntegrationTests: XCTestCase {
       responseAs: Int.self
     )
     let byURL = functions.httpsCallable(
-      url: emulatorURL("scalarTest"),
+      emulatorURL("scalarTest"),
       requestAs: Int16.self,
       responseAs: Int.self
     )
@@ -180,7 +180,7 @@ class IntegrationTests: XCTestCase {
         responseAs: Int.self
       )
       let byURL = functions.httpsCallable(
-        url: emulatorURL("scalarTest"),
+        emulatorURL("scalarTest"),
         requestAs: Int16.self,
         responseAs: Int.self
       )
@@ -194,7 +194,7 @@ class IntegrationTests: XCTestCase {
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testScalarAsyncAlternateSignature() async throws {
       let byName: Callable<Int16, Int> = functions.httpsCallable("scalarTest")
-      let byURL: Callable<Int16, Int> = functions.httpsCallable(url: emulatorURL("scalarTest"))
+      let byURL: Callable<Int16, Int> = functions.httpsCallable(emulatorURL("scalarTest"))
       for function in [byName, byURL] {
         let result = try await function.call(17)
         XCTAssertEqual(result, 76)
@@ -221,7 +221,7 @@ class IntegrationTests: XCTestCase {
       responseAs: [String: Int].self
     )
     let byURL = functions.httpsCallable(
-      url: emulatorURL("tokenTest"),
+      emulatorURL("tokenTest"),
       requestAs: [String: Int].self,
       responseAs: [String: Int].self
     )
@@ -261,7 +261,7 @@ class IntegrationTests: XCTestCase {
         responseAs: [String: Int].self
       )
       let byURL = functions.httpsCallable(
-        url: emulatorURL("tokenTest"),
+        emulatorURL("tokenTest"),
         requestAs: [String: Int].self,
         responseAs: [String: Int].self
       )
@@ -280,7 +280,7 @@ class IntegrationTests: XCTestCase {
       responseAs: [String: Int].self
     )
     let byURL = functions.httpsCallable(
-      url: emulatorURL("FCMTokenTest"),
+      emulatorURL("FCMTokenTest"),
       requestAs: [String: Int].self,
       responseAs: [String: Int].self
     )
@@ -308,7 +308,7 @@ class IntegrationTests: XCTestCase {
         responseAs: [String: Int].self
       )
       let byURL = functions.httpsCallable(
-        url: emulatorURL("FCMTokenTest"),
+        emulatorURL("FCMTokenTest"),
         requestAs: [String: Int].self,
         responseAs: [String: Int].self
       )
@@ -327,7 +327,7 @@ class IntegrationTests: XCTestCase {
       responseAs: Int?.self
     )
     let byURL = functions.httpsCallable(
-      url: emulatorURL("nullTest"),
+      emulatorURL("nullTest"),
       requestAs: Int?.self,
       responseAs: Int?.self
     )
@@ -355,7 +355,7 @@ class IntegrationTests: XCTestCase {
         responseAs: Int?.self
       )
       let byURL = functions.httpsCallable(
-        url: emulatorURL("nullTest"),
+        emulatorURL("nullTest"),
         requestAs: Int?.self,
         responseAs: Int?.self
       )
@@ -374,7 +374,7 @@ class IntegrationTests: XCTestCase {
       responseAs: Int?.self
     )
     let byURL = functions.httpsCallable(
-      url: emulatorURL("missingResultTest"),
+      emulatorURL("missingResultTest"),
       requestAs: Int?.self,
       responseAs: Int?.self
     )
@@ -406,7 +406,7 @@ class IntegrationTests: XCTestCase {
         responseAs: Int?.self
       )
       let byURL = functions.httpsCallable(
-        url: emulatorURL("missingResultTest"),
+        emulatorURL("missingResultTest"),
         requestAs: Int?.self,
         responseAs: Int?.self
       )
@@ -430,7 +430,7 @@ class IntegrationTests: XCTestCase {
       responseAs: Int.self
     )
     let byURL = functions.httpsCallable(
-      url: emulatorURL("unhandledErrorTest"),
+      emulatorURL("unhandledErrorTest"),
       requestAs: [Int].self,
       responseAs: Int.self
     )
@@ -486,7 +486,7 @@ class IntegrationTests: XCTestCase {
       responseAs: Int.self
     )
     let byURL = functions.httpsCallable(
-      url: emulatorURL("unknownErrorTest"),
+      emulatorURL("unknownErrorTest"),
       requestAs: [Int].self,
       responseAs: Int.self
     )
@@ -517,7 +517,7 @@ class IntegrationTests: XCTestCase {
         responseAs: Int.self
       )
       let byURL = functions.httpsCallable(
-        url: emulatorURL("unknownErrorTest"),
+        emulatorURL("unknownErrorTest"),
         requestAs: [Int].self,
         responseAs: Int.self
       )
@@ -574,7 +574,7 @@ class IntegrationTests: XCTestCase {
         responseAs: Int.self
       )
       let byURL = functions.httpsCallable(
-        url: emulatorURL("explicitErrorTest"),
+        emulatorURL("explicitErrorTest"),
         requestAs: [Int].self,
         responseAs: Int.self
       )
@@ -600,7 +600,7 @@ class IntegrationTests: XCTestCase {
       responseAs: Int.self
     )
     let byURL = functions.httpsCallable(
-      url: emulatorURL("httpErrorTest"),
+      emulatorURL("httpErrorTest"),
       requestAs: [Int].self,
       responseAs: Int.self
     )
@@ -631,7 +631,7 @@ class IntegrationTests: XCTestCase {
         responseAs: Int.self
       )
       let byURL = functions.httpsCallable(
-        url: emulatorURL("httpErrorTest"),
+        emulatorURL("httpErrorTest"),
         requestAs: [Int].self,
         responseAs: Int.self
       )
@@ -654,7 +654,7 @@ class IntegrationTests: XCTestCase {
       responseAs: Int.self
     )
     let byURL = functions.httpsCallable(
-      url: emulatorURL("timeoutTest"),
+      emulatorURL("timeoutTest"),
       requestAs: [Int].self,
       responseAs: Int.self
     )
@@ -688,7 +688,7 @@ class IntegrationTests: XCTestCase {
       )
       byName.timeoutInterval = 0.05
       var byURL = functions.httpsCallable(
-        url: emulatorURL("timeoutTest"),
+        emulatorURL("timeoutTest"),
         requestAs: [Int].self,
         responseAs: Int.self
       )
@@ -719,7 +719,7 @@ class IntegrationTests: XCTestCase {
     let byName = functions.httpsCallable("dataTest",
                                          requestAs: DataTestRequest.self,
                                          responseAs: DataTestResponse.self)
-    let byURL = functions.httpsCallable(url: emulatorURL("dataTest"),
+    let byURL = functions.httpsCallable(emulatorURL("dataTest"),
                                         requestAs: DataTestRequest.self,
                                         responseAs: DataTestResponse.self)
     for function in [byName, byURL] {
@@ -758,7 +758,7 @@ class IntegrationTests: XCTestCase {
                                            requestAs: DataTestRequest.self,
                                            responseAs: DataTestResponse.self)
 
-      let byURL = functions.httpsCallable(url: emulatorURL("dataTest"),
+      let byURL = functions.httpsCallable(emulatorURL("dataTest"),
                                           requestAs: DataTestRequest.self,
                                           responseAs: DataTestResponse.self)
 
@@ -785,7 +785,7 @@ class IntegrationTests: XCTestCase {
     )
     let byName: Callable<DataTestRequest, DataTestResponse> = functions.httpsCallable("dataTest")
     let byURL: Callable<DataTestRequest, DataTestResponse> = functions
-      .httpsCallable(url: emulatorURL("dataTest"))
+      .httpsCallable(emulatorURL("dataTest"))
 
     for function in [byName, byURL] {
       let expectation = expectation(description: #function)
@@ -822,7 +822,7 @@ class IntegrationTests: XCTestCase {
       let byName: Callable<DataTestRequest, DataTestResponse> = functions
         .httpsCallable("dataTest")
       let byURL: Callable<DataTestRequest, DataTestResponse> = functions
-        .httpsCallable(url: emulatorURL("dataTest"))
+        .httpsCallable(emulatorURL("dataTest"))
 
       for function in [byName, byURL] {
         let response = try await function(data)
