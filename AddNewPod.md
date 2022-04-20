@@ -76,6 +76,8 @@ For top-level Firebase pods that map to documented products:
   [FIRApp.m](FirebaseCore/Sources/FIRApp.m).
 * When ready to release with Firebase, add to the
   [Firebase manifest](ReleaseTooling/Sources/FirebaseManifest/FirebaseManifest.swift).
+* Create an empty JSON file to enable the Carthage build
+  [here](ReleaseTooling/Sources/CarthageJSON).
 * Add a [quickstart](https://github.com/firebase/quickstart-ios).
 
 ## Review and Release
