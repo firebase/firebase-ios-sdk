@@ -65,19 +65,52 @@ internal enum FunctionsConstants {
   open private(set) var emulatorOrigin: String?
 
   /**
+   * Creates a Cloud Functions client or returns a pre-existing instance if it already exists.
+   */
+  @objc(functions) open class func functions() -> Functions {
+    return functions(
+      app: FirebaseApp.app(),
+      region: FunctionsConstants.defaultRegion,
+      customDomain: nil
+    )
+  }
+
+  /**
+   * Creates a Cloud Functions client with the given app, or returns a pre-existing
+   * instance if one already exists.
+   * @param app The app for the Firebase project.
+   */
+  @objc(functionsForApp:) open class func functions(app: FirebaseApp) -> Functions {
+    return functions(app: app, region: FunctionsConstants.defaultRegion, customDomain: nil)
+  }
+
+  /**
+   * Creates a Cloud Functions client with the default app and given region.
+   * @param region The region for the http trigger, such as "us-central1".
+   */
+  @objc(functionsForRegion:) open class func functions(region: String) -> Functions {
+    return functions(app: FirebaseApp.app(), region: region, customDomain: nil)
+  }
+
+  /**
+   * Creates a Cloud Functions client with the given app and region, or returns a pre-existing
+   * instance if one already exists.
+   * @param customDomain A custom domain for the http trigger, such as "https://mydomain.com".
+   */
+  @objc(functionsForCustomDomain:) open class func functions(customDomain: String) -> Functions {
+    return functions(app: FirebaseApp.app(),
+                     region: FunctionsConstants.defaultRegion, customDomain: customDomain)
+  }
+
+  /**
    * Creates a Cloud Functions client with the given app and region, or returns a pre-existing
    * instance if one already exists.
    * @param app The app for the Firebase project.
    * @param region The region for the http trigger, such as "us-central1".
    */
-  @objc(functionsForApp:region:) open class func functions(app: FirebaseApp = FirebaseApp.app()!,
+  @objc(functionsForApp:region:) open class func functions(app: FirebaseApp,
                                                            region: String) -> Functions {
-    let provider = ComponentType<FunctionsProvider>.instance(for: FunctionsProvider.self,
-                                                             in: app.container)
-    return provider.functions(for: app,
-                              region: region,
-                              customDomain: nil,
-                              type: self)
+    return functions(app: app, region: region, customDomain: nil)
   }
 
   /**
@@ -86,14 +119,10 @@ internal enum FunctionsConstants {
    * @param app The app for the Firebase project.
    * @param customDomain A custom domain for the http trigger, such as "https://mydomain.com".
    */
-  @objc(functionsForApp:customDomain:) open class func functions(app: FirebaseApp = FirebaseApp
-    .app()!,
-    customDomain: String? = nil) -> Functions {
-    let provider = app.container.instance(for: FunctionsProvider.self) as? FunctionsProvider
-    return provider!.functions(for: app,
-                               region: FunctionsConstants.defaultRegion,
-                               customDomain: customDomain,
-                               type: self)
+  @objc(functionsForApp:customDomain:) open class func functions(app: FirebaseApp,
+                                                                 customDomain: String)
+    -> Functions {
+    return functions(app: app, region: FunctionsConstants.defaultRegion, customDomain: customDomain)
   }
 
   /**
@@ -158,43 +187,20 @@ internal enum FunctionsConstants {
     emulatorOrigin = origin
   }
 
-  // MARK: - Public APIs only for Objective C
-
-  /**
-   * Creates a Cloud Functions client or returns a pre-existing instance if it already exists.
-   */
-  @objc(functions) open class func __functions() -> Functions {
-    return functions()
-  }
-
-  /**
-   * Creates a Cloud Functions client with the given app, or returns a pre-existing
-   * instance if one already exists.
-   * @param app The app for the Firebase project.
-   */
-  @objc(functionsForApp:) open class func __functionsForApp(app: FirebaseApp) -> Functions {
-    return functions(app: app)
-  }
-
-  /**
-   * Creates a Cloud Functions client with the default app and given region.
-   * @param region The region for the http trigger, such as "us-central1".
-   */
-  @objc(functionsForRegion:) open class func __functionsForRegion(region: String) -> Functions {
-    return functions(region: region)
-  }
-
-  /**
-   * Creates a Cloud Functions client with the given app and region, or returns a pre-existing
-   * instance if one already exists.
-   * @param customDomain A custom domain for the http trigger, such as "https://mydomain.com".
-   */
-  @objc(functionsForCustomDomain:) open class func __functionsForCustomDomain(customDomain: String?)
-    -> Functions {
-    return functions(customDomain: customDomain)
-  }
-
   // MARK: - Private Funcs (or Internal for tests)
+
+  /// Solely used to have one precondition and one location where we fetch from the container. This
+  /// previously was avoided due to default arguments but that doesn't work well with Obj-C compatibility.
+  private class func functions(app: FirebaseApp?, region: String,
+                               customDomain: String?) -> Functions {
+    precondition(app != nil,
+                 "`FirebaseApp.configure()` needs to be called before using Functions.")
+    let provider = app!.container.instance(for: FunctionsProvider.self) as? FunctionsProvider
+    return provider!.functions(for: app!,
+                               region: region,
+                               customDomain: customDomain,
+                               type: self)
+  }
 
   @objc internal init(projectID: String,
                       region: String,
