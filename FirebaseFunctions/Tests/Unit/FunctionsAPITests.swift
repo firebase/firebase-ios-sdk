@@ -63,16 +63,16 @@ final class FunctionsAPITests: XCTestCase {
     }
 
     let callableCodable = Functions.functions()
-      .httpsCallable("codable", requestAs: Message.self, resposneAs: Response.self)
+      .httpsCallable("codable", requestAs: Message.self, responseAs: Response.self)
     let callableCodable2 = Functions.functions()
-      .httpsCalalble(url, requestAs: Message.self, responseAs: Response.self)
+      .httpsCallable(url, requestAs: Message.self, responseAs: Response.self)
     let message = Message(hello: "hello", world: "world")
     callableCodable.call(message) { result in
       switch result {
       case let .success(response):
         let _: Response = response
       case let .failure(error):
-        // ...
+        ()
       }
     }
 
