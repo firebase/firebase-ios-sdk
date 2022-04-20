@@ -79,7 +79,7 @@ def create_podfile(path: , sources: , target: , pods: [], min_ios_version: )
       end
     end
   "
-  puts output
+  puts "------Podfile------\n#{output}\n-------------------\n"
   podfile = File.new("#{path}/Podfile", "w")
   podfile.puts(output)
   podfile.close
@@ -98,10 +98,18 @@ def generate_notices_content(sources: SOURCES, pods: PODS, min_ios_version: MIN_
       pod_install_result = `pod install --allow-root`
       puts pod_install_result
       licences = Plist.parse_xml("Pods/Target Support Files/Pods-testApp/Pods-testApp-acknowledgements.plist")
+
+      existing_licences={}
       for licence in licences["PreferenceSpecifiers"] do
-          content += "#{licence["Title"]}\n"
-          content += "#{licence["FooterText"]}\n"
+        if existing_licences.include?(licence["FooterText"])
+          existing_licences.store(licence["FooterText"], existing_licences.fetch(licence["FooterText"])+"\n"+licence["Title"])
+          next
+        end
+        existing_licences.store(licence["FooterText"], licence["Title"])
       end
+      existing_licences.each{ |licence, title|
+        content += "#{title}\n#{licence}\n"
+      }
     end
   end
   return content.strip
