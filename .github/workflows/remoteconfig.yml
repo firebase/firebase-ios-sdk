@@ -1,5 +1,5 @@
 name: remoteconfig
-# Kick off CI
+
 on:
   pull_request:
     paths:
