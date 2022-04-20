@@ -51,7 +51,7 @@ final class FunctionsAPITests: XCTestCase {
     let callableRef = Functions.functions().httpsCallable("setCourseForAlderaan")
     callableRef.timeoutInterval = 60
     let url = URL(string: "https://localhost:8080/setCourseForAlderaan")!
-    let callableRefByURL = Functions.functions().httpsCallable(url)
+    let _ = Functions.functions().httpsCallable(url)
 
     struct Message: Codable {
       let hello: String
@@ -64,14 +64,14 @@ final class FunctionsAPITests: XCTestCase {
 
     let callableCodable = Functions.functions()
       .httpsCallable("codable", requestAs: Message.self, responseAs: Response.self)
-    let callableCodable2 = Functions.functions()
+    let _ = Functions.functions()
       .httpsCallable(url, requestAs: Message.self, responseAs: Response.self)
     let message = Message(hello: "hello", world: "world")
     callableCodable.call(message) { result in
       switch result {
       case let .success(response):
         let _: Response = response
-      case let .failure(error):
+      case .failure(_):
         ()
       }
     }
