@@ -328,15 +328,27 @@ TEST_F(LevelDbIndexManagerTest, CursorCannotExpandResult) {
 
     index_manager->AddFieldIndex(
         MakeFieldIndex("coll", "c", model::Segment::kAscending));
+    index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "c", model::Segment::kDescending));
     AddDoc("coll/val1", Map("a", 1, "b", 1, "c", 3));
     AddDoc("coll/val2", Map("a", 2, "b", 2, "c", 2));
 
+    {
     auto query =
         Query("coll")
             .AddingFilter(Filter("c", ">", 2))
             .AddingOrderBy(OrderBy("c", "asc"))
             .StartingAt(Bound::FromValue(Array(2), /* inclusive */ true));
     VerifyResults(query, {"coll/val1"});
+    }
+    {
+     auto query =
+        Query("coll")
+            .AddingFilter(Filter("c", "<", 3))
+            .AddingOrderBy(OrderBy("c", "desc"))
+            .StartingAt(Bound::FromValue(Array(3), /* inclusive */ true));
+    VerifyResults(query, {"coll/val2"});
+    }
   });
 }
 
