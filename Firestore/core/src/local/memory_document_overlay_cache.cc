@@ -104,7 +104,7 @@ MemoryDocumentOverlayCache::GetOverlays(absl::string_view collection_group,
   for (const auto& overlays_entry : overlays_) {
     const Overlay& overlay = overlays_entry.second;
     const DocumentKey& key = overlay.key();
-    if (!key.HasCollectionId(collection_group)) {
+    if (!key.HasCollectionGroup(collection_group)) {
       continue;
     }
     if (overlay.largest_batch_id() > since_batch_id) {

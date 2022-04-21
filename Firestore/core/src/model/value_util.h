@@ -67,6 +67,14 @@ void SortFields(google_firestore_v1_ArrayValue& value);
 
 util::ComparisonResult Compare(const google_firestore_v1_Value& left,
                                const google_firestore_v1_Value& right);
+util::ComparisonResult LowerBoundCompare(const google_firestore_v1_Value& left,
+                                         bool left_inclusive,
+                                         const google_firestore_v1_Value& right,
+                                         bool right_inclusive);
+util::ComparisonResult UpperBoundCompare(const google_firestore_v1_Value& left,
+                                         bool left_inclusive,
+                                         const google_firestore_v1_Value& right,
+                                         bool right_inclusive);
 
 bool Equals(const google_firestore_v1_Value& left,
             const google_firestore_v1_Value& right);
