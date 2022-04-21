@@ -22,7 +22,6 @@ public final class HeartbeatController {
   private let heartbeatsStorageCapacity: Int = 30
   /// Current date provider. It is used for testability.
   private let dateProvider: () -> Date
-  // TODO: Maybe share config with HeartbeatsPayload's DateFormatter?
   /// Used for standardizing dates for calendar-day comparision.
   static let dateStandardizer: (Date) -> (Date) = {
     var calendar = Calendar(identifier: .iso8601)
