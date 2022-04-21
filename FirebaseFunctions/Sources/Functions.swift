@@ -65,19 +65,52 @@ internal enum FunctionsConstants {
   open private(set) var emulatorOrigin: String?
 
   /**
+   * Creates a Cloud Functions client or returns a pre-existing instance if it already exists.
+   */
+  @objc(functions) open class func functions() -> Functions {
+    return functions(
+      app: FirebaseApp.app(),
+      region: FunctionsConstants.defaultRegion,
+      customDomain: nil
+    )
+  }
+
+  /**
+   * Creates a Cloud Functions client with the given app, or returns a pre-existing
+   * instance if one already exists.
+   * @param app The app for the Firebase project.
+   */
+  @objc(functionsForApp:) open class func functions(app: FirebaseApp) -> Functions {
+    return functions(app: app, region: FunctionsConstants.defaultRegion, customDomain: nil)
+  }
+
+  /**
+   * Creates a Cloud Functions client with the default app and given region.
+   * @param region The region for the http trigger, such as "us-central1".
+   */
+  @objc(functionsForRegion:) open class func functions(region: String) -> Functions {
+    return functions(app: FirebaseApp.app(), region: region, customDomain: nil)
+  }
+
+  /**
+   * Creates a Cloud Functions client with the given app and region, or returns a pre-existing
+   * instance if one already exists.
+   * @param customDomain A custom domain for the http trigger, such as "https://mydomain.com".
+   */
+  @objc(functionsForCustomDomain:) open class func functions(customDomain: String) -> Functions {
+    return functions(app: FirebaseApp.app(),
+                     region: FunctionsConstants.defaultRegion, customDomain: customDomain)
+  }
+
+  /**
    * Creates a Cloud Functions client with the given app and region, or returns a pre-existing
    * instance if one already exists.
    * @param app The app for the Firebase project.
    * @param region The region for the http trigger, such as "us-central1".
    */
-  @objc(functionsForApp:region:) open class func functions(app: FirebaseApp = FirebaseApp.app()!,
+  @objc(functionsForApp:region:) open class func functions(app: FirebaseApp,
                                                            region: String) -> Functions {
-    let provider = ComponentType<FunctionsProvider>.instance(for: FunctionsProvider.self,
-                                                             in: app.container)
-    return provider.functions(for: app,
-                              region: region,
-                              customDomain: nil,
-                              type: self)
+    return functions(app: app, region: region, customDomain: nil)
   }
 
   /**
@@ -86,14 +119,10 @@ internal enum FunctionsConstants {
    * @param app The app for the Firebase project.
    * @param customDomain A custom domain for the http trigger, such as "https://mydomain.com".
    */
-  @objc(functionsForApp:customDomain:) open class func functions(app: FirebaseApp = FirebaseApp
-    .app()!,
-    customDomain: String? = nil) -> Functions {
-    let provider = app.container.instance(for: FunctionsProvider.self) as? FunctionsProvider
-    return provider!.functions(for: app,
-                               region: FunctionsConstants.defaultRegion,
-                               customDomain: customDomain,
-                               type: self)
+  @objc(functionsForApp:customDomain:) open class func functions(app: FirebaseApp,
+                                                                 customDomain: String)
+    -> Functions {
+    return functions(app: app, region: FunctionsConstants.defaultRegion, customDomain: customDomain)
   }
 
   /**
@@ -102,6 +131,10 @@ internal enum FunctionsConstants {
    */
   @objc(HTTPSCallableWithName:) open func httpsCallable(_ name: String) -> HTTPSCallable {
     return HTTPSCallable(functions: self, name: name)
+  }
+
+  @objc(HTTPSCallableWithURL:) open func httpsCallable(_ url: URL) -> HTTPSCallable {
+    return HTTPSCallable(functions: self, url: url)
   }
 
   /// Creates a reference to the Callable HTTPS trigger with the given name, the type of an `Encodable`
@@ -123,6 +156,25 @@ internal enum FunctionsConstants {
     return Callable(callable: httpsCallable(name), encoder: encoder, decoder: decoder)
   }
 
+  /// Creates a reference to the Callable HTTPS trigger with the given name, the type of an `Encodable`
+  /// request and the type of a `Decodable` response.
+  /// - Parameter url: The url of the Callable HTTPS trigger
+  /// - Parameter requestAs: The type of the `Encodable` entity to use for requests to this `Callable`
+  /// - Parameter responseAs: The type of the `Decodable` entity to use for responses from this `Callable`
+  /// - Parameter encoder: The encoder instance to use to run the encoding.
+  /// - Parameter decoder: The decoder instance to use to run the decoding.
+  open func httpsCallable<Request: Encodable,
+    Response: Decodable>(_ url: URL,
+                         requestAs: Request.Type = Request.self,
+                         responseAs: Response.Type = Response.self,
+                         encoder: FirebaseDataEncoder = FirebaseDataEncoder(
+                         ),
+                         decoder: FirebaseDataDecoder = FirebaseDataDecoder(
+                         ))
+    -> Callable<Request, Response> {
+    return Callable(callable: httpsCallable(url), encoder: encoder, decoder: decoder)
+  }
+
   /**
    * Changes this instance to point to a Cloud Functions emulator running locally.
    * See https://firebase.google.com/docs/functions/local-emulator
@@ -135,43 +187,20 @@ internal enum FunctionsConstants {
     emulatorOrigin = origin
   }
 
-  // MARK: - Public APIs only for Objective C
-
-  /**
-   * Creates a Cloud Functions client or returns a pre-existing instance if it already exists.
-   */
-  @objc(functions) open class func __functions() -> Functions {
-    return functions()
-  }
-
-  /**
-   * Creates a Cloud Functions client with the given app, or returns a pre-existing
-   * instance if one already exists.
-   * @param app The app for the Firebase project.
-   */
-  @objc(functionsForApp:) open class func __functionsForApp(app: FirebaseApp) -> Functions {
-    return functions(app: app)
-  }
-
-  /**
-   * Creates a Cloud Functions client with the default app and given region.
-   * @param region The region for the http trigger, such as "us-central1".
-   */
-  @objc(functionsForRegion:) open class func __functionsForRegion(region: String) -> Functions {
-    return functions(region: region)
-  }
-
-  /**
-   * Creates a Cloud Functions client with the given app and region, or returns a pre-existing
-   * instance if one already exists.
-   * @param customDomain A custom domain for the http trigger, such as "https://mydomain.com".
-   */
-  @objc(functionsForCustomDomain:) open class func __functionsForCustomDomain(customDomain: String?)
-    -> Functions {
-    return functions(customDomain: customDomain)
-  }
-
   // MARK: - Private Funcs (or Internal for tests)
+
+  /// Solely used to have one precondition and one location where we fetch from the container. This
+  /// previously was avoided due to default arguments but that doesn't work well with Obj-C compatibility.
+  private class func functions(app: FirebaseApp?, region: String,
+                               customDomain: String?) -> Functions {
+    precondition(app != nil,
+                 "`FirebaseApp.configure()` needs to be called before using Functions.")
+    let provider = app!.container.instance(for: FunctionsProvider.self) as? FunctionsProvider
+    return provider!.functions(for: app!,
+                               region: region,
+                               customDomain: customDomain,
+                               type: self)
+  }
 
   @objc internal init(projectID: String,
                       region: String,
@@ -240,7 +269,8 @@ internal enum FunctionsConstants {
       if let error = error {
         completion(.failure(error))
       } else {
-        self.callFunction(name: name,
+        let url = self.urlWithName(name)
+        self.callFunction(url: URL(string: url)!,
                           withObject: data,
                           timeout: timeout,
                           context: context,
@@ -249,12 +279,31 @@ internal enum FunctionsConstants {
     }
   }
 
-  private func callFunction(name: String,
+  internal func callFunction(url: URL,
+                             withObject data: Any?,
+                             timeout: TimeInterval,
+                             completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
+    // Get context first.
+    contextProvider.getContext { context, error in
+      // Note: context is always non-nil since some checks could succeed, we're only failing if
+      // there's an error.
+      if let error = error {
+        completion(.failure(error))
+      } else {
+        self.callFunction(url: url,
+                          withObject: data,
+                          timeout: timeout,
+                          context: context,
+                          completion: completion)
+      }
+    }
+  }
+
+  private func callFunction(url: URL,
                             withObject data: Any?,
                             timeout: TimeInterval,
                             context: FunctionsContext,
                             completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
-    let url = URL(string: urlWithName(name))!
     let request = URLRequest(url: url,
                              cachePolicy: .useProtocolCachePolicy,
                              timeoutInterval: timeout)

@@ -68,15 +68,17 @@ class IntegrationTests: XCTestCase {
                             auth: nil,
                             messaging: MessagingTokenProvider(),
                             appCheck: nil)
-  let projectID = "functions-swift-integration-test"
 
   override func setUp() {
     super.setUp()
     functions.useEmulator(withHost: "localhost", port: 5005)
   }
 
+  func emulatorURL(_ funcName: String) -> URL {
+    return URL(string: "http://localhost:5005/functions-integration-test/us-central1/\(funcName)")!
+  }
+
   func testData() {
-    let expectation = expectation(description: #function)
     let data = DataTestRequest(
       bool: true,
       int: 2,
@@ -85,24 +87,31 @@ class IntegrationTests: XCTestCase {
       array: [5, 6],
       null: nil
     )
-    let function = functions.httpsCallable("dataTest",
-                                           requestAs: DataTestRequest.self,
-                                           responseAs: DataTestResponse.self)
-    function.call(data) { result in
-      do {
-        let response = try result.get()
-        let expected = DataTestResponse(
-          message: "stub response",
-          long: 420,
-          code: 42
-        )
-        XCTAssertEqual(response, expected)
-      } catch {
-        XCTFail("Failed to unwrap the function result: \(error)")
+    let byName = functions.httpsCallable("dataTest",
+                                         requestAs: DataTestRequest.self,
+                                         responseAs: DataTestResponse.self)
+    let byURL = functions.httpsCallable(emulatorURL("dataTest"),
+                                        requestAs: DataTestRequest.self,
+                                        responseAs: DataTestResponse.self)
+
+    for function in [byName, byURL] {
+      let expectation = expectation(description: #function)
+      function.call(data) { result in
+        do {
+          let response = try result.get()
+          let expected = DataTestResponse(
+            message: "stub response",
+            long: 420,
+            code: 42
+          )
+          XCTAssertEqual(response, expected)
+        } catch {
+          XCTFail("Failed to unwrap the function result: \(error)")
+        }
+        expectation.fulfill()
       }
-      expectation.fulfill()
+      waitForExpectations(timeout: 5)
     }
-    waitForExpectations(timeout: 5)
   }
 
   #if compiler(>=5.5.2) && canImport(_Concurrency)
@@ -117,57 +126,79 @@ class IntegrationTests: XCTestCase {
         null: nil
       )
 
-      let function = functions.httpsCallable("dataTest",
-                                             requestAs: DataTestRequest.self,
-                                             responseAs: DataTestResponse.self)
+      let byName = functions.httpsCallable("dataTest",
+                                           requestAs: DataTestRequest.self,
+                                           responseAs: DataTestResponse.self)
+      let byUrl = functions.httpsCallable(emulatorURL("dataTest"),
+                                          requestAs: DataTestRequest.self,
+                                          responseAs: DataTestResponse.self)
 
-      let response = try await function.call(data)
-      let expected = DataTestResponse(
-        message: "stub response",
-        long: 420,
-        code: 42
-      )
-      XCTAssertEqual(response, expected)
+      for function in [byName, byUrl] {
+        let response = try await function.call(data)
+        let expected = DataTestResponse(
+          message: "stub response",
+          long: 420,
+          code: 42
+        )
+        XCTAssertEqual(response, expected)
+      }
     }
   #endif
 
   func testScalar() {
-    let expectation = expectation(description: #function)
-    let function = functions.httpsCallable(
+    let byName = functions.httpsCallable(
       "scalarTest",
       requestAs: Int16.self,
       responseAs: Int.self
     )
-    function.call(17) { result in
-      do {
-        let response = try result.get()
-        XCTAssertEqual(response, 76)
-      } catch {
-        XCTAssert(false, "Failed to unwrap the function result: \(error)")
+    let byURL = functions.httpsCallable(
+      emulatorURL("scalarTest"),
+      requestAs: Int16.self,
+      responseAs: Int.self
+    )
+    for function in [byName, byURL] {
+      let expectation = expectation(description: #function)
+      function.call(17) { result in
+        do {
+          let response = try result.get()
+          XCTAssertEqual(response, 76)
+        } catch {
+          XCTAssert(false, "Failed to unwrap the function result: \(error)")
+        }
+        expectation.fulfill()
       }
-      expectation.fulfill()
+      waitForExpectations(timeout: 5)
     }
-    waitForExpectations(timeout: 5)
   }
 
   #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testScalarAsync() async throws {
-      let function = functions.httpsCallable(
+      let byName = functions.httpsCallable(
         "scalarTest",
         requestAs: Int16.self,
         responseAs: Int.self
       )
+      let byURL = functions.httpsCallable(
+        emulatorURL("scalarTest"),
+        requestAs: Int16.self,
+        responseAs: Int.self
+      )
 
-      let result = try await function.call(17)
-      XCTAssertEqual(result, 76)
+      for function in [byName, byURL] {
+        let result = try await function.call(17)
+        XCTAssertEqual(result, 76)
+      }
     }
 
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testScalarAsyncAlternateSignature() async throws {
-      let function: Callable<Int16, Int> = functions.httpsCallable("scalarTest")
-      let result = try await function.call(17)
-      XCTAssertEqual(result, 76)
+      let byName: Callable<Int16, Int> = functions.httpsCallable("scalarTest")
+      let byURL: Callable<Int16, Int> = functions.httpsCallable(emulatorURL("scalarTest"))
+      for function in [byName, byURL] {
+        let result = try await function.call(17)
+        XCTAssertEqual(result, 76)
+      }
     }
 
   #endif
@@ -184,23 +215,30 @@ class IntegrationTests: XCTestCase {
     )
     functions.useEmulator(withHost: "localhost", port: 5005)
 
-    let expectation = expectation(description: #function)
-    let function = functions.httpsCallable(
+    let byName = functions.httpsCallable(
       "tokenTest",
       requestAs: [String: Int].self,
       responseAs: [String: Int].self
     )
-    XCTAssertNotNil(function)
-    function.call([:]) { result in
-      do {
-        let data = try result.get()
-        XCTAssertEqual(data, [:])
-      } catch {
-        XCTAssert(false, "Failed to unwrap the function result: \(error)")
+    let byURL = functions.httpsCallable(
+      emulatorURL("tokenTest"),
+      requestAs: [String: Int].self,
+      responseAs: [String: Int].self
+    )
+    for function in [byName, byURL] {
+      let expectation = expectation(description: #function)
+      XCTAssertNotNil(function)
+      function.call([:]) { result in
+        do {
+          let data = try result.get()
+          XCTAssertEqual(data, [:])
+        } catch {
+          XCTAssert(false, "Failed to unwrap the function result: \(error)")
+        }
+        expectation.fulfill()
       }
-      expectation.fulfill()
+      waitForExpectations(timeout: 5)
     }
-    waitForExpectations(timeout: 5)
   }
 
   #if compiler(>=5.5.2) && canImport(_Concurrency)
@@ -217,184 +255,255 @@ class IntegrationTests: XCTestCase {
       )
       functions.useEmulator(withHost: "localhost", port: 5005)
 
-      let function = functions.httpsCallable(
+      let byName = functions.httpsCallable(
         "tokenTest",
         requestAs: [String: Int].self,
         responseAs: [String: Int].self
       )
+      let byURL = functions.httpsCallable(
+        emulatorURL("tokenTest"),
+        requestAs: [String: Int].self,
+        responseAs: [String: Int].self
+      )
 
-      let data = try await function.call([:])
-      XCTAssertEqual(data, [:])
+      for function in [byName, byURL] {
+        let data = try await function.call([:])
+        XCTAssertEqual(data, [:])
+      }
     }
   #endif
 
   func testFCMToken() {
-    let expectation = expectation(description: #function)
-    let function = functions.httpsCallable(
+    let byName = functions.httpsCallable(
       "FCMTokenTest",
       requestAs: [String: Int].self,
       responseAs: [String: Int].self
     )
-    function.call([:]) { result in
-      do {
-        let data = try result.get()
-        XCTAssertEqual(data, [:])
-      } catch {
-        XCTAssert(false, "Failed to unwrap the function result: \(error)")
+    let byURL = functions.httpsCallable(
+      emulatorURL("FCMTokenTest"),
+      requestAs: [String: Int].self,
+      responseAs: [String: Int].self
+    )
+    for function in [byName, byURL] {
+      let expectation = expectation(description: #function)
+      function.call([:]) { result in
+        do {
+          let data = try result.get()
+          XCTAssertEqual(data, [:])
+        } catch {
+          XCTAssert(false, "Failed to unwrap the function result: \(error)")
+        }
+        expectation.fulfill()
       }
-      expectation.fulfill()
+      waitForExpectations(timeout: 5)
     }
-    waitForExpectations(timeout: 5)
   }
 
   #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testFCMTokenAsync() async throws {
-      let function = functions.httpsCallable(
+      let byName = functions.httpsCallable(
         "FCMTokenTest",
         requestAs: [String: Int].self,
         responseAs: [String: Int].self
       )
+      let byURL = functions.httpsCallable(
+        emulatorURL("FCMTokenTest"),
+        requestAs: [String: Int].self,
+        responseAs: [String: Int].self
+      )
 
-      let data = try await function.call([:])
-      XCTAssertEqual(data, [:])
+      for function in [byName, byURL] {
+        let data = try await function.call([:])
+        XCTAssertEqual(data, [:])
+      }
     }
   #endif
 
   func testNull() {
-    let expectation = expectation(description: #function)
-    let function = functions.httpsCallable(
+    let byName = functions.httpsCallable(
       "nullTest",
       requestAs: Int?.self,
       responseAs: Int?.self
     )
-    function.call(nil) { result in
-      do {
-        let data = try result.get()
-        XCTAssertEqual(data, nil)
-      } catch {
-        XCTAssert(false, "Failed to unwrap the function result: \(error)")
+    let byURL = functions.httpsCallable(
+      emulatorURL("nullTest"),
+      requestAs: Int?.self,
+      responseAs: Int?.self
+    )
+    for function in [byName, byURL] {
+      let expectation = expectation(description: #function)
+      function.call(nil) { result in
+        do {
+          let data = try result.get()
+          XCTAssertEqual(data, nil)
+        } catch {
+          XCTAssert(false, "Failed to unwrap the function result: \(error)")
+        }
+        expectation.fulfill()
       }
-      expectation.fulfill()
+      waitForExpectations(timeout: 5)
     }
-    waitForExpectations(timeout: 5)
   }
 
   #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testNullAsync() async throws {
-      let function = functions.httpsCallable(
+      let byName = functions.httpsCallable(
         "nullTest",
         requestAs: Int?.self,
         responseAs: Int?.self
       )
+      let byURL = functions.httpsCallable(
+        emulatorURL("nullTest"),
+        requestAs: Int?.self,
+        responseAs: Int?.self
+      )
 
-      let data = try await function.call(nil)
-      XCTAssertEqual(data, nil)
+      for function in [byName, byURL] {
+        let data = try await function.call(nil)
+        XCTAssertEqual(data, nil)
+      }
     }
   #endif
 
   func testMissingResult() {
-    let expectation = expectation(description: #function)
-    let function = functions.httpsCallable(
+    let byName = functions.httpsCallable(
       "missingResultTest",
       requestAs: Int?.self,
       responseAs: Int?.self
     )
-    function.call(nil) { result in
-      do {
-        _ = try result.get()
-      } catch {
-        let error = error as NSError
-        XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
-        XCTAssertEqual("Response is missing data field.", error.localizedDescription)
-        expectation.fulfill()
-        return
+    let byURL = functions.httpsCallable(
+      emulatorURL("missingResultTest"),
+      requestAs: Int?.self,
+      responseAs: Int?.self
+    )
+    for function in [byName, byURL] {
+      let expectation = expectation(description: #function)
+      function.call(nil) { result in
+        do {
+          _ = try result.get()
+        } catch {
+          let error = error as NSError
+          XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
+          XCTAssertEqual("Response is missing data field.", error.localizedDescription)
+          expectation.fulfill()
+          return
+        }
+        XCTFail("Failed to throw error for missing result")
       }
-      XCTFail("Failed to throw error for missing result")
+
+      waitForExpectations(timeout: 5)
     }
-    waitForExpectations(timeout: 5)
   }
 
   #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testMissingResultAsync() async {
-      let function = functions.httpsCallable(
+      let byName = functions.httpsCallable(
         "missingResultTest",
         requestAs: Int?.self,
         responseAs: Int?.self
       )
-      do {
-        _ = try await function.call(nil)
-        XCTFail("Failed to throw error for missing result")
-      } catch {
-        let error = error as NSError
-        XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
-        XCTAssertEqual("Response is missing data field.", error.localizedDescription)
+      let byURL = functions.httpsCallable(
+        emulatorURL("missingResultTest"),
+        requestAs: Int?.self,
+        responseAs: Int?.self
+      )
+      for function in [byName, byURL] {
+        do {
+          _ = try await function.call(nil)
+          XCTFail("Failed to throw error for missing result")
+        } catch {
+          let error = error as NSError
+          XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
+          XCTAssertEqual("Response is missing data field.", error.localizedDescription)
+        }
       }
     }
   #endif
 
   func testUnhandledError() {
-    let expectation = expectation(description: #function)
-    let function = functions.httpsCallable(
+    let byName = functions.httpsCallable(
       "unhandledErrorTest",
       requestAs: [Int].self,
       responseAs: Int.self
     )
-    function.call([]) { result in
-      do {
-        _ = try result.get()
-      } catch {
-        let error = error as NSError
-        XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
-        XCTAssertEqual("INTERNAL", error.localizedDescription)
-        expectation.fulfill()
-        return
+    let byURL = functions.httpsCallable(
+      emulatorURL("unhandledErrorTest"),
+      requestAs: [Int].self,
+      responseAs: Int.self
+    )
+    for function in [byName, byURL] {
+      let expectation = expectation(description: #function)
+      function.call([]) { result in
+        do {
+          _ = try result.get()
+        } catch {
+          let error = error as NSError
+          XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
+          XCTAssertEqual("INTERNAL", error.localizedDescription)
+          expectation.fulfill()
+          return
+        }
+        XCTFail("Failed to throw error for missing result")
       }
-      XCTFail("Failed to throw error for missing result")
+      XCTAssert(true)
+      waitForExpectations(timeout: 5)
     }
-    XCTAssert(true)
-    waitForExpectations(timeout: 5)
   }
 
   #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testUnhandledErrorAsync() async {
-      let function = functions.httpsCallable(
+      let byName = functions.httpsCallable(
         "unhandledErrorTest",
         requestAs: [Int].self,
         responseAs: Int.self
       )
-      do {
-        _ = try await function.call([])
-        XCTFail("Failed to throw error for missing result")
-      } catch {
-        let error = error as NSError
-        XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
-        XCTAssertEqual("INTERNAL", error.localizedDescription)
+      let byURL = functions.httpsCallable(
+        "unhandledErrorTest",
+        requestAs: [Int].self,
+        responseAs: Int.self
+      )
+      for function in [byName, byURL] {
+        do {
+          _ = try await function.call([])
+          XCTFail("Failed to throw error for missing result")
+        } catch {
+          let error = error as NSError
+          XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
+          XCTAssertEqual("INTERNAL", error.localizedDescription)
+        }
       }
     }
   #endif
 
   func testUnknownError() {
-    let expectation = expectation(description: #function)
-    let function = functions.httpsCallable(
+    let byName = functions.httpsCallable(
       "unknownErrorTest",
       requestAs: [Int].self,
       responseAs: Int.self
     )
-    function.call([]) { result in
-      do {
-        _ = try result.get()
-      } catch {
-        let error = error as NSError
-        XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
-        XCTAssertEqual("INTERNAL", error.localizedDescription)
-        expectation.fulfill()
-        return
+    let byURL = functions.httpsCallable(
+      emulatorURL("unknownErrorTest"),
+      requestAs: [Int].self,
+      responseAs: Int.self
+    )
+    for function in [byName, byURL] {
+      let expectation = expectation(description: #function)
+      function.call([]) { result in
+        do {
+          _ = try result.get()
+        } catch {
+          let error = error as NSError
+          XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
+          XCTAssertEqual("INTERNAL", error.localizedDescription)
+          expectation.fulfill()
+          return
+        }
+        XCTFail("Failed to throw error for missing result")
       }
-      XCTFail("Failed to throw error for missing result")
     }
     waitForExpectations(timeout: 5)
   }
@@ -402,154 +511,203 @@ class IntegrationTests: XCTestCase {
   #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testUnknownErrorAsync() async {
-      let function = functions.httpsCallable(
+      let byName = functions.httpsCallable(
         "unknownErrorTest",
         requestAs: [Int].self,
         responseAs: Int.self
       )
-      do {
-        _ = try await function.call([])
-        XCTAssertFalse(true, "Failed to throw error for missing result")
-      } catch {
-        let error = error as NSError
-        XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
-        XCTAssertEqual("INTERNAL", error.localizedDescription)
+      let byURL = functions.httpsCallable(
+        emulatorURL("unknownErrorTest"),
+        requestAs: [Int].self,
+        responseAs: Int.self
+      )
+      for function in [byName, byURL] {
+        do {
+          _ = try await function.call([])
+          XCTAssertFalse(true, "Failed to throw error for missing result")
+        } catch {
+          let error = error as NSError
+          XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
+          XCTAssertEqual("INTERNAL", error.localizedDescription)
+        }
       }
     }
   #endif
 
   func testExplicitError() {
-    let expectation = expectation(description: #function)
-    let function = functions.httpsCallable(
+    let byName = functions.httpsCallable(
       "explicitErrorTest",
       requestAs: [Int].self,
       responseAs: Int.self
     )
-    function.call([]) { result in
-      do {
-        _ = try result.get()
-      } catch {
-        let error = error as NSError
-        XCTAssertEqual(FunctionsErrorCode.outOfRange.rawValue, error.code)
-        XCTAssertEqual("explicit nope", error.localizedDescription)
-        XCTAssertEqual(["start": 10 as Int32, "end": 20 as Int32, "long": 30],
-                       error.userInfo["details"] as! [String: Int32])
-        expectation.fulfill()
-        return
+    let byURL = functions.httpsCallable(
+      "explicitErrorTest",
+      requestAs: [Int].self,
+      responseAs: Int.self
+    )
+    for function in [byName, byURL] {
+      let expectation = expectation(description: #function)
+      function.call([]) { result in
+        do {
+          _ = try result.get()
+        } catch {
+          let error = error as NSError
+          XCTAssertEqual(FunctionsErrorCode.outOfRange.rawValue, error.code)
+          XCTAssertEqual("explicit nope", error.localizedDescription)
+          XCTAssertEqual(["start": 10 as Int32, "end": 20 as Int32, "long": 30],
+                         error.userInfo["details"] as! [String: Int32])
+          expectation.fulfill()
+          return
+        }
+        XCTFail("Failed to throw error for missing result")
       }
-      XCTFail("Failed to throw error for missing result")
+      waitForExpectations(timeout: 5)
     }
-    waitForExpectations(timeout: 5)
   }
 
   #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testExplicitErrorAsync() async {
-      let function = functions.httpsCallable(
+      let byName = functions.httpsCallable(
         "explicitErrorTest",
         requestAs: [Int].self,
         responseAs: Int.self
       )
-      do {
-        _ = try await function.call([])
-        XCTAssertFalse(true, "Failed to throw error for missing result")
-      } catch {
-        let error = error as NSError
-        XCTAssertEqual(FunctionsErrorCode.outOfRange.rawValue, error.code)
-        XCTAssertEqual("explicit nope", error.localizedDescription)
-        XCTAssertEqual(["start": 10 as Int32, "end": 20 as Int32, "long": 30],
-                       error.userInfo["details"] as! [String: Int32])
+      let byURL = functions.httpsCallable(
+        emulatorURL("explicitErrorTest"),
+        requestAs: [Int].self,
+        responseAs: Int.self
+      )
+      for function in [byName, byURL] {
+        do {
+          _ = try await function.call([])
+          XCTAssertFalse(true, "Failed to throw error for missing result")
+        } catch {
+          let error = error as NSError
+          XCTAssertEqual(FunctionsErrorCode.outOfRange.rawValue, error.code)
+          XCTAssertEqual("explicit nope", error.localizedDescription)
+          XCTAssertEqual(["start": 10 as Int32, "end": 20 as Int32, "long": 30],
+                         error.userInfo["details"] as! [String: Int32])
+        }
       }
     }
   #endif
 
   func testHttpError() {
-    let expectation = expectation(description: #function)
-    let function = functions.httpsCallable(
+    let byName = functions.httpsCallable(
       "httpErrorTest",
       requestAs: [Int].self,
       responseAs: Int.self
     )
-    XCTAssertNotNil(function)
-    function.call([]) { result in
-      do {
-        _ = try result.get()
-      } catch {
-        let error = error as NSError
-        XCTAssertEqual(FunctionsErrorCode.invalidArgument.rawValue, error.code)
-        expectation.fulfill()
-        return
+    let byURL = functions.httpsCallable(
+      emulatorURL("httpErrorTest"),
+      requestAs: [Int].self,
+      responseAs: Int.self
+    )
+    for function in [byName, byURL] {
+      let expectation = expectation(description: #function)
+      XCTAssertNotNil(function)
+      function.call([]) { result in
+        do {
+          _ = try result.get()
+        } catch {
+          let error = error as NSError
+          XCTAssertEqual(FunctionsErrorCode.invalidArgument.rawValue, error.code)
+          expectation.fulfill()
+          return
+        }
+        XCTFail("Failed to throw error for missing result")
       }
-      XCTFail("Failed to throw error for missing result")
+      waitForExpectations(timeout: 5)
     }
-    waitForExpectations(timeout: 5)
   }
 
   #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testHttpErrorAsync() async {
-      let function = functions.httpsCallable(
+      let byName = functions.httpsCallable(
         "httpErrorTest",
         requestAs: [Int].self,
         responseAs: Int.self
       )
-      do {
-        _ = try await function.call([])
-        XCTAssertFalse(true, "Failed to throw error for missing result")
-      } catch {
-        let error = error as NSError
-        XCTAssertEqual(FunctionsErrorCode.invalidArgument.rawValue, error.code)
+      let byURL = functions.httpsCallable(
+        emulatorURL("httpErrorTest"),
+        requestAs: [Int].self,
+        responseAs: Int.self
+      )
+      for function in [byName, byURL] {
+        do {
+          _ = try await function.call([])
+          XCTAssertFalse(true, "Failed to throw error for missing result")
+        } catch {
+          let error = error as NSError
+          XCTAssertEqual(FunctionsErrorCode.invalidArgument.rawValue, error.code)
+        }
       }
     }
   #endif
 
   func testTimeout() {
-    let expectation = expectation(description: #function)
-    var function = functions.httpsCallable(
+    let byName = functions.httpsCallable(
       "timeoutTest",
       requestAs: [Int].self,
       responseAs: Int.self
     )
-    function.timeoutInterval = 0.05
-    function.call([]) { result in
-      do {
-        _ = try result.get()
-      } catch {
-        let error = error as NSError
-        XCTAssertEqual(FunctionsErrorCode.deadlineExceeded.rawValue, error.code)
-        XCTAssertEqual("DEADLINE EXCEEDED", error.localizedDescription)
-        XCTAssertNil(error.userInfo["details"])
-        expectation.fulfill()
-        return
+    let byURL = functions.httpsCallable(
+      emulatorURL("timeoutTest"),
+      requestAs: [Int].self,
+      responseAs: Int.self
+    )
+    for var function in [byName, byURL] {
+      let expectation = expectation(description: #function)
+      function.timeoutInterval = 0.05
+      function.call([]) { result in
+        do {
+          _ = try result.get()
+        } catch {
+          let error = error as NSError
+          XCTAssertEqual(FunctionsErrorCode.deadlineExceeded.rawValue, error.code)
+          XCTAssertEqual("DEADLINE EXCEEDED", error.localizedDescription)
+          XCTAssertNil(error.userInfo["details"])
+          expectation.fulfill()
+          return
+        }
+        XCTFail("Failed to throw error for missing result")
       }
-      XCTFail("Failed to throw error for missing result")
+      waitForExpectations(timeout: 5)
     }
-    waitForExpectations(timeout: 5)
   }
 
   #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testTimeoutAsync() async {
-      var function = functions.httpsCallable(
+      var byName = functions.httpsCallable(
         "timeoutTest",
         requestAs: [Int].self,
         responseAs: Int.self
       )
-      function.timeoutInterval = 0.05
-      do {
-        _ = try await function.call([])
-        XCTAssertFalse(true, "Failed to throw error for missing result")
-      } catch {
-        let error = error as NSError
-        XCTAssertEqual(FunctionsErrorCode.deadlineExceeded.rawValue, error.code)
-        XCTAssertEqual("DEADLINE EXCEEDED", error.localizedDescription)
-        XCTAssertNil(error.userInfo["details"])
+      byName.timeoutInterval = 0.05
+      var byURL = functions.httpsCallable(
+        emulatorURL("timeoutTest"),
+        requestAs: [Int].self,
+        responseAs: Int.self
+      )
+      byURL.timeoutInterval = 0.05
+      for function in [byName, byURL] {
+        do {
+          _ = try await function.call([])
+          XCTAssertFalse(true, "Failed to throw error for missing result")
+        } catch {
+          let error = error as NSError
+          XCTAssertEqual(FunctionsErrorCode.deadlineExceeded.rawValue, error.code)
+          XCTAssertEqual("DEADLINE EXCEEDED", error.localizedDescription)
+          XCTAssertNil(error.userInfo["details"])
+        }
       }
     }
   #endif
 
   func testCallAsFunction() {
-    let expectation = expectation(description: #function)
     let data = DataTestRequest(
       bool: true,
       int: 2,
@@ -558,24 +716,30 @@ class IntegrationTests: XCTestCase {
       array: [5, 6],
       null: nil
     )
-    let function = functions.httpsCallable("dataTest",
-                                           requestAs: DataTestRequest.self,
-                                           responseAs: DataTestResponse.self)
-    function(data) { result in
-      do {
-        let response = try result.get()
-        let expected = DataTestResponse(
-          message: "stub response",
-          long: 420,
-          code: 42
-        )
-        XCTAssertEqual(response, expected)
-        expectation.fulfill()
-      } catch {
-        XCTAssert(false, "Failed to unwrap the function result: \(error)")
+    let byName = functions.httpsCallable("dataTest",
+                                         requestAs: DataTestRequest.self,
+                                         responseAs: DataTestResponse.self)
+    let byURL = functions.httpsCallable(emulatorURL("dataTest"),
+                                        requestAs: DataTestRequest.self,
+                                        responseAs: DataTestResponse.self)
+    for function in [byName, byURL] {
+      let expectation = expectation(description: #function)
+      function(data) { result in
+        do {
+          let response = try result.get()
+          let expected = DataTestResponse(
+            message: "stub response",
+            long: 420,
+            code: 42
+          )
+          XCTAssertEqual(response, expected)
+          expectation.fulfill()
+        } catch {
+          XCTAssert(false, "Failed to unwrap the function result: \(error)")
+        }
       }
+      waitForExpectations(timeout: 5)
     }
-    waitForExpectations(timeout: 5)
   }
 
   #if compiler(>=5.5.2) && canImport(_Concurrency)
@@ -590,22 +754,27 @@ class IntegrationTests: XCTestCase {
         null: nil
       )
 
-      let function = functions.httpsCallable("dataTest",
-                                             requestAs: DataTestRequest.self,
-                                             responseAs: DataTestResponse.self)
+      let byName = functions.httpsCallable("dataTest",
+                                           requestAs: DataTestRequest.self,
+                                           responseAs: DataTestResponse.self)
 
-      let response = try await function(data)
-      let expected = DataTestResponse(
-        message: "stub response",
-        long: 420,
-        code: 42
-      )
-      XCTAssertEqual(response, expected)
+      let byURL = functions.httpsCallable(emulatorURL("dataTest"),
+                                          requestAs: DataTestRequest.self,
+                                          responseAs: DataTestResponse.self)
+
+      for function in [byName, byURL] {
+        let response = try await function(data)
+        let expected = DataTestResponse(
+          message: "stub response",
+          long: 420,
+          code: 42
+        )
+        XCTAssertEqual(response, expected)
+      }
     }
   #endif
 
   func testInferredTypes() {
-    let expectation = expectation(description: #function)
     let data = DataTestRequest(
       bool: true,
       int: 2,
@@ -614,23 +783,28 @@ class IntegrationTests: XCTestCase {
       array: [5, 6],
       null: nil
     )
-    let function: Callable<DataTestRequest, DataTestResponse> = functions.httpsCallable("dataTest")
+    let byName: Callable<DataTestRequest, DataTestResponse> = functions.httpsCallable("dataTest")
+    let byURL: Callable<DataTestRequest, DataTestResponse> = functions
+      .httpsCallable(emulatorURL("dataTest"))
 
-    function(data) { result in
-      do {
-        let response = try result.get()
-        let expected = DataTestResponse(
-          message: "stub response",
-          long: 420,
-          code: 42
-        )
-        XCTAssertEqual(response, expected)
-        expectation.fulfill()
-      } catch {
-        XCTAssert(false, "Failed to unwrap the function result: \(error)")
+    for function in [byName, byURL] {
+      let expectation = expectation(description: #function)
+      function(data) { result in
+        do {
+          let response = try result.get()
+          let expected = DataTestResponse(
+            message: "stub response",
+            long: 420,
+            code: 42
+          )
+          XCTAssertEqual(response, expected)
+          expectation.fulfill()
+        } catch {
+          XCTAssert(false, "Failed to unwrap the function result: \(error)")
+        }
       }
+      waitForExpectations(timeout: 5)
     }
-    waitForExpectations(timeout: 5)
   }
 
   #if compiler(>=5.5.2) && canImport(_Concurrency)
@@ -645,16 +819,20 @@ class IntegrationTests: XCTestCase {
         null: nil
       )
 
-      let function: Callable<DataTestRequest, DataTestResponse> = functions
+      let byName: Callable<DataTestRequest, DataTestResponse> = functions
         .httpsCallable("dataTest")
+      let byURL: Callable<DataTestRequest, DataTestResponse> = functions
+        .httpsCallable(emulatorURL("dataTest"))
 
-      let response = try await function(data)
-      let expected = DataTestResponse(
-        message: "stub response",
-        long: 420,
-        code: 42
-      )
-      XCTAssertEqual(response, expected)
+      for function in [byName, byURL] {
+        let response = try await function(data)
+        let expected = DataTestResponse(
+          message: "stub response",
+          long: 420,
+          code: 42
+        )
+        XCTAssertEqual(response, expected)
+      }
     }
   #endif
 }

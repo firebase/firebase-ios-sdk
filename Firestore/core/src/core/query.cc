@@ -325,11 +325,11 @@ const Target& Query::ToTarget() const& {
       // We need to swap the cursors to match the now-flipped query ordering.
       auto new_start_at = end_at_
                               ? absl::optional<Bound>{Bound::FromValue(
-                                    end_at_->position(), !end_at_->inclusive())}
+                                    end_at_->position(), end_at_->inclusive())}
                               : absl::nullopt;
       auto new_end_at =
           start_at_ ? absl::optional<Bound>{Bound::FromValue(
-                          start_at_->position(), !start_at_->inclusive())}
+                          start_at_->position(), start_at_->inclusive())}
                     : absl::nullopt;
 
       Target target(path(), collection_group(), filters(), new_order_bys,

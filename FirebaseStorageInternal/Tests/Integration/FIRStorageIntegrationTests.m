@@ -580,14 +580,12 @@ NSString *const kTestPassword = KPASSWORD;
 
 - (void)assertMetadata:(FIRStorageMetadata *)actualMetadata
            contentType:(NSString *)expectedContentType
-            customTime:(NSDate *)expectedCustomTime
         customMetadata:(NSDictionary *)expectedCustomMetadata {
   XCTAssertEqualObjects(actualMetadata.cacheControl, @"cache-control");
   XCTAssertEqualObjects(actualMetadata.contentDisposition, @"content-disposition");
   XCTAssertEqualObjects(actualMetadata.contentEncoding, @"gzip");
   XCTAssertEqualObjects(actualMetadata.contentLanguage, @"de");
   XCTAssertEqualObjects(actualMetadata.contentType, expectedContentType);
-  XCTAssertEqualObjects(actualMetadata.customTime, expectedCustomTime);
   XCTAssertTrue([actualMetadata.md5Hash length] == 24);
   for (NSString *key in expectedCustomMetadata) {
     XCTAssertEqualObjects([actualMetadata.customMetadata objectForKey:key],
@@ -601,7 +599,6 @@ NSString *const kTestPassword = KPASSWORD;
   XCTAssertEqualObjects(actualMetadata.contentEncoding, @"identity");
   XCTAssertNil(actualMetadata.contentLanguage);
   XCTAssertNil(actualMetadata.contentType);
-  XCTAssertNil(actualMetadata.customTime);
   XCTAssertTrue([actualMetadata.md5Hash length] == 24);
   XCTAssertNil(actualMetadata.customMetadata);
 }
@@ -618,7 +615,6 @@ NSString *const kTestPassword = KPASSWORD;
   metadata.contentEncoding = @"gzip";
   metadata.contentLanguage = @"de";
   metadata.contentType = @"content-type-a";
-  metadata.customTime = [NSDate dateWithTimeIntervalSince1970:0];
   metadata.customMetadata = @{@"a" : @"b"};
 
   [ref updateMetadata:metadata
@@ -626,13 +622,11 @@ NSString *const kTestPassword = KPASSWORD;
              XCTAssertNil(error);
              [self assertMetadata:updatedMetadata
                       contentType:@"content-type-a"
-                       customTime:[NSDate dateWithTimeIntervalSince1970:0]
                    customMetadata:@{@"a" : @"b"}];
 
              // Update a subset of the metadata using the existing object.
              FIRStorageMetadata *metadata = updatedMetadata;
              metadata.contentType = @"content-type-b";
-             metadata.customTime = [NSDate dateWithTimeIntervalSince1970:100];
              metadata.customMetadata = @{@"a" : @"b", @"c" : @"d"};
 
              [ref updateMetadata:metadata
@@ -640,7 +634,6 @@ NSString *const kTestPassword = KPASSWORD;
                         XCTAssertNil(error);
                         [self assertMetadata:updatedMetadata
                                  contentType:@"content-type-b"
-                                  customTime:[NSDate dateWithTimeIntervalSince1970:100]
                               customMetadata:@{@"a" : @"b", @"c" : @"d"}];
 
                         // Clear all metadata.
@@ -650,7 +643,6 @@ NSString *const kTestPassword = KPASSWORD;
                         metadata.contentEncoding = nil;
                         metadata.contentLanguage = nil;
                         metadata.contentType = nil;
-                        metadata.customTime = nil;
                         metadata.customMetadata = [NSDictionary dictionary];
 
                         [ref updateMetadata:metadata

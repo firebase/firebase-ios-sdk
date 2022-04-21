@@ -35,11 +35,28 @@ import FirebaseAuthInterop
   // MARK: - Public APIs
 
   /**
+   * An instance of FirebaseStorage, configured with the default FirebaseApp.
+   * @return the FirebaseStorage instance, configured with the default FirebaseApp.
+   */
+  @objc(storage) open class func storage() -> Storage {
+    return storage(app: FirebaseApp.app()!)
+  }
+
+  /**
+   * An instance of FirebaseStorage, configured with a custom storage bucket @a url.
+   * @param url The gs:// url to your Firebase Storage Bucket.
+   * @return the FirebaseStorage instance, configured with the custom FirebaseApp.
+   */
+  @objc(storageWithURL:) open class func storage(url: String) -> Storage {
+    return storage(app: FirebaseApp.app()!, url: url)
+  }
+
+  /**
    * Creates an instance of FirebaseStorage, configured with the custom FirebaseApp @a app.
    * @param app The custom FirebaseApp used for initialization.
-   * @return the FirebaseStorage instance, initialized with the custom FirebaseApp.
+   * @return the FirebaseStorage instance, configured with the custom FirebaseApp.
    */
-  @objc(storageForApp:) open class func storage(app: FirebaseApp = FirebaseApp.app()!) -> Storage {
+  @objc(storageForApp:) open class func storage(app: FirebaseApp) -> Storage {
     let provider = ComponentType<StorageProvider>.instance(for: StorageProvider.self,
                                                            in: app.container)
     return provider.storage(for: FIRIMPLStorage.bucket(for: app))
@@ -50,11 +67,10 @@ import FirebaseAuthInterop
    * bucket @a url.
    * @param app The custom FirebaseApp used for initialization.
    * @param url The gs:// url to your Firebase Storage Bucket.
-   * @return the FirebaseStorage instance, initialized with the custom FirebaseApp.
+   * @return the FirebaseStorage instance, configured with the custom FirebaseApp.
    */
   @objc(storageForApp:URL:)
-  open class func storage(app: FirebaseApp = FirebaseApp.app()!,
-                          url: String) -> Storage {
+  open class func storage(app: FirebaseApp, url: String) -> Storage {
     let provider = ComponentType<StorageProvider>.instance(for: StorageProvider.self,
                                                            in: app.container)
     return provider.storage(for: FIRIMPLStorage.bucket(for: app, url: url))
@@ -153,25 +169,6 @@ import FirebaseAuthInterop
    */
   @objc open func useEmulator(withHost host: String, port: Int) {
     impl.useEmulator(withHost: host, port: port)
-  }
-
-  // MARK: - Public APIs only for Objective C
-
-  /**
-   * Creates an instance of FirebaseStorage, configured with the default FirebaseApp.
-   * @return the FirebaseStorage instance, initialized with the default FirebaseApp.
-   */
-  @objc(storage) open class func __storage() -> Storage {
-    return storage(app: FirebaseApp.app()!)
-  }
-
-  /**
-   * Creates an instance of FirebaseStorage, configured with a custom storage bucket @a url.
-   * @param url The gs:// url to your Firebase Storage Bucket.
-   * @return the FirebaseStorage instance, initialized with the custom FirebaseApp.
-   */
-  @objc(storageWithURL:) open class func __storage(url: String) -> Storage {
-    return storage(app: FirebaseApp.app()!, url: url)
   }
 
   // MARK: - NSObject overrides

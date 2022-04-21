@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+if(NOT FIRESTORE_INCLUDE_OBJC)
+  return()
+endif()
+
 add_subdirectory(Benchmarks)
 
 add_subdirectory(App)
