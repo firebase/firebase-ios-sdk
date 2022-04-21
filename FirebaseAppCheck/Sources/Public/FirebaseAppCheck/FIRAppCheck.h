@@ -47,7 +47,7 @@ NS_SWIFT_NAME(AppCheck)
 
 /// Returns an instance of `AppCheck` for an application.
 /// @param firebaseApp A configured `FirebaseApp` instance if exists.
-/// @returns An instance of `AppCheck` corresponding to the passed application.
+/// @return An instance of `AppCheck` corresponding to the passed application.
 /// @throw Throws an exception if required `FirebaseApp` options are missing.
 + (nullable instancetype)appCheckWithApp:(FIRApp *)firebaseApp NS_SWIFT_NAME(appCheck(app:));
 

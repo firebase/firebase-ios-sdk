@@ -181,12 +181,14 @@ model::MutableDocumentMap WrappedRemoteDocumentCache::GetMatching(
 
 // MARK: - WrappedDocumentOverlayCache
 
-absl::optional<model::Overlay> WrappedDocumentOverlayCache::GetOverlay(const model::DocumentKey& key) const {
+absl::optional<model::Overlay> WrappedDocumentOverlayCache::GetOverlay(
+    const model::DocumentKey& key) const {
   ++query_engine_->overlays_read_by_key_;
   return subject_->GetOverlay(key);
 }
 
-void WrappedDocumentOverlayCache::SaveOverlays(int largest_batch_id, const MutationByDocumentKeyMap& overlays) {
+void WrappedDocumentOverlayCache::SaveOverlays(
+    int largest_batch_id, const MutationByDocumentKeyMap& overlays) {
   subject_->SaveOverlays(largest_batch_id, overlays);
 }
 
@@ -194,13 +196,18 @@ void WrappedDocumentOverlayCache::RemoveOverlaysForBatchId(int batch_id) {
   subject_->RemoveOverlaysForBatchId(batch_id);
 }
 
-DocumentOverlayCache::OverlayByDocumentKeyMap WrappedDocumentOverlayCache::GetOverlays(const model::ResourcePath& collection, int since_batch_id) const {
+DocumentOverlayCache::OverlayByDocumentKeyMap
+WrappedDocumentOverlayCache::GetOverlays(const model::ResourcePath& collection,
+                                         int since_batch_id) const {
   auto result = subject_->GetOverlays(collection, since_batch_id);
   query_engine_->overlays_read_by_collection_ += result.size();
   return result;
 }
 
-DocumentOverlayCache::OverlayByDocumentKeyMap WrappedDocumentOverlayCache::GetOverlays(absl::string_view collection_group, int since_batch_id, std::size_t count) const {
+DocumentOverlayCache::OverlayByDocumentKeyMap
+WrappedDocumentOverlayCache::GetOverlays(absl::string_view collection_group,
+                                         int since_batch_id,
+                                         std::size_t count) const {
   auto result = subject_->GetOverlays(collection_group, since_batch_id, count);
   query_engine_->overlays_read_by_collection_group_ += result.size();
   return result;

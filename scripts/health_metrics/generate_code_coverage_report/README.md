@@ -28,11 +28,11 @@ comment of a pull request. If such comment has existed, this comment will be ove
 report.
 
 Since the flag is `presubmit` here, the following options are required for a PR request:
-- `log-link`: Log link to unit tests. This is generally a actions/runs/ link in Github Actions.
+- `log-link`: Log link to unit tests. This is generally a actions/runs/ link in GitHub Actions.
 - `pull-request-num`: A report will be posted in this pull request.
 - `base-commit`: The commit sha used to compare the diff of the current`commit`.
 
-An example in a Github Actions workflow:
+An example in a GitHub Actions workflow:
 ```
 swift run CoverageReportGenerator --presubmit "firebase/firebase-ios-sdk" --commit "${GITHUB_SHA}" \
 --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/codecoverage" \

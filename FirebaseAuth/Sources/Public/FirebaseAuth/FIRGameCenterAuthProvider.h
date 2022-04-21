@@ -38,10 +38,10 @@ extern NSString *const _Nonnull FIRGameCenterAuthSignInMethod NS_SWIFT_NAME(
  */
 typedef void (^FIRGameCenterCredentialCallback)(FIRAuthCredential *_Nullable credential,
                                                 NSError *_Nullable error)
-    NS_SWIFT_NAME(GameCenterCredentialCallback);
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /** @class FIRGameCenterAuthProvider
-    @brief A concrete implementation of @c FIRAuthProvider for Game Center Sign In. Not available on
+    @brief A concrete implementation of `AuthProvider` for Game Center Sign In. Not available on
            watchOS.
  */
 API_UNAVAILABLE(watchos)
@@ -49,7 +49,7 @@ NS_SWIFT_NAME(GameCenterAuthProvider)
 @interface FIRGameCenterAuthProvider : NSObject
 
 /** @fn getCredentialWithCompletion:
-    @brief Creates a @c FIRAuthCredential for a Game Center sign in.
+    @brief Creates an `AuthCredential` for a Game Center sign in.
  */
 + (void)getCredentialWithCompletion:
     (void (^)(FIRAuthCredential *_Nullable credential, NSError *_Nullable error))completion

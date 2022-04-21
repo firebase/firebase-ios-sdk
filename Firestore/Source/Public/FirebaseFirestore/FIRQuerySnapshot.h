@@ -24,8 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 @class FIRSnapshotMetadata;
 
 /**
- * A `FIRQuerySnapshot` contains zero or more `FIRDocumentSnapshot` objects. It can be enumerated
- * using "for ... in documentSet.documents" and its size can be inspected with `isEmpty` and
+ * A `QuerySnapshot` contains zero or more `DocumentSnapshot` objects. It can be enumerated
+ * using the `documents` property and its size can be inspected with `isEmpty` and
  * `count`.
  */
 NS_SWIFT_NAME(QuerySnapshot)
@@ -36,20 +36,20 @@ NS_SWIFT_NAME(QuerySnapshot)
 
 /**
  * The query on which you called `getDocuments` or listened to in order to get this
- * `FIRQuerySnapshot`.
+ * `QuerySnapshot`.
  */
 @property(nonatomic, strong, readonly) FIRQuery *query;
 
 /** Metadata about this snapshot, concerning its source and if it has local modifications. */
 @property(nonatomic, strong, readonly) FIRSnapshotMetadata *metadata;
 
-/** Indicates whether this `FIRQuerySnapshot` is empty (contains no documents). */
+/** Indicates whether this `QuerySnapshot` is empty (contains no documents). */
 @property(nonatomic, readonly, getter=isEmpty) BOOL empty;
 
-/** The count of documents in this `FIRQuerySnapshot`. */
+/** The count of documents in this `QuerySnapshot`. */
 @property(nonatomic, readonly) NSInteger count;
 
-/** An Array of the `FIRDocumentSnapshots` that make up this document set. */
+/** An Array of the `DocumentSnapshots` that make up this document set. */
 @property(nonatomic, strong, readonly) NSArray<FIRQueryDocumentSnapshot *> *documents;
 
 /**
@@ -63,7 +63,7 @@ NS_SWIFT_NAME(QuerySnapshot)
  * snapshot, all documents will be in the list as Added changes.
  *
  * @param includeMetadataChanges Whether metadata-only changes (i.e. only
- *     `FIRDocumentSnapshot.metadata` changed) should be included.
+ *     `DocumentSnapshot.metadata` changed) should be included.
  */
 - (NSArray<FIRDocumentChange *> *)documentChangesWithIncludeMetadataChanges:
     (BOOL)includeMetadataChanges NS_SWIFT_NAME(documentChanges(includeMetadataChanges:));

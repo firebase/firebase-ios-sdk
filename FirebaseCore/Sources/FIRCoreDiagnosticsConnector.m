@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#import "FirebaseCore/Sources/Private/FIRCoreDiagnosticsConnector.h"
+#import "FirebaseCore/Extension/FIRCoreDiagnosticsConnector.h"
 
 #import "Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsInterop.h"
 
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
 
+#import "FirebaseCore/Extension/FIRAppInternal.h"
+#import "FirebaseCore/Extension/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/FIRDiagnosticsData.h"
-#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
-#import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
 
 // Define the interop class symbol declared as an extern in FIRCoreDiagnosticsInterop.
 Class<FIRCoreDiagnosticsInterop> FIRCoreDiagnosticsImplementation;

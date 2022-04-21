@@ -325,4 +325,36 @@ NSString *const AppVersion = @"app_version";
   return 64;
 }
 
+#pragma mark - On Demand Reporting Parameters
+
+- (double)onDemandUploadRate {
+  NSNumber *value = self.settingsDictionary[@"on_demand_upload_rate_per_minute"];
+
+  if (value != nil) {
+    return value.doubleValue;
+  }
+
+  return 10;  // on-demand uploads allowed per minute
+}
+
+- (double)onDemandBackoffBase {
+  NSNumber *value = self.settingsDictionary[@"on_demand_backoff_base"];
+
+  if (value != nil) {
+    return [value doubleValue];
+  }
+
+  return 1.5;  // base of exponent for exponential backoff
+}
+
+- (uint32_t)onDemandBackoffStepDuration {
+  NSNumber *value = self.settingsDictionary[@"on_demand_backoff_step_duration_seconds"];
+
+  if (value != nil) {
+    return value.unsignedIntValue;
+  }
+
+  return 6;  // step duration for exponential backoff
+}
+
 @end

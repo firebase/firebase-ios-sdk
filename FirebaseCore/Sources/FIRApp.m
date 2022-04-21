@@ -30,11 +30,12 @@
 #import "FirebaseCore/Sources/FIRConfigurationInternal.h"
 #import "FirebaseCore/Sources/FIRFirebaseUserAgent.h"
 
-#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
-#import "FirebaseCore/Sources/Private/FIRCoreDiagnosticsConnector.h"
-#import "FirebaseCore/Sources/Private/FIRLibrary.h"
-#import "FirebaseCore/Sources/Private/FIRLogger.h"
-#import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
+#import "FirebaseCore/Extension/FIRAppInternal.h"
+#import "FirebaseCore/Extension/FIRCoreDiagnosticsConnector.h"
+#import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
+#import "FirebaseCore/Extension/FIRLibrary.h"
+#import "FirebaseCore/Extension/FIRLogger.h"
+#import "FirebaseCore/Extension/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
@@ -193,6 +194,12 @@ static FIRApp *sDefaultApp;
     FIRLogDebug(kFIRLoggerCore, @"I-COR000002", @"Configuring app named %@", name);
   }
 
+  // Default instantiation, make sure we populate with Swift SDKs that can't register in time.
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    [self registerSwiftComponents];
+  });
+
   @synchronized(self) {
     FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
     if (app.isDefaultApp) {
@@ -332,6 +339,7 @@ static FIRApp *sDefaultApp;
     _options.editingLocked = YES;
     _isDefaultApp = [name isEqualToString:kFIRDefaultAppName];
     _container = [[FIRComponentContainer alloc] initWithApp:self];
+    _heartbeatLogger = [[FIRHeartbeatLogger alloc] initWithAppID:self.options.googleAppID];
   }
   return self;
 }
@@ -824,6 +832,38 @@ static FIRApp *sDefaultApp;
   return collectionEnabledPlistObject;
 }
 
+#pragma mark - Swift Components.
+
++ (void)registerSwiftComponents {
+  SEL componentsToRegisterSEL = @selector(componentsToRegister);
+  // Dictionary of class names that conform to `FIRLibrary` and their user agents. These should only
+  // be SDKs that are written in Swift but still visible to ObjC.
+  NSDictionary<NSString *, NSString *> *swiftComponents = @{
+    @"FIRFunctionsComponent" : @"fire-fun",
+    @"FIRStorageComponent" : @"fire-str",
+  };
+  for (NSString *className in swiftComponents.allKeys) {
+    Class klass = NSClassFromString(className);
+    if (klass && [klass respondsToSelector:componentsToRegisterSEL]) {
+      [FIRApp registerInternalLibrary:klass withName:swiftComponents[className]];
+    }
+  }
+
+  // Swift libraries that don't need component behaviour
+  NSDictionary<NSString *, NSString *> *swiftLibraries = @{
+    @"FIRCombineAuthLibrary" : @"comb-auth",
+    @"FIRCombineFirestoreLibrary" : @"comb-firestore",
+    @"FIRCombineFunctionsLibrary" : @"comb-functions",
+    @"FIRCombineStorageLibrary" : @"comb-storage",
+  };
+  for (NSString *className in swiftLibraries.allKeys) {
+    Class klass = NSClassFromString(className);
+    if (klass) {
+      [FIRApp registerLibrary:swiftLibraries[className] withVersion:FIRFirebaseVersion()];
+    }
+  }
+}
+
 #pragma mark - App Life Cycle
 
 - (void)subscribeForAppDidBecomeActiveNotifications {
@@ -847,6 +887,8 @@ static FIRApp *sDefaultApp;
 
 - (void)logCoreTelemetryIfEnabled {
   if ([self isDataCollectionDefaultEnabled]) {
+    [self.heartbeatLogger log];
+    // TODO(ncooke3): Remove below code when CoreDiagnostics is removed.
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0), ^{
       [FIRCoreDiagnosticsConnector logCoreTelemetryWithOptions:[self options]];
     });

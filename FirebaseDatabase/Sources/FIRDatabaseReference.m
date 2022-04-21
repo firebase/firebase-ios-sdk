@@ -15,7 +15,7 @@
  */
 
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseDatabase/Sources/Api/FIRDatabaseConfig.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseReference_Private.h"
@@ -445,7 +445,7 @@
 
 - (void)getDataWithCompletionBlock:
     (void (^_Nonnull)(NSError *__nullable error,
-                      FIRDataSnapshot *snapshot))block {
+                      FIRDataSnapshot *__nullable snapshot))block {
     [super getDataWithCompletionBlock:block];
 }
 

@@ -40,7 +40,6 @@ product can be one of:
   RemoteConfig
   RemoteConfigSample
   Storage
-  StorageSwift
   SymbolCollision
   GoogleDataTransport
   Performance
@@ -357,7 +356,7 @@ case "$product-$platform-$method" in
 
       echo "Building cmake build ..."
       ninja -k 10 all
-      ctest --output-on-failure
+      ctest --verbose
     )
     ;;
 
@@ -522,7 +521,7 @@ case "$product-$platform-$method" in
     # Add GoogleService-Info.plist to generated Test Wrapper App.
     ruby ./scripts/update_xcode_target.rb gen/FirebaseStorage/Pods/Pods.xcodeproj \
       AppHost-FirebaseStorage-Unit-Tests \
-      ../../../FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
+      ../../../FirebaseStorageInternal/Tests/Integration/Resources/GoogleService-Info.plist
 
     if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
@@ -533,30 +532,13 @@ case "$product-$platform-$method" in
         "${xcb_flags[@]}" \
         build \
         test
-
-      RunXcodebuild \
-        -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
-        -scheme "FirebaseStorage-Unit-swift-integration" \
-        "${ios_flags[@]}" \
-        "${xcb_flags[@]}" \
-        build \
-        test
-      fi
-    ;;
-
-  StorageSwift-*-xcodebuild)
-    pod_gen FirebaseStorageSwift.podspec --platforms=ios
-
-    # Add GoogleService-Info.plist to generated Test Wrapper App.
-    ruby ./scripts/update_xcode_target.rb gen/FirebaseStorageSwift/Pods/Pods.xcodeproj \
-      AppHost-FirebaseStorageSwift-Unit-Tests \
-      ../../../FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
+    fi
 
     if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \
-        -workspace 'gen/FirebaseStorageSwift/FirebaseStorageSwift.xcworkspace' \
-        -scheme "FirebaseStorageSwift-Unit-integration" \
+        -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+        -scheme "FirebaseStorage-Unit-ObjCIntegration" \
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
         build \
@@ -570,7 +552,7 @@ case "$product-$platform-$method" in
     # Add GoogleService-Info.plist to generated Test Wrapper App.
     ruby ./scripts/update_xcode_target.rb gen/FirebaseCombineSwift/Pods/Pods.xcodeproj \
       AppHost-FirebaseCombineSwift-Unit-Tests \
-      ../../../FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
+      ../../../FirebaseStorageInternal/Tests/Integration/Resources/GoogleService-Info.plist
 
     if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.

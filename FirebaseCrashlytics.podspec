@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCrashlytics'
-  s.version          = '8.15.0'
+  s.version          = '9.0.0'
   s.summary          = 'Best and lightest-weight crash reporting for mobile, desktop and tvOS.'
   s.description      = 'Firebase Crashlytics helps you track, prioritize, and fix stability issues that erode app quality.'
   s.homepage         = 'https://firebase.google.com/'
@@ -16,6 +16,8 @@ Pod::Spec.new do |s|
   tvos_deployment_target = '10.0'
   watchos_deployment_target = '6.0'
 
+  s.swift_version = '5.3'
+
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
   s.tvos.deployment_target = tvos_deployment_target
@@ -29,7 +31,7 @@ Pod::Spec.new do |s|
     'Crashlytics/Protogen/**/*.{c,h,m,mm}',
     'Crashlytics/Shared/**/*.{c,h,m,mm}',
     'Crashlytics/third_party/**/*.{c,h,m,mm}',
-    'FirebaseCore/Sources/Private/*.h',
+    'FirebaseCore/Extension/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
     'Interop/Analytics/Public/*.h',
   ]
@@ -51,9 +53,9 @@ Pod::Spec.new do |s|
     cp -f ./Crashlytics/upload-symbols ./upload-symbols
   PREPARE_COMMAND_END
 
-  s.dependency 'FirebaseCore', '~> 8.0'
-  s.dependency 'FirebaseInstallations', '~> 8.0'
-  s.dependency 'PromisesObjC', '>= 1.2', '< 3.0'
+  s.dependency 'FirebaseCore', '~> 9.0'
+  s.dependency 'FirebaseInstallations', '~> 9.0'
+  s.dependency 'PromisesObjC', '~> 2.0'
   s.dependency 'GoogleDataTransport', '~> 9.1'
   s.dependency 'GoogleUtilities/Environment', '~> 7.7'
   s.dependency 'nanopb', '~> 2.30908.0'
@@ -106,7 +108,7 @@ Pod::Spec.new do |s|
     # Unit tests can't run on watchOS.
     unit_tests.platforms = {
       :ios => ios_deployment_target,
-      :osx => osx_deployment_target,
+      :osx => '10.15',
       :tvos => tvos_deployment_target
     }
     unit_tests.source_files = 'Crashlytics/UnitTests/*.[mh]',

@@ -218,6 +218,7 @@ struct ZipBuilder {
       // Also AppCheck must be built after other pods so that its restricted architecture
       // selection does not restrict any of its dependencies.
       var sortedPods = podsToBuild.keys.sorted()
+
       sortedPods.removeAll(where: { value in
         value == "FirebaseAppCheck"
       })
@@ -314,7 +315,7 @@ struct ZipBuilder {
   /// - Throws: One of many errors that could have happened during the build phase.
   func buildAndAssembleFirebaseRelease(templateDir: URL) throws -> ReleaseArtifacts {
     let manifest = FirebaseManifest.shared
-    var podsToInstall = manifest.pods.filter { $0.zip }.map {
+    var podsToInstall = manifest.pods.map {
       CocoaPodUtils.VersionedPod(name: $0.name,
                                  version: manifest.versionString($0),
                                  platforms: $0.platforms)
@@ -412,7 +413,8 @@ struct ZipBuilder {
     do {
       // This returns the Analytics directory and a list of framework names that Analytics requires.
       /// Example: ["FirebaseInstallations, "GoogleAppMeasurement", "nanopb", <...>]
-      let (dir, frameworks) = try installAndCopyFrameworks(forPod: "FirebaseAnalytics",
+      let (dir, frameworks) = try installAndCopyFrameworks(forPod: "FirebaseAnalyticsSwift",
+                                                           inFolder: "FirebaseAnalytics",
                                                            withInstalledPods: installedPods,
                                                            rootZipDir: zipDir,
                                                            builtFrameworks: frameworksToAssemble)
@@ -423,7 +425,7 @@ struct ZipBuilder {
     }
 
     // Start the README dependencies string with the frameworks built in Analytics.
-    var readmeDeps = dependencyString(for: "FirebaseAnalytics",
+    var readmeDeps = dependencyString(for: "FirebaseAnalyticsSwift",
                                       in: analyticsDir,
                                       frameworks: analyticsFrameworks)
 
@@ -432,29 +434,34 @@ struct ZipBuilder {
     let analyticsPods = analyticsFrameworks.map {
       $0.replacingOccurrences(of: ".framework", with: "")
     }
+    let manifest = FirebaseManifest.shared
+    let firebaseZipPods = manifest.pods.filter { $0.zip }.map { $0.name }
+
     // Skip Analytics and the pods bundled with it.
     let remainingPods = installedPods.filter {
-      $0.key != "FirebaseAnalytics" &&
-        $0.key != "FirebaseCore" &&
-        $0.key != "FirebaseCoreDiagnostics" &&
-        $0.key != "FirebaseInstallations" &&
-        $0.key != "Firebase" &&
-        podsToInstall.map { $0.name }.contains($0.key)
+      $0.key == "Google-Mobile-Ads-SDK" ||
+        $0.key == "GoogleSignIn" ||
+        (firebaseZipPods.contains($0.key) &&
+          $0.key != "FirebaseAnalyticsSwift" &&
+          $0.key != "Firebase" &&
+          podsToInstall.map { $0.name }.contains($0.key))
     }.sorted { $0.key < $1.key }
     for pod in remainingPods {
+      let folder = pod.key.replacingOccurrences(of: "Swift", with: "")
       do {
         if frameworksToAssemble[pod.key] == nil {
-          // Continue if the pod wasn't built - like Swift frameworks for Carthage.
+          // Continue if the pod wasn't built.
           continue
         }
         let (productDir, podFrameworks) =
           try installAndCopyFrameworks(forPod: pod.key,
+                                       inFolder: folder,
                                        withInstalledPods: installedPods,
                                        rootZipDir: zipDir,
                                        builtFrameworks: frameworksToAssemble,
                                        podsToIgnore: analyticsPods)
         // Update the README.
-        readmeDeps += dependencyString(for: pod.key, in: productDir, frameworks: podFrameworks)
+        readmeDeps += dependencyString(for: folder, in: productDir, frameworks: podFrameworks)
       } catch {
         fatalError("Could not copy frameworks from \(pod) into the zip file: \(error)")
       }
@@ -464,7 +471,7 @@ struct ZipBuilder {
         // individual framework.
         // TODO: Investigate changing the zip distro to also have Resources in the .frameworks to
         // enable different platform Resources.
-        let productPath = zipDir.appendingPathComponent(pod.key)
+        let productPath = zipDir.appendingPathComponent(folder)
         let contents = try fileManager.contentsOfDirectory(atPath: productPath.path)
         for fileOrFolder in contents {
           let xcPath = productPath.appendingPathComponent(fileOrFolder)
@@ -701,6 +708,7 @@ struct ZipBuilder {
   ///            that were copied for this subspec.
   @discardableResult
   func installAndCopyFrameworks(forPod podName: String,
+                                inFolder folder: String,
                                 withInstalledPods installedPods: [String: CocoaPodUtils.PodInfo],
                                 rootZipDir: URL,
                                 builtFrameworks: [String: [URL]],
@@ -713,7 +721,7 @@ struct ZipBuilder {
     let dedupedPods = Array(Set(podsToCopy))
 
     // Copy the frameworks into the proper product directory.
-    let productDir = rootZipDir.appendingPathComponent(podName)
+    let productDir = rootZipDir.appendingPathComponent(folder)
     let namedFrameworks = try copyFrameworks(fromPods: dedupedPods,
                                              toDirectory: productDir,
                                              frameworkLocations: builtFrameworks,

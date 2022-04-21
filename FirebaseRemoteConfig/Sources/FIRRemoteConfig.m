@@ -17,7 +17,7 @@
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 
 #import "FirebaseABTesting/Sources/Private/FirebaseABTestingInternal.h"
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseRemoteConfig/Sources/FIRRemoteConfigComponent.h"
 #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
@@ -78,10 +78,12 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
 
 + (nonnull FIRRemoteConfig *)remoteConfigWithFIRNamespace:(NSString *_Nonnull)firebaseNamespace {
   if (![FIRApp isDefaultAppConfigured]) {
-    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000047",
-                @"FIRApp not configured. Please make sure you have called [FIRApp configure]");
-    // TODO: Maybe throw an exception here? That'd be a breaking change though, but at this point
-    // RC can't work as expected.
+    [NSException raise:@"FIRAppNotConfigured"
+                format:@"The default `FirebaseApp` instance must be configured before the "
+                       @"default Remote Config instance can be initialized. One way to ensure this "
+                       @"is to call `FirebaseApp.configure()` in the App Delegate's "
+                       @"`application(_:didFinishLaunchingWithOptions:)` or the `@main` struct's "
+                       @"initializer in SwiftUI."];
   }
 
   return [FIRRemoteConfig remoteConfigWithFIRNamespace:firebaseNamespace app:[FIRApp defaultApp]];
@@ -99,10 +101,12 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
 + (FIRRemoteConfig *)remoteConfig {
   // If the default app is not configured at this point, warn the developer.
   if (![FIRApp isDefaultAppConfigured]) {
-    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000047",
-                @"FIRApp not configured. Please make sure you have called [FIRApp configure]");
-    // TODO: Maybe throw an exception here? That'd be a breaking change though, but at this point
-    // RC can't work as expected.
+    [NSException raise:@"FIRAppNotConfigured"
+                format:@"The default `FirebaseApp` instance must be configured before the "
+                       @"default Remote Config instance can be initialized. One way to ensure this "
+                       @"is to call `FirebaseApp.configure()` in the App Delegate's "
+                       @"`application(_:didFinishLaunchingWithOptions:)` or the `@main` struct's "
+                       @"initializer in SwiftUI."];
   }
 
   return [FIRRemoteConfig remoteConfigWithFIRNamespace:FIRNamespaceGoogleMobilePlatform

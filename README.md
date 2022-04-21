@@ -30,8 +30,7 @@
 
 # Firebase Apple Open Source Development
 
-This repository contains all Apple platform Firebase SDK source except FirebaseAnalytics
-and FirebaseML.
+This repository contains all Apple platform Firebase SDK source except FirebaseAnalytics.
 
 Firebase is an app development platform with tools to help you build, grow and
 monetize your app. More information about Firebase can be found on the
@@ -39,7 +38,9 @@ monetize your app. More information about Firebase can be found on the
 
 ## Installation
 
-See the subsections below for details about the different installation methods.
+See the subsections below for details about the different installation methods. Where
+available, it's recommended to install any libraries with a `Swift` suffix to get the
+best experience when writing your app in Swift.
 1. [Standard pod install](#standard-pod-install)
 1. [Swift Package Manager](#swift-package-manager)
 1. [Installing from the GitHub repo](#installing-from-github)
@@ -220,7 +221,7 @@ integrating Performance with the dev test App.
 ### Firebase Storage
 
 To run the Storage Integration tests, follow the instructions in
-[FIRStorageIntegrationTests.m](FirebaseStorage/Tests/Integration/FIRStorageIntegrationTests.m).
+[FIRStorageIntegrationTests.m](FirebaseStorageInternal/Tests/Integration/FIRStorageIntegrationTests.m).
 
 #### Push Notifications
 
@@ -243,7 +244,7 @@ physical device.
 
 ## Building with Firebase on Apple platforms
 
-Firebase 8.9.0 introduces official beta support for macOS, Catalyst, and tvOS. watchOS continues
+Firebase 8.9.0 introduced official beta support for macOS, Catalyst, and tvOS. watchOS continues
 to be community supported. Thanks to community contributions for many of the multi-platform PRs.
 
 At this time, most of Firebase's products are available across Apple platforms. There are still

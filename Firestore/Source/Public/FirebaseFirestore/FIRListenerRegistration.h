@@ -23,7 +23,7 @@ NS_SWIFT_NAME(ListenerRegistration)
 @protocol FIRListenerRegistration <NSObject>
 
 /**
- * Removes the listener being tracked by this FIRListenerRegistration. After the initial call,
+ * Removes the listener being tracked by this `ListenerRegistration`. After the initial call,
  * subsequent calls have no effect.
  */
 - (void)remove;

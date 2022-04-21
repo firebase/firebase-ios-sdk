@@ -196,18 +196,25 @@ class WrappedRemoteDocumentCache : public RemoteDocumentCache {
 /** A DocumentOverlayCache that counts document reads. */
 class WrappedDocumentOverlayCache final : public DocumentOverlayCache {
  public:
-  WrappedDocumentOverlayCache(DocumentOverlayCache* subject, CountingQueryEngine* query_engine) : subject_(subject), query_engine_(query_engine) {
+  WrappedDocumentOverlayCache(DocumentOverlayCache* subject,
+                              CountingQueryEngine* query_engine)
+      : subject_(subject), query_engine_(query_engine) {
   }
 
-  absl::optional<model::Overlay> GetOverlay(const model::DocumentKey& key) const override;
+  absl::optional<model::Overlay> GetOverlay(
+      const model::DocumentKey& key) const override;
 
-  void SaveOverlays(int largest_batch_id, const MutationByDocumentKeyMap& overlays) override;
+  void SaveOverlays(int largest_batch_id,
+                    const MutationByDocumentKeyMap& overlays) override;
 
   void RemoveOverlaysForBatchId(int batch_id) override;
 
-  OverlayByDocumentKeyMap GetOverlays(const model::ResourcePath& collection, int since_batch_id) const override;
+  OverlayByDocumentKeyMap GetOverlays(const model::ResourcePath& collection,
+                                      int since_batch_id) const override;
 
-  OverlayByDocumentKeyMap GetOverlays(absl::string_view collection_group, int since_batch_id, std::size_t count) const override;
+  OverlayByDocumentKeyMap GetOverlays(absl::string_view collection_group,
+                                      int since_batch_id,
+                                      std::size_t count) const override;
 
  private:
   int GetOverlayCount() const override;

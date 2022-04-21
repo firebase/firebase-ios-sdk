@@ -68,10 +68,16 @@ For top-level Firebase pods that map to documented products:
 * Make sure the public umbrella header is imported via [Firebase.h](CoreOnly/Sources/Firebase.h)
   wrapped in `__has_include`. Follow the existing examples for details.
 * Update [Firebase.podspec](Firebase.podspec).
-* Register library via registerInternalLibrary API like this
-  [Storage example](FirebaseStorage/Sources/FIRStorageComponent.m).
+* Register Objective C library via registerInternalLibrary API like this
+  [AppCheck example](FirebaseAppCheck/Sources/Core/FIRAppCheck.m).
+* Register Swift library by creating a component like
+  [Functions example](FirebaseFunctions/Sources/Internal/FunctionsComponent.swift) and
+  detecting it in `registerSwiftComponents` in
+  [FIRApp.m](FirebaseCore/Sources/FIRApp.m).
 * When ready to release with Firebase, add to the
   [Firebase manifest](ReleaseTooling/Sources/FirebaseManifest/FirebaseManifest.swift).
+* Create an empty JSON file to enable the Carthage build
+  [here](ReleaseTooling/Sources/CarthageJSON).
 * Add a [quickstart](https://github.com/firebase/quickstart-ios).
 
 ## Review and Release

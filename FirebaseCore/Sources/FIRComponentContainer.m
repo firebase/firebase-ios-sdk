@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "FirebaseCore/Sources/Private/FIRComponentContainer.h"
+#import "FirebaseCore/Extension/FIRComponentContainer.h"
 
-#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
-#import "FirebaseCore/Sources/Private/FIRComponent.h"
-#import "FirebaseCore/Sources/Private/FIRLibrary.h"
-#import "FirebaseCore/Sources/Private/FIRLogger.h"
+#import "FirebaseCore/Extension/FIRAppInternal.h"
+#import "FirebaseCore/Extension/FIRComponent.h"
+#import "FirebaseCore/Extension/FIRLibrary.h"
+#import "FirebaseCore/Extension/FIRLogger.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -168,6 +168,11 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
 }
 
 #pragma mark - Internal Retrieval
+
+// Redirected for Swift users.
+- (nullable id)__instanceForProtocol:(Protocol *)protocol {
+  return [self instanceForProtocol:protocol];
+}
 
 - (nullable id)instanceForProtocol:(Protocol *)protocol {
   // Check if there is a cached instance, and return it if so.

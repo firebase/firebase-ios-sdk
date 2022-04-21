@@ -18,8 +18,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-FOUNDATION_EXPORT NSString *const kFIRMessagingDomain;
-
 // FIRMessaging Internal Error Code
 typedef NS_ENUM(NSUInteger, FIRMessagingErrorCode) {
   kFIRMessagingErrorCodeUnknown = 0,

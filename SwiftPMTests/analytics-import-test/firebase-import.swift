@@ -17,7 +17,7 @@ import Firebase
 
 class firebaseImportTest: XCTestCase {
   func testAnalyticsImported() {
-    Analytics.logEvent(AnalyticsEventEcommercePurchase,
+    Analytics.logEvent(AnalyticsEventPurchase,
                        parameters: [AnalyticsParameterShipping: 10.0])
   }
 }

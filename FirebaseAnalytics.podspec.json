@@ -3,8 +3,8 @@
     "cocoapods_version": ">= 1.10.0",
     "default_subspecs": "AdIdSupport",
     "dependencies": {
-        "FirebaseCore": "~> 8.0",
-        "FirebaseInstallations": "~> 8.0",
+        "FirebaseCore": "~> 9.0",
+        "FirebaseInstallations": "~> 9.0",
         "GoogleUtilities/AppDelegateSwizzler": "~> 7.7",
         "GoogleUtilities/MethodSwizzler": "~> 7.7",
         "GoogleUtilities/NSData+zlib": "~> 7.7",
@@ -22,23 +22,23 @@
         "z"
     ],
     "license": {
-        "text": "Copyright 2021 Google",
+        "text": "Copyright 2022 Google",
         "type": "Copyright"
     },
     "name": "FirebaseAnalytics",
     "platforms": {
-        "ios": "9.0",
+        "ios": "10.0",
         "osx": "10.12",
         "tvos": "12.0"
     },
     "source": {
-        "http": "https://dl.google.com/firebase/ios/analytics/52eebd4fc62b3d8c/FirebaseAnalytics-8.14.0.tar.gz"
+        "http": "https://dl.google.com/firebase/ios/analytics/a596b932b0fcdc4b/FirebaseAnalytics-9.0.0.tar.gz"
     },
     "subspecs": [
         {
             "name": "AdIdSupport",
             "dependencies": {
-                "GoogleAppMeasurement": "8.15.0"
+                "GoogleAppMeasurement": "9.0.0"
             },
             "vendored_frameworks": [
                 "Frameworks/FirebaseAnalytics.xcframework"
@@ -47,7 +47,7 @@
         {
             "name": "WithoutAdIdSupport",
             "dependencies": {
-                "GoogleAppMeasurement/WithoutAdIdSupport": "8.15.0"
+                "GoogleAppMeasurement/WithoutAdIdSupport": "9.0.0"
             },
             "vendored_frameworks": [
                 "Frameworks/FirebaseAnalytics.xcframework"
@@ -55,5 +55,7 @@
         }
     ],
     "summary": "Firebase Analytics for iOS",
-    "version": "8.15.0"
+
+    "swift_version" : "5.3",
+    "version": "9.0.0"
 }

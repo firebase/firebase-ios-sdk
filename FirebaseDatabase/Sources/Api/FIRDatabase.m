@@ -16,8 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
-#import "Interop/Auth/Public/FIRAuthInterop.h"
+#import "FirebaseAuth/Interop/FIRAuthInterop.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "FirebaseDatabase/Sources/Api/FIRDatabaseComponent.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
@@ -97,7 +97,6 @@
 }
 
 + (NSString *)buildVersion {
-    // TODO: Restore git hash when build moves back to git
     return [NSString stringWithFormat:@"%@_%s", FIRFirebaseVersion(), __DATE__];
 }
 

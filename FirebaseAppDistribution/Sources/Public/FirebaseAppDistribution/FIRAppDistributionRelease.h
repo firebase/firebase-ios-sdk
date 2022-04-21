@@ -30,7 +30,7 @@ NS_SWIFT_NAME(AppDistributionRelease)
 @property(nonatomic, copy, readonly) NSString *buildVersion;
 
 /// The release notes for this build.
-@property(nonatomic, copy, readonly) NSString *releaseNotes;
+@property(nonatomic, nullable, copy, readonly) NSString *releaseNotes;
 
 /// The URL for the build.
 @property(nonatomic, strong, readonly) NSURL *downloadURL;

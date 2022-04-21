@@ -20,9 +20,6 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
     runs-on: macos-11
-    strategy:
-      matrix:
-        config: [Cocoapods_multiprojects_frameworks, Cocoapods_multiprojects_staticLibs]
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
@@ -33,5 +30,5 @@ jobs:
     - name: Build and test
       run: |
         scripts/third_party/travis/retry.sh ./CocoapodsIntegrationTest/scripts/build_with_environment.sh \
-          --gemfile=./CocoapodsIntegrationTest/TestEnvironments/${{ matrix.config }}/Gemfile \
-          --podfile=./CocoapodsIntegrationTest/TestEnvironments/${{ matrix.config }}/Podfile
+          --gemfile=./CocoapodsIntegrationTest/TestEnvironments/Cocoapods_multiprojects_frameworks/Gemfile \
+          --podfile=./CocoapodsIntegrationTest/TestEnvironments/Cocoapods_multiprojects_frameworks/Podfile

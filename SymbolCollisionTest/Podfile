@@ -5,8 +5,7 @@ source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
 
 target 'SymbolCollisionTest' do
-  # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
-  # use_frameworks!
+  use_frameworks!
 
   # Firebase Pods
     pod 'Firebase', :path => '../'
@@ -16,6 +15,8 @@ target 'SymbolCollisionTest' do
     pod 'FirebaseAuth', :path => '../'
     pod 'FirebaseCore', :path => '../'
     pod 'FirebaseCoreDiagnostics', :path => '../'
+    pod 'FirebaseCoreExtension', :path => '../'
+    pod 'FirebaseCoreInternal', :path => '../'
     pod 'FirebaseCrashlytics', :path => '../'
     pod 'FirebaseDatabase', :path => '../'
     pod 'FirebaseDynamicLinks', :path => '../'
@@ -27,6 +28,7 @@ target 'SymbolCollisionTest' do
     pod 'FirebasePerformance', :path => '../'
     pod 'FirebaseRemoteConfig', :path => '../'
     pod 'FirebaseStorage', :path => '../'
+    pod 'FirebaseStorageInternal', :path => '../'
     pod 'GoogleUtilitiesComponents', :path => '../'
 
 #    pod 'FirebaseUI'. - requires use_frameworks!
@@ -36,7 +38,7 @@ target 'SymbolCollisionTest' do
 
   # Other Google Pods
 #    pod 'ARCore' Conflicts with FirebasePerformance via Clearcut and google-cast-sdk
-#    pod 'Blockly' This is a Swift Pod and requires usage of use_frameworks!
+#    pod 'Blockly'  `Blockly` does not specify a Swift version ...
     pod 'DigitsMigrationHelper'
     pod 'EarlGrey'
 #    pod 'GeoFire' -- requires Firebase/Database 4.0

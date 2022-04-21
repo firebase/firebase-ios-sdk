@@ -1,15 +1,15 @@
 # Firebase iOS SDKs
 
 This directory contains the full Firebase iOS distribution, packaged as
-static frameworks and xcframeworks that can be integrated into your app.
+static xcframeworks that can be integrated into your app.
 
 # Integration Instructions
 
-Each Firebase component requires several frameworks in order to function
-properly. Each section below lists the frameworks you'll need to include
+Each Firebase component requires several xcframeworks in order to function
+properly. Each section below lists the xcframeworks you'll need to include
 in your project in order to use that Firebase SDK in your application.
 
-Xcode 12.2 or newer is required.
+Xcode 13.2.1 or newer is required.
 
 To integrate a Firebase SDK with your app:
 
@@ -17,13 +17,19 @@ To integrate a Firebase SDK with your app:
 2. Make sure you have an Xcode project open in Xcode.
 3. In Xcode, hit `⌘-1` to open the Project Navigator pane. It will open on
    left side of the Xcode window if it wasn't already open.
-4. Remove any existing Firebase frameworks from your project.
-5. Drag each framework from the "FirebaseAnalytics" directory into the Project
+4. Remove any existing Firebase xcframeworks from your project.
+5. Drag each xcframework from the "FirebaseAnalytics" directory into the Project
    Navigator pane. In the dialog box that appears, make sure the target you
    want the framework to be added to has a checkmark next to it, and that
-   you've selected "Copy items if needed". If you want to include
-   community-based Catalyst support, only drag the xcframeworks and skip the
-   plain frameworks.
+   you've selected "Copy items if needed".
+
+   *To disable AdId support, do not copy
+   `GoogleAppMeasurementIdentitySupport.xcframework`.*
+
+   *If the app does not use any Firebase Swift specific APIs, you do not need
+   to copy any xcframeworks whose name includes "Swift" for this and the next
+   step.*
+
 6. Drag each framework from the directory named after the SDK into the Project
    Navigator pane. Note that there may be no additional frameworks, in which
    case this directory will be empty. For instance, if you want the Database
@@ -50,13 +56,16 @@ To integrate a Firebase SDK with your app:
 9. Drag the `Firebase.h` header in this directory into your project. This will
    allow you to `#import "Firebase.h"` and start using any Firebase SDK that you
    have.
-10. If you're using Swift or want to use modules from Objective C, drag
-   `module.modulemap` into your project and update the
+10. Drag `module.modulemap` into your project and update the
    "User Header Search Paths" in your project's Build Settings to include the
    directory that contains the added module map.
-11. You're done! Compile your target and start using Firebase.
+11. If your app does not include any Swift implementation, you may need to add
+   a dummy Swift file to the app to prevent Swift system library missing
+   symbol linker errors. See
+   https://forums.swift.org/t/using-binary-swift-sdks-from-non-swift-apps/55989.
+12. You're done! Compile your target and start using Firebase.
 
-If you want to add another SDK, repeat the steps above with the frameworks for
+If you want to add another SDK, repeat the steps above with the xcframeworks for
 the new SDK. You only need to add each framework once, so if you've already
 added a framework for one SDK, you don't need to add it again. Note that some
 frameworks are required by multiple SDKs, and so appear in multiple folders.
@@ -71,8 +80,9 @@ frameworks and libraries listed in each Firebase framework's
 indicator that not all system libraries are being brought into your build
 automatically.
 
-"(~> X)" below means that the SDK requires all of the frameworks from X. You
-should make sure to include all of the frameworks from X when including the SDK.
+"(~> X)" below means that the SDK requires all of the xcframeworks from X. You
+should make sure to include all of the xcframeworks from X when including the
+SDK.
 
 __INTEGRATION__
 # Samples
@@ -89,7 +99,7 @@ to create your own custom binary frameworks.
 
 # Versions
 
-The frameworks in this directory map to these versions of the Firebase SDKs in
+The xcframeworks in this directory map to these versions of the Firebase SDKs in
 CocoaPods.
 
 __VERSIONS__

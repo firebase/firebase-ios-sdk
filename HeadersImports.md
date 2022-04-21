@@ -47,12 +47,12 @@ In Swift Package Manager, it's a library target.
   import like `#import "publicHeader.h"` to avoid public module collisions.
 
 * *Private Headers from other Libraries* - Import a private umbrella header like
-  `FirebaseCore/Sources/Private/FirebaseCoreInternal.h`. For CocoaPods, these files should be
+  `FirebaseCore/Extension/FIRebaseCoreInternal.h`. For CocoaPods, these files should be
   added to the podspec in the `source_files` attribute like:
 ```
   s.source_files = [ 'FirebaseFoo/Sources/**/*.[mh]'
-                     'Interop/Auth/Public/*.h',
-                     'FirebaseCore/Sources/Private/*.h',
+                     'FirebaseAuth/Interop/*.h',
+                     'FirebaseCore/Internal/*.h',
                    ]
 ```
 

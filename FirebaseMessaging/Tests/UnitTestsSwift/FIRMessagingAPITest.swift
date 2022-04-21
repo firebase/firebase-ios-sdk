@@ -47,13 +47,17 @@ func apis() {
   case .prod: ()
   case .sandbox: ()
   case .unknown: ()
-    // Intentionally leave the warning for not handling unknown values as that's the only way this
-    // will fail to compile if we add a case.
+  // The following case serves to silence the warning that this
+  // enum "may have additional unknown values". In the event that the existing
+  // cases change, this switch statement will generate
+  // a "Switch must be exhaustive" warning.
+  @unknown default: ()
   }
 
   // Use random to eliminate the warning that we're evaluating to a constant.
-  let messagingError: MessagingError = Bool.random() ? .unknown : .authentication
-  switch messagingError {
+  let messagingError: MessagingError = Bool
+    .random() ? MessagingError(.unknown) : MessagingError(.authentication)
+  switch messagingError.code {
   case .unknown: ()
   case .authentication: ()
   case .noAccess: ()
@@ -62,8 +66,11 @@ func apis() {
   case .operationInProgress: ()
   case .invalidRequest: ()
   case .invalidTopicName: ()
-    // Intentionally leave the warning for not handling unknown values as that's the only way this
-    // will fail to compile if we add a case.
+  // The following case serves to silence the warning that this
+  // enum "may have additional unknown values". In the event that the existing
+  // cases change, this switch statement will generate
+  // a "Switch must be exhaustive" warning.
+  @unknown default: ()
   }
 
   // Use random to eliminate the warning that we're evaluating to a constant.
@@ -71,8 +78,11 @@ func apis() {
   switch status {
   case .new: ()
   case .unknown: ()
-    // Intentionally leave the warning for not handling unknown values as that's the only way this
-    // will fail to compile if we add a case.
+  // The following case serves to silence the warning that this
+  // enum "may have additional unknown values". In the event that the existing
+  // cases change, this switch statement will generate
+  // a "Switch must be exhaustive" warning.
+  @unknown default: ()
   }
 
   // TODO: Mark the initializer as unavialable, as devs shouldn't be able to instantiate this.
@@ -83,6 +93,18 @@ func apis() {
   let topic = "cat_video"
   messaging.subscribe(toTopic: topic)
   messaging.unsubscribe(fromTopic: topic)
+  messaging.unsubscribe(fromTopic: topic, completion: { error in
+    if let error = error {
+      switch error {
+      // Handle errors in the new format.
+      case MessagingError.timeout:
+        ()
+      default:
+        ()
+      }
+    }
+  })
+
   messaging.unsubscribe(fromTopic: topic) { _ in
   }
 
@@ -101,11 +123,11 @@ class CustomDelegate: NSObject, MessagingDelegate {
   func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {}
 }
 
-@available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 func apiAsync() async throws {
   let messaging = Messaging.messaging()
   let topic = "cat_video"
-  #if compiler(>=5.5) && canImport(_Concurrency)
+  #if compiler(>=5.5.2) && canImport(_Concurrency)
     try await messaging.subscribe(toTopic: topic)
 
     try await messaging.unsubscribe(fromTopic: topic)
@@ -119,5 +141,11 @@ func apiAsync() async throws {
     try await messaging.deleteFCMToken(forSenderID: "fakeSenderID")
 
     try await messaging.deleteData()
+
+    // Test new handling of errors
+    do {
+      try await messaging.unsubscribe(fromTopic: topic)
+    } catch MessagingError.timeout {
+    } catch {}
   #endif
 }

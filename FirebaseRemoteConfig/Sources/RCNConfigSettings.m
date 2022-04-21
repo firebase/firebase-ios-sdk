@@ -23,11 +23,12 @@
 #import "FirebaseRemoteConfig/Sources/RCNUserDefaultsManager.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 static NSString *const kRCNGroupPrefix = @"frc.group.";
 static NSString *const kRCNUserDefaultsKeyNamelastETag = @"lastETag";
 static NSString *const kRCNUserDefaultsKeyNameLastSuccessfulFetchTime = @"lastSuccessfulFetchTime";
+static NSString *const kRCNAnalyticsFirstOpenTimePropertyName = @"_fot";
 static const int kRCNExponentialBackoffMinimumInterval = 60 * 2;       // 2 mins.
 static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hours.
 
@@ -359,16 +360,31 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 
   if (userProperties && userProperties.count > 0) {
     NSError *error;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:userProperties
-                                                       options:0
-                                                         error:&error];
-    if (!error) {
-      ret = [ret
-          stringByAppendingString:[NSString
-                                      stringWithFormat:@", analytics_user_properties:%@",
-                                                       [[NSString alloc]
-                                                           initWithData:jsonData
-                                                               encoding:NSUTF8StringEncoding]]];
+
+    // Extract first open time from user properties and send as a separate field
+    NSNumber *firstOpenTime = userProperties[kRCNAnalyticsFirstOpenTimePropertyName];
+    NSMutableDictionary *remainingUserProperties = [userProperties mutableCopy];
+    if (firstOpenTime != nil) {
+      NSDate *date = [NSDate dateWithTimeIntervalSince1970:([firstOpenTime longValue] / 1000)];
+      NSISO8601DateFormatter *formatter = [[NSISO8601DateFormatter alloc] init];
+      NSString *firstOpenTimeISOString = [formatter stringFromDate:date];
+      ret = [ret stringByAppendingString:[NSString stringWithFormat:@", first_open_time:'%@'",
+                                                                    firstOpenTimeISOString]];
+
+      [remainingUserProperties removeObjectForKey:kRCNAnalyticsFirstOpenTimePropertyName];
+    }
+    if (remainingUserProperties.count > 0) {
+      NSData *jsonData = [NSJSONSerialization dataWithJSONObject:remainingUserProperties
+                                                         options:0
+                                                           error:&error];
+      if (!error) {
+        ret = [ret
+            stringByAppendingString:[NSString
+                                        stringWithFormat:@", analytics_user_properties:%@",
+                                                         [[NSString alloc]
+                                                             initWithData:jsonData
+                                                                 encoding:NSUTF8StringEncoding]]];
+      }
     }
   }
   ret = [ret stringByAppendingString:@"}"];

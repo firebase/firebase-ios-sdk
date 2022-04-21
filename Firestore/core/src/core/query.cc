@@ -263,7 +263,7 @@ bool Query::MatchesBounds(const Document& doc) const {
   if (start_at_ && !start_at_->SortsBeforeDocument(ordering, doc)) {
     return false;
   }
-  if (end_at_ && end_at_->SortsBeforeDocument(ordering, doc)) {
+  if (end_at_ && !end_at_->SortsAfterDocument(ordering, doc)) {
     return false;
   }
   return true;
@@ -325,12 +325,12 @@ const Target& Query::ToTarget() const& {
       // We need to swap the cursors to match the now-flipped query ordering.
       auto new_start_at = end_at_
                               ? absl::optional<Bound>{Bound::FromValue(
-                                    end_at_->position(), !end_at_->before())}
+                                    end_at_->position(), end_at_->inclusive())}
                               : absl::nullopt;
-      auto new_end_at = start_at_
-                            ? absl::optional<Bound>{Bound::FromValue(
-                                  start_at_->position(), !start_at_->before())}
-                            : absl::nullopt;
+      auto new_end_at =
+          start_at_ ? absl::optional<Bound>{Bound::FromValue(
+                          start_at_->position(), start_at_->inclusive())}
+                    : absl::nullopt;
 
       Target target(path(), collection_group(), filters(), new_order_bys,
                     limit_, new_start_at, new_end_at);

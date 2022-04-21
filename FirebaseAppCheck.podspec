@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAppCheck'
-  s.version          = '8.15.0-beta'
+  s.version          = '9.0.0'
   s.summary          = 'Firebase App Check SDK.'
 
   s.description      = <<-DESC
@@ -22,6 +22,8 @@ Pod::Spec.new do |s|
   tvos_deployment_target = '10.0'
   watchos_deployment_target = '6.0'
 
+  s.swift_version = '5.3'
+
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
   s.tvos.deployment_target = tvos_deployment_target
@@ -34,7 +36,8 @@ Pod::Spec.new do |s|
 
   s.source_files = [
     base_dir + 'Sources/**/*.[mh]',
-    'FirebaseCore/Sources/Private/*.h',
+    base_dir + 'Interop/*.h',
+    'FirebaseCore/Extension/*.h',
   ]
   s.public_header_files = base_dir + 'Sources/Public/FirebaseAppCheck/*.h'
 
@@ -42,8 +45,8 @@ Pod::Spec.new do |s|
   s.osx.weak_framework = 'DeviceCheck'
   s.tvos.weak_framework = 'DeviceCheck'
 
-  s.dependency 'FirebaseCore', '~> 8.0'
-  s.dependency 'PromisesObjC', '>= 1.2', '< 3.0'
+  s.dependency 'FirebaseCore', '~> 9.0'
+  s.dependency 'PromisesObjC', '~> 2.0'
   s.dependency 'GoogleUtilities/Environment', '~> 7.7'
 
   s.pod_target_xcconfig = {
@@ -51,24 +54,29 @@ Pod::Spec.new do |s|
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
 
-  s.test_spec 'unit' do |unit_tests|
-    unit_tests.platforms = {
-      :ios => ios_deployment_target,
-      :osx => osx_deployment_target,
-      :tvos => tvos_deployment_target
-    }
-    unit_tests.source_files = [
-      base_dir + 'Tests/Unit/**/*.[mh]',
-      base_dir + 'Tests/Utils/**/*.[mh]',
-      'SharedTestUtilities/AppCheckFake/*',
-      'SharedTestUtilities/AppCheckBackoffWrapperFake/*',
-      'SharedTestUtilities/Date/*',
-      'SharedTestUtilities/URLSession/*',
-    ]
+  # Using environment variable because of the dependency on the unpublished
+  # HeartbeatLoggingTestUtils.
+  if ENV['POD_LIB_LINT_ONLY'] && ENV['POD_LIB_LINT_ONLY'] == '1' then
+    s.test_spec 'unit' do |unit_tests|
+      unit_tests.platforms = {
+        :ios => ios_deployment_target,
+        :osx => osx_deployment_target,
+        :tvos => tvos_deployment_target
+      }
+      unit_tests.source_files = [
+        base_dir + 'Tests/Unit/**/*.[mh]',
+        base_dir + 'Tests/Utils/**/*.[mh]',
+        'SharedTestUtilities/AppCheckFake/*',
+        'SharedTestUtilities/AppCheckBackoffWrapperFake/*',
+        'SharedTestUtilities/Date/*',
+        'SharedTestUtilities/URLSession/*',
+      ]
 
-    unit_tests.resources = base_dir + 'Tests/Fixture/**/*'
-    unit_tests.dependency 'OCMock'
-    unit_tests.requires_app_host = true
+      unit_tests.resources = base_dir + 'Tests/Fixture/**/*'
+      unit_tests.dependency 'OCMock'
+      unit_tests.dependency 'HeartbeatLoggingTestUtils'
+      unit_tests.requires_app_host = true
+    end
   end
 
   s.test_spec 'integration' do |integration_tests|

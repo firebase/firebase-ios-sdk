@@ -15,7 +15,7 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
@@ -89,6 +89,9 @@
   self.mockSettings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
                                                            appIDModel:self.appIDModel];
 
+  // Allow nil values only in tests
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
   FIRCLSManagerData *managerData =
       [[FIRCLSManagerData alloc] initWithGoogleAppID:TEST_GOOGLE_APP_ID
                                      googleTransport:mockGoogleTransport
@@ -96,7 +99,9 @@
                                            analytics:nil
                                          fileManager:self.fileManager
                                          dataArbiter:self.dataArbiter
-                                            settings:self.mockSettings];
+                                            settings:self.mockSettings
+                                       onDemandModel:nil];
+#pragma clang diagnostic pop
 
   self.mockReportUploader = [[FIRCLSMockReportUploader alloc] initWithManagerData:managerData];
 
