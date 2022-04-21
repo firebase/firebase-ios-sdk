@@ -235,6 +235,14 @@ class Mutation {
     return rep_->ExtractTransformBaseValue(document);
   }
 
+  /**
+   * A utility method to calculate an `Mutation representing the overlay from
+   * the final state of the document, and a `FieldMask` representing the fields
+   * that are mutated by the local mutations.
+   */
+  static absl::optional<Mutation> CalculateOverlayMutation(
+      const MutableDocument& doc, const absl::optional<FieldMask>& mask);
+
   friend bool operator==(const Mutation& lhs, const Mutation& rhs);
 
   size_t Hash() const {
