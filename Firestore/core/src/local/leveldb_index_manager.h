@@ -123,6 +123,7 @@ class LevelDbIndexManager : public IndexManager {
   void AddIndexEntry(const model::Document& document,
                      const model::FieldIndex& index,
                      const index::IndexEntry& entry);
+
   void DeleteIndexEntry(const model::Document& document,
                         const model::FieldIndex& index,
                         const index::IndexEntry& entry);

@@ -300,10 +300,10 @@ ComparisonResult Compare(const google_firestore_v1_Value& left,
   }
 }
 
-ComparisonResult Compare(const google_firestore_v1_Value& left,
-                         bool left_inclusive,
-                         const google_firestore_v1_Value& right,
-                         bool right_inclusive) {
+ComparisonResult LowerBoundCompare(const google_firestore_v1_Value& left,
+                                   bool left_inclusive,
+                                   const google_firestore_v1_Value& right,
+                                   bool right_inclusive) {
   auto cmp = Compare(left, right);
   if (cmp != util::ComparisonResult::Same) {
     return cmp;
@@ -313,6 +313,24 @@ ComparisonResult Compare(const google_firestore_v1_Value& left,
     return util::ComparisonResult::Ascending;
   } else if (!left_inclusive && right_inclusive) {
     return util::ComparisonResult::Descending;
+  }
+
+  return util::ComparisonResult::Same;
+}
+
+ComparisonResult UpperBoundCompare(const google_firestore_v1_Value& left,
+                                   bool left_inclusive,
+                                   const google_firestore_v1_Value& right,
+                                   bool right_inclusive) {
+  auto cmp = Compare(left, right);
+  if (cmp != util::ComparisonResult::Same) {
+    return cmp;
+  }
+
+  if (left_inclusive && !right_inclusive) {
+    return util::ComparisonResult::Descending;
+  } else if (!left_inclusive && right_inclusive) {
+    return util::ComparisonResult::Ascending;
   }
 
   return util::ComparisonResult::Same;

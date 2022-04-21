@@ -334,20 +334,20 @@ TEST_F(LevelDbIndexManagerTest, CursorCannotExpandResult) {
     AddDoc("coll/val2", Map("a", 2, "b", 2, "c", 2));
 
     {
-    auto query =
-        Query("coll")
-            .AddingFilter(Filter("c", ">", 2))
-            .AddingOrderBy(OrderBy("c", "asc"))
-            .StartingAt(Bound::FromValue(Array(2), /* inclusive */ true));
-    VerifyResults(query, {"coll/val1"});
+      auto query =
+          Query("coll")
+              .AddingFilter(Filter("c", ">", 2))
+              .AddingOrderBy(OrderBy("c", "asc"))
+              .StartingAt(Bound::FromValue(Array(2), /* inclusive */ true));
+      VerifyResults(query, {"coll/val1"});
     }
     {
-     auto query =
-        Query("coll")
-            .AddingFilter(Filter("c", "<", 3))
-            .AddingOrderBy(OrderBy("c", "desc"))
-            .StartingAt(Bound::FromValue(Array(3), /* inclusive */ true));
-    VerifyResults(query, {"coll/val2"});
+      auto query =
+          Query("coll")
+              .AddingFilter(Filter("c", "<", 3))
+              .AddingOrderBy(OrderBy("c", "desc"))
+              .StartingAt(Bound::FromValue(Array(3), /* inclusive */ true));
+      VerifyResults(query, {"coll/val2"});
     }
   });
 }

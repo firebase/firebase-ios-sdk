@@ -206,8 +206,9 @@ Target::IndexBoundValue Target::GetAscendingBound(
     }
 
     // Increase segment_value to filter_value if filter_value is larger.
-    if (model::Compare(segment_value, segment_inclusive, filter_value,
-                       filter_inclusive) == util::ComparisonResult::Ascending) {
+    if (model::LowerBoundCompare(segment_value, segment_inclusive, filter_value,
+                                 filter_inclusive) ==
+        util::ComparisonResult::Ascending) {
       segment_value = std::move(filter_value);
       segment_inclusive = filter_inclusive;
     }
@@ -221,8 +222,8 @@ Target::IndexBoundValue Target::GetAscendingBound(
       if (order_by.field() == segment.field_path()) {
         auto cursor_value = bound.value().position()->values[i];
         // Increase segment_value to cursor_value if cursor_value is larger.
-        if (model::Compare(segment_value, segment_inclusive, cursor_value,
-                           bound.value().inclusive()) ==
+        if (model::LowerBoundCompare(segment_value, segment_inclusive,
+                                     cursor_value, bound.value().inclusive()) ==
             util::ComparisonResult::Ascending) {
           segment_value = cursor_value;
           segment_inclusive = bound.value().inclusive();
@@ -271,8 +272,8 @@ Target::IndexBoundValue Target::GetDescendingBound(
     }
 
     // Decrease segment_value to filter_value if filter_value is smaller.
-    if (model::Compare(segment_value, segment_inclusive, filter_value,
-                       filter_inclusive) ==
+    if (model::UpperBoundCompare(segment_value, segment_inclusive, filter_value,
+                                 filter_inclusive) ==
         util::ComparisonResult::Descending) {
       segment_value = std::move(filter_value);
       segment_inclusive = filter_inclusive;
@@ -287,8 +288,8 @@ Target::IndexBoundValue Target::GetDescendingBound(
       if (order_by.field() == segment.field_path()) {
         auto cursor_value = bound.value().position()->values[i];
         // Decrease segment_value to cursor_value if cursor_value is smaller.
-        if (model::Compare(segment_value, segment_inclusive, cursor_value,
-                           bound.value().inclusive()) ==
+        if (model::UpperBoundCompare(segment_value, segment_inclusive,
+                                     cursor_value, bound.value().inclusive()) ==
             util::ComparisonResult::Descending) {
           segment_value = cursor_value;
           segment_inclusive = bound.value().inclusive();

@@ -457,12 +457,10 @@ absl::optional<model::FieldIndex> LevelDbIndexManager::GetFieldIndex(
 
 absl::optional<std::vector<model::DocumentKey>>
 LevelDbIndexManager::GetDocumentsMatchingTarget(const core::Target& target) {
-  bool can_serve_target = true;
   std::unordered_map<core::Target, model::FieldIndex> indexes;
   for (const auto& sub_target : GetSubTargets(target)) {
     auto index_opt = GetFieldIndex(sub_target);
-    can_serve_target = can_serve_target && index_opt.has_value();
-    if (!can_serve_target) {
+    if (!index_opt.has_value()) {
       return absl::nullopt;
     }
 
@@ -559,7 +557,7 @@ LevelDbIndexManager::GenerateIndexRanges(
     bool upper_bounds_inclusive,
     std::vector<std::string> not_in_values) {
   // The number of total index scans we union together. This is similar to a
-  // distributed normal form, but adapted for array values. We create a single
+  // disjunctive normal form, but adapted for array values. We create a single
   // index range per value in an ARRAY_CONTAINS or ARRAY_CONTAINS_ANY filter
   // combined with the values from the query bounds.
   size_t total_scans = (array_values.has_value() ? array_values->size() : 1) *
@@ -629,7 +627,7 @@ std::vector<LevelDbIndexManager::IndexRange> LevelDbIndexManager::CreateRange(
       // `notInValue` is in the middle of the range
       bounds.push_back(not_in_value);
       bounds.push_back(not_in_value.Successor());
-    } else if (cmp_to_upper > util::ComparisonResult::Descending) {
+    } else if (cmp_to_upper == util::ComparisonResult::Descending) {
       // `notInValue` (and all following values) are out of the range
       break;
     }
