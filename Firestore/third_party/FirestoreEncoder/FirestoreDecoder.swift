@@ -22,6 +22,25 @@ public extension Firestore {
       CodingUserInfoKey(rawValue: "DocumentRefUserInfoKey")
 
     public init() {}
+
+    /// Returns an instance of specified type from a Firestore document.
+    ///
+    /// If exists in `container`, Firestore specific types are recognized, and
+    /// passed through to `Decodable` implementations. This means types below
+    /// in `container` are directly supported:
+    ///   - GeoPoint
+    ///   - Timestamp
+    ///   - DocumentReference
+    ///
+    /// - Parameters:
+    ///   - destinationType: A type to decode a document to.
+    ///   - container: A `Dictionary` keyed of `String`s representing a Firestore document.
+    /// - Returns: An instance of specified type by the first parameter.
+    public func decode<T: Decodable>(_ destinationType: T.Type,
+                                     from container: Any) throws -> T {
+      return try self.decode(destinationType, from: container, in: nil)
+    }
+
     /// Returns an instance of specified type from a Firestore document.
     ///
     /// If exists in `container`, Firestore specific types are recognized, and
@@ -33,13 +52,13 @@ public extension Firestore {
     ///
     /// - Parameters:
     ///   - A type to decode a document to.
-    ///   - container: A Map keyed of String representing a Firestore document.
+    ///   - container: A `Dictionary` keyed of `String`s representing a Firestore document.
     ///   - document: A reference to the Firestore Document that is being
     ///             decoded.
     /// - Returns: An instance of specified type by the first parameter.
-    public func decode<T: Decodable>(_: T.Type,
-                                     from container: Any,
-                                     in document: DocumentReference? = nil) throws -> T {
+    internal func decode<T: Decodable>(_: T.Type,
+                                      from container: Any,
+                                      in document: DocumentReference?) throws -> T {
       let decoder = _FirestoreDecoder(referencing: container)
       if let doc = document {
         decoder.userInfo[Firestore.Decoder.documentRefUserInfoKey!] = doc
