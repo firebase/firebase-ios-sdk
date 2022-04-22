@@ -52,7 +52,7 @@
 #if CLS_DWARF_UNWINDING_SUPPORTED
 #if CLS_CPU_X86_64
 
-- (void)testParseDwarfUnwindInfoForobjc_msgSend_x86_64_1093 {
+- (void)DISABLED_testParseDwarfUnwindInfoForobjc_msgSend_x86_64_1093 {
   NSString* dylibPath = [self pathForResource:@"10.9.3_libobjc.A.dylib"];
 
   struct FIRCLSMachOFile file;
@@ -103,7 +103,7 @@
 
 #endif
 
-- (void)testGetSavedRegisterWithInvalidValues {
+- (void)DISABLED_testGetSavedRegisterWithInvalidValues {
   FIRCLSThreadContext registers;
   const FIRCLSDwarfRegister dRegister = {FIRCLSDwarfRegisterUnused, 0};
 
@@ -111,7 +111,7 @@
   XCTAssertEqual(FIRCLSDwarfGetSavedRegister(&registers, 0, dRegister), 0, @"");
 }
 
-- (void)testGetSavedRegisterWithInCFA {
+- (void)DISABLED_testGetSavedRegisterWithInCFA {
   uintptr_t memoryBuffer[2] = {45, 46};
   FIRCLSThreadContext registers;
   const FIRCLSDwarfRegister dRegister = {FIRCLSDwarfRegisterInCFA, sizeof(uintptr_t)};
@@ -121,7 +121,7 @@
                  @"");
 }
 
-- (void)testRegisterStructureSizingAndMaxValues {
+- (void)DISABLED_testRegisterStructureSizingAndMaxValues {
   FIRCLSDwarfState state;
 
   XCTAssertEqual(sizeof(state.registers) / sizeof(FIRCLSDwarfRegister),
@@ -133,7 +133,7 @@
   XCTAssertTrue(CLS_DWARF_INVALID_REGISTER_NUM > CLS_DWARF_MAX_REGISTER_NUM);
 }
 
-- (void)testAssignReturnRegisterNumber {
+- (void)DISABLED_testAssignReturnRegisterNumber {
   FIRCLSDwarfState state;
   FIRCLSThreadContext inputRegisters;
   FIRCLSThreadContext outputRegisters;

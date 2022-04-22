@@ -86,7 +86,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   _settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager appIDModel:_appIDModel];
 }
 
-- (void)testDefaultSettings {
+- (void)DISABLED_testDefaultSettings {
   XCTAssertEqual(self.settings.isCacheExpired, YES);
 
   // Default to an hour
@@ -150,7 +150,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   [self waitForExpectations:@[ self.fileManager.removeExpectation ] timeout:1];
 }
 
-- (void)testActivatedSettingsCached {
+- (void)DISABLED_testActivatedSettingsCached {
   NSError *error = nil;
   [self writeSettings:FIRCLSTestSettingsActivated error:&error];
   XCTAssertNil(error, "%@", error);
@@ -175,7 +175,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.onDemandBackoffStepDuration, 6);
 }
 
-- (void)testInverseDefaultSettingsCached {
+- (void)DISABLED_testInverseDefaultSettingsCached {
   NSError *error = nil;
   [self writeSettings:FIRCLSTestSettingsInverse error:&error];
   XCTAssertNil(error, "%@", error);
@@ -200,7 +200,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.onDemandBackoffStepDuration, 9);
 }
 
-- (void)testCacheExpiredFromTTL {
+- (void)DISABLED_testCacheExpiredFromTTL {
   NSError *error = nil;
   [self writeSettings:FIRCLSTestSettingsActivated error:&error];
   XCTAssertNil(error, "%@", error);
@@ -233,7 +233,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.errorLogBufferSize, 128000);
 }
 
-- (void)testCacheExpiredFromBuildInstanceID {
+- (void)DISABLED_testCacheExpiredFromBuildInstanceID {
   NSError *error = nil;
   [self writeSettings:FIRCLSTestSettingsActivated error:&error];
   XCTAssertNil(error, "%@", error);
@@ -267,7 +267,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.errorLogBufferSize, 128000);
 }
 
-- (void)testCacheExpiredFromAppVersion {
+- (void)DISABLED_testCacheExpiredFromAppVersion {
   NSError *error = nil;
   [self writeSettings:FIRCLSTestSettingsActivated error:&error];
   XCTAssertNil(error, "%@", error);
@@ -302,7 +302,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.errorLogBufferSize, 128000);
 }
 
-- (void)testGoogleAppIDChanged {
+- (void)DISABLED_testGoogleAppIDChanged {
   NSError *error = nil;
   [self writeSettings:FIRCLSTestSettingsInverse error:&error];
   XCTAssertNil(error, "%@", error);
@@ -334,7 +334,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
 // This is a weird case where we got settings, but never created a cache key for it. We are
 // treating this as if the cache was invalid and re-fetching in this case.
-- (void)testActivatedSettingsMissingCacheKey {
+- (void)DISABLED_testActivatedSettingsMissingCacheKey {
   NSError *error = nil;
   [self writeSettings:FIRCLSTestSettingsActivated error:&error];
   XCTAssertNil(error, "%@", error);
@@ -366,7 +366,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
 // These tests are partially to make sure the SDK doesn't crash when it
 // has corrupted settings.
-- (void)testCorruptCache {
+- (void)DISABLED_testCorruptCache {
   // First write and load a good settings file
   NSError *error = nil;
   [self writeSettings:FIRCLSTestSettingsInverse error:&error];
@@ -395,7 +395,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.errorLogBufferSize, 64 * 1000);
 }
 
-- (void)testCorruptCacheKey {
+- (void)DISABLED_testCorruptCacheKey {
   // First write and load a good settings file
   NSError *error = nil;
   [self writeSettings:FIRCLSTestSettingsInverse error:&error];
@@ -430,7 +430,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.onDemandBackoffStepDuration, 6);
 }
 
-- (void)testNewReportEndpointSettings {
+- (void)DISABLED_testNewReportEndpointSettings {
   NSString *settingsJSON =
       @"{\"settings_version\":3,\"cache_duration\":60,\"app\":{\"report_upload_variant\":2}}";
 
@@ -444,7 +444,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   NSLog(@"[Debug Log] %@", self.settings.settingsDictionary);
 }
 
-- (void)testLegacyReportEndpointSettings {
+- (void)DISABLED_testLegacyReportEndpointSettings {
   NSString *settingsJSON =
       @"{\"settings_version\":3,\"cache_duration\":60,\"app\":{\"report_upload_variant\":1}}";
 
@@ -456,7 +456,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertNil(error, "%@", error);
 }
 
-- (void)testLegacyReportEndpointSettingsWithNonExistentKey {
+- (void)DISABLED_testLegacyReportEndpointSettingsWithNonExistentKey {
   NSString *settingsJSON = @"{\"settings_version\":3,\"cache_duration\":60}";
 
   NSError *error = nil;
@@ -467,7 +467,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertNil(error, "%@", error);
 }
 
-- (void)testLegacyReportEndpointSettingsWithUnknownValue {
+- (void)DISABLED_testLegacyReportEndpointSettingsWithUnknownValue {
   NSString *newEndpointJSON =
       @"{\"settings_version\":3,\"cache_duration\":60,\"app\":{\"report_upload_variant\":xyz}}";
 

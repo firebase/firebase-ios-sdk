@@ -35,7 +35,7 @@
   [super tearDown];
 }
 
-- (void)testTheRightUrlEncodingIsUsed {
+- (void)DISABLED_testTheRightUrlEncodingIsUsed {
   NSString *actual =
       @"https://settings.crashlytics.com/spi/v2/platforms/ios/apps/"
       @"com.dogs.testingappforfunandprofit/"

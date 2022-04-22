@@ -22,7 +22,7 @@
   return [[NSBundle bundleForClass:[self class]] resourcePath];
 }
 
-- (void)testBundleIdAndExecutablePath {
+- (void)DISABLED_testBundleIdAndExecutablePath {
   FIRCLSdSYM* dSYM;
   NSString* path;
 
@@ -33,7 +33,7 @@
   XCTAssertTrue([[dSYM executablePath] hasSuffix:@"CrashTest"], @"");
 }
 
-- (void)testUUIDsInFatFile {
+- (void)DISABLED_testUUIDsInFatFile {
   FIRCLSdSYM* dSYM;
   NSString* path;
   NSMutableDictionary* uuids;

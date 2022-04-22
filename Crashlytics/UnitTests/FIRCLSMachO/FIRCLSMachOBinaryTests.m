@@ -30,7 +30,7 @@
   return [NSURL fileURLWithPath:path];
 }
 
-- (void)testInstanceIdentifierForSingleArchdSYM {
+- (void)DISABLED_testInstanceIdentifierForSingleArchdSYM {
   FIRCLSMachOBinary* binary;
 
   binary = [[FIRCLSMachOBinary alloc] initWithURL:[self URLForResource:@"x86_64-executable"]];
@@ -39,7 +39,7 @@
                         @"");
 }
 
-- (void)testInstanceIdentifierForMultipleArchitectures {
+- (void)DISABLED_testInstanceIdentifierForMultipleArchitectures {
   FIRCLSMachOBinary* binary;
 
   binary = [[FIRCLSMachOBinary alloc] initWithURL:[self URLForResource:@"armv7-armv7s-executable"]];

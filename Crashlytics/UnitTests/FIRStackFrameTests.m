@@ -22,7 +22,7 @@
 
 @implementation FIRStackFrameTests
 
-- (void)testBasicSymbolicatedCheck {
+- (void)DISABLED_testBasicSymbolicatedCheck {
   FIRStackFrame *stackFrame = [FIRStackFrame stackFrameWithSymbol:@"SYMBOL"
                                                              file:@"FILE"
                                                              line:54321];
@@ -31,7 +31,7 @@
   XCTAssertEqual(stackFrame.lineNumber, 54321);
 }
 
-- (void)testOwnership {
+- (void)DISABLED_testOwnership {
   NSString *symbol = @"SYMBOL";
   NSString *file = @"FILE";
   FIRStackFrame *stackFrame = [FIRStackFrame stackFrameWithSymbol:symbol file:file line:54321];
@@ -42,7 +42,7 @@
   XCTAssertEqual(stackFrame.lineNumber, 54321);
 }
 
-- (void)testIntUIntConversion {
+- (void)DISABLED_testIntUIntConversion {
   FIRStackFrame *stackFrame = [FIRStackFrame stackFrameWithSymbol:@"SYMBOL" file:@"FILE" line:100];
   XCTAssertEqual(stackFrame.lineNumber, 100);
 
@@ -52,7 +52,7 @@
   XCTAssertEqual(stackFrame2.lineNumber, 4294967196);
 }
 
-- (void)testDescription {
+- (void)DISABLED_testDescription {
   FIRStackFrame *stackFrame = [FIRStackFrame stackFrameWithSymbol:@"FIRStackFrameTests"
                                                              file:@"testDescription"
                                                              line:35];

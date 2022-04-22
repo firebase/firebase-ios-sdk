@@ -54,7 +54,7 @@
 
 #pragma mark -
 
-- (void)testEmptySection {
+- (void)DISABLED_testEmptySection {
   [self emptySectionWithFile:&_unbufferedFile filePath:self.unbufferedPath buffered:NO];
   [self emptySectionWithFile:&_bufferedFile filePath:self.bufferedPath buffered:YES];
 }
@@ -80,7 +80,7 @@
 
 #pragma mark -
 
-- (void)testSingleArrayCollection {
+- (void)DISABLED_testSingleArrayCollection {
   [self singleArrayCollectionWithFile:&_unbufferedFile filePath:self.unbufferedPath buffered:NO];
   [self singleArrayCollectionWithFile:&_bufferedFile filePath:self.bufferedPath buffered:YES];
 }
@@ -109,7 +109,7 @@
 
 #pragma mark -
 
-- (void)testEmptyCollectionFollowedByEntry {
+- (void)DISABLED_testEmptyCollectionFollowedByEntry {
   [self emptyCollectionFollowedByEntryWithFile:&_unbufferedFile
                                       filePath:self.unbufferedPath
                                       buffered:NO];
@@ -144,7 +144,7 @@
 
 #pragma mark -
 
-- (void)testHexEncodingString {
+- (void)DISABLED_testHexEncodingString {
   [self hexEncodingStringWithFile:&_unbufferedFile filePath:self.unbufferedPath buffered:NO];
   [self hexEncodingStringWithFile:&_bufferedFile filePath:self.bufferedPath buffered:YES];
 }
@@ -171,7 +171,7 @@
 
 #pragma mark -
 
-- (void)testHexEncodingLongString {
+- (void)DISABLED_testHexEncodingLongString {
   [self hexEncodingLongStringWithFile:&_unbufferedFile
                              filePath:self.unbufferedPath
                                length:CLS_FILE_HEX_BUFFER * 10
@@ -221,7 +221,7 @@
 
 #pragma mark -
 
-- (void)testSignedInteger {
+- (void)DISABLED_testSignedInteger {
   [self signedIntegerWithFile:&_unbufferedFile filePath:self.unbufferedPath buffered:NO];
   [self signedIntegerWithFile:&_bufferedFile filePath:self.bufferedPath buffered:YES];
 }
@@ -251,7 +251,7 @@
 
 #pragma mark -
 
-- (void)testBigInteger {
+- (void)DISABLED_testBigInteger {
   [self bigIntegerWithFile:&_unbufferedFile filePath:self.unbufferedPath buffered:NO];
   [self bigIntegerWithFile:&_bufferedFile filePath:self.bufferedPath buffered:YES];
 }
@@ -281,7 +281,7 @@
 
 #pragma mark -
 
-- (void)testMaxUInt64 {
+- (void)DISABLED_testMaxUInt64 {
   [self maxUInt64WithFile:&_unbufferedFile filePath:self.unbufferedPath buffered:NO];
   [self maxUInt64WithFile:&_bufferedFile filePath:self.bufferedPath buffered:YES];
 }
@@ -309,7 +309,7 @@
 
 #pragma mark -
 
-- (void)testSimpleHashPerformanceWithUnbufferedFile {
+- (void)DISABLED_testSimpleHashPerformanceWithUnbufferedFile {
   [self measureBlock:^{
     // just one run isn't sufficient
     for (NSUInteger i = 0; i < 2000; ++i) {
@@ -322,7 +322,7 @@
   }];
 }
 
-- (void)testSimpleHashPerformanceWithBufferedFile {
+- (void)DISABLED_testSimpleHashPerformanceWithBufferedFile {
   [self measureBlock:^{
     // just one run isn't sufficient
     for (NSUInteger i = 0; i < 2000; ++i) {
@@ -337,7 +337,7 @@
 
 #pragma mark -
 
-- (void)testOpenAndClose {
+- (void)DISABLED_testOpenAndClose {
   [self openAndCloseWithFile:&_unbufferedFile filePath:self.unbufferedPath buffered:NO];
   [self openAndCloseWithFile:&_bufferedFile filePath:self.bufferedPath buffered:YES];
 }
@@ -361,7 +361,7 @@
 
 #pragma mark -
 
-- (void)testCloseAndOpenAlternatingBufferedOption {
+- (void)DISABLED_testCloseAndOpenAlternatingBufferedOption {
   [self closeAndOpenAlternatingBufferedOptionWithFile:&_unbufferedFile
                                              filePath:self.unbufferedPath
                                              buffered:NO];
@@ -399,7 +399,7 @@
 
 #pragma mark -
 
-- (void)testLoggingInputLongerThanBuffer {
+- (void)DISABLED_testLoggingInputLongerThanBuffer {
   size_t inputLength = (FIRCLSWriteBufferLength + 2) * sizeof(char);
   char *input = malloc(inputLength);
   for (size_t i = 0; i < inputLength - 1; i++) {

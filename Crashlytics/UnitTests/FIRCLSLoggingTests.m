@@ -127,19 +127,19 @@
   return FIRCLSFileReadSections([self.errorBPath fileSystemRepresentation], true, nil);
 }
 
-- (void)testKeyValueWithNilKey {
+- (void)DISABLED_testKeyValueWithNilKey {
   FIRCLSUserLoggingRecordUserKeyValue(nil, @"some string value");
 
   XCTAssertEqual([self incrementalKeyValues].count, 0, @"");
 }
 
-- (void)testKeyValueWithNilValue {
+- (void)DISABLED_testKeyValueWithNilValue {
   FIRCLSUserLoggingRecordUserKeyValue(@"mykey", nil);
 
   XCTAssertEqual([[self incrementalKeyValues] count], 1, @"");
 }
 
-- (void)testKeyValueWithNilValueCompaction {
+- (void)DISABLED_testKeyValueWithNilValueCompaction {
   for (int i = 0; i < FIRCLSUserLoggingMaxKVEntries - 1; i++) {
     FIRCLSUserLoggingRecordUserKeyValue(@"mykey", [NSString stringWithFormat:@"myvalue%i", i]);
   }
@@ -149,13 +149,13 @@
                  @"Key with last value of nil was not removed in compaction.");
 }
 
-- (void)testKeyValueWithNilKeyAndValue {
+- (void)DISABLED_testKeyValueWithNilKeyAndValue {
   FIRCLSUserLoggingRecordUserKeyValue(nil, nil);
 
   XCTAssertEqual([[self incrementalKeyValues] count], 0, @"");
 }
 
-- (void)testKeyValueLog {
+- (void)DISABLED_testKeyValueLog {
   FIRCLSUserLoggingRecordUserKeyValue(@"mykey", @"some string value");
 
   NSArray* keyValues = [self incrementalKeyValues];
@@ -165,7 +165,7 @@
   XCTAssertEqualObjects(keyValues[0][@"value"], @"736f6d6520737472696e672076616c7565", @"");
 }
 
-- (void)testKeyValueLogSingleKeyCompaction {
+- (void)DISABLED_testKeyValueLogSingleKeyCompaction {
   for (NSUInteger i = 0; i < FIRCLSUserLoggingMaxKVEntries; ++i) {
     FIRCLSUserLoggingRecordUserKeyValue(
         @"mykey", [NSString stringWithFormat:@"some string value: %lu", (unsigned long)i]);
@@ -188,7 +188,7 @@
                         @"736f6d6520737472696e672076616c75653a203633", @"");
 }
 
-- (void)testKeyValueLogMoreThanMaxKeys {
+- (void)DISABLED_testKeyValueLogMoreThanMaxKeys {
   // we need to end up with max + 1 keys written
   for (NSUInteger i = 0; i <= _firclsContext.readonly->logging.userKVStorage.maxCount + 1; ++i) {
     NSString* key = [NSString stringWithFormat:@"key%lu", (unsigned long)i];
@@ -211,18 +211,18 @@
   XCTAssertEqual([compactedKeyValues count], 64, @"");
 }
 
-- (void)testEmptyKeysAndValues {
+- (void)DISABLED_testEmptyKeysAndValues {
   FIRCLSUserLoggingRecordUserKeysAndValues(@{});
   XCTAssertEqual([self incrementalKeyValues].count, 0, @"");
 }
 
-- (void)testKeysAndValuesWithNilValue {
+- (void)DISABLED_testKeysAndValuesWithNilValue {
   FIRCLSUserLoggingRecordUserKeysAndValues(@{@"mykey" : [NSNull null]});
 
   XCTAssertEqual([[self incrementalKeyValues] count], 1, @"");
 }
 
-- (void)testKeysAndValuesLog {
+- (void)DISABLED_testKeysAndValuesLog {
   NSDictionary* keysAndValues =
       @{@"mykey" : @"some string value", @"mykey2" : @"some string value 2"};
   FIRCLSUserLoggingRecordUserKeysAndValues(keysAndValues);
@@ -236,7 +236,7 @@
   XCTAssertEqualObjects(keyValues[1][@"value"], @"736f6d6520737472696e672076616c75652032", @"");
 }
 
-- (void)testKeysAndValuesLogKeyCompaction {
+- (void)DISABLED_testKeysAndValuesLogKeyCompaction {
   for (NSUInteger i = 0; i < FIRCLSUserLoggingMaxKVEntries; ++i) {
     NSString* value = [NSString stringWithFormat:@"some string value: %lu", (unsigned long)i];
     FIRCLSUserLoggingRecordUserKeysAndValues(@{@"mykey" : value});
@@ -259,7 +259,7 @@
                         @"736f6d6520737472696e672076616c75653a203633", @"");
 }
 
-- (void)testKeysAndValuesLogMoreThanMaxKeys {
+- (void)DISABLED_testKeysAndValuesLogMoreThanMaxKeys {
   NSUInteger keysAndValuesCount = _firclsContext.readonly->logging.userKVStorage.maxCount + 1;
   NSMutableDictionary* keysAndValuesToBeCompactedIn = [NSMutableDictionary dictionary];
 
@@ -291,7 +291,7 @@
   XCTAssertEqual([compactedKeyValues count], 64, @"");
 }
 
-- (void)testUserLogNil {
+- (void)DISABLED_testUserLogNil {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
   FIRCLSLog(nil);
@@ -300,7 +300,7 @@
   XCTAssertEqual([[self logAContents] count], 0, @"");
 }
 
-- (void)testLargeLogLine {
+- (void)DISABLED_testLargeLogLine {
   size_t strLength = 100 * 1024;  // Attempt to write 100k of data
   char* longLine = malloc(strLength + 1);
   memset(longLine, 'a', strLength);
@@ -318,7 +318,7 @@
                  "message: \"%@\"", message);
 }
 
-- (void)testUserLog {
+- (void)DISABLED_testUserLog {
   FIRCLSLog(@"some value");
 
   NSArray* array = [self logAContents];
@@ -327,7 +327,7 @@
   XCTAssertEqualObjects(array[0][@"log"][@"msg"], @"736f6d652076616c7565", @"");
 }
 
-- (void)testUserLogRotation {
+- (void)DISABLED_testUserLogRotation {
   // tune this carefully, based on max file size
   for (int i = 0; i < 969; ++i) {
     FIRCLSLog(@"some value %d", i);
@@ -340,7 +340,7 @@
   XCTAssertEqual([logB count], 1, @"");
 }
 
-- (void)testUserLogRotationBackToBeginning {
+- (void)DISABLED_testUserLogRotationBackToBeginning {
   // careful tuning needs to be done to make sure there's exactly one entry
   for (int i = 0; i < 1907; ++i) {
     FIRCLSLog(@"some value %d", i);
@@ -360,7 +360,7 @@
                         @"");  // "some value 1905"
 }
 
-- (void)testLoggedError {
+- (void)DISABLED_testLoggedError {
   NSError* error = [NSError errorWithDomain:@"My Custom Domain"
                                        code:-1
                                    userInfo:@{@"key1" : @"value", @"key2" : @"value2"}];
@@ -399,7 +399,7 @@
   XCTAssertEqualObjects(additionalEntries[0], entryOne, @"");
 }
 
-- (void)testWritingMaximumNumberOfLoggedErrors {
+- (void)DISABLED_testWritingMaximumNumberOfLoggedErrors {
   NSError* error = [NSError errorWithDomain:@"My Custom Domain"
                                        code:-1
                                    userInfo:@{@"key1" : @"value", @"key2" : @"value2"}];
@@ -429,7 +429,7 @@
   XCTAssertEqual(*_firclsContext.readonly->logging.errorStorage.entryCount, 2);
 }
 
-- (void)testLoggedErrorWithNullsInAdditionalInfo {
+- (void)DISABLED_testLoggedErrorWithNullsInAdditionalInfo {
   NSError* error = [NSError errorWithDomain:@"Domain" code:-1 userInfo:nil];
 
   FIRCLSUserLoggingRecordError(error, @{@"null-key" : [NSNull null]});

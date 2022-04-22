@@ -23,7 +23,7 @@
 
 @implementation FIRExceptionModelTests
 
-- (void)testBasicOwnership {
+- (void)DISABLED_testBasicOwnership {
   NSArray *stackTrace = @[
     [FIRStackFrame stackFrameWithSymbol:@"CrashyFunc" file:@"AppLib.m" line:504],
     [FIRStackFrame stackFrameWithSymbol:@"ApplicationMain" file:@"AppleLib" line:1],
@@ -46,7 +46,7 @@
   XCTAssertEqualObjects(model.stackTrace[2].fileName, @"main.m");
 }
 
-- (void)testMutableArrayOwnership {
+- (void)DISABLED_testMutableArrayOwnership {
   NSMutableArray<FIRStackFrame *> *stackTrace = [[NSMutableArray alloc] initWithArray:@[
     [FIRStackFrame stackFrameWithSymbol:@"CrashyFunc" file:@"AppLib.m" line:504],
     [FIRStackFrame stackFrameWithSymbol:@"ApplicationMain" file:@"AppleLib" line:1],

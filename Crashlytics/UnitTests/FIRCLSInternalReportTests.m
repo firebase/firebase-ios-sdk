@@ -30,7 +30,7 @@
   return [[self resourcePath] stringByAppendingPathComponent:name];
 }
 
-- (void)testCustomExceptionsNeedToBeSubmitted {
+- (void)DISABLED_testCustomExceptionsNeedToBeSubmitted {
   NSString *name = @"metadata_only_report";
 
   NSString *tempPath = [NSTemporaryDirectory() stringByAppendingPathComponent:name];

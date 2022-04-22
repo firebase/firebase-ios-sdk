@@ -59,7 +59,7 @@
   [[NSFileManager defaultManager] removeItemAtPath:self.fileManager.rootPath error:nil];
 }
 
-- (void)testWrittenCLSRecordFile {
+- (void)DISABLED_testWrittenCLSRecordFile {
   NSArray *stackTrace = @[
     [FIRStackFrame stackFrameWithSymbol:@"CrashyFunc" file:@"AppLib.m" line:504],
     [FIRStackFrame stackFrameWithSymbol:@"ApplicationMain" file:@"AppleLib" line:1],

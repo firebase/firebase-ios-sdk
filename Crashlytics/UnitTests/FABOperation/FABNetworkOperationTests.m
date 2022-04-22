@@ -26,7 +26,7 @@
 
 @implementation FABNetworkOperationTests
 
-- (void)testNetworkOperationHeaders {
+- (void)DISABLED_testNetworkOperationHeaders {
   FIRCLSDataCollectionToken *token = [FIRCLSDataCollectionToken validToken];
   NSString *googleAppID = @"someGoogleAppID";
 

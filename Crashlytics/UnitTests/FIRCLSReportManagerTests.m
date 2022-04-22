@@ -188,7 +188,7 @@
 }
 
 #pragma mark - File/Directory Handling
-- (void)testCreatesNewReportOnStart {
+- (void)DISABLED_testCreatesNewReportOnStart {
   FBLPromise<NSNumber *> *promise = [self->_reportManager startWithProfilingMark:0];
 
   XCTestExpectation *expectation =
@@ -264,7 +264,7 @@
   [self processReports:send andExpectReports:YES];
 }
 
-- (void)testExistingUnimportantReportOnStart {
+- (void)DISABLED_testExistingUnimportantReportOnStart {
   // Create a report representing the last run and put it in place
   [self createActiveReport];
 
@@ -280,7 +280,7 @@
   XCTAssertEqual([self.uploadReportArray count], 0);
 }
 
-- (void)testMetricKitResolvesPromiseIfNoDiagnostics {
+- (void)DISABLED_testMetricKitResolvesPromiseIfNoDiagnostics {
   // Create a report representing the last run and put it in place, then create a crashed file
   // marker and MetricKit diagnostic file so that MetricKit manager doesn't resolve the promise
   // immediately.
@@ -301,7 +301,7 @@
   [self waitForPromise:[self startReportManagerWithDataCollectionEnabled:YES] withTimeout:4];
 }
 
-- (void)testExistingUnimportantReportOnStartWithDataCollectionDisabled {
+- (void)DISABLED_testExistingUnimportantReportOnStartWithDataCollectionDisabled {
   // create a report and put it in place
   [self createActiveReport];
 
@@ -314,7 +314,7 @@
   XCTAssertEqual([self.uploadReportArray count], 0);
 }
 
-- (void)testExistingReportOnStart {
+- (void)DISABLED_testExistingReportOnStart {
   // create a report and put it in place
   FIRCLSInternalReport *report = [self createActiveReport];
 
@@ -337,7 +337,7 @@
   XCTAssertEqualObjects(self.prepareAndSubmitReportArray[0][@"urgent"], @(NO));
 }
 
-- (void)testExistingReportOnStartWithDataCollectionDisabledThenEnabled {
+- (void)DISABLED_testExistingReportOnStartWithDataCollectionDisabledThenEnabled {
   // create a report and put it in place
   FIRCLSInternalReport *report = [self createActiveReport];
 
@@ -367,7 +367,7 @@
   XCTAssertEqualObjects(self.prepareAndSubmitReportArray[0][@"urgent"], @(NO));
 }
 
-- (void)testExistingReportOnStartWithDataCollectionDisabledAndSend {
+- (void)DISABLED_testExistingReportOnStartWithDataCollectionDisabledAndSend {
   // create a report and put it in place
   FIRCLSInternalReport *report = [self createActiveReport];
 
@@ -399,7 +399,7 @@
   [self processReports:YES andExpectReports:NO];
 }
 
-- (void)testExistingReportOnStartWithDataCollectionDisabledAndDelete {
+- (void)DISABLED_testExistingReportOnStartWithDataCollectionDisabledAndDelete {
   // create a report and put it in place
   FIRCLSInternalReport *report = [self createActiveReport];
 
@@ -425,7 +425,7 @@
   XCTAssertEqual([self.prepareAndSubmitReportArray count], 0);
 }
 
-- (void)testExistingUrgentReportOnStart {
+- (void)DISABLED_testExistingUrgentReportOnStart {
   // create a report and put it in place
   FIRCLSInternalReport *report = [self createActiveReport];
 
@@ -448,7 +448,7 @@
   XCTAssertEqualObjects(self.prepareAndSubmitReportArray[0][@"urgent"], @(YES));
 }
 
-- (void)testExistingUrgentReportOnStartWithDataCollectionDisabled {
+- (void)DISABLED_testExistingUrgentReportOnStartWithDataCollectionDisabled {
   // create a report and put it in place
   FIRCLSInternalReport *report = [self createActiveReport];
 
@@ -480,7 +480,7 @@
   XCTAssertEqualObjects(self.prepareAndSubmitReportArray[0][@"urgent"], @(NO));
 }
 
-- (void)testFilesLeftInProcessing {
+- (void)DISABLED_testFilesLeftInProcessing {
   // put report in processing
   FIRCLSInternalReport *report = [self createActiveReport];
   XCTAssert([_fileManager createDirectoryAtPath:_fileManager.processingPath]);
@@ -501,7 +501,7 @@
  * reports these are not shown to the developer, but they are uploaded / deleted upon
  * calling send / delete.
  */
-- (void)testFilesLeftInProcessingWithDataCollectionDisabled {
+- (void)DISABLED_testFilesLeftInProcessingWithDataCollectionDisabled {
   // Put report in processing.
   FIRCLSInternalReport *report = [self createActiveReport];
   XCTAssert([_fileManager createDirectoryAtPath:_fileManager.processingPath]);
@@ -528,7 +528,7 @@
   XCTAssertEqualObjects(self.prepareAndSubmitReportArray[0][@"urgent"], @(NO));
 }
 
-- (void)testFilesLeftInPrepared {
+- (void)DISABLED_testFilesLeftInPrepared {
   // Drop a phony multipart-mime file in here, with non-zero contents.
   XCTAssert([_fileManager createDirectoryAtPath:_fileManager.preparedPath]);
   NSString *path = [_fileManager.preparedPath stringByAppendingPathComponent:@"phony-report"];
@@ -554,7 +554,7 @@
  * reports these are not shown to the developer, but they are uploaded / deleted upon
  * calling send / delete.
  */
-- (void)testFilesLeftInPreparedWithDataCollectionDisabled {
+- (void)DISABLED_testFilesLeftInPreparedWithDataCollectionDisabled {
   // drop a phony multipart-mime file in here, with non-zero contents
   XCTAssert([_fileManager createDirectoryAtPath:_fileManager.preparedPath]);
   NSString *path = [_fileManager.preparedPath stringByAppendingPathComponent:@"phony-report"];
@@ -586,7 +586,7 @@
   XCTAssertEqualObjects(self.uploadReportArray[0][@"path"], path);
 }
 
-- (void)testSuccessfulSubmission {
+- (void)DISABLED_testSuccessfulSubmission {
   // drop a phony multipart-mime file in here, with non-zero contents
   XCTAssert([_fileManager createDirectoryAtPath:_fileManager.preparedPath]);
   NSString *path = [_fileManager.preparedPath stringByAppendingPathComponent:@"phony-report"];
@@ -612,7 +612,7 @@
   // lol
 }
 
-- (void)testLogInvalidJSONAnalyticsEvents {
+- (void)DISABLED_testLogInvalidJSONAnalyticsEvents {
   NSDictionary *eventAsDict = @{
     @"price" : @(NAN),
     @"count" : @(INFINITY),

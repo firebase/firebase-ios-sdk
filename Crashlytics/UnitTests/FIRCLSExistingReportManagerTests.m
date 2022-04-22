@@ -136,7 +136,7 @@
 
 #pragma mark - Tests
 
-- (void)testNoReports {
+- (void)DISABLED_testNoReports {
   [self.existingReportManager collectExistingReports];
 
   [self.existingReportManager.operationQueue waitUntilAllOperationsAreFinished];
@@ -148,7 +148,7 @@
   XCTAssertEqual(self.existingReportManager.existingUnemptyActiveReportPaths.count, 0);
 }
 
-- (void)testReportNoEvents {
+- (void)DISABLED_testReportNoEvents {
   [self createActiveReportWithID:@"report_A" time:12312 withEvents:NO];
   [self createActiveReportWithID:@"report_B" time:12315 withEvents:NO];
 
@@ -163,7 +163,7 @@
   XCTAssertEqual(self.existingReportManager.existingUnemptyActiveReportPaths.count, 0);
 }
 
-- (void)testUnsentReportsUnderLimit {
+- (void)DISABLED_testUnsentReportsUnderLimit {
   [self createActiveReportWithID:@"report_A" time:12312 withEvents:YES];
   [self createActiveReportWithID:@"report_B" time:12315 withEvents:YES];
   [self createActiveReportWithID:@"report_C" time:31533 withEvents:YES];
@@ -188,7 +188,7 @@
  * ensure performant startup and prevent disk space from filling up. Delete starting with the oldest
  * first.
  */
-- (void)testUnsentReportsOverLimit {
+- (void)DISABLED_testUnsentReportsOverLimit {
   // Create a bunch of reports starting at different times
   [self createActiveReportWithID:@"report_A" time:12312 withEvents:YES];
   [self createActiveReportWithID:@"report_B" time:12315 withEvents:YES];

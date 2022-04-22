@@ -37,16 +37,16 @@
   return [FIRCLSDemangleOperation demangleSymbol:symbol];
 }
 
-- (void)testDemangleUnmangledSymbol {
+- (void)DISABLED_testDemangleUnmangledSymbol {
   XCTAssertNil([self demangle:"unmangledSymbol"], @"");
 }
 
-- (void)testDemangleCppSymbols {
+- (void)DISABLED_testDemangleCppSymbols {
   XCTAssertEqualObjects([self demangle:"_Z7monitorP8NSStringlS0_"],
                         @"monitor(NSString*, long, NSString*)", @"");
 }
 
-- (void)testDemangleCppSymbolsWithBlockInvoke {
+- (void)DISABLED_testDemangleCppSymbolsWithBlockInvoke {
   XCTAssertEqualObjects([self demangle:"__Z7monitorP8NSStringlS0__block_invoke"],
                         @"monitor(NSString*, long, NSString*)_block_invoke", @"");
   XCTAssertEqualObjects([self demangle:"__Z7monitorP8NSStringlS0__block_invoke_2"],
@@ -55,7 +55,7 @@
   XCTAssertNil([self demangle:"__Zinvalid_block_invoke"], @"Invalid Cpp symbol");
 }
 
-- (void)testOperation {
+- (void)DISABLED_testOperation {
   NSMutableArray *frameArray = [[NSMutableArray alloc] init];
   [frameArray addObject:[FIRStackFrame stackFrameWithSymbol:@"_Z7monitorP8NSStringlS0_"]];
   [frameArray addObject:[FIRStackFrame stackFrameWithSymbol:@"_ZN9wikipedia7article6formatEv"]];

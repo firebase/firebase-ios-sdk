@@ -52,7 +52,7 @@
 #if CLS_COMPACT_UNWINDING_SUPPORTED
 
 #if !TARGET_OS_IPHONE
-- (void)testParseCompactUnwindInfoForthread_get_state_10_9_4 {
+- (void)DISABLED_testParseCompactUnwindInfoForthread_get_state_10_9_4 {
   NSString* dylibPath = [self pathForResource:@"10.9.4_libsystem_kernel.dylib"];
 
   struct FIRCLSMachOFile file;
@@ -83,7 +83,7 @@
   XCTAssertEqual(result.functionStart, loadAddress + 0x0000DCC1, @"");
 }
 
-- (void)testParseCompactUnwindInfoForFunctionInLastIndexEntry {
+- (void)DISABLED_testParseCompactUnwindInfoForFunctionInLastIndexEntry {
   NSString* dylibPath = [self pathForResource:@"10.9.4_libsystem_kernel.dylib"];
 
   struct FIRCLSMachOFile file;
@@ -113,7 +113,7 @@
   XCTAssertFalse(FIRCLSCompactUnwindLookup(&context, loadAddress + 0x00016FDE, &result), @"");
 }
 
-- (void)testParseCompactUnwindInfoForBoundaryBetween2ndLevelEntries {
+- (void)DISABLED_testParseCompactUnwindInfoForBoundaryBetween2ndLevelEntries {
   NSString* dylibPath = [self pathForResource:@"10.9.4_libsystem_kernel.dylib"];
 
   struct FIRCLSMachOFile file;
@@ -156,7 +156,7 @@
 #endif
 
 #if CLS_CPU_X86_64
-- (void)testComputeDirectStackSize {
+- (void)DISABLED_testComputeDirectStackSize {
   const compact_unwind_encoding_t encoding = 0x20a1860;
   const intptr_t functionStart = 0x0;
 

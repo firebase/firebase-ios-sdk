@@ -26,13 +26,13 @@
 
 @implementation FIRCLSConstantsTest
 
-- (void)testGeneratorName {
+- (void)DISABLED_testGeneratorName {
   NSString *expectedGeneratorName =
       [NSString stringWithFormat:@"%s/%s", STR(CLS_SDK_NAME), FIRCLSSDKVersion().UTF8String];
   XCTAssertEqualObjects(expectedGeneratorName, FIRCLSSDKGeneratorName());
 }
 
-- (void)testSdkVersion {
+- (void)DISABLED_testSdkVersion {
   NSString *expectedSdkVersion = FIRFirebaseVersion();
   XCTAssertEqualObjects(expectedSdkVersion, FIRCLSSDKVersion());
 }

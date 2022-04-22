@@ -68,7 +68,7 @@
 
 #if TARGET_OS_IPHONE
 #else
-- (void)testExceptionSymbolication {
+- (void)DISABLED_testExceptionSymbolication {
   // Setup a resolver that will work for the contents of the file
   FIRCLSMockSymbolResolver *resolver = [[FIRCLSMockSymbolResolver alloc] init];
 

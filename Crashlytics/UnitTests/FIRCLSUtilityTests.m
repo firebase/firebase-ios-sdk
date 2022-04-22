@@ -37,7 +37,7 @@
   [super tearDown];
 }
 
-- (void)testHexFromByte {
+- (void)DISABLED_testHexFromByte {
   char output[2] = {0, 0};
 
   FIRCLSHexFromByte('A', output);
@@ -46,7 +46,7 @@
   XCTAssertEqual(output[1], '1', @"");
 }
 
-- (void)testHexFromByteForNotPrintableCharacter {
+- (void)DISABLED_testHexFromByteForNotPrintableCharacter {
   char output[2] = {0, 0};
 
   FIRCLSHexFromByte(0xd0, output);
@@ -55,7 +55,7 @@
   XCTAssertEqual(output[1], '0', @"");
 }
 
-- (void)testHexToString {
+- (void)DISABLED_testHexToString {
   const uint8_t bytes[8] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
 
   char string[(sizeof(bytes) * 2) + 1];
@@ -67,7 +67,7 @@
   XCTAssertEqualObjects([NSString stringWithUTF8String:string], @"6162636465666768", @"");
 }
 
-- (void)testHexToStringWithNonPrintableCharacters {
+- (void)DISABLED_testHexToStringWithNonPrintableCharacters {
   const uint8_t bytes[4] = {0x52, 0xd0, 0x4e, 0x1f};
 
   char string[(sizeof(bytes) * 2) + 1];
@@ -77,7 +77,7 @@
   XCTAssertEqualObjects([NSString stringWithUTF8String:string], @"52d04e1f", @"");
 }
 
-- (void)testRedactUUIDWithExpectedPattern {
+- (void)DISABLED_testRedactUUIDWithExpectedPattern {
   const char* readonly = "CoreSimulator 704.12.1 - Device: iPhone SE (2nd generation) "
                          "(45D62CC2-CFB5-4E33-AB61-B0684627F1B6) - Runtime: iOS 13.4 (17E8260) - "
                          "DeviceType: iPhone SE (2nd generation)";
@@ -95,7 +95,7 @@
   XCTAssertEqualObjects(actual, expected);
 }
 
-- (void)testRedactUUIDWithMalformedPattern {
+- (void)DISABLED_testRedactUUIDWithMalformedPattern {
   const char* readonly = "CoreSimulator 704.12.1 - Device: iPhone SE (2nd generation) "
                          "(45D62CC2-CFB5-4E33-AB61-B0684627F1B6";
   size_t len = strlen(readonly);
@@ -111,7 +111,7 @@
   XCTAssertEqualObjects(actual, expected);
 }
 
-- (void)testRedactUUIDWithoutUUID {
+- (void)DISABLED_testRedactUUIDWithoutUUID {
   const char* readonly = "Fatal error: file /Users/test/src/foo/bar/ViewController.swift, line 25";
   size_t len = strlen(readonly);
   char message[len];
@@ -125,7 +125,7 @@
   XCTAssertEqualObjects(actual, expected);
 }
 
-- (void)testRedactUUIDWithNull {
+- (void)DISABLED_testRedactUUIDWithNull {
   char* message = NULL;
   XCTAssertNoThrow(FIRCLSRedactUUID(message));
 }

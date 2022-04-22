@@ -30,7 +30,7 @@
 
 @implementation FABInFlightCancellationTests
 
-- (void)testAsyncCancellationInFlight {
+- (void)DISABLED_testAsyncCancellationInFlight {
   FABTestAsyncOperation *cancelledOperation = [[FABTestAsyncOperation alloc] init];
   cancelledOperation.name = @"cancelledOperation";
 
@@ -71,7 +71,7 @@
 // its compoundQueue, the first should be checked using the in-flight cancellation checks, and the
 // ones awaiting execution should be checked using the pre-flight checks. The compound operation is
 // checked using the in-flight checks.
-- (void)testCompoundCancellationInFlight {
+- (void)DISABLED_testCompoundCancellationInFlight {
   FIRCLSCompoundOperation *cancelledCompoundOperation = [[FIRCLSCompoundOperation alloc] init];
   cancelledCompoundOperation.name = @"cancelled compound operation";
   cancelledCompoundOperation.compoundQueue.maxConcurrentOperationCount = 1;

@@ -37,11 +37,11 @@ typedef void (^FABPreFlightCancellationFailureAssertionBlock)(void);
  */
 + (void)
     addInFlightCancellationCompletionExpectationsToOperation:(FIRCLSFABAsyncOperation *)operation
-                                                    testCase:(XCTestCase *)testCase
+                                                    testCase:(XCTestCase *)DISABLED_testCase
                                               assertionBlock:
                                                   (FABAsyncCompletionAssertionBlock)assertionBlock;
 + (void)addInFlightCancellationKVOExpectationsToOperation:(FIRCLSFABAsyncOperation *)operation
-                                                 testCase:(XCTestCase *)testCase;
+                                                 testCase:(XCTestCase *)DISABLED_testCase;
 
 /*
  The two following methods add XCTestExpectations for async operations that will be cancelled before
@@ -49,11 +49,11 @@ typedef void (^FABPreFlightCancellationFailureAssertionBlock)(void);
  */
 + (void)
     addPreFlightCancellationCompletionExpectationsToOperation:(FIRCLSFABAsyncOperation *)operation
-                                                     testCase:(XCTestCase *)testCase
+                                                     testCase:(XCTestCase *)DISABLED_testCase
                                           asyncAssertionBlock:
                                               (FABAsyncCompletionAssertionBlock)asyncAssertionBlock;
 + (FABTestExpectationObserver *)
     addPreFlightCancellationKVOExpectationsToOperation:(FIRCLSFABAsyncOperation *)operation
-                                              testCase:(XCTestCase *)testCase;
+                                              testCase:(XCTestCase *)DISABLED_testCase;
 
 @end

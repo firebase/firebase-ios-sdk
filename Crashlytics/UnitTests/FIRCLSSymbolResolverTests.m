@@ -38,14 +38,14 @@
   return [[self resourcePath] stringByAppendingPathComponent:name];
 }
 
-- (void)testLoadingBinaryImagesWithInvalidFile {
+- (void)DISABLED_testLoadingBinaryImagesWithInvalidFile {
   FIRCLSSymbolResolver* resolver = [[FIRCLSSymbolResolver alloc] init];
 
   XCTAssertFalse([resolver loadBinaryImagesFromFile:nil]);
   XCTAssertFalse([resolver loadBinaryImagesFromFile:@""]);
 }
 
-- (void)testLoadingBinaryImagesWithNullBaseValue {
+- (void)DISABLED_testLoadingBinaryImagesWithNullBaseValue {
   FIRCLSSymbolResolver* resolver = [[FIRCLSSymbolResolver alloc] init];
 
   NSString* binaryImagePath =
@@ -54,7 +54,7 @@
   XCTAssert([resolver loadBinaryImagesFromFile:binaryImagePath]);
 }
 
-- (void)testLoadingBinaryImagesWithMissingBaseValue {
+- (void)DISABLED_testLoadingBinaryImagesWithMissingBaseValue {
   FIRCLSSymbolResolver* resolver = [[FIRCLSSymbolResolver alloc] init];
 
   NSString* binaryImagePath = [self pathForResource:@"binary_images_missing_base_entry.clsrecord"];

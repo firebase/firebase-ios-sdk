@@ -39,7 +39,7 @@
 }
 
 /// Attempt sending a proto report to the reporting endpoint
-- (void)testSendProtoReport {
+- (void)DISABLED_testSendProtoReport {
   NSString *minCrash =
       [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"bare_min_crash"];
 
@@ -58,7 +58,7 @@
 }
 
 /// This test is useful for testing the binary output of the proto message
-- (void)testProtoOutput {
+- (void)DISABLED_testProtoOutput {
   NSString *minCrash =
       [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"bare_min_crash"];
 
@@ -84,7 +84,7 @@
 
 /// It is important that a crash does not occur when reading persisted crash files
 /// Verify various invalid input cases.
-- (void)testInvalidRecordCases {
+- (void)DISABLED_testInvalidRecordCases {
   id adapter __unused = [[FIRCLSReportAdapter alloc] initWithPath:@"nonExistentPath"
                                                       googleAppId:@"appID"
                                                    installIDModel:self.installIDModel];
@@ -99,11 +99,11 @@
   id identity2 __unused = [[FIRCLSRecordIdentity alloc] initWithDict:emptyDict];
 }
 
-- (void)testCorruptMetadataCLSRecordFile {
+- (void)DISABLED_testCorruptMetadataCLSRecordFile {
   id adapter __unused = [self adapterForCorruptMetadata];
 }
 
-- (void)testRecordMetadataFile {
+- (void)DISABLED_testRecordMetadataFile {
   FIRCLSReportAdapter *adapter = [self adapterForValidMetadata];
 
   // Verify identity
@@ -117,7 +117,7 @@
   XCTAssertTrue([adapter.application.display_version isEqualToString:@"1.0"]);
 }
 
-- (void)testReportProto {
+- (void)DISABLED_testReportProto {
   FIRCLSReportAdapter *adapter = [self adapterForAllCrashes];
   google_crashlytics_Report report = [adapter protoReport];
   XCTAssertTrue([self isPBData:report.sdk_version equalToString:adapter.identity.build_version]);

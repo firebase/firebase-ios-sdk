@@ -48,7 +48,7 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
   [_defaults removeObjectForKey:FIRCLSInstallationIIDHashKey];
 }
 
-- (void)testCreateUUID {
+- (void)DISABLED_testCreateUUID {
   FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_instance_id"];
 
   FIRCLSInstallIdentifierModel *model =
@@ -59,7 +59,7 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
   XCTAssertNil([_defaults objectForKey:FABInstallationADIDKey]);
 }
 
-- (void)testCreateUUIDAndRotate {
+- (void)DISABLED_testCreateUUIDAndRotate {
   FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_instance_id"];
 
   FIRCLSInstallIdentifierModel *model =
@@ -76,7 +76,7 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
                         [_defaults objectForKey:FIRCLSInstallationIIDHashKey]);
 }
 
-- (void)testCreateUUIDAndErrorGettingInstanceID {
+- (void)DISABLED_testCreateUUIDAndErrorGettingInstanceID {
   NSError *fakeError = [NSError errorWithDomain:NSCocoaErrorDomain code:-1 userInfo:@{}];
   FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithError:fakeError];
 
@@ -92,7 +92,7 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
   XCTAssertEqualObjects(nil, [_defaults objectForKey:FIRCLSInstallationIIDHashKey]);
 }
 
-- (void)testCreateUUIDNoIID {
+- (void)DISABLED_testCreateUUIDNoIID {
   FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:nil];
 
   FIRCLSInstallIdentifierModel *model =
@@ -104,7 +104,7 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
   XCTAssertEqualObjects(nil, [_defaults objectForKey:FIRCLSInstallationIIDHashKey]);
 }
 
-- (void)testIIDBecomesNil {
+- (void)DISABLED_testIIDBecomesNil {
   // Set up the initial state with a valid iid and uuid.
   [_defaults setObject:@"old_uuid" forKey:FABInstallationUUIDKey];
   [_defaults setObject:@"old_instance_id" forKey:FIRCLSInstallationIIDHashKey];
@@ -122,7 +122,7 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
   XCTAssertNil([_defaults objectForKey:FABInstallationADIDKey]);
 }
 
-- (void)testIIDChanges {
+- (void)DISABLED_testIIDChanges {
   // Set up the initial state with a valid iid and uuid.
   [_defaults setObject:@"old_uuid" forKey:FABInstallationUUIDKey];
   [_defaults setObject:@"old_instance_id" forKey:FIRCLSInstallationIIDHashKey];
@@ -144,7 +144,7 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
                         [_defaults objectForKey:FIRCLSInstallationIIDHashKey]);
 }
 
-- (void)testIIDDoesntChange {
+- (void)DISABLED_testIIDDoesntChange {
   // Set up the initial state with a valid iid and uuid.
   [_defaults setObject:@"test_uuid" forKey:FABInstallationUUIDKey];
   [_defaults setObject:FIRCLSTestHashOfTestInstanceID forKey:FIRCLSInstallationIIDHashKey];
@@ -166,7 +166,7 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
                         [_defaults objectForKey:FIRCLSInstallationIIDHashKey]);
 }
 
-- (void)testUUIDSetButNeverIIDNilIID {
+- (void)DISABLED_testUUIDSetButNeverIIDNilIID {
   // Set up the initial state with a valid iid and uuid.
   [_defaults setObject:@"old_uuid" forKey:FABInstallationUUIDKey];
 
@@ -187,7 +187,7 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
   XCTAssertEqualObjects([_defaults objectForKey:FIRCLSInstallationIIDHashKey], nil);
 }
 
-- (void)testUUIDSetButNeverIIDWithIID {
+- (void)DISABLED_testUUIDSetButNeverIIDWithIID {
   // Set up the initial state with a valid iid and uuid.
   [_defaults setObject:@"old_uuid" forKey:FABInstallationUUIDKey];
 
@@ -209,7 +209,7 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
                         FIRCLSTestHashOfTestInstanceID);
 }
 
-- (void)testADIDWasSetButNeverIID {
+- (void)DISABLED_testADIDWasSetButNeverIID {
   // Set up the initial state with a valid adid and uuid.
   [_defaults setObject:@"test_uuid" forKey:FABInstallationUUIDKey];
   [_defaults setObject:@"test_adid" forKey:FABInstallationADIDKey];
@@ -230,7 +230,7 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
   XCTAssertNil([_defaults objectForKey:FIRCLSInstallationIIDHashKey]);
 }
 
-- (void)testADIDWasSetAndIIDBecomesSet {
+- (void)DISABLED_testADIDWasSetAndIIDBecomesSet {
   // Set up the initial state with a valid adid and uuid.
   [_defaults setObject:@"test_uuid" forKey:FABInstallationUUIDKey];
   [_defaults setObject:@"test_adid" forKey:FABInstallationADIDKey];
@@ -252,7 +252,7 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
                         [_defaults objectForKey:FIRCLSInstallationIIDHashKey]);
 }
 
-- (void)testADIDAndIIDWereSet {
+- (void)DISABLED_testADIDAndIIDWereSet {
   // Set up the initial state with a valid iid, adid, and uuid.
   [_defaults setObject:@"test_uuid" forKey:FABInstallationUUIDKey];
   [_defaults setObject:@"test_adid" forKey:FABInstallationADIDKey];
@@ -275,7 +275,7 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
                         [_defaults objectForKey:FIRCLSInstallationIIDHashKey]);
 }
 
-- (void)testADIDAndIIDWereSet2 {
+- (void)DISABLED_testADIDAndIIDWereSet2 {
   // Set up the initial state with a valid iid, adid, and uuid.
   [_defaults setObject:@"test_uuid" forKey:FABInstallationUUIDKey];
   [_defaults setObject:@"test_adid" forKey:FABInstallationADIDKey];

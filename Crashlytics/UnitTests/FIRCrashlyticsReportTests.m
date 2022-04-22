@@ -81,7 +81,7 @@
 }
 
 #pragma mark - Public Getter Methods
-- (void)testPropertiesFromMetadatFile {
+- (void)DISABLED_testPropertiesFromMetadatFile {
   FIRCrashlyticsReport *report = [self createTempCopyOfReportWithName:@"metadata_only_report"];
 
   XCTAssertEqualObjects(@"772929a7f21f4ad293bb644668f257cd", report.reportID);
@@ -89,7 +89,7 @@
 }
 
 #pragma mark - Public Setter Methods
-- (void)testSetUserID {
+- (void)DISABLED_testSetUserID {
   FIRCrashlyticsReport *report = [self createTempCopyOfReportWithName:@"metadata_only_report"];
 
   [report setUserID:@"12345-6"];
@@ -106,7 +106,7 @@
   XCTAssertEqualObjects(entries[0][@"kv"][@"value"], FIRCLSFileHexEncodeString("12345-6"), @"");
 }
 
-- (void)testClearUserID {
+- (void)DISABLED_testClearUserID {
   FIRCrashlyticsReport *report = [self createTempCopyOfReportWithName:@"metadata_only_report"];
 
   // Add a user ID
@@ -129,7 +129,7 @@
   XCTAssertEqual([entries count], 0, @"");
 }
 
-- (void)testCustomKeysNoExisting {
+- (void)DISABLED_testCustomKeysNoExisting {
   FIRCrashlyticsReport *report = [self createTempCopyOfReportWithName:@"metadata_only_report"];
 
   [report setCustomValue:@"hello" forKey:@"mykey"];
@@ -160,7 +160,7 @@
   XCTAssertEqualObjects(entries[3][@"kv"][@"value"], FIRCLSFileHexEncodeString("10"), @"");
 }
 
-- (void)testCustomKeysWithExisting {
+- (void)DISABLED_testCustomKeysWithExisting {
   FIRCrashlyticsReport *report = [self createTempCopyOfReportWithName:@"ios_all_files_crash"];
 
   [report setCustomValue:@"hello" forKey:@"mykey"];
@@ -191,7 +191,7 @@
   XCTAssertEqualObjects(entries[4][@"kv"][@"value"], FIRCLSFileHexEncodeString("10"), @"");
 }
 
-- (void)testClearCustomKeys {
+- (void)DISABLED_testClearCustomKeys {
   FIRCrashlyticsReport *report = [self createTempCopyOfReportWithName:@"metadata_only_report"];
 
   // Add keys
@@ -230,7 +230,7 @@
   XCTAssertEqual([entries count], 0, @"");
 }
 
-- (void)testCustomKeysLimits {
+- (void)DISABLED_testCustomKeysLimits {
   FIRCrashlyticsReport *report = [self createTempCopyOfReportWithName:@"ios_all_files_crash"];
 
   // Write a bunch of keys and values
@@ -254,7 +254,7 @@
   XCTAssertEqual(entriesC.count, 64, @"");
 }
 
-- (void)testLogsNoExisting {
+- (void)DISABLED_testLogsNoExisting {
   FIRCrashlyticsReport *report = [self createTempCopyOfReportWithName:@"metadata_only_report"];
 
   [report log:@"Normal log without formatting"];
@@ -272,7 +272,7 @@
                         @"");
 }
 
-- (void)testLogsWithExisting {
+- (void)DISABLED_testLogsWithExisting {
   FIRCrashlyticsReport *report = [self createTempCopyOfReportWithName:@"ios_all_files_crash"];
 
   [report log:@"Normal log without formatting"];
@@ -290,7 +290,7 @@
                         @"");
 }
 
-- (void)testLogLimits {
+- (void)DISABLED_testLogLimits {
   FIRCrashlyticsReport *report = [self createTempCopyOfReportWithName:@"metadata_only_report"];
 
   for (int i = 0; i < 2000; i++) {

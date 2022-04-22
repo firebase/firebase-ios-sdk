@@ -42,7 +42,7 @@
   return archs;
 }
 
-- (void)testThinDSYM {
+- (void)DISABLED_testThinDSYM {
   FIRCLSdSYM* dSYM;
   NSString* path;
   NSArray* archs;
@@ -55,7 +55,7 @@
   XCTAssertEqualObjects(@"i386", [archs objectAtIndex:0], @"");
 }
 
-- (void)testFatDSYM {
+- (void)DISABLED_testFatDSYM {
   FIRCLSdSYM* dSYM;
   NSString* path;
   NSArray* archs;
@@ -69,7 +69,7 @@
   XCTAssertEqualObjects(@"armv7s", [archs objectAtIndex:1], @"");
 }
 
-- (void)testFatExecutable {
+- (void)DISABLED_testFatExecutable {
   FIRCLSMachOBinary* binary;
   NSString* path;
   NSArray* archs;
@@ -83,7 +83,7 @@
   XCTAssertEqualObjects(@"armv7s", [archs objectAtIndex:1], @"");
 }
 
-- (void)testArm64 {
+- (void)DISABLED_testArm64 {
   FIRCLSMachOBinary* binary;
   NSString* path;
   NSArray* archs;
@@ -98,7 +98,7 @@
   XCTAssertEqualObjects(@"armv7s", [archs objectAtIndex:2], @"");
 }
 
-- (void)testArmv7k {
+- (void)DISABLED_testArmv7k {
   FIRCLSMachOBinary* binary;
   NSString* path;
   NSArray* archs;
@@ -111,7 +111,7 @@
   XCTAssertEqualObjects(@"armv7k", [archs objectAtIndex:0], @"");
 }
 
-- (void)testReadMinimumWatchOSSDKRequirements {
+- (void)DISABLED_testReadMinimumWatchOSSDKRequirements {
   FIRCLSMachOBinary* binary;
   FIRCLSMachOSlice* slice;
   NSString* path;
@@ -132,7 +132,7 @@
   XCTAssertEqual((uint32_t)0, version.bugfix, @"");
 }
 
-- (void)testReadMinimumWatchOSSimulatorSDKRequirements {
+- (void)DISABLED_testReadMinimumWatchOSSimulatorSDKRequirements {
   FIRCLSMachOBinary* binary;
   FIRCLSMachOSlice* slice;
   NSString* path;
@@ -153,7 +153,7 @@
   XCTAssertEqual((uint32_t)0, version.bugfix, @"");
 }
 
-- (void)testReadMinimumTVOSSDKRequirements {
+- (void)DISABLED_testReadMinimumTVOSSDKRequirements {
   FIRCLSMachOBinary* binary;
   FIRCLSMachOSlice* slice;
   NSString* path;
@@ -174,7 +174,7 @@
   XCTAssertEqual((uint32_t)0, version.bugfix, @"");
 }
 
-- (void)testReadMinimumTVOSSimulatorSDKRequirements {
+- (void)DISABLED_testReadMinimumTVOSSimulatorSDKRequirements {
   FIRCLSMachOBinary* binary;
   FIRCLSMachOSlice* slice;
   NSString* path;
@@ -195,7 +195,7 @@
   XCTAssertEqual((uint32_t)0, version.bugfix, @"");
 }
 
-- (void)testLinkedDylibs {
+- (void)DISABLED_testLinkedDylibs {
   FIRCLSMachOBinary* binary;
   FIRCLSMachOSlice* slice;
   NSString* path;
@@ -225,7 +225,7 @@
   XCTAssertEqualObjects([dylibs objectAtIndex:6], @"/usr/lib/libSystem.B.dylib", @"");
 }
 
-- (void)testReadMinimumiOSSDKRequirements {
+- (void)DISABLED_testReadMinimumiOSSDKRequirements {
   FIRCLSMachOBinary* binary;
   FIRCLSMachOSlice* slice;
   NSString* path;
@@ -246,7 +246,7 @@
   XCTAssertEqual((uint32_t)0, version.bugfix, @"");
 }
 
-- (void)testReadMinimumOSXSDKRequirements {
+- (void)DISABLED_testReadMinimumOSXSDKRequirements {
   FIRCLSMachOBinary* binary;
   FIRCLSMachOSlice* slice;
   NSString* path;
@@ -267,7 +267,7 @@
   XCTAssertEqual((uint32_t)0, version.bugfix, @"");
 }
 
-- (void)testReadx86_64Section {
+- (void)DISABLED_testReadx86_64Section {
   NSString* path = [[self resourcePath] stringByAppendingPathComponent:@"x86_64-executable"];
   struct FIRCLSMachOFile file;
 
@@ -288,7 +288,7 @@
   XCTAssert(ptr != NULL);
 }
 
-- (void)testReadArmv7kSection {
+- (void)DISABLED_testReadArmv7kSection {
   NSString* path = [[self resourcePath] stringByAppendingPathComponent:@"armv7k"];
   struct FIRCLSMachOFile file;
 
@@ -307,7 +307,7 @@
   XCTAssert(ptr != NULL);
 }
 
-- (void)testReadArm64Section {
+- (void)DISABLED_testReadArm64Section {
   NSString* path = [[self resourcePath] stringByAppendingPathComponent:@"armv7-armv7s-arm64.dylib"];
   struct FIRCLSMachOFile file;
 

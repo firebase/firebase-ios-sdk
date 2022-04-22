@@ -372,14 +372,14 @@ API_AVAILABLE(ios(14))
 
 #pragma mark - Diagnostic Handling
 
-- (void)testEmptyDiagnosticHandling {
+- (void)DISABLED_testEmptyDiagnosticHandling {
   FIRCLSMockMXDiagnosticPayload *emptyPayload = [self createEmptyDiagnosticPayload];
   [self.metricKitManager didReceiveDiagnosticPayloads:@[ emptyPayload ]];
   XCTAssertFalse([self metricKitFileExistsInCurrentReport:YES fatalReport:NO],
                  "MetricKit report should not exist");
 }
 
-- (void)testCrashDiagnosticHandling {
+- (void)DISABLED_testCrashDiagnosticHandling {
   [self createUnsentFatalReport];
   FIRCLSMockMXDiagnosticPayload *crashPayload = [self createCrashDiagnosticPayload];
   [self.metricKitManager didReceiveDiagnosticPayloads:@[ crashPayload ]];
@@ -420,7 +420,7 @@ API_AVAILABLE(ios(14))
   [self checkMetadata:metadata andThreads:threads];
 }
 
-- (void)testHangDiagnosticHandling {
+- (void)DISABLED_testHangDiagnosticHandling {
   FIRCLSMockMXDiagnosticPayload *hangPayload = [self createHangDiagnosticPayload];
   [self.metricKitManager didReceiveDiagnosticPayloads:@[ hangPayload ]];
   XCTAssertTrue([self metricKitFileExistsInCurrentReport:YES fatalReport:NO],
@@ -446,7 +446,7 @@ API_AVAILABLE(ios(14))
   [self checkMetadata:metadata andThreads:threads];
 }
 
-- (void)testCPUExceptionDiagnosticHandling {
+- (void)DISABLED_testCPUExceptionDiagnosticHandling {
   FIRCLSMockMXDiagnosticPayload *cpuPayload = [self createCPUExceptionDiagnosticPayload];
   [self.metricKitManager didReceiveDiagnosticPayloads:@[ cpuPayload ]];
   XCTAssertTrue([self metricKitFileExistsInCurrentReport:YES fatalReport:NO],
@@ -473,7 +473,7 @@ API_AVAILABLE(ios(14))
   [self checkMetadata:metadata andThreads:threads];
 }
 
-- (void)testDiskWriteExceptionDiagnosticHandling {
+- (void)DISABLED_testDiskWriteExceptionDiagnosticHandling {
   FIRCLSMockMXDiagnosticPayload *diskWritePayload =
       [self createDiskWriteExceptionDiagnosticPayload];
   [self.metricKitManager didReceiveDiagnosticPayloads:@[ diskWritePayload ]];
@@ -501,7 +501,7 @@ API_AVAILABLE(ios(14))
   [self checkMetadata:metadata andThreads:threads];
 }
 
-- (void)testFullDiagnosticHandling {
+- (void)DISABLED_testFullDiagnosticHandling {
   [self createUnsentFatalReport];
   FIRCLSMockMXDiagnosticPayload *fullPayload = [self createFullDiagnosticPayload];
   [self.metricKitManager didReceiveDiagnosticPayloads:@[ fullPayload ]];
@@ -538,7 +538,7 @@ API_AVAILABLE(ios(14))
   XCTAssertNotNil(crashDictionary, "MetricKit event should include a crash diagnostic");
 }
 
-- (void)testPayloadWithMultipleCrashesHandling {
+- (void)DISABLED_testPayloadWithMultipleCrashesHandling {
   [self createUnsentFatalReport];
   FIRCLSMockMXDiagnosticPayload *payloadWithMultipleCrashes =
       [self createDiagnosticPayloadWithMultipleCrashes];
@@ -554,7 +554,7 @@ API_AVAILABLE(ios(14))
   XCTAssertNotNil(crashDictionary, "MetricKit event should include a crash diagnostic");
 }
 
-- (void)testMultiplePayloadsWithCrashesHandling {
+- (void)DISABLED_testMultiplePayloadsWithCrashesHandling {
   [self createUnsentFatalReport];
   FIRCLSMockMXDiagnosticPayload *crashPayload = [self createCrashDiagnosticPayload];
   FIRCLSMockMXDiagnosticPayload *hangPayload = [self createHangDiagnosticPayload];

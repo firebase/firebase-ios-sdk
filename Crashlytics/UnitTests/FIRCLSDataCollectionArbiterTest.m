@@ -49,31 +49,31 @@
   [super tearDown];
 }
 
-- (void)testNothingSet {
+- (void)DISABLED_testNothingSet {
   self.fakeApp.isDefaultCollectionEnabled = YES;
   FIRCLSDataCollectionArbiter *arbiter = [self arbiterWithDictionary:@{}];
   XCTAssertTrue([arbiter isCrashlyticsCollectionEnabled]);
 }
 
-- (void)testOnlyStickyOff {
+- (void)DISABLED_testOnlyStickyOff {
   FIRCLSDataCollectionArbiter *arbiter = [self arbiterWithDictionary:@{}];
   [arbiter setCrashlyticsCollectionEnabled:NO];
   XCTAssertFalse([arbiter isCrashlyticsCollectionEnabled]);
 }
 
-- (void)testOnlyFlagOff {
+- (void)DISABLED_testOnlyFlagOff {
   FIRCLSDataCollectionArbiter *arbiter =
       [self arbiterWithDictionary:[self fabricConfigWithDataCollectionValue:NO]];
   XCTAssertFalse([arbiter isCrashlyticsCollectionEnabled]);
 }
 
-- (void)testOnlyFIRAppOff {
+- (void)DISABLED_testOnlyFIRAppOff {
   self.fakeApp.isDefaultCollectionEnabled = NO;
   FIRCLSDataCollectionArbiter *arbiter = [self arbiterWithDictionary:@{}];
   XCTAssertFalse([arbiter isCrashlyticsCollectionEnabled]);
 }
 
-- (void)testStickyPrecedent {
+- (void)DISABLED_testStickyPrecedent {
   FIRCLSDataCollectionArbiter *arbiter =
       [self arbiterWithDictionary:[self fabricConfigWithDataCollectionValue:NO]];
   self.fakeApp.isDefaultCollectionEnabled = NO;
@@ -82,7 +82,7 @@
   XCTAssertFalse([arbiter isLegacyDataCollectionKeyInPlist]);
 }
 
-- (void)testPlistPrecedent {
+- (void)DISABLED_testPlistPrecedent {
   FIRCLSDataCollectionArbiter *arbiter =
       [self arbiterWithDictionary:[self fabricConfigWithDataCollectionValue:YES]];
   self.fakeApp.isDefaultCollectionEnabled = NO;
@@ -90,13 +90,13 @@
   XCTAssertFalse([arbiter isLegacyDataCollectionKeyInPlist]);
 }
 
-- (void)testLegacyFlag {
+- (void)DISABLED_testLegacyFlag {
   FIRCLSDataCollectionArbiter *arbiter =
       [self arbiterWithDictionary:[self fabricConfigWithLegacyDataCollectionValue:YES]];
   XCTAssertTrue([arbiter isLegacyDataCollectionKeyInPlist]);
 }
 
-- (void)testLegacyAndNewImplementationsAreIndependent {
+- (void)DISABLED_testLegacyAndNewImplementationsAreIndependent {
   FIRCLSDataCollectionArbiter *arbiter =
       [self arbiterWithDictionary:[self fabricConfigWithLegacyDataCollectionValue:YES]];
   self.fakeApp.isDefaultCollectionEnabled = NO;
@@ -104,7 +104,7 @@
   XCTAssertTrue([arbiter isLegacyDataCollectionKeyInPlist]);
 }
 
-- (void)testLegacyAndNewFlagsAreIndependent {
+- (void)DISABLED_testLegacyAndNewFlagsAreIndependent {
   FIRCLSDataCollectionArbiter *arbiter =
       [self arbiterWithDictionary:[self fabricConfigWithDataCollectionValue:YES andLegacy:NO]];
   self.fakeApp.isDefaultCollectionEnabled = YES;
@@ -121,7 +121,7 @@
   return expectation;
 }
 
-- (void)testWaitForCrashlyticsCollectionEnabled {
+- (void)DISABLED_testWaitForCrashlyticsCollectionEnabled {
   // true, wait
   FIRCLSDataCollectionArbiter *arbiter = [self arbiterWithDictionary:@{}];
   [arbiter setCrashlyticsCollectionEnabled:YES];

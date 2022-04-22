@@ -34,7 +34,7 @@
   [super tearDown];
 }
 
-- (void)testOperation {
+- (void)DISABLED_testOperation {
   FIRCLSMockSymbolResolver* resolver = [[FIRCLSMockSymbolResolver alloc] init];
 
   FIRStackFrame* frame = nil;

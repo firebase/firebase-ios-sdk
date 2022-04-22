@@ -91,7 +91,7 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
 
 #pragma mark - Tests
 
-- (void)testPrepareReport {
+- (void)DISABLED_testPrepareReport {
   NSString *path = [self.fileManager.activePath stringByAppendingPathComponent:@"pkg_uuid"];
   FIRCLSInternalReport *report = [[FIRCLSInternalReport alloc] initWithPath:path];
   self.fileManager.moveItemAtPathResult = [NSNumber numberWithInt:1];
@@ -106,15 +106,15 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
       [self.fileManager.moveItemAtPath_destDir containsString:self.fileManager.preparedPath]);
 }
 
-- (void)testUploadPackagedReportWithPath {
+- (void)DISABLED_testUploadPackagedReportWithPath {
   [self runUploadPackagedReportWithUrgency:NO];
 }
 
-- (void)testUrgentUploadPackagedReportWithPath {
+- (void)DISABLED_testUrgentUploadPackagedReportWithPath {
   [self runUploadPackagedReportWithUrgency:YES];
 }
 
-- (void)testUploadPackagedReportWithoutDataCollectionToken {
+- (void)DISABLED_testUploadPackagedReportWithoutDataCollectionToken {
   [self setUpForUpload];
 
   [self.uploader uploadPackagedReportAtPath:[self packagePath] dataCollectionToken:nil asUrgent:NO];
@@ -123,7 +123,7 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
   XCTAssertNil(self.mockDataTransport.sendDataEvent_event);
 }
 
-- (void)testUploadPackagedReportNotGDTWritten {
+- (void)DISABLED_testUploadPackagedReportNotGDTWritten {
   [self setUpForUpload];
   self.mockDataTransport.sendDataEvent_wasWritten = NO;
 
@@ -133,7 +133,7 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
   XCTAssertNil(self.fileManager.removedItemAtPath_path);
 }
 
-- (void)testUploadPackagedReportGDTError {
+- (void)DISABLED_testUploadPackagedReportGDTError {
   [self setUpForUpload];
   self.mockDataTransport.sendDataEvent_error = [[NSError alloc] initWithDomain:@"domain"
                                                                           code:1

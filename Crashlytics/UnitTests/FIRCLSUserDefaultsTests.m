@@ -58,7 +58,7 @@
 
 #pragma mark - dictionary representation tests
 
-- (void)testDictionaryRepresentation {
+- (void)DISABLED_testDictionaryRepresentation {
   [_userDefaults removeAllObjects];
 
   NSDictionary* expectedTestDict =
@@ -79,14 +79,14 @@
 
 #pragma mark - remove tests
 
-- (void)testRemoveObjectForKey {
+- (void)DISABLED_testRemoveObjectForKey {
   [_userDefaults setObject:_testString1 forKey:_testKey1];
 
   [_userDefaults removeObjectForKey:_testKey1];
   XCTAssertNil([_userDefaults objectForKey:_testKey1], @"");
 }
 
-- (void)testRemoveAllObjects {
+- (void)DISABLED_testRemoveAllObjects {
   [_userDefaults setObject:_testString1 forKey:_testKey1];
   [_userDefaults setObject:_testString2 forKey:_testKey2];
   [_userDefaults setObject:_testString3 forKey:_testKey3];
@@ -100,57 +100,57 @@
 
 #pragma mark - set/fetch object tests
 
-- (void)testSaveObject {
+- (void)DISABLED_testSaveObject {
   [_userDefaults setObject:_testString1 forKey:_testKey1];
   XCTAssertEqualObjects([_userDefaults objectForKey:_testKey1], _testString1, @"");
 }
 
-- (void)testSaveBool {
+- (void)DISABLED_testSaveBool {
   [_userDefaults setObject:_testString1 forKey:_testKey1];
   XCTAssertEqualObjects([_userDefaults stringForKey:_testKey1], _testString1, @"");
 }
 
-- (void)testSaveString {
+- (void)DISABLED_testSaveString {
   [_userDefaults setBool:_testBool forKey:_testKey1];
   XCTAssertEqual([_userDefaults boolForKey:_testKey1], _testBool, @"");
 }
 
-- (void)testSaveInteger {
+- (void)DISABLED_testSaveInteger {
   [_userDefaults setInteger:_testInteger forKey:_testKey1];
   XCTAssertEqual([_userDefaults integerForKey:_testKey1], _testInteger, @"");
 }
 
 #pragma mark - unset/wrong type object tests
 
-- (void)testLoadObjectUnset {
+- (void)DISABLED_testLoadObjectUnset {
   XCTAssertNil([_userDefaults objectForKey:_testKey1], @"");
 }
 
-- (void)testLoadStringUnset {
+- (void)DISABLED_testLoadStringUnset {
   XCTAssertNil([_userDefaults stringForKey:_testKey1], @"");
 }
 
-- (void)testLoadStringWrongType {
+- (void)DISABLED_testLoadStringWrongType {
   [_userDefaults setObject:[NSNumber numberWithInt:100] forKey:_testKey1];
   XCTAssertNotNil([_userDefaults objectForKey:_testKey1], @"");
   XCTAssertNil([_userDefaults stringForKey:_testKey1], @"");
 }
 
-- (void)testLoadBoolUnset {
+- (void)DISABLED_testLoadBoolUnset {
   XCTAssertFalse([_userDefaults boolForKey:_testKey1], @"");
 }
 
-- (void)testLoadBoolWrongType {
+- (void)DISABLED_testLoadBoolWrongType {
   [_userDefaults setObject:_testString1 forKey:_testKey1];
   XCTAssertNotNil([_userDefaults objectForKey:_testKey1], @"");
   XCTAssertFalse([_userDefaults boolForKey:_testKey1], @"");
 }
 
-- (void)testLoadIntegerUnset {
+- (void)DISABLED_testLoadIntegerUnset {
   XCTAssertEqual([_userDefaults integerForKey:_testKey1], 0, @"");
 }
 
-- (void)testLoadIntegerWrongType {
+- (void)DISABLED_testLoadIntegerWrongType {
   [_userDefaults setObject:_testString1 forKey:_testKey1];
   XCTAssertNotNil([_userDefaults objectForKey:_testKey1], @"");
   XCTAssertEqual([_userDefaults integerForKey:_testKey1], 0, @"");
@@ -158,7 +158,7 @@
 
 #pragma mark - NSUserDefaults migration
 
-- (void)testMigrateFromNSUserDefaults {
+- (void)DISABLED_testMigrateFromNSUserDefaults {
   [[NSUserDefaults standardUserDefaults] setObject:_testString1 forKey:_testKey1];
   [[NSUserDefaults standardUserDefaults] setObject:_testString2 forKey:_testKey2];
   [[NSUserDefaults standardUserDefaults] setBool:_testBool forKey:_testKey3];
@@ -171,7 +171,7 @@
   XCTAssertEqual([_userDefaults boolForKey:_testKey3], _testBool, @"");
 }
 
-- (void)testObjectForKeyByMigratingFromNSUserDefaultsWhenKeyExistsInNSUserDefaults {
+- (void)DISABLED_testObjectForKeyByMigratingFromNSUserDefaultsWhenKeyExistsInNSUserDefaults {
   [[NSUserDefaults standardUserDefaults] setObject:_testString1 forKey:_testKey1];
 
   // Read object and migrate to FIRCLSUserDefaults
@@ -183,14 +183,14 @@
                         [[FIRCLSUserDefaults standardUserDefaults] objectForKey:_testKey1]);
 }
 
-- (void)testObjectForKeyByMigratingFromNSUserDefaultsWhenKeyExistsInFIRCLSUserDefaults {
+- (void)DISABLED_testObjectForKeyByMigratingFromNSUserDefaultsWhenKeyExistsInFIRCLSUserDefaults {
   [[FIRCLSUserDefaults standardUserDefaults] setObject:_testString1 forKey:_testKey1];
   id readObject = [[FIRCLSUserDefaults standardUserDefaults]
       objectForKeyByMigratingFromNSUserDefaults:_testKey1];
   XCTAssertEqualObjects(readObject, _testString1);
 }
 
-- (void)testObjectForKeyByMigratingFromNSUserDefaultsWhenKeyDoesNotExist {
+- (void)DISABLED_testObjectForKeyByMigratingFromNSUserDefaultsWhenKeyDoesNotExist {
   XCTAssertNil([[NSUserDefaults standardUserDefaults] objectForKey:_testKey1]);
   XCTAssertEqualObjects([[NSUserDefaults standardUserDefaults] objectForKey:_testKey1],
                         [[FIRCLSUserDefaults standardUserDefaults]
@@ -198,7 +198,7 @@
 }
 
 #pragma mark - Serialization tests
-- (void)testSynchronize {
+- (void)DISABLED_testSynchronize {
   [_userDefaults setBool:_testBool forKey:_testKey1];
   [_userDefaults setInteger:_testInteger forKey:_testKey4];
   [_userDefaults setObject:_testString2 forKey:_testKey2];
@@ -213,7 +213,7 @@
   XCTAssertEqualObjects([readValue objectForKey:_testKey3], _testString3, @"");
 }
 
-- (void)testSynchronizeOnlyWritesOnChanges {
+- (void)DISABLED_testSynchronizeOnlyWritesOnChanges {
   // test using the private synchronizeWroteToDisk method
 
   [_userDefaults setBool:_testBool forKey:_testKey1];
@@ -251,7 +251,7 @@
 }
 
 #pragma mark - Directory URL tests
-- (void)testGetDirectoryUrl {
+- (void)DISABLED_testGetDirectoryUrl {
 // For the simulator, on tvOS and watchOS can't write to disk
 #if TARGET_OS_SIMULATOR && TARGET_OS_IPHONE
   NSURL* baseURL = [NSURL URLWithString:@"/my/base/dir"];

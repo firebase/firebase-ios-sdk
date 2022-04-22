@@ -30,7 +30,7 @@
 
 @implementation FABOperationPreFlightCancellationTest
 
-- (void)testAsyncCancellationPreFlight {
+- (void)DISABLED_testAsyncCancellationPreFlight {
   FABTestAsyncOperation *cancelledOperation = [[FABTestAsyncOperation alloc] init];
   cancelledOperation.name = @"cancelledOperation";
 
@@ -65,7 +65,7 @@
 // This test case adds several async operations to a compound operation and cancels the compound
 // operation before it can execute. All suboperations and the compound operation are tested using
 // pre-flight cancellation checks.
-- (void)testCompoundCancellationPreFlight {
+- (void)DISABLED_testCompoundCancellationPreFlight {
   FIRCLSCompoundOperation *cancelledCompoundOperation = [[FIRCLSCompoundOperation alloc] init];
   cancelledCompoundOperation.name = @"cancelled compound operation";
   cancelledCompoundOperation.compoundQueue.maxConcurrentOperationCount = 1;

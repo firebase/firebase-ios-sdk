@@ -57,7 +57,7 @@
   return [[NSFileManager defaultManager] fileExistsAtPath:path];
 }
 
-- (void)testCreateV4DirectoryStructure {
+- (void)DISABLED_testCreateV4DirectoryStructure {
   NSString* path = [[self manager] rootPath];
 
   [[self manager] createReportDirectories];

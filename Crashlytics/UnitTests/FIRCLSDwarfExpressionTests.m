@@ -36,7 +36,7 @@
 
 #if CLS_DWARF_UNWINDING_SUPPORTED
 
-- (void)testDwarfStackPushAndPop {
+- (void)DISABLED_testDwarfStackPushAndPop {
   FIRCLSDwarfExpressionStack stack;
 
   FIRCLSDwarfExpressionStackInit(&stack);
@@ -56,7 +56,7 @@
   XCTAssert(FIRCLSDwarfExpressionStackIsValid(&stack));
 }
 
-- (void)testDwarfStackPeek {
+- (void)DISABLED_testDwarfStackPeek {
   FIRCLSDwarfExpressionStack stack;
 
   FIRCLSDwarfExpressionStackInit(&stack);
@@ -76,7 +76,7 @@
   XCTAssertEqual(FIRCLSDwarfExpressionStackPop(&stack), (intptr_t)1);
 }
 
-- (void)testDwarfStackPushMaxNumberOfValues {
+- (void)DISABLED_testDwarfStackPushMaxNumberOfValues {
   FIRCLSDwarfExpressionStack stack;
 
   FIRCLSDwarfExpressionStackInit(&stack);
@@ -90,7 +90,7 @@
                  (intptr_t)(CLS_DWARF_EXPRESSION_STACK_SIZE - 1));
 }
 
-- (void)testDwarfStackOverflow {
+- (void)DISABLED_testDwarfStackOverflow {
   FIRCLSDwarfExpressionStack stack;
 
   FIRCLSDwarfExpressionStackInit(&stack);
@@ -106,7 +106,7 @@
   XCTAssertFalse(FIRCLSDwarfExpressionStackIsValid(&stack));
 }
 
-- (void)testDwarfStackPopUnderflow {
+- (void)DISABLED_testDwarfStackPopUnderflow {
   FIRCLSDwarfExpressionStack stack;
 
   FIRCLSDwarfExpressionStackInit(&stack);
@@ -116,7 +116,7 @@
   XCTAssertFalse(FIRCLSDwarfExpressionStackIsValid(&stack));
 }
 
-- (void)testDwarfStackPeekUnderflow {
+- (void)DISABLED_testDwarfStackPeekUnderflow {
   FIRCLSDwarfExpressionStack stack;
 
   FIRCLSDwarfExpressionStackInit(&stack);
@@ -126,7 +126,7 @@
   XCTAssertFalse(FIRCLSDwarfExpressionStackIsValid(&stack));
 }
 
-- (void)testDwarfExpressionMachineInit {
+- (void)DISABLED_testDwarfExpressionMachineInit {
   FIRCLSDwarfExpressionMachine machine;
   uint8_t fakeData;
   FIRCLSThreadContext registers;
