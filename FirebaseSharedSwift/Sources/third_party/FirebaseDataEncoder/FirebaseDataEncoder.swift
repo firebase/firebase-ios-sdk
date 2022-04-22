@@ -20,7 +20,7 @@ public protocol StructureCodingPassthroughTypeResolver {
 
 private struct NoPassthroughTypes: StructureCodingPassthroughTypeResolver {
     static func isPassthroughType<T>(_ t: T) -> Bool {
-        false
+        return false
     }
 }
 
