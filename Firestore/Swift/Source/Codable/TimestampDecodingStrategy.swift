@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,6 @@
 
 import Foundation
 import FirebaseFirestore
-
-@available(macOS 10.12, iOS 10.0, watchOS 3.0, tvOS 10.0, *)
-private var _iso8601Formatter: ISO8601DateFormatter = {
-  let formatter = ISO8601DateFormatter()
-  formatter.formatOptions = .withInternetDateTime
-  return formatter
-}()
 
 public extension Firestore.Decoder.DateDecodingStrategy {
   /// Decode the `Date` from a Firestore `Timestamp`
