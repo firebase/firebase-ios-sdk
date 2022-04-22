@@ -15,11 +15,12 @@
 # limitations under the License.
 
 require 'cocoapods'
+require 'digest'
 require 'octokit'
 require 'optparse'
+require 'plist'
 require 'tmpdir'
 require 'xcodeproj'
-require 'plist'
 
 DEFAULT_TESTAPP_TARGET = "testApp"
 
@@ -27,10 +28,13 @@ DEFAULT_TESTAPP_TARGET = "testApp"
 SOURCES=["https://cdn.cocoapods.org/"]
 MIN_IOS_VERSION="10.0"
 NOTICES_OUTPUT_PATH="./NOTICES"
+SEARCH_LOCAL_POD_VERSION=false
 
 @options = {
     sources: SOURCES,
-    min_ios_version: MIN_IOS_VERSION
+    min_ios_version: MIN_IOS_VERSION,
+    output_path: NOTICES_OUTPUT_PATH,
+    search_local_pod_version: false
 }
 begin
   OptionParser.new do |opts|
@@ -39,6 +43,7 @@ begin
     opts.on('-s', '--sources SOURCES', 'Sources of Pods') { |v| @options[:sources] = v.split(/[ ,]/) }
     opts.on('-m', '--min_ios_version MIN_IOS_VERSION', 'Minimum iOS version') { |v| @options[:min_ios_version] = v }
     opts.on('-n', '--output_path OUTPUT_PATH', 'The output path of NOTICES') { |v| @options[:output_path] = v }
+    opts.on('-v', '--search-local-pod-version', 'Attach the latest pod version to a pod in Podfile') { |v| @options[:search_local_pod_version] = true }
   end.parse!
 
   raise OptionParser::MissingArgument if @options[:pods].nil?
@@ -48,20 +53,39 @@ rescue OptionParser::MissingArgument
 end
 
 PODS = @options[:pods]
-SOURCES = @options[:sources] if @options[:sources]
-MIN_IOS_VERSION = @options[:min_ios_version] if @options[:min_ios_version]
-NOTICES_OUTPUT_PATH = @options[:output_path] if @options[:output_path]
+SOURCES = @options[:sources]
+MIN_IOS_VERSION = @options[:min_ios_version]
+NOTICES_OUTPUT_PATH = @options[:output_path]
+SEARCH_LOCAL_POD_VERSION = @options[:search_local_pod_version]
 
-def create_podfile(path: , sources: , target: , pods: [], min_ios_version: )
+def create_podfile(path: , sources: , target: , pods: [], min_ios_version: , search_local_pod_version: )
   output = ""
   for source in sources do
     output += "source \'#{source}\'\n"
   end
+  if search_local_pod_version
+    for source in sources do 
+      if source == "https://cdn.cocoapods.org/"
+        next
+      end
+      `pod repo add #{Digest::MD5.hexdigest source} #{source}`
+    end 
+  end
+  output += "use_frameworks! :linkage => :static\n"
 
   output += "platform :ios, #{min_ios_version}\n"
   output += "target \'#{target}\' do\n"
   for pod in pods do
-    output += "pod \'#{pod}\'\n"
+    if search_local_pod_version
+      # `pod search` will search a pod locally and generate a corresonding pod
+      # config in a Podfile with `grep`, e.g.
+      # pod search Firebase | grep "pod.*" -m 1
+      # will generate
+      # pod 'Firebase', '~> 9.0.0'
+      output += `pod search "#{pod}" | grep "pod.*" -m 1`
+    else
+      output += "pod \'#{pod}\'\n"
+    end 
   end
   output += "end\n"
 
@@ -94,7 +118,7 @@ def generate_notices_content(sources: SOURCES, pods: PODS, min_ios_version: MIN_
       project = Xcodeproj::Project.new(project_path)
       project.new_target(:application, DEFAULT_TESTAPP_TARGET, :ios)
       project.save()
-      create_podfile(path: temp_dir, sources: sources, target: DEFAULT_TESTAPP_TARGET,pods: pods, min_ios_version: min_ios_version)
+      create_podfile(path: temp_dir, sources: sources, target: DEFAULT_TESTAPP_TARGET,pods: pods, min_ios_version: min_ios_version, search_local_pod_version: SEARCH_LOCAL_POD_VERSION)
       pod_install_result = `pod install --allow-root`
       puts pod_install_result
       licences = Plist.parse_xml("Pods/Target Support Files/Pods-testApp/Pods-testApp-acknowledgements.plist")

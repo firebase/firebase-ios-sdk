@@ -12,6 +12,11 @@ inputs:
     description: 'The minimum version of iOS'
     required: true
     default: '10.0'
+  search_local_pod_version:
+    description: 'Add pod version from local spec repo'
+    required: true
+    default: false
+    type: boolean
 outputs:
   notices_contents:
     description: 'contents of notices'
@@ -25,7 +30,11 @@ runs:
     run: |
       cd "${{ github.action_path }}"
       bundle install
-      ruby app.rb --pods ${{ inputs.pods }} --sources ${{ inputs.sources }} --min_ios_version ${{ inputs.min-ios-version }}
+      if ${{ search_local_pod_version == 'true' }} ; then
+        ruby app.rb --pods ${{ inputs.pods }} --sources ${{ inputs.sources }} --min_ios_version ${{ inputs.min-ios-version }} --search_local_pod_version
+      else
+        ruby app.rb --pods ${{ inputs.pods }} --sources ${{ inputs.sources }} --min_ios_version ${{ inputs.min-ios-version }}
+      endif
     shell: bash
   - name: Upload artifacts
     uses: actions/upload-artifact@v3
