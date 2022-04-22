@@ -13,17 +13,19 @@ jobs:
     name: Generate NOTICES
     steps:
     - uses: actions/checkout@v2
-    - name: Get All Pod Names
-      id: pod_names
+    - name: Get all pod names
       run: |
-        cd "${GITHUB_WORKSPACE}/RleaseTooling/"
+        cd "${GITHUB_WORKSPACE}/ReleaseTooling/"
         swift run manifest --pod-name-output-file-path ./output.txt
         PODS = `cat ./output.txt`
         echo "PODS=${PODS}" >> $GITHUB_ENV
-
+        #- name: Create a local specs repo
+        #run: |
+        #cd "${GITHUB_WORKSPACE}/ReleaseTooling/"
+        #swift run podspecs-tester --git-root "${GITHUB_WORKSPACE}"
     - name: Create a NOTICES file
       id: notices
       uses: ./.github/actions/notices_generation/
       with:
         pods: ${{ env.PODS }}
-        sources: "https://cdn.cocoapods.org"
+        sources: "https://github.com/firebase/SpecsTesting,https://cdn.cocoapods.org"
