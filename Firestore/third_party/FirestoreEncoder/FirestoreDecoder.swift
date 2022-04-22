@@ -38,7 +38,7 @@ public extension Firestore {
     /// - Returns: An instance of specified type by the first parameter.
     public func decode<T: Decodable>(_ destinationType: T.Type,
                                      from container: Any) throws -> T {
-      return try self.decode(destinationType, from: container, in: nil)
+      return try _decode(destinationType, from: container, in: nil)
     }
 
     /// Returns an instance of specified type from a Firestore document.
@@ -56,9 +56,31 @@ public extension Firestore {
     ///   - document: A reference to the Firestore Document that is being
     ///             decoded.
     /// - Returns: An instance of specified type by the first parameter.
-    internal func decode<T: Decodable>(_: T.Type,
-                                      from container: Any,
-                                      in document: DocumentReference?) throws -> T {
+    @available(*, deprecated)
+    public func decode<T: Decodable>(_: T.Type,
+                                     from container: Any,
+                                     in document: DocumentReference?) throws -> T {
+      return try _decode(destinationType, from: container, in: document)
+    }
+
+    /// Returns an instance of specified type from a Firestore document.
+    ///
+    /// If exists in `container`, Firestore specific types are recognized, and
+    /// passed through to `Decodable` implementations. This means types below
+    /// in `container` are directly supported:
+    ///   - GeoPoint
+    ///   - Timestamp
+    ///   - DocumentReference
+    ///
+    /// - Parameters:
+    ///   - A type to decode a document to.
+    ///   - container: A `Dictionary` keyed of `String`s representing a Firestore document.
+    ///   - document: A reference to the Firestore Document that is being
+    ///             decoded.
+    /// - Returns: An instance of specified type by the first parameter.
+    internal func _decode<T: Decodable>(_: T.Type,
+                                        from container: Any,
+                                        in document: DocumentReference?) throws -> T {
       let decoder = _FirestoreDecoder(referencing: container)
       if let doc = document {
         decoder.userInfo[Firestore.Decoder.documentRefUserInfoKey!] = doc
