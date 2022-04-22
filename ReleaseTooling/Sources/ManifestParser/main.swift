@@ -31,7 +31,7 @@ struct ManifestParser: ParsableCommand {
       output.append(pod.name)
     }
     do {
-      try output.joined(separator: ", ")
+      try output.joined(separator: ",")
         .write(to: podNameOutputFilePath, atomically: true,
                encoding: String.Encoding.utf8)
       print("\(output) is written in \n \(podNameOutputFilePath).")

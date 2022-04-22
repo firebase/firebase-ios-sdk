@@ -13,9 +13,17 @@ jobs:
     name: Generate NOTICES
     steps:
     - uses: actions/checkout@v2
+    - name: Get All Pod Names
+      id: pod_names
+      run: |
+        cd "${GITHUB_WORKSPACE}/RleaseTooling/"
+        swift run manifest --pod-name-output-file-path ./output.txt
+        PODS = `cat ./output.txt`
+        echo "PODS=${PODS}" >> $GITHUB_ENV
+
     - name: Create a NOTICES file
       id: notices
       uses: ./.github/actions/notices_generation/
       with:
-        pods: "Firebase,FirebaseFunctions"
+        pods: ${{ env.PODS }}
         sources: "https://cdn.cocoapods.org"
