@@ -47,6 +47,9 @@ args=(
   "-configuration" "Debug"
   # The generated workspace.
   "-workspace" "gen/$pod/$pod.xcworkspace"
+  # TODO(ncooke3): Revert.
+  # Run each test multiple times.
+  "-test-iterations" "1000"
   # Specify the app if all test should run. Otherwise, specify the test scheme.
   "-scheme" "$scheme"
   # Specify Catalyst.
