@@ -114,24 +114,24 @@ struct PodspecsTester: ParsableCommand {
       return t
     }()
     timer.resume()
-    if let podspec = podspec{
-        let testingPod = podspec.components(separatedBy: ".")[0]
-        for pod in manifest.pods {
-          if testingPod == pod.name {
-            var args: [String: String?] = [:]
-            args["platforms"] = pod.platforms.joined(separator: ",")
-            if pod.allowWarnings {
-              args.updateValue(nil, forKey: "allow-warnings")
-            }
-            if skipTests {
-              args.updateValue(nil, forKey: "skip-tests")
-            }
-            let code = specTest(spec: podspec, workingDir: gitRoot, args: args).code
-            exitCode = code
+    if let podspec = podspec {
+      let testingPod = podspec.components(separatedBy: ".")[0]
+      for pod in manifest.pods {
+        if testingPod == pod.name {
+          var args: [String: String?] = [:]
+          args["platforms"] = pod.platforms.joined(separator: ",")
+          if pod.allowWarnings {
+            args.updateValue(nil, forKey: "allow-warnings")
           }
+          if skipTests {
+            args.updateValue(nil, forKey: "skip-tests")
+          }
+          let code = specTest(spec: podspec, workingDir: gitRoot, args: args).code
+          exitCode = code
         }
+      }
     } else {
-        print("A local podspec repo for \(gitRoot) is generated, but no " +
+      print("A local podspec repo for \(gitRoot) is generated, but no " +
         "podspec testing will be run since `--podspec` is not specified.")
     }
     timer.cancel()

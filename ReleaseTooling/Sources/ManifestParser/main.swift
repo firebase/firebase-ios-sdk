@@ -20,28 +20,30 @@ import Foundation
 import Utils
 
 struct ManifestParser: ParsableCommand {
-    /// Path of a text file for Firebase Pods' names.
-    @Option(help: "Output path of a generated file with all Firebase Pods' names.",
-            transform: URL.init(fileURLWithPath:))
-        var podNameOutputFilePath: URL
+  /// Path of a text file for Firebase Pods' names.
+  @Option(help: "Output path of a generated file with all Firebase Pods' names.",
+          transform: URL.init(fileURLWithPath:))
+  var podNameOutputFilePath: URL
 
-        func parsePodNames(_ manifest: Manifest) throws{
-            var output:[String] = []
-                for pod in manifest.pods {
-                    output.append(pod.name)
-                }
-            do {
-                try output.joined(separator: ", ").write(to: podNameOutputFilePath, atomically: true, encoding: String.Encoding.utf8)
-                    print("\(output) is written in \n \(podNameOutputFilePath).")
-            } catch {
-                throw error
-            }
-
-        }
-    func run() throws {
-        let manifest = FirebaseManifest.shared
-            try parsePodNames(manifest)
+  func parsePodNames(_ manifest: Manifest) throws {
+    var output: [String] = []
+    for pod in manifest.pods {
+      output.append(pod.name)
     }
+    do {
+      try output.joined(separator: ", ")
+        .write(to: podNameOutputFilePath, atomically: true,
+               encoding: String.Encoding.utf8)
+      print("\(output) is written in \n \(podNameOutputFilePath).")
+    } catch {
+      throw error
+    }
+  }
+
+  func run() throws {
+    let manifest = FirebaseManifest.shared
+    try parsePodNames(manifest)
+  }
 }
 
 // Start the parsing and run the tool.
