@@ -138,12 +138,12 @@ let package = Package(
     .package(
       name: "Promises",
       url: "https://github.com/google/promises.git",
-      "2.0.0" ..< "3.0.0"
+      "2.1.0" ..< "3.0.0"
     ),
     .package(
       name: "SwiftProtobuf",
       url: "https://github.com/apple/swift-protobuf.git",
-      "1.15.0" ..< "2.0.0"
+      "1.19.0" ..< "2.0.0"
     ),
     .package(
       name: "GoogleAppMeasurement",
@@ -160,12 +160,12 @@ let package = Package(
     .package(
       name: "GoogleUtilities",
       url: "https://github.com/google/GoogleUtilities.git",
-      "7.6.0" ..< "8.0.0"
+      "7.7.1" ..< "8.0.0"
     ),
     .package(
       name: "GTMSessionFetcher",
       url: "https://github.com/google/gtm-session-fetcher.git",
-      "1.7.0" ..< "2.0.0"
+      "1.7.1" ..< "2.0.0"
     ),
     .package(
       name: "nanopb",
