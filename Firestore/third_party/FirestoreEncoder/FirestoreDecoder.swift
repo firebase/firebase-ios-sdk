@@ -57,7 +57,7 @@ public extension Firestore {
     ///             decoded.
     /// - Returns: An instance of specified type by the first parameter.
     @available(*, deprecated)
-    public func decode<T: Decodable>(_: T.Type,
+    public func decode<T: Decodable>(_ destinationType: T.Type,
                                      from container: Any,
                                      in document: DocumentReference?) throws -> T {
       return try _decode(destinationType, from: container, in: document)
