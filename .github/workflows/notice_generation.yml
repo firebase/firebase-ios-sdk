@@ -17,7 +17,7 @@ jobs:
       run: |
         cd "${GITHUB_WORKSPACE}/ReleaseTooling/"
         swift run manifest --pod-name-output-file-path ./output.txt
-        PODS = `cat ./output.txt`
+        PODS=`cat ./output.txt`
         echo "PODS=${PODS}" >> $GITHUB_ENV
         #- name: Create a local specs repo
         #run: |
