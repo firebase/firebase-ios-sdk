@@ -30,7 +30,7 @@ runs:
     run: |
       cd "${{ github.action_path }}"
       bundle install
-      if ${{ search_local_pod_version == 'true' }} ; then
+      if ${{ inputs.search_local_pod_version == 'true' }} ; then
         ruby app.rb --pods ${{ inputs.pods }} --sources ${{ inputs.sources }} --min_ios_version ${{ inputs.min-ios-version }} --search_local_pod_version
       else
         ruby app.rb --pods ${{ inputs.pods }} --sources ${{ inputs.sources }} --min_ios_version ${{ inputs.min-ios-version }}
