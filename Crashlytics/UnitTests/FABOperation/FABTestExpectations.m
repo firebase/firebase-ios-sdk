@@ -64,7 +64,7 @@ void *FABOperationPreFlightCancellationTestKVOContext =
 
 + (void)
     addInFlightCancellationCompletionExpectationsToOperation:(FIRCLSFABAsyncOperation *)operation
-                                                    testCase:(XCTestCase *)DISABLED_testCase
+                                                    testCase:(XCTestCase *)testCase
                                               assertionBlock:
                                                   (FABAsyncCompletionAssertionBlock)assertionBlock {
   XCTestExpectation *syncCompletionExpectation = [testCase
@@ -85,7 +85,7 @@ void *FABOperationPreFlightCancellationTestKVOContext =
 }
 
 + (void)addInFlightCancellationKVOExpectationsToOperation:(FIRCLSFABAsyncOperation *)operation
-                                                 testCase:(XCTestCase *)DISABLED_testCase {
+                                                 testCase:(XCTestCase *)testCase {
   for (NSString *selector in @[
          NSStringFromSelector(@selector(isCancelled)), NSStringFromSelector(@selector(isFinished)),
          NSStringFromSelector(@selector(isExecuting))
@@ -117,7 +117,7 @@ void *FABOperationPreFlightCancellationTestKVOContext =
 
 + (void)addPreFlightCancellationCompletionExpectationsToOperation:
             (FIRCLSFABAsyncOperation *)operation
-                                                         testCase:(XCTestCase *)DISABLED_testCase
+                                                         testCase:(XCTestCase *)testCase
                                               asyncAssertionBlock:(FABAsyncCompletionAssertionBlock)
                                                                       asyncAssertionBlock {
   // we expect the synchronous, standard completionBlock to execute. Per Apple's documentation, it
@@ -140,7 +140,7 @@ void *FABOperationPreFlightCancellationTestKVOContext =
 
 + (FABTestExpectationObserver *)
     addPreFlightCancellationKVOExpectationsToOperation:(FIRCLSFABAsyncOperation *)operation
-                                              testCase:(XCTestCase *)DISABLED_testCase {
+                                              testCase:(XCTestCase *)testCase {
   // add an expectation that isFinished is set to true, isCancelled is true and isExecuting is false
   BOOL (^handler)(NSOperation *observedOperation, NSDictionary *change) =
       ^(NSOperation *observedOperation, NSDictionary *change) {
