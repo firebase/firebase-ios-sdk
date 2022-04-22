@@ -29,4 +29,4 @@ jobs:
       with:
         pods: ${{ env.PODS }}
         sources: "https://github.com/firebase/SpecsTesting,https://github.com/firebase/SpecsStaging,https://cdn.cocoapods.org"
-        min-ios-version: "11.0"
+        min-ios-version: "13.0"
