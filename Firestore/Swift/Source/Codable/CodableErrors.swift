@@ -21,5 +21,4 @@ public enum FirestoreDecodingError: Error {
 
 public enum FirestoreEncodingError: Error {
   case encodingIsNotSupported(String)
-  case topLevelTypesAreNotSupported
 }
