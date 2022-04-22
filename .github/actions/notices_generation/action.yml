@@ -23,7 +23,7 @@ outputs:
 runs:
   using: 'composite'
   steps:
-  - uses: actions/setup-ruby@v1
+  - uses: ruby/setup-ruby@v1
     with:
       ruby-version: "2.7"
   - name: First step
@@ -34,7 +34,7 @@ runs:
         ruby app.rb --pods ${{ inputs.pods }} --sources ${{ inputs.sources }} --min_ios_version ${{ inputs.min-ios-version }} --search_local_pod_version
       else
         ruby app.rb --pods ${{ inputs.pods }} --sources ${{ inputs.sources }} --min_ios_version ${{ inputs.min-ios-version }}
-      endif
+      fi
     shell: bash
   - name: Upload artifacts
     uses: actions/upload-artifact@v3
