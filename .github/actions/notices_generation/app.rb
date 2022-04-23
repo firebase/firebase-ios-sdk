@@ -64,12 +64,12 @@ def create_podfile(path: , sources: , target: , pods: [], min_ios_version: , sea
     output += "source \'#{source}\'\n"
   end
   if search_local_pod_version
-    for source in sources do 
+    for source in sources do
       if source == "https://cdn.cocoapods.org/"
         next
       end
       `pod repo add #{Digest::MD5.hexdigest source} #{source}`
-    end 
+    end
   end
   output += "use_frameworks! :linkage => :static\n"
 
@@ -85,7 +85,7 @@ def create_podfile(path: , sources: , target: , pods: [], min_ios_version: , sea
       output += `pod search "#{pod}" | grep "pod.*" -m 1`
     else
       output += "pod \'#{pod}\'\n"
-    end 
+    end
   end
   output += "end\n"
 
