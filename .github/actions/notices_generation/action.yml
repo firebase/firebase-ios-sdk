@@ -1,5 +1,5 @@
-name: 'Testing Report'
-description: 'Generate a testing report'
+name: 'Generate NOTICES'
+description: 'Generate a NOTICES containning SDK licenses.'
 inputs:
   pods:
     description: 'Targeted Pods for licences'
