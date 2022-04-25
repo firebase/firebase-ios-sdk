@@ -16,9 +16,8 @@
 
 #include "Firestore/core/src/model/mutation.h"
 
-#include <cstdlib>
 #include <ostream>
-#include <sstream>
+#include <set>
 #include <utility>
 
 #include "Firestore/core/src/model/delete_mutation.h"
@@ -59,9 +58,12 @@ void Mutation::ApplyToRemoteDocument(
   return rep().ApplyToRemoteDocument(document, mutation_result);
 }
 
-void Mutation::ApplyToLocalView(MutableDocument& document,
-                                const Timestamp& local_write_time) const {
-  return rep().ApplyToLocalView(document, local_write_time);
+absl::optional<FieldMask> Mutation::ApplyToLocalView(
+    MutableDocument& document,
+    absl::optional<FieldMask> previous_mask,
+    const Timestamp& local_write_time) const {
+  return rep().ApplyToLocalView(document, std::move(previous_mask),
+                                local_write_time);
 }
 
 absl::optional<ObjectValue> Mutation::Rep::ExtractTransformBaseValue(

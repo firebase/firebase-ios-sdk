@@ -51,12 +51,49 @@ using testutil::WrapObject;
 
 const Timestamp now = Timestamp::Now();
 
+std::string GetDescription(const MutableDocument& doc,
+                           const std::vector<Mutation>& mutations,
+                           const absl::optional<Mutation>& overlay) {
+  std::string desc =
+      absl::StrCat("Overlay Mutation failed with:\n", "document:\n",
+                   doc.ToString() + "\n", "\n", "mutations:\n");
+
+  for (const Mutation& mutation : mutations) {
+    absl::StrAppend(&desc, mutation.ToString(), "\n");
+  }
+
+  return absl::StrCat(desc, "\n", "overlay: \n",
+                      overlay.has_value() ? overlay.value().ToString() : "null",
+                      "\n\n");
+}
+
+void VerifyOverlayRoundTrips(const MutableDocument& doc,
+                             std::vector<Mutation> mutations) {
+  MutableDocument doc_for_mutations = doc.Clone();
+  MutableDocument doc_for_overlay = doc.Clone();
+
+  absl::optional<FieldMask> mask;
+  for (const Mutation& mutation : mutations) {
+    mask = mutation.ApplyToLocalView(doc_for_mutations, mask, now);
+  }
+
+  absl::optional<Mutation> overlay =
+      Mutation::CalculateOverlayMutation(doc_for_mutations, mask);
+  if (overlay.has_value()) {
+    overlay.value().ApplyToLocalView(doc_for_overlay,
+                                     /* previous_mask */ absl::nullopt, now);
+  }
+
+  EXPECT_EQ(doc_for_overlay, doc_for_mutations)
+      << GetDescription(doc, mutations, overlay);
+}
+
 TEST(MutationTest, AppliesSetsToDocuments) {
   MutableDocument doc =
       Doc("collection/key", 0, Map("foo", "foo-value", "baz", "baz-value"));
 
   Mutation set = SetMutation("collection/key", Map("bar", "bar-value"));
-  set.ApplyToLocalView(doc, now);
+  set.ApplyToLocalView(doc, absl::nullopt, now);
 
   EXPECT_EQ(
       doc,
@@ -70,7 +107,7 @@ TEST(MutationTest, AppliesPatchToDocuments) {
 
   Mutation patch =
       PatchMutation("collection/key", Map("foo.bar", "new-bar-value"));
-  patch.ApplyToLocalView(doc, now);
+  patch.ApplyToLocalView(doc, absl::nullopt, now);
 
   EXPECT_EQ(doc,
             Doc("collection/key", 0,
@@ -83,7 +120,7 @@ TEST(MutationTest, AppliesPatchWithMergeToNoDocuments) {
 
   Mutation upsert = MergeMutation(
       "collection/key", Map("foo.bar", "new-bar-value"), {Field("foo.bar")});
-  upsert.ApplyToLocalView(doc, now);
+  upsert.ApplyToLocalView(doc, absl::nullopt, now);
 
   EXPECT_EQ(doc,
             Doc("collection/key", 0, Map("foo", Map("bar", "new-bar-value")))
@@ -95,7 +132,7 @@ TEST(MutationTest, AppliesPatchWithMergeToNullDocuments) {
 
   Mutation upsert = MergeMutation(
       "collection/key", Map("foo.bar", "new-bar-value"), {Field("foo.bar")});
-  upsert.ApplyToLocalView(doc, now);
+  upsert.ApplyToLocalView(doc, absl::nullopt, now);
 
   EXPECT_EQ(doc,
             Doc("collection/key", 0, Map("foo", Map("bar", "new-bar-value")))
@@ -108,7 +145,7 @@ TEST(MutationTest, DeletesValuesFromTheFieldMask) {
           Map("foo", Map("bar", "bar-value", "baz", "baz-value")));
 
   Mutation patch = MergeMutation("collection/key", Map(), {Field("foo.bar")});
-  patch.ApplyToLocalView(doc, now);
+  patch.ApplyToLocalView(doc, absl::nullopt, now);
 
   EXPECT_EQ(doc, Doc("collection/key", 0, Map("foo", Map("baz", "baz-value")))
                      .SetHasLocalMutations());
@@ -120,7 +157,7 @@ TEST(MutationTest, PatchesPrimitiveValue) {
 
   Mutation patch =
       PatchMutation("collection/key", Map("foo.bar", "new-bar-value"));
-  patch.ApplyToLocalView(doc, now);
+  patch.ApplyToLocalView(doc, absl::nullopt, now);
 
   EXPECT_EQ(doc,
             Doc("collection/key", 0,
@@ -132,7 +169,7 @@ TEST(MutationTest, PatchingDeletedDocumentsDoesNothing) {
   MutableDocument doc = testutil::DeletedDoc("collection/key", 0);
 
   Mutation patch = PatchMutation("collection/key", Map("foo", "bar"));
-  patch.ApplyToLocalView(doc, now);
+  patch.ApplyToLocalView(doc, absl::nullopt, now);
 
   EXPECT_EQ(doc, testutil::DeletedDoc("collection/key", 0));
 }
@@ -144,7 +181,7 @@ TEST(MutationTest, AppliesLocalServerTimestampTransformToDocuments) {
 
   Mutation transform = PatchMutation("collection/key", Map(),
                                      {{"foo.bar", ServerTimestampTransform()}});
-  transform.ApplyToLocalView(doc, now);
+  transform.ApplyToLocalView(doc, absl::nullopt, now);
 
   // Server timestamps aren't parsed, so we manually insert it.
   ObjectValue expected_data =
@@ -181,7 +218,7 @@ void TransformBaseDoc(Message<google_firestore_v1_Value> base_data,
 
   for (const auto& transform : transforms) {
     Mutation mutation = PatchMutation("collection/key", Map(), {transform});
-    mutation.ApplyToLocalView(current_doc, now);
+    mutation.ApplyToLocalView(current_doc, absl::nullopt, now);
     EXPECT_TRUE(current_doc.is_found_document());
   }
 
@@ -214,6 +251,10 @@ template <typename... Args>
 TransformOperation ArrayRemove(Args... args) {
   return ArrayTransform(TransformOperation::Type::ArrayRemove,
                         Array(std::move(args)...));
+}
+
+TransformOperation ServerTimestamp() {
+  return ServerTimestampTransform();
 }
 
 }  // namespace
@@ -465,9 +506,9 @@ TEST(MutationTest, DeleteDeletes) {
   MutableDocument doc = Doc("collection/key", 0, Map("foo", "bar"));
 
   Mutation del = DeleteMutation("collection/key");
-  del.ApplyToLocalView(doc, now);
+  del.ApplyToLocalView(doc, absl::nullopt, now);
 
-  EXPECT_EQ(doc, DeletedDoc("collection/key", 0));
+  EXPECT_EQ(doc, DeletedDoc("collection/key", 0).SetHasLocalMutations());
 }
 
 TEST(MutationTest, SetWithMutationResult) {
@@ -492,6 +533,138 @@ TEST(MutationTest, PatchWithMutationResult) {
 
 TEST(MutationTest, Transitions) {
   // TODO(rsgowman)
+}
+
+TEST(MutationTest, OverlayWithNoMutation) {
+  VerifyOverlayRoundTrips(
+      Doc("collection/key", 1, Map("foo", "foo-value", "baz", "baz-value")),
+      {});
+}
+
+TEST(MutationTest, OverlayWithMutationsFailByPreconditions) {
+  VerifyOverlayRoundTrips(DeletedDoc("collection/key", 1),
+                          {PatchMutation("collection/key", Map("foo", "bar")),
+                           PatchMutation("collection/key", Map("a", 1))});
+}
+
+TEST(MutationTest, OverlayWithPatchOnInvalidDocument) {
+  VerifyOverlayRoundTrips(
+      MutableDocument::InvalidDocument(Key("collection/key")),
+      {PatchMutation("collection/key", Map("a", 1))});
+}
+
+TEST(MutationTest, OverlayWithOneSetMutation) {
+  auto data = Map("foo", "foo-value", "baz", "baz-value");
+  VerifyOverlayRoundTrips(
+      Doc("collection/key", 1, std::move(data)),
+      {SetMutation("collection/key", Map("bar", "bar-value"))});
+}
+
+TEST(MutationTest, OverlayWithOnePatchMutation) {
+  auto data = Map("foo", Map("bar", "bar-value"), "baz", "baz-value");
+  VerifyOverlayRoundTrips(
+      Doc("collection/key", 1, std::move(data)),
+      {PatchMutation("collection/key", Map("foo.bar", "new-bar-value"))});
+}
+
+TEST(MutationTest, OverlayWithPatchThenMerge) {
+  Mutation upsert = MergeMutation(
+      "collection/key", Map("foo.bar", "new-bar-value"), {Field("foo.bar")});
+  VerifyOverlayRoundTrips(DeletedDoc("collection/key", 1), {upsert});
+}
+
+TEST(MutationTest, OverlayWithDeleteThenPatch) {
+  MutableDocument doc = Doc("collection/key", 1, Map("foo", 1));
+  Mutation del = DeleteMutation("collection/key");
+  Mutation patch =
+      PatchMutation("collection/key", Map("foo.bar", "new-bar-value"));
+
+  VerifyOverlayRoundTrips(doc, {del, patch});
+}
+
+TEST(MutationTest, OverlayWithDeleteThenMerge) {
+  MutableDocument doc = Doc("collection/key", 1, Map("foo", 1));
+  Mutation del = DeleteMutation("collection/key");
+  Mutation patch = MergeMutation(
+      "collection/key", Map("foo.bar", "new-bar-value"), {Field("foo.bar")});
+
+  VerifyOverlayRoundTrips(doc, {del, patch});
+}
+
+TEST(MutationTest, OverlayWithPatchThenPatchToDeleteField) {
+  MutableDocument doc = Doc("collection/key", 1, Map("foo", 1));
+  Mutation patch =
+      PatchMutation("collection/key", Map("foo", "foo-patched-value"),
+                    {testutil::Increment("bar.baz", Value(1))});
+  Mutation patchToDeleteField =
+      PatchMutation("collection/key", Map("foo", "foo-patched-value"),
+                    {Field("foo"), Field("bar.baz")}, {});
+
+  VerifyOverlayRoundTrips(doc, {patch, patchToDeleteField});
+}
+
+TEST(MutationTest, OverlayWithPatchThenMergeWithArrayUnion) {
+  MutableDocument doc = Doc("collection/key", 1, Map("foo", 1));
+  Mutation patch =
+      PatchMutation("collection/key", Map("foo", "foo-patched-value"),
+                    {testutil::Increment("bar.baz", Value(1))});
+  Mutation merge = MergeMutation("collection/key", Map(), {},
+                                 {{"array", ArrayUnion(1, 2, 3)}});
+
+  VerifyOverlayRoundTrips(doc, {patch, merge});
+}
+
+TEST(MutationTest, OverlayWithArrayUnionThenRemove) {
+  MutableDocument doc = Doc("collection/key", 1, Map("foo", 1));
+  Mutation union_merge = MergeMutation("collection/key", Map(), {},
+                                       {{"arrays", ArrayUnion(1, 2, 3)}});
+  Mutation remove = MergeMutation("collection/key", Map("foo", "xxx"),
+                                  {Field("foo")}, {{"arrays", ArrayRemove(2)}});
+
+  VerifyOverlayRoundTrips(doc, {union_merge, remove});
+}
+
+TEST(MutationTest, OverlayWithSetThenIncrement) {
+  MutableDocument doc = Doc("collection/key", 1, Map("foo", 1));
+  Mutation set = SetMutation("collection/key", Map("foo", 2));
+  Mutation update =
+      PatchMutation("collection/key", Map(), {{"foo", Increment(2)}});
+
+  VerifyOverlayRoundTrips(doc, {set, update});
+}
+
+TEST(MutationTest, OverlayWithSetThenPatchOnDeletedDoc) {
+  MutableDocument doc = DeletedDoc("collection/key", 1);
+  Mutation set = SetMutation("collection/key", Map("bar", "bar-value"));
+  Mutation patch =
+      PatchMutation("collection/key", Map("foo", "foo-patched-value"),
+                    {{"bar.baz", ServerTimestamp()}});
+
+  VerifyOverlayRoundTrips(doc, {set, patch});
+}
+
+TEST(MutationTest, OverlayWithFieldDeletionOfNestedField) {
+  MutableDocument doc = Doc("collection/key", 1, Map("foo", 1));
+  Mutation patch1 =
+      PatchMutation("collection/key", Map("foo", "foo-patched-value"),
+                    {{"bar.baz", Increment(1)}});
+  Mutation patch2 =
+      PatchMutation("collection/key", Map("foo", "foo-patched-value"),
+                    {{"bar.baz", ServerTimestamp()}});
+  Mutation patch3 =
+      PatchMutation("collection/key", Map("foo", "foo-patched-value"),
+                    {Field("bar.baz")}, {});
+
+  VerifyOverlayRoundTrips(doc, {patch1, patch2, patch3});
+}
+
+TEST(MutationTest, OverlayCreatedFromSetToEmptyWithMerge) {
+  MutableDocument doc = DeletedDoc("collection/key", 1);
+  Mutation merge = MergeMutation("collection/key", Map(), {});
+  VerifyOverlayRoundTrips(doc, {merge});
+
+  doc = Doc("collection/key", 1, Map("foo", "foo-value"));
+  VerifyOverlayRoundTrips(doc, {merge});
 }
 
 }  // namespace
