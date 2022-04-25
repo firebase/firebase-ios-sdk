@@ -44,28 +44,29 @@ internal enum FunctionsConstants {
 
   /// The network client to use for http requests.
   private let fetcherService: GTMSessionFetcherService
-  // The projectID to use for all function references.
+  /// The projectID to use for all function references.
   private let projectID: String
-  // A serializer to encode/decode data and return values.
+  /// A serializer to encode/decode data and return values.
   private let serializer = FUNSerializer()
-  // A factory for getting the metadata to include with function calls.
+  /// A factory for getting the metadata to include with function calls.
   private let contextProvider: FunctionsContextProvider
 
-  // The custom domain to use for all functions references (optional).
+  /// The custom domain to use for all functions references (optional).
   internal let customDomain: String?
 
-  // The region to use for all function references.
+  /// The region to use for all function references.
   internal let region: String
 
   // MARK: - Public APIs
 
   /**
-   * The current emulator origin, or nil if it is not set.
+   * The current emulator origin, or `nil` if it is not set.
    */
   open private(set) var emulatorOrigin: String?
 
   /**
-   * Creates a Cloud Functions client or returns a pre-existing instance if it already exists.
+   * Creates a Cloud Functions client using the default or returns a pre-existing instance if it already exists.
+   * - Returns: A shared Functions instance initialized with the default `FirebaseApp`.
    */
   @objc(functions) open class func functions() -> Functions {
     return functions(
@@ -78,7 +79,8 @@ internal enum FunctionsConstants {
   /**
    * Creates a Cloud Functions client with the given app, or returns a pre-existing
    * instance if one already exists.
-   * @param app The app for the Firebase project.
+   * - Parameter app The app for the Firebase project.
+   * - Returns: A shared Functions instance initialized with the specified `FirebaseApp`.
    */
   @objc(functionsForApp:) open class func functions(app: FirebaseApp) -> Functions {
     return functions(app: app, region: FunctionsConstants.defaultRegion, customDomain: nil)
@@ -86,7 +88,8 @@ internal enum FunctionsConstants {
 
   /**
    * Creates a Cloud Functions client with the default app and given region.
-   * @param region The region for the http trigger, such as "us-central1".
+   * - Parameter region The region for the HTTP trigger, such as `us-central1`.
+   * - Returns: A shared Functions instance initialized with the default `FirebaseApp` and a custom region.
    */
   @objc(functionsForRegion:) open class func functions(region: String) -> Functions {
     return functions(app: FirebaseApp.app(), region: region, customDomain: nil)
@@ -95,7 +98,8 @@ internal enum FunctionsConstants {
   /**
    * Creates a Cloud Functions client with the given app and region, or returns a pre-existing
    * instance if one already exists.
-   * @param customDomain A custom domain for the http trigger, such as "https://mydomain.com".
+   * - Parameter customDomain A custom domain for the HTTP trigger, such as "https://mydomain.com".
+   * - Returns: A shared Functions instance initialized with the default `FirebaseApp` and a custom HTTP trigger domain.
    */
   @objc(functionsForCustomDomain:) open class func functions(customDomain: String) -> Functions {
     return functions(app: FirebaseApp.app(),
@@ -105,8 +109,10 @@ internal enum FunctionsConstants {
   /**
    * Creates a Cloud Functions client with the given app and region, or returns a pre-existing
    * instance if one already exists.
-   * @param app The app for the Firebase project.
-   * @param region The region for the http trigger, such as "us-central1".
+   * - Parameters:
+   *   - app: The app for the Firebase project.
+   *   - region: The region for the HTTP trigger, such as `us-central1`.
+   * - Returns: An instance of `Functions` with a custom app and region.
    */
   @objc(functionsForApp:region:) open class func functions(app: FirebaseApp,
                                                            region: String) -> Functions {
@@ -116,8 +122,10 @@ internal enum FunctionsConstants {
   /**
    * Creates a Cloud Functions client with the given app and region, or returns a pre-existing
    * instance if one already exists.
-   * @param app The app for the Firebase project.
-   * @param customDomain A custom domain for the http trigger, such as "https://mydomain.com".
+   * - Parameters:
+   *   - app The app for the Firebase project.
+   *   - customDomain A custom domain for the HTTP trigger, such as `https://mydomain.com`.
+   * - Returns: An instance of `Functions` with a custom app and HTTP trigger domain.
    */
   @objc(functionsForApp:customDomain:) open class func functions(app: FirebaseApp,
                                                                  customDomain: String)
@@ -127,7 +135,7 @@ internal enum FunctionsConstants {
 
   /**
    * Creates a reference to the Callable HTTPS trigger with the given name.
-   * @param name The name of the Callable HTTPS trigger.
+   * - Parameter name The name of the Callable HTTPS trigger.
    */
   @objc(HTTPSCallableWithName:) open func httpsCallable(_ name: String) -> HTTPSCallable {
     return HTTPSCallable(functions: self, name: name)
@@ -144,6 +152,7 @@ internal enum FunctionsConstants {
   /// - Parameter responseAs: The type of the `Decodable` entity to use for responses from this `Callable`
   /// - Parameter encoder: The encoder instance to use to run the encoding.
   /// - Parameter decoder: The decoder instance to use to run the decoding.
+  /// - Returns: A reference to an HTTPS-callable Cloud Function that can be used to make Cloud Functions invocations.
   open func httpsCallable<Request: Encodable,
     Response: Decodable>(_ name: String,
                          requestAs: Request.Type = Request.self,
@@ -163,6 +172,7 @@ internal enum FunctionsConstants {
   /// - Parameter responseAs: The type of the `Decodable` entity to use for responses from this `Callable`
   /// - Parameter encoder: The encoder instance to use to run the encoding.
   /// - Parameter decoder: The decoder instance to use to run the decoding.
+  /// - Returns: A reference to an HTTPS-callable Cloud Function that can be used to make Cloud Functions invocations.
   open func httpsCallable<Request: Encodable,
     Response: Decodable>(_ url: URL,
                          requestAs: Request.Type = Request.self,
@@ -178,8 +188,9 @@ internal enum FunctionsConstants {
   /**
    * Changes this instance to point to a Cloud Functions emulator running locally.
    * See https://firebase.google.com/docs/functions/local-emulator
-   * @param host The host of the local emulator, such as "localhost".
-   * @param port The port of the local emulator, for example 5005.
+   * - Parameters:
+   *   - host: The host of the local emulator, such as "localhost".
+   *   - port: The port of the local emulator, for example 5005.
    */
   @objc open func useEmulator(withHost host: String, port: Int) {
     let prefix = host.hasPrefix("http") ? "" : "http://"

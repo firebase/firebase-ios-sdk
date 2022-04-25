@@ -102,11 +102,11 @@ public let FunctionsErrorDetailsKey: String = "details"
 }
 
 /**
- * Takes an HTTP status code and returns the corresponding FIRFunctionsErrorCode error code.
+ * Takes an HTTP status code and returns the corresponding `FIRFunctionsErrorCode` error code.
  * This is the standard HTTP status code -> error mapping defined in:
  * https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
- * @param status An HTTP status code.
- * @return The corresponding error code, or FIRFunctionsErrorCodeUnknown if none.
+ * - Parameter status An HTTP status code.
+ * - Returns: The corresponding error code, or `FIRFunctionsErrorCodeUnknown` if none.
  */
 internal func FunctionsCodeForHTTPStatus(_ status: NSInteger) -> FunctionsErrorCode {
   switch status {
