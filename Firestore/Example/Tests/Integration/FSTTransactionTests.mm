@@ -539,6 +539,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         ++(*counter);
         // Get the doc once.
         FIRDocumentSnapshot *snapshot = [transaction getDocument:doc error:error];
+        XCTAssertNotNil(snapshot);
         XCTAssertNil(*error);
         // Do a write outside of the transaction. Because the transaction will retry, set the
         // document to a different value each time.
@@ -557,6 +558,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         // TODO(klimt): Perhaps we shouldn't fail reads for this, but should wait and fail the
         // whole transaction? It's an edge-case anyway, as developers shouldn't be reading the same
         // doc multiple times. But they need to handle read errors anyway.
+        XCTAssertNil(snapshot);
         XCTAssertNotNil(*error);
         return nil;
       }
