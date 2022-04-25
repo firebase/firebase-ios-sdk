@@ -45,6 +45,7 @@ using testutil::MergeMutation;
 using testutil::MutationResult;
 using testutil::PatchMutation;
 using testutil::SetMutation;
+using testutil::UnknownDoc;
 using testutil::Value;
 using testutil::Version;
 using testutil::WrapObject;
@@ -86,6 +87,46 @@ void VerifyOverlayRoundTrips(const MutableDocument& doc,
 
   EXPECT_EQ(doc_for_overlay, doc_for_mutations)
       << GetDescription(doc, mutations, overlay);
+}
+
+int RunPermutationTests(std::vector<MutableDocument> docs,
+                        std::vector<Mutation> mutations) {
+  int test_cases = 0;
+  std::vector<size_t> indexes;
+  for (size_t i = 0; i < mutations.size(); ++i) {
+    indexes.push_back(i);
+  }
+  for (MutableDocument doc : docs) {
+    std::vector<size_t> indexes_copy(indexes);
+    do {
+      std::vector<Mutation> mutations_copy;
+      for (size_t idx : indexes_copy) {
+        mutations_copy.push_back(mutations[idx]);
+      }
+      VerifyOverlayRoundTrips(doc, mutations_copy);
+      test_cases += 1;
+    } while (std::next_permutation(indexes_copy.begin(), indexes_copy.end()));
+  }
+  return test_cases;
+}
+
+std::vector<std::vector<Mutation>> Combinations(std::vector<Mutation> mutations,
+                                                size_t size) {
+  std::vector<bool> v(mutations.size());
+  std::fill(v.begin(), v.begin() + size, true);
+
+  std::vector<std::vector<Mutation>> combs;
+  do {
+    std::vector<Mutation> comb;
+    for (size_t i = 0; i < mutations.size(); ++i) {
+      if (v[i]) {
+        comb.push_back(mutations[i]);
+      }
+    }
+    combs.push_back(std::move(comb));
+  } while (std::prev_permutation(v.begin(), v.end()));
+
+  return combs;
 }
 
 TEST(MutationTest, AppliesSetsToDocuments) {
@@ -665,6 +706,119 @@ TEST(MutationTest, OverlayCreatedFromSetToEmptyWithMerge) {
 
   doc = Doc("collection/key", 1, Map("foo", "foo-value"));
   VerifyOverlayRoundTrips(doc, {merge});
+}
+
+// Below tests run on automatically generated mutation list, they are
+// deterministic, but hard to debug when they fail. They will print the failure
+// case, and the best way to debug is recreate the case manually in a separate
+// test.
+
+TEST(MutationTest, OverlayWithMutationWithMultipleDeletes) {
+  std::vector<MutableDocument> docs = {
+      Doc("collection/key", 1, Map("foo", "foo-value", "bar.baz", 1)),
+      DeletedDoc("collection/key", 1), UnknownDoc("collection/key", 1)};
+  std::vector<Mutation> mutations = {
+      SetMutation("collection/key", Map("bar", "bar-value")),
+      DeleteMutation("collection/key"), DeleteMutation("collection/key"),
+      PatchMutation("collection/key", Map("foo", "foo-patched-value"),
+                    {{"bar.baz", ServerTimestamp()}})};
+
+  int test_cases = RunPermutationTests(docs, std::move(mutations));
+
+  // There are 4! * 3 cases
+  EXPECT_EQ(72, test_cases);
+}
+
+TEST(MutationTest, OverlayByCombinationsAndPermutations) {
+  std::vector<MutableDocument> docs = {
+      Doc("collection/key", 1, Map("foo", "foo-value", "bar", 1)),
+      DeletedDoc("collection/key", 1), UnknownDoc("collection/key", 1)};
+  std::vector<Mutation> mutations = {
+      SetMutation("collection/key", Map("bar", "bar-value")),
+      SetMutation("collection/key", Map("bar.rab", "bar.rab-value")),
+      DeleteMutation("collection/key"),
+      PatchMutation("collection/key", Map("foo", "foo-patched-value-incr"),
+                    {{"bar", Increment(1)}}),
+      PatchMutation("collection/key", Map("foo", "foo-patched-value-delete"),
+                    {Field("foo"), Field("bar")}, {}),
+      PatchMutation("collection/key", Map("foo", "foo-patched-value-st"),
+                    {{"bar", ServerTimestamp()}}),
+      MergeMutation("collection/key", {}, {Field("arrays")},
+                    {{"arrays", ArrayUnion(1, 2, 3)}})};
+
+  // Take all possible combinations of the subsets of the mutation list, run
+  // each combination for all possible permutation, for all 3 different type of
+  // documents.
+  int test_cases = 0;
+  for (size_t subset_size = 0; subset_size <= mutations.size(); ++subset_size) {
+    std::vector<std::vector<Mutation>> combinations =
+        Combinations(mutations, subset_size);
+    for (const auto& combination : combinations) {
+      test_cases += RunPermutationTests(docs, combination);
+    }
+  }
+
+  // There are (0! + 7*1! + 21*2! + 35*3! + 35*4! + 21*5! + 7*6! + 7!) * 3 =
+  // 41100 cases.
+  EXPECT_EQ(41100, test_cases);
+}
+
+TEST(MutationTest, OverlayByCombinationsAndPermutations_ArrayTransforms) {
+  std::vector<MutableDocument> docs = {
+      Doc("collection/key", 1, Map("foo", "foo-value", "bar.baz", 1)),
+      DeletedDoc("collection/key", 1), UnknownDoc("collection/key", 1)};
+  std::vector<Mutation> mutations = {
+      SetMutation("collection/key", Map("bar", "bar-value")),
+      MergeMutation("collection/key", Map("foo", "xxx"), {Field("foo")},
+                    {{"arrays", ArrayRemove(2)}}),
+      DeleteMutation("collection/key"),
+      PatchMutation("collection/key", Map("foo", "foo-patched-value-1"),
+                    {{"arrays", ArrayUnion(4, 5)}}),
+      PatchMutation("collection/key", Map("foo", "foo-patched-value-2"),
+                    {{"arrays", ArrayRemove(5, 6)}}),
+      MergeMutation("collection/key", Map("foo", "yyy"), {Field("foo")},
+                    {{"arrays", ArrayUnion(1, 2, 3, 999)}})};
+
+  int test_cases = 0;
+  for (size_t subset_size = 0; subset_size <= mutations.size(); ++subset_size) {
+    std::vector<std::vector<Mutation>> combinations =
+        Combinations(mutations, subset_size);
+    for (const auto& combination : combinations) {
+      test_cases += RunPermutationTests(docs, combination);
+    }
+  }
+
+  // There are (0! + 6*1! + 15*2! + 20*3! + 15*4! + 6*5! + 6!) * 3 = 5871 cases.
+  EXPECT_EQ(5871, test_cases);
+}
+
+TEST(MutationTest, OverlayByCombinationsAndPermutations_Increments) {
+  std::vector<MutableDocument> docs = {
+      Doc("collection/key", 1, Map("foo", "foo-value", "bar", 1)),
+      DeletedDoc("collection/key", 1), UnknownDoc("collection/key", 1)};
+  std::vector<Mutation> mutations = {
+      SetMutation("collection/key", Map("bar", "bar-value")),
+      MergeMutation("collection/key", Map("foo", "foo-merge"), {Field("foo")},
+                    {{"bar", Increment(2)}}),
+      DeleteMutation("collection/key"),
+      PatchMutation("collection/key", Map("foo", "foo-patched-value-1"),
+                    {{"bar", Increment(-1.4)}}),
+      PatchMutation("collection/key", Map("foo", "foo-patched-value-2"),
+                    {{"bar", Increment(3.3)}}),
+      MergeMutation("collection/key", Map("foo", "yyy"), {Field("foo")},
+                    {{"bar", Increment(-41)}})};
+
+  int test_cases = 0;
+  for (size_t subset_size = 0; subset_size <= mutations.size(); ++subset_size) {
+    std::vector<std::vector<Mutation>> combinations =
+        Combinations(mutations, subset_size);
+    for (const auto& combination : combinations) {
+      test_cases += RunPermutationTests(docs, combination);
+    }
+  }
+
+  // There are (0! + 6*1! + 15*2! + 20*3! + 15*4! + 6*5! + 6!) * 3 = 5871 cases.
+  EXPECT_EQ(5871, test_cases);
 }
 
 }  // namespace
