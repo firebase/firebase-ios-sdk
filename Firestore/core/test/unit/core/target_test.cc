@@ -186,10 +186,12 @@ TEST(TargetTest, OrderByQueryBound) {
   Target target = Query("c").AddingOrderBy(OrderBy("foo")).ToTarget();
   FieldIndex index = MakeFieldIndex("c", "foo", Segment::Kind::kAscending);
   auto lower_bound = target.GetLowerBound(index);
-  EXPECT_FALSE(lower_bound.has_value());
+  EXPECT_EQ(lower_bound.values[0], model::MinValue());
+  EXPECT_TRUE(lower_bound.inclusive);
 
   auto upper_bound = target.GetUpperBound(index);
-  EXPECT_FALSE(upper_bound.has_value());
+  EXPECT_EQ(upper_bound.values[0], model::MaxValue());
+  EXPECT_TRUE(upper_bound.inclusive);
 }
 
 TEST(TargetTest, FilterWithOrderByQueryBound) {
@@ -217,7 +219,8 @@ TEST(TargetTest, StartingAtQueryBound) {
   VerifyBound(lower_bound, true, {*Value("bar")});
 
   auto upper_bound = target.GetUpperBound(index);
-  EXPECT_FALSE(upper_bound.has_value());
+  EXPECT_EQ(upper_bound.values[0], model::MaxValue());
+  EXPECT_TRUE(upper_bound.inclusive);
 }
 
 TEST(TargetTest, StartingAtWithFilterQueryBound) {
@@ -284,7 +287,8 @@ TEST(TargetTest, EndingAtQueryBound) {
   FieldIndex index = MakeFieldIndex("c", "foo", Segment::Kind::kAscending);
 
   auto lower_bound = target.GetLowerBound(index);
-  ASSERT_FALSE(lower_bound.has_value());
+  ASSERT_EQ(lower_bound.values[0], model::MinValue());
+  ASSERT_TRUE(lower_bound.inclusive);
 
   auto upper_bound = target.GetUpperBound(index);
   VerifyBound(upper_bound, true, {*Value("bar")});

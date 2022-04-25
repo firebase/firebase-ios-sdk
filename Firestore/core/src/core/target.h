@@ -101,38 +101,41 @@ class Target {
     return end_at_;
   }
 
+  /** Returns the order of the document key component. */
+  core::Direction GetKeyOrder() const {
+    return order_bys_.back().direction();
+  }
+
   /**
    * Returns the values that are used in ArrayContains or ArrayContainsAny
    * filters.
    *
    * Returns `nullopt` if there are no such filters.
    */
-  IndexedValues GetArrayValues(const model::FieldIndex& field_index);
+  IndexedValues GetArrayValues(const model::FieldIndex& field_index) const;
 
   /**
    * Returns the list of values that are used in != or NotIn filters.
    *
    * Returns `nullopt` if there are no such filters.
    */
-  IndexedValues GetNotInValues(const model::FieldIndex& field_index);
+  IndexedValues GetNotInValues(const model::FieldIndex& field_index) const;
 
   /**
    * Returns a lower bound of field values that can be used as a starting point
    * to scan the index defined by `field_index`.
    *
-   * Returns `nullopt` if no lower bound exists.
+   * Returns `model::MinValue()` if no lower bound exists.
    */
-  absl::optional<IndexBoundValues> GetLowerBound(
-      const model::FieldIndex& field_index);
+  IndexBoundValues GetLowerBound(const model::FieldIndex& field_index) const;
 
   /**
    * Returns an upper bound of field values that can be used as an ending point
    * when scanning the index defined by `field_index`.
    *
-   * Returns `nullopt` if no upper bound exists.
+   * Returns `model::MaxValue()` if no upper bound exists.
    */
-  absl::optional<IndexBoundValues> GetUpperBound(
-      const model::FieldIndex& field_index);
+  IndexBoundValues GetUpperBound(const model::FieldIndex& field_index) const;
 
   const std::string& CanonicalId() const;
 
@@ -149,7 +152,7 @@ class Target {
    */
   struct IndexBoundValue {
     bool inclusive;
-    absl::optional<google_firestore_v1_Value> value;
+    google_firestore_v1_Value value;
   };
 
   /**
@@ -180,7 +183,8 @@ class Target {
   friend class bundle::BundleSerializer;
 
   /** Returns the field filters that target the given field path. */
-  std::vector<FieldFilter> GetFieldFiltersForPath(const model::FieldPath& path);
+  std::vector<FieldFilter> GetFieldFiltersForPath(
+      const model::FieldPath& path) const;
 
   /**
    * Returns the value for an ascending bound of `segment`, using `bound` to
@@ -190,7 +194,7 @@ class Target {
    * and a bool to indicate if the result is inclusive.
    */
   IndexBoundValue GetAscendingBound(const model::Segment& segment,
-                                    const absl::optional<Bound>& bound);
+                                    const absl::optional<Bound>& bound) const;
   /**
    * Returns the value for a descending bound of `segment`, using `bound` to
    * narrow down the result.
@@ -199,7 +203,7 @@ class Target {
    * and a bool to indicate if the result is inclusive.
    */
   IndexBoundValue GetDescendingBound(const model::Segment& segment,
-                                     const absl::optional<Bound>& bound);
+                                     const absl::optional<Bound>& bound) const;
 
   model::ResourcePath path_;
   std::shared_ptr<const std::string> collection_group_;
