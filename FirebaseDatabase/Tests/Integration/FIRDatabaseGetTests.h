@@ -17,6 +17,6 @@
 #import <Foundation/Foundation.h>
 #import "FirebaseDatabase/Tests/Helpers/FTestBase.h"
 
-@interface FIRDatabaseQueryTests : FTestBase
+@interface FIRDatabaseGetTests : FTestBase
 
 @end
