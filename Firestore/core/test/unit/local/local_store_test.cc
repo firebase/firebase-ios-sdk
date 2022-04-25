@@ -579,7 +579,8 @@ TEST_P(LocalStoreTest, HandlesDocumentThenSetMutationThenAckThenDocument) {
 }
 
 TEST_P(LocalStoreTest, HandlesPatchWithoutPriorDocument) {
-  WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar"), {}));
+  WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar"),
+                                        std::vector<model::FieldPath>{}));
   FSTAssertRemoved("foo/bar");
   FSTAssertNotContains("foo/bar");
 
@@ -593,7 +594,8 @@ TEST_P(LocalStoreTest, HandlesPatchWithoutPriorDocument) {
 }
 
 TEST_P(LocalStoreTest, HandlesPatchMutationThenDocumentThenAck) {
-  WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar"), {}));
+  WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar"),
+                                        std::vector<model::FieldPath>{}));
   FSTAssertRemoved("foo/bar");
   FSTAssertNotContains("foo/bar");
 
@@ -623,7 +625,8 @@ TEST_P(LocalStoreTest, HandlesPatchMutationThenDocumentThenAck) {
 }
 
 TEST_P(LocalStoreTest, HandlesPatchMutationThenAckThenDocument) {
-  WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar"), {}));
+  WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar"),
+                                        std::vector<model::FieldPath>{}));
   FSTAssertRemoved("foo/bar");
   FSTAssertNotContains("foo/bar");
 
@@ -739,7 +742,8 @@ TEST_P(LocalStoreTest,
   FSTAssertContains(
       Doc("foo/bar", 0, Map("foo", "old")).SetHasLocalMutations());
 
-  WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar"), {}));
+  WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar"),
+                                        std::vector<model::FieldPath>{}));
   FSTAssertChanged(Doc("foo/bar", 0, Map("foo", "bar")).SetHasLocalMutations());
   FSTAssertContains(
       Doc("foo/bar", 0, Map("foo", "bar")).SetHasLocalMutations());
@@ -773,7 +777,8 @@ TEST_P(LocalStoreTest,
 
 TEST_P(LocalStoreTest, HandlesSetMutationAndPatchMutationTogether) {
   WriteMutations({testutil::SetMutation("foo/bar", Map("foo", "old")),
-                  testutil::PatchMutation("foo/bar", Map("foo", "bar"), {})});
+                  testutil::PatchMutation("foo/bar", Map("foo", "bar"),
+                                          std::vector<model::FieldPath>{})});
 
   FSTAssertChanged(Doc("foo/bar", 0, Map("foo", "bar")).SetHasLocalMutations());
   FSTAssertContains(
@@ -789,7 +794,8 @@ TEST_P(LocalStoreTest, HandlesSetMutationThenPatchMutationThenReject) {
   AcknowledgeMutationWithVersion(1);
   FSTAssertNotContains("foo/bar");
 
-  WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar"), {}));
+  WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar"),
+                                        std::vector<model::FieldPath>{}));
   // A blind patch is not visible in the cache
   FSTAssertNotContains("foo/bar");
 
@@ -800,7 +806,8 @@ TEST_P(LocalStoreTest, HandlesSetMutationThenPatchMutationThenReject) {
 TEST_P(LocalStoreTest, HandlesSetMutationsAndPatchMutationOfJustOneTogether) {
   WriteMutations({testutil::SetMutation("foo/bar", Map("foo", "old")),
                   testutil::SetMutation("bar/baz", Map("bar", "baz")),
-                  testutil::PatchMutation("foo/bar", Map("foo", "bar"), {})});
+                  testutil::PatchMutation("foo/bar", Map("foo", "bar"),
+                                          std::vector<model::FieldPath>{})});
 
   FSTAssertChanged(Doc("bar/baz", 0, Map("bar", "baz")).SetHasLocalMutations(),
                    Doc("foo/bar", 0, Map("foo", "bar")).SetHasLocalMutations());
@@ -815,7 +822,8 @@ TEST_P(LocalStoreTest, HandlesDeleteMutationThenPatchMutationThenAckThenAck) {
   FSTAssertRemoved("foo/bar");
   FSTAssertContains(DeletedDoc("foo/bar"));
 
-  WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar"), {}));
+  WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar"),
+                                        std::vector<model::FieldPath>{}));
   FSTAssertRemoved("foo/bar");
   FSTAssertContains(DeletedDoc("foo/bar"));
 
@@ -869,7 +877,8 @@ TEST_P(LocalStoreTest, CollectsGarbageAfterAcknowledgedMutation) {
 
   ApplyRemoteEvent(
       UpdateRemoteEvent(Doc("foo/bar", 1, Map("foo", "old")), {target_id}, {}));
-  WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar"), {}));
+  WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar"),
+                                        std::vector<model::FieldPath>{}));
   // Release the target so that our target count goes back to 0 and we are
   // considered up-to-date.
   local_store_.ReleaseTarget(target_id);
@@ -907,7 +916,8 @@ TEST_P(LocalStoreTest, CollectsGarbageAfterRejectedMutation) {
 
   ApplyRemoteEvent(
       UpdateRemoteEvent(Doc("foo/bar", 1, Map("foo", "old")), {target_id}, {}));
-  WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar"), {}));
+  WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar"),
+                                        std::vector<model::FieldPath>{}));
   // Release the target so that our target count goes back to 0 and we are
   // considered up-to-date.
   local_store_.ReleaseTarget(target_id);
@@ -1670,7 +1680,8 @@ TEST_P(LocalStoreTest, GetHighestUnacknowledgeBatchId) {
   WriteMutation(testutil::SetMutation("foo/bar", Map("abc", 123)));
   ASSERT_EQ(1, local_store_.GetHighestUnacknowledgedBatchId());
 
-  WriteMutation(testutil::PatchMutation("foo/bar", Map("abc", 321), {}));
+  WriteMutation(testutil::PatchMutation("foo/bar", Map("abc", 321),
+                                        std::vector<model::FieldPath>{}));
   ASSERT_EQ(2, local_store_.GetHighestUnacknowledgedBatchId());
 
   AcknowledgeMutationWithVersion(1);
