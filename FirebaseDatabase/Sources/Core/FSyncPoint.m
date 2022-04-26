@@ -161,14 +161,9 @@
     return [[FView alloc] initWithQuery:query initialViewCache:viewCache];
 }
 
-/**
- * Add an event callback for the specified query
- * Returns an array of events to raise.
- */
-- (NSArray *)addEventRegistration:(id<FEventRegistration>)eventRegistration
-       forNonExistingViewForQuery:(FQuerySpec *)query
-                      writesCache:(FWriteTreeRef *)writesCache
-                      serverCache:(FCacheNode *)serverCache {
+- (void)registerQuery:(FQuerySpec *)query
+          writesCache:(FWriteTreeRef *)writesCache
+          serverCache:(FCacheNode *)serverCache {
     NSAssert(self.views[query.params] == nil, @"Found view for query: %@",
              query.params);
     // TODO: make writesCache take flag for complete server node
@@ -187,6 +182,17 @@
         [self.persistenceManager setTrackedQueryKeys:allKeys forQuery:query];
     }
     self.views[query.params] = view;
+}
+
+/**
+ * Add an event callback for the specified query
+ * Returns an array of events to raise.
+ */
+- (NSArray *)addEventRegistration:(id<FEventRegistration>)eventRegistration
+       forNonExistingViewForQuery:(FQuerySpec *)query
+                      writesCache:(FWriteTreeRef *)writesCache
+                      serverCache:(FCacheNode *)serverCache {
+    [self registerQuery:query writesCache:writesCache serverCache:serverCache];
     return [self addEventRegistration:eventRegistration
               forExistingViewForQuery:query];
 }
@@ -197,6 +203,15 @@
     NSAssert(view != nil, @"No view for query: %@", query);
     [view addEventRegistration:eventRegistration];
     return [view initialEvents:eventRegistration];
+}
+
+- (BOOL)unregisterQuery:(FQuerySpec *)query {
+    FView *view = self.views[query.params];
+    NSAssert(view != nil, @"no view for query %@", query);
+    if ([view isEmpty]) {
+        [self.views removeObjectForKey:query.params];
+    }
+    return [view isEmpty];
 }
 
 /**

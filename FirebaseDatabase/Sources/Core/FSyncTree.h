@@ -81,5 +81,7 @@
 - (id<FNode>)getServerValue:(FQuerySpec *)query;
 - (id<FNode>)calcCompleteEventCacheAtPath:(FPath *)path
                           excludeWriteIds:(NSArray *)writeIdsToExclude;
+- (NSNumber *)registerQuery:(FQuerySpec *)querySpec;
+- (void)unregisterQuery:(FQuerySpec *)querySpec;
 
 @end

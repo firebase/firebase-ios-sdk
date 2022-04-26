@@ -533,7 +533,7 @@
         }];
         return;
     }
-    [self.persistenceManager setQueryActive:querySpec];
+    NSNumber *tag = [self.serverSyncTree registerQuery:[query querySpec]];
     [self.connection
         getDataAtPath:[query.path toString]
            withParams:querySpec.params.wireProtocolParams
@@ -569,10 +569,19 @@
                }];
            } else {
                node = [FSnapshotUtilities nodeFrom:data];
-               [self.eventRaiser
-                   raiseEvents:[self.serverSyncTree
-                                   applyServerOverwriteAtPath:[query path]
-                                                      newData:node]];
+               if ([query.querySpec loadsAllData]) {
+                   [self.eventRaiser
+                       raiseEvents:[self.serverSyncTree
+                                       applyServerOverwriteAtPath:[query path]
+                                                          newData:node]];
+               } else {
+                   [self.eventRaiser
+                       raiseEvents:[self.serverSyncTree
+                                       applyTaggedQueryOverwriteAtPath:[query
+                                                                           path]
+                                                               newData:node
+                                                                 tagId:tag]];
+               }
                [self.eventRaiser raiseCallback:^{
                  block(
                      nil,

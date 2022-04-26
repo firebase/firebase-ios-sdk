@@ -164,6 +164,15 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
     return self;
 }
 
+- (NSNumber *)tagQuery:(FQuerySpec *)query {
+    NSAssert(self.queryToTagMap[query] == nil,
+             @"View does not exist, but we have a tag");
+    NSNumber *tagId = [self.queryTagCounter getAndIncrement];
+    self.queryToTagMap[query] = tagId;
+    self.tagToQueryMap[tagId] = query;
+    return tagId;
+}
+
 #pragma mark -
 #pragma mark Apply Operations
 
@@ -448,6 +457,42 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
     }
 }
 
+- (NSNumber *)registerQuery:(FQuerySpec *)query {
+    FPath *path = query.path;
+
+    __block BOOL foundAncestorDefaultView = NO;
+    [self.syncPointTree
+        forEachOnPath:query.path
+           whileBlock:^BOOL(FPath *pathToSyncPoint, FSyncPoint *syncPoint) {
+             foundAncestorDefaultView =
+                 foundAncestorDefaultView || [syncPoint hasCompleteView];
+             return !foundAncestorDefaultView;
+           }];
+
+    [self.persistenceManager setQueryActive:query];
+
+    FSyncPoint *syncPoint = [self.syncPointTree valueAtPath:path];
+    if (syncPoint == nil) {
+        syncPoint = [[FSyncPoint alloc]
+            initWithPersistenceManager:self.persistenceManager];
+        self.syncPointTree = [self.syncPointTree setValue:syncPoint
+                                                   atPath:path];
+    }
+    NSNumber *tag = nil;
+    BOOL viewAlreadyExists = [syncPoint viewExistsForQuery:query];
+    if (!viewAlreadyExists) {
+        FWriteTreeRef *writesCache =
+            [self.pendingWriteTree childWritesForPath:path];
+        FCacheNode *serverCache = [self serverCacheForQuery:query];
+        [syncPoint registerQuery:query
+                     writesCache:writesCache
+                     serverCache:serverCache];
+    } else if (![query loadsAllData]) {
+        tag = [self tagQuery:query];
+    }
+    return tag;
+}
+
 /**
  * Add an event callback for the specified query
  * @return NSArray of FEvent to raise.
@@ -573,6 +618,23 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
     }
 
     return serverCache;
+}
+
+- (void)unregisterQuery:(FQuerySpec *)query {
+    FPath *path = query.path;
+    FSyncPoint *maybeSyncPoint = [self.syncPointTree valueAtPath:path];
+
+    if (maybeSyncPoint &&
+        ([query isDefault] || [maybeSyncPoint viewExistsForQuery:query])) {
+        BOOL removed = [maybeSyncPoint unregisterQuery:query];
+        if ([maybeSyncPoint isEmpty]) {
+            self.syncPointTree = [self.syncPointTree removeValueAtPath:path];
+        }
+        if (removed) {
+            [self removeTags:@[ query ]];
+            [self.persistenceManager setQueryInactive:query];
+        }
+    }
 }
 
 /**

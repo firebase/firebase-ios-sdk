@@ -70,5 +70,9 @@
 - (BOOL)viewExistsForQuery:(FQuerySpec *)query;
 - (BOOL)hasCompleteView;
 - (FView *)completeView;
+- (void)registerQuery:(FQuerySpec *)query
+          writesCache:(FWriteTreeRef *)writesCache
+          serverCache:(FCacheNode *)serverCache;
+- (BOOL)unregisterQuery:(FQuerySpec *)query;
 
 @end
