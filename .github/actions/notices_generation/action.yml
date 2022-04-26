@@ -25,7 +25,6 @@ inputs:
   access_token:
     description: 'Token to create a pull request'
     required: false
-    default: false
 outputs:
   notices_contents:
     description: 'contents of notices'
