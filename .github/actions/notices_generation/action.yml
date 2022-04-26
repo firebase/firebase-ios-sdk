@@ -54,7 +54,7 @@ runs:
       #      name: notices
       #      path: "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
   - name: Create a pull request
-    if: ${{ inputs.create_pull_request == true }}
+    #if: ${{ inputs.create_pull_request == true }}
     run: |
       set -x
       cd "${{ github.action_path }}"
