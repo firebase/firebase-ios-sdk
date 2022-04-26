@@ -50,7 +50,7 @@ runs:
     uses: actions/upload-artifact@v3
     with:
       name: notices
-      path: .github/actions/notices_generation/NOTICES
+      path:  "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
   - name: Create a pull request
     if: ${{ inputs.create_pull_requet == true }}
     run: |
