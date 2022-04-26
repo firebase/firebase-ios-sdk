@@ -38,12 +38,13 @@ runs:
   - name: First step
     run: |
       cd "${{ github.action_path }}"
-      bundle install
-      if ${{ inputs.search_local_pod_version == 'true' }} ; then
-        ruby app.rb --pods ${{ inputs.pods }} --sources ${{ inputs.sources }} --min_ios_version ${{ inputs.min-ios-version }} --search_local_pod_version
-      else
-        ruby app.rb --pods ${{ inputs.pods }} --sources ${{ inputs.sources }} --min_ios_version ${{ inputs.min-ios-version }}
-      fi
+      #      bundle install
+      #      if ${{ inputs.search_local_pod_version == 'true' }} ; then
+      #        ruby app.rb --pods ${{ inputs.pods }} --sources ${{ inputs.sources }} --min_ios_version ${{ inputs.min-ios-version }} --search_local_pod_version
+      #      else
+      #        ruby app.rb --pods ${{ inputs.pods }} --sources ${{ inputs.sources }} --min_ios_version ${{ inputs.min-ios-version }}
+      #      fi
+      echo "Testing Notices" >> "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
     shell: bash
   - name: Upload artifacts
     uses: actions/upload-artifact@v3
