@@ -533,7 +533,7 @@
         }];
         return;
     }
-    NSNumber *tag = [self.serverSyncTree registerQuery:[query querySpec]];
+    NSNumber *tag = [self.serverSyncTree registerQuery:querySpec];
     [self.connection
         getDataAtPath:[query.path toString]
            withParams:querySpec.params.wireProtocolParams
@@ -561,6 +561,7 @@
                                            userInfo:errorDict],
                            nil);
                    }];
+                   [self.serverSyncTree unregisterQuery:[query querySpec]];
                    return;
                }
                [self.eventRaiser raiseCallback:^{
@@ -592,7 +593,7 @@
                                                        index:querySpec.index]]);
                }];
            }
-           [self.persistenceManager setQueryInactive:querySpec];
+           [self.serverSyncTree unregisterQuery:querySpec];
          }];
 }
 
