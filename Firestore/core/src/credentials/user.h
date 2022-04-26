@@ -70,6 +70,7 @@ class User {
   }
 #endif  // defined(__OBJC__)
 
+  User(const User& other) = default;
   User& operator=(const User& other) = default;
 
   friend bool operator==(const User& lhs, const User& rhs);
