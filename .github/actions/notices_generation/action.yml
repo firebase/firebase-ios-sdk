@@ -45,12 +45,13 @@ runs:
       #        ruby app.rb --pods ${{ inputs.pods }} --sources ${{ inputs.sources }} --min_ios_version ${{ inputs.min-ios-version }}
       #      fi
       echo "Testing Notices" >> "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
+      cat "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
     shell: bash
-  - name: Upload artifacts
-    uses: actions/upload-artifact@v3
-    with:
-      name: notices
-      path:  "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
+      #  - name: Upload artifacts
+      #    uses: actions/upload-artifact@v3
+      #    with:
+      #      name: notices
+      #      path: "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
   - name: Create a pull request
     if: ${{ inputs.create_pull_requet == true }}
     run: |
