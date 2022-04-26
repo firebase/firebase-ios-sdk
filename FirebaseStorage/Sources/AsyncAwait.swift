@@ -106,7 +106,8 @@ import Foundation
     ///   - maxResults The maximum number of results to return in a single page. Must be
     ///                greater than 0 and at most 1000.
     /// - Throws:
-    ///   - An error if the operation failed, for example if Storage was unreachable or the storage reference referenced an invalid path.
+    ///   - An error if the operation failed, for example if Storage was unreachable
+    ///   or the storage reference referenced an invalid path.
     /// - Returns:
     ///   - A `StorageListResult` containing the contents of the storage reference.
     func list(maxResults: Int64) async throws -> StorageListResult {
