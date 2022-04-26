@@ -28,7 +28,6 @@ ExternalProject_Add(
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
   GIT_REPOSITORY https://github.com/google/googletest.git
   GIT_TAG "${version}"
-  GIT_SHALLOW "ON"
 
   PREFIX ${PROJECT_BINARY_DIR}
 
