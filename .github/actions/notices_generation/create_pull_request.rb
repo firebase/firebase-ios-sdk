@@ -18,9 +18,7 @@ require 'octokit'
 require 'optparse'
 
 @options = {
-  repo_root: "./",
-    repo_token: "",
-    notices_path: "./",
+  repo_root: "./"
 }
 begin
   OptionParser.new do |opts|
@@ -30,10 +28,10 @@ begin
     opts.on('--notices-path', 'Path of NOTICES file') { |v| @options[:notices_path] = v }
   end.parse!
 
-  raise OptionParser::MissingArgument if @option[:repo_token].nil? || @option[:repo_token].nil?
+  raise OptionParser::MissingArgument if @options[:repo_token].nil? || @options[:notices_path].nil?
 rescue OptionParser::MissingArgument
-  puts "Notices path, `--notices-path`, should be specified. " if @option[:notices_path].nil?
-  puts "A token ,`--repo-token`, should be provided for creating a pull request." if @option[:repo_token].nil?
+  puts "Notices path, `--notices-path`, should be specified. " if @options[:notices_path].nil?
+  puts "A token ,`--repo-token`, should be provided for creating a pull request." if @options[:repo_token].nil?
   raise
 end
 
@@ -49,6 +47,7 @@ def generate_pr_for_notices_changes(repo_root:, notices_path:)
   `git push -u origin notices_diff_detected`
   client = Octokit::Client.new(access_token: ACCESS_TOKEN)
   client.create_pull_request("firebase/firebase-ios-sdk", "main", "notices_diff_detected", "Pull Request title", "Pull Request body")
+end
 
 
 def main()
