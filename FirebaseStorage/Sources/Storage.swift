@@ -171,7 +171,7 @@ import FirebaseAuthInterop
   }
 
   /**
-   * Configures the Storage SDK to use an emulated backend instead of the default remote backend. 
+   * Configures the Storage SDK to use an emulated backend instead of the default remote backend.
    * This method should be called before invoking any other methods on a new instance of `Storage`.
    */
   @objc open func useEmulator(withHost host: String, port: Int) {

@@ -17,7 +17,7 @@ import Foundation
 import FirebaseStorageInternal
 
 /**
- * An extended `StorageTask` providing observable semantics that can be used for responding to changes 
+ * An extended `StorageTask` providing observable semantics that can be used for responding to changes
  * in task state.
  * Observers produce a `StorageHandle`, which is used to keep track of and remove specific
  * observers at a later date.

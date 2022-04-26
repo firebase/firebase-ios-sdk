@@ -132,7 +132,7 @@ import Foundation
     ///                greater than 0 and at most 1000.
     ///   - pageToken A page token from a previous call to list.
     /// - Throws:
-    ///   - An error if the operation failed, for example if Storage was unreachable 
+    ///   - An error if the operation failed, for example if Storage was unreachable
     ///   or the storage reference referenced an invalid path.
     /// - Returns:
     ///   - completion A `Result` enum with either the list or an `Error`.
