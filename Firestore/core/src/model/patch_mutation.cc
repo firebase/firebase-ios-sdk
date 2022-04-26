@@ -95,11 +95,14 @@ void PatchMutation::Rep::ApplyToRemoteDocument(
       .SetHasCommittedMutations();
 }
 
-absl::optional<FieldMask> PatchMutation::Rep::ApplyToLocalView(MutableDocument& document, absl::optional<FieldMask>&& previous_mask, const Timestamp& local_write_time) const {
+absl::optional<FieldMask> PatchMutation::Rep::ApplyToLocalView(
+    MutableDocument& document,
+    absl::optional<FieldMask> previous_mask,
+    const Timestamp& local_write_time) const {
   VerifyKeyMatches(document);
 
   if (!precondition().IsValidFor(document)) {
-    return std::move(previous_mask);
+    return previous_mask;
   }
 
   ObjectValue& data = document.data();
@@ -108,24 +111,18 @@ absl::optional<FieldMask> PatchMutation::Rep::ApplyToLocalView(MutableDocument& 
   data.SetAll(std::move(transform_results));
   document.ConvertToFoundDocument(document.version()).SetHasLocalMutations();
 
-  if (! previous_mask.has_value()) {
+  if (!previous_mask.has_value()) {
     return absl::nullopt;
   }
 
-  std::set<FieldPath> merged_mask_set;
-  merged_mask_set.insert(previous_mask->begin(), previous_mask->end());
-  merged_mask_set.insert(mask_.begin(), mask_.end());
-  const std::vector<FieldPath> field_transform_paths = GetFieldTransformPaths();
-  merged_mask_set.insert(field_transform_paths.begin(), field_transform_paths.end());
-  return FieldMask(std::move(merged_mask_set));
-}
-
-std::vector<FieldPath> PatchMutation::Rep::GetFieldTransformPaths() const {
-  std::vector<FieldPath> result;
-  for (const FieldTransform& field_transform : field_transforms()) {
-    result.push_back(field_transform.path());
+  std::set<FieldPath> merged_set(previous_mask.value().begin(),
+                                 previous_mask.value().end());
+  merged_set.insert(mask_.begin(), mask_.end());
+  std::vector<FieldPath> transformed;
+  for (const auto& transform : this->field_transforms()) {
+    merged_set.insert(transform.path());
   }
-  return result;
+  return FieldMask{merged_set};
 }
 
 TransformMap PatchMutation::Rep::GetPatch() const {

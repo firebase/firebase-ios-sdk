@@ -56,15 +56,19 @@ void DeleteMutation::Rep::ApplyToRemoteDocument(
       .SetHasCommittedMutations();
 }
 
-absl::optional<FieldMask> DeleteMutation::Rep::ApplyToLocalView(MutableDocument& document, absl::optional<FieldMask>&& previous_mask, const Timestamp&) const {
+absl::optional<FieldMask> DeleteMutation::Rep::ApplyToLocalView(
+    MutableDocument& document,
+    absl::optional<FieldMask> previous_mask,
+    const Timestamp&) const {
   VerifyKeyMatches(document);
 
   if (precondition().IsValidFor(document)) {
-    document.ConvertToNoDocument(SnapshotVersion::None());
+    document.ConvertToNoDocument(SnapshotVersion::None())
+        .SetHasLocalMutations();
     return absl::nullopt;
   }
 
-  return std::move(previous_mask);
+  return previous_mask;
 }
 
 std::string DeleteMutation::Rep::ToString() const {

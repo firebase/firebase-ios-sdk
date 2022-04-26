@@ -372,6 +372,13 @@ model::PatchMutation PatchMutation(
     std::vector<std::pair<std::string, model::TransformOperation>> transforms =
         {});
 
+model::PatchMutation PatchMutation(
+    absl::string_view path,
+    nanopb::Message<google_firestore_v1_Value> values,
+    const std::vector<model::FieldPath>& update_mask,
+    std::vector<std::pair<std::string, model::TransformOperation>> transforms =
+        {});
+
 model::PatchMutation MergeMutation(
     absl::string_view path,
     nanopb::Message<google_firestore_v1_Value> values,

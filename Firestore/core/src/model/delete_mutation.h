@@ -56,7 +56,10 @@ class DeleteMutation : public Mutation {
         MutableDocument& document,
         const MutationResult& mutation_result) const override;
 
-    absl::optional<FieldMask> ApplyToLocalView(MutableDocument& document, absl::optional<FieldMask>&& previous_mask, const Timestamp&) const override;
+    absl::optional<FieldMask> ApplyToLocalView(
+        MutableDocument& document,
+        absl::optional<FieldMask> previous_mask,
+        const Timestamp&) const override;
 
     // Does not override Equals or Hash; Mutation's versions are sufficient.
 

@@ -112,7 +112,10 @@ class PatchMutation : public Mutation {
         MutableDocument& document,
         const MutationResult& mutation_result) const override;
 
-    absl::optional<FieldMask> ApplyToLocalView(MutableDocument& document, absl::optional<FieldMask>&& previous_mask, const Timestamp& local_write_time) const override;
+    absl::optional<FieldMask> ApplyToLocalView(
+        MutableDocument& document,
+        absl::optional<FieldMask> previous_mask,
+        const Timestamp& local_write_time) const override;
 
     bool Equals(const Mutation::Rep& other) const override;
 
@@ -121,8 +124,6 @@ class PatchMutation : public Mutation {
     std::string ToString() const override;
 
    private:
-    std::vector<FieldPath> GetFieldTransformPaths() const;
-
     ObjectValue value_;
     FieldMask mask_;
   };

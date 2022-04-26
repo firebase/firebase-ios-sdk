@@ -43,7 +43,11 @@ void VerifyMutation::Rep::ApplyToRemoteDocument(MutableDocument&,
   HARD_FAIL("VerifyMutation should only be used in Transactions.");
 }
 
-absl::optional<FieldMask> VerifyMutation::Rep::ApplyToLocalView(MutableDocument&, absl::optional<FieldMask>&&, const Timestamp&) const {
+absl::optional<FieldMask> VerifyMutation::Rep::ApplyToLocalView(
+    MutableDocument&,
+    absl::optional<FieldMask> previous_mask,
+    const Timestamp&) const {
+  (void)previous_mask;
   HARD_FAIL("VerifyMutation should only be used in Transactions.");
 }
 

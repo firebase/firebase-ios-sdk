@@ -90,7 +90,9 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
 
   // MARK: - HeartbeatStorageProtocol
 
-  // TODO: Document.
+  /// Synchronously reads from and writes to storage using the given transform block.
+  /// - Parameter transform: A block to transform the currently stored heartbeats bundle to a new
+  /// heartbeats bundle value.
   func readAndWriteSync(using transform: (HeartbeatsBundle?) -> HeartbeatsBundle?) {
     queue.sync {
       let oldHeartbeatsBundle = try? load(from: storage)

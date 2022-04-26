@@ -81,22 +81,23 @@ void SetMutation::Rep::ApplyToRemoteDocument(
       .SetHasCommittedMutations();
 }
 
-absl::optional<FieldMask> SetMutation::Rep::ApplyToLocalView(MutableDocument& document, absl::optional<FieldMask>&& previous_mask, const Timestamp& local_write_time) const {
+absl::optional<FieldMask> SetMutation::Rep::ApplyToLocalView(
+    MutableDocument& document,
+    absl::optional<FieldMask> previous_mask,
+    const Timestamp& local_write_time) const {
   VerifyKeyMatches(document);
 
   if (!precondition().IsValidFor(document)) {
-    return std::move(previous_mask);
+    return previous_mask;
   }
 
   auto transform_results =
       LocalTransformResults(document.data(), local_write_time);
   ObjectValue new_data{DeepClone(value_.Get())};
   new_data.SetAll(std::move(transform_results));
-  document
-      .ConvertToFoundDocument(GetPostMutationVersion(document),
-                              std::move(new_data))
+  document.ConvertToFoundDocument(document.version(), std::move(new_data))
       .SetHasLocalMutations();
-  // SetMutation overwrites all fields.
+
   return absl::nullopt;
 }
 
