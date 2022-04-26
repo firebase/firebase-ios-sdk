@@ -35,7 +35,7 @@ runs:
   - uses: ruby/setup-ruby@v1
     with:
       ruby-version: "2.7"
-  - name: First step
+  - name: Generate a NOTICES file
     run: |
       cd "${{ github.action_path }}"
       #      bundle install
@@ -44,7 +44,8 @@ runs:
       #      else
       #        ruby app.rb --pods ${{ inputs.pods }} --sources ${{ inputs.sources }} --min_ios_version ${{ inputs.min-ios-version }}
       #      fi
-      echo "Testing Notices" >> "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
+      echo "${GITHUB_WORKSPACE}"
+      echo "Testing Notices" > "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
       cat "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
     shell: bash
       #  - name: Upload artifacts
@@ -53,8 +54,9 @@ runs:
       #      name: notices
       #      path: "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
   - name: Create a pull request
-    if: ${{ inputs.create_pull_requet == true }}
+    if: ${{ inputs.create_pull_request == true }}
     run: |
+      set -x
       cd "${{ github.action_path }}"
       ruby create_pull_request.rb --repo-root ${GITHUB_WORKSPACE} --repo-token ${{ inputs.access_token }} --notices-path  "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
     shell: bash
