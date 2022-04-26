@@ -55,4 +55,5 @@ runs:
     run: |
       cd "${{ github.action_path }}"
       ruby create_pull_request.rb --repo-root ${GITHUB_WORKSPACE} --repo-token ${{ inputs.access_token }} --notices-path  "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
+    shell: bash
 
