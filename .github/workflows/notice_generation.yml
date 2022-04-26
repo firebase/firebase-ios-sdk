@@ -33,5 +33,3 @@ jobs:
         search_local_pod_version: true
         create_pull_request: true
         access_token:  '${{ secrets.GITHUB_TOKEN }}'
-        notices_path:  "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
-
