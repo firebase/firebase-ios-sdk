@@ -40,6 +40,7 @@ ACCESS_TOKEN=@options[:repo_token]
 NOTICES_PATH=@options[:notices_path]
 
 def generate_pr_for_notices_changes(repo_root:, notices_path:)
+  puts @options
   `cd #{repo_root}`
   `git clone -q https://"${ACCESS_TOKEN}"@github.com/firebase/firebase-ios-sdk.git "temp"`
   `cp #{NOTICES_PATH} temp/CoreOnly/NOTICES`
