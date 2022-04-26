@@ -56,7 +56,8 @@ import FirebaseAuthInterop
 
   /**
    * Creates an instance of `Storage`, configured with a custom `FirebaseApp`. `StorageReference`s
-   * generated from a resulting instance will reference files in the Firebase project associated with the custom `FirebaseApp`.
+   * generated from a resulting instance will reference files in the Firebase project
+   * associated with custom `FirebaseApp`.
    * - Parameter app The custom `FirebaseApp` used for initialization.
    * - Returns: A `Storage` instance, configured with the custom `FirebaseApp`.
    */
