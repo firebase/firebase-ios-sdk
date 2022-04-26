@@ -82,7 +82,8 @@ import Foundation
     /// - Parameters:
     ///   - fileUrl: A URL representing the system file path of the object to be uploaded.
     /// - Throws:
-    ///   - An error if the operation failed, for example if Storage was unreachable or `fileURL` did not reference a valid path on disk.
+    ///   - An error if the operation failed, for example if Storage was unreachable
+    ///   or `fileURL` did not reference a valid path on disk.
     /// - Returns: A `URL` pointing to the file path of the downloaded file.
     func writeAsync(toFile fileURL: URL) async throws -> URL {
       return try await withCheckedThrowingContinuation { continuation in
