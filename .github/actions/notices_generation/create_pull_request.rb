@@ -23,9 +23,9 @@ require 'optparse'
 begin
   OptionParser.new do |opts|
     opts.banner = "Usage: create_pull_request.rb [options]"
-    opts.on('-r', '--repo-root', 'Root path of the repo dir.') { |v| @options[:repo_root] = v }
-    opts.on('-t', '--repo-token', 'Token with write access') { |v| @options[:repo_token] = v }
-    opts.on('-n', '--notices-path', 'Path of NOTICES file') { |v| @options[:notices_path] = v }
+    opts.on('-r', '--repo-root REPO_ROOT', 'Root path of the repo dir.') { |v| @options[:repo_root] = v }
+    opts.on('-t', '--repo-token REPO_TOKEN', 'Token with write access') { |v| @options[:repo_token] = v }
+    opts.on('-n', '--notices-path NOTICES_PATH', 'Path of NOTICES file') { |v| @options[:notices_path] = v }
   end.parse!
 
   raise OptionParser::MissingArgument if @options[:repo_token].nil? || @options[:notices_path].nil?
