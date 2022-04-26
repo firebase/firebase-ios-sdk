@@ -27,7 +27,7 @@ import FirebaseStorageInternal
   /**
    * Observes changes in the upload status: Resume, Pause, Progress, Success, and Failure.
    * - Parameters:
-   *   - status: The StorageTaskStatus change to observe.
+   *   - status: The `StorageTaskStatus` change to observe.
    *   - handler: A callback that fires every time the status event occurs,
    *        containing a `StorageTaskSnapshot` describing task state.
    * - Returns: A task handle that can be used to remove the observer at a later date.
