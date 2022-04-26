@@ -19,8 +19,8 @@ require 'optparse'
 
 @options = {
   repo_root: "./",
-    repo_token: ,
-    notices_path: ,
+    repo_token: "",
+    notices_path: "./",
 }
 begin
   OptionParser.new do |opts|
