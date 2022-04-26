@@ -89,6 +89,13 @@ void VerifyOverlayRoundTrips(const MutableDocument& doc,
       << GetDescription(doc, mutations, overlay);
 }
 
+/**
+ * For each document in `docs`, calculate the overlay mutations of each
+ * possible permutation, check whether this holds:
+ * document + overlay_mutation = document + mutation_list
+ *
+ * Returns how many cases it has run.
+ */
 int RunPermutationTests(std::vector<MutableDocument> docs,
                         std::vector<Mutation> mutations) {
   int test_cases = 0;
@@ -110,6 +117,12 @@ int RunPermutationTests(std::vector<MutableDocument> docs,
   return test_cases;
 }
 
+/**
+ * Given a vector of `Mutation`s, returns all possible combinations by picking
+ * `size` number of mutations from that vector.
+ *
+ * See: https://stackoverflow.com/questions/9430568/generating-combinations-in-c
+ */
 std::vector<std::vector<Mutation>> Combinations(std::vector<Mutation> mutations,
                                                 size_t size) {
   std::vector<bool> v(mutations.size());
