@@ -149,7 +149,7 @@ NSString *const kTestPassword = KPASSWORD;
   XCTAssertEqual(storage1, storage2);
 }
 
-- (void)testDiffferentInstance {
+- (void)testDifferentInstance {
   FIRStorage *storage1 = [FIRStorage storageForApp:self.app];
   FIRStorage *storage2 = [FIRStorage storageForApp:self.app URL:@"gs://foo-bar.appspot.com"];
   XCTAssertNotEqual(storage1, storage2);
@@ -169,6 +169,22 @@ NSString *const kTestPassword = KPASSWORD;
   [ref metadataWithCompletion:^(FIRStorageMetadata *metadata, NSError *error) {
     XCTAssertNotNil(metadata, "Metadata should not be nil");
     XCTAssertNil(error, "Error should be nil");
+    [expectation fulfill];
+  }];
+
+  [self waitForExpectations];
+}
+
+- (void)testCopyMetadata {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testGetMetadata"];
+  FIRStorageReference *ref = [self.storage.reference child:@"ios/public/1mb"];
+
+  [ref metadataWithCompletion:^(FIRStorageMetadata *metadata, NSError *error) {
+    XCTAssertNotNil(metadata, "Metadata should not be nil");
+    XCTAssertNil(error, "Error should be nil");
+    FIRStorageMetadata *metadata2 = metadata.copy;
+    XCTAssertNotEqual(metadata, metadata2);
+    XCTAssertEqualObjects(metadata, metadata2);
     [expectation fulfill];
   }];
 
@@ -823,6 +839,25 @@ NSString *const kTestPassword = KPASSWORD;
     XCTAssertNotNil(listResult);
     XCTAssertNil(error);
     XCTAssertNil(listResult.pageToken);
+    [expectation fulfill];
+  }];
+
+  [self waitForExpectations];
+}
+
+- (void)testCopyListResult {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testCopyListResult"];
+
+  FIRStorageReference *ref = [self.storage referenceWithPath:@""];
+
+  [ref listAllWithCompletion:^(FIRStorageListResult *_Nullable listResult,
+                               NSError *_Nullable error) {
+    XCTAssertNotNil(listResult);
+    XCTAssertNil(error);
+    XCTAssertNil(listResult.pageToken);
+    FIRStorageListResult *listResult2 = listResult.copy;
+    XCTAssertEqual(listResult.pageToken, listResult2.pageToken);
+    XCTAssertNotEqual(listResult, listResult2);
     [expectation fulfill];
   }];
 

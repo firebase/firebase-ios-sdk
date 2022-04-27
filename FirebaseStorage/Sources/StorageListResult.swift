@@ -40,7 +40,18 @@ import FirebaseStorageInternal
    */
   @objc public let pageToken: String?
 
+  // MARK: - NSObject overrides
+
+  @objc override open func copy() -> Any {
+    return StorageListResult(impl.copy() as! FIRIMPLStorageListResult)
+  }
+
+  // MARK: - Internal APIs
+
+  internal let impl: FIRIMPLStorageListResult
+
   internal init(_ impl: FIRIMPLStorageListResult) {
+    self.impl = impl
     prefixes = impl.prefixes.map { StorageReference($0) }
     items = impl.items.map { StorageReference($0) }
     pageToken = impl.pageToken
