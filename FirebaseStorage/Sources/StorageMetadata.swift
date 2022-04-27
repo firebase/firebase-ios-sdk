@@ -182,6 +182,27 @@ import FirebaseStorageInternal
     self.init(impl: FIRIMPLStorageMetadata(dictionary: dictionary)!)
   }
 
+  // MARK: - NSObject overrides
+
+  @objc override open func copy() -> Any {
+    return StorageMetadata(impl: impl.copy() as! FIRIMPLStorageMetadata)
+  }
+
+  @objc override open func isEqual(_ object: Any?) -> Bool {
+    guard let ref = object as? StorageMetadata else {
+      return false
+    }
+    return impl.isEqual(ref.impl)
+  }
+
+  @objc override public var hash: Int {
+    return impl.hash
+  }
+
+  @objc override public var description: String {
+    return impl.description
+  }
+
   // MARK: - Internal APIs
 
   internal let impl: FIRIMPLStorageMetadata
