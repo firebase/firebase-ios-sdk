@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,33 +12,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Sets up a Python interpreter, installing required dependencies.
+# Sets up an isolated Python interpreter, installing required dependencies.
 #
 # This function does the following:
-# 1. Uses the best-available built-in cmake mechanism to find a Python
-#      interpreter (a.k.a. the "host" interpreter).
+# 1. Finds a Python interpreter using the best-available built-in cmake
+#      mechanism do do so. This is referred to as the "host" interpreter.
 # 2. Creates a Python virtualenv in the cmake binary directory using the
-#      Python interpreter found in the previous step.
+#      host Python interpreter found in the previous step.
 # 3. Locates the Python interpreter in the virtualenv and sets its path in
-#      the specified variable.
-# 4. Runs pip install to install the required dependencies in the virtualenv.
+#      the specified OUTVAR variable.
+# 4. Runs `pip install` to install the specified required dependencies, if any,
+#      in the virtualenv.
 #
 # This function also writes "stamp files" into the virtualenv. These files
 # are used to determine if the virtualenv is up-to-date from a previous cmake
-# run or if it needs to be recreated from scratch.
+# run or if it needs to be recreated from scratch. It will simply be re-used if
+# possible.
 #
-# If any errors are detected (e.g. cannot install one of the given requirements)
-# then a fatal error is logged, causing the cmake processing to terminate.
+# If any errors occur (e.g. cannot install one of the given requirements) then a
+# fatal error is logged, causing the cmake processing to terminate.
+#
+# See https://docs.python.org/3/library/venv.html for details about virtualenv.
 #
 # Arguments:
 #   OUTVAR - The name of the variable into which to store the path of the
 #     Python executable from the virtualenv.
 #   KEY - A unique key to ensure isolation from other Python virtualenv
-#     environments created by this function. This value will be used in the
-#     path of the virtualenv on the file system and in the name of the cmake
-#     cache variable that stores its path.
+#     environments created by this function. This value will be incorporated
+#     into the path of the virtualenv and incorporated into the name of the
+#     cmake cache variable that stores its path.
 #   REQUIREMENTS - (Optional) A list of Python packages to install in the
-#     virtualenv using pip.
+#     virtualenv. These will be given as arguments to `pip install`.
 #
 # Example:
 #   include(python_setup)
@@ -64,13 +68,13 @@ function(FirebaseSetupPythonInterpreter)
     message(FATAL_ERROR "KEY must be specified to ${CMAKE_CURRENT_FUNCTION}")
   endif()
 
-  # Calculate the name of the cmake cache variable where to store the
-  # Python interpreter path.
+  # Calculate the name of the cmake *cache* variable into which to store the
+  # path of the Python interpreter from the virtualenv.
   set(CACHEVAR "FIREBASE_PYTHON_EXECUTABLE_${ARG_KEY}")
 
   set(LOG_PREFIX "${CMAKE_CURRENT_FUNCTION}(${ARG_KEY})")
 
-  # Find a Python interpreter using the best available mechanism.
+  # Find a "host" Python interpreter using the best available mechanism.
   if(${CMAKE_VERSION} VERSION_LESS "3.12")
     include(FindPythonInterp)
     set(DEFAULT_PYTHON_HOST_EXECUTABLE "${PYTHON_EXECUTABLE}")
@@ -79,7 +83,7 @@ function(FirebaseSetupPythonInterpreter)
     set(DEFAULT_PYTHON_HOST_EXECUTABLE "${Python3_EXECUTABLE}")
   endif()
 
-  # Get the Python interpreter on the host system to use.
+  # Get the host Python interpreter on the host system to use.
   set(
     FIREBASE_PYTHON_HOST_EXECUTABLE
     "${DEFAULT_PYTHON_HOST_EXECUTABLE}"
@@ -87,17 +91,15 @@ function(FirebaseSetupPythonInterpreter)
     "The Python interpreter on the host system to use"
   )
 
-  # Create a virtualenv into which to install Python's dependencies.
-  # https://docs.python.org/3/library/venv.html
+  # Check if the virtualenv is already up-to-date by examining the contents of
+  # its stamp files. The stamp files store the path of the host Python
+  # interpreter and the dependencies that were installed by pip. If both of
+  # these files exist and contain the same Python interpreter and dependencies
+  # then just re-use the virtualenv; otherwise, re-create it.
   set(PYVENV_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/pyvenv/${ARG_KEY}")
   set(STAMP_FILE1 "${PYVENV_DIRECTORY}/cmake_firebase_python_stamp1.txt")
   set(STAMP_FILE2 "${PYVENV_DIRECTORY}/cmake_firebase_python_stamp2.txt")
 
-  # Check if the virtualenv is already up-to-date by examining the contents of
-  # the stamp files. The stamp files store the path of the host Python
-  # interpreter and the dependencies that were installed by pip. If both of
-  # these files exist and contain the same Python interpreter and dependencies
-  # then just re-use the virtualenv; otherwise, re-create it.
   if(EXISTS "${STAMP_FILE1}" AND EXISTS "${STAMP_FILE2}")
     file(READ "${STAMP_FILE1}" STAMP_FILE1_CONTENTS)
     file(READ "${STAMP_FILE2}" STAMP_FILE2_CONTENTS)

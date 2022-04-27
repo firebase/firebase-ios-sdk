@@ -99,15 +99,14 @@ class IndexManager {
    * `nullopt` if no index is configured.
    */
   virtual absl::optional<model::FieldIndex> GetFieldIndex(
-      core::Target target) = 0;
+      const core::Target& target) = 0;
 
   /**
    * Returns the documents that match the given target based on the provided
    * index, or `nullopt` if the query cannot be served from an index.
    */
   virtual absl::optional<std::vector<model::DocumentKey>>
-  GetDocumentsMatchingTarget(model::FieldIndex fieldIndex,
-                             core::Target target) = 0;
+  GetDocumentsMatchingTarget(const core::Target& target) = 0;
 
   /**
    * Returns the next collection group to update. Returns `nullopt` if no

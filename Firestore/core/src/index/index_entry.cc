@@ -36,6 +36,23 @@ util::ComparisonResult IndexEntry::CompareTo(const IndexEntry& rhs) const {
   return util::Compare(array_value(), rhs.array_value());
 }
 
+IndexEntry IndexEntry::Successor() const {
+  size_t current_length = directional_value_.size();
+  size_t new_length =
+      current_length == 0 || directional_value_[current_length - 1] == '\xff'
+          ? current_length + 1
+          : current_length;
+
+  std::string successor(directional_value_);
+  if (new_length != current_length) {
+    successor.push_back('\0');
+  } else {
+    ++(*successor.rbegin());
+  }
+
+  return {index_id(), document_key(), array_value(), successor};
+}
+
 std::string IndexEntry::ToString() const {
   return absl::StrCat("IndexEntry(", index_id(), ":", document_key().ToString(),
                       " dir_val:", directional_value(),

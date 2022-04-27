@@ -51,5 +51,4 @@ iOS SDK for App Distribution for Firebase.
    unit_tests.dependency 'OCMock'
   end
 
-  # end
 end

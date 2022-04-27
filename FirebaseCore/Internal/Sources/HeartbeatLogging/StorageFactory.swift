@@ -32,7 +32,10 @@ extension FileStorage: StorageFactory {
   static func makeStorage(id: String) -> Storage {
     let rootDirectory = FileManager.default.applicationSupportDirectory
     let heartbeatDirectoryPath = Constants.heartbeatFileStorageDirectoryPath
-    let heartbeatFilePath = "heartbeats-\(id)"
+
+    // Sanitize the `id` so the heartbeat file name does not include a ":".
+    let sanitizedID = id.replacingOccurrences(of: ":", with: "_")
+    let heartbeatFilePath = "heartbeats-\(sanitizedID)"
 
     let storageURL = rootDirectory
       .appendingPathComponent(heartbeatDirectoryPath, isDirectory: true)
