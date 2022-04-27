@@ -53,6 +53,8 @@ class StorageMetadataTests: XCTestCase {
     ]
     let metadata0 = StorageMetadata(dictionary: metaDict)
     let metadata1 = metadata0.copy() as? StorageMetadata
+    // Verify that copied object has a new reference.
+    XCTAssertFalse(metadata0 === metadata1)
     XCTAssertEqual(metadata0, metadata1)
   }
 }

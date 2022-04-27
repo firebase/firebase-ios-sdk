@@ -857,6 +857,7 @@ NSString *const kTestPassword = KPASSWORD;
     XCTAssertNil(listResult.pageToken);
     FIRStorageListResult *listResult2 = listResult.copy;
     XCTAssertEqual(listResult.pageToken, listResult2.pageToken);
+    XCTAssertNotEqual(listResult, listResult2);
     [expectation fulfill];
   }];
 
