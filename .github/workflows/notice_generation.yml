@@ -3,7 +3,7 @@ name: generate_notices
 on:
   pull_request:
     paths:
-    - '.github/workflows/testing_actions.yml'
+    - '.github/workflows/notice_generation.yml'
     - '.github/actions/notices_generation**'
 jobs:
   generate_a_notice:
