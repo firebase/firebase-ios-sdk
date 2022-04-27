@@ -53,7 +53,7 @@ import FirebaseStorageInternal
    * Pauses a task currently in progress.
    */
   @objc open func resume() {
-    (impl as! FIRIMPLStorageDownloadTask).resume()
+    (impl as! FIRIMPLStorageUploadTask).resume()
   }
 
   internal init(_ impl: FIRIMPLStorageUploadTask) {
