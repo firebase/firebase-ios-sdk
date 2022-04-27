@@ -38,7 +38,7 @@ To integrate a Firebase SDK with your app:
    box that appears, make sure the target you want this framework to be added to
    has a checkmark next to it, and that you've selected "Copy items if needed."
 
-   > ⚠ Do not add the Firebase frameworks to the "Embed Frameworks" Xcode build
+   > ⚠ Do not add the Firebase frameworks to the **Embed Frameworks** Xcode build
    > phase. The Firebase frameworks are not embedded dynamic frameworks, but are
    > [static frameworks](https://www.raywenderlich.com/65964/create-a-framework-for-ios)
    > which cannot be embedded into your application's bundle.
