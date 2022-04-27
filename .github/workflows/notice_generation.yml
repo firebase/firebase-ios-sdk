@@ -11,6 +11,8 @@ jobs:
     if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name != 'schedule'
     runs-on: macos-11
     name: Generate NOTICES
+    env: 
+      NOTICES_PATH:   "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
     steps:
     - uses: actions/checkout@v2
     - name: Get all pod names
@@ -30,6 +32,10 @@ jobs:
         pods: ${{ env.PODS }}
         sources: "https://github.com/firebase/SpecsTesting,https://github.com/firebase/SpecsStaging,https://cdn.cocoapods.org"
         min-ios-version: "13.0"
-        search_local_pod_version: true
-        create_pull_request: true
-        access_token:  '${{ secrets.GITHUB_TOKEN }}'
+        search-local-pod-version: true
+        notices-path:  "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
+  - name: Create a pull request
+    run: |
+      cd "${GITHUB_WORKSPACE}/scripts/"
+      ruby create_pull_request.rb --repo-root ${GITHUB_WORKSPACE} --repo-token ${{ secrets.GITHUB_TOKEN }} --notices-path  "${NOTICES_PATH}"
+    shell: bash

@@ -27,7 +27,7 @@ DEFAULT_TESTAPP_TARGET = "testApp"
 # Default sources of min iOS version
 SOURCES=["https://cdn.cocoapods.org/"]
 MIN_IOS_VERSION="12.0"
-NOTICES_OUTPUT_PATH="./NOTICES"
+NOTICES_OUTPUT_PATH="./CoreOnly/NOTICES"
 SEARCH_LOCAL_POD_VERSION=false
 
 @options = {
@@ -42,8 +42,8 @@ begin
     opts.on('-p', '--pods PODS', 'Pods seperated by space or comma.') { |v| @options[:pods] = v.split(/[ ,]/) }
     opts.on('-s', '--sources SOURCES', 'Sources of Pods') { |v| @options[:sources] = v.split(/[ ,]/) }
     opts.on('-m', '--min_ios_version MIN_IOS_VERSION', 'Minimum iOS version') { |v| @options[:min_ios_version] = v }
-    opts.on('-n', '--output_path OUTPUT_PATH', 'The output path of NOTICES') { |v| @options[:output_path] = v }
-    opts.on('-v', '--search-local-pod-version', 'Attach the latest pod version to a pod in Podfile') { |v| @options[:search_local_pod_version] = true }
+    opts.on('-n', '--notices_path OUTPUT_PATH', 'The output path of NOTICES') { |v| @options[:output_path] = v }
+    opts.on('-v', '--search_local_pod_version', 'Attach the latest pod version to a pod in Podfile') { |v| @options[:search_local_pod_version] = true }
   end.parse!
 
   raise OptionParser::MissingArgument if @options[:pods].nil?

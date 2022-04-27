@@ -12,19 +12,14 @@ inputs:
     description: 'The minimum version of iOS'
     required: true
     default: '10.0'
-  search_local_pod_version:
+  search-local-pod-version:
     description: 'Add pod version from local spec repo'
     required: true
     default: false
     type: boolean
-  create_pull_request:
-    description: 'Create a pull request if NOTICES get changed.'
-    required: false
-    default: false
-    type: boolean
-  access_token:
-    description: 'Token to create a pull request'
-    required: false
+  notices-path:
+    description: 'Path of Notices file containing all licences.'
+    required: true
 outputs:
   notices_contents:
     description: 'contents of notices'
@@ -38,24 +33,21 @@ runs:
     run: |
       cd "${{ github.action_path }}"
       bundle install
-      #      if ${{ inputs.search_local_pod_version == 'true' }} ; then
-      #        ruby app.rb --pods ${{ inputs.pods }} --sources ${{ inputs.sources }} --min_ios_version ${{ inputs.min-ios-version }} --search_local_pod_version
-      #      else
-      #        ruby app.rb --pods ${{ inputs.pods }} --sources ${{ inputs.sources }} --min_ios_version ${{ inputs.min-ios-version }}
-      #      fi
-      echo "${GITHUB_WORKSPACE}"
-      echo "Testing Notices" > "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
-      cat "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
+      if ${{ inputs.search-local-pod-version == 'true' }} ; then
+        ruby app.rb --pods ${{ inputs.pods }} --sources ${{ inputs.sources }} --min_ios_version ${{ inputs.min-ios-version }} --search_local_pod_version --notices_path ${{ inputs.notices-path }}
+      else
+        ruby app.rb --pods ${{ inputs.pods }} --sources ${{ inputs.sources }} --min_ios_version ${{ inputs.min-ios-version }} --notices_path ${{ inputs.notices-path }}
+
+      fi
     shell: bash
-      #  - name: Upload artifacts
-      #    uses: actions/upload-artifact@v3
-      #    with:
-      #      name: notices
-      #      path: "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
+  - name: Upload artifacts
+    uses: actions/upload-artifact@v3
+    with:
+      name: notices
+      path: "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
   - name: Create a pull request
-    #if: ${{ inputs.create_pull_request == true }}
+    if: ${{ inputs.create_pull_request == true }}
     run: |
-      set -x
       cd "${{ github.action_path }}"
       ruby create_pull_request.rb --repo-root ${GITHUB_WORKSPACE} --repo-token ${{ inputs.access_token }} --notices-path  "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
     shell: bash
