@@ -190,7 +190,7 @@ void RemoteStore::StopListening(TargetId target_id) {
 }
 
 void RemoteStore::SendWatchRequest(const TargetData& target_data) {
-  // We need to increment the the expected number of pending responses we're due
+  // We need to increment the expected number of pending responses we're due
   // from watch so we wait for the ack to process any messages from this target.
   watch_change_aggregator_->RecordPendingTargetRequest(target_data.target_id());
   watch_stream_->WatchQuery(target_data);
