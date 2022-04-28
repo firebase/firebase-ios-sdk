@@ -33,9 +33,8 @@ jobs:
         sources: "https://github.com/firebase/SpecsTesting,https://github.com/firebase/SpecsStaging,https://cdn.cocoapods.org"
         min-ios-version: "13.0"
         search-local-pod-version: true
-        notices-path:  "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
+        notices-path: "${NOTICES_PATH}"
     - name: Create a pull request
       run: |
-        cd "${GITHUB_WORKSPACE}/scripts/"
         ruby create_pull_request.rb --repo-root ${GITHUB_WORKSPACE} --repo-token ${{ secrets.GITHUB_TOKEN }} --notices-path  "${NOTICES_PATH}"
       shell: bash
