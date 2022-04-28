@@ -37,7 +37,6 @@ runs:
         ruby app.rb --pods ${{ inputs.pods }} --sources ${{ inputs.sources }} --min_ios_version ${{ inputs.min-ios-version }} --search_local_pod_version --notices_path ${{ inputs.notices-path }}
       else
         ruby app.rb --pods ${{ inputs.pods }} --sources ${{ inputs.sources }} --min_ios_version ${{ inputs.min-ios-version }} --notices_path ${{ inputs.notices-path }}
-
       fi
     shell: bash
   - name: Upload artifacts
@@ -50,5 +49,4 @@ runs:
     run: |
       cd "${{ github.action_path }}"
       ruby create_pull_request.rb --repo-root ${GITHUB_WORKSPACE} --repo-token ${{ inputs.access_token }} --notices-path  "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
-    shell: bash
-
+    shell: bas

@@ -228,7 +228,7 @@ bool Query::MatchesPathAndCollectionGroup(const Document& doc) const {
   if (collection_group_) {
     // NOTE: path_ is currently always empty since we don't expose Collection
     // Group queries rooted at a document path yet.
-    return doc->key().HasCollectionId(*collection_group_) &&
+    return doc->key().HasCollectionGroup(*collection_group_) &&
            path_.IsPrefixOf(doc_path);
   } else if (DocumentKey::IsDocumentKey(path_)) {
     // Exact match for document queries.
@@ -325,11 +325,11 @@ const Target& Query::ToTarget() const& {
       // We need to swap the cursors to match the now-flipped query ordering.
       auto new_start_at = end_at_
                               ? absl::optional<Bound>{Bound::FromValue(
-                                    end_at_->position(), !end_at_->inclusive())}
+                                    end_at_->position(), end_at_->inclusive())}
                               : absl::nullopt;
       auto new_end_at =
           start_at_ ? absl::optional<Bound>{Bound::FromValue(
-                          start_at_->position(), !start_at_->inclusive())}
+                          start_at_->position(), start_at_->inclusive())}
                     : absl::nullopt;
 
       Target target(path(), collection_group(), filters(), new_order_bys,

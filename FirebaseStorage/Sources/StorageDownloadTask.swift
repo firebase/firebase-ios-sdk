@@ -17,13 +17,13 @@ import Foundation
 import FirebaseStorageInternal
 
 /**
- * StorageDownloadTask implements resumable downloads from an object in Firebase Storage.
+ * `StorageDownloadTask` implements resumable downloads from an object in Firebase Storage.
  * Downloads can be returned on completion with a completion handler, and can be monitored
- * by attaching observers, or controlled by calling StorageTask#pause, StorageTask#resume,
- * or FIRIMPLStorageTask#cancel.
- * Downloads can currently be returned as Data in memory, or as an URL to a file on disk.
+ * by attaching observers, or controlled by calling `pause()`, `resume()`,
+ * or `cancel()`.
+ * Downloads can currently be returned as `Data` in memory, or as a `URL` to a file on disk.
  * Downloads are performed on a background queue, and callbacks are raised on the developer
- * specified callbackQueue in Storage, or the main queue if left unspecified.
+ * specified `callbackQueue` in Storage, or the main queue if left unspecified.
  * Currently all uploads must be initiated and managed on the main queue.
  */
 @objc(FIRStorageDownloadTask) open class StorageDownloadTask: StorageObservableTask,
@@ -36,21 +36,21 @@ import FirebaseStorageInternal
   }
 
   /**
-   * Pauses a task currently in progress.
+   * Pauses a task currently in progress. Calling this on a paused task has no effect.
    */
   @objc open func pause() {
     (impl as! FIRIMPLStorageDownloadTask).pause()
   }
 
   /**
-   * Pauses a task currently in progress.
+   * Cancels a task.
    */
   @objc open func cancel() {
     (impl as! FIRIMPLStorageDownloadTask).cancel()
   }
 
   /**
-   * Pauses a task currently in progress.
+   * Resumes a paused task. Calling this on a running task has no effect.
    */
   @objc open func resume() {
     (impl as! FIRIMPLStorageDownloadTask).resume()

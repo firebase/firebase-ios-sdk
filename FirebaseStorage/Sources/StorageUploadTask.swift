@@ -17,13 +17,13 @@ import Foundation
 import FirebaseStorageInternal
 
 /**
- * StorageUploadTask implements resumable uploads to a file in Firebase Storage.
+ * `StorageUploadTask` implements resumable uploads to a file in Firebase Storage.
  * Uploads can be returned on completion with a completion callback, and can be monitored
- * by attaching observers, or controlled by calling StorageTask#pause, StorageTask#resume,
- * or StorageTask#cancel.
- * Uploads can takeData in memory, or an URL to a file on disk.
+ * by attaching observers, or controlled by calling `pause()`, `resume()`,
+ * or `cancel()`.
+ * Uploads can be initialized from `Data` in memory, or a URL to a file on disk.
  * Uploads are performed on a background queue, and callbacks are raised on the developer
- * specified callbackQueue in Storage, or the main queue if left unspecified.
+ * specified `callbackQueue` in Storage, or the main queue if unspecified.
  * Currently all uploads must be initiated and managed on the main queue.
  */
 @objc(FIRStorageUploadTask) open class StorageUploadTask: StorageObservableTask,
@@ -43,17 +43,17 @@ import FirebaseStorageInternal
   }
 
   /**
-   * Pauses a task currently in progress.
+   * Cancels a task.
    */
   @objc open func cancel() {
     (impl as! FIRIMPLStorageUploadTask).cancel()
   }
 
   /**
-   * Pauses a task currently in progress.
+   * Resumes a paused task.
    */
   @objc open func resume() {
-    (impl as! FIRIMPLStorageDownloadTask).resume()
+    (impl as! FIRIMPLStorageUploadTask).resume()
   }
 
   internal init(_ impl: FIRIMPLStorageUploadTask) {

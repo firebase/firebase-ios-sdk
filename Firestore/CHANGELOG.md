@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fixed build errors in Xcode 13.3.1 (#9702).
+
 # v9.0.0
 - [fixed] **Breaking change:** Fixed an issue where returning `nil` from the
   update closure when running a transaction caused a crash in Swift by removing

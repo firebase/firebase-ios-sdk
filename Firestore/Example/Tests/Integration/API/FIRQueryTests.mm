@@ -134,6 +134,49 @@
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), expected);
 }
 
+- (void)testLimitToLastQueriesWithCursors {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"a" : @{@"k" : @"a", @"sort" : @0},
+    @"b" : @{@"k" : @"b", @"sort" : @1},
+    @"c" : @{@"k" : @"c", @"sort" : @1},
+    @"d" : @{@"k" : @"d", @"sort" : @2},
+  }];
+
+  FIRQuerySnapshot *snapshot =
+      [self readDocumentSetForRef:[[[collRef queryOrderedByField:@"sort"] queryLimitedToLast:3]
+                                      queryEndingBeforeValues:@[ @2 ]]];
+  XCTAssertEqualObjects(
+      FIRQuerySnapshotGetData(snapshot), (@[
+        @{@"k" : @"a", @"sort" : @0}, @{@"k" : @"b", @"sort" : @1}, @{@"k" : @"c", @"sort" : @1}
+      ]));
+
+  snapshot = [self readDocumentSetForRef:[[[collRef queryOrderedByField:@"sort"]
+                                             queryLimitedToLast:3] queryEndingAtValues:@[ @1 ]]];
+  XCTAssertEqualObjects(
+      FIRQuerySnapshotGetData(snapshot), (@[
+        @{@"k" : @"a", @"sort" : @0}, @{@"k" : @"b", @"sort" : @1}, @{@"k" : @"c", @"sort" : @1}
+      ]));
+
+  snapshot = [self readDocumentSetForRef:[[[collRef queryOrderedByField:@"sort"]
+                                             queryLimitedToLast:3] queryStartingAtValues:@[ @2 ]]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ @{@"k" : @"d", @"sort" : @2} ]));
+  snapshot =
+      [self readDocumentSetForRef:[[[collRef queryOrderedByField:@"sort"] queryLimitedToLast:3]
+                                      queryStartingAfterValues:@[ @0 ]]];
+  XCTAssertEqualObjects(
+      FIRQuerySnapshotGetData(snapshot), (@[
+        @{@"k" : @"b", @"sort" : @1}, @{@"k" : @"c", @"sort" : @1}, @{@"k" : @"d", @"sort" : @2}
+      ]));
+
+  snapshot =
+      [self readDocumentSetForRef:[[[collRef queryOrderedByField:@"sort"] queryLimitedToLast:3]
+                                      queryStartingAfterValues:@[ @-1 ]]];
+  XCTAssertEqualObjects(
+      FIRQuerySnapshotGetData(snapshot), (@[
+        @{@"k" : @"b", @"sort" : @1}, @{@"k" : @"c", @"sort" : @1}, @{@"k" : @"d", @"sort" : @2}
+      ]));
+}
+
 - (void)testKeyOrderIsDescendingForDescendingInequality {
   FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
     @"a" : @{@"foo" : @42},

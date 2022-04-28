@@ -24,8 +24,6 @@
  * The internal interface to `FirebaseApp`. This is meant for first-party integrators, who need to
  * receive `FirebaseApp` notifications, log info about the success or failure of their
  * configuration, and access other internal functionality of `FirebaseApp`.
- *
- * TODO(b/28296561): Restructure this header.
  */
 NS_ASSUME_NONNULL_BEGIN
 

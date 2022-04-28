@@ -19,17 +19,16 @@ import FirebaseStorageInternal
 /** Contains the prefixes and items returned by a `StorageReference.list()` call. */
 @objc(FIRStorageListResult) open class StorageListResult: NSObject {
   /**
-   * The prefixes (folders) returned by the `list()` operation.
+   * The prefixes (folders) returned by a `list()` operation.
    *
-   * @return A list of prefixes (folders).
+   * - Returns: A list of prefixes (folders).
    */
   @objc public let prefixes: [StorageReference]
 
   /**
-   * Returns a token that can be used to resume a previous `list()` operation. `nil`
-   * indicates that there are no more results.
+   * The objects (files) returned by a `list()` operation.
    *
-   * @return A page token if more results are available.
+   * - Returns: A page token if more results are available.
    */
   @objc public let items: [StorageReference]
 
@@ -37,11 +36,22 @@ import FirebaseStorageInternal
    * Returns a token that can be used to resume a previous `list()` operation. `nil`
    * indicates that there are no more results.
    *
-   * @return A page token if more results are available.
+   * - Returns: A page token if more results are available.
    */
   @objc public let pageToken: String?
 
+  // MARK: - NSObject overrides
+
+  @objc override open func copy() -> Any {
+    return StorageListResult(impl.copy() as! FIRIMPLStorageListResult)
+  }
+
+  // MARK: - Internal APIs
+
+  internal let impl: FIRIMPLStorageListResult
+
   internal init(_ impl: FIRIMPLStorageListResult) {
+    self.impl = impl
     prefixes = impl.prefixes.map { StorageReference($0) }
     items = impl.items.map { StorageReference($0) }
     pageToken = impl.pageToken

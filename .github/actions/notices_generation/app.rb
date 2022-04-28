@@ -16,7 +16,6 @@
 
 require 'cocoapods'
 require 'digest'
-require 'octokit'
 require 'optparse'
 require 'plist'
 require 'tmpdir'

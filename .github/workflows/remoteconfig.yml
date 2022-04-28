@@ -8,6 +8,7 @@ on:
     - '.github/workflows/remoteconfig.yml'
     - 'Gemfile*'
     - 'scripts/generate_access_token.sh'
+    - 'scripts/gha-encrypted/RemoteConfigSwiftAPI/**'
   schedule:
     # Run every day at 12am (PST) - cron uses UTC times
     - cron:  '0 8 * * *'
