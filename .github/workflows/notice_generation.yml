@@ -15,8 +15,6 @@ jobs:
       NOTICES_PATH: "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
     steps:
     - uses: actions/checkout@v3
-      with:
-        ref: master
       #    - name: Get all pod names
       #      run: |
       #        cd "${GITHUB_WORKSPACE}/ReleaseTooling/"
