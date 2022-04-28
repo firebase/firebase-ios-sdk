@@ -143,6 +143,12 @@ NS_SWIFT_NAME(RemoteConfigSettings)
 @property(nonatomic, assign) NSTimeInterval fetchTimeout;
 @end
 
+// Realtime Callback delegate
+@protocol EventListener <NSObject>
+- (void)onEvent: (nonnull id)realTimeStream;
+- (void)onError: (nonnull NSError *)error;
+@end
+
 #pragma mark - FIRRemoteConfig
 /// Firebase Remote Config class. The class method `remoteConfig()` can be used
 /// to fetch, activate and read config results and set default config results on the default
@@ -288,14 +294,6 @@ NS_SWIFT_NAME(RemoteConfig)
 - (nullable FIRRemoteConfigValue *)defaultValueForKey:(nullable NSString *)key;
 
 #pragma mark - Real Time
-- (nonnull ListenerRegistration *)setOnNewConfigListener: (nonnull id)eventListener;
+- (nonnull ListenerRegistration *)setOnNewConfigListener: (nonnull NSObject *)eventListener;
 
-- (void)stopRealtime;
-
-@end
-
-// Realtime Callback delegate
-@protocol EventListener <NSObject>
-- (void)onEvent: (nonnull id)realTimeStream;
-- (void)onError: (nonnull NSError *)error;
 @end

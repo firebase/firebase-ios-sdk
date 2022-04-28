@@ -68,6 +68,7 @@ NSNotificationCenter *notificationCenter;
 
 - (void)remove {
     [self-> _realtimeClient removeRealtimeEventListener];
+    [self-> _realtimeClient pauseRealtimeConnection];
 }
 
 @end

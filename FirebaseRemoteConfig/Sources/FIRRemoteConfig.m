@@ -163,8 +163,8 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
                                                      queue:_queue
                                                  namespace:_FIRNamespace
                                                    options:options];
-    
     [_settings loadConfigFromMetadataTable];
+      
     _realtimeHttpClient = [[RCNRealtimeConfigHttpClient alloc] initWithClass: _configFetch
                                                                     settings: _settings
                                                                     namespace:_FIRNamespace
@@ -575,16 +575,16 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 
 #pragma mark - Realtime
 
-- (ListenerRegistration *)setOnNewConfigListener: (id)eventListener {
+- (ListenerRegistration *)setOnNewConfigListener: (NSObject *_Nonnull)eventListener {
+    if (eventListener == nil) {
+        return nil;
+    }
+    
     [self->_realtimeHttpClient viewDidLoad];
     ListenerRegistration *registration = [self->_realtimeHttpClient setRealtimeEventListener:eventListener];
     [self->_realtimeHttpClient startRealtimeConnection];
     return registration;
 }
 
-- (void)stopRealtime {
-    [self->_realtimeHttpClient removeRealtimeEventListener];
-    [self->_realtimeHttpClient pauseRealtimeConnection];
-}
 
 @end

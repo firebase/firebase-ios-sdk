@@ -24,6 +24,7 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
+#import "FirebaseRemoteConfig/Sources/RCNRealtimeConfigHttpClient.h"
 #import "FirebaseRemoteConfig/Sources/RCNUserDefaultsManager.h"
 
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
@@ -56,18 +57,21 @@
 - (void)updateWithNewInstancesForConfigFetch:(RCNConfigFetch *)configFetch
                                configContent:(RCNConfigContent *)configContent
                               configSettings:(RCNConfigSettings *)configSettings
-                            configExperiment:(RCNConfigExperiment *)configExperiment;
+                            configExperiment:(RCNConfigExperiment *)configExperiment
+                              configRealtime:(RCNRealtimeConfigHttpClient *)realtimeHttpClient;;
 @end
 
 @implementation FIRRemoteConfig (ForTest)
 - (void)updateWithNewInstancesForConfigFetch:(RCNConfigFetch *)configFetch
                                configContent:(RCNConfigContent *)configContent
                               configSettings:(RCNConfigSettings *)configSettings
-                            configExperiment:(RCNConfigExperiment *)configExperiment {
+                            configExperiment:(RCNConfigExperiment *)configExperiment
+                            configRealtime:(RCNRealtimeConfigHttpClient *)realtimeHttpClient {
   [self setValue:configFetch forKey:@"_configFetch"];
   [self setValue:configContent forKey:@"_configContent"];
   [self setValue:configSettings forKey:@"_settings"];
   [self setValue:configExperiment forKey:@"_configExperiment"];
+  [self setValue:realtimeHttpClient forKey:@"_realtimeHttpClient"];
 }
 @end
 
@@ -77,6 +81,19 @@
 
 @interface RCNUserDefaultsManager (Test)
 + (NSUserDefaults *)sharedUserDefaultsForBundleIdentifier:(NSString *)bundleIdentifier;
+@end
+
+@interface RealtimeEventListener : NSObject<EventListener>
+- (void)onEvent: (nonnull id)realTimeStream;
+- (void)onError:(NSError *)error;
+@end
+
+@implementation RealtimeEventListener {}
+
+- (void)onEvent: (nonnull id)realTimeStream {}
+
+- (void)onError:(NSError *)error {}
+
 @end
 
 typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
@@ -95,6 +112,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   NSMutableArray<NSData *> *_responseData;
   NSMutableArray<NSURLResponse *> *_URLResponse;
   NSMutableArray<id> *_configFetch;
+  NSMutableArray<id> *_realtimeHttpClient;
   RCNConfigDBManager *_DBManager;
   NSUserDefaults *_userDefaults;
   NSString *_userDefaultsSuiteName;
@@ -139,6 +157,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   _responseData = [[NSMutableArray alloc] initWithCapacity:3];
   _URLResponse = [[NSMutableArray alloc] initWithCapacity:3];
   _configFetch = [[NSMutableArray alloc] initWithCapacity:3];
+  _realtimeHttpClient = [[NSMutableArray alloc] initWithCapacity:3];
 
   // Populate the default, second app, second namespace instances.
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
@@ -199,7 +218,13 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                          queue:_queue
                                                      namespace:_fullyQualifiedNamespace
                                                        options:currentOptions]);
-
+    _realtimeHttpClient[i] =
+      OCMPartialMock([[RCNRealtimeConfigHttpClient alloc] initWithClass:_configFetch[i]
+                                                               settings:_settings
+                                                              namespace:_fullyQualifiedNamespace
+                                                                options:currentOptions
+                                                                  queue:_queue]);
+      
     OCMStubRecorder *mock = OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:0
                                                                      completionHandler:OCMOCK_ANY]);
     mock = [mock ignoringNonObjectArgs];
@@ -230,7 +255,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     [_configInstances[i] updateWithNewInstancesForConfigFetch:_configFetch[i]
                                                 configContent:configContent
                                                configSettings:_settings
-                                             configExperiment:_experimentMock];
+                                             configExperiment:_experimentMock
+                                             configRealtime:_realtimeHttpClient[i]];
   }
 }
 
@@ -561,6 +587,12 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                          queue:_queue
                                                      namespace:_fullyQualifiedNamespace
                                                        options:currentOptions]);
+      _realtimeHttpClient[i] =
+        OCMPartialMock([[RCNRealtimeConfigHttpClient alloc] initWithClass:_configFetch[i]
+                                                                 settings:_settings
+                                                                namespace:_fullyQualifiedNamespace
+                                                                  options:currentOptions
+                                                                    queue:_queue]);
 
     OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:43200 completionHandler:OCMOCK_ANY])
         .andDo(^(NSInvocation *invocation) {
@@ -584,7 +616,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     [_configInstances[i] updateWithNewInstancesForConfigFetch:_configFetch[i]
                                                 configContent:configContent
                                                configSettings:_settings
-                                             configExperiment:nil];
+                                             configExperiment:nil
+                                              configRealtime:_realtimeHttpClient[i]];
   }
   // Make the fetch calls for all instances.
   NSMutableArray<XCTestExpectation *> *expectations =
@@ -676,6 +709,12 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                                        queue:queue
                                                                    namespace:fullyQualifiedNamespace
                                                                      options:currentOptions]);
+      _realtimeHttpClient[i] =
+        OCMPartialMock([[RCNRealtimeConfigHttpClient alloc] initWithClass:_configFetch[i]
+                                                                 settings:settings
+                                                                namespace:fullyQualifiedNamespace
+                                                                  options:currentOptions
+                                                                    queue:queue]);
 
     OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:43200 completionHandler:OCMOCK_ANY])
         .andDo(^(NSInvocation *invocation) {
@@ -700,7 +739,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     [_configInstances[i] updateWithNewInstancesForConfigFetch:_configFetch[i]
                                                 configContent:configContent
                                                configSettings:settings
-                                             configExperiment:nil];
+                                             configExperiment:nil
+                                            configRealtime:_realtimeHttpClient[i]];
   }
   // Make the fetch calls for all instances.
   NSMutableArray<XCTestExpectation *> *expectations =
@@ -770,6 +810,12 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                        queue:queue
                                                    namespace:fullyQualifiedNamespace
                                                      options:currentOptions]);
+  RCNRealtimeConfigHttpClient *realtimeHttpClient =
+    OCMPartialMock([[RCNRealtimeConfigHttpClient alloc] initWithClass:configFetch
+                                                             settings:settings
+                                                            namespace:fullyQualifiedNamespace
+                                                              options:currentOptions
+                                                                queue:queue]);
 
   OCMStub([configFetch fetchConfigWithExpirationDuration:43200 completionHandler:OCMOCK_ANY])
       .andDo(^(NSInvocation *invocation) {
@@ -789,7 +835,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   [config updateWithNewInstancesForConfigFetch:configFetch
                                  configContent:configContent
                                 configSettings:settings
-                              configExperiment:nil];
+                              configExperiment:nil
+                              configRealtime:realtimeHttpClient];
 
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Network error doesn't increase throttle interval"];
@@ -876,6 +923,12 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                                        queue:queue
                                                                    namespace:fullyQualifiedNamespace
                                                                      options:currentOptions]);
+    _realtimeHttpClient[i] =
+        OCMPartialMock([[RCNRealtimeConfigHttpClient alloc] initWithClass:_configFetch[i]
+                                                                 settings:settings
+                                                                namespace:fullyQualifiedNamespace
+                                                                  options:currentOptions
+                                                                    queue:queue]);
 
     OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:43200 completionHandler:OCMOCK_ANY])
         .andDo(^(NSInvocation *invocation) {
@@ -907,7 +960,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     [_configInstances[i] updateWithNewInstancesForConfigFetch:_configFetch[i]
                                                 configContent:configContent
                                                configSettings:settings
-                                             configExperiment:nil];
+                                             configExperiment:nil
+                                            configRealtime:_realtimeHttpClient[i]];
   }
   // Make the fetch calls for all instances.
   NSMutableArray<XCTestExpectation *> *expectations =
@@ -1434,6 +1488,39 @@ static NSString *UTCToLocal(NSString *utcTime) {
 
   // Ensure the app name is stored properly.
   XCTAssertEqual([config valueForKey:@"_appName"], kFIRDefaultAppName);
+}
+
+#pragma mark - Realtime tests
+
+- (void)testRealtimeAddConfigUpdateListenerWithValidListener {
+    for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+        RealtimeEventListener * eventListener = [RealtimeEventListener alloc];
+        OCMStub([_realtimeHttpClient[i] startRealtimeConnection]).andDo(nil);
+        [_configInstances[i] setOnNewConfigListener:eventListener];
+        OCMVerify([_realtimeHttpClient[i] startRealtimeConnection]);
+        OCMVerify([_realtimeHttpClient[i] setRealtimeEventListener:eventListener]);
+    }
+}
+
+- (void)testRealtimeAddConfigUpdateListenerWithInvalidListener {
+    for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+        [_configInstances[i] setOnNewConfigListener:nil];
+        OCMVerify(never(), [_realtimeHttpClient[i] startRealtimeConnection]);
+        OCMVerify(never(), [_realtimeHttpClient[i] setRealtimeEventListener:nil]);
+    }
+}
+
+- (void)testRemoveRealtimeListener {
+    for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+        RealtimeEventListener * eventListener = [RealtimeEventListener alloc];
+        OCMStub([_realtimeHttpClient[i] startRealtimeConnection]).andDo(nil);
+        ListenerRegistration * registration = [_configInstances[i] setOnNewConfigListener:eventListener];
+        [registration remove];
+        OCMVerify([_realtimeHttpClient[i] startRealtimeConnection]);
+        OCMVerify([_realtimeHttpClient[i] setRealtimeEventListener:eventListener]);
+        OCMVerify([_realtimeHttpClient[i] removeRealtimeEventListener]);
+        OCMVerify([_realtimeHttpClient[i] pauseRealtimeConnection]);
+    }
 }
 
 #pragma mark - Test Helpers
