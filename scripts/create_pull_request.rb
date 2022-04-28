@@ -41,7 +41,7 @@ NOTICES_PATH=@options[:notices_path]
 
 def generate_pr_for_notices_changes(repo_root:, notices_path:)
   system("cd #{repo_root}")
-  system("git clone -q https://\"${ACCESS_TOKEN}\"@github.com/firebase/firebase-ios-sdk.git \"temp\"")
+  system("git clone -q \"${ACCESS_TOKEN}\"@github.com/firebase/firebase-ios-sdk.git \"temp\"")
   system("cp #{NOTICES_PATH} temp/CoreOnly/NOTICES")
   system("cd temp\n git checkout -b notices_diff_detected\n git add CoreOnly/NOTICES\n git commit -m \"NOTICES diff detected.\"\n git push -u origin notices_diff_detected")
   client = Octokit::Client.new(access_token: ACCESS_TOKEN)
