@@ -843,7 +843,7 @@ NS_SWIFT_NAME(Auth)
         notification in question.
     @return Whether or the notification is handled. A return value of true means the notification
         is for Firebase Auth so the caller should ignore the notification from further processing,
-        and false means the the notification is for the app (or another libaray) so the caller
+        and false means the notification is for the app (or another libaray) so the caller
    should continue handling this notification as usual.
     @remarks If swizzling is disabled, related remote notifications must be forwarded to this method
         for phone number auth to work.
