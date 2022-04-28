@@ -35,6 +35,8 @@ jobs:
       #        search-local-pod-version: true
       #        notices-path: "${NOTICES_PATH}"
     - name: Create a pull request
+      env: 
+        NOTICES_PATH: "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
       run: |
         echo "${GITHUB_WORKSPACE}"
         echo "${NOTICES_PATH}"
