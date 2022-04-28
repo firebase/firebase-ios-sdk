@@ -7,22 +7,6 @@
 
 import Foundation
 
-// MARK: -
-// MARK: Query constants
-
-let kQueryDefault = "default"
-let kQueryDefaultObject = "{}"
-let kViewManagerDictConstView = "view"
-let kFQPIndexStartValue = "sp"
-let kFQPIndexStartName = "sn"
-let kFQPIndexEndValue = "ep"
-let kFQPIndexEndName = "en"
-let kFQPLimit = "l"
-let kFQPViewFrom = "vf"
-let kFQPViewFromLeft = "l"
-let kFQPViewFromRight = "r"
-let kFQPIndex = "i"
-
 private struct QueryParams: Hashable, Equatable {
     static func == (lhs: QueryParams, rhs: QueryParams) -> Bool {
         lhs.limitSet == rhs.limitSet &&

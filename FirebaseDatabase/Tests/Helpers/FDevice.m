@@ -17,13 +17,11 @@
 #import "FirebaseDatabase/Tests/Helpers/FDevice.h"
 #import <XCTest/XCTest.h>
 
-#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
-
-#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseReference_Private.h"
-#import "FirebaseDatabase/Sources/Core/FRepoManager.h"
-
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 #import "FirebaseDatabase/Tests/Helpers/SenTest+FWaiter.h"
+
+typedef int FIRDatabaseHandle;
+@import FirebaseDatabaseSwiftCore;
 
 @interface FDevice () {
   FIRDatabaseConfig *config;
@@ -106,6 +104,8 @@ static NSUInteger deviceId = 0;
     isOnline = NO;
   }
 }
+
+typedef int FIRDatabaseHandle;
 
 // Waits for us to connect and then does an extra round-trip to make sure all initial state
 // restoration is completely done.

@@ -18,8 +18,6 @@
 
 #import <OCMock/OCMock.h>
 
-#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
-
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "SharedTestUtilities/AppCheckFake/FIRAppCheckFake.h"
 #import "SharedTestUtilities/AppCheckFake/FIRAppCheckTokenResultFake.h"

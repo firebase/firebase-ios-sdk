@@ -26,6 +26,10 @@ internal func FFLog(_ id: String, _ log: String) {
     print(id, log)
 }
 
+internal func FFInfo(_ id: String, _ log: String) {
+    print(id, log)
+}
+
 internal func FFWarn(_ id: String, _ log: String) {
     print(id, log)
 }
@@ -107,10 +111,6 @@ func tryParseStringToInt(_ str: String, integer: inout Int) -> Bool {
         FUtilitiesSwift.parseUrl(input)
     }
 }
-
-let kFErrorWriteCanceled = "write_canceled"
-//let kFWPResponseForActionStatusOk = "ok"
-let kFErrorDomain = "com.firebase"
 
 func firebaseJobsTroll() {
     FFLog("I-RDB095001", "password super secret; JFK conspiracy; Hello there! Having fun digging through Firebase? We're always hiring! jobs@firebase.com")

@@ -52,12 +52,12 @@ class DeferredValueProvider: ValueProvider {
 }
 
 class ExistingValueProvider: ValueProvider {
-    let snapshot: FNode
-    init(snapshot: FNode) {
+    let snapshot: FNode?
+    init(snapshot: FNode?) {
         self.snapshot = snapshot
     }
     func getChild(_ pathSegment: String) -> ValueProvider {
-        ExistingValueProvider(snapshot: snapshot.getImmediateChild(pathSegment))
+        ExistingValueProvider(snapshot: snapshot?.getImmediateChild(pathSegment))
     }
     var value: FNode? { snapshot }
 }
@@ -178,7 +178,7 @@ class ExistingValueProvider: ValueProvider {
         return FServerValues.resolveDeferredValueSnapshot(node, withValueProvider: jitExisting, serverValues: serverValues)
     }
 
-    @objc public static func resolveDeferredValueSnapshot(_ node: FNode, withExisting existing: FNode, serverValues: [String: Any]) -> FNode {
+    @objc public static func resolveDeferredValueSnapshot(_ node: FNode, withExisting existing: FNode?, serverValues: [String: Any]) -> FNode {
         let jitExisting = ExistingValueProvider(snapshot: existing)
         return FServerValues.resolveDeferredValueSnapshot(node, withValueProvider: jitExisting, serverValues: serverValues)
     }

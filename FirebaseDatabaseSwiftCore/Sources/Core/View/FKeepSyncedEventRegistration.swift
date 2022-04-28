@@ -23,7 +23,7 @@ import Foundation
         // Don't create cancel events....
         fatalError()
     }
-    public var handle: FIRDatabaseHandle {
+    public var handle: DatabaseHandle {
         // TODO[offline]: returning arbitray, can't return NSNotFound since that is
         // used to match other event registrations We should really redo this to
         // match on different kind of events (single observer, all observers,

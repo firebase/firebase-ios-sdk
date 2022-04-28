@@ -16,10 +16,11 @@
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestAuthTokenGenerator.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestBase.h"
 #import "SharedTestUtilities/FIROptionsMock.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 @implementation FTestBase
 
@@ -61,6 +62,8 @@
 
   XCTAssertTrue(done, @"Properly finished.");
 }
+
+typedef int FIRDatabaseHandle;
 
 - (void)waitUntilConnected:(FIRDatabaseReference *)ref {
   __block BOOL connected = NO;

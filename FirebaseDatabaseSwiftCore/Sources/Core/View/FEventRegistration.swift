@@ -7,8 +7,6 @@
 
 import Foundation
 
-public typealias FIRDatabaseHandle = Int
-
 @objc public protocol FEventRegistration: NSObjectProtocol {
     func responseTo(_ eventType: DataEventType) -> Bool
     func createEventFrom(_ change: FChange, query: FQuerySpec) -> FDataEvent
@@ -19,5 +17,5 @@ public typealias FIRDatabaseHandle = Int
      * needs to be removed.
      */
     func matches(_ other: FEventRegistration) -> Bool
-    var handle: FIRDatabaseHandle { get }
+    var handle: DatabaseHandle { get }
 }

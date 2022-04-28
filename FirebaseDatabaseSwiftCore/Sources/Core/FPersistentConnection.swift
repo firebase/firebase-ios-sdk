@@ -62,16 +62,16 @@ enum ConnectionState {
     case connected
 }
 
-@objc public protocol FPersistentConnectionDelegate: NSObjectProtocol {
+public protocol FPersistentConnectionDelegate: AnyObject {
     func onDataUpdate(_ fpconnection: FPersistentConnection,
                       forPath pathString: String,
                       message: Any,
                       isMerge: Bool,
-                      tagId: Int)
+                      tagId: Int?)
 
     func onRangeMerge(_ ranges: [FRangeMerge],
                       forPath pathString: String,
-                      tagId: Int)
+                      tagId: Int?)
 
     func onConnect(_ fpconnection: FPersistentConnection)
 
@@ -125,7 +125,7 @@ typealias PutToAckTuple = (block: ((String, String) -> Void),
     /*
      PUBLIC
      */
-    @objc public weak var delegate: FPersistentConnectionDelegate?
+    weak var delegate: FPersistentConnectionDelegate?
     @objc public var pauseWrites: Bool
 
     @objc public init(repoInfo: FRepoInfo, dispatchQueue: DispatchQueue, config: DatabaseConfig) {
@@ -215,7 +215,7 @@ typealias PutToAckTuple = (block: ((String, String) -> Void),
 
         // Firebase/5/<semver>_<build date>_<git hash>/<os version>/{device model /
         // os (Mac OS X, iPhone, etc.}_<bundle id>
-        let ua = "Firebase/\(kWebsocketProtocolVersion)/\(DatabaseTMP.buildVersion)/\(systemVersion)/\(deviceName)_\(bundleIdentifier)"
+        let ua = "Firebase/\(kWebsocketProtocolVersion)/\(Database.buildVersion)/\(systemVersion)/\(deviceName)_\(bundleIdentifier)"
         return ua
     }
 
@@ -233,8 +233,8 @@ typealias PutToAckTuple = (block: ((String, String) -> Void),
      * path since we overlap listens for a short time while adding or removing a
      * query from a location in the tree.
      */
-    @objc public func listen(_ query: FQuerySpec,
-                             tagId: Int,
+    public func listen(_ query: FQuerySpec,
+                             tagId: Int?,
                              hash: FSyncTreeHash,
                              onComplete: @escaping (String) -> Void) {
         FFLog("I-RDB034001", "Listen called for \(query)")
@@ -248,9 +248,17 @@ typealias PutToAckTuple = (block: ((String, String) -> Void),
             sendListen(outstanding)
         }
     }
+
+    @objc public func listen(_ query: FQuerySpec,
+                             tagId: Int,
+                             hash: FSyncTreeHash,
+                             onComplete: @escaping (String) -> Void) {
+        listen(query, tagId: tagId, hash: hash, onComplete: onComplete)
+    }
+
     @objc public func putData(_ data: Any,
                               forPath pathString: String,
-                              withHash hash: String,
+                              withHash hash: String?,
                               withCallback onComplete: @escaping (String, String?) -> Void) {
         putInternal(data,
                     forAction: kFWPRequestActionPut,
@@ -326,8 +334,13 @@ typealias PutToAckTuple = (block: ((String, String) -> Void),
         }
     }
 
-    @objc public func unlisten(_ query: FQuerySpec,
-                             tagId: Int) {
+    @objc public func unlistenObjc(_ query: FQuerySpec,
+                               tagId: Int) {
+        unlisten(query, tagId: tagId)
+    }
+
+    func unlisten(_ query: FQuerySpec,
+                               tagId: Int?) {
         let path = query.path
         FFLog("I-RDB034002", "Unlistening for \(query)")
         let outstanding = removeListen(query)
@@ -924,7 +937,7 @@ better performance
                 if let dict = payloadData as? [String: Any], dict.isEmpty, isMerge {
                     // ignore empty merge
                 } else {
-                    guard let tagId = body[kFWPAsyncServerDataUpdateBodyTag] as? Int else { return }
+                    let tagId = body[kFWPAsyncServerDataUpdateBodyTag] as? Int
                     delegate?.onDataUpdate(self, forPath: path, message: payloadData, isMerge: isMerge, tagId: tagId)
                 }
             } else {
@@ -935,9 +948,9 @@ better performance
         case kFWPAsyncServerDataRangeMerge:
             guard let path = body[kFWPAsyncServerDataUpdateBodyPath] as? String else { return }
             let ranges = (body[kFWPAsyncServerDataUpdateBodyData] as? [[String: Any]]) ?? []
-            guard let tag = body[kFWPAsyncServerDataUpdateBodyTag] as? Int else { return }
+            let tag = body[kFWPAsyncServerDataUpdateBodyTag] as? Int
             var rangeMerges: [FRangeMerge] = []
-            for range in ranges ?? [] {
+            for range in ranges {
                 let startString = range[kFWPAsyncServerDataUpdateStartPath] as? String
                 let endString = range[kFWPAsyncServerDataUpdateEndPath] as? String
                 let updateData = range[kFWPAsyncServerDataUpdateRangeMerge]
@@ -1124,7 +1137,7 @@ better performance
             stats["persistence.watchos.enabled"] = true
         }
 #endif
-        let sdkVersion = DatabaseTMP.sdkVersion.replacingOccurrences(of: ".", with: "-")
+        let sdkVersion = Database.sdkVersion.replacingOccurrences(of: ".", with: "-")
         // XXX TODO: objc -> swift? :-)
         let sdkStatName = "sdk.objc.\(sdkVersion)"
         stats[sdkStatName] = true

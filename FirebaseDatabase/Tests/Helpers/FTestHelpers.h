@@ -16,11 +16,11 @@
 
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
-#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseReference_Private.h"
-#import "FirebaseDatabase/Sources/Core/FRepoManager.h"
 
-#import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleFirebase.h"
+#import "FirebaseDatabase/Tests/Helpers/Tuples/FTupleFirebase.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestContants.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 #define WAIT_FOR(x)   \
   [self waitUntil:^{  \

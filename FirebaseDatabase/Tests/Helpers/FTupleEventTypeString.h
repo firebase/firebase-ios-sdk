@@ -15,8 +15,9 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
-#import "FirebaseDatabase/Sources/Utilities/FTypedefs.h"
+#import "FirebaseDatabase/Tests/Helpers/FTypedefs.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 @interface FTupleEventTypeString : NSObject
 

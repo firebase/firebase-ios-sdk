@@ -15,11 +15,11 @@
  */
 
 #import "FirebaseDatabase/Tests/Integration/FRealtime.h"
-#import "FirebaseDatabase/Sources/Core/FRepoManager.h"
-
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
-#import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleFirebase.h"
+#import "FirebaseDatabase/Tests/Helpers/Tuples/FTupleFirebase.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 @implementation FRealtime
 

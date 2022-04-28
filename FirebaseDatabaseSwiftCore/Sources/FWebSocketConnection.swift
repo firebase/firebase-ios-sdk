@@ -16,7 +16,6 @@ import NIOHTTP1
 private let kAppCheckTokenHeader = "X-Firebase-AppCheck"
 private let kUserAgentHeader = "User-Agent"
 private let kGoogleAppIDHeader = "X-Firebase-GMPID"
-internal let kWebsocketProtocolVersion = "5"
 
 extension String {
     func split(by length: Int) -> [Substring] {

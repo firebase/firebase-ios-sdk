@@ -157,7 +157,6 @@ private let kMaxName = "[MAX_NAME]"
     }
 
     @objc public func val() -> Any {
-        print("CHILDREN", children)
         return val(forExport: false)
     }
 

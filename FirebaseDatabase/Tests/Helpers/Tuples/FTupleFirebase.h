@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRMutableData.h"
+#import <Foundation/Foundation.h>
 
 @import FirebaseDatabaseSwiftCore;
 
-@interface FIRMutableData ()
+@interface FTupleFirebase : NSObject
 
-- (id)initWithNode:(id<FNode>)node;
-- (id<FNode>)nodeValue;
-- (BOOL)isEqualToData:(FIRMutableData *)other;
+@property(nonatomic, strong) FIRDatabaseReference *one;
+@property(nonatomic, strong) FIRDatabaseReference *two;
+@property(nonatomic, strong) FIRDatabaseReference *three;
 
 @end

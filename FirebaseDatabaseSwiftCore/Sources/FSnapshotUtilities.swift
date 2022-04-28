@@ -8,9 +8,6 @@
 import Collections
 import Foundation
 
-let kFirebaseMaxObjectDepth = 1000
-let kPayloadMetadataPrefix = "."
-
 @objc public class FSnapshotUtilities: NSObject {
     @objc public static func nodeFrom(_ val: Any?) -> FNode {
         FSnapshotUtilitiesSwift.nodeFrom(val, priority: nil)
@@ -150,6 +147,30 @@ public enum FSnapshotUtilitiesSwift {
 
     public static func nodeFrom(_ val: Any?, priority: Any?, withValidationFrom fn: String, atDepth depth: Int, path: inout [String]) -> FNode {
         internalNodeFrom(val, priority: priority, withValidationFrom: fn, atDepth: depth, path: &path)
+    }
+
+    public static func compoundWriteFromDictionary(_ values: [String: Any], withValidationFrom fn: String) -> FCompoundWrite {
+        var compoundWrite = FCompoundWrite.emptyWrite
+        var updatePaths: [FPath] = []
+        for (keyId, value) in values {
+            let key = FValidationSwift.validateFrom(fn, validUpdateDictionaryKey: keyId, withValue: value)
+            let path = FPath(with: key)
+            let node = FSnapshotUtilitiesSwift.nodeFrom(value, withValidationFrom: fn)
+            updatePaths.append(path)
+            compoundWrite = compoundWrite.addWrite(node, atPath: path)
+        }
+        // Check that the update paths are not descendants of each other.
+        updatePaths.sort { a, b in
+            a.compare(b) == .orderedAscending
+        }
+        var prevPath: FPath? = nil
+        for path in updatePaths {
+            if let prev = prevPath, prev.contains(path) {
+                fatalError("(\(fn)) Invalid path in object. Path (\(prev)) is an ancestor of (\(path)).")
+            }
+            prevPath = path
+        }
+        return compoundWrite
     }
 
      public static func internalNodeFrom(_ val: Any?, priority: Any?, withValidationFrom fn: String, atDepth depth: Int, path: inout [String]) -> FNode {

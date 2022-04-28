@@ -15,8 +15,8 @@
  */
 
 #import "FirebaseDatabase/Tests/Unit/FIRMutableDataTests.h"
-#import "FirebaseDatabase/Sources/Api/Private/FIRMutableData_Private.h"
 
+@import FirebaseDatabaseSwiftCore;
 
 @implementation FIRMutableDataTests
 
@@ -52,7 +52,7 @@
 - (void)testWritingMutableData {
   FIRMutableData* data = [self dataFor:@{}];
 
-  data.value = @{@"a" : @1, @"b" : @2};
+    [data setValue: @{@"a" : @1, @"b" : @2}];
   XCTAssertTrue([data hasChildren], @"Should have children node");
   XCTAssertTrue(data.childrenCount == 2, @"Counts both children");
   XCTAssertTrue([data hasChildAtPath:@"a"], @"Can see the children individually");

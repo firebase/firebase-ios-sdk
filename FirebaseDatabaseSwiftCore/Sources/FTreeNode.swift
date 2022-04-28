@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct FTreeNode {
+struct FTreeNode<T> {
   var children: [String: FTreeNode] = [:]
   var childCount: Int = 0
-  var value: Any? = nil
+  var value: T? = nil
 }

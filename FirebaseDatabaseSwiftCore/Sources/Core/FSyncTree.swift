@@ -91,14 +91,24 @@ let kFSizeThresholdForCompoundHash = 1024
     let queryTagCounter: FAtomicNumber = FAtomicNumber()
     var keepSyncedQueries: Set<FQuerySpec> = []
 
-    @objc public init(listenProvider: FListenProvider) {
+    public init(listenProvider: FListenProvider) {
         self.listenProvider = listenProvider
         self.persistenceManager = nil
-
     }
 
-    @objc public init(persistenceManager: FPersistenceManager?, listenProvider: FListenProvider) {
+    @objc public init(listenProvider: FListenProviderObjC) {
+        self.listenProvider = FListenProvider(listenProvider)
+        self.persistenceManager = nil
+    }
+
+    public init(persistenceManager: FPersistenceManager?, listenProvider: FListenProvider) {
         self.listenProvider = listenProvider
+        self.persistenceManager = persistenceManager
+    }
+
+
+    @objc public init(persistenceManager: FPersistenceManager?, listenProvider: FListenProviderObjC) {
+        self.listenProvider = FListenProvider(listenProvider)
         self.persistenceManager = persistenceManager
     }
 
@@ -421,7 +431,7 @@ let kFSizeThresholdForCompoundHash = 1024
                     for view in newViews {
                         let newQuery = view.query
                         let listenContainer: FListenContainer = createListenerForView(view)
-                        _ = listenProvider.startListening?(queryForListening(newQuery), tag(for: newQuery).map { NSNumber(value: $0) }, listenContainer, listenContainer.onComplete)
+                        _ = listenProvider.startListening(queryForListening(newQuery), tag(for: newQuery), listenContainer, listenContainer.onComplete)
                     }
                 } else {
                     // There's nothing below us, so nothing we need to start
@@ -441,11 +451,11 @@ let kFSizeThresholdForCompoundHash = 1024
                 // need to iterate through and cancel each individual query
                 if removingDefault {
                     // We don't tag default listeners
-                    listenProvider.stopListening?(queryForListening(query), nil)
+                    listenProvider.stopListening(queryForListening(query), nil)
                 } else {
                     for queryToRemove in removed {
                         let tagToRemove = tag(for: queryToRemove)
-                        listenProvider.stopListening?(queryForListening(queryToRemove), tagToRemove.map { NSNumber(value: $0) })
+                        listenProvider.stopListening(queryForListening(queryToRemove), tagToRemove)
                     }
                 }
             }
@@ -583,7 +593,7 @@ let kFSizeThresholdForCompoundHash = 1024
         let tagId = tag(for: query)
         let listenContainer = createListenerForView(view)
 
-        let events: [FEvent] = listenProvider.startListening?(queryForListening(query), tagId.map { NSNumber(value: $0) }, listenContainer, listenContainer.onComplete) ?? []
+        let events: [FEvent] = listenProvider.startListening(queryForListening(query), tagId, listenContainer, listenContainer.onComplete)
 
         let subtree = syncPointTree.subtree(atPath: path)
 
@@ -610,7 +620,7 @@ let kFSizeThresholdForCompoundHash = 1024
                 }
             }
             for queryToStop in queriesToStop {
-                listenProvider.stopListening?(queryForListening(queryToStop), tag(for: queryToStop).map { NSNumber(value: $0) })
+                listenProvider.stopListening(queryForListening(queryToStop), tag(for: queryToStop))
             }
         }
         return events

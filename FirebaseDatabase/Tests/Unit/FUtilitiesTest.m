@@ -15,12 +15,12 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseReference_Private.h"
-#import "FirebaseDatabase/Sources/Api/Private/FIRDatabase_Private.h"
-#import "FirebaseDatabase/Sources/Constants/FConstants.h"
+//#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseReference_Private.h"
+//#import "FirebaseDatabase/Sources/Api/Private/FIRDatabase_Private.h"
+//#import "FirebaseDatabase/Sources/Constants/FConstants.h"
 
 //#import "FirebaseDatabase/Sources/Realtime/FWebSocketConnection.h"
-#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
+//#import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 
 @import FirebaseDatabaseSwiftCore;
@@ -120,9 +120,10 @@
   NSString *agent = [FPersistentConnection userAgent];
 
   NSArray *parts = [agent componentsSeparatedByString:@"/"];
+    NSString *protocolVersion = @"5";
   XCTAssertEqual(parts.count, (NSUInteger)5);
   XCTAssertEqualObjects(parts[0], @"Firebase");
-  XCTAssertEqualObjects(parts[1], kWebsocketProtocolVersion);   // Wire protocol version
+  XCTAssertEqualObjects(parts[1], protocolVersion);   // Wire protocol version
   XCTAssertEqualObjects(parts[2], [FIRDatabase buildVersion]);  // Build version
 #if TARGET_OS_IPHONE && !TARGET_OS_WATCH
   XCTAssertEqualObjects(parts[3], [[UIDevice currentDevice] systemVersion]);  // iOS Version

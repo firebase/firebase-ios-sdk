@@ -5,24 +5,36 @@
 //  Created by Morten Bek Ditlevsen on 14/09/2021.
 //
 
-let kWireProtocolVersionParam = "v"
-let kWebsocketMaxFrameSize = 16384
-let kWebsocketKeepaliveInterval: Double /* aka TimeInterval defined in Foundation */ = 45
-let kWebsocketConnectTimeout: Double = 30
-
-let kPersistentConnectionGetConnectTimeout = 3
-
-let kPersistentConnectionOffline = "Client is offline."
-
-
 let kPersistentConnReconnectMinDelay = 1.0
 let kPersistentConnReconnectMaxDelay = 30.0
 let kPersistentConnReconnectMultiplier = 1.3
 let kPersistentConnSuccessfulConnectionEstablishedDelay = 30.0
 
+// MARK: -
+// MARK: Interrupt Reasons
+
 let kFInterruptReasonServerKill = "server_kill"
 let kFInterruptReasonWaitingForOpen = "waiting_for_open"
 let kFInterruptReasonRepoInterrupt = "repo_interrupt"
+
+// MARK: -
+// MARK: Query constants
+
+let kQueryDefault = "default"
+let kQueryDefaultObject = "{}"
+let kViewManagerDictConstView = "view"
+let kFQPIndexStartValue = "sp"
+let kFQPIndexStartName = "sn"
+let kFQPIndexEndValue = "ep"
+let kFQPIndexEndName = "en"
+let kFQPLimit = "l"
+let kFQPViewFrom = "vf"
+let kFQPViewFromLeft = "l"
+let kFQPViewFromRight = "r"
+let kFQPIndex = "i"
+
+// MARK: -
+// MARK: Wire Protocol Payload Constants
 
 let kFWPRequestActionPut = "p"
 let kFWPRequestActionMerge = "m"
@@ -116,3 +128,38 @@ let kFTransactionTooManyRetries = "maxretry"
 let kFTransactionNoData = "nodata"
 let kFTransactionSet = "set"
 let kFTransactionDisconnect = "disconnect"
+
+// MARK: -
+// MARK: Validation Constants
+
+let kFirebaseMaxObjectDepth = 1000
+let kFirebaseMaxLeafSize = 1024 * 1024 * 10 // 10 MB
+
+// MARK: -
+// MARK: Error handling constants
+
+let kFErrorWriteCanceled = "write_canceled"
+//let kFWPResponseForActionStatusOk = "ok"
+let kFErrorDomain = "com.firebase"
+
+// MARK: -
+// MARK: Payload constants
+
+let kPayloadValue = ".value"
+let kPayloadPriority = ".priority"
+let kPayloadMetadataPrefix = "."
+
+// MARK: -
+// MARK: ServerValue constants
+let kServerValueSubKey = ".sv"
+
+// MARK: -
+// MARK: Websock Transport Constants
+
+let kWireProtocolVersionParam = "v"
+let kWebsocketProtocolVersion = "5"
+let kPersistentConnectionOffline = "Client is offline."
+let kPersistentConnectionGetConnectTimeout = 3
+let kWebsocketMaxFrameSize = 16384
+let kWebsocketKeepaliveInterval: Double /* aka TimeInterval defined in Foundation */ = 45
+let kWebsocketConnectTimeout: Double = 30

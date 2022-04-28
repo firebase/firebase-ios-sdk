@@ -19,15 +19,6 @@
 
 #import <Foundation/Foundation.h>
 
-typedef NS_ENUM(NSInteger, FTransactionStatus) {
-    FTransactionInitializing,   // 0
-    FTransactionRun,            // 1
-    FTransactionSent,           // 2
-    FTransactionCompleted,      // 3
-    FTransactionSentNeedsAbort, // 4
-    FTransactionNeedsAbort      // 5
-};
-
 @protocol FNode;
 @class FPath;
 @class FIRTransactionResult;

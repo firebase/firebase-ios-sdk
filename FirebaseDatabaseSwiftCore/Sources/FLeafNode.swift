@@ -7,9 +7,6 @@
 
 import Foundation
 
-let kPayloadValue = ".value"
-let kPayloadPriority = ".priority"
-
 @objc public class FLeafNode: NSObject, FNode {
     public func isLeafNode() -> Bool {
         true

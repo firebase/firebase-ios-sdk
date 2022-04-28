@@ -19,11 +19,8 @@
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
-#import "FirebaseDatabase/Sources/Api/Private/FIRDataSnapshot_Private.h"
-#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
-
-
 #import "FirebaseDatabase/Tests/Helpers/FTestClock.h"
+#import "FirebaseDatabase/Tests/Helpers/FTypedefs_Private.h"
 #import "FirebaseDatabase/Tests/Unit/FSyncPointTests.h"
 
 @import FirebaseDatabaseSwiftCore;
@@ -84,6 +81,8 @@ typedef NSDictionary * (^fbt_nsdictionary_void)(void);
   [NSException raise:@"NotImplementedError" format:@"Method not implemented."];
   return nil;
 }
+
+typedef int FIRDatabaseHandle;
 
 - (FIRDatabaseHandle)handle {
   [NSException raise:@"NotImplementedError" format:@"Method not implemented."];

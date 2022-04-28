@@ -15,9 +15,8 @@
  */
 
 #import "FirebaseDatabase/Tests/Integration/FOrder.h"
-#import "FirebaseDatabase/Sources/Api/Private/FTypedefs_Private.h"
-#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
-#import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleFirebase.h"
+#import "FirebaseDatabase/Tests/Helpers/FTypedefs_Private.h"
+#import "FirebaseDatabase/Tests/Helpers/Tuples/FTupleFirebase.h"
 #import "FirebaseDatabase/Tests/Helpers/FEventTester.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 #import "FirebaseDatabase/Tests/Helpers/FTupleEventTypeString.h"

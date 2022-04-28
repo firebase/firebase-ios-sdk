@@ -7,20 +7,20 @@
 
 import Foundation
 
-@objc public class FTree: NSObject {
-  @objc public var parent: FTree?
-  @objc public var name: String
-  private var node: FTreeNode
-  @objc public override init() {
-    self.name = ""
-    self.node = FTreeNode()
-  }
-  init(name: String?, parent: FTree?, node: FTreeNode?) {
-    self.name = name ?? ""
-    self.parent = parent
-    self.node = node ?? FTreeNode()
-  }
-  @objc public func subTree(_ path: FPath) -> FTree {
+internal class FTree<T> {
+    internal var parent: FTree<T>?
+    internal var name: String
+    private var node: FTreeNode<T>
+    internal init() {
+        self.name = ""
+        self.node = FTreeNode()
+    }
+    init(name: String?, parent: FTree<T>?, node: FTreeNode<T>?) {
+        self.name = name ?? ""
+        self.parent = parent
+        self.node = node ?? FTreeNode()
+    }
+  internal func subTree(_ path: FPath) -> FTree<T> {
     var path = path
     var child = self
     var nextOptional = path.getFront()
@@ -32,10 +32,10 @@ import Foundation
     }
     return child
   }
-  @objc public func getValue() -> Any? {
+  internal func getValue() -> T? {
     node.value
   }
-  @objc public func setValue(_ value: Any?) {
+  internal func setValue(_ value: T?) {
     node.value = value
     updateParents()
   }
@@ -45,11 +45,11 @@ import Foundation
     node.childCount = 0
     updateParents()
   }
-  @objc public var hasChildren: Bool {
+  internal var hasChildren: Bool {
     node.childCount > 0
   }
 
-  @objc public var isEmpty: Bool {
+  internal var isEmpty: Bool {
     !hasChildren && getValue() == nil
   }
 
@@ -57,11 +57,11 @@ import Foundation
     parent?.updateChild(self.name, withNode: self)
   }
 
-  @objc public var path: FPath {
+  internal var path: FPath {
     FPath(with: parent.map { "\($0.path)/\(name)" } ?? name)
   }
 
-  func updateChild(_ childName: String, withNode child: FTree) {
+  func updateChild(_ childName: String, withNode child: FTree<T>) {
     let childEmpty = child.isEmpty
     let childExists = node.children[childName] != nil
     if childEmpty && childExists {
@@ -89,13 +89,13 @@ import Foundation
     return false
   }
 
-  @objc public func forEachChild(_ action: (FTree) -> Void) {
+  internal func forEachChild(_ action: (FTree<T>) -> Void) {
     for (key, node) in node.children {
       action(FTree(name: key, parent: self, node: node))
     }
   }
 
-  @objc public func forEachDescendant(_ action: (FTree) -> Void) {
+  internal func forEachDescendant(_ action: (FTree) -> Void) {
     forEachDescendant(action, includeSelf: false, childrenFirst: false)
   }
 
@@ -111,7 +111,7 @@ import Foundation
     }
   }
 
-  @objc public func forEachAncestor(_ action: (FTree) -> Bool) -> Bool {
+  internal func forEachAncestor(_ action: (FTree) -> Bool) -> Bool {
     forEachAncestor(action, includeSelf: false)
   }
   func forEachAncestor(_ action: (FTree) -> Bool, includeSelf: Bool) -> Bool {

@@ -16,11 +16,11 @@
 
 #import "FirebaseDatabase/Tests/Helpers/FEventTester.h"
 
-#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
-
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 #import "FirebaseDatabase/Tests/Helpers/FTupleEventTypeString.h"
 #import "FirebaseDatabase/Tests/Helpers/SenTest+FWaiter.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 @implementation FEventTester
 
@@ -81,6 +81,8 @@
   }
   [self.lookingFor removeAllObjects];
 }
+
+typedef int FIRDatabaseHandle;
 
 - (fbt_void_void)listenOnPath:(FIRDatabaseReference*)path {
   FIRDatabaseHandle removedHandle =

@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
-#import <Foundation/Foundation.h>
+#import "FirebaseDatabase/Tests/Helpers/Tuples/FTupleFirebase.h"
 
-@interface FTupleFirebase : NSObject
+@implementation FTupleFirebase
 
-@property(nonatomic, strong) FIRDatabaseReference *one;
-@property(nonatomic, strong) FIRDatabaseReference *two;
-@property(nonatomic, strong) FIRDatabaseReference *three;
+@synthesize one;
+@synthesize two;
+@synthesize three;
 
 @end

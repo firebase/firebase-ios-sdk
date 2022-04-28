@@ -15,7 +15,8 @@
  */
 
 #import "FirebaseDatabase/Tests/Helpers/FTestExpectations.h"
-#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDataSnapshot.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 @interface FExpectation : NSObject
 

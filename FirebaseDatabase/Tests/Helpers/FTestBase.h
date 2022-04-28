@@ -17,6 +17,9 @@
 #import <XCTest/XCTest.h>
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 #import "FirebaseDatabase/Tests/Helpers/SenTest+FWaiter.h"
+#import "FirebaseDatabase/Tests/Helpers/FTypedefs.h"
+
+@import FirebaseDatabaseSwiftCore;
 
 @interface FTestBase : XCTestCase {
   BOOL runPerfTests;

@@ -7,9 +7,6 @@
 
 import Foundation
 
-let kServerValueSubKey = ".sv"
-let kFirebaseMaxLeafSize = 1024 * 1024 * 10 // 10 MB
-
 @objc public class FValidation: NSObject {
     @objc public static func validatePriorityValue(_ value: Any) -> Bool {
         FValidationSwift.validatePriorityValue(value)
