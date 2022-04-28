@@ -38,11 +38,6 @@ jobs:
       env: 
         NOTICES_PATH: "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
       run: |
-        ls "${GITHUB_WORKSPACE}"
-        echo "${GITHUB_WORKSPACE}"
-        echo "----"
-        ls "${GITHUB_WORKSPACE}/CoreOnly/"
-        echo "${NOTICES_PATH}"
         echo "testing notices" > "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
         gem install octokit
         ruby scripts/create_pull_request.rb --repo-root ${GITHUB_WORKSPACE} --repo-token ${{ secrets.GITHUB_TOKEN }} --notices-path  "${NOTICES_PATH}"
