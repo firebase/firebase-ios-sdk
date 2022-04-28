@@ -68,7 +68,6 @@ NSNotificationCenter *notificationCenter;
 
 - (void)remove {
     [self-> _realtimeClient removeRealtimeEventListener];
-    [self-> _realtimeClient pauseRealtimeConnection];
 }
 
 @end
@@ -285,7 +284,9 @@ NSNotificationCenter *notificationCenter;
             if (status == FIRRemoteConfigFetchStatusSuccess) {
                 if ([[self->_configFetch getTemplateVersionNumber] integerValue] > currentVersion) {
                     NSLog(@"Executing callback delegate");
-                    [self->_eventListener onEvent:self];
+                    if (self->_eventListener != NULL) {
+                        [self->_eventListener onEvent:self];
+                    }
                 } else {
                     NSLog(@"Fetched config's template version is the same or less then the current version, re-fetching");
                     [self autoFetch:remainingAttempts - 1 currentVersion:currentVersion];
@@ -321,7 +322,9 @@ NSNotificationCenter *notificationCenter;
                               NSLocalizedDescriptionKey :
                                   @"FetchError: Unable to retrieve the latest config."
                             }];
-        [self->_eventListener onError:error];
+        if (self->_eventListener != NULL) {
+            [self->_eventListener onError:error];
+        }
         return;
     }
     
@@ -404,7 +407,9 @@ completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))complet
                               NSLocalizedDescriptionKey :
                                   @"StreamError: Can't establish Realtime stream connection."
                             }];
-        [self->_eventListener onError:error];
+        if (self->_eventListener != NULL) {
+            [self->_eventListener onError:error];
+        }
     }
 }
 
@@ -474,3 +479,4 @@ completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))complet
 }
 
 @end
+

@@ -583,6 +583,7 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 }
 
 - (void)stopRealtime {
+    [self->_realtimeHttpClient removeRealtimeEventListener];
     [self->_realtimeHttpClient pauseRealtimeConnection];
 }
 

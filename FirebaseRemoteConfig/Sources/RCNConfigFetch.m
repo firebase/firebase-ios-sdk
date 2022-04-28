@@ -105,7 +105,7 @@ static NSString *const templateVersionNumberKey = @"templateVersion";
     _fetchSession = [self newFetchSession];
     _options = options;
       
-    if ([content.fetchedConfig objectForKey:templateVersionNumberKey]) {
+    if (content.fetchedConfig != nil && [content.fetchedConfig objectForKey:templateVersionNumberKey]) {
         self->_templateVersionNumber = [content.activeConfig objectForKey:templateVersionNumberKey];
     } else {
         self->_templateVersionNumber = @"1";
@@ -453,7 +453,6 @@ static NSString *const templateVersionNumberKey = @"templateVersion";
           [NSJSONSerialization JSONObjectWithData:data
                                           options:NSJSONReadingMutableContainers
                                             error:&retError];
-        NSLog(@"Fetched config is %@", [fetchedConfig description]);
       if (retError) {
         FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000042",
                     @"RCN Fetch failure: %@. Could not parse response data as JSON", error);
