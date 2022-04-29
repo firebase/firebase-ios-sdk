@@ -12,7 +12,8 @@ jobs:
     runs-on: macos-11
     name: Generate NOTICES
     env:
-      NOTICES_PATH: "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
+      # The path of NOTICES based on the root dir of repo."
+      NOTICES_PATH: "CoreOnly/NOTICES"
     steps:
     - uses: actions/checkout@v3
     - name: Get all pod names
@@ -21,6 +22,8 @@ jobs:
         swift run manifest --pod-name-output-file-path ./output.txt
         PODS=`cat ./output.txt`
         echo "PODS=${PODS}" >> $GITHUB_ENV
+        echo "NOTICES_PATH=${GITHUB_WORKSPACE}/${NOTICES_PATH" >> $GITHUB_ENV
+
     - name: Create a local specs repo
       run: |
         cd "${GITHUB_WORKSPACE}/ReleaseTooling/"
@@ -33,11 +36,9 @@ jobs:
         sources: "https://github.com/firebase/SpecsTesting,https://github.com/firebase/SpecsStaging,https://cdn.cocoapods.org"
         min-ios-version: "13.0"
         search-local-pod-version: true
-        notices-path: "${NOTICES_PATH}"
+        notices-path:  ${{ env.NOTICES_PATH }}
     - name: Create a pull request
-      env:
-        NOTICES_PATH: "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
       run: |
         gem install octokit
-        ruby scripts/create_pull_request.rb --repo-root ${GITHUB_WORKSPACE} --repo-token ${{ secrets.GITHUB_TOKEN }} --notices-path  "${NOTICES_PATH}"
+        ruby scripts/create_pull_request.rb --repo-root ${GITHUB_WORKSPACE} --repo-token ${{ secrets.GITHUB_TOKEN }} --notices-path  ${{ env.NOTICES_PATH }}
       shell: bash
