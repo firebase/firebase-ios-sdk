@@ -120,18 +120,27 @@ def generate_notices_content(sources: SOURCES, pods: PODS, min_ios_version: MIN_
       create_podfile(path: temp_dir, sources: sources, target: DEFAULT_TESTAPP_TARGET,pods: pods, min_ios_version: min_ios_version, search_local_pod_version: SEARCH_LOCAL_POD_VERSION)
       pod_install_result = `pod install --allow-root`
       puts pod_install_result
-      licences = Plist.parse_xml("Pods/Target Support Files/Pods-testApp/Pods-testApp-acknowledgements.plist")
+      licenses = Plist.parse_xml("Pods/Target Support Files/Pods-testApp/Pods-testApp-acknowledgements.plist")
 
-      existing_licences={}
-      for licence in licences["PreferenceSpecifiers"] do
-        if existing_licences.include?(licence["FooterText"])
-          existing_licences.store(licence["FooterText"], existing_licences.fetch(licence["FooterText"])+"\n"+licence["Title"])
+      existing_licenses={}
+      for license in licenses["PreferenceSpecifiers"] do
+        if existing_licenses.include?(license["FooterText"])
+          existing_licenses.store(license["FooterText"], existing_licenses.fetch(license["FooterText"])+"\n"+license["Title"])
           next
         end
-        existing_licences.store(licence["FooterText"], licence["Title"])
+        existing_licenses.store(license["FooterText"], license["Title"])
       end
-      existing_licences.each{ |licence, title|
-        content += "#{title}\n#{licence}\n"
+      existing_licenses.each{ |license, title|
+        # The NOTICES format is like:
+        # ```
+        # ${title}
+        # ${license}
+        #
+        # ${title}
+        # ${license}
+        # ...
+        # ```
+        content += "#{title}\n#{license}\n\n"
       }
     end
   end
