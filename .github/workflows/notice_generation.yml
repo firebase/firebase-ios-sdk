@@ -11,7 +11,7 @@ jobs:
     if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name != 'schedule'
     runs-on: macos-11
     name: Generate NOTICES
-    env: 
+    env:
       NOTICES_PATH: "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
     steps:
     - uses: actions/checkout@v3
@@ -35,7 +35,7 @@ jobs:
         search-local-pod-version: true
         notices-path: "${NOTICES_PATH}"
     - name: Create a pull request
-      env: 
+      env:
         NOTICES_PATH: "${GITHUB_WORKSPACE}/CoreOnly/NOTICES"
       run: |
         gem install octokit
