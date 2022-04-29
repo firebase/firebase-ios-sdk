@@ -42,6 +42,12 @@ class IndexEntry : public util::Comparable<IndexEntry> {
         directional_value_(std::move(directional_value)) {
   }
 
+  /**
+   * Returns an IndexEntry entry that sorts immediately after the current
+   * directional value.
+   */
+  IndexEntry Successor() const;
+
   int32_t index_id() const {
     return index_id_;
   }

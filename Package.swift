@@ -34,6 +34,10 @@ let package = Package(
       targets: ["FirebaseAnalyticsWithoutAdIdSupportTarget"]
     ),
     .library(
+      name: "FirebaseAnalyticsOnDeviceConversion",
+      targets: ["FirebaseAnalyticsOnDeviceConversionTarget"]
+    ),
+    .library(
       name: "FirebaseAnalyticsSwift",
       targets: ["FirebaseAnalyticsSwiftTarget"]
     ),
@@ -134,19 +138,19 @@ let package = Package(
     .package(
       name: "Promises",
       url: "https://github.com/google/promises.git",
-      "2.0.0" ..< "3.0.0"
+      "2.1.0" ..< "3.0.0"
     ),
     .package(
       name: "SwiftProtobuf",
       url: "https://github.com/apple/swift-protobuf.git",
-      "1.15.0" ..< "2.0.0"
+      "1.19.0" ..< "2.0.0"
     ),
     .package(
       name: "GoogleAppMeasurement",
       url: "https://github.com/google/GoogleAppMeasurement.git",
       // Note that CI changes the version to the head of main for CI.
       // See scripts/setup_spm_tests.sh.
-      .exact("8.15.0")
+      .exact("9.0.0")
     ),
     .package(
       name: "GoogleDataTransport",
@@ -156,12 +160,12 @@ let package = Package(
     .package(
       name: "GoogleUtilities",
       url: "https://github.com/google/GoogleUtilities.git",
-      "7.6.0" ..< "8.0.0"
+      "7.7.1" ..< "8.0.0"
     ),
     .package(
       name: "GTMSessionFetcher",
       url: "https://github.com/google/gtm-session-fetcher.git",
-      "1.5.0" ..< "2.0.0"
+      "1.7.1" ..< "2.0.0"
     ),
     .package(
       name: "nanopb",
@@ -340,8 +344,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/8.15.0/FirebaseAnalytics.zip",
-      checksum: "9d075b16e9e32e2328afdee11bba33ef075ba7be106312a14c5601310d6ecd92"
+      url: "https://dl.google.com/firebase/ios/swiftpm/9.0.0/FirebaseAnalytics.zip",
+      checksum: "6e9ced53d0eda20c00edae9f8ca90493355c711a2bcd12ec0fe1e4643558c241"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
@@ -382,6 +386,19 @@ let package = Package(
         .linkedLibrary("c++"),
         .linkedLibrary("z"),
         .linkedFramework("StoreKit"),
+      ]
+    ),
+
+    .target(
+      name: "FirebaseAnalyticsOnDeviceConversionTarget",
+      dependencies: [
+        .product(name: "GoogleAppMeasurementOnDeviceConversion",
+                 package: "GoogleAppMeasurement",
+                 condition: .when(platforms: [.iOS])),
+      ],
+      path: "FirebaseAnalyticsOnDeviceConversionWrapper",
+      linkerSettings: [
+        .linkedLibrary("c++"),
       ]
     ),
 

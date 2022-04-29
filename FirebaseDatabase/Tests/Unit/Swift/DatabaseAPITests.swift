@@ -109,7 +109,7 @@ final class DatabaseAPITests {
     // getData(completion block:)
     databaseQuery.getData { optionalError, dataSnapshot in
       let /* optionalError */ _: Error? = optionalError
-      let /* dataSnapshot */ _: DataSnapshot = dataSnapshot
+      let /* dataSnapshot */ _: DataSnapshot? = dataSnapshot
     }
 
     #if compiler(>=5.5.2) && canImport(_Concurrency)
@@ -388,7 +388,7 @@ final class DatabaseAPITests {
     // getData(completion block:)
     databaseReference.getData { optionalError, dataSnapshot in
       let /* optionalError */ _: Error? = optionalError
-      let /* dataSnapshot */ _: DataSnapshot = dataSnapshot
+      let /* dataSnapshot */ _: DataSnapshot? = dataSnapshot
     }
 
     #if compiler(>=5.5.2) && canImport(_Concurrency)

@@ -370,7 +370,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
 
 /** @fn hasValidAccessToken
     @brief private method exposed so it can be mocked to prevent the fake expiration date from
-        affecting the the unit tests.
+        affecting the unit tests.
  */
 - (BOOL)hasValidAccessToken;
 @end

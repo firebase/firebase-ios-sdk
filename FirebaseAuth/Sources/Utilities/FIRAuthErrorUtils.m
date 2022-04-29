@@ -759,7 +759,7 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
 }
 
 /** @var FIRAuthErrorCodeString
-    @brief The the error short string, based on the error code.
+    @brief The error short string, based on the error code.
     @remarks No default case so that we get a compiler warning if a new value was added to the enum.
  */
 static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {

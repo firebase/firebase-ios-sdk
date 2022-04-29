@@ -78,6 +78,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.test_spec 'integration' do |int_tests|
     int_tests.platforms = {:ios => ios_deployment_target, :osx => osx_deployment_target, :tvos => tvos_deployment_target}
     int_tests.scheme = { :code_coverage => true }
+    int_tests.requires_app_host = true
     int_tests.source_files = [
       'FirebaseDatabase/Tests/Integration/*.[mh]',
       'FirebaseDatabase/Tests/Helpers/*.[mh]',
