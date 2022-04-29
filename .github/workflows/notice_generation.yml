@@ -22,8 +22,7 @@ jobs:
         swift run manifest --pod-name-output-file-path ./output.txt
         PODS=`cat ./output.txt`
         echo "PODS=${PODS}" >> $GITHUB_ENV
-        echo "NOTICES_PATH=${GITHUB_WORKSPACE}/${NOTICES_PATH" >> $GITHUB_ENV
-
+        echo "NOTICES_PATH=${GITHUB_WORKSPACE}/${NOTICES_PATH}" >> $GITHUB_ENV
     - name: Create a local specs repo
       run: |
         cd "${GITHUB_WORKSPACE}/ReleaseTooling/"
