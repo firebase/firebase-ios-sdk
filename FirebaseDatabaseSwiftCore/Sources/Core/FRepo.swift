@@ -49,6 +49,7 @@ let kFirebaseCoreErrorDomain = "com.firebase.core"
 
 
     @objc public init(repoInfo info: FRepoInfo, config: DatabaseConfig, database: Database) {
+        print("FREPO INIT", config, info, database)
         self.config = config
         self.repoInfo = info
         self.database = database
@@ -74,6 +75,7 @@ let kFirebaseCoreErrorDomain = "com.firebase.core"
     private var interceptServerDataCallback: ((String, Any) -> Any)?
 
     private func deferredInit() {
+        print("DEFERRED INIT")
         // TODO: cleanup on dealloc
         config.contextProvider.listenForAuthTokenChanges { [weak self] token in
             self?.connection.refreshAuthToken(token)

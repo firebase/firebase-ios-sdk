@@ -484,7 +484,9 @@ typealias PutToAckTuple = (block: ((String, String) -> Void),
     // MARK: -
     // MARK: Private methods
     private func tryScheduleReconnect() {
+        print("A")
         guard shouldReconnect else { return }
+        print("B")
         assert(connectionState == .disconnected, "Not in disconnected state: \(connectionState)")
         let forceRefresh = forceTokenRefreshes
         forceTokenRefreshes = false
@@ -496,6 +498,7 @@ typealias PutToAckTuple = (block: ((String, String) -> Void),
             self.currentFetchTokenAttempt += 1
             let thisFetchTokenAttempt = self.currentFetchTokenAttempt
             self.contextProvider.fetchContextForcingRefresh(forceRefresh) { context, error in
+                print("C")
                 if thisFetchTokenAttempt == self.currentFetchTokenAttempt {
                     if let error = error {
                         self.connectionState = .disconnected
@@ -503,6 +506,7 @@ typealias PutToAckTuple = (block: ((String, String) -> Void),
                               "Error fetching token: \(error)")
                         self.tryScheduleReconnect()
                     } else {
+                        print("D")
                         // XXX TODO: Model Result explicitly - or async call
                         let context = context!
                         // Someone could have interrupted us while
@@ -896,7 +900,7 @@ better performance
         guard let realtime = realtime else { return }
         // Hold onto the onMessage callback for this request before firing it off
         let rn = getNextRequestNumber()
-        let msg: [String: Any?] = [kFWPRequestNumber: rn, kFWPRequestAction: action, kFWPRequestPayloadBody: nil]
+        let msg: [String: Any] = [kFWPRequestNumber: rn, kFWPRequestAction: action, kFWPRequestPayloadBody: body]
         do {
             try realtime.sendRequestSwift(msg, sensitive: sensitive)
         } catch {

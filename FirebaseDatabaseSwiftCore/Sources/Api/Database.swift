@@ -17,7 +17,30 @@ import Foundation
         self.options = options
     }
     static var isDefaultAppConfigured: Bool { defaultApp != nil }
-    static var defaultApp: FIRAppThing?
+    static var defaultApp: FIRAppThing? {
+        FIRAppThing(options: .init(databaseURL: "https://firestoretests-44fc8.firebaseio.com", projectID: "firestoretests-44fc8"))
+    }
+}
+
+class Mock: NSObject, DatabaseConnectionContextProviderProtocol {
+    func fetchContextForcingRefresh(_ forceRefresh: Bool, withCallback callback: @escaping (DatabaseConnectionContext?, Error?) -> Void) {
+        callback(DatabaseConnectionContext(authToken: nil, appCheckToken: nil), nil)
+    }
+
+    /// Adds a listener to the Auth token updates.
+    /// @param listener A block that will be invoked each time the Auth token is
+    /// updated.
+    func listenForAuthTokenChanges(_ listener:  @escaping (String) -> Void) {
+        
+    }
+
+    /// Adds a listener to the FAC token updates.
+    /// @param listener A block that will be invoked each time the FAC token is
+    /// updated.
+    func listenForAppCheckTokenChanges(_ listener: @escaping (String) -> Void) {
+
+    }
+
 }
 
 /**
@@ -71,6 +94,13 @@ import Foundation
 //
         // XXX TODO:
         fatalError("Not implemented yet")
+    }
+
+    public class func test() -> Database {
+        let parsedUrl = FUtilitiesSwift.parseUrl("https://firestoretests-44fc8.firebaseio.com")
+        let config = DatabaseConfig(sessionIdentifier: "default", googleAppID: "1:649012064016:ios:b4dcc2e22b3b90ea", contextProvider: Mock())
+        let database = Database(app: nil, repoInfo: parsedUrl.repoInfo, config: config)
+        return database
     }
 
     /**
