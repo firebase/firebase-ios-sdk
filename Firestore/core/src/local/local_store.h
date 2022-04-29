@@ -277,6 +277,11 @@ class LocalStore : public bundle::BundleCallback {
  private:
   friend class LocalStoreTest;  // for `GetTargetData()`
 
+  struct DocumentChangeResult {
+    model::MutableDocumentMap changed_docs;
+    model::DocumentKeySet existence_changed_keys;
+  };
+
   void StartMutationQueue();
   void ApplyBatchResult(const model::MutationBatchResult& batch_result);
 
@@ -323,7 +328,7 @@ class LocalStore : public bundle::BundleCallback {
    * @param global_version A SnapshotVersion representing the read time if all
    * documents have the same read time.
    */
-  model::MutableDocumentMap PopulateDocumentChanges(
+  DocumentChangeResult PopulateDocumentChanges(
       const model::DocumentUpdateMap& documents,
       const model::DocumentVersionMap& document_versions,
       const model::SnapshotVersion& global_version);

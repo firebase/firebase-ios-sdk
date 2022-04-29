@@ -89,9 +89,8 @@ class RemoteDocumentCache {
    * documents that have been read since this snapshot version (exclusive).
    * @return The set of matching documents.
    */
-  virtual model::MutableDocumentMap GetMatching(
-      const core::Query& query,
-      const model::SnapshotVersion& since_read_time) = 0;
+  virtual model::MutableDocumentMap GetAll(
+      const model::ResourcePath& path, const model::IndexOffset& offset) = 0;
 
   /**
    * Sets the index manager used by remote document cache.

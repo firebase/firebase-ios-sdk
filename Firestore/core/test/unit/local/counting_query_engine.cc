@@ -172,9 +172,9 @@ model::MutableDocumentMap WrappedRemoteDocumentCache::GetAll(
   return result;
 }
 
-model::MutableDocumentMap WrappedRemoteDocumentCache::GetMatching(
-    const core::Query& query, const model::SnapshotVersion& since_read_time) {
-  auto result = subject_->GetMatching(query, since_read_time);
+model::MutableDocumentMap WrappedRemoteDocumentCache::GetAll(
+    const model::ResourcePath& path, const model::IndexOffset& offset) {
+  auto result = subject_->GetAll(path, offset);
   query_engine_->documents_read_by_query_ += result.size();
   return result;
 }

@@ -19,12 +19,14 @@
 
 #include <vector>
 
+#include "Firestore/core/src/immutable/sorted_set.h"
 #include "Firestore/core/src/local/document_overlay_cache.h"
 #include "Firestore/core/src/local/index_manager.h"
 #include "Firestore/core/src/local/mutation_queue.h"
 #include "Firestore/core/src/local/remote_document_cache.h"
-#include "Firestore/core/src/immutable/sorted_set.h"
+#include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/model_fwd.h"
+#include "Firestore/core/src/model/overlayed_document.h"
 #include "Firestore/core/src/util/range.h"
 
 namespace firebase {
@@ -33,10 +35,6 @@ namespace firestore {
 namespace core {
 class Query;
 }  // namespace core
-
-namespace model {
-class Document;
-}  // namespace model
 
 namespace local {
 
@@ -84,11 +82,18 @@ class LocalDocumentsView {
    * `base_docs` without retrieving documents from the local store.
    *
    * @param docs The documents to apply local mutations to get the local views.
-   * @param existence_state_changed The set of document keys whose existence state
-   * is changed. This is useful to determine if some documents overlay needs to
-   * be recalculated.
+   * @param existence_state_changed The set of document keys whose existence
+   * state is changed. This is useful to determine if some documents overlay
+   * needs to be recalculated.
    */
-  model::DocumentMap GetLocalViewOfDocuments(const model::MutableDocumentMap& docs, const model::DocumentKeySet& existence_state_changed);
+  model::DocumentMap GetLocalViewOfDocuments(
+      const model::MutableDocumentMap& docs,
+      const model::DocumentKeySet& existence_state_changed);
+
+  model::OverlayedDocumentMap GetOverlayedDocuments(
+      const model::MutableDocumentMap& docs);
+
+  void RecalculateAndSaveOverlays(model::DocumentKeySet keys);
 
   /**
    * Performs a query against the local view of all documents.
@@ -99,7 +104,7 @@ class LocalDocumentsView {
    */
   // Virtual for testing.
   virtual model::DocumentMap GetDocumentsMatchingQuery(
-      const core::Query& query, const model::SnapshotVersion& since_read_time);
+      const core::Query& query, const model::IndexOffset& offset);
 
  private:
   friend class CountingQueryEngine;  // For testing
@@ -121,24 +126,11 @@ class LocalDocumentsView {
       const model::ResourcePath& doc_path);
 
   model::DocumentMap GetDocumentsMatchingCollectionGroupQuery(
-      const core::Query& query, const model::SnapshotVersion& since_read_time);
+      const core::Query& query, const model::IndexOffset& offset);
 
   /** Queries the remote documents and overlays mutations. */
   model::DocumentMap GetDocumentsMatchingCollectionQuery(
-      const core::Query& query, const model::SnapshotVersion& since_read_time);
-
-  /**
-   * It is possible that a `PatchMutation` can make a document match a query,
-   * even if the version in the `RemoteDocumentCache` is not a match yet
-   * (waiting for server to ack). To handle this, we find all document keys
-   * affected by the `PatchMutation`s that are not in `existing_docs` yet, and
-   * back fill them via `remote_document_cache_->GetAll`, otherwise those
-   * `PatchMutation`s will be ignored because no base document can be found, and
-   * lead to missing results for the query.
-   */
-  model::MutableDocumentMap AddMissingBaseDocuments(
-      const std::vector<model::MutationBatch>& matching_batches,
-      model::MutableDocumentMap existing_docs);
+      const core::Query& query, const model::IndexOffset& offset);
 
   RemoteDocumentCache* remote_document_cache() {
     return remote_document_cache_;
@@ -158,18 +150,29 @@ class LocalDocumentsView {
 
  private:
   /** Returns a base document that can be used to apply `overlay`. */
-  model::MutableDocument GetBaseDocument(const model::DocumentKey& key, const absl::optional<model::Overlay>& overlay) const;
+  model::MutableDocument GetBaseDocument(
+      const model::DocumentKey& key,
+      const absl::optional<model::Overlay>& overlay) const;
 
   /**
    * Fetches the overlays for `keys` and adds them to provided overlay map if
    * the map does not already contain an entry for the given key.
    */
-  void PopulateOverlays(DocumentOverlayCache::OverlayByDocumentKeyMap& overlays, const model::DocumentKeySet& keys) const;
+  void PopulateOverlays(DocumentOverlayCache::OverlayByDocumentKeyMap& overlays,
+                        const model::DocumentKeySet& keys) const;
 
   /* Computes the local view for doc */
-  model::DocumentMap ComputeViews(model::MutableDocumentMap docs, DocumentOverlayCache::OverlayByDocumentKeyMap&& overlays, const model::DocumentKeySet& existence_state_changed);
+  model::OverlayedDocumentMap ComputeViews(
+      model::MutableDocumentMap docs,
+      DocumentOverlayCache::OverlayByDocumentKeyMap&& overlays,
+      const model::DocumentKeySet& existence_state_changed);
 
-  model::MutableDocumentMap RecalculateAndSaveOverlays(model::MutableDocumentMap docs);
+  std::unordered_map<model::DocumentKey,
+                     absl::optional<model::FieldMask>,
+                     model::DocumentKeyHash>
+  RecalculateAndSaveOverlays(std::unordered_map<model::DocumentKey,
+                                                model::MutableDocument*,
+                                                model::DocumentKeyHash> docs);
 
   RemoteDocumentCache* remote_document_cache_;
   MutationQueue* mutation_queue_;

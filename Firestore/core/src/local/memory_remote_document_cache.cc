@@ -73,37 +73,31 @@ MutableDocumentMap MemoryRemoteDocumentCache::GetAll(
   return results;
 }
 
-MutableDocumentMap MemoryRemoteDocumentCache::GetMatching(
-    const Query& query, const SnapshotVersion& since_read_time) {
-  HARD_ASSERT(
-      !query.IsCollectionGroupQuery(),
-      "CollectionGroup queries should be handled in LocalDocumentsView");
-
+MutableDocumentMap MemoryRemoteDocumentCache::GetAll(
+    const model::ResourcePath& path, const model::IndexOffset& offset) {
   MutableDocumentMap results;
 
   // Documents are ordered by key, so we can use a prefix scan to narrow down
   // the documents we need to match the query against.
-  DocumentKey prefix{query.path().Append("")};
+  DocumentKey prefix{path.Append("")};
   for (auto it = docs_.lower_bound(prefix); it != docs_.end(); ++it) {
     const DocumentKey& key = it->first;
-    if (!query.path().IsPrefixOf(key.path())) {
+    if (!path.IsPrefixOf(key.path())) {
       break;
     }
     const MutableDocument& document = it->second.first;
-    if (!document.is_found_document()) {
+    if (key.path().size() > path.size() + 1) {
+      // Exclude entries from subcollections.
       continue;
     }
 
-    const SnapshotVersion& read_time = it->second.second;
-    if (read_time <= since_read_time) {
+    if (model::IndexOffset::FromDocument(document).CompareTo(offset) !=
+        util::ComparisonResult::Descending) {
+      // The document sorts before the offset.
       continue;
     }
 
-    if (!query.Matches(document)) {
-      continue;
-    }
-
-    // Note: We create an explicit copy to prevent modifications or the backing
+    // Note: We create an explicit copy to prevent modifications on the backing
     // data.
     results = results.insert(key, document.Clone());
   }

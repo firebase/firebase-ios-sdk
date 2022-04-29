@@ -46,9 +46,8 @@ class MemoryRemoteDocumentCache : public RemoteDocumentCache {
 
   model::MutableDocument Get(const model::DocumentKey& key) override;
   model::MutableDocumentMap GetAll(const model::DocumentKeySet& keys) override;
-  model::MutableDocumentMap GetMatching(
-      const core::Query& query,
-      const model::SnapshotVersion& since_read_time) override;
+  model::MutableDocumentMap GetAll(const model::ResourcePath& path,
+                                   const model::IndexOffset& offset) override;
   void SetIndexManager(IndexManager* manager) override;
 
   std::vector<model::DocumentKey> RemoveOrphanedDocuments(

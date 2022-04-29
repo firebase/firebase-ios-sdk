@@ -16,9 +16,9 @@
 
 #include "Firestore/core/src/local/document_overlay_cache.h"
 
+#include "Firestore/core/src/immutable/sorted_set.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/overlay.h"
-#include "Firestore/core/src/immutable/sorted_set.h"
 
 namespace firebase {
 namespace firestore {
@@ -28,7 +28,9 @@ using model::DocumentKey;
 using model::DocumentKeySet;
 using model::Overlay;
 
-void DocumentOverlayCache::GetOverlays(DocumentOverlayCache::OverlayByDocumentKeyMap& dest, const DocumentKeySet& keys) const {
+void DocumentOverlayCache::GetOverlays(
+    DocumentOverlayCache::OverlayByDocumentKeyMap& dest,
+    const DocumentKeySet& keys) const {
   for (const DocumentKey& key : keys) {
     absl::optional<Overlay> overlay = GetOverlay(key);
     if (overlay.has_value()) {

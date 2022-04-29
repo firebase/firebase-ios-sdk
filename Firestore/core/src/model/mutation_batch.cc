@@ -57,39 +57,45 @@ void MutationBatch::ApplyToRemoteDocument(
   }
 }
 
-absl::optional<FieldMask> MutationBatch::ApplyToLocalView(MutableDocument& document, absl::optional<FieldMask>&& mutated_fields) const {
+absl::optional<FieldMask> MutationBatch::ApplyToLocalView(
+    MutableDocument& document,
+    absl::optional<FieldMask>&& mutated_fields) const {
   // First, apply the base state. This allows us to apply non-idempotent
   // transform against a consistent set of values.
   for (const Mutation& mutation : base_mutations_) {
     if (mutation.key() == document.key()) {
-      mutated_fields = mutation.ApplyToLocalView(document, std::move(mutated_fields), local_write_time_);
+      mutated_fields = mutation.ApplyToLocalView(
+          document, std::move(mutated_fields), local_write_time_);
     }
   }
 
   // Second, apply all user-provided mutations.
   for (const Mutation& mutation : mutations_) {
     if (mutation.key() == document.key()) {
-      mutated_fields = mutation.ApplyToLocalView(document, std::move(mutated_fields), local_write_time_);
+      mutated_fields = mutation.ApplyToLocalView(
+          document, std::move(mutated_fields), local_write_time_);
     }
   }
 
   return std::move(mutated_fields);
 }
 
-
-FieldMask MutationBatch::ApplyToLocalDocument(MutableDocument& document) const {
-  FieldMask mutated_fields;
-  return ApplyToLocalDocument(document, std::move(mutated_fields));
+absl::optional<FieldMask> MutationBatch::ApplyToLocalDocument(
+    MutableDocument& document) const {
+  return ApplyToLocalDocument(document, absl::nullopt);
 }
 
-FieldMask MutationBatch::ApplyToLocalDocument(MutableDocument& document, FieldMask&& mutated_fields_init) const {
+absl::optional<FieldMask> MutationBatch::ApplyToLocalDocument(
+    MutableDocument& document,
+    absl::optional<FieldMask>&& mutated_fields_init) const {
   // First, apply the base state. This allows us to apply non-idempotent
   // transform against a consistent set of values.
   absl::optional<FieldMask> mutated_fields(std::move(mutated_fields_init));
   for (const Mutation& mutation : base_mutations_) {
     if (mutation.key() == document.key()) {
       // TODO(dconeybe) Replace absl::nullopt with a FieldMask?
-      auto new_mutated_fields = mutation.ApplyToLocalView(document, std::move(mutated_fields), local_write_time_);
+      auto new_mutated_fields = mutation.ApplyToLocalView(
+          document, std::move(mutated_fields), local_write_time_);
       mutated_fields.swap(new_mutated_fields);
     }
   }
@@ -97,15 +103,18 @@ FieldMask MutationBatch::ApplyToLocalDocument(MutableDocument& document, FieldMa
   // Second, apply all user-provided mutations.
   for (const Mutation& mutation : mutations_) {
     if (mutation.key() == document.key()) {
-      auto new_mutated_fields = mutation.ApplyToLocalView(document, std::move(mutated_fields), local_write_time_);
+      auto new_mutated_fields = mutation.ApplyToLocalView(
+          document, std::move(mutated_fields), local_write_time_);
       mutated_fields.swap(new_mutated_fields);
     }
   }
 
-  return std::move(mutated_fields).value();
+  return mutated_fields;
 }
 
-MutationBatch::MutationByDocumentKeyMap MutationBatch::ApplyToLocalDocumentSet(DocumentMap& document_map) const {
+MutationBatch::MutationByDocumentKeyMap MutationBatch::ApplyToLocalDocumentSet(
+    std::unordered_map<DocumentKey, OverlayedDocument, DocumentKeyHash>&
+        document_map) const {
   // TODO(mrschmidt): This implementation is O(n^2). If we iterate through the
   // mutations first (as done in `applyToLocalDocument:documentKey:`), we can
   // reduce the complexity to O(n).
@@ -119,9 +128,10 @@ MutationBatch::MutationByDocumentKeyMap MutationBatch::ApplyToLocalDocumentSet(D
                 key.ToString());
     // TODO(mutabledocuments): This method should take a map of MutableDocuments
     // and we should remove this cast.
-    auto& document = const_cast<MutableDocument&>(it->second.get());
-    FieldMask mutated_fields = ApplyToLocalDocument(document);
-    absl::optional<Mutation> overlay = Mutation::CalculateOverlayMutation(document, mutated_fields);
+    auto& document = const_cast<MutableDocument&>(it->second.document().get());
+    auto mutated_fields = ApplyToLocalDocument(document);
+    absl::optional<Mutation> overlay =
+        Mutation::CalculateOverlayMutation(document, mutated_fields);
     if (overlay.has_value()) {
       overlays.emplace(key, std::move(overlay).value());
     }

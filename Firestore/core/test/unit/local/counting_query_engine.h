@@ -58,7 +58,7 @@ class CountingQueryEngine : public QueryEngine {
 
   /**
    * Returns the number of documents returned by the RemoteDocumentCache's
-   * `GetMatching()` API (since the last call to `ResetCounts()`)
+   * `GetAll()` API (since the last call to `ResetCounts()`)
    */
   size_t documents_read_by_query() const {
     return documents_read_by_query_;
@@ -77,8 +77,8 @@ class CountingQueryEngine : public QueryEngine {
    * `getAllMutationBatchesAffectingQuery()` API (since the last call to
    * `ResetCounts()`)
    */
-  size_t mutations_read_by_query() const {
-    return mutations_read_by_query_;
+  size_t overlays_read_by_query() const {
+    return overlays_read_by_collection_;
   }
 
   /**
@@ -87,8 +87,8 @@ class CountingQueryEngine : public QueryEngine {
    * `AllMutationBatchesAffectingDocumentKeys()` APIs (since the last call to
    * `ResetCounts()`)
    */
-  size_t mutations_read_by_key() const {
-    return mutations_read_by_key_;
+  size_t overlays_read_by_key() const {
+    return overlays_read_by_key_;
   }
 
  private:
@@ -179,9 +179,8 @@ class WrappedRemoteDocumentCache : public RemoteDocumentCache {
 
   model::MutableDocumentMap GetAll(const model::DocumentKeySet& keys) override;
 
-  model::MutableDocumentMap GetMatching(
-      const core::Query& query,
-      const model::SnapshotVersion& since_read_time) override;
+  model::MutableDocumentMap GetAll(const model::ResourcePath& path,
+                                   const model::IndexOffset& offset) override;
 
   void SetIndexManager(IndexManager* manager) override {
     index_manager_ = NOT_NULL(manager);

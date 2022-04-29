@@ -185,6 +185,10 @@ class Mutation {
     return rep().field_transforms();
   }
 
+  const absl::optional<FieldMask>& field_mask() const {
+    return rep().field_mask();
+  }
+
   /**
    * Applies this mutation to the given Document for the purposes of computing
    * the committed state of the document after the server has acknowledged that
@@ -275,6 +279,11 @@ class Mutation {
         Precondition&& precondition,
         std::vector<FieldTransform>&& field_transforms);
 
+    Rep(DocumentKey&& key,
+        Precondition&& precondition,
+        std::vector<FieldTransform>&& field_transforms,
+        absl::optional<FieldMask>&& mask);
+
     virtual ~Rep() = default;
 
     virtual Type type() const = 0;
@@ -289,6 +298,10 @@ class Mutation {
 
     const std::vector<FieldTransform>& field_transforms() const {
       return field_transforms_;
+    }
+
+    const absl::optional<FieldMask>& field_mask() const {
+      return mask_;
     }
 
     virtual void ApplyToRemoteDocument(
@@ -347,6 +360,7 @@ class Mutation {
     DocumentKey key_;
     Precondition precondition_;
     std::vector<FieldTransform> field_transforms_;
+    absl::optional<FieldMask> mask_;
   };
 
   explicit Mutation(std::shared_ptr<Rep>&& rep) : rep_(std::move(rep)) {
