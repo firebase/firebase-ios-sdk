@@ -23,8 +23,8 @@ open class HTTPSCallableResult: NSObject {
    * The data that was returned from the Callable HTTPS trigger.
    *
    * The data is in the form of native objects. For example, if your trigger returned an
-   * array, this object would be an NSArray. If your trigger returned a JavaScript object with
-   * keys and values, this object would be an NSDictionary.
+   * array, this object would be an `Array<Any>`. If your trigger returned a JavaScript object with
+   * keys and values, this object would be an instance of `[String: Any]`.
    */
   @objc public let data: Any
 
@@ -34,7 +34,7 @@ open class HTTPSCallableResult: NSObject {
 }
 
 /**
- * A `HTTPSCallable` is reference to a particular Callable HTTPS trigger in Cloud Functions.
+ * A `HTTPSCallable` is a reference to a particular Callable HTTPS trigger in Cloud Functions.
  */
 @objc(FIRHTTPSCallable)
 open class HTTPSCallable: NSObject {
@@ -71,11 +71,11 @@ open class HTTPSCallable: NSObject {
    * Executes this Callable HTTPS trigger asynchronously.
    *
    * The data passed into the trigger can be any of the following types:
-   * * NSNull
-   * * NSString
-   * * NSNumber
-   * * NSArray<id>, where the contained objects are also one of these types.
-   * * NSDictionary<NSString, id>, where the values are also one of these types.
+   * - `nil` or `NSNull`
+   * - `String`
+   * - `NSNumber`, or any Swift numeric type bridgeable to `NSNumber`
+   * - `[Any]`, where the contained objects are also one of these types.
+   * - `[String: Any]` where the values are also one of these types.
    *
    * The request to the Cloud Functions backend made by this method automatically includes a
    * Firebase Installations ID token to identify the app instance. If a user is logged in with
@@ -85,8 +85,9 @@ open class HTTPSCallable: NSObject {
    * regarding the app instance. To stop this, see `Messaging.deleteData()`. It
    * resumes with a new FCM Token the next time you call this method.
    *
-   * @param data Parameters to pass to the trigger.
-   * @param completion The block to call when the HTTPS request has completed.
+   * - Parameters:
+   *   - data: Parameters to pass to the trigger.
+   *   - completion: The block to call when the HTTPS request has completed.
    */
   @objc(callWithObject:completion:) open func call(_ data: Any? = nil,
                                                    completion: @escaping (HTTPSCallableResult?,
@@ -115,7 +116,7 @@ open class HTTPSCallable: NSObject {
   }
 
   /**
-   * Executes this Callable HTTPS trigger asynchronously. This API should only be used from Objective C
+   * Executes this Callable HTTPS trigger asynchronously. This API should only be used from Objective-C.
    *
    * The request to the Cloud Functions backend made by this method automatically includes a
    * Firebase Installations ID token to identify the app instance. If a user is logged in with
@@ -125,7 +126,7 @@ open class HTTPSCallable: NSObject {
    * regarding the app instance. To stop this, see `Messaging.deleteData()`. It
    * resumes with a new FCM Token the next time you call this method.
    *
-   * @param completion The block to call when the HTTPS request has completed.
+   * - Parameter completion The block to call when the HTTPS request has completed.
    */
   @objc(callWithCompletion:) public func __call(completion: @escaping (HTTPSCallableResult?,
                                                                        Error?) -> Void) {
@@ -144,8 +145,9 @@ open class HTTPSCallable: NSObject {
      * regarding the app instance. To stop this, see `Messaging.deleteData()`. It
      * resumes with a new FCM Token the next time you call this method.
      *
-     * @param data Parameters to pass to the trigger.
-     * @returns The result of the call.
+     * - Parameter data Parameters to pass to the trigger.
+     * - Throws: An error if the Cloud Functions invocation failed.
+     * - Returns: The result of the call.
      */
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     open func call(_ data: Any? = nil) async throws -> HTTPSCallableResult {

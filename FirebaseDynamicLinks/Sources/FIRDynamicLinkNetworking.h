@@ -70,7 +70,7 @@ FOUNDATION_EXPORT NSString *const kApiaryRestBaseUrl;
 
 /**
  * @class FIRDynamicLinkNetworking
- * @abstract The class used to handle all network communications for the the service.
+ * @abstract The class used to handle all network communications for the service.
  */
 @interface FIRDynamicLinkNetworking : NSObject
 

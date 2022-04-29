@@ -15,7 +15,7 @@
 import Foundation
 import FirebaseStorageInternal
 
-// The error domain for codes in the StorageErrorCode enum.
+/// The error domain for codes in the `StorageErrorCode` enum.
 public let StorageErrorDomain: String = "FIRStorageErrorDomain"
 
 public enum StorageError: Error {

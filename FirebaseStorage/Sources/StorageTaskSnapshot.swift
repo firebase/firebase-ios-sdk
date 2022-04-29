@@ -17,38 +17,38 @@ import Foundation
 import FirebaseStorageInternal
 
 /**
- * StorageTaskSnapshot represents an immutable view of a task.
- * A Snapshot contains a task, storage reference, metadata (if it exists),
+ * `StorageTaskSnapshot` represents an immutable view of a task.
+ * A snapshot contains a task, storage reference, metadata (if it exists),
  * progress, and an error (if one occurred).
  */
 @objc(FIRStorageTaskSnapshot) open class StorageTaskSnapshot: NSObject {
   /**
-   * Subclass of StorageTask this snapshot represents.
+   * The task this snapshot represents.
    */
   @objc public let task: StorageTask
 
   /**
-   * Metadata returned by the task, or nil if no metadata returned.
+   * Metadata returned by the task, or `nil` if no metadata returned.
    */
   @objc public let metadata: StorageMetadata?
 
   /**
-   * StorageReference this task is operates on.
+   * The `StorageReference` this task operates on.
    */
   @objc public let reference: StorageReference
 
   /**
-   * Progress object which tracks the progress of an upload or download.
+   * An object which tracks the progress of an upload or download.
    */
   @objc public let progress: Progress?
 
   /**
-   * Error during task execution, or nil if no error occurred.
+   * An error raised during task execution, or `nil` if no error occurred.
    */
   @objc public let error: Error?
 
   /**
-   * Status of the task.
+   * The status of the task.
    */
   @objc public let status: StorageTaskStatus
 
