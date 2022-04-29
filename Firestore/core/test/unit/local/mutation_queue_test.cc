@@ -225,7 +225,8 @@ TEST_P(MutationQueueTest, AllMutationBatchesAffectingDocumentKey) {
     std::vector<Mutation> mutations = {
         testutil::SetMutation("foi/bar", Map("a", 1)),
         testutil::SetMutation("foo/bar", Map("a", 1)),
-        testutil::PatchMutation("foo/bar", Map("b", 1), {}),
+        testutil::PatchMutation("foo/bar", Map("b", 1),
+                                std::vector<model::FieldPath>{}),
         testutil::SetMutation("foo/bar/suffix/key", Map("a", 1)),
         testutil::SetMutation("foo/baz", Map("a", 1)),
         testutil::SetMutation("food/bar", Map("a", 1)),
@@ -253,7 +254,8 @@ TEST_P(MutationQueueTest, AllMutationBatchesAffectingMultipleDocumentKeys) {
     std::vector<Mutation> mutations = {
         testutil::SetMutation("fob/bar", Map("a", 1)),
         testutil::SetMutation("foo/bar", Map("a", 1)),
-        testutil::PatchMutation("foo/bar", Map("b", 1), {}),
+        testutil::PatchMutation("foo/bar", Map("b", 1),
+                                std::vector<model::FieldPath>{}),
         testutil::SetMutation("foo/bar/suffix/key", Map("a", 1)),
         testutil::SetMutation("foo/baz", Map("a", 1)),
         testutil::SetMutation("food/bar", Map("a", 1)),
@@ -320,7 +322,8 @@ TEST_P(MutationQueueTest, AllMutationBatchesAffectingQuery) {
     std::vector<Mutation> mutations = {
         testutil::SetMutation("fob/bar", Map("a", 1)),
         testutil::SetMutation("foo/bar", Map("a", 1)),
-        testutil::PatchMutation("foo/bar", Map("b", 1), {}),
+        testutil::PatchMutation("foo/bar", Map("b", 1),
+                                std::vector<model::FieldPath>{}),
         testutil::SetMutation("foo/bar/suffix/key", Map("a", 1)),
         testutil::SetMutation("foo/baz", Map("a", 1)),
         testutil::SetMutation("food/bar", Map("a", 1)),
