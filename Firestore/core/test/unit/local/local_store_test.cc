@@ -1708,6 +1708,101 @@ TEST_P(LocalStoreTest, OnlyPersistsUpdatesForDocumentsWhenVersionChanges) {
   FSTAssertChanged(Doc("foo/baz", 2, Map("val", "new")));
 }
 
+TEST_P(LocalStoreTest, CanHandleBatchAckWhenPendingBatchesHaveOtherDocs) {
+  // Prepare two batches, the first one will get rejected by the backend.
+  // When the first batch is rejected, overlay is recalculated with only the
+  // second batch, even though it has more documents than what is being
+  // rejected. See: https://github.com/firebase/firebase-android-sdk/issues/3490
+  WriteMutation(testutil::PatchMutation("foo/bar", Map("foo", "bar")));
+  WriteMutations({testutil::SetMutation("foo/bar", Map("foo", "bar-set")),
+                  testutil::SetMutation("foo/another", Map("foo", "another"))});
+
+  RejectMutation();
+  FSTAssertContains(
+      Doc("foo/bar", 0, Map("foo", "bar-set")).SetHasLocalMutations());
+  FSTAssertContains(
+      Doc("foo/another", 0, Map("foo", "another")).SetHasLocalMutations());
+}
+
+TEST_P(LocalStoreTest, MultipleFieldPatchesOnRemoteDocs) {
+  core::Query query = Query("foo");
+  AllocateQuery(query);
+  FSTAssertTargetID(2);
+
+  ApplyRemoteEvent(
+      AddedRemoteEvent(Doc("foo/bar", 1, Map("likes", 0, "stars", 0)), {2}));
+  FSTAssertChanged(Doc("foo/bar", 1, Map("likes", 0, "stars", 0)));
+  FSTAssertContains(Doc("foo/bar", 1, Map("likes", 0, "stars", 0)));
+
+  WriteMutation(testutil::PatchMutation("foo/bar", Map("likes", 1)));
+  FSTAssertChanged(
+      Doc("foo/bar", 1, Map("likes", 1, "stars", 0)).SetHasLocalMutations());
+  FSTAssertContains(
+      Doc("foo/bar", 1, Map("likes", 1, "stars", 0)).SetHasLocalMutations());
+
+  WriteMutation(testutil::PatchMutation("foo/bar", Map("stars", 1)));
+  FSTAssertChanged(
+      Doc("foo/bar", 1, Map("likes", 1, "stars", 1)).SetHasLocalMutations());
+  FSTAssertContains(
+      Doc("foo/bar", 1, Map("likes", 1, "stars", 1)).SetHasLocalMutations());
+
+  WriteMutation(testutil::PatchMutation("foo/bar", Map("stars", 2)));
+  FSTAssertChanged(
+      Doc("foo/bar", 1, Map("likes", 1, "stars", 2)).SetHasLocalMutations());
+  FSTAssertContains(
+      Doc("foo/bar", 1, Map("likes", 1, "stars", 2)).SetHasLocalMutations());
+}
+
+TEST_P(LocalStoreTest, MultipleFieldPatchesInOneBatchOnRemoteDocs) {
+  core::Query query = Query("foo");
+  AllocateQuery(query);
+  FSTAssertTargetID(2);
+
+  ApplyRemoteEvent(
+      AddedRemoteEvent(Doc("foo/bar", 1, Map("likes", 0, "stars", 0)), {2}));
+  FSTAssertChanged(Doc("foo/bar", 1, Map("likes", 0, "stars", 0)));
+  FSTAssertContains(Doc("foo/bar", 1, Map("likes", 0, "stars", 0)));
+
+  WriteMutations({testutil::PatchMutation("foo/bar", Map("likes", 1)),
+                  testutil::PatchMutation("foo/bar", Map("stars", 1))});
+  FSTAssertChanged(
+      Doc("foo/bar", 1, Map("likes", 1, "stars", 1)).SetHasLocalMutations());
+  FSTAssertContains(
+      Doc("foo/bar", 1, Map("likes", 1, "stars", 1)).SetHasLocalMutations());
+
+  WriteMutation(testutil::PatchMutation("foo/bar", Map("stars", 2)));
+  FSTAssertChanged(
+      Doc("foo/bar", 1, Map("likes", 1, "stars", 2)).SetHasLocalMutations());
+  FSTAssertContains(
+      Doc("foo/bar", 1, Map("likes", 1, "stars", 2)).SetHasLocalMutations());
+}
+
+TEST_P(LocalStoreTest, MultipleFieldPatchesOnLocalDocs) {
+  WriteMutation(testutil::SetMutation("foo/bar", Map("likes", 0, "stars", 0)));
+  FSTAssertChanged(
+      Doc("foo/bar", 0, Map("likes", 0, "stars", 0)).SetHasLocalMutations());
+  FSTAssertContains(
+      Doc("foo/bar", 0, Map("likes", 0, "stars", 0)).SetHasLocalMutations());
+
+  WriteMutation(testutil::PatchMutation("foo/bar", Map("likes", 1)));
+  FSTAssertChanged(
+      Doc("foo/bar", 0, Map("likes", 1, "stars", 0)).SetHasLocalMutations());
+  FSTAssertContains(
+      Doc("foo/bar", 0, Map("likes", 1, "stars", 0)).SetHasLocalMutations());
+
+  WriteMutation(testutil::PatchMutation("foo/bar", Map("stars", 1)));
+  FSTAssertChanged(
+      Doc("foo/bar", 0, Map("likes", 1, "stars", 1)).SetHasLocalMutations());
+  FSTAssertContains(
+      Doc("foo/bar", 0, Map("likes", 1, "stars", 1)).SetHasLocalMutations());
+
+  WriteMutation(testutil::PatchMutation("foo/bar", Map("stars", 2)));
+  FSTAssertChanged(
+      Doc("foo/bar", 0, Map("likes", 1, "stars", 2)).SetHasLocalMutations());
+  FSTAssertContains(
+      Doc("foo/bar", 0, Map("likes", 1, "stars", 2)).SetHasLocalMutations());
+}
+
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
