@@ -175,7 +175,7 @@ enum FUtilitiesSwift {
         let secure: Bool
         if let port = urlComponents.port {
             secure = urlComponents.scheme == "https" || urlComponents.scheme == "wss"
-            host += "\(port)"
+            host += ":\(port)"
         } else {
             secure = true
         }
