@@ -17,6 +17,7 @@
 #include "Firestore/core/src/model/patch_mutation.h"
 
 #include <cstdlib>
+#include <set>
 #include <utility>
 
 #include "Firestore/core/src/model/field_path.h"
@@ -94,20 +95,34 @@ void PatchMutation::Rep::ApplyToRemoteDocument(
       .SetHasCommittedMutations();
 }
 
-void PatchMutation::Rep::ApplyToLocalView(
-    MutableDocument& document, const Timestamp& local_write_time) const {
+absl::optional<FieldMask> PatchMutation::Rep::ApplyToLocalView(
+    MutableDocument& document,
+    absl::optional<FieldMask> previous_mask,
+    const Timestamp& local_write_time) const {
   VerifyKeyMatches(document);
 
   if (!precondition().IsValidFor(document)) {
-    return;
+    return previous_mask;
   }
 
   ObjectValue& data = document.data();
   auto transform_results = LocalTransformResults(data, local_write_time);
   data.SetAll(GetPatch());
   data.SetAll(std::move(transform_results));
-  document.ConvertToFoundDocument(GetPostMutationVersion(document))
-      .SetHasLocalMutations();
+  document.ConvertToFoundDocument(document.version()).SetHasLocalMutations();
+
+  if (!previous_mask.has_value()) {
+    return absl::nullopt;
+  }
+
+  std::set<FieldPath> merged_set(previous_mask.value().begin(),
+                                 previous_mask.value().end());
+  merged_set.insert(mask_.begin(), mask_.end());
+  std::vector<FieldPath> transformed;
+  for (const auto& transform : this->field_transforms()) {
+    merged_set.insert(transform.path());
+  }
+  return FieldMask{merged_set};
 }
 
 TransformMap PatchMutation::Rep::GetPatch() const {

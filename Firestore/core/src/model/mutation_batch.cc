@@ -62,14 +62,16 @@ void MutationBatch::ApplyToLocalDocument(MutableDocument& document) const {
   // transform against a consistent set of values.
   for (const Mutation& mutation : base_mutations_) {
     if (mutation.key() == document.key()) {
-      mutation.ApplyToLocalView(document, local_write_time_);
+      // TODO(Overlay): Use proper previous_mask
+      mutation.ApplyToLocalView(document, absl::nullopt, local_write_time_);
     }
   }
 
   // Second, apply all user-provided mutations.
   for (const Mutation& mutation : mutations_) {
     if (mutation.key() == document.key()) {
-      mutation.ApplyToLocalView(document, local_write_time_);
+      // TODO(Overlay): Use proper previous_mask
+      mutation.ApplyToLocalView(document, absl::nullopt, local_write_time_);
     }
   }
 }

@@ -92,6 +92,7 @@ MutableDocument& MutableDocument::SetHasCommittedMutations() {
 
 MutableDocument& MutableDocument::SetHasLocalMutations() {
   document_state_ = DocumentState::kHasLocalMutations;
+  version_ = SnapshotVersion::None();
   return *this;
 }
 
