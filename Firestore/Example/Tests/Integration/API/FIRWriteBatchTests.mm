@@ -383,7 +383,7 @@ int64_t GetCurrentMemoryUsedInMb() {
   FIRWriteBatch *batch = [mainDoc.firestore batch];
 
   // > 500 mutations will be rejected.
-  const int maxMutations = 500;
+  const int maxMutations = 400;
   for (int i = 0; i != maxMutations; ++i) {
     FIRDocumentReference *nestedDoc = [[mainDoc collectionWithPath:@"nested"] documentWithAutoID];
     // The exact data doesn't matter; what is important is the large number of mutations.

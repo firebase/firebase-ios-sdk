@@ -213,7 +213,7 @@ class Mutation {
    * locally non-existent document and may produce a non-existent document.
    *
    * @param document The document to mutate.
-   * @param previousMask The fields that have been updated before applying this
+   * @param previous_mask The fields that have been updated before applying this
    * mutation.
    * @param local_write_time A timestamp indicating the local write time of the
    *     batch this mutation is a part of.
