@@ -58,10 +58,7 @@ class MemoryRemoteDocumentCache : public RemoteDocumentCache {
 
  private:
   /** Underlying cache of documents and their read times. */
-  immutable::SortedMap<
-      model::DocumentKey,
-      std::pair<model::MutableDocument, model::SnapshotVersion>>
-      docs_;
+  immutable::SortedMap<model::DocumentKey, model::MutableDocument> docs_;
 
   // This instance is owned by MemoryPersistence; avoid a retain cycle.
   MemoryPersistence* persistence_;

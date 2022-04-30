@@ -130,7 +130,7 @@ class MutationBatch {
 
   absl::optional<FieldMask> ApplyToLocalDocument(
       MutableDocument& document,
-      absl::optional<FieldMask>&& mutated_fields_init) const;
+      absl::optional<FieldMask> mutated_fields_init) const;
 
   /**
    * Computes the local view for all provided documents given the mutations in

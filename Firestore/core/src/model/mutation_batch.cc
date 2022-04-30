@@ -82,12 +82,12 @@ absl::optional<FieldMask> MutationBatch::ApplyToLocalView(
 
 absl::optional<FieldMask> MutationBatch::ApplyToLocalDocument(
     MutableDocument& document) const {
-  return ApplyToLocalDocument(document, absl::nullopt);
+  return ApplyToLocalDocument(document, FieldMask{});
 }
 
 absl::optional<FieldMask> MutationBatch::ApplyToLocalDocument(
     MutableDocument& document,
-    absl::optional<FieldMask>&& mutated_fields_init) const {
+    absl::optional<FieldMask> mutated_fields_init) const {
   // First, apply the base state. This allows us to apply non-idempotent
   // transform against a consistent set of values.
   absl::optional<FieldMask> mutated_fields(std::move(mutated_fields_init));
@@ -129,7 +129,8 @@ MutationBatch::MutationByDocumentKeyMap MutationBatch::ApplyToLocalDocumentSet(
     // TODO(mutabledocuments): This method should take a map of MutableDocuments
     // and we should remove this cast.
     auto& document = const_cast<MutableDocument&>(it->second.document().get());
-    auto mutated_fields = ApplyToLocalDocument(document);
+    auto mutated_fields =
+        ApplyToLocalDocument(document, std::move(it->second.mutated_fields()));
     absl::optional<Mutation> overlay =
         Mutation::CalculateOverlayMutation(document, mutated_fields);
     if (overlay.has_value()) {

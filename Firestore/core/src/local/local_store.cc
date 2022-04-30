@@ -17,6 +17,7 @@
 #include "Firestore/core/src/local/local_store.h"
 
 #include <string>
+#include <unordered_set>
 #include <utility>
 
 #include "Firestore/core/src/local/bundle_cache.h"
@@ -139,6 +140,7 @@ DocumentMap LocalStore::HandleUserChange(const User& user) {
   local_documents_.reset();
   index_manager_ = persistence_->GetIndexManager(user);
   mutation_queue_ = persistence_->GetMutationQueue(user, index_manager_);
+  document_overlay_cache_ = persistence_->GetDocumentOverlayCache(user);
   remote_document_cache_->SetIndexManager(index_manager_);
 
   StartMutationQueue();
@@ -590,7 +592,8 @@ DocumentMap LocalStore::ApplyBundledDocuments(
     auto result = PopulateDocumentChanges(document_updates, versions,
                                           SnapshotVersion::None());
     return local_documents_->GetLocalViewOfDocuments(
-        std::move(result.changed_docs), DocumentKeySet{});
+        std::move(result.changed_docs),
+        std::move(result.existence_changed_keys));
   });
 }
 

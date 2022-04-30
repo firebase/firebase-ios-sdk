@@ -44,7 +44,8 @@ MemoryRemoteDocumentCache::MemoryRemoteDocumentCache(
 void MemoryRemoteDocumentCache::Add(const MutableDocument& document,
                                     const model::SnapshotVersion& read_time) {
   // Note: We create an explicit copy to prevent further modifications.
-  docs_ = docs_.insert(document.key(), std::make_pair(document, read_time));
+  docs_ =
+      docs_.insert(document.key(), document.Clone().WithReadTime(read_time));
 
   NOT_NULL(index_manager_);
   index_manager_->AddToCollectionParentIndex(document.key().path().PopLast());
@@ -58,7 +59,7 @@ MutableDocument MemoryRemoteDocumentCache::Get(const DocumentKey& key) {
   const auto& entry = docs_.get(key);
   // Note: We create an explicit copy to prevent modifications of the backing
   // data.
-  return entry ? entry->first.Clone() : MutableDocument::InvalidDocument(key);
+  return entry ? entry->Clone() : MutableDocument::InvalidDocument(key);
 }
 
 MutableDocumentMap MemoryRemoteDocumentCache::GetAll(
@@ -85,7 +86,7 @@ MutableDocumentMap MemoryRemoteDocumentCache::GetAll(
     if (!path.IsPrefixOf(key.path())) {
       break;
     }
-    const MutableDocument& document = it->second.first;
+    const MutableDocument& document = it->second;
     if (key.path().size() > path.size() + 1) {
       // Exclude entries from subcollections.
       continue;
@@ -123,7 +124,7 @@ std::vector<DocumentKey> MemoryRemoteDocumentCache::RemoveOrphanedDocuments(
 int64_t MemoryRemoteDocumentCache::CalculateByteSize(const Sizer& sizer) {
   int64_t count = 0;
   for (const auto& kv : docs_) {
-    const MutableDocument& document = kv.second.first;
+    const MutableDocument& document = kv.second;
     count += sizer.CalculateByteSize(document);
   }
   return count;

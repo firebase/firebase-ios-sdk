@@ -156,7 +156,7 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
     if (overlay_it != overlays.end()) {
       (*overlay_it)
           .second.mutation()
-          .ApplyToLocalView(doc, absl::nullopt, Timestamp::Now());
+          .ApplyToLocalView(doc, FieldMask(), Timestamp::Now());
     }
     // Finally, insert the documents that still match the query
     if (query.Matches(doc)) {
@@ -173,7 +173,7 @@ Document LocalDocumentsView::GetDocument(const DocumentKey& key) {
   absl::optional<Overlay> overlay = document_overlay_cache_->GetOverlay(key);
   MutableDocument document = GetBaseDocument(key, overlay);
   if (overlay.has_value()) {
-    overlay.value().mutation().ApplyToLocalView(document, absl::nullopt,
+    overlay.value().mutation().ApplyToLocalView(document, FieldMask(),
                                                 Timestamp::Now());
   }
   return document;

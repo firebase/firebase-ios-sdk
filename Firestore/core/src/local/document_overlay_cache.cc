@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/local/document_overlay_cache.h"
 
+#include <utility>
+
 #include "Firestore/core/src/immutable/sorted_set.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/overlay.h"

@@ -1431,7 +1431,6 @@ TEST_P(LocalStoreTest, HoldsBackTransforms) {
   array_union.push_back(Value("foo"));
   WriteMutation(testutil::PatchMutation(
       "foo/bar", Map(), {testutil::ArrayUnion("array_union", array_union)}));
-
   FSTAssertChanged(Doc("foo/bar", 1, Map("sum", 1, "array_union", Array("foo")))
                        .SetHasLocalMutations());
 
@@ -1443,15 +1442,17 @@ TEST_P(LocalStoreTest, HoldsBackTransforms) {
   FSTAssertChanged(Doc("foo/bar", 2, Map("sum", 1, "array_union", Array("foo")))
                        .SetHasLocalMutations());
 
+  // With a field transform acknowledgement, the overlay is recalculated with
+  // remaining local mutations.
   AcknowledgeMutationWithVersion(3, Value(1338));
   FSTAssertChanged(
-      Doc("foo/bar", 3, Map("sum", 1338, "array_union", Array("foo")))
+      Doc("foo/bar", 3, Map("sum", 1338, "array_union", Array("bar", "foo")))
           .SetHasLocalMutations());
 
   AcknowledgeMutationWithVersion(4, Value("bar"));
   FSTAssertChanged(
       Doc("foo/bar", 4, Map("sum", 1338, "array_union", Array("bar", "foo")))
-          .SetHasLocalMutations());
+          .SetHasCommittedMutations());
 }
 
 TEST_P(LocalStoreTest, HandlesMergeMutationWithTransformThenRemoteEvent) {

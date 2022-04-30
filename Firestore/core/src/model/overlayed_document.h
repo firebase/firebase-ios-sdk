@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #ifndef FIRESTORE_CORE_SRC_MODEL_OVERLAYED_DOCUMENT_H_
 #define FIRESTORE_CORE_SRC_MODEL_OVERLAYED_DOCUMENT_H_
+
+#include <utility>
 
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/model_fwd.h"
