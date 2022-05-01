@@ -98,6 +98,9 @@
 }
 
 - (void)tearDown {
+  dispatch_sync(self.managerData.dispatchQueue, ^{
+                    // Drain queue.
+                });
   dispatch_sync(self.onDemandModel.operationQueue.underlyingQueue, ^{
                     // Drain queue.
                 });
