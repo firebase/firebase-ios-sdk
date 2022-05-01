@@ -98,6 +98,9 @@
 }
 
 - (void)tearDown {
+  dispatch_sync(self.onDemandModel.operationQueue.underlyingQueue, ^{
+                    // Drain queue.
+                });
   self.onDemandModel = nil;
   [[NSFileManager defaultManager] removeItemAtPath:self.fileManager.rootPath error:nil];
   [super tearDown];
