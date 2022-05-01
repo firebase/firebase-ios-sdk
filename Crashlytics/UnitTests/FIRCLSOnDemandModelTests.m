@@ -98,6 +98,9 @@
 }
 
 - (void)tearDown {
+  dispatch_sync(self.existingReportManager.operationQueue.underlyingQueue, ^{
+                    // Drain queue.
+                });
   dispatch_sync(self.managerData.dispatchQueue, ^{
                     // Drain queue.
                 });
