@@ -49,8 +49,8 @@ pb_bytes_array_s* kMaxValueFieldKey =
     nanopb::MakeBytesArray(kRawMaxValueFieldKey);
 
 /** The field value of a maximum proto value. */
-const char* kRawMaxValueFieldValue = "__max__";
-pb_bytes_array_s* kMaxValueFieldValue =
+static const char* kRawMaxValueFieldValue = "__max__";
+static pb_bytes_array_s* kMaxValueFieldValue =
     nanopb::MakeBytesArray(kRawMaxValueFieldValue);
 
 }  // namespace
