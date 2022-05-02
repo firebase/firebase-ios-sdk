@@ -68,19 +68,6 @@ Document LocalDocumentsView::GetDocument(
   return Document{std::move(document)};
 }
 
-DocumentMap LocalDocumentsView::ApplyLocalMutationsToDocuments(
-    MutableDocumentMap& docs, const std::vector<MutationBatch>& batches) {
-  DocumentMap results;
-  for (const auto& kv : docs) {
-    MutableDocument local_view = kv.second;
-    for (const MutationBatch& batch : batches) {
-      batch.ApplyToLocalDocument(local_view);
-    }
-    results = results.insert(kv.first, std::move(local_view));
-  }
-  return results;
-}
-
 DocumentMap LocalDocumentsView::GetDocumentsMatchingQuery(
     const Query& query, const model::IndexOffset& offset) {
   if (query.IsDocumentQuery()) {
@@ -167,8 +154,6 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
   return results;
 }
 
-////////////////////////
-
 Document LocalDocumentsView::GetDocument(const DocumentKey& key) {
   absl::optional<Overlay> overlay = document_overlay_cache_->GetOverlay(key);
   MutableDocument document = GetBaseDocument(key, overlay);
@@ -185,12 +170,12 @@ DocumentMap LocalDocumentsView::GetDocuments(const DocumentKeySet& keys) {
 }
 
 DocumentMap LocalDocumentsView::GetLocalViewOfDocuments(
-    const MutableDocumentMap& docs,
+    const MutableDocumentMap& base_docs,
     const DocumentKeySet& existence_state_changed) {
   DocumentOverlayCache::OverlayByDocumentKeyMap overlays;
-  PopulateOverlays(overlays, DocumentKeySet::FromKeysOf(docs));
+  PopulateOverlays(overlays, DocumentKeySet::FromKeysOf(base_docs));
   auto overlayed_documents =
-      ComputeViews(docs, std::move(overlays), existence_state_changed);
+      ComputeViews(base_docs, std::move(overlays), existence_state_changed);
 
   DocumentMap result;
   for (const auto& entry : overlayed_documents) {
@@ -222,10 +207,8 @@ model::OverlayedDocumentMap LocalDocumentsView::ComputeViews(
     MutableDocumentMap docs,
     DocumentOverlayCache::OverlayByDocumentKeyMap&& overlays,
     const DocumentKeySet& existence_state_changed) {
-  std::unordered_map<DocumentKey, model::MutableDocument*, DocumentKeyHash>
-      recalculate_documents;
-  std::unordered_map<DocumentKey, absl::optional<FieldMask>, DocumentKeyHash>
-      mutated_fields;
+  model::MutableDocumentPtrMap recalculate_documents;
+  model::FieldMaskMap mutated_fields;
   for (const auto& docs_entry : docs) {
     auto* doc = const_cast<MutableDocument*>(&(docs_entry.second));
     auto overlay_it = overlays.find(doc->key());
@@ -263,8 +246,7 @@ model::OverlayedDocumentMap LocalDocumentsView::ComputeViews(
 }
 
 void LocalDocumentsView::RecalculateAndSaveOverlays(DocumentKeySet keys) {
-  std::unordered_map<DocumentKey, model::MutableDocument*, DocumentKeyHash>
-      docs;
+  model::MutableDocumentPtrMap docs;
   auto remote_docs = remote_document_cache_->GetAll(keys);
   for (const auto& entry : remote_docs) {
     docs[entry.first] = const_cast<MutableDocument*>(&(entry.second));
@@ -272,10 +254,8 @@ void LocalDocumentsView::RecalculateAndSaveOverlays(DocumentKeySet keys) {
   RecalculateAndSaveOverlays(std::move(docs));
 }
 
-std::unordered_map<DocumentKey, absl::optional<FieldMask>, DocumentKeyHash>
-LocalDocumentsView::RecalculateAndSaveOverlays(
-    std::unordered_map<DocumentKey, model::MutableDocument*, DocumentKeyHash>
-        docs) {
+model::FieldMaskMap LocalDocumentsView::RecalculateAndSaveOverlays(
+    model::MutableDocumentPtrMap docs) {
   DocumentKeySet keys;
   for (const auto& doc : docs) {
     keys = keys.insert(doc.first);
@@ -283,8 +263,7 @@ LocalDocumentsView::RecalculateAndSaveOverlays(
   std::vector<MutationBatch> batches =
       mutation_queue_->AllMutationBatchesAffectingDocumentKeys(std::move(keys));
 
-  std::unordered_map<DocumentKey, absl::optional<FieldMask>, DocumentKeyHash>
-      masks;
+  model::FieldMaskMap masks;
   // A reverse lookup map from batch id to the documents within that batch,
   // ordered by batch id (note that std::map is ordered).
   std::map<BatchId, DocumentKeySet> documents_by_batch_id;

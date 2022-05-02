@@ -87,10 +87,11 @@ absl::optional<FieldMask> MutationBatch::ApplyToLocalDocument(
 
 absl::optional<FieldMask> MutationBatch::ApplyToLocalDocument(
     MutableDocument& document,
-    absl::optional<FieldMask> mutated_fields_init) const {
+    absl::optional<FieldMask> previously_mutated_fields) const {
   // First, apply the base state. This allows us to apply non-idempotent
   // transform against a consistent set of values.
-  absl::optional<FieldMask> mutated_fields(std::move(mutated_fields_init));
+  absl::optional<FieldMask> mutated_fields(
+      std::move(previously_mutated_fields));
   for (const Mutation& mutation : base_mutations_) {
     if (mutation.key() == document.key()) {
       // TODO(dconeybe) Replace absl::nullopt with a FieldMask?

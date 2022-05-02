@@ -110,6 +110,13 @@ using DocumentUpdateMap =
 using OverlayedDocumentMap = std::unordered_map<model::DocumentKey,
                                                 model::OverlayedDocument,
                                                 model::DocumentKeyHash>;
+using FieldMaskMap = std::unordered_map<model::DocumentKey,
+                                        absl::optional<model::FieldMask>,
+                                        model::DocumentKeyHash>;
+
+using MutableDocumentPtrMap = std::unordered_map<model::DocumentKey,
+                                                 model::MutableDocument*,
+                                                 model::DocumentKeyHash>;
 
 // A map of FieldPaths to transforms. Sorted so it can be used in
 // ObjectValue::SetAll, which makes it more efficient as it processes field

@@ -128,9 +128,23 @@ class MutationBatch {
   absl::optional<FieldMask> ApplyToLocalDocument(
       MutableDocument& document) const;
 
+  /**
+   * Estimates the latency compensated view of all the mutations in this batch
+   * applied to the given MaybeDocument.
+   *
+   * Unlike ApplyToRemoteDocument, this method is used before the mutation has
+   * been committed and so it's possible that the mutation is operating on a
+   * locally non-existent document and may produce a non-existent document.
+   *
+   * @param document The document to which to apply mutations.
+   * @param previously_mutated_fields The field mask from previous mutation
+   * application, or empty for initial application.
+   *
+   * @return A `FieldMask` representing all the fields that are mutated.
+   */
   absl::optional<FieldMask> ApplyToLocalDocument(
       MutableDocument& document,
-      absl::optional<FieldMask> mutated_fields_init) const;
+      absl::optional<FieldMask> previously_mutated_fields) const;
 
   /**
    * Computes the local view for all provided documents given the mutations in

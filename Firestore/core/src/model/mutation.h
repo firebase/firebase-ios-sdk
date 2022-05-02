@@ -218,7 +218,7 @@ class Mutation {
    * @param local_write_time A timestamp indicating the local write time of the
    *     batch this mutation is a part of.
    * @return A `FieldMask` representing the fields that are changed by applying
-   * this mutation.
+   * this mutation, or `absl::nullopt` if the entire document is overwritten.
    */
   absl::optional<FieldMask> ApplyToLocalView(
       MutableDocument& document,

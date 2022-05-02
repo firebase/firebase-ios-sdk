@@ -70,10 +70,7 @@ class LocalDocumentsView {
   /**
    * Gets the local view of the documents identified by `keys`.
    *
-   * TODO(dconeybe) Verify that "DeletedDocument" is correct in the
-   * paragraph below; in Android javadocs, it says "NoDocument".
-   *
-   * If we don't have cached state for a document in `keys`, a DeletedDocument
+   * If we don't have cached state for a document in `keys`, a NoDocument
    * will be stored for that key in the resulting set.
    */
   model::DocumentMap GetDocuments(const model::DocumentKeySet& keys);
@@ -82,13 +79,14 @@ class LocalDocumentsView {
    * Similar to `GetDocuments`, but creates the local view from the given
    * `base_docs` without retrieving documents from the local store.
    *
-   * @param docs The documents to apply local mutations to get the local views.
+   * @param base_docs The documents to apply local mutations to get the local
+   * views.
    * @param existence_state_changed The set of document keys whose existence
    * state is changed. This is useful to determine if some documents overlay
    * needs to be recalculated.
    */
   model::DocumentMap GetLocalViewOfDocuments(
-      const model::MutableDocumentMap& docs,
+      const model::MutableDocumentMap& base_docs,
       const model::DocumentKeySet& existence_state_changed);
 
   model::OverlayedDocumentMap GetOverlayedDocuments(
@@ -113,14 +111,6 @@ class LocalDocumentsView {
   /** Internal version of GetDocument that allows re-using batches. */
   model::Document GetDocument(const model::DocumentKey& key,
                               const std::vector<model::MutationBatch>& batches);
-
-  /**
-   * Returns the view of the given `docs` as they would appear after applying
-   * all mutations in the given `batches`.
-   */
-  static model::DocumentMap ApplyLocalMutationsToDocuments(
-      model::MutableDocumentMap& docs,
-      const std::vector<model::MutationBatch>& batches);
 
   /** Performs a simple document lookup for the given path. */
   model::DocumentMap GetDocumentsMatchingDocumentQuery(
@@ -168,12 +158,8 @@ class LocalDocumentsView {
       DocumentOverlayCache::OverlayByDocumentKeyMap&& overlays,
       const model::DocumentKeySet& existence_state_changed);
 
-  std::unordered_map<model::DocumentKey,
-                     absl::optional<model::FieldMask>,
-                     model::DocumentKeyHash>
-  RecalculateAndSaveOverlays(std::unordered_map<model::DocumentKey,
-                                                model::MutableDocument*,
-                                                model::DocumentKeyHash> docs);
+  model::FieldMaskMap RecalculateAndSaveOverlays(
+      model::MutableDocumentPtrMap docs);
 
   RemoteDocumentCache* remote_document_cache_;
   MutationQueue* mutation_queue_;
