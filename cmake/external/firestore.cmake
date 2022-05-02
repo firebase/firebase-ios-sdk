@@ -18,6 +18,7 @@ include(grpc)
 include(leveldb)
 include(nanopb)
 include(protobuf)
+include(re2)
 include(libfuzzer)
 
 if(TARGET Firestore)
@@ -32,6 +33,7 @@ ExternalProject_Add(
     leveldb
     nanopb
     protobuf
+    re2
     libfuzzer
 
   # Lay the binary directory out as if this were a subproject. This makes it
