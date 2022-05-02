@@ -43,6 +43,8 @@ jobs:
         ruby-version: '2.7'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
+    - name: Install xcpretty
+      run: gem install xcpretty
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: scripts/third_party/travis/retry.sh scripts/build.sh Performance ${{ matrix.target }} ${{ matrix.test }}
 
@@ -74,6 +76,10 @@ jobs:
     runs-on: macos-12
     steps:
     - uses: actions/checkout@v2
+    - uses: actions/checkout@v2
+    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+      with:
+        ruby-version: '2.7'
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh performance
     - name: Install Secret GoogleService-Info.plist

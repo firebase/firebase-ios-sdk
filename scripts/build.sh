@@ -108,11 +108,6 @@ function RunXcodebuild() {
   echo xcodebuild "$@"
 
   xcpretty_cmd=(xcpretty)
-  if [[ -n "${TRAVIS:-}" ]]; then
-    # The formatter argument takes a file location of a formatter.
-    # The xcpretty-travis-formatter binary prints its location on stdout.
-    xcpretty_cmd+=(-f $(xcpretty-travis-formatter))
-  fi
 
   result=0
   xcodebuild "$@" | tee xcodebuild.log | "${xcpretty_cmd[@]}" || result=$?
