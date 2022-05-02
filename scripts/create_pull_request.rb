@@ -53,7 +53,7 @@ COMMIT_COMMENT=@options[:commit_comment]
 
 puts @options
 def generate_pr_for_target_changes(repo_root:, target_path:)
-  system("cd #{REPO_ROOT}\ngit checkout -b #{BASE_BRANCH}\n git add #{REPO_ROOT}/#{TARGET_PATH}\n")
+  system("cd #{REPO_ROOT}\ngit checkout -b #{BASE_BRANCH}\n git add #{TARGET_PATH}\n")
   if `git diff #{TARGET_PATH}`==""
     puts "The file has no changes."
     return
