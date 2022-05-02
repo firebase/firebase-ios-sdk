@@ -38,6 +38,7 @@ if [[ ! -z "${LEGACY:-}" ]]; then
   PODFILE="quickstart-ios/"$SAMPLE"/Legacy${SAMPLE}Quickstart/Podfile"
 fi
 
+gem install xcpretty
 
 # Installations is the only quickstart that doesn't need a real
 # GoogleService-Info.plist for its tests.
