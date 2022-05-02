@@ -41,6 +41,8 @@ jobs:
         ruby-version: '2.7'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
+    - name: Install xcpretty
+      run: gem install xcpretty
     - name: Install Secret GoogleService-Info.plist
       run: |
         mkdir FirebaseMessaging/Tests/IntegrationTests/Resources
