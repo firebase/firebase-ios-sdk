@@ -251,6 +251,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+
 Firebase
 FirebaseABTesting
 FirebaseAnalyticsSwift
@@ -484,11 +485,13 @@ PromisesObjC
    See the License for the specific language governing permissions and
    limitations under the License.
 
+
 FirebaseAnalytics
 FirebaseAnalyticsOnDeviceConversion
 GoogleAppMeasurement
 GoogleAppMeasurementOnDeviceConversion
 Copyright 2022 Google
+
 FirebaseCrashlytics
 
                                  Apache License
@@ -720,6 +723,7 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 
 FirebaseDatabase
 
@@ -1059,6 +1063,7 @@ PARTICULAR PURPOSE.  IN NO EVENT SHALL IBM BE LIABLE FOR ANY SPECIAL,
 DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER ARISING
 OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE, EVEN
 IF IBM IS APPRISED OF THE POSSIBILITY OF SUCH DAMAGES.
+
 
 FirebaseFirestore
 
@@ -1507,6 +1512,7 @@ FirestoreEncoder
     otherwise be required by Sections 4(a), 4(b) and 4(d) of the License.
 
 
+
 FirebaseSharedSwift
 
                                  Apache License
@@ -1718,6 +1724,7 @@ FirebaseSharedSwift
     portions of this Software are embedded into the binary product as a result,
     you may redistribute such product without providing attribution as would
     otherwise be required by Sections 4(a), 4(b) and 4(d) of the License.
+
 
 
 GoogleUtilities
@@ -1969,6 +1976,7 @@ similar to disable codesignature checks.
 More information at <a href="http://landonf.org/2009/02/index.html">Landon
 Fuller's blog</a>
 
+
 Libuv-gRPC
 libuv is licensed for use as follows:
 
@@ -2040,6 +2048,7 @@ The externally maintained libraries used by libuv are:
   - android-ifaddrs.h, android-ifaddrs.c, copyright Berkeley Software Design
     Inc, Kenneth MacKay and Emergya (Cloud4all, FP7/2007-2013, grant agreement
     n° 289016). Three clause BSD license.
+
 
 SwiftProtobuf
                                  Apache License
@@ -2254,6 +2263,7 @@ SwiftProtobuf
     you may redistribute such product without providing attribution as would
     otherwise be required by Sections 4(a), 4(b) and 4(d) of the License.
 
+
 abseil
 
                                  Apache License
@@ -2457,6 +2467,7 @@ abseil
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
 
 
 gRPC-C++
@@ -2704,6 +2715,7 @@ This Source Code Form is subject to the terms of the Mozilla Public License,
 v. 2.0. If a copy of the MPL was not distributed with this file, You can
 obtain one at https://mozilla.org/MPL/2.0/.
 
+
 leveldb-library
 Copyright (c) 2011 The LevelDB Authors. All rights reserved.
 
@@ -2732,6 +2744,7 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 
 nanopb
 Copyright (c) 2011 Petteri Aimonen <jpa at nanopb.mail.kapsi.fi>
