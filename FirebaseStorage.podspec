@@ -35,8 +35,6 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   s.source_files = [
     'FirebaseStorage/Sources/*.swift',
     'FirebaseStorage/Typedefs/*.h',
-    'FirebaseAppCheck/Interop/*.h',
-    'FirebaseAuth/Interop/*.h',
   ]
 
   s.dependency 'FirebaseStorageInternal', '~> 9.0'
