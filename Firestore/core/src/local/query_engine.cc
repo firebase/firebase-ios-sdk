@@ -46,17 +46,24 @@ DocumentMap QueryEngine::GetDocumentsMatchingQuery(
     const DocumentKeySet& remote_keys) {
   HARD_ASSERT(local_documents_view_, "SetLocalDocumentsView() not called");
 
+
+}
+
+absl::optional<DocumentMap> QueryEngine::PerformQueryUsingRemoteKeys(
+    const Query& query,
+    const DocumentKeySet& remote_keys,
+    const SnapshotVersion& last_limbo_free_snapshot_version) {
   // Queries that match all documents don't benefit from using key-based
   // lookups. It is more efficient to scan all documents in a collection, rather
   // than to perform individual lookups.
   if (query.MatchesAllDocuments()) {
-    return ExecuteFullCollectionScan(query);
+    return absl::nullopt;
   }
 
   // Queries that have never seen a snapshot without limbo free documents should
   // also be run as a full collection scan.
   if (last_limbo_free_snapshot_version == SnapshotVersion::None()) {
-    return ExecuteFullCollectionScan(query);
+    return absl::nullopt;
   }
 
   DocumentMap documents = local_documents_view_->GetDocuments(remote_keys);
@@ -65,7 +72,7 @@ DocumentMap QueryEngine::GetDocumentsMatchingQuery(
   if (query.limit_type() != LimitType::None &&
       NeedsRefill(query.limit_type(), previous_results, remote_keys,
                   last_limbo_free_snapshot_version)) {
-    return ExecuteFullCollectionScan(query);
+    return absl::nullopt;
   }
 
   LOG_DEBUG("Re-using previous result from %s to execute query: %s",
@@ -85,6 +92,17 @@ DocumentMap QueryEngine::GetDocumentsMatchingQuery(
   }
 
   return updated_results;
+}
+
+DocumentMap QueryEngine::AppendRemainingResults(
+    Iterable<Document> indexedResults, Query query, IndexOffset offset) {
+  // Retrieve all results for documents that were updated since the offset.
+  ImmutableSortedMap<DocumentKey, Document> remainingResults =
+      localDocumentsView.getDocumentsMatchingQuery(query, offset);
+  for (Document entry : indexedResults) {
+    remainingResults = remainingResults.insert(entry.getKey(), entry);
+  }
+  return remainingResults;
 }
 
 DocumentSet QueryEngine::ApplyQuery(const Query& query,

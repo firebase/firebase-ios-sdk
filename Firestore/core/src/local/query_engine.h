@@ -48,7 +48,7 @@ class LocalDocumentsView;
  * - Queries that have never been CURRENT or free of limbo documents.
  */
 class QueryEngine {
- public:
+  public:
   virtual ~QueryEngine() = default;
 
   /**
@@ -72,6 +72,10 @@ class QueryEngine {
   model::DocumentSet ApplyQuery(const core::Query& query,
                                 const model::DocumentMap& documents) const;
 
+  absl::optional<model::DocumentMap> PerformQueryUsingRemoteKeys(
+      const core::Query& query,
+      const model::DocumentKeySet& remote_keys,
+      const model::SnapshotVersion& last_limbo_free_snapshot_version);
   /**
    * Determines if a limit query needs to be refilled from cache, making it
    * ineligible for index-free execution.
