@@ -61,6 +61,10 @@ jobs:
       with:
         cache_key: ${{ matrix.os }}
 
+    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+      with:
+        ruby-version: '2.7'
+
     - name: Setup build
       run:  scripts/install_prereqs.sh CombineSwift ${{ matrix.target }} xcodebuild
 
@@ -83,6 +87,8 @@ jobs:
         ruby-version: '2.7'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
+    - name: Install xcpretty
+      run: gem install xcpretty
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
           FirebaseStorageInternal/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
