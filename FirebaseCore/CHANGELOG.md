@@ -1,20 +1,26 @@
 # Firebase 9.0.0
-- [changed] Firebase now requires at least Xcode 13.2.1.
-- [added] The zip and Carthage distibutions now include the Swift extension frameworks. (#7819)
-- [changed] **Breaking change**: Update the minimum supported versions for the zip and Carthage
-  distributions to iOS 11.0, tvOS 11.0 and macOS 10.13. (#9633)
-- [changed] **Breaking change**: CocoaPods Podfiles must include `use_frameworks!` or
-  `use_frameworks! :linkage => :static`.
+- [changed] Firebase now requires at least Xcode 13.3.1.
 - [deprecated] Usage of the Firebase pod, the Firebase module (`import Firebase`), and `Firebase.h`
   is deprecated. Use the specific Firebase product instead like: `pod 'FirebaseMessaging'` and
   `import FirebaseMessaging`.
-- [changed] For Swift Package Manager installations, `import Firebase` will no longer implicitly
-  import Firebase Storage and Firebase Functions APIs. Use `import FirebaseStorage` and
-  `import FirebaseFunctions`.
+
+## CocoaPods Users
+- [changed] **Breaking change**: Podfiles must include `use_frameworks!` or
+  `use_frameworks! :linkage => :static`.
 - [changed] C++/Objective C++ clients should use `#import <FirebaseFunctions/FirebaseFunctions-Swift.h>`
   and `#import <FirebaseStorage/FirebaseStorage-Swift.h>` to access Functions and Storage APIs,
-  respectively. C++/Objective C++ clients using Swift Package Manager should find alternative
+  respectively.
+
+## Swift Package Manager Users
+- [changed] `import Firebase` will no longer implicitly
+  import Firebase Storage and Firebase Functions APIs. Use `import FirebaseStorage` and
+  `import FirebaseFunctions`, respectively. C++/Objective clients should find alternative
   workarounds at https://forums.swift.org/t/importing-swift-libraries-from-objective-c/56730.
+
+## Zip and Carthage Users
+- [changed] **Breaking change**: Update the minimum supported versions for the zip and Carthage
+  distributions to iOS 11.0, tvOS 11.0 and macOS 10.13. (#9633)
+- [added] The zip and Carthage distibutions now include the Swift extension frameworks. (#7819)
 
 # Firebase 8.10.0
 - [fixed] Fixed platform availability checks in Swift Package Manager that may prevent code
