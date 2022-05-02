@@ -51,18 +51,13 @@ PR_BODY=@options[:pr_boday]
 BASE_BRANCH=@options[:base_branch]
 COMMIT_COMMENT=@options[:commit_comment]
 
-puts @options
 def generate_pr_for_target_changes(repo_root:, target_path:)
-  #TODO: git clone to a temp push a commit from there.
-  push_repo=REPO_ROOT+"/temp"
-  system("cd #{REPO_ROOT}\ngit clone --branch master #{ACCESS_TOKEN}@github.com:firebase/firebase-ios-sdk.git #{push_repo}\n")
-  system("cp #{REPO_ROOT}/#{TARGET_PATH} #{push_repo}/#{TARGET_PATH}")
-  system("cd #{push_repo}\ngit checkout -b #{BASE_BRANCH}\n")
-  if `cd #{push_repo}\ngit diff #{TARGET_PATH}`==""
-    puts "The file has no changes."
+  system("cd #{REPO_ROOT}\ngit checkout -b #{BASE_BRANCH}\n")
+  if `git diff #{TARGET_PATH}`==""
+    puts "The file, #{TARGET_PATH}, has no changes."
     return
   end
-  system("cd #{push_repo}\ngit add #{TARGET_PATH}\ngit commit -m \"#{COMMIT_COMMENT}\"\n git push -u origin #{BASE_BRANCH}")
+  system("git add #{TARGET_PATH}\ngit commit -m \"#{COMMIT_COMMENT}\"\n git push -u origin #{BASE_BRANCH}")
   client = Octokit::Client.new(access_token: ACCESS_TOKEN)
   client.create_pull_request("firebase/firebase-ios-sdk", "master", BASE_BRANCH, PR_TITLE, PR_BODY)
 end
