@@ -47,7 +47,7 @@ REPO_ROOT=@options[:repo_root]
 ACCESS_TOKEN=@options[:repo_token]
 TARGET_PATH=@options[:target_path]
 PR_TITLE=@options[:pr_title]
-PR_BODY=@options[:pr_boday]
+PR_BODY=@options[:pr_body]
 BASE_BRANCH=@options[:base_branch]
 COMMIT_COMMENT=@options[:commit_comment]
 
