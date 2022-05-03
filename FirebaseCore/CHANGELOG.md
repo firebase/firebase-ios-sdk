@@ -1,5 +1,5 @@
 # Firebase 9.0.0
-- [changed] Firebase now requires at least Xcode 13.3.1. 
+- [changed] Firebase now requires at least Xcode 13.3.1.
 - [deprecated] Usage of the Firebase pod, the Firebase module (`import Firebase`), and `Firebase.h`
   is deprecated. Use the specific Firebase product instead like: `pod 'FirebaseMessaging'` and
   `import FirebaseMessaging`.
@@ -15,6 +15,8 @@
 - [changed] Beta Swift pods (except `FirebaseInAppMessagingSwift-Beta`) have exited beta and
   are now generally available. The `-beta` version suffix is no longer required. These should
   be removed from your Podfile, and any `import` statements should be changed accordingly.
+- [changed] The `FirebaseStorageSwift` and `FirebaseFunctionsSwift` have been merged into
+  `FirebaseStorage` and `FirebaseFunctions` respectively and should be removed from your Podfile.
 
 ## Swift Package Manager Users
 - [changed] `import Firebase` will no longer implicitly
@@ -28,6 +30,9 @@
   Content`. Select the missing package, and remove it. Then, click the `+` button to add the
   assocciated library without the `-Beta` suffix. Any `import` statements in your project
   should be changed accordingly.
+- [changed] The `FirebaseStorageSwift-Beta` and `FirebaseFunctionsSwift-Beta` libraries have been
+  merged into `FirebaseStorage` and `FirebaseFunctions` respectively and should be removed from your
+  project following the instructions above.
 
 ## Zip and Carthage Users
 - [changed] **Breaking change**: Update the minimum supported versions for the zip and Carthage
