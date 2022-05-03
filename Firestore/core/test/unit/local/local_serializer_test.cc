@@ -324,14 +324,13 @@ class LocalSerializerTest : public ::testing::Test {
 
   void ExpectSerializationRoundTrip(const NamedQuery& named_query,
                                     const ::firestore::NamedQuery& proto) {
-    ByteString bytes = EncodeNamedQuery(&serializer, named_query);
+    ByteString bytes = EncodeNamedQuery(named_query);
     auto actual = ProtobufParse<::firestore::NamedQuery>(bytes);
     EXPECT_TRUE(msg_diff.Compare(proto, actual)) << message_differences;
   }
 
-  ByteString EncodeNamedQuery(local::LocalSerializer* serializer,
-                              const NamedQuery& named_query) {
-    return MakeByteString(serializer->EncodeNamedQuery(named_query));
+  ByteString EncodeNamedQuery(const NamedQuery& named_query) {
+    return MakeByteString(serializer.EncodeNamedQuery(named_query));
   }
 
   void ExpectDeserializationRoundTrip(const NamedQuery& named_query,

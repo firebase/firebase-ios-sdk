@@ -52,10 +52,16 @@ pb_bytes_array_s* kMaxValueFieldKey =
 const char* kRawMaxValueFieldValue = "__max__";
 pb_bytes_array_s* kMaxValueFieldValue =
     nanopb::MakeBytesArray(kRawMaxValueFieldValue);
-google_firestore_v1_MapValue_FieldsEntry kMaxValueFieldEntry = {.key=kMaxValueFieldKey, .value={.which_value_type=google_firestore_v1_Value_string_value_tag, .string_value= const_cast<pb_bytes_array_t*>(kMaxValueFieldValue)}};
-_google_firestore_v1_MapValue kMaxValueMapValue = {.fields_count = 1, .fields=&kMaxValueFieldEntry};
-google_firestore_v1_Value kMaxValue = {.which_value_type=google_firestore_v1_Value_map_value_tag,
-                                       .map_value = kMaxValueMapValue};
+google_firestore_v1_MapValue_FieldsEntry kMaxValueFieldEntry = {
+    .key = kMaxValueFieldKey,
+    .value = {
+        .which_value_type = google_firestore_v1_Value_string_value_tag,
+        .string_value = const_cast<pb_bytes_array_t*>(kMaxValueFieldValue)}};
+_google_firestore_v1_MapValue kMaxValueMapValue = {
+    .fields_count = 1, .fields = &kMaxValueFieldEntry};
+google_firestore_v1_Value kMaxValue = {
+    .which_value_type = google_firestore_v1_Value_map_value_tag,
+    .map_value = kMaxValueMapValue};
 
 }  // namespace
 
