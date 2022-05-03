@@ -65,6 +65,9 @@ jobs:
       with:
         ruby-version: '2.7'
 
+    - name: Install xcpretty
+      run: gem install xcpretty
+
     - name: Setup build
       run:  scripts/install_prereqs.sh CombineSwift ${{ matrix.target }} xcodebuild
 

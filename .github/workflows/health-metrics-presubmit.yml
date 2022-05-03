@@ -318,6 +318,8 @@ jobs:
         ruby-version: '2.7'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
+    - name: Install xcpretty
+      run: gem install xcpretty
     - name: Build and test
       run: ./scripts/health_metrics/pod_test_code_coverage_report.sh --sdk=FirebasePerformance --platform=${{ matrix.target }}
     - uses: actions/upload-artifact@v2

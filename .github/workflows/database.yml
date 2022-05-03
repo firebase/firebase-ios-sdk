@@ -56,6 +56,8 @@ jobs:
         ruby-version: '2.7'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
+    - name: Install xcpretty
+      run: gem install xcpretty
     - name: IntegrationTest
       # Only iOS to mitigate flakes.
       run: scripts/third_party/travis/retry.sh scripts/build.sh Database iOS integration
