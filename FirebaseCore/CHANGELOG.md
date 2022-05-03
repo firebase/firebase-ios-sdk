@@ -21,7 +21,7 @@
 ## Swift Package Manager Users
 - [changed] `import Firebase` will no longer implicitly
   import Firebase Storage and Firebase Functions APIs. Use `import FirebaseStorage` and
-  `import FirebaseFunctions`, respectively. C++/Objective clients should find alternative
+  `import FirebaseFunctions`, respectively. C++/Objective-C++ clients should find alternative
   workarounds at https://forums.swift.org/t/importing-swift-libraries-from-objective-c/56730.
 - [changed] Beta Swift libraries (except `FirebaseInAppMessagingSwift-Beta`) have exited beta
   and are now generally available. When upgrading a project that includes one or more of these
@@ -37,8 +37,8 @@
 ## Zip and Carthage Users
 - [changed] **Breaking change**: Update the minimum supported versions for the zip and Carthage
   distributions to iOS 11.0, tvOS 11.0 and macOS 10.13. (#9633)
-- [added] The zip and Carthage distibutions now include the Swift extension frameworks. (#7819)
-- [changeed] Zip file installation instructions have changed. Please see the README embedded in
+- [added] The zip and Carthage distributions now include the Swift extension frameworks. (#7819)
+- [changed] Zip file installation instructions have changed. Please see the README embedded in
   the zip file for updated instructions.
 
 # Firebase 8.10.0
