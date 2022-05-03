@@ -112,6 +112,8 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: Firebase-actions-dir
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
@@ -164,6 +166,8 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: Firebase-actions-dir
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
@@ -205,6 +209,8 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: Firebase-actions-dir
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
@@ -244,6 +250,8 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: Firebase-actions-dir
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
@@ -309,6 +317,8 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: Firebase-actions-dir
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
@@ -355,6 +365,8 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: Firebase-actions-dir
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
@@ -402,6 +414,8 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: Firebase-actions-dir
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
@@ -446,6 +460,8 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: Firebase-actions-dir
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
@@ -493,6 +509,8 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: Firebase-actions-dir
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
@@ -539,6 +557,8 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: Firebase-actions-dir
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
