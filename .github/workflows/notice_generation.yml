@@ -39,5 +39,11 @@ jobs:
     - name: Create a pull request
       run: |
         gem install octokit
-        ruby scripts/create_pull_request.rb --repo-root ${GITHUB_WORKSPACE} --repo-token ${{ secrets.GITHUB_TOKEN }} --notices-path  ${{ env.NOTICES_PATH }}
+        ruby scripts/create_pull_request.rb \
+        --repo-root ${GITHUB_WORKSPACE} \
+        --repo-token ${{ secrets.GITHUB_TOKEN }} \
+        --target-path  ${{ env.NOTICES_PATH }} \
+        --pr-title "NOTICES Change" \
+        --pr-body "NOTICES Change is detected." \
+        --commit-comment "NOTICES change."
       shell: bash
