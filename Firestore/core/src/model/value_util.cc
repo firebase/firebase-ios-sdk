@@ -52,13 +52,23 @@ pb_bytes_array_s* kMaxValueFieldKey =
 const char* kRawMaxValueFieldValue = "__max__";
 pb_bytes_array_s* kMaxValueFieldValue =
     nanopb::MakeBytesArray(kRawMaxValueFieldValue);
+
+/** The special map field value entry of a maximum proto value. */
 google_firestore_v1_MapValue_FieldsEntry kMaxValueFieldEntry = {
     .key = kMaxValueFieldKey,
     .value = {
         .which_value_type = google_firestore_v1_Value_string_value_tag,
         .string_value = const_cast<pb_bytes_array_t*>(kMaxValueFieldValue)}};
+
+/** The special map value of a maximum proto value. */
 _google_firestore_v1_MapValue kMaxValueMapValue = {
     .fields_count = 1, .fields = &kMaxValueFieldEntry};
+
+/**
+ * A maximum value that is larger than any other Firestore values. Underlying it
+ * is a map value with a special map field that SDK user cannot possibly
+ * construct.
+ */
 google_firestore_v1_Value kMaxValue = {
     .which_value_type = google_firestore_v1_Value_map_value_tag,
     .map_value = kMaxValueMapValue};
