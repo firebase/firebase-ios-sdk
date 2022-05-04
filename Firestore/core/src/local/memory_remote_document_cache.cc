@@ -87,7 +87,8 @@ MutableDocumentMap MemoryRemoteDocumentCache::GetAll(
       break;
     }
     const MutableDocument& document = it->second;
-    if (key.path().size() > path.size() + 1) {
+    size_t immediate_children_path_length = path.size() + 1;
+    if (key.path().size() > immediate_children_path_length) {
       // Exclude entries from subcollections.
       continue;
     }

@@ -55,7 +55,9 @@ using model::MutableDocument;
 using model::MutableDocumentMap;
 using model::Mutation;
 using model::MutationBatch;
+using model::MutationByDocumentKeyMap;
 using model::Overlay;
+using model::OverlayByDocumentKeyMap;
 using model::ResourcePath;
 using model::SnapshotVersion;
 
@@ -121,7 +123,7 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
   MutableDocumentMap remote_documents =
       remote_document_cache_->GetAll(query.path(), offset);
   // Get locally persisted mutation batches.
-  auto overlays = document_overlay_cache_->GetOverlays(
+  OverlayByDocumentKeyMap overlays = document_overlay_cache_->GetOverlays(
       query.path(), offset.largest_batch_id());
 
   // As documents might match the query because of their overlay we need to
@@ -137,7 +139,7 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
   DocumentMap results;
   for (const auto& entry : remote_documents) {
     const auto& key = entry.first;
-    auto doc = std::move(entry.second);
+    MutableDocument doc = entry.second;
 
     auto overlay_it = overlays.find(key);
     if (overlay_it != overlays.end()) {
@@ -147,7 +149,7 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
     }
     // Finally, insert the documents that still match the query
     if (query.Matches(doc)) {
-      results = results.insert(key, doc);
+      results = results.insert(key, std::move(doc));
     }
   }
 
@@ -172,27 +174,27 @@ DocumentMap LocalDocumentsView::GetDocuments(const DocumentKeySet& keys) {
 DocumentMap LocalDocumentsView::GetLocalViewOfDocuments(
     const MutableDocumentMap& base_docs,
     const DocumentKeySet& existence_state_changed) {
-  DocumentOverlayCache::OverlayByDocumentKeyMap overlays;
+  OverlayByDocumentKeyMap overlays;
   PopulateOverlays(overlays, DocumentKeySet::FromKeysOf(base_docs));
   auto overlayed_documents =
       ComputeViews(base_docs, std::move(overlays), existence_state_changed);
 
   DocumentMap result;
-  for (const auto& entry : overlayed_documents) {
-    result = result.insert(entry.first, entry.second.document());
+  for (auto& entry : overlayed_documents) {
+    result = result.insert(entry.first, std::move(entry.second.consume_document()));
   }
   return result;
 }
 
 model::OverlayedDocumentMap LocalDocumentsView::GetOverlayedDocuments(
     const MutableDocumentMap& docs) {
-  DocumentOverlayCache::OverlayByDocumentKeyMap overlays;
+  OverlayByDocumentKeyMap overlays;
   PopulateOverlays(overlays, model::DocumentKeySet::FromKeysOf(docs));
   return ComputeViews(docs, std::move(overlays), DocumentKeySet{});
 }
 
 void LocalDocumentsView::PopulateOverlays(
-    DocumentOverlayCache::OverlayByDocumentKeyMap& overlays,
+    OverlayByDocumentKeyMap& overlays,
     const model::DocumentKeySet& keys) const {
   DocumentKeySet missing_overlays;
   for (const DocumentKey& key : keys) {
@@ -205,7 +207,7 @@ void LocalDocumentsView::PopulateOverlays(
 
 model::OverlayedDocumentMap LocalDocumentsView::ComputeViews(
     MutableDocumentMap docs,
-    DocumentOverlayCache::OverlayByDocumentKeyMap&& overlays,
+    OverlayByDocumentKeyMap&& overlays,
     const DocumentKeySet& existence_state_changed) {
   model::MutableDocumentPtrMap recalculate_documents;
   model::FieldMaskMap mutated_fields;
@@ -245,7 +247,7 @@ model::OverlayedDocumentMap LocalDocumentsView::ComputeViews(
   return results;
 }
 
-void LocalDocumentsView::RecalculateAndSaveOverlays(DocumentKeySet keys) {
+void LocalDocumentsView::RecalculateAndSaveOverlays(const DocumentKeySet& keys) {
   model::MutableDocumentPtrMap docs;
   auto remote_docs = remote_document_cache_->GetAll(keys);
   for (const auto& entry : remote_docs) {
@@ -255,7 +257,7 @@ void LocalDocumentsView::RecalculateAndSaveOverlays(DocumentKeySet keys) {
 }
 
 model::FieldMaskMap LocalDocumentsView::RecalculateAndSaveOverlays(
-    model::MutableDocumentPtrMap docs) {
+    model::MutableDocumentPtrMap&& docs) {
   DocumentKeySet keys;
   for (const auto& doc : docs) {
     keys = keys.insert(doc.first);
@@ -296,7 +298,7 @@ model::FieldMaskMap LocalDocumentsView::RecalculateAndSaveOverlays(
   // saved.
   for (auto it = documents_by_batch_id.rbegin();
        it != documents_by_batch_id.rend(); ++it) {
-    DocumentOverlayCache::MutationByDocumentKeyMap overlays;
+    MutationByDocumentKeyMap overlays;
     for (const DocumentKey& key : it->second) {
       if (!processed.contains(key)) {
         auto docs_it = docs.find(key);

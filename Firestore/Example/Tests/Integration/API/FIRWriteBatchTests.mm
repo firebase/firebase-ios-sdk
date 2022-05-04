@@ -413,7 +413,7 @@ int64_t GetCurrentMemoryUsedInMb() {
   }];
   [self awaitExpectations];
 }
-#endif
+#endif // #if !defined(THREAD_SANITIZER) && !defined(ADDRESS_SANITIZER)
 
 @end
 

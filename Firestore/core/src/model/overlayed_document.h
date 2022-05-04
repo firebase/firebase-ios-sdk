@@ -40,6 +40,10 @@ class OverlayedDocument {
     return document_;
   }
 
+  model::Document consume_document() {
+    return std::move(document_);
+  }
+
   const absl::optional<model::FieldMask>& mutated_fields() const {
     return mutated_fields_;
   }

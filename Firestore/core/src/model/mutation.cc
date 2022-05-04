@@ -106,7 +106,7 @@ Mutation::Rep::Rep(DocumentKey&& key,
     : key_(std::move(key)),
       precondition_(std::move(precondition)),
       field_transforms_(std::move(field_transforms)),
-      mask_(mask) {
+      mask_(std::move(mask)) {
 }
 
 bool Mutation::Rep::Equals(const Mutation::Rep& other) const {

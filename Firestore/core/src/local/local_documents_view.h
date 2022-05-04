@@ -89,10 +89,22 @@ class LocalDocumentsView {
       const model::MutableDocumentMap& base_docs,
       const model::DocumentKeySet& existence_state_changed);
 
+  /**
+   * Gets the overlayed documents for the given document map, which will include
+   * the local view of those documents and a `FieldMask` indicating which fields
+   * are mutated locally, or `absl::nullopt` if overlay is a Set or Delete
+   * mutation.
+   *
+   * @param docs The documents to apply local mutations to get the local views.
+   */
   model::OverlayedDocumentMap GetOverlayedDocuments(
       const model::MutableDocumentMap& docs);
 
-  void RecalculateAndSaveOverlays(model::DocumentKeySet keys);
+  /**
+   * Recalculates overlays by reading the documents from remote document cache
+   * first, and save them after they are calculated.
+   */
+  void RecalculateAndSaveOverlays(const model::DocumentKeySet& keys);
 
   /**
    * Performs a query against the local view of all documents.
@@ -149,17 +161,17 @@ class LocalDocumentsView {
    * Fetches the overlays for `keys` and adds them to provided overlay map if
    * the map does not already contain an entry for the given key.
    */
-  void PopulateOverlays(DocumentOverlayCache::OverlayByDocumentKeyMap& overlays,
+  void PopulateOverlays(model::OverlayByDocumentKeyMap& overlays,
                         const model::DocumentKeySet& keys) const;
 
   /* Computes the local view for doc */
   model::OverlayedDocumentMap ComputeViews(
       model::MutableDocumentMap docs,
-      DocumentOverlayCache::OverlayByDocumentKeyMap&& overlays,
+      model::OverlayByDocumentKeyMap&& overlays,
       const model::DocumentKeySet& existence_state_changed);
 
   model::FieldMaskMap RecalculateAndSaveOverlays(
-      model::MutableDocumentPtrMap docs);
+      model::MutableDocumentPtrMap&& docs);
 
   RemoteDocumentCache* remote_document_cache_;
   MutationQueue* mutation_queue_;

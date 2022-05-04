@@ -404,7 +404,7 @@ void LocalStoreTest::ResetPersistenceStats() {
   do {                                                            \
     ASSERT_EQ(query_engine_.overlays_read_by_key(), (by_key))     \
         << "Mutations read (by key)";                             \
-    ASSERT_EQ(query_engine_.overlays_read_by_query(), (by_query)) \
+    ASSERT_EQ(query_engine_.overlays_read_by_collection(), (by_query)) \
         << "Mutations read (by query)";                           \
   } while (0)
 

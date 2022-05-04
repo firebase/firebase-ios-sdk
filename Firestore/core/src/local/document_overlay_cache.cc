@@ -29,9 +29,10 @@ namespace local {
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::Overlay;
+using model::OverlayByDocumentKeyMap;
 
 void DocumentOverlayCache::GetOverlays(
-    DocumentOverlayCache::OverlayByDocumentKeyMap& dest,
+    OverlayByDocumentKeyMap& dest,
     const DocumentKeySet& keys) const {
   for (const DocumentKey& key : keys) {
     absl::optional<Overlay> overlay = GetOverlay(key);

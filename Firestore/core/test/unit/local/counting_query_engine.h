@@ -73,11 +73,9 @@ class CountingQueryEngine : public QueryEngine {
   }
 
   /**
-   * Returns the number of mutations returned by the MutationQueue's
-   * `getAllMutationBatchesAffectingQuery()` API (since the last call to
-   * `ResetCounts()`)
+   * Returns the number of overlays returned by the DocumentOverlayCache.
    */
-  size_t overlays_read_by_query() const {
+  size_t overlays_read_by_collection() const {
     return overlays_read_by_collection_;
   }
 
@@ -204,14 +202,14 @@ class WrappedDocumentOverlayCache final : public DocumentOverlayCache {
       const model::DocumentKey& key) const override;
 
   void SaveOverlays(int largest_batch_id,
-                    const MutationByDocumentKeyMap& overlays) override;
+                    const model::MutationByDocumentKeyMap& overlays) override;
 
   void RemoveOverlaysForBatchId(int batch_id) override;
 
-  OverlayByDocumentKeyMap GetOverlays(const model::ResourcePath& collection,
+  model::OverlayByDocumentKeyMap GetOverlays(const model::ResourcePath& collection,
                                       int since_batch_id) const override;
 
-  OverlayByDocumentKeyMap GetOverlays(absl::string_view collection_group,
+  model::OverlayByDocumentKeyMap GetOverlays(absl::string_view collection_group,
                                       int since_batch_id,
                                       std::size_t count) const override;
 

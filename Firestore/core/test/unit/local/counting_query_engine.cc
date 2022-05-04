@@ -31,6 +31,8 @@ namespace local {
 using core::Query;
 using model::DocumentKeySet;
 using model::DocumentMap;
+using model::MutationByDocumentKeyMap;
+using model::OverlayByDocumentKeyMap;
 using model::SnapshotVersion;
 
 // MARK: - CountingQueryEngine
@@ -196,7 +198,7 @@ void WrappedDocumentOverlayCache::RemoveOverlaysForBatchId(int batch_id) {
   subject_->RemoveOverlaysForBatchId(batch_id);
 }
 
-DocumentOverlayCache::OverlayByDocumentKeyMap
+OverlayByDocumentKeyMap
 WrappedDocumentOverlayCache::GetOverlays(const model::ResourcePath& collection,
                                          int since_batch_id) const {
   auto result = subject_->GetOverlays(collection, since_batch_id);
@@ -204,7 +206,7 @@ WrappedDocumentOverlayCache::GetOverlays(const model::ResourcePath& collection,
   return result;
 }
 
-DocumentOverlayCache::OverlayByDocumentKeyMap
+OverlayByDocumentKeyMap
 WrappedDocumentOverlayCache::GetOverlays(absl::string_view collection_group,
                                          int since_batch_id,
                                          std::size_t count) const {
