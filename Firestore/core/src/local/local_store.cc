@@ -207,7 +207,8 @@ LocalWriteResult LocalStore::WriteLocally(std::vector<Mutation>&& mutations) {
     for (const Mutation& mutation : mutations) {
       auto it = overlayed_documents.find(mutation.key());
       HARD_ASSERT(it != overlayed_documents.end(),
-                  "Failed to find overlayed document with mutation key: ", it->first.ToString());
+                  "Failed to find overlayed document with mutation key: ",
+                  it->first.ToString());
       absl::optional<ObjectValue> base_value =
           mutation.ExtractTransformBaseValue(it->second.document());
       if (base_value) {

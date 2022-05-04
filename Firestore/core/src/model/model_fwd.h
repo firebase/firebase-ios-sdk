@@ -121,9 +121,8 @@ using MutableDocumentPtrMap = std::unordered_map<model::DocumentKey,
 using OverlayByDocumentKeyMap = std::
     unordered_map<model::DocumentKey, model::Overlay, model::DocumentKeyHash>;
 
-using MutationByDocumentKeyMap = std::unordered_map<model::DocumentKey,
-                                                    model::Mutation,
-                                                    model::DocumentKeyHash>;
+using MutationByDocumentKeyMap = std::
+    unordered_map<model::DocumentKey, model::Mutation, model::DocumentKeyHash>;
 
 // A map of FieldPaths to transforms. Sorted so it can be used in
 // ObjectValue::SetAll, which makes it more efficient as it processes field

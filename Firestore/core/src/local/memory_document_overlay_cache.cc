@@ -61,9 +61,8 @@ void MemoryDocumentOverlayCache::RemoveOverlaysForBatchId(int batch_id) {
   }
 }
 
-OverlayByDocumentKeyMap
-MemoryDocumentOverlayCache::GetOverlays(const ResourcePath& collection,
-                                        int since_batch_id) const {
+OverlayByDocumentKeyMap MemoryDocumentOverlayCache::GetOverlays(
+    const ResourcePath& collection, int since_batch_id) const {
   OverlayByDocumentKeyMap result;
 
   std::size_t immediate_children_path_length{collection.size() + 1};
@@ -91,10 +90,10 @@ MemoryDocumentOverlayCache::GetOverlays(const ResourcePath& collection,
   return result;
 }
 
-OverlayByDocumentKeyMap
-MemoryDocumentOverlayCache::GetOverlays(absl::string_view collection_group,
-                                        int since_batch_id,
-                                        std::size_t count) const {
+OverlayByDocumentKeyMap MemoryDocumentOverlayCache::GetOverlays(
+    absl::string_view collection_group,
+    int since_batch_id,
+    std::size_t count) const {
   // NOTE: This method is only used by the backfiller, which will not run for
   // memory persistence; therefore, this method is being implemented only so
   // that the test suite for `LevelDbDocumentOverlayCache` can be re-used by

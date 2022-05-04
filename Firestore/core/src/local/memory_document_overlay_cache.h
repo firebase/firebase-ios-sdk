@@ -47,12 +47,12 @@ class MemoryDocumentOverlayCache final : public DocumentOverlayCache {
 
   void RemoveOverlaysForBatchId(int batch_id) override;
 
-  model::OverlayByDocumentKeyMap GetOverlays(const model::ResourcePath& collection,
-                                      int since_batch_id) const override;
+  model::OverlayByDocumentKeyMap GetOverlays(
+      const model::ResourcePath& collection, int since_batch_id) const override;
 
   model::OverlayByDocumentKeyMap GetOverlays(absl::string_view collection_group,
-                                      int since_batch_id,
-                                      std::size_t count) const override;
+                                             int since_batch_id,
+                                             std::size_t count) const override;
 
  private:
   using OverlayByDocumentKeySortedMap =

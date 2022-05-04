@@ -120,9 +120,8 @@ DocumentOverlayCacheTest::DocumentOverlayCacheTest()
 
 namespace {
 
-void VerifyOverlayContains(
-    const OverlayByDocumentKeyMap& overlays,
-    const std::unordered_set<std::string>& keys) {
+void VerifyOverlayContains(const OverlayByDocumentKeyMap& overlays,
+                           const std::unordered_set<std::string>& keys) {
   using DocumentKeySet =
       std::unordered_set<DocumentKey, model::DocumentKeyHash>;
 
@@ -179,10 +178,11 @@ TEST_P(DocumentOverlayCacheTest, CanReadSavedOverlaysInBatches) {
     this->SaveOverlaysWithMutations(3, {m1, m2, m3});
 
     model::OverlayByDocumentKeyMap result;
-    auto lookup = model::DocumentKeySet().insert(testutil::Key("coll1/a"))
+    auto lookup = model::DocumentKeySet()
+                      .insert(testutil::Key("coll1/a"))
                       .insert(testutil::Key("coll1/b"))
-        .insert(testutil::Key("coll2/c"));
-        this->cache_->GetOverlays(result, lookup);
+                      .insert(testutil::Key("coll2/c"));
+    this->cache_->GetOverlays(result, lookup);
     EXPECT_EQ(m1, result[testutil::Key("coll1/a")].mutation());
     EXPECT_EQ(m2, result[testutil::Key("coll1/b")].mutation());
     EXPECT_EQ(m3, result[testutil::Key("coll2/c")].mutation());

@@ -198,18 +198,17 @@ void WrappedDocumentOverlayCache::RemoveOverlaysForBatchId(int batch_id) {
   subject_->RemoveOverlaysForBatchId(batch_id);
 }
 
-OverlayByDocumentKeyMap
-WrappedDocumentOverlayCache::GetOverlays(const model::ResourcePath& collection,
-                                         int since_batch_id) const {
+OverlayByDocumentKeyMap WrappedDocumentOverlayCache::GetOverlays(
+    const model::ResourcePath& collection, int since_batch_id) const {
   auto result = subject_->GetOverlays(collection, since_batch_id);
   query_engine_->overlays_read_by_collection_ += result.size();
   return result;
 }
 
-OverlayByDocumentKeyMap
-WrappedDocumentOverlayCache::GetOverlays(absl::string_view collection_group,
-                                         int since_batch_id,
-                                         std::size_t count) const {
+OverlayByDocumentKeyMap WrappedDocumentOverlayCache::GetOverlays(
+    absl::string_view collection_group,
+    int since_batch_id,
+    std::size_t count) const {
   auto result = subject_->GetOverlays(collection_group, since_batch_id, count);
   query_engine_->overlays_read_by_collection_group_ += result.size();
   return result;

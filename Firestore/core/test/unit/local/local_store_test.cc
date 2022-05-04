@@ -400,12 +400,12 @@ void LocalStoreTest::ResetPersistenceStats() {
  * Asserts the expected numbers of documents read by the MutationQueue since the
  * last call to `ResetPersistenceStats()`.
  */
-#define FSTAssertOverlaysRead(by_key, by_query)                   \
-  do {                                                            \
-    ASSERT_EQ(query_engine_.overlays_read_by_key(), (by_key))     \
-        << "Mutations read (by key)";                             \
+#define FSTAssertOverlaysRead(by_key, by_query)                        \
+  do {                                                                 \
+    ASSERT_EQ(query_engine_.overlays_read_by_key(), (by_key))          \
+        << "Mutations read (by key)";                                  \
     ASSERT_EQ(query_engine_.overlays_read_by_collection(), (by_query)) \
-        << "Mutations read (by query)";                           \
+        << "Mutations read (by query)";                                \
   } while (0)
 
 /**

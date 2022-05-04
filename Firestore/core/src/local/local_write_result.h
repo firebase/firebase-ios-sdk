@@ -35,8 +35,7 @@ class LocalWriteResult {
       model::BatchId batch_id, model::OverlayedDocumentMap&& overlayed_docs) {
     model::DocumentMap docs;
     for (const auto& overlayed_doc : overlayed_docs) {
-      docs = docs.insert(overlayed_doc.first,
-                         overlayed_doc.second.document());
+      docs = docs.insert(overlayed_doc.first, overlayed_doc.second.document());
     }
 
     return LocalWriteResult(batch_id, std::move(docs));

@@ -31,9 +31,8 @@ using model::DocumentKeySet;
 using model::Overlay;
 using model::OverlayByDocumentKeyMap;
 
-void DocumentOverlayCache::GetOverlays(
-    OverlayByDocumentKeyMap& dest,
-    const DocumentKeySet& keys) const {
+void DocumentOverlayCache::GetOverlays(OverlayByDocumentKeyMap& dest,
+                                       const DocumentKeySet& keys) const {
   for (const DocumentKey& key : keys) {
     absl::optional<Overlay> overlay = GetOverlay(key);
     if (overlay.has_value()) {

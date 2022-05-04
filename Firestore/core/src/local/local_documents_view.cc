@@ -181,7 +181,8 @@ DocumentMap LocalDocumentsView::GetLocalViewOfDocuments(
 
   DocumentMap result;
   for (auto& entry : overlayed_documents) {
-    result = result.insert(entry.first, std::move(entry.second.consume_document()));
+    result =
+        result.insert(entry.first, std::move(entry.second.consume_document()));
   }
   return result;
 }
@@ -247,7 +248,8 @@ model::OverlayedDocumentMap LocalDocumentsView::ComputeViews(
   return results;
 }
 
-void LocalDocumentsView::RecalculateAndSaveOverlays(const DocumentKeySet& keys) {
+void LocalDocumentsView::RecalculateAndSaveOverlays(
+    const DocumentKeySet& keys) {
   model::MutableDocumentPtrMap docs;
   auto remote_docs = remote_document_cache_->GetAll(keys);
   for (const auto& entry : remote_docs) {
