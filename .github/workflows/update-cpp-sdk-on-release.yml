@@ -41,24 +41,41 @@ jobs:
 
       - name: Ensure Cocoapods repo has been updated
         run: |
-          # If the new version is simply vX.Y.Z, wait up to an hour for its podspec to be present.
-          if [[ "$GITHUB_REF" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Checking Cocoapods repo for associated Firebase ${GITHUB_REF:1} podspec."
-            podspec_url="https://github.com/CocoaPods/Specs/blob/master/Specs/0/3/5/Firebase/${GITHUB_REF:1}/Firebase.podspec.json"
+          # If the new version is simply vX.Y.Z or X.Y.Z, wait up to an hour each for its podspec and prebuilt zip file to be present.
+          if [[ "$GITHUB_REF" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            version=$(echo "$GITHUB_REF" | sed s/^v//)  # remove leading v if present
+            echo "Checking Cocoapods repo for associated Firebase ${version} podspec."
+            podspec_url="https://github.com/CocoaPods/Specs/blob/master/Specs/0/3/5/Firebase/${version}/Firebase.podspec.json"
             for retry in {1..12} error; do
               # Check every 5 minutes, up to an hour, for the new podspec to be present.
               # If it's still not present, trigger the update anyway.
               if [[ $retry == "error" ]]; then
-                echo "::warning ::Firebase ${GITHUB_REF:1} podspec not found, updating anyway."
+                echo "::warning ::Firebase ${version} podspec not found, updating anyway."
                 exit 0
               fi
               echo -n "Check ${podspec_url} (attempt ${retry}) ..."
-              curl -L -f -o /dev/null "${podspec_url}" 2> /dev/null && echo " success!" && break
+              curl -H 'Authorization: token ${{ github.token }}' -L -f -o /dev/null "${podspec_url}" 2> /dev/null && echo " success!" && break
+              echo " failed."
+              sleep 300
+            done
+            echo "Checking firebase-ios-sdk repo for ${version} prebuilt zip."
+            # Check for the zip file on this actual release URL (which might include the leading v)
+            zipfile_url="https://github.com/firebase/firebase-ios-sdk/releases/download/${GITHUB_REF}/Firebase.zip"
+            for retry in {1..12} error; do
+              # Check every 5 minutes, up to an hour, for the new zip file to be present.
+              # If it's still not present, trigger the update anyway.
+              if [[ $retry == "error" ]]; then
+                echo "::warning ::Firebase ${version} zip file not found, updating anyway."
+                exit 0
+              fi
+              echo -n "Check ${zipfile_url} (attempt ${retry}) ..."
+              # curl's "-r 0-0" option means only download the first byte, this prevents us from downloading 300+ MB.
+              curl -H 'Authorization: token ${{ github.token }}' -L -f -o /dev/null -r 0-0 "${zipfile_url}" 2> /dev/null && echo " success!" && break
               echo " failed."
               sleep 300
             done
           else
-            echo "Tag '$GITHUB_REF' doesn't match the 'vX.Y.Z' format, skipping Cocoapods repo check."
+            echo "Tag '$GITHUB_REF' doesn't match the 'vX.Y.Z' or 'X.Y.Z' format, skipping Cocoapods repo and release zip check."
           fi
 
       - name: Trigger firebase-cpp-sdk update
