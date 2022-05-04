@@ -32,8 +32,8 @@ begin
     opts.on('-n', '--target-path PATH', 'Path of targeted file or dir') { |v| @options[:target_path] = v }
     opts.on('--pr-title PR_TITLE', 'Title of a PR') { |v| @options[:pr_title] = v }
     opts.on('--pr-body PR_BODY', 'Body of a PR') { |v| @options[:pr_body] = v }
-    opts.on('--base-branch', 'A new branch will be generated if not specified or the branch does not exist.') { |v| @options[:base_branch] = v }
-    opts.on('--commit-comment', 'Commit comment') { |v| @options[:commit_comment] = v }
+    opts.on('--base-branch BASE_BRANCH', 'A new branch will be generated if not specified or the branch does not exist.') { |v| @options[:base_branch] = v }
+    opts.on('--commit-comment COMMIT_COMMENT', 'Commit comment') { |v| @options[:commit_comment] = v }
   end.parse!
 
   raise OptionParser::MissingArgument if @options[:repo_token].nil? || @options[:target_path].nil?
@@ -52,12 +52,11 @@ BASE_BRANCH=@options[:base_branch]
 COMMIT_COMMENT=@options[:commit_comment]
 
 def generate_pr_for_target_changes(repo_root:, target_path:)
-  system("cd #{REPO_ROOT}\ngit checkout -b #{BASE_BRANCH}\n")
-  if `git diff #{TARGET_PATH}`==""
+  if `cd #{REPO_ROOT}\ngit diff #{TARGET_PATH}`==""
     puts "The file, #{TARGET_PATH}, has no changes."
     return
   end
-  system("git add #{TARGET_PATH}\ngit commit -m \"#{COMMIT_COMMENT}\"\n git push -u origin #{BASE_BRANCH}")
+  system("cd #{REPO_ROOT}\ngit checkout -b #{BASE_BRANCH}\ngit add #{TARGET_PATH}\ngit commit -m \"#{COMMIT_COMMENT}\"")
   client = Octokit::Client.new(access_token: ACCESS_TOKEN)
   client.create_pull_request("firebase/firebase-ios-sdk", "master", BASE_BRANCH, PR_TITLE, PR_BODY)
 end
@@ -68,4 +67,3 @@ def main()
 end
 
 main()
-
