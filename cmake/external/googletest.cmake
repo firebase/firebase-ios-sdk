@@ -20,7 +20,7 @@ endif()
 
 # Note: googletest lives at head and encourages to just point to a head commit.
 # https://github.com/google/googletest/blob/bf66935e07/README.md?plain=1#L5-L10
-set(version bf66935e07825318ae519675d73d0f3e313b3ec6)
+set(version main)
 
 ExternalProject_Add(
   googletest

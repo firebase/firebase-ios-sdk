@@ -74,7 +74,10 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL)
     // Not a source file, give up and return.
     return
   }
-  let isPublic = file.range(of: "/Public/") != nil
+  let isPublic = file.range(of: "/Public/") != nil &&
+    // TODO: Skip legacy GDTCCTLibrary file that isn't Public and should be moved.
+    // This test is used in the GoogleDataTransport's repo's CI clone of this repo.
+    file.range(of: "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h") == nil
   let isPrivate = file.range(of: "/Sources/Private/") != nil ||
     // Delete when FirebaseInstallations fixes directory structure.
     file.range(of: "Source/Library/Private/FirebaseInstallationsInternal.h") != nil ||
