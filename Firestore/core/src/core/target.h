@@ -106,6 +106,9 @@ class Target {
     return order_bys_.back().direction();
   }
 
+  /** Returns the number of segments of a perfect index for this target. */
+  size_t GetSegmentCount() const;
+
   /**
    * Returns the values that are used in ArrayContains or ArrayContainsAny
    * filters.

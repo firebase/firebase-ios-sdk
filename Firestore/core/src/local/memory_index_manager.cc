@@ -80,19 +80,34 @@ void MemoryIndexManager::DeleteFieldIndex(const model::FieldIndex& index) {
 }
 
 std::vector<model::FieldIndex> MemoryIndexManager::GetFieldIndexes(
-    const std::string& collection_group) {
+    const std::string& collection_group) const {
   (void)collection_group;
   return {};
 }
 
-std::vector<model::FieldIndex> MemoryIndexManager::GetFieldIndexes() {
+std::vector<model::FieldIndex> MemoryIndexManager::GetFieldIndexes() const {
   return {};
 }
 
 absl::optional<model::FieldIndex> MemoryIndexManager::GetFieldIndex(
-    const core::Target& target) {
+    const core::Target& target) const {
   (void)target;
   return absl::nullopt;
+}
+
+const model::IndexOffset MemoryIndexManager::GetMinOffset(
+    const core::Target&) const {
+  return model::IndexOffset::None();
+}
+
+const model::IndexOffset MemoryIndexManager::GetMinOffset(
+    const std::string&) const {
+  return model::IndexOffset::None();
+}
+
+IndexManager::IndexType MemoryIndexManager::GetIndexType(
+    const core::Target&) const {
+  return IndexManager::IndexType::NONE;
 }
 
 absl::optional<std::vector<model::DocumentKey>>

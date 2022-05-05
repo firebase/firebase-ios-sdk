@@ -125,7 +125,7 @@ class QueryEngineTest : public ::testing::Test {
             persistence_->GetDocumentOverlayCache(User::Unauthenticated()),
             index_manager_) {
     remote_document_cache_->SetIndexManager(index_manager_);
-    query_engine_.SetLocalDocumentsView(&local_documents_view_);
+    query_engine_.SetDependencies(&local_documents_view_);
   }
 
   /** Adds the provided documents to the query target mapping. */
@@ -164,7 +164,7 @@ class QueryEngineTest : public ::testing::Test {
       const core::Query& query,
       const SnapshotVersion& last_limbo_free_snapshot_version) {
     DocumentKeySet remote_keys = target_cache_->GetMatchingKeys(kTestTargetId);
-    DocumentMap docs = query_engine_.GetDocumentsMatchingQuery(
+    const auto docs = query_engine_.GetDocumentsMatchingQuery(
         query, last_limbo_free_snapshot_version, remote_keys);
     View view(query, DocumentKeySet());
     ViewDocumentChanges view_doc_changes =

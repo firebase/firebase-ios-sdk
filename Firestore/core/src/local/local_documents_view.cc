@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/local/local_documents_view.h"
 
+#include <algorithm>
 #include <map>
 #include <memory>
 #include <string>
@@ -25,6 +26,7 @@
 
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/immutable/sorted_set.h"
+#include "Firestore/core/src/local/local_write_result.h"
 #include "Firestore/core/src/local/mutation_queue.h"
 #include "Firestore/core/src/local/remote_document_cache.h"
 #include "Firestore/core/src/model/document.h"
@@ -60,6 +62,9 @@ using model::Overlay;
 using model::OverlayByDocumentKeyMap;
 using model::ResourcePath;
 using model::SnapshotVersion;
+
+using OverlayByDocumentKeyMap = std::
+    unordered_map<model::DocumentKey, model::Overlay, model::DocumentKeyHash>;
 
 Document LocalDocumentsView::GetDocument(
     const DocumentKey& key, const std::vector<MutationBatch>& batches) {
@@ -116,6 +121,35 @@ model::DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionGroupQuery(
     }
   }
   return results;
+}
+
+const LocalWriteResult LocalDocumentsView::GetNextDocuments(
+    const std::string& collection_group, const IndexOffset& offset, int count) {
+  auto docs = remote_document_cache_->GetAll(collection_group, offset, count);
+  auto overlays = count - docs.size() > 0
+                      ? document_overlay_cache_->GetOverlays(
+                            collection_group, offset.largest_batch_id(),
+                            count - docs.size())
+                      : OverlayByDocumentKeyMap();
+
+  int largest_batch_id = IndexOffset::InitialLargestBatchId();
+  for (const auto& entry : overlays) {
+    if (docs.find(entry.first) == docs.end()) {
+      docs =
+          docs.insert(entry.first, GetBaseDocument(entry.first, entry.second));
+    }
+    // The callsite will use the largest batch ID together with the latest read
+    // time to create a new index offset. Since we only process batch IDs if all
+    // remote documents have been read, no overlay will increase the overall
+    // read time. This is why we only need to special case the batch id.
+    largest_batch_id =
+        std::max(largest_batch_id, entry.second.largest_batch_id());
+  }
+
+  PopulateOverlays(overlays, DocumentKeySet::FromKeysOf(docs));
+  auto local_docs = ComputeViews(docs, std::move(overlays), DocumentKeySet{});
+  return LocalWriteResult::FromOverlayedDocuments(largest_batch_id,
+                                                  std::move(local_docs));
 }
 
 DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(

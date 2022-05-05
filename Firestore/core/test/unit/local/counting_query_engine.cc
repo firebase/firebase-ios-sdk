@@ -18,6 +18,7 @@
 
 #include "Firestore/core/src/immutable/sorted_map.h"
 #include "Firestore/core/src/local/local_documents_view.h"
+#include "Firestore/core/src/model/field_index.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/model/mutation_batch.h"
@@ -40,8 +41,7 @@ using model::SnapshotVersion;
 CountingQueryEngine::CountingQueryEngine() = default;
 CountingQueryEngine::~CountingQueryEngine() = default;
 
-void CountingQueryEngine::SetLocalDocumentsView(
-    LocalDocumentsView* local_documents) {
+void CountingQueryEngine::SetDependencies(LocalDocumentsView* local_documents) {
   remote_documents_ = absl::make_unique<WrappedRemoteDocumentCache>(
       local_documents->remote_document_cache(), this);
   mutation_queue_ = absl::make_unique<WrappedMutationQueue>(
@@ -51,7 +51,7 @@ void CountingQueryEngine::SetLocalDocumentsView(
   local_documents_ = absl::make_unique<LocalDocumentsView>(
       remote_documents_.get(), mutation_queue_.get(),
       document_overlay_cache_.get(), local_documents->index_manager());
-  QueryEngine::SetLocalDocumentsView(local_documents_.get());
+  QueryEngine::SetDependencies(local_documents_.get());
 }
 
 void CountingQueryEngine::ResetCounts() {
@@ -171,6 +171,15 @@ model::MutableDocumentMap WrappedRemoteDocumentCache::GetAll(
     const model::DocumentKeySet& keys) {
   auto result = subject_->GetAll(keys);
   query_engine_->documents_read_by_key_ += result.size();
+  return result;
+}
+
+model::MutableDocumentMap WrappedRemoteDocumentCache::GetAll(
+    const std::string& collection_group,
+    const model::IndexOffset& offset,
+    int limit) const {
+  auto result = subject_->GetAll(collection_group, offset, limit);
+  query_engine_->documents_read_by_query_ += result.size();
   return result;
 }
 
