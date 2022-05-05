@@ -324,14 +324,13 @@ class LocalSerializerTest : public ::testing::Test {
 
   void ExpectSerializationRoundTrip(const NamedQuery& named_query,
                                     const ::firestore::NamedQuery& proto) {
-    ByteString bytes = EncodeNamedQuery(&serializer, named_query);
+    ByteString bytes = EncodeNamedQuery(named_query);
     auto actual = ProtobufParse<::firestore::NamedQuery>(bytes);
     EXPECT_TRUE(msg_diff.Compare(proto, actual)) << message_differences;
   }
 
-  ByteString EncodeNamedQuery(local::LocalSerializer* serializer,
-                              const NamedQuery& named_query) {
-    return MakeByteString(serializer->EncodeNamedQuery(named_query));
+  ByteString EncodeNamedQuery(const NamedQuery& named_query) {
+    return MakeByteString(serializer.EncodeNamedQuery(named_query));
   }
 
   void ExpectDeserializationRoundTrip(const NamedQuery& named_query,
@@ -369,120 +368,6 @@ class LocalSerializerTest : public ::testing::Test {
   std::string message_differences;
   MessageDifferencer msg_diff;
 };
-
-// TODO(b/174608374): Remove these tests once we perform a schema migration.
-TEST_F(LocalSerializerTest, SetMutationAndTransformMutationAreSquashed) {
-  ::firestore::client::WriteBatch batch_proto{};
-  batch_proto.set_batch_id(42);
-  *batch_proto.add_writes() = SetProto();
-  *batch_proto.add_writes() = LegacyTransformProto();
-  *batch_proto.mutable_local_write_time() = WriteTimeProto();
-
-  ByteString bytes = ProtobufSerialize(batch_proto);
-  StringReader reader(bytes);
-  auto message = Message<firestore_client_WriteBatch>::TryParse(&reader);
-  MutationBatch decoded = serializer.DecodeMutationBatch(&reader, *message);
-  ASSERT_EQ(1, decoded.mutations().size());
-  ASSERT_EQ(Mutation::Type::Set, decoded.mutations()[0].type());
-
-  Message<google_firestore_v1_Write> encoded{
-      remote_serializer.EncodeMutation(decoded.mutations()[0])};
-  ExpectSet(*encoded);
-  ExpectUpdateTransform(*encoded);
-}
-
-// TODO(b/174608374): Remove these tests once we perform a schema migration.
-TEST_F(LocalSerializerTest, PatchMutationAndTransformMutationAreSquashed) {
-  ::firestore::client::WriteBatch batch_proto{};
-  batch_proto.set_batch_id(42);
-  *batch_proto.add_writes() = PatchProto();
-  *batch_proto.add_writes() = LegacyTransformProto();
-  *batch_proto.mutable_local_write_time() = WriteTimeProto();
-
-  ByteString bytes = ProtobufSerialize(batch_proto);
-  StringReader reader(bytes);
-  auto message = Message<firestore_client_WriteBatch>::TryParse(&reader);
-  MutationBatch decoded = serializer.DecodeMutationBatch(&reader, *message);
-  ASSERT_EQ(1, decoded.mutations().size());
-  ASSERT_EQ(Mutation::Type::Patch, decoded.mutations()[0].type());
-
-  Message<google_firestore_v1_Write> encoded{
-      remote_serializer.EncodeMutation(decoded.mutations()[0])};
-  ExpectPatch(*encoded);
-  ExpectUpdateTransform(*encoded);
-}
-
-// TODO(b/174608374): Remove these tests once we perform a schema migration.
-TEST_F(LocalSerializerTest, TransformAndTransformThrowError) {
-  ::firestore::client::WriteBatch batch_proto{};
-  batch_proto.set_batch_id(42);
-  *batch_proto.add_writes() = LegacyTransformProto();
-  *batch_proto.add_writes() = LegacyTransformProto();
-  *batch_proto.mutable_local_write_time() = WriteTimeProto();
-
-  ByteString bytes = ProtobufSerialize(batch_proto);
-  StringReader reader(bytes);
-  auto message = Message<firestore_client_WriteBatch>::TryParse(&reader);
-  EXPECT_ANY_THROW(serializer.DecodeMutationBatch(&reader, *message));
-}
-
-// TODO(b/174608374): Remove these tests once we perform a schema migration.
-TEST_F(LocalSerializerTest, DeleteAndTransformThrowError) {
-  ::firestore::client::WriteBatch batch_proto{};
-  batch_proto.set_batch_id(42);
-  *batch_proto.add_writes() = DeleteProto();
-  *batch_proto.add_writes() = LegacyTransformProto();
-  *batch_proto.mutable_local_write_time() = WriteTimeProto();
-
-  ByteString bytes = ProtobufSerialize(batch_proto);
-  StringReader reader(bytes);
-  auto message = Message<firestore_client_WriteBatch>::TryParse(&reader);
-  EXPECT_ANY_THROW(serializer.DecodeMutationBatch(&reader, *message));
-}
-
-// TODO(b/174608374): Remove these tests once we perform a schema migration.
-TEST_F(LocalSerializerTest, MultipleMutationsAreSquashed) {
-  ::firestore::client::WriteBatch batch_proto{};
-  batch_proto.set_batch_id(42);
-  *batch_proto.add_writes() = SetProto();
-  *batch_proto.add_writes() = SetProto();
-  *batch_proto.add_writes() = LegacyTransformProto();
-  *batch_proto.add_writes() = DeleteProto();
-  *batch_proto.add_writes() = PatchProto();
-  *batch_proto.add_writes() = LegacyTransformProto();
-  *batch_proto.add_writes() = PatchProto();
-  *batch_proto.mutable_local_write_time() = WriteTimeProto();
-
-  ByteString bytes = ProtobufSerialize(batch_proto);
-  StringReader reader(bytes);
-  auto message = Message<firestore_client_WriteBatch>::TryParse(&reader);
-  MutationBatch decoded = serializer.DecodeMutationBatch(&reader, *message);
-  ASSERT_EQ(5, decoded.mutations().size());
-
-  Message<google_firestore_v1_Write> encoded{
-      remote_serializer.EncodeMutation(decoded.mutations()[0])};
-  ExpectSet(*encoded);
-  ExpectNoUpdateTransform(*encoded);
-
-  encoded =
-      MakeMessage(remote_serializer.EncodeMutation(decoded.mutations()[1]));
-  ExpectSet(*encoded);
-  ExpectUpdateTransform(*encoded);
-
-  encoded =
-      MakeMessage(remote_serializer.EncodeMutation(decoded.mutations()[2]));
-  ExpectDelete(*encoded);
-
-  encoded =
-      MakeMessage(remote_serializer.EncodeMutation(decoded.mutations()[3]));
-  ExpectPatch(*encoded);
-  ExpectUpdateTransform(*encoded);
-
-  encoded =
-      MakeMessage(remote_serializer.EncodeMutation(decoded.mutations()[4]));
-  ExpectPatch(*encoded);
-  ExpectNoUpdateTransform(*encoded);
-}
 
 TEST_F(LocalSerializerTest, EncodesMutationBatch) {
   Mutation base =
