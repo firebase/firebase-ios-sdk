@@ -66,7 +66,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
       unit_tests.scheme = { :code_coverage => true }
       unit_tests.platforms = {
         :ios => ios_deployment_target,
-        :osx => '10.15',
+        :osx => '12.0',
         :tvos => tvos_deployment_target
       }
       unit_tests.source_files = [
@@ -84,7 +84,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.test_spec 'swift-unit' do |swift_unit_tests|
     swift_unit_tests.platforms = {
       :ios => ios_deployment_target,
-      :osx => osx_deployment_target,
+      :osx => '12.0',
       :tvos => tvos_deployment_target
     }
     swift_unit_tests.source_files = [
