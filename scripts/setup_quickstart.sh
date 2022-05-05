@@ -48,8 +48,7 @@ if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
   # development pod install. This is needed for the `pod install` command.
   export FIREBASE_POD_REPO_FOR_DEV_POD=`pwd`
 
-  #TODO: Delete the branch option after the 9.0 release.
-  git clone --branch v9 https://github.com/firebase/quickstart-ios.git
+  git clone https://github.com/firebase/quickstart-ios.git
 
   $scripts_dir/localize_podfile.swift "$WORKSPACE_DIR"/Podfile "$RELEASE_TESTING"
   if [ "$RELEASE_TESTING" == "nightly_release_testing" ]; then
