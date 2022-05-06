@@ -66,6 +66,7 @@ source scripts/buildcache.sh
 args=("${args[@]}" "${buildcache_xcb_flags[@]}")
 
 xcodebuild -version
+gem install xcpretty
 xcodebuild "${args[@]}" | xcpretty
 
 # Print the size if the Xcode build was successful.
