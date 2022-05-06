@@ -1,194 +1,194 @@
-# Firebase 9.0.0
+# v9.0.0
 - [fixed] **Breaking change:** Fixed an ObjC-to-Swift API conversion error where `getStoredUser(forAccessGroup:)` returned a non-optional type. This change is breaking for Swift users only (#8599).
 - [fixed] Fixed an iOS 15 keychain access issue related to prewarming. (#8695)
 
-# Firebase 8.14.0
+# v8.14.0
 - [added] Started to collect the Firebase user agent for Firebase Auth. (#9066)
 
-# Firebase 8.12.0
+# v8.12.0
 - [added] Added documentation note and error logging to `getStoredUser(forAccessGroup:)` regarding tvOS keychain sharing issues. (#8878)
 - [fixed] Partial fix for expired ID token issue. (#6521)
 
-# Firebase 8.11.0
+# v8.11.0
 - [changed] Added a `X-Firebase-GMPID` header to network requests. (#9046)
 - [fixed] Added multi-tenancy support to generic OAuth providers. (#7990)
 - [fixed] macOS Extension access to Shared Keychain by adding `kSecUseDataProtectionKeychain` recommended key. (#6876)
 
-# Firebase 8.9.0
+# v8.9.0
 - [changed] Improved error logging. (#8704)
 - [added] Added MFA support for email link sign-in. (#8705)
 
-# Firebase 8.8.0
+# v8.8.0
 - [fixed] Fall back to reCAPTCHA for phone auth app verification if the push notification is not received before the timeout. (#8653)
 
-# Firebase 8.6.0
+# v8.6.0
 - [fixed] Annotated platform-level availability using `API_UNAVAILABLE` instead of conditionally compiling certain methods with `#if` directives. (#8451)
 
-# Firebase 8.5.0
+# v8.5.0
 - [fixed] Fixed an analyze issue introduced in Xcode 12.5. (#8411)
 
-# Firebase 8.2.0
+# v8.2.0
 - [fixed] Fixed analyze issues introduced in Xcode 12.5. (#8210)
 - [fixed] Fixed a bug in the link with email link, Game Center, and phone auth flows. (#8196)
 
-# Firebase 8.0.0
+# v8.0.0
 - [fixed] Fixed a crash that occurred when assigning auth settings. (#7670)
 
-# Firebase 7.8.0
+# v7.8.0
 - [fixed] Fixed auth state sharing during first app launch. (#7472)
 
-# Firebase 7.6.0
+# v7.6.0
 - [fixed] Auth emulator now works across the local network. (#7350)
 - [fixed] Fixed incorrect import for watchOS (#7425)
 
-# Firebase 7.4.0
+# v7.4.0
 - [fixed] Check if the reverse client ID is configured as a custom URL scheme before setting it as the callback scheme. (#7211)
 - [added] Add ability to sync auth state across devices. (#6924)
 - [fixed] Add multi-tenancy support for email link sign-in. (#7246)
 
-# Firebase 7.3.0
+# v7.3.0
 - [fixed] Catalyst browser issue with `verifyPhoneNumber` API. (#7049)
 
-# Firebase 7.1.0
+# v7.1.0
 - [fixed] Fixed completion handler issue in `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` method. (#6863)
 
-# Firebase 7.0.0
+# v7.0.0
 - [removed] Remove deprecated APIs `dataForKey`,`fetchProvidersForEmail:completion`, `signInAndRetrieveDataWithCredential:completion`, `reauthenticateAndRetrieveDataWithCredential:completion`, `linkAndRetrieveDataWithCredential:completion`. (#6607)
 - [added] Add support for the auth emulator. (#6624)
 - [changed] The global variables `FirebaseAuthVersionNum` and `FirebaseAuthVersionStr` are deleted.
   `FirebaseVersion()` or `FIRFirebaseVersion()` should be used instead.
 
-# Firebase 6.9.1
+# v6.9.1
 - [fixed] Internal source documentation. (#6371)
 
-# Firebase 6.9.0
+# v6.9.0
 - [added] Added support for multi-tenancy (#6142).
 - [added] Added basic watchOS support. (#4621)
 - [changed] Improved Xcode completion of public API completion handlers in Swift. (#6283)
 
-# Firebase 6.8.0
+# v6.8.0
 - [fixed] Fix bug where multiple keychain entries would result in user persistence failure. (#5906)
 - [changed] Added support for using GOOGLE_APP_ID in generic IDP and phone auth reCAPTCHA fallback flows. (#6121)
 
-# Firebase 6.7.1
+# v6.7.1
 - [fixed] Fixed a multithreaded memory access issue on iOS. (#5979)
 
-# Firebase 6.7.0
+# v6.7.0
 - [changed] Functionally neutral source reorganization for preliminary Swift Package Manager support. (#5856)
 
-# Firebase 6.5.3
+# v6.5.3
 - [changed] Remove unused mfa request field "mfa_provider" (#5397)
 - [fixed] Suppress deprecation warnings when targeting iOS versions up to iOS 13. (#5437)
 
-# Firebase 6.5.2
+# v6.5.2
 - [fixed] Handle calls to `useUserAccessGroup` soon after configure. (#4175)
 
-# Firebase 6.5.1
+# v6.5.1
 - [changed] File structure changes. No functional change.
 - [changed] Code formatting changes.
 
-# Firebase 6.5.0
+# v6.5.0
 - [feature] Added support of Multi-factor Authentication. (#4823)
 
-# Firebase 6.4.1
+# v6.4.1
 - [fixed] Added support of UISceneDelegate for URL redirect. (#4380)
 - [fixed] Fixed rawNonce in encoder. (#4337)
 
-# Firebase 6.4.0
+# v6.4.0
 - [feature] Added support for Sign-in with Apple. (#4183)
 
-# Firebase 6.3.1
+# v6.3.1
 - [fixed] Removed usage of a deprecated property on iOS 13. (#4066)
 
-# Firebase 6.3.0
+# v6.3.0
 - [added] Added methods allowing developers to link and reauthenticate with federated providers. (#3971)
 
-# Firebase 6.2.3
+# v6.2.3
 - [fixed] Make sure the first valid auth domain is retrieved. (#3493)
 - [fixed] Add assertion for Facebook generic IDP flow. (#3208)
 - [fixed] Build for Catalyst. (#3549)
 
-# Firebase 6.2.2
+# v6.2.2
 - [fixed] Fixed an issue where unlinking an email auth provider raised an incorrect error stating the account was not linked to an email auth provider. (#3405)
 - [changed] Renamed internal Keychain classes. (#3473)
 
-# Firebase 6.2.1
+# v6.2.1
 - [added] Add new client error MISSING_CLIENT_IDENTIFIER. (#3341)
 
-# Firebase 6.2.0
+# v6.2.0
 - [feature] Expose `secret` of OAuth credential in public header. (#3089)
 - [fixed] Fix a keychain issue where API key is incorrectly set. (#3239)
 
-# Firebase 6.1.2
+# v6.1.2
 - [fixed] Fix line limits and linter warnings in public documentation. (#3139)
 
-# Firebase 6.1.1
+# v6.1.1
 - [fixed] Fix an issue where a user can't link with email provider by email link. (#3030)
 
-# Firebase 6.1.0
+# v6.1.0
 - [added] Add support of web.app as an auth domain. (#2959)
 - [fixed] Fix an issue where the return type of `getStoredUserForAccessGroup:error:` is nonnull. (#2879)
 
-# Firebase 6.0.0
+# v6.0.0
 - [added] Add support of single sign on. (#2684)
 - [deprecated] Deprecate `reauthenticateAndRetrieveDataWithCredential:completion:`, `signInAndRetrieveDataWithCredential:completion:`, `linkAndRetrieveDataWithCredential:completion:`, `fetchProvidersForEmail:completion:`. (#2723, #2756)
 - [added] Returned oauth secret token in Generic IDP sign-in for Twitter. (#2663)
 - [removed] Remove pendingToken from public API. (#2676)
 - [changed] `GULAppDelegateSwizzler` is used for the app delegate swizzling. (#2591)
 
-# Firebase 5.4.2
+# v5.4.2
 - [added] Support new error code ERROR_INVALID_PROVIDER_ID. (#2629)
 
-# Firebase 5.4.1
+# v5.4.1
 - [deprecated] Deprecate Microsoft and Yahoo OAuth Provider ID (#2517)
 - [fixed] Fix an issue where an exception was thrown when linking OAuth credentials. (#2521)
 - [fixed] Fix an issue where a wrong error was thrown when handling error with
   FEDERATED_USER_ID_ALREADY_LINKED. (#2522)
 
-# Firebase 5.4.0
+# v5.4.0
 - [added] Add support of Generic IDP (#2405).
 
-# Firebase 5.3.0
+# v5.3.0
 - [changed] Use the new registerInternalLibrary API to register with FirebaseCore. (#2137)
 
-# Firebase 5.2.0
+# v5.2.0
 - [added] Add support of Game Center sign in (#2127).
 
-# Firebase 5.1.0
+# v5.1.0
 - [added] Add support of custom FDL domain link (#2121).
 
-# Firebase 5.0.5
+# v5.0.5
 - [changed] Restore SafariServices framework dependency (#2002).
 
-# Firebase 5.0.4
+# v5.0.4
 - [fixed] Fix analyzer issues (#1740).
 
-# Firebase 5.0.3
+# v5.0.3
 - [added] Add `FIRAuthErrorCodeMalformedJWT`, which is raised on JWT token parsing.
   failures during auth operations (#1436).
 - [changed] Migrate to use FirebaseAuthInterop interfaces to access FirebaseAuth (#1501).
 
-# Firebase 5.0.2
+# v5.0.2
 - [fixed] Fix an issue where JWT date timestamps weren't parsed correctly. (#1319)
 - [fixed] Fix an issue where anonymous accounts weren't correctly promoted to
   non-anonymous when linked with passwordless email auth accounts. (#1383)
 - [fixed] Fix an exception from using an invalidated NSURLSession. (#1261)
 - [fixed] Fix a data race issue caught by the sanitizer. (#1446)
 
-# Firebase 5.0.1
+# v5.0.1
 - [fixed] Restore 4.x level of support for extensions (#1357).
 
-# Firebase 5.0.0
+# v5.0.0
 - [added] Adds APIs for phone Auth testing to bypass the verification flow (#1192).
 - [feature] Changes the callback block signature for sign in and create user methods
   to provide an AuthDataResult that includes the user and user info (#1123, #1186).
 - [changed] Removes GoogleToolboxForMac dependency (#1175).
 - [removed] Removes miscellaneous deprecated APIs (#1188, #1200).
 
-# Firebase 4.6.1
+# v4.6.1
 - [fixed] Fixes crash which occurred when certain Firebase IDTokens were being parsed (#1076).
 
-# Firebase 4.6.0
+# v4.6.0
 - [added] Adds `getIDTokenResultWithCompletion:` and `getIDTokenResultForcingRefresh:completion:` APIs which
   call back with an AuthTokenResult object. The Auth token result object contains the ID token JWT string and other properties associated with the token including the decoded available payload claims (#1004).
 - [added] Adds the `updateCurrentUser:completion:` API which sets the currentUser on the calling Auth instance to the provided user object (#1018).
@@ -199,42 +199,42 @@
   `signInWithEmail:link:completion:` and `isSignInWithEmailLink:` methods during an
   email/link sign-in flow (#1023).
 
-# Firebase 4.5.0
+# v4.5.0
 - [added] Adds new API which provides a way to determine the sign-in methods associated with an
   email address.
 - [added] Adds new API which allows authentication using only an email link (Passwordless Authentication
   with email link).
 
-# Firebase 4.4.4
+# v4.4.4
 - [fixed] Addresses CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF warnings that surface in newer versions of
   Xcode and CocoaPods.
 - [fixed] Improves FIRUser documentation with clear message explaining when Firebase Auth attempts to validate
   users and what happens when an invalidated user is detected (#694) .
 
-# Firebase 4.4.3
+# v4.4.3
 - [added] Adds an explicit dependency on CoreGraphics from Firebase Auth.
 
-# Firebase 4.4.2
+# v4.4.2
 - [fixed] Fixes bug where the FIRAuthResult object returned following a Phone Number authentication
   always contained a nil FIRAdditionalUserInfo object. Now the FIRAdditionalUserInfo object is
   never nil and its newUser field is populated correctly.
 
-# Firebase 4.4.0
+# v4.4.0
 - [fixed] Adds new APIs which return an AuthDataResult object after successfully creating an
   Email/Password user, signing in anonymously, signing in with Email/Password and signing
   in with Custom Token. The AuthDataResult object contains the new user and additional
   information pertaining to the new user.
 
-# Firebase 4.3.2
+# v4.3.2
 - [fixed] Improves error handling for the phone number sign-in reCAPTCHA flow.
 - [fixed] Improves error handling for phone number linking flow.
 - [fixed] Fixes issue where after linking an anonymous user to a phone number the user remained
   anonymous.
 
-# Firebase 4.3.1
+# v4.3.1
 - [changed] Internal clean up.
 
-# Firebase 4.3.0
+# v4.3.0
 - [added] Provides account creation and last sign-in dates as metadata to the user
   object.
 - [added] Returns more descriptive errors for some error cases of the phone number
@@ -242,17 +242,17 @@
 - [fixed] Fixes an issue that invalid users were not automatically signed out earlier.
 - [fixed] Fixes an issue that ID token listeners were not fired in some cases.
 
-# Firebase 4.2.1
+# v4.2.1
 - [fixed] Fixes a threading issue in phone number auth that completion block was not
   executed on the main thread in some error cases.
 
-# Firebase 4.2.0
+# v4.2.0
 - [added] Adds new phone number verification API which makes use of an intelligent reCAPTCHA to verify the application.
 
-# Firebase 4.1.1
+# v4.1.1
 - [changed] Improves some method documentation in headers.
 
-# Firebase 4.1.0
+# v4.1.0
 - [added] Allows the app to handle continue URL natively, e.g., from password reset
   email.
 - [added] Allows the app to set language code, e.g., for sending password reset email.
@@ -264,7 +264,7 @@
 - [fixed] Changes console message logging levels to be more consistent with other
   Firebase products on the iOS platform.
 
-# Firebase 4.0.0
+# v4.0.0
 - [added] Adds Phone Number Authentication.
 - [added] Adds support for generic OAuth2 identity providers.
 - [added] Adds methods that return additional user data from identity providers if
@@ -288,14 +288,14 @@
   FIRUser.
 - [fixed] Changes Swift API names to better align with Swift convention.
 
-# Firebase 3.1.1
+# v3.1.1
 - [added] Allows handling of additional errors when sending OOB action emails. The
   server can respond with the following new error messages:
   INVALID_MESSAGE_PAYLOAD,INVALID_SENDER and INVALID_RECIPIENT_EMAIL.
 - [fixed] Removes incorrect reference to FIRAuthErrorCodeCredentialTooOld in FIRUser.h.
 - [added] Provides additional error information from server if available.
 
-# Firebase 3.1.0
+# v3.1.0
 - [added] Adds FIRAuth methods that enable the app to follow up with user actions
   delivered by email, such as verifying email address or reset password.
 - [fixed] No longer applies the keychain workaround introduced in v3.0.5 on iOS 10.2
@@ -303,20 +303,20 @@
 - [fixed] Fixes nullability compilation warnings when used in Swift.
 - [fixed] Better reports missing password error.
 
-# Firebase 3.0.6
+# v3.0.6
 - [changed] Switches to depend on open sourced GoogleToolboxForMac and GTMSessionFetcher.
 - [fixed] Improves logging of keychain error when initializing.
 
-# Firebase 3.0.5
+# v3.0.5
 - [fixed] Works around a keychain issue in iOS 10 simulator.
 - [fixed] Reports the correct error for invalid email when signing in with email and
   password.
 
-# Firebase 3.0.4
+# v3.0.4
 - [fixed] Fixes a race condition bug that could crash the app with an exception from
   NSURLSession on iOS 9.
 
-# Firebase 3.0.3
+# v3.0.3
 - [added] Adds documentation for all possible errors returned by each method.
 - [fixed] Improves error handling and messages for a variety of error conditions.
 - [fixed] Whether or not an user is considered anonymous is now consistent with other
@@ -324,5 +324,5 @@
 - [changed] A saved signed in user is now siloed between different Firebase projects
   within the same app.
 
-# Firebase 3.0.2
+# v3.0.2
 - Initial public release.

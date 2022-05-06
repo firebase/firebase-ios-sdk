@@ -1,8 +1,8 @@
-# Firebase 9.0.0
+# v9.0.0
 - [added] **Breaking change:** `FirebaseFirestoreSwift` has exited beta and is
   now generally available for use.
 
-# Firebase 8.13.0
+# v8.13.0
 - [added] Added support for explicit typing to `DocumentReference.getDocument(as:)`
   and `DocumentSnapshot.data(as:)` to simplify mapping documents (#9101).
 - [changed] `DocumentSnapshot.data(as:)` will decode the document to the type
@@ -16,17 +16,17 @@
 - [added] Added async wrapper for `CollectionReference.addDocument()` and
   `Firestore.loadBundle()`.
 
-# Firebase 8.9.0
+# v8.9.0
 - [added] Added `@FirestoreQuery` property wrapper for querying data from a
   Firestore collection.
 - [changed] FirebaseFirestoreSwift now requires a minimum iOS version of 11 for
   all distributions.
 
-# Firebase 7.7.0
+# v7.7.0
 - [feature] Added support for specifying `ServerTimestampBehavior` when
   decoding a `DocumentSnapshot`.
 
-# Firebase 0.4
+# v0.4
 - [feature] Added conditional conformance to the `Hashable` protocol for the
   `@DocumentID`, `@ExplicitNull`, and `@ServerTimestamp` property wrappers.
 
@@ -37,9 +37,9 @@
   effectively the case because the code made use of Swift 4.1 features without
   documenting this requirement.
 
-# Firebase 0.3
+# v0.3
 - [fixed] Renamed the misspelled `FirestoreDecodingError.fieldNameConfict` to
   `fieldNameConflict` (#5520).
 
-# Firebase 0.2
+# v0.2
 - Initial public release.
