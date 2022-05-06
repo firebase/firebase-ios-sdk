@@ -22,7 +22,7 @@ jobs:
     runs-on: macos-12
     strategy:
       matrix:
-        target: [ios, tvos, macos --skip-tests]
+        target: [ios, tvos, macos --verbose]
     env:
       # This env var is set because the job has a dependency on the unpublished HeatbeatLoggingTestUtils.
       POD_LIB_LINT_ONLY: 1
