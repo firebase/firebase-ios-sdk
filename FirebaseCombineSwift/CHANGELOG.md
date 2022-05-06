@@ -1,4 +1,4 @@
-# v8.9.0
+# Firebase 8.9.0
 - [feature] Added Combine support for Cloud Functions for Firebase
 - [feature] Added Combine support for Firebase Auth
 - [feature] Added Combine support for Firebase Storage
