@@ -1,0 +1,106 @@
+/*
+* Copyright 2022 Google LLC
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+ */
+
+#include "Firestore/core/src/local/leveldb_overlay_migration_manager.h"
+
+#include <string>
+#include <unordered_set>
+
+#include "absl/strings/match.h"
+#include "Firestore/core/src/credentials/user.h"
+#include "Firestore/core/src/immutable/sorted_set.h"
+#include "Firestore/core/src/local/leveldb_key.h"
+#include "Firestore/core/src/local/local_documents_view.h"
+#include "Firestore/core/src/model/model_fwd.h"
+
+namespace firebase {
+namespace firestore {
+namespace local {
+namespace {
+
+using credentials::User;
+
+std::unordered_set<std::string> GetAllUserIds(LevelDbPersistence* db) {
+  std::unordered_set<std::string> uids;
+  auto prefix = LevelDbMutationQueueKey::KeyPrefix();
+  LevelDbMutationQueueKey key;
+  auto iter = db->current_transaction()->NewIterator();
+  for (iter->Seek(prefix); iter->Valid();iter->Next()) {
+    if (!absl::StartsWith(iter->key(), prefix) ||
+        !key.Decode(iter->key())) {
+      break;
+    }
+
+    uids.insert(key.user_id());
+  }
+  return uids;
+}
+
+bool HasPendingOverlayMigration(LevelDbPersistence* db) {
+  auto key = LevelDbDataMigrationKey::Key("overlay_migration");
+  std::string to_discard;
+  return db->current_transaction()->Get(key, &to_discard).ok();
+}
+
+void RemovePendingOverlayMigrations(LevelDbPersistence* db) {
+  auto key = LevelDbDataMigrationKey::Key("overlay_migration");
+  db->current_transaction()->Delete(key);
+}
+
+void BuildOverlays(LevelDbPersistence* db) {
+  db->Run(
+      "build overlays",
+      [db] {
+        if(!HasPendingOverlayMigration(db)) {
+          return;
+        }
+
+        std::unordered_set<std::string> user_ids = GetAllUserIds(db);
+        auto* remote_document_cache = db->remote_document_cache();
+        for (const auto& uid : user_ids) {
+          User user(uid);
+          auto* index_manager = db->GetIndexManager(user);
+          auto* mutation_queue = db->GetMutationQueue(user, index_manager);
+
+          // Get all document keys that have local mutations
+          model::DocumentKeySet all_document_keys;
+          for (const auto& batch : mutation_queue->AllMutationBatches()) {
+            all_document_keys = all_document_keys.union_with(batch.keys());
+          }
+
+          // Recalculate and save overlays
+          auto* document_overlay_cache = db->GetDocumentOverlayCache(user);
+          LocalDocumentsView local_view(
+                  remote_document_cache,
+                  mutation_queue,
+                  document_overlay_cache,
+                  index_manager);
+          local_view.RecalculateAndSaveOverlays(std::move(all_document_keys));
+        }
+
+        RemovePendingOverlayMigrations(db);
+      });
+}
+
+} // namespace
+
+void LevelDbOverlayMigrationManager::Run() {
+  BuildOverlays(db_);
+}
+
+}  // namespace local
+}  // namespace firestore
+}  // namespace firebase

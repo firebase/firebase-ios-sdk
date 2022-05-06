@@ -65,8 +65,9 @@ using nanopb::StringReader;
  *   * Migration 5 drops held write acks.
  *   * Migration 6 populates the collection_parents index.
  *   * Migration 7 rewrites query_targets canonical ids in new format.
+ *   * Migration 8 kicks off overlay data migration.
  */
-const LevelDbMigrations::SchemaVersion kSchemaVersion = 7;
+const LevelDbMigrations::SchemaVersion kSchemaVersion = 8;
 
 /**
  * Save the given version number as the current version of the schema of the
@@ -379,6 +380,20 @@ void RewriteTargetsCanonicalIds(leveldb::DB* db,
   transaction.Commit();
 }
 
+/**
+ * Migration 8.
+ *
+ * Writes 'overlay_migration' into data_migration table.
+ */
+void EnsureOverlayDataMigrationIsRequired(leveldb::DB* db){
+  LevelDbTransaction transaction(db, "Ensure overlay data migration is marked as required");
+
+  std::string key = LevelDbDataMigrationKey::Key("overlay_migration");
+  transaction.Put(key, {});
+  SaveVersion(8, &transaction);
+  transaction.Commit();
+}
+
 }  // namespace
 
 LevelDbMigrations::SchemaVersion LevelDbMigrations::ReadSchemaVersion(
@@ -437,6 +452,10 @@ void LevelDbMigrations::RunMigrations(leveldb::DB* db,
 
   if (from_version < 7 && to_version >= 7) {
     RewriteTargetsCanonicalIds(db, serializer);
+  }
+
+  if (from_version < 8 && to_version >= 8) {
+    EnsureOverlayDataMigrationIsRequired(db);
   }
 }
 
