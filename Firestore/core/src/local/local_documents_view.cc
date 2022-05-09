@@ -181,8 +181,7 @@ DocumentMap LocalDocumentsView::GetLocalViewOfDocuments(
 
   DocumentMap result;
   for (auto& entry : overlayed_documents) {
-    result =
-        result.insert(entry.first, std::move(entry.second).document());
+    result = result.insert(entry.first, std::move(entry.second).document());
   }
   return result;
 }
