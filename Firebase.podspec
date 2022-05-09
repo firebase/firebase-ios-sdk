@@ -79,7 +79,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '12.0'
-    ss.ios.dependency 'FirebaseAnalytics/WithoutAdIdSupport', '~> 9.0.0'
+    ss.dependency 'FirebaseAnalytics/WithoutAdIdSupport', '~> 9.0.0'
     ss.dependency 'Firebase/CoreOnly'
   end
 
