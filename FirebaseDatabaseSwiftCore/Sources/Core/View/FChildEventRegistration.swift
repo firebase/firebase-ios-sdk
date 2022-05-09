@@ -60,7 +60,7 @@ import Foundation
 
     // XXX TODO: NSNotFound is not so nice
     public func matches(_ other: FEventRegistration) -> Bool {
-        handle == NSNotFound || other.handle == NSNotFound || handle == other.handle
+        handle == NSNotFound || other.handle == NSNotFound || handle == other.handle
     }
 }
 

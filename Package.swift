@@ -212,11 +212,11 @@ let package = Package(
     ),
     .package(
         url: "https://github.com/apple/swift-nio.git",
-        from: "2.0.0"
+        from: "2.40.0"
     ),
     .package(
         url: "https://github.com/apple/swift-nio-ssl.git",
-        from: "2.14.0"
+         from: "2.19.0"
     )
 
     // Branches need a force update with a run with the revision set like below.

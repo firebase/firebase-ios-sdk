@@ -38,7 +38,7 @@ class FValueEventRegistration: NSObject, FEventRegistration {
             }
         } else if let callback = self.callback {
             guard let dataEvent = event as? FDataEvent else { return }
-            FFLog("I-RDB065002", "Raising value event on \(dataEvent.snapshot.key)")
+            FFLog("I-RDB065002", "Raising value event on \(dataEvent.snapshot.key ?? "-")")
             queue.async {
                 callback(dataEvent.snapshot)
             }

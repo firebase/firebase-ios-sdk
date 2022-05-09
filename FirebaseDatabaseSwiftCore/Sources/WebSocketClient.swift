@@ -201,6 +201,7 @@ private final class WebSocketHandler: ChannelInboundHandler {
             let buffer = x(context, stringData)
             let frame = WebSocketFrame(fin: true, opcode: .text, maskKey: .random(), data: buffer)
             context.write(self.wrapOutboundOut(frame), promise: nil)
+            context.flush()
         }
         if !context.eventLoop.inEventLoop {
             context.eventLoop.execute(send)

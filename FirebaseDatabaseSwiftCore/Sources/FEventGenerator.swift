@@ -85,8 +85,10 @@ import Foundation
         }
         for change in filteredChanges {
             for registration in eventRegistrations {
-                let event = generateEventForChange(change, registration: registration, eventCache: eventCache)
-                events.append(event)
+                if registration.responseTo(eventType) {
+                    let event = generateEventForChange(change, registration: registration, eventCache: eventCache)
+                    events.append(event)
+                }
             }
         }
     }

@@ -1144,7 +1144,7 @@ better performance
         let sdkVersion = Database.sdkVersion.replacingOccurrences(of: ".", with: "-")
         // XXX TODO: objc -> swift? :-)
         let sdkStatName = "sdk.objc.\(sdkVersion)"
-        stats[sdkStatName] = true
+        stats[sdkStatName] = 1
         FFLog("I-RDB034044", "Sending first connection stats")
         sendStats(stats)
     }
