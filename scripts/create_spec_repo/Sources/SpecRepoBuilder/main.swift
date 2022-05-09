@@ -31,8 +31,8 @@ extension Constants {
 
 // flags for 'pod push'
 extension Constants {
-  static let flags = ["--skip-tests", "--allow-warnings"]
-  static let umbrellaPodFlags = Constants.flags + ["--skip-import-validation", "--use-json"]
+  static let flags = ["--skip-tests", "--allow-warnings", "--skip-import-validation"]
+  static let umbrellaPodFlags = Constants.flags + ["--use-json"]
 }
 
 // SpecFiles is a wraper of dict mapping from required pods to their path. This
