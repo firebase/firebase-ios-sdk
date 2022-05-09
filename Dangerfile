@@ -72,9 +72,17 @@ has_license_changes = didModify(["LICENSE"])
 
 ## Product directories
 @has_analytics_changes = hasChangesIn([
-  "FirebaseAnalytics**",
-  "GoogleAppMeasurement**",
-  ])
+  "FirebaseAnalyticsOnDeviceConversionWrapper",
+  "FirebaseAnalyticsSwift",
+  "FirebaseAnalyticsWithoutAdIdSupportWrapper",
+  "FirebaseAnalyticsWrapper"
+]) || didModify([
+  "FirebaseAnalytics.podspec.json",
+  "FirebaseAnalyticsSwift.podspec",
+  "FirebaseAnalyticsOnDeviceConversion.podspec",
+  "GoogleAppMeasurement.podspec.json",
+  "GoogleAppMeasurementOnDeviceConversion.podspec.json"
+])
 @has_abtesting_changes = hasChangesIn("FirebaseABTesting")
 @has_abtesting_api_changes = hasChangesIn("FirebaseABTesting/Sources/Public/")
 @has_appcheck_changes = hasChangesIn("FirebaseAppCheck")
