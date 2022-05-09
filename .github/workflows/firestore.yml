@@ -67,7 +67,7 @@ jobs:
   check:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
     - uses: actions/checkout@v2
 
@@ -89,7 +89,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-11, ubuntu-latest]
+        os: [macos-12, ubuntu-latest]
 
     env:
       MINT_PATH: ${{ github.workspace }}/mint
@@ -126,7 +126,8 @@ jobs:
   sanitizers:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-11
+    # TODO(b/231154868): GRPC 1.44 cause link issues on Mac, moving it to Ubuntu for now and add Mac when it is resolved.
+    runs-on: ubuntu-latest
     needs: check
 
     strategy:
@@ -160,7 +161,7 @@ jobs:
   xcodebuild:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-11
+    runs-on: macos-12
     needs: check
 
     strategy:
@@ -173,6 +174,10 @@ jobs:
       with:
         cache_key: ${{ matrix.os }}
 
+    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+      with:
+        ruby-version: '2.7'
+
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
 
@@ -183,7 +188,7 @@ jobs:
   pod-lib-lint:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-11
+    runs-on: macos-12
     needs: check
     strategy:
       matrix:
@@ -195,6 +200,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+      with:
+        ruby-version: '2.7'
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
 
@@ -209,7 +217,7 @@ jobs:
   # `pod lib lint` takes a long time so only run the other platforms and static frameworks build in the cron.
   pod-lib-lint-cron:
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-11
+    runs-on: macos-12
     needs: check
     strategy:
       matrix:
@@ -229,6 +237,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+      with:
+        ruby-version: '2.7'
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
 
@@ -244,7 +255,7 @@ jobs:
   spm:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-11
+    runs-on: macos-12
     needs: check
     steps:
     - uses: actions/checkout@v2
@@ -261,7 +272,7 @@ jobs:
   spm-cron:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-11
+    runs-on: macos-12
     strategy:
       matrix:
         target: [tvOS, macOS, catalyst]
@@ -285,7 +296,7 @@ jobs:
   #   env:
   #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
   #     signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-  #   runs-on: macos-11
+  #   runs-on: macos-12
   #   needs: check
 
   #   steps:

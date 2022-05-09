@@ -112,8 +112,10 @@ class PatchMutation : public Mutation {
         MutableDocument& document,
         const MutationResult& mutation_result) const override;
 
-    void ApplyToLocalView(MutableDocument& document,
-                          const Timestamp& local_write_time) const override;
+    absl::optional<FieldMask> ApplyToLocalView(
+        MutableDocument& document,
+        absl::optional<FieldMask> previous_mask,
+        const Timestamp& local_write_time) const override;
 
     bool Equals(const Mutation::Rep& other) const override;
 

@@ -28,7 +28,7 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
@@ -36,8 +36,13 @@ jobs:
         cache_key: ${{ matrix.os }}
     - name: Configure test keychain
       run: scripts/configure_test_keychain.sh
+    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+      with:
+        ruby-version: '2.7'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
+    - name: Install xcpretty
+      run: gem install xcpretty
     - name: Install Secret GoogleService-Info.plist
       run: |
         mkdir FirebaseMessaging/Tests/IntegrationTests/Resources
@@ -50,13 +55,16 @@ jobs:
   pod-lib-lint:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-11
+    runs-on: macos-12
 
     strategy:
       matrix:
         target: [ios, tvos, macos --skip-tests] # skipping tests on mac because of keychain access
     steps:
     - uses: actions/checkout@v2
+    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+      with:
+        ruby-version: '2.7'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
@@ -65,7 +73,7 @@ jobs:
   spm:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-11
+    runs-on: macos-12
     strategy:
       matrix:
         target: [iOS, watchOS]
@@ -82,7 +90,7 @@ jobs:
   spm-cron:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-11
+    runs-on: macos-12
     strategy:
       matrix:
         target: [tvOS, macOS, catalyst]
@@ -99,12 +107,15 @@ jobs:
   catalyst:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
       with:
         cache_key: ${{ matrix.os }}
+    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+      with:
+        ruby-version: '2.7'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Build Catalyst
@@ -116,9 +127,13 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
     - uses: actions/checkout@v2
+    - uses: actions/checkout@v2
+    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+      with:
+        ruby-version: '2.7'
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh messaging
     - name: Install Secret GoogleService-Info.plist
@@ -134,10 +149,13 @@ jobs:
   pod-lib-lint-watchos:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-11
+    runs-on: macos-12
 
     steps:
     - uses: actions/checkout@v2
+    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+      with:
+        ruby-version: '2.7'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
@@ -147,7 +165,7 @@ jobs:
   messaging-cron-only:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-11
+    runs-on: macos-12
     strategy:
       matrix:
         target: [ios, tvos, macos --skip-tests]
@@ -157,6 +175,9 @@ jobs:
     needs: pod-lib-lint
     steps:
     - uses: actions/checkout@v2
+    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+      with:
+        ruby-version: '2.7'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint Messaging Cron
@@ -165,7 +186,7 @@ jobs:
   messaging-watchos-cron-only:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-11
+    runs-on: macos-12
     strategy:
       matrix:
         flags: [
@@ -174,6 +195,9 @@ jobs:
     needs: pod-lib-lint-watchos
     steps:
     - uses: actions/checkout@v2
+    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+      with:
+        ruby-version: '2.7'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint Messaging Cron
@@ -184,12 +208,15 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
       with:
         cache_key: ${{ matrix.os }}
+    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+      with:
+        ruby-version: '2.7'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Install Secret GoogleService-Info.plist
@@ -206,12 +233,15 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
       with:
         cache_key: ${{ matrix.os }}
+    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+      with:
+        ruby-version: '2.7'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Install Secret GoogleService-Info.plist

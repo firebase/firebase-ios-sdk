@@ -391,6 +391,15 @@ model::PatchMutation PatchMutation(
                              Precondition::Exists(true), absl::nullopt);
 }
 
+model::PatchMutation PatchMutation(
+    absl::string_view path,
+    Message<google_firestore_v1_Value> values,
+    const std::vector<model::FieldPath>& update_mask,
+    std::vector<std::pair<std::string, TransformOperation>> transforms) {
+  return PatchMutationHelper(path, std::move(values), std::move(transforms),
+                             Precondition::Exists(true), update_mask);
+}
+
 // TODO(chenbrian): Rewrite MergeMutation to allow parsing of field
 // transforms directly in the `values` parameter once the UserDataReader/
 // UserDataWriter changes are ported from Web and Android.

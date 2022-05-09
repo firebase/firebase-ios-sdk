@@ -331,7 +331,7 @@ model::DocumentMap LocalStore::ApplyRemoteEvent(
       target_cache_->SetLastRemoteSnapshotVersion(remote_version);
     }
 
-    return local_documents_->GetLocalViewOfDocuments(changed_docs);
+    return local_documents_->GetLocalViewOfDocuments(std::move(changed_docs));
   });
 }
 

@@ -38,7 +38,7 @@ NS_SWIFT_NAME(FirebaseOptions)
 @property(nonatomic, copy, nullable) NSString *APIKey NS_SWIFT_NAME(apiKey);
 
 /**
- * The bundle ID for the application. Defaults to `Bundle.mainBundle.bundleID()` when not set
+ * The bundle ID for the application. Defaults to `Bundle.main.bundleIdentifier` when not set
  * manually or in a plist.
  */
 @property(nonatomic, copy) NSString *bundleID;

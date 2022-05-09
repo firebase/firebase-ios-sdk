@@ -167,7 +167,9 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
         document = MutableDocument::InvalidDocument(key);
       }
 
-      mutation.ApplyToLocalView(*document, batch.local_write_time());
+      // TODO(Overlay): Use proper previous mask.
+      mutation.ApplyToLocalView(*document, absl::nullopt,
+                                batch.local_write_time());
       remote_documents = remote_documents.insert(key, *document);
     }
   }

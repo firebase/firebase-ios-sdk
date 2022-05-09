@@ -211,8 +211,10 @@ class Mutation {
    * @param local_write_time A timestamp indicating the local write time of the
    *     batch this mutation is a part of.
    */
-  void ApplyToLocalView(MutableDocument& document,
-                        const Timestamp& local_write_time) const;
+  absl::optional<FieldMask> ApplyToLocalView(
+      MutableDocument& document,
+      absl::optional<FieldMask> previous_mask,
+      const Timestamp& local_write_time) const;
 
   /**
    * If this mutation is not idempotent, returns the base value to persist with
@@ -234,6 +236,18 @@ class Mutation {
       const Document& document) const {
     return rep_->ExtractTransformBaseValue(document);
   }
+
+  /**
+   * A utility method to calculate an `Mutation` representing the overlay from
+   * the final state of the document, and a `FieldMask`  representing the fields
+   * that are mutated by the local mutations, or a `absl::nullopt` if all fields
+   * should be overwritten.
+   *
+   * Returns a mutation that can be applied to a base document to get `doc`, or
+   * `nullopt` if base document and `doc` is the same.
+   */
+  static absl::optional<Mutation> CalculateOverlayMutation(
+      const MutableDocument& doc, const absl::optional<FieldMask>& mask);
 
   friend bool operator==(const Mutation& lhs, const Mutation& rhs);
 
@@ -276,8 +290,10 @@ class Mutation {
         MutableDocument& document,
         const MutationResult& mutation_result) const = 0;
 
-    virtual void ApplyToLocalView(MutableDocument& document,
-                                  const Timestamp& local_write_time) const = 0;
+    virtual absl::optional<FieldMask> ApplyToLocalView(
+        MutableDocument& document,
+        absl::optional<FieldMask> previous_mask,
+        const Timestamp& local_write_time) const = 0;
 
     virtual absl::optional<ObjectValue> ExtractTransformBaseValue(
         const Document& document) const;

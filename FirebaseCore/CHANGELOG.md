@@ -1,20 +1,45 @@
 # Firebase 9.0.0
-- [changed] Firebase now requires at least Xcode 13.2.1.
-- [added] The zip and Carthage distibutions now include the Swift extension frameworks. (#7819)
-- [changed] **Breaking change**: Update the minimum supported versions for the zip and Carthage
-  distributions to iOS 11.0, tvOS 11.0 and macOS 10.13. (#9633)
-- [changed] **Breaking change**: CocoaPods Podfiles must include `use_frameworks!` or
-  `use_frameworks! :linkage => :static`.
+- [changed] Firebase now requires at least Xcode 13.3.1.
 - [deprecated] Usage of the Firebase pod, the Firebase module (`import Firebase`), and `Firebase.h`
   is deprecated. Use the specific Firebase product instead like: `pod 'FirebaseMessaging'` and
   `import FirebaseMessaging`.
-- [changed] For Swift Package Manager installations, `import Firebase` will no longer implicitly
-  import Firebase Storage and Firebase Functions APIs. Use `import FirebaseStorage` and
-  `import FirebaseFunctions`.
-- [changed] C++/Objective C++ clients should use `#import <FirebaseFunctions/FirebaseFunctions-Swift.h>`
+
+## CocoaPods Users
+- [changed] **Breaking change**: Podfiles must include `use_frameworks!` or
+  `use_frameworks! :linkage => :static`.
+- [changed] Objective-C only apps using `use_frameworks! :linkage => :static` may need to add a
+  dummy Swift file to their project to avoid linker issues.
+- [changed] C++/Objective-C++ clients should use `#import <FirebaseFunctions/FirebaseFunctions-Swift.h>`
   and `#import <FirebaseStorage/FirebaseStorage-Swift.h>` to access Functions and Storage APIs,
-  respectively. C++/Objective C++ clients using Swift Package Manager should find alternative
+  respectively.
+- [changed] Beta Swift pods (except `FirebaseInAppMessagingSwift-Beta`) have exited beta and
+  are now generally available. The `-beta` version suffix is no longer required. These should
+  be removed from your Podfile, and any `import` statements should be changed accordingly.
+- [changed] The `FirebaseStorageSwift` and `FirebaseFunctionsSwift` have been merged into
+  `FirebaseStorage` and `FirebaseFunctions` respectively and should be removed from your Podfile.
+
+## Swift Package Manager Users
+- [changed] `import Firebase` will no longer implicitly
+  import Firebase Storage and Firebase Functions APIs. Use `import FirebaseStorage` and
+  `import FirebaseFunctions`, respectively. C++/Objective-C++ clients should find alternative
   workarounds at https://forums.swift.org/t/importing-swift-libraries-from-objective-c/56730.
+- [changed] Beta Swift libraries (except `FirebaseInAppMessagingSwift-Beta`) have exited beta
+  and are now generally available. When upgrading a project that includes one or more of these
+  libraries, an error like `Missing package product 'FirebaseSwift-Beta'` will appear. In your
+  project's settings, go to "General" and scroll down to `Frameworks, Libraries, and Embedded
+  Content`. Select the missing package, and remove it. Then, click the `+` button to add the
+  assocciated library without the `-Beta` suffix. Any `import` statements in your project
+  should be changed accordingly.
+- [changed] The `FirebaseStorageSwift-Beta` and `FirebaseFunctionsSwift-Beta` libraries have been
+  merged into `FirebaseStorage` and `FirebaseFunctions` respectively and should be removed from your
+  project following the instructions above.
+
+## Zip and Carthage Users
+- [changed] **Breaking change**: Update the minimum supported versions for the zip and Carthage
+  distributions to iOS 11.0, tvOS 11.0 and macOS 10.13. (#9633)
+- [added] The zip and Carthage distributions now include the Swift extension frameworks. (#7819)
+- [changed] Zip file installation instructions have changed. Please see the README embedded in
+  the zip file for updated instructions.
 
 # Firebase 8.10.0
 - [fixed] Fixed platform availability checks in Swift Package Manager that may prevent code

@@ -173,6 +173,13 @@ else()
   set(ZLIB_ROOT_DIR ${FIREBASE_EXTERNAL_SOURCE_DIR}/zlib)
 endif()
 
+find_package(re2 QUIET)
+if(RE2_FOUND)
+  set(gRPC_RE2_PROVIDER package CACHE STRING "Use external re2")
+else()
+  set(RE2_ROOT_DIR ${FIREBASE_EXTERNAL_SOURCE_DIR}/re2)
+endif()
+
 set(gRPC_BUILD_TESTS OFF CACHE BOOL "Disable gRPC tests")
 set(gRPC_BUILD_CODEGEN OFF CACHE BOOL "Disable gRPC codegen")
 set(gRPC_BUILD_CSHARP_EXT OFF CACHE BOOL "Disable gRPC C# extensions")

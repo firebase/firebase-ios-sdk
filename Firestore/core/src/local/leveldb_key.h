@@ -922,7 +922,7 @@ class LevelDbIndexEntryDocumentKeyIndexKey {
 };
 
 /**
- * A key in the index_entries table, storing the the encoded entries for all
+ * A key in the index_entries table, storing the encoded entries for all
  * fields used by a given index.
  *
  * Note: `array_value` is expected to be set for all queries.

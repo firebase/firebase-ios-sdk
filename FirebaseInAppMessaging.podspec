@@ -9,7 +9,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
-  s.license          = { :type => 'Apache', :file => 'LICENSE' }
+  s.license          = { :type => 'Apache-2.0', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
 
   s.source           = {
@@ -82,7 +82,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.dependency 'FirebaseInstallations', '~> 9.0'
   s.dependency 'FirebaseABTesting', '~> 9.0'
   s.dependency 'GoogleUtilities/Environment', '~> 7.7'
-  s.dependency 'nanopb', '~> 2.30908.0'
+  s.dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
 
   s.test_spec 'unit' do |unit_tests|
       unit_tests.scheme = { :code_coverage => true }

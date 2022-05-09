@@ -8,7 +8,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
                        DESC
 
   s.homepage         = 'https://developers.google.com/'
-  s.license          = { :type => 'Apache', :file => 'Firestore/LICENSE' }
+  s.license          = { :type => 'Apache-2.0', :file => 'Firestore/LICENSE' }
   s.authors          = 'Google, Inc.'
 
   s.source           = {
@@ -102,7 +102,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
 
   s.dependency 'gRPC-C++', '~> 1.44.0'
   s.dependency 'leveldb-library', '~> 1.22'
-  s.dependency 'nanopb', '~> 2.30908.0'
+  s.dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
 
   s.ios.frameworks = 'SystemConfiguration', 'UIKit'
   s.osx.frameworks = 'SystemConfiguration'
