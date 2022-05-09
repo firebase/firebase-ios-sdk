@@ -35,6 +35,7 @@ end
 # multiple directories may have multiple labels.
 def labelsForModifiedFiles()
   labels = []
+  labels.push("api: analytics") if @has_analytics_changes
   labels.push("api: abtesting") if @has_abtesting_changes
   labels.push("api: appcheck") if @has_appcheck_changes
   labels.push("api: appdistribution") if @has_appdistribution_changes
@@ -70,6 +71,18 @@ has_changelog_changes = hasChangesIn(["CHANGELOG"])
 has_license_changes = didModify(["LICENSE"])
 
 ## Product directories
+@has_analytics_changes = hasChangesIn([
+  "FirebaseAnalyticsOnDeviceConversionWrapper",
+  "FirebaseAnalyticsSwift",
+  "FirebaseAnalyticsWithoutAdIdSupportWrapper",
+  "FirebaseAnalyticsWrapper"
+]) || didModify([
+  "FirebaseAnalytics.podspec.json",
+  "FirebaseAnalyticsSwift.podspec",
+  "FirebaseAnalyticsOnDeviceConversion.podspec",
+  "GoogleAppMeasurement.podspec.json",
+  "GoogleAppMeasurementOnDeviceConversion.podspec.json"
+])
 @has_abtesting_changes = hasChangesIn("FirebaseABTesting")
 @has_abtesting_api_changes = hasChangesIn("FirebaseABTesting/Sources/Public/")
 @has_appcheck_changes = hasChangesIn("FirebaseAppCheck")
