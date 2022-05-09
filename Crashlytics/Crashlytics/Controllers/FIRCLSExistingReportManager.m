@@ -151,8 +151,8 @@ NSInteger compareNewer(FIRCLSInternalReport *reportA,
   // which should be at the start of the array.
   if (validReports.count > FIRCLSMaxUnsentReports) {
     NSUInteger deletingCount = validReports.count - FIRCLSMaxUnsentReports;
-    FIRCLSInfoLog(@"Deleting %lu unsent reports over the limit of %lu to prevent disk space from "
-                  @"filling up. To prevent this make sure to call send/deleteUnsentReports.",
+    FIRCLSInfoLog(@"Automatic data collection is disabled. Deleting %lu unsent reports over the limit of %lu to prevent disk space from "
+                  @"filling up. To take action on these reports, call send/deleteUnsentReports. To turn on automatic data collection, call setCrashlyticsCollectionEnabled with true",
                   deletingCount, FIRCLSMaxUnsentReports);
   }
 
