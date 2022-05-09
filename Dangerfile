@@ -122,8 +122,7 @@ has_license_changes = didModify(["LICENSE"])
 @has_releasetooling_changes = hasChangesIn("ReleaseTooling/")
 
 # Convenient flag for all API changes.
-@has_api_changes = @has_analytics_changes ||
-                     @has_abtesting_api_changes ||
+@has_api_changes = @has_abtesting_api_changes ||
                      @has_appcheck_api_changes ||
                      @has_auth_api_changes ||
                      @has_appdistribution_api_changes ||
