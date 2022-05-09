@@ -81,13 +81,13 @@ MutableDocumentMap MemoryRemoteDocumentCache::GetAll(
   // Documents are ordered by key, so we can use a prefix scan to narrow down
   // the documents we need to match the query against.
   DocumentKey prefix{path.Append("")};
+  size_t immediate_children_path_length = path.size() + 1;
   for (auto it = docs_.lower_bound(prefix); it != docs_.end(); ++it) {
     const DocumentKey& key = it->first;
     if (!path.IsPrefixOf(key.path())) {
       break;
     }
     const MutableDocument& document = it->second;
-    size_t immediate_children_path_length = path.size() + 1;
     if (key.path().size() > immediate_children_path_length) {
       // Exclude entries from subcollections.
       continue;
