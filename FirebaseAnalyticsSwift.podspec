@@ -8,7 +8,7 @@ Firebase Analytics is a free, out-of-the-box analytics solution that inspires ac
                        DESC
 
   s.homepage                = 'https://firebase.google.com/features/analytics/'
-  s.license                 = { :type => 'Apache', :file => 'LICENSE' }
+  s.license                 = { :type => 'Apache-2.0', :file => 'LICENSE' }
   s.authors                 = 'Google, Inc.'
 
   s.source                  = {
