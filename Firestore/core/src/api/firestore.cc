@@ -28,6 +28,7 @@
 #include "Firestore/core/src/core/firestore_client.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/core/transaction.h"
+#include "Firestore/core/src/core/transaction_options.h"
 #include "Firestore/core/src/credentials/empty_credentials_provider.h"
 #include "Firestore/core/src/local/leveldb_persistence.h"
 #include "Firestore/core/src/model/document_key.h"
@@ -155,12 +156,12 @@ core::Query Firestore::GetCollectionGroup(std::string collection_id) {
                                                 std::move(collection_id)));
 }
 
-void Firestore::RunTransaction(
-    core::TransactionUpdateCallback update_callback,
-    core::TransactionResultCallback result_callback) {
+void Firestore::RunTransaction(core::TransactionUpdateCallback update_callback,
+                               core::TransactionResultCallback result_callback,
+                               const core::TransactionOptions& options) {
   EnsureClientConfigured();
 
-  client_->Transaction(5, std::move(update_callback),
+  client_->Transaction(options.max_attempts(), std::move(update_callback),
                        std::move(result_callback));
 }
 
