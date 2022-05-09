@@ -27,12 +27,15 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
-    runs-on: macos-11
+    runs-on: macos-12
     strategy:
       matrix:
         target: [ios, tvos, macos, watchos]
     steps:
     - uses: actions/checkout@v2
+    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+      with:
+        ruby-version: '2.7'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Integration Test Server
@@ -44,7 +47,7 @@ jobs:
   spm-integration:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-11
+    runs-on: macos-12
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     steps:
@@ -68,7 +71,7 @@ jobs:
   spm-unit:
     # Don't run on private repo.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-11
+    runs-on: macos-12
     strategy:
       matrix:
         target: [iOS, tvOS, macOS, catalyst, watchOS]
@@ -89,10 +92,14 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       LEGACY: true
-    runs-on: macos-11
+    runs-on: macos-12
 
     steps:
     - uses: actions/checkout@v2
+    - uses: actions/checkout@v2
+    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+      with:
+        ruby-version: '2.7'
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh functions
     - name: install secret googleservice-info.plist
@@ -111,7 +118,7 @@ jobs:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
 
-    runs-on: macos-11
+    runs-on: macos-12
     strategy:
       matrix:
         target: [ios, tvos, macos]
@@ -121,6 +128,9 @@ jobs:
     needs: pod-lib-lint
     steps:
     - uses: actions/checkout@v2
+    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+      with:
+        ruby-version: '2.7'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Integration Test Server

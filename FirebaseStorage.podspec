@@ -8,7 +8,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
-  s.license          = { :type => 'Apache', :file => 'LICENSE' }
+  s.license          = { :type => 'Apache-2.0', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
 
   s.source           = {
@@ -35,8 +35,6 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   s.source_files = [
     'FirebaseStorage/Sources/*.swift',
     'FirebaseStorage/Typedefs/*.h',
-    'FirebaseAppCheck/Interop/*.h',
-    'FirebaseAuth/Interop/*.h',
   ]
 
   s.dependency 'FirebaseStorageInternal', '~> 9.0'

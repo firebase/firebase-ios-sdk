@@ -11,7 +11,7 @@ app update.
 
 
   s.homepage                = 'https://developers.google.com/'
-  s.license                 = { :type => 'Apache', :file => 'LICENSE' }
+  s.license                 = { :type => 'Apache-2.0', :file => 'LICENSE' }
   s.authors                 = 'Google, Inc.'
 
   s.source                  = {

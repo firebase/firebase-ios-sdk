@@ -10,7 +10,7 @@ Firebase products. FirebaseSharedSwift is not supported for non-Firebase usage.
 
 
   s.homepage                = 'https://developers.google.com/'
-  s.license                 = { :type => 'Apache', :file => 'FirebaseSharedSwift/LICENSE' }
+  s.license                 = { :type => 'Apache-2.0', :file => 'FirebaseSharedSwift/LICENSE' }
   s.authors                 = 'Google, Inc.'
 
   s.source                  = {
