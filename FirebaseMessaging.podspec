@@ -65,7 +65,7 @@ device, and it is completely free.
   s.dependency 'GoogleUtilities/Environment', '~> 7.7'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 7.7'
   s.dependency 'GoogleDataTransport', '>= 9.1.4', '< 10.0.0'
-  s.dependency 'nanopb', '~> 2.30908.0'
+  s.dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
