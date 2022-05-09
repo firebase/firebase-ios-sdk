@@ -50,8 +50,11 @@ public class FWebSocketConnection {
         FFLog("I-RDB083002", "(wsc:\(self.connectionId)) FWebSocketConnection open)")
         assert(delegate != nil)
         everConnected = false
-        try! client?.open()
-
+        do {
+            try client?.open()
+        } catch {
+            print("ERROR connecting: \(error)")
+        }
         DispatchQueue.main.asyncAfter(deadline: .now() + kWebsocketConnectTimeout) { [weak self] in
             self?.closeIfNeverConnected()
         }
