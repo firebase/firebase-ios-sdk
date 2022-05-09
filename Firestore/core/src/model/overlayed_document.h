@@ -40,7 +40,7 @@ class OverlayedDocument {
     return document_;
   }
 
-  model::Document consume_document() {
+  model::Document&& document() {
     return std::move(document_);
   }
 
