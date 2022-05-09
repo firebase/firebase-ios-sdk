@@ -17,6 +17,7 @@
 #include "Firestore/core/src/core/transaction_options.h"
 
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/hashing.h"
 #include "Firestore/core/src/util/string_format.h"
 #include "Firestore/core/src/util/to_string.h"
 
@@ -35,8 +36,16 @@ std::string TransactionOptions::ToString() const {
                             util::ToString(max_attempts_));
 }
 
+size_t TransactionOptions::Hash() const {
+  return util::Hash(max_attempts_);
+}
+
 std::ostream& operator<<(std::ostream& os, const TransactionOptions& options) {
   return os << options.ToString();
+}
+
+bool operator==(const TransactionOptions& lhs, const TransactionOptions& rhs) {
+  return lhs.max_attempts_ == rhs.max_attempts_;
 }
 
 }  // namespace core

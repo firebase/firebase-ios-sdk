@@ -18,6 +18,7 @@
 #include <utility>
 
 #include "Firestore/core/src/core/transaction_options.h"
+#include "Firestore/core/test/unit/testutil/equals_tester.h"
 
 #include "gtest/gtest.h"
 
@@ -103,6 +104,23 @@ TEST(TransactionOptionsTest, WriteToOstream) {
   out << options;
 
   EXPECT_EQ(out.str(), options.ToString());
+}
+
+TEST(TransactionOptionsTest, EqualsAndHash) {
+  TransactionOptions options_max_attempts_1a;
+  options_max_attempts_1a.set_max_attempts(10);
+  TransactionOptions options_max_attempts_1b;
+  options_max_attempts_1b.set_max_attempts(10);
+  TransactionOptions options_max_attempts_2a;
+  options_max_attempts_2a.set_max_attempts(99);
+  TransactionOptions options_max_attempts_2b;
+  options_max_attempts_2b.set_max_attempts(99);
+
+  testutil::EqualsTester<TransactionOptions>()
+      .AddEqualityGroup(TransactionOptions(), TransactionOptions())
+      .AddEqualityGroup(options_max_attempts_1a, options_max_attempts_1b)
+      .AddEqualityGroup(options_max_attempts_2a, options_max_attempts_2b)
+      .TestEquals();
 }
 
 }  // namespace

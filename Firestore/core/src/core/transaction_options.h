@@ -34,11 +34,20 @@ class TransactionOptions {
 
   std::string ToString() const;
 
+  friend bool operator==(const TransactionOptions&, const TransactionOptions&);
+
+  size_t Hash() const;
+
  private:
   int32_t max_attempts_ = 5;
 };
 
 std::ostream& operator<<(std::ostream&, const TransactionOptions&);
+
+inline bool operator!=(const TransactionOptions& lhs,
+                       const TransactionOptions& rhs) {
+  return !(lhs == rhs);
+}
 
 }  // namespace core
 }  // namespace firestore
