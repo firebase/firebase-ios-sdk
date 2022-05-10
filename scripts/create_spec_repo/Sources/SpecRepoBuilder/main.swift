@@ -356,6 +356,8 @@ struct SpecRepoBuilder: ParsableCommand {
 
     var exitCode: Int32 = 0
     var failedPods: [String] = []
+    let startDate = Date()
+    var minutes = 0
     for pod in specFileDict.depInstallOrder {
       var timer: DispatchSourceTimer = {
         let t = DispatchSource.makeTimerSource()
