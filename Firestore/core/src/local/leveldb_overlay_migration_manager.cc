@@ -22,6 +22,7 @@
 #include "absl/strings/match.h"
 #include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/leveldb_key.h"
+#include "Firestore/core/src/local/leveldb_persistence.h"
 #include "Firestore/core/src/local/local_documents_view.h"
 #include "Firestore/core/src/model/model_fwd.h"
 

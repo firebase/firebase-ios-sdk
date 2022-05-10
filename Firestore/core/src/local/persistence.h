@@ -37,6 +37,7 @@ class BundleCache;
 class DocumentOverlayCache;
 class IndexManager;
 class MutationQueue;
+class OverlayMigrationManager;
 class ReferenceDelegate;
 class RemoteDocumentCache;
 class TargetCache;
@@ -117,6 +118,8 @@ class Persistence {
    */
   virtual DocumentOverlayCache* GetDocumentOverlayCache(
       const credentials::User& user) = 0;
+
+  virtual OverlayMigrationManager* GetOverlayMigrationManager() = 0;
 
   /**
    * Returns a RemoteDocumentCache representing the persisted cache of remote

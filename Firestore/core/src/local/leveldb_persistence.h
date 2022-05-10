@@ -27,6 +27,7 @@
 #include "Firestore/core/src/local/leveldb_index_manager.h"
 #include "Firestore/core/src/local/leveldb_lru_reference_delegate.h"
 #include "Firestore/core/src/local/leveldb_mutation_queue.h"
+#include "Firestore/core/src/local/leveldb_overlay_migration_manager.h"
 #include "Firestore/core/src/local/leveldb_remote_document_cache.h"
 #include "Firestore/core/src/local/leveldb_target_cache.h"
 #include "Firestore/core/src/local/leveldb_transaction.h"
@@ -83,6 +84,7 @@ class LevelDbPersistence : public Persistence {
 
   LevelDbDocumentOverlayCache* GetDocumentOverlayCache(
       const credentials::User& user) override;
+  LevelDbOverlayMigrationManager* GetOverlayMigrationManager() override;
 
   LevelDbMutationQueue* GetMutationQueue(const credentials::User& user,
                                          IndexManager* index_manager) override;
@@ -124,6 +126,7 @@ class LevelDbPersistence : public Persistence {
 
   std::unique_ptr<LevelDbBundleCache> bundle_cache_;
   std::unique_ptr<LevelDbDocumentOverlayCache> current_document_overlay_cache_;
+  std::unique_ptr<LevelDbOverlayMigrationManager> overlay_migration_manager_;
   std::unique_ptr<LevelDbMutationQueue> current_mutation_queue_;
   std::unique_ptr<LevelDbTargetCache> target_cache_;
   std::unique_ptr<LevelDbRemoteDocumentCache> document_cache_;

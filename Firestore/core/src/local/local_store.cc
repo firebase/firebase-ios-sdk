@@ -25,6 +25,7 @@
 #include "Firestore/core/src/local/local_view_changes.h"
 #include "Firestore/core/src/local/local_write_result.h"
 #include "Firestore/core/src/local/lru_garbage_collector.h"
+#include "Firestore/core/src/local/overlay_migration_manager.h"
 #include "Firestore/core/src/local/persistence.h"
 #include "Firestore/core/src/local/query_engine.h"
 #include "Firestore/core/src/local/query_result.h"
@@ -120,6 +121,7 @@ LocalStore::LocalStore(Persistence* persistence,
 LocalStore::~LocalStore() = default;
 
 void LocalStore::Start() {
+  persistence_->GetOverlayMigrationManager()->Run();
   StartMutationQueue();
   TargetId target_id = target_cache_->highest_target_id();
   target_id_generator_ =

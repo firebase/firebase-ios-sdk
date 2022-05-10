@@ -17,15 +17,18 @@
 #ifndef FIRESTORE_CORE_SRC_LOCAL_LEVELDB_OVERLAY_MIGRATION_MANAGER_H_
 #define FIRESTORE_CORE_SRC_LOCAL_LEVELDB_OVERLAY_MIGRATION_MANAGER_H_
 
-#include "Firestore/core/src/local/leveldb_persistence.h"
 #include "Firestore/core/src/local/overlay_migration_manager.h"
 
 namespace firebase {
 namespace firestore {
 namespace local {
 
+class LevelDbPersistence;
+
 class LevelDbOverlayMigrationManager: public OverlayMigrationManager{
  public:
+  explicit LevelDbOverlayMigrationManager(LevelDbPersistence* db): db_(db) {}
+
   void Run() override;
  private:
   // The LevelDbIndexManager is owned by LevelDbPersistence.

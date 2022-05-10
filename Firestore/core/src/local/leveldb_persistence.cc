@@ -264,6 +264,14 @@ LevelDbDocumentOverlayCache* LevelDbPersistence::GetDocumentOverlayCache(
   return current_document_overlay_cache_.get();
 }
 
+LevelDbOverlayMigrationManager* LevelDbPersistence::GetOverlayMigrationManager() {
+  if(overlay_migration_manager_ == nullptr) {
+    overlay_migration_manager_ =
+        absl::make_unique<LevelDbOverlayMigrationManager>(this);
+  }
+  return overlay_migration_manager_.get();
+}
+
 void LevelDbPersistence::RunInternal(absl::string_view label,
                                      std::function<void()> block) {
   HARD_ASSERT(transaction_ == nullptr,

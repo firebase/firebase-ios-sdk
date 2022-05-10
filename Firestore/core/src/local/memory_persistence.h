@@ -28,6 +28,7 @@
 #include "Firestore/core/src/local/memory_document_overlay_cache.h"
 #include "Firestore/core/src/local/memory_index_manager.h"
 #include "Firestore/core/src/local/memory_mutation_queue.h"
+#include "Firestore/core/src/local/memory_overlay_migration_manager.h"
 #include "Firestore/core/src/local/memory_remote_document_cache.h"
 #include "Firestore/core/src/local/memory_target_cache.h"
 #include "Firestore/core/src/local/persistence.h"
@@ -39,6 +40,7 @@ namespace local {
 struct LruParams;
 class MemoryIndexManager;
 class MemoryMutationQueue;
+class MemoryOverlayMigrationManager;
 class MemoryRemoteDocumentCache;
 class MemoryTargetCache;
 class MutationQueue;
@@ -90,6 +92,8 @@ class MemoryPersistence : public Persistence {
   MemoryDocumentOverlayCache* GetDocumentOverlayCache(
       const credentials::User& user) override;
 
+  OverlayMigrationManager* GetOverlayMigrationManager() override;
+
   MemoryRemoteDocumentCache* remote_document_cache() override;
 
   MemoryIndexManager* GetIndexManager(const credentials::User& user) override;
@@ -129,6 +133,7 @@ class MemoryPersistence : public Persistence {
   MemoryBundleCache bundle_cache_;
 
   DocumentOverlayCaches document_overlay_caches_;
+  MemoryOverlayMigrationManager overlay_migration_manager_;
 
   std::unique_ptr<ReferenceDelegate> reference_delegate_;
 
