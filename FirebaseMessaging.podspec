@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMessaging'
-  s.version          = '9.0.0'
+  s.version          = '9.1.0'
   s.summary          = 'Firebase Messaging'
 
   s.description      = <<-DESC

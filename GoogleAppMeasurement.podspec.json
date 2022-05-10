@@ -36,7 +36,7 @@
         {
             "name": "AdIdSupport",
             "dependencies": {
-                "GoogleAppMeasurement/WithoutAdIdSupport": "9.0.0"
+                "GoogleAppMeasurement/WithoutAdIdSupport": "9.1.0"
             },
             "vendored_frameworks": [
                 "Frameworks/GoogleAppMeasurementIdentitySupport.xcframework"
@@ -50,5 +50,5 @@
         }
     ],
     "summary": "Shared measurement methods for Google libraries. Not intended for direct use.",
-    "version": "9.0.0"
+    "version": "9.1.0"
 }
