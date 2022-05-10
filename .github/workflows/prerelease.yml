@@ -2,8 +2,9 @@ name: prerelease
 
 on:
   pull_request:
-    # closed will be triggered when a pull request is merged. This is to keep https://github.com/firebase/SpecsTesting up to date.
-    types: [closed]
+    paths:
+    - '.github/workflows/prerelease.yml'
+    - 'scripts/create_spec_repo/Sources/SpecRepoBuilder/**'
   workflow_dispatch:
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
