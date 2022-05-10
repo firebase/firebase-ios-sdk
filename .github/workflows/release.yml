@@ -5,7 +5,6 @@ on:
     paths:
     - 'scripts/release_testing_setup.sh'
     - '.github/workflows/release.yml'
-    - 'scripts/create_spec_repo/Sources/SpecRepoBuilder/**'
   workflow_dispatch:
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
