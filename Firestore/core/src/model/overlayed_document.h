@@ -36,11 +36,11 @@ class OverlayedDocument {
         mutated_fields_(std::move(mutated_fields)) {
   }
 
-  const model::Document& document() const {
+  const model::Document& document() const& {
     return document_;
   }
 
-  model::Document&& document() {
+  model::Document&& document() && {
     return std::move(document_);
   }
 
