@@ -394,9 +394,9 @@ struct SpecRepoBuilder: ParsableCommand {
       let finishDate = Date()
       print("\(pod) is finished at: \(finishDate.dateTimeString()). " +
         "Duration: \(startDate.formattedDurationSince(finishDate))")
-      }
-      if exitCode != 0 {
-        Self.exit(withError: SpecRepoBuilderError.failedToPush(pods: failedPods))
+    }
+    if exitCode != 0 {
+      Self.exit(withError: SpecRepoBuilderError.failedToPush(pods: failedPods))
     }
   }
 }
