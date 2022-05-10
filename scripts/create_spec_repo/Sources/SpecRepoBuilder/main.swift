@@ -16,7 +16,6 @@
 
 import ArgumentParser
 import Foundation
-import Utils
 
 private enum Constants {}
 
@@ -35,6 +34,23 @@ extension Constants {
 extension Constants {
   static let flags = ["--skip-tests", "--allow-warnings", "--skip-import-validation"]
   static let umbrellaPodFlags = Constants.flags + ["--use-json"]
+}
+
+public extension Date {
+  func dateTimeString() -> String {
+    let formatter = DateFormatter()
+    formatter.dateStyle = .short
+    formatter.timeStyle = .medium
+    return formatter.string(from: self)
+  }
+
+  func formattedDurationSince(_ date: Date) -> String {
+    let formatter = DateComponentsFormatter()
+    formatter.unitsStyle = .abbreviated
+    formatter.allowedUnits = [.hour, .minute, .second]
+    let secondsSinceDate = date.timeIntervalSince(self)
+    return formatter.string(from: secondsSinceDate) ?? "\(round(secondsSinceDate)) sec"
+  }
 }
 
 // SpecFiles is a wraper of dict mapping from required pods to their path. This
