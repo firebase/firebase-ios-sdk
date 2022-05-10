@@ -177,8 +177,8 @@ Refer to the [README.md](https://github.com/firebase/firebase-ios-sdk/blob/maste
 - [fixed] Fixes an issue where if resolveLink() API returned a non-JSON object, it
   would cause a crash.
 
-# 1.1.0 (M10)
+# 1.1.0
 - [fixed] Greatly reduced SDK size.
 
-# 1.0.0 (I/O)
+# 1.0.0
 - Initial public release.

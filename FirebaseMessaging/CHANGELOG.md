@@ -35,13 +35,13 @@
 - [changed] The `messaging:didReceiveRegistrationToken:` should be able to return a null token. Update the API parameter fcmToken to be nullable. (#5339)
 - [fixed] Fixed an issue that downloading an image failed when there's no extension in the file name but MIME type is set. (#6590)
 
-# .4.7.1
+# 4.7.1
 - [added] InstanceID is deprecated, add macro to suppress deprecation warning. (#6585)
 
-# .4.7.0
+# 4.7.0
 - [added] Added new token APIs to get and delete the default FCM registration token asynchronously. Also added a new `Messaging.delete(completion:)` method that deletes all FCM registration tokens and checkin data. (#6313)
 
-# .4.6.2
+# 4.6.2
 - [fixed] Fixed an issue that topic doesn't work in watchOS. (#6160)
 - [fixed] Improved Xcode completion of public API completion handlers in Swift. (#6278)
 
