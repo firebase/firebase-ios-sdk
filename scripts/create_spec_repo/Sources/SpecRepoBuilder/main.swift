@@ -357,6 +357,16 @@ struct SpecRepoBuilder: ParsableCommand {
     var exitCode: Int32 = 0
     var failedPods: [String] = []
     for pod in specFileDict.depInstallOrder {
+      var timer: DispatchSourceTimer = {
+        let t = DispatchSource.makeTimerSource()
+        t.schedule(deadline: .now(), repeating: 60)
+        t.setEventHandler(handler: {
+          print("Tests have run \(minutes) min(s).")
+          minutes += 1
+        })
+        return t
+      }()
+      timer.resume()
       var podExitCode: Int32 = 0
       print("----------\(pod)-----------")
       switch pod {
@@ -380,11 +390,13 @@ struct SpecRepoBuilder: ParsableCommand {
         failedPods.append(pod)
         print("Failed pod - \(pod)")
       }
-    }
-    if exitCode != 0 {
-      Self.exit(withError: SpecRepoBuilderError.failedToPush(pods: failedPods))
+      timer.cancel()
+      let finishDate = Date()
+      print("\(pod) is finished at: \(finishDate.dateTimeString()). " +
+        "Duration: \(startDate.formattedDurationSince(finishDate))")
+      }
+      if exitCode != 0 {
+        Self.exit(withError: SpecRepoBuilderError.failedToPush(pods: failedPods))
     }
   }
 }
-
-SpecRepoBuilder.main()
