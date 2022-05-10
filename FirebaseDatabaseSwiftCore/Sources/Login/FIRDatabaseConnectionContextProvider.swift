@@ -133,7 +133,9 @@ private class FAuthStateListenerWrapper {
     public func fetchContextForcingRefresh(_ forceRefresh: Bool, withCallback callback: @escaping (DatabaseConnectionContext?, Error?) -> Void) {
         guard self.auth != nil || self.appCheck != nil else {
             // Nothing to fetch. Finish straight away.
-            callback(nil, nil)
+            // XXX TODO: HACK TO MAKE TESTING WORK
+            callback(DatabaseConnectionContext(authToken: nil, appCheckToken: nil), nil)
+//            callback(nil, nil)
             return
         }
         // Use dispatch group to call the callback when both Auth and FAC operations

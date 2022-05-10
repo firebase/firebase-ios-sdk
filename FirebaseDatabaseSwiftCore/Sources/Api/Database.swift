@@ -11,14 +11,20 @@ import Foundation
     struct Options {
         var databaseURL: String?
         var projectID: String?
+        var googleAppID: String
     }
+    var name: String
     var options: Options
-    init(options: Options) {
+    init(options: Options, name: String) {
         self.options = options
+        self.name = name
     }
     static var isDefaultAppConfigured: Bool { defaultApp != nil }
     static var defaultApp: FIRAppThing? {
-        FIRAppThing(options: .init(databaseURL: "https://firestoretests-44fc8.firebaseio.com", projectID: "firestoretests-44fc8"))
+        FIRAppThing(options: .init(databaseURL: "https://firestoretests-44fc8.firebaseio.com",
+                                   projectID: "firestoretests-44fc8",
+                                   googleAppID: "1:649012064016:ios:b4dcc2e22b3b90ea"),
+                    name: "[DEFAULT]")
     }
 }
 
@@ -88,19 +94,13 @@ class Mock: NSObject, DatabaseConnectionContextProviderProtocol {
      * @return A FIRDatabase instance.
      */
     @objc(databaseForApp:URL:) public class func database(app: FIRAppThing, url: String) -> Database {
+        let provider = DatabaseComponent(app: app)
+        return provider.databaseForApp(app, URL: url)
+        // XXX TODO:
 //        let provider =
 //            FIR_COMPONENT(FIRDatabaseProvider, app.container);
 //        return [provider databaseForApp:app URL:url];
 //
-        // XXX TODO:
-        fatalError("Not implemented yet")
-    }
-
-    public class func test() -> Database {
-        let parsedUrl = FUtilitiesSwift.parseUrl("https://firestoretests-44fc8.firebaseio.com")
-        let config = DatabaseConfig(sessionIdentifier: "default", googleAppID: "1:649012064016:ios:b4dcc2e22b3b90ea", contextProvider: Mock())
-        let database = Database(app: nil, repoInfo: parsedUrl.repoInfo, config: config)
-        return database
     }
 
     /**
@@ -129,7 +129,7 @@ class Mock: NSObject, DatabaseConnectionContextProviderProtocol {
     /**
      * Gets a FIRDatabaseReference for the root of your Firebase Database.
      */
-    @objc public var reference: DatabaseReference {
+    @objc public func reference() -> DatabaseReference {
         let repo = ensureRepo()
         return DatabaseReference(repo: repo, path: .empty)
     }
