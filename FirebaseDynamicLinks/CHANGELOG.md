@@ -64,10 +64,10 @@ Refer to the [README.md](https://github.com/firebase/firebase-ios-sdk/blob/maste
 # 4.1.0
 - [fixed] Fixing unwanted pending dynamic links checks on subsequent app restarts. (#5665)
 
-# 4.0.8 -- M67
+# 4.0.8
 - [fixed] Fix Catalyst build - removed deprecated unused Apple framework dependencies. (#5139)
 
-# 4.0.7 -- M64
+# 4.0.7
 - [fixed] Use module import syntax for headers from other SDKs. (#4824)
 
 # 4.0.6
