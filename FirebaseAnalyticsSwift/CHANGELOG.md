@@ -1,8 +1,8 @@
-# v9.0.0
+# 9.0.0
 - [added] **Breaking change:** `FirebaseAnalyticsSwift` has exited beta and is
   now generally available for use.
 
-# v7.9.0-beta
+# 7.9.0-beta
 - Initial public beta release. Introduces new SwiftUI friendly APIs for
   screen tracking. To use, add `pod 'FirebaseAnalyticsSwift', '~> 7.9-beta'` to the Podfile or
   add the `FirebaseAnalyticsSwift-Beta` framework in Swift Package Manager, then
