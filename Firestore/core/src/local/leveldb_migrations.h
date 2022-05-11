@@ -51,6 +51,31 @@ class LevelDbMigrations {
                             const LocalSerializer& serializer);
 };
 
+/**
+ * Schema version for the iOS client.
+ *
+ * Note that tables aren't a concept in LevelDB. They exist in our schema as
+ * just prefixes on keys. This means tables don't need to be created but they
+ * also can't easily be dropped and re-created.
+ *
+ * Migrations:
+ *   * Migration 1 used to ensure the target_global row existed, without
+ *     clearing it. No longer required because migration 3 unconditionally
+ *     clears it.
+ *   * Migration 2 used to ensure that the target_global row had a correct count
+ *     of targets. No longer required because migration 3 deletes them all.
+ *   * Migration 3 deletes the entire query cache to deal with cache corruption
+ *     related to limbo resolution. Addresses
+ *     https://github.com/firebase/firebase-ios-sdk/issues/1548.
+ *   * Migration 4 ensures that every document in the remote document cache
+ *     has a sentinel row with a sequence number.
+ *   * Migration 5 drops held write acks.
+ *   * Migration 6 populates the collection_parents index.
+ *   * Migration 7 rewrites query_targets canonical ids in new format.
+ *   * Migration 8 kicks off overlay data migration.
+ */
+const LevelDbMigrations::SchemaVersion kSchemaVersion = 8;
+
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase

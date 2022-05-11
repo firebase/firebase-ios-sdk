@@ -26,6 +26,7 @@
 #include "Firestore/core/src/local/leveldb_document_overlay_cache.h"
 #include "Firestore/core/src/local/leveldb_index_manager.h"
 #include "Firestore/core/src/local/leveldb_lru_reference_delegate.h"
+#include "Firestore/core/src/local/leveldb_migrations.h"
 #include "Firestore/core/src/local/leveldb_mutation_queue.h"
 #include "Firestore/core/src/local/leveldb_overlay_migration_manager.h"
 #include "Firestore/core/src/local/leveldb_remote_document_cache.h"
@@ -102,6 +103,7 @@ class LevelDbPersistence : public Persistence {
                    std::function<void()> block) override;
 
  private:
+  friend class LevelDbOverlayMigrationManagerTest;
   LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
                      util::Path directory,
                      std::set<std::string> users,
@@ -117,6 +119,9 @@ class LevelDbPersistence : public Persistence {
   static util::StatusOr<std::unique_ptr<leveldb::DB>> OpenDb(
       const util::Path& dir);
 
+  static util::StatusOr<std::unique_ptr<LevelDbPersistence>> Create(
+      util::Path dir, LevelDbMigrations::SchemaVersion schema_version, LocalSerializer serializer, const LruParams& lru_params);
+
   std::unique_ptr<leveldb::DB> db_;
 
   util::Path directory_;
@@ -125,12 +130,12 @@ class LevelDbPersistence : public Persistence {
   bool started_ = false;
 
   std::unique_ptr<LevelDbBundleCache> bundle_cache_;
-  std::unique_ptr<LevelDbDocumentOverlayCache> current_document_overlay_cache_;
+  std::unordered_map<std::string, std::unique_ptr<LevelDbDocumentOverlayCache>> document_overlay_caches_;
   std::unique_ptr<LevelDbOverlayMigrationManager> overlay_migration_manager_;
-  std::unique_ptr<LevelDbMutationQueue> current_mutation_queue_;
+  std::unordered_map<std::string, std::unique_ptr<LevelDbMutationQueue>> mutation_queues_;
   std::unique_ptr<LevelDbTargetCache> target_cache_;
   std::unique_ptr<LevelDbRemoteDocumentCache> document_cache_;
-  std::unique_ptr<LevelDbIndexManager> index_manager_;
+  std::unordered_map<std::string, std::unique_ptr<LevelDbIndexManager>> index_managers_;
   std::unique_ptr<LevelDbLruReferenceDelegate> reference_delegate_;
 
   std::unique_ptr<LevelDbTransaction> transaction_;

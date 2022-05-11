@@ -24,6 +24,7 @@ namespace firestore {
 namespace local {
 
 class LevelDbPersistence;
+class LocalStore;
 
 class LevelDbOverlayMigrationManager: public OverlayMigrationManager{
  public:
@@ -31,6 +32,9 @@ class LevelDbOverlayMigrationManager: public OverlayMigrationManager{
 
   void Run() override;
  private:
+  friend class LevelDbOverlayMigrationManagerTest; // For HasPendingOverlayMigration();
+
+  bool HasPendingOverlayMigration();
   // The LevelDbIndexManager is owned by LevelDbPersistence.
   LevelDbPersistence* db_;
 };

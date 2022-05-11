@@ -276,6 +276,8 @@ class LocalStore : public bundle::BundleCallback {
 
  private:
   friend class LocalStoreTest;  // for `GetTargetData()`
+  // for reading remote documents and overlays.
+  friend class LevelDbOverlayMigrationManagerTest;
 
   struct DocumentChangeResult {
     model::MutableDocumentMap changed_docs;

@@ -35,8 +35,8 @@ using credentials::User;
 
 std::unordered_set<std::string> GetAllUserIds(LevelDbPersistence* db) {
   std::unordered_set<std::string> uids;
-  auto prefix = LevelDbMutationQueueKey::KeyPrefix();
-  LevelDbMutationQueueKey key;
+  auto prefix = LevelDbMutationKey::KeyPrefix();
+  LevelDbMutationKey key;
   auto iter = db->current_transaction()->NewIterator();
   for (iter->Seek(prefix); iter->Valid();iter->Next()) {
     if (!absl::StartsWith(iter->key(), prefix) ||
@@ -49,31 +49,36 @@ std::unordered_set<std::string> GetAllUserIds(LevelDbPersistence* db) {
   return uids;
 }
 
-bool HasPendingOverlayMigration(LevelDbPersistence* db) {
-  auto key = LevelDbDataMigrationKey::Key("overlay_migration");
-  std::string to_discard;
-  return db->current_transaction()->Get(key, &to_discard).ok();
-}
-
 void RemovePendingOverlayMigrations(LevelDbPersistence* db) {
   auto key = LevelDbDataMigrationKey::Key("overlay_migration");
   db->current_transaction()->Delete(key);
 }
 
-void BuildOverlays(LevelDbPersistence* db) {
-  db->Run(
-      "build overlays",
-      [db] {
-        if(!HasPendingOverlayMigration(db)) {
+} // namespace
+
+bool LevelDbOverlayMigrationManager::HasPendingOverlayMigration() {
+  auto key = LevelDbDataMigrationKey::Key("overlay_migration");
+  std::string to_discard;
+  return db_->current_transaction()->Get(key, &to_discard).ok();
+}
+
+void LevelDbOverlayMigrationManager::Run() {
+  db_->Run(
+      "migrate overlays",
+      [this] {
+        if(!HasPendingOverlayMigration()) {
           return;
         }
 
-        std::unordered_set<std::string> user_ids = GetAllUserIds(db);
-        auto* remote_document_cache = db->remote_document_cache();
+        std::unordered_set<std::string> user_ids = GetAllUserIds(db_);
+        auto* remote_document_cache = db_->remote_document_cache();
         for (const auto& uid : user_ids) {
-          User user(uid);
-          auto* index_manager = db->GetIndexManager(user);
-          auto* mutation_queue = db->GetMutationQueue(user, index_manager);
+          User user = User::Unauthenticated();
+          if(!uid.empty()) {
+            user = User(uid);
+          }
+          auto* index_manager = db_->GetIndexManager(user);
+          auto* mutation_queue = db_->GetMutationQueue(user, index_manager);
 
           // Get all document keys that have local mutations
           model::DocumentKeySet all_document_keys;
@@ -82,23 +87,17 @@ void BuildOverlays(LevelDbPersistence* db) {
           }
 
           // Recalculate and save overlays
-          auto* document_overlay_cache = db->GetDocumentOverlayCache(user);
+          auto* document_overlay_cache = db_->GetDocumentOverlayCache(user);
           LocalDocumentsView local_view(
-                  remote_document_cache,
-                  mutation_queue,
-                  document_overlay_cache,
-                  index_manager);
+              remote_document_cache,
+              mutation_queue,
+              document_overlay_cache,
+              index_manager);
           local_view.RecalculateAndSaveOverlays(std::move(all_document_keys));
         }
 
-        RemovePendingOverlayMigrations(db);
+        RemovePendingOverlayMigrations(db_);
       });
-}
-
-} // namespace
-
-void LevelDbOverlayMigrationManager::Run() {
-  BuildOverlays(db_);
 }
 
 }  // namespace local
