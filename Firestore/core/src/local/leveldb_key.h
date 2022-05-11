@@ -1305,8 +1305,8 @@ class LevelDbDataMigrationKey {
  public:
   LevelDbDataMigrationKey() = default;
 
-  LevelDbDataMigrationKey(std::string migration_name)
-      : migration_name_(std::move(migration_name)){
+  explicit LevelDbDataMigrationKey(std::string migration_name)
+      : migration_name_(std::move(migration_name)) {
   }
 
   /**

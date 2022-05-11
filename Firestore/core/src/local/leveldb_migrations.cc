@@ -360,8 +360,9 @@ void RewriteTargetsCanonicalIds(leveldb::DB* db,
  *
  * Writes 'overlay_migration' into data_migration table.
  */
-void EnsureOverlayDataMigrationIsRequired(leveldb::DB* db){
-  LevelDbTransaction transaction(db, "Ensure overlay data migration is marked as required");
+void EnsureOverlayDataMigrationIsRequired(leveldb::DB* db) {
+  LevelDbTransaction transaction(
+      db, "Ensure overlay data migration is marked as required");
 
   std::string key = LevelDbDataMigrationKey::Key("overlay_migration");
   transaction.Put(key, {});

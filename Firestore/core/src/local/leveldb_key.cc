@@ -266,9 +266,9 @@ class Reader {
     return ReadLabeledInt64(ComponentLabel::SequenceNumber);
   }
 
- std::string ReadDataMigrationName() {
-   return ReadLabeledString(ComponentLabel::DataMigrationName);
- }
+  std::string ReadDataMigrationName() {
+    return ReadLabeledString(ComponentLabel::DataMigrationName);
+  }
 
   /**
    * Reads a snapshot version, encoded as a component label and a pair of
@@ -681,7 +681,8 @@ std::string Reader::Describe() {
     } else if (label == ComponentLabel::DataMigrationName) {
       std::string value = ReadDataMigrationName();
       if (ok_) {
-        absl::StrAppend(&description, " data_migration_name=", std::move(value));
+        absl::StrAppend(&description,
+                        " data_migration_name=", std::move(value));
       }
     } else {
       absl::StrAppend(&description, " unknown label=", static_cast<int>(label));
@@ -1598,8 +1599,7 @@ bool LevelDbDocumentOverlayCollectionGroupIndexKey::Decode(
   return reader.ok();
 }
 
-std::string LevelDbDataMigrationKey::Key(
-    absl::string_view migration_name) {
+std::string LevelDbDataMigrationKey::Key(absl::string_view migration_name) {
   Writer writer;
   writer.WriteTableName(kDataMigrationTable);
   writer.WriteDataMigrationName(migration_name);
@@ -1607,8 +1607,7 @@ std::string LevelDbDataMigrationKey::Key(
   return writer.result();
 }
 
-bool LevelDbDataMigrationKey::Decode(
-    absl::string_view key) {
+bool LevelDbDataMigrationKey::Decode(absl::string_view key) {
   Reader reader{key};
   reader.ReadTableNameMatching(kDataMigrationTable);
   migration_name_ = reader.ReadDataMigrationName();

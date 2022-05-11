@@ -57,7 +57,10 @@ std::unique_ptr<MemoryPersistence> MemoryPersistence::WithLruGarbageCollector(
 }
 
 MemoryPersistence::MemoryPersistence()
-    : target_cache_(this), remote_document_cache_(this), overlay_migration_manager_(), started_(true){
+    : target_cache_(this),
+      remote_document_cache_(this),
+      overlay_migration_manager_(),
+      started_(true) {
 }
 
 MemoryPersistence::~MemoryPersistence() = default;

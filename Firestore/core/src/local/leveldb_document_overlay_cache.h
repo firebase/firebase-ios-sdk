@@ -44,7 +44,6 @@ class LevelDbDocumentOverlayCache final : public DocumentOverlayCache {
                               LevelDbPersistence* db,
                               LocalSerializer* serializer);
 
-
   ~LevelDbDocumentOverlayCache() {
     std::cout << "overlay cache destroy.\n";
   }
