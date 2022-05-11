@@ -19,7 +19,7 @@
 import PackageDescription
 import class Foundation.ProcessInfo
 
-let firebaseVersion = "9.0.0"
+let firebaseVersion = "9.1.0"
 
 let package = Package(
   name: "Firebase",
@@ -155,7 +155,7 @@ let package = Package(
     .package(
       name: "GoogleDataTransport",
       url: "https://github.com/google/GoogleDataTransport.git",
-      "9.1.2" ..< "10.0.0"
+      "9.1.4" ..< "10.0.0"
     ),
     .package(
       name: "GoogleUtilities",
@@ -165,12 +165,12 @@ let package = Package(
     .package(
       name: "GTMSessionFetcher",
       url: "https://github.com/google/gtm-session-fetcher.git",
-      "1.7.1" ..< "2.0.0"
+      "1.7.2" ..< "2.0.0"
     ),
     .package(
       name: "nanopb",
       url: "https://github.com/firebase/nanopb.git",
-      "2.30908.0" ..< "2.30909.0"
+      "2.30909.0" ..< "2.30910.0"
     ),
     .package(
       name: "abseil",

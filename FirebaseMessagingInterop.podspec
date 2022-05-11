@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMessagingInterop'
-  s.version          = '9.0.0'
+  s.version          = '9.1.0'
   s.summary          = 'Interfaces that allow other Firebase SDKs to use Messaging functionality.'
 
   s.description      = <<-DESC
@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
-  s.license          = { :type => 'Apache', :file => 'LICENSE' }
+  s.license          = { :type => 'Apache-2.0', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
 
   # NOTE that these should not be used externally, this is for Firebase pods to depend on each

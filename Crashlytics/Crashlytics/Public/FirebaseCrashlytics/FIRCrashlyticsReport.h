@@ -69,7 +69,8 @@ NS_SWIFT_NAME(CrashlyticsReport)
  * @param args Arguments to substitute into format
  */
 - (void)logWithFormat:(NSString *)format
-            arguments:(va_list)args NS_SWIFT_NAME(log(format:arguments:));
+            arguments:(va_list)args
+    __attribute__((__swift_name__("log(format:arguments:)")));  // Avoid `NS_SWIFT_NAME` (#9331).
 
 /**
  * Sets a custom key and value to be associated with subsequent fatal and non-fatal reports.

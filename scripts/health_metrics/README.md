@@ -26,6 +26,9 @@ pod-lib-lint-newsdk:
         target: [iOS]
     steps:
     - uses: actions/checkout@v2
+    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+      with:
+        ruby-version: '2.7'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test

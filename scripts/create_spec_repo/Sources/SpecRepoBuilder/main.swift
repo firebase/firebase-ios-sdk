@@ -16,6 +16,7 @@
 
 import ArgumentParser
 import Foundation
+
 private enum Constants {}
 
 extension Constants {
@@ -31,8 +32,25 @@ extension Constants {
 
 // flags for 'pod push'
 extension Constants {
-  static let flags = ["--skip-tests", "--allow-warnings"]
-  static let umbrellaPodFlags = Constants.flags + ["--skip-import-validation", "--use-json"]
+  static let flags = ["--skip-tests", "--allow-warnings", "--skip-import-validation"]
+  static let umbrellaPodFlags = Constants.flags + ["--use-json"]
+}
+
+public extension Date {
+  func dateTimeString() -> String {
+    let formatter = DateFormatter()
+    formatter.dateStyle = .short
+    formatter.timeStyle = .medium
+    return formatter.string(from: self)
+  }
+
+  func formattedDurationSince(_ date: Date) -> String {
+    let formatter = DateComponentsFormatter()
+    formatter.unitsStyle = .abbreviated
+    formatter.allowedUnits = [.hour, .minute, .second]
+    let secondsSinceDate = date.timeIntervalSince(self)
+    return formatter.string(from: secondsSinceDate) ?? "\(round(secondsSinceDate)) sec"
+  }
 }
 
 // SpecFiles is a wraper of dict mapping from required pods to their path. This
@@ -356,7 +374,19 @@ struct SpecRepoBuilder: ParsableCommand {
 
     var exitCode: Int32 = 0
     var failedPods: [String] = []
+    let startDate = Date()
+    var minutes = 0
     for pod in specFileDict.depInstallOrder {
+      var timer: DispatchSourceTimer = {
+        let t = DispatchSource.makeTimerSource()
+        t.schedule(deadline: .now(), repeating: 60)
+        t.setEventHandler(handler: {
+          print("Tests have run \(minutes) min(s).")
+          minutes += 1
+        })
+        return t
+      }()
+      timer.resume()
       var podExitCode: Int32 = 0
       print("----------\(pod)-----------")
       switch pod {
@@ -380,11 +410,13 @@ struct SpecRepoBuilder: ParsableCommand {
         failedPods.append(pod)
         print("Failed pod - \(pod)")
       }
+      timer.cancel()
+      let finishDate = Date()
+      print("\(pod) is finished at: \(finishDate.dateTimeString()). " +
+        "Duration: \(startDate.formattedDurationSince(finishDate))")
     }
     if exitCode != 0 {
       Self.exit(withError: SpecRepoBuilderError.failedToPush(pods: failedPods))
     }
   }
 }
-
-SpecRepoBuilder.main()

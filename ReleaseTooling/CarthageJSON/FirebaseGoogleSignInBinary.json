@@ -59,5 +59,6 @@
   "8.7.0": "https://dl.google.com/dl/firebase/ios/carthage/8.7.0/GoogleSignIn-3b5a89bac2a74a45.zip",
   "8.8.0": "https://dl.google.com/dl/firebase/ios/carthage/8.8.0/GoogleSignIn-6c5eea802b37b994.zip",
   "8.9.0": "https://dl.google.com/dl/firebase/ios/carthage/8.9.0/GoogleSignIn-9afc2bc065c9ddfb.zip",
-  "8.9.1": "https://dl.google.com/dl/firebase/ios/carthage/8.9.1/GoogleSignIn-5350c541954e07f9.zip"
+  "8.9.1": "https://dl.google.com/dl/firebase/ios/carthage/8.9.1/GoogleSignIn-5350c541954e07f9.zip",
+  "9.0.0": "https://dl.google.com/dl/firebase/ios/carthage/9.0.0/GoogleSignIn-9046a001d8440798.zip"
 }
