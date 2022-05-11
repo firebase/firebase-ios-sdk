@@ -26,6 +26,7 @@
 @class FIRLoadBundleTaskProgress;
 @class FIRQuery;
 @class FIRTransaction;
+@class FIRTransactionOptions;
 @class FIRWriteBatch;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -146,6 +147,11 @@ NS_SWIFT_NAME(Firestore)
                      completion:(void (^)(id _Nullable result, NSError *_Nullable error))completion
     __attribute__((swift_async(none)));  // Disable async import due to #9426.
 
+- (void)runTransactionWithOptions:(FIRTransactionOptions *_Nullable)options
+                            block:(id _Nullable (^)(FIRTransaction *, NSError **))updateBlock
+                       completion:
+                           (void (^)(id _Nullable result, NSError *_Nullable error))completion
+    __attribute__((swift_async(none)));  // Disable async import due to #9426.
 /**
  * Creates a write batch, used for performing multiple writes as a single
  * atomic operation.
