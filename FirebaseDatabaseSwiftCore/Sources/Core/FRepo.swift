@@ -106,7 +106,7 @@ let kFirebaseCoreErrorDomain = "com.firebase.core"
                 // migrations will be managed by the database itself Remove this
                 // once we are confident that no-one is using legacy migration
                 // anymore...
-                levelDBEngine.runLegacyMigration(repoInfo)
+//                levelDBEngine.runLegacyMigration(repoInfo)
                 engine = levelDBEngine
             }
             self.persistenceManager = FPersistenceManager(storageEngine: engine, cachePolicy: cachePolicy)

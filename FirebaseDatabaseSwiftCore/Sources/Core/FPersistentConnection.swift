@@ -1130,15 +1130,15 @@ better performance
         var stats: [String: Any] = [:]
 #if os(iOS) || os(tvOS)
         if config.persistenceEnabled {
-            stats["persistence.ios.enabled"] = true
+            stats["persistence.ios.enabled"] = 1
         }
 #elseif os(macOS)
         if config.persistenceEnabled {
-            stats["persistence.osx.enabled"] = true
+            stats["persistence.osx.enabled"] = 1
         }
 #elseif os(watchOS)
         if config.persistenceEnabled {
-            stats["persistence.watchos.enabled"] = true
+            stats["persistence.watchos.enabled"] = 1
         }
 #endif
         let sdkVersion = Database.sdkVersion.replacingOccurrences(of: ".", with: "-")

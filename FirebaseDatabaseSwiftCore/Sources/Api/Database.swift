@@ -8,7 +8,13 @@
 import Foundation
 
 @objc public class FIRAppThing: NSObject {
-    struct Options {
+    public struct Options {
+        public init(databaseURL: String? = nil, projectID: String? = nil, googleAppID: String) {
+            self.databaseURL = databaseURL
+            self.projectID = projectID
+            self.googleAppID = googleAppID
+        }
+
         var databaseURL: String?
         var projectID: String?
         var googleAppID: String
@@ -20,12 +26,10 @@ import Foundation
         self.name = name
     }
     static var isDefaultAppConfigured: Bool { defaultApp != nil }
-    static var defaultApp: FIRAppThing? {
-        FIRAppThing(options: .init(databaseURL: "https://firestoretests-44fc8.firebaseio.com",
-                                   projectID: "firestoretests-44fc8",
-                                   googleAppID: "1:649012064016:ios:b4dcc2e22b3b90ea"),
-                    name: "[DEFAULT]")
+    public static func configure(name: String? = nil, options: Options) {
+        defaultApp = FIRAppThing(options: options, name: name ?? "[DEFAULT]")
     }
+    static private(set) var defaultApp: FIRAppThing?
 }
 
 class Mock: NSObject, DatabaseConnectionContextProviderProtocol {
