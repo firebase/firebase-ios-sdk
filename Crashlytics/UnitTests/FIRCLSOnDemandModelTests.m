@@ -21,10 +21,10 @@
 #import "Crashlytics/Crashlytics/Private/FIRCLSOnDemandModel_Private.h"
 #import "Crashlytics/UnitTests/Mocks/FIRAppFake.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockExistingReportManager.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockFileManager.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockOnDemandModel.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockReportUploader.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockSettings.h"
-#import "Crashlytics/UnitTests/Mocks/FIRCLSMockFileManager.h"
 #import "Crashlytics/UnitTests/Mocks/FIRMockGDTCoreTransport.h"
 #import "Crashlytics/UnitTests/Mocks/FIRMockInstallations.h"
 
