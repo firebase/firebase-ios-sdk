@@ -21,9 +21,7 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-/**
- * Provides methods to save and read Firestore bundles.
- */
+/** Manages overlay migrations required to have overlay support . */
 class OverlayMigrationManager {
  public:
   virtual ~OverlayMigrationManager() = default;

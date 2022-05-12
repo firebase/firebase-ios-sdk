@@ -1300,18 +1300,13 @@ class LevelDbDocumentOverlayCollectionGroupIndexKey
   std::string collection_group_;
 };
 
-/** A key in the document_overlays table. */
+/** A key in the data_migration table. */
 class LevelDbDataMigrationKey {
  public:
   LevelDbDataMigrationKey() = default;
 
-  explicit LevelDbDataMigrationKey(std::string migration_name)
-      : migration_name_(std::move(migration_name)) {
-  }
-
   /**
-   * Creates a complete key that points to a specific user_id, document key, and
-   * largest batch ID.
+   * Creates a complete key that points to a specific migration_name.
    */
   static std::string Key(absl::string_view migration_name);
 
@@ -1331,7 +1326,7 @@ class LevelDbDataMigrationKey {
     return Key(migration_name_);
   }
 
-  /** The user ID, as encoded in the key. */
+  /** The migration name. */
   const std::string& migration_name() const {
     return migration_name_;
   }

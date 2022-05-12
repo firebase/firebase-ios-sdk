@@ -28,6 +28,11 @@ class LocalStore;
 
 class LevelDbOverlayMigrationManager : public OverlayMigrationManager {
  public:
+  /**
+   * Creates a new data migration manager.
+   *
+   * @param db The underlying LevelDb Persistence to use for data migrations.
+   */
   explicit LevelDbOverlayMigrationManager(LevelDbPersistence* db) : db_(db) {
   }
 
