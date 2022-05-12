@@ -24,7 +24,7 @@
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockOnDemandModel.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockReportUploader.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockSettings.h"
-#import "Crashlytics/UnitTests/Mocks/FIRCLSTempMockFileManager.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockFileManager.h"
 #import "Crashlytics/UnitTests/Mocks/FIRMockGDTCoreTransport.h"
 #import "Crashlytics/UnitTests/Mocks/FIRMockInstallations.h"
 
@@ -40,7 +40,7 @@
 @property(nonatomic, strong) FIRCLSExistingReportManager *existingReportManager;
 @property(nonatomic, strong) FIRCLSManagerData *managerData;
 @property(nonatomic, strong) FIRCLSDataCollectionArbiter *dataArbiter;
-@property(nonatomic, strong) FIRCLSTempMockFileManager *fileManager;
+@property(nonatomic, strong) FIRCLSMockFileManager *fileManager;
 @property(nonatomic, strong) FIRCLSMockReportUploader *mockReportUploader;
 @property(nonatomic, strong) FIRCLSMockSettings *mockSettings;
 
@@ -57,7 +57,7 @@
   id fakeApp = [[FIRAppFake alloc] init];
   self.dataArbiter = [[FIRCLSDataCollectionArbiter alloc] initWithApp:fakeApp withAppInfo:@{}];
 
-  self.fileManager = [[FIRCLSTempMockFileManager alloc] init];
+  self.fileManager = [[FIRCLSMockFileManager alloc] init];
 
   FIRCLSApplicationIdentifierModel *appIDModel = [[FIRCLSApplicationIdentifierModel alloc] init];
   _mockSettings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
