@@ -377,7 +377,8 @@ struct SpecRepoBuilder: ParsableCommand {
     let startDate = Date()
     var minutes = 0
     for pod in specFileDict.depInstallOrder {
-      var timer: DispatchSourceTimer = {
+      print("----------\(pod)-----------")
+      let timer: DispatchSourceTimer = {
         let t = DispatchSource.makeTimerSource()
         t.schedule(deadline: .now(), repeating: 60)
         t.setEventHandler(handler: {
@@ -388,7 +389,6 @@ struct SpecRepoBuilder: ParsableCommand {
       }()
       timer.resume()
       var podExitCode: Int32 = 0
-      print("----------\(pod)-----------")
       switch pod {
       case "Firebase":
         podExitCode = pushPodspec(
@@ -420,3 +420,5 @@ struct SpecRepoBuilder: ParsableCommand {
     }
   }
 }
+
+SpecRepoBuilder.main()
