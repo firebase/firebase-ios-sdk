@@ -5,6 +5,7 @@
 //  Created by Quan Pham on 2/8/22.
 //
 
+#import <GoogleUtilities/GULNSData+zlib.h>
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
@@ -17,7 +18,7 @@ static NSString *const kServerURLDomain = @"https://firebaseremoteconfig.googlea
 static NSString *const kServerURLVersion = @"/v1";
 static NSString *const kServerURLProjects = @"/projects/";
 static NSString *const kServerURLNamespaces = @"/namespaces/";
-static NSString *const kServerURLQuery = @":fetch?";
+static NSString *const kServerURLQuery = @":streamFetchInvalidations?";
 static NSString *const kServerURLKey = @"key=";
 
 // Header names
@@ -25,7 +26,7 @@ static NSString *const kHTTPMethodPost = @"POST";  ///< HTTP request method conf
 static NSString *const kContentTypeHeaderName = @"Content-Type";  ///< HTTP Header Field Name
 static NSString *const kContentEncodingHeaderName =
     @"Content-Encoding";                                                ///< HTTP Header Field Name
-static NSString *const kAcceptEncodingHeaderName = @"Accept-Encoding";  ///< HTTP Header Field Name
+static NSString *const kAcceptEncodingHeaderName = @"Accept";  ///< HTTP Header Field Name
 static NSString *const kETagHeaderName = @"etag";                       ///< HTTP Header Field Name
 static NSString *const kIfNoneMatchETagHeaderName = @"if-none-match";   ///< HTTP Header Field Name
 static NSString *const kInstallationsAuthTokenHeaderName = @"x-goog-firebase-installations-auth";
@@ -35,7 +36,9 @@ static NSString *const kiOSBundleIdentifierHeaderName =
 static NSString *const templateVersionNumberKey = @"templateVersion";
 static NSString *const hostAddress = @"http://127.0.0.1:8080";
 
-static NSInteger const kRCNFetchResponseHTTPStatusCodeServiceUnavailable = 503;
+
+static NSInteger const kRCNFetchResponseHTTPStatusCodeInternalServerError = 500;
+static NSInteger const kRCNRealtimeStreamHTTPStatusCodeServiceUnavailable = 503;
 
 // Retry parameters
 NSInteger MAX_RETRY = 10;
@@ -95,7 +98,6 @@ NSNotificationCenter *notificationCenter;
         _options = options;
         _lockQueue = queue;
         notificationCenter = [NSNotificationCenter defaultCenter];
-        [self setUpHttpRequest];
     }
     
     return self;
@@ -111,7 +113,7 @@ NSNotificationCenter *notificationCenter;
   NSString *serverURLStr = [[NSString alloc] initWithString:kServerURLDomain];
   serverURLStr = [serverURLStr stringByAppendingString:kServerURLVersion];
   serverURLStr = [serverURLStr stringByAppendingString:kServerURLProjects];
-  serverURLStr = [serverURLStr stringByAppendingString:_options.projectID];
+  serverURLStr = [serverURLStr stringByAppendingString:_options.GCMSenderID];
   serverURLStr = [serverURLStr stringByAppendingString:kServerURLNamespaces];
 
   // Get the namespace from the fully qualified namespace string of "namespace:FIRAppName".
@@ -119,7 +121,6 @@ NSNotificationCenter *notificationCenter;
       [_namespace substringToIndex:[_namespace rangeOfString:@":"].location];
   serverURLStr = [serverURLStr stringByAppendingString:namespace];
   serverURLStr = [serverURLStr stringByAppendingString:kServerURLQuery];
-
   if (_options.APIKey) {
     serverURLStr = [serverURLStr stringByAppendingString:kServerURLKey];
     serverURLStr = [serverURLStr stringByAppendingString:_options.APIKey];
@@ -248,27 +249,36 @@ NSNotificationCenter *notificationCenter;
       [request setValue:_settings.lastETag forHTTPHeaderField:kIfNoneMatchETagHeaderName];
     }
     
-    NSString *postBody = [NSString stringWithFormat:@"project=%@&namespace=%@&templateVersionNumber=%@", [self->_options projectID], self->_namespace, [self->_configFetch getTemplateVersionNumber]];
+    NSString *namespace =
+        [_namespace substringToIndex:[_namespace rangeOfString:@":"].location];
+    
+    NSString *postBody = [NSString stringWithFormat:@"{project:'%@', namespace:'%@', lastKnownVersionNumber:'%@'}", [self->_options GCMSenderID], namespace, [self->_configFetch getTemplateVersionNumber]];
     NSData *postData = [postBody dataUsingEncoding:NSUTF8StringEncoding];
-    [request setHTTPBody:postData];
+    NSError *compressionError;
+    NSData *compressedContent = [NSData gul_dataByGzippingData:postData error:&compressionError];
+    
+    [request setHTTPBody:compressedContent];
 }
 
 // Creates request.
 -(void) setUpHttpRequest {
-    request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:hostAddress] cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:timeoutSeconds];
+    NSString *address = [self constructServerURL];
+    request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString: address] cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:timeoutSeconds];
     [request setHTTPMethod:kHTTPMethodPost];
     [request setValue:@"application/json" forHTTPHeaderField:kContentTypeHeaderName];
+    [request setValue:@"application/json" forHTTPHeaderField:kAcceptEncodingHeaderName];
     [request setValue:@"gzip" forHTTPHeaderField:kContentEncodingHeaderName];
-    [request setValue:@"gzip" forHTTPHeaderField:kAcceptEncodingHeaderName];
+    [request setValue:@"true" forHTTPHeaderField:@"X-Google-GFE-Can-Retry"];
+    [request setValue:[_options APIKey] forHTTPHeaderField:@"X-Goog-Api-Key"];
     [request setValue:[[NSBundle mainBundle] bundleIdentifier]
         forHTTPHeaderField:kiOSBundleIdentifierHeaderName];
 }
 
 // Makes call to create session.
 -(void) setUpHttpSession {
-    NSURLSessionConfiguration *sessionConfig=[NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSessionConfiguration *sessionConfig = [[NSURLSessionConfiguration defaultSessionConfiguration] copy];
     [sessionConfig setTimeoutIntervalForResource:timeoutSeconds];
-    
+    [sessionConfig setTimeoutIntervalForRequest:timeoutSeconds];
     session = [NSURLSession sessionWithConfiguration:sessionConfig delegate:self delegateQueue:[NSOperationQueue mainQueue]];
 }
 
@@ -295,7 +305,7 @@ NSNotificationCenter *notificationCenter;
             } else {
                 NSLog(@"Config not fetched");
                 if (error != nil) {
-                    NSLog(@"Error received: %@", error.localizedDescription);
+                    NSLog(@"Error receiveds: %@", error.localizedDescription);
                 }
             }
         }
@@ -318,7 +328,7 @@ NSNotificationCenter *notificationCenter;
     if (remainingAttempts == 0) {
         NSError *error =
             [NSError errorWithDomain:FIRRemoteConfigErrorDomain
-                                code:kRCNFetchResponseHTTPStatusCodeServiceUnavailable
+                                code:kRCNFetchResponseHTTPStatusCodeInternalServerError
                             userInfo:@{
                               NSLocalizedDescriptionKey :
                                   @"FetchError: Unable to retrieve the latest config."
@@ -403,7 +413,7 @@ completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))complet
         NSLog(@"Cannot establish connection.");
         NSError *error =
             [NSError errorWithDomain:FIRRemoteConfigErrorDomain
-                                code:kRCNFetchResponseHTTPStatusCodeServiceUnavailable
+                                code:kRCNRealtimeStreamHTTPStatusCodeServiceUnavailable
                             userInfo:@{
                               NSLocalizedDescriptionKey :
                                   @"StreamError: Can't establish Realtime stream connection."
@@ -439,6 +449,7 @@ completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))complet
 - (void)startRealtimeConnection {
     if (isFirstConnection) {
         [self retryOnEveryNetworkConnection];
+        [self setUpHttpRequest];
         [self setUpHttpSession];
         isFirstConnection = false;
     }

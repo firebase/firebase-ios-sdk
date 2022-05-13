@@ -69,6 +69,17 @@ typedef NS_ERROR_ENUM(FIRRemoteConfigErrorDomain, FIRRemoteConfigError){
     FIRRemoteConfigErrorInternalError = 8003,
 } NS_SWIFT_NAME(RemoteConfigError);
 
+/// Remote Config error domain that handles errors for Realtime.
+extern NSString *const _Nonnull FIRRemoteConfigRealtimeErrorDomain NS_SWIFT_NAME(RemoteConfigRealtimeErrorDomain);
+/// Firebase Remote Config service Realtime error.
+typedef NS_ERROR_ENUM(FIRRemoteConfigRealtimeErrorDomain, FIRRemoteConfigRealtimeError) {
+    /// Can't establish config update stream.
+    FIRRemoteConfigRealtimeErrorStream = 8004,
+    /// Unable to retrieve the latest config from backend.
+    FIRRemoteConfigRealtiemErrorFetch = 8005,
+} NS_SWIFT_NAME(RemoteConfigRealtimeError);
+
+
 /// Enumerated value that indicates the source of Remote Config data. Data can come from
 /// the Remote Config service, the DefaultConfig that is available when the app is first installed,
 /// or a static initialized value if data is not available from the service or DefaultConfig.
