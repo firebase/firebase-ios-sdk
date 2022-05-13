@@ -150,7 +150,7 @@
     case FIRStorageErrorCodeInvalidArgument:
       return (FIRStorageErrorCode)error.code;
   }
-  // The cast is not needed in plain Objective C.
+  // The cast is not needed in plain Objective-C.
   return (FIRStorageErrorCode)error.code;
 }
 

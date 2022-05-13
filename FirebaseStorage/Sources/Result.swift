@@ -21,7 +21,7 @@ import Foundation
 ///   - completion: A completion block returning a `Result` enum with either a generic object or
 ///                 an `Error`.
 /// - Returns: A closure parameterized with an optional generic and optional `Error` to match
-///            Objective C APIs.
+///            Objective-C APIs.
 private func getResultCallback<T>(completion: @escaping (Result<T, Error>) -> Void) -> (_: T?,
                                                                                         _: Error?)
   -> Void {

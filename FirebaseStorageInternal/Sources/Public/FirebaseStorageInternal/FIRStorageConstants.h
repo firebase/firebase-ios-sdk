@@ -24,7 +24,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 // TODO: The typedefs are not portable to Swift as typealias's to make available
-// back to Objective C. See https://stackoverflow.com/a/48069912/556617
+// back to Objective-C. See https://stackoverflow.com/a/48069912/556617
 /**
  * NSString typedef representing a task listener handle.
  */

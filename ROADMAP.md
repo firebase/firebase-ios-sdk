@@ -77,7 +77,7 @@ Firebase should be better integrated with SwiftUI apps. See SwiftUI related
 
 Evaluate impact on Firebase APIs of the
 [Swift Async/await proposal](https://github.com/apple/swift-evolution/blob/main/proposals/0296-async-await.md).
-For example, Objective C callback APIs that return a value do not get an
+For example, Objective-C callback APIs that return a value do not get an
 async/await API automatically generated and an explicit function may need to be
 added. See these
 [Firebase Storage examples](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseStorage/Sources/AsyncAwait.swift).
