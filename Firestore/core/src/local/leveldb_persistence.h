@@ -86,7 +86,7 @@ class LevelDbPersistence : public Persistence {
 
   LevelDbDocumentOverlayCache* GetDocumentOverlayCache(
       const credentials::User& user) override;
-  LevelDbOverlayMigrationManager* GetOverlayMigrationManager() override;
+  LevelDbOverlayMigrationManager* GetOverlayMigrationManager(const credentials::User& user) override;
 
   LevelDbMutationQueue* GetMutationQueue(const credentials::User& user,
                                          IndexManager* index_manager) override;
@@ -98,6 +98,8 @@ class LevelDbPersistence : public Persistence {
   LevelDbIndexManager* GetIndexManager(const credentials::User& user) override;
 
   LevelDbLruReferenceDelegate* reference_delegate() override;
+
+  void ReleaseOtherUserSpecificComponents(const std::string& uid) override;
 
  protected:
   void RunInternal(absl::string_view label,

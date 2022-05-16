@@ -91,6 +91,7 @@ void LevelDbOverlayMigrationManager::Run() {
       local_view.RecalculateAndSaveOverlays(std::move(all_document_keys));
     }
 
+    db_->ReleaseOtherUserSpecificComponents(uid_);
     RemovePendingOverlayMigrations(db_);
   });
 }

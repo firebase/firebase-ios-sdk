@@ -20,6 +20,7 @@
 #include <unordered_set>
 #include <utility>
 
+#include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/bundle_cache.h"
 #include "Firestore/core/src/local/local_documents_view.h"
 #include "Firestore/core/src/local/local_view_changes.h"
@@ -112,6 +113,7 @@ LocalStore::LocalStore(Persistence* persistence,
       remote_document_cache_, mutation_queue_, document_overlay_cache_,
       index_manager_);
   remote_document_cache_->SetIndexManager(index_manager_);
+  overlay_migration_manager_ = persistence_->GetOverlayMigrationManager(initial_user);
 
   persistence->reference_delegate()->AddInMemoryPins(&local_view_references_);
   target_id_generator_ = TargetIdGenerator::TargetCacheTargetIdGenerator(0);
@@ -122,7 +124,7 @@ LocalStore::~LocalStore() = default;
 
 void LocalStore::Start() {
   StartMutationQueue();
-  persistence_->GetOverlayMigrationManager()->Run();
+  overlay_migration_manager_->Run();
   TargetId target_id = target_cache_->highest_target_id();
   target_id_generator_ =
       TargetIdGenerator::TargetCacheTargetIdGenerator(target_id);
@@ -146,6 +148,8 @@ DocumentMap LocalStore::HandleUserChange(const User& user) {
   remote_document_cache_->SetIndexManager(index_manager_);
 
   StartMutationQueue();
+
+  persistence_->ReleaseOtherUserSpecificComponents(user.uid());
 
   return persistence_->Run("NewBatches", [&] {
     std::vector<MutationBatch> new_batches =

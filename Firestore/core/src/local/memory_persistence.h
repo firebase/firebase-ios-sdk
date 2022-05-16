@@ -92,13 +92,15 @@ class MemoryPersistence : public Persistence {
   MemoryDocumentOverlayCache* GetDocumentOverlayCache(
       const credentials::User& user) override;
 
-  OverlayMigrationManager* GetOverlayMigrationManager() override;
+  OverlayMigrationManager* GetOverlayMigrationManager(const credentials::User& user) override;
 
   MemoryRemoteDocumentCache* remote_document_cache() override;
 
   MemoryIndexManager* GetIndexManager(const credentials::User& user) override;
 
   ReferenceDelegate* reference_delegate() override;
+
+  void ReleaseOtherUserSpecificComponents(const std::string& uid) override;
 
  protected:
   void RunInternal(absl::string_view label,

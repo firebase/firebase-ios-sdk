@@ -285,12 +285,23 @@ LevelDbDocumentOverlayCache* LevelDbPersistence::GetDocumentOverlayCache(
 }
 
 LevelDbOverlayMigrationManager*
-LevelDbPersistence::GetOverlayMigrationManager() {
+LevelDbPersistence::GetOverlayMigrationManager(const credentials::User& user) {
   if (overlay_migration_manager_ == nullptr) {
     overlay_migration_manager_ =
-        absl::make_unique<LevelDbOverlayMigrationManager>(this);
+        absl::make_unique<LevelDbOverlayMigrationManager>(this, user.uid());
   }
   return overlay_migration_manager_.get();
+}
+
+void LevelDbPersistence::ReleaseOtherUserSpecificComponents(
+    const std::string& target_uid) {
+  for(const auto& uid: users_) {
+    if(target_uid != uid) {
+      document_overlay_caches_.erase(uid);
+      mutation_queues_.erase(uid);
+      index_managers_.erase(uid);
+    }
+  }
 }
 
 void LevelDbPersistence::RunInternal(absl::string_view label,
