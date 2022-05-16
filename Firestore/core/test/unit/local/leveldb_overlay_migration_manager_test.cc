@@ -117,9 +117,7 @@ void LevelDbOverlayMigrationManagerTest::WriteMutations(
   // Delete overlays to make sure the overlays we see from tests are migrated
   // by migration manager, not by tests setup.
   persistence_->Run("Delete Overlays For Testing", [&] {
-    std::cout << "Before deleting overlay\n";
     document_overlay_cache()->RemoveOverlaysForBatchId(result.batch_id());
-    std::cout << "After deleting overlay\n";
   });
 }
 
@@ -132,13 +130,11 @@ TEST_F(LevelDbOverlayMigrationManagerTest, CreateOverlayFromSet) {
 
   // Create persistence with the current SDK's schema, which should run the
   // migration.
-  std::cout << "Before recreation \n";
   persistence_ =
       LevelDbPersistence::Create(dir_, *serializer_, LruParams::Default())
           .ValueOrDie();
   persistence_->Run("Verify flag",
                     [&] { EXPECT_TRUE(has_pending_overlay_migration()); });
-  std::cout << "After recreation \n";
 
   local_store_ =
       absl::make_unique<LocalStore>(persistence_.get(), query_engine_.get(),
@@ -146,11 +142,9 @@ TEST_F(LevelDbOverlayMigrationManagerTest, CreateOverlayFromSet) {
   local_store_->Start();
 
   persistence_->Run("Verify mutation", [&] {
-    std::cout << "Before verify mutation \n";
     auto overlay = document_overlay_cache()->GetOverlay(Key("foo/bar"));
     EXPECT_EQ(SetMutation("foo/bar", Map("foo", "bar")),
               overlay.value().mutation());
-    std::cout << "After verify mutation \n";
   });
 
   EXPECT_EQ(Doc("foo/bar", 2, Map("foo", "bar")).SetHasLocalMutations(),

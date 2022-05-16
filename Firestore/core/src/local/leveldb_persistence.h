@@ -126,13 +126,6 @@ class LevelDbPersistence : public Persistence {
       LocalSerializer serializer,
       const LruParams& lru_params);
 
-  // Releases components created for users other than the passed in `user`.
-  // We do this so that we can run `LevelDbOverlayMigrationManager` for all
-  // users without figuring out how to strictly destroy previous users resource
-  // before starting a migration for a new user. Instead, all user components
-  // created during migration get destroyed at the end of the migration.
-  void ReleaseOtherUserSpecificComponents(const credentials::User& user);
-
   std::unique_ptr<leveldb::DB> db_;
 
   util::Path directory_;
@@ -141,15 +134,15 @@ class LevelDbPersistence : public Persistence {
   bool started_ = false;
 
   std::unique_ptr<LevelDbBundleCache> bundle_cache_;
-  std::unique_ptr<LevelDbDocumentOverlayCache>
-      document_overlay_cache_;
+  std::unordered_map<std::string, std::unique_ptr<LevelDbDocumentOverlayCache>>
+      document_overlay_caches_;
   std::unique_ptr<LevelDbOverlayMigrationManager> overlay_migration_manager_;
-  std::unique_ptr<LevelDbMutationQueue>
-      mutation_queue_;
+  std::unordered_map<std::string, std::unique_ptr<LevelDbMutationQueue>>
+      mutation_queues_;
   std::unique_ptr<LevelDbTargetCache> target_cache_;
   std::unique_ptr<LevelDbRemoteDocumentCache> document_cache_;
-  std::unique_ptr<LevelDbIndexManager>
-      index_manager_;
+  std::unordered_map<std::string, std::unique_ptr<LevelDbIndexManager>>
+      index_managers_;
   std::unique_ptr<LevelDbLruReferenceDelegate> reference_delegate_;
 
   std::unique_ptr<LevelDbTransaction> transaction_;

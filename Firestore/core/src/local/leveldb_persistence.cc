@@ -236,12 +236,14 @@ void LevelDbPersistence::Shutdown() {
 LevelDbMutationQueue* LevelDbPersistence::GetMutationQueue(
     const credentials::User& user, IndexManager* manager) {
   users_.insert(user.uid());
-  mutation_queue_ =
+  if (mutation_queues_.find(user.uid()) == mutation_queues_.end()) {
+    mutation_queues_.insert(
+        {user.uid(),
          absl::make_unique<LevelDbMutationQueue>(
              user, this, dynamic_cast<LevelDbIndexManager*>(manager),
-             &serializer_);
-
-  return mutation_queue_.get();
+             &serializer_)});
+  }
+  return mutation_queues_[user.uid()].get();
 }
 
 LevelDbTargetCache* LevelDbPersistence::target_cache() {
@@ -255,9 +257,11 @@ LevelDbRemoteDocumentCache* LevelDbPersistence::remote_document_cache() {
 LevelDbIndexManager* LevelDbPersistence::GetIndexManager(
     const credentials::User& user) {
   users_.insert(user.uid());
-  index_manager_ = absl::make_unique<LevelDbIndexManager>(
-                                            user, this, &serializer_);
-  return index_manager_.get();
+  if (index_managers_.find(user.uid()) == index_managers_.end()) {
+    index_managers_.insert({user.uid(), absl::make_unique<LevelDbIndexManager>(
+                                            user, this, &serializer_)});
+  }
+  return index_managers_[user.uid()].get();
 }
 
 LevelDbLruReferenceDelegate* LevelDbPersistence::reference_delegate() {
@@ -271,9 +275,13 @@ LevelDbBundleCache* LevelDbPersistence::bundle_cache() {
 LevelDbDocumentOverlayCache* LevelDbPersistence::GetDocumentOverlayCache(
     const User& user) {
   users_.insert(user.uid());
-         document_overlay_cache_ = absl::make_unique<LevelDbDocumentOverlayCache>(
-                         user, this, &serializer_);
-  return document_overlay_cache_.get();
+  if (document_overlay_caches_.find(user.uid()) ==
+      document_overlay_caches_.end()) {
+    document_overlay_caches_.insert(
+        {user.uid(), absl::make_unique<LevelDbDocumentOverlayCache>(
+                         user, this, &serializer_)});
+  }
+  return document_overlay_caches_[user.uid()].get();
 }
 
 LevelDbOverlayMigrationManager*
@@ -283,18 +291,6 @@ LevelDbPersistence::GetOverlayMigrationManager() {
         absl::make_unique<LevelDbOverlayMigrationManager>(this);
   }
   return overlay_migration_manager_.get();
-}
-
-void LevelDbPersistence::ReleaseOtherUserSpecificComponents(const credentials::User& user) {
-  for(const auto& uid: users_) {
-    if(user.uid() != uid) {
-      /*
-      document_overlay_caches_.erase(uid);
-      mutation_queues_.erase(uid);
-      index_managers_.erase(uid);
-      */
-    }
-  }
 }
 
 void LevelDbPersistence::RunInternal(absl::string_view label,
