@@ -60,7 +60,7 @@ class FieldFilter : public Filter {
   };
 
   /**
-   * Creates a Filter instance for the provided path, operator, and value.
+   * Creates a FieldFilter instance for the provided path, operator, and value.
    */
   static FieldFilter Create(
       const model::FieldPath& path,

@@ -84,12 +84,31 @@ class Query {
       core::ListenOptions options, QuerySnapshotListener&& listener);
 
   /**
+   * Creates and returns a new `FieldFilter` that documents
+   * must contain the specified field and the value must be equal to the
+   * specified value.
+   *
+   * @param field_path The name of the field to compare.
+   * @param op The operator to apply.
+   * @param value The value against which to compare the field.
+   * @param type_describer A function that will produce a description of the
+   *     type of field_value.
+   *
+   * @return The created `FieldFilter`.
+   */
+  core::FieldFilter ParseFieldFilter(
+      const model::FieldPath& field_path,
+      core::FieldFilter::Operator op,
+      nanopb::SharedMessage<google_firestore_v1_Value> value,
+      const std::function<std::string()>& type_describer) const;
+
+  /**
    * Creates and returns a new `Query` with the additional filter.
    *
    * @param filter The filter to add
    * @return The created `Query`.
    */
-  Query AddFilter(core::Filter filter) const;
+  Query AddNewFilter(core::Filter filter) const;
 
   /**
    * Creates and returns a new `Query` that's additionally sorted by the
@@ -165,17 +184,11 @@ class Query {
     return Query(std::move(chained_query), firestore_);
   }
 
-  core::FieldFilter ParseFieldFilter(
-      const model::FieldPath& field_path,
-      core::FieldFilter::Operator op,
-      nanopb::SharedMessage<google_firestore_v1_Value> value,
-      const std::function<std::string()>& type_describer) const;
-
  private:
-  void ValidateNewFieldFilter(const core::Query& query,
-                              const core::FieldFilter& filter) const;
-  void ValidateNewCompositeFilter(
-      const core::CompositeFilter& composite_filter) const;
+  void ValidateNewFilter(const core::Filter& filter) const;
+  void ValidateNewFieldFilter(
+      const core::Query& query,
+      const std::shared_ptr<core::FieldFilter>& filter) const;
   void ValidateNewOrderByPath(const model::FieldPath& field_path) const;
   void ValidateOrderByField(const model::FieldPath& order_by_field,
                             const model::FieldPath& inequality_field) const;
@@ -197,10 +210,6 @@ class Query {
       const std::function<std::string()>& type_describer) const;
 
   std::string Describe(core::FieldFilter::Operator op) const;
-
-  Query AddFieldFilter(core::FieldFilter& filter) const;
-
-  Query AddCompositeFilter(core::CompositeFilter& filter) const;
 
   std::shared_ptr<Firestore> firestore_;
   core::Query query_;

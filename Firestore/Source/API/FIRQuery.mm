@@ -515,9 +515,9 @@ int32_t SaturatedLimitValue(NSInteger limit) {
       [self parsedQueryValue:unaryFilter.value
                  allowArrays:unaryFilter.unaryOp == FieldFilter::Operator::In ||
                              unaryFilter.unaryOp == FieldFilter::Operator::NotIn];
-  Filter parsedfieldFilter = _query.ParseFieldFilter(
+  Filter parsedFieldFilter = _query.ParseFieldFilter(
       unaryFilter.fieldPath.internalValue, unaryFilter.unaryOp, std::move(fieldValue), describer);
-  return parsedfieldFilter;
+  return parsedFieldFilter;
 }
 
 - (Filter)parseCompositeFilter:(FSTCompositeFilter *)compositeFilter {
@@ -541,8 +541,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
     FSTCompositeFilter *compositeFilter = (FSTCompositeFilter *)filter;
     return [self parseCompositeFilter:compositeFilter];
   } else {
-    ThrowInvalidArgument(
-        "Parsing is only supported for Filter.UnaryFilter and Filter.CompositeFilter.");
+    ThrowInvalidArgument("Parsing only supports Filter.UnaryFilter and Filter.CompositeFilter.");
   }
 }
 
@@ -553,7 +552,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
     // Return the existing query if not adding any more filters (e.g. an empty composite filter).
     return self;
   }
-  return Wrap(_query.AddFilter(parsedFilter));
+  return Wrap(_query.AddNewFilter(parsedFilter));
 }
 
 /**

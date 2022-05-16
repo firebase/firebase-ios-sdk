@@ -101,7 +101,7 @@ static std::vector<Operator> ConflictingOps(Operator op) {
       return {Operator::ArrayContains, Operator::ArrayContainsAny, Operator::In,
               Operator::NotIn, Operator::NotEqual};
     default:
-      return std::vector<Operator>();
+      return {};
   }
 }
 }  // unnamed namespace
@@ -174,7 +174,7 @@ void Query::GetDocuments(Source source, QuerySnapshotListener&& callback) {
   };
 
   auto listener = absl::make_unique<ListenOnce>(source, std::move(callback));
-  auto listener_unowned = listener.get();
+  auto* listener_unowned = listener.get();
 
   std::unique_ptr<ListenerRegistration> registration =
       AddSnapshotListener(std::move(options), std::move(listener));
@@ -269,26 +269,9 @@ core::FieldFilter Query::ParseFieldFilter(
   return FieldFilter::Create(field_path, op, std::move(value));
 }
 
-Query Query::AddFieldFilter(core::FieldFilter& field_filter) const {
-  ValidateNewFieldFilter(query_, field_filter);
-  return Wrap(query_.AddingFilter(std::move(field_filter)));
-}
-
-Query Query::AddCompositeFilter(core::CompositeFilter& composite_filter) const {
-  ValidateNewCompositeFilter(composite_filter);
-  return Wrap(query_.AddingFilter(std::move(composite_filter)));
-}
-
-Query Query::AddFilter(core::Filter filter) const {
-  if (filter.IsAFieldFilter()) {
-    core::FieldFilter field_filter(filter);
-    return AddFieldFilter(field_filter);
-  } else if (filter.IsACompositeFilter()) {
-    core::CompositeFilter composite_filter(filter);
-    return AddCompositeFilter(composite_filter);
-  } else {
-    ThrowInvalidArgument("Unsupported filter type");
-  }
+Query Query::AddNewFilter(core::Filter filter) const {
+  ValidateNewFilter(filter);
+  return Wrap(query_.AddingFilter(std::move(filter)));
 }
 
 Query Query::OrderBy(FieldPath field_path, bool descending) const {
@@ -337,11 +320,12 @@ Query Query::EndAt(Bound bound) const {
   return Wrap(query_.EndingAt(std::move(bound)));
 }
 
-void Query::ValidateNewFieldFilter(const core::Query& query,
-                                   const FieldFilter& field_filter) const {
-  if (field_filter.IsInequality()) {
+void Query::ValidateNewFieldFilter(
+    const core::Query& query,
+    const std::shared_ptr<FieldFilter>& field_filter) const {
+  if (field_filter->IsInequality()) {
     const FieldPath* existing_inequality = query.InequalityFilterField();
-    const FieldPath& new_inequality = field_filter.field();
+    const FieldPath& new_inequality = field_filter->field();
 
     if (existing_inequality && *existing_inequality != new_inequality) {
       ThrowInvalidArgument(
@@ -355,13 +339,13 @@ void Query::ValidateNewFieldFilter(const core::Query& query,
 
     const FieldPath* first_order_by_field = query.FirstOrderByField();
     if (first_order_by_field) {
-      ValidateOrderByField(*first_order_by_field, field_filter.field());
+      ValidateOrderByField(*first_order_by_field, field_filter->field());
     }
   }
-  Operator filter_op = field_filter.op();
-  absl::optional<Operator> conflicting_op =
-      query.FindOperator(ConflictingOps(filter_op));
 
+  Operator filter_op = field_filter->op();
+  absl::optional<Operator> conflicting_op =
+      query.FindOpInsideFilters(ConflictingOps(filter_op));
   if (conflicting_op) {
     // We special case when it's a duplicate op to give a slightly clearer
     // error message.
@@ -378,13 +362,11 @@ void Query::ValidateNewFieldFilter(const core::Query& query,
   }
 }
 
-void Query::ValidateNewCompositeFilter(
-    const CompositeFilter& composite_filter) const {
-  core::Query test_query = query_.Copy();
-  for (const std::shared_ptr<FieldFilter>& filter_ptr :
-       composite_filter.GetFlattenedFilters()) {
-    ValidateNewFieldFilter(test_query, *filter_ptr);
-    test_query = test_query.AddingFilter(*filter_ptr);
+void Query::ValidateNewFilter(const Filter& filter) const {
+  core::Query test_query = query_.Clone();
+  for (const auto& field_filter_ptr : filter.GetFlattenedFilters()) {
+    ValidateNewFieldFilter(test_query, field_filter_ptr);
+    test_query = test_query.AddingFilter(*field_filter_ptr);
   }
 }
 

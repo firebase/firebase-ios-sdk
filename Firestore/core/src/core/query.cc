@@ -52,7 +52,7 @@ Query::Query(ResourcePath path, std::string collection_group)
           std::make_shared<const std::string>(std::move(collection_group))) {
 }
 
-Query Query::Copy() const {
+Query Query::Clone() const {
   Query copy(*this);
   copy.filters_ = immutable::AppendOnlyList<Filter>();
   for (const Filter& filter : filters_) {
@@ -86,13 +86,12 @@ const FieldPath* Query::InequalityFilterField() const {
   return nullptr;
 }
 
-absl::optional<Operator> Query::FindOperator(
+absl::optional<Operator> Query::FindOpInsideFilters(
     const std::vector<Operator>& ops) const {
   for (const auto& filter : filters_) {
-    if (filter.IsAFieldFilter()) {
-      FieldFilter relation_filter(filter);
-      if (absl::c_linear_search(ops, relation_filter.op())) {
-        return relation_filter.op();
+    for (const auto& field_filter_ptr : filter.GetFlattenedFilters()) {
+      if (absl::c_linear_search(ops, field_filter_ptr->op())) {
+        return field_filter_ptr->op();
       }
     }
   }

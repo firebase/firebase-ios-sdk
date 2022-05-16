@@ -79,7 +79,10 @@ class Query {
         end_at_(std::move(end_at)) {
   }
 
-  Query Copy() const;
+  /** The default copy constructor and copy assignment operator create a shallow
+   * copy of Query; While Clone() creates a deep copy.
+   */
+  Query Clone() const;
 
   Query(model::ResourcePath path, std::string collection_group);
 
@@ -124,8 +127,8 @@ class Query {
    * Checks if any of the provided filter operators are included in the query
    * and returns the first one that is, or null if none are.
    */
-  absl::optional<FieldFilter::Operator> FindOperator(
-      const std::vector<FieldFilter::Operator>& ops) const;
+  absl::optional<core::FieldFilter::Operator> FindOpInsideFilters(
+      const std::vector<core::FieldFilter::Operator>& ops) const;
 
   /**
    * Returns the list of ordering constraints that were explicitly requested on
