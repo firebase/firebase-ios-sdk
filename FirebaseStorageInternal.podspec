@@ -1,10 +1,10 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseStorageInternal'
-  s.version          = '9.0.0'
+  s.version          = '9.1.0'
   s.summary          = 'Firebase Storage'
 
   s.description      = <<-DESC
-Objective C Implementations for FirebaseStorage. This pod should not be directly imported.
+Objective-C Implementations for FirebaseStorage. This pod should not be directly imported.
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
