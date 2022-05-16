@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_LOCAL_MEMORY_PERSISTENCE_H_
 
 #include <memory>
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -92,7 +93,8 @@ class MemoryPersistence : public Persistence {
   MemoryDocumentOverlayCache* GetDocumentOverlayCache(
       const credentials::User& user) override;
 
-  OverlayMigrationManager* GetOverlayMigrationManager(const credentials::User& user) override;
+  OverlayMigrationManager* GetOverlayMigrationManager(
+      const credentials::User& user) override;
 
   MemoryRemoteDocumentCache* remote_document_cache() override;
 

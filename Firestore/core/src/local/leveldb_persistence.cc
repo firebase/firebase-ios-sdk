@@ -284,8 +284,8 @@ LevelDbDocumentOverlayCache* LevelDbPersistence::GetDocumentOverlayCache(
   return document_overlay_caches_[user.uid()].get();
 }
 
-LevelDbOverlayMigrationManager*
-LevelDbPersistence::GetOverlayMigrationManager(const credentials::User& user) {
+LevelDbOverlayMigrationManager* LevelDbPersistence::GetOverlayMigrationManager(
+    const credentials::User& user) {
   if (overlay_migration_manager_ == nullptr) {
     overlay_migration_manager_ =
         absl::make_unique<LevelDbOverlayMigrationManager>(this, user.uid());
@@ -295,8 +295,8 @@ LevelDbPersistence::GetOverlayMigrationManager(const credentials::User& user) {
 
 void LevelDbPersistence::ReleaseOtherUserSpecificComponents(
     const std::string& target_uid) {
-  for(const auto& uid: users_) {
-    if(target_uid != uid) {
+  for (const auto& uid : users_) {
+    if (target_uid != uid) {
       document_overlay_caches_.erase(uid);
       mutation_queues_.erase(uid);
       index_managers_.erase(uid);

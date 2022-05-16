@@ -86,7 +86,8 @@ class LevelDbPersistence : public Persistence {
 
   LevelDbDocumentOverlayCache* GetDocumentOverlayCache(
       const credentials::User& user) override;
-  LevelDbOverlayMigrationManager* GetOverlayMigrationManager(const credentials::User& user) override;
+  LevelDbOverlayMigrationManager* GetOverlayMigrationManager(
+      const credentials::User& user) override;
 
   LevelDbMutationQueue* GetMutationQueue(const credentials::User& user,
                                          IndexManager* index_manager) override;

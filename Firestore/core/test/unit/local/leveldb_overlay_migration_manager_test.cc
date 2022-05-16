@@ -69,7 +69,8 @@ class LevelDbOverlayMigrationManagerTest : public testing::Test {
   }
 
   bool has_pending_overlay_migration() {
-    return persistence_->GetOverlayMigrationManager(credentials::User::Unauthenticated())
+    return persistence_
+        ->GetOverlayMigrationManager(credentials::User::Unauthenticated())
         ->HasPendingOverlayMigration();
   }
 

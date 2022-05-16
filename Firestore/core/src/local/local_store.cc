@@ -113,7 +113,8 @@ LocalStore::LocalStore(Persistence* persistence,
       remote_document_cache_, mutation_queue_, document_overlay_cache_,
       index_manager_);
   remote_document_cache_->SetIndexManager(index_manager_);
-  overlay_migration_manager_ = persistence_->GetOverlayMigrationManager(initial_user);
+  overlay_migration_manager_ =
+      persistence_->GetOverlayMigrationManager(initial_user);
 
   persistence->reference_delegate()->AddInMemoryPins(&local_view_references_);
   target_id_generator_ = TargetIdGenerator::TargetCacheTargetIdGenerator(0);

@@ -117,7 +117,8 @@ MemoryDocumentOverlayCache* MemoryPersistence::GetDocumentOverlayCache(
   }
 }
 
-OverlayMigrationManager* MemoryPersistence::GetOverlayMigrationManager(const credentials::User& user) {
+OverlayMigrationManager* MemoryPersistence::GetOverlayMigrationManager(
+    const credentials::User& user) {
   (void)user;
   return &overlay_migration_manager_;
 }

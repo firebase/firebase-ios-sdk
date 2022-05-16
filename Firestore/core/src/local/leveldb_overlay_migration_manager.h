@@ -17,9 +17,9 @@
 #ifndef FIRESTORE_CORE_SRC_LOCAL_LEVELDB_OVERLAY_MIGRATION_MANAGER_H_
 #define FIRESTORE_CORE_SRC_LOCAL_LEVELDB_OVERLAY_MIGRATION_MANAGER_H_
 
-#include "Firestore/core/src/local/overlay_migration_manager.h"
-
 #include <string>
+
+#include "Firestore/core/src/local/overlay_migration_manager.h"
 
 namespace firebase {
 namespace firestore {
@@ -34,17 +34,17 @@ class LevelDbOverlayMigrationManager : public OverlayMigrationManager {
    * Creates a new data migration manager.
    *
    * @param db The underlying LevelDb Persistence to use for data migrations.
-   * @param uid The target uid the SDK is initialized with. Resources created for
-   * other users during migration will be released at the end of migration.
+   * @param uid The target uid the SDK is initialized with. Resources created
+   * for other users during migration will be released at the end of migration.
    */
-  LevelDbOverlayMigrationManager(LevelDbPersistence* db, const std::string& uid) : db_(db), uid_(uid) {
+  LevelDbOverlayMigrationManager(LevelDbPersistence* db, const std::string& uid)
+      : db_(db), uid_(uid) {
   }
 
   void Run() override;
 
  private:
-  friend class
-      LevelDbOverlayMigrationManagerTest;
+  friend class LevelDbOverlayMigrationManagerTest;
 
   bool HasPendingOverlayMigration();
 
