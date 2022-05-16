@@ -114,6 +114,8 @@ void LevelDbOverlayMigrationManagerTest::WriteMutation(
 void LevelDbOverlayMigrationManagerTest::WriteMutations(
     std::vector<Mutation>&& mutations) {
   auto result = local_store_->WriteLocally(std::move(mutations));
+  // Delete overlays to make sure the overlays we see from tests are migrated
+  // by migration manager, not by tests setup.
   persistence_->Run("Delete Overlays For Testing", [&] {
     document_overlay_cache()->RemoveOverlaysForBatchId(result.batch_id());
   });

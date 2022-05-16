@@ -542,7 +542,7 @@ TEST_F(LevelDbMigrationsTest, SetsOverlayMigrationFlag) {
   ASSERT_GE(schema_version, 8);
 
   LevelDbTransaction transaction(db_.get(), "Read migration flag");
-  std::string key = LevelDbDataMigrationKey::Key("overlay_migration");
+  std::string key = LevelDbDataMigrationKey::OverlayMigrationKey();
   std::string flag;
   Status status = transaction.Get(key, &flag);
   ASSERT_TRUE(status.ok());

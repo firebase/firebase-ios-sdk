@@ -1310,6 +1310,11 @@ class LevelDbDataMigrationKey {
    */
   static std::string Key(absl::string_view migration_name);
 
+  /** Migration to create overlays from local mutations. */
+  static std::string OverlayMigrationKey() {
+    return Key("overlay_migration");
+  }
+
   /**
    * Decodes the given complete key, storing the decoded values in this
    * instance.

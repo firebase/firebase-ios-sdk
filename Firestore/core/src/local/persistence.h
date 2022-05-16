@@ -119,6 +119,10 @@ class Persistence {
   virtual DocumentOverlayCache* GetDocumentOverlayCache(
       const credentials::User& user) = 0;
 
+  /**
+   * Returns the migration manager responsible for calculating and saving
+   * overlays.
+   */
   virtual OverlayMigrationManager* GetOverlayMigrationManager() = 0;
 
   /**

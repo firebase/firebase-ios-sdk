@@ -50,14 +50,14 @@ std::unordered_set<std::string> GetAllUserIds(LevelDbPersistence* db) {
 }
 
 void RemovePendingOverlayMigrations(LevelDbPersistence* db) {
-  auto key = LevelDbDataMigrationKey::Key("overlay_migration");
+  auto key = LevelDbDataMigrationKey::OverlayMigrationKey();
   db->current_transaction()->Delete(key);
 }
 
 }  // namespace
 
 bool LevelDbOverlayMigrationManager::HasPendingOverlayMigration() {
-  auto key = LevelDbDataMigrationKey::Key("overlay_migration");
+  auto key = LevelDbDataMigrationKey::OverlayMigrationKey();
   std::string to_discard;
   return db_->current_transaction()->Get(key, &to_discard).ok();
 }

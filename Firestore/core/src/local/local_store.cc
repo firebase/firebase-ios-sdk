@@ -121,8 +121,8 @@ LocalStore::LocalStore(Persistence* persistence,
 LocalStore::~LocalStore() = default;
 
 void LocalStore::Start() {
-  persistence_->GetOverlayMigrationManager()->Run();
   StartMutationQueue();
+  persistence_->GetOverlayMigrationManager()->Run();
   TargetId target_id = target_cache_->highest_target_id();
   target_id_generator_ =
       TargetIdGenerator::TargetCacheTargetIdGenerator(target_id);

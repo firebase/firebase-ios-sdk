@@ -275,8 +275,7 @@ class LocalStore : public bundle::BundleCallback {
       const std::string& query_name);
 
  private:
-  friend class LocalStoreTest;  // for `GetTargetData()`
-  // for reading remote documents and overlays.
+  friend class LocalStoreTest;
   friend class LevelDbOverlayMigrationManagerTest;
 
   struct DocumentChangeResult {

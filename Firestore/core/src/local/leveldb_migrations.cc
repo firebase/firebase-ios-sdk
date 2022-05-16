@@ -364,7 +364,7 @@ void EnsureOverlayDataMigrationIsRequired(leveldb::DB* db) {
   LevelDbTransaction transaction(
       db, "Ensure overlay data migration is marked as required");
 
-  std::string key = LevelDbDataMigrationKey::Key("overlay_migration");
+  std::string key = LevelDbDataMigrationKey::OverlayMigrationKey();
   transaction.Put(key, {});
   SaveVersion(8, &transaction);
   transaction.Commit();

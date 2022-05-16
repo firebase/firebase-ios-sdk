@@ -40,10 +40,11 @@ class LevelDbOverlayMigrationManager : public OverlayMigrationManager {
 
  private:
   friend class
-      LevelDbOverlayMigrationManagerTest;  // For HasPendingOverlayMigration();
+      LevelDbOverlayMigrationManagerTest;
 
   bool HasPendingOverlayMigration();
-  // The LevelDbIndexManager is owned by LevelDbPersistence.
+
+  // The LevelDbOverlayMigrationManager is owned by LevelDbPersistence.
   LevelDbPersistence* db_;
 };
 

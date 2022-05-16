@@ -158,8 +158,6 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
 
 Document LocalDocumentsView::GetDocument(const DocumentKey& key) {
   absl::optional<Overlay> overlay = document_overlay_cache_->GetOverlay(key);
-  std::cout << overlay.has_value() << "\n";
-  // std::cout << overlay.value().ToString() << "\n";
   MutableDocument document = GetBaseDocument(key, overlay);
   if (overlay.has_value()) {
     overlay.value().mutation().ApplyToLocalView(document, FieldMask(),

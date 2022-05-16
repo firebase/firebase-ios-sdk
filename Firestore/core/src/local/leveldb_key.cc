@@ -154,6 +154,9 @@ enum ComponentLabel {
    */
   OrderedDocumentKey = 24,
 
+  /**
+   * The name of a data migration.
+   */
   DataMigrationName = 25,
 
   /**
