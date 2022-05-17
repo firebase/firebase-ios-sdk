@@ -133,14 +133,14 @@
 
 - (void)testCompliesWithDataCollectionOff {
   FIRExceptionModel *exceptionModel = [self getTestExceptionModel];
-  XCTestExpectation *testComplete =
+  XCTestExpectation *sleepComplete =
       [[XCTestExpectation alloc] initWithDescription:@"complete test"];
 
   // Put an expectation in the sleep block so we can test the state of the queue.
   __weak FIRCLSOnDemandModelTests *weakSelf = self;
   [self setSleepBlock:^(int delay) {
     XCTAssertEqual(delay, 60 / self.mockSettings.onDemandUploadRate);
-    [weakSelf waitForExpectations:@[ testComplete ] timeout:1.0];
+    [weakSelf waitForExpectations:@[ sleepComplete ] timeout:1.0];
   }];
 
   BOOL success = [self.onDemandModel recordOnDemandExceptionIfQuota:exceptionModel
@@ -149,14 +149,19 @@
 
   // Should record but not submit a report.
   XCTAssertTrue(success);
+
   // We still count this as a recorded event if it was recorded but not submitted.
   XCTAssertEqual([self.onDemandModel recordedOnDemandExceptionCount], 1);
-  XCTAssertEqual([self contentsOfActivePath].count, 2);
   XCTAssertEqual(self.onDemandModel.getQueuedOperationsCount, 1);
-  XCTAssertEqual([self.onDemandModel.storedActiveReportPaths count], 1);
 
   // Fulfill the expectation so the sleep block completes.
-  [testComplete fulfill];
+  [sleepComplete fulfill];
+  [self.managerData.onDemandModel.operationQueue waitUntilAllOperationsAreFinished];
+
+  XCTAssertEqual(self.onDemandModel.getQueuedOperationsCount, 0);
+
+  XCTAssertEqual([self contentsOfActivePath].count, 2);
+  XCTAssertEqual([self.onDemandModel.storedActiveReportPaths count], 1);
 }
 
 - (void)testQuotaWithDataCollectionOff {
