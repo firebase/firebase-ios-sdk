@@ -14,9 +14,28 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
+  specs_checking:
+    # Don't run on private repo unless it is a PR.
+    if: github.repository == 'Firebase/firebase-ios-sdk'
+    runs-on: macos-12
+    outputs:
+      matrix: ${{ steps.check_files.outputs.matrix }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Generate matrix
+        id: generate_matrix
+        run: |
+          cd ReleaseTooling
+          swift run manifest --sdk-repo-url ~/Desktop/work/firebase-ios-sdk --spec-output-file-path ./output.json
+          echo "::set-output name=matrix::{\"include\":$( cat output.json )}"
   buildup_SpecsTesting_repo:
+    needs: specs_checking
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
+    strategy:
+      fail-fast: false
+      matrix: ${{fromJson(needs.specs_checking.outputs.matrix)}}
     env:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       local_repo: specstesting
@@ -25,6 +44,7 @@ jobs:
       # testing repo.
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
       podspec_repo_branch: master
+      targeted_pod: ${{ matrix.podspec }}
     runs-on: macos-12
     steps:
     - uses: actions/checkout@v2
@@ -44,7 +64,7 @@ jobs:
         cd scripts/create_spec_repo/
         swift build
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/Firebase/SpecsTesting.git
-        BOT_TOKEN="${botaccess}" .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}" --sdk-repo-name SpecsTesting --github-account Firebase --pod-sources 'https://${BOT_TOKEN}@github.com/Firebase/SpecsTesting' "https://github.com/firebase/SpecsDev.git" "https://github.com/firebase/SpecsStaging.git" "https://cdn.cocoapods.org/" --exclude-pods "FirebaseFirestoreTestingSupport" "FirebaseAuthTestingSupport" "FirebaseCombineSwift"
+        BOT_TOKEN="${botaccess}" .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}" --sdk-repo-name SpecsTesting --github-account Firebase --pod-sources 'https://${BOT_TOKEN}@github.com/Firebase/SpecsTesting' "https://github.com/firebase/SpecsDev.git" "https://github.com/firebase/SpecsStaging.git" "https://cdn.cocoapods.org/" --include-pods "${targeted_pod}" --keep-repo
     - name: Clean Artifacts
       if: ${{ always() }}
       run: |
