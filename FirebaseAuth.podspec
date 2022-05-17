@@ -54,7 +54,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.dependency 'FirebaseCore', '~> 9.0'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.7'
   s.dependency 'GoogleUtilities/Environment', '~> 7.7'
-  s.dependency 'GTMSessionFetcher/Core', '~> 1.7'
+  s.dependency 'GTMSessionFetcher/Core', '>= 1.7', '< 3.0'
 
   # Using environment variable because of the dependency on the unpublished
   # HeartbeatLoggingTestUtils.
