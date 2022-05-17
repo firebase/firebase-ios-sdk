@@ -69,8 +69,15 @@ struct GHAMatrixSpecCollector {
     for spec in testingSpecs {
       sdkPodspecs.append(SDKPodspec(podspec: spec))
     }
-    let jsonData = try JSONEncoder().encode(sdkPodspecs)
-    let jsonString = String(data: jsonData, encoding: .utf8)!
-    try jsonString.write(to: filePath, atomically: true, encoding: String.Encoding.utf8)
+    // Trim whitespaces so the GitHub Actions matrix can read.
+    let str = try String(
+      decoding: JSONEncoder().encode(sdkPodspecs),
+      as: UTF8.self
+    )
+    try str.trimmingCharacters(in: .whitespacesAndNewlines).write(
+      to: filePath,
+      atomically: true,
+      encoding: String.Encoding.utf8
+    )
   }
 }
