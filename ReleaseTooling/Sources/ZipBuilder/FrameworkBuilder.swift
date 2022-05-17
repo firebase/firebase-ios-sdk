@@ -456,7 +456,7 @@ struct FrameworkBuilder {
     // Instead it use build options to specify them. For the zip build, we need the module maps to
     // include the dependent frameworks and libraries. Therefore we reconstruct them by parsing
     // the CocoaPods config files and add them here.
-    // Currently we only do the construction for Objective C since Swift Module directories require
+    // Currently we only do the construction for Objective-C since Swift Module directories require
     // several other files. See https://github.com/firebase/firebase-ios-sdk/pull/5040.
     // Therefore, for Swift we do a simple copy of the Modules files from an Xcode build.
     // This is sufficient for the testing done so far, but more testing is required to determine
