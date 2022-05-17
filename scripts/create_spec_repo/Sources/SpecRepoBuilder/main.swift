@@ -350,7 +350,7 @@ struct SpecRepoBuilder: ParsableCommand {
       let podspecURLs = fileURLs
         .filter { $0.pathExtension == "podspec" || $0.pathExtension == "json" }
       for podspecURL in podspecURLs {
-        let podName = podspecURL.deletingPathExtension().lastPathComponent
+        let podName = podspecURL.lastPathComponent.components(separatedBy: ".")[0]
         print("Podspec, \(podName), is detected.")
         if excludePods.contains(podName) {
           continue
