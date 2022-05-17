@@ -262,6 +262,7 @@ struct SpecRepoBuilder: ParsableCommand {
     let sourcesArg = sources.joined(separator: ",")
     let flagsArg = flags.joined(separator: " ")
 
+    // Update the repo
     shell.run("pod repo update")
     let outcome =
       shell

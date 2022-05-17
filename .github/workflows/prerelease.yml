@@ -51,10 +51,17 @@ jobs:
          swift build
          pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/Firebase/SpecsTesting.git
          BOT_TOKEN="${botaccess}" .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}" --sdk-repo-name SpecsTesting --github-account Firebase --pod-sources "https://cdn.cocoapods.org/" --include-pods NonExsitingPodForSpecRepoClean
+    - name: Clean Artifacts
+      if: ${{ always() }}
+      run: |
+        pod repo remove "${local_repo}"
+        rm -rf bot-access.txt
     - uses: actions/upload-artifact@v3
       with:
         name: firebase-ios-sdk
-        path: ${{ env.local_sdk_repo_dir }}
+        path: |
+          ${{ env.local_sdk_repo_dir }}/*.podspec
+          ${{ env.local_sdk_repo_dir }}/*.podspec.json
   buildup_SpecsTesting_repo:
     needs: specs_checking
     # Don't run on private repo unless it is a PR.
