@@ -22,6 +22,7 @@ jobs:
       # 'podspec_repo_branch' of this repo will be validated and pushed to the
       # testing repo.
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
+      local_repo: specstesting
       podspec_repo_branch: master
     outputs:
       matrix: ${{ steps.generate_matrix.outputs.matrix }}
@@ -44,6 +45,10 @@ jobs:
       run: |
          ossbotaccess=`cat oss-bot-access.txt`
          BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" local_sdk_repo_dir="${local_sdk_repo_dir}" podspec_repo_branch="${podspec_repo_branch}" scripts/release_testing_setup.sh prerelease_testing
+        cd scripts/create_spec_repo/
+        swift build
+        pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/Firebase/SpecsTesting.git
+        BOT_TOKEN="${botaccess}" .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}" --sdk-repo-name SpecsTesting --github-account Firebase --pod-sources "https://cdn.cocoapods.org/" --include-pods NonExsitingPodForSpecRepoClean
     - uses: actions/upload-artifact@v3
       with:
         name: firebase-ios-sdk
