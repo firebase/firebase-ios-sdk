@@ -30,6 +30,19 @@ extern NSString *const _Nonnull FIRNamespaceGoogleMobilePlatform NS_SWIFT_NAME(
 extern NSString *const _Nonnull FIRRemoteConfigThrottledEndTimeInSecondsKey NS_SWIFT_NAME(
     RemoteConfigThrottledEndTimeInSecondsKey);
 
+/**
+ * Represents a listener that can be removed by calling remove. This is returned when calling
+ * addOnConfigUpdateListener and should be used when you no longer want to listen for new config
+ * updates. If this is the last listener it will close the Realtime stream.
+ */
+extern @interface FIRConfigUpdateListenerRegistration : NSObject
+/**
+ * Removes the listener being tracked by this 'ConfigUpdateListenerRegistration`. After the initial
+ * call, subsequent calls have no effect.
+ */
+- (void)remove;
+@end
+
 /// Indicates whether updated data was successfully fetched.
 typedef NS_ENUM(NSInteger, FIRRemoteConfigFetchStatus) {
   /// Config has never been fetched.
