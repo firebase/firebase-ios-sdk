@@ -47,10 +47,13 @@ jobs:
          BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" local_sdk_repo_dir="${local_sdk_repo_dir}" podspec_repo_branch="${podspec_repo_branch}" scripts/release_testing_setup.sh prerelease_testing
     - name: Clean spec repo
       run: |
-         cd scripts/create_spec_repo/
-         swift build
-         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/Firebase/SpecsTesting.git
-         BOT_TOKEN="${botaccess}" .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}" --sdk-repo-name SpecsTesting --github-account Firebase --pod-sources "https://cdn.cocoapods.org/" --include-pods NonExsitingPodForSpecRepoClean
+         git clone --quiet https://${ossbotaccess}@github.com/Firebase/SpecsTesting.git "${local_repo}"
+         cd "${local_repo}"
+         # remove all unhided dirs, i.e. all podspec dir from the spec repo.
+         rm -R -- *(-/)
+         git add .
+         git commit -m "Empty spec repo."
+         git push
     - name: Clean Artifacts
       if: ${{ always() }}
       run: |
