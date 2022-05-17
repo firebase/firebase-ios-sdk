@@ -44,6 +44,10 @@ jobs:
       run: |
          ossbotaccess=`cat oss-bot-access.txt`
          BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" local_sdk_repo_dir="${local_sdk_repo_dir}" podspec_repo_branch="${podspec_repo_branch}" scripts/release_testing_setup.sh prerelease_testing
+    - uses: actions/upload-artifact@v3
+      with:
+        name: firebase-ios-sdk
+        path: "${local_sdk_repo_dir}"
   buildup_SpecsTesting_repo:
     needs: specs_checking
     # Don't run on private repo unless it is a PR.
@@ -59,6 +63,10 @@ jobs:
       targeted_pod: ${{ matrix.podspec }}
     steps:
     - uses: actions/checkout@v2
+    - uses: actions/download-artifact@v3
+      with:
+        name: firebase-ios-sdk
+        path: /tmp/test/
     - name: Get token
       run: |
          scripts/decrypt_gha_secret.sh scripts/gha-encrypted/oss-bot-access.txt.gpg \
