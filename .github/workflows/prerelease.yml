@@ -28,7 +28,7 @@ jobs:
           swift run manifest --sdk-repo-url "${GITHUB_WORKSPACE}" --spec-output-file-path ./output.json
           echo "::set-output name=matrix::{\"include\":$( cat output.json )}"
   buildup_SpecsTesting_repo:
-    needs: specs_checking
+    #needs: specs_checking
     # Don't run on private repo unless it is a PR.
     if: github.repository == 'Firebase/firebase-ios-sdk'
     strategy:
