@@ -257,9 +257,8 @@ struct SpecRepoBuilder: ParsableCommand {
     return filterTargetDeps(deps, with: specFiles)
   }
 
-  func pushPodspec(forPod pod: String, sdkRepo: String, sources: [String],
+  func pushPodspec(forPod pod: URL, sdkRepo: String, sources: [String],
                    flags: [String], shell: Shell = Shell.shared) throws -> Int32 {
-    let podPath = sdkRepo + "/" + pod + ".podspec"
     let sourcesArg = sources.joined(separator: ",")
     let flagsArg = flags.joined(separator: " ")
 
@@ -269,7 +268,7 @@ struct SpecRepoBuilder: ParsableCommand {
       let outcome =
         try shell
           .run(
-            "pod repo push \(localSpecRepoName) \(podPath) --sources=\(sourcesArg) \(flagsArg)"
+            "pod repo push \(localSpecRepoName) \(pod.absoluteString) --sources=\(sourcesArg) \(flagsArg)"
           )
       try shell.run("pod repo update")
       print("Outcome is \(outcome)")
@@ -350,6 +349,7 @@ struct SpecRepoBuilder: ParsableCommand {
       let podspecURLs = fileURLs
         .filter { $0.pathExtension == "podspec" || $0.pathExtension == "json" }
       for podspecURL in podspecURLs {
+        print(podspecURL)
         let podName = podspecURL.lastPathComponent.components(separatedBy: ".")[0]
         print("Podspec, \(podName), is detected.")
         if excludePods.contains(podName) {
@@ -409,17 +409,23 @@ struct SpecRepoBuilder: ParsableCommand {
       timer.resume()
       var podExitCode: Int32 = 0
       do {
+        guard let podURL = specFileDict[pod] else {
+          Self
+            .exit(withError: SpecRepoBuilderError
+              .podspecNotFound(pod, from: sdkRepo))
+        
+        }
         switch pod {
         case "Firebase":
           podExitCode = try pushPodspec(
-            forPod: pod,
+            forPod: podURL,
             sdkRepo: sdkRepo,
             sources: podSources,
             flags: Constants.umbrellaPodFlags
           )
         default:
           podExitCode = try pushPodspec(
-            forPod: pod,
+            forPod: podURL,
             sdkRepo: sdkRepo,
             sources: podSources,
             flags: Constants.flags
