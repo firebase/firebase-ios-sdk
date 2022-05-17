@@ -47,7 +47,7 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: firebase-ios-sdk
-        path: "${local_sdk_repo_dir}"
+        path: ${{ env.local_sdk_repo_dir }}
   buildup_SpecsTesting_repo:
     needs: specs_checking
     # Don't run on private repo unless it is a PR.
