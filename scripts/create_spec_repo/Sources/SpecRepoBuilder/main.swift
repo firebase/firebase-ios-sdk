@@ -334,9 +334,10 @@ struct SpecRepoBuilder: ParsableCommand {
         at: documentsURL,
         includingPropertiesForKeys: nil
       )
-      let podspecURLs = fileURLs.filter { $0.pathExtension == "podspec" }
+      let podspecURLs = fileURLs.filter { $0.pathExtension == "podspec" || $0.pathExtension == "json"}
       for podspecURL in podspecURLs {
         let podName = podspecURL.deletingPathExtension().lastPathComponent
+        print ("Podspec, \(podName), is detected.")
         if excludePods.contains(podName) {
           continue
         } else if includePods.isEmpty || includePods.contains(podName) {
@@ -347,6 +348,7 @@ struct SpecRepoBuilder: ParsableCommand {
       print(
         "Error while enumerating files \(documentsURL.path): \(error.localizedDescription)"
       )
+      throw error
     }
 
     // This set is used to keep parent dependencies and help detect circular
@@ -371,6 +373,7 @@ struct SpecRepoBuilder: ParsableCommand {
 
       } catch {
         print("error occurred. \(error)")
+        throw error
       }
     }
 
