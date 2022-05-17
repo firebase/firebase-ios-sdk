@@ -53,11 +53,18 @@ jobs:
       fail-fast: false
       matrix: ${{fromJson(needs.specs_checking.outputs.matrix)}}
     env:
+      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       local_repo: specstesting
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
       targeted_pod: ${{ matrix.podspec }}
     steps:
     - uses: actions/checkout@v2
+    - name: Get token
+      run: |
+         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/oss-bot-access.txt.gpg \
+         oss-bot-access.txt "$bot_token_secret"
+         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+         bot-access.txt "$bot_token_secret"
     - name: Update SpecsTesting repo
       run: |
         botaccess=`cat bot-access.txt`
