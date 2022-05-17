@@ -1,5 +1,4 @@
 name: functions
-# Touch CI
 on:
   pull_request:
     paths:
