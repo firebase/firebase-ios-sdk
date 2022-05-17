@@ -268,7 +268,7 @@ struct SpecRepoBuilder: ParsableCommand {
       let outcome =
         try shell
           .run(
-            "pod repo push \(localSpecRepoName) \(pod.absoluteString) --sources=\(sourcesArg) \(flagsArg)"
+            "pod repo push \(localSpecRepoName) \(pod.path) --sources=\(sourcesArg) \(flagsArg)"
           )
       try shell.run("pod repo update")
       print("Outcome is \(outcome)")
