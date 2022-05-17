@@ -86,13 +86,14 @@ struct Shell {
   static let shared = Shell()
   @discardableResult
   func run(_ command: String, displayCommand: Bool = true,
-           displayFailureResult: Bool = true) -> Int32 {
+           displayFailureResult: Bool = true) throws -> Int32 {
     let task = Process()
     let pipe = Pipe()
     task.standardOutput = pipe
-    task.launchPath = "/bin/bash"
+    task.executableURL = URL(fileURLWithPath: "/bin/zsh")
     task.arguments = ["-c", command]
-    task.launch()
+
+    try task.run()
     if displayCommand {
       print("[SpecRepoBuilder] Command:\(command)\n")
     }
@@ -257,32 +258,40 @@ struct SpecRepoBuilder: ParsableCommand {
   }
 
   func pushPodspec(forPod pod: String, sdkRepo: String, sources: [String],
-                   flags: [String], shell: Shell = Shell.shared) -> Int32 {
+                   flags: [String], shell: Shell = Shell.shared) throws -> Int32 {
     let podPath = sdkRepo + "/" + pod + ".podspec"
     let sourcesArg = sources.joined(separator: ",")
     let flagsArg = flags.joined(separator: " ")
 
-    // Update the repo
-    shell.run("pod repo update")
-    let outcome =
-      shell
-        .run(
-          "pod repo push \(localSpecRepoName) \(podPath) --sources=\(sourcesArg) \(flagsArg)"
-        )
-    shell.run("pod repo update")
+    do {
+      // Update the repo
+      try shell.run("pod repo update")
+      let outcome =
+        try shell
+          .run(
+            "pod repo push \(localSpecRepoName) \(podPath) --sources=\(sourcesArg) \(flagsArg)"
+          )
+      try shell.run("pod repo update")
+      print("Outcome is \(outcome)")
 
-    print("Outcome is \(outcome)")
+      return outcome
 
-    return outcome
+    } catch {
+      throw error
+    }
   }
 
   // This will commit and push to erase the entire remote spec repo.
   func eraseRemoteRepo(repoPath: String, from githubAccount: String, _ sdkRepoName: String,
-                       shell: Shell = Shell.shared) {
-    shell
-      .run(
-        "git clone --quiet https://${BOT_TOKEN}@github.com/\(githubAccount)/\(sdkRepoName).git"
-      )
+                       shell: Shell = Shell.shared) throws {
+    do {
+      try shell
+        .run(
+          "git clone --quiet https://${BOT_TOKEN}@github.com/\(githubAccount)/\(sdkRepoName).git"
+        )
+    } catch {
+      throw error
+    }
     let fileManager = FileManager.default
     do {
       let sdk_repo_path = "\(repoPath)/\(sdkRepoName)"
@@ -309,10 +318,14 @@ struct SpecRepoBuilder: ParsableCommand {
         }
         if isDir {
           print("Removing \(dir.path)")
-          shell.run("cd \(sdkRepoName); git rm -r \(dir.path)")
+          try shell.run("cd \(sdkRepoName); git rm -r \(dir.path)")
         }
       }
-      shell.run("cd \(sdkRepoName); git commit -m 'Empty repo'; git push")
+      do {
+        try shell.run("cd \(sdkRepoName); git commit -m 'Empty repo'; git push")
+      } catch {
+        throw error
+      }
     } catch {
       print("Error while enumerating files \(repoPath): \(error.localizedDescription)")
     }
@@ -334,10 +347,11 @@ struct SpecRepoBuilder: ParsableCommand {
         at: documentsURL,
         includingPropertiesForKeys: nil
       )
-      let podspecURLs = fileURLs.filter { $0.pathExtension == "podspec" || $0.pathExtension == "json"}
+      let podspecURLs = fileURLs
+        .filter { $0.pathExtension == "podspec" || $0.pathExtension == "json" }
       for podspecURL in podspecURLs {
         let podName = podspecURL.deletingPathExtension().lastPathComponent
-        print ("Podspec, \(podName), is detected.")
+        print("Podspec, \(podName), is detected.")
         if excludePods.contains(podName) {
           continue
         } else if includePods.isEmpty || includePods.contains(podName) {
@@ -369,7 +383,7 @@ struct SpecRepoBuilder: ParsableCommand {
           print("remove \(sdkRepoName) dir.")
           try fileManager.removeItem(at: URL(fileURLWithPath: "\(curDir)/\(sdkRepoName)"))
         }
-        eraseRemoteRepo(repoPath: "\(curDir)", from: githubAccount, sdkRepoName)
+        try eraseRemoteRepo(repoPath: "\(curDir)", from: githubAccount, sdkRepoName)
 
       } catch {
         print("error occurred. \(error)")
@@ -394,26 +408,30 @@ struct SpecRepoBuilder: ParsableCommand {
       }()
       timer.resume()
       var podExitCode: Int32 = 0
-      switch pod {
-      case "Firebase":
-        podExitCode = pushPodspec(
-          forPod: pod,
-          sdkRepo: sdkRepo,
-          sources: podSources,
-          flags: Constants.umbrellaPodFlags
-        )
-      default:
-        podExitCode = pushPodspec(
-          forPod: pod,
-          sdkRepo: sdkRepo,
-          sources: podSources,
-          flags: Constants.flags
-        )
-      }
-      if podExitCode != 0 {
-        exitCode = 1
-        failedPods.append(pod)
-        print("Failed pod - \(pod)")
+      do {
+        switch pod {
+        case "Firebase":
+          podExitCode = try pushPodspec(
+            forPod: pod,
+            sdkRepo: sdkRepo,
+            sources: podSources,
+            flags: Constants.umbrellaPodFlags
+          )
+        default:
+          podExitCode = try pushPodspec(
+            forPod: pod,
+            sdkRepo: sdkRepo,
+            sources: podSources,
+            flags: Constants.flags
+          )
+        }
+        if podExitCode != 0 {
+          exitCode = 1
+          failedPods.append(pod)
+          print("Failed pod - \(pod)")
+        }
+      } catch {
+        throw error
       }
       timer.cancel()
       let finishDate = Date()
