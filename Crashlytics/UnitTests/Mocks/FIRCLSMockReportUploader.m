@@ -46,6 +46,7 @@
       addObject:@{@"report" : report, @"urgent" : @(urgent), @"process" : @(shouldProcess)}];
 
   // report should be from active/processing here. We just need to "move" it.
+  NSLog(report.path);
   [self.fileManager removeItemAtPath:report.path];
 
   return;

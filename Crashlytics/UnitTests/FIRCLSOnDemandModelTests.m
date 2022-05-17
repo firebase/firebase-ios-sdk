@@ -63,6 +63,7 @@
   _mockSettings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
                                                        appIDModel:appIDModel];
   _onDemandModel = [[FIRCLSMockOnDemandModel alloc] initWithFIRCLSSettings:_mockSettings
+                                                               fileManager:_fileManager
                                                                 sleepBlock:^(int delay){
                                                                 }];
 
@@ -94,6 +95,7 @@
   FIRCLSInternalReport *report =
       [[FIRCLSInternalReport alloc] initWithPath:reportPath
                              executionIdentifier:@"TEST_EXECUTION_IDENTIFIER"];
+
   FIRCLSContextInitialize(report, self.mockSettings, self.fileManager);
 }
 
@@ -159,8 +161,7 @@
   [self.managerData.onDemandModel.operationQueue waitUntilAllOperationsAreFinished];
 
   XCTAssertEqual(self.onDemandModel.getQueuedOperationsCount, 0);
-
-  XCTAssertEqual([self contentsOfActivePath].count, 2);
+  XCTAssertEqual([self contentsOfActivePath].count, 1);
   XCTAssertEqual([self.onDemandModel.storedActiveReportPaths count], 1);
 }
 
@@ -184,7 +185,7 @@
 
   XCTAssertEqual([self.managerData.onDemandModel recordedOnDemandExceptionCount],
                  FIRCLSMaxUnsentReports);
-  XCTAssertEqual([self contentsOfActivePath].count, FIRCLSMaxUnsentReports + 1);
+  XCTAssertEqual([self contentsOfActivePath].count, FIRCLSMaxUnsentReports);
   XCTAssertEqual([self.managerData.onDemandModel.storedActiveReportPaths count],
                  FIRCLSMaxUnsentReports);
 
@@ -193,7 +194,8 @@
                                                 asUrgent:YES];
   XCTAssertEqual([self.managerData.onDemandModel recordedOnDemandExceptionCount],
                  FIRCLSMaxUnsentReports);
-  XCTAssertEqual([self contentsOfActivePath].count, 1);
+  [self.existingReportManager.operationQueue waitUntilAllOperationsAreFinished];
+  XCTAssertEqual([self contentsOfActivePath].count, 0);
   XCTAssertEqual([self.managerData.onDemandModel.storedActiveReportPaths count], 0);
 }
 
@@ -239,8 +241,7 @@
 
 #pragma mark - Helpers
 - (NSArray *)contentsOfActivePath {
-  return [[NSFileManager defaultManager] contentsOfDirectoryAtPath:self.fileManager.activePath
-                                                             error:nil];
+  return [self.fileManager activePathContents];
 }
 
 - (FIRExceptionModel *)getTestExceptionModel {
