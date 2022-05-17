@@ -24,8 +24,8 @@ jobs:
       - name: Generate matrix
         id: generate_matrix
         run: |
-          cd ReleaseTooling
-          swift run manifest --sdk-repo-url ~/Desktop/work/firebase-ios-sdk --spec-output-file-path ./output.json
+          cd "${GITHUB_WORKSPACE}/ReleaseTooling"
+          swift run manifest --sdk-repo-url "${GITHUB_WORKSPACE}" --spec-output-file-path ./output.json
           echo "::set-output name=matrix::{\"include\":$( cat output.json )}"
   buildup_SpecsTesting_repo:
     needs: specs_checking
