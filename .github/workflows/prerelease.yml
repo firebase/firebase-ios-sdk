@@ -26,7 +26,7 @@ jobs:
         run: |
           cd "${GITHUB_WORKSPACE}/ReleaseTooling"
           swift run manifest --sdk-repo-url "${GITHUB_WORKSPACE}" --spec-output-file-path ./output.json
-          echo "::set-output name=matrix::{\"include\":$( cat output.json )}"
+          echo "::set-output name=matrix::{\"include\":[{\"podspec\":\"FirebaseCoreInternal\"}]}"
           cat output.json
   buildup_SpecsTesting_repo:
     needs: specs_checking
