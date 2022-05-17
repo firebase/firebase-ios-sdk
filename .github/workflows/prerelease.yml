@@ -34,7 +34,8 @@ jobs:
     runs-on: macos-12
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.specs_checking.outputs.matrix) }}
+      matrix:
+        podspec: [FirebaseABTesting]
     env:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       local_repo: specstesting
