@@ -8,7 +8,7 @@
 import Foundation
 
 class FTupleTransaction {
-    internal init(path: FPath, update: @escaping (MutableData) -> TransactionResult, onComplete: ((Error?, Bool, DataSnapshot?) -> Void)?, status: FTransactionStatus, order: NSNumber, applyLocally: Bool, retryCount: Int, unwatcher: @escaping () -> Void, abortStatus: String? = nil, abortReason: String? = nil, currentWriteId: Int?, currentInputSnapshot: FNode?, currentOutputSnapshotRaw: FNode?, currentOutputSnapshotResolved: FNode?) {
+    internal init(path: FPath, update: @escaping (MutableData) -> TransactionResult, onComplete: ((Error?, Bool, DataSnapshot?) -> Void)?, status: FTransactionStatus, order: Int, applyLocally: Bool, retryCount: Int, unwatcher: @escaping () -> Void, abortStatus: String? = nil, abortReason: String? = nil, currentWriteId: Int?, currentInputSnapshot: FNode?, currentOutputSnapshotRaw: FNode?, currentOutputSnapshotResolved: FNode?) {
         self.path = path
         self.update = update
         self.onComplete = onComplete
@@ -34,7 +34,7 @@ class FTupleTransaction {
      * Used when combining transaction at different locations to figure out which
      * one goes first.
      */
-    let order: NSNumber
+    let order: Int
 
     /**
      * Whether to raise local events for this transaction

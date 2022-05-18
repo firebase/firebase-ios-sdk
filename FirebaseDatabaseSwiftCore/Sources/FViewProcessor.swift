@@ -60,8 +60,8 @@ import Foundation
 
 
 @objc public class FViewProcessor: NSObject {
-    @objc public let filter: FNodeFilter
-    @objc public init(filter: FNodeFilter) {
+    public let filter: FNodeFilter
+    public init(filter: FNodeFilter) {
         self.filter = filter
     }
 
@@ -509,7 +509,7 @@ import Foundation
                 if let childrenNode = serverCache.node as? FChildrenNode {
                     for (name, node) in childrenNode.children {
                         changedChildren = changedChildren.addWrite(node,
-                                                                   atKey: name)
+                                                                   atKey: name.key)
                     }
                 }
                 return applyServerMergeTo(viewCache,

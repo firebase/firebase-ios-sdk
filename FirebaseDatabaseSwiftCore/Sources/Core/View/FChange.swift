@@ -9,12 +9,15 @@ import Foundation
 
 @objc public class FChange: NSObject {
     @objc public let type: DataEventType
-    @objc public let indexedNode: FIndexedNode
+    public let indexedNode: FIndexedNode
     @objc public let childKey: String?
     @objc public let prevKey: String?
-    @objc public let oldIndexedNode: FIndexedNode?
+    public let oldIndexedNode: FIndexedNode?
+    @objc(indexedNode) public var indexedNodeObjC: FIndexedNodeObjC {
+        .init(wrapped: indexedNode)
+    }
 
-    @objc public init(type: DataEventType, indexedNode: FIndexedNode) {
+    init(type: DataEventType, indexedNode: FIndexedNode) {
         self.type = type
         self.indexedNode = indexedNode
         self.childKey = nil
@@ -22,7 +25,7 @@ import Foundation
         self.prevKey = nil
     }
 
-    @objc public init(type: DataEventType, indexedNode: FIndexedNode, childKey: String?) {
+    init(type: DataEventType, indexedNode: FIndexedNode, childKey: String?) {
         self.type = type
         self.indexedNode = indexedNode
         self.childKey = childKey
@@ -30,7 +33,7 @@ import Foundation
         self.prevKey = nil
     }
 
-    @objc public init(type: DataEventType, indexedNode: FIndexedNode, childKey: String?, oldIndexedNode: FIndexedNode?) {
+    init(type: DataEventType, indexedNode: FIndexedNode, childKey: String?, oldIndexedNode: FIndexedNode?) {
         self.type = type
         self.indexedNode = indexedNode
         self.childKey = childKey

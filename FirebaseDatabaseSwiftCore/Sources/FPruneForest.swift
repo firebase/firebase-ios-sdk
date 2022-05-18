@@ -121,8 +121,6 @@ let keepPredicate: (Any?) -> (Bool) = { !(($0 as? Bool) ?? false) }
         for childKey in children {
             childrenDictionary[childKey] = pruneValue
         }
-        // XXX TODO - replace when using a SortedDictionary
-        childrenDictionary.sort()
         let newSubtree = FImmutableTree<Bool>(value: subtree.value, children: childrenDictionary)
         return FPruneForest(forest: self.pruneForest.setTree(newSubtree, atPath: path))
     }

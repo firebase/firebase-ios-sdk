@@ -5,7 +5,7 @@
 //  Created by Morten Bek Ditlevsen on 21/09/2021.
 //
 
-import Collections
+import SortedCollections
 import Foundation
 
 @objc public class FEmptyNode: NSObject {
@@ -14,21 +14,6 @@ import Foundation
 
 private let kMinName = "[MIN_NAME]"
 private let kMaxName = "[MAX_NAME]"
-
-@objc class NodeEnumerator: NSEnumerator {
-    var iterator: OrderedDictionary<String, FNode>.Iterator
-    let node: FChildrenNode
-    init(iterator: OrderedDictionary<String, FNode>.Iterator, node: FChildrenNode) {
-        self.iterator = iterator
-        self.node = node
-    }
-    override func nextObject() -> Any? {
-        guard let (key, _) = iterator.next() else {
-            return nil
-        }
-        return FNamedNode(name: key, andNode: node.getImmediateChild(key))
-    }
-}
 
 @objc public class FNamedNode: NSObject, NSCopying {
     @objc public var name: String
@@ -72,6 +57,14 @@ private let kMaxName = "[MAX_NAME]"
     }
 }
 
+struct KeyIndex: Comparable {
+    static func < (lhs: KeyIndex, rhs: KeyIndex) -> Bool {
+        FUtilitiesSwift.compareKey(lhs.key, rhs.key) == .orderedAscending
+    }
+
+    let key: String
+}
+
 @objc public class FChildrenNode: NSObject, FNode {
 
     @objc public func isLeafNode() -> Bool {
@@ -90,11 +83,19 @@ private let kMaxName = "[MAX_NAME]"
         }
     }
 
+    func getImmediateChild(_ childKey: KeyIndex) -> FNode {
+        if childKey.key == ".priority" {
+            return getPriority()
+        } else {
+            return children[childKey] ?? FEmptyNode.emptyNode
+        }
+    }
+
     @objc public func getImmediateChild(_ childKey: String) -> FNode {
         if childKey == ".priority" {
             return getPriority()
         } else {
-            return children[childKey] ?? FEmptyNode.emptyNode
+            return children[KeyIndex(key: childKey)] ?? FEmptyNode.emptyNode
         }
     }
 
@@ -106,10 +107,11 @@ private let kMaxName = "[MAX_NAME]"
     }
 
     @objc public func predecessorChildKey(_ childKey: String) -> String? {
-        guard let keyIndex = children.keys.firstIndex(of: childKey), keyIndex > 0 else {
+        let wrapped = KeyIndex(key: childKey)
+        guard let keyIndex = children.keys.firstIndex(of: wrapped), keyIndex != children.keys.startIndex else {
             return nil
         }
-        return children.keys.elements[keyIndex - 1]
+        return children.keys[children.keys.index(before: keyIndex)].key
     }
 
     @objc public func updateImmediateChild(_ childKey: String, withNewChild newChildNode: FNode) -> FNode {
@@ -119,12 +121,9 @@ private let kMaxName = "[MAX_NAME]"
 
         var newChildren = self.children
         if newChildNode.isEmpty {
-            newChildren.removeValue(forKey: childKey)
+            _ = newChildren.removeValue(forKey: KeyIndex(key: childKey))
         } else {
-            newChildren[childKey] = newChildNode
-        }
-        newChildren.sort { a, b in
-            FUtilitiesSwift.compareKey(a.key, b.key) == .orderedAscending
+            newChildren[KeyIndex(key: childKey)] = newChildNode
         }
 
         if newChildren.isEmpty {
@@ -169,18 +168,18 @@ private let kMaxName = "[MAX_NAME]"
         var allIntegerKeys = true
         let obj = NSMutableDictionary(capacity: children.count)
         for (key, childNode) in children {
-            obj.setObject(childNode.val(forExport: exp), forKey: key as NSString)
+            obj.setObject(childNode.val(forExport: exp), forKey: key.key as NSString)
             numKeys += 1
 
             // If we already found a string key, don't bother with any of this
             if !allIntegerKeys { continue }
 
             // Treat leading zeroes that are not exactly "0" as strings
-            if key.first == "0" && key.count > 1 {
+            if key.key.first == "0" && key.key.count > 1 {
                 allIntegerKeys = false
                 continue
             }
-            if let keyAsInt = FUtilitiesSwift.intForString(key) {
+            if let keyAsInt = FUtilitiesSwift.intForString(key.key) {
                 maxKey = max(maxKey, keyAsInt)
             } else {
                 allIntegerKeys = false
@@ -227,7 +226,7 @@ private let kMaxName = "[MAX_NAME]"
         if sawPriority {
             var array: [FNamedNode] = []
             for (key, node) in children {
-                array.append(FNamedNode(name: key, andNode: node))
+                array.append(FNamedNode(name: key.key, andNode: node))
             }
             array.sort { a, b in
                 FPriorityIndex
@@ -244,7 +243,7 @@ private let kMaxName = "[MAX_NAME]"
             for (key, node) in children {
                 let childHash = node.dataHash()
                 if !childHash.isEmpty {
-                    toHash += ":\(key):\(childHash)"
+                    toHash += ":\(key.key):\(childHash)"
                 }
             }
         }
@@ -277,7 +276,7 @@ private let kMaxName = "[MAX_NAME]"
     @objc public func enumerateChildren(usingBlock block: @escaping (String, FNode, UnsafeMutablePointer<ObjCBool>) -> Void) {
         var stop = ObjCBool(booleanLiteral: false)
         for (key, value) in children {
-            block(key, value, &stop)
+            block(key.key, value, &stop)
             if stop.boolValue { break }
         }
     }
@@ -286,26 +285,26 @@ private let kMaxName = "[MAX_NAME]"
         var stop = ObjCBool(booleanLiteral: false)
         if reverse {
             for (key, value) in children.reversed() {
-                block(key, value, &stop)
+                block(key.key, value, &stop)
                 if stop.boolValue { break }
             }
         } else {
             for (key, value) in children {
-                block(key, value, &stop)
+                block(key.key, value, &stop)
                 if stop.boolValue { break }
             }
         }
     }
 
-    @objc public func childEnumerator() -> NSEnumerator {
-        NodeEnumerator(iterator: children.makeIterator(), node: self)
-    }
+//    @objc public func childEnumerator() -> NSEnumerator {
+//        NodeEnumerator(iterator: children.makeIterator(), node: self)
+//    }
 
-    var children: OrderedDictionary<String, FNode>
+    var children: SortedDictionary<KeyIndex, FNode>
     var priorityNode: FNode?
     var lazyHash: String?
 
-    init(children: OrderedDictionary<String, FNode>) {
+    init(children: SortedDictionary<KeyIndex, FNode>) {
         self.children = children
     }
 
@@ -316,7 +315,7 @@ private let kMaxName = "[MAX_NAME]"
     public override var hash: Int {
         var hasher = Hasher()
         for (key, node) in children {
-            key.hash(into: &hasher)
+            key.key.hash(into: &hasher)
             node.hash.hash(into: &hasher)
         }
         priorityNode?.hash.hash(into: &hasher)
@@ -338,7 +337,7 @@ private let kMaxName = "[MAX_NAME]"
 
         guard self.children.count == otherChildNode.children.count else { return false }
         for (key, node) in children {
-            let child = otherChildNode.getImmediateChild(key)
+            let child = otherChildNode.getImmediateChild(key.key)
             guard child.isEqual(node) else {
                 return false
             }
@@ -349,7 +348,7 @@ private let kMaxName = "[MAX_NAME]"
 
     init(
         priority: FNode,
-        children: OrderedDictionary<String, FNode>
+        children: SortedDictionary<KeyIndex, FNode>
     ) {
         self.children = children
         self.priorityNode = priority
@@ -390,14 +389,14 @@ private let kMaxName = "[MAX_NAME]"
         guard let first = children.keys.first else {
             return nil
         }
-        return FNamedNode(name: first, andNode: getImmediateChild(first))
+        return FNamedNode(name: first.key, andNode: getImmediateChild(first.key))
     }
 
     @objc public func lastChild() -> FNamedNode? {
         guard let last = children.keys.last else {
             return nil
         }
-        return FNamedNode(name: last, andNode: getImmediateChild(last))
+        return FNamedNode(name: last.key, andNode: getImmediateChild(last.key))
     }
 }
 

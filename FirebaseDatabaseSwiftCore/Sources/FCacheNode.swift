@@ -11,11 +11,14 @@ import Foundation
 @objc public class FCacheNode: NSObject {
   @objc public var isFullyInitialized: Bool
   @objc public var isFiltered: Bool
-  @objc public var indexedNode: FIndexedNode
+  public var indexedNode: FIndexedNode
+    @objc(indexedNode) public var indexedNodeObjC: FIndexedNodeObjC {
+        .init(wrapped: indexedNode)
+    }
   @objc public var node: FNode {
     indexedNode.node
   }
-  @objc public init(indexedNode: FIndexedNode, isFullyInitialized: Bool, isFiltered: Bool) {
+  public init(indexedNode: FIndexedNode, isFullyInitialized: Bool, isFiltered: Bool) {
     self.indexedNode = indexedNode
     self.isFiltered = isFiltered
     self.isFullyInitialized = isFullyInitialized

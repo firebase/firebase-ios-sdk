@@ -324,7 +324,7 @@ let kFSizeThresholdForCompoundHash = 1024
             if !query.loadsAllData {
                 // We need to track a tag for this query
                 assert(tag(for: query) == nil, "View does not exist, but we have a tag")
-                let tagId = queryTagCounter.getAndIncrement().intValue
+                let tagId = queryTagCounter.getAndIncrement()
                 queryToTagMap[query] = tagId
                 tagToQueryMap[tagId] = query
             }
@@ -491,7 +491,7 @@ let kFSizeThresholdForCompoundHash = 1024
     }
 
     /** Returns a non-empty cache node if one exists. Otherwise returns null. */
-    @objc public func persistenceServerCache(_ querySpec: FQuerySpec) -> FIndexedNode? {
+    public func persistenceServerCache(_ querySpec: FQuerySpec) -> FIndexedNode? {
         guard let cacheNode = persistenceManager?.serverCacheForQuery(querySpec) else {
             return nil
         }

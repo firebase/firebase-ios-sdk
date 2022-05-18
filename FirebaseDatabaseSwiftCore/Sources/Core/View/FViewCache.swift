@@ -24,7 +24,7 @@ import Foundation
         self.cachedEventSnap = eventCache
         self.cachedServerSnap = serverCache
     }
-    @objc public func updateEventSnap(_ eventSnap: FIndexedNode, isComplete: Bool, isFiltered: Bool) -> FViewCache {
+    public func updateEventSnap(_ eventSnap: FIndexedNode, isComplete: Bool, isFiltered: Bool) -> FViewCache {
         let updatedEventCache = FCacheNode(indexedNode: eventSnap,
                                            isFullyInitialized: isComplete,
                                            isFiltered: isFiltered)
@@ -32,7 +32,7 @@ import Foundation
                           serverCache: cachedServerSnap)
 
     }
-    @objc public func updateServerSnap(_ serverSnap: FIndexedNode, isComplete: Bool, isFiltered: Bool) -> FViewCache {
+    public func updateServerSnap(_ serverSnap: FIndexedNode, isComplete: Bool, isFiltered: Bool) -> FViewCache {
         let updatedServerCache = FCacheNode(indexedNode: serverSnap,
                                             isFullyInitialized: isComplete,
                                             isFiltered: isFiltered)

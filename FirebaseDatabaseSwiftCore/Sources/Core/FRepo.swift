@@ -373,7 +373,7 @@ let kFirebaseCoreErrorDomain = "com.firebase.core"
                     }
                 } else {
                     let errorDict: [String: Any] = [
-                        NSLocalizedFailureReasonErrorKey: errorReason,
+                        NSLocalizedFailureReasonErrorKey: errorReason ?? "",
                         NSLocalizedDescriptionKey: "Unable to get latest value for query \(querySpec), client offline with no active listeners and no matching disk cache entries"
                     ]
                     let error = NSError(domain: kFirebaseCoreErrorDomain, code: 1, userInfo: errorDict)
@@ -660,7 +660,7 @@ offline for more details.
         // Note: we can't do this asynchronously. To preserve event ordering, it has
         // to be done in this block. This is ok, this block is guaranteed to be our
         // own event loop
-        let handle = FUtilitiesSwift.LUIDGenerator().intValue
+        let handle = FUtilitiesSwift.LUIDGenerator()
         let registration = FValueEventRegistration(repo: self, handle: handle, callback: nil, cancelCallback: nil)
         watchRef.repo.addEventRegistration(registration, forQuery: watchRef.querySpec)
         let unwatcher: () -> Void = { watchRef.removeObserverWithHandle(handle) }
@@ -982,10 +982,7 @@ offline for more details.
     private func buildTransactionQueueAtNode(_ node: FTree<[FTupleTransaction]>) -> [FTupleTransaction] {
         var queue: [FTupleTransaction] = []
         aggregateTransactionQueuesForNode(node, andQueue: &queue)
-        queue.sort { a, b in
-            // XXX TODO: get rid of NSNumber here
-            a.order.compare(b.order) == .orderedAscending
-        }
+        queue.sort { $0.order < $1.order }
         return queue
     }
 

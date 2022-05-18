@@ -33,191 +33,211 @@ import Foundation
     var queryDefinition: String { get }
 }
 
-@objc public class FKeyIndex: NSObject, FIndex {
-    public func compareKey(_ key1: String, andNode node1: FNode, toOtherKey key2: String, andNode node2: FNode) -> ComparisonResult {
-        FUtilitiesSwift.compareKey(key1, key2)
-    }
+enum FIndexSwift: Equatable {
+    case key
+    case priority
+    case value
+    case path(FPath)
 
-    public func compareKey(_ key1: String, andNode node1: FNode, toOtherKey key2: String, andNode node2: FNode, reverse: Bool) -> ComparisonResult {
-        if reverse {
-            return FUtilitiesSwift.compareKey(key2, key1)
-        } else {
-            return FUtilitiesSwift.compareKey(key1, key2)
+    func compare(lhs: (key: String, node: FNode), rhs: (key: String, node: FNode)) -> ComparisonResult {
+        switch self {
+        case .key:
+            return FUtilitiesSwift.compareKey(lhs.key, rhs.key)
+        case .value:
+            let indexCmp = lhs.node.compare(rhs.node)
+            if indexCmp == .orderedSame {
+                return FUtilitiesSwift.compareKey(lhs.key, rhs.key)
+            } else {
+                return indexCmp
+            }
+        case .priority:
+            let lhsChild = lhs.node.getPriority()
+            let rhsChild = rhs.node.getPriority()
+
+            let indexCmp = lhsChild.compare(rhsChild)
+            if indexCmp == .orderedSame {
+                return FUtilitiesSwift.compareKey(lhs.key, rhs.key)
+            } else {
+                return indexCmp
+            }
+        case .path(let path):
+            let lhsChild = lhs.node.getChild(path)
+            let rhsChild = rhs.node.getChild(path)
+
+            let indexCmp = lhsChild.compare(rhsChild)
+            if indexCmp == .orderedSame {
+                return FUtilitiesSwift.compareKey(lhs.key, rhs.key)
+            } else {
+                return indexCmp
+            }
         }
     }
 
-    public func compareNamedNode(_ namedNode1: FNamedNode, toNamedNode namedNode2: FNamedNode) -> ComparisonResult {
-        compareKey(namedNode1.name, andNode: namedNode1.node, toOtherKey: namedNode2.name, andNode: namedNode2.node)
+    func isDefined(on node: FNode) -> Bool {
+        switch self {
+        case .key:
+            return true
+        case .value:
+            return true
+        case .priority:
+            return !node.getPriority().isEmpty
+        case .path(let path):
+            return !node.getChild(path).isEmpty
+        }
     }
 
-    public func isDefined(on node: FNode) -> Bool {
-        true
+    func indexedValueChanged(between oldNode: FNode, and newNode: FNode) -> Bool {
+        switch self {
+        case .key:
+            // The key for a node never changes.
+            return false
+        case .value:
+            return !oldNode.isEqual(newNode)
+
+        case .priority:
+            let oldValue = oldNode.getPriority()
+            let newValue = newNode.getPriority()
+            return !oldValue.isEqual(newValue)
+
+        case .path(let path):
+            let oldValue = oldNode.getChild(path)
+            let newValue = newNode.getChild(path)
+            return oldValue.compare(newValue) != .orderedSame
+        }
     }
 
-    public func indexedValueChangedBetween(_ oldNode: FNode, and newNode: FNode) -> Bool {
-        false // The key for a node never changes.
+    var minPost: FNamedNode { .min }
+    var maxPost: FNamedNode {
+        switch self {
+        case .key:
+            return FNamedNode(name: FUtilitiesSwift.maxName, andNode: FEmptyNode.emptyNode)
+        case .value:
+            return .max
+        case .priority:
+            return makePost(FMaxNode.maxNode, name: FUtilitiesSwift.maxName)
+        case .path:
+            return makePost(FMaxNode.maxNode, name: FUtilitiesSwift.maxName)
+        }
     }
 
-    public let minPost: FNamedNode = .min
+    func makePost(_ indexValue: FNode, name: String) -> FNamedNode {
+        switch self {
+        case .key:
+            let key = indexValue.val() as? String
+            assert(key != nil, "KeyIndex indexValue must always be a string.")
 
-    public func makePost(_ indexValue: FNode, name: String) -> FNamedNode {
-        let key = indexValue.val() as? String
-        assert(key != nil, "KeyIndex indexValue must always be a string.")
+            // We just use empty node, but it'll never be compared, since our comparator
+            // only looks at name.
+            return FNamedNode(name: key ?? "", andNode: FEmptyNode.emptyNode)
 
-        // We just use empty node, but it'll never be compared, since our comparator
-        // only looks at name.
-        return FNamedNode(name: key ?? "", andNode: FEmptyNode.emptyNode)
+        case .value:
+            return FNamedNode(name: name, andNode: indexValue)
+
+        case .priority:
+            let node = FLeafNode(value: "[PRIORITY-POST]" as NSString, withPriority: indexValue)
+            return FNamedNode(name: name, andNode: node)
+
+        case .path(let path):
+            let node = FEmptyNode.emptyNode
+                .updateChild(path, withNewChild: indexValue)
+            return FNamedNode(name: name, andNode: node)
+        }
     }
 
-    public var queryDefinition: String = ".key"
-
-    public func copy(with zone: NSZone? = nil) -> Any {
-        self
+    var description: String {
+        switch self {
+        case .key:
+            return "FKeyIndex"
+        case .priority:
+            return "FPriorityIndex"
+        case .value:
+            return "FValueIndex"
+        case .path(let path):
+            return "FPathIndex(\(path))"
+        }
     }
+
+    var queryDefinition: String {
+        switch self {
+        case .key:
+            return ".key"
+        case .value:
+            return ".value"
+        case .priority:
+            return ".priority"
+        case .path(let path):
+            return path.wireFormat()
+        }
+    }
+
+    var objc: FIndex {
+        switch self {
+        case .key:
+            return FKeyIndex.keyIndex
+        case .value:
+            return FValueIndex.valueIndex
+        case .priority:
+            return FPriorityIndex.priorityIndex
+        case .path(let path):
+            return FPathIndex(path: path)
+        }
+    }
+}
+
+extension FIndexSwift {
+    func compareNamedNode(lhs: FNamedNode, rhs: FNamedNode) -> ComparisonResult {
+        compare(lhs: (key: lhs.name, node: lhs.node), rhs: (key: rhs.name, node: rhs.node))
+    }
+    func compare(lhs: (key: String, node: FNode), rhs: (key: String, node: FNode), reversed: Bool) -> ComparisonResult {
+        if reversed {
+            return compare(lhs: rhs, rhs: lhs)
+        } else {
+            return compare(lhs: lhs, rhs: rhs)
+        }
+    }
+}
+
+@objc public class FKeyIndex: FIndexBase {
 
     public override func isEqual(_ object: Any?) -> Bool {
         guard let other = object as? FKeyIndex else { return false }
         return other === self
     }
 
-    public override var description: String {
-        "FKeyIndex"
-    }
-
     public override var hash: Int {
         ".key".hash
     }
 
-    public let maxPost: FNamedNode
-    private override init() {
-        self.maxPost = FNamedNode(name: FUtilitiesSwift.maxName, andNode: FEmptyNode.emptyNode)
-        super.init()
+    private init() {
+        super.init(index: .key)
     }
 
     @objc public static var keyIndex: FIndex = FKeyIndex()
 }
 
-@objc public class FValueIndex: NSObject, FIndex {
-    public func compareKey(_ key1: String, andNode node1: FNode, toOtherKey key2: String, andNode node2: FNode) -> ComparisonResult {
-        let indexCmp = node1.compare(node2)
-        if indexCmp == .orderedSame {
-            return FUtilitiesSwift.compareKey(key1, key2)
-        } else {
-            return indexCmp
-        }
-    }
-
-    public func compareKey(_ key1: String, andNode node1: FNode, toOtherKey key2: String, andNode node2: FNode, reverse: Bool) -> ComparisonResult {
-        if reverse {
-            return compareKey(key2, andNode: node2, toOtherKey: key1, andNode: node1)
-        } else {
-            return compareKey(key1, andNode: node1, toOtherKey: key2, andNode: node2)
-        }
-    }
-
-    public func compareNamedNode(_ namedNode1: FNamedNode, toNamedNode namedNode2: FNamedNode) -> ComparisonResult {
-        compareKey(namedNode1.name, andNode: namedNode1.node, toOtherKey: namedNode2.name, andNode: namedNode2.node)
-    }
-
-    public func isDefined(on node: FNode) -> Bool {
-        true
-    }
-
-    public func indexedValueChangedBetween(_ oldNode: FNode, and newNode: FNode) -> Bool {
-        !oldNode.isEqual(newNode)
-    }
-
-    public let minPost: FNamedNode = .min
-    public let maxPost: FNamedNode = .max
-
-    public func makePost(_ indexValue: FNode, name: String) -> FNamedNode {
-        FNamedNode(name: name, andNode: indexValue)
-    }
-
-    public var queryDefinition: String = ".value"
-
-    public func copy(with zone: NSZone? = nil) -> Any {
-        self
-    }
+@objc public class FValueIndex: FIndexBase {
 
     public override func isEqual(_ object: Any?) -> Bool {
         guard let other = object as? FValueIndex else { return false }
         return other === self
     }
 
-    public override var description: String {
-        "FValueIndex"
-    }
-
     public override var hash: Int {
         ".value".hash
     }
 
-    private override init() {
-        super.init()
+    private init() {
+        super.init(index: .value)
     }
 
     @objc public static var valueIndex: FIndex = FValueIndex()
 }
 
-@objc public class FPriorityIndex: NSObject, FIndex {
-    public func compareKey(_ key1: String, andNode node1: FNode, toOtherKey key2: String, andNode node2: FNode) -> ComparisonResult {
-        let child1 = node1.getPriority()
-        let child2 = node2.getPriority()
-
-        let indexCmp = child1.compare(child2)
-        if indexCmp == .orderedSame {
-            return FUtilitiesSwift.compareKey(key1, key2)
-        } else {
-            return indexCmp
-        }
-    }
-
-    public func compareKey(_ key1: String, andNode node1: FNode, toOtherKey key2: String, andNode node2: FNode, reverse: Bool) -> ComparisonResult {
-        if reverse {
-            return compareKey(key2, andNode: node2, toOtherKey: key1, andNode: node1)
-        } else {
-            return compareKey(key1, andNode: node1, toOtherKey: key2, andNode: node2)
-        }
-    }
-
-    public func compareNamedNode(_ namedNode1: FNamedNode, toNamedNode namedNode2: FNamedNode) -> ComparisonResult {
-        compareKey(namedNode1.name, andNode: namedNode1.node, toOtherKey: namedNode2.name, andNode: namedNode2.node)
-    }
-
-    public func isDefined(on node: FNode) -> Bool {
-        !node.getPriority().isEmpty
-    }
-
-    public func indexedValueChangedBetween(_ oldNode: FNode, and newNode: FNode) -> Bool {
-        let oldValue = oldNode.getPriority()
-        let newValue = newNode.getPriority()
-        return !oldValue.isEqual(newValue)
-    }
-
-    public let minPost: FNamedNode = .min
-    public var maxPost: FNamedNode {
-        makePost(FMaxNode.maxNode, name: FUtilitiesSwift.maxName)
-    }
-
-    public func makePost(_ indexValue: FNode, name: String) -> FNamedNode {
-        let node = FLeafNode(value: "[PRIORITY-POST]" as NSString, withPriority: indexValue)
-        return FNamedNode(name: name, andNode: node)
-    }
-
-    public var queryDefinition: String = ".priority"
-
-    public func copy(with zone: NSZone? = nil) -> Any {
-        self
-    }
+@objc public class FPriorityIndex: FIndexBase {
 
     public override func isEqual(_ object: Any?) -> Bool {
         guard let other = object as? FPriorityIndex else { return false }
         return other === self
-    }
-
-    public override var description: String {
-        "FPriorityIndex"
     }
 
     public override var hash: Int {
@@ -228,74 +248,65 @@ import Foundation
         ".priority".hash
     }
 
-    private override init() {
-        super.init()
+    private init() {
+        super.init(index: .priority)
     }
 
-    @objc public static var priorityIndex: FIndex = FPriorityIndex()
+    @objc public static var priorityIndex: FPriorityIndex = FPriorityIndex()
 }
 
-@objc public class FPathIndex: NSObject, FIndex {
-    public func compareKey(_ key1: String, andNode node1: FNode, toOtherKey key2: String, andNode node2: FNode) -> ComparisonResult {
+@objc public class FIndexBase: NSObject, FIndex {
+    internal let index: FIndexSwift
 
-        let child1 = node1.getChild(path)
-        let child2 = node2.getChild(path)
-
-        let indexCmp = child1.compare(child2)
-        if indexCmp == .orderedSame {
-            return FUtilitiesSwift.compareKey(key1, key2)
-        } else {
-            return indexCmp
-        }
-    }
-
-    public func compareKey(_ key1: String, andNode node1: FNode, toOtherKey key2: String, andNode node2: FNode, reverse: Bool) -> ComparisonResult {
-        if reverse {
-            return compareKey(key2, andNode: node2, toOtherKey: key1, andNode: node1)
-        } else {
-            return compareKey(key1, andNode: node1, toOtherKey: key2, andNode: node2)
-        }
-    }
-
-    public func compareNamedNode(_ namedNode1: FNamedNode, toNamedNode namedNode2: FNamedNode) -> ComparisonResult {
-        compareKey(namedNode1.name, andNode: namedNode1.node, toOtherKey: namedNode2.name, andNode: namedNode2.node)
-    }
-
-    public func isDefined(on node: FNode) -> Bool {
-        !node.getChild(path).isEmpty
-    }
-
-    public func indexedValueChangedBetween(_ oldNode: FNode, and newNode: FNode) -> Bool {
-        let oldValue = oldNode.getChild(path)
-        let newValue = newNode.getChild(path)
-        return oldValue.compare(newValue) != .orderedSame
-    }
-
-    public let minPost: FNamedNode = .min
-    public var maxPost: FNamedNode {
-        makePost(FMaxNode.maxNode, name: FUtilitiesSwift.maxName)
-    }
-
-    public func makePost(_ indexValue: FNode, name: String) -> FNamedNode {
-        let node = FEmptyNode.emptyNode
-            .updateChild(path, withNewChild: indexValue)
-        return FNamedNode(name: name, andNode: node)
-    }
-
-    public var queryDefinition: String { path.wireFormat() }
-
-    public func copy(with zone: NSZone? = nil) -> Any {
+    @objc(copyWithZone:) public func copy(with zone: NSZone? = nil) -> Any {
         // Safe since we're immutable.
         self
     }
 
-    public override func isEqual(_ object: Any?) -> Bool {
-        guard let other = object as? FPathIndex else { return false }
-        return path.isEqual(other.path)
+    @objc public func compareKey(_ key1: String, andNode node1: FNode, toOtherKey key2: String, andNode node2: FNode) -> ComparisonResult {
+        index.compare(lhs: (key: key1, node: node1), rhs: (key: key2, node: node2))
+    }
+
+    @objc public func compareKey(_ key1: String, andNode node1: FNode, toOtherKey key2: String, andNode node2: FNode, reverse: Bool) -> ComparisonResult {
+        index.compare(lhs: (key: key1, node: node1), rhs: (key: key2, node: node2), reversed: reverse)
+    }
+
+    @objc public func compareNamedNode(_ namedNode1: FNamedNode, toNamedNode namedNode2: FNamedNode) -> ComparisonResult {
+        index.compareNamedNode(lhs: namedNode1, rhs: namedNode2)
+    }
+
+    @objc public func isDefined(on node: FNode) -> Bool {
+        index.isDefined(on: node)
+    }
+
+    @objc public func indexedValueChangedBetween(_ oldNode: FNode, and newNode: FNode) -> Bool {
+        index.indexedValueChanged(between: oldNode, and: newNode)
+    }
+
+    @objc public var minPost: FNamedNode { index.minPost }
+    @objc public var maxPost: FNamedNode { index.maxPost }
+    @objc public func makePost(_ indexValue: FNode, name: String) -> FNamedNode {
+        index.makePost(indexValue, name: name)
     }
 
     public override var description: String {
-        "FPathIndex(\(path))"
+        index.description
+    }
+
+    @objc public var queryDefinition: String {
+        index.queryDefinition
+    }
+
+    fileprivate init(index: FIndexSwift) {
+        self.index = index
+    }
+}
+
+@objc public class FPathIndex: FIndexBase {
+
+    public override func isEqual(_ object: Any?) -> Bool {
+        guard let other = object as? FPathIndex else { return false }
+        return path.isEqual(other.path)
     }
 
     public override var hash: Int {
@@ -306,9 +317,8 @@ import Foundation
         if path.isEmpty || path.getFront() == ".priority" {
             fatalError("Invalid path for PathIndex: \(path)")
         }
-
         self.path = path
-        super.init()
+        super.init(index: .path(path))
     }
     let path: FPath
 }

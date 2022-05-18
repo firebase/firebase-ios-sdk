@@ -22,7 +22,15 @@ final class WebSocketClient {
     }
 
     func close() {
-        webSocketHandler.context?.close(promise: nil)
+        guard let context = webSocketHandler.context else {
+            print("ERR, can't close")
+//            fatalError()
+            return
+        }
+
+        context.eventLoop.execute {
+            context.close()
+        }
     }
 
     func send(data: Data) {

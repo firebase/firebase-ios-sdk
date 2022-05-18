@@ -338,7 +338,7 @@ private struct QueryParams: Hashable, Equatable {
         params.isViewFromLeft
     }
 
-    @objc public var nodeFilter: FNodeFilter {
+    public var nodeFilter: FNodeFilter {
         if loadsAllData {
             return FIndexedFilter(index: index)
         } else if limitSet {

@@ -199,7 +199,8 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/apple/swift-collections.git",
-      .upToNextMajor(from: "1.0.0") // or `.upToNextMinor
+      .branch("feature/SortedCollections")
+//      .upToNextMajor(from: "1.0.0") // or `.upToNextMinor
     ),
     .package(
         url: "https://github.com/apple/swift-crypto.git",
@@ -547,7 +548,7 @@ let package = Package(
     .target(
       name: "FirebaseDatabaseSwiftCore",
       dependencies: [ "leveldb",
-                      .product(name: "Collections", package: "swift-collections"),
+                      .product(name: "SortedCollections", package: "swift-collections"),
                       .product(name: "NIOWebSocket", package: "swift-nio"),
                       .product(name: "NIOSSL", package: "swift-nio-ssl"),
                       .product(name: "Crypto", package: "swift-crypto", condition: .when(platforms: [.linux, .windows, .android]))],

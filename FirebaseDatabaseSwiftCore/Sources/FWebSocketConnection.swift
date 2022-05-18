@@ -33,7 +33,7 @@ extension String {
 }
 
 public class FWebSocketConnection {
-    var connectionId: NSNumber
+    var connectionId: Int
     var totalFrames: Int
     var buffering: Bool {
         frame != nil
@@ -117,7 +117,7 @@ public class FWebSocketConnection {
                       userAgent: String) {
         self.everConnected = false
         self.isClosed = false
-        self.connectionId =  NSNumber(value: 404)//[FUtilities LUIDGenerator];
+        self.connectionId =  FUtilities.LUIDGenerator()
         self.totalFrames = 0
         self.dispatchQueue = queue
         self.frame = nil

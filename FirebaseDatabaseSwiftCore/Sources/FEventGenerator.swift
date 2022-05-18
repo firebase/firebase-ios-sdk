@@ -27,7 +27,7 @@ import Foundation
      * @param registrations is NSArray of FEventRegistration.
      * @return NSArray of FEvent.
      */
-    @objc public func generateEventsForChanges(_ changes: [FChange],
+    public func generateEventsForChanges(_ changes: [FChange],
                                           eventCache: FIndexedNode,
                                           eventRegistrations: [FEventRegistration]) -> [FEvent] {
         var events: [FEvent] = []
@@ -38,7 +38,10 @@ import Foundation
             if change.type == .childChanged &&
 /* XXX TODO AAARGH, YET ANOTHER FORCE UNWRAP I CAN'T EXPLAIN */
                 query.index.indexedValueChangedBetween(change.oldIndexedNode!.node, and: change.indexedNode.node) {
-                let moveChange = FChange(type: .childMoved, indexedNode: change.indexedNode, childKey: change.childKey, oldIndexedNode: nil)
+                let moveChange = FChange(type: .childMoved,
+                                         indexedNode: change.indexedNode,
+                                         childKey: change.childKey,
+                                         oldIndexedNode: nil)
                 moves.append(moveChange)
             }
         }

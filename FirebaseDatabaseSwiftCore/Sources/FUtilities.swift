@@ -78,7 +78,7 @@ func tryParseStringToInt(_ str: String, integer: inout Int) -> Bool {
 
 // Temporary obj-c wrapper - remove after migration.
 @objc public class FUtilities: NSObject {
-    @objc public static func LUIDGenerator() -> NSNumber {
+    @objc public static func LUIDGenerator() -> Int {
         FUtilitiesSwift.LUIDGenerator()
     }
     @objc public static func setLoggingEnabled(_ enabled: Bool) {
@@ -119,7 +119,7 @@ func firebaseJobsTroll() {
 fileprivate let localUid = FAtomicNumber()
 
 enum FUtilitiesSwift {
-    static func LUIDGenerator() -> NSNumber {
+    static func LUIDGenerator() -> Int {
         localUid.getAndIncrement()
     }
 

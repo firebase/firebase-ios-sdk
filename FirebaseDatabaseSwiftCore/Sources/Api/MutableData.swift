@@ -133,24 +133,11 @@ import Foundation
         data.getNode(prefixPath).numChildren()
     }
 
-    /**
-     * Used to iterate over the children at this location. You can use the native
-     * for .. in syntax:
-     *
-     * for (FIRMutableData* child in data.children) {
-     *     ...
-     * }
-     *
-     * Note that this enumerator operates on an immutable copy of the child list.
-     * So, you can modify the instance during iteration, but the new additions will
-     * not be visible until you get a new enumerator.
-     */
-    @objc public var children: NSEnumerator {
+    // NOTE: Only used for testing
+    @objc public var children: [MutableData] {
         let indexedNode = FIndexedNode(node: nodeValue)
-
-        return FTransformedEnumerator(enumerator: indexedNode.childEnumerator()) { item in
-            guard let node = item as? FNamedNode else { return item }
-            let childPath = self.prefixPath.child(fromString: node.name)
+        return indexedNode.children.map { namedNode in
+            let childPath = self.prefixPath.child(fromString: namedNode.name)
             let childData = MutableData(prefixPath: childPath, andSnapshotHolder: self.data)
             return childData
         }

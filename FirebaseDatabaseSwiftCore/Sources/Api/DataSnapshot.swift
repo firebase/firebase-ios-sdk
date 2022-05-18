@@ -18,9 +18,17 @@ import Foundation
  * location, use a FIRDatabaseReference (e.g. with setValue:).
  */
 @objc(FIRDataSnapshot) public class DataSnapshot: NSObject {
-    @objc public let node: FIndexedNode
+    public let node: FIndexedNode
+    @objc(node) public var nodeObjC: FIndexedNodeObjC {
+        .init(wrapped: node)
+    }
 
-    @objc public init(ref: DatabaseReference, indexedNode: FIndexedNode) {
+    @objc(initWithRef:indexedNode:) public init(ref: DatabaseReference, indexedNode: FIndexedNodeObjC) {
+        self.ref = ref
+        self.node = indexedNode.wrapped
+    }
+
+    public init(ref: DatabaseReference, indexedNode: FIndexedNode) {
         self.ref = ref
         self.node = indexedNode
     }
@@ -135,26 +143,16 @@ import Foundation
         ref.key
     }
 
-    /**
-     * An iterator for snapshots of the child nodes in this snapshot.
-     * You can use the native for..in syntax:
-     *
-     * for (FIRDataSnapshot* child in snapshot.children) {
-     *     ...
-     * }
-     *
-     * @return An NSEnumerator of the children.
-     */
-    @objc public var children: NSEnumerator {
-        FTransformedEnumerator(enumerator: node.childEnumerator()) { value in
-            guard let node = value as? FNamedNode else { return value }
-            let childRef = self.ref.child(node.name)
-            return DataSnapshot(ref: childRef, indexedNode: FIndexedNode(node: node.node))
+    @objc public
+    var children: [DataSnapshot] {
+        node.children.map { namedNode -> DataSnapshot in
+            let childRef = self.ref.child(namedNode.name)
+            return DataSnapshot(ref: childRef, indexedNode: FIndexedNode(node: namedNode.node))
         }
     }
 
     public override var description: String {
-        "Snap (\(key)) \(node.node)"
+        "Snap (\(key ?? "-")) \(node.node)"
     }
 
     /**

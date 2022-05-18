@@ -94,7 +94,7 @@ public typealias DatabaseHandle = Int
         if eventType == .value {
             // Handle FIRDataEventTypeValue specially because they shouldn't have
             // prevName callbacks
-            let handle = FUtilitiesSwift.LUIDGenerator().intValue
+            let handle = FUtilitiesSwift.LUIDGenerator()
             observeValueEventWithHandle(handle, withBlock: block, cancelCallback: cancelBlock)
             return handle
         } else {
@@ -144,7 +144,7 @@ public typealias DatabaseHandle = Int
             instead." userInfo:nil];
             */
         }
-        let handle = FUtilitiesSwift.LUIDGenerator().intValue
+        let handle = FUtilitiesSwift.LUIDGenerator()
         observeChildEventWithHandle(handle, withCallbacks: [eventType: block], cancelCallback: cancelBlock)
         return handle
     }

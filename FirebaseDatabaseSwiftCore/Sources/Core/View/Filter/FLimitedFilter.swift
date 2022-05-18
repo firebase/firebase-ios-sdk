@@ -196,12 +196,12 @@ import Foundation
 
     }
 
-    @objc public func updatePriority(_ priority: FNode, forNode oldSnap: FIndexedNode) -> FIndexedNode {
+    public func updatePriority(_ priority: FNode, forNode oldSnap: FIndexedNode) -> FIndexedNode {
         // Don't support priorities on queries.
         return oldSnap
     }
 
-    @objc public var indexedFilter: FNodeFilter {
+    public var indexedFilter: FNodeFilter {
         rangedFilter.indexedFilter
     }
 

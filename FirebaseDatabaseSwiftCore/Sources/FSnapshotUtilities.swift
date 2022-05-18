@@ -5,7 +5,7 @@
 //  Created by Morten Bek Ditlevsen on 11/10/2021.
 //
 
-import Collections
+import SortedCollections
 import Foundation
 
 @objc public class FSnapshotUtilities: NSObject {
@@ -70,7 +70,7 @@ import Foundation
         } else if let childrenNode = node as? FChildrenNode {
             var sum = 1 // opening brackets
             for (key, child) in childrenNode.children {
-                sum += key.count
+                sum += key.key.count
                 sum += 4 // quotes around key and colon and (comma or closing bracket)
                 sum += estimateSerializedNodeSize(child)
             }
@@ -228,11 +228,7 @@ public enum FSnapshotUtilitiesSwift {
              if children.isEmpty {
                  return FEmptyNode.emptyNode
              } else {
-                 var dict = OrderedDictionary(uncheckedUniqueKeys: children.keys, values: children.values)
-                 dict.sort { a, b in
-                     FUtilitiesSwift.compareKey(a.key, b.key) == .orderedAscending
-                 }
-
+                 let dict = SortedDictionary(keysWithValues: children.map { (KeyIndex(key: $0.key), $0.value) })
                  return FChildrenNode(priority: priority, children: dict)
              }
          } else if let aval = value as? NSArray {
@@ -252,10 +248,7 @@ public enum FSnapshotUtilitiesSwift {
              if children.isEmpty {
                  return FEmptyNode.emptyNode
              } else {
-                 var dict = OrderedDictionary(uncheckedUniqueKeys: children.keys, values: children.values)
-                 dict.sort { a, b in
-                     FUtilitiesSwift.compareKey(a.key, b.key) == .orderedAscending
-                 }
+                 let dict = SortedDictionary(keysWithValues: children.map { (KeyIndex(key: $0.key), $0.value) })
 
                  return FChildrenNode(priority: priority, children: dict)
              }

@@ -150,10 +150,10 @@ import Foundation
         // Nothing to iterate over
     }
 
-    public func childEnumerator() -> NSEnumerator {
-        // Nothing to iterate over
-        NSArray().objectEnumerator()
-    }
+//    public func childEnumerator() -> NSEnumerator {
+//        // Nothing to iterate over
+//        NSArray().objectEnumerator()
+//    }
 
     public override var hash: Int {
         guard let v = value as? NSObject else {

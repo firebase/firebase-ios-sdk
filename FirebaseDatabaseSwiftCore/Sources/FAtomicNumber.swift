@@ -7,8 +7,8 @@
 
 import Foundation
 
-@objc public class FAtomicNumber: NSObject {
-    var number: Int64 = 1
+class FAtomicNumber: NSObject {
+    var number: Int = 1
     var lock: NSLock = NSLock()
 
     // See:
@@ -16,10 +16,10 @@ import Foundation
     // to improve, etc.
 
     #warning("Use swift-atomics instead? Or is this good enough?")
-    @objc public func getAndIncrement() -> NSNumber {
+    func getAndIncrement() -> Int {
         lock.lock()
         defer { lock.unlock() }
-        let result = NSNumber(value: number)
+        let result = number
         number += 1
         return result
     }

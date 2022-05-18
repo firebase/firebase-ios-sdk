@@ -138,7 +138,6 @@ typealias PutToAckTuple = (block: ((String, String) -> Void),
         self.repoInfo = repoInfo
         self.dispatchQueue = dispatchQueue
         self.contextProvider = config.contextProvider
-        assert(config.contextProvider != nil, "Expected auth token provider")
         self.interruptReasons = []
         self.listens = [:]
         self.outstandingGets = [:]
@@ -782,7 +781,7 @@ typealias PutToAckTuple = (block: ((String, String) -> Void),
                                   request: request,
                                   onComplete: onComplete,
                                   sent: false)
-        let index = putCounter.getAndIncrement().intValue
+        let index = putCounter.getAndIncrement()
         outstandingPuts[index] = put
         if canSendWrites {
             FFLog("I-RDB034024", "Was connected, and added as index: \(index)")
@@ -804,7 +803,7 @@ typealias PutToAckTuple = (block: ((String, String) -> Void),
         let get = FOutstandingGet(request: request,
                                   onComplete: onComplete,
                                   sent: false)
-        let index = getCounter.getAndIncrement().intValue
+        let index = getCounter.getAndIncrement()
         outstandingGets[index] = get
 
         if !connected {
@@ -893,7 +892,7 @@ better performance
     }
 
     private func getNextRequestNumber() -> Int {
-        requestNumber.getAndIncrement().intValue
+        requestNumber.getAndIncrement()
     }
     
     private func sendAction(_ action: String, body: [String: Any], sensitive: Bool, callback: (([String: Any]?) -> Void)?) {

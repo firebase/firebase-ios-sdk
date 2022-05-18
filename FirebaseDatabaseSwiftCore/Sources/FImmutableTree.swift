@@ -5,22 +5,20 @@
 //  Created by Morten Bek Ditlevsen on 21/09/2021.
 //
 
-import Collections
+import SortedCollections
 import Foundation
 
 internal struct FImmutableTree<Element> {
     internal private(set) var value: Element?
-    // TODO: Replace with SortedDictionary when it's fully baked.
-    // This serves as an implementation placeholder for now.
     // TODO: Perhaps both have a version of this type that is sorted and one that is not. Not all users of the type relies on sorting.
-    internal var children: OrderedDictionary<String, FImmutableTree<Element>>
+    internal var children: SortedDictionary<String, FImmutableTree<Element>>
 
     internal init(value: Element?) {
         self.value = value
         self.children = [:]
     }
 
-    internal init(value: Element?, children: OrderedDictionary<String, FImmutableTree<Element>>) {
+    internal init(value: Element?, children: SortedDictionary<String, FImmutableTree<Element>>) {
         self.value = value
         self.children = children
     }
@@ -132,9 +130,7 @@ internal struct FImmutableTree<Element> {
         let newChild = child.setValue(newValue, atPath: relativePath.popFront())
         var newChildren = children
 
-        // TODO: Replace with SortedDictionary and just do an insert here!
         newChildren[front] = newChild
-        newChildren.sort()
         return FImmutableTree(value: self.value, children: newChildren)
     }
 
@@ -150,17 +146,14 @@ internal struct FImmutableTree<Element> {
             return self
         }
         let newChild = child.removeValue(atPath: relativePath.popFront())
-        let newChildren: OrderedDictionary<String, FImmutableTree<Element>>
+        let newChildren: SortedDictionary<String, FImmutableTree<Element>>
         if newChild.isEmpty {
             var n = children
-            n.removeValue(forKey: front)
-            n.sort()
+            _ = n.removeValue(forKey: front)
             newChildren = n
         } else {
-            // TODO: Replace with SortedDictionary and just do an insert here!
             var n = children
             n[front] = newChild
-            n.sort()
             newChildren = n
         }
         if value == nil && newChildren.isEmpty {
@@ -191,16 +184,14 @@ internal struct FImmutableTree<Element> {
 
         let child = children[front] ?? .empty
         let newChild = child.setTree(newTree, atPath: relativePath.popFront())
-        let newChildren: OrderedDictionary<String, FImmutableTree<Element>>
+        let newChildren: SortedDictionary<String, FImmutableTree<Element>>
         if newChild.isEmpty {
             var n = children
-            n.removeValue(forKey: front)
-            n.sort()
+            _ = n.removeValue(forKey: front)
             newChildren = n
         } else {
             var n = children
             n[front] = newChild
-            n.sort()
             newChildren = n
         }
         return FImmutableTree<Element>(value: value, children: newChildren)
