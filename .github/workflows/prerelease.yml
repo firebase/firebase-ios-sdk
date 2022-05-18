@@ -58,8 +58,7 @@ jobs:
     - name: Clean Artifacts
       if: ${{ always() }}
       run: |
-        pod repo remove "${local_repo}"
-        rm -rf bot-access.txt
+        rm -rf oss-bot-access.txt
     - uses: actions/upload-artifact@v3
       with:
         name: firebase-ios-sdk
