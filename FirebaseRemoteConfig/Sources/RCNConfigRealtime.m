@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "FirebaseRemoteConfig/Sources/RCNConfigRealtime.h"
+#import <Foundation/Foundation.h>
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 
 @implementation FIRConfigUpdateListenerRegistration {
