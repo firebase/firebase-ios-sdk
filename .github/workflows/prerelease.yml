@@ -50,11 +50,8 @@ jobs:
          ossbotaccess=`cat oss-bot-access.txt`
          git clone --quiet https://${ossbotaccess}@github.com/Firebase/SpecsTesting.git "${local_repo}"
          cd "${local_repo}"
-         # Avoid throwing error when there is no dirs in the repo
-         setopt +o nomatch
          # Remove all unhided dirs, i.e. all podspec dir from the spec repo.
          rm -Rf -- */
-         setopt -o nomatch
          git add .
          git commit -m "Empty spec repo."
          git push
