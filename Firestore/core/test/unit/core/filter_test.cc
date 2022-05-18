@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/core/filter.h"
+#include "Firestore/core/src/core/composite_filter.h"
 #include "Firestore/core/src/core/field_filter.h"
 
-#include "Firestore/core/src/core/filter.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "gtest/gtest.h"
 
@@ -24,10 +25,22 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
+using testutil::AndFilter;
 using testutil::Field;
 using testutil::Filter;
+using testutil::OrFilter;
 using testutil::Resource;
 using testutil::Value;
+
+/** Helper method to get unique filters */
+FieldFilter numberFilter(int num) {
+  return Filter("name", "==", num);
+}
+
+const FieldFilter Zero = numberFilter(0);
+const FieldFilter One = numberFilter(1);
+const FieldFilter Two = numberFilter(2);
+const FieldFilter Three = numberFilter(3);
 
 TEST(FilterTest, Equality) {
   auto filter = Filter("f", "==", 1);
@@ -45,6 +58,22 @@ TEST(FilterTest, Equality) {
   auto nan_filter = Filter("g", "==", NAN);
   EXPECT_EQ(nan_filter, Filter("g", "==", NAN));
   EXPECT_NE(nan_filter, Filter("h", "==", NAN));
+}
+
+TEST(FilterTest, CompositeFilter) {
+  CompositeFilter andFilter = AndFilter({Zero, One, Two});
+  ASSERT_TRUE(andFilter.IsConjunction());
+  EXPECT_EQ(andFilter.filters().size(), 3);
+  EXPECT_EQ(*andFilter.filters()[0], Zero);
+  EXPECT_EQ(*andFilter.filters()[1], One);
+  EXPECT_EQ(*andFilter.filters()[2], Two);
+
+  CompositeFilter orFilter = OrFilter({Zero, One, Two});
+  ASSERT_TRUE(orFilter.IsDisjunction());
+  EXPECT_EQ(orFilter.filters().size(), 3);
+  EXPECT_EQ(*orFilter.filters()[0], Zero);
+  EXPECT_EQ(*orFilter.filters()[1], One);
+  EXPECT_EQ(*orFilter.filters()[2], Two);
 }
 
 }  // namespace core

@@ -22,6 +22,7 @@
 
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/core/composite_filter.h"
 #include "Firestore/core/src/core/direction.h"
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/core/order_by.h"
@@ -336,6 +337,30 @@ core::FieldFilter Filter(absl::string_view key,
                          absl::string_view op,
                          double value) {
   return Filter(key, op, Value(value));
+}
+
+core::CompositeFilter AndFilter(std::vector<core::Filter> filters) {
+  std::vector<std::shared_ptr<core::Filter>> filter_ptrs;
+  for (auto& filter : filters) {
+    filter_ptrs.push_back(std::make_shared<core::Filter>(std::move(filter)));
+  }
+  return core::CompositeFilter::Create(
+      std::move(filter_ptrs),
+      _google_firestore_v1_StructuredQuery_CompositeFilter_Operator ::
+          google_firestore_v1_StructuredQuery_CompositeFilter_Operator_AND);
+}
+
+core::CompositeFilter OrFilter(std::vector<core::Filter> filters) {
+  std::vector<std::shared_ptr<core::Filter>> filter_ptrs;
+  for (auto& filter : filters) {
+    filter_ptrs.push_back(std::make_shared<core::Filter>(std::move(filter)));
+  }
+  // TODO(orquery): Replace with Operator.OR.
+  return core::CompositeFilter::Create(
+      std::move(filter_ptrs),
+      _google_firestore_v1_StructuredQuery_CompositeFilter_Operator ::
+          google_firestore_v1_StructuredQuery_\
+CompositeFilter_Operator_OPERATOR_UNSPECIFIED);
 }
 
 core::Direction Direction(absl::string_view direction) {
