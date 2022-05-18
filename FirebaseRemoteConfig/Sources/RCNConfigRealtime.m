@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#import "FirebaseRemoteConfig/Sources/RCNConfigRealtime.h"
 #import <Foundation/Foundation.h>
+#import "FirebaseRemoteConfig/Sources/RCNConfigRealtime.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 
 @implementation FIRConfigUpdateListenerRegistration {
   RCNConfigRealtime *_realtimeClient;
-  FIRConfigUpdateCompletion completionHandler;
+  id completionHandler;
 }
 
 - (instancetype)initWithClient:(RCNConfigRealtime *)realtimeClient
-             completionHandler:(FIRConfigUpdateCompletion)completionHandler {
+             completionHandler:(id)completionHandler {
   self = [super init];
   if (self) {
     _realtimeClient = realtimeClient;
@@ -41,7 +41,7 @@
 
 @interface RCNConfigRealtime ()
 
-@property(strong, atomic, nonnull) NSMutableSet<FIRConfigUpdateCompletion> *listeners;
+@property(strong, atomic, nonnull) NSMutableSet<id> *listeners;
 @property(strong, atomic, nonnull) dispatch_queue_t realtimeLockQueue;
 
 @end

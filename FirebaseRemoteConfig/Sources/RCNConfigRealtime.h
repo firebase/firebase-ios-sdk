@@ -20,12 +20,6 @@
 #import <Foundation/Foundation.h>
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 
-/// Completion handler invoked by config update methods when they get a response from the server.
-///
-/// @param error  Error message on failure.
-typedef void (^FIRConfigUpdateCompletion)(NSError *_Nullable error)
-    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
-
 @interface RCNConfigRealtime : NSObject <NSURLSessionDataDelegate>
 
 - (FIRConfigUpdateListenerRegistration *_Nonnull)addConfigUpdateListener:
