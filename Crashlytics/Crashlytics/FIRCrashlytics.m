@@ -131,7 +131,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
                                                                 appIDModel:appModel];
 
     FIRCLSOnDemandModel *onDemandModel =
-        [[FIRCLSOnDemandModel alloc] initWithFIRCLSSettings:settings];
+        [[FIRCLSOnDemandModel alloc] initWithFIRCLSSettings:settings fileManager:_fileManager];
     _managerData = [[FIRCLSManagerData alloc] initWithGoogleAppID:_googleAppID
                                                   googleTransport:googleTransport
                                                     installations:installations

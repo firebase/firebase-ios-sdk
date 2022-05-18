@@ -24,7 +24,8 @@
 
 @interface FIRCLSOnDemandModel (Private)
 
-- (instancetype)initWithFIRCLSSettings:(FIRCLSSettings *)settings;
+- (instancetype)initWithFIRCLSSettings:(FIRCLSSettings *)settings
+                           fileManager:(FIRCLSFileManager *)fileManager;
 
 - (BOOL)recordOnDemandExceptionIfQuota:(FIRExceptionModel *)exceptionModel
              withDataCollectionEnabled:(BOOL)dataCollectionEnabled
