@@ -118,8 +118,7 @@ MemoryDocumentOverlayCache* MemoryPersistence::GetDocumentOverlayCache(
 }
 
 OverlayMigrationManager* MemoryPersistence::GetOverlayMigrationManager(
-    const credentials::User& user) {
-  (void)user;
+    const credentials::User&) {
   return &overlay_migration_manager_;
 }
 
@@ -136,9 +135,7 @@ ReferenceDelegate* MemoryPersistence::reference_delegate() {
   return reference_delegate_.get();
 }
 
-void MemoryPersistence::ReleaseOtherUserSpecificComponents(
-    const std::string& uid) {
-  (void)uid;
+void MemoryPersistence::ReleaseOtherUserSpecificComponents(const std::string&) {
 }
 
 void MemoryPersistence::RunInternal(absl::string_view label,
