@@ -37,11 +37,6 @@ FieldFilter numberFilter(int num) {
   return Filter("name", "==", num);
 }
 
-const FieldFilter Zero = numberFilter(0);
-const FieldFilter One = numberFilter(1);
-const FieldFilter Two = numberFilter(2);
-const FieldFilter Three = numberFilter(3);
-
 TEST(FilterTest, Equality) {
   auto filter = Filter("f", "==", 1);
   EXPECT_EQ(filter, Filter("f", "==", 1));
@@ -60,13 +55,23 @@ TEST(FilterTest, Equality) {
   EXPECT_NE(nan_filter, Filter("h", "==", NAN));
 }
 
-TEST(FilterTest, CompositeFilter) {
+TEST(FilterTest, AndFilter) {
+  const FieldFilter Zero = numberFilter(0);
+  const FieldFilter One = numberFilter(1);
+  const FieldFilter Two = numberFilter(2);
+
   CompositeFilter andFilter = AndFilter({Zero, One, Two});
   ASSERT_TRUE(andFilter.IsConjunction());
   EXPECT_EQ(andFilter.filters().size(), 3);
   EXPECT_EQ(*andFilter.filters()[0], Zero);
   EXPECT_EQ(*andFilter.filters()[1], One);
   EXPECT_EQ(*andFilter.filters()[2], Two);
+}
+
+TEST(FilterTest, OrFilter) {
+  const FieldFilter Zero = numberFilter(0);
+  const FieldFilter One = numberFilter(1);
+  const FieldFilter Two = numberFilter(2);
 
   CompositeFilter orFilter = OrFilter({Zero, One, Two});
   ASSERT_TRUE(orFilter.IsDisjunction());

@@ -67,8 +67,8 @@ CompositeFilter::Rep::Rep(const std::vector<std::shared_ptr<Filter>>&& filters,
                           Operator op)
     : filters_(std::move(filters)), op_(op) {
   for (const auto& filter_ptr : filters_) {
-    std::copy(filter_ptr->GetFlattenedFilters().begin(),
-              filter_ptr->GetFlattenedFilters().end(),
+    auto flatten_filter = filter_ptr->GetFlattenedFilters();
+    std::copy(flatten_filter.begin(), flatten_filter.end(),
               std::back_inserter(flatten_filters_));
   }
 }
