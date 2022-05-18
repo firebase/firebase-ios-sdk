@@ -47,8 +47,8 @@ jobs:
          BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" local_sdk_repo_dir="${local_sdk_repo_dir}" podspec_repo_branch="${podspec_repo_branch}" scripts/release_testing_setup.sh prerelease_testing
     - name: Clean spec repo
       run: |
+         ossbotaccess=`cat oss-bot-access.txt`
          git clone --quiet https://${ossbotaccess}@github.com/Firebase/SpecsTesting.git "${local_repo}"
-         git remote set-url origin https://${ossbotaccess}@github.com/Firebase/SpecsTesting.git
          cd "${local_repo}"
          # remove all unhided dirs, i.e. all podspec dir from the spec repo.
          rm -R -- */
