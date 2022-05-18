@@ -48,6 +48,7 @@ jobs:
     - name: Clean spec repo
       run: |
          git clone --quiet https://${ossbotaccess}@github.com/Firebase/SpecsTesting.git "${local_repo}"
+         git remote set-url origin https://${ossbotaccess}@github.com/Firebase/SpecsTesting.git
          cd "${local_repo}"
          # remove all unhided dirs, i.e. all podspec dir from the spec repo.
          rm -R -- */
