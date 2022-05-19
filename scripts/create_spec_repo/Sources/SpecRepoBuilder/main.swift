@@ -413,7 +413,6 @@ struct SpecRepoBuilder: ParsableCommand {
           Self
             .exit(withError: SpecRepoBuilderError
               .podspecNotFound(pod, from: sdkRepo))
-        
         }
         switch pod {
         case "Firebase":
