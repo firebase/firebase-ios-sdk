@@ -45,30 +45,6 @@ using nanopb::Message;
 using nanopb::StringReader;
 
 /**
- * Schema version for the iOS client.
- *
- * Note that tables aren't a concept in LevelDB. They exist in our schema as
- * just prefixes on keys. This means tables don't need to be created but they
- * also can't easily be dropped and re-created.
- *
- * Migrations:
- *   * Migration 1 used to ensure the target_global row existed, without
- *     clearing it. No longer required because migration 3 unconditionally
- *     clears it.
- *   * Migration 2 used to ensure that the target_global row had a correct count
- *     of targets. No longer required because migration 3 deletes them all.
- *   * Migration 3 deletes the entire query cache to deal with cache corruption
- *     related to limbo resolution. Addresses
- *     https://github.com/firebase/firebase-ios-sdk/issues/1548.
- *   * Migration 4 ensures that every document in the remote document cache
- *     has a sentinel row with a sequence number.
- *   * Migration 5 drops held write acks.
- *   * Migration 6 populates the collection_parents index.
- *   * Migration 7 rewrites query_targets canonical ids in new format.
- */
-const LevelDbMigrations::SchemaVersion kSchemaVersion = 7;
-
-/**
  * Save the given version number as the current version of the schema of the
  * database.
  * @param version The version to save
@@ -379,6 +355,21 @@ void RewriteTargetsCanonicalIds(leveldb::DB* db,
   transaction.Commit();
 }
 
+/**
+ * Migration 8.
+ *
+ * Writes 'overlay_migration' into data_migration table.
+ */
+void EnsureOverlayDataMigrationIsRequired(leveldb::DB* db) {
+  LevelDbTransaction transaction(
+      db, "Ensure overlay data migration is marked as required");
+
+  std::string key = LevelDbDataMigrationKey::OverlayMigrationKey();
+  transaction.Put(key, {});
+  SaveVersion(8, &transaction);
+  transaction.Commit();
+}
+
 }  // namespace
 
 LevelDbMigrations::SchemaVersion LevelDbMigrations::ReadSchemaVersion(
@@ -437,6 +428,10 @@ void LevelDbMigrations::RunMigrations(leveldb::DB* db,
 
   if (from_version < 7 && to_version >= 7) {
     RewriteTargetsCanonicalIds(db, serializer);
+  }
+
+  if (from_version < 8 && to_version >= 8) {
+    EnsureOverlayDataMigrationIsRequired(db);
   }
 }
 
