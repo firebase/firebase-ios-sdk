@@ -40,22 +40,20 @@ jobs:
         echo "::set-output name=matrix::{\"include\":$( cat output.json )}"
     - name: Get token
       run: |
-         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/oss-bot-access.txt.gpg \
-         oss-bot-access.txt "$bot_token_secret"
          scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
          bot-access.txt "$bot_token_secret"
     - name: Update SpecsTesting repo setup
       run: |
-         ossbotaccess=`cat oss-bot-access.txt`
-         BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" \
+         botaccess=`cat bot-access.txt`
+         BOT_TOKEN="${botaccess}" test_version="${nightly_version}" \
          sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" \
          local_sdk_repo_dir="${local_sdk_repo_dir}" \
          podspec_repo_branch="${podspec_repo_branch}" \
          scripts/release_testing_setup.sh prerelease_testing
     - name: Clean spec repo
       run: |
-         ossbotaccess=`cat oss-bot-access.txt`
-         git clone --quiet https://"$ossbotaccess"@github.com/FirebasePrivate/SpecsTesting.git "${local_repo}"
+         botaccess=`cat bot-access.txt`
+         git clone --quiet https://"$botaccess"@github.com/FirebasePrivate/SpecsTesting.git "${local_repo}"
          cd "${local_repo}"
          # Remove all unhided dirs, i.e. all podspec dir from the spec repo.
          rm -Rf -- */
@@ -66,7 +64,7 @@ jobs:
     - name: Clean Artifacts
       if: ${{ always() }}
       run: |
-        rm -rf oss-bot-access.txt
+        rm -rf bot-access.txt
     - uses: actions/upload-artifact@v3
       with:
         name: firebase-ios-sdk
@@ -94,8 +92,6 @@ jobs:
         path: ${{ env.local_sdk_repo_dir }}
     - name: Get token
       run: |
-         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/oss-bot-access.txt.gpg \
-         oss-bot-access.txt "$bot_token_secret"
          scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
          bot-access.txt "$bot_token_secret"
     - name: Update SpecsTesting repo
