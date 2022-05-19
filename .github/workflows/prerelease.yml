@@ -54,7 +54,7 @@ jobs:
          rm -Rf -- */
          git add .
          # commit without diff will throw an error. `git diff --exit-code` can avoid such error.
-         git diff --exit-code || git commit -m "Empty spec repo."
+         git diff --staged --exit-code || git commit -m "Empty spec repo."
          git push
     - name: Clean Artifacts
       if: ${{ always() }}
