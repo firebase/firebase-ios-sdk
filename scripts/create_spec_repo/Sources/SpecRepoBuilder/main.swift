@@ -169,6 +169,7 @@ struct SpecRepoBuilder: ParsableCommand {
       // parentDeps will have all dependencies the current pod supports. If the
       // current pod were in the parent dependencies, that means it was tracked
       // before and it is circular dependency.
+      print ("-------\(parentDeps)")
       if parentDeps.contains(pod) {
         print("Circular dependency is detected in \(pod) and \(parentDeps)")
         if raiseCircularDepError {
@@ -354,9 +355,8 @@ struct SpecRepoBuilder: ParsableCommand {
         print("Podspec, \(podName), is detected.")
         if excludePods.contains(podName) {
           continue
-        } else if includePods.isEmpty || includePods.contains(podName) {
-          podSpecFiles[podName] = podspecURL
         }
+        podSpecFiles[podName] = podspecURL
       }
     } catch {
       print(
@@ -371,7 +371,7 @@ struct SpecRepoBuilder: ParsableCommand {
     print("Detect podspecs: \(podSpecFiles.keys)")
     let specFileDict = SpecFiles(podSpecFiles, from: sdkRepo)
     generateOrderOfInstallation(
-      pods: Array(podSpecFiles.keys),
+      pods: includePods.isEmpty ? Array(podSpecFiles.keys) : includePods,
       specFiles: specFileDict,
       parentDeps: &tmpSet
     )
@@ -383,11 +383,10 @@ struct SpecRepoBuilder: ParsableCommand {
           print("remove \(sdkRepoName) dir.")
           try fileManager.removeItem(at: URL(fileURLWithPath: "\(curDir)/\(sdkRepoName)"))
         }
-        try eraseRemoteRepo(repoPath: "\(curDir)", from: githubAccount, sdkRepoName)
+        eraseRemoteRepo(repoPath: "\(curDir)", from: githubAccount, sdkRepoName)
 
       } catch {
         print("error occurred. \(error)")
-        throw error
       }
     }
 
@@ -408,35 +407,26 @@ struct SpecRepoBuilder: ParsableCommand {
       }()
       timer.resume()
       var podExitCode: Int32 = 0
-      do {
-        guard let podURL = specFileDict[pod] else {
-          Self
-            .exit(withError: SpecRepoBuilderError
-              .podspecNotFound(pod, from: sdkRepo))
-        }
-        switch pod {
-        case "Firebase":
-          podExitCode = try pushPodspec(
-            forPod: podURL,
-            sdkRepo: sdkRepo,
-            sources: podSources,
-            flags: Constants.umbrellaPodFlags
-          )
-        default:
-          podExitCode = try pushPodspec(
-            forPod: podURL,
-            sdkRepo: sdkRepo,
-            sources: podSources,
-            flags: Constants.flags
-          )
-        }
-        if podExitCode != 0 {
-          exitCode = 1
-          failedPods.append(pod)
-          print("Failed pod - \(pod)")
-        }
-      } catch {
-        throw error
+      switch pod {
+      case "Firebase":
+        podExitCode = pushPodspec(
+          forPod: pod,
+          sdkRepo: sdkRepo,
+          sources: podSources,
+          flags: Constants.umbrellaPodFlags
+        )
+      default:
+        podExitCode = pushPodspec(
+          forPod: pod,
+          sdkRepo: sdkRepo,
+          sources: podSources,
+          flags: Constants.flags
+        )
+      }
+      if podExitCode != 0 {
+        exitCode = 1
+        failedPods.append(pod)
+        print("Failed pod - \(pod)")
       }
       timer.cancel()
       let finishDate = Date()
