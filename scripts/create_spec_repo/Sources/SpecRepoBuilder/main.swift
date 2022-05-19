@@ -383,10 +383,11 @@ struct SpecRepoBuilder: ParsableCommand {
           print("remove \(sdkRepoName) dir.")
           try fileManager.removeItem(at: URL(fileURLWithPath: "\(curDir)/\(sdkRepoName)"))
         }
-        eraseRemoteRepo(repoPath: "\(curDir)", from: githubAccount, sdkRepoName)
+        try eraseRemoteRepo(repoPath: "\(curDir)", from: githubAccount, sdkRepoName)
 
       } catch {
         print("error occurred. \(error)")
+        throw error
       }
     }
 
@@ -407,26 +408,35 @@ struct SpecRepoBuilder: ParsableCommand {
       }()
       timer.resume()
       var podExitCode: Int32 = 0
-      switch pod {
-      case "Firebase":
-        podExitCode = pushPodspec(
-          forPod: pod,
-          sdkRepo: sdkRepo,
-          sources: podSources,
-          flags: Constants.umbrellaPodFlags
-        )
-      default:
-        podExitCode = pushPodspec(
-          forPod: pod,
-          sdkRepo: sdkRepo,
-          sources: podSources,
-          flags: Constants.flags
-        )
-      }
-      if podExitCode != 0 {
-        exitCode = 1
-        failedPods.append(pod)
-        print("Failed pod - \(pod)")
+      do {
+        guard let podURL = specFileDict[pod] else {
+          Self
+            .exit(withError: SpecRepoBuilderError
+              .podspecNotFound(pod, from: sdkRepo))
+        }
+        switch pod {
+        case "Firebase":
+          podExitCode = try pushPodspec(
+            forPod: podURL,
+            sdkRepo: sdkRepo,
+            sources: podSources,
+            flags: Constants.umbrellaPodFlags
+          )
+        default:
+          podExitCode = try pushPodspec(
+            forPod: podURL,
+            sdkRepo: sdkRepo,
+            sources: podSources,
+            flags: Constants.flags
+          )
+        }
+        if podExitCode != 0 {
+          exitCode = 1
+          failedPods.append(pod)
+          print("Failed pod - \(pod)")
+        }
+      } catch {
+        throw error
       }
       timer.cancel()
       let finishDate = Date()
