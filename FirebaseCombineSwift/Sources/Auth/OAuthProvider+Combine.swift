@@ -29,7 +29,7 @@
       ///
       /// The publisher will emit events on the **main** thread.
       ///
-      /// - Parameter uiDelegate: An optional UI delegate used to presenet the mobile web flow.
+      /// - Parameter uiDelegate: An optional UI delegate used to present the mobile web flow.
       /// - Returns: A publisher that emits an `AuthCredential` when the credential is obtained
       ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
       func getCredentialWith(_ uiDelegate: AuthUIDelegate?)
