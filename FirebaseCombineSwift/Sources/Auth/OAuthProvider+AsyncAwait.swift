@@ -38,4 +38,4 @@ import Foundation
       }
     }
   }
-#endif // canImport(Combine) && swift(>=5.0)
+#endif // compiler(>=5.5.2) && canImport(_Concurrency)
