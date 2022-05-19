@@ -26,9 +26,9 @@ import Foundation
   ///   - An error if the operation failed.
   /// - Returns: An `AuthCredential` when the credential is obtained.
   public extension OAuthProvider {
-    func getCredentialWith(_ UIDelegate: AuthUIDelegate?) async throws -> AuthCredential {
+    func getCredentialWith(_ uiDelegate: AuthUIDelegate?) async throws -> AuthCredential {
       try await withCheckedThrowingContinuation { continuation in
-        self.getCredentialWith(nil) { credential, error in
+        self.getCredentialWith(uiDelegate) { credential, error in
           if let error = error {
               continuation.resume(throwing: error)
           } else if let credential = credential {
