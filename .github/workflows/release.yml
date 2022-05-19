@@ -47,11 +47,15 @@ jobs:
     - name: Update SpecsTesting repo setup
       run: |
          ossbotaccess=`cat oss-bot-access.txt`
-         BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" local_sdk_repo_dir="${local_sdk_repo_dir}" podspec_repo_branch="${podspec_repo_branch}" scripts/release_testing_setup.sh prerelease_testing
+         BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" \
+         sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" \
+         local_sdk_repo_dir="${local_sdk_repo_dir}" \
+         podspec_repo_branch="${podspec_repo_branch}" \
+         scripts/release_testing_setup.sh prerelease_testing
     - name: Clean spec repo
       run: |
          ossbotaccess=`cat oss-bot-access.txt`
-         git clone --quiet https://${ossbotaccess}@github.com/Firebase/SpecsTesting.git "${local_repo}"
+         git clone --quiet https://"$ossbotaccess"@github.com/FirebasePrivate/SpecsTesting.git "${local_repo}"
          cd "${local_repo}"
          # Remove all unhided dirs, i.e. all podspec dir from the spec repo.
          rm -Rf -- */
@@ -99,8 +103,8 @@ jobs:
         botaccess=`cat bot-access.txt`
         cd scripts/create_spec_repo/
         swift build
-        pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/Firebase/SpecsTesting.git
-        BOT_TOKEN="${botaccess}" .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}" --sdk-repo-name SpecsTesting --github-account Firebase --pod-sources 'https://${BOT_TOKEN}@github.com/Firebase/SpecsTesting' "https://github.com/firebase/SpecsDev.git" "https://github.com/firebase/SpecsStaging.git" "https://cdn.cocoapods.org/" --include-pods "${targeted_pod}" --keep-repo
+        pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/FirebasePrivate/SpecsTesting.git
+        BOT_TOKEN="${botaccess}"  .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}" --pod-sources 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting' "https://github.com/firebase/SpecsStaging.git" "https://cdn.cocoapods.org/" --include-pods "${targeted_pod}" --keep-repo
     - name: Clean Artifacts
       if: ${{ always() }}
       run: |
