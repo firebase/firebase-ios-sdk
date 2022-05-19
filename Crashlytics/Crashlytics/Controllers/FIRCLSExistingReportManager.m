@@ -207,7 +207,7 @@ NSInteger compareNewer(FIRCLSInternalReport *reportA,
   // the file still exists.
   [self.operationQueue addOperationWithBlock:^{
     for (NSString *path in self.preparedReportPaths) {
-      if (![[self.fileManager underlyingFileManager] fileExistsAtPath:path]) {
+      if (![self.fileManager fileExistsAtPath:path]) {
         continue;
       }
       [self.reportUploader uploadPackagedReportAtPath:path
