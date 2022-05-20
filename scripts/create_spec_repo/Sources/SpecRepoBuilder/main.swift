@@ -32,7 +32,7 @@ extension Constants {
 
 // flags for 'pod push'
 extension Constants {
-  static let flags = ["--skip-tests", "--allow-warnings", "--skip-import-validation", "--no-overwrite", "--update-sources"]
+  static let flags = ["--skip-tests", "--allow-warnings", "--skip-import-validation", "--update-sources"]
   static let umbrellaPodFlags = Constants.flags + ["--use-json"]
 }
 
