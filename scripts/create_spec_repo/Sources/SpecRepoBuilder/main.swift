@@ -26,7 +26,7 @@ extension Constants {
   static let podSources = [
     "https://${BOT_TOKEN}@github.com/Firebase/SpecsTesting",
     "https://github.com/firebase/SpecsStaging.git",
-    "https://cdn.cocoapods.org/",
+    "https://github.com/CocoaPods/Specs.git",
   ]
 }
 
