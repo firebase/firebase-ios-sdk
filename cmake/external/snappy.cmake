@@ -1,4 +1,4 @@
-# Copyright 2017 Google
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,32 +14,19 @@
 
 include(ExternalProject)
 
-include(python_setup)
-FirebaseSetupPythonInterpreter(
-  OUTVAR MY_PYTHON_EXECUTABLE
-  KEY LevelDbPatch
-)
-
-if(TARGET leveldb)
+if(TARGET snappy)
   return()
 endif()
 
-set(version 1.22)
-
-ExternalProject_Get_property(snappy SOURCE_DIR)
-set(snappy_source_dir "${SOURCE_DIR}")
-ExternalProject_Get_property(snappy BINARY_DIR)
-set(snappy_binary_dir "${BINARY_DIR}")
+set(version 1.1.9)
 
 ExternalProject_Add(
-  leveldb
-
-  DEPENDS snappy
+  snappy
 
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
-  DOWNLOAD_NAME leveldb-${version}.tar.gz
-  URL https://github.com/google/leveldb/archive/${version}.tar.gz
-  URL_HASH SHA256=55423cac9e3306f4a9502c738a001e4a339d1a38ffbee7572d4a07d5d63949b2
+  DOWNLOAD_NAME snappy-${version}.tar.gz
+  URL https://github.com/google/snappy/archive/refs/tags/${version}.tar.gz
+  URL_HASH SHA256=75c1fbb3d618dd3a0483bff0e26d0a92b495bbe5059c8b4f1c962b478b6e06e7
 
   PREFIX ${PROJECT_BINARY_DIR}
 
@@ -47,7 +34,7 @@ ExternalProject_Add(
   BUILD_COMMAND     ""
   INSTALL_COMMAND   ""
   TEST_COMMAND      ""
-  PATCH_COMMAND     "${MY_PYTHON_EXECUTABLE}" ${CMAKE_CURRENT_LIST_DIR}/leveldb_patch.py --snappy-source-dir ${snappy_source_dir} --snappy-binary-dir ${snappy_binary_dir}
+  PATCH_COMMAND     patch -Np1 -i ${CMAKE_CURRENT_LIST_DIR}/snappy.patch
 
   HTTP_HEADER "${EXTERNAL_PROJECT_HTTP_HEADER}"
 )
