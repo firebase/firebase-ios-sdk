@@ -52,7 +52,7 @@ jobs:
          ossbotaccess=`cat oss-bot-access.txt`
          git clone --quiet https://${ossbotaccess}@github.com/Firebase/SpecsTesting.git "${local_repo}"
          cd "${local_repo}"
-         # Remove all unhided dirs, i.e. all podspec dir from the spec repo.
+         # Remove all unhidden dirs, i.e. all podspec dir from the spec repo.
          rm -Rf -- */
          git add .
          # commit without diff will throw an error. `git diff --exit-code` can avoid such error.
