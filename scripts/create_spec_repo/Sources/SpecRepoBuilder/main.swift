@@ -32,7 +32,12 @@ extension Constants {
 
 // flags for 'pod push'
 extension Constants {
-  static let flags = ["--skip-tests", "--allow-warnings", "--skip-import-validation", "--update-sources"]
+  static let flags = [
+    "--skip-tests",
+    "--allow-warnings",
+    "--skip-import-validation",
+    "--update-sources",
+  ]
   static let umbrellaPodFlags = Constants.flags + ["--use-json"]
 }
 
@@ -169,7 +174,6 @@ struct SpecRepoBuilder: ParsableCommand {
       // parentDeps will have all dependencies the current pod supports. If the
       // current pod were in the parent dependencies, that means it was tracked
       // before and it is circular dependency.
-      print ("-------\(parentDeps)")
       if parentDeps.contains(pod) {
         print("Circular dependency is detected in \(pod) and \(parentDeps)")
         if raiseCircularDepError {
@@ -266,22 +270,23 @@ struct SpecRepoBuilder: ParsableCommand {
     do {
       // Update the repo
       try shell.run("pod repo update")
-      var isDir:ObjCBool = true
+      var isDir: ObjCBool = true
       let podName = pod.deletingPathExtension().lastPathComponent
-      let theProjectPath = "~/.cocoapods/repos/\(localSpecRepoName)/\(podName )"
+      let homeDirURL = FileManager.default.homeDirectoryForCurrentUser
+      let theProjectPath = "\(homeDirURL.path)/.cocoapods/repos/\(localSpecRepoName)/\(podName)"
+      print("check project path \(theProjectPath)")
       if !FileManager.default.fileExists(atPath: theProjectPath, isDirectory: &isDir) {
-          let outcome =
-            try shell
-              .run(
-                "pod repo push \(localSpecRepoName) \(pod.path) --sources=\(sourcesArg) \(flagsArg)"
-              )
-          try shell.run("pod repo update")
-          print("Outcome is \(outcome)")
-          return outcome
+        let outcome =
+          try shell
+            .run(
+              "pod repo push \(localSpecRepoName) \(pod.path) --sources=\(sourcesArg) \(flagsArg)"
+            )
+        try shell.run("pod repo update")
+        print("Outcome is \(outcome)")
+        return outcome
       }
-      print ("\(podName) was uploaded already.")
+      print("`pod repo push` \(podName) will not run since the repo was uploaded already.")
       return 0
-
 
     } catch {
       throw error
