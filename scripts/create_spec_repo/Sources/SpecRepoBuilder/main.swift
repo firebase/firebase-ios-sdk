@@ -266,15 +266,22 @@ struct SpecRepoBuilder: ParsableCommand {
     do {
       // Update the repo
       try shell.run("pod repo update")
-      let outcome =
-        try shell
-          .run(
-            "pod repo push \(localSpecRepoName) \(pod.path) --sources=\(sourcesArg) \(flagsArg)"
-          )
-      try shell.run("pod repo update")
-      print("Outcome is \(outcome)")
+      let isDir:ObjCBool = true
+      let podName = pod.deletingPathExtension().lastPathComponent
+      let theProjectPath = "~/.cocoapods/repos/\(localSpecRepoName)/\(podName )"
+      if !FileManager.default.fileExists(atPath: theProjectPath, isDirectory: &isDir) {
+          let outcome =
+            try shell
+              .run(
+                "pod repo push \(localSpecRepoName) \(pod.path) --sources=\(sourcesArg) \(flagsArg)"
+              )
+          try shell.run("pod repo update")
+          print("Outcome is \(outcome)")
+          return outcome
+      }
+      print ("\(podName) was uploaded already."
+      return 0
 
-      return outcome
 
     } catch {
       throw error
