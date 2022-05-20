@@ -266,7 +266,7 @@ struct SpecRepoBuilder: ParsableCommand {
     do {
       // Update the repo
       try shell.run("pod repo update")
-      let isDir:ObjCBool = true
+      var isDir:ObjCBool = true
       let podName = pod.deletingPathExtension().lastPathComponent
       let theProjectPath = "~/.cocoapods/repos/\(localSpecRepoName)/\(podName )"
       if !FileManager.default.fileExists(atPath: theProjectPath, isDirectory: &isDir) {
@@ -279,7 +279,7 @@ struct SpecRepoBuilder: ParsableCommand {
           print("Outcome is \(outcome)")
           return outcome
       }
-      print ("\(podName) was uploaded already."
+      print ("\(podName) was uploaded already.")
       return 0
 
 
