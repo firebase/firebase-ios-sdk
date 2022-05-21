@@ -24,6 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nullable, nonatomic, strong) GDTCOREvent *sendDataEvent_event;
 @property(nullable, nonatomic, strong) NSError *sendDataEvent_error;
 @property(nonatomic) BOOL sendDataEvent_wasWritten;
+@property(assign, nonatomic) BOOL async;
 
 - (instancetype)initWithMappingID:(NSString *)mappingID
                      transformers:(nullable NSArray<id<GDTCOREventTransformer>> *)transformers
