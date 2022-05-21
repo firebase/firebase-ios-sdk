@@ -21,14 +21,14 @@ tasks for additional Swift improvements.
 | **Swift Doc Scrub**   |   ✅  |  ✅   | ✅    | ✅   | ✅   | ✅    |  ✅   |  ✅   |  ✅  |  ✅   |  ✅    | ✅  |  ✅   | ✅   |  ✅   |  ✅   |  ✅|
 
 ### Other Projects
-- Tooling to surface full list of automatically generated Swift API from Objective C and validate.
+- Tooling to surface full list of automatically generated Swift API from Objective-C and validate.
 - Improve singleton naming scheme. Move singletons into a Firebase namespace, like `Firebase.auth()`, `Firebase.storage()`, etc.
 - Swift Generics. Update APIs that are using weakly typed information to use proper generics.
 
 ## Notes
 2. Tests exist. Coverage to be confirmed.
 4. `NS_ERROR_ENUM` used but a larger audit is still needed for more localized errors.
-5. Still needs to unify Objective C and Swift errors.
+5. Still needs to unify Objective-C and Swift errors.
 6. One property wrapper added in [#8614](https://github.com/firebase/firebase-ios-sdk/pull/8614). More to go.
 7. `record(Error)` API should be expanded to collect Swift Errors as well as NSErrors.
 
@@ -47,7 +47,7 @@ for Storage.
 Property Wrappers and likely the SwiftUI lifecycle bits, but an audit and improvements could likely be made. The existing FIAM and Analytics View modifier
 APIs would fit into this category.
 * **Property Wrappers**: Property wrappers are used to improve the API.
-* **Swift Doc Scrub**: Review and update to change Objective C types and call examples to Swift. In addition to updating the documentation content, we
+* **Swift Doc Scrub**: Review and update to change Objective-C types and call examples to Swift. In addition to updating the documentation content, we
 should also investigate using DocC to format the docs.
 
 ## Columns (Firebase Products)

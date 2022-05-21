@@ -26,6 +26,7 @@ options=(
 )
 
 git grep "${options[@]}" -- \
+    ':(exclude)cmake/external/snappy.patch' \
     ':(exclude)Crashlytics/ProtoSupport' \
     ':(exclude)Crashlytics/UnitTests/Data' \
     ':(exclude)Firebase/CoreDiagnostics/ProtoSupport' \

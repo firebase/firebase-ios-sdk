@@ -4,7 +4,7 @@ Pod::Spec.new do |s|
   s.summary          = 'Firebase Storage'
 
   s.description      = <<-DESC
-Objective C Implementations for FirebaseStorage. This pod should not be directly imported.
+Objective-C Implementations for FirebaseStorage. This pod should not be directly imported.
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
@@ -44,7 +44,7 @@ Objective C Implementations for FirebaseStorage. This pod should not be directly
   s.osx.framework = 'CoreServices'
 
   s.dependency 'FirebaseCore', '~> 9.0'
-  s.dependency 'GTMSessionFetcher/Core', '~> 1.7'
+  s.dependency 'GTMSessionFetcher/Core', '>= 1.7', '< 3.0'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
