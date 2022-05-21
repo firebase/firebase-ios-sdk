@@ -288,8 +288,9 @@ LevelDbOverlayMigrationManager* LevelDbPersistence::GetOverlayMigrationManager(
     const User& user) {
   if (overlay_migration_managers_.find(user.uid()) ==
       overlay_migration_managers_.end()) {
-    overlay_migration_managers_.insert({user.uid(),
-        absl::make_unique<LevelDbOverlayMigrationManager>(this, user.uid())});
+    overlay_migration_managers_.insert(
+        {user.uid(),
+         absl::make_unique<LevelDbOverlayMigrationManager>(this, user.uid())});
   }
   return overlay_migration_managers_[user.uid()].get();
 }
