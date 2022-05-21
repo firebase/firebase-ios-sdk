@@ -139,7 +139,7 @@ class LevelDbPersistence : public Persistence {
   std::unique_ptr<LevelDbBundleCache> bundle_cache_;
   std::unordered_map<std::string, std::unique_ptr<LevelDbDocumentOverlayCache>>
       document_overlay_caches_;
-  std::unique_ptr<LevelDbOverlayMigrationManager> overlay_migration_manager_;
+  std::unordered_map<std::string, std::unique_ptr<LevelDbOverlayMigrationManager>> overlay_migration_managers_;
   std::unordered_map<std::string, std::unique_ptr<LevelDbMutationQueue>>
       mutation_queues_;
   std::unique_ptr<LevelDbTargetCache> target_cache_;

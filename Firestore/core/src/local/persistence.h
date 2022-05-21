@@ -142,7 +142,13 @@ class Persistence {
    */
   virtual ReferenceDelegate* reference_delegate() = 0;
 
-  /** Releases components created for users other than given `target_uid`. */
+  /**
+   * Releases components that are created for users other than `target_uid`.
+   *
+   * This should be invoked after LocalStore initialization which might create
+   * components for all users in the cache, or after LocalStore switches to
+   * a new user with `target_uid`.
+   */
   virtual void ReleaseOtherUserSpecificComponents(
       const std::string& target_uid) = 0;
 

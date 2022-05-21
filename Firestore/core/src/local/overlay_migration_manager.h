@@ -29,6 +29,12 @@ class OverlayMigrationManager {
   virtual void Run() = 0;
 };
 
+class MemoryOverlayMigrationManager : public OverlayMigrationManager {
+ public:
+  void Run() override {
+  }
+};
+
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase

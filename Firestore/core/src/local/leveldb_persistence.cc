@@ -285,12 +285,13 @@ LevelDbDocumentOverlayCache* LevelDbPersistence::GetDocumentOverlayCache(
 }
 
 LevelDbOverlayMigrationManager* LevelDbPersistence::GetOverlayMigrationManager(
-    const credentials::User& user) {
-  if (overlay_migration_manager_ == nullptr) {
-    overlay_migration_manager_ =
-        absl::make_unique<LevelDbOverlayMigrationManager>(this, user.uid());
+    const User& user) {
+  if (overlay_migration_managers_.find(user.uid()) ==
+      overlay_migration_managers_.end()) {
+    overlay_migration_managers_.insert({user.uid(),
+        absl::make_unique<LevelDbOverlayMigrationManager>(this, user.uid())});
   }
-  return overlay_migration_manager_.get();
+  return overlay_migration_managers_[user.uid()].get();
 }
 
 void LevelDbPersistence::ReleaseOtherUserSpecificComponents(
@@ -300,6 +301,7 @@ void LevelDbPersistence::ReleaseOtherUserSpecificComponents(
       document_overlay_caches_.erase(uid);
       mutation_queues_.erase(uid);
       index_managers_.erase(uid);
+      overlay_migration_managers_.erase(uid);
     }
   }
 }
