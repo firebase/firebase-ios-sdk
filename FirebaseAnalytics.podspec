@@ -27,13 +27,13 @@ Pod::Spec.new do |s|
     s.libraries  = 'c++', 'sqlite3', 'z'
     s.frameworks = 'StoreKit'
     
-    dependency 'FirebaseCore', '~> 9.0'
-    dependency 'FirebaseInstallations', '~> 9.0'
-    dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.7'
-    dependency 'GoogleUtilities/MethodSwizzler', '~> 7.7'
-    dependency 'GoogleUtilities/NSData+zlib', '~> 7.7'
-    dependency 'GoogleUtilities/Network', '~> 7.7'
-    dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
+    s.dependency 'FirebaseCore', '~> 9.0'
+    s.dependency 'FirebaseInstallations', '~> 9.0'
+    s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.7'
+    s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.7'
+    s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.7'
+    s.dependency 'GoogleUtilities/Network', '~> 7.7'
+    s.dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
     
     s.default_subspecs = 'AdIdSupport'
 
