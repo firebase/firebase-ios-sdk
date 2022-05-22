@@ -1,61 +1,50 @@
-{
-    "authors": "Google, Inc.",
-    "cocoapods_version": ">= 1.10.0",
-    "default_subspecs": "AdIdSupport",
-    "dependencies": {
-        "FirebaseCore": "~> 9.0",
-        "FirebaseInstallations": "~> 9.0",
-        "GoogleUtilities/AppDelegateSwizzler": "~> 7.7",
-        "GoogleUtilities/MethodSwizzler": "~> 7.7",
-        "GoogleUtilities/NSData+zlib": "~> 7.7",
-        "GoogleUtilities/Network": "~> 7.7",
-        "nanopb": [ ">= 2.30908.0", "< 2.30910.0" ]
-    },
-    "description": "Firebase Analytics is a free, out-of-the-box analytics solution that inspires actionable insights based on app usage and user engagement.",
-    "frameworks": [
-        "StoreKit"
-    ],
-    "homepage": "https://firebase.google.com/features/analytics/",
-    "libraries": [
-        "c++",
-        "sqlite3",
-        "z"
-    ],
-    "license": {
-        "text": "Copyright 2022 Google",
-        "type": "Copyright"
-    },
-    "name": "FirebaseAnalytics",
-    "platforms": {
-        "ios": "10.0",
-        "osx": "10.12",
-        "tvos": "12.0"
-    },
-    "source": {
-        "http": "https://dl.google.com/firebase/ios/analytics/8e504e0b8788faff/FirebaseAnalytics-9.1.0.tar.gz"
-    },
-    "subspecs": [
-        {
-            "name": "AdIdSupport",
-            "dependencies": {
-                "GoogleAppMeasurement": "9.1.0"
-            },
-            "vendored_frameworks": [
-                "Frameworks/FirebaseAnalytics.xcframework"
-            ]
-        },
-        {
-            "name": "WithoutAdIdSupport",
-            "dependencies": {
-                "GoogleAppMeasurement/WithoutAdIdSupport": "9.1.0"
-            },
-            "vendored_frameworks": [
-                "Frameworks/FirebaseAnalytics.xcframework"
-            ]
-        }
-    ],
-    "summary": "Firebase Analytics for iOS",
+Pod::Spec.new do |s|
+    s.name             = 'FirebaseAnalytics'
+    s.version          = '9.1.0'
+    s.summary          = 'Firebase Analytics for iOS'
 
-    "swift_version" : "5.3",
-    "version": "9.1.0"
-}
+    s.description      = <<-DESC
+    Firebase Analytics is a free, out-of-the-box 
+    analytics solution that inspires actionable 
+    insights based on app usage and user engagement. 
+    DESC
+
+    s.homepage         = 'https://firebase.google.com/features/analytics/'
+    s.license          = { :type => 'Copyright', :text => 'Copyright 2022 Google' }
+    s.authors          = 'Google, Inc.'
+        
+    s.source           = {
+        :http => 'https://dl.google.com/firebase/ios/analytics/8e504e0b8788faff/FirebaseAnalytics-9.1.0.tar.gz'
+    }
+    
+    s.cocoapods_version = '>= 1.10.0'
+    s.swift_version     = '5.3'
+    
+    s.ios.deployment_target  = '10.0'
+    s.osx.deployment_target  = '10.12'
+    s.tvos.deployment_target = '12.0'
+    
+    s.libraries  = 'c++', 'sqlite3', 'z'
+    s.frameworks = 'StoreKit'
+    
+    dependency 'FirebaseCore', '~> 9.0'
+    dependency 'FirebaseInstallations', '~> 9.0'
+    dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.7'
+    dependency 'GoogleUtilities/MethodSwizzler', '~> 7.7'
+    dependency 'GoogleUtilities/NSData+zlib', '~> 7.7'
+    dependency 'GoogleUtilities/Network', '~> 7.7'
+    dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
+    
+    s.default_subspecs = 'AdIdSupport'
+
+    s.subspec 'AdIdSupport' do |ss|
+        ss.dependency 'GoogleAppMeasurement', '9.1.0'
+        ss.vendored_frameworks = 'Frameworks/FirebaseAnalytics.xcframework'
+    end
+
+    s.subspec 'WithoutAdIdSupport' do |ss|
+        ss.dependency 'GoogleAppMeasurement/WithoutAdIdSupport', '9.1.0'
+        ss.vendored_frameworks = 'Frameworks/FirebaseAnalytics.xcframework'
+    end
+
+end
