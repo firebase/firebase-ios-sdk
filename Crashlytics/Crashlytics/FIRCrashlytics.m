@@ -351,7 +351,11 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
 #pragma mark - API: Errors and Exceptions
 - (void)recordError:(NSError *)error {
-  FIRCLSUserLoggingRecordError(error, nil);
+  [self recordError:error userInfo:nil];
+}
+
+- (void)recordError:(NSError *)error userInfo:(NSDictionary<NSString *, id> *)userInfo {
+  FIRCLSUserLoggingRecordError(error, userInfo);
 }
 
 - (void)recordExceptionModel:(FIRExceptionModel *)exceptionModel {
