@@ -64,6 +64,9 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 // Deprecated error code previously from FirebaseCore
 static const NSInteger sFIRErrorCodeConfigFailed = -114;
 
+// Key to retrive fetch config template version number
+static NSString *const templateVersionNumberKey = @"templateVersion";
+
 #pragma mark - RCNConfig
 
 @implementation RCNConfigFetch {
@@ -575,6 +578,14 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
   [URLRequest setHTTPBody:content];
 
   return [_fetchSession dataTaskWithRequest:URLRequest completionHandler:fetcherCompletion];
+}
+
+- (NSString *)getTemplateVersionNumber {
+    if (_content.fetchedConfig != nil && [_content.fetchedConfig objectForKey:templateVersionNumberKey]) {
+        return  [_content.fetchedConfig objectForKey:templateVersionNumberKey];
+    }
+    
+    return @"1";
 }
 
 @end
