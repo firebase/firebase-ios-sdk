@@ -166,8 +166,6 @@ static NSString *const kEventExtensionJson = @"extension_js";
   NSString *filePath = cacheFilePath == nil ? [self.class determineCacheFilePath] : cacheFilePath;
 
   NSTimeInterval start = [self.timeFetcher currentTimestampInSeconds];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   id fetchedClearcutRetryRecords;
     NSData *data = [NSData dataWithContentsOfFile:filePath];
         if (data) {
@@ -175,10 +173,12 @@ static NSString *const kEventExtensionJson = @"extension_js";
                 fetchedClearcutRetryRecords = [NSKeyedUnarchiver unarchivedObjectOfClass:[NSMutableArray<FIRIAMClearcutLogRecord *> class] fromData:data error:nil];
             } else {
                 // Fallback on earlier versions
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                 fetchedClearcutRetryRecords = [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
+#pragma clang diagnostic pop
             }
         }
-#pragma clang diagnostic pop
   if (fetchedClearcutRetryRecords) {
     @synchronized(self) {
       self.records = (NSMutableArray<FIRIAMClearcutLogRecord *> *)fetchedClearcutRetryRecords;

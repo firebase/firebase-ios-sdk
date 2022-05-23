@@ -154,8 +154,6 @@ static NSString *const kDetailArchiveKey = @"detail";
 
 - (void)loadFromCachePath:(NSString *)cacheFilePath {
   NSString *filePath = cacheFilePath == nil ? [self.class determineCacheFilePath] : cacheFilePath;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   id fetchedActivityRecords;
     NSData *data = [NSData dataWithContentsOfFile:filePath];
         if (data) {
@@ -163,10 +161,12 @@ static NSString *const kDetailArchiveKey = @"detail";
                 fetchedActivityRecords = [NSKeyedUnarchiver unarchivedObjectOfClass:[NSMutableArray<FIRIAMActivityRecord *> class] fromData:data error:nil];
             } else {
                 // Fallback on earlier versions
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                 fetchedActivityRecords = [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
+#pragma clang diagnostic pop
             }
         }
-#pragma clang diagnostic pop
   if (fetchedActivityRecords) {
     @synchronized(self) {
       self.activityRecords = (NSMutableArray<FIRIAMActivityRecord *> *)fetchedActivityRecords;
