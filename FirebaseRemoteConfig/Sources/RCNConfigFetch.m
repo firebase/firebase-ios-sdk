@@ -581,11 +581,12 @@ static NSString *const templateVersionNumberKey = @"templateVersion";
 }
 
 - (NSString *)getTemplateVersionNumber {
-    if (_content.fetchedConfig != nil && [_content.fetchedConfig objectForKey:templateVersionNumberKey]) {
-        return  [_content.fetchedConfig objectForKey:templateVersionNumberKey];
-    }
-    
-    return @"1";
+  if (_content.fetchedConfig != nil &&
+      [_content.fetchedConfig objectForKey:templateVersionNumberKey]) {
+    return [_content.fetchedConfig objectForKey:templateVersionNumberKey];
+  }
+
+  return @"1";
 }
 
 @end
