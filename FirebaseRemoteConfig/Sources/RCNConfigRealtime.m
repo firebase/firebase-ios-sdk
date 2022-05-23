@@ -21,7 +21,7 @@
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "RCNConfigFetch.h"
+#import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 
 /// URL params
 static NSString *const kServerURLDomain = @"https://firebaseremoteconfig.googleapis.com";
@@ -53,9 +53,12 @@ typedef void (^RCNConfigUpdateCompletion)(NSError *_Nullable error);
 NSTimeInterval timeoutSeconds = 4320;
 NSInteger FETCH_ATTEMPTS = 5;
 
+@interface FIRConfigUpdateListenerRegistration()
+@property(strong, atomic, nonnull) RCNConfigUpdateCompletion completionHandler;
+@end
+
 @implementation FIRConfigUpdateListenerRegistration {
   RCNConfigRealtime *_realtimeClient;
-  id completionHandler;
 }
 
 - (instancetype)initWithClient:(RCNConfigRealtime *)realtimeClient
@@ -63,13 +66,13 @@ NSInteger FETCH_ATTEMPTS = 5;
   self = [super init];
   if (self) {
     _realtimeClient = realtimeClient;
-    completionHandler = completionHandler;
+    _completionHandler = completionHandler;
   }
   return self;
 }
 
 - (void)remove {
-  [self->_realtimeClient removeConfigUpdateListener:completionHandler];
+  [self->_realtimeClient removeConfigUpdateListener:_completionHandler];
 }
 
 @end
@@ -98,7 +101,7 @@ NSInteger FETCH_ATTEMPTS = 5;
              options:(FIROptions *)options {
   self = [super init];
   if (self) {
-    _listeners = [NSMutableSet alloc];
+    _listeners = [[NSMutableSet alloc] init];
     _realtimeLockQueue = [RCNConfigRealtime realtimeRemoteConfigSerialQueue];
 
     _configFetch = configFetch;
@@ -407,6 +410,7 @@ NSInteger FETCH_ATTEMPTS = 5;
   NSHTTPURLResponse *_httpURLResponse = (NSHTTPURLResponse *)response;
   if ([_httpURLResponse statusCode] != 200) {
     [self pauseRealtimeStream];
+      /// TODO: Add Http retry method here
   }
   completionHandler(NSURLSessionResponseAllow);
 }
@@ -416,11 +420,13 @@ NSInteger FETCH_ATTEMPTS = 5;
                     task:(NSURLSessionTask *)task
     didCompleteWithError:(NSError *)error {
   [self pauseRealtimeStream];
+    /// TODO: Add Http retry method here
 }
 
 /// Delegate that checks the final response of the connection and retries if allowed
 - (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(NSError *)error {
   [self pauseRealtimeStream];
+    /// TODO: Add Http retry method here
 }
 
 #pragma mark - Top level methods
@@ -458,6 +464,10 @@ NSInteger FETCH_ATTEMPTS = 5;
 
 - (FIRConfigUpdateListenerRegistration *)addConfigUpdateListener:
     (void (^_Nonnull)(NSError *_Nullable error))listener {
+    if (listener == nil) {
+        return nil;
+    }
+    
   __weak RCNConfigRealtime *weakSelf = self;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
