@@ -168,7 +168,16 @@ static NSString *const kEventExtensionJson = @"extension_js";
   NSTimeInterval start = [self.timeFetcher currentTimestampInSeconds];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  id fetchedClearcutRetryRecords = [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
+  id fetchedClearcutRetryRecords;
+    NSData *data = [NSData dataWithContentsOfFile:filePath];
+        if (data) {
+            if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+                fetchedClearcutRetryRecords = [NSKeyedUnarchiver unarchivedObjectOfClass:[NSMutableArray<FIRIAMClearcutLogRecord *> class] fromData:data error:nil];
+            } else {
+                // Fallback on earlier versions
+                fetchedClearcutRetryRecords = [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
+            }
+        }
 #pragma clang diagnostic pop
   if (fetchedClearcutRetryRecords) {
     @synchronized(self) {

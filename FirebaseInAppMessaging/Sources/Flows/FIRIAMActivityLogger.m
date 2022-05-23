@@ -30,13 +30,17 @@ static NSString *const kIsSuccessArchiveKey = @"is_success";
 static NSString *const kTimeStampArchiveKey = @"timestamp";
 static NSString *const kDetailArchiveKey = @"detail";
 
++ (BOOL)supportsSecureCoding {
+  return YES;
+}
+
 - (id)initWithCoder:(NSCoder *)decoder {
   self = [super init];
   if (self != nil) {
     _activityType = [decoder decodeIntegerForKey:kActiveTypeArchiveKey];
-    _timestamp = [decoder decodeObjectForKey:kTimeStampArchiveKey];
+    _timestamp = [decoder decodeObjectOfClass:[NSDate class] forKey:kTimeStampArchiveKey];
     _success = [decoder decodeBoolForKey:kIsSuccessArchiveKey];
-    _detail = [decoder decodeObjectForKey:kDetailArchiveKey];
+    _detail = [decoder decodeObjectOfClass:[NSString class] forKey:kDetailArchiveKey];
   }
   return self;
 }
@@ -152,7 +156,16 @@ static NSString *const kDetailArchiveKey = @"detail";
   NSString *filePath = cacheFilePath == nil ? [self.class determineCacheFilePath] : cacheFilePath;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  id fetchedActivityRecords = [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
+  id fetchedActivityRecords;
+    NSData *data = [NSData dataWithContentsOfFile:filePath];
+        if (data) {
+            if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
+                fetchedActivityRecords = [NSKeyedUnarchiver unarchivedObjectOfClass:[NSMutableArray<FIRIAMActivityRecord *> class] fromData:data error:nil];
+            } else {
+                // Fallback on earlier versions
+                fetchedActivityRecords = [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
+            }
+        }
 #pragma clang diagnostic pop
   if (fetchedActivityRecords) {
     @synchronized(self) {
