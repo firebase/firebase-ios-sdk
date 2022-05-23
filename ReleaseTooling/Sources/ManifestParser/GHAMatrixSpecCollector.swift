@@ -25,6 +25,7 @@ import Utils
 /// ```
 struct SDKPodspec: Codable {
   let podspec: String
+  let allowWarnings: Bool
 }
 
 struct GHAMatrixSpecCollector {
@@ -32,18 +33,18 @@ struct GHAMatrixSpecCollector {
   var outputSpecFileURL: URL
   var excludedSDKs: [String] = []
 
-  func getPodsInManifest(_ manifest: Manifest) -> [String] {
-    var podsList: [String] = []
+  func getPodsInManifest(_ manifest: Manifest) -> [String: SDKPodspec] {
+    var podsMap: [String: SDKPodspec] = [:]
     for pod in manifest.pods {
-      podsList.append(pod.name)
+      podsMap[pod.name] = SDKPodspec(podspec: pod.name, allowWarnings: pod.allowWarnings)
     }
-    return podsList
+    return podsMap
   }
 
-  func getAllPodspecs() -> [String] {
-    var output: [String] = []
+  func getAllPodspecs() -> [SDKPodspec] {
+    var output: [SDKPodspec] = []
     let fileManager = FileManager.default
-    let podsSet = Set(getPodsInManifest(FirebaseManifest.shared))
+    let podsMap = getPodsInManifest(FirebaseManifest.shared)
     do {
       let fileURLs = try fileManager.contentsOfDirectory(
         at: SDKRepoURL,
@@ -53,8 +54,11 @@ struct GHAMatrixSpecCollector {
         let fileNameComponents = url.lastPathComponent.components(separatedBy: ".")
         if fileNameComponents.count > 1, fileNameComponents[1] == "podspec" {
           let specName = fileNameComponents[0]
-          podsSet.contains(specName) ? output
-            .append(specName) : print("\(specName) is not in manifiest")
+          if let spec = podsMap[specName] {
+            output.append(spec)
+          } else {
+            print("\(specName) is not in manifiest")
+          }
         }
       }
     } catch {
@@ -64,11 +68,7 @@ struct GHAMatrixSpecCollector {
   }
 
   func generateMatrixJson(to filePath: URL) throws {
-    let testingSpecs = getAllPodspecs()
-    var sdkPodspecs: [SDKPodspec] = []
-    for spec in testingSpecs {
-      sdkPodspecs.append(SDKPodspec(podspec: spec))
-    }
+    let sdkPodspecs: [SDKPodspec] = getAllPodspecs()
     // Trim whitespaces so the GitHub Actions matrix can read.
     let str = try String(
       decoding: JSONEncoder().encode(sdkPodspecs),
