@@ -20,10 +20,25 @@ import Foundation
 import Utils
 
 struct ManifestParser: ParsableCommand {
+  @Option(help: "The path of the SDK repo.",
+          transform: { str in
+            if NSString(string: str).isAbsolutePath { return URL(fileURLWithPath: str) }
+            let documentDir = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+            return documentDir.appendingPathComponent(str)
+          })
+  var SDKRepoURL: URL
+
   /// Path of a text file for Firebase Pods' names.
-  @Option(help: "Output path of a generated file with all Firebase Pods' names.",
-          transform: URL.init(fileURLWithPath:))
-  var podNameOutputFilePath: URL
+  @Option(help: "An output file with Podspecs",
+          transform: { str in
+            if NSString(string: str).isAbsolutePath { return URL(fileURLWithPath: str) }
+            let documentDir = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+            return documentDir.appendingPathComponent(str)
+          })
+  var specOutputFilePath: URL
+
+  @Option(parsing: .upToNextOption, help: "Podspec files that will not be included.")
+  var excludedSpecs: [String]
 
   func parsePodNames(_ manifest: Manifest) throws {
     var output: [String] = []
@@ -32,17 +47,20 @@ struct ManifestParser: ParsableCommand {
     }
     do {
       try output.joined(separator: ",")
-        .write(to: podNameOutputFilePath, atomically: true,
+        .write(to: specOutputFilePath, atomically: true,
                encoding: String.Encoding.utf8)
-      print("\(output) is written in \n \(podNameOutputFilePath).")
+      print("\(output) is written in \n \(specOutputFilePath).")
     } catch {
       throw error
     }
   }
 
   func run() throws {
-    let manifest = FirebaseManifest.shared
-    try parsePodNames(manifest)
+    let specCollector = GHAMatrixSpecCollector(
+      SDKRepoURL: SDKRepoURL,
+      outputSpecFileURL: specOutputFilePath
+    )
+    try specCollector.generateMatrixJson(to: specOutputFilePath)
   }
 }
 
