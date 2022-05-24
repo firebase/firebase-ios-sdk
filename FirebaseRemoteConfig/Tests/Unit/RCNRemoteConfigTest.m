@@ -1514,7 +1514,6 @@ static NSString *UTCToLocal(NSString *utcTime) {
       }
     };
     [_configRealtime[i] addConfigUpdateListener:completion];
-    OCMVerify([_configRealtime[i] beginRealtimeStream]);
     OCMVerify([_configRealtime[i] addConfigUpdateListener:completion]);
   }
 }
