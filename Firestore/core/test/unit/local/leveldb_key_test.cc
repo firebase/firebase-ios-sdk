@@ -1182,6 +1182,20 @@ TEST(LevelDbDocumentOverlayCollectionGroupIndexKeyTest,
   EXPECT_EQ(decoded_key.document_key(), testutil::Key("coll/doc"));
 }
 
+TEST(LevelDbDataMigrationKeyTest, Description) {
+  AssertExpectedKeyDescription(
+      "[data_migration: data_migration_name=foo-bar?baz!quux]",
+      LevelDbDataMigrationKey::Key("foo-bar?baz!quux"));
+}
+
+TEST(LevelDbDataMigrationKeyTest, Encode) {
+  const std::string encoded_key =
+      LevelDbDataMigrationKey::Key("animal_migration");
+  LevelDbDataMigrationKey decoded_key;
+  ASSERT_TRUE(decoded_key.Decode(encoded_key));
+  EXPECT_EQ(decoded_key.migration_name(), "animal_migration");
+}
+
 #undef AssertExpectedKeyDescription
 
 }  // namespace local

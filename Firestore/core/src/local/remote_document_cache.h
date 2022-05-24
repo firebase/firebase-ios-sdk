@@ -84,14 +84,13 @@ class RemoteDocumentCache {
    *
    * Cached DeletedDocument entries have no bearing on query results.
    *
-   * @param query The query to match documents against.
-   * @param since_read_time If not set to SnapshotVersion::None(), return only
-   * documents that have been read since this snapshot version (exclusive).
+   * @param path The collection path to match documents against.
+   * @param offset The read time and document key to start scanning at
+   * (exclusive).
    * @return The set of matching documents.
    */
-  virtual model::MutableDocumentMap GetMatching(
-      const core::Query& query,
-      const model::SnapshotVersion& since_read_time) = 0;
+  virtual model::MutableDocumentMap GetAll(
+      const model::ResourcePath& path, const model::IndexOffset& offset) = 0;
 
   /**
    * Sets the index manager used by remote document cache.
