@@ -45,8 +45,8 @@ if [ "$TESTINGMODE" = "release_testing" ]; then
   echo "Podspecs tags of Nightly release testing will be updated to ${test_version}."
   # Update source and tag, e.g.  ":tag => 'CocoaPods-' + s.version.to_s" to
   # ":tag => 'CocoaPods-7.9.0'"
-  sed  -i "" "s/\s*:tag.*/:tag => '${test_version}'/" *.podspec
-  sed  -i "" "s/s\.version[[:space:]]*=.*/s\.version='${pod_testing_version}'/" *.podspec
+  sed -i "" "s/\s*:tag.*/:tag => '${test_version}'/" *.podspec
+  sed -i "" "s/s\.version[[:space:]]*=.*/s\.version='${pod_testing_version}'/" *.podspec
 elif [ "$TESTINGMODE" = "prerelease_testing" ]; then
   tag_version="${test_version}.nightly"
   echo "A new tag, ${tag_version},for prerelease testing will be created."
@@ -59,6 +59,6 @@ elif [ "$TESTINGMODE" = "prerelease_testing" ]; then
   git push origin "${tag_version}"
   # Update source and tag, e.g.  ":tag => 'CocoaPods-' + s.version.to_s" to
   # ":tag => ${test_version}.nightly"
-  sed  -i "" "s/\s*:tag.*/:tag => '${tag_version}'/" *.podspec
-  sed  -i "" "s/s\.version[[:space:]]*=.*/s\.version='${pod_testing_version}'/" *.podspec
+  sed -i "" "s/\s*:tag.*/:tag => '${tag_version}'/" *.podspec
+  sed -i "" "s/s\.version[[:space:]]*=.*/s\.version='${pod_testing_version}'/" *.podspec
 fi
