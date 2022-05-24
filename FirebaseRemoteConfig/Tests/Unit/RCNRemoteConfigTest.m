@@ -55,15 +55,13 @@
 
 @interface RCNConfigRealtime (ForTest)
 
-@property(strong, atomic, nonnull) NSMutableSet<id> *listeners;
-
 - (instancetype _Nonnull)init:(RCNConfigFetch *_Nonnull)configFetch
                      settings:(RCNConfigSettings *_Nonnull)settings
                     namespace:(NSString *_Nonnull)namespace
                       options:(FIROptions *_Nonnull)options;
 
 - (void)beginRealtimeStream;
-- (void)pauseRealtimeStream;
+
 - (FIRConfigUpdateListenerRegistration *_Nonnull)addConfigUpdateListener:
     (void (^_Nonnull)(NSError *_Nullable error))listener;
 - (void)removeConfigUpdateListener:(void (^_Nonnull)(NSError *_Nullable error))listener;
@@ -1535,12 +1533,10 @@ static NSString *UTCToLocal(NSString *utcTime) {
       }
     };
     OCMStub([_configRealtime[i] beginRealtimeStream]).andDo(nil);
-    OCMStub([_configRealtime[i] pauseRealtimeStream]).andDo(nil);
 
     FIRConfigUpdateListenerRegistration *registration =
         [_configRealtime[i] addConfigUpdateListener:completion];
     [registration remove];
-    OCMVerify([_configRealtime[i] beginRealtimeStream]);
     OCMVerify([_configRealtime[i] addConfigUpdateListener:completion]);
     OCMVerify([_configRealtime[i] removeConfigUpdateListener:completion]);
   }

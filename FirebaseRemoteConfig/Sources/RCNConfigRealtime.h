@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#ifndef RCNConfigRealtime_h
 #define RCNConfigRealtime_h
 
 #import <Foundation/Foundation.h>
@@ -34,5 +33,3 @@
 - (void)removeConfigUpdateListener:(void (^_Nonnull)(NSError *_Nullable error))listener;
 
 @end
-
-#endif /* RCNConfigRealtime_h */
