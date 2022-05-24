@@ -172,7 +172,7 @@ static NSString *const kEventExtensionJson = @"extension_js";
     if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
       fetchedClearcutRetryRecords = [NSKeyedUnarchiver
           unarchivedObjectOfClasses:[NSSet setWithObjects:[FIRIAMClearcutLogRecord class],
-                                                          [NSArray class], nil]
+                                                          [NSMutableArray class], nil]
                            fromData:data
                               error:nil];
     } else {
