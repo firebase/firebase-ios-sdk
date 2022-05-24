@@ -53,7 +53,7 @@ TransactionRunner::TransactionRunner(const std::shared_ptr<AsyncQueue>& queue,
       result_callback_{std::move(result_callback)},
       backoff_{queue_, TimerId::RetryTransaction},
       attempts_remaining_{max_attempts} {
-  HARD_ASSERT(max_attempts > 0, "invalid max_attempts: %d", max_attempts);
+  HARD_ASSERT(max_attempts >= 0, "invalid max_attempts: %s", max_attempts);
 }
 
 void TransactionRunner::Run() {

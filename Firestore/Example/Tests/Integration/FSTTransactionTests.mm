@@ -797,7 +797,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 
 - (void)testTransactionOptionsMaxAttempts {
   FIRTransactionOptions *options = [[FIRTransactionOptions alloc] init];
-  options.maxAttempts = 4;
+  options.maxAttempts = 7;
 
   // Note: The logic below to force retries is heavily based on 
   // testRetriesWhenDocumentThatWasReadWithoutBeingWrittenChanges.
@@ -837,8 +837,8 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         return nil;
       }
       completion:^(id, NSError *_Nullable error) {
-        XCTAssertNil(error);
-        XCTAssertEqual(attemptCount->load(), 4);
+        [self assertError:error message:@"the transaction should fail due to retries exhausted" code:FIRFirestoreErrorCodeFailedPrecondition];
+        XCTAssertEqual(attemptCount->load(), 7);
         [expectation fulfill];
       }];
   [self awaitExpectations];
