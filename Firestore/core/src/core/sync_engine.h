@@ -126,14 +126,14 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
    * Runs the given transaction block up to retries times and then calls
    * completion.
    *
-   * @param retries The number of times to try before giving up.
+   * @param max_attempts The maximum number of times to try before giving up.
    * @param worker_queue The queue to dispatch sync engine calls to.
    * @param update_callback The callback to call to execute the user's
    * transaction.
    * @param result_callback The callback to call when the transaction is
    * finished or failed.
    */
-  void Transaction(int retries,
+  void Transaction(int max_attempts,
                    const std::shared_ptr<util::AsyncQueue>& worker_queue,
                    core::TransactionUpdateCallback update_callback,
                    core::TransactionResultCallback result_callback);
