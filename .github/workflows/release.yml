@@ -49,7 +49,7 @@ jobs:
          sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" \
          local_sdk_repo_dir="${local_sdk_repo_dir}" \
          podspec_repo_branch="${podspec_repo_branch}" \
-         scripts/release_testing_setup.sh prerelease_testing
+         scripts/release_testing_setup.sh release_testing
     - name: Clean spec repo
       run: |
          botaccess=`cat bot-access.txt`
