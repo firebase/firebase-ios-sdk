@@ -25,7 +25,6 @@
 #include "Firestore/core/src/api/load_bundle_task.h"
 #include "Firestore/core/src/api/settings.h"
 #include "Firestore/core/src/core/core_fwd.h"
-#include "Firestore/core/src/core/transaction_options.h"
 #include "Firestore/core/src/credentials/credentials_fwd.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/util/byte_stream.h"
@@ -46,6 +45,8 @@ struct Empty;
 }  // namespace util
 
 namespace api {
+
+extern const int kDefaultTransactionMaxAttempts;
 
 class Firestore : public std::enable_shared_from_this<Firestore> {
  public:
@@ -94,7 +95,7 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
 
   void RunTransaction(core::TransactionUpdateCallback update_callback,
                       core::TransactionResultCallback result_callback,
-                      const core::TransactionOptions& options = {});
+                      int max_attempts = kDefaultTransactionMaxAttempts);
 
   void Terminate(util::StatusCallback callback);
   void ClearPersistence(util::StatusCallback callback);

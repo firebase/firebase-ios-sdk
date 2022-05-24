@@ -21,12 +21,12 @@
 
 #import <Foundation/Foundation.h>
 
-#include "Firestore/core/src/core/transaction_options.h"
+#include "Firestore/core/src/api/firestore.h"
 #include "Firestore/core/src/util/exception.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-using firebase::firestore::core::TransactionOptions;
+using firebase::firestore::api::kDefaultTransactionMaxAttempts;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::ThrowInvalidArgument;
 
@@ -34,8 +34,7 @@ using firebase::firestore::util::ThrowInvalidArgument;
 
 - (instancetype)init {
   if (self = [super init]) {
-    TransactionOptions defaultOptions;
-    _maxAttempts = defaultOptions.max_attempts();
+    _maxAttempts = kDefaultTransactionMaxAttempts;
   }
   return self;
 }
@@ -66,12 +65,6 @@ using firebase::firestore::util::ThrowInvalidArgument;
     ThrowInvalidArgument("Invalid maxAttempts: %s", std::to_string(maxAttempts));
   }
   _maxAttempts = maxAttempts;
-}
-
-- (TransactionOptions)internalTransactionOptions {
-  TransactionOptions transactionOptions;
-  transactionOptions.set_max_attempts(_maxAttempts);
-  return transactionOptions;
 }
 
 @end

@@ -239,8 +239,8 @@ void SyncEngine::Transaction(int max_attempts,
                              const std::shared_ptr<AsyncQueue>& worker_queue,
                              TransactionUpdateCallback update_callback,
                              TransactionResultCallback result_callback) {
-  worker_queue->VerifyIsCurrentQueue();
   HARD_ASSERT(max_attempts >= 0, "invalid max_attempts: %s", max_attempts);
+  worker_queue->VerifyIsCurrentQueue();
 
   // Allocate a shared_ptr so that the TransactionRunner can outlive this frame.
   auto runner = std::make_shared<TransactionRunner>(worker_queue, remote_store_,

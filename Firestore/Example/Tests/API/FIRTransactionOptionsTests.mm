@@ -18,10 +18,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/API/FIRTransactionOptions+Internal.h"
-
-using firebase::firestore::core::TransactionOptions;
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRTransactionOptionsTests : XCTestCase
@@ -47,13 +43,6 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertThrows(options.maxAttempts = 0);
   XCTAssertThrows(options.maxAttempts = -1);
   XCTAssertThrows(options.maxAttempts = INT32_MIN);
-}
-
-- (void)testInternalTransactionOptions {
-  FIRTransactionOptions* optionsPtr = [[FIRTransactionOptions alloc] init];
-  optionsPtr.maxAttempts = 99;
-  TransactionOptions options = [optionsPtr internalTransactionOptions];
-  XCTAssertEqual(options.max_attempts(), 99);
 }
 
 - (void)testHash {

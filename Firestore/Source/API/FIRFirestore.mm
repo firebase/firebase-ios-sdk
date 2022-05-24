@@ -21,7 +21,7 @@
 #include <utility>
 
 #import "FIRFirestoreSettings+Internal.h"
-#import "FIRTransactionOptions+Internal.h"
+#import "FIRTransactionOptions.h"
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRComponentContainer.h"
@@ -43,7 +43,6 @@
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/core/event_listener.h"
 #include "Firestore/core/src/core/transaction.h"
-#include "Firestore/core/src/core/transaction_options.h"
 #include "Firestore/core/src/credentials/credentials_provider.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider.h"
@@ -62,6 +61,7 @@
 #include "Firestore/core/src/util/string_apple.h"
 #include "absl/memory/memory.h"
 
+using firebase::firestore::api::kDefaultTransactionMaxAttempts;
 using firebase::firestore::api::DocumentReference;
 using firebase::firestore::api::Firestore;
 using firebase::firestore::api::ListenerRegistration;
@@ -338,13 +338,9 @@ NS_ASSUME_NONNULL_BEGIN
     result_capture->HandleFinalStatus(status);
   };
 
-  firebase::firestore::core::TransactionOptions transaction_options;
-  if (options) {
-    transaction_options = [options internalTransactionOptions];
-  }
-
+  int max_attempts = options ? options.maxAttempts : kDefaultTransactionMaxAttempts;
   _firestore->RunTransaction(std::move(internalUpdateBlock), std::move(objcTranslator),
-                             transaction_options);
+                             max_attempts);
 }
 
 - (void)runTransactionWithBlock:(id _Nullable (^)(FIRTransaction *, NSError **error))updateBlock
