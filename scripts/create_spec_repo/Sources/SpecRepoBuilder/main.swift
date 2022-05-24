@@ -394,6 +394,76 @@ struct SpecRepoBuilder: ParsableCommand {
       parentDeps: &tmpSet
     )
     print("Podspec push order:\n", specFileDict.depInstallOrder.joined(separator: "->\t"))
+
+    if !keepRepo {
+      do {
+        if fileManager.fileExists(atPath: "\(curDir)/\(sdkRepoName)") {
+          print("remove \(sdkRepoName) dir.")
+          try fileManager.removeItem(at: URL(fileURLWithPath: "\(curDir)/\(sdkRepoName)"))
+        }
+        try eraseRemoteRepo(repoPath: "\(curDir)", from: githubAccount, sdkRepoName)
+
+      } catch {
+        print("error occurred. \(error)")
+        throw error
+      }
+    }
+
+    var exitCode: Int32 = 0
+    var failedPods: [String] = []
+    let startDate = Date()
+    var minutes = 0
+    for pod in specFileDict.depInstallOrder {
+      print("----------\(pod)-----------")
+      let timer: DispatchSourceTimer = {
+        let t = DispatchSource.makeTimerSource()
+        t.schedule(deadline: .now(), repeating: 60)
+        t.setEventHandler(handler: {
+          print("Tests have run \(minutes) min(s).")
+          minutes += 1
+        })
+        return t
+      }()
+      timer.resume()
+      var podExitCode: Int32 = 0
+      do {
+        guard let podURL = specFileDict[pod] else {
+          Self
+            .exit(withError: SpecRepoBuilderError
+              .podspecNotFound(pod, from: sdkRepo))
+        }
+        switch pod {
+        case "Firebase":
+          podExitCode = try pushPodspec(
+            forPod: podURL,
+            sdkRepo: sdkRepo,
+            sources: podSources,
+            flags: Constants.umbrellaPodFlags
+          )
+        default:
+          podExitCode = try pushPodspec(
+            forPod: podURL,
+            sdkRepo: sdkRepo,
+            sources: podSources,
+            flags: Constants.flags
+          )
+        }
+        if podExitCode != 0 {
+          exitCode = 1
+          failedPods.append(pod)
+          print("Failed pod - \(pod)")
+        }
+      } catch {
+        throw error
+      }
+      timer.cancel()
+      let finishDate = Date()
+      print("\(pod) is finished at: \(finishDate.dateTimeString()). " +
+        "Duration: \(startDate.formattedDurationSince(finishDate))")
+    }
+    if exitCode != 0 {
+      Self.exit(withError: SpecRepoBuilderError.failedToPush(pods: failedPods))
+    }
   }
 }
 
