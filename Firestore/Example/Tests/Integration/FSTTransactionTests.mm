@@ -795,4 +795,53 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [self awaitExpectations];
 }
 
+- (void)testTransactionOptionsMaxAttempts {
+  FIRTransactionOptions *options = [[FIRTransactionOptions alloc] init];
+  options.maxAttempts = 4;
+
+  // Note: The logic below to force retries is heavily based on 
+  // testRetriesWhenDocumentThatWasReadWithoutBeingWrittenChanges.
+
+  FIRFirestore *firestore = [self firestore];
+  FIRDocumentReference *doc = [[firestore collectionWithPath:@"counters"] documentWithAutoID];
+  auto attemptCount = std::make_shared<std::atomic_int>(0);
+  attemptCount->store(0);
+
+  [self writeDocumentRef:doc data:@{@"count" : @"initial value"}];
+
+  // Skip backoff delays.
+  [firestore workerQueue]->SkipDelaysForTimerId(TimerId::RetryTransaction);
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
+  [firestore
+      runTransactionWithOptions:options
+      block:^id _Nullable(FIRTransaction *transaction, NSError **error) {
+        ++(*attemptCount);
+
+        [transaction getDocument:doc error:error];
+        XCTAssertNil(*error);
+
+        // Do a write outside of the transaction. This will force the transaction to be retried.
+        dispatch_semaphore_t writeSemaphore = dispatch_semaphore_create(0);
+        [doc setData:@{
+          @"count" : @(attemptCount->load())
+        }
+            completion:^(NSError *) {
+              dispatch_semaphore_signal(writeSemaphore);
+            }];
+        dispatch_semaphore_wait(writeSemaphore, DISPATCH_TIME_FOREVER);
+
+        // Now try to update the doc from within the transaction.
+        // This will fail since the document was modified outside of the transaction.
+        [transaction setData:@{@"count" : @"this write should fail"} forDocument:doc];
+        return nil;
+      }
+      completion:^(id, NSError *_Nullable error) {
+        XCTAssertNil(error);
+        XCTAssertEqual(attemptCount->load(), 4);
+        [expectation fulfill];
+      }];
+  [self awaitExpectations];
+}
+
 @end

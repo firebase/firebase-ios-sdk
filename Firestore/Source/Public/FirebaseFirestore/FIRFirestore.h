@@ -147,11 +147,24 @@ NS_SWIFT_NAME(Firestore)
                      completion:(void (^)(id _Nullable result, NSError *_Nullable error))completion
     __attribute__((swift_async(none)));  // Disable async import due to #9426.
 
+/**
+ * Executes the given updateBlock and then attempts to commit the changes applied within an atomic
+ * transaction.
+ *
+ * This is identical to `runTransactionWithBlock` except that it also accepts "options" that affect
+ * how the transaction is executed.
+ *
+ * @param options The options to use for the transaction.
+ * @param updateBlock The block to execute within the transaction context.
+ * @param completion The block to call with the result or error of the transaction. This
+ *     block will run even if the client is offline, unless the process is killed.
+ */
 - (void)runTransactionWithOptions:(FIRTransactionOptions *_Nullable)options
-                            block:(id _Nullable (^)(FIRTransaction *, NSError **))updateBlock
+                            block:(id _Nullable (^)(FIRTransaction *, NSError **))block
                        completion:
                            (void (^)(id _Nullable result, NSError *_Nullable error))completion
     __attribute__((swift_async(none)));  // Disable async import due to #9426.
+
 /**
  * Creates a write batch, used for performing multiple writes as a single
  * atomic operation.

@@ -30,7 +30,7 @@ NS_SWIFT_NAME(TransactionOptions)
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 
 /** The maximum number of attempts to commit, after which transaction fails. Default is 5. */
-@property(nonatomic) NSInteger maxAttempts;
+@property(nonatomic, assign) NSInteger maxAttempts;
 
 @end
 
