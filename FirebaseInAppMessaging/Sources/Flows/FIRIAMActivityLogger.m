@@ -158,10 +158,11 @@ static NSString *const kDetailArchiveKey = @"detail";
   NSData *data = [NSData dataWithContentsOfFile:filePath];
   if (data) {
     if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-      fetchedActivityRecords =
-          [NSKeyedUnarchiver unarchivedObjectOfClass:[NSMutableArray<FIRIAMActivityRecord *> class]
-                                            fromData:data
-                                               error:nil];
+      fetchedActivityRecords = [NSKeyedUnarchiver
+          unarchivedObjectOfClasses:[NSSet setWithObjects:[FIRIAMActivityRecord class],
+                                                          [NSArray class], nil]
+                           fromData:data
+                              error:nil];
     } else {
       // Fallback on earlier versions
 #pragma clang diagnostic push

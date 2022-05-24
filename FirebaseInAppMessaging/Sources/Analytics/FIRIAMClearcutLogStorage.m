@@ -171,9 +171,10 @@ static NSString *const kEventExtensionJson = @"extension_js";
   if (data) {
     if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
       fetchedClearcutRetryRecords = [NSKeyedUnarchiver
-          unarchivedObjectOfClass:[NSMutableArray<FIRIAMClearcutLogRecord *> class]
-                         fromData:data
-                            error:nil];
+          unarchivedObjectOfClasses:[NSSet setWithObjects:[FIRIAMClearcutLogRecord class],
+                                                          [NSArray class], nil]
+                           fromData:data
+                              error:nil];
     } else {
       // Fallback on earlier versions
 #pragma clang diagnostic push
