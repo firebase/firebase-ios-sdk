@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
+#import "FIRTransactionOptions.h"
+
 #include <cstdint>
 #include <string>
-
-#import "FIRTransactionOptions.h"
 
 #import <Foundation/Foundation.h>
 

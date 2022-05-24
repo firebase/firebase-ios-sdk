@@ -163,7 +163,8 @@ void Firestore::RunTransaction(core::TransactionUpdateCallback update_callback,
   HARD_ASSERT(max_attempts >= 0, "invalid max_attempts: %s", max_attempts);
   EnsureClientConfigured();
 
-  client_->Transaction(max_attempts, std::move(update_callback), std::move(result_callback));
+  client_->Transaction(max_attempts, std::move(update_callback),
+                       std::move(result_callback));
 }
 
 void Firestore::Terminate(util::StatusCallback callback) {

@@ -243,10 +243,9 @@ void SyncEngine::Transaction(int max_attempts,
   worker_queue->VerifyIsCurrentQueue();
 
   // Allocate a shared_ptr so that the TransactionRunner can outlive this frame.
-  auto runner = std::make_shared<TransactionRunner>(worker_queue, remote_store_,
-                                                    std::move(update_callback),
-                                                    std::move(result_callback),
-                                                    max_attempts);
+  auto runner = std::make_shared<TransactionRunner>(
+      worker_queue, remote_store_, std::move(update_callback),
+      std::move(result_callback), max_attempts);
   runner->Run();
 }
 

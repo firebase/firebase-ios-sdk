@@ -25,7 +25,8 @@
 using firebase::firestore::util::TimerId;
 
 @interface FSTTransactionTests : FSTIntegrationTestCase
-- (void)runFailedPreconditionTransactionWithOptions:(FIRTransactionOptions *_Nullable)options expectNumAttempts:(int)expectedNumAttempts;
+- (void)runFailedPreconditionTransactionWithOptions:(FIRTransactionOptions *_Nullable)options
+                                  expectNumAttempts:(int)expectedNumAttempts;
 @end
 
 /**
@@ -796,8 +797,9 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [self awaitExpectations];
 }
 
-- (void)runFailedPreconditionTransactionWithOptions:(FIRTransactionOptions *_Nullable)options expectNumAttempts:(int)expectedNumAttempts {
-  // Note: The logic below to force retries is heavily based on 
+- (void)runFailedPreconditionTransactionWithOptions:(FIRTransactionOptions *_Nullable)options
+                                  expectNumAttempts:(int)expectedNumAttempts {
+  // Note: The logic below to force retries is heavily based on
   // testRetriesWhenDocumentThatWasReadWithoutBeingWrittenChanges.
 
   FIRFirestore *firestore = [self firestore];
@@ -811,8 +813,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [firestore workerQueue]->SkipDelaysForTimerId(TimerId::RetryTransaction);
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
-  [firestore
-      runTransactionWithOptions:options
+  [firestore runTransactionWithOptions:options
       block:^id _Nullable(FIRTransaction *transaction, NSError **error) {
         ++(*attemptCount);
 
@@ -835,7 +836,9 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         return nil;
       }
       completion:^(id, NSError *_Nullable error) {
-        [self assertError:error message:@"the transaction should fail due to retries exhausted" code:FIRFirestoreErrorCodeFailedPrecondition];
+        [self assertError:error
+                  message:@"the transaction should fail due to retries exhausted"
+                     code:FIRFirestoreErrorCodeFailedPrecondition];
         XCTAssertEqual(attemptCount->load(), expectedNumAttempts);
         [expectation fulfill];
       }];
