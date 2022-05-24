@@ -16,10 +16,10 @@
 
 #import "FIRTransactionOptions.h"
 
+#import <Foundation/Foundation.h>
+
 #include <cstdint>
 #include <string>
-
-#import <Foundation/Foundation.h>
 
 #include "Firestore/core/src/api/firestore.h"
 #include "Firestore/core/src/util/exception.h"
