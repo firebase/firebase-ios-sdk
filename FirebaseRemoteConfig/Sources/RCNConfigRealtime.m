@@ -270,10 +270,9 @@ NSInteger FETCH_ATTEMPTS = 5;
   }
 
   NSString *namespace = [_namespace substringToIndex:[_namespace rangeOfString:@":"].location];
-  NSString *postBody =
-      [NSString stringWithFormat:@"{project:'%@', namespace:'%@', lastKnownVersionNumber:'%@'}",
-                                 [self->_options GCMSenderID], namespace,
-                                 [_configFetch getTemplateVersionNumber]];
+  NSString *postBody = [NSString
+      stringWithFormat:@"{project:'%@', namespace:'%@', lastKnownVersionNumber:'%@'}",
+                       [self->_options GCMSenderID], namespace, _configFetch.templateVersionNumber];
   NSData *postData = [postBody dataUsingEncoding:NSUTF8StringEncoding];
   NSError *compressionError;
   NSData *compressedContent = [NSData gul_dataByGzippingData:postData error:&compressionError];
@@ -321,7 +320,7 @@ NSInteger FETCH_ATTEMPTS = 5;
                       completionHandler:^(FIRRemoteConfigFetchStatus status, NSError *error) {
                         NSLog(@"Fetching new config");
                         if (status == FIRRemoteConfigFetchStatusSuccess) {
-                          if ([[self->_configFetch getTemplateVersionNumber] integerValue] >=
+                          if ([self->_configFetch.templateVersionNumber integerValue] >=
                               targetVersion) {
                             NSLog(@"Executing callback delegate");
                             for (RCNConfigUpdateCompletion listener in self->_listeners) {
@@ -395,7 +394,7 @@ NSInteger FETCH_ATTEMPTS = 5;
   NSDictionary *response = [NSJSONSerialization JSONObjectWithData:data
                                                            options:NSJSONReadingMutableContainers
                                                              error:&dataError];
-  NSString *targetTemplateVersion = [_configFetch getTemplateVersionNumber];
+  NSString *targetTemplateVersion = _configFetch.templateVersionNumber;
   if (dataError == nil) {
     targetTemplateVersion = [response objectForKey:@"latestTemplateVersionNumber"];
   }

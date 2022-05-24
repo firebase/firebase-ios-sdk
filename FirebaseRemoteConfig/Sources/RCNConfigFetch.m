@@ -78,6 +78,7 @@ static NSString *const templateVersionNumberKey = @"templateVersion";
   NSURLSession *_fetchSession;  /// Managed internally by the fetch instance.
   NSString *_FIRNamespace;
   FIROptions *_options;
+  NSString *_templateVersionNumber;
 }
 
 - (instancetype)init {
@@ -104,6 +105,7 @@ static NSString *const templateVersionNumberKey = @"templateVersion";
     _content = content;
     _fetchSession = [self newFetchSession];
     _options = options;
+    _templateVersionNumber = [self getTemplateVersionNumber];
   }
   return self;
 }
@@ -491,6 +493,8 @@ static NSString *const templateVersionNumberKey = @"templateVersion";
           [strongSelf->_experiment updateExperimentsWithResponse:
                                        fetchedConfig[RCNFetchResponseKeyExperimentDescriptions]];
         }
+
+        strongSelf->_templateVersionNumber = [strongSelf getTemplateVersionNumber];
       } else {
         FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000063",
                     @"Empty response with no fetched config.");
