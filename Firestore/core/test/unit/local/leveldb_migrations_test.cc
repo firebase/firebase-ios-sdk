@@ -534,6 +534,20 @@ TEST_F(LevelDbMigrationsTest, CanDowngrade) {
   ASSERT_EQ(final_version, latest_version);
 }
 
+TEST_F(LevelDbMigrationsTest, SetsOverlayMigrationFlag) {
+  LevelDbMigrations::RunMigrations(db_.get(), *serializer_);
+
+  LevelDbMigrations::SchemaVersion schema_version =
+      LevelDbMigrations::ReadSchemaVersion(db_.get());
+  ASSERT_GE(schema_version, 8);
+
+  LevelDbTransaction transaction(db_.get(), "Read migration flag");
+  std::string key = LevelDbDataMigrationKey::OverlayMigrationKey();
+  std::string flag;
+  Status status = transaction.Get(key, &flag);
+  ASSERT_TRUE(status.ok());
+}
+
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
