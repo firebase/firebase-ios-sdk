@@ -596,4 +596,3 @@ static NSString *const templateVersionNumberKey = @"templateVersion";
 }
 
 @end
-
