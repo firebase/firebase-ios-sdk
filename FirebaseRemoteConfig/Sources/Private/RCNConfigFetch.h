@@ -57,7 +57,7 @@ typedef void (^RCNConfigFetcherCompletion)(NSData *data, NSURLResponse *response
 @property(nonatomic, readwrite, strong, nonnull) NSURLSession *fetchSession;
 
 /// Provide config template version number for Realtime config client.
-@property(nonatomic, strong, nonnull) NSString *templateVersionNumber;
+@property(nonatomic, copy, nonnull) NSString *templateVersionNumber;
 
 NS_ASSUME_NONNULL_END
 

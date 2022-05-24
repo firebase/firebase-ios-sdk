@@ -61,6 +61,7 @@
                       options:(FIROptions *_Nonnull)options;
 
 - (void)beginRealtimeStream;
+- (void)pauseRealtimeStream;
 
 - (FIRConfigUpdateListenerRegistration *_Nonnull)addConfigUpdateListener:
     (void (^_Nonnull)(NSError *_Nullable error))listener;
@@ -1503,30 +1504,66 @@ static NSString *UTCToLocal(NSString *utcTime) {
 #pragma mark - Realtime tests
 
 - (void)testRealtimeAddConfigUpdateListenerWithValidListener {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
-    OCMStub([_configRealtime[i] beginRealtimeStream]).andDo(nil);
+    expectations[i] = [self
+        expectationWithDescription:
+            [NSString
+                stringWithFormat:@"Test Realtime add listener successfully - instance %d", i]];
 
+    OCMStub([_configRealtime[i] beginRealtimeStream]).andDo(nil);
     id completion = ^void(NSError *_Nullable error) {
       if (error != nil) {
         NSLog(@"Callback");
       }
     };
+
     [_configRealtime[i] addConfigUpdateListener:completion];
-    OCMVerify([_configRealtime[i] addConfigUpdateListener:completion]);
+
+    dispatch_after(
+        dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
+        dispatch_get_main_queue(), ^{
+          OCMVerify([self->_configRealtime[i] beginRealtimeStream]);
+          OCMVerify([self->_configRealtime[i] addConfigUpdateListener:completion]);
+          [expectations[i] fulfill];
+        });
+
+    [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
   }
 }
 
 - (void)testRealtimeAddConfigUpdateListenerWithInvalidListener {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] = [self
+        expectationWithDescription:
+            [NSString
+                stringWithFormat:@"Test Realtime add listener unsuccessfully - instance %d", i]];
+
     id completion = nil;
     [_configRealtime[i] addConfigUpdateListener:completion];
+    dispatch_after(
+        dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
+        dispatch_get_main_queue(), ^{
+          OCMVerify(never(), [self->_configRealtime[i] beginRealtimeStream]);
+          [expectations[i] fulfill];
+        });
 
-    OCMVerify(never(), [_configRealtime[i] beginRealtimeStream]);
+    [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
   }
 }
 
 - (void)testRemoveRealtimeListener {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] = [self
+        expectationWithDescription:
+            [NSString
+                stringWithFormat:@"Test Realtime remove listeners successfully - instance %d", i]];
+
     id completion = ^void(NSError *_Nullable error) {
       if (error != nil) {
         NSLog(@"Callback");
@@ -1537,8 +1574,17 @@ static NSString *UTCToLocal(NSString *utcTime) {
     FIRConfigUpdateListenerRegistration *registration =
         [_configRealtime[i] addConfigUpdateListener:completion];
     [registration remove];
-    OCMVerify([_configRealtime[i] addConfigUpdateListener:completion]);
-    OCMVerify([_configRealtime[i] removeConfigUpdateListener:completion]);
+
+    dispatch_after(
+        dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
+        dispatch_get_main_queue(), ^{
+          OCMVerify([self->_configRealtime[i] addConfigUpdateListener:completion]);
+          OCMVerify([self->_configRealtime[i] removeConfigUpdateListener:completion]);
+          OCMVerify([self->_configRealtime[i] pauseRealtimeStream]);
+          [expectations[i] fulfill];
+        });
+
+    [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
   }
 }
 
