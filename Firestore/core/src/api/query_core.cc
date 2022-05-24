@@ -320,12 +320,11 @@ Query Query::EndAt(Bound bound) const {
   return Wrap(query_.EndingAt(std::move(bound)));
 }
 
-void Query::ValidateNewFieldFilter(
-    const core::Query& query,
-    const std::shared_ptr<FieldFilter>& field_filter) const {
-  if (field_filter->IsInequality()) {
+void Query::ValidateNewFieldFilter(const core::Query& query,
+                                   const FieldFilter& field_filter) const {
+  if (field_filter.IsInequality()) {
     const FieldPath* existing_inequality = query.InequalityFilterField();
-    const FieldPath& new_inequality = field_filter->field();
+    const FieldPath& new_inequality = field_filter.field();
 
     if (existing_inequality && *existing_inequality != new_inequality) {
       ThrowInvalidArgument(
@@ -339,11 +338,11 @@ void Query::ValidateNewFieldFilter(
 
     const FieldPath* first_order_by_field = query.FirstOrderByField();
     if (first_order_by_field) {
-      ValidateOrderByField(*first_order_by_field, field_filter->field());
+      ValidateOrderByField(*first_order_by_field, field_filter.field());
     }
   }
 
-  Operator filter_op = field_filter->op();
+  Operator filter_op = field_filter.op();
   absl::optional<Operator> conflicting_op =
       query.FindOpInsideFilters(ConflictingOps(filter_op));
   if (conflicting_op) {
@@ -364,9 +363,9 @@ void Query::ValidateNewFieldFilter(
 
 void Query::ValidateNewFilter(const Filter& filter) const {
   core::Query test_query = query_.Clone();
-  for (const auto& field_filter_ptr : filter.GetFlattenedFilters()) {
-    ValidateNewFieldFilter(test_query, field_filter_ptr);
-    test_query = test_query.AddingFilter(*field_filter_ptr);
+  for (const auto& field_filter : *filter.GetFlattenedFilters()) {
+    ValidateNewFieldFilter(test_query, field_filter);
+    test_query = test_query.AddingFilter(field_filter);
   }
 }
 

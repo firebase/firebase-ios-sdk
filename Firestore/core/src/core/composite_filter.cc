@@ -66,11 +66,6 @@ CompositeFilter::CompositeFilter(std::shared_ptr<const Filter::Rep> rep)
 CompositeFilter::Rep::Rep(const std::vector<std::shared_ptr<Filter>>&& filters,
                           Operator op)
     : filters_(std::move(filters)), op_(op) {
-  for (const auto& filter_ptr : filters_) {
-    auto flatten_filter = filter_ptr->GetFlattenedFilters();
-    std::copy(flatten_filter.begin(), flatten_filter.end(),
-              std::back_inserter(flatten_filters_));
-  }
 }
 
 CompositeFilter::CompositeFilter(const Filter& other) : Filter(other) {
@@ -131,26 +126,39 @@ bool CompositeFilter::Rep::Equals(const Filter::Rep& other) const {
   return op_ == other_rep.op_ && filters_ == other_rep.filters_;
 }
 
-const std::shared_ptr<FieldFilter>
-CompositeFilter::Rep::FindFirstMatchingFilter(CheckingFun& condition) const {
-  for (const auto& field_filter_ptr : flatten_filters_) {
-    if (condition(field_filter_ptr)) {
-      return field_filter_ptr;
+const FieldFilter* CompositeFilter::Rep::FindFirstMatchingFilter(
+    CheckingFun& condition) const {
+  for (const auto& field_filter : *GetFlattenedFilters()) {
+    if (condition(field_filter)) {
+      return &field_filter;
     }
   }
   return nullptr;
 }
 
 const model::FieldPath* CompositeFilter::Rep::GetFirstInequalityField() const {
-  CheckingFun condition =
-      [](const std::shared_ptr<FieldFilter>& field_filter_ptr) {
-        return field_filter_ptr->IsInequality();
-      };
-  const std::shared_ptr<FieldFilter> found = FindFirstMatchingFilter(condition);
+  CheckingFun condition = [](const FieldFilter& field_filter_ptr) {
+    return field_filter_ptr.IsInequality();
+  };
+  const FieldFilter* found = FindFirstMatchingFilter(condition);
   if (found) {
-    return &found->field();
+    return &(found->field());
   }
   return nullptr;
+}
+
+const std::shared_ptr<std::vector<FieldFilter>>&
+CompositeFilter::Rep::GetFlattenedFilters() const {
+  if (!Filter::Rep::memoized_flatten_filters_ && !filters().empty()) {
+    Filter::Rep::memoized_flatten_filters_ =
+        std::make_shared<std::vector<FieldFilter>>();
+    for (const auto& filter_ptr : filters()) {
+      std::copy(filter_ptr->GetFlattenedFilters()->begin(),
+                filter_ptr->GetFlattenedFilters()->end(),
+                std::back_inserter(*Filter::Rep::memoized_flatten_filters_));
+    }
+  }
+  return Filter::Rep::memoized_flatten_filters_;
 }
 
 }  // namespace core

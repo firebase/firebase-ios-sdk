@@ -122,12 +122,15 @@ FieldFilter::FieldFilter(std::shared_ptr<const Filter::Rep> rep)
     : Filter(std::move(rep)) {
 }
 
-const std::vector<std::shared_ptr<FieldFilter>>
+const std::shared_ptr<std::vector<FieldFilter>>&
 FieldFilter::Rep::GetFlattenedFilters() const {
   // This is already a field filter, so we return a vector of size one.
-  return std::vector<std::shared_ptr<FieldFilter>>{
-      std::make_shared<FieldFilter>(
-          FieldFilter(std::make_shared<const Rep>(*this)))};
+  if (!Filter::Rep::memoized_flatten_filters_) {
+    Filter::Rep::memoized_flatten_filters_ =
+        std::make_shared<std::vector<FieldFilter>>(std::vector<FieldFilter>{
+            FieldFilter(std::make_shared<const Rep>(*this))});
+  }
+  return Filter::Rep::memoized_flatten_filters_;
 }
 
 FieldFilter::Rep::Rep(FieldPath field,
@@ -200,7 +203,7 @@ bool FieldFilter::Rep::Equals(const Filter::Rep& other) const {
 
 const model::FieldPath* FieldFilter::Rep::GetFirstInequalityField() const {
   if (IsInequality()) {
-    return &field_;
+    return &field();
   }
   return nullptr;
 }

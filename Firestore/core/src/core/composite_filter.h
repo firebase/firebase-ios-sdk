@@ -41,7 +41,7 @@ class FieldFilter;
  */
 class CompositeFilter : public Filter {
  public:
-  using CheckingFun = std::function<bool(const std::shared_ptr<FieldFilter>)>;
+  using CheckingFun = std::function<bool(const FieldFilter)>;
   using Operator =
       _google_firestore_v1_StructuredQuery_CompositeFilter_Operator;
 
@@ -107,24 +107,21 @@ class CompositeFilter : public Filter {
 
     bool Equals(const Filter::Rep& other) const override;
 
-    const std::shared_ptr<FieldFilter> FindFirstMatchingFilter(
-        CheckingFun& condition) const;
-
-    const model::FieldPath* GetFirstInequalityField() const override;
-
     bool IsEmpty() const override {
       return filters_.empty();
     }
 
-    const std::vector<std::shared_ptr<FieldFilter>> GetFlattenedFilters()
-        const override {
-      return flatten_filters_;
-    };
+    const std::shared_ptr<std::vector<FieldFilter>>& GetFlattenedFilters()
+        const override;
 
+    const model::FieldPath* GetFirstInequalityField() const override;
+
+    const FieldFilter* FindFirstMatchingFilter(CheckingFun& condition) const;
+
+    /** A collection of filters stored inside the CompositeFilter. */
     const std::vector<std::shared_ptr<Filter>> filters_;
 
-    std::vector<std::shared_ptr<FieldFilter>> flatten_filters_;
-
+    /** The type of and/or operator in the composite filter. */
     Operator op_;
 
     friend class CompositeFilter;

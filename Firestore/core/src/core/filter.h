@@ -92,19 +92,22 @@ class Filter {
     return rep_->ToString();
   }
 
+  /** Check whether the filter is meaningful */
+  bool IsEmpty() const {
+    return rep_->IsEmpty();
+  }
+
   /**
-   * Returns the first inequality filter contained within this composite filter.
+   * Returns the first inequality filter contained within this filter.
    * Returns nullptr if it does not contain any inequalities.
    */
   const model::FieldPath* GetFirstInequalityField() const {
     return rep_->GetFirstInequalityField();
   }
 
-  bool IsEmpty() const {
-    return rep_->IsEmpty();
-  }
-
-  const std::vector<std::shared_ptr<FieldFilter>> GetFlattenedFilters() const {
+  /** Returns a list of all field filters that are contained within this filter
+   */
+  const std::shared_ptr<std::vector<FieldFilter>>& GetFlattenedFilters() const {
     return rep_->GetFlattenedFilters();
   }
 
@@ -142,12 +145,18 @@ class Filter {
     /** A debug description of the Filter. */
     virtual std::string ToString() const = 0;
 
-    virtual const model::FieldPath* GetFirstInequalityField() const = 0;
-
     virtual bool IsEmpty() const = 0;
 
-    virtual const std::vector<std::shared_ptr<FieldFilter>>
+    virtual const model::FieldPath* GetFirstInequalityField() const = 0;
+
+    virtual const std::shared_ptr<std::vector<FieldFilter>>&
     GetFlattenedFilters() const = 0;
+
+    /**
+     * Memoized list of all field filters that can be found by
+     * traversing the tree of filters contained in this composite filter.
+     */
+    mutable std::shared_ptr<std::vector<FieldFilter>> memoized_flatten_filters_;
   };
 
   explicit Filter(std::shared_ptr<const Rep> rep) : rep_(rep) {

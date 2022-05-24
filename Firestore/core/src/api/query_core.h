@@ -186,9 +186,8 @@ class Query {
 
  private:
   void ValidateNewFilter(const core::Filter& filter) const;
-  void ValidateNewFieldFilter(
-      const core::Query& query,
-      const std::shared_ptr<core::FieldFilter>& filter) const;
+  void ValidateNewFieldFilter(const core::Query& query,
+                              const core::FieldFilter& filter) const;
   void ValidateNewOrderByPath(const model::FieldPath& field_path) const;
   void ValidateOrderByField(const model::FieldPath& order_by_field,
                             const model::FieldPath& inequality_field) const;
