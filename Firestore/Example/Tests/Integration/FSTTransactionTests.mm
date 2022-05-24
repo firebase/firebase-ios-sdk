@@ -25,6 +25,7 @@
 using firebase::firestore::util::TimerId;
 
 @interface FSTTransactionTests : FSTIntegrationTestCase
+- (void)runFailedPreconditionTransactionWithOptions:(FIRTransactionOptions *_Nullable)options expectNumAttempts:(int)expectedNumAttempts;
 @end
 
 /**
@@ -795,10 +796,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [self awaitExpectations];
 }
 
-- (void)testTransactionOptionsMaxAttempts {
-  FIRTransactionOptions *options = [[FIRTransactionOptions alloc] init];
-  options.maxAttempts = 7;
-
+- (void)runFailedPreconditionTransactionWithOptions:(FIRTransactionOptions *_Nullable)options expectNumAttempts:(int)expectedNumAttempts {
   // Note: The logic below to force retries is heavily based on 
   // testRetriesWhenDocumentThatWasReadWithoutBeingWrittenChanges.
 
@@ -838,10 +836,20 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
       }
       completion:^(id, NSError *_Nullable error) {
         [self assertError:error message:@"the transaction should fail due to retries exhausted" code:FIRFirestoreErrorCodeFailedPrecondition];
-        XCTAssertEqual(attemptCount->load(), 7);
+        XCTAssertEqual(attemptCount->load(), expectedNumAttempts);
         [expectation fulfill];
       }];
   [self awaitExpectations];
+}
+
+- (void)testTransactionOptionsNil {
+  [self runFailedPreconditionTransactionWithOptions:nil expectNumAttempts:5];
+}
+
+- (void)testTransactionOptionsMaxAttempts {
+  FIRTransactionOptions *options = [[FIRTransactionOptions alloc] init];
+  options.maxAttempts = 7;
+  [self runFailedPreconditionTransactionWithOptions:options expectNumAttempts:7];
 }
 
 @end
