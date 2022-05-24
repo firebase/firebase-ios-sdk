@@ -146,7 +146,7 @@ StatusOr<FieldPath> FieldPath::FromServerFormatView(absl::string_view path) {
   while (i < path.size()) {
     const char c = path[i];
     // std::string (and string_view) may contain embedded nulls. For full
-    // compatibility with Objective C behavior, finish upon encountering the
+    // compatibility with Objective-C behavior, finish upon encountering the
     // first terminating null.
     if (c == '\0') {
       break;

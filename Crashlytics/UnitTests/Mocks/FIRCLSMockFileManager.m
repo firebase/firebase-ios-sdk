@@ -58,6 +58,17 @@
   return YES;
 }
 
+- (NSArray *)activePathContents {
+  NSMutableArray *pathsWithActive = [[NSMutableArray alloc] init];
+  for (NSString *path in [_fileSystemDict allKeys]) {
+    if ([path containsString:@"v5/reports/active"]) {
+      [pathsWithActive addObject:path];
+    }
+  }
+
+  return pathsWithActive;
+}
+
 - (NSData *)dataWithContentsOfFile:(NSString *)path {
   return self.fileSystemDict[path];
 }

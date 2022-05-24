@@ -131,7 +131,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
                                                                 appIDModel:appModel];
 
     FIRCLSOnDemandModel *onDemandModel =
-        [[FIRCLSOnDemandModel alloc] initWithFIRCLSSettings:settings];
+        [[FIRCLSOnDemandModel alloc] initWithFIRCLSSettings:settings fileManager:_fileManager];
     _managerData = [[FIRCLSManagerData alloc] initWithGoogleAppID:_googleAppID
                                                   googleTransport:googleTransport
                                                     installations:installations
@@ -351,7 +351,11 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
 #pragma mark - API: Errors and Exceptions
 - (void)recordError:(NSError *)error {
-  FIRCLSUserLoggingRecordError(error, nil);
+  [self recordError:error userInfo:nil];
+}
+
+- (void)recordError:(NSError *)error userInfo:(NSDictionary<NSString *, id> *)userInfo {
+  FIRCLSUserLoggingRecordError(error, userInfo);
 }
 
 - (void)recordExceptionModel:(FIRExceptionModel *)exceptionModel {

@@ -75,7 +75,7 @@ DocumentMap QueryEngine::GetDocumentsMatchingQuery(
   // remote snapshot that did not contain any Limbo documents.
   DocumentMap updated_results =
       local_documents_view_->GetDocumentsMatchingQuery(
-          query, last_limbo_free_snapshot_version);
+          query, model::IndexOffset::Create(last_limbo_free_snapshot_version));
 
   // We merge `previous_results` into `update_results`, since `update_results`
   // is already a DocumentMap. If a document is contained in both lists, then
@@ -139,7 +139,7 @@ DocumentMap QueryEngine::ExecuteFullCollectionScan(const Query& query) {
   LOG_DEBUG("Using full collection scan to execute query: %s",
             query.ToString());
   return local_documents_view_->GetDocumentsMatchingQuery(
-      query, SnapshotVersion::None());
+      query, model::IndexOffset::None());
 }
 
 }  // namespace local

@@ -31,6 +31,16 @@ namespace local {
 /** The result of a write to the local store. */
 class LocalWriteResult {
  public:
+  static LocalWriteResult FromOverlayedDocuments(
+      model::BatchId batch_id, model::OverlayedDocumentMap&& overlayed_docs) {
+    model::DocumentMap docs;
+    for (const auto& overlayed_doc : overlayed_docs) {
+      docs = docs.insert(overlayed_doc.first, overlayed_doc.second.document());
+    }
+
+    return LocalWriteResult(batch_id, std::move(docs));
+  }
+
   LocalWriteResult(model::BatchId batch_id, model::DocumentMap&& changes)
       : batch_id_(batch_id), changes_(std::move(changes)) {
   }
