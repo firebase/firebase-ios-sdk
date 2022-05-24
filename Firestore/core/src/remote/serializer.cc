@@ -378,8 +378,9 @@ google_firestore_v1_Write Serializer::EncodeMutation(
       // what makes the backend treat this as a patch mutation, not a set
       // mutation.
       result.has_update_mask = true;
-      if (patch_mutation.mask().size() != 0) {
-        result.update_mask = EncodeFieldMask(patch_mutation.mask());
+      if (patch_mutation.field_mask().value().size() != 0) {
+        result.update_mask =
+            EncodeFieldMask(patch_mutation.field_mask().value());
       }
       return result;
     }

@@ -191,12 +191,14 @@
            if (!wasWritten) {
              FIRCLSErrorLog(
                  @"Failed to send crash report due to failure writing GoogleDataTransport event");
+             dispatch_semaphore_signal(semaphore);
              return;
            }
 
            if (error) {
              FIRCLSErrorLog(@"Failed to send crash report due to GoogleDataTransport error: %@",
                             error.localizedDescription);
+             dispatch_semaphore_signal(semaphore);
              return;
            }
 

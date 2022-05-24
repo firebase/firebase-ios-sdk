@@ -57,7 +57,10 @@ std::unique_ptr<MemoryPersistence> MemoryPersistence::WithLruGarbageCollector(
 }
 
 MemoryPersistence::MemoryPersistence()
-    : target_cache_(this), remote_document_cache_(this), started_(true) {
+    : target_cache_(this),
+      remote_document_cache_(this),
+      overlay_migration_manager_(),
+      started_(true) {
 }
 
 MemoryPersistence::~MemoryPersistence() = default;
@@ -114,6 +117,11 @@ MemoryDocumentOverlayCache* MemoryPersistence::GetDocumentOverlayCache(
   }
 }
 
+OverlayMigrationManager* MemoryPersistence::GetOverlayMigrationManager(
+    const credentials::User&) {
+  return &overlay_migration_manager_;
+}
+
 MemoryRemoteDocumentCache* MemoryPersistence::remote_document_cache() {
   return &remote_document_cache_;
 }
@@ -125,6 +133,9 @@ MemoryIndexManager* MemoryPersistence::GetIndexManager(
 
 ReferenceDelegate* MemoryPersistence::reference_delegate() {
   return reference_delegate_.get();
+}
+
+void MemoryPersistence::ReleaseOtherUserSpecificComponents(const std::string&) {
 }
 
 void MemoryPersistence::RunInternal(absl::string_view label,
