@@ -83,5 +83,6 @@
   "8.8.0": "https://dl.google.com/dl/firebase/ios/carthage/8.8.0/FirebaseAuth-868da0e441e8c233.zip",
   "8.9.0": "https://dl.google.com/dl/firebase/ios/carthage/8.9.0/FirebaseAuth-79b22617d7aac8f0.zip",
   "8.9.1": "https://dl.google.com/dl/firebase/ios/carthage/8.9.1/FirebaseAuth-c163ef4e1d5b0ecf.zip",
-  "9.0.0": "https://dl.google.com/dl/firebase/ios/carthage/9.0.0/FirebaseAuth-d6743232a3414446.zip"
+  "9.0.0": "https://dl.google.com/dl/firebase/ios/carthage/9.0.0/FirebaseAuth-d6743232a3414446.zip",
+  "9.1.0": "https://dl.google.com/dl/firebase/ios/carthage/9.1.0/FirebaseAuth-82442d405b1e6466.zip"
 }
