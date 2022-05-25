@@ -31,7 +31,7 @@ struct ManifestParser: ParsableCommand {
             let documentDir = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
             return documentDir.appendingPathComponent(str)
           })
-  var SDKRepoURL: URL
+  var SDKRepoURL: URL?
 
   /// Path of a text file for Firebase Pods' names.
   @Option(help: "An output file with Podspecs",
@@ -68,8 +68,13 @@ struct ManifestParser: ParsableCommand {
     case .forNoticesGeneration:
       try parsePodNames(FirebaseManifest.shared)
     case .forGHAMatrixGeneration:
+      guard let sdkRepoURL = SDKRepoURL else {
+        throw FatalError(
+          "--sdk-repo-url should be specified when --for-gha-matrix-generation is on."
+        )
+      }
       let specCollector = GHAMatrixSpecCollector(
-        SDKRepoURL: SDKRepoURL,
+        SDKRepoURL: sdkRepoURL,
         outputSpecFileURL: outputFilePath
       )
       try specCollector.generateMatrixJson(to: outputFilePath)
