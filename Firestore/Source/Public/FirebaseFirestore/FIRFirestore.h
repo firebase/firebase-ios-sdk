@@ -155,7 +155,7 @@ NS_SWIFT_NAME(Firestore)
  * how the transaction is executed.
  *
  * @param options The options to use for the transaction.
- * @param block The block to execute within the transaction context.
+ * @param updateBlock The block to execute within the transaction context.
  * @param completion The block to call with the result or error of the transaction. This
  *     block will run even if the client is offline, unless the process is killed.
  */
