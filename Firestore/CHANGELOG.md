@@ -1,6 +1,6 @@
 # Unreleased
 - [feature] Added the ability to specify the maximum number of attempts to
-  execute a transaction (#XXXXXXXXXXXXX)
+  execute a transaction (#9838)
 
 # 9.0.0
 - [fixed] Fixed CMake build errors when building with Xcode 13.3.1 (#9702).
