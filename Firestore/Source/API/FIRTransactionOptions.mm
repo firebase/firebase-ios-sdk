@@ -15,6 +15,7 @@
  */
 
 #import "FIRTransactionOptions.h"
+#import "FIRTransactionOptions+Internal.h"
 
 #import <Foundation/Foundation.h>
 
@@ -34,9 +35,13 @@ using firebase::firestore::util::ThrowInvalidArgument;
 
 - (instancetype)init {
   if (self = [super init]) {
-    _maxAttempts = kDefaultTransactionMaxAttempts;
+    _maxAttempts = [[self class] defaultMaxAttempts];
   }
   return self;
+}
+
++ (int)defaultMaxAttempts {
+  return kDefaultTransactionMaxAttempts;
 }
 
 - (BOOL)isEqual:(id)other {

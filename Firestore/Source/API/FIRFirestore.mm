@@ -21,6 +21,7 @@
 #include <utility>
 
 #import "FIRFirestoreSettings+Internal.h"
+#import "FIRTransactionOptions+Internal.h"
 #import "FIRTransactionOptions.h"
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
@@ -61,7 +62,6 @@
 #include "Firestore/core/src/util/string_apple.h"
 #include "absl/memory/memory.h"
 
-using firebase::firestore::api::kDefaultTransactionMaxAttempts;
 using firebase::firestore::api::DocumentReference;
 using firebase::firestore::api::Firestore;
 using firebase::firestore::api::ListenerRegistration;
@@ -338,7 +338,11 @@ NS_ASSUME_NONNULL_BEGIN
     result_capture->HandleFinalStatus(status);
   };
 
-  int max_attempts = options ? options.maxAttempts : kDefaultTransactionMaxAttempts;
+  int max_attempts = [FIRTransactionOptions defaultMaxAttempts];
+  if (options) {
+    max_attempts = options.maxAttempts;
+  }
+
   _firestore->RunTransaction(std::move(internalUpdateBlock), std::move(objcTranslator),
                              max_attempts);
 }
