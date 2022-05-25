@@ -69,7 +69,7 @@ struct ManifestParser: ParsableCommand {
       try parsePodNames(FirebaseManifest.shared)
     case .forGHAMatrixGeneration:
       guard let sdkRepoURL = SDKRepoURL else {
-        throw FatalError(
+        throw fatalError(
           "--sdk-repo-url should be specified when --for-gha-matrix-generation is on."
         )
       }
