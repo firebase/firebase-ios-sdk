@@ -56,11 +56,11 @@ jobs:
          git clone --quiet https://"$botaccess"@github.com/FirebasePrivate/SpecsTesting.git "${local_repo}"
          cd "${local_repo}"
          # Remove all unhidden dirs, i.e. all podspec dir from the spec repo.
-         # rm -Rf -- */
+         rm -Rf -- */
          git add .
          # commit without diff will throw an error. `git diff --exit-code` can avoid such error.
          git diff --staged --exit-code || git commit -m "Empty spec repo."
-         #git push
+         git push
     - name: Clean Artifacts
       if: ${{ always() }}
       run: |
@@ -95,9 +95,9 @@ jobs:
       run: |
         botaccess=`cat bot-access.txt`
         cd scripts/create_spec_repo/
-        # swift build
+        swift build
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/FirebasePrivate/SpecsTesting.git
-        # BOT_TOKEN="${botaccess}"  .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}" --pod-sources 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting' "https://github.com/firebase/SpecsStaging.git" "https://github.com/CocoaPods/Specs.git" --include-pods "${targeted_pod}" --keep-repo
+        BOT_TOKEN="${botaccess}"  .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}" --pod-sources 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting' "https://github.com/firebase/SpecsStaging.git" "https://github.com/CocoaPods/Specs.git" --include-pods "${targeted_pod}" --keep-repo
     - name: Clean Artifacts
       if: ${{ always() }}
       run: |
@@ -130,19 +130,18 @@ jobs:
     - name: Update SpecsTesting repo
       run: |
         [[ ${{ matrix.allowwarnings }} == true ]] && ALLOWWARNINGS=true
-        echo ${ALLOWWARNINGS:+--allow-warnings}
         botaccess=`cat bot-access.txt`
         cd scripts/create_spec_repo/
-        #        swift build
+        swift build
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/FirebasePrivate/SpecsTesting.git
         # ${ALLOWWARNINGS:+--allow-warnings} will add --allow-warnings to the
         # command if ${ALLOWWARNINGS} is not null.
-        #        BOT_TOKEN="${botaccess}"  .build/debug/spec-repo-builder \
-        #                                --sdk-repo "${local_sdk_repo_dir}" \
-        #                                --local-spec-repo-name "${local_repo}" \
-        #                                --pod-sources 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting' "https://github.com/firebase/SpecsStaging.git" "https://github.com/CocoaPods/Specs.git" \
-        #                                --include-pods "${targeted_pod}" \
-        #                                --keep-repo ${ALLOWWARNINGS:+--allow-warnings}
+        ${GITHUB_WORKSPACE}/scripts/third_party/travis/retry.sh BOT_TOKEN="${botaccess}"  .build/debug/spec-repo-builder \
+                                --sdk-repo "${local_sdk_repo_dir}" \
+                                --local-spec-repo-name "${local_repo}" \
+                                --pod-sources 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting' "https://github.com/firebase/SpecsStaging.git" "https://github.com/CocoaPods/Specs.git" \
+                                --include-pods "${targeted_pod}" \
+                                --keep-repo ${ALLOWWARNINGS:+--allow-warnings}
     - name: Clean Artifacts
       if: ${{ always() }}
       run: |
