@@ -108,7 +108,7 @@ std::vector<FieldFilter> Target::GetFieldFiltersForPath(
       if (field_filter.field() != path) {
         continue;
       }
-      result.push_back(field_filter);
+      result.push_back(std::move(field_filter));
     }
   }
 

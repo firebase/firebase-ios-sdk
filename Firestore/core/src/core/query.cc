@@ -89,7 +89,7 @@ const FieldPath* Query::InequalityFilterField() const {
 absl::optional<Operator> Query::FindOpInsideFilters(
     const std::vector<Operator>& ops) const {
   for (const auto& filter : filters_) {
-    for (const auto& field_filter : *filter.GetFlattenedFilters()) {
+    for (const auto& field_filter : filter.GetFlattenedFilters()) {
       if (absl::c_linear_search(ops, field_filter.op())) {
         return field_filter.op();
       }

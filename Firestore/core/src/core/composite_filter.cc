@@ -128,7 +128,7 @@ bool CompositeFilter::Rep::Equals(const Filter::Rep& other) const {
 
 const FieldFilter* CompositeFilter::Rep::FindFirstMatchingFilter(
     CheckingFun& condition) const {
-  for (const auto& field_filter : *GetFlattenedFilters()) {
+  for (const auto& field_filter : GetFlattenedFilters()) {
     if (condition(field_filter)) {
       return &field_filter;
     }
@@ -147,15 +147,13 @@ const model::FieldPath* CompositeFilter::Rep::GetFirstInequalityField() const {
   return nullptr;
 }
 
-const std::shared_ptr<std::vector<FieldFilter>>&
-CompositeFilter::Rep::GetFlattenedFilters() const {
-  if (!Filter::Rep::memoized_flatten_filters_ && !filters().empty()) {
-    Filter::Rep::memoized_flatten_filters_ =
-        std::make_shared<std::vector<FieldFilter>>();
+const std::vector<FieldFilter>& CompositeFilter::Rep::GetFlattenedFilters()
+    const {
+  if (Filter::Rep::memoized_flatten_filters_.empty() && !filters().empty()) {
     for (const auto& filter_ptr : filters()) {
-      std::copy(filter_ptr->GetFlattenedFilters()->begin(),
-                filter_ptr->GetFlattenedFilters()->end(),
-                std::back_inserter(*Filter::Rep::memoized_flatten_filters_));
+      std::copy(filter_ptr->GetFlattenedFilters().begin(),
+                filter_ptr->GetFlattenedFilters().end(),
+                std::back_inserter(Filter::Rep::memoized_flatten_filters_));
     }
   }
   return Filter::Rep::memoized_flatten_filters_;

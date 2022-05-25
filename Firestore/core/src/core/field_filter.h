@@ -119,8 +119,7 @@ class FieldFilter : public Filter {
 
     const model::FieldPath* GetFirstInequalityField() const override;
 
-    const std::shared_ptr<std::vector<FieldFilter>>& GetFlattenedFilters()
-        const override;
+    const std::vector<FieldFilter>& GetFlattenedFilters() const override;
 
    protected:
     /**

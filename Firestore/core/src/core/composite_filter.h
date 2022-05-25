@@ -111,8 +111,7 @@ class CompositeFilter : public Filter {
       return filters_.empty();
     }
 
-    const std::shared_ptr<std::vector<FieldFilter>>& GetFlattenedFilters()
-        const override;
+    const std::vector<FieldFilter>& GetFlattenedFilters() const override;
 
     const model::FieldPath* GetFirstInequalityField() const override;
 

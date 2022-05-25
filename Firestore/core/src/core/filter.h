@@ -105,9 +105,10 @@ class Filter {
     return rep_->GetFirstInequalityField();
   }
 
-  /** Returns a list of all field filters that are contained within this filter
+  /**
+   * Returns a list of all field filters that are contained within this filter
    */
-  const std::shared_ptr<std::vector<FieldFilter>>& GetFlattenedFilters() const {
+  const std::vector<FieldFilter>& GetFlattenedFilters() const {
     return rep_->GetFlattenedFilters();
   }
 
@@ -149,14 +150,13 @@ class Filter {
 
     virtual const model::FieldPath* GetFirstInequalityField() const = 0;
 
-    virtual const std::shared_ptr<std::vector<FieldFilter>>&
-    GetFlattenedFilters() const = 0;
+    virtual const std::vector<FieldFilter>& GetFlattenedFilters() const = 0;
 
     /**
      * Memoized list of all field filters that can be found by
      * traversing the tree of filters contained in this composite filter.
      */
-    mutable std::shared_ptr<std::vector<FieldFilter>> memoized_flatten_filters_;
+    mutable std::vector<FieldFilter> memoized_flatten_filters_;
   };
 
   explicit Filter(std::shared_ptr<const Rep> rep) : rep_(rep) {

@@ -363,7 +363,7 @@ void Query::ValidateNewFieldFilter(const core::Query& query,
 
 void Query::ValidateNewFilter(const Filter& filter) const {
   core::Query test_query = query_.Clone();
-  for (const auto& field_filter : *filter.GetFlattenedFilters()) {
+  for (const auto& field_filter : filter.GetFlattenedFilters()) {
     ValidateNewFieldFilter(test_query, field_filter);
     test_query = test_query.AddingFilter(field_filter);
   }
