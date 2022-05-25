@@ -18,14 +18,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** Settings used to configure a `Firestore` instance. */
+/**
+ * Options to customize the behavior of `Firestore.runTransactionWithOptions()`.
+ */
 NS_SWIFT_NAME(TransactionOptions)
 @interface FIRTransactionOptions : NSObject <NSCopying>
 
 /**
- * Creates and returns an empty `FirestoreTransactionOptions` object.
+ * Creates and returns a new `TransactionOptions` object with all properties initialized to their
+ * default values.
  *
- * @return The created `FirestoreTransactionOptions` object.
+ * @return The created `TransactionOptions` object.
  */
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 
