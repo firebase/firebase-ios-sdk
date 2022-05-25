@@ -66,7 +66,7 @@ struct ManifestParser: ParsableCommand {
   func run() throws {
     switch mode {
     case .forNoticesGeneration:
-      parsePodNames(FirebaseManifest.shared)
+      try parsePodNames(FirebaseManifest.shared)
     case .forGHAMatrixGeneration:
       let specCollector = GHAMatrixSpecCollector(
         SDKRepoURL: SDKRepoURL,
