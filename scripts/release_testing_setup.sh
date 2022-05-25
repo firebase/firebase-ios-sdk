@@ -40,8 +40,6 @@ git checkout "${podspec_repo_branch}"
 # Ensure the tag version including pod version to avoid warnings.
 # https://github.com/CocoaPods/Core/blob/e6451e172c33f3aa77a3f8baa7b6b5b8c3b5da14/lib/cocoapods-core/specification/linter.rb#L372-L374
 pod_testing_version=`echo "${test_version}" | sed "s/CocoaPods-//"`
-echo "-----"
-echo ${pod_testing_version}
 if [ "$TESTINGMODE" = "release_testing" ]; then
   git checkout "${test_version}"
   echo "Podspecs tags of Nightly release testing will be updated to ${test_version}."
