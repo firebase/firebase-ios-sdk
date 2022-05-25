@@ -19,6 +19,11 @@ import FirebaseManifest
 import Foundation
 import Utils
 
+enum ParsingMode: String, EnumerableFlag {
+  case forNoticesGeneration
+  case forGHAMatrixGeneration
+}
+
 struct ManifestParser: ParsableCommand {
   @Option(help: "The path of the SDK repo.",
           transform: { str in
@@ -35,10 +40,13 @@ struct ManifestParser: ParsableCommand {
             let documentDir = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
             return documentDir.appendingPathComponent(str)
           })
-  var specOutputFilePath: URL
+  var outputFilePath: URL
 
   @Option(parsing: .upToNextOption, help: "Podspec files that will not be included.")
   var excludedSpecs: [String]
+
+  @Flag(help: "Parsing mode for manifest")
+  var mode: ParsingMode
 
   func parsePodNames(_ manifest: Manifest) throws {
     var output: [String] = []
@@ -47,20 +55,25 @@ struct ManifestParser: ParsableCommand {
     }
     do {
       try output.joined(separator: ",")
-        .write(to: specOutputFilePath, atomically: true,
+        .write(to: outputFilePath, atomically: true,
                encoding: String.Encoding.utf8)
-      print("\(output) is written in \n \(specOutputFilePath).")
+      print("\(output) is written in \n \(outputFilePath).")
     } catch {
       throw error
     }
   }
 
   func run() throws {
-    let specCollector = GHAMatrixSpecCollector(
-      SDKRepoURL: SDKRepoURL,
-      outputSpecFileURL: specOutputFilePath
-    )
-    try specCollector.generateMatrixJson(to: specOutputFilePath)
+    switch mode {
+    case .forNoticesGeneration:
+      parsePodNames(FirebaseManifest.shared)
+    case .forGHAMatrixGeneration:
+      let specCollector = GHAMatrixSpecCollector(
+        SDKRepoURL: SDKRepoURL,
+        outputSpecFileURL: outputFilePath
+      )
+      try specCollector.generateMatrixJson(to: outputFilePath)
+    }
   }
 }
 
