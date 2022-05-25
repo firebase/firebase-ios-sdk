@@ -43,6 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertThrows(options.maxAttempts = 0);
   XCTAssertThrows(options.maxAttempts = -1);
   XCTAssertThrows(options.maxAttempts = INT32_MIN);
+  XCTAssertThrows(options.maxAttempts = INT32_MAX + 1);
 }
 
 - (void)testHash {
@@ -58,9 +59,9 @@ NS_ASSUME_NONNULL_BEGIN
   FIRTransactionOptions* options2b = [[FIRTransactionOptions alloc] init];
   options2b.maxAttempts = 11;
 
-  XCTAssertEqual(options1a.maxAttempts, options1b.maxAttempts);
-  XCTAssertEqual(options2a.maxAttempts, options2b.maxAttempts);
-  XCTAssertNotEqual(options1a.maxAttempts, options2a.maxAttempts);
+  XCTAssertEqual([options1a hash], [options1b hash]);
+  XCTAssertEqual([options2a hash], [options2b hash]);
+  XCTAssertNotEqual([options1a hash], [options2a hash]);
 }
 
 - (void)testIsEqual {
