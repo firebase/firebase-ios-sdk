@@ -136,7 +136,7 @@ jobs:
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/FirebasePrivate/SpecsTesting.git
         # ${ALLOWWARNINGS:+--allow-warnings} will add --allow-warnings to the
         # command if ${ALLOWWARNINGS} is not null.
-        ${GITHUB_WORKSPACE}/scripts/third_party/travis/retry.sh BOT_TOKEN="${botaccess}"  .build/debug/spec-repo-builder \
+        BOT_TOKEN="${botaccess}" ${GITHUB_WORKSPACE}/scripts/third_party/travis/retry.sh .build/debug/spec-repo-builder \
                                 --sdk-repo "${local_sdk_repo_dir}" \
                                 --local-spec-repo-name "${local_repo}" \
                                 --pod-sources 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting' "https://github.com/firebase/SpecsStaging.git" "https://github.com/CocoaPods/Specs.git" \
