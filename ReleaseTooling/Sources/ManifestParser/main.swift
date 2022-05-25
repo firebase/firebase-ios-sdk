@@ -19,6 +19,11 @@ import FirebaseManifest
 import Foundation
 import Utils
 
+enum ParsingMode: String, EnumerableFlag {
+  case forNoticesGeneration
+  case forGHAMatrixGeneration
+}
+
 struct ManifestParser: ParsableCommand {
   @Option(help: "The path of the SDK repo.",
           transform: { str in
@@ -26,7 +31,7 @@ struct ManifestParser: ParsableCommand {
             let documentDir = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
             return documentDir.appendingPathComponent(str)
           })
-  var SDKRepoURL: URL
+  var SDKRepoURL: URL?
 
   /// Path of a text file for Firebase Pods' names.
   @Option(help: "An output file with Podspecs",
@@ -35,10 +40,13 @@ struct ManifestParser: ParsableCommand {
             let documentDir = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
             return documentDir.appendingPathComponent(str)
           })
-  var specOutputFilePath: URL
+  var outputFilePath: URL
 
   @Option(parsing: .upToNextOption, help: "Podspec files that will not be included.")
   var excludedSpecs: [String]
+
+  @Flag(help: "Parsing mode for manifest")
+  var mode: ParsingMode
 
   func parsePodNames(_ manifest: Manifest) throws {
     var output: [String] = []
@@ -47,20 +55,30 @@ struct ManifestParser: ParsableCommand {
     }
     do {
       try output.joined(separator: ",")
-        .write(to: specOutputFilePath, atomically: true,
+        .write(to: outputFilePath, atomically: true,
                encoding: String.Encoding.utf8)
-      print("\(output) is written in \n \(specOutputFilePath).")
+      print("\(output) is written in \n \(outputFilePath).")
     } catch {
       throw error
     }
   }
 
   func run() throws {
-    let specCollector = GHAMatrixSpecCollector(
-      SDKRepoURL: SDKRepoURL,
-      outputSpecFileURL: specOutputFilePath
-    )
-    try specCollector.generateMatrixJson(to: specOutputFilePath)
+    switch mode {
+    case .forNoticesGeneration:
+      try parsePodNames(FirebaseManifest.shared)
+    case .forGHAMatrixGeneration:
+      guard let sdkRepoURL = SDKRepoURL else {
+        throw fatalError(
+          "--sdk-repo-url should be specified when --for-gha-matrix-generation is on."
+        )
+      }
+      let specCollector = GHAMatrixSpecCollector(
+        SDKRepoURL: sdkRepoURL,
+        outputSpecFileURL: outputFilePath
+      )
+      try specCollector.generateMatrixJson(to: outputFilePath)
+    }
   }
 }
 

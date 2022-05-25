@@ -148,6 +148,10 @@ namespace local {
 //   - collection_group: string
 //   - largest_batch_id: model::BatchId
 //   - document_key: ResourcePath
+//
+// data_migration:
+//   - table_name: "data_migration"
+//   - migration_name: string
 
 /**
  * Parses the given key and returns a human readable description of its
@@ -1294,6 +1298,46 @@ class LevelDbDocumentOverlayCollectionGroupIndexKey
 
  private:
   std::string collection_group_;
+};
+
+/** A key in the data_migration table. */
+class LevelDbDataMigrationKey {
+ public:
+  LevelDbDataMigrationKey() = default;
+
+  /**
+   * Creates a complete key that points to a specific migration_name.
+   */
+  static std::string Key(absl::string_view migration_name);
+
+  /** Migration to create overlays from local mutations. */
+  static std::string OverlayMigrationKey() {
+    return Key("overlay_migration");
+  }
+
+  /**
+   * Decodes the given complete key, storing the decoded values in this
+   * instance.
+   *
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
+   */
+  ABSL_MUST_USE_RESULT
+  bool Decode(absl::string_view key);
+
+  /** Encodes the key from this object's instance variables, and returns it. */
+  std::string Encode() const {
+    return Key(migration_name_);
+  }
+
+  /** The migration name. */
+  const std::string& migration_name() const {
+    return migration_name_;
+  }
+
+ private:
+  std::string migration_name_;
 };
 
 }  // namespace local

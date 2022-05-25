@@ -59,6 +59,7 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
   self.mockDataTransport = [[FIRMockGDTCORTransport alloc] initWithMappingID:@"1206"
                                                                 transformers:nil
                                                                       target:kGDTCORTargetCSH];
+  self.mockDataTransport.sendDataEvent_wasWritten = YES;
   self.fileManager = [[FIRCLSTempMockFileManager alloc] init];
 
   id fakeApp = [[FIRAppFake alloc] init];
@@ -114,9 +115,39 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
   [self runUploadPackagedReportWithUrgency:YES];
 }
 
-- (void)testUploadPackagedReportWithoutDataCollectionToken {
-  [self setUpForUpload];
+- (void)testUrgentWaitUntillUpload {
+  self.mockDataTransport.async = YES;
 
+  [self runUploadPackagedReportWithUrgency:YES];
+
+  XCTAssertNotNil(self.mockDataTransport.sendDataEvent_event);
+}
+
+- (void)testUrgentWaitUntillUploadWithError {
+  self.mockDataTransport.async = YES;
+  self.mockDataTransport.sendDataEvent_error = [[NSError alloc] initWithDomain:@"domain"
+                                                                          code:1
+                                                                      userInfo:nil];
+
+  [self.uploader uploadPackagedReportAtPath:[self packagePath]
+                        dataCollectionToken:FIRCLSDataCollectionToken.validToken
+                                   asUrgent:YES];
+
+  XCTAssertNotNil(self.mockDataTransport.sendDataEvent_event);
+}
+
+- (void)testUrgentWaitUntillUploadWithWritingError {
+  self.mockDataTransport.async = YES;
+  self.mockDataTransport.sendDataEvent_wasWritten = NO;
+
+  [self.uploader uploadPackagedReportAtPath:[self packagePath]
+                        dataCollectionToken:FIRCLSDataCollectionToken.validToken
+                                   asUrgent:YES];
+
+  XCTAssertNotNil(self.mockDataTransport.sendDataEvent_event);
+}
+
+- (void)testUploadPackagedReportWithoutDataCollectionToken {
   [self.uploader uploadPackagedReportAtPath:[self packagePath] dataCollectionToken:nil asUrgent:NO];
 
   // Ensure we don't hand off an event to GDT
@@ -124,7 +155,6 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
 }
 
 - (void)testUploadPackagedReportNotGDTWritten {
-  [self setUpForUpload];
   self.mockDataTransport.sendDataEvent_wasWritten = NO;
 
   [self.uploader uploadPackagedReportAtPath:[self packagePath] dataCollectionToken:nil asUrgent:NO];
@@ -134,7 +164,6 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
 }
 
 - (void)testUploadPackagedReportGDTError {
-  [self setUpForUpload];
   self.mockDataTransport.sendDataEvent_error = [[NSError alloc] initWithDomain:@"domain"
                                                                           code:1
                                                                       userInfo:nil];
@@ -152,18 +181,12 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
 }
 
 - (void)runUploadPackagedReportWithUrgency:(BOOL)urgent {
-  [self setUpForUpload];
-
   [self.uploader uploadPackagedReportAtPath:[self packagePath]
                         dataCollectionToken:FIRCLSDataCollectionToken.validToken
                                    asUrgent:urgent];
 
   XCTAssertNotNil(self.mockDataTransport.sendDataEvent_event);
   XCTAssertEqualObjects(self.fileManager.removedItemAtPath_path, [self packagePath]);
-}
-
-- (void)setUpForUpload {
-  self.mockDataTransport.sendDataEvent_wasWritten = YES;
 }
 
 @end
