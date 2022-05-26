@@ -51,7 +51,7 @@ static NSString *const templateVersionNumberKey = @"templateVersion";
 typedef void (^RCNConfigUpdateCompletion)(NSError *_Nullable error);
 
 NSTimeInterval timeoutSeconds = 4320;
-NSInteger FETCH_ATTEMPTS = 5;
+NSInteger FETCH_ATTEMPTS = 3;
 
 @interface FIRConfigUpdateListenerRegistration ()
 @property(strong, atomic, nonnull) RCNConfigUpdateCompletion completionHandler;
@@ -355,8 +355,8 @@ NSInteger FETCH_ATTEMPTS = 5;
                                    userInfo:dictionary
                                     repeats:NO];
   } else {
-    /// Needs fetch to occur between 2 - 12 seconds. Randomize to not cause ddos alerts in backend
-    [NSTimer scheduledTimerWithTimeInterval:arc4random_uniform(11) + 2
+    /// Needs fetch to occur between 1 - 6 seconds. Randomize to not cause ddos alerts in backend
+    [NSTimer scheduledTimerWithTimeInterval:arc4random_uniform(6) + 1
                                      target:self
                                    selector:@selector(fetchLatestConfig:)
                                    userInfo:dictionary
