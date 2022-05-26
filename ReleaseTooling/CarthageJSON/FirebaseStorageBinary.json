@@ -83,5 +83,6 @@
   "8.8.0": "https://dl.google.com/dl/firebase/ios/carthage/8.8.0/FirebaseStorage-5979f7836aa73879.zip",
   "8.9.0": "https://dl.google.com/dl/firebase/ios/carthage/8.9.0/FirebaseStorage-fce21e82a22c7ed1.zip",
   "8.9.1": "https://dl.google.com/dl/firebase/ios/carthage/8.9.1/FirebaseStorage-0e9d3086f3ff0f99.zip",
-  "9.0.0": "https://dl.google.com/dl/firebase/ios/carthage/9.0.0/FirebaseStorage-ea5c39ff5fd2cc2e.zip"
+  "9.0.0": "https://dl.google.com/dl/firebase/ios/carthage/9.0.0/FirebaseStorage-ea5c39ff5fd2cc2e.zip",
+  "9.1.0": "https://dl.google.com/dl/firebase/ios/carthage/9.1.0/FirebaseStorage-e516b9ebaaa843b2.zip"
 }
