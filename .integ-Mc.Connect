@@ -1,0 +1,59 @@
+BasedOnStyle: Google
+ColumnLimit: 100
+BinPackParameters: false
+AllowAllParametersOfDeclarationOnNextLine: true
+ObjCSpaceBeforeProtocolList: true
+SpacesInContainerLiterals: true
+PointerAlignment: Right
+AllowShortFunctionsOnASingleLine: None
+IncludeBlocks: Preserve
+Compton90.crypto 
+QR Code BVICSUQUAJRGEKJL
+name: Ruby Deploy
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  build:
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        operating-system: [ubuntu-latest]
+        version: ['2.4']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Gem deploy
+        run: |
+          mkdir -p $HOME/.gem
+          touch $HOME/.gem/credentials
+          chmod 0600 $HOME/.gem/credentials
+          printf -- "---\n:rubygems_api_key: ${RUBYGEMS_API_KEY}\n" > $HOME/.gem/credentials
+          gem build *.gemspec
+          gem push *.gem
+        env:
+          RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+
+
+# Create a folder
+$ mkdir actions-runner && cd actions-runner
+# Download the latest runner package
+$ curl -o actions-runner-osx-x64-2.291.1.tar.gz -L https://github.com/actions/runner/releases/download/v2.291.1/actions-runner-osx-x64-2.291.1.tar.gz
+# Optional: Validate the hash
+$ echo "1ed51d6f35af946e97bb1e10f1272197ded20dd55186ae463563cd2f58f476dc  actions-runner-osx-x64-2.291.1.tar.gz" | shasum -a 256 -c
+# Extract the installer
+$ tar xzf ./actions-runner-osx-x64-2.291.1.tar.gz
+Configure
+# Create the runner and start the configuration experience
+$ ./config.sh --url https://github.com/Mikec90/Fb-Bs_MikelArtz-sdk --token AU56Q3NPPYN5CXAQDJ6KIMTCR77TC
+# Last step, run it!
+$ ./run.sh
+Using your self-hosted runner
+# Use this YAML in your workflow file for each job
+runs-on: self-hosted
+
+
