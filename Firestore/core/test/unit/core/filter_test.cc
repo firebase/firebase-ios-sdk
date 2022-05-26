@@ -63,9 +63,9 @@ TEST(FilterTest, AndFilter) {
   CompositeFilter andFilter = AndFilter({Zero, One, Two});
   ASSERT_TRUE(andFilter.IsConjunction());
   EXPECT_EQ(andFilter.filters().size(), 3);
-  EXPECT_EQ(*andFilter.filters()[0], Zero);
-  EXPECT_EQ(*andFilter.filters()[1], One);
-  EXPECT_EQ(*andFilter.filters()[2], Two);
+  EXPECT_EQ(andFilter.filters()[0], Zero);
+  EXPECT_EQ(andFilter.filters()[1], One);
+  EXPECT_EQ(andFilter.filters()[2], Two);
 }
 
 TEST(FilterTest, OrFilter) {
@@ -76,9 +76,9 @@ TEST(FilterTest, OrFilter) {
   CompositeFilter orFilter = OrFilter({Zero, One, Two});
   ASSERT_TRUE(orFilter.IsDisjunction());
   EXPECT_EQ(orFilter.filters().size(), 3);
-  EXPECT_EQ(*orFilter.filters()[0], Zero);
-  EXPECT_EQ(*orFilter.filters()[1], One);
-  EXPECT_EQ(*orFilter.filters()[2], Two);
+  EXPECT_EQ(orFilter.filters()[0], Zero);
+  EXPECT_EQ(orFilter.filters()[1], One);
+  EXPECT_EQ(orFilter.filters()[2], Two);
 }
 
 }  // namespace core

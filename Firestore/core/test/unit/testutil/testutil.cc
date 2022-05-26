@@ -340,24 +340,16 @@ core::FieldFilter Filter(absl::string_view key,
 }
 
 core::CompositeFilter AndFilter(std::vector<core::Filter> filters) {
-  std::vector<std::shared_ptr<core::Filter>> filter_ptrs;
-  for (auto& filter : filters) {
-    filter_ptrs.push_back(std::make_shared<core::Filter>(std::move(filter)));
-  }
   return core::CompositeFilter::Create(
-      std::move(filter_ptrs),
+      std::move(filters),
       _google_firestore_v1_StructuredQuery_CompositeFilter_Operator ::
           google_firestore_v1_StructuredQuery_CompositeFilter_Operator_AND);
 }
 
 core::CompositeFilter OrFilter(std::vector<core::Filter> filters) {
-  std::vector<std::shared_ptr<core::Filter>> filter_ptrs;
-  for (auto& filter : filters) {
-    filter_ptrs.push_back(std::make_shared<core::Filter>(std::move(filter)));
-  }
   // TODO(orquery): Replace with Operator.OR.
   return core::CompositeFilter::Create(
-      std::move(filter_ptrs),
+      std::move(filters),
       _google_firestore_v1_StructuredQuery_CompositeFilter_Operator ::
           google_firestore_v1_StructuredQuery_\
 CompositeFilter_Operator_OPERATOR_UNSPECIFIED);

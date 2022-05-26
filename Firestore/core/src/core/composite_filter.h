@@ -45,12 +45,12 @@ class CompositeFilter : public Filter {
   using Operator =
       _google_firestore_v1_StructuredQuery_CompositeFilter_Operator;
 
-  static CompositeFilter Create(
-      const std::vector<std::shared_ptr<Filter>>&& filters, Operator op);
+  static CompositeFilter Create(const std::vector<Filter>&& filters,
+                                Operator op);
 
   explicit CompositeFilter(const Filter& other);
 
-  const std::vector<std::shared_ptr<Filter>>& filters() const {
+  const std::vector<Filter>& filters() const {
     return composite_filter_rep().filters();
   }
 
@@ -75,13 +75,13 @@ class CompositeFilter : public Filter {
      * @param filters A collection of filters stored inside the CompositeFilter.
      * @param op The composite operator to apply.
      */
-    Rep(const std::vector<std::shared_ptr<Filter>>&& filters, Operator op);
+    Rep(const std::vector<Filter>&& filters, Operator op);
 
     Operator op() const {
       return op_;
     }
 
-    const std::vector<std::shared_ptr<Filter>>& filters() const {
+    const std::vector<Filter>& filters() const {
       return filters_;
     }
 
@@ -118,7 +118,7 @@ class CompositeFilter : public Filter {
     const FieldFilter* FindFirstMatchingFilter(CheckingFun& condition) const;
 
     /** A collection of filters stored inside the CompositeFilter. */
-    const std::vector<std::shared_ptr<Filter>> filters_;
+    const std::vector<Filter> filters_;
 
     /** The type of and/or operator in the composite filter. */
     Operator op_;

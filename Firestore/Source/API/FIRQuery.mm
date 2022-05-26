@@ -521,11 +521,11 @@ int32_t SaturatedLimitValue(NSInteger limit) {
 }
 
 - (Filter)parseCompositeFilter:(FSTCompositeFilter *)compositeFilter {
-  std::vector<std::shared_ptr<Filter>> filters;
+  std::vector<Filter> filters;
   for (FIRFilter *filter in compositeFilter.filters) {
     Filter parsedFilter = [self parseFilter:filter];
     if (!parsedFilter.IsEmpty()) {
-      filters.push_back(std::make_shared<Filter>(parsedFilter));
+      filters.push_back(std::move(parsedFilter));
     }
   }
   Filter parsedCompositeFilter =

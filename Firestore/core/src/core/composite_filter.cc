@@ -53,8 +53,8 @@ CompositeFilter_Operator_OPERATOR_UNSPECIFIED:
 
 }  // namespace
 
-CompositeFilter CompositeFilter::Create(
-    const std::vector<std::shared_ptr<Filter>>&& filters, Operator op) {
+CompositeFilter CompositeFilter::Create(const std::vector<Filter>&& filters,
+                                        Operator op) {
   return CompositeFilter(
       std::make_shared<const Rep>(Rep(std::move(filters), op)));
 }
@@ -63,8 +63,7 @@ CompositeFilter::CompositeFilter(std::shared_ptr<const Filter::Rep> rep)
     : Filter(std::move(rep)) {
 }
 
-CompositeFilter::Rep::Rep(const std::vector<std::shared_ptr<Filter>>&& filters,
-                          Operator op)
+CompositeFilter::Rep::Rep(const std::vector<Filter>&& filters, Operator op)
     : filters_(std::move(filters)), op_(op) {
 }
 
@@ -88,16 +87,16 @@ bool CompositeFilter::Rep::Matches(const model::Document& doc) const {
   if (IsConjunction()) {
     // For conjunctions, all filters must match, so return false if any filter
     // doesn't match.
-    for (const auto& filter_ptr : filters_) {
-      if (!filter_ptr->Matches(doc)) {
+    for (const auto& filter : filters_) {
+      if (!filter.Matches(doc)) {
         return false;
       }
     }
     return true;
   } else {
     // For disjunctions, at least one filter should match.
-    for (const auto& filter_ptr : filters_) {
-      if (filter_ptr->Matches(doc)) {
+    for (const auto& filter : filters_) {
+      if (filter.Matches(doc)) {
         return true;
       }
     }
@@ -109,10 +108,9 @@ std::string CompositeFilter::Rep::CanonicalId() const {
   // TODO(orquery): Add special case for flat AND filters.
   return util::StringFormat(
       "%s(%s)", CanonicalName(op_),
-      absl::StrJoin(filters_, ",",
-                    [](std::string* out, const std::shared_ptr<Filter>& f) {
-                      return absl::StrAppend(out, f->CanonicalId());
-                    }));
+      absl::StrJoin(filters_, ",", [](std::string* out, const Filter& f) {
+        return absl::StrAppend(out, f.CanonicalId());
+      }));
 }
 
 bool CompositeFilter::Rep::Equals(const Filter::Rep& other) const {
@@ -150,9 +148,9 @@ const model::FieldPath* CompositeFilter::Rep::GetFirstInequalityField() const {
 const std::vector<FieldFilter>& CompositeFilter::Rep::GetFlattenedFilters()
     const {
   if (Filter::Rep::memoized_flatten_filters_.empty() && !filters().empty()) {
-    for (const auto& filter_ptr : filters()) {
-      std::copy(filter_ptr->GetFlattenedFilters().begin(),
-                filter_ptr->GetFlattenedFilters().end(),
+    for (const auto& filter : filters()) {
+      std::copy(filter.GetFlattenedFilters().begin(),
+                filter.GetFlattenedFilters().end(),
                 std::back_inserter(Filter::Rep::memoized_flatten_filters_));
     }
   }
