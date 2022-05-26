@@ -22,7 +22,7 @@ jobs:
     - name: Get all pod names
       run: |
         cd "${GITHUB_WORKSPACE}/ReleaseTooling/"
-        swift run manifest --pod-name-output-file-path ./output.txt
+        swift run manifest --output-file-path ./output.txt --for-notices-generation
         PODS=`cat ./output.txt`
         echo "PODS=${PODS}" >> $GITHUB_ENV
         echo "NOTICES_PATH=${GITHUB_WORKSPACE}/${NOTICES_PATH}" >> $GITHUB_ENV

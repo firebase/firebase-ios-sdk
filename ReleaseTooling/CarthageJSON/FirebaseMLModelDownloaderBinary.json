@@ -16,5 +16,6 @@
   "8.8.0": "https://dl.google.com/dl/firebase/ios/carthage/8.8.0/FirebaseMLModelDownloader-44aec542ad6aa5a5.zip",
   "8.9.0": "https://dl.google.com/dl/firebase/ios/carthage/8.9.0/FirebaseMLModelDownloader-766753e99bb4b6f9.zip",
   "8.9.1": "https://dl.google.com/dl/firebase/ios/carthage/8.9.1/FirebaseMLModelDownloader-bef667d929f0eb60.zip",
-  "9.0.0": "https://dl.google.com/dl/firebase/ios/carthage/9.0.0/FirebaseMLModelDownloader-db47e4d67d73edfb.zip"
+  "9.0.0": "https://dl.google.com/dl/firebase/ios/carthage/9.0.0/FirebaseMLModelDownloader-db47e4d67d73edfb.zip",
+  "9.1.0": "https://dl.google.com/dl/firebase/ios/carthage/9.1.0/FirebaseMLModelDownloader-957d944daf5b847e.zip"
 }
