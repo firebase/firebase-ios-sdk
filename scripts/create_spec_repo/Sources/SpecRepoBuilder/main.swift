@@ -26,6 +26,9 @@ extension Constants {
   static let podSources = [
     "https://${BOT_TOKEN}@github.com/Firebase/SpecsTesting",
     "https://github.com/firebase/SpecsStaging.git",
+    // https://cdn.cocoapods.org is not used here since `--update-sources`
+    // will update spec repos before a spec is pushed, but cdn is not a spec
+    // repo.
     "https://github.com/CocoaPods/Specs.git",
   ]
 }
@@ -34,7 +37,6 @@ extension Constants {
 extension Constants {
   static let flags = [
     "--skip-tests",
-    "--allow-warnings",
     "--skip-import-validation",
     "--update-sources",
   ]
@@ -155,6 +157,9 @@ struct SpecRepoBuilder: ParsableCommand {
   @Flag(help: "Raise error while circular dependency detected.")
   var raiseCircularDepError: Bool = false
 
+  @Flag(help: "Allow warnings when push a spec.")
+  var allowWarnings: Bool = false
+
   // This will track down dependencies of pods and keep the sequence of
   // dependency installation in specFiles.depInstallOrder.
   func generateOrderOfInstallation(pods: [String], specFiles: SpecFiles,
@@ -265,7 +270,8 @@ struct SpecRepoBuilder: ParsableCommand {
   func pushPodspec(forPod pod: URL, sdkRepo: String, sources: [String],
                    flags: [String], shell: Shell = Shell.shared) throws -> Int32 {
     let sourcesArg = sources.joined(separator: ",")
-    let flagsArg = flags.joined(separator: " ")
+    let flagsArgArr = allowWarnings ?flags + ["--allow-warnings"] : flags
+    let flagsArg = flagsArgArr.joined(separator: " ")
 
     do {
       // Update the repo
