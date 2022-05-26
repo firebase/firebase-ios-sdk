@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#define RCNConfigRealtime_h
-
 #import <Foundation/Foundation.h>
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
