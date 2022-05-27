@@ -53,26 +53,6 @@ const char* kRawMaxValueFieldValue = "__max__";
 pb_bytes_array_s* kMaxValueFieldValue =
     nanopb::MakeBytesArray(kRawMaxValueFieldValue);
 
-/** The special map field value entry of a maximum proto value. */
-google_firestore_v1_MapValue_FieldsEntry kMaxValueFieldEntry = {
-    .key = kMaxValueFieldKey,
-    .value = {
-        .which_value_type = google_firestore_v1_Value_string_value_tag,
-        .string_value = const_cast<pb_bytes_array_t*>(kMaxValueFieldValue)}};
-
-/** The special map value of a maximum proto value. */
-_google_firestore_v1_MapValue kMaxValueMapValue = {
-    .fields_count = 1, .fields = &kMaxValueFieldEntry};
-
-/**
- * A maximum value that is larger than any other Firestore values. Underlying it
- * is a map value with a special map field that SDK user cannot possibly
- * construct.
- */
-google_firestore_v1_Value kMaxValue = {
-    .which_value_type = google_firestore_v1_Value_map_value_tag,
-    .map_value = kMaxValueMapValue};
-
 }  // namespace
 
 using nanopb::Message;
@@ -703,8 +683,32 @@ bool IsMinValue(const google_firestore_v1_Value& value) {
   return IsNullValue(value);
 }
 
+/**
+ * Creates and returns a maximum value that is larger than any other Firestore
+ * values. Underlying it is a map value with a special map field that SDK user
+ * cannot possibly construct.
+ */
 google_firestore_v1_Value MaxValue() {
-  return kMaxValue;
+  google_firestore_v1_Value value;
+  value.which_value_type = google_firestore_v1_Value_string_value_tag;
+  value.string_value = kMaxValueFieldValue;
+
+  // Make `field_entry` static so that it has a memory address that outlives
+  // this function's scope; otherwise, using its address in the `map_value`
+  // variable below would be invalid by the time the caller accessed it.
+  static google_firestore_v1_MapValue_FieldsEntry field_entry;
+  field_entry.key = kMaxValueFieldKey;
+  field_entry.value = value;
+
+  google_firestore_v1_MapValue map_value;
+  map_value.fields_count = 1;
+  map_value.fields = &field_entry;
+
+  google_firestore_v1_Value max_value;
+  max_value.which_value_type = google_firestore_v1_Value_map_value_tag;
+  max_value.map_value = map_value;
+
+  return max_value;
 }
 
 bool IsMaxValue(const google_firestore_v1_Value& value) {
