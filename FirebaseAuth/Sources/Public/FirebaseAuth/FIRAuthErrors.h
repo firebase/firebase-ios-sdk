@@ -21,19 +21,19 @@ NS_ASSUME_NONNULL_BEGIN
 /** @class FIRAuthErrors
     @remarks Error Codes common to all API Methods:
 
-        + `FIRAuthErrorCodeNetworkError`
-        + `FIRAuthErrorCodeUserNotFound`
-        + `FIRAuthErrorCodeUserTokenExpired`
-        + `FIRAuthErrorCodeTooManyRequests`
-        + `FIRAuthErrorCodeInvalidAPIKey`
-        + `FIRAuthErrorCodeAppNotAuthorized`
-        + `FIRAuthErrorCodeKeychainError`
-        + `FIRAuthErrorCodeInternalError`
+        + `AuthErrorCodeNetworkError`
+        + `AuthErrorCodeUserNotFound`
+        + `AuthErrorCodeUserTokenExpired`
+        + `AuthErrorCodeTooManyRequests`
+        + `AuthErrorCodeInvalidAPIKey`
+        + `AuthErrorCodeAppNotAuthorized`
+        + `AuthErrorCodeKeychainError`
+        + `AuthErrorCodeInternalError`
 
-    @remarks Common error codes for `FIRUser` operations:
+    @remarks Common error codes for `User` operations:
 
-        + `FIRAuthErrorCodeInvalidUserToken`
-        + `FIRAuthErrorCodeUserDisabled`
+        + `AuthErrorCodeInvalidUserToken`
+        + `AuthErrorCodeUserDisabled`
 
  */
 NS_SWIFT_NAME(AuthErrors)
@@ -51,10 +51,10 @@ extern NSString *const FIRAuthErrorUserInfoNameKey NS_SWIFT_NAME(AuthErrorUserIn
 
 /**
     @brief Errors with one of the following three codes:
-          - `FIRAuthErrorCodeAccountExistsWithDifferentCredential`
-          - `FIRAuthErrorCodeCredentialAlreadyInUse`
-          - `FIRAuthErrorCodeEmailAlreadyInUse`
-        may contain  an `NSError.userInfo` dictinary object which contains this key. The value
+          - `AuthErrorCodeAccountExistsWithDifferentCredential`
+          - `AuthErrorCodeCredentialAlreadyInUse`
+          - `AuthErrorCodeEmailAlreadyInUse`
+        may contain an `NSError.userInfo` dictinary object which contains this key. The value
         associated with this key is an NSString of the email address of the account that already
         exists.
  */
@@ -275,12 +275,12 @@ typedef NS_ERROR_ENUM(FIRAuthErrorDomain, FIRAuthErrorCode){
     FIRAuthErrorCodeQuotaExceeded = 17052,
 
     /** Indicates that the APNs device token could not be obtained. The app may not have set up
-        remote notification correctly, or may fail to forward the APNs device token to FIRAuth
+        remote notification correctly, or may fail to forward the APNs device token to Auth
         if app delegate swizzling is disabled.
      */
     FIRAuthErrorCodeMissingAppToken = 17053,
 
-    /** Indicates that the app fails to forward remote notification to FIRAuth.
+    /** Indicates that the app fails to forward remote notification to Auth.
      */
     FIRAuthErrorCodeNotificationNotForwarded = 17054,
 
