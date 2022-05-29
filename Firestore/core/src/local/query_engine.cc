@@ -50,7 +50,8 @@ const DocumentMap QueryEngine::GetDocumentsMatchingQuery(
     const Query& query,
     const SnapshotVersion& last_limbo_free_snapshot_version,
     const DocumentKeySet& remote_keys) const {
-  HARD_ASSERT(local_documents_view_, "SetLocalDocumentsView() not called");
+  HARD_ASSERT(local_documents_view_ && index_manager_,
+              "SetDependencies() not called");
 
   const absl::optional<DocumentMap> index_result =
       PerformQueryUsingIndex(query);

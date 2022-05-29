@@ -50,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Cancels the download task and passes an appropriate error to the developer.
- * @param error NSError to propegate to the developer.
+ * @param error NSError to propagate to the developer.
  */
 - (void)cancelWithError:(NSError *)error;
 

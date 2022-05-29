@@ -311,6 +311,8 @@ model::FieldMaskMap LocalDocumentsView::RecalculateAndSaveOverlays(
     for (const DocumentKey& key : batch.keys()) {
       auto base_doc_it = docs.find(key);
       if (base_doc_it == docs.end()) {
+        // If this batch has documents not included in passed in `docs`, skip
+        // them.
         continue;
       }
       MutableDocument* base_doc = base_doc_it->second;

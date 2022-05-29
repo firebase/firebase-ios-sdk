@@ -72,7 +72,6 @@ option(
   ON
 )
 
-
 list(INSERT CMAKE_MODULE_PATH 0 ${PROJECT_SOURCE_DIR}/cmake)
 include(compiler_setup)
 include(sanitizer_options)
@@ -233,6 +232,12 @@ if(NOT ZLIB_FOUND)
   )
 endif()
 
+
+# Snappy
+set(SNAPPY_BUILD_TESTS OFF CACHE BOOL "Firestore disabled")
+set(SNAPPY_BUILD_BENCHMARKS OFF CACHE BOOL "Firestore disabled")
+add_external_subdirectory(snappy)
+firebase_ios_add_alias(Snappy::Snappy snappy)
 
 # LevelDB
 set(LEVELDB_BUILD_TESTS OFF CACHE BOOL "Firestore disabled")

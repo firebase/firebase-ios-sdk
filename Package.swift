@@ -150,7 +150,7 @@ let package = Package(
       url: "https://github.com/google/GoogleAppMeasurement.git",
       // Note that CI changes the version to the head of main for CI.
       // See scripts/setup_spm_tests.sh.
-      .exact("9.0.0")
+      .exact("9.1.0")
     ),
     .package(
       name: "GoogleDataTransport",
@@ -165,7 +165,7 @@ let package = Package(
     .package(
       name: "GTMSessionFetcher",
       url: "https://github.com/google/gtm-session-fetcher.git",
-      "1.7.2" ..< "2.0.0"
+      "1.7.2" ..< "3.0.0"
     ),
     .package(
       name: "nanopb",
@@ -344,8 +344,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/9.0.0/FirebaseAnalytics.zip",
-      checksum: "6e9ced53d0eda20c00edae9f8ca90493355c711a2bcd12ec0fe1e4643558c241"
+      url: "https://dl.google.com/firebase/ios/swiftpm/9.1.0/FirebaseAnalytics.zip",
+      checksum: "5a0e2916e791904fa7be8e8a3c6913fc080ac8a050f3814ef18957e01d21d870"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
