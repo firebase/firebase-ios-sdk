@@ -1,0 +1,16 @@
+diff -Naur a/absl/synchronization/internal/graphcycles.cc b/absl/synchronization/internal/graphcycles.cc
+--- abseil-cpp/absl/synchronization/internal/graphcycles.cc	2020-02-25 17:56:58.000000000 -0500
++++ abseil-cpp-fixed/absl/synchronization/internal/graphcycles.cc	2022-05-30 11:35:14.992431139 -0400
+@@ -37,6 +37,9 @@
+ 
+ #include <algorithm>
+ #include <array>
++// Add #include <limits> because without it builds fail on gLinux workstations
++// due to the usage of std::numeric_limits<uint32_t>::max() that requires it.
++// This problem was fixed in abseil upstream by
++// https://github.com/abseil/abseil-cpp/commit/5bf048b842
++// (Googlers can see cl/339054753)
++#include <limits>
+ #include "absl/base/internal/hide_ptr.h"
+ #include "absl/base/internal/raw_logging.h"
+ #include "absl/base/internal/spinlock.h"
