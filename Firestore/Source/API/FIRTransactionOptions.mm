@@ -28,7 +28,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::api::kDefaultTransactionMaxAttempts;
-using firebase::firestore::util::MakeString;
 using firebase::firestore::util::ThrowInvalidArgument;
 
 @implementation FIRTransactionOptions
