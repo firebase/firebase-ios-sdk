@@ -235,17 +235,17 @@ void SyncEngine::RegisterPendingWritesCallback(StatusCallback callback) {
       std::move(callback));
 }
 
-void SyncEngine::Transaction(int retries,
+void SyncEngine::Transaction(int max_attempts,
                              const std::shared_ptr<AsyncQueue>& worker_queue,
                              TransactionUpdateCallback update_callback,
                              TransactionResultCallback result_callback) {
+  HARD_ASSERT(max_attempts >= 0, "invalid max_attempts: %s", max_attempts);
   worker_queue->VerifyIsCurrentQueue();
-  HARD_ASSERT(retries >= 0, "Got negative number of retries for transaction");
 
   // Allocate a shared_ptr so that the TransactionRunner can outlive this frame.
-  auto runner = std::make_shared<TransactionRunner>(worker_queue, remote_store_,
-                                                    std::move(update_callback),
-                                                    std::move(result_callback));
+  auto runner = std::make_shared<TransactionRunner>(
+      worker_queue, remote_store_, std::move(update_callback),
+      std::move(result_callback), max_attempts);
   runner->Run();
 }
 
