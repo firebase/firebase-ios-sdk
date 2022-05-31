@@ -647,6 +647,62 @@ class IntegrationTests: XCTestCase {
     }
   #endif
 
+  func testThrowError() {
+    let byName = functions.httpsCallable(
+      "throwTest",
+      requestAs: [Int].self,
+      responseAs: Int.self
+    )
+    let byURL = functions.httpsCallable(
+      emulatorURL("throwTest"),
+      requestAs: [Int].self,
+      responseAs: Int.self
+    )
+    for function in [byName, byURL] {
+      let expectation = expectation(description: #function)
+      XCTAssertNotNil(function)
+      function.call([]) { result in
+        do {
+          _ = try result.get()
+        } catch {
+          let error = error as NSError
+          XCTAssertEqual(FunctionsErrorCode.invalidArgument.rawValue, error.code)
+          XCTAssertEqual(error.localizedDescription, "Invalid test requested.")
+          expectation.fulfill()
+          return
+        }
+        XCTFail("Failed to throw error for missing result")
+      }
+      waitForExpectations(timeout: 5)
+    }
+  }
+
+  #if compiler(>=5.5.2) && canImport(_Concurrency)
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+    func testThrowErrorAsync() async {
+      let byName = functions.httpsCallable(
+        "throwTest",
+        requestAs: [Int].self,
+        responseAs: Int.self
+      )
+      let byURL = functions.httpsCallable(
+        emulatorURL("throwTest"),
+        requestAs: [Int].self,
+        responseAs: Int.self
+      )
+      for function in [byName, byURL] {
+        do {
+          _ = try await function.call([])
+          XCTAssertFalse(true, "Failed to throw error for missing result")
+        } catch {
+          let error = error as NSError
+          XCTAssertEqual(FunctionsErrorCode.invalidArgument.rawValue, error.code)
+          XCTAssertEqual(error.localizedDescription, "Invalid test requested.")
+        }
+      }
+    }
+  #endif
+
   func testTimeout() {
     let byName = functions.httpsCallable(
       "timeoutTest",

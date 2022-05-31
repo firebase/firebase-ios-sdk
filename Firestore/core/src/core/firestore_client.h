@@ -143,9 +143,10 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
                       util::StatusCallback callback);
 
   /**
-   * Tries to execute the transaction in update_callback up to retries times.
+   * Tries to execute the transaction in update_callback up to max_attempts
+   * times.
    */
-  void Transaction(int retries,
+  void Transaction(int max_attempts,
                    TransactionUpdateCallback update_callback,
                    TransactionResultCallback result_callback);
 

@@ -1,3 +1,7 @@
+# Unreleased
+- [feature] Added `TransactionOptions` to control how many times a transaction
+  will retry commits before failing (#9838).
+
 # 9.0.0
 - [fixed] Fixed CMake build errors when building with Xcode 13.3.1 (#9702).
 - [fixed] **Breaking change:** Fixed an issue where returning `nil` from the

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,16 @@
  * limitations under the License.
  */
 
-#import "FIRCollectionReference.h"
-#import "FIRDocumentChange.h"
-#import "FIRDocumentReference.h"
-#import "FIRDocumentSnapshot.h"
-#import "FIRFieldPath.h"
-#import "FIRFieldValue.h"
-#import "FIRFirestore.h"
-#import "FIRFirestoreErrors.h"
-#import "FIRFirestoreSettings.h"
-#import "FIRGeoPoint.h"
-#import "FIRListenerRegistration.h"
-#import "FIRLoadBundleTask.h"
-#import "FIRQuery.h"
-#import "FIRQuerySnapshot.h"
-#import "FIRSnapshotMetadata.h"
-#import "FIRTimestamp.h"
-#import "FIRTransaction.h"
 #import "FIRTransactionOptions.h"
-#import "FIRWriteBatch.h"
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface FIRTransactionOptions (Internal)
+
++ (int)defaultMaxAttempts;
+
+@end
+
+NS_ASSUME_NONNULL_END
