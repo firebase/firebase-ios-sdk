@@ -310,36 +310,42 @@ NSInteger FETCH_ATTEMPTS = 3;
 #pragma mark - Autofetch Helpers
 
 - (void)fetchLatestConfig:(NSTimer *)timer {
-  NSArray *input =
-      [[[timer userInfo] objectForKey:templateVersionNumberKey] componentsSeparatedByString:@"-"];
-  NSInteger remainingAttempts = [input[0] integerValue];
-  NSInteger targetVersion = [input[1] integerValue];
+  __weak RCNConfigRealtime *weakSelf = self;
+  dispatch_async(_realtimeLockQueue, ^{
+    __strong RCNConfigRealtime *strongSelf = weakSelf;
+    NSArray *input =
+        [[[timer userInfo] objectForKey:templateVersionNumberKey] componentsSeparatedByString:@"-"];
+    NSInteger remainingAttempts = [input[0] integerValue];
+    NSInteger targetVersion = [input[1] integerValue];
 
-  [self->_configFetch
-      fetchConfigWithExpirationDuration:0
-                      completionHandler:^(FIRRemoteConfigFetchStatus status, NSError *error) {
-                        NSLog(@"Fetching new config");
-                        if (status == FIRRemoteConfigFetchStatusSuccess) {
-                          if ([self->_configFetch.templateVersionNumber integerValue] >=
-                              targetVersion) {
-                            NSLog(@"Executing callback delegate");
-                            for (RCNConfigUpdateCompletion listener in self->_listeners) {
-                              listener(nil);
+    [strongSelf->_configFetch
+        fetchConfigWithExpirationDuration:0
+                        completionHandler:^(FIRRemoteConfigFetchStatus status, NSError *error) {
+                          NSLog(@"Fetching new config");
+                          if (status == FIRRemoteConfigFetchStatusSuccess) {
+                            if ([strongSelf->_configFetch.templateVersionNumber integerValue] >=
+                                targetVersion) {
+                              NSLog(@"Executing callback delegate");
+                              for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
+                                listener(nil);
+                              }
+                            } else {
+                              NSLog(
+                                  @"Fetched config's template version is the same or less then the "
+                                  @"current version, re-fetching");
+                              [strongSelf autoFetch:remainingAttempts - 1
+                                      targetVersion:targetVersion];
                             }
                           } else {
-                            NSLog(@"Fetched config's template version is the same or less then the "
-                                  @"current version, re-fetching");
-                            [self autoFetch:remainingAttempts - 1 targetVersion:targetVersion];
-                          }
-                        } else {
-                          NSLog(@"Config not fetched");
-                          if (error != nil) {
-                            for (RCNConfigUpdateCompletion listener in self->_listeners) {
-                              listener(error);
+                            NSLog(@"Config not fetched");
+                            if (error != nil) {
+                              for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
+                                listener(error);
+                              }
                             }
                           }
-                        }
-                      }];
+                        }];
+  });
 }
 
 - (void)scheduleFetch:(NSInteger)remainingAttempts targetVersion:(NSInteger)targetVersion {
@@ -347,39 +353,34 @@ NSInteger FETCH_ATTEMPTS = 3;
       [NSString stringWithFormat:@"%ld-%ld", (long)remainingAttempts, (long)targetVersion];
   NSDictionary *dictionary = [NSDictionary dictionaryWithObject:inputKey
                                                          forKey:templateVersionNumberKey];
-
-  if (remainingAttempts == FETCH_ATTEMPTS) {
-    [NSTimer scheduledTimerWithTimeInterval:0
-                                     target:self
-                                   selector:@selector(fetchLatestConfig:)
-                                   userInfo:dictionary
-                                    repeats:NO];
-  } else {
-    /// Needs fetch to occur between 1 - 6 seconds. Randomize to not cause ddos alerts in backend
-    [NSTimer scheduledTimerWithTimeInterval:arc4random_uniform(6) + 1
-                                     target:self
-                                   selector:@selector(fetchLatestConfig:)
-                                   userInfo:dictionary
-                                    repeats:NO];
-  }
+  /// Needs fetch to occur between 1 - 6 seconds. Randomize to not cause ddos alerts in backend
+  [NSTimer scheduledTimerWithTimeInterval:arc4random_uniform(6) + 1
+                                   target:self
+                                 selector:@selector(fetchLatestConfig:)
+                                 userInfo:dictionary
+                                  repeats:NO];
 }
 
 /// Perform fetch and handle developers callbacks
 - (void)autoFetch:(NSInteger)remainingAttempts targetVersion:(NSInteger)targetVersion {
-  if (remainingAttempts == 0) {
-    NSError *error = [NSError
-        errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
-                   code:FIRRemoteConfigRealtimeErrorFetch
-               userInfo:@{
-                 NSLocalizedDescriptionKey : @"FetchError: Unable to retrieve the latest config."
-               }];
-    for (RCNConfigUpdateCompletion listener in self->_listeners) {
-      listener(error);
+  __weak RCNConfigRealtime *weakSelf = self;
+  dispatch_async(_realtimeLockQueue, ^{
+    __strong RCNConfigRealtime *strongSelf = weakSelf;
+    if (remainingAttempts == 0) {
+      NSError *error = [NSError
+          errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
+                     code:FIRRemoteConfigRealtimeErrorFetch
+                 userInfo:@{
+                   NSLocalizedDescriptionKey : @"FetchError: Unable to retrieve the latest config."
+                 }];
+      for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
+        listener(error);
+      }
+      return;
     }
-    return;
-  }
 
-  [self scheduleFetch:remainingAttempts targetVersion:targetVersion];
+    [strongSelf scheduleFetch:remainingAttempts targetVersion:targetVersion];
+  });
 }
 
 #pragma mark - NSURLSession Delegates
