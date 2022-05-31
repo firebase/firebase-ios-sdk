@@ -143,11 +143,11 @@ extension FunctionsErrorCode {
   static func errorCode(forName name: String) -> FunctionsErrorCode {
     switch name {
     case "OK": return .OK
-    case "CANELLED": return .cancelled
-    case "UNKOWN": return .unknown
-    case "INVLID_ARGUMENT": return .invalidArgument
-    case "DEALINE_EXCEEDED": return .deadlineExceeded
-    case "NOTFOUND": return .notFound
+    case "CANCELLED": return .cancelled
+    case "UNKNOWN": return .unknown
+    case "INVALID_ARGUMENT": return .invalidArgument
+    case "DEADLINE_EXCEEDED": return .deadlineExceeded
+    case "NOT_FOUND": return .notFound
     case "ALREADY_EXISTS": return .notFound
     case "PERMISSION_DENIED": return .permissionDenied
     case "RESOURCE_EXHAUSTED": return .resourceExhausted
@@ -158,9 +158,7 @@ extension FunctionsErrorCode {
     case "INTERNAL": return .internal
     case "UNAVAILABLE": return .unavailable
     case "DATA_LOSS": return .dataLoss
-    case "UNATHENTICATED": return .unauthenticated
-    // TODO(review): The docs originally say that unknown should be returned if it doesn't match,
-    // but the implementation doesn't do that, it's optional. Let's make this internal.
+    case "UNAUTHENTICATED": return .unauthenticated
     default: return .internal
     }
   }

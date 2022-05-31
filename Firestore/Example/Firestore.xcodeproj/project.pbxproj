@@ -128,6 +128,7 @@
 		15F54E9538839D56A40C5565 /* watch_change_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2D7472BC70C024D736FF74D9 /* watch_change_test.cc */; };
 		16791B16601204220623916C /* status_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54A0352C20A3B3D7003E0143 /* status_test.cc */; };
 		16FE432587C1B40AF08613D2 /* objc_type_traits_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2A0CF41BA5AED6049B0BEB2C /* objc_type_traits_apple_test.mm */; };
+		16FF9073CA381CA43CA9BF29 /* FIRTransactionOptionsTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = CF39ECA1293D21A0A2AB2626 /* FIRTransactionOptionsTests.mm */; };
 		1733601ECCEA33E730DEAF45 /* autoid_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54740A521FC913E500713A1A /* autoid_test.cc */; };
 		17473086EBACB98CDC3CC65C /* view_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = C7429071B33BDF80A7FA2F8A /* view_test.cc */; };
 		17638F813B9B556FE7718C0C /* FIRQuerySnapshotTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E04F202154AA00B64F25 /* FIRQuerySnapshotTests.mm */; };
@@ -266,6 +267,7 @@
 		336E415DD06E719F9C9E2A14 /* grpc_stream_tester.cc in Sources */ = {isa = PBXBuildFile; fileRef = 87553338E42B8ECA05BA987E /* grpc_stream_tester.cc */; };
 		338DFD5BCD142DF6C82A0D56 /* cc_compilation_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1B342370EAE3AA02393E33EB /* cc_compilation_test.cc */; };
 		339CFFD1323BDCA61EAAFE31 /* query_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B9C261C26C5D311E1E3C0CB9 /* query_test.cc */; };
+		339D4DD13E1518BA79FF12EA /* FIRTransactionOptionsTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = CF39ECA1293D21A0A2AB2626 /* FIRTransactionOptionsTests.mm */; };
 		340987A77D72C80A3E0FDADF /* view_snapshot_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = CC572A9168BBEF7B83E4BBC5 /* view_snapshot_test.cc */; };
 		3409F2AEB7D6D95478D4344A /* random_access_queue_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 014C60628830D95031574D15 /* random_access_queue_test.cc */; };
 		34202A37E0B762386967AF3D /* grpc_stream_tester.cc in Sources */ = {isa = PBXBuildFile; fileRef = 87553338E42B8ECA05BA987E /* grpc_stream_tester.cc */; };
@@ -541,6 +543,7 @@
 		57BDB8DBEDEC4C61DB497CB4 /* append_only_list_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5477CDE922EE71C8000FCC1E /* append_only_list_test.cc */; };
 		583DF65751B7BBD0A222CAB4 /* byte_stream_cpp_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 01D10113ECC5B446DB35E96D /* byte_stream_cpp_test.cc */; };
 		58693C153EC597BC25EE9648 /* firebase_auth_credentials_provider_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = F869D85E900E5AF6CD02E2FC /* firebase_auth_credentials_provider_test.mm */; };
+		58B84B550725D9812729C7F7 /* FIRTransactionOptionsTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = CF39ECA1293D21A0A2AB2626 /* FIRTransactionOptionsTests.mm */; };
 		58E377DCCC64FE7D2C6B59A1 /* database_id_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB71064B201FA60300344F18 /* database_id_test.cc */; };
 		5958E3E3A0446A88B815CB70 /* grpc_connection_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6D9649021544D4F00EB9CFB /* grpc_connection_test.cc */; };
 		59880AE766F7FBFF0C41A94E /* remote_event_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 584AE2C37A55B408541A6FF3 /* remote_event_test.cc */; };
@@ -784,6 +787,7 @@
 		84E75527F3739131C09BEAA5 /* target_index_matcher_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 63136A2371C0C013EC7A540C /* target_index_matcher_test.cc */; };
 		851346D66DEC223E839E3AA9 /* memory_mutation_queue_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 74FBEFA4FE4B12C435011763 /* memory_mutation_queue_test.cc */; };
 		856A1EAAD674ADBDAAEDAC37 /* bundle_builder.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4F5B96F3ABCD2CA901DB1CD4 /* bundle_builder.cc */; };
+		85A33A9CE33207C2333DDD32 /* FIRTransactionOptionsTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = CF39ECA1293D21A0A2AB2626 /* FIRTransactionOptionsTests.mm */; };
 		85B8918FC8C5DC62482E39C3 /* resource_path_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B686F2B02024FFD70028D6BE /* resource_path_test.cc */; };
 		85BC2AB572A400114BF59255 /* limbo_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA129E1F315EE100DD57A1 /* limbo_spec_test.json */; };
 		85D61BDC7FB99B6E0DD3AFCA /* mutation.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE8220B89AAC00B5BCE7 /* mutation.pb.cc */; };
@@ -830,6 +834,7 @@
 		90B9302B082E6252AF4E7DC7 /* leveldb_migrations_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = EF83ACD5E1E9F25845A9ACED /* leveldb_migrations_test.cc */; };
 		90FE088B8FD9EC06EEED1F39 /* memory_index_manager_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = DB5A1E760451189DA36028B3 /* memory_index_manager_test.cc */; };
 		911931696309D2EABB325F17 /* strerror_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 358C3B5FE573B1D60A4F7592 /* strerror_test.cc */; };
+		913C2DB6951A2ED24778686C /* FIRTransactionOptionsTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = CF39ECA1293D21A0A2AB2626 /* FIRTransactionOptionsTests.mm */; };
 		913F6E57AF18F84C5ECFD414 /* lru_garbage_collector_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 277EAACC4DD7C21332E8496A /* lru_garbage_collector_test.cc */; };
 		915A9B8DB280DB4787D83FFE /* byte_stream_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 432C71959255C5DBDF522F52 /* byte_stream_test.cc */; };
 		91AEFFEE35FBE15FEC42A1F4 /* memory_local_store_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = F6CA0C5638AB6627CB5B4CF4 /* memory_local_store_test.cc */; };
@@ -1166,6 +1171,7 @@
 		DB3ADDA51FB93E84142EA90D /* FIRBundlesTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 776530F066E788C355B78457 /* FIRBundlesTests.mm */; };
 		DB7E9C5A59CCCDDB7F0C238A /* path_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 403DBF6EFB541DFD01582AA3 /* path_test.cc */; };
 		DBDC8E997E909804F1B43E92 /* log_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54C2294E1FECABAE007D065B /* log_test.cc */; };
+		DBFE8B2E803C1D0DECB71FF6 /* FIRTransactionOptionsTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = CF39ECA1293D21A0A2AB2626 /* FIRTransactionOptionsTests.mm */; };
 		DC0B0E50DBAE916E6565AA18 /* string_win_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 79507DF8378D3C42F5B36268 /* string_win_test.cc */; };
 		DC0E186BDD221EAE9E4D2F41 /* sorted_map_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 549CCA4E20A36DBB00BCEB75 /* sorted_map_test.cc */; };
 		DC1C711290E12F8EF3601151 /* array_sorted_map_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54EB764C202277B30088B8F3 /* array_sorted_map_test.cc */; };
@@ -1708,6 +1714,7 @@
 		CD422AF3E4515FB8E9BE67A0 /* equals_tester.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = equals_tester.h; sourceTree = "<group>"; };
 		CE37875365497FFA8687B745 /* message_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = message_test.cc; path = nanopb/message_test.cc; sourceTree = "<group>"; };
 		CF39535F2C41AB0006FA6C0E /* create_noop_connectivity_monitor.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = create_noop_connectivity_monitor.cc; sourceTree = "<group>"; };
+		CF39ECA1293D21A0A2AB2626 /* FIRTransactionOptionsTests.mm */ = {isa = PBXFileReference; includeInIndex = 1; path = FIRTransactionOptionsTests.mm; sourceTree = "<group>"; };
 		D0A6E9136804A41CEC9D55D4 /* delayed_constructor_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = delayed_constructor_test.cc; sourceTree = "<group>"; };
 		D3CC3DC5338DCAF43A211155 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		D5B2593BCB52957D62F1C9D3 /* perf_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = perf_spec_test.json; sourceTree = "<group>"; };
@@ -2520,6 +2527,7 @@
 				FF73B39D04D1760190E6B84A /* FIRQueryUnitTests.mm */,
 				5492E04D202154AA00B64F25 /* FIRSnapshotMetadataTests.mm */,
 				B65D34A7203C99090076A5E1 /* FIRTimestampTest.m */,
+				CF39ECA1293D21A0A2AB2626 /* FIRTransactionOptionsTests.mm */,
 				5492E047202154AA00B64F25 /* FSTAPIHelpers.h */,
 				5492E04E202154AA00B64F25 /* FSTAPIHelpers.mm */,
 				8D9892F204959C50613F16C8 /* FSTUserDataReaderTests.mm */,
@@ -3539,6 +3547,7 @@
 				D39F0216BF1EA8CD54C76CF8 /* FIRQueryUnitTests.mm in Sources */,
 				2EAD77559EC654E6CA4D3E21 /* FIRSnapshotMetadataTests.mm in Sources */,
 				CD0AA9E5D83C00CAAE7C2F67 /* FIRTimestampTest.m in Sources */,
+				16FF9073CA381CA43CA9BF29 /* FIRTransactionOptionsTests.mm in Sources */,
 				9D71628E38D9F64C965DF29E /* FSTAPIHelpers.mm in Sources */,
 				F4F00BF4E87D7F0F0F8831DB /* FSTEventAccumulator.mm in Sources */,
 				0A6FBE65A7FE048BAD562A15 /* FSTGoogleTestTests.mm in Sources */,
@@ -3740,6 +3749,7 @@
 				518BF03D57FBAD7C632D18F8 /* FIRQueryUnitTests.mm in Sources */,
 				ED420D8F49DA5C41EEF93913 /* FIRSnapshotMetadataTests.mm in Sources */,
 				36E174A66C323891AEA16A2A /* FIRTimestampTest.m in Sources */,
+				DBFE8B2E803C1D0DECB71FF6 /* FIRTransactionOptionsTests.mm in Sources */,
 				6E4854B19B120C6F0F8192CC /* FSTAPIHelpers.mm in Sources */,
 				73E42D984FB36173A2BDA57C /* FSTEventAccumulator.mm in Sources */,
 				E375FBA0632EFB4D14C4E5A9 /* FSTGoogleTestTests.mm in Sources */,
@@ -3948,6 +3958,7 @@
 				FA7837C5CDFB273DE447E447 /* FIRServerTimestampTests.mm in Sources */,
 				67BC2B77C1CC47388E79D774 /* FIRSnapshotMetadataTests.mm in Sources */,
 				041CF73F67F6A22BF317625A /* FIRTimestampTest.m in Sources */,
+				58B84B550725D9812729C7F7 /* FIRTransactionOptionsTests.mm in Sources */,
 				75D124966E727829A5F99249 /* FIRTypeTests.mm in Sources */,
 				12DB753599571E24DCED0C2C /* FIRValidationTests.mm in Sources */,
 				BC0C98A9201E8F98B9A176A9 /* FIRWriteBatchTests.mm in Sources */,
@@ -4163,6 +4174,7 @@
 				27E46C94AAB087C80A97FF7F /* FIRServerTimestampTests.mm in Sources */,
 				59F512D155DE361095A04ED4 /* FIRSnapshotMetadataTests.mm in Sources */,
 				FE1C0263F6570DAC54A60F5C /* FIRTimestampTest.m in Sources */,
+				339D4DD13E1518BA79FF12EA /* FIRTransactionOptionsTests.mm in Sources */,
 				5F05A801B1EA44BC1264E55A /* FIRTypeTests.mm in Sources */,
 				8403D519C916C72B9C7F2FA1 /* FIRValidationTests.mm in Sources */,
 				8705C4856498F66E471A0997 /* FIRWriteBatchTests.mm in Sources */,
@@ -4381,6 +4393,7 @@
 				CB2C731116D6C9464220626F /* FIRQueryUnitTests.mm in Sources */,
 				5492E057202154AB00B64F25 /* FIRSnapshotMetadataTests.mm in Sources */,
 				B65D34A9203C995B0076A5E1 /* FIRTimestampTest.m in Sources */,
+				85A33A9CE33207C2333DDD32 /* FIRTransactionOptionsTests.mm in Sources */,
 				5492E058202154AB00B64F25 /* FSTAPIHelpers.mm in Sources */,
 				5492E03E2021401F00B64F25 /* FSTEventAccumulator.mm in Sources */,
 				54764FAF1FAA21B90085E60A /* FSTGoogleTestTests.mm in Sources */,
@@ -4608,6 +4621,7 @@
 				5492E077202154D600B64F25 /* FIRServerTimestampTests.mm in Sources */,
 				716289F99B5316B3CC5E5CE9 /* FIRSnapshotMetadataTests.mm in Sources */,
 				02B83EB79020AE6CBA60A410 /* FIRTimestampTest.m in Sources */,
+				913C2DB6951A2ED24778686C /* FIRTransactionOptionsTests.mm in Sources */,
 				5492E07A202154D600B64F25 /* FIRTypeTests.mm in Sources */,
 				5492E076202154D600B64F25 /* FIRValidationTests.mm in Sources */,
 				5492E078202154D600B64F25 /* FIRWriteBatchTests.mm in Sources */,

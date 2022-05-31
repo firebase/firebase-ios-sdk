@@ -57,6 +57,8 @@ using util::Empty;
 using util::Executor;
 using util::Status;
 
+const int kDefaultTransactionMaxAttempts = 5;
+
 Firestore::Firestore(
     model::DatabaseId database_id,
     std::string persistence_key,
@@ -155,12 +157,13 @@ core::Query Firestore::GetCollectionGroup(std::string collection_id) {
                                                 std::move(collection_id)));
 }
 
-void Firestore::RunTransaction(
-    core::TransactionUpdateCallback update_callback,
-    core::TransactionResultCallback result_callback) {
+void Firestore::RunTransaction(core::TransactionUpdateCallback update_callback,
+                               core::TransactionResultCallback result_callback,
+                               int max_attempts) {
+  HARD_ASSERT(max_attempts >= 0, "invalid max_attempts: %s", max_attempts);
   EnsureClientConfigured();
 
-  client_->Transaction(5, std::move(update_callback),
+  client_->Transaction(max_attempts, std::move(update_callback),
                        std::move(result_callback));
 }
 
