@@ -53,6 +53,11 @@ typedef void (^RCNConfigUpdateCompletion)(NSError *_Nullable error);
 NSTimeInterval timeoutSeconds = 4320;
 NSInteger FETCH_ATTEMPTS = 3;
 
+// Retry parameters
+NSInteger MAX_RETRY = 5;
+NSInteger MAX_RETRY_COUNT = 5;
+NSInteger RETRY_SECONDS = 3;
+
 @interface FIRConfigUpdateListenerRegistration ()
 @property(strong, atomic, nonnull) RCNConfigUpdateCompletion completionHandler;
 @end
@@ -81,6 +86,7 @@ NSInteger FETCH_ATTEMPTS = 3;
 
 @property(strong, atomic, nonnull) NSMutableSet<RCNConfigUpdateCompletion> *listeners;
 @property(strong, atomic, nonnull) dispatch_queue_t realtimeLockQueue;
+@property(strong, atomic, nonnull) NSNotificationCenter *notificationCenter;
 
 @property(strong, atomic) NSURLSession *session;
 @property(strong, atomic) NSURLSessionDataTask *dataTask;
@@ -103,6 +109,7 @@ NSInteger FETCH_ATTEMPTS = 3;
   if (self) {
     _listeners = [[NSMutableSet alloc] init];
     _realtimeLockQueue = [RCNConfigRealtime realtimeRemoteConfigSerialQueue];
+    _notificationCenter = [NSNotificationCenter defaultCenter];
 
     _configFetch = configFetch;
     _settings = settings;
@@ -111,6 +118,7 @@ NSInteger FETCH_ATTEMPTS = 3;
 
     [self setUpHttpRequest];
     [self setUpHttpSession];
+    [self backgroundChangeListener];
   }
 
   return self;
@@ -307,6 +315,56 @@ NSInteger FETCH_ATTEMPTS = 3;
                                       delegateQueue:[NSOperationQueue mainQueue]];
 }
 
+- (bool)noRunningConnection {
+  return _dataTask == nil || _dataTask.state != NSURLSessionTaskStateRunning;
+}
+
+- (bool)canMakeConnection {
+  return [self noRunningConnection] && [self->_listeners count] > 0;
+}
+
+// Retry mechanism for HTTP connections
+- (void)retryHTTPConnection {
+  __weak RCNConfigRealtime *weakSelf = self;
+  dispatch_async(_realtimeLockQueue, ^{
+    __strong RCNConfigRealtime *strongSelf = weakSelf;
+    if ([strongSelf canMakeConnection] && MAX_RETRY_COUNT > 0) {
+      if (MAX_RETRY_COUNT < MAX_RETRY) {
+        double RETRY_MULTIPLIER = arc4random_uniform(60) + 10;
+        RETRY_SECONDS *= RETRY_MULTIPLIER;
+      }
+      MAX_RETRY_COUNT--;
+      [NSTimer scheduledTimerWithTimeInterval:RETRY_SECONDS
+                                       target:self
+                                     selector:@selector(beginRealtimeStream)
+                                     userInfo:nil
+                                      repeats:NO];
+    } else {
+      NSLog(@"Cannot establish connection.");
+      NSError *error = [NSError
+          errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
+                     code:FIRRemoteConfigRealtimeErrorStream
+                 userInfo:@{
+                   NSLocalizedDescriptionKey : @"StreamError: Unable to establish http connection."
+                 }];
+      for (RCNConfigUpdateCompletion listener in self->_listeners) {
+        listener(error);
+      }
+    }
+  });
+}
+
+- (void)backgroundChangeListener {
+  [_notificationCenter addObserver:self
+                          selector:@selector(isInForeground)
+                              name:UIApplicationWillEnterForegroundNotification
+                            object:nil];
+}
+
+- (void)isInForeground {
+  [self beginRealtimeStream];
+}
+
 #pragma mark - Autofetch Helpers
 
 - (void)fetchLatestConfig:(NSTimer *)timer {
@@ -409,7 +467,7 @@ NSInteger FETCH_ATTEMPTS = 3;
   NSHTTPURLResponse *_httpURLResponse = (NSHTTPURLResponse *)response;
   if ([_httpURLResponse statusCode] != 200) {
     [self pauseRealtimeStream];
-    /// TODO: Add Http retry method here
+    [self retryHTTPConnection];
   }
   completionHandler(NSURLSessionResponseAllow);
 }
@@ -419,24 +477,16 @@ NSInteger FETCH_ATTEMPTS = 3;
                     task:(NSURLSessionTask *)task
     didCompleteWithError:(NSError *)error {
   [self pauseRealtimeStream];
-  /// TODO: Add Http retry method here
+  [self retryHTTPConnection];
 }
 
 /// Delegate that checks the final response of the connection and retries if allowed
 - (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(NSError *)error {
   [self pauseRealtimeStream];
-  /// TODO: Add Http retry method here
+  [self retryHTTPConnection];
 }
 
 #pragma mark - Top level methods
-
-- (bool)noRunningConnection {
-  return _dataTask == nil || _dataTask.state != NSURLSessionTaskStateRunning;
-}
-
-- (bool)canMakeConnection {
-  return [self noRunningConnection] && [self->_listeners count] > 0;
-}
 
 - (void)beginRealtimeStream {
   __weak RCNConfigRealtime *weakSelf = self;
@@ -446,6 +496,8 @@ NSInteger FETCH_ATTEMPTS = 3;
       [strongSelf setRequestBody];
       strongSelf->_dataTask = [strongSelf->_session dataTaskWithRequest:strongSelf->_request];
       [strongSelf->_dataTask resume];
+      MAX_RETRY_COUNT = MAX_RETRY;
+      RETRY_SECONDS = 3;
     }
   });
 }
