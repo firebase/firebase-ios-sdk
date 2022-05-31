@@ -654,19 +654,20 @@ NSString *const kTestPassword = KPASSWORD;
                               // "a" is now deleted and the empty string for "y" remains.
                               customMetadata:@{@"c" : @"d", @"y" : @""}];
 
-                        // Clear all metadata.
+                        // Clear all metadata with nils.
                         FIRStorageMetadata *metadata = updatedMetadata;
                         metadata.cacheControl = nil;
                         metadata.contentDisposition = nil;
                         metadata.contentEncoding = nil;
                         metadata.contentLanguage = nil;
                         metadata.contentType = nil;
-                        metadata.customMetadata = [NSDictionary dictionary];
+                        metadata.customMetadata = nil;
 
                         [ref updateMetadata:metadata
                                  completion:^(FIRStorageMetadata *updatedMetadata, NSError *error) {
                                    XCTAssertNil(error);
                                    [self assertMetadataNil:updatedMetadata];
+                                   XCTAssertNil(updatedMetadata.customMetadata);
                                    [expectation fulfill];
                                  }];
                       }];
