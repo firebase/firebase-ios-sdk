@@ -132,7 +132,7 @@ jobs:
          bot-access.txt "$bot_token_secret"
     - name: Update SpecsTesting repo
       run: |
-        [[ ${{ matrix.podspec }} == true ]] && ALLOWWARNINGS=true
+        [[ ${{ matrix.allowwarnings }} == true ]] && ALLOWWARNINGS=true
         botaccess=`cat bot-access.txt`
         cd scripts/create_spec_repo/
         swift build
