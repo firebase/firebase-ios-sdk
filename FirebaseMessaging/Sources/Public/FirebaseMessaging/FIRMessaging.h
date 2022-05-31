@@ -179,6 +179,13 @@ NS_SWIFT_NAME(Messaging)
 
 /**
  *  FIRMessaging
+ *  @param app The firebase instance that handle the message
+ *  @return An instance of FIRMessaging.
+ */
++ (instancetype)messaging: (NSString *)appName NS_SWIFT_NAME(messaging(appName:));
+
+/**
+ *  FIRMessaging
  *
  *  @return An instance of Messaging.
  */

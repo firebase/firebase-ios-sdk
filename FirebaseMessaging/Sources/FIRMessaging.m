@@ -128,6 +128,14 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
 @implementation FIRMessaging
 
++ (FIRMessaging *)messaging: (NSString *)appName {
+  FIRApp *customApp = [FIRApp appNamed:appName];  // Missing configure will be logged here.
+  id<FIRMessagingInterop> instance = FIR_COMPONENT(FIRMessagingInterop, customApp.container);
+
+  // We know the instance coming from the container is a FIRMessaging instance, cast it and move on.
+  return (FIRMessaging *)instance;
+}
+
 + (FIRMessaging *)messaging {
   FIRApp *defaultApp = [FIRApp defaultApp];  // Missing configure will be logged here.
   id<FIRMessagingInterop> instance = FIR_COMPONENT(FIRMessagingInterop, defaultApp.container);
@@ -177,13 +185,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                                                            isRequired:NO];
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
-    if (!container.app.isDefaultApp) {
-      // Only start for the default FIRApp.
-      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeFIRApp001,
-                              @"Firebase Messaging only works with the default app.");
-      return nil;
-    }
-
     // Ensure it's cached so it returns the same instance every time messaging is called.
     *isCacheable = YES;
     id<FIRAnalyticsInterop> analytics = FIR_COMPONENT(FIRAnalyticsInterop, container);
