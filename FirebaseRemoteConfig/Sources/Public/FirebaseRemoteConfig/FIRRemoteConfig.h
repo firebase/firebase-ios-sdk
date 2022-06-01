@@ -306,4 +306,8 @@ NS_SWIFT_NAME(RemoteConfig)
 ///                         nil if the key doesn't exist in the default config.
 - (nullable FIRRemoteConfigValue *)defaultValueForKey:(nullable NSString *)key;
 
+#pragma mark - Realtime
+- (FIRConfigUpdateListenerRegistration *) addOnConfigUpdateListener:
+(void (^_Nonnull)(NSError *_Nullable error))listener;
+
 @end
