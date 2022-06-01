@@ -323,6 +323,8 @@ NSInteger RETRY_SECONDS = 3;
   return [self noRunningConnection] && [self->_listeners count] > 0;
 }
 
+#pragma mark - Retry Helpers
+
 // Retry mechanism for HTTP connections
 - (void)retryHTTPConnection {
   __weak RCNConfigRealtime *weakSelf = self;
@@ -412,7 +414,7 @@ NSInteger RETRY_SECONDS = 3;
   NSDictionary *dictionary = [NSDictionary dictionaryWithObject:inputKey
                                                          forKey:templateVersionNumberKey];
   /// Needs fetch to occur between 1 - 6 seconds. Randomize to not cause ddos alerts in backend
-  [NSTimer scheduledTimerWithTimeInterval:arc4random_uniform(6) + 1
+  [NSTimer scheduledTimerWithTimeInterval:arc4random_uniform(5) + 1
                                    target:self
                                  selector:@selector(fetchLatestConfig:)
                                  userInfo:dictionary

@@ -60,6 +60,7 @@
                     namespace:(NSString *_Nonnull)namespace
                       options:(FIROptions *_Nonnull)options;
 
+- (void)autoFetch:(NSInteger)remainingAttempts targetVersion:(NSInteger)targetVersion;
 - (void)beginRealtimeStream;
 - (void)pauseRealtimeStream;
 
