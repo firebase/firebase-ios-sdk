@@ -60,6 +60,9 @@
                     namespace:(NSString *_Nonnull)namespace
                       options:(FIROptions *_Nonnull)options;
 
+- (void)fetchLatestConfig:(NSTimer *)timer;
+- (void)scheduleFetch:(NSInteger)remainingAttempts targetVersion:(NSInteger)targetVersion;
+- (void)autoFetch:(NSInteger)remainingAttempts targetVersion:(NSInteger)targetVersion;
 - (void)beginRealtimeStream;
 - (void)pauseRealtimeStream;
 
@@ -1581,6 +1584,38 @@ static NSString *UTCToLocal(NSString *utcTime) {
           OCMVerify([self->_configRealtime[i] addConfigUpdateListener:completion]);
           OCMVerify([self->_configRealtime[i] removeConfigUpdateListener:completion]);
           OCMVerify([self->_configRealtime[i] pauseRealtimeStream]);
+          [expectations[i] fulfill];
+        });
+
+    [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+  }
+}
+
+- (void)testAutofetch {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] = [self
+        expectationWithDescription:
+            [NSString stringWithFormat:@"Test Realtime Autofetch successfully - instance %d", i]];
+
+    id mockTimer = [[NSTimer alloc] init];
+    NSString *inputKey = [NSString stringWithFormat:@"%ld-%ld", (long)1, (long)1];
+    NSDictionary *dictionary = [NSDictionary dictionaryWithObject:inputKey
+                                                           forKey:@"templateVersion"];
+    [mockTimer setUserInfo:dictionary];
+
+    OCMStub([_configRealtime[i] scheduleFetch:1 targetVersion:1])
+        ._andDo(^(NSInvocation *invocation) {
+          [self->_configRealtime[i] fetchLatestConfig:mockTimer];
+        });
+    [_configRealtime[i] autoFetch:1 targetVersion:1];
+
+    dispatch_after(
+        dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
+        dispatch_get_main_queue(), ^{
+          OCMVerify([self->_configRealtime[i] scheduleFetch:1 targetVersion:1]);
+          OCMVerify([self->_configRealtime[i] fetchLatestConfig:mockTimer]);
           [expectations[i] fulfill];
         });
 
