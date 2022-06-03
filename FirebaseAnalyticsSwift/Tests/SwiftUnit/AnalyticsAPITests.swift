@@ -35,6 +35,13 @@ final class AnalyticsAPITests {
     // MARK: - AppDelegate
 
     Analytics.handleEvents(forBackgroundURLSession: "session_id", completionHandler: {})
+#if compiler(>=5.5.2) && canImport(_Concurrency)
+    if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
+      Task {
+        await Analytics.handleEvents(forBackgroundURLSession: "session_id")
+      }
+    }
+#endif // compiler(>=5.5.2) && canImport(_Concurrency)
     Analytics.handleOpen(URL(string: "https://google.com")!)
     Analytics.handleUserActivity(NSUserActivity(activityType: "editing"))
 
