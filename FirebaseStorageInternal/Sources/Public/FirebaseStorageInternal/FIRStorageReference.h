@@ -18,12 +18,10 @@
 
 #import "FIRStorage.h"
 #import "FIRStorageConstants.h"
-#import "FIRStorageDownloadTask.h"
 #import "FIRStorageListResult.h"
 #import "FIRStorageMetadata.h"
 #import "FIRStoragePath.h"
 #import "FIRStorageTask.h"
-#import "FIRStorageUploadTask.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -96,97 +94,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (FIRIMPLStorageReference *)child:(NSString *)path;
 
-#pragma mark - Uploads
-
-/**
- * Asynchronously uploads data to the currently specified FIRIMPLStorageReference,
- * without additional metadata.
- * This is not recommended for large files, and one should instead upload a file from disk.
- * @param uploadData The NSData to upload.
- * @return An instance of FIRIMPLStorageUploadTask, which can be used to monitor or manage the
- * upload.
- */
-- (FIRIMPLStorageUploadTask *)putData:(NSData *)uploadData;
-
-/**
- * Asynchronously uploads data to the currently specified FIRIMPLStorageReference.
- * This is not recommended for large files, and one should instead upload a file from disk.
- * @param uploadData The NSData to upload.
- * @param metadata FIRIMPLStorageMetadata containing additional information (MIME type, etc.)
- * about the object being uploaded.
- * @return An instance of FIRIMPLStorageUploadTask, which can be used to monitor or manage the
- * upload.
- */
-- (FIRIMPLStorageUploadTask *)putData:(NSData *)uploadData
-                             metadata:(nullable FIRIMPLStorageMetadata *)metadata;
-
-/**
- * Asynchronously uploads data to the currently specified FIRIMPLStorageReference.
- * This is not recommended for large files, and one should instead upload a file from disk.
- * @param uploadData The NSData to upload.
- * @param metadata FIRIMPLStorageMetadata containing additional information (MIME type, etc.)
- * about the object being uploaded.
- * @param completion A completion block that either returns the object metadata on success,
- * or an error on failure.
- * @return An instance of FIRIMPLStorageUploadTask, which can be used to monitor or manage the
- * upload.
- */
-- (FIRIMPLStorageUploadTask *)putData:(NSData *)uploadData
-                             metadata:(nullable FIRIMPLStorageMetadata *)metadata
-                           completion:(nullable void (^)(FIRIMPLStorageMetadata *_Nullable metadata,
-                                                         NSError *_Nullable error))completion;
-
-/**
- * Asynchronously uploads a file to the currently specified FIRIMPLStorageReference,
- * without additional metadata.
- * @param fileURL A URL representing the system file path of the object to be uploaded.
- * @return An instance of FIRIMPLStorageUploadTask, which can be used to monitor or manage the
- * upload.
- */
-- (FIRIMPLStorageUploadTask *)putFile:(NSURL *)fileURL;
-
-/**
- * Asynchronously uploads a file to the currently specified FIRIMPLStorageReference.
- * @param fileURL A URL representing the system file path of the object to be uploaded.
- * @param metadata FIRIMPLStorageMetadata containing additional information (MIME type, etc.)
- * about the object being uploaded.
- * @return An instance of FIRIMPLStorageUploadTask, which can be used to monitor or manage the
- * upload.
- */
-- (FIRIMPLStorageUploadTask *)putFile:(NSURL *)fileURL
-                             metadata:(nullable FIRIMPLStorageMetadata *)metadata;
-
-/**
- * Asynchronously uploads a file to the currently specified FIRIMPLStorageReference.
- * @param fileURL A URL representing the system file path of the object to be uploaded.
- * @param metadata FIRIMPLStorageMetadata containing additional information (MIME type, etc.)
- * about the object being uploaded.
- * @param completion A completion block that either returns the object metadata on success,
- * or an error on failure.
- * @return An instance of FIRIMPLStorageUploadTask, which can be used to monitor or manage the
- * upload.
- */
-- (FIRIMPLStorageUploadTask *)putFile:(NSURL *)fileURL
-                             metadata:(nullable FIRIMPLStorageMetadata *)metadata
-                           completion:(nullable void (^)(FIRIMPLStorageMetadata *_Nullable metadata,
-                                                         NSError *_Nullable error))completion;
-
-#pragma mark - Downloads
-
-/**
- * Asynchronously downloads the object at the FIRIMPLStorageReference to an NSData object in memory.
- * An NSData of the provided max size will be allocated, so ensure that the device has enough free
- * memory to complete the download. For downloading large files, writeToFile may be a better option.
- * @param size The maximum size in bytes to download. If the download exceeds this size,
- * the task will be cancelled and an error will be returned.
- * @param completion A completion block that either returns the object data on success,
- * or an error on failure.
- * @return An FIRIMPLStorageDownloadTask that can be used to monitor or manage the download.
- */
-- (FIRIMPLStorageDownloadTask *)dataWithMaxSize:(int64_t)size
-                                     completion:(void (^)(NSData *_Nullable data,
-                                                          NSError *_Nullable error))completion;
-
 /**
  * Asynchronously retrieves a long lived download URL with a revokable token.
  * This can be used to share the file with others, but can be revoked by a developer
@@ -196,13 +103,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)downloadURLWithCompletion:(void (^)(NSURL *_Nullable URL,
                                             NSError *_Nullable error))completion;
-
-/**
- * Asynchronously downloads the object at the current path to a specified system filepath.
- * @param fileURL A file system URL representing the path the object should be downloaded to.
- * @return An FIRIMPLStorageDownloadTask that can be used to monitor or manage the download.
- */
-- (FIRIMPLStorageDownloadTask *)writeToFile:(NSURL *)fileURL;
 
 /**
  * Asynchronously downloads the object at the current path to a specified system filepath.
