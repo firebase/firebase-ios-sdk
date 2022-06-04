@@ -327,7 +327,7 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
   _usesEmulator = YES;
   _scheme = @"http";
   _host = host;
-  _port = @(port);
+  _port = port;
 }
 
 #pragma mark - Background tasks
