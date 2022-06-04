@@ -104,17 +104,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)downloadURLWithCompletion:(void (^)(NSURL *_Nullable URL,
                                             NSError *_Nullable error))completion;
 
-/**
- * Asynchronously downloads the object at the current path to a specified system filepath.
- * @param fileURL A file system URL representing the path the object should be downloaded to.
- * @param completion A completion block that fires when the file download completes.
- * Returns an NSURL pointing to the file path of the downloaded file on success,
- * or an error on failure.
- * @return An FIRIMPLStorageDownloadTask that can be used to monitor or manage the download.
- */
-- (FIRIMPLStorageDownloadTask *)writeToFile:(NSURL *)fileURL
-                                 completion:(nullable void (^)(NSURL *_Nullable URL,
-                                                               NSError *_Nullable error))completion;
 #pragma mark - List Support
 
 /**

@@ -16,10 +16,8 @@
 
 #import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorage.h"
 #import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageReference.h"
-#import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageTaskSnapshot.h"
 
 #import "FirebaseStorageInternal/Sources/FIRStorageReference_Private.h"
-#import "FirebaseStorageInternal/Sources/FIRStorageTaskSnapshot_Private.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageTask_Private.h"
 #import "FirebaseStorageInternal/Sources/FIRStorage_Private.h"
 
@@ -49,21 +47,6 @@
     _dispatchQueue = queue;
   }
   return self;
-}
-
-- (FIRIMPLStorageTaskSnapshot *)snapshot {
-  @synchronized(self) {
-    NSProgress *progress = [NSProgress progressWithTotalUnitCount:self.progress.totalUnitCount];
-    progress.completedUnitCount = self.progress.completedUnitCount;
-    FIRIMPLStorageTaskSnapshot *snapshot =
-        [[FIRIMPLStorageTaskSnapshot alloc] initWithTask:self
-                                                   state:self.state
-                                                metadata:self.metadata
-                                               reference:self.reference
-                                                progress:progress
-                                                   error:[self.error copy]];
-    return snapshot;
-  }
 }
 
 - (void)dispatchAsync:(void (^)(void))block {

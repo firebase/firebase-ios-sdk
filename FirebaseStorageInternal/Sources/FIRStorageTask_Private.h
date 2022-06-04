@@ -15,12 +15,10 @@
  */
 
 #import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageReference.h"
-#import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageTaskSnapshot.h"
 
 #import "FirebaseStorageInternal/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageErrors.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageReference_Private.h"
-#import "FirebaseStorageInternal/Sources/FIRStorageTaskSnapshot_Private.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageUtils.h"
 
 #if SWIFT_PACKAGE

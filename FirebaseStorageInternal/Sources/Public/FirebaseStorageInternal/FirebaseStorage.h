@@ -20,4 +20,3 @@
 #import "FIRStorageMetadata.h"
 #import "FIRStorageReference.h"
 #import "FIRStorageTask.h"
-#import "FIRStorageTaskSnapshot.h"
