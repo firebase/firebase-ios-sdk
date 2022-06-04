@@ -19,6 +19,11 @@ import FirebaseCore
 import FirebaseCoreExtension
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
+#if COCOAPODS
+  import GTMSessionFetcher
+#else
+  import GTMSessionFetcherCore
+#endif
 
 /**
  * Firebase Storage is a service that supports uploading and downloading binary objects,
@@ -202,6 +207,19 @@ import FirebaseAuthInterop
   // MARK: - Internal APIs
 
   private let impl: FIRIMPLStorage
+
+  internal var fetcherServiceForApp: GTMSessionFetcherService? {
+    get {
+      return impl.fetcherServiceForApp
+    }
+    set(newValue) {
+      impl.fetcherServiceForApp = newValue
+    }
+  }
+
+  internal var dispatchQueue: DispatchQueue {
+    return impl.dispatchQueue
+  }
 
   internal init(app: FirebaseApp, bucket: String) {
     let auth = ComponentType<AuthInterop>.instance(for: AuthInterop.self,

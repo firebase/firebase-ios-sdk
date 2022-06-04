@@ -53,7 +53,8 @@
     NSURLComponents *components = [[NSURLComponents alloc] init];
     components.scheme = self.reference.storage.scheme;
     components.host = self.reference.storage.host;
-    components.port = self.reference.storage.port;
+    // components.port = self.reference.storage.port;
+    [components setPort:[NSNumber numberWithLong:self.reference.storage.port]];
     components.percentEncodedPath = fullPath;
 
     // The backend can return an arbitrary number of download tokens, but we only expose the first

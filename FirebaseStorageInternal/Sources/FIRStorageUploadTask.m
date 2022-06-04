@@ -62,7 +62,6 @@
     _progress = [NSProgress progressWithTotalUnitCount:0];
 
     NSString *mimeType = [FIRStorageUtils MIMETypeForExtension:[_fileURL pathExtension]];
-
     if (!_uploadMetadata.contentType) {
       _uploadMetadata.contentType = mimeType ?: @"application/octet-stream";
     }

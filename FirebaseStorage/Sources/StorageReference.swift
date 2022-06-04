@@ -102,7 +102,7 @@ import FirebaseStorageInternal
   @objc(putData:metadata:)
   @discardableResult
   open func putData(_ uploadData: Data, metadata: StorageMetadata? = nil) -> StorageUploadTask {
-    return StorageUploadTask(impl.put(uploadData, metadata: metadata?.impl))
+    return putData(uploadData, metadata: metadata, completion: nil)
   }
 
   /**
@@ -112,7 +112,7 @@ import FirebaseStorageInternal
    * - Returns: An instance of `StorageUploadTask`, which can be used to monitor or manage the upload.
    */
   @objc(putData:) @discardableResult open func __putData(_ uploadData: Data) -> StorageUploadTask {
-    return StorageUploadTask(impl.put(uploadData))
+    return putData(uploadData, metadata: nil, completion: nil)
   }
 
   /**
@@ -130,11 +130,43 @@ import FirebaseStorageInternal
   open func putData(_ uploadData: Data,
                     metadata: StorageMetadata? = nil,
                     completion: ((_: StorageMetadata?, _: Error?) -> Void)?) -> StorageUploadTask {
-    return StorageUploadTask(impl.put(uploadData, metadata: metadata?.impl) { impl, error in
-      if let completion = completion {
-        self.adaptMetadataCallback(completion: completion)(impl, error)
+    let putMetadata = metadata ?? StorageMetadata()
+    if let path = path?.object {
+      putMetadata.path = path
+      putMetadata.name = (path as NSString).lastPathComponent as String
+    }
+    guard let fetcherService = storage.fetcherServiceForApp else {
+      fatalError("TODO: Internal Error: fetcherService not configured")
+    }
+    let task = StorageUploadTask(reference: impl,
+                                 service: fetcherService,
+                                 queue: storage.dispatchQueue,
+                                 data: uploadData,
+                                 metadata: putMetadata.impl)
+
+    if let completion = completion {
+      var completed = false
+      let callbackQueue = fetcherService.callbackQueue ?? DispatchQueue.main
+
+      task.observe(.success) { snapshot in
+        callbackQueue.async {
+          if !completed {
+            completed = true
+            completion(snapshot.metadata, nil)
+          }
+        }
       }
-    })
+      task.observe(.failure) { snapshot in
+        callbackQueue.async {
+          if !completed {
+            completed = true
+            completion(nil, snapshot.error)
+          }
+        }
+      }
+    }
+    task.enqueue()
+    return task
   }
 
   /**
@@ -147,7 +179,7 @@ import FirebaseStorageInternal
    */
   @objc(putFile:metadata:) @discardableResult
   open func putFile(from fileURL: URL, metadata: StorageMetadata? = nil) -> StorageUploadTask {
-    return StorageUploadTask(impl.putFile(fileURL, metadata: metadata?.impl))
+    return putFile(from: fileURL, metadata: metadata, completion: nil)
   }
 
   /**
@@ -157,7 +189,7 @@ import FirebaseStorageInternal
    * @return An instance of StorageUploadTask, which can be used to monitor or manage the upload.
    */
   @objc(putFile:) @discardableResult open func __putFile(from fileURL: URL) -> StorageUploadTask {
-    return StorageUploadTask(impl.putFile(fileURL))
+    return putFile(from: fileURL, metadata: nil, completion: nil)
   }
 
   /**
@@ -174,11 +206,48 @@ import FirebaseStorageInternal
   open func putFile(from fileURL: URL,
                     metadata: StorageMetadata? = nil,
                     completion: ((_: StorageMetadata?, _: Error?) -> Void)?) -> StorageUploadTask {
-    return StorageUploadTask(impl.putFile(fileURL, metadata: metadata?.impl) { impl, error in
-      if let completion = completion {
-        self.adaptMetadataCallback(completion: completion)(impl, error)
+    var putMetadata: StorageMetadata
+    if metadata == nil {
+      putMetadata = StorageMetadata()
+      if let path = path?.object {
+        putMetadata.path = path
+        putMetadata.name = (path as NSString).lastPathComponent as String
       }
-    })
+    } else {
+      putMetadata = metadata!
+    }
+    guard let fetcherService = storage.fetcherServiceForApp else {
+      fatalError("TODO: Internal Error: fetcherService not configured")
+    }
+    let task = StorageUploadTask(reference: impl,
+                                 service: fetcherService,
+                                 queue: storage.dispatchQueue,
+                                 file: fileURL,
+                                 metadata: putMetadata.impl)
+
+    if let completion = completion {
+      var completed = false
+      let callbackQueue = fetcherService.callbackQueue ?? DispatchQueue.main
+
+      task.observe(.success) { snapshot in
+        callbackQueue.async {
+          if !completed {
+            completed = true
+            completion(snapshot.metadata, nil)
+          }
+        }
+      }
+      task.observe(.failure) { snapshot in
+        callbackQueue.async {
+          if !completed {
+            completed = true
+            completion(nil, snapshot.error)
+          }
+        }
+      }
+    }
+    task.enqueue()
+    return task
   }
 
   // MARK: - Downloads
@@ -197,7 +266,43 @@ import FirebaseStorageInternal
   @objc(dataWithMaxSize:completion:) @discardableResult
   open func getData(maxSize: Int64,
                     completion: @escaping ((_: Data?, _: Error?) -> Void)) -> StorageDownloadTask {
-    return StorageDownloadTask(impl.data(withMaxSize: maxSize, completion: completion))
+    guard let fetcherService = storage.fetcherServiceForApp else {
+      fatalError("TODO: Internal Error: fetcherService not configured")
+    }
+    let task = StorageDownloadTask(reference: impl,
+                                   service: fetcherService,
+                                   queue: storage.dispatchQueue,
+                                   file: nil)
+
+    var completed = false
+    let callbackQueue = fetcherService.callbackQueue ?? DispatchQueue.main
+
+    task.observe(.success) { snapshot in
+      callbackQueue.async {
+        if !completed {
+          completed = true
+          completion(task.downloadData, nil)
+        }
+      }
+    }
+    task.observe(.failure) { snapshot in
+      callbackQueue.async {
+        if !completed {
+          completed = true
+          completion(nil, snapshot.error)
+        }
+      }
+    }
+    task.observe(.progress) { snapshot in
+      let task = snapshot.task
+      if task.progress.totalUnitCount > maxSize || task.progress.completedUnitCount > maxSize {
+        let error = NSError()
+        // TODO: - add cancelWithError as internal func in TaskDownload
+        // task.cancelWithError()
+      }
+    }
+    task.enqueue()
+    return task
   }
 
   /**
@@ -233,7 +338,7 @@ import FirebaseStorageInternal
    */
   @objc(writeToFile:) @discardableResult
   open func write(toFile fileURL: URL) -> StorageDownloadTask {
-    return StorageDownloadTask(impl.write(toFile: fileURL))
+    return write(toFile: fileURL, completion: nil)
   }
 
   /**
@@ -248,7 +353,37 @@ import FirebaseStorageInternal
   @objc(writeToFile:completion:) @discardableResult
   open func write(toFile fileURL: URL,
                   completion: ((_: URL?, _: Error?) -> Void)?) -> StorageDownloadTask {
-    return StorageDownloadTask(impl.write(toFile: fileURL, completion: completion))
+    guard let fetcherService = storage.fetcherServiceForApp else {
+      fatalError("TODO: Internal Error: fetcherService not configured")
+    }
+    let task = StorageDownloadTask(reference: impl,
+                                   service: fetcherService,
+                                   queue: storage.dispatchQueue,
+                                   file: fileURL)
+
+    if let completion = completion {
+      var completed = false
+      let callbackQueue = fetcherService.callbackQueue ?? DispatchQueue.main
+
+      task.observe(.success) { snapshot in
+        callbackQueue.async {
+          if !completed {
+            completed = true
+            completion(fileURL, nil)
+          }
+        }
+      }
+      task.observe(.failure) { snapshot in
+        callbackQueue.async {
+          if !completed {
+            completed = true
+            completion(nil, snapshot.error)
+          }
+        }
+      }
+    }
+    task.enqueue()
+    return task
   }
 
   // MARK: - List Support
@@ -467,6 +602,13 @@ import FirebaseStorageInternal
   // MARK: - Internal APIs
 
   private let impl: FIRIMPLStorageReference
+
+  /**
+   * The current path which points to an object in the Google Cloud Storage bucket.
+   */
+  private var path: FIRStoragePath? {
+    return impl.path
+  }
 
   internal convenience init(_ impl: FIRIMPLStorageReference) {
     self.init(impl: impl, storage: Storage(app: impl.storage.app, bucket: impl.bucket))

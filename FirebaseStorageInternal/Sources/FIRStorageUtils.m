@@ -24,9 +24,9 @@
 
 #import "FirebaseStorageInternal/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageErrors.h"
-#import "FirebaseStorageInternal/Sources/FIRStoragePath.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageReference_Private.h"
 #import "FirebaseStorageInternal/Sources/FIRStorage_Private.h"
+#import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStoragePath.h"
 
 #if SWIFT_PACKAGE
 @import GTMSessionFetcherCore;
@@ -85,7 +85,7 @@ NSString *const kGCSObjectAllowedCharacterSet =
   NSURLComponents *components = [[NSURLComponents alloc] init];
   [components setScheme:reference.storage.scheme];
   [components setHost:reference.storage.host];
-  [components setPort:reference.storage.port];
+  [components setPort:[NSNumber numberWithLong:reference.storage.port]];
   NSString *encodedPath = [self encodedURLForPath:reference.path];
   [components setPercentEncodedPath:encodedPath];
   [request setURL:components.URL];
@@ -98,7 +98,7 @@ NSString *const kGCSObjectAllowedCharacterSet =
   NSURLComponents *components = [[NSURLComponents alloc] init];
   [components setScheme:reference.storage.scheme];
   [components setHost:reference.storage.host];
-  [components setPort:reference.storage.port];
+  [components setPort:[NSNumber numberWithLong:reference.storage.port]];
 
   NSMutableArray<NSURLQueryItem *> *queryItems = [NSMutableArray new];
   for (NSString *key in queryParams) {

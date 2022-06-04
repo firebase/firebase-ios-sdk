@@ -21,6 +21,7 @@
 #import "FIRStorageDownloadTask.h"
 #import "FIRStorageListResult.h"
 #import "FIRStorageMetadata.h"
+#import "FIRStoragePath.h"
 #import "FIRStorageTask.h"
 #import "FIRStorageUploadTask.h"
 
@@ -56,6 +57,11 @@ NS_ASSUME_NONNULL_BEGIN
  * in gs://bucket/path/to/object.txt, the name of the object would be: 'object.txt'
  */
 @property(nonatomic, readonly) NSString *name;
+
+/**
+ * The current path which points to an object in the Google Cloud Storage bucket.
+ */
+@property(strong, nonatomic) FIRStoragePath *path;
 
 #pragma mark - Path Operations
 

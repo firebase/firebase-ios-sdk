@@ -16,11 +16,11 @@
 #import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageReference.h"
 
 #import "FirebaseStorageInternal/Sources/FIRStorageConstants_Private.h"
-#import "FirebaseStorageInternal/Sources/FIRStoragePath.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageReference_Private.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageTokenAuthorizer.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageUtils.h"
 #import "FirebaseStorageInternal/Sources/FIRStorage_Private.h"
+#import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStoragePath.h"
 
 #import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
 #import "FirebaseAuth/Interop/FIRAuthInterop.h"
@@ -151,7 +151,7 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
     _storageBucket = bucket;
     _host = kFIRStorageHost;
     _scheme = kFIRStorageScheme;
-    _port = @(kFIRStoragePort);
+    _port = kFIRStoragePort;
     _fetcherServiceForApp = nil;  // Configured in `ensureConfigured()`
     // Must be a serial queue.
     _dispatchQueue = dispatch_queue_create("com.google.firebase.storage", DISPATCH_QUEUE_SERIAL);
