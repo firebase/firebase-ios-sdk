@@ -14,9 +14,9 @@
 
 import FirebaseStorageInternal
 #if os(iOS) || os(tvOS)
-import MobileCoreServices
+  import MobileCoreServices
 #elseif os(macOS) || os(watchOS)
-import CoreServices
+  import CoreServices
 #endif
 
 class StorageUtils {

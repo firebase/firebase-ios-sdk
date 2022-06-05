@@ -15,7 +15,6 @@
 #import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageReference.h"
 
 #import "FirebaseStorageInternal/Sources/FIRStorageConstants_Private.h"
-#import "FirebaseStorageInternal/Sources/FIRStorageDeleteTask.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageGetDownloadURLTask.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageGetMetadataTask.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageListResult_Private.h"
@@ -256,17 +255,6 @@
                                                 dispatchQueue:_storage.dispatchQueue
                                                      metadata:metadata
                                                    completion:completion];
-  [task enqueue];
-}
-
-#pragma mark - Delete
-
-- (void)deleteWithCompletion:(nullable FIRStorageVoidError)completion {
-  FIRStorageDeleteTask *task =
-      [[FIRStorageDeleteTask alloc] initWithReference:self
-                                       fetcherService:_storage.fetcherServiceForApp
-                                        dispatchQueue:_storage.dispatchQueue
-                                           completion:completion];
   [task enqueue];
 }
 
