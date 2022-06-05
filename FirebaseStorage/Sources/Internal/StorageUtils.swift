@@ -13,7 +13,11 @@
 // limitations under the License.
 
 import FirebaseStorageInternal
+#if os(iOS) || os(tvOS)
 import MobileCoreServices
+#elseif os(macOS) || os(watchOS)
+import CoreServices
+#endif
 
 class StorageUtils {
   internal class func defaultRequestForReference(reference: FIRIMPLStorageReference,
