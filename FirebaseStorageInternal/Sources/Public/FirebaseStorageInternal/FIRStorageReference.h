@@ -183,12 +183,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Delete
 
-/**
- * Deletes the object at the current path.
- * @param completion A completion block which returns nil on success, or an error on failure.
- */
-- (void)deleteWithCompletion:(nullable void (^)(NSError *_Nullable error))completion;
-
 - (instancetype)init NS_UNAVAILABLE;
 
 @end

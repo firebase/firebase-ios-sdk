@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseStorageInternal/Sources/FIRStorageDeleteTask.h"
 #import "FirebaseStorageInternal/Tests/Unit/FIRStorageTestHelpers.h"
 
 @interface FIRStorageDeleteTests : XCTestCase
-
+#ifdef TODO_PORT_WHOLE_TEST_TO_SWIFT
 @property(strong, nonatomic) GTMSessionFetcherService *fetcherService;
 @property(nonatomic) dispatch_queue_t dispatchQueue;
 @property(strong, nonatomic) FIRIMPLStorage *storage;
 @property(strong, nonatomic) id mockApp;
 
 @end
+
 
 @implementation FIRStorageDeleteTests
 
@@ -183,5 +183,5 @@
 
   [FIRStorageTestHelpers waitForExpectation:self];
 }
-
+#endif
 @end
