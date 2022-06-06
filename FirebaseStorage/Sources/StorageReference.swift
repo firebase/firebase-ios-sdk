@@ -497,9 +497,14 @@ import FirebaseStorageInternal
    */
   @objc(metadataWithCompletion:)
   open func getMetadata(completion: @escaping ((_: StorageMetadata?, _: Error?) -> Void)) {
-    impl.metadata { impl, error in
-      self.adaptMetadataCallback(completion: completion)(impl, error)
+    guard let fetcherService = storage.fetcherServiceForApp else {
+      fatalError("TODO: Internal Error: fetcherService not configured")
     }
+    let task = StorageGetMetadataTask(reference: impl,
+                           fetcherService: fetcherService,
+                                      queue: storage.dispatchQueue,
+                           completion: completion)
+    task.enqueue()
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
@@ -510,7 +515,11 @@ import FirebaseStorageInternal
      */
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     open func getMetadata() async throws -> StorageMetadata {
-      return try await StorageMetadata(impl: impl.metadata())
+      return try await withCheckedThrowingContinuation { continuation in
+        self.getMetadata { result in
+          return continuation.resume(with: result)
+        }
+      }
     }
   #endif // compiler(>=5.5) && canImport(_Concurrency)
 

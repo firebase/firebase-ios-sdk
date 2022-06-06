@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifdef TODO_PORT_ME
 #import "FirebaseStorageInternal/Sources/FIRStorageGetMetadataTask.h"
 #import "FirebaseStorageInternal/Tests/Unit/FIRStorageTestHelpers.h"
 
@@ -219,3 +220,4 @@
 }
 
 @end
+#endif

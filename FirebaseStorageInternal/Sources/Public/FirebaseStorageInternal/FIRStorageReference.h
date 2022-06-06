@@ -164,14 +164,6 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Metadata Operations
 
 /**
- * Retrieves metadata associated with an object at the current path.
- * @param completion A completion block which returns the object metadata on success,
- * or an error on failure.
- */
-- (void)metadataWithCompletion:(void (^)(FIRIMPLStorageMetadata *_Nullable metadata,
-                                         NSError *_Nullable error))completion;
-
-/**
  * Updates the metadata associated with an object at the current path.
  * @param metadata An FIRIMPLStorageMetadata object with the metadata to update.
  * @param completion A completion block which returns the FIRIMPLStorageMetadata on success,

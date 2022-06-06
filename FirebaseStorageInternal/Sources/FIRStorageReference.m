@@ -16,7 +16,6 @@
 
 #import "FirebaseStorageInternal/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageGetDownloadURLTask.h"
-#import "FirebaseStorageInternal/Sources/FIRStorageGetMetadataTask.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageListResult_Private.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageListTask.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageMetadata_Private.h"
@@ -237,15 +236,6 @@
 }
 
 #pragma mark - Metadata Operations
-
-- (void)metadataWithCompletion:(FIRStorageVoidMetadataError)completion {
-  FIRStorageGetMetadataTask *task =
-      [[FIRStorageGetMetadataTask alloc] initWithReference:self
-                                            fetcherService:_storage.fetcherServiceForApp
-                                             dispatchQueue:_storage.dispatchQueue
-                                                completion:completion];
-  [task enqueue];
-}
 
 - (void)updateMetadata:(FIRIMPLStorageMetadata *)metadata
             completion:(nullable FIRStorageVoidMetadataError)completion {
