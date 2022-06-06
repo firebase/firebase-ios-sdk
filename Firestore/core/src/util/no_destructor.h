@@ -1,17 +1,43 @@
 // Copyright 2018 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-#ifndef BASE_NO_DESTRUCTOR_H_
-#define BASE_NO_DESTRUCTOR_H_
+
+/*
+ * Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// This file was adapted from
+// https://chromium.googlesource.com/chromium/src/base/+/3beed19ef73813e5a5596f0604a2b383eefba3ee/no_destructor.h
+
+#ifndef FIRESTORE_CORE_SRC_UTIL_NO_DESTRUCTOR_H_
+#define FIRESTORE_CORE_SRC_UTIL_NO_DESTRUCTOR_H_
+
 #include <new>
 #include <type_traits>
 #include <utility>
-namespace base {
+
+namespace firebase {
+namespace firestore {
+namespace util {
+
 // A tag type used for NoDestructor to allow it to be created for a type that
 // has a trivial destructor. Use for cases where the same class might have
 // different implementations that vary on destructor triviality or when the
 // LSan hiding properties of NoDestructor are needed.
 struct AllowForTriviallyDestructibleType;
+
 // A wrapper that makes it easy to create an object of type T with static
 // storage duration that:
 // - is only constructed on first access
@@ -22,13 +48,15 @@ struct AllowForTriviallyDestructibleType;
 // Runtime constant example:
 // const std::string& GetLineSeparator() {
 //  // Forwards to std::string(size_t, char, const Allocator&) constructor.
-//   static const base::NoDestructor<std::string> s(5, '-');
+//   using firebase::firestore::util::NoDestructor;
+//   static const NoDestructor<std::string> s(5, '-');
 //   return *s;
 // }
 //
 // More complex initialization with a lambda:
 // const std::string& GetSessionNonce() {
-//   static const base::NoDestructor<std::string> nonce([] {
+//   using firebase::firestore::util::NoDestructor;
+//   static const NoDestructor<std::string> nonce([] {
 //     std::string s(16);
 //     crypto::RandString(s.data(), s.size());
 //     return s;
@@ -52,7 +80,7 @@ class NoDestructor {
   static_assert(
       !std::is_trivially_destructible<T>::value ||
           std::is_same<O, AllowForTriviallyDestructibleType>::value,
-      "base::NoDestructor is not needed because the templated class has a "
+      "NoDestructor is not needed because the templated class has a "
       "trivial destructor");
   static_assert(std::is_same<O, AllowForTriviallyDestructibleType>::value ||
                     std::is_same<O, std::nullptr_t>::value,
@@ -83,10 +111,10 @@ class NoDestructor {
   // TODO(https://crbug.com/812277): This is a hack to work around the fact
   // that LSan doesn't seem to treat NoDestructor as a root for reachability
   // analysis. This means that code like this:
-  //   static base::NoDestructor<std::vector<int>> v({1, 2, 3});
+  //   static NoDestructor<std::vector<int>> v({1, 2, 3});
   // is considered a leak. Using the standard leak sanitizer annotations to
   // suppress leaks doesn't work: std::vector is implicitly constructed before
-  // calling the base::NoDestructor constructor.
+  // calling the NoDestructor constructor.
   //
   // Unfortunately, I haven't been able to demonstrate this issue in simpler
   // reproductions: until that's resolved, hold an explicit pointer to the
@@ -95,5 +123,9 @@ class NoDestructor {
   T* storage_ptr_ = reinterpret_cast<T*>(storage_);
 #endif  // defined(LEAK_SANITIZER)
 };
-}  // namespace base
-#endif  // BASE_NO_DESTRUCTOR_H_
+
+}  // namespace util
+}  // namespace firestore
+}  // namespace firebase
+
+#endif  // FIRESTORE_CORE_SRC_UTIL_NO_DESTRUCTOR_H_
