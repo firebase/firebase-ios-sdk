@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/util/no_destructor.h"
 #include "Firestore/core/src/util/string_util.h"
 
 namespace firebase {
@@ -49,7 +50,7 @@ std::string ImmediateSuccessor(absl::string_view s) {
 }
 
 const std::string& EmptyString() {
-  static auto* empty = new std::string;
+  const static NoDestructor<std::string> empty;
   return *empty;
 }
 
