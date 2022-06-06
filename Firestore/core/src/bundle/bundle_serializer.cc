@@ -34,6 +34,7 @@
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/timestamp_internal.h"
+#include "Firestore/core/src/util/no_destructor.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_format.h"
 #include "Firestore/core/src/util/string_util.h"
@@ -72,18 +73,19 @@ using nanopb::Message;
 using nanopb::SetRepeatedField;
 using nanopb::SharedMessage;
 using nlohmann::json;
+using util::NoDestructor;
 using util::StatusOr;
 using util::StringFormat;
 using Operator = FieldFilter::Operator;
 
 namespace {
-const Bound kDefaultBound = Bound::FromValue(
-    MakeSharedMessage<google_firestore_v1_ArrayValue>({}), false);
+const NoDestructor<Bound> kDefaultBound{Bound::FromValue(
+    MakeSharedMessage<google_firestore_v1_ArrayValue>({}), false)};
 }  // namespace
 
 template <typename T>
 const std::vector<T>& EmptyVector() {
-  static auto* empty = new std::vector<T>;
+  static NoDestructor<std::vector<T>> empty;
   return *empty;
 }
 
@@ -658,7 +660,7 @@ FilterList BundleSerializer::DecodeCompositeFilter(JsonReader& reader,
 Bound BundleSerializer::DecodeStartAtBound(JsonReader& reader,
                                            const json& query) const {
   if (!query.contains("startAt")) {
-    return kDefaultBound;
+    return *kDefaultBound;
   }
 
   auto result =
@@ -669,7 +671,7 @@ Bound BundleSerializer::DecodeStartAtBound(JsonReader& reader,
 Bound BundleSerializer::DecodeEndAtBound(JsonReader& reader,
                                          const json& query) const {
   if (!query.contains("endAt")) {
-    return kDefaultBound;
+    return *kDefaultBound;
   }
 
   auto result =
