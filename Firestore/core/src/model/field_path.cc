@@ -21,6 +21,7 @@
 
 #include "Firestore/core/src/util/exception.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/no_destructor.h"
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "absl/strings/str_join.h"
@@ -30,6 +31,9 @@
 namespace firebase {
 namespace firestore {
 namespace model {
+
+using util::NoDestructor;
+
 namespace {
 
 using util::Status;
@@ -198,13 +202,13 @@ StatusOr<FieldPath> FieldPath::FromServerFormatView(absl::string_view path) {
 }
 
 const FieldPath& FieldPath::EmptyPath() {
-  static const FieldPath empty_path;
-  return empty_path;
+  static const NoDestructor<FieldPath> empty_path;
+  return *empty_path;
 }
 
 const FieldPath& FieldPath::KeyFieldPath() {
-  static const FieldPath key_field_path{FieldPath::kDocumentKeyPath};
-  return key_field_path;
+  static const NoDestructor<FieldPath> key_field_path(FieldPath{FieldPath::kDocumentKeyPath});
+  return *key_field_path;
 }
 
 bool FieldPath::IsKeyFieldPath() const {
