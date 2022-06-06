@@ -175,7 +175,7 @@ model::MutableDocumentMap WrappedRemoteDocumentCache::GetAll(
 model::MutableDocumentMap WrappedRemoteDocumentCache::GetAll(
     const std::string& collection_group,
     const model::IndexOffset& offset,
-    int limit) const {
+    size_t limit) const {
   auto result = subject_->GetAll(collection_group, offset, limit);
   query_engine_->documents_read_by_query_ += result.size();
   return result;

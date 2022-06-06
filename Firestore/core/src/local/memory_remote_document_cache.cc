@@ -78,7 +78,7 @@ MutableDocumentMap MemoryRemoteDocumentCache::GetAll(
 // enabled.
 MutableDocumentMap MemoryRemoteDocumentCache::GetAll(const std::string&,
                                                      const model::IndexOffset&,
-                                                     int) const {
+                                                     size_t) const {
   util::ThrowInvalidArgument(
       "getAll(String, IndexOffset, int) is not supported.");
 }

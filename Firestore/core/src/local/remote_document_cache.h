@@ -90,7 +90,7 @@ class RemoteDocumentCache {
    */
   virtual model::MutableDocumentMap GetAll(const std::string& collection_group,
                                            const model::IndexOffset& offset,
-                                           int limit) const = 0;
+                                           size_t limit) const = 0;
 
   /**
    * Executes a query against the cached Document entries

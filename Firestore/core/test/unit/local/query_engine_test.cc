@@ -28,7 +28,13 @@
 #include "Firestore/core/src/local/persistence.h"
 #include "Firestore/core/src/local/remote_document_cache.h"
 #include "Firestore/core/src/local/target_cache.h"
+#include "Firestore/core/src/model/delete_mutation.h"
 #include "Firestore/core/src/model/document_key_set.h"
+#include "Firestore/core/src/model/model_fwd.h"
+#include "Firestore/core/src/model/mutation.h"
+#include "Firestore/core/src/model/mutation_batch.h"
+#include "Firestore/core/src/model/object_value.h"
+#include "Firestore/core/src/model/patch_mutation.h"
 #include "Firestore/core/src/util/string_util.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "gtest/gtest.h"
@@ -49,11 +55,18 @@ using local::QueryEngine;
 using local::RemoteDocumentCache;
 using local::TargetCache;
 using model::BatchId;
+using model::DeleteMutation;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::DocumentMap;
 using model::DocumentSet;
+using model::FieldMask;
 using model::MutableDocument;
+using model::Mutation;
+using model::MutationBatch;
+using model::ObjectValue;
+using model::PatchMutation;
+using model::Precondition;
 using model::SnapshotVersion;
 using model::TargetId;
 using testutil::Doc;
@@ -81,6 +94,8 @@ const MutableDocument kMatchingDocB =
     Doc("coll/b", 1, Map("matches", true, "order", 2));
 const MutableDocument kUpdatedMatchingDocB =
     Doc("coll/b", 11, Map("matches", true, "order", 2));
+const PatchMutation kDocAEmptyPatch = PatchMutation(
+    Key("coll/a"), ObjectValue(), FieldMask(), Precondition::None());
 
 const SnapshotVersion kLastLimboFreeSnapshot = Version(10);
 const SnapshotVersion kMissingLastLimboFreeSnapshot = SnapshotVersion::None();
@@ -115,15 +130,20 @@ class QueryEngineTest : public ::testing::Test {
       : persistence_(MemoryPersistence::WithEagerGarbageCollector()),
         remote_document_cache_(dynamic_cast<MemoryRemoteDocumentCache*>(
             persistence_->remote_document_cache())),
-        target_cache_(persistence_->target_cache()),
+        document_overlay_cache_(
+            persistence_->GetDocumentOverlayCache(User::Unauthenticated())),
+
         index_manager_(dynamic_cast<MemoryIndexManager*>(
             persistence_->GetIndexManager(User::Unauthenticated()))),
-        local_documents_view_(
-            remote_document_cache_,
-            persistence_->GetMutationQueue(User::Unauthenticated(),
-                                           index_manager_),
-            persistence_->GetDocumentOverlayCache(User::Unauthenticated()),
-            index_manager_) {
+        mutation_queue_(
+            dynamic_cast<MutationQueue*>(persistence_->GetMutationQueue(
+                User::Unauthenticated(), index_manager_))),
+        local_documents_view_(remote_document_cache_,
+                              mutation_queue_,
+                              document_overlay_cache_,
+                              index_manager_),
+        target_cache_(persistence_->target_cache()) {
+    mutation_queue_->Start();
     remote_document_cache_->SetIndexManager(index_manager_);
     query_engine_.SetDependencies(&local_documents_view_);
   }
@@ -148,14 +168,37 @@ class QueryEngineTest : public ::testing::Test {
     });
   }
 
+  /**
+   * Adds the provided documents to the remote document cache in a event of the
+   * given snapshot version.
+   */
+  void AddDocumentWithEventVersion(const SnapshotVersion& eventVersion,
+                                   const std::vector<MutableDocument>& docs) {
+    persistence_->Run("AddDocuments", [&] {
+      for (const MutableDocument& doc : docs) {
+        remote_document_cache_->Add(doc, eventVersion);
+      }
+    });
+  }
+
+  /** Adds a mutation to the mutation queue. */
+  void AddMutation(Mutation mutation) {
+    persistence_->Run("AddMutation", [&] {
+      MutationBatch batch =
+          mutation_queue_->AddMutationBatch(Timestamp::Now(), {}, {mutation});
+      model::MutationByDocumentKeyMap overlayMap{{mutation.key(), mutation}};
+      document_overlay_cache_->SaveOverlays(batch.batch_id(), overlayMap);
+    });
+  }
+
   DocumentSet ExpectOptimizedCollectionScan(
       const std::function<DocumentSet(void)>& f) {
     local_documents_view_.ExpectFullCollectionScan(false);
     return f();
   }
 
-  DocumentSet ExpectFullCollectionScan(
-      const std::function<DocumentSet(void)>& f) {
+  template <typename T>
+  T ExpectFullCollectionScan(const std::function<T(void)>& f) {
     local_documents_view_.ExpectFullCollectionScan(true);
     return f();
   }
@@ -175,10 +218,14 @@ class QueryEngineTest : public ::testing::Test {
  private:
   std::unique_ptr<Persistence> persistence_;
   MemoryRemoteDocumentCache* remote_document_cache_ = nullptr;
-  TargetCache* target_cache_ = nullptr;
+  DocumentOverlayCache* document_overlay_cache_;
   MemoryIndexManager* index_manager_;
-  QueryEngine query_engine_;
+  MutationQueue* mutation_queue_ = nullptr;
   TestLocalDocumentsView local_documents_view_;
+
+ protected:
+  QueryEngine query_engine_;
+  TargetCache* target_cache_ = nullptr;
 };
 
 TEST_F(QueryEngineTest, UsesTargetMappingForInitialView) {
@@ -199,7 +246,7 @@ TEST_F(QueryEngineTest, FiltersNonMatchingInitialResults) {
   PersistQueryMapping({kMatchingDocA.key(), kMatchingDocB.key()});
 
   // Add a mutated document that is not yet part of query's set of remote keys.
-  AddDocuments({kPendingNonMatchingDocA});
+  AddDocumentWithEventVersion(Version(1), {kPendingNonMatchingDocA});
 
   DocumentSet docs = ExpectOptimizedCollectionScan(
       [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
@@ -228,7 +275,7 @@ TEST_F(QueryEngineTest,
        DoesNotUseInitialResultsWithoutLimboFreeSnapshotVersion) {
   core::Query query = Query("coll").AddingFilter(Filter("matches", "==", true));
 
-  DocumentSet docs = ExpectFullCollectionScan(
+  DocumentSet docs = ExpectFullCollectionScan<DocumentSet>(
       [&] { return RunQuery(query, kMissingLastLimboFreeSnapshot); });
   EXPECT_EQ(docs, DocSet(query.Comparator(), {}));
 }
@@ -236,7 +283,7 @@ TEST_F(QueryEngineTest,
 TEST_F(QueryEngineTest, DoesNotUseInitialResultsForUnfilteredCollectionQuery) {
   core::Query query = Query("coll");
 
-  DocumentSet docs = ExpectFullCollectionScan(
+  DocumentSet docs = ExpectFullCollectionScan<DocumentSet>(
       [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
   EXPECT_EQ(docs, DocSet(query.Comparator(), {}));
 }
@@ -255,7 +302,7 @@ TEST_F(QueryEngineTest,
 
   AddDocuments({kMatchingDocB});
 
-  DocumentSet docs = ExpectFullCollectionScan(
+  DocumentSet docs = ExpectFullCollectionScan<DocumentSet>(
       [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
   EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
 }
@@ -275,7 +322,7 @@ TEST_F(QueryEngineTest,
 
   AddDocuments({kMatchingDocB});
 
-  DocumentSet docs = ExpectFullCollectionScan(
+  DocumentSet docs = ExpectFullCollectionScan<DocumentSet>(
       [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
   EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
 }
@@ -289,12 +336,13 @@ TEST_F(QueryEngineTest,
 
   // Add a query mapping for a document that matches, but that sorts below
   // another document due to a pending write.
-  AddDocuments({pPendingMatchingDocA});
+  AddDocumentWithEventVersion(Version(1), {pPendingMatchingDocA});
+  AddMutation(kDocAEmptyPatch);
   PersistQueryMapping({pPendingMatchingDocA.key()});
 
   AddDocuments({kMatchingDocB});
 
-  DocumentSet docs = ExpectFullCollectionScan(
+  DocumentSet docs = ExpectFullCollectionScan<DocumentSet>(
       [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
   EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
 }
@@ -308,12 +356,13 @@ TEST_F(QueryEngineTest,
 
   // Add a query mapping for a document that matches, but that sorts below
   // another document due to a pending write.
-  AddDocuments({pPendingMatchingDocA});
+  AddDocumentWithEventVersion(Version(1), {pPendingMatchingDocA});
+  AddMutation(kDocAEmptyPatch);
   PersistQueryMapping({pPendingMatchingDocA.key()});
 
   AddDocuments({kMatchingDocB});
 
-  DocumentSet docs = ExpectFullCollectionScan(
+  DocumentSet docs = ExpectFullCollectionScan<DocumentSet>(
       [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
   EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
 }
@@ -333,7 +382,7 @@ TEST_F(QueryEngineTest,
 
   AddDocuments({kMatchingDocB});
 
-  DocumentSet docs = ExpectFullCollectionScan(
+  DocumentSet docs = ExpectFullCollectionScan<DocumentSet>(
       [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
   EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
 }
@@ -353,7 +402,7 @@ TEST_F(QueryEngineTest,
 
   AddDocuments({kMatchingDocB});
 
-  DocumentSet docs = ExpectFullCollectionScan(
+  DocumentSet docs = ExpectFullCollectionScan<DocumentSet>(
       [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
   EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
 }
@@ -368,7 +417,9 @@ TEST_F(QueryEngineTest,
   PersistQueryMapping({Key("coll/a"), Key("coll/b")});
 
   // Update "coll/a" but make sure it still sorts before "coll/b"
-  AddDocuments({Doc("coll/a", 1, Map("order", 2)).SetHasLocalMutations()});
+  AddDocumentWithEventVersion(
+      Version(1), {Doc("coll/a", 1, Map("order", 2)).SetHasLocalMutations()});
+  AddMutation(kDocAEmptyPatch);
 
   // Since the last document in the limit didn't change (and hence we know that
   // all documents written prior to query execution still sort after "coll/b"),
@@ -380,6 +431,28 @@ TEST_F(QueryEngineTest,
                    {Doc("coll/a", 1, Map("order", 2)).SetHasLocalMutations(),
                     Doc("coll/b", 1, Map("order", 3))}));
 }
+
+TEST_F(QueryEngineTest, DoesNotIncludeDocumentsDeletedByMutation) {
+  core::Query query = Query("coll");
+
+  AddDocuments({kMatchingDocA, kMatchingDocB});
+  PersistQueryMapping({kMatchingDocA.key(), kMatchingDocB.key()});
+
+  // Add an unacknowledged mutation
+  AddMutation(DeleteMutation(Key("coll/b"), Precondition::None()));
+  auto docs = ExpectFullCollectionScan<DocumentMap>([&] {
+    return query_engine_.GetDocumentsMatchingQuery(
+        query, kLastLimboFreeSnapshot,
+        target_cache_->GetMatchingKeys(kTestTargetId));
+  });
+  DocumentMap result;
+  result = result.insert(kMatchingDocA.key(), kMatchingDocA);
+  EXPECT_EQ(1u, result.size());
+  EXPECT_TRUE(result.find(kMatchingDocA.key()) != result.end());
+  EXPECT_EQ(result.get(kMatchingDocA.key()), kMatchingDocA);
+}
+
+// TODO(orquery): Port test canPerformOrQueriesUsingFullCollectionScan
 
 }  // namespace local
 }  // namespace firestore

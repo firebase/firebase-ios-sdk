@@ -54,12 +54,12 @@ class IndexManager {
     /**
      * Indicates that only a "partial index" could be found for serving the
      * target. A partial index is one which does not have a segment for every
-     * filter/orderBy in the target.
+     * Filter/OrderBy in the target.
      */
     PARTIAL,
     /**
      * Indicates that a "full index" could be found for serving the target. A
-     * full index is one which has a segment for every filter/orderBy in the
+     * full index is one which has a segment for every Filter/OrderBy in the
      * target.
      */
     FULL

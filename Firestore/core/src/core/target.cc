@@ -89,11 +89,11 @@ size_t Target::GetSegmentCount() const {
       fields.insert(field_filter.field());
     }
   }
-  for (size_t i = 0; i < order_bys_.size(); ++i) {
+  for (const auto& order_by : order_bys_) {
     // __name__ is not an explicit segment of any index, so we don't need to
     // count it.
-    if (!order_bys_[i].field().IsKeyFieldPath()) {
-      fields.insert(order_bys_[i].field());
+    if (!order_by.field().IsKeyFieldPath()) {
+      fields.insert(order_by.field());
     }
   }
   return fields.size() + (has_array_segment ? 1 : 0);

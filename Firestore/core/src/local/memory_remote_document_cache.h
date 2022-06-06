@@ -49,7 +49,7 @@ class MemoryRemoteDocumentCache : public RemoteDocumentCache {
   model::MutableDocumentMap GetAll(const model::DocumentKeySet& keys) override;
   model::MutableDocumentMap GetAll(const std::string&,
                                    const model::IndexOffset&,
-                                   int) const override;
+                                   size_t) const override;
   model::MutableDocumentMap GetAll(const model::ResourcePath& path,
                                    const model::IndexOffset& offset) override;
   void SetIndexManager(IndexManager* manager) override;

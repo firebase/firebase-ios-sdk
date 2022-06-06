@@ -472,8 +472,6 @@ const model::IndexOffset LevelDbIndexManager::GetMinOffset(
     const std::string& collection_group) const {
   const std::vector<model::FieldIndex> field_indexes =
       GetFieldIndexes(collection_group);
-  HARD_ASSERT(!field_indexes.empty(),
-              "minOffset was called for collection without indexes");
   return GetMinOffset(field_indexes);
 }
 

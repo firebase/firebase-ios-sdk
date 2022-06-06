@@ -180,7 +180,7 @@ class WrappedRemoteDocumentCache : public RemoteDocumentCache {
 
   model::MutableDocumentMap GetAll(const std::string& collection_group,
                                    const model::IndexOffset& offset,
-                                   int limit) const override;
+                                   size_t limit) const override;
 
   model::MutableDocumentMap GetAll(const model::ResourcePath& path,
                                    const model::IndexOffset& offset) override;

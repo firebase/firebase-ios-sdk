@@ -187,7 +187,7 @@ MutableDocumentMap LevelDbRemoteDocumentCache::GetAllExisting(
 model::MutableDocumentMap LevelDbRemoteDocumentCache::GetAll(
     const std::string& collection_group,
     const model::IndexOffset& offset,
-    int limit) const {
+    size_t limit) const {
   (void)collection_group;
   (void)offset;
   (void)limit;
