@@ -27,6 +27,9 @@ namespace firestore {
 namespace util {
 
 Filesystem* Filesystem::Default() {
+  // NOTE: It would be better to use NoDestructor than to allocate the
+  // FileSystem object on the heap using the `new` operator; however, this isn't
+  // possible because FileSystem's constructor is not public.
   static auto* filesystem = new Filesystem();
   return filesystem;
 }
