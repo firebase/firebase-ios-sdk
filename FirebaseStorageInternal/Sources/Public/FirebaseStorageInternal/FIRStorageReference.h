@@ -161,20 +161,6 @@ NS_ASSUME_NONNULL_BEGIN
                 completion:(void (^)(FIRIMPLStorageListResult *result,
                                      NSError *_Nullable error))completion;
 
-#pragma mark - Metadata Operations
-
-/**
- * Updates the metadata associated with an object at the current path.
- * @param metadata An FIRIMPLStorageMetadata object with the metadata to update.
- * @param completion A completion block which returns the FIRIMPLStorageMetadata on success,
- * or an error on failure.
- */
-- (void)updateMetadata:(FIRIMPLStorageMetadata *)metadata
-            completion:(nullable void (^)(FIRIMPLStorageMetadata *_Nullable metadata,
-                                          NSError *_Nullable error))completion;
-
-#pragma mark - Delete
-
 - (instancetype)init NS_UNAVAILABLE;
 
 @end

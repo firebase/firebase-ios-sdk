@@ -141,6 +141,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(readonly, getter=isFolder) BOOL folder;
 
+/**
+ * Computes the updates between the state at initialization and the current state.
+ * Returns a dictionary with only the updated data. Removed keys are set to NSNull.
+ */
+- (NSDictionary *)updatedMetadata;
+
 @end
 
 NS_ASSUME_NONNULL_END

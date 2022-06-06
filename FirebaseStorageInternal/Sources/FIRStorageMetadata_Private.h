@@ -40,12 +40,6 @@ NS_ASSUME_NONNULL_BEGIN
                    oldMetadata:(NSDictionary *)oldMetadata;
 
 /**
- * Computes the updates between the state at initialization and the current state.
- * Returns a dictionary with only the updated data. Removed keys are set to NSNull.
- */
-- (NSDictionary *)updatedMetadata;
-
-/**
  * Returns an RFC3339 formatted date from a string.
  * @param dateString An NSString of the form: yyyy-MM-ddTHH:mm:ss.SSSZ.
  * @return An NSDate populated from the string or nil if conversion isn't possible.
