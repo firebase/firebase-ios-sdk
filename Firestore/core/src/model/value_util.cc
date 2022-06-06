@@ -21,6 +21,7 @@
 #include <limits>
 #include <memory>
 #include <utility>
+#include <type_traits>
 #include <vector>
 
 #include "Firestore/core/src/model/database_id.h"
@@ -696,6 +697,7 @@ google_firestore_v1_Value MaxValue() {
   // Make `field_entry` static so that it has a memory address that outlives
   // this function's scope; otherwise, using its address in the `map_value`
   // variable below would be invalid by the time the caller accessed it.
+  static_assert(std::is_trivially_destructible<google_firestore_v1_MapValue_FieldsEntry>::value, "google_firestore_v1_MapValue_FieldsEntry should be trivially-destructible; otherwise, it should use NoDestructor below.");
   static google_firestore_v1_MapValue_FieldsEntry field_entry;
   field_entry.key = kMaxValueFieldKey;
   field_entry.value = value;
