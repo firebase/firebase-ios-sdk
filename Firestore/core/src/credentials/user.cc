@@ -15,6 +15,7 @@
  */
 
 #include "Firestore/core/src/credentials/user.h"
+#include "Firestore/core/src/util/no_destructor.h"
 
 #include <utility>
 
@@ -24,6 +25,8 @@ namespace firebase {
 namespace firestore {
 namespace credentials {
 
+using util::NoDestructor;
+
 User::User() : is_authenticated_{false} {
 }
 
@@ -32,7 +35,7 @@ User::User(std::string uid) : uid_{std::move(uid)}, is_authenticated_{true} {
 }
 
 const User& User::Unauthenticated() {
-  static const User* kUnauthenticated = new User();
+  static const NoDestructor<User> kUnauthenticated;
   return *kUnauthenticated;
 }
 
