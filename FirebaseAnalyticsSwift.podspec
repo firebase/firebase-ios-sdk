@@ -18,9 +18,14 @@ Firebase Analytics is a free, out-of-the-box analytics solution that inspires ac
 
   s.static_framework        = true
   s.swift_version           = '5.3'
-  s.ios.deployment_target   = '13.0'
-  s.osx.deployment_target   = '10.15'
-  s.tvos.deployment_target  = '13.0'
+
+  ios_deployment_target = '13.0'
+  osx_deployment_target = '10.15'
+  tvos_deployment_target = '13.0'
+
+  s.ios.deployment_target   = ios_deployment_target
+  s.osx.deployment_target   = osx_deployment_target
+  s.tvos.deployment_target  = tvos_deployment_target
 
   s.cocoapods_version       = '>= 1.10.0'
   s.prefix_header_file      = false
@@ -30,4 +35,15 @@ Firebase Analytics is a free, out-of-the-box analytics solution that inspires ac
   ]
 
   s.dependency 'FirebaseAnalytics', '~> 9.0'
+
+  s.test_spec 'swift-unit' do |swift_unit_tests|
+    swift_unit_tests.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
+    swift_unit_tests.source_files = [
+      'FirebaseAnalyticsSwift/Tests/SwiftUnit/**/*.swift',
+    ]
+  end
 end
