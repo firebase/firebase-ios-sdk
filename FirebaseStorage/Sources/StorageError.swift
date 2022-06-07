@@ -18,6 +18,55 @@ import FirebaseStorageInternal
 /// The error domain for codes in the `StorageErrorCode` enum.
 public let StorageErrorDomain: String = "FIRStorageErrorDomain"
 
+
+@objc(FIRStorageErrorCode) public enum StorageErrorCode: Int, Swift.Error {
+  case unknown = -13000
+  case objectNotFound = -13010
+  case bucketNotFound = -13011
+  case projectNotFound = -13012
+  case quotaExceeded = -13013
+  case unauthenticated = -13020
+  case unauthorized = -13021
+  case retryLimitExceeded = -13030
+  case nonMatchingChecksum = -13031
+  case downloadSizeExceeded = -13032
+  case cancelled = -13040
+  case invalidArgument = -13050
+  
+  static func errorWithServerError(serverError: NSError, ref: FIRIMPLStorageReference) -> NSError {
+    var errorCode: StorageErrorCode
+    switch serverError.code {
+    case 404: errorCode = .objectNotFound
+    default: errorCode = .unknown
+    }
+    
+    var errorDictionary = [
+      "ResponseErrorDomain": serverError.domain,
+      "ResponseErrorCode": serverError.code,
+      "bucket": ref.path.bucket,
+    ] as [String : Any]
+    
+    if let object = ref.path.object {
+      errorDictionary["object"] = object
+    }
+    return error(withCode: errorCode, infoDictionary: errorDictionary)
+  }
+  
+  static func error(withCode code: StorageErrorCode, infoDictionary: [String: Any]? = nil) -> NSError {
+    var dictionary = infoDictionary ?? [:]
+    var errorMessage: String
+    switch code {
+    case .objectNotFound:
+      let object = dictionary["object"] ?? "<object-entity-internal-error>"
+      errorMessage = "Object \(object) does not exist."
+    default:
+      errorMessage = "TODO message"
+    }
+    dictionary[NSLocalizedDescriptionKey] = errorMessage
+    return NSError(domain: StorageErrorDomain, code: code.rawValue, userInfo: dictionary)
+  }
+}
+
 public enum StorageError: Error {
   case unknown
   case objectNotFound(String)

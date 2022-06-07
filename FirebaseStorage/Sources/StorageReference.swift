@@ -599,8 +599,12 @@ import FirebaseStorageInternal
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     open func delete() async throws {
       return try await withCheckedThrowingContinuation { continuation in
-        self.delete { _ in
-          continuation.resume()
+        self.delete { error in
+          if let error = error {
+            continuation.resume(throwing: error)
+          } else {
+            continuation.resume()
+          }
         }
       }
     }

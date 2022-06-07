@@ -62,8 +62,27 @@ class StorageResultTests: StorageIntegrationCommon {
       self.assertResultSuccess(result)
       ref.delete { error in
         XCTAssertNil(error, "Error should be nil")
+        // Next delete should fail and verify the first delete succeeded.
+        ref.delete() { error in
+          do {
+            let nsError = try XCTUnwrap(error as? NSError)
+            XCTAssertEqual(nsError.code, StorageErrorCode.objectNotFound.rawValue)
+            XCTAssertEqual(nsError.localizedDescription, "Object ios/public/fileToDelete does not exist.")
+            let userInfo = try XCTUnwrap(nsError.userInfo)
+            let object = try XCTUnwrap(userInfo["object"] as? String)
+            XCTAssertEqual(object, "ios/public/fileToDelete")
+            let responseErrorCode = try XCTUnwrap(userInfo["ResponseErrorCode"] as? Int)
+            XCTAssertEqual(responseErrorCode, 404)
+            let responseErrorDomain = try XCTUnwrap(userInfo["ResponseErrorDomain"] as? String)
+            XCTAssertEqual(responseErrorDomain, "com.google.HTTPStatus")
+            let bucket = try XCTUnwrap(userInfo["bucket"] as? String)
+            XCTAssertEqual(bucket, "ios-opensource-samples.appspot.com")
+            expectation.fulfill()
+          } catch {
+            XCTFail("Unexpected unwrap failure")
+          }
+        }
       }
-      expectation.fulfill()
     }
     waitForExpectations()
   }
