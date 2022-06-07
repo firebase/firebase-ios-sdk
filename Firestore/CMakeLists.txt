@@ -22,26 +22,3 @@ add_subdirectory(core)
 add_subdirectory(fuzzing)
 
 add_subdirectory(Example)
-
-add_executable(
-  denver
-  denver.cc
-)
-
-target_link_libraries(
-  denver PRIVATE
-  firestore_core
-)
-
-target_compile_options(
-  denver PRIVATE
-  ${FIREBASE_IOS_CXX_FLAGS_STRICT}
-)
-
-target_include_directories(
-  denver PRIVATE
-  # Put the binary dir first so that the generated config.h trumps any one
-  # generated statically by a Cocoapods-based build in the same source tree.
-  ${PROJECT_BINARY_DIR}
-  ${PROJECT_SOURCE_DIR}
-)
