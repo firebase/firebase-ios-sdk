@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFunctions'
-  s.version          = '9.1.0'
+  s.version          = '9.2.0'
   s.summary          = 'Cloud Functions for Firebase'
 
   s.description      = <<-DESC
