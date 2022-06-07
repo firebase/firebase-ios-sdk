@@ -369,8 +369,9 @@ bool Datastore::IsPermanentWriteError(const Status& error) {
 std::string Datastore::GetAllowlistedHeadersAsString(
     const GrpcCall::Metadata& headers) {
   static const util::NoDestructor<std::unordered_set<std::string>> allowlist(
-      {"date", "x-google-backends", "x-google-netmon-label", "x-google-service",
-       "x-google-gfe-request-trace"});
+      std::unordered_set<std::string>{
+          "date", "x-google-backends", "x-google-netmon-label",
+          "x-google-service", "x-google-gfe-request-trace"});
 
   std::string result;
   auto end = allowlist->end();
