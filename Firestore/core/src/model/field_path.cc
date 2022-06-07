@@ -31,11 +31,9 @@
 namespace firebase {
 namespace firestore {
 namespace model {
-
-using util::NoDestructor;
-
 namespace {
 
+using util::NoDestructor;
 using util::Status;
 using util::StatusOr;
 using util::StringFormat;
