@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseInAppMessagingSwift'
-  s.version                 = '9.0.0-beta'
+  s.version                 = '9.1.0-beta'
   s.summary                 = 'Swift Extensions for Firebase In-App Messaging'
 
   s.description      = <<-DESC
@@ -9,7 +9,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
                        DESC
 
   s.homepage                = 'https://developers.google.com/'
-  s.license                 = { :type => 'Apache', :file => 'LICENSE' }
+  s.license                 = { :type => 'Apache-2.0', :file => 'LICENSE' }
   s.authors                 = 'Google, Inc.'
 
   s.source                  = {

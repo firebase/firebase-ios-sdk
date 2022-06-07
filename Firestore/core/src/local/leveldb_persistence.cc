@@ -77,7 +77,10 @@ std::set<std::string> CollectUserSet(LevelDbTransaction* transaction) {
 }  // namespace
 
 StatusOr<std::unique_ptr<LevelDbPersistence>> LevelDbPersistence::Create(
-    util::Path dir, LocalSerializer serializer, const LruParams& lru_params) {
+    util::Path dir,
+    LevelDbMigrations::SchemaVersion version,
+    LocalSerializer serializer,
+    const LruParams& lru_params) {
   auto* fs = Filesystem::Default();
   Status status = EnsureDirectory(dir);
   if (!status.ok()) return status;
@@ -89,7 +92,7 @@ StatusOr<std::unique_ptr<LevelDbPersistence>> LevelDbPersistence::Create(
   if (!created.ok()) return created.status();
 
   std::unique_ptr<DB> db = std::move(created).ValueOrDie();
-  LevelDbMigrations::RunMigrations(db.get(), serializer);
+  LevelDbMigrations::RunMigrations(db.get(), version, serializer);
 
   LevelDbTransaction transaction(db.get(), "Start LevelDB");
   std::set<std::string> users = CollectUserSet(&transaction);
@@ -100,6 +103,12 @@ StatusOr<std::unique_ptr<LevelDbPersistence>> LevelDbPersistence::Create(
       new LevelDbPersistence(std::move(db), std::move(dir), std::move(users),
                              std::move(serializer), lru_params));
   return {std::move(result)};
+}
+
+StatusOr<std::unique_ptr<LevelDbPersistence>> LevelDbPersistence::Create(
+    util::Path dir, LocalSerializer serializer, const LruParams& lru_params) {
+  return Create(std::move(dir), kSchemaVersion, std::move(serializer),
+                lru_params);
 }
 
 LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
@@ -227,9 +236,14 @@ void LevelDbPersistence::Shutdown() {
 LevelDbMutationQueue* LevelDbPersistence::GetMutationQueue(
     const credentials::User& user, IndexManager* manager) {
   users_.insert(user.uid());
-  current_mutation_queue_ = absl::make_unique<LevelDbMutationQueue>(
-      user, this, dynamic_cast<LevelDbIndexManager*>(manager), &serializer_);
-  return current_mutation_queue_.get();
+  if (mutation_queues_.find(user.uid()) == mutation_queues_.end()) {
+    mutation_queues_.insert(
+        {user.uid(),
+         absl::make_unique<LevelDbMutationQueue>(
+             user, this, dynamic_cast<LevelDbIndexManager*>(manager),
+             &serializer_)});
+  }
+  return mutation_queues_[user.uid()].get();
 }
 
 LevelDbTargetCache* LevelDbPersistence::target_cache() {
@@ -243,9 +257,11 @@ LevelDbRemoteDocumentCache* LevelDbPersistence::remote_document_cache() {
 LevelDbIndexManager* LevelDbPersistence::GetIndexManager(
     const credentials::User& user) {
   users_.insert(user.uid());
-  index_manager_ =
-      absl::make_unique<LevelDbIndexManager>(user, this, &serializer_);
-  return index_manager_.get();
+  if (index_managers_.find(user.uid()) == index_managers_.end()) {
+    index_managers_.insert({user.uid(), absl::make_unique<LevelDbIndexManager>(
+                                            user, this, &serializer_)});
+  }
+  return index_managers_[user.uid()].get();
 }
 
 LevelDbLruReferenceDelegate* LevelDbPersistence::reference_delegate() {
@@ -259,9 +275,36 @@ LevelDbBundleCache* LevelDbPersistence::bundle_cache() {
 LevelDbDocumentOverlayCache* LevelDbPersistence::GetDocumentOverlayCache(
     const User& user) {
   users_.insert(user.uid());
-  current_document_overlay_cache_ =
-      absl::make_unique<LevelDbDocumentOverlayCache>(user, this, &serializer_);
-  return current_document_overlay_cache_.get();
+  if (document_overlay_caches_.find(user.uid()) ==
+      document_overlay_caches_.end()) {
+    document_overlay_caches_.insert(
+        {user.uid(), absl::make_unique<LevelDbDocumentOverlayCache>(
+                         user, this, &serializer_)});
+  }
+  return document_overlay_caches_[user.uid()].get();
+}
+
+LevelDbOverlayMigrationManager* LevelDbPersistence::GetOverlayMigrationManager(
+    const User& user) {
+  if (overlay_migration_managers_.find(user.uid()) ==
+      overlay_migration_managers_.end()) {
+    overlay_migration_managers_.insert(
+        {user.uid(),
+         absl::make_unique<LevelDbOverlayMigrationManager>(this, user.uid())});
+  }
+  return overlay_migration_managers_[user.uid()].get();
+}
+
+void LevelDbPersistence::ReleaseOtherUserSpecificComponents(
+    const std::string& target_uid) {
+  for (const auto& uid : users_) {
+    if (target_uid != uid) {
+      document_overlay_caches_.erase(uid);
+      mutation_queues_.erase(uid);
+      index_managers_.erase(uid);
+      overlay_migration_managers_.erase(uid);
+    }
+  }
 }
 
 void LevelDbPersistence::RunInternal(absl::string_view label,

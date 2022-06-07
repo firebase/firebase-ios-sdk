@@ -23,7 +23,7 @@
 # and test.
 
 # TODO - Determine why test specs that include `requires_app_host` fail to
-# launch tests. Locally, they will pass if the only Objective C unit test scheme
+# launch tests. Locally, they will pass if the only Objective-C unit test scheme
 # is specified. However, on GHA, they fail to launch both from the test scheme
 # and the app scheme.
 
@@ -63,4 +63,5 @@ source scripts/buildcache.sh
 args=("${args[@]}" "${buildcache_xcb_flags[@]}")
 
 xcodebuild -version
+gem install xcpretty
 xcodebuild "${args[@]}" | xcpretty

@@ -683,16 +683,31 @@ bool IsMinValue(const google_firestore_v1_Value& value) {
   return IsNullValue(value);
 }
 
+/**
+ * Creates and returns a maximum value that is larger than any other Firestore
+ * values. Underlying it is a map value with a special map field that SDK user
+ * cannot possibly construct.
+ */
 google_firestore_v1_Value MaxValue() {
+  google_firestore_v1_Value value;
+  value.which_value_type = google_firestore_v1_Value_string_value_tag;
+  value.string_value = kMaxValueFieldValue;
+
+  // Make `field_entry` static so that it has a memory address that outlives
+  // this function's scope; otherwise, using its address in the `map_value`
+  // variable below would be invalid by the time the caller accessed it.
+  static google_firestore_v1_MapValue_FieldsEntry field_entry;
+  field_entry.key = kMaxValueFieldKey;
+  field_entry.value = value;
+
+  google_firestore_v1_MapValue map_value;
+  map_value.fields_count = 1;
+  map_value.fields = &field_entry;
+
   google_firestore_v1_Value max_value;
   max_value.which_value_type = google_firestore_v1_Value_map_value_tag;
-  max_value.map_value.fields_count = 1;
-  max_value.map_value.fields =
-      nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
-  max_value.map_value.fields[0].key = kMaxValueFieldKey;
-  max_value.map_value.fields[0].value.which_value_type =
-      google_firestore_v1_Value_string_value_tag;
-  max_value.map_value.fields[0].value.string_value = kMaxValueFieldValue;
+  max_value.map_value = map_value;
+
   return max_value;
 }
 

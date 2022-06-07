@@ -99,6 +99,16 @@ Mutation::Rep::Rep(DocumentKey&& key,
       field_transforms_(std::move(field_transforms)) {
 }
 
+Mutation::Rep::Rep(DocumentKey&& key,
+                   Precondition&& precondition,
+                   std::vector<FieldTransform>&& field_transforms,
+                   absl::optional<FieldMask>&& mask)
+    : key_(std::move(key)),
+      precondition_(std::move(precondition)),
+      field_transforms_(std::move(field_transforms)),
+      mask_(std::move(mask)) {
+}
+
 bool Mutation::Rep::Equals(const Mutation::Rep& other) const {
   return type() == other.type() && key_ == other.key_ &&
          precondition_ == other.precondition_ &&

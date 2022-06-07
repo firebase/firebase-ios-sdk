@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDynamicLinks'
-  s.version          = '9.0.0'
+  s.version          = '9.1.0'
   s.summary          = 'Firebase Dynamic Links'
 
   s.description      = <<-DESC
@@ -8,7 +8,7 @@ Firebase Dynamic Links are deep links that enhance user experience and increase 
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
-  s.license          = { :type => 'Apache', :file => 'LICENSE' }
+  s.license          = { :type => 'Apache-2.0', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
 
   s.source           = {

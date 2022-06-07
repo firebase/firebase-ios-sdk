@@ -92,15 +92,13 @@ class TestLocalDocumentsView : public LocalDocumentsView {
   using LocalDocumentsView::LocalDocumentsView;
 
   DocumentMap GetDocumentsMatchingQuery(
-      const core::Query& query,
-      const SnapshotVersion& since_read_time) override {
-    bool full_collection_scan = since_read_time == SnapshotVersion::None();
+      const core::Query& query, const model::IndexOffset& offset) override {
+    bool full_collection_scan = offset.read_time() == SnapshotVersion::None();
 
     EXPECT_TRUE(expect_full_collection_scan_.has_value());
     EXPECT_EQ(expect_full_collection_scan_.value(), full_collection_scan);
 
-    return LocalDocumentsView::GetDocumentsMatchingQuery(query,
-                                                         since_read_time);
+    return LocalDocumentsView::GetDocumentsMatchingQuery(query, offset);
   }
 
   void ExpectFullCollectionScan(bool full_collection_scan) {

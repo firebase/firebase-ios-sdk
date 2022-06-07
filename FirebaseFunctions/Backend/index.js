@@ -108,6 +108,11 @@ exports.httpErrorTest = functions.https.onRequest((request, response) => {
   response.status(400).send();
 });
 
+// Regression test for https://github.com/firebase/firebase-ios-sdk/issues/9855
+exports.throwTest = functions.https.onCall((data) => {
+  throw new functions.https.HttpsError('invalid-argument', 'Invalid test requested.');
+});
+
 exports.timeoutTest = functions.https.onRequest((request, response) => {
   // Wait for longer than 500ms.
   setTimeout(() => response.send({data: true}), 500);

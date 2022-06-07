@@ -631,40 +631,43 @@ NSString *const kTestPassword = KPASSWORD;
   metadata.contentEncoding = @"gzip";
   metadata.contentLanguage = @"de";
   metadata.contentType = @"content-type-a";
-  metadata.customMetadata = @{@"a" : @"b"};
+  metadata.customMetadata = @{@"a" : @"b", @"y" : @"z"};
 
   [ref updateMetadata:metadata
            completion:^(FIRStorageMetadata *updatedMetadata, NSError *error) {
              XCTAssertNil(error);
              [self assertMetadata:updatedMetadata
                       contentType:@"content-type-a"
-                   customMetadata:@{@"a" : @"b"}];
+                   customMetadata:@{@"a" : @"b", @"y" : @"z"}];
 
              // Update a subset of the metadata using the existing object.
              FIRStorageMetadata *metadata = updatedMetadata;
              metadata.contentType = @"content-type-b";
-             metadata.customMetadata = @{@"a" : @"b", @"c" : @"d"};
+             metadata.customMetadata = @{@"c" : @"d", @"y" : @""};
 
              [ref updateMetadata:metadata
                       completion:^(FIRStorageMetadata *updatedMetadata, NSError *error) {
                         XCTAssertNil(error);
                         [self assertMetadata:updatedMetadata
                                  contentType:@"content-type-b"
-                              customMetadata:@{@"a" : @"b", @"c" : @"d"}];
 
-                        // Clear all metadata.
+                              // "a" is now deleted and the empty string for "y" remains.
+                              customMetadata:@{@"c" : @"d", @"y" : @""}];
+
+                        // Clear all metadata with nils.
                         FIRStorageMetadata *metadata = updatedMetadata;
                         metadata.cacheControl = nil;
                         metadata.contentDisposition = nil;
                         metadata.contentEncoding = nil;
                         metadata.contentLanguage = nil;
                         metadata.contentType = nil;
-                        metadata.customMetadata = [NSDictionary dictionary];
+                        metadata.customMetadata = nil;
 
                         [ref updateMetadata:metadata
                                  completion:^(FIRStorageMetadata *updatedMetadata, NSError *error) {
                                    XCTAssertNil(error);
                                    [self assertMetadataNil:updatedMetadata];
+                                   XCTAssertNil(updatedMetadata.customMetadata);
                                    [expectation fulfill];
                                  }];
                       }];

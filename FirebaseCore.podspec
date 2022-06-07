@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCore'
-  s.version          = '9.0.0'
+  s.version          = '9.1.0'
   s.summary          = 'Firebase Core'
 
   s.description      = <<-DESC
@@ -8,7 +8,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
-  s.license          = { :type => 'Apache', :file => 'LICENSE' }
+  s.license          = { :type => 'Apache-2.0', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
 
   s.source           = {

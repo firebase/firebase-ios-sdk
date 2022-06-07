@@ -339,7 +339,7 @@ static NSString *kUserNotificationDidReceiveResponseSelectorString =
   } else {
     // This class originally did not have an implementation for this selector.
 
-    // We can't actually remove methods in Objective C 2.0, but we could set
+    // We can't actually remove methods in Objective-C 2.0, but we could set
     // its method to something non-existent. This should give us the same
     // behavior as if the method was not implemented.
     // See: http://stackoverflow.com/a/8276527/9849

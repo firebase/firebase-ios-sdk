@@ -17,7 +17,7 @@ jobs:
   pod-lib-lint:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-11
+    runs-on: macos-12
     strategy:
       matrix:
         target: [ios, tvos, macos]
@@ -26,6 +26,9 @@ jobs:
       POD_LIB_LINT_ONLY: 1
     steps:
     - uses: actions/checkout@v2
+    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+      with:
+        ruby-version: '2.7'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
@@ -34,7 +37,7 @@ jobs:
   core-internal-cron-only:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-11
+    runs-on: macos-12
     strategy:
       matrix:
         target: [ios, tvos, macos]
@@ -44,6 +47,9 @@ jobs:
     needs: pod-lib-lint
     steps:
     - uses: actions/checkout@v2
+    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+      with:
+        ruby-version: '2.7'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint CoreInternal Cron

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFunctions'
-  s.version          = '9.0.0'
+  s.version          = '9.1.0'
   s.summary          = 'Cloud Functions for Firebase'
 
   s.description      = <<-DESC
@@ -8,7 +8,7 @@ Cloud Functions for Firebase.
                        DESC
 
   s.homepage         = 'https://developers.google.com/'
-  s.license          = { :type => 'Apache', :file => 'LICENSE' }
+  s.license          = { :type => 'Apache-2.0', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
 
   s.source           = {
@@ -43,7 +43,7 @@ Cloud Functions for Firebase.
   s.dependency 'FirebaseAuthInterop', '~> 9.0'
   s.dependency 'FirebaseMessagingInterop', '~> 9.0'
   s.dependency 'FirebaseSharedSwift', '~> 9.0'
-  s.dependency 'GTMSessionFetcher/Core', '~> 1.7'
+  s.dependency 'GTMSessionFetcher/Core', '>= 1.7', '< 3.0'
 
   s.test_spec 'objc' do |objc_tests|
     objc_tests.platforms = {

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseRemoteConfigSwift'
-  s.version                 = '9.0.0'
+  s.version                 = '9.1.0'
   s.summary                 = 'Swift Extensions for Firebase Remote Config'
 
   s.description      = <<-DESC
@@ -11,7 +11,7 @@ app update.
 
 
   s.homepage                = 'https://developers.google.com/'
-  s.license                 = { :type => 'Apache', :file => 'LICENSE' }
+  s.license                 = { :type => 'Apache-2.0', :file => 'LICENSE' }
   s.authors                 = 'Google, Inc.'
 
   s.source                  = {

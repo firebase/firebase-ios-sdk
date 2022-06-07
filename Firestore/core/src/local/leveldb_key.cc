@@ -64,6 +64,7 @@ const char* kDocumentOverlaysCollectionIndexTable =
     "document_overlays_collection_index";
 const char* kDocumentOverlaysCollectionGroupIndexTable =
     "document_overlays_collection_group_index";
+const char* kDataMigrationTable = "data_migration";
 
 /**
  * Labels for the components of keys. These serve to make keys self-describing.
@@ -152,6 +153,11 @@ enum ComponentLabel {
    * ordering.
    */
   OrderedDocumentKey = 24,
+
+  /**
+   * The name of a data migration.
+   */
+  DataMigrationName = 25,
 
   /**
    * A path segment describes just a single segment in a resource path. Path
@@ -261,6 +267,10 @@ class Reader {
 
   int64_t ReadSequenceNumber() {
     return ReadLabeledInt64(ComponentLabel::SequenceNumber);
+  }
+
+  std::string ReadDataMigrationName() {
+    return ReadLabeledString(ComponentLabel::DataMigrationName);
   }
 
   /**
@@ -671,6 +681,12 @@ std::string Reader::Describe() {
       if (ok_) {
         absl::StrAppend(&description, " directional_value=", std::move(value));
       }
+    } else if (label == ComponentLabel::DataMigrationName) {
+      std::string value = ReadDataMigrationName();
+      if (ok_) {
+        absl::StrAppend(&description,
+                        " data_migration_name=", std::move(value));
+      }
     } else {
       absl::StrAppend(&description, " unknown label=", static_cast<int>(label));
       Fail();
@@ -776,6 +792,10 @@ class Writer {
 
   void WriteSequenceNumber(int64_t seq) {
     WriteLabeledInt64(ComponentLabel::SequenceNumber, seq);
+  }
+
+  void WriteDataMigrationName(absl::string_view name) {
+    WriteLabeledString(ComponentLabel::DataMigrationName, name);
   }
 
  private:
@@ -1579,6 +1599,22 @@ bool LevelDbDocumentOverlayCollectionGroupIndexKey::Decode(
   auto document_key = reader.ReadDocumentKey();
   reader.ReadTerminator();
   Reset(std::move(user_id), largest_batch_id, std::move(document_key));
+  return reader.ok();
+}
+
+std::string LevelDbDataMigrationKey::Key(absl::string_view migration_name) {
+  Writer writer;
+  writer.WriteTableName(kDataMigrationTable);
+  writer.WriteDataMigrationName(migration_name);
+  writer.WriteTerminator();
+  return writer.result();
+}
+
+bool LevelDbDataMigrationKey::Decode(absl::string_view key) {
+  Reader reader{key};
+  reader.ReadTableNameMatching(kDataMigrationTable);
+  migration_name_ = reader.ReadDataMigrationName();
+  reader.ReadTerminator();
   return reader.ok();
 }
 
