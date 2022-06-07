@@ -30,7 +30,9 @@ SnapshotVersion::SnapshotVersion(const Timestamp& timestamp)
 }
 
 const SnapshotVersion& SnapshotVersion::None() {
-  static_assert(std::is_trivially_destructible<SnapshotVersion>::value, "SnapshotVersion should be trivially-destructible; otherwise, it should use NoDestructor below.");
+  static_assert(std::is_trivially_destructible<SnapshotVersion>::value,
+                "SnapshotVersion should be trivially-destructible; otherwise, "
+                "it should use NoDestructor below.");
   static const SnapshotVersion kNone(Timestamp{});
   return kNone;
 }

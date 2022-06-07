@@ -77,11 +77,10 @@ struct AllowForTriviallyDestructibleType;
 template <typename T, typename O = std::nullptr_t>
 class NoDestructor {
  public:
-  static_assert(
-      !std::is_trivially_destructible<T>::value ||
-          std::is_same<O, AllowForTriviallyDestructibleType>::value,
-      "NoDestructor is not needed because the templated class has a "
-      "trivial destructor");
+  static_assert(!std::is_trivially_destructible<T>::value ||
+                    std::is_same<O, AllowForTriviallyDestructibleType>::value,
+                "NoDestructor is not needed because the templated class has a "
+                "trivial destructor");
   static_assert(std::is_same<O, AllowForTriviallyDestructibleType>::value ||
                     std::is_same<O, std::nullptr_t>::value,
                 "AllowForTriviallyDestructibleType is the only valid option "
@@ -94,17 +93,34 @@ class NoDestructor {
   }
   // Allows copy and move construction of the contained type, to allow
   // construction from an initializer list, e.g. for std::vector.
-  explicit NoDestructor(const T& x) { new (storage_) T(x); }
-  explicit NoDestructor(T&& x) { new (storage_) T(std::move(x)); }
+  explicit NoDestructor(const T& x) {
+    new (storage_) T(x);
+  }
+  explicit NoDestructor(T&& x) {
+    new (storage_) T(std::move(x));
+  }
   NoDestructor(const NoDestructor&) = delete;
   NoDestructor& operator=(const NoDestructor&) = delete;
   ~NoDestructor() = default;
-  const T& operator*() const { return *get(); }
-  T& operator*() { return *get(); }
-  const T* operator->() const { return get(); }
-  T* operator->() { return get(); }
-  const T* get() const { return reinterpret_cast<const T*>(storage_); }
-  T* get() { return reinterpret_cast<T*>(storage_); }
+  const T& operator*() const {
+    return *get();
+  }
+  T& operator*() {
+    return *get();
+  }
+  const T* operator->() const {
+    return get();
+  }
+  T* operator->() {
+    return get();
+  }
+  const T* get() const {
+    return reinterpret_cast<const T*>(storage_);
+  }
+  T* get() {
+    return reinterpret_cast<T*>(storage_);
+  }
+
  private:
   alignas(T) char storage_[sizeof(T)];
 #if defined(LEAK_SANITIZER)

@@ -32,7 +32,9 @@ const char kAutoIdAlphabet[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
 SecureRandom& GetSharedRandom() {
-  static_assert(std::is_trivially_destructible<SecureRandom>::value, "SecureRandom should be trivially-destructible; otherwise, it should use NoDestructor below.");
+  static_assert(std::is_trivially_destructible<SecureRandom>::value,
+                "SecureRandom should be trivially-destructible; otherwise, it "
+                "should use NoDestructor below.");
   static SecureRandom shared_random;
   return shared_random;
 }

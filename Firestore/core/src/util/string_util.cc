@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/util/no_destructor.h"
 #include "Firestore/core/src/util/string_util.h"
+#include "Firestore/core/src/util/no_destructor.h"
 
 namespace firebase {
 namespace firestore {

@@ -207,7 +207,8 @@ const FieldPath& FieldPath::EmptyPath() {
 }
 
 const FieldPath& FieldPath::KeyFieldPath() {
-  static const NoDestructor<FieldPath> key_field_path(FieldPath{FieldPath::kDocumentKeyPath});
+  static const NoDestructor<FieldPath> key_field_path(
+      FieldPath{FieldPath::kDocumentKeyPath});
   return *key_field_path;
 }
 
