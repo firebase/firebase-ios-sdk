@@ -1,3 +1,6 @@
+# v9.2.0
+- [fixed] Importing FirebaseFunctions no longer exposes internal FirebaseCore APIs. (#9884)
+
 # v9.0.0
 - [changed] The FirebaseFunctionsSwift library has been removed. All of its APIs are now included
   in the FirebaseFunctions library. Please remove references to FirebaseFunctionsSwift from Podfiles
