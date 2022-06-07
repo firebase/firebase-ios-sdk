@@ -102,12 +102,12 @@ void Status::SlowCopyFrom(const State* src) {
 }
 
 const std::string& Status::empty_string() {
-  const static NoDestructor<std::string> empty;
+  static const NoDestructor<std::string> empty;
   return *empty;
 }
 
 const std::string& Status::moved_from_message() {
-  const static NoDestructor<std::string> message("Status accessed after move.");
+  static const NoDestructor<std::string> message("Status accessed after move.");
   return *message;
 }
 

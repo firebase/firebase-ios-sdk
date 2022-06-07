@@ -15,11 +15,11 @@
  */
 
 #include "Firestore/core/src/credentials/auth_token.h"
-#include "Firestore/core/src/util/no_destructor.h"
 
 #include <utility>
 
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/no_destructor.h"
 
 namespace firebase {
 namespace firestore {

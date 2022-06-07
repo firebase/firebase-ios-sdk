@@ -50,7 +50,7 @@ std::string ImmediateSuccessor(absl::string_view s) {
 }
 
 const std::string& EmptyString() {
-  const static NoDestructor<std::string> empty;
+  static const NoDestructor<std::string> empty;
   return *empty;
 }
 
