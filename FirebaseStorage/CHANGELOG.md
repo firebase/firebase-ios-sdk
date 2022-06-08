@@ -1,3 +1,6 @@
+# 9.2.0
+- [fixed] Importing FirebaseStorage no longer exposes internal FirebaseCore APIs. (#9884)
+
 # 9.0.0
 - [changed] The FirebaseStorageSwift library has been removed. All of its APIs are now included
   in the FirebaseStorage library. Please remove references to FirebaseStorageSwift from Podfiles and

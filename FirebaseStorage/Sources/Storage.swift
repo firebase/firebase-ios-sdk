@@ -16,9 +16,11 @@ import Foundation
 
 import FirebaseStorageInternal
 import FirebaseCore
-import FirebaseCoreExtension
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
+
+// Avoids exposing internal FirebaseCore APIs to Swift users.
+@_implementationOnly import FirebaseCoreExtension
 
 /**
  * Firebase Storage is a service that supports uploading and downloading binary objects,
