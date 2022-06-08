@@ -622,6 +622,19 @@
 		61F72C5620BC48FD001A68CB /* serializer_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 61F72C5520BC48FD001A68CB /* serializer_test.cc */; };
 		623AA12C3481646B0715006D /* string_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0EE5300F8233D14025EF0456 /* string_apple_test.mm */; };
 		627253FDEC6BB5549FE77F4E /* tree_sorted_map_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 549CCA4D20A36DBB00BCEB75 /* tree_sorted_map_test.cc */; };
+		62A553202851234200188CB8 /* Firestore_Example_watchOS WatchKit App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 62A5531F2851234200188CB8 /* Firestore_Example_watchOS WatchKit App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		62A553252851234400188CB8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 62A553242851234400188CB8 /* Assets.xcassets */; };
+		62A5532B2851234400188CB8 /* Firestore_Example_watchOS WatchKit Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 62A5532A2851234400188CB8 /* Firestore_Example_watchOS WatchKit Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		62A553302851234400188CB8 /* FirestoreApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62A5532F2851234400188CB8 /* FirestoreApp.swift */; };
+		62A553322851234400188CB8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62A553312851234400188CB8 /* ContentView.swift */; };
+		62A553342851234400188CB8 /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62A553332851234400188CB8 /* NotificationController.swift */; };
+		62A553362851234400188CB8 /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62A553352851234400188CB8 /* NotificationView.swift */; };
+		62A553382851234400188CB8 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62A553372851234400188CB8 /* ComplicationController.swift */; };
+		62A5533A2851234500188CB8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 62A553392851234500188CB8 /* Assets.xcassets */; };
+		62A5533D2851234500188CB8 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 62A5533C2851234500188CB8 /* Preview Assets.xcassets */; };
+		62A553492851234500188CB8 /* Firestore_Example_watchOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62A553482851234500188CB8 /* Firestore_Example_watchOSTests.swift */; };
+		62A553532851234500188CB8 /* Firestore_Example_watchOSUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62A553522851234500188CB8 /* Firestore_Example_watchOSUITests.swift */; };
+		62A553552851234500188CB8 /* Firestore_Example_watchOSUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62A553542851234500188CB8 /* Firestore_Example_watchOSUITestsLaunchTests.swift */; };
 		62B1C1100A8C68D94565916C /* document_overlay_cache_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = FFCA39825D9678A03D1845D0 /* document_overlay_cache_test.cc */; };
 		62DA31B79FE97A90EEF28B0B /* delayed_constructor_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = D0A6E9136804A41CEC9D55D4 /* delayed_constructor_test.cc */; };
 		62EC5F7FB416BA124A2B4604 /* byte_stream_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 432C71959255C5DBDF522F52 /* byte_stream_test.cc */; };
@@ -1373,6 +1386,34 @@
 			remoteGlobalIDString = 6003F589195388D20070C39A;
 			remoteInfo = Firestore;
 		};
+		62A553212851234200188CB8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6003F582195388D10070C39A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 62A5531E2851234200188CB8;
+			remoteInfo = "Firestore_Example_watchOS WatchKit App";
+		};
+		62A5532C2851234400188CB8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6003F582195388D10070C39A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 62A553292851234400188CB8;
+			remoteInfo = "Firestore_Example_watchOS WatchKit Extension";
+		};
+		62A553452851234500188CB8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6003F582195388D10070C39A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 62A553292851234400188CB8;
+			remoteInfo = "Firestore_Example_watchOS WatchKit Extension";
+		};
+		62A5534F2851234500188CB8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6003F582195388D10070C39A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 62A5531E2851234200188CB8;
+			remoteInfo = "Firestore_Example_watchOS WatchKit App";
+		};
 		6EDD3AD320BF247500C33877 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6003F582195388D10070C39A /* Project object */;
@@ -1388,6 +1429,31 @@
 			remoteInfo = Firestore;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		62A553582851234500188CB8 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				62A553202851234200188CB8 /* Firestore_Example_watchOS WatchKit App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		62A5535B2851234500188CB8 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				62A5532B2851234400188CB8 /* Firestore_Example_watchOS WatchKit Extension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		014C60628830D95031574D15 /* random_access_queue_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = random_access_queue_test.cc; sourceTree = "<group>"; };
@@ -1407,7 +1473,7 @@
 		166CE73C03AB4366AAC5201C /* leveldb_index_manager_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_index_manager_test.cc; sourceTree = "<group>"; };
 		1B342370EAE3AA02393E33EB /* cc_compilation_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = cc_compilation_test.cc; path = api/cc_compilation_test.cc; sourceTree = "<group>"; };
 		1C01D8CE367C56BB2624E299 /* index.pb.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = index.pb.h; path = admin/index.pb.h; sourceTree = "<group>"; };
-		1C3F7302BF4AE6CBC00ECDD0 /* resource.pb.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = resource.pb.cc; sourceTree = "<group>"; };
+		1C3F7302BF4AE6CBC00ECDD0 /* resource.pb.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = resource.pb.cc; sourceTree = "<group>"; };
 		1CA9800A53669EFBFFB824E3 /* memory_remote_document_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = memory_remote_document_cache_test.cc; sourceTree = "<group>"; };
 		214877F52A705012D6720CA0 /* object_value_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = object_value_test.cc; sourceTree = "<group>"; };
 		2220F583583EFC28DE792ABE /* Pods_Firestore_IntegrationTests_tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_IntegrationTests_tvOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1430,7 +1496,7 @@
 		33607A3AE91548BD219EC9C6 /* transform_operation_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = transform_operation_test.cc; sourceTree = "<group>"; };
 		358C3B5FE573B1D60A4F7592 /* strerror_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = strerror_test.cc; sourceTree = "<group>"; };
 		36D235D9F1240D5195CDB670 /* Pods-Firestore_IntegrationTests_tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_IntegrationTests_tvOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_IntegrationTests_tvOS/Pods-Firestore_IntegrationTests_tvOS.release.xcconfig"; sourceTree = "<group>"; };
-		395E8B07639E69290A929695 /* index.pb.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = index.pb.cc; path = admin/index.pb.cc; sourceTree = "<group>"; };
+		395E8B07639E69290A929695 /* index.pb.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = index.pb.cc; path = admin/index.pb.cc; sourceTree = "<group>"; };
 		397FB002E298B780F1E223E2 /* Pods-Firestore_Tests_macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Tests_macOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Tests_macOS/Pods-Firestore_Tests_macOS.release.xcconfig"; sourceTree = "<group>"; };
 		39B832380209CC5BAF93BC52 /* Pods_Firestore_IntegrationTests_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_IntegrationTests_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B843E4A1F3930A400548890 /* remote_store_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = remote_store_spec_test.json; sourceTree = "<group>"; };
@@ -1447,7 +1513,7 @@
 		48D0915834C3D234E5A875A9 /* grpc_stream_tester.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = grpc_stream_tester.h; sourceTree = "<group>"; };
 		4C73C0CC6F62A90D8573F383 /* string_apple_benchmark.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = string_apple_benchmark.mm; sourceTree = "<group>"; };
 		4F5B96F3ABCD2CA901DB1CD4 /* bundle_builder.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = bundle_builder.cc; sourceTree = "<group>"; };
-		526D755F65AC676234F57125 /* target_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = target_test.cc; sourceTree = "<group>"; };
+		526D755F65AC676234F57125 /* target_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = target_test.cc; sourceTree = "<group>"; };
 		52756B7624904C36FBB56000 /* fake_target_metadata_provider.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = fake_target_metadata_provider.h; sourceTree = "<group>"; };
 		5342CDDB137B4E93E2E85CCA /* byte_string_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = byte_string_test.cc; path = nanopb/byte_string_test.cc; sourceTree = "<group>"; };
 		5412671923D1536B001E41A0 /* FSTBenchmarkTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTBenchmarkTests.mm; sourceTree = "<group>"; };
@@ -1591,8 +1657,26 @@
 		618BBE9A20B89AAC00B5BCE7 /* status.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = status.pb.h; sourceTree = "<group>"; };
 		61F72C5520BC48FD001A68CB /* serializer_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = serializer_test.cc; sourceTree = "<group>"; };
 		620C1427763BA5D3CCFB5A1F /* BridgingHeader.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = BridgingHeader.h; sourceTree = "<group>"; };
+		62A5531C2851234200188CB8 /* Firestore_Example_watchOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Firestore_Example_watchOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		62A5531F2851234200188CB8 /* Firestore_Example_watchOS WatchKit App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Firestore_Example_watchOS WatchKit App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		62A553242851234400188CB8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		62A5532A2851234400188CB8 /* Firestore_Example_watchOS WatchKit Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Firestore_Example_watchOS WatchKit Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		62A5532F2851234400188CB8 /* FirestoreApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreApp.swift; sourceTree = "<group>"; };
+		62A553312851234400188CB8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		62A553332851234400188CB8 /* NotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationController.swift; sourceTree = "<group>"; };
+		62A553352851234400188CB8 /* NotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
+		62A553372851234400188CB8 /* ComplicationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComplicationController.swift; sourceTree = "<group>"; };
+		62A553392851234500188CB8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		62A5533C2851234500188CB8 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		62A5533E2851234500188CB8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		62A5533F2851234500188CB8 /* PushNotificationPayload.apns */ = {isa = PBXFileReference; lastKnownFileType = text; path = PushNotificationPayload.apns; sourceTree = "<group>"; };
+		62A553442851234500188CB8 /* Firestore_Example_watchOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Firestore_Example_watchOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		62A553482851234500188CB8 /* Firestore_Example_watchOSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Firestore_Example_watchOSTests.swift; sourceTree = "<group>"; };
+		62A5534E2851234500188CB8 /* Firestore_Example_watchOSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Firestore_Example_watchOSUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		62A553522851234500188CB8 /* Firestore_Example_watchOSUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Firestore_Example_watchOSUITests.swift; sourceTree = "<group>"; };
+		62A553542851234500188CB8 /* Firestore_Example_watchOSUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Firestore_Example_watchOSUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		62E103B28B48A81D682A0DE9 /* Pods_Firestore_Example_tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Example_tvOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		63136A2371C0C013EC7A540C /* target_index_matcher_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = target_index_matcher_test.cc; sourceTree = "<group>"; };
+		63136A2371C0C013EC7A540C /* target_index_matcher_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = target_index_matcher_test.cc; sourceTree = "<group>"; };
 		64AA92CFA356A2360F3C5646 /* filesystem_testing.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = filesystem_testing.h; sourceTree = "<group>"; };
 		69E6C311558EC77729A16CF1 /* Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		6AE927CDFC7A72BF825BE4CB /* Pods-Firestore_Tests_tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Tests_tvOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Tests_tvOS/Pods-Firestore_Tests_tvOS.release.xcconfig"; sourceTree = "<group>"; };
@@ -1704,7 +1788,7 @@
 		BB92EB03E3F92485023F64ED /* Pods_Firestore_Example_iOS_Firestore_SwiftTests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Example_iOS_Firestore_SwiftTests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BC3C788D290A935C353CEAA1 /* writer_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = writer_test.cc; path = nanopb/writer_test.cc; sourceTree = "<group>"; };
 		BD01F0E43E4E2A07B8B05099 /* Pods-Firestore_Tests_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Tests_macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Tests_macOS/Pods-Firestore_Tests_macOS.debug.xcconfig"; sourceTree = "<group>"; };
-		BF76A8DA34B5B67B4DD74666 /* field_index_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = field_index_test.cc; sourceTree = "<group>"; };
+		BF76A8DA34B5B67B4DD74666 /* field_index_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = field_index_test.cc; sourceTree = "<group>"; };
 		C0C7C8977C94F9F9AFA4DB00 /* local_store_test.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = local_store_test.h; sourceTree = "<group>"; };
 		C7429071B33BDF80A7FA2F8A /* view_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = view_test.cc; sourceTree = "<group>"; };
 		C8522DE226C467C54E6788D8 /* mutation_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = mutation_test.cc; sourceTree = "<group>"; };
@@ -1714,14 +1798,14 @@
 		CD422AF3E4515FB8E9BE67A0 /* equals_tester.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = equals_tester.h; sourceTree = "<group>"; };
 		CE37875365497FFA8687B745 /* message_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = message_test.cc; path = nanopb/message_test.cc; sourceTree = "<group>"; };
 		CF39535F2C41AB0006FA6C0E /* create_noop_connectivity_monitor.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = create_noop_connectivity_monitor.cc; sourceTree = "<group>"; };
-		CF39ECA1293D21A0A2AB2626 /* FIRTransactionOptionsTests.mm */ = {isa = PBXFileReference; includeInIndex = 1; path = FIRTransactionOptionsTests.mm; sourceTree = "<group>"; };
+		CF39ECA1293D21A0A2AB2626 /* FIRTransactionOptionsTests.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRTransactionOptionsTests.mm; sourceTree = "<group>"; };
 		D0A6E9136804A41CEC9D55D4 /* delayed_constructor_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = delayed_constructor_test.cc; sourceTree = "<group>"; };
 		D3CC3DC5338DCAF43A211155 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		D5B2593BCB52957D62F1C9D3 /* perf_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = perf_spec_test.json; sourceTree = "<group>"; };
 		D5B25E7E7D6873CBA4571841 /* FIRNumericTransformTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRNumericTransformTests.mm; sourceTree = "<group>"; };
 		D7DF4A6F740086A2D8C0E28E /* Pods_Firestore_Tests_tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Tests_tvOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		D8A6D52723B1BABE1B7B8D8F /* leveldb_overlay_migration_manager_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = leveldb_overlay_migration_manager_test.cc; sourceTree = "<group>"; };
-		D9D94300B9C02F7069523C00 /* leveldb_snappy_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = leveldb_snappy_test.cc; sourceTree = "<group>"; };
+		D8A6D52723B1BABE1B7B8D8F /* leveldb_overlay_migration_manager_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_overlay_migration_manager_test.cc; sourceTree = "<group>"; };
+		D9D94300B9C02F7069523C00 /* leveldb_snappy_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_snappy_test.cc; sourceTree = "<group>"; };
 		DAFF0CF521E64AC30062958F /* Firestore_Example_macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Firestore_Example_macOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DAFF0CF721E64AC30062958F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		DAFF0CF821E64AC30062958F /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -1740,7 +1824,7 @@
 		DE51B1A71F0D48AC0013853F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		DF148C0D5EEC4A2CD9FA484C /* Pods-Firestore_Example_macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_macOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_macOS/Pods-Firestore_Example_macOS.release.xcconfig"; sourceTree = "<group>"; };
 		DF445D5201750281F1817387 /* document_overlay_cache_test.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = document_overlay_cache_test.h; sourceTree = "<group>"; };
-		E1459FA70B8FC18DE4B80D0D /* overlay_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = overlay_test.cc; sourceTree = "<group>"; };
+		E1459FA70B8FC18DE4B80D0D /* overlay_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = overlay_test.cc; sourceTree = "<group>"; };
 		E3228F51DCDC2E90D5C58F97 /* ConditionalConformanceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ConditionalConformanceTests.swift; sourceTree = "<group>"; };
 		E42355285B9EF55ABD785792 /* Pods_Firestore_Example_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Example_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E592181BFD7C53C305123739 /* Pods-Firestore_Tests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Tests_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Tests_iOS/Pods-Firestore_Tests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -1831,6 +1915,27 @@
 				5D405BE298CE4692CB00790A /* Pods_Firestore_Tests_iOS.framework in Frameworks */,
 				6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */,
 				6003F5B0195388D20070C39A /* XCTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		62A553272851234400188CB8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		62A553412851234500188CB8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		62A5534B2851234500188CB8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2202,6 +2307,10 @@
 				54764FAC1FAA0C390085E60A /* CoreTests */,
 				54C9EDF22040E16300A969CD /* SwiftTests */,
 				5CAE131A20FFFED600BE9A4A /* Benchmarks */,
+				62A553232851234200188CB8 /* Firestore_Example_watchOS WatchKit App */,
+				62A5532E2851234400188CB8 /* Firestore_Example_watchOS WatchKit Extension */,
+				62A553472851234500188CB8 /* Firestore_Example_watchOSTests */,
+				62A553512851234500188CB8 /* Firestore_Example_watchOSUITests */,
 				6003F58C195388D20070C39A /* Frameworks */,
 				6003F58B195388D20070C39A /* Products */,
 				AAEA2A72CFD1FA5AD34462F7 /* Pods */,
@@ -2222,6 +2331,11 @@
 				6003F5AE195388D20070C39A /* Firestore_Tests_iOS.xctest */,
 				544AB1922248072200F851E6 /* Firestore_Tests_macOS.xctest */,
 				54AA33A6224BFE09006CE580 /* Firestore_Tests_tvOS.xctest */,
+				62A5531C2851234200188CB8 /* Firestore_Example_watchOS.app */,
+				62A5531F2851234200188CB8 /* Firestore_Example_watchOS WatchKit App.app */,
+				62A5532A2851234400188CB8 /* Firestore_Example_watchOS WatchKit Extension.appex */,
+				62A553442851234500188CB8 /* Firestore_Example_watchOSTests.xctest */,
+				62A5534E2851234500188CB8 /* Firestore_Example_watchOSUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2380,6 +2494,55 @@
 				618BBE9A20B89AAC00B5BCE7 /* status.pb.h */,
 			);
 			path = rpc;
+			sourceTree = "<group>";
+		};
+		62A553232851234200188CB8 /* Firestore_Example_watchOS WatchKit App */ = {
+			isa = PBXGroup;
+			children = (
+				62A553242851234400188CB8 /* Assets.xcassets */,
+			);
+			path = "Firestore_Example_watchOS WatchKit App";
+			sourceTree = "<group>";
+		};
+		62A5532E2851234400188CB8 /* Firestore_Example_watchOS WatchKit Extension */ = {
+			isa = PBXGroup;
+			children = (
+				62A5532F2851234400188CB8 /* FirestoreApp.swift */,
+				62A553312851234400188CB8 /* ContentView.swift */,
+				62A553332851234400188CB8 /* NotificationController.swift */,
+				62A553352851234400188CB8 /* NotificationView.swift */,
+				62A553372851234400188CB8 /* ComplicationController.swift */,
+				62A553392851234500188CB8 /* Assets.xcassets */,
+				62A5533E2851234500188CB8 /* Info.plist */,
+				62A5533F2851234500188CB8 /* PushNotificationPayload.apns */,
+				62A5533B2851234500188CB8 /* Preview Content */,
+			);
+			path = "Firestore_Example_watchOS WatchKit Extension";
+			sourceTree = "<group>";
+		};
+		62A5533B2851234500188CB8 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				62A5533C2851234500188CB8 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		62A553472851234500188CB8 /* Firestore_Example_watchOSTests */ = {
+			isa = PBXGroup;
+			children = (
+				62A553482851234500188CB8 /* Firestore_Example_watchOSTests.swift */,
+			);
+			path = Firestore_Example_watchOSTests;
+			sourceTree = "<group>";
+		};
+		62A553512851234500188CB8 /* Firestore_Example_watchOSUITests */ = {
+			isa = PBXGroup;
+			children = (
+				62A553522851234500188CB8 /* Firestore_Example_watchOSUITests.swift */,
+				62A553542851234500188CB8 /* Firestore_Example_watchOSUITestsLaunchTests.swift */,
+			);
+			path = Firestore_Example_watchOSUITests;
 			sourceTree = "<group>";
 		};
 		6EA39FDC20FE81DD008D461F /* FuzzingTargets */ = {
@@ -2792,6 +2955,93 @@
 			productReference = 6003F5AE195388D20070C39A /* Firestore_Tests_iOS.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		62A5531B2851234200188CB8 /* Firestore_Example_watchOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 62A553642851234500188CB8 /* Build configuration list for PBXNativeTarget "Firestore_Example_watchOS" */;
+			buildPhases = (
+				62A5531A2851234200188CB8 /* Resources */,
+				62A553582851234500188CB8 /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				62A553222851234200188CB8 /* PBXTargetDependency */,
+			);
+			name = Firestore_Example_watchOS;
+			productName = Firestore_Example_watchOS;
+			productReference = 62A5531C2851234200188CB8 /* Firestore_Example_watchOS.app */;
+			productType = "com.apple.product-type.application.watchapp2-container";
+		};
+		62A5531E2851234200188CB8 /* Firestore_Example_watchOS WatchKit App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 62A553632851234500188CB8 /* Build configuration list for PBXNativeTarget "Firestore_Example_watchOS WatchKit App" */;
+			buildPhases = (
+				62A5531D2851234200188CB8 /* Resources */,
+				62A5535B2851234500188CB8 /* Embed App Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				62A5532D2851234400188CB8 /* PBXTargetDependency */,
+			);
+			name = "Firestore_Example_watchOS WatchKit App";
+			productName = "Firestore_Example_watchOS WatchKit App";
+			productReference = 62A5531F2851234200188CB8 /* Firestore_Example_watchOS WatchKit App.app */;
+			productType = "com.apple.product-type.application.watchapp2";
+		};
+		62A553292851234400188CB8 /* Firestore_Example_watchOS WatchKit Extension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 62A553622851234500188CB8 /* Build configuration list for PBXNativeTarget "Firestore_Example_watchOS WatchKit Extension" */;
+			buildPhases = (
+				62A553262851234400188CB8 /* Sources */,
+				62A553272851234400188CB8 /* Frameworks */,
+				62A553282851234400188CB8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Firestore_Example_watchOS WatchKit Extension";
+			productName = "Firestore_Example_watchOS WatchKit Extension";
+			productReference = 62A5532A2851234400188CB8 /* Firestore_Example_watchOS WatchKit Extension.appex */;
+			productType = "com.apple.product-type.watchkit2-extension";
+		};
+		62A553432851234500188CB8 /* Firestore_Example_watchOSTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 62A553652851234500188CB8 /* Build configuration list for PBXNativeTarget "Firestore_Example_watchOSTests" */;
+			buildPhases = (
+				62A553402851234500188CB8 /* Sources */,
+				62A553412851234500188CB8 /* Frameworks */,
+				62A553422851234500188CB8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				62A553462851234500188CB8 /* PBXTargetDependency */,
+			);
+			name = Firestore_Example_watchOSTests;
+			productName = Firestore_Example_watchOSTests;
+			productReference = 62A553442851234500188CB8 /* Firestore_Example_watchOSTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		62A5534D2851234500188CB8 /* Firestore_Example_watchOSUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 62A553662851234500188CB8 /* Build configuration list for PBXNativeTarget "Firestore_Example_watchOSUITests" */;
+			buildPhases = (
+				62A5534A2851234500188CB8 /* Sources */,
+				62A5534B2851234500188CB8 /* Frameworks */,
+				62A5534C2851234500188CB8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				62A553502851234500188CB8 /* PBXTargetDependency */,
+			);
+			name = Firestore_Example_watchOSUITests;
+			productName = Firestore_Example_watchOSUITests;
+			productReference = 62A5534E2851234500188CB8 /* Firestore_Example_watchOSUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		6EDD3AD120BF247500C33877 /* Firestore_FuzzTests_iOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6EDD3B5820BF247500C33877 /* Build configuration list for PBXNativeTarget "Firestore_FuzzTests_iOS" */;
@@ -2859,7 +3109,7 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = FIR;
-				LastSwiftUpdateCheck = 0920;
+				LastSwiftUpdateCheck = 1320;
 				LastUpgradeCheck = 1010;
 				ORGANIZATIONNAME = Google;
 				TargetAttributes = {
@@ -2897,6 +3147,28 @@
 						CreatedOnToolsVersion = 9.0;
 						DevelopmentTeam = EQHXZ8M8AV;
 						TestTargetID = 6003F589195388D20070C39A;
+					};
+					62A5531B2851234200188CB8 = {
+						CreatedOnToolsVersion = 13.2.1;
+						ProvisioningStyle = Automatic;
+					};
+					62A5531E2851234200188CB8 = {
+						CreatedOnToolsVersion = 13.2.1;
+						ProvisioningStyle = Automatic;
+					};
+					62A553292851234400188CB8 = {
+						CreatedOnToolsVersion = 13.2.1;
+						ProvisioningStyle = Automatic;
+					};
+					62A553432851234500188CB8 = {
+						CreatedOnToolsVersion = 13.2.1;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 62A553292851234400188CB8;
+					};
+					62A5534D2851234500188CB8 = {
+						CreatedOnToolsVersion = 13.2.1;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 62A5531E2851234200188CB8;
 					};
 					6EDD3AD120BF247500C33877 = {
 						CreatedOnToolsVersion = 9.0;
@@ -2942,6 +3214,11 @@
 				54AA338E224BF935006CE580 /* Firestore_Example_tvOS */,
 				54AA33A5224BFE09006CE580 /* Firestore_Tests_tvOS */,
 				54AA33B3224C0035006CE580 /* Firestore_IntegrationTests_tvOS */,
+				62A5531B2851234200188CB8 /* Firestore_Example_watchOS */,
+				62A5531E2851234200188CB8 /* Firestore_Example_watchOS WatchKit App */,
+				62A553292851234400188CB8 /* Firestore_Example_watchOS WatchKit Extension */,
+				62A553432851234500188CB8 /* Firestore_Example_watchOSTests */,
+				62A5534D2851234500188CB8 /* Firestore_Example_watchOSUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -3083,6 +3360,44 @@
 				3B843E4C1F3A182900548890 /* remote_store_spec_test.json in Resources */,
 				54DA12AE1F315EE100DD57A1 /* resume_token_spec_test.json in Resources */,
 				54DA12AF1F315EE100DD57A1 /* write_spec_test.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		62A5531A2851234200188CB8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		62A5531D2851234200188CB8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				62A553252851234400188CB8 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		62A553282851234400188CB8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				62A5533D2851234500188CB8 /* Preview Assets.xcassets in Resources */,
+				62A5533A2851234500188CB8 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		62A553422851234500188CB8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		62A5534C2851234500188CB8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4570,6 +4885,35 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		62A553262851234400188CB8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				62A553342851234400188CB8 /* NotificationController.swift in Sources */,
+				62A553322851234400188CB8 /* ContentView.swift in Sources */,
+				62A553382851234400188CB8 /* ComplicationController.swift in Sources */,
+				62A553302851234400188CB8 /* FirestoreApp.swift in Sources */,
+				62A553362851234400188CB8 /* NotificationView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		62A553402851234500188CB8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				62A553492851234500188CB8 /* Firestore_Example_watchOSTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		62A5534A2851234500188CB8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				62A553532851234500188CB8 /* Firestore_Example_watchOSUITests.swift in Sources */,
+				62A553552851234500188CB8 /* Firestore_Example_watchOSUITestsLaunchTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		6EDD3AD520BF247500C33877 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -4837,6 +5181,26 @@
 			isa = PBXTargetDependency;
 			target = 6003F589195388D20070C39A /* Firestore_Example_iOS */;
 			targetProxy = 6003F5B3195388D20070C39A /* PBXContainerItemProxy */;
+		};
+		62A553222851234200188CB8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 62A5531E2851234200188CB8 /* Firestore_Example_watchOS WatchKit App */;
+			targetProxy = 62A553212851234200188CB8 /* PBXContainerItemProxy */;
+		};
+		62A5532D2851234400188CB8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 62A553292851234400188CB8 /* Firestore_Example_watchOS WatchKit Extension */;
+			targetProxy = 62A5532C2851234400188CB8 /* PBXContainerItemProxy */;
+		};
+		62A553462851234500188CB8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 62A553292851234400188CB8 /* Firestore_Example_watchOS WatchKit Extension */;
+			targetProxy = 62A553452851234500188CB8 /* PBXContainerItemProxy */;
+		};
+		62A553502851234500188CB8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 62A5531E2851234200188CB8 /* Firestore_Example_watchOS WatchKit App */;
+			targetProxy = 62A5534F2851234500188CB8 /* PBXContainerItemProxy */;
 		};
 		6EDD3AD220BF247500C33877 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -5431,6 +5795,343 @@
 			};
 			name = Release;
 		};
+		62A553562851234500188CB8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.firebase.quickstart.FirestoreExample.Firestore-Example-watchOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		62A553572851234500188CB8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.firebase.quickstart.FirestoreExample.Firestore-Example-watchOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		62A553592851234500188CB8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				IBSC_MODULE = Firestore_Example_watchOS_WatchKit_Extension;
+				INFOPLIST_KEY_CFBundleDisplayName = "Firestore_Example_watchOS WatchKit App";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.firebase.quickstart.FirestoreExample.Firestore-Example-watchOS.watchkitapp";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 8.3;
+			};
+			name = Debug;
+		};
+		62A5535A2851234500188CB8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				IBSC_MODULE = Firestore_Example_watchOS_WatchKit_Extension;
+				INFOPLIST_KEY_CFBundleDisplayName = "Firestore_Example_watchOS WatchKit App";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.firebase.quickstart.FirestoreExample.Firestore-Example-watchOS.watchkitapp";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 8.3;
+			};
+			name = Release;
+		};
+		62A5535C2851234500188CB8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Firestore_Example_watchOS WatchKit Extension/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Firestore_Example_watchOS WatchKit Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Firestore_Example_watchOS WatchKit Extension";
+				INFOPLIST_KEY_CLKComplicationPrincipalClass = "$(PRODUCT_MODULE_NAME).ComplicationController";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Google. All rights reserved.";
+				INFOPLIST_KEY_WKWatchOnly = YES;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.firebase.quickstart.FirestoreExample.Firestore-Example-watchOS.watchkitapp.watchkitextension";
+				PRODUCT_NAME = "${TARGET_NAME}";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 8.3;
+			};
+			name = Debug;
+		};
+		62A5535D2851234500188CB8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_ASSET_PATHS = "\"Firestore_Example_watchOS WatchKit Extension/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Firestore_Example_watchOS WatchKit Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Firestore_Example_watchOS WatchKit Extension";
+				INFOPLIST_KEY_CLKComplicationPrincipalClass = "$(PRODUCT_MODULE_NAME).ComplicationController";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Google. All rights reserved.";
+				INFOPLIST_KEY_WKWatchOnly = YES;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.firebase.quickstart.FirestoreExample.Firestore-Example-watchOS.watchkitapp.watchkitextension";
+				PRODUCT_NAME = "${TARGET_NAME}";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 8.3;
+			};
+			name = Release;
+		};
+		62A5535E2851234500188CB8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.firebase.quickstart.FirestoreExample.Firestore-Example-watchOSTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_watchOS WatchKit Extension.appex/Firestore_Example_watchOS WatchKit Extension";
+				WATCHOS_DEPLOYMENT_TARGET = 8.3;
+			};
+			name = Debug;
+		};
+		62A5535F2851234500188CB8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.firebase.quickstart.FirestoreExample.Firestore-Example-watchOSTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_watchOS WatchKit Extension.appex/Firestore_Example_watchOS WatchKit Extension";
+				WATCHOS_DEPLOYMENT_TARGET = 8.3;
+			};
+			name = Release;
+		};
+		62A553602851234500188CB8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.firebase.quickstart.FirestoreExample.Firestore-Example-watchOSUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = "Firestore_Example_watchOS WatchKit App";
+				WATCHOS_DEPLOYMENT_TARGET = 8.3;
+			};
+			name = Debug;
+		};
+		62A553612851234500188CB8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.firebase.quickstart.FirestoreExample.Firestore-Example-watchOSUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = "Firestore_Example_watchOS WatchKit App";
+				WATCHOS_DEPLOYMENT_TARGET = 8.3;
+			};
+			name = Release;
+		};
 		6EDD3B5920BF247500C33877 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 84434E57CA72951015FC71BC /* Pods-Firestore_FuzzTests_iOS.debug.xcconfig */;
@@ -5666,6 +6367,51 @@
 			buildConfigurations = (
 				6003F5C3195388D20070C39A /* Debug */,
 				6003F5C4195388D20070C39A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		62A553622851234500188CB8 /* Build configuration list for PBXNativeTarget "Firestore_Example_watchOS WatchKit Extension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				62A5535C2851234500188CB8 /* Debug */,
+				62A5535D2851234500188CB8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		62A553632851234500188CB8 /* Build configuration list for PBXNativeTarget "Firestore_Example_watchOS WatchKit App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				62A553592851234500188CB8 /* Debug */,
+				62A5535A2851234500188CB8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		62A553642851234500188CB8 /* Build configuration list for PBXNativeTarget "Firestore_Example_watchOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				62A553562851234500188CB8 /* Debug */,
+				62A553572851234500188CB8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		62A553652851234500188CB8 /* Build configuration list for PBXNativeTarget "Firestore_Example_watchOSTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				62A5535E2851234500188CB8 /* Debug */,
+				62A5535F2851234500188CB8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		62A553662851234500188CB8 /* Build configuration list for PBXNativeTarget "Firestore_Example_watchOSUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				62A553602851234500188CB8 /* Debug */,
+				62A553612851234500188CB8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

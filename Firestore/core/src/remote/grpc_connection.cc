@@ -212,7 +212,7 @@ void AddCloudApiHeader(grpc::ClientContext& context) {
   context.AddMetadata(kXGoogApiClientHeader, api_tokens);
 }
 
-#if __APPLE__
+#if __APPLE__ && !TARGET_OS_WATCH
 // Disable CFStream-based transport on Apple platforms due to b/133182964, where
 // CFStream will occasionally fail to raise a has-bytes-available events,
 // causing Firestore to appear to hang.

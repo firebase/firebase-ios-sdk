@@ -190,3 +190,11 @@ if is_platform(:tvos)
     end
   end
 end
+
+if is_platform(:watchos)
+  target 'Firestore_Example_watchOS' do
+    platform :watchos, '6.0'
+
+    configure_local_pods()
+  end
+end
