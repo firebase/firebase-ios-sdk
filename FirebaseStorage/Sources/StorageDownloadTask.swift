@@ -71,8 +71,8 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
    * Cancels a task.
    */
   @objc open func cancel() {
-    // TODO:
-    // (impl as! FIRIMPLStorageDownloadTask).cancel()
+    let error = StorageErrorCode.error(withCode: .cancelled)
+    self.cancel(withError: error)
   }
 
   /**
@@ -166,8 +166,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
         // Handle potential issues with download
         if let error = error {
           self.state = .failed
-          // TODO:
-          // self.error =
+          self.error = StorageErrorCode.error(withServerError: error, ref: self.reference)
           self.fire(for: .failure, snapshot: self.snapshot)
           self.removeAllObservers()
           self.fetcherCompletion = nil
@@ -189,6 +188,16 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
           fetcherCompletion(data, error as? NSError)
         }
       }
+    }
+  }
+  
+  internal func cancel(withError error: NSError) {
+    weak var weakSelf = self
+    DispatchQueue.global(qos: .background).async {
+      weakSelf?.state = .cancelled
+      weakSelf?.fetcher?.stopFetching()
+      weakSelf?.error = error
+      weakSelf?.fire(for: .failure, snapshot: self.snapshot)
     }
   }
 }

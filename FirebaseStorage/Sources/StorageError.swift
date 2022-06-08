@@ -33,23 +33,41 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
   case cancelled = -13040
   case invalidArgument = -13050
   
-  static func errorWithServerError(serverError: NSError, ref: FIRIMPLStorageReference) -> NSError {
+  static func error(withServerError serverError: NSError, ref: FIRIMPLStorageReference) -> NSError {
     var errorCode: StorageErrorCode
     switch serverError.code {
+    case 400: errorCode = .unknown
+    case 401: errorCode = .unauthenticated
+    case 402: errorCode = .quotaExceeded
+    case 403: errorCode = .unauthorized
     case 404: errorCode = .objectNotFound
     default: errorCode = .unknown
     }
-    
-    var errorDictionary = [
-      "ResponseErrorDomain": serverError.domain,
-      "ResponseErrorCode": serverError.code,
-      "bucket": ref.path.bucket,
-    ] as [String : Any]
+
+    var errorDictionary = serverError.userInfo
+    errorDictionary["ResponseErrorDomain"] = serverError.domain
+    errorDictionary["ResponseErrorCode"] = serverError.code
+    errorDictionary["bucket"] = ref.path.bucket
     
     if let object = ref.path.object {
       errorDictionary["object"] = object
     }
+    if let data = (errorDictionary["data"] as? Data) {
+      errorDictionary["ResponseBody"] = String(data: data, encoding: .utf8)
+    }
     return error(withCode: errorCode, infoDictionary: errorDictionary)
+  }
+  
+  static func error(withInvalidRequest request: Data) -> NSError {
+    let requestString = String(data: request, encoding: .utf8) ?? "<unstringable data>"
+    let invalidDataString = "Invalid data returned from the server:\(requestString)"
+    var localizedFailureKey: String
+    if #available(iOS 11.0, *) {
+      localizedFailureKey = NSLocalizedFailureErrorKey
+    } else {
+      localizedFailureKey = "NSLocalizedFailure"
+    }
+    return error(withCode: .unknown, infoDictionary: [localizedFailureKey: invalidDataString])
   }
   
   static func error(withCode code: StorageErrorCode, infoDictionary: [String: Any]? = nil) -> NSError {
@@ -59,8 +77,38 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
     case .objectNotFound:
       let object = dictionary["object"] ?? "<object-entity-internal-error>"
       errorMessage = "Object \(object) does not exist."
-    default:
-      errorMessage = "TODO message"
+    case .bucketNotFound:
+      let bucket = dictionary["bucket"] ?? "<bucket-entity-internal-error>"
+      errorMessage = "Bucket \(bucket) does not exist."
+    case .projectNotFound:
+      let project = dictionary["project"] ?? "<project-entity-internal-error>"
+      errorMessage = "Project \(project) does not exist."
+    case .quotaExceeded:
+      let bucket = dictionary["bucket"] ?? "<bucket-entity-internal-error>"
+      errorMessage = "Quota for bucket \(bucket) exceeded, please view quota on firebase.google.com."
+    case .downloadSizeExceeded:
+      let total = "\(dictionary["totalSize"] ?? "unknown")"
+      let size = "\(dictionary["maxAllowedSize"] ?? "unknown")"
+      errorMessage = "Attempted to download object with size of \(total) bytes, " +
+        "which exceeds the maximum size of \(size) bytes. " +
+        "Consider raising the maximum download size, or using StorageReference.write"
+    case .unauthenticated:
+      errorMessage = "User is not authenticated, please authenticate using Firebase " +
+        "Authentication and try again."
+    case .unauthorized:
+      let bucket = dictionary["bucket"] ?? "<bucket-entity-internal-error>"
+      let object = dictionary["object"] ?? "<object-entity-internal-error>"
+      errorMessage = "User does not have permission to access gs://\(bucket)/\(object)."
+    case .retryLimitExceeded:
+      errorMessage = "Max retry time for operation exceeded, please try again."
+    case .nonMatchingChecksum:
+      // TODO: replace with actual checksum strings when we choose to implement.
+      errorMessage = "Uploaded/downloaded object TODO has checksum: TODO " +
+        "which does not match server checksum: TODO. Please retry the upload/download."
+    case .cancelled:
+      errorMessage = "User cancelled the upload/download."
+    case .unknown, .invalidArgument: // invalidArgument fell through in the old Objective-C code.
+      errorMessage = "An unknown error occurred, please check the server response."
     }
     dictionary[NSLocalizedDescriptionKey] = errorMessage
     return NSError(domain: StorageErrorDomain, code: code.rawValue, userInfo: dictionary)

@@ -223,13 +223,16 @@ class StorageResultTests: StorageIntegrationCommon {
   func testAttemptToUploadDirectoryShouldFail() throws {
     // This `.numbers` file is actually a directory.
     let fileName = "HomeImprovement.numbers"
+    let expectation = self.expectation(description: #function)
     let bundle = Bundle(for: StorageIntegrationCommon.self)
     let fileURL = try XCTUnwrap(bundle.url(forResource: fileName, withExtension: ""),
                                 "Failed to get filePath")
     let ref = storage.reference(withPath: "ios/public/" + fileName)
     ref.putFile(from: fileURL) { result in
       self.assertResultFailure(result)
+      expectation.fulfill()
     }
+    waitForExpectations()
   }
 
   func testPutFileWithSpecialCharacters() throws {
@@ -585,7 +588,7 @@ class StorageResultTests: StorageIntegrationCommon {
   }
 
   private func waitForExpectations() {
-    let kFIRStorageIntegrationTestTimeout = 60.0
+    let kFIRStorageIntegrationTestTimeout = 100.0
     waitForExpectations(timeout: kFIRStorageIntegrationTestTimeout,
                         handler: { error in
                           if let error = error {

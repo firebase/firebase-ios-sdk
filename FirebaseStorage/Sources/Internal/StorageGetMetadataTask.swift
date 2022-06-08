@@ -64,20 +64,20 @@ internal class StorageGetMetadataTask: StorageTask, StorageTaskManagement {
 
       strongSelf.fetcherCompletion = { (data: Data?, error: NSError?) in
         var metadata: StorageMetadata? = nil
-        if (error != nil) {
+        if let error = error {
           if self.error == nil {
-          // TODO:
-          // self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
+            self.error = StorageErrorCode.error(withServerError: error, ref: self.reference)
           }
         } else {
-          if let data = data ,
-             let responseDictionary = try? JSONSerialization
+          guard let data = data else {
+            fatalError("Internal Error: fetcherCompletion returned with nil data and nil error")
+          }
+          if let responseDictionary = try? JSONSerialization
             .jsonObject(with: data) as? [String: Any] {
             metadata = StorageMetadata(dictionary: responseDictionary)
             metadata?.impl.type = .file
           } else {
-            // TODO
-            // self.error = [FIRStorageErrors errorWithInvalidRequest:data];
+            self.error = StorageErrorCode.error(withInvalidRequest: data)
           }
         }
         if let callback = callback {

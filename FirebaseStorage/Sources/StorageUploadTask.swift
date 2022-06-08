@@ -45,6 +45,7 @@ import FirebaseStorageInternal
       if let contentValidationError = strongSelf.isContentToUploadInvalid() {
         strongSelf.error = contentValidationError
         strongSelf.finishTaskWithStatus(status: .failure, snapshot: strongSelf.snapshot)
+        return
       }
 
       strongSelf.state = .queueing
@@ -77,7 +78,6 @@ import FirebaseStorageInternal
       guard let contentType = strongSelf.uploadMetadata.contentType else {
         fatalError("To Do")
       }
-//      request.url = URL(string:"https://firebasestorage.googleapis.com:443/v0/b/ios-opensource-samples.appspot.com/o/ios%2Fpublic%2Fhelloworld?uploadType=resumable&name=ios%2Fpublic%2Fhelloworld")
       let uploadFetcher = GTMSessionUploadFetcher(
         request: request,
         uploadMIMEType: contentType,
@@ -116,23 +116,25 @@ import FirebaseStorageInternal
         // Handle potential issues with upload
         if let error = error {
           self.state = .failed
-          // TODO:
-          // self.error =
+          self.error = StorageErrorCode.error(withServerError: error, ref: self.reference)
           self.metadata = self.uploadMetadata
           self.finishTaskWithStatus(status: .failure, snapshot: self.snapshot)
           return
         }
         // Upload completed successfully, fire completion callbacks
         self.state = .success
+        
+        guard let data = data else {
+          fatalError("Internal Error: fetcherCompletion returned with nil data and nil error")
+        }
 
-        if let data = data,
-           let responseDictionary = try? JSONSerialization
+        if let responseDictionary = try? JSONSerialization
            .jsonObject(with: data) as? [String: Any] {
           let metadata = FIRIMPLStorageMetadata(dictionary: responseDictionary)
           metadata?.type = .file
           self.metadata = metadata
         } else {
-          // TODO: self.error =  [FIRStorageErrors errorWithInvalidRequest:data];
+          self.error = StorageErrorCode.error(withInvalidRequest: data)
         }
         self.finishTaskWithStatus(status: .success, snapshot: self.snapshot)
       }
@@ -227,7 +229,12 @@ import FirebaseStorageInternal
 
   internal func isContentToUploadInvalid() -> NSError? {
     // TODO: - Does checkResourceIsReachableAndReturnError need to be ported here?
-    if uploadData != nil || ((fileURL?.isFileURL) != nil) {
+    if uploadData != nil {
+      return nil
+    }
+    if let resourceValues = try? fileURL?.resourceValues(forKeys: [.isRegularFileKey]),
+       let isFile = resourceValues.isRegularFile,
+       isFile == true {
       return nil
     }
     let userInfo = [NSLocalizedDescriptionKey:

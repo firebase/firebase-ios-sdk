@@ -296,9 +296,10 @@ import FirebaseStorageInternal
     task.observe(.progress) { snapshot in
       let task = snapshot.task
       if task.progress.totalUnitCount > maxSize || task.progress.completedUnitCount > maxSize {
-        let error = NSError()
-        // TODO: - add cancelWithError as internal func in TaskDownload
-        // task.cancelWithError()
+        let error = StorageErrorCode.error(withCode: .downloadSizeExceeded,
+                                           infoDictionary: ["totalSize": task.progress.totalUnitCount,
+                                                            "maxAllowedSize": maxSize])
+        (task as? StorageDownloadTask)?.cancel(withError: error)
       }
     }
     task.enqueue()
