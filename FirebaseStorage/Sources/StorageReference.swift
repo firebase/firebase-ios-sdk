@@ -318,19 +318,19 @@ import FirebaseStorageInternal
     impl.downloadURL(completion: completion)
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    /**
-     * Asynchronously retrieves a long lived download URL with a revokable token.
-     * This can be used to share the file with others, but can be revoked by a developer
-     * in the Firebase Console.
-     * - Throws: An error if the download URL could not be retrieved.
-     * - Returns: The URL on success.
-     */
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-    open func downloadURL() async throws -> URL {
-      return try await impl.downloadURL()
-    }
-  #endif // compiler(>=5.5) && canImport(_Concurrency)
+#if compiler(>=5.5) && canImport(_Concurrency)
+  /**
+   * Asynchronously retrieves a long lived download URL with a revokable token.
+   * This can be used to share the file with others, but can be revoked by a developer
+   * in the Firebase Console.
+   * - Throws: An error if the download URL could not be retrieved.
+   * - Returns: The URL on success.
+   */
+  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+  open func downloadURL() async throws -> URL {
+    return try await impl.downloadURL()
+  }
+#endif // compiler(>=5.5) && canImport(_Concurrency)
 
   /**
    * Asynchronously downloads the object at the current path to a specified system filepath.
@@ -403,33 +403,78 @@ import FirebaseStorageInternal
    */
   @objc(listAllWithCompletion:)
   open func listAll(completion: @escaping ((_: StorageListResult?, _: Error?) -> Void)) {
-    impl.listAll { listResult, error in
-      if error != nil {
+    guard let fetcherService = storage.fetcherServiceForApp else {
+      fatalError("TODO: Internal Error: fetcherService not configured")
+    }
+    var prefixes = [FIRIMPLStorageReference]()
+    var items = [FIRIMPLStorageReference]()
+
+    weak var weakSelf = self
+
+    var foo: ((_: StorageListResult?, _: Error?) -> Void)?
+    let paginatedCompletion = { (listResult: StorageListResult?, error: NSError?) in
+      if let error = error {
         completion(nil, error)
+      }
+      guard let strongSelf = weakSelf else {
+        return
+      }
+      guard let listResult = listResult else {
+        fatalError("internal error: both listResult and error are nil")
+      }
+      prefixes.append(contentsOf: listResult.prefixes.map { $0.impl})
+      items.append(contentsOf: listResult.items.map { $0.impl})
+
+      if let pageToken = listResult.pageToken {
+        let nextPage = StorageListTask(reference: strongSelf.impl,
+                                       fetcherService: fetcherService,
+                                       queue: strongSelf.storage.dispatchQueue,
+                                       pageSize:nil,
+                                       previousPageToken:pageToken,
+                                       // TODO: fix next line
+                                       completion: nil)
+        nextPage.enqueue()
       } else {
-        completion(StorageListResult(listResult), error)
+        let result = StorageListResult(withPrefixes: prefixes, items: items, pageToken: nil)
+
+        // Break the retain cycle we set up indirectly by passing the callback to `nextPage`.
+        //paginatedCompletion = nil
+        completion(result, nil)
+      }
+    }
+
+    let task = StorageListTask(reference: self.impl,
+                               fetcherService: fetcherService,
+                               queue: storage.dispatchQueue,
+                               pageSize:nil,
+                               previousPageToken:nil,
+                               // TODO: fix next line
+                               completion: completion)
+    task.enqueue()
+  }
+
+#if compiler(>=5.5) && canImport(_Concurrency)
+  /**
+   * Lists all items (files) and prefixes (folders) under this StorageReference.
+   *
+   * This is a helper method for calling list() repeatedly until there are no more results.
+   * Consistency of the result is not guaranteed if objects are inserted or removed while this
+   * operation is executing. All results are buffered in memory.
+   *
+   * `listAll()` is only available for projects using Firebase Rules Version 2.
+   *
+   * - Throws: An error if the list operation failed.
+   * - Returns: All items and prefixes under the current `StorageReference`.
+   */
+  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+  open func listAll() async throws -> StorageListResult {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.listAll { result in
+        return continuation.resume(with: result)
       }
     }
   }
-
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    /**
-     * Lists all items (files) and prefixes (folders) under this StorageReference.
-     *
-     * This is a helper method for calling list() repeatedly until there are no more results.
-     * Consistency of the result is not guaranteed if objects are inserted or removed while this
-     * operation is executing. All results are buffered in memory.
-     *
-     * `listAll()` is only available for projects using Firebase Rules Version 2.
-     *
-     * - Throws: An error if the list operation failed.
-     * - Returns: All items and prefixes under the current `StorageReference`.
-     */
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-    open func listAll() async throws -> StorageListResult {
-      return try await StorageListResult(impl.listAll())
-    }
-  #endif // compiler(>=5.5) && canImport(_Concurrency)
+#endif // compiler(>=5.5) && canImport(_Concurrency)
 
   /**
    * List up to `maxResults` items (files) and prefixes (folders) under this StorageReference.
@@ -449,12 +494,23 @@ import FirebaseStorageInternal
   @objc(listWithMaxResults:completion:)
   open func list(maxResults: Int64,
                  completion: @escaping ((_: StorageListResult?, _: Error?) -> Void)) {
-    impl.list(withMaxResults: maxResults) { listResult, error in
-      if error != nil {
-        completion(nil, error)
-      } else {
-        completion(StorageListResult(listResult), error)
+    if maxResults <= 0 || maxResults > 1000 {
+      completion(nil,
+                 NSError(domain: StorageErrorDomain,
+                         code: StorageErrorCode.invalidArgument.rawValue,
+                         userInfo: [NSLocalizedDescriptionKey :
+                                      "Argument 'maxResults':\(maxResults) must be between 1 and 1000 inclusive."]))
+    } else {
+      guard let fetcherService = storage.fetcherServiceForApp else {
+        fatalError("TODO: Internal Error: fetcherService not configured")
       }
+      let task = StorageListTask(reference: self.impl,
+                                 fetcherService: fetcherService,
+                                 queue: storage.dispatchQueue,
+                                 pageSize:maxResults,
+                                 previousPageToken:nil,
+                                 completion: completion)
+      task.enqueue()
     }
   }
 
@@ -480,12 +536,23 @@ import FirebaseStorageInternal
   open func list(maxResults: Int64,
                  pageToken: String,
                  completion: @escaping ((_: StorageListResult?, _: Error?) -> Void)) {
-    impl.list(withMaxResults: maxResults, pageToken: pageToken) { listResult, error in
-      if error != nil {
-        completion(nil, error)
-      } else {
-        completion(StorageListResult(listResult), error)
+    if maxResults <= 0 || maxResults > 1000 {
+      completion(nil,
+                 NSError(domain: StorageErrorDomain,
+                         code: StorageErrorCode.invalidArgument.rawValue,
+                         userInfo: [NSLocalizedDescriptionKey :
+                                      "Argument 'maxResults':\(maxResults) must be between 1 and 1000 inclusive."]))
+    } else {
+      guard let fetcherService = storage.fetcherServiceForApp else {
+        fatalError("TODO: Internal Error: fetcherService not configured")
       }
+      let task = StorageListTask(reference: self.impl,
+                                 fetcherService: fetcherService,
+                                 queue: storage.dispatchQueue,
+                                 pageSize:maxResults,
+                                 previousPageToken:pageToken,
+                                 completion: completion)
+      task.enqueue()
     }
   }
 
@@ -502,27 +569,27 @@ import FirebaseStorageInternal
       fatalError("TODO: Internal Error: fetcherService not configured")
     }
     let task = StorageGetMetadataTask(reference: impl,
-                           fetcherService: fetcherService,
+                                      fetcherService: fetcherService,
                                       queue: storage.dispatchQueue,
-                           completion: completion)
+                                      completion: completion)
     task.enqueue()
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    /**
-     * Retrieves metadata associated with an object at the current path.
-     * - Throws: An error if the object metadata could not be retrieved.
-     * - Returns: The object metadata on success.
-     */
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-    open func getMetadata() async throws -> StorageMetadata {
-      return try await withCheckedThrowingContinuation { continuation in
-        self.getMetadata { result in
-          return continuation.resume(with: result)
-        }
+#if compiler(>=5.5) && canImport(_Concurrency)
+  /**
+   * Retrieves metadata associated with an object at the current path.
+   * - Throws: An error if the object metadata could not be retrieved.
+   * - Returns: The object metadata on success.
+   */
+  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+  open func getMetadata() async throws -> StorageMetadata {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.getMetadata { result in
+        return continuation.resume(with: result)
       }
     }
-  #endif // compiler(>=5.5) && canImport(_Concurrency)
+  }
+#endif // compiler(>=5.5) && canImport(_Concurrency)
 
   /**
    * Updates the metadata associated with an object at the current path.
@@ -538,33 +605,33 @@ import FirebaseStorageInternal
       fatalError("TODO: Internal Error: fetcherService not configured")
     }
     let task = StorageUpdateMetadataTask(reference: impl,
-                           fetcherService: fetcherService,
-                                      queue: storage.dispatchQueue,
+                                         fetcherService: fetcherService,
+                                         queue: storage.dispatchQueue,
                                          metadata:metadata.impl,
-                           completion: completion)
+                                         completion: completion)
     task.enqueue()
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    /**
-     * Updates the metadata associated with an object at the current path.
-     * - Parameter metadata A `StorageMetadata` object with the metadata to update.
-     * - Throws: An error if the metadata update operation failed.
-     * - Returns: The object metadata on success.
-     */
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-    open func updateMetadata(_ metadata: StorageMetadata) async throws -> StorageMetadata {
-      return try await withCheckedThrowingContinuation { continuation in
-        self.updateMetadata(metadata) { result in
-          return continuation.resume(with: result)
-        }
+#if compiler(>=5.5) && canImport(_Concurrency)
+  /**
+   * Updates the metadata associated with an object at the current path.
+   * - Parameter metadata A `StorageMetadata` object with the metadata to update.
+   * - Throws: An error if the metadata update operation failed.
+   * - Returns: The object metadata on success.
+   */
+  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+  open func updateMetadata(_ metadata: StorageMetadata) async throws -> StorageMetadata {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.updateMetadata(metadata) { result in
+        return continuation.resume(with: result)
       }
     }
-  #endif // compiler(>=5.5) && canImport(_Concurrency)
+  }
+#endif // compiler(>=5.5) && canImport(_Concurrency)
 
   private func adaptMetadataCallback(completion: @escaping (StorageMetadata?, Error?) -> Void) ->
-    (_: FIRIMPLStorageMetadata?, _: Error?)
-    -> Void {
+  (_: FIRIMPLStorageMetadata?, _: Error?)
+  -> Void {
     return { (impl: FIRIMPLStorageMetadata?, error: Error?) in
       if let impl = impl {
         completion(StorageMetadata(impl: impl), error)
@@ -592,24 +659,24 @@ import FirebaseStorageInternal
     task.enqueue()
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    /**
-     * Deletes the object at the current path.
-     * - Throws: An error if the delete operation failed.
-     */
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-    open func delete() async throws {
-      return try await withCheckedThrowingContinuation { continuation in
-        self.delete { error in
-          if let error = error {
-            continuation.resume(throwing: error)
-          } else {
-            continuation.resume()
-          }
+#if compiler(>=5.5) && canImport(_Concurrency)
+  /**
+   * Deletes the object at the current path.
+   * - Throws: An error if the delete operation failed.
+   */
+  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+  open func delete() async throws {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.delete { error in
+        if let error = error {
+          continuation.resume(throwing: error)
+        } else {
+          continuation.resume()
         }
       }
     }
-  #endif // compiler(>=5.5) && canImport(_Concurrency)
+  }
+#endif // compiler(>=5.5) && canImport(_Concurrency)
 
   // MARK: - NSObject overrides
 
@@ -655,3 +722,4 @@ import FirebaseStorageInternal
     name = impl.name
   }
 }
+

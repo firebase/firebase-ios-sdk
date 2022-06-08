@@ -43,17 +43,41 @@ import FirebaseStorageInternal
   // MARK: - NSObject overrides
 
   @objc override open func copy() -> Any {
-    return StorageListResult(impl.copy() as! FIRIMPLStorageListResult)
+    return self.copy()
   }
 
   // MARK: - Internal APIs
-
-  internal let impl: FIRIMPLStorageListResult
-
-  internal init(_ impl: FIRIMPLStorageListResult) {
-    self.impl = impl
-    prefixes = impl.prefixes.map { StorageReference($0) }
-    items = impl.items.map { StorageReference($0) }
-    pageToken = impl.pageToken
+  
+  internal convenience init(with dictionary: [String: Any], reference: FIRIMPLStorageReference) {
+    var prefixes = [FIRIMPLStorageReference]()
+    var items = [FIRIMPLStorageReference]()
+    
+    let rootReference = reference.root()
+    if let prefixEntries = dictionary["prefixes"] as? [String] {
+      for prefixEntry in prefixEntries {
+        var pathWithoutTrailingSlash = prefixEntry
+        if prefixEntry.hasSuffix("/") {
+          pathWithoutTrailingSlash = String(prefixEntry.dropLast())
+        }
+        prefixes.append(rootReference.child(pathWithoutTrailingSlash))
+      }
+    }
+    
+    if let itemEntries = dictionary["items"] as? [[String: String]] {
+      for itemEntry in itemEntries {
+        if let item = itemEntry["name"] {
+          items.append(rootReference.child(item))
+        }
+      }
+    }
+    self.init(withPrefixes: prefixes, items: items, pageToken:nil)
+  }
+  
+  internal init(withPrefixes prefixes: [FIRIMPLStorageReference],
+                items: [FIRIMPLStorageReference],
+                pageToken: String?) {
+    self.prefixes = prefixes.map { StorageReference($0) }
+    self.items = items.map { StorageReference($0) }
+    self.pageToken = pageToken
   }
 }

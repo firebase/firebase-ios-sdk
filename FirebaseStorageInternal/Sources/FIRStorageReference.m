@@ -16,8 +16,6 @@
 
 #import "FirebaseStorageInternal/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageGetDownloadURLTask.h"
-#import "FirebaseStorageInternal/Sources/FIRStorageListResult_Private.h"
-#import "FirebaseStorageInternal/Sources/FIRStorageListTask.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageMetadata_Private.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageReference_Private.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageTask_Private.h"
@@ -140,97 +138,6 @@
                                                fetcherService:_storage.fetcherServiceForApp
                                                 dispatchQueue:_storage.dispatchQueue
                                                    completion:completion];
-  [task enqueue];
-}
-
-#pragma mark - List
-
-- (void)listWithMaxResults:(int64_t)maxResults completion:(FIRStorageVoidListError)completion {
-  if (maxResults <= 0 || maxResults > 1000) {
-    completion(
-        nil, [FIRStorageUtils storageErrorWithDescription:
-                                  @"Argument 'maxResults' must be between 1 and 1000 inclusive."
-                                                     code:FIRIMPLStorageErrorCodeInvalidArgument]);
-  } else {
-    FIRStorageListTask *task =
-        [[FIRStorageListTask alloc] initWithReference:self
-                                       fetcherService:_storage.fetcherServiceForApp
-                                        dispatchQueue:_storage.dispatchQueue
-                                             pageSize:@(maxResults)
-                                    previousPageToken:nil
-                                           completion:completion];
-    [task enqueue];
-  }
-}
-
-- (void)listWithMaxResults:(int64_t)maxResults
-                 pageToken:(NSString *)pageToken
-                completion:(FIRStorageVoidListError)completion {
-  if (maxResults <= 0 || maxResults > 1000) {
-    completion(
-        nil, [FIRStorageUtils storageErrorWithDescription:
-                                  @"Argument 'maxResults' must be between 1 and 1000 inclusive."
-                                                     code:FIRIMPLStorageErrorCodeInvalidArgument]);
-  } else {
-    FIRStorageListTask *task =
-        [[FIRStorageListTask alloc] initWithReference:self
-                                       fetcherService:_storage.fetcherServiceForApp
-                                        dispatchQueue:_storage.dispatchQueue
-                                             pageSize:@(maxResults)
-                                    previousPageToken:pageToken
-                                           completion:completion];
-    [task enqueue];
-  }
-}
-
-- (void)listAllWithCompletion:(FIRStorageVoidListError)completion {
-  NSMutableArray *prefixes = [NSMutableArray new];
-  NSMutableArray *items = [NSMutableArray new];
-
-  __weak FIRIMPLStorageReference *weakSelf = self;
-
-  __block FIRStorageVoidListError paginatedCompletion = ^(FIRIMPLStorageListResult *listResult,
-                                                          NSError *error) {
-    if (error) {
-      completion(nil, error);
-      return;
-    }
-
-    FIRIMPLStorageReference *strongSelf = weakSelf;
-    if (!strongSelf) {
-      return;
-    }
-
-    [prefixes addObjectsFromArray:listResult.prefixes];
-    [items addObjectsFromArray:listResult.items];
-
-    if (listResult.pageToken) {
-      FIRStorageListTask *nextPage =
-          [[FIRStorageListTask alloc] initWithReference:self
-                                         fetcherService:strongSelf->_storage.fetcherServiceForApp
-                                          dispatchQueue:strongSelf->_storage.dispatchQueue
-                                               pageSize:nil
-                                      previousPageToken:listResult.pageToken
-                                             completion:paginatedCompletion];
-      [nextPage enqueue];
-    } else {
-      FIRIMPLStorageListResult *result = [[FIRIMPLStorageListResult alloc] initWithPrefixes:prefixes
-                                                                                      items:items
-                                                                                  pageToken:nil];
-      // Break the retain cycle we set up indirectly by passing the callback to `nextPage`.
-      paginatedCompletion = nil;
-      completion(result, nil);
-    }
-  };
-
-  FIRStorageListTask *task =
-      [[FIRStorageListTask alloc] initWithReference:self
-                                     fetcherService:_storage.fetcherServiceForApp
-                                      dispatchQueue:_storage.dispatchQueue
-                                           pageSize:nil
-                                  previousPageToken:nil
-                                         completion:paginatedCompletion];
-
   [task enqueue];
 }
 

@@ -16,7 +16,6 @@
 
 #import "FIRStorage.h"
 #import "FIRStorageConstants.h"
-#import "FIRStorageListResult.h"
 #import "FIRStorageMetadata.h"
 #import "FIRStorageReference.h"
 #import "FIRStorageTask.h"

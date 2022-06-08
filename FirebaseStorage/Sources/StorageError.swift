@@ -62,7 +62,7 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
     let requestString = String(data: request, encoding: .utf8) ?? "<unstringable data>"
     let invalidDataString = "Invalid data returned from the server:\(requestString)"
     var localizedFailureKey: String
-    if #available(iOS 11.0, *) {
+    if #available(OSX 10.13, iOS 11.0, watchOS 4.0, tvOS 11.0, *) {
       localizedFailureKey = NSLocalizedFailureErrorKey
     } else {
       localizedFailureKey = "NSLocalizedFailure"

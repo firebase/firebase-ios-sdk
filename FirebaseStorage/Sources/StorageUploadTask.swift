@@ -128,8 +128,7 @@ import FirebaseStorageInternal
           fatalError("Internal Error: fetcherCompletion returned with nil data and nil error")
         }
 
-        if let responseDictionary = try? JSONSerialization
-           .jsonObject(with: data) as? [String: Any] {
+        if let responseDictionary = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
           let metadata = FIRIMPLStorageMetadata(dictionary: responseDictionary)
           metadata?.type = .file
           self.metadata = metadata
