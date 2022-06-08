@@ -5,13 +5,20 @@
 //  Created by Fumito Ito on 2022/05/25.
 //
 
+import SwiftUI
 import FirebaseRemoteConfig
 
 @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
 @propertyWrapper
 public struct RemoteConfigProperty<T: Decodable> {
-    private let key: String
-    private let remoteConfig: RemoteConfig
+    public let key: String
+    public let remoteConfig: RemoteConfig
+    public var lastFetchStatus: RemoteConfigFetchStatus {
+        return self.remoteConfig.lastFetchStatus
+    }
+    public var lastFetchTime: Date? {
+        return self.remoteConfig.lastFetchTime
+    }
 
     public var wrappedValue: T? {
         get {
@@ -21,6 +28,15 @@ public struct RemoteConfigProperty<T: Decodable> {
         set {
             fatalError("RemoteConfig property wrapper does not support setting property.")
         }
+    }
+
+    public var projectedValue: Binding<T?> {
+        .init {
+            self.wrappedValue
+        } set: { newValue in
+            fatalError()
+        }
+
     }
 
     public init(
