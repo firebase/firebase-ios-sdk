@@ -17,7 +17,6 @@
 #import "FirebaseStorageInternal/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageMetadata_Private.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageReference_Private.h"
-#import "FirebaseStorageInternal/Sources/FIRStorageUtils.h"
 #import "FirebaseStorageInternal/Sources/FIRStorage_Private.h"
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"

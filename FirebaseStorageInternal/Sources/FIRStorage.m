@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorage.h"
-#import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageReference.h"
 
 #import "FirebaseStorageInternal/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageReference_Private.h"
