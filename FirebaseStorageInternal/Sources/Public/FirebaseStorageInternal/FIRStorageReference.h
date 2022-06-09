@@ -20,7 +20,6 @@
 #import "FIRStorageConstants.h"
 #import "FIRStorageMetadata.h"
 #import "FIRStoragePath.h"
-#import "FIRStorageTask.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -92,16 +91,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @return A new FIRIMPLStorageReference pointing to a child location of the current reference.
  */
 - (FIRIMPLStorageReference *)child:(NSString *)path;
-
-/**
- * Asynchronously retrieves a long lived download URL with a revokable token.
- * This can be used to share the file with others, but can be revoked by a developer
- * in the Firebase Console.
- * @param completion A completion block that either returns the URL on success,
- * or an error on failure.
- */
-- (void)downloadURLWithCompletion:(void (^)(NSURL *_Nullable URL,
-                                            NSError *_Nullable error))completion;
 
 - (instancetype)init NS_UNAVAILABLE;
 

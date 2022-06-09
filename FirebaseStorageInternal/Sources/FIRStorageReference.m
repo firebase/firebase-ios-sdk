@@ -15,10 +15,8 @@
 #import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageReference.h"
 
 #import "FirebaseStorageInternal/Sources/FIRStorageConstants_Private.h"
-#import "FirebaseStorageInternal/Sources/FIRStorageGetDownloadURLTask.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageMetadata_Private.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageReference_Private.h"
-#import "FirebaseStorageInternal/Sources/FIRStorageTask_Private.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageUtils.h"
 #import "FirebaseStorageInternal/Sources/FIRStorage_Private.h"
 
@@ -130,15 +128,6 @@
   FIRIMPLStorageReference *childReference =
       [[FIRIMPLStorageReference alloc] initWithStorage:_storage path:childPath];
   return childReference;
-}
-
-- (void)downloadURLWithCompletion:(FIRStorageVoidURLError)completion {
-  FIRStorageGetDownloadURLTask *task =
-      [[FIRStorageGetDownloadURLTask alloc] initWithReference:self
-                                               fetcherService:_storage.fetcherServiceForApp
-                                                dispatchQueue:_storage.dispatchQueue
-                                                   completion:completion];
-  [task enqueue];
 }
 
 @end

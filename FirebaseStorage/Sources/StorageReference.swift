@@ -315,7 +315,14 @@ import FirebaseStorageInternal
    */
   @objc(downloadURLWithCompletion:)
   open func downloadURL(completion: @escaping ((_: URL?, _: Error?) -> Void)) {
-    impl.downloadURL(completion: completion)
+    guard let fetcherService = storage.fetcherServiceForApp else {
+      fatalError("TODO: Internal Error: fetcherService not configured")
+    }
+    let task = StorageGetDownloadURLTask(reference: impl,
+                                      fetcherService: fetcherService,
+                                      queue: storage.dispatchQueue,
+                                      completion: completion)
+    task.enqueue()
   }
 
 #if compiler(>=5.5) && canImport(_Concurrency)
@@ -328,7 +335,11 @@ import FirebaseStorageInternal
    */
   @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
   open func downloadURL() async throws -> URL {
-    return try await impl.downloadURL()
+    return try await withCheckedThrowingContinuation { continuation in
+      self.downloadURL { result in
+        return continuation.resume(with: result)
+      }
+    }
   }
 #endif // compiler(>=5.5) && canImport(_Concurrency)
 
