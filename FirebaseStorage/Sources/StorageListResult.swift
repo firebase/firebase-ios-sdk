@@ -70,7 +70,8 @@ import FirebaseStorageInternal
         }
       }
     }
-    self.init(withPrefixes: prefixes, items: items, pageToken:nil)
+    let pageToken = dictionary["nextPageToken"] as? String
+    self.init(withPrefixes: prefixes, items: items, pageToken: pageToken)
   }
   
   internal init(withPrefixes prefixes: [FIRIMPLStorageReference],

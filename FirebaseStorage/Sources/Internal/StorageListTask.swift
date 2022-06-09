@@ -27,7 +27,7 @@ import FirebaseStorageInternal
 internal class StorageListTask: StorageTask, StorageTaskManagement {
   private var fetcher: GTMSessionFetcher?
   private var fetcherCompletion: ((Data?, NSError?) -> Void)?
-  private var completion: ((_: StorageListResult?, _: Error?) -> Void)?
+  private var completion: ((_: StorageListResult?, _: NSError?) -> Void)?
   private let pageSize: Int64?
   private let previousPageToken: String?
 
@@ -50,7 +50,7 @@ internal class StorageListTask: StorageTask, StorageTaskManagement {
                 queue: DispatchQueue,
                 pageSize: Int64?,
                 previousPageToken: String?,
-                completion: ((_: StorageListResult?, _: Error?) -> Void)?) {
+                completion: ((_ listResult: StorageListResult?, _ error : NSError?) -> Void)?) {
     self.pageSize = pageSize
     self.previousPageToken = previousPageToken
     super.init(reference: reference, service: fetcherService, queue: queue)

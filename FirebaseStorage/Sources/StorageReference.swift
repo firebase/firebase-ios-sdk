@@ -402,7 +402,7 @@ import FirebaseStorageInternal
    *       the current `StorageReference`.
    */
   @objc(listAllWithCompletion:)
-  open func listAll(completion: @escaping ((_: StorageListResult?, _: Error?) -> Void)) {
+  open func listAll(completion: @escaping ((_: StorageListResult?, _: NSError?) -> Void)) {
     guard let fetcherService = storage.fetcherServiceForApp else {
       fatalError("TODO: Internal Error: fetcherService not configured")
     }
@@ -411,8 +411,8 @@ import FirebaseStorageInternal
 
     weak var weakSelf = self
 
-    var foo: ((_: StorageListResult?, _: Error?) -> Void)?
-    let paginatedCompletion = { (listResult: StorageListResult?, error: NSError?) in
+    var paginatedCompletion: ((_: StorageListResult?, _: NSError?) -> Void)?
+    paginatedCompletion = { (_ listResult: StorageListResult?,_ error: NSError?) in
       if let error = error {
         completion(nil, error)
       }
@@ -432,13 +432,13 @@ import FirebaseStorageInternal
                                        pageSize:nil,
                                        previousPageToken:pageToken,
                                        // TODO: fix next line
-                                       completion: nil)
+                                       completion: paginatedCompletion)
         nextPage.enqueue()
       } else {
         let result = StorageListResult(withPrefixes: prefixes, items: items, pageToken: nil)
 
         // Break the retain cycle we set up indirectly by passing the callback to `nextPage`.
-        //paginatedCompletion = nil
+        paginatedCompletion = nil
         completion(result, nil)
       }
     }
@@ -449,7 +449,7 @@ import FirebaseStorageInternal
                                pageSize:nil,
                                previousPageToken:nil,
                                // TODO: fix next line
-                               completion: completion)
+                               completion: paginatedCompletion)
     task.enqueue()
   }
 
@@ -499,7 +499,7 @@ import FirebaseStorageInternal
                  NSError(domain: StorageErrorDomain,
                          code: StorageErrorCode.invalidArgument.rawValue,
                          userInfo: [NSLocalizedDescriptionKey :
-                                      "Argument 'maxResults':\(maxResults) must be between 1 and 1000 inclusive."]))
+                                      "Argument 'maxResults' must be between 1 and 1000 inclusive."]))
     } else {
       guard let fetcherService = storage.fetcherServiceForApp else {
         fatalError("TODO: Internal Error: fetcherService not configured")
@@ -541,7 +541,7 @@ import FirebaseStorageInternal
                  NSError(domain: StorageErrorDomain,
                          code: StorageErrorCode.invalidArgument.rawValue,
                          userInfo: [NSLocalizedDescriptionKey :
-                                      "Argument 'maxResults':\(maxResults) must be between 1 and 1000 inclusive."]))
+                                      "Argument 'maxResults' must be between 1 and 1000 inclusive."]))
     } else {
       guard let fetcherService = storage.fetcherServiceForApp else {
         fatalError("TODO: Internal Error: fetcherService not configured")
