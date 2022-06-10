@@ -16,7 +16,6 @@ import Foundation
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import FirebaseCore
-import FirebaseCoreExtension
 import FirebaseMessagingInterop
 import FirebaseSharedSwift
 #if COCOAPODS
@@ -24,6 +23,9 @@ import FirebaseSharedSwift
 #else
   import GTMSessionFetcherCore
 #endif
+
+// Avoids exposing internal FirebaseCore APIs to Swift users.
+@_implementationOnly import FirebaseCoreExtension
 
 /// File specific constants.
 private enum Constants {
