@@ -16,7 +16,9 @@ import Foundation
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import FirebaseCore
-import FirebaseCoreExtension
+
+// Avoids exposing internal FirebaseCore APIs to Swift users.
+@_implementationOnly import FirebaseCoreExtension
 
 @objc(FIRStorageProvider)
 protocol StorageProvider {
