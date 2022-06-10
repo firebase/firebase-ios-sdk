@@ -589,25 +589,24 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       }
     } else {
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
-          if (@available(iOS 14.5, tvOS 14.5, macCatalyst 14.5, *)) {
-            NSArray *underlyingErrorArray = error.underlyingErrors;
-            for (NSError *underlyingError in underlyingErrorArray) {
-              if (underlyingError.code == FIRAuthInternalErrorCodeKeychainError) {
-                // If there's a keychain error, assume it is due to the keychain being accessed
-                // before the device is unlocked as a result of prewarming, and listen for the
-                // UIApplicationProtectedDataDidBecomeAvailable notification.
-                self->_protectedDataDidBecomeAvailableObserver =
-                    [[NSNotificationCenter defaultCenter]
-                        addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
-                                    object:nil
-                                     queue:nil
-                                usingBlock:^(NSNotification *notification) {
-                                  [self protectedDataInitialization];
-                                }];
-                break;
-              }
-            }
+      if (@available(iOS 14.5, tvOS 14.5, macCatalyst 14.5, *)) {
+        NSArray *underlyingErrorArray = error.underlyingErrors;
+        for (NSError *underlyingError in underlyingErrorArray) {
+          if (underlyingError.code == FIRAuthInternalErrorCodeKeychainError) {
+            // If there's a keychain error, assume it is due to the keychain being accessed
+            // before the device is unlocked as a result of prewarming, and listen for the
+            // UIApplicationProtectedDataDidBecomeAvailable notification.
+            self->_protectedDataDidBecomeAvailableObserver = [[NSNotificationCenter defaultCenter]
+                addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
+                            object:nil
+                             queue:nil
+                        usingBlock:^(NSNotification *notification) {
+                          [self protectedDataInitialization];
+                        }];
+            break;
           }
+        }
+      }
 #endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
       FIRLogError(kFIRLoggerAuth, @"I-AUT000001", @"Error loading saved user when starting up: %@",
                   error);
