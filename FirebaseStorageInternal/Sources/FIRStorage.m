@@ -16,7 +16,7 @@
 
 #import "FirebaseStorageInternal/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageReference_Private.h"
-#import "FirebaseStorageInternal/Sources/FIRStorageTokenAuthorizer.h"
+#import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageTokenAuthorizer.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageUtils.h"
 #import "FirebaseStorageInternal/Sources/FIRStorage_Private.h"
 #import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStoragePath.h"

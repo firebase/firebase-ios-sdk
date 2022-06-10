@@ -24,9 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, readwrite) FIRIMPLStorage *storage;
 
-- (instancetype)initWithStorage:(FIRIMPLStorage *)storage
-                           path:(FIRStoragePath *)path NS_DESIGNATED_INITIALIZER;
-
 - (NSString *)stringValue;
 
 @end

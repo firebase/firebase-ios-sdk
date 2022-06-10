@@ -92,7 +92,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (FIRIMPLStorageReference *)child:(NSString *)path;
 
-- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithStorage:(FIRIMPLStorage *)storage
+                           path:(FIRStoragePath *)path NS_DESIGNATED_INITIALIZER;
 
 @end
 
