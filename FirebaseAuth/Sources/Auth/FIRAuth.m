@@ -496,36 +496,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     [GULSceneDelegateSwizzler proxyOriginalSceneDelegate];
 #endif  // TARGET_OS_IOS
 
-#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
-    static Class applicationClass = nil;
-    // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication
-    // responds to it.
-    if (![GULAppEnvironmentUtil isAppExtension]) {
-      Class cls = NSClassFromString(@"UIApplication");
-      if (cls && [cls respondsToSelector:@selector(sharedApplication)]) {
-        applicationClass = cls;
-      }
-    }
-    UIApplication *application = [applicationClass sharedApplication];
-    if ([application respondsToSelector:@selector(isProtectedDataAvailable)]) {
-      if ([application isProtectedDataAvailable]) {
-        [self protectedDataInitialization];
-      } else {
-        // Add listener for UIApplicationProtectedDataDidBecomeAvailable.
-        self->_protectedDataDidBecomeAvailableObserver = [[NSNotificationCenter defaultCenter]
-            addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
-                        object:nil
-                         queue:nil
-                    usingBlock:^(NSNotification *notification) {
-                      [self protectedDataInitialization];
-                    }];
-      }
-    } else {
-      [self protectedDataInitialization];
-    }
-#else
     [self protectedDataInitialization];
-#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
   }
   return self;
 }
@@ -564,17 +535,80 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
           [strongSelf updateCurrentUser:user byForce:NO savingToDisk:NO error:&error];
           self->_lastNotifiedUserToken = user.rawAccessToken;
         } else {
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
+          if (@available(iOS 14.5, tvOS 14.5, macCatalyst 14.5, *)) {
+            NSArray *underlyingErrorArray = error.underlyingErrors;
+            for (NSError *underlyingError in underlyingErrorArray) {
+              if (underlyingError.code == FIRAuthInternalErrorCodeKeychainError) {
+                // If there's a keychain error, assume it is due to the keychain being accessed
+                // before the device is unlocked as a result of prewarming, and listen for the
+                // UIApplicationProtectedDataDidBecomeAvailable notification.
+                self->_protectedDataDidBecomeAvailableObserver =
+                    [[NSNotificationCenter defaultCenter]
+                        addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
+                                    object:nil
+                                     queue:nil
+                                usingBlock:^(NSNotification *notification) {
+                                  [self protectedDataInitialization];
+                                }];
+                break;
+              }
+            }
+          }
+#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
           FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
                       @"Error loading saved user when starting up: %@", error);
         }
       } else {
         [strongSelf internalUseUserAccessGroup:storedUserAccessGroup error:&error];
         if (error) {
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
+          if (@available(iOS 14.5, tvOS 14.5, macCatalyst 14.5, *)) {
+            NSArray *underlyingErrorArray = error.underlyingErrors;
+            for (NSError *underlyingError in underlyingErrorArray) {
+              if (underlyingError.code == FIRAuthInternalErrorCodeKeychainError) {
+                // If there's a keychain error, assume it is due to the keychain being accessed
+                // before the device is unlocked as a result of prewarming, and listen for the
+                // UIApplicationProtectedDataDidBecomeAvailable notification.
+                self->_protectedDataDidBecomeAvailableObserver =
+                    [[NSNotificationCenter defaultCenter]
+                        addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
+                                    object:nil
+                                     queue:nil
+                                usingBlock:^(NSNotification *notification) {
+                                  [self protectedDataInitialization];
+                                }];
+                break;
+              }
+            }
+          }
+#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
           FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
                       @"Error loading saved user when starting up: %@", error);
         }
       }
     } else {
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
+          if (@available(iOS 14.5, tvOS 14.5, macCatalyst 14.5, *)) {
+            NSArray *underlyingErrorArray = error.underlyingErrors;
+            for (NSError *underlyingError in underlyingErrorArray) {
+              if (underlyingError.code == FIRAuthInternalErrorCodeKeychainError) {
+                // If there's a keychain error, assume it is due to the keychain being accessed
+                // before the device is unlocked as a result of prewarming, and listen for the
+                // UIApplicationProtectedDataDidBecomeAvailable notification.
+                self->_protectedDataDidBecomeAvailableObserver =
+                    [[NSNotificationCenter defaultCenter]
+                        addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
+                                    object:nil
+                                     queue:nil
+                                usingBlock:^(NSNotification *notification) {
+                                  [self protectedDataInitialization];
+                                }];
+                break;
+              }
+            }
+          }
+#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
       FIRLogError(kFIRLoggerAuth, @"I-AUT000001", @"Error loading saved user when starting up: %@",
                   error);
     }
