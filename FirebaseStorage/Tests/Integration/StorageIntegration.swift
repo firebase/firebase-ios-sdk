@@ -63,11 +63,14 @@ class StorageResultTests: StorageIntegrationCommon {
       ref.delete { error in
         XCTAssertNil(error, "Error should be nil")
         // Next delete should fail and verify the first delete succeeded.
-        ref.delete() { error in
+        ref.delete { error in
           do {
             let nsError = try XCTUnwrap(error as? NSError)
             XCTAssertEqual(nsError.code, StorageErrorCode.objectNotFound.rawValue)
-            XCTAssertEqual(nsError.localizedDescription, "Object ios/public/fileToDelete does not exist.")
+            XCTAssertEqual(
+              nsError.localizedDescription,
+              "Object ios/public/fileToDelete does not exist."
+            )
             let userInfo = try XCTUnwrap(nsError.userInfo)
             let object = try XCTUnwrap(userInfo["object"] as? String)
             XCTAssertEqual(object, "ios/public/fileToDelete")

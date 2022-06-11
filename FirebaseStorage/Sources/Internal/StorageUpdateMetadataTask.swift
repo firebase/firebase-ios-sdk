@@ -35,7 +35,7 @@ internal class StorageUpdateMetadataTask: StorageTask, StorageTaskManagement {
                 queue: DispatchQueue,
                 metadata: FIRIMPLStorageMetadata,
                 completion: ((_: StorageMetadata?, _: Error?) -> Void)?) {
-    self.updateMetadata = metadata
+    updateMetadata = metadata
     super.init(reference: reference, service: fetcherService, queue: queue)
     self.completion = completion
   }
@@ -72,17 +72,15 @@ internal class StorageUpdateMetadataTask: StorageTask, StorageTaskManagement {
       strongSelf.fetcher = fetcher
 
       strongSelf.fetcherCompletion = { (data: Data?, error: NSError?) in
-        var metadata: StorageMetadata? = nil
+        var metadata: StorageMetadata?
         if let error = error {
           if self.error == nil {
-            self.error = StorageErrorCode.error(withServerError:error,ref: self.reference)
+            self.error = StorageErrorCode.error(withServerError: error, ref: self.reference)
           }
         } else {
-          guard let data = data else {
-            fatalError("Internal Error: fetcherCompletion returned with nil data and nil error")
-          }
-          if let responseDictionary = try? JSONSerialization
-            .jsonObject(with: data) as? [String: Any] {
+          if let data = data,
+             let responseDictionary = try? JSONSerialization
+             .jsonObject(with: data) as? [String: Any] {
             metadata = StorageMetadata(dictionary: responseDictionary)
             metadata?.impl.type = .file
           } else {
@@ -94,7 +92,7 @@ internal class StorageUpdateMetadataTask: StorageTask, StorageTaskManagement {
         }
         self.fetcherCompletion = nil
       }
-      
+
       fetcher.comment = "UpdateMetadataTask"
 
       strongSelf.fetcher?.beginFetch { data, error in

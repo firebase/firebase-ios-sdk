@@ -18,7 +18,6 @@ import FirebaseStorageInternal
 /// The error domain for codes in the `StorageErrorCode` enum.
 public let StorageErrorDomain: String = "FIRStorageErrorDomain"
 
-
 @objc(FIRStorageErrorCode) public enum StorageErrorCode: Int, Swift.Error {
   case unknown = -13000
   case objectNotFound = -13010
@@ -32,7 +31,7 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
   case downloadSizeExceeded = -13032
   case cancelled = -13040
   case invalidArgument = -13050
-  
+
   static func error(withServerError serverError: NSError, ref: FIRIMPLStorageReference) -> NSError {
     var errorCode: StorageErrorCode
     switch serverError.code {
@@ -48,7 +47,7 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
     errorDictionary["ResponseErrorDomain"] = serverError.domain
     errorDictionary["ResponseErrorCode"] = serverError.code
     errorDictionary["bucket"] = ref.path.bucket
-    
+
     if let object = ref.path.object {
       errorDictionary["object"] = object
     }
@@ -57,9 +56,14 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
     }
     return error(withCode: errorCode, infoDictionary: errorDictionary)
   }
-  
-  static func error(withInvalidRequest request: Data) -> NSError {
-    let requestString = String(data: request, encoding: .utf8) ?? "<unstringable data>"
+
+  static func error(withInvalidRequest request: Data?) -> NSError {
+    var requestString: String
+    if let request = request {
+      requestString = String(data: request, encoding: .utf8) ?? "<unstringable data>"
+    } else {
+      requestString = "<nil request returned from server>"
+    }
     let invalidDataString = "Invalid data returned from the server:\(requestString)"
     var localizedFailureKey: String
     if #available(OSX 10.13, iOS 11.0, watchOS 4.0, tvOS 11.0, *) {
@@ -69,8 +73,9 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
     }
     return error(withCode: .unknown, infoDictionary: [localizedFailureKey: invalidDataString])
   }
-  
-  static func error(withCode code: StorageErrorCode, infoDictionary: [String: Any]? = nil) -> NSError {
+
+  static func error(withCode code: StorageErrorCode,
+                    infoDictionary: [String: Any]? = nil) -> NSError {
     var dictionary = infoDictionary ?? [:]
     var errorMessage: String
     switch code {
@@ -85,7 +90,8 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
       errorMessage = "Project \(project) does not exist."
     case .quotaExceeded:
       let bucket = dictionary["bucket"] ?? "<bucket-entity-internal-error>"
-      errorMessage = "Quota for bucket \(bucket) exceeded, please view quota on firebase.google.com."
+      errorMessage =
+        "Quota for bucket \(bucket) exceeded, please view quota on firebase.google.com."
     case .downloadSizeExceeded:
       let total = "\(dictionary["totalSize"] ?? "unknown")"
       let size = "\(dictionary["maxAllowedSize"] ?? "unknown")"

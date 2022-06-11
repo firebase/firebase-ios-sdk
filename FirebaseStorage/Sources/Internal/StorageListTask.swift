@@ -44,13 +44,13 @@ internal class StorageListTask: StorageTask, StorageTaskManagement {
    * @param previousPageToken An optional pageToken, used to resume a previous invocation.
    * @param completion The completion handler to be called with the FIRIMPLStorageListResult.
    */
-  
+
   internal init(reference: FIRIMPLStorageReference,
                 fetcherService: GTMSessionFetcherService,
                 queue: DispatchQueue,
                 pageSize: Int64?,
                 previousPageToken: String?,
-                completion: ((_ listResult: StorageListResult?, _ error : NSError?) -> Void)?) {
+                completion: ((_ listResult: StorageListResult?, _ error: NSError?) -> Void)?) {
     self.pageSize = pageSize
     self.previousPageToken = previousPageToken
     super.init(reference: reference, service: fetcherService, queue: queue)
@@ -71,16 +71,16 @@ internal class StorageListTask: StorageTask, StorageTaskManagement {
         return
       }
       var queryParams = [String: String]()
-      
+
       let prefix = strongSelf.reference.fullPath
       if prefix.count > 0 {
         queryParams["prefix"] = "\(prefix)/"
       }
-      
+
       // Firebase Storage uses file system semantics and treats slashes as separators. GCS's List API
       // does not prescribe a separator, and hence we need to provide a slash as the delimiter.
       queryParams["delimiter"] = "/"
-      
+
       // listAll() doesn't set a pageSize as this allows Firebase Storage to determine how many items
       // to return per page. This removes the need to backfill results if Firebase Storage filters
       // objects that are considered invalid (such as items with two consecutive slashes).
@@ -91,10 +91,13 @@ internal class StorageListTask: StorageTask, StorageTaskManagement {
       if let previousPageToken = strongSelf.previousPageToken {
         queryParams["pageToken"] = previousPageToken
       }
-      
+
       let root = strongSelf.reference.root()
-      var request = StorageUtils.defaultRequestForReference(reference: root, queryParams: queryParams)
-      
+      var request = StorageUtils.defaultRequestForReference(
+        reference: root,
+        queryParams: queryParams
+      )
+
       request.httpMethod = "GET"
       request.timeoutInterval = strongSelf.reference.storage.maxOperationRetryTime
 
@@ -109,12 +112,11 @@ internal class StorageListTask: StorageTask, StorageTaskManagement {
         if let error = error, self.error == nil {
           self.error = StorageErrorCode.error(withServerError: error, ref: strongSelf.reference)
         }
-        guard let data = data else {
-          fatalError("Internal Error: fetcherCompletion returned with nil data and nil error")
-        }
 
         var listResult: StorageListResult?
-        if let responseDictionary = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+        if let data = data,
+           let responseDictionary = try? JSONSerialization
+           .jsonObject(with: data) as? [String: Any] {
           listResult = StorageListResult(with: responseDictionary, reference: self.reference)
         } else {
           self.error = StorageErrorCode.error(withInvalidRequest: data)

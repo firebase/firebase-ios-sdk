@@ -72,7 +72,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
    */
   @objc open func cancel() {
     let error = StorageErrorCode.error(withCode: .cancelled)
-    self.cancel(withError: error)
+    cancel(withError: error)
   }
 
   /**
@@ -190,7 +190,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
       }
     }
   }
-  
+
   internal func cancel(withError error: NSError) {
     weak var weakSelf = self
     DispatchQueue.global(qos: .background).async {

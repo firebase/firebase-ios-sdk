@@ -76,7 +76,7 @@ import FirebaseStorageInternal
       request.url = components?.url
 
       guard let contentType = strongSelf.uploadMetadata.contentType else {
-        fatalError("To Do")
+        fatalError("ToDo")
       }
       let uploadFetcher = GTMSessionUploadFetcher(
         request: request,
@@ -123,12 +123,13 @@ import FirebaseStorageInternal
         }
         // Upload completed successfully, fire completion callbacks
         self.state = .success
-        
+
         guard let data = data else {
           fatalError("Internal Error: fetcherCompletion returned with nil data and nil error")
         }
 
-        if let responseDictionary = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+        if let responseDictionary = try? JSONSerialization
+          .jsonObject(with: data) as? [String: Any] {
           let metadata = FIRIMPLStorageMetadata(dictionary: responseDictionary)
           metadata?.type = .file
           self.metadata = metadata

@@ -43,15 +43,17 @@ import FirebaseStorageInternal
   // MARK: - NSObject overrides
 
   @objc override open func copy() -> Any {
-    return self.copy()
+    return StorageListResult(withPrefixes: prefixes.map { $0.impl },
+                             items: items.map { $0.impl },
+                             pageToken: pageToken)
   }
 
   // MARK: - Internal APIs
-  
+
   internal convenience init(with dictionary: [String: Any], reference: FIRIMPLStorageReference) {
     var prefixes = [FIRIMPLStorageReference]()
     var items = [FIRIMPLStorageReference]()
-    
+
     let rootReference = reference.root()
     if let prefixEntries = dictionary["prefixes"] as? [String] {
       for prefixEntry in prefixEntries {
@@ -62,7 +64,7 @@ import FirebaseStorageInternal
         prefixes.append(rootReference.child(pathWithoutTrailingSlash))
       }
     }
-    
+
     if let itemEntries = dictionary["items"] as? [[String: String]] {
       for itemEntry in itemEntries {
         if let item = itemEntry["name"] {
@@ -73,7 +75,7 @@ import FirebaseStorageInternal
     let pageToken = dictionary["nextPageToken"] as? String
     self.init(withPrefixes: prefixes, items: items, pageToken: pageToken)
   }
-  
+
   internal init(withPrefixes prefixes: [FIRIMPLStorageReference],
                 items: [FIRIMPLStorageReference],
                 pageToken: String?) {

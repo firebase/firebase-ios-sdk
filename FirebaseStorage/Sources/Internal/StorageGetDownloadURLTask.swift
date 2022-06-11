@@ -62,23 +62,21 @@ internal class StorageGetDownloadURLTask: StorageTask, StorageTaskManagement {
       strongSelf.fetcher = fetcher
 
       strongSelf.fetcherCompletion = { (data: Data?, error: NSError?) in
-        var downloadURL: URL? = nil
+        var downloadURL: URL?
         if let error = error {
           if self.error == nil {
             self.error = StorageErrorCode.error(withServerError: error, ref: self.reference)
           }
         } else {
-          guard let data = data else {
-            fatalError("Internal Error: fetcherCompletion returned with nil data and nil error")
-          }
-          if let responseDictionary = try? JSONSerialization
-            .jsonObject(with: data) as? [String: String] {
+          if let data = data,
+             let responseDictionary = try? JSONSerialization
+             .jsonObject(with: data) as? [String: String] {
             downloadURL = strongSelf.downloadURLFromMetadataDictionary(responseDictionary)
             if downloadURL == nil {
               self.error = NSError(domain: StorageErrorDomain,
                                    code: StorageErrorCode.unknown.rawValue,
-                                   userInfo: [NSLocalizedDescriptionKey :
-                                                "Failed to retrieve a download URL."])
+                                   userInfo: [NSLocalizedDescriptionKey:
+                                     "Failed to retrieve a download URL."])
             }
           } else {
             self.error = StorageErrorCode.error(withInvalidRequest: data)
@@ -98,7 +96,7 @@ internal class StorageGetDownloadURLTask: StorageTask, StorageTaskManagement {
       }
     }
   }
-  
+
   internal func downloadURLFromMetadataDictionary(_ dictionary: [String: String]) -> URL? {
     let downloadTokens = dictionary["downloadTokens"]
     guard let downloadTokens = downloadTokens,
@@ -110,9 +108,9 @@ internal class StorageGetDownloadURLTask: StorageTask, StorageTaskManagement {
     let path = dictionary["name"] ?? "<error: missing path name>"
     let fullPath = "/v0/b/\(bucket)/o/\(StorageUtils.GCSEscapedString(path))"
     var components = URLComponents()
-    components.scheme = self.reference.storage.scheme
-    components.host = self.reference.storage.host
-    components.port = self.reference.storage.port
+    components.scheme = reference.storage.scheme
+    components.host = reference.storage.host
+    components.port = reference.storage.port
     components.percentEncodedPath = fullPath
 
     // The backend can return an arbitrary number of download tokens, but we only expose the first

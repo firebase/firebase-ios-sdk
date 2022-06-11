@@ -206,7 +206,7 @@ import FirebaseAuthInterop
 
   // MARK: - Internal APIs
 
-  private let impl: FIRIMPLStorage
+  internal let impl: FIRIMPLStorage
 
   internal var fetcherServiceForApp: GTMSessionFetcherService? {
     get {
