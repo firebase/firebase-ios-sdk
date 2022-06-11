@@ -13,9 +13,6 @@
 // limitations under the License.
 
 #ifdef TODO_PORTME
-#import "FirebaseStorageInternal/Sources/FIRStorageMetadata_Private.h"
-#import "FirebaseStorageInternal/Sources/FIRStorageUpdateMetadataTask.h"
-#import "FirebaseStorageInternal/Tests/Unit/FIRStorageTestHelpers.h"
 
 @interface FIRStorageUpdateMetadataTests : XCTestCase
 
