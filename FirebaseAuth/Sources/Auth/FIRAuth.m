@@ -502,11 +502,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 
 - (void)protectedDataInitialization {
-#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
-  [[NSNotificationCenter defaultCenter] removeObserver:_protectedDataDidBecomeAvailableObserver
-                                                  name:UIApplicationProtectedDataDidBecomeAvailable
-                                                object:nil];
-#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
   // Continue with the rest of initialization in the work thread.
   __weak FIRAuth *weakSelf = self;
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
@@ -617,6 +612,10 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                    queue:nil
               usingBlock:^(NSNotification *notification) {
                 FIRAuth *strongSelf = weakSelf;
+                [[NSNotificationCenter defaultCenter]
+                    removeObserver:strongSelf->_protectedDataDidBecomeAvailableObserver
+                              name:UIApplicationProtectedDataDidBecomeAvailable
+                            object:nil];
                 [strongSelf protectedDataInitialization];
               }];
 }
