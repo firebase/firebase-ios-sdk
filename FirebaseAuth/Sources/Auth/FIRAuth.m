@@ -540,16 +540,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
             // If there's a keychain error, assume it is due to the keychain being accessed
             // before the device is unlocked as a result of prewarming, and listen for the
             // UIApplicationProtectedDataDidBecomeAvailable notification.
-            __weak FIRAuth *innerWeakSelf = strongSelf;
-            strongSelf->_protectedDataDidBecomeAvailableObserver =
-                [[NSNotificationCenter defaultCenter]
-                    addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
-                                object:nil
-                                 queue:nil
-                            usingBlock:^(NSNotification *notification) {
-                              FIRAuth *innerStrongSelf = innerWeakSelf;
-                              [innerStrongSelf protectedDataInitialization];
-                            }];
+            [strongSelf addProtectedDataDidBecomeAvailableObserver];
           }
 #endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
           FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
@@ -563,16 +554,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
             // If there's a keychain error, assume it is due to the keychain being accessed
             // before the device is unlocked as a result of prewarming, and listen for the
             // UIApplicationProtectedDataDidBecomeAvailable notification.
-            __weak FIRAuth *innerWeakSelf = strongSelf;
-            strongSelf->_protectedDataDidBecomeAvailableObserver =
-                [[NSNotificationCenter defaultCenter]
-                    addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
-                                object:nil
-                                 queue:nil
-                            usingBlock:^(NSNotification *notification) {
-                              FIRAuth *innerStrongSelf = innerWeakSelf;
-                              [innerStrongSelf protectedDataInitialization];
-                            }];
+            [strongSelf addProtectedDataDidBecomeAvailableObserver];
           }
 #endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
           FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
@@ -585,15 +567,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         // If there's a keychain error, assume it is due to the keychain being accessed
         // before the device is unlocked as a result of prewarming, and listen for the
         // UIApplicationProtectedDataDidBecomeAvailable notification.
-        __weak FIRAuth *innerWeakSelf = strongSelf;
-        strongSelf->_protectedDataDidBecomeAvailableObserver = [[NSNotificationCenter defaultCenter]
-            addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
-                        object:nil
-                         queue:nil
-                    usingBlock:^(NSNotification *notification) {
-                      FIRAuth *innerStrongSelf = innerWeakSelf;
-                      [innerStrongSelf protectedDataInitialization];
-                    }];
+        [strongSelf addProtectedDataDidBecomeAvailableObserver];
       }
 #endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
       FIRLogError(kFIRLoggerAuth, @"I-AUT000001", @"Error loading saved user when starting up: %@",
@@ -633,6 +607,20 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 #endif  // TARGET_OS_IOS
   });
 }
+
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
+- (void)addProtectedDataDidBecomeAvailableObserver {
+  __weak FIRAuth *weakSelf = self;
+  self->_protectedDataDidBecomeAvailableObserver = [[NSNotificationCenter defaultCenter]
+      addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
+                  object:nil
+                   queue:nil
+              usingBlock:^(NSNotification *notification) {
+                FIRAuth *strongSelf = weakSelf;
+                [strongSelf protectedDataInitialization];
+              }];
+}
+#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
 
 - (void)dealloc {
   @synchronized(self) {
