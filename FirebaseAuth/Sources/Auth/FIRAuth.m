@@ -540,13 +540,15 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
             // If there's a keychain error, assume it is due to the keychain being accessed
             // before the device is unlocked as a result of prewarming, and listen for the
             // UIApplicationProtectedDataDidBecomeAvailable notification.
+            __weak FIRAuth *innerWeakSelf = strongSelf;
             strongSelf->_protectedDataDidBecomeAvailableObserver =
                 [[NSNotificationCenter defaultCenter]
                     addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
                                 object:nil
                                  queue:nil
                             usingBlock:^(NSNotification *notification) {
-                              [strongSelf protectedDataInitialization];
+                              FIRAuth *innerStrongSelf = innerWeakSelf;
+                              [innerStrongSelf protectedDataInitialization];
                             }];
           }
 #endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
@@ -561,13 +563,15 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
             // If there's a keychain error, assume it is due to the keychain being accessed
             // before the device is unlocked as a result of prewarming, and listen for the
             // UIApplicationProtectedDataDidBecomeAvailable notification.
+            __weak FIRAuth *innerWeakSelf = strongSelf;
             strongSelf->_protectedDataDidBecomeAvailableObserver =
                 [[NSNotificationCenter defaultCenter]
                     addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
                                 object:nil
                                  queue:nil
                             usingBlock:^(NSNotification *notification) {
-                              [strongSelf protectedDataInitialization];
+                              FIRAuth *innerStrongSelf = innerWeakSelf;
+                              [innerStrongSelf protectedDataInitialization];
                             }];
           }
 #endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
@@ -581,12 +585,14 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         // If there's a keychain error, assume it is due to the keychain being accessed
         // before the device is unlocked as a result of prewarming, and listen for the
         // UIApplicationProtectedDataDidBecomeAvailable notification.
+        __weak FIRAuth *innerWeakSelf = strongSelf;
         strongSelf->_protectedDataDidBecomeAvailableObserver = [[NSNotificationCenter defaultCenter]
             addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
                         object:nil
                          queue:nil
                     usingBlock:^(NSNotification *notification) {
-                      [strongSelf protectedDataInitialization];
+                      FIRAuth *innerStrongSelf = innerWeakSelf;
+                      [innerStrongSelf protectedDataInitialization];
                     }];
       }
 #endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
