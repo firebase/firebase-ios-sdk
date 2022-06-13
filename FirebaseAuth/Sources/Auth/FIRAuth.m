@@ -540,13 +540,14 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
             // If there's a keychain error, assume it is due to the keychain being accessed
             // before the device is unlocked as a result of prewarming, and listen for the
             // UIApplicationProtectedDataDidBecomeAvailable notification.
-            self->_protectedDataDidBecomeAvailableObserver = [[NSNotificationCenter defaultCenter]
-                addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
-                            object:nil
-                             queue:nil
-                        usingBlock:^(NSNotification *notification) {
-                          [self protectedDataInitialization];
-                        }];
+            strongSelf->_protectedDataDidBecomeAvailableObserver =
+                [[NSNotificationCenter defaultCenter]
+                    addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
+                                object:nil
+                                 queue:nil
+                            usingBlock:^(NSNotification *notification) {
+                              [strongSelf protectedDataInitialization];
+                            }];
           }
 #endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
           FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
@@ -560,13 +561,14 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
             // If there's a keychain error, assume it is due to the keychain being accessed
             // before the device is unlocked as a result of prewarming, and listen for the
             // UIApplicationProtectedDataDidBecomeAvailable notification.
-            self->_protectedDataDidBecomeAvailableObserver = [[NSNotificationCenter defaultCenter]
-                addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
-                            object:nil
-                             queue:nil
-                        usingBlock:^(NSNotification *notification) {
-                          [self protectedDataInitialization];
-                        }];
+            strongSelf->_protectedDataDidBecomeAvailableObserver =
+                [[NSNotificationCenter defaultCenter]
+                    addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
+                                object:nil
+                                 queue:nil
+                            usingBlock:^(NSNotification *notification) {
+                              [strongSelf protectedDataInitialization];
+                            }];
           }
 #endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
           FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
@@ -579,12 +581,12 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         // If there's a keychain error, assume it is due to the keychain being accessed
         // before the device is unlocked as a result of prewarming, and listen for the
         // UIApplicationProtectedDataDidBecomeAvailable notification.
-        self->_protectedDataDidBecomeAvailableObserver = [[NSNotificationCenter defaultCenter]
+        strongSelf->_protectedDataDidBecomeAvailableObserver = [[NSNotificationCenter defaultCenter]
             addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
                         object:nil
                          queue:nil
                     usingBlock:^(NSNotification *notification) {
-                      [self protectedDataInitialization];
+                      [strongSelf protectedDataInitialization];
                     }];
       }
 #endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
