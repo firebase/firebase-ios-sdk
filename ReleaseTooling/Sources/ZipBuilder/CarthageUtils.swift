@@ -311,7 +311,7 @@ extension CarthageUtils {
   /// - Returns: JSON file name for a product.
   private static func getJSONFileName(product: String) -> String {
     var jsonFileName: String
-    if product == "GoogleSignIn" {
+    if product == "GoogleSignInSwiftSupport" {
       jsonFileName = "FirebaseGoogleSignIn"
     } else if product == "Google-Mobile-Ads-SDK" {
       jsonFileName = "FirebaseAdMob"
