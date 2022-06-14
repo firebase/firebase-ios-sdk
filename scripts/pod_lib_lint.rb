@@ -66,6 +66,17 @@ def main(args)
   end
 
   podspec_file = pod_args[0]
+
+  # Assert that the given podspec to lint does not have binary sources.
+  podspec = Pod::Spec.from_file(podspec_file)
+  if spec_has_binary_source(podspec) then
+    STDERR.puts("""
+    Error: `pod lib lint` does not work for specs with binary sources.
+    The given podspec, #{podspec_file}, has a binary source.
+    """)
+    exit(1)
+  end
+
   # Figure out which dependencies are local
   deps = find_local_deps(podspec_file, ignore_local_podspecs.to_set)
   arg = make_include_podspecs(deps)
@@ -95,7 +106,14 @@ def main(args)
   exit(pod_lint_status)
 end
 
-# Loads all the specs (inclusing subspecs) from the given podspec file.
+# Returns whether or not the given `Pod::Spec` has binary sources.
+def spec_has_binary_source(spec)
+  # Specs with binary sources specify a URL for the `:http` key
+  # in their `source`.
+  return spec.source.has_key?(:http)
+end
+
+# Loads all the specs (including subspecs) from the given podspec file.
 def load_specs(podspec_file)
   trace('loading', podspec_file)
   results = []
@@ -129,7 +147,7 @@ end
 def find_local_deps(podspec_file, seen = Set[])
   # Mark the current podspec seen to prevent a pod from depending upon itself
   # (as might happen if a subspec of the pod depends upon another subpsec of
-  # the pod.
+  # the pod).
   seen.add(File.basename(podspec_file))
 
   results = []
@@ -141,11 +159,14 @@ def find_local_deps(podspec_file, seen = Set[])
   deps.each do |dep_name|
     dep_file = File.join(spec_dir, "#{dep_name}.podspec")
     if File.exist?(dep_file) then
-      dep_podspec = File.basename(dep_file)
-      if seen.add?(dep_podspec)
-        # Depend on the podspec we found and any podspecs it depends upon.
-        results.push(dep_podspec)
-        results.push(*find_local_deps(dep_file, seen))
+      local_dep_spec = Pod::Spec.from_file(dep_file)
+      if !spec_has_binary_source(local_dep_spec) then
+        dep_podspec = File.basename(dep_file)
+        if seen.add?(dep_podspec)
+          # Depend on the podspec we found and any podspecs it depends upon.
+          results.push(dep_podspec)
+          results.push(*find_local_deps(dep_file, seen))
+        end
       end
     end
   end
