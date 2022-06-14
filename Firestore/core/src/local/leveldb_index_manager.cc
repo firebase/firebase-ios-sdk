@@ -481,10 +481,11 @@ const model::IndexOffset LevelDbIndexManager::GetMinOffset(
       !indexes.empty(),
       "Found empty index group when looking for least recent index offset.");
 
-  model::IndexOffset min_offset = indexes[0].index_state().index_offset();
+  auto it = indexes.cbegin();
+  model::IndexOffset min_offset = (it++)->index_state().index_offset();
   int max_batch_id = min_offset.largest_batch_id();
-  for (size_t i = 1; i < indexes.size(); i++) {
-    model::IndexOffset new_offset = indexes[i].index_state().index_offset();
+  for (; it != indexes.cend(); it++) {
+    model::IndexOffset new_offset = it->index_state().index_offset();
     if (new_offset.CompareTo(min_offset) == util::ComparisonResult::Ascending) {
       min_offset = new_offset;
     }

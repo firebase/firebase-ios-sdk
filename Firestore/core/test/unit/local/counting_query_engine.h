@@ -55,7 +55,7 @@ class CountingQueryEngine : public QueryEngine {
 
   void ResetCounts();
 
-  void SetDependencies(LocalDocumentsView* local_document) override;
+  void Initialize(LocalDocumentsView* local_document) override;
 
   /**
    * Returns the number of documents returned by the RemoteDocumentCache's

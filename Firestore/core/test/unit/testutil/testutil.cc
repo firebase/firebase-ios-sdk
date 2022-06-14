@@ -230,7 +230,8 @@ model::MutableDocument Doc(absl::string_view key,
                            int64_t version,
                            Message<google_firestore_v1_Value> data) {
   return MutableDocument::FoundDocument(Key(key), Version(version),
-                                        ObjectValue{std::move(data)});
+                                        ObjectValue{std::move(data)})
+      .WithReadTime(Version(version));
 }
 
 model::MutableDocument Doc(absl::string_view key, int64_t version) {

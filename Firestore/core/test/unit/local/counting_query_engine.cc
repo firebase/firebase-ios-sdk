@@ -39,7 +39,7 @@ using model::SnapshotVersion;
 CountingQueryEngine::CountingQueryEngine() = default;
 CountingQueryEngine::~CountingQueryEngine() = default;
 
-void CountingQueryEngine::SetDependencies(LocalDocumentsView* local_documents) {
+void CountingQueryEngine::Initialize(LocalDocumentsView* local_documents) {
   remote_documents_ = absl::make_unique<WrappedRemoteDocumentCache>(
       local_documents->remote_document_cache(), this);
   mutation_queue_ = absl::make_unique<WrappedMutationQueue>(
@@ -49,7 +49,7 @@ void CountingQueryEngine::SetDependencies(LocalDocumentsView* local_documents) {
   local_documents_ = absl::make_unique<LocalDocumentsView>(
       remote_documents_.get(), mutation_queue_.get(),
       document_overlay_cache_.get(), local_documents->index_manager());
-  QueryEngine::SetDependencies(local_documents_.get());
+  QueryEngine::Initialize(local_documents_.get());
 }
 
 void CountingQueryEngine::ResetCounts() {

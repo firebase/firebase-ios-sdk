@@ -41,7 +41,7 @@ using model::DocumentSet;
 using model::MutableDocument;
 using model::SnapshotVersion;
 
-void QueryEngine::SetDependencies(LocalDocumentsView* local_documents) {
+void QueryEngine::Initialize(LocalDocumentsView* local_documents) {
   local_documents_view_ = local_documents;
   index_manager_ = local_documents->index_manager();
 }
@@ -51,7 +51,7 @@ const DocumentMap QueryEngine::GetDocumentsMatchingQuery(
     const SnapshotVersion& last_limbo_free_snapshot_version,
     const DocumentKeySet& remote_keys) const {
   HARD_ASSERT(local_documents_view_ && index_manager_,
-              "SetDependencies() not called");
+              "Initialize() not called");
 
   const absl::optional<DocumentMap> index_result =
       PerformQueryUsingIndex(query);
@@ -85,7 +85,7 @@ const absl::optional<DocumentMap> QueryEngine::PerformQueryUsingIndex(
     return absl::nullopt;
   }
 
-  if (index_type == IndexManager::IndexType::PARTIAL) {
+  if (query.has_limit() && index_type == IndexManager::IndexType::PARTIAL) {
     // We cannot apply a limit for targets that are served using a partial
     // index. If a partial index will be used to serve the target, the query may
     // return a superset of documents that match the target (e.g. if the index
@@ -93,18 +93,12 @@ const absl::optional<DocumentMap> QueryEngine::PerformQueryUsingIndex(
     // of documents in the wrong order (e.g. if the index doesn't include a
     // segment for one of the orderBys). Therefore a limit should not be applied
     // in such cases.
-    return PerformQueryUsingIndexWithKnownType(
-        query.WithLimitToFirst(core::Target::kNoLimit));
+    const Query query_with_limit =
+        query.WithLimitToFirst(core::Target::kNoLimit);
+    return PerformQueryUsingIndex(query_with_limit);
   }
 
-  return PerformQueryUsingIndexWithKnownType(query);
-}
-
-const absl::optional<DocumentMap>
-QueryEngine::PerformQueryUsingIndexWithKnownType(const Query& query) const {
-  const core::Target& target = query.ToTarget();
-  absl::optional<std::vector<model::DocumentKey>> keys =
-      index_manager_->GetDocumentsMatchingTarget(target);
+  auto keys = index_manager_->GetDocumentsMatchingTarget(target);
   HARD_ASSERT(
       keys.has_value(),
       "index manager must return results for partial and full indexes.");
@@ -119,10 +113,14 @@ QueryEngine::PerformQueryUsingIndexWithKnownType(const Query& query) const {
   model::IndexOffset offset = index_manager_->GetMinOffset(target);
 
   DocumentSet previous_results = ApplyQuery(query, indexedDocuments);
-  if ((query.has_limit_to_first() || query.has_limit_to_last()) &&
-      NeedsRefill(query.limit_type(), previous_results, remote_keys,
-                  offset.read_time())) {
-    return absl::nullopt;
+  if (NeedsRefill(query, previous_results, remote_keys, offset.read_time())) {
+    // A limit query whose boundaries change due to local edits can be re-run
+    // against the cache by excluding the limit. This ensures that all documents
+    // that match the query's filters are included in the result set. The SDK
+    // can then apply the limit once all local edits are incorporated.
+    const Query query_with_limit =
+        query.WithLimitToFirst(core::Target::kNoLimit);
+    return PerformQueryUsingIndex(query_with_limit);
   }
 
   // Retrieve all results for documents that were updated since the last
@@ -151,7 +149,7 @@ const absl::optional<DocumentMap> QueryEngine::PerformQueryUsingRemoteKeys(
   DocumentSet previous_results = ApplyQuery(query, documents);
 
   if ((query.has_limit_to_first() || query.has_limit_to_last()) &&
-      NeedsRefill(query.limit_type(), previous_results, remote_keys,
+      NeedsRefill(query, previous_results, remote_keys,
                   last_limbo_free_snapshot_version)) {
     return absl::nullopt;
   }
@@ -163,7 +161,7 @@ const absl::optional<DocumentMap> QueryEngine::PerformQueryUsingRemoteKeys(
   // remote snapshot that did not contain any Limbo documents.
   return AppendRemainingResults(
       previous_results, query,
-      model::IndexOffset::Create(last_limbo_free_snapshot_version));
+      model::IndexOffset::CreateSuccessor(last_limbo_free_snapshot_version));
 }
 
 DocumentSet QueryEngine::ApplyQuery(const Query& query,
@@ -184,10 +182,15 @@ DocumentSet QueryEngine::ApplyQuery(const Query& query,
 }
 
 bool QueryEngine::NeedsRefill(
-    LimitType limit_type,
+    const Query& query,
     const DocumentSet& sorted_previous_results,
     const DocumentKeySet& remote_keys,
     const SnapshotVersion& limbo_free_snapshot_version) const {
+  if (!query.has_limit()) {
+    // Queries without limits do not need to be refilled.
+    return false;
+  }
+
   // The query needs to be refilled if a previously matching document no longer
   // matches.
   if (remote_keys.size() != sorted_previous_results.size()) {
@@ -203,7 +206,7 @@ bool QueryEngine::NeedsRefill(
   // from cache will continue to be "rejected" by this boundary. Therefore, we
   // can ignore any modifications that don't affect the last document.
   absl::optional<Document> document_at_limit_edge =
-      (limit_type == LimitType::First)
+      (query.limit_type() == LimitType::First)
           ? sorted_previous_results.GetLastDocument()
           : sorted_previous_results.GetFirstDocument();
   if (!document_at_limit_edge) {
