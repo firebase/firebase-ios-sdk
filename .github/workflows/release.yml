@@ -68,9 +68,7 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: firebase-ios-sdk
-        path: |
-          ${{ env.local_sdk_repo_dir }}/*.podspec
-          ${{ env.local_sdk_repo_dir }}/*.podspec.json
+        path: ${{ env.local_sdk_repo_dir }}/*.podspec
   buildup_SpecsTesting_repo_FirebaseCore:
     needs: specs_checking
     # Don't run on private repo unless it is a PR.
