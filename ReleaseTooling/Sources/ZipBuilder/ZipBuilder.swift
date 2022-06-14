@@ -447,7 +447,8 @@ struct ZipBuilder {
           podsToInstall.map { $0.name }.contains($0.key))
     }.sorted { $0.key < $1.key }
     for pod in remainingPods {
-      let folder = pod.key.replacingOccurrences(of: "Swift", with: "")
+      let folder = pod.key == "GoogleSignInSwiftSupport" ? "GoogleSignIn" :
+        pod.key.replacingOccurrences(of: "Swift", with: "")
       do {
         if frameworksToAssemble[pod.key] == nil {
           // Continue if the pod wasn't built.
