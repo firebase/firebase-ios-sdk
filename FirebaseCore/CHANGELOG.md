@@ -1,3 +1,6 @@
+# Firebase 9.2.0
+- [added] Zip and Carthage distributions now include GoogleSignInSwiftSupport. (#9900)
+
 # Firebase 9.0.0
 - [changed] Firebase now requires at least Xcode 13.3.1.
 - [deprecated] Usage of the Firebase pod, the Firebase module (`import Firebase`), and `Firebase.h`
