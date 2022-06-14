@@ -4,9 +4,8 @@ Pod::Spec.new do |s|
     s.summary          = 'Firebase Analytics for iOS'
 
     s.description      = <<-DESC
-    Firebase Analytics is a free, out-of-the-box
-    analytics solution that inspires actionable
-    insights based on app usage and user engagement.
+    Firebase Analytics is a free, out-of-the-box analytics solution that
+    inspires actionable insights based on app usage and user engagement.
     DESC
 
     s.homepage         = 'https://firebase.google.com/features/analytics/'
