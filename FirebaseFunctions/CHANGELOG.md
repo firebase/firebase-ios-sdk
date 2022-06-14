@@ -1,3 +1,7 @@
+# 9.2.0
+- [fixed] Fixed regressions in error code processing introduced in 9.0.0. (#9855)
+- [fixed] Importing FirebaseFunctions no longer exposes internal FirebaseCore APIs. (#9884)
+
 # 9.0.0
 - [changed] The FirebaseFunctionsSwift library has been removed. All of its APIs are now included
   in the FirebaseFunctions library. Please remove references to FirebaseFunctionsSwift from Podfiles

@@ -31,6 +31,8 @@ namespace local {
 using core::Query;
 using model::DocumentKeySet;
 using model::DocumentMap;
+using model::MutationByDocumentKeyMap;
+using model::OverlayByDocumentKeyMap;
 using model::SnapshotVersion;
 
 // MARK: - CountingQueryEngine
@@ -172,9 +174,9 @@ model::MutableDocumentMap WrappedRemoteDocumentCache::GetAll(
   return result;
 }
 
-model::MutableDocumentMap WrappedRemoteDocumentCache::GetMatching(
-    const core::Query& query, const model::SnapshotVersion& since_read_time) {
-  auto result = subject_->GetMatching(query, since_read_time);
+model::MutableDocumentMap WrappedRemoteDocumentCache::GetAll(
+    const model::ResourcePath& path, const model::IndexOffset& offset) {
+  auto result = subject_->GetAll(path, offset);
   query_engine_->documents_read_by_query_ += result.size();
   return result;
 }
@@ -196,18 +198,17 @@ void WrappedDocumentOverlayCache::RemoveOverlaysForBatchId(int batch_id) {
   subject_->RemoveOverlaysForBatchId(batch_id);
 }
 
-DocumentOverlayCache::OverlayByDocumentKeyMap
-WrappedDocumentOverlayCache::GetOverlays(const model::ResourcePath& collection,
-                                         int since_batch_id) const {
+OverlayByDocumentKeyMap WrappedDocumentOverlayCache::GetOverlays(
+    const model::ResourcePath& collection, int since_batch_id) const {
   auto result = subject_->GetOverlays(collection, since_batch_id);
   query_engine_->overlays_read_by_collection_ += result.size();
   return result;
 }
 
-DocumentOverlayCache::OverlayByDocumentKeyMap
-WrappedDocumentOverlayCache::GetOverlays(absl::string_view collection_group,
-                                         int since_batch_id,
-                                         std::size_t count) const {
+OverlayByDocumentKeyMap WrappedDocumentOverlayCache::GetOverlays(
+    absl::string_view collection_group,
+    int since_batch_id,
+    std::size_t count) const {
   auto result = subject_->GetOverlays(collection_group, since_batch_id, count);
   query_engine_->overlays_read_by_collection_group_ += result.size();
   return result;

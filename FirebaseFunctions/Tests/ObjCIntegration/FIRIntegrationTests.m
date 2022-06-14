@@ -255,6 +255,21 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
                 completion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
                   XCTAssertNotNil(error);
                   XCTAssertEqual(FIRFunctionsErrorCodeInvalidArgument, error.code);
+                  XCTAssertEqualObjects(error.localizedDescription, @"INVALID ARGUMENT");
+                  [expectation fulfill];
+                }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
+}
+
+// Regression test for https://github.com/firebase/firebase-ios-sdk/issues/9855
+- (void)testThrowTest {
+  XCTestExpectation *expectation = [[XCTestExpectation alloc] init];
+  FIRHTTPSCallable *function = [_functions HTTPSCallableWithName:@"throwTest"];
+  [function callWithObject:@{}
+                completion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
+                  XCTAssertNotNil(error);
+                  XCTAssertEqual(FIRFunctionsErrorCodeInvalidArgument, error.code);
+                  XCTAssertEqualObjects(error.localizedDescription, @"Invalid test requested.");
                   [expectation fulfill];
                 }];
   [self waitForExpectations:@[ expectation ] timeout:10];

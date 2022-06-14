@@ -26,13 +26,20 @@ extension Constants {
   static let podSources = [
     "https://${BOT_TOKEN}@github.com/Firebase/SpecsTesting",
     "https://github.com/firebase/SpecsStaging.git",
-    "https://cdn.cocoapods.org/",
+    // https://cdn.cocoapods.org is not used here since `--update-sources`
+    // will update spec repos before a spec is pushed, but cdn is not a spec
+    // repo.
+    "https://github.com/CocoaPods/Specs.git",
   ]
 }
 
 // flags for 'pod push'
 extension Constants {
-  static let flags = ["--skip-tests", "--allow-warnings", "--skip-import-validation"]
+  static let flags = [
+    "--skip-tests",
+    "--skip-import-validation",
+    "--update-sources",
+  ]
   static let umbrellaPodFlags = Constants.flags + ["--use-json"]
 }
 
@@ -86,13 +93,14 @@ struct Shell {
   static let shared = Shell()
   @discardableResult
   func run(_ command: String, displayCommand: Bool = true,
-           displayFailureResult: Bool = true) -> Int32 {
+           displayFailureResult: Bool = true) throws -> Int32 {
     let task = Process()
     let pipe = Pipe()
     task.standardOutput = pipe
-    task.launchPath = "/bin/bash"
+    task.executableURL = URL(fileURLWithPath: "/bin/zsh")
     task.arguments = ["-c", command]
-    task.launch()
+
+    try task.run()
     if displayCommand {
       print("[SpecRepoBuilder] Command:\(command)\n")
     }
@@ -148,6 +156,9 @@ struct SpecRepoBuilder: ParsableCommand {
 
   @Flag(help: "Raise error while circular dependency detected.")
   var raiseCircularDepError: Bool = false
+
+  @Flag(help: "Allow warnings when push a spec.")
+  var allowWarnings: Bool = false
 
   // This will track down dependencies of pods and keep the sequence of
   // dependency installation in specFiles.depInstallOrder.
@@ -256,31 +267,49 @@ struct SpecRepoBuilder: ParsableCommand {
     return filterTargetDeps(deps, with: specFiles)
   }
 
-  func pushPodspec(forPod pod: String, sdkRepo: String, sources: [String],
-                   flags: [String], shell: Shell = Shell.shared) -> Int32 {
-    let podPath = sdkRepo + "/" + pod + ".podspec"
+  func pushPodspec(forPod pod: URL, sdkRepo: String, sources: [String],
+                   flags: [String], shell: Shell = Shell.shared) throws -> Int32 {
     let sourcesArg = sources.joined(separator: ",")
-    let flagsArg = flags.joined(separator: " ")
+    let flagsArgArr = allowWarnings ?flags + ["--allow-warnings"] : flags
+    let flagsArg = flagsArgArr.joined(separator: " ")
 
-    let outcome =
-      shell
-        .run(
-          "pod repo push \(localSpecRepoName) \(podPath) --sources=\(sourcesArg) \(flagsArg)"
-        )
-    shell.run("pod repo update")
+    do {
+      // Update the repo
+      try shell.run("pod repo update")
+      var isDir: ObjCBool = true
+      let podName = pod.deletingPathExtension().lastPathComponent
+      let homeDirURL = FileManager.default.homeDirectoryForCurrentUser
+      let theProjectPath = "\(homeDirURL.path)/.cocoapods/repos/\(localSpecRepoName)/\(podName)"
+      print("check project path \(theProjectPath)")
+      if !FileManager.default.fileExists(atPath: theProjectPath, isDirectory: &isDir) {
+        let outcome =
+          try shell
+            .run(
+              "pod repo push \(localSpecRepoName) \(pod.path) --sources=\(sourcesArg) \(flagsArg)"
+            )
+        try shell.run("pod repo update")
+        print("Outcome is \(outcome)")
+        return outcome
+      }
+      print("`pod repo push` \(podName) will not run since the repo was uploaded already.")
+      return 0
 
-    print("Outcome is \(outcome)")
-
-    return outcome
+    } catch {
+      throw error
+    }
   }
 
   // This will commit and push to erase the entire remote spec repo.
   func eraseRemoteRepo(repoPath: String, from githubAccount: String, _ sdkRepoName: String,
-                       shell: Shell = Shell.shared) {
-    shell
-      .run(
-        "git clone --quiet https://${BOT_TOKEN}@github.com/\(githubAccount)/\(sdkRepoName).git"
-      )
+                       shell: Shell = Shell.shared) throws {
+    do {
+      try shell
+        .run(
+          "git clone --quiet https://${BOT_TOKEN}@github.com/\(githubAccount)/\(sdkRepoName).git"
+        )
+    } catch {
+      throw error
+    }
     let fileManager = FileManager.default
     do {
       let sdk_repo_path = "\(repoPath)/\(sdkRepoName)"
@@ -307,10 +336,14 @@ struct SpecRepoBuilder: ParsableCommand {
         }
         if isDir {
           print("Removing \(dir.path)")
-          shell.run("cd \(sdkRepoName); git rm -r \(dir.path)")
+          try shell.run("cd \(sdkRepoName); git rm -r \(dir.path)")
         }
       }
-      shell.run("cd \(sdkRepoName); git commit -m 'Empty repo'; git push")
+      do {
+        try shell.run("cd \(sdkRepoName); git commit -m 'Empty repo'; git push")
+      } catch {
+        throw error
+      }
     } catch {
       print("Error while enumerating files \(repoPath): \(error.localizedDescription)")
     }
@@ -332,19 +365,22 @@ struct SpecRepoBuilder: ParsableCommand {
         at: documentsURL,
         includingPropertiesForKeys: nil
       )
-      let podspecURLs = fileURLs.filter { $0.pathExtension == "podspec" }
+      let podspecURLs = fileURLs
+        .filter { $0.pathExtension == "podspec" || $0.pathExtension == "json" }
       for podspecURL in podspecURLs {
-        let podName = podspecURL.deletingPathExtension().lastPathComponent
+        print(podspecURL)
+        let podName = podspecURL.lastPathComponent.components(separatedBy: ".")[0]
+        print("Podspec, \(podName), is detected.")
         if excludePods.contains(podName) {
           continue
-        } else if includePods.isEmpty || includePods.contains(podName) {
-          podSpecFiles[podName] = podspecURL
         }
+        podSpecFiles[podName] = podspecURL
       }
     } catch {
       print(
         "Error while enumerating files \(documentsURL.path): \(error.localizedDescription)"
       )
+      throw error
     }
 
     // This set is used to keep parent dependencies and help detect circular
@@ -353,7 +389,7 @@ struct SpecRepoBuilder: ParsableCommand {
     print("Detect podspecs: \(podSpecFiles.keys)")
     let specFileDict = SpecFiles(podSpecFiles, from: sdkRepo)
     generateOrderOfInstallation(
-      pods: Array(podSpecFiles.keys),
+      pods: includePods.isEmpty ? Array(podSpecFiles.keys) : includePods,
       specFiles: specFileDict,
       parentDeps: &tmpSet
     )
@@ -365,10 +401,11 @@ struct SpecRepoBuilder: ParsableCommand {
           print("remove \(sdkRepoName) dir.")
           try fileManager.removeItem(at: URL(fileURLWithPath: "\(curDir)/\(sdkRepoName)"))
         }
-        eraseRemoteRepo(repoPath: "\(curDir)", from: githubAccount, sdkRepoName)
+        try eraseRemoteRepo(repoPath: "\(curDir)", from: githubAccount, sdkRepoName)
 
       } catch {
         print("error occurred. \(error)")
+        throw error
       }
     }
 
@@ -389,26 +426,35 @@ struct SpecRepoBuilder: ParsableCommand {
       }()
       timer.resume()
       var podExitCode: Int32 = 0
-      switch pod {
-      case "Firebase":
-        podExitCode = pushPodspec(
-          forPod: pod,
-          sdkRepo: sdkRepo,
-          sources: podSources,
-          flags: Constants.umbrellaPodFlags
-        )
-      default:
-        podExitCode = pushPodspec(
-          forPod: pod,
-          sdkRepo: sdkRepo,
-          sources: podSources,
-          flags: Constants.flags
-        )
-      }
-      if podExitCode != 0 {
-        exitCode = 1
-        failedPods.append(pod)
-        print("Failed pod - \(pod)")
+      do {
+        guard let podURL = specFileDict[pod] else {
+          Self
+            .exit(withError: SpecRepoBuilderError
+              .podspecNotFound(pod, from: sdkRepo))
+        }
+        switch pod {
+        case "Firebase":
+          podExitCode = try pushPodspec(
+            forPod: podURL,
+            sdkRepo: sdkRepo,
+            sources: podSources,
+            flags: Constants.umbrellaPodFlags
+          )
+        default:
+          podExitCode = try pushPodspec(
+            forPod: podURL,
+            sdkRepo: sdkRepo,
+            sources: podSources,
+            flags: Constants.flags
+          )
+        }
+        if podExitCode != 0 {
+          exitCode = 1
+          failedPods.append(pod)
+          print("Failed pod - \(pod)")
+        }
+      } catch {
+        throw error
       }
       timer.cancel()
       let finishDate = Date()

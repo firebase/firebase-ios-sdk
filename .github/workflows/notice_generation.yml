@@ -6,8 +6,8 @@ on:
     - '.github/workflows/notice_generation.yml'
     - '.github/actions/notices_generation**'
   schedule:
-    # Run every day at 5am (PST) - cron uses UTC times
-    - cron:  '0 13 * * *'
+    # Run every day at 2am (PST) - cron uses UTC times
+    - cron:  '0 10 * * *'
 jobs:
   generate_a_notice:
     # Don't run on private repo.
@@ -22,7 +22,7 @@ jobs:
     - name: Get all pod names
       run: |
         cd "${GITHUB_WORKSPACE}/ReleaseTooling/"
-        swift run manifest --pod-name-output-file-path ./output.txt
+        swift run manifest --output-file-path ./output.txt --for-notices-generation
         PODS=`cat ./output.txt`
         echo "PODS=${PODS}" >> $GITHUB_ENV
         echo "NOTICES_PATH=${GITHUB_WORKSPACE}/${NOTICES_PATH}" >> $GITHUB_ENV

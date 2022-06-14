@@ -1,3 +1,6 @@
+# 9.2.0
+- [changed] Replaced unarchiveObjectWithFile with unarchivedObjectOfClass to conform to secure coding practices, and implemented NSSecureCoding (#9816).
+
 # 8.12.0
 - [fixed] In-App Messaging's test message does not include appData in response. This SDK fix will work once the backend is also updated (#9126).
 

@@ -28,7 +28,9 @@ namespace local {
 using model::DocumentKey;
 using model::DocumentKeyHash;
 using model::Mutation;
+using model::MutationByDocumentKeyMap;
 using model::Overlay;
+using model::OverlayByDocumentKeyMap;
 using model::ResourcePath;
 
 absl::optional<Overlay> MemoryDocumentOverlayCache::GetOverlay(
@@ -59,9 +61,8 @@ void MemoryDocumentOverlayCache::RemoveOverlaysForBatchId(int batch_id) {
   }
 }
 
-DocumentOverlayCache::OverlayByDocumentKeyMap
-MemoryDocumentOverlayCache::GetOverlays(const ResourcePath& collection,
-                                        int since_batch_id) const {
+OverlayByDocumentKeyMap MemoryDocumentOverlayCache::GetOverlays(
+    const ResourcePath& collection, int since_batch_id) const {
   OverlayByDocumentKeyMap result;
 
   std::size_t immediate_children_path_length{collection.size() + 1};
@@ -89,10 +90,10 @@ MemoryDocumentOverlayCache::GetOverlays(const ResourcePath& collection,
   return result;
 }
 
-DocumentOverlayCache::OverlayByDocumentKeyMap
-MemoryDocumentOverlayCache::GetOverlays(absl::string_view collection_group,
-                                        int since_batch_id,
-                                        std::size_t count) const {
+OverlayByDocumentKeyMap MemoryDocumentOverlayCache::GetOverlays(
+    absl::string_view collection_group,
+    int since_batch_id,
+    std::size_t count) const {
   // NOTE: This method is only used by the backfiller, which will not run for
   // memory persistence; therefore, this method is being implemented only so
   // that the test suite for `LevelDbDocumentOverlayCache` can be re-used by
