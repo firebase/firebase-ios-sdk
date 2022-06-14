@@ -1,4 +1,4 @@
-# Unreleased
+# 9.2.0
 - [feature] Added `TransactionOptions` to control how many times a transaction
   will retry commits before failing (#9838).
 
