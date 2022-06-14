@@ -1,4 +1,4 @@
-# Unreleased
+# 9.2.0
 - [fixed] Catch keychain errors instead of using the `isProtectedDataAvailable` API for handling prewarming issue. (#9869)
 
 # 9.0.0
