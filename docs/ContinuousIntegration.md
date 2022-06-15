@@ -82,8 +82,13 @@ will have tags `Cocoapods-X.Y.Z`. This is to mimic a real released candidate.
 
 The prerelease workflow is to test podspecs on the `master` branch, and create a testing repo. This is
 to make sure podspecs are releasable, which means podspecs in the head can pass all tests and build
-up a candidate. The next step is to enable presubmit for PRs of podspecs changes on the prerelease
-testing repo. This will accelerate the tests of podspecs, which are currently run nightly.
+up a candidate.
+
+#### SpecTesting workflow
+[spectesting.yml](https://github.com/firebase/firebase-ios-sdk/tree/master/.github/workflows/spectesting.yml)
+
+Runs product-specific `pod spec lint` presubmit testing leveraging the https://github.com/firebase/SpecsTesting
+repo.
 
 ### `pod spec lint` testing
 [scripts/create_spec_repo](https://github.com/firebase/firebase-ios-sdk/tree/master/scripts/create_spec_repo)
@@ -116,6 +121,6 @@ The workflow will trigger podspec
 tests if changed files follow file patterns. Tests will create xcresult bundles, which contain all
 code coverage data. These bundles will be gathered in the last job and generate a json report which
 will be sent to the Metrics Service, which will create a code coverage report in a PR. Currently
-code coverage can generate diff between commits. The next step is to generate incremental code
-coverage.
-
+code coverage can generate diff between commits. Incremental code coverage support is in progress.
+Details
+[here](https://github.com/firebase/firebase-ios-sdk/blob/master/.github/workflows/health-metrics-presubmit.yml#L417).
