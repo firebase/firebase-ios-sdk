@@ -62,7 +62,7 @@ The resulting distribution is then used to build and test several Firebase Quick
 
 Release testing is to build up a testing podspecs (CocoaPods podspecs) candidate and test building
 up a quickstart with CocoaPods. If this candidate is successfully built, that means tests in
-podspecs, e.g. abtesting test spec, are passed and it is a positive signal to build up a release
+podspecs, e.g. abtesting test spec, passed and it is a positive signal to build up a release
 candidate.
 
 Currently we have two workflows running nightly to test podspecs:
