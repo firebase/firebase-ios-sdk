@@ -328,7 +328,7 @@ struct ZipBuilder {
     podsToInstall.append(CocoaPodUtils.VersionedPod(name: "Google-Mobile-Ads-SDK",
                                                     version: nil,
                                                     platforms: ["ios"]))
-    podsToInstall.append(CocoaPodUtils.VersionedPod(name: "GoogleSignIn",
+    podsToInstall.append(CocoaPodUtils.VersionedPod(name: "GoogleSignInSwiftSupport",
                                                     version: nil,
                                                     platforms: ["ios"]))
 
@@ -440,14 +440,15 @@ struct ZipBuilder {
     // Skip Analytics and the pods bundled with it.
     let remainingPods = installedPods.filter {
       $0.key == "Google-Mobile-Ads-SDK" ||
-        $0.key == "GoogleSignIn" ||
+        $0.key == "GoogleSignInSwiftSupport" ||
         (firebaseZipPods.contains($0.key) &&
           $0.key != "FirebaseAnalyticsSwift" &&
           $0.key != "Firebase" &&
           podsToInstall.map { $0.name }.contains($0.key))
     }.sorted { $0.key < $1.key }
     for pod in remainingPods {
-      let folder = pod.key.replacingOccurrences(of: "Swift", with: "")
+      let folder = pod.key == "GoogleSignInSwiftSupport" ? "GoogleSignIn" :
+        pod.key.replacingOccurrences(of: "Swift", with: "")
       do {
         if frameworksToAssemble[pod.key] == nil {
           // Continue if the pod wasn't built.
@@ -685,7 +686,7 @@ struct ZipBuilder {
   /// Describes the dependency on other frameworks for the README file.
   func readmeHeader(podName: String) -> String {
     var header = "## \(podName)"
-    if !(podName == "FirebaseAnalytics" || podName == "GoogleSignIn") {
+    if !(podName == "FirebaseAnalytics" || podName == "GoogleSignInSwiftSupport") {
       header += " (~> FirebaseAnalytics)"
     }
     header += "\n"
