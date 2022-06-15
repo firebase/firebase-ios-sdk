@@ -31,7 +31,7 @@ Use Swift Package Manager to build and usually unit test the product.
 
 #### QuickStart Tests
 
-Build and test the product's QuickStart.
+Build and test the product's [QuickStart](https://github.com/firebase/quickstart-ios).
 
 #### Integration Tests
 
@@ -58,7 +58,8 @@ Build and run Firebase-wide tests with Swift Package Manager.
 [zip.yml](https://github.com/firebase/firebase-ios-sdk/tree/master/.github/workflows/zip.yml)
 
 Builds the zip distribution both from the tip of `master` and the current staged release distribution.
-The resulting distribution is then used to build and test several Firebase QuickStarts.
+The resulting distribution is then used to build and test several Firebase
+[QuickStarts](https://github.com/firebase/quickstart-ios).
 
 ### Release testing
 [scripts/create_spec_repo](https://github.com/firebase/firebase-ios-sdk/tree/master//scripts/create_spec_repo)
