@@ -88,7 +88,7 @@ testing repo. This will accelerate the tests of podspecs, which are currently ru
 
 The previous setup will run podspecs testing nightly. This enables presubmits of pod spec lint
 podspecs and accelerates the testing process. This is to run presubmit tests for Firebase Apple SDKs
-in the SDK repo. A job to run pod spec lint is added to SDK testing workflows, including ABTesting,
+in the SDK repo. A job to run `pod spec lint` is added to SDK testing workflows, including ABTesting,
 Analytics, Auth, Core, Crashlytics, Database, DynamicLinks, Firestore, Functions, GoogleUtilities,
 InAppMessaging, Installations, Messaging, MLModelDownloader, Performance, RemoteConfig and Storage.
 These jobs will be triggered in presubmit and run pod spec lint with a source of
