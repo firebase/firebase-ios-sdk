@@ -78,7 +78,7 @@ repo is to generate a releasable candidate.
 #### Prerelease workflow
 [firebase-ios-sdk/.github/workflows/prerelease.yml](firebase-ios-sdk/.github/workflows/prerelease.yml)
 
-The prerelease workflow is to test podspecs on the master branch, and create a testing repo. This is
+The prerelease workflow is to test podspecs on the `master` branch, and create a testing repo. This is
 to make sure podspecs are releasable, which means podspecs in the head can pass all tests and build
 up a candidate. The next step is to enable presubmit for PRs of podspecs changes on the prerelease
 testing repo. This will accelerate the tests of podspecs, which are currently run nightly.
