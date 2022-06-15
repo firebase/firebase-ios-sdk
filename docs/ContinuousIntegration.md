@@ -54,7 +54,7 @@ Build and run Firebase-wide tests with Swift Package Manager.
 ### Zip Distribution Testing
 [firebase-ios-sdk/.github/workflows/zip.yml](firebase-ios-sdk/.github/workflows/zip.yml)
 
-Builds the zip distribution both from the tip of master and the current staged release distribution.
+Builds the zip distribution both from the tip of `master` and the current staged release distribution.
 The resulting distribution is then used to build and test several Firebase QuickStarts.
 
 ### Release testing
