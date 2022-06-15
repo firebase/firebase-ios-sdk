@@ -63,8 +63,8 @@ class LevelDbQueryEngineTest : public QueryEngineTestBase {
   }
 };
 
-TEST_F(LevelDbQueryEngineTest, TestCombinesIndexedWithNonIndexedResults) {
-  persistence_->Run("Test", [&] {
+TEST_F(LevelDbQueryEngineTest, CombinesIndexedWithNonIndexedResults) {
+  persistence_->Run("CombinesIndexedWithNonIndexedResults", [&] {
     mutation_queue_->Start();
     index_manager_->Start();
 
@@ -96,8 +96,8 @@ TEST_F(LevelDbQueryEngineTest, TestCombinesIndexedWithNonIndexedResults) {
   });
 }
 
-TEST_F(LevelDbQueryEngineTest, TestUsesPartialIndexForLimitQueries) {
-  persistence_->Run("Test", [&] {
+TEST_F(LevelDbQueryEngineTest, UsesPartialIndexForLimitQueries) {
+  persistence_->Run("UsesPartialIndexForLimitQueries", [&] {
     mutation_queue_->Start();
     index_manager_->Start();
 
@@ -128,8 +128,8 @@ TEST_F(LevelDbQueryEngineTest, TestUsesPartialIndexForLimitQueries) {
   });
 }
 
-TEST_F(LevelDbQueryEngineTest, TestRefillsIndexedLimitQueries) {
-  persistence_->Run("Test", [&] {
+TEST_F(LevelDbQueryEngineTest, RefillsIndexedLimitQueries) {
+  persistence_->Run("RefillsIndexedLimitQueries", [&] {
     mutation_queue_->Start();
     index_manager_->Start();
 

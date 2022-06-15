@@ -193,7 +193,7 @@ QueryEngineTest::QueryEngineTest() : QueryEngineTestBase(GetParam()()) {
 }
 
 TEST_P(QueryEngineTest, UsesTargetMappingForInitialView) {
-  persistence_->Run("Test", [&] {
+  persistence_->Run("UsesTargetMappingForInitialView", [&] {
     mutation_queue_->Start();
     index_manager_->Start();
 
@@ -210,7 +210,7 @@ TEST_P(QueryEngineTest, UsesTargetMappingForInitialView) {
 }
 
 TEST_P(QueryEngineTest, FiltersNonMatchingInitialResults) {
-  persistence_->Run("Test", [&] {
+  persistence_->Run("FiltersNonMatchingInitialResults", [&] {
     mutation_queue_->Start();
     index_manager_->Start();
 
@@ -231,7 +231,7 @@ TEST_P(QueryEngineTest, FiltersNonMatchingInitialResults) {
 }
 
 TEST_P(QueryEngineTest, IncludesChangesSinceInitialResults) {
-  persistence_->Run("Test", [&] {
+  persistence_->Run("IncludesChangesSinceInitialResults", [&] {
     mutation_queue_->Start();
     index_manager_->Start();
 
@@ -256,213 +256,228 @@ TEST_P(QueryEngineTest, IncludesChangesSinceInitialResults) {
 
 TEST_P(QueryEngineTest,
        DoesNotUseInitialResultsWithoutLimboFreeSnapshotVersion) {
-  persistence_->Run("Test", [&] {
-    mutation_queue_->Start();
-    index_manager_->Start();
+  persistence_->Run(
+      "DoesNotUseInitialResultsWithoutLimboFreeSnapshotVersion", [&] {
+        mutation_queue_->Start();
+        index_manager_->Start();
 
-    core::Query query =
-        Query("coll").AddingFilter(Filter("matches", "==", true));
+        core::Query query =
+            Query("coll").AddingFilter(Filter("matches", "==", true));
 
-    DocumentSet docs = ExpectFullCollectionScan<DocumentSet>(
-        [&] { return RunQuery(query, kMissingLastLimboFreeSnapshot); });
-    EXPECT_EQ(docs, DocSet(query.Comparator(), {}));
-  });
+        DocumentSet docs = ExpectFullCollectionScan<DocumentSet>(
+            [&] { return RunQuery(query, kMissingLastLimboFreeSnapshot); });
+        EXPECT_EQ(docs, DocSet(query.Comparator(), {}));
+      });
 }
 
 TEST_P(QueryEngineTest, DoesNotUseInitialResultsForUnfilteredCollectionQuery) {
-  persistence_->Run("Test", [&] {
-    mutation_queue_->Start();
-    index_manager_->Start();
+  persistence_->Run(
+      "DoesNotUseInitialResultsForUnfilteredCollectionQuery", [&] {
+        mutation_queue_->Start();
+        index_manager_->Start();
 
-    core::Query query = Query("coll");
+        core::Query query = Query("coll");
 
-    DocumentSet docs = ExpectFullCollectionScan<DocumentSet>(
-        [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
-    EXPECT_EQ(docs, DocSet(query.Comparator(), {}));
-  });
+        DocumentSet docs = ExpectFullCollectionScan<DocumentSet>(
+            [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
+        EXPECT_EQ(docs, DocSet(query.Comparator(), {}));
+      });
 }
 
 TEST_P(QueryEngineTest,
        DoesNotUseInitialResultsForLimitQueryWithDocumentRemoval) {
-  persistence_->Run("Test", [&] {
-    mutation_queue_->Start();
-    index_manager_->Start();
+  persistence_->Run(
+      "DoesNotUseInitialResultsForLimitQueryWithDocumentRemoval", [&] {
+        mutation_queue_->Start();
+        index_manager_->Start();
 
-    core::Query query = Query("coll")
-                            .AddingFilter(Filter("matches", "==", true))
-                            .WithLimitToFirst(1);
+        core::Query query = Query("coll")
+                                .AddingFilter(Filter("matches", "==", true))
+                                .WithLimitToFirst(1);
 
-    // While the backend would never add DocA to the set of remote keys, this
-    // allows us to easily simulate what would happen when a document no longer
-    // matches due to an out-of-band update.
-    AddDocuments({kNonMatchingDocA});
-    PersistQueryMapping({kMatchingDocA.key()});
+        // While the backend would never add DocA to the set of remote keys,
+        // this allows us to easily simulate what would happen when a document
+        // no longer matches due to an out-of-band update.
+        AddDocuments({kNonMatchingDocA});
+        PersistQueryMapping({kMatchingDocA.key()});
 
-    AddDocuments({kMatchingDocB});
+        AddDocuments({kMatchingDocB});
 
-    DocumentSet docs = ExpectFullCollectionScan<DocumentSet>(
-        [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
-    EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
-  });
+        DocumentSet docs = ExpectFullCollectionScan<DocumentSet>(
+            [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
+        EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
+      });
 }
 
 TEST_P(QueryEngineTest,
        DoesNotUseInitialResultsForLimitToLastWithDocumentRemoval) {
-  persistence_->Run("Test", [&] {
-    mutation_queue_->Start();
-    index_manager_->Start();
+  persistence_->Run(
+      "DoesNotUseInitialResultsForLimitToLastWithDocumentRemoval", [&] {
+        mutation_queue_->Start();
+        index_manager_->Start();
 
-    core::Query query = Query("coll")
-                            .AddingFilter(Filter("matches", "==", true))
-                            .AddingOrderBy(OrderBy("order", "desc"))
-                            .WithLimitToLast(1);
+        core::Query query = Query("coll")
+                                .AddingFilter(Filter("matches", "==", true))
+                                .AddingOrderBy(OrderBy("order", "desc"))
+                                .WithLimitToLast(1);
 
-    // While the backend would never add DocA to the set of remote keys, this
-    // allows us to easily simulate what would happen when a document no longer
-    // matches due to an out-of-band update.
-    AddDocuments({kNonMatchingDocA});
-    PersistQueryMapping({kMatchingDocA.key()});
+        // While the backend would never add DocA to the set of remote keys,
+        // this allows us to easily simulate what would happen when a document
+        // no longer matches due to an out-of-band update.
+        AddDocuments({kNonMatchingDocA});
+        PersistQueryMapping({kMatchingDocA.key()});
 
-    AddDocuments({kMatchingDocB});
+        AddDocuments({kMatchingDocB});
 
-    DocumentSet docs = ExpectFullCollectionScan<DocumentSet>(
-        [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
-    EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
-  });
+        DocumentSet docs = ExpectFullCollectionScan<DocumentSet>(
+            [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
+        EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
+      });
 }
 
 TEST_P(QueryEngineTest,
        DoesNotUseInitialResultsForLimitQueryWhenLastDocumentHasPendingWrite) {
-  persistence_->Run("Test", [&] {
-    mutation_queue_->Start();
-    index_manager_->Start();
+  persistence_->Run(
+      "DoesNotUseInitialResultsForLimitQueryWhenLastDocumentHasPendingWrite",
+      [&] {
+        mutation_queue_->Start();
+        index_manager_->Start();
 
-    core::Query query = Query("coll")
-                            .AddingFilter(Filter("matches", "==", true))
-                            .AddingOrderBy(OrderBy("order", "desc"))
-                            .WithLimitToFirst(1);
+        core::Query query = Query("coll")
+                                .AddingFilter(Filter("matches", "==", true))
+                                .AddingOrderBy(OrderBy("order", "desc"))
+                                .WithLimitToFirst(1);
 
-    // Add a query mapping for a document that matches, but that sorts below
-    // another document due to a pending write.
-    AddDocumentWithEventVersion(Version(1), {pPendingMatchingDocA});
-    AddMutation(kDocAEmptyPatch);
-    PersistQueryMapping({pPendingMatchingDocA.key()});
+        // Add a query mapping for a document that matches, but that sorts below
+        // another document due to a pending write.
+        AddDocumentWithEventVersion(Version(1), {pPendingMatchingDocA});
+        AddMutation(kDocAEmptyPatch);
+        PersistQueryMapping({pPendingMatchingDocA.key()});
 
-    AddDocuments({kMatchingDocB});
+        AddDocuments({kMatchingDocB});
 
-    DocumentSet docs = ExpectFullCollectionScan<DocumentSet>(
-        [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
-    EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
-  });
+        DocumentSet docs = ExpectFullCollectionScan<DocumentSet>(
+            [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
+        EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
+      });
 }
 
 TEST_P(QueryEngineTest,
        DoesNotUseInitialResultsForLimitToLastWhenLastDocumentHasPendingWrite) {
-  persistence_->Run("Test", [&] {
-    mutation_queue_->Start();
-    index_manager_->Start();
+  persistence_->Run(
+      "DoesNotUseInitialResultsForLimitToLastWhenLastDocumentHasPendingWrite",
+      [&] {
+        mutation_queue_->Start();
+        index_manager_->Start();
 
-    core::Query query = Query("coll")
-                            .AddingFilter(Filter("matches", "==", true))
-                            .AddingOrderBy(OrderBy("order", "asc"))
-                            .WithLimitToLast(1);
+        core::Query query = Query("coll")
+                                .AddingFilter(Filter("matches", "==", true))
+                                .AddingOrderBy(OrderBy("order", "asc"))
+                                .WithLimitToLast(1);
 
-    // Add a query mapping for a document that matches, but that sorts below
-    // another document due to a pending write.
-    AddDocumentWithEventVersion(Version(1), {pPendingMatchingDocA});
-    AddMutation(kDocAEmptyPatch);
-    PersistQueryMapping({pPendingMatchingDocA.key()});
+        // Add a query mapping for a document that matches, but that sorts below
+        // another document due to a pending write.
+        AddDocumentWithEventVersion(Version(1), {pPendingMatchingDocA});
+        AddMutation(kDocAEmptyPatch);
+        PersistQueryMapping({pPendingMatchingDocA.key()});
 
-    AddDocuments({kMatchingDocB});
+        AddDocuments({kMatchingDocB});
 
-    DocumentSet docs = ExpectFullCollectionScan<DocumentSet>(
-        [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
-    EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
-  });
+        DocumentSet docs = ExpectFullCollectionScan<DocumentSet>(
+            [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
+        EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
+      });
 }
 
 TEST_P(QueryEngineTest,
        DoesNotUseInitialResultsForLimitQueryWhenLastDocumentUpdatedOutOfBand) {
-  persistence_->Run("Test", [&] {
-    mutation_queue_->Start();
-    index_manager_->Start();
+  persistence_->Run(
+      "DoesNotUseInitialResultsForLimitQueryWhenLastDocumentUpdatedOutOfBand",
+      [&] {
+        mutation_queue_->Start();
+        index_manager_->Start();
 
-    core::Query query = Query("coll")
-                            .AddingFilter(Filter("matches", "==", true))
-                            .AddingOrderBy(OrderBy("order", "desc"))
-                            .WithLimitToFirst(1);
+        core::Query query = Query("coll")
+                                .AddingFilter(Filter("matches", "==", true))
+                                .AddingOrderBy(OrderBy("order", "desc"))
+                                .WithLimitToFirst(1);
 
-    // Add a query mapping for a document that matches, but that sorts below
-    // another document based due to an update that the SDK received after the
-    // query's snapshot was persisted.
-    AddDocuments({kUpdatedDocA});
-    PersistQueryMapping({kUpdatedDocA.key()});
+        // Add a query mapping for a document that matches, but that sorts below
+        // another document based due to an update that the SDK received after
+        // the query's snapshot was persisted.
+        AddDocuments({kUpdatedDocA});
+        PersistQueryMapping({kUpdatedDocA.key()});
 
-    AddDocuments({kMatchingDocB});
+        AddDocuments({kMatchingDocB});
 
-    DocumentSet docs = ExpectFullCollectionScan<DocumentSet>(
-        [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
-    EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
-  });
+        DocumentSet docs = ExpectFullCollectionScan<DocumentSet>(
+            [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
+        EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
+      });
 }
 
 TEST_P(QueryEngineTest,
        DoesNotUseInitialResultsForLimitToLastWhenLastDocumentUpdatedOutOfBand) {
-  persistence_->Run("Test", [&] {
-    mutation_queue_->Start();
-    index_manager_->Start();
+  persistence_->Run(
+      "DoesNotUseInitialResultsForLimitToLastWhenLastDocumentUpdatedOutOfBand",
+      [&] {
+        mutation_queue_->Start();
+        index_manager_->Start();
 
-    core::Query query = Query("coll")
-                            .AddingFilter(Filter("matches", "==", true))
-                            .AddingOrderBy(OrderBy("order", "asc"))
-                            .WithLimitToLast(1);
+        core::Query query = Query("coll")
+                                .AddingFilter(Filter("matches", "==", true))
+                                .AddingOrderBy(OrderBy("order", "asc"))
+                                .WithLimitToLast(1);
 
-    // Add a query mapping for a document that matches, but that sorts below
-    // another document based due to an update that the SDK received after the
-    // query's snapshot was persisted.
-    AddDocuments({kUpdatedDocA});
-    PersistQueryMapping({kUpdatedDocA.key()});
+        // Add a query mapping for a document that matches, but that sorts below
+        // another document based due to an update that the SDK received after
+        // the query's snapshot was persisted.
+        AddDocuments({kUpdatedDocA});
+        PersistQueryMapping({kUpdatedDocA.key()});
 
-    AddDocuments({kMatchingDocB});
+        AddDocuments({kMatchingDocB});
 
-    DocumentSet docs = ExpectFullCollectionScan<DocumentSet>(
-        [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
-    EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
-  });
+        DocumentSet docs = ExpectFullCollectionScan<DocumentSet>(
+            [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
+        EXPECT_EQ(docs, DocSet(query.Comparator(), {kMatchingDocB}));
+      });
 }
 
 TEST_P(QueryEngineTest,
        LimitQueriesUseInitialResultsIfLastDocumentInLimitIsUnchanged) {
-  persistence_->Run("Test", [&] {
-    mutation_queue_->Start();
-    index_manager_->Start();
+  persistence_->Run(
+      "LimitQueriesUseInitialResultsIfLastDocumentInLimitIsUnchanged", [&] {
+        mutation_queue_->Start();
+        index_manager_->Start();
 
-    core::Query query =
-        Query("coll").AddingOrderBy(OrderBy("order")).WithLimitToFirst(2);
+        core::Query query =
+            Query("coll").AddingOrderBy(OrderBy("order")).WithLimitToFirst(2);
 
-    AddDocuments(
-        {Doc("coll/a", 1, Map("order", 1)), Doc("coll/b", 1, Map("order", 3))});
-    PersistQueryMapping({Key("coll/a"), Key("coll/b")});
+        AddDocuments({Doc("coll/a", 1, Map("order", 1)),
+                      Doc("coll/b", 1, Map("order", 3))});
+        PersistQueryMapping({Key("coll/a"), Key("coll/b")});
 
-    // Update "coll/a" but make sure it still sorts before "coll/b"
-    AddDocumentWithEventVersion(
-        Version(1), {Doc("coll/a", 1, Map("order", 2)).SetHasLocalMutations()});
-    AddMutation(kDocAEmptyPatch);
+        // Update "coll/a" but make sure it still sorts before "coll/b"
+        AddDocumentWithEventVersion(
+            Version(1),
+            {Doc("coll/a", 1, Map("order", 2)).SetHasLocalMutations()});
+        AddMutation(kDocAEmptyPatch);
 
-    // Since the last document in the limit didn't change (and hence we know
-    // that all documents written prior to query execution still sort after
-    // "coll/b"), we should use an Index-Free query.
-    DocumentSet docs = ExpectOptimizedCollectionScan(
-        [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
-    EXPECT_EQ(docs,
-              DocSet(query.Comparator(),
-                     {Doc("coll/a", 1, Map("order", 2)).SetHasLocalMutations(),
-                      Doc("coll/b", 1, Map("order", 3))}));
-  });
+        // Since the last document in the limit didn't change (and hence we know
+        // that all documents written prior to query execution still sort after
+        // "coll/b"), we should use an Index-Free query.
+        DocumentSet docs = ExpectOptimizedCollectionScan(
+            [&] { return RunQuery(query, kLastLimboFreeSnapshot); });
+        EXPECT_EQ(
+            docs,
+            DocSet(query.Comparator(),
+                   {Doc("coll/a", 1, Map("order", 2)).SetHasLocalMutations(),
+                    Doc("coll/b", 1, Map("order", 3))}));
+      });
 }
 
 TEST_P(QueryEngineTest, DoesNotIncludeDocumentsDeletedByMutation) {
-  persistence_->Run("Test", [&] {
+  persistence_->Run("DoesNotIncludeDocumentsDeletedByMutation", [&] {
     mutation_queue_->Start();
     index_manager_->Start();
 
