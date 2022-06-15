@@ -96,7 +96,7 @@ Firebase/SpecsTesting repo, which is updated to the head of master nightly in th
 workflow.
 
 When these PRs are merged, then changed podspecs will be pod repo push to the Firebase/SpecsTesting
-repo, through update_SpecTesting_repo job in the prerelease workflow, to make sure the podspec repo
+repo, through `update_SpecTesting_repo` job in the prerelease workflow, to make sure the podspec repo
 is up-to-date.
 
 ### Daily Test Status Notification
