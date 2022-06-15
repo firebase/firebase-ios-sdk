@@ -1,3 +1,6 @@
+# 9.2.0
+- [fixed] Catch keychain errors instead of using the `isProtectedDataAvailable` API for handling prewarming issue. (#9869)
+
 # 9.0.0
 - [fixed] **Breaking change:** Fixed an ObjC-to-Swift API conversion error where `getStoredUser(forAccessGroup:)` returned a non-optional type. This change is breaking for Swift users only (#8599).
 - [fixed] Fixed an iOS 15 keychain access issue related to prewarming. (#8695)
