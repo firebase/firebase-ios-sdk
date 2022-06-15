@@ -54,7 +54,7 @@ Build and run Firebase-wide tests with Swift Package Manager.
 ### Zip Distribution Testing
 [zip.yml](../.github/workflows/zip.yml)
 
-Builds the zip distribution both from the tip of master and the current staged release distribution.
+Builds the zip distribution both from the tip of `master` and the current staged release distribution.
 The resulting distribution is then used to build and test several Firebase QuickStarts.
 
 ### Release testing
@@ -62,7 +62,7 @@ The resulting distribution is then used to build and test several Firebase Quick
 
 Release testing is to build up a testing podspecs (CocoaPods podspecs) candidate and test building
 up a quickstart with CocoaPods. If this candidate is successfully built, that means tests in
-podspecs, e.g. abtesting test spec, are passed and it is a positive signal to build up a release
+podspecs, e.g. abtesting test spec, passed and it is a positive signal to build up a release
 candidate.
 
 Currently we have two workflows running nightly to test podspecs:
@@ -78,7 +78,7 @@ repo is to generate a releasable candidate.
 #### Prerelease workflow
 [prerelease.yml](../.github/workflows/prerelease.yml)
 
-The prerelease workflow is to test podspecs on the master branch, and create a testing repo. This is
+The prerelease workflow is to test podspecs on the `master` branch, and create a testing repo. This is
 to make sure podspecs are releasable, which means podspecs in the head can pass all tests and build
 up a candidate. The next step is to enable presubmit for PRs of podspecs changes on the prerelease
 testing repo. This will accelerate the tests of podspecs, which are currently run nightly.
@@ -87,8 +87,8 @@ testing repo. This will accelerate the tests of podspecs, which are currently ru
 [scripts/create_spec_repo](../scripts/create_spec_repo)
 
 The previous setup will run podspecs testing nightly. This enables presubmits of pod spec lint
-podspecs and accelerates the testing process. This is to run presubmit tests for Firebase iOS SDKs
-in the SDK repo. A job to run pod spec lint is added to SDK testing workflows, including ABTesting,
+podspecs and accelerates the testing process. This is to run presubmit tests for Firebase Apple SDKs
+in the SDK repo. A job to run `pod spec lint` is added to SDK testing workflows, including ABTesting,
 Analytics, Auth, Core, Crashlytics, Database, DynamicLinks, Firestore, Functions, GoogleUtilities,
 InAppMessaging, Installations, Messaging, MLModelDownloader, Performance, RemoteConfig and Storage.
 These jobs will be triggered in presubmit and run pod spec lint with a source of
@@ -96,7 +96,7 @@ Firebase/SpecsTesting repo, which is updated to the head of master nightly in th
 workflow.
 
 When these PRs are merged, then changed podspecs will be pod repo push to the Firebase/SpecsTesting
-repo, through update_SpecTesting_repo job in the prerelease workflow, to make sure the podspec repo
+repo, through `update_SpecTesting_repo` job in the prerelease workflow, to make sure the podspec repo
 is up-to-date.
 
 ### Daily Test Status Notification
