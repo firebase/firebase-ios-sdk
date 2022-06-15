@@ -73,10 +73,9 @@ Currently we have two workflows running nightly to test podspecs:
 #### Release workflow
 [release.yml](https://github.com/firebase/firebase-ios-sdk/tree/master/.github/workflows/release.yml)
 
-The release workflow is to test podspecs on the latest release branch, and create a testing repo.
-This branch is having all podspecs prepared for the next release. Podspecs in this testing repo
-will have tags `Cocoapods-X.Y.Z`. This is to mimic a real released candidate. The next step for this
-repo is to generate a releasable candidate.
+The release workflow is to test podspecs corresponding to the latest release tag in the repo, and
+create a CocoaPods spec testing repo. Podspecs in this testing repo
+will have tags `Cocoapods-X.Y.Z`. This is to mimic a real released candidate.
 
 #### Prerelease workflow
 [prerelease.yml](https://github.com/firebase/firebase-ios-sdk/tree/master/.github/workflows/prerelease.yml)
