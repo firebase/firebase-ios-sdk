@@ -56,6 +56,9 @@ typedef void (^RCNConfigFetcherCompletion)(NSData *data, NSURLResponse *response
 /// Provide fetchSession for tests to override.
 @property(nonatomic, readwrite, strong, nonnull) NSURLSession *fetchSession;
 
+/// Provide config template version number for Realtime config client.
+@property(nonatomic, copy, nonnull) NSString *templateVersionNumber;
+
 NS_ASSUME_NONNULL_END
 
 @end

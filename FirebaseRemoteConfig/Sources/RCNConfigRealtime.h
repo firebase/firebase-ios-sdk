@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-#ifndef RCNConfigRealtime_h
-#define RCNConfigRealtime_h
-
 #import <Foundation/Foundation.h>
+#import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
+#import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 
 @interface RCNConfigRealtime : NSObject <NSURLSessionDataDelegate>
+
+- (instancetype _Nonnull)init:(RCNConfigFetch *_Nonnull)configFetch
+                     settings:(RCNConfigSettings *_Nonnull)settings
+                    namespace:(NSString *_Nonnull)namespace
+                      options:(FIROptions *_Nonnull)options;
 
 - (FIRConfigUpdateListenerRegistration *_Nonnull)addConfigUpdateListener:
     (void (^_Nonnull)(NSError *_Nullable error))listener;
 - (void)removeConfigUpdateListener:(void (^_Nonnull)(NSError *_Nullable error))listener;
 
 @end
-
-#endif /* RCNConfigRealtime_h */
