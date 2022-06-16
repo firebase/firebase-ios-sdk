@@ -307,7 +307,14 @@ NS_SWIFT_NAME(RemoteConfig)
 - (nullable FIRRemoteConfigValue *)defaultValueForKey:(nullable NSString *)key;
 
 #pragma mark - Realtime
-- (FIRConfigUpdateListenerRegistration *) addOnConfigUpdateListener:
-(void (^_Nonnull)(NSError *_Nullable error))listener;
+
+/// Adds a listener to Realtime config updates. If it's the first listener, it starts off the
+/// stream.
+///
+/// @param listener              The configured listener that is called for every config update.
+/// @return                 Returns a registration that is used to remove a listener. If it is the
+/// last listener, it stops the stream.
+- (FIRConfigUpdateListenerRegistration *_Nonnull)addOnConfigUpdateListener:
+    (void (^_Nonnull)(NSError *_Nullable error))listener;
 
 @end

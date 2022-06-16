@@ -580,7 +580,7 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 
 - (FIRConfigUpdateListenerRegistration *)addOnConfigUpdateListener:
     (void (^_Nonnull)(NSError *_Nullable error))listener {
-    return [self->_configRealtime addConfigUpdateListener:listener];
+  return [self->_configRealtime addConfigUpdateListener:listener];
 }
 
 @end
