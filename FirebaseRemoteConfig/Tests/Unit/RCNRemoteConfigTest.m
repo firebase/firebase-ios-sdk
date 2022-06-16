@@ -61,7 +61,7 @@
                     namespace:(NSString *_Nonnull)namespace
                       options:(FIROptions *_Nonnull)options;
 
-- (void)fetchLatestConfig:(NSTimer *)timer;
+- (void)fetchLatestConfig:(NSInteger)remainingAttempts targetVersion:(NSInteger)targetVersion;
 - (void)scheduleFetch:(NSInteger)remainingAttempts targetVersion:(NSInteger)targetVersion;
 - (void)autoFetch:(NSInteger)remainingAttempts targetVersion:(NSInteger)targetVersion;
 - (void)beginRealtimeStream;
@@ -79,7 +79,8 @@
                               configSettings:(RCNConfigSettings *)configSettings
                             configExperiment:(RCNConfigExperiment *)configExperiment;
 
-- (void)updateWithNewInstancesForConfigRealtime:(RCNConfigRealtime *)configRealtime;
+- (void)updateWithNewInstancesForConfigRealtime:(RCNConfigRealtime *)configRealtime
+                                    configFetch:(RCNConfigFetch *)configFetch;
 @end
 
 @implementation FIRRemoteConfig (ForTest)
@@ -93,8 +94,10 @@
   [self setValue:configExperiment forKey:@"_configExperiment"];
 }
 
-- (void)updateWithNewInstancesForConfigRealtime:(RCNConfigRealtime *)configRealtime {
+- (void)updateWithNewInstancesForConfigRealtime:(RCNConfigRealtime *)configRealtime
+                                    configFetch:(RCNConfigFetch *)configFetch {
   [self setValue:configRealtime forKey:@"_configRealtime"];
+  [self setValue:configFetch forKey:@"_configFetch"];
 }
 @end
 
@@ -268,7 +271,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                 configContent:configContent
                                                configSettings:_settings
                                              configExperiment:_experimentMock];
-    [_configInstances[i] updateWithNewInstancesForConfigRealtime:_configRealtime[i]];
+    [_configInstances[i] updateWithNewInstancesForConfigRealtime:_configRealtime[i]
+                                                     configFetch:_configFetch[i]];
   }
 }
 
@@ -285,6 +289,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   }
   [_configInstances removeAllObjects];
   [_configFetch removeAllObjects];
+  [_configRealtime removeAllObjects];
   _configInstances = nil;
   _configFetch = nil;
   [super tearDown];
@@ -1607,16 +1612,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
         expectationWithDescription:
             [NSString stringWithFormat:@"Test Realtime Autofetch successfully - instance %d", i]];
 
-    OCMStubRecorder *mock = OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:0
-                                                                     completionHandler:OCMOCK_ANY]);
-    mock = [mock ignoringNonObjectArgs];
-    mock.andDo(^(NSInvocation *invocation) {
-      __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
-                                          NSError *_Nullable error) = nil;
-      [invocation getArgument:&handler atIndex:3];
-      [self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
-                                   completionHandler:handler];
-    });
+    OCMStub([_configRealtime[i] fetchLatestConfig:1 targetVersion:1]).andDo(nil);
 
     [_configRealtime[i] autoFetch:1 targetVersion:1];
 
