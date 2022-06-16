@@ -483,8 +483,14 @@ enum CocoaPodUtils {
     for pod in pods {
       let podspec = String(pod.name.split(separator: "/")[0] + ".podspec")
       // Check if we want to use a local version of the podspec.
-      if let localURL = localPodspecPath,
-         FileManager.default.fileExists(atPath: localURL.appendingPathComponent(podspec).path) {
+
+      if !Set([
+        "FirebaseAnalytics",
+        "GoogleAppMeasurement",
+        "GoogleAppMeasurementOnDeviceConversion",
+      ]).contains(pod.name.split(separator: "/")[0]),
+        let localURL = localPodspecPath,
+        FileManager.default.fileExists(atPath: localURL.appendingPathComponent(podspec).path) {
         podfile += "  pod '\(pod.name)', :path => '\(localURL.path)'"
       } else if let podVersion = pod.version {
         // To support Firebase patch versions in the Firebase zip distribution, allow patch updates
