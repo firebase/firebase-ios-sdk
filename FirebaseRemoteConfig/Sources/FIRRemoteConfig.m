@@ -67,7 +67,7 @@ typedef void (^FIRRemoteConfigListener)(NSString *_Nonnull, NSDictionary *_Nonnu
   RCNConfigSettings *_settings;
   RCNConfigFetch *_configFetch;
   RCNConfigExperiment *_configExperiment;
-    RCNConfigRealtime *_configRealtime;
+  RCNConfigRealtime *_configRealtime;
   dispatch_queue_t _queue;
   NSString *_appName;
   NSMutableArray *_listeners;
@@ -166,11 +166,11 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
                                                      queue:_queue
                                                  namespace:_FIRNamespace
                                                    options:options];
-      
-      _configRealtime = [[RCNConfigRealtime alloc] init:_configFetch
-                                               settings:_settings
-                                              namespace:_FIRNamespace
-                                                options:options];
+
+    _configRealtime = [[RCNConfigRealtime alloc] init:_configFetch
+                                             settings:_settings
+                                            namespace:_FIRNamespace
+                                              options:options];
 
     [_settings loadConfigFromMetadataTable];
 
