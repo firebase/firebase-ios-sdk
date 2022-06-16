@@ -109,17 +109,19 @@ enum InitializeSpecTesting {
 
   // Copy updated specs to the `${HOME}/.cocoapods/` dir.
   private static func copyPodspecs(from specsDir: URL, manifest: FirebaseManifest.Manifest) {
+    // TODO(ncooke3): I think `podspec.json` can be removed below.
     let path = specsDir.appendingPathComponent("*.{podspec,podspec.json}").path
     let paths = Shell.executeCommandFromScript("ls \(path)", outputToConsole: false)
     var candidateSpecs: [String]?
     switch paths {
-    case let .error(code, output):
+    case let .error(_, output):
       print("specs are not properly read, \(output)")
     case let .success(output):
       candidateSpecs = output.trimmingCharacters(in: .whitespacesAndNewlines)
         .components(separatedBy: "\n")
     }
     guard let specs = candidateSpecs else {
+      // TODO(ncooke3): I think `podspec.json` can be removed below.
       print("There are no files ending with `podspec` or `podspec.json` detected.")
       return
     }
@@ -145,6 +147,7 @@ enum InitializeSpecTesting {
     } catch {
       fatalError("Could not read the podspec. \(error)")
     }
+    // TODO(ncooke3): I think `podspec.json` can be removed below.
     // Closed source podspecs, e.g. GoogleAppMeasurement.podspec.json.
     if path.pathExtension == "json" {
       // Remove both extenstions of `podspec` and `json`.
