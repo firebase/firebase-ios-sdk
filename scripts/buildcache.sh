@@ -18,7 +18,7 @@
 # source buildcache.sh
 # echo $buildcache_xcb_flags
 #
-# Adds xcodebuild arguments for buildcache github action (https://github.com/mikehardy/buildcache-action)
+# Adds xcodebuild arguments for buildcache GitHub action (https://github.com/mikehardy/buildcache-action)
 
 buildcache_xcb_flags=(
   CC=clang

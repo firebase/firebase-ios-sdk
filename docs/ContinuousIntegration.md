@@ -46,8 +46,8 @@ configuration that rarely breaks if dynamic frameworks are working.
 ### Style Tests
 [check.yml](https://github.com/firebase/firebase-ios-sdk/tree/master/.github/workflows/check.yml)
 
-Runs several coding style tests. Details to come in an upcoming document about the scripts
-directory.
+Runs several coding style tests. Details
+[here](https://github.com/firebase/firebase-ios-sdk/tree/master/scripts/README.md#checksh).
 
 ### SwiftPM Tests
 [spm.yml](https://github.com/firebase/firebase-ios-sdk/tree/master/.github/workflows/spm.yml)
