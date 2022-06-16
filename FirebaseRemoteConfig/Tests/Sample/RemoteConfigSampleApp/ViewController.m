@@ -101,6 +101,13 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
         self.RCInstances[namespaceString][appString] =
             [FIRRemoteConfig remoteConfigWithFIRNamespace:namespaceString app:firebaseApp];
       }
+        [self.RCInstances[namespaceString][appString] addOnConfigUpdateListener:^(NSError * _Nullable error) {
+            if (error != nil) {
+                [self.RCInstances[namespaceString][appString] activateWithCompletion:^(BOOL changed, NSError * _Nullable error) {
+                    NSLog(@"activated");
+                }];
+            }
+        }];
       FIRRemoteConfigSettings *settings = [[FIRRemoteConfigSettings alloc] init];
       settings.fetchTimeout = 300;
       settings.minimumFetchInterval = 0;
