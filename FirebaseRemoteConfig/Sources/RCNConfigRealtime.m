@@ -361,7 +361,7 @@ bool isRetrying = false;
 - (void)backgroundChangeListener {
   [_notificationCenter addObserver:self
                           selector:@selector(isInForeground)
-                              name:UIApplicationWillEnterForegroundNotification
+                              name:NSExtensionHostWillEnterForegroundNotification
                             object:nil];
 }
 
