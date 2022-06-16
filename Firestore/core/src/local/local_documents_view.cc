@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/local/local_documents_view.h"
 
+#include <algorithm>
 #include <map>
 #include <memory>
 #include <string>
@@ -25,6 +26,7 @@
 
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/immutable/sorted_set.h"
+#include "Firestore/core/src/local/local_write_result.h"
 #include "Firestore/core/src/local/mutation_queue.h"
 #include "Firestore/core/src/local/remote_document_cache.h"
 #include "Firestore/core/src/model/document.h"
@@ -60,6 +62,9 @@ using model::Overlay;
 using model::OverlayByDocumentKeyMap;
 using model::ResourcePath;
 using model::SnapshotVersion;
+
+using OverlayByDocumentKeyMap = std::
+    unordered_map<model::DocumentKey, model::Overlay, model::DocumentKeyHash>;
 
 Document LocalDocumentsView::GetDocument(
     const DocumentKey& key, const std::vector<MutationBatch>& batches) {

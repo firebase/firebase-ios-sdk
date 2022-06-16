@@ -17,6 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_LOCAL_REMOTE_DOCUMENT_CACHE_H_
 #define FIRESTORE_CORE_SRC_LOCAL_REMOTE_DOCUMENT_CACHE_H_
 
+#include <string>
+
 #include "Firestore/core/src/model/model_fwd.h"
 
 namespace firebase {
@@ -75,6 +77,20 @@ class RemoteDocumentCache {
    */
   virtual model::MutableDocumentMap GetAll(
       const model::DocumentKeySet& keys) = 0;
+
+  /**
+   * Looks up the next "limit" number of documents for a collection group based
+   * on the provided offset. The ordering is based on the document's read time
+   * and key.
+   *
+   * @param collection_group The collection group to scan.
+   * @param offset The offset to start the scan at.
+   * @param limit The maximum number of results to return.
+   * @return A newly created map with next set of documents.
+   */
+  virtual model::MutableDocumentMap GetAll(const std::string& collection_group,
+                                           const model::IndexOffset& offset,
+                                           size_t limit) const = 0;
 
   /**
    * Executes a query against the cached Document entries

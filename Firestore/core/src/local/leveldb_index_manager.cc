@@ -38,6 +38,7 @@
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/target_index_matcher.h"
+#include "Firestore/core/src/util/comparison.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/set_util.h"
@@ -400,7 +401,7 @@ void LevelDbIndexManager::DeleteFieldIndex(const FieldIndex& index) {
 }
 
 std::vector<FieldIndex> LevelDbIndexManager::GetFieldIndexes(
-    const std::string& collection_group) {
+    const std::string& collection_group) const {
   HARD_ASSERT(started_, "IndexManager not started");
 
   std::vector<FieldIndex> result;
@@ -414,7 +415,7 @@ std::vector<FieldIndex> LevelDbIndexManager::GetFieldIndexes(
   return result;
 }
 
-std::vector<model::FieldIndex> LevelDbIndexManager::GetFieldIndexes() {
+std::vector<model::FieldIndex> LevelDbIndexManager::GetFieldIndexes() const {
   std::vector<FieldIndex> result;
   for (const auto& entry : memoized_indexes_) {
     for (const auto& id_index_entry : entry.second) {
@@ -426,7 +427,7 @@ std::vector<model::FieldIndex> LevelDbIndexManager::GetFieldIndexes() {
 }
 
 absl::optional<model::FieldIndex> LevelDbIndexManager::GetFieldIndex(
-    const core::Target& target) {
+    const core::Target& target) const {
   HARD_ASSERT(started_, "IndexManager not started");
 
   TargetIndexMatcher target_index_matcher(target);
@@ -452,6 +453,65 @@ absl::optional<model::FieldIndex> LevelDbIndexManager::GetFieldIndex(
     }
   }
 
+  return result;
+}
+
+const model::IndexOffset LevelDbIndexManager::GetMinOffset(
+    const core::Target& target) const {
+  std::vector<FieldIndex> indexes;
+  for (const auto& sub_target : GetSubTargets(target)) {
+    auto index_opt = GetFieldIndex(sub_target);
+    if (index_opt.has_value()) {
+      indexes.push_back(index_opt.value());
+    }
+  }
+  return GetMinOffset(indexes);
+}
+
+const model::IndexOffset LevelDbIndexManager::GetMinOffset(
+    const std::string& collection_group) const {
+  const std::vector<model::FieldIndex> field_indexes =
+      GetFieldIndexes(collection_group);
+  return GetMinOffset(field_indexes);
+}
+
+const model::IndexOffset LevelDbIndexManager::GetMinOffset(
+    const std::vector<model::FieldIndex>& indexes) const {
+  HARD_ASSERT(
+      !indexes.empty(),
+      "Found empty index group when looking for least recent index offset.");
+
+  auto it = indexes.cbegin();
+  const model::IndexOffset* min_offset =
+      &((it++)->index_state().index_offset());
+  int max_batch_id = min_offset->largest_batch_id();
+  for (; it != indexes.cend(); it++) {
+    const model::IndexOffset* new_offset = &(it->index_state().index_offset());
+    if (new_offset->CompareTo(*min_offset) ==
+        util::ComparisonResult::Ascending) {
+      min_offset = new_offset;
+    }
+    max_batch_id = std::max(max_batch_id, new_offset->largest_batch_id());
+  }
+
+  return model::IndexOffset(min_offset->read_time(), min_offset->document_key(),
+                            max_batch_id);
+}
+
+IndexManager::IndexType LevelDbIndexManager::GetIndexType(
+    const core::Target& target) const {
+  IndexManager::IndexType result = IndexManager::IndexType::FULL;
+  for (const Target& sub_target : GetSubTargets(target)) {
+    absl::optional<model::FieldIndex> index = GetFieldIndex(sub_target);
+    if (!index) {
+      result = IndexManager::IndexType::NONE;
+      break;
+    }
+
+    if (index.value().segments().size() < sub_target.GetSegmentCount()) {
+      result = IndexManager::IndexType::PARTIAL;
+    }
+  }
   return result;
 }
 
@@ -858,7 +918,8 @@ void LevelDbIndexManager::DeleteIndexEntry(const model::Document& document,
 }
 
 // TODO(OrQuery): Implement sub targets properly.
-std::vector<Target> LevelDbIndexManager::GetSubTargets(const Target& target) {
+const std::vector<Target> LevelDbIndexManager::GetSubTargets(
+    const Target& target) const {
   return {target};
 }
 

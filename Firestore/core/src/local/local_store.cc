@@ -118,13 +118,14 @@ LocalStore::LocalStore(Persistence* persistence,
 
   persistence->reference_delegate()->AddInMemoryPins(&local_view_references_);
   target_id_generator_ = TargetIdGenerator::TargetCacheTargetIdGenerator(0);
-  query_engine_->SetLocalDocumentsView(local_documents_.get());
+  query_engine_->Initialize(local_documents_.get());
 }
 
 LocalStore::~LocalStore() = default;
 
 void LocalStore::Start() {
   StartMutationQueue();
+  StartIndexManager();
   overlay_migration_manager_->Run();
   TargetId target_id = target_cache_->highest_target_id();
   target_id_generator_ =
@@ -133,6 +134,10 @@ void LocalStore::Start() {
 
 void LocalStore::StartMutationQueue() {
   persistence_->Run("Start MutationQueue", [&] { mutation_queue_->Start(); });
+}
+
+void LocalStore::StartIndexManager() {
+  persistence_->Run("Start IndexManager", [&] { index_manager_->Start(); });
 }
 
 DocumentMap LocalStore::HandleUserChange(const User& user) {
@@ -149,6 +154,7 @@ DocumentMap LocalStore::HandleUserChange(const User& user) {
   remote_document_cache_->SetIndexManager(index_manager_);
 
   StartMutationQueue();
+  StartIndexManager();
 
   persistence_->ReleaseOtherUserSpecificComponents(user.uid());
 
@@ -160,7 +166,7 @@ DocumentMap LocalStore::HandleUserChange(const User& user) {
     local_documents_ = absl::make_unique<LocalDocumentsView>(
         remote_document_cache_, mutation_queue_, document_overlay_cache_,
         index_manager_);
-    query_engine_->SetLocalDocumentsView(local_documents_.get());
+    query_engine_->Initialize(local_documents_.get());
 
     // Union the old/new changed keys.
     DocumentKeySet changed_keys;

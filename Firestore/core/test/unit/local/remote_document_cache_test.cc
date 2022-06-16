@@ -221,8 +221,8 @@ TEST_P(RemoteDocumentCacheTest, DocumentsMatchingQuerySinceReadTime) {
     SetTestDocument("b/new", /* updateTime= */ 3, /* readTime= = */ 13);
 
     core::Query query = Query("b");
-    MutableDocumentMap results =
-        cache_->GetAll(query.path(), model::IndexOffset::Create(Version(12)));
+    MutableDocumentMap results = cache_->GetAll(
+        query.path(), model::IndexOffset::CreateSuccessor(Version(12)));
     std::vector<MutableDocument> docs = {
         Doc("b/new", 3, Map("a", 1, "b", 2)),
     };
@@ -238,7 +238,7 @@ TEST_P(RemoteDocumentCacheTest, DocumentsMatchingUsesReadTimeNotUpdateTime) {
 
         core::Query query = Query("b");
         MutableDocumentMap results = cache_->GetAll(
-            query.path(), model::IndexOffset::Create(Version(1)));
+            query.path(), model::IndexOffset::CreateSuccessor(Version(1)));
         std::vector<MutableDocument> docs = {
             Doc("b/old", 1, Map("a", 1, "b", 2)),
         };

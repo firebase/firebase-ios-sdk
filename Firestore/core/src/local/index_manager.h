@@ -47,6 +47,24 @@ namespace local {
  */
 class IndexManager {
  public:
+  /** Represents the index state as it relates to a particular target. */
+  enum class IndexType {
+    /** Indicates that no index could be found for serving the target. */
+    NONE,
+    /**
+     * Indicates that only a "partial index" could be found for serving the
+     * target. A partial index is one which does not have a segment for every
+     * Filter/OrderBy in the target.
+     */
+    PARTIAL,
+    /**
+     * Indicates that a "full index" could be found for serving the target. A
+     * full index is one which has a segment for every Filter/OrderBy in the
+     * target.
+     */
+    FULL
+  };
+
   virtual ~IndexManager() = default;
 
   /** Initializes the IndexManager. */
@@ -89,17 +107,33 @@ class IndexManager {
    * group.
    */
   virtual std::vector<model::FieldIndex> GetFieldIndexes(
-      const std::string& collection_group) = 0;
+      const std::string& collection_group) const = 0;
 
   /** Returns all configured field indexes. */
-  virtual std::vector<model::FieldIndex> GetFieldIndexes() = 0;
+  virtual std::vector<model::FieldIndex> GetFieldIndexes() const = 0;
 
   /**
    * Returns an index that can be used to serve the provided target. Returns
    * `nullopt` if no index is configured.
    */
   virtual absl::optional<model::FieldIndex> GetFieldIndex(
-      const core::Target& target) = 0;
+      const core::Target& target) const = 0;
+
+  /**
+   * Iterates over all field indexes that are used to serve the given target,
+   * and returns the minimum offset of them all. Asserts that the target can be
+   * served from index.
+   */
+  virtual const model::IndexOffset GetMinOffset(
+      const core::Target& target) const = 0;
+
+  /** Returns the minimum offset for the given collection group. */
+  virtual const model::IndexOffset GetMinOffset(
+      const std::string& collection_group) const = 0;
+
+  /** Returns the type of index (if any) that can be used to serve the given
+   * target */
+  virtual IndexType GetIndexType(const core::Target& target) const = 0;
 
   /**
    * Returns the documents that match the given target based on the provided

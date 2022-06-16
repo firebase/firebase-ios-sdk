@@ -184,6 +184,17 @@ MutableDocumentMap LevelDbRemoteDocumentCache::GetAllExisting(
   return result;
 }
 
+model::MutableDocumentMap LevelDbRemoteDocumentCache::GetAll(
+    const std::string& collection_group,
+    const model::IndexOffset& offset,
+    size_t limit) const {
+  (void)collection_group;
+  (void)offset;
+  (void)limit;
+  // TODO(cheryllin): Implement GetAll() together with backfiller
+  return model::MutableDocumentMap();
+}
+
 MutableDocumentMap LevelDbRemoteDocumentCache::GetAll(
     const model::ResourcePath& path, const model::IndexOffset& offset) {
   // Use the query path as a prefix for testing if a document matches the query.
