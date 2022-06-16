@@ -78,6 +78,8 @@
                                configContent:(RCNConfigContent *)configContent
                               configSettings:(RCNConfigSettings *)configSettings
                             configExperiment:(RCNConfigExperiment *)configExperiment;
+
+- (void)updateWithNewInstancesForConfigRealtime:(RCNConfigRealtime *)configRealtime;
 @end
 
 @implementation FIRRemoteConfig (ForTest)
@@ -89,6 +91,10 @@
   [self setValue:configContent forKey:@"_configContent"];
   [self setValue:configSettings forKey:@"_settings"];
   [self setValue:configExperiment forKey:@"_configExperiment"];
+}
+
+- (void)updateWithNewInstancesForConfigRealtime:(RCNConfigRealtime *)configRealtime {
+  [self setValue:configRealtime forKey:@"_configRealtime"];
 }
 @end
 
@@ -262,6 +268,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                 configContent:configContent
                                                configSettings:_settings
                                              configExperiment:_experimentMock];
+    [_configInstances[i] updateWithNewInstancesForConfigRealtime:_configRealtime[i]];
   }
 }
 
@@ -1617,6 +1624,55 @@ static NSString *UTCToLocal(NSString *utcTime) {
         dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
         dispatch_get_main_queue(), ^{
           OCMVerify([self->_configRealtime[i] scheduleFetch:1 targetVersion:1]);
+          [expectations[i] fulfill];
+        });
+
+    [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+  }
+}
+
+- (void)testAddOnConfigUpdateMethodSuccess {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] = [self
+        expectationWithDescription:
+            [NSString
+                stringWithFormat:@"Test public realtime method successfully - instance %d", i]];
+
+    OCMStub([_configRealtime[i] beginRealtimeStream]).andDo(nil);
+
+    id completion = ^void(NSError *_Nullable error) {
+      if (error != nil) {
+        NSLog(@"Callback");
+      }
+    };
+    [_configInstances[i] addOnConfigUpdateListener:completion];
+    dispatch_after(
+        dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
+        dispatch_get_main_queue(), ^{
+          OCMVerify([self->_configRealtime[i] addConfigUpdateListener:completion]);
+          [expectations[i] fulfill];
+        });
+
+    [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+  }
+}
+
+- (void)testAddOnConfigUpdateMethodFail {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] = [self
+        expectationWithDescription:
+            [NSString stringWithFormat:@"Test public realtime method and fails - instance %d", i]];
+
+    id completion = nil;
+    [_configInstances[i] addOnConfigUpdateListener:completion];
+    dispatch_after(
+        dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
+        dispatch_get_main_queue(), ^{
+          OCMVerify(never(), [self->_configRealtime[i] beginRealtimeStream]);
           [expectations[i] fulfill];
         });
 
