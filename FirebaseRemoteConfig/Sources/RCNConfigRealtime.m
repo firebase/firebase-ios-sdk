@@ -22,6 +22,7 @@
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
+#import <UIKit/UIKit.h>
 
 /// URL params
 static NSString *const kServerURLDomain = @"https://firebaseremoteconfig.googleapis.com";
