@@ -105,7 +105,7 @@ static NSString *const templateVersionNumberKey = @"templateVersion";
     _content = content;
     _fetchSession = [self newFetchSession];
     _options = options;
-    _templateVersionNumber = [self getTemplateVersionNumber];
+    _templateVersionNumber = [self getTemplateVersionNumber:_content.fetchedConfig];
   }
   return self;
 }
@@ -494,7 +494,7 @@ static NSString *const templateVersionNumberKey = @"templateVersion";
                                        fetchedConfig[RCNFetchResponseKeyExperimentDescriptions]];
         }
 
-        strongSelf->_templateVersionNumber = [strongSelf getTemplateVersionNumber];
+        strongSelf->_templateVersionNumber = [strongSelf getTemplateVersionNumber:fetchedConfig];
       } else {
         FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000063",
                     @"Empty response with no fetched config.");
@@ -584,12 +584,10 @@ static NSString *const templateVersionNumberKey = @"templateVersion";
   return [_fetchSession dataTaskWithRequest:URLRequest completionHandler:fetcherCompletion];
 }
 
-- (NSString *)getTemplateVersionNumber {
-  if (_content.fetchedConfig != nil &&
-      [_content.fetchedConfig objectForKey:templateVersionNumberKey] &&
-      [[_content.fetchedConfig objectForKey:templateVersionNumberKey]
-          isKindOfClass:[NSString class]]) {
-    return (NSString *)[_content.fetchedConfig objectForKey:templateVersionNumberKey];
+- (NSString *)getTemplateVersionNumber:(NSDictionary *)fetchedConfig {
+  if (fetchedConfig != nil && [fetchedConfig objectForKey:templateVersionNumberKey] &&
+      [[fetchedConfig objectForKey:templateVersionNumberKey] isKindOfClass:[NSString class]]) {
+    return (NSString *)[fetchedConfig objectForKey:templateVersionNumberKey];
   }
 
   return @"1";

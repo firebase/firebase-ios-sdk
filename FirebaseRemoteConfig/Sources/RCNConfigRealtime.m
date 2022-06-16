@@ -330,7 +330,6 @@ bool isRetrying = false;
 - (void)retryHTTPConnection {
   __weak RCNConfigRealtime *weakSelf = self;
   dispatch_async(_realtimeLockQueue, ^{
-    NSLog(@"why");
     __strong RCNConfigRealtime *strongSelf = weakSelf;
     if ([strongSelf canMakeConnection] && MAX_RETRY_COUNT > 0 && !isRetrying) {
       if (MAX_RETRY_COUNT < MAX_RETRY) {
@@ -339,7 +338,8 @@ bool isRetrying = false;
       }
       MAX_RETRY_COUNT--;
       isRetrying = true;
-      dispatch_time_t executionDelay = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(RETRY_SECONDS));
+      dispatch_time_t executionDelay =
+          dispatch_time(DISPATCH_TIME_NOW, (RETRY_SECONDS * NSEC_PER_SEC));
       dispatch_after(executionDelay, strongSelf->_realtimeLockQueue, ^{
         [strongSelf beginRealtimeStream];
       });
@@ -373,7 +373,6 @@ bool isRetrying = false;
 
 - (void)fetchLatestConfig:(NSInteger)remainingAttempts targetVersion:(NSInteger)targetVersion {
   __weak RCNConfigRealtime *weakSelf = self;
-
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
     [strongSelf->_configFetch
@@ -409,7 +408,7 @@ bool isRetrying = false;
 - (void)scheduleFetch:(NSInteger)remainingAttempts targetVersion:(NSInteger)targetVersion {
   /// Needs fetch to occur between 1 - 4 seconds. Randomize to not cause ddos alerts in backend
   dispatch_time_t executionDelay =
-      dispatch_time(DISPATCH_TIME_NOW, (int64_t)(arc4random_uniform(3) + 1));
+      dispatch_time(DISPATCH_TIME_NOW, (arc4random_uniform(3) + 1) * NSEC_PER_SEC);
   dispatch_after(executionDelay, _realtimeLockQueue, ^{
     [self fetchLatestConfig:remainingAttempts targetVersion:targetVersion];
   });
