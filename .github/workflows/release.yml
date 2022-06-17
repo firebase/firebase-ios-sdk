@@ -163,7 +163,7 @@ jobs:
     runs-on: macos-12
     steps:
     - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+    - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
@@ -201,7 +201,7 @@ jobs:
     runs-on: macos-12
     steps:
     - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+    - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
@@ -235,7 +235,7 @@ jobs:
     runs-on: macos-12
     steps:
     - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+    - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
@@ -284,7 +284,7 @@ jobs:
     runs-on: macos-12
     steps:
     - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+    - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
@@ -320,7 +320,7 @@ jobs:
     runs-on: macos-12
     steps:
     - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+    - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
@@ -362,7 +362,7 @@ jobs:
     runs-on: macos-12
     steps:
     - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+    - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
@@ -398,7 +398,7 @@ jobs:
     runs-on: macos-12
     steps:
     - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+    - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
@@ -438,7 +438,7 @@ jobs:
     runs-on: macos-12
     steps:
     - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+    - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
@@ -476,7 +476,7 @@ jobs:
     runs-on: macos-12
     steps:
     - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+    - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
@@ -512,7 +512,7 @@ jobs:
     runs-on: macos-12
     steps:
     - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+    - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
@@ -547,7 +547,7 @@ jobs:
     runs-on: macos-12
     steps:
     - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+    - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"
@@ -583,7 +583,7 @@ jobs:
     runs-on: macos-12
     steps:
     - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+    - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
           bot-access.txt "$bot_token_secret"

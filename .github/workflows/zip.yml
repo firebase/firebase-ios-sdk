@@ -36,7 +36,7 @@ jobs:
         cache_key: ${{ matrix.os }}
     - name: Xcode 13.3.1
       run: sudo xcode-select -s /Applications/Xcode_13.3.1.app/Contents/Developer
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+    - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: ZipBuildingTest
@@ -76,7 +76,7 @@ jobs:
         cache_key: ${{ matrix.os }}
     - name: Xcode 13.3.1
       run: sudo xcode-select -s /Applications/Xcode_13.3.1.app/Contents/Developer
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+    - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: ZipBuildingTest
@@ -108,7 +108,7 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: Firebase-actions-dir
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+    - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -160,7 +160,7 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: Firebase-actions-dir
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+    - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -204,7 +204,7 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: Firebase-actions-dir
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+    - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -246,7 +246,7 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: Firebase-actions-dir
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+    - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -311,7 +311,7 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: Firebase-actions-dir
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+    - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -357,7 +357,7 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: Firebase-actions-dir
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+    - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -407,7 +407,7 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: Firebase-actions-dir
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+    - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -451,7 +451,7 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: Firebase-actions-dir
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+    - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -498,7 +498,7 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: Firebase-actions-dir
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+    - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -544,7 +544,7 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: Firebase-actions-dir
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+    - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
