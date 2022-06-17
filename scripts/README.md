@@ -15,7 +15,7 @@ Runs clang-format and swiftformat across the repo.
 
 ### [check_whitespace.sh](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/check_whitespace.sh)
 
-Verify there are files with trailing whitespace.
+Verify there are no files with trailing whitespace.
 
 ### [check_filename_spaces.sh](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/check_filename_spaces.sh)
 
@@ -51,7 +51,7 @@ Used by Firestore to to keep the Xcode project in sync after adding/removing tes
 
 Firestore script to convert binary data into a C/C++ array.
 
-### [build.sh](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/.sh)
+### [build.sh](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/build.sh)
 
 Script used by CI jobs to wrap xcodebuild invocations with options.
 
@@ -77,7 +77,7 @@ CI script to test if secrets are available (not running on a fork).
 
 ### [collect_metrics.sh](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/collect_metrics.sh)
 
-CI script to collects project health metrics and uploads them to a database.
+CI script to collect project health metrics and upload them to a database.
 
 ### [configure_test_keychain.sh](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/configure_test_keychain.sh)
 
@@ -117,7 +117,7 @@ Utility script to update a Podfile to point to local podspecs.
 
 ### [make_release_notes.py](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/make_release_notes.py)
 
-Converts GitHub flavored markdown changelogs to release notes.
+Converts GitHub-flavored markdown changelogs to devsite-compatible release notes.
 
 ### [pod_lib_lint.rb](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/pod_lib_lint.rb)
 
