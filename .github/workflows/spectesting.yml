@@ -27,7 +27,7 @@ jobs:
       run: |
         # The output.json will have podspecs that will be tested.
         # ``` output.json
-        # [{"podspec":"FirebaseABTesting.podspec"},{"podspec":"FirebaseAnalytics.podspec.json"}]
+        # [{"podspec":"FirebaseABTesting.podspec"},{"podspec":"FirebaseAnalytics.podspec"}]
         # ```
         # This array will help generate a matrix for jobs in GHA, taking
         # advantage of `include`.
