@@ -33,8 +33,6 @@ jobs:
       with:
         cache_key: ${{ matrix.os }}
     - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
-      with:
-        ruby-version: '2.7'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Install xcpretty
@@ -52,8 +50,6 @@ jobs:
       with:
         cache_key: ${{ matrix.os }}
     - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
-      with:
-        ruby-version: '2.7'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Install xcpretty
@@ -91,8 +87,6 @@ jobs:
       with:
         cache_key: ${{ matrix.os }}
     - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
-      with:
-        ruby-version: '2.7'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Build for Catalyst
@@ -130,8 +124,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
-      with:
-        ruby-version: '2.7'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
@@ -151,8 +143,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
-      with:
-        ruby-version: '2.7'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint database Cron

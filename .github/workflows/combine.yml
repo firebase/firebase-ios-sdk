@@ -62,8 +62,6 @@ jobs:
         cache_key: ${{ matrix.os }}
 
     - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
-      with:
-        ruby-version: '2.7'
 
     - name: Install xcpretty
       run: gem install xcpretty
@@ -86,8 +84,6 @@ jobs:
       with:
         cache_key: ${{ matrix.os }}
     - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
-      with:
-        ruby-version: '2.7'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Install xcpretty
