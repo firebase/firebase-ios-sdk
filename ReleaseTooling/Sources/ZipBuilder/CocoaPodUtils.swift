@@ -73,12 +73,11 @@ enum CocoaPodUtils {
 
     /// The debug description as required by `CustomDebugStringConvertible`.
     var debugDescription: String {
-      var desc = name
       if let version = version {
-        desc.append(" v\(version)")
+        return "\(name) v\(version)"
+      } else {
+        return name
       }
-
-      return desc
     }
   }
 
