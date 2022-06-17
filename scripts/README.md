@@ -25,11 +25,11 @@ Spaces in filenames are not allowed.
 
 Verify existence and format of copyrights.
 
-### [check_test_inclusion.sh](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/check_test_inclusion.sh)
+### [check_test_inclusion.py](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/check_test_inclusion.py)
 
-Test existence check for Firestore.
+Test existence check for the internal Firestore Xcode project.
 
-### [check_imports.swift](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/check_imports.sh)
+### [check_imports.swift](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/check_imports.swift)
 
 Verify import style complies with
 [repo standards](https://github.com/firebase/firebase-ios-sdk/blob/master/HeadersImports.md).
@@ -159,7 +159,7 @@ Set up a QuickStart for zip distribution testing.
 
 Configuration for SPM testing.
 
-### [spm_test_schemes](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/spm_test_schemes)
+### [spm_test_schemes/](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/spm_test_schemes)
 
 Schemes used by above script to enable test target schemes.
 
@@ -189,7 +189,7 @@ Tooling used by `build.sh` to get the log output for an `xcodebuild` invocation.
 
 ### [zip_quickstart_test.sh](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/zip_quickstart_test.sh)
 
-Run the tests associated with a QuickStart.
+Run the tests associated with a QuickStart with a zip distribution.
 
 ## Script Subdirectories
 ### [create_spec_repo](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/create_spec_repo)
