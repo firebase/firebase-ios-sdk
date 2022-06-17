@@ -79,8 +79,7 @@
                               configSettings:(RCNConfigSettings *)configSettings
                             configExperiment:(RCNConfigExperiment *)configExperiment;
 
-- (void)updateWithNewInstancesForConfigRealtime:(RCNConfigRealtime *)configRealtime
-                                    configFetch:(RCNConfigFetch *)configFetch;
+- (void)updateWithNewInstancesForConfigRealtime:(RCNConfigRealtime *)configRealtime;
 @end
 
 @implementation FIRRemoteConfig (ForTest)
@@ -94,10 +93,8 @@
   [self setValue:configExperiment forKey:@"_configExperiment"];
 }
 
-- (void)updateWithNewInstancesForConfigRealtime:(RCNConfigRealtime *)configRealtime
-                                    configFetch:(RCNConfigFetch *)configFetch {
+- (void)updateWithNewInstancesForConfigRealtime:(RCNConfigRealtime *)configRealtime {
   [self setValue:configRealtime forKey:@"_configRealtime"];
-  [self setValue:configFetch forKey:@"_configFetch"];
 }
 @end
 
@@ -271,8 +268,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                 configContent:configContent
                                                configSettings:_settings
                                              configExperiment:_experimentMock];
-    [_configInstances[i] updateWithNewInstancesForConfigRealtime:_configRealtime[i]
-                                                     configFetch:_configFetch[i]];
+    [_configInstances[i] updateWithNewInstancesForConfigRealtime:_configRealtime[i]];
   }
 }
 
@@ -1612,7 +1608,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
         expectationWithDescription:
             [NSString stringWithFormat:@"Test Realtime Autofetch successfully - instance %d", i]];
 
-    OCMStub([_configRealtime[i] fetchLatestConfig:1 targetVersion:1]).andDo(nil);
+    OCMStub([_configRealtime[i] scheduleFetch:1 targetVersion:1]).andDo(nil);
 
     [_configRealtime[i] autoFetch:1 targetVersion:1];
 
