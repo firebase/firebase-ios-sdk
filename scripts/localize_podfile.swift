@@ -40,6 +40,13 @@ let implicitPods = [
   "FirebaseAuthInterop", "FirebaseMessagingInterop",
   "FirebaseStorageInternal", "FirebaseCoreInternal",
 ]
+
+let binaryPods = [
+  "GoogleAppMeasurement",
+  "GoogleAppMeasurementOnDeviceConversion",
+  "FirebaseAnalytics",
+]
+
 var didImplicits = false
 
 var fileContents = ""
@@ -74,7 +81,7 @@ for line in lines {
       podName = podName.replacingOccurrences(of: "Firebase/", with: "Firebase")
     }
     let podspec = repo.appendingPathComponent(podName + ".podspec").path
-    if FileManager().fileExists(atPath: podspec) {
+    if !binaryPods.contains(podName), FileManager().fileExists(atPath: podspec) {
       if didImplicits == false {
         didImplicits = true
         for implicit in implicitPods {
