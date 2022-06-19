@@ -676,6 +676,44 @@ NSString *const kTestPassword = KPASSWORD;
   [self waitForExpectations];
 }
 
+- (void)testMetadataDictInitAndClear {
+  FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:@{
+    @"cacheControl" : @"cache-control",
+    @"contentDisposition" : @"content-disposition",
+    @"contentEncoding" : @"gzip",
+    @"contentLanguage" : @"de",
+    @"contentType" : @"content-type-a",
+    @"md5Hash" : @"123456789012345678901234",  // length 24
+    @"metadata" : @{@"a" : @"b", @"y" : @"z"}
+  }];
+
+  [self assertMetadata:metadata
+           contentType:@"content-type-a"
+        customMetadata:@{@"a" : @"b", @"y" : @"z"}];
+
+  metadata.cacheControl = nil;
+  metadata.contentDisposition = nil;
+  metadata.contentEncoding = @"identity";
+  metadata.contentLanguage = nil;
+  metadata.contentType = nil;
+  metadata.customMetadata = nil;
+  [self assertMetadataNil:metadata];
+
+  metadata.contentEncoding = nil;
+
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"testMetadataDictInitAndClear"];
+  FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
+  [ref updateMetadata:metadata
+           completion:^(FIRStorageMetadata *updatedMetadata, NSError *error) {
+             XCTAssertNil(error);
+             [self assertMetadataNil:updatedMetadata];
+             XCTAssertNil(updatedMetadata.customMetadata);
+             [expectation fulfill];
+           }];
+  [self waitForExpectations];
+}
+
 - (void)testResumeGetFile {
   XCTestExpectation *expectation = [self expectationWithDescription:@"testResumeGetFile"];
 
