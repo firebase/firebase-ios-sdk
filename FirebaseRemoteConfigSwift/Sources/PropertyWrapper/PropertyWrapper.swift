@@ -14,66 +14,68 @@
  * limitations under the License.
  */
 
-import SwiftUI
 import FirebaseRemoteConfig
+import SwiftUI
 
-/// A property wrapper that listens to a Remote Config value.
-@available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
-@propertyWrapper
-public struct RemoteConfigProperty<T: Decodable>: DynamicProperty {
-  @State private var configValueObserver: RemoteConfigValueObservable<T>
+#if compiler(>=5.5.2) && canImport(SwiftUI) && (arch(arm64) || arch(x86_64))
+  /// A property wrapper that listens to a Remote Config value.
+  @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
+  @propertyWrapper
+  public struct RemoteConfigProperty<T: Decodable>: DynamicProperty {
+    @State private var configValueObserver: RemoteConfigValueObservable<T>
 
-  /// Remote Config key name for this property
-  public let key: String
+    /// Remote Config key name for this property
+    public let key: String
 
-  /// Remote Config instance for this property
-  public let remoteConfig: RemoteConfig
+    /// Remote Config instance for this property
+    public let remoteConfig: RemoteConfig
 
-  /// Last fetched status of remote config values
-  public var lastFetchStatus: RemoteConfigFetchStatus {
-    return remoteConfig.lastFetchStatus
-  }
+    /// Last fetched status of remote config values
+    public var lastFetchStatus: RemoteConfigFetchStatus {
+      return remoteConfig.lastFetchStatus
+    }
 
-  /// Last fetched time of remote config values
-  public var lastFetchTime: Date? {
-    return remoteConfig.lastFetchTime
-  }
+    /// Last fetched time of remote config values
+    public var lastFetchTime: Date? {
+      return remoteConfig.lastFetchTime
+    }
 
-  public var wrappedValue: T {
-    configValueObserver.configValue
-  }
+    public var wrappedValue: T {
+      configValueObserver.configValue
+    }
 
-  /// Creates an instance by defining key.
-  /// This property depends on default remote config.
-  ///
-  /// - Parameter key: key name
-  public init(forKey key: String) {
-    self.key = key
-    remoteConfig = RemoteConfig.remoteConfig()
+    /// Creates an instance by defining key.
+    /// This property depends on default remote config.
+    ///
+    /// - Parameter key: key name
+    public init(forKey key: String) {
+      self.key = key
+      remoteConfig = RemoteConfig.remoteConfig()
 
-    _configValueObserver = State(
-      wrappedValue: RemoteConfigValueObservable<T>(
-        key: key,
-        remoteConfig: RemoteConfig.remoteConfig()
+      _configValueObserver = State(
+        wrappedValue: RemoteConfigValueObservable<T>(
+          key: key,
+          remoteConfig: RemoteConfig.remoteConfig()
+        )
       )
-    )
-  }
+    }
 
-  /// Creates an instance by defining key and remote config instance.
-  ///
-  /// - Parameters:
-  ///   - key: key name
-  ///   - remoteConfig: remote config instance
-  public init(forKey key: String,
-              remoteConfig: RemoteConfig) {
-    self.key = key
-    self.remoteConfig = remoteConfig
+    /// Creates an instance by defining key and remote config instance.
+    ///
+    /// - Parameters:
+    ///   - key: key name
+    ///   - remoteConfig: remote config instance
+    public init(forKey key: String,
+                remoteConfig: RemoteConfig) {
+      self.key = key
+      self.remoteConfig = remoteConfig
 
-    _configValueObserver = State(
-      wrappedValue: RemoteConfigValueObservable<T>(
-        key: key,
-        remoteConfig: remoteConfig
+      _configValueObserver = State(
+        wrappedValue: RemoteConfigValueObservable<T>(
+          key: key,
+          remoteConfig: remoteConfig
+        )
       )
-    )
+    }
   }
-}
+#endif
