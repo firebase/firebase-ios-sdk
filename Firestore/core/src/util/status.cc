@@ -20,6 +20,7 @@
 #include <utility>
 
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/no_destructor.h"
 #include "Firestore/core/src/util/string_format.h"
 #include "absl/memory/memory.h"
 
@@ -101,12 +102,12 @@ void Status::SlowCopyFrom(const State* src) {
 }
 
 const std::string& Status::empty_string() {
-  static std::string* empty = new std::string;
+  static const NoDestructor<std::string> empty;
   return *empty;
 }
 
 const std::string& Status::moved_from_message() {
-  static std::string* message = new std::string("Status accessed after move.");
+  static const NoDestructor<std::string> message("Status accessed after move.");
   return *message;
 }
 

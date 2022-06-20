@@ -17,6 +17,7 @@
 #include "Firestore/core/src/model/snapshot_version.h"
 
 #include <ostream>
+#include <type_traits>
 
 #include "Firestore/core/src/util/hashing.h"
 
@@ -29,6 +30,9 @@ SnapshotVersion::SnapshotVersion(const Timestamp& timestamp)
 }
 
 const SnapshotVersion& SnapshotVersion::None() {
+  static_assert(std::is_trivially_destructible<SnapshotVersion>::value,
+                "SnapshotVersion should be trivially-destructible; otherwise, "
+                "it should use NoDestructor below.");
   static const SnapshotVersion kNone(Timestamp{});
   return kNone;
 }

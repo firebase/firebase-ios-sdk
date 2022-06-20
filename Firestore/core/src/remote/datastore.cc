@@ -40,6 +40,7 @@
 #include "Firestore/core/src/util/executor.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
+#include "Firestore/core/src/util/no_destructor.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_cat.h"
@@ -367,9 +368,10 @@ bool Datastore::IsPermanentWriteError(const Status& error) {
 
 std::string Datastore::GetAllowlistedHeadersAsString(
     const GrpcCall::Metadata& headers) {
-  static auto* allowlist = new std::unordered_set<std::string>{
-      "date", "x-google-backends", "x-google-netmon-label", "x-google-service",
-      "x-google-gfe-request-trace"};
+  static const util::NoDestructor<std::unordered_set<std::string>> allowlist(
+      std::unordered_set<std::string>{
+          "date", "x-google-backends", "x-google-netmon-label",
+          "x-google-service", "x-google-gfe-request-trace"});
 
   std::string result;
   auto end = allowlist->end();
