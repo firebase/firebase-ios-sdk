@@ -60,6 +60,22 @@ endif()
 enable_language(C)
 enable_language(CXX)
 
+set(
+  FIREBASE_LD_FILENAME
+  ""
+  CACHE
+  STRING
+  "The filename of the C/C++ linker to use. \
+    For example, the default linker for clang and gcc is ld. \
+    Using a fast linker, like mold (https://github.com/rui314/mold), \
+    could be useful during development to reduce build/test cycle times."
+)
+
+if(NOT ("${FIREBASE_LD_EXECUTABLE}" STREQUAL ""))
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fuse-ld=${FIREBASE_LD_EXECUTABLE}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=${FIREBASE_LD_EXECUTABLE}")
+endif()
+
 option(
   FIREBASE_IOS_BUILD_BENCHMARKS
   "Enable building of C++ and Objective-C benchmarks for this project"
