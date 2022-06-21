@@ -602,6 +602,7 @@ NSString *const kTestPassword = KPASSWORD;
   XCTAssertEqualObjects(actualMetadata.contentEncoding, @"gzip");
   XCTAssertEqualObjects(actualMetadata.contentLanguage, @"de");
   XCTAssertEqualObjects(actualMetadata.contentType, expectedContentType);
+  XCTAssertEqualObjects(actualMetadata.name, @"1mb");
   XCTAssertTrue([actualMetadata.md5Hash length] == 24);
   for (NSString *key in expectedCustomMetadata) {
     XCTAssertEqualObjects([actualMetadata.customMetadata objectForKey:key],
@@ -684,6 +685,7 @@ NSString *const kTestPassword = KPASSWORD;
     @"contentLanguage" : @"de",
     @"contentType" : @"content-type-a",
     @"md5Hash" : @"123456789012345678901234",  // length 24
+    @"name" : @"1mb",
     @"metadata" : @{@"a" : @"b", @"y" : @"z"}
   }];
 
