@@ -77,11 +77,11 @@ has_license_changes = didModify(["LICENSE"])
   "FirebaseAnalyticsWithoutAdIdSupportWrapper",
   "FirebaseAnalyticsWrapper"
 ]) || didModify([
-  "FirebaseAnalytics.podspec.json",
+  "FirebaseAnalytics.podspec",
   "FirebaseAnalyticsSwift.podspec",
   "FirebaseAnalyticsOnDeviceConversion.podspec",
-  "GoogleAppMeasurement.podspec.json",
-  "GoogleAppMeasurementOnDeviceConversion.podspec.json"
+  "GoogleAppMeasurement.podspec",
+  "GoogleAppMeasurementOnDeviceConversion.podspec"
 ])
 @has_abtesting_changes = hasChangesIn("FirebaseABTesting")
 @has_abtesting_api_changes = hasChangesIn("FirebaseABTesting/Sources/Public/")

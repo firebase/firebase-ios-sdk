@@ -80,5 +80,6 @@
   "8.9.0": "https://dl.google.com/dl/firebase/ios/carthage/8.9.0/FirebaseAnalytics-e9f5eb9b29ef3e80.zip",
   "8.9.1": "https://dl.google.com/dl/firebase/ios/carthage/8.9.1/FirebaseAnalytics-99c8003bbfcad467.zip",
   "9.0.0": "https://dl.google.com/dl/firebase/ios/carthage/9.0.0/FirebaseAnalytics-4aa86d1849cea541.zip",
-  "9.1.0": "https://dl.google.com/dl/firebase/ios/carthage/9.1.0/FirebaseAnalytics-f4af994c807f4b90.zip"
+  "9.1.0": "https://dl.google.com/dl/firebase/ios/carthage/9.1.0/FirebaseAnalytics-f4af994c807f4b90.zip",
+  "9.2.0": "https://dl.google.com/dl/firebase/ios/carthage/9.2.0/FirebaseAnalytics-955ee584e676e6ca.zip"
 }

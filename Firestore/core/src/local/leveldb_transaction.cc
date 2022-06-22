@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <type_traits>
+
 #include "Firestore/core/src/local/leveldb_transaction.h"
 
 #include "Firestore/core/src/local/leveldb_key.h"
@@ -146,7 +148,9 @@ LevelDbTransaction::LevelDbTransaction(DB* db,
 }
 
 const ReadOptions& LevelDbTransaction::DefaultReadOptions() {
-  // ReadOptions is trivial so it does not need to be heap-allocated.
+  static_assert(std::is_trivially_destructible<ReadOptions>::value,
+                "ReadOptions should be trivially-destructible; otherwise, it "
+                "should use NoDestructor below.");
   static ReadOptions options = [] {
     ReadOptions read_options;
     read_options.verify_checksums = true;
@@ -156,7 +160,9 @@ const ReadOptions& LevelDbTransaction::DefaultReadOptions() {
 }
 
 const WriteOptions& LevelDbTransaction::DefaultWriteOptions() {
-  // WriteOptions is trivial so it does not need to be heap-allocated.
+  static_assert(std::is_trivially_destructible<WriteOptions>::value,
+                "WriteOptions should be trivially-destructible; otherwise, it "
+                "should use NoDestructor below.");
   static WriteOptions options;
   return options;
 }

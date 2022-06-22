@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_LOCAL_LOCAL_DOCUMENTS_VIEW_H_
 #define FIRESTORE_CORE_SRC_LOCAL_LOCAL_DOCUMENTS_VIEW_H_
 
+#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -36,6 +37,10 @@ namespace firestore {
 namespace core {
 class Query;
 }  // namespace core
+
+namespace local {
+class LocalWriteResult;
+}  // namespace local
 
 namespace local {
 
@@ -117,6 +122,8 @@ class LocalDocumentsView {
       const core::Query& query, const model::IndexOffset& offset);
 
  private:
+  friend class QueryEngine;
+
   friend class CountingQueryEngine;  // For testing
 
   /** Internal version of GetDocument that allows re-using batches. */

@@ -19,6 +19,7 @@
 
 #include <iosfwd>
 #include <string>
+#include <type_traits>
 
 #include "Firestore/core/src/util/comparison.h"
 #include "absl/base/attributes.h"
@@ -66,6 +67,12 @@ class Direction {
   }
   int comparison_modifier_ = AscendingModifier;
 };
+
+static_assert(
+    std::is_trivially_destructible<Direction>::value,
+    "Direction should be trivially destructible so that Direction::Ascending "
+    "and Direction::Descending are safe global constants; change to use "
+    "NoDestructor if Direction is not trivially destructible.");
 
 std::ostream& operator<<(std::ostream& os, const Direction& direction);
 

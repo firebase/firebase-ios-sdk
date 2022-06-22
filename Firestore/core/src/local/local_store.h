@@ -285,6 +285,9 @@ class LocalStore : public bundle::BundleCallback {
   };
 
   void StartMutationQueue();
+
+  void StartIndexManager();
+
   void ApplyBatchResult(const model::MutationBatchResult& batch_result);
 
   /**

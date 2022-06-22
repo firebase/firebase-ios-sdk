@@ -102,7 +102,7 @@ class IndexOffset : public util::Comparable<IndexOffset> {
    * Creates an offset that matches all documents with a read time higher than
    * `read_time`.
    */
-  static IndexOffset Create(SnapshotVersion read_time);
+  static IndexOffset CreateSuccessor(SnapshotVersion read_time);
 
   /** Creates a new offset based on the provided document. */
   static IndexOffset FromDocument(const Document& document);

@@ -46,7 +46,7 @@ struct PodspecsTester: ParsableCommand {
   /// code and log.
   ///
   /// - Parameters:
-  ///   - spec: The podspec name, e.g. FirebaseAnalytics.podspec.json.
+  ///   - spec: The podspec name, e.g. `FirebaseAnalytics.podspec`.
   ///   - workingDir: The dir of the testing spec.
   ///   - args: A dict including options with its value or/and flags with nil.
   /// - Returns: A tuple with an error code and log.
