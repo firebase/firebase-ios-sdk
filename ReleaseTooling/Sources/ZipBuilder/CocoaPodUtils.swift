@@ -481,10 +481,18 @@ enum CocoaPodUtils {
 
     // Loop through the subspecs passed in and use the actual Pod name.
     for pod in pods {
-      let podspec = String(pod.name.split(separator: "/")[0] + ".podspec")
+      let rootPod = String(pod.name.split(separator: "/").first!)
+
+      let podIsClosedSource: Bool = FirebaseManifest.shared.pods
+        .filter(\.isClosedSource)
+        .map(\.name)
+        .contains(rootPod)
+
       // Check if we want to use a local version of the podspec.
-      if let localURL = localPodspecPath,
-         FileManager.default.fileExists(atPath: localURL.appendingPathComponent(podspec).path) {
+      if !podIsClosedSource,
+         let localURL = localPodspecPath,
+         FileManager.default
+         .fileExists(atPath: localURL.appendingPathComponent("\(rootPod).podspec").path) {
         podfile += "  pod '\(pod.name)', :path => '\(localURL.path)'"
       } else if let podVersion = pod.version {
         // To support Firebase patch versions in the Firebase zip distribution, allow patch updates

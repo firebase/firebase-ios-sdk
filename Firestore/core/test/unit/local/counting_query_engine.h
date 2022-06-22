@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_TEST_UNIT_LOCAL_COUNTING_QUERY_ENGINE_H_
 
 #include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -54,7 +55,7 @@ class CountingQueryEngine : public QueryEngine {
 
   void ResetCounts();
 
-  void SetLocalDocumentsView(LocalDocumentsView* local_document) override;
+  void Initialize(LocalDocumentsView* local_document) override;
 
   /**
    * Returns the number of documents returned by the RemoteDocumentCache's
@@ -176,6 +177,10 @@ class WrappedRemoteDocumentCache : public RemoteDocumentCache {
   model::MutableDocument Get(const model::DocumentKey& key) override;
 
   model::MutableDocumentMap GetAll(const model::DocumentKeySet& keys) override;
+
+  model::MutableDocumentMap GetAll(const std::string& collection_group,
+                                   const model::IndexOffset& offset,
+                                   size_t limit) const override;
 
   model::MutableDocumentMap GetAll(const model::ResourcePath& path,
                                    const model::IndexOffset& offset) override;

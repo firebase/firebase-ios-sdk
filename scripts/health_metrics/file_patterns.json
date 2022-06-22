@@ -10,7 +10,7 @@
   },
   {
     "sdk": "analytics",
-    "podspecs": ["FirebaseAnalytics.podspec.json", "FirebaseAnalyticsSwift.podspec", "GoogleAppMeasurement.podspec.json"],
+    "podspecs": ["FirebaseAnalytics.podspec", "FirebaseAnalyticsSwift.podspec", "GoogleAppMeasurement.podspec"],
     "filePatterns": [
       "^FirebaseAnalytics.*",
       "^GoogleAppMeasurement.*"
@@ -90,7 +90,6 @@
     "podspecs": ["Firebase.podspec"],
     "filePatterns": [
       ".*.podspec",
-      ".*.podspec.json",
       "CoreOnly/.*"
     ]
   },

@@ -18,13 +18,20 @@ import Foundation
 
 /// Struct describing Firebase pods to release.
 public struct Pod {
+  /// The name of the pod.
   public let name: String
+  /// Whether or not the pod is closed source.
   public let isClosedSource: Bool
+  /// Whether or not the pod is in beta.
   public let isBeta: Bool
-  public let allowWarnings: Bool // Allow validation warnings. Ideally these should all be false
-  public let platforms: Set<String> // Set of platforms to build this pod for
-  public let releasing: Bool // Non-Firebase pods may not release
-  public let zip: Bool // Top level pod in Zip Distribution
+  /// Allow validation warnings. Ideally these should all be `false`.
+  public let allowWarnings: Bool
+  /// Set of platforms (e.g. "ios", "macos", or "tvos") to build this pod for.
+  public let platforms: Set<String>
+  /// Whether or not the pod is planned for publicly releasing (as some pods are for internal/testing use).
+  public let releasing: Bool
+  /// Whether or not the pod is the top level pod in the zip distribution.
+  public let zip: Bool
 
   init(_ name: String,
        isClosedSource: Bool = false,
@@ -44,7 +51,7 @@ public struct Pod {
   }
 
   public func podspecName() -> String {
-    return isClosedSource ? "\(name).podspec.json" : "\(name).podspec"
+    return "\(name).podspec"
   }
 
   /// The Firebase pod does not support import validation with Xcode 12 because of the deprecated

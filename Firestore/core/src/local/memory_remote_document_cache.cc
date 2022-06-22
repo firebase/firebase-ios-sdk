@@ -74,6 +74,15 @@ MutableDocumentMap MemoryRemoteDocumentCache::GetAll(
   return results;
 }
 
+// This method should only be called from the IndexBackfiller if LevelDB is
+// enabled.
+MutableDocumentMap MemoryRemoteDocumentCache::GetAll(const std::string&,
+                                                     const model::IndexOffset&,
+                                                     size_t) const {
+  util::ThrowInvalidArgument(
+      "getAll(String, IndexOffset, int) is not supported.");
+}
+
 MutableDocumentMap MemoryRemoteDocumentCache::GetAll(
     const model::ResourcePath& path, const model::IndexOffset& offset) {
   MutableDocumentMap results;

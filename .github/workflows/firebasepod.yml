@@ -29,9 +29,7 @@ jobs:
     - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
       with:
         cache_key: ${{ matrix.os }}
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
-      with:
-        ruby-version: '2.7'
+    - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Prereqs

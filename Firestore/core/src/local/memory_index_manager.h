@@ -63,12 +63,18 @@ class MemoryIndexManager : public IndexManager {
   void DeleteFieldIndex(const model::FieldIndex& index) override;
 
   std::vector<model::FieldIndex> GetFieldIndexes(
-      const std::string& collection_group) override;
+      const std::string& collection_group) const override;
 
-  std::vector<model::FieldIndex> GetFieldIndexes() override;
+  std::vector<model::FieldIndex> GetFieldIndexes() const override;
 
   absl::optional<model::FieldIndex> GetFieldIndex(
-      const core::Target& target) override;
+      const core::Target& target) const override;
+
+  const model::IndexOffset GetMinOffset(const core::Target&) const override;
+
+  const model::IndexOffset GetMinOffset(const std::string&) const override;
+
+  IndexType GetIndexType(const core::Target&) const override;
 
   absl::optional<std::vector<model::DocumentKey>> GetDocumentsMatchingTarget(
       const core::Target& target) override;

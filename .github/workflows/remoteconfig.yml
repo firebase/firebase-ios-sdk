@@ -33,9 +33,7 @@ jobs:
     - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
       with:
         cache_key: ${{ matrix.os }}
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
-      with:
-        ruby-version: '2.7'
+    - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Install xcpretty
@@ -65,9 +63,7 @@ jobs:
         podspec: [FirebaseRemoteConfig.podspec, FirebaseRemoteConfigSwift.podspec --skip-tests]
     steps:
     - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
-      with:
-        ruby-version: '2.7'
+    - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
@@ -102,9 +98,7 @@ jobs:
     - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
       with:
         cache_key: ${{ matrix.os }}
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
-      with:
-        ruby-version: '2.7'
+    - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Build for Catalyst
@@ -120,9 +114,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
-      with:
-        ruby-version: '2.7'
+    - uses: ruby/setup-ruby@v1
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh config
     - name: Install Secret GoogleService-Info.plist
@@ -140,9 +132,7 @@ jobs:
     - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
       with:
         cache_key: ${{ matrix.os }}
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
-      with:
-        ruby-version: '2.7'
+    - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Prereqs
@@ -163,9 +153,7 @@ jobs:
     needs: pod-lib-lint
     steps:
     - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
-      with:
-        ruby-version: '2.7'
+    - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint RemoteConfig Cron

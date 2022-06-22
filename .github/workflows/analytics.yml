@@ -27,20 +27,20 @@ jobs:
         target: [ios, tvos, macos]
     steps:
     - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
-      with:
-        ruby-version: '2.7'
+    - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: GoogleAppMeasurement
-      run: scripts/third_party/travis/retry.sh pod spec lint GoogleAppMeasurement.podspec.json --platforms=${{ matrix.target }} --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/
+      run: scripts/third_party/travis/retry.sh pod spec lint GoogleAppMeasurement.podspec --platforms=${{ matrix.target }} --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/
+    - name: FirebaseAnalytics
+      run: scripts/third_party/travis/retry.sh pod spec lint FirebaseAnalytics.podspec --platforms=${{ matrix.target }} --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/
     - name: FirebaseAnalyticsSwift
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAnalyticsSwift.podspec --platforms=${{ matrix.target }}
     # The following steps are only run on `ios` due to product availability.
     - name: GoogleAppMeasurementOnDeviceConversion
-      run: scripts/third_party/travis/retry.sh pod spec lint GoogleAppMeasurementOnDeviceConversion.podspec.json --platforms=ios --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/
+      run: scripts/third_party/travis/retry.sh pod spec lint GoogleAppMeasurementOnDeviceConversion.podspec --platforms=ios --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/
     - name: FirebaseAnalyticsOnDeviceConversion
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAnalyticsOnDeviceConversion.podspec --platforms=ios
 
-# TODO: Consider pushing GoogleAppMeasurement.podspec.json to SpecsDev to enable similar test
-# for FirebaseAnalytics.podspec.json
+# TODO: Consider pushing GoogleAppMeasurement.podspec to SpecsDev to enable similar test
+# for FirebaseAnalytics.podspec

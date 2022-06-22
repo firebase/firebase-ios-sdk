@@ -147,6 +147,10 @@ class Query {
   /** Returns the first field in an order-by constraint, or nullptr if none. */
   const model::FieldPath* FirstOrderByField() const;
 
+  bool has_limit() const {
+    return limit_ != Target::kNoLimit;
+  }
+
   bool has_limit_to_first() const {
     return limit_type_ == LimitType::First && limit_ != Target::kNoLimit;
   }

@@ -17,6 +17,7 @@
 #include "Firestore/core/src/core/target.h"
 
 #include <ostream>
+#include <set>
 #include <unordered_map>
 #include <vector>
 
@@ -64,6 +65,39 @@ bool Target::IsDocumentQuery() const {
 }
 
 // MARK: - Indexing support
+
+size_t Target::GetSegmentCount() const {
+  std::set<FieldPath> fields;
+  bool has_array_segment = false;
+  for (const Filter& filter : filters_) {
+    // TODO(cheryllin): support composite getFlattenedFilters()
+    // __name__ is not an explicit segment of any index, so we don't need to
+    // count it.
+    if (filter.field().IsKeyFieldPath()) {
+      continue;
+    }
+
+    // ARRAY_CONTAINS or ARRAY_CONTAINS_ANY filters must be counted separately.
+    // For instance, it is possible to have an index for "a ARRAY a ASC". Even
+    // though these are on the same field, they should be counted as two
+    // separate segments in an index.
+    const core::FieldFilter field_filter(filter);
+    if (field_filter.op() == FieldFilter::Operator::ArrayContains ||
+        field_filter.op() == FieldFilter::Operator::ArrayContainsAny) {
+      has_array_segment = true;
+    } else {
+      fields.insert(field_filter.field());
+    }
+  }
+  for (const auto& order_by : order_bys_) {
+    // __name__ is not an explicit segment of any index, so we don't need to
+    // count it.
+    if (!order_by.field().IsKeyFieldPath()) {
+      fields.insert(order_by.field());
+    }
+  }
+  return fields.size() + (has_array_segment ? 1 : 0);
+}
 
 std::vector<FieldFilter> Target::GetFieldFiltersForPath(
     const model::FieldPath& path) const {
