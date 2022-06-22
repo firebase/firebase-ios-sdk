@@ -54,8 +54,8 @@ NSTimeInterval timeoutSeconds = 4320;
 NSInteger FETCH_ATTEMPTS = 3;
 
 // Retry parameters
-NSInteger MAX_RETRY = 5;
-NSInteger MAX_RETRY_COUNT = 5;
+NSInteger MAX_RETRY = 7;
+NSInteger MAX_RETRY_COUNT = 7;
 NSInteger RETRY_SECONDS = 3;
 bool isRetrying = false;
 
@@ -116,6 +116,9 @@ bool isRetrying = false;
     _settings = settings;
     _options = options;
     _namespace = namespace;
+
+    /// Set retry seconds to a random number between 1 and 6 seconds.
+    RETRY_SECONDS = arc4random_uniform(5) + 1;
 
     [self setUpHttpRequest];
     [self setUpHttpSession];
@@ -333,7 +336,7 @@ bool isRetrying = false;
     __strong RCNConfigRealtime *strongSelf = weakSelf;
     if ([strongSelf canMakeConnection] && MAX_RETRY_COUNT > 0 && !isRetrying) {
       if (MAX_RETRY_COUNT < MAX_RETRY) {
-        double RETRY_MULTIPLIER = arc4random_uniform(60) + 10;
+        double RETRY_MULTIPLIER = arc4random_uniform(3) + 2;
         RETRY_SECONDS *= RETRY_MULTIPLIER;
       }
       MAX_RETRY_COUNT--;
@@ -406,9 +409,9 @@ bool isRetrying = false;
 }
 
 - (void)scheduleFetch:(NSInteger)remainingAttempts targetVersion:(NSInteger)targetVersion {
-  /// Needs fetch to occur between 1 - 4 seconds. Randomize to not cause ddos alerts in backend
+  /// Needs fetch to occur between 0 - 3 seconds. Randomize to not cause ddos alerts in backend
   dispatch_time_t executionDelay =
-      dispatch_time(DISPATCH_TIME_NOW, (arc4random_uniform(3) + 1) * NSEC_PER_SEC);
+      dispatch_time(DISPATCH_TIME_NOW, arc4random_uniform(4) * NSEC_PER_SEC);
   dispatch_after(executionDelay, _realtimeLockQueue, ^{
     [self fetchLatestConfig:remainingAttempts targetVersion:targetVersion];
   });
