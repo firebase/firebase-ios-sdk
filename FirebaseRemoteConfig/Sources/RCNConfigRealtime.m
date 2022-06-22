@@ -409,7 +409,7 @@ bool isRetrying = false;
 }
 
 - (void)scheduleFetch:(NSInteger)remainingAttempts targetVersion:(NSInteger)targetVersion {
-  /// Needs fetch to occur between 0 - 3 seconds. Randomize to not cause ddos alerts in backend
+  /// Needs fetch to occur between 0 - 3 seconds. Randomize to not cause DDoS alerts in backend
   dispatch_time_t executionDelay =
       dispatch_time(DISPATCH_TIME_NOW, arc4random_uniform(4) * NSEC_PER_SEC);
   dispatch_after(executionDelay, _realtimeLockQueue, ^{
