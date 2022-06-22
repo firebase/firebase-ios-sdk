@@ -112,8 +112,9 @@ struct ModuleMapBuilder {
   ///
   func build() {
     for framework in installedPods.values
-      where framework.isSourcePod && framework.versionedPod.name != "Firebase" && framework
-      .transitiveFrameworks == nil {
+      where framework.isSourcePod &&
+      framework.versionedPod.name != "Firebase" &&
+      framework.transitiveFrameworks == nil {
       generate(framework: framework)
     }
   }
