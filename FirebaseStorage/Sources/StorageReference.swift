@@ -428,6 +428,7 @@ import FirebaseStorageInternal
     paginatedCompletion = { (_ listResult: StorageListResult?, _ error: NSError?) in
       if let error = error {
         completion(nil, error)
+        return
       }
       guard let strongSelf = weakSelf else {
         return
@@ -444,7 +445,6 @@ import FirebaseStorageInternal
                                        queue: strongSelf.storage.dispatchQueue,
                                        pageSize: nil,
                                        previousPageToken: pageToken,
-                                       // TODO: fix next line
                                        completion: paginatedCompletion)
         nextPage.enqueue()
       } else {

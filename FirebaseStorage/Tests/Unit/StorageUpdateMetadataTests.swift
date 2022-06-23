@@ -18,12 +18,14 @@ import FirebaseStorageInternal
 import GTMSessionFetcherCore
 import XCTest
 
-class StorageDeleteTests: StorageTestHelpers {
+class StorageUpdateMetadataTests: StorageTestHelpers {
   var fetcherService: GTMSessionFetcherService?
   var dispatchQueue: DispatchQueue?
+  var metadata: FIRIMPLStorageMetadata?
 
   override func setUp() {
     super.setUp()
+    metadata = FIRIMPLStorageMetadata(dictionary: ["bucket": "bucket", "name": "path/to/object"])
     fetcherService = GTMSessionFetcherService()
     fetcherService?.authorizer = FIRStorageTokenAuthorizer(
       googleAppID: "dummyAppID",
@@ -44,7 +46,7 @@ class StorageDeleteTests: StorageTestHelpers {
     fetcherService!.testBlock = { (fetcher: GTMSessionFetcher!,
                                    response: GTMSessionFetcherTestResponse) in
         XCTAssertEqual(fetcher.request?.url, self.objectURL())
-        XCTAssertEqual(fetcher.request?.httpMethod, "DELETE")
+        XCTAssertEqual(fetcher.request?.httpMethod, "PATCH")
         let httpResponse = HTTPURLResponse(
           url: (fetcher.request?.url)!,
           statusCode: 200,
@@ -55,11 +57,12 @@ class StorageDeleteTests: StorageTestHelpers {
     }
     let path = objectPath()
     let ref = FIRIMPLStorageReference(storage: storage(), path: path)
-    let task = StorageDeleteTask(
+    let task = StorageUpdateMetadataTask(
       reference: ref,
       fetcherService: fetcherService!.self,
-      queue: dispatchQueue!.self
-    ) { error in
+      queue: dispatchQueue!.self,
+      metadata: metadata!
+    ) { metadata, error in
       expectation.fulfill()
     }
     task.enqueue()
@@ -68,25 +71,18 @@ class StorageDeleteTests: StorageTestHelpers {
 
   func testSuccessfulFetch() {
     let expectation = self.expectation(description: #function)
-    fetcherService!.testBlock = { (fetcher: GTMSessionFetcher!,
-                                   response: GTMSessionFetcherTestResponse) in
-        XCTAssertEqual(fetcher.request?.url, self.objectURL())
-        XCTAssertEqual(fetcher.request?.httpMethod, "DELETE")
-        let httpResponse = HTTPURLResponse(
-          url: (fetcher.request?.url)!,
-          statusCode: 200,
-          httpVersion: "HTTP/1.1",
-          headerFields: nil
-        )
-        response(httpResponse, nil, nil)
-    }
+    fetcherService!.testBlock = successBlock(withMetadata: metadata)
     let path = objectPath()
     let ref = FIRIMPLStorageReference(storage: storage(), path: path)
-    let task = StorageDeleteTask(
+    let task = StorageUpdateMetadataTask(
       reference: ref,
       fetcherService: fetcherService!.self,
-      queue: dispatchQueue!.self
-    ) { error in
+      queue: dispatchQueue!.self,
+      metadata: metadata!
+    ) { metadata, error in
+      XCTAssertNil(error)
+      XCTAssertEqual(self.metadata?.bucket, metadata?.bucket)
+      XCTAssertEqual(self.metadata?.name, metadata?.name)
       expectation.fulfill()
     }
     task.enqueue()
@@ -106,11 +102,12 @@ class StorageDeleteTests: StorageTestHelpers {
 
     let path = objectPath()
     let ref = FIRIMPLStorageReference(storage: storage, path: path)
-    let task = StorageDeleteTask(
+    let task = StorageUpdateMetadataTask(
       reference: ref,
       fetcherService: fetcherService!.self,
-      queue: dispatchQueue!.self
-    ) { error in
+      queue: dispatchQueue!.self,
+      metadata: metadata!
+    ) { metadata, error in
       expectation.fulfill()
     }
     task.enqueue()
@@ -123,11 +120,12 @@ class StorageDeleteTests: StorageTestHelpers {
     fetcherService!.testBlock = unauthenticatedBlock()
     let path = objectPath()
     let ref = FIRIMPLStorageReference(storage: storage(), path: path)
-    let task = StorageDeleteTask(
+    let task = StorageUpdateMetadataTask(
       reference: ref,
       fetcherService: fetcherService!.self,
-      queue: dispatchQueue!.self
-    ) { error in
+      queue: dispatchQueue!.self,
+      metadata: metadata!
+    ) { metadata, error in
       XCTAssertEqual((error as? NSError)!.code, StorageErrorCode.unauthenticated.rawValue)
       expectation.fulfill()
     }
@@ -141,11 +139,12 @@ class StorageDeleteTests: StorageTestHelpers {
     fetcherService!.testBlock = unauthorizedBlock()
     let path = objectPath()
     let ref = FIRIMPLStorageReference(storage: storage(), path: path)
-    let task = StorageDeleteTask(
+    let task = StorageUpdateMetadataTask(
       reference: ref,
       fetcherService: fetcherService!.self,
-      queue: dispatchQueue!.self
-    ) { error in
+      queue: dispatchQueue!.self,
+      metadata: metadata!
+    ) { metadata, error in
       XCTAssertEqual((error as? NSError)!.code, StorageErrorCode.unauthorized.rawValue)
       expectation.fulfill()
     }
@@ -159,12 +158,32 @@ class StorageDeleteTests: StorageTestHelpers {
     fetcherService!.testBlock = notFoundBlock()
     let path = objectPath()
     let ref = FIRIMPLStorageReference(storage: storage(), path: path)
-    let task = StorageDeleteTask(
+    let task = StorageUpdateMetadataTask(
       reference: ref,
       fetcherService: fetcherService!.self,
-      queue: dispatchQueue!.self
-    ) { error in
+      queue: dispatchQueue!.self,
+      metadata: metadata!
+    ) { metadata, error in
       XCTAssertEqual((error as? NSError)!.code, StorageErrorCode.objectNotFound.rawValue)
+      expectation.fulfill()
+    }
+    task.enqueue()
+    waitForExpectation(test: self)
+  }
+
+  func testUnsuccessfulFetchBadJSON() {
+    let expectation = self.expectation(description: #function)
+
+    fetcherService!.testBlock = invalidJSONBlock()
+    let path = objectPath()
+    let ref = FIRIMPLStorageReference(storage: storage(), path: path)
+    let task = StorageUpdateMetadataTask(
+      reference: ref,
+      fetcherService: fetcherService!.self,
+      queue: dispatchQueue!.self,
+      metadata: metadata!
+    ) { metadata, error in
+      XCTAssertEqual((error as? NSError)!.code, StorageErrorCode.unknown.rawValue)
       expectation.fulfill()
     }
     task.enqueue()

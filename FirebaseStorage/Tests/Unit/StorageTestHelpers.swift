@@ -21,16 +21,25 @@ import FirebaseStorageInternal
 import XCTest
 
 class StorageTestHelpers: XCTestCase {
+  static var app: FirebaseApp!
+
   internal func storage() -> FIRIMPLStorage {
     return FIRIMPLStorage(app: FirebaseApp.app()!, bucket: "bucket", auth: nil, appCheck: nil)
   }
 
+  internal func storageFuture() -> Storage {
+    return Storage(app: FirebaseApp.app()!, bucket: "bucket")
+  }
+
   override class func setUp() {
     super.setUp()
-    let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
-                                  gcmSenderID: "00000000000000000-00000000000-000000000")
-    options.projectID = "myProjectID"
-    FirebaseApp.configure(options: options)
+    if app == nil {
+      let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
+                                    gcmSenderID: "00000000000000000-00000000000-000000000")
+      options.projectID = "myProjectID"
+      FirebaseApp.configure(options: options)
+      app = FirebaseApp(instanceWithName: "test", options: options)
+    }
   }
 
   internal func rootReference() -> FIRIMPLStorageReference {
@@ -46,7 +55,7 @@ class StorageTestHelpers: XCTestCase {
     }
   }
 
-  private func successBlock(witMetadata metadata: FIRIMPLStorageMetadata? = nil)
+  internal func successBlock(withMetadata metadata: FIRIMPLStorageMetadata? = nil)
     -> GTMSessionFetcherTestBlock {
     var data: Data?
     if let metadata = metadata {
@@ -55,7 +64,7 @@ class StorageTestHelpers: XCTestCase {
     return block(forData: data, url: nil, statusCode: 200)
   }
 
-  internal func successBlock(withURLString url: String) -> GTMSessionFetcherTestBlock {
+  internal func successBlock(withURL url: URL) -> GTMSessionFetcherTestBlock {
     let data = "{}".data(using: .utf8)
     return block(forData: data, url: url, statusCode: 200)
   }
@@ -90,12 +99,12 @@ class StorageTestHelpers: XCTestCase {
     return block(forData: data, url: nil, statusCode: 200)
   }
 
-  private func block(forData data: Data?, url: String?,
+  private func block(forData data: Data?, url: URL?,
                      statusCode code: Int) -> GTMSessionFetcherTestBlock {
     let block = { (fetcher: GTMSessionFetcher, response: GTMSessionFetcherTestResponse) in
       let fetcherURL = fetcher.request?.url!
       if let url = url {
-        XCTAssertEqual(url, fetcherURL?.absoluteString)
+        XCTAssertEqual(url, fetcherURL)
       }
       let httpResponse = HTTPURLResponse(
         url: fetcherURL!,

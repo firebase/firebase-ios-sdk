@@ -100,7 +100,9 @@ class StorageGetMetadataTests: StorageTestHelpers {
     fetcherService?.allowLocalhostRequest = true
 
     fetcherService!
-      .testBlock = successBlock(withURLString: "http://localhost:8080/v0/b/bucket/o/object")
+      .testBlock = successBlock(
+        withURL: URL(string: "http://localhost:8080/v0/b/bucket/o/object")!
+      )
 
     let path = objectPath()
     let ref = FIRIMPLStorageReference(storage: storage, path: path)

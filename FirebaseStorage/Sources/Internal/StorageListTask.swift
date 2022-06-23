@@ -109,17 +109,17 @@ internal class StorageListTask: StorageTask, StorageTaskManagement {
       strongSelf.fetcher = fetcher
 
       strongSelf.fetcherCompletion = { (data: Data?, error: NSError?) in
+        var listResult: StorageListResult?
         if let error = error, self.error == nil {
           self.error = StorageErrorCode.error(withServerError: error, ref: strongSelf.reference)
-        }
-
-        var listResult: StorageListResult?
-        if let data = data,
-           let responseDictionary = try? JSONSerialization
-           .jsonObject(with: data) as? [String: Any] {
-          listResult = StorageListResult(with: responseDictionary, reference: self.reference)
         } else {
-          self.error = StorageErrorCode.error(withInvalidRequest: data)
+          if let data = data,
+             let responseDictionary = try? JSONSerialization
+             .jsonObject(with: data) as? [String: Any] {
+            listResult = StorageListResult(with: responseDictionary, reference: self.reference)
+          } else {
+            self.error = StorageErrorCode.error(withInvalidRequest: data)
+          }
         }
 
         if let callback = callback {
