@@ -1,3 +1,6 @@
+# 9.3.0
+- [changed] Update the console logging URL to troubleshooting page.
+
 # 8.15.0
 - Remove the unused code for pre-warm detection.
 

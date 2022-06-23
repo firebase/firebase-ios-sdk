@@ -33,7 +33,7 @@ NSString *const UTM_SOURCE = @"perf-ios-sdk";
                                          bundleID:(NSString *)bundleID
                                         traceName:(NSString *)traceName {
   NSString *rootUrl = [FPRConsoleURLGenerator getRootURLWithProjectID:projectID bundleID:bundleID];
-  return [NSString stringWithFormat:@"%@/metrics/trace/"
+  return [NSString stringWithFormat:@"%@/troubleshooting/trace/"
                                     @"DURATION_TRACE/%@?utm_source=%@&utm_medium=%@",
                                     rootUrl, traceName, UTM_SOURCE, UTM_MEDIUM];
 }
@@ -43,7 +43,7 @@ NSString *const UTM_SOURCE = @"perf-ios-sdk";
                                          bundleID:(NSString *)bundleID
                                         traceName:(NSString *)traceName {
   NSString *rootUrl = [FPRConsoleURLGenerator getRootURLWithProjectID:projectID bundleID:bundleID];
-  return [NSString stringWithFormat:@"%@/metrics/trace/"
+  return [NSString stringWithFormat:@"%@/troubleshooting/trace/"
                                     @"SCREEN_TRACE/%@?utm_source=%@&utm_medium=%@",
                                     rootUrl, traceName, UTM_SOURCE, UTM_MEDIUM];
 }
