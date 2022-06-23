@@ -121,7 +121,7 @@ internal func FunctionsCodeForHTTPStatus(_ status: NSInteger) -> FunctionsErrorC
   case 404:
     return .notFound
   case 409:
-    return .aborted
+    return .alreadyExists
   case 429:
     return .resourceExhausted
   case 499:
@@ -148,7 +148,7 @@ extension FunctionsErrorCode {
     case "INVALID_ARGUMENT": return .invalidArgument
     case "DEADLINE_EXCEEDED": return .deadlineExceeded
     case "NOT_FOUND": return .notFound
-    case "ALREADY_EXISTS": return .notFound
+    case "ALREADY_EXISTS": return .alreadyExists
     case "PERMISSION_DENIED": return .permissionDenied
     case "RESOURCE_EXHAUSTED": return .resourceExhausted
     case "FAILED_PRECONDITION": return .failedPrecondition
