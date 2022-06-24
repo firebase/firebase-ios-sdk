@@ -68,7 +68,7 @@ import XCTest
       XCTAssertEqual(tester.intValue, Constants.intValue)
       XCTAssertEqual(tester.floatValue, Constants.floatValue)
       XCTAssertEqual(tester.doubleValue, Constants.doubleValue)
-      XCTAssertEqual(tester.floatValue, Constants.floatValue)
+      XCTAssertEqual(tester.decimalValue, Constants.decimalValue)
       XCTAssertEqual(tester.trueValue, true)
       XCTAssertEqual(tester.falseValue, false)
       XCTAssertEqual(tester.dataValue, Constants.dataValue)
