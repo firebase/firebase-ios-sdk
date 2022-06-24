@@ -37,29 +37,63 @@ function(download_external_sources)
     )
   endif()
 
-  execute_process(
-    COMMAND
-      ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}"
-      -DFIREBASE_DOWNLOAD_DIR=${FIREBASE_DOWNLOAD_DIR}
-      -DCMAKE_INSTALL_PREFIX=${FIREBASE_INSTALL_DIR}
-      -DFUZZING=${FUZZING}
-      -DDOWNLOAD_BENCHMARK=${DOWNLOAD_BENCHMARK}
-      -DDOWNLOAD_GOOGLETEST=${DOWNLOAD_GOOGLETEST}
-      -DEXTERNAL_PROJECT_HTTP_HEADER=${EXTERNAL_PROJECT_HTTP_HEADER}
-      ${FIREBASE_PYTHON_HOST_EXECUTABLE_CMAKE_ARG}
-      ${PROJECT_SOURCE_DIR}/cmake/external
-    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/external
+  set(WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/external)
+
+  set(EXECUTE_PROCESS_ARGS
+    ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}"
+    -DFIREBASE_DOWNLOAD_DIR=${FIREBASE_DOWNLOAD_DIR}
+    -DCMAKE_INSTALL_PREFIX=${FIREBASE_INSTALL_DIR}
+    -DFUZZING=${FUZZING}
+    -DDOWNLOAD_BENCHMARK=${DOWNLOAD_BENCHMARK}
+    -DDOWNLOAD_GOOGLETEST=${DOWNLOAD_GOOGLETEST}
+    -DEXTERNAL_PROJECT_HTTP_HEADER=${EXTERNAL_PROJECT_HTTP_HEADER}
+    ${FIREBASE_PYTHON_HOST_EXECUTABLE_CMAKE_ARG}
+    ${PROJECT_SOURCE_DIR}/cmake/external
   )
+  string(REPLACE ";" " " EXECUTE_PROCESS_ARGS_STR "${EXECUTE_PROCESS_ARGS}")
+
+  message(
+    STATUS
+    "Running cmake to generate build system files in "
+    "${WORKING_DIRECTORY}: ${EXECUTE_PROCESS_ARGS_STR}"
+  )
+  execute_process(
+    COMMAND ${EXECUTE_PROCESS_ARGS}
+    WORKING_DIRECTORY ${WORKING_DIRECTORY}
+    RESULT_VARIABLE EXECUTE_PROCESS_RESULT
+  )
+  if(NOT ("${EXECUTE_PROCESS_RESULT}" STREQUAL "0"))
+    message(
+      FATAL_ERROR
+      "Running cmake to generate build system files in ${WORKING_DIRECTORY} "
+      "failed (${EXECUTE_PROCESS_RESULT}): ${EXECUTE_PROCESS_ARGS_STR}"
+    )
+  endif()
 
   # Run downloads in parallel if we know how
   if(CMAKE_GENERATOR STREQUAL "Unix Makefiles")
     set(cmake_build_args -j)
   endif()
 
-  execute_process(
-    COMMAND ${CMAKE_COMMAND} --build . -- ${cmake_build_args}
-    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/external
+  set(EXECUTE_PROCESS_ARGS ${CMAKE_COMMAND} --build . -- ${cmake_build_args})
+  string(REPLACE ";" " " EXECUTE_PROCESS_ARGS_STR "${EXECUTE_PROCESS_ARGS}")
+  message(
+    STATUS
+    "Running cmake to download and prepare external projects in "
+    "${WORKING_DIRECTORY}: ${EXECUTE_PROCESS_ARGS_STR}"
   )
+  execute_process(
+    COMMAND ${EXECUTE_PROCESS_ARGS}
+    WORKING_DIRECTORY ${WORKING_DIRECTORY}
+    RESULT_VARIABLE EXECUTE_PROCESS_RESULT
+  )
+  if(NOT ("${EXECUTE_PROCESS_RESULT}" STREQUAL "0"))
+    message(
+      FATAL_ERROR
+      "Running cmake to download and prepare external projects in ${WORKING_DIRECTORY} "
+      "failed (${EXECUTE_PROCESS_RESULT}): ${EXECUTE_PROCESS_ARGS_STR}"
+    )
+  endif()
 endfunction()
 
 function(add_external_subdirectory NAME)
