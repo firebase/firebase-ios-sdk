@@ -34,29 +34,73 @@ import XCTest
       @RemoteConfigProperty(forKey: Constants.stringKey)
       var stringValue: String
 
+      var stringKeyName: String {
+        return _stringValue.key
+      }
+
       @RemoteConfigProperty(forKey: Constants.intKey)
       var intValue: Int
+
+      var intKeyName: String {
+        return _intValue.key
+      }
 
       @RemoteConfigProperty(forKey: Constants.floatKey)
       var floatValue: Float
 
+      var floatKeyName: String {
+        return _floatValue.key
+      }
+
       @RemoteConfigProperty(forKey: Constants.floatKey)
       var doubleValue: Double
+
+      var doubleKeyName: String {
+        return _doubleValue.key
+      }
 
       @RemoteConfigProperty(forKey: Constants.decimalKey)
       var decimalValue: Decimal
 
+      var decimalKeyName: String {
+        return _decimalValue.key
+      }
+
       @RemoteConfigProperty(forKey: Constants.trueKey)
       var trueValue: Bool
+
+      var trueKeyName: String {
+        return _trueValue.key
+      }
 
       @RemoteConfigProperty(forKey: Constants.falseKey)
       var falseValue: Bool
 
+      var falseKeyName: String {
+        return _falseValue.key
+      }
+
       @RemoteConfigProperty(forKey: Constants.dataKey)
       var dataValue: Data
 
+      var dataKeyName: String {
+        return _dataValue.key
+      }
+
       @RemoteConfigProperty(forKey: Constants.jsonKey)
       var recipeValue: Recipe
+
+      var recipeKeyName: String {
+        _recipeValue.key
+      }
+
+      var lastFetchTime: Date? {
+        return _stringValue.lastFetchTime
+      }
+
+      var lastFetchStatus: RemoteConfigFetchStatus {
+        return _stringValue.lastFetchStatus
+      }
     }
 
     func testFetchAndActivateWithPropertyWrapper() async throws {
@@ -76,6 +120,23 @@ import XCTest
       XCTAssertEqual(tester.recipeValue.recipeName, recipe.recipeName)
       XCTAssertEqual(tester.recipeValue.ingredients, recipe.ingredients)
       XCTAssertEqual(tester.recipeValue.cookTime, recipe.cookTime)
+    }
+
+    func testPropertyWrapperInstanceValues() async {
+      let tester = PropertyWrapperTester()
+
+      XCTAssertEqual(config.lastFetchTime, tester.lastFetchTime)
+      XCTAssertEqual(config.lastFetchStatus, tester.lastFetchStatus)
+
+      XCTAssertEqual(Constants.stringKey, tester.stringKeyName)
+      XCTAssertEqual(Constants.intKey, tester.intKeyName)
+      XCTAssertEqual(Constants.floatKey, tester.floatKeyName)
+      XCTAssertEqual(Constants.floatKey, tester.doubleKeyName)
+      XCTAssertEqual(Constants.decimalKey, tester.decimalKeyName)
+      XCTAssertEqual(Constants.trueKey, tester.trueKeyName)
+      XCTAssertEqual(Constants.falseKey, tester.falseKeyName)
+      XCTAssertEqual(Constants.dataKey, tester.dataKeyName)
+      XCTAssertEqual(Constants.jsonKey, tester.recipeKeyName)
     }
   }
 #endif
