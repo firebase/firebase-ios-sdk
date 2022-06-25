@@ -67,16 +67,15 @@ import FirebaseStorageInternal
          let path = components?.path {
         components?.percentEncodedPath = "/upload\(path)"
       }
-      // TODO: - internal error
       guard let path = strongSelf.GCSEscapedString(self.uploadMetadata.path) else {
-        fatalError("TODO")
+        fatalError("Internal error enqueueing a Storage task")
       }
       components?.percentEncodedQuery = "uploadType=resumable&name=\(path)"
 
       request.url = components?.url
 
       guard let contentType = strongSelf.uploadMetadata.contentType else {
-        fatalError("ToDo")
+        fatalError("Internal error enqueueing a Storage task")
       }
       let uploadFetcher = GTMSessionUploadFetcher(
         request: request,
@@ -175,8 +174,10 @@ import FirebaseStorageInternal
       if weakSelf?.state != .success {
         weakSelf?.metadata = weakSelf?.uploadMetadata
       }
-      // TODO:
-      // weakSelf.error = [FIRStorageErrors errorWithCode:FIRIMPLStorageErrorCodeCancelled];
+      weakSelf?.error = StorageErrorCode.error(
+        withServerError: StorageErrorCode.cancelled as NSError,
+        ref: self.reference
+      )
       if let snapshot = weakSelf?.snapshot {
         weakSelf?.fire(for: .failure, snapshot: snapshot)
       }

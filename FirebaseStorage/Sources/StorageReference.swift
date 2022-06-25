@@ -135,9 +135,7 @@ import FirebaseStorageInternal
       putMetadata.path = path
       putMetadata.name = (path as NSString).lastPathComponent as String
     }
-    guard let fetcherService = storage.fetcherServiceForApp else {
-      fatalError("TODO: Internal Error: fetcherService not configured")
-    }
+    let fetcherService = storage.fetcherServiceForApp
     let task = StorageUploadTask(reference: impl,
                                  service: fetcherService,
                                  queue: storage.dispatchQueue,
@@ -216,9 +214,7 @@ import FirebaseStorageInternal
     } else {
       putMetadata = metadata!
     }
-    guard let fetcherService = storage.fetcherServiceForApp else {
-      fatalError("TODO: Internal Error: fetcherService not configured")
-    }
+    let fetcherService = storage.fetcherServiceForApp
     let task = StorageUploadTask(reference: impl,
                                  service: fetcherService,
                                  queue: storage.dispatchQueue,
@@ -266,9 +262,7 @@ import FirebaseStorageInternal
   @objc(dataWithMaxSize:completion:) @discardableResult
   open func getData(maxSize: Int64,
                     completion: @escaping ((_: Data?, _: Error?) -> Void)) -> StorageDownloadTask {
-    guard let fetcherService = storage.fetcherServiceForApp else {
-      fatalError("TODO: Internal Error: fetcherService not configured")
-    }
+    let fetcherService = storage.fetcherServiceForApp
     let task = StorageDownloadTask(reference: impl,
                                    service: fetcherService,
                                    queue: storage.dispatchQueue,
@@ -317,9 +311,7 @@ import FirebaseStorageInternal
    */
   @objc(downloadURLWithCompletion:)
   open func downloadURL(completion: @escaping ((_: URL?, _: Error?) -> Void)) {
-    guard let fetcherService = storage.fetcherServiceForApp else {
-      fatalError("TODO: Internal Error: fetcherService not configured")
-    }
+    let fetcherService = storage.fetcherServiceForApp
     let task = StorageGetDownloadURLTask(reference: impl,
                                          fetcherService: fetcherService,
                                          queue: storage.dispatchQueue,
@@ -367,9 +359,7 @@ import FirebaseStorageInternal
   @objc(writeToFile:completion:) @discardableResult
   open func write(toFile fileURL: URL,
                   completion: ((_: URL?, _: Error?) -> Void)?) -> StorageDownloadTask {
-    guard let fetcherService = storage.fetcherServiceForApp else {
-      fatalError("TODO: Internal Error: fetcherService not configured")
-    }
+    let fetcherService = storage.fetcherServiceForApp
     let task = StorageDownloadTask(reference: impl,
                                    service: fetcherService,
                                    queue: storage.dispatchQueue,
@@ -416,9 +406,7 @@ import FirebaseStorageInternal
    */
   @objc(listAllWithCompletion:)
   open func listAll(completion: @escaping ((_: StorageListResult?, _: NSError?) -> Void)) {
-    guard let fetcherService = storage.fetcherServiceForApp else {
-      fatalError("TODO: Internal Error: fetcherService not configured")
-    }
+    let fetcherService = storage.fetcherServiceForApp
     var prefixes = [FIRIMPLStorageReference]()
     var items = [FIRIMPLStorageReference]()
 
@@ -461,7 +449,6 @@ import FirebaseStorageInternal
                                queue: storage.dispatchQueue,
                                pageSize: nil,
                                previousPageToken: nil,
-                               // TODO: fix next line
                                completion: paginatedCompletion)
     task.enqueue()
   }
@@ -514,9 +501,7 @@ import FirebaseStorageInternal
                          userInfo: [NSLocalizedDescriptionKey:
                            "Argument 'maxResults' must be between 1 and 1000 inclusive."]))
     } else {
-      guard let fetcherService = storage.fetcherServiceForApp else {
-        fatalError("TODO: Internal Error: fetcherService not configured")
-      }
+      let fetcherService = storage.fetcherServiceForApp
       let task = StorageListTask(reference: impl,
                                  fetcherService: fetcherService,
                                  queue: storage.dispatchQueue,
@@ -556,9 +541,7 @@ import FirebaseStorageInternal
                          userInfo: [NSLocalizedDescriptionKey:
                            "Argument 'maxResults' must be between 1 and 1000 inclusive."]))
     } else {
-      guard let fetcherService = storage.fetcherServiceForApp else {
-        fatalError("TODO: Internal Error: fetcherService not configured")
-      }
+      let fetcherService = storage.fetcherServiceForApp
       let task = StorageListTask(reference: impl,
                                  fetcherService: fetcherService,
                                  queue: storage.dispatchQueue,
@@ -578,9 +561,7 @@ import FirebaseStorageInternal
    */
   @objc(metadataWithCompletion:)
   open func getMetadata(completion: @escaping ((_: StorageMetadata?, _: Error?) -> Void)) {
-    guard let fetcherService = storage.fetcherServiceForApp else {
-      fatalError("TODO: Internal Error: fetcherService not configured")
-    }
+    let fetcherService = storage.fetcherServiceForApp
     let task = StorageGetMetadataTask(reference: impl,
                                       fetcherService: fetcherService,
                                       queue: storage.dispatchQueue,
@@ -614,9 +595,7 @@ import FirebaseStorageInternal
   @objc(updateMetadata:completion:)
   open func updateMetadata(_ metadata: StorageMetadata,
                            completion: ((_: StorageMetadata?, _: Error?) -> Void)?) {
-    guard let fetcherService = storage.fetcherServiceForApp else {
-      fatalError("TODO: Internal Error: fetcherService not configured")
-    }
+    let fetcherService = storage.fetcherServiceForApp
     let task = StorageUpdateMetadataTask(reference: impl,
                                          fetcherService: fetcherService,
                                          queue: storage.dispatchQueue,
@@ -662,9 +641,7 @@ import FirebaseStorageInternal
    */
   @objc(deleteWithCompletion:)
   open func delete(completion: ((_: Error?) -> Void)?) {
-    guard let fetcherService = storage.fetcherServiceForApp else {
-      fatalError("TODO: Internal Error: fetcherService not configured")
-    }
+    let fetcherService = storage.fetcherServiceForApp
     let task = StorageDeleteTask(reference: impl,
                                  fetcherService: fetcherService,
                                  queue: storage.dispatchQueue,

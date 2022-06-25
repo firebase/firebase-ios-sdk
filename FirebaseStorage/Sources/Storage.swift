@@ -208,9 +208,12 @@ import FirebaseAuthInterop
 
   internal let impl: FIRIMPLStorage
 
-  internal var fetcherServiceForApp: GTMSessionFetcherService? {
+  internal var fetcherServiceForApp: GTMSessionFetcherService {
     get {
-      return impl.fetcherServiceForApp
+      guard let fetcherService = impl.fetcherServiceForApp else {
+        fatalError("Internal Error: fetcherService not configured")
+      }
+      return fetcherService
     }
     set(newValue) {
       impl.fetcherServiceForApp = newValue
