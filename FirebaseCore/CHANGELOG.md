@@ -1,5 +1,5 @@
 # Firebase 9.3.0
-- [added] Remove GoogleSignInSwiftSupport from Zip and Carthage distributions due to
+- [fixed] Remove GoogleSignInSwiftSupport from Zip and Carthage distributions due to
   infeasibility. The GoogleSignIn distribution continues. (#9937)
 
 # Firebase 9.2.0
