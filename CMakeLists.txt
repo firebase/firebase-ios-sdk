@@ -61,7 +61,7 @@ enable_language(C)
 enable_language(CXX)
 
 set(
-  FIREBASE_LD_FILENAME
+  FIREBASE_LD_EXECUTABLE
   ""
   CACHE
   STRING
