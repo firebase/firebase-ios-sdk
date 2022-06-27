@@ -1,0 +1,12 @@
+diff -Naur nanopb/CMakeLists.txt nanopb-fix/CMakeLists.txt
+--- nanopb/CMakeLists.txt	2021-03-22 08:50:07.000000000 -0400
++++ nanopb-fix/CMakeLists.txt	2022-06-24 16:17:09.130783413 -0400
+@@ -41,7 +41,7 @@
+ if(nanopb_BUILD_GENERATOR)
+     set(generator_protos nanopb plugin)
+ 
+-    find_package(PythonInterp 2.7 REQUIRED)
++    find_package(PythonInterp 3.7 REQUIRED)
+     execute_process(
+         COMMAND ${PYTHON_EXECUTABLE} -c
+             "from distutils import sysconfig; print(sysconfig.get_python_lib(prefix=''))"
