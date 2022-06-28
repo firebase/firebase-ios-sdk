@@ -21,16 +21,13 @@
 #import "Crashlytics/Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 #import "Crashlytics/UnitTests/Mocks/FABMockApplicationIdentifierModel.h"
-#import "Crashlytics/UnitTests/Mocks/FIRCLSMockFileManager.h"
-#import "Crashlytics/UnitTests/Mocks/FIRCLSMockSettings.h"
 #import "Crashlytics/UnitTests/Mocks/FIRMockInstallations.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSSharedContext.h"
 
 #define TEST_BUNDLE_ID (@"com.crashlytics.test")
 
 @interface FIRRecordExceptionModelTests : XCTestCase
 
-@property(nonatomic, strong) FIRCLSMockFileManager *fileManager;
-@property(nonatomic, strong) FIRCLSMockSettings *mockSettings;
 @property(nonatomic, strong) NSString *reportPath;
 
 @end
@@ -38,25 +35,11 @@
 @implementation FIRRecordExceptionModelTests
 
 - (void)setUp {
-  self.fileManager = [[FIRCLSMockFileManager alloc] init];
-
-  FABMockApplicationIdentifierModel *appIDModel = [[FABMockApplicationIdentifierModel alloc] init];
-  self.mockSettings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
-                                                           appIDModel:appIDModel];
-
-  NSString *name = @"exception_model_report";
-  self.reportPath = [self.fileManager.rootPath stringByAppendingPathComponent:name];
-  [self.fileManager createDirectoryAtPath:self.reportPath];
-
-  FIRCLSInternalReport *report =
-      [[FIRCLSInternalReport alloc] initWithPath:self.reportPath
-                             executionIdentifier:@"TEST_EXECUTION_IDENTIFIER"];
-
-  FIRCLSContextInitialize(report, self.mockSettings, self.fileManager);
+  self.reportPath = [FIRCLSSharedContext shared].reportPath;
 }
 
 - (void)tearDown {
-  [[NSFileManager defaultManager] removeItemAtPath:self.fileManager.rootPath error:nil];
+  [[FIRCLSSharedContext shared] reset];
 }
 
 - (void)testWrittenCLSRecordFile {

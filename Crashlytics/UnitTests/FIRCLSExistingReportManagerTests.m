@@ -20,7 +20,7 @@
 #import "Crashlytics/Crashlytics/Private/FIRCLSExistingReportManager_Private.h"
 #import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlyticsReport.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockReportUploader.h"
-#import "Crashlytics/UnitTests/Mocks/FIRCLSTempMockFileManager.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 
 #define METADATA_FORMAT                                                                        \
   (@"{\"identity\":{\"generator\":\"Crashlytics iOS "                                          \
@@ -39,7 +39,7 @@
 @interface FIRCLSExistingReportManagerTests : XCTestCase
 
 @property(nonatomic, strong) FIRCLSMockReportUploader *mockReportUploader;
-@property(nonatomic, strong) FIRCLSTempMockFileManager *fileManager;
+@property(nonatomic, strong) FIRCLSFileManager *fileManager;
 @property(nonatomic, strong) FIRCLSExistingReportManager *existingReportManager;
 @property(nonatomic, strong) FIRCLSManagerData *managerData;
 
@@ -52,7 +52,7 @@
 
   FIRCLSContextBaseInit();
 
-  self.fileManager = [[FIRCLSTempMockFileManager alloc] init];
+  self.fileManager = [[FIRCLSFileManager alloc] init];
 
   // Allow nil values only in tests
 #pragma clang diagnostic push

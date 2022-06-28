@@ -35,6 +35,9 @@ FirebaseMLModelDownloader/Apps/Sample/**/GoogleService-Info.plist
 # FirebasePerformance dev test App and integration tests GoogleService-Info.plist
 FirebasePerformance/**/GoogleService-Info.plist
 
+# Compiled binaries for testing
+Crashlytics/UnitTests/dylib_stubs/build
+
 Secrets.tar
 
 # OS X

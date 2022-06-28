@@ -28,7 +28,7 @@
 #import "Crashlytics/UnitTests/Mocks/FABMockApplicationIdentifierModel.h"
 #import "Crashlytics/UnitTests/Mocks/FIRAppFake.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockSettings.h"
-#import "Crashlytics/UnitTests/Mocks/FIRCLSTempMockFileManager.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockFileManager.h"
 #import "Crashlytics/UnitTests/Mocks/FIRMockGDTCoreTransport.h"
 #import "Crashlytics/UnitTests/Mocks/FIRMockInstallations.h"
 
@@ -37,7 +37,7 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
 @interface FIRCLSReportUploaderTests : XCTestCase
 
 @property(nonatomic, strong) FIRCLSReportUploader *uploader;
-@property(nonatomic, strong) FIRCLSTempMockFileManager *fileManager;
+@property(nonatomic, strong) FIRCLSMockFileManager *fileManager;
 @property(nonatomic, strong) NSOperationQueue *queue;
 @property(nonatomic, strong) FIRCLSManagerData *managerData;
 
@@ -60,7 +60,7 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
                                                                 transformers:nil
                                                                       target:kGDTCORTargetCSH];
   self.mockDataTransport.sendDataEvent_wasWritten = YES;
-  self.fileManager = [[FIRCLSTempMockFileManager alloc] init];
+  self.fileManager = [[FIRCLSMockFileManager alloc] init];
 
   id fakeApp = [[FIRAppFake alloc] init];
   FIRCLSDataCollectionArbiter *dataArbiter =

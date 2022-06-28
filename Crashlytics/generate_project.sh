@@ -17,6 +17,8 @@
 
 readonly DIR="$( git rev-parse --show-toplevel )"
 
+"$DIR/Crashlytics/UnitTests/generate_resources.sh"
+
 "$DIR/Crashlytics/ProtoSupport/generate_crashlytics_protos.sh" || echo "Something went wrong generating protos.";
 
 pod gen "${DIR}/FirebaseCrashlytics.podspec" --auto-open --gen-directory="${DIR}/gen" --local-sources="${DIR}" --platforms=ios,macos,tvos --clean

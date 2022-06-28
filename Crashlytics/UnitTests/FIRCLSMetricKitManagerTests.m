@@ -37,7 +37,7 @@
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockReportManager.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockReportUploader.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockSettings.h"
-#import "Crashlytics/UnitTests/Mocks/FIRCLSTempMockFileManager.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 #import "Crashlytics/UnitTests/Mocks/FIRMockGDTCoreTransport.h"
 #import "Crashlytics/UnitTests/Mocks/FIRMockInstallations.h"
 
@@ -59,7 +59,7 @@ API_AVAILABLE(ios(14))
 @property(nonatomic, strong) FIRCLSMockSettings *mockSettings;
 @property(nonatomic, strong) FIRCLSManagerData *managerData;
 @property(nonatomic, strong) FIRCLSMockReportUploader *mockReportUploader;
-@property(nonatomic, strong) FIRCLSTempMockFileManager *fileManager;
+@property(nonatomic, strong) FIRCLSFileManager *fileManager;
 @property(nonatomic, strong) FIRCLSMockExistingReportManager *existingReportManager;
 
 @property(nonatomic, strong) FIRCLSDataCollectionArbiter *dataArbiter;
@@ -81,7 +81,7 @@ API_AVAILABLE(ios(14))
   id fakeApp = [[FIRAppFake alloc] init];
   self.dataArbiter = [[FIRCLSDataCollectionArbiter alloc] initWithApp:fakeApp withAppInfo:@{}];
 
-  self.fileManager = [[FIRCLSTempMockFileManager alloc] init];
+  self.fileManager = [[FIRCLSFileManager alloc] init];
 
   // Delete cached settings
   [self.fileManager removeItemAtPath:_fileManager.settingsFilePath];

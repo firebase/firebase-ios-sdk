@@ -27,6 +27,7 @@
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockSettings.h"
 #import "Crashlytics/UnitTests/Mocks/FIRMockGDTCoreTransport.h"
 #import "Crashlytics/UnitTests/Mocks/FIRMockInstallations.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSSharedContext.h"
 
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
@@ -52,16 +53,12 @@
   [super setUp];
   FIRSetLoggerLevel(FIRLoggerLevelMax);
 
-  FIRCLSContextBaseInit();
-
   id fakeApp = [[FIRAppFake alloc] init];
   self.dataArbiter = [[FIRCLSDataCollectionArbiter alloc] initWithApp:fakeApp withAppInfo:@{}];
 
-  self.fileManager = [[FIRCLSMockFileManager alloc] init];
+  self.fileManager = [FIRCLSSharedContext shared].fileManager;
+  self.mockSettings = [FIRCLSSharedContext shared].mockSettings;
 
-  FIRCLSApplicationIdentifierModel *appIDModel = [[FIRCLSApplicationIdentifierModel alloc] init];
-  _mockSettings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
-                                                       appIDModel:appIDModel];
   _onDemandModel = [[FIRCLSMockOnDemandModel alloc] initWithFIRCLSSettings:_mockSettings
                                                                fileManager:_fileManager
                                                                 sleepBlock:^(int delay){
@@ -87,21 +84,11 @@
   [self.fileManager createReportDirectories];
   [self.fileManager
       setupNewPathForExecutionIdentifier:self.managerData.executionIDModel.executionID];
-
-  NSString *name = @"exception_model_report";
-  NSString *reportPath = [self.fileManager.rootPath stringByAppendingPathComponent:name];
-  [self.fileManager createDirectoryAtPath:reportPath];
-
-  FIRCLSInternalReport *report =
-      [[FIRCLSInternalReport alloc] initWithPath:reportPath
-                             executionIdentifier:@"TEST_EXECUTION_IDENTIFIER"];
-
-  FIRCLSContextInitialize(report, self.mockSettings, self.fileManager);
 }
 
 - (void)tearDown {
   self.onDemandModel = nil;
-  [[NSFileManager defaultManager] removeItemAtPath:self.fileManager.rootPath error:nil];
+  [[FIRCLSSharedContext shared] reset];
   [super tearDown];
 }
 

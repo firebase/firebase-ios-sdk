@@ -30,4 +30,18 @@
 // Users should initialize this in their test.
 @property(nonatomic, strong) XCTestExpectation *removeExpectation;
 
+@property(nonatomic, copy) NSString *removedItemAtPath_path;
+
+// Overriding the method for testing Settings
+- (BOOL)removeItemAtPath:(NSString *)path;
+
+// Overrides moveItemAtPath if set
+@property(nonatomic) NSNumber *moveItemAtPathResult;
+@property(nonatomic, copy) NSString *moveItemAtPath_path;
+@property(nonatomic, copy) NSString *moveItemAtPath_destDir;
+
+- (BOOL)moveItemAtPath:(NSString *)path toDirectory:(NSString *)destDir;
+
+- (void)reset;
+
 @end
