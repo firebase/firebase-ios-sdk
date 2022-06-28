@@ -42,7 +42,7 @@ static NSString *const TRACE_NAME = @"test-trace";
                                                                     traceName:TRACE_NAME];
   NSString *expectedURL =
       @"https://console.firebase.google.com/project/test-project/performance/app/ios:test-bundle/"
-      @"metrics/trace/DURATION_TRACE/test-trace?utm_source=perf-ios-sdk&utm_medium=ios-ide";
+      @"troubleshooting/trace/DURATION_TRACE/test-trace?utm_source=perf-ios-sdk&utm_medium=ios-ide";
   XCTAssertEqualObjects(url, expectedURL);
 }
 
@@ -53,7 +53,7 @@ static NSString *const TRACE_NAME = @"test-trace";
                                                                     traceName:TRACE_NAME];
   NSString *expectedURL =
       @"https://console.firebase.google.com/project/test-project/performance/app/ios:test-bundle/"
-      @"metrics/trace/SCREEN_TRACE/test-trace?utm_source=perf-ios-sdk&utm_medium=ios-ide";
+      @"troubleshooting/trace/SCREEN_TRACE/test-trace?utm_source=perf-ios-sdk&utm_medium=ios-ide";
   XCTAssertEqualObjects(url, expectedURL);
 }
 
