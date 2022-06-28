@@ -322,6 +322,25 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [[[tt withNonexistentDoc] runWithStages:@[ get, set1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
 }
 
+- (void)testEmptyDoc {
+  FIRFirestore *firestore = [self firestore];
+  FIRDocumentReference *doc = [[firestore collectionWithPath:@"abc"] documentWithAutoID];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
+  [firestore
+      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **errorPointer) {
+        FIRDocumentSnapshot *sfDocument __unused = [transaction getDocument:doc error:errorPointer];
+        // NSLog(@"document data: %@", sfDocument.data);
+        return @YES;
+      }
+      completion:^(id _Nullable result, NSError *_Nullable error) {
+        XCTAssertEqualObjects(result, @YES);
+        XCTAssertNil(error);
+        [expectation fulfill];
+      }];
+  [self awaitExpectations];
+}
+
 - (void)testRunsTransactionOnExistingDoc {
   FIRFirestore *firestore = [self firestore];
   FSTTransactionTester *tt = [[FSTTransactionTester alloc] initWithDb:firestore testCase:self];
