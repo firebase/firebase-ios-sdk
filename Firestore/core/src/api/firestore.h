@@ -93,11 +93,10 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
   WriteBatch GetBatch();
   core::Query GetCollectionGroup(std::string collection_id);
 
-  // TODO(dconeybe): Remove the default value of `max_attempts` once
-  // the firebase-cpp-sdk has been updated to specify an explicit value.
+  // The default value for `max_attempts` is `kDefaultTransactionMaxAttempts`.
   void RunTransaction(core::TransactionUpdateCallback update_callback,
                       core::TransactionResultCallback result_callback,
-                      int max_attempts = kDefaultTransactionMaxAttempts);
+                      int max_attempts);
 
   void Terminate(util::StatusCallback callback);
   void ClearPersistence(util::StatusCallback callback);
