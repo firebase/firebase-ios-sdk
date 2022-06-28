@@ -43,21 +43,21 @@ static NSString *const kInstallationsAuthTokenHeaderName = @"x-goog-firebase-ins
 // Sends the bundle ID. Refer to b/130301479 for details.
 static NSString *const kiOSBundleIdentifierHeaderName =
     @"X-Ios-Bundle-Identifier";  ///< HTTP Header Field Name
-static NSString *const templateVersionNumberKey = @"templateVersion";
+static NSString *const kTemplateVersionNumberKey = @"latestTemplateVersionNumber";
 
 /// Completion handler invoked by config update methods when they get a response from the server.
 ///
 /// @param error  Error message on failure.
 typedef void (^RCNConfigUpdateCompletion)(NSError *_Nullable error);
 
-NSTimeInterval timeoutSeconds = 4320;
-NSInteger FETCH_ATTEMPTS = 3;
+static NSTimeInterval gTimeoutSeconds = 4320;
+static NSInteger const gFetchAttempts = 3;
 
 // Retry parameters
-NSInteger MAX_RETRY = 7;
-NSInteger MAX_RETRY_COUNT = 7;
-NSInteger RETRY_SECONDS = 3;
-bool isRetrying = false;
+static NSInteger const gMaxRetries = 7;
+static NSInteger gMaxRetryCount;
+static NSInteger gRetrySeconds;
+static bool gIsRetrying;
 
 @interface FIRConfigUpdateListenerRegistration ()
 @property(strong, atomic, nonnull) RCNConfigUpdateCompletion completionHandler;
@@ -118,7 +118,10 @@ bool isRetrying = false;
     _namespace = namespace;
 
     /// Set retry seconds to a random number between 1 and 6 seconds.
-    RETRY_SECONDS = arc4random_uniform(5) + 1;
+    gRetrySeconds = arc4random_uniform(5) + 1;
+
+    gMaxRetryCount = gMaxRetries;
+    gIsRetrying = false;
 
     [self setUpHttpRequest];
     [self setUpHttpSession];
@@ -297,7 +300,7 @@ bool isRetrying = false;
   NSString *address = [self constructServerURL];
   _request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:address]
                                           cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-                                      timeoutInterval:timeoutSeconds];
+                                      timeoutInterval:gTimeoutSeconds];
   [_request setHTTPMethod:kHTTPMethodPost];
   [_request setValue:@"application/json" forHTTPHeaderField:kContentTypeHeaderName];
   [_request setValue:@"application/json" forHTTPHeaderField:kAcceptEncodingHeaderName];
@@ -312,8 +315,8 @@ bool isRetrying = false;
 - (void)setUpHttpSession {
   NSURLSessionConfiguration *sessionConfig =
       [[NSURLSessionConfiguration defaultSessionConfiguration] copy];
-  [sessionConfig setTimeoutIntervalForResource:timeoutSeconds];
-  [sessionConfig setTimeoutIntervalForRequest:timeoutSeconds];
+  [sessionConfig setTimeoutIntervalForResource:gTimeoutSeconds];
+  [sessionConfig setTimeoutIntervalForRequest:gTimeoutSeconds];
   _session = [NSURLSession sessionWithConfiguration:sessionConfig
                                            delegate:self
                                       delegateQueue:[NSOperationQueue mainQueue]];
@@ -334,15 +337,15 @@ bool isRetrying = false;
   __weak RCNConfigRealtime *weakSelf = self;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
-    if ([strongSelf canMakeConnection] && MAX_RETRY_COUNT > 0 && !isRetrying) {
-      if (MAX_RETRY_COUNT < MAX_RETRY) {
+    if ([strongSelf canMakeConnection] && gMaxRetryCount > 0 && !gIsRetrying) {
+      if (gMaxRetryCount < gMaxRetries) {
         double RETRY_MULTIPLIER = arc4random_uniform(3) + 2;
-        RETRY_SECONDS *= RETRY_MULTIPLIER;
+        gRetrySeconds *= RETRY_MULTIPLIER;
       }
-      MAX_RETRY_COUNT--;
-      isRetrying = true;
+      gMaxRetryCount--;
+      gIsRetrying = true;
       dispatch_time_t executionDelay =
-          dispatch_time(DISPATCH_TIME_NOW, (RETRY_SECONDS * NSEC_PER_SEC));
+          dispatch_time(DISPATCH_TIME_NOW, (gRetrySeconds * NSEC_PER_SEC));
       dispatch_after(executionDelay, strongSelf->_realtimeLockQueue, ^{
         [strongSelf beginRealtimeStream];
       });
@@ -455,10 +458,10 @@ bool isRetrying = false;
                                                              error:&dataError];
   NSString *targetTemplateVersion = _configFetch.templateVersionNumber;
   if (dataError == nil) {
-    targetTemplateVersion = [response objectForKey:@"latestTemplateVersionNumber"];
+    targetTemplateVersion = [response objectForKey:kTemplateVersionNumberKey];
   }
 
-  [self autoFetch:FETCH_ATTEMPTS targetVersion:[targetTemplateVersion integerValue]];
+  [self autoFetch:gFetchAttempts targetVersion:[targetTemplateVersion integerValue]];
 }
 
 /// Delegate that checks the final response of the connection and retries if necessary
@@ -467,7 +470,7 @@ bool isRetrying = false;
     didReceiveResponse:(NSURLResponse *)response
      completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
   NSHTTPURLResponse *_httpURLResponse = (NSHTTPURLResponse *)response;
-  if ([_httpURLResponse statusCode] != 200 && !isRetrying) {
+  if ([_httpURLResponse statusCode] != 200 && !gIsRetrying) {
     [self pauseRealtimeStream];
     [self retryHTTPConnection];
   }
@@ -478,7 +481,7 @@ bool isRetrying = false;
 - (void)URLSession:(NSURLSession *)session
                     task:(NSURLSessionTask *)task
     didCompleteWithError:(NSError *)error {
-  if (!isRetrying) {
+  if (!gIsRetrying) {
     [self pauseRealtimeStream];
     [self retryHTTPConnection];
   }
@@ -486,7 +489,7 @@ bool isRetrying = false;
 
 /// Delegate that checks the final response of the connection and retries if allowed
 - (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(NSError *)error {
-  if (!isRetrying) {
+  if (!gIsRetrying) {
     [self pauseRealtimeStream];
     [self retryHTTPConnection];
   }
@@ -502,9 +505,11 @@ bool isRetrying = false;
       [strongSelf setRequestBody];
       strongSelf->_dataTask = [strongSelf->_session dataTaskWithRequest:strongSelf->_request];
       [strongSelf->_dataTask resume];
-      MAX_RETRY_COUNT = MAX_RETRY;
-      RETRY_SECONDS = 3;
-      isRetrying = false;
+      gMaxRetryCount = gMaxRetries;
+      gIsRetrying = false;
+
+      /// Set retry seconds to a random number between 1 and 6 seconds.
+      gRetrySeconds = arc4random_uniform(5) + 1;
     }
   });
 }

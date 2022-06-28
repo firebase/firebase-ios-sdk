@@ -65,7 +65,7 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 static const NSInteger sFIRErrorCodeConfigFailed = -114;
 
 // Key to retrive fetch config template version number
-static NSString *const templateVersionNumberKey = @"templateVersion";
+static NSString *const kTemplateVersionNumberKey = @"templateVersion";
 
 #pragma mark - RCNConfig
 
@@ -585,9 +585,9 @@ static NSString *const templateVersionNumberKey = @"templateVersion";
 }
 
 - (NSString *)getTemplateVersionNumber:(NSDictionary *)fetchedConfig {
-  if (fetchedConfig != nil && [fetchedConfig objectForKey:templateVersionNumberKey] &&
-      [[fetchedConfig objectForKey:templateVersionNumberKey] isKindOfClass:[NSString class]]) {
-    return (NSString *)[fetchedConfig objectForKey:templateVersionNumberKey];
+  if (fetchedConfig != nil && [fetchedConfig objectForKey:kTemplateVersionNumberKey] &&
+      [[fetchedConfig objectForKey:kTemplateVersionNumberKey] isKindOfClass:[NSString class]]) {
+    return (NSString *)[fetchedConfig objectForKey:kTemplateVersionNumberKey];
   }
 
   return @"1";
