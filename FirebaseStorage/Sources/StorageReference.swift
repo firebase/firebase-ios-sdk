@@ -102,7 +102,7 @@ import FirebaseStorageInternal
   @objc(putData:metadata:)
   @discardableResult
   open func putData(_ uploadData: Data, metadata: StorageMetadata? = nil) -> StorageUploadTask {
-    return StorageUploadTask(impl.put(uploadData, metadata: metadata?.impl))
+    return putData(uploadData, metadata: metadata, completion: nil)
   }
 
   /**
@@ -112,7 +112,7 @@ import FirebaseStorageInternal
    * - Returns: An instance of `StorageUploadTask`, which can be used to monitor or manage the upload.
    */
   @objc(putData:) @discardableResult open func __putData(_ uploadData: Data) -> StorageUploadTask {
-    return StorageUploadTask(impl.put(uploadData))
+    return putData(uploadData, metadata: nil, completion: nil)
   }
 
   /**
@@ -130,11 +130,41 @@ import FirebaseStorageInternal
   open func putData(_ uploadData: Data,
                     metadata: StorageMetadata? = nil,
                     completion: ((_: StorageMetadata?, _: Error?) -> Void)?) -> StorageUploadTask {
-    return StorageUploadTask(impl.put(uploadData, metadata: metadata?.impl) { impl, error in
-      if let completion = completion {
-        self.adaptMetadataCallback(completion: completion)(impl, error)
+    let putMetadata = metadata ?? StorageMetadata()
+    if let path = path?.object {
+      putMetadata.path = path
+      putMetadata.name = (path as NSString).lastPathComponent as String
+    }
+    let fetcherService = storage.fetcherServiceForApp
+    let task = StorageUploadTask(reference: impl,
+                                 service: fetcherService,
+                                 queue: storage.dispatchQueue,
+                                 data: uploadData,
+                                 metadata: putMetadata.impl)
+
+    if let completion = completion {
+      var completed = false
+      let callbackQueue = fetcherService.callbackQueue ?? DispatchQueue.main
+
+      task.observe(.success) { snapshot in
+        callbackQueue.async {
+          if !completed {
+            completed = true
+            completion(snapshot.metadata, nil)
+          }
+        }
       }
-    })
+      task.observe(.failure) { snapshot in
+        callbackQueue.async {
+          if !completed {
+            completed = true
+            completion(nil, snapshot.error)
+          }
+        }
+      }
+    }
+    task.enqueue()
+    return task
   }
 
   /**
@@ -147,7 +177,7 @@ import FirebaseStorageInternal
    */
   @objc(putFile:metadata:) @discardableResult
   open func putFile(from fileURL: URL, metadata: StorageMetadata? = nil) -> StorageUploadTask {
-    return StorageUploadTask(impl.putFile(fileURL, metadata: metadata?.impl))
+    return putFile(from: fileURL, metadata: metadata, completion: nil)
   }
 
   /**
@@ -157,7 +187,7 @@ import FirebaseStorageInternal
    * @return An instance of StorageUploadTask, which can be used to monitor or manage the upload.
    */
   @objc(putFile:) @discardableResult open func __putFile(from fileURL: URL) -> StorageUploadTask {
-    return StorageUploadTask(impl.putFile(fileURL))
+    return putFile(from: fileURL, metadata: nil, completion: nil)
   }
 
   /**
@@ -174,11 +204,46 @@ import FirebaseStorageInternal
   open func putFile(from fileURL: URL,
                     metadata: StorageMetadata? = nil,
                     completion: ((_: StorageMetadata?, _: Error?) -> Void)?) -> StorageUploadTask {
-    return StorageUploadTask(impl.putFile(fileURL, metadata: metadata?.impl) { impl, error in
-      if let completion = completion {
-        self.adaptMetadataCallback(completion: completion)(impl, error)
+    var putMetadata: StorageMetadata
+    if metadata == nil {
+      putMetadata = StorageMetadata()
+      if let path = path?.object {
+        putMetadata.path = path
+        putMetadata.name = (path as NSString).lastPathComponent as String
       }
-    })
+    } else {
+      putMetadata = metadata!
+    }
+    let fetcherService = storage.fetcherServiceForApp
+    let task = StorageUploadTask(reference: impl,
+                                 service: fetcherService,
+                                 queue: storage.dispatchQueue,
+                                 file: fileURL,
+                                 metadata: putMetadata.impl)
+
+    if let completion = completion {
+      var completed = false
+      let callbackQueue = fetcherService.callbackQueue ?? DispatchQueue.main
+
+      task.observe(.success) { snapshot in
+        callbackQueue.async {
+          if !completed {
+            completed = true
+            completion(snapshot.metadata, nil)
+          }
+        }
+      }
+      task.observe(.failure) { snapshot in
+        callbackQueue.async {
+          if !completed {
+            completed = true
+            completion(nil, snapshot.error)
+          }
+        }
+      }
+    }
+    task.enqueue()
+    return task
   }
 
   // MARK: - Downloads
@@ -197,7 +262,44 @@ import FirebaseStorageInternal
   @objc(dataWithMaxSize:completion:) @discardableResult
   open func getData(maxSize: Int64,
                     completion: @escaping ((_: Data?, _: Error?) -> Void)) -> StorageDownloadTask {
-    return StorageDownloadTask(impl.data(withMaxSize: maxSize, completion: completion))
+    let fetcherService = storage.fetcherServiceForApp
+    let task = StorageDownloadTask(reference: impl,
+                                   service: fetcherService,
+                                   queue: storage.dispatchQueue,
+                                   file: nil)
+
+    var completed = false
+    let callbackQueue = fetcherService.callbackQueue ?? DispatchQueue.main
+
+    task.observe(.success) { snapshot in
+      callbackQueue.async {
+        if !completed {
+          completed = true
+          completion(task.downloadData, nil)
+        }
+      }
+    }
+    task.observe(.failure) { snapshot in
+      callbackQueue.async {
+        if !completed {
+          completed = true
+          completion(nil, snapshot.error)
+        }
+      }
+    }
+    task.observe(.progress) { snapshot in
+      let task = snapshot.task
+      if task.progress.totalUnitCount > maxSize || task.progress.completedUnitCount > maxSize {
+        let error = StorageErrorCode.error(withCode: .downloadSizeExceeded,
+                                           infoDictionary: [
+                                             "totalSize": task.progress.totalUnitCount,
+                                             "maxAllowedSize": maxSize,
+                                           ])
+        (task as? StorageDownloadTask)?.cancel(withError: error)
+      }
+    }
+    task.enqueue()
+    return task
   }
 
   /**
@@ -209,7 +311,12 @@ import FirebaseStorageInternal
    */
   @objc(downloadURLWithCompletion:)
   open func downloadURL(completion: @escaping ((_: URL?, _: Error?) -> Void)) {
-    impl.downloadURL(completion: completion)
+    let fetcherService = storage.fetcherServiceForApp
+    let task = StorageGetDownloadURLTask(reference: impl,
+                                         fetcherService: fetcherService,
+                                         queue: storage.dispatchQueue,
+                                         completion: completion)
+    task.enqueue()
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
@@ -222,7 +329,11 @@ import FirebaseStorageInternal
      */
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     open func downloadURL() async throws -> URL {
-      return try await impl.downloadURL()
+      return try await withCheckedThrowingContinuation { continuation in
+        self.downloadURL { result in
+          continuation.resume(with: result)
+        }
+      }
     }
   #endif // compiler(>=5.5) && canImport(_Concurrency)
 
@@ -233,7 +344,7 @@ import FirebaseStorageInternal
    */
   @objc(writeToFile:) @discardableResult
   open func write(toFile fileURL: URL) -> StorageDownloadTask {
-    return StorageDownloadTask(impl.write(toFile: fileURL))
+    return write(toFile: fileURL, completion: nil)
   }
 
   /**
@@ -248,7 +359,35 @@ import FirebaseStorageInternal
   @objc(writeToFile:completion:) @discardableResult
   open func write(toFile fileURL: URL,
                   completion: ((_: URL?, _: Error?) -> Void)?) -> StorageDownloadTask {
-    return StorageDownloadTask(impl.write(toFile: fileURL, completion: completion))
+    let fetcherService = storage.fetcherServiceForApp
+    let task = StorageDownloadTask(reference: impl,
+                                   service: fetcherService,
+                                   queue: storage.dispatchQueue,
+                                   file: fileURL)
+
+    if let completion = completion {
+      var completed = false
+      let callbackQueue = fetcherService.callbackQueue ?? DispatchQueue.main
+
+      task.observe(.success) { snapshot in
+        callbackQueue.async {
+          if !completed {
+            completed = true
+            completion(fileURL, nil)
+          }
+        }
+      }
+      task.observe(.failure) { snapshot in
+        callbackQueue.async {
+          if !completed {
+            completed = true
+            completion(nil, snapshot.error)
+          }
+        }
+      }
+    }
+    task.enqueue()
+    return task
   }
 
   // MARK: - List Support
@@ -266,14 +405,50 @@ import FirebaseStorageInternal
    *       the current `StorageReference`.
    */
   @objc(listAllWithCompletion:)
-  open func listAll(completion: @escaping ((_: StorageListResult?, _: Error?) -> Void)) {
-    impl.listAll { listResult, error in
-      if error != nil {
+  open func listAll(completion: @escaping ((_: StorageListResult?, _: NSError?) -> Void)) {
+    let fetcherService = storage.fetcherServiceForApp
+    var prefixes = [FIRIMPLStorageReference]()
+    var items = [FIRIMPLStorageReference]()
+
+    weak var weakSelf = self
+
+    var paginatedCompletion: ((_: StorageListResult?, _: NSError?) -> Void)?
+    paginatedCompletion = { (_ listResult: StorageListResult?, _ error: NSError?) in
+      if let error = error {
         completion(nil, error)
+        return
+      }
+      guard let strongSelf = weakSelf else { return }
+      guard let listResult = listResult else {
+        fatalError("internal error: both listResult and error are nil")
+      }
+      prefixes.append(contentsOf: listResult.prefixes.map { $0.impl })
+      items.append(contentsOf: listResult.items.map { $0.impl })
+
+      if let pageToken = listResult.pageToken {
+        let nextPage = StorageListTask(reference: strongSelf.impl,
+                                       fetcherService: fetcherService,
+                                       queue: strongSelf.storage.dispatchQueue,
+                                       pageSize: nil,
+                                       previousPageToken: pageToken,
+                                       completion: paginatedCompletion)
+        nextPage.enqueue()
       } else {
-        completion(StorageListResult(listResult), error)
+        let result = StorageListResult(withPrefixes: prefixes, items: items, pageToken: nil)
+
+        // Break the retain cycle we set up indirectly by passing the callback to `nextPage`.
+        paginatedCompletion = nil
+        completion(result, nil)
       }
     }
+
+    let task = StorageListTask(reference: impl,
+                               fetcherService: fetcherService,
+                               queue: storage.dispatchQueue,
+                               pageSize: nil,
+                               previousPageToken: nil,
+                               completion: paginatedCompletion)
+    task.enqueue()
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
@@ -291,7 +466,11 @@ import FirebaseStorageInternal
      */
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     open func listAll() async throws -> StorageListResult {
-      return try await StorageListResult(impl.listAll())
+      return try await withCheckedThrowingContinuation { continuation in
+        self.listAll { result in
+          continuation.resume(with: result)
+        }
+      }
     }
   #endif // compiler(>=5.5) && canImport(_Concurrency)
 
@@ -313,12 +492,21 @@ import FirebaseStorageInternal
   @objc(listWithMaxResults:completion:)
   open func list(maxResults: Int64,
                  completion: @escaping ((_: StorageListResult?, _: Error?) -> Void)) {
-    impl.list(withMaxResults: maxResults) { listResult, error in
-      if error != nil {
-        completion(nil, error)
-      } else {
-        completion(StorageListResult(listResult), error)
-      }
+    if maxResults <= 0 || maxResults > 1000 {
+      completion(nil,
+                 NSError(domain: StorageErrorDomain,
+                         code: StorageErrorCode.invalidArgument.rawValue,
+                         userInfo: [NSLocalizedDescriptionKey:
+                           "Argument 'maxResults' must be between 1 and 1000 inclusive."]))
+    } else {
+      let fetcherService = storage.fetcherServiceForApp
+      let task = StorageListTask(reference: impl,
+                                 fetcherService: fetcherService,
+                                 queue: storage.dispatchQueue,
+                                 pageSize: maxResults,
+                                 previousPageToken: nil,
+                                 completion: completion)
+      task.enqueue()
     }
   }
 
@@ -344,12 +532,21 @@ import FirebaseStorageInternal
   open func list(maxResults: Int64,
                  pageToken: String,
                  completion: @escaping ((_: StorageListResult?, _: Error?) -> Void)) {
-    impl.list(withMaxResults: maxResults, pageToken: pageToken) { listResult, error in
-      if error != nil {
-        completion(nil, error)
-      } else {
-        completion(StorageListResult(listResult), error)
-      }
+    if maxResults <= 0 || maxResults > 1000 {
+      completion(nil,
+                 NSError(domain: StorageErrorDomain,
+                         code: StorageErrorCode.invalidArgument.rawValue,
+                         userInfo: [NSLocalizedDescriptionKey:
+                           "Argument 'maxResults' must be between 1 and 1000 inclusive."]))
+    } else {
+      let fetcherService = storage.fetcherServiceForApp
+      let task = StorageListTask(reference: impl,
+                                 fetcherService: fetcherService,
+                                 queue: storage.dispatchQueue,
+                                 pageSize: maxResults,
+                                 previousPageToken: pageToken,
+                                 completion: completion)
+      task.enqueue()
     }
   }
 
@@ -362,9 +559,12 @@ import FirebaseStorageInternal
    */
   @objc(metadataWithCompletion:)
   open func getMetadata(completion: @escaping ((_: StorageMetadata?, _: Error?) -> Void)) {
-    impl.metadata { impl, error in
-      self.adaptMetadataCallback(completion: completion)(impl, error)
-    }
+    let fetcherService = storage.fetcherServiceForApp
+    let task = StorageGetMetadataTask(reference: impl,
+                                      fetcherService: fetcherService,
+                                      queue: storage.dispatchQueue,
+                                      completion: completion)
+    task.enqueue()
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
@@ -375,7 +575,11 @@ import FirebaseStorageInternal
      */
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     open func getMetadata() async throws -> StorageMetadata {
-      return try await StorageMetadata(impl: impl.metadata())
+      return try await withCheckedThrowingContinuation { continuation in
+        self.getMetadata { result in
+          continuation.resume(with: result)
+        }
+      }
     }
   #endif // compiler(>=5.5) && canImport(_Concurrency)
 
@@ -389,11 +593,13 @@ import FirebaseStorageInternal
   @objc(updateMetadata:completion:)
   open func updateMetadata(_ metadata: StorageMetadata,
                            completion: ((_: StorageMetadata?, _: Error?) -> Void)?) {
-    impl.update(metadata.impl) { impl, error in
-      if let completion = completion {
-        self.adaptMetadataCallback(completion: completion)(impl, error)
-      }
-    }
+    let fetcherService = storage.fetcherServiceForApp
+    let task = StorageUpdateMetadataTask(reference: impl,
+                                         fetcherService: fetcherService,
+                                         queue: storage.dispatchQueue,
+                                         metadata: metadata.impl,
+                                         completion: completion)
+    task.enqueue()
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
@@ -405,7 +611,11 @@ import FirebaseStorageInternal
      */
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     open func updateMetadata(_ metadata: StorageMetadata) async throws -> StorageMetadata {
-      return try await StorageMetadata(impl: impl.update(metadata.impl))
+      return try await withCheckedThrowingContinuation { continuation in
+        self.updateMetadata(metadata) { result in
+          continuation.resume(with: result)
+        }
+      }
     }
   #endif // compiler(>=5.5) && canImport(_Concurrency)
 
@@ -429,7 +639,12 @@ import FirebaseStorageInternal
    */
   @objc(deleteWithCompletion:)
   open func delete(completion: ((_: Error?) -> Void)?) {
-    impl.delete(completion: completion)
+    let fetcherService = storage.fetcherServiceForApp
+    let task = StorageDeleteTask(reference: impl,
+                                 fetcherService: fetcherService,
+                                 queue: storage.dispatchQueue,
+                                 completion: completion)
+    task.enqueue()
   }
 
   #if compiler(>=5.5) && canImport(_Concurrency)
@@ -439,7 +654,15 @@ import FirebaseStorageInternal
      */
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     open func delete() async throws {
-      return try await impl.delete()
+      return try await withCheckedThrowingContinuation { continuation in
+        self.delete { error in
+          if let error = error {
+            continuation.resume(throwing: error)
+          } else {
+            continuation.resume()
+          }
+        }
+      }
     }
   #endif // compiler(>=5.5) && canImport(_Concurrency)
 
@@ -466,7 +689,14 @@ import FirebaseStorageInternal
 
   // MARK: - Internal APIs
 
-  private let impl: FIRIMPLStorageReference
+  internal let impl: FIRIMPLStorageReference
+
+  /**
+   * The current path which points to an object in the Google Cloud Storage bucket.
+   */
+  private var path: FIRStoragePath? {
+    return impl.path
+  }
 
   internal convenience init(_ impl: FIRIMPLStorageReference) {
     self.init(impl: impl, storage: Storage(app: impl.storage.app, bucket: impl.bucket))

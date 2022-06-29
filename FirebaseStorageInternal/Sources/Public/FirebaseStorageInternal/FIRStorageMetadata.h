@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRStorageConstants.h"
+
 @class FIRIMPLStorageReference;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -84,12 +86,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * The name of this object, in gs://bucket/path/to/object.txt, this is object.txt.
  */
-@property(copy, nonatomic, readonly, nullable) NSString *name;
+@property(copy, nonatomic, readwrite, nullable) NSString *name;
 
 /**
  * The full path of this object, in gs://bucket/path/to/object.txt, this is path/to/object.txt.
  */
-@property(copy, nonatomic, readonly, nullable) NSString *path;
+@property(copy, nonatomic, readwrite, nullable) NSString *path;
 
 /**
  * Content-Length of the data in bytes.
@@ -110,6 +112,11 @@ NS_ASSUME_NONNULL_BEGIN
  * A reference to the object in Firebase Storage.
  */
 @property(strong, nonatomic, readonly, nullable) FIRIMPLStorageReference *storageReference;
+
+/**
+ * The type of the object, either a "File" or a "Folder".
+ */
+@property(readwrite) FIRStorageMetadataType type;
 
 /**
  * Creates an instance of FIRIMPLStorageMetadata from the contents of a dictionary.
@@ -133,6 +140,12 @@ NS_ASSUME_NONNULL_BEGIN
  * Determines if the current metadata represents a "folder".
  */
 @property(readonly, getter=isFolder) BOOL folder;
+
+/**
+ * Computes the updates between the state at initialization and the current state.
+ * Returns a dictionary with only the updated data. Removed keys are set to NSNull.
+ */
+- (NSDictionary *)updatedMetadata;
 
 @end
 
