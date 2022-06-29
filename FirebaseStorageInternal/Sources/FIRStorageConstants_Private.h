@@ -139,13 +139,4 @@ typedef NS_ENUM(NSInteger, FIRIMPLStorageTaskState) {
   FIRIMPLStorageTaskStateFailed
 };
 
-/**
- * Represents the various types of metadata: Files or Folders.
- */
-typedef NS_ENUM(NSUInteger, FIRStorageMetadataType) {
-  FIRStorageMetadataTypeUnknown,
-  FIRStorageMetadataTypeFile,
-  FIRStorageMetadataTypeFolder,
-};
-
 NS_ASSUME_NONNULL_END

@@ -23,16 +23,7 @@ import SharedTestUtilities
 
 import XCTest
 
-class StorageComponentTests: XCTestCase {
-  static var app: FirebaseApp!
-
-  override class func setUp() {
-    let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
-                                  gcmSenderID: "00000000000000000-00000000000-000000000")
-    options.projectID = "myProjectID"
-    app = FirebaseApp(instanceWithName: "test", options: options)
-  }
-
+class StorageComponentTests: StorageTestHelpers {
   // MARK: Interoperability Tests
 
   /// Tests that the right number of components are being provided for the container.
@@ -52,7 +43,7 @@ class StorageComponentTests: XCTestCase {
   func testMultipleComponentInstancesCreated() throws {
     let registrants = NSMutableSet(array: [StorageComponent.self])
     let container = FirebaseComponentContainer(
-      app: StorageComponentTests.app,
+      app: StorageTestHelpers.app,
       registrants: registrants
     )
 

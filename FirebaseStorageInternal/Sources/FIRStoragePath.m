@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseStorageInternal/Sources/FIRStoragePath.h"
+#import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStoragePath.h"
 
 #import "FirebaseStorageInternal/Sources/FIRStorageConstants_Private.h"
 

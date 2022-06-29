@@ -163,4 +163,13 @@ typedef NS_ENUM(NSInteger, FIRIMPLStorageErrorCode) {
   FIRIMPLStorageErrorCodeInvalidArgument = -13050
 };
 
+/**
+ * Represents the various types of metadata: Files or Folders.
+ */
+typedef NS_ENUM(NSUInteger, FIRStorageMetadataType) {
+  FIRStorageMetadataTypeUnknown,
+  FIRStorageMetadataTypeFile,
+  FIRStorageMetadataTypeFolder,
+};
+
 NS_ASSUME_NONNULL_END
