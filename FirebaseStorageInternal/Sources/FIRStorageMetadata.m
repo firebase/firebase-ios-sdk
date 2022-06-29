@@ -18,7 +18,6 @@
 
 #import "FirebaseStorageInternal/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageMetadata_Private.h"
-#import "FirebaseStorageInternal/Sources/FIRStorageUtils.h"
 
 // TODO: consider rewriting this using GTLR (GTLRStorageObjects.h)
 @implementation FIRIMPLStorageMetadata

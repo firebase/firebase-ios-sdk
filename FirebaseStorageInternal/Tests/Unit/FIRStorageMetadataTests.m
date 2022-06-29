@@ -16,8 +16,6 @@
 
 #import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageMetadata.h"
 
-#import "FirebaseStorageInternal/Sources/FIRStorageGetDownloadURLTask.h"
-#import "FirebaseStorageInternal/Sources/FIRStorageGetDownloadURLTask_Private.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageMetadata_Private.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageUtils.h"
 
@@ -126,6 +124,8 @@
                         metaDict[kFIRStorageMetadataMd5Hash]);
 }
 
+#ifdef TODO_PORT
+
 - (void)testInitializeEmptyDownloadURL {
   NSDictionary *metaDict = @{
     kFIRStorageMetadataBucket : @"bucket",
@@ -166,8 +166,9 @@
   NSURL *actualURL = [task downloadURLFromMetadataDictionary:metaDict];
   XCTAssertEqualObjects([actualURL absoluteString], expectedURL);
 }
+#endif
 
-- (void)testInitialzeMetadataWithFile {
+- (void)testInitializeMetadataWithFile {
   NSDictionary *metaDict = @{
     kFIRStorageMetadataBucket : @"bucket",
     kFIRStorageMetadataName : @"path/to/file",
