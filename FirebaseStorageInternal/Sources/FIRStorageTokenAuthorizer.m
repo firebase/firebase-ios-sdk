@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseStorageInternal/Sources/FIRStorageTokenAuthorizer.h"
+#import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageTokenAuthorizer.h"
 
 #import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorage.h"
 #import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageConstants.h"

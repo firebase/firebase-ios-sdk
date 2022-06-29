@@ -123,12 +123,26 @@ import FirebaseStorageInternal
   /**
    * The name of this object, in gs://bucket/path/to/object.txt, this is object.txt.
    */
-  @objc public let name: String?
+  @objc public internal(set) var name: String? {
+    get {
+      return impl.name
+    }
+    set(newValue) {
+      impl.name = newValue
+    }
+  }
 
   /**
    * The full path of this object, in gs://bucket/path/to/object.txt, this is path/to/object.txt.
    */
-  @objc public let path: String?
+  @objc public internal(set) var path: String? {
+    get {
+      return impl.path
+    }
+    set(newValue) {
+      impl.path = newValue
+    }
+  }
 
   /**
    * Content-Length of the data in bytes.
@@ -213,8 +227,6 @@ import FirebaseStorageInternal
     md5Hash = impl.md5Hash
     generation = impl.generation
     metageneration = impl.metageneration
-    name = impl.name
-    path = impl.path
     size = impl.size
     timeCreated = impl.timeCreated
     updated = impl.updated

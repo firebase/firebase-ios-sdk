@@ -16,21 +16,13 @@
 
 #import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageReference.h"
 
-#import "FirebaseStorageInternal/Sources/FIRStoragePath.h"
+#import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStoragePath.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRIMPLStorageReference ()
 
 @property(nonatomic, readwrite) FIRIMPLStorage *storage;
-
-/**
- * The current path which points to an object in the Google Cloud Storage bucket.
- */
-@property(strong, nonatomic) FIRStoragePath *path;
-
-- (instancetype)initWithStorage:(FIRIMPLStorage *)storage
-                           path:(FIRStoragePath *)path NS_DESIGNATED_INITIALIZER;
 
 - (NSString *)stringValue;
 

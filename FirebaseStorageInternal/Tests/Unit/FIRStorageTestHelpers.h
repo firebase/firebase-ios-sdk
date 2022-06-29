@@ -23,13 +23,11 @@
 #import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageConstants.h"
 #import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageMetadata.h"
 #import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageReference.h"
-#import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageTask.h"
+#import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageTokenAuthorizer.h"
 
 #import "FirebaseStorageInternal/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageErrors.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageReference_Private.h"
-#import "FirebaseStorageInternal/Sources/FIRStorageTask_Private.h"
-#import "FirebaseStorageInternal/Sources/FIRStorageTokenAuthorizer.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageUtils.h"
 
 #if SWIFT_PACKAGE
@@ -103,42 +101,6 @@ static NSTimeInterval kExpectationTimeoutSeconds = 10;
  * Returns a FIRIMPLStorageReference that is backed by a mocked FIRApp.
  */
 + (FIRIMPLStorageReference *)rootReference;
-
-/**
- * Returns a successful response block.
- */
-+ (GTMSessionFetcherTestBlock)successBlock;
-
-/**
- * Returns a successful response block that validates the provided URL.
- */
-+ (GTMSessionFetcherTestBlock)successBlockWithURL:(NSString *)url;
-
-/**
- * Returns a successful response block containing object metadata.
- * @param metadata Metadata returned in the request.
- */
-+ (GTMSessionFetcherTestBlock)successBlockWithMetadata:(nullable FIRIMPLStorageMetadata *)metadata;
-
-/**
- * Returns a unsuccessful response block due to improper authentication.
- */
-+ (GTMSessionFetcherTestBlock)unauthenticatedBlock;
-
-/**
- * Returns a unsuccessful response block due to improper authorization.
- */
-+ (GTMSessionFetcherTestBlock)unauthorizedBlock;
-
-/**
- * Returns a unsuccessful response block due the object not being found.
- */
-+ (GTMSessionFetcherTestBlock)notFoundBlock;
-
-/**
- * Returns a unsuccessful response block due invalid JSON returned by the server.
- */
-+ (GTMSessionFetcherTestBlock)invalidJSONBlock;
 
 /**
  * Waits for the given test case to time out by wrapping -waitForExpectation.

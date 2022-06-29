@@ -1111,6 +1111,7 @@ let package = Package(
         "FirebaseCore",
         "FirebaseCoreExtension",
         "FirebaseStorageInternal",
+        .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
       ],
       path: "FirebaseStorage/Sources"
     ),

@@ -156,58 +156,60 @@
   XCTAssertNotEqual(ref, copiedRef);
 }
 
-- (void)testReferenceWithNonExistentFileFailsWithCompletion {
-  NSString *tempFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"temp.data"];
-  FIRIMPLStorageReference *ref = [self.storage referenceWithPath:tempFilePath];
-
-  NSURL *dummyFileURL = [NSURL fileURLWithPath:@"some_non_existing-folder/file.data"];
-
-  XCTestExpectation *expectation = [self expectationWithDescription:@"completionExpectation"];
-
-  [ref putFile:dummyFileURL
-        metadata:nil
-      completion:^(FIRIMPLStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
-        [expectation fulfill];
-        XCTAssertNotNil(error);
-        XCTAssertNil(metadata);
-
-        XCTAssertEqualObjects(error.domain, FIRStorageErrorDomainInternal);
-        XCTAssertEqual(error.code, FIRIMPLStorageErrorCodeUnknown);
-        NSString *expectedDescription = [NSString
-            stringWithFormat:@"File at URL: %@ is not reachable. "
-                             @"Ensure file URL is not a directory, symbolic link, or invalid url.",
-                             dummyFileURL.absoluteString];
-        XCTAssertEqualObjects(error.localizedDescription, expectedDescription);
-      }];
-
-  [self waitForExpectationsWithTimeout:0.5 handler:NULL];
-}
-
-- (void)testReferenceWithNilFileURLFailsWithCompletion {
-  NSString *tempFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"temp.data"];
-  FIRIMPLStorageReference *ref = [self.storage referenceWithPath:tempFilePath];
-
-  NSURL *dummyFileURL = [NSURL URLWithString:@"bad-url"];
-
-  XCTestExpectation *expectation = [self expectationWithDescription:@"completionExpectation"];
-
-  [ref putFile:dummyFileURL
-        metadata:nil
-      completion:^(FIRIMPLStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
-        [expectation fulfill];
-        XCTAssertNotNil(error);
-        XCTAssertNil(metadata);
-
-        XCTAssertEqualObjects(error.domain, FIRStorageErrorDomainInternal);
-        XCTAssertEqual(error.code, FIRIMPLStorageErrorCodeUnknown);
-        NSString *expectedDescription = [NSString
-            stringWithFormat:@"File at URL: %@ is not reachable. "
-                             @"Ensure file URL is not a directory, symbolic link, or invalid url.",
-                             dummyFileURL.absoluteString];
-        XCTAssertEqualObjects(error.localizedDescription, expectedDescription);
-      }];
-
-  [self waitForExpectationsWithTimeout:0.5 handler:NULL];
-}
+// TODO: Port these to Swift
+//
+//- (void)testReferenceWithNonExistentFileFailsWithCompletion {
+//  NSString *tempFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"temp.data"];
+//  FIRIMPLStorageReference *ref = [self.storage referenceWithPath:tempFilePath];
+//
+//  NSURL *dummyFileURL = [NSURL fileURLWithPath:@"some_non_existing-folder/file.data"];
+//
+//  XCTestExpectation *expectation = [self expectationWithDescription:@"completionExpectation"];
+//
+//  [ref putFile:dummyFileURL
+//        metadata:nil
+//      completion:^(FIRIMPLStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
+//        [expectation fulfill];
+//        XCTAssertNotNil(error);
+//        XCTAssertNil(metadata);
+//
+//        XCTAssertEqualObjects(error.domain, FIRStorageErrorDomainInternal);
+//        XCTAssertEqual(error.code, FIRIMPLStorageErrorCodeUnknown);
+//        NSString *expectedDescription = [NSString
+//            stringWithFormat:@"File at URL: %@ is not reachable. "
+//                             @"Ensure file URL is not a directory, symbolic link, or invalid
+//                             url.", dummyFileURL.absoluteString];
+//        XCTAssertEqualObjects(error.localizedDescription, expectedDescription);
+//      }];
+//
+//  [self waitForExpectationsWithTimeout:0.5 handler:NULL];
+//}
+//
+//- (void)testReferenceWithNilFileURLFailsWithCompletion {
+//  NSString *tempFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"temp.data"];
+//  FIRIMPLStorageReference *ref = [self.storage referenceWithPath:tempFilePath];
+//
+//  NSURL *dummyFileURL = [NSURL URLWithString:@"bad-url"];
+//
+//  XCTestExpectation *expectation = [self expectationWithDescription:@"completionExpectation"];
+//
+//  [ref putFile:dummyFileURL
+//        metadata:nil
+//      completion:^(FIRIMPLStorageMetadata *_Nullable metadata, NSError *_Nullable error) {
+//        [expectation fulfill];
+//        XCTAssertNotNil(error);
+//        XCTAssertNil(metadata);
+//
+//        XCTAssertEqualObjects(error.domain, FIRStorageErrorDomainInternal);
+//        XCTAssertEqual(error.code, FIRIMPLStorageErrorCodeUnknown);
+//        NSString *expectedDescription = [NSString
+//            stringWithFormat:@"File at URL: %@ is not reachable. "
+//                             @"Ensure file URL is not a directory, symbolic link, or invalid
+//                             url.", dummyFileURL.absoluteString];
+//        XCTAssertEqualObjects(error.localizedDescription, expectedDescription);
+//      }];
+//
+//  [self waitForExpectationsWithTimeout:0.5 handler:NULL];
+//}
 
 @end
