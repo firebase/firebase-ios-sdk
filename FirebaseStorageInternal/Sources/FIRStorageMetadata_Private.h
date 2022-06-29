@@ -24,16 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRIMPLStorageMetadata ()
 
-@property(readwrite, nonatomic) NSString *name;
-
-@property(readwrite, nonatomic) NSString *path;
-
 @property(readwrite, nonatomic) FIRIMPLStorageReference *reference;
-
-/**
- * The type of the object, either a "File" or a "Folder".
- */
-@property(readwrite) FIRStorageMetadataType type;
 
 /**
  * The original metadata representation received from the server or an empty dictionary
@@ -47,12 +38,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)removeMatchingMetadata:(NSMutableDictionary *)metadata
                    oldMetadata:(NSDictionary *)oldMetadata;
-
-/**
- * Computes the updates between the state at initialization and the current state.
- * Returns a dictionary with only the updated data. Removed keys are set to NSNull.
- */
-- (NSDictionary *)updatedMetadata;
 
 /**
  * Returns an RFC3339 formatted date from a string.

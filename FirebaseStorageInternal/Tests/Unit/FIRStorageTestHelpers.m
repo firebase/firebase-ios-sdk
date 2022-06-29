@@ -89,43 +89,6 @@ NSString *const kFIRStorageAppName = @"app";
   return [FIRStoragePath pathFromString:kFIRStorageNotFoundURL];
 }
 
-+ (GTMSessionFetcherTestBlock)successBlock {
-  return [FIRStorageTestHelpers successBlockWithMetadata:nil];
-}
-
-+ (GTMSessionFetcherTestBlock)successBlockWithMetadata:(nullable FIRIMPLStorageMetadata *)metadata {
-  NSData *data;
-  if (metadata) {
-    data = [NSData frs_dataFromJSONDictionary:[metadata dictionaryRepresentation]];
-  }
-  return [FIRStorageTestHelpers blockForData:data URL:nil statusCode:200];
-}
-
-+ (GTMSessionFetcherTestBlock)successBlockWithURL:(NSString *)url {
-  NSData *data = [@"{}" dataUsingEncoding:NSUTF8StringEncoding];
-  return [FIRStorageTestHelpers blockForData:data URL:url statusCode:200];
-}
-
-+ (GTMSessionFetcherTestBlock)unauthenticatedBlock {
-  NSData *data = [kUnauthenticatedResponseString dataUsingEncoding:NSUTF8StringEncoding];
-  return [FIRStorageTestHelpers blockForData:data URL:nil statusCode:401];
-}
-
-+ (GTMSessionFetcherTestBlock)unauthorizedBlock {
-  NSData *data = [kUnauthorizedResponseString dataUsingEncoding:NSUTF8StringEncoding];
-  return [FIRStorageTestHelpers blockForData:data URL:nil statusCode:403];
-}
-
-+ (GTMSessionFetcherTestBlock)notFoundBlock {
-  NSData *data = [kNotFoundResponseString dataUsingEncoding:NSUTF8StringEncoding];
-  return [FIRStorageTestHelpers blockForData:data URL:nil statusCode:404];
-}
-
-+ (GTMSessionFetcherTestBlock)invalidJSONBlock {
-  NSData *data = [kInvalidJSONResponseString dataUsingEncoding:NSUTF8StringEncoding];
-  return [FIRStorageTestHelpers blockForData:data URL:nil statusCode:200];
-}
-
 #pragma mark - Private methods
 
 + (GTMSessionFetcherTestBlock)blockForData:(nullable NSData *)data

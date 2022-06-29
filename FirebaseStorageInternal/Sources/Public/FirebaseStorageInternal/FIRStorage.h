@@ -20,6 +20,8 @@
 
 @class FIRApp;
 @class FIRIMPLStorageReference;
+@class GTMSessionFetcherService;
+
 @protocol FIRAppCheckInterop;
 @protocol FIRAuthInterop;
 
@@ -62,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * The Firebase App associated with this Firebase Storage instance.
  */
-@property(strong, nonatomic, readonly) FIRApp *app;
+@property(strong, nonatomic, readwrite) FIRApp *app;
 
 /**
  * Maximum time in seconds to retry an upload if a failure occurs.
@@ -81,6 +83,20 @@ NS_ASSUME_NONNULL_BEGIN
  * Defaults to 2 minutes (120 seconds).
  */
 @property NSTimeInterval maxOperationRetryTime;
+
+/**
+ * Maximum time between retry attempts for uploads.
+ *
+ * This is used by GTMSessionFetcher and translated from the user provided `maxUploadRetryTime`.
+ */
+@property(assign, nonatomic) NSTimeInterval maxUploadRetryInterval;
+
+/**
+ * Maximum time between retry attempts for downloads.
+ *
+ * This is used by GTMSessionFetcher and translated from the user provided `maxDownloadRetryTime`.
+ */
+@property(assign, nonatomic) NSTimeInterval maxDownloadRetryInterval;
 
 /**
  * Queue that all developer callbacks are fired on. Defaults to the main queue.
@@ -117,6 +133,25 @@ NS_ASSUME_NONNULL_BEGIN
  * Configures the Storage SDK to use an emulated backend instead of the default remote backend.
  */
 - (void)useEmulatorWithHost:(NSString *)host port:(NSInteger)port;
+
+/**
+ * Maximum time between retry attempts for any operation that is not an upload or download.
+ *
+ * This is used by GTMSessionFetcher and translated from the user provided `maxOperationRetryTime`.
+ */
+@property(assign, nonatomic) NSTimeInterval maxOperationRetryInterval;
+
+@property(strong, nonatomic) NSString *scheme;
+
+@property(strong, nonatomic) NSString *host;
+
+@property(nonatomic) NSInteger port;
+
+@property(strong, nonatomic, nullable) GTMSessionFetcherService *fetcherServiceForApp;
+
+@property(nonatomic, readonly) dispatch_queue_t dispatchQueue;
+
+@property(strong, nonatomic) NSString *storageBucket;
 
 @end
 
