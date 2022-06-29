@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseStorageInternal/Sources/FIRStoragePath.h"
+#import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStoragePath.h"
 
 @interface FIRStoragePathTests : XCTestCase
 

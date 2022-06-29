@@ -51,11 +51,14 @@ import XCTest
       XCTAssertNotNil(result)
       _ = try await ref.delete()
       // Next delete should fail and verify the first delete succeeded.
+      var caughtError = false
       do {
         _ = try await ref.delete()
       } catch {
+        caughtError = true
         XCTAssertEqual((error as NSError).code, StorageErrorCode.objectNotFound.rawValue)
       }
+      XCTAssertTrue(caughtError)
     }
 
     func testDeleteAfterPut() async throws {

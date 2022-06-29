@@ -52,29 +52,42 @@ import FirebaseStorageInternal
    */
   @objc public let status: StorageTaskStatus
 
-  // MARK: - NSObject overrides
+  // MARK: NSObject overrides
 
   @objc override public var description: String {
-    return saveDescription
+    switch status {
+    case .resume: return "<State: Resume>"
+    case .progress: return "<State: Progress, Progress: \(String(describing: progress))>"
+    case .pause: return "<State: Paused>"
+    case .success: return "<State: Success>"
+    case .failure: return "<State: Failed, Error: \(String(describing: error))"
+    case .unknown: return "<State: Unknown>"
+    }
   }
 
-  private let saveDescription: String
-
-  internal convenience init(task: StorageTask) {
-    self.init(impl: task.impl.snapshot, task: task)
-  }
-
-  internal init(impl: FIRIMPLStorageTaskSnapshot, task: StorageTask) {
+  internal init(task: StorageTask,
+                state: StorageTaskState,
+                reference: FIRIMPLStorageReference,
+                progress: Progress,
+                metadata: FIRIMPLStorageMetadata? = nil,
+                error: NSError? = nil) {
     self.task = task
-    if let metadata = impl.metadata {
+    self.reference = StorageReference(reference)
+    self.progress = progress
+    self.error = error
+
+    if let metadata = metadata {
       self.metadata = StorageMetadata(impl: metadata)
     } else {
-      metadata = nil
+      self.metadata = nil
     }
-    reference = StorageReference(impl.reference)
-    progress = impl.progress
-    error = impl.error
-    status = StorageTaskStatus(rawValue: impl.status.rawValue)!
-    saveDescription = impl.description
+    switch state {
+    case .queueing, .running, .resuming: status = StorageTaskStatus.resume
+    case .progress: status = StorageTaskStatus.progress
+    case .paused, .pausing: status = StorageTaskStatus.pause
+    case .success, .completing: status = StorageTaskStatus.success
+    case .cancelled, .failed, .failing: status = .failure
+    case .unknown: status = .unknown
+    }
   }
 }

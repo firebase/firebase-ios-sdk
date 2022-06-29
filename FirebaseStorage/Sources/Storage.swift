@@ -18,6 +18,11 @@ import FirebaseStorageInternal
 import FirebaseCore
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
+#if COCOAPODS
+  import GTMSessionFetcher
+#else
+  import GTMSessionFetcherCore
+#endif
 
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 @_implementationOnly import FirebaseCoreExtension
@@ -203,7 +208,23 @@ import FirebaseAuthInterop
 
   // MARK: - Internal APIs
 
-  private let impl: FIRIMPLStorage
+  internal let impl: FIRIMPLStorage
+
+  internal var fetcherServiceForApp: GTMSessionFetcherService {
+    get {
+      guard let fetcherService = impl.fetcherServiceForApp else {
+        fatalError("Internal Error: fetcherService not configured")
+      }
+      return fetcherService
+    }
+    set(newValue) {
+      impl.fetcherServiceForApp = newValue
+    }
+  }
+
+  internal var dispatchQueue: DispatchQueue {
+    return impl.dispatchQueue
+  }
 
   internal init(app: FirebaseApp, bucket: String) {
     let auth = ComponentType<AuthInterop>.instance(for: AuthInterop.self,
