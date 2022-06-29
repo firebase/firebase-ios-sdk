@@ -39,9 +39,7 @@ import FirebaseStorageInternal
   @objc open func enqueue() {
     weak var weakSelf = self
     DispatchQueue.global(qos: .background).async {
-      guard let strongSelf = weakSelf else {
-        return
-      }
+      guard let strongSelf = weakSelf else { return }
       if let contentValidationError = strongSelf.isContentToUploadInvalid() {
         strongSelf.error = contentValidationError
         strongSelf.finishTaskWithStatus(status: .failure, snapshot: strongSelf.snapshot)

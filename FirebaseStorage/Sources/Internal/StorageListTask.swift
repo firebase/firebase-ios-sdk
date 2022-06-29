@@ -27,7 +27,7 @@ import FirebaseStorageInternal
 internal class StorageListTask: StorageTask, StorageTaskManagement {
   private var fetcher: GTMSessionFetcher?
   private var fetcherCompletion: ((Data?, NSError?) -> Void)?
-  private var completion: ((_: StorageListResult?, _: NSError?) -> Void)?
+  private var taskCompletion: ((_: StorageListResult?, _: NSError?) -> Void)?
   private let pageSize: Int64?
   private let previousPageToken: String?
 
@@ -44,7 +44,6 @@ internal class StorageListTask: StorageTask, StorageTaskManagement {
    * @param previousPageToken An optional pageToken, used to resume a previous invocation.
    * @param completion The completion handler to be called with the FIRIMPLStorageListResult.
    */
-
   internal init(reference: FIRIMPLStorageReference,
                 fetcherService: GTMSessionFetcherService,
                 queue: DispatchQueue,
@@ -54,7 +53,7 @@ internal class StorageListTask: StorageTask, StorageTaskManagement {
     self.pageSize = pageSize
     self.previousPageToken = previousPageToken
     super.init(reference: reference, service: fetcherService, queue: queue)
-    self.completion = completion
+    taskCompletion = completion
   }
 
   deinit {
@@ -67,9 +66,7 @@ internal class StorageListTask: StorageTask, StorageTaskManagement {
   internal func enqueue() {
     weak var weakSelf = self
     DispatchQueue.global(qos: .background).async {
-      guard let strongSelf = weakSelf else {
-        return
-      }
+      guard let strongSelf = weakSelf else { return }
       var queryParams = [String: String]()
 
       let prefix = strongSelf.reference.fullPath
@@ -101,8 +98,8 @@ internal class StorageListTask: StorageTask, StorageTaskManagement {
       request.httpMethod = "GET"
       request.timeoutInterval = strongSelf.reference.storage.maxOperationRetryTime
 
-      let callback = strongSelf.completion
-      strongSelf.completion = nil
+      let callback = strongSelf.taskCompletion
+      strongSelf.taskCompletion = nil
 
       let fetcher = strongSelf.fetcherService.fetcher(with: request)
       fetcher.comment = "ListTask"

@@ -60,14 +60,14 @@ import FirebaseStorageInternal
    */
   internal var metadata: FIRIMPLStorageMetadata?
 
-//  /**
-//   * Error which occurred during task execution, or nil if no error occurred.
-//   */
+  /**
+   * Error which occurred during task execution, or nil if no error occurred.
+   */
   internal var error: NSError?
-//
-//  /**
-//   * NSProgress object which tracks the progress of an observable task.
-//   */
+
+  /**
+   * NSProgress object which tracks the progress of an observable task.
+   */
   internal var progress: Progress
 
   /**

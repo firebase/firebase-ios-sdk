@@ -418,9 +418,7 @@ import FirebaseStorageInternal
         completion(nil, error)
         return
       }
-      guard let strongSelf = weakSelf else {
-        return
-      }
+      guard let strongSelf = weakSelf else { return }
       guard let listResult = listResult else {
         fatalError("internal error: both listResult and error are nil")
       }

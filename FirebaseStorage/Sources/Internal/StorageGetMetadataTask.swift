@@ -27,14 +27,14 @@ import FirebaseStorageInternal
 internal class StorageGetMetadataTask: StorageTask, StorageTaskManagement {
   private var fetcher: GTMSessionFetcher?
   private var fetcherCompletion: ((Data?, NSError?) -> Void)?
-  private var completion: ((_ metadata: StorageMetadata?, _: Error?) -> Void)?
+  private var taskCompletion: ((_ metadata: StorageMetadata?, _: Error?) -> Void)?
 
   internal init(reference: FIRIMPLStorageReference,
                 fetcherService: GTMSessionFetcherService,
                 queue: DispatchQueue,
                 completion: ((_: StorageMetadata?, _: Error?) -> Void)?) {
     super.init(reference: reference, service: fetcherService, queue: queue)
-    self.completion = completion
+    taskCompletion = completion
   }
 
   deinit {
@@ -47,16 +47,14 @@ internal class StorageGetMetadataTask: StorageTask, StorageTaskManagement {
   internal func enqueue() {
     weak var weakSelf = self
     DispatchQueue.global(qos: .background).async {
-      guard let strongSelf = weakSelf else {
-        return
-      }
+      guard let strongSelf = weakSelf else { return }
       strongSelf.state = .queueing
       var request = strongSelf.baseRequest
       request.httpMethod = "GET"
       request.timeoutInterval = strongSelf.reference.storage.maxOperationRetryTime
 
-      let callback = strongSelf.completion
-      strongSelf.completion = nil
+      let callback = strongSelf.taskCompletion
+      strongSelf.taskCompletion = nil
 
       let fetcher = strongSelf.fetcherService.fetcher(with: request)
       fetcher.comment = "GetMetadataTask"

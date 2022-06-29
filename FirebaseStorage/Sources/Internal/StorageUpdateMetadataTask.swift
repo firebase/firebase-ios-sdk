@@ -27,7 +27,7 @@ import FirebaseStorageInternal
 internal class StorageUpdateMetadataTask: StorageTask, StorageTaskManagement {
   private var fetcher: GTMSessionFetcher?
   private var fetcherCompletion: ((Data?, NSError?) -> Void)?
-  private var completion: ((_ metadata: StorageMetadata?, _: Error?) -> Void)?
+  private var taskCompletion: ((_ metadata: StorageMetadata?, _: Error?) -> Void)?
   private var updateMetadata: FIRIMPLStorageMetadata
 
   internal init(reference: FIRIMPLStorageReference,
@@ -37,7 +37,7 @@ internal class StorageUpdateMetadataTask: StorageTask, StorageTaskManagement {
                 completion: ((_: StorageMetadata?, _: Error?) -> Void)?) {
     updateMetadata = metadata
     super.init(reference: reference, service: fetcherService, queue: queue)
-    self.completion = completion
+    taskCompletion = completion
   }
 
   deinit {
@@ -50,9 +50,7 @@ internal class StorageUpdateMetadataTask: StorageTask, StorageTaskManagement {
   internal func enqueue() {
     weak var weakSelf = self
     DispatchQueue.global(qos: .background).async {
-      guard let strongSelf = weakSelf else {
-        return
-      }
+      guard let strongSelf = weakSelf else { return }
       var request = strongSelf.baseRequest
       let updateDictionary = strongSelf.updateMetadata.updatedMetadata()
       let updateData = try? JSONSerialization.data(withJSONObject: updateDictionary)
@@ -64,8 +62,8 @@ internal class StorageUpdateMetadataTask: StorageTask, StorageTaskManagement {
         request.setValue("\(count)", forHTTPHeaderField: "Content-Length")
       }
 
-      let callback = strongSelf.completion
-      strongSelf.completion = nil
+      let callback = strongSelf.taskCompletion
+      strongSelf.taskCompletion = nil
 
       let fetcher = strongSelf.fetcherService.fetcher(with: request)
       fetcher.comment = "GetMetadataTask"

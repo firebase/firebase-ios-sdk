@@ -27,14 +27,14 @@ import FirebaseStorageInternal
 internal class StorageDeleteTask: StorageTask, StorageTaskManagement {
   private var fetcher: GTMSessionFetcher?
   private var fetcherCompletion: ((Data?, NSError?) -> Void)?
-  private var completion: ((_ error: Error?) -> Void)?
+  private var taskCompletion: ((_ error: Error?) -> Void)?
 
   internal init(reference: FIRIMPLStorageReference,
                 fetcherService: GTMSessionFetcherService,
                 queue: DispatchQueue,
                 completion: ((_: Error?) -> Void)?) {
     super.init(reference: reference, service: fetcherService, queue: queue)
-    self.completion = completion
+    taskCompletion = completion
   }
 
   deinit {
@@ -47,16 +47,14 @@ internal class StorageDeleteTask: StorageTask, StorageTaskManagement {
   internal func enqueue() {
     weak var weakSelf = self
     DispatchQueue.global(qos: .background).async {
-      guard let strongSelf = weakSelf else {
-        return
-      }
+      guard let strongSelf = weakSelf else { return }
       strongSelf.state = .queueing
       var request = strongSelf.baseRequest
       request.httpMethod = "DELETE"
       request.timeoutInterval = strongSelf.reference.storage.maxOperationRetryTime
 
-      let callback = strongSelf.completion
-      strongSelf.completion = nil
+      let callback = strongSelf.taskCompletion
+      strongSelf.taskCompletion = nil
 
       let fetcher = strongSelf.fetcherService.fetcher(with: request)
       fetcher.comment = "DeleteTask"

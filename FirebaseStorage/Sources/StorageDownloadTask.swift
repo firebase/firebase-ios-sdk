@@ -46,9 +46,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
   @objc open func pause() {
     weak var weakSelf = self
     DispatchQueue.global(qos: .background).async {
-      guard let strongSelf = weakSelf else {
-        return
-      }
+      guard let strongSelf = weakSelf else { return }
       if strongSelf.state == .paused || strongSelf.state == .pausing {
         return
       }
@@ -110,9 +108,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
   internal func enqueue(with resumeData: Data?) {
     weak var weakSelf = self
     DispatchQueue.global(qos: .background).async {
-      guard let strongSelf = weakSelf else {
-        return
-      }
+      guard let strongSelf = weakSelf else { return }
       strongSelf.state = .queueing
       var request = strongSelf.baseRequest
       request.httpMethod = "GET"
