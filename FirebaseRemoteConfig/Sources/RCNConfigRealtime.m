@@ -43,15 +43,21 @@ static NSString *const kInstallationsAuthTokenHeaderName = @"x-goog-firebase-ins
 // Sends the bundle ID. Refer to b/130301479 for details.
 static NSString *const kiOSBundleIdentifierHeaderName =
     @"X-Ios-Bundle-Identifier";  ///< HTTP Header Field Name
-static NSString *const templateVersionNumberKey = @"templateVersion";
+static NSString *const kTemplateVersionNumberKey = @"latestTemplateVersionNumber";
 
 /// Completion handler invoked by config update methods when they get a response from the server.
 ///
 /// @param error  Error message on failure.
 typedef void (^RCNConfigUpdateCompletion)(NSError *_Nullable error);
 
-NSTimeInterval timeoutSeconds = 4320;
-NSInteger FETCH_ATTEMPTS = 3;
+static NSTimeInterval gTimeoutSeconds = 4320;
+static NSInteger const gFetchAttempts = 3;
+
+// Retry parameters
+static NSInteger const gMaxRetries = 7;
+static NSInteger gMaxRetryCount;
+static NSInteger gRetrySeconds;
+static bool gIsRetrying;
 
 @interface FIRConfigUpdateListenerRegistration ()
 @property(strong, atomic, nonnull) RCNConfigUpdateCompletion completionHandler;
@@ -81,6 +87,7 @@ NSInteger FETCH_ATTEMPTS = 3;
 
 @property(strong, atomic, nonnull) NSMutableSet<RCNConfigUpdateCompletion> *listeners;
 @property(strong, atomic, nonnull) dispatch_queue_t realtimeLockQueue;
+@property(strong, atomic, nonnull) NSNotificationCenter *notificationCenter;
 
 @property(strong, atomic) NSURLSession *session;
 @property(strong, atomic) NSURLSessionDataTask *dataTask;
@@ -103,14 +110,22 @@ NSInteger FETCH_ATTEMPTS = 3;
   if (self) {
     _listeners = [[NSMutableSet alloc] init];
     _realtimeLockQueue = [RCNConfigRealtime realtimeRemoteConfigSerialQueue];
+    _notificationCenter = [NSNotificationCenter defaultCenter];
 
     _configFetch = configFetch;
     _settings = settings;
     _options = options;
     _namespace = namespace;
 
+    /// Set retry seconds to a random number between 1 and 6 seconds.
+    gRetrySeconds = arc4random_uniform(5) + 1;
+
+    gMaxRetryCount = gMaxRetries;
+    gIsRetrying = false;
+
     [self setUpHttpRequest];
     [self setUpHttpSession];
+    [self backgroundChangeListener];
   }
 
   return self;
@@ -285,7 +300,7 @@ NSInteger FETCH_ATTEMPTS = 3;
   NSString *address = [self constructServerURL];
   _request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:address]
                                           cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-                                      timeoutInterval:timeoutSeconds];
+                                      timeoutInterval:gTimeoutSeconds];
   [_request setHTTPMethod:kHTTPMethodPost];
   [_request setValue:@"application/json" forHTTPHeaderField:kContentTypeHeaderName];
   [_request setValue:@"application/json" forHTTPHeaderField:kAcceptEncodingHeaderName];
@@ -300,24 +315,72 @@ NSInteger FETCH_ATTEMPTS = 3;
 - (void)setUpHttpSession {
   NSURLSessionConfiguration *sessionConfig =
       [[NSURLSessionConfiguration defaultSessionConfiguration] copy];
-  [sessionConfig setTimeoutIntervalForResource:timeoutSeconds];
-  [sessionConfig setTimeoutIntervalForRequest:timeoutSeconds];
+  [sessionConfig setTimeoutIntervalForResource:gTimeoutSeconds];
+  [sessionConfig setTimeoutIntervalForRequest:gTimeoutSeconds];
   _session = [NSURLSession sessionWithConfiguration:sessionConfig
                                            delegate:self
                                       delegateQueue:[NSOperationQueue mainQueue]];
 }
 
-#pragma mark - Autofetch Helpers
+- (bool)noRunningConnection {
+  return _dataTask == nil || _dataTask.state != NSURLSessionTaskStateRunning;
+}
 
-- (void)fetchLatestConfig:(NSTimer *)timer {
+- (bool)canMakeConnection {
+  return [self noRunningConnection] && [self->_listeners count] > 0;
+}
+
+#pragma mark - Retry Helpers
+
+// Retry mechanism for HTTP connections
+- (void)retryHTTPConnection {
   __weak RCNConfigRealtime *weakSelf = self;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
-    NSArray *input =
-        [[[timer userInfo] objectForKey:templateVersionNumberKey] componentsSeparatedByString:@"-"];
-    NSInteger remainingAttempts = [input[0] integerValue];
-    NSInteger targetVersion = [input[1] integerValue];
+    if ([strongSelf canMakeConnection] && gMaxRetryCount > 0 && !gIsRetrying) {
+      if (gMaxRetryCount < gMaxRetries) {
+        double RETRY_MULTIPLIER = arc4random_uniform(3) + 2;
+        gRetrySeconds *= RETRY_MULTIPLIER;
+      }
+      gMaxRetryCount--;
+      gIsRetrying = true;
+      dispatch_time_t executionDelay =
+          dispatch_time(DISPATCH_TIME_NOW, (gRetrySeconds * NSEC_PER_SEC));
+      dispatch_after(executionDelay, strongSelf->_realtimeLockQueue, ^{
+        [strongSelf beginRealtimeStream];
+      });
+    } else {
+      NSLog(@"Cannot establish connection.");
+      NSError *error = [NSError
+          errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
+                     code:FIRRemoteConfigRealtimeErrorStream
+                 userInfo:@{
+                   NSLocalizedDescriptionKey : @"StreamError: Unable to establish http connection."
+                 }];
+      for (RCNConfigUpdateCompletion listener in self->_listeners) {
+        listener(error);
+      }
+    }
+  });
+}
 
+- (void)backgroundChangeListener {
+  [_notificationCenter addObserver:self
+                          selector:@selector(isInForeground)
+                              name:@"UIApplicationDidEnterBackgroundNotification"
+                            object:nil];
+}
+
+- (void)isInForeground {
+  [self beginRealtimeStream];
+}
+
+#pragma mark - Autofetch Helpers
+
+- (void)fetchLatestConfig:(NSInteger)remainingAttempts targetVersion:(NSInteger)targetVersion {
+  __weak RCNConfigRealtime *weakSelf = self;
+  dispatch_async(_realtimeLockQueue, ^{
+    __strong RCNConfigRealtime *strongSelf = weakSelf;
     [strongSelf->_configFetch
         fetchConfigWithExpirationDuration:0
                         completionHandler:^(FIRRemoteConfigFetchStatus status, NSError *error) {
@@ -349,16 +412,12 @@ NSInteger FETCH_ATTEMPTS = 3;
 }
 
 - (void)scheduleFetch:(NSInteger)remainingAttempts targetVersion:(NSInteger)targetVersion {
-  NSString *inputKey =
-      [NSString stringWithFormat:@"%ld-%ld", (long)remainingAttempts, (long)targetVersion];
-  NSDictionary *dictionary = [NSDictionary dictionaryWithObject:inputKey
-                                                         forKey:templateVersionNumberKey];
-  /// Needs fetch to occur between 1 - 6 seconds. Randomize to not cause ddos alerts in backend
-  [NSTimer scheduledTimerWithTimeInterval:arc4random_uniform(6) + 1
-                                   target:self
-                                 selector:@selector(fetchLatestConfig:)
-                                 userInfo:dictionary
-                                  repeats:NO];
+  /// Needs fetch to occur between 0 - 3 seconds. Randomize to not cause DDoS alerts in backend
+  dispatch_time_t executionDelay =
+      dispatch_time(DISPATCH_TIME_NOW, arc4random_uniform(4) * NSEC_PER_SEC);
+  dispatch_after(executionDelay, _realtimeLockQueue, ^{
+    [self fetchLatestConfig:remainingAttempts targetVersion:targetVersion];
+  });
 }
 
 /// Perform fetch and handle developers callbacks
@@ -390,16 +449,19 @@ NSInteger FETCH_ATTEMPTS = 3;
 - (void)URLSession:(NSURLSession *)session
           dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveData:(NSData *)data {
-  NSLog(@"Received invalidation notification from server.");
   NSError *dataError;
+  NSString *strData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+  strData = [strData substringFromIndex:1];
+  data = [strData dataUsingEncoding:NSUTF8StringEncoding];
   NSDictionary *response = [NSJSONSerialization JSONObjectWithData:data
                                                            options:NSJSONReadingMutableContainers
                                                              error:&dataError];
   NSString *targetTemplateVersion = _configFetch.templateVersionNumber;
   if (dataError == nil) {
-    targetTemplateVersion = [response objectForKey:@"latestTemplateVersionNumber"];
+    targetTemplateVersion = [response objectForKey:kTemplateVersionNumberKey];
   }
-  [self autoFetch:FETCH_ATTEMPTS targetVersion:[targetTemplateVersion integerValue]];
+
+  [self autoFetch:gFetchAttempts targetVersion:[targetTemplateVersion integerValue]];
 }
 
 /// Delegate that checks the final response of the connection and retries if necessary
@@ -408,9 +470,9 @@ NSInteger FETCH_ATTEMPTS = 3;
     didReceiveResponse:(NSURLResponse *)response
      completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
   NSHTTPURLResponse *_httpURLResponse = (NSHTTPURLResponse *)response;
-  if ([_httpURLResponse statusCode] != 200) {
+  if ([_httpURLResponse statusCode] != 200 && !gIsRetrying) {
     [self pauseRealtimeStream];
-    /// TODO: Add Http retry method here
+    [self retryHTTPConnection];
   }
   completionHandler(NSURLSessionResponseAllow);
 }
@@ -419,25 +481,21 @@ NSInteger FETCH_ATTEMPTS = 3;
 - (void)URLSession:(NSURLSession *)session
                     task:(NSURLSessionTask *)task
     didCompleteWithError:(NSError *)error {
-  [self pauseRealtimeStream];
-  /// TODO: Add Http retry method here
+  if (!gIsRetrying) {
+    [self pauseRealtimeStream];
+    [self retryHTTPConnection];
+  }
 }
 
 /// Delegate that checks the final response of the connection and retries if allowed
 - (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(NSError *)error {
-  [self pauseRealtimeStream];
-  /// TODO: Add Http retry method here
+  if (!gIsRetrying) {
+    [self pauseRealtimeStream];
+    [self retryHTTPConnection];
+  }
 }
 
 #pragma mark - Top level methods
-
-- (bool)noRunningConnection {
-  return _dataTask == nil || _dataTask.state != NSURLSessionTaskStateRunning;
-}
-
-- (bool)canMakeConnection {
-  return [self noRunningConnection] && [self->_listeners count] > 0;
-}
 
 - (void)beginRealtimeStream {
   __weak RCNConfigRealtime *weakSelf = self;
@@ -447,6 +505,11 @@ NSInteger FETCH_ATTEMPTS = 3;
       [strongSelf setRequestBody];
       strongSelf->_dataTask = [strongSelf->_session dataTaskWithRequest:strongSelf->_request];
       [strongSelf->_dataTask resume];
+      gMaxRetryCount = gMaxRetries;
+      gIsRetrying = false;
+
+      /// Set retry seconds to a random number between 1 and 6 seconds.
+      gRetrySeconds = arc4random_uniform(5) + 1;
     }
   });
 }
