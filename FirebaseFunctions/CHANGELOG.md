@@ -1,3 +1,6 @@
+# 9.3.0
+- [fixed] Fixed error code generation for HTTP 409 - "already exists". (#9942)
+
 # 9.2.0
 - [fixed] Fixed regressions in error code processing introduced in 9.0.0. (#9855)
 - [fixed] Importing FirebaseFunctions no longer exposes internal FirebaseCore APIs. (#9884)
