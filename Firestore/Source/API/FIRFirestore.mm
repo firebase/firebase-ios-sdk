@@ -340,7 +340,9 @@ NS_ASSUME_NONNULL_BEGIN
 
   int max_attempts = [FIRTransactionOptions defaultMaxAttempts];
   if (options) {
-    max_attempts = options.maxAttempts;
+    // Note: The cast of `maxAttempts` from `NSInteger` to `int` is safe (i.e. lossless) because
+    // `FIRTransactionOptions` does not allow values greater than `INT32_MAX` to be set.
+    max_attempts = static_cast<int>(options.maxAttempts);
   }
 
   _firestore->RunTransaction(std::move(internalUpdateBlock), std::move(objcTranslator),
