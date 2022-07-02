@@ -71,7 +71,7 @@ internal class StorageGetMetadataTask: StorageTask, StorageTaskManagement {
              let responseDictionary = try? JSONSerialization
              .jsonObject(with: data) as? [String: Any] {
             metadata = StorageMetadata(dictionary: responseDictionary)
-            metadata?.impl.type = .file
+            metadata?.fileType = .file
           } else {
             self.error = StorageErrorCode.error(withInvalidRequest: data)
           }

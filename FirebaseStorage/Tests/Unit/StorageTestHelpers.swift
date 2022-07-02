@@ -55,7 +55,7 @@ class StorageTestHelpers: XCTestCase {
     }
   }
 
-  internal func successBlock(withMetadata metadata: FIRIMPLStorageMetadata? = nil)
+  internal func successBlock(withMetadata metadata: StorageMetadata? = nil)
     -> GTMSessionFetcherTestBlock {
     var data: Data?
     if let metadata = metadata {

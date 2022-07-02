@@ -56,9 +56,9 @@ import FirebaseStorageInternal
   internal var state: StorageTaskState
 
   /**
-   * FIRIMPLStorageMetadata for the task in progress, or nil if none present.
+   * StorageMetadata for the task in progress, or nil if none present.
    */
-  internal var metadata: FIRIMPLStorageMetadata?
+  internal var metadata: StorageMetadata?
 
   /**
    * Error which occurred during task execution, or nil if no error occurred.

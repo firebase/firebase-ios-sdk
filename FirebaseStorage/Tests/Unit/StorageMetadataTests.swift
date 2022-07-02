@@ -57,4 +57,43 @@ class StorageMetadataTests: XCTestCase {
     XCTAssertFalse(metadata0 === metadata1)
     XCTAssertEqual(metadata0, metadata1)
   }
+
+  func testInitializeNoMetadata() {
+    let metadata = StorageMetadata(dictionary: [:])
+    XCTAssertNotNil(metadata)
+  }
+
+  func testInitializeFullMetadata() {
+    let metaDict = [
+      "bucket": "bucket",
+      "cacheControl": "max-age=3600, no-cache",
+      "contentDisposition": "inline",
+      "contentEncoding": "gzip",
+      "contentLanguage": "en-us",
+      "contentType": "application/octet-stream",
+      "customMetadata": ["foo": ["bar": "baz"]],
+      "generation": "12345",
+      "metageneration": "67890",
+      "name": "path/to/object",
+      "timeCreated": "1992-08-07T17:22:53.108Z",
+      "updated": "2016-03-01T20:16:01.673Z",
+      "md5Hash": "d41d8cd98f00b204e9800998ecf8427e",
+      "size": 1337,
+    ] as [String: Any]
+    let metadata = StorageMetadata(dictionary: metaDict)
+    XCTAssertNotNil(metadata)
+    XCTAssertEqual(metadata.bucket, metaDict["bucket"] as? String)
+    XCTAssertEqual(metadata.cacheControl, metaDict["cacheControl"] as? String)
+    XCTAssertEqual(metadata.contentDisposition, metaDict["contentDisposition"] as? String)
+    XCTAssertEqual(metadata.contentEncoding, metaDict["contentEncoding"] as? String)
+    XCTAssertEqual(metadata.contentType, metaDict["contentType"] as? String)
+    XCTAssertEqual(metadata.customMetadata, metaDict["customMetadata"] as? [String: String])
+    XCTAssertEqual(metadata.md5Hash, metaDict["md5Hash"] as? String)
+    XCTAssertEqual("\(metadata.generation)", "12345")
+    XCTAssertEqual("\(metadata.metageneration)", "67890")
+    XCTAssertEqual(metadata.path, metaDict["name"] as? String)
+//    XCTAssertEqual([metadata RFC3339StringFromDate:metadata.timeCreated],metaDict["TimeCreated])
+//    XCTAssertEqual([metadata RFC3339StringFromDate:metadata.updated],metaDict["Updated])
+    XCTAssertEqual(metadata.size, 1337)
+  }
 }
