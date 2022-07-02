@@ -14,7 +14,7 @@
 
 import Foundation
 
-import FirebaseStorage
+@testable import FirebaseStorage
 
 import XCTest
 
@@ -92,8 +92,67 @@ class StorageMetadataTests: XCTestCase {
     XCTAssertEqual("\(metadata.generation)", "12345")
     XCTAssertEqual("\(metadata.metageneration)", "67890")
     XCTAssertEqual(metadata.path, metaDict["name"] as? String)
-//    XCTAssertEqual([metadata RFC3339StringFromDate:metadata.timeCreated],metaDict["TimeCreated])
-//    XCTAssertEqual([metadata RFC3339StringFromDate:metadata.updated],metaDict["Updated])
+    XCTAssertEqual(StorageMetadata.RFC3339StringFromDate(metadata.timeCreated!),
+                   metaDict["timeCreated"] as? String)
+    XCTAssertEqual(StorageMetadata.RFC3339StringFromDate(metadata.updated!),
+                   metaDict["updated"] as? String)
     XCTAssertEqual(metadata.size, 1337)
   }
+
+  func testDictionaryRepresentation() {
+    let metaDict = [
+      "bucket": "bucket",
+      "cacheControl": "max-age=3600, no-cache",
+      "contentDisposition": "inline",
+      "contentEncoding": "gzip",
+      "contentLanguage": "en-us",
+      "contentType": "application/octet-stream",
+      "customMetadata": ["foo": ["bar": "baz"]],
+      "generation": "12345",
+      "metageneration": "67890",
+      "name": "path/to/object",
+      "timeCreated": "1992-08-07T17:22:53.108Z",
+      "updated": "2016-03-01T20:16:01.673Z",
+      "md5Hash": "d41d8cd98f00b204e9800998ecf8427e",
+      "size": 1337,
+    ] as [String: Any]
+    let metadata = StorageMetadata(dictionary: metaDict)
+    let dictRepresentation = metadata.dictionaryRepresentation()
+    XCTAssertNotNil(dictRepresentation)
+    XCTAssertEqual(dictRepresentation["bucket"] as? String, metaDict["bucket"] as? String)
+    XCTAssertEqual(
+      dictRepresentation["cacheControl"] as? String,
+      metaDict["cacheControl"] as? String
+    )
+    XCTAssertEqual(
+      dictRepresentation["contentDisposition"] as? String,
+      metaDict["contentDisposition"] as? String
+    )
+    XCTAssertEqual(
+      dictRepresentation["contentEncoding"] as? String,
+      metaDict["contentEncoding"] as? String
+    )
+    XCTAssertEqual(dictRepresentation["contentType"] as? String, metaDict["contentType"] as? String)
+    XCTAssertEqual(dictRepresentation["customMetadata"] as? [String: String],
+                   metaDict["customMetadata"] as? [String: String])
+    XCTAssertEqual(dictRepresentation["md5Hash"] as? String, metaDict["md5Hash"] as? String)
+    XCTAssertEqual(dictRepresentation["generation"] as? String, "12345")
+    XCTAssertEqual(dictRepresentation["metageneration"] as? String, "67890")
+    XCTAssertEqual(dictRepresentation["name"] as? String, metaDict["name"] as? String)
+    XCTAssertEqual(dictRepresentation["timeCreated"] as? String,
+                   metaDict["timeCreated"] as? String)
+    XCTAssertEqual(dictRepresentation["updated"] as? String,
+                   metaDict["updated"] as? String)
+    XCTAssertEqual(dictRepresentation["size"] as? Int64, 1337)
+  }
+
+//  func testInitializeEmptyDownloadURL() {
+//    let metaDict = [
+//      "bucket": "bucket",
+//      "name": "path/to/object",
+//    ] as [String: Any]
+//
+  ////    let task = StorageGetDownloadURLTask(reference: <#T##FIRIMPLStorageReference#>, fetcherService: nil, queue: nil, completion: nil)
+//
+//  }
 }

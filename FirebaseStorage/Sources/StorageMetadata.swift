@@ -146,14 +146,13 @@ import FirebaseStorageInternal
     if metageneration != 0 {
       dictionary["metageneration"] = "\(metageneration)"
     }
-    // TODO: RFC3339 verify
     if let timeCreated = timeCreated {
-      dictionary["timeCreated"] = timeCreated
+      dictionary["timeCreated"] = StorageMetadata.RFC3339StringFromDate(timeCreated)
     }
     if let updated = updated {
-      dictionary["updated"] = updated
+      dictionary["updated"] = StorageMetadata.RFC3339StringFromDate(updated)
     }
-    if let path = name {
+    if let path = path {
       dictionary["name"] = path
     }
     return dictionary
@@ -196,8 +195,8 @@ import FirebaseStorageInternal
     size = StorageMetadata.intFromDictionaryValue(dictionary["size"])
     generation = StorageMetadata.intFromDictionaryValue(dictionary["generation"])
     metageneration = StorageMetadata.intFromDictionaryValue(dictionary["metageneration"])
-    timeCreated = dictionary["timeCreated"] as? Date ?? nil
-    updated = dictionary["updated"] as? Date ?? nil
+    timeCreated = StorageMetadata.dateFromRFC3339String(dictionary["timeCreated"])
+    updated = StorageMetadata.dateFromRFC3339String(dictionary["updated"])
     md5Hash = dictionary["md5Hash"] as? String ?? nil
 
     // GCS "name" is our path, our "name" is just the last path component of the path
@@ -255,6 +254,25 @@ import FirebaseStorageInternal
     if let value = value as? Int64 { return value }
     if let value = value as? String { return Int64(value) ?? 0 }
     return 0
+  }
+
+  private static var dateFormatter: DateFormatter = {
+    let dateFormatter = DateFormatter()
+    dateFormatter.locale = Locale(identifier: "en_US_POSIX") // set locale to reliable US_POSIX
+    dateFormatter.dateFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.SSSZZZZZ"
+    dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+    return dateFormatter
+  }()
+
+  private static func dateFromRFC3339String(_ value: Any?) -> Date? {
+    if let stringValue = value as? String {
+      return dateFormatter.date(from: stringValue) ?? nil
+    }
+    return nil
+  }
+
+  internal static func RFC3339StringFromDate(_ date: Date) -> String {
+    return dateFormatter.string(from: date)
   }
 
   private func remove(matchingMetadata: [String: Any],
