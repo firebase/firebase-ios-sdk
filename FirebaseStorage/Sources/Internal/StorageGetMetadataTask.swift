@@ -69,7 +69,7 @@ internal class StorageGetMetadataTask: StorageTask, StorageTaskManagement {
         } else {
           if let data = data,
              let responseDictionary = try? JSONSerialization
-             .jsonObject(with: data) as? [String: Any] {
+             .jsonObject(with: data) as? [String: AnyHashable] {
             metadata = StorageMetadata(dictionary: responseDictionary)
             metadata?.fileType = .file
           } else {

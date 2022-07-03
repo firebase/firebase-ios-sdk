@@ -111,8 +111,8 @@ import FirebaseStorageInternal
    * Creates a Dictionary from the contents of the metadata.
    * @return A Dictionary that represents the contents of the metadata.
    */
-  @objc open func dictionaryRepresentation() -> [String: Any] {
-    var dictionary: [String: Any] = [:]
+  @objc open func dictionaryRepresentation() -> [String: AnyHashable] {
+    var dictionary: [String: AnyHashable] = [:]
     if let bucket = bucket {
       dictionary["bucket"] = bucket
     }
@@ -183,7 +183,7 @@ import FirebaseStorageInternal
    * Creates an instance of StorageMetadata from the contents of a dictionary.
    * @return An instance of StorageMetadata that represents the contents of a dictionary.
    */
-  @objc public init(dictionary: [String: Any]) {
+  @objc public init(dictionary: [String: AnyHashable]) {
     initialMetadata = dictionary
     bucket = dictionary["bucket"] as? String ?? nil
     cacheControl = dictionary["cacheControl"] as? String ?? nil
@@ -233,7 +233,7 @@ import FirebaseStorageInternal
 
   // MARK: - Internal APIs
 
-  internal func updatedMetadata() -> [String: Any] {
+  internal func updatedMetadata() -> [String: AnyHashable] {
     return remove(matchingMetadata: dictionaryRepresentation(), oldMetadata: initialMetadata)
   }
 
@@ -247,7 +247,7 @@ import FirebaseStorageInternal
 
   // MARK: - Private APIs and data
 
-  private var initialMetadata: [String: Any]
+  private var initialMetadata: [String: AnyHashable]
 
   private static func intFromDictionaryValue(_ value: Any?) -> Int64 {
     if let value = value as? Int { return Int64(value) }
@@ -275,8 +275,8 @@ import FirebaseStorageInternal
     return dateFormatter.string(from: date)
   }
 
-  private func remove(matchingMetadata: [String: Any],
-                      oldMetadata: [String: Any]) -> [String: Any] {
+  private func remove(matchingMetadata: [String: AnyHashable],
+                      oldMetadata: [String: AnyHashable]) -> [String: AnyHashable] {
     var newMetadata = matchingMetadata
     for (key, oldValue) in oldMetadata {
       guard let newValue = newMetadata[key] else {
@@ -288,9 +288,14 @@ import FirebaseStorageInternal
         if oldString == newString {
           newMetadata[key] = nil
         }
-      } else if let oldDictionary = oldValue as? [String: Any],
-                let newDictionary = newValue as? [String: Any] {
-        newMetadata[key] = remove(matchingMetadata: newDictionary, oldMetadata: oldDictionary)
+      } else if let oldDictionary = oldValue as? [String: AnyHashable],
+                let newDictionary = newValue as? [String: AnyHashable] {
+        let outDictionary = remove(matchingMetadata: newDictionary, oldMetadata: oldDictionary)
+        if outDictionary.count == 0 {
+          newMetadata[key] = nil
+        } else {
+          newMetadata[key] = outDictionary
+        }
       }
     }
     return newMetadata

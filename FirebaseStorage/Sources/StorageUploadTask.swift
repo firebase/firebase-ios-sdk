@@ -126,7 +126,7 @@ import FirebaseStorageInternal
         }
 
         if let responseDictionary = try? JSONSerialization
-          .jsonObject(with: data) as? [String: Any] {
+          .jsonObject(with: data) as? [String: AnyHashable] {
           let metadata = StorageMetadata(dictionary: responseDictionary)
           metadata.fileType = .file
           self.metadata = metadata

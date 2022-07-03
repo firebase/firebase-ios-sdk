@@ -18,7 +18,6 @@
 
 #import "FIRStorage.h"
 #import "FIRStorageConstants.h"
-#import "FIRStorageMetadata.h"
 #import "FIRStoragePath.h"
 
 NS_ASSUME_NONNULL_BEGIN

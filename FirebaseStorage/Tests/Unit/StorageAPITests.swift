@@ -177,7 +177,6 @@ final class StorageAPITests: XCTestCase {
     _ = metadata.size
     _ = metadata.timeCreated
     _ = metadata.updated
-    // _ = metadata.storageReference
     _ = metadata.dictionaryRepresentation()
     _ = metadata.isFile
     _ = metadata.isFolder
