@@ -45,7 +45,7 @@ static NSString *const kInstallationsAuthTokenHeaderName = @"x-goog-firebase-ins
 static NSString *const kiOSBundleIdentifierHeaderName =
     @"X-Ios-Bundle-Identifier";  ///< HTTP Header Field Name
 static NSString *const kTemplateVersionNumberKey = @"latestTemplateVersionNumber";
-static NSString *const kIsAvailableKey = @"isAvailable";
+static NSString *const kIsFeatureDisabled = @"featureDisabled";
 
 /// Completion handler invoked by config update methods when they get a response from the server.
 ///
@@ -60,7 +60,7 @@ static NSInteger const gMaxRetries = 7;
 static NSInteger gMaxRetryCount;
 static NSInteger gRetrySeconds;
 static bool gIsRetrying;
-static bool gIsBackendAvailable;
+static bool gIsFeatureDisabled;
 
 @interface FIRConfigUpdateListenerRegistration ()
 @property(strong, atomic, nonnull) RCNConfigUpdateCompletion completionHandler;
@@ -125,7 +125,7 @@ static bool gIsBackendAvailable;
 
     gMaxRetryCount = gMaxRetries;
     gIsRetrying = false;
-    gIsBackendAvailable = true;
+    gIsFeatureDisabled = false;
 
     [self setUpHttpRequest];
     [self setUpHttpSession];
@@ -290,8 +290,8 @@ static bool gIsBackendAvailable;
 
   NSString *namespace = [_namespace substringToIndex:[_namespace rangeOfString:@":"].location];
   NSString *postBody = [NSString
-                        stringWithFormat:@"{project:'%@', namespace:'%@', lastKnownVersionNumber:'%@', platform:'%@', sdkVersion:'%@'}",
-                        [self->_options GCMSenderID], namespace, _configFetch.templateVersionNumber, @"IOS", FIRRemoteConfigPodVersion()];
+                        stringWithFormat:@"{project:'%@', namespace:'%@', lastKnownVersionNumber:'%@', appId:'%@', sdkVersion:'%@'}",
+                        [self->_options GCMSenderID], namespace, _configFetch.templateVersionNumber, _options.googleAppID, FIRRemoteConfigPodVersion()];
   NSData *postData = [postBody dataUsingEncoding:NSUTF8StringEncoding];
   NSError *compressionError;
   NSData *compressedContent = [NSData gul_dataByGzippingData:postData error:&compressionError];
@@ -331,7 +331,7 @@ static bool gIsBackendAvailable;
 }
 
 - (bool)canMakeConnection {
-  return [self noRunningConnection] && [self->_listeners count] > 0 && gIsBackendAvailable;
+  return [self noRunningConnection] && [self->_listeners count] > 0 && !gIsFeatureDisabled;
 }
 
 #pragma mark - Retry Helpers
@@ -463,9 +463,9 @@ static bool gIsBackendAvailable;
   NSString *targetTemplateVersion = _configFetch.templateVersionNumber;
   if (dataError == nil) {
     targetTemplateVersion = [response objectForKey:kTemplateVersionNumberKey];
-      if ([response objectForKey:kIsAvailableKey]) {
-          gIsBackendAvailable = [response objectForKey:kIsAvailableKey];
-          if (!gIsBackendAvailable) {
+      if ([response objectForKey:kIsFeatureDisabled]) {
+          gIsFeatureDisabled = [response objectForKey:kIsFeatureDisabled];
+          if (gIsFeatureDisabled) {
               [self pauseRealtimeStream];
           }
       }
