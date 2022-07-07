@@ -316,13 +316,25 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
     strongSelf->_settings.lastApplyTimeInterval = [[NSDate date] timeIntervalSince1970];
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069", @"Config activated.");
     [strongSelf->_configContent activatePersonalization];
-    [strongSelf->_configExperiment updateExperimentsWithHandler:^(NSError *_Nullable error) {
+
+    // Update experiments only for 3p namespace
+    NSString *namespace = [strongSelf->_FIRNamespace
+        substringToIndex:[strongSelf->_FIRNamespace rangeOfString:@":"].location];
+    if ([namespace isEqualToString:FIRNamespaceGoogleMobilePlatform]) {
+      [strongSelf->_configExperiment updateExperimentsWithHandler:^(NSError *_Nullable error) {
+        if (completion) {
+          dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            completion(YES, nil);
+          });
+        }
+      }];
+    } else {
       if (completion) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
           completion(YES, nil);
         });
       }
-    }];
+    }
   };
   dispatch_async(_queue, applyBlock);
 }
