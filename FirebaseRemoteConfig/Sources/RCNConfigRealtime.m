@@ -290,8 +290,10 @@ static bool gIsFeatureDisabled;
 
   NSString *namespace = [_namespace substringToIndex:[_namespace rangeOfString:@":"].location];
   NSString *postBody = [NSString
-                        stringWithFormat:@"{project:'%@', namespace:'%@', lastKnownVersionNumber:'%@', appId:'%@', sdkVersion:'%@'}",
-                        [self->_options GCMSenderID], namespace, _configFetch.templateVersionNumber, _options.googleAppID, FIRRemoteConfigPodVersion()];
+      stringWithFormat:@"{project:'%@', namespace:'%@', lastKnownVersionNumber:'%@', appId:'%@', "
+                       @"sdkVersion:'%@'}",
+                       [self->_options GCMSenderID], namespace, _configFetch.templateVersionNumber,
+                       _options.googleAppID, FIRRemoteConfigPodVersion()];
   NSData *postData = [postBody dataUsingEncoding:NSUTF8StringEncoding];
   NSError *compressionError;
   NSData *compressedContent = [NSData gul_dataByGzippingData:postData error:&compressionError];
@@ -463,12 +465,12 @@ static bool gIsFeatureDisabled;
   NSString *targetTemplateVersion = _configFetch.templateVersionNumber;
   if (dataError == nil) {
     targetTemplateVersion = [response objectForKey:kTemplateVersionNumberKey];
-      if ([response objectForKey:kIsFeatureDisabled]) {
-          gIsFeatureDisabled = [response objectForKey:kIsFeatureDisabled];
-          if (gIsFeatureDisabled) {
-              [self pauseRealtimeStream];
-          }
+    if ([response objectForKey:kIsFeatureDisabled]) {
+      gIsFeatureDisabled = [response objectForKey:kIsFeatureDisabled];
+      if (gIsFeatureDisabled) {
+        [self pauseRealtimeStream];
       }
+    }
   }
 
   [self autoFetch:gFetchAttempts targetVersion:[targetTemplateVersion integerValue]];
