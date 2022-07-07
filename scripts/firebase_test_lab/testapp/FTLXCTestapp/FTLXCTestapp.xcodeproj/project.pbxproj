@@ -12,8 +12,8 @@
 		B952193228763C6200F8D9AB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B952193128763C6200F8D9AB /* Assets.xcassets */; };
 		B952193528763C6200F8D9AB /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B952193428763C6200F8D9AB /* Preview Assets.xcassets */; };
 		B952193F28763C6200F8D9AB /* FTLXCTestappTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B952193E28763C6200F8D9AB /* FTLXCTestappTests.swift */; };
-		B952194928763C6200F8D9AB /* FTLXCTestappUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B952194828763C6200F8D9AB /* FTLXCTestappUITests.swift */; };
-		B952194B28763C6200F8D9AB /* FTLXCTestappUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B952194A28763C6200F8D9AB /* FTLXCTestappUITestsLaunchTests.swift */; };
+		B9521957287757A500F8D9AB /* FTLXCTestappUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B952194828763C6200F8D9AB /* FTLXCTestappUITests.swift */; };
+		B9521958287757A700F8D9AB /* FTLXCTestappUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B952194A28763C6200F8D9AB /* FTLXCTestappUITestsLaunchTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -274,8 +274,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B952194B28763C6200F8D9AB /* FTLXCTestappUITestsLaunchTests.swift in Sources */,
-				B952194928763C6200F8D9AB /* FTLXCTestappUITests.swift in Sources */,
+				B9521958287757A700F8D9AB /* FTLXCTestappUITestsLaunchTests.swift in Sources */,
+				B9521957287757A500F8D9AB /* FTLXCTestappUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -424,7 +424,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -453,7 +453,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -475,7 +475,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gran.FTLXCTestappTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -494,7 +494,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gran.FTLXCTestappTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -512,6 +512,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gran.FTLXCTestappUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -529,6 +530,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gran.FTLXCTestappUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";

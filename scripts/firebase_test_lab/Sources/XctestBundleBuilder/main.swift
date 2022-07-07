@@ -30,15 +30,19 @@ struct Shell {
     let task = Process()
     let pipe = Pipe()
     task.standardOutput = pipe
+    task.standardError = pipe
     task.executableURL = URL(fileURLWithPath: "/bin/zsh")
     task.arguments = ["-c", command]
+    task.standardInput = nil
 
     try task.run()
     if displayCommand {
       print("[XctestBundleBuilder] Command:\(command)\n")
     }
-    task.waitUntilExit()
+    // read before waitUntilExit to avoid hanging.
+    // https://stackoverflow.com/a/3928155
     let data = pipe.fileHandleForReading.readDataToEndOfFile()
+    task.waitUntilExit()
     let log = String(data: data, encoding: .utf8)!
     if displayFailureResult, task.terminationStatus != 0 {
       print("-----Exit code: \(task.terminationStatus)")
@@ -86,8 +90,10 @@ struct XctestBundleBuilder: ParsableCommand {
       // Create a test bundle for FTL
       // https://firebase.google.com/docs/test-lab/ios/run-xctest#package-app
       do {
+      print("----- Building test app -----")
       try Shell.shared.run("xcodebuild -project \(projectPath) -scheme \(scheme) -derivedDataPath \(derivedDataPath.path) -sdk iphoneos build-for-testing \(_XCODEBUILD_NO_SIGN_FLAG)")
-      try Shell.shared.run("cd \(derivedDataPath.path)/Build/Products && zip -r \(derivedDataPath.path)/\(_TESTBUNDLE_NAME) Debug-iphoneos *.xctestrun && ")
+      print("----- Create a zip file of test bundle -----")
+      try Shell.shared.run("cd \(derivedDataPath.path)/Build/Products && zip -r \(derivedDataPath.path)/\(_TESTBUNDLE_NAME) Debug-iphoneos *.xctestrun")
       } catch {
           throw error
       }
