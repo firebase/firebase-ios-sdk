@@ -22,6 +22,7 @@
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
+#import "FirebaseRemoteConfig/Sources/RCNDevice.h"
 
 /// URL params
 static NSString *const kServerURLDomain = @"https://firebaseremoteconfig.googleapis.com";
@@ -44,6 +45,7 @@ static NSString *const kInstallationsAuthTokenHeaderName = @"x-goog-firebase-ins
 static NSString *const kiOSBundleIdentifierHeaderName =
     @"X-Ios-Bundle-Identifier";  ///< HTTP Header Field Name
 static NSString *const kTemplateVersionNumberKey = @"latestTemplateVersionNumber";
+static NSString *const kIsAvailableKey = @"isAvailable";
 
 /// Completion handler invoked by config update methods when they get a response from the server.
 ///
@@ -58,6 +60,7 @@ static NSInteger const gMaxRetries = 7;
 static NSInteger gMaxRetryCount;
 static NSInteger gRetrySeconds;
 static bool gIsRetrying;
+static bool gIsBackendAvailable;
 
 @interface FIRConfigUpdateListenerRegistration ()
 @property(strong, atomic, nonnull) RCNConfigUpdateCompletion completionHandler;
@@ -122,6 +125,7 @@ static bool gIsRetrying;
 
     gMaxRetryCount = gMaxRetries;
     gIsRetrying = false;
+    gIsBackendAvailable = true;
 
     [self setUpHttpRequest];
     [self setUpHttpSession];
@@ -286,8 +290,8 @@ static bool gIsRetrying;
 
   NSString *namespace = [_namespace substringToIndex:[_namespace rangeOfString:@":"].location];
   NSString *postBody = [NSString
-      stringWithFormat:@"{project:'%@', namespace:'%@', lastKnownVersionNumber:'%@'}",
-                       [self->_options GCMSenderID], namespace, _configFetch.templateVersionNumber];
+                        stringWithFormat:@"{project:'%@', namespace:'%@', lastKnownVersionNumber:'%@', platform:'%@', sdkVersion:'%@'}",
+                        [self->_options GCMSenderID], namespace, _configFetch.templateVersionNumber, @"IOS", FIRRemoteConfigPodVersion()];
   NSData *postData = [postBody dataUsingEncoding:NSUTF8StringEncoding];
   NSError *compressionError;
   NSData *compressedContent = [NSData gul_dataByGzippingData:postData error:&compressionError];
@@ -327,7 +331,7 @@ static bool gIsRetrying;
 }
 
 - (bool)canMakeConnection {
-  return [self noRunningConnection] && [self->_listeners count] > 0;
+  return [self noRunningConnection] && [self->_listeners count] > 0 && gIsBackendAvailable;
 }
 
 #pragma mark - Retry Helpers
@@ -459,6 +463,12 @@ static bool gIsRetrying;
   NSString *targetTemplateVersion = _configFetch.templateVersionNumber;
   if (dataError == nil) {
     targetTemplateVersion = [response objectForKey:kTemplateVersionNumberKey];
+      if ([response objectForKey:kIsAvailableKey]) {
+          gIsBackendAvailable = [response objectForKey:kIsAvailableKey];
+          if (!gIsBackendAvailable) {
+              [self pauseRealtimeStream];
+          }
+      }
   }
 
   [self autoFetch:gFetchAttempts targetVersion:[targetTemplateVersion integerValue]];
