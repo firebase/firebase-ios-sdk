@@ -29,4 +29,4 @@ jobs:
       uses: FirebaseExtended/github-actions/firebase-test-lab@gl/firebase-test-lab
       with:
         testapp_dir: "${GITHUB_WORKSPACE}/scripts/firebase_test_lab/testapp"
-        key_file: games-project-key.json
+        key_file: "${GITHUB_WORKSPACE}/games-project-key.json"
