@@ -1,0 +1,32 @@
+name: release
+
+on:
+  pull_request:
+    paths:
+    - '.github/workflows/ftl-testing.yml'
+
+jobs:
+  ftl-testing:
+    # Don't run on private repo unless it is a PR.
+    runs-on: macos-12
+    env:
+      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    outputs:
+      matrix: ${{ steps.generate_matrix.outputs.matrix }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Get token
+      run: |
+         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/games-project-key.json.gpg \
+         games-project-key.json "$bot_token_secret"
+    - name: Build Testapp XCTest bundle
+      run: |
+        cd "${GITHUB_WORKSPACE}/scripts/firebase_test_lab/"
+        # xctest-bundle-builder will create a testbundle named `FTLXCTestBundle.zip`.
+        swift run xctest-bundle-builder --project-path "${GITHUB_WORKSPACE}/scripts/firebase_test_lab/testapp/FTLXCTestapp/FTLXCTestapp.xcodeproj" --scheme FTLXCTestapp --derived-data-path "${GITHUB_WORKSPACE}/scripts/firebase_test_lab/testapp"
+    - name: ftl-tests
+      uses: FirebaseExtended/github-actions/firebase-test-lab@gl/firebase-test-lab
+      with:
+        testapp_dir: "${GITHUB_WORKSPACE}/scripts/firebase_test_lab/testapp"
+        key_file: games-project-key.json
