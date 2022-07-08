@@ -3,7 +3,7 @@ name: ftl-testing
 on:
   pull_request:
     paths:
-    - '.github/workflows/ftl-testing.yml'
+    - '.github/workflows/ftl_testing.yml'
 
 jobs:
   ftl-testing:
