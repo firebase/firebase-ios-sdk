@@ -79,11 +79,6 @@ class Query {
         end_at_(std::move(end_at)) {
   }
 
-  /** The default copy constructor and copy assignment operator create a shallow
-   * copy of Query; While Clone() creates a deep copy.
-   */
-  Query Clone() const;
-
   Query(model::ResourcePath path, std::string collection_group);
 
   // MARK: - Accessors

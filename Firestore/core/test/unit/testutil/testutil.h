@@ -356,9 +356,9 @@ core::FieldFilter Filter(absl::string_view key,
                          absl::string_view op,
                          double value);
 
-core::CompositeFilter AndFilter(std::vector<core::Filter> filters);
+core::CompositeFilter AndFilters(std::vector<core::Filter> filters);
 
-core::CompositeFilter OrFilter(std::vector<core::Filter> filters);
+core::CompositeFilter OrFilters(std::vector<core::Filter> filters);
 
 core::Direction Direction(absl::string_view direction);
 

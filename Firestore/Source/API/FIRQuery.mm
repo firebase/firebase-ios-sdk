@@ -528,6 +528,13 @@ int32_t SaturatedLimitValue(NSInteger limit) {
       filters.push_back(std::move(parsedFilter));
     }
   }
+
+  // For composite filters containing 1 filter, return the only filter.
+  // For example: AND(FieldFilter1) == FieldFilter1
+  if (filters.size() == 1u) {
+    return filters[0];
+  }
+
   Filter parsedCompositeFilter =
       CompositeFilter::Create(std::move(filters), compositeFilter.compOp);
   return parsedCompositeFilter;
@@ -543,16 +550,6 @@ int32_t SaturatedLimitValue(NSInteger limit) {
   } else {
     ThrowInvalidArgument("Parsing only supports Filter.UnaryFilter and Filter.CompositeFilter.");
   }
-}
-
-// TODO(orquery): This method will become public API. Change visibility and add documentation.
-- (FIRQuery *)queryWhereFilter:(FIRFilter *)filter {
-  Filter parsedFilter = [self parseFilter:filter];
-  if (parsedFilter.IsEmpty()) {
-    // Return the existing query if not adding any more filters (e.g. an empty composite filter).
-    return self;
-  }
-  return Wrap(_query.AddNewFilter(parsedFilter));
 }
 
 /**
@@ -665,6 +662,15 @@ int32_t SaturatedLimitValue(NSInteger limit) {
 
 - (const api::Query &)apiQuery {
   return _query;
+}
+
+- (FIRQuery *)queryWhereFilter:(FIRFilter *)filter {
+  Filter parsedFilter = [self parseFilter:filter];
+  if (parsedFilter.IsEmpty()) {
+    // Return the existing query if not adding any more filters (e.g. an empty composite filter).
+    return self;
+  }
+  return Wrap(_query.AddNewFilter(std::move(parsedFilter)));
 }
 
 @end

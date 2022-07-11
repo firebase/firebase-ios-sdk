@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 #include "Firestore/Protos/nanopb/google/firestore/v1/query.nanopb.h"
+#import "Firestore/core/src/core/composite_filter.h"
 #import "Firestore/core/src/core/field_filter.h"
 
 // TODO(orquery): This class will become public API. Change visibility and add documentation.
@@ -94,9 +95,9 @@ NS_SWIFT_NAME(Filter)
                               notIn:(nonnull NSArray<id> *)values
     NS_SWIFT_NAME(whereField(_:notIn:));
 
-+ (FIRFilter *)orFilterWithFilters:(NSArray *)filters NS_SWIFT_NAME(orFilter(_:));
++ (FIRFilter *)orFilterWithFilters:(NSArray<FIRFilter *> *)filters NS_SWIFT_NAME(orFilter(_:));
 
-+ (FIRFilter *)andFilterWithFilters:(NSArray *)filters NS_SWIFT_NAME(andFilter(_:));
++ (FIRFilter *)andFilterWithFilters:(NSArray<FIRFilter *> *)filters NS_SWIFT_NAME(andFilter(_:));
 
 @end
 
@@ -112,8 +113,7 @@ NS_SWIFT_NAME(Filter)
 @interface FSTCompositeFilter : FIRFilter
 
 @property(nonatomic, strong, readonly) NSArray<FIRFilter *> *filters;
-@property(nonatomic, readonly)
-    firebase::firestore::_google_firestore_v1_StructuredQuery_CompositeFilter_Operator compOp;
+@property(nonatomic, readonly) firebase::firestore::core::CompositeFilter::Operator compOp;
 
 @end
 

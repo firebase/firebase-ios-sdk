@@ -25,10 +25,10 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-using testutil::AndFilter;
+using testutil::AndFilters;
 using testutil::Field;
 using testutil::Filter;
-using testutil::OrFilter;
+using testutil::OrFilters;
 using testutil::Resource;
 using testutil::Value;
 
@@ -55,12 +55,12 @@ TEST(FilterTest, Equality) {
   EXPECT_NE(nan_filter, Filter("h", "==", NAN));
 }
 
-TEST(FilterTest, AndFilter) {
+TEST(FilterTest, AndFilters) {
   const FieldFilter Zero = numberFilter(0);
   const FieldFilter One = numberFilter(1);
   const FieldFilter Two = numberFilter(2);
 
-  CompositeFilter andFilter = AndFilter({Zero, One, Two});
+  CompositeFilter andFilter = AndFilters({Zero, One, Two});
   ASSERT_TRUE(andFilter.IsConjunction());
   EXPECT_EQ(andFilter.filters().size(), 3);
   EXPECT_EQ(andFilter.filters()[0], Zero);
@@ -68,12 +68,12 @@ TEST(FilterTest, AndFilter) {
   EXPECT_EQ(andFilter.filters()[2], Two);
 }
 
-TEST(FilterTest, OrFilter) {
+TEST(FilterTest, OrFilters) {
   const FieldFilter Zero = numberFilter(0);
   const FieldFilter One = numberFilter(1);
   const FieldFilter Two = numberFilter(2);
 
-  CompositeFilter orFilter = OrFilter({Zero, One, Two});
+  CompositeFilter orFilter = OrFilters({Zero, One, Two});
   ASSERT_TRUE(orFilter.IsDisjunction());
   EXPECT_EQ(orFilter.filters().size(), 3);
   EXPECT_EQ(orFilter.filters()[0], Zero);

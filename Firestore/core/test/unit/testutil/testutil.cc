@@ -339,20 +339,14 @@ core::FieldFilter Filter(absl::string_view key,
   return Filter(key, op, Value(value));
 }
 
-core::CompositeFilter AndFilter(std::vector<core::Filter> filters) {
-  return core::CompositeFilter::Create(
-      std::move(filters),
-      _google_firestore_v1_StructuredQuery_CompositeFilter_Operator ::
-          google_firestore_v1_StructuredQuery_CompositeFilter_Operator_AND);
+core::CompositeFilter AndFilters(std::vector<core::Filter> filters) {
+  return core::CompositeFilter::Create(std::move(filters),
+                                       core::CompositeFilter::Operator::And);
 }
 
-core::CompositeFilter OrFilter(std::vector<core::Filter> filters) {
-  // TODO(orquery): Replace with Operator.OR.
-  return core::CompositeFilter::Create(
-      std::move(filters),
-      _google_firestore_v1_StructuredQuery_CompositeFilter_Operator ::
-          google_firestore_v1_StructuredQuery_\
-CompositeFilter_Operator_OPERATOR_UNSPECIFIED);
+core::CompositeFilter OrFilters(std::vector<core::Filter> filters) {
+  return core::CompositeFilter::Create(std::move(filters),
+                                       core::CompositeFilter::Operator::Or);
 }
 
 core::Direction Direction(absl::string_view direction) {

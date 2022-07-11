@@ -92,7 +92,10 @@ class Filter {
     return rep_->ToString();
   }
 
-  /** Check whether the filter is meaningful */
+  /**
+   * Returns true if and only if the filter is a composite filter that
+   * doesn't contain any field filters.
+   */
   bool IsEmpty() const {
     return rep_->IsEmpty();
   }
@@ -106,7 +109,7 @@ class Filter {
   }
 
   /**
-   * Returns a list of all field filters that are contained within this filter
+   * Returns a list of all field filters that are contained within this filter.
    */
   const std::vector<FieldFilter>& GetFlattenedFilters() const {
     return rep_->GetFlattenedFilters();
@@ -156,10 +159,10 @@ class Filter {
      * Memoized list of all field filters that can be found by
      * traversing the tree of filters contained in this composite filter.
      */
-    mutable std::vector<FieldFilter> memoized_flatten_filters_;
+    mutable std::vector<FieldFilter> memoized_flattened_filters_;
   };
 
-  explicit Filter(std::shared_ptr<const Rep> rep) : rep_(rep) {
+  explicit Filter(std::shared_ptr<const Rep>&& rep) : rep_(rep) {
   }
 
   const Rep& rep() const {

@@ -22,10 +22,8 @@
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/model/field_path.h"
 #include "Firestore/core/src/util/hard_assert.h"
-#include "Firestore/core/src/util/hashing.h"
 #include "Firestore/core/src/util/string_format.h"
 #include "absl/strings/str_join.h"
-#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -35,16 +33,11 @@ using model::FieldPath;
 
 namespace {
 
-using Operator = _google_firestore_v1_StructuredQuery_CompositeFilter_Operator;
-
-const char* CanonicalName(Operator op) {
+const char* CanonicalName(CompositeFilter::Operator op) {
   switch (op) {
-      // TODO(orquery): Replace with Operator.OR.
-    case Operator::google_firestore_v1_StructuredQuery_\
-CompositeFilter_Operator_OPERATOR_UNSPECIFIED:
+    case CompositeFilter::Operator::Or:
       return "or";
-    case Operator::
-        google_firestore_v1_StructuredQuery_CompositeFilter_Operator_AND:
+    case CompositeFilter::Operator::And:
       return "and";
     default:
       UNREACHABLE();
@@ -53,17 +46,17 @@ CompositeFilter_Operator_OPERATOR_UNSPECIFIED:
 
 }  // namespace
 
-CompositeFilter CompositeFilter::Create(const std::vector<Filter>&& filters,
+CompositeFilter CompositeFilter::Create(std::vector<Filter>&& filters,
                                         Operator op) {
   return CompositeFilter(
       std::make_shared<const Rep>(Rep(std::move(filters), op)));
 }
 
-CompositeFilter::CompositeFilter(std::shared_ptr<const Filter::Rep> rep)
+CompositeFilter::CompositeFilter(std::shared_ptr<const Filter::Rep>&& rep)
     : Filter(std::move(rep)) {
 }
 
-CompositeFilter::Rep::Rep(const std::vector<Filter>&& filters, Operator op)
+CompositeFilter::Rep::Rep(std::vector<Filter>&& filters, Operator op)
     : filters_(std::move(filters)), op_(op) {
 }
 
@@ -72,15 +65,11 @@ CompositeFilter::CompositeFilter(const Filter& other) : Filter(other) {
 }
 
 bool CompositeFilter::Rep::IsConjunction() const {
-  return op_ ==
-         Operator::
-             google_firestore_v1_StructuredQuery_CompositeFilter_Operator_AND;
+  return op_ == Operator::And;
 }
 
 bool CompositeFilter::Rep::IsDisjunction() const {
-  // TODO(orquery): Replace with Operator.OR.
-  return op_ == Operator::google_firestore_v1_StructuredQuery_\
-CompositeFilter_Operator_OPERATOR_UNSPECIFIED;
+  return op_ == Operator::Or;
 }
 
 bool CompositeFilter::Rep::Matches(const model::Document& doc) const {
@@ -125,7 +114,7 @@ bool CompositeFilter::Rep::Equals(const Filter::Rep& other) const {
 }
 
 const FieldFilter* CompositeFilter::Rep::FindFirstMatchingFilter(
-    CheckingFun& condition) const {
+    const CheckFunction& condition) const {
   for (const auto& field_filter : GetFlattenedFilters()) {
     if (condition(field_filter)) {
       return &field_filter;
@@ -135,8 +124,8 @@ const FieldFilter* CompositeFilter::Rep::FindFirstMatchingFilter(
 }
 
 const model::FieldPath* CompositeFilter::Rep::GetFirstInequalityField() const {
-  CheckingFun condition = [](const FieldFilter& field_filter_ptr) {
-    return field_filter_ptr.IsInequality();
+  CheckFunction condition = [](const FieldFilter& field_filter) {
+    return field_filter.IsInequality();
   };
   const FieldFilter* found = FindFirstMatchingFilter(condition);
   if (found) {
@@ -147,14 +136,14 @@ const model::FieldPath* CompositeFilter::Rep::GetFirstInequalityField() const {
 
 const std::vector<FieldFilter>& CompositeFilter::Rep::GetFlattenedFilters()
     const {
-  if (Filter::Rep::memoized_flatten_filters_.empty() && !filters().empty()) {
+  if (Filter::Rep::memoized_flattened_filters_.empty() && !filters().empty()) {
     for (const auto& filter : filters()) {
       std::copy(filter.GetFlattenedFilters().begin(),
                 filter.GetFlattenedFilters().end(),
-                std::back_inserter(Filter::Rep::memoized_flatten_filters_));
+                std::back_inserter(Filter::Rep::memoized_flattened_filters_));
     }
   }
-  return Filter::Rep::memoized_flatten_filters_;
+  return Filter::Rep::memoized_flattened_filters_;
 }
 
 }  // namespace core

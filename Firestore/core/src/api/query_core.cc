@@ -269,7 +269,7 @@ core::FieldFilter Query::ParseFieldFilter(
   return FieldFilter::Create(field_path, op, std::move(value));
 }
 
-Query Query::AddNewFilter(core::Filter filter) const {
+Query Query::AddNewFilter(core::Filter&& filter) const {
   ValidateNewFilter(filter);
   return Wrap(query_.AddingFilter(std::move(filter)));
 }
@@ -362,7 +362,7 @@ void Query::ValidateNewFieldFilter(const core::Query& query,
 }
 
 void Query::ValidateNewFilter(const Filter& filter) const {
-  core::Query test_query = query_.Clone();
+  core::Query test_query(query_);
   for (const auto& field_filter : filter.GetFlattenedFilters()) {
     ValidateNewFieldFilter(test_query, field_filter);
     test_query = test_query.AddingFilter(field_filter);

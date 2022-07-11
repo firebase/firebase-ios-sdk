@@ -21,7 +21,6 @@
 #include <string>
 #include <vector>
 
-#include "Firestore/Protos/nanopb/google/firestore/v1/query.nanopb.h"
 #include "Firestore/core/src/core/filter.h"
 
 namespace firebase {
@@ -36,17 +35,16 @@ namespace core {
 class FieldFilter;
 
 /**
- * CompositeFilter is a filter
- * that is the conjunction or disjunction of other filters.
+ * CompositeFilter is a filter that is the conjunction or disjunction of
+ * other filters.
  */
 class CompositeFilter : public Filter {
  public:
-  using CheckingFun = std::function<bool(const FieldFilter)>;
-  using Operator =
-      _google_firestore_v1_StructuredQuery_CompositeFilter_Operator;
+  using CheckFunction = std::function<bool(const FieldFilter&)>;
 
-  static CompositeFilter Create(const std::vector<Filter>&& filters,
-                                Operator op);
+  enum class Operator { And, Or };
+
+  static CompositeFilter Create(std::vector<Filter>&& filters, Operator op);
 
   explicit CompositeFilter(const Filter& other);
 
@@ -75,7 +73,7 @@ class CompositeFilter : public Filter {
      * @param filters A collection of filters stored inside the CompositeFilter.
      * @param op The composite operator to apply.
      */
-    Rep(const std::vector<Filter>&& filters, Operator op);
+    Rep(std::vector<Filter>&& filters, Operator op);
 
     Operator op() const {
       return op_;
@@ -115,7 +113,13 @@ class CompositeFilter : public Filter {
 
     const model::FieldPath* GetFirstInequalityField() const override;
 
-    const FieldFilter* FindFirstMatchingFilter(CheckingFun& condition) const;
+    /**
+     * Performs a depth-first search to find and return the first FieldFilter in
+     * the composite filter that satisfies the condition. Returns nullptr if
+     * none of the FieldFilters satisfy the condition.
+     */
+    const FieldFilter* FindFirstMatchingFilter(
+        const CheckFunction& condition) const;
 
     /** A collection of filters stored inside the CompositeFilter. */
     const std::vector<Filter> filters_;
@@ -126,7 +130,7 @@ class CompositeFilter : public Filter {
     friend class CompositeFilter;
   };
 
-  explicit CompositeFilter(std::shared_ptr<const Filter::Rep> rep);
+  explicit CompositeFilter(std::shared_ptr<const Filter::Rep>&& rep);
 
   const Rep& composite_filter_rep() const {
     return static_cast<const Rep&>(rep());

@@ -20,8 +20,7 @@
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::core::FieldFilter;
-using CompositeOperator =
-    firebase::firestore::_google_firestore_v1_StructuredQuery_CompositeFilter_Operator;
+using firebase::firestore::core::CompositeFilter;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -59,13 +58,14 @@ FIRFieldPath *MakeFIRFieldPath(NSString *field) {
 @interface FSTCompositeFilter ()
 
 @property(nonatomic, strong, readwrite) NSArray<FIRFilter *> *filters;
-@property(nonatomic, readwrite) CompositeOperator compOp;
+@property(nonatomic, readwrite) CompositeFilter::Operator compOp;
 
 @end
 
 @implementation FSTCompositeFilter
 
-- (instancetype)initWithFilters:(nonnull NSArray<FIRFilter *> *)filters op:(CompositeOperator)op {
+- (instancetype)initWithFilters:(nonnull NSArray<FIRFilter *> *)filters
+                             op:(CompositeFilter::Operator)op {
   if (self = [super init]) {
     self.filters = filters;
     self.compOp = op;
@@ -184,19 +184,12 @@ FIRFieldPath *MakeFIRFieldPath(NSString *field) {
                                                 value:values];
 }
 
-+ (FIRFilter *)orFilterWithFilters:(NSArray *)filters {
-  return [[FSTCompositeFilter alloc]
-      initWithFilters:filters
-                   op:CompositeOperator::
-                          google_firestore_v1_StructuredQuery_CompositeFilter_Operator_AND];
++ (FIRFilter *)orFilterWithFilters:(NSArray<FIRFilter *> *)filters {
+  return [[FSTCompositeFilter alloc] initWithFilters:filters op:CompositeFilter::Operator::Or];
 }
 
-// TODO(orquery): Change this to Operator.OR once it is available.
-+ (FIRFilter *)andFilterWithFilters:(NSArray *)filters {
-  return [[FSTCompositeFilter alloc]
-      initWithFilters:filters
-                   op:CompositeOperator::
-                          google_firestore_v1_StructuredQuery_CompositeFilter_Operator_OPERATOR_UNSPECIFIED];
++ (FIRFilter *)andFilterWithFilters:(NSArray<FIRFilter *> *)filters {
+  return [[FSTCompositeFilter alloc] initWithFilters:filters op:CompositeFilter::Operator::And];
 }
 @end
 

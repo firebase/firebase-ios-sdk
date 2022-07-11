@@ -84,7 +84,7 @@ class Query {
       core::ListenOptions options, QuerySnapshotListener&& listener);
 
   /**
-   * Creates and returns a new `FieldFilter` that documents
+   * Creates and returns a new `FieldFilter` that ensures documents
    * must contain the specified field and the value must be equal to the
    * specified value.
    *
@@ -105,10 +105,10 @@ class Query {
   /**
    * Creates and returns a new `Query` with the additional filter.
    *
-   * @param filter The filter to add
+   * @param filter The filter to add.
    * @return The created `Query`.
    */
-  Query AddNewFilter(core::Filter filter) const;
+  Query AddNewFilter(core::Filter&& filter) const;
 
   /**
    * Creates and returns a new `Query` that's additionally sorted by the

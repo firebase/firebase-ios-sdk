@@ -52,15 +52,6 @@ Query::Query(ResourcePath path, std::string collection_group)
           std::make_shared<const std::string>(std::move(collection_group))) {
 }
 
-Query Query::Clone() const {
-  Query copy(*this);
-  copy.filters_ = immutable::AppendOnlyList<Filter>();
-  for (const Filter& filter : filters_) {
-    copy.filters_ = copy.filters_.push_back(filter);
-  }
-  return copy;
-}
-
 // MARK: - Accessors
 
 bool Query::IsDocumentQuery() const {
