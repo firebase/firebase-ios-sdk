@@ -17,10 +17,11 @@
 import ArgumentParser
 import Foundation
 
-let _XCODEPROJ=".xcodeproj"
-let _XCWORKSPACE=".xcworkspace"
-let _XCODEBUILD_NO_SIGN_FLAG="CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO"
-let _TESTBUNDLE_NAME="FTLXCTestBundle.zip"
+let _XCODEPROJ = ".xcodeproj"
+let _XCWORKSPACE = ".xcworkspace"
+let _XCODEBUILD_NO_SIGN_FLAG =
+  "CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO"
+let _TESTBUNDLE_NAME = "FTLXCTestBundle.zip"
 
 struct Shell {
   static let shared = Shell()
@@ -51,10 +52,12 @@ struct Shell {
     return task.terminationStatus
   }
 }
-enum XctestBundleBuilderError:Error{
-    case pathNotFound(path: String)
-    case pathInvalid(path: String)
+
+enum XctestBundleBuilderError: Error {
+  case pathNotFound(path: String)
+  case pathInvalid(path: String)
 }
+
 struct XctestBundleBuilder: ParsableCommand {
   @Option(help: "Project path, ending with either .workspace or .xcodeproj")
   var projectPath: String
@@ -63,42 +66,51 @@ struct XctestBundleBuilder: ParsableCommand {
   var scheme: String
 
   @Option(help: "Folder with build output.", transform: URL.init(fileURLWithPath:))
-  var derivedDataPath: URL = URL(fileURLWithPath:FileManager().currentDirectoryPath)
+  var derivedDataPath: URL = .init(fileURLWithPath: FileManager().currentDirectoryPath)
 
   func validateParams() throws {
-      if !FileManager.default.fileExists(atPath: projectPath){
-          print("\(projectPath) is not found.")
-              throw XctestBundleBuilderError.pathNotFound(path: projectPath)
+    if !FileManager.default.fileExists(atPath: projectPath) {
+      print("\(projectPath) is not found.")
+      throw XctestBundleBuilderError.pathNotFound(path: projectPath)
+    }
+    if !projectPath.hasSuffix(_XCODEPROJ), !projectPath.hasSuffix(_XCWORKSPACE) {
+      print(
+        "The path \(projectPath) is invalid. A path should end with either \(_XCODEPROJ) or \(_XCWORKSPACE)."
+      )
+      throw XctestBundleBuilderError.pathInvalid(path: projectPath)
+    }
+    let path = derivedDataPath.path
+    if let v = try? derivedDataPath.resourceValues(forKeys: [.isDirectoryKey]) {
+      if !v.isDirectory! {
+        print("The path \(path) is not a valid dir path.")
+        throw XctestBundleBuilderError.pathInvalid(path: path)
       }
-      if !projectPath.hasSuffix(_XCODEPROJ) && !projectPath.hasSuffix(_XCWORKSPACE){
-          print("The path \(projectPath) is invalid. A path should end with either \(_XCODEPROJ) or \(_XCWORKSPACE).")
-              throw XctestBundleBuilderError.pathInvalid(path: projectPath)
-      }
-      let path = derivedDataPath.path
-          if let v = try? derivedDataPath.resourceValues(forKeys: [.isDirectoryKey]) {
-              if !v.isDirectory! {
-                  print("The path \(path) is not a valid dir path.")
-                      throw XctestBundleBuilderError.pathInvalid(path: path)
-              }
-          } else {
-              print("\(path) is not found.")
-                  throw XctestBundleBuilderError.pathNotFound(path: path)
-          }
+    } else {
+      print("\(path) is not found.")
+      throw XctestBundleBuilderError.pathNotFound(path: path)
+    }
   }
+
   mutating func run() throws {
-      try validateParams()
-      // Create a test bundle for FTL
-      // https://firebase.google.com/docs/test-lab/ios/run-xctest#package-app
-      do {
+    try validateParams()
+    // Create a test bundle for FTL
+    // https://firebase.google.com/docs/test-lab/ios/run-xctest#package-app
+    do {
       print("----- Building test app -----")
-      try Shell.shared.run("xcodebuild -project \(projectPath) -scheme \(scheme) -derivedDataPath \(derivedDataPath.path) -sdk iphoneos build-for-testing \(_XCODEBUILD_NO_SIGN_FLAG)")
+      try Shell.shared
+        .run(
+          "xcodebuild -project \(projectPath) -scheme \(scheme) -derivedDataPath \(derivedDataPath.path) -sdk iphoneos build-for-testing \(_XCODEBUILD_NO_SIGN_FLAG)"
+        )
       print("----- Create a zip file of test bundle -----")
-      try Shell.shared.run("cd \(derivedDataPath.path)/Build/Products && zip -r \(derivedDataPath.path)/\(_TESTBUNDLE_NAME) Debug-iphoneos *.xctestrun")
-      } catch {
-          throw error
-      }
-      print (" \(_TESTBUNDLE_NAME) is saved under \(derivedDataPath.path)")
+      try Shell.shared
+        .run(
+          "cd \(derivedDataPath.path)/Build/Products && zip -r \(derivedDataPath.path)/\(_TESTBUNDLE_NAME) Debug-iphoneos *.xctestrun"
+        )
+    } catch {
+      throw error
+    }
+    print(" \(_TESTBUNDLE_NAME) is saved under \(derivedDataPath.path)")
   }
 }
-XctestBundleBuilder.main()
 
+XctestBundleBuilder.main()
