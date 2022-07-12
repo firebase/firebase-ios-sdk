@@ -407,7 +407,7 @@ let package = Package(
 
     .target(
       name: "FirebaseAnalyticsForWatch",
-      dependencies: [],
+      dependencies: []
     ),
 
     .target(
