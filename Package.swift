@@ -354,8 +354,6 @@ let package = Package(
       name: "FirebaseAnalyticsSwiftTarget",
       dependencies: [.target(name: "FirebaseAnalyticsSwift",
                              condition: .when(platforms: [.iOS, .macOS, .tvOS])),
-                     .target(name: "FirebaseAnalyticsForWatch",
-                             condition: .when(platforms: [.watchOS])),
       ],
       path: "SwiftPM-PlatformExclude/FirebaseAnalyticsSwiftWrap"
     ),
@@ -410,7 +408,7 @@ let package = Package(
 
     .target(
       name: "FirebaseAnalyticsForWatch",
-      dependencies: []
+      path: "SwiftPM-PlatformExclude/FirebaseAnalyticsWrap"
     ),
 
     .target(
