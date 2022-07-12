@@ -350,7 +350,10 @@ let package = Package(
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
       dependencies: [.target(name: "FirebaseAnalyticsSwift",
-                             condition: .when(platforms: [.iOS, .macOS, .tvOS]))],
+                             condition: .when(platforms: [.iOS, .macOS, .tvOS])),
+                     .target(name: "FirebaseAnalyticsForWatch",
+                             condition: .when(platforms: [.watchOS])),
+      ],
       path: "SwiftPM-PlatformExclude/FirebaseAnalyticsSwiftWrap"
     ),
     .target(
@@ -400,6 +403,11 @@ let package = Package(
       linkerSettings: [
         .linkedLibrary("c++"),
       ]
+    ),
+
+    .target(
+      name: "FirebaseAnalyticsForWatch",
+      dependencies: [],
     ),
 
     .target(
