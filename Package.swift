@@ -315,7 +315,7 @@ let package = Package(
     .target(
       name: "FirebaseAnalyticsTarget",
       dependencies: [.target(name: "FirebaseAnalyticsWrapper",
-                             condition: .when(platforms: [.iOS, .macOS, .tvOS, .watchOS])),
+                             condition: .when(platforms: [.iOS, .macOS, .tvOS, .watchOS]))
       ],
       path: "SwiftPM-PlatformExclude/FirebaseAnalyticsWrap"
     ),
@@ -402,11 +402,6 @@ let package = Package(
       linkerSettings: [
         .linkedLibrary("c++"),
       ]
-    ),
-
-    .target(
-      name: "FirebaseAnalyticsForWatch",
-      path: "SwiftPM-PlatformExclude/DummyWrap"
     ),
 
     .target(
