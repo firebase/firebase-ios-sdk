@@ -315,9 +315,7 @@ let package = Package(
     .target(
       name: "FirebaseAnalyticsTarget",
       dependencies: [.target(name: "FirebaseAnalyticsWrapper",
-                             condition: .when(platforms: [.iOS, .macOS, .tvOS])),
-                     .target(name: "FirebaseAnalyticsForWatch",
-                             condition: .when(platforms: [.watchOS])),
+                             condition: .when(platforms: [.iOS, .macOS, .tvOS, .watchOS])),
       ],
       path: "SwiftPM-PlatformExclude/FirebaseAnalyticsWrap"
     ),
@@ -325,10 +323,10 @@ let package = Package(
     .target(
       name: "FirebaseAnalyticsWrapper",
       dependencies: [
-        .target(name: "FirebaseAnalytics", condition: .when(platforms: [.iOS, .macOS, .tvOS])),
+        .target(name: "FirebaseAnalytics", condition: .when(platforms: [.iOS, .macOS, .tvOS, .watchOS])),
         .product(name: "GoogleAppMeasurement",
                  package: "GoogleAppMeasurement",
-                 condition: .when(platforms: [.iOS, .macOS, .tvOS])),
+                 condition: .when(platforms: [.iOS, .macOS, .tvOS, .watchOS])),
         "FirebaseCore",
         "FirebaseInstallations",
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
@@ -408,7 +406,7 @@ let package = Package(
 
     .target(
       name: "FirebaseAnalyticsForWatch",
-      path: "SwiftPM-PlatformExclude/FirebaseAnalyticsWrap"
+      path: "SwiftPM-PlatformExclude/DummyWrap"
     ),
 
     .target(
