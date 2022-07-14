@@ -353,7 +353,7 @@ let package = Package(
     ),
     .target(
       name: "FirebaseAnalyticsForWatch",
-      path: "SwiftPM-PlatformExclude/FirebaseAnalyticsSwiftWrap"
+      path: "SwiftPM-PlatformExclude/FirebaseAnalyticsForWatchWrap"
     ),
 
     .target(
