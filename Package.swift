@@ -316,21 +316,17 @@ let package = Package(
       name: "FirebaseAnalyticsTarget",
       dependencies: [.target(name: "FirebaseAnalyticsWrapper",
                              condition: .when(platforms: [.iOS, .macOS, .tvOS])),
-                     .target(name: "FirebaseAnalyticsForWatch",
-                             condition: .when(platforms: [.watchOS])),
-      ],
+                           ],
       path: "SwiftPM-PlatformExclude/FirebaseAnalyticsWrap"
     ),
 
-    .target(
-      name: "FirebaseAnalyticsForWatch",
-      path: "SwiftPM-PlatformExclude/FirebaseAnalyticsWrap"
-    ),
-
+    
     .target(
       name: "FirebaseAnalyticsWrapper",
       dependencies: [
         .target(name: "FirebaseAnalytics", condition: .when(platforms: [.iOS, .macOS, .tvOS])),
+        .target(name: "FirebaseAnalyticsForWatch",
+                             condition: .when(platforms: [.watchOS])),
         .product(name: "GoogleAppMeasurement",
                  package: "GoogleAppMeasurement",
                  condition: .when(platforms: [.iOS, .macOS, .tvOS])),
@@ -355,6 +351,12 @@ let package = Package(
       url: "https://dl.google.com/firebase/ios/swiftpm/9.3.0/FirebaseAnalytics.zip",
       checksum: "5f0b6ad144c6894f06e66f3dc51812655e1aa1e4ff444e4c62ddae24d438345c"
     ),
+    .binaryTarget(
+      name: "FirebaseAnalyticsForWatch",
+      url: "https://dl.google.com/",
+      checksum: "5f0b6ad144c6894f06e66f3dc51812655e1aa1e4ff444e4c62ddae24d438345c"
+    ),
+
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
       dependencies: [.target(name: "FirebaseAnalyticsSwift",
