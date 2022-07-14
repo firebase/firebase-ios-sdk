@@ -351,10 +351,9 @@ let package = Package(
       url: "https://dl.google.com/firebase/ios/swiftpm/9.3.0/FirebaseAnalytics.zip",
       checksum: "5f0b6ad144c6894f06e66f3dc51812655e1aa1e4ff444e4c62ddae24d438345c"
     ),
-    .binaryTarget(
+    .target(
       name: "FirebaseAnalyticsForWatch",
-      url: "https://sample-videos.com/zip/10mb.zip",
-      checksum: "5f0b6ad144c6894f06e66f3dc51812655e1aa1e4ff444e4c62ddae24d438345c"
+      path: "SwiftPM-PlatformExclude/FirebaseAnalyticsSwiftWrap"
     ),
 
     .target(
