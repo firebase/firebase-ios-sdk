@@ -73,7 +73,7 @@ void VerifyOverlayRoundTrips(const MutableDocument& doc,
   MutableDocument doc_for_mutations = doc.Clone();
   MutableDocument doc_for_overlay = doc.Clone();
 
-  absl::optional<FieldMask> mask;
+  absl::optional<FieldMask> mask = FieldMask();
   for (const Mutation& mutation : mutations) {
     mask = mutation.ApplyToLocalView(doc_for_mutations, mask, now);
   }
@@ -710,6 +710,25 @@ TEST(MutationTest, OverlayWithFieldDeletionOfNestedField) {
                     {Field("bar.baz")}, {});
 
   VerifyOverlayRoundTrips(doc, {patch1, patch2, patch3});
+}
+
+// See: https://github.com/firebase/firebase-ios-sdk/issues/9985
+TEST(MutationTest, OverlayWithFieldDeletionOfNestedFieldAndParentField) {
+  MutableDocument doc = Doc("collection/key", 1, Map("foo", 1));
+  Mutation patch1 =
+      PatchMutation("collection/key", Map("foo", "foo-patched-value"),
+                    {{"bar.baz", Increment(1)}});
+  Mutation patch2 =
+      PatchMutation("collection/key", Map("foo", "foo-patched-value"),
+                    {{"bar.baz", ServerTimestamp()}});
+  Mutation patch3 =
+      PatchMutation("collection/key", Map("foo", "foo-patched-value"),
+                    {Field("bar.baz")}, {});
+
+  Mutation patch4 = PatchMutation(
+      "collection/key", Map("foo", "foo-patched-value"), {Field("bar")}, {});
+
+  VerifyOverlayRoundTrips(doc, {patch1, patch2, patch3, patch4});
 }
 
 TEST(MutationTest, OverlayCreatedFromSetToEmptyWithMerge) {

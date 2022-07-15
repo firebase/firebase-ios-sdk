@@ -167,7 +167,7 @@ TransformMap Mutation::Rep::LocalTransformResults(
 
 absl::optional<Mutation> Mutation::CalculateOverlayMutation(
     const MutableDocument& doc, const absl::optional<FieldMask>& mask) {
-  if ((!doc.has_local_mutations()) || (mask.has_value() && mask->empty())) {
+  if ((!doc.has_local_mutations())) {
     return absl::nullopt;
   }
 
@@ -199,9 +199,13 @@ absl::optional<Mutation> Mutation::CalculateOverlayMutation(
           path = path.PopLast();
           value = doc_value.Get(path);
         }
-        HARD_ASSERT(value.has_value());
-        patch_value.Set(
-            path, Message<google_firestore_v1_Value>(DeepClone(value.value())));
+        if (value.has_value()) {
+          patch_value.Set(path, Message<google_firestore_v1_Value>(
+                                    DeepClone(value.value())));
+        } else {
+          patch_value.Delete(path);
+        }
+
         mask_set.insert(path);
       }
     }
