@@ -206,6 +206,8 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
 
   void ScheduleLruGarbageCollection();
 
+  void ScheduleIndexBackfiller();
+
   DatabaseInfo database_info_;
   std::shared_ptr<credentials::AppCheckCredentialsProvider>
       app_check_credentials_provider_;
@@ -231,12 +233,12 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   std::unique_ptr<SyncEngine> sync_engine_;
   std::unique_ptr<EventManager> event_manager_;
 
-  std::chrono::milliseconds initial_gc_delay_ = std::chrono::minutes(1);
-  std::chrono::milliseconds regular_gc_delay_ = std::chrono::minutes(5);
   bool gc_has_run_ = false;
+  bool backfiller_has_run_ = false;
   bool credentials_initialized_ = false;
   local::LruDelegate* _Nullable lru_delegate_;
   util::DelayedOperation lru_callback_;
+  util::DelayedOperation backfiller_callback_;
 };
 
 }  // namespace core
