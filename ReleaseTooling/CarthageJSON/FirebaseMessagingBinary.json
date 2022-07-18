@@ -85,5 +85,6 @@
   "8.9.1": "https://dl.google.com/dl/firebase/ios/carthage/8.9.1/FirebaseMessaging-4366b8bde4b87c2d.zip",
   "9.0.0": "https://dl.google.com/dl/firebase/ios/carthage/9.0.0/FirebaseMessaging-781ddf95759d6699.zip",
   "9.1.0": "https://dl.google.com/dl/firebase/ios/carthage/9.1.0/FirebaseMessaging-116cbea4b12ceb23.zip",
-  "9.2.0": "https://dl.google.com/dl/firebase/ios/carthage/9.2.0/FirebaseMessaging-edba135aeb14ada7.zip"
+  "9.2.0": "https://dl.google.com/dl/firebase/ios/carthage/9.2.0/FirebaseMessaging-edba135aeb14ada7.zip",
+  "9.3.0": "https://dl.google.com/dl/firebase/ios/carthage/9.3.0/FirebaseMessaging-bc3ac74b078aab5a.zip"
 }
