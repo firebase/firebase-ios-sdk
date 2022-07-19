@@ -163,21 +163,20 @@ final class StorageAPITests: XCTestCase {
   func storageMetadataApis() {
     let metadata = StorageMetadata()
     _ = metadata.bucket
-    metadata.cacheControl = metadata.cacheControl
-    metadata.contentDisposition = metadata.contentDisposition
-    metadata.contentEncoding = metadata.contentEncoding
-    metadata.contentLanguage = metadata.contentLanguage
-    metadata.contentType = metadata.contentType
+    _ = metadata.cacheControl
+    _ = metadata.contentDisposition
+    _ = metadata.contentEncoding
+    _ = metadata.contentLanguage
+    _ = metadata.contentType
     _ = metadata.md5Hash
     _ = metadata.generation
-    metadata.customMetadata = metadata.customMetadata
+    _ = metadata.customMetadata
     _ = metadata.metageneration
     _ = metadata.name
     _ = metadata.path
     _ = metadata.size
     _ = metadata.timeCreated
     _ = metadata.updated
-    _ = metadata.storageReference
     _ = metadata.dictionaryRepresentation()
     _ = metadata.isFile
     _ = metadata.isFolder

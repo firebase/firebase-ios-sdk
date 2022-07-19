@@ -28,12 +28,12 @@ internal class StorageUpdateMetadataTask: StorageTask, StorageTaskManagement {
   private var fetcher: GTMSessionFetcher?
   private var fetcherCompletion: ((Data?, NSError?) -> Void)?
   private var taskCompletion: ((_ metadata: StorageMetadata?, _: Error?) -> Void)?
-  private var updateMetadata: FIRIMPLStorageMetadata
+  private var updateMetadata: StorageMetadata
 
   internal init(reference: FIRIMPLStorageReference,
                 fetcherService: GTMSessionFetcherService,
                 queue: DispatchQueue,
-                metadata: FIRIMPLStorageMetadata,
+                metadata: StorageMetadata,
                 completion: ((_: StorageMetadata?, _: Error?) -> Void)?) {
     updateMetadata = metadata
     super.init(reference: reference, service: fetcherService, queue: queue)
@@ -78,9 +78,9 @@ internal class StorageUpdateMetadataTask: StorageTask, StorageTaskManagement {
         } else {
           if let data = data,
              let responseDictionary = try? JSONSerialization
-             .jsonObject(with: data) as? [String: Any] {
+             .jsonObject(with: data) as? [String: AnyHashable] {
             metadata = StorageMetadata(dictionary: responseDictionary)
-            metadata?.impl.type = .file
+            metadata?.fileType = .file
           } else {
             self.error = StorageErrorCode.error(withInvalidRequest: data)
           }

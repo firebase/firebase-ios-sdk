@@ -1,3 +1,7 @@
+# Unreleased
+- [changed] Remove the storageReference property of StorageMetadata. It had never been implemented
+  and always returned `nil`.
+
 # 9.2.0
 - [fixed] Importing FirebaseStorage no longer exposes internal FirebaseCore APIs. (#9884)
 

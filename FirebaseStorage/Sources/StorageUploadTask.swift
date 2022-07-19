@@ -126,9 +126,9 @@ import FirebaseStorageInternal
         }
 
         if let responseDictionary = try? JSONSerialization
-          .jsonObject(with: data) as? [String: Any] {
-          let metadata = FIRIMPLStorageMetadata(dictionary: responseDictionary)
-          metadata?.type = .file
+          .jsonObject(with: data) as? [String: AnyHashable] {
+          let metadata = StorageMetadata(dictionary: responseDictionary)
+          metadata.fileType = .file
           self.metadata = metadata
         } else {
           self.error = StorageErrorCode.error(withInvalidRequest: data)
@@ -202,7 +202,7 @@ import FirebaseStorageInternal
 
   private var uploadFetcher: GTMSessionUploadFetcher?
   private var fetcherCompletion: ((Data?, NSError?) -> Void)?
-  private var uploadMetadata: FIRIMPLStorageMetadata
+  private var uploadMetadata: StorageMetadata
   private var uploadData: Data?
 
   // MARK: - Internal Implementations
@@ -212,7 +212,7 @@ import FirebaseStorageInternal
                 queue: DispatchQueue,
                 file: URL? = nil,
                 data: Data? = nil,
-                metadata: FIRIMPLStorageMetadata) {
+                metadata: StorageMetadata) {
     uploadMetadata = metadata
     uploadData = data
     super.init(reference: reference, service: service, queue: queue, file: file)
