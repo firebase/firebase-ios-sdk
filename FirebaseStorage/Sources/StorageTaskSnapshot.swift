@@ -69,18 +69,14 @@ import FirebaseStorageInternal
                 state: StorageTaskState,
                 reference: FIRIMPLStorageReference,
                 progress: Progress,
-                metadata: FIRIMPLStorageMetadata? = nil,
+                metadata: StorageMetadata? = nil,
                 error: NSError? = nil) {
     self.task = task
     self.reference = StorageReference(reference)
     self.progress = progress
     self.error = error
+    self.metadata = metadata
 
-    if let metadata = metadata {
-      self.metadata = StorageMetadata(impl: metadata)
-    } else {
-      self.metadata = nil
-    }
     switch state {
     case .queueing, .running, .resuming: status = StorageTaskStatus.resume
     case .progress: status = StorageTaskStatus.progress

@@ -21,11 +21,11 @@ import XCTest
 class StorageUpdateMetadataTests: StorageTestHelpers {
   var fetcherService: GTMSessionFetcherService?
   var dispatchQueue: DispatchQueue?
-  var metadata: FIRIMPLStorageMetadata?
+  var metadata: StorageMetadata?
 
   override func setUp() {
     super.setUp()
-    metadata = FIRIMPLStorageMetadata(dictionary: ["bucket": "bucket", "name": "path/to/object"])
+    metadata = StorageMetadata(dictionary: ["bucket": "bucket", "name": "path/to/object"])
     fetcherService = GTMSessionFetcherService()
     fetcherService?.authorizer = FIRStorageTokenAuthorizer(
       googleAppID: "dummyAppID",
