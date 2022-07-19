@@ -1,3 +1,8 @@
+# 9.3.0
+- [changed] Arrays and Dictionaries are now supported when initializing defaults from a
+  plist. (#8306)
+- [fixed] Activate calls will only update experiment data for `firebase` namespace to ensure correct experiment exposures. (#9972)
+
 # 9.0.0
 - [changed] The `remoteConfig()` singleton now throws an exception when called before
   `FirebaseApp.configure()`. (#8640)
