@@ -140,7 +140,7 @@ import FirebaseStorageInternal
                                  service: fetcherService,
                                  queue: storage.dispatchQueue,
                                  data: uploadData,
-                                 metadata: putMetadata.impl)
+                                 metadata: putMetadata)
 
     if let completion = completion {
       var completed = false
@@ -219,7 +219,7 @@ import FirebaseStorageInternal
                                  service: fetcherService,
                                  queue: storage.dispatchQueue,
                                  file: fileURL,
-                                 metadata: putMetadata.impl)
+                                 metadata: putMetadata)
 
     if let completion = completion {
       var completed = false
@@ -597,7 +597,7 @@ import FirebaseStorageInternal
     let task = StorageUpdateMetadataTask(reference: impl,
                                          fetcherService: fetcherService,
                                          queue: storage.dispatchQueue,
-                                         metadata: metadata.impl,
+                                         metadata: metadata,
                                          completion: completion)
     task.enqueue()
   }
@@ -618,18 +618,6 @@ import FirebaseStorageInternal
       }
     }
   #endif // compiler(>=5.5) && canImport(_Concurrency)
-
-  private func adaptMetadataCallback(completion: @escaping (StorageMetadata?, Error?) -> Void) ->
-    (_: FIRIMPLStorageMetadata?, _: Error?)
-    -> Void {
-    return { (impl: FIRIMPLStorageMetadata?, error: Error?) in
-      if let impl = impl {
-        completion(StorageMetadata(impl: impl), error)
-      } else {
-        completion(nil, error)
-      }
-    }
-  }
 
   // MARK: - Delete
 

@@ -21,7 +21,6 @@
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageConstants.h"
-#import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageMetadata.h"
 #import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageReference.h"
 #import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageTokenAuthorizer.h"
 
