@@ -227,7 +227,6 @@ class StorageMetadataTests: StorageTestHelpers {
       "metadata": ["foo": "old", "bar": "old"],
     ] as [String: AnyHashable]
     let metadata = StorageMetadata(dictionary: oldMetadata)
-
     let update = metadata.updatedMetadata()
     XCTAssertEqual(update, [:])
   }

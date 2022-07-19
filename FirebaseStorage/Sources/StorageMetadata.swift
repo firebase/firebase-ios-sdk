@@ -103,11 +103,6 @@ import FirebaseStorageInternal
   @objc public let updated: Date?
 
   /**
-   * A reference to the object in Firebase Storage.
-   */
-  // @objc public let storageReference: StorageReference?
-
-  /**
    * Creates a Dictionary from the contents of the metadata.
    * @return A Dictionary that represents the contents of the metadata.
    */
@@ -219,8 +214,7 @@ import FirebaseStorageInternal
     guard let ref = object as? StorageMetadata else {
       return false
     }
-    return ref
-      .dictionaryRepresentation() as NSDictionary == dictionaryRepresentation() as NSDictionary
+    return ref.dictionaryRepresentation() == dictionaryRepresentation()
   }
 
   @objc override public var hash: Int {
