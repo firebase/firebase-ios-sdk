@@ -274,6 +274,7 @@ import FirebaseStorageInternal
     var newMetadata = matchingMetadata
     for (key, oldValue) in oldMetadata {
       guard let newValue = newMetadata[key] else {
+        // Adds 'NSNull' for entries that only exist in oldMetadata.
         newMetadata[key] = NSNull()
         continue
       }
