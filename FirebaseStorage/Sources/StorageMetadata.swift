@@ -107,50 +107,22 @@ import FirebaseStorageInternal
    * @return A Dictionary that represents the contents of the metadata.
    */
   @objc open func dictionaryRepresentation() -> [String: AnyHashable] {
-    var dictionary: [String: AnyHashable] = [:]
-    if let bucket = bucket {
-      dictionary["bucket"] = bucket
-    }
-    if let cacheControl = cacheControl {
-      dictionary["cacheControl"] = cacheControl
-    }
-    if let contentDisposition = contentDisposition {
-      dictionary["contentDisposition"] = contentDisposition
-    }
-    if let contentEncoding = contentEncoding {
-      dictionary["contentEncoding"] = contentEncoding
-    }
-    if let contentLanguage = contentLanguage {
-      dictionary["contentLanguage"] = contentLanguage
-    }
-    if let contentType = contentType {
-      dictionary["contentType"] = contentType
-    }
-    if let md5Hash = md5Hash {
-      dictionary["md5Hash"] = md5Hash
-    }
-    if let customMetadata = customMetadata {
-      dictionary["metadata"] = customMetadata
-    }
-    if size != 0 {
-      dictionary["size"] = size
-    }
-    if generation != 0 {
-      dictionary["generation"] = "\(generation)"
-    }
-    if metageneration != 0 {
-      dictionary["metageneration"] = "\(metageneration)"
-    }
-    if let timeCreated = timeCreated {
-      dictionary["timeCreated"] = StorageMetadata.RFC3339StringFromDate(timeCreated)
-    }
-    if let updated = updated {
-      dictionary["updated"] = StorageMetadata.RFC3339StringFromDate(updated)
-    }
-    if let path = path {
-      dictionary["name"] = path
-    }
-    return dictionary
+    let stringFromDate = StorageMetadata.RFC3339StringFromDate
+    return [
+      "bucket": bucket,
+      "cacheControl": cacheControl,
+      "contentDisposition": contentDisposition,
+      "contentEncoding": contentEncoding,
+      "contentLanguage": contentLanguage,
+      "contentType": contentType,
+      "md5Hash": md5Hash,
+      "size": size != 0 ? size : nil,
+      "generation": generation != 0 ? "\(generation)" : nil,
+      "metageneration": metageneration != 0 ? "\(metageneration)" : nil,
+      "timeCreated": timeCreated.map(stringFromDate),
+      "updated": updated.map(stringFromDate),
+      "name": path,
+    ].compactMapValues { $0 }.merging(["metadata": customMetadata]) { current, _ in current }
   }
 
   /**
