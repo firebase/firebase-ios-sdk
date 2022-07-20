@@ -340,7 +340,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   int max_attempts = [FIRTransactionOptions defaultMaxAttempts];
   if (options) {
-    max_attempts = options.maxAttempts;
+    max_attempts = (int)options.maxAttempts;
   }
 
   _firestore->RunTransaction(std::move(internalUpdateBlock), std::move(objcTranslator),
