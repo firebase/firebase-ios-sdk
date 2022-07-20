@@ -82,6 +82,28 @@ class RingBufferTests: XCTestCase {
     XCTAssertEqual(Array(ringBuffer), Array(991 ... 1000))
   }
 
+  func testPopBeforePushing() throws {
+    // Given
+    var ringBuffer = RingBuffer<Element>(capacity: 2) // [`tailIndex` -> nil, nil]
+    // When
+    ringBuffer.pop() // [nil, `tailIndex` -> nil]
+    ringBuffer.push("yoda") // [nil, "yoda"]
+    ringBuffer.push("mando") // ["mando", "yoda"]
+    // Then
+    XCTAssertEqual(Array(ringBuffer), ["mando", "yoda"])
+  }
+
+  func testPopStressTest() throws {
+    // Given
+    var ringBuffer = RingBuffer<Int>(capacity: 10)
+    // When
+    for _ in 1 ... 1000 {
+      XCTAssertNil(ringBuffer.pop())
+    }
+    // Then
+    XCTAssertEqual(Array(ringBuffer), [])
+  }
+
   func testPop_WhenCapacityIsZero_DoesNothingAndReturnsNil() throws {
     // Given
     var ringBuffer = RingBuffer<String>(capacity: 0)
