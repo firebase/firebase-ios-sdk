@@ -38,14 +38,15 @@ struct RingBuffer<Element>: Sequence {
       return nil
     }
 
-    defer {
-      // Increment index, wrapping around to the start if needed.
-      tailIndex += 1
-      tailIndex %= circularQueue.count
-    }
-
     let replaced = circularQueue[tailIndex]
     circularQueue[tailIndex] = element
+
+    // Increment index, wrapping around to the start if needed.
+    tailIndex += 1
+    if tailIndex >= circularQueue.endIndex {
+      tailIndex = 0
+    }
+
     return replaced
   }
 
@@ -62,7 +63,7 @@ struct RingBuffer<Element>: Sequence {
     // Decrement index, wrapping around to the back if needed.
     tailIndex -= 1
     if tailIndex < 0 {
-      tailIndex = circularQueue.count - 1
+      tailIndex = circularQueue.endIndex - 1
     }
 
     guard let popped = circularQueue[tailIndex] else {
