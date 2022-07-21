@@ -84,7 +84,8 @@ struct HeartbeatsBundle: Codable, HeartbeatsPayloadConvertible {
       let errorDescription = error.errorDescription.replacingOccurrences(of: " ", with: "-")
       let diagnosticHeartbeat = Heartbeat(
         agent: "\(heartbeat.agent) error/\(errorDescription)",
-        date: heartbeat.date
+        date: heartbeat.date,
+        timePeriods: heartbeat.timePeriods
       )
 
       let secondPushAttempt = Result {
