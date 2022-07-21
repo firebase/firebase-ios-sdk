@@ -39,6 +39,14 @@ struct RingBuffer<Element>: Sequence {
       return nil
     }
 
+    if !circularQueue.indices.contains(tailIndex) {
+      // We have somehow entered an invalid state (#10025) and will readjust
+      // our `tailIndex` to be in bounds. Resetting to the `startIndex` is an
+      // arbitrary solution and may result in the  premature overwriting of
+      // existing elements.
+      tailIndex = circularQueue.startIndex
+    }
+
     let replaced = circularQueue[tailIndex]
     circularQueue[tailIndex] = element
 
