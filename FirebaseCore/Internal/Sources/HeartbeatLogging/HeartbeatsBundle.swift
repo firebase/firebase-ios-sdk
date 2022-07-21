@@ -75,8 +75,7 @@ struct HeartbeatsBundle: Codable, HeartbeatsPayloadConvertible {
     } catch let error as RingBufferError {
       // A ring buffer error occurred while pushing to the buffer so the bundle
       // is reset.
-      buffer = RingBuffer(capacity: capacity)
-      lastAddedHeartbeatDates = Self.cacheProvider()
+      self = HeartbeatsBundle(capacity: capacity)
 
       // Create a diagnostic heartbeat to capture the failure and add it to the
       // buffer. The failure is added as a key/value pair to the agent string.
