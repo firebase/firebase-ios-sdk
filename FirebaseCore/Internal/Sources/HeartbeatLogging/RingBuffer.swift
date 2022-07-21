@@ -51,7 +51,7 @@ struct RingBuffer<Element>: Sequence {
       return nil
     }
 
-    if !circularQueue.indices.contains(tailIndex) {
+    guard circularQueue.indices.contains(tailIndex) else {
       // We have somehow entered an invalid state (#10025).
       throw RingBufferError.outOfBoundsPush(index: tailIndex)
     }
