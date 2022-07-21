@@ -14,6 +14,18 @@
 
 import Foundation
 
+/// Error types for `RingBuffer` operations.
+enum RingBufferError: LocalizedError {
+  case outOfBoundsPush(index: Array.Index)
+
+  var errorDescription: String {
+    switch self {
+    case let .outOfBoundsPush(index: index):
+      return "Out-of-bounds push to ring buffer at index \(index)."
+    }
+  }
+}
+
 /// A generic circular queue structure.
 struct RingBuffer<Element>: Sequence {
   /// An array of heartbeats treated as a circular queue and intialized with a fixed capacity.
@@ -33,18 +45,15 @@ struct RingBuffer<Element>: Sequence {
   /// - Returns: The element that was overwritten or `nil` if nothing was overwritten.
   /// - Complexity: O(1)
   @discardableResult
-  mutating func push(_ element: Element) -> Element? {
+  mutating func push(_ element: Element) throws -> Element? {
     guard circularQueue.count > 0 else {
       // Do not push if `circularQueue` is a fixed empty array.
       return nil
     }
 
     if !circularQueue.indices.contains(tailIndex) {
-      // We have somehow entered an invalid state (#10025) and will readjust
-      // our `tailIndex` to be in bounds. Resetting to the `startIndex` is an
-      // arbitrary solution and may result in the  premature overwriting of
-      // existing elements.
-      tailIndex = circularQueue.startIndex
+      // We have somehow entered an invalid state (#10025).
+      throw RingBufferError.outOfBoundsPush(index: tailIndex)
     }
 
     let replaced = circularQueue[tailIndex]
