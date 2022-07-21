@@ -19,12 +19,13 @@ struct RingBuffer<Element>: Sequence {
   /// An array of heartbeats treated as a circular queue and intialized with a fixed capacity.
   private var circularQueue: [Element?]
   /// The current "tail" and insert point for the `circularQueue`.
-  private var tailIndex: Int = 0
+  private var tailIndex: Array.Index
 
   /// Designated initializer.
   /// - Parameter capacity: An `Int` representing the capacity.
   init(capacity: Int) {
     circularQueue = Array(repeating: nil, count: capacity)
+    tailIndex = circularQueue.startIndex
   }
 
   /// Pushes an element to the back of the buffer, returning the element (`Element?`) that was overwritten.
@@ -44,7 +45,7 @@ struct RingBuffer<Element>: Sequence {
     // Increment index, wrapping around to the start if needed.
     tailIndex += 1
     if tailIndex >= circularQueue.endIndex {
-      tailIndex = 0
+      tailIndex = circularQueue.startIndex
     }
 
     return replaced
@@ -62,7 +63,7 @@ struct RingBuffer<Element>: Sequence {
 
     // Decrement index, wrapping around to the back if needed.
     tailIndex -= 1
-    if tailIndex < 0 {
+    if tailIndex < circularQueue.startIndex {
       tailIndex = circularQueue.endIndex - 1
     }
 
