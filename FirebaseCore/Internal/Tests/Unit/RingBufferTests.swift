@@ -23,7 +23,7 @@ class RingBufferTests: XCTestCase {
     // Given
     var ringBuffer = RingBuffer<Element>(capacity: 0)
     // When
-    ringBuffer.push("ezra")
+    try ringBuffer.push("ezra")
     // Then
     XCTAssertEqual(Array(ringBuffer), [])
   }
@@ -32,7 +32,7 @@ class RingBufferTests: XCTestCase {
     // Given
     var ringBuffer = RingBuffer<Element>(capacity: 3) // [nil, nil, nil]
     // When
-    let overwrittenElement = ringBuffer.push("vader") // ["vader", nil, nil]
+    let overwrittenElement = try ringBuffer.push("vader") // ["vader", nil, nil]
     // Then
     XCTAssertNil(overwrittenElement)
   }
@@ -40,9 +40,9 @@ class RingBufferTests: XCTestCase {
   func testPush_WhenAtFullCapacity_OverwritesAndReturnsTailElement() throws {
     // Given
     var ringBuffer = RingBuffer<Element>(capacity: 1) // [nil]
-    ringBuffer.push("luke") // ["luke"] where "luke" is the tail element.
+    try ringBuffer.push("luke") // ["luke"] where "luke" is the tail element.
     // When
-    let overwrittenElement = ringBuffer.push("vader")
+    let overwrittenElement = try ringBuffer.push("vader")
     // Then
     XCTAssertEqual(overwrittenElement, "luke")
     XCTAssertEqual(Array(ringBuffer), ["vader"])
@@ -52,10 +52,10 @@ class RingBufferTests: XCTestCase {
     // Given
     var ringBuffer = RingBuffer<Element>(capacity: 3) // [nil, nil, nil]
     // When
-    ringBuffer.push("chewy") // ["chewy", nil, nil]
-    ringBuffer.push("vader") // ["chewy", "vader", nil]
-    ringBuffer.push("jabba") // ["chewy", "vader", "jabba"]
-    ringBuffer.push("lando") // ["lando", "vader", "jabba"]
+    try ringBuffer.push("chewy") // ["chewy", nil, nil]
+    try ringBuffer.push("vader") // ["chewy", "vader", nil]
+    try ringBuffer.push("jabba") // ["chewy", "vader", "jabba"]
+    try ringBuffer.push("lando") // ["lando", "vader", "jabba"]
     // Then
     XCTAssertEqual(Array(ringBuffer), ["lando", "vader", "jabba"])
   }
@@ -64,9 +64,9 @@ class RingBufferTests: XCTestCase {
     // Given
     var ringBuffer = RingBuffer<Element>(capacity: 10)
     // When
-    ringBuffer.push("han solo")
-    ringBuffer.push("boba")
-    ringBuffer.push("jabba")
+    try ringBuffer.push("han solo")
+    try ringBuffer.push("boba")
+    try ringBuffer.push("jabba")
     // Then
     XCTAssertEqual(Array(ringBuffer), ["han solo", "boba", "jabba"])
   }
@@ -76,10 +76,32 @@ class RingBufferTests: XCTestCase {
     var ringBuffer = RingBuffer<Int>(capacity: 10)
     // When
     for index in 1 ... 1000 {
-      ringBuffer.push(index)
+      try ringBuffer.push(index)
     }
     // Then
     XCTAssertEqual(Array(ringBuffer), Array(991 ... 1000))
+  }
+
+  func testPopBeforePushing() throws {
+    // Given
+    var ringBuffer = RingBuffer<Element>(capacity: 2) // [`tailIndex` -> nil, nil]
+    // When
+    ringBuffer.pop() // [nil, `tailIndex` -> nil]
+    try ringBuffer.push("yoda") // [nil, "yoda"]
+    try ringBuffer.push("mando") // ["mando", "yoda"]
+    // Then
+    XCTAssertEqual(Array(ringBuffer), ["mando", "yoda"])
+  }
+
+  func testPopStressTest() throws {
+    // Given
+    var ringBuffer = RingBuffer<Int>(capacity: 10)
+    // When
+    for _ in 1 ... 1000 {
+      XCTAssertNil(ringBuffer.pop())
+    }
+    // Then
+    XCTAssertEqual(Array(ringBuffer), [])
   }
 
   func testPop_WhenCapacityIsZero_DoesNothingAndReturnsNil() throws {
@@ -95,9 +117,9 @@ class RingBufferTests: XCTestCase {
   func testPopRemovesAndReturnsLastElement() throws {
     // Given
     var ringBuffer = RingBuffer<Element>(capacity: 3)
-    ringBuffer.push("one")
-    ringBuffer.push("two")
-    ringBuffer.push("three")
+    try ringBuffer.push("one")
+    try ringBuffer.push("two")
+    try ringBuffer.push("three")
     // When
     XCTAssertEqual(ringBuffer.pop(), "three")
     XCTAssertEqual(ringBuffer.pop(), "two")
@@ -110,7 +132,7 @@ class RingBufferTests: XCTestCase {
     // Given
     var ringBuffer = RingBuffer<Int>(capacity: 10)
     for number in Array(1 ... 15) {
-      ringBuffer.push(number)
+      try ringBuffer.push(number)
     }
 
     // ringBuffer: [11, 12, 13, 14, 15, 6, 7, 8, 9, 10]
