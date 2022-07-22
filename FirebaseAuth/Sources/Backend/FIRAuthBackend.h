@@ -54,6 +54,8 @@
 @class FIRSignInWithGameCenterResponse;
 @class FIRSignUpNewUserRequest;
 @class FIRSignUpNewUserResponse;
+@class FIRGetRecaptchaConfigRequest;
+@class FIRGetRecaptchaConfigResponse;
 
 @protocol FIRAuthBackendImplementation;
 @protocol FIRAuthBackendRPCIssuer;
@@ -229,6 +231,15 @@ typedef void (^FIRVerifyClientResponseCallback)(FIRVerifyClientResponse *_Nullab
  */
 typedef void (^FIRSignInWithGameCenterResponseCallback)(
     FIRSignInWithGameCenterResponse *_Nullable response, NSError *_Nullable error);
+
+/** @typedef FIRGetRecaptchaConfigResponseCallback
+    @brief The type of block used to return the result of a call to the getRecaptchaConfig endpoint.
+    @param response The received response, if any.
+    @param error The error which occurred, if any.
+    @remarks One of response or error will be non-nil.
+ */
+typedef void (^FIRGetRecaptchaConfigResponseCallback)(FIRGetRecaptchaConfigResponse *_Nullable response,
+                                                NSError *_Nullable error);
 
 /** @class FIRAuthBackend
     @brief Simple static class with methods representing the backend RPCs.
@@ -414,6 +425,15 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
  */
 + (void)verifyClient:(FIRVerifyClientRequest *)request
             callback:(FIRVerifyClientResponseCallback)callback;
+
+/** @fn getRecaptchaConfig:callback:
+    @brief Calls the getRecaptchaConfig endpoint, which is responsible for retrieving the recaptcha configs including site key, provider enablement status.
+    @param request The request parameters.
+    @param callback The callback.
+ */
++ (void)getRecaptchaConfig:(FIRGetRecaptchaConfigRequest *)request
+                  callback:(FIRGetRecaptchaConfigResponseCallback)callback;
+
 #endif
 
 @end
@@ -424,7 +444,7 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
 @protocol FIRAuthBackendRPCIssuer <NSObject>
 
 /** @fn asyncPostToURLWithRequestConfiguration:URL:body:contentType:completionHandler:
-    @brief Asynchronously seXnds a POST request.
+    @brief Asynchronously sends a POST request.
     @param requestConfiguration The request to be made.
     @param URL The request URL.
     @param body Request body.
@@ -588,6 +608,14 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
  */
 - (void)signInWithGameCenter:(FIRSignInWithGameCenterRequest *)request
                     callback:(FIRSignInWithGameCenterResponseCallback)callback;
+
+/** @fn getRecaptchaConfig:callback:
+    @brief Calls the getRecaptchaConfig endpoint, which is responsible for retrieving the recaptcha configs including site key, provider enablement status.
+    @param request The request parameters.
+    @param callback The callback.
+ */
+- (void)getRecaptchaConfig:(FIRGetRecaptchaConfigRequest *)request
+                  callback:(FIRGetRecaptchaConfigResponseCallback)callback;
 
 /** @fn resetPassword:callback
     @brief Calls the resetPassword endpoint, which is responsible for resetting a user's password

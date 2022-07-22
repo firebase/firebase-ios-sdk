@@ -82,6 +82,10 @@ static NSString *kIdentityPlatformStagingAPIHost =
   return YES;
 }
 
+- (nullable NSString *)queryParams {
+    return nil;
+}
+
 - (NSURL *)requestURL {
   NSString *apiURLFormat;
   NSString *apiProtocol;
@@ -115,8 +119,14 @@ static NSString *kIdentityPlatformStagingAPIHost =
       apiHostAndPathPrefix = kFirebaseAuthAPIHost;
     }
   }
-  NSString *URLString = [NSString
+  NSMutableString *URLString = [NSMutableString
       stringWithFormat:apiURLFormat, apiProtocol, apiHostAndPathPrefix, _endpoint, _APIKey];
+    
+    NSString *queryParams = [self queryParams];
+    if (queryParams) {
+        [URLString appendString:queryParams];
+    }
+    
   NSURL *URL = [NSURL URLWithString:URLString];
   return URL;
 }

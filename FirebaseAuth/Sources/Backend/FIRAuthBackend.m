@@ -59,6 +59,8 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRGetRecaptchaConfigRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRGetRecaptchaConfigResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberResponse.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
@@ -605,6 +607,11 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [[self implementation] resetPassword:request callback:callback];
 }
 
++ (void)getRecaptchaConfig:(FIRGetRecaptchaConfigRequest *)request
+                  callback:(FIRGetRecaptchaConfigResponseCallback)callback {
+    [[self implementation] getRecaptchaConfig:request callback:callback];
+}
+
 + (NSString *)authUserAgent {
   return [NSString stringWithFormat:@"FirebaseAuth.iOS/%@ %@", FIRFirebaseVersion(),
                                     GTMFetcherStandardUserAgentString(nil)];
@@ -636,6 +643,8 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   if (languageCode.length) {
     [request setValue:languageCode forHTTPHeaderField:kFirebaseLocalHeader];
   }
+    NSString *HTTPMethod = requestConfiguration.HTTPMethod;
+    [request setValue:HTTPMethod forKey:@"HTTPMethod"];
   return request;
 }
 
@@ -988,6 +997,24 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                    }
                  }
                }];
+}
+
+- (void)getRecaptchaConfig:(FIRGetRecaptchaConfigRequest *)request
+                  callback:(FIRGetRecaptchaConfigResponseCallback)callback {
+    FIRGetRecaptchaConfigResponse *response = [[FIRGetRecaptchaConfigResponse alloc] init];
+    [self postWithRequest:request
+                 response:response
+                 callback:^(NSError *error) {
+                   if (error) {
+                     if (callback) {
+                       callback(nil, error);
+                     }
+                   } else {
+                     if (callback) {
+                       callback(response, nil);
+                     }
+                   }
+                 }];
 }
 
 #pragma mark - Generic RPC handling methods
