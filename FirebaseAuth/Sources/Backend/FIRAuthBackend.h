@@ -443,7 +443,7 @@ typedef void (^FIRGetRecaptchaConfigResponseCallback)(FIRGetRecaptchaConfigRespo
  */
 @protocol FIRAuthBackendRPCIssuer <NSObject>
 
-/** @fn asyncPostToURLWithRequestConfiguration:URL:body:contentType:completionHandler:
+/** @fn asyncCallToURLWithRequestConfiguration:URL:body:contentType:completionHandler:
     @brief Asynchronously sends a POST request.
     @param requestConfiguration The request to be made.
     @param URL The request URL.
@@ -452,7 +452,7 @@ typedef void (^FIRGetRecaptchaConfigResponseCallback)(FIRGetRecaptchaConfigRespo
     @param handler provided that handles POST response. Invoked asynchronously on the auth global
         work queue in the future.
  */
-- (void)asyncPostToURLWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+- (void)asyncCallToURLWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
                                            URL:(NSURL *)URL
                                           body:(nullable NSData *)body
                                    contentType:(NSString *)contentType
@@ -626,7 +626,7 @@ typedef void (^FIRGetRecaptchaConfigResponseCallback)(FIRGetRecaptchaConfigRespo
 - (void)resetPassword:(FIRResetPasswordRequest *)request
              callback:(FIRResetPasswordCallback)callback;
 
-/** @fn postWithRequest:response:callback:
+/** @fn callWithRequest:response:callback:
     @brief Calls the RPC using HTTP POST.
     @remarks Possible error responses:
         @see FIRAuthInternalErrorCodeRPCRequestEncodingError
@@ -639,7 +639,7 @@ typedef void (^FIRGetRecaptchaConfigResponseCallback)(FIRGetRecaptchaConfigRespo
     @param response The empty response to be filled.
     @param callback The callback for both success and failure.
 */
-- (void)postWithRequest:(id<FIRAuthRPCRequest>)request
+- (void)callWithRequest:(id<FIRAuthRPCRequest>)request
                response:(id<FIRAuthRPCResponse>)response
                callback:(void (^)(NSError *_Nullable error))callback;
 

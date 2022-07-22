@@ -673,7 +673,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   return self;
 }
 
-- (void)asyncPostToURLWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+- (void)asyncCallToURLWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
                                            URL:(NSURL *)URL
                                           body:(nullable NSData *)body
                                    contentType:(NSString *)contentType
@@ -707,7 +707,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 - (void)createAuthURI:(FIRCreateAuthURIRequest *)request
              callback:(FIRCreateAuthURIResponseCallback)callback {
   FIRCreateAuthURIResponse *response = [[FIRCreateAuthURIResponse alloc] init];
-  [self postWithRequest:request
+  [self callWithRequest:request
                response:response
                callback:^(NSError *error) {
                  if (error) {
@@ -721,7 +721,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 - (void)getAccountInfo:(FIRGetAccountInfoRequest *)request
               callback:(FIRGetAccountInfoResponseCallback)callback {
   FIRGetAccountInfoResponse *response = [[FIRGetAccountInfoResponse alloc] init];
-  [self postWithRequest:request
+  [self callWithRequest:request
                response:response
                callback:^(NSError *error) {
                  if (error) {
@@ -735,7 +735,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 - (void)getProjectConfig:(FIRGetProjectConfigRequest *)request
                 callback:(FIRGetProjectConfigResponseCallback)callback {
   FIRGetProjectConfigResponse *response = [[FIRGetProjectConfigResponse alloc] init];
-  [self postWithRequest:request
+  [self callWithRequest:request
                response:response
                callback:^(NSError *error) {
                  if (error) {
@@ -749,7 +749,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 - (void)setAccountInfo:(FIRSetAccountInfoRequest *)request
               callback:(FIRSetAccountInfoResponseCallback)callback {
   FIRSetAccountInfoResponse *response = [[FIRSetAccountInfoResponse alloc] init];
-  [self postWithRequest:request
+  [self callWithRequest:request
                response:response
                callback:^(NSError *error) {
                  if (error) {
@@ -764,7 +764,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                callback:(FIRVerifyAssertionResponseCallback)callback {
   FIRVerifyAssertionResponse *response = [[FIRVerifyAssertionResponse alloc] init];
   [self
-      postWithRequest:request
+      callWithRequest:request
              response:response
              callback:^(NSError *error) {
                if (error) {
@@ -793,7 +793,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 - (void)verifyCustomToken:(FIRVerifyCustomTokenRequest *)request
                  callback:(FIRVerifyCustomTokenResponseCallback)callback {
   FIRVerifyCustomTokenResponse *response = [[FIRVerifyCustomTokenResponse alloc] init];
-  [self postWithRequest:request
+  [self callWithRequest:request
                response:response
                callback:^(NSError *error) {
                  if (error) {
@@ -808,7 +808,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
               callback:(FIRVerifyPasswordResponseCallback)callback {
   FIRVerifyPasswordResponse *response = [[FIRVerifyPasswordResponse alloc] init];
   [self
-      postWithRequest:request
+      callWithRequest:request
              response:response
              callback:^(NSError *error) {
                if (error) {
@@ -838,7 +838,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                callback:(FIREmailLinkSigninResponseCallback)callback {
   FIREmailLinkSignInResponse *response = [[FIREmailLinkSignInResponse alloc] init];
   [self
-      postWithRequest:request
+      callWithRequest:request
              response:response
              callback:^(NSError *error) {
                if (error) {
@@ -867,7 +867,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 - (void)secureToken:(FIRSecureTokenRequest *)request
            callback:(FIRSecureTokenResponseCallback)callback {
   FIRSecureTokenResponse *response = [[FIRSecureTokenResponse alloc] init];
-  [self postWithRequest:request
+  [self callWithRequest:request
                response:response
                callback:^(NSError *error) {
                  if (error) {
@@ -881,7 +881,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 - (void)getOOBConfirmationCode:(FIRGetOOBConfirmationCodeRequest *)request
                       callback:(FIRGetOOBConfirmationCodeResponseCallback)callback {
   FIRGetOOBConfirmationCodeResponse *response = [[FIRGetOOBConfirmationCodeResponse alloc] init];
-  [self postWithRequest:request
+  [self callWithRequest:request
                response:response
                callback:^(NSError *error) {
                  if (error) {
@@ -895,7 +895,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 - (void)signUpNewUser:(FIRSignUpNewUserRequest *)request
              callback:(FIRSignupNewUserCallback)callback {
   FIRSignUpNewUserResponse *response = [[FIRSignUpNewUserResponse alloc] init];
-  [self postWithRequest:request
+  [self callWithRequest:request
                response:response
                callback:^(NSError *error) {
                  if (error) {
@@ -908,14 +908,14 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
 - (void)deleteAccount:(FIRDeleteAccountRequest *)request callback:(FIRDeleteCallBack)callback {
   FIRDeleteAccountResponse *response = [[FIRDeleteAccountResponse alloc] init];
-  [self postWithRequest:request response:response callback:callback];
+  [self callWithRequest:request response:response callback:callback];
 }
 
 #if TARGET_OS_IOS
 - (void)sendVerificationCode:(FIRSendVerificationCodeRequest *)request
                     callback:(FIRSendVerificationCodeResponseCallback)callback {
   FIRSendVerificationCodeResponse *response = [[FIRSendVerificationCodeResponse alloc] init];
-  [self postWithRequest:request
+  [self callWithRequest:request
                response:response
                callback:^(NSError *error) {
                  if (error) {
@@ -930,7 +930,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                  callback:(FIRVerifyPhoneNumberResponseCallback)callback {
   FIRVerifyPhoneNumberResponse *response = [[FIRVerifyPhoneNumberResponse alloc] init];
   [self
-      postWithRequest:request
+      callWithRequest:request
              response:response
              callback:^(NSError *error) {
                if (error) {
@@ -955,7 +955,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
 - (void)verifyClient:(id)request callback:(FIRVerifyClientResponseCallback)callback {
   FIRVerifyClientResponse *response = [[FIRVerifyClientResponse alloc] init];
-  [self postWithRequest:request
+  [self callWithRequest:request
                response:response
                callback:^(NSError *error) {
                  if (error) {
@@ -970,7 +970,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 - (void)resetPassword:(FIRResetPasswordRequest *)request
              callback:(FIRResetPasswordCallback)callback {
   FIRResetPasswordResponse *response = [[FIRResetPasswordResponse alloc] init];
-  [self postWithRequest:request
+  [self callWithRequest:request
                response:response
                callback:^(NSError *error) {
                  if (error) {
@@ -984,7 +984,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 - (void)signInWithGameCenter:(FIRSignInWithGameCenterRequest *)request
                     callback:(FIRSignInWithGameCenterResponseCallback)callback {
   FIRSignInWithGameCenterResponse *response = [[FIRSignInWithGameCenterResponse alloc] init];
-  [self postWithRequest:request
+  [self callWithRequest:request
                response:response
                callback:^(NSError *error) {
                  if (error) {
@@ -1002,7 +1002,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 - (void)getRecaptchaConfig:(FIRGetRecaptchaConfigRequest *)request
                   callback:(FIRGetRecaptchaConfigResponseCallback)callback {
     FIRGetRecaptchaConfigResponse *response = [[FIRGetRecaptchaConfigResponse alloc] init];
-    [self postWithRequest:request
+    [self callWithRequest:request
                  response:response
                  callback:^(NSError *error) {
                    if (error) {
@@ -1019,7 +1019,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
 #pragma mark - Generic RPC handling methods
 
-/** @fn postWithRequest:response:callback:
+/** @fn callWithRequest:response:callback:
     @brief Calls the RPC using HTTP POST.
     @remarks Possible error responses:
         @see FIRAuthInternalErrorCodeRPCRequestEncodingError
@@ -1032,7 +1032,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     @param response The empty response to be filled.
     @param callback The callback for both success and failure.
  */
-- (void)postWithRequest:(id<FIRAuthRPCRequest>)request
+- (void)callWithRequest:(id<FIRAuthRPCRequest>)request
                response:(id<FIRAuthRPCResponse>)response
                callback:(void (^)(NSError *_Nullable error))callback {
   NSError *error;
@@ -1069,7 +1069,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   }
 
   [_RPCIssuer
-      asyncPostToURLWithRequestConfiguration:[request requestConfiguration]
+      asyncCallToURLWithRequestConfiguration:[request requestConfiguration]
                                          URL:[request requestURL]
                                         body:bodyData
                                  contentType:kJSONContentType
