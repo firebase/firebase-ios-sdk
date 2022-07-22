@@ -16,12 +16,13 @@ import Foundation
 
 /// Error types for `RingBuffer` operations.
 enum RingBufferError: LocalizedError {
-  case outOfBoundsPush(index: Array.Index)
+  case outOfBoundsPush(pushIndex: Array.Index, endIndex: Array.Index)
 
   var errorDescription: String {
     switch self {
-    case let .outOfBoundsPush(index: index):
-      return "Out-of-bounds push to ring buffer at index \(index)."
+    case let .outOfBoundsPush(pushIndex, endIndex):
+      return "Out-of-bounds push at index \(pushIndex) to ring buffer with" +
+        "end index of \(endIndex)."
     }
   }
 }
@@ -53,7 +54,10 @@ struct RingBuffer<Element>: Sequence {
 
     guard circularQueue.indices.contains(tailIndex) else {
       // We have somehow entered an invalid state (#10025).
-      throw RingBufferError.outOfBoundsPush(index: tailIndex)
+      throw RingBufferError.outOfBoundsPush(
+        pushIndex: tailIndex,
+        endIndex: circularQueue.endIndex
+      )
     }
 
     let replaced = circularQueue[tailIndex]
