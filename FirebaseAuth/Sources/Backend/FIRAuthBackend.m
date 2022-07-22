@@ -39,6 +39,8 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRGetRecaptchaConfigRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRGetRecaptchaConfigResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRResetPasswordRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRResetPasswordResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSecureTokenRequest.h"
@@ -59,8 +61,6 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetRecaptchaConfigRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetRecaptchaConfigResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberResponse.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
@@ -609,7 +609,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
 + (void)getRecaptchaConfig:(FIRGetRecaptchaConfigRequest *)request
                   callback:(FIRGetRecaptchaConfigResponseCallback)callback {
-    [[self implementation] getRecaptchaConfig:request callback:callback];
+  [[self implementation] getRecaptchaConfig:request callback:callback];
 }
 
 + (NSString *)authUserAgent {
@@ -643,8 +643,8 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   if (languageCode.length) {
     [request setValue:languageCode forHTTPHeaderField:kFirebaseLocalHeader];
   }
-    NSString *HTTPMethod = requestConfiguration.HTTPMethod;
-    [request setValue:HTTPMethod forKey:@"HTTPMethod"];
+  NSString *HTTPMethod = requestConfiguration.HTTPMethod;
+  [request setValue:HTTPMethod forKey:@"HTTPMethod"];
   return request;
 }
 
@@ -1001,20 +1001,20 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
 - (void)getRecaptchaConfig:(FIRGetRecaptchaConfigRequest *)request
                   callback:(FIRGetRecaptchaConfigResponseCallback)callback {
-    FIRGetRecaptchaConfigResponse *response = [[FIRGetRecaptchaConfigResponse alloc] init];
-    [self callWithRequest:request
-                 response:response
-                 callback:^(NSError *error) {
-                   if (error) {
-                     if (callback) {
-                       callback(nil, error);
-                     }
-                   } else {
-                     if (callback) {
-                       callback(response, nil);
-                     }
+  FIRGetRecaptchaConfigResponse *response = [[FIRGetRecaptchaConfigResponse alloc] init];
+  [self callWithRequest:request
+               response:response
+               callback:^(NSError *error) {
+                 if (error) {
+                   if (callback) {
+                     callback(nil, error);
                    }
-                 }];
+                 } else {
+                   if (callback) {
+                     callback(response, nil);
+                   }
+                 }
+               }];
 }
 
 #pragma mark - Generic RPC handling methods

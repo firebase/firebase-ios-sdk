@@ -238,8 +238,8 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
  */
-typedef void (^FIRGetRecaptchaConfigResponseCallback)(FIRGetRecaptchaConfigResponse *_Nullable response,
-                                                NSError *_Nullable error);
+typedef void (^FIRGetRecaptchaConfigResponseCallback)(
+    FIRGetRecaptchaConfigResponse *_Nullable response, NSError *_Nullable error);
 
 /** @class FIRAuthBackend
     @brief Simple static class with methods representing the backend RPCs.
@@ -427,7 +427,8 @@ typedef void (^FIRGetRecaptchaConfigResponseCallback)(FIRGetRecaptchaConfigRespo
             callback:(FIRVerifyClientResponseCallback)callback;
 
 /** @fn getRecaptchaConfig:callback:
-    @brief Calls the getRecaptchaConfig endpoint, which is responsible for retrieving the recaptcha configs including site key, provider enablement status.
+    @brief Calls the getRecaptchaConfig endpoint, which is responsible for retrieving the recaptcha
+   configs including site key, provider enablement status.
     @param request The request parameters.
     @param callback The callback.
  */
@@ -610,7 +611,8 @@ typedef void (^FIRGetRecaptchaConfigResponseCallback)(FIRGetRecaptchaConfigRespo
                     callback:(FIRSignInWithGameCenterResponseCallback)callback;
 
 /** @fn getRecaptchaConfig:callback:
-    @brief Calls the getRecaptchaConfig endpoint, which is responsible for retrieving the recaptcha configs including site key, provider enablement status.
+    @brief Calls the getRecaptchaConfig endpoint, which is responsible for retrieving the recaptcha
+   configs including site key, provider enablement status.
     @param request The request parameters.
     @param callback The callback.
  */

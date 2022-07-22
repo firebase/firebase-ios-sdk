@@ -21,9 +21,9 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRGetRecaptchaConfigResponse
 
 - (BOOL)setWithDictionary:(NSDictionary *)dictionary error:(NSError *_Nullable *_Nullable)error {
-    _recaptchaKey = [dictionary[@"recaptchaKey"] copy];
-    
-    return YES;
+  _recaptchaKey = [dictionary[@"recaptchaKey"] copy];
+
+  return YES;
 }
 
 @end

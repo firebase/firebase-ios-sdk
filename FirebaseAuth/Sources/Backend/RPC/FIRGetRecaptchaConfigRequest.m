@@ -42,9 +42,13 @@ static NSString *const kTenantIDKey = @"tenantId";
 
 - (nullable instancetype)initWithClientType:(NSString *)clientType
                                     version:(NSString *)version
-                       requestConfiguration:(nonnull FIRAuthRequestConfiguration *)requestConfiguration {
-    requestConfiguration.HTTPMethod = @"GET";
-  self = [super initWithEndpoint:kGetRecaptchaConfigEndpoint requestConfiguration:requestConfiguration useIdentityPlatform:YES useStaging:NO];
+                       requestConfiguration:
+                           (nonnull FIRAuthRequestConfiguration *)requestConfiguration {
+  requestConfiguration.HTTPMethod = @"GET";
+  self = [super initWithEndpoint:kGetRecaptchaConfigEndpoint
+            requestConfiguration:requestConfiguration
+             useIdentityPlatform:YES
+                      useStaging:NO];
   if (self) {
     _clientType = [clientType copy];
     _version = [version copy];
@@ -57,16 +61,16 @@ static NSString *const kTenantIDKey = @"tenantId";
 }
 
 - (nullable NSString *)queryParams {
-    NSMutableString *queryParams = [[NSMutableString alloc] init];
-    [queryParams appendFormat:@"&%@=%@&%@=%@", kClientTypeKey, _clientType, kVersionKey, _version];
-    if (self.tenantID) {
-        [queryParams appendFormat:@"&%@=%@", kTenantIDKey, self.tenantID];
-    }
-    return queryParams;
+  NSMutableString *queryParams = [[NSMutableString alloc] init];
+  [queryParams appendFormat:@"&%@=%@&%@=%@", kClientTypeKey, _clientType, kVersionKey, _version];
+  if (self.tenantID) {
+    [queryParams appendFormat:@"&%@=%@", kTenantIDKey, self.tenantID];
+  }
+  return queryParams;
 }
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *_Nullable *_Nullable)error {
-    return nil;
+  return nil;
 }
 
 @end

@@ -83,7 +83,7 @@ static NSString *kIdentityPlatformStagingAPIHost =
 }
 
 - (nullable NSString *)queryParams {
-    return nil;
+  return nil;
 }
 
 - (NSURL *)requestURL {
@@ -121,12 +121,12 @@ static NSString *kIdentityPlatformStagingAPIHost =
   }
   NSMutableString *URLString = [NSMutableString
       stringWithFormat:apiURLFormat, apiProtocol, apiHostAndPathPrefix, _endpoint, _APIKey];
-    
-    NSString *queryParams = [self queryParams];
-    if (queryParams) {
-        [URLString appendString:queryParams];
-    }
-    
+
+  NSString *queryParams = [self queryParams];
+  if (queryParams) {
+    [URLString appendString:queryParams];
+  }
+
   NSURL *URL = [NSURL URLWithString:URLString];
   return URL;
 }
