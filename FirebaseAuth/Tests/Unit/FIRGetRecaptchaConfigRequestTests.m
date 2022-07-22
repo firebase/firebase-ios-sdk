@@ -77,19 +77,22 @@ static NSString *gAPIHost = @"www.googleapis.com";
   FIRAuthRequestConfiguration *requestConfiguration =
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey appID:kTestFirebaseAppID];
   FIRGetRecaptchaConfigRequest *request =
-      [[FIRGetRecaptchaConfigRequest alloc] initWithClientType:@"CLIENT_TYPE_IOS" version:@"RECAPTCHA_ENTERPRISE" requestConfiguration:requestConfiguration];
+      [[FIRGetRecaptchaConfigRequest alloc] initWithClientType:@"CLIENT_TYPE_IOS"
+                                                       version:@"RECAPTCHA_ENTERPRISE"
+                                          requestConfiguration:requestConfiguration];
 
-  [FIRAuthBackend
-      getRecaptchaConfig:request
-              callback:^(FIRGetRecaptchaConfigResponse *_Nullable response, NSError *_Nullable error){
+  [FIRAuthBackend getRecaptchaConfig:request
+                            callback:^(FIRGetRecaptchaConfigResponse *_Nullable response,
+                                       NSError *_Nullable error){
 
-              }];
+                            }];
   XCTAssertFalse([request containsPostBody]);
   // Confirm that the quest has no decoded body as it is get request.
   XCTAssertNil(_RPCIssuer.decodedRequest);
   NSMutableString *URLString =
       [NSMutableString stringWithFormat:kAPIURLFormat, kGetRecaptchaConfigEndPoint, kTestAPIKey];
-    [URLString appendFormat:@"&%@=%@&%@=%@", @"clientType", @"CLIENT_TYPE_IOS", @"version", @"RECAPTCHA_ENTERPRISE"];
+  [URLString appendFormat:@"&%@=%@&%@=%@", @"clientType", @"CLIENT_TYPE_IOS", @"version",
+                          @"RECAPTCHA_ENTERPRISE"];
   XCTAssertEqualObjects(URLString, [request requestURL].absoluteString);
 }
 

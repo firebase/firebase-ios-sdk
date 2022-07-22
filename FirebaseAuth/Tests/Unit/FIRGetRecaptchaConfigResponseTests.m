@@ -69,20 +69,21 @@ static NSString *const kTestRecaptchaKey = @"projects/123/keys/456";
 - (void)testSuccessFulGetRecaptchaConfigRequest {
   FIRAuthRequestConfiguration *requestConfiguration =
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey appID:kTestFirebaseAppID];
-    FIRGetRecaptchaConfigRequest *request =
-        [[FIRGetRecaptchaConfigRequest alloc] initWithClientType:@"CLIENT_TYPE_IOS" version:@"RECAPTCHA_ENTERPRISE" requestConfiguration:requestConfiguration];
-
+  FIRGetRecaptchaConfigRequest *request =
+      [[FIRGetRecaptchaConfigRequest alloc] initWithClientType:@"CLIENT_TYPE_IOS"
+                                                       version:@"RECAPTCHA_ENTERPRISE"
+                                          requestConfiguration:requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRGetRecaptchaConfigResponse *RPCResponse;
   __block NSError *RPCError;
   [FIRAuthBackend getRecaptchaConfig:request
-                          callback:^(FIRGetRecaptchaConfigResponse *_Nullable response,
-                                     NSError *_Nullable error) {
-                            callbackInvoked = YES;
-                            RPCResponse = response;
-                            RPCError = error;
-                          }];
+                            callback:^(FIRGetRecaptchaConfigResponse *_Nullable response,
+                                       NSError *_Nullable error) {
+                              callbackInvoked = YES;
+                              RPCResponse = response;
+                              RPCError = error;
+                            }];
 
   [_RPCIssuer respondWithJSON:@{
     @"recaptchaKey" : kTestRecaptchaKey,
