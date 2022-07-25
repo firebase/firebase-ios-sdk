@@ -30,9 +30,8 @@ static NSString *const kTenantIDKey = @"tenantId";
                         verificationInfo:(FIRAuthProtoFinalizeMFAPhoneRequestInfo *)verificationInfo
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kFinalizeMFAEnrollmentEndPoint
-            requestConfiguration:requestConfiguration
-             useIdentityPlatform:YES
-                      useStaging:NO];
+            requestConfiguration:requestConfiguration];
+  self.useIdentityPlatform = YES;
   if (self) {
     _IDToken = IDToken;
     _displayName = displayName;

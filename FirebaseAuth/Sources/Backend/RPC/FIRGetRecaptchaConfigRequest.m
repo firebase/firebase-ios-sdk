@@ -46,9 +46,8 @@ static NSString *const kTenantIDKey = @"tenantId";
                            (nonnull FIRAuthRequestConfiguration *)requestConfiguration {
   requestConfiguration.HTTPMethod = @"GET";
   self = [super initWithEndpoint:kGetRecaptchaConfigEndpoint
-            requestConfiguration:requestConfiguration
-             useIdentityPlatform:YES
-                      useStaging:NO];
+            requestConfiguration:requestConfiguration];
+  self.useIdentityPlatform = YES;
   if (self) {
     _clientType = [clientType copy];
     _version = [version copy];

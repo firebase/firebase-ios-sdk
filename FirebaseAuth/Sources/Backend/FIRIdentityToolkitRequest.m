@@ -39,10 +39,6 @@ static NSString *kIdentityPlatformStagingAPIHost =
 
 @implementation FIRIdentityToolkitRequest {
   FIRAuthRequestConfiguration *_requestConfiguration;
-
-  BOOL _useIdentityPlatform;
-
-  BOOL _useStaging;
 }
 
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
@@ -62,18 +58,6 @@ static NSString *kIdentityPlatformStagingAPIHost =
     } @catch (NSException *e) {
       _tenantID = nil;
     }
-  }
-  return self;
-}
-
-- (nullable instancetype)initWithEndpoint:(NSString *)endpoint
-                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                      useIdentityPlatform:(BOOL)useIdentityPlatform
-                               useStaging:(BOOL)useStaging {
-  self = [self initWithEndpoint:endpoint requestConfiguration:requestConfiguration];
-  if (self) {
-    _useIdentityPlatform = useIdentityPlatform;
-    _useStaging = useStaging;
   }
   return self;
 }
