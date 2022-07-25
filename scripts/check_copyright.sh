@@ -26,7 +26,7 @@ list=$(git grep "${options[@]}" -- \
     CMakeLists.txt '**/CMakeLists.txt' \
     ':(exclude)**/third_party/**')
 
-# Allow copyrights before 2020 without LLC.
+# Allow copyrights before 2030 without LLC.
 result=$(grep -L 'Copyright 20[0-2][0-9].*Google' $list)
 
 if [[ $result ]]; then
