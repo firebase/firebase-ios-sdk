@@ -27,7 +27,7 @@ list=$(git grep "${options[@]}" -- \
     ':(exclude)**/third_party/**')
 
 # Allow copyrights before 2020 without LLC.
-result=$(grep -L 'Copyright 20[0-1][0-9].*Google' $list)
+result=$(grep -L 'Copyright 20[0-2][0-9].*Google' $list)
 
 if [[ $result ]]; then
     echo "$result"
