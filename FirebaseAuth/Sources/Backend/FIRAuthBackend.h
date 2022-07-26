@@ -398,6 +398,15 @@ typedef void (^FIRGetRecaptchaConfigResponseCallback)(
 + (void)signInWithGameCenter:(FIRSignInWithGameCenterRequest *)request
                     callback:(FIRSignInWithGameCenterResponseCallback)callback;
 
+/** @fn getRecaptchaConfig:callback:
+    @brief Calls the getRecaptchaConfig endpoint, which is responsible for retrieving the recaptcha
+   configs including site key, provider enablement status.
+    @param request The request parameters.
+    @param callback The callback.
+ */
++ (void)getRecaptchaConfig:(FIRGetRecaptchaConfigRequest *)request
+                  callback:(FIRGetRecaptchaConfigResponseCallback)callback;
+
 #if TARGET_OS_IOS
 /** @fn sendVerificationCode:callback:
     @brief Calls the sendVerificationCode endpoint, which is responsible for sending the
@@ -425,15 +434,6 @@ typedef void (^FIRGetRecaptchaConfigResponseCallback)(
  */
 + (void)verifyClient:(FIRVerifyClientRequest *)request
             callback:(FIRVerifyClientResponseCallback)callback;
-
-/** @fn getRecaptchaConfig:callback:
-    @brief Calls the getRecaptchaConfig endpoint, which is responsible for retrieving the recaptcha
-   configs including site key, provider enablement status.
-    @param request The request parameters.
-    @param callback The callback.
- */
-+ (void)getRecaptchaConfig:(FIRGetRecaptchaConfigRequest *)request
-                  callback:(FIRGetRecaptchaConfigResponseCallback)callback;
 
 #endif
 
