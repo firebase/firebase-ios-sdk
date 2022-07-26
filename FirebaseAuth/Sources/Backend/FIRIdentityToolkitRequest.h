@@ -72,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSURL *)requestURL;
 
 /** @fn queryParams
-    @brief Gets the request's quert parameters.
+    @brief Gets the request's query parameters.
  */
 - (nullable NSString *)queryParams;
 

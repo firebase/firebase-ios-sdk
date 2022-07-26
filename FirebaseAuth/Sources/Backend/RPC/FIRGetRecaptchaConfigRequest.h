@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy, nullable) NSString *version;
 
 /** @fn initWithEndpoint:requestConfiguration:
-    @brief Please use initWithTenantId:clientType:version:requestConfiguration:
+    @brief Please use initWithClientType:version:requestConfiguration:
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration

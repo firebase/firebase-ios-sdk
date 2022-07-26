@@ -445,12 +445,12 @@ typedef void (^FIRGetRecaptchaConfigResponseCallback)(
 @protocol FIRAuthBackendRPCIssuer <NSObject>
 
 /** @fn asyncCallToURLWithRequestConfiguration:URL:body:contentType:completionHandler:
-    @brief Asynchronously sends a POST request.
+    @brief Asynchronously sends a HTTP request.
     @param requestConfiguration The request to be made.
     @param URL The request URL.
     @param body Request body.
     @param contentType Content type of the body.
-    @param handler provided that handles POST response. Invoked asynchronously on the auth global
+    @param handler provided that handles HTTP response. Invoked asynchronously on the auth global
         work queue in the future.
  */
 - (void)asyncCallToURLWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
@@ -629,7 +629,7 @@ typedef void (^FIRGetRecaptchaConfigResponseCallback)(
              callback:(FIRResetPasswordCallback)callback;
 
 /** @fn callWithRequest:response:callback:
-    @brief Calls the RPC using HTTP POST.
+    @brief Calls the RPC using HTTP request.
     @remarks Possible error responses:
         @see FIRAuthInternalErrorCodeRPCRequestEncodingError
         @see FIRAuthInternalErrorCodeJSONSerializationError

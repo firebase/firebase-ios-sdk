@@ -1020,7 +1020,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 #pragma mark - Generic RPC handling methods
 
 /** @fn callWithRequest:response:callback:
-    @brief Calls the RPC using HTTP POST.
+    @brief Calls the RPC using HTTP request.
     @remarks Possible error responses:
         @see FIRAuthInternalErrorCodeRPCRequestEncodingError
         @see FIRAuthInternalErrorCodeJSONSerializationError
