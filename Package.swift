@@ -1060,6 +1060,9 @@ let package = Package(
         "README.md",
         "ObjC/",
       ],
+      resources: [
+        .process("Defaults-testInfo.plist"),
+      ],
       cSettings: [
         .headerSearchPath("../../"),
       ]

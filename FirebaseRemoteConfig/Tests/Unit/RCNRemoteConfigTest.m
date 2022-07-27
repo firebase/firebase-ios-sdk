@@ -1299,7 +1299,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
                           UTCToLocal(@"2016-02-28 18:33:31"));
     XCTAssertEqual(_configInstances[i][@"isPaidUser"].boolValue, YES);
     XCTAssertEqualObjects(_configInstances[i][@"dataValue"].stringValue, @"2.4");
-    XCTAssertEqualObjects(_configInstances[i][@"newItem"].numberValue, @(2.4));
+    XCTAssertEqualObjects(_configInstances[i][@"New item"].numberValue, @(2.4));
     XCTAssertEqualObjects(_configInstances[i][@"Languages"].stringValue, @"English");
     XCTAssertEqualObjects(_configInstances[i][@"FileInfo"].stringValue,
                           @"To setup default config.");
@@ -1316,7 +1316,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
     [_configInstances[i] setDefaultsFromPlistFileName:@"non-existed_file"];
     XCTAssertEqualObjects(_configInstances[i][@"dataValue"].stringValue, @"2.4");
     [_configInstances[i] setDefaultsFromPlistFileName:nil];
-    XCTAssertEqualObjects(_configInstances[i][@"newItem"].numberValue, @(2.4));
+    XCTAssertEqualObjects(_configInstances[i][@"New item"].numberValue, @(2.4));
     [_configInstances[i] setDefaultsFromPlistFileName:@""];
     XCTAssertEqualObjects(_configInstances[i][@"Languages"].stringValue, @"English");
   }

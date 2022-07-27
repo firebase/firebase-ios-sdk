@@ -183,24 +183,30 @@ import XCTest
       }
       // setDefaults(fromPlist:) doesn't work because of dynamic linking.
       // More details in RCNRemoteConfigTest.m
-      for bundle in Bundle.allBundles {
-        if let plistFile = bundle.path(forResource: "Defaults-testInfo", ofType: "plist") {
-          let defaults = NSDictionary(contentsOfFile: plistFile)
-          config.setDefaults(defaults as? [String: NSObject])
-          let readDefaults: Defaults = try config.decoded()
-          XCTAssertEqual(readDefaults.format, "key to value.")
-          XCTAssertEqual(readDefaults.isPaidUser, true)
-          XCTAssertEqual(readDefaults.newItem, 2.4)
-          XCTAssertEqual(readDefaults.Languages, "English")
-          XCTAssertEqual(readDefaults.dictValue, ["foo": "foo",
-                                                  "bar": "bar",
-                                                  "baz": "baz"])
-          XCTAssertEqual(readDefaults.arrayValue, ["foo", "bar", "baz"])
-          XCTAssertEqual(readDefaults.arrayIntValue, [1, 2, 0, 3])
-          return
+      var findPlist: String?
+      #if SWIFT_PACKAGE
+        findPlist = Bundle.module.path(forResource: "Defaults-testInfo", ofType: "plist")
+      #else
+        for b in Bundle.allBundles {
+          findPlist = b.path(forResource: "Defaults-testInfo", ofType: "plist")
+          if findPlist != nil {
+            break
+          }
         }
-      }
-      XCTFail("Failed to find Defaults-Info.plist")
+      #endif
+      let plistFile = try XCTUnwrap(findPlist)
+      let defaults = NSDictionary(contentsOfFile: plistFile)
+      config.setDefaults(defaults as? [String: NSObject])
+      let readDefaults: Defaults = try config.decoded()
+      XCTAssertEqual(readDefaults.format, "key to value.")
+      XCTAssertEqual(readDefaults.isPaidUser, true)
+      XCTAssertEqual(readDefaults.newItem, 2.4)
+      XCTAssertEqual(readDefaults.Languages, "English")
+      XCTAssertEqual(readDefaults.dictValue, ["foo": "foo",
+                                              "bar": "bar",
+                                              "baz": "baz"])
+      XCTAssertEqual(readDefaults.arrayValue, ["foo", "bar", "baz"])
+      XCTAssertEqual(readDefaults.arrayIntValue, [1, 2, 0, 3])
     }
   }
 #endif
