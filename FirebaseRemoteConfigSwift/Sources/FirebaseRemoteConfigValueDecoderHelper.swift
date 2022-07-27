@@ -18,7 +18,7 @@ import Foundation
 import FirebaseRemoteConfig
 import FirebaseSharedSwift
 
-public enum RemoteConfigValueDecoderError: Error {
+enum RemoteConfigValueDecoderError: Error {
   case arrayDecodeFailure
   case dictionaryDecodeFailure
 }
