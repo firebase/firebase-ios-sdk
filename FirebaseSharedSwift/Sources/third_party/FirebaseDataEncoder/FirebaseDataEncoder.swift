@@ -2477,7 +2477,6 @@ extension __JSONDecoder {
     }
 
     var result = [String : Any]()
-
     guard let dict = value as? NSDictionary else {
       throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: value)
     }
