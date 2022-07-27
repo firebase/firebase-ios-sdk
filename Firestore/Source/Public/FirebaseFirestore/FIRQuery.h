@@ -19,6 +19,7 @@
 #import "FIRFirestoreSource.h"
 #import "FIRListenerRegistration.h"
 
+@class FIRAggregateQuery;
 @class FIRFieldPath;
 @class FIRFirestore;
 @class FIRQuerySnapshot;
@@ -541,6 +542,10 @@ NS_SWIFT_NAME(Query)
  * @return The created `Query`.
  */
 - (FIRQuery *)queryEndingAtValues:(NSArray *)fieldValues NS_SWIFT_NAME(end(at:));
+
+#pragma mark - Aggregation Queries
+
+@property(nonatomic, readonly) FIRAggregateQuery *countAggregateQuery;
 
 @end
 
