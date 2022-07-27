@@ -415,43 +415,43 @@ typedef NS_ERROR_ENUM(FIRAuthErrorDomain, FIRAuthErrorCode){
 
     /** Indicates that the recaptcha score sent to backend is invalid.
      */
-    FIRAuthErrorInvalidRecaptchaScore = 17095,
+    FIRAuthErrorCodeInvalidRecaptchaScore = 17095,
 
     /** Indicates that the recaptcha token is missing when sending request to the backend.
      */
-    FIRAuthErrorMissingRecaptchaToken = 17096,
+    FIRAuthErrorCodeMissingRecaptchaToken = 17096,
 
     /** Indicates that the recaptcha token is invalid when sending request to the backend.
      */
-    FIRAuthErrorInvalidRecaptchaToken = 17097,
+    FIRAuthErrorCodeInvalidRecaptchaToken = 17097,
 
     /** Indicates that The recaptcha action is invalid when sending request to the backend.
      */
-    FIRAuthErrorInvalidRecaptchaAction = 17098,
+    FIRAuthErrorCodeInvalidRecaptchaAction = 17098,
 
     /** Indicates that the recaptcha enforcement state is invalid.
      */
-    FIRAuthErrorInvalidRecaptchaEnforcementState = 17099,
+    FIRAuthErrorCodeInvalidRecaptchaEnforcementState = 17099,
 
     /** Indicates that the recaptcha integration is not enabled for this project.
      */
-    FIRAuthErrorRecaptchaNotEnabled = 17100,
+    FIRAuthErrorCodeRecaptchaNotEnabled = 17100,
 
     /** Indicates that the recaptcha client type is missing when sending request to the backend.
      */
-    FIRAuthErrorMissingClientType = 17101,
+    FIRAuthErrorCodeMissingClientType = 17101,
 
     /** Indicates that the recaptcha version is missing when sending request to the backend.
      */
-    FIRAuthErrorMissingRecaptchaVersion = 17102,
+    FIRAuthErrorCodeMissingRecaptchaVersion = 17102,
 
     /** Indicates that the recaptcha client type / version is invalid when retrieving the site key.
      */
-    FIRAuthErrorInvalidReqType = 17103,
+    FIRAuthErrorCodeInvalidReqType = 17103,
 
     /** Indicates that the recaptcha version is invalid when sending request to the backend.
      */
-    FIRAuthErrorInvalidRecaptchaVersion = 17104,
+    FIRAuthErrorCodeInvalidRecaptchaVersion = 17104,
 
     /** Indicates an error for when the client identifier is missing.
      */

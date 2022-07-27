@@ -785,25 +785,25 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageTenantIDMismatch;
     case FIRAuthErrorCodeUnsupportedTenantOperation:
       return kFIRAuthErrorMessageUnsupportedTenantOperation;
-    case FIRAuthErrorInvalidRecaptchaScore:
+    case FIRAuthErrorCodeInvalidRecaptchaScore:
       return kFIRAuthErrorMessageInvalidRecaptchaScore;
-    case FIRAuthErrorMissingRecaptchaToken:
+    case FIRAuthErrorCodeMissingRecaptchaToken:
       return kFIRAuthErrorMessageMissingRecaptchaToken;
-    case FIRAuthErrorInvalidRecaptchaToken:
+    case FIRAuthErrorCodeInvalidRecaptchaToken:
       return kFIRAuthErrorMessageInvalidRecaptchaToken;
-    case FIRAuthErrorInvalidRecaptchaAction:
+    case FIRAuthErrorCodeInvalidRecaptchaAction:
       return kFIRAuthErrorMessageInvalidRecaptchaAction;
-    case FIRAuthErrorInvalidRecaptchaEnforcementState:
+    case FIRAuthErrorCodeInvalidRecaptchaEnforcementState:
       return kFIRAuthErrorMessageInvalidRecaptchaEnforcementState;
-    case FIRAuthErrorRecaptchaNotEnabled:
+    case FIRAuthErrorCodeRecaptchaNotEnabled:
       return kFIRAuthErrorMessageRecaptchaNotEnabled;
-    case FIRAuthErrorMissingClientType:
+    case FIRAuthErrorCodeMissingClientType:
       return kFIRAuthErrorMessageMissingClientType;
-    case FIRAuthErrorMissingRecaptchaVersion:
+    case FIRAuthErrorCodeMissingRecaptchaVersion:
       return kFIRAuthErrorMessageMissingRecaptchaVersion;
-    case FIRAuthErrorInvalidReqType:
+    case FIRAuthErrorCodeInvalidReqType:
       return kFIRAuthErrorMessageInvalidReqType;
-    case FIRAuthErrorInvalidRecaptchaVersion:
+    case FIRAuthErrorCodeInvalidRecaptchaVersion:
       return kFIRAuthErrorMessageInvalidRecaptchaVersion;
   }
 }
@@ -972,25 +972,25 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_TENANT_ID_MISMATCH";
     case FIRAuthErrorCodeUnsupportedTenantOperation:
       return @"ERROR_UNSUPPORTED_TENANT_OPERATION";
-    case FIRAuthErrorInvalidRecaptchaScore:
+    case FIRAuthErrorCodeInvalidRecaptchaScore:
       return @"INVALID_RECAPTCHA_SCORE";
-    case FIRAuthErrorMissingRecaptchaToken:
+    case FIRAuthErrorCodeMissingRecaptchaToken:
       return @"MISSING_RECAPTCHA_TOKEN";
-    case FIRAuthErrorInvalidRecaptchaToken:
+    case FIRAuthErrorCodeInvalidRecaptchaToken:
       return @"INVALID_RECAPTCHA_TOKEN";
-    case FIRAuthErrorInvalidRecaptchaAction:
+    case FIRAuthErrorCodeInvalidRecaptchaAction:
       return @"INVALID_RECAPTCHA_ACTION";
-    case FIRAuthErrorInvalidRecaptchaEnforcementState:
+    case FIRAuthErrorCodeInvalidRecaptchaEnforcementState:
       return @"INVALID_RECAPTCHA_ENFORCEMENT_STATE";
-    case FIRAuthErrorRecaptchaNotEnabled:
+    case FIRAuthErrorCodeRecaptchaNotEnabled:
       return @"RECAPTCHA_NOT_ENABLED";
-    case FIRAuthErrorMissingClientType:
+    case FIRAuthErrorCodeMissingClientType:
       return @"MISSING_CLIENT_TYPE";
-    case FIRAuthErrorMissingRecaptchaVersion:
+    case FIRAuthErrorCodeMissingRecaptchaVersion:
       return @"MISSING_RECAPTCHA_VERSION";
-    case FIRAuthErrorInvalidReqType:
+    case FIRAuthErrorCodeInvalidReqType:
       return @"INVALID_REQ_TYPE";
-    case FIRAuthErrorInvalidRecaptchaVersion:
+    case FIRAuthErrorCodeInvalidRecaptchaVersion:
       return @"INVALID_RECAPTCHA_VERSION";
   }
 }
