@@ -34,6 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
     _APIKey = [APIKey copy];
     _appID = [appID copy];
     _heartbeatLogger = heartbeatLogger;
+    _HTTPMethod = @"POST";
   }
   return self;
 }
