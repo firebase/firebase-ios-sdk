@@ -591,6 +591,36 @@ static NSString *const kFIRAuthErrorMessageUnsupportedTenantOperation =
     @"This operation is not"
      "supported in a multi-tenant context.";
 
+static NSString *const kFIRAuthErrorMessageInvalidRecaptchaScore =
+    @"The recaptcha score sent to backend is invalid.";
+
+static NSString *const kFIRAuthErrorMessageMissingRecaptchaToken =
+    @"The recaptcha token is missing when sending request to the backend.";
+
+static NSString *const kFIRAuthErrorMessageInvalidRecaptchaToken =
+    @"The recaptcha token is invalid when sending request to the backend.";
+
+static NSString *const kFIRAuthErrorMessageInvalidRecaptchaAction =
+    @"The recaptcha action is invalid when sending request to the backend.";
+
+static NSString *const kFIRAuthErrorMessageInvalidRecaptchaEnforcementState =
+    @"The recaptcha enforcement state is invalid.";
+
+static NSString *const kFIRAuthErrorMessageRecaptchaNotEnabled =
+    @"The recaptcha integration is not enabled for this project.";
+
+static NSString *const kFIRAuthErrorMessageMissingClientType =
+    @"The recaptcha client type is missing when sending request to the backend.";
+
+static NSString *const kFIRAuthErrorMessageMissingRecaptchaVersion =
+    @"The recaptcha version is missing when sending request to the backend.";
+
+static NSString *const kFIRAuthErrorMessageInvalidReqType =
+    @"The recaptcha client type / version is invalid when retrieving the site key.";
+
+static NSString *const kFIRAuthErrorMessageInvalidRecaptchaVersion =
+    @"The recaptcha version is invalid when sending request to the backend.";
+
 /** @var FIRAuthErrorDescription
     @brief The error descrioption, based on the error code.
     @remarks No default case so that we get a compiler warning if a new value was added to the enum.
@@ -755,6 +785,26 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageTenantIDMismatch;
     case FIRAuthErrorCodeUnsupportedTenantOperation:
       return kFIRAuthErrorMessageUnsupportedTenantOperation;
+    case FIRAuthErrorInvalidRecaptchaScore:
+      return kFIRAuthErrorMessageInvalidRecaptchaScore;
+    case FIRAuthErrorMissingRecaptchaToken:
+      return kFIRAuthErrorMessageMissingRecaptchaToken;
+    case FIRAuthErrorInvalidRecaptchaToken:
+      return kFIRAuthErrorMessageInvalidRecaptchaToken;
+    case FIRAuthErrorInvalidRecaptchaAction:
+      return kFIRAuthErrorMessageInvalidRecaptchaAction;
+    case FIRAuthErrorInvalidRecaptchaEnforcementState:
+      return kFIRAuthErrorMessageInvalidRecaptchaEnforcementState;
+    case FIRAuthErrorRecaptchaNotEnabled:
+      return kFIRAuthErrorMessageRecaptchaNotEnabled;
+    case FIRAuthErrorMissingClientType:
+      return kFIRAuthErrorMessageMissingClientType;
+    case FIRAuthErrorMissingRecaptchaVersion:
+      return kFIRAuthErrorMessageMissingRecaptchaVersion;
+    case FIRAuthErrorInvalidReqType:
+      return kFIRAuthErrorMessageInvalidReqType;
+    case FIRAuthErrorInvalidRecaptchaVersion:
+      return kFIRAuthErrorMessageInvalidRecaptchaVersion;
   }
 }
 
@@ -922,6 +972,26 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_TENANT_ID_MISMATCH";
     case FIRAuthErrorCodeUnsupportedTenantOperation:
       return @"ERROR_UNSUPPORTED_TENANT_OPERATION";
+    case FIRAuthErrorInvalidRecaptchaScore:
+      return @"INVALID_RECAPTCHA_SCORE";
+    case FIRAuthErrorMissingRecaptchaToken:
+      return @"MISSING_RECAPTCHA_TOKEN";
+    case FIRAuthErrorInvalidRecaptchaToken:
+      return @"INVALID_RECAPTCHA_TOKEN";
+    case FIRAuthErrorInvalidRecaptchaAction:
+      return @"INVALID_RECAPTCHA_ACTION";
+    case FIRAuthErrorInvalidRecaptchaEnforcementState:
+      return @"INVALID_RECAPTCHA_ENFORCEMENT_STATE";
+    case FIRAuthErrorRecaptchaNotEnabled:
+      return @"RECAPTCHA_NOT_ENABLED";
+    case FIRAuthErrorMissingClientType:
+      return @"MISSING_CLIENT_TYPE";
+    case FIRAuthErrorMissingRecaptchaVersion:
+      return @"MISSING_RECAPTCHA_VERSION";
+    case FIRAuthErrorInvalidReqType:
+      return @"INVALID_REQ_TYPE";
+    case FIRAuthErrorInvalidRecaptchaVersion:
+      return @"INVALID_RECAPTCHA_VERSION";
   }
 }
 
