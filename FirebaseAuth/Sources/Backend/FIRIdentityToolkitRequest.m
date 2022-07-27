@@ -39,10 +39,6 @@ static NSString *kIdentityPlatformStagingAPIHost =
 
 @implementation FIRIdentityToolkitRequest {
   FIRAuthRequestConfiguration *_requestConfiguration;
-
-  BOOL _useIdentityPlatform;
-
-  BOOL _useStaging;
 }
 
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
@@ -66,20 +62,12 @@ static NSString *kIdentityPlatformStagingAPIHost =
   return self;
 }
 
-- (nullable instancetype)initWithEndpoint:(NSString *)endpoint
-                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                      useIdentityPlatform:(BOOL)useIdentityPlatform
-                               useStaging:(BOOL)useStaging {
-  self = [self initWithEndpoint:endpoint requestConfiguration:requestConfiguration];
-  if (self) {
-    _useIdentityPlatform = useIdentityPlatform;
-    _useStaging = useStaging;
-  }
-  return self;
-}
-
 - (BOOL)containsPostBody {
   return YES;
+}
+
+- (nullable NSString *)queryParams {
+  return nil;
 }
 
 - (NSURL *)requestURL {
@@ -115,8 +103,14 @@ static NSString *kIdentityPlatformStagingAPIHost =
       apiHostAndPathPrefix = kFirebaseAuthAPIHost;
     }
   }
-  NSString *URLString = [NSString
+  NSMutableString *URLString = [NSMutableString
       stringWithFormat:apiURLFormat, apiProtocol, apiHostAndPathPrefix, _endpoint, _APIKey];
+
+  NSString *queryParams = [self queryParams];
+  if (queryParams) {
+    [URLString appendString:queryParams];
+  }
+
   NSURL *URL = [NSURL URLWithString:URLString];
   return URL;
 }

@@ -56,6 +56,8 @@
 @class FIRSignUpNewUserResponse;
 @class FIRRevokeTokenRequest;
 @class FIRRevokeTokenResponse;
+@class FIRGetRecaptchaConfigRequest;
+@class FIRGetRecaptchaConfigResponse;
 
 @protocol FIRAuthBackendImplementation;
 @protocol FIRAuthBackendRPCIssuer;
@@ -241,6 +243,15 @@ typedef void (^FIRRevokeTokenResponseCallback)(FIRRevokeTokenResponse *_Nullable
 typedef void (^FIRSignInWithGameCenterResponseCallback)(
     FIRSignInWithGameCenterResponse *_Nullable response, NSError *_Nullable error);
 
+/** @typedef FIRGetRecaptchaConfigResponseCallback
+    @brief The type of block used to return the result of a call to the getRecaptchaConfig endpoint.
+    @param response The received response, if any.
+    @param error The error which occurred, if any.
+    @remarks One of response or error will be non-nil.
+ */
+typedef void (^FIRGetRecaptchaConfigResponseCallback)(
+    FIRGetRecaptchaConfigResponse *_Nullable response, NSError *_Nullable error);
+
 /** @class FIRAuthBackend
     @brief Simple static class with methods representing the backend RPCs.
     @remarks All callback blocks passed as method parameters are invoked asynchronously on the
@@ -398,6 +409,15 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
 + (void)signInWithGameCenter:(FIRSignInWithGameCenterRequest *)request
                     callback:(FIRSignInWithGameCenterResponseCallback)callback;
 
+/** @fn getRecaptchaConfig:callback:
+    @brief Calls the getRecaptchaConfig endpoint, which is responsible for retrieving the recaptcha
+   configs including site key, provider enablement status.
+    @param request The request parameters.
+    @param callback The callback.
+ */
++ (void)getRecaptchaConfig:(FIRGetRecaptchaConfigRequest *)request
+                  callback:(FIRGetRecaptchaConfigResponseCallback)callback;
+
 #if TARGET_OS_IOS
 /** @fn sendVerificationCode:callback:
     @brief Calls the sendVerificationCode endpoint, which is responsible for sending the
@@ -444,16 +464,16 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
  */
 @protocol FIRAuthBackendRPCIssuer <NSObject>
 
-/** @fn asyncPostToURLWithRequestConfiguration:URL:body:contentType:completionHandler:
-    @brief Asynchronously seXnds a POST request.
+/** @fn asyncCallToURLWithRequestConfiguration:URL:body:contentType:completionHandler:
+    @brief Asynchronously sends a HTTP request.
     @param requestConfiguration The request to be made.
     @param URL The request URL.
     @param body Request body.
     @param contentType Content type of the body.
-    @param handler provided that handles POST response. Invoked asynchronously on the auth global
+    @param handler provided that handles HTTP response. Invoked asynchronously on the auth global
         work queue in the future.
  */
-- (void)asyncPostToURLWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+- (void)asyncCallToURLWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
                                            URL:(NSURL *)URL
                                           body:(nullable NSData *)body
                                    contentType:(NSString *)contentType
@@ -620,6 +640,15 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
 - (void)signInWithGameCenter:(FIRSignInWithGameCenterRequest *)request
                     callback:(FIRSignInWithGameCenterResponseCallback)callback;
 
+/** @fn getRecaptchaConfig:callback:
+    @brief Calls the getRecaptchaConfig endpoint, which is responsible for retrieving the recaptcha
+   configs including site key, provider enablement status.
+    @param request The request parameters.
+    @param callback The callback.
+ */
+- (void)getRecaptchaConfig:(FIRGetRecaptchaConfigRequest *)request
+                  callback:(FIRGetRecaptchaConfigResponseCallback)callback;
+
 /** @fn resetPassword:callback
     @brief Calls the resetPassword endpoint, which is responsible for resetting a user's password
       given an OOB code and new password.
@@ -629,8 +658,8 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
 - (void)resetPassword:(FIRResetPasswordRequest *)request
              callback:(FIRResetPasswordCallback)callback;
 
-/** @fn postWithRequest:response:callback:
-    @brief Calls the RPC using HTTP POST.
+/** @fn callWithRequest:response:callback:
+    @brief Calls the RPC using HTTP request.
     @remarks Possible error responses:
         @see FIRAuthInternalErrorCodeRPCRequestEncodingError
         @see FIRAuthInternalErrorCodeJSONSerializationError
@@ -642,7 +671,7 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
     @param response The empty response to be filled.
     @param callback The callback for both success and failure.
 */
-- (void)postWithRequest:(id<FIRAuthRPCRequest>)request
+- (void)callWithRequest:(id<FIRAuthRPCRequest>)request
                response:(id<FIRAuthRPCResponse>)response
                callback:(void (^)(NSError *_Nullable error))callback;
 
