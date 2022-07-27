@@ -18,6 +18,11 @@ import Foundation
 import FirebaseRemoteConfig
 import FirebaseSharedSwift
 
+public enum RemoteConfigValueDecoderError: Error {
+  case arrayDecodeFailure
+  case dictionaryDecodeFailure
+}
+
 /// Implement the FirebaseRemoteConfigValueDecoding protocol for the shared Firebase decoder to
 /// decode Remote Config Values. It returns the four different kinds of values from
 /// a RemoteConfigValue object.
@@ -44,6 +49,20 @@ struct FirebaseRemoteConfigValueDecoderHelper: FirebaseRemoteConfigValueDecoding
     guard let value = value.jsonValue as? [String: AnyHashable] else {
       // nil is the historical behavior for failing to extract JSON.
       return nil
+    }
+    return value
+  }
+
+  func arrayValue() throws -> [AnyHashable] {
+    guard let value = value.jsonValue as? [AnyHashable] else {
+      throw RemoteConfigValueDecoderError.arrayDecodeFailure
+    }
+    return value
+  }
+
+  func dictionaryValue() throws -> [String: AnyHashable] {
+    guard let value = value.jsonValue as? [String: AnyHashable] else {
+      throw RemoteConfigValueDecoderError.dictionaryDecodeFailure
     }
     return value
   }

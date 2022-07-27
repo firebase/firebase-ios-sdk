@@ -21,4 +21,6 @@ public protocol FirebaseRemoteConfigValueDecoding {
   func stringValue() -> String
   func dataValue() -> Data
   func jsonValue() -> [String: AnyHashable]?
+  func arrayValue() throws -> [AnyHashable]
+  func dictionaryValue() throws -> [String: AnyHashable]
 }

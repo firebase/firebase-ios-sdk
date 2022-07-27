@@ -1273,6 +1273,10 @@ fileprivate class __JSONDecoder : Decoder {
                                                               debugDescription: "Cannot get unkeyed decoding container -- found null value instead."))
     }
 
+    if let rcValue = self.storage.topContainer as? FirebaseRemoteConfigValueDecoding {
+      return _JSONUnkeyedDecodingContainer(referencing: self, wrapping: try rcValue.arrayValue())
+    }
+
     guard let topContainer = self.storage.topContainer as? [Any] else {
       throw DecodingError._typeMismatch(at: self.codingPath, expectation: [Any].self, reality: self.storage.topContainer)
     }
@@ -2468,7 +2472,12 @@ extension __JSONDecoder {
   fileprivate func unbox<T>(_ value: Any, as type: _JSONStringDictionaryDecodableMarker.Type) throws -> T? {
     guard !(value is NSNull) else { return nil }
 
+    if let rcValue = value as? FirebaseRemoteConfigValueDecoding {
+      return try rcValue.dictionaryValue() as? T
+    }
+
     var result = [String : Any]()
+
     guard let dict = value as? NSDictionary else {
       throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: value)
     }
