@@ -1,3 +1,6 @@
+# 9.4.0
+- [fixed] Improve logging message for custom token error. (#9993)
+
 # 9.2.0
 - [fixed] Catch keychain errors instead of using the `isProtectedDataAvailable` API for handling prewarming issue. (#9869)
 
