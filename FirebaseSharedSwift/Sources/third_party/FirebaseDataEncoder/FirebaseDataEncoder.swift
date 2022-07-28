@@ -1253,7 +1253,7 @@ fileprivate class __JSONDecoder : Decoder {
     }
     var topContainer : [String : Any]
     if let rcValue = self.storage.topContainer as? FirebaseRemoteConfigValueDecoding,
-       let top = rcValue.jsonValue() {
+       let top = try? rcValue.dictionaryValue() {
       topContainer = top
     } else {
       guard let top = self.storage.topContainer as? [String : Any] else {
