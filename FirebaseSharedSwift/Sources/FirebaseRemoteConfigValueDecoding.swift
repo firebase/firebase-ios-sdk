@@ -20,6 +20,6 @@ public protocol FirebaseRemoteConfigValueDecoding {
   func boolValue() -> Bool
   func stringValue() -> String
   func dataValue() -> Data
-  func arrayValue() throws -> [AnyHashable]
-  func dictionaryValue() throws -> [String: AnyHashable]
+  func arrayValue() -> [AnyHashable]?
+  func dictionaryValue() -> [String: AnyHashable]?
 }

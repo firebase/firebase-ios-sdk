@@ -1252,8 +1252,11 @@ fileprivate class __JSONDecoder : Decoder {
                                                               debugDescription: "Cannot get keyed decoding container -- found null value instead."))
     }
     var topContainer : [String : Any]
-    if let rcValue = self.storage.topContainer as? FirebaseRemoteConfigValueDecoding,
-       let top = try? rcValue.dictionaryValue() {
+    if let rcValue = self.storage.topContainer as? FirebaseRemoteConfigValueDecoding {
+      guard let top = rcValue.dictionaryValue() else {
+        throw DecodingError._typeMismatch(at: self.codingPath, expectation: [String : Any].self,
+                                          reality: rcValue)
+      }
       topContainer = top
     } else {
       guard let top = self.storage.topContainer as? [String : Any] else {
@@ -1274,7 +1277,10 @@ fileprivate class __JSONDecoder : Decoder {
     }
 
     if let rcValue = self.storage.topContainer as? FirebaseRemoteConfigValueDecoding {
-      return _JSONUnkeyedDecodingContainer(referencing: self, wrapping: try rcValue.arrayValue())
+      guard let arrayValue = rcValue.arrayValue() else {
+        throw DecodingError._typeMismatch(at: self.codingPath, expectation: [Any].self, reality: rcValue)
+      }
+      return _JSONUnkeyedDecodingContainer(referencing: self, wrapping: arrayValue )
     }
 
     guard let topContainer = self.storage.topContainer as? [Any] else {
@@ -2473,7 +2479,10 @@ extension __JSONDecoder {
     guard !(value is NSNull) else { return nil }
 
     if let rcValue = value as? FirebaseRemoteConfigValueDecoding {
-      return try rcValue.dictionaryValue() as? T
+      guard let dictionaryValue = rcValue.dictionaryValue() else {
+        throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: rcValue)
+      }
+      return dictionaryValue as? T
     }
 
     var result = [String : Any]()
