@@ -103,12 +103,14 @@ class RemoteDocumentCache {
    * @param path The collection path to match documents against.
    * @param offset The read time and document key to start scanning at
    * (exclusive).
+   * @param limit The maximum number of results to return.
+   * If the limit is not defined, returns all matching documents.
    * @return The set of matching documents.
    */
   virtual model::MutableDocumentMap GetAll(
       const model::ResourcePath& path,
       const model::IndexOffset& offset,
-      const absl::optional<size_t> limit = absl::nullopt) const = 0;
+      absl::optional<size_t> limit = absl::nullopt) const = 0;
 
   /**
    * Sets the index manager used by remote document cache.

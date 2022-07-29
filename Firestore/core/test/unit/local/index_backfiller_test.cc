@@ -137,8 +137,10 @@ class IndexBackfillerTest : public ::testing::Test {
                        expected_keys);
   }
 
-  /** Adds a set mutation to a batch with the specified id for every specified
-   * document path. */
+  /**
+   * Adds a set mutation to a batch with the specified id for every specified
+   * document path.
+   */
   void AddSetMutationsToOverlay(int batch_id,
                                 const std::vector<std::string>& paths) const {
     persistence_->Run("AddSetMutationsToOverlay", [&] {
@@ -169,8 +171,7 @@ class IndexBackfillerTest : public ::testing::Test {
   IndexBackfiller* index_backfiller_;
 };
 
-TEST_F(IndexBackfillerTest,
-       BackfillWritesLatestReadTimeToFieldIndexOnCompletion) {
+TEST_F(IndexBackfillerTest, WritesLatestReadTimeToFieldIndexOnCompletion) {
   AddFieldIndex("coll1", "foo");
   AddFieldIndex("coll2", "bar");
   AddDoc("coll1/docA", Version(10), "foo", 1);
@@ -199,7 +200,7 @@ TEST_F(IndexBackfillerTest,
             field_index2.index_state().index_offset().read_time());
 }
 
-TEST_F(IndexBackfillerTest, BackfillFetchesDocumentsAfterEarliestReadTime) {
+TEST_F(IndexBackfillerTest, FetchesDocumentsAfterEarliestReadTime) {
   AddFieldIndex("coll1", "foo", Version(10));
 
   // Documents before read time should not be fetched.
@@ -224,7 +225,7 @@ TEST_F(IndexBackfillerTest, BackfillFetchesDocumentsAfterEarliestReadTime) {
   EXPECT_EQ(Version(19), field_index.index_state().index_offset().read_time());
 }
 
-TEST_F(IndexBackfillerTest, BackfillWritesIndexEntries) {
+TEST_F(IndexBackfillerTest, WritesIndexEntries) {
   AddFieldIndex("coll1", "foo");
   AddFieldIndex("coll2", "bar");
   AddDoc("coll1/docA", Version(10), "foo", 1);
@@ -236,7 +237,7 @@ TEST_F(IndexBackfillerTest, BackfillWritesIndexEntries) {
   ASSERT_EQ(4, documents_processed);
 }
 
-TEST_F(IndexBackfillerTest, BackfillWritesOldestDocumentFirst) {
+TEST_F(IndexBackfillerTest, WritesOldestDocumentFirst) {
   SetMaxDocumentsToProcess(2);
 
   AddFieldIndex("coll1", "foo");
@@ -255,7 +256,7 @@ TEST_F(IndexBackfillerTest, BackfillWritesOldestDocumentFirst) {
   VerifyQueryResults("coll1", {"coll1/docA", "coll1/docB", "coll1/docC"});
 }
 
-TEST_F(IndexBackfillerTest, BackfillUsesDocumentKeyOffsetForLargeSnapshots) {
+TEST_F(IndexBackfillerTest, UsesDocumentKeyOffsetForLargeSnapshots) {
   SetMaxDocumentsToProcess(2);
 
   AddFieldIndex("coll1", "foo");
@@ -274,7 +275,7 @@ TEST_F(IndexBackfillerTest, BackfillUsesDocumentKeyOffsetForLargeSnapshots) {
   VerifyQueryResults("coll1", {"coll1/docA", "coll1/docB", "coll1/docC"});
 }
 
-TEST_F(IndexBackfillerTest, BackfillUpdatesCollectionGroups) {
+TEST_F(IndexBackfillerTest, UpdatesCollectionGroups) {
   SetMaxDocumentsToProcess(2);
 
   AddFieldIndex("coll1", "foo");
@@ -298,7 +299,7 @@ TEST_F(IndexBackfillerTest, BackfillUpdatesCollectionGroups) {
   ASSERT_EQ("coll2", collection_group.value());
 }
 
-TEST_F(IndexBackfillerTest, BackfillPrioritizesNewCollectionGroups) {
+TEST_F(IndexBackfillerTest, PrioritizesNewCollectionGroups) {
   SetMaxDocumentsToProcess(1);
 
   // In this test case, `coll3` is a new collection group that hasn't been
@@ -323,7 +324,7 @@ TEST_F(IndexBackfillerTest, BackfillPrioritizesNewCollectionGroups) {
   VerifyQueryResults("coll3", {"coll3/doc"});
 }
 
-TEST_F(IndexBackfillerTest, BackfillWritesUntilCap) {
+TEST_F(IndexBackfillerTest, WritesUntilCap) {
   SetMaxDocumentsToProcess(3);
 
   AddFieldIndex("coll1", "foo");
@@ -340,7 +341,7 @@ TEST_F(IndexBackfillerTest, BackfillWritesUntilCap) {
   VerifyQueryResults("coll2", {"coll2/docA"});
 }
 
-TEST_F(IndexBackfillerTest, BackfillUsesLatestReadTimeForEmptyCollections) {
+TEST_F(IndexBackfillerTest, UsesLatestReadTimeForEmptyCollections) {
   AddFieldIndex("coll", "foo", Version(1));
   AddDoc("readtime/doc", Version(1), "foo", 1);
 
@@ -354,7 +355,7 @@ TEST_F(IndexBackfillerTest, BackfillUsesLatestReadTimeForEmptyCollections) {
   ASSERT_EQ(2, documents_processed);
 }
 
-TEST_F(IndexBackfillerTest, BackfillHandlesLocalMutationsAfterRemoteDocs) {
+TEST_F(IndexBackfillerTest, HandlesLocalMutationsAfterRemoteDocs) {
   SetMaxDocumentsToProcess(2);
   AddFieldIndex("coll1", "foo");
 
@@ -374,7 +375,7 @@ TEST_F(IndexBackfillerTest, BackfillHandlesLocalMutationsAfterRemoteDocs) {
 }
 
 TEST_F(IndexBackfillerTest,
-       BackfillMutationsUpToDocumentLimitAndUpdatesBatchIdOnIndex) {
+       MutationsUpToDocumentLimitAndUpdatesBatchIdOnIndex) {
   SetMaxDocumentsToProcess(2);
   AddFieldIndex("coll1", "foo");
   AddDoc("coll1/docA", Version(10), "foo", 1);
@@ -396,8 +397,7 @@ TEST_F(IndexBackfillerTest,
   ASSERT_EQ(4, field_index.index_state().index_offset().largest_batch_id());
 }
 
-TEST_F(IndexBackfillerTest,
-       BackfillMutationFinishesMutationBatchEvenIfItExceedsLimit) {
+TEST_F(IndexBackfillerTest, MutationFinishesMutationBatchEvenIfItExceedsLimit) {
   SetMaxDocumentsToProcess(2);
   AddFieldIndex("coll1", "foo");
   AddDoc("coll1/docA", Version(10), "foo", 1);
@@ -410,7 +410,7 @@ TEST_F(IndexBackfillerTest,
                      {"coll1/docA", "coll1/docB", "coll1/docC", "coll1/docD"});
 }
 
-TEST_F(IndexBackfillerTest, BackfillMutationsFromHighWaterMark) {
+TEST_F(IndexBackfillerTest, MutationsFromHighWaterMark) {
   SetMaxDocumentsToProcess(2);
   AddFieldIndex("coll1", "foo");
   AddDoc("coll1/docA", Version(10), "foo", 1);
@@ -426,7 +426,7 @@ TEST_F(IndexBackfillerTest, BackfillMutationsFromHighWaterMark) {
   ASSERT_EQ(0, documents_processed);
 }
 
-TEST_F(IndexBackfillerTest, BackfillUpdatesExistingDocToNewValue) {
+TEST_F(IndexBackfillerTest, UpdatesExistingDocToNewValue) {
   const auto& query = Query("coll").AddingFilter(Filter("foo", "==", 2));
   AddFieldIndex("coll", "foo");
 
@@ -443,7 +443,7 @@ TEST_F(IndexBackfillerTest, BackfillUpdatesExistingDocToNewValue) {
   VerifyQueryResults(query, {"coll/doc"});
 }
 
-TEST_F(IndexBackfillerTest, BackfillUpdatesDocsThatNoLongerMatch) {
+TEST_F(IndexBackfillerTest, UpdatesDocsThatNoLongerMatch) {
   const auto& query = Query("coll").AddingFilter(Filter("foo", ">", 0));
   AddFieldIndex("coll", "foo");
   AddDoc("coll/doc", Version(10), "foo", 1);
@@ -461,7 +461,7 @@ TEST_F(IndexBackfillerTest, BackfillUpdatesDocsThatNoLongerMatch) {
   VerifyQueryResults(query, {});
 }
 
-TEST_F(IndexBackfillerTest, BackfillDoesNotProcessSameDocumentTwice) {
+TEST_F(IndexBackfillerTest, DoesNotProcessSameDocumentTwice) {
   AddFieldIndex("coll", "foo");
   AddDoc("coll/doc", Version(5), "foo", 1);
   AddSetMutationsToOverlay(1, {"coll/doc"});
@@ -474,7 +474,7 @@ TEST_F(IndexBackfillerTest, BackfillDoesNotProcessSameDocumentTwice) {
   ASSERT_EQ(1, field_index.index_state().index_offset().largest_batch_id());
 }
 
-TEST_F(IndexBackfillerTest, BackfillAppliesSetToRemoteDoc) {
+TEST_F(IndexBackfillerTest, AppliesSetToRemoteDoc) {
   AddFieldIndex("coll", "foo");
   AddDoc("coll/doc", Version(5), "boo", 1);
 
@@ -490,7 +490,7 @@ TEST_F(IndexBackfillerTest, BackfillAppliesSetToRemoteDoc) {
   VerifyQueryResults("coll", {"coll/doc"});
 }
 
-TEST_F(IndexBackfillerTest, BackfillAppliesPatchToRemoteDoc) {
+TEST_F(IndexBackfillerTest, AppliesPatchToRemoteDoc) {
   const auto& query_a = Query("coll").AddingOrderBy(OrderBy("a"));
   const auto& query_b = Query("coll").AddingOrderBy(OrderBy("b"));
 
@@ -513,7 +513,7 @@ TEST_F(IndexBackfillerTest, BackfillAppliesPatchToRemoteDoc) {
   VerifyQueryResults(query_b, {"coll/doc"});
 }
 
-TEST_F(IndexBackfillerTest, BackfillAppliesDeleteToRemoteDoc) {
+TEST_F(IndexBackfillerTest, AppliesDeleteToRemoteDoc) {
   AddFieldIndex("coll", "foo");
   AddDoc("coll/doc", Version(5), "foo", 1);
 

@@ -53,7 +53,7 @@ class MemoryRemoteDocumentCache : public RemoteDocumentCache {
                                    size_t) const override;
   model::MutableDocumentMap GetAll(const model::ResourcePath& path,
                                    const model::IndexOffset& offset,
-                                   const absl::optional<size_t>) const override;
+                                   absl::optional<size_t>) const override;
   void SetIndexManager(IndexManager* manager) override;
 
   std::vector<model::DocumentKey> RemoveOrphanedDocuments(

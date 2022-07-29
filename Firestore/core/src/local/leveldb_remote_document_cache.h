@@ -65,7 +65,7 @@ class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
   model::MutableDocumentMap GetAll(
       const model::ResourcePath& path,
       const model::IndexOffset& offset,
-      const absl::optional<size_t> limit = absl::nullopt) const override;
+      absl::optional<size_t> limit = absl::nullopt) const override;
 
   void SetIndexManager(IndexManager* manager) override;
 

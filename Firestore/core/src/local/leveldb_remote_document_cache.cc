@@ -151,10 +151,8 @@ MutableDocumentMap LevelDbRemoteDocumentCache::GetAll(
     it->Seek(LevelDbRemoteDocumentKey::Key(key));
     if (!it->Valid() || !current_key.Decode(it->key()) ||
         current_key.document_key() != key) {
-      tasks.Execute([&results, &key] {
-        results.Insert(
-            std::make_pair(key, MutableDocument::InvalidDocument(key)));
-      });
+      results.Insert(
+          std::make_pair(key, MutableDocument::InvalidDocument(key)));
     } else {
       const std::string& contents = it->value();
       tasks.Execute([this, &results, &key, contents] {
