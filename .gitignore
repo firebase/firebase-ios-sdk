@@ -9,6 +9,7 @@ FirebaseAuth/Tests/Sample/SwiftApiTests/Credentials.swift
 FirebaseDatabase/Tests/Resources/GoogleService-Info.plist
 
 FirebaseRemoteConfig/Tests/Sample/GoogleService-Info.plist
+FirebaseRemoteConfig/Tests/Sample/SwiftUISample/SwiftUISample/GoogleService-Info.plist
 
 # FirebaseStorage integration tests GoogleService-Info.plist
 FirebaseStorageInternal/Tests/Integration/Resources/GoogleService-Info.plist
