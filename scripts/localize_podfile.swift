@@ -39,6 +39,7 @@ let implicitPods = [
   "FirebaseCoreExtension", "FirebaseAppCheckInterop",
   "FirebaseAuthInterop", "FirebaseMessagingInterop",
   "FirebaseStorageInternal", "FirebaseCoreInternal",
+  "FirebaseSharedSwift",
 ]
 
 let binaryPods = [
