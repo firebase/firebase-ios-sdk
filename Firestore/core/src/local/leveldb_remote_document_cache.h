@@ -64,7 +64,8 @@ class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
                                    size_t limit) const override;
   model::MutableDocumentMap GetAll(
       const model::ResourcePath& path,
-      const model::IndexOffset& offset) const override;
+      const model::IndexOffset& offset,
+      const absl::optional<size_t> limit = absl::nullopt) const override;
 
   void SetIndexManager(IndexManager* manager) override;
 
@@ -74,7 +75,7 @@ class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
    * Type::Document together with its SnapshotVersion.
    */
   model::MutableDocumentMap GetAllExisting(
-      const model::DocumentVersionMap key_version_map) const;
+      model::DocumentVersionMap&& remote_map) const;
 
   model::MutableDocument DecodeMaybeDocument(
       absl::string_view encoded, const model::DocumentKey& key) const;

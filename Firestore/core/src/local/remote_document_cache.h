@@ -107,7 +107,8 @@ class RemoteDocumentCache {
    */
   virtual model::MutableDocumentMap GetAll(
       const model::ResourcePath& path,
-      const model::IndexOffset& offset) const = 0;
+      const model::IndexOffset& offset,
+      const absl::optional<size_t> limit = absl::nullopt) const = 0;
 
   /**
    * Sets the index manager used by remote document cache.

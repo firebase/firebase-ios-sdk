@@ -204,8 +204,16 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
 
   void TerminateInternal();
 
+  /**
+   * Schedules a callback to try running LRU garbage collection. Reschedules
+   * itself after the GC has run.
+   */
   void ScheduleLruGarbageCollection();
 
+  /**
+   * Schedules a callback to try running index backfiller. Reschedules
+   * itself after the backfiller has run.
+   */
   void ScheduleIndexBackfiller();
 
   DatabaseInfo database_info_;

@@ -84,7 +84,9 @@ MutableDocumentMap MemoryRemoteDocumentCache::GetAll(const std::string&,
 }
 
 MutableDocumentMap MemoryRemoteDocumentCache::GetAll(
-    const model::ResourcePath& path, const model::IndexOffset& offset) const {
+    const model::ResourcePath& path,
+    const model::IndexOffset& offset,
+    const absl::optional<size_t>) const {
   MutableDocumentMap results;
 
   // Documents are ordered by key, so we can use a prefix scan to narrow down

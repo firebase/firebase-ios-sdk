@@ -246,8 +246,10 @@ class LocalStore : public bundle::BundleCallback {
 
   LruResults CollectGarbage(LruGarbageCollector* garbage_collector);
 
-  /** Runs a single backfill operation and returns the number of documents
-   * processed. */
+  /**
+   * Runs a single backfill operation and returns the number of documents
+   * processed.
+   */
   int Backfill() const;
 
   /**
@@ -290,12 +292,13 @@ class LocalStore : public bundle::BundleCallback {
     return index_manager_;
   }
 
-  const std::unique_ptr<LocalDocumentsView>& local_documents() const {
-    return local_documents_;
+  const LocalDocumentsView* local_documents() const {
+    return local_documents_.get();
   }
 
-  const std::unique_ptr<IndexBackfiller>& index_backfiller() const {
-    return index_backfiller_;
+  // For testing
+  IndexBackfiller* index_backfiller() const {
+    return index_backfiller_.get();
   }
 
   struct DocumentChangeResult {

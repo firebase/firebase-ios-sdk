@@ -33,7 +33,8 @@ namespace {
 
 using model::IndexOffset;
 
-/** The maximum number of documents to process each time Backfill() is called.
+/**
+ * The maximum number of documents to process each time Backfill() is called.
  */
 static const int kMaxDocumentsToProcess = 50;
 
@@ -68,7 +69,7 @@ int IndexBackfiller::WriteEntriesForCollectionGroup(
     const std::string& collection_group,
     int documents_remaining_under_cap) const {
   IndexManager* index_manager = local_store->index_manager();
-  const auto local_documents_view = local_store->local_documents().get();
+  const auto local_documents_view = local_store->local_documents();
 
   // Use the earliest offset of all field indexes to query the local cache.
   const auto existing_offset = index_manager->GetMinOffset(collection_group);

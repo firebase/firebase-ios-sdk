@@ -62,7 +62,7 @@ class IndexBackfillerTest : public ::testing::Test {
                      &query_engine_,
                      credentials::User::Unauthenticated()),
         index_manager_(local_store_.index_manager()),
-        index_backfiller_(local_store_.index_backfiller().get()) {
+        index_backfiller_(local_store_.index_backfiller()) {
     persistence_->Run("Start Index Manager in BackfillerTests",
                       [&] { index_manager_->Start(); });
   }

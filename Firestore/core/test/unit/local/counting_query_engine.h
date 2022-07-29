@@ -183,9 +183,9 @@ class WrappedRemoteDocumentCache : public RemoteDocumentCache {
                                    const model::IndexOffset& offset,
                                    size_t limit) const override;
 
-  model::MutableDocumentMap GetAll(
-      const model::ResourcePath& path,
-      const model::IndexOffset& offset) const override;
+  model::MutableDocumentMap GetAll(const model::ResourcePath& path,
+                                   const model::IndexOffset& offset,
+                                   absl::optional<size_t>) const override;
 
   void SetIndexManager(IndexManager* manager) override {
     index_manager_ = NOT_NULL(manager);

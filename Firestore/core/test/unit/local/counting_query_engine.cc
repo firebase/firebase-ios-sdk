@@ -182,7 +182,9 @@ model::MutableDocumentMap WrappedRemoteDocumentCache::GetAll(
 }
 
 model::MutableDocumentMap WrappedRemoteDocumentCache::GetAll(
-    const model::ResourcePath& path, const model::IndexOffset& offset) const {
+    const model::ResourcePath& path,
+    const model::IndexOffset& offset,
+    absl::optional<size_t>) const {
   auto result = subject_->GetAll(path, offset);
   query_engine_->documents_read_by_query_ += result.size();
   return result;

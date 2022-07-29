@@ -249,7 +249,6 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
   local_store_->Start();
   remote_store_->Start();
 
-  // TODO(cheryllin): check the settings
   ScheduleIndexBackfiller();
 }
 
@@ -324,10 +323,6 @@ void FirestoreClient::TerminateInternal() {
   remote_store_.reset();
 }
 
-/**
- * Schedules a callback to try running LRU garbage collection. Reschedules
- * itself after the GC has run.
- */
 void FirestoreClient::ScheduleLruGarbageCollection() {
   std::chrono::milliseconds delay =
       gc_has_run_ ? kRegularGCDelay : kInitialGCDelay;
@@ -340,10 +335,6 @@ void FirestoreClient::ScheduleLruGarbageCollection() {
       });
 }
 
-/**
- * Schedules a callback to try running index backfiller. Reschedules
- * itself after the backfiller has run.
- */
 void FirestoreClient::ScheduleIndexBackfiller() {
   std::chrono::milliseconds delay =
       backfiller_has_run_ ? kRegularBackfillDelay : kInitialBackfillDelay;

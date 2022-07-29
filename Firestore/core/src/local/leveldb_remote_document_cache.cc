@@ -151,8 +151,10 @@ MutableDocumentMap LevelDbRemoteDocumentCache::GetAll(
     it->Seek(LevelDbRemoteDocumentKey::Key(key));
     if (!it->Valid() || !current_key.Decode(it->key()) ||
         current_key.document_key() != key) {
-      results.Insert(
-          std::make_pair(key, MutableDocument::InvalidDocument(key)));
+      tasks.Execute([&results, &key] {
+        results.Insert(
+            std::make_pair(key, MutableDocument::InvalidDocument(key)));
+      });
     } else {
       const std::string& contents = it->value();
       tasks.Execute([this, &results, &key, contents] {
@@ -171,15 +173,24 @@ MutableDocumentMap LevelDbRemoteDocumentCache::GetAll(
 }
 
 MutableDocumentMap LevelDbRemoteDocumentCache::GetAllExisting(
-    const DocumentVersionMap key_version_map) const {
-  MutableDocumentMap result;
-  for (const auto& pair : key_version_map) {
-    auto document = Get(pair.first).WithReadTime(pair.second);
-    if (document.is_found_document()) {
-      result = result.insert(pair.first, std::move(document));
-    }
+    DocumentVersionMap&& remote_map) const {
+  BackgroundQueue tasks(executor_.get());
+  AsyncResults<std::pair<DocumentKey, MutableDocument>> results;
+  for (const auto& key_version : remote_map) {
+    tasks.Execute([this, &results, key_version] {
+      auto document = Get(key_version.first).WithReadTime(key_version.second);
+      if (document.is_found_document()) {
+        results.Insert(std::make_pair(key_version.first, std::move(document)));
+      }
+    });
   }
-  return result;
+  tasks.AwaitAll();
+
+  MutableDocumentMap map;
+  for (const auto& entry : results.Result()) {
+    map = map.insert(entry.first, entry.second);
+  }
+  return map;
 }
 
 MutableDocumentMap LevelDbRemoteDocumentCache::GetAll(
@@ -197,19 +208,18 @@ MutableDocumentMap LevelDbRemoteDocumentCache::GetAll(
   MutableDocumentMap result;
   for (auto path = collections.cbegin();
        path != collections.cend() && result.size() < limit; path++) {
-    const auto map = GetAll(*path, offset);
-    for (const auto& pair : map) {
-      result = result.insert(pair.first, pair.second);
-      if (result.size() == limit) {
-        break;
-      }
+    const auto remote_docs = GetAll(*path, offset, limit - result.size());
+    for (const auto& doc : remote_docs) {
+      result = result.insert(doc.first, doc.second);
     }
   }
   return result;
 }
 
 MutableDocumentMap LevelDbRemoteDocumentCache::GetAll(
-    const model::ResourcePath& path, const model::IndexOffset& offset) const {
+    const model::ResourcePath& path,
+    const model::IndexOffset& offset,
+    const absl::optional<size_t> limit) const {
   // Use the query path as a prefix for testing if a document matches the query.
 
   // Execute an index-free query and filter by read time. This is safe since
@@ -224,7 +234,9 @@ MutableDocumentMap LevelDbRemoteDocumentCache::GetAll(
   DocumentVersionMap remote_map;
 
   LevelDbRemoteDocumentReadTimeKey current_key;
-  for (; it->Valid() && current_key.Decode(it->key()); it->Next()) {
+  for (; it->Valid() && current_key.Decode(it->key()) &&
+         (!limit.has_value() || remote_map.size() < limit);
+       it->Next()) {
     const ResourcePath& collection_path = current_key.collection_path();
     if (collection_path != path) {
       break;
@@ -242,7 +254,7 @@ MutableDocumentMap LevelDbRemoteDocumentCache::GetAll(
     }
   }
 
-  return LevelDbRemoteDocumentCache::GetAllExisting(remote_map);
+  return LevelDbRemoteDocumentCache::GetAllExisting(std::move(remote_map));
 }
 
 MutableDocument LevelDbRemoteDocumentCache::DecodeMaybeDocument(

@@ -39,8 +39,10 @@ class IndexBackfiller {
  public:
   IndexBackfiller();
 
-  /** Writes index entries until the cap is reached. Returns the number of
-   * documents processed. */
+  /**
+   * Writes index entries until the cap is reached. Returns the number of
+   * documents processed.
+   */
   int WriteIndexEntries(const LocalStore* local_store);
 
  private:
