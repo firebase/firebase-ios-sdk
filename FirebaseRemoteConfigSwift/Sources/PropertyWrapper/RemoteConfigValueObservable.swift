@@ -16,7 +16,6 @@
 
 import SwiftUI
 import FirebaseRemoteConfig
-import FirebaseRemoteConfigSwift
 
 @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
 internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
@@ -37,10 +36,8 @@ internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
             guard error == nil else {
               return
             }
-            self.remoteConfig.activate{ (changed, error) in
-              DispatchQueue.main.async {
-                self.configValue = try! remoteConfig.configValue(forKey: self.key).decoded(asType: T.self)
-              }
+            DispatchQueue.main.async {
+              self.configValue = try! remoteConfig.configValue(forKey: self.key).decoded(asType: T.self)
             }
           }
         })
