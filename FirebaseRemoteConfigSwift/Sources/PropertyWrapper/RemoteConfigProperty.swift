@@ -49,24 +49,6 @@ import SwiftUI
         )
       )
     }
-
-    /// Creates an instance by defining key and remote config instance.
-    ///
-    /// - Parameters:
-    ///   - key: key name
-    ///   - remoteConfig: remote config instance
-    public init(forKey key: String,
-                remoteConfig: RemoteConfig) {
-      self.key = key
-      self.remoteConfig = remoteConfig
-
-      _configValueObserver = StateObject(
-        wrappedValue: RemoteConfigValueObservable<T>(
-          key: key,
-          remoteConfig: remoteConfig
-        )
-      )
-    }
   }
 #endif
 
