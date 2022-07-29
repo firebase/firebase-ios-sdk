@@ -469,6 +469,18 @@ int32_t SaturatedLimitValue(NSInteger limit) {
   Bound bound = [self boundFromFieldValues:fieldValues isInclusive:YES];
   return Wrap(_query.EndAt(std::move(bound)));
 }
+- (FIRAggregateQuery *)aggregateQueryForFields:(NSArray<FIRAggregateField *> *)aggregateFields {
+  return nil;
+}
+
+- (FIRGroupByQuery *)groupByQueryForFields:(NSArray<NSString *> *)fields {
+  return nil;
+}
+
+- (FIRGroupByQuery *)groupByQueryForFieldPaths:(NSArray<FIRFieldPath *> *)fieldPaths {
+  return nil;
+}
+
 
 #pragma mark - Private Methods
 

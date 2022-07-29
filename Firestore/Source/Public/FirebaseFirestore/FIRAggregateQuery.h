@@ -16,7 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRAggregateListenSource.h"
 #import "FIRAggregateSource.h"
+#import "FIRListenerRegistration.h"
 
 @class FIRAggregateQuerySnapshot;
 @class FIRQuery;
@@ -33,6 +35,28 @@ NS_SWIFT_NAME(AggregateQuery)
 #pragma mark - Retrieving Data
 
 - (void)aggregationWithSource:(FIRAggregateSource)source completion:(void (^)(FIRAggregateQuerySnapshot *_Nullable snapshot, NSError *_Nullable error))completion NS_SWIFT_NAME(aggregation(source:completion:));
+- (void)aggregationWithCompletion:(void (^)(FIRAggregateQuerySnapshot *_Nullable snapshot, NSError *_Nullable error))completion NS_SWIFT_NAME(aggregation(completion:));
+- (void)aggregationWithSource:(FIRAggregateSource)source completion:(void (^)(FIRAggregateQuerySnapshot *_Nullable snapshot, NSError *_Nullable error))completion NS_SWIFT_NAME(aggregation(source:completion:));
+
+- (id<FIRListenerRegistration>)addSnapshotListener:
+    (void (^)(FIRAggregateQuerySnapshot *_Nullable snapshot, NSError *_Nullable error))listener
+    NS_SWIFT_NAME(addSnapshotListener(_:));
+
+- (id<FIRListenerRegistration>)addSnapshotListenerWithIncludeMetadataChanges:
+    (BOOL)includeMetadataChanges
+    listener:(void (^)(FIRAggregateQuerySnapshot *_Nullable snapshot, NSError *_Nullable error))listener
+    NS_SWIFT_NAME(addSnapshotListener(includeMetadataChanges:listener:));
+
+- (id<FIRListenerRegistration>)addSnapshotListenerWithSource:
+    (FIRAggregateListenSource)source
+    listener:(void (^)(FIRAggregateQuerySnapshot *_Nullable snapshot, NSError *_Nullable error))listener
+    NS_SWIFT_NAME(addSnapshotListener(source:listener:));
+
+- (id<FIRListenerRegistration>)addSnapshotListenerWithSource:
+    (FIRAggregateListenSource)source
+    includeMetadataChanges:(BOOL)includeMetadataChanges
+    listener:(void (^)(FIRAggregateQuerySnapshot *_Nullable snapshot, NSError *_Nullable error))listener
+    NS_SWIFT_NAME(addSnapshotListener(source:includeMetadataChanges:listener:));
 
 @end
 

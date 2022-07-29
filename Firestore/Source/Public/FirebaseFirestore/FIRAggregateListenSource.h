@@ -16,22 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAggregateSnapshot.h"
-
-@class FIRAggregateQuery;
-@class FIRSnapshotMetadata;
-
-NS_ASSUME_NONNULL_BEGIN
-
-NS_SWIFT_NAME(AggregateQuerySnapshot)
-@interface FIRAggregateQuerySnapshot : FIRAggregateSnapshot
-/** :nodoc: */
-- (id)init NS_UNAVAILABLE;
-
-@property(nonatomic, readonly) FIRAggregateQuery *query;
-
-@property(nonatomic, strong, readonly) FIRSnapshotMetadata *metadata;
-
-@end
-
-NS_ASSUME_NONNULL_END
+typedef NS_ENUM(NSUInteger, FIRAggregateListenSource) {
+  FIRAggregateListenSourceServerDirect,
+} NS_SWIFT_NAME(AggregateListenSource);
