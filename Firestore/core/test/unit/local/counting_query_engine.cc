@@ -159,14 +159,14 @@ void WrappedRemoteDocumentCache::Remove(const model::DocumentKey& key) {
 }
 
 model::MutableDocument WrappedRemoteDocumentCache::Get(
-    const model::DocumentKey& key) {
+    const model::DocumentKey& key) const {
   auto result = subject_->Get(key);
   query_engine_->documents_read_by_key_ += result.is_found_document() ? 1 : 0;
   return result;
 }
 
 model::MutableDocumentMap WrappedRemoteDocumentCache::GetAll(
-    const model::DocumentKeySet& keys) {
+    const model::DocumentKeySet& keys) const {
   auto result = subject_->GetAll(keys);
   query_engine_->documents_read_by_key_ += result.size();
   return result;
@@ -182,7 +182,9 @@ model::MutableDocumentMap WrappedRemoteDocumentCache::GetAll(
 }
 
 model::MutableDocumentMap WrappedRemoteDocumentCache::GetAll(
-    const model::ResourcePath& path, const model::IndexOffset& offset) {
+    const model::ResourcePath& path,
+    const model::IndexOffset& offset,
+    absl::optional<size_t>) const {
   auto result = subject_->GetAll(path, offset);
   query_engine_->documents_read_by_query_ += result.size();
   return result;

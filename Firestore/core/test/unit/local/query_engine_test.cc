@@ -151,10 +151,10 @@ void QueryEngineTestBase::AddDocuments(
 }
 
 void QueryEngineTestBase::AddDocumentWithEventVersion(
-    const SnapshotVersion& eventVersion,
+    const SnapshotVersion& event_version,
     const std::vector<MutableDocument>& docs) {
   for (const MutableDocument& doc : docs) {
-    remote_document_cache_->Add(doc, eventVersion);
+    remote_document_cache_->Add(doc, event_version);
   }
 }
 

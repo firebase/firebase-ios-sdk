@@ -1252,8 +1252,11 @@ fileprivate class __JSONDecoder : Decoder {
                                                               debugDescription: "Cannot get keyed decoding container -- found null value instead."))
     }
     var topContainer : [String : Any]
-    if let rcValue = self.storage.topContainer as? FirebaseRemoteConfigValueDecoding,
-       let top = rcValue.jsonValue() {
+    if let rcValue = self.storage.topContainer as? FirebaseRemoteConfigValueDecoding {
+      guard let top = rcValue.dictionaryValue() else {
+        throw DecodingError._typeMismatch(at: self.codingPath, expectation: [String : Any].self,
+                                          reality: rcValue)
+      }
       topContainer = top
     } else {
       guard let top = self.storage.topContainer as? [String : Any] else {
@@ -1271,6 +1274,13 @@ fileprivate class __JSONDecoder : Decoder {
       throw DecodingError.valueNotFound(UnkeyedDecodingContainer.self,
                                         DecodingError.Context(codingPath: self.codingPath,
                                                               debugDescription: "Cannot get unkeyed decoding container -- found null value instead."))
+    }
+
+    if let rcValue = self.storage.topContainer as? FirebaseRemoteConfigValueDecoding {
+      guard let arrayValue = rcValue.arrayValue() else {
+        throw DecodingError._typeMismatch(at: self.codingPath, expectation: [Any].self, reality: rcValue)
+      }
+      return _JSONUnkeyedDecodingContainer(referencing: self, wrapping: arrayValue )
     }
 
     guard let topContainer = self.storage.topContainer as? [Any] else {
@@ -2467,6 +2477,13 @@ extension __JSONDecoder {
 
   fileprivate func unbox<T>(_ value: Any, as type: _JSONStringDictionaryDecodableMarker.Type) throws -> T? {
     guard !(value is NSNull) else { return nil }
+
+    if let rcValue = value as? FirebaseRemoteConfigValueDecoding {
+      guard let dictionaryValue = rcValue.dictionaryValue() else {
+        throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: rcValue)
+      }
+      return dictionaryValue as? T
+    }
 
     var result = [String : Any]()
     guard let dict = value as? NSDictionary else {

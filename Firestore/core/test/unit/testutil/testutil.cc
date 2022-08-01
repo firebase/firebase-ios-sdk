@@ -226,6 +226,10 @@ model::SnapshotVersion Version(int64_t version) {
   return model::SnapshotVersion{Timestamp::FromTimePoint(timepoint)};
 }
 
+model::SnapshotVersion Version(int64_t seconds, int32_t nanoseconds) {
+  return model::SnapshotVersion{Timestamp(seconds, nanoseconds)};
+}
+
 model::MutableDocument Doc(absl::string_view key,
                            int64_t version,
                            Message<google_firestore_v1_Value> data) {
@@ -236,7 +240,8 @@ model::MutableDocument Doc(absl::string_view key,
 
 model::MutableDocument Doc(absl::string_view key, int64_t version) {
   return MutableDocument::FoundDocument(Key(key), Version(version),
-                                        ObjectValue{});
+                                        ObjectValue{})
+      .WithReadTime(Version(version));
 }
 
 model::MutableDocument DeletedDoc(absl::string_view key, int64_t version) {

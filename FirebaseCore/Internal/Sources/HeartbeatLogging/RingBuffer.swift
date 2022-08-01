@@ -14,17 +14,31 @@
 
 import Foundation
 
+/// Error types for `RingBuffer` operations.
+enum RingBufferError: LocalizedError {
+  case outOfBoundsPush(pushIndex: Array.Index, endIndex: Array.Index)
+
+  var errorDescription: String {
+    switch self {
+    case let .outOfBoundsPush(pushIndex, endIndex):
+      return "Out-of-bounds push at index \(pushIndex) to ring buffer with" +
+        "end index of \(endIndex)."
+    }
+  }
+}
+
 /// A generic circular queue structure.
 struct RingBuffer<Element>: Sequence {
   /// An array of heartbeats treated as a circular queue and intialized with a fixed capacity.
   private var circularQueue: [Element?]
   /// The current "tail" and insert point for the `circularQueue`.
-  private var tailIndex: Int = 0
+  private var tailIndex: Array.Index
 
   /// Designated initializer.
   /// - Parameter capacity: An `Int` representing the capacity.
   init(capacity: Int) {
     circularQueue = Array(repeating: nil, count: capacity)
+    tailIndex = circularQueue.startIndex
   }
 
   /// Pushes an element to the back of the buffer, returning the element (`Element?`) that was overwritten.
@@ -32,20 +46,29 @@ struct RingBuffer<Element>: Sequence {
   /// - Returns: The element that was overwritten or `nil` if nothing was overwritten.
   /// - Complexity: O(1)
   @discardableResult
-  mutating func push(_ element: Element) -> Element? {
+  mutating func push(_ element: Element) throws -> Element? {
     guard circularQueue.count > 0 else {
       // Do not push if `circularQueue` is a fixed empty array.
       return nil
     }
 
-    defer {
-      // Increment index, wrapping around to the start if needed.
-      tailIndex += 1
-      tailIndex %= circularQueue.count
+    guard circularQueue.indices.contains(tailIndex) else {
+      // We have somehow entered an invalid state (#10025).
+      throw RingBufferError.outOfBoundsPush(
+        pushIndex: tailIndex,
+        endIndex: circularQueue.endIndex
+      )
     }
 
     let replaced = circularQueue[tailIndex]
     circularQueue[tailIndex] = element
+
+    // Increment index, wrapping around to the start if needed.
+    tailIndex += 1
+    if tailIndex >= circularQueue.endIndex {
+      tailIndex = circularQueue.startIndex
+    }
+
     return replaced
   }
 
@@ -61,8 +84,8 @@ struct RingBuffer<Element>: Sequence {
 
     // Decrement index, wrapping around to the back if needed.
     tailIndex -= 1
-    if tailIndex < 0 {
-      tailIndex = circularQueue.count - 1
+    if tailIndex < circularQueue.startIndex {
+      tailIndex = circularQueue.endIndex - 1
     }
 
     guard let popped = circularQueue[tailIndex] else {
