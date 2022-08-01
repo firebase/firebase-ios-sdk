@@ -209,6 +209,16 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = AuthErrorCode.emailChangeNeedsVerification
     _ = AuthErrorCode.missingOrInvalidNonce
     _ = AuthErrorCode.recaptchaNotEnabled
+    _ = AuthErrorCode.invalidRecaptchaScore
+    _ = AuthErrorCode.missingRecaptchaToken
+    _ = AuthErrorCode.invalidRecaptchaToken
+    _ = AuthErrorCode.invalidRecaptchaAction
+    _ = AuthErrorCode.invalidRecaptchaEnforcementState
+    _ = AuthErrorCode.recaptchaNotEnabled
+    _ = AuthErrorCode.missingClientType
+    _ = AuthErrorCode.missingRecaptchaVersion
+    _ = AuthErrorCode.invalidReqType
+    _ = AuthErrorCode.invalidRecaptchaVersion
     _ = AuthErrorCode.missingClientIdentifier
     _ = AuthErrorCode.keychainError
     _ = AuthErrorCode.internalError
