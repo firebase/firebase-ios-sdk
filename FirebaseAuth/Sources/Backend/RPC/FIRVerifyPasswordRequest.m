@@ -48,6 +48,16 @@ static NSString *const kCaptchaChallengeKey = @"captchaChallenge";
  */
 static NSString *const kCaptchaResponseKey = @"captchaResponse";
 
+/** @var kClientType
+    @brief The key for the "clientType" value in the request.
+ */
+static NSString *const kClientType = @"clientType";
+
+/** @var kRecaptchaVersion
+    @brief The key for the "recaptchaVersion" value in the request.
+ */
+static NSString *const kRecaptchaVersion = @"recaptchaVersion";
+
 /** @var kReturnSecureTokenKey
     @brief The key for the "returnSecureToken" value in the request.
  */
@@ -62,11 +72,17 @@ static NSString *const kTenantIDKey = @"tenantId";
 
 - (nullable instancetype)initWithEmail:(NSString *)email
                               password:(NSString *)password
+                       captchaResponse:(nullable NSString *)captchaResponse
+                            clientType:(nullable NSString *)clientType
+                      recaptchaVersion:(nullable NSString *)recaptchaVersion
                   requestConfiguration:(nonnull FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kVerifyPasswordEndpoint requestConfiguration:requestConfiguration];
   if (self) {
     _email = [email copy];
     _password = [password copy];
+    _captchaResponse = [captchaResponse copy];
+    _clientType = [clientType copy];
+    _recaptchaVersion = [recaptchaVersion copy];
     _returnSecureToken = YES;
   }
   return self;
@@ -88,6 +104,12 @@ static NSString *const kTenantIDKey = @"tenantId";
   }
   if (_captchaResponse) {
     postBody[kCaptchaResponseKey] = _captchaResponse;
+  }
+  if (_clientType) {
+    postBody[kClientType] = _clientType;
+  }
+  if (_recaptchaVersion) {
+    postBody[kRecaptchaVersion] = _recaptchaVersion;
   }
   if (_returnSecureToken) {
     postBody[kReturnSecureTokenKey] = @YES;
