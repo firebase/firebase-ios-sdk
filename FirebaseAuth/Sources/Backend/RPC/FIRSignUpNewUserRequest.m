@@ -38,21 +38,6 @@ static NSString *const kPasswordKey = @"password";
  */
 static NSString *const kDisplayNameKey = @"displayName";
 
-/** @var kCaptchaResponseKey
-    @brief The key for the "captchaResponse" value in the request.
- */
-static NSString *const kCaptchaResponseKey = @"captchaResponse";
-
-/** @var kClientType
-    @brief The key for the "clientType" value in the request.
- */
-static NSString *const kClientType = @"clientType";
-
-/** @var kRecaptchaVersion
-    @brief The key for the "recaptchaVersion" value in the request.
- */
-static NSString *const kRecaptchaVersion = @"recaptchaVersion";
-
 /** @var kReturnSecureTokenKey
     @brief The key for the "returnSecureToken" value in the request.
  */
@@ -68,18 +53,12 @@ static NSString *const kTenantIDKey = @"tenantId";
 - (nullable instancetype)initWithEmail:(nullable NSString *)email
                               password:(nullable NSString *)password
                            displayName:(nullable NSString *)displayName
-                       captchaResponse:(nullable NSString *)captchaResponse
-                            clientType:(nullable NSString *)clientType
-                      recaptchaVersion:(nullable NSString *)recaptchaVersion
                   requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kSignupNewUserEndpoint requestConfiguration:requestConfiguration];
   if (self) {
     _email = [email copy];
     _password = [password copy];
     _displayName = [displayName copy];
-    _captchaResponse = [captchaResponse copy];
-    _clientType = [clientType copy];
-    _recaptchaVersion = [recaptchaVersion copy];
     _returnSecureToken = YES;
   }
   return self;
@@ -90,9 +69,6 @@ static NSString *const kTenantIDKey = @"tenantId";
   self = [self initWithEmail:nil
                     password:nil
                  displayName:nil
-             captchaResponse:nil
-                  clientType:nil
-            recaptchaVersion:nil
         requestConfiguration:requestConfiguration];
   return self;
 }
@@ -107,15 +83,6 @@ static NSString *const kTenantIDKey = @"tenantId";
   }
   if (_displayName) {
     postBody[kDisplayNameKey] = _displayName;
-  }
-  if (_captchaResponse) {
-    postBody[kCaptchaResponseKey] = _captchaResponse;
-  }
-  if (_clientType) {
-    postBody[kClientType] = _clientType;
-  }
-  if (_recaptchaVersion) {
-    postBody[kRecaptchaVersion] = _recaptchaVersion;
   }
   if (_returnSecureToken) {
     postBody[kReturnSecureTokenKey] = @YES;

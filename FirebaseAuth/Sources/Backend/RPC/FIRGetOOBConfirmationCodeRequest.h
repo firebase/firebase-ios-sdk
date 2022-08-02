@@ -112,21 +112,6 @@ typedef NS_ENUM(NSInteger, FIRGetOOBConfirmationCodeRequestType) {
  */
 @property(copy, nonatomic, nullable) NSString *dynamicLinkDomain;
 
-/** @property captchaResponse
-    @brief Response to the captcha.
- */
-@property(nonatomic, copy, nullable) NSString *captchaResponse;
-
-/** @property clientType
-    @brief The reCAPTCHA client type.
- */
-@property(nonatomic, copy, nullable) NSString *clientType;
-
-/** @property captchaResponse
-    @brief The reCAPTCHA version.
- */
-@property(nonatomic, copy, nullable) NSString *recaptchaVersion;
-
 /** @fn passwordResetRequestWithEmail:actionCodeSettings:requestConfiguration:
     @brief Creates a password reset request.
     @param email The user's email address.
@@ -137,9 +122,6 @@ typedef NS_ENUM(NSInteger, FIRGetOOBConfirmationCodeRequestType) {
  */
 + (nullable FIRGetOOBConfirmationCodeRequest *)
     passwordResetRequestWithEmail:(NSString *)email
-                  captchaResponse:(nullable NSString *)captchaResponse
-                       clientType:(nullable NSString *)clientType
-                 recaptchaVersion:(nullable NSString *)recaptchaVersion
                actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
              requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 
@@ -166,9 +148,6 @@ typedef NS_ENUM(NSInteger, FIRGetOOBConfirmationCodeRequestType) {
  */
 + (nullable FIRGetOOBConfirmationCodeRequest *)
     signInWithEmailLinkRequest:(NSString *)email
-               captchaResponse:(nullable NSString *)captchaResponse
-                    clientType:(nullable NSString *)clientType
-              recaptchaVersion:(nullable NSString *)recaptchaVersion
             actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
           requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 

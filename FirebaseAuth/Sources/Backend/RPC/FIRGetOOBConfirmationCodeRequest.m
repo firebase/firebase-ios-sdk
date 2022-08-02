@@ -111,21 +111,6 @@ static NSString *const kVerifyBeforeUpdateEmailRequestTypeValue = @"VERIFY_AND_C
  */
 static NSString *const kTenantIDKey = @"tenantId";
 
-/** @var kCaptchaResponseKey
-    @brief The key for the "captchaResponse" value in the request.
- */
-static NSString *const kCaptchaResponseKey = @"captchaResponse";
-
-/** @var kClientType
-    @brief The key for the "clientType" value in the request.
- */
-static NSString *const kClientType = @"clientType";
-
-/** @var kRecaptchaVersion
-    @brief The key for the "recaptchaVersion" value in the request.
- */
-static NSString *const kRecaptchaVersion = @"recaptchaVersion";
-
 @interface FIRGetOOBConfirmationCodeRequest ()
 
 /** @fn initWithRequestType:email:APIKey:
@@ -142,9 +127,6 @@ static NSString *const kRecaptchaVersion = @"recaptchaVersion";
                                        email:(nullable NSString *)email
                                     newEmail:(nullable NSString *)newEmail
                                  accessToken:(nullable NSString *)accessToken
-                             captchaResponse:(nullable NSString *)captchaResponse
-                                  clientType:(nullable NSString *)clientType
-                            recaptchaVersion:(nullable NSString *)recaptchaVersion
                           actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
                         requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
     NS_DESIGNATED_INITIALIZER;
@@ -173,18 +155,12 @@ static NSString *const kRecaptchaVersion = @"recaptchaVersion";
 
 + (nullable FIRGetOOBConfirmationCodeRequest *)
     passwordResetRequestWithEmail:(NSString *)email
-                  captchaResponse:(nullable NSString *)captchaResponse
-                       clientType:(nullable NSString *)clientType
-                 recaptchaVersion:(nullable NSString *)recaptchaVersion
                actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
              requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   return [[self alloc] initWithRequestType:FIRGetOOBConfirmationCodeRequestTypePasswordReset
                                      email:email
                                   newEmail:nil
                                accessToken:nil
-                           captchaResponse:captchaResponse
-                                clientType:clientType
-                          recaptchaVersion:recaptchaVersion
                         actionCodeSettings:actionCodeSettings
                       requestConfiguration:requestConfiguration];
 }
@@ -197,27 +173,18 @@ static NSString *const kRecaptchaVersion = @"recaptchaVersion";
                                      email:nil
                                   newEmail:nil
                                accessToken:accessToken
-                           captchaResponse:nil
-                                clientType:nil
-                          recaptchaVersion:nil
                         actionCodeSettings:actionCodeSettings
                       requestConfiguration:requestConfiguration];
 }
 
 + (nullable FIRGetOOBConfirmationCodeRequest *)
     signInWithEmailLinkRequest:(NSString *)email
-               captchaResponse:(nullable NSString *)captchaResponse
-                    clientType:(nullable NSString *)clientType
-              recaptchaVersion:(nullable NSString *)recaptchaVersion
             actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
           requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   return [[self alloc] initWithRequestType:FIRGetOOBConfirmationCodeRequestTypeEmailLink
                                      email:email
                                   newEmail:nil
                                accessToken:nil
-                           captchaResponse:captchaResponse
-                                clientType:clientType
-                          recaptchaVersion:recaptchaVersion
                         actionCodeSettings:actionCodeSettings
                       requestConfiguration:requestConfiguration];
 }
@@ -232,9 +199,6 @@ static NSString *const kRecaptchaVersion = @"recaptchaVersion";
                                   email:nil
                                newEmail:newEmail
                             accessToken:accessToken
-                        captchaResponse:nil
-                             clientType:nil
-                       recaptchaVersion:nil
                      actionCodeSettings:actionCodeSettings
                    requestConfiguration:requestConfiguration];
 }
@@ -243,9 +207,6 @@ static NSString *const kRecaptchaVersion = @"recaptchaVersion";
                                        email:(nullable NSString *)email
                                     newEmail:(nullable NSString *)newEmail
                                  accessToken:(nullable NSString *)accessToken
-                             captchaResponse:(nullable NSString *)captchaResponse
-                                  clientType:(nullable NSString *)clientType
-                            recaptchaVersion:(nullable NSString *)recaptchaVersion
                           actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
                         requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kGetOobConfirmationCodeEndpoint
@@ -262,9 +223,6 @@ static NSString *const kRecaptchaVersion = @"recaptchaVersion";
     _androidInstallApp = actionCodeSettings.androidInstallIfNotAvailable;
     _handleCodeInApp = actionCodeSettings.handleCodeInApp;
     _dynamicLinkDomain = actionCodeSettings.dynamicLinkDomain;
-    _captchaResponse = [captchaResponse copy];
-    _clientType = [clientType copy];
-    _recaptchaVersion = [recaptchaVersion copy];
   }
   return self;
 }
@@ -322,17 +280,9 @@ static NSString *const kRecaptchaVersion = @"recaptchaVersion";
   if (_handleCodeInApp) {
     body[kCanHandleCodeInAppKey] = @YES;
   }
+
   if (_dynamicLinkDomain) {
     body[kDynamicLinkDomainKey] = _dynamicLinkDomain;
-  }
-  if (_captchaResponse) {
-    body[kCaptchaResponseKey] = _captchaResponse;
-  }
-  if (_clientType) {
-    body[kClientType] = _clientType;
-  }
-  if (_recaptchaVersion) {
-    body[kRecaptchaVersion] = _recaptchaVersion;
   }
   if (self.tenantID) {
     body[kTenantIDKey] = self.tenantID;

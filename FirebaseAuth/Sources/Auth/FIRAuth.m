@@ -16,8 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import <recaptcha/recaptcha.h>
-
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 
 #if __has_include(<UIKit/UIKit.h>)
@@ -46,8 +44,6 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetRecaptchaConfigRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetRecaptchaConfigResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRResetPasswordRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRResetPasswordResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSendVerificationCodeRequest.h"
@@ -763,57 +759,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                         anonymous:NO
                                          callback:callback];
             }];
-  //  FIRGetRecaptchaConfigRequest *request =
-  //      [[FIRGetRecaptchaConfigRequest alloc] initWithClientType:@"CLIENT_TYPE_IOS"
-  //                                                       version:@"RECAPTCHA_ENTERPRISE"
-  //                                          requestConfiguration:_requestConfiguration];
-  //  [FIRAuthBackend getRecaptchaConfig:request
-  //                            callback:^(FIRGetRecaptchaConfigResponse *_Nullable response,
-  //                                       NSError *_Nullable error) {
-  //      if (error) {
-  //          NSLog(@"%@", error);
-  //      } else {
-  //                              NSLog(@"%@", response.recaptchaKey);
-  //      }
-  //                            }];
-
-  RecaptchaClient *recaptchaClient =
-      [[RecaptchaClient alloc] initWithSiteKey:@"6Lf5tkkfAAAAAEBTVMfbuPCvYzuBnZNauhPJqji3"];
-  [recaptchaClient execute:[[RecaptchaAction alloc] initWithAction:RecaptchaActionTypeLogin]
-         onFinishedExecute:^(RecaptchaToken *_Nullable token, RecaptchaError *_Nullable error) {
-           if (error) {
-             NSLog(@ "!!!!! error %@", error);
-           } else {
-             NSLog(@ "!!!!! token %@", token.recaptchaToken);
-             FIRVerifyPasswordRequest *request =
-                 [[FIRVerifyPasswordRequest alloc] initWithEmail:email
-                                                        password:password
-                                                 captchaResponse:nil
-                                                      clientType:nil
-                                                recaptchaVersion:nil
-                                            requestConfiguration:self->_requestConfiguration];
-
-             if (![request.password length]) {
-               callback(nil, [FIRAuthErrorUtils wrongPasswordErrorWithMessage:nil]);
-               return;
-             }
-             [FIRAuthBackend
-                 verifyPassword:request
-                       callback:^(FIRVerifyPasswordResponse *_Nullable response,
-                                  NSError *_Nullable error) {
-                         if (error) {
-                           NSLog(@ "!!!!! error %@", error);
-                           callback(nil, error);
-                           return;
-                         }
-                         [self completeSignInWithAccessToken:response.IDToken
-                                   accessTokenExpirationDate:response.approximateExpirationDate
-                                                refreshToken:response.refreshToken
-                                                   anonymous:NO
-                                                    callback:callback];
-                       }];
-           }
-         }];
 }
 
 /** @fn internalSignInAndRetrieveDataWithEmail:password:callback:
