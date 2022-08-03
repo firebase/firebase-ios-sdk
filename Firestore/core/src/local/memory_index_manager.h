@@ -79,7 +79,7 @@ class MemoryIndexManager : public IndexManager {
   absl::optional<std::vector<model::DocumentKey>> GetDocumentsMatchingTarget(
       const core::Target& target) override;
 
-  absl::optional<std::string> GetNextCollectionGroupToUpdate() override;
+  absl::optional<std::string> GetNextCollectionGroupToUpdate() const override;
 
   void UpdateCollectionGroup(const std::string& collection_group,
                              model::IndexOffset offset) override;

@@ -32,6 +32,8 @@
 
 #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorAssertion+Internal.h"
+#import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorInfo+Internal.h"
+
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -155,9 +157,11 @@ static NSString *kUserCodingKey = @"user";
   if (self) {
     NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfoArray = [[NSMutableArray alloc] init];
     for (FIRAuthProtoMFAEnrollment *MFAEnrollment in MFAEnrollments) {
-      FIRMultiFactorInfo *multiFactorInfo =
-          [[FIRMultiFactorInfo alloc] initWithProto:MFAEnrollment];
-      [multiFactorInfoArray addObject:multiFactorInfo];
+      if (MFAEnrollment.phoneInfo) {
+        FIRMultiFactorInfo *multiFactorInfo =
+            [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
+        [multiFactorInfoArray addObject:multiFactorInfo];
+      }
     }
     _enrolledFactors = [multiFactorInfoArray copy];
   }

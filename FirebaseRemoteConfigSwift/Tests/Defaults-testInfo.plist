@@ -8,7 +8,7 @@
 	<true/>
 	<key>dataValue</key>
 	<data>Mi40</data>
-	<key>New item</key>
+	<key>newItem</key>
 	<real>2.4</real>
 	<key>Languages</key>
 	<string>English</string>
@@ -21,6 +21,13 @@
 		<string>foo</string>
 		<string>bar</string>
 		<string>baz</string>
+	</array>
+	<key>arrayIntValue</key>
+	<array>
+		<integer>1</integer>
+		<integer>2</integer>
+		<integer>0</integer>
+		<integer>3</integer>
 	</array>
 	<key>dictValue</key>
 	<dict>

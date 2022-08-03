@@ -19,7 +19,7 @@
 import PackageDescription
 import class Foundation.ProcessInfo
 
-let firebaseVersion = "9.3.0"
+let firebaseVersion = "9.4.0"
 
 let package = Package(
   name: "Firebase",
@@ -150,7 +150,7 @@ let package = Package(
       url: "https://github.com/google/GoogleAppMeasurement.git",
       // Note that CI changes the version to the head of main for CI.
       // See scripts/setup_spm_tests.sh.
-      .exact("9.1.0")
+      .exact("9.3.0")
     ),
     .package(
       name: "GoogleDataTransport",
@@ -344,8 +344,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/9.1.0/FirebaseAnalytics.zip",
-      checksum: "5a0e2916e791904fa7be8e8a3c6913fc080ac8a050f3814ef18957e01d21d870"
+      url: "https://dl.google.com/firebase/ios/swiftpm/9.3.0/FirebaseAnalytics.zip",
+      checksum: "5f0b6ad144c6894f06e66f3dc51812655e1aa1e4ff444e4c62ddae24d438345c"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
@@ -1059,6 +1059,9 @@ let package = Package(
         "AccessToken.json",
         "README.md",
         "ObjC/",
+      ],
+      resources: [
+        .process("Defaults-testInfo.plist"),
       ],
       cSettings: [
         .headerSearchPath("../../"),

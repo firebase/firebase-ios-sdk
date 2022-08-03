@@ -32,5 +32,6 @@
   "8.9.1": "https://dl.google.com/dl/firebase/ios/carthage/8.9.1/FirebaseAppDistribution-97d9dd24c19f8251.zip",
   "9.0.0": "https://dl.google.com/dl/firebase/ios/carthage/9.0.0/FirebaseAppDistribution-01fab5f77a85686c.zip",
   "9.1.0": "https://dl.google.com/dl/firebase/ios/carthage/9.1.0/FirebaseAppDistribution-76ca4df8ed3e66e7.zip",
-  "9.2.0": "https://dl.google.com/dl/firebase/ios/carthage/9.2.0/FirebaseAppDistribution-aa3c2594fd57b381.zip"
+  "9.2.0": "https://dl.google.com/dl/firebase/ios/carthage/9.2.0/FirebaseAppDistribution-aa3c2594fd57b381.zip",
+  "9.3.0": "https://dl.google.com/dl/firebase/ios/carthage/9.3.0/FirebaseAppDistribution-308ba992eae95064.zip"
 }

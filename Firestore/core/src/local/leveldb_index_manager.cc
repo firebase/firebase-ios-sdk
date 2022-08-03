@@ -708,7 +708,7 @@ std::vector<LevelDbIndexManager::IndexRange> LevelDbIndexManager::CreateRange(
 }
 
 absl::optional<std::string>
-LevelDbIndexManager::GetNextCollectionGroupToUpdate() {
+LevelDbIndexManager::GetNextCollectionGroupToUpdate() const {
   if (next_index_to_update_.empty()) {
     return absl::nullopt;
   }
@@ -725,7 +725,6 @@ void LevelDbIndexManager::UpdateCollectionGroup(
     IndexState updated_state{memoized_max_sequence_number_, offset};
 
     auto state_key = LevelDbIndexStateKey::Key(uid_, field_index.index_id());
-    auto val = EncodeIndexState(updated_state);
     db_->current_transaction()->Put(std::move(state_key),
                                     EncodeIndexState(updated_state));
 

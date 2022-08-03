@@ -66,7 +66,7 @@ class RemoteDocumentCache {
    * @return The cached Document or DeletedDocument entry, or nullopt if we
    * have nothing cached.
    */
-  virtual model::MutableDocument Get(const model::DocumentKey& key) = 0;
+  virtual model::MutableDocument Get(const model::DocumentKey& key) const = 0;
 
   /**
    * Looks up a set of entries in the cache.
@@ -76,7 +76,7 @@ class RemoteDocumentCache {
    * entry is not cached, the corresponding key will be mapped to a null value.
    */
   virtual model::MutableDocumentMap GetAll(
-      const model::DocumentKeySet& keys) = 0;
+      const model::DocumentKeySet& keys) const = 0;
 
   /**
    * Looks up the next "limit" number of documents for a collection group based
@@ -103,10 +103,14 @@ class RemoteDocumentCache {
    * @param path The collection path to match documents against.
    * @param offset The read time and document key to start scanning at
    * (exclusive).
+   * @param limit The maximum number of results to return.
+   * If the limit is not defined, returns all matching documents.
    * @return The set of matching documents.
    */
   virtual model::MutableDocumentMap GetAll(
-      const model::ResourcePath& path, const model::IndexOffset& offset) = 0;
+      const model::ResourcePath& path,
+      const model::IndexOffset& offset,
+      absl::optional<size_t> limit = absl::nullopt) const = 0;
 
   /**
    * Sets the index manager used by remote document cache.
