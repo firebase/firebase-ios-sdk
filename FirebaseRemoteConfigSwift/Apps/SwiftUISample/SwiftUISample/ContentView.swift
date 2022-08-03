@@ -15,25 +15,44 @@
  */
 
 import SwiftUI
-import FirebaseCore
 import FirebaseRemoteConfigSwift
-import FirebaseRemoteConfig
 
 struct ContentView: View {
   @RemoteConfigProperty(forKey: "Color") var configValue : String
   @RemoteConfigProperty(forKey: "Toggle") var toggleValue : Bool
- // @RemoteConfigProperty(forKey: "fruits") var fruits: [String]
+  @RemoteConfigProperty(forKey: "fruits") var fruits: [String]
   @RemoteConfigProperty(forKey: "counter") var counter: Int
+  @RemoteConfigProperty(forKey: "mobileweek") var sessions: [String: String]
 
-    var body: some View {
-      VStack {
+  var body: some View {
+    VStack {
+      if (counter > 1) {
         ForEach(1...counter, id: \.self) { i in
           Text(configValue)
             .padding()
             .foregroundStyle(toggleValue ? .primary : .secondary)
         }
+      } else {
+        Text(configValue)
+          .padding()
+          .foregroundStyle(toggleValue ? .primary : .secondary)
+      }
+      if (fruits.count > 0) {
+        List(fruits, id: \.self) { fruit in
+          Text(fruit)
+        }
+      }
+      if (sessions.count > 0) {
+        List {
+          ForEach(sessions.sorted(by: >), id: \.key) { key, value in
+            Section(header: Text(key)) {
+              Text(value)
+            }
+          }
+        }
       }
     }
+  }
 }
 
 struct ContentView_Previews: PreviewProvider {
