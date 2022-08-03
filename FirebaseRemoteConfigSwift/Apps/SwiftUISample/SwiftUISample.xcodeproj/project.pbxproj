@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		518CFAD128946E7400073411 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 518CFAD028946E7400073411 /* GoogleService-Info.plist */; };
+		51F01C71289AF34400A4A663 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 51F01C70289AF34400A4A663 /* GoogleService-Info.plist */; };
 		51F3B180289464A5000B8772 /* SwiftUISampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51F3B17F289464A5000B8772 /* SwiftUISampleApp.swift */; };
 		51F3B182289464A5000B8772 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51F3B181289464A5000B8772 /* ContentView.swift */; };
 		51F3B184289464A7000B8772 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 51F3B183289464A7000B8772 /* Assets.xcassets */; };
@@ -15,7 +15,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		518CFAD028946E7400073411 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		51F01C70289AF34400A4A663 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		51F3B17C289464A5000B8772 /* SwiftUISample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftUISample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		51F3B17F289464A5000B8772 /* SwiftUISampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUISampleApp.swift; sourceTree = "<group>"; };
 		51F3B181289464A5000B8772 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -61,7 +61,7 @@
 		51F3B17E289464A5000B8772 /* SwiftUISample */ = {
 			isa = PBXGroup;
 			children = (
-				518CFAD028946E7400073411 /* GoogleService-Info.plist */,
+				51F01C70289AF34400A4A663 /* GoogleService-Info.plist */,
 				51F3B17F289464A5000B8772 /* SwiftUISampleApp.swift */,
 				51F3B181289464A5000B8772 /* ContentView.swift */,
 				51F3B183289464A7000B8772 /* Assets.xcassets */,
@@ -138,7 +138,7 @@
 			files = (
 				51F3B187289464A7000B8772 /* Preview Assets.xcassets in Resources */,
 				51F3B184289464A7000B8772 /* Assets.xcassets in Resources */,
-				518CFAD128946E7400073411 /* GoogleService-Info.plist in Resources */,
+				51F01C71289AF34400A4A663 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
