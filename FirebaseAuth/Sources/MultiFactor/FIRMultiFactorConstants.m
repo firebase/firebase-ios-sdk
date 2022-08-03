@@ -21,6 +21,6 @@
 
 #pragma mark - Multi Factor ID constants
 
-NSString *const FIRPhoneMultiFactorID = @"1";
+NSString *const FIRPhoneMultiFactorID = @"phone";
 
 #endif
