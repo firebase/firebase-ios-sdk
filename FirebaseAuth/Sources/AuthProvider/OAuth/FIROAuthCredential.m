@@ -58,6 +58,25 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)initWithProviderID:(NSString *)providerID
+                           IDToken:(nullable NSString *)IDToken
+                          rawNonce:(nullable NSString *)rawNonce
+                       accessToken:(nullable NSString *)accessToken
+                            secret:(nullable NSString *)secret
+                       displayName:(nullable NSString *)displayName
+                      pendingToken:(nullable NSString *)pendingToken {
+  self = [super initWithProvider:providerID];
+  if (self) {
+    _IDToken = IDToken;
+    _rawNonce = rawNonce;
+    _accessToken = accessToken;
+    _pendingToken = pendingToken;
+    _secret = secret;
+    _displayName = displayName;
+  }
+  return self;
+}
+
+- (instancetype)initWithProviderID:(NSString *)providerID
                          sessionID:(NSString *)sessionID
             OAuthResponseURLString:(NSString *)OAuthResponseURLString {
   self = [self initWithProviderID:providerID

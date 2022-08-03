@@ -124,6 +124,20 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                            pendingToken:nil];
 }
 
++ (FIROAuthCredential *)credentialWithProviderID:(NSString *)providerID
+                                         IDToken:(NSString *)IDToken
+                                        rawNonce:(nullable NSString *)rawNonce
+                                     accessToken:(nullable NSString *)accessToken
+                                     displayName:(nonnull NSString *)displayName{
+  return [[FIROAuthCredential alloc] initWithProviderID:providerID
+                                                IDToken:IDToken
+                                               rawNonce:rawNonce
+                                            accessToken:accessToken
+                                                 secret:nil
+                                            displayName:displayName
+                                           pendingToken:nil];
+}
+
 + (instancetype)providerWithProviderID:(NSString *)providerID {
   return [[self alloc] initWithProviderID:providerID auth:[FIRAuth auth]];
 }

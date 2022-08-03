@@ -67,6 +67,11 @@ static NSString *const kFakeIDToken = @"fakeIDToken";
  */
 static NSString *const kFakeProviderID = @"fakeProviderID";
 
+/** @var kFakeProviderID
+    @brief A fake provider ID for testing.
+ */
+static NSString *const kFakeDisplayName = @"fakeDisplayName";
+
 /** @var kFakeAPIKey
     @brief A fake API key.
  */
@@ -235,6 +240,20 @@ static NSString *const kUnknownErrorString =
   FIROAuthCredential *OAuthCredential = (FIROAuthCredential *)credential;
   XCTAssertEqualObjects(OAuthCredential.accessToken, kFakeAccessToken);
   XCTAssertEqualObjects(OAuthCredential.provider, kFakeProviderID);
+  XCTAssertNil(OAuthCredential.IDToken);
+}
+
+/** @fn testObtainingOAuthCredentialNoIDToken
+    @brief Tests the correct creation of an OAuthCredential without an IDToken.
+ */
+- (void)testObtainingOAuthCredentialWithDisplayName {
+  FIRAuthCredential *credential = [FIROAuthProvider credentialWithProviderID:kFakeProviderID
+                                                                 accessToken:kFakeAccessToken];
+  XCTAssertTrue([credential isKindOfClass:[FIROAuthCredential class]]);
+  FIROAuthCredential *OAuthCredential = (FIROAuthCredential *)credential;
+  XCTAssertEqualObjects(OAuthCredential.accessToken, kFakeAccessToken);
+  XCTAssertEqualObjects(OAuthCredential.provider, kFakeProviderID);
+  XCTAssertEqualObjects(OAuthCredential.displayName,kFakeDisplayName);
   XCTAssertNil(OAuthCredential.IDToken);
 }
 

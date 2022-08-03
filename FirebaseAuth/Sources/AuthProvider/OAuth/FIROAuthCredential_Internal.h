@@ -57,6 +57,14 @@ NS_ASSUME_NONNULL_BEGIN
                             secret:(nullable NSString *)secret
                       pendingToken:(nullable NSString *)pendingToken NS_DESIGNATED_INITIALIZER;
 
+- (instancetype)initWithProviderID:(NSString *)providerID
+                           IDToken:(nullable NSString *)IDToken
+                          rawNonce:(nullable NSString *)rawNonce
+                       accessToken:(nullable NSString *)accessToken
+                            secret:(nullable NSString *)secret
+                       displayName:(nullable NSString *)displayName
+                      pendingToken:(nullable NSString *)pendingToken NS_DESIGNATED_INITIALIZER;
+
 /** @fn initWithProviderId:sessionID:OAuthResponseURLString:
     @brief Intitializer which takes a sessionID and an OAuthResponseURLString.
     @param providerID The provider ID associated with the credential being created.
