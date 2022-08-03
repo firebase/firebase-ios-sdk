@@ -18,16 +18,16 @@ import SwiftUI
 import FirebaseRemoteConfigSwift
 
 struct ContentView: View {
-  @RemoteConfigProperty(forKey: "Color") var configValue : String
-  @RemoteConfigProperty(forKey: "Toggle") var toggleValue : Bool
+  @RemoteConfigProperty(forKey: "Color") var configValue: String
+  @RemoteConfigProperty(forKey: "Toggle") var toggleValue: Bool
   @RemoteConfigProperty(forKey: "fruits") var fruits: [String]
   @RemoteConfigProperty(forKey: "counter") var counter: Int
   @RemoteConfigProperty(forKey: "mobileweek") var sessions: [String: String]
 
   var body: some View {
     VStack {
-      if (counter > 1) {
-        ForEach(1...counter, id: \.self) { i in
+      if counter > 1 {
+        ForEach(1 ... counter, id: \.self) { i in
           Text(configValue)
             .padding()
             .foregroundStyle(toggleValue ? .primary : .secondary)
@@ -37,12 +37,12 @@ struct ContentView: View {
           .padding()
           .foregroundStyle(toggleValue ? .primary : .secondary)
       }
-      if (fruits.count > 0) {
+      if fruits.count > 0 {
         List(fruits, id: \.self) { fruit in
           Text(fruit)
         }
       }
-      if (sessions.count > 0) {
+      if sessions.count > 0 {
         List {
           ForEach(sessions.sorted(by: >), id: \.key) { key, value in
             Section(header: Text(key)) {
@@ -56,7 +56,7 @@ struct ContentView: View {
 }
 
 struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
+  static var previews: some View {
+    ContentView()
+  }
 }
