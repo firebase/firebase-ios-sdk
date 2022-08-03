@@ -28,7 +28,7 @@ internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
     self.key = key
     self.remoteConfig = remoteConfig
     //if (T.self == String.self || T.self == Int.self || T.self == Bool.self) {
-      self.configValue = try! remoteConfig.configValue(forKey: key).decoded(asType: T.self)
+      self.configValue = try! remoteConfig.configValue(forKey: key).decoded()
    // } else {
     //  self.configValue = try! (remoteConfig.configValue(forKey: key).jsonValue as? T)!
     //}
