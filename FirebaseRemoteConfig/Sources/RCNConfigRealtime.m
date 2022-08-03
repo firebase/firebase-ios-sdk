@@ -385,18 +385,14 @@ static bool gIsRetrying;
     [strongSelf->_configFetch
         fetchConfigWithExpirationDuration:0
                         completionHandler:^(FIRRemoteConfigFetchStatus status, NSError *error) {
-                          FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000015",
-                                     @"Attempting to fetch new config.");
                           if (status == FIRRemoteConfigFetchStatusSuccess) {
                             if ([strongSelf->_configFetch.templateVersionNumber integerValue] >=
                                 targetVersion) {
-                              FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000012",
-                                         @"Fetch latest config, executing callbacks.");
                               for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
                                 listener(nil);
                               }
                             } else {
-                              FIRLogInfo(
+                              FIRLogDebug(
                                   kFIRLoggerRemoteConfig, @"I-RCN000016",
                                   @"Fetched config's template version is the same or less then the "
                                   @"current version, re-fetching");
