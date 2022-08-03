@@ -427,12 +427,13 @@ static bool gIsRetrying;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
     if (remainingAttempts == 0) {
-      NSError *error = [NSError
-          errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
-                     code:FIRRemoteConfigRealtimeErrorFetch
-                 userInfo:@{
-                   NSLocalizedDescriptionKey : @"FetchError: Unable to retrieve the latest config version."
-                 }];
+      NSError *error =
+          [NSError errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
+                              code:FIRRemoteConfigRealtimeErrorFetch
+                          userInfo:@{
+                            NSLocalizedDescriptionKey :
+                                @"FetchError: Unable to retrieve the latest config version."
+                          }];
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000011",
                   @"Ran out of fetch attempts, cannot find target config version.");
       for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
