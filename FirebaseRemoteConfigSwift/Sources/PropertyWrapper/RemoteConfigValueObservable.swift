@@ -27,7 +27,11 @@ internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
   init(key: String, remoteConfig: RemoteConfig) {
     self.key = key
     self.remoteConfig = remoteConfig
-    self.configValue = try! remoteConfig.configValue(forKey: key).decoded(asType: T.self)
+    //if (T.self == String.self || T.self == Int.self || T.self == Bool.self) {
+      self.configValue = try! remoteConfig.configValue(forKey: key).decoded(asType: T.self)
+   // } else {
+    //  self.configValue = try! (remoteConfig.configValue(forKey: key).jsonValue as? T)!
+    //}
     self.registration = remoteConfig.add(onConfigUpdateListener: { error in
           guard error == nil else {
             return
@@ -37,7 +41,11 @@ internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
               return
             }
             DispatchQueue.main.async {
-              self.configValue = try! remoteConfig.configValue(forKey: self.key).decoded(asType: T.self)
+              //if (T.self == String.self || T.self == Int.self || T.self == Bool.self) {
+                self.configValue = try! remoteConfig.configValue(forKey: key).decoded(asType: T.self)
+             // } else {
+             //   self.configValue = try! (remoteConfig.configValue(forKey: key).jsonValue as? T)!
+             // }
             }
           }
         })
