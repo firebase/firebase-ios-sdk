@@ -137,9 +137,6 @@ typedef NS_ENUM(NSInteger, FIRGetOOBConfirmationCodeRequestType) {
  */
 + (nullable FIRGetOOBConfirmationCodeRequest *)
     passwordResetRequestWithEmail:(NSString *)email
-                  captchaResponse:(nullable NSString *)captchaResponse
-                       clientType:(nullable NSString *)clientType
-                 recaptchaVersion:(nullable NSString *)recaptchaVersion
                actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
              requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 
@@ -166,9 +163,6 @@ typedef NS_ENUM(NSInteger, FIRGetOOBConfirmationCodeRequestType) {
  */
 + (nullable FIRGetOOBConfirmationCodeRequest *)
     signInWithEmailLinkRequest:(NSString *)email
-               captchaResponse:(nullable NSString *)captchaResponse
-                    clientType:(nullable NSString *)clientType
-              recaptchaVersion:(nullable NSString *)recaptchaVersion
             actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
           requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 

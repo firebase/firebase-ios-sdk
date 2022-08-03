@@ -142,9 +142,6 @@ static NSString *const kRecaptchaVersion = @"recaptchaVersion";
                                        email:(nullable NSString *)email
                                     newEmail:(nullable NSString *)newEmail
                                  accessToken:(nullable NSString *)accessToken
-                             captchaResponse:(nullable NSString *)captchaResponse
-                                  clientType:(nullable NSString *)clientType
-                            recaptchaVersion:(nullable NSString *)recaptchaVersion
                           actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
                         requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
     NS_DESIGNATED_INITIALIZER;
@@ -173,18 +170,12 @@ static NSString *const kRecaptchaVersion = @"recaptchaVersion";
 
 + (nullable FIRGetOOBConfirmationCodeRequest *)
     passwordResetRequestWithEmail:(NSString *)email
-                  captchaResponse:(nullable NSString *)captchaResponse
-                       clientType:(nullable NSString *)clientType
-                 recaptchaVersion:(nullable NSString *)recaptchaVersion
                actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
              requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   return [[self alloc] initWithRequestType:FIRGetOOBConfirmationCodeRequestTypePasswordReset
                                      email:email
                                   newEmail:nil
                                accessToken:nil
-                           captchaResponse:captchaResponse
-                                clientType:clientType
-                          recaptchaVersion:recaptchaVersion
                         actionCodeSettings:actionCodeSettings
                       requestConfiguration:requestConfiguration];
 }
@@ -197,27 +188,18 @@ static NSString *const kRecaptchaVersion = @"recaptchaVersion";
                                      email:nil
                                   newEmail:nil
                                accessToken:accessToken
-                           captchaResponse:nil
-                                clientType:nil
-                          recaptchaVersion:nil
                         actionCodeSettings:actionCodeSettings
                       requestConfiguration:requestConfiguration];
 }
 
 + (nullable FIRGetOOBConfirmationCodeRequest *)
     signInWithEmailLinkRequest:(NSString *)email
-               captchaResponse:(nullable NSString *)captchaResponse
-                    clientType:(nullable NSString *)clientType
-              recaptchaVersion:(nullable NSString *)recaptchaVersion
             actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
           requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   return [[self alloc] initWithRequestType:FIRGetOOBConfirmationCodeRequestTypeEmailLink
                                      email:email
                                   newEmail:nil
                                accessToken:nil
-                           captchaResponse:captchaResponse
-                                clientType:clientType
-                          recaptchaVersion:recaptchaVersion
                         actionCodeSettings:actionCodeSettings
                       requestConfiguration:requestConfiguration];
 }
@@ -232,9 +214,6 @@ static NSString *const kRecaptchaVersion = @"recaptchaVersion";
                                   email:nil
                                newEmail:newEmail
                             accessToken:accessToken
-                        captchaResponse:nil
-                             clientType:nil
-                       recaptchaVersion:nil
                      actionCodeSettings:actionCodeSettings
                    requestConfiguration:requestConfiguration];
 }
@@ -243,9 +222,6 @@ static NSString *const kRecaptchaVersion = @"recaptchaVersion";
                                        email:(nullable NSString *)email
                                     newEmail:(nullable NSString *)newEmail
                                  accessToken:(nullable NSString *)accessToken
-                             captchaResponse:(nullable NSString *)captchaResponse
-                                  clientType:(nullable NSString *)clientType
-                            recaptchaVersion:(nullable NSString *)recaptchaVersion
                           actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
                         requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kGetOobConfirmationCodeEndpoint
@@ -262,9 +238,6 @@ static NSString *const kRecaptchaVersion = @"recaptchaVersion";
     _androidInstallApp = actionCodeSettings.androidInstallIfNotAvailable;
     _handleCodeInApp = actionCodeSettings.handleCodeInApp;
     _dynamicLinkDomain = actionCodeSettings.dynamicLinkDomain;
-    _captchaResponse = [captchaResponse copy];
-    _clientType = [clientType copy];
-    _recaptchaVersion = [recaptchaVersion copy];
   }
   return self;
 }

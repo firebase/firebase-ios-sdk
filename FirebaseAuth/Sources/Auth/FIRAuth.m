@@ -1306,9 +1306,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     }
     FIRGetOOBConfirmationCodeRequest *request = [FIRGetOOBConfirmationCodeRequest
         passwordResetRequestWithEmail:email
-                      captchaResponse:nil
-                           clientType:nil
-                     recaptchaVersion:nil
                    actionCodeSettings:actionCodeSettings
                  requestConfiguration:self->_requestConfiguration];
     [FIRAuthBackend getOOBConfirmationCode:request
@@ -1338,9 +1335,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     }
     FIRGetOOBConfirmationCodeRequest *request =
         [FIRGetOOBConfirmationCodeRequest signInWithEmailLinkRequest:email
-                                                     captchaResponse:nil
-                                                          clientType:nil
-                                                    recaptchaVersion:nil
                                                   actionCodeSettings:actionCodeSettings
                                                 requestConfiguration:self->_requestConfiguration];
     [FIRAuthBackend getOOBConfirmationCode:request
@@ -1742,9 +1736,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       [[FIRSignUpNewUserRequest alloc] initWithEmail:email
                                             password:password
                                          displayName:nil
-                                     captchaResponse:nil
-                                          clientType:nil
-                                    recaptchaVersion:nil
                                 requestConfiguration:_requestConfiguration];
   if (![request.password length]) {
     completion(

@@ -68,18 +68,12 @@ static NSString *const kTenantIDKey = @"tenantId";
 - (nullable instancetype)initWithEmail:(nullable NSString *)email
                               password:(nullable NSString *)password
                            displayName:(nullable NSString *)displayName
-                       captchaResponse:(nullable NSString *)captchaResponse
-                            clientType:(nullable NSString *)clientType
-                      recaptchaVersion:(nullable NSString *)recaptchaVersion
                   requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kSignupNewUserEndpoint requestConfiguration:requestConfiguration];
   if (self) {
     _email = [email copy];
     _password = [password copy];
     _displayName = [displayName copy];
-    _captchaResponse = [captchaResponse copy];
-    _clientType = [clientType copy];
-    _recaptchaVersion = [recaptchaVersion copy];
     _returnSecureToken = YES;
   }
   return self;
@@ -90,9 +84,6 @@ static NSString *const kTenantIDKey = @"tenantId";
   self = [self initWithEmail:nil
                     password:nil
                  displayName:nil
-             captchaResponse:nil
-                  clientType:nil
-            recaptchaVersion:nil
         requestConfiguration:requestConfiguration];
   return self;
 }

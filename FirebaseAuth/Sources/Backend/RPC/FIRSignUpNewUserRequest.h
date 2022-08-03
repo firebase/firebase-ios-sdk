@@ -79,9 +79,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable instancetype)initWithEmail:(nullable NSString *)email
                               password:(nullable NSString *)password
                            displayName:(nullable NSString *)displayName
-                       captchaResponse:(nullable NSString *)captchaResponse
-                            clientType:(nullable NSString *)clientType
-                      recaptchaVersion:(nullable NSString *)recaptchaVersion
                   requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
     NS_DESIGNATED_INITIALIZER;
 

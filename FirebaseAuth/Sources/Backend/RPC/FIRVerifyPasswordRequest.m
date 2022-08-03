@@ -72,17 +72,11 @@ static NSString *const kTenantIDKey = @"tenantId";
 
 - (nullable instancetype)initWithEmail:(NSString *)email
                               password:(NSString *)password
-                       captchaResponse:(nullable NSString *)captchaResponse
-                            clientType:(nullable NSString *)clientType
-                      recaptchaVersion:(nullable NSString *)recaptchaVersion
                   requestConfiguration:(nonnull FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kVerifyPasswordEndpoint requestConfiguration:requestConfiguration];
   if (self) {
     _email = [email copy];
     _password = [password copy];
-    _captchaResponse = [captchaResponse copy];
-    _clientType = [clientType copy];
-    _recaptchaVersion = [recaptchaVersion copy];
     _returnSecureToken = YES;
   }
   return self;
