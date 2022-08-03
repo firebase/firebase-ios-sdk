@@ -464,11 +464,11 @@ static bool gIsFeatureDisabled;
                                                              error:&dataError];
   NSString *targetTemplateVersion = _configFetch.templateVersionNumber;
   if (dataError == nil) {
-      if ([response objectForKey:kTemplateVersionNumberKey]) {
-          targetTemplateVersion = [response objectForKey:kTemplateVersionNumberKey];
-      }
-      if ([response objectForKey:kIsFeatureDisabled]) {
-          gIsFeatureDisabled = [response objectForKey:kIsFeatureDisabled];
+    if ([response objectForKey:kTemplateVersionNumberKey]) {
+      targetTemplateVersion = [response objectForKey:kTemplateVersionNumberKey];
+    }
+    if ([response objectForKey:kIsFeatureDisabled]) {
+      gIsFeatureDisabled = [response objectForKey:kIsFeatureDisabled];
       if (gIsFeatureDisabled) {
         [self pauseRealtimeStream];
       }
