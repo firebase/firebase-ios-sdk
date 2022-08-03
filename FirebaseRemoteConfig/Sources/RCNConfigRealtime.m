@@ -394,8 +394,7 @@ static bool gIsRetrying;
                             } else {
                               FIRLogDebug(
                                   kFIRLoggerRemoteConfig, @"I-RCN000016",
-                                  @"Fetched config's template version is the same or less then the "
-                                  @"current version, re-fetching");
+                                  @"Fetched config's template version is outdated, re-fetching");
                               [strongSelf autoFetch:remainingAttempts - 1
                                       targetVersion:targetVersion];
                             }
@@ -432,11 +431,10 @@ static bool gIsRetrying;
           errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
                      code:FIRRemoteConfigRealtimeErrorFetch
                  userInfo:@{
-                   NSLocalizedDescriptionKey : @"FetchError: Unable to retrieve the latest config."
+                   NSLocalizedDescriptionKey : @"FetchError: Unable to retrieve the latest config version."
                  }];
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000011",
-                  @"Ran out of fetch attempts, cannot find target config version. Error: %@",
-                  error);
+                  @"Ran out of fetch attempts, cannot find target config version.");
       for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
         listener(error);
       }
