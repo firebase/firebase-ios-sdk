@@ -1,6 +1,6 @@
 # Unreleased
 - [fixed] Fixed an intermittent crash if `ListenerRegistration::Remove()` was
-  invoked concurrently.
+  invoked concurrently (#10065).
 
 # 9.4.0
 - [fixed] Fixed a crash during app start (#9985, #10018).
