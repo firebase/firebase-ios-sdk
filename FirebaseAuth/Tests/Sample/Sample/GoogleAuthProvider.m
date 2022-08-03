@@ -22,62 +22,6 @@
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIROptions.h>
 #import <FirebaseAuth/FIRGoogleAuthProvider.h>
-#import "ApplicationDelegate.h"
-
-/** @typedef GoogleSignInCallback
-    @brief The type of block invoked when a @c GIDGoogleUser object is ready or an error has
-        occurred.
-    @param user The Google user if any.
-    @param error The error which occurred, if any.
- */
-typedef void (^GoogleSignInCallback)(GIDGoogleUser *user, NSError *error);
-
-/** @class GoogleAuthDelegate
-    @brief The designated delegate class for Google Sign-In.
- */
-@interface GoogleAuthDelegate : NSObject <GIDSignInDelegate, OpenURLDelegate>
-
-/** @fn initWithPresentingViewController:callback:
-    @brief Initializes the new instance with the callback.
-    @param presentingViewController The view controller to present the UI.
-    @param callback A block which is invoked when the sign-in flow finishes. Invoked asynchronously
-        on an unspecified thread in the future.
- */
-- (instancetype)initWithPresentingViewController:(UIViewController *)presentingViewController
-                                        callback:(nullable GoogleSignInCallback)callback;
-
-@end
-
-@implementation GoogleAuthDelegate {
-  UIViewController *_presentingViewController;
-  GoogleSignInCallback _callback;
-}
-
-- (instancetype)initWithPresentingViewController:(UIViewController *)presentingViewController
-                                        callback:(nullable GoogleSignInCallback)callback {
-  self = [super init];
-  if (self) {
-    _presentingViewController = presentingViewController;
-    _callback = callback;
-  }
-  return self;
-}
-
-- (void)signIn:(GIDSignIn *)signIn
-    didSignInForUser:(GIDGoogleUser *)user
-           withError:(NSError *)error {
-  GoogleSignInCallback callback = _callback;
-  _callback = nil;
-  if (callback) {
-    callback(user, error);
-  }
-}
-
-- (BOOL)handleOpenURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication {
-  return [[GIDSignIn sharedInstance] handleURL:url];
-}
-
-@end
 
 @implementation GoogleAuthProvider
 
@@ -85,12 +29,11 @@ typedef void (^GoogleSignInCallback)(GIDGoogleUser *user, NSError *error);
                                              callback:(AuthCredentialCallback)callback {
   [self signOut];
 
-  // The delegate needs to be retained.
-  __block GoogleAuthDelegate *delegate = [[GoogleAuthDelegate alloc]
-      initWithPresentingViewController:viewController
-                              callback:^(GIDGoogleUser *user, NSError *error) {
-    [ApplicationDelegate setOpenURLDelegate:nil];
-    delegate = nil;
+  GIDSignIn *signIn = GIDSignIn.sharedInstance;
+  GIDConfiguration *config = [[GIDConfiguration alloc] initWithClientID:[self googleClientID]];
+  [signIn signInWithConfiguration:config
+         presentingViewController:viewController
+                         callback:^(GIDGoogleUser * _Nullable user, NSError * _Nullable error) {
     if (error) {
       callback(nil, error);
       return;
@@ -100,17 +43,10 @@ typedef void (^GoogleSignInCallback)(GIDGoogleUser *user, NSError *error);
                                                                      accessToken:auth.accessToken];
     callback(credential, error);
   }];
-  GIDSignIn *signIn = [GIDSignIn sharedInstance];
-  signIn.clientID = [self googleClientID];
-  signIn.shouldFetchBasicProfile = YES;
-  signIn.delegate = delegate;
-  signIn.presentingViewController = viewController;
-  [ApplicationDelegate setOpenURLDelegate:delegate];
-  [signIn signIn];
 }
 
 - (void)signOut {
-  [[GIDSignIn sharedInstance] signOut];
+  [GIDSignIn.sharedInstance signOut];
 }
 
 - (NSString *)googleClientID {

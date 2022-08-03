@@ -146,7 +146,8 @@ class IndexManager {
    * Returns the next collection group to update. Returns `nullopt` if no
    * group exists.
    */
-  virtual absl::optional<std::string> GetNextCollectionGroupToUpdate() = 0;
+  virtual absl::optional<std::string> GetNextCollectionGroupToUpdate()
+      const = 0;
 
   /**
    * Sets the collection group's latest read time.

@@ -579,7 +579,7 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
   [testViewController view];  // Loads the view so that a screen trace is created for it.
 
   UIViewController *testViewController2 = [[UIViewController alloc] init];
-  [testViewController view];  // Loads the view so that a screen trace is created for it.
+  [testViewController2 view];  // Loads the view so that a screen trace is created for it.
 
   self.tracker.previouslyVisibleViewControllers = [NSPointerArray weakObjectsPointerArray];
   [self.tracker.previouslyVisibleViewControllers addPointer:(__bridge void *)testViewController];
@@ -594,7 +594,6 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
   [self.tracker appDidBecomeActiveNotification:appDidBecomeActiveNSNotification];
   dispatch_group_wait(self.dispatchGroupToWaitOn, DISPATCH_TIME_FOREVER);
 
-  XCTAssertEqual(self.tracker.activeScreenTraces.count, 1);
   XCTAssertNil(self.tracker.previouslyVisibleViewControllers);
   XCTAssertNotNil([self.tracker.activeScreenTraces objectForKey:testViewController]);
   XCTAssertNil([self.tracker.activeScreenTraces objectForKey:testViewController2]);

@@ -287,6 +287,8 @@ model::ResourcePath Resource(absl::string_view field);
  */
 model::SnapshotVersion Version(int64_t version);
 
+model::SnapshotVersion Version(int64_t seconds, int32_t nanoseconds);
+
 model::MutableDocument Doc(absl::string_view key, int64_t version = 0);
 
 model::MutableDocument Doc(absl::string_view key,

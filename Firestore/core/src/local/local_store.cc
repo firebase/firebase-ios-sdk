@@ -22,6 +22,7 @@
 
 #include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/bundle_cache.h"
+#include "Firestore/core/src/local/index_backfiller.h"
 #include "Firestore/core/src/local/local_documents_view.h"
 #include "Firestore/core/src/local/local_view_changes.h"
 #include "Firestore/core/src/local/local_write_result.h"
@@ -119,6 +120,7 @@ LocalStore::LocalStore(Persistence* persistence,
   persistence->reference_delegate()->AddInMemoryPins(&local_view_references_);
   target_id_generator_ = TargetIdGenerator::TargetCacheTargetIdGenerator(0);
   query_engine_->Initialize(local_documents_.get());
+  index_backfiller_ = absl::make_unique<IndexBackfiller>();
 }
 
 LocalStore::~LocalStore() = default;
@@ -563,6 +565,12 @@ DocumentKeySet LocalStore::GetRemoteDocumentKeys(TargetId target_id) {
 LruResults LocalStore::CollectGarbage(LruGarbageCollector* garbage_collector) {
   return persistence_->Run("Collect garbage", [&] {
     return garbage_collector->Collect(target_data_by_target_);
+  });
+}
+
+int LocalStore::Backfill() const {
+  return persistence_->Run("Backfill Indexes", [&] {
+    return index_backfiller_->WriteIndexEntries(this);
   });
 }
 
