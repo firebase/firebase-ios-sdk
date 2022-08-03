@@ -22,38 +22,28 @@ internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
   @Published var configValue: T
   private let key: String
   private let remoteConfig: RemoteConfig
-  private var registration : FIRConfigUpdateListenerRegistration?
+  private var registration: FIRConfigUpdateListenerRegistration?
 
   init(key: String, remoteConfig: RemoteConfig) {
     self.key = key
     self.remoteConfig = remoteConfig
-    //if (T.self == String.self || T.self == Int.self || T.self == Bool.self) {
-      self.configValue = try! remoteConfig.configValue(forKey: key).decoded()
-   // } else {
-    //  self.configValue = try! (remoteConfig.configValue(forKey: key).jsonValue as? T)!
-    //}
-    self.registration = remoteConfig.add(onConfigUpdateListener: { error in
-          guard error == nil else {
-            return
-          }
-          self.remoteConfig.activate() { changed, error in
-            guard error == nil else {
-              return
-            }
-            DispatchQueue.main.async {
-              //if (T.self == String.self || T.self == Int.self || T.self == Bool.self) {
-                self.configValue = try! remoteConfig.configValue(forKey: key).decoded(asType: T.self)
-             // } else {
-             //   self.configValue = try! (remoteConfig.configValue(forKey: key).jsonValue as? T)!
-             // }
-            }
-          }
-        })
-
+    configValue = try! remoteConfig.configValue(forKey: key).decoded()
+    registration = remoteConfig.add(onConfigUpdateListener: { error in
+      guard error == nil else {
+        return
+      }
+      self.remoteConfig.activate { changed, error in
+        guard error == nil else {
+          return
+        }
+        DispatchQueue.main.async {
+          self.configValue = try! remoteConfig.configValue(forKey: key).decoded(asType: T.self)
+        }
+      }
+    })
   }
 
   deinit {
     self.registration?.remove()
   }
 }
-

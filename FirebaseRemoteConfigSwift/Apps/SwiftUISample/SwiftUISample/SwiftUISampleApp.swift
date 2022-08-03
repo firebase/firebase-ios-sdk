@@ -20,11 +20,12 @@ import FirebaseCore
 @main
 struct SwiftUISampleApp: App {
   var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
+    WindowGroup {
+      ContentView()
     }
-  init () {
+  }
+
+  init() {
     FirebaseApp.configure()
   }
 }
