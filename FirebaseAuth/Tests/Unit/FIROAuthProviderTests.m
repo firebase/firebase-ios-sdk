@@ -243,18 +243,18 @@ static NSString *const kUnknownErrorString =
   XCTAssertNil(OAuthCredential.IDToken);
 }
 
-/** @fn testObtainingOAuthCredentialNoIDToken
-    @brief Tests the correct creation of an OAuthCredential without an IDToken.
+/** @fn testObtainingOAuthCredentialWithDisplayName
+    @brief Tests the correct creation of an OAuthCredential with a displayName.
  */
 - (void)testObtainingOAuthCredentialWithDisplayName {
   FIRAuthCredential *credential = [FIROAuthProvider credentialWithProviderID:kFakeProviderID
-                                                                 accessToken:kFakeAccessToken];
+                                   IDToken:kFakeIDToken rawNonce:nil accessToken:kFakeAccessToken displayName:kFakeDisplayName];
   XCTAssertTrue([credential isKindOfClass:[FIROAuthCredential class]]);
   FIROAuthCredential *OAuthCredential = (FIROAuthCredential *)credential;
   XCTAssertEqualObjects(OAuthCredential.accessToken, kFakeAccessToken);
   XCTAssertEqualObjects(OAuthCredential.provider, kFakeProviderID);
+  XCTAssertEqualObjects(OAuthCredential.IDToken, kFakeIDToken);
   XCTAssertEqualObjects(OAuthCredential.displayName,kFakeDisplayName);
-  XCTAssertNil(OAuthCredential.IDToken);
 }
 
 /** @fn testObtainingOAuthCredentialWithIDToken

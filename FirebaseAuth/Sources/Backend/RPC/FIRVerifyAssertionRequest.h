@@ -96,6 +96,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, assign) BOOL autoCreate;
 
+/** @property displayName
+    @brief A displayName linked to its provider
+ */
+@property(nonatomic, copy, nullable) NSString *displayName;
+
 /** @fn initWithEndpoint:requestConfiguration:
     @brief Please use initWithProviderID:requestConfifuration instead.
  */

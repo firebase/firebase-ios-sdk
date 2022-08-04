@@ -113,6 +113,7 @@ NS_ASSUME_NONNULL_BEGIN
   request.sessionID = _sessionID;
   request.providerOAuthTokenSecret = _secret;
   request.pendingToken = _pendingToken;
+  request.displayName = _displayName;
 }
 
 #pragma mark - NSSecureCoding
