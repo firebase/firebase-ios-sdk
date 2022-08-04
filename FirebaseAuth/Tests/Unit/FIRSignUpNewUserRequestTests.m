@@ -78,7 +78,7 @@ static NSString *const kCaptchaResponseKey = @"captchaResponse";
 /** @var kTestCaptchaResponse
     @brief Fake captchaResponse for testing the request.
  */
-static NSString *const kTestCaptchaResponse = @"captchaResponse";
+static NSString *const kTestCaptchaResponse = @"testCaptchaResponse";
 
 /** @var kClientTypeKey
     @brief The key for the "clientType" value in the request.
@@ -88,7 +88,7 @@ static NSString *const kClientTypeKey = @"clientType";
 /** @var kTestClientType
     @brief Fake clientType for testing the request.
  */
-static NSString *const kTestClientType = @"clientType";
+static NSString *const kTestClientType = @"testClientType";
 
 /** @var kRecaptchaVersionKey
     @brief The key for the "recaptchaVersion" value in the request.
@@ -98,7 +98,7 @@ static NSString *const kRecaptchaVersionKey = @"recaptchaVersion";
 /** @var kTestRecaptchaVersion
     @brief Fake recaptchaVersion for testing the request.
  */
-static NSString *const kTestRecaptchaVersion = @"recaptchaVersion";
+static NSString *const kTestRecaptchaVersion = @"testRecaptchaVersion";
 
 /** @var kReturnSecureTokenKey
     @brief The key for the "returnSecureToken" value in the request.
