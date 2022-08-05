@@ -1,3 +1,6 @@
+# Firebase 9.5.0
+- [fixed] Zip Distribution Fixed Promises module name issue impacting lld builds. (#10071)
+
 # Firebase 9.4.1
 - [fixed] Swift Package Manager only release to fix a 9.4.0 tagging issue impacting some users. (#10083)
 
