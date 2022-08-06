@@ -14,7 +14,6 @@
 
 import Foundation
 @testable import FirebaseStorage
-import FirebaseStorageInternal
 import GTMSessionFetcherCore
 import XCTest
 
@@ -27,12 +26,12 @@ class StorageUpdateMetadataTests: StorageTestHelpers {
     super.setUp()
     metadata = StorageMetadata(dictionary: ["bucket": "bucket", "name": "path/to/object"])
     fetcherService = GTMSessionFetcherService()
-    fetcherService?.authorizer = FIRStorageTokenAuthorizer(
-      googleAppID: "dummyAppID",
-      fetcherService: fetcherService!,
-      authProvider: nil,
-      appCheck: nil
-    )
+//    fetcherService?.authorizer = FIRStorageTokenAuthorizer(
+//      googleAppID: "dummyAppID",
+//      fetcherService: fetcherService!,
+//      authProvider: nil,
+//      appCheck: nil
+//    )
     dispatchQueue = DispatchQueue(label: "Test dispatch queue")
   }
 
@@ -56,7 +55,7 @@ class StorageUpdateMetadataTests: StorageTestHelpers {
         response(httpResponse, nil, nil)
     }
     let path = objectPath()
-    let ref = FIRIMPLStorageReference(storage: storage(), path: path)
+    let ref = StorageReference(storage: storage(), path: path)
     let task = StorageUpdateMetadataTask(
       reference: ref,
       fetcherService: fetcherService!.self,
@@ -73,7 +72,7 @@ class StorageUpdateMetadataTests: StorageTestHelpers {
     let expectation = self.expectation(description: #function)
     fetcherService!.testBlock = successBlock(withMetadata: metadata)
     let path = objectPath()
-    let ref = FIRIMPLStorageReference(storage: storage(), path: path)
+    let ref = StorageReference(storage: storage(), path: path)
     let task = StorageUpdateMetadataTask(
       reference: ref,
       fetcherService: fetcherService!.self,
@@ -101,7 +100,7 @@ class StorageUpdateMetadataTests: StorageTestHelpers {
       )
 
     let path = objectPath()
-    let ref = FIRIMPLStorageReference(storage: storage, path: path)
+    let ref = StorageReference(storage: storage, path: path)
     let task = StorageUpdateMetadataTask(
       reference: ref,
       fetcherService: fetcherService!.self,
@@ -119,7 +118,7 @@ class StorageUpdateMetadataTests: StorageTestHelpers {
 
     fetcherService!.testBlock = unauthenticatedBlock()
     let path = objectPath()
-    let ref = FIRIMPLStorageReference(storage: storage(), path: path)
+    let ref = StorageReference(storage: storage(), path: path)
     let task = StorageUpdateMetadataTask(
       reference: ref,
       fetcherService: fetcherService!.self,
@@ -138,7 +137,7 @@ class StorageUpdateMetadataTests: StorageTestHelpers {
 
     fetcherService!.testBlock = unauthorizedBlock()
     let path = objectPath()
-    let ref = FIRIMPLStorageReference(storage: storage(), path: path)
+    let ref = StorageReference(storage: storage(), path: path)
     let task = StorageUpdateMetadataTask(
       reference: ref,
       fetcherService: fetcherService!.self,
@@ -157,7 +156,7 @@ class StorageUpdateMetadataTests: StorageTestHelpers {
 
     fetcherService!.testBlock = notFoundBlock()
     let path = objectPath()
-    let ref = FIRIMPLStorageReference(storage: storage(), path: path)
+    let ref = StorageReference(storage: storage(), path: path)
     let task = StorageUpdateMetadataTask(
       reference: ref,
       fetcherService: fetcherService!.self,
@@ -176,7 +175,7 @@ class StorageUpdateMetadataTests: StorageTestHelpers {
 
     fetcherService!.testBlock = invalidJSONBlock()
     let path = objectPath()
-    let ref = FIRIMPLStorageReference(storage: storage(), path: path)
+    let ref = StorageReference(storage: storage(), path: path)
     let task = StorageUpdateMetadataTask(
       reference: ref,
       fetcherService: fetcherService!.self,

@@ -14,8 +14,6 @@
 
 import Foundation
 
-import FirebaseStorageInternal
-
 /**
  * `StorageTaskSnapshot` represents an immutable view of a task.
  * A snapshot contains a task, storage reference, metadata (if it exists),
@@ -67,12 +65,12 @@ import FirebaseStorageInternal
 
   internal init(task: StorageTask,
                 state: StorageTaskState,
-                reference: FIRIMPLStorageReference,
+                reference: StorageReference,
                 progress: Progress,
                 metadata: StorageMetadata? = nil,
                 error: NSError? = nil) {
     self.task = task
-    self.reference = StorageReference(reference)
+    self.reference = reference
     self.progress = progress
     self.error = error
     self.metadata = metadata

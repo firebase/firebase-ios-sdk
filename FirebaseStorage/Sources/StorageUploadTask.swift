@@ -14,7 +14,6 @@
 
 import Foundation
 
-import FirebaseStorageInternal
 #if COCOAPODS
   import GTMSessionFetcher
 #else
@@ -207,7 +206,7 @@ import FirebaseStorageInternal
 
   // MARK: - Internal Implementations
 
-  internal init(reference: FIRIMPLStorageReference,
+  internal init(reference: StorageReference,
                 service: GTMSessionFetcherService,
                 queue: DispatchQueue,
                 file: URL? = nil,

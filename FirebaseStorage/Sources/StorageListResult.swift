@@ -14,8 +14,6 @@
 
 import Foundation
 
-import FirebaseStorageInternal
-
 /** Contains the prefixes and items returned by a `StorageReference.list()` call. */
 @objc(FIRStorageListResult) open class StorageListResult: NSObject {
   /**
@@ -43,16 +41,16 @@ import FirebaseStorageInternal
   // MARK: - NSObject overrides
 
   @objc override open func copy() -> Any {
-    return StorageListResult(withPrefixes: prefixes.map { $0.impl },
-                             items: items.map { $0.impl },
+    return StorageListResult(withPrefixes: prefixes,
+                             items: items,
                              pageToken: pageToken)
   }
 
   // MARK: - Internal APIs
 
-  internal convenience init(with dictionary: [String: Any], reference: FIRIMPLStorageReference) {
-    var prefixes = [FIRIMPLStorageReference]()
-    var items = [FIRIMPLStorageReference]()
+  internal convenience init(with dictionary: [String: Any], reference: StorageReference) {
+    var prefixes = [StorageReference]()
+    var items = [StorageReference]()
 
     let rootReference = reference.root()
     if let prefixEntries = dictionary["prefixes"] as? [String] {
@@ -76,11 +74,11 @@ import FirebaseStorageInternal
     self.init(withPrefixes: prefixes, items: items, pageToken: pageToken)
   }
 
-  internal init(withPrefixes prefixes: [FIRIMPLStorageReference],
-                items: [FIRIMPLStorageReference],
+  internal init(withPrefixes prefixes: [StorageReference],
+                items: [StorageReference],
                 pageToken: String?) {
-    self.prefixes = prefixes.map { StorageReference($0) }
-    self.items = items.map { StorageReference($0) }
+    self.prefixes = prefixes
+    self.items = items
     self.pageToken = pageToken
   }
 }
