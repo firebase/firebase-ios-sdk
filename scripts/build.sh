@@ -166,7 +166,9 @@ tvos_flags=(
   -destination 'platform=tvOS Simulator,name=Apple TV'
 )
 watchos_flags=(
-  -destination 'generic/platform=watchOS Simulator'
+  -sdk 'iphoneos'
+  -destination 'generic/platform=iOS'
+  # -destination 'platform=iOS Simulator,name=iPhone 13'
 )
 catalyst_flags=(
   ARCHS=x86_64 VALID_ARCHS=x86_64 SUPPORTS_MACCATALYST=YES -sdk macosx
