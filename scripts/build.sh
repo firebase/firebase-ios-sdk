@@ -166,7 +166,7 @@ tvos_flags=(
   -destination 'platform=tvOS Simulator,name=Apple TV'
 )
 watchos_flags=(
-  -sdk 'iphoneos'
+  -sdk 'iphonesimulator'
   -destination 'generic/platform=iOS'
   # -destination 'platform=iOS Simulator,name=iPhone 13'
 )
