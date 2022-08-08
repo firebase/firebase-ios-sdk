@@ -827,6 +827,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 #pragma mark - Core Telemetry
 
+#if !TARGET_OS_WATCH
 - (void)testCoreDiagnosticsLoggedWhenAppDidBecomeActive {
   FIRApp *app = [self createConfiguredAppWithName:NSStringFromSelector(_cmd)];
   [self expectCoreDiagnosticsDataLogWithOptions:app.options];
@@ -844,6 +845,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
                                          object:nil];
   OCMVerifyAll(self.mockHeartbeatLogger);
 }
+#endif  // TARGET_OS_WATCH
 
 #pragma mark - private
 
