@@ -142,6 +142,36 @@ static NSString *const kDynamicLinkDomainKey = @"dynamicLinkDomain";
  */
 static NSString *const kDynamicLinkDomain = @"test.page.link";
 
+/** @var kCaptchaResponseKey
+    @brief The key for the "captchaResponse" value in the request.
+ */
+static NSString *const kCaptchaResponseKey = @"captchaResponse";
+
+/** @var kTestCaptchaResponse
+    @brief Fake captchaResponse for testing the request.
+ */
+static NSString *const kTestCaptchaResponse = @"testCaptchaResponse";
+
+/** @var kClientTypeKey
+    @brief The key for the "clientType" value in the request.
+ */
+static NSString *const kClientTypeKey = @"clientType";
+
+/** @var kTestClientType
+    @brief Fake clientType for testing the request.
+ */
+static NSString *const kTestClientType = @"testClientType";
+
+/** @var kRecaptchaVersionKey
+    @brief The key for the "recaptchaVersion" value in the request.
+ */
+static NSString *const kRecaptchaVersionKey = @"recaptchaVersion";
+
+/** @var kTestRecaptchaVersion
+    @brief Fake recaptchaVersion for testing the request.
+ */
+static NSString *const kTestRecaptchaVersion = @"testRecaptchaVersion";
+
 /** @class FIRGetOOBConfirmationCodeRequestTests
     @brief Tests for @c FIRGetOOBConfirmationCodeRequest.
  */
@@ -287,6 +317,92 @@ static NSString *const kDynamicLinkDomain = @"test.page.link";
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kCanHandleCodeInAppKey],
                         [NSNumber numberWithBool:YES]);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kDynamicLinkDomainKey], kDynamicLinkDomain);
+}
+
+/** @fn testPasswordResetRequestOptionalFields
+    @brief Tests the encoding of a password reset request with optional fields.
+ */
+- (void)testPasswordResetRequestOptionalFields {
+  FIRGetOOBConfirmationCodeRequest *request =
+      [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:kTestEmail
+                                                   actionCodeSettings:[self fakeActionCodeSettings]
+                                                 requestConfiguration:_requestConfiguration];
+
+  __block BOOL callbackInvoked;
+  __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
+  __block NSError *RPCError;
+  request.captchaResponse = kTestCaptchaResponse;
+  request.clientType = kTestClientType;
+  request.recaptchaVersion = kTestRecaptchaVersion;
+  [FIRAuthBackend getOOBConfirmationCode:request
+                                callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
+                                           NSError *_Nullable error) {
+                                  callbackInvoked = YES;
+                                  RPCResponse = response;
+                                  RPCError = error;
+                                }];
+
+  XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
+  XCTAssertNotNil(_RPCIssuer.decodedRequest);
+  XCTAssert([_RPCIssuer.decodedRequest isKindOfClass:[NSDictionary class]]);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kEmailKey], kTestEmail);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kRequestTypeKey], kPasswordResetRequestTypeValue);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kContinueURLKey], kContinueURL);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kIosBundleIDKey], kIosBundleID);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAndroidPackageNameKey], kAndroidPackageName);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAndroidMinimumVersionKey],
+                        kAndroidMinimumVersion);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAndroidInstallAppKey],
+                        [NSNumber numberWithBool:YES]);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kCanHandleCodeInAppKey],
+                        [NSNumber numberWithBool:YES]);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kDynamicLinkDomainKey], kDynamicLinkDomain);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kCaptchaResponseKey], kTestCaptchaResponse);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kClientTypeKey], kTestClientType);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kRecaptchaVersionKey], kTestRecaptchaVersion);
+}
+
+/** @fn testSignInWithEmailLinkRequestOptionalFields
+    @brief Tests the encoding of a email sign-in link request with optional fields.
+ */
+- (void)testSignInWithEmailLinkRequestOptionalFields {
+  FIRGetOOBConfirmationCodeRequest *request =
+      [FIRGetOOBConfirmationCodeRequest signInWithEmailLinkRequest:kTestEmail
+                                                actionCodeSettings:[self fakeActionCodeSettings]
+                                              requestConfiguration:_requestConfiguration];
+
+  __block BOOL callbackInvoked;
+  __block FIRGetOOBConfirmationCodeResponse *RPCResponse;
+  __block NSError *RPCError;
+  request.captchaResponse = kTestCaptchaResponse;
+  request.clientType = kTestClientType;
+  request.recaptchaVersion = kTestRecaptchaVersion;
+  [FIRAuthBackend getOOBConfirmationCode:request
+                                callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
+                                           NSError *_Nullable error) {
+                                  callbackInvoked = YES;
+                                  RPCResponse = response;
+                                  RPCError = error;
+                                }];
+
+  XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
+  XCTAssertNotNil(_RPCIssuer.decodedRequest);
+  XCTAssert([_RPCIssuer.decodedRequest isKindOfClass:[NSDictionary class]]);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kEmailKey], kTestEmail);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kRequestTypeKey], kEmailLinkSignInTypeValue);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kContinueURLKey], kContinueURL);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kIosBundleIDKey], kIosBundleID);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAndroidPackageNameKey], kAndroidPackageName);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAndroidMinimumVersionKey],
+                        kAndroidMinimumVersion);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAndroidInstallAppKey],
+                        [NSNumber numberWithBool:YES]);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kCanHandleCodeInAppKey],
+                        [NSNumber numberWithBool:YES]);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kDynamicLinkDomainKey], kDynamicLinkDomain);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kCaptchaResponseKey], kTestCaptchaResponse);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kClientTypeKey], kTestClientType);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kRecaptchaVersionKey], kTestRecaptchaVersion);
 }
 
 #pragma mark - Helpers

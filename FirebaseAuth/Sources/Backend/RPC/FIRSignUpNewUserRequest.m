@@ -38,6 +38,21 @@ static NSString *const kPasswordKey = @"password";
  */
 static NSString *const kDisplayNameKey = @"displayName";
 
+/** @var kCaptchaResponseKey
+    @brief The key for the "captchaResponse" value in the request.
+ */
+static NSString *const kCaptchaResponseKey = @"captchaResponse";
+
+/** @var kClientType
+    @brief The key for the "clientType" value in the request.
+ */
+static NSString *const kClientType = @"clientType";
+
+/** @var kRecaptchaVersion
+    @brief The key for the "recaptchaVersion" value in the request.
+ */
+static NSString *const kRecaptchaVersion = @"recaptchaVersion";
+
 /** @var kReturnSecureTokenKey
     @brief The key for the "returnSecureToken" value in the request.
  */
@@ -83,6 +98,15 @@ static NSString *const kTenantIDKey = @"tenantId";
   }
   if (_displayName) {
     postBody[kDisplayNameKey] = _displayName;
+  }
+  if (_captchaResponse) {
+    postBody[kCaptchaResponseKey] = _captchaResponse;
+  }
+  if (_clientType) {
+    postBody[kClientType] = _clientType;
+  }
+  if (_recaptchaVersion) {
+    postBody[kRecaptchaVersion] = _recaptchaVersion;
   }
   if (_returnSecureToken) {
     postBody[kReturnSecureTokenKey] = @YES;

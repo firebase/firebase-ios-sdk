@@ -70,6 +70,36 @@ static NSString *const kPasswordKey = @"password";
  */
 static NSString *const kTestPassword = @"Password";
 
+/** @var kCaptchaResponseKey
+    @brief The key for the "captchaResponse" value in the request.
+ */
+static NSString *const kCaptchaResponseKey = @"captchaResponse";
+
+/** @var kTestCaptchaResponse
+    @brief Fake captchaResponse for testing the request.
+ */
+static NSString *const kTestCaptchaResponse = @"testCaptchaResponse";
+
+/** @var kClientTypeKey
+    @brief The key for the "clientType" value in the request.
+ */
+static NSString *const kClientTypeKey = @"clientType";
+
+/** @var kTestClientType
+    @brief Fake clientType for testing the request.
+ */
+static NSString *const kTestClientType = @"testClientType";
+
+/** @var kRecaptchaVersionKey
+    @brief The key for the "recaptchaVersion" value in the request.
+ */
+static NSString *const kRecaptchaVersionKey = @"recaptchaVersion";
+
+/** @var kTestRecaptchaVersion
+    @brief Fake recaptchaVersion for testing the request.
+ */
+static NSString *const kTestRecaptchaVersion = @"testRecaptchaVersion";
+
 /** @var kReturnSecureTokenKey
     @brief The key for the "returnSecureToken" value in the request.
  */
@@ -150,6 +180,35 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kPasswordKey], kTestPassword);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kDisplayNameKey], kTestDisplayName);
   XCTAssertTrue([_RPCIssuer.decodedRequest[kReturnSecureTokenKey] boolValue]);
+}
+
+/** @fn testSignUpNewUserRequestOptionalFields
+    @brief Tests the encoding of a sign up new user request with optional fields.
+ */
+- (void)testSignUpNewUserRequestOptionalFields {
+  FIRSignUpNewUserRequest *request =
+      [[FIRSignUpNewUserRequest alloc] initWithEmail:kTestEmail
+                                            password:kTestPassword
+                                         displayName:kTestDisplayName
+                                requestConfiguration:_requestConfiguration];
+  request.captchaResponse = kTestCaptchaResponse;
+  request.clientType = kTestClientType;
+  request.recaptchaVersion = kTestRecaptchaVersion;
+  [FIRAuthBackend
+      signUpNewUser:request
+           callback:^(FIRSignUpNewUserResponse *_Nullable response, NSError *_Nullable error){
+           }];
+
+  XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
+  XCTAssertNotNil(_RPCIssuer.decodedRequest);
+  XCTAssert([_RPCIssuer.decodedRequest isKindOfClass:[NSDictionary class]]);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kEmailKey], kTestEmail);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kPasswordKey], kTestPassword);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kDisplayNameKey], kTestDisplayName);
+  XCTAssertTrue([_RPCIssuer.decodedRequest[kReturnSecureTokenKey] boolValue]);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kCaptchaResponseKey], kTestCaptchaResponse);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kClientTypeKey], kTestClientType);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kRecaptchaVersionKey], kTestRecaptchaVersion);
 }
 
 @end
