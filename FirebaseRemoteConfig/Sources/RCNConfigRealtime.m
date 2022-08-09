@@ -58,6 +58,7 @@ static NSInteger const gMaxRetries = 7;
 static NSInteger gMaxRetryCount;
 static NSInteger gRetrySeconds;
 static bool gIsRetrying;
+static bool gIsInBackground;
 
 @interface FIRConfigUpdateListenerRegistration ()
 @property(strong, atomic, nonnull) RCNConfigUpdateCompletion completionHandler;
@@ -122,6 +123,7 @@ static bool gIsRetrying;
 
     gMaxRetryCount = gMaxRetries;
     gIsRetrying = false;
+    gIsInBackground = false;
 
     [self setUpHttpRequest];
     [self setUpHttpSession];
@@ -327,7 +329,7 @@ static bool gIsRetrying;
 }
 
 - (bool)canMakeConnection {
-  return [self noRunningConnection] && [self->_listeners count] > 0;
+  return [self noRunningConnection] && [self->_listeners count] > 0 && !gIsInBackground;
 }
 
 #pragma mark - Retry Helpers
@@ -368,12 +370,28 @@ static bool gIsRetrying;
 - (void)backgroundChangeListener {
   [_notificationCenter addObserver:self
                           selector:@selector(isInForeground)
+                              name:@"UIApplicationWillEnterForegroundNotification"
+                            object:nil];
+
+  [_notificationCenter addObserver:self
+                          selector:@selector(isInBackground)
                               name:@"UIApplicationDidEnterBackgroundNotification"
                             object:nil];
 }
 
 - (void)isInForeground {
   [self beginRealtimeStream];
+  __weak RCNConfigRealtime *weakSelf = self;
+  dispatch_async(_realtimeLockQueue, ^{
+    __strong RCNConfigRealtime *strongSelf = weakSelf;
+    gIsInBackground = false;
+  });
+}
+
+- (void)isInBackground {
+  dispatch_async(_realtimeLockQueue, ^{
+    gIsInBackground = true;
+  });
 }
 
 #pragma mark - Autofetch Helpers
@@ -382,33 +400,44 @@ static bool gIsRetrying;
   __weak RCNConfigRealtime *weakSelf = self;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
-    [strongSelf->_configFetch
-        fetchConfigWithExpirationDuration:0
-                        completionHandler:^(FIRRemoteConfigFetchStatus status, NSError *error) {
-                          if (status == FIRRemoteConfigFetchStatusSuccess) {
-                            if ([strongSelf->_configFetch.templateVersionNumber integerValue] >=
-                                targetVersion) {
-                              for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
-                                listener(nil);
+    if (strongSelf->_settings.isFetchInProgress) {
+      if (strongSelf->_settings.lastFetchStatus == FIRRemoteConfigFetchStatusSuccess) {
+        if ([strongSelf->_configFetch.templateVersionNumber integerValue] >= targetVersion) {
+          for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
+            listener(nil);
+          }
+        }
+      }
+    } else {
+      [strongSelf->_configFetch
+          fetchConfigWithExpirationDuration:0
+                          completionHandler:^(FIRRemoteConfigFetchStatus status, NSError *error) {
+                            if (status == FIRRemoteConfigFetchStatusSuccess) {
+                              if ([strongSelf->_configFetch.templateVersionNumber integerValue] >=
+                                  targetVersion) {
+                                for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
+                                  listener(nil);
+                                }
+                              } else {
+                                FIRLogDebug(
+                                    kFIRLoggerRemoteConfig, @"I-RCN000016",
+                                    @"Fetched config's template version is outdated, re-fetching");
+                                [strongSelf autoFetch:remainingAttempts - 1
+                                        targetVersion:targetVersion];
                               }
                             } else {
-                              FIRLogDebug(
-                                  kFIRLoggerRemoteConfig, @"I-RCN000016",
-                                  @"Fetched config's template version is outdated, re-fetching");
-                              [strongSelf autoFetch:remainingAttempts - 1
-                                      targetVersion:targetVersion];
-                            }
-                          } else {
-                            if (error != nil) {
-                              FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000010",
-                                          @"Failed to retrive config due to fetch error. Error: %@",
-                                          error);
-                              for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
-                                listener(error);
+                              if (error != nil) {
+                                FIRLogError(
+                                    kFIRLoggerRemoteConfig, @"I-RCN000010",
+                                    @"Failed to retrive config due to fetch error. Error: %@",
+                                    error);
+                                for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
+                                  listener(error);
+                                }
                               }
                             }
-                          }
-                        }];
+                          }];
+    }
   });
 }
 
