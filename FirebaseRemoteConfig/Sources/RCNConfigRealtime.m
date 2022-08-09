@@ -380,11 +380,11 @@ static bool gIsInBackground;
 }
 
 - (void)isInForeground {
-  [self beginRealtimeStream];
   __weak RCNConfigRealtime *weakSelf = self;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
     gIsInBackground = false;
+    [strongSelf beginRealtimeStream];
   });
 }
 
@@ -484,17 +484,24 @@ static bool gIsInBackground;
     didReceiveData:(NSData *)data {
   NSError *dataError;
   NSString *strData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-  strData = [strData substringFromIndex:1];
-  data = [strData dataUsingEncoding:NSUTF8StringEncoding];
-  NSDictionary *response = [NSJSONSerialization JSONObjectWithData:data
-                                                           options:NSJSONReadingMutableContainers
-                                                             error:&dataError];
-  NSString *targetTemplateVersion = _configFetch.templateVersionNumber;
-  if (dataError == nil) {
-    targetTemplateVersion = [response objectForKey:kTemplateVersionNumberKey];
+  NSRange endRange = [strData rangeOfString:@"}"];
+  NSRange beginRange = [strData rangeOfString:@"{"];
+  if (beginRange.location != NSNotFound && endRange.location != NSNotFound) {
+    NSRange msgRange = NSMakeRange(beginRange.location, endRange.location - beginRange.location + 1);
+    strData = [strData substringWithRange:msgRange];
+    data = [strData dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *response = [NSJSONSerialization JSONObjectWithData:data
+                                                             options:NSJSONReadingMutableContainers
+                                                               error:&dataError];
+    NSInteger oldTemplateVersion = [_configFetch.templateVersionNumber integerValue];
+    if (dataError == nil) {
+      NSInteger updateTemplateVersion =
+          [[response objectForKey:kTemplateVersionNumberKey] integerValue];
+      if (updateTemplateVersion > oldTemplateVersion) {
+        [self autoFetch:gFetchAttempts targetVersion:updateTemplateVersion];
+      }
+    }
   }
-
-  [self autoFetch:gFetchAttempts targetVersion:[targetTemplateVersion integerValue]];
 }
 
 /// Delegate that checks the final response of the connection and retries if necessary
