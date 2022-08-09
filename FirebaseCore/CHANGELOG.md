@@ -1,3 +1,6 @@
+# Firebase 9.4.1
+- [fixed] Swift Package Manager only release to fix a 9.4.0 tagging issue impacting some users. (#10083)
+
 # Firebase 9.4.0
 - [fixed] Fixed rare crash on launch due to out-of-bounds exception in FirebaseCore. (#10025)
 
