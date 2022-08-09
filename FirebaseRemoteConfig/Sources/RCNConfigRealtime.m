@@ -274,7 +274,7 @@ static bool gIsRetrying;
   [self refreshInstallationsTokenWithCompletionHandler:^(FIRRemoteConfigFetchStatus status,
                                                          NSError *_Nullable error) {
     if (status != FIRRemoteConfigFetchStatusSuccess) {
-      NSLog(@"Installation token retrival failed");
+      FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000013", @"Installation token retrival failed.");
     }
   }];
 
@@ -350,13 +350,14 @@ static bool gIsRetrying;
         [strongSelf beginRealtimeStream];
       });
     } else {
-      NSLog(@"Cannot establish connection.");
       NSError *error = [NSError
           errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
                      code:FIRRemoteConfigRealtimeErrorStream
                  userInfo:@{
                    NSLocalizedDescriptionKey : @"StreamError: Unable to establish http connection."
                  }];
+      FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000014", @"Cannot establish connection. Error: %@",
+                  error);
       for (RCNConfigUpdateCompletion listener in self->_listeners) {
         listener(error);
       }
@@ -384,24 +385,24 @@ static bool gIsRetrying;
     [strongSelf->_configFetch
         fetchConfigWithExpirationDuration:0
                         completionHandler:^(FIRRemoteConfigFetchStatus status, NSError *error) {
-                          NSLog(@"Fetching new config");
                           if (status == FIRRemoteConfigFetchStatusSuccess) {
                             if ([strongSelf->_configFetch.templateVersionNumber integerValue] >=
                                 targetVersion) {
-                              NSLog(@"Executing callback delegate");
                               for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
                                 listener(nil);
                               }
                             } else {
-                              NSLog(
-                                  @"Fetched config's template version is the same or less then the "
-                                  @"current version, re-fetching");
+                              FIRLogDebug(
+                                  kFIRLoggerRemoteConfig, @"I-RCN000016",
+                                  @"Fetched config's template version is outdated, re-fetching");
                               [strongSelf autoFetch:remainingAttempts - 1
                                       targetVersion:targetVersion];
                             }
                           } else {
-                            NSLog(@"Config not fetched");
                             if (error != nil) {
+                              FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000010",
+                                          @"Failed to retrive config due to fetch error. Error: %@",
+                                          error);
                               for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
                                 listener(error);
                               }
@@ -426,12 +427,15 @@ static bool gIsRetrying;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
     if (remainingAttempts == 0) {
-      NSError *error = [NSError
-          errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
-                     code:FIRRemoteConfigRealtimeErrorFetch
-                 userInfo:@{
-                   NSLocalizedDescriptionKey : @"FetchError: Unable to retrieve the latest config."
-                 }];
+      NSError *error =
+          [NSError errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
+                              code:FIRRemoteConfigRealtimeErrorFetch
+                          userInfo:@{
+                            NSLocalizedDescriptionKey :
+                                @"FetchError: Unable to retrieve the latest config version."
+                          }];
+      FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000011",
+                  @"Ran out of fetch attempts, cannot find target config version.");
       for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
         listener(error);
       }
