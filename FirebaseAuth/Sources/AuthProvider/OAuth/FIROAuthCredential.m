@@ -45,23 +45,6 @@ NS_ASSUME_NONNULL_BEGIN
                           rawNonce:(nullable NSString *)rawNonce
                        accessToken:(nullable NSString *)accessToken
                             secret:(nullable NSString *)secret
-                      pendingToken:(nullable NSString *)pendingToken {
-  self = [super initWithProvider:providerID];
-  if (self) {
-    _IDToken = IDToken;
-    _rawNonce = rawNonce;
-    _accessToken = accessToken;
-    _pendingToken = pendingToken;
-    _secret = secret;
-  }
-  return self;
-}
-
-- (instancetype)initWithProviderID:(NSString *)providerID
-                           IDToken:(nullable NSString *)IDToken
-                          rawNonce:(nullable NSString *)rawNonce
-                       accessToken:(nullable NSString *)accessToken
-                            secret:(nullable NSString *)secret
                        displayName:(nullable NSString *)displayName
                       pendingToken:(nullable NSString *)pendingToken {
   self = [super initWithProvider:providerID];
@@ -84,6 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
                          rawNonce:nil
                       accessToken:nil
                            secret:nil
+                      displayName:nil
                      pendingToken:nil];
   if (self) {
     _OAuthResponseURLString = OAuthResponseURLString;
@@ -100,6 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
                            rawNonce:nil
                         accessToken:response.oauthAccessToken
                              secret:response.oauthSecretToken
+                        displayName:response.displayName
                        pendingToken:response.pendingToken];
   }
   return nil;
@@ -128,11 +113,13 @@ NS_ASSUME_NONNULL_BEGIN
   NSString *accessToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
   NSString *pendingToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"pendingToken"];
   NSString *secret = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"secret"];
+  NSString *displayName = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"displayName"];
   self = [self initWithProviderID:self.provider
                           IDToken:IDToken
                          rawNonce:rawNonce
                       accessToken:accessToken
                            secret:secret
+                      displayName:displayName
                      pendingToken:pendingToken];
   return self;
 }
@@ -143,6 +130,7 @@ NS_ASSUME_NONNULL_BEGIN
   [aCoder encodeObject:self.accessToken forKey:@"accessToken"];
   [aCoder encodeObject:self.pendingToken forKey:@"pendingToken"];
   [aCoder encodeObject:self.secret forKey:@"secret"];
+  [aCoder encodeObject:self.displayName forKey:@"displayName"];
 }
 
 @end

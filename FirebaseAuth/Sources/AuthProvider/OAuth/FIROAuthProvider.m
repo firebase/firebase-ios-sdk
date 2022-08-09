@@ -88,6 +88,7 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                                rawNonce:nil
                                             accessToken:accessToken
                                                  secret:nil
+                                            displayName:nil
                                            pendingToken:nil];
 }
 
@@ -98,6 +99,7 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                                rawNonce:nil
                                             accessToken:accessToken
                                                  secret:nil
+                                            displayName:nil
                                            pendingToken:nil];
 }
 
@@ -110,6 +112,7 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                                rawNonce:rawNonce
                                             accessToken:accessToken
                                                  secret:nil
+                                            displayName:nil
                                            pendingToken:nil];
 }
 
@@ -121,6 +124,7 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                                rawNonce:rawNonce
                                             accessToken:nil
                                                  secret:nil
+                                            displayName:nil
                                            pendingToken:nil];
 }
 

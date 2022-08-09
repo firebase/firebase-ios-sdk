@@ -49,14 +49,8 @@ NS_ASSUME_NONNULL_BEGIN
     @param accessToken The access token associated with the credential being created.
     @param secret The secret associated with the credential being created.
     @param pendingToken The pending token associated with the credential being created.
+    @param displayName The displayName associated with the credential being created.
  */
-- (instancetype)initWithProviderID:(NSString *)providerID
-                           IDToken:(nullable NSString *)IDToken
-                          rawNonce:(nullable NSString *)rawNonce
-                       accessToken:(nullable NSString *)accessToken
-                            secret:(nullable NSString *)secret
-                      pendingToken:(nullable NSString *)pendingToken NS_DESIGNATED_INITIALIZER;
-
 - (instancetype)initWithProviderID:(NSString *)providerID
                            IDToken:(nullable NSString *)IDToken
                           rawNonce:(nullable NSString *)rawNonce
