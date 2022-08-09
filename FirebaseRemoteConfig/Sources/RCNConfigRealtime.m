@@ -487,7 +487,8 @@ static bool gIsInBackground;
   NSRange endRange = [strData rangeOfString:@"}"];
   NSRange beginRange = [strData rangeOfString:@"{"];
   if (beginRange.location != NSNotFound && endRange.location != NSNotFound) {
-    NSRange msgRange = NSMakeRange(beginRange.location, endRange.location - beginRange.location + 1);
+    NSRange msgRange =
+        NSMakeRange(beginRange.location, endRange.location - beginRange.location + 1);
     strData = [strData substringWithRange:msgRange];
     data = [strData dataUsingEncoding:NSUTF8StringEncoding];
     NSDictionary *response = [NSJSONSerialization JSONObjectWithData:data
