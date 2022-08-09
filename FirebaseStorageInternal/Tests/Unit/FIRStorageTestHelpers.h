@@ -74,11 +74,6 @@ static NSTimeInterval kExpectationTimeoutSeconds = 10;
 + (NSURL *)notFoundURL;
 
 /**
- * Returns a FIRIMPLStorageReference that is backed by a mocked FIRApp.
- */
-+ (FIRIMPLStorageReference *)rootReference;
-
-/**
  * Waits for the given test case to time out by wrapping -waitForExpectation.
  */
 + (void)waitForExpectation:(id)test;

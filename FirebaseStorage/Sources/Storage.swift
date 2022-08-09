@@ -222,10 +222,6 @@ import FirebaseAuthInterop
     return app.hash ^ callbackQueue.hashValue
   }
 
-  @objc override public var description: String {
-    return "\(className) \(app))"
-  }
-
   // MARK: - Internal and Private APIs
 
   private var fetcherService: GTMSessionFetcherService?
