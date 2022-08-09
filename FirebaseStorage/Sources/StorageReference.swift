@@ -661,7 +661,7 @@ import Foundation
 
   // MARK: - NSObject overrides
 
-  @objc open func copy(_ zone: NSZone) -> StorageReference {
+  @objc override open func copy() -> Any {
     return StorageReference(storage: storage, path: path)
   }
 
@@ -669,7 +669,7 @@ import Foundation
     guard let ref = object as? StorageReference else {
       return false
     }
-    return storage == ref.storage && path.bucket == ref.bucket
+    return storage == ref.storage && path == ref.path
   }
 
   @objc override public var hash: Int {

@@ -142,7 +142,7 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
 }
 
 public enum StorageError: Error {
-  case unknown
+  case unknown(String)
   case objectNotFound(String)
   case bucketNotFound(String)
   case projectNotFound(String)
@@ -160,7 +160,8 @@ public enum StorageError: Error {
     let userInfo = objcError.userInfo
 
     switch objcError.code {
-    case StorageErrorCode.unknown.rawValue: return StorageError.unknown
+    case StorageErrorCode.unknown.rawValue:
+      return StorageError.unknown(objcError.localizedDescription)
     case StorageErrorCode.objectNotFound.rawValue:
       guard let object = userInfo["object"] as? String else {
         return StorageError

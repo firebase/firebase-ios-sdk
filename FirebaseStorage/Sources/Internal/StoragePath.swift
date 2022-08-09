@@ -171,10 +171,10 @@ internal class StoragePath: NSCopying, Equatable {
       return copy() as! StoragePath
     }
     var childObject: String
-    if object == nil {
-      childObject = path
+    if let object = object as? NSString {
+      childObject = object.appendingPathComponent(path)
     } else {
-      childObject = (object?.appending(path))!
+      childObject = path
     }
     return StoragePath(with: bucket, object: childObject)
   }
@@ -189,8 +189,8 @@ internal class StoragePath: NSCopying, Equatable {
           object.count > 0 else {
       return nil
     }
-    let parentObject = URL(string: object)!.deletingLastPathComponent()
-    return StoragePath(with: bucket, object: parentObject.absoluteString)
+    let parentObject = (object as NSString).deletingLastPathComponent
+    return StoragePath(with: bucket, object: parentObject)
   }
 
   /**

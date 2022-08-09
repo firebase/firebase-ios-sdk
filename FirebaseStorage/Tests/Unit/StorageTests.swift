@@ -24,13 +24,11 @@ import SharedTestUtilities
 import XCTest
 
 class StorageTests: XCTestCase {
-  static var app: FirebaseApp?
   override class func setUp() {
     let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
                                   gcmSenderID: "00000000000000000-00000000000-000000000")
     options.projectID = "myProjectID"
-    FirebaseApp.configure(name: "test", options: options)
-    app = FirebaseApp.app(name: "test")
+    FirebaseApp.configure(name: "test-StorageTests", options: options)
   }
 
   func testBucketNotEnforced() throws {
@@ -158,6 +156,46 @@ class StorageTests: XCTestCase {
     }
   }
 
+  func testRefDefaultApp() throws {
+    let app = try getApp(bucket: "bucket")
+    let storage = Storage(app: app, bucket: "bucket")
+    let convenienceRef = storage.reference(forURL: "gs://bucket/path/to/object")
+    let path = StoragePath(with: "bucket", object: "path/to/object")
+    let builtRef = StorageReference(storage: storage, path: path)
+    XCTAssertEqual(convenienceRef.description, builtRef.description)
+    XCTAssertEqual(convenienceRef.storage.app, builtRef.storage.app)
+  }
+
+  func testRefCustomApp() throws {
+    let secondApp = try getApp(bucket: "bucket2")
+    let storage2 = Storage.storage(app: secondApp)
+    let convenienceRef = storage2.reference(forURL: "gs://bucket2/path/to/object")
+    let path = StoragePath(with: "bucket2", object: "path/to/object")
+    let builtRef = StorageReference(storage: storage2, path: path)
+    XCTAssertEqual(convenienceRef.description, builtRef.description)
+    XCTAssertEqual(convenienceRef.storage.app, builtRef.storage.app)
+  }
+
+  func testRootRefDefaultApp() throws {
+    let app = try getApp(bucket: "bucket")
+    let storage = Storage.storage(app: app)
+    let convenienceRef = storage.reference()
+    let path = StoragePath(with: "bucket")
+    let builtRef = StorageReference(storage: storage, path: path)
+    XCTAssertEqual(convenienceRef.description, builtRef.description)
+    XCTAssertEqual(convenienceRef.storage.app, builtRef.storage.app)
+  }
+
+  func testRefWithPathDefaultApp() throws {
+    let app = try getApp(bucket: "bucket")
+    let storage = Storage.storage(app: app)
+    let convenienceRef = storage.reference(forURL: "gs://bucket/path/to/object")
+    let path = StoragePath(with: "bucket", object: "path/to/object")
+    let builtRef = StorageReference(storage: storage, path: path)
+    XCTAssertEqual(convenienceRef.description, builtRef.description)
+    XCTAssertEqual(convenienceRef.storage.app, builtRef.storage.app)
+  }
+
   func testEqual() throws {
     let app = try getApp(bucket: "bucket")
     let storage = Storage.storage(app: app)
@@ -180,6 +218,25 @@ class StorageTests: XCTestCase {
     let storage = Storage.storage(app: app)
     let copy = try XCTUnwrap(storage.copy() as? Storage)
     XCTAssertEqual(storage.app.name, copy.app.name)
+  }
+
+  func testTranslateRetryTime() {
+    // The 1st retry attempt runs after 1 second.
+    // The 2nd retry attempt is delayed by 2 seconds (3s total)
+    // The 3rd retry attempt is delayed by 4 seconds (7s total)
+    // The 4th retry attempt is delayed by 8 seconds (15s total)
+    // The 5th retry attempt is delayed by 16 seconds (31s total)
+    // The 6th retry attempt is delayed by 32 seconds (63s total)
+    // Thus, we should exit just between the 5th and 6th retry attempt and cut off before 32s.
+    XCTAssertEqual(1.0, Storage.computeRetryInterval(fromRetryTime: 1.0))
+    XCTAssertEqual(2.0, Storage.computeRetryInterval(fromRetryTime: 2.0))
+    XCTAssertEqual(4.0, Storage.computeRetryInterval(fromRetryTime: 4.0))
+    XCTAssertEqual(8.0, Storage.computeRetryInterval(fromRetryTime: 10.0))
+    XCTAssertEqual(16.0, Storage.computeRetryInterval(fromRetryTime: 20.0))
+    XCTAssertEqual(16.0, Storage.computeRetryInterval(fromRetryTime: 30.0))
+    XCTAssertEqual(32.0, Storage.computeRetryInterval(fromRetryTime: 40.0))
+    XCTAssertEqual(32.0, Storage.computeRetryInterval(fromRetryTime: 50.0))
+    XCTAssertEqual(32.0, Storage.computeRetryInterval(fromRetryTime: 60.0))
   }
 
   // MARK: Private Helpers

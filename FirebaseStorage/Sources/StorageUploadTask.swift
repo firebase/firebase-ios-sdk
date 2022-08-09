@@ -236,7 +236,7 @@ import Foundation
       return nil
     }
     let userInfo = [NSLocalizedDescriptionKey:
-      "File at URL: \(String(describing: fileURL?.absoluteString)) is not reachable."
+      "File at URL: \(fileURL?.absoluteString ?? "") is not reachable."
       + " Ensure file URL is not a directory, symbolic link, or invalid url."]
     return NSError(
       domain: StorageErrorDomain,

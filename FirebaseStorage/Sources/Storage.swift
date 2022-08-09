@@ -253,11 +253,11 @@ import FirebaseAuthInterop
     // Must be a serial queue.
     dispatchQueue = DispatchQueue(label: "com.google.firebase.storage")
     maxDownloadRetryTime = 600.0
-    maxDownloadRetryInterval = Storage.computeRetryIntervalFromRetryTime(maxDownloadRetryTime)
+    maxDownloadRetryInterval = Storage.computeRetryInterval(fromRetryTime: maxDownloadRetryTime)
     maxOperationRetryTime = 120.0
-    maxOperationRetryInterval = Storage.computeRetryIntervalFromRetryTime(maxOperationRetryTime)
+    maxOperationRetryInterval = Storage.computeRetryInterval(fromRetryTime: maxOperationRetryTime)
     maxUploadRetryTime = 600.0
-    maxUploadRetryInterval = Storage.computeRetryIntervalFromRetryTime(maxUploadRetryTime)
+    maxUploadRetryInterval = Storage.computeRetryInterval(fromRetryTime: maxUploadRetryTime)
   }
 
   /// Map of apps to a dictionary of buckets to GTMSessionFetcherService.
@@ -321,7 +321,7 @@ import FirebaseAuthInterop
    * @param retryTime A timeout that caps the sum of all retry attempts
    * @return A timeout that caps the timeout of the last retry attempt
    */
-  private static func computeRetryIntervalFromRetryTime(_ retryTime: TimeInterval) -> TimeInterval {
+  internal static func computeRetryInterval(fromRetryTime retryTime: TimeInterval) -> TimeInterval {
     // GTMSessionFetcher's retry starts at 1 second and then doubles every time. We use this
     // information to compute a best-effort estimate of what to translate the user provided retry
     // time into.

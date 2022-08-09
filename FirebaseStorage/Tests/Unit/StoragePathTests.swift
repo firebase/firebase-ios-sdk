@@ -144,6 +144,12 @@ class StoragePathTests: XCTestCase {
     XCTAssertEqual(childPath.stringValue(), "gs://bucket/path/to/object")
   }
 
+  func testChildByAppendingMultipleSeparateChildren() {
+    let path = StoragePath(with: "bucket")
+    let childPath = path.child("/path").child("to/").child("object")
+    XCTAssertEqual(childPath.stringValue(), "gs://bucket/path/to/object")
+  }
+
   func testChildByAppendingOnlySlashesToRoot() {
     let path = StoragePath(with: "bucket")
     let childPath = path.child("//////////")
