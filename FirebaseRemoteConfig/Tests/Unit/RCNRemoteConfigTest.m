@@ -70,6 +70,7 @@
 - (FIRConfigUpdateListenerRegistration *_Nonnull)addConfigUpdateListener:
     (void (^_Nonnull)(NSError *_Nullable error))listener;
 - (void)removeConfigUpdateListener:(void (^_Nonnull)(NSError *_Nullable error))listener;
+- (void)evaluateStreamResponse:(NSDictionary *)response error:(NSError *)dataError;
 
 @end
 
@@ -1684,6 +1685,33 @@ static NSString *UTCToLocal(NSString *utcTime) {
         dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
         dispatch_get_main_queue(), ^{
           OCMVerify(never(), [self->_configRealtime[i] beginRealtimeStream]);
+          [expectations[i] fulfill];
+        });
+
+    [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+  }
+}
+
+- (void)testRealtimeBackoffDisabled {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] = [self
+        expectationWithDescription:
+            [NSString
+                stringWithFormat:@"Test isRealtimeDisabled flag and makes it true - instance %d",
+                                 i]];
+    OCMStub([_configRealtime[i] pauseRealtimeStream]).andDo(nil);
+    NSMutableDictionary *dictionary = [[NSMutableDictionary alloc] init];
+    [dictionary setValue:@"true" forKey:@"featureDisabled"];
+    [dictionary setValue:@"1" forKey:@"latestTemplateVersionNumber"];
+
+    [_configRealtime[i] evaluateStreamResponse:dictionary error:nil];
+    dispatch_after(
+        dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
+        dispatch_get_main_queue(), ^{
+          OCMVerify([self->_configRealtime[i] pauseRealtimeStream]);
+          OCMVerify(never(), [self->_configRealtime[i] autoFetch:5 targetVersion:1]);
           [expectations[i] fulfill];
         });
 

@@ -450,18 +450,7 @@ static bool gIsRealtimeDisabled;
 
 #pragma mark - NSURLSession Delegates
 
-/// Delegate to asynchronously handle every new notification that comes over the wire. Auto-fetches
-/// and runs callback for each new notification
-- (void)URLSession:(NSURLSession *)session
-          dataTask:(NSURLSessionDataTask *)dataTask
-    didReceiveData:(NSData *)data {
-  NSError *dataError;
-  NSString *strData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-  strData = [strData substringFromIndex:1];
-  data = [strData dataUsingEncoding:NSUTF8StringEncoding];
-  NSDictionary *response = [NSJSONSerialization JSONObjectWithData:data
-                                                           options:NSJSONReadingMutableContainers
-                                                             error:&dataError];
+- (void)evaluateStreamResponse:(NSDictionary *)response error:(NSError *)dataError {
   NSString *targetTemplateVersion = _configFetch.templateVersionNumber;
   if (dataError == nil) {
     if ([response objectForKey:kTemplateVersionNumberKey]) {
@@ -492,6 +481,21 @@ static bool gIsRealtimeDisabled;
   if (!gIsRealtimeDisabled) {
     [self autoFetch:gFetchAttempts targetVersion:[targetTemplateVersion integerValue]];
   }
+}
+
+/// Delegate to asynchronously handle every new notification that comes over the wire. Auto-fetches
+/// and runs callback for each new notification
+- (void)URLSession:(NSURLSession *)session
+          dataTask:(NSURLSessionDataTask *)dataTask
+    didReceiveData:(NSData *)data {
+  NSError *dataError;
+  NSString *strData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+  strData = [strData substringFromIndex:1];
+  data = [strData dataUsingEncoding:NSUTF8StringEncoding];
+  NSDictionary *response = [NSJSONSerialization JSONObjectWithData:data
+                                                           options:NSJSONReadingMutableContainers
+                                                             error:&dataError];
+  [self evaluateStreamResponse:response error:dataError];
 }
 
 /// Delegate that checks the final response of the connection and retries if necessary
