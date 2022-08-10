@@ -26,12 +26,6 @@ class StorageUpdateMetadataTests: StorageTestHelpers {
     super.setUp()
     metadata = StorageMetadata(dictionary: ["bucket": "bucket", "name": "path/to/object"])
     fetcherService = GTMSessionFetcherService()
-//    fetcherService?.authorizer = FIRStorageTokenAuthorizer(
-//      googleAppID: "dummyAppID",
-//      fetcherService: fetcherService!,
-//      authProvider: nil,
-//      appCheck: nil
-//    )
     dispatchQueue = DispatchQueue(label: "Test dispatch queue")
   }
 
