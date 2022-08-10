@@ -84,6 +84,11 @@ static NSString *const kIDTokenKey = @"idToken";
  */
 static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
 
+/** @var kDisplayName
+    @brief The key for the "displayName" value in the request.
+ */
+static NSString *const kDisplayNameKey = @"displayName";
+
 /** @var kReturnIDPCredentialKey
     @brief The key for the "returnIdpCredential" value in the request.
  */
@@ -171,6 +176,11 @@ static NSString *const kTenantIDKey = @"tenantId";
   if (_sessionID) {
     body[kSessionIDKey] = _sessionID;
   }
+    
+  if (_displayName) {
+    body[kDisplayNameKey] = _displayName;
+  }
+    
   if (self.tenantID) {
     body[kTenantIDKey] = self.tenantID;
   }
