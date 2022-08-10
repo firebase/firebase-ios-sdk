@@ -54,21 +54,19 @@ internal class StoragePath: NSCopying, Equatable {
    * @throws Throws an exception if the string is not a valid gs:// URI.
    */
   internal static func path(GSURI aURIString: String) throws -> StoragePath {
-    let scanner = Scanner(string: aURIString)
-    let isGSURI = scanner.scanString("gs://", into: nil)
-    var bucketName: NSString?
-    let hasBucket = scanner.scanUpTo("/", into: &bucketName)
-    var objectName: NSString?
-    scanner.scanString("/", into: nil)
-    scanner.scanUpTo("\n", into: &objectName)
-    guard hasBucket,
-          isGSURI,
-          let bucket = bucketName as? String else {
-      throw StoragePathError
-        .storagePathError("Internal error: URI must be in the form of " +
-          "gs://<bucket>/<path/to/object>")
+    if aURIString.starts(with: "gs://") {
+      let bucketObject = aURIString.dropFirst("gs://".count)
+      if bucketObject.contains("/") {
+        let splitStringArray = bucketObject.split(separator: "/", maxSplits: 1).map(String.init)
+        let object = splitStringArray.count == 2 ? splitStringArray[1] : nil
+        return StoragePath(with: splitStringArray[0], object: object)
+      } else if bucketObject.count > 0 {
+        return StoragePath(with: String(bucketObject))
+      }
     }
-    return StoragePath(with: bucket, object: objectName as? String)
+    throw StoragePathError
+      .storagePathError("Internal error: URI must be in the form of " +
+        "gs://<bucket>/<path/to/object>")
   }
 
   /**

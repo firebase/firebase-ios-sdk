@@ -350,8 +350,11 @@ import FirebaseAuthInterop
     guard let bucket = app.options.storageBucket else {
       fatalError("No default Storage bucket found. Did you configure Firebase Storage properly?")
     }
-    let prefix = bucket == "" ? "" : "gs://"
-    return Storage.bucket(for: app, urlString: "\(prefix)\(bucket)")
+    if bucket == "" {
+      return Storage.bucket(for: app, urlString: "")
+    } else {
+      return Storage.bucket(for: app, urlString: "gs://\(bucket)/")
+    }
   }
 
   private static func bucket(for app: FirebaseApp, urlString: String) -> String {
