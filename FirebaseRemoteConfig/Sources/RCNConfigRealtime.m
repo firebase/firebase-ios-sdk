@@ -60,7 +60,7 @@ static NSInteger const gMaxRetries = 7;
 static NSInteger gMaxRetryCount;
 static NSInteger gRetrySeconds;
 static bool gIsRetrying;
-static bool gIsFeatureDisabled;
+static bool gIsRealtimeDisabled;
 
 @interface FIRConfigUpdateListenerRegistration ()
 @property(strong, atomic, nonnull) RCNConfigUpdateCompletion completionHandler;
@@ -125,7 +125,7 @@ static bool gIsFeatureDisabled;
 
     gMaxRetryCount = gMaxRetries;
     gIsRetrying = false;
-    gIsFeatureDisabled = false;
+    gIsRealtimeDisabled = false;
 
     [self setUpHttpRequest];
     [self setUpHttpSession];
@@ -333,7 +333,7 @@ static bool gIsFeatureDisabled;
 }
 
 - (bool)canMakeConnection {
-  return [self noRunningConnection] && [self->_listeners count] > 0 && !gIsFeatureDisabled;
+  return [self noRunningConnection] && [self->_listeners count] > 0 && !gIsRealtimeDisabled;
 }
 
 #pragma mark - Retry Helpers
@@ -468,14 +468,30 @@ static bool gIsFeatureDisabled;
       targetTemplateVersion = [response objectForKey:kTemplateVersionNumberKey];
     }
     if ([response objectForKey:kIsFeatureDisabled]) {
-      gIsFeatureDisabled = [response objectForKey:kIsFeatureDisabled];
-      if (gIsFeatureDisabled) {
+      gIsRealtimeDisabled = [response objectForKey:kIsFeatureDisabled];
+      if (gIsRealtimeDisabled) {
         [self pauseRealtimeStream];
+        __weak RCNConfigRealtime *weakSelf = self;
+        dispatch_async(_realtimeLockQueue, ^{
+          __strong RCNConfigRealtime *strongSelf = weakSelf;
+          NSError *error =
+              [NSError errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
+                                  code:FIRRemoteConfigRealtimeErrorStream
+                              userInfo:@{
+                                NSLocalizedDescriptionKey :
+                                    @"StreamError: The backend has issued a backoff for Realtime "
+                                    @"in this SDK. Will check again next app start up."
+                              }];
+          for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
+            listener(error);
+          }
+        });
       }
     }
   }
-
-  [self autoFetch:gFetchAttempts targetVersion:[targetTemplateVersion integerValue]];
+  if (!gIsRealtimeDisabled) {
+    [self autoFetch:gFetchAttempts targetVersion:[targetTemplateVersion integerValue]];
+  }
 }
 
 /// Delegate that checks the final response of the connection and retries if necessary
