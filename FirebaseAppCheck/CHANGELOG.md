@@ -1,3 +1,6 @@
+# 9.5.0
+- [added] AppCheck's DeviceCheck provider is available for watchOS 9.0+.  
+
 # 9.0.0
 - [added] **Breaking change:** `FirebaseAppCheck` has exited beta and is now
   generally available for use.
