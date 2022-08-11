@@ -38,6 +38,10 @@
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
+// Because the DeviceCheck provider is the default provider for AppCheck. There
+// may be test cases that are dependent on DeviceCheck being available.
+#if FIR_DEVICE_CHECK_SUPPORTED_TARGETS
+
 // The FAC token value returned when an error occurs.
 static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 
@@ -1009,3 +1013,5 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 }
 
 @end
+
+#endif  // FIR_DEVICE_CHECK_SUPPORTED_TARGETS
