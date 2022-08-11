@@ -38,8 +38,8 @@
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
-// Because the DeviceCheck provider is the default provider for AppCheck. There
-// may be test cases that are dependent on DeviceCheck being available.
+// Since DeviceCheck is the default attestation provider for AppCheck, disable
+// test cases that may be dependent on DeviceCheck being available.
 #if FIR_DEVICE_CHECK_SUPPORTED_TARGETS
 
 // The FAC token value returned when an error occurs.
