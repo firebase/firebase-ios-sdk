@@ -487,6 +487,8 @@ static bool gIsInBackground;
   NSRange endRange = [strData rangeOfString:@"}"];
   NSRange beginRange = [strData rangeOfString:@"{"];
   if (beginRange.location != NSNotFound && endRange.location != NSNotFound) {
+    FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000015",
+                @"Received config update message on stream.");
     NSRange msgRange =
         NSMakeRange(beginRange.location, endRange.location - beginRange.location + 1);
     strData = [strData substringWithRange:msgRange];
