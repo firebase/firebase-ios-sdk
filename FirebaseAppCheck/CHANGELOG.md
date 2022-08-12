@@ -1,6 +1,6 @@
 # 9.5.0
-- [added] DeviceCheck and App Attest providers are supported by watchOS 9.0+
-- [added] App Attest provider availability updated to support tvOS 15.0+.
+- [added] DeviceCheck and App Attest providers are supported by watchOS 9.0+. (#10094, #10098)
+- [added] App Attest provider availability updated to support tvOS 15.0+. (#10093)
 
 # 9.0.0
 - [added] **Breaking change:** `FirebaseAppCheck` has exited beta and is now
