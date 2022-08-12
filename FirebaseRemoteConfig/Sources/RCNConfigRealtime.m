@@ -146,6 +146,16 @@ static bool gIsRealtimeDisabled;
   return realtimeRemoteConfigQueue;
 }
 
+- (void)propogateErrors:(NSError *)error {
+  __weak RCNConfigRealtime *weakSelf = self;
+  dispatch_async(_realtimeLockQueue, ^{
+    __strong RCNConfigRealtime *strongSelf = weakSelf;
+    for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
+      listener(error);
+    }
+  });
+}
+
 #pragma mark - Http Helpers
 
 - (NSString *)constructServerURL {
@@ -364,9 +374,7 @@ static bool gIsRealtimeDisabled;
                  }];
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000014", @"Cannot establish connection. Error: %@",
                   error);
-      for (RCNConfigUpdateCompletion listener in self->_listeners) {
-        listener(error);
-      }
+      [self propogateErrors:error];
     }
   });
 }
@@ -409,9 +417,7 @@ static bool gIsRealtimeDisabled;
                               FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000010",
                                           @"Failed to retrive config due to fetch error. Error: %@",
                                           error);
-                              for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
-                                listener(error);
-                              }
+                              [self propogateErrors:error];
                             }
                           }
                         }];
@@ -442,9 +448,7 @@ static bool gIsRealtimeDisabled;
                           }];
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000011",
                   @"Ran out of fetch attempts, cannot find target config version.");
-      for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
-        listener(error);
-      }
+      [self propogateErrors:error];
       return;
     }
 
@@ -462,28 +466,29 @@ static bool gIsRealtimeDisabled;
     }
     if ([response objectForKey:kIsFeatureDisabled]) {
       gIsRealtimeDisabled = [response objectForKey:kIsFeatureDisabled];
-      if (gIsRealtimeDisabled) {
-        [self pauseRealtimeStream];
-        __weak RCNConfigRealtime *weakSelf = self;
-        dispatch_async(_realtimeLockQueue, ^{
-          __strong RCNConfigRealtime *strongSelf = weakSelf;
-          NSError *error =
-              [NSError errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
-                                  code:FIRRemoteConfigRealtimeErrorStream
-                              userInfo:@{
-                                NSLocalizedDescriptionKey :
-                                    @"StreamError: The backend has issued a backoff for Realtime "
-                                    @"in this SDK. Will check again next app start up."
-                              }];
-          for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
-            listener(error);
-          }
-        });
-      }
     }
-  }
-  if (!gIsRealtimeDisabled) {
-    [self autoFetch:gFetchAttempts targetVersion:[targetTemplateVersion integerValue]];
+    if (gIsRealtimeDisabled) {
+      [self pauseRealtimeStream];
+      NSError *error =
+          [NSError errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
+                              code:FIRRemoteConfigRealtimeErrorStream
+                          userInfo:@{
+                            NSLocalizedDescriptionKey :
+                                @"StreamError: The backend has issued a backoff for Realtime "
+                                @"in this SDK. Will check again next app start up."
+                          }];
+      [self propogateErrors:error];
+    } else {
+      [self autoFetch:gFetchAttempts targetVersion:[targetTemplateVersion integerValue]];
+    }
+  } else {
+    NSError *error = [NSError
+        errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
+                   code:FIRRemoteConfigRealtimeErrorStream
+               userInfo:@{
+                 NSLocalizedDescriptionKey : @"StreamError: Unable to parse config update message."
+               }];
+    [self propogateErrors:error];
   }
 }
 

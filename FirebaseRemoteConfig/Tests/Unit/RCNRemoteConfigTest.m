@@ -1692,7 +1692,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
   }
 }
 
-- (void)testRealtimeBackoffDisabled {
+- (void)testRealtimeDisabled {
   NSMutableArray<XCTestExpectation *> *expectations =
       [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
