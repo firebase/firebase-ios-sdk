@@ -46,9 +46,22 @@
 
 #pragma mark - App Attest
 
+#if defined(__WATCHOS_9_0) && __WATCH_OS_VERSION_MAX_ALLOWED >= __WATCHOS_9_0
+
+// Targets where `DCAppAttestService` is available to be used in preprocessor conditions.
+#define FIR_APP_ATTEST_SUPPORTED_TARGETS TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_TV || TARGET_OS_WATCH
+
+// `AppAttestProvider` availability annotations
+#define FIR_APP_ATTEST_PROVIDER_AVAILABILITY \
+  API_AVAILABLE(macos(11.0), ios(14.0), tvos(15.0), watchos(9.0))
+
+#else  // defined(__WATCHOS_9_0) && __WATCH_OS_VERSION_MAX_ALLOWED >= __WATCHOS_9_0
+
 // Targets where `DCAppAttestService` is available to be used in preprocessor conditions.
 #define FIR_APP_ATTEST_SUPPORTED_TARGETS TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_TV
 
 // `AppAttestProvider` availability annotations
 #define FIR_APP_ATTEST_PROVIDER_AVAILABILITY \
   API_AVAILABLE(macos(11.0), ios(14.0), tvos(15.0)) API_UNAVAILABLE(watchos)
+
+#endif  // defined(__WATCHOS_9_0) && __WATCH_OS_VERSION_MAX_ALLOWED >= __WATCHOS_9_0
