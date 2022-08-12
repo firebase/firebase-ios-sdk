@@ -1,4 +1,5 @@
 # 9.5.0
+- [added] AppCheck's App Attest provider is available for tvOS 15.0+.
 - [added] AppCheck's DeviceCheck provider is available for watchOS 9.0+.
 
 # 9.0.0
