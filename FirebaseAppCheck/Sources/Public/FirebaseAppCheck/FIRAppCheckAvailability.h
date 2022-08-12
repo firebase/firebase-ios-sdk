@@ -56,6 +56,7 @@
 #define FIR_APP_ATTEST_PROVIDER_AVAILABILITY \
   API_AVAILABLE(macos(11.0), ios(14.0), tvos(15.0), watchos(9.0))
 
+// TODO(ncooke3): Remove `#else` clause when Xcode 14 is the minimum supported Xcode.
 #else  // defined(__WATCHOS_9_0) && __WATCH_OS_VERSION_MAX_ALLOWED >= __WATCHOS_9_0
 
 // Targets where `DCAppAttestService` is available to be used in preprocessor conditions.
