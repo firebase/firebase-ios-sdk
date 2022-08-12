@@ -49,7 +49,8 @@
 #if defined(__WATCHOS_9_0) && __WATCH_OS_VERSION_MAX_ALLOWED >= __WATCHOS_9_0
 
 // Targets where `DCAppAttestService` is available to be used in preprocessor conditions.
-#define FIR_APP_ATTEST_SUPPORTED_TARGETS TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_TV || TARGET_OS_WATCH
+#define FIR_APP_ATTEST_SUPPORTED_TARGETS \
+  TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_TV || TARGET_OS_WATCH
 
 // `AppAttestProvider` availability annotations
 #define FIR_APP_ATTEST_PROVIDER_AVAILABILITY \
