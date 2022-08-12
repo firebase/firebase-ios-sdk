@@ -1424,6 +1424,7 @@ static const NSTimeInterval kWaitInterval = .5;
 /** @fn testSignInWithOAuthCredentialWithDisplayNameSuccess
     @brief Tests the flow of a successful @c signInWithCredential:completion: call
         with an Apple Sign-In credential.
+    This method differntiate the testSignInWithCredentialSuccess only in verifying displayName
  */
 - (void)testSignInWithOAuthCredentialWithDisplayNameSuccess {
   OCMExpect([_mockBackend verifyAssertion:[OCMArg any] callback:[OCMArg any]])
