@@ -55,10 +55,6 @@ static NSInteger const gFetchAttempts = 3;
 
 // Retry parameters
 static NSInteger const gMaxRetries = 7;
-static NSInteger gMaxRetryCount;
-static NSInteger gRetrySeconds;
-static bool gIsRetrying;
-static bool gIsInBackground;
 
 @interface FIRConfigUpdateListenerRegistration ()
 @property(strong, atomic, nonnull) RCNConfigUpdateCompletion completionHandler;
@@ -101,6 +97,10 @@ static bool gIsInBackground;
   RCNConfigSettings *_settings;
   FIROptions *_options;
   NSString *_namespace;
+  NSInteger gMaxRetryCount;
+  NSInteger gRetrySeconds;
+  bool gIsRetrying;
+  bool gIsInBackground;
 }
 
 - (instancetype)init:(RCNConfigFetch *)configFetch
@@ -324,14 +324,6 @@ static bool gIsInBackground;
                                       delegateQueue:[NSOperationQueue mainQueue]];
 }
 
-- (bool)noRunningConnection {
-  return _dataTask == nil || _dataTask.state != NSURLSessionTaskStateRunning;
-}
-
-- (bool)canMakeConnection {
-  return [self noRunningConnection] && [self->_listeners count] > 0 && !gIsInBackground;
-}
-
 #pragma mark - Retry Helpers
 
 // Retry mechanism for HTTP connections
@@ -339,15 +331,19 @@ static bool gIsInBackground;
   __weak RCNConfigRealtime *weakSelf = self;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
-    if ([strongSelf canMakeConnection] && gMaxRetryCount > 0 && !gIsRetrying) {
-      if (gMaxRetryCount < gMaxRetries) {
+    bool noRunningConnection =
+        strongSelf->_dataTask == nil || strongSelf->_dataTask.state != NSURLSessionTaskStateRunning;
+    bool canMakeConnection =
+        noRunningConnection && [strongSelf->_listeners count] > 0 && !strongSelf->gIsInBackground;
+    if (canMakeConnection && strongSelf->gMaxRetryCount > 0 && !strongSelf->gIsRetrying) {
+      if (strongSelf->gMaxRetryCount < gMaxRetries) {
         double RETRY_MULTIPLIER = arc4random_uniform(3) + 2;
-        gRetrySeconds *= RETRY_MULTIPLIER;
+        strongSelf->gRetrySeconds *= RETRY_MULTIPLIER;
       }
-      gMaxRetryCount--;
-      gIsRetrying = true;
+      strongSelf->gMaxRetryCount--;
+      strongSelf->gIsRetrying = true;
       dispatch_time_t executionDelay =
-          dispatch_time(DISPATCH_TIME_NOW, (gRetrySeconds * NSEC_PER_SEC));
+          dispatch_time(DISPATCH_TIME_NOW, (self->gRetrySeconds * NSEC_PER_SEC));
       dispatch_after(executionDelay, strongSelf->_realtimeLockQueue, ^{
         [strongSelf beginRealtimeStream];
       });
@@ -383,14 +379,16 @@ static bool gIsInBackground;
   __weak RCNConfigRealtime *weakSelf = self;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
-    gIsInBackground = false;
+    strongSelf->gIsInBackground = false;
     [strongSelf beginRealtimeStream];
   });
 }
 
 - (void)isInBackground {
+  __weak RCNConfigRealtime *weakSelf = self;
   dispatch_async(_realtimeLockQueue, ^{
-    gIsInBackground = true;
+    __strong RCNConfigRealtime *strongSelf = weakSelf;
+    strongSelf->gIsInBackground = true;
   });
 }
 
@@ -401,12 +399,16 @@ static bool gIsInBackground;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
     if (strongSelf->_settings.isFetchInProgress) {
-      if (strongSelf->_settings.lastFetchStatus == FIRRemoteConfigFetchStatusSuccess) {
-        if ([strongSelf->_configFetch.templateVersionNumber integerValue] >= targetVersion) {
-          for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
-            listener(nil);
-          }
+      if (strongSelf->_settings.lastFetchStatus == FIRRemoteConfigFetchStatusSuccess &&
+          [strongSelf->_configFetch.templateVersionNumber integerValue] >= targetVersion) {
+        for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
+          listener(nil);
         }
+      } else {
+        FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000016",
+                    @"Fetched config's template version is outdated or there was a failed fetch "
+                    @"status, re-fetching");
+        [strongSelf autoFetch:remainingAttempts - 1 targetVersion:targetVersion];
       }
     } else {
       [strongSelf->_configFetch
@@ -496,12 +498,14 @@ static bool gIsInBackground;
     NSDictionary *response = [NSJSONSerialization JSONObjectWithData:data
                                                              options:NSJSONReadingMutableContainers
                                                                error:&dataError];
-    NSInteger oldTemplateVersion = [_configFetch.templateVersionNumber integerValue];
     if (dataError == nil) {
-      NSInteger updateTemplateVersion =
-          [[response objectForKey:kTemplateVersionNumberKey] integerValue];
-      if (updateTemplateVersion > oldTemplateVersion) {
-        [self autoFetch:gFetchAttempts targetVersion:updateTemplateVersion];
+      if ([response objectForKey:kTemplateVersionNumberKey]) {
+        NSInteger updateTemplateVersion =
+            [[response objectForKey:kTemplateVersionNumberKey] integerValue];
+        NSInteger clientTemplateVersion = [_configFetch.templateVersionNumber integerValue];
+        if (updateTemplateVersion >= clientTemplateVersion) {
+          [self autoFetch:gFetchAttempts targetVersion:updateTemplateVersion];
+        }
       }
     }
   }
@@ -544,15 +548,19 @@ static bool gIsInBackground;
   __weak RCNConfigRealtime *weakSelf = self;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
-    if ([strongSelf canMakeConnection]) {
+    bool noRunningConnection =
+        strongSelf->_dataTask == nil || strongSelf->_dataTask.state != NSURLSessionTaskStateRunning;
+    bool canMakeConnection =
+        noRunningConnection && [strongSelf->_listeners count] > 0 && !strongSelf->gIsInBackground;
+    if (canMakeConnection) {
       [strongSelf setRequestBody];
       strongSelf->_dataTask = [strongSelf->_session dataTaskWithRequest:strongSelf->_request];
       [strongSelf->_dataTask resume];
-      gMaxRetryCount = gMaxRetries;
-      gIsRetrying = false;
+      strongSelf->gMaxRetryCount = gMaxRetries;
+      strongSelf->gIsRetrying = false;
 
       /// Set retry seconds to a random number between 1 and 6 seconds.
-      gRetrySeconds = arc4random_uniform(5) + 1;
+      strongSelf->gRetrySeconds = arc4random_uniform(5) + 1;
     }
   });
 }
