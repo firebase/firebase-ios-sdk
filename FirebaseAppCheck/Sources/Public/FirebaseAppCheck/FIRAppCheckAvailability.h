@@ -16,9 +16,24 @@
 
 // Availability conditions for different App Check SDK components.
 
+#import <Foundation/Foundation.h>
 #import <TargetConditionals.h>
 
 #pragma mark - DeviceCheck
+
+// DeviceCheck availability was extended to watchOS in Xcode 14.
+#if defined(__WATCHOS_9_0) && __WATCH_OS_VERSION_MAX_ALLOWED >= __WATCHOS_9_0
+
+// Targets where DeviceCheck framework is available to be used in preprocessor conditions.
+#define FIR_DEVICE_CHECK_SUPPORTED_TARGETS \
+  TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_TV || TARGET_OS_WATCH
+
+// `DeviceCheckProvider` availability.
+#define FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY \
+  API_AVAILABLE(ios(11.0), macos(10.15), tvos(11.0), watchos(9.0))
+
+// TODO(ncooke3): Remove `#else` clause when Xcode 14 is the minimum supported Xcode.
+#else  // defined(__WATCHOS_9_0) && __WATCH_OS_VERSION_MAX_ALLOWED >= __WATCHOS_9_0
 
 // Targets where DeviceCheck framework is available to be used in preprocessor conditions.
 #define FIR_DEVICE_CHECK_SUPPORTED_TARGETS TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_TV
@@ -26,6 +41,8 @@
 // `DeviceCheckProvider` availability.
 #define FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY \
   API_AVAILABLE(ios(11.0), macos(10.15), tvos(11.0)) API_UNAVAILABLE(watchos)
+
+#endif  // defined(__WATCHOS_9_0) && __WATCH_OS_VERSION_MAX_ALLOWED >= __WATCHOS_9_0
 
 #pragma mark - App Attest
 
