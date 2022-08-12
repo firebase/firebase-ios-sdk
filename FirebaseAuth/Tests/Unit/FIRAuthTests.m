@@ -163,7 +163,7 @@ static NSString *const kGoogleIDToken = @"GOOGLE_ID_TOKEN";
 /** @var kAppleAuthProviderID
     @brief The provider ID for Apple Sign-In.
  */
-NSString *const kAppleAuthProviderID = @"apple.com";
+static NSString *const kAppleAuthProviderID = @"apple.com";
 
 /** @var kAppleUD
     @brief The fake user ID under Apple Sign-In.
