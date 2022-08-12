@@ -266,7 +266,6 @@ model::OverlayedDocumentMap LocalDocumentsView::ComputeViews(
           {doc->key(), overlay_it->second.mutation().field_mask()});
       overlay_it->second.mutation().ApplyToLocalView(*doc, absl::nullopt,
                                                      Timestamp::Now());
-      docs = docs.insert(docs_entry.first, *doc);
     }
   }
 
