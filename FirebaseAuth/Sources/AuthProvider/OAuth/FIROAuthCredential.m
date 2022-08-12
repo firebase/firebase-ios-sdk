@@ -84,7 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
                            rawNonce:nil
                         accessToken:response.oauthAccessToken
                              secret:response.oauthSecretToken
-                        displayName:response.displayName
+                        displayName:nil
                        pendingToken:response.pendingToken];
   }
   return nil;

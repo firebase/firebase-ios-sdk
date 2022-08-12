@@ -113,6 +113,7 @@ NS_SWIFT_NAME(OAuthProvider)
 + (FIROAuthCredential *)credentialWithProviderID:(NSString *)providerID
                                          IDToken:(NSString *)IDToken
                                         rawNonce:(nullable NSString *)rawNonce;
+
 /** @fn credentialWithProviderID:IDToken:rawNonce:accessToken:
     @brief Creates an `AuthCredential` for that OAuth 2 provider identified by provider ID, ID
         token, raw nonce, and access token.

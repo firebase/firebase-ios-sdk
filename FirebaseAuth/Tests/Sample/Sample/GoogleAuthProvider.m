@@ -46,7 +46,7 @@
 }
 
 - (void)signOut {
-    [GIDSignIn.sharedInstance signOut];
+  [GIDSignIn.sharedInstance signOut];
 }
 
 - (NSString *)googleClientID {

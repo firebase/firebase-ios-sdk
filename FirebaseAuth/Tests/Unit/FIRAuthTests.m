@@ -160,10 +160,10 @@ static NSString *const kGoogleAccessToken = @"GOOGLE_ACCESS_TOKEN";
  */
 static NSString *const kGoogleIDToken = @"GOOGLE_ID_TOKEN";
 
-/** @var FIRAppleAuthProviderID
+/** @var kAppleAuthProviderID
     @brief The provider ID for Apple Sign-In.
  */
-NSString *const FIRAppleAuthProviderID = @"apple.com";
+NSString *const kAppleAuthProviderID = @"apple.com";
 
 /** @var kAppleUD
     @brief The fake user ID under Apple Sign-In.
@@ -1421,23 +1421,24 @@ static const NSTimeInterval kWaitInterval = .5;
   OCMVerifyAll(_mockBackend);
 }
 
-/** @fn testSignInWithAppleCredentialSuccess
+/** @fn testSignInWithOAuthCredentialWithDisplayNameSuccess
     @brief Tests the flow of a successful @c signInWithCredential:completion: call
         with an Apple Sign-In credential.
  */
-- (void)testSignInWithAppleCredentialSuccess {
+- (void)testSignInWithOAuthCredentialWithDisplayNameSuccess {
   OCMExpect([_mockBackend verifyAssertion:[OCMArg any] callback:[OCMArg any]])
       .andCallBlock2(^(FIRVerifyAssertionRequest *_Nullable request,
                        FIRVerifyAssertionResponseCallback callback) {
         XCTAssertEqualObjects(request.APIKey, kAPIKey);
-        XCTAssertEqualObjects(request.providerID, FIRAppleAuthProviderID);
+        XCTAssertEqualObjects(request.providerID, kAppleAuthProviderID);
         XCTAssertEqualObjects(request.providerIDToken, kAppleIDToken);
         XCTAssertEqualObjects(request.providerAccessToken, kAppleAccessToken);
+        XCTAssertEqualObjects(request.displayName, kAppleDisplayName);
         XCTAssertTrue(request.returnSecureToken);
         dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
           id mockVerifyAssertionResponse = OCMClassMock([FIRVerifyAssertionResponse class]);
           OCMStub([mockVerifyAssertionResponse federatedID]).andReturn(kAppleID);
-          OCMStub([mockVerifyAssertionResponse providerID]).andReturn(FIRAppleAuthProviderID);
+          OCMStub([mockVerifyAssertionResponse providerID]).andReturn(kAppleAuthProviderID);
           OCMStub([mockVerifyAssertionResponse localID]).andReturn(kLocalID);
           OCMStub([mockVerifyAssertionResponse displayName]).andReturn(kAppleDisplayName);
           OCMStub([mockVerifyAssertionResponse profile]).andReturn([[self class] appleProfile]);
@@ -1450,7 +1451,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *appleCredential =
-      [FIROAuthProvider credentialWithProviderID:FIRAppleAuthProviderID IDToken:kAppleIDToken rawNonce:nil accessToken:kAppleAccessToken displayName:kAppleDisplayName];
+      [FIROAuthProvider credentialWithProviderID:kAppleAuthProviderID IDToken:kAppleIDToken rawNonce:nil accessToken:kAppleAccessToken displayName:kAppleDisplayName];
   [[FIRAuth auth]
       signInWithCredential:appleCredential
                 completion:^(FIRAuthDataResult *_Nullable authResult, NSError *_Nullable error) {
@@ -1460,7 +1461,7 @@ static const NSTimeInterval kWaitInterval = .5;
                                         [[self class] appleProfile]);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.username, kDisplayName);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.providerID,
-                                        FIRAppleAuthProviderID);
+                                        kAppleAuthProviderID);
                   XCTAssertNil(error);
                   [expectation fulfill];
                 }];
@@ -2691,7 +2692,7 @@ static const NSTimeInterval kWaitInterval = .5;
         XCTAssertEqualObjects(request.accessToken, kAccessToken);
         dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
           id mockAppleUserInfo = OCMClassMock([FIRGetAccountInfoResponseProviderUserInfo class]);
-          OCMStub([mockAppleUserInfo providerID]).andReturn(FIRAppleAuthProviderID);
+          OCMStub([mockAppleUserInfo providerID]).andReturn(kAppleAuthProviderID);
           OCMStub([mockAppleUserInfo displayName]).andReturn(kAppleDisplayName);
           OCMStub([mockAppleUserInfo federatedID]).andReturn(kAppleID);
           OCMStub([mockAppleUserInfo email]).andReturn(kAppleEmail);
@@ -2720,7 +2721,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertEqualObjects(user.displayName, kDisplayName);
   XCTAssertEqual(user.providerData.count, 1u);
   id<FIRUserInfo> appleUserInfo = user.providerData[0];
-  XCTAssertEqualObjects(appleUserInfo.providerID, FIRAppleAuthProviderID);
+  XCTAssertEqualObjects(appleUserInfo.providerID, kAppleAuthProviderID);
   XCTAssertEqualObjects(appleUserInfo.uid, kAppleID);
   XCTAssertEqualObjects(appleUserInfo.displayName, kAppleDisplayName);
   XCTAssertEqualObjects(appleUserInfo.email, kAppleEmail);
