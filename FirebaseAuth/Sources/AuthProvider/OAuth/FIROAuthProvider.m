@@ -132,7 +132,7 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                          IDToken:(NSString *)IDToken
                                         rawNonce:(nullable NSString *)rawNonce
                                      accessToken:(nullable NSString *)accessToken
-                                     displayName:(nonnull NSString *)displayName{
+                                     displayName:(nonnull NSString *)displayName {
   return [[FIROAuthCredential alloc] initWithProviderID:providerID
                                                 IDToken:IDToken
                                                rawNonce:rawNonce

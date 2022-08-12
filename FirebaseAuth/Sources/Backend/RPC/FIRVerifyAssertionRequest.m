@@ -176,11 +176,11 @@ static NSString *const kTenantIDKey = @"tenantId";
   if (_sessionID) {
     body[kSessionIDKey] = _sessionID;
   }
-    
+
   if (_displayName) {
     body[kDisplayNameKey] = _displayName;
   }
-    
+
   if (self.tenantID) {
     body[kTenantIDKey] = self.tenantID;
   }

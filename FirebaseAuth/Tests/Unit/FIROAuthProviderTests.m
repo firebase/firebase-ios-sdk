@@ -248,13 +248,16 @@ static NSString *const kUnknownErrorString =
  */
 - (void)testObtainingOAuthCredentialWithDisplayName {
   FIRAuthCredential *credential = [FIROAuthProvider credentialWithProviderID:kFakeProviderID
-                                   IDToken:kFakeIDToken rawNonce:nil accessToken:kFakeAccessToken displayName:kFakeDisplayName];
+                                                                     IDToken:kFakeIDToken
+                                                                    rawNonce:nil
+                                                                 accessToken:kFakeAccessToken
+                                                                 displayName:kFakeDisplayName];
   XCTAssertTrue([credential isKindOfClass:[FIROAuthCredential class]]);
   FIROAuthCredential *OAuthCredential = (FIROAuthCredential *)credential;
   XCTAssertEqualObjects(OAuthCredential.accessToken, kFakeAccessToken);
   XCTAssertEqualObjects(OAuthCredential.provider, kFakeProviderID);
   XCTAssertEqualObjects(OAuthCredential.IDToken, kFakeIDToken);
-  XCTAssertEqualObjects(OAuthCredential.displayName,kFakeDisplayName);
+  XCTAssertEqualObjects(OAuthCredential.displayName, kFakeDisplayName);
 }
 
 /** @fn testObtainingOAuthCredentialWithIDToken

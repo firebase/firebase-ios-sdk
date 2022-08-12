@@ -1451,7 +1451,11 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *appleCredential =
-      [FIROAuthProvider credentialWithProviderID:kAppleAuthProviderID IDToken:kAppleIDToken rawNonce:nil accessToken:kAppleAccessToken displayName:kAppleDisplayName];
+      [FIROAuthProvider credentialWithProviderID:kAppleAuthProviderID
+                                         IDToken:kAppleIDToken
+                                        rawNonce:nil
+                                     accessToken:kAppleAccessToken
+                                     displayName:kAppleDisplayName];
   [[FIRAuth auth]
       signInWithCredential:appleCredential
                 completion:^(FIRAuthDataResult *_Nullable authResult, NSError *_Nullable error) {
