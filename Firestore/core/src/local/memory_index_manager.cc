@@ -116,8 +116,8 @@ MemoryIndexManager::GetDocumentsMatchingTarget(const core::Target& target) {
   return {};
 }
 
-absl::optional<std::string>
-MemoryIndexManager::GetNextCollectionGroupToUpdate() {
+absl::optional<std::string> MemoryIndexManager::GetNextCollectionGroupToUpdate()
+    const {
   return absl::nullopt;
 }
 

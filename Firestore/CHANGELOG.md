@@ -1,3 +1,10 @@
+# Unreleased
+- [fixed] Fixed an intermittent crash if `ListenerRegistration::Remove()` was
+  invoked concurrently (#10065).
+
+# 9.4.0
+- [fixed] Fixed a crash during app start (#9985, #10018).
+
 # 9.2.0
 - [feature] Added `TransactionOptions` to control how many times a transaction
   will retry commits before failing (#9838).

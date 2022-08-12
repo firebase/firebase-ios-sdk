@@ -79,7 +79,7 @@ static NSString *const kFIRAuthErrorMessageInvalidCustomToken =
     @brief Message for @c FIRAuthErrorCodeCustomTokenMismatch error code.
  */
 static NSString *const kFIRAuthErrorMessageCustomTokenMismatch = @"The custom token corresponds to "
-                                                                  "a different audience.";
+                                                                  "a different audience or issuer.";
 
 /** @var kFIRAuthErrorMessageInvalidEmail
     @brief Message for @c FIRAuthErrorCodeInvalidEmail error code.

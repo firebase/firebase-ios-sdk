@@ -156,9 +156,8 @@ TEST_P(DocumentOverlayCacheTest, ReturnsNullWhenOverlayIsNotFound) {
 TEST_P(DocumentOverlayCacheTest, SkipsNonExistingOverlayInBatchLookup) {
   this->persistence_->Run("SkipsNonExistingOverlayInBatchLookup", [&] {
     model::OverlayByDocumentKeyMap result;
-    auto lookup = model::DocumentKeySet().insert(testutil::Key("coll/doc"));
+    const auto lookup = std::set<DocumentKey>{{testutil::Key("coll/doc")}};
     this->cache_->GetOverlays(result, lookup);
-
     EXPECT_TRUE(result.empty());
   });
 }
@@ -166,7 +165,8 @@ TEST_P(DocumentOverlayCacheTest, SkipsNonExistingOverlayInBatchLookup) {
 TEST_P(DocumentOverlayCacheTest, SupportsEmptyBatchInBatchLookup) {
   this->persistence_->Run("SupportsEmptyBatchInBatchLookup", [&] {
     model::OverlayByDocumentKeyMap result;
-    this->cache_->GetOverlays(result, model::DocumentKeySet());
+    this->cache_->GetOverlays(result, {});
+    EXPECT_TRUE(result.empty());
   });
 }
 
@@ -178,10 +178,9 @@ TEST_P(DocumentOverlayCacheTest, CanReadSavedOverlaysInBatches) {
     this->SaveOverlaysWithMutations(3, {m1, m2, m3});
 
     model::OverlayByDocumentKeyMap result;
-    auto lookup = model::DocumentKeySet()
-                      .insert(testutil::Key("coll1/a"))
-                      .insert(testutil::Key("coll1/b"))
-                      .insert(testutil::Key("coll2/c"));
+    const auto lookup = std::set<DocumentKey>{testutil::Key("coll1/a"),
+                                              testutil::Key("coll1/b"),
+                                              testutil::Key("coll2/c")};
     this->cache_->GetOverlays(result, lookup);
     EXPECT_EQ(m1, result[testutil::Key("coll1/a")].mutation());
     EXPECT_EQ(m2, result[testutil::Key("coll1/b")].mutation());

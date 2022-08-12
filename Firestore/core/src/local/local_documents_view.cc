@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -123,6 +124,37 @@ model::DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionGroupQuery(
   return results;
 }
 
+LocalWriteResult LocalDocumentsView::GetNextDocuments(
+    const std::string& collection_group,
+    const IndexOffset& offset,
+    int count) const {
+  auto docs = remote_document_cache_->GetAll(collection_group, offset, count);
+  auto overlays = count - docs.size() > 0
+                      ? document_overlay_cache_->GetOverlays(
+                            collection_group, offset.largest_batch_id(),
+                            count - docs.size())
+                      : OverlayByDocumentKeyMap();
+
+  int largest_batch_id = IndexOffset::InitialLargestBatchId();
+  for (const auto& entry : overlays) {
+    if (docs.find(entry.first) == docs.end()) {
+      docs =
+          docs.insert(entry.first, GetBaseDocument(entry.first, entry.second));
+    }
+    // The callsite will use the largest batch ID together with the latest read
+    // time to create a new index offset. Since we only process batch IDs if all
+    // remote documents have been read, no overlay will increase the overall
+    // read time. This is why we only need to special case the batch id.
+    largest_batch_id =
+        std::max(largest_batch_id, entry.second.largest_batch_id());
+  }
+
+  PopulateOverlays(overlays, DocumentKeySet::FromKeysOf(docs));
+  auto local_docs = ComputeViews(docs, std::move(overlays), DocumentKeySet{});
+  return LocalWriteResult::FromOverlayedDocuments(largest_batch_id,
+                                                  std::move(local_docs));
+}
+
 DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
     const Query& query, const IndexOffset& offset) {
   MutableDocumentMap remote_documents =
@@ -201,10 +233,10 @@ model::OverlayedDocumentMap LocalDocumentsView::GetOverlayedDocuments(
 void LocalDocumentsView::PopulateOverlays(
     OverlayByDocumentKeyMap& overlays,
     const model::DocumentKeySet& keys) const {
-  DocumentKeySet missing_overlays;
+  std::set<DocumentKey> missing_overlays;
   for (const DocumentKey& key : keys) {
     if (overlays.find(key) == overlays.end()) {
-      missing_overlays = missing_overlays.insert(key);
+      missing_overlays.insert(key);
     }
   }
   document_overlay_cache_->GetOverlays(overlays, missing_overlays);
@@ -213,7 +245,7 @@ void LocalDocumentsView::PopulateOverlays(
 model::OverlayedDocumentMap LocalDocumentsView::ComputeViews(
     MutableDocumentMap docs,
     OverlayByDocumentKeyMap&& overlays,
-    const DocumentKeySet& existence_state_changed) {
+    const DocumentKeySet& existence_state_changed) const {
   model::MutableDocumentPtrMap recalculate_documents;
   model::FieldMaskMap mutated_fields;
   for (const auto& docs_entry : docs) {
@@ -253,7 +285,7 @@ model::OverlayedDocumentMap LocalDocumentsView::ComputeViews(
 }
 
 void LocalDocumentsView::RecalculateAndSaveOverlays(
-    const DocumentKeySet& keys) {
+    const DocumentKeySet& keys) const {
   model::MutableDocumentPtrMap docs;
   auto remote_docs = remote_document_cache_->GetAll(keys);
   for (const auto& entry : remote_docs) {
@@ -263,7 +295,7 @@ void LocalDocumentsView::RecalculateAndSaveOverlays(
 }
 
 model::FieldMaskMap LocalDocumentsView::RecalculateAndSaveOverlays(
-    model::MutableDocumentPtrMap&& docs) {
+    model::MutableDocumentPtrMap&& docs) const {
   DocumentKeySet keys;
   for (const auto& doc : docs) {
     keys = keys.insert(doc.first);

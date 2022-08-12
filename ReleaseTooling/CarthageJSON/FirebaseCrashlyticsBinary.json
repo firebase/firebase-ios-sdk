@@ -46,5 +46,7 @@
   "8.9.1": "https://dl.google.com/dl/firebase/ios/carthage/8.9.1/FirebaseCrashlytics-6077be72e72bd00d.zip",
   "9.0.0": "https://dl.google.com/dl/firebase/ios/carthage/9.0.0/FirebaseCrashlytics-24451f8e7715b395.zip",
   "9.1.0": "https://dl.google.com/dl/firebase/ios/carthage/9.1.0/FirebaseCrashlytics-94818161ae000f6e.zip",
-  "9.2.0": "https://dl.google.com/dl/firebase/ios/carthage/9.2.0/FirebaseCrashlytics-06938a462073d07e.zip"
+  "9.2.0": "https://dl.google.com/dl/firebase/ios/carthage/9.2.0/FirebaseCrashlytics-06938a462073d07e.zip",
+  "9.3.0": "https://dl.google.com/dl/firebase/ios/carthage/9.3.0/FirebaseCrashlytics-d81c99b927fdd409.zip",
+  "9.4.0": "https://dl.google.com/dl/firebase/ios/carthage/9.4.0/FirebaseCrashlytics-75118dc51acf861a.zip"
 }

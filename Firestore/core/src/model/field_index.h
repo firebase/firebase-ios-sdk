@@ -134,6 +134,14 @@ class IndexOffset : public util::Comparable<IndexOffset> {
     return largest_batch_id_;
   }
 
+  /** Creates a pretty-printed description of the IndexOffset for debugging. */
+  std::string ToString() const {
+    return absl::StrCat(
+        "Index Offset: {read time: ", read_time_.ToString(),
+        ", document key: ", document_key_.ToString(),
+        ", largest batch id: ", std::to_string(largest_batch_id_), "}");
+  }
+
   util::ComparisonResult CompareTo(const IndexOffset& rhs) const;
 
  private:

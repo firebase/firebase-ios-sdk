@@ -1,5 +1,7 @@
 {
   "9.0.0": "https://dl.google.com/dl/firebase/ios/carthage/9.0.0/FirebaseAnalyticsOnDeviceConversion-31aedde70a736b8a.zip",
   "9.1.0": "https://dl.google.com/dl/firebase/ios/carthage/9.1.0/FirebaseAnalyticsOnDeviceConversion-f13b5a47d1e3978d.zip",
-  "9.2.0": "https://dl.google.com/dl/firebase/ios/carthage/9.2.0/FirebaseAnalyticsOnDeviceConversion-2ebf567c4d97de12.zip"
+  "9.2.0": "https://dl.google.com/dl/firebase/ios/carthage/9.2.0/FirebaseAnalyticsOnDeviceConversion-2ebf567c4d97de12.zip",
+  "9.3.0": "https://dl.google.com/dl/firebase/ios/carthage/9.3.0/FirebaseAnalyticsOnDeviceConversion-2eaa0fde5ae806a2.zip",
+  "9.4.0": "https://dl.google.com/dl/firebase/ios/carthage/9.4.0/FirebaseAnalyticsOnDeviceConversion-bdee83657b00ce14.zip"
 }
