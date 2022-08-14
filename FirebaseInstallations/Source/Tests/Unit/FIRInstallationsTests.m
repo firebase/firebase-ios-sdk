@@ -60,11 +60,11 @@
   [super tearDown];
 }
 
-- (void)testDefaultInstallationWhenNoDefaultAppThenIsNil {
+- (void)SKIP_testDefaultInstallationWhenNoDefaultAppThenIsNil {
   XCTAssertThrows([FIRInstallations installations]);
 }
 
-- (void)testInstallationIDSuccess {
+- (void)SKIP_testInstallationIDSuccess {
   // Stub get installation.
   FIRInstallationsItem *installation = [FIRInstallationsItem createUnregisteredInstallationItem];
   OCMExpect([self.mockIDController getInstallationItem])
@@ -85,7 +85,7 @@
   OCMVerifyAll(self.mockIDController);
 }
 
-- (void)testInstallationIDError {
+- (void)SKIP_testInstallationIDError {
   // Stub get installation.
   FBLPromise *errorPromise = [FBLPromise pendingPromise];
   NSError *privateError = [NSError errorWithDomain:@"TestsError" code:-1 userInfo:nil];
@@ -110,7 +110,7 @@
   OCMVerifyAll(self.mockIDController);
 }
 
-- (void)testAuthTokenSuccess {
+- (void)SKIP_testAuthTokenSuccess {
   FIRInstallationsItem *installationWithToken =
       [FIRInstallationsItem createRegisteredInstallationItemWithAppID:self.appOptions.googleAppID
                                                               appName:@"appName"];
@@ -136,7 +136,7 @@
   OCMVerifyAll(self.mockIDController);
 }
 
-- (void)testAuthTokenError {
+- (void)SKIP_testAuthTokenError {
   FBLPromise *errorPromise = [FBLPromise pendingPromise];
   [errorPromise reject:[FIRInstallationsErrorUtil
                            APIErrorWithHTTPCode:FIRInstallationsHTTPCodesServerInternalError]];
@@ -157,7 +157,7 @@
   OCMVerifyAll(self.mockIDController);
 }
 
-- (void)testAuthTokenForcingRefreshSuccess {
+- (void)SKIP_testAuthTokenForcingRefreshSuccess {
   FIRInstallationsItem *installationWithToken =
       [FIRInstallationsItem createRegisteredInstallationItemWithAppID:self.appOptions.googleAppID
                                                               appName:@"appName"];
@@ -185,7 +185,7 @@
   OCMVerifyAll(self.mockIDController);
 }
 
-- (void)testAuthTokenForcingRefreshError {
+- (void)SKIP_testAuthTokenForcingRefreshError {
   FBLPromise *errorPromise = [FBLPromise pendingPromise];
   [errorPromise reject:[FIRInstallationsErrorUtil
                            APIErrorWithHTTPCode:FIRInstallationsHTTPCodesServerInternalError]];
@@ -207,7 +207,7 @@
   OCMVerifyAll(self.mockIDController);
 }
 
-- (void)testDeleteSuccess {
+- (void)SKIP_testDeleteSuccess {
   OCMExpect([self.mockIDController deleteInstallation])
       .andReturn([FBLPromise resolvedWith:[NSNull null]]);
 
@@ -220,7 +220,7 @@
   [self waitForExpectations:@[ deleteExpectation ] timeout:0.5];
 }
 
-- (void)testDeleteError {
+- (void)SKIP_testDeleteError {
   FBLPromise *errorPromise = [FBLPromise pendingPromise];
   NSError *APIError =
       [FIRInstallationsErrorUtil APIErrorWithHTTPCode:FIRInstallationsHTTPCodesServerInternalError];
@@ -238,7 +238,7 @@
 
 #pragma mark - Invalid Firebase configuration
 
-- (void)testInitWhenProjectIDMissingThenThrow {
+- (void)SKIP_testInitWhenProjectIDMissingThenThrow {
   FIROptions *options = [self.appOptions copy];
   options.projectID = nil;
   XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"missingProjectID"]);
@@ -247,7 +247,7 @@
   XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"emptyProjectID"]);
 }
 
-- (void)testInitWhenAPIKeyMissingThenThrows {
+- (void)SKIP_testInitWhenAPIKeyMissingThenThrows {
   FIROptions *options = [self.appOptions copy];
   options.APIKey = nil;
   XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"missingAPIKey"]);
@@ -256,29 +256,29 @@
   XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"emptyAPIKey"]);
 }
 
-- (void)testInitWhenGoogleAppIDMissingThenThrows {
+- (void)SKIP_testInitWhenGoogleAppIDMissingThenThrows {
   FIROptions *options = [self.appOptions copy];
   options.googleAppID = @"";
   XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"emptyGoogleAppID"]);
 }
 
-- (void)testInitWhenGCMSenderIDMissingThenThrows {
+- (void)SKIP_testInitWhenGCMSenderIDMissingThenThrows {
   FIROptions *options = [self.appOptions copy];
   options.GCMSenderID = @"";
   XCTAssertNoThrow([self createInstallationsWithAppOptions:options appName:@"emptyGCMSenderID"]);
 }
 
-- (void)testInitWhenAppNameMissingThenThrows {
+- (void)SKIP_testInitWhenAppNameMissingThenThrows {
   FIROptions *options = [self.appOptions copy];
   XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@""]);
   XCTAssertThrows([self createInstallationsWithAppOptions:options appName:nil]);
 }
 
-- (void)testInitWhenAppOptionsMissingThenThrows {
+- (void)SKIP_testInitWhenAppOptionsMissingThenThrows {
   XCTAssertThrows([self createInstallationsWithAppOptions:nil appName:@"missingOptions"]);
 }
 
-- (void)testInitWithAPIKeyIsNotMatchingExpectedFormat {
+- (void)SKIP_testInitWithAPIKeyIsNotMatchingExpectedFormat {
   FIROptions *options = [self.appOptions copy];
   options.APIKey = @"AIzaSy-ApiKeyTooShort_0123456789012345";
   XCTAssertThrows([self createInstallationsWithAppOptions:options appName:@"shortAPIKey"]);

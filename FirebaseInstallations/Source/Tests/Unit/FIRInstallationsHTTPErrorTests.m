@@ -24,7 +24,7 @@
 
 @implementation FIRInstallationsHTTPErrorTests
 
-- (void)testInit {
+- (void)SKIP_testInit {
   NSHTTPURLResponse *HTTPResponse = [self createHTTPResponse];
   NSData *responseData = [self createResponseData];
   FIRInstallationsHTTPError *error =
@@ -35,7 +35,7 @@
   XCTAssertEqualObjects(error.data, responseData);
 }
 
-- (void)testUserInfoContainsResponseData {
+- (void)SKIP_testUserInfoContainsResponseData {
   NSHTTPURLResponse *HTTPResponse = [self createHTTPResponse];
   NSData *responseData = [self createResponseData];
   FIRInstallationsHTTPError *error =
@@ -68,7 +68,7 @@
   return responseData;
 }
 
-- (void)testCopying {
+- (void)SKIP_testCopying {
   NSHTTPURLResponse *HTTPResponse = [self createHTTPResponse];
   NSData *responseData = [self createResponseData];
   FIRInstallationsHTTPError *error =
@@ -81,7 +81,7 @@
   XCTAssertEqualObjects(error.data, clone.data);
 }
 
-- (void)testCoding {
+- (void)SKIP_testCoding {
   NSHTTPURLResponse *HTTPResponse = [self createHTTPResponse];
   NSData *responseData = [self createResponseData];
   FIRInstallationsHTTPError *error =

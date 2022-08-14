@@ -44,11 +44,11 @@
   self.testDateProvider = nil;
 }
 
-- (void)testIsNextRequestAllowed_WhenNoEvents {
+- (void)SKIP_testIsNextRequestAllowed_WhenNoEvents {
   XCTAssertTrue([self.backoffController isNextRequestAllowed]);
 }
 
-- (void)testIsNextRequestAllowed_AfterUnrecoverableError {
+- (void)SKIP_testIsNextRequestAllowed_AfterUnrecoverableError {
   XCTAssertTrue([self.backoffController isNextRequestAllowed]);
 
   [self.backoffController registerEvent:FIRInstallationsBackoffEventUnrecoverableFailure];
@@ -56,7 +56,7 @@
   [self assertBackoffTimeInterval:24 * 60 * 60];  // 24h
 }
 
-- (void)testIsNextRequestAllowed_AfterRecoverableError {
+- (void)SKIP_testIsNextRequestAllowed_AfterRecoverableError {
   XCTAssertTrue([self.backoffController isNextRequestAllowed]);
 
   for (NSInteger attempt = 1; attempt < 21; attempt++) {
@@ -70,7 +70,7 @@
   [self assertBackoffTimeInterval:24 * 60 * 60];  // 24h
 }
 
-- (void)testIsNextRequestAllowed_WhenSuccessAfterError {
+- (void)SKIP_testIsNextRequestAllowed_WhenSuccessAfterError {
   [self.backoffController registerEvent:FIRInstallationsBackoffEventRecoverableFailure];
   XCTAssertFalse([self.backoffController isNextRequestAllowed]);
 

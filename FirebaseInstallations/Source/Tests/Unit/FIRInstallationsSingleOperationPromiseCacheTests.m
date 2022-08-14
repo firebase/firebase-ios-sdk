@@ -29,7 +29,7 @@
 
 // This test is flaky by definition.
 // If this test fails at least once it means there must be a concurrency issue.
-- (void)testRaceCondition {
+- (void)SKIP_testRaceCondition {
   for (NSInteger i = 0; i < 100; i++) {
     [self assertRaceConditionWithParallelOperationCount:10000];
   }

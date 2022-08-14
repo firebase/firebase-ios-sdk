@@ -55,7 +55,7 @@
   [self.mockSecureStorage stopMocking];
 }
 
-- (void)testInstallationID_WhenNoUserDefaultsItem_ThenNotFound {
+- (void)SKIP_testInstallationID_WhenNoUserDefaultsItem_ThenNotFound {
   NSString *appID = @"123";
   NSString *appName = @"name";
   NSString *itemID = [self itemIDWithAppID:appID appName:appName];
@@ -71,7 +71,7 @@
   OCMVerifyAll(self.mockSecureStorage);
 }
 
-- (void)testInstallationID_WhenThereIsUserDefaultsAndKeychain_ThenReturnsItem {
+- (void)SKIP_testInstallationID_WhenThereIsUserDefaultsAndKeychain_ThenReturnsItem {
   NSString *appID = @"123";
   NSString *appName = @"name";
   NSString *itemID = [self itemIDWithAppID:appID appName:appName];
@@ -101,7 +101,7 @@
   OCMVerifyAll(self.mockSecureStorage);
 }
 
-- (void)testInstallationID_WhenThereIsUserDefaultsAndNoKeychain_ThenNotFound {
+- (void)SKIP_testInstallationID_WhenThereIsUserDefaultsAndNoKeychain_ThenNotFound {
   NSString *appID = @"123";
   NSString *appName = @"name";
   NSString *itemID = [self itemIDWithAppID:appID appName:appName];
@@ -126,7 +126,7 @@
   OCMVerifyAll(self.mockSecureStorage);
 }
 
-- (void)testSaveInstallationWhenKeychainSucceds {
+- (void)SKIP_testSaveInstallationWhenKeychainSucceds {
   FIRInstallationsItem *item = [FIRInstallationsItem createUnregisteredInstallationItem];
   NSString *itemID = [item identifier];
   // Reset user defaults key.
@@ -154,7 +154,7 @@
   XCTAssertNotNil([self.userDefaults objectForKey:itemID]);
 }
 
-- (void)testSaveInstallationWhenKeychainFails {
+- (void)SKIP_testSaveInstallationWhenKeychainFails {
   FIRInstallationsItem *item = [FIRInstallationsItem createUnregisteredInstallationItem];
   NSString *itemID = [item identifier];
   // Reset user defaults key.
@@ -186,7 +186,7 @@
   XCTAssertNil([self.userDefaults objectForKey:itemID]);
 }
 
-- (void)testRemoveInstallation {
+- (void)SKIP_testRemoveInstallation {
   NSString *appID = @"123";
   NSString *appName = @"name";
   NSString *itemID = [self itemIDWithAppID:appID appName:appName];

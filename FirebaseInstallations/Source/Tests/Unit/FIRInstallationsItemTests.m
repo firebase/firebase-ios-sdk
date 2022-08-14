@@ -28,7 +28,7 @@
 // TODO: Add more tests.
 @implementation FIRInstallationsItemTests
 
-- (void)testInstallationsItemInit {
+- (void)SKIP_testInstallationsItemInit {
   NSString *appID = @"appID";
   NSString *name = @"name";
   FIRInstallationsItem *item = [[FIRInstallationsItem alloc] initWithAppID:appID
@@ -38,11 +38,11 @@
   XCTAssertEqualObjects(item.firebaseAppName, name);
 }
 
-- (void)testItemUpdateWithStoredItem {
+- (void)SKIP_testItemUpdateWithStoredItem {
   // TODO: Implement.
 }
 
-- (void)testGenerateFID {
+- (void)SKIP_testGenerateFID {
   NSString *FID1 = [FIRInstallationsItem generateFID];
   [self assertValidFID:FID1];
 
@@ -53,7 +53,7 @@
   XCTAssertNotEqualObjects(FID1, FID2);
 }
 
-- (void)testValidate_InvalidItem {
+- (void)SKIP_testValidate_InvalidItem {
   FIRInstallationsItem *unregisteredItem = [[FIRInstallationsItem alloc] initWithAppID:@""
                                                                        firebaseAppName:@""];
 
@@ -87,7 +87,7 @@
       containsString:@"registered installation must have non-empty `authToken.expirationDate`"]);
 }
 
-- (void)testValidate_ValidItem {
+- (void)SKIP_testValidate_ValidItem {
   FIRInstallationsItem *item = [FIRInstallationsItem createRegisteredInstallationItem];
 
   NSError *error;

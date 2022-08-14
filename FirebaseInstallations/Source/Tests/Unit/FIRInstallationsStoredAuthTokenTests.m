@@ -26,7 +26,7 @@
 
 @implementation FIRInstallationsStoredAuthTokenTests
 
-- (void)testTokenArchivingUnarchiving {
+- (void)SKIP_testTokenArchivingUnarchiving {
   FIRInstallationsStoredAuthToken *token = [[FIRInstallationsStoredAuthToken alloc] init];
   token.token = @"auth-token";
   token.expirationDate = [NSDate dateWithTimeIntervalSinceNow:12345];

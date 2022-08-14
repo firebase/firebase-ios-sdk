@@ -15,14 +15,14 @@
  */
 
 // Uncomment or set the flag in GCC_PREPROCESSOR_DEFINITIONS to enable integration tests.
-//#define FIR_INSTALLATIONS_INTEGRATION_TESTS_REQUIRED 1
+#define FIR_INSTALLATIONS_INTEGRATION_TESTS_REQUIRED 1
 
 // macOS requests a user password when accessing the Keychain for the first time,
 // so the tests may fail. Disable integration tests on macOS so far.
 // TODO: Configure the tests to run on macOS without requesting the keychain password.
 
 #import <TargetConditionals.h>
-#if !TARGET_OS_OSX
+//#if !TARGET_OS_OSX
 
 #import <XCTest/XCTest.h>
 
@@ -283,4 +283,4 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
 
 @end
 
-#endif  // !TARGET_OS_OSX
+//#endif  // !TARGET_OS_OSX
