@@ -53,11 +53,6 @@
 
   void (^observerBlock)(NSNotification *) = ^(NSNotification *aNotification) {
     NSDictionary *appInfoDict = aNotification.userInfo;
-    NSNumber *isDefaultApp = appInfoDict[kFIRAppIsDefaultAppKey];
-    if (![isDefaultApp boolValue]) {
-      return;
-    }
-
     NSString *appName = appInfoDict[kFIRAppNameKey];
     FIRApp *app = [FIRApp appNamed:appName];
     FIROptions *options = app.options;
