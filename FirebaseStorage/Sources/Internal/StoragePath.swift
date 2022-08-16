@@ -103,10 +103,7 @@ internal class StoragePath: NSCopying, Equatable {
   // Removes leading and trailing slashes, and compresses multiple slashes
   // to create a canonical representation.
   // Example: /foo//bar///baz//// -> foo/bar/baz
-  private static func standardizedPathForString(_ string: String?) -> String? {
-    guard let string = string else {
-      return nil
-    }
+  private static func standardizedPathForString(_ string: String) -> String {
     var output = string
     while true {
       let newOutput = output.replacingOccurrences(of: "//", with: "/")
@@ -139,7 +136,11 @@ internal class StoragePath: NSCopying, Equatable {
   internal init(with bucket: String,
                 object: String? = nil) {
     self.bucket = bucket
-    self.object = StoragePath.standardizedPathForString(object)
+    if let object = object {
+      self.object = StoragePath.standardizedPathForString(object)
+    } else {
+      self.object = nil
+    }
   }
 
   static func == (lhs: StoragePath, rhs: StoragePath) -> Bool {
