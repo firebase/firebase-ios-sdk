@@ -1,4 +1,4 @@
-# Unreleased
+# 9.5.0
 - [fixed] Fixed an intermittent crash if `ListenerRegistration::Remove()` was
   invoked concurrently (#10065).
 - [fixed] Fixed a crash if multiple large write batches with overlapping
