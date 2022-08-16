@@ -167,7 +167,7 @@ import FirebaseAuthInterop
     } catch let StoragePathError.storagePathError(message) {
       fatalError(message)
     } catch {
-      fatalError("Internal error finding StoragePath")
+      fatalError("Internal error finding StoragePath: \(error)")
     }
   }
 

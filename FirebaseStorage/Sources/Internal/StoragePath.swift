@@ -31,7 +31,7 @@ internal class StoragePath: NSCopying, Equatable {
    * Parses a generic string (representing some URI or URL) and returns the appropriate path.
    * @param string String which is parsed into a path.
    * @return Returns an instance of StoragePath.
-   * @throws Throws an exception if the string is not a valid gs:// URI or http[s]:// URL.
+   * @throws Throws an error if the string is not a valid gs:// URI or http[s]:// URL.
    */
   static func path(string: String) throws -> StoragePath {
     if string.hasPrefix("gs://") {
@@ -41,7 +41,7 @@ internal class StoragePath: NSCopying, Equatable {
       // "http[s]://firebasestorage.googleapis.com/bucket/path/to/object?signed_url_params"
       return try path(HTTPURL: string)
     } else {
-      // Invalid scheme, raise an exception!
+      // Invalid scheme, throw an error!
       throw StoragePathError.storagePathError("Internal error: URL scheme must be one" +
         "of gs://, http://, or https://")
     }
@@ -51,7 +51,7 @@ internal class StoragePath: NSCopying, Equatable {
    * Parses a gs://bucket/path/to/object URI into a GCS path.
    * @param aURIString gs:// URI which is parsed into a path.
    * @return Returns an instance of StoragePath or nil if one can't be created.
-   * @throws Throws an exception if the string is not a valid gs:// URI.
+   * @throws Throws an error if the string is not a valid gs:// URI.
    */
   internal static func path(GSURI aURIString: String) throws -> StoragePath {
     if aURIString.starts(with: "gs://") {
@@ -75,7 +75,7 @@ internal class StoragePath: NSCopying, Equatable {
    * @param aURLString http[s]:// URL which is parsed into a path.
    * string which is parsed into a path.
    * @return Returns an instance of StoragePath or nil if one can't be created.
-   * @throws Throws an exception if the string is not a valid http[s]:// URL.
+   * @throws Throws an error if the string is not a valid http[s]:// URL.
    */
   private static func path(HTTPURL aURLString: String) throws -> StoragePath {
     let httpsURL = URL(string: aURLString)
@@ -115,14 +115,7 @@ internal class StoragePath: NSCopying, Equatable {
       }
       output = newOutput
     }
-    if output.hasSuffix("/") {
-      output = String(output.dropLast())
-    }
-    if output.hasPrefix("/") {
-      return String(output.dropFirst())
-    } else {
-      return output
-    }
+    return output.trimmingCharacters(in: ["/"])
   }
 
   // MARK: - Internal Implementations
