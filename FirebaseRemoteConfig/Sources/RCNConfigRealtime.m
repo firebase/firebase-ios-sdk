@@ -99,11 +99,11 @@ static NSInteger const gMaxRetries = 7;
   RCNConfigSettings *_settings;
   FIROptions *_options;
   NSString *_namespace;
-  NSInteger gMaxRetryCount;
-  NSInteger gRetrySeconds;
-  bool gIsRetrying;
-  bool gIsInBackground;
-  bool gIsRealtimeDisabled;
+  NSInteger _maxRetryCount;
+  NSInteger _retrySeconds;
+  bool _isRetrying;
+  bool _isInBackground;
+  bool _isRealtimeDisabled;
 }
 
 - (instancetype)init:(RCNConfigFetch *)configFetch
@@ -122,12 +122,12 @@ static NSInteger const gMaxRetries = 7;
     _namespace = namespace;
 
     /// Set retry seconds to a random number between 1 and 6 seconds.
-    gRetrySeconds = arc4random_uniform(5) + 1;
+    _retrySeconds = arc4random_uniform(5) + 1;
 
-    gMaxRetryCount = gMaxRetries;
-    gIsRetrying = false;
-    gIsRealtimeDisabled = false;
-    gIsInBackground = false;
+    _maxRetryCount = gMaxRetries;
+    _isRetrying = false;
+    _isRealtimeDisabled = false;
+    _isInBackground = false;
 
     [self setUpHttpRequest];
     [self setUpHttpSession];
@@ -350,16 +350,16 @@ static NSInteger const gMaxRetries = 7;
     bool noRunningConnection =
         strongSelf->_dataTask == nil || strongSelf->_dataTask.state != NSURLSessionTaskStateRunning;
     bool canMakeConnection = noRunningConnection && [strongSelf->_listeners count] > 0 &&
-                             !strongSelf->gIsInBackground && !strongSelf->gIsRealtimeDisabled;
-    if (canMakeConnection && strongSelf->gMaxRetryCount > 0 && !strongSelf->gIsRetrying) {
-      if (strongSelf->gMaxRetryCount < gMaxRetries) {
+                             !strongSelf->_isInBackground && !strongSelf->_isRealtimeDisabled;
+    if (canMakeConnection && strongSelf->_maxRetryCount > 0 && !strongSelf->_isRetrying) {
+      if (strongSelf->_maxRetryCount < gMaxRetries) {
         double RETRY_MULTIPLIER = arc4random_uniform(3) + 2;
-        strongSelf->gRetrySeconds *= RETRY_MULTIPLIER;
+        strongSelf->_retrySeconds *= RETRY_MULTIPLIER;
       }
-      strongSelf->gMaxRetryCount--;
-      strongSelf->gIsRetrying = true;
+      strongSelf->_maxRetryCount--;
+      strongSelf->_isRetrying = true;
       dispatch_time_t executionDelay =
-          dispatch_time(DISPATCH_TIME_NOW, (self->gRetrySeconds * NSEC_PER_SEC));
+          dispatch_time(DISPATCH_TIME_NOW, (self->_retrySeconds * NSEC_PER_SEC));
       dispatch_after(executionDelay, strongSelf->_realtimeLockQueue, ^{
         [strongSelf beginRealtimeStream];
       });
@@ -393,7 +393,7 @@ static NSInteger const gMaxRetries = 7;
   __weak RCNConfigRealtime *weakSelf = self;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
-    strongSelf->gIsInBackground = false;
+    strongSelf->_isInBackground = false;
     [strongSelf beginRealtimeStream];
   });
 }
@@ -402,7 +402,7 @@ static NSInteger const gMaxRetries = 7;
   __weak RCNConfigRealtime *weakSelf = self;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
-    strongSelf->gIsInBackground = true;
+    strongSelf->_isInBackground = true;
   });
 }
 
@@ -502,10 +502,10 @@ static NSInteger const gMaxRetries = 7;
       updateTemplateVersion = [[response objectForKey:kTemplateVersionNumberKey] integerValue];
     }
     if ([response objectForKey:kIsFeatureDisabled]) {
-      self->gIsRealtimeDisabled = [response objectForKey:kIsFeatureDisabled];
+      self->_isRealtimeDisabled = [response objectForKey:kIsFeatureDisabled];
     }
 
-    if (self->gIsRealtimeDisabled) {
+    if (self->_isRealtimeDisabled) {
       [self pauseRealtimeStream];
       NSError *error =
           [NSError errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
@@ -563,7 +563,7 @@ static NSInteger const gMaxRetries = 7;
     didReceiveResponse:(NSURLResponse *)response
      completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
   NSHTTPURLResponse *_httpURLResponse = (NSHTTPURLResponse *)response;
-  if ([_httpURLResponse statusCode] != 200 && !gIsRetrying) {
+  if ([_httpURLResponse statusCode] != 200 && !_isRetrying) {
     [self pauseRealtimeStream];
     [self retryHTTPConnection];
   }
@@ -574,7 +574,7 @@ static NSInteger const gMaxRetries = 7;
 - (void)URLSession:(NSURLSession *)session
                     task:(NSURLSessionTask *)task
     didCompleteWithError:(NSError *)error {
-  if (!gIsRetrying) {
+  if (!_isRetrying) {
     [self pauseRealtimeStream];
     [self retryHTTPConnection];
   }
@@ -582,7 +582,7 @@ static NSInteger const gMaxRetries = 7;
 
 /// Delegate that checks the final response of the connection and retries if allowed
 - (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(NSError *)error {
-  if (!gIsRetrying) {
+  if (!_isRetrying) {
     [self pauseRealtimeStream];
     [self retryHTTPConnection];
   }
@@ -597,16 +597,16 @@ static NSInteger const gMaxRetries = 7;
     bool noRunningConnection =
         strongSelf->_dataTask == nil || strongSelf->_dataTask.state != NSURLSessionTaskStateRunning;
     bool canMakeConnection = noRunningConnection && [strongSelf->_listeners count] > 0 &&
-                             !strongSelf->gIsInBackground && !strongSelf->gIsRealtimeDisabled;
+                             !strongSelf->_isInBackground && !strongSelf->_isRealtimeDisabled;
     if (canMakeConnection) {
       [strongSelf setRequestBody];
       strongSelf->_dataTask = [strongSelf->_session dataTaskWithRequest:strongSelf->_request];
       [strongSelf->_dataTask resume];
-      strongSelf->gMaxRetryCount = gMaxRetries;
-      strongSelf->gIsRetrying = false;
+      strongSelf->_maxRetryCount = gMaxRetries;
+      strongSelf->_isRetrying = false;
 
       /// Set retry seconds to a random number between 1 and 6 seconds.
-      strongSelf->gRetrySeconds = arc4random_uniform(5) + 1;
+      strongSelf->_retrySeconds = arc4random_uniform(5) + 1;
     }
   });
 }
