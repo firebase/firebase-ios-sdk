@@ -21,13 +21,10 @@
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageConstants.h"
-#import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageReference.h"
 #import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageTokenAuthorizer.h"
 
 #import "FirebaseStorageInternal/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageErrors.h"
-#import "FirebaseStorageInternal/Sources/FIRStorageReference_Private.h"
-#import "FirebaseStorageInternal/Sources/FIRStorageUtils.h"
 
 #if SWIFT_PACKAGE
 @import GTMSessionFetcherCore;
@@ -62,11 +59,6 @@ static NSTimeInterval kExpectationTimeoutSeconds = 10;
 + (FIRApp *)mockedApp;
 
 /**
- * Returns a FIRIMPLStorage inialized with a mockedApp.
- */
-+ (FIRIMPLStorage *)storageWithMockedApp;
-
-/**
  * Returns a valid URL for an object stored.
  */
 + (NSURL *)objectURL;
@@ -80,26 +72,6 @@ static NSTimeInterval kExpectationTimeoutSeconds = 10;
  * Returns a valid URL for an object not found in the current storage bucket.
  */
 + (NSURL *)notFoundURL;
-
-/**
- * Returns a valid FIRStoragePath for an object stored.
- */
-+ (FIRStoragePath *)objectPath;
-
-/**
- * Returns a valid FIRStoragePath for a bucket (no object).
- */
-+ (FIRStoragePath *)bucketPath;
-
-/**
- * Returns a valid FIRStoragePath for an object not found in the current storage bucket.
- */
-+ (FIRStoragePath *)notFoundPath;
-
-/**
- * Returns a FIRIMPLStorageReference that is backed by a mocked FIRApp.
- */
-+ (FIRIMPLStorageReference *)rootReference;
 
 /**
  * Waits for the given test case to time out by wrapping -waitForExpectation.

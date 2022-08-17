@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseStorageInternal
+import Foundation
 #if os(iOS) || os(tvOS)
   import MobileCoreServices
 #elseif os(macOS) || os(watchOS)
@@ -20,7 +20,7 @@ import FirebaseStorageInternal
 #endif
 
 class StorageUtils {
-  internal class func defaultRequestForReference(reference: FIRIMPLStorageReference,
+  internal class func defaultRequestForReference(reference: StorageReference,
                                                  queryParams: [String: String]? = nil)
     -> URLRequest {
     var components = URLComponents()
@@ -42,12 +42,13 @@ class StorageUtils {
         with: "%2B"
       )
     }
+    // TODO: review the force unwraps below.
     let encodedPath = encodedURL(for: reference.path)
     components.percentEncodedPath = encodedPath
     return URLRequest(url: components.url!)
   }
 
-  internal class func encodedURL(for path: FIRStoragePath) -> String {
+  internal class func encodedURL(for path: StoragePath) -> String {
     let bucketString = "/b/\(GCSEscapedString(path.bucket))"
     var objectString: String
     if let objectName = path.object {

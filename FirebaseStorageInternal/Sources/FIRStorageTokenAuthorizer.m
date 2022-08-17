@@ -14,9 +14,6 @@
 
 #import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageTokenAuthorizer.h"
 
-#import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorage.h"
-#import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageConstants.h"
-
 #import "FirebaseStorageInternal/Sources/FIRStorageConstants_Private.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageErrors.h"
 #import "FirebaseStorageInternal/Sources/FIRStorageLogger.h"
@@ -100,9 +97,15 @@ static NSString *const kAuthHeader = @"Authorization";
                            errorDictionary[kFIRStorageResponseErrorDomain] = error.domain;
                            errorDictionary[kFIRStorageResponseErrorCode] = @(error.code);
 
-                           NSError *tokenError = [FIRStorageErrors
-                                errorWithCode:FIRIMPLStorageErrorCodeUnauthenticated
-                               infoDictionary:errorDictionary];
+                           NSString *errorMessage =
+                               @"User is not authenticated, please authenticate"
+                               @" using Firebase Authentication and try again.";
+                           errorDictionary[NSLocalizedDescriptionKey] = errorMessage;
+
+                           NSError *tokenError =
+                               [NSError errorWithDomain:FIRStorageErrorDomainInternal
+                                                   code:-13020  // ErrorCodeUnauthenticated
+                                               userInfo:errorDictionary];
                            [invocation setArgument:&tokenError atIndex:4];
                          } else if (token) {
                            NSString *firebaseToken =

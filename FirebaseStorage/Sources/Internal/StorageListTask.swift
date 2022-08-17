@@ -14,7 +14,6 @@
 
 import Foundation
 
-import FirebaseStorageInternal
 #if COCOAPODS
   import GTMSessionFetcher
 #else
@@ -44,7 +43,7 @@ internal class StorageListTask: StorageTask, StorageTaskManagement {
    * @param previousPageToken An optional pageToken, used to resume a previous invocation.
    * @param completion The completion handler to be called with the FIRIMPLStorageListResult.
    */
-  internal init(reference: FIRIMPLStorageReference,
+  internal init(reference: StorageReference,
                 fetcherService: GTMSessionFetcherService,
                 queue: DispatchQueue,
                 pageSize: Int64?,

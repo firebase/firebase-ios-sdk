@@ -13,11 +13,16 @@
 // limitations under the License.
 
 import Foundation
-import FirebaseStorageInternal
 
 /// The error domain for codes in the `StorageErrorCode` enum.
 public let StorageErrorDomain: String = "FIRStorageErrorDomain"
 
+/**
+ * Adds wrappers for common Firebase Storage errors (including creating errors from GCS errors).
+ * For more information on unwrapping GCS errors, see the GCS errors docs:
+ * https://cloud.google.com/storage/docs/json_api/v1/status-codes
+ * This is never publicly exposed to end developers (as they will simply see an NSError).
+ */
 @objc(FIRStorageErrorCode) public enum StorageErrorCode: Int, Swift.Error {
   case unknown = -13000
   case objectNotFound = -13010
@@ -32,7 +37,13 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
   case cancelled = -13040
   case invalidArgument = -13050
 
-  static func error(withServerError serverError: NSError, ref: FIRIMPLStorageReference) -> NSError {
+  /**
+   * Creates a Firebase Storage error from a specific GCS error and FIRIMPLStorageReference.
+   * @param serverError Server error to wrap and return as a Firebase Storage error.
+   * @param ref StorageReference which provides context about the request being made.
+   * @return Returns a Firebase Storage error.
+   */
+  static func error(withServerError serverError: NSError, ref: StorageReference) -> NSError {
     var errorCode: StorageErrorCode
     switch serverError.code {
     case 400: errorCode = .unknown
@@ -57,6 +68,11 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
     return error(withCode: errorCode, infoDictionary: errorDictionary)
   }
 
+  /** Creates a Firebase Storage error from an invalid request.
+   *
+   * @param request The Data representation of the invalid user request.
+   * @return Returns the corresponding Firebase Storage error.
+   */
   static func error(withInvalidRequest request: Data?) -> NSError {
     var requestString: String
     if let request = request {
@@ -74,6 +90,10 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
     return error(withCode: .unknown, infoDictionary: [localizedFailureKey: invalidDataString])
   }
 
+  /**
+   * Creates a Firebase Storage error from a specific FIRStorageErrorCode while adding
+   * custom info from an optionally provided info dictionary.
+   */
   static func error(withCode code: StorageErrorCode,
                     infoDictionary: [String: Any]? = nil) -> NSError {
     var dictionary = infoDictionary ?? [:]
@@ -122,7 +142,7 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
 }
 
 public enum StorageError: Error {
-  case unknown
+  case unknown(String)
   case objectNotFound(String)
   case bucketNotFound(String)
   case projectNotFound(String)
@@ -140,8 +160,9 @@ public enum StorageError: Error {
     let userInfo = objcError.userInfo
 
     switch objcError.code {
-    case FIRIMPLStorageErrorCode.unknown.rawValue: return StorageError.unknown
-    case FIRIMPLStorageErrorCode.objectNotFound.rawValue:
+    case StorageErrorCode.unknown.rawValue:
+      return StorageError.unknown(objcError.localizedDescription)
+    case StorageErrorCode.objectNotFound.rawValue:
       guard let object = userInfo["object"] as? String else {
         return StorageError
           .internalError(
@@ -149,7 +170,7 @@ public enum StorageError: Error {
           )
       }
       return StorageError.objectNotFound(object)
-    case FIRIMPLStorageErrorCode.bucketNotFound.rawValue:
+    case StorageErrorCode.bucketNotFound.rawValue:
       guard let bucket = userInfo["bucket"] as? String else {
         return StorageError
           .internalError(
@@ -157,7 +178,7 @@ public enum StorageError: Error {
           )
       }
       return StorageError.bucketNotFound(bucket)
-    case FIRIMPLStorageErrorCode.projectNotFound.rawValue:
+    case StorageErrorCode.projectNotFound.rawValue:
       guard let project = userInfo["project"] as? String else {
         return StorageError
           .internalError(
@@ -165,14 +186,14 @@ public enum StorageError: Error {
           )
       }
       return StorageError.projectNotFound(project)
-    case FIRIMPLStorageErrorCode.quotaExceeded.rawValue:
+    case StorageErrorCode.quotaExceeded.rawValue:
       guard let bucket = userInfo["bucket"] as? String else {
         return StorageError
           .internalError("Failed to decode quota exceeded error: \(objcError.localizedDescription)")
       }
       return StorageError.quotaExceeded(bucket)
-    case FIRIMPLStorageErrorCode.unauthenticated.rawValue: return StorageError.unauthenticated
-    case FIRIMPLStorageErrorCode.unauthorized.rawValue:
+    case StorageErrorCode.unauthenticated.rawValue: return StorageError.unauthenticated
+    case StorageErrorCode.unauthorized.rawValue:
       guard let bucket = userInfo["bucket"] as? String,
             let object = userInfo["object"] as? String else {
         return StorageError
@@ -181,10 +202,10 @@ public enum StorageError: Error {
           )
       }
       return StorageError.unauthorized(bucket, object)
-    case FIRIMPLStorageErrorCode.retryLimitExceeded.rawValue: return StorageError.retryLimitExceeded
-    case FIRIMPLStorageErrorCode.nonMatchingChecksum.rawValue: return StorageError
+    case StorageErrorCode.retryLimitExceeded.rawValue: return StorageError.retryLimitExceeded
+    case StorageErrorCode.nonMatchingChecksum.rawValue: return StorageError
       .nonMatchingChecksum
-    case FIRIMPLStorageErrorCode.downloadSizeExceeded.rawValue:
+    case StorageErrorCode.downloadSizeExceeded.rawValue:
       guard let total = userInfo["totalSize"] as? Int64,
             let maxSize = userInfo["maxAllowedSize"] as? Int64 else {
         return StorageError
@@ -193,8 +214,8 @@ public enum StorageError: Error {
           )
       }
       return StorageError.downloadSizeExceeded(total, maxSize)
-    case FIRIMPLStorageErrorCode.cancelled.rawValue: return StorageError.cancelled
-    case FIRIMPLStorageErrorCode.invalidArgument.rawValue: return StorageError
+    case StorageErrorCode.cancelled.rawValue: return StorageError.cancelled
+    case StorageErrorCode.invalidArgument.rawValue: return StorageError
       .invalidArgument(objcError.localizedDescription)
     default: return StorageError.internalError("Internal error converting ObjC Error to Swift")
     }

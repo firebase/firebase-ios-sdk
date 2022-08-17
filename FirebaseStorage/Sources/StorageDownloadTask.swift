@@ -14,7 +14,6 @@
 
 import Foundation
 
-import FirebaseStorageInternal
 #if COCOAPODS
   import GTMSessionFetcher
 #else
@@ -94,7 +93,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
 
   // MARK: - Internal Implementations
 
-  override internal init(reference: FIRIMPLStorageReference,
+  override internal init(reference: StorageReference,
                          service: GTMSessionFetcherService,
                          queue: DispatchQueue,
                          file: URL?) {

@@ -14,7 +14,6 @@
 
 import Foundation
 
-import FirebaseStorageInternal
 #if COCOAPODS
   import GTMSessionFetcher
 #else
@@ -29,7 +28,7 @@ internal class StorageDeleteTask: StorageTask, StorageTaskManagement {
   private var fetcherCompletion: ((Data?, NSError?) -> Void)?
   private var taskCompletion: ((_ error: Error?) -> Void)?
 
-  internal init(reference: FIRIMPLStorageReference,
+  internal init(reference: StorageReference,
                 fetcherService: GTMSessionFetcherService,
                 queue: DispatchQueue,
                 completion: ((_: Error?) -> Void)?) {

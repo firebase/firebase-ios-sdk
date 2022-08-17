@@ -16,18 +16,14 @@ import Foundation
 
 @testable import FirebaseStorage
 import FirebaseCore
-import FirebaseStorageInternal
+import GTMSessionFetcherCore
 
 import XCTest
 
 class StorageTestHelpers: XCTestCase {
   static var app: FirebaseApp!
 
-  internal func storage() -> FIRIMPLStorage {
-    return FIRIMPLStorage(app: FirebaseApp.app()!, bucket: "bucket", auth: nil, appCheck: nil)
-  }
-
-  internal func storageFuture() -> Storage {
+  internal func storage() -> Storage {
     return Storage(app: FirebaseApp.app()!, bucket: "bucket")
   }
 
@@ -42,9 +38,9 @@ class StorageTestHelpers: XCTestCase {
     }
   }
 
-  internal func rootReference() -> FIRIMPLStorageReference {
-    let path = FIRStoragePath(bucket: "bucket", object: nil)
-    return FIRIMPLStorageReference(storage: storage(), path: path)
+  internal func rootReference() -> StorageReference {
+    let path = StoragePath(with: "bucket")
+    return StorageReference(storage: storage(), path: path)
   }
 
   internal func waitForExpectation(test: XCTest) {
@@ -131,7 +127,10 @@ class StorageTestHelpers: XCTestCase {
     return URL(string: objectString)!
   }
 
-  internal func objectPath() -> FIRStoragePath {
-    return FIRStoragePath(from: objectString)!
+  internal func objectPath() -> StoragePath {
+    guard let path = try? StoragePath.path(string: objectString) else {
+      fatalError("Failed to get StoragePath")
+    }
+    return path
   }
 }
