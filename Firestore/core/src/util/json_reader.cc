@@ -161,51 +161,6 @@ double JsonReader::DecodeDouble(const nlohmann::json& value) {
   return result;
 }
 
-template <typename IntType>
-IntType ParseInt(const json& value, JsonReader& reader) {
-  if (value.is_number_integer()) {
-    return value.get<IntType>();
-  }
-
-  IntType result = 0;
-  if (value.is_string()) {
-    const auto& s = value.get_ref<const std::string&>();
-    auto ok = absl::SimpleAtoi<IntType>(s, &result);
-    if (!ok) {
-      reader.Fail("Failed to parse into integer: " + s);
-      return 0;
-    }
-
-    return result;
-  }
-
-  reader.Fail("Only integer and string can be parsed into int type");
-  return 0;
-}
-
-template <typename IntType>
-IntType JsonReader::RequiredInt(const char* name, const json& json_object) {
-  if (!json_object.contains(name)) {
-    Fail("'%s' is missing or is not a double", name);
-    return 0;
-  }
-
-  const json& value = json_object.at(name);
-  return ParseInt<IntType>(value, *this);
-}
-
-template <typename IntType>
-IntType JsonReader::OptionalInt(const char* name,
-                                const json& json_object,
-                                IntType default_value) {
-  if (!json_object.contains(name)) {
-    return default_value;
-  }
-
-  const json& value = json_object.at(name);
-  return ParseInt<IntType>(value, *this);
-}
-
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
