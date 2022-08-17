@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-#import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageConstants.h"
+#import <Foundation/Foundation.h>
+//#import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorageConstants.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -27,18 +28,6 @@ NS_ASSUME_NONNULL_BEGIN
  * This is never publicly exposed to end developers (as they will simply see an NSError).
  */
 @interface FIRStorageErrors : NSObject
-
-/**
- * Creates a Firebase Storage error from a specific FIRStorageErrorCode.
- */
-+ (NSError *)errorWithCode:(FIRIMPLStorageErrorCode)code;
-
-/**
- * Creates a Firebase Storage error from a specific FIRStorageErrorCode while adding
- * custom info from an optionally provided info dictionary.
- */
-+ (NSError *)errorWithCode:(FIRIMPLStorageErrorCode)code
-            infoDictionary:(nullable NSDictionary *)dictionary;
 
 /**
  * Creates a Firebase Storage error from a specific GCS error and FIRIMPLStorageReference.

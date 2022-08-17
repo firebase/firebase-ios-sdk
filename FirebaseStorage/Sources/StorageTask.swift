@@ -14,7 +14,6 @@
 
 import Foundation
 
-import FirebaseStorageInternal
 #if COCOAPODS
   import GTMSessionFetcher
 #else
@@ -73,7 +72,7 @@ import FirebaseStorageInternal
   /**
    * Reference pointing to the location the task is being performed against.
    */
-  internal let reference: FIRIMPLStorageReference
+  internal let reference: StorageReference
 
   /**
    * A serial queue for all storage operations.
@@ -84,7 +83,7 @@ import FirebaseStorageInternal
 
   internal let baseRequest: URLRequest
 
-  internal init(reference: FIRIMPLStorageReference,
+  internal init(reference: StorageReference,
                 service: GTMSessionFetcherService,
                 queue: DispatchQueue) {
     self.reference = reference

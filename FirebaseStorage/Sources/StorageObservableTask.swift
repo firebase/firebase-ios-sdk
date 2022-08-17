@@ -14,7 +14,6 @@
 
 import Foundation
 
-import FirebaseStorageInternal
 #if COCOAPODS
   import GTMSessionFetcher
 #else
@@ -69,7 +68,8 @@ import FirebaseStorageInternal
         if state == .failed || state == .failing {
           fire(handlers: handlerDictionary, snapshot: snapshot)
         }
-      case .unknown: fatalError("TODO")
+      case .unknown: fatalError("Invalid observer status requested, use one " +
+          "of: Pause, Resume, Progress, Complete, or Failure")
       }
     }
     objc_sync_enter(StorageObservableTask.self)
@@ -132,7 +132,7 @@ import FirebaseStorageInternal
 
   // MARK: - Internal Implementations
 
-  internal init(reference: FIRIMPLStorageReference,
+  internal init(reference: StorageReference,
                 service: GTMSessionFetcherService,
                 queue: DispatchQueue,
                 file: URL?) {

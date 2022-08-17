@@ -54,7 +54,7 @@ class StorageDeleteTests: StorageTestHelpers {
         response(httpResponse, nil, nil)
     }
     let path = objectPath()
-    let ref = FIRIMPLStorageReference(storage: storage(), path: path)
+    let ref = StorageReference(storage: storage(), path: path)
     let task = StorageDeleteTask(
       reference: ref,
       fetcherService: fetcherService!.self,
@@ -81,7 +81,7 @@ class StorageDeleteTests: StorageTestHelpers {
         response(httpResponse, nil, nil)
     }
     let path = objectPath()
-    let ref = FIRIMPLStorageReference(storage: storage(), path: path)
+    let ref = StorageReference(storage: storage(), path: path)
     let task = StorageDeleteTask(
       reference: ref,
       fetcherService: fetcherService!.self,
@@ -105,7 +105,7 @@ class StorageDeleteTests: StorageTestHelpers {
       )
 
     let path = objectPath()
-    let ref = FIRIMPLStorageReference(storage: storage, path: path)
+    let ref = StorageReference(storage: storage, path: path)
     let task = StorageDeleteTask(
       reference: ref,
       fetcherService: fetcherService!.self,
@@ -122,7 +122,7 @@ class StorageDeleteTests: StorageTestHelpers {
 
     fetcherService!.testBlock = unauthenticatedBlock()
     let path = objectPath()
-    let ref = FIRIMPLStorageReference(storage: storage(), path: path)
+    let ref = StorageReference(storage: storage(), path: path)
     let task = StorageDeleteTask(
       reference: ref,
       fetcherService: fetcherService!.self,
@@ -140,7 +140,7 @@ class StorageDeleteTests: StorageTestHelpers {
 
     fetcherService!.testBlock = unauthorizedBlock()
     let path = objectPath()
-    let ref = FIRIMPLStorageReference(storage: storage(), path: path)
+    let ref = StorageReference(storage: storage(), path: path)
     let task = StorageDeleteTask(
       reference: ref,
       fetcherService: fetcherService!.self,
@@ -158,7 +158,7 @@ class StorageDeleteTests: StorageTestHelpers {
 
     fetcherService!.testBlock = notFoundBlock()
     let path = objectPath()
-    let ref = FIRIMPLStorageReference(storage: storage(), path: path)
+    let ref = StorageReference(storage: storage(), path: path)
     let task = StorageDeleteTask(
       reference: ref,
       fetcherService: fetcherService!.self,
