@@ -518,7 +518,7 @@ static NSInteger const gMaxRetries = 7;
       [self propogateErrors:error];
     } else {
       NSInteger clientTemplateVersion = [_configFetch.templateVersionNumber integerValue];
-      if (updateTemplateVersion >= clientTemplateVersion) {
+      if (updateTemplateVersion > clientTemplateVersion) {
         [self autoFetch:gFetchAttempts targetVersion:updateTemplateVersion];
       }
     }
