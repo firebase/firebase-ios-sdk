@@ -14,8 +14,6 @@
 
 import Foundation
 
-import FirebaseStorageInternal
-
 @objc(FIRStorageTaskStatus) public enum StorageTaskStatus: Int {
   case unknown
   case resume

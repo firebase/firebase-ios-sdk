@@ -51,7 +51,7 @@ class StorageListTests: StorageTestHelpers {
       XCTAssertEqual(nsError.code, StorageErrorCode.invalidArgument.rawValue)
       expectation.fulfill()
     }
-    let ref = StorageReference(storage().reference(withPath: "object"))
+    let ref = storage().reference(withPath: "object")
     ref.list(maxResults: 0, completion: errorBlock)
     ref.list(maxResults: 1001, completion: errorBlock)
     ref.list(maxResults: 0, pageToken: "foo", completion: errorBlock)
@@ -72,8 +72,7 @@ class StorageListTests: StorageTestHelpers {
       XCTAssertEqual(nsError.code, StorageErrorCode.unknown.rawValue)
       expectation.fulfill()
     }
-    let storage = storageFuture()
-    let ref = storage.reference()
+    let ref = storage().reference(withPath: "object")
     ref.listAll(completion: errorBlock)
 
     waitForExpectation(test: self)
@@ -107,7 +106,7 @@ class StorageListTests: StorageTestHelpers {
     }
 
     let path = objectPath()
-    let ref = FIRIMPLStorageReference(storage: storage(), path: path)
+    let ref = StorageReference(storage: storage(), path: path)
     let task = StorageListTask(
       reference: ref,
       fetcherService: fetcherService!.self,
@@ -152,7 +151,7 @@ class StorageListTests: StorageTestHelpers {
     }
 
     let path = objectPath()
-    let ref = FIRIMPLStorageReference(storage: storage, path: path)
+    let ref = StorageReference(storage: storage, path: path)
     let task = StorageListTask(
       reference: ref,
       fetcherService: fetcherService!.self,
@@ -199,7 +198,7 @@ class StorageListTests: StorageTestHelpers {
     }
 
     let path = objectPath()
-    let ref = FIRIMPLStorageReference(storage: storage(), path: path)
+    let ref = StorageReference(storage: storage(), path: path)
     let task = StorageListTask(
       reference: ref,
       fetcherService: fetcherService!.self,
@@ -299,12 +298,11 @@ class StorageListTests: StorageTestHelpers {
       XCTAssertNotNil(result)
       XCTAssertNil(error)
 
-      XCTAssertEqual(result?.items,
-                     [StorageReference(ref.child("data1.dat")),
-                      StorageReference(ref.child("data2.dat"))])
-      XCTAssertEqual(result?.prefixes,
-                     [StorageReference(ref.child("prefixWithoutSlash")),
-                      StorageReference(ref.child("prefixWithSlash"))])
+      XCTAssertEqual(result?.items, [ref.child("data1.dat"), ref.child("data2.dat")])
+      XCTAssertEqual(
+        result?.prefixes,
+        [ref.child("prefixWithoutSlash"), ref.child("prefixWithSlash")]
+      )
       XCTAssertEqual(result?.pageToken, "foo")
 
       expectation.fulfill()

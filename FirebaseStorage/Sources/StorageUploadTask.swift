@@ -14,7 +14,6 @@
 
 import Foundation
 
-import FirebaseStorageInternal
 #if COCOAPODS
   import GTMSessionFetcher
 #else
@@ -207,7 +206,7 @@ import FirebaseStorageInternal
 
   // MARK: - Internal Implementations
 
-  internal init(reference: FIRIMPLStorageReference,
+  internal init(reference: StorageReference,
                 service: GTMSessionFetcherService,
                 queue: DispatchQueue,
                 file: URL? = nil,
@@ -237,7 +236,7 @@ import FirebaseStorageInternal
       return nil
     }
     let userInfo = [NSLocalizedDescriptionKey:
-      "File at URL: \(String(describing: fileURL?.absoluteString)) is not reachable."
+      "File at URL: \(fileURL?.absoluteString ?? "") is not reachable."
       + " Ensure file URL is not a directory, symbolic link, or invalid url."]
     return NSError(
       domain: StorageErrorDomain,

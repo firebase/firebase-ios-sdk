@@ -28,7 +28,7 @@ final class StorageAPITests: XCTestCase {
     _ = Storage.storage(url: "my-url")
     let storage = Storage.storage(app: app!, url: "my-url")
     _ = storage.app
-    storage.maxUploadRetryTime = storage.maxUploadRetryTime
+    storage.maxUploadRetryTime = storage.maxUploadRetryTime + 1
     storage.maxDownloadRetryTime = storage.maxDownloadRetryTime + 1
     storage.maxOperationRetryTime = storage.maxOperationRetryTime + 1
     let queue: DispatchQueue = storage.callbackQueue

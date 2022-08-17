@@ -14,8 +14,6 @@
 
 import Foundation
 
-import FirebaseStorageInternal
-
 /**
  * `StorageReference` represents a reference to a Google Cloud Storage object. Developers can
  * upload and download objects, as well as get/set object metadata, and delete an object at the
@@ -34,25 +32,32 @@ import FirebaseStorageInternal
    * The name of the Google Cloud Storage bucket associated with this reference.
    * For example, in `gs://bucket/path/to/object.txt`, the bucket would be 'bucket'.
    */
-  @objc public let bucket: String
+  @objc public var bucket: String {
+    return path.bucket
+  }
+
   /**
    * The full path to this object, not including the Google Cloud Storage bucket.
    * In `gs://bucket/path/to/object.txt`, the full path would be: `path/to/object.txt`
    */
-  @objc public let fullPath: String
+  @objc public var fullPath: String {
+    return path.object ?? ""
+  }
 
   /**
    * The short name of the object associated with this reference.
    * In `gs://bucket/path/to/object.txt`, the name of the object would be `object.txt`.
    */
-  @objc public let name: String
+  @objc public var name: String {
+    return (path.object as? NSString)?.lastPathComponent ?? ""
+  }
 
   /**
    * Creates a new `StorageReference` pointing to the root object.
    * - Returns: A new `StorageReference` pointing to the root object.
    */
   @objc open func root() -> StorageReference {
-    return StorageReference(impl: impl.root(), storage: storage)
+    return StorageReference(storage: storage, path: path.root())
   }
 
   /**
@@ -65,10 +70,10 @@ import FirebaseStorageInternal
    * - Returns: A new `StorageReference` pointing to the parent of the current reference.
    */
   @objc open func parent() -> StorageReference? {
-    guard let parent = impl.parent() else {
+    guard let parentPath = path.parent() else {
       return nil
     }
-    return StorageReference(impl: parent, storage: storage)
+    return StorageReference(storage: storage, path: parentPath)
   }
 
   /**
@@ -84,7 +89,7 @@ import FirebaseStorageInternal
    * - Returns: A new `StorageReference` pointing to a child location of the current reference.
    */
   @objc(child:) open func child(_ path: String) -> StorageReference {
-    return StorageReference(impl: impl.child(path), storage: storage)
+    return StorageReference(storage: storage, path: self.path.child(path))
   }
 
   // MARK: - Uploads
@@ -131,12 +136,12 @@ import FirebaseStorageInternal
                     metadata: StorageMetadata? = nil,
                     completion: ((_: StorageMetadata?, _: Error?) -> Void)?) -> StorageUploadTask {
     let putMetadata = metadata ?? StorageMetadata()
-    if let path = path?.object {
+    if let path = path.object {
       putMetadata.path = path
       putMetadata.name = (path as NSString).lastPathComponent as String
     }
     let fetcherService = storage.fetcherServiceForApp
-    let task = StorageUploadTask(reference: impl,
+    let task = StorageUploadTask(reference: self,
                                  service: fetcherService,
                                  queue: storage.dispatchQueue,
                                  data: uploadData,
@@ -207,7 +212,7 @@ import FirebaseStorageInternal
     var putMetadata: StorageMetadata
     if metadata == nil {
       putMetadata = StorageMetadata()
-      if let path = path?.object {
+      if let path = path.object {
         putMetadata.path = path
         putMetadata.name = (path as NSString).lastPathComponent as String
       }
@@ -215,7 +220,7 @@ import FirebaseStorageInternal
       putMetadata = metadata!
     }
     let fetcherService = storage.fetcherServiceForApp
-    let task = StorageUploadTask(reference: impl,
+    let task = StorageUploadTask(reference: self,
                                  service: fetcherService,
                                  queue: storage.dispatchQueue,
                                  file: fileURL,
@@ -263,7 +268,7 @@ import FirebaseStorageInternal
   open func getData(maxSize: Int64,
                     completion: @escaping ((_: Data?, _: Error?) -> Void)) -> StorageDownloadTask {
     let fetcherService = storage.fetcherServiceForApp
-    let task = StorageDownloadTask(reference: impl,
+    let task = StorageDownloadTask(reference: self,
                                    service: fetcherService,
                                    queue: storage.dispatchQueue,
                                    file: nil)
@@ -312,7 +317,7 @@ import FirebaseStorageInternal
   @objc(downloadURLWithCompletion:)
   open func downloadURL(completion: @escaping ((_: URL?, _: Error?) -> Void)) {
     let fetcherService = storage.fetcherServiceForApp
-    let task = StorageGetDownloadURLTask(reference: impl,
+    let task = StorageGetDownloadURLTask(reference: self,
                                          fetcherService: fetcherService,
                                          queue: storage.dispatchQueue,
                                          completion: completion)
@@ -360,7 +365,7 @@ import FirebaseStorageInternal
   open func write(toFile fileURL: URL,
                   completion: ((_: URL?, _: Error?) -> Void)?) -> StorageDownloadTask {
     let fetcherService = storage.fetcherServiceForApp
-    let task = StorageDownloadTask(reference: impl,
+    let task = StorageDownloadTask(reference: self,
                                    service: fetcherService,
                                    queue: storage.dispatchQueue,
                                    file: fileURL)
@@ -407,8 +412,8 @@ import FirebaseStorageInternal
   @objc(listAllWithCompletion:)
   open func listAll(completion: @escaping ((_: StorageListResult?, _: NSError?) -> Void)) {
     let fetcherService = storage.fetcherServiceForApp
-    var prefixes = [FIRIMPLStorageReference]()
-    var items = [FIRIMPLStorageReference]()
+    var prefixes = [StorageReference]()
+    var items = [StorageReference]()
 
     weak var weakSelf = self
 
@@ -422,11 +427,11 @@ import FirebaseStorageInternal
       guard let listResult = listResult else {
         fatalError("internal error: both listResult and error are nil")
       }
-      prefixes.append(contentsOf: listResult.prefixes.map { $0.impl })
-      items.append(contentsOf: listResult.items.map { $0.impl })
+      prefixes.append(contentsOf: listResult.prefixes)
+      items.append(contentsOf: listResult.items)
 
       if let pageToken = listResult.pageToken {
-        let nextPage = StorageListTask(reference: strongSelf.impl,
+        let nextPage = StorageListTask(reference: strongSelf,
                                        fetcherService: fetcherService,
                                        queue: strongSelf.storage.dispatchQueue,
                                        pageSize: nil,
@@ -442,7 +447,7 @@ import FirebaseStorageInternal
       }
     }
 
-    let task = StorageListTask(reference: impl,
+    let task = StorageListTask(reference: self,
                                fetcherService: fetcherService,
                                queue: storage.dispatchQueue,
                                pageSize: nil,
@@ -500,7 +505,7 @@ import FirebaseStorageInternal
                            "Argument 'maxResults' must be between 1 and 1000 inclusive."]))
     } else {
       let fetcherService = storage.fetcherServiceForApp
-      let task = StorageListTask(reference: impl,
+      let task = StorageListTask(reference: self,
                                  fetcherService: fetcherService,
                                  queue: storage.dispatchQueue,
                                  pageSize: maxResults,
@@ -540,7 +545,7 @@ import FirebaseStorageInternal
                            "Argument 'maxResults' must be between 1 and 1000 inclusive."]))
     } else {
       let fetcherService = storage.fetcherServiceForApp
-      let task = StorageListTask(reference: impl,
+      let task = StorageListTask(reference: self,
                                  fetcherService: fetcherService,
                                  queue: storage.dispatchQueue,
                                  pageSize: maxResults,
@@ -560,7 +565,7 @@ import FirebaseStorageInternal
   @objc(metadataWithCompletion:)
   open func getMetadata(completion: @escaping ((_: StorageMetadata?, _: Error?) -> Void)) {
     let fetcherService = storage.fetcherServiceForApp
-    let task = StorageGetMetadataTask(reference: impl,
+    let task = StorageGetMetadataTask(reference: self,
                                       fetcherService: fetcherService,
                                       queue: storage.dispatchQueue,
                                       completion: completion)
@@ -594,7 +599,7 @@ import FirebaseStorageInternal
   open func updateMetadata(_ metadata: StorageMetadata,
                            completion: ((_: StorageMetadata?, _: Error?) -> Void)?) {
     let fetcherService = storage.fetcherServiceForApp
-    let task = StorageUpdateMetadataTask(reference: impl,
+    let task = StorageUpdateMetadataTask(reference: self,
                                          fetcherService: fetcherService,
                                          queue: storage.dispatchQueue,
                                          metadata: metadata,
@@ -628,7 +633,7 @@ import FirebaseStorageInternal
   @objc(deleteWithCompletion:)
   open func delete(completion: ((_: Error?) -> Void)?) {
     let fetcherService = storage.fetcherServiceForApp
-    let task = StorageDeleteTask(reference: impl,
+    let task = StorageDeleteTask(reference: self,
                                  fetcherService: fetcherService,
                                  queue: storage.dispatchQueue,
                                  completion: completion)
@@ -656,45 +661,40 @@ import FirebaseStorageInternal
 
   // MARK: - NSObject overrides
 
-  @objc open func copy(_ zone: NSZone) -> StorageReference {
-    return StorageReference(impl.copy() as! FIRIMPLStorageReference)
+  @objc override open func copy() -> Any {
+    return StorageReference(storage: storage, path: path)
   }
 
   @objc override open func isEqual(_ object: Any?) -> Bool {
     guard let ref = object as? StorageReference else {
       return false
     }
-    return impl.isEqual(ref.impl)
+    return storage == ref.storage && path == ref.path
   }
 
   @objc override public var hash: Int {
-    return impl.hash
+    return storage.hash ^ path.bucket.hashValue
   }
 
   @objc override public var description: String {
-    return impl.description
+    return "gs://\(path.bucket)/\(path.object ?? "")"
   }
 
   // MARK: - Internal APIs
 
-  internal let impl: FIRIMPLStorageReference
-
   /**
    * The current path which points to an object in the Google Cloud Storage bucket.
    */
-  private var path: FIRStoragePath? {
-    return impl.path
+  internal let path: StoragePath
+
+  override internal init() {
+    storage = Storage.storage()
+    let storageBucket = storage.app.options.storageBucket!
+    path = StoragePath(with: storageBucket)
   }
 
-  internal convenience init(_ impl: FIRIMPLStorageReference) {
-    self.init(impl: impl, storage: Storage(app: impl.storage.app, bucket: impl.bucket))
-  }
-
-  internal init(impl: FIRIMPLStorageReference, storage: Storage) {
-    self.impl = impl
+  init(storage: Storage, path: StoragePath) {
     self.storage = storage
-    bucket = impl.bucket
-    fullPath = impl.fullPath
-    name = impl.name
+    self.path = path
   }
 }

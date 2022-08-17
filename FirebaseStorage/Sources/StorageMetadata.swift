@@ -14,8 +14,6 @@
 
 import Foundation
 
-import FirebaseStorageInternal
-
 /**
  * Class which represents the metadata on an object in Firebase Storage. This metadata is
  * returned on successful operations, and can be used to retrieve download URLs, content types,

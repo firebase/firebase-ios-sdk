@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #import "FirebaseStorageInternal/Tests/Unit/FIRStorageTestHelpers.h"
-#import "FirebaseStorageInternal/Sources/Public/FirebaseStorageInternal/FIRStorage.h"
 
 #import "SharedTestUtilities/FIRComponentTestUtilities.h"
 
@@ -48,23 +47,6 @@ NSString *const kFIRStorageAppName = @"app";
   return mockApp;
 }
 
-+ (FIRIMPLStorage *)storageWithMockedApp {
-  FIRApp *app = [FIRStorageTestHelpers mockedApp];
-  return [[FIRIMPLStorage alloc] initWithApp:app bucket:@"bucket" auth:nil appCheck:nil];
-}
-
-+ (FIRIMPLStorageReference *)rootReference {
-  //  FIRIMPLStorage *storage = [FIRIMPLStorage storageForApp:[FIRStorageTestHelpers mockedApp]
-  //                                              URL:@"gs://bucket.firebase.com"];
-  FIRApp *app = [FIRStorageTestHelpers mockedApp];
-  FIRIMPLStorage *storage = [[FIRIMPLStorage alloc] initWithApp:app
-                                                         bucket:@"bucket"
-                                                           auth:nil
-                                                       appCheck:nil];
-  FIRStoragePath *path = [[FIRStoragePath alloc] initWithBucket:@"bucket" object:nil];
-  return [[FIRIMPLStorageReference alloc] initWithStorage:storage path:path];
-}
-
 + (NSURL *)objectURL {
   return [NSURL URLWithString:kFIRStorageObjectURL];
 }
@@ -75,18 +57,6 @@ NSString *const kFIRStorageAppName = @"app";
 
 + (NSURL *)notFoundURL {
   return [NSURL URLWithString:kFIRStorageNotFoundURL];
-}
-
-+ (FIRStoragePath *)objectPath {
-  return [FIRStoragePath pathFromString:kFIRStorageObjectURL];
-}
-
-+ (FIRStoragePath *)bucketPath {
-  return [FIRStoragePath pathFromString:kFIRStorageBucketURL];
-}
-
-+ (FIRStoragePath *)notFoundPath {
-  return [FIRStoragePath pathFromString:kFIRStorageNotFoundURL];
 }
 
 #pragma mark - Private methods

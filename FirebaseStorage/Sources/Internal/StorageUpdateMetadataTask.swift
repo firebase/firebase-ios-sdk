@@ -14,7 +14,6 @@
 
 import Foundation
 
-import FirebaseStorageInternal
 #if COCOAPODS
   import GTMSessionFetcher
 #else
@@ -30,7 +29,7 @@ internal class StorageUpdateMetadataTask: StorageTask, StorageTaskManagement {
   private var taskCompletion: ((_ metadata: StorageMetadata?, _: Error?) -> Void)?
   private var updateMetadata: StorageMetadata
 
-  internal init(reference: FIRIMPLStorageReference,
+  internal init(reference: StorageReference,
                 fetcherService: GTMSessionFetcherService,
                 queue: DispatchQueue,
                 metadata: StorageMetadata,
