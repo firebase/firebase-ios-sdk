@@ -667,6 +667,8 @@ void LocalStore::ConfigureFieldIndexes(
            util::ComparisonResult::Ascending;
   };
 
+  // This lambda function takes a rvalue vector as parameter,
+  // then coverts it to a sorted set based on the compare function above.
   auto convertToSet = [&](std::vector<FieldIndex>&& vec) {
     std::set<FieldIndex, decltype(cmp)> result(cmp);
     for (auto& index : vec) {

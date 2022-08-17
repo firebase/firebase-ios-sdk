@@ -74,7 +74,7 @@
                               completion:^(NSError* error) {
                                 XCTAssertNotNil(error);
                                 XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
-                                XCTAssertEqual(error.code, FIRFirestoreErrorCodeDataLoss);
+                                XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
                               }];
 }
 
@@ -95,7 +95,7 @@
                               completion:^(NSError* error) {
                                 XCTAssertNotNil(error);
                                 XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
-                                XCTAssertEqual(error.code, FIRFirestoreErrorCodeDataLoss);
+                                XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
                               }];
 }
 

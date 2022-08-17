@@ -40,6 +40,8 @@
 #include "Firestore/core/src/util/exception.h"
 #include "Firestore/core/src/util/executor.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/json_reader.h"
+#include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/third_party/nlohmann_json/json.hpp"
 #include "absl/memory/memory.h"
@@ -251,14 +253,14 @@ DatabaseInfo Firestore::MakeDatabaseInfo() const {
                       settings_.ssl_enabled());
 }
 
-void Firestore::SetIndexConfiguration(std::string config,
-                                      util::StatusCallback callback) {
+void Firestore::SetIndexConfiguration(const std::string& config,
+                                      const util::StatusCallback& callback) {
   EnsureClientConfigured();
 
-  bundle::JsonReader reader;
+  util::JsonReader reader;
   if (!settings_.persistence_enabled()) {
-    callback(Status(Error::kErrorFailedPrecondition,
-                    "Cannot enable indexes when persistence is disabled."));
+    LOG_DEBUG("Cannot enable indexes when persistence is disabled.");
+    callback(util::Status::OK());
     return;
   }
 
@@ -266,17 +268,18 @@ void Firestore::SetIndexConfiguration(std::string config,
       nlohmann::json::parse(config.begin(), config.end(),
                             /*callback=*/nullptr, /*allow_exceptions=*/false);
   if (json_object.is_discarded()) {
-    callback(Status(Error::kErrorDataLoss, "Invalid Json format."));
+    callback(Status(Error::kErrorInvalidArgument, "Invalid Json format."));
     return;
   }
 
   std::vector<FieldIndex> parsed_indexes;
-  const auto& json_indexes = reader.RequiredArray("indexes", json_object);
+  const std::vector<json> default_vector;
+  const auto& json_indexes =
+      reader.OptionalArray("indexes", json_object, default_vector);
   for (const auto& json_index : json_indexes) {
     const std::string& collection_group =
         reader.RequiredString("collectionGroup", json_index);
     std::vector<Segment> segments;
-    std::vector<json> default_vector;
     const auto& json_fields =
         reader.OptionalArray("fields", json_index, default_vector);
     for (const auto& json_field : json_fields) {
@@ -297,14 +300,15 @@ void Firestore::SetIndexConfiguration(std::string config,
             Segment(std::move(field_path), Segment::Kind::kDescending));
       }
     }
+
+    if (reader.status() != util::Status::OK()) {
+      callback(reader.status());
+      return;
+    }
+
     parsed_indexes.emplace_back(
         FieldIndex(FieldIndex::UnknownId(), collection_group,
                    std::move(segments), FieldIndex::InitialState()));
-  }
-
-  if (reader.status() != util::Status::OK()) {
-    callback(reader.status());
-    return;
   }
 
   client_->ConfigureFieldIndexes(std::move(parsed_indexes));

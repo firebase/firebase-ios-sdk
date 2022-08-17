@@ -66,6 +66,21 @@ std::unique_ptr<LocalStoreTestHelper> Factory() {
   return absl::make_unique<TestHelper>();
 }
 
+// This lambda function takes a rvalue vector as parameter,
+// then coverts it to a sorted set based on the compare function.
+auto convertToSet = [](std::vector<FieldIndex>&& vec) {
+  auto cmp = [](const FieldIndex& left, const FieldIndex& right) {
+    return FieldIndex::SemanticCompare(left, right) ==
+           util::ComparisonResult::Ascending;
+  };
+
+  std::set<FieldIndex, decltype(cmp)> result(cmp);
+  for (auto& index : vec) {
+    result.insert(std::move(index));
+  }
+  return result;
+};
+
 }  // namespace
 
 INSTANTIATE_TEST_SUITE_P(LevelDbLocalStoreTest,
@@ -91,12 +106,12 @@ TEST_F(LevelDbLocalStoreTest, AddsIndexes) {
                  model::FieldIndex::InitialState()};
 
   ConfigureFieldIndexes({index_a, index_b});
-  auto field_indexes = GetFieldIndexes();
-  ASSERT_EQ(field_indexes, Vector(FieldIndex(index_b), FieldIndex(index_a)));
+  ASSERT_EQ(convertToSet(GetFieldIndexes()),
+            convertToSet({FieldIndex(index_a), FieldIndex(index_b)}));
 
   ConfigureFieldIndexes({index_a, index_c});
-  field_indexes = GetFieldIndexes();
-  ASSERT_EQ(field_indexes, Vector(FieldIndex(index_c), FieldIndex(index_a)));
+  ASSERT_EQ(convertToSet(GetFieldIndexes()),
+            convertToSet({FieldIndex(index_a), FieldIndex(index_c)}));
 }
 
 TEST_F(LevelDbLocalStoreTest, RemovesIndexes) {
@@ -106,12 +121,12 @@ TEST_F(LevelDbLocalStoreTest, RemovesIndexes) {
                                       "b", model::Segment::Kind::kDescending);
 
   ConfigureFieldIndexes({index_a, index_b});
-  auto field_indexes = GetFieldIndexes();
-  ASSERT_EQ(field_indexes, Vector(FieldIndex(index_b), FieldIndex(index_a)));
+  ASSERT_EQ(convertToSet(GetFieldIndexes()),
+            convertToSet({FieldIndex(index_b), FieldIndex(index_a)}));
 
   ConfigureFieldIndexes({index_a});
-  field_indexes = GetFieldIndexes();
-  ASSERT_EQ(field_indexes, Vector(FieldIndex(index_a)));
+  ASSERT_EQ(convertToSet(GetFieldIndexes()),
+            convertToSet({FieldIndex(index_a)}));
 }
 
 TEST_F(LevelDbLocalStoreTest, DoesNotResetIndexWhenSameIndexIsAdded) {
@@ -119,8 +134,8 @@ TEST_F(LevelDbLocalStoreTest, DoesNotResetIndexWhenSameIndexIsAdded) {
                                       "a", model::Segment::Kind::kAscending);
 
   ConfigureFieldIndexes({index_a});
-  auto field_indexes = GetFieldIndexes();
-  ASSERT_EQ(field_indexes, Vector(FieldIndex(index_a)));
+  ASSERT_EQ(convertToSet(GetFieldIndexes()),
+            convertToSet({FieldIndex(index_a)}));
 
   core::Query query = testutil::Query("foo").AddingFilter(Filter("a", "==", 1));
   int target_id = AllocateQuery(query);
@@ -132,13 +147,13 @@ TEST_F(LevelDbLocalStoreTest, DoesNotResetIndexWhenSameIndexIsAdded) {
       MakeFieldIndex("coll", 0, IndexState(1, Version(10), Key("coll/a"), -1),
                      "a", model::Segment::Kind::kAscending);
 
-  field_indexes = GetFieldIndexes();
-  ASSERT_EQ(field_indexes, Vector(FieldIndex(updated_index_a)));
+  ASSERT_EQ(convertToSet(GetFieldIndexes()),
+            convertToSet({FieldIndex(updated_index_a)}));
 
   // Re-add the same index. We do not reset the index to its initial state.
   ConfigureFieldIndexes({index_a});
-  field_indexes = GetFieldIndexes();
-  ASSERT_EQ(field_indexes, Vector(FieldIndex(updated_index_a)));
+  ASSERT_EQ(convertToSet(GetFieldIndexes()),
+            convertToSet({FieldIndex(updated_index_a)}));
 }
 
 TEST_F(LevelDbLocalStoreTest, DeletedDocumentRemovesIndex) {
