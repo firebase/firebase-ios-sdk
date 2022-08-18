@@ -57,10 +57,6 @@ static NSInteger const gFetchAttempts = 3;
 
 // Retry parameters
 static NSInteger const gMaxRetries = 7;
-static NSInteger gMaxRetryCount;
-static NSInteger gRetrySeconds;
-static bool gIsRetrying;
-static bool gIsRealtimeDisabled;
 
 @interface FIRConfigUpdateListenerRegistration ()
 @property(strong, atomic, nonnull) RCNConfigUpdateCompletion completionHandler;
@@ -103,6 +99,11 @@ static bool gIsRealtimeDisabled;
   RCNConfigSettings *_settings;
   FIROptions *_options;
   NSString *_namespace;
+  NSInteger _maxRetryCount;
+  NSInteger _retrySeconds;
+  bool _isRetrying;
+  bool _isInBackground;
+  bool _isRealtimeDisabled;
 }
 
 - (instancetype)init:(RCNConfigFetch *)configFetch
@@ -121,11 +122,12 @@ static bool gIsRealtimeDisabled;
     _namespace = namespace;
 
     /// Set retry seconds to a random number between 1 and 6 seconds.
-    gRetrySeconds = arc4random_uniform(5) + 1;
+    _retrySeconds = arc4random_uniform(5) + 1;
 
-    gMaxRetryCount = gMaxRetries;
-    gIsRetrying = false;
-    gIsRealtimeDisabled = false;
+    _maxRetryCount = gMaxRetries;
+    _isRetrying = false;
+    _isRealtimeDisabled = false;
+    _isInBackground = false;
 
     [self setUpHttpRequest];
     [self setUpHttpSession];
@@ -338,14 +340,6 @@ static bool gIsRealtimeDisabled;
                                       delegateQueue:[NSOperationQueue mainQueue]];
 }
 
-- (bool)noRunningConnection {
-  return _dataTask == nil || _dataTask.state != NSURLSessionTaskStateRunning;
-}
-
-- (bool)canMakeConnection {
-  return [self noRunningConnection] && [self->_listeners count] > 0 && !gIsRealtimeDisabled;
-}
-
 #pragma mark - Retry Helpers
 
 // Retry mechanism for HTTP connections
@@ -353,15 +347,19 @@ static bool gIsRealtimeDisabled;
   __weak RCNConfigRealtime *weakSelf = self;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
-    if ([strongSelf canMakeConnection] && gMaxRetryCount > 0 && !gIsRetrying) {
-      if (gMaxRetryCount < gMaxRetries) {
+    bool noRunningConnection =
+        strongSelf->_dataTask == nil || strongSelf->_dataTask.state != NSURLSessionTaskStateRunning;
+    bool canMakeConnection = noRunningConnection && [strongSelf->_listeners count] > 0 &&
+                             !strongSelf->_isInBackground && !strongSelf->_isRealtimeDisabled;
+    if (canMakeConnection && strongSelf->_maxRetryCount > 0 && !strongSelf->_isRetrying) {
+      if (strongSelf->_maxRetryCount < gMaxRetries) {
         double RETRY_MULTIPLIER = arc4random_uniform(3) + 2;
-        gRetrySeconds *= RETRY_MULTIPLIER;
+        strongSelf->_retrySeconds *= RETRY_MULTIPLIER;
       }
-      gMaxRetryCount--;
-      gIsRetrying = true;
+      strongSelf->_maxRetryCount--;
+      strongSelf->_isRetrying = true;
       dispatch_time_t executionDelay =
-          dispatch_time(DISPATCH_TIME_NOW, (gRetrySeconds * NSEC_PER_SEC));
+          dispatch_time(DISPATCH_TIME_NOW, (self->_retrySeconds * NSEC_PER_SEC));
       dispatch_after(executionDelay, strongSelf->_realtimeLockQueue, ^{
         [strongSelf beginRealtimeStream];
       });
@@ -382,12 +380,30 @@ static bool gIsRealtimeDisabled;
 - (void)backgroundChangeListener {
   [_notificationCenter addObserver:self
                           selector:@selector(isInForeground)
+                              name:@"UIApplicationWillEnterForegroundNotification"
+                            object:nil];
+
+  [_notificationCenter addObserver:self
+                          selector:@selector(isInBackground)
                               name:@"UIApplicationDidEnterBackgroundNotification"
                             object:nil];
 }
 
 - (void)isInForeground {
-  [self beginRealtimeStream];
+  __weak RCNConfigRealtime *weakSelf = self;
+  dispatch_async(_realtimeLockQueue, ^{
+    __strong RCNConfigRealtime *strongSelf = weakSelf;
+    strongSelf->_isInBackground = false;
+    [strongSelf beginRealtimeStream];
+  });
+}
+
+- (void)isInBackground {
+  __weak RCNConfigRealtime *weakSelf = self;
+  dispatch_async(_realtimeLockQueue, ^{
+    __strong RCNConfigRealtime *strongSelf = weakSelf;
+    strongSelf->_isInBackground = true;
+  });
 }
 
 #pragma mark - Autofetch Helpers
@@ -396,31 +412,52 @@ static bool gIsRealtimeDisabled;
   __weak RCNConfigRealtime *weakSelf = self;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
-    [strongSelf->_configFetch
-        fetchConfigWithExpirationDuration:0
-                        completionHandler:^(FIRRemoteConfigFetchStatus status, NSError *error) {
-                          if (status == FIRRemoteConfigFetchStatusSuccess) {
-                            if ([strongSelf->_configFetch.templateVersionNumber integerValue] >=
-                                targetVersion) {
-                              for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
-                                listener(nil);
-                              }
-                            } else {
-                              FIRLogDebug(
-                                  kFIRLoggerRemoteConfig, @"I-RCN000016",
-                                  @"Fetched config's template version is outdated, re-fetching");
-                              [strongSelf autoFetch:remainingAttempts - 1
-                                      targetVersion:targetVersion];
-                            }
-                          } else {
+    if (strongSelf->_settings.isFetchInProgress) {
+      if (strongSelf->_settings.lastFetchStatus == FIRRemoteConfigFetchStatusSuccess &&
+          [strongSelf->_configFetch.templateVersionNumber integerValue] >= targetVersion) {
+        for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
+          listener(nil);
+        }
+      } else {
+        FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000016",
+                    @"Fetched config's template version is outdated or there was a failed fetch "
+                    @"status, re-fetching");
+        [strongSelf autoFetch:remainingAttempts - 1 targetVersion:targetVersion];
+      }
+    } else {
+      [strongSelf->_configFetch
+          fetchConfigWithExpirationDuration:0
+                          completionHandler:^(FIRRemoteConfigFetchStatus status, NSError *error) {
                             if (error != nil) {
                               FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000010",
                                           @"Failed to retrive config due to fetch error. Error: %@",
                                           error);
                               [self propogateErrors:error];
+                            } else {
+                              if (status == FIRRemoteConfigFetchStatusSuccess) {
+                                if ([strongSelf->_configFetch.templateVersionNumber integerValue] >=
+                                    targetVersion) {
+                                  for (RCNConfigUpdateCompletion listener in strongSelf
+                                           ->_listeners) {
+                                    listener(nil);
+                                  }
+                                } else {
+                                  FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000016",
+                                              @"Fetched config's template version is outdated, "
+                                              @"re-fetching");
+                                  [strongSelf autoFetch:remainingAttempts - 1
+                                          targetVersion:targetVersion];
+                                }
+                              } else {
+                                FIRLogDebug(
+                                    kFIRLoggerRemoteConfig, @"I-RCN000016",
+                                    @"Fetched config's template version is outdated, re-fetching");
+                                [strongSelf autoFetch:remainingAttempts - 1
+                                        targetVersion:targetVersion];
+                              }
                             }
-                          }
-                        }];
+                          }];
+    }
   });
 }
 
@@ -459,15 +496,16 @@ static bool gIsRealtimeDisabled;
 #pragma mark - NSURLSession Delegates
 
 - (void)evaluateStreamResponse:(NSDictionary *)response error:(NSError *)dataError {
-  NSString *targetTemplateVersion = _configFetch.templateVersionNumber;
+  NSInteger updateTemplateVersion = 1;
   if (dataError == nil) {
     if ([response objectForKey:kTemplateVersionNumberKey]) {
-      targetTemplateVersion = [response objectForKey:kTemplateVersionNumberKey];
+      updateTemplateVersion = [[response objectForKey:kTemplateVersionNumberKey] integerValue];
     }
     if ([response objectForKey:kIsFeatureDisabled]) {
-      gIsRealtimeDisabled = [response objectForKey:kIsFeatureDisabled];
+      self->_isRealtimeDisabled = [response objectForKey:kIsFeatureDisabled];
     }
-    if (gIsRealtimeDisabled) {
+
+    if (self->_isRealtimeDisabled) {
       [self pauseRealtimeStream];
       NSError *error =
           [NSError errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
@@ -479,7 +517,10 @@ static bool gIsRealtimeDisabled;
                           }];
       [self propogateErrors:error];
     } else {
-      [self autoFetch:gFetchAttempts targetVersion:[targetTemplateVersion integerValue]];
+      NSInteger clientTemplateVersion = [_configFetch.templateVersionNumber integerValue];
+      if (updateTemplateVersion > clientTemplateVersion) {
+        [self autoFetch:gFetchAttempts targetVersion:updateTemplateVersion];
+      }
     }
   } else {
     NSError *error = [NSError
@@ -499,12 +540,21 @@ static bool gIsRealtimeDisabled;
     didReceiveData:(NSData *)data {
   NSError *dataError;
   NSString *strData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-  strData = [strData substringFromIndex:1];
-  data = [strData dataUsingEncoding:NSUTF8StringEncoding];
-  NSDictionary *response = [NSJSONSerialization JSONObjectWithData:data
-                                                           options:NSJSONReadingMutableContainers
-                                                             error:&dataError];
-  [self evaluateStreamResponse:response error:dataError];
+  NSRange endRange = [strData rangeOfString:@"}"];
+  NSRange beginRange = [strData rangeOfString:@"{"];
+  if (beginRange.location != NSNotFound && endRange.location != NSNotFound) {
+    FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000015",
+                @"Received config update message on stream.");
+    NSRange msgRange =
+        NSMakeRange(beginRange.location, endRange.location - beginRange.location + 1);
+    strData = [strData substringWithRange:msgRange];
+    data = [strData dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *response = [NSJSONSerialization JSONObjectWithData:data
+                                                             options:NSJSONReadingMutableContainers
+                                                               error:&dataError];
+
+    [self evaluateStreamResponse:response error:dataError];
+  }
 }
 
 /// Delegate that checks the final response of the connection and retries if necessary
@@ -513,7 +563,7 @@ static bool gIsRealtimeDisabled;
     didReceiveResponse:(NSURLResponse *)response
      completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
   NSHTTPURLResponse *_httpURLResponse = (NSHTTPURLResponse *)response;
-  if ([_httpURLResponse statusCode] != 200 && !gIsRetrying) {
+  if ([_httpURLResponse statusCode] != 200 && !_isRetrying) {
     [self pauseRealtimeStream];
     [self retryHTTPConnection];
   }
@@ -524,7 +574,7 @@ static bool gIsRealtimeDisabled;
 - (void)URLSession:(NSURLSession *)session
                     task:(NSURLSessionTask *)task
     didCompleteWithError:(NSError *)error {
-  if (!gIsRetrying) {
+  if (!_isRetrying) {
     [self pauseRealtimeStream];
     [self retryHTTPConnection];
   }
@@ -532,7 +582,7 @@ static bool gIsRealtimeDisabled;
 
 /// Delegate that checks the final response of the connection and retries if allowed
 - (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(NSError *)error {
-  if (!gIsRetrying) {
+  if (!_isRetrying) {
     [self pauseRealtimeStream];
     [self retryHTTPConnection];
   }
@@ -544,15 +594,19 @@ static bool gIsRealtimeDisabled;
   __weak RCNConfigRealtime *weakSelf = self;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
-    if ([strongSelf canMakeConnection]) {
+    bool noRunningConnection =
+        strongSelf->_dataTask == nil || strongSelf->_dataTask.state != NSURLSessionTaskStateRunning;
+    bool canMakeConnection = noRunningConnection && [strongSelf->_listeners count] > 0 &&
+                             !strongSelf->_isInBackground && !strongSelf->_isRealtimeDisabled;
+    if (canMakeConnection) {
       [strongSelf setRequestBody];
       strongSelf->_dataTask = [strongSelf->_session dataTaskWithRequest:strongSelf->_request];
       [strongSelf->_dataTask resume];
-      gMaxRetryCount = gMaxRetries;
-      gIsRetrying = false;
+      strongSelf->_maxRetryCount = gMaxRetries;
+      strongSelf->_isRetrying = false;
 
       /// Set retry seconds to a random number between 1 and 6 seconds.
-      gRetrySeconds = arc4random_uniform(5) + 1;
+      strongSelf->_retrySeconds = arc4random_uniform(5) + 1;
     }
   });
 }
