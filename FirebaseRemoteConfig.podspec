@@ -21,7 +21,7 @@ app update.
   ios_deployment_target = '10.0'
   osx_deployment_target = '10.12'
   tvos_deployment_target = '10.0'
-  watchos_deployment_target = '6.0'
+  watchos_deployment_target = '7.0'
 
   s.swift_version = '5.3'
 

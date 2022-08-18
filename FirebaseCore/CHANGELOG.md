@@ -1,3 +1,6 @@
+# Firebase 9.6.0
+- [changed] Firebase's minimum support version for watchOS is now watchOS 7.0. (#10112)
+
 # Firebase 9.5.0
 - [fixed] Zip Distribution Fixed Promises module name issue impacting lld builds. (#10071)
 

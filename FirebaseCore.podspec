@@ -21,7 +21,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   ios_deployment_target = '9.0'
   osx_deployment_target = '10.12'
   tvos_deployment_target = '10.0'
-  watchos_deployment_target = '6.0'
+  watchos_deployment_target = '7.0'
 
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target

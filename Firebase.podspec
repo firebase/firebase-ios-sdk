@@ -58,7 +58,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '9.0'
     ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '10.0'
-    ss.watchos.deployment_target = '6.0'
+    ss.watchos.deployment_target = '7.0'
   end
 
   s.subspec 'Analytics' do |ss|
@@ -90,7 +90,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '10.0'
-    ss.watchos.deployment_target = '6.0'
+    ss.watchos.deployment_target = '7.0'
   end
 
   s.subspec 'AppDistribution' do |ss|
@@ -104,7 +104,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '9.0'
     ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '10.0'
-    ss.watchos.deployment_target = '6.0'
+    ss.watchos.deployment_target = '7.0'
   end
 
   s.subspec 'Auth' do |ss|
@@ -114,7 +114,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '10.0'
-    ss.watchos.deployment_target = '6.0'
+    ss.watchos.deployment_target = '7.0'
   end
 
   s.subspec 'Crashlytics' do |ss|
@@ -124,7 +124,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '9.0'
     ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '10.0'
-    ss.watchos.deployment_target = '6.0'
+    ss.watchos.deployment_target = '7.0'
   end
 
   s.subspec 'Database' do |ss|
@@ -169,7 +169,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '10.0'
-    ss.watchos.deployment_target = '6.0'
+    ss.watchos.deployment_target = '7.0'
   end
 
   s.subspec 'MLModelDownloader' do |ss|
@@ -190,7 +190,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '10.0'
-    ss.watchos.deployment_target = '6.0'
+    ss.watchos.deployment_target = '7.0'
   end
 
   s.subspec 'Storage' do |ss|
@@ -200,7 +200,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '10.0'
-    ss.watchos.deployment_target = '6.0'
+    ss.watchos.deployment_target = '7.0'
   end
 
 end
