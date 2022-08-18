@@ -22,6 +22,10 @@
 #import <AppKit/AppKit.h>
 #endif
 
+#if __has_include(<WatchKit/WatchKit.h>)
+#import <WatchKit/WatchKit.h>
+#endif
+
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRApp.h"
 
 #import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
@@ -871,14 +875,14 @@ static FIRApp *sDefaultApp;
   NSNotificationName notificationName = UIApplicationDidBecomeActiveNotification;
 #elif TARGET_OS_OSX
   NSNotificationName notificationName = NSApplicationDidBecomeActiveNotification;
+#elif TARGET_OS_WATCH
+  NSNotificationName notificationName = WKApplicationDidBecomeActiveNotification;
 #endif
 
-#if !TARGET_OS_WATCH
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(appDidBecomeActive:)
                                                name:notificationName
                                              object:nil];
-#endif
 }
 
 - (void)appDidBecomeActive:(NSNotification *)notification {
