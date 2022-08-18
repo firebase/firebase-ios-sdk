@@ -27,58 +27,69 @@ namespace core {
 
 using testutil::AndFilters;
 using testutil::Field;
-using testutil::Filter;
 using testutil::OrFilters;
 using testutil::Resource;
 using testutil::Value;
 
+namespace {
+
 /** Helper method to get unique filters */
-FieldFilter numberFilter(int num) {
-  return Filter("name", "==", num);
+FieldFilter NameFilter(const char* name) {
+  return testutil::Filter("name", "==", name);
 }
+
+const FieldFilter A = NameFilter("A");
+const FieldFilter B = NameFilter("B");
+const FieldFilter C = NameFilter("C");
+const FieldFilter D = NameFilter("D");
+
+}  // namespace
 
 TEST(FilterTest, Equality) {
-  auto filter = Filter("f", "==", 1);
-  EXPECT_EQ(filter, Filter("f", "==", 1));
-  EXPECT_NE(filter, Filter("g", "==", 1));
-  EXPECT_NE(filter, Filter("f", ">", 1));
-  EXPECT_NE(filter, Filter("f", "==", 2));
-  EXPECT_NE(filter, Filter("f", "==", NAN));
-  EXPECT_NE(filter, Filter("f", "==", nullptr));
+  auto filter = testutil::Filter("f", "==", 1);
+  EXPECT_EQ(filter, testutil::Filter("f", "==", 1));
+  EXPECT_NE(filter, testutil::Filter("g", "==", 1));
+  EXPECT_NE(filter, testutil::Filter("f", ">", 1));
+  EXPECT_NE(filter, testutil::Filter("f", "==", 2));
+  EXPECT_NE(filter, testutil::Filter("f", "==", NAN));
+  EXPECT_NE(filter, testutil::Filter("f", "==", nullptr));
 
-  auto null_filter = Filter("g", "==", nullptr);
-  EXPECT_EQ(null_filter, Filter("g", "==", nullptr));
-  EXPECT_NE(null_filter, Filter("h", "==", nullptr));
+  auto null_filter = testutil::Filter("g", "==", nullptr);
+  EXPECT_EQ(null_filter, testutil::Filter("g", "==", nullptr));
+  EXPECT_NE(null_filter, testutil::Filter("h", "==", nullptr));
 
-  auto nan_filter = Filter("g", "==", NAN);
-  EXPECT_EQ(nan_filter, Filter("g", "==", NAN));
-  EXPECT_NE(nan_filter, Filter("h", "==", NAN));
+  auto nan_filter = testutil::Filter("g", "==", NAN);
+  EXPECT_EQ(nan_filter, testutil::Filter("g", "==", NAN));
+  EXPECT_NE(nan_filter, testutil::Filter("h", "==", NAN));
 }
 
-TEST(FilterTest, AndFilters) {
-  const FieldFilter Zero = numberFilter(0);
-  const FieldFilter One = numberFilter(1);
-  const FieldFilter Two = numberFilter(2);
+TEST(FilterTest, CompositeFilterMembers) {
+  CompositeFilter and_filter = AndFilters({A, B, C});
+  EXPECT_TRUE(and_filter.IsConjunction());
+  std::vector<core::Filter> expect{A, B, C};
+  EXPECT_EQ(and_filter.filters(), expect);
 
-  CompositeFilter andFilter = AndFilters({Zero, One, Two});
-  ASSERT_TRUE(andFilter.IsConjunction());
-  EXPECT_EQ(andFilter.filters().size(), 3);
-  EXPECT_EQ(andFilter.filters()[0], Zero);
-  EXPECT_EQ(andFilter.filters()[1], One);
-  EXPECT_EQ(andFilter.filters()[2], Two);
+  CompositeFilter or_filter = OrFilters({A, B, C});
+  EXPECT_TRUE(or_filter.IsDisjunction());
+  EXPECT_EQ(or_filter.filters(), expect);
 }
 
-TEST(FilterTest, OrFilters) {
-  const FieldFilter Zero = numberFilter(0);
-  const FieldFilter One = numberFilter(1);
-  const FieldFilter Two = numberFilter(2);
+TEST(FilterTest, CompositeFilterNestedChecks) {
+  CompositeFilter and_filter1 = AndFilters({A, B, C});
+  EXPECT_TRUE(and_filter1.IsConjunction());
+  EXPECT_FALSE(and_filter1.IsDisjunction());
 
-  CompositeFilter orFilter = OrFilters({Zero, One, Two});
-  ASSERT_TRUE(orFilter.IsDisjunction());
-  EXPECT_EQ(orFilter.filters().size(), 3);
-  EXPECT_EQ(orFilter.filters()[0], Zero);
-  EXPECT_EQ(orFilter.filters()[1], One);
-  EXPECT_EQ(orFilter.filters()[2], Two);
+  CompositeFilter or_filter1 = OrFilters({A, B, C});
+  EXPECT_FALSE(or_filter1.IsConjunction());
+  EXPECT_TRUE(or_filter1.IsDisjunction());
+
+  CompositeFilter and_filter2 = AndFilters({D, and_filter1});
+  EXPECT_TRUE(and_filter2.IsConjunction());
+  EXPECT_FALSE(and_filter2.IsDisjunction());
+
+  CompositeFilter or_filter2 = OrFilters({D, and_filter1});
+  EXPECT_FALSE(or_filter2.IsConjunction());
+  EXPECT_TRUE(or_filter2.IsDisjunction());
 }
 
 }  // namespace core
