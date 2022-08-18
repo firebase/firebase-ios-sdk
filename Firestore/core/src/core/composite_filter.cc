@@ -72,6 +72,15 @@ bool CompositeFilter::Rep::IsDisjunction() const {
   return op_ == Operator::Or;
 }
 
+bool CompositeFilter::Rep::IsFlat() const {
+  for (const auto& filter : filters_) {
+    if (filter.IsACompositeFilter()) {
+      return false;
+    }
+  }
+  return true;
+}
+
 bool CompositeFilter::Rep::Matches(const model::Document& doc) const {
   if (IsConjunction()) {
     // For conjunctions, all filters must match, so return false if any filter
