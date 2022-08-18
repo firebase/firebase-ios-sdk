@@ -838,7 +838,10 @@ void LevelDbIndexManager::UpdateEntries(
     const std::set<IndexEntry>& existing_entries,
     const std::set<IndexEntry>& new_entries) {
   util::DiffSets<IndexEntry>(
-      existing_entries, new_entries, {},
+      existing_entries, new_entries,
+      [](const IndexEntry& left, const IndexEntry& right) {
+        return left.CompareTo(right);
+      },
       [this, document, index](const IndexEntry& entry) {
         this->AddIndexEntry(document, index, entry);
       },

@@ -48,6 +48,7 @@ class QueryEngine;
 
 namespace model {
 class Mutation;
+class FieldIndex;
 }  // namespace model
 
 namespace remote {
@@ -175,6 +176,8 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   const std::shared_ptr<util::Executor>& user_executor() const {
     return user_executor_;
   }
+
+  void ConfigureFieldIndexes(std::vector<model::FieldIndex> parsed_indexes);
 
   void LoadBundle(std::unique_ptr<util::ByteStream> bundle_data,
                   std::shared_ptr<api::LoadBundleTask> result_task);
