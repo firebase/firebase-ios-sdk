@@ -165,8 +165,7 @@ let package = Package(
     .package(
       name: "GTMSessionFetcher",
       url: "https://github.com/google/gtm-session-fetcher.git",
-      // TODO: - update to release version before master merge.
-      .branch("main")
+      "2.1.0" ..< "3.0.0"
     ),
     .package(
       name: "nanopb",
