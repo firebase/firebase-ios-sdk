@@ -19,12 +19,12 @@ import SharedTestUtilities
 import XCTest
 
 class StorageAuthorizerTests: StorageTestHelpers {
-  var appCheckTokenSuccess: FIRAppCheckTokenResultFake?
-  var appCheckTokenError: FIRAppCheckTokenResultFake?
-  var fetcher: GTMSessionFetcher?
-  var fetcherService: GTMSessionFetcherService?
-  var auth: FIRAuthInteropFake?
-  var appCheck: FIRAppCheckFake?
+  var appCheckTokenSuccess: FIRAppCheckTokenResultFake!
+  var appCheckTokenError: FIRAppCheckTokenResultFake!
+  var fetcher: GTMSessionFetcher!
+  var fetcherService: GTMSessionFetcherService!
+  var auth: FIRAuthInteropFake!
+  var appCheck: FIRAppCheckFake!
 
   let StorageTestAuthToken = "1234-5678-9012-3456-7890"
 

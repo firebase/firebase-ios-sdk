@@ -116,11 +116,20 @@ extern void FIRLogInfo(FIRLoggerService service, NSString *messageCode, NSString
 extern void FIRLogDebug(FIRLoggerService service, NSString *messageCode, NSString *message, ...)
     NS_FORMAT_FUNCTION(3, 4);
 
-// Swift does not support variadic function calls
-extern void FIRLogDebug1(FIRLoggerService service,
-                         NSString *messageCode,
-                         NSString *message,
-                         id val1);
+// TODO: Come up with a better logging scheme for Swift.
+/**
+ * Logs a message to the Xcode console and the device log. If running from AppStore, will
+ * not log any messages with a level higher than FirebaseLoggerLevelNotice to avoid log spamming.
+ * This function is intended to be used by Swift clients that do not support variadic parameters.
+ * (required) log level (one of the FirebaseLoggerLevel enum values).
+ * (required) service name of type FirebaseLoggerService.
+ * (required) message code starting with "I-" which means iOS, followed by a capitalized
+ *            three-character service identifier and a six digit integer message ID that is unique
+ *            within the service.
+ *            An example of the message code is @"I-COR000001".
+ * (required) message string.
+ */
+extern void FIRLogDebugSwift(FIRLoggerService service, NSString *messageCode, NSString *message);
 
 #ifdef __cplusplus
 }  // extern "C"

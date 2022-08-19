@@ -24,8 +24,7 @@ import FirebaseCore
 #else
   import GTMSessionFetcherCore
 #endif
-//
-//
+
 internal class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
   func authorizeRequest(_ request: NSMutableURLRequest?,
                         completionHandler handler: @escaping (Error?) -> Void) {
@@ -66,11 +65,10 @@ internal class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
 
         if let error = tokenResult.error {
           // TODO: Define better way to use FIRLogger from Swift.
-          FIRLogDebug1(
+          FIRLogDebugSwift(
             "[FirebaseStorage]",
             "I-STR000001",
-            "Failed to fetch AppCheck token. Error: %@",
-            error
+            "Failed to fetch AppCheck token. Error: \(error)"
           )
         }
         fetchTokenGroup.leave()
