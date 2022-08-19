@@ -17,7 +17,7 @@ import Foundation
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import FirebaseCore
-import FirebaseCoreExtension
+@_implementationOnly import FirebaseCoreExtension
 
 #if COCOAPODS
   import GTMSessionFetcher
