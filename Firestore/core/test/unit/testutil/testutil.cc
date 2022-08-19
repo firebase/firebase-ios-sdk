@@ -22,6 +22,7 @@
 
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/core/composite_filter.h"
 #include "Firestore/core/src/core/direction.h"
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/core/order_by.h"
@@ -342,6 +343,16 @@ core::FieldFilter Filter(absl::string_view key,
                          absl::string_view op,
                          double value) {
   return Filter(key, op, Value(value));
+}
+
+core::CompositeFilter AndFilters(std::vector<core::Filter> filters) {
+  return core::CompositeFilter::Create(std::move(filters),
+                                       core::CompositeFilter::Operator::And);
+}
+
+core::CompositeFilter OrFilters(std::vector<core::Filter> filters) {
+  return core::CompositeFilter::Create(std::move(filters),
+                                       core::CompositeFilter::Operator::Or);
 }
 
 core::Direction Direction(absl::string_view direction) {

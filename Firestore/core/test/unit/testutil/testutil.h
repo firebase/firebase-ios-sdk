@@ -55,6 +55,11 @@ namespace nanopb {
 class ByteString;
 }  // namespace nanopb
 
+namespace core {
+class FieldFilter;
+class CompositeFilter;
+}  // namespace core
+
 namespace testutil {
 namespace details {
 
@@ -358,6 +363,10 @@ core::FieldFilter Filter(absl::string_view key,
 core::FieldFilter Filter(absl::string_view key,
                          absl::string_view op,
                          double value);
+
+core::CompositeFilter AndFilters(std::vector<core::Filter> filters);
+
+core::CompositeFilter OrFilters(std::vector<core::Filter> filters);
 
 core::Direction Direction(absl::string_view direction);
 
