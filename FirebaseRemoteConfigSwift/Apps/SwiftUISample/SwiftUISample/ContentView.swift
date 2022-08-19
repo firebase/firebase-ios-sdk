@@ -18,11 +18,11 @@ import SwiftUI
 import FirebaseRemoteConfigSwift
 
 struct ContentView: View {
-  @RemoteConfigProperty(forKey: "Color") var configValue: String
-  @RemoteConfigProperty(forKey: "Toggle") var toggleValue: Bool
-  @RemoteConfigProperty(forKey: "fruits") var fruits: [String]
-  @RemoteConfigProperty(forKey: "counter") var counter: Int
-  @RemoteConfigProperty(forKey: "mobileweek") var sessions: [String: String]
+  @RemoteConfigProperty(key: "Color") var configValue: String
+  @RemoteConfigProperty(key: "Toggle") var toggleValue: Bool
+  @RemoteConfigProperty(key: "fruits") var fruits: [String]
+  @RemoteConfigProperty(key: "counter") var counter: Int
+  @RemoteConfigProperty(key: "mobileweek") var sessions: [String: String]
 
   var body: some View {
     VStack {

@@ -38,7 +38,7 @@ import SwiftUI
     /// This property depends on default remote config.
     ///
     /// - Parameter key: key name
-    public init(forKey key: String) {
+    public init(key: String) {
       self.key = key
       remoteConfig = RemoteConfig.remoteConfig()
 
