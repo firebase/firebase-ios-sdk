@@ -116,6 +116,12 @@ extern void FIRLogInfo(FIRLoggerService service, NSString *messageCode, NSString
 extern void FIRLogDebug(FIRLoggerService service, NSString *messageCode, NSString *message, ...)
     NS_FORMAT_FUNCTION(3, 4);
 
+// Swift does not support variadic function calls
+extern void FIRLogDebug1(FIRLoggerService service,
+                         NSString *messageCode,
+                         NSString *message,
+                         id val1);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif  // __cplusplus

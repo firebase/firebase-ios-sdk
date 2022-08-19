@@ -165,7 +165,8 @@ let package = Package(
     .package(
       name: "GTMSessionFetcher",
       url: "https://github.com/google/gtm-session-fetcher.git",
-      "1.7.2" ..< "3.0.0"
+      // TODO: - update to release version before master merge.
+      .branch("main")
     ),
     .package(
       name: "nanopb",
@@ -1110,7 +1111,6 @@ let package = Package(
         "FirebaseAuthInterop",
         "FirebaseCore",
         "FirebaseCoreExtension",
-        "FirebaseStorageInternal",
         .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
       ],
       path: "FirebaseStorage/Sources"

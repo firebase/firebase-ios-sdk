@@ -157,6 +157,11 @@ FIR_LOGGING_FUNCTION(Notice)
 FIR_LOGGING_FUNCTION(Info)
 FIR_LOGGING_FUNCTION(Debug)
 
+// Swift does not support variadic function calls
+void FIRLogDebug1(FIRLoggerService service, NSString *messageCode, NSString *message, id val1) {
+  FIRLogDebug(service, messageCode, message, val1);
+}
+
 #undef FIR_MAKE_LOGGER
 
 #pragma mark - FIRLoggerWrapper
