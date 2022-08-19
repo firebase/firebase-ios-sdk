@@ -516,7 +516,7 @@ case "$product-$platform-$method" in
     # Add GoogleService-Info.plist to generated Test Wrapper App.
     ruby ./scripts/update_xcode_target.rb gen/FirebaseStorage/Pods/Pods.xcodeproj \
       AppHost-FirebaseStorage-Unit-Tests \
-      ../../../FirebaseStorageInternal/Tests/Integration/Resources/GoogleService-Info.plist
+      ../../../FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
 
     if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
@@ -547,7 +547,7 @@ case "$product-$platform-$method" in
     # Add GoogleService-Info.plist to generated Test Wrapper App.
     ruby ./scripts/update_xcode_target.rb gen/FirebaseCombineSwift/Pods/Pods.xcodeproj \
       AppHost-FirebaseCombineSwift-Unit-Tests \
-      ../../../FirebaseStorageInternal/Tests/Integration/Resources/GoogleService-Info.plist
+      ../../../FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
 
     if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.

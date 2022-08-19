@@ -11,7 +11,7 @@ FirebaseDatabase/Tests/Resources/GoogleService-Info.plist
 FirebaseRemoteConfig/Tests/Sample/GoogleService-Info.plist
 
 # FirebaseStorage integration tests GoogleService-Info.plist
-FirebaseStorageInternal/Tests/Integration/Resources/GoogleService-Info.plist
+FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
 
 # FirebaseInstallations integration tests GoogleService-Info.plist
 FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist
@@ -24,8 +24,7 @@ FirebaseMessaging/Apps/AdvancedSample/SampleWatchWatchKitExtension/GoogleService
 FirebaseMessaging/Apps/AdvancedSample/AppClips/GoogleService-Info.plist
 
 # Credentials for Firebase Storage Integration Tests
-FirebaseStorageInternal/Tests/Integration/Credentials.h
-FirebaseStorageInternal/Tests/SwiftIntegration/Credentials.swift
+FirebaseStorage/Tests/ObjCIntegration/Credentials.h
 FirebaseStorage/Tests/Integration/Credentials.swift
 
 # FirebaseMLModelDownloader integration tests GoogleService-Info.plist

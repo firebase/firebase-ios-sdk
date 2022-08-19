@@ -1079,30 +1079,6 @@ let package = Package(
     // MARK: - Firebase Storage
 
     .target(
-      name: "FirebaseStorageInternal",
-      dependencies: [
-        "FirebaseCore",
-        .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
-      ],
-      path: "FirebaseStorageInternal/Sources",
-      publicHeadersPath: "Public",
-      cSettings: [
-        .headerSearchPath("../../"),
-      ],
-      linkerSettings: [
-        .linkedFramework("MobileCoreServices", .when(platforms: [.iOS])),
-        .linkedFramework("CoreServices", .when(platforms: [.macOS])),
-      ]
-    ),
-    .testTarget(
-      name: "StorageUnit",
-      dependencies: ["FirebaseStorageInternal", "OCMock", "SharedTestUtilities"],
-      path: "FirebaseStorageInternal/Tests/Unit",
-      cSettings: [
-        .headerSearchPath("../../.."),
-      ]
-    ),
-    .target(
       name: "FirebaseStorage",
       dependencies: [
         "FirebaseAppCheckInterop",
