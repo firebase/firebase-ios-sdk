@@ -22,6 +22,7 @@
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
+#import "FirebaseRemoteConfig/Sources/RCNDevice.h"
 
 /// URL params
 static NSString *const kServerURLDomain = @"https://firebaseremoteconfig.googleapis.com";
@@ -44,6 +45,7 @@ static NSString *const kInstallationsAuthTokenHeaderName = @"x-goog-firebase-ins
 static NSString *const kiOSBundleIdentifierHeaderName =
     @"X-Ios-Bundle-Identifier";  ///< HTTP Header Field Name
 static NSString *const kTemplateVersionNumberKey = @"latestTemplateVersionNumber";
+static NSString *const kIsFeatureDisabled = @"featureDisabled";
 
 /// Completion handler invoked by config update methods when they get a response from the server.
 ///
@@ -55,9 +57,6 @@ static NSInteger const gFetchAttempts = 3;
 
 // Retry parameters
 static NSInteger const gMaxRetries = 7;
-static NSInteger gMaxRetryCount;
-static NSInteger gRetrySeconds;
-static bool gIsRetrying;
 
 @interface FIRConfigUpdateListenerRegistration ()
 @property(strong, atomic, nonnull) RCNConfigUpdateCompletion completionHandler;
@@ -100,6 +99,11 @@ static bool gIsRetrying;
   RCNConfigSettings *_settings;
   FIROptions *_options;
   NSString *_namespace;
+  NSInteger _maxRetryCount;
+  NSInteger _retrySeconds;
+  bool _isRetrying;
+  bool _isInBackground;
+  bool _isRealtimeDisabled;
 }
 
 - (instancetype)init:(RCNConfigFetch *)configFetch
@@ -118,10 +122,12 @@ static bool gIsRetrying;
     _namespace = namespace;
 
     /// Set retry seconds to a random number between 1 and 6 seconds.
-    gRetrySeconds = arc4random_uniform(5) + 1;
+    _retrySeconds = arc4random_uniform(5) + 1;
 
-    gMaxRetryCount = gMaxRetries;
-    gIsRetrying = false;
+    _maxRetryCount = gMaxRetries;
+    _isRetrying = false;
+    _isRealtimeDisabled = false;
+    _isInBackground = false;
 
     [self setUpHttpRequest];
     [self setUpHttpSession];
@@ -140,6 +146,16 @@ static bool gIsRetrying;
         dispatch_queue_create(RCNRemoteConfigQueueLabel, DISPATCH_QUEUE_SERIAL);
   });
   return realtimeRemoteConfigQueue;
+}
+
+- (void)propogateErrors:(NSError *)error {
+  __weak RCNConfigRealtime *weakSelf = self;
+  dispatch_async(_realtimeLockQueue, ^{
+    __strong RCNConfigRealtime *strongSelf = weakSelf;
+    for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
+      listener(error);
+    }
+  });
 }
 
 #pragma mark - Http Helpers
@@ -274,7 +290,7 @@ static bool gIsRetrying;
   [self refreshInstallationsTokenWithCompletionHandler:^(FIRRemoteConfigFetchStatus status,
                                                          NSError *_Nullable error) {
     if (status != FIRRemoteConfigFetchStatusSuccess) {
-      NSLog(@"Installation token retrival failed");
+      FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000013", @"Installation token retrival failed.");
     }
   }];
 
@@ -286,8 +302,10 @@ static bool gIsRetrying;
 
   NSString *namespace = [_namespace substringToIndex:[_namespace rangeOfString:@":"].location];
   NSString *postBody = [NSString
-      stringWithFormat:@"{project:'%@', namespace:'%@', lastKnownVersionNumber:'%@'}",
-                       [self->_options GCMSenderID], namespace, _configFetch.templateVersionNumber];
+      stringWithFormat:@"{project:'%@', namespace:'%@', lastKnownVersionNumber:'%@', appId:'%@', "
+                       @"sdkVersion:'%@'}",
+                       [self->_options GCMSenderID], namespace, _configFetch.templateVersionNumber,
+                       _options.googleAppID, FIRRemoteConfigPodVersion()];
   NSData *postData = [postBody dataUsingEncoding:NSUTF8StringEncoding];
   NSError *compressionError;
   NSData *compressedContent = [NSData gul_dataByGzippingData:postData error:&compressionError];
@@ -322,14 +340,6 @@ static bool gIsRetrying;
                                       delegateQueue:[NSOperationQueue mainQueue]];
 }
 
-- (bool)noRunningConnection {
-  return _dataTask == nil || _dataTask.state != NSURLSessionTaskStateRunning;
-}
-
-- (bool)canMakeConnection {
-  return [self noRunningConnection] && [self->_listeners count] > 0;
-}
-
 #pragma mark - Retry Helpers
 
 // Retry mechanism for HTTP connections
@@ -337,29 +347,32 @@ static bool gIsRetrying;
   __weak RCNConfigRealtime *weakSelf = self;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
-    if ([strongSelf canMakeConnection] && gMaxRetryCount > 0 && !gIsRetrying) {
-      if (gMaxRetryCount < gMaxRetries) {
+    bool noRunningConnection =
+        strongSelf->_dataTask == nil || strongSelf->_dataTask.state != NSURLSessionTaskStateRunning;
+    bool canMakeConnection = noRunningConnection && [strongSelf->_listeners count] > 0 &&
+                             !strongSelf->_isInBackground && !strongSelf->_isRealtimeDisabled;
+    if (canMakeConnection && strongSelf->_maxRetryCount > 0 && !strongSelf->_isRetrying) {
+      if (strongSelf->_maxRetryCount < gMaxRetries) {
         double RETRY_MULTIPLIER = arc4random_uniform(3) + 2;
-        gRetrySeconds *= RETRY_MULTIPLIER;
+        strongSelf->_retrySeconds *= RETRY_MULTIPLIER;
       }
-      gMaxRetryCount--;
-      gIsRetrying = true;
+      strongSelf->_maxRetryCount--;
+      strongSelf->_isRetrying = true;
       dispatch_time_t executionDelay =
-          dispatch_time(DISPATCH_TIME_NOW, (gRetrySeconds * NSEC_PER_SEC));
+          dispatch_time(DISPATCH_TIME_NOW, (self->_retrySeconds * NSEC_PER_SEC));
       dispatch_after(executionDelay, strongSelf->_realtimeLockQueue, ^{
         [strongSelf beginRealtimeStream];
       });
     } else {
-      NSLog(@"Cannot establish connection.");
       NSError *error = [NSError
           errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
                      code:FIRRemoteConfigRealtimeErrorStream
                  userInfo:@{
                    NSLocalizedDescriptionKey : @"StreamError: Unable to establish http connection."
                  }];
-      for (RCNConfigUpdateCompletion listener in self->_listeners) {
-        listener(error);
-      }
+      FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000014", @"Cannot establish connection. Error: %@",
+                  error);
+      [self propogateErrors:error];
     }
   });
 }
@@ -367,12 +380,30 @@ static bool gIsRetrying;
 - (void)backgroundChangeListener {
   [_notificationCenter addObserver:self
                           selector:@selector(isInForeground)
+                              name:@"UIApplicationWillEnterForegroundNotification"
+                            object:nil];
+
+  [_notificationCenter addObserver:self
+                          selector:@selector(isInBackground)
                               name:@"UIApplicationDidEnterBackgroundNotification"
                             object:nil];
 }
 
 - (void)isInForeground {
-  [self beginRealtimeStream];
+  __weak RCNConfigRealtime *weakSelf = self;
+  dispatch_async(_realtimeLockQueue, ^{
+    __strong RCNConfigRealtime *strongSelf = weakSelf;
+    strongSelf->_isInBackground = false;
+    [strongSelf beginRealtimeStream];
+  });
+}
+
+- (void)isInBackground {
+  __weak RCNConfigRealtime *weakSelf = self;
+  dispatch_async(_realtimeLockQueue, ^{
+    __strong RCNConfigRealtime *strongSelf = weakSelf;
+    strongSelf->_isInBackground = true;
+  });
 }
 
 #pragma mark - Autofetch Helpers
@@ -381,33 +412,52 @@ static bool gIsRetrying;
   __weak RCNConfigRealtime *weakSelf = self;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
-    [strongSelf->_configFetch
-        fetchConfigWithExpirationDuration:0
-                        completionHandler:^(FIRRemoteConfigFetchStatus status, NSError *error) {
-                          NSLog(@"Fetching new config");
-                          if (status == FIRRemoteConfigFetchStatusSuccess) {
-                            if ([strongSelf->_configFetch.templateVersionNumber integerValue] >=
-                                targetVersion) {
-                              NSLog(@"Executing callback delegate");
-                              for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
-                                listener(nil);
-                              }
-                            } else {
-                              NSLog(
-                                  @"Fetched config's template version is the same or less then the "
-                                  @"current version, re-fetching");
-                              [strongSelf autoFetch:remainingAttempts - 1
-                                      targetVersion:targetVersion];
-                            }
-                          } else {
-                            NSLog(@"Config not fetched");
+    if (strongSelf->_settings.isFetchInProgress) {
+      if (strongSelf->_settings.lastFetchStatus == FIRRemoteConfigFetchStatusSuccess &&
+          [strongSelf->_configFetch.templateVersionNumber integerValue] >= targetVersion) {
+        for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
+          listener(nil);
+        }
+      } else {
+        FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000016",
+                    @"Fetched config's template version is outdated or there was a failed fetch "
+                    @"status, re-fetching");
+        [strongSelf autoFetch:remainingAttempts - 1 targetVersion:targetVersion];
+      }
+    } else {
+      [strongSelf->_configFetch
+          fetchConfigWithExpirationDuration:0
+                          completionHandler:^(FIRRemoteConfigFetchStatus status, NSError *error) {
                             if (error != nil) {
-                              for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
-                                listener(error);
+                              FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000010",
+                                          @"Failed to retrive config due to fetch error. Error: %@",
+                                          error);
+                              [self propogateErrors:error];
+                            } else {
+                              if (status == FIRRemoteConfigFetchStatusSuccess) {
+                                if ([strongSelf->_configFetch.templateVersionNumber integerValue] >=
+                                    targetVersion) {
+                                  for (RCNConfigUpdateCompletion listener in strongSelf
+                                           ->_listeners) {
+                                    listener(nil);
+                                  }
+                                } else {
+                                  FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000016",
+                                              @"Fetched config's template version is outdated, "
+                                              @"re-fetching");
+                                  [strongSelf autoFetch:remainingAttempts - 1
+                                          targetVersion:targetVersion];
+                                }
+                              } else {
+                                FIRLogDebug(
+                                    kFIRLoggerRemoteConfig, @"I-RCN000016",
+                                    @"Fetched config's template version is outdated, re-fetching");
+                                [strongSelf autoFetch:remainingAttempts - 1
+                                        targetVersion:targetVersion];
                               }
                             }
-                          }
-                        }];
+                          }];
+    }
   });
 }
 
@@ -426,15 +476,16 @@ static bool gIsRetrying;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
     if (remainingAttempts == 0) {
-      NSError *error = [NSError
-          errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
-                     code:FIRRemoteConfigRealtimeErrorFetch
-                 userInfo:@{
-                   NSLocalizedDescriptionKey : @"FetchError: Unable to retrieve the latest config."
-                 }];
-      for (RCNConfigUpdateCompletion listener in strongSelf->_listeners) {
-        listener(error);
-      }
+      NSError *error =
+          [NSError errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
+                              code:FIRRemoteConfigRealtimeErrorFetch
+                          userInfo:@{
+                            NSLocalizedDescriptionKey :
+                                @"FetchError: Unable to retrieve the latest config version."
+                          }];
+      FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000011",
+                  @"Ran out of fetch attempts, cannot find target config version.");
+      [self propogateErrors:error];
       return;
     }
 
@@ -444,6 +495,44 @@ static bool gIsRetrying;
 
 #pragma mark - NSURLSession Delegates
 
+- (void)evaluateStreamResponse:(NSDictionary *)response error:(NSError *)dataError {
+  NSInteger updateTemplateVersion = 1;
+  if (dataError == nil) {
+    if ([response objectForKey:kTemplateVersionNumberKey]) {
+      updateTemplateVersion = [[response objectForKey:kTemplateVersionNumberKey] integerValue];
+    }
+    if ([response objectForKey:kIsFeatureDisabled]) {
+      self->_isRealtimeDisabled = [response objectForKey:kIsFeatureDisabled];
+    }
+
+    if (self->_isRealtimeDisabled) {
+      [self pauseRealtimeStream];
+      NSError *error =
+          [NSError errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
+                              code:FIRRemoteConfigRealtimeErrorStream
+                          userInfo:@{
+                            NSLocalizedDescriptionKey :
+                                @"StreamError: The backend has issued a backoff for Realtime "
+                                @"in this SDK. Will check again next app start up."
+                          }];
+      [self propogateErrors:error];
+    } else {
+      NSInteger clientTemplateVersion = [_configFetch.templateVersionNumber integerValue];
+      if (updateTemplateVersion > clientTemplateVersion) {
+        [self autoFetch:gFetchAttempts targetVersion:updateTemplateVersion];
+      }
+    }
+  } else {
+    NSError *error = [NSError
+        errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
+                   code:FIRRemoteConfigRealtimeErrorStream
+               userInfo:@{
+                 NSLocalizedDescriptionKey : @"StreamError: Unable to parse config update message."
+               }];
+    [self propogateErrors:error];
+  }
+}
+
 /// Delegate to asynchronously handle every new notification that comes over the wire. Auto-fetches
 /// and runs callback for each new notification
 - (void)URLSession:(NSURLSession *)session
@@ -451,17 +540,21 @@ static bool gIsRetrying;
     didReceiveData:(NSData *)data {
   NSError *dataError;
   NSString *strData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-  strData = [strData substringFromIndex:1];
-  data = [strData dataUsingEncoding:NSUTF8StringEncoding];
-  NSDictionary *response = [NSJSONSerialization JSONObjectWithData:data
-                                                           options:NSJSONReadingMutableContainers
-                                                             error:&dataError];
-  NSString *targetTemplateVersion = _configFetch.templateVersionNumber;
-  if (dataError == nil) {
-    targetTemplateVersion = [response objectForKey:kTemplateVersionNumberKey];
-  }
+  NSRange endRange = [strData rangeOfString:@"}"];
+  NSRange beginRange = [strData rangeOfString:@"{"];
+  if (beginRange.location != NSNotFound && endRange.location != NSNotFound) {
+    FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000015",
+                @"Received config update message on stream.");
+    NSRange msgRange =
+        NSMakeRange(beginRange.location, endRange.location - beginRange.location + 1);
+    strData = [strData substringWithRange:msgRange];
+    data = [strData dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *response = [NSJSONSerialization JSONObjectWithData:data
+                                                             options:NSJSONReadingMutableContainers
+                                                               error:&dataError];
 
-  [self autoFetch:gFetchAttempts targetVersion:[targetTemplateVersion integerValue]];
+    [self evaluateStreamResponse:response error:dataError];
+  }
 }
 
 /// Delegate that checks the final response of the connection and retries if necessary
@@ -470,7 +563,7 @@ static bool gIsRetrying;
     didReceiveResponse:(NSURLResponse *)response
      completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
   NSHTTPURLResponse *_httpURLResponse = (NSHTTPURLResponse *)response;
-  if ([_httpURLResponse statusCode] != 200 && !gIsRetrying) {
+  if ([_httpURLResponse statusCode] != 200 && !_isRetrying) {
     [self pauseRealtimeStream];
     [self retryHTTPConnection];
   }
@@ -481,7 +574,7 @@ static bool gIsRetrying;
 - (void)URLSession:(NSURLSession *)session
                     task:(NSURLSessionTask *)task
     didCompleteWithError:(NSError *)error {
-  if (!gIsRetrying) {
+  if (!_isRetrying) {
     [self pauseRealtimeStream];
     [self retryHTTPConnection];
   }
@@ -489,7 +582,7 @@ static bool gIsRetrying;
 
 /// Delegate that checks the final response of the connection and retries if allowed
 - (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(NSError *)error {
-  if (!gIsRetrying) {
+  if (!_isRetrying) {
     [self pauseRealtimeStream];
     [self retryHTTPConnection];
   }
@@ -501,15 +594,19 @@ static bool gIsRetrying;
   __weak RCNConfigRealtime *weakSelf = self;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
-    if ([strongSelf canMakeConnection]) {
+    bool noRunningConnection =
+        strongSelf->_dataTask == nil || strongSelf->_dataTask.state != NSURLSessionTaskStateRunning;
+    bool canMakeConnection = noRunningConnection && [strongSelf->_listeners count] > 0 &&
+                             !strongSelf->_isInBackground && !strongSelf->_isRealtimeDisabled;
+    if (canMakeConnection) {
       [strongSelf setRequestBody];
       strongSelf->_dataTask = [strongSelf->_session dataTaskWithRequest:strongSelf->_request];
       [strongSelf->_dataTask resume];
-      gMaxRetryCount = gMaxRetries;
-      gIsRetrying = false;
+      strongSelf->_maxRetryCount = gMaxRetries;
+      strongSelf->_isRetrying = false;
 
       /// Set retry seconds to a random number between 1 and 6 seconds.
-      gRetrySeconds = arc4random_uniform(5) + 1;
+      strongSelf->_retrySeconds = arc4random_uniform(5) + 1;
     }
   });
 }
