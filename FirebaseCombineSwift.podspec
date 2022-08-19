@@ -51,11 +51,11 @@ for internal testing only. It should not be published.
   s.osx.framework = 'AppKit'
   s.tvos.framework = 'UIKit'
 
-  s.dependency 'FirebaseCore', '~> 9.0'
-  s.dependency 'FirebaseAuth', '~> 9.0'
-  s.dependency 'FirebaseFunctions', '~> 9.0'
-  s.dependency 'FirebaseFirestore', '~> 9.0'
-  s.dependency 'FirebaseStorage', '~> 9.0'
+  s.dependency 'FirebaseCore', '~> 9.5'
+  s.dependency 'FirebaseAuth', '~> 9.5'
+  s.dependency 'FirebaseFunctions', '~> 9.5'
+  s.dependency 'FirebaseFirestore', '~> 9.5'
+  s.dependency 'FirebaseStorage', '~> 9.5'
 
   s.pod_target_xcconfig = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
