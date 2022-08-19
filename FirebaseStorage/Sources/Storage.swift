@@ -14,7 +14,6 @@
 
 import Foundation
 
-import FirebaseStorageInternal
 import FirebaseCore
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
@@ -286,7 +285,7 @@ import FirebaseAuthInterop
       fetcherService?.isRetryEnabled = true
       fetcherService?.retryBlock = retryWhenOffline
       fetcherService?.allowLocalhostRequest = true
-      let authorizer = FIRStorageTokenAuthorizer(
+      let authorizer = StorageTokenAuthorizer(
         googleAppID: app.options.googleAppID,
         fetcherService: fetcherService!,
         authProvider: auth,

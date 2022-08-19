@@ -14,7 +14,6 @@
 
 import Foundation
 @testable import FirebaseStorage
-import FirebaseStorageInternal
 import GTMSessionFetcherCore
 import XCTest
 
@@ -25,7 +24,7 @@ class StorageDeleteTests: StorageTestHelpers {
   override func setUp() {
     super.setUp()
     fetcherService = GTMSessionFetcherService()
-    fetcherService?.authorizer = FIRStorageTokenAuthorizer(
+    fetcherService?.authorizer = StorageTokenAuthorizer(
       googleAppID: "dummyAppID",
       fetcherService: fetcherService!,
       authProvider: nil,

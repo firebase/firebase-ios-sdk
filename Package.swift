@@ -165,7 +165,7 @@ let package = Package(
     .package(
       name: "GTMSessionFetcher",
       url: "https://github.com/google/gtm-session-fetcher.git",
-      "1.7.2" ..< "3.0.0"
+      "2.1.0" ..< "3.0.0"
     ),
     .package(
       name: "nanopb",
@@ -502,7 +502,6 @@ let package = Package(
       name: "FirebaseStorageCombineSwift",
       dependencies: [
         "FirebaseStorage",
-        "FirebaseStorageInternal",
       ],
       path: "FirebaseCombineSwift/Sources/Storage"
     ),
@@ -1110,7 +1109,6 @@ let package = Package(
         "FirebaseAuthInterop",
         "FirebaseCore",
         "FirebaseCoreExtension",
-        "FirebaseStorageInternal",
         .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
       ],
       path: "FirebaseStorage/Sources"
@@ -1167,7 +1165,6 @@ let package = Package(
                 condition: .when(platforms: [.iOS, .tvOS])),
         "FirebaseRemoteConfig",
         "FirebaseStorage",
-        "FirebaseStorageInternal",
         .product(name: "nanopb", package: "nanopb"),
       ],
       path: "SwiftPMTests/swift-test"
