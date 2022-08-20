@@ -113,9 +113,22 @@ body:
     attributes:
       label: If using CocoaPods, the project's Podfile.lock
       description: The `Podfile.lock` can help us debug versioning issues.
-      placeholder: |
-        Paste the contents of your Podfile.lock here. This will be automatically
-        formatted into code, so no need for backticks.
-      render: yml
+      value: |
+        <!--- Look below for instructions on how to share your Podfile.lock. --->
+
+        <details>
+        <summary>Expand <code>Podfile.lock</code> snippet</summary>
+        <br>
+
+        <!--- Paste the contents of your Podfile.lock *inside* the code block below.
+          This will be automatically formatted into code.
+        --->
+        ```yml
+
+
+
+        ```
+
+        </details>
     validations:
       required: false
