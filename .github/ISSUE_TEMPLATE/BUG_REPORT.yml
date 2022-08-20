@@ -59,7 +59,7 @@ body:
         - Zip
         - Carthage
     validations:
-      required: false
+      required: true
   - type: dropdown
     attributes:
       label: Firebase Product(s)
