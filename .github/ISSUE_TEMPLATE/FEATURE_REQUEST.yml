@@ -23,10 +23,10 @@ body:
     attributes:
       label: Description
       description: |
-        Describe the feature request. Explain the following:
-        1. your use case,
-        2. how the Firebase SDK _currently_ handles it, and
-        3. how you propose the Firebase SDK _should_ handle it.
+        Describe the feature request. Provide the following:
+            1. Use case
+            2. How the Firebase SDK _currently_ handles it
+            3. How you propose the Firebase SDK _should_ handle it
       placeholder: |
         1. ...
         2. ...
