@@ -1106,7 +1106,7 @@ let package = Package(
         // See https://forums.swift.org/t/importing-swift-libraries-from-objective-c/56730
         "FIRStorageIntegrationTests.m",
         "ObjCPPAPITests.mm",
-        "Credentials.h"
+        "Credentials.h",
       ],
       cSettings: [
         .headerSearchPath("../../.."),
