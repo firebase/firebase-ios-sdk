@@ -8,15 +8,15 @@ body:
         Before getting started, make sure you are in the right place by
         ensuring that filing a bug report is the correct course of
         action for your issue.
-        
-        * For general technical questions, post a question on 
+
+        * For general technical questions, post a question on
         [StackOverflow](http://stackoverflow.com/) with the `firebase` tag.
-        
+
         * For backend, console, and other non-SDK issues, reach out to
         [Firebase Support](https://firebase.google.com/support/) for help.
 
         If your issue does not fall under the above categories and instead
-        involves code in this repository not working as expected, please 
+        involves code in this repository not working as expected, please
         complete and submit this bug report. Thank you!
   - type: textarea
     attributes:
