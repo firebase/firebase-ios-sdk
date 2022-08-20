@@ -66,4 +66,3 @@ body:
         - Storage
     validations:
       required: true
-  
