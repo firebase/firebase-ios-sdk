@@ -1099,12 +1099,14 @@ let package = Package(
       ]
     ),
     .testTarget(
-      name: "StorageObjcIntegration",
+      name: "StorageObjCIntegration",
       dependencies: ["FirebaseStorage"],
-      path: "FirebaseStorage/Tests/ObjcIntegration",
+      path: "FirebaseStorage/Tests/ObjCIntegration",
       exclude: [
         // See https://forums.swift.org/t/importing-swift-libraries-from-objective-c/56730
+        "FIRStorageIntegrationTests.m",
         "ObjCPPAPITests.mm",
+        "Credentials.h"
       ],
       cSettings: [
         .headerSearchPath("../../.."),
