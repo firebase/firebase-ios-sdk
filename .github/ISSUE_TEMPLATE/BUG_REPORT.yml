@@ -32,7 +32,7 @@ body:
       description: |
         Please provide either **steps to reproduce** or a [**minimal reproducible example**](https://stackoverflow.com/help/minimal-reproducible-example).
         Providing a minimal reproducible example will help us triage your issue
-        much faster.
+        faster.
     validations:
       required: false
   - type: input
