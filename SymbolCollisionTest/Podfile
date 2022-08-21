@@ -59,12 +59,13 @@ target 'SymbolCollisionTest' do
     pod 'GooglePlacePicker'
     pod 'GooglePlaces'
     pod 'GooglePlusUtilities'
-    pod 'GoogleSignIn'
+    #TODO: Uncomment next two when GTMAppAuth updates to GTMSessionFetcher 2.x
+#    pod 'GoogleSignIn'
+#    pod 'GTMAppAuth'
     pod 'GoogleSymbolUtilities'
     pod 'GoogleTagManager'
     pod 'GoogleToolboxForMac'
     pod 'GoogleUtilities'
-    pod 'GTMAppAuth'
 #    pod 'GTMHTTPFetcher' - conflicts with GTMSessionFetcher
     pod 'GTMSessionFetcher'
 #    pod 'GVRSDK' -- absl and protobuf duplicates
