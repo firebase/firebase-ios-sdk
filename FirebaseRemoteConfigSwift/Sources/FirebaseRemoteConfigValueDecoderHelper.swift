@@ -42,14 +42,14 @@ struct FirebaseRemoteConfigValueDecoderHelper: FirebaseRemoteConfigValueDecoding
 
   func arrayValue() -> [AnyHashable]? {
     guard let value = value.jsonValue as? [AnyHashable] else {
-      return nil
+      return []
     }
     return value
   }
 
   func dictionaryValue() -> [String: AnyHashable]? {
     guard let value = value.jsonValue as? [String: AnyHashable] else {
-      return nil
+      return [:]
     }
     return value
   }
