@@ -27,20 +27,23 @@ internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
   init(key: String, remoteConfig: RemoteConfig) {
     self.key = key
     self.remoteConfig = remoteConfig
-    configValue = try! remoteConfig.configValue(forKey: key).decoded()
-    registration = remoteConfig.add(onConfigUpdateListener: { error in
+    self.configValue = try! remoteConfig.configValue(forKey: key).decoded(asType: T.self)
+        
+    let currentRegister = remoteConfig.add(onConfigUpdateListener: { error in
       guard error == nil else {
         return
       }
-      self.remoteConfig.activate { changed, error in
+      remoteConfig.activate { changed, error in
         guard error == nil else {
           return
         }
         DispatchQueue.main.async {
           self.configValue = try! remoteConfig.configValue(forKey: key).decoded(asType: T.self)
+
         }
       }
     })
+    self.registration = currentRegister
   }
 
   deinit {
