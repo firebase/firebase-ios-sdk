@@ -1,7 +1,7 @@
 name: ➕ Feature Request
 description: File a file request if you have a suggestion for a new feature.
 title: "[FR]: "
-labels: []
+labels: ["type: feature request"]
 body:
   - type: markdown
     attributes:
@@ -57,7 +57,7 @@ body:
         - DynamicLinks
         - Firestore
         - Functions
-        - In App Messaging
+        - In-App Messaging
         - Installations
         - ML Model Downloader
         - Messaging
