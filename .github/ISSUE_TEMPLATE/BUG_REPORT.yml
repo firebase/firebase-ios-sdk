@@ -76,7 +76,7 @@ body:
         - DynamicLinks
         - Firestore
         - Functions
-        - In App Messaging
+        - In-App Messaging
         - Installations
         - ML Model Downloader
         - Messaging
@@ -96,14 +96,17 @@ body:
         - watchOS
         - macOS
         - macCatalyst
+        - App Extensions
     validations:
       required: true
   - type: textarea
     attributes:
       label: Relevant Log Output
-      description: Please copy and paste any relevant log output.
+      description: |
+        Please copy and paste any relevant log output. To enable Firebase debug
+        logging, add `-FIRDebugEnabled` to your scheme's launch arguments.
       placeholder: |
-        Paste the your logs here. Please redact any personally identifiable
+        Paste your logs here. Please redact any personally identifiable
         information. This will be automatically formatted into code, so no
         need for backticks.
       render: shell
