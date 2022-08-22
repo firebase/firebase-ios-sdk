@@ -135,39 +135,39 @@ import XCTest
     func testStrongTypingViaDecoderAlternateDecoderApi() async throws {
       let status = try await config.fetchAndActivate()
       XCTAssertEqual(status, .successFetchedFromRemote)
-      let myString: String = try config[Constants.stringKey].decoded()
+      let myString: String? = config[Constants.stringKey].decoded()
       XCTAssertEqual(myString, Constants.stringValue)
-      let myInt: Int = try config[Constants.intKey].decoded()
+      let myInt: Int? = config[Constants.intKey].decoded()
       XCTAssertEqual(myInt, Constants.intValue)
-      let myInt8: Int8 = try config[Constants.intKey].decoded()
+      let myInt8: Int8? = config[Constants.intKey].decoded()
       XCTAssertEqual(myInt8, Int8(Constants.intValue))
-      let myInt16: Int16 = try config[Constants.intKey].decoded()
+      let myInt16: Int16? = config[Constants.intKey].decoded()
       XCTAssertEqual(myInt16, Int16(Constants.intValue))
-      let myInt32: Int32 = try config[Constants.intKey].decoded()
+      let myInt32: Int32? = config[Constants.intKey].decoded()
       XCTAssertEqual(myInt32, Int32(Constants.intValue))
-      let myInt64: Int64 = try config[Constants.intKey].decoded()
+      let myInt64: Int64? = config[Constants.intKey].decoded()
       XCTAssertEqual(myInt64, Int64(Constants.intValue))
-      let myUInt: UInt = try config[Constants.intKey].decoded()
+      let myUInt: UInt? = config[Constants.intKey].decoded()
       XCTAssertEqual(myUInt, UInt(Constants.intValue))
-      let myUInt8: UInt8 = try config[Constants.intKey].decoded()
+      let myUInt8: UInt8? = config[Constants.intKey].decoded()
       XCTAssertEqual(myUInt8, UInt8(Constants.intValue))
-      let myUInt16: UInt16 = try config[Constants.intKey].decoded()
+      let myUInt16: UInt16? = config[Constants.intKey].decoded()
       XCTAssertEqual(myUInt16, UInt16(Constants.intValue))
-      let myUInt32: UInt32 = try config[Constants.intKey].decoded()
+      let myUInt32: UInt32? = config[Constants.intKey].decoded()
       XCTAssertEqual(myUInt32, UInt32(Constants.intValue))
-      let myUInt64: UInt64 = try config[Constants.intKey].decoded()
+      let myUInt64: UInt64? = config[Constants.intKey].decoded()
       XCTAssertEqual(myUInt64, UInt64(Constants.intValue))
-      let myDecimal: Decimal = try config[Constants.floatKey].decoded()
+      let myDecimal: Decimal? = config[Constants.floatKey].decoded()
       XCTAssertEqual(myDecimal, Decimal(Constants.doubleValue))
-      let myFloat: Float = try config[Constants.floatKey].decoded()
+      let myFloat: Float? = config[Constants.floatKey].decoded()
       XCTAssertEqual(myFloat, Constants.floatValue)
-      let myDouble: Double = try config[Constants.floatKey].decoded()
+      let myDouble: Double? = config[Constants.floatKey].decoded()
       XCTAssertEqual(myDouble, Constants.doubleValue)
-      let myTrue: Bool = try config[Constants.trueKey].decoded()
+      let myTrue: Bool? = config[Constants.trueKey].decoded()
       XCTAssertEqual(myTrue, true)
-      let myFalse: Bool = try config[Constants.falseKey].decoded()
+      let myFalse: Bool? = config[Constants.falseKey].decoded()
       XCTAssertEqual(myFalse, false)
-      let myData: Data = try config[Constants.stringKey].decoded()
+      let myData: Data? = config[Constants.stringKey].decoded()
       XCTAssertEqual(myData, Constants.stringValue.data(using: .utf8))
     }
 
@@ -183,15 +183,8 @@ import XCTest
     func testDateDecodingNotYetSupported() async throws {
       let status = try await config.fetchAndActivate()
       XCTAssertEqual(status, .successFetchedFromRemote)
-      do {
-        let _: Date = try config[Constants.stringKey].decoded()
-      } catch let RemoteConfigValueCodableError.unsupportedType(message) {
-        XCTAssertEqual(message,
-                       "Date type is not currently supported for  Remote Config Value decoding. " +
-                         "Please file a feature request")
-        return
-      }
-      XCTFail("Failed to throw unsupported Date error.")
+      let date: Date? = config[Constants.stringKey].decoded()
+      XCTAssertNil(date)
     }
   }
 #endif

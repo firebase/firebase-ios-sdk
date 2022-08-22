@@ -63,15 +63,8 @@ import XCTest
     func testFetchAndActivateWithCodableBadJson() async throws {
       let status = try await config.fetchAndActivate()
       XCTAssertEqual(status, .successFetchedFromRemote)
-      do {
-        _ = try config[Constants.nonJsonKey].decoded(asType: Recipe.self)
-      } catch let DecodingError.typeMismatch(_, context) {
-        XCTAssertEqual(context.debugDescription,
-                       "Expected to decode Dictionary<String, Any> but found " +
-                         "FirebaseRemoteConfigValueDecoderHelper instead.")
-        return
-      }
-      XCTFail("Failed to catch trying to decode non-JSON key as JSON")
+      let failJson = config[Constants.nonJsonKey].decoded(asType: Recipe.self)
+      XCTAssertNil(failJson)
     }
 
     // MARK: - Test setting Remote Config defaults via an encodable struct
