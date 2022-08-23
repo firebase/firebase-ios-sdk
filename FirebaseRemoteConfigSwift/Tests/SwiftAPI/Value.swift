@@ -72,62 +72,62 @@ import XCTest
       let status = try await config.fetchAndActivate()
       XCTAssertEqual(status, .successFetchedFromRemote)
       XCTAssertEqual(
-        try config[Constants.stringKey].decoded(asType: String.self),
+        config[Constants.stringKey].decoded(asType: String.self),
         Constants.stringValue
       )
-      XCTAssertEqual(try config[Constants.intKey].decoded(asType: Int.self), Constants.intValue)
+      XCTAssertEqual(config[Constants.intKey].decoded(asType: Int.self), Constants.intValue)
       XCTAssertEqual(
-        try config[Constants.intKey].decoded(asType: Int8.self),
+        config[Constants.intKey].decoded(asType: Int8.self),
         Int8(Constants.intValue)
       )
       XCTAssertEqual(
-        try config[Constants.intKey].decoded(asType: Int16.self),
+        config[Constants.intKey].decoded(asType: Int16.self),
         Int16(Constants.intValue)
       )
       XCTAssertEqual(
-        try config[Constants.intKey].decoded(asType: Int32.self),
+        config[Constants.intKey].decoded(asType: Int32.self),
         Int32(Constants.intValue)
       )
       XCTAssertEqual(
-        try config[Constants.intKey].decoded(asType: Int64.self),
+        config[Constants.intKey].decoded(asType: Int64.self),
         Int64(Constants.intValue)
       )
       XCTAssertEqual(
-        try config[Constants.intKey].decoded(asType: UInt.self),
+        config[Constants.intKey].decoded(asType: UInt.self),
         UInt(Constants.intValue)
       )
       XCTAssertEqual(
-        try config[Constants.intKey].decoded(asType: UInt8.self),
+        config[Constants.intKey].decoded(asType: UInt8.self),
         UInt8(Constants.intValue)
       )
       XCTAssertEqual(
-        try config[Constants.intKey].decoded(asType: UInt16.self),
+        config[Constants.intKey].decoded(asType: UInt16.self),
         UInt16(Constants.intValue)
       )
       XCTAssertEqual(
-        try config[Constants.intKey].decoded(asType: UInt32.self),
+        config[Constants.intKey].decoded(asType: UInt32.self),
         UInt32(Constants.intValue)
       )
       XCTAssertEqual(
-        try config[Constants.intKey].decoded(asType: UInt64.self),
+        config[Constants.intKey].decoded(asType: UInt64.self),
         UInt64(Constants.intValue)
       )
       XCTAssertEqual(
-        try config[Constants.floatKey].decoded(asType: Decimal.self),
+        config[Constants.floatKey].decoded(asType: Decimal.self),
         Decimal(Constants.doubleValue)
       )
       XCTAssertEqual(
-        try config[Constants.floatKey].decoded(asType: Float.self),
+        config[Constants.floatKey].decoded(asType: Float.self),
         Constants.floatValue
       )
       XCTAssertEqual(
-        try config[Constants.floatKey].decoded(asType: Double.self),
+        config[Constants.floatKey].decoded(asType: Double.self),
         Constants.doubleValue
       )
-      XCTAssertEqual(try config[Constants.trueKey].decoded(asType: Bool.self), true)
-      XCTAssertEqual(try config[Constants.falseKey].decoded(asType: Bool.self), false)
+      XCTAssertEqual(config[Constants.trueKey].decoded(asType: Bool.self), true)
+      XCTAssertEqual(config[Constants.falseKey].decoded(asType: Bool.self), false)
       XCTAssertEqual(
-        try config[Constants.stringKey].decoded(asType: Data.self),
+        config[Constants.stringKey].decoded(asType: Data.self),
         Constants.stringValue.data(using: .utf8)
       )
     }

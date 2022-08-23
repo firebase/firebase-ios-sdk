@@ -24,7 +24,7 @@ public extension RemoteConfig {
   /// - Parameter key: A Remote Config key.
   /// - Returns: A typed RemoteConfigValue.
   subscript<T: Decodable>(decodedValue key: String) -> T? {
-    return try? configValue(forKey: key).decoded()
+    return configValue(forKey: key).decoded()
   }
 
   /// Return a Dictionary for a RemoteConfig JSON key.
