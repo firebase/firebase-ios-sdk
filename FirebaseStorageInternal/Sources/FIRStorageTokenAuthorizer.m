@@ -58,9 +58,12 @@ static NSString *const kAuthHeader = @"Authorization";
 
 #pragma mark - GTMFetcherAuthorizationProtocol methods
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 - (void)authorizeRequest:(NSMutableURLRequest *)request
                 delegate:(id)delegate
        didFinishSelector:(SEL)sel {
+#pragma clang diagnostic push
   // Set version header on each request
   NSString *versionString = [NSString stringWithFormat:@"ios/%@", FIRFirebaseVersion()];
   [request setValue:versionString forHTTPHeaderField:@"x-firebase-storage-version"];

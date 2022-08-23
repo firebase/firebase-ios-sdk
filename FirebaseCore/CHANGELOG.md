@@ -1,3 +1,6 @@
+# Firebase 9.6.0
+- [fixed] Update dependency specification for GTMSessionFetcher to allow all 2.x versions. (#10131)
+
 # Firebase 9.5.0
 - [fixed] Zip Distribution Fixed Promises module name issue impacting lld builds. (#10071)
 - [fixed] Limit dependency GTMSessionFetcher version update to < 2.1.0 to avoid a new deprecation
