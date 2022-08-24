@@ -24,45 +24,44 @@ struct Recipe : Decodable {
 }
 
 struct ContentView: View {
-  @RemoteConfigProperty(key: "Color") var configValue : String!
-  @RemoteConfigProperty(key: "Toggle") var toggleValue : Bool!
-  @RemoteConfigProperty(key: "fruits") var fruits : [String]!
-  @RemoteConfigProperty(key: "counter") var counter : Int!
-  @RemoteConfigProperty(key: "mobileweek") var sessions : [String: String]!
-  @RemoteConfigProperty(key: "recipe") var recipe : Recipe!
+  @RemoteConfigProperty(key: "Color") var configValue : String?
+  @RemoteConfigProperty(key: "Toggle") var toggleValue : Bool?
+  @RemoteConfigProperty(key: "fruits") var fruits : [String]?
+  @RemoteConfigProperty(key: "counter") var counter : Int?
+  @RemoteConfigProperty(key: "mobileweek") var sessions : [String: String]?
+  @RemoteConfigProperty(key: "recipe") var recipe : Recipe?
 
   var body: some View {
     VStack {
-      if counter > 1 {
-        ForEach(1 ... counter, id: \.self) { i in
-          Text(configValue)
-            .padding()
-            .foregroundStyle(toggleValue ? .primary : .secondary)
+      if let c = counter {
+        if c > 1 {
+          ForEach(1 ... c, id: \.self) { i in
+            Text(configValue ?? "")
+              .padding()
+            .foregroundStyle((toggleValue ?? false) ? .primary : .secondary)}
         }
       } else {
-        Text(configValue)
+        Text((configValue ?? ""))
           .padding()
-          .foregroundStyle(toggleValue ? .primary : .secondary)
+          .foregroundStyle(toggleValue != nil ? .primary : .secondary)
       }
       if let myFruits = fruits {
         List(myFruits, id: \.self) { fruit in
           Text(fruit)
         }
       }
-      if let mySessions = sessions {
-        List {
-          ForEach(mySessions.sorted(by: >), id: \.key) { key, value in
+      List {
+          ForEach(sessions!.sorted(by: >), id: \.key) { key, value in
             Section(header: Text(key)) {
               Text(value)
             }
           }
         }
-      }
-      if let myRecipe = recipe {
+      if let recipe {
         List {
-          Text(myRecipe.recipe_name)
-          Text(myRecipe.notes)
-          Text("cook time: \(myRecipe.cook_time)")
+          Text(recipe.recipe_name)
+          Text(recipe.notes)
+          Text("cook time: \(recipe.cook_time)")
         }
       }
     }
