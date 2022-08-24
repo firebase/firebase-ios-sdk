@@ -19,27 +19,31 @@ import FirebaseRemoteConfig
 
 @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
 internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
-  @Published var configValue: T?
+  @Published var configValue: T
   private let key: String
   private let remoteConfig: RemoteConfig
   private var registration: FIRConfigUpdateListenerRegistration?
 
-  init(key: String, remoteConfig: RemoteConfig) {
+  init(key: String, fallbackValue: T) {
     self.key = key
-    self.remoteConfig = remoteConfig
-    self.configValue = try? remoteConfig[key].decoded()
+    self.remoteConfig = RemoteConfig.remoteConfig()
+    self.configValue = fallbackValue
 
     // This will turn on real time update for all configs
-    let currentRegister = remoteConfig.add(onConfigUpdateListener: { error in
+    let currentRegister = self.remoteConfig.add(onConfigUpdateListener: { error in
       guard error == nil else {
         return
       }
-      remoteConfig.activate { changed, error in
+      self.remoteConfig.activate { changed, error in
         guard error == nil else {
           return
         }
         DispatchQueue.main.async {
-          self.configValue = try? remoteConfig[key].decoded()
+          do {
+            self.configValue = try self.remoteConfig[key].decoded()
+          } catch {
+            self.configValue = fallbackValue
+          }
         }
       }
     })
