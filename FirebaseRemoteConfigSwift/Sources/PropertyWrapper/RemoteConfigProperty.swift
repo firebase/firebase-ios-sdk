@@ -26,26 +26,22 @@ import SwiftUI
 
     /// Remote Config key name for this property
     public let key: String
-
-    /// Remote Config instance for this property
-    public let remoteConfig: RemoteConfig
-
-    public var wrappedValue: T? {
+    
+    public var wrappedValue: T {
       configValueObserver.configValue
     }
 
     /// Creates an instance by defining key.
-    /// This property depends on default remote config.
     ///
     /// - Parameter key: key name
-    public init(key: String) {
+    /// - Parameter placeholder: fall back place holder
+    public init(key: String, placeholder: T) {
       self.key = key
-      remoteConfig = RemoteConfig.remoteConfig()
 
       _configValueObserver = StateObject(
         wrappedValue: RemoteConfigValueObservable<T>(
           key: key,
-          remoteConfig: RemoteConfig.remoteConfig()
+          fallbackValue: placeholder
         )
       )
     }
