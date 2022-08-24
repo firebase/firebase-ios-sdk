@@ -19,7 +19,7 @@ import FirebaseRemoteConfig
 
 @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
 internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
-  @Published var configValue: T
+  @Published var configValue: T!
   private let key: String
   private let remoteConfig: RemoteConfig
   private var registration: FIRConfigUpdateListenerRegistration?
@@ -27,8 +27,8 @@ internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
   init(key: String, remoteConfig: RemoteConfig) {
     self.key = key
     self.remoteConfig = remoteConfig
-    self.configValue = try! remoteConfig.configValue(forKey: key).decoded(asType: T.self)
-        
+    self.configValue = try? remoteConfig[key].decoded()
+
     let currentRegister = remoteConfig.add(onConfigUpdateListener: { error in
       guard error == nil else {
         return
@@ -38,8 +38,7 @@ internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
           return
         }
         DispatchQueue.main.async {
-          self.configValue = try! remoteConfig.configValue(forKey: key).decoded(asType: T.self)
-
+          self.configValue = try? remoteConfig[key].decoded()
         }
       }
     })
