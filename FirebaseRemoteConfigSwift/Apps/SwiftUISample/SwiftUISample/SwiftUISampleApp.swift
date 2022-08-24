@@ -16,6 +16,8 @@
 
 import SwiftUI
 import FirebaseCore
+import FirebaseRemoteConfig
+import FirebaseRemoteConfigSwift
 
 @main
 struct SwiftUISampleApp: App {
@@ -27,5 +29,6 @@ struct SwiftUISampleApp: App {
 
   init() {
     FirebaseApp.configure()
+    try? RemoteConfig.remoteConfig().setDefaults(from: ["mobileweek":["section 0": "Breakfast"]])
   }
 }
