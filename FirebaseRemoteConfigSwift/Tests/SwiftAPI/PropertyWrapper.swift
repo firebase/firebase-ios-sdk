@@ -94,6 +94,20 @@ import XCTest
       var recipeKeyName: String {
         _recipeValue.key
       }
+
+      @RemoteConfigProperty(key: Constants.arrayKey)
+      var arrayValue: [String]!
+
+      var arrayKeyName: String {
+        _arrayValue.key
+      }
+
+      @RemoteConfigProperty(key: Constants.dictKey)
+      var dictValue: [String:String]!
+
+      var dictKeyName: String {
+        _dictValue.key
+      }
     }
 
     func testFetchAndActivateWithPropertyWrapper() async throws {
@@ -101,63 +115,79 @@ import XCTest
       XCTAssertEqual(status, .successFetchedFromRemote)
 
       let tester = await PropertyWrapperTester()
-      //Task {
+
       let stringValue = await tester.stringValue
       XCTAssertEqual(stringValue, Constants.stringValue)
+
       let intValue = await tester.intValue
       XCTAssertEqual(intValue, Constants.intValue)
+
       let floatValue = await tester.floatValue
       XCTAssertEqual(floatValue, Constants.floatValue)
+
       let doubleValue = await tester.doubleValue
-
       XCTAssertEqual(doubleValue, Constants.doubleValue)
+
       let decimalValue = await tester.decimalValue
-        XCTAssertEqual(decimalValue, Constants.decimalValue)
+      XCTAssertEqual(decimalValue, Constants.decimalValue)
+
       let trueValue = await tester.trueValue
+      XCTAssertEqual(trueValue, true)
 
-        XCTAssertEqual(trueValue, true)
       let falseValue = await tester.falseValue
+      XCTAssertEqual(falseValue, false)
 
-        XCTAssertEqual(falseValue, false)
       let dataValue = await tester.dataValue
+      XCTAssertEqual(dataValue, Constants.dataValue)
 
-        XCTAssertEqual(dataValue, Constants.dataValue)
-        let recipe = try XCTUnwrap(config[Constants.jsonKey].decoded(asType: Recipe.self))
-        let recipeValue = await tester.recipeValue
+      let recipe = try XCTUnwrap(config[Constants.jsonKey].decoded(asType: Recipe.self))
+      let recipeValue = await tester.recipeValue
       XCTAssertEqual(recipeValue?.recipeName, recipe.recipeName)
-        XCTAssertEqual(recipeValue?.ingredients, recipe.ingredients)
-        XCTAssertEqual(recipeValue?.cookTime, recipe.cookTime)
+      XCTAssertEqual(recipeValue?.ingredients, recipe.ingredients)
+      XCTAssertEqual(recipeValue?.cookTime, recipe.cookTime)
+
+      let arrayValue = await tester.arrayValue
+      XCTAssertEqual(arrayValue, Constants.arrayValue)
+
+      let dictValue = await tester.dictValue
+      XCTAssertEqual(dictValue, Constants.dictValue)
     }
 
     func testPropertyWrapperInstanceValues() async {
       let tester = await PropertyWrapperTester()
+
       let stringKeyName = await tester.stringKeyName
-
       XCTAssertEqual(Constants.stringKey, stringKeyName)
+
       let intKeyName = await tester.intKeyName
-
       XCTAssertEqual(Constants.intKey, intKeyName)
-      let floatKeyName = await tester.floatKeyName
 
+      let floatKeyName = await tester.floatKeyName
       XCTAssertEqual(Constants.floatKey, floatKeyName)
+
       let doubleKeyName = await tester.doubleKeyName
       XCTAssertEqual(Constants.floatKey, doubleKeyName)
-       let decimalKeyName = await tester.decimalKeyName
 
-   XCTAssertEqual(Constants.decimalKey, decimalKeyName)
-        let trueKeyName = await tester.trueKeyName
+      let decimalKeyName = await tester.decimalKeyName
+      XCTAssertEqual(Constants.decimalKey, decimalKeyName)
 
-  XCTAssertEqual(Constants.trueKey, trueKeyName)
-         let falseKeyName = await tester.falseKeyName
+      let trueKeyName = await tester.trueKeyName
+      XCTAssertEqual(Constants.trueKey, trueKeyName)
 
- XCTAssertEqual(Constants.falseKey, falseKeyName)
-          let dataKeyName = await tester.dataKeyName
+      let falseKeyName = await tester.falseKeyName
+      XCTAssertEqual(Constants.falseKey, falseKeyName)
 
-XCTAssertEqual(Constants.dataKey, dataKeyName)
-    let recipeKeyName = await tester.recipeKeyName
+      let dataKeyName = await tester.dataKeyName
+      XCTAssertEqual(Constants.dataKey, dataKeyName)
 
-
+      let recipeKeyName = await tester.recipeKeyName
       XCTAssertEqual(Constants.jsonKey, recipeKeyName)
+
+      let arrayKeyName = await tester.arrayKeyName
+      XCTAssertEqual(Constants.arrayKey, arrayKeyName)
+
+      let dictKeyName = await tester.dictKeyName
+      XCTAssertEqual(Constants.dictKey, dictKeyName)
     }
   }
 #endif
