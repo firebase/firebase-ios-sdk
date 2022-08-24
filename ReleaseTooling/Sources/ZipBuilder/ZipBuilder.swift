@@ -328,11 +328,9 @@ struct ZipBuilder {
     podsToInstall.append(CocoaPodUtils.VersionedPod(name: "Google-Mobile-Ads-SDK",
                                                     version: nil,
                                                     platforms: ["ios"]))
-
-    // TODO: Reenable when GoogleAppAuth updates to GTMSessionFetcher 2.x
-//    podsToInstall.append(CocoaPodUtils.VersionedPod(name: "GoogleSignIn",
-//                                                    version: nil,
-//                                                    platforms: ["ios"]))
+    podsToInstall.append(CocoaPodUtils.VersionedPod(name: "GoogleSignIn",
+                                                    version: nil,
+                                                    platforms: ["ios"]))
 
     print("Final expected versions for the Zip file: \(podsToInstall)")
     let (installedPods, frameworks, carthageCoreDiagnosticsXcframeworkFirebase) =

@@ -144,50 +144,49 @@ jobs:
         name: quickstart_artifacts_abtesting
         path: quickstart-ios/
 
-  # Restore when GoogleSignIn is back in the zip.
-  # quickstart_framework_auth:
-  #   # Don't run on private repo.
-  #   if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-  #   needs: package-head
-  #   env:
-  #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-  #     signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-  #     FRAMEWORK_DIR: "Firebase-actions-dir"
-  #     SDK:  "Authentication"
-  #   runs-on: macos-12
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: Get framework dir
-  #     uses: actions/download-artifact@v1
-  #     with:
-  #       name: Firebase-actions-dir
-  #   - uses: ruby/setup-ruby@v1
-  #   - name: Setup Bundler
-  #     run: ./scripts/setup_bundler.sh
-  #   - name: Move frameworks
-  #     run: |
-  #       mkdir -p "${HOME}"/ios_frameworks/
-  #       find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-  #   - name: Setup Swift Quickstart
-  #     run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="FBSDKLoginKit FBSDKCoreKit FBSDKCoreKit_Basics FBAEMKit" scripts/setup_quickstart_framework.sh \
-  #                                              "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
-  #                                              "${HOME}"/ios_frameworks/Firebase/FirebaseDynamicLinks/* \
-  #                                              "${HOME}"/ios_frameworks/Firebase/GoogleSignIn/* \
-  #                                              "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
-  #                                              "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
-  #   - name: Install Secret GoogleService-Info.plist
-  #     run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-auth.plist.gpg \
-  #       quickstart-ios/authentication/GoogleService-Info.plist "$plist_secret"
-  #   - name: Test Swift Quickstart
-  #     run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
-  #   - name: Remove data before upload
-  #     if: ${{ failure() }}
-  #     run: scripts/remove_data.sh authentiation
-  #   - uses: actions/upload-artifact@v2
-  #     if: ${{ failure() }}
-  #     with:
-  #       name: quickstart_artifacts_auth
-  #       path: quickstart-ios/
+  quickstart_framework_auth:
+    # Don't run on private repo.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    needs: package-head
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      FRAMEWORK_DIR: "Firebase-actions-dir"
+      SDK:  "Authentication"
+    runs-on: macos-12
+    steps:
+    - uses: actions/checkout@v2
+    - name: Get framework dir
+      uses: actions/download-artifact@v1
+      with:
+        name: Firebase-actions-dir
+    - uses: ruby/setup-ruby@v1
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
+    - name: Move frameworks
+      run: |
+        mkdir -p "${HOME}"/ios_frameworks/
+        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+    - name: Setup Swift Quickstart
+      run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="FBSDKLoginKit FBSDKCoreKit FBSDKCoreKit_Basics FBAEMKit" scripts/setup_quickstart_framework.sh \
+                                               "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
+                                               "${HOME}"/ios_frameworks/Firebase/FirebaseDynamicLinks/* \
+                                               "${HOME}"/ios_frameworks/Firebase/GoogleSignIn/* \
+                                               "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
+                                               "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-auth.plist.gpg \
+        quickstart-ios/authentication/GoogleService-Info.plist "$plist_secret"
+    - name: Test Swift Quickstart
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
+    - name: Remove data before upload
+      if: ${{ failure() }}
+      run: scripts/remove_data.sh authentiation
+    - uses: actions/upload-artifact@v2
+      if: ${{ failure() }}
+      with:
+        name: quickstart_artifacts_auth
+        path: quickstart-ios/
 
   quickstart_framework_config:
     # Don't run on private repo.
