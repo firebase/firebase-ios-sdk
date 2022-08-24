@@ -30,7 +30,7 @@ import SwiftUI
     /// Remote Config instance for this property
     public let remoteConfig: RemoteConfig
 
-    public var wrappedValue: T {
+    public var wrappedValue: T! {
       configValueObserver.configValue
     }
 

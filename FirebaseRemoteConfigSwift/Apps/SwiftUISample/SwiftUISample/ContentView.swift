@@ -17,12 +17,19 @@
 import SwiftUI
 import FirebaseRemoteConfigSwift
 
+struct Recipe : Decodable {
+  var recipe_name : String
+  var cook_time: Int
+  var notes : String
+}
+
 struct ContentView: View {
-  @RemoteConfigProperty(key: "Color") var configValue: String
-  @RemoteConfigProperty(key: "Toggle") var toggleValue: Bool
-  @RemoteConfigProperty(key: "fruits") var fruits: [String]
-  @RemoteConfigProperty(key: "counter") var counter: Int
-  @RemoteConfigProperty(key: "mobileweek") var sessions: [String: String]
+  @RemoteConfigProperty(key: "Color") var configValue : String!
+  @RemoteConfigProperty(key: "Toggle") var toggleValue : Bool!
+  @RemoteConfigProperty(key: "fruits") var fruits : [String]!
+  @RemoteConfigProperty(key: "counter") var counter : Int!
+  @RemoteConfigProperty(key: "mobileweek") var sessions : [String: String]!
+  @RemoteConfigProperty(key: "recipe") var recipe : Recipe!
 
   var body: some View {
     VStack {
@@ -37,18 +44,25 @@ struct ContentView: View {
           .padding()
           .foregroundStyle(toggleValue ? .primary : .secondary)
       }
-      if fruits.count > 0 {
-        List(fruits, id: \.self) { fruit in
+      if let myFruits = fruits {
+        List(myFruits, id: \.self) { fruit in
           Text(fruit)
         }
       }
-      if sessions.count > 0 {
+      if let mySessions = sessions {
         List {
-          ForEach(sessions.sorted(by: >), id: \.key) { key, value in
+          ForEach(mySessions.sorted(by: >), id: \.key) { key, value in
             Section(header: Text(key)) {
               Text(value)
             }
           }
+        }
+      }
+      if let myRecipe = recipe {
+        List {
+          Text(myRecipe.recipe_name)
+          Text(myRecipe.notes)
+          Text("cook time: \(myRecipe.cook_time)")
         }
       }
     }
