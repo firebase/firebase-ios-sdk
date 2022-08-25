@@ -114,6 +114,26 @@ body:
       required: false
   - type: textarea
     attributes:
+      label: If using Swift Package Manager, the project's Package.resolved
+      description: The `Package.resolved` can help us debug versioning issues.
+      value: |
+        <!--- Look below for instructions on how to share your Package.resolved. --->
+
+        <details>
+        <summary>Expand <code>Package.resolved</code> snippet</summary>
+        <br>
+
+        ```json
+
+        Replace this line with the contents of your Package.resolved.
+
+        ```
+
+        </details>
+    validations:
+      required: false
+  - type: textarea
+    attributes:
       label: If using CocoaPods, the project's Podfile.lock
       description: The `Podfile.lock` can help us debug versioning issues.
       value: |
@@ -124,11 +144,8 @@ body:
         <br>
 
         ```yml
-        <!--- Paste the contents of your Podfile.lock *inside* this code block.
-          This will be automatically formatted into code.
-        --->
 
-
+        Replace this line with the contents of your Podfile.lock!
 
         ```
 
