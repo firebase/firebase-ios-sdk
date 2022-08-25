@@ -551,6 +551,7 @@ enum CocoaPodUtils {
   private static func isSourcePodspec(_ podspecPath: String) -> Bool {
     do {
       let contents = try String(contentsOfFile: podspecPath, encoding: .utf8)
+      // The presence of ".vendored_frameworks" in a podspec indicates a binary pod.
       return contents.range(of: ".vendored_frameworks") == nil
     } catch {
       fatalError("Could not read \(podspecPath): \(error)")
