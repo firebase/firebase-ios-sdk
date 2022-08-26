@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+
 // Tests that use the Keychain require a host app and Swift Package Manager
 // does not support adding a host app to test targets.
 #if !SWIFT_PACKAGE
