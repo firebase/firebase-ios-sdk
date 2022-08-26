@@ -47,7 +47,7 @@ internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
         return
       }
       self.remoteConfig.activate { changed, error in
-        guard error == nil else {
+        guard error == nil && changed else {
           return
         }
         DispatchQueue.main.async {

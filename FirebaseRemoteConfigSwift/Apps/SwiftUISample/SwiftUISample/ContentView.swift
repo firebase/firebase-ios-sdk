@@ -24,7 +24,7 @@ struct Recipe : Decodable {
 }
 
 struct ContentView: View {
-  @RemoteConfigProperty(key: "Color", placeholder: "blue") var configValue : String
+  @RemoteConfigProperty(key: "Color", placeholder: "blue") var colorValue : String
   @RemoteConfigProperty(key: "Toggle", placeholder: false) var toggleValue : Bool
   @RemoteConfigProperty(key: "fruits", placeholder: []) var fruits : [String]
   @RemoteConfigProperty(key: "counter", placeholder: 1) var counter : Int
@@ -34,7 +34,7 @@ struct ContentView: View {
   var body: some View {
     VStack {
       ForEach(0 ... counter, id: \.self) { i in
-            Text(configValue)
+            Text(colorValue)
               .padding()
             .foregroundStyle(toggleValue ? .primary : .secondary)}
       
