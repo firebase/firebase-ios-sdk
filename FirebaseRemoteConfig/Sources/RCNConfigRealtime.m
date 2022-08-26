@@ -99,9 +99,9 @@ static NSInteger const gMaxRetries = 7;
   RCNConfigSettings *_settings;
   FIROptions *_options;
   NSString *_namespace;
-  NSInteger _maxRetryCount;
+  NSInteger _remainingRetryCount;
   NSInteger _retrySeconds;
-  bool _isRetrying;
+  bool _connectionInProgress;
   bool _isInBackground;
   bool _isRealtimeDisabled;
 }
@@ -121,11 +121,11 @@ static NSInteger const gMaxRetries = 7;
     _options = options;
     _namespace = namespace;
 
-    /// Set retry seconds to a random number between 1 and 6 seconds.
+    // Set retry seconds to a random number between 1 and 6 seconds.
     _retrySeconds = arc4random_uniform(5) + 1;
 
-    _maxRetryCount = gMaxRetries;
-    _isRetrying = false;
+    _remainingRetryCount = gMaxRetries;
+    _connectionInProgress = false;
     _isRealtimeDisabled = false;
     _isInBackground = false;
 
@@ -347,17 +347,12 @@ static NSInteger const gMaxRetries = 7;
   __weak RCNConfigRealtime *weakSelf = self;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
-    bool noRunningConnection =
-        strongSelf->_dataTask == nil || strongSelf->_dataTask.state != NSURLSessionTaskStateRunning;
-    bool canMakeConnection = noRunningConnection && [strongSelf->_listeners count] > 0 &&
-                             !strongSelf->_isInBackground && !strongSelf->_isRealtimeDisabled;
-    if (canMakeConnection && strongSelf->_maxRetryCount > 0 && !strongSelf->_isRetrying) {
-      if (strongSelf->_maxRetryCount < gMaxRetries) {
+    if (strongSelf->_remainingRetryCount > 0) {
+      if (strongSelf->_remainingRetryCount < gMaxRetries) {
         double RETRY_MULTIPLIER = arc4random_uniform(3) + 2;
         strongSelf->_retrySeconds *= RETRY_MULTIPLIER;
       }
-      strongSelf->_maxRetryCount--;
-      strongSelf->_isRetrying = true;
+      strongSelf->_remainingRetryCount--;
       dispatch_time_t executionDelay =
           dispatch_time(DISPATCH_TIME_NOW, (self->_retrySeconds * NSEC_PER_SEC));
       dispatch_after(executionDelay, strongSelf->_realtimeLockQueue, ^{
@@ -557,32 +552,37 @@ static NSInteger const gMaxRetries = 7;
   }
 }
 
-/// Delegate that checks the final response of the connection and retries if necessary
+/// Delegate to handle initial reply from the server
 - (void)URLSession:(NSURLSession *)session
               dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveResponse:(NSURLResponse *)response
      completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
+  _connectionInProgress = false;
   NSHTTPURLResponse *_httpURLResponse = (NSHTTPURLResponse *)response;
-  if ([_httpURLResponse statusCode] != 200 && !_isRetrying) {
+  if ([_httpURLResponse statusCode] != 200) {
     [self pauseRealtimeStream];
     [self retryHTTPConnection];
+  } else {
+    // on success reset retry parameters
+    _remainingRetryCount = gMaxRetries;
+    _retrySeconds = arc4random_uniform(5) + 1;
+
+    completionHandler(NSURLSessionResponseAllow);
   }
-  completionHandler(NSURLSessionResponseAllow);
 }
 
-/// Delegate that checks the final response of the connection and retries if allowed
+/// Delegate to handle data task completion
 - (void)URLSession:(NSURLSession *)session
                     task:(NSURLSessionTask *)task
     didCompleteWithError:(NSError *)error {
-  if (!_isRetrying) {
-    [self pauseRealtimeStream];
-    [self retryHTTPConnection];
-  }
+  _connectionInProgress = false;
+  [self pauseRealtimeStream];
+  [self retryHTTPConnection];
 }
 
-/// Delegate that checks the final response of the connection and retries if allowed
+/// Delegate to handle session invalidation
 - (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(NSError *)error {
-  if (!_isRetrying) {
+  if (!_connectionInProgress) {
     [self pauseRealtimeStream];
     [self retryHTTPConnection];
   }
@@ -599,14 +599,10 @@ static NSInteger const gMaxRetries = 7;
     bool canMakeConnection = noRunningConnection && [strongSelf->_listeners count] > 0 &&
                              !strongSelf->_isInBackground && !strongSelf->_isRealtimeDisabled;
     if (canMakeConnection) {
+      strongSelf->_connectionInProgress = true;
       [strongSelf setRequestBody];
       strongSelf->_dataTask = [strongSelf->_session dataTaskWithRequest:strongSelf->_request];
       [strongSelf->_dataTask resume];
-      strongSelf->_maxRetryCount = gMaxRetries;
-      strongSelf->_isRetrying = false;
-
-      /// Set retry seconds to a random number between 1 and 6 seconds.
-      strongSelf->_retrySeconds = arc4random_uniform(5) + 1;
     }
   });
 }
