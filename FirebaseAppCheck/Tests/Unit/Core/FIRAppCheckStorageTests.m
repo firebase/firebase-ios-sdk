@@ -14,6 +14,15 @@
  * limitations under the License.
  */
 
+// Tests that use the Keychain require a host app and Swift Package Manager
+// does not support adding a host app to test targets.
+#if !SWIFT_PACKAGE
+
+// Skip keychain tests on Catalyst and macOS. Tests are skipped because they
+// involve interactions with the keychain that require a provisioning profile.
+// See go/firebase-macos-keychain-popups for more details.
+#if !TARGET_OS_MACCATALYST && !TARGET_OS_OSX
+
 #import <XCTest/XCTest.h>
 
 #import <OCMock/OCMock.h>
@@ -49,8 +58,6 @@
   self.storage = nil;
   [super tearDown];
 }
-
-#if !TARGET_OS_MACCATALYST  // Catalyst should be possible with Xcode 12.5+
 
 - (void)testSetAndGetToken {
   FIRAppCheckToken *tokenToStore = [[FIRAppCheckToken alloc] initWithToken:@"token"
@@ -181,6 +188,9 @@
   XCTAssertNil(getPromise.value);
   XCTAssertNil(getPromise.error);
 }
-#endif  // !TARGET_OS_MACCATALYST
 
 @end
+
+#endif  // !TARGET_OS_MACCATALYST && !TARGET_OS_OSX
+
+#endif  // !SWIFT_PACKAGE

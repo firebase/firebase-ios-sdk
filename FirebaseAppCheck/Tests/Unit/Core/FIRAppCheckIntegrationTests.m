@@ -128,7 +128,15 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-#if !TARGET_OS_MACCATALYST  // Catalyst should be possible with Xcode 12.5+
+// Tests that use the Keychain require a host app and Swift Package Manager
+// does not support adding a host app to test targets.
+#if !SWIFT_PACKAGE
+
+// Skip keychain tests on Catalyst and macOS. Tests are skipped because they
+// involve interactions with the keychain that require a provisioning profile.
+// See go/firebase-macos-keychain-popups for more details.
+#if !TARGET_OS_MACCATALYST && !TARGET_OS_OSX
+
 - (void)testSetAppCheckProviderFactoryWithDefaultApp {
   NSString *appName = kFIRDefaultAppName;
 
@@ -172,7 +180,10 @@ NS_ASSUME_NONNULL_BEGIN
   OCMVerifyAll(self.mockProviderFactory);
   OCMVerifyAll(self.mockAppCheckProvider);
 }
-#endif  // !TARGET_OS_MACCATALYST
+
+#endif  // !TARGET_OS_MACCATALYST && !TARGET_OS_OSX
+
+#endif  // !SWIFT_PACKAGE
 
 #pragma mark - Helpers
 
