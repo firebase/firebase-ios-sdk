@@ -31,16 +31,11 @@ internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
     self.configValue = fallbackValue
     // Check cached remote config value
     do {
-      if let value : T = try self.remoteConfig[key].decoded() {
-        switch T.self {
-        case is String.Type:
-          let stringValue = value as! String
-          if (stringValue.isEmpty) {
-            self.configValue = fallbackValue
-          }
-        default:
-          self.configValue = value
-        }
+      let configValue : RemoteConfigValue = self.remoteConfig[key]
+      if configValue.source == .remote || configValue.source == .default {
+        self.configValue = try self.remoteConfig[key].decoded()
+      } else {
+        self.configValue = fallbackValue
       }
     } catch {
       self.configValue = fallbackValue
