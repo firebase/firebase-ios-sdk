@@ -16,7 +16,6 @@
 
 import FirebaseRemoteConfig
 import FirebaseRemoteConfigSwift
-
 import XCTest
 
 #if compiler(>=5.5.2) && canImport(_Concurrency)
@@ -28,11 +27,23 @@ import XCTest
       var ingredients: [String]
       var cookTime: Int
     }
+    static let placeholderString = "placeholder"
+    static let placeholderInt = 50
+    static let placeholderFloat: Float = 50.2
+    static let placeholderDouble: Double = 16777216.333921
+    static let placeholderDecimal: Decimal = 235
+    static let placeholderData = "hello".data(using: .utf8)!
+    static let placeholderArray = ["mango", "pineapple", "papaya"]
+    static let placeholderDict = [
+      "session 0": "breakfast", "session 1": "keynote", "session 2": "state of union",
+    ]
+    static let placeholderJSON = Recipe(
+      recipeName: "muffin", ingredients: ["flour", "sugar"], cookTime: 45)
 
     struct PropertyWrapperTester {
 
       @RemoteConfigProperty(key: Constants.stringKey, placeholder: "")
-      var stringValue : String!
+      var stringValue: String!
 
       var stringKeyName: String {
         return _stringValue.key
@@ -102,29 +113,55 @@ import XCTest
       }
 
       @RemoteConfigProperty(key: Constants.dictKey, placeholder: [:])
-      var dictValue: [String:String]!
+      var dictValue: [String: String]!
 
       var dictKeyName: String {
         _dictValue.key
       }
     }
 
-    struct DefaultsValuesTester {
-      @RemoteConfigProperty(key: Constants.stringKey, placeholder: "")
-      var stringValue : String
-
-      var stringKeyName: String {
-        _stringValue.key
-      }
-    }
-
     struct PlaceholderValueTester {
-      @RemoteConfigProperty(key: "NewKeyNotInSystem", placeholder: "placeholdervalue")
-      var stringValue : String
+      @RemoteConfigProperty(key: "NewKeyNotInSystem", placeholder: placeholderString)
+      var stringValue: String
 
-      var stringKeyName: String {
-        _stringValue.key
-      }
+      @RemoteConfigProperty(key: "NewIntKeyNotInSystem", placeholder: placeholderInt)
+      var intValue: Int!
+
+      @RemoteConfigProperty(key: "NewZeroKey", placeholder: 0)
+      var zeroIntValue: Int!
+
+      @RemoteConfigProperty(key: "newFloatKey", placeholder: placeholderFloat)
+      var floatValue: Float!
+
+      @RemoteConfigProperty(key: "newDoubleKey", placeholder: placeholderDouble)
+      var doubleValue: Double!
+
+      @RemoteConfigProperty(key: "newDecimalKey", placeholder: placeholderDecimal)
+      var decimalValue: Decimal!
+
+      @RemoteConfigProperty(key: "newTrueKey", placeholder: false)
+      var trueKeyFalseValue: Bool!
+
+      @RemoteConfigProperty(key: "newTrueKey2", placeholder: true)
+      var trueKeyTrueValue: Bool!
+
+      @RemoteConfigProperty(key: "newFalseKey", placeholder: true)
+      var falseKeyTrueValue: Bool!
+
+      @RemoteConfigProperty(key: "newFalseKey2", placeholder: false)
+      var falseKeyFalseValue: Bool!
+
+      @RemoteConfigProperty(key: "newDataKey", placeholder: placeholderData)
+      var dataValue: Data
+
+      @RemoteConfigProperty(key: "newJSONKey", placeholder: placeholderJSON)
+      var recipeValue: Recipe!
+
+      @RemoteConfigProperty(key: "newArrayKey", placeholder: placeholderArray)
+      var arrayValue: [String]!
+
+      @RemoteConfigProperty(key: "newDictKey", placeholder: placeholderDict)
+      var dictValue: [String: String]!
     }
 
     func testFetchAndActivateWithPropertyWrapper() async throws {
@@ -210,12 +247,51 @@ import XCTest
     func testPlaceHolderValues() async throws {
       // Make sure the values below are consistent with the property wrapper
       // in PlaceholderValueTester
-      let placeholderValue = "placeholdervalue"
-
       let tester = await PlaceholderValueTester()
-      let stringValue = await tester.stringValue
 
-      XCTAssertEqual(stringValue, placeholderValue)
+      let stringValue = await tester.stringValue
+      XCTAssertEqual(stringValue, PropertyWrapperTests.placeholderString)
+
+      let intValue = await tester.intValue
+      XCTAssertEqual(intValue, PropertyWrapperTests.placeholderInt)
+
+      let zeroValue = await tester.zeroIntValue
+      XCTAssertEqual(zeroValue, 0)
+
+      let floatValue = await tester.floatValue
+      XCTAssertEqual(floatValue, PropertyWrapperTests.placeholderFloat)
+
+      let doubleValue = await tester.doubleValue
+      XCTAssertEqual(doubleValue, PropertyWrapperTests.placeholderDouble)
+
+      let decimalValue = await tester.decimalValue
+      XCTAssertEqual(decimalValue, PropertyWrapperTests.placeholderDecimal)
+
+      let trueKeyFalseValue = await tester.trueKeyFalseValue
+      XCTAssertEqual(trueKeyFalseValue, false)
+
+      let trueKeyTrueValue = await tester.trueKeyTrueValue
+      XCTAssertEqual(trueKeyTrueValue, true)
+
+      let falseKeyTrueValue = await tester.falseKeyTrueValue
+      XCTAssertEqual(falseKeyTrueValue, true)
+
+      let falseKeyFalseValue = await tester.falseKeyFalseValue
+      XCTAssertEqual(falseKeyFalseValue, false)
+
+      let dataValue = await tester.dataValue
+      XCTAssertEqual(dataValue, PropertyWrapperTests.placeholderData)
+
+      let arrayValue = await tester.arrayValue
+      XCTAssertEqual(arrayValue, PropertyWrapperTests.placeholderArray)
+
+      let dictValue = await tester.dictValue
+      XCTAssertEqual(dictValue, PropertyWrapperTests.placeholderDict)
+
+      let recipeValue = await tester.recipeValue
+      XCTAssertEqual(recipeValue?.recipeName, "muffin")
+      XCTAssertEqual(recipeValue?.ingredients, ["flour", "sugar"])
+      XCTAssertEqual(recipeValue?.cookTime, 45)
     }
   }
 #endif
