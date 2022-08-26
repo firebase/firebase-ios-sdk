@@ -101,7 +101,7 @@ static NSInteger const gMaxRetries = 7;
   NSString *_namespace;
   NSInteger _remainingRetryCount;
   NSInteger _retrySeconds;
-  bool _connectionInProgress;
+  bool _isRequestInProgress;
   bool _isInBackground;
   bool _isRealtimeDisabled;
 }
@@ -125,7 +125,7 @@ static NSInteger const gMaxRetries = 7;
     _retrySeconds = arc4random_uniform(5) + 1;
 
     _remainingRetryCount = gMaxRetries;
-    _connectionInProgress = false;
+    _isRequestInProgress = false;
     _isRealtimeDisabled = false;
     _isInBackground = false;
 
@@ -557,7 +557,7 @@ static NSInteger const gMaxRetries = 7;
               dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveResponse:(NSURLResponse *)response
      completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
-  _connectionInProgress = false;
+  _isRequestInProgress = false;
   NSHTTPURLResponse *_httpURLResponse = (NSHTTPURLResponse *)response;
   if ([_httpURLResponse statusCode] != 200) {
     [self pauseRealtimeStream];
@@ -575,14 +575,14 @@ static NSInteger const gMaxRetries = 7;
 - (void)URLSession:(NSURLSession *)session
                     task:(NSURLSessionTask *)task
     didCompleteWithError:(NSError *)error {
-  _connectionInProgress = false;
+  _isRequestInProgress = false;
   [self pauseRealtimeStream];
   [self retryHTTPConnection];
 }
 
 /// Delegate to handle session invalidation
 - (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(NSError *)error {
-  if (!_connectionInProgress) {
+  if (!_isRequestInProgress) {
     [self pauseRealtimeStream];
     [self retryHTTPConnection];
   }
@@ -599,7 +599,7 @@ static NSInteger const gMaxRetries = 7;
     bool canMakeConnection = noRunningConnection && [strongSelf->_listeners count] > 0 &&
                              !strongSelf->_isInBackground && !strongSelf->_isRealtimeDisabled;
     if (canMakeConnection) {
-      strongSelf->_connectionInProgress = true;
+      strongSelf->_isRequestInProgress = true;
       [strongSelf setRequestBody];
       strongSelf->_dataTask = [strongSelf->_session dataTaskWithRequest:strongSelf->_request];
       [strongSelf->_dataTask resume];
