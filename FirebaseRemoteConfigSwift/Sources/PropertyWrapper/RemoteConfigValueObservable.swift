@@ -27,7 +27,24 @@ internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
   init(key: String, fallbackValue: T) {
     self.key = key
     self.remoteConfig = RemoteConfig.remoteConfig()
+    // Initialize with fallback value
     self.configValue = fallbackValue
+    // Check cached remote config value
+    do {
+      if let value : T = try self.remoteConfig[key].decoded() {
+        switch T.self {
+        case is String.Type:
+          let stringValue = value as! String
+          if (stringValue.isEmpty) {
+            self.configValue = fallbackValue
+          }
+        default:
+          self.configValue = value
+        }
+      }
+    } catch {
+      self.configValue = fallbackValue
+    }
 
     // This will turn on real time update for all configs
     let currentRegister = self.remoteConfig.add(onConfigUpdateListener: { error in
