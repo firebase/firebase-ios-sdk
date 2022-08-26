@@ -30,83 +30,100 @@ import XCTest
     }
 
     struct PropertyWrapperTester {
-      @RemoteConfigProperty(key: "Color") var configValue : String!
 
-      @RemoteConfigProperty(key: Constants.stringKey)
+      @RemoteConfigProperty(key: Constants.stringKey, placeholder: "")
       var stringValue : String!
 
       var stringKeyName: String {
         return _stringValue.key
       }
 
-      @RemoteConfigProperty(key: Constants.intKey)
+      @RemoteConfigProperty(key: Constants.intKey, placeholder: 0)
       var intValue: Int!
 
       var intKeyName: String {
         return _intValue.key
       }
 
-      @RemoteConfigProperty(key: Constants.floatKey)
+      @RemoteConfigProperty(key: Constants.floatKey, placeholder: 0)
       var floatValue: Float!
 
       var floatKeyName: String {
         return _floatValue.key
       }
 
-      @RemoteConfigProperty(key: Constants.floatKey)
+      @RemoteConfigProperty(key: Constants.floatKey, placeholder: 0)
       var doubleValue: Double!
 
       var doubleKeyName: String {
         return _doubleValue.key
       }
 
-      @RemoteConfigProperty(key: Constants.decimalKey)
+      @RemoteConfigProperty(key: Constants.decimalKey, placeholder: 0)
       var decimalValue: Decimal!
 
       var decimalKeyName: String {
         return _decimalValue.key
       }
 
-      @RemoteConfigProperty(key: Constants.trueKey)
+      @RemoteConfigProperty(key: Constants.trueKey, placeholder: false)
       var trueValue: Bool!
 
       var trueKeyName: String {
         return _trueValue.key
       }
 
-      @RemoteConfigProperty(key: Constants.falseKey)
+      @RemoteConfigProperty(key: Constants.falseKey, placeholder: false)
       var falseValue: Bool!
 
       var falseKeyName: String {
         return _falseValue.key
       }
 
-      @RemoteConfigProperty(key: Constants.dataKey)
+      @RemoteConfigProperty(key: Constants.dataKey, placeholder: Data())
       var dataValue: Data!
 
       var dataKeyName: String {
         return _dataValue.key
       }
 
-      @RemoteConfigProperty(key: Constants.jsonKey)
+      @RemoteConfigProperty(key: Constants.jsonKey, placeholder: nil)
       var recipeValue: Recipe!
 
       var recipeKeyName: String {
         _recipeValue.key
       }
 
-      @RemoteConfigProperty(key: Constants.arrayKey)
+      @RemoteConfigProperty(key: Constants.arrayKey, placeholder: [])
       var arrayValue: [String]!
 
       var arrayKeyName: String {
         _arrayValue.key
       }
 
-      @RemoteConfigProperty(key: Constants.dictKey)
+      @RemoteConfigProperty(key: Constants.dictKey, placeholder: [:])
       var dictValue: [String:String]!
 
       var dictKeyName: String {
         _dictValue.key
+      }
+    }
+
+    struct DefaultsValuesTester {
+      @RemoteConfigProperty(key: Constants.stringKey, placeholder: "")
+      var stringValue : String
+
+      var stringKeyName: String {
+        _stringValue.key
+      }
+    }
+
+    struct PlaceholderValueTester {
+      @RemoteConfigProperty(key: "NewKeyNotInSystem", placeholder: "placeholdervalue")
+      var stringValue : String
+
+      var stringKeyName: String {
+        _stringValue.key
       }
     }
 
@@ -188,6 +205,17 @@ import XCTest
 
       let dictKeyName = await tester.dictKeyName
       XCTAssertEqual(Constants.dictKey, dictKeyName)
+    }
+
+    func testPlaceHolderValues() async throws {
+      // Make sure the values below are consistent with the property wrapper
+      // in PlaceholderValueTester
+      let placeholderValue = "placeholdervalue"
+
+      let tester = await PlaceholderValueTester()
+      let stringValue = await tester.stringValue
+
+      XCTAssertEqual(stringValue, placeholderValue)
     }
   }
 #endif

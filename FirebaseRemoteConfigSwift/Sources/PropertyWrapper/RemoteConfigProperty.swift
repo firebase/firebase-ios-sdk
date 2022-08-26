@@ -34,7 +34,7 @@ import SwiftUI
     /// Creates an instance by defining key.
     ///
     /// - Parameter key: key name
-    /// - Parameter placeholder: fall back place holder
+    /// - Parameter placeholder: fall back placeholder
     public init(key: String, placeholder: T) {
       self.key = key
 
