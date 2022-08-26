@@ -20,7 +20,7 @@
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
-#import "FirebaseStorageInternal/Tests/Integration/Credentials.h"
+#import "FirebaseStorage/Tests/ObjCIntegration/Credentials.h"
 
 NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
 

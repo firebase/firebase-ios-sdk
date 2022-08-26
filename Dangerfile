@@ -117,7 +117,6 @@ has_license_changes = didModify(["LICENSE"])
 @has_remoteconfig_changes = hasChangesIn("FirebaseRemoteConfig")
 @has_remoteconfig_api_changes = hasChangesIn("FirebaseRemoteConfig/Sources/Public/")
 @has_storage_changes = hasChangesIn("FirebaseStorage")
-@has_storage_api_changes = hasChangesIn("FirebaseStorageInternal/Sources/Public/")
 
 @has_releasetooling_changes = hasChangesIn("ReleaseTooling/")
 

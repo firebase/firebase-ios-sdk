@@ -17,6 +17,30 @@ import FirebaseCore
 import FirebaseStorage
 import XCTest
 
+/**
+ * Firebase Storage Integration tests
+ *
+ * To run these tests, you need to define the following access rights:
+ *
+  rules_version = '2';
+  service firebase.storage {
+    match /b/{bucket}/o {
+      match /{directChild=*} {
+        allow read: if request.auth != null;
+      }
+      match /ios {
+        match /public/{allPaths=**} {
+          allow write: if request.auth != null;
+          allow read: if true;
+        }
+        match /private/{allPaths=**} {
+          allow read, write: if false;
+        }
+      }
+    }
+  }
+ */
+
 class StorageResultTests: StorageIntegrationCommon {
   func testGetMetadata() {
     let expectation = self.expectation(description: "testGetMetadata")
