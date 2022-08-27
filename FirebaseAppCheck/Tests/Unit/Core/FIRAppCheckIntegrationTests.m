@@ -34,6 +34,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#if FIR_DEVICE_CHECK_SUPPORTED_TARGETS
+
 @interface DummyAppCheckProvider : NSObject <FIRAppCheckProvider>
 @end
 
@@ -223,5 +225,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 @end
+
+#endif  // FIR_DEVICE_CHECK_SUPPORTED_TARGETS
 
 NS_ASSUME_NONNULL_END
