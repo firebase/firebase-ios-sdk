@@ -16,7 +16,7 @@
 // involve interactions with the keychain that require a provisioning profile.
 // This is because MLModelDownloader depends on Installations.
 // See go/firebase-macos-keychain-popups for more details.
-#if !os(macCatalyst) && !os(macOS)
+#if !targetEnvironment(macCatalyst) && !os(macOS)
 
   import XCTest
   @testable import FirebaseCore
@@ -1431,4 +1431,4 @@
     }
   }
 
-#endif // !os(macCatalyst) && !os(macOS)
+#endif // !targetEnvironment(macCatalyst) && !os(macOS)
