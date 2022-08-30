@@ -38,14 +38,19 @@ static NSString *const kContentTypeHeaderName = @"Content-Type";  ///< HTTP Head
 static NSString *const kContentEncodingHeaderName =
     @"Content-Encoding";                                               ///< HTTP Header Field Name
 static NSString *const kAcceptEncodingHeaderName = @"Accept";          ///< HTTP Header Field Name
-static NSString *const kETagHeaderName = @"etag";                      ///< HTTP Header Field Name
 static NSString *const kIfNoneMatchETagHeaderName = @"if-none-match";  ///< HTTP Header Field Name
 static NSString *const kInstallationsAuthTokenHeaderName = @"x-goog-firebase-installations-auth";
 // Sends the bundle ID. Refer to b/130301479 for details.
 static NSString *const kiOSBundleIdentifierHeaderName =
     @"X-Ios-Bundle-Identifier";  ///< HTTP Header Field Name
+
 static NSString *const kTemplateVersionNumberKey = @"latestTemplateVersionNumber";
 static NSString *const kIsFeatureDisabled = @"featureDisabled";
+
+static NSInteger const kRCNFetchResponseHTTPStatusTooManyRequests = 429;
+static NSInteger const kRCNFetchResponseHTTPStatusCodeInternalError = 500;
+static NSInteger const kRCNFetchResponseHTTPStatusCodeServiceUnavailable = 503;
+static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 
 /// Completion handler invoked by config update methods when they get a response from the server.
 ///
@@ -559,9 +564,24 @@ static NSInteger const gMaxRetries = 7;
      completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
   _isRequestInProgress = false;
   NSHTTPURLResponse *_httpURLResponse = (NSHTTPURLResponse *)response;
-  if ([_httpURLResponse statusCode] != 200) {
-    [self pauseRealtimeStream];
-    [self retryHTTPConnection];
+  NSInteger statusCode = [_httpURLResponse statusCode];
+  if (statusCode != 200) {
+    if (statusCode == kRCNFetchResponseHTTPStatusTooManyRequests ||
+        statusCode == kRCNFetchResponseHTTPStatusCodeInternalError ||
+        statusCode == kRCNFetchResponseHTTPStatusCodeServiceUnavailable ||
+        statusCode == kRCNFetchResponseHTTPStatusCodeGatewayTimeout) {
+      [self pauseRealtimeStream];
+      [self retryHTTPConnection];
+    } else {
+      NSError *error = [NSError
+          errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
+                     code:FIRRemoteConfigRealtimeErrorStream
+                 userInfo:@{
+                   NSLocalizedDescriptionKey : @"StreamError: The backend has issued a status code "
+                                               @"that does not allow for retry."
+                 }];
+      [self propogateErrors:error];
+    }
   } else {
     // on success reset retry parameters
     _remainingRetryCount = gMaxRetries;

@@ -105,10 +105,7 @@ static NSString *const kTemplateVersionNumberKey = @"templateVersion";
     _content = content;
     _fetchSession = [self newFetchSession];
     _options = options;
-    _templateVersionNumber = [self getTemplateVersionNumber:_content.fetchedConfig];
-    if ([self getTemplateVersionNumber:_content.activeConfig] > _templateVersionNumber) {
-        _templateVersionNumber = [self getTemplateVersionNumber:_content.activeConfig];
-    }
+    _templateVersionNumber = [self getTemplateVersionFromCache:_content.fetchedConfig];
   }
   return self;
 }
@@ -591,6 +588,20 @@ static NSString *const kTemplateVersionNumberKey = @"templateVersion";
   if (fetchedConfig != nil && [fetchedConfig objectForKey:kTemplateVersionNumberKey] &&
       [[fetchedConfig objectForKey:kTemplateVersionNumberKey] isKindOfClass:[NSString class]]) {
     return (NSString *)[fetchedConfig objectForKey:kTemplateVersionNumberKey];
+  }
+  if (fetchedConfig != nil && [fetchedConfig objectForKey:kTemplateVersionNumberKey]) {
+    return [[fetchedConfig objectForKey:kTemplateVersionNumberKey] stringValue];
+  }
+
+  return @"1";
+}
+
+- (NSString *)getTemplateVersionFromCache:(NSDictionary *)config {
+  for (NSString *key in config) {
+    NSString *templateVersion = [self getTemplateVersionNumber:config[key]];
+    if (![templateVersion isEqual:@"1"]) {
+      return templateVersion;
+    }
   }
 
   return @"1";
