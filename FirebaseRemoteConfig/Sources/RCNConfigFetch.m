@@ -106,6 +106,9 @@ static NSString *const kTemplateVersionNumberKey = @"templateVersion";
     _fetchSession = [self newFetchSession];
     _options = options;
     _templateVersionNumber = [self getTemplateVersionNumber:_content.fetchedConfig];
+    if ([self getTemplateVersionNumber:_content.activeConfig] > _templateVersionNumber) {
+        _templateVersionNumber = [self getTemplateVersionNumber:_content.activeConfig];
+    }
   }
   return self;
 }
