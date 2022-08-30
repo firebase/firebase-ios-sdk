@@ -114,7 +114,8 @@
 
 /// Updates the metadata table with the current fetch status.
 /// @param fetchSuccess True if fetch was successful.
-- (void)updateMetadataWithFetchSuccessStatus:(BOOL)fetchSuccess templateVersion:(NSString *)templateVersion;
+- (void)updateMetadataWithFetchSuccessStatus:(BOOL)fetchSuccess
+                             templateVersion:(NSString *)templateVersion;
 
 /// Increases the throttling time. Should only be called if the fetch error indicates a server
 /// issue.

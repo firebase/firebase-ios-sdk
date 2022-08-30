@@ -103,8 +103,6 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
     _fetchSession = [self newFetchSession];
     _options = options;
     _templateVersionNumber = [_settings templateVersion];
-      NSLog(@"qp");
-      NSLog(_templateVersionNumber);
   }
   return self;
 }
@@ -373,7 +371,7 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
 
       if (error || (statusCode != kRCNFetchResponseHTTPStatusCodeOK)) {
         // Update metadata about fetch failure.
-          [strongSelf->_settings updateMetadataWithFetchSuccessStatus:NO templateVersion:@"1"];
+        [strongSelf->_settings updateMetadataWithFetchSuccessStatus:NO templateVersion:@"1"];
         if (error) {
           if (strongSelf->_settings.lastFetchStatus == FIRRemoteConfigFetchStatusSuccess) {
             FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000025",
@@ -493,7 +491,9 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
                                        fetchedConfig[RCNFetchResponseKeyExperimentDescriptions]];
         }
 
-        strongSelf->_templateVersionNumber = [strongSelf getTemplateVersionNumber:fetchedConfig keyName:RCNFetchResponseKeyTemplateVersion];
+        strongSelf->_templateVersionNumber =
+            [strongSelf getTemplateVersionNumber:fetchedConfig
+                                         keyName:RCNFetchResponseKeyTemplateVersion];
       } else {
         FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000063",
                     @"Empty response with no fetched config.");
@@ -506,7 +506,9 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
         strongSelf->_settings.lastETag = latestETag;
       }
 
-      [strongSelf->_settings updateMetadataWithFetchSuccessStatus:YES templateVersion:[strongSelf getTemplateVersionNumber:fetchedConfig keyName:RCNFetchResponseKeyTemplateVersion]];
+      [strongSelf->_settings
+          updateMetadataWithFetchSuccessStatus:YES
+                               templateVersion:strongSelf->_templateVersionNumber];
       return [strongSelf reportCompletionOnHandler:completionHandler
                                         withStatus:FIRRemoteConfigFetchStatusSuccess
                                          withError:nil];
