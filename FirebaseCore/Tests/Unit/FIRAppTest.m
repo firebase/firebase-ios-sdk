@@ -12,6 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if __has_include(<UIKit/UIKit.h>)
+#import <UIKit/UIKit.h>
+#endif
+
+#if __has_include(<AppKit/AppKit.h>)
+#import <AppKit/AppKit.h>
+#endif
+
+#if __has_include(<WatchKit/WatchKit.h>)
+#import <WatchKit/WatchKit.h>
+#endif
+
 #import "FirebaseCore/Tests/Unit/FIRTestCase.h"
 #import "FirebaseCore/Tests/Unit/FIRTestComponents.h"
 
@@ -827,7 +839,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 #pragma mark - Core Telemetry
 
-#if !TARGET_OS_WATCH
 - (void)testCoreDiagnosticsLoggedWhenAppDidBecomeActive {
   FIRApp *app = [self createConfiguredAppWithName:NSStringFromSelector(_cmd)];
   [self expectCoreDiagnosticsDataLogWithOptions:app.options];
@@ -845,7 +856,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
                                          object:nil];
   OCMVerifyAll(self.mockHeartbeatLogger);
 }
-#endif  // TARGET_OS_WATCH
 
 #pragma mark - private
 
@@ -890,10 +900,15 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 - (NSNotificationName)appDidBecomeActiveNotificationName {
 #if TARGET_OS_IOS || TARGET_OS_TV
   return UIApplicationDidBecomeActiveNotification;
-#endif
-
-#if TARGET_OS_OSX
+#elif TARGET_OS_OSX
   return NSApplicationDidBecomeActiveNotification;
+#elif TARGET_OS_WATCH
+  // See comment in `- [FIRApp subscribeForAppDidBecomeActiveNotifications]`.
+  if (@available(watchOS 7.0, *)) {
+    return WKApplicationDidBecomeActiveNotification;
+  } else {
+    return kFIRAppReadyToConfigureSDKNotification;
+  }
 #endif
 }
 
