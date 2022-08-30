@@ -64,9 +64,6 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 // Deprecated error code previously from FirebaseCore
 static const NSInteger sFIRErrorCodeConfigFailed = -114;
 
-// Key to retrive fetch config template version number
-static NSString *const kTemplateVersionNumberKey = @"templateVersion";
-
 #pragma mark - RCNConfig
 
 @implementation RCNConfigFetch {
@@ -105,7 +102,9 @@ static NSString *const kTemplateVersionNumberKey = @"templateVersion";
     _content = content;
     _fetchSession = [self newFetchSession];
     _options = options;
-    _templateVersionNumber = [self getTemplateVersionFromCache:_content.fetchedConfig];
+    _templateVersionNumber = [_settings templateVersion];
+      NSLog(@"qp");
+      NSLog(_templateVersionNumber);
   }
   return self;
 }
@@ -374,7 +373,7 @@ static NSString *const kTemplateVersionNumberKey = @"templateVersion";
 
       if (error || (statusCode != kRCNFetchResponseHTTPStatusCodeOK)) {
         // Update metadata about fetch failure.
-        [strongSelf->_settings updateMetadataWithFetchSuccessStatus:NO];
+          [strongSelf->_settings updateMetadataWithFetchSuccessStatus:NO templateVersion:@"1"];
         if (error) {
           if (strongSelf->_settings.lastFetchStatus == FIRRemoteConfigFetchStatusSuccess) {
             FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000025",
@@ -494,7 +493,7 @@ static NSString *const kTemplateVersionNumberKey = @"templateVersion";
                                        fetchedConfig[RCNFetchResponseKeyExperimentDescriptions]];
         }
 
-        strongSelf->_templateVersionNumber = [strongSelf getTemplateVersionNumber:fetchedConfig];
+        strongSelf->_templateVersionNumber = [strongSelf getTemplateVersionNumber:fetchedConfig keyName:RCNFetchResponseKeyTemplateVersion];
       } else {
         FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000063",
                     @"Empty response with no fetched config.");
@@ -507,7 +506,7 @@ static NSString *const kTemplateVersionNumberKey = @"templateVersion";
         strongSelf->_settings.lastETag = latestETag;
       }
 
-      [strongSelf->_settings updateMetadataWithFetchSuccessStatus:YES];
+      [strongSelf->_settings updateMetadataWithFetchSuccessStatus:YES templateVersion:[strongSelf getTemplateVersionNumber:fetchedConfig keyName:RCNFetchResponseKeyTemplateVersion]];
       return [strongSelf reportCompletionOnHandler:completionHandler
                                         withStatus:FIRRemoteConfigFetchStatusSuccess
                                          withError:nil];
@@ -584,24 +583,10 @@ static NSString *const kTemplateVersionNumberKey = @"templateVersion";
   return [_fetchSession dataTaskWithRequest:URLRequest completionHandler:fetcherCompletion];
 }
 
-- (NSString *)getTemplateVersionNumber:(NSDictionary *)fetchedConfig {
-  if (fetchedConfig != nil && [fetchedConfig objectForKey:kTemplateVersionNumberKey] &&
-      [[fetchedConfig objectForKey:kTemplateVersionNumberKey] isKindOfClass:[NSString class]]) {
-    return (NSString *)[fetchedConfig objectForKey:kTemplateVersionNumberKey];
-  }
-  if (fetchedConfig != nil && [fetchedConfig objectForKey:kTemplateVersionNumberKey]) {
-    return [[fetchedConfig objectForKey:kTemplateVersionNumberKey] stringValue];
-  }
-
-  return @"1";
-}
-
-- (NSString *)getTemplateVersionFromCache:(NSDictionary *)config {
-  for (NSString *key in config) {
-    NSString *templateVersion = [self getTemplateVersionNumber:config[key]];
-    if (![templateVersion isEqual:@"1"]) {
-      return templateVersion;
-    }
+- (NSString *)getTemplateVersionNumber:(NSDictionary *)fetchedConfig keyName:(NSString *)keyName {
+  if (fetchedConfig != nil && [fetchedConfig objectForKey:keyName] &&
+      [[fetchedConfig objectForKey:keyName] isKindOfClass:[NSString class]]) {
+    return (NSString *)[fetchedConfig objectForKey:keyName];
   }
 
   return @"1";

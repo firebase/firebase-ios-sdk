@@ -78,6 +78,8 @@
 @property(nonatomic, readwrite, assign) NSString *lastETag;
 /// The timestamp of the last eTag update.
 @property(nonatomic, readwrite, assign) NSTimeInterval lastETagUpdateTime;
+// Last template version.
+@property(nonatomic, readwrite, assign) NSString *templateVersion;
 
 #pragma mark Throttling properties
 
@@ -112,7 +114,7 @@
 
 /// Updates the metadata table with the current fetch status.
 /// @param fetchSuccess True if fetch was successful.
-- (void)updateMetadataWithFetchSuccessStatus:(BOOL)fetchSuccess;
+- (void)updateMetadataWithFetchSuccessStatus:(BOOL)fetchSuccess templateVersion:(NSString *)templateVersion;
 
 /// Increases the throttling time. Should only be called if the fetch error indicates a server
 /// issue.

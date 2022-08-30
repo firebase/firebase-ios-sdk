@@ -269,7 +269,7 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
     for (NSString *key in response[RCNFetchResponseKeyEntries]) {
       [dict setValue:response[RCNFetchResponseKeyEntries][key] forKey:key];
     }
-    [dict setValue:response[@"templateVersion"] forKey:@"templateVersion"];
+    [dict setValue:response[@"templateVersion"] forKey:@"#templateVersion"];
 
     [self handleUpdateStateForConfigNamespace:currentNamespace withEntries:dict];
     [self handleUpdatePersonalization:response[RCNFetchResponseKeyPersonalizationMetadata]];

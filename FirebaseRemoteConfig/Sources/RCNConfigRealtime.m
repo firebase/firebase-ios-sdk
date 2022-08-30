@@ -309,7 +309,7 @@ static NSInteger const gMaxRetries = 7;
   NSString *postBody = [NSString
       stringWithFormat:@"{project:'%@', namespace:'%@', lastKnownVersionNumber:'%@', appId:'%@', "
                        @"sdkVersion:'%@'}",
-                       [self->_options GCMSenderID], namespace, _configFetch.templateVersionNumber,
+                       [self->_options GCMSenderID], namespace, [_settings templateVersion],
                        _options.googleAppID, FIRRemoteConfigPodVersion()];
   NSData *postData = [postBody dataUsingEncoding:NSUTF8StringEncoding];
   NSError *compressionError;

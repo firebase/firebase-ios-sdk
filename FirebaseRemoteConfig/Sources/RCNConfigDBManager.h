@@ -37,6 +37,7 @@ static NSString *const RCNKeyLastFetchStatus = @"last_fetch_status";
 static NSString *const RCNKeyLastFetchError = @"last_fetch_error";
 static NSString *const RCNKeyLastApplyTime = @"last_apply_time";
 static NSString *const RCNKeyLastSetDefaultsTime = @"last_set_defaults_time";
+static NSString *const RCNKeyTemplateVersion = @"last_template_version";
 
 /// Persist config data in sqlite database on device. Managing data read/write from/to database.
 @interface RCNConfigDBManager : NSObject

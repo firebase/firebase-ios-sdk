@@ -58,3 +58,5 @@ static NSString *const RCNFetchResponseKeyStateNoTemplate = @"NO_TEMPLATE";
 static NSString *const RCNFetchResponseKeyStateNoChange = @"NO_CHANGE";
 /// Template found, but evaluates to empty (e.g. all keys omitted).
 static NSString *const RCNFetchResponseKeyStateEmptyConfig = @"EMPTY_CONFIG";
+/// Template Version key
+static NSString *const RCNFetchResponseKeyTemplateVersion = @"templateVersion";
