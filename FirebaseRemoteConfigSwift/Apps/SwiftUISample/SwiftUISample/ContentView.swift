@@ -16,6 +16,7 @@
 
 import SwiftUI
 import FirebaseRemoteConfigSwift
+import FirebaseRemoteConfig
 
 struct Recipe : Decodable {
   var recipe_name : String
@@ -25,19 +26,42 @@ struct Recipe : Decodable {
 
 struct ContentView: View {
   @RemoteConfigProperty(key: "Color", placeholder: "blue") var colorValue : String
+  @RemoteConfigProperty(key: "Food", placeholder: nil) var foodValue : String?
   @RemoteConfigProperty(key: "Toggle", placeholder: false) var toggleValue : Bool
   @RemoteConfigProperty(key: "fruits", placeholder: []) var fruits : [String]
   @RemoteConfigProperty(key: "counter", placeholder: 1) var counter : Int
   @RemoteConfigProperty(key: "mobileweek", placeholder: ["section 0": "Breakfast"]) var sessions : [String: String]
   @RemoteConfigProperty(key: "recipe", placeholder: Recipe(recipe_name: "banana bread", cook_time: 40, notes: "yum!")) var recipe : Recipe
+  
+  @State private var realtimeSwitch = false
+  @State private var currentRegister : FIRConfigUpdateListenerRegistration? = nil
+  var realtimeToggle: Bool
 
   var body: some View {
     VStack {
-      ForEach(0 ... counter, id: \.self) { i in
-            Text(colorValue)
-              .padding()
-            .foregroundStyle(toggleValue ? .primary : .secondary)}
-      
+      Button(action: fetchAndActivate) {
+          Text("fetchAndActivate")
+      }
+      Toggle("Real Time Switch", isOn: $realtimeSwitch)
+      .toggleStyle(.switch)
+      .onChange(of: realtimeSwitch) { value in
+        if (value) {
+          self.currentRegister = RemoteConfig.remoteConfig().add(onConfigUpdateListener: { error in
+            guard error == nil else {
+              return
+            }
+            RemoteConfig.remoteConfig().activate { changed, error in
+              guard error == nil && changed else {
+                return
+              }
+            }
+          })
+        }
+        else {
+          self.currentRegister?.remove()
+        }
+      }
+
       List(fruits, id: \.self) { fruit in
         Text(fruit)
       }
@@ -53,12 +77,25 @@ struct ContentView: View {
         Text(recipe.notes)
         Text("cook time: \(recipe.cook_time)")
       }
+      ForEach(0 ... counter, id: \.self) { i in
+        Text(colorValue)
+            .padding()
+          .foregroundStyle(toggleValue ? .primary : .secondary)
+        if ((foodValue) != nil) {
+          Text(foodValue!)
+            .padding()
+          .foregroundStyle(toggleValue ? .primary : .secondary)
+        }
+      }
     }
+  }
+  func fetchAndActivate() {
+    RemoteConfig.remoteConfig().fetchAndActivate()
   }
 }
 
 struct ContentView_Previews: PreviewProvider {
   static var previews: some View {
-    ContentView()
+    ContentView(realtimeToggle: false)
   }
 }

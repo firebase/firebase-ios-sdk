@@ -43,6 +43,8 @@ NSString *const FIRRemoteConfigThrottledEndTimeInSecondsKey = @"error_throttled_
 static NSString *const kRemoteConfigMinimumFetchIntervalKey = @"_rcn_minimum_fetch_interval";
 /// Timeout value for waiting on a fetch response.
 static NSString *const kRemoteConfigFetchTimeoutKey = @"_rcn_fetch_timeout";
+/// Notification when config is successfully activated
+const NSNotificationName FIRRemoteConfigChangeNotification = @"FIRRemoteConfigChangeNotification";
 
 /// Listener for the get methods.
 typedef void (^FIRRemoteConfigListener)(NSString *_Nonnull, NSDictionary *_Nonnull);
@@ -287,7 +289,7 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
   [self fetchWithCompletionHandler:fetchCompletion];
 }
 
-#pragma mark - apply
+#pragma mark - activate
 
 typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_Nullable error);
 
@@ -333,6 +335,7 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
     if ([namespace isEqualToString:FIRNamespaceGoogleMobilePlatform]) {
       [strongSelf->_configExperiment updateExperimentsWithHandler:^(NSError *_Nullable error) {
         if (completion) {
+          [self notifyConfigHasChanged];
           dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             completion(YES, nil);
           });
@@ -340,6 +343,7 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
       }];
     } else {
       if (completion) {
+        [self notifyConfigHasChanged];
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
           completion(YES, nil);
         });
@@ -347,6 +351,13 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
     }
   };
   dispatch_async(_queue, applyBlock);
+}
+
+- (void)notifyConfigHasChanged {
+  // Currently the Remote config Swift SDK is listening this notification to update SwiftUI
+  [[NSNotificationCenter defaultCenter] postNotificationName:FIRRemoteConfigChangeNotification
+                                                      object:self
+                                                    userInfo:nil];
 }
 
 #pragma mark - helpers
