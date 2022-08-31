@@ -17,16 +17,23 @@
 import SwiftUI
 import FirebaseRemoteConfig
 
+extension Notification.Name {
+
+    static let onRemoteConfigChanged = Notification.Name("FIRRemoteConfigChangeNotification")
+}
+
 @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
 internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
   @Published var configValue: T
   private let key: String
   private let remoteConfig: RemoteConfig
+  private let fallbackValue : T
   private var registration: FIRConfigUpdateListenerRegistration?
 
   init(key: String, fallbackValue: T) {
     self.key = key
     self.remoteConfig = RemoteConfig.remoteConfig()
+    self.fallbackValue = fallbackValue
     // Initialize with fallback value
     self.configValue = fallbackValue
     // Check cached remote config value
@@ -40,26 +47,17 @@ internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
     } catch {
       self.configValue = fallbackValue
     }
-
-    // This will turn on real time update for all configs
-    let currentRegister = self.remoteConfig.add(onConfigUpdateListener: { error in
-      guard error == nil else {
-        return
+    NotificationCenter.default.addObserver(self, selector: #selector(configDidActivated), name: .onRemoteConfigChanged, object: nil)
+  }
+  
+  @objc func configDidActivated() {
+    do {
+      let configValue : RemoteConfigValue = self.remoteConfig[self.key]
+      if configValue.source == .remote {
+        self.configValue = try self.remoteConfig[self.key].decoded()
       }
-      self.remoteConfig.activate { changed, error in
-        guard error == nil && changed else {
-          return
-        }
-        DispatchQueue.main.async {
-          do {
-            self.configValue = try self.remoteConfig[key].decoded()
-          } catch {
-            self.configValue = fallbackValue
-          }
-        }
-      }
-    })
-    self.registration = currentRegister
+    } catch {
+    }
   }
 
   deinit {

@@ -19,16 +19,41 @@ import FirebaseCore
 import FirebaseRemoteConfig
 import FirebaseRemoteConfigSwift
 
+class AppDelegate: NSObject, UIApplicationDelegate {
+  func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+    FirebaseApp.configure()
+    
+    let config = RemoteConfig.remoteConfig()
+    let settings = RemoteConfigSettings()
+    settings.minimumFetchInterval = 0
+    config.configSettings = settings
+    try? config.setDefaults(from: ["mobileweek":["section 0": "Breakfast"]])
+    //      return true
+    //
+    //    }
+    
+    _ = RemoteConfig.remoteConfig().add(onConfigUpdateListener: { error in
+      guard error == nil else {
+        return
+      }
+      RemoteConfig.remoteConfig().activate { changed, error in
+        guard error == nil && changed else {
+          return
+        }
+      }
+    })
+    return true
+  }
+}
+
 @main
 struct SwiftUISampleApp: App {
+  @UIApplicationDelegateAdaptor private var appDelegate: AppDelegate
+
   var body: some Scene {
     WindowGroup {
-      ContentView()
+      ContentView(realtimeToggle: false)
     }
   }
-
-  init() {
-    FirebaseApp.configure()
-    try? RemoteConfig.remoteConfig().setDefaults(from: ["mobileweek":["section 0": "Breakfast"]])
-  }
+    
 }
