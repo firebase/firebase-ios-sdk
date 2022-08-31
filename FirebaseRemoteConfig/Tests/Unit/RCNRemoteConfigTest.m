@@ -24,6 +24,7 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
+#import "FirebaseRemoteConfig/Sources/RCNConfigRealtime.h"
 #import "FirebaseRemoteConfig/Sources/RCNUserDefaultsManager.h"
 
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
@@ -45,11 +46,32 @@
 - (NSURLSessionDataTask *)URLSessionDataTaskWithContent:(NSData *)content
                                       completionHandler:
                                           (RCNConfigFetcherCompletion)fetcherCompletion;
-
+- (void)fetchConfigWithExpirationDuration:(NSTimeInterval)expirationDuration
+                        completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
 - (void)fetchWithUserProperties:(NSDictionary *)userProperties
               completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
 - (NSString *)constructServerURL;
 - (NSURLSession *)currentNetworkSession;
+@end
+
+@interface RCNConfigRealtime (ForTest)
+
+- (instancetype _Nonnull)init:(RCNConfigFetch *_Nonnull)configFetch
+                     settings:(RCNConfigSettings *_Nonnull)settings
+                    namespace:(NSString *_Nonnull)namespace
+                      options:(FIROptions *_Nonnull)options;
+
+- (void)fetchLatestConfig:(NSInteger)remainingAttempts targetVersion:(NSInteger)targetVersion;
+- (void)scheduleFetch:(NSInteger)remainingAttempts targetVersion:(NSInteger)targetVersion;
+- (void)autoFetch:(NSInteger)remainingAttempts targetVersion:(NSInteger)targetVersion;
+- (void)beginRealtimeStream;
+- (void)pauseRealtimeStream;
+
+- (FIRConfigUpdateListenerRegistration *_Nonnull)addConfigUpdateListener:
+    (void (^_Nonnull)(NSError *_Nullable error))listener;
+- (void)removeConfigUpdateListener:(void (^_Nonnull)(NSError *_Nullable error))listener;
+- (void)evaluateStreamResponse:(NSDictionary *)response error:(NSError *)dataError;
+
 @end
 
 @interface FIRRemoteConfig (ForTest)
@@ -57,6 +79,8 @@
                                configContent:(RCNConfigContent *)configContent
                               configSettings:(RCNConfigSettings *)configSettings
                             configExperiment:(RCNConfigExperiment *)configExperiment;
+
+- (void)updateWithNewInstancesForConfigRealtime:(RCNConfigRealtime *)configRealtime;
 @end
 
 @implementation FIRRemoteConfig (ForTest)
@@ -68,6 +92,10 @@
   [self setValue:configContent forKey:@"_configContent"];
   [self setValue:configSettings forKey:@"_settings"];
   [self setValue:configExperiment forKey:@"_configExperiment"];
+}
+
+- (void)updateWithNewInstancesForConfigRealtime:(RCNConfigRealtime *)configRealtime {
+  [self setValue:configRealtime forKey:@"_configRealtime"];
 }
 @end
 
@@ -99,6 +127,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   NSMutableArray<NSData *> *_responseData;
   NSMutableArray<NSURLResponse *> *_URLResponse;
   NSMutableArray<id> *_configFetch;
+  NSMutableArray<id> *_configRealtime;
   RCNConfigDBManager *_DBManager;
   NSUserDefaults *_userDefaults;
   NSString *_userDefaultsSuiteName;
@@ -143,6 +172,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   _responseData = [[NSMutableArray alloc] initWithCapacity:3];
   _URLResponse = [[NSMutableArray alloc] initWithCapacity:3];
   _configFetch = [[NSMutableArray alloc] initWithCapacity:3];
+  _configRealtime = [[NSMutableArray alloc] initWithCapacity:3];
 
   // Populate the default, second app, second namespace instances.
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
@@ -203,6 +233,10 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                          queue:_queue
                                                      namespace:_fullyQualifiedNamespace
                                                        options:currentOptions]);
+    _configRealtime[i] = OCMPartialMock([[RCNConfigRealtime alloc] init:_configFetch[i]
+                                                               settings:_settings
+                                                              namespace:_fullyQualifiedNamespace
+                                                                options:currentOptions]);
 
     OCMStubRecorder *mock = OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:0
                                                                      completionHandler:OCMOCK_ANY]);
@@ -235,6 +269,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                 configContent:configContent
                                                configSettings:_settings
                                              configExperiment:_experimentMock];
+    [_configInstances[i] updateWithNewInstancesForConfigRealtime:_configRealtime[i]];
   }
 }
 
@@ -251,6 +286,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   }
   [_configInstances removeAllObjects];
   [_configFetch removeAllObjects];
+  [_configRealtime removeAllObjects];
   _configInstances = nil;
   _configFetch = nil;
   [super tearDown];
@@ -581,6 +617,11 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                      namespace:_fullyQualifiedNamespace
                                                        options:currentOptions]);
 
+    _configRealtime[i] = OCMPartialMock([[RCNConfigRealtime alloc] init:_configFetch[i]
+                                                               settings:_settings
+                                                              namespace:_fullyQualifiedNamespace
+                                                                options:currentOptions]);
+
     OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:43200 completionHandler:OCMOCK_ANY])
         .andDo(^(NSInvocation *invocation) {
           __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
@@ -695,6 +736,11 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                                        queue:queue
                                                                    namespace:fullyQualifiedNamespace
                                                                      options:currentOptions]);
+
+    _configRealtime[i] = OCMPartialMock([[RCNConfigRealtime alloc] init:_configFetch[i]
+                                                               settings:settings
+                                                              namespace:fullyQualifiedNamespace
+                                                                options:currentOptions]);
 
     OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:43200 completionHandler:OCMOCK_ANY])
         .andDo(^(NSInvocation *invocation) {
@@ -895,6 +941,10 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                                        queue:queue
                                                                    namespace:fullyQualifiedNamespace
                                                                      options:currentOptions]);
+    _configRealtime[i] = OCMPartialMock([[RCNConfigRealtime alloc] init:_configFetch[i]
+                                                               settings:settings
+                                                              namespace:fullyQualifiedNamespace
+                                                                options:currentOptions]);
 
     OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:43200 completionHandler:OCMOCK_ANY])
         .andDo(^(NSInvocation *invocation) {
@@ -1481,6 +1531,192 @@ static NSString *UTCToLocal(NSString *utcTime) {
 
   // Ensure the app name is stored properly.
   XCTAssertEqual([config valueForKey:@"_appName"], kFIRDefaultAppName);
+}
+
+#pragma mark - Realtime tests
+
+- (void)testRealtimeAddConfigUpdateListenerWithValidListener {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] = [self
+        expectationWithDescription:
+            [NSString
+                stringWithFormat:@"Test Realtime add listener successfully - instance %d", i]];
+
+    OCMStub([_configRealtime[i] beginRealtimeStream]).andDo(nil);
+    id completion = ^void(NSError *_Nullable error) {
+      if (error != nil) {
+        NSLog(@"Callback");
+      }
+    };
+
+    [_configRealtime[i] addConfigUpdateListener:completion];
+
+    dispatch_after(
+        dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
+        dispatch_get_main_queue(), ^{
+          OCMVerify([self->_configRealtime[i] beginRealtimeStream]);
+          OCMVerify([self->_configRealtime[i] addConfigUpdateListener:completion]);
+          [expectations[i] fulfill];
+        });
+
+    [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+  }
+}
+
+- (void)testRealtimeAddConfigUpdateListenerWithInvalidListener {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] = [self
+        expectationWithDescription:
+            [NSString
+                stringWithFormat:@"Test Realtime add listener unsuccessfully - instance %d", i]];
+
+    id completion = nil;
+    [_configRealtime[i] addConfigUpdateListener:completion];
+    dispatch_after(
+        dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
+        dispatch_get_main_queue(), ^{
+          OCMVerify(never(), [self->_configRealtime[i] beginRealtimeStream]);
+          [expectations[i] fulfill];
+        });
+
+    [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+  }
+}
+
+- (void)testRemoveRealtimeListener {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] = [self
+        expectationWithDescription:
+            [NSString
+                stringWithFormat:@"Test Realtime remove listeners successfully - instance %d", i]];
+
+    id completion = ^void(NSError *_Nullable error) {
+      if (error != nil) {
+        NSLog(@"Callback");
+      }
+    };
+    OCMStub([_configRealtime[i] beginRealtimeStream]).andDo(nil);
+
+    FIRConfigUpdateListenerRegistration *registration =
+        [_configRealtime[i] addConfigUpdateListener:completion];
+    [registration remove];
+
+    dispatch_after(
+        dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
+        dispatch_get_main_queue(), ^{
+          OCMVerify([self->_configRealtime[i] addConfigUpdateListener:completion]);
+          OCMVerify([self->_configRealtime[i] removeConfigUpdateListener:completion]);
+          OCMVerify([self->_configRealtime[i] pauseRealtimeStream]);
+          [expectations[i] fulfill];
+        });
+
+    [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+  }
+}
+
+- (void)testAutofetch {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] = [self
+        expectationWithDescription:
+            [NSString stringWithFormat:@"Test Realtime Autofetch successfully - instance %d", i]];
+
+    OCMStub([_configRealtime[i] scheduleFetch:1 targetVersion:1]).andDo(nil);
+
+    [_configRealtime[i] autoFetch:1 targetVersion:1];
+
+    dispatch_after(
+        dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
+        dispatch_get_main_queue(), ^{
+          OCMVerify([self->_configRealtime[i] scheduleFetch:1 targetVersion:1]);
+          [expectations[i] fulfill];
+        });
+
+    [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+  }
+}
+
+- (void)testAddOnConfigUpdateMethodSuccess {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] = [self
+        expectationWithDescription:
+            [NSString
+                stringWithFormat:@"Test public realtime method successfully - instance %d", i]];
+
+    OCMStub([_configRealtime[i] beginRealtimeStream]).andDo(nil);
+
+    id completion = ^void(NSError *_Nullable error) {
+      if (error != nil) {
+        NSLog(@"Callback");
+      }
+    };
+    [_configInstances[i] addOnConfigUpdateListener:completion];
+    dispatch_after(
+        dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
+        dispatch_get_main_queue(), ^{
+          OCMVerify([self->_configRealtime[i] addConfigUpdateListener:completion]);
+          [expectations[i] fulfill];
+        });
+
+    [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+  }
+}
+
+- (void)testAddOnConfigUpdateMethodFail {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] = [self
+        expectationWithDescription:
+            [NSString stringWithFormat:@"Test public realtime method and fails - instance %d", i]];
+
+    id completion = nil;
+    [_configInstances[i] addOnConfigUpdateListener:completion];
+    dispatch_after(
+        dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
+        dispatch_get_main_queue(), ^{
+          OCMVerify(never(), [self->_configRealtime[i] beginRealtimeStream]);
+          [expectations[i] fulfill];
+        });
+
+    [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+  }
+}
+
+- (void)testRealtimeDisabled {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] = [self
+        expectationWithDescription:
+            [NSString
+                stringWithFormat:@"Test isRealtimeDisabled flag and makes it true - instance %d",
+                                 i]];
+    OCMStub([_configRealtime[i] pauseRealtimeStream]).andDo(nil);
+    NSMutableDictionary *dictionary = [[NSMutableDictionary alloc] init];
+    [dictionary setValue:@"true" forKey:@"featureDisabled"];
+    [dictionary setValue:@"1" forKey:@"latestTemplateVersionNumber"];
+
+    [_configRealtime[i] evaluateStreamResponse:dictionary error:nil];
+    dispatch_after(
+        dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
+        dispatch_get_main_queue(), ^{
+          OCMVerify([self->_configRealtime[i] pauseRealtimeStream]);
+          OCMVerify(never(), [self->_configRealtime[i] autoFetch:5 targetVersion:1]);
+          [expectations[i] fulfill];
+        });
+
+    [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+  }
 }
 
 #pragma mark - Test Helpers

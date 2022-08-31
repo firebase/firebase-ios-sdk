@@ -64,6 +64,9 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 // Deprecated error code previously from FirebaseCore
 static const NSInteger sFIRErrorCodeConfigFailed = -114;
 
+// Key to retrive fetch config template version number
+static NSString *const kTemplateVersionNumberKey = @"templateVersion";
+
 #pragma mark - RCNConfig
 
 @implementation RCNConfigFetch {
@@ -75,6 +78,7 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
   NSURLSession *_fetchSession;  /// Managed internally by the fetch instance.
   NSString *_FIRNamespace;
   FIROptions *_options;
+  NSString *_templateVersionNumber;
 }
 
 - (instancetype)init {
@@ -101,6 +105,7 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
     _content = content;
     _fetchSession = [self newFetchSession];
     _options = options;
+    _templateVersionNumber = [self getTemplateVersionNumber:_content.fetchedConfig];
   }
   return self;
 }
@@ -488,6 +493,8 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
           [strongSelf->_experiment updateExperimentsWithResponse:
                                        fetchedConfig[RCNFetchResponseKeyExperimentDescriptions]];
         }
+
+        strongSelf->_templateVersionNumber = [strongSelf getTemplateVersionNumber:fetchedConfig];
       } else {
         FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000063",
                     @"Empty response with no fetched config.");
@@ -575,6 +582,15 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
   [URLRequest setHTTPBody:content];
 
   return [_fetchSession dataTaskWithRequest:URLRequest completionHandler:fetcherCompletion];
+}
+
+- (NSString *)getTemplateVersionNumber:(NSDictionary *)fetchedConfig {
+  if (fetchedConfig != nil && [fetchedConfig objectForKey:kTemplateVersionNumberKey] &&
+      [[fetchedConfig objectForKey:kTemplateVersionNumberKey] isKindOfClass:[NSString class]]) {
+    return (NSString *)[fetchedConfig objectForKey:kTemplateVersionNumberKey];
+  }
+
+  return @"1";
 }
 
 @end

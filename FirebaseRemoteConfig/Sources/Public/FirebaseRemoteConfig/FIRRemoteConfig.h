@@ -30,6 +30,19 @@ extern NSString *const _Nonnull FIRNamespaceGoogleMobilePlatform NS_SWIFT_NAME(
 extern NSString *const _Nonnull FIRRemoteConfigThrottledEndTimeInSecondsKey NS_SWIFT_NAME(
     RemoteConfigThrottledEndTimeInSecondsKey);
 
+/**
+ * Represents a listener that can be removed by calling it's only method remove. This is returned
+ * when calling addOnConfigUpdateListener and the method should be used when you no longer want to
+ * listen for new config updates. If this is the last listener it will close the Realtime stream.
+ */
+extern @interface FIRConfigUpdateListenerRegistration : NSObject
+/**
+ * Removes the listener being tracked by this 'ConfigUpdateListenerRegistration`. After the initial
+ * call, subsequent calls have no effect.
+ */
+- (void)remove;
+@end
+
 /// Indicates whether updated data was successfully fetched.
 typedef NS_ENUM(NSInteger, FIRRemoteConfigFetchStatus) {
   /// Config has never been fetched.
@@ -64,6 +77,16 @@ typedef NS_ERROR_ENUM(FIRRemoteConfigErrorDomain, FIRRemoteConfigError){
     /// Internal error that covers all internal HTTP errors.
     FIRRemoteConfigErrorInternalError = 8003,
 } NS_SWIFT_NAME(RemoteConfigError);
+
+/// Remote Config error domain that handles errors for Realtime.
+extern NSString *const _Nonnull FIRRemoteConfigRealtimeErrorDomain NS_SWIFT_NAME(RemoteConfigRealtimeErrorDomain);
+/// Firebase Remote Config service Realtime error.
+typedef NS_ERROR_ENUM(FIRRemoteConfigRealtimeErrorDomain, FIRRemoteConfigRealtimeError){
+    /// Can't establish config update stream.
+    FIRRemoteConfigRealtimeErrorStream = 8001,
+    /// Unable to retrieve the latest config from backend.
+    FIRRemoteConfigRealtimeErrorFetch = 8002,
+} NS_SWIFT_NAME(RemoteConfigRealtimeError);
 
 /// Enumerated value that indicates the source of Remote Config data. Data can come from
 /// the Remote Config service, the DefaultConfig that is available when the app is first installed,
@@ -282,5 +305,16 @@ NS_SWIFT_NAME(RemoteConfig)
 /// @return                 Returns the default value of the specified key. Returns
 ///                         nil if the key doesn't exist in the default config.
 - (nullable FIRRemoteConfigValue *)defaultValueForKey:(nullable NSString *)key;
+
+#pragma mark - Realtime
+
+/// Adds a listener to Realtime config updates. If it's the first listener, it starts off the
+/// stream.
+///
+/// @param listener              The configured listener that is called for every config update.
+/// @return                 Returns a registration that is used to remove a listener. If it is the
+/// last listener, it stops the stream.
+- (FIRConfigUpdateListenerRegistration *_Nonnull)addOnConfigUpdateListener:
+    (void (^_Nonnull)(NSError *_Nullable error))listener;
 
 @end
