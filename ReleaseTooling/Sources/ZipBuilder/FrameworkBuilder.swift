@@ -277,15 +277,12 @@ struct FrameworkBuilder {
   }
 
   // TODO: Automatically get the right name.
-  /// The dynamic framework name is different from the pod name when the module_name
+  /// The module name is different from the pod name when the module_name
   /// specifier is used in the podspec.
   ///
-  /// - Parameter framework: The name of the framework to be built.
-  /// - Returns: The corresponding dynamic framework name.
-  private func frameworkBuildName(_ framework: String) -> String {
-    if !dynamicFrameworks {
-      return framework
-    }
+  /// - Parameter framework: The name of the pod to be built.
+  /// - Returns: The corresponding framework/module name.
+  private static func frameworkBuildName(_ framework: String) -> String {
     switch framework {
     case "PromisesObjC":
       return "FBLPromises"
@@ -311,10 +308,12 @@ struct FrameworkBuilder {
     var thinFrameworks = [URL]()
     for targetPlatform in TargetPlatform.allCases {
       let buildDir = projectDir.appendingPathComponent(targetPlatform.buildName)
-      let slicedFramework = buildSlicedFramework(withName: framework,
-                                                 targetPlatform: targetPlatform,
-                                                 buildDir: buildDir,
-                                                 logRoot: logsDir)
+      let slicedFramework = buildSlicedFramework(
+        withName: FrameworkBuilder.frameworkBuildName(framework),
+        targetPlatform: targetPlatform,
+        buildDir: buildDir,
+        logRoot: logsDir
+      )
       thinFrameworks.append(slicedFramework)
     }
     return thinFrameworks
@@ -339,18 +338,19 @@ struct FrameworkBuilder {
 
     // Create the framework directory in the filesystem for the thin archives to go.
     let fileManager = FileManager.default
-    let frameworkDir = outputDir.appendingPathComponent("\(framework).framework")
+    let frameworkName = FrameworkBuilder.frameworkBuildName(framework)
+    let frameworkDir = outputDir.appendingPathComponent("\(frameworkName).framework")
     do {
       try fileManager.createDirectory(at: frameworkDir, withIntermediateDirectories: true)
     } catch {
-      fatalError("Could not create framework directory while building framework \(framework). " +
+      fatalError("Could not create framework directory while building framework \(frameworkName). " +
         "\(error)")
     }
 
     // Find the location of the public headers, any platform will do.
     guard let anyPlatform = targetPlatforms.first,
           let archivePath = slicedFrameworks[anyPlatform] else {
-      fatalError("Could not get a path to an archive to fetch headers in \(framework).")
+      fatalError("Could not get a path to an archive to fetch headers in \(frameworkName).")
     }
 
     // Get the framework Headers directory. On macOS, it's a symbolic link.
@@ -401,7 +401,7 @@ struct FrameworkBuilder {
         "\(headersDestination): \(error)")
     }
     // Add an Info.plist. Required by Carthage and SPM binary xcframeworks.
-    CarthageUtils.generatePlistContents(forName: framework,
+    CarthageUtils.generatePlistContents(forName: frameworkName,
                                         withVersion: podInfo.version,
                                         to: frameworkDir)
 
@@ -417,10 +417,10 @@ struct FrameworkBuilder {
                                                                framework])
 
     guard let moduleMapContentsTemplate = podInfo.moduleMapContents else {
-      fatalError("Module map contents missing for framework \(framework)")
+      fatalError("Module map contents missing for framework \(frameworkName)")
     }
     let moduleMapContents = moduleMapContentsTemplate.get(umbrellaHeader: umbrellaHeader)
-    let frameworks = groupFrameworks(withName: framework,
+    let frameworks = groupFrameworks(withName: frameworkName,
                                      isCarthage: setCarthage,
                                      fromFolder: frameworkDir,
                                      slicedFrameworks: slicedFrameworks,
@@ -650,7 +650,8 @@ struct FrameworkBuilder {
                               frameworks: [URL],
                               xcframeworksDir: URL,
                               resourceContents: URL?) -> URL {
-    let xcframework = xcframeworksDir.appendingPathComponent(name + ".xcframework")
+    let xcframework = xcframeworksDir
+      .appendingPathComponent(frameworkBuildName(name) + ".xcframework")
 
     // The arguments for the frameworks need to be separated.
     var frameworkArgs: [String] = []

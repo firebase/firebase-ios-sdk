@@ -22,6 +22,10 @@
 #import <AppKit/AppKit.h>
 #endif
 
+#if __has_include(<WatchKit/WatchKit.h>)
+#import <WatchKit/WatchKit.h>
+#endif
+
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRApp.h"
 
 #import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
@@ -871,14 +875,23 @@ static FIRApp *sDefaultApp;
   NSNotificationName notificationName = UIApplicationDidBecomeActiveNotification;
 #elif TARGET_OS_OSX
   NSNotificationName notificationName = NSApplicationDidBecomeActiveNotification;
+#elif TARGET_OS_WATCH
+  // TODO(ncooke3): Remove when minimum supported watchOS version is watchOS 7.0.
+  // On watchOS 7.0+, heartbeats are logged when the watch app becomes active.
+  // On watchOS 6.0, heartbeats are logged when the Firebase app is configuring.
+  // While it does not cover all use cases, logging when the Firebase app is
+  // configuring is done because watchOS lifecycle notifications are a
+  // watchOS 7.0+ feature.
+  NSNotificationName notificationName = kFIRAppReadyToConfigureSDKNotification;
+  if (@available(watchOS 7.0, *)) {
+    notificationName = WKApplicationDidBecomeActiveNotification;
+  }
 #endif
 
-#if !TARGET_OS_WATCH
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(appDidBecomeActive:)
                                                name:notificationName
                                              object:nil];
-#endif
 }
 
 - (void)appDidBecomeActive:(NSNotification *)notification {

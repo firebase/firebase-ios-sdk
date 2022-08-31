@@ -10,8 +10,8 @@ on:
     # Don't run based on any markdown only changes.
     - '!ReleaseTooling/*.md'
   schedule:
-    # Run every day at 10pm(PST) - cron uses UTC times
-    - cron:  '0 6 * * *'
+    # Run every day at 8pm(PST) - cron uses UTC times
+    - cron:  '0 4 * * *'
 
   workflow_dispatch:
     inputs:
@@ -123,7 +123,7 @@ jobs:
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseCore.xcframework \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseCoreInternal.xcframework \
-                                               "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/PromisesObjC.xcframework \
+                                               "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FBLPromises.xcframework \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseInstallations.xcframework \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleUtilities.xcframework
     - name: Install Secret GoogleService-Info.plist

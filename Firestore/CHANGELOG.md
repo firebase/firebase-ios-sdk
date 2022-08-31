@@ -1,3 +1,14 @@
+# Unreleased
+- [added] Expose client side indexing feature with `FIRFirestore.setIndexConfigurationFromJSON` and
+  `FIRFirestore.setIndexConfigurationFromStream` (#10090).
+
+# 9.5.0
+- [fixed] Fixed an intermittent crash if `ListenerRegistration::Remove()` was
+  invoked concurrently (#10065).
+- [fixed] Fixed a crash if multiple large write batches with overlapping
+  documents were executed where at least one batch performed a delete operation
+  (#9965).
+
 # 9.4.0
 - [fixed] Fixed a crash during app start (#9985, #10018).
 

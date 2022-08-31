@@ -32,7 +32,7 @@ struct RingBuffer<Element>: Sequence {
   /// An array of heartbeats treated as a circular queue and intialized with a fixed capacity.
   private var circularQueue: [Element?]
   /// The current "tail" and insert point for the `circularQueue`.
-  private var tailIndex: Array.Index
+  private var tailIndex: Array<Element?>.Index
 
   /// Designated initializer.
   /// - Parameter capacity: An `Int` representing the capacity.

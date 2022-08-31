@@ -45,6 +45,7 @@
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_set.h"
+#include "Firestore/core/src/model/field_index.h"
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/remote/connectivity_monitor.h"
 #include "Firestore/core/src/remote/datastore.h"
@@ -84,6 +85,7 @@ using local::QueryResult;
 using model::Document;
 using model::DocumentKeySet;
 using model::DocumentMap;
+using model::FieldIndex;
 using model::Mutation;
 using model::OnlineState;
 using remote::ConnectivityMonitor;
@@ -545,6 +547,14 @@ void FirestoreClient::RemoveSnapshotsInSyncListener(
     const std::shared_ptr<EventListener<Empty>>& user_listener) {
   worker_queue_->Enqueue([this, user_listener] {
     event_manager_->RemoveSnapshotsInSyncListener(user_listener);
+  });
+}
+
+void FirestoreClient::ConfigureFieldIndexes(
+    std::vector<FieldIndex> parsed_indexes) {
+  VerifyNotTerminated();
+  worker_queue_->Enqueue([this, parsed_indexes] {
+    local_store_->ConfigureFieldIndexes(std::move(parsed_indexes));
   });
 }
 

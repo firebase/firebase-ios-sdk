@@ -19,7 +19,7 @@
 import PackageDescription
 import class Foundation.ProcessInfo
 
-let firebaseVersion = "9.4.0"
+let firebaseVersion = "9.6.0"
 
 let package = Package(
   name: "Firebase",
@@ -1256,12 +1256,6 @@ let package = Package(
       exclude: [
         // Disable Swift tests as mixed targets are not supported (Xcode 12.3).
         "Unit/Swift",
-
-        // Disable Keychain dependent tests as they require a host application on iOS.
-        "Integration",
-        "Unit/AppAttestProvider/Storage/FIRAppAttestArtifactStorageTests.m",
-        "Unit/Core/FIRAppCheckIntegrationTests.m",
-        "Unit/Core/FIRAppCheckStorageTests.m",
       ],
       resources: [
         .process("Fixture"),

@@ -19,5 +19,7 @@
   "9.0.0": "https://dl.google.com/dl/firebase/ios/carthage/9.0.0/FirebaseAppCheck-bbcff759342807f9.zip",
   "9.1.0": "https://dl.google.com/dl/firebase/ios/carthage/9.1.0/FirebaseAppCheck-ef3b51d5ad9c2b91.zip",
   "9.2.0": "https://dl.google.com/dl/firebase/ios/carthage/9.2.0/FirebaseAppCheck-2fcb3f8686134f52.zip",
-  "9.3.0": "https://dl.google.com/dl/firebase/ios/carthage/9.3.0/FirebaseAppCheck-3be18c3ef8e3927d.zip"
+  "9.3.0": "https://dl.google.com/dl/firebase/ios/carthage/9.3.0/FirebaseAppCheck-3be18c3ef8e3927d.zip",
+  "9.4.0": "https://dl.google.com/dl/firebase/ios/carthage/9.4.0/FirebaseAppCheck-bdae893f0a838725.zip",
+  "9.5.0": "https://dl.google.com/dl/firebase/ios/carthage/9.5.0/FirebaseAppCheck-462c43bff68f9bd5.zip"
 }

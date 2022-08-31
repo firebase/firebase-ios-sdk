@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'Firebase'
-  s.version          = '9.4.0'
+  s.version          = '9.6.0'
   s.summary          = 'Firebase'
 
   s.description      = <<-DESC
@@ -36,14 +36,14 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '12.0'
-    ss.ios.dependency 'FirebaseAnalytics', '~> 9.4.0'
-    ss.osx.dependency 'FirebaseAnalytics', '~> 9.4.0'
-    ss.tvos.dependency 'FirebaseAnalytics', '~> 9.4.0'
+    ss.ios.dependency 'FirebaseAnalytics', '~> 9.6.0'
+    ss.osx.dependency 'FirebaseAnalytics', '~> 9.6.0'
+    ss.tvos.dependency 'FirebaseAnalytics', '~> 9.6.0'
     ss.dependency 'Firebase/CoreOnly'
   end
 
   s.subspec 'CoreOnly' do |ss|
-    ss.dependency 'FirebaseCore', '9.4.0'
+    ss.dependency 'FirebaseCore', '9.6.0'
     ss.source_files = 'CoreOnly/Sources/Firebase.h'
     ss.preserve_paths = 'CoreOnly/Sources/module.modulemap'
     if ENV['FIREBASE_POD_REPO_FOR_DEV_POD'] then
@@ -79,13 +79,13 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '12.0'
-    ss.dependency 'FirebaseAnalytics/WithoutAdIdSupport', '~> 9.4.0'
+    ss.dependency 'FirebaseAnalytics/WithoutAdIdSupport', '~> 9.6.0'
     ss.dependency 'Firebase/CoreOnly'
   end
 
   s.subspec 'ABTesting' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseABTesting', '~> 9.4.0'
+    ss.dependency 'FirebaseABTesting', '~> 9.6.0'
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.12'
@@ -95,12 +95,12 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'AppDistribution' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseAppDistribution', '~> 9.4.0-beta'
+    ss.ios.dependency 'FirebaseAppDistribution', '~> 9.6.0-beta'
   end
 
   s.subspec 'AppCheck' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseAppCheck', '~> 9.4.0'
+    ss.dependency 'FirebaseAppCheck', '~> 9.6.0'
     ss.ios.deployment_target = '9.0'
     ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '10.0'
@@ -109,7 +109,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'Auth' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseAuth', '~> 9.4.0'
+    ss.dependency 'FirebaseAuth', '~> 9.6.0'
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.12'
@@ -119,7 +119,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'Crashlytics' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseCrashlytics', '~> 9.4.0'
+    ss.dependency 'FirebaseCrashlytics', '~> 9.6.0'
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '9.0'
     ss.osx.deployment_target = '10.12'
@@ -129,7 +129,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'Database' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseDatabase', '~> 9.4.0'
+    ss.dependency 'FirebaseDatabase', '~> 9.6.0'
     # Standard platforms PLUS watchOS 7.
     ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.12'
@@ -139,32 +139,32 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'DynamicLinks' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseDynamicLinks', '~> 9.4.0'
+    ss.ios.dependency 'FirebaseDynamicLinks', '~> 9.6.0'
   end
 
   s.subspec 'Firestore' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseFirestore', '~> 9.4.0'
+    ss.dependency 'FirebaseFirestore', '~> 9.6.0'
   end
 
   s.subspec 'Functions' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseFunctions', '~> 9.4.0'
+    ss.dependency 'FirebaseFunctions', '~> 9.6.0'
   end
 
   s.subspec 'InAppMessaging' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseInAppMessaging', '~> 9.4.0-beta'
+    ss.ios.dependency 'FirebaseInAppMessaging', '~> 9.6.0-beta'
   end
 
   s.subspec 'Installations' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseInstallations', '~> 9.4.0'
+    ss.dependency 'FirebaseInstallations', '~> 9.6.0'
   end
 
   s.subspec 'Messaging' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseMessaging', '~> 9.4.0'
+    ss.dependency 'FirebaseMessaging', '~> 9.6.0'
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.12'
@@ -174,18 +174,18 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'MLModelDownloader' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseMLModelDownloader', '~> 9.4.0-beta'
+    ss.dependency 'FirebaseMLModelDownloader', '~> 9.6.0-beta'
   end
 
   s.subspec 'Performance' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebasePerformance', '~> 9.4.0'
-    ss.tvos.dependency 'FirebasePerformance', '~> 9.4.0'
+    ss.ios.dependency 'FirebasePerformance', '~> 9.6.0'
+    ss.tvos.dependency 'FirebasePerformance', '~> 9.6.0'
   end
 
   s.subspec 'RemoteConfig' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseRemoteConfig', '~> 9.4.0'
+    ss.dependency 'FirebaseRemoteConfig', '~> 9.6.0'
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.12'
@@ -195,7 +195,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'Storage' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseStorage', '~> 9.4.0'
+    ss.dependency 'FirebaseStorage', '~> 9.6.0'
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.12'
