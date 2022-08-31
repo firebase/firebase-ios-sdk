@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseStorageInternal'
-  s.version          = '9.4.0'
+  s.version          = '9.5.0'
   s.summary          = 'Firebase Storage'
 
   s.description      = <<-DESC
@@ -44,7 +44,7 @@ Objective-C Implementations for FirebaseStorage. This pod should not be directly
   s.osx.framework = 'CoreServices'
 
   s.dependency 'FirebaseCore', '~> 9.0'
-  s.dependency 'GTMSessionFetcher/Core', '>= 1.7', '< 3.0'
+  s.dependency 'GTMSessionFetcher/Core', '>= 1.7', '< 2.1'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
