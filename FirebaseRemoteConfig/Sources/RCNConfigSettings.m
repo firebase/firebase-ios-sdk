@@ -110,6 +110,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
     }
 
     _isFetchInProgress = NO;
+    _lastTemplateVersion = @"1";
   }
   return self;
 }
@@ -153,6 +154,9 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
     }
     if (metadata[RCNKeyAppContext]) {
       self->_customVariables = [metadata[RCNKeyAppContext] mutableCopy];
+      if ([self->_deviceContext valueForKey:RCNFetchResponseKeyTemplateVersion]) {
+          _lastTemplateVersion = [self->_deviceContext valueForKey:RCNFetchResponseKeyTemplateVersion];
+      }
     }
     if (metadata[RCNKeySuccessFetchTime]) {
       self->_successFetchTimes = [metadata[RCNKeySuccessFetchTime] mutableCopy];
@@ -233,7 +237,8 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
       [[NSDate date] timeIntervalSince1970] + randomizedRetryInterval;
 }
 
-- (void)updateMetadataWithFetchSuccessStatus:(BOOL)fetchSuccess {
+- (void)updateMetadataWithFetchSuccessStatus:(BOOL)fetchSuccess
+                             templateVersion:(NSString *)templateVersion {
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000056", @"Updating metadata with fetch result.");
   [self updateFetchTimeWithSuccessFetch:fetchSuccess];
   _lastFetchStatus =
@@ -243,6 +248,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
     [self updateLastFetchTimeInterval:[[NSDate date] timeIntervalSince1970]];
     // Note: We expect the googleAppID to always be available.
     _deviceContext = FIRRemoteConfigDeviceContextWithProjectIdentifier(_googleAppID);
+    [_deviceContext setValue:templateVersion forKey:RCNFetchResponseKeyTemplateVersion];
   }
 
   [self updateMetadataTable];
