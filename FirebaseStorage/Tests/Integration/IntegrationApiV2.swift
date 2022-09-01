@@ -77,9 +77,19 @@ class StorageApiV2Tests: StorageIntegrationCommon {
     XCTFail("Unexpected success from unauthorized putData")
   }
 
-  func testSimplePutFileWithProgress() throws {
-    let progressTestedExpectation = expectation(description: "progressTested")
-    let putFileExpectation = expectation(description: "putFile")
+  func testSimplePutFileWithTask() async throws {
+    let ref = storage.reference(withPath: "ios/public/testSimplePutFile")
+    let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
+    let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
+    let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
+    try data.write(to: fileURL, options: .atomicWrite)
+
+    let task = try await ref.putFileHandle(from: fileURL, progressBlock: nil)
+    let metadata = try await task.value
+    XCTAssertEqual(metadata.name, "testSimplePutFile")
+  }
+
+  func testSimplePutFileWithProgress() async throws {
     let ref = storage.reference(withPath: "ios/public/testSimplePutFile")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
@@ -87,87 +97,68 @@ class StorageApiV2Tests: StorageIntegrationCommon {
     try data.write(to: fileURL, options: .atomicWrite)
 
     var uploadedBytes: Int64 = -1
-    var fulfilled = false
+    var progressFulfilled = false
     let progressBlock = { (progress: Progress) in
       XCTAssertGreaterThanOrEqual(progress.completedUnitCount, uploadedBytes)
       uploadedBytes = progress.completedUnitCount
-      if !fulfilled {
-        progressTestedExpectation.fulfill()
-        fulfilled = true
+      if !progressFulfilled {
+        progressFulfilled = true
       }
     }
 
-    ref.putFileHandle(from: fileURL, progressBlock: progressBlock) { result in
-      switch result {
-      case let .success(value):
-        XCTAssertEqual(value.name, "testSimplePutFile")
-      case let .failure(error):
-        XCTFail("Unexpected error \(error)")
-      }
-      putFileExpectation.fulfill()
-    }
-    waitForExpectations(timeout: 20.0)
+    let task = try await ref.putFileHandle(from: fileURL, progressBlock: progressBlock)
+    let metadata = try await task.value
+    XCTAssertEqual(metadata.name, "testSimplePutFile")
+    XCTAssertTrue(progressFulfilled)
   }
 
-  func testSimplePutFileWithCancel() throws {
-    let putFileExpectation = expectation(description: "putFile")
+  func testSimplePutFileWithCancel() async throws {
     let ref = storage.reference(withPath: "ios/public/testSimplePutFile")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
     try data.write(to: fileURL, options: .atomicWrite)
 
-    let task = ref.putFileHandle(from: fileURL) { result in
-      XCTAssertNotNil(result)
-      switch result {
-      case .success:
-        XCTFail("Unexpected success after cancellation")
-      case let .failure(error):
-        let storageError = try! XCTUnwrap(error as? StorageError)
-        switch storageError {
-        case .cancelled: XCTAssertTrue(true)
-        default: XCTFail("Unexpected error")
-        }
+    do {
+      let task = try await ref.putFileHandle(from: fileURL)
+      task.cancel()
+    } catch {
+      let storageError = try! XCTUnwrap(error as? StorageError)
+      switch storageError {
+      case .cancelled: XCTAssertTrue(true)
+      default: XCTFail("Unexpected error")
       }
-      putFileExpectation.fulfill()
+      return
     }
-    task.cancel()
-
-    waitForExpectations(timeout: 20.0)
+    XCTFail("Failed to cancel")
   }
 
-  func testSimplePutFileWithCancelFromProgress() throws {
-    let progressTestedExpectation = expectation(description: "progressTested")
-    let putFileExpectation = expectation(description: "putFile")
+  func testSimplePutFileWithCancelFromProgress() async throws {
     let ref = storage.reference(withPath: "ios/public/testSimplePutFile")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
     try data.write(to: fileURL, options: .atomicWrite)
 
+    var task: Task<StorageMetadata, Error>?
     var uploadedBytes: Int64 = -1
-    var fulfilled = false
-    var task: Task<Void, Never>?
+    var progressFulfilled = false
     let progressBlock = { (progress: Progress) in
       XCTAssertGreaterThanOrEqual(progress.completedUnitCount, uploadedBytes)
       uploadedBytes = progress.completedUnitCount
-      if !fulfilled {
-        progressTestedExpectation.fulfill()
-        fulfilled = true
+      if !progressFulfilled {
+        progressFulfilled = true
         task?.cancel()
       }
     }
 
-    task = ref.putFileHandle(from: fileURL, progressBlock: progressBlock) { result in
-      switch result {
-      case .success:
-        XCTFail("Unexpected success after cancellation")
-      case let .failure(error):
-        XCTAssertEqual("cancelled", "\(error)")
-      }
-      putFileExpectation.fulfill()
+    do {
+      task = try await ref.putFileHandle(from: fileURL, progressBlock: progressBlock)
+    } catch {
+      XCTAssertEqual("cancelled", "\(error)")
+      return
     }
-    waitForExpectations(timeout: 20.0)
+    XCTFail("Failed to cancel")
   }
 
   func testAttemptToUploadDirectoryShouldFail() async throws {

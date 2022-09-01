@@ -89,25 +89,15 @@ public extension StorageReference {
   @discardableResult
   func putFileHandle(from fileURL: URL,
                      metadata: StorageMetadata? = nil,
-                     progressBlock: ((Progress) -> Void)? = nil,
-                     completion: ((Result<StorageMetadata, Error>) -> Void)?) -> Task<Void, Never> {
+                     progressBlock: ((Progress) -> Void)? = nil) async throws
+    -> Task<StorageMetadata, Error> {
     let task = Task {
-      do {
-        let metadata = try await putFileV2(from: fileURL, metadata: metadata,
-                                           progressBlock: progressBlock)
-
-        if let completion = completion {
-          if Task.isCancelled {
-            completion(.failure(StorageError.cancelled))
-          } else {
-            completion(.success(metadata))
-          }
-        }
-      } catch {
-        if let completion = completion {
-          completion(.failure(error))
-        }
+      if Task.isCancelled {
+        throw StorageError.cancelled
       }
+      let returnValue = try await putFileV2(from: fileURL, metadata: metadata,
+                          progressBlock: progressBlock)
+      return returnValue
     }
     return task
   }
