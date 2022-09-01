@@ -155,7 +155,8 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
     if (metadata[RCNKeyAppContext]) {
       self->_customVariables = [metadata[RCNKeyAppContext] mutableCopy];
       if ([self->_deviceContext valueForKey:RCNFetchResponseKeyTemplateVersion]) {
-          _lastTemplateVersion = [self->_deviceContext valueForKey:RCNFetchResponseKeyTemplateVersion];
+        _lastTemplateVersion =
+            [self->_deviceContext valueForKey:RCNFetchResponseKeyTemplateVersion];
       }
     }
     if (metadata[RCNKeySuccessFetchTime]) {

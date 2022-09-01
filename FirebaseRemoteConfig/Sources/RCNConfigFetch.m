@@ -504,7 +504,9 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
         strongSelf->_settings.lastETag = latestETag;
       }
 
-      [strongSelf->_settings updateMetadataWithFetchSuccessStatus:YES templateVersion:strongSelf->_templateVersionNumber];
+      [strongSelf->_settings
+          updateMetadataWithFetchSuccessStatus:YES
+                               templateVersion:strongSelf->_templateVersionNumber];
       return [strongSelf reportCompletionOnHandler:completionHandler
                                         withStatus:FIRRemoteConfigFetchStatusSuccess
                                          withError:nil];
@@ -583,7 +585,8 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
 
 - (NSString *)getTemplateVersionNumber:(NSDictionary *)fetchedConfig {
   if (fetchedConfig != nil && [fetchedConfig objectForKey:RCNFetchResponseKeyTemplateVersion] &&
-      [[fetchedConfig objectForKey:RCNFetchResponseKeyTemplateVersion] isKindOfClass:[NSString class]]) {
+      [[fetchedConfig objectForKey:RCNFetchResponseKeyTemplateVersion]
+          isKindOfClass:[NSString class]]) {
     return (NSString *)[fetchedConfig objectForKey:RCNFetchResponseKeyTemplateVersion];
   }
 

@@ -59,8 +59,8 @@
 @property(nonatomic, readonly, copy) NSDictionary *internalMetadata;
 /// Device conditions since last successful fetch from the backend. Device conditions including
 /// app
-/// version, iOS version, device localte, language, GMP project ID and Game project ID. Used for
-/// determing whether to throttle.
+/// version, iOS version, device localte, language, GMP project ID, Game project ID and template
+/// version. Used for determing whether to throttle.
 @property(nonatomic, readonly, copy) NSDictionary *deviceContext;
 /// Bundle Identifier
 @property(nonatomic, readonly, copy) NSString *bundleIdentifier;
