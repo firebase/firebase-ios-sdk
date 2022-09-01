@@ -34,32 +34,12 @@ struct ContentView: View {
   @RemoteConfigProperty(key: "recipe", placeholder: Recipe(recipe_name: "banana bread", cook_time: 40, notes: "yum!")) var recipe : Recipe
   
   @State private var realtimeSwitch = false
-  @State private var currentRegister : FIRConfigUpdateListenerRegistration? = nil
   var realtimeToggle: Bool
 
   var body: some View {
     VStack {
       Button(action: fetchAndActivate) {
           Text("fetchAndActivate")
-      }
-      Toggle("Real Time Switch", isOn: $realtimeSwitch)
-      .toggleStyle(.switch)
-      .onChange(of: realtimeSwitch) { value in
-        if (value) {
-          self.currentRegister = RemoteConfig.remoteConfig().add(onConfigUpdateListener: { error in
-            guard error == nil else {
-              return
-            }
-            RemoteConfig.remoteConfig().activate { changed, error in
-              guard error == nil && changed else {
-                return
-              }
-            }
-          })
-        }
-        else {
-          self.currentRegister?.remove()
-        }
       }
 
       List(fruits, id: \.self) { fruit in

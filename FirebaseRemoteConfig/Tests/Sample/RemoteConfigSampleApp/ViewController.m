@@ -103,21 +103,10 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
       }
       FIRRemoteConfigSettings *settings = [[FIRRemoteConfigSettings alloc] init];
       settings.fetchTimeout = 300;
-      settings.minimumFetchInterval = 300;
+      settings.minimumFetchInterval = 0;
       ((FIRRemoteConfig *)(self.RCInstances[namespaceString][appString])).configSettings = settings;
     }
   }
-  // Add realtime listener for firebase namespace
-  [self.RCInstances[FIRNamespaceGoogleMobilePlatform][FIRDefaultFIRAppName]
-      addOnConfigUpdateListener:^(NSError *_Nullable error) {
-        if (error != nil) {
-          [[FRCLog sharedInstance]
-              logToConsole:[NSString
-                               stringWithFormat:@"Realtime Error: %@", error.localizedDescription]];
-        } else {
-          [[FRCLog sharedInstance] logToConsole:[NSString stringWithFormat:@"Config updated!"]];
-        }
-      }];
   [[FRCLog sharedInstance] logToConsole:@"RC instances inited"];
 
   self.namespacePicker.dataSource = self;

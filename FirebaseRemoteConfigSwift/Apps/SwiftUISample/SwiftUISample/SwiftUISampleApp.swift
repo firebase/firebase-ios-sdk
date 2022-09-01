@@ -28,18 +28,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     settings.minimumFetchInterval = 0
     config.configSettings = settings
     try? config.setDefaults(from: ["mobileweek":["section 0": "Breakfast"]])
-
-    
-    _ = RemoteConfig.remoteConfig().add(onConfigUpdateListener: { error in
-      guard error == nil else {
-        return
-      }
-      RemoteConfig.remoteConfig().activate { changed, error in
-        guard error == nil && changed else {
-          return
-        }
-      }
-    })
     return true
   }
 }

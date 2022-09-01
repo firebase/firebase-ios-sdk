@@ -18,8 +18,8 @@ import SwiftUI
 import FirebaseRemoteConfig
 
 extension Notification.Name {
-
-    static let onRemoteConfigChanged = Notification.Name("FIRRemoteConfigChangeNotification")
+  // Listens to FirebaseRemoteConfig SDK if new configs are activated.
+  static let onRemoteConfigChanged = Notification.Name("FIRRemoteConfigChangeNotification")
 }
 
 @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
@@ -28,7 +28,6 @@ internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
   private let key: String
   private let remoteConfig: RemoteConfig
   private let fallbackValue : T
-  private var registration: FIRConfigUpdateListenerRegistration?
 
   init(key: String, fallbackValue: T) {
     self.key = key
@@ -58,9 +57,5 @@ internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
       }
     } catch {
     }
-  }
-
-  deinit {
-    self.registration?.remove()
   }
 }

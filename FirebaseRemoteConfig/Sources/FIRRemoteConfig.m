@@ -316,16 +316,18 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
                                           toSource:RCNDBSourceActive
                                       forNamespace:self->_FIRNamespace];
     strongSelf->_settings.lastApplyTimeInterval = [[NSDate date] timeIntervalSince1970];
+    // New config has been activated at this point
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069", @"Config activated.");
     [strongSelf->_configContent activatePersonalization];
-
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [self notifyConfigHasChanged];
+    });
     // Update experiments only for 3p namespace
     NSString *namespace = [strongSelf->_FIRNamespace
         substringToIndex:[strongSelf->_FIRNamespace rangeOfString:@":"].location];
     if ([namespace isEqualToString:FIRNamespaceGoogleMobilePlatform]) {
       [strongSelf->_configExperiment updateExperimentsWithHandler:^(NSError *_Nullable error) {
         if (completion) {
-          [self notifyConfigHasChanged];
           dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             completion(YES, nil);
           });
@@ -333,7 +335,6 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
       }];
     } else {
       if (completion) {
-        [self notifyConfigHasChanged];
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
           completion(YES, nil);
         });
