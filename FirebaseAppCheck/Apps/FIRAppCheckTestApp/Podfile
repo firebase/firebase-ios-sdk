@@ -11,5 +11,4 @@ target 'FIRAppCheckTestApp' do
   pod 'FirebaseAppCheck', :path => '../../../'
 
   pod 'FirebaseCore', :path => '../../../'
-  pod 'FirebaseCoreDiagnostics', :path => '../../../'
 end

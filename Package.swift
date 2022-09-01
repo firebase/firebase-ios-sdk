@@ -208,7 +208,6 @@ let package = Package(
       name: "FirebaseCore",
       dependencies: [
         "Firebase",
-        "FirebaseCoreDiagnostics",
         "FirebaseCoreInternal",
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULLogger", package: "GoogleUtilities"),
@@ -276,23 +275,6 @@ let package = Package(
       path: "FirebaseCore/Internal/Tests"
     ),
 
-    .target(
-      name: "FirebaseCoreDiagnostics",
-      dependencies: [
-        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
-        .product(name: "GULEnvironment", package: "GoogleUtilities"),
-        .product(name: "GULLogger", package: "GoogleUtilities"),
-        .product(name: "nanopb", package: "nanopb"),
-      ],
-      path: "Firebase/CoreDiagnostics/FIRCDLibrary",
-      publicHeadersPath: ".",
-      cSettings: [
-        .headerSearchPath("../../.."),
-        .define("PB_FIELD_32BIT", to: "1"),
-        .define("PB_NO_PACKED_STRUCTS", to: "1"),
-        .define("PB_ENABLE_MALLOC", to: "1"),
-      ]
-    ),
     .target(
       name: "FirebaseABTesting",
       dependencies: ["FirebaseCore"],

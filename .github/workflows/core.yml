@@ -4,7 +4,6 @@ on:
   pull_request:
     paths:
     - 'FirebaseCore**'
-    - 'Interop/CoreDiagnostics/Public/*.h'
     - '.github/workflows/core.yml'
     - 'Gemfile*'
   schedule:

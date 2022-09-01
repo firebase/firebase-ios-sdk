@@ -14,7 +14,7 @@
 
 include(ExternalProject)
 
-set(version 7.4.0)
+set(version 7.8.0)
 
 ExternalProject_Add(
   GoogleUtilities

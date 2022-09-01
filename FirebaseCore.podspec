@@ -33,8 +33,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
 
   s.source_files = [
     'FirebaseCore/Sources/**/*.[mh]',
-    'FirebaseCore/Extension/*.h',
-    'Interop/CoreDiagnostics/Public/*.h'
+    'FirebaseCore/Extension/*.h'
   ]
 
   s.swift_version = '5.3'
@@ -50,7 +49,6 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   # Remember to also update version in `cmake/external/GoogleUtilities.cmake`
   s.dependency 'GoogleUtilities/Environment', '~> 7.8'
   s.dependency 'GoogleUtilities/Logger', '~> 7.8'
-  s.dependency 'FirebaseCoreDiagnostics', '~> 10.0'
   s.dependency 'FirebaseCoreInternal', '~> 10.0'
 
   s.pod_target_xcconfig = {

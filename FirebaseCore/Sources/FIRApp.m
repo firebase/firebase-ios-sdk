@@ -35,7 +35,6 @@
 #import "FirebaseCore/Sources/FIRFirebaseUserAgent.h"
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
-#import "FirebaseCore/Extension/FIRCoreDiagnosticsConnector.h"
 #import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
 #import "FirebaseCore/Extension/FIRLibrary.h"
 #import "FirebaseCore/Extension/FIRLogger.h"
@@ -46,6 +45,7 @@
 
 #import <objc/runtime.h>
 
+// TODO(ncooke3): Can this be be now?
 // The kFIRService strings are only here while transitioning CoreDiagnostics from the Analytics
 // pod to a Core dependency. These symbols are not used and should be deleted after the transition.
 NSString *const kFIRServiceAdMob;
@@ -895,16 +895,8 @@ static FIRApp *sDefaultApp;
 }
 
 - (void)appDidBecomeActive:(NSNotification *)notification {
-  [self logCoreTelemetryIfEnabled];
-}
-
-- (void)logCoreTelemetryIfEnabled {
   if ([self isDataCollectionDefaultEnabled]) {
     [self.heartbeatLogger log];
-    // TODO(ncooke3): Remove below code when CoreDiagnostics is removed.
-    dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0), ^{
-      [FIRCoreDiagnosticsConnector logCoreTelemetryWithOptions:[self options]];
-    });
   }
 }
 
