@@ -371,7 +371,7 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
 
       if (error || (statusCode != kRCNFetchResponseHTTPStatusCodeOK)) {
         // Update metadata about fetch failure.
-        [strongSelf->_settings updateMetadataWithFetchSuccessStatus:NO templateVersion:nil;
+        [strongSelf->_settings updateMetadataWithFetchSuccessStatus:NO templateVersion:nil];
         if (error) {
           if (strongSelf->_settings.lastFetchStatus == FIRRemoteConfigFetchStatusSuccess) {
             FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000025",
