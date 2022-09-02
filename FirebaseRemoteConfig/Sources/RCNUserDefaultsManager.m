@@ -17,6 +17,7 @@
 #import "FirebaseRemoteConfig/Sources/RCNUserDefaultsManager.h"
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
+#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 
 static NSString *const kRCNGroupPrefix = @"group";
 static NSString *const kRCNGroupSuffix = @"firebase";
@@ -103,6 +104,21 @@ static NSString *const kRCNUserDefaultsKeyNamecurrentThrottlingRetryInterval =
 - (void)setLastETag:(NSString *)lastETag {
   if (lastETag) {
     [self setInstanceUserDefaultsValue:lastETag forKey:kRCNUserDefaultsKeyNamelastETag];
+  }
+}
+
+- (NSString *)lastTemplateVersion {
+  NSDictionary *userDefaults = [self instanceUserDefaults];
+  if ([userDefaults objectForKey:RCNFetchResponseKeyTemplateVersion]) {
+    return [userDefaults objectForKey:RCNFetchResponseKeyTemplateVersion];
+  }
+
+  return @"0";
+}
+
+- (void)setLastTemplateVersion:(NSString *)templateVersion {
+  if (templateVersion) {
+    [self setInstanceUserDefaultsValue:templateVersion forKey:RCNFetchResponseKeyTemplateVersion];
   }
 }
 
