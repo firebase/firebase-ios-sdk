@@ -110,7 +110,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
     }
 
     _isFetchInProgress = NO;
-    _lastTemplateVersion = @"1";
+    _lastTemplateVersion = @"0";
   }
   return self;
 }
