@@ -110,7 +110,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
     }
 
     _isFetchInProgress = NO;
-    _lastTemplateVersion = @"0";
+    _lastTemplateVersion = [_userDefaultsManager lastTemplateVersion];
   }
   return self;
 }
@@ -154,10 +154,6 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
     }
     if (metadata[RCNKeyAppContext]) {
       self->_customVariables = [metadata[RCNKeyAppContext] mutableCopy];
-      if ([self->_deviceContext valueForKey:RCNFetchResponseKeyTemplateVersion]) {
-        _lastTemplateVersion =
-            [self->_deviceContext valueForKey:RCNFetchResponseKeyTemplateVersion];
-      }
     }
     if (metadata[RCNKeySuccessFetchTime]) {
       self->_successFetchTimes = [metadata[RCNKeySuccessFetchTime] mutableCopy];
@@ -249,7 +245,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
     [self updateLastFetchTimeInterval:[[NSDate date] timeIntervalSince1970]];
     // Note: We expect the googleAppID to always be available.
     _deviceContext = FIRRemoteConfigDeviceContextWithProjectIdentifier(_googleAppID);
-    [_deviceContext setValue:templateVersion forKey:RCNFetchResponseKeyTemplateVersion];
+    [_userDefaultsManager setLastTemplateVersion:templateVersion];
   }
 
   [self updateMetadataTable];

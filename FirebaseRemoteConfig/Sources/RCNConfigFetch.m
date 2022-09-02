@@ -590,7 +590,7 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
     return (NSString *)[fetchedConfig objectForKey:RCNFetchResponseKeyTemplateVersion];
   }
 
-  return @"1";
+  return @"0";
 }
 
 @end
