@@ -77,13 +77,13 @@ internal protocol DocumentIDProtocol {
 @propertyWrapper
 public struct DocumentID<Value: DocumentIDWrappable & Codable>:
   DocumentIDProtocol, Codable {
-  var value: Value?
+  public private(set) var value: Value?
 
   public init(wrappedValue value: Value?) {
     self.value = value
   }
 
-  public var wrappedValue: Value? {
+  public private(set) var wrappedValue: Value? {
     get { value }
     set { value = newValue }
   }
