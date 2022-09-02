@@ -89,6 +89,9 @@ internal class StorageUploadTaskV2: StorageTask {
           self.progress.totalUnitCount = totalBytesExpectedToSend
           self.metadata = self.uploadMetadata
           progressBlock(self.progress)
+          if self.progress.isCancelled {
+            uploadFetcher.stopFetching()
+          }
       }
     }
 
@@ -142,12 +145,16 @@ internal class StorageUploadTaskV2: StorageTask {
                 file: URL? = nil,
                 data: Data? = nil,
                 metadata: StorageMetadata,
+                progress: Progress? = nil,
                 progressBlock: ((Progress) -> Void)? = nil) {
     uploadMetadata = metadata
     uploadData = data
     fileURL = file
     self.progressBlock = progressBlock
     super.init(reference: reference, service: service, queue: queue)
+    if let progress = progress {
+      self.progress = progress
+    }
 
     if uploadMetadata.contentType == nil {
       uploadMetadata.contentType = StorageUtils.MIMETypeForExtension(file?.pathExtension)

@@ -54,9 +54,15 @@ public extension StorageReference {
    * - Throws: A StorageError on failure
    */
   @discardableResult
-  func putFileV2(from fileURL: URL, metadata: StorageMetadata? = nil,
+  func putFileV2(from fileURL: URL,
+                 metadata: StorageMetadata? = nil,
+                 progress: Progress? = nil,
                  progressBlock: ((Progress) -> Void)? = nil) async throws -> StorageMetadata {
     var putMetadata: StorageMetadata
+    if let progress = progress,
+       progress.isCancelled {
+      throw StorageError.cancelled
+    }
     if metadata == nil {
       putMetadata = StorageMetadata()
       if let path = path.object {
@@ -72,33 +78,8 @@ public extension StorageReference {
                                          queue: storage.dispatchQueue,
                                          file: fileURL,
                                          metadata: putMetadata,
+                                         progress: progress,
                                          progressBlock: progressBlock)
     return try await uploadTask.upload()
-  }
-
-  /**
-   * Asynchronously uploads a file to the currently specified `StorageReference`.
-   * - Parameters:
-   *   - fileURL: A URL representing the system file path of the object to be uploaded.
-   *   - metadata: `StorageMetadata` containing additional information (MIME type, etc.)
-   *       about the object being uploaded.
-   *   - completion: A completion block that either returns the object metadata on success,
-   *       or an error on failure.
-   * - Returns: An instance of `StorageUploadTask`, which can be used to monitor or manage the upload.
-   */
-  @discardableResult
-  func putFileHandle(from fileURL: URL,
-                     metadata: StorageMetadata? = nil,
-                     progressBlock: ((Progress) -> Void)? = nil) async throws
-    -> Task<StorageMetadata, Error> {
-    let task = Task {
-      if Task.isCancelled {
-        throw StorageError.cancelled
-      }
-      let returnValue = try await putFileV2(from: fileURL, metadata: metadata,
-                          progressBlock: progressBlock)
-      return returnValue
-    }
-    return task
   }
 }

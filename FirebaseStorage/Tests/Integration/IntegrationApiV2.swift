@@ -77,19 +77,7 @@ class StorageApiV2Tests: StorageIntegrationCommon {
     XCTFail("Unexpected success from unauthorized putData")
   }
 
-  func testSimplePutFileWithTask() async throws {
-    let ref = storage.reference(withPath: "ios/public/testSimplePutFile")
-    let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
-    let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
-    let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
-    try data.write(to: fileURL, options: .atomicWrite)
-
-    let task = try await ref.putFileHandle(from: fileURL, progressBlock: nil)
-    let metadata = try await task.value
-    XCTAssertEqual(metadata.name, "testSimplePutFile")
-  }
-
-  func testSimplePutFileWithProgress() async throws {
+  func testSimplePutFileWithProgressBlock() async throws {
     let ref = storage.reference(withPath: "ios/public/testSimplePutFile")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
@@ -106,10 +94,36 @@ class StorageApiV2Tests: StorageIntegrationCommon {
       }
     }
 
-    let task = try await ref.putFileHandle(from: fileURL, progressBlock: progressBlock)
-    let metadata = try await task.value
+    let metadata = try await ref.putFileV2(from: fileURL, progressBlock: progressBlock)
     XCTAssertEqual(metadata.name, "testSimplePutFile")
     XCTAssertTrue(progressFulfilled)
+  }
+
+  func testSimplePutFileWithProgressBlockAndProgress() async throws {
+    let ref = storage.reference(withPath: "ios/public/testSimplePutFile")
+    let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
+    let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
+    let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
+    try data.write(to: fileURL, options: .atomicWrite)
+
+    let outerProgress = Progress()
+    var uploadedBytes: Int64 = -1
+    var progressFulfilled = false
+    let progressBlock = { (progress: Progress) in
+      // Verify passed in progress is used for return value.
+      XCTAssertEqual(progress, outerProgress)
+      XCTAssertGreaterThanOrEqual(progress.completedUnitCount, uploadedBytes)
+      uploadedBytes = progress.completedUnitCount
+      if !progressFulfilled {
+        progressFulfilled = true
+      }
+    }
+
+    let metadata = try await ref.putFileV2(from: fileURL, progress: outerProgress,
+                                           progressBlock: progressBlock)
+    XCTAssertEqual(metadata.name, "testSimplePutFile")
+    XCTAssertTrue(progressFulfilled)
+    XCTAssertTrue(outerProgress.isFinished)
   }
 
   func testSimplePutFileWithCancel() async throws {
@@ -119,9 +133,16 @@ class StorageApiV2Tests: StorageIntegrationCommon {
     let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
     try data.write(to: fileURL, options: .atomicWrite)
 
+    let progress = Progress()
+    let workerTask = Task {
+      try await ref.putFileV2(from: fileURL, progress: progress)
+    }
+    XCTAssertFalse(progress.isCancelled)
+    progress.cancel()
+    XCTAssertTrue(progress.isCancelled)
+
     do {
-      let task = try await ref.putFileHandle(from: fileURL)
-      task.cancel()
+      _ = try await workerTask.value
     } catch {
       let storageError = try! XCTUnwrap(error as? StorageError)
       switch storageError {
@@ -140,7 +161,7 @@ class StorageApiV2Tests: StorageIntegrationCommon {
     let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
     try data.write(to: fileURL, options: .atomicWrite)
 
-    var task: Task<StorageMetadata, Error>?
+    let progress = Progress()
     var uploadedBytes: Int64 = -1
     var progressFulfilled = false
     let progressBlock = { (progress: Progress) in
@@ -148,14 +169,14 @@ class StorageApiV2Tests: StorageIntegrationCommon {
       uploadedBytes = progress.completedUnitCount
       if !progressFulfilled {
         progressFulfilled = true
-        task?.cancel()
+        progress.cancel()
       }
     }
-
     do {
-      task = try await ref.putFileHandle(from: fileURL, progressBlock: progressBlock)
+      _ = try await ref.putFileV2(from: fileURL, progress: progress, progressBlock: progressBlock)
     } catch {
       XCTAssertEqual("cancelled", "\(error)")
+      XCTAssertTrue(progressFulfilled)
       return
     }
     XCTFail("Failed to cancel")
