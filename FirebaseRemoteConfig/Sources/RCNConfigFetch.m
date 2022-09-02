@@ -127,7 +127,8 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
 #pragma mark - Fetch Config API
 
 - (void)fetchConfigWithExpirationDuration:(NSTimeInterval)expirationDuration
-                        completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler {
+                        completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler
+                        addEtagToHeader:(bool)addEtagToHeader {
   // Note: We expect the googleAppID to always be available.
   BOOL hasDeviceContextChanged =
       FIRRemoteConfigHasDeviceContextChanged(_settings.deviceContext, _options.googleAppID);
@@ -191,7 +192,7 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
                                          withError:error];
     }
     strongSelf->_settings.isFetchInProgress = YES;
-    [strongSelf refreshInstallationsTokenWithCompletionHandler:completionHandler];
+    [strongSelf refreshInstallationsTokenWithCompletionHandler:completionHandler addEtagToHeader:addEtagToHeader];
   });
 }
 
@@ -203,7 +204,7 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
 /// Refresh installation ID token before fetching config. installation ID is now mandatory for fetch
 /// requests to work.(b/14751422).
 - (void)refreshInstallationsTokenWithCompletionHandler:
-    (FIRRemoteConfigFetchCompletion)completionHandler {
+(FIRRemoteConfigFetchCompletion)completionHandler addEtagToHeader:(bool)addEtagToHeader{
   FIRInstallations *installations = [FIRInstallations
       installationsWithApp:[FIRApp appNamed:[self FIRAppNameFromFullyQualifiedNamespace]]];
   if (!installations || !_options.GCMSenderID) {
@@ -283,7 +284,7 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
 
         FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000022", @"Success to get iid : %@.",
                    strongSelfQueue->_settings.configInstallationsIdentifier);
-        [strongSelf doFetchCall:completionHandler];
+        [strongSelf doFetchCall:completionHandler addEtagToHeader:addEtagToHeader];
       });
     }];
   };
@@ -292,10 +293,10 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
   [installations authTokenWithCompletion:installationsTokenHandler];
 }
 
-- (void)doFetchCall:(FIRRemoteConfigFetchCompletion)completionHandler {
+- (void)doFetchCall:(FIRRemoteConfigFetchCompletion)completionHandler addEtagToHeader:(bool)addEtagToHeader {
   [self getAnalyticsUserPropertiesWithCompletionHandler:^(NSDictionary *userProperties) {
     dispatch_async(self->_lockQueue, ^{
-      [self fetchWithUserProperties:userProperties completionHandler:completionHandler];
+      [self fetchWithUserProperties:userProperties completionHandler:completionHandler addEtagToHeader:addEtagToHeader];
     });
   }];
 }
@@ -322,7 +323,8 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
 }
 
 - (void)fetchWithUserProperties:(NSDictionary *)userProperties
-              completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler {
+              completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler
+                addEtagToHeader:(bool)addEtagToHeader {
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000061", @"Fetch with user properties initiated.");
 
   NSString *postRequestString = [_settings nextRequestWithUserProperties:userProperties];
@@ -516,7 +518,8 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000061", @"Making remote config fetch.");
 
   NSURLSessionDataTask *dataTask = [self URLSessionDataTaskWithContent:compressedContent
-                                                     completionHandler:fetcherCompletion];
+                                                     completionHandler:fetcherCompletion
+                                                     addEtagToHeader:addEtagToHeader];
   [dataTask resume];
 }
 
@@ -556,7 +559,8 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
 
 - (NSURLSessionDataTask *)URLSessionDataTaskWithContent:(NSData *)content
                                       completionHandler:
-                                          (RCNConfigFetcherCompletion)fetcherCompletion {
+                                          (RCNConfigFetcherCompletion)fetcherCompletion
+                                        addEtagToHeader:(bool)addEtagToHeader {
   NSURL *URL = [NSURL URLWithString:[self constructServerURL]];
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000046", @"%@",
               [NSString stringWithFormat:@"Making config request: %@", [URL absoluteString]]);
@@ -575,7 +579,7 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
   [URLRequest setValue:@"gzip" forHTTPHeaderField:kContentEncodingHeaderName];
   [URLRequest setValue:@"gzip" forHTTPHeaderField:kAcceptEncodingHeaderName];
   // Set the eTag from the last successful fetch, if available.
-  if (_settings.lastETag) {
+  if (_settings.lastETag && addEtagToHeader) {
     [URLRequest setValue:_settings.lastETag forHTTPHeaderField:kIfNoneMatchETagHeaderName];
   }
   [URLRequest setHTTPBody:content];

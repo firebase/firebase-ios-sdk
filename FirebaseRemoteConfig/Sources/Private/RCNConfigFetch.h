@@ -48,7 +48,8 @@ typedef void (^RCNConfigFetcherCompletion)(NSData *data, NSURLResponse *response
 /// @param expirationDuration  Expiration duration, in seconds.
 /// @param completionHandler   Callback handler.
 - (void)fetchConfigWithExpirationDuration:(NSTimeInterval)expirationDuration
-                        completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
+                        completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler
+                        addEtagToHeader: (bool)addEtagToHeader;
 
 /// Add the ability to update NSURLSession's timeout after a session has already been created.
 - (void)recreateNetworkSession;

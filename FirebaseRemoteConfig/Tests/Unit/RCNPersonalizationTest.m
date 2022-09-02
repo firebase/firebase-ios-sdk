@@ -30,10 +30,12 @@
 @interface RCNConfigFetch (ForTest)
 - (NSURLSessionDataTask *)URLSessionDataTaskWithContent:(NSData *)content
                                       completionHandler:
-                                          (RCNConfigFetcherCompletion)fetcherCompletion;
+                                          (RCNConfigFetcherCompletion)fetcherCompletion
+                                        addEtagToHeader:(bool)addEtagToHeader;
 
 - (void)fetchWithUserProperties:(NSDictionary *)userProperties
-              completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
+              completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler
+                addEtagToHeader:(bool)addEtagToHeader;
 @end
 
 @interface RCNPersonalizationTest : XCTestCase {
@@ -238,16 +240,16 @@
 
 + (id)mockFetchRequest {
   id configFetch = OCMClassMock([RCNConfigFetch class]);
-  OCMStub([configFetch fetchConfigWithExpirationDuration:0 completionHandler:OCMOCK_ANY])
+  OCMStub([configFetch fetchConfigWithExpirationDuration:0 completionHandler:OCMOCK_ANY addEtagToHeader:true])
       .ignoringNonObjectArgs()
       .andDo(^(NSInvocation *invocation) {
         __unsafe_unretained FIRRemoteConfigFetchCompletion handler;
         [invocation getArgument:&handler atIndex:3];
-        [configFetch fetchWithUserProperties:[[NSDictionary alloc] init] completionHandler:handler];
+        [configFetch fetchWithUserProperties:[[NSDictionary alloc] init] completionHandler:handler addEtagToHeader:true];
       });
   OCMExpect([configFetch
                 URLSessionDataTaskWithContent:[OCMArg any]
-                            completionHandler:[RCNPersonalizationTest mockResponseHandler]])
+                            completionHandler:[RCNPersonalizationTest mockResponseHandler] addEtagToHeader:true])
       .andReturn(nil);
   return configFetch;
 }

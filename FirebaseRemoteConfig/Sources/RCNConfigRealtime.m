@@ -451,7 +451,8 @@ static NSInteger const gMaxRetries = 7;
                                         targetVersion:targetVersion];
                               }
                             }
-                          }];
+                          }
+      addEtagToHeader:[[strongSelf->_configFetch templateVersionNumber] integerValue] != 0];
     }
   });
 }
