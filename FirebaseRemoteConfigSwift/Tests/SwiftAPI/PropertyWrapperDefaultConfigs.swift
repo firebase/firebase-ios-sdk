@@ -16,28 +16,31 @@
 
 import FirebaseRemoteConfig
 import FirebaseRemoteConfigSwift
-
 import XCTest
 
 #if compiler(>=5.5.2) && canImport(_Concurrency)
   @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
   class PropertyWrapperDefaultConfigsTests {
-    static let placeholderDict = ["session":"breakfast"]
+    static let placeholderDict = ["session": "breakfast"]
     struct Recipe: Decodable {
       var recipeName: String
       var ingredients: [String]
       var cookTime: Int
     }
-    
-    static let placeholderJSON = Recipe(recipeName:"muffin", ingredients:["flour", "sugar"], cookTime:45)
+
+    static let placeholderJSON = Recipe(
+      recipeName: "muffin", ingredients: ["flour", "sugar"], cookTime: 45)
     // MARK: - Test Remote Config default values with property wrapper
     struct DefaultsValuesTester {
-      @RemoteConfigProperty(key: Constants.stringKey, placeholder: Recipe(recipeName: "test", ingredients: [], cookTime: 0))
-      var dictValue : Recipe
+      @RemoteConfigProperty(
+        key: Constants.stringKey,
+        placeholder: Recipe(recipeName: "test", ingredients: [], cookTime: 0))
+      var dictValue: Recipe
     }
 
     func testDefaultValues() async throws {
-      try? RemoteConfig.remoteConfig().setDefaults(from: PropertyWrapperEmptyConfigsTests.placeholderDict)
+      try? RemoteConfig.remoteConfig().setDefaults(
+        from: PropertyWrapperEmptyConfigsTests.placeholderDict)
 
       let tester = await DefaultsValuesTester()
       let dictValue = await tester.dictValue

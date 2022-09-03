@@ -26,7 +26,7 @@ import SwiftUI
 
     /// Remote Config key name for this property
     public let key: String
-    
+
     public var wrappedValue: T {
       configValueObserver.configValue
     }

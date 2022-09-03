@@ -14,20 +14,23 @@
  * limitations under the License.
  */
 
-import SwiftUI
 import FirebaseCore
 import FirebaseRemoteConfig
 import FirebaseRemoteConfigSwift
+import SwiftUI
 
 class AppDelegate: NSObject, UIApplicationDelegate {
-  func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+  func application(
+    _ application: UIApplication,
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+  ) -> Bool {
     FirebaseApp.configure()
-    
+
     let config = RemoteConfig.remoteConfig()
     let settings = RemoteConfigSettings()
     settings.minimumFetchInterval = 0
     config.configSettings = settings
-    try? config.setDefaults(from: ["mobileweek":["section 0": "Pre game"]])
+    try? config.setDefaults(from: ["mobileweek": ["section 0": "Pre game"]])
     return true
   }
 }
@@ -41,5 +44,5 @@ struct SwiftUISampleApp: App {
       ContentView(realtimeToggle: false)
     }
   }
-    
+
 }

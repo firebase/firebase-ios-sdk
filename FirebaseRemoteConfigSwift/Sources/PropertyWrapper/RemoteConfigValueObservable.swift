@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import SwiftUI
 import FirebaseRemoteConfig
+import SwiftUI
 
 extension Notification.Name {
   // Listens to FirebaseRemoteConfig SDK if new configs are activated.
@@ -27,7 +27,7 @@ internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
   @Published var configValue: T
   private let key: String
   private let remoteConfig: RemoteConfig
-  private let fallbackValue : T
+  private let fallbackValue: T
 
   init(key: String, fallbackValue: T) {
     self.key = key
@@ -37,7 +37,7 @@ internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
     self.configValue = fallbackValue
     // Check cached remote config value
     do {
-      let configValue : RemoteConfigValue = self.remoteConfig[key]
+      let configValue: RemoteConfigValue = self.remoteConfig[key]
       if configValue.source == .remote || configValue.source == .default {
         self.configValue = try self.remoteConfig[key].decoded()
       } else {
@@ -46,12 +46,13 @@ internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
     } catch {
       self.configValue = fallbackValue
     }
-    NotificationCenter.default.addObserver(self, selector: #selector(configDidActivated), name: .onRemoteConfigChanged, object: nil)
+    NotificationCenter.default.addObserver(
+      self, selector: #selector(configDidActivated), name: .onRemoteConfigChanged, object: nil)
   }
-  
+
   @objc func configDidActivated() {
     do {
-      let configValue : RemoteConfigValue = self.remoteConfig[self.key]
+      let configValue: RemoteConfigValue = self.remoteConfig[self.key]
       if configValue.source == .remote {
         self.configValue = try self.remoteConfig[self.key].decoded()
       }

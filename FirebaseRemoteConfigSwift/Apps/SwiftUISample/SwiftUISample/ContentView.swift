@@ -14,57 +14,60 @@
  * limitations under the License.
  */
 
-import SwiftUI
-import FirebaseRemoteConfigSwift
 import FirebaseRemoteConfig
+import FirebaseRemoteConfigSwift
+import SwiftUI
 
-struct Recipe : Decodable {
-  var recipe_name : String
+struct Recipe: Decodable {
+  var recipe_name: String
   var cook_time: Int
-  var notes : String
+  var notes: String
 }
 
 struct ContentView: View {
-  @RemoteConfigProperty(key: "Color", fallback: "blue") var colorValue : String
-  @RemoteConfigProperty(key: "Food", fallback: nil) var foodValue : String?
-  @RemoteConfigProperty(key: "Toggle", fallback: false) var toggleValue : Bool
-  @RemoteConfigProperty(key: "fruits", fallback: []) var fruits : [String]
-  @RemoteConfigProperty(key: "counter", fallback: 1) var counter : Int
-  @RemoteConfigProperty(key: "mobileweek", fallback: ["section 0": "breakfast"]) var sessions : [String: String]
-  @RemoteConfigProperty(key: "recipe", fallback: Recipe(recipe_name: "banana bread", cook_time: 40, notes: "yum!")) var recipe : Recipe
-  
+  @RemoteConfigProperty(key: "Color", fallback: "blue") var colorValue: String
+  @RemoteConfigProperty(key: "Food", fallback: nil) var foodValue: String?
+  @RemoteConfigProperty(key: "Toggle", fallback: false) var toggleValue: Bool
+  @RemoteConfigProperty(key: "fruits", fallback: []) var fruits: [String]
+  @RemoteConfigProperty(key: "counter", fallback: 1) var counter: Int
+  @RemoteConfigProperty(key: "mobileweek", fallback: ["section 0": "breakfast"]) var sessions:
+    [String: String]
+  @RemoteConfigProperty(
+    key: "recipe", fallback: Recipe(recipe_name: "banana bread", cook_time: 40, notes: "yum!"))
+  var recipe: Recipe
+
   @State private var realtimeSwitch = false
   var realtimeToggle: Bool
 
   var body: some View {
     VStack {
       Button(action: fetchAndActivate) {
-          Text("fetchAndActivate")
+        Text("fetchAndActivate")
       }
 
       List(fruits, id: \.self) { fruit in
         Text(fruit)
       }
       List {
-          ForEach(sessions.sorted(by: >), id: \.key) { key, value in
-            Section(header: Text(key)) {
-              Text(value)
-            }
+        ForEach(sessions.sorted(by: >), id: \.key) { key, value in
+          Section(header: Text(key)) {
+            Text(value)
           }
         }
+      }
       List {
         Text(recipe.recipe_name)
         Text(recipe.notes)
         Text("cook time: \(recipe.cook_time)")
       }
-      ForEach(0 ... counter, id: \.self) { i in
+      ForEach(0...counter, id: \.self) { i in
         Text(colorValue)
-            .padding()
+          .padding()
           .foregroundStyle(toggleValue ? .primary : .secondary)
-        if ((foodValue) != nil) {
+        if (foodValue) != nil {
           Text(foodValue!)
             .padding()
-          .foregroundStyle(toggleValue ? .primary : .secondary)
+            .foregroundStyle(toggleValue ? .primary : .secondary)
         }
       }
     }
