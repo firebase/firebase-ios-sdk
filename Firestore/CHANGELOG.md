@@ -1,6 +1,7 @@
 # Unreleased
 - [added] Expose client side indexing feature with `FIRFirestore.setIndexConfigurationFromJSON` and
   `FIRFirestore.setIndexConfigurationFromStream` (#10090).
+- [fixed] Fixed high CPU usage whenever Firestore was in use (#10168).
 
 # 9.5.0
 - [fixed] Fixed an intermittent crash if `ListenerRegistration::Remove()` was
