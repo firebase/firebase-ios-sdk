@@ -25,13 +25,13 @@ struct Recipe : Decodable {
 }
 
 struct ContentView: View {
-  @RemoteConfigProperty(key: "Color", placeholder: "blue") var colorValue : String
-  @RemoteConfigProperty(key: "Food", placeholder: nil) var foodValue : String?
-  @RemoteConfigProperty(key: "Toggle", placeholder: false) var toggleValue : Bool
-  @RemoteConfigProperty(key: "fruits", placeholder: []) var fruits : [String]
-  @RemoteConfigProperty(key: "counter", placeholder: 1) var counter : Int
-  @RemoteConfigProperty(key: "mobileweek", placeholder: ["section 0": "Breakfast"]) var sessions : [String: String]
-  @RemoteConfigProperty(key: "recipe", placeholder: Recipe(recipe_name: "banana bread", cook_time: 40, notes: "yum!")) var recipe : Recipe
+  @RemoteConfigProperty(key: "Color", fallback: "blue") var colorValue : String
+  @RemoteConfigProperty(key: "Food", fallback: nil) var foodValue : String?
+  @RemoteConfigProperty(key: "Toggle", fallback: false) var toggleValue : Bool
+  @RemoteConfigProperty(key: "fruits", fallback: []) var fruits : [String]
+  @RemoteConfigProperty(key: "counter", fallback: 1) var counter : Int
+  @RemoteConfigProperty(key: "mobileweek", fallback: ["section 0": "breakfast"]) var sessions : [String: String]
+  @RemoteConfigProperty(key: "recipe", fallback: Recipe(recipe_name: "banana bread", cook_time: 40, notes: "yum!")) var recipe : Recipe
   
   @State private var realtimeSwitch = false
   var realtimeToggle: Bool

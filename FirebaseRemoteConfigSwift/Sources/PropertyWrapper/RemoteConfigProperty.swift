@@ -31,17 +31,17 @@ import SwiftUI
       configValueObserver.configValue
     }
 
-    /// Creates an instance by defining key.
+    /// Creates an instance by providing a config key.
     ///
     /// - Parameter key: key name
-    /// - Parameter placeholder: fall back placeholder
-    public init(key: String, placeholder: T) {
+    /// - Parameter fallback: The value to fall back to if the key doesn't exist in remote or default configs
+    public init(key: String, fallback: T) {
       self.key = key
 
       _configValueObserver = StateObject(
         wrappedValue: RemoteConfigValueObservable<T>(
           key: key,
-          fallbackValue: placeholder
+          fallbackValue: fallback
         )
       )
     }
