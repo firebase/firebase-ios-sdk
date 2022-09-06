@@ -214,12 +214,12 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
 #endif
 }
 
-- (void)testQueryCachedKeychainItems {
 // Skip keychain tests on Catalyst and macOS. Tests are skipped because they
 // involve interactions with the keychain that require a provisioning profile.
 // See go/firebase-macos-keychain-popups for more details.
 #if !TARGET_OS_MACCATALYST && !TARGET_OS_OSX
 
+- (void)testQueryCachedKeychainItems {
   XCTestExpectation *addItemToKeychainExpectation =
       [self expectationWithDescription:@"Test added item should be cached properly"];
   // A wildcard query should return empty data when there's nothing in keychain
@@ -278,17 +278,9 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
                                                }];
             }];
   [self waitForExpectationsWithTimeout:1.0 handler:NULL];
-
-#endif
-
 }
 
 - (void)testCachedKeychainOverwrite {
-// Skip keychain tests on Catalyst and macOS. Tests are skipped because they
-// involve interactions with the keychain that require a provisioning profile.
-// See go/firebase-macos-keychain-popups for more details.
-#if !TARGET_OS_MACCATALYST && !TARGET_OS_OSX
-
   XCTestExpectation *overwriteCachedKeychainExpectation =
       [self expectationWithDescription:@"Test the cached keychain item is overwrite properly"];
 
@@ -331,16 +323,9 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
                                                }];
             }];
   [self waitForExpectationsWithTimeout:1.0 handler:NULL];
-
-#endif
 }
 
 - (void)testSetKeychainItemShouldDeleteOldEntry {
-// Skip keychain tests on Catalyst and macOS. Tests are skipped because they
-// involve interactions with the keychain that require a provisioning profile.
-// See go/firebase-macos-keychain-popups for more details.
-#if !TARGET_OS_MACCATALYST && !TARGET_OS_OSX
-
   XCTestExpectation *overwriteCachedKeychainExpectation = [self
       expectationWithDescription:@"Test keychain entry should be deleted before adding a new one"];
 
@@ -377,8 +362,6 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
                                                }];
             }];
   [self waitForExpectationsWithTimeout:1.0 handler:NULL];
-
-#endif
 }
 
 - (void)testInvalidQuery {
@@ -400,11 +383,6 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
 }
 
 - (void)testQueryAndAddEntry {
-// Skip keychain tests on Catalyst and macOS. Tests are skipped because they
-// involve interactions with the keychain that require a provisioning profile.
-// See go/firebase-macos-keychain-popups for more details.
-#if !TARGET_OS_MACCATALYST && !TARGET_OS_OSX
-
   FIRMessagingAuthKeychain *keychain =
       [[FIRMessagingAuthKeychain alloc] initWithIdentifier:kFIRMessagingTestKeychainId];
 
@@ -421,9 +399,9 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
   XCTAssertNil([keychain dataForService:service account:account2]);
   // Service and account2 should exist in cache.
   XCTAssertNotNil(keychain.cachedKeychainData[service][account2]);
+}
 
 #endif
-}
 
 #pragma mark - helper function
 - (NSData *)tokenDataWithAuthorizedEntity:(NSString *)authorizedEntity
