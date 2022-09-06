@@ -1,4 +1,5 @@
 # Firebase 9.6.0
+- [fixed] Fixed `Array.Index`-related compile time errors when building with older Swift versions. (#10171)
 - [fixed] Update dependency specification for GTMSessionFetcher to allow all 2.x versions. (#10131)
 
 # Firebase 9.5.0
