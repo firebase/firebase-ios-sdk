@@ -111,9 +111,9 @@ static const auto kInitialGCDelay = std::chrono::minutes(1);
 static const auto kRegularGCDelay = std::chrono::minutes(5);
 
 /** How long we wait to try running index backfill after SDK initialization. */
-static const auto kInitialBackfillDelay = std::chrono::milliseconds(15);
+static const auto kInitialBackfillDelay = std::chrono::seconds(15);
 /** Minimum amount of time between backfill checks, after the first one. */
-static const auto kRegularBackfillDelay = std::chrono::milliseconds(1000);
+static const auto kRegularBackfillDelay = std::chrono::minutes(1);
 
 }  // namespace
 
