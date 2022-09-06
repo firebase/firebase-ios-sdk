@@ -150,7 +150,7 @@ let package = Package(
       url: "https://github.com/google/GoogleAppMeasurement.git",
       // Note that CI changes the version to the head of main for CI.
       // See scripts/setup_spm_tests.sh.
-      .exact("9.3.0")
+      .exact("9.6.0")
     ),
     .package(
       name: "GoogleDataTransport",
@@ -344,8 +344,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/9.3.0/FirebaseAnalytics.zip",
-      checksum: "5f0b6ad144c6894f06e66f3dc51812655e1aa1e4ff444e4c62ddae24d438345c"
+      url: "https://dl.google.com/firebase/ios/swiftpm/9.6.0/FirebaseAnalytics.zip",
+      checksum: "b2f2b38e2764a09af0781c61093693eb61739d0a43f203f2e4cbf10e4aa6c329"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
