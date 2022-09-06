@@ -1,4 +1,8 @@
 # Firebase 9.6.0
+- [fixed] Mac apps using Firebase products that store SDK data in the keychain
+  will no longer prompt the user for permission to access the keychain. This
+  requires that Mac apps using Firebase be signed with a provisioning profile
+  that has the Keychain Sharing capability enabled. (#9392)
 - [fixed] Update dependency specification for GTMSessionFetcher to allow all 2.x versions. (#10131)
 
 # Firebase 9.5.0
