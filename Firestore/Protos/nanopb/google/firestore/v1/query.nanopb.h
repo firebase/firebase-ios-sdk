@@ -109,6 +109,13 @@ typedef struct _google_firestore_v1_Cursor {
 /* @@protoc_insertion_point(struct:google_firestore_v1_Cursor) */
 } google_firestore_v1_Cursor;
 
+typedef struct _google_firestore_v1_StructuredAggregationQuery_Aggregation_Count {
+    google_protobuf_Int64Value up_to;
+
+    std::string ToString(int indent = 0) const;
+/* @@protoc_insertion_point(struct:google_firestore_v1_StructuredAggregationQuery_Aggregation_Count) */
+} google_firestore_v1_StructuredAggregationQuery_Aggregation_Count;
+
 typedef struct _google_firestore_v1_StructuredQuery_CollectionSelector {
     pb_bytes_array_t *collection_id;
     bool all_descendants;
@@ -154,6 +161,17 @@ typedef struct _google_firestore_v1_StructuredQuery_UnaryFilter {
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery_UnaryFilter) */
 } google_firestore_v1_StructuredQuery_UnaryFilter;
 
+typedef struct _google_firestore_v1_StructuredAggregationQuery_Aggregation {
+    pb_size_t which_operator;
+    union {
+        google_firestore_v1_StructuredAggregationQuery_Aggregation_Count count;
+    };
+    pb_bytes_array_t *alias;
+
+    std::string ToString(int indent = 0) const;
+/* @@protoc_insertion_point(struct:google_firestore_v1_StructuredAggregationQuery_Aggregation) */
+} google_firestore_v1_StructuredAggregationQuery_Aggregation;
+
 typedef struct _google_firestore_v1_StructuredQuery_Filter {
     pb_size_t which_filter_type;
     union {
@@ -183,6 +201,18 @@ typedef struct _google_firestore_v1_StructuredQuery {
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredQuery) */
 } google_firestore_v1_StructuredQuery;
 
+typedef struct _google_firestore_v1_StructuredAggregationQuery {
+    pb_size_t which_query_type;
+    union {
+        google_firestore_v1_StructuredQuery structured_query;
+    };
+    pb_size_t aggregations_count;
+    struct _google_firestore_v1_StructuredAggregationQuery_Aggregation *aggregations;
+
+    std::string ToString(int indent = 0) const;
+/* @@protoc_insertion_point(struct:google_firestore_v1_StructuredAggregationQuery) */
+} google_firestore_v1_StructuredAggregationQuery;
+
 /* Default values for struct fields */
 
 /* Initializer values for message structs */
@@ -195,6 +225,9 @@ typedef struct _google_firestore_v1_StructuredQuery {
 #define google_firestore_v1_StructuredQuery_Order_init_default {google_firestore_v1_StructuredQuery_FieldReference_init_default, _google_firestore_v1_StructuredQuery_Direction_MIN}
 #define google_firestore_v1_StructuredQuery_FieldReference_init_default {NULL}
 #define google_firestore_v1_StructuredQuery_Projection_init_default {0, NULL}
+#define google_firestore_v1_StructuredAggregationQuery_init_default {0, {google_firestore_v1_StructuredQuery_init_default}, 0, NULL}
+#define google_firestore_v1_StructuredAggregationQuery_Aggregation_init_default {0, {google_firestore_v1_StructuredAggregationQuery_Aggregation_Count_init_default}, NULL}
+#define google_firestore_v1_StructuredAggregationQuery_Aggregation_Count_init_default {google_protobuf_Int64Value_init_default}
 #define google_firestore_v1_Cursor_init_default  {0, NULL, 0}
 #define google_firestore_v1_StructuredQuery_init_zero {google_firestore_v1_StructuredQuery_Projection_init_zero, 0, NULL, google_firestore_v1_StructuredQuery_Filter_init_zero, 0, NULL, false, google_protobuf_Int32Value_init_zero, 0, google_firestore_v1_Cursor_init_zero, google_firestore_v1_Cursor_init_zero}
 #define google_firestore_v1_StructuredQuery_CollectionSelector_init_zero {NULL, 0}
@@ -205,6 +238,9 @@ typedef struct _google_firestore_v1_StructuredQuery {
 #define google_firestore_v1_StructuredQuery_Order_init_zero {google_firestore_v1_StructuredQuery_FieldReference_init_zero, _google_firestore_v1_StructuredQuery_Direction_MIN}
 #define google_firestore_v1_StructuredQuery_FieldReference_init_zero {NULL}
 #define google_firestore_v1_StructuredQuery_Projection_init_zero {0, NULL}
+#define google_firestore_v1_StructuredAggregationQuery_init_zero {0, {google_firestore_v1_StructuredQuery_init_zero}, 0, NULL}
+#define google_firestore_v1_StructuredAggregationQuery_Aggregation_init_zero {0, {google_firestore_v1_StructuredAggregationQuery_Aggregation_Count_init_zero}, NULL}
+#define google_firestore_v1_StructuredAggregationQuery_Aggregation_Count_init_zero {google_protobuf_Int64Value_init_zero}
 #define google_firestore_v1_Cursor_init_zero     {0, NULL, 0}
 
 /* Field tags (for use in manual encoding/decoding) */
@@ -212,6 +248,7 @@ typedef struct _google_firestore_v1_StructuredQuery {
 #define google_firestore_v1_StructuredQuery_Projection_fields_tag 2
 #define google_firestore_v1_Cursor_values_tag    1
 #define google_firestore_v1_Cursor_before_tag    2
+#define google_firestore_v1_StructuredAggregationQuery_Aggregation_Count_up_to_tag 1
 #define google_firestore_v1_StructuredQuery_CollectionSelector_collection_id_tag 2
 #define google_firestore_v1_StructuredQuery_CollectionSelector_all_descendants_tag 3
 #define google_firestore_v1_StructuredQuery_CompositeFilter_op_tag 1
@@ -223,6 +260,8 @@ typedef struct _google_firestore_v1_StructuredQuery {
 #define google_firestore_v1_StructuredQuery_Order_direction_tag 2
 #define google_firestore_v1_StructuredQuery_UnaryFilter_field_tag 2
 #define google_firestore_v1_StructuredQuery_UnaryFilter_op_tag 1
+#define google_firestore_v1_StructuredAggregationQuery_Aggregation_count_tag 1
+#define google_firestore_v1_StructuredAggregationQuery_Aggregation_alias_tag 7
 #define google_firestore_v1_StructuredQuery_Filter_composite_filter_tag 1
 #define google_firestore_v1_StructuredQuery_Filter_field_filter_tag 2
 #define google_firestore_v1_StructuredQuery_Filter_unary_filter_tag 3
@@ -234,6 +273,8 @@ typedef struct _google_firestore_v1_StructuredQuery {
 #define google_firestore_v1_StructuredQuery_end_at_tag 8
 #define google_firestore_v1_StructuredQuery_offset_tag 6
 #define google_firestore_v1_StructuredQuery_limit_tag 5
+#define google_firestore_v1_StructuredAggregationQuery_structured_query_tag 1
+#define google_firestore_v1_StructuredAggregationQuery_aggregations_tag 3
 
 /* Struct field encoding specification for nanopb */
 extern const pb_field_t google_firestore_v1_StructuredQuery_fields[9];
@@ -245,6 +286,9 @@ extern const pb_field_t google_firestore_v1_StructuredQuery_UnaryFilter_fields[3
 extern const pb_field_t google_firestore_v1_StructuredQuery_Order_fields[3];
 extern const pb_field_t google_firestore_v1_StructuredQuery_FieldReference_fields[2];
 extern const pb_field_t google_firestore_v1_StructuredQuery_Projection_fields[2];
+extern const pb_field_t google_firestore_v1_StructuredAggregationQuery_fields[3];
+extern const pb_field_t google_firestore_v1_StructuredAggregationQuery_Aggregation_fields[3];
+extern const pb_field_t google_firestore_v1_StructuredAggregationQuery_Aggregation_Count_fields[2];
 extern const pb_field_t google_firestore_v1_Cursor_fields[3];
 
 /* Maximum encoded size of messages (where known) */
@@ -257,6 +301,9 @@ extern const pb_field_t google_firestore_v1_Cursor_fields[3];
 /* google_firestore_v1_StructuredQuery_Order_size depends on runtime parameters */
 /* google_firestore_v1_StructuredQuery_FieldReference_size depends on runtime parameters */
 /* google_firestore_v1_StructuredQuery_Projection_size depends on runtime parameters */
+/* google_firestore_v1_StructuredAggregationQuery_size depends on runtime parameters */
+/* google_firestore_v1_StructuredAggregationQuery_Aggregation_size depends on runtime parameters */
+#define google_firestore_v1_StructuredAggregationQuery_Aggregation_Count_size 13
 /* google_firestore_v1_Cursor_size depends on runtime parameters */
 
 /* Message IDs (where set with "msgid" option) */
