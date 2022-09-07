@@ -1,10 +1,3 @@
-# 9.6.0
-- [fixed] Mac apps using this product will no longer prompt the user for
-  permission when storing/retrieving SDK data in the keychain. Using this
-  product on macOS now requires that the target be signed with a
-  provisioning profile that has the Keychain Sharing capability
-  enabled. (#9392)
-
 # 9.5.0
 - [added] DeviceCheck and App Attest providers are supported by watchOS 9.0+. (#10094, #10098)
 - [added] App Attest provider availability updated to support tvOS 15.0+. (#10093)

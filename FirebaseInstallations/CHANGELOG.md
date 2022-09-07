@@ -1,10 +1,3 @@
-# 9.6.0
-- [fixed] Mac apps using this product will no longer prompt the user for
-  permission when storing/retrieving SDK data in the keychain. Using this
-  product on macOS now requires that the target be signed with a
-  provisioning profile that has the Keychain Sharing capability
-  enabled. (#9392)
-
 # 9.0.0
 - [fixed] Swift-only: Updated symbol name kFirebaseInstallationsErrorDomain to
   InstallationsErrorDomain. (#9275)
