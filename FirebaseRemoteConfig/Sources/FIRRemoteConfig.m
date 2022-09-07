@@ -40,7 +40,8 @@ static NSString *const kRemoteConfigMinimumFetchIntervalKey = @"_rcn_minimum_fet
 /// Timeout value for waiting on a fetch response.
 static NSString *const kRemoteConfigFetchTimeoutKey = @"_rcn_fetch_timeout";
 /// Notification when config is successfully activated
-const NSNotificationName FIRRemoteConfigChangeNotification = @"FIRRemoteConfigChangeNotification";
+const NSNotificationName FIRRemoteConfigActivateNotification =
+    @"FIRRemoteConfigActivateNotification";
 
 /// Listener for the get methods.
 typedef void (^FIRRemoteConfigListener)(NSString *_Nonnull, NSDictionary *_Nonnull);
@@ -346,7 +347,7 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 
 - (void)notifyConfigHasChanged {
   // Currently the Remote config Swift SDK is listening this notification to update SwiftUI
-  [[NSNotificationCenter defaultCenter] postNotificationName:FIRRemoteConfigChangeNotification
+  [[NSNotificationCenter defaultCenter] postNotificationName:FIRRemoteConfigActivateNotification
                                                       object:self
                                                     userInfo:nil];
 }
