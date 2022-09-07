@@ -1,3 +1,6 @@
+# 9.7.0
+- [added] Added a new dynamic property wrapper API that enables developers to create a property wrapper property that listens to a remote config key value and automatically updates the UI component when new config are activated. (#10155)
+
 # 9.5.0
 - [fixed] Fix Codable implementation to handle arrays and dictionaries from plist defaults. (#9980)
 
