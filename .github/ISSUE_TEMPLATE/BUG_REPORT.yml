@@ -83,6 +83,8 @@ body:
         - Performance
         - Remote Config
         - Storage
+        - All
+        - Infrastructure
     validations:
       required: true
   - type: dropdown
