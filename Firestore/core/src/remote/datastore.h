@@ -22,6 +22,7 @@
 #include <string>
 #include <vector>
 
+#include "Firestore/core/src/api/api_fwd.h"
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/credentials/auth_token.h"
 #include "Firestore/core/src/credentials/credentials_fwd.h"
@@ -71,8 +72,6 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   using LookupCallback =
       std::function<void(const util::StatusOr<std::vector<model::Document>>&)>;
   using CommitCallback = std::function<void(const util::Status&)>;
-  using CountQueryCallback =
-      std::function<void(const util::StatusOr<int64_t>&)>;
 
   Datastore(
       const core::DatabaseInfo& database_info,
@@ -109,7 +108,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
                        LookupCallback&& user_callback);
 
   void RunCountQuery(const core::Query& query,
-                     CountQueryCallback&& result_callback);
+                     api::CountQueryCallback&& result_callback);
 
   /** Returns true if the given error is a gRPC ABORTED error. */
   static bool IsAbortedError(const util::Status& error);
@@ -186,7 +185,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   void RunCountQueryWithCredentials(const credentials::AuthToken& auth_token,
                                     const std::string& app_check_token,
                                     const core::Query& query,
-                                    CountQueryCallback&& callback);
+                                    api::CountQueryCallback&& callback);
 
   using OnCredentials = std::function<void(
       const util::StatusOr<credentials::AuthToken>&, const std::string&)>;

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#import "FIRAggregateQuery+Internal.h"
 #import "FIRQuery.h"
 
 #include <memory>
@@ -46,6 +47,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 // TODO(orquery): This method will become public API. Change visibility and add documentation.
 - (FIRQuery *)queryWhereFilter:(FIRFilter *)filter;
+
+// TODO(COUNT): This method will become public API. Change visibility and add documentation.
+@property(nonatomic, readonly) FIRAggregateQuery *countAggregateQuery;
 
 @end
 

@@ -259,7 +259,7 @@ void Datastore::LookupDocumentsWithCredentials(
 }
 
 void Datastore::RunCountQuery(const core::Query& query,
-                              CountQueryCallback&& result_callback) {
+                              api::CountQueryCallback&& result_callback) {
   ResumeRpcWithCredentials(
       // TODO(c++14): move into lambda.
       [this, query, result_callback](
@@ -278,7 +278,7 @@ void Datastore::RunCountQueryWithCredentials(
     const credentials::AuthToken& auth_token,
     const std::string& app_check_token,
     const core::Query& query,
-    CountQueryCallback&& callback) {
+    api::CountQueryCallback&& callback) {
   grpc::ByteBuffer message =
       MakeByteBuffer(datastore_serializer_.EncodeCountQuery(query));
 
@@ -295,7 +295,8 @@ void Datastore::RunCountQueryWithCredentials(
         HandleCallStatus(result.status());
 
         if (result.ok()) {
-          callback(datastore_serializer_.DecodeCountQueryResponse(result.ValueOrDie()));
+          callback(datastore_serializer_.DecodeCountQueryResponse(
+              result.ValueOrDie()));
         } else {
           callback(result.status());
         }
