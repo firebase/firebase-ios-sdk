@@ -50,7 +50,7 @@ internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
       self, selector: #selector(configDidActivated), name: .onRemoteConfigActivated, object: nil)
   }
 
-  @objc func configDidActivated() {
+  @objc func configDidActivate() {
     do {
       let configValue: RemoteConfigValue = self.remoteConfig[self.key]
       if configValue.source == .remote {

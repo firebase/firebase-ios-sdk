@@ -345,8 +345,8 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
   dispatch_async(_queue, applyBlock);
 }
 
-- (void)notifyConfigHasChanged {
-  // Currently the Remote config Swift SDK is listening this notification to update SwiftUI
+- (void)notifyConfigHasActivated {
+  // The Remote Config Swift SDK will be listening for this notification so it can tell SwiftUI to update the UI.
   [[NSNotificationCenter defaultCenter] postNotificationName:FIRRemoteConfigActivateNotification
                                                       object:self
                                                     userInfo:nil];
