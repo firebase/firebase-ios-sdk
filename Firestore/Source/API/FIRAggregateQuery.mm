@@ -41,9 +41,10 @@
 
 - (void)aggregationWithCompletion:(void (^)(FIRAggregateQuerySnapshot *_Nullable snapshot,
                                             NSError *_Nullable error))completion {
-  _aggregation->Get([completion](const firebase::firestore::util::StatusOr<int64_t> &result) {
+  _aggregation->Get([self, completion](const firebase::firestore::util::StatusOr<int64_t> &result) {
     if (result.ok()) {
-      completion([[FIRAggregateQuerySnapshot alloc] initWithCount:result.ValueOrDie()], nil);
+      completion([[FIRAggregateQuerySnapshot alloc] initWithCount:result.ValueOrDie() Query:self],
+                 nil);
     } else {
       completion(nil, MakeNSError(result.status()));
     }

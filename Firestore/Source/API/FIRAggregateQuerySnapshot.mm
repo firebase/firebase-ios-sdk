@@ -21,7 +21,7 @@
   FIRAggregateQuery* _query;
 }
 
-- (instancetype _Nonnull)initWith:(int64_t)count Query:(FIRAggregateQuery*)query {
+- (instancetype _Nonnull)initWithCount:(int64_t)count Query:(FIRAggregateQuery*)query {
   _result = count;
   _query = query;
   return self;

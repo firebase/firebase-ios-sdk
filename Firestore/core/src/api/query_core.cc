@@ -486,7 +486,7 @@ std::string Query::Describe(Operator op) const {
 }
 
 AggregateQuery Query::Count() const {
-  return AggregateQuery(shared_from_this());
+  return AggregateQuery(*this);
 }
 
 }  // namespace api

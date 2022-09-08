@@ -20,10 +20,11 @@
 
 @interface FIRAggregateQuerySnapshot : NSObject
 
-- (instancetype _Nonnull)initWithCount:(int64_t)query NS_DESIGNATED_INITIALIZER;
+- (instancetype _Nonnull)initWithCount:(int64_t)result
+                                 Query:(FIRAggregateQuery* _Nonnull)query NS_DESIGNATED_INITIALIZER;
 
-@property(nonatomic, readonly) FIRAggregateQuery *query;
+@property(nonatomic, readonly) FIRAggregateQuery* _Nonnull query;
 
-@property(nonatomic, readonly) NSNumber *count;
+@property(nonatomic, readonly) NSNumber* _Nonnull count;
 
 @end

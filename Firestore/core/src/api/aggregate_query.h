@@ -26,16 +26,16 @@ namespace api {
 
 class AggregateQuery {
  public:
-  explicit AggregateQuery(std::shared_ptr<const Query> query);
+  explicit AggregateQuery(Query query);
 
-  const std::shared_ptr<const Query>& query() const {
+  const Query& query() const {
     return query_;
   }
 
   void Get(CountQueryCallback&& callback);
 
  private:
-  std::shared_ptr<const Query> query_;
+  Query query_;
 };
 
 }  // namespace api

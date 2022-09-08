@@ -24,13 +24,12 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
-AggregateQuery::AggregateQuery(std::shared_ptr<const Query> query)
-    : query_{std::move(query)} {
+AggregateQuery::AggregateQuery(Query query) : query_{std::move(query)} {
 }
 
 void AggregateQuery::Get(CountQueryCallback&& callback) {
-  query_->firestore()->client()->RunCountQuery(query_->query(),
-                                               std::move(callback));
+  query_.firestore()->client()->RunCountQuery(query_.query(),
+                                              std::move(callback));
 }
 
 }  // namespace api

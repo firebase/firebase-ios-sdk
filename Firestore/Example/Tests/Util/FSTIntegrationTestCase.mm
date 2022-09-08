@@ -26,6 +26,7 @@
 #import <FirebaseFirestore/FIRSnapshotMetadata.h>
 #import <FirebaseFirestore/FIRTransaction.h>
 
+#import <Firestore/Source/API/FIRAggregateQuery+Internal.h>
 #include <memory>
 #include <string>
 #include <utility>
@@ -443,6 +444,21 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
 
   [self awaitExpectation:expectation];
   [listener remove];
+
+  return result;
+}
+
+- (FIRAggregateQuerySnapshot *)readSnapshotForAggregate:(FIRAggregateQuery *)query {
+  __block FIRAggregateQuerySnapshot *result;
+  XCTestExpectation *expectation = [self expectationWithDescription:@"aggregate result"];
+
+  [query aggregationWithCompletion:^(FIRAggregateQuerySnapshot *snapshot, NSError *error) {
+    XCTAssertNil(error);
+    result = snapshot;
+    [expectation fulfill];
+  }];
+
+  [self awaitExpectation:expectation];
 
   return result;
 }

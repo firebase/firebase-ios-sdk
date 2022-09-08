@@ -46,7 +46,7 @@ class AggregateQuery;
  * A `Query` refers to a Firestore Query which you can read or listen to. You
  * can also construct refined `Query` objects by adding filters and ordering.
  */
-class Query : std::enable_shared_from_this<Query> {
+class Query {
  public:
   Query() = default;
 
