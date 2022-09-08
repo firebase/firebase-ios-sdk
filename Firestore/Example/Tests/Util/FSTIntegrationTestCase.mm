@@ -26,7 +26,6 @@
 #import <FirebaseFirestore/FIRSnapshotMetadata.h>
 #import <FirebaseFirestore/FIRTransaction.h>
 
-#import <Firestore/Source/API/FIRAggregateQuery+Internal.h>
 #include <memory>
 #include <string>
 #include <utility>
@@ -36,6 +35,7 @@
 #import "FirebaseCore/Extension/FIROptionsInternal.h"
 #import "Firestore/Example/Tests/Util/FIRFirestore+Testing.h"
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
+#import "Firestore/Source/API/FIRAggregateQuery+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 
 #include "Firestore/core/src/credentials/credentials_provider.h"

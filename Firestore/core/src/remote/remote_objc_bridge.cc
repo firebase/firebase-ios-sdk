@@ -271,7 +271,7 @@ DatastoreSerializer::EncodeCountQuery(const core::Query& query) const {
   auto encodedTarget = serializer_.EncodeQueryTarget(query.ToTarget());
   result->parent = encodedTarget.parent;
   result->which_query_type =
-      google_firestore_v1_RunAggregationQueryRequest_structured_aggregation_query_tag;
+      google_firestore_v1_RunAggregationQueryRequest_structured_aggregation_query_tag;  // NOLINT
 
   result->query_type.structured_aggregation_query.which_query_type =
       google_firestore_v1_StructuredAggregationQuery_structured_query_tag;

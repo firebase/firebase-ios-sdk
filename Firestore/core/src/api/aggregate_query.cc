@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/api/aggregate_query.h"
 
+#include <utility>
+
 #include "Firestore/core/src/api/api_fwd.h"
 #include "Firestore/core/src/api/firestore.h"
 #include "Firestore/core/src/core/firestore_client.h"
