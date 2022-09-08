@@ -31,11 +31,11 @@
 - (NSURLSessionDataTask *)URLSessionDataTaskWithContent:(NSData *)content
                                       completionHandler:
                                           (RCNConfigFetcherCompletion)fetcherCompletion
-                                        addEtagToHeader:(bool)addEtagToHeader;
+                           excludeEtagHeaderForRealtime:(bool)excludeEtagHeaderForRealtime;
 
 - (void)fetchWithUserProperties:(NSDictionary *)userProperties
-              completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler
-                addEtagToHeader:(bool)addEtagToHeader;
+               completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler
+    excludeEtagHeaderForRealtime:(bool)excludeEtagHeaderForRealtime;
 @end
 
 @interface RCNPersonalizationTest : XCTestCase {
@@ -240,16 +240,20 @@
 
 + (id)mockFetchRequest {
   id configFetch = OCMClassMock([RCNConfigFetch class]);
-  OCMStub([configFetch fetchConfigWithExpirationDuration:0 completionHandler:OCMOCK_ANY addEtagToHeader:true])
+  OCMStub([configFetch fetchConfigWithExpirationDuration:0
+                                       completionHandler:OCMOCK_ANY
+                            excludeEtagHeaderForRealtime:false])
       .ignoringNonObjectArgs()
       .andDo(^(NSInvocation *invocation) {
         __unsafe_unretained FIRRemoteConfigFetchCompletion handler;
         [invocation getArgument:&handler atIndex:3];
-        [configFetch fetchWithUserProperties:[[NSDictionary alloc] init] completionHandler:handler addEtagToHeader:true];
+        [configFetch fetchWithUserProperties:[[NSDictionary alloc] init]
+                           completionHandler:handler
+                excludeEtagHeaderForRealtime:false];
       });
-  OCMExpect([configFetch
-                URLSessionDataTaskWithContent:[OCMArg any]
-                            completionHandler:[RCNPersonalizationTest mockResponseHandler] addEtagToHeader:true])
+  OCMExpect([configFetch URLSessionDataTaskWithContent:[OCMArg any]
+                                     completionHandler:[RCNPersonalizationTest mockResponseHandler]
+                          excludeEtagHeaderForRealtime:false])
       .andReturn(nil);
   return configFetch;
 }

@@ -248,7 +248,7 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
   }
   [_configFetch fetchConfigWithExpirationDuration:expirationDuration
                                 completionHandler:completionHandlerCopy
-                                addEtagToHeader:true];
+                     excludeEtagHeaderForRealtime:false];
 }
 
 #pragma mark - fetchAndActivate

@@ -46,13 +46,13 @@
 - (NSURLSessionDataTask *)URLSessionDataTaskWithContent:(NSData *)content
                                       completionHandler:
                                           (RCNConfigFetcherCompletion)fetcherCompletion
-                                        addEtagToHeader:(bool)addEtagToHeader;
+                           excludeEtagHeaderForRealtime:(bool)excludeEtagHeaderForRealtime;
 - (void)fetchConfigWithExpirationDuration:(NSTimeInterval)expirationDuration
                         completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler
-                        addEtagToHeader:(bool)addEtagToHeader;
+             excludeEtagHeaderForRealtime:(bool)excludeEtagHeaderForRealtime;
 - (void)fetchWithUserProperties:(NSDictionary *)userProperties
-              completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler
-                addEtagToHeader:(bool)addEtagToHeader;
+               completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler
+    excludeEtagHeaderForRealtime:(bool)excludeEtagHeaderForRealtime;
 - (NSString *)constructServerURL;
 - (NSURLSession *)currentNetworkSession;
 @end
@@ -243,14 +243,15 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 
     OCMStubRecorder *mock = OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:0
                                                                      completionHandler:OCMOCK_ANY
-                                                                        addEtagToHeader:true]);
+                                                          excludeEtagHeaderForRealtime:false]);
     mock = [mock ignoringNonObjectArgs];
     mock.andDo(^(NSInvocation *invocation) {
       __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
                                           NSError *_Nullable error) = nil;
       [invocation getArgument:&handler atIndex:3];
       [self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
-                                   completionHandler:handler addEtagToHeader:true];
+                                   completionHandler:handler
+                        excludeEtagHeaderForRealtime:false];
     });
 
     _response[i] = @{@"state" : @"UPDATE", @"entries" : _entries[i]};
@@ -267,7 +268,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         [OCMArg invokeBlockWithArgs:_responseData[i], _URLResponse[i], [NSNull null], nil];
 
     OCMStub([_configFetch[i] URLSessionDataTaskWithContent:[OCMArg any]
-                                         completionHandler:completionBlock addEtagToHeader:true])
+                                         completionHandler:completionBlock
+                              excludeEtagHeaderForRealtime:false])
         .andReturn(nil);
     [_configInstances[i] updateWithNewInstancesForConfigFetch:_configFetch[i]
                                                 configContent:configContent
@@ -601,6 +603,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                bundleID:[NSBundle mainBundle].bundleIdentifier
                                               namespace:_fullyQualifiedNamespace];
     userDefaultsManager.lastFetchTime = 0;
+    userDefaultsManager.lastTemplateVersion = @"0";
 
     FIRRemoteConfig *config =
         OCMPartialMock([[FIRRemoteConfig alloc] initWithAppName:currentAppName
@@ -626,13 +629,16 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                               namespace:_fullyQualifiedNamespace
                                                                 options:currentOptions]);
 
-    OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:43200 completionHandler:OCMOCK_ANY addEtagToHeader:true])
+    OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:43200
+                                             completionHandler:OCMOCK_ANY
+                                  excludeEtagHeaderForRealtime:false])
         .andDo(^(NSInvocation *invocation) {
           __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
                                               NSError *_Nullable error) = nil;
           [invocation getArgument:&handler atIndex:3];
           [self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
-                                       completionHandler:handler addEtagToHeader:true];
+                                       completionHandler:handler
+                            excludeEtagHeaderForRealtime:false];
         });
 
     _response[i] = @{};
@@ -746,13 +752,16 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                               namespace:fullyQualifiedNamespace
                                                                 options:currentOptions]);
 
-    OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:43200 completionHandler:OCMOCK_ANY addEtagToHeader:true])
+    OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:43200
+                                             completionHandler:OCMOCK_ANY
+                                  excludeEtagHeaderForRealtime:false])
         .andDo(^(NSInvocation *invocation) {
           __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
                                               NSError *_Nullable error) = nil;
           [invocation getArgument:&handler atIndex:3];
           [self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
-                                       completionHandler:handler addEtagToHeader:true];
+                                       completionHandler:handler
+                            excludeEtagHeaderForRealtime:false];
         });
 
     _response[i] = @{};
@@ -840,12 +849,16 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                    namespace:fullyQualifiedNamespace
                                                      options:currentOptions]);
 
-  OCMStub([configFetch fetchConfigWithExpirationDuration:43200 completionHandler:OCMOCK_ANY addEtagToHeader:true])
+  OCMStub([configFetch fetchConfigWithExpirationDuration:43200
+                                       completionHandler:OCMOCK_ANY
+                            excludeEtagHeaderForRealtime:false])
       .andDo(^(NSInvocation *invocation) {
         __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
                                             NSError *_Nullable error) = nil;
         [invocation getArgument:&handler atIndex:3];
-        [configFetch fetchWithUserProperties:[[NSDictionary alloc] init] completionHandler:handler addEtagToHeader:true];
+        [configFetch fetchWithUserProperties:[[NSDictionary alloc] init]
+                           completionHandler:handler
+                excludeEtagHeaderForRealtime:false];
       });
   _responseData[0] = [NSJSONSerialization dataWithJSONObject:@{} options:0 error:nil];
 
@@ -950,14 +963,17 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                               namespace:fullyQualifiedNamespace
                                                                 options:currentOptions]);
 
-    OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:43200 completionHandler:OCMOCK_ANY addEtagToHeader:true])
+    OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:43200
+                                             completionHandler:OCMOCK_ANY
+                                  excludeEtagHeaderForRealtime:false])
         .andDo(^(NSInvocation *invocation) {
           __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
                                               NSError *_Nullable error) = nil;
 
           [invocation getArgument:&handler atIndex:3];
           [self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
-                                       completionHandler:handler addEtagToHeader:true];
+                                       completionHandler:handler
+                            excludeEtagHeaderForRealtime:false];
         });
 
     _response[i] = @{@"state" : @"NO_CHANGE"};
@@ -974,7 +990,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         [OCMArg invokeBlockWithArgs:_responseData[i], _URLResponse[i], [NSNull null], nil];
 
     OCMStub([_configFetch[i] URLSessionDataTaskWithContent:[OCMArg any]
-                                         completionHandler:completionBlock addEtagToHeader:true])
+                                         completionHandler:completionBlock
+                              excludeEtagHeaderForRealtime:false])
         .andReturn(nil);
 
     [_configInstances[i] updateWithNewInstancesForConfigFetch:_configFetch[i]
@@ -1640,6 +1657,49 @@ static NSString *UTCToLocal(NSString *utcTime) {
         dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
         dispatch_get_main_queue(), ^{
           OCMVerify([self->_configRealtime[i] scheduleFetch:1 targetVersion:1]);
+          [expectations[i] fulfill];
+        });
+
+    [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+  }
+}
+
+- (void)testNoTemplateVersionFetch {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] = [self
+        expectationWithDescription:
+            [NSString stringWithFormat:@"Test Realtime Autofetch successfully - instance %d", i]];
+    RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:_DBManager];
+    _configFetch[i] =
+        OCMPartialMock([[RCNConfigFetch alloc] initWithContent:configContent
+                                                     DBManager:_DBManager
+                                                      settings:_settings
+                                                     analytics:nil
+                                                    experiment:nil
+                                                         queue:_queue
+                                                     namespace:_fullyQualifiedNamespace
+                                                       options:[self firstAppOptions]]);
+
+    _configRealtime[i] = OCMPartialMock([[RCNConfigRealtime alloc] init:_configFetch[i]
+                                                               settings:_settings
+                                                              namespace:_fullyQualifiedNamespace
+                                                                options:[self firstAppOptions]]);
+
+    OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:0
+                                             completionHandler:OCMOCK_ANY
+                                  excludeEtagHeaderForRealtime:true])
+        ._andDo(nil);
+
+    [_configRealtime[i] fetchLatestConfig:1 targetVersion:1];
+
+    dispatch_after(
+        dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
+        dispatch_get_main_queue(), ^{
+          OCMVerify([self->_configFetch[i] fetchConfigWithExpirationDuration:0
+                                                           completionHandler:OCMOCK_ANY
+                                                excludeEtagHeaderForRealtime:true]);
           [expectations[i] fulfill];
         });
 

@@ -420,6 +420,8 @@ static NSInteger const gMaxRetries = 7;
         [strongSelf autoFetch:remainingAttempts - 1 targetVersion:targetVersion];
       }
     } else {
+      bool excludeEtagHeaderForRealtime =
+          [[strongSelf->_configFetch templateVersionNumber] integerValue] == 0;
       [strongSelf->_configFetch
           fetchConfigWithExpirationDuration:0
                           completionHandler:^(FIRRemoteConfigFetchStatus status, NSError *error) {
@@ -452,7 +454,7 @@ static NSInteger const gMaxRetries = 7;
                               }
                             }
                           }
-      addEtagToHeader:[[strongSelf->_configFetch templateVersionNumber] integerValue] != 0];
+               excludeEtagHeaderForRealtime:excludeEtagHeaderForRealtime];
     }
   });
 }
