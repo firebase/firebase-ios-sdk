@@ -31,7 +31,7 @@
   RCNConfigFetch *mock = OCMPartialMock(fetch);
   OCMStub([mock recreateNetworkSession]).andDo(nil);
   OCMStub([mock refreshInstallationsTokenWithCompletionHandler:[OCMArg any]
-                                  excludeEtagHeaderForRealtime:[OCMArg any]])
+                                  excludeEtagHeaderForRealtime:false])
       .andCall(mock, @selector(doFetchCall:excludeEtagHeaderForRealtime:));
   return mock;
 }
