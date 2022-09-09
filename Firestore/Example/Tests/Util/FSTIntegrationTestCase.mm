@@ -454,10 +454,10 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
 
   [query aggregationWithSource:FIRAggregateSourceServer
                     completion:^(FIRAggregateQuerySnapshot *snapshot, NSError *error) {
-    XCTAssertNil(error);
-    result = snapshot;
-    [expectation fulfill];
-  }];
+                      XCTAssertNil(error);
+                      result = snapshot;
+                      [expectation fulfill];
+                    }];
 
   [self awaitExpectation:expectation];
 

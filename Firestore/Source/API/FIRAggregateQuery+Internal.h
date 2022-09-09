@@ -27,6 +27,6 @@
 
 - (void)aggregationWithSource:(FIRAggregateSource)source
                    completion:(void (^_Nonnull)(FIRAggregateQuerySnapshot *_Nullable snapshot,
-                                                    NSError *_Nullable error))completion
+                                                NSError *_Nullable error))completion
     NS_SWIFT_NAME(aggregation(source:completion:));
 @end

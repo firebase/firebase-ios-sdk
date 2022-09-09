@@ -91,8 +91,10 @@
 
   [[testCollection countAggregateQuery]
       aggregationWithSource:FIRAggregateSourceServer
-       completion:^(FIRAggregateQuerySnapshot* snapshot, NSError* error){
-      }];
+                 completion:^(FIRAggregateQuerySnapshot* snapshot, NSError* error) {
+                   (void)snapshot;
+                   (void)error;
+                 }];
   [self terminateFirestore:testCollection.firestore];
 }
 
@@ -191,9 +193,10 @@
 
   [[testCollection countAggregateQuery]
       aggregationWithSource:FIRAggregateSourceServer
-   completion:^(FIRAggregateQuerySnapshot* snapshot, NSError* error) {
-        XCTAssertNotNil(error);
-      }];
+                 completion:^(FIRAggregateQuerySnapshot* snapshot, NSError* error) {
+                   (void)snapshot;
+                   XCTAssertNotNil(error);
+                 }];
 
   [self enableNetwork];
   FIRAggregateQuerySnapshot* snapshot =
