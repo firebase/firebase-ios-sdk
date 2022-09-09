@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSString *)encodedURLForPath:(FIRStoragePath *)path;
 
 /**
- * Creates a NSError in the Firebase Storage domain with given code and description.
+ * Creates an NSError in the Firebase Storage domain with given code and description.
  * Useful for argument validation.
  * @param description The error description to surface to the user.
  * @param code The error code.
