@@ -19,8 +19,10 @@
 
 @interface RCNConfigFetch (ExposedForTest)
 - (void)refreshInstallationsTokenWithCompletionHandler:
-    (FIRRemoteConfigFetchCompletion)completionHandler;
-- (void)doFetchCall:(FIRRemoteConfigFetchCompletion)completionHandler;
+            (FIRRemoteConfigFetchCompletion)completionHandler
+                          excludeEtagHeaderForRealtime:(bool)excludeEtagHeaderForRealtime;
+- (void)doFetchCall:(FIRRemoteConfigFetchCompletion)completionHandler
+    excludeEtagHeaderForRealtime:(bool)excludeEtagHeaderForRealtime;
 @end
 
 @implementation FetchMocks
@@ -28,8 +30,9 @@
 + (RCNConfigFetch *)mockFetch:(RCNConfigFetch *)fetch {
   RCNConfigFetch *mock = OCMPartialMock(fetch);
   OCMStub([mock recreateNetworkSession]).andDo(nil);
-  OCMStub([mock refreshInstallationsTokenWithCompletionHandler:[OCMArg any]])
-      .andCall(mock, @selector(doFetchCall:));
+  OCMStub([mock refreshInstallationsTokenWithCompletionHandler:[OCMArg any]
+                                  excludeEtagHeaderForRealtime:false])
+      .andCall(mock, @selector(doFetchCall:excludeEtagHeaderForRealtime:));
   return mock;
 }
 
