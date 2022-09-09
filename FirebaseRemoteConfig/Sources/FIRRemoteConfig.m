@@ -350,7 +350,8 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
   if (_settings.googleAppID) {
     return;
   }
-  // Currently the Remote config Swift SDK is listening this notification to update SwiftUI
+  // The Remote Config Swift SDK will be listening for this notification so it can tell SwiftUI to
+  // update the UI.
   NSDictionary *appInfoDict = @{kFIRGoogleAppIDKey : _settings.googleAppID};
   [[NSNotificationCenter defaultCenter] postNotificationName:FIRRemoteConfigActivateNotification
                                                       object:self
