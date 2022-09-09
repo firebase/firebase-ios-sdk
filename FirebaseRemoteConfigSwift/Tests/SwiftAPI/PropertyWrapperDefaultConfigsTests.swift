@@ -28,7 +28,7 @@ import XCTest
       var cookTime: Int
     }
 
-    static let placeholderJSON = Recipe(
+    static let fallbackJSON = Recipe(
       recipeName: "muffin", ingredients: ["flour", "sugar"], cookTime: 45
     )
 
@@ -37,14 +37,14 @@ import XCTest
     struct DefaultsValuesTester {
       @RemoteConfigProperty(
         key: Constants.stringKey,
-        placeholder: Recipe(recipeName: "test", ingredients: [], cookTime: 0)
+        fallback: Recipe(recipeName: "test", ingredients: [], cookTime: 0)
       )
       var dictValue: Recipe
     }
 
     func testDefaultValues() async throws {
       try? RemoteConfig.remoteConfig().setDefaults(
-        from: PropertyWrapperEmptyConfigsTests.placeholderDict
+        from: PropertyWrapperDefaultConfigsTests.placeholderDict
       )
 
       let tester = await DefaultsValuesTester()

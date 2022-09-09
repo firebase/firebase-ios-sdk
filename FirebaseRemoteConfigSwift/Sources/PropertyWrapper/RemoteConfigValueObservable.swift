@@ -67,7 +67,7 @@ internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
         self.configValue = try remoteConfig[key].decoded()
       }
     } catch {
-      // Errors are ignored because the codable API already report error if there's any.
+      // Suppresses a hard failure if decoding failed.
     }
   }
 }

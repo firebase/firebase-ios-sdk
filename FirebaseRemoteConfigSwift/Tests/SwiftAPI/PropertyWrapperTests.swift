@@ -29,92 +29,92 @@ import XCTest
       var cookTime: Int
     }
 
-    static let placeholderString = "placeholder"
-    static let placeholderInt = 50
-    static let placeholderFloat: Float = 50.2
-    static let placeholderDouble: Double = 16_777_216.333921
-    static let placeholderDecimal: Decimal = 235
-    static let placeholderData = "hello".data(using: .utf8)!
-    static let placeholderArray = ["mango", "pineapple", "papaya"]
-    static let placeholderDict = [
+    static let fallbackString = "fallback"
+    static let fallbackInt = 50
+    static let fallbackFloat: Float = 50.2
+    static let fallbackDouble: Double = 16_777_216.333921
+    static let fallbackDecimal: Decimal = 235
+    static let fallbackData = "hello".data(using: .utf8)!
+    static let fallbackArray = ["mango", "pineapple", "papaya"]
+    static let fallbackDict = [
       "session 0": "breakfast", "session 1": "keynote", "session 2": "state of union",
     ]
-    static let placeholderJSON = Recipe(
+    static let fallbackJSON = Recipe(
       recipeName: "muffin", ingredients: ["flour", "sugar"], cookTime: 45
     )
 
     struct PropertyWrapperTester {
-      @RemoteConfigProperty(key: Constants.stringKey, placeholder: "")
+      @RemoteConfigProperty(key: Constants.stringKey, fallback: "")
       var stringValue: String!
 
       var stringKeyName: String {
         return _stringValue.key
       }
 
-      @RemoteConfigProperty(key: Constants.intKey, placeholder: 0)
+      @RemoteConfigProperty(key: Constants.intKey, fallback: 0)
       var intValue: Int!
 
       var intKeyName: String {
         return _intValue.key
       }
 
-      @RemoteConfigProperty(key: Constants.floatKey, placeholder: 0)
+      @RemoteConfigProperty(key: Constants.floatKey, fallback: 0)
       var floatValue: Float!
 
       var floatKeyName: String {
         return _floatValue.key
       }
 
-      @RemoteConfigProperty(key: Constants.floatKey, placeholder: 0)
+      @RemoteConfigProperty(key: Constants.floatKey, fallback: 0)
       var doubleValue: Double!
 
       var doubleKeyName: String {
         return _doubleValue.key
       }
 
-      @RemoteConfigProperty(key: Constants.decimalKey, placeholder: 0)
+      @RemoteConfigProperty(key: Constants.decimalKey, fallback: 0)
       var decimalValue: Decimal!
 
       var decimalKeyName: String {
         return _decimalValue.key
       }
 
-      @RemoteConfigProperty(key: Constants.trueKey, placeholder: false)
+      @RemoteConfigProperty(key: Constants.trueKey, fallback: false)
       var trueValue: Bool!
 
       var trueKeyName: String {
         return _trueValue.key
       }
 
-      @RemoteConfigProperty(key: Constants.falseKey, placeholder: false)
+      @RemoteConfigProperty(key: Constants.falseKey, fallback: false)
       var falseValue: Bool!
 
       var falseKeyName: String {
         return _falseValue.key
       }
 
-      @RemoteConfigProperty(key: Constants.dataKey, placeholder: Data())
+      @RemoteConfigProperty(key: Constants.dataKey, fallback: Data())
       var dataValue: Data!
 
       var dataKeyName: String {
         return _dataValue.key
       }
 
-      @RemoteConfigProperty(key: Constants.jsonKey, placeholder: nil)
+      @RemoteConfigProperty(key: Constants.jsonKey, fallback: nil)
       var recipeValue: Recipe!
 
       var recipeKeyName: String {
         _recipeValue.key
       }
 
-      @RemoteConfigProperty(key: Constants.arrayKey, placeholder: [])
+      @RemoteConfigProperty(key: Constants.arrayKey, fallback: [])
       var arrayValue: [String]!
 
       var arrayKeyName: String {
         _arrayValue.key
       }
 
-      @RemoteConfigProperty(key: Constants.dictKey, placeholder: [:])
+      @RemoteConfigProperty(key: Constants.dictKey, fallback: [:])
       var dictValue: [String: String]!
 
       var dictKeyName: String {
@@ -123,46 +123,46 @@ import XCTest
     }
 
     struct PlaceholderValueTester {
-      @RemoteConfigProperty(key: "NewKeyNotInSystem", placeholder: placeholderString)
+      @RemoteConfigProperty(key: "NewKeyNotInSystem", fallback: fallbackString)
       var stringValue: String
 
-      @RemoteConfigProperty(key: "NewIntKeyNotInSystem", placeholder: placeholderInt)
+      @RemoteConfigProperty(key: "NewIntKeyNotInSystem", fallback: fallbackInt)
       var intValue: Int!
 
-      @RemoteConfigProperty(key: "NewZeroKey", placeholder: 0)
+      @RemoteConfigProperty(key: "NewZeroKey", fallback: 0)
       var zeroIntValue: Int!
 
-      @RemoteConfigProperty(key: "newFloatKey", placeholder: placeholderFloat)
+      @RemoteConfigProperty(key: "newFloatKey", fallback: fallbackFloat)
       var floatValue: Float!
 
-      @RemoteConfigProperty(key: "newDoubleKey", placeholder: placeholderDouble)
+      @RemoteConfigProperty(key: "newDoubleKey", fallback: fallbackDouble)
       var doubleValue: Double!
 
-      @RemoteConfigProperty(key: "newDecimalKey", placeholder: placeholderDecimal)
+      @RemoteConfigProperty(key: "newDecimalKey", fallback: fallbackDecimal)
       var decimalValue: Decimal!
 
-      @RemoteConfigProperty(key: "newTrueKey", placeholder: false)
+      @RemoteConfigProperty(key: "newTrueKey", fallback: false)
       var trueKeyFalseValue: Bool!
 
-      @RemoteConfigProperty(key: "newTrueKey2", placeholder: true)
+      @RemoteConfigProperty(key: "newTrueKey2", fallback: true)
       var trueKeyTrueValue: Bool!
 
-      @RemoteConfigProperty(key: "newFalseKey", placeholder: true)
+      @RemoteConfigProperty(key: "newFalseKey", fallback: true)
       var falseKeyTrueValue: Bool!
 
-      @RemoteConfigProperty(key: "newFalseKey2", placeholder: false)
+      @RemoteConfigProperty(key: "newFalseKey2", fallback: false)
       var falseKeyFalseValue: Bool!
 
-      @RemoteConfigProperty(key: "newDataKey", placeholder: placeholderData)
+      @RemoteConfigProperty(key: "newDataKey", fallback: fallbackData)
       var dataValue: Data
 
-      @RemoteConfigProperty(key: "newJSONKey", placeholder: placeholderJSON)
+      @RemoteConfigProperty(key: "newJSONKey", fallback: fallbackJSON)
       var recipeValue: Recipe!
 
-      @RemoteConfigProperty(key: "newArrayKey", placeholder: placeholderArray)
+      @RemoteConfigProperty(key: "newArrayKey", fallback: fallbackArray)
       var arrayValue: [String]!
 
-      @RemoteConfigProperty(key: "newDictKey", placeholder: placeholderDict)
+      @RemoteConfigProperty(key: "newDictKey", fallback: fallbackDict)
       var dictValue: [String: String]!
     }
 
@@ -252,22 +252,22 @@ import XCTest
       let tester = await PlaceholderValueTester()
 
       let stringValue = await tester.stringValue
-      XCTAssertEqual(stringValue, PropertyWrapperTests.placeholderString)
+      XCTAssertEqual(stringValue, PropertyWrapperTests.fallbackString)
 
       let intValue = await tester.intValue
-      XCTAssertEqual(intValue, PropertyWrapperTests.placeholderInt)
+      XCTAssertEqual(intValue, PropertyWrapperTests.fallbackInt)
 
       let zeroValue = await tester.zeroIntValue
       XCTAssertEqual(zeroValue, 0)
 
       let floatValue = await tester.floatValue
-      XCTAssertEqual(floatValue, PropertyWrapperTests.placeholderFloat)
+      XCTAssertEqual(floatValue, PropertyWrapperTests.fallbackFloat)
 
       let doubleValue = await tester.doubleValue
-      XCTAssertEqual(doubleValue, PropertyWrapperTests.placeholderDouble)
+      XCTAssertEqual(doubleValue, PropertyWrapperTests.fallbackDouble)
 
       let decimalValue = await tester.decimalValue
-      XCTAssertEqual(decimalValue, PropertyWrapperTests.placeholderDecimal)
+      XCTAssertEqual(decimalValue, PropertyWrapperTests.fallbackDecimal)
 
       let trueKeyFalseValue = await tester.trueKeyFalseValue
       XCTAssertEqual(trueKeyFalseValue, false)
@@ -282,13 +282,13 @@ import XCTest
       XCTAssertEqual(falseKeyFalseValue, false)
 
       let dataValue = await tester.dataValue
-      XCTAssertEqual(dataValue, PropertyWrapperTests.placeholderData)
+      XCTAssertEqual(dataValue, PropertyWrapperTests.fallbackData)
 
       let arrayValue = await tester.arrayValue
-      XCTAssertEqual(arrayValue, PropertyWrapperTests.placeholderArray)
+      XCTAssertEqual(arrayValue, PropertyWrapperTests.fallbackArray)
 
       let dictValue = await tester.dictValue
-      XCTAssertEqual(dictValue, PropertyWrapperTests.placeholderDict)
+      XCTAssertEqual(dictValue, PropertyWrapperTests.fallbackDict)
 
       let recipeValue = await tester.recipeValue
       XCTAssertEqual(recipeValue?.recipeName, "muffin")
