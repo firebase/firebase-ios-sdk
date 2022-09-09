@@ -17,7 +17,6 @@
 import FirebaseRemoteConfig
 import SwiftUI
 
-#if compiler(>=5.5.2) && canImport(SwiftUI) && (arch(arm64) || arch(x86_64))
   /// A property wrapper that listens to a Remote Config value.
   @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
   @propertyWrapper
@@ -46,4 +45,3 @@ import SwiftUI
       )
     }
   }
-#endif

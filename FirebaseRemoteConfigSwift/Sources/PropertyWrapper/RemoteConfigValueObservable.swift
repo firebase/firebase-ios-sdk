@@ -15,12 +15,15 @@
  */
 
 import FirebaseRemoteConfig
+import FirebaseCore
 import SwiftUI
 
 extension Notification.Name {
   // Listens to FirebaseRemoteConfig SDK if new configs are activated.
   static let onRemoteConfigActivated = Notification.Name("FIRRemoteConfigActivateNotification")
 }
+// Make sure this key is consistent with kFIRGoogleAppIDKey in FirebaseCore SDK
+let FirebaseRemoteConfigGoogleAppIDKey = "FIRGoogleAppIDKey"
 
 @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
 internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
@@ -47,16 +50,22 @@ internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
       self.configValue = fallbackValue
     }
     NotificationCenter.default.addObserver(
-      self, selector: #selector(configDidActivated), name: .onRemoteConfigActivated, object: nil)
+      self, selector: #selector(configDidActivate), name: .onRemoteConfigActivated, object: nil)
   }
 
-  @objc func configDidActivated() {
+  @objc func configDidActivate(notification : NSNotification) {
+    // This feature is only available in the default app.
+    let googleAppID = notification.userInfo?[FirebaseRemoteConfigGoogleAppIDKey] as? String
+    if (FirebaseApp.app()?.options.googleAppID != googleAppID ) {
+      return
+    }
     do {
       let configValue: RemoteConfigValue = self.remoteConfig[self.key]
       if configValue.source == .remote {
         self.configValue = try self.remoteConfig[self.key].decoded()
       }
     } catch {
+      // Errors are ignored because the codable API already report error if there's any.
     }
   }
 }

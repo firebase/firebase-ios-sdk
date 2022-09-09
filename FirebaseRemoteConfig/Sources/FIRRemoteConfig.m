@@ -320,13 +320,13 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
     // New config has been activated at this point
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069", @"Config activated.");
     [strongSelf->_configContent activatePersonalization];
-    dispatch_async(dispatch_get_main_queue(), ^{
-      [self notifyConfigHasChanged];
-    });
     // Update experiments only for 3p namespace
     NSString *namespace = [strongSelf->_FIRNamespace
         substringToIndex:[strongSelf->_FIRNamespace rangeOfString:@":"].location];
     if ([namespace isEqualToString:FIRNamespaceGoogleMobilePlatform]) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        [self notifyConfigHasActivated];
+      });
       [strongSelf->_configExperiment updateExperimentsWithHandler:^(NSError *_Nullable error) {
         if (completion) {
           dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -345,11 +345,16 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
   dispatch_async(_queue, applyBlock);
 }
 
-- (void)notifyConfigHasChanged {
+- (void)notifyConfigHasActivated {
+  // Need a valid google App ID.
+  if (_settings.googleAppID) {
+    return;
+  }
   // Currently the Remote config Swift SDK is listening this notification to update SwiftUI
+  NSDictionary *appInfoDict = @{kFIRGoogleAppIDKey : _settings.googleAppID};
   [[NSNotificationCenter defaultCenter] postNotificationName:FIRRemoteConfigActivateNotification
                                                       object:self
-                                                    userInfo:nil];
+                                                    userInfo:appInfoDict];
 }
 
 #pragma mark - helpers
