@@ -29,18 +29,23 @@ import XCTest
     }
 
     static let placeholderJSON = Recipe(
-      recipeName: "muffin", ingredients: ["flour", "sugar"], cookTime: 45)
+      recipeName: "muffin", ingredients: ["flour", "sugar"], cookTime: 45
+    )
+
     // MARK: - Test Remote Config default values with property wrapper
+
     struct DefaultsValuesTester {
       @RemoteConfigProperty(
         key: Constants.stringKey,
-        placeholder: Recipe(recipeName: "test", ingredients: [], cookTime: 0))
+        placeholder: Recipe(recipeName: "test", ingredients: [], cookTime: 0)
+      )
       var dictValue: Recipe
     }
 
     func testDefaultValues() async throws {
       try? RemoteConfig.remoteConfig().setDefaults(
-        from: PropertyWrapperEmptyConfigsTests.placeholderDict)
+        from: PropertyWrapperEmptyConfigsTests.placeholderDict
+      )
 
       let tester = await DefaultsValuesTester()
       let dictValue = await tester.dictValue

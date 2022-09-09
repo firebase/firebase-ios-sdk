@@ -22,6 +22,7 @@ extension Notification.Name {
   // Listens to FirebaseRemoteConfig SDK if new configs are activated.
   static let onRemoteConfigActivated = Notification.Name("FIRRemoteConfigActivateNotification")
 }
+
 // Make sure this key is consistent with kFIRGoogleAppIDKey in FirebaseCore SDK
 let FirebaseRemoteConfigGoogleAppIDKey = "FIRGoogleAppIDKey"
 
@@ -34,35 +35,36 @@ internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
 
   init(key: String, fallbackValue: T) {
     self.key = key
-    self.remoteConfig = RemoteConfig.remoteConfig()
+    remoteConfig = RemoteConfig.remoteConfig()
     self.fallbackValue = fallbackValue
     // Initialize with fallback value
-    self.configValue = fallbackValue
+    configValue = fallbackValue
     // Check cached remote config value
     do {
-      let configValue: RemoteConfigValue = self.remoteConfig[key]
+      let configValue: RemoteConfigValue = remoteConfig[key]
       if configValue.source == .remote || configValue.source == .default {
-        self.configValue = try self.remoteConfig[key].decoded()
+        self.configValue = try remoteConfig[key].decoded()
       } else {
         self.configValue = fallbackValue
       }
     } catch {
-      self.configValue = fallbackValue
+      configValue = fallbackValue
     }
     NotificationCenter.default.addObserver(
-      self, selector: #selector(configDidActivate), name: .onRemoteConfigActivated, object: nil)
+      self, selector: #selector(configDidActivate), name: .onRemoteConfigActivated, object: nil
+    )
   }
 
-  @objc func configDidActivate(notification : NSNotification) {
+  @objc func configDidActivate(notification: NSNotification) {
     // This feature is only available in the default app.
     let googleAppID = notification.userInfo?[FirebaseRemoteConfigGoogleAppIDKey] as? String
-    if (FirebaseApp.app()?.options.googleAppID != googleAppID ) {
+    if FirebaseApp.app()?.options.googleAppID != googleAppID {
       return
     }
     do {
-      let configValue: RemoteConfigValue = self.remoteConfig[self.key]
+      let configValue: RemoteConfigValue = remoteConfig[key]
       if configValue.source == .remote {
-        self.configValue = try self.remoteConfig[self.key].decoded()
+        self.configValue = try remoteConfig[key].decoded()
       }
     } catch {
       // Errors are ignored because the codable API already report error if there's any.

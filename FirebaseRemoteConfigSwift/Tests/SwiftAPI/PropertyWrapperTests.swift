@@ -22,15 +22,17 @@ import XCTest
   @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
   class PropertyWrapperTests: APITestBase {
     // MARK: - Test fetching Remote Config JSON values into struct property
+
     struct Recipe: Decodable {
       var recipeName: String
       var ingredients: [String]
       var cookTime: Int
     }
+
     static let placeholderString = "placeholder"
     static let placeholderInt = 50
     static let placeholderFloat: Float = 50.2
-    static let placeholderDouble: Double = 16777216.333921
+    static let placeholderDouble: Double = 16_777_216.333921
     static let placeholderDecimal: Decimal = 235
     static let placeholderData = "hello".data(using: .utf8)!
     static let placeholderArray = ["mango", "pineapple", "papaya"]
@@ -38,10 +40,10 @@ import XCTest
       "session 0": "breakfast", "session 1": "keynote", "session 2": "state of union",
     ]
     static let placeholderJSON = Recipe(
-      recipeName: "muffin", ingredients: ["flour", "sugar"], cookTime: 45)
+      recipeName: "muffin", ingredients: ["flour", "sugar"], cookTime: 45
+    )
 
     struct PropertyWrapperTester {
-
       @RemoteConfigProperty(key: Constants.stringKey, placeholder: "")
       var stringValue: String!
 

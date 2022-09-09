@@ -17,31 +17,31 @@
 import FirebaseRemoteConfig
 import SwiftUI
 
-  /// A property wrapper that listens to a Remote Config value.
-  @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
-  @propertyWrapper
-  public struct RemoteConfigProperty<T: Decodable>: DynamicProperty {
-    @StateObject private var configValueObserver: RemoteConfigValueObservable<T>
+/// A property wrapper that listens to a Remote Config value.
+@available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
+@propertyWrapper
+public struct RemoteConfigProperty<T: Decodable>: DynamicProperty {
+  @StateObject private var configValueObserver: RemoteConfigValueObservable<T>
 
-    /// Remote Config key name for this property
-    public let key: String
+  /// Remote Config key name for this property
+  public let key: String
 
-    public var wrappedValue: T {
-      configValueObserver.configValue
-    }
-
-    /// Creates an instance by providing a config key.
-    ///
-    /// - Parameter key: key name
-    /// - Parameter fallback: The value to fall back to if the key doesn't exist in remote or default configs
-    public init(key: String, fallback: T) {
-      self.key = key
-
-      _configValueObserver = StateObject(
-        wrappedValue: RemoteConfigValueObservable<T>(
-          key: key,
-          fallbackValue: fallback
-        )
-      )
-    }
+  public var wrappedValue: T {
+    configValueObserver.configValue
   }
+
+  /// Creates an instance by providing a config key.
+  ///
+  /// - Parameter key: key name
+  /// - Parameter fallback: The value to fall back to if the key doesn't exist in remote or default configs
+  public init(key: String, fallback: T) {
+    self.key = key
+
+    _configValueObserver = StateObject(
+      wrappedValue: RemoteConfigValueObservable<T>(
+        key: key,
+        fallbackValue: fallback
+      )
+    )
+  }
+}
