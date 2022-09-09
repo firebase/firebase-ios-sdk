@@ -39,7 +39,8 @@
   return _query;
 }
 
-- (void)aggregationWithCompletion:(void (^)(FIRAggregateQuerySnapshot *_Nullable snapshot,
+- (void)aggregationWithSource:(FIRAggregateSource)source
+                   completion:(void (^)(FIRAggregateQuerySnapshot *_Nullable snapshot,
                                             NSError *_Nullable error))completion {
   _aggregation->Get([self, completion](const firebase::firestore::util::StatusOr<int64_t> &result) {
     if (result.ok()) {

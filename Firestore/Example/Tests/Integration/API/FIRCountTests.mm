@@ -90,7 +90,8 @@
   }];
 
   [[testCollection countAggregateQuery]
-      aggregationWithCompletion:^(FIRAggregateQuerySnapshot* snapshot, NSError* error){
+      aggregationWithSource:FIRAggregateSourceServer
+       completion:^(FIRAggregateQuerySnapshot* snapshot, NSError* error){
       }];
   [self terminateFirestore:testCollection.firestore];
 }
@@ -189,7 +190,8 @@
   [self disableNetwork];
 
   [[testCollection countAggregateQuery]
-      aggregationWithCompletion:^(FIRAggregateQuerySnapshot* snapshot, NSError* error) {
+      aggregationWithSource:FIRAggregateSourceServer
+   completion:^(FIRAggregateQuerySnapshot* snapshot, NSError* error) {
         XCTAssertNotNil(error);
       }];
 

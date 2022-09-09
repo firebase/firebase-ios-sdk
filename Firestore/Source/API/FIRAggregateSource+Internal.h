@@ -14,19 +14,8 @@
  * limitations under the License.
  */
 
-#import "FIRAggregateSource+Internal.h"
-#import "FIRQuery.h"
+#import <Foundation/Foundation.h>
 
-@class FIRAggregateQuerySnapshot;
-
-@interface FIRAggregateQuery : NSObject
-
-- (instancetype _Nonnull)initWithQuery:(FIRQuery *_Nonnull)query NS_DESIGNATED_INITIALIZER;
-
-@property(nonatomic, readonly) FIRQuery *_Nonnull query;
-
-- (void)aggregationWithSource:(FIRAggregateSource)source
-                   completion:(void (^_Nonnull)(FIRAggregateQuerySnapshot *_Nullable snapshot,
-                                                    NSError *_Nullable error))completion
-    NS_SWIFT_NAME(aggregation(source:completion:));
-@end
+typedef NS_ENUM(NSUInteger, FIRAggregateSource) {
+  FIRAggregateSourceServer,
+} NS_SWIFT_NAME(AggregateSource);

@@ -452,7 +452,8 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
   __block FIRAggregateQuerySnapshot *result;
   XCTestExpectation *expectation = [self expectationWithDescription:@"aggregate result"];
 
-  [query aggregationWithCompletion:^(FIRAggregateQuerySnapshot *snapshot, NSError *error) {
+  [query aggregationWithSource:FIRAggregateSourceServer
+                    completion:^(FIRAggregateQuerySnapshot *snapshot, NSError *error) {
     XCTAssertNil(error);
     result = snapshot;
     [expectation fulfill];
