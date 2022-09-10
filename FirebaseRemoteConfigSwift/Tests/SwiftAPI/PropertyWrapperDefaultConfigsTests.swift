@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
+import FirebaseCore
 import FirebaseRemoteConfig
 import FirebaseRemoteConfigSwift
 import XCTest
 
 #if compiler(>=5.5.2) && canImport(_Concurrency)
   @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
-  class PropertyWrapperDefaultConfigsTests {
-    static let placeholderDict = ["session": "breakfast"]
-    struct Recipe: Decodable {
+  class PropertyWrapperDefaultConfigsTests: XCTestCase {
+    struct Recipe: Decodable, Encodable {
       var recipeName: String
       var ingredients: [String]
       var cookTime: Int
     }
 
-    static let fallbackJSON = Recipe(
+    static let defaultRecipe = Recipe(
       recipeName: "muffin", ingredients: ["flour", "sugar"], cookTime: 45
     )
 
@@ -42,15 +42,27 @@ import XCTest
       var dictValue: Recipe
     }
 
+    override class func setUp() {
+      if FirebaseApp.app() == nil {
+        let options = FirebaseOptions(googleAppID: "1:123:ios:123abc",
+                                      gcmSenderID: "correct_gcm_sender_id")
+        options.apiKey = "A23456789012345678901234567890123456789"
+        options.projectID = "Fake Project"
+        FirebaseApp.configure(options: options)
+      }
+    }
+
     func testDefaultValues() async throws {
       try? RemoteConfig.remoteConfig().setDefaults(
-        from: PropertyWrapperDefaultConfigsTests.placeholderDict
+        from: [Constants.stringKey: PropertyWrapperDefaultConfigsTests.defaultRecipe]
       )
 
       let tester = await DefaultsValuesTester()
       let dictValue = await tester.dictValue
 
-      XCTAssertEqual(dictValue.recipeName, "Flour")
+      XCTAssertEqual(dictValue.recipeName, "muffin")
+      XCTAssertEqual(dictValue.cookTime, 45)
+      XCTAssertEqual(dictValue.ingredients, ["flour", "sugar"])
     }
   }
 #endif
