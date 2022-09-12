@@ -186,6 +186,10 @@ class Query {
     return Query(std::move(chained_query), firestore_);
   }
 
+  /**
+   * Creates a new `AggregateQuery` counting the number of documents matching
+   * this query.
+   */
   AggregateQuery Count() const;
 
  private:

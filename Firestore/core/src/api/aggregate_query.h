@@ -24,6 +24,11 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
+/**
+ * An `AggregateQuery` is built from a Firestore Query. It returns some
+ * aggregations on the potential result set, instead of all documents matching
+ * the query.
+ */
 class AggregateQuery {
  public:
   explicit AggregateQuery(Query query);

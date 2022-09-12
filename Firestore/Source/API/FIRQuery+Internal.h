@@ -49,6 +49,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (FIRQuery *)queryWhereFilter:(FIRFilter *)filter;
 
 // TODO(COUNT): This method will become public API. Change visibility and add documentation.
+/**
+ * An `AggregateQuery` counting the number of documents matching this query.
+ */
 @property(nonatomic, readonly) FIRAggregateQuery *countAggregateQuery;
 
 @end

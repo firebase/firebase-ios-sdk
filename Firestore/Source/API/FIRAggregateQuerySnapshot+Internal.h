@@ -18,13 +18,23 @@
 
 @class FIRAggregateQuery;
 
+/**
+ * An `AggregateQuerySnapshot` contains results of a `AggregateQuery`.
+ */
+NS_SWIFT_NAME(AggregateQuerySnapshot)
 @interface FIRAggregateQuerySnapshot : NSObject
 
+- (instancetype _Nonnull)init NS_UNAVAILABLE;
 - (instancetype _Nonnull)initWithCount:(int64_t)result
                                  Query:(FIRAggregateQuery* _Nonnull)query NS_DESIGNATED_INITIALIZER;
 
+/** The original `AggregateQuery` this snapshot is a result of. */
 @property(nonatomic, readonly) FIRAggregateQuery* _Nonnull query;
 
-@property(nonatomic, readonly) NSNumber* _Nonnull count;
+/**
+ * The result of a document count aggregation. Null if no count aggregation is
+ *     available in the result.
+ */
+@property(nonatomic, readonly) NSNumber* _Nullable count;
 
 @end

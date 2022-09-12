@@ -19,12 +19,26 @@
 
 @class FIRAggregateQuerySnapshot;
 
+/**
+ * An `AggregateQuery` computes some aggregation statistics from the result set of a base
+ * `Query`.
+ */
+NS_SWIFT_NAME(AggregateQuery)
 @interface FIRAggregateQuery : NSObject
 
+- (instancetype _Nonnull)init NS_UNAVAILABLE;
 - (instancetype _Nonnull)initWithQuery:(FIRQuery *_Nonnull)query NS_DESIGNATED_INITIALIZER;
 
+/** The base `Query` for this aggregate query. */
 @property(nonatomic, readonly) FIRQuery *_Nonnull query;
 
+/**
+ * Executes the aggregate query and reads back the results as a `FIRAggregateQuerySnapshot`.
+ *
+ * @param source indicates where the results should be fetched from.
+ * @param completion a block to execute once the results have been successfully read.
+ *     snapshot will be `nil` only if error is `non-nil`.
+ */
 - (void)aggregationWithSource:(FIRAggregateSource)source
                    completion:(void (^_Nonnull)(FIRAggregateQuerySnapshot *_Nullable snapshot,
                                                 NSError *_Nullable error))completion

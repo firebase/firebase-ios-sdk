@@ -16,6 +16,13 @@
 
 #import <Foundation/Foundation.h>
 
+/** Configures the behavior of `AggregateQuery.aggregateWithSource(source:completion:)`. */
 typedef NS_ENUM(NSUInteger, FIRAggregateSource) {
+  /**
+   * Reach to the Firestore backend and surface the result verbatim, that is no local documents or
+   * mutations in the SDK cache will be included in the surfaced result.
+   *
+   * NOTE: Requires client to be online.
+   */
   FIRAggregateSourceServer,
 } NS_SWIFT_NAME(AggregateSource);
