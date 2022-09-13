@@ -90,5 +90,6 @@
   "9.2.0": "https://dl.google.com/dl/firebase/ios/carthage/9.2.0/FirebaseFirestore-a01c805341cccd5b.zip",
   "9.3.0": "https://dl.google.com/dl/firebase/ios/carthage/9.3.0/FirebaseFirestore-215b02f95e646406.zip",
   "9.4.0": "https://dl.google.com/dl/firebase/ios/carthage/9.4.0/FirebaseFirestore-5048fc8d500b8e4b.zip",
-  "9.5.0": "https://dl.google.com/dl/firebase/ios/carthage/9.5.0/FirebaseFirestore-689f0864bd209e25.zip"
+  "9.5.0": "https://dl.google.com/dl/firebase/ios/carthage/9.5.0/FirebaseFirestore-689f0864bd209e25.zip",
+  "9.6.0": "https://dl.google.com/dl/firebase/ios/carthage/9.6.0/FirebaseFirestore-af28ab960821784c.zip"
 }
