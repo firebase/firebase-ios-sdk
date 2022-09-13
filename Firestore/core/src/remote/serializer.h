@@ -270,7 +270,7 @@ class Serializer {
   std::string EncodeLabel(local::QueryPurpose purpose) const;
 
   google_firestore_v1_StructuredQuery_Filter EncodeFilters(
-      const std::vector<core::Filter>& filters) const;
+      const core::FilterList& filter_list) const;
   google_firestore_v1_StructuredQuery_Filter EncodeFilter(
       const core::Filter& filter) const;
   google_firestore_v1_StructuredQuery_Filter EncodeUnaryOrFieldFilter(

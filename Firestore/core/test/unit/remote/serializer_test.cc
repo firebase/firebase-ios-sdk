@@ -1267,12 +1267,13 @@ TEST_F(SerializerTest, EncodesMultipleFiltersOnDeeperCollections) {
 }
 
 TEST_F(SerializerTest, EncodesCompositeFiltersOnDeeperCollections) {
-  // (prop < 42) || (author == "ehsann" && tags array-contains "pending")
+  // (prop < 42) || (author == "s/ehsann/cheryllin" && tags array-contains
+  // "pending")
   core::Query q =
       Query("rooms/1/messages/10/attachments")
           .AddingFilter(OrFilters(
               {Filter("prop", "<", 42),
-               AndFilters({Filter("author", "==", "ehsann"),
+               AndFilters({Filter("author", "==", "s/ehsann/cheryllin"),
                            Filter("tags", "array-contains", "pending")})}));
   TargetData model = CreateTargetData(std::move(q));
 
@@ -1295,7 +1296,7 @@ TEST_F(SerializerTest, EncodesCompositeFiltersOnDeeperCollections) {
   v1::StructuredQuery::FieldFilter& field2 = *filter2.mutable_field_filter();
   field2.mutable_field()->set_field_path("author");
   field2.set_op(v1::StructuredQuery::FieldFilter::EQUAL);
-  field2.mutable_value()->set_string_value("ehsann");
+  field2.mutable_value()->set_string_value("s/ehsann/cheryllin");
 
   v1::StructuredQuery::Filter filter3;
   v1::StructuredQuery::FieldFilter& field3 = *filter3.mutable_field_filter();

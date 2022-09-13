@@ -703,11 +703,7 @@ google_firestore_v1_Target_QueryTarget Serializer::EncodeQueryTarget(
   // Encode the filters.
   const auto& filter_list = target.filters();
   if (!filter_list.empty()) {
-    std::vector<Filter> filters;
-    for (const auto& filter : filter_list) {
-      filters.push_back(filter);
-    }
-    result.structured_query.where = EncodeFilters(filters);
+    result.structured_query.where = EncodeFilters(filter_list);
   }
 
   const auto& orders = target.order_bys();
@@ -807,9 +803,13 @@ Target Serializer::DecodeQueryTarget(
 }
 
 google_firestore_v1_StructuredQuery_Filter Serializer::EncodeFilters(
-    const std::vector<core::Filter>& filters) const {
+    const core::FilterList& filter_list) const {
+  std::vector<Filter> filters;
+  for (const auto& filter : filter_list) {
+    filters.push_back(filter);
+  }
   return EncodeCompositeFilter(CompositeFilter::Create(
-      std::vector<core::Filter>(filters), CompositeFilter::Operator::And));
+      std::move(filters), CompositeFilter::Operator::And));
 }
 
 FilterList Serializer::DecodeFilters(
@@ -1097,6 +1097,7 @@ CompositeFilter::Operator Serializer::DecodeCompositeFilterOperator(
     case google_firestore_v1_StructuredQuery_CompositeFilter_Operator_AND:
       return CompositeFilter::Operator::And;
 
+      // TODO(orquery): Replace with Operator_OR.
     case google_firestore_v1_StructuredQuery_CompositeFilter_Operator\
 _OPERATOR_UNSPECIFIED:
       return CompositeFilter::Operator::Or;
