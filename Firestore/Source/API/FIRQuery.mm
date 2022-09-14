@@ -474,6 +474,10 @@ int32_t SaturatedLimitValue(NSInteger limit) {
   return Wrap(_query.EndAt(std::move(bound)));
 }
 
+- (FIRAggregateQuery *)count {
+  return [[FIRAggregateQuery alloc] initWithQuery:self];
+}
+
 #pragma mark - Private Methods
 
 - (Message<google_firestore_v1_Value>)parsedQueryValue:(id)value {
