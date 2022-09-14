@@ -2,7 +2,7 @@
 - [changed] FirebaseStorage is now completely implemented in Swift. Swift-specific API improvements
   are planned for subsequent releases. (#9963)
 - [changed] The `FirebaseStorageInternal` CocoaPod has been discontinued.
-- [changed] Remove the storageReference property of StorageMetadata. It had never been implemented
+- [changed] Remove the `storageReference` property of `StorageMetadata`. It had never been implemented
   and always returned `nil`.
 - [changed] Storage APIs that previously threw an Objective-C exception now generate a Swift
   `fatalError`.
