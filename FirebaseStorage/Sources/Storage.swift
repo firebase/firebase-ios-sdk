@@ -159,8 +159,8 @@ import FirebaseAuthInterop
       }
       // If there exists a default bucket, throw if provided a different bucket.
       if path.bucket != storageBucket {
-        fatalError("Provided bucket:\(path.bucket) does not match the Storage bucket of the current " +
-          "instance: \(storageBucket)")
+        fatalError("Provided bucket:`\(path.bucket)` does not match the Storage bucket of the current " +
+          "instance:`\(storageBucket)`")
       }
       return StorageReference(storage: self, path: path)
     } catch let StoragePathError.storagePathError(message) {
@@ -168,6 +168,40 @@ import FirebaseAuthInterop
     } catch {
       fatalError("Internal error finding StoragePath: \(error)")
     }
+  }
+
+  /**
+   * Creates a StorageReference given a `gs://` or `https://` URL pointing to a Firebase Storage
+   * location. For example, you can pass in an `https://` download URL retrieved from
+   * `StorageReference.downloadURL(completion:)` or the `gs://` URL from
+   * `StorageReference.description`.
+   * - Parameter url A gs:// or https:// URL to initialize the reference with.
+   * - Returns: An instance of StorageReference at the given child path.
+   * - Throws: Throws an Error if `url` is not associated with the `FirebaseApp` used to initialize
+   *     this Storage instance.
+   */
+  open func ref(forURL url: String) throws -> StorageReference {
+    ensureConfigured()
+    var path: StoragePath
+    do {
+      path = try StoragePath.path(string: url)
+    } catch let StoragePathError.storagePathError(message) {
+      throw StorageError.pathError(message)
+    } catch {
+      throw StorageError.pathError("Internal error finding StoragePath: \(error)")
+    }
+
+    // If no default bucket exists (empty string), accept anything.
+    if storageBucket == "" {
+      return StorageReference(storage: self, path: path)
+    }
+    // If there exists a default bucket, throw if provided a different bucket.
+    if path.bucket != storageBucket {
+      throw StorageError
+        .bucketMismatch("Provided bucket:`\(path.bucket)` does not match the Storage " +
+          "bucket of the current instance:`\(storageBucket)`")
+    }
+    return StorageReference(storage: self, path: path)
   }
 
   /**

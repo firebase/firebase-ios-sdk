@@ -155,6 +155,8 @@ public enum StorageError: Error {
   case cancelled
   case invalidArgument(String)
   case internalError(String)
+  case bucketMismatch(String)
+  case pathError(String)
 
   static func swiftConvert(objcError: NSError) -> StorageError {
     let userInfo = objcError.userInfo

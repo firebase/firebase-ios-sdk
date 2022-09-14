@@ -33,7 +33,7 @@ class StorageReferenceTests: XCTestCase {
 
   var storage: Storage?
   override func setUp() {
-    guard let app = try? getApp(bucket: "") else {
+    guard let app = try? getApp(bucket: "bucket") else {
       fatalError("")
     }
     storage = Storage.storage(app: app)
@@ -47,6 +47,27 @@ class StorageReferenceTests: XCTestCase {
   func testRootWithNoPath() throws {
     let ref = storage!.reference(forURL: "gs://bucket/")
     XCTAssertEqual(ref.root().description, "gs://bucket/")
+  }
+
+  func testMismatchedBucket() throws {
+    do {
+      _ = try storage!.ref(forURL: "gs://bcket/")
+    } catch let StorageError.bucketMismatch(string) {
+      XCTAssertEqual(string, "Provided bucket:`bcket` does not match the Storage " +
+        "bucket of the current instance:`bucket`")
+      return
+    }
+    XCTFail()
+  }
+
+  func testBadBucketScheme() throws {
+    do {
+      _ = try storage!.ref(forURL: "htttp://bucket/")
+    } catch let StorageError.pathError(string) {
+      XCTAssertEqual(string, "Internal error: URL scheme must be one of gs://, http://, or https://")
+      return
+    }
+    XCTFail()
   }
 
   func testSingleChild() throws {
