@@ -30,8 +30,10 @@
 }
 
 - (instancetype _Nonnull)initWithQuery:(FIRQuery *)query {
-  _query = query;
-  _aggregation = absl::make_unique<api::AggregateQuery>(query.apiQuery.Count());
+  if (self = [super init]) {
+    _query = query;
+    _aggregation = absl::make_unique<api::AggregateQuery>(query.apiQuery.Count());
+  }
   return self;
 }
 

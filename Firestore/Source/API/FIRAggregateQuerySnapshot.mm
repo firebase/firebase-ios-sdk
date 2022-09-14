@@ -22,8 +22,10 @@
 }
 
 - (instancetype _Nonnull)initWithCount:(int64_t)count Query:(FIRAggregateQuery*)query {
-  _result = count;
-  _query = query;
+  if (self = [super init]) {
+    _result = count;
+    _query = query;
+  }
   return self;
 }
 

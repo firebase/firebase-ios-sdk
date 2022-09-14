@@ -40,8 +40,7 @@
     @"c" : @{@"k" : @"c"}
   }];
 
-  FIRAggregateQuerySnapshot* snapshot =
-      [self readSnapshotForAggregate:[testCollection countAggregateQuery]];
+  FIRAggregateQuerySnapshot* snapshot = [self readSnapshotForAggregate:[testCollection count]];
   XCTAssertEqual(snapshot.count, [NSNumber numberWithLong:3L]);
 }
 
@@ -57,8 +56,7 @@
   }];
 
   FIRAggregateQuerySnapshot* snapshot =
-      [self readSnapshotForAggregate:[[testCollection queryWhereField:@"k"
-                                                            isEqualTo:@"b"] countAggregateQuery]];
+      [self readSnapshotForAggregate:[[testCollection queryWhereField:@"k" isEqualTo:@"b"] count]];
   XCTAssertEqual(snapshot.count, [NSNumber numberWithLong:1L]);
 }
 
@@ -74,8 +72,8 @@
     @"d" : @{@"absent" : @"d"},
   }];
 
-  FIRAggregateQuerySnapshot* snapshot = [self
-      readSnapshotForAggregate:[[testCollection queryOrderedByField:@"k"] countAggregateQuery]];
+  FIRAggregateQuerySnapshot* snapshot =
+      [self readSnapshotForAggregate:[[testCollection queryOrderedByField:@"k"] count]];
   XCTAssertEqual(snapshot.count, [NSNumber numberWithLong:3L]);
 }
 
@@ -90,7 +88,7 @@
     @"c" : @{@"k" : @"c"},
   }];
 
-  [[testCollection countAggregateQuery]
+  [[testCollection count]
       aggregationWithSource:FIRAggregateSourceServer
                  completion:^(FIRAggregateQuerySnapshot* snapshot, NSError* error) {
                    (void)snapshot;
@@ -127,8 +125,7 @@
   [self awaitExpectation:expectation];
 
   FIRAggregateQuerySnapshot* snapshot =
-      [self readSnapshotForAggregate:[[self.db collectionGroupWithID:collectionGroup]
-                                         countAggregateQuery]];
+      [self readSnapshotForAggregate:[[self.db collectionGroupWithID:collectionGroup] count]];
   // "cg-doc1", "cg-doc2", "cg-doc3", "cg-doc4", "cg-doc5",
   XCTAssertEqual(snapshot.count, [NSNumber numberWithLong:5L]);
 }
@@ -145,20 +142,19 @@
     @"d" : @{@"k" : @"d"},
   }];
 
-  FIRAggregateQuerySnapshot* snapshot =
-      [self readSnapshotForAggregate:[[[testCollection queryLimitedTo:2] queryWhereField:@"k"
-                                                                               isEqualTo:@"a"]
-                                         countAggregateQuery]];
+  FIRAggregateQuerySnapshot* snapshot = [self
+      readSnapshotForAggregate:[[[testCollection queryLimitedTo:2] queryWhereField:@"k"
+                                                                         isEqualTo:@"a"] count]];
   XCTAssertEqual(snapshot.count, [NSNumber numberWithLong:2L]);
 
   snapshot = [self readSnapshotForAggregate:[[[testCollection queryLimitedToLast:2]
                                                 queryWhereField:@"k"
-                                                      isEqualTo:@"a"] countAggregateQuery]];
+                                                      isEqualTo:@"a"] count]];
   XCTAssertEqual(snapshot.count, [NSNumber numberWithLong:2L]);
 
   snapshot = [self readSnapshotForAggregate:[[[testCollection queryLimitedToLast:1000]
                                                 queryWhereField:@"k"
-                                                      isEqualTo:@"d"] countAggregateQuery]];
+                                                      isEqualTo:@"d"] count]];
   XCTAssertEqual(snapshot.count, [NSNumber numberWithLong:1L]);
 }
 
@@ -169,13 +165,11 @@
 
   FIRCollectionReference* testCollection = [self collectionRef];
 
-  FIRAggregateQuerySnapshot* snapshot =
-      [self readSnapshotForAggregate:[testCollection countAggregateQuery]];
+  FIRAggregateQuerySnapshot* snapshot = [self readSnapshotForAggregate:[testCollection count]];
   XCTAssertEqual(snapshot.count, [NSNumber numberWithLong:0L]);
 
-  snapshot =
-      [self readSnapshotForAggregate:[[testCollection queryWhereField:@"k"
-                                                            isEqualTo:@"a"] countAggregateQuery]];
+  snapshot = [self readSnapshotForAggregate:[[testCollection queryWhereField:@"k"
+                                                                   isEqualTo:@"a"] count]];
   XCTAssertEqual(snapshot.count, [NSNumber numberWithLong:0L]);
 }
 
@@ -192,7 +186,7 @@
 
   [self disableNetwork];
 
-  [[testCollection countAggregateQuery]
+  [[testCollection count]
       aggregationWithSource:FIRAggregateSourceServer
                  completion:^(FIRAggregateQuerySnapshot* snapshot, NSError* error) {
                    (void)snapshot;
@@ -200,8 +194,7 @@
                  }];
 
   [self enableNetwork];
-  FIRAggregateQuerySnapshot* snapshot =
-      [self readSnapshotForAggregate:[testCollection countAggregateQuery]];
+  FIRAggregateQuerySnapshot* snapshot = [self readSnapshotForAggregate:[testCollection count]];
   XCTAssertEqual(snapshot.count, [NSNumber numberWithLong:3L]);
 }
 
