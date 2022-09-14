@@ -19,8 +19,8 @@ import FirebaseRemoteConfigSwift
 import SwiftUI
 
 struct Recipe: Decodable {
-  var recipe_name: String
-  var cook_time: Int
+  var recipeName: String
+  var cookTime: Int
   var notes: String
 }
 
@@ -33,7 +33,7 @@ struct ContentView: View {
   @RemoteConfigProperty(key: "mobileweek", fallback: ["section 0": "breakfast"]) var sessions:
     [String: String]
   @RemoteConfigProperty(
-    key: "recipe", fallback: Recipe(recipe_name: "banana bread", cook_time: 40, notes: "yum!")
+    key: "recipe", fallback: Recipe(recipeName: "banana bread", cookTime: 40, notes: "yum!")
   )
   var recipe: Recipe
 
@@ -57,9 +57,9 @@ struct ContentView: View {
         }
       }
       List {
-        Text(recipe.recipe_name)
+        Text(recipe.recipeName)
         Text(recipe.notes)
-        Text("cook time: \(recipe.cook_time)")
+        Text("cook time: \(recipe.cookTime)")
       }
       ForEach(0 ... counter, id: \.self) { i in
         Text(colorValue)
