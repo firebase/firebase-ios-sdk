@@ -257,7 +257,7 @@ def read_changelog_section(filename, single_version=None):
     # user asked for or any version.
     if single_version:
       initial_heading = re.compile(
-        r'^(#{1,6}) .*%s' % re.escape(single_version))
+          r'^(#{1,6}) .*%s' % re.escape(single_version))
     else:
       initial_heading = re.compile(r'^#({1,6}) ([^\d]*)\d')
 
