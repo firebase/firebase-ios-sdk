@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// TODO(b/246760853): Move FIRAggregateQuerySnapshot to public headers to release it.
+
 #import "FIRAggregateQuery+Internal.h"
 
 @class FIRAggregateQuery;

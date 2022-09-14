@@ -280,7 +280,7 @@ void Datastore::RunCountQueryWithCredentials(
     const core::Query& query,
     api::CountQueryCallback&& callback) {
   grpc::ByteBuffer message =
-      MakeByteBuffer(datastore_serializer_.EncodeCountQuery(query));
+      MakeByteBuffer(datastore_serializer_.EncodeCountQueryRequest(query));
 
   std::unique_ptr<GrpcUnaryCall> call_owning =
       grpc_connection_.CreateUnaryCall(kRpcNameRunAggregationQuery, auth_token,

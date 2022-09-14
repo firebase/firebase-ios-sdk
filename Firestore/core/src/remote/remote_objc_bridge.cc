@@ -266,7 +266,7 @@ DatastoreSerializer::MergeLookupResponses(
 }
 
 nanopb::Message<google_firestore_v1_RunAggregationQueryRequest>
-DatastoreSerializer::EncodeCountQuery(const core::Query& query) const {
+DatastoreSerializer::EncodeCountQueryRequest(const core::Query& query) const {
   Message<google_firestore_v1_RunAggregationQueryRequest> result;
   auto encodedTarget = serializer_.EncodeQueryTarget(query.ToTarget());
   result->parent = encodedTarget.parent;

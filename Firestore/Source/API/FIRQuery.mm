@@ -474,7 +474,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
   return Wrap(_query.EndAt(std::move(bound)));
 }
 
-- (FIRAggregateQuery *)countAggregateQuery {
+- (FIRAggregateQuery *)count {
   return [[FIRAggregateQuery alloc] initWithQuery:self];
 }
 

@@ -29,6 +29,7 @@
 @implementation FIRCountTests
 
 - (void)testCanRunCountQuery {
+  // TODO(b/246758022): Remove this (and below) once COUNT is release for the backend.
   if (![FSTIntegrationTestCase isRunningAgainstEmulator]) {
     return;
   }
