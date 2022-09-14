@@ -24,7 +24,7 @@ extension Notification.Name {
 }
 
 // Make sure this key is consistent with kFIRGoogleAppIDKey in FirebaseCore SDK
-let FirebaseRemoteConfigGoogleAppIDKey = "FIRGoogleAppIDKey"
+let FirebaseRemoteConfigAppNameKey = "FIRAppNameKey"
 
 @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
 internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
@@ -57,8 +57,8 @@ internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
 
   @objc func configDidActivate(notification: NSNotification) {
     // This feature is only available in the default app.
-    let googleAppID = notification.userInfo?[FirebaseRemoteConfigGoogleAppIDKey] as? String
-    if FirebaseApp.app()?.options.googleAppID != googleAppID {
+    let appName = notification.userInfo?[FirebaseRemoteConfigAppNameKey] as? String
+    if FirebaseApp.app()?.name != appName {
       return
     }
     do {

@@ -346,13 +346,13 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 }
 
 - (void)notifyConfigHasActivated {
-  // Need a valid google App ID.
-  if (_settings.googleAppID) {
+  // Need a valid google app name.
+  if (!_appName) {
     return;
   }
   // The Remote Config Swift SDK will be listening for this notification so it can tell SwiftUI to
   // update the UI.
-  NSDictionary *appInfoDict = @{kFIRGoogleAppIDKey : _settings.googleAppID};
+  NSDictionary *appInfoDict = @{kFIRAppNameKey : _appName};
   [[NSNotificationCenter defaultCenter] postNotificationName:FIRRemoteConfigActivateNotification
                                                       object:self
                                                     userInfo:appInfoDict];
