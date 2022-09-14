@@ -26,6 +26,9 @@ app update.
   tvos_deployment_target = '10.0'
   watchos_deployment_target = '6.0'
 
+  s.ios.framework = 'SwiftUI'
+  s.osx.framework = 'SwiftUI'
+  s.tvos.framework = 'SwiftUI'
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
   s.tvos.deployment_target = tvos_deployment_target
@@ -40,7 +43,6 @@ app update.
 
   s.dependency 'FirebaseRemoteConfig', '~> 9.0'
   s.dependency 'FirebaseSharedSwift', '~> 9.0'
-  s.dependency 'SwiftUI'
 
   # Run Swift API tests on a real backend.
   s.test_spec 'swift-api-tests' do |swift_api|
