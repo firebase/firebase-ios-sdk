@@ -1,6 +1,13 @@
-# Unreleased
-- [changed] Remove the storageReference property of StorageMetadata. It had never been implemented
+# 10.0.0
+- [changed] FirebaseStorage is now completely implemented in Swift. Swift-specific API improvements
+  are planned for subsequent releases. (#9963)
+- [changed] The `FirebaseStorageInternal` CocoaPod has been discontinued.
+- [changed] Remove the `storageReference` property of `StorageMetadata`. It had never been implemented
   and always returned `nil`.
+- [changed] Storage APIs that previously threw an Objective-C exception now generate a Swift
+  `fatalError`.
+- [changed] Storage now requires at least version 2.1 of its GTMSessionFetcher dependency.
+- [changed] The localized description for `unknown` errors is now more descriptive.
 
 # 9.2.0
 - [fixed] Importing FirebaseStorage no longer exposes internal FirebaseCore APIs. (#9884)
