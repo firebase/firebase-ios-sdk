@@ -59,37 +59,56 @@ internal protocol DocumentIDProtocol {
   init(from documentReference: DocumentReference?) throws
 }
 
-/// A value that is populated in Codable objects with the `DocumentReference`
-/// of the current document by the Firestore.Decoder when a document is read.
+/// A property wrapper type that marks a `DocumentReference?` or `String?` field to
+/// be populated with a document identifier when it is read.
 ///
-/// If the field name used for this type conflicts with a read document field,
-/// an error is thrown. For example, if a custom object has a field `firstName`
-/// annotated with `@DocumentID`, and there is a property from the document
-/// named `firstName` as well, an error is thrown when you try to read the
-/// document.
+/// Apply the `@DocumentID` annotation to a `DocumentReference?` or `String?`
+/// property in a `Codable` object to have it populated with the document
+/// identifier when it is read and decoded from Firestore.
 ///
-/// When writing a Codable object containing an `@DocumentID` annotated field,
-/// its value is ignored. This allows you to read a document from one path and
-/// write it into another without adjusting the value here.
+/// - Important: The name of the property annotated with `@DocumentID` must not
+///   match the name of any fields in the Firestore document being read or else
+///   an error will be thrown. For example, if the `Codable` object has a
+///   property named `firstName` annotated with `@DocumentID`, and the Firestore
+///   document contains a field named `firstName`, an error will be thrown when
+///   attempting to decode the document.
 ///
-/// NOTE: Trying to encode/decode this type using encoders/decoders other than
-/// Firestore.Encoder leads to an error.
+/// - Example Read:
+///   ````
+///   struct Player: Codable {
+///     @DocumentID var playerID: String?
+///     var health: Int64
+///   }
+///
+///   let p = try! await Firestore.firestore()
+///       .collection("players")
+///       .document("player-1")
+///       .getDocument(as: Player.self)
+///   print("\(p.playerID!) Health: \(p.health)")
+///
+///   // Prints: "Player: player-1, Health: 95"
+///   ````
+///
+/// - Important: Trying to encode/decode this type using encoders/decoders other than
+///   Firestore.Encoder throws an error.
+///
+/// - Important: When writing a Codable object containing an `@DocumentID` annotated field,
+///   its value is ignored. This allows you to read a document from one path and
+///   write it into another without adjusting the value here.
 @propertyWrapper
-public struct DocumentID<Value: DocumentIDWrappable & Codable>:
-  DocumentIDProtocol, Codable {
-  public private(set) var value: Value?
-
-  public init(wrappedValue value: Value?) {
-    self.value = value
+public struct DocumentID<Value: DocumentIDWrappable & Codable> {
+  private var value: Value?
+  
+  public init() {
+    self.value = nil
   }
 
-  public private(set) var wrappedValue: Value? {
+  public var wrappedValue: Value? {
     get { value }
-    set { value = newValue }
   }
+}
 
-  // MARK: - `DocumentIDProtocol` conformance
-
+extension DocumentID: DocumentIDProtocol {
   public init(from documentReference: DocumentReference?) throws {
     if let documentReference = documentReference {
       value = try Value.wrap(documentReference)
@@ -98,14 +117,25 @@ public struct DocumentID<Value: DocumentIDWrappable & Codable>:
     }
   }
 
-  // MARK: - `Codable` implementation.
+}
 
+extension DocumentID: Codable {
+  /// A `Codable` object  containing an `@DocumentID` annotated field can only
+  /// be decoded with `Firestore.Decoder`; this initializer always throws.
+  ///
+  /// - Parameter decoder: An invalid decoder.
+  /// - Throws: ``FirestoreDecodingError``
   public init(from decoder: Decoder) throws {
     throw FirestoreDecodingError.decodingIsNotSupported(
       "DocumentID values can only be decoded with Firestore.Decoder"
     )
   }
-
+  
+  /// A `Codable` object  containing an `@DocumentID` annotated field can only
+  /// be encoded  with `Firestore.Encoder`; this initializer always throws.
+  ///
+  /// - Parameter encoder: An invalid encoder.
+  /// - Throws: ``FirestoreEncodingError``
   public func encode(to encoder: Encoder) throws {
     throw FirestoreEncodingError.encodingIsNotSupported(
       "DocumentID values can only be encoded with Firestore.Encoder"
