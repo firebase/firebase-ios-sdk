@@ -98,14 +98,12 @@ internal protocol DocumentIDProtocol {
 @propertyWrapper
 public struct DocumentID<Value: DocumentIDWrappable & Codable> {
   private var value: Value?
-  
+
   public init() {
-    self.value = nil
+    value = nil
   }
 
-  public var wrappedValue: Value? {
-    get { value }
-  }
+  public var wrappedValue: Value? { value }
 }
 
 extension DocumentID: DocumentIDProtocol {
@@ -116,7 +114,6 @@ extension DocumentID: DocumentIDProtocol {
       value = nil
     }
   }
-
 }
 
 extension DocumentID: Codable {
@@ -130,7 +127,7 @@ extension DocumentID: Codable {
       "DocumentID values can only be decoded with Firestore.Decoder"
     )
   }
-  
+
   /// A `Codable` object  containing an `@DocumentID` annotated field can only
   /// be encoded  with `Firestore.Encoder`; this initializer always throws.
   ///
