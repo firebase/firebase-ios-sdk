@@ -159,8 +159,8 @@ import FirebaseAuthInterop
       }
       // If there exists a default bucket, throw if provided a different bucket.
       if path.bucket != storageBucket {
-        fatalError("Provided bucket:`\(path.bucket)` does not match the Storage bucket of the current " +
-          "instance:`\(storageBucket)`")
+        fatalError("Provided bucket: `\(path.bucket)` does not match the Storage bucket of the current " +
+          "instance: `\(storageBucket)`")
       }
       return StorageReference(storage: self, path: path)
     } catch let StoragePathError.storagePathError(message) {
@@ -198,8 +198,8 @@ import FirebaseAuthInterop
     // If there exists a default bucket, throw if provided a different bucket.
     if path.bucket != storageBucket {
       throw StorageError
-        .bucketMismatch("Provided bucket:`\(path.bucket)` does not match the Storage " +
-          "bucket of the current instance:`\(storageBucket)`")
+        .bucketMismatch("Provided bucket: `\(path.bucket)` does not match the Storage " +
+          "bucket of the current instance: `\(storageBucket)`")
     }
     return StorageReference(storage: self, path: path)
   }

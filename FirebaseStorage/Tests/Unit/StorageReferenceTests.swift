@@ -60,8 +60,8 @@ class StorageReferenceTests: XCTestCase {
       let url = try XCTUnwrap(URL(string: "gs://bcket/"))
       _ = try storage!.reference(for: url)
     } catch let StorageError.bucketMismatch(string) {
-      XCTAssertEqual(string, "Provided bucket:`bcket` does not match the Storage " +
-        "bucket of the current instance:`bucket`")
+      XCTAssertEqual(string, "Provided bucket: `bcket` does not match the Storage " +
+        "bucket of the current instance: `bucket`")
       return
     }
     XCTFail()
