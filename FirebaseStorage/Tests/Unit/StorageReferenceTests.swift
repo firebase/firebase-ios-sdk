@@ -64,7 +64,10 @@ class StorageReferenceTests: XCTestCase {
     do {
       _ = try storage!.ref(forURL: "htttp://bucket/")
     } catch let StorageError.pathError(string) {
-      XCTAssertEqual(string, "Internal error: URL scheme must be one of gs://, http://, or https://")
+      XCTAssertEqual(
+        string,
+        "Internal error: URL scheme must be one of gs://, http://, or https://"
+      )
       return
     }
     XCTFail()
