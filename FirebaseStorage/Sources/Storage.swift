@@ -180,11 +180,11 @@ import FirebaseAuthInterop
    * - Throws: Throws an Error if `url` is not associated with the `FirebaseApp` used to initialize
    *     this Storage instance.
    */
-  open func ref(forURL url: String) throws -> StorageReference {
+  open func reference(for url: URL) throws -> StorageReference {
     ensureConfigured()
     var path: StoragePath
     do {
-      path = try StoragePath.path(string: url)
+      path = try StoragePath.path(string: url.absoluteString)
     } catch let StoragePathError.storagePathError(message) {
       throw StorageError.pathError(message)
     } catch {

@@ -44,6 +44,12 @@ class StorageReferenceTests: XCTestCase {
     XCTAssertEqual(ref.root().description, "gs://bucket/")
   }
 
+  func testRootWithURLAPI() throws {
+    let url = try XCTUnwrap(URL(string: "gs://bucket/path/to/object"))
+    let ref = try storage!.reference(for: url)
+    XCTAssertEqual(ref.root().description, "gs://bucket/")
+  }
+
   func testRootWithNoPath() throws {
     let ref = storage!.reference(forURL: "gs://bucket/")
     XCTAssertEqual(ref.root().description, "gs://bucket/")
@@ -51,7 +57,8 @@ class StorageReferenceTests: XCTestCase {
 
   func testMismatchedBucket() throws {
     do {
-      _ = try storage!.ref(forURL: "gs://bcket/")
+      let url = try XCTUnwrap(URL(string: "gs://bcket/"))
+      _ = try storage!.reference(for: url)
     } catch let StorageError.bucketMismatch(string) {
       XCTAssertEqual(string, "Provided bucket:`bcket` does not match the Storage " +
         "bucket of the current instance:`bucket`")
@@ -62,7 +69,8 @@ class StorageReferenceTests: XCTestCase {
 
   func testBadBucketScheme() throws {
     do {
-      _ = try storage!.ref(forURL: "htttp://bucket/")
+      let url = try XCTUnwrap(URL(string: "htttp://bucket/"))
+      _ = try storage!.reference(for: url)
     } catch let StorageError.pathError(string) {
       XCTAssertEqual(
         string,
