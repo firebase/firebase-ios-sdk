@@ -67,6 +67,17 @@ class StorageReferenceTests: XCTestCase {
     XCTFail()
   }
 
+  func testMismatchedBucket2() throws {
+    let url = try XCTUnwrap(URL(string: "gs://bcket/"))
+    XCTAssertThrowsError(try storage!.reference(for: url), "This was supposed to fail.") { error in
+      XCTAssertEqual(
+        "\(error)",
+        "bucketMismatch(\"Provided bucket: `bcket` does not match the Storage " +
+          "bucket of the current instance: `bucket`\")"
+      )
+    }
+  }
+
   func testBadBucketScheme() throws {
     do {
       let url = try XCTUnwrap(URL(string: "htttp://bucket/"))
@@ -79,6 +90,14 @@ class StorageReferenceTests: XCTestCase {
       return
     }
     XCTFail()
+  }
+
+  func testBadBucketScheme2() throws {
+    let url = try XCTUnwrap(URL(string: "htttp://bucket/"))
+    XCTAssertThrowsError(try storage!.reference(for: url), "This was supposed to fail.") { error in
+      XCTAssertEqual("\(error)", "pathError(\"Internal error: URL scheme must be one of gs://, " +
+        "http://, or https://\")")
+    }
   }
 
   func testSingleChild() throws {
