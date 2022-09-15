@@ -1,6 +1,9 @@
 # 10.0.0
 - [changed] FirebaseStorage is now completely implemented in Swift. Swift-specific API improvements
   are planned for subsequent releases. (#9963)
+- [added] New API `open func ref(forURL url: String) throws -> StorageReference` equivalent to
+  `open func reference(forURL url: String) throws -> StorageReference` except it throws instead of
+  erroring. (#6974)
 - [changed] The `FirebaseStorageInternal` CocoaPod has been discontinued.
 - [changed] Remove the `storageReference` property of `StorageMetadata`. It had never been implemented
   and always returned `nil`.

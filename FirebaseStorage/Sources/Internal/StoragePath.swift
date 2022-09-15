@@ -42,7 +42,7 @@ internal class StoragePath: NSCopying, Equatable {
       return try path(HTTPURL: string)
     } else {
       // Invalid scheme, throw an error!
-      throw StoragePathError.storagePathError("Internal error: URL scheme must be one" +
+      throw StoragePathError.storagePathError("Internal error: URL scheme must be one " +
         "of gs://, http://, or https://")
     }
   }
@@ -64,9 +64,8 @@ internal class StoragePath: NSCopying, Equatable {
         return StoragePath(with: String(bucketObject))
       }
     }
-    throw StoragePathError
-      .storagePathError("Internal error: URI must be in the form of " +
-        "gs://<bucket>/<path/to/object>")
+    throw StoragePathError.storagePathError("Internal error: URI must be in the form of " +
+      "gs://<bucket>/<path/to/object>")
   }
 
   /**
