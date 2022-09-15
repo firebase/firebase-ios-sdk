@@ -30,7 +30,7 @@ using firebase::firestore::util::MakeString;
 using firebase::firestore::util::ThrowInvalidArgument;
 
 // Public constant
-ABSL_CONST_INIT const int64_t kFIRFirestoreCacheSizeUnlimited =
+ABSL_CONST_INIT extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited =
     Settings::CacheSizeUnlimited;
 
 @implementation FIRFirestoreSettings
