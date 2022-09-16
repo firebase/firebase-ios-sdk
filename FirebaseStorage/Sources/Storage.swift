@@ -118,7 +118,7 @@ import FirebaseAuthInterop
    * Defaults to 2 minutes (120 seconds).
    */
   @objc public var maxOperationRetryTime: TimeInterval {
-    didSet(foo) {
+    didSet {
       maxOperationRetryInterval = Storage.computeRetryInterval(fromRetryTime: maxOperationRetryTime)
     }
   }
