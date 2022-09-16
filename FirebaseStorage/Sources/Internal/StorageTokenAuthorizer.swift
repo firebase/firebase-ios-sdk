@@ -64,7 +64,6 @@ internal class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
         request?.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
 
         if let error = tokenResult.error {
-          // TODO: Define better way to use FIRLogger from Swift.
           FIRLogDebugSwift(
             "[FirebaseStorage]",
             "I-STR000001",
