@@ -38,13 +38,16 @@ class StorageTests: XCTestCase {
     _ = storage.reference(forURL: "gs://benwu-test2.storage.firebase.com/child")
   }
 
-  // TODO: Add fatalError unit testing or update API
-  func SKIPtestBucketEnforced() throws {
+  func testBucketEnforced() throws {
     let app = try getApp(bucket: "bucket")
     let storage = Storage.storage(app: app, url: "gs://benwu-test1.storage.firebase.com")
-    _ = storage.reference(forURL: "gs://benwu-test1.storage.firebase.com/child")
-    XCTAssertThrowsObjCException {
-      _ = storage.reference(forURL: "gs://benwu-test2.storage.firebase.com/child")
+    let url = try XCTUnwrap(URL(string: "gs://benwu-test2.storage.firebase.com/child"))
+    XCTAssertThrowsError(try storage.reference(for: url), "This was supposed to fail.") { error in
+      XCTAssertEqual(
+        "\(error)",
+        "bucketMismatch(\"Provided bucket: `benwu-test2.storage.firebase.com` does not match the " +
+          "Storage bucket of the current instance: `benwu-test1.storage.firebase.com`\")"
+      )
     }
   }
 
@@ -116,11 +119,16 @@ class StorageTests: XCTestCase {
     XCTAssertEqual(ref.bucket, "bucket")
   }
 
-  func SKIPtestStorageWrongBucketInConfig() throws {
+  func testStorageWrongBucketInConfig() throws {
     let app = try getApp(bucket: "notMyBucket")
     let storage = Storage.storage(app: app)
-    XCTAssertThrowsObjCException {
-      _ = storage.reference(forURL: "gs://bucket/path/to/object")
+    let url = try XCTUnwrap(URL(string: "gs://bucket/path/to/object"))
+    XCTAssertThrowsError(try storage.reference(for: url), "This was supposed to fail.") { error in
+      XCTAssertEqual(
+        "\(error)",
+        "bucketMismatch(\"Provided bucket: `bucket` does not match the " +
+          "Storage bucket of the current instance: `notMyBucket`\")"
+      )
     }
   }
 
@@ -237,6 +245,15 @@ class StorageTests: XCTestCase {
     XCTAssertEqual(32.0, Storage.computeRetryInterval(fromRetryTime: 40.0))
     XCTAssertEqual(32.0, Storage.computeRetryInterval(fromRetryTime: 50.0))
     XCTAssertEqual(32.0, Storage.computeRetryInterval(fromRetryTime: 60.0))
+  }
+
+  func testRetryTimeChange() throws {
+    let app = try getApp(bucket: "")
+    let storage = Storage.storage(app: app)
+    XCTAssertEqual(storage.maxOperationRetryInterval, 64)
+    storage.maxOperationRetryTime = 11
+    XCTAssertEqual(storage.maxOperationRetryTime, 11)
+    XCTAssertEqual(storage.maxOperationRetryInterval, 8)
   }
 
   // MARK: Private Helpers

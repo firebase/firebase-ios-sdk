@@ -39,7 +39,7 @@ import Foundation
     weak var weakSelf = self
     DispatchQueue.global(qos: .background).async {
       guard let strongSelf = weakSelf else { return }
-      if let contentValidationError = strongSelf.isContentToUploadInvalid() {
+      if let contentValidationError = strongSelf.contentUploadError() {
         strongSelf.error = contentValidationError
         strongSelf.finishTaskWithStatus(status: .failure, snapshot: strongSelf.snapshot)
         return
@@ -225,8 +225,7 @@ import Foundation
     self.uploadFetcher?.stopFetching()
   }
 
-  internal func isContentToUploadInvalid() -> NSError? {
-    // TODO: - Does checkResourceIsReachableAndReturnError need to be ported here?
+  private func contentUploadError() -> NSError? {
     if uploadData != nil {
       return nil
     }

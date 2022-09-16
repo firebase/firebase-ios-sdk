@@ -42,10 +42,12 @@ class StorageUtils {
         with: "%2B"
       )
     }
-    // TODO: review the force unwraps below.
     let encodedPath = encodedURL(for: reference.path)
     components.percentEncodedPath = encodedPath
-    return URLRequest(url: components.url!)
+    guard let url = components.url else {
+      fatalError("FirebaseStorage Internal Error: Failed to create url for \(reference.bucket)")
+    }
+    return URLRequest(url: url)
   }
 
   internal class func encodedURL(for path: StoragePath) -> String {

@@ -42,7 +42,6 @@ import XCTest
                      metadata.customMetadata!["shinkansen"])
     }
 
-    // TODO: update this test to use Swift error codes.
     func testDelete() async throws {
       let objectLocation = "ios/public/fileToDelete"
       let ref = storage.reference(withPath: objectLocation)
@@ -122,9 +121,6 @@ import XCTest
         XCTFail("error failed to convert to StorageError.unauthorized")
       }
     }
-
-    // TODO: Update this function when the task handle APIs are updated for the new Swift Concurrency.
-    func testSimplePutFile() throws {}
 
     func testAttemptToUploadDirectoryShouldFail() async throws {
       // This `.numbers` file is actually a directory.
@@ -250,7 +246,6 @@ import XCTest
         _ = try await ref.putDataAsync(data)
         let task = ref.write(toFile: fileURL)
 
-        // TODO: Update to use Swift Tasks
         task.observe(StorageTaskStatus.success) { snapshot in
           do {
             let stringData = try String(contentsOf: fileURL, encoding: .utf8)
@@ -347,7 +342,6 @@ import XCTest
       XCTAssertNil(listResult2.pageToken, "pageToken should be nil")
     }
 
-    // TODO: Update to Swift error codes.
     func testPagedListFilesError() async throws {
       let ref = storage.reference(withPath: "ios/public/list")
       do {
