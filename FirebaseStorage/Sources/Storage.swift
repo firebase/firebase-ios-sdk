@@ -139,8 +139,8 @@ import FirebaseAuthInterop
   }
 
   /**
-   * Creates a StorageReference given a `gs://` or `https://` URL pointing to a Firebase Storage
-   * location. For example, you can pass in an `https://` download URL retrieved from
+   * Creates a StorageReference given a `gs://`, `http://`, or `https://` URL pointing to a
+   * Firebase Storage location. For example, you can pass in an `https://` download URL retrieved from
    * `StorageReference.downloadURL(completion:)` or the `gs://` URL from
    * `StorageReference.description`.
    * - Parameter url A gs:// or https:// URL to initialize the reference with.
@@ -171,8 +171,8 @@ import FirebaseAuthInterop
   }
 
   /**
-   * Creates a StorageReference given a `gs://` or `https://` URL pointing to a Firebase Storage
-   * location. For example, you can pass in an `https://` download URL retrieved from
+   * Creates a StorageReference given a `gs://`, `http://`, or `https://` URL pointing to a
+   * Firebase Storage location. For example, you can pass in an `https://` download URL retrieved from
    * `StorageReference.downloadURL(completion:)` or the `gs://` URL from
    * `StorageReference.description`.
    * - Parameter url A gs:// or https:// URL to initialize the reference with.
