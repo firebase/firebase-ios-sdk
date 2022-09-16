@@ -97,19 +97,31 @@ import FirebaseAuthInterop
    * The maximum time in seconds to retry an upload if a failure occurs.
    * Defaults to 10 minutes (600 seconds).
    */
-  @objc public var maxUploadRetryTime: TimeInterval
+  @objc public var maxUploadRetryTime: TimeInterval {
+    didSet {
+      maxUploadRetryInterval = Storage.computeRetryInterval(fromRetryTime: maxUploadRetryTime)
+    }
+  }
 
   /**
    * The maximum time in seconds to retry a download if a failure occurs.
    * Defaults to 10 minutes (600 seconds).
    */
-  @objc public var maxDownloadRetryTime: TimeInterval
+  @objc public var maxDownloadRetryTime: TimeInterval {
+    didSet {
+      maxDownloadRetryInterval = Storage.computeRetryInterval(fromRetryTime: maxDownloadRetryTime)
+    }
+  }
 
   /**
    * The maximum time in seconds to retry operations other than upload and download if a failure occurs.
    * Defaults to 2 minutes (120 seconds).
    */
-  @objc public var maxOperationRetryTime: TimeInterval
+  @objc public var maxOperationRetryTime: TimeInterval {
+    didSet(foo) {
+      maxOperationRetryInterval = Storage.computeRetryInterval(fromRetryTime: maxOperationRetryTime)
+    }
+  }
 
   /**
    * A `DispatchQueue` that all developer callbacks are fired on. Defaults to the main queue.
@@ -291,9 +303,10 @@ import FirebaseAuthInterop
 
   /// Map of apps to a dictionary of buckets to GTMSessionFetcherService.
   private static var fetcherServiceMap: [String: [String: GTMSessionFetcherService]] = [:]
-  private static var retryWhenOffline: GTMSessionFetcherRetryBlock = { (suggestedWillRetry: Bool,
-                                                                        error: Error?,
-                                                                        response: @escaping GTMSessionFetcherRetryResponse) in
+  private static var retryWhenOffline: GTMSessionFetcherRetryBlock = {
+    (suggestedWillRetry: Bool,
+     error: Error?,
+     response: @escaping GTMSessionFetcherRetryResponse) in
       var shouldRetry = suggestedWillRetry
       // GTMSessionFetcher does not consider being offline a retryable error, but we do, so we
       // special-case it here.
@@ -308,6 +321,8 @@ import FirebaseAuthInterop
                                                _ auth: AuthInterop,
                                                _ appCheck: AppCheckInterop)
     -> GTMSessionFetcherService {
+    objc_sync_enter(fetcherServiceMap)
+    defer { objc_sync_exit(fetcherServiceMap) }
     var bucketMap = fetcherServiceMap[app.name]
     if bucketMap == nil {
       bucketMap = [:]
@@ -338,9 +353,9 @@ import FirebaseAuthInterop
   internal var host: String
   internal var scheme: String
   internal var port: Int
-  internal let maxDownloadRetryInterval: TimeInterval
-  internal let maxOperationRetryInterval: TimeInterval
-  internal let maxUploadRetryInterval: TimeInterval
+  internal var maxDownloadRetryInterval: TimeInterval
+  internal var maxOperationRetryInterval: TimeInterval
+  internal var maxUploadRetryInterval: TimeInterval
 
   /**
    * Performs a crude translation of the user provided timeouts to the retry intervals that

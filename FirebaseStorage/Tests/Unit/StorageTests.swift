@@ -239,6 +239,15 @@ class StorageTests: XCTestCase {
     XCTAssertEqual(32.0, Storage.computeRetryInterval(fromRetryTime: 60.0))
   }
 
+  func testRetryTimeChange() throws {
+    let app = try getApp(bucket: "")
+    let storage = Storage.storage(app: app)
+    XCTAssertEqual(storage.maxOperationRetryInterval, 64)
+    storage.maxOperationRetryTime = 11
+    XCTAssertEqual(storage.maxOperationRetryTime, 11)
+    XCTAssertEqual(storage.maxOperationRetryInterval, 8)
+  }
+
   // MARK: Private Helpers
 
   // Cache the app associated with each Storage bucket
