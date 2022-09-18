@@ -100,10 +100,10 @@ TEST(FieldIndexTest, IndexOffsetCompareToWorks) {
                                          IndexOffset::InitialLargestBatchId());
   IndexOffset doc_b_offset = IndexOffset(Version(1), Key("foo/b"),
                                          IndexOffset::InitialLargestBatchId());
-  IndexOffset version_1_offset = IndexOffset::Create(Version(1));
+  IndexOffset version_1_offset = IndexOffset::CreateSuccessor(Version(1));
   IndexOffset doc_c_offset = IndexOffset(Version(2), Key("foo/c"),
                                          IndexOffset::InitialLargestBatchId());
-  IndexOffset version_2_offset = IndexOffset::Create(Version(2));
+  IndexOffset version_2_offset = IndexOffset::CreateSuccessor(Version(2));
 
   EXPECT_EQ(doc_a_offset.CompareTo(doc_b_offset), ComparisonResult::Ascending);
   EXPECT_EQ(doc_a_offset.CompareTo(version_1_offset),
@@ -117,7 +117,7 @@ TEST(FieldIndexTest, IndexOffsetCompareToWorks) {
 }
 
 TEST(FieldIndexTest, IndexOffsetAdvancesSeconds) {
-  IndexOffset actual = IndexOffset::Create(
+  IndexOffset actual = IndexOffset::CreateSuccessor(
       SnapshotVersion(Timestamp(1, static_cast<int32_t>(1e9) - 1)));
   IndexOffset expected =
       IndexOffset(SnapshotVersion(Timestamp(2, 0)), DocumentKey::Empty(),

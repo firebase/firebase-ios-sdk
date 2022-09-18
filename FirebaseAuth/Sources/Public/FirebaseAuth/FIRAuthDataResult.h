@@ -24,14 +24,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRAuthDataResult
     @brief Helper object that contains the result of a successful sign-in, link and reauthenticate
-        action. It contains references to a FIRUser instance and a FIRAdditionalUserInfo instance.
+        action. It contains references to a `User` instance and a `AdditionalUserInfo` instance.
  */
 NS_SWIFT_NAME(AuthDataResult)
 @interface FIRAuthDataResult : NSObject
 
 /** @fn init
-    @brief This class should not be initialized manually. `FIRAuthDataResult` instance is
-        returned as part of `FIRAuthDataResultCallback`.
+    @brief This class should not be initialized manually. `AuthDataResult` instance is
+        returned as part of `AuthDataResultCallback`.
  */
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -47,7 +47,7 @@ NS_SWIFT_NAME(AuthDataResult)
 
 /** @property credential
     @brief This property will be non-nil after a successful headful-lite sign-in via
-        signInWithProvider:UIDelegate:. May be used to obtain the accessToken and/or IDToken
+        `signIn(with:uiDelegate:completion:)`. May be used to obtain the accessToken and/or IDToken
         pertaining to a recently signed-in user.
  */
 @property(nonatomic, readonly, nullable) FIRAuthCredential *credential;

@@ -18,6 +18,7 @@
 @interface FIRCLSMockOnDemandModel : FIRCLSOnDemandModel
 
 - (instancetype)initWithFIRCLSSettings:(FIRCLSSettings *)settings
+                           fileManager:(FIRCLSFileManager *)fileManager
                             sleepBlock:(void (^)(int))sleepBlock;
 
 // Public for testing purposes

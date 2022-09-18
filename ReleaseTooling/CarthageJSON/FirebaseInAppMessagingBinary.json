@@ -62,6 +62,7 @@
   "8.12.1": "https://dl.google.com/dl/firebase/ios/carthage/8.12.1/FirebaseInAppMessaging-db07c3fb0e4d21bf.zip",
   "8.13.0": "https://dl.google.com/dl/firebase/ios/carthage/8.13.0/FirebaseInAppMessaging-752ac754e2ba4539.zip",
   "8.14.0": "https://dl.google.com/dl/firebase/ios/carthage/8.14.0/FirebaseInAppMessaging-a932e33a77c96c35.zip",
+  "8.15.0": "https://dl.google.com/dl/firebase/ios/carthage/8.15.0/FirebaseInAppMessaging-fe0d73a38277a3f4.zip",
   "8.2.0": "https://dl.google.com/dl/firebase/ios/carthage/8.2.0/FirebaseInAppMessaging-0c8e6554767e2bcc.zip",
   "8.3.0": "https://dl.google.com/dl/firebase/ios/carthage/8.3.0/FirebaseInAppMessaging-f1a5c7a504e8a9f8.zip",
   "8.4.0": "https://dl.google.com/dl/firebase/ios/carthage/8.4.0/FirebaseInAppMessaging-66e230a0af7f25e5.zip",
@@ -70,5 +71,12 @@
   "8.7.0": "https://dl.google.com/dl/firebase/ios/carthage/8.7.0/FirebaseInAppMessaging-621ac02e10b0f589.zip",
   "8.8.0": "https://dl.google.com/dl/firebase/ios/carthage/8.8.0/FirebaseInAppMessaging-156a48e2a5f8f1b3.zip",
   "8.9.0": "https://dl.google.com/dl/firebase/ios/carthage/8.9.0/FirebaseInAppMessaging-6108c6de19ee2212.zip",
-  "8.9.1": "https://dl.google.com/dl/firebase/ios/carthage/8.9.1/FirebaseInAppMessaging-c2663f9282367d31.zip"
+  "8.9.1": "https://dl.google.com/dl/firebase/ios/carthage/8.9.1/FirebaseInAppMessaging-c2663f9282367d31.zip",
+  "9.0.0": "https://dl.google.com/dl/firebase/ios/carthage/9.0.0/FirebaseInAppMessaging-1aa7dcc21bfa6a07.zip",
+  "9.1.0": "https://dl.google.com/dl/firebase/ios/carthage/9.1.0/FirebaseInAppMessaging-0885e3b2db20aa7a.zip",
+  "9.2.0": "https://dl.google.com/dl/firebase/ios/carthage/9.2.0/FirebaseInAppMessaging-f0825ab2ded61ce4.zip",
+  "9.3.0": "https://dl.google.com/dl/firebase/ios/carthage/9.3.0/FirebaseInAppMessaging-0742ed726fc2c520.zip",
+  "9.4.0": "https://dl.google.com/dl/firebase/ios/carthage/9.4.0/FirebaseInAppMessaging-92285761323cdad5.zip",
+  "9.5.0": "https://dl.google.com/dl/firebase/ios/carthage/9.5.0/FirebaseInAppMessaging-8e481cb0ed6d59e3.zip",
+  "9.6.0": "https://dl.google.com/dl/firebase/ios/carthage/9.6.0/FirebaseInAppMessaging-fa6da6466a7baa0b.zip"
 }

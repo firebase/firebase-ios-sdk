@@ -109,18 +109,18 @@ enum InitializeSpecTesting {
 
   // Copy updated specs to the `${HOME}/.cocoapods/` dir.
   private static func copyPodspecs(from specsDir: URL, manifest: FirebaseManifest.Manifest) {
-    let path = specsDir.appendingPathComponent("*.{podspec,podspec.json}").path
+    let path = specsDir.appendingPathComponent("*.podspec").path
     let paths = Shell.executeCommandFromScript("ls \(path)", outputToConsole: false)
     var candidateSpecs: [String]?
     switch paths {
-    case let .error(code, output):
+    case let .error(_, output):
       print("specs are not properly read, \(output)")
     case let .success(output):
       candidateSpecs = output.trimmingCharacters(in: .whitespacesAndNewlines)
         .components(separatedBy: "\n")
     }
     guard let specs = candidateSpecs else {
-      print("There are no files ending with `podspec` or `podspec.json` detected.")
+      print("There are no files ending with `podspec` detected.")
       return
     }
     for spec in specs {
@@ -145,7 +145,7 @@ enum InitializeSpecTesting {
     } catch {
       fatalError("Could not read the podspec. \(error)")
     }
-    // Closed source podspecs, e.g. GoogleAppMeasurement.podspec.json.
+    // Closed source podspecs, e.g. `GoogleAppMeasurement.podspec`.
     if path.pathExtension == "json" {
       // Remove both extenstions of `podspec` and `json`.
       podName = path.deletingPathExtension().deletingPathExtension().lastPathComponent

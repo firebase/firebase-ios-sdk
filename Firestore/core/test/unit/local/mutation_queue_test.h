@@ -67,7 +67,7 @@ class MutationQueueTestBase : public testing::Test {
   size_t GetBatchCount();
 
   /**
-   * Removes the first n entries from the the given batches and returns them.
+   * Removes the first n entries from the given batches and returns them.
    *
    * @param n The number of batches to remove.
    * @param batches The container to mutate, removing entries from it.

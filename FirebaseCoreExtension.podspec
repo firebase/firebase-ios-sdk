@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'FirebaseCoreExtension'
-    s.version          = '9.0.0'
+    s.version          = '9.6.0'
     s.summary          = 'Extended FirebaseCore APIs for Firebase product SDKs'
 
     s.description      = <<-DESC
@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
                          DESC
 
     s.homepage         = 'https://firebase.google.com'
-    s.license          = { :type => 'Apache', :file => 'LICENSE' }
+    s.license          = { :type => 'Apache-2.0', :file => 'LICENSE' }
     s.authors          = 'Google, Inc.'
 
     s.source           = {

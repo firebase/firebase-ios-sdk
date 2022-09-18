@@ -38,6 +38,7 @@ if [[ ! -z "${LEGACY:-}" ]]; then
   PODFILE="quickstart-ios/"$SAMPLE"/Legacy${SAMPLE}Quickstart/Podfile"
 fi
 
+gem install xcpretty
 
 # Installations is the only quickstart that doesn't need a real
 # GoogleService-Info.plist for its tests.
@@ -48,6 +49,7 @@ if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
   export FIREBASE_POD_REPO_FOR_DEV_POD=`pwd`
 
   git clone https://github.com/firebase/quickstart-ios.git
+
   $scripts_dir/localize_podfile.swift "$WORKSPACE_DIR"/Podfile "$RELEASE_TESTING"
   if [ "$RELEASE_TESTING" == "nightly_release_testing" ]; then
     set +x

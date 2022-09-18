@@ -219,10 +219,6 @@ struct ZipBuilder {
       // selection does not restrict any of its dependencies.
       var sortedPods = podsToBuild.keys.sorted()
 
-      // Interop pods are protocols only and should not be built.
-      sortedPods.removeAll(where: { value in
-        value.hasSuffix("Interop")
-      })
       sortedPods.removeAll(where: { value in
         value == "FirebaseAppCheck"
       })
@@ -451,7 +447,8 @@ struct ZipBuilder {
           podsToInstall.map { $0.name }.contains($0.key))
     }.sorted { $0.key < $1.key }
     for pod in remainingPods {
-      let folder = pod.key.replacingOccurrences(of: "Swift", with: "")
+      let folder = pod.key == "GoogleSignInSwiftSupport" ? "GoogleSignIn" :
+        pod.key.replacingOccurrences(of: "Swift", with: "")
       do {
         if frameworksToAssemble[pod.key] == nil {
           // Continue if the pod wasn't built.
@@ -463,7 +460,7 @@ struct ZipBuilder {
                                        withInstalledPods: installedPods,
                                        rootZipDir: zipDir,
                                        builtFrameworks: frameworksToAssemble,
-                                       podsToIgnore: analyticsPods)
+                                       frameworksToIgnore: analyticsPods)
         // Update the README.
         readmeDeps += dependencyString(for: folder, in: productDir, frameworks: podFrameworks)
       } catch {
@@ -575,7 +572,7 @@ struct ZipBuilder {
   func copyFrameworks(fromPods installedPods: [String],
                       toDirectory dir: URL,
                       frameworkLocations: [String: [URL]],
-                      podsToIgnore: [String] = []) throws -> [String] {
+                      frameworksToIgnore: [String] = []) throws -> [String] {
     let fileManager = FileManager.default
     if !fileManager.directoryExists(at: dir) {
       try fileManager.createDirectory(at: dir, withIntermediateDirectories: false, attributes: nil)
@@ -588,9 +585,7 @@ struct ZipBuilder {
     // it to the destination directory.
     for podName in installedPods {
       // Skip the Firebase pod and specifically ignored frameworks.
-      guard podName != "Firebase",
-            !podName.hasSuffix("Interop"),
-            !podsToIgnore.contains(podName) else {
+      guard podName != "Firebase" else {
         continue
       }
 
@@ -606,6 +601,10 @@ struct ZipBuilder {
       // Copy each of the frameworks over, unless it's explicitly ignored.
       for xcframework in xcframeworks {
         let xcframeworkName = xcframework.lastPathComponent
+        let name = (xcframeworkName as NSString).deletingPathExtension
+        if frameworksToIgnore.contains(name) {
+          continue
+        }
         let destination = dir.appendingPathComponent(xcframeworkName)
         try fileManager.copyItem(at: xcframework, to: destination)
         copiedFrameworkNames
@@ -717,8 +716,8 @@ struct ZipBuilder {
                                 withInstalledPods installedPods: [String: CocoaPodUtils.PodInfo],
                                 rootZipDir: URL,
                                 builtFrameworks: [String: [URL]],
-                                podsToIgnore: [String] = []) throws -> (productDir: URL,
-                                                                        frameworks: [String]) {
+                                frameworksToIgnore: [String] = []) throws
+    -> (productDir: URL, frameworks: [String]) {
     let podsToCopy = [podName] +
       CocoaPodUtils.transitiveMasterPodDependencies(for: podName, in: installedPods)
     // Remove any duplicates from the `podsToCopy` array. The easiest way to do this is to wrap it
@@ -730,11 +729,11 @@ struct ZipBuilder {
     let namedFrameworks = try copyFrameworks(fromPods: dedupedPods,
                                              toDirectory: productDir,
                                              frameworkLocations: builtFrameworks,
-                                             podsToIgnore: podsToIgnore)
+                                             frameworksToIgnore: frameworksToIgnore)
 
     let copiedFrameworks = namedFrameworks.filter {
-      // Skip frameworks that aren't contained in the "podsToIgnore" array and the Firebase pod.
-      !(podsToIgnore.contains($0) || $0 == "Firebase")
+      // Skip frameworks that aren't contained in the "frameworksToIgnore" array and the Firebase pod.
+      !(frameworksToIgnore.contains($0) || $0 == "Firebase")
     }
 
     return (productDir, copiedFrameworks)

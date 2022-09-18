@@ -53,6 +53,10 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.jso
 - Use Finder to open `Carthage/Build/iOS`.
 - Copy the contents into the top level of your Xcode project and make sure
     they're added to the right build target(s).
+    - To disable AdId support, do not copy
+   `GoogleAppMeasurementIdentitySupport.xcframework`.
+    - If the app does not use any Firebase Swift specific APIs, you do not need
+   to copy any xcframeworks whose name includes "Swift".
 - Add `$(OTHER_LDFLAGS) -ObjC` flag to "Other Linker Flags" in "Build Settings".
 - Make sure that the build target(s) includes your project's `GoogleService-Info.plist`
  ([how to download config file](https://support.google.com/firebase/answer/7015592))
@@ -67,6 +71,9 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.jso
 - Some additional libraries/frameworks may be needed depending on which Firebase frameworks you
  use, for example: libc++.tbd, sqlite3.tbd, StoreKit.framework, etc. For more information,
  [go here](https://github.com/firebase/firebase-ios-sdk/issues/9#issuecomment-387947163).
+
+- If you see Swift symbol linkage errors, you may need to add a dummy `.swift` file to the project
+  to resolve.
 
 - For Crashlytics, do the following steps to automatically upload your app's symbols so your app's crashes are symbolicated:
     - Download

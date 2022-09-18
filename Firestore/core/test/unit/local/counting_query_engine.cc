@@ -16,7 +16,6 @@
 
 #include "Firestore/core/test/unit/local/counting_query_engine.h"
 
-#include "Firestore/core/src/immutable/sorted_map.h"
 #include "Firestore/core/src/local/local_documents_view.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/mutable_document.h"
@@ -31,6 +30,8 @@ namespace local {
 using core::Query;
 using model::DocumentKeySet;
 using model::DocumentMap;
+using model::MutationByDocumentKeyMap;
+using model::OverlayByDocumentKeyMap;
 using model::SnapshotVersion;
 
 // MARK: - CountingQueryEngine
@@ -38,8 +39,7 @@ using model::SnapshotVersion;
 CountingQueryEngine::CountingQueryEngine() = default;
 CountingQueryEngine::~CountingQueryEngine() = default;
 
-void CountingQueryEngine::SetLocalDocumentsView(
-    LocalDocumentsView* local_documents) {
+void CountingQueryEngine::Initialize(LocalDocumentsView* local_documents) {
   remote_documents_ = absl::make_unique<WrappedRemoteDocumentCache>(
       local_documents->remote_document_cache(), this);
   mutation_queue_ = absl::make_unique<WrappedMutationQueue>(
@@ -49,7 +49,7 @@ void CountingQueryEngine::SetLocalDocumentsView(
   local_documents_ = absl::make_unique<LocalDocumentsView>(
       remote_documents_.get(), mutation_queue_.get(),
       document_overlay_cache_.get(), local_documents->index_manager());
-  QueryEngine::SetLocalDocumentsView(local_documents_.get());
+  QueryEngine::Initialize(local_documents_.get());
 }
 
 void CountingQueryEngine::ResetCounts() {
@@ -159,22 +159,36 @@ void WrappedRemoteDocumentCache::Remove(const model::DocumentKey& key) {
 }
 
 model::MutableDocument WrappedRemoteDocumentCache::Get(
-    const model::DocumentKey& key) {
+    const model::DocumentKey& key) const {
   auto result = subject_->Get(key);
   query_engine_->documents_read_by_key_ += result.is_found_document() ? 1 : 0;
   return result;
 }
 
 model::MutableDocumentMap WrappedRemoteDocumentCache::GetAll(
-    const model::DocumentKeySet& keys) {
+    const model::DocumentKeySet& keys) const {
   auto result = subject_->GetAll(keys);
-  query_engine_->documents_read_by_key_ += result.size();
+  for (const auto& key_doc : result) {
+    query_engine_->documents_read_by_key_ +=
+        key_doc.second.is_found_document() ? 1 : 0;
+  }
   return result;
 }
 
-model::MutableDocumentMap WrappedRemoteDocumentCache::GetMatching(
-    const core::Query& query, const model::SnapshotVersion& since_read_time) {
-  auto result = subject_->GetMatching(query, since_read_time);
+model::MutableDocumentMap WrappedRemoteDocumentCache::GetAll(
+    const std::string& collection_group,
+    const model::IndexOffset& offset,
+    size_t limit) const {
+  auto result = subject_->GetAll(collection_group, offset, limit);
+  query_engine_->documents_read_by_query_ += result.size();
+  return result;
+}
+
+model::MutableDocumentMap WrappedRemoteDocumentCache::GetAll(
+    const model::ResourcePath& path,
+    const model::IndexOffset& offset,
+    absl::optional<size_t>) const {
+  auto result = subject_->GetAll(path, offset);
   query_engine_->documents_read_by_query_ += result.size();
   return result;
 }
@@ -196,18 +210,17 @@ void WrappedDocumentOverlayCache::RemoveOverlaysForBatchId(int batch_id) {
   subject_->RemoveOverlaysForBatchId(batch_id);
 }
 
-DocumentOverlayCache::OverlayByDocumentKeyMap
-WrappedDocumentOverlayCache::GetOverlays(const model::ResourcePath& collection,
-                                         int since_batch_id) const {
+OverlayByDocumentKeyMap WrappedDocumentOverlayCache::GetOverlays(
+    const model::ResourcePath& collection, int since_batch_id) const {
   auto result = subject_->GetOverlays(collection, since_batch_id);
   query_engine_->overlays_read_by_collection_ += result.size();
   return result;
 }
 
-DocumentOverlayCache::OverlayByDocumentKeyMap
-WrappedDocumentOverlayCache::GetOverlays(absl::string_view collection_group,
-                                         int since_batch_id,
-                                         std::size_t count) const {
+OverlayByDocumentKeyMap WrappedDocumentOverlayCache::GetOverlays(
+    absl::string_view collection_group,
+    int since_batch_id,
+    std::size_t count) const {
   auto result = subject_->GetOverlays(collection_group, since_batch_id, count);
   query_engine_->overlays_read_by_collection_group_ += result.size();
   return result;

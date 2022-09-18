@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_LOCAL_DOCUMENT_OVERLAY_CACHE_H_
 
 #include <cstdlib>
+#include <set>
 #include <unordered_map>
 
 #include "Firestore/core/src/model/document_key.h"
@@ -45,12 +46,6 @@ class DocumentOverlayCacheTestHelper;
  */
 class DocumentOverlayCache {
  public:
-  using OverlayByDocumentKeyMap = std::
-      unordered_map<model::DocumentKey, model::Overlay, model::DocumentKeyHash>;
-  using MutationByDocumentKeyMap = std::unordered_map<model::DocumentKey,
-                                                      model::Mutation,
-                                                      model::DocumentKeyHash>;
-
   virtual ~DocumentOverlayCache() = default;
 
   /**
@@ -62,12 +57,20 @@ class DocumentOverlayCache {
       const model::DocumentKey& key) const = 0;
 
   /**
+   * Gets the saved overlay mutation for the given document keys. Skips keys for
+   * which there are no overlays.
+   */
+  virtual void GetOverlays(model::OverlayByDocumentKeyMap& dest,
+                           const std::set<model::DocumentKey>& keys) const;
+
+  /**
    * Saves the given document key to mutation map to persistence as overlays.
    *
    * All overlays will have their largest batch id set to `largestBatchId`.
    */
-  virtual void SaveOverlays(int largest_batch_id,
-                            const MutationByDocumentKeyMap& overlays) = 0;
+  virtual void SaveOverlays(
+      int largest_batch_id,
+      const model::MutationByDocumentKeyMap& overlays) = 0;
 
   /** Removes the overlay whose largest-batch-id equals to the given ID. */
   virtual void RemoveOverlaysForBatchId(int batch_id) = 0;
@@ -80,7 +83,7 @@ class DocumentOverlayCache {
    *     Only overlays that contain a change past `sinceBatchId` are returned.
    * @return Mapping of each document key in the collection to its overlay.
    */
-  virtual OverlayByDocumentKeyMap GetOverlays(
+  virtual model::OverlayByDocumentKeyMap GetOverlays(
       const model::ResourcePath& collection, int since_batch_id) const = 0;
 
   /**
@@ -98,7 +101,7 @@ class DocumentOverlayCache {
    * @return Mapping of each document key in the collection group to its
    * overlay.
    */
-  virtual OverlayByDocumentKeyMap GetOverlays(
+  virtual model::OverlayByDocumentKeyMap GetOverlays(
       absl::string_view collection_group,
       int since_batch_id,
       std::size_t count) const = 0;

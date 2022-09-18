@@ -1,5 +1,6 @@
 // swift-tools-version:5.3
-// The swift-tools-version declares the minimum version of Swift required to build this package.
+// The swift-tools-version declares the minimum version of Swift required to
+// build this package.
 
 // Copyright 2020 Google LLC
 //
@@ -18,7 +19,7 @@
 import PackageDescription
 import class Foundation.ProcessInfo
 
-let firebaseVersion = "9.0.0"
+let firebaseVersion = "9.6.0"
 
 let package = Package(
   name: "Firebase",
@@ -33,7 +34,11 @@ let package = Package(
       targets: ["FirebaseAnalyticsWithoutAdIdSupportTarget"]
     ),
     .library(
-      name: "FirebaseAnalyticsSwift-Beta",
+      name: "FirebaseAnalyticsOnDeviceConversion",
+      targets: ["FirebaseAnalyticsOnDeviceConversionTarget"]
+    ),
+    .library(
+      name: "FirebaseAnalyticsSwift",
       targets: ["FirebaseAnalyticsSwiftTarget"]
     ),
     .library(
@@ -73,7 +78,7 @@ let package = Package(
       targets: ["FirebaseDatabase"]
     ),
     .library(
-      name: "FirebaseDatabaseSwift-Beta",
+      name: "FirebaseDatabaseSwift",
       targets: ["FirebaseDatabaseSwift"]
     ),
     .library(
@@ -85,7 +90,7 @@ let package = Package(
       targets: ["FirebaseFirestoreTarget"]
     ),
     .library(
-      name: "FirebaseFirestoreSwift-Beta",
+      name: "FirebaseFirestoreSwift",
       targets: ["FirebaseFirestoreSwiftTarget"]
     ),
     .library(
@@ -121,7 +126,7 @@ let package = Package(
       targets: ["FirebaseRemoteConfig"]
     ),
     .library(
-      name: "FirebaseRemoteConfigSwift-Beta",
+      name: "FirebaseRemoteConfigSwift",
       targets: ["FirebaseRemoteConfigSwift"]
     ),
     .library(
@@ -133,39 +138,39 @@ let package = Package(
     .package(
       name: "Promises",
       url: "https://github.com/google/promises.git",
-      "2.0.0" ..< "3.0.0"
+      "2.1.0" ..< "3.0.0"
     ),
     .package(
       name: "SwiftProtobuf",
       url: "https://github.com/apple/swift-protobuf.git",
-      "1.15.0" ..< "2.0.0"
+      "1.19.0" ..< "2.0.0"
     ),
     .package(
       name: "GoogleAppMeasurement",
       url: "https://github.com/google/GoogleAppMeasurement.git",
       // Note that CI changes the version to the head of main for CI.
       // See scripts/setup_spm_tests.sh.
-      .exact("8.15.0")
+      .exact("9.6.0")
     ),
     .package(
       name: "GoogleDataTransport",
       url: "https://github.com/google/GoogleDataTransport.git",
-      "9.1.2" ..< "10.0.0"
+      "9.1.4" ..< "10.0.0"
     ),
     .package(
       name: "GoogleUtilities",
       url: "https://github.com/google/GoogleUtilities.git",
-      "7.6.0" ..< "8.0.0"
+      "7.7.1" ..< "8.0.0"
     ),
     .package(
       name: "GTMSessionFetcher",
       url: "https://github.com/google/gtm-session-fetcher.git",
-      "1.5.0" ..< "2.0.0"
+      "1.7.2" ..< "3.0.0"
     ),
     .package(
       name: "nanopb",
       url: "https://github.com/firebase/nanopb.git",
-      "2.30908.0" ..< "2.30909.0"
+      "2.30909.0" ..< "2.30910.0"
     ),
     .package(
       name: "abseil",
@@ -339,8 +344,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/8.15.0/FirebaseAnalytics.zip",
-      checksum: "9d075b16e9e32e2328afdee11bba33ef075ba7be106312a14c5601310d6ecd92"
+      url: "https://dl.google.com/firebase/ios/swiftpm/9.6.0/FirebaseAnalytics.zip",
+      checksum: "b2f2b38e2764a09af0781c61093693eb61739d0a43f203f2e4cbf10e4aa6c329"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
@@ -385,6 +390,19 @@ let package = Package(
     ),
 
     .target(
+      name: "FirebaseAnalyticsOnDeviceConversionTarget",
+      dependencies: [
+        .product(name: "GoogleAppMeasurementOnDeviceConversion",
+                 package: "GoogleAppMeasurement",
+                 condition: .when(platforms: [.iOS])),
+      ],
+      path: "FirebaseAnalyticsOnDeviceConversionWrapper",
+      linkerSettings: [
+        .linkedLibrary("c++"),
+      ]
+    ),
+
+    .target(
       name: "FirebaseAppDistributionTarget",
       dependencies: [.target(name: "FirebaseAppDistribution",
                              condition: .when(platforms: [.iOS]))],
@@ -409,9 +427,18 @@ let package = Package(
       name: "AppDistributionUnit",
       dependencies: ["FirebaseAppDistribution", "OCMock"],
       path: "FirebaseAppDistribution/Tests/Unit",
+      exclude: ["Swift/"],
       resources: [.process("Resources")],
       cSettings: [
         .headerSearchPath("../../.."),
+      ]
+    ),
+    .testTarget(
+      name: "AppDistributionUnitSwift",
+      dependencies: ["FirebaseAppDistribution"],
+      path: "FirebaseAppDistribution/Tests/Unit/Swift",
+      cSettings: [
+        .headerSearchPath("../../../.."),
       ]
     ),
 
@@ -475,7 +502,7 @@ let package = Package(
       name: "FirebaseStorageCombineSwift",
       dependencies: [
         "FirebaseStorage",
-        "FirebaseStorageObjC",
+        "FirebaseStorageInternal",
       ],
       path: "FirebaseCombineSwift/Sources/Storage"
     ),
@@ -754,6 +781,10 @@ let package = Package(
       dependencies: ["FirebaseFunctions",
                      "SharedTestUtilities"],
       path: "FirebaseFunctions/Tests/ObjCIntegration",
+      // See https://forums.swift.org/t/importing-swift-libraries-from-objective-c/56730
+      exclude: [
+        "ObjCPPAPITests.mm",
+      ],
       cSettings: [
         .headerSearchPath("../../.."),
       ]
@@ -1026,6 +1057,9 @@ let package = Package(
         "README.md",
         "ObjC/",
       ],
+      resources: [
+        .process("Defaults-testInfo.plist"),
+      ],
       cSettings: [
         .headerSearchPath("../../"),
       ]
@@ -1043,12 +1077,12 @@ let package = Package(
     // MARK: - Firebase Storage
 
     .target(
-      name: "FirebaseStorageObjC",
+      name: "FirebaseStorageInternal",
       dependencies: [
         "FirebaseCore",
         .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
       ],
-      path: "FirebaseStorage/Sources",
+      path: "FirebaseStorageInternal/Sources",
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
@@ -1060,8 +1094,8 @@ let package = Package(
     ),
     .testTarget(
       name: "StorageUnit",
-      dependencies: ["FirebaseStorageObjC", "OCMock", "SharedTestUtilities"],
-      path: "FirebaseStorage/Tests/Unit",
+      dependencies: ["FirebaseStorageInternal", "OCMock", "SharedTestUtilities"],
+      path: "FirebaseStorageInternal/Tests/Unit",
       cSettings: [
         .headerSearchPath("../../.."),
       ]
@@ -1073,15 +1107,15 @@ let package = Package(
         "FirebaseAuthInterop",
         "FirebaseCore",
         "FirebaseCoreExtension",
-        "FirebaseStorageObjC",
+        "FirebaseStorageInternal",
       ],
-      path: "FirebaseStorageSwift/Sources"
+      path: "FirebaseStorage/Sources"
     ),
     .testTarget(
       name: "FirebaseStorageUnit",
       dependencies: ["FirebaseStorage",
                      "SharedTestUtilities"],
-      path: "FirebaseStorageSwift/Tests/Unit",
+      path: "FirebaseStorage/Tests/Unit",
       cSettings: [
         .headerSearchPath("../../../"),
       ]
@@ -1089,7 +1123,11 @@ let package = Package(
     .testTarget(
       name: "StorageObjcIntegration",
       dependencies: ["FirebaseStorage"],
-      path: "FirebaseStorageSwift/Tests/ObjcIntegration",
+      path: "FirebaseStorage/Tests/ObjcIntegration",
+      exclude: [
+        // See https://forums.swift.org/t/importing-swift-libraries-from-objective-c/56730
+        "ObjCPPAPITests.mm",
+      ],
       cSettings: [
         .headerSearchPath("../../.."),
       ]
@@ -1125,7 +1163,7 @@ let package = Package(
                 condition: .when(platforms: [.iOS, .tvOS])),
         "FirebaseRemoteConfig",
         "FirebaseStorage",
-        "FirebaseStorageObjC",
+        "FirebaseStorageInternal",
         .product(name: "nanopb", package: "nanopb"),
       ],
       path: "SwiftPMTests/swift-test"
@@ -1215,12 +1253,6 @@ let package = Package(
       exclude: [
         // Disable Swift tests as mixed targets are not supported (Xcode 12.3).
         "Unit/Swift",
-
-        // Disable Keychain dependent tests as they require a host application on iOS.
-        "Integration",
-        "Unit/AppAttestProvider/Storage/FIRAppAttestArtifactStorageTests.m",
-        "Unit/Core/FIRAppCheckIntegrationTests.m",
-        "Unit/Core/FIRAppCheckStorageTests.m",
       ],
       resources: [
         .process("Fixture"),

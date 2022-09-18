@@ -11,7 +11,7 @@ jobs:
   specs_checking:
     # Don't run on private repo unless it is a PR.
     if: github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-11
+    runs-on: macos-12
     outputs:
       matrix: ${{ steps.check_files.outputs.matrix }}
       podspecs: ${{ steps.check_files.outputs.podspecs }}
@@ -27,7 +27,7 @@ jobs:
       run: |
         # The output.json will have podspecs that will be tested.
         # ``` output.json
-        # [{"podspec":"FirebaseABTesting.podspec"},{"podspec":"FirebaseAnalytics.podspec.json"}]
+        # [{"podspec":"FirebaseABTesting.podspec"},{"podspec":"FirebaseAnalytics.podspec"}]
         # ```
         # This array will help generate a matrix for jobs in GHA, taking
         # advantage of `include`.
@@ -41,29 +41,28 @@ jobs:
         echo "::set-output name=matrix::{\"include\":$( cat output.json )}"
         # `podspecs` is to help determine if specs_testing job should be run.
         echo "::set-output name=podspecs::$(cat output.json)"
-# TODO(v9): Re-enable once `v9` merges back to `master`.
-#   specs_testing:
-#     needs: specs_checking
-#     if: ${{ needs.specs_checking.outputs.podspecs != '[]' }}
-#     runs-on: macos-11
-#     strategy:
-#       fail-fast: false
-#       matrix: ${{fromJson(needs.specs_checking.outputs.matrix)}}
-#     env:
-#       PODSPEC: ${{ matrix.podspec }}
-#     steps:
-#     - name: Checkout code
-#       uses: actions/checkout@v2
-#       with:
-#         fetch-depth: 0
-#     - name: Init podspecs and source
-#       run: |
-#         mkdir specTestingLogs
-#         cd ReleaseTooling
-#         swift run podspecs-tester --git-root "${GITHUB_WORKSPACE}" --podspec ${PODSPEC} --skip-tests --temp-log-dir "${GITHUB_WORKSPACE}/specTestingLogs"
-#     - name: Upload Failed Testing Logs
-#       if: failure()
-#       uses: actions/upload-artifact@v2
-#       with:
-#         name: specTestingLogs
-#         path: specTestingLogs/*.txt
+  specs_testing:
+    needs: specs_checking
+    if: ${{ needs.specs_checking.outputs.podspecs != '[]' }}
+    runs-on: macos-12
+    strategy:
+      fail-fast: false
+      matrix: ${{fromJson(needs.specs_checking.outputs.matrix)}}
+    env:
+      PODSPEC: ${{ matrix.podspec }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Init podspecs and source
+      run: |
+        mkdir specTestingLogs
+        cd ReleaseTooling
+        swift run podspecs-tester --git-root "${GITHUB_WORKSPACE}" --podspec ${PODSPEC} --skip-tests --temp-log-dir "${GITHUB_WORKSPACE}/specTestingLogs"
+    - name: Upload Failed Testing Logs
+      if: failure()
+      uses: actions/upload-artifact@v2
+      with:
+        name: specTestingLogs
+        path: specTestingLogs/*.txt

@@ -25,24 +25,19 @@ options=(
   ' $'
 )
 
-# TODO(https://github.com/nanopb/nanopb/pull/622) remove Protogen exceptions
-# likely in a nanopb release after 0.3.9.7.
-
 git grep "${options[@]}" -- \
-    ':(exclude)Crashlytics/Protogen/nanopb' \
+    ':(exclude)cmake/external/nanopb.patch' \
+    ':(exclude)cmake/external/snappy.patch' \
     ':(exclude)Crashlytics/ProtoSupport' \
     ':(exclude)Crashlytics/UnitTests/Data' \
-    ':(exclude)Firebase/CoreDiagnostics/FIRCDLibrary/Protogen/nanopb' \
     ':(exclude)Firebase/CoreDiagnostics/ProtoSupport' \
     ':(exclude)CoreOnly/NOTICES' \
     ':(exclude)Firebase/Firebase/NOTICES' \
     ':(exclude)Firebase/InAppMessaging/ProtoSupport' \
-    ':(exclude)Firebase/InAppMessaging/Analytics/Protogen/nanopb' \
     ':(exclude)Firestore/Protos/nanopb' \
     ':(exclude)Firestore/Protos/cpp' \
     ':(exclude)Firestore/Protos/objc' \
     ':(exclude)Firestore/third_party/abseil-cpp' \
-    ':(exclude)GoogleDataTransport/GDTCCTLibrary/Protogen/nanopb' \
     ':(exclude)GoogleDataTransport/ProtoSupport' \
     ':(exclude)ReleaseTooling/Template/NOTICES'
 

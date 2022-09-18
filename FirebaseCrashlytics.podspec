@@ -1,10 +1,10 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCrashlytics'
-  s.version          = '9.0.0'
+  s.version          = '9.6.0'
   s.summary          = 'Best and lightest-weight crash reporting for mobile, desktop and tvOS.'
   s.description      = 'Firebase Crashlytics helps you track, prioritize, and fix stability issues that erode app quality.'
   s.homepage         = 'https://firebase.google.com/'
-  s.license          = { :type => 'Apache', :file => 'Crashlytics/LICENSE' }
+  s.license          = { :type => 'Apache-2.0', :file => 'Crashlytics/LICENSE' }
   s.authors          = 'Google, Inc.'
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
@@ -55,10 +55,10 @@ Pod::Spec.new do |s|
 
   s.dependency 'FirebaseCore', '~> 9.0'
   s.dependency 'FirebaseInstallations', '~> 9.0'
-  s.dependency 'PromisesObjC', '~> 2.0'
-  s.dependency 'GoogleDataTransport', '~> 9.1'
+  s.dependency 'PromisesObjC', '~> 2.1'
+  s.dependency 'GoogleDataTransport', '>= 9.1.4', '< 10.0.0'
   s.dependency 'GoogleUtilities/Environment', '~> 7.7'
-  s.dependency 'nanopb', '~> 2.30908.0'
+  s.dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
 
   s.libraries = 'c++', 'z'
   s.ios.frameworks = 'Security', 'SystemConfiguration'

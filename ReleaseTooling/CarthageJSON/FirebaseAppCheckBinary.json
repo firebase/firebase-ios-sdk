@@ -6,6 +6,7 @@
   "8.12.1": "https://dl.google.com/dl/firebase/ios/carthage/8.12.1/FirebaseAppCheck-819b898d87d95b35.zip",
   "8.13.0": "https://dl.google.com/dl/firebase/ios/carthage/8.13.0/FirebaseAppCheck-6fcfda3ce0600e3c.zip",
   "8.14.0": "https://dl.google.com/dl/firebase/ios/carthage/8.14.0/FirebaseAppCheck-99b3b2cc3ac6b185.zip",
+  "8.15.0": "https://dl.google.com/dl/firebase/ios/carthage/8.15.0/FirebaseAppCheck-416afb8a56425aaa.zip",
   "8.2.0": "https://dl.google.com/dl/firebase/ios/carthage/8.2.0/FirebaseAppCheck-09ac85b1323f7c35.zip",
   "8.3.0": "https://dl.google.com/dl/firebase/ios/carthage/8.3.0/FirebaseAppCheck-b400da875e682dc7.zip",
   "8.4.0": "https://dl.google.com/dl/firebase/ios/carthage/8.4.0/FirebaseAppCheck-5aa7e38a8cb13c4e.zip",
@@ -14,5 +15,12 @@
   "8.7.0": "https://dl.google.com/dl/firebase/ios/carthage/8.7.0/FirebaseAppCheck-d650106849da52f6.zip",
   "8.8.0": "https://dl.google.com/dl/firebase/ios/carthage/8.8.0/FirebaseAppCheck-b4930cfcb0590a4d.zip",
   "8.9.0": "https://dl.google.com/dl/firebase/ios/carthage/8.9.0/FirebaseAppCheck-34d137109c27f6cf.zip",
-  "8.9.1": "https://dl.google.com/dl/firebase/ios/carthage/8.9.1/FirebaseAppCheck-748a0ce6bb19e86a.zip"
+  "8.9.1": "https://dl.google.com/dl/firebase/ios/carthage/8.9.1/FirebaseAppCheck-748a0ce6bb19e86a.zip",
+  "9.0.0": "https://dl.google.com/dl/firebase/ios/carthage/9.0.0/FirebaseAppCheck-bbcff759342807f9.zip",
+  "9.1.0": "https://dl.google.com/dl/firebase/ios/carthage/9.1.0/FirebaseAppCheck-ef3b51d5ad9c2b91.zip",
+  "9.2.0": "https://dl.google.com/dl/firebase/ios/carthage/9.2.0/FirebaseAppCheck-2fcb3f8686134f52.zip",
+  "9.3.0": "https://dl.google.com/dl/firebase/ios/carthage/9.3.0/FirebaseAppCheck-3be18c3ef8e3927d.zip",
+  "9.4.0": "https://dl.google.com/dl/firebase/ios/carthage/9.4.0/FirebaseAppCheck-bdae893f0a838725.zip",
+  "9.5.0": "https://dl.google.com/dl/firebase/ios/carthage/9.5.0/FirebaseAppCheck-462c43bff68f9bd5.zip",
+  "9.6.0": "https://dl.google.com/dl/firebase/ios/carthage/9.6.0/FirebaseAppCheck-f557483c6233946f.zip"
 }

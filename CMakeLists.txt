@@ -60,6 +60,22 @@ endif()
 enable_language(C)
 enable_language(CXX)
 
+set(
+  FIREBASE_LD_EXECUTABLE
+  ""
+  CACHE
+  STRING
+  "The filename of the C/C++ linker to use. \
+    For example, the default linker for clang and gcc is ld. \
+    Using a fast linker, like mold (https://github.com/rui314/mold), \
+    could be useful during development to reduce build/test cycle times."
+)
+
+if(NOT ("${FIREBASE_LD_EXECUTABLE}" STREQUAL ""))
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fuse-ld=${FIREBASE_LD_EXECUTABLE}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=${FIREBASE_LD_EXECUTABLE}")
+endif()
+
 option(
   FIREBASE_IOS_BUILD_BENCHMARKS
   "Enable building of C++ and Objective-C benchmarks for this project"
@@ -71,7 +87,6 @@ option(
   "Enable building of C++ and Objective-C tests for this project"
   ON
 )
-
 
 list(INSERT CMAKE_MODULE_PATH 0 ${PROJECT_SOURCE_DIR}/cmake)
 include(compiler_setup)
@@ -174,6 +189,13 @@ else()
   set(ZLIB_ROOT_DIR ${FIREBASE_EXTERNAL_SOURCE_DIR}/zlib)
 endif()
 
+find_package(re2 QUIET)
+if(RE2_FOUND)
+  set(gRPC_RE2_PROVIDER package CACHE STRING "Use external re2")
+else()
+  set(RE2_ROOT_DIR ${FIREBASE_EXTERNAL_SOURCE_DIR}/re2)
+endif()
+
 set(gRPC_BUILD_TESTS OFF CACHE BOOL "Disable gRPC tests")
 set(gRPC_BUILD_CODEGEN OFF CACHE BOOL "Disable gRPC codegen")
 set(gRPC_BUILD_CSHARP_EXT OFF CACHE BOOL "Disable gRPC C# extensions")
@@ -226,6 +248,12 @@ if(NOT ZLIB_FOUND)
   )
 endif()
 
+
+# Snappy
+set(SNAPPY_BUILD_TESTS OFF CACHE BOOL "Firestore disabled")
+set(SNAPPY_BUILD_BENCHMARKS OFF CACHE BOOL "Firestore disabled")
+add_external_subdirectory(snappy)
+firebase_ios_add_alias(Snappy::Snappy snappy)
 
 # LevelDB
 set(LEVELDB_BUILD_TESTS OFF CACHE BOOL "Firestore disabled")

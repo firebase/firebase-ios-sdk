@@ -65,6 +65,7 @@ using testutil::Filter;
 using testutil::Map;
 using testutil::OrderBy;
 using testutil::Value;
+using util::JsonReader;
 
 json Parse(const std::string& s) {
   return json::parse(s, /*callback=*/nullptr, /*allow_exception=*/false);
@@ -1020,7 +1021,7 @@ TEST_F(BundleSerializerTest, DecodesStartAtCursor) {
       testutil::Query("colls")
           .AddingOrderBy(OrderBy("f1", "asc"))
           .StartingAt(core::Bound::FromValue(Array("f1", 1000),
-                                             /* is_before= */ true));
+                                             /* inclusive= */ true));
 
   VerifyNamedQueryRoundtrip(original);
 }
@@ -1030,7 +1031,7 @@ TEST_F(BundleSerializerTest, DecodesEndAtCursor) {
       testutil::Query("colls")
           .AddingOrderBy(OrderBy("f1", "desc"))
           .EndingAt(core::Bound::FromValue(Array("f1", "1000"),
-                                           /* is_before= */ false));
+                                           /* inclusive= */ false));
 
   VerifyNamedQueryRoundtrip(original);
 }

@@ -141,6 +141,15 @@ class SortedSet : public SortedContainer {
     return map_.keys_in(start_key, end_key);
   }
 
+  template <typename MapType>
+  static SortedSet FromKeysOf(const MapType& map) {
+    SortedSet result;
+    for (const K& key : map.keys()) {
+      result = result.insert(key);
+    }
+    return result;
+  }
+
   friend bool operator==(const SortedSet& lhs, const SortedSet& rhs) {
     if (lhs.size() != rhs.size()) {
       return false;

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseRemoteConfigSwift'
-  s.version                 = '9.0.0-beta'
+  s.version                 = '9.6.0'
   s.summary                 = 'Swift Extensions for Firebase Remote Config'
 
   s.description      = <<-DESC
@@ -11,7 +11,7 @@ app update.
 
 
   s.homepage                = 'https://developers.google.com/'
-  s.license                 = { :type => 'Apache', :file => 'LICENSE' }
+  s.license                 = { :type => 'Apache-2.0', :file => 'LICENSE' }
   s.authors                 = 'Google, Inc.'
 
   s.source                  = {
@@ -53,6 +53,7 @@ app update.
                               'FirebaseRemoteConfigSwift/Tests/FakeUtils/*.swift',
                               'FirebaseRemoteConfigSwift/Tests/ObjC/*.[hm]',
                              ]
+    swift_api.resources = 'FirebaseRemoteConfigSwift/Tests/Defaults-testInfo.plist'
     swift_api.requires_app_host = true
     swift_api.pod_target_xcconfig = {
       'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseRemoteConfigSwift/Tests/ObjC/Bridging-Header.h',
@@ -75,6 +76,7 @@ app update.
                                  'FirebaseRemoteConfigSwift/Tests/FakeConsole/*.swift',
                                  'FirebaseRemoteConfigSwift/Tests/ObjC/*.[hm]',
                                 ]
+    fake_console.resources = 'FirebaseRemoteConfigSwift/Tests/Defaults-testInfo.plist'
     fake_console.requires_app_host = true
     fake_console.pod_target_xcconfig = {
       'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseRemoteConfigSwift/Tests/ObjC/Bridging-Header.h',

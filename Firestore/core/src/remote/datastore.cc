@@ -21,6 +21,7 @@
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/core/database_info.h"
+#include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/credentials/auth_token.h"
 #include "Firestore/core/src/credentials/credentials_provider.h"
 #include "Firestore/core/src/model/database_id.h"
@@ -40,6 +41,7 @@
 #include "Firestore/core/src/util/executor.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
+#include "Firestore/core/src/util/no_destructor.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_cat.h"
@@ -62,6 +64,8 @@ using util::StatusOr;
 
 const auto kRpcNameCommit = "/google.firestore.v1.Firestore/Commit";
 const auto kRpcNameLookup = "/google.firestore.v1.Firestore/BatchGetDocuments";
+const auto kRpcNameRunAggregationQuery =
+    "/google.firestore.v1.Firestore/RunAggregationQuery";
 
 std::unique_ptr<Executor> CreateExecutor() {
   return Executor::CreateSerial("com.google.firebase.firestore.rpc");
@@ -204,17 +208,17 @@ void Datastore::CommitMutationsWithCredentials(
 }
 
 void Datastore::LookupDocuments(const std::vector<DocumentKey>& keys,
-                                LookupCallback&& callback) {
+                                LookupCallback&& user_callback) {
   ResumeRpcWithCredentials(
       // TODO(c++14): move into lambda.
-      [this, keys, callback](const StatusOr<AuthToken>& auth_token,
-                             const std::string& app_check_token) mutable {
+      [this, keys, user_callback](const StatusOr<AuthToken>& auth_token,
+                                  const std::string& app_check_token) mutable {
         if (!auth_token.ok()) {
-          callback(auth_token.status());
+          user_callback(auth_token.status());
           return;
         }
         LookupDocumentsWithCredentials(auth_token.ValueOrDie(), app_check_token,
-                                       keys, std::move(callback));
+                                       keys, std::move(user_callback));
       });
 }
 
@@ -222,7 +226,7 @@ void Datastore::LookupDocumentsWithCredentials(
     const credentials::AuthToken& auth_token,
     const std::string& app_check_token,
     const std::vector<DocumentKey>& keys,
-    LookupCallback&& callback) {
+    LookupCallback&& user_callback) {
   grpc::ByteBuffer message =
       MakeByteBuffer(datastore_serializer_.EncodeLookupRequest(keys));
 
@@ -232,28 +236,73 @@ void Datastore::LookupDocumentsWithCredentials(
   GrpcStreamingReader* call = call_owning.get();
   active_calls_.push_back(std::move(call_owning));
 
-  // TODO(c++14): move into lambda.
-  call->Start([this, call, callback](
-                  const StatusOr<std::vector<grpc::ByteBuffer>>& result) {
-    LogGrpcCallFinished("BatchGetDocuments", call, result.status());
-    HandleCallStatus(result.status());
+  // TODO(c++14): lambda captures using move.
+  auto responses_callback =
+      [this, user_callback](const std::vector<grpc::ByteBuffer>& result) {
+        user_callback(datastore_serializer_.MergeLookupResponses(result));
+      };
 
-    OnLookupDocumentsResponse(result, callback);
-
+  auto close_callback = [this, user_callback, call](const util::Status& status,
+                                                    bool callback_fired) {
+    // Trigger user_callback with an error status
+    if (!callback_fired) {
+      user_callback(status);
+    }
+    if (!status.ok()) {
+      LogGrpcCallFinished("BatchGetDocuments", call, status);
+      HandleCallStatus(status);
+    }
     RemoveGrpcCall(call);
-  });
+  };
+
+  call->Start(keys.size(), responses_callback, close_callback);
 }
 
-void Datastore::OnLookupDocumentsResponse(
-    const StatusOr<std::vector<grpc::ByteBuffer>>& result,
-    const LookupCallback& callback) {
-  if (!result.ok()) {
-    callback(result.status());
-    return;
-  }
+void Datastore::RunCountQuery(const core::Query& query,
+                              api::CountQueryCallback&& result_callback) {
+  ResumeRpcWithCredentials(
+      // TODO(c++14): move into lambda.
+      [this, query, result_callback](
+          const StatusOr<AuthToken>& auth_token,
+          const std::string& app_check_token) mutable {
+        if (!auth_token.ok()) {
+          result_callback(auth_token.status());
+          return;
+        }
+        RunCountQueryWithCredentials(auth_token.ValueOrDie(), app_check_token,
+                                     query, std::move(result_callback));
+      });
+}
 
-  std::vector<grpc::ByteBuffer> responses = std::move(result).ValueOrDie();
-  callback(datastore_serializer_.MergeLookupResponses(responses));
+void Datastore::RunCountQueryWithCredentials(
+    const credentials::AuthToken& auth_token,
+    const std::string& app_check_token,
+    const core::Query& query,
+    api::CountQueryCallback&& callback) {
+  grpc::ByteBuffer message =
+      MakeByteBuffer(datastore_serializer_.EncodeCountQueryRequest(query));
+
+  std::unique_ptr<GrpcUnaryCall> call_owning =
+      grpc_connection_.CreateUnaryCall(kRpcNameRunAggregationQuery, auth_token,
+                                       app_check_token, std::move(message));
+  GrpcUnaryCall* call = call_owning.get();
+  active_calls_.push_back(std::move(call_owning));
+
+  call->Start(
+      // TODO(c++14): move into lambda.
+      [this, call, callback](const StatusOr<grpc::ByteBuffer>& result) {
+        LogGrpcCallFinished("RunAggregationQuery", call, result.status());
+        HandleCallStatus(result.status());
+
+        if (result.ok()) {
+          callback(datastore_serializer_.DecodeCountQueryResponse(
+              result.ValueOrDie()));
+        } else {
+          callback(result.status());
+        }
+
+        RemoveGrpcCall(call);
+      });
 }
 
 void Datastore::ResumeRpcWithCredentials(const OnCredentials& on_credentials) {
@@ -369,9 +418,10 @@ bool Datastore::IsPermanentWriteError(const Status& error) {
 
 std::string Datastore::GetAllowlistedHeadersAsString(
     const GrpcCall::Metadata& headers) {
-  static auto* allowlist = new std::unordered_set<std::string>{
-      "date", "x-google-backends", "x-google-netmon-label", "x-google-service",
-      "x-google-gfe-request-trace"};
+  static const util::NoDestructor<std::unordered_set<std::string>> allowlist(
+      std::unordered_set<std::string>{
+          "date", "x-google-backends", "x-google-netmon-label",
+          "x-google-service", "x-google-gfe-request-trace"});
 
   std::string result;
   auto end = allowlist->end();

@@ -18,9 +18,8 @@ if(TARGET boringssl)
   return()
 endif()
 
-# Based on https://github.com/grpc/grpc/blob/v1.27.0/bazel/grpc_deps.bzl
-# master-with-bazel@{2019-10-18}
-set(commit 83da28a68f32023fd3b95a8ae94991a07b1f6c62)
+# Based on https://github.com/grpc/grpc/blob/v1.44.0/bazel/grpc_deps.bzl
+set(commit b9232f9e27e5668bc0414879dcdedb2a59ea75f2)
 
 ExternalProject_Add(
   boringssl
@@ -28,7 +27,7 @@ ExternalProject_Add(
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
   DOWNLOAD_NAME boringssl-${commit}.tar.gz
   URL https://github.com/google/boringssl/archive/${commit}.tar.gz
-  URL_HASH SHA256=781fa39693ec2984c71213cd633e9f6589eaaed75e3a9ac413237edec96fd3b9
+  URL_HASH SHA256=534fa658bd845fd974b50b10f444d392dfd0d93768c4a51b61263fd37d851c40
 
   PREFIX ${PROJECT_BINARY_DIR}
   SOURCE_DIR ${PROJECT_BINARY_DIR}/src/boringssl

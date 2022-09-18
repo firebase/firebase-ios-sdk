@@ -20,6 +20,9 @@ import PackageDescription
 
 let package = Package(
   name: "PodSpecBuilder",
+  platforms: [
+    .macOS(.v10_13),
+  ],
   products: [
     .executable(name: "spec-repo-builder", targets: ["SpecRepoBuilder"]),
   ],

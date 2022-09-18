@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCore'
-  s.version          = '9.0.0'
+  s.version          = '9.6.0'
   s.summary          = 'Firebase Core'
 
   s.description      = <<-DESC
@@ -8,7 +8,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
-  s.license          = { :type => 'Apache', :file => 'LICENSE' }
+  s.license          = { :type => 'Apache-2.0', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
 
   s.source           = {
@@ -39,16 +39,13 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
 
   s.swift_version = '5.3'
 
-  s.public_header_files = [
-    'FirebaseCore/Sources/Public/FirebaseCore/*.h',
-    'FirebaseCore/Extension/*.h',
-  ]
-  s.private_header_files = 'FirebaseCore/Extension/*.h'
+  s.public_header_files = 'FirebaseCore/Sources/Public/FirebaseCore/*.h'
 
   s.framework = 'Foundation'
   s.ios.framework = 'UIKit'
   s.osx.framework = 'AppKit'
   s.tvos.framework = 'UIKit'
+  s.watchos.framework = 'WatchKit'
 
   # Remember to also update version in `cmake/external/GoogleUtilities.cmake`
   s.dependency 'GoogleUtilities/Environment', '~> 7.7'

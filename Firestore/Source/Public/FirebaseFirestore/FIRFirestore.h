@@ -26,6 +26,7 @@
 @class FIRLoadBundleTaskProgress;
 @class FIRQuery;
 @class FIRTransaction;
+@class FIRTransactionOptions;
 @class FIRWriteBatch;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -70,6 +71,53 @@ NS_SWIFT_NAME(Firestore)
  * The Firebase App associated with this Firestore instance.
  */
 @property(strong, nonatomic, readonly) FIRApp *app;
+
+#pragma mark - Configure FieldIndexes
+
+/**
+ * This method is in preview. API signature and functionality are subject to change.
+ *
+ * Configures indexing for local query execution. Any previous index configuration is overridden.
+ *
+ * The index entries themselves are created asynchronously. You can continue to use queries
+ * that require indexing even if the indices are not yet available. Query execution will
+ * automatically start using the index once the index entries have been written.
+ *
+ * The method accepts the JSON format exported by the Firebase CLI (`firebase
+ * firestore:indexes`). If the JSON format is invalid, the completion block will be
+ * invoked with an NSError.
+ *
+ * @param json The JSON format exported by the Firebase CLI.
+ * @param completion A block to execute when setting is in a final state. The `error` parameter
+ * will be set if the block is invoked due to an error.
+ */
+- (void)setIndexConfigurationFromJSON:(NSString *)json
+                           completion:(nullable void (^)(NSError *_Nullable error))completion
+    NS_SWIFT_NAME(setIndexConfiguration(_:completion:));
+
+/**
+ * This method is in preview. API signature and functionality are subject to change.
+ *
+ * Configures indexing for local query execution. Any previous index configuration is overridden.
+ *
+ * The index entries themselves are created asynchronously. You can continue to use queries
+ * that require indexing even if the indices are not yet available. Query execution will
+ * automatically start using the index once the index entries have been written.
+ *
+ * Indexes are only supported with LevelDB persistence. Invoke `set_persistence_enabled(true)`
+ * before setting an index configuration. If LevelDB is not enabled, any index configuration
+ * will be rejected.
+ *
+ * The method accepts the JSON format exported by the Firebase CLI (`firebase
+ * firestore:indexes`). If the JSON format is invalid, this method ignores the changes.
+ *
+ * @param stream An input stream from which the configuration can be read.
+ * @param completion A block to execute when setting is in a final state. The `error` parameter
+ * will be set if the block is invoked due to an error.
+ */
+- (void)setIndexConfigurationFromStream:(NSInputStream *)stream
+                             completion:(nullable void (^)(NSError *_Nullable error))completion
+    NS_SWIFT_NAME(setIndexConfiguration(_:completion:));
 
 #pragma mark - Collections and Documents
 
@@ -144,6 +192,48 @@ NS_SWIFT_NAME(Firestore)
  */
 - (void)runTransactionWithBlock:(id _Nullable (^)(FIRTransaction *, NSError **))updateBlock
                      completion:(void (^)(id _Nullable result, NSError *_Nullable error))completion
+    __attribute__((swift_async(none)));  // Disable async import due to #9426.
+
+/**
+ * Executes the given updateBlock and then attempts to commit the changes applied within an atomic
+ * transaction.
+ *
+ * The maximum number of writes allowed in a single transaction is 500, but note that each usage of
+ * `FieldValue.serverTimestamp()`, `FieldValue.arrayUnion()`, `FieldValue.arrayRemove()`, or
+ * `FieldValue.increment()` inside a transaction counts as an additional write.
+ *
+ * In the updateBlock, a set of reads and writes can be performed atomically using the
+ * `Transaction` object passed to the block. After the updateBlock is run, Firestore will attempt
+ * to apply the changes to the server. If any of the data read has been modified outside of this
+ * transaction since being read, then the transaction will be retried by executing the updateBlock
+ * again. If the transaction still fails after the attempting the number of times specified by the
+ * `max_attempts` property of the given `TransactionOptions` object, then the transaction will fail.
+ * If the given `TransactionOptions` is `nil`, then the default `max_attempts` of 5 will be used.
+ *
+ * Since the updateBlock may be executed multiple times, it should avoiding doing anything that
+ * would cause side effects.
+ *
+ * Any value maybe be returned from the updateBlock. If the transaction is successfully committed,
+ * then the completion block will be passed that value. The updateBlock also has an `NSErrorPointer`
+ * out parameter. If this is set, then the transaction will not attempt to commit, and the given
+ * error will be passed to the completion block.
+ *
+ * The `Transaction` object passed to the updateBlock contains methods for accessing documents
+ * and collections. Unlike other firestore access, data accessed with the transaction will not
+ * reflect local changes that have not been committed. For this reason, it is required that all
+ * reads are performed before any writes. Transactions must be performed while online. Otherwise,
+ * reads will fail, the final commit will fail, and the completion block will return an error.
+ *
+ * @param options The transaction options for controlling execution, or `nil` to use the default
+ *     transaction options.
+ * @param updateBlock The block to execute within the transaction context.
+ * @param completion The block to call with the result or error of the transaction. This
+ *     block will run even if the client is offline, unless the process is killed.
+ */
+- (void)runTransactionWithOptions:(FIRTransactionOptions *_Nullable)options
+                            block:(id _Nullable (^)(FIRTransaction *, NSError **))updateBlock
+                       completion:
+                           (void (^)(id _Nullable result, NSError *_Nullable error))completion
     __attribute__((swift_async(none)));  // Disable async import due to #9426.
 
 /**

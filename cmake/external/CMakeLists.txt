@@ -15,7 +15,12 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(Firebase-download C CXX)
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
+list(
+  APPEND
+  CMAKE_MODULE_PATH
+  ${CMAKE_CURRENT_LIST_DIR}
+  ${CMAKE_CURRENT_LIST_DIR}/..
+)
 
 set(
   FIREBASE_DOWNLOAD_DIR
@@ -30,8 +35,10 @@ include(c-ares)
 include(googletest)
 include(GoogleUtilities)
 include(grpc)
+include(snappy)
 include(leveldb)
 include(libfuzzer)
 include(nanopb)
 include(protobuf)
+include(re2)
 include(zlib)

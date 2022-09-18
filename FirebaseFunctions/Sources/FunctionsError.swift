@@ -14,20 +14,11 @@
 
 import Foundation
 
-// The error domain for codes in the FIRFunctionsErrorCode enum.
+/// The error domain for codes in the `FunctionsErrorCode` enum.
 public let FunctionsErrorDomain: String = "com.firebase.functions"
 
-// The key for finding error details in the NSError userInfo.
+/// The key for finding error details in the `NSError` userInfo.
 public let FunctionsErrorDetailsKey: String = "details"
-
-// Swift globals are not visible from Objective C. Use these instead.
-@objc(FIRFunctionsErrorKeys) open class __FunctionsErrorKeys: NSObject {
-  // The error domain for codes in the FIRFunctionsErrorCode enum.
-  @objc public static let domain: String = "com.firebase.functions"
-
-  // The key for finding error details in the NSError userInfo.
-  @objc public static let errorDetailsKey: String = "details"
-}
 
 /**
  * The set of error status codes that can be returned from a Callable HTTPS tigger. These are the
@@ -111,11 +102,11 @@ public let FunctionsErrorDetailsKey: String = "details"
 }
 
 /**
- * Takes an HTTP status code and returns the corresponding FIRFunctionsErrorCode error code.
+ * Takes an HTTP status code and returns the corresponding `FIRFunctionsErrorCode` error code.
  * This is the standard HTTP status code -> error mapping defined in:
  * https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
- * @param status An HTTP status code.
- * @return The corresponding error code, or FIRFunctionsErrorCodeUnknown if none.
+ * - Parameter status An HTTP status code.
+ * - Returns: The corresponding error code, or `FIRFunctionsErrorCodeUnknown` if none.
  */
 internal func FunctionsCodeForHTTPStatus(_ status: NSInteger) -> FunctionsErrorCode {
   switch status {
@@ -130,7 +121,7 @@ internal func FunctionsCodeForHTTPStatus(_ status: NSInteger) -> FunctionsErrorC
   case 404:
     return .notFound
   case 409:
-    return .aborted
+    return .alreadyExists
   case 429:
     return .resourceExhausted
   case 499:
@@ -152,12 +143,12 @@ extension FunctionsErrorCode {
   static func errorCode(forName name: String) -> FunctionsErrorCode {
     switch name {
     case "OK": return .OK
-    case "CANELLED": return .cancelled
-    case "UNKOWN": return .unknown
-    case "INVLID_ARGUMENT": return .invalidArgument
-    case "DEALINE_EXCEEDED": return .deadlineExceeded
-    case "NOTFOUND": return .notFound
-    case "ALREADY_EXISTS": return .notFound
+    case "CANCELLED": return .cancelled
+    case "UNKNOWN": return .unknown
+    case "INVALID_ARGUMENT": return .invalidArgument
+    case "DEADLINE_EXCEEDED": return .deadlineExceeded
+    case "NOT_FOUND": return .notFound
+    case "ALREADY_EXISTS": return .alreadyExists
     case "PERMISSION_DENIED": return .permissionDenied
     case "RESOURCE_EXHAUSTED": return .resourceExhausted
     case "FAILED_PRECONDITION": return .failedPrecondition
@@ -167,9 +158,7 @@ extension FunctionsErrorCode {
     case "INTERNAL": return .internal
     case "UNAVAILABLE": return .unavailable
     case "DATA_LOSS": return .dataLoss
-    case "UNATHENTICATED": return .unauthenticated
-    // TODO(review): The docs originally say that unknown should be returned if it doesn't match,
-    // but the implementation doesn't do that, it's optional. Let's make this internal.
+    case "UNAUTHENTICATED": return .unauthenticated
     default: return .internal
     }
   }

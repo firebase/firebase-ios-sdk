@@ -27,7 +27,7 @@ struct PodspecsTester: ParsableCommand {
 
   /// A targeted testing pod, e.g. FirebaseAuth.podspec
   @Option(help: "A podspec that will be tested.")
-  var podspec: String
+  var podspec: String?
 
   /// The root of the Firebase git repo.
   @Option(help: "Spec testing log dir", transform: URL.init(fileURLWithPath:))
@@ -46,7 +46,7 @@ struct PodspecsTester: ParsableCommand {
   /// code and log.
   ///
   /// - Parameters:
-  ///   - spec: The podspec name, e.g. FirebaseAnalytics.podspec.json.
+  ///   - spec: The podspec name, e.g. `FirebaseAnalytics.podspec`.
   ///   - workingDir: The dir of the testing spec.
   ///   - args: A dict including options with its value or/and flags with nil.
   /// - Returns: A tuple with an error code and log.
@@ -114,20 +114,25 @@ struct PodspecsTester: ParsableCommand {
       return t
     }()
     timer.resume()
-    let testingPod = podspec.components(separatedBy: ".")[0]
-    for pod in manifest.pods {
-      if testingPod == pod.name {
-        var args: [String: String?] = [:]
-        args["platforms"] = pod.platforms.joined(separator: ",")
-        if pod.allowWarnings {
-          args.updateValue(nil, forKey: "allow-warnings")
+    if let podspec = podspec {
+      let testingPod = podspec.components(separatedBy: ".")[0]
+      for pod in manifest.pods {
+        if testingPod == pod.name {
+          var args: [String: String?] = [:]
+          args["platforms"] = pod.platforms.joined(separator: ",")
+          if pod.allowWarnings {
+            args.updateValue(nil, forKey: "allow-warnings")
+          }
+          if skipTests {
+            args.updateValue(nil, forKey: "skip-tests")
+          }
+          let code = specTest(spec: podspec, workingDir: gitRoot, args: args).code
+          exitCode = code
         }
-        if skipTests {
-          args.updateValue(nil, forKey: "skip-tests")
-        }
-        let code = specTest(spec: podspec, workingDir: gitRoot, args: args).code
-        exitCode = code
       }
+    } else {
+      print("A local podspec repo for \(gitRoot) is generated, but no " +
+        "podspec testing will be run since `--podspec` is not specified.")
     }
     timer.cancel()
     let finishDate = Date()

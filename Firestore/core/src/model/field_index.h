@@ -102,7 +102,7 @@ class IndexOffset : public util::Comparable<IndexOffset> {
    * Creates an offset that matches all documents with a read time higher than
    * `read_time`.
    */
-  static IndexOffset Create(SnapshotVersion read_time);
+  static IndexOffset CreateSuccessor(SnapshotVersion read_time);
 
   /** Creates a new offset based on the provided document. */
   static IndexOffset FromDocument(const Document& document);
@@ -132,6 +132,14 @@ class IndexOffset : public util::Comparable<IndexOffset> {
    */
   model::BatchId largest_batch_id() const {
     return largest_batch_id_;
+  }
+
+  /** Creates a pretty-printed description of the IndexOffset for debugging. */
+  std::string ToString() const {
+    return absl::StrCat(
+        "Index Offset: {read time: ", read_time_.ToString(),
+        ", document key: ", document_key_.ToString(),
+        ", largest batch id: ", std::to_string(largest_batch_id_), "}");
   }
 
   util::ComparisonResult CompareTo(const IndexOffset& rhs) const;
@@ -186,9 +194,21 @@ class IndexState {
   }
 
  private:
+  friend bool operator==(const IndexState& lhs, const IndexState& rhs);
+  friend bool operator!=(const IndexState& lhs, const IndexState& rhs);
+
   ListenSequenceNumber sequence_number_;
   IndexOffset index_offset_;
 };
+
+inline bool operator==(const IndexState& lhs, const IndexState& rhs) {
+  return lhs.sequence_number_ == rhs.sequence_number_ &&
+         lhs.index_offset_ == rhs.index_offset_;
+}
+
+inline bool operator!=(const IndexState& lhs, const IndexState& rhs) {
+  return !(lhs == rhs);
+}
 
 /**
  * An index definition for field indices in Firestore.
@@ -266,11 +286,24 @@ class FieldIndex {
   absl::optional<Segment> GetArraySegment() const;
 
  private:
+  friend bool operator==(const FieldIndex& lhs, const FieldIndex& rhs);
+  friend bool operator!=(const FieldIndex& lhs, const FieldIndex& rhs);
+
   int32_t index_id_ = UnknownId();
   std::string collection_group_;
   std::vector<Segment> segments_;
   IndexState state_;
 };
+
+inline bool operator==(const FieldIndex& lhs, const FieldIndex& rhs) {
+  return lhs.index_id_ == rhs.index_id_ &&
+         lhs.collection_group_ == rhs.collection_group_ &&
+         lhs.segments_ == rhs.segments_ && lhs.state_ == rhs.state_;
+}
+
+inline bool operator!=(const FieldIndex& lhs, const FieldIndex& rhs) {
+  return !(lhs == rhs);
+}
 
 }  // namespace model
 }  // namespace firestore

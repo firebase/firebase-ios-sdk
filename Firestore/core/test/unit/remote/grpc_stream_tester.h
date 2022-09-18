@@ -151,7 +151,7 @@ class GrpcStreamTester {
    * a different `GrpcCompletion::Type` than the corresponding result, this
    * function will fail.
    *
-   * This is a blocking function; it will finish quickly if the the gRPC
+   * This is a blocking function; it will finish quickly if the gRPC
    * completion queue has at least as many pending completions as there are
    * elements in `results`; otherwise, it will hang.
    *

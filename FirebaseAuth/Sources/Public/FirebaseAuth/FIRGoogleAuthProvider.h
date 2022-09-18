@@ -37,11 +37,11 @@ NS_SWIFT_NAME(GoogleAuthProvider)
 @interface FIRGoogleAuthProvider : NSObject
 
 /** @fn credentialWithIDToken:accessToken:
-    @brief Creates an `FIRAuthCredential` for a Google sign in.
+    @brief Creates an `AuthCredential` for a Google sign in.
 
     @param IDToken The ID Token from Google.
     @param accessToken The Access Token from Google.
-    @return A FIRAuthCredential containing the Google credentials.
+    @return An AuthCredential containing the Google credentials.
  */
 + (FIRAuthCredential *)credentialWithIDToken:(NSString *)IDToken
                                  accessToken:(NSString *)accessToken;

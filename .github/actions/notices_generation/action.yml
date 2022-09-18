@@ -1,0 +1,46 @@
+name: 'Generate NOTICES'
+description: 'Generate a NOTICES containning SDK licenses.'
+inputs:
+  pods:
+    description: 'Targeted Pods for licences'
+    required: true
+  sources:
+    description: 'Sources of PodSpecs'
+    required: true
+    default: 'https://cdn.cocoapods.org'
+  min-ios-version:
+    description: 'The minimum version of iOS'
+    required: true
+    default: '10.0'
+  search-local-pod-version:
+    description: 'Add pod version from local spec repo'
+    required: true
+    default: false
+    type: boolean
+  notices-path:
+    description: 'Path of Notices file containing all licences.'
+    required: true
+outputs:
+  notices_contents:
+    description: 'contents of notices'
+runs:
+  using: 'composite'
+  steps:
+  - uses: ruby/setup-ruby@v1
+    with:
+      ruby-version: "2.7"
+  - name: Generate a NOTICES file
+    run: |
+      cd "${{ github.action_path }}"
+      bundle install
+      if ${{ inputs.search-local-pod-version == 'true' }} ; then
+        ruby app.rb --pods ${{ inputs.pods }} --sources ${{ inputs.sources }} --min_ios_version ${{ inputs.min-ios-version }} --search_local_pod_version --notices_path ${{ inputs.notices-path }}
+      else
+        ruby app.rb --pods ${{ inputs.pods }} --sources ${{ inputs.sources }} --min_ios_version ${{ inputs.min-ios-version }} --notices_path ${{ inputs.notices-path }}
+      fi
+    shell: bash
+  - name: Upload artifacts
+    uses: actions/upload-artifact@v3
+    with:
+      name: notices
+      path: ${{ inputs.notices-path }}

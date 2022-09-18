@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDatabase'
-  s.version          = '9.0.0'
+  s.version          = '9.6.0'
   s.summary          = 'Firebase Realtime Database'
 
   s.description      = <<-DESC
@@ -8,7 +8,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
-  s.license          = { :type => 'Apache', :file => 'FirebaseDatabase/LICENSE' }
+  s.license          = { :type => 'Apache-2.0', :file => 'FirebaseDatabase/LICENSE' }
   s.authors          = 'Google, Inc.'
 
   s.source           = {
@@ -78,6 +78,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.test_spec 'integration' do |int_tests|
     int_tests.platforms = {:ios => ios_deployment_target, :osx => osx_deployment_target, :tvos => tvos_deployment_target}
     int_tests.scheme = { :code_coverage => true }
+    int_tests.requires_app_host = true
     int_tests.source_files = [
       'FirebaseDatabase/Tests/Integration/*.[mh]',
       'FirebaseDatabase/Tests/Helpers/*.[mh]',

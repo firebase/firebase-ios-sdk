@@ -34,9 +34,6 @@ function apt_install() {
 
 function install_xcpretty() {
   gem install xcpretty
-  if [[ -n "${TRAVIS:-}" ]]; then
-    gem install xcpretty-travis-formatter
-  fi
 }
 
 # Default values, if not supplied on the command line or environment

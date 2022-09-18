@@ -73,6 +73,7 @@
   "8.12.1": "https://dl.google.com/dl/firebase/ios/carthage/8.12.1/FirebaseStorage-b85e1daa57a21f89.zip",
   "8.13.0": "https://dl.google.com/dl/firebase/ios/carthage/8.13.0/FirebaseStorage-058af62c181ab5e7.zip",
   "8.14.0": "https://dl.google.com/dl/firebase/ios/carthage/8.14.0/FirebaseStorage-62227d20a0fb7c1b.zip",
+  "8.15.0": "https://dl.google.com/dl/firebase/ios/carthage/8.15.0/FirebaseStorage-39defa22680d97a2.zip",
   "8.2.0": "https://dl.google.com/dl/firebase/ios/carthage/8.2.0/FirebaseStorage-4fa6f4e977353121.zip",
   "8.3.0": "https://dl.google.com/dl/firebase/ios/carthage/8.3.0/FirebaseStorage-1212fc2b375630fb.zip",
   "8.4.0": "https://dl.google.com/dl/firebase/ios/carthage/8.4.0/FirebaseStorage-5a1b292bb333a7a8.zip",
@@ -81,5 +82,12 @@
   "8.7.0": "https://dl.google.com/dl/firebase/ios/carthage/8.7.0/FirebaseStorage-62246a7f5ec65994.zip",
   "8.8.0": "https://dl.google.com/dl/firebase/ios/carthage/8.8.0/FirebaseStorage-5979f7836aa73879.zip",
   "8.9.0": "https://dl.google.com/dl/firebase/ios/carthage/8.9.0/FirebaseStorage-fce21e82a22c7ed1.zip",
-  "8.9.1": "https://dl.google.com/dl/firebase/ios/carthage/8.9.1/FirebaseStorage-0e9d3086f3ff0f99.zip"
+  "8.9.1": "https://dl.google.com/dl/firebase/ios/carthage/8.9.1/FirebaseStorage-0e9d3086f3ff0f99.zip",
+  "9.0.0": "https://dl.google.com/dl/firebase/ios/carthage/9.0.0/FirebaseStorage-ea5c39ff5fd2cc2e.zip",
+  "9.1.0": "https://dl.google.com/dl/firebase/ios/carthage/9.1.0/FirebaseStorage-e516b9ebaaa843b2.zip",
+  "9.2.0": "https://dl.google.com/dl/firebase/ios/carthage/9.2.0/FirebaseStorage-cf273afa2e21004b.zip",
+  "9.3.0": "https://dl.google.com/dl/firebase/ios/carthage/9.3.0/FirebaseStorage-45ad775a6461c00b.zip",
+  "9.4.0": "https://dl.google.com/dl/firebase/ios/carthage/9.4.0/FirebaseStorage-b736505e6e528412.zip",
+  "9.5.0": "https://dl.google.com/dl/firebase/ios/carthage/9.5.0/FirebaseStorage-ef5940a1ac611183.zip",
+  "9.6.0": "https://dl.google.com/dl/firebase/ios/carthage/9.6.0/FirebaseStorage-859187a6558884b0.zip"
 }

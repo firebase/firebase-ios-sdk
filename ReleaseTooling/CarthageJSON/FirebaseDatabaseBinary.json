@@ -73,6 +73,7 @@
   "8.12.1": "https://dl.google.com/dl/firebase/ios/carthage/8.12.1/FirebaseDatabase-a4dca7f2e2577611.zip",
   "8.13.0": "https://dl.google.com/dl/firebase/ios/carthage/8.13.0/FirebaseDatabase-ea2281df15726d59.zip",
   "8.14.0": "https://dl.google.com/dl/firebase/ios/carthage/8.14.0/FirebaseDatabase-e96c6cafde2710be.zip",
+  "8.15.0": "https://dl.google.com/dl/firebase/ios/carthage/8.15.0/FirebaseDatabase-8d6998f4101de0dc.zip",
   "8.2.0": "https://dl.google.com/dl/firebase/ios/carthage/8.2.0/FirebaseDatabase-052f622dd15e301e.zip",
   "8.3.0": "https://dl.google.com/dl/firebase/ios/carthage/8.3.0/FirebaseDatabase-43e2b46938f4c325.zip",
   "8.4.0": "https://dl.google.com/dl/firebase/ios/carthage/8.4.0/FirebaseDatabase-1a076af7e6459af2.zip",
@@ -81,5 +82,12 @@
   "8.7.0": "https://dl.google.com/dl/firebase/ios/carthage/8.7.0/FirebaseDatabase-dbff6e7221cc9476.zip",
   "8.8.0": "https://dl.google.com/dl/firebase/ios/carthage/8.8.0/FirebaseDatabase-a9c9941d0626eec7.zip",
   "8.9.0": "https://dl.google.com/dl/firebase/ios/carthage/8.9.0/FirebaseDatabase-678113a755552d45.zip",
-  "8.9.1": "https://dl.google.com/dl/firebase/ios/carthage/8.9.1/FirebaseDatabase-4768eccb3a041e7c.zip"
+  "8.9.1": "https://dl.google.com/dl/firebase/ios/carthage/8.9.1/FirebaseDatabase-4768eccb3a041e7c.zip",
+  "9.0.0": "https://dl.google.com/dl/firebase/ios/carthage/9.0.0/FirebaseDatabase-5f5e817c5104e35b.zip",
+  "9.1.0": "https://dl.google.com/dl/firebase/ios/carthage/9.1.0/FirebaseDatabase-6fc206ffffcf95c0.zip",
+  "9.2.0": "https://dl.google.com/dl/firebase/ios/carthage/9.2.0/FirebaseDatabase-15daf4c12a9f7ff3.zip",
+  "9.3.0": "https://dl.google.com/dl/firebase/ios/carthage/9.3.0/FirebaseDatabase-25589090f50cce02.zip",
+  "9.4.0": "https://dl.google.com/dl/firebase/ios/carthage/9.4.0/FirebaseDatabase-22ac30c36d10ec2c.zip",
+  "9.5.0": "https://dl.google.com/dl/firebase/ios/carthage/9.5.0/FirebaseDatabase-d56411aa744801c2.zip",
+  "9.6.0": "https://dl.google.com/dl/firebase/ios/carthage/9.6.0/FirebaseDatabase-965a8d364092c833.zip"
 }

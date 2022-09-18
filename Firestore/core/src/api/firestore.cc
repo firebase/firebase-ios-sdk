@@ -17,6 +17,7 @@
 #include "Firestore/core/src/api/firestore.h"
 
 #include <utility>
+#include <vector>
 
 #include "Firestore/core/src/api/collection_reference.h"
 #include "Firestore/core/src/api/document_reference.h"
@@ -31,13 +32,18 @@
 #include "Firestore/core/src/credentials/empty_credentials_provider.h"
 #include "Firestore/core/src/local/leveldb_persistence.h"
 #include "Firestore/core/src/model/document_key.h"
+#include "Firestore/core/src/model/field_path.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider.h"
 #include "Firestore/core/src/remote/grpc_connection.h"
 #include "Firestore/core/src/util/async_queue.h"
+#include "Firestore/core/src/util/exception.h"
 #include "Firestore/core/src/util/executor.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/json_reader.h"
+#include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/status.h"
+#include "Firestore/third_party/nlohmann_json/json.hpp"
 #include "absl/memory/memory.h"
 
 namespace firebase {
@@ -49,13 +55,20 @@ using core::DatabaseInfo;
 using core::FirestoreClient;
 using credentials::AuthCredentialsProvider;
 using local::LevelDbPersistence;
+using model::FieldIndex;
+using model::FieldPath;
 using model::ResourcePath;
+using model::Segment;
+using nlohmann::json;
 using remote::FirebaseMetadataProvider;
 using remote::GrpcConnection;
 using util::AsyncQueue;
 using util::Empty;
 using util::Executor;
 using util::Status;
+using util::ThrowInvalidArgument;
+
+const int kDefaultTransactionMaxAttempts = 5;
 
 Firestore::Firestore(
     model::DatabaseId database_id,
@@ -155,12 +168,13 @@ core::Query Firestore::GetCollectionGroup(std::string collection_id) {
                                                 std::move(collection_id)));
 }
 
-void Firestore::RunTransaction(
-    core::TransactionUpdateCallback update_callback,
-    core::TransactionResultCallback result_callback) {
+void Firestore::RunTransaction(core::TransactionUpdateCallback update_callback,
+                               core::TransactionResultCallback result_callback,
+                               int max_attempts) {
+  HARD_ASSERT(max_attempts >= 0, "invalid max_attempts: %s", max_attempts);
   EnsureClientConfigured();
 
-  client_->Transaction(5, std::move(update_callback),
+  client_->Transaction(max_attempts, std::move(update_callback),
                        std::move(result_callback));
 }
 
@@ -237,6 +251,70 @@ void Firestore::EnsureClientConfigured() {
 DatabaseInfo Firestore::MakeDatabaseInfo() const {
   return DatabaseInfo(database_id_, persistence_key_, settings_.host(),
                       settings_.ssl_enabled());
+}
+
+void Firestore::SetIndexConfiguration(const std::string& config,
+                                      const util::StatusCallback& callback) {
+  EnsureClientConfigured();
+
+  util::JsonReader reader;
+  if (!settings_.persistence_enabled()) {
+    LOG_DEBUG("Cannot enable indexes when persistence is disabled.");
+    callback(util::Status::OK());
+    return;
+  }
+
+  auto json_object =
+      nlohmann::json::parse(config.begin(), config.end(),
+                            /*callback=*/nullptr, /*allow_exceptions=*/false);
+  if (json_object.is_discarded()) {
+    callback(Status(Error::kErrorInvalidArgument, "Invalid Json format."));
+    return;
+  }
+
+  std::vector<FieldIndex> parsed_indexes;
+  const std::vector<json> default_vector;
+  const auto& json_indexes =
+      reader.OptionalArray("indexes", json_object, default_vector);
+  for (const auto& json_index : json_indexes) {
+    const std::string& collection_group =
+        reader.RequiredString("collectionGroup", json_index);
+    std::vector<Segment> segments;
+    const auto& json_fields =
+        reader.OptionalArray("fields", json_index, default_vector);
+    for (const auto& json_field : json_fields) {
+      FieldPath field_path = FieldPath::FromServerFormat(
+                                 reader.RequiredString("fieldPath", json_field))
+                                 .ValueOrDie();
+      std::string default_string;
+      if ("CONTAINS" ==
+          reader.OptionalString("arrayConfig", json_field, default_string)) {
+        segments.emplace_back(
+            Segment(std::move(field_path), Segment::Kind::kContains));
+      } else if ("ASCENDING" ==
+                 reader.OptionalString("order", json_field, default_string)) {
+        segments.emplace_back(
+            Segment(std::move(field_path), Segment::Kind::kAscending));
+      } else {
+        segments.emplace_back(
+            Segment(std::move(field_path), Segment::Kind::kDescending));
+      }
+    }
+
+    if (reader.status() != util::Status::OK()) {
+      callback(reader.status());
+      return;
+    }
+
+    parsed_indexes.emplace_back(
+        FieldIndex(FieldIndex::UnknownId(), collection_group,
+                   std::move(segments), FieldIndex::InitialState()));
+  }
+
+  client_->ConfigureFieldIndexes(std::move(parsed_indexes));
+
+  callback(util::Status::OK());
+  return;
 }
 
 std::shared_ptr<LoadBundleTask> Firestore::LoadBundle(

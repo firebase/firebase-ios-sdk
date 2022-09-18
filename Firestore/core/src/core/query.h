@@ -122,8 +122,8 @@ class Query {
    * Checks if any of the provided filter operators are included in the query
    * and returns the first one that is, or null if none are.
    */
-  absl::optional<FieldFilter::Operator> FindOperator(
-      const std::vector<FieldFilter::Operator>& ops) const;
+  absl::optional<core::FieldFilter::Operator> FindOpInsideFilters(
+      const std::vector<core::FieldFilter::Operator>& ops) const;
 
   /**
    * Returns the list of ordering constraints that were explicitly requested on
@@ -146,6 +146,10 @@ class Query {
 
   /** Returns the first field in an order-by constraint, or nullptr if none. */
   const model::FieldPath* FirstOrderByField() const;
+
+  bool has_limit() const {
+    return limit_ != Target::kNoLimit;
+  }
 
   bool has_limit_to_first() const {
     return limit_type_ == LimitType::First && limit_ != Target::kNoLimit;

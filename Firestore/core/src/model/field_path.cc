@@ -21,6 +21,7 @@
 
 #include "Firestore/core/src/util/exception.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/no_destructor.h"
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "absl/strings/str_join.h"
@@ -32,6 +33,7 @@ namespace firestore {
 namespace model {
 namespace {
 
+using util::NoDestructor;
 using util::Status;
 using util::StatusOr;
 using util::StringFormat;
@@ -146,7 +148,7 @@ StatusOr<FieldPath> FieldPath::FromServerFormatView(absl::string_view path) {
   while (i < path.size()) {
     const char c = path[i];
     // std::string (and string_view) may contain embedded nulls. For full
-    // compatibility with Objective C behavior, finish upon encountering the
+    // compatibility with Objective-C behavior, finish upon encountering the
     // first terminating null.
     if (c == '\0') {
       break;
@@ -198,13 +200,14 @@ StatusOr<FieldPath> FieldPath::FromServerFormatView(absl::string_view path) {
 }
 
 const FieldPath& FieldPath::EmptyPath() {
-  static const FieldPath empty_path;
-  return empty_path;
+  static const NoDestructor<FieldPath> empty_path;
+  return *empty_path;
 }
 
 const FieldPath& FieldPath::KeyFieldPath() {
-  static const FieldPath key_field_path{FieldPath::kDocumentKeyPath};
-  return key_field_path;
+  static const NoDestructor<FieldPath> key_field_path(
+      FieldPath{FieldPath::kDocumentKeyPath});
+  return *key_field_path;
 }
 
 bool FieldPath::IsKeyFieldPath() const {

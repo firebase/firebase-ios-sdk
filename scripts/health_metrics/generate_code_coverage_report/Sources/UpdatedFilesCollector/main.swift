@@ -25,7 +25,7 @@ struct SDKFilePattern: Codable {
 
 /// SDKPodspec is to help generate an array of podspec in json file, e.g.
 /// ``` output.json
-/// [{"podspec":"FirebaseABTesting.podspec"},{"podspec":"FirebaseAnalytics.podspec.json"}]
+/// [{"podspec":"FirebaseABTesting.podspec"},{"podspec":"FirebaseAnalytics.podspec"}]
 /// ```
 struct SDKPodspec: Codable {
   let podspec: String

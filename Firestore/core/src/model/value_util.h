@@ -52,7 +52,8 @@ enum class TypeOrder {
   kReference = 7,
   kGeoPoint = 8,
   kArray = 9,
-  kMap = 10
+  kMap = 10,
+  kMaxValue = 11
 };
 
 /** Returns the backend's type order of the given Value type. */
@@ -66,6 +67,14 @@ void SortFields(google_firestore_v1_ArrayValue& value);
 
 util::ComparisonResult Compare(const google_firestore_v1_Value& left,
                                const google_firestore_v1_Value& right);
+util::ComparisonResult LowerBoundCompare(const google_firestore_v1_Value& left,
+                                         bool left_inclusive,
+                                         const google_firestore_v1_Value& right,
+                                         bool right_inclusive);
+util::ComparisonResult UpperBoundCompare(const google_firestore_v1_Value& left,
+                                         bool left_inclusive,
+                                         const google_firestore_v1_Value& right,
+                                         bool right_inclusive);
 
 bool Equals(const google_firestore_v1_Value& left,
             const google_firestore_v1_Value& right);
@@ -80,6 +89,22 @@ bool Equals(const google_firestore_v1_ArrayValue& left,
 std::string CanonicalId(const google_firestore_v1_Value& value);
 
 /**
+ * Returns the lowest value for the given value type (inclusive).
+ *
+ * The returned value might point to heap allocated memory that is owned by
+ * this function. To take ownership of this memory, call `DeepClone`.
+ */
+google_firestore_v1_Value GetLowerBound(pb_size_t value_tag);
+
+/**
+ * Returns the largest value for the given value type (exclusive).
+ *
+ * The returned value might point to heap allocated memory that is owned by
+ * this function. To take ownership of this memory, call `DeepClone`.
+ */
+google_firestore_v1_Value GetUpperBound(pb_size_t value_tag);
+
+/**
  * Generates the canonical ID for the provided array value (as used in Target
  * serialization).
  */
@@ -89,11 +114,28 @@ std::string CanonicalId(const google_firestore_v1_ArrayValue& value);
 bool Contains(google_firestore_v1_ArrayValue haystack,
               google_firestore_v1_Value needle);
 
-/** Returns a null Protobuf value. */
-nanopb::Message<google_firestore_v1_Value> NullValue();
+/**
+ * Returns a null Protobuf value.
+ *
+ * The returned value might point to heap allocated memory that is owned by
+ * this function. To take ownership of this memory, call `DeepClone`.
+ */
+google_firestore_v1_Value NullValue();
 
 /** Returns `true` if `value` is null in its Protobuf representation. */
 bool IsNullValue(const google_firestore_v1_Value& value);
+
+/**
+ * Returns a Protobuf value that is smaller than any legitimate value SDK
+ * users can create. Under the hood, it is a `NullValue()`.
+ *
+ * The returned value might point to heap allocated memory that is owned by
+ * this function. To take ownership of this memory, call `DeepClone`.
+ */
+google_firestore_v1_Value MinValue();
+
+/** Returns `true` if `value` is MinValue() in its Protobuf representation. */
+bool IsMinValue(const google_firestore_v1_Value& value);
 
 /**
  * Returns a Protobuf value that is larger than any legitimate value SDK
@@ -102,21 +144,34 @@ bool IsNullValue(const google_firestore_v1_Value& value);
  * Under the hood, it is a sentinel Protobuf Map with special fields that
  * Firestore comparison logic always return true for `MaxValue() > v`, for any
  * v users can create, regardless `v`'s type and value.
+ *
+ * The returned value might point to heap allocated memory that is owned by
+ * this function. To take ownership of this memory, call `DeepClone`.
  */
-nanopb::Message<google_firestore_v1_Value> MaxValue();
+google_firestore_v1_Value MaxValue();
 
 /**
  * Returns `true` if `value` is equal to `MaxValue()`.
  */
 bool IsMaxValue(const google_firestore_v1_Value& value);
 
-/** Returns `NaN` in its Protobuf representation. */
-nanopb::Message<google_firestore_v1_Value> NaNValue();
+/**
+ * Returns `NaN` in its Protobuf representation.
+ *
+ * The returned value might point to heap allocated memory that is owned by
+ * this function. To take ownership of this memory, call `DeepClone`.
+ */
+google_firestore_v1_Value NaNValue();
 
 /** Returns `true` if `value` is `NaN` in its Protobuf representation. */
 bool IsNaNValue(const google_firestore_v1_Value& value);
 
-/** Returns a Protobuf reference value representing the given location. */
+/**
+ * Returns a Protobuf reference value representing the given location.
+ *
+ * The returned value might point to heap allocated memory that is owned by
+ * this function. To take ownership of this memory, call `DeepClone`.
+ */
 nanopb::Message<google_firestore_v1_Value> RefValue(
     const DatabaseId& database_id, const DocumentKey& document_key);
 

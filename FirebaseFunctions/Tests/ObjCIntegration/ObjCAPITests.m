@@ -33,9 +33,11 @@
   func = [FIRFunctions functionsForApp:app region:@"my-region"];
   func = [FIRFunctions functionsForApp:app customDomain:@"my-domain"];
 
-  FIRHTTPSCallable *callable = [func HTTPSCallableWithName:@"name"];
+  NSURL *url = [NSURL URLWithString:@"http://localhost:5050/project/location/name"];
+  FIRHTTPSCallable *callable = [func HTTPSCallableWithURL:url];
+  callable = [func HTTPSCallableWithName:@"name"];
 
-  [func useEmulatorWithHost:@"host" port:@"port"];
+  [func useEmulatorWithHost:@"host" port:123];
 
 #pragma mark - HTTPSCallable and HTTPSCallableResult
   [callable
@@ -48,16 +50,9 @@
                 }];
   callable.timeoutInterval = 60;
   [callable timeoutInterval];
+}
 
 #pragma mark - FunctionsError
-  // Deleted in Firebase 9
-  //__unused NSString *str = FIRFunctionsErrorDomain;
-  //__unused NSString *str2 = FIRFunctionsErrorDetailsKey;
-
-  // Replaced in Firebase 9
-  __unused NSString *str = FIRFunctionsErrorKeys.domain;
-  __unused NSString *str2 = FIRFunctionsErrorKeys.errorDetailsKey;
-}
 
 - (FIRFunctionsErrorCode)errorCodes:(NSError *)error {
   switch (error.code) {
@@ -80,5 +75,6 @@
     case FIRFunctionsErrorCodeUnauthenticated:
       return error.code;
   }
+  return error.code;
 }
 @end

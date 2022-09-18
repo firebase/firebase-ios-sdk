@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_LOCAL_MEMORY_REMOTE_DOCUMENT_CACHE_H_
 #define FIRESTORE_CORE_SRC_LOCAL_MEMORY_REMOTE_DOCUMENT_CACHE_H_
 
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -44,11 +45,15 @@ class MemoryRemoteDocumentCache : public RemoteDocumentCache {
            const model::SnapshotVersion& read_time) override;
   void Remove(const model::DocumentKey& key) override;
 
-  model::MutableDocument Get(const model::DocumentKey& key) override;
-  model::MutableDocumentMap GetAll(const model::DocumentKeySet& keys) override;
-  model::MutableDocumentMap GetMatching(
-      const core::Query& query,
-      const model::SnapshotVersion& since_read_time) override;
+  model::MutableDocument Get(const model::DocumentKey& key) const override;
+  model::MutableDocumentMap GetAll(
+      const model::DocumentKeySet& keys) const override;
+  model::MutableDocumentMap GetAll(const std::string&,
+                                   const model::IndexOffset&,
+                                   size_t) const override;
+  model::MutableDocumentMap GetAll(const model::ResourcePath& path,
+                                   const model::IndexOffset& offset,
+                                   absl::optional<size_t>) const override;
   void SetIndexManager(IndexManager* manager) override;
 
   std::vector<model::DocumentKey> RemoveOrphanedDocuments(
@@ -59,10 +64,7 @@ class MemoryRemoteDocumentCache : public RemoteDocumentCache {
 
  private:
   /** Underlying cache of documents and their read times. */
-  immutable::SortedMap<
-      model::DocumentKey,
-      std::pair<model::MutableDocument, model::SnapshotVersion>>
-      docs_;
+  immutable::SortedMap<model::DocumentKey, model::MutableDocument> docs_;
 
   // This instance is owned by MemoryPersistence; avoid a retain cycle.
   MemoryPersistence* persistence_;

@@ -445,7 +445,7 @@
 
 - (void)getDataWithCompletionBlock:
     (void (^_Nonnull)(NSError *__nullable error,
-                      FIRDataSnapshot *snapshot))block {
+                      FIRDataSnapshot *__nullable snapshot))block {
     [super getDataWithCompletionBlock:block];
 }
 

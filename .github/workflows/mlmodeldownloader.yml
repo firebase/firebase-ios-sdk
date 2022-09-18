@@ -17,7 +17,7 @@ concurrency:
 jobs:
   pod-lib-lint:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-11
+    runs-on: macos-12
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     strategy:
@@ -25,6 +25,7 @@ jobs:
         target: [ios, tvos, macos]
     steps:
     - uses: actions/checkout@v2
+    - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Configure test keychain
@@ -40,7 +41,7 @@ jobs:
 
   mlmodeldownloader-cron-only:
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-11
+    runs-on: macos-12
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     strategy:
@@ -49,6 +50,7 @@ jobs:
     needs: pod-lib-lint
     steps:
     - uses: actions/checkout@v2
+    - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Configure test keychain
@@ -63,7 +65,7 @@ jobs:
 
   spm:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-11
+    runs-on: macos-12
     strategy:
       matrix:
         target: [iOS, tvOS, macOS, catalyst, watchOS]
@@ -79,12 +81,13 @@ jobs:
 
   catalyst:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
       with:
         cache_key: ${{ matrix.os }}
+    - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Build Catalyst
@@ -95,12 +98,13 @@ jobs:
     if: github.repository == 'Firebase/firebase-ios-sdk' && (github.event_name == 'schedule' || github.event_name == 'pull_request')
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
       with:
         cache_key: ${{ matrix.os }}
+    - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Install GoogleService-Info.plist

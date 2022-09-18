@@ -364,4 +364,30 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
       XCTAssertNotNil(try Data(contentsOf: heartbeatsFileURL), "Data should not be nil.")
     #endif
   }
+
+  #if !os(tvOS)
+    // Do not run on tvOS because tvOS uses UserDefaults to store heartbeats.
+    func testControllerCreatesHeartbeatStorageWithSanitizedFileName() throws {
+      // Given
+      let appID = "1:123456789000:ios:abcdefghijklmnop"
+      let sanitizedAppID = appID.replacingOccurrences(of: ":", with: "_")
+      let controller = HeartbeatController(id: appID)
+      // When
+      // - Trigger the controller to write to the file system.
+      controller.log("dummy_agent")
+      _ = XCTWaiter.wait(for: [expectation(description: "Wait for async log.")], timeout: 0.1)
+      // Then
+      let heartbeatsDirectoryURL = FileManager.default
+        .applicationSupportDirectory
+        .appendingPathComponent(
+          HeartbeatLoggingTestUtils.Constants.heartbeatFileStorageDirectoryPath,
+          isDirectory: true
+        )
+
+      let directoryContents = try FileManager.default
+        .contentsOfDirectory(atPath: heartbeatsDirectoryURL.path)
+
+      XCTAssertEqual(directoryContents, ["heartbeats-\(sanitizedAppID)"])
+    }
+  #endif // !os(tvOS)
 }

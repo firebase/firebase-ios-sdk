@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInstallations'
-  s.version          = '9.0.0'
+  s.version          = '9.6.0'
   s.summary          = 'Firebase Installations'
 
   s.description      = <<-DESC
@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
-  s.license          = { :type => 'Apache', :file => 'LICENSE' }
+  s.license          = { :type => 'Apache-2.0', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
 
   s.source           = {
@@ -43,7 +43,7 @@ Pod::Spec.new do |s|
 
   s.framework = 'Security'
   s.dependency 'FirebaseCore', '~> 9.0'
-  s.dependency 'PromisesObjC', '~> 2.0'
+  s.dependency 'PromisesObjC', '~> 2.1'
   s.dependency 'GoogleUtilities/Environment', '~> 7.7'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 7.7'
 

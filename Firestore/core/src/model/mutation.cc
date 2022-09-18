@@ -16,15 +16,17 @@
 
 #include "Firestore/core/src/model/mutation.h"
 
-#include <cstdlib>
 #include <ostream>
-#include <sstream>
+#include <set>
 #include <utility>
 
+#include "Firestore/core/src/model/delete_mutation.h"
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/field_path.h"
 #include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/model/object_value.h"
+#include "Firestore/core/src/model/patch_mutation.h"
+#include "Firestore/core/src/model/set_mutation.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/to_string.h"
@@ -56,9 +58,12 @@ void Mutation::ApplyToRemoteDocument(
   return rep().ApplyToRemoteDocument(document, mutation_result);
 }
 
-void Mutation::ApplyToLocalView(MutableDocument& document,
-                                const Timestamp& local_write_time) const {
-  return rep().ApplyToLocalView(document, local_write_time);
+absl::optional<FieldMask> Mutation::ApplyToLocalView(
+    MutableDocument& document,
+    absl::optional<FieldMask> previous_mask,
+    const Timestamp& local_write_time) const {
+  return rep().ApplyToLocalView(document, std::move(previous_mask),
+                                local_write_time);
 }
 
 absl::optional<ObjectValue> Mutation::Rep::ExtractTransformBaseValue(
@@ -92,6 +97,16 @@ Mutation::Rep::Rep(DocumentKey&& key,
     : key_(std::move(key)),
       precondition_(std::move(precondition)),
       field_transforms_(std::move(field_transforms)) {
+}
+
+Mutation::Rep::Rep(DocumentKey&& key,
+                   Precondition&& precondition,
+                   std::vector<FieldTransform>&& field_transforms,
+                   absl::optional<FieldMask>&& mask)
+    : key_(std::move(key)),
+      precondition_(std::move(precondition)),
+      field_transforms_(std::move(field_transforms)),
+      mask_(std::move(mask)) {
 }
 
 bool Mutation::Rep::Equals(const Mutation::Rep& other) const {
@@ -148,6 +163,55 @@ TransformMap Mutation::Rep::LocalTransformResults(
     transform_results[field_transform.path()] = std::move(transformed_value);
   }
   return transform_results;
+}
+
+absl::optional<Mutation> Mutation::CalculateOverlayMutation(
+    const MutableDocument& doc, const absl::optional<FieldMask>& mask) {
+  if ((!doc.has_local_mutations())) {
+    return absl::nullopt;
+  }
+
+  // !mask.has_value() when there are Set or Delete being applied to get to the
+  // current document.
+  if (!mask.has_value()) {
+    if (doc.is_no_document()) {
+      return DeleteMutation(doc.key(), Precondition::None());
+    } else {
+      return SetMutation(doc.key(), doc.data(), Precondition::None());
+    }
+  } else {
+    const ObjectValue& doc_value = doc.data();
+    ObjectValue patch_value;
+    std::set<FieldPath> mask_set;
+    for (FieldPath path : mask.value()) {
+      if (mask_set.find(path) == mask_set.end()) {
+        absl::optional<google_firestore_v1_Value> value = doc_value.Get(path);
+        // If we are deleting a nested field, we take the immediate parent as
+        // the mask used to construct resulting mutation.
+        // Justification: Nested fields can create parent fields implicitly. If
+        // only a leaf entry is deleted in later mutations, the parent field
+        // should still remain, but we may have lost this information.
+        // Consider mutation (foo.bar 1), then mutation (foo.bar delete()).
+        // This leaves the final result (foo, {}). Despite the fact that `doc`
+        // has the correct result, `foo` is not in `mask`, and the resulting
+        // mutation would miss `foo`.
+        if (!value.has_value() && path.size() > 1) {
+          path = path.PopLast();
+          value = doc_value.Get(path);
+        }
+        if (value.has_value()) {
+          patch_value.Set(path, Message<google_firestore_v1_Value>(
+                                    DeepClone(value.value())));
+        } else {
+          patch_value.Delete(path);
+        }
+
+        mask_set.insert(path);
+      }
+    }
+    return PatchMutation(doc.key(), std::move(patch_value),
+                         FieldMask(std::move(mask_set)), Precondition::None());
+  }
 }
 
 bool operator==(const Mutation& lhs, const Mutation& rhs) {

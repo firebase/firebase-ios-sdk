@@ -37,12 +37,16 @@ test_version=$(git tag -l --sort=-version:refname CocoaPods-*[0-9] | head -n 1)
 git config --global user.email "google-oss-bot@example.com"
 git config --global user.name "google-oss-bot"
 git checkout "${podspec_repo_branch}"
+# Ensure the tag version including pod version to avoid warnings.
+# https://github.com/CocoaPods/Core/blob/e6451e172c33f3aa77a3f8baa7b6b5b8c3b5da14/lib/cocoapods-core/specification/linter.rb#L372-L374
+pod_testing_version=`echo "${test_version}" | sed "s/CocoaPods-//"`
 if [ "$TESTINGMODE" = "release_testing" ]; then
   git checkout "${test_version}"
   echo "Podspecs tags of Nightly release testing will be updated to ${test_version}."
   # Update source and tag, e.g.  ":tag => 'CocoaPods-' + s.version.to_s" to
   # ":tag => 'CocoaPods-7.9.0'"
-  sed  -i "" "s/\s*:tag.*/:tag => '${test_version}'/" *.podspec
+  sed -i "" "s/\s*:tag.*/:tag => '${test_version}'/" *.podspec
+  sed -i "" "s/s\.version[[:space:]]*=.*/s\.version='${pod_testing_version}'/" *.podspec
 elif [ "$TESTINGMODE" = "prerelease_testing" ]; then
   tag_version="${test_version}.nightly"
   echo "A new tag, ${tag_version},for prerelease testing will be created."
@@ -55,5 +59,6 @@ elif [ "$TESTINGMODE" = "prerelease_testing" ]; then
   git push origin "${tag_version}"
   # Update source and tag, e.g.  ":tag => 'CocoaPods-' + s.version.to_s" to
   # ":tag => ${test_version}.nightly"
-  sed  -i "" "s/\s*:tag.*/:tag => '${tag_version}'/" *.podspec
+  sed -i "" "s/\s*:tag.*/:tag => '${tag_version}'/" *.podspec
+  sed -i "" "s/s\.version[[:space:]]*=.*/s\.version='${pod_testing_version}'/" *.podspec
 fi

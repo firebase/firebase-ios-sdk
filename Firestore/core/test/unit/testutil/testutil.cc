@@ -22,6 +22,7 @@
 
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/core/composite_filter.h"
 #include "Firestore/core/src/core/direction.h"
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/core/order_by.h"
@@ -43,9 +44,11 @@
 #include "Firestore/core/src/nanopb/byte_string.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
+#include "Firestore/core/src/remote/remote_event.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_format.h"
+#include "Firestore/core/test/unit/remote/fake_target_metadata_provider.h"
 #include "absl/memory/memory.h"
 
 namespace firebase {
@@ -64,11 +67,13 @@ using model::MutableDocument;
 using model::NullValue;
 using model::ObjectValue;
 using model::Precondition;
+using model::TargetId;
 using model::TransformOperation;
 using nanopb::ByteString;
 using nanopb::Message;
 using nanopb::SetRepeatedField;
 using nanopb::SharedMessage;
+using remote::RemoteEvent;
 using util::StringFormat;
 
 /**
@@ -108,7 +113,7 @@ ByteString Bytes(std::initializer_list<uint8_t> octets) {
 }
 
 Message<google_firestore_v1_Value> Value(std::nullptr_t) {
-  return NullValue();
+  return DeepClone(NullValue());
 }
 
 Message<google_firestore_v1_Value> Value(double value) {
@@ -226,24 +231,32 @@ model::SnapshotVersion Version(int64_t version) {
   return model::SnapshotVersion{Timestamp::FromTimePoint(timepoint)};
 }
 
+model::SnapshotVersion Version(int64_t seconds, int32_t nanoseconds) {
+  return model::SnapshotVersion{Timestamp(seconds, nanoseconds)};
+}
+
 model::MutableDocument Doc(absl::string_view key,
                            int64_t version,
                            Message<google_firestore_v1_Value> data) {
   return MutableDocument::FoundDocument(Key(key), Version(version),
-                                        ObjectValue{std::move(data)});
+                                        ObjectValue{std::move(data)})
+      .WithReadTime(Version(version));
 }
 
 model::MutableDocument Doc(absl::string_view key, int64_t version) {
   return MutableDocument::FoundDocument(Key(key), Version(version),
-                                        ObjectValue{});
+                                        ObjectValue{})
+      .WithReadTime(Version(version));
 }
 
 model::MutableDocument DeletedDoc(absl::string_view key, int64_t version) {
-  return MutableDocument::NoDocument(Key(key), Version(version));
+  return MutableDocument::NoDocument(Key(key), Version(version))
+      .WithReadTime(Version(version));
 }
 
 model::MutableDocument DeletedDoc(DocumentKey key, int64_t version) {
-  return MutableDocument::NoDocument(std::move(key), Version(version));
+  return MutableDocument::NoDocument(std::move(key), Version(version))
+      .WithReadTime(Version(version));
 }
 
 model::MutableDocument UnknownDoc(absl::string_view key, int64_t version) {
@@ -311,7 +324,7 @@ core::FieldFilter Filter(absl::string_view key,
 core::FieldFilter Filter(absl::string_view key,
                          absl::string_view op,
                          std::nullptr_t) {
-  return Filter(key, op, NullValue());
+  return Filter(key, op, DeepClone(NullValue()));
 }
 
 core::FieldFilter Filter(absl::string_view key,
@@ -330,6 +343,16 @@ core::FieldFilter Filter(absl::string_view key,
                          absl::string_view op,
                          double value) {
   return Filter(key, op, Value(value));
+}
+
+core::CompositeFilter AndFilters(std::vector<core::Filter> filters) {
+  return core::CompositeFilter::Create(std::move(filters),
+                                       core::CompositeFilter::Operator::And);
+}
+
+core::CompositeFilter OrFilters(std::vector<core::Filter> filters) {
+  return core::CompositeFilter::Create(std::move(filters),
+                                       core::CompositeFilter::Operator::Or);
 }
 
 core::Direction Direction(absl::string_view direction) {
@@ -357,6 +380,67 @@ core::Query Query(absl::string_view path) {
 core::Query CollectionGroupQuery(absl::string_view collection_id) {
   return core::Query(model::ResourcePath::Empty(),
                      std::make_shared<const std::string>(collection_id));
+}
+
+/** Creates a remote event that inserts a list of documents. */
+RemoteEvent AddedRemoteEvent(const std::vector<MutableDocument>& docs,
+                             const std::vector<TargetId>& added_to_targets) {
+  HARD_ASSERT(!docs.empty(), "Cannot pass empty docs array");
+
+  const model::ResourcePath& collection_path = docs[0].key().path().PopLast();
+  auto metadata_provider =
+      remote::FakeTargetMetadataProvider::CreateEmptyResultProvider(
+          collection_path, added_to_targets);
+  remote::WatchChangeAggregator aggregator{&metadata_provider};
+
+  model::SnapshotVersion version;
+  for (const MutableDocument& doc : docs) {
+    HARD_ASSERT(!doc.has_local_mutations(),
+                "Docs from remote updates shouldn't have local changes.");
+    remote::DocumentWatchChange change{added_to_targets, {}, doc.key(), doc};
+    aggregator.HandleDocumentChange(change);
+    version = version > doc.version() ? version : doc.version();
+  }
+
+  return aggregator.CreateRemoteEvent(version);
+}
+
+/** Creates a remote event that inserts a new document. */
+RemoteEvent AddedRemoteEvent(const MutableDocument& doc,
+                             const std::vector<TargetId>& added_to_targets) {
+  std::vector<MutableDocument> docs{doc};
+  return AddedRemoteEvent(docs, added_to_targets);
+}
+
+/** Creates a remote event with changes to a document. */
+RemoteEvent UpdateRemoteEvent(
+    const MutableDocument& doc,
+    const std::vector<TargetId>& updated_in_targets,
+    const std::vector<TargetId>& removed_from_targets) {
+  return UpdateRemoteEventWithLimboTargets(doc, updated_in_targets,
+                                           removed_from_targets, {});
+}
+
+RemoteEvent UpdateRemoteEventWithLimboTargets(
+    const MutableDocument& doc,
+    const std::vector<TargetId>& updated_in_targets,
+    const std::vector<TargetId>& removed_from_targets,
+    const std::vector<TargetId>& limbo_targets) {
+  HARD_ASSERT(!doc.is_found_document() || !doc.has_local_mutations(),
+              "Docs from remote updates shouldn't have local changes.");
+  remote::DocumentWatchChange change{updated_in_targets, removed_from_targets,
+                                     doc.key(), doc};
+
+  std::vector<TargetId> listens = updated_in_targets;
+  listens.insert(listens.end(), removed_from_targets.begin(),
+                 removed_from_targets.end());
+
+  auto metadata_provider =
+      remote::FakeTargetMetadataProvider::CreateSingleResultProvider(
+          doc.key(), listens, limbo_targets);
+  remote::WatchChangeAggregator aggregator{&metadata_provider};
+  aggregator.HandleDocumentChange(change);
+  return aggregator.CreateRemoteEvent(doc.version());
 }
 
 // TODO(chenbrian): Rewrite SetMutation to allow parsing of field
@@ -389,6 +473,15 @@ model::PatchMutation PatchMutation(
     std::vector<std::pair<std::string, TransformOperation>> transforms) {
   return PatchMutationHelper(path, std::move(values), std::move(transforms),
                              Precondition::Exists(true), absl::nullopt);
+}
+
+model::PatchMutation PatchMutation(
+    absl::string_view path,
+    Message<google_firestore_v1_Value> values,
+    const std::vector<model::FieldPath>& update_mask,
+    std::vector<std::pair<std::string, TransformOperation>> transforms) {
+  return PatchMutationHelper(path, std::move(values), std::move(transforms),
+                             Precondition::Exists(true), update_mask);
 }
 
 // TODO(chenbrian): Rewrite MergeMutation to allow parsing of field
@@ -441,6 +534,11 @@ model::PatchMutation PatchMutationHelper(
   return model::PatchMutation(Key(path), std::move(object_value),
                               std::move(mask), precondition,
                               std::move(field_transforms));
+}
+
+std::pair<std::string, TransformOperation> ServerTimestamp(std::string field) {
+  return std::pair<std::string, TransformOperation>(
+      std::move(field), model::ServerTimestampTransform());
 }
 
 std::pair<std::string, TransformOperation> Increment(

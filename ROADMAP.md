@@ -36,8 +36,8 @@ improvements:
   * [Property wrappers](https://github.com/firebase/firebase-ios-sdk/pull/8408) for Firestore collections dramatically simplified client coding
 * Storage
   * Eliminated impossible states, provided new and improved async API usage via
-   [Result type](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseStorageSwift/CHANGELOG.md)
-   and [async/await](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseStorageSwift/CHANGELOG.md)
+   [Result type](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseStorage/CHANGELOG.md)
+   and [async/await](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseStorage/CHANGELOG.md)
    additions
 * ML Model Downloader
   * Full [SDK implementation in Swift](https://github.com/firebase/firebase-ios-sdk/tree/master/FirebaseMLModelDownloader/Sources)
@@ -60,8 +60,6 @@ improvements:
 Continue to evolve the Firebase API surface to be more
 Swift-friendly. This is generally done with Swift specific extension libraries.
 
-[FirebaseStorageSwift](FirebaseStorageSwift) is an example that extends
-FirebaseStorage with APIs that take advantage of Swift's Result type.
 [FirebaseFirestoreSwift](Firestore/Swift) is a larger library that adds
 Codable support for Firestore.
 
@@ -79,10 +77,10 @@ Firebase should be better integrated with SwiftUI apps. See SwiftUI related
 
 Evaluate impact on Firebase APIs of the
 [Swift Async/await proposal](https://github.com/apple/swift-evolution/blob/main/proposals/0296-async-await.md).
-For example, Objective C callback APIs that return a value do not get an
+For example, Objective-C callback APIs that return a value do not get an
 async/await API automatically generated and an explicit function may need to be
 added. See these
-[Firebase Storage examples](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseStorageSwift/Sources/AsyncAwait.swift).
+[Firebase Storage examples](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseStorage/Sources/AsyncAwait.swift).
 
 ### Combine
 

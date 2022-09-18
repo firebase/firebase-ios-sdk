@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Provide a mechanism for firebase-cpp-sdk to avoid unnecessarily building
+# the Objective-C APIs and Tests, which it doesn't use.
+option(FIRESTORE_INCLUDE_OBJC "Build the Firestore Objective-C layer" ON)
+
 add_subdirectory(Protos)
 add_subdirectory(Source)
 add_subdirectory(core)

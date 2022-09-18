@@ -26,6 +26,7 @@
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/model/document_key.h"
+#include "Firestore/core/src/model/field_mask.h"
 #include "Firestore/core/src/model/field_transform.h"
 #include "Firestore/core/src/model/object_value.h"
 #include "Firestore/core/src/model/precondition.h"
@@ -184,6 +185,10 @@ class Mutation {
     return rep().field_transforms();
   }
 
+  const absl::optional<FieldMask>& field_mask() const {
+    return rep().field_mask();
+  }
+
   /**
    * Applies this mutation to the given Document for the purposes of computing
    * the committed state of the document after the server has acknowledged that
@@ -208,11 +213,17 @@ class Mutation {
    * locally non-existent document and may produce a non-existent document.
    *
    * @param document The document to mutate.
+   * @param previous_mask The fields that have been updated before applying this
+   * mutation.
    * @param local_write_time A timestamp indicating the local write time of the
    *     batch this mutation is a part of.
+   * @return A `FieldMask` representing the fields that are changed by applying
+   * this mutation, or `absl::nullopt` if the entire document is overwritten.
    */
-  void ApplyToLocalView(MutableDocument& document,
-                        const Timestamp& local_write_time) const;
+  absl::optional<FieldMask> ApplyToLocalView(
+      MutableDocument& document,
+      absl::optional<FieldMask> previous_mask,
+      const Timestamp& local_write_time) const;
 
   /**
    * If this mutation is not idempotent, returns the base value to persist with
@@ -235,6 +246,18 @@ class Mutation {
     return rep_->ExtractTransformBaseValue(document);
   }
 
+  /**
+   * A utility method to calculate an `Mutation` representing the overlay from
+   * the final state of the document, and a `FieldMask`  representing the fields
+   * that are mutated by the local mutations, or a `absl::nullopt` if all fields
+   * should be overwritten.
+   *
+   * Returns a mutation that can be applied to a base document to get `doc`, or
+   * `nullopt` if base document and `doc` is the same.
+   */
+  static absl::optional<Mutation> CalculateOverlayMutation(
+      const MutableDocument& doc, const absl::optional<FieldMask>& mask);
+
   friend bool operator==(const Mutation& lhs, const Mutation& rhs);
 
   size_t Hash() const {
@@ -256,6 +279,11 @@ class Mutation {
         Precondition&& precondition,
         std::vector<FieldTransform>&& field_transforms);
 
+    Rep(DocumentKey&& key,
+        Precondition&& precondition,
+        std::vector<FieldTransform>&& field_transforms,
+        absl::optional<FieldMask>&& mask);
+
     virtual ~Rep() = default;
 
     virtual Type type() const = 0;
@@ -272,12 +300,18 @@ class Mutation {
       return field_transforms_;
     }
 
+    const absl::optional<FieldMask>& field_mask() const {
+      return mask_;
+    }
+
     virtual void ApplyToRemoteDocument(
         MutableDocument& document,
         const MutationResult& mutation_result) const = 0;
 
-    virtual void ApplyToLocalView(MutableDocument& document,
-                                  const Timestamp& local_write_time) const = 0;
+    virtual absl::optional<FieldMask> ApplyToLocalView(
+        MutableDocument& document,
+        absl::optional<FieldMask> previous_mask,
+        const Timestamp& local_write_time) const = 0;
 
     virtual absl::optional<ObjectValue> ExtractTransformBaseValue(
         const Document& document) const;
@@ -326,6 +360,7 @@ class Mutation {
     DocumentKey key_;
     Precondition precondition_;
     std::vector<FieldTransform> field_transforms_;
+    absl::optional<FieldMask> mask_;
   };
 
   explicit Mutation(std::shared_ptr<Rep>&& rep) : rep_(std::move(rep)) {

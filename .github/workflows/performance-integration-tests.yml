@@ -3,6 +3,10 @@
 name: performance-integration-tests
 
 on:
+  pull_request:
+    paths:
+    # This configuration file.
+    - '.github/workflows/performance-integration-tests.yml'
   # See cron syntax references:
   #   - https://docs.github.com/en/actions/reference/events-that-trigger-workflows#scheduled-events-schedule
   #   - https://crontab.guru/
@@ -22,14 +26,17 @@ jobs:
     if: github.repository == 'Firebase/firebase-ios-sdk'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
       with:
         cache_key: ${{ matrix.os }}
+    - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
+    - name: Install xcpretty
+      run: gem install xcpretty
     - name: Install Secret GoogleService-Info.plist
       run: |
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Performance/GoogleService-Info_e2e_autopush.plist.gpg \

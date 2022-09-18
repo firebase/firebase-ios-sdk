@@ -73,14 +73,6 @@ class PatchMutation : public Mutation {
     return patch_rep().value();
   }
 
-  /**
-   * Returns the mask to apply to value(), where only fields that are in both
-   * the field_mask and the value will be updated.
-   */
-  const FieldMask& mask() const {
-    return patch_rep().mask();
-  }
-
  private:
   class Rep : public Mutation::Rep {
    public:
@@ -98,10 +90,6 @@ class PatchMutation : public Mutation {
       return value_;
     }
 
-    const FieldMask& mask() const {
-      return mask_;
-    }
-
     /**
      * Returns this patch mutation as a list of field paths to values (or
      * nullopt for deletes).
@@ -112,8 +100,10 @@ class PatchMutation : public Mutation {
         MutableDocument& document,
         const MutationResult& mutation_result) const override;
 
-    void ApplyToLocalView(MutableDocument& document,
-                          const Timestamp& local_write_time) const override;
+    absl::optional<FieldMask> ApplyToLocalView(
+        MutableDocument& document,
+        absl::optional<FieldMask> previous_mask,
+        const Timestamp& local_write_time) const override;
 
     bool Equals(const Mutation::Rep& other) const override;
 
@@ -123,7 +113,6 @@ class PatchMutation : public Mutation {
 
    private:
     ObjectValue value_;
-    FieldMask mask_;
   };
 
   const Rep& patch_rep() const {

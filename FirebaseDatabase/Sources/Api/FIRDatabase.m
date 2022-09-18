@@ -97,7 +97,6 @@
 }
 
 + (NSString *)buildVersion {
-    // TODO: Restore git hash when build moves back to git
     return [NSString stringWithFormat:@"%@_%s", FIRFirebaseVersion(), __DATE__];
 }
 
@@ -250,10 +249,12 @@
 }
 
 - (void)ensureRepo {
-    if (self.repo == nil) {
-        self.repo = [FRepoManager createRepo:self.repoInfo
-                                      config:self.config
-                                    database:self];
+    @synchronized(self) {
+        if (self.repo == nil) {
+            self.repo = [FRepoManager createRepo:self.repoInfo
+                                          config:self.config
+                                        database:self];
+        }
     }
 }
 

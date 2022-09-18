@@ -40,31 +40,31 @@ extern NSString *const FIREmailPasswordAuthSignInMethod
 // clang-format on
 
 /** @class FIREmailAuthProvider
-    @brief A concrete implementation of `FIRAuthProvider` for Email & Password Sign In.
+    @brief A concrete implementation of `AuthProvider` for Email & Password Sign In.
  */
 NS_SWIFT_NAME(EmailAuthProvider)
 @interface FIREmailAuthProvider : NSObject
 
 /** @fn credentialWithEmail:password:
-    @brief Creates an `FIRAuthCredential` for an email & password sign in.
+    @brief Creates an `AuthCredential` for an email & password sign in.
 
     @param email The user's email address.
     @param password The user's password.
-    @return A FIRAuthCredential containing the email & password credential.
+    @return An `AuthCredential` containing the email & password credential.
  */
 + (FIRAuthCredential *)credentialWithEmail:(NSString *)email password:(NSString *)password;
 
 /** @fn credentialWithEmail:Link:
-    @brief Creates an `FIRAuthCredential` for an email & link sign in.
+    @brief Creates an `AuthCredential` for an email & link sign in.
 
     @param email The user's email address.
     @param link The email sign-in link.
-    @return A FIRAuthCredential containing the email & link credential.
+    @return An `AuthCredential` containing the email & link credential.
  */
 + (FIRAuthCredential *)credentialWithEmail:(NSString *)email link:(NSString *)link;
 
 /** @fn init
-    @brief This class is not meant to be initialized.
+    @brief This class is not meant to be initialized directly.
  */
 - (instancetype)init NS_UNAVAILABLE;
 

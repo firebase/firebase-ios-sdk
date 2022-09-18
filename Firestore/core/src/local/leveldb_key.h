@@ -114,7 +114,14 @@ namespace local {
 //   - user_id: string
 //   - array_value: string
 //   - directional_value: string
-//   - document_name: string
+//   - ordered_document_key: string
+//   - document_key: string
+//
+// index_entries_document_key_index:
+//   - table_name: string = "index_entries_document_key_index"
+//   - index_id: int32_t
+//   - user_id: string
+//   - document_key: string
 //
 // document_overlays:
 //   - table_name: "document_overlays"
@@ -141,6 +148,10 @@ namespace local {
 //   - collection_group: string
 //   - largest_batch_id: model::BatchId
 //   - document_key: ResourcePath
+//
+// data_migration:
+//   - table_name: "data_migration"
+//   - migration_name: string
 
 /**
  * Parses the given key and returns a human readable description of its
@@ -848,7 +859,74 @@ class LevelDbIndexStateKey {
 };
 
 /**
- * A key in the index_entries table, storing the the encoded entries for all
+ * A key in the index_entries_document_key_index table, storing the encoded
+ * entries for an given index, user id and document key.
+ */
+class LevelDbIndexEntryDocumentKeyIndexKey {
+ public:
+  /**
+   * Creates a key that points to the key for the given index entry fields.
+   */
+  static std::string KeyPrefix(int32_t index_id,
+                               absl::string_view user_id,
+                               absl::string_view document_key);
+
+  LevelDbIndexEntryDocumentKeyIndexKey() = default;
+
+  LevelDbIndexEntryDocumentKeyIndexKey(int32_t index_id,
+                                       absl::string_view user_id,
+                                       absl::string_view document_key,
+                                       int64_t seq_num)
+      : index_id_(index_id),
+        user_id_(user_id),
+        document_key_(document_key),
+        seq_number_(seq_num) {
+  }
+
+  /**
+   * Decodes the given complete key, storing the decoded values in this
+   * instance.
+   *
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
+   */
+  ABSL_MUST_USE_RESULT
+  bool Decode(absl::string_view key);
+
+  std::string Key();
+
+  /** The index id for this entry. */
+  int32_t index_id() const {
+    return index_id_;
+  }
+
+  /** The user id for this entry. */
+  const std::string& user_id() const {
+    return user_id_;
+  }
+
+  const std::string& document_key() const {
+    return document_key_;
+  }
+
+  int64_t seq_number() const {
+    return seq_number_;
+  }
+
+  void IncreaseSeqNumber() {
+    ++seq_number_;
+  }
+
+ private:
+  int32_t index_id_;
+  std::string user_id_;
+  std::string document_key_;
+  int64_t seq_number_;
+};
+
+/**
+ * A key in the index_entries table, storing the encoded entries for all
  * fields used by a given index.
  *
  * Note: `array_value` is expected to be set for all queries.
@@ -866,13 +944,23 @@ class LevelDbIndexEntryKey {
   static std::string KeyPrefix(int32_t index_id);
 
   /**
+   * Creates a key prefix that points the first entry of a given index_id,
+   * user_id, array_value and directional_value.
+   */
+  static std::string KeyPrefix(int32_t index_id,
+                               absl::string_view user_id,
+                               absl::string_view array_value,
+                               absl::string_view directional_value);
+
+  /**
    * Creates a key that points to the key for the given index entry fields.
    */
   static std::string Key(int32_t index_id,
                          absl::string_view user_id,
                          absl::string_view array_value,
                          absl::string_view directional_value,
-                         absl::string_view document_name);
+                         absl::string_view ordered_document_key,
+                         absl::string_view document_key);
 
   /**
    * Decodes the given complete key, storing the decoded values in this
@@ -915,6 +1003,7 @@ class LevelDbIndexEntryKey {
   std::string user_id_;
   std::string array_value_;
   std::string directional_value_;
+  std::string ordered_document_key_;
   std::string document_key_;
 };
 
@@ -1209,6 +1298,46 @@ class LevelDbDocumentOverlayCollectionGroupIndexKey
 
  private:
   std::string collection_group_;
+};
+
+/** A key in the data_migration table. */
+class LevelDbDataMigrationKey {
+ public:
+  LevelDbDataMigrationKey() = default;
+
+  /**
+   * Creates a complete key that points to a specific migration_name.
+   */
+  static std::string Key(absl::string_view migration_name);
+
+  /** Migration to create overlays from local mutations. */
+  static std::string OverlayMigrationKey() {
+    return Key("overlay_migration");
+  }
+
+  /**
+   * Decodes the given complete key, storing the decoded values in this
+   * instance.
+   *
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
+   */
+  ABSL_MUST_USE_RESULT
+  bool Decode(absl::string_view key);
+
+  /** Encodes the key from this object's instance variables, and returns it. */
+  std::string Encode() const {
+    return Key(migration_name_);
+  }
+
+  /** The migration name. */
+  const std::string& migration_name() const {
+    return migration_name_;
+  }
+
+ private:
+  std::string migration_name_;
 };
 
 }  // namespace local

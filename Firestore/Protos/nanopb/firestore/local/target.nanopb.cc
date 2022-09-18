@@ -82,46 +82,49 @@ PB_STATIC_ASSERT((pb_membersize(firestore_client_Target, query) < 256 && pb_memb
 
 
 std::string firestore_client_Target::ToString(int indent) const {
-    std::string header = PrintHeader(indent, "Target", this);
-    std::string result;
+    std::string tostring_header = PrintHeader(indent, "Target", this);
+    std::string tostring_result;
 
-    result += PrintPrimitiveField("target_id: ", target_id, indent + 1, false);
-    result += PrintMessageField("snapshot_version ",
+    tostring_result += PrintPrimitiveField("target_id: ",
+        target_id, indent + 1, false);
+    tostring_result += PrintMessageField("snapshot_version ",
         snapshot_version, indent + 1, false);
-    result += PrintPrimitiveField("resume_token: ",
+    tostring_result += PrintPrimitiveField("resume_token: ",
         resume_token, indent + 1, false);
-    result += PrintPrimitiveField("last_listen_sequence_number: ",
+    tostring_result += PrintPrimitiveField("last_listen_sequence_number: ",
         last_listen_sequence_number, indent + 1, false);
     switch (which_target_type) {
     case firestore_client_Target_query_tag:
-        result += PrintMessageField("query ", query, indent + 1, true);
+        tostring_result += PrintMessageField("query ",
+            query, indent + 1, true);
         break;
     case firestore_client_Target_documents_tag:
-        result += PrintMessageField("documents ", documents, indent + 1, true);
+        tostring_result += PrintMessageField("documents ",
+            documents, indent + 1, true);
         break;
     }
-    result += PrintMessageField("last_limbo_free_snapshot_version ",
+    tostring_result += PrintMessageField("last_limbo_free_snapshot_version ",
         last_limbo_free_snapshot_version, indent + 1, false);
 
-    std::string tail = PrintTail(indent);
-    return header + result + tail;
+    std::string tostring_tail = PrintTail(indent);
+    return tostring_header + tostring_result + tostring_tail;
 }
 
 std::string firestore_client_TargetGlobal::ToString(int indent) const {
-    std::string header = PrintHeader(indent, "TargetGlobal", this);
-    std::string result;
+    std::string tostring_header = PrintHeader(indent, "TargetGlobal", this);
+    std::string tostring_result;
 
-    result += PrintPrimitiveField("highest_target_id: ",
+    tostring_result += PrintPrimitiveField("highest_target_id: ",
         highest_target_id, indent + 1, false);
-    result += PrintPrimitiveField("highest_listen_sequence_number: ",
+    tostring_result += PrintPrimitiveField("highest_listen_sequence_number: ",
         highest_listen_sequence_number, indent + 1, false);
-    result += PrintMessageField("last_remote_snapshot_version ",
+    tostring_result += PrintMessageField("last_remote_snapshot_version ",
         last_remote_snapshot_version, indent + 1, false);
-    result += PrintPrimitiveField("target_count: ",
+    tostring_result += PrintPrimitiveField("target_count: ",
         target_count, indent + 1, false);
 
-    std::string tail = PrintTail(indent);
-    return header + result + tail;
+    std::string tostring_tail = PrintTail(indent);
+    return tostring_header + tostring_result + tostring_tail;
 }
 
 }  // namespace firestore

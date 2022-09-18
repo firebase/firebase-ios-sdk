@@ -9,7 +9,7 @@ for internal testing only. It should not be published.
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
-  s.license          = { :type => 'Apache', :file => 'LICENSE' }
+  s.license          = { :type => 'Apache-2.0', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
 
   s.source           = {
@@ -93,13 +93,13 @@ for internal testing only. It should not be published.
     }
     int_tests.source_files = [
       'FirebaseCombineSwift/Tests/Integration/Storage/StorageIntegration.swift',
-      'FirebaseStorageSwift/Tests/Integration/Credentials.swift'
+      'FirebaseStorage/Tests/Integration/Credentials.swift'
     ]
     int_tests.requires_app_host = true
     # Resources are shared with FirebaseStorage's integration tests.
-    int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
-                          'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist',
-                          'FirebaseStorage/Tests/Integration/Resources/HomeImprovement.numbers'
+    int_tests.resources = 'FirebaseStorageInternal/Tests/Integration/Resources/1mb.dat',
+                          'FirebaseStorageInternal/Tests/Integration/Resources/GoogleService-Info.plist',
+                          'FirebaseStorageInternal/Tests/Integration/Resources/HomeImprovement.numbers'
     int_tests.dependency 'FirebaseAuth', '~> 9.0'
   end
 end

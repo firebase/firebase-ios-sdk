@@ -15,11 +15,13 @@
 // MARK: This file is used to evaluate the experience of using Firebase APIs in Swift.
 
 import Foundation
+import XCTest
 
 import FirebaseCore
 import FirebaseFunctions
+import FirebaseSharedSwift
 
-final class FunctionsAPITests {
+final class FunctionsAPITests: XCTestCase {
   func usage() {
     // MARK: - Functions
 
@@ -48,6 +50,31 @@ final class FunctionsAPITests {
 
     let callableRef = Functions.functions().httpsCallable("setCourseForAlderaan")
     callableRef.timeoutInterval = 60
+    let url = URL(string: "https://localhost:8080/setCourseForAlderaan")!
+    _ = Functions.functions().httpsCallable(url)
+
+    struct Message: Codable {
+      let hello: String
+      let world: String
+    }
+
+    struct Response: Codable {
+      let response: String
+    }
+
+    let callableCodable = Functions.functions()
+      .httpsCallable("codable", requestAs: Message.self, responseAs: Response.self)
+    _ = Functions.functions()
+      .httpsCallable(url, requestAs: Message.self, responseAs: Response.self)
+    let message = Message(hello: "hello", world: "world")
+    callableCodable.call(message) { result in
+      switch result {
+      case let .success(response):
+        let _: Response = response
+      case .failure:
+        ()
+      }
+    }
 
     let data: Any? = nil
     callableRef.call(data) { result, error in
@@ -138,5 +165,10 @@ final class FunctionsAPITests {
         }
       }
     }
+  }
+
+  func testErrorGlobals() {
+    XCTAssertEqual(FunctionsErrorDetailsKey, "details")
+    XCTAssertEqual(FunctionsErrorDomain, "com.firebase.functions")
   }
 }

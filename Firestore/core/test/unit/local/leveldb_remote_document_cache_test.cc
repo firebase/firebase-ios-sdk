@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/local/leveldb_remote_document_cache.h"
-
 #include <initializer_list>
 #include <memory>
 #include <string>

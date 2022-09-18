@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+#import "FIRAggregateQuery+Internal.h"
 #import "FIRQuery.h"
 
 #include <memory>
 
 #include "Firestore/core/src/api/api_fwd.h"
 #include "Firestore/core/src/core/core_fwd.h"
+
+@class FIRFilter;
 
 namespace api = firebase::firestore::api;
 namespace core = firebase::firestore::core;
@@ -41,6 +44,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (const core::Query &)query;
 
 - (const api::Query &)apiQuery;
+
+// TODO(orquery): This method will become public API. Change visibility and add documentation.
+- (FIRQuery *)queryWhereFilter:(FIRFilter *)filter;
+
+// TODO(b/246760853): This property will become public API.
+/**
+ * An `AggregateQuery` counting the number of documents matching this query.
+ */
+@property(nonatomic, readonly) FIRAggregateQuery *count;
 
 @end
 
