@@ -1,3 +1,7 @@
+# 10.0.0
+- [fixed] Remove unnecessary and unused `encoder` and `decoder` parameters from
+  `public func call(_ data: Request) async throws -> Response` API. (#9891)
+
 # 9.3.0
 - [fixed] Fixed error code generation for HTTP 409 - "already exists". (#9942)
 
