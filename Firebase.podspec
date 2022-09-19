@@ -55,7 +55,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
         'HEADER_SEARCH_PATHS' => "$(inherited) ${PODS_ROOT}/Firebase/CoreOnly/Sources"
       }
     end
-    ss.ios.deployment_target = '9.0'
+    ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '10.0'
     ss.watchos.deployment_target = '6.0'
@@ -101,7 +101,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
   s.subspec 'AppCheck' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseAppCheck', '~> 9.6.0'
-    ss.ios.deployment_target = '9.0'
+    ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '10.0'
     ss.watchos.deployment_target = '6.0'
@@ -121,7 +121,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseCrashlytics', '~> 9.6.0'
     # Standard platforms PLUS watchOS.
-    ss.ios.deployment_target = '9.0'
+    ss.ios.deployment_target = '11.0'
     ss.osx.deployment_target = '10.12'
     ss.tvos.deployment_target = '10.0'
     ss.watchos.deployment_target = '6.0'
