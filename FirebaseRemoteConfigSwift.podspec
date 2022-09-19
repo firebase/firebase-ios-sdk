@@ -21,14 +21,11 @@ app update.
 
   s.swift_version           = '5.3'
 
-  ios_deployment_target = '10.0'
-  osx_deployment_target = '10.12'
-  tvos_deployment_target = '10.0'
-  watchos_deployment_target = '6.0'
+  ios_deployment_target = '14.0'
+  osx_deployment_target = '11.0'
+  tvos_deployment_target = '11.0'
+  watchos_deployment_target = '7.0'
 
-  s.ios.framework = 'SwiftUI'
-  s.osx.framework = 'SwiftUI'
-  s.tvos.framework = 'SwiftUI'
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
   s.tvos.deployment_target = tvos_deployment_target
