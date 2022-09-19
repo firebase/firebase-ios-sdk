@@ -1,3 +1,10 @@
+# Firebase 10.0.0
+- [changed] **Breaking change**: Firebase's minimum supported versions have
+  updated for the following platforms:
+  - iOS 11.0 _(previously 10.0)_
+  - macOS 10.13 _(previously 10.12)_
+  - tvOS 11.0 _(previously 10.0)_
+
 # Firebase 9.6.0
 - [fixed] Mac apps using Firebase products that store SDK data in the keychain
   will no longer prompt the user for permission to access the keychain. This
