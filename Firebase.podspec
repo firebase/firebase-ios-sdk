@@ -57,7 +57,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     end
     ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.13'
-    ss.tvos.deployment_target = '10.0'
+    ss.tvos.deployment_target = '11.0'
     ss.watchos.deployment_target = '6.0'
   end
 
@@ -89,7 +89,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '11.0'
     ss.osx.deployment_target = '10.13'
-    ss.tvos.deployment_target = '10.0'
+    ss.tvos.deployment_target = '11.0'
     ss.watchos.deployment_target = '6.0'
   end
 
@@ -103,7 +103,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.dependency 'FirebaseAppCheck', '~> 9.6.0'
     ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.13'
-    ss.tvos.deployment_target = '10.0'
+    ss.tvos.deployment_target = '11.0'
     ss.watchos.deployment_target = '6.0'
   end
 
@@ -113,7 +113,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '11.0'
     ss.osx.deployment_target = '10.13'
-    ss.tvos.deployment_target = '10.0'
+    ss.tvos.deployment_target = '11.0'
     ss.watchos.deployment_target = '6.0'
   end
 
@@ -123,7 +123,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '11.0'
     ss.osx.deployment_target = '10.13'
-    ss.tvos.deployment_target = '10.0'
+    ss.tvos.deployment_target = '11.0'
     ss.watchos.deployment_target = '6.0'
   end
 
@@ -133,7 +133,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     # Standard platforms PLUS watchOS 7.
     ss.ios.deployment_target = '11.0'
     ss.osx.deployment_target = '10.13'
-    ss.tvos.deployment_target = '10.0'
+    ss.tvos.deployment_target = '11.0'
     ss.watchos.deployment_target = '7.0'
   end
 
@@ -168,7 +168,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '11.0'
     ss.osx.deployment_target = '10.13'
-    ss.tvos.deployment_target = '10.0'
+    ss.tvos.deployment_target = '11.0'
     ss.watchos.deployment_target = '6.0'
   end
 
@@ -189,7 +189,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '11.0'
     ss.osx.deployment_target = '10.13'
-    ss.tvos.deployment_target = '10.0'
+    ss.tvos.deployment_target = '11.0'
     ss.watchos.deployment_target = '6.0'
   end
 
@@ -199,7 +199,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '11.0'
     ss.osx.deployment_target = '10.13'
-    ss.tvos.deployment_target = '10.0'
+    ss.tvos.deployment_target = '11.0'
     ss.watchos.deployment_target = '6.0'
   end
 
