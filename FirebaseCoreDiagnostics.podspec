@@ -21,7 +21,7 @@ non-Cocoapod integration. This library also respects the Firebase global data co
   s.social_media_url = 'https://twitter.com/Firebase'
 
   ios_deployment_target = '10.0'
-  osx_deployment_target = '10.12'
+  osx_deployment_target = '10.13'
   tvos_deployment_target = '10.0'
   watchos_deployment_target = '6.0'
 

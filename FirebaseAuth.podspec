@@ -20,7 +20,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.social_media_url = 'https://twitter.com/Firebase'
 
   ios_deployment_target = '11.0'
-  osx_deployment_target = '10.12'
+  osx_deployment_target = '10.13'
   tvos_deployment_target = '10.0'
   watchos_deployment_target = '6.0'
 

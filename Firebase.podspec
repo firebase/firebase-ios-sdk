@@ -23,7 +23,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
   ]
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '10.0'
-  s.osx.deployment_target = '10.12'
+  s.osx.deployment_target = '10.13'
   s.tvos.deployment_target = '12.0'
 
   s.cocoapods_version = '>= 1.4.0'
@@ -34,7 +34,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'Core' do |ss|
     ss.ios.deployment_target = '10.0'
-    ss.osx.deployment_target = '10.12'
+    ss.osx.deployment_target = '10.13'
     ss.tvos.deployment_target = '12.0'
     ss.ios.dependency 'FirebaseAnalytics', '~> 9.6.0'
     ss.osx.dependency 'FirebaseAnalytics', '~> 9.6.0'
@@ -56,28 +56,28 @@ Simplify your app development, grow your user base, and monetize more effectivel
       }
     end
     ss.ios.deployment_target = '10.0'
-    ss.osx.deployment_target = '10.12'
+    ss.osx.deployment_target = '10.13'
     ss.tvos.deployment_target = '10.0'
     ss.watchos.deployment_target = '6.0'
   end
 
   s.subspec 'Analytics' do |ss|
     ss.ios.deployment_target = '10.0'
-    ss.osx.deployment_target = '10.12'
+    ss.osx.deployment_target = '10.13'
     ss.tvos.deployment_target = '12.0'
     ss.dependency 'Firebase/Core'
   end
 
   s.subspec 'AnalyticsWithAdIdSupport' do |ss|
     ss.ios.deployment_target = '10.0'
-    ss.osx.deployment_target = '10.12'
+    ss.osx.deployment_target = '10.13'
     ss.tvos.deployment_target = '12.0'
     ss.dependency 'Firebase/Core'
   end
 
   s.subspec 'AnalyticsWithoutAdIdSupport' do |ss|
     ss.ios.deployment_target = '10.0'
-    ss.osx.deployment_target = '10.12'
+    ss.osx.deployment_target = '10.13'
     ss.tvos.deployment_target = '12.0'
     ss.dependency 'FirebaseAnalytics/WithoutAdIdSupport', '~> 9.6.0'
     ss.dependency 'Firebase/CoreOnly'
@@ -88,7 +88,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.dependency 'FirebaseABTesting', '~> 9.6.0'
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '11.0'
-    ss.osx.deployment_target = '10.12'
+    ss.osx.deployment_target = '10.13'
     ss.tvos.deployment_target = '10.0'
     ss.watchos.deployment_target = '6.0'
   end
@@ -102,7 +102,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseAppCheck', '~> 9.6.0'
     ss.ios.deployment_target = '10.0'
-    ss.osx.deployment_target = '10.12'
+    ss.osx.deployment_target = '10.13'
     ss.tvos.deployment_target = '10.0'
     ss.watchos.deployment_target = '6.0'
   end
@@ -112,7 +112,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.dependency 'FirebaseAuth', '~> 9.6.0'
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '11.0'
-    ss.osx.deployment_target = '10.12'
+    ss.osx.deployment_target = '10.13'
     ss.tvos.deployment_target = '10.0'
     ss.watchos.deployment_target = '6.0'
   end
@@ -122,7 +122,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.dependency 'FirebaseCrashlytics', '~> 9.6.0'
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '11.0'
-    ss.osx.deployment_target = '10.12'
+    ss.osx.deployment_target = '10.13'
     ss.tvos.deployment_target = '10.0'
     ss.watchos.deployment_target = '6.0'
   end
@@ -132,7 +132,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.dependency 'FirebaseDatabase', '~> 9.6.0'
     # Standard platforms PLUS watchOS 7.
     ss.ios.deployment_target = '11.0'
-    ss.osx.deployment_target = '10.12'
+    ss.osx.deployment_target = '10.13'
     ss.tvos.deployment_target = '10.0'
     ss.watchos.deployment_target = '7.0'
   end
@@ -167,7 +167,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.dependency 'FirebaseMessaging', '~> 9.6.0'
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '11.0'
-    ss.osx.deployment_target = '10.12'
+    ss.osx.deployment_target = '10.13'
     ss.tvos.deployment_target = '10.0'
     ss.watchos.deployment_target = '6.0'
   end
@@ -188,7 +188,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.dependency 'FirebaseRemoteConfig', '~> 9.6.0'
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '11.0'
-    ss.osx.deployment_target = '10.12'
+    ss.osx.deployment_target = '10.13'
     ss.tvos.deployment_target = '10.0'
     ss.watchos.deployment_target = '6.0'
   end
@@ -198,7 +198,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.dependency 'FirebaseStorage', '~> 9.6.0'
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '11.0'
-    ss.osx.deployment_target = '10.12'
+    ss.osx.deployment_target = '10.13'
     ss.tvos.deployment_target = '10.0'
     ss.watchos.deployment_target = '6.0'
   end
