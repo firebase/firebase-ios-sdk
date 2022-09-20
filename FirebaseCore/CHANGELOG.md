@@ -15,14 +15,8 @@
       | tvOS  | 11.0  | 11.0  |
       | macOS  | 10.12  | **10.13**  |
       | watchOS  | 7.0  | 7.0  |
-  - If using the **Zip** distribution, there are **no changes** to the minimum supported versions:
-    - | Platform  | Firebase 9 | Firebase 10 |
-      | ------------- | ------------- | ------------- |
-      | iOS  | 11.0  | 11.0  |
-      | tvOS  | 11.0  | 11.0  |
-      | macOS  | 10.13  | 10.13  |
-      | watchOS  | N/A  | N/A  |
-  - If using **Carthage**, there are **no changes** to the minimum supported versions:
+  - If using **Carthage** or the **Zip** distribution, there are **no changes**
+    to the minimum supported versions:
     - | Platform  | Firebase 9 | Firebase 10 |
       | ------------- | ------------- | ------------- |
       | iOS  | 11.0  | 11.0  |
