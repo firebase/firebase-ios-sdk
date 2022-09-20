@@ -1,9 +1,22 @@
 # Firebase 10.0.0
 - [changed] **Breaking change**: Firebase's minimum supported versions have
   updated for the following platforms:
-  - iOS 11.0 _(previously 10.0)_
-  - macOS 10.13 _(previously 10.12)_
-  - tvOS 11.0 _(previously 10.0)_
+  - If using **CocoaPods**:
+    - | Platform  | Firebase 9 | Firebase 10 |
+      | ------------- | ------------- | ------------- |
+      | iOS  | 10.0  | **11.0**  |
+      | tvOS  | 10.0  | **11.0**  |
+      | macOS  | 10.12  | **10.13**  |
+      | watchOS  | 6.0  | 6.0  |
+  - If using **Swift Package Manager**:
+    - | Platform  | Firebase 9 | Firebase 10 |
+      | ------------- | ------------- | ------------- |
+      | iOS  | 11.0  | 11.0  |
+      | tvOS  | 11.0  | 11.0  |
+      | macOS  | 10.12  | **10.13**  |
+      | watchOS  | 7.0  | 7.0  |
+  - If using the **Zip** distribution, there are **no changes** to the minimum supported versions.
+  - If using **Carthage**, there are **no changes** to the minimum supported versions.
 
 # Firebase 9.6.0
 - [fixed] Mac apps using Firebase products that store SDK data in the keychain
