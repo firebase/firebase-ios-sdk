@@ -34,7 +34,7 @@ iOS SDK for App Distribution for Firebase.
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.7'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 7.7'
   s.dependency 'FirebaseInstallations', '~> 10.0'
-  s.dependency 'GoogleDataTransport', '>= 9.1.4', '< 10.0.0'
+  s.dependency 'GoogleDataTransport', '~> 9.2'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',

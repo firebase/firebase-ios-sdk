@@ -155,7 +155,7 @@ let package = Package(
     .package(
       name: "GoogleDataTransport",
       url: "https://github.com/google/GoogleDataTransport.git",
-      "9.1.4" ..< "10.0.0"
+      "9.2.0" ..< "10.0.0"
     ),
     .package(
       name: "GoogleUtilities",
