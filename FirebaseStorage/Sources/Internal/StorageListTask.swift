@@ -118,9 +118,7 @@ internal class StorageListTask: StorageTask, StorageTaskManagement {
           }
         }
 
-        if let callback = callback {
-          callback(listResult, self.error)
-        }
+        callback?(listResult, self.error)
         self.fetcherCompletion = nil
       }
 

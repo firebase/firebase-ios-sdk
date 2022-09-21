@@ -36,7 +36,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
    * Prepares a task and begins execution.
    */
   @objc open func enqueue() {
-    enqueue(with: nil)
+    enqueue()
   }
 
   /**
@@ -83,7 +83,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
         weakSelf?.fire(for: .resume, snapshot: snapshot)
       }
       weakSelf?.state = .running
-      weakSelf?.enqueue(with: self.downloadData)
+      weakSelf?.enqueue(resumeWith: self.downloadData)
     }
   }
 
@@ -104,7 +104,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
     self.fetcher?.stopFetching()
   }
 
-  internal func enqueue(with resumeData: Data?) {
+  internal func enqueue(resumeWith resumeData: Data?) {
     weak var weakSelf = self
     DispatchQueue.global(qos: .background).async {
       guard let strongSelf = weakSelf else { return }

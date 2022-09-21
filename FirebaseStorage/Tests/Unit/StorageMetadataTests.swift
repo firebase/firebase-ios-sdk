@@ -217,6 +217,7 @@ class StorageMetadataTests: StorageTestHelpers {
     let expectedUpdate = [
       "contentLanguage": "new",
       "metadata": ["foo": "new"],
+      "bucket": "",
     ] as [String: AnyHashable]
     XCTAssertEqual(update, expectedUpdate)
   }
@@ -228,7 +229,7 @@ class StorageMetadataTests: StorageTestHelpers {
     ] as [String: AnyHashable]
     let metadata = StorageMetadata(dictionary: oldMetadata)
     let update = metadata.updatedMetadata()
-    XCTAssertEqual(update, [:])
+    XCTAssertEqual(update, ["bucket": ""])
   }
 
   func testUpdatedMetadataWithDelete() {
@@ -241,7 +242,8 @@ class StorageMetadataTests: StorageTestHelpers {
     metadata.customMetadata = ["foo": "old"]
     let update = metadata.updatedMetadata()
 
-    let expected = ["contentLanguage": NSNull(),
+    let expected = ["bucket": "",
+                    "contentLanguage": NSNull(),
                     "metadata": ["bar": NSNull()]] as [String: AnyHashable]
     XCTAssertEqual(update, expected)
   }
