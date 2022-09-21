@@ -97,17 +97,21 @@ internal protocol DocumentIDProtocol {
 ///   write it into another without adjusting the value here.
 @propertyWrapper
 public struct DocumentID<Value: DocumentIDWrappable & Codable> {
-  private var value: Value?
+  private var value: Value? = nil
 
-  public init() {
-    value = nil
+  
+  public init(wrappedValue value: Value?) {
+    self.value = value
   }
 
-  public var wrappedValue: Value? { value }
+  public internal(set) var wrappedValue: Value? {
+    get { value }
+    set { value = newValue }
+  }
 }
 
 extension DocumentID: DocumentIDProtocol {
-  public init(from documentReference: DocumentReference?) throws {
+  internal init(from documentReference: DocumentReference?) throws {
     if let documentReference = documentReference {
       value = try Value.wrap(documentReference)
     } else {
