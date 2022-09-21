@@ -27,7 +27,7 @@ import Foundation
   /**
    * The name of the bucket containing this object.
    */
-  @objc public let bucket: String?
+  @objc public let bucket: String
 
   /**
    * Cache-Control directive for the object data.
@@ -150,7 +150,7 @@ import Foundation
    */
   @objc public init(dictionary: [String: AnyHashable]) {
     initialMetadata = dictionary
-    bucket = dictionary["bucket"] as? String ?? nil
+    bucket = dictionary["bucket"] as? String ?? ""
     cacheControl = dictionary["cacheControl"] as? String ?? nil
     contentDisposition = dictionary["contentDisposition"] as? String ?? nil
     contentEncoding = dictionary["contentEncoding"] as? String ?? nil

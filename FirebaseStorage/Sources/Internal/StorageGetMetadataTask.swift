@@ -75,9 +75,7 @@ internal class StorageGetMetadataTask: StorageTask, StorageTaskManagement {
             self.error = StorageErrorCode.error(withInvalidRequest: data)
           }
         }
-        if let callback = callback {
-          callback(metadata, self.error)
-        }
+        callback?(metadata, self.error)
         self.fetcherCompletion = nil
       }
 

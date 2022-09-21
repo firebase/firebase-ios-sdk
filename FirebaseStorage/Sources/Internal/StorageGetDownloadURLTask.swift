@@ -79,9 +79,7 @@ internal class StorageGetDownloadURLTask: StorageTask, StorageTaskManagement {
             self.error = StorageErrorCode.error(withInvalidRequest: data)
           }
         }
-        if let callback = callback {
-          callback(downloadURL, self.error)
-        }
+        callback?(downloadURL, self.error)
         self.fetcherCompletion = nil
       }
 

@@ -63,9 +63,7 @@ internal class StorageDeleteTask: StorageTask, StorageTaskManagement {
         if let error = error, self.error == nil {
           self.error = StorageErrorCode.error(withServerError: error, ref: strongSelf.reference)
         }
-        if let callback = callback {
-          callback(self.error)
-        }
+        callback?(self.error)
         self.fetcherCompletion = nil
       }
 
