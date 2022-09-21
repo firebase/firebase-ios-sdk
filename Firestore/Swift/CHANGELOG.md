@@ -1,3 +1,7 @@
+# 10.0.0
+- [changed] Made the `@DocumentID` property wrapper value setter internal to
+  clarify that the value is ignored during writes. [#9368]
+
 # 9.0.0
 - [added] **Breaking change:** `FirebaseFirestoreSwift` has exited beta and is
   now generally available for use.

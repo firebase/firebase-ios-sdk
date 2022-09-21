@@ -99,7 +99,6 @@ internal protocol DocumentIDProtocol {
 public struct DocumentID<Value: DocumentIDWrappable & Codable> {
   private var value: Value? = nil
 
-  
   public init(wrappedValue value: Value?) {
     self.value = value
   }
