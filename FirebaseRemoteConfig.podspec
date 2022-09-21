@@ -49,8 +49,8 @@ app update.
   s.dependency 'FirebaseABTesting', '~> 10.0'
   s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'FirebaseInstallations', '~> 10.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.7'
-  s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.7'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.8'
+  s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.8'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }

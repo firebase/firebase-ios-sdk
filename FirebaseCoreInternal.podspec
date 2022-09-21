@@ -34,7 +34,7 @@ Pod::Spec.new do |s|
 
   s.swift_version = '5.3'
 
-  s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.7'
+  s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.8'
 
   # Using environment variable because of the dependency on the unpublished
   # HeartbeatLoggingTestUtils.

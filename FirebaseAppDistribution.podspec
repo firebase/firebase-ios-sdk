@@ -31,8 +31,8 @@ iOS SDK for App Distribution for Firebase.
   s.public_header_files = base_dir + 'Public/FirebaseAppDistribution/*.h'
 
   s.dependency 'FirebaseCore', '~> 10.0'
-  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.7'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 7.7'
+  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.8'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 7.8'
   s.dependency 'FirebaseInstallations', '~> 10.0'
   s.dependency 'GoogleDataTransport', '~> 9.2'
 

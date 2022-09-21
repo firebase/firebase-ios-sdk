@@ -52,8 +52,8 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.framework = 'Security'
   s.ios.framework = 'SafariServices'
   s.dependency 'FirebaseCore', '~> 10.0'
-  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.7'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.7'
+  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.8'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.8'
   s.dependency 'GTMSessionFetcher/Core', '~> 2.1'
 
   # Using environment variable because of the dependency on the unpublished
