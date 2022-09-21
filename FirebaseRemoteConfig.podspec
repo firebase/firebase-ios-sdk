@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfig'
-  s.version          = '9.6.0'
+  s.version          = '10.0.0'
   s.summary          = 'Firebase Remote Config'
 
   s.description      = <<-DESC
@@ -46,9 +46,9 @@ app update.
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
-  s.dependency 'FirebaseABTesting', '~> 9.0'
-  s.dependency 'FirebaseCore', '~> 9.0'
-  s.dependency 'FirebaseInstallations', '~> 9.0'
+  s.dependency 'FirebaseABTesting', '~> 10.0'
+  s.dependency 'FirebaseCore', '~> 10.0'
+  s.dependency 'FirebaseInstallations', '~> 10.0'
   s.dependency 'GoogleUtilities/Environment', '~> 7.7'
   s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.7'
 

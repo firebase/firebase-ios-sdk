@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInAppMessaging'
-  s.version          = '9.6.0-beta'
+  s.version          = '10.0.0-beta'
   s.summary          = 'Firebase In-App Messaging for iOS'
 
   s.description      = <<-DESC
@@ -78,11 +78,11 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 
   s.framework = 'UIKit'
 
-  s.dependency 'FirebaseCore', '~> 9.0'
-  s.dependency 'FirebaseInstallations', '~> 9.0'
-  s.dependency 'FirebaseABTesting', '~> 9.0'
+  s.dependency 'FirebaseCore', '~> 10.0'
+  s.dependency 'FirebaseInstallations', '~> 10.0'
+  s.dependency 'FirebaseABTesting', '~> 10.0'
   s.dependency 'GoogleUtilities/Environment', '~> 7.7'
-  s.dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
+  s.dependency 'nanopb', '>= 2.30908.0', '< 2.3010.0.0'
 
   s.test_spec 'unit' do |unit_tests|
       unit_tests.scheme = { :code_coverage => true }

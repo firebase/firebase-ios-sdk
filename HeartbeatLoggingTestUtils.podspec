@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'HeartbeatLoggingTestUtils'
-  s.version                 = '9.0.0'
+  s.version                 = '10.0.0'
   s.summary                 = 'Testing utilities for testing the HeartbeatLogging module'
 
   s.description             = <<-DESC
@@ -34,5 +34,5 @@ Pod::Spec.new do |s|
 
   s.framework = 'XCTest'
 
-  s.dependency 'FirebaseCoreInternal', '~> 9.0'
+  s.dependency 'FirebaseCoreInternal', '~> 10.0'
 end
