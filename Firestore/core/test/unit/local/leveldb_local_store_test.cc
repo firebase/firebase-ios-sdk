@@ -69,12 +69,7 @@ std::unique_ptr<LocalStoreTestHelper> Factory() {
 // This lambda function takes a rvalue vector as parameter,
 // then coverts it to a sorted set based on the compare function.
 auto convertToSet = [](std::vector<FieldIndex>&& vec) {
-  auto cmp = [](const FieldIndex& left, const FieldIndex& right) {
-    return FieldIndex::SemanticCompare(left, right) ==
-           util::ComparisonResult::Ascending;
-  };
-
-  std::set<FieldIndex, decltype(cmp)> result(cmp);
+  std::set<FieldIndex, FieldIndex::SemanticLess> result;
   for (auto& index : vec) {
     result.insert(std::move(index));
   }
