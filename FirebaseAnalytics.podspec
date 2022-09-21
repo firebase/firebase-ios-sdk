@@ -32,7 +32,7 @@ Pod::Spec.new do |s|
     s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.8'
     s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.8'
     s.dependency 'GoogleUtilities/Network', '~> 7.8'
-    s.dependency 'nanopb', '>= 2.30908.0', '< 2.3010.0.0'
+    s.dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
 
     s.default_subspecs = 'AdIdSupport'
 
