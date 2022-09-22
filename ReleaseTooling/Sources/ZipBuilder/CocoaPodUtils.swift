@@ -530,7 +530,6 @@ enum CocoaPodUtils {
       let podspecs = try! FileManager.default.contentsOfDirectory(atPath: localURL.path)
       for podspec in podspecs {
         if podspec == "FirebaseInstallations.podspec" ||
-          podspec == "FirebaseCoreDiagnostics.podspec" ||
           podspec == "FirebaseCore.podspec" ||
           podspec == "FirebaseCoreExtension.podspec" ||
           podspec == "FirebaseCoreInternal.podspec" ||
