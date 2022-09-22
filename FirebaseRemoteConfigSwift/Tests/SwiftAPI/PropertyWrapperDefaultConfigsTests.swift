@@ -19,6 +19,8 @@ import FirebaseRemoteConfig
 import FirebaseRemoteConfigSwift
 import XCTest
 
+let ConfigKeyForThisTestOnly = "MyTestKey"
+
 #if compiler(>=5.5.2) && canImport(_Concurrency)
   @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
   class PropertyWrapperDefaultConfigsTests: XCTestCase {
@@ -36,7 +38,7 @@ import XCTest
 
     struct DefaultsValuesTester {
       @RemoteConfigProperty(
-        key: Constants.stringKey,
+        key: ConfigKeyForThisTestOnly,
         fallback: Recipe(recipeName: "test", ingredients: [], cookTime: 0)
       )
       var dictValue: Recipe
@@ -54,7 +56,7 @@ import XCTest
 
     func testDefaultValues() async throws {
       try? RemoteConfig.remoteConfig().setDefaults(
-        from: [Constants.stringKey: PropertyWrapperDefaultConfigsTests.defaultRecipe]
+        from: [ConfigKeyForThisTestOnly: PropertyWrapperDefaultConfigsTests.defaultRecipe]
       )
 
       let tester = await DefaultsValuesTester()
