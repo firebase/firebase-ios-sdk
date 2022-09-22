@@ -1,7 +1,5 @@
-# 9.0.1
-- [fixed] Added support for app.google 1p domain which was missing.
-
-# 9.0.0
+# 10.0.0
+- [removed] Removed bare initializer from `DynamicLink`. (#10000)
 - [fixed] Fixed async/await crash when retrieving a dynamic link from a universal link fails. (#9612)
 
 # 8.15.0

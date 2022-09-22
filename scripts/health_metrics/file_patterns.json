@@ -187,7 +187,7 @@
   },
   {
     "sdk": "storage",
-    "podspecs": ["FirebaseStorage.podspec", "FirebaseStorageInternal.podspec"],
+    "podspecs": ["FirebaseStorage.podspec"],
     "filePatterns": [
       "^FirebaseStorage.*",
       "FirebaseAuth/Interop/[^/]+\\.h",

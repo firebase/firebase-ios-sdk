@@ -278,7 +278,6 @@ FirebasePerformance
 FirebaseRemoteConfig
 FirebaseRemoteConfigSwift
 FirebaseStorage
-FirebaseStorageInternal
 GTMSessionFetcher
 GoogleDataTransport
 PromisesObjC

@@ -152,6 +152,12 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
                    TransactionResultCallback result_callback);
 
   /**
+   * Executes a count query using the given query as the base.
+   */
+  void RunCountQuery(const Query& query,
+                     api::CountQueryCallback&& result_callback);
+
+  /**
    * Adds a listener to be called when a snapshots-in-sync event fires.
    */
   void AddSnapshotsInSyncListener(

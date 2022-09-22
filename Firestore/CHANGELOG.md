@@ -1,4 +1,7 @@
 # Unreleased
+- [fixed] Fixed compiler warning about `@param comparator` (#10226).
+
+# 9.6.0
 - [added] Expose client side indexing feature with `FIRFirestore.setIndexConfigurationFromJSON` and
   `FIRFirestore.setIndexConfigurationFromStream` (#10090).
 - [fixed] Fixed high CPU usage whenever Firestore was in use (#10168).

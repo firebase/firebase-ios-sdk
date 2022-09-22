@@ -78,18 +78,26 @@ TEST(FilterTest, CompositeFilterNestedChecks) {
   CompositeFilter and_filter1 = AndFilters({A, B, C});
   EXPECT_TRUE(and_filter1.IsConjunction());
   EXPECT_FALSE(and_filter1.IsDisjunction());
+  EXPECT_TRUE(and_filter1.IsFlat());
+  EXPECT_TRUE(and_filter1.IsFlatConjunction());
 
   CompositeFilter or_filter1 = OrFilters({A, B, C});
   EXPECT_FALSE(or_filter1.IsConjunction());
   EXPECT_TRUE(or_filter1.IsDisjunction());
+  EXPECT_TRUE(or_filter1.IsFlat());
+  EXPECT_FALSE(or_filter1.IsFlatConjunction());
 
   CompositeFilter and_filter2 = AndFilters({D, and_filter1});
   EXPECT_TRUE(and_filter2.IsConjunction());
   EXPECT_FALSE(and_filter2.IsDisjunction());
+  EXPECT_FALSE(and_filter2.IsFlat());
+  EXPECT_FALSE(and_filter2.IsFlatConjunction());
 
   CompositeFilter or_filter2 = OrFilters({D, and_filter1});
   EXPECT_FALSE(or_filter2.IsConjunction());
   EXPECT_TRUE(or_filter2.IsDisjunction());
+  EXPECT_FALSE(or_filter2.IsFlat());
+  EXPECT_FALSE(or_filter2.IsFlatConjunction());
 }
 
 }  // namespace core

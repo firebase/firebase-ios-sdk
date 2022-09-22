@@ -21,6 +21,7 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/api/aggregate_query.h"
 #include "Firestore/core/src/api/firestore.h"
 #include "Firestore/core/src/api/query_listener_registration.h"
 #include "Firestore/core/src/api/query_snapshot.h"
@@ -482,6 +483,10 @@ std::string Query::Describe(Operator op) const {
   }
 
   UNREACHABLE();
+}
+
+AggregateQuery Query::Count() const {
+  return AggregateQuery(*this);
 }
 
 }  // namespace api
