@@ -410,15 +410,15 @@ import Foundation
    *       the current `StorageReference`.
    */
   @objc(listAllWithCompletion:)
-  open func listAll(completion: @escaping ((_: StorageListResult?, _: NSError?) -> Void)) {
+  open func listAll(completion: @escaping ((_: StorageListResult?, _: Error?) -> Void)) {
     let fetcherService = storage.fetcherServiceForApp
     var prefixes = [StorageReference]()
     var items = [StorageReference]()
 
     weak var weakSelf = self
 
-    var paginatedCompletion: ((_: StorageListResult?, _: NSError?) -> Void)?
-    paginatedCompletion = { (_ listResult: StorageListResult?, _ error: NSError?) in
+    var paginatedCompletion: ((_: StorageListResult?, _: Error?) -> Void)?
+    paginatedCompletion = { (_ listResult: StorageListResult?, _ error: Error?) in
       if let error = error {
         completion(nil, error)
         return
