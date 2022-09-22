@@ -53,6 +53,9 @@ app update.
                               'FirebaseRemoteConfigSwift/Tests/FakeUtils/*.swift',
                               'FirebaseRemoteConfigSwift/Tests/ObjC/*.[hm]',
                              ]
+    swift_api.exclude_files = ['FirebaseRemoteConfigSwift/Tests/SwiftAPI/PropertyWrapperDefaultConfigsTests.swift',
+                               'FirebaseRemoteConfigSwift/Tests/SwiftAPI/PropertyWrapperTests.swift',
+                              ]
     swift_api.resources = 'FirebaseRemoteConfigSwift/Tests/Defaults-testInfo.plist'
     swift_api.requires_app_host = true
     swift_api.pod_target_xcconfig = {
