@@ -53,6 +53,9 @@ app update.
                               'FirebaseRemoteConfigSwift/Tests/FakeUtils/*.swift',
                               'FirebaseRemoteConfigSwift/Tests/ObjC/*.[hm]',
                              ]
+    # Excludes tests that cannot be include in API tests because it requires fetch remote values from
+    # a real console but only one test can be run without poluting other tests' remote values.
+    swift_api.exclude_files = ['FirebaseRemoteConfigSwift/Tests/SwiftAPI/PropertyWrapperTests.swift']
     swift_api.resources = 'FirebaseRemoteConfigSwift/Tests/Defaults-testInfo.plist'
     swift_api.requires_app_host = true
     swift_api.pod_target_xcconfig = {

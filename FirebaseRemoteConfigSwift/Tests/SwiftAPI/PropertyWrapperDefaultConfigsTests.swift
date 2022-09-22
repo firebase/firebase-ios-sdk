@@ -19,7 +19,7 @@ import FirebaseRemoteConfig
 import FirebaseRemoteConfigSwift
 import XCTest
 
-let ConfigKeyForThisTestOnly = "MyTestKey"
+let ConfigKeyForThisTestOnly = "PropertyWrapperDefaultConfigsTestsKey"
 
 #if compiler(>=5.5.2) && canImport(_Concurrency)
   @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
