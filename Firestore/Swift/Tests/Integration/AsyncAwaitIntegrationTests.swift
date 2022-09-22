@@ -74,11 +74,11 @@ let emptyBundle = """
       XCTAssertNil(value, "value should be nil on success")
     }
       
-      func testCount() async throws{
-          let collection = collectionRef()
-          try await collection.addDocument(data: [:])
-          let snapshot = try await collection.count.aggregation(source: .server)
-          XCTAssertEqual(snapshot.count, 1)
-      }
+    func testCount() async throws{
+      let collection = collectionRef()
+      try await collection.addDocument(data: [:])
+      let snapshot = try await collection.count.aggregation(source: .server)
+      XCTAssertEqual(snapshot.count, 1)
+    }
   }
 #endif
