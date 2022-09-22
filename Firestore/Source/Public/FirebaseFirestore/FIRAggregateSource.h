@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 /** Configures the behavior of `AggregateQuery.aggregateWithSource(source:completion:)`. */
 typedef NS_ENUM(NSUInteger, FIRAggregateSource) {
   /**
@@ -26,3 +28,5 @@ typedef NS_ENUM(NSUInteger, FIRAggregateSource) {
    */
   FIRAggregateSourceServer,
 } NS_SWIFT_NAME(AggregateSource);
+
+NS_ASSUME_NONNULL_END

@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
+#import <Foundation/Foundation.h>
+
 #import "FIRAggregateSource.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 @class FIRQuery;
 @class FIRAggregateQuerySnapshot;
@@ -27,7 +31,7 @@ NS_SWIFT_NAME(AggregateQuery)
 @interface FIRAggregateQuery : NSObject
 
 /** The base `Query` for this aggregate query. */
-@property(nonatomic, readonly) FIRQuery *_Nonnull query;
+@property(nonatomic, readonly) FIRQuery *query;
 
 /**
  * Executes the aggregate query and reads back the results as a `FIRAggregateQuerySnapshot`.
@@ -37,7 +41,9 @@ NS_SWIFT_NAME(AggregateQuery)
  *     snapshot will be `nil` only if error is `non-nil`.
  */
 - (void)aggregationWithSource:(FIRAggregateSource)source
-                   completion:(void (^_Nonnull)(FIRAggregateQuerySnapshot *_Nullable snapshot,
-                                                NSError *_Nullable error))completion
-    NS_SWIFT_NAME(aggregation(source:completion:));
+                   completion:(void (^)(FIRAggregateQuerySnapshot *_Nullable snapshot,
+                                        NSError *_Nullable error))completion
+    NS_SWIFT_NAME(getAggregation(source:completion:));
 @end
+
+NS_ASSUME_NONNULL_END

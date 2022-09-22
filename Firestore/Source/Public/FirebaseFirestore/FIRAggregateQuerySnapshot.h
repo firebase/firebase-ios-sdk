@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @class FIRAggregateQuery;
 
 /**
@@ -25,12 +27,14 @@ NS_SWIFT_NAME(AggregateQuerySnapshot)
 @interface FIRAggregateQuerySnapshot : NSObject
 
 /** The original `AggregateQuery` this snapshot is a result of. */
-@property(nonatomic, readonly) FIRAggregateQuery* _Nonnull query;
+@property(nonatomic, readonly) FIRAggregateQuery* query;
 
 /**
  * The result of a document count aggregation. Null if no count aggregation is
  *     available in the result.
  */
-@property(nonatomic, readonly) NSNumber* _Nullable count;
+@property(nonatomic, readonly) NSNumber* count;
 
 @end
+
+NS_ASSUME_NONNULL_END
