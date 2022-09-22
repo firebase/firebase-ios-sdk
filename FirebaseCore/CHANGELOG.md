@@ -1,5 +1,41 @@
+# Firebase 10.0.0
+- [changed] **Breaking change**: Firebase's minimum supported versions have
+  updated for the following platforms:
+  - If using **CocoaPods**:
+    - | Platform  | Firebase 9 | Firebase 10 |
+      | ------------- | ------------- | ------------- |
+      | iOS  | 10.0  | **11.0**  |
+      | tvOS  | 10.0  | **11.0**  |
+      | macOS  | 10.12  | **10.13**  |
+      | watchOS  | 6.0  | 6.0  |
+  - If using **Swift Package Manager**:
+    - | Platform  | Firebase 9 | Firebase 10 |
+      | ------------- | ------------- | ------------- |
+      | iOS  | 11.0  | 11.0  |
+      | tvOS  | 11.0  | 11.0  |
+      | macOS  | 10.12  | **10.13**  |
+      | watchOS  | 7.0  | 7.0  |
+  - If using **Carthage** or the **Zip** distribution, there are **no changes**
+    to the minimum supported versions:
+    - | Platform  | Firebase 9 | Firebase 10 |
+      | ------------- | ------------- | ------------- |
+      | iOS  | 11.0  | 11.0  |
+      | tvOS  | 11.0  | 11.0  |
+      | macOS  | 10.13  | 10.13  |
+      | watchOS  | N/A  | N/A  |
+
+# Firebase 9.6.0
+- [fixed] Mac apps using Firebase products that store SDK data in the keychain
+  will no longer prompt the user for permission to access the keychain. This
+  requires that Mac apps using Firebase be signed with a provisioning profile
+  that has the Keychain Sharing capability enabled. (#9392)
+- [fixed] Fixed `Array.Index`-related compile time errors when building with older Swift versions. (#10171)
+- [fixed] Update dependency specification for GTMSessionFetcher to allow all 2.x versions. (#10131)
+
 # Firebase 9.5.0
 - [fixed] Zip Distribution Fixed Promises module name issue impacting lld builds. (#10071)
+- [fixed] Limit dependency GTMSessionFetcher version update to < 2.1.0 to avoid a new deprecation
+  warning. (#10123)
 
 # Firebase 9.4.1
 - [fixed] Swift Package Manager only release to fix a 9.4.0 tagging issue impacting some users. (#10083)

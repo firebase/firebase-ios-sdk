@@ -1,4 +1,12 @@
 # Unreleased
+- [fixed] Fixed compiler warning about `@param comparator` (#10226).
+
+# 9.6.0
+- [added] Expose client side indexing feature with `FIRFirestore.setIndexConfigurationFromJSON` and
+  `FIRFirestore.setIndexConfigurationFromStream` (#10090).
+- [fixed] Fixed high CPU usage whenever Firestore was in use (#10168).
+
+# 9.5.0
 - [fixed] Fixed an intermittent crash if `ListenerRegistration::Remove()` was
   invoked concurrently (#10065).
 - [fixed] Fixed a crash if multiple large write batches with overlapping

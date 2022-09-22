@@ -107,6 +107,9 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
   void EnableNetwork(util::StatusCallback callback);
   void DisableNetwork(util::StatusCallback callback);
 
+  void SetIndexConfiguration(const std::string& config,
+                             const util::StatusCallback& callback);
+
   std::shared_ptr<api::LoadBundleTask> LoadBundle(
       std::unique_ptr<util::ByteStream> bundle_data);
   void GetNamedQuery(const std::string& name, api::QueryCallback callback);

@@ -87,6 +87,7 @@ using firebase::firestore::util::ThrowIllegalState;
 using firebase::firestore::util::ThrowInvalidArgument;
 using firebase::firestore::util::kLogLevelDebug;
 using firebase::firestore::util::kLogLevelNotice;
+using firebase::firestore::util::StreamReadResult;
 
 using UserUpdateBlock = id _Nullable (^)(FIRTransaction *, NSError **);
 using UserTransactionCompletion = void (^)(id _Nullable, NSError *_Nullable);
@@ -204,6 +205,31 @@ NS_ASSUME_NONNULL_BEGIN
 
     _firestore->set_user_executor(std::move(user_executor));
   }
+}
+
+- (void)setIndexConfigurationFromJSON:(NSString *)json
+                           completion:(nullable void (^)(NSError *_Nullable error))completion {
+  _firestore->SetIndexConfiguration(MakeString(json), MakeCallback(completion));
+}
+
+- (void)setIndexConfigurationFromStream:(NSInputStream *)stream
+                             completion:(nullable void (^)(NSError *_Nullable error))completion {
+  auto input = absl::make_unique<ByteStreamApple>(stream);
+  auto callback = MakeCallback(completion);
+
+  std::string json;
+  bool eof = false;
+  while (!eof) {
+    StreamReadResult result = input->Read(1024ul);
+    if (!result.ok()) {
+      callback(result.status());
+      return;
+    }
+    eof = result.eof();
+    json.append(std::move(result).ValueOrDie());
+  }
+
+  _firestore->SetIndexConfiguration(json, callback);
 }
 
 - (FIRCollectionReference *)collectionWithPath:(NSString *)collectionPath {

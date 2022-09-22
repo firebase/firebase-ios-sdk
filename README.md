@@ -195,7 +195,7 @@ integrating Performance with the dev test App.
 ### Firebase Storage
 
 To run the Storage Integration tests, follow the instructions in
-[FIRStorageIntegrationTests.m](FirebaseStorageInternal/Tests/Integration/FIRStorageIntegrationTests.m).
+[StorageIntegration.swift](FirebaseStorage/Tests/Integration/StorageIntegration.swift).
 
 #### Push Notifications
 

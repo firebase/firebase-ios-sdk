@@ -72,6 +72,53 @@ NS_SWIFT_NAME(Firestore)
  */
 @property(strong, nonatomic, readonly) FIRApp *app;
 
+#pragma mark - Configure FieldIndexes
+
+/**
+ * This method is in preview. API signature and functionality are subject to change.
+ *
+ * Configures indexing for local query execution. Any previous index configuration is overridden.
+ *
+ * The index entries themselves are created asynchronously. You can continue to use queries
+ * that require indexing even if the indices are not yet available. Query execution will
+ * automatically start using the index once the index entries have been written.
+ *
+ * The method accepts the JSON format exported by the Firebase CLI (`firebase
+ * firestore:indexes`). If the JSON format is invalid, the completion block will be
+ * invoked with an NSError.
+ *
+ * @param json The JSON format exported by the Firebase CLI.
+ * @param completion A block to execute when setting is in a final state. The `error` parameter
+ * will be set if the block is invoked due to an error.
+ */
+- (void)setIndexConfigurationFromJSON:(NSString *)json
+                           completion:(nullable void (^)(NSError *_Nullable error))completion
+    NS_SWIFT_NAME(setIndexConfiguration(_:completion:));
+
+/**
+ * This method is in preview. API signature and functionality are subject to change.
+ *
+ * Configures indexing for local query execution. Any previous index configuration is overridden.
+ *
+ * The index entries themselves are created asynchronously. You can continue to use queries
+ * that require indexing even if the indices are not yet available. Query execution will
+ * automatically start using the index once the index entries have been written.
+ *
+ * Indexes are only supported with LevelDB persistence. Invoke `set_persistence_enabled(true)`
+ * before setting an index configuration. If LevelDB is not enabled, any index configuration
+ * will be rejected.
+ *
+ * The method accepts the JSON format exported by the Firebase CLI (`firebase
+ * firestore:indexes`). If the JSON format is invalid, this method ignores the changes.
+ *
+ * @param stream An input stream from which the configuration can be read.
+ * @param completion A block to execute when setting is in a final state. The `error` parameter
+ * will be set if the block is invoked due to an error.
+ */
+- (void)setIndexConfigurationFromStream:(NSInputStream *)stream
+                             completion:(nullable void (^)(NSError *_Nullable error))completion
+    NS_SWIFT_NAME(setIndexConfiguration(_:completion:));
+
 #pragma mark - Collections and Documents
 
 /**

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebasePerformance'
-  s.version          = '9.5.0'
+  s.version          = '9.6.0'
   s.summary          = 'Firebase Performance'
 
   s.description      = <<-DESC
@@ -17,8 +17,8 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   }
   s.social_media_url = 'https://twitter.com/Firebase'
 
-  ios_deployment_target = '10.0'
-  tvos_deployment_target = '10.0'
+  ios_deployment_target = '11.0'
+  tvos_deployment_target = '11.0'
 
   s.swift_version = '5.3'
 

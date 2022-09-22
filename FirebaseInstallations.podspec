@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInstallations'
-  s.version          = '9.5.0'
+  s.version          = '9.6.0'
   s.summary          = 'Firebase Installations'
 
   s.description      = <<-DESC
@@ -17,9 +17,9 @@ Pod::Spec.new do |s|
   }
   s.social_media_url = 'https://twitter.com/Firebase'
 
-  ios_deployment_target = '9.0'
-  osx_deployment_target = '10.12'
-  tvos_deployment_target = '10.0'
+  ios_deployment_target = '10.0'
+  osx_deployment_target = '10.13'
+  tvos_deployment_target = '11.0'
   watchos_deployment_target = '6.0'
 
   s.swift_version = '5.3'
@@ -79,7 +79,7 @@ Pod::Spec.new do |s|
 
     s.test_spec 'integration' do |int_tests|
       int_tests.scheme = { :code_coverage => true }
-      int_tests.platforms = {:ios => '9.0', :osx => '10.15', :tvos => '10.0'}
+      int_tests.platforms = {:ios => '10.0', :osx => '10.15', :tvos => '11.0'}
       int_tests.source_files = base_dir + 'Tests/Integration/**/*.[mh]'
       int_tests.resources = base_dir + 'Tests/Resources/**/*'
       if ENV['FIS_INTEGRATION_TESTS_REQUIRED'] && ENV['FIS_INTEGRATION_TESTS_REQUIRED'] == '1' then

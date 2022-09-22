@@ -110,45 +110,47 @@ const char* EnumToString(
 }
 
 std::string google_firestore_admin_v1_Index::ToString(int indent) const {
-    std::string header = PrintHeader(indent, "Index", this);
-    std::string result;
+    std::string tostring_header = PrintHeader(indent, "Index", this);
+    std::string tostring_result;
 
-    result += PrintPrimitiveField("name: ", name, indent + 1, false);
-    result += PrintEnumField("query_scope: ", query_scope, indent + 1, false);
+    tostring_result += PrintPrimitiveField("name: ", name, indent + 1, false);
+    tostring_result += PrintEnumField("query_scope: ",
+        query_scope, indent + 1, false);
     for (pb_size_t i = 0; i != fields_count; ++i) {
-        result += PrintMessageField("fields ", fields[i], indent + 1, true);
+        tostring_result += PrintMessageField("fields ",
+            fields[i], indent + 1, true);
     }
-    result += PrintEnumField("state: ", state, indent + 1, false);
+    tostring_result += PrintEnumField("state: ", state, indent + 1, false);
 
     bool is_root = indent == 0;
-    if (!result.empty() || is_root) {
-      std::string tail = PrintTail(indent);
-      return header + result + tail;
+    if (!tostring_result.empty() || is_root) {
+      std::string tostring_tail = PrintTail(indent);
+      return tostring_header + tostring_result + tostring_tail;
     } else {
       return "";
     }
 }
 
 std::string google_firestore_admin_v1_Index_IndexField::ToString(int indent) const {
-    std::string header = PrintHeader(indent, "IndexField", this);
-    std::string result;
+    std::string tostring_header = PrintHeader(indent, "IndexField", this);
+    std::string tostring_result;
 
-    result += PrintPrimitiveField("field_path: ",
+    tostring_result += PrintPrimitiveField("field_path: ",
         field_path, indent + 1, false);
     switch (which_value_mode) {
     case google_firestore_admin_v1_Index_IndexField_order_tag:
-        result += PrintEnumField("order: ", order, indent + 1, true);
+        tostring_result += PrintEnumField("order: ", order, indent + 1, true);
         break;
     case google_firestore_admin_v1_Index_IndexField_array_config_tag:
-        result += PrintEnumField("array_config: ",
+        tostring_result += PrintEnumField("array_config: ",
             array_config, indent + 1, true);
         break;
     }
 
     bool is_root = indent == 0;
-    if (!result.empty() || is_root) {
-      std::string tail = PrintTail(indent);
-      return header + result + tail;
+    if (!tostring_result.empty() || is_root) {
+      std::string tostring_tail = PrintTail(indent);
+      return tostring_header + tostring_result + tostring_tail;
     } else {
       return "";
     }

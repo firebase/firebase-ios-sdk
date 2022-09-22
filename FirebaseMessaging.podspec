@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMessaging'
-  s.version          = '9.5.0'
+  s.version          = '9.6.0'
   s.summary          = 'Firebase Messaging'
 
   s.description      = <<-DESC
@@ -20,9 +20,9 @@ device, and it is completely free.
   }
   s.social_media_url = 'https://twitter.com/Firebase'
 
-  ios_deployment_target = '10.0'
-  osx_deployment_target = '10.12'
-  tvos_deployment_target = '10.0'
+  ios_deployment_target = '11.0'
+  osx_deployment_target = '10.13'
+  tvos_deployment_target = '11.0'
   watchos_deployment_target = '6.0'
 
   s.swift_version = '5.3'

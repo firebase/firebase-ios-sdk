@@ -48,6 +48,7 @@ class QueryEngine;
 
 namespace model {
 class Mutation;
+class FieldIndex;
 }  // namespace model
 
 namespace remote {
@@ -151,6 +152,12 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
                    TransactionResultCallback result_callback);
 
   /**
+   * Executes a count query using the given query as the base.
+   */
+  void RunCountQuery(const Query& query,
+                     api::CountQueryCallback&& result_callback);
+
+  /**
    * Adds a listener to be called when a snapshots-in-sync event fires.
    */
   void AddSnapshotsInSyncListener(
@@ -175,6 +182,8 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   const std::shared_ptr<util::Executor>& user_executor() const {
     return user_executor_;
   }
+
+  void ConfigureFieldIndexes(std::vector<model::FieldIndex> parsed_indexes);
 
   void LoadBundle(std::unique_ptr<util::ByteStream> bundle_data,
                   std::shared_ptr<api::LoadBundleTask> result_task);

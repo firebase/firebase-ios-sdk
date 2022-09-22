@@ -271,7 +271,7 @@ Alternatively, the script can be work on branch names or filenames.
 ```
 
 ```console
-./scripts/style.sh FirebaseStorageInternal/Sources/FIRStorage.m
+./scripts/style.sh FirebaseStorage/Sources/Storage.swift
 ```
 
 <details>

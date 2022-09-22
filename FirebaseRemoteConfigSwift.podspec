@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseRemoteConfigSwift'
-  s.version                 = '9.5.0'
+  s.version                 = '9.6.0'
   s.summary                 = 'Swift Extensions for Firebase Remote Config'
 
   s.description      = <<-DESC
@@ -22,7 +22,7 @@ app update.
   s.swift_version           = '5.3'
 
   ios_deployment_target = '11.0'
-  osx_deployment_target = '10.12'
+  osx_deployment_target = '10.13'
   tvos_deployment_target = '11.0'
   watchos_deployment_target = '6.0'
 
