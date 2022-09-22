@@ -626,8 +626,7 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertEqual(numberOfMatches, 1, @"Incorrect library version format.");
 }
 
-// TODO: The version test will break when the Firebase major version hits 10.
-- (void)SKIP_testVersionConsistency {
+- (void)testVersionConsistency {
   // `kFIRLibraryVersionID` is `nil` until `libraryVersion` is called on `FIROptions`.
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
                                                     GCMSenderID:kGCMSenderID];
@@ -636,25 +635,24 @@ extern NSString *const kFIRLibraryVersionID;
 
   // Now `kFIRLibraryVersionID` is assigned, test that it is formatted correctly.
   const char *versionString = [kFIRLibraryVersionID UTF8String];
-  int major = versionString[0] - '0';
-  int minor = (versionString[1] - '0') * 10 + versionString[2] - '0';
-  int patch = (versionString[3] - '0') * 10 + versionString[4] - '0';
+  int major = (versionString[0] - '0') * 10 + versionString[1] - '0';
+  int minor = (versionString[2] - '0') * 10 + versionString[3] - '0';
+  int patch = (versionString[4] - '0') * 10 + versionString[5] - '0';
   NSString *str = [NSString stringWithFormat:@"%d.%d.%d", major, minor, patch];
   XCTAssertEqualObjects(str, FIRFirebaseVersion());
 }
 
 // Repeat test with more Objective-C.
-// TODO: The version test will break when the Firebase major version hits 10.
-- (void)SKIP_testVersionConsistency2 {
+- (void)testVersionConsistency2 {
   // `kFIRLibraryVersionID` is `nil` until `libraryVersion` is called on `FIROptions`.
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
                                                     GCMSenderID:kGCMSenderID];
   __unused NSString *libraryVersion = options.libraryVersionID;
   options = nil;
 
-  NSRange major = NSMakeRange(0, 1);
-  NSRange minor = NSMakeRange(1, 2);
-  NSRange patch = NSMakeRange(3, 2);
+  NSRange major = NSMakeRange(0, 2);
+  NSRange minor = NSMakeRange(2, 2);
+  NSRange patch = NSMakeRange(4, 2);
   NSString *str =
       [NSString stringWithFormat:@"%@.%d.%d", [kFIRLibraryVersionID substringWithRange:major],
                                  [[kFIRLibraryVersionID substringWithRange:minor] intValue],
