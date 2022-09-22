@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-// TODO(b/246760853): Move FIRAggregateSource to public headers to release it.
-
 #import <Foundation/Foundation.h>
 
 /** Configures the behavior of `AggregateQuery.aggregateWithSource(source:completion:)`. */
