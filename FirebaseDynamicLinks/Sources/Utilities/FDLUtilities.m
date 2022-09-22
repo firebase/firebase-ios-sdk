@@ -253,10 +253,10 @@ BOOL FIRDLIsAValidDLWithFDLDomain(NSURL *_Nullable URL) {
   BOOL matchesRegularExpression = false;
   NSString *urlStr = URL.absoluteString;
 
-  if ([URL.host containsString:@".page.link"] || [URL.host containsString:@".app.goo.gl"]) {
+  if ([URL.host containsString:@".page.link"] || [URL.host containsString:@".app.goo.gl"] || [URL.host containsString:@".app.google"]) {
     // Matches the *.page.link and *.app.goo.gl domains.
     matchesRegularExpression =
-        ([urlStr rangeOfString:@"^https?://[a-zA-Z0-9]+((\\.app\\.goo\\.gl)|(\\.page\\.link))((\\/"
+        ([urlStr rangeOfString:@"^https?://[a-zA-Z0-9]+((\\.app\\.goo\\.gl)|(\\.page\\.link)|(\\.app\\.google))((\\/"
                                @"?\\?.*link=https?.*)|(\\/[a-zA-Z0-9-_]+)((\\/?\\?.*=.*)?$|$))"
                        options:NSRegularExpressionSearch]
              .location != NSNotFound);
@@ -267,7 +267,7 @@ BOOL FIRDLIsAValidDLWithFDLDomain(NSURL *_Nullable URL) {
       // http(s)://$DOMAIN(.page.link or .app.goo.gl)/i/$ANYTHING
       matchesRegularExpression =
           ([urlStr rangeOfString:
-                       @"^https?:\\/\\/[a-zA-Z0-9]+((\\.app\\.goo\\.gl)|(\\.page\\.link))\\/i\\/.*$"
+                       @"^https?:\\/\\/[a-zA-Z0-9]+((\\.app\\.goo\\.gl)|(\\.page\\.link)|(\\.app\\.google))\\/i\\/.*$"
                          options:NSRegularExpressionSearch]
                .location != NSNotFound);
     }
@@ -286,7 +286,7 @@ BOOL FIRDLIsAValidDLWithFDLDomain(NSURL *_Nullable URL) {
 BOOL FIRDLCanParseUniversalLinkURL(NSURL *_Nullable URL) {
   // Handle universal links with format |https://goo.gl/app/<appcode>?<parameters>|.
   // Also support page.link format.
-  BOOL isDDLWithAppcodeInPath = ([URL.host isEqual:@"goo.gl"] || [URL.host isEqual:@"page.link"]) &&
+  BOOL isDDLWithAppcodeInPath = ([URL.host isEqual:@"goo.gl"] || [URL.host isEqual:@"page.link"]|| [URL.host isEqual:@"app.google"]) &&
                                 [URL.path hasPrefix:@"/app"];
 
   return isDDLWithAppcodeInPath || FIRDLIsAValidDLWithFDLDomain(URL) ||

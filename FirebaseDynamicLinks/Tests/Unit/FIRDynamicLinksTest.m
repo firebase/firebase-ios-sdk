@@ -1105,6 +1105,11 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
     @"https://someapp.app.goo.gl/somepath?somekey=somevalue",
     @"https://someapp.app.goo.gl/somepath/?link=https://somedomain",
     @"https://someapp.app.goo.gl/somepath/?somekey=somevalue",
+    @"https://someapp.app.google/somepath", @"https://someapp.app.google/link",
+    @"https://someapp.app.google/somepath?link=https://somedomain",
+    @"https://someapp.app.google/somepath?somekey=somevalue",
+    @"https://someapp.app.google/somepath/?link=https://somedomain",
+    @"https://someapp.app.google/somepath/?somekey=somevalue",
     @"https://someapp.page.link/somepath", @"https://someapp.page.link/link",
     @"https://someapp.page.link/somepath?link=https://somedomain",
     @"https://someapp.page.link/somepath?somekey=somevalue",
@@ -1136,6 +1141,15 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
     @"https://someapp.app.goo.gl/somepath/somepath2",
     @"https://someapp.app.goo.gl/somepath/somepath2?somekey=somevalue",
     @"https://someapp.app.goo.gl/somepath/somepath2?link=https://somedomain",
+    @"https://someapp.app.google",
+    @"https://someapp.app.google/",
+    @"https://someapp.app.google?",
+    @"https://someapp.app.google/?",
+    @"https://someapp.app.google?somekey=somevalue",
+    @"https://someapp.app.google/?somekey=somevalue",
+    @"https://someapp.app.google/somepath/somepath2",
+    @"https://someapp.app.google/somepath/somepath2?somekey=somevalue",
+    @"https://someapp.app.google/somepath/somepath2?link=https://somedomain",
     @"https://someapp.page.link",
     @"https://someapp.page.link/",
     @"https://someapp.page.link?",
@@ -1377,8 +1391,11 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
     @"https://some.page.link/test", @"https://some.page.link/test-test",
     @"https://some.page.link/test_test", @"https://some.page.link/test_test-test",
     @"https://some.app.goo.gl/test_test-test",
+    @"https://some.app.google/test_test-test",
     @"https://n8r9f.app.goo.gl/?ibi=com%2Egoogle%2EGCMTestApp%2Edev&amv=0&imv=1%2E0&link=https%3A%2F%2Fwww%2Egoogle%2Ecom",
-    @"https://n8r9f.app.goo.gl/?link=https%3A%2F%2Fwww%2Egoogle%2Ecom&ibi=com%2Egoogle%2EGCMTestApp%2Edev&amv=0&imv=1%2E0"
+    @"https://n8r9f.app.goo.gl/?link=https%3A%2F%2Fwww%2Egoogle%2Ecom&ibi=com%2Egoogle%2EGCMTestApp%2Edev&amv=0&imv=1%2E0",
+    @"https://n8r9f.app.google/?ibi=com%2Egoogle%2EGCMTestApp%2Edev&amv=0&imv=1%2E0&link=https%3A%2F%2Fwww%2Egoogle%2Ecom",
+    @"https://n8r9f.app.google/?link=https%3A%2F%2Fwww%2Egoogle%2Ecom&ibi=com%2Egoogle%2EGCMTestApp%2Edev&amv=0&imv=1%2E0"
   ];
 
   for (NSString *urlString in urlStrings) {
