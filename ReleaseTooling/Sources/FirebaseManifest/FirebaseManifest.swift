@@ -24,7 +24,6 @@ public let shared = Manifest(
   version: "9.6.0",
   pods: [
     Pod("FirebaseSharedSwift"),
-    Pod("FirebaseCoreDiagnostics"),
     Pod("FirebaseCoreInternal"),
     Pod("FirebaseCore"),
     Pod("FirebaseCoreExtension"),
