@@ -102,7 +102,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
   s.subspec 'AppCheck' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseAppCheck', '~> 10.0.0'
-    ss.ios.deployment_target = '10.0'
+    ss.ios.deployment_target = '11.0'
     ss.osx.deployment_target = '10.13'
     ss.tvos.deployment_target = '11.0'
     ss.watchos.deployment_target = '6.0'
