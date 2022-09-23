@@ -22,7 +22,7 @@ Firebase products. FirebaseSharedSwift is not supported for non-Firebase usage.
 
   ios_deployment_target = '11.0'
   osx_deployment_target = '10.13'
-  tvos_deployment_target = '11.0'
+  tvos_deployment_target = '12.0'
   watchos_deployment_target = '6.0'
 
   s.ios.deployment_target = ios_deployment_target

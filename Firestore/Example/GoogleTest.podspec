@@ -35,7 +35,7 @@ Google's C++ test framework.
 
   s.ios.deployment_target = '11.0'
   s.osx.deployment_target = '10.13'
-  s.tvos.deployment_target = '11.0'
+  s.tvos.deployment_target = '12.0'
 
   s.requires_arc = false
 

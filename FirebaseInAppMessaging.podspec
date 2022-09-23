@@ -18,7 +18,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '11.0'
-  s.tvos.deployment_target = '11.0'
+  s.tvos.deployment_target = '12.0'
 
   s.swift_version = '5.3'
 
