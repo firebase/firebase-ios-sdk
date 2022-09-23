@@ -23,6 +23,8 @@
       | tvOS  | 11.0  | 11.0  |
       | macOS  | 10.13  | 10.13  |
       | watchOS  | N/A  | N/A  |
+- [changed] **Breaking change**: Update dependency specification for
+  GTMSessionFetcher to allow all versions that are >= 2.1 and < 3.0. (#10131)
 
 # Firebase 9.6.0
 - [fixed] Mac apps using Firebase products that store SDK data in the keychain
