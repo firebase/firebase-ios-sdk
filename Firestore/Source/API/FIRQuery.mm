@@ -20,7 +20,6 @@
 #include <utility>
 #include <vector>
 
-#import "FIRAggregateQuery+Internal.h"
 #import "FIRDocumentReference.h"
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
