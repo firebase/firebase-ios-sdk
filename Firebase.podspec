@@ -96,6 +96,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
   s.subspec 'AppDistribution' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.ios.dependency 'FirebaseAppDistribution', '~> 10.0.0-beta'
+    ss.ios.deployment_target = '11.0'
   end
 
   s.subspec 'AppCheck' do |ss|
@@ -140,21 +141,32 @@ Simplify your app development, grow your user base, and monetize more effectivel
   s.subspec 'DynamicLinks' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.ios.dependency 'FirebaseDynamicLinks', '~> 10.0.0'
+    ss.ios.deployment_target = '11.0'
   end
 
   s.subspec 'Firestore' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseFirestore', '~> 10.0.0'
+    ss.ios.deployment_target = '11.0'
+    ss.osx.deployment_target = '10.13'
+    ss.tvos.deployment_target = '11.0'
   end
 
   s.subspec 'Functions' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseFunctions', '~> 10.0.0'
+    # Standard platforms PLUS watchOS.
+    ss.ios.deployment_target = '11.0'
+    ss.osx.deployment_target = '10.13'
+    ss.tvos.deployment_target = '11.0'
+    ss.watchos.deployment_target = '6.0'
   end
 
   s.subspec 'InAppMessaging' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.ios.dependency 'FirebaseInAppMessaging', '~> 10.0.0-beta'
+    ss.ios.deployment_target = '11.0'
+    ss.tvos.deployment_target = '11.0'
   end
 
   s.subspec 'Installations' do |ss|
@@ -175,12 +187,19 @@ Simplify your app development, grow your user base, and monetize more effectivel
   s.subspec 'MLModelDownloader' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseMLModelDownloader', '~> 10.0.0-beta'
+    # Standard platforms PLUS watchOS.
+    ss.ios.deployment_target = '11.0'
+    ss.osx.deployment_target = '10.13'
+    ss.tvos.deployment_target = '11.0'
+    ss.watchos.deployment_target = '6.0'
   end
 
   s.subspec 'Performance' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.ios.dependency 'FirebasePerformance', '~> 10.0.0'
     ss.tvos.dependency 'FirebasePerformance', '~> 10.0.0'
+    ss.ios.deployment_target = '11.0'
+    ss.tvos.deployment_target = '11.0'
   end
 
   s.subspec 'RemoteConfig' do |ss|
