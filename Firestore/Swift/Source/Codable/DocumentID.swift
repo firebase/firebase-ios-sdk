@@ -15,6 +15,10 @@
  */
 
 import FirebaseFirestore
+import FirebaseSharedSwift
+
+let documentRefUserInfoKey =
+  CodingUserInfoKey(rawValue: "DocumentRefUserInfoKey")!
 
 /// A type that can initialize itself from a Firestore `DocumentReference`,
 /// which makes it suitable for use with the `@DocumentID` property wrapper.
@@ -76,7 +80,7 @@ internal protocol DocumentIDProtocol {
 /// Firestore.Encoder leads to an error.
 @propertyWrapper
 public struct DocumentID<Value: DocumentIDWrappable & Codable>:
-  DocumentIDProtocol, Codable {
+  DocumentIDProtocol, Codable, StructureCodingUncodedUnkeyed {
   var value: Value?
 
   public init(wrappedValue value: Value?) {
@@ -101,9 +105,12 @@ public struct DocumentID<Value: DocumentIDWrappable & Codable>:
   // MARK: - `Codable` implementation.
 
   public init(from decoder: Decoder) throws {
-    throw FirestoreDecodingError.decodingIsNotSupported(
-      "DocumentID values can only be decoded with Firestore.Decoder"
-    )
+    guard let reference = decoder.userInfo[documentRefUserInfoKey] as? DocumentReference else {
+      throw FirestoreDecodingError.decodingIsNotSupported(
+        "Could not find DocumentReference for user info key: \(documentRefUserInfoKey)"
+      )
+    }
+    try self.init(from: reference)
   }
 
   public func encode(to encoder: Encoder) throws {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,15 @@
  */
 
 import Foundation
-import FirebaseSharedSwift
 import FirebaseFirestore
 
-internal struct FirestorePassthroughTypes: StructureCodingPassthroughTypeResolver {
-  static func isPassthroughType<T>(_ t: T) -> Bool {
-    return
-      t is GeoPoint ||
-      t is Timestamp ||
-      t is FieldValue ||
-      t is DocumentReference
+public extension Firestore.Decoder.DateDecodingStrategy {
+  /// Decode the `Date` from a Firestore `Timestamp`
+  static var timestamp: Firestore.Decoder.DateDecodingStrategy {
+    return .custom { decoder in
+      let container = try decoder.singleValueContainer()
+      let value = try container.decode(Timestamp.self)
+      return value.dateValue()
+    }
   }
 }
