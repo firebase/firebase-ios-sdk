@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+// TODO(b/246760853): Move FIRAggregateSource to public headers to release it.
 
-NS_ASSUME_NONNULL_BEGIN
+#import <Foundation/Foundation.h>
 
 /** Configures the behavior of `AggregateQuery.aggregateWithSource(source:completion:)`. */
 typedef NS_ENUM(NSUInteger, FIRAggregateSource) {
@@ -28,5 +28,3 @@ typedef NS_ENUM(NSUInteger, FIRAggregateSource) {
    */
   FIRAggregateSourceServer,
 } NS_SWIFT_NAME(AggregateSource);
-
-NS_ASSUME_NONNULL_END
