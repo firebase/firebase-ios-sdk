@@ -24,19 +24,21 @@ NS_ASSUME_NONNULL_BEGIN
 @class FIRAggregateQuerySnapshot;
 
 /**
- * An `AggregateQuery` computes some aggregation statistics from the result set of a base
- * `Query`.
+ * A query that calculates aggregations over an underlying query.
  */
 NS_SWIFT_NAME(AggregateQuery)
 @interface FIRAggregateQuery : NSObject
 
-/** The base `Query` for this aggregate query. */
+/** :nodoc: */
+- (instancetype)init __attribute__((unavailable("FIRAggregateQuery cannot be created directly.")));
+
+/** The query whose aggregations will be calculated by this object. */
 @property(nonatomic, readonly) FIRQuery *query;
 
 /**
- * Executes the aggregate query and reads back the results as a `FIRAggregateQuerySnapshot`.
+ * Executes this query.
  *
- * @param source indicates where the results should be fetched from.
+ * @param source The source from which to acquire the aggregate results.
  * @param completion a block to execute once the results have been successfully read.
  *     snapshot will be `nil` only if error is `non-nil`.
  */
