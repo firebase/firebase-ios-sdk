@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'GoogleAppMeasurement'
-    s.version          = '9.6.0'
+    s.version          = '10.0.0'
     s.summary          = 'Shared measurement methods for Google libraries. Not intended for direct use.'
 
     s.description      = <<-DESC
@@ -28,16 +28,16 @@ Pod::Spec.new do |s|
     s.libraries  = 'c++', 'sqlite3', 'z'
     s.frameworks = 'StoreKit'
 
-    s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.7'
-    s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.7'
-    s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.7'
-    s.dependency 'GoogleUtilities/Network', '~> 7.7'
+    s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.8'
+    s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.8'
+    s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.8'
+    s.dependency 'GoogleUtilities/Network', '~> 7.8'
     s.dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
 
     s.default_subspecs = 'AdIdSupport'
 
     s.subspec 'AdIdSupport' do |ss|
-        ss.dependency 'GoogleAppMeasurement/WithoutAdIdSupport', '9.6.0'
+        ss.dependency 'GoogleAppMeasurement/WithoutAdIdSupport', '10.0.0'
         ss.vendored_frameworks = 'Frameworks/GoogleAppMeasurementIdentitySupport.xcframework'
     end
 

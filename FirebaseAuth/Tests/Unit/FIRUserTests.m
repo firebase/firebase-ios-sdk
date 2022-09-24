@@ -570,14 +570,20 @@ static NSString *const kEnrolledAt = @"2022-08-01T18:31:15.426458Z";
                                              // Test NSSecureCoding
                                              XCTAssertTrue([FIRUser supportsSecureCoding]);
                                              NSMutableData *data = [NSMutableData data];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                                              NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc]
                                                  initForWritingWithMutableData:data];
+#pragma clang diagnostic pop
                                              [archiver encodeObject:user forKey:kUserArchiverKey];
                                              [archiver finishEncoding];
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                                              NSKeyedUnarchiver *unarchiver =
                                                  [[NSKeyedUnarchiver alloc]
                                                      initForReadingWithData:data];
+#pragma clang diagnostic pop
                                              FIRUser *unarchivedUser =
                                                  [unarchiver decodeObjectForKey:kUserArchiverKey];
 

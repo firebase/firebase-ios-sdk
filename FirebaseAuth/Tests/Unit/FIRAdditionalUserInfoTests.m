@@ -102,11 +102,14 @@ static NSString *const kProviderID = @"PROVIDER_ID";
                                                 profile:[[self class] profile]
                                                username:kUserName
                                               isNewUser:kIsNewUser];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   NSData *data = [NSKeyedArchiver archivedDataWithRootObject:userInfo];
   XCTAssertNotNil(data, @"Should not be nil if archiving succeeded.");
   XCTAssertNoThrow([NSKeyedUnarchiver unarchiveObjectWithData:data],
                    @"Unarchiving should not throw and exception.");
   FIRAdditionalUserInfo *unarchivedUserInfo = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+#pragma clang diagnostic pop
   XCTAssertTrue([unarchivedUserInfo isKindOfClass:[FIRAdditionalUserInfo class]],
                 @"Unarchived object must be of kind FIRAdditionalUserInfo class.");
   XCTAssertEqualObjects(unarchivedUserInfo.providerID, userInfo.providerID);

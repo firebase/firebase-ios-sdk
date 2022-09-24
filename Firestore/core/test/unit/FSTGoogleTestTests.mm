@@ -97,7 +97,10 @@ NSSet<NSString*>* _Nullable LoadXCTestConfigurationTestsToRun() {
                                                fromData:data
                                                   error:&error];
   } else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     config = [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
+#pragma clang diagnostic pop
   }
 
   if (!config) {
