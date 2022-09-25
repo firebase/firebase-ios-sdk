@@ -15,8 +15,12 @@
 include(ExternalProject)
 
 # When updating the below version, be sure to also update the `URL_HASH` in the
-# below `ExternalProject_Add` function. The SHA256 hash should be the hash of
-# version's tagged commit.
+# below `ExternalProject_Add` function. Update the `URL_HASH` by:
+# 1. Downloading the version's tarball from the URL below.
+#    - https://github.com/google/GoogleUtilities/archive/${version}.tar.gz
+# 2. Running `shasum` on the downloaded tarball.
+#    - `shasum -a 256 GoogleUtilities-${version}.tar.gz`
+# 3. Copying the output of the above command into the `URL_HASH` below.
 set(version 7.8.0)
 
 ExternalProject_Add(
@@ -25,7 +29,7 @@ ExternalProject_Add(
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
   DOWNLOAD_NAME GoogleUtilities-${version}.tar.gz
   URL https://github.com/google/GoogleUtilities/archive/${version}.tar.gz
-  URL_HASH SHA256=22907832079d808e82f1182b21af58ef3880666f
+  URL_HASH SHA256=8b66f0f70887e78465bfdef01bb43bdb27389ddcfbda14072ac5e8e26b656777
 
   PREFIX ${PROJECT_BINARY_DIR}
 
