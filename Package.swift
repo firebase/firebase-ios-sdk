@@ -851,6 +851,7 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "FirebaseInstallations",
+        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULLogger", package: "GoogleUtilities"),
         "SwiftProtobuf",
       ],
@@ -975,6 +976,7 @@ let package = Package(
                      "FirebaseAppCheckInterop",
                      "FirebaseAuthInterop",
                      "FirebaseMessagingInterop",
+                     "GoogleDataTransport",
                      "OCMock"],
       path: "SharedTestUtilities",
       publicHeadersPath: "./",
