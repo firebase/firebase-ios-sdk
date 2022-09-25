@@ -4,7 +4,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#      http://www.apache.org/licenses/LICENSE-2.0
+# http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,6 +14,9 @@
 
 include(ExternalProject)
 
+# When updating the below version, be sure to also update the `URL_HASH` in the
+# below `ExternalProject_Add` function. The SHA256 hash should be the hash of
+# version's tagged commit.
 set(version 7.8.0)
 
 ExternalProject_Add(
@@ -22,7 +25,7 @@ ExternalProject_Add(
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
   DOWNLOAD_NAME GoogleUtilities-${version}.tar.gz
   URL https://github.com/google/GoogleUtilities/archive/${version}.tar.gz
-  URL_HASH SHA256=7770d19727e091ade5e9ff898822b1c3fd654f43ccad4c39809826e918a20fde
+  URL_HASH SHA256=22907832079d808e82f1182b21af58ef3880666f
 
   PREFIX ${PROJECT_BINARY_DIR}
 
