@@ -18,7 +18,6 @@
 #import "FIRComponent.h"
 #import "FIRComponentContainer.h"
 #import "FIRComponentType.h"
-#import "FIRCoreDiagnosticsConnector.h"
 #import "FIRDependency.h"
 #import "FIRHeartbeatInfo.h"
 #import "FIRHeartbeatLogger.h"

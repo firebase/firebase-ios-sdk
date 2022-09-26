@@ -7,6 +7,5 @@ target 'FDLBuilderTestAppObjC' do
   use_frameworks!
 
   pod 'FirebaseCore', :path => '../../../'
-  pod 'FirebaseCoreDiagnostics', :path => '../../../'
   pod 'FirebaseDynamicLinks', :path => '../../../'
 end
