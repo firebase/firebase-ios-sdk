@@ -72,9 +72,9 @@ extension CarthageUtils {
   ///   - packagedDir: The packaged directory assembled for the Carthage distribution.
   ///   - templateDir: The template project directory, contains the dummy Firebase library.
   ///   - jsonDir: Location of directory containing all JSON Carthage manifests.
-  ///   - firebaseVersion: The version of the Firebase pod.
-  ///   - coreDiagnosticsPath: The path to the Core Diagnostics framework built for Carthage.
+  ///   - artifacts: Build artifacts.
   ///   - outputDir: The directory where all artifacts should be created.
+  ///   - versionCheckEnabled: Checking if Carthage version already exists.
 
   private static func generateCarthageRelease(fromPackagedDir packagedDir: URL,
                                               templateDir: URL,

@@ -56,7 +56,7 @@ class StorageReferenceTests: XCTestCase {
       .sink { completion in
         if case let .failure(error) = completion {
           putFileExpectation.fulfill()
-          XCTAssertEqual("unknown", String(describing: error))
+          XCTAssertTrue(String(describing: error).starts(with: "unknown"))
         }
       } receiveValue: { metadata in
         XCTFail("💥 result unexpected")

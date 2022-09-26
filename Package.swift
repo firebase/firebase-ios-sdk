@@ -165,7 +165,7 @@ let package = Package(
     .package(
       name: "GTMSessionFetcher",
       url: "https://github.com/google/gtm-session-fetcher.git",
-      "1.7.2" ..< "3.0.0"
+      "2.1.0" ..< "3.0.0"
     ),
     .package(
       name: "nanopb",
@@ -502,7 +502,6 @@ let package = Package(
       name: "FirebaseStorageCombineSwift",
       dependencies: [
         "FirebaseStorage",
-        "FirebaseStorageInternal",
       ],
       path: "FirebaseCombineSwift/Sources/Storage"
     ),
@@ -720,7 +719,7 @@ let package = Package(
 
     .target(
       name: "FirebaseFirestoreSwift",
-      dependencies: ["FirebaseFirestore"],
+      dependencies: ["FirebaseFirestore", "FirebaseSharedSwift"],
       path: "Firestore",
       exclude: [
         "CHANGELOG.md",
@@ -737,12 +736,9 @@ let package = Package(
         "Swift/README.md",
         "Swift/Tests/",
         "third_party/nlohmann_json",
-        "third_party/FirestoreEncoder/LICENSE",
-        "third_party/FirestoreEncoder/METADATA",
       ],
       sources: [
         "Swift/Source/",
-        "third_party/FirestoreEncoder/",
       ]
     ),
 
@@ -1080,37 +1076,13 @@ let package = Package(
     // MARK: - Firebase Storage
 
     .target(
-      name: "FirebaseStorageInternal",
-      dependencies: [
-        "FirebaseCore",
-        .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
-      ],
-      path: "FirebaseStorageInternal/Sources",
-      publicHeadersPath: "Public",
-      cSettings: [
-        .headerSearchPath("../../"),
-      ],
-      linkerSettings: [
-        .linkedFramework("MobileCoreServices", .when(platforms: [.iOS])),
-        .linkedFramework("CoreServices", .when(platforms: [.macOS])),
-      ]
-    ),
-    .testTarget(
-      name: "StorageUnit",
-      dependencies: ["FirebaseStorageInternal", "OCMock", "SharedTestUtilities"],
-      path: "FirebaseStorageInternal/Tests/Unit",
-      cSettings: [
-        .headerSearchPath("../../.."),
-      ]
-    ),
-    .target(
       name: "FirebaseStorage",
       dependencies: [
         "FirebaseAppCheckInterop",
         "FirebaseAuthInterop",
         "FirebaseCore",
         "FirebaseCoreExtension",
-        "FirebaseStorageInternal",
+        .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
       ],
       path: "FirebaseStorage/Sources"
     ),
@@ -1124,12 +1096,14 @@ let package = Package(
       ]
     ),
     .testTarget(
-      name: "StorageObjcIntegration",
+      name: "StorageObjCIntegration",
       dependencies: ["FirebaseStorage"],
-      path: "FirebaseStorage/Tests/ObjcIntegration",
+      path: "FirebaseStorage/Tests/ObjCIntegration",
       exclude: [
         // See https://forums.swift.org/t/importing-swift-libraries-from-objective-c/56730
+        "FIRStorageIntegrationTests.m",
         "ObjCPPAPITests.mm",
+        "Credentials.h",
       ],
       cSettings: [
         .headerSearchPath("../../.."),
@@ -1166,7 +1140,6 @@ let package = Package(
                 condition: .when(platforms: [.iOS, .tvOS])),
         "FirebaseRemoteConfig",
         "FirebaseStorage",
-        "FirebaseStorageInternal",
         .product(name: "nanopb", package: "nanopb"),
       ],
       path: "SwiftPMTests/swift-test"

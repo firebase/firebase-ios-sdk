@@ -179,7 +179,7 @@ struct ZipBuilder {
     // the folders in each product directory.
     let linkage: CocoaPodUtils.LinkageType = dynamicFrameworks ? .dynamic : .standardStatic
     var groupedFrameworks: [String: [URL]] = [:]
-    var carthageCoreDiagnosticsFrameworks: [URL] = []
+    var carthageGoogleUtilitiesFrameworks: [URL] = []
     var podsBuilt: [String: CocoaPodUtils.PodInfo] = [:]
     var xcframeworks: [String: [URL]] = [:]
     var resources: [String: URL] = [:]
@@ -241,13 +241,13 @@ struct ZipBuilder {
                                                  podInfo: podInfo)
           groupedFrameworks[podName] = (groupedFrameworks[podName] ?? []) + frameworks
 
-          if includeCarthage, podName == "FirebaseCoreDiagnostics" {
+          if includeCarthage, podName == "GoogleUtilities" {
             let (cdFrameworks, _) = builder.compileFrameworkAndResources(withName: podName,
                                                                          logsOutputDir: paths
                                                                            .logsOutputDir,
                                                                          setCarthage: true,
                                                                          podInfo: podInfo)
-            carthageCoreDiagnosticsFrameworks += cdFrameworks
+            carthageGoogleUtilitiesFrameworks += cdFrameworks
           }
           if resourceContents != nil {
             resources[podName] = resourceContents
@@ -299,13 +299,13 @@ struct ZipBuilder {
       fatalError("Could not create XCFrameworks Carthage directory: \(error)")
     }
 
-    let carthageCoreDiagnosticsXcframework = FrameworkBuilder.makeXCFramework(
-      withName: "FirebaseCoreDiagnostics",
-      frameworks: carthageCoreDiagnosticsFrameworks,
+    let carthageGoogleUtilitiesXcframework = FrameworkBuilder.makeXCFramework(
+      withName: "GoogleUtilities",
+      frameworks: carthageGoogleUtilitiesFrameworks,
       xcframeworksDir: xcframeworksCarthageDir,
       resourceContents: nil
     )
-    return (podsBuilt, xcframeworks, carthageCoreDiagnosticsXcframework)
+    return (podsBuilt, xcframeworks, carthageGoogleUtilitiesXcframework)
   }
 
   /// Try to build and package the contents of the Zip file. This will throw an error as soon as it
@@ -333,7 +333,7 @@ struct ZipBuilder {
                                                     platforms: ["ios"]))
 
     print("Final expected versions for the Zip file: \(podsToInstall)")
-    let (installedPods, frameworks, carthageCoreDiagnosticsXcframeworkFirebase) =
+    let (installedPods, frameworks, carthageGoogleUtilitiesXcframeworkFirebase) =
       buildAndAssembleZip(podsToInstall: podsToInstall,
                           includeCarthage: true,
                           // Always include dependencies for Firebase zips.
@@ -346,8 +346,8 @@ struct ZipBuilder {
         "installed: \(installedPods)")
     }
 
-    guard let carthageCoreDiagnosticsXcframework = carthageCoreDiagnosticsXcframeworkFirebase else {
-      fatalError("CoreDiagnosticsXcframework is missing")
+    guard let carthageGoogleUtilitiesXcframework = carthageGoogleUtilitiesXcframeworkFirebase else {
+      fatalError("GoogleUtilitiesXcframework is missing")
     }
 
     let zipDir = try assembleDistributions(withPackageKind: "Firebase",
@@ -357,7 +357,7 @@ struct ZipBuilder {
                                            firebasePod: firebasePod)
     // Replace Core Diagnostics
     var carthageFrameworks = frameworks
-    carthageFrameworks["FirebaseCoreDiagnostics"] = [carthageCoreDiagnosticsXcframework]
+    carthageFrameworks["GoogleUtilities"] = [carthageGoogleUtilitiesXcframework]
     let carthageDir = try assembleDistributions(withPackageKind: "CarthageFirebase",
                                                 podsToInstall: podsToInstall,
                                                 installedPods: installedPods,
