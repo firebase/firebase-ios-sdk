@@ -30,7 +30,6 @@ typedef NS_ENUM(NSInteger, FIRDailyHeartbeatCode) {
   FIRDailyHeartbeatCodeSome = 2,
 };
 
-// TODO(ncooke3): Consider annotating protocol API as `@optional`. (#9568)
 @protocol FIRHeartbeatLoggerProtocol <NSObject>
 
 /// Asynchronously logs a heartbeat.
