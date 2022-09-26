@@ -16,6 +16,8 @@
 
 #import "FIRAggregateQuerySnapshot+Internal.h"
 
+#import "FIRAggregateQuery.h"
+
 @implementation FIRAggregateQuerySnapshot {
   int64_t _result;
   FIRAggregateQuery* _query;
@@ -28,6 +30,24 @@
   }
   return self;
 }
+
+#pragma mark - NSObject Methods
+
+- (BOOL)isEqual:(nullable id)other {
+  if (other == self) return YES;
+  if (![[other class] isEqual:[self class]]) return NO;
+
+  auto otherSnap = static_cast<FIRAggregateQuerySnapshot*>(other);
+  return _result == otherSnap->_result && [_query isEqual:otherSnap->_query];
+}
+
+- (NSUInteger)hash {
+  NSUInteger result = [_query hash];
+  result = 31 * result + [[self count] hash];
+  return result;
+}
+
+#pragma mark - Public Methods
 
 - (NSNumber*)count {
   return [NSNumber numberWithLongLong:_result];

@@ -37,6 +37,22 @@
   return self;
 }
 
+#pragma mark - NSObject Methods
+
+- (BOOL)isEqual:(nullable id)other {
+  if (other == self) return YES;
+  if (![[other class] isEqual:[self class]]) return NO;
+
+  auto otherQuery = static_cast<FIRAggregateQuery *>(other);
+  return [_query isEqual:otherQuery->_query];
+}
+
+- (NSUInteger)hash {
+  return [_query hash];
+}
+
+#pragma mark - Public Methods
+
 - (FIRQuery *)query {
   return _query;
 }
