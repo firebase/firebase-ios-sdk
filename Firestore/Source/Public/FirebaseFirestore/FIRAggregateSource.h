@@ -28,10 +28,10 @@ typedef NS_ENUM(NSUInteger, FIRAggregateSource) {
    * Perform the aggregation on the server and download the result.
    *
    * The result received from the server is presented, unaltered, without considering any local
-   * state. That is, any documents in the local cache are ignored and any documents that have been
-   * locally modified but not yet synchronized with the server are not taken into account. The
-   * result received from the server is not cached for later use: every request using this source
-   * necessarily involves a round trip to the server and back.
+   * state. That is, documents in the local cache are not taken into consideration, neither are
+   * local modifications not yet synchronized with the server. Previously-downloaded results, if
+   * any, are not used: every request using this source necessarily involves a round trip to the
+   * server.
    *
    * The `AggregateQuery` will fail if the server cannot be reached, such as if the client is
    * offline.
