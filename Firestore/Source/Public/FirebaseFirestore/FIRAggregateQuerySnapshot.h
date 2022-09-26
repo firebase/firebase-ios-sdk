@@ -33,7 +33,7 @@ NS_SWIFT_NAME(AggregateQuerySnapshot)
 /** The query that was executed to produce this result. */
 @property(nonatomic, readonly) FIRAggregateQuery* query;
 
-/** Returns the number of documents in the result set of the query. */
+/** The number of documents in the result set of the underlying query. */
 @property(nonatomic, readonly) NSNumber* count;
 
 @end
