@@ -3,7 +3,7 @@ source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
 
 # Uncomment the next line to define a global platform for your project
-platform :ios, '10.0'
+platform :ios, '11.0'
 
 target 'FIRPerfE2EAutopush' do
   # Comment the next line if you don't want to use dynamic frameworks
@@ -17,7 +17,6 @@ target 'FIRPerfE2EAutopush' do
   pod 'FirebaseRemoteConfig', :path => '../../../'
   pod 'FirebaseABTesting', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
-  pod 'FirebaseCoreDiagnostics', :path => '../../../'
 
   # Other dependencies
   pod 'Protobuf'
@@ -39,7 +38,6 @@ target 'FIRPerfE2EProd' do
   pod 'FirebaseRemoteConfig', :path => '../../../'
   pod 'FirebaseABTesting', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
-  pod 'FirebaseCoreDiagnostics', :path => '../../../'
 
   # Other dependencies
   pod 'Protobuf'

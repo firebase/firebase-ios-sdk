@@ -1,6 +1,15 @@
 # 10.0.0
 - [changed] Made the `@DocumentID` property wrapper value setter internal to
   clarify that the value is ignored during writes. [#9368]
+- [changed] `Firestore.Encoder` and `Firestore.Decoder` now wraps the shared `FirebaseDataEncoder` and `FirebaseDataDecoder` types which provides new customization options for encoding and decoding date to and from Firestore - similar to the options present on `JSONEncoder` and `JSONDecoder` from `Foundation`.
+- [added] `Firestore.Encoder.KeyEncodingStrategy`
+- [added] `Firestore.Encoder.DateEncodingStrategy`
+- [added] `Firestore.Encoder.DataEncodingStrategy`
+- [added] `Firestore.Encoder.NonConformingFloatEncodingStrategy`
+- [added] `Firestore.Decoder.KeyDecodingStrategy`
+- [added] `Firestore.Decoder.DateDecodingStrategy`
+- [added] `Firestore.Decoder.DataDecodingStrategy`
+- [added] `Firestore.Decoder.NonConformingFloatDecodingStrategy`
 
 # 9.0.0
 - [added] **Breaking change:** `FirebaseFirestoreSwift` has exited beta and is

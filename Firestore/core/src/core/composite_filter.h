@@ -64,6 +64,22 @@ class CompositeFilter : public Filter {
     return composite_filter_rep().IsDisjunction();
   }
 
+  /**
+   * Returns true if this filter is a conjunction of field filters only. Returns
+   * false otherwise.
+   */
+  bool IsFlatConjunction() const {
+    return IsFlat() && IsConjunction();
+  }
+
+  /**
+   * Returns true if this filter does not contain any composite filters. Returns
+   * false otherwise.
+   */
+  bool IsFlat() const {
+    return composite_filter_rep().IsFlat();
+  }
+
  private:
   class Rep : public Filter::Rep {
    private:
@@ -90,6 +106,8 @@ class CompositeFilter : public Filter {
     bool IsConjunction() const;
 
     bool IsDisjunction() const;
+
+    bool IsFlat() const;
 
     bool IsACompositeFilter() const override {
       return true;

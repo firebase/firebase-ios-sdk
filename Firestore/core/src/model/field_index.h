@@ -285,6 +285,21 @@ class FieldIndex {
   /** Returns the ArrayContains/ArrayContainsAny segment for this index. */
   absl::optional<Segment> GetArraySegment() const;
 
+  /**
+   * A type that can be used as the "Compare" template parameter of ordered
+   * collections to have the elements ordered using
+   * `FieldIndex::SemanticCompare()`.
+   *
+   * Example:
+   * std::set<FieldIndex, FieldIndex::SemanticLess> result;
+   */
+  struct SemanticLess {
+    bool operator()(const FieldIndex& left, const FieldIndex& right) const {
+      return FieldIndex::SemanticCompare(left, right) ==
+             util::ComparisonResult::Ascending;
+    }
+  };
+
  private:
   friend bool operator==(const FieldIndex& lhs, const FieldIndex& rhs);
   friend bool operator!=(const FieldIndex& lhs, const FieldIndex& rhs);

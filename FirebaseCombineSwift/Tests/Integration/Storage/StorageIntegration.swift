@@ -289,7 +289,7 @@ class StorageIntegration: XCTestCase {
         case .finished:
           XCTFail("Unexpected success return from putFile)")
         case let .failure(error):
-          XCTAssertEqual(String(describing: error), "unknown")
+          XCTAssertTrue(String(describing: error).starts(with: "unknown"))
           expectation.fulfill()
         }
       }, receiveValue: { value in

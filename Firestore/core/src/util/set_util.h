@@ -36,7 +36,7 @@ namespace util {
  *
  * @param existing - The elements that exist in the original set.
  * @param new_entries - The elements to diff against the original set.
- * @param comparator - The comparator for the elements in before and after.
+ * @param cmp - The comparator for the elements in before and after.
  * @param on_add - A function to invoke for every element that is part of `
  * after` but not `before`.
  * @param on_remove - A function to invoke for every element that is part of

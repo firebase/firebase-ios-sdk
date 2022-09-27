@@ -1,4 +1,36 @@
+# Firebase 10.0.0
+- [changed] **Breaking change**: Firebase's minimum supported versions have
+  updated for the following platforms:
+  - If using **CocoaPods**:
+    - | Platform  | Firebase 9 | Firebase 10 |
+      | ------------- | ------------- | ------------- |
+      | iOS  | 10.0  | **11.0**  |
+      | tvOS  | 10.0  | **12.0**  |
+      | macOS  | 10.12  | **10.13**  |
+      | watchOS  | 6.0  | 6.0  |
+  - If using **Swift Package Manager**:
+    - | Platform  | Firebase 9 | Firebase 10 |
+      | ------------- | ------------- | ------------- |
+      | iOS  | 11.0  | 11.0  |
+      | tvOS  | 12.0  | 12.0  |
+      | macOS  | 10.12  | **10.13**  |
+      | watchOS  | 7.0  | 7.0  |
+  - If using **Carthage** or the **Zip** distribution:
+    - | Platform  | Firebase 9 | Firebase 10 |
+      | ------------- | ------------- | ------------- |
+      | iOS  | 11.0  | 11.0  |
+      | tvOS  | 11.0  | **12.0**  |
+      | macOS  | 10.13  | 10.13  |
+      | watchOS  | N/A  | N/A  |
+- [changed] **Breaking change**: Update dependency specification for
+  GTMSessionFetcher to allow all versions that are >= 2.1 and < 3.0. (#10131)
+
 # Firebase 9.6.0
+- [fixed] Mac apps using Firebase products that store SDK data in the keychain
+  will no longer prompt the user for permission to access the keychain. This
+  requires that Mac apps using Firebase be signed with a provisioning profile
+  that has the Keychain Sharing capability enabled. (#9392)
+- [fixed] Fixed `Array.Index`-related compile time errors when building with older Swift versions. (#10171)
 - [fixed] Update dependency specification for GTMSessionFetcher to allow all 2.x versions. (#10131)
 
 # Firebase 9.5.0

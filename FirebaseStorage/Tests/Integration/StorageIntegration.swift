@@ -17,6 +17,30 @@ import FirebaseCore
 import FirebaseStorage
 import XCTest
 
+/**
+ * Firebase Storage Integration tests
+ *
+ * To run these tests, you need to define the following access rights:
+ *
+  rules_version = '2';
+  service firebase.storage {
+    match /b/{bucket}/o {
+      match /{directChild=*} {
+        allow read: if request.auth != null;
+      }
+      match /ios {
+        match /public/{allPaths=**} {
+          allow write: if request.auth != null;
+          allow read: if true;
+        }
+        match /private/{allPaths=**} {
+          allow read, write: if false;
+        }
+      }
+    }
+  }
+ */
+
 class StorageResultTests: StorageIntegrationCommon {
   func testGetMetadata() {
     let expectation = self.expectation(description: "testGetMetadata")
@@ -62,8 +86,30 @@ class StorageResultTests: StorageIntegrationCommon {
       self.assertResultSuccess(result)
       ref.delete { error in
         XCTAssertNil(error, "Error should be nil")
+        // Next delete should fail and verify the first delete succeeded.
+        ref.delete { error in
+          do {
+            let nsError = try XCTUnwrap(error as? NSError)
+            XCTAssertEqual(nsError.code, StorageErrorCode.objectNotFound.rawValue)
+            XCTAssertEqual(
+              nsError.localizedDescription,
+              "Object ios/public/fileToDelete does not exist."
+            )
+            let userInfo = try XCTUnwrap(nsError.userInfo)
+            let object = try XCTUnwrap(userInfo["object"] as? String)
+            XCTAssertEqual(object, "ios/public/fileToDelete")
+            let responseErrorCode = try XCTUnwrap(userInfo["ResponseErrorCode"] as? Int)
+            XCTAssertEqual(responseErrorCode, 404)
+            let responseErrorDomain = try XCTUnwrap(userInfo["ResponseErrorDomain"] as? String)
+            XCTAssertEqual(responseErrorDomain, "com.google.HTTPStatus")
+            let bucket = try XCTUnwrap(userInfo["bucket"] as? String)
+            XCTAssertEqual(bucket, "ios-opensource-samples.appspot.com")
+            expectation.fulfill()
+          } catch {
+            XCTFail("Unexpected unwrap failure")
+          }
+        }
       }
-      expectation.fulfill()
     }
     waitForExpectations()
   }
@@ -204,13 +250,16 @@ class StorageResultTests: StorageIntegrationCommon {
   func testAttemptToUploadDirectoryShouldFail() throws {
     // This `.numbers` file is actually a directory.
     let fileName = "HomeImprovement.numbers"
+    let expectation = self.expectation(description: #function)
     let bundle = Bundle(for: StorageIntegrationCommon.self)
     let fileURL = try XCTUnwrap(bundle.url(forResource: fileName, withExtension: ""),
                                 "Failed to get filePath")
     let ref = storage.reference(withPath: "ios/public/" + fileName)
     ref.putFile(from: fileURL) { result in
       self.assertResultFailure(result)
+      expectation.fulfill()
     }
+    waitForExpectations()
   }
 
   func testPutFileWithSpecialCharacters() throws {
@@ -566,7 +615,7 @@ class StorageResultTests: StorageIntegrationCommon {
   }
 
   private func waitForExpectations() {
-    let kFIRStorageIntegrationTestTimeout = 60.0
+    let kFIRStorageIntegrationTestTimeout = 100.0
     waitForExpectations(timeout: kFIRStorageIntegrationTestTimeout,
                         handler: { error in
                           if let error = error {

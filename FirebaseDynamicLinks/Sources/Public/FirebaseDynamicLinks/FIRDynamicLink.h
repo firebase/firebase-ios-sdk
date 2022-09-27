@@ -83,6 +83,8 @@ NS_SWIFT_NAME(DynamicLink)
  */
 @property(nonatomic, copy, readonly, nullable) NSString *minimumAppVersion;
 
+- (instancetype)init NS_UNAVAILABLE;
+
 @end
 
 NS_ASSUME_NONNULL_END

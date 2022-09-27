@@ -59,11 +59,15 @@ static NSTimeInterval const kLastSignInDateTimeIntervalInSeconds = 1505858583;
       [NSDate dateWithTimeIntervalSince1970:kLastSignInDateTimeIntervalInSeconds];
   FIRUserMetadata *userMetadata = [[FIRUserMetadata alloc] initWithCreationDate:creationDate
                                                                  lastSignInDate:lastSignInDate];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   NSData *data = [NSKeyedArchiver archivedDataWithRootObject:userMetadata];
+
   XCTAssertNotNil(data, @"Should not be nil if archving succeeded.");
   XCTAssertNoThrow([NSKeyedUnarchiver unarchiveObjectWithData:data],
                    @"Unarchiving should not throw an exception");
   FIRUserMetadata *unArchivedUserMetadata = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+#pragma clang diagnostic pop
   XCTAssertTrue([unArchivedUserMetadata isKindOfClass:[FIRUserMetadata class]]);
   XCTAssertEqualObjects(unArchivedUserMetadata.creationDate, creationDate);
   XCTAssertEqualObjects(unArchivedUserMetadata.lastSignInDate, lastSignInDate);

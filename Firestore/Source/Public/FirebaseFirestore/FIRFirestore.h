@@ -85,7 +85,7 @@ NS_SWIFT_NAME(Firestore)
  *
  * The method accepts the JSON format exported by the Firebase CLI (`firebase
  * firestore:indexes`). If the JSON format is invalid, the completion block will be
- * invoked with a NSError.
+ * invoked with an NSError.
  *
  * @param json The JSON format exported by the Firebase CLI.
  * @param completion A block to execute when setting is in a final state. The `error` parameter

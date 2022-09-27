@@ -34,7 +34,8 @@ public extension WriteBatch {
                              forDocument doc: DocumentReference,
                              encoder: Firestore.Encoder = Firestore
                                .Encoder()) throws -> WriteBatch {
-    setData(try encoder.encode(value), forDocument: doc)
+    let encoded = try encoder.encode(value)
+    setData(encoded, forDocument: doc)
     return self
   }
 
@@ -58,7 +59,8 @@ public extension WriteBatch {
                              merge: Bool,
                              encoder: Firestore.Encoder = Firestore
                                .Encoder()) throws -> WriteBatch {
-    setData(try encoder.encode(value), forDocument: doc, merge: merge)
+    let encoded = try encoder.encode(value)
+    setData(encoded, forDocument: doc, merge: merge)
     return self
   }
 
@@ -86,7 +88,8 @@ public extension WriteBatch {
                              mergeFields: [Any],
                              encoder: Firestore.Encoder = Firestore
                                .Encoder()) throws -> WriteBatch {
-    setData(try encoder.encode(value), forDocument: doc, mergeFields: mergeFields)
+    let encoded = try encoder.encode(value)
+    setData(encoded, forDocument: doc, mergeFields: mergeFields)
     return self
   }
 }

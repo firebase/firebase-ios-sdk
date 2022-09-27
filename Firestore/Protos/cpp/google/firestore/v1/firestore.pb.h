@@ -53,6 +53,7 @@
 #include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/unknown_field_set.h>
 #include "google/api/annotations.pb.h"
+#include "google/firestore/v1/aggregation_result.pb.h"
 #include "google/firestore/v1/common.pb.h"
 #include "google/firestore/v1/document.pb.h"
 #include "google/firestore/v1/query.pb.h"
@@ -75,7 +76,7 @@ struct TableStruct_google_2ffirestore_2fv1_2ffirestore_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxillaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[27]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[29]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -136,6 +137,12 @@ extern ListenResponseDefaultTypeInternal _ListenResponse_default_instance_;
 class RollbackRequest;
 class RollbackRequestDefaultTypeInternal;
 extern RollbackRequestDefaultTypeInternal _RollbackRequest_default_instance_;
+class RunAggregationQueryRequest;
+class RunAggregationQueryRequestDefaultTypeInternal;
+extern RunAggregationQueryRequestDefaultTypeInternal _RunAggregationQueryRequest_default_instance_;
+class RunAggregationQueryResponse;
+class RunAggregationQueryResponseDefaultTypeInternal;
+extern RunAggregationQueryResponseDefaultTypeInternal _RunAggregationQueryResponse_default_instance_;
 class RunQueryRequest;
 class RunQueryRequestDefaultTypeInternal;
 extern RunQueryRequestDefaultTypeInternal _RunQueryRequest_default_instance_;
@@ -187,6 +194,8 @@ template<> ::google::firestore::v1::ListenRequest* Arena::CreateMaybeMessage<::g
 template<> ::google::firestore::v1::ListenRequest_LabelsEntry_DoNotUse* Arena::CreateMaybeMessage<::google::firestore::v1::ListenRequest_LabelsEntry_DoNotUse>(Arena*);
 template<> ::google::firestore::v1::ListenResponse* Arena::CreateMaybeMessage<::google::firestore::v1::ListenResponse>(Arena*);
 template<> ::google::firestore::v1::RollbackRequest* Arena::CreateMaybeMessage<::google::firestore::v1::RollbackRequest>(Arena*);
+template<> ::google::firestore::v1::RunAggregationQueryRequest* Arena::CreateMaybeMessage<::google::firestore::v1::RunAggregationQueryRequest>(Arena*);
+template<> ::google::firestore::v1::RunAggregationQueryResponse* Arena::CreateMaybeMessage<::google::firestore::v1::RunAggregationQueryResponse>(Arena*);
 template<> ::google::firestore::v1::RunQueryRequest* Arena::CreateMaybeMessage<::google::firestore::v1::RunQueryRequest>(Arena*);
 template<> ::google::firestore::v1::RunQueryResponse* Arena::CreateMaybeMessage<::google::firestore::v1::RunQueryResponse>(Arena*);
 template<> ::google::firestore::v1::Target* Arena::CreateMaybeMessage<::google::firestore::v1::Target>(Arena*);
@@ -3070,6 +3079,416 @@ class RunQueryResponse :
 };
 // -------------------------------------------------------------------
 
+class RunAggregationQueryRequest :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:google.firestore.v1.RunAggregationQueryRequest) */ {
+ public:
+  RunAggregationQueryRequest();
+  virtual ~RunAggregationQueryRequest();
+
+  RunAggregationQueryRequest(const RunAggregationQueryRequest& from);
+  RunAggregationQueryRequest(RunAggregationQueryRequest&& from) noexcept
+    : RunAggregationQueryRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline RunAggregationQueryRequest& operator=(const RunAggregationQueryRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline RunAggregationQueryRequest& operator=(RunAggregationQueryRequest&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const RunAggregationQueryRequest& default_instance();
+
+  enum QueryTypeCase {
+    kStructuredAggregationQuery = 2,
+    QUERY_TYPE_NOT_SET = 0,
+  };
+
+  enum ConsistencySelectorCase {
+    kTransaction = 4,
+    kNewTransaction = 5,
+    kReadTime = 6,
+    CONSISTENCY_SELECTOR_NOT_SET = 0,
+  };
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const RunAggregationQueryRequest* internal_default_instance() {
+    return reinterpret_cast<const RunAggregationQueryRequest*>(
+               &_RunAggregationQueryRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    15;
+
+  friend void swap(RunAggregationQueryRequest& a, RunAggregationQueryRequest& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(RunAggregationQueryRequest* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline RunAggregationQueryRequest* New() const final {
+    return CreateMaybeMessage<RunAggregationQueryRequest>(nullptr);
+  }
+
+  RunAggregationQueryRequest* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<RunAggregationQueryRequest>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const RunAggregationQueryRequest& from);
+  void MergeFrom(const RunAggregationQueryRequest& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(RunAggregationQueryRequest* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "google.firestore.v1.RunAggregationQueryRequest";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto);
+    return ::descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kParentFieldNumber = 1,
+    kStructuredAggregationQueryFieldNumber = 2,
+    kTransactionFieldNumber = 4,
+    kNewTransactionFieldNumber = 5,
+    kReadTimeFieldNumber = 6,
+  };
+  // string parent = 1;
+  void clear_parent();
+  const std::string& parent() const;
+  void set_parent(const std::string& value);
+  void set_parent(std::string&& value);
+  void set_parent(const char* value);
+  void set_parent(const char* value, size_t size);
+  std::string* mutable_parent();
+  std::string* release_parent();
+  void set_allocated_parent(std::string* parent);
+  private:
+  const std::string& _internal_parent() const;
+  void _internal_set_parent(const std::string& value);
+  std::string* _internal_mutable_parent();
+  public:
+
+  // .google.firestore.v1.StructuredAggregationQuery structured_aggregation_query = 2;
+  bool has_structured_aggregation_query() const;
+  private:
+  bool _internal_has_structured_aggregation_query() const;
+  public:
+  void clear_structured_aggregation_query();
+  const ::google::firestore::v1::StructuredAggregationQuery& structured_aggregation_query() const;
+  ::google::firestore::v1::StructuredAggregationQuery* release_structured_aggregation_query();
+  ::google::firestore::v1::StructuredAggregationQuery* mutable_structured_aggregation_query();
+  void set_allocated_structured_aggregation_query(::google::firestore::v1::StructuredAggregationQuery* structured_aggregation_query);
+  private:
+  const ::google::firestore::v1::StructuredAggregationQuery& _internal_structured_aggregation_query() const;
+  ::google::firestore::v1::StructuredAggregationQuery* _internal_mutable_structured_aggregation_query();
+  public:
+
+  // bytes transaction = 4;
+  private:
+  bool _internal_has_transaction() const;
+  public:
+  void clear_transaction();
+  const std::string& transaction() const;
+  void set_transaction(const std::string& value);
+  void set_transaction(std::string&& value);
+  void set_transaction(const char* value);
+  void set_transaction(const void* value, size_t size);
+  std::string* mutable_transaction();
+  std::string* release_transaction();
+  void set_allocated_transaction(std::string* transaction);
+  private:
+  const std::string& _internal_transaction() const;
+  void _internal_set_transaction(const std::string& value);
+  std::string* _internal_mutable_transaction();
+  public:
+
+  // .google.firestore.v1.TransactionOptions new_transaction = 5;
+  bool has_new_transaction() const;
+  private:
+  bool _internal_has_new_transaction() const;
+  public:
+  void clear_new_transaction();
+  const ::google::firestore::v1::TransactionOptions& new_transaction() const;
+  ::google::firestore::v1::TransactionOptions* release_new_transaction();
+  ::google::firestore::v1::TransactionOptions* mutable_new_transaction();
+  void set_allocated_new_transaction(::google::firestore::v1::TransactionOptions* new_transaction);
+  private:
+  const ::google::firestore::v1::TransactionOptions& _internal_new_transaction() const;
+  ::google::firestore::v1::TransactionOptions* _internal_mutable_new_transaction();
+  public:
+
+  // .google.protobuf.Timestamp read_time = 6;
+  bool has_read_time() const;
+  private:
+  bool _internal_has_read_time() const;
+  public:
+  void clear_read_time();
+  const PROTOBUF_NAMESPACE_ID::Timestamp& read_time() const;
+  PROTOBUF_NAMESPACE_ID::Timestamp* release_read_time();
+  PROTOBUF_NAMESPACE_ID::Timestamp* mutable_read_time();
+  void set_allocated_read_time(PROTOBUF_NAMESPACE_ID::Timestamp* read_time);
+  private:
+  const PROTOBUF_NAMESPACE_ID::Timestamp& _internal_read_time() const;
+  PROTOBUF_NAMESPACE_ID::Timestamp* _internal_mutable_read_time();
+  public:
+
+  void clear_query_type();
+  QueryTypeCase query_type_case() const;
+  void clear_consistency_selector();
+  ConsistencySelectorCase consistency_selector_case() const;
+  // @@protoc_insertion_point(class_scope:google.firestore.v1.RunAggregationQueryRequest)
+ private:
+  class _Internal;
+  void set_has_structured_aggregation_query();
+  void set_has_transaction();
+  void set_has_new_transaction();
+  void set_has_read_time();
+
+  inline bool has_query_type() const;
+  inline void clear_has_query_type();
+
+  inline bool has_consistency_selector() const;
+  inline void clear_has_consistency_selector();
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr parent_;
+  union QueryTypeUnion {
+    QueryTypeUnion() {}
+    ::google::firestore::v1::StructuredAggregationQuery* structured_aggregation_query_;
+  } query_type_;
+  union ConsistencySelectorUnion {
+    ConsistencySelectorUnion() {}
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr transaction_;
+    ::google::firestore::v1::TransactionOptions* new_transaction_;
+    PROTOBUF_NAMESPACE_ID::Timestamp* read_time_;
+  } consistency_selector_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 _oneof_case_[2];
+
+  friend struct ::TableStruct_google_2ffirestore_2fv1_2ffirestore_2eproto;
+};
+// -------------------------------------------------------------------
+
+class RunAggregationQueryResponse :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:google.firestore.v1.RunAggregationQueryResponse) */ {
+ public:
+  RunAggregationQueryResponse();
+  virtual ~RunAggregationQueryResponse();
+
+  RunAggregationQueryResponse(const RunAggregationQueryResponse& from);
+  RunAggregationQueryResponse(RunAggregationQueryResponse&& from) noexcept
+    : RunAggregationQueryResponse() {
+    *this = ::std::move(from);
+  }
+
+  inline RunAggregationQueryResponse& operator=(const RunAggregationQueryResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline RunAggregationQueryResponse& operator=(RunAggregationQueryResponse&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const RunAggregationQueryResponse& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const RunAggregationQueryResponse* internal_default_instance() {
+    return reinterpret_cast<const RunAggregationQueryResponse*>(
+               &_RunAggregationQueryResponse_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    16;
+
+  friend void swap(RunAggregationQueryResponse& a, RunAggregationQueryResponse& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(RunAggregationQueryResponse* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline RunAggregationQueryResponse* New() const final {
+    return CreateMaybeMessage<RunAggregationQueryResponse>(nullptr);
+  }
+
+  RunAggregationQueryResponse* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<RunAggregationQueryResponse>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const RunAggregationQueryResponse& from);
+  void MergeFrom(const RunAggregationQueryResponse& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(RunAggregationQueryResponse* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "google.firestore.v1.RunAggregationQueryResponse";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto);
+    return ::descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kTransactionFieldNumber = 2,
+    kResultFieldNumber = 1,
+    kReadTimeFieldNumber = 3,
+  };
+  // bytes transaction = 2;
+  void clear_transaction();
+  const std::string& transaction() const;
+  void set_transaction(const std::string& value);
+  void set_transaction(std::string&& value);
+  void set_transaction(const char* value);
+  void set_transaction(const void* value, size_t size);
+  std::string* mutable_transaction();
+  std::string* release_transaction();
+  void set_allocated_transaction(std::string* transaction);
+  private:
+  const std::string& _internal_transaction() const;
+  void _internal_set_transaction(const std::string& value);
+  std::string* _internal_mutable_transaction();
+  public:
+
+  // .google.firestore.v1.AggregationResult result = 1;
+  bool has_result() const;
+  private:
+  bool _internal_has_result() const;
+  public:
+  void clear_result();
+  const ::google::firestore::v1::AggregationResult& result() const;
+  ::google::firestore::v1::AggregationResult* release_result();
+  ::google::firestore::v1::AggregationResult* mutable_result();
+  void set_allocated_result(::google::firestore::v1::AggregationResult* result);
+  private:
+  const ::google::firestore::v1::AggregationResult& _internal_result() const;
+  ::google::firestore::v1::AggregationResult* _internal_mutable_result();
+  public:
+
+  // .google.protobuf.Timestamp read_time = 3;
+  bool has_read_time() const;
+  private:
+  bool _internal_has_read_time() const;
+  public:
+  void clear_read_time();
+  const PROTOBUF_NAMESPACE_ID::Timestamp& read_time() const;
+  PROTOBUF_NAMESPACE_ID::Timestamp* release_read_time();
+  PROTOBUF_NAMESPACE_ID::Timestamp* mutable_read_time();
+  void set_allocated_read_time(PROTOBUF_NAMESPACE_ID::Timestamp* read_time);
+  private:
+  const PROTOBUF_NAMESPACE_ID::Timestamp& _internal_read_time() const;
+  PROTOBUF_NAMESPACE_ID::Timestamp* _internal_mutable_read_time();
+  public:
+
+  // @@protoc_insertion_point(class_scope:google.firestore.v1.RunAggregationQueryResponse)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr transaction_;
+  ::google::firestore::v1::AggregationResult* result_;
+  PROTOBUF_NAMESPACE_ID::Timestamp* read_time_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_google_2ffirestore_2fv1_2ffirestore_2eproto;
+};
+// -------------------------------------------------------------------
+
 class WriteRequest_LabelsEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<WriteRequest_LabelsEntry_DoNotUse, 
     std::string, std::string,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_STRING,
@@ -3096,7 +3515,7 @@ public:
   private:
   static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
     ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto);
-    return ::descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto.file_level_metadata[15];
+    return ::descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto.file_level_metadata[17];
   }
 
   public:
@@ -3146,7 +3565,7 @@ class WriteRequest :
                &_WriteRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    16;
+    18;
 
   friend void swap(WriteRequest& a, WriteRequest& b) {
     a.Swap(&b);
@@ -3362,7 +3781,7 @@ class WriteResponse :
                &_WriteResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    17;
+    19;
 
   friend void swap(WriteResponse& a, WriteResponse& b) {
     a.Swap(&b);
@@ -3536,7 +3955,7 @@ public:
   private:
   static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
     ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto);
-    return ::descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto.file_level_metadata[18];
+    return ::descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto.file_level_metadata[20];
   }
 
   public:
@@ -3592,7 +4011,7 @@ class ListenRequest :
                &_ListenRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    19;
+    21;
 
   friend void swap(ListenRequest& a, ListenRequest& b) {
     a.Swap(&b);
@@ -3804,7 +4223,7 @@ class ListenResponse :
                &_ListenResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    20;
+    22;
 
   friend void swap(ListenResponse& a, ListenResponse& b) {
     a.Swap(&b);
@@ -4021,7 +4440,7 @@ class Target_DocumentsTarget :
                &_Target_DocumentsTarget_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    21;
+    23;
 
   friend void swap(Target_DocumentsTarget& a, Target_DocumentsTarget& b) {
     a.Swap(&b);
@@ -4169,7 +4588,7 @@ class Target_QueryTarget :
                &_Target_QueryTarget_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    22;
+    24;
 
   friend void swap(Target_QueryTarget& a, Target_QueryTarget& b) {
     a.Swap(&b);
@@ -4344,7 +4763,7 @@ class Target :
                &_Target_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    23;
+    25;
 
   friend void swap(Target& a, Target& b) {
     a.Swap(&b);
@@ -4580,7 +4999,7 @@ class TargetChange :
                &_TargetChange_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    24;
+    26;
 
   friend void swap(TargetChange& a, TargetChange& b) {
     a.Swap(&b);
@@ -4821,7 +5240,7 @@ class ListCollectionIdsRequest :
                &_ListCollectionIdsRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    25;
+    27;
 
   friend void swap(ListCollectionIdsRequest& a, ListCollectionIdsRequest& b) {
     a.Swap(&b);
@@ -4985,7 +5404,7 @@ class ListCollectionIdsResponse :
                &_ListCollectionIdsResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    26;
+    28;
 
   friend void swap(ListCollectionIdsResponse& a, ListCollectionIdsResponse& b) {
     a.Swap(&b);
@@ -8322,6 +8741,491 @@ inline void RunQueryResponse::set_skipped_results(::PROTOBUF_NAMESPACE_ID::int32
 
 // -------------------------------------------------------------------
 
+// RunAggregationQueryRequest
+
+// string parent = 1;
+inline void RunAggregationQueryRequest::clear_parent() {
+  parent_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline const std::string& RunAggregationQueryRequest::parent() const {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.RunAggregationQueryRequest.parent)
+  return _internal_parent();
+}
+inline void RunAggregationQueryRequest::set_parent(const std::string& value) {
+  _internal_set_parent(value);
+  // @@protoc_insertion_point(field_set:google.firestore.v1.RunAggregationQueryRequest.parent)
+}
+inline std::string* RunAggregationQueryRequest::mutable_parent() {
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.RunAggregationQueryRequest.parent)
+  return _internal_mutable_parent();
+}
+inline const std::string& RunAggregationQueryRequest::_internal_parent() const {
+  return parent_.GetNoArena();
+}
+inline void RunAggregationQueryRequest::_internal_set_parent(const std::string& value) {
+  
+  parent_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void RunAggregationQueryRequest::set_parent(std::string&& value) {
+  
+  parent_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:google.firestore.v1.RunAggregationQueryRequest.parent)
+}
+inline void RunAggregationQueryRequest::set_parent(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  parent_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:google.firestore.v1.RunAggregationQueryRequest.parent)
+}
+inline void RunAggregationQueryRequest::set_parent(const char* value, size_t size) {
+  
+  parent_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:google.firestore.v1.RunAggregationQueryRequest.parent)
+}
+inline std::string* RunAggregationQueryRequest::_internal_mutable_parent() {
+  
+  return parent_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* RunAggregationQueryRequest::release_parent() {
+  // @@protoc_insertion_point(field_release:google.firestore.v1.RunAggregationQueryRequest.parent)
+  
+  return parent_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void RunAggregationQueryRequest::set_allocated_parent(std::string* parent) {
+  if (parent != nullptr) {
+    
+  } else {
+    
+  }
+  parent_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), parent);
+  // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.RunAggregationQueryRequest.parent)
+}
+
+// .google.firestore.v1.StructuredAggregationQuery structured_aggregation_query = 2;
+inline bool RunAggregationQueryRequest::_internal_has_structured_aggregation_query() const {
+  return query_type_case() == kStructuredAggregationQuery;
+}
+inline bool RunAggregationQueryRequest::has_structured_aggregation_query() const {
+  return _internal_has_structured_aggregation_query();
+}
+inline void RunAggregationQueryRequest::set_has_structured_aggregation_query() {
+  _oneof_case_[0] = kStructuredAggregationQuery;
+}
+inline ::google::firestore::v1::StructuredAggregationQuery* RunAggregationQueryRequest::release_structured_aggregation_query() {
+  // @@protoc_insertion_point(field_release:google.firestore.v1.RunAggregationQueryRequest.structured_aggregation_query)
+  if (_internal_has_structured_aggregation_query()) {
+    clear_has_query_type();
+      ::google::firestore::v1::StructuredAggregationQuery* temp = query_type_.structured_aggregation_query_;
+    query_type_.structured_aggregation_query_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::google::firestore::v1::StructuredAggregationQuery& RunAggregationQueryRequest::_internal_structured_aggregation_query() const {
+  return _internal_has_structured_aggregation_query()
+      ? *query_type_.structured_aggregation_query_
+      : *reinterpret_cast< ::google::firestore::v1::StructuredAggregationQuery*>(&::google::firestore::v1::_StructuredAggregationQuery_default_instance_);
+}
+inline const ::google::firestore::v1::StructuredAggregationQuery& RunAggregationQueryRequest::structured_aggregation_query() const {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.RunAggregationQueryRequest.structured_aggregation_query)
+  return _internal_structured_aggregation_query();
+}
+inline ::google::firestore::v1::StructuredAggregationQuery* RunAggregationQueryRequest::_internal_mutable_structured_aggregation_query() {
+  if (!_internal_has_structured_aggregation_query()) {
+    clear_query_type();
+    set_has_structured_aggregation_query();
+    query_type_.structured_aggregation_query_ = CreateMaybeMessage< ::google::firestore::v1::StructuredAggregationQuery >(
+        GetArenaNoVirtual());
+  }
+  return query_type_.structured_aggregation_query_;
+}
+inline ::google::firestore::v1::StructuredAggregationQuery* RunAggregationQueryRequest::mutable_structured_aggregation_query() {
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.RunAggregationQueryRequest.structured_aggregation_query)
+  return _internal_mutable_structured_aggregation_query();
+}
+
+// bytes transaction = 4;
+inline bool RunAggregationQueryRequest::_internal_has_transaction() const {
+  return consistency_selector_case() == kTransaction;
+}
+inline void RunAggregationQueryRequest::set_has_transaction() {
+  _oneof_case_[1] = kTransaction;
+}
+inline void RunAggregationQueryRequest::clear_transaction() {
+  if (_internal_has_transaction()) {
+    consistency_selector_.transaction_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+    clear_has_consistency_selector();
+  }
+}
+inline const std::string& RunAggregationQueryRequest::transaction() const {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.RunAggregationQueryRequest.transaction)
+  return _internal_transaction();
+}
+inline void RunAggregationQueryRequest::set_transaction(const std::string& value) {
+  _internal_set_transaction(value);
+  // @@protoc_insertion_point(field_set:google.firestore.v1.RunAggregationQueryRequest.transaction)
+}
+inline std::string* RunAggregationQueryRequest::mutable_transaction() {
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.RunAggregationQueryRequest.transaction)
+  return _internal_mutable_transaction();
+}
+inline const std::string& RunAggregationQueryRequest::_internal_transaction() const {
+  if (_internal_has_transaction()) {
+    return consistency_selector_.transaction_.GetNoArena();
+  }
+  return *&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
+}
+inline void RunAggregationQueryRequest::_internal_set_transaction(const std::string& value) {
+  if (!_internal_has_transaction()) {
+    clear_consistency_selector();
+    set_has_transaction();
+    consistency_selector_.transaction_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  consistency_selector_.transaction_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void RunAggregationQueryRequest::set_transaction(std::string&& value) {
+  // @@protoc_insertion_point(field_set:google.firestore.v1.RunAggregationQueryRequest.transaction)
+  if (!_internal_has_transaction()) {
+    clear_consistency_selector();
+    set_has_transaction();
+    consistency_selector_.transaction_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  consistency_selector_.transaction_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:google.firestore.v1.RunAggregationQueryRequest.transaction)
+}
+inline void RunAggregationQueryRequest::set_transaction(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  if (!_internal_has_transaction()) {
+    clear_consistency_selector();
+    set_has_transaction();
+    consistency_selector_.transaction_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  consistency_selector_.transaction_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:google.firestore.v1.RunAggregationQueryRequest.transaction)
+}
+inline void RunAggregationQueryRequest::set_transaction(const void* value, size_t size) {
+  if (!_internal_has_transaction()) {
+    clear_consistency_selector();
+    set_has_transaction();
+    consistency_selector_.transaction_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  consistency_selector_.transaction_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
+      reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:google.firestore.v1.RunAggregationQueryRequest.transaction)
+}
+inline std::string* RunAggregationQueryRequest::_internal_mutable_transaction() {
+  if (!_internal_has_transaction()) {
+    clear_consistency_selector();
+    set_has_transaction();
+    consistency_selector_.transaction_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  return consistency_selector_.transaction_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* RunAggregationQueryRequest::release_transaction() {
+  // @@protoc_insertion_point(field_release:google.firestore.v1.RunAggregationQueryRequest.transaction)
+  if (_internal_has_transaction()) {
+    clear_has_consistency_selector();
+    return consistency_selector_.transaction_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  } else {
+    return nullptr;
+  }
+}
+inline void RunAggregationQueryRequest::set_allocated_transaction(std::string* transaction) {
+  if (has_consistency_selector()) {
+    clear_consistency_selector();
+  }
+  if (transaction != nullptr) {
+    set_has_transaction();
+    consistency_selector_.transaction_.UnsafeSetDefault(transaction);
+  }
+  // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.RunAggregationQueryRequest.transaction)
+}
+
+// .google.firestore.v1.TransactionOptions new_transaction = 5;
+inline bool RunAggregationQueryRequest::_internal_has_new_transaction() const {
+  return consistency_selector_case() == kNewTransaction;
+}
+inline bool RunAggregationQueryRequest::has_new_transaction() const {
+  return _internal_has_new_transaction();
+}
+inline void RunAggregationQueryRequest::set_has_new_transaction() {
+  _oneof_case_[1] = kNewTransaction;
+}
+inline ::google::firestore::v1::TransactionOptions* RunAggregationQueryRequest::release_new_transaction() {
+  // @@protoc_insertion_point(field_release:google.firestore.v1.RunAggregationQueryRequest.new_transaction)
+  if (_internal_has_new_transaction()) {
+    clear_has_consistency_selector();
+      ::google::firestore::v1::TransactionOptions* temp = consistency_selector_.new_transaction_;
+    consistency_selector_.new_transaction_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::google::firestore::v1::TransactionOptions& RunAggregationQueryRequest::_internal_new_transaction() const {
+  return _internal_has_new_transaction()
+      ? *consistency_selector_.new_transaction_
+      : *reinterpret_cast< ::google::firestore::v1::TransactionOptions*>(&::google::firestore::v1::_TransactionOptions_default_instance_);
+}
+inline const ::google::firestore::v1::TransactionOptions& RunAggregationQueryRequest::new_transaction() const {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.RunAggregationQueryRequest.new_transaction)
+  return _internal_new_transaction();
+}
+inline ::google::firestore::v1::TransactionOptions* RunAggregationQueryRequest::_internal_mutable_new_transaction() {
+  if (!_internal_has_new_transaction()) {
+    clear_consistency_selector();
+    set_has_new_transaction();
+    consistency_selector_.new_transaction_ = CreateMaybeMessage< ::google::firestore::v1::TransactionOptions >(
+        GetArenaNoVirtual());
+  }
+  return consistency_selector_.new_transaction_;
+}
+inline ::google::firestore::v1::TransactionOptions* RunAggregationQueryRequest::mutable_new_transaction() {
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.RunAggregationQueryRequest.new_transaction)
+  return _internal_mutable_new_transaction();
+}
+
+// .google.protobuf.Timestamp read_time = 6;
+inline bool RunAggregationQueryRequest::_internal_has_read_time() const {
+  return consistency_selector_case() == kReadTime;
+}
+inline bool RunAggregationQueryRequest::has_read_time() const {
+  return _internal_has_read_time();
+}
+inline void RunAggregationQueryRequest::set_has_read_time() {
+  _oneof_case_[1] = kReadTime;
+}
+inline PROTOBUF_NAMESPACE_ID::Timestamp* RunAggregationQueryRequest::release_read_time() {
+  // @@protoc_insertion_point(field_release:google.firestore.v1.RunAggregationQueryRequest.read_time)
+  if (_internal_has_read_time()) {
+    clear_has_consistency_selector();
+      PROTOBUF_NAMESPACE_ID::Timestamp* temp = consistency_selector_.read_time_;
+    consistency_selector_.read_time_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const PROTOBUF_NAMESPACE_ID::Timestamp& RunAggregationQueryRequest::_internal_read_time() const {
+  return _internal_has_read_time()
+      ? *consistency_selector_.read_time_
+      : *reinterpret_cast< PROTOBUF_NAMESPACE_ID::Timestamp*>(&PROTOBUF_NAMESPACE_ID::_Timestamp_default_instance_);
+}
+inline const PROTOBUF_NAMESPACE_ID::Timestamp& RunAggregationQueryRequest::read_time() const {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.RunAggregationQueryRequest.read_time)
+  return _internal_read_time();
+}
+inline PROTOBUF_NAMESPACE_ID::Timestamp* RunAggregationQueryRequest::_internal_mutable_read_time() {
+  if (!_internal_has_read_time()) {
+    clear_consistency_selector();
+    set_has_read_time();
+    consistency_selector_.read_time_ = CreateMaybeMessage< PROTOBUF_NAMESPACE_ID::Timestamp >(
+        GetArenaNoVirtual());
+  }
+  return consistency_selector_.read_time_;
+}
+inline PROTOBUF_NAMESPACE_ID::Timestamp* RunAggregationQueryRequest::mutable_read_time() {
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.RunAggregationQueryRequest.read_time)
+  return _internal_mutable_read_time();
+}
+
+inline bool RunAggregationQueryRequest::has_query_type() const {
+  return query_type_case() != QUERY_TYPE_NOT_SET;
+}
+inline void RunAggregationQueryRequest::clear_has_query_type() {
+  _oneof_case_[0] = QUERY_TYPE_NOT_SET;
+}
+inline bool RunAggregationQueryRequest::has_consistency_selector() const {
+  return consistency_selector_case() != CONSISTENCY_SELECTOR_NOT_SET;
+}
+inline void RunAggregationQueryRequest::clear_has_consistency_selector() {
+  _oneof_case_[1] = CONSISTENCY_SELECTOR_NOT_SET;
+}
+inline RunAggregationQueryRequest::QueryTypeCase RunAggregationQueryRequest::query_type_case() const {
+  return RunAggregationQueryRequest::QueryTypeCase(_oneof_case_[0]);
+}
+inline RunAggregationQueryRequest::ConsistencySelectorCase RunAggregationQueryRequest::consistency_selector_case() const {
+  return RunAggregationQueryRequest::ConsistencySelectorCase(_oneof_case_[1]);
+}
+// -------------------------------------------------------------------
+
+// RunAggregationQueryResponse
+
+// .google.firestore.v1.AggregationResult result = 1;
+inline bool RunAggregationQueryResponse::_internal_has_result() const {
+  return this != internal_default_instance() && result_ != nullptr;
+}
+inline bool RunAggregationQueryResponse::has_result() const {
+  return _internal_has_result();
+}
+inline const ::google::firestore::v1::AggregationResult& RunAggregationQueryResponse::_internal_result() const {
+  const ::google::firestore::v1::AggregationResult* p = result_;
+  return p != nullptr ? *p : *reinterpret_cast<const ::google::firestore::v1::AggregationResult*>(
+      &::google::firestore::v1::_AggregationResult_default_instance_);
+}
+inline const ::google::firestore::v1::AggregationResult& RunAggregationQueryResponse::result() const {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.RunAggregationQueryResponse.result)
+  return _internal_result();
+}
+inline ::google::firestore::v1::AggregationResult* RunAggregationQueryResponse::release_result() {
+  // @@protoc_insertion_point(field_release:google.firestore.v1.RunAggregationQueryResponse.result)
+  
+  ::google::firestore::v1::AggregationResult* temp = result_;
+  result_ = nullptr;
+  return temp;
+}
+inline ::google::firestore::v1::AggregationResult* RunAggregationQueryResponse::_internal_mutable_result() {
+  
+  if (result_ == nullptr) {
+    auto* p = CreateMaybeMessage<::google::firestore::v1::AggregationResult>(GetArenaNoVirtual());
+    result_ = p;
+  }
+  return result_;
+}
+inline ::google::firestore::v1::AggregationResult* RunAggregationQueryResponse::mutable_result() {
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.RunAggregationQueryResponse.result)
+  return _internal_mutable_result();
+}
+inline void RunAggregationQueryResponse::set_allocated_result(::google::firestore::v1::AggregationResult* result) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == nullptr) {
+    delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(result_);
+  }
+  if (result) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    if (message_arena != submessage_arena) {
+      result = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, result, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  result_ = result;
+  // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.RunAggregationQueryResponse.result)
+}
+
+// bytes transaction = 2;
+inline void RunAggregationQueryResponse::clear_transaction() {
+  transaction_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline const std::string& RunAggregationQueryResponse::transaction() const {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.RunAggregationQueryResponse.transaction)
+  return _internal_transaction();
+}
+inline void RunAggregationQueryResponse::set_transaction(const std::string& value) {
+  _internal_set_transaction(value);
+  // @@protoc_insertion_point(field_set:google.firestore.v1.RunAggregationQueryResponse.transaction)
+}
+inline std::string* RunAggregationQueryResponse::mutable_transaction() {
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.RunAggregationQueryResponse.transaction)
+  return _internal_mutable_transaction();
+}
+inline const std::string& RunAggregationQueryResponse::_internal_transaction() const {
+  return transaction_.GetNoArena();
+}
+inline void RunAggregationQueryResponse::_internal_set_transaction(const std::string& value) {
+  
+  transaction_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void RunAggregationQueryResponse::set_transaction(std::string&& value) {
+  
+  transaction_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:google.firestore.v1.RunAggregationQueryResponse.transaction)
+}
+inline void RunAggregationQueryResponse::set_transaction(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  transaction_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:google.firestore.v1.RunAggregationQueryResponse.transaction)
+}
+inline void RunAggregationQueryResponse::set_transaction(const void* value, size_t size) {
+  
+  transaction_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:google.firestore.v1.RunAggregationQueryResponse.transaction)
+}
+inline std::string* RunAggregationQueryResponse::_internal_mutable_transaction() {
+  
+  return transaction_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* RunAggregationQueryResponse::release_transaction() {
+  // @@protoc_insertion_point(field_release:google.firestore.v1.RunAggregationQueryResponse.transaction)
+  
+  return transaction_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void RunAggregationQueryResponse::set_allocated_transaction(std::string* transaction) {
+  if (transaction != nullptr) {
+    
+  } else {
+    
+  }
+  transaction_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), transaction);
+  // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.RunAggregationQueryResponse.transaction)
+}
+
+// .google.protobuf.Timestamp read_time = 3;
+inline bool RunAggregationQueryResponse::_internal_has_read_time() const {
+  return this != internal_default_instance() && read_time_ != nullptr;
+}
+inline bool RunAggregationQueryResponse::has_read_time() const {
+  return _internal_has_read_time();
+}
+inline const PROTOBUF_NAMESPACE_ID::Timestamp& RunAggregationQueryResponse::_internal_read_time() const {
+  const PROTOBUF_NAMESPACE_ID::Timestamp* p = read_time_;
+  return p != nullptr ? *p : *reinterpret_cast<const PROTOBUF_NAMESPACE_ID::Timestamp*>(
+      &PROTOBUF_NAMESPACE_ID::_Timestamp_default_instance_);
+}
+inline const PROTOBUF_NAMESPACE_ID::Timestamp& RunAggregationQueryResponse::read_time() const {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.RunAggregationQueryResponse.read_time)
+  return _internal_read_time();
+}
+inline PROTOBUF_NAMESPACE_ID::Timestamp* RunAggregationQueryResponse::release_read_time() {
+  // @@protoc_insertion_point(field_release:google.firestore.v1.RunAggregationQueryResponse.read_time)
+  
+  PROTOBUF_NAMESPACE_ID::Timestamp* temp = read_time_;
+  read_time_ = nullptr;
+  return temp;
+}
+inline PROTOBUF_NAMESPACE_ID::Timestamp* RunAggregationQueryResponse::_internal_mutable_read_time() {
+  
+  if (read_time_ == nullptr) {
+    auto* p = CreateMaybeMessage<PROTOBUF_NAMESPACE_ID::Timestamp>(GetArenaNoVirtual());
+    read_time_ = p;
+  }
+  return read_time_;
+}
+inline PROTOBUF_NAMESPACE_ID::Timestamp* RunAggregationQueryResponse::mutable_read_time() {
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.RunAggregationQueryResponse.read_time)
+  return _internal_mutable_read_time();
+}
+inline void RunAggregationQueryResponse::set_allocated_read_time(PROTOBUF_NAMESPACE_ID::Timestamp* read_time) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == nullptr) {
+    delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(read_time_);
+  }
+  if (read_time) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+      reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(read_time)->GetArena();
+    if (message_arena != submessage_arena) {
+      read_time = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, read_time, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  read_time_ = read_time;
+  // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.RunAggregationQueryResponse.read_time)
+}
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // WriteRequest
@@ -10238,6 +11142,10 @@ inline void ListCollectionIdsResponse::set_allocated_next_page_token(std::string
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

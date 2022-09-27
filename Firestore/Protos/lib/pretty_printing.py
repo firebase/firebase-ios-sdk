@@ -98,8 +98,8 @@ class MessagePrettyPrinting:
 
     result = '''\
 std::string %s::ToString(int indent) const {
-    std::string header = PrintHeader(indent, "%s", this);
-    std::string result;\n\n''' % (
+    std::string tostring_header = PrintHeader(indent, "%s", this);
+    std::string tostring_result;\n\n''' % (
     self.full_classname, self._short_classname)
 
     for field in self._fields:
@@ -109,17 +109,17 @@ std::string %s::ToString(int indent) const {
     if can_be_empty:
       result += '''
     bool is_root = indent == 0;
-    if (!result.empty() || is_root) {
-      std::string tail = PrintTail(indent);
-      return header + result + tail;
+    if (!tostring_result.empty() || is_root) {
+      std::string tostring_tail = PrintTail(indent);
+      return tostring_header + tostring_result + tostring_tail;
     } else {
       return "";
     }
 }\n\n'''
     else:
       result += '''
-    std::string tail = PrintTail(indent);
-    return header + result + tail;
+    std::string tostring_tail = PrintTail(indent);
+    return tostring_header + tostring_result + tostring_tail;
 }\n\n'''
 
     return result
@@ -276,7 +276,7 @@ class FieldPrettyPrinting:
       always_print: Whether to print the field if it has its default value.
     """
 
-    format_str = '%sresult += %s("%s ",%s%s, indent + 1, %s);\n'
+    format_str = '%stostring_result += %s("%s ",%s%s, indent + 1, %s);\n'
     for maybe_linebreak in [' ', '\n' + _indent(indent_level + 1)]:
       args = (
         _indent(indent_level), function_name, display_name, maybe_linebreak,

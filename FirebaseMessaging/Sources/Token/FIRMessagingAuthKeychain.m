@@ -65,6 +65,13 @@ NSString *const kFIRMessagingKeychainWildcardIdentifier = @"*";
   if ([service length] && ![kFIRMessagingKeychainWildcardIdentifier isEqualToString:service]) {
     finalQuery[(__bridge NSString *)kSecAttrService] = service;
   }
+
+  if (@available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)) {
+    // Ensures that the keychain query behaves the same across all platforms.
+    // See go/firebase-macos-keychain-popups for details.
+    finalQuery[(__bridge id)kSecUseDataProtectionKeychain] = (__bridge id)kCFBooleanTrue;
+  }
+
   return finalQuery;
 }
 

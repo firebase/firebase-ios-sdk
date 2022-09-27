@@ -38,7 +38,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 @interface FIRHeartbeatLoggerFake : NSObject <FIRHeartbeatLoggerProtocol>
 @property(nonatomic, copy, nullable) FIRHeartbeatsPayload * (^onFlushHeartbeatsIntoPayloadHandler)
     (void);
-@property(nonatomic, copy, nullable) FIRHeartbeatInfoCode (^onHeartbeatCodeForTodayHandler)(void);
+@property(nonatomic, copy, nullable) FIRDailyHeartbeatCode (^onHeartbeatCodeForTodayHandler)(void);
 @end
 
 @implementation FIRHeartbeatLoggerFake
@@ -51,12 +51,12 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   }
 }
 
-- (FIRHeartbeatInfoCode)heartbeatCodeForToday {
+- (FIRDailyHeartbeatCode)heartbeatCodeForToday {
   // This API should not be used by the below tests because the Installations
   // SDK uses only the V2 heartbeat API (`flushHeartbeatsIntoPayload`) for
   // getting heartbeats.
   [self doesNotRecognizeSelector:_cmd];
-  return FIRHeartbeatInfoCodeNone;
+  return FIRDailyHeartbeatCodeNone;
 }
 
 - (void)log {

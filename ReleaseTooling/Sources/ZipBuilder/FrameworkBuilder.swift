@@ -147,7 +147,7 @@ struct FrameworkBuilder {
   /// Build all thin slices for an open source pod.
   /// - Parameter framework: The name of the framework to be built.
   /// - Parameter logsDir: The path to the directory to place build logs.
-  /// - Parameter setCarthage: Set Carthage flag in CoreDiagnostics for metrics.
+  /// - Parameter setCarthage: Set Carthage flag in GoogleUtilities for metrics.
   /// - Returns: A dictionary of URLs to the built thin libraries keyed by platform.
   private func buildFrameworksForAllPlatforms(withName framework: String,
                                               logsDir: URL,
@@ -173,7 +173,7 @@ struct FrameworkBuilder {
   ///   - targetPlatform: The target platform to target for the build.
   ///   - buildDir: Location where the project should be built.
   ///   - logRoot: Root directory where all logs should be written.
-  ///   - setCarthage: Set Carthage flag in CoreDiagnostics for metrics.
+  ///   - setCarthage: Set Carthage flag in GoogleUtilities for metrics.
   /// - Returns: A URL to the framework that was built.
   private func buildSlicedFramework(withName framework: String,
                                     targetPlatform: TargetPlatform,

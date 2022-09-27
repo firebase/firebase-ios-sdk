@@ -32,6 +32,15 @@ final class AnalyticsAPITests {
     Analytics.resetAnalyticsData()
     Analytics.setDefaultEventParameters(["default": 100])
 
+    Analytics.sessionID { sessionID, error in }
+    #if compiler(>=5.5.2) && canImport(_Concurrency)
+      if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
+        Task {
+          let _: Int64? = try? await Analytics.sessionID()
+        }
+      }
+    #endif // compiler(>=5.5.2) && canImport(_Concurrency)
+
     // MARK: - AppDelegate
 
     Analytics.handleEvents(forBackgroundURLSession: "session_id", completionHandler: {})
