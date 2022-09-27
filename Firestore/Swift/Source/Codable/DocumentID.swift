@@ -110,7 +110,7 @@ public struct DocumentID<Value: DocumentIDWrappable & Codable>:
     guard let reference = decoder
       .userInfo[CodingUserInfoKey.documentRefUserInfoKey] as? DocumentReference else {
       throw FirestoreDecodingError.decodingIsNotSupported(
-        "DocumentID values can only be decoded with Firestore.Encoder"
+        "Could not find DocumentReference for user info key: \(CodingUserInfoKey.documentRefUserInfoKey)"
       )
     }
     try self.init(from: reference)
