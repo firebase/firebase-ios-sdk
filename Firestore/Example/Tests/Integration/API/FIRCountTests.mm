@@ -28,6 +28,38 @@
 
 @implementation FIRCountTests
 
+- (void)testAggregateQueryEquals {
+  FIRCollectionReference* coll1 = [self collectionRefWithDocuments:@{}];
+  FIRCollectionReference* coll1Same = [[coll1 firestore] collectionWithPath:[coll1 path]];
+  FIRAggregateQuery* query1 = [coll1 count];
+  FIRAggregateQuery* query1Same = [coll1Same count];
+
+  FIRCollectionReference* sub = [[coll1 documentWithPath:@"bar"] collectionWithPath:@"baz"];
+  FIRAggregateQuery* query2 = [[[sub queryWhereField:@"a" isEqualTo:@1] queryLimitedTo:100] count];
+  FIRAggregateQuery* query2Same = [[[sub queryWhereField:@"a"
+                                               isEqualTo:@1] queryLimitedTo:100] count];
+  FIRAggregateQuery* query3 = [[[sub queryWhereField:@"b"
+                                           isEqualTo:@1] queryOrderedByField:@"c"] count];
+  FIRAggregateQuery* query3Same = [[[sub queryWhereField:@"b"
+                                               isEqualTo:@1] queryOrderedByField:@"c"] count];
+
+  XCTAssertEqualObjects(query1, query1Same);
+  XCTAssertEqualObjects(query2, query2Same);
+  XCTAssertEqualObjects(query3, query3Same);
+
+  XCTAssertEqual([query1 hash], [query1Same hash]);
+  XCTAssertEqual([query2 hash], [query2Same hash]);
+  XCTAssertEqual([query3 hash], [query3Same hash]);
+
+  XCTAssertFalse([query1 isEqual:nil]);
+  XCTAssertFalse([query1 isEqual:@"string"]);
+  XCTAssertFalse([query1 isEqual:query2]);
+  XCTAssertFalse([query2 isEqual:query3]);
+
+  XCTAssertNotEqual([query1 hash], [query2 hash]);
+  XCTAssertNotEqual([query2 hash], [query3 hash]);
+}
+
 - (void)testCanRunCountQuery {
   // TODO(b/246758022): Remove this (and below) once COUNT is release for the backend.
   if (![FSTIntegrationTestCase isRunningAgainstEmulator]) {
@@ -75,6 +107,48 @@
   FIRAggregateQuerySnapshot* snapshot =
       [self readSnapshotForAggregate:[[testCollection queryOrderedByField:@"k"] count]];
   XCTAssertEqual(snapshot.count, [NSNumber numberWithLong:3L]);
+}
+
+- (void)testSnapshotEquals {
+  if (![FSTIntegrationTestCase isRunningAgainstEmulator]) {
+    return;
+  }
+
+  FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
+    @"a" : @{@"k" : @"a"},
+    @"b" : @{@"k" : @"b"},
+    @"c" : @{@"k" : @"c"}
+  }];
+
+  FIRAggregateQuerySnapshot* snapshot1 =
+      [self readSnapshotForAggregate:[[testCollection queryWhereField:@"k" isEqualTo:@"b"] count]];
+  FIRAggregateQuerySnapshot* snapshot1Same =
+      [self readSnapshotForAggregate:[[testCollection queryWhereField:@"k" isEqualTo:@"b"] count]];
+
+  FIRAggregateQuerySnapshot* snapshot2 =
+      [self readSnapshotForAggregate:[[testCollection queryWhereField:@"k" isEqualTo:@"a"] count]];
+  [self writeDocumentRef:[testCollection documentWithPath:@"d"] data:@{@"k" : @"a"}];
+  FIRAggregateQuerySnapshot* snapshot2Different =
+      [self readSnapshotForAggregate:[[testCollection queryWhereField:@"k" isEqualTo:@"a"] count]];
+
+  FIRAggregateQuerySnapshot* snapshot3 =
+      [self readSnapshotForAggregate:[[testCollection queryWhereField:@"k" isEqualTo:@"b"] count]];
+  FIRAggregateQuerySnapshot* snapshot3Different =
+      [self readSnapshotForAggregate:[[testCollection queryWhereField:@"k" isEqualTo:@"c"] count]];
+
+  XCTAssertEqualObjects(snapshot1, snapshot1Same);
+  XCTAssertEqual([snapshot1 hash], [snapshot1Same hash]);
+  XCTAssertEqualObjects([snapshot1 query], [[testCollection queryWhereField:@"k"
+                                                                  isEqualTo:@"b"] count]);
+
+  XCTAssertNotEqualObjects(snapshot1, nil);
+  XCTAssertNotEqualObjects(snapshot1, @"string");
+  XCTAssertNotEqualObjects(snapshot1, snapshot2);
+  XCTAssertNotEqual([snapshot1 hash], [snapshot2 hash]);
+  XCTAssertNotEqualObjects(snapshot2, snapshot2Different);
+  XCTAssertNotEqual([snapshot2 hash], [snapshot2Different hash]);
+  XCTAssertNotEqualObjects(snapshot3, snapshot3Different);
+  XCTAssertNotEqual([snapshot3 hash], [snapshot3Different hash]);
 }
 
 - (void)testTerminateDoesNotCrashWithFlyingCountQuery {
