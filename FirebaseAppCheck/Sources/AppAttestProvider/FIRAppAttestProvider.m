@@ -185,6 +185,10 @@ NS_ASSUME_NONNULL_BEGIN
       });
 }
 
+- (BOOL)isSupported {
+  return self.appAttestService.isSupported;
+}
+
 - (FBLPromise<FIRAppCheckToken *> *)getToken {
   return [FBLPromise onQueue:self.queue
                           do:^id _Nullable {

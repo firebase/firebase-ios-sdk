@@ -32,6 +32,11 @@ NS_SWIFT_NAME(AppCheckProvider)
     (void (^)(FIRAppCheckToken *_Nullable token, NSError *_Nullable error))handler
     NS_SWIFT_NAME(getToken(completion:));
 
+// Maybe this could be static. With DeviceCheck and App Attest we could check if it's supported
+// without instantiating a FIRAppAttestProvider but this may not be universally true (e.g., custom
+// providers).
+- (BOOL)isSupported NS_SWIFT_NAME(supported());
+
 @end
 
 NS_ASSUME_NONNULL_END
