@@ -21,18 +21,19 @@ NS_ASSUME_NONNULL_BEGIN
 @class FIRAggregateQuery;
 
 /**
- * An `AggregateQuerySnapshot` contains results of a `AggregateQuery`.
+ * The results of executing an `AggregateQuery`.
  */
 NS_SWIFT_NAME(AggregateQuerySnapshot)
 @interface FIRAggregateQuerySnapshot : NSObject
 
-/** The original `AggregateQuery` this snapshot is a result of. */
+/** :nodoc: */
+- (instancetype)init
+    __attribute__((unavailable("FIRAggregateQuerySnapshot cannot be created directly.")));
+
+/** The query that was executed to produce this result. */
 @property(nonatomic, readonly) FIRAggregateQuery* query;
 
-/**
- * The result of a document count aggregation. Null if no count aggregation is
- *     available in the result.
- */
+/** The number of documents in the result set of the underlying query. */
 @property(nonatomic, readonly) NSNumber* count;
 
 @end

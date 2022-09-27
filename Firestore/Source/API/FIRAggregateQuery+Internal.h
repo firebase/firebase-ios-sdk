@@ -17,9 +17,13 @@
 #import "FIRAggregateQuery.h"
 #import "FIRQuery.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface FIRAggregateQuery (/* init */)
 
-- (instancetype _Nonnull)init NS_UNAVAILABLE;
-- (instancetype _Nonnull)initWithQuery:(FIRQuery *_Nonnull)query NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithQuery:(FIRQuery *)query NS_DESIGNATED_INITIALIZER;
 
 @end
+
+NS_ASSUME_NONNULL_END

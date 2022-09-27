@@ -18,13 +18,23 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** Configures the behavior of `AggregateQuery.aggregateWithSource(source:completion:)`. */
+/**
+ * The sources from which an `AggregateQuery` can retrieve its results.
+ *
+ * See `AggregateQuery.getAggregation(source:completion:)`.
+ */
 typedef NS_ENUM(NSUInteger, FIRAggregateSource) {
   /**
-   * Reach to the Firestore backend and surface the result verbatim, that is no local documents or
-   * mutations in the SDK cache will be included in the surfaced result.
+   * Perform the aggregation on the server and download the result.
    *
-   * NOTE: Requires client to be online.
+   * The result received from the server is presented, unaltered, without considering any local
+   * state. That is, documents in the local cache are not taken into consideration, neither are
+   * local modifications not yet synchronized with the server. Previously-downloaded results, if
+   * any, are not used: every request using this source necessarily involves a round trip to the
+   * server.
+   *
+   * The `AggregateQuery` will fail if the server cannot be reached, such as if the client is
+   * offline.
    */
   FIRAggregateSourceServer,
 } NS_SWIFT_NAME(AggregateSource);
