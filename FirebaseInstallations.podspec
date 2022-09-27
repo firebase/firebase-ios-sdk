@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInstallations'
-  s.version          = '9.6.0'
+  s.version          = '10.0.0'
   s.summary          = 'Firebase Installations'
 
   s.description      = <<-DESC
@@ -19,7 +19,7 @@ Pod::Spec.new do |s|
 
   ios_deployment_target = '10.0'
   osx_deployment_target = '10.13'
-  tvos_deployment_target = '11.0'
+  tvos_deployment_target = '12.0'
   watchos_deployment_target = '6.0'
 
   s.swift_version = '5.3'
@@ -42,10 +42,10 @@ Pod::Spec.new do |s|
   ]
 
   s.framework = 'Security'
-  s.dependency 'FirebaseCore', '~> 9.0'
+  s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'PromisesObjC', '~> 2.1'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.7'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 7.7'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.8'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 7.8'
 
   preprocessor_definitions = ''
   s.pod_target_xcconfig = {

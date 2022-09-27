@@ -19,7 +19,7 @@
 import PackageDescription
 import class Foundation.ProcessInfo
 
-let firebaseVersion = "9.6.0"
+let firebaseVersion = "10.0.0"
 
 let package = Package(
   name: "Firebase",
@@ -150,17 +150,17 @@ let package = Package(
       url: "https://github.com/google/GoogleAppMeasurement.git",
       // Note that CI changes the version to the head of main for CI.
       // See scripts/setup_spm_tests.sh.
-      .exact("9.6.0")
+      .exact("10.0.0")
     ),
     .package(
       name: "GoogleDataTransport",
       url: "https://github.com/google/GoogleDataTransport.git",
-      "9.1.4" ..< "10.0.0"
+      "9.2.0" ..< "10.0.0"
     ),
     .package(
       name: "GoogleUtilities",
       url: "https://github.com/google/GoogleUtilities.git",
-      "7.7.1" ..< "8.0.0"
+      "7.9.0" ..< "8.0.0"
     ),
     .package(
       name: "GTMSessionFetcher",
@@ -208,7 +208,6 @@ let package = Package(
       name: "FirebaseCore",
       dependencies: [
         "Firebase",
-        "FirebaseCoreDiagnostics",
         "FirebaseCoreInternal",
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULLogger", package: "GoogleUtilities"),
@@ -277,23 +276,6 @@ let package = Package(
     ),
 
     .target(
-      name: "FirebaseCoreDiagnostics",
-      dependencies: [
-        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
-        .product(name: "GULEnvironment", package: "GoogleUtilities"),
-        .product(name: "GULLogger", package: "GoogleUtilities"),
-        .product(name: "nanopb", package: "nanopb"),
-      ],
-      path: "Firebase/CoreDiagnostics/FIRCDLibrary",
-      publicHeadersPath: ".",
-      cSettings: [
-        .headerSearchPath("../../.."),
-        .define("PB_FIELD_32BIT", to: "1"),
-        .define("PB_NO_PACKED_STRUCTS", to: "1"),
-        .define("PB_ENABLE_MALLOC", to: "1"),
-      ]
-    ),
-    .target(
       name: "FirebaseABTesting",
       dependencies: ["FirebaseCore"],
       path: "FirebaseABTesting/Sources",
@@ -344,8 +326,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/9.6.0/FirebaseAnalytics.zip",
-      checksum: "b2f2b38e2764a09af0781c61093693eb61739d0a43f203f2e4cbf10e4aa6c329"
+      url: "https://dl.google.com/firebase/ios/swiftpm/10.0.0/FirebaseAnalytics.zip",
+      checksum: "da414536ac01adcfc8038052e6eb4098e10612db8353d1478edeb38a46b4e93c"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
@@ -869,6 +851,7 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "FirebaseInstallations",
+        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULLogger", package: "GoogleUtilities"),
         "SwiftProtobuf",
       ],
@@ -993,6 +976,7 @@ let package = Package(
                      "FirebaseAppCheckInterop",
                      "FirebaseAuthInterop",
                      "FirebaseMessagingInterop",
+                     "GoogleDataTransport",
                      "OCMock"],
       path: "SharedTestUtilities",
       publicHeadersPath: "./",

@@ -261,7 +261,6 @@ FirebaseAppDistribution
 FirebaseAuth
 FirebaseAuthInterop
 FirebaseCore
-FirebaseCoreDiagnostics
 FirebaseCoreExtension
 FirebaseCoreInternal
 FirebaseDatabaseSwift

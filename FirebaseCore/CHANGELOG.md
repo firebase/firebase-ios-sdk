@@ -5,24 +5,25 @@
     - | Platform  | Firebase 9 | Firebase 10 |
       | ------------- | ------------- | ------------- |
       | iOS  | 10.0  | **11.0**  |
-      | tvOS  | 10.0  | **11.0**  |
+      | tvOS  | 10.0  | **12.0**  |
       | macOS  | 10.12  | **10.13**  |
       | watchOS  | 6.0  | 6.0  |
   - If using **Swift Package Manager**:
     - | Platform  | Firebase 9 | Firebase 10 |
       | ------------- | ------------- | ------------- |
       | iOS  | 11.0  | 11.0  |
-      | tvOS  | 11.0  | 11.0  |
+      | tvOS  | 12.0  | 12.0  |
       | macOS  | 10.12  | **10.13**  |
       | watchOS  | 7.0  | 7.0  |
-  - If using **Carthage** or the **Zip** distribution, there are **no changes**
-    to the minimum supported versions:
+  - If using **Carthage** or the **Zip** distribution:
     - | Platform  | Firebase 9 | Firebase 10 |
       | ------------- | ------------- | ------------- |
       | iOS  | 11.0  | 11.0  |
-      | tvOS  | 11.0  | 11.0  |
+      | tvOS  | 11.0  | **12.0**  |
       | macOS  | 10.13  | 10.13  |
       | watchOS  | N/A  | N/A  |
+- [changed] **Breaking change**: Update dependency specification for
+  GTMSessionFetcher to allow all versions that are >= 2.1 and < 3.0. (#10131)
 
 # Firebase 9.6.0
 - [fixed] Mac apps using Firebase products that store SDK data in the keychain

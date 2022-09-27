@@ -101,6 +101,11 @@ import Foundation
   @objc public let updated: Date?
 
   /**
+   * Never used API
+   */
+  @available(*, deprecated) @objc public let storageReference: StorageReference? = nil
+
+  /**
    * Creates a Dictionary from the contents of the metadata.
    * @return A Dictionary that represents the contents of the metadata.
    */

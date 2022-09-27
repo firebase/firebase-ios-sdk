@@ -17,7 +17,6 @@ target 'FIRPerfE2EAutopush' do
   pod 'FirebaseRemoteConfig', :path => '../../../'
   pod 'FirebaseABTesting', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
-  pod 'FirebaseCoreDiagnostics', :path => '../../../'
 
   # Other dependencies
   pod 'Protobuf'
@@ -39,7 +38,6 @@ target 'FIRPerfE2EProd' do
   pod 'FirebaseRemoteConfig', :path => '../../../'
   pod 'FirebaseABTesting', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
-  pod 'FirebaseCoreDiagnostics', :path => '../../../'
 
   # Other dependencies
   pod 'Protobuf'

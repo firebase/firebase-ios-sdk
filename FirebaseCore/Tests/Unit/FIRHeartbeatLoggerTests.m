@@ -91,23 +91,23 @@
   [self assertHeartbeatsPayloadIsEmpty:secondHeartbeatsPayload];
 }
 
-- (void)testFlushing_UsingV1API_WhenHeartbeatsAreStored_ReturnsFIRHeartbeatInfoCodeGlobal {
+- (void)testFlushing_UsingV1API_WhenHeartbeatsAreStored_ReturnsFIRDailyHeartbeatCodeSome {
   // Given
   FIRHeartbeatLogger *heartbeatLogger = self.heartbeatLogger;
   // When
   [heartbeatLogger log];
-  FIRHeartbeatInfoCode heartbeatInfoCode = [heartbeatLogger heartbeatCodeForToday];
+  FIRDailyHeartbeatCode heartbeatInfoCode = [heartbeatLogger heartbeatCodeForToday];
   // Then
-  XCTAssertEqual(heartbeatInfoCode, FIRHeartbeatInfoCodeGlobal);
+  XCTAssertEqual(heartbeatInfoCode, FIRDailyHeartbeatCodeSome);
 }
 
-- (void)testFlushing_UsingV1API_WhenNoHeartbeatsAreStored_ReturnsFIRHeartbeatInfoCodeNone {
+- (void)testFlushing_UsingV1API_WhenNoHeartbeatsAreStored_ReturnsFIRDailyHeartbeatCodeNone {
   // Given
   FIRHeartbeatLogger *heartbeatLogger = self.heartbeatLogger;
   // When
-  FIRHeartbeatInfoCode heartbeatInfoCode = [heartbeatLogger heartbeatCodeForToday];
+  FIRDailyHeartbeatCode heartbeatInfoCode = [heartbeatLogger heartbeatCodeForToday];
   // Then
-  XCTAssertEqual(heartbeatInfoCode, FIRHeartbeatInfoCodeNone);
+  XCTAssertEqual(heartbeatInfoCode, FIRDailyHeartbeatCodeNone);
 }
 
 - (void)testFlushing_UsingV2API_WhenHeartbeatsAreStored_ReturnsNonEmptyPayload {
@@ -139,10 +139,10 @@
   FIRHeartbeatLogger *heartbeatLogger = self.heartbeatLogger;
   [heartbeatLogger log];
   // When
-  FIRHeartbeatInfoCode heartbeatInfoCode = [heartbeatLogger heartbeatCodeForToday];
+  FIRDailyHeartbeatCode heartbeatInfoCode = [heartbeatLogger heartbeatCodeForToday];
   FIRHeartbeatsPayload *heartbeatsPayload = [heartbeatLogger flushHeartbeatsIntoPayload];
   // Then
-  XCTAssertEqual(heartbeatInfoCode, FIRHeartbeatInfoCodeGlobal);
+  XCTAssertEqual(heartbeatInfoCode, FIRDailyHeartbeatCodeSome);
   [self assertHeartbeatsPayloadIsEmpty:heartbeatsPayload];
 }
 
@@ -153,14 +153,14 @@
   [heartbeatLogger log];
   // When
   FIRHeartbeatsPayload *heartbeatsPayload = [heartbeatLogger flushHeartbeatsIntoPayload];
-  FIRHeartbeatInfoCode heartbeatInfoCode = [heartbeatLogger heartbeatCodeForToday];
+  FIRDailyHeartbeatCode heartbeatInfoCode = [heartbeatLogger heartbeatCodeForToday];
   // Then
   [self assertEncodedPayloadHeader:FIRHeaderValueFromHeartbeatsPayload(heartbeatsPayload)
               isEqualToPayloadJSON:@{
                 @"version" : @2,
                 @"heartbeats" : @[ @{@"agent" : @"dummy_agent", @"dates" : @[ expectedDate ]} ]
               }];
-  XCTAssertEqual(heartbeatInfoCode, FIRHeartbeatInfoCodeNone);
+  XCTAssertEqual(heartbeatInfoCode, FIRDailyHeartbeatCodeNone);
 }
 
 - (void)testHeartbeatLoggersWithSameIDShareTheSameStorage {
