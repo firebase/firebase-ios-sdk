@@ -18,10 +18,14 @@
 
 @class FIRAggregateQuery;
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface FIRAggregateQuerySnapshot (/* init */)
 
-- (instancetype _Nonnull)init NS_UNAVAILABLE;
-- (instancetype _Nonnull)initWithCount:(int64_t)result
-                                 Query:(FIRAggregateQuery* _Nonnull)query NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithCount:(int64_t)result
+                        query:(FIRAggregateQuery *)query NS_DESIGNATED_INITIALIZER;
 
 @end
+
+NS_ASSUME_NONNULL_END

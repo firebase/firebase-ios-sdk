@@ -16,12 +16,14 @@
 
 #import "FIRAggregateQuerySnapshot+Internal.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation FIRAggregateQuerySnapshot {
   int64_t _result;
   FIRAggregateQuery* _query;
 }
 
-- (instancetype _Nonnull)initWithCount:(int64_t)count Query:(FIRAggregateQuery*)query {
+- (instancetype)initWithCount:(int64_t)count query:(FIRAggregateQuery*)query {
   if (self = [super init]) {
     _result = count;
     _query = query;
@@ -38,3 +40,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
