@@ -27,7 +27,8 @@ public extension Firestore {
     public var dataEncodingStrategy: FirebaseDataEncoder.DataEncodingStrategy = .base64
 
     /// The strategy to use in encoding non-conforming numbers. Defaults to `.throw`.
-    public var nonConformingFloatEncodingStrategy: FirebaseDataEncoder.NonConformingFloatEncodingStrategy = .throw
+    public var nonConformingFloatEncodingStrategy: FirebaseDataEncoder
+      .NonConformingFloatEncodingStrategy = .throw
 
     /// The strategy to use for encoding keys. Defaults to `.useDefaultKeys`.
     public var keyEncodingStrategy: FirebaseDataEncoder.KeyEncodingStrategy = .useDefaultKeys
@@ -65,7 +66,8 @@ public extension Firestore {
     public var dataDecodingStrategy: FirebaseDataDecoder.DataDecodingStrategy = .base64
 
     /// The strategy to use in decoding non-conforming numbers. Defaults to `.throw`.
-    public var nonConformingFloatDecodingStrategy: FirebaseDataDecoder.NonConformingFloatDecodingStrategy = .throw
+    public var nonConformingFloatDecodingStrategy: FirebaseDataDecoder
+      .NonConformingFloatDecodingStrategy = .throw
 
     /// The strategy to use for decoding keys. Defaults to `.useDefaultKeys`.
     public var keyDecodingStrategy: FirebaseDataDecoder.KeyDecodingStrategy = .useDefaultKeys

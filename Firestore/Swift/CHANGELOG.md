@@ -1,13 +1,10 @@
 # 10.0.0
-- [changed] `Firestore.Encoder` and `Firestore.Decoder` now wraps the shared `FirebaseDataEncoder` and `FirebaseDataDecoder` types which provides new customization options for encoding and decoding date to and from Firestore - similar to the options present on `JSONEncoder` and `JSONDecoder` from `Foundation`.
-- [added] `Firestore.Encoder.KeyEncodingStrategy`
-- [added] `Firestore.Encoder.DateEncodingStrategy`
-- [added] `Firestore.Encoder.DataEncodingStrategy`
-- [added] `Firestore.Encoder.NonConformingFloatEncodingStrategy`
-- [added] `Firestore.Decoder.KeyDecodingStrategy`
-- [added] `Firestore.Decoder.DateDecodingStrategy`
-- [added] `Firestore.Decoder.DataDecodingStrategy`
-- [added] `Firestore.Decoder.NonConformingFloatDecodingStrategy`
+- [changed] `Firestore.Encoder` and `Firestore.Decoder` now wraps the shared
+  `FirebaseDataEncoder` and `FirebaseDataDecoder` types, which provides new
+  customization options for encoding and decoding data to and from Firestore
+  into `Codable`s - similar to the options present on `JSONEncoder` and
+  `JSONDecoder` from `Foundation`.
+- [added] Added a `FirebaseDataEncoder.DateEncodingStrategy` for `Timestamp`s.
 
 # 9.0.0
 - [added] **Breaking change:** `FirebaseFirestoreSwift` has exited beta and is
