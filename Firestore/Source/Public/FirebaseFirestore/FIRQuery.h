@@ -549,8 +549,7 @@ NS_SWIFT_NAME(Query)
  * A query that counts the documents in the result set of this query.
  *
  * The `AggregateQuery` query, when executed, counts the documents in the result set of this `Query`
- * without actually downloading the documents. The count is performed on the server and only the
- * resulting count is downloaded.
+ * without actually downloading the documents.
  *
  * Using the returned query to count the documents is efficient because only the final count, not
  * the documents' data, is downloaded. The returned query can even count the documents if the result
