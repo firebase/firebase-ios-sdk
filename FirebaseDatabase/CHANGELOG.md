@@ -1,3 +1,7 @@
+# 10.0.0
+- [deprecated] Deprecated `FirebaseDatabase` on watchOS 9 and above.
+  watchOS users should instead use the Database REST API directly (#19272).
+
 # 9.6.0
 - [fixed] Fix priority inversion issue exposed by Xcode 14. (#10130)
 
