@@ -1,4 +1,4 @@
-# Unreleased
+# 10.0.0
 - [fixed] Fixed compiler warning about `@param comparator` (#10226).
 
 # 9.6.0
