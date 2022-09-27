@@ -101,7 +101,7 @@ internal protocol DocumentIDProtocol {
 ///   write it into another without adjusting the value here.
 @propertyWrapper
 public struct DocumentID<Value: DocumentIDWrappable & Codable>:
-  DocumentIDProtocol, Codable, StructureCodingUncodedUnkeyed {
+  StructureCodingUncodedUnkeyed {
   private var value: Value? = nil
 
   public init(wrappedValue value: Value?) {
@@ -125,15 +125,19 @@ extension DocumentID: DocumentIDProtocol {
 }
 
 extension DocumentID: Codable {
-  /// A `Codable` object  containing an `@DocumentID` annotated field can only
-  /// be decoded with `Firestore.Decoder`; this initializer always throws.
+  /// A `Codable` object  containing an `@DocumentID` annotated field should
+  /// only be decoded with `Firestore.Decoder`; this initializer throws if an
+  /// unsupported decoder is used.
   ///
-  /// - Parameter decoder: An invalid decoder.
+  /// - Parameter decoder: A decoder.
   /// - Throws: ``FirestoreDecodingError``
   public init(from decoder: Decoder) throws {
     guard let reference = decoder.userInfo[documentRefUserInfoKey] as? DocumentReference else {
       throw FirestoreDecodingError.decodingIsNotSupported(
-        "Could not find DocumentReference for user info key: \(documentRefUserInfoKey); DocumentID values can only be decoded with Firestore.Decoder"
+        """
+        Could not find DocumentReference for user info key: \(documentRefUserInfoKey);
+        DocumentID values can only be decoded with Firestore.Decoder
+        """
       )
     }
     try self.init(from: reference)
