@@ -100,7 +100,7 @@ public extension Firestore {
     public func decode<T: Decodable>(_ t: T.Type, from data: Any,
                                      in reference: DocumentReference?) throws -> T {
       if let reference = reference {
-        userInfo[documentRefUserInfoKey] = reference
+        userInfo[CodingUserInfoKey.documentRefUserInfoKey] = reference
       }
       return try decode(T.self, from: data)
     }
