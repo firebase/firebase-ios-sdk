@@ -28,7 +28,7 @@
 
 @implementation FIRCountTests
 
-- (void)testEquals {
+- (void)testAggregateQueryEquals {
   FIRCollectionReference* coll1 = [self collectionRefWithDocuments:@{}];
   FIRCollectionReference* coll1Same = [[coll1 firestore] collectionWithPath:[coll1 path]];
   FIRAggregateQuery* query1 = [coll1 count];
@@ -131,6 +131,11 @@
   FIRAggregateQuerySnapshot* snapshot2Different =
       [self readSnapshotForAggregate:[[testCollection queryWhereField:@"k" isEqualTo:@"a"] count]];
 
+  FIRAggregateQuerySnapshot* snapshot3 =
+      [self readSnapshotForAggregate:[[testCollection queryWhereField:@"k" isEqualTo:@"b"] count]];
+  FIRAggregateQuerySnapshot* snapshot3Different =
+      [self readSnapshotForAggregate:[[testCollection queryWhereField:@"k" isEqualTo:@"c"] count]];
+
   XCTAssertEqualObjects(snapshot1, snapshot1Same);
   XCTAssertEqual([snapshot1 hash], [snapshot1Same hash]);
   XCTAssertEqualObjects([snapshot1 query], [[testCollection queryWhereField:@"k"
@@ -142,6 +147,8 @@
   XCTAssertNotEqual([snapshot1 hash], [snapshot2 hash]);
   XCTAssertNotEqualObjects(snapshot2, snapshot2Different);
   XCTAssertNotEqual([snapshot2 hash], [snapshot2Different hash]);
+  XCTAssertNotEqualObjects(snapshot3, snapshot3Different);
+  XCTAssertNotEqual([snapshot3 hash], [snapshot3Different hash]);
 }
 
 - (void)testTerminateDoesNotCrashWithFlyingCountQuery {
