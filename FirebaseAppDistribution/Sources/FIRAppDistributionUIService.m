@@ -215,7 +215,10 @@ SFAuthenticationSession *_safariAuthenticationVC;
       self.window = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
     } else {
       FIRFADInfoLog(@"No foreground scene found.");
-      self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+      // If no connected scene is found, we attach the window to one of the scenes
+      // that's available.
+      UIWindowScene *anyScene = (UIWindowScene *)[UIApplication sharedApplication].connectedScenes.anyObject;
+      self.window = [[UIWindow alloc] initWithWindowScene:anyScene];
     }
   } else {
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
