@@ -701,7 +701,11 @@ let package = Package(
 
     .target(
       name: "FirebaseFirestoreSwift",
-      dependencies: ["FirebaseFirestore", "FirebaseSharedSwift"],
+      dependencies: [
+        "FirebaseCoreExtension",
+        "FirebaseFirestore",
+        "FirebaseSharedSwift",
+      ],
       path: "Firestore",
       exclude: [
         "CHANGELOG.md",
