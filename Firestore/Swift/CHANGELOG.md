@@ -1,7 +1,7 @@
 # 10.0.0
-- [changed] Deprecated the `@DocumentID` property wrapper value setter. [#9368]
 - [changed] Initializing a `@DocumentID` property wrapper with a non-nil value
-  will log a warning. This is because the value will be ignored. [#9368]
+  or using the `@DocumentID` property wrapper value setter will log a warning.
+  This is because the set value will be ignored. [#9368]
 - [changed] `Firestore.Encoder` and `Firestore.Decoder` now wraps the shared `FirebaseDataEncoder` and `FirebaseDataDecoder` types which provides new customization options for encoding and decoding date to and from Firestore - similar to the options present on `JSONEncoder` and `JSONDecoder` from `Foundation`.
 - [added] `Firestore.Encoder.KeyEncodingStrategy`
 - [added] `Firestore.Encoder.DateEncodingStrategy`
