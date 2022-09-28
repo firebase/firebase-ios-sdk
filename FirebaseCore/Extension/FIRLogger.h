@@ -149,6 +149,8 @@ extern void FIRLogWarningSwift(FIRLoggerService service, NSString *messageCode, 
 
 @interface FIRLoggerWrapper : NSObject
 
++ (void)foobar;
+
 /**
  * Objective-C wrapper for FirebaseLogBasic to allow weak linking to FirebaseLogger
  * (required) log level (one of the FirebaseLoggerLevel enum values).

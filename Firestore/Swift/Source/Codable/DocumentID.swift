@@ -125,16 +125,17 @@ public struct DocumentID<Value: DocumentIDWrappable & Codable>:
   }
 
   private func logWarning(for value: Value) {
-    FIRLogWarningSwift(
-      "[FirebaseFirestoreSwift]",
-      "I-FST000002",
-      """
-      Attempting to initialize or set a @DocumentID property with a non-nil
-      value: \(value). The document ID is managed by Firestore and any
-      initialized or set value will be ignored. The ID is automatically set
-      when reading from Firestore."
-      """
-    )
+    FirebaseLogger.foobar()
+    // FIRLogWarningSwift(
+    //   "[FirebaseFirestoreSwift]",
+    //   "I-FST000002",
+    //   """
+    //   Attempting to initialize or set a @DocumentID property with a non-nil
+    //   value: \(value). The document ID is managed by Firestore and any
+    //   initialized or set value will be ignored. The ID is automatically set
+    //   when reading from Firestore."
+    //   """
+    // )
   }
 }
 

@@ -180,4 +180,7 @@ void FIRLogWarningSwift(FIRLoggerService service, NSString *messageCode, NSStrin
   FIRLogBasic(level, service, messageCode, message, args);
 }
 
+
++ (void)foobar {}
+
 @end
