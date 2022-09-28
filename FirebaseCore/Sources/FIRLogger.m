@@ -162,6 +162,10 @@ void FIRLogDebugSwift(FIRLoggerService service, NSString *messageCode, NSString 
   FIRLogDebug(service, messageCode, @"%@", message);
 }
 
+void FIRLogWarningSwift(FIRLoggerService service, NSString *messageCode, NSString *message) {
+  FIRLogWarning(service, messageCode, @"%@", message);
+}
+
 #undef FIR_MAKE_LOGGER
 
 #pragma mark - FIRLoggerWrapper
