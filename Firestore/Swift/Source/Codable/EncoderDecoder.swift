@@ -20,23 +20,18 @@ import Foundation
 
 public extension Firestore {
   class Encoder {
-    public typealias DateEncodingStrategy = FirebaseDataEncoder.DateEncodingStrategy
-    public typealias DataEncodingStrategy = FirebaseDataEncoder.DataEncodingStrategy
-    public typealias NonConformingFloatEncodingStrategy = FirebaseDataEncoder
-      .NonConformingFloatEncodingStrategy
-    public typealias KeyEncodingStrategy = FirebaseDataEncoder.KeyEncodingStrategy
-
     /// The strategy to use in encoding dates. Defaults to `.timestamp`.
-    public var dateEncodingStrategy: DateEncodingStrategy = .timestamp
+    public var dateEncodingStrategy: FirebaseDataEncoder.DateEncodingStrategy = .timestamp
 
     /// The strategy to use in encoding binary data. Defaults to `.base64`.
-    public var dataEncodingStrategy: DataEncodingStrategy = .base64
+    public var dataEncodingStrategy: FirebaseDataEncoder.DataEncodingStrategy = .base64
 
     /// The strategy to use in encoding non-conforming numbers. Defaults to `.throw`.
-    public var nonConformingFloatEncodingStrategy: NonConformingFloatEncodingStrategy = .throw
+    public var nonConformingFloatEncodingStrategy: FirebaseDataEncoder
+      .NonConformingFloatEncodingStrategy = .throw
 
     /// The strategy to use for encoding keys. Defaults to `.useDefaultKeys`.
-    public var keyEncodingStrategy: KeyEncodingStrategy = .useDefaultKeys
+    public var keyEncodingStrategy: FirebaseDataEncoder.KeyEncodingStrategy = .useDefaultKeys
 
     /// Contextual user-provided information for use during encoding.
     public var userInfo: [CodingUserInfoKey: Any] = [:]
@@ -64,23 +59,18 @@ public extension Firestore {
   }
 
   class Decoder {
-    public typealias DateDecodingStrategy = FirebaseDataDecoder.DateDecodingStrategy
-    public typealias DataDecodingStrategy = FirebaseDataDecoder.DataDecodingStrategy
-    public typealias NonConformingFloatDecodingStrategy = FirebaseDataDecoder
-      .NonConformingFloatDecodingStrategy
-    public typealias KeyDecodingStrategy = FirebaseDataDecoder.KeyDecodingStrategy
-
     /// The strategy to use in decoding dates. Defaults to `.timestamp`.
-    public var dateDecodingStrategy: DateDecodingStrategy = .timestamp
+    public var dateDecodingStrategy: FirebaseDataDecoder.DateDecodingStrategy = .timestamp
 
     /// The strategy to use in decoding binary data. Defaults to `.base64`.
-    public var dataDecodingStrategy: DataDecodingStrategy = .base64
+    public var dataDecodingStrategy: FirebaseDataDecoder.DataDecodingStrategy = .base64
 
     /// The strategy to use in decoding non-conforming numbers. Defaults to `.throw`.
-    public var nonConformingFloatDecodingStrategy: NonConformingFloatDecodingStrategy = .throw
+    public var nonConformingFloatDecodingStrategy: FirebaseDataDecoder
+      .NonConformingFloatDecodingStrategy = .throw
 
     /// The strategy to use for decoding keys. Defaults to `.useDefaultKeys`.
-    public var keyDecodingStrategy: KeyDecodingStrategy = .useDefaultKeys
+    public var keyDecodingStrategy: FirebaseDataDecoder.KeyDecodingStrategy = .useDefaultKeys
 
     /// Contextual user-provided information for use during decoding.
     public var userInfo: [CodingUserInfoKey: Any] = [:]
@@ -100,7 +90,7 @@ public extension Firestore {
     public func decode<T: Decodable>(_ t: T.Type, from data: Any,
                                      in reference: DocumentReference?) throws -> T {
       if let reference = reference {
-        userInfo[documentRefUserInfoKey] = reference
+        userInfo[CodingUserInfoKey.documentRefUserInfoKey] = reference
       }
       return try decode(T.self, from: data)
     }

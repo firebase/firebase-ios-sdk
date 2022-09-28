@@ -14,29 +14,18 @@
  * limitations under the License.
  */
 
-// TODO(b/246760853): Move FIRAggregateQuerySnapshot to public headers to release it.
-
-#import "FIRAggregateQuery+Internal.h"
+#import "FIRAggregateQuerySnapshot.h"
 
 @class FIRAggregateQuery;
 
-/**
- * An `AggregateQuerySnapshot` contains results of a `AggregateQuery`.
- */
-NS_SWIFT_NAME(AggregateQuerySnapshot)
-@interface FIRAggregateQuerySnapshot : NSObject
+NS_ASSUME_NONNULL_BEGIN
 
-- (instancetype _Nonnull)init NS_UNAVAILABLE;
-- (instancetype _Nonnull)initWithCount:(int64_t)result
-                                 Query:(FIRAggregateQuery* _Nonnull)query NS_DESIGNATED_INITIALIZER;
+@interface FIRAggregateQuerySnapshot (/* init */)
 
-/** The original `AggregateQuery` this snapshot is a result of. */
-@property(nonatomic, readonly) FIRAggregateQuery* _Nonnull query;
-
-/**
- * The result of a document count aggregation. Null if no count aggregation is
- *     available in the result.
- */
-@property(nonatomic, readonly) NSNumber* _Nullable count;
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithCount:(int64_t)result
+                        query:(FIRAggregateQuery *)query NS_DESIGNATED_INITIALIZER;
 
 @end
+
+NS_ASSUME_NONNULL_END
