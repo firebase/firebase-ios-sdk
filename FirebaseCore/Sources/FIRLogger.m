@@ -157,30 +157,44 @@ FIR_LOGGING_FUNCTION(Notice)
 FIR_LOGGING_FUNCTION(Info)
 FIR_LOGGING_FUNCTION(Debug)
 
-// Swift does not support variadic function calls
-void FIRLogDebugSwift(FIRLoggerService service, NSString *messageCode, NSString *message) {
-  FIRLogDebug(service, messageCode, @"%@", message);
-}
-
-void FIRLogWarningSwift(FIRLoggerService service, NSString *messageCode, NSString *message) {
-  FIRLogWarning(service, messageCode, @"%@", message);
-}
-
 #undef FIR_MAKE_LOGGER
 
-#pragma mark - FIRLoggerWrapper
+#pragma mark - FIRLogger
 
-@implementation FIRLoggerWrapper
+@implementation FIRLogger
 
 + (void)logWithLevel:(FIRLoggerLevel)level
-         withService:(FIRLoggerService)service
-            withCode:(NSString *)messageCode
-         withMessage:(NSString *)message
-            withArgs:(va_list)args {
-  FIRLogBasic(level, service, messageCode, message, args);
+             service:(FIRLoggerService)service
+                code:(NSString *)code
+             message:(NSString *)message
+                args:(va_list)args {
+  FIRLogBasic(level, service, code, message, args);
 }
 
++ (void)logWithLevel:(FIRLoggerLevel)level
+             service:(FIRLoggerService)service
+                code:(NSString *)code
+             message:(NSString *)message {
+  if (level == FIRLoggerLevelMin) {
+    return FIRLogError(service, code, @"%@", message);
+  } else if (level == FIRLoggerLevelMax) {
+    return FIRLogDebug(service, code, @"%@", message);
+  }
 
-+ (void)foobar {}
+  switch (level) {
+    case FIRLoggerLevelError:
+      return FIRLogError(service, code, @"%@", message);
+    case FIRLoggerLevelWarning:
+      return FIRLogWarning(service, code, @"%@", message);
+    case FIRLoggerLevelNotice:
+      return FIRLogNotice(service, code, @"%@", message);
+    case FIRLoggerLevelInfo:
+      return FIRLogInfo(service, code, @"%@", message);
+    case FIRLoggerLevelDebug:
+      return FIRLogDebug(service, code, @"%@", message);
+    default:
+      return FIRLogDebug(service, code, @"%@", message);
+  }
+}
 
 @end
