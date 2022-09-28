@@ -7,11 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8817084426B9593E009E9281 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8817084326B9593E009E9281 /* GoogleService-Info.plist */; };
 		8817084726B95A63009E9281 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 8817084626B95A63009E9281 /* FirebaseFirestore */; };
 		8817084926B95A63009E9281 /* FirebaseFirestoreSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 8817084826B95A63009E9281 /* FirebaseFirestoreSwift */; };
 		88327B8826D62908002AA6D9 /* FavouriteFruitsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88327B8726D62908002AA6D9 /* FavouriteFruitsView.swift */; };
 		8844BA6126E0DD3F000786F0 /* FavouriteFruitsMappingErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8844BA6026E0DD3F000786F0 /* FavouriteFruitsMappingErrorView.swift */; };
+		8891A60928E47A3700D956BC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8891A60828E47A3700D956BC /* GoogleService-Info.plist */; };
 		88D5E37826EBD2F200808AFF /* FavouriteFruitsMappingErrorView2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88D5E37726EBD2F200808AFF /* FavouriteFruitsMappingErrorView2.swift */; };
 		88FBD98826B9485F00982BF2 /* FirestoreSampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88FBD98726B9485F00982BF2 /* FirestoreSampleApp.swift */; };
 		88FBD98C26B9486100982BF2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 88FBD98B26B9486100982BF2 /* Assets.xcassets */; };
@@ -21,9 +21,9 @@
 
 /* Begin PBXFileReference section */
 		8809D0AE26B9520B00DE7864 /* firebase-ios-sdk */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "firebase-ios-sdk"; path = ../..; sourceTree = "<group>"; };
-		8817084326B9593E009E9281 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		88327B8726D62908002AA6D9 /* FavouriteFruitsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouriteFruitsView.swift; sourceTree = "<group>"; };
 		8844BA6026E0DD3F000786F0 /* FavouriteFruitsMappingErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouriteFruitsMappingErrorView.swift; sourceTree = "<group>"; };
+		8891A60828E47A3700D956BC /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		88D5E37726EBD2F200808AFF /* FavouriteFruitsMappingErrorView2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouriteFruitsMappingErrorView2.swift; sourceTree = "<group>"; };
 		88FBD98426B9485F00982BF2 /* FirestoreSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FirestoreSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		88FBD98726B9485F00982BF2 /* FirestoreSampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreSampleApp.swift; sourceTree = "<group>"; };
@@ -84,7 +84,7 @@
 				88FBD99526B948A100982BF2 /* App */,
 				88FBD99626B948A900982BF2 /* Views */,
 				88FBD98B26B9486100982BF2 /* Assets.xcassets */,
-				8817084326B9593E009E9281 /* GoogleService-Info.plist */,
+				8891A60828E47A3700D956BC /* GoogleService-Info.plist */,
 				88FBD98D26B9486100982BF2 /* Preview Content */,
 			);
 			path = FirestoreSample;
@@ -180,7 +180,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				88FBD98F26B9486100982BF2 /* Preview Assets.xcassets in Resources */,
-				8817084426B9593E009E9281 /* GoogleService-Info.plist in Resources */,
+				8891A60928E47A3700D956BC /* GoogleService-Info.plist in Resources */,
 				88FBD98C26B9486100982BF2 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -327,7 +327,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"FirestoreSample/Preview Content\"";
-				DEVELOPMENT_TEAM = YGAZHQXHH4;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -335,7 +335,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -357,7 +357,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"FirestoreSample/Preview Content\"";
-				DEVELOPMENT_TEAM = YGAZHQXHH4;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -365,7 +365,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -409,7 +409,7 @@
 		};
 		8817084826B95A63009E9281 /* FirebaseFirestoreSwift */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = "FirebaseFirestoreSwift";
+			productName = FirebaseFirestoreSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
