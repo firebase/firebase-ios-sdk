@@ -34,9 +34,6 @@ struct FirestoreSampleApp: App {
       } detail: {
         Text("Select a demo in the menu first.")
       }
-      
-      // see https://stackoverflow.com/q/63740788/
-      .navigationViewStyle(StackNavigationViewStyle())
     }
   }
 }
