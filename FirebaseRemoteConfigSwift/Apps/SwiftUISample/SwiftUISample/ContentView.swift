@@ -28,7 +28,7 @@ struct Recipe: Decodable {
 
 struct ContentView: View {
   @RemoteConfigProperty(key: "Color", fallback: nil) var colorValue: String?
-  @RemoteConfigProperty(key: "Toggle", fallback: false) var toggleValue: Bool
+  @RemoteConfigProperty(key: "toggleStyleSquare", fallback: false) var toggleStyleSquare: Bool
   @RemoteConfigProperty(key: "fruits", fallback: []) var fruits: [String]
   @RemoteConfigProperty(key: "counter", fallback: 1) var counter: Int
   @RemoteConfigProperty(key: "mobileweek", fallback: ["section 0": "breakfast"]) var sessions:
@@ -38,7 +38,7 @@ struct ContentView: View {
   )
 
   var recipe: Recipe
-  @State private var isChecked = false
+  @State var isChecked = false
 
   var body: some View {
     VStack {
@@ -49,7 +49,11 @@ struct ContentView: View {
       List(fruits, id: \.self) { fruit in
         HStack {
           Button(action: toggle) {
-            Image(systemName: toggleValue ? "checkmark.square" : "checkmark.circle")
+            if (toggleStyleSquare) {
+              Image(systemName: isChecked ? "checkmark.square.fill" : "square")
+            } else {
+              Image(systemName: isChecked ? "checkmark.circle.fill" : "circle")
+            }
           }
           Text(fruit)
         }
@@ -71,12 +75,14 @@ struct ContentView: View {
       if colorValue != nil {
         Text(colorValue!)
           .padding()
-          .foregroundStyle(toggleValue ? .primary : .secondary)
       }
     }
   }
 
-  func toggle() { isChecked = !isChecked }
+  func toggle() {
+    isChecked.toggle()
+    
+  }
 
   func fetchAndActivate() {
     RemoteConfig.remoteConfig().fetchAndActivate()
