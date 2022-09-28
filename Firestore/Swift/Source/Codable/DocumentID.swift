@@ -159,7 +159,11 @@ extension DocumentID: Codable {
     guard let reference = decoder
       .userInfo[CodingUserInfoKey.documentRefUserInfoKey] as? DocumentReference else {
       throw FirestoreDecodingError.decodingIsNotSupported(
-        "Could not find DocumentReference for user info key: \(CodingUserInfoKey.documentRefUserInfoKey)"
+        """
+        Could not find DocumentReference for user info key: \(CodingUserInfoKey
+          .documentRefUserInfoKey).
+        DocumentID values can only be decoded with Firestore.Decoder
+        """
       )
     }
     try self.init(from: reference)
