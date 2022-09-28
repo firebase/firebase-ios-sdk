@@ -16,6 +16,7 @@
 
 import FirebaseFirestore
 import FirebaseSharedSwift
+@_implementationOnly import FirebaseCoreExtension
 
 let documentRefUserInfoKey =
   CodingUserInfoKey(rawValue: "DocumentRefUserInfoKey")!
@@ -105,12 +106,33 @@ public struct DocumentID<Value: DocumentIDWrappable & Codable>:
   private var value: Value? = nil
 
   public init(wrappedValue value: Value?) {
+    if let value = value {
+      logWarning(for: value)
+    }
     self.value = value
   }
 
-  public internal(set) var wrappedValue: Value? {
+  public var wrappedValue: Value? {
     get { value }
-    set { value = newValue }
+    set {
+      if let someNewValue = newValue {
+        logWarning(for: someNewValue)
+      }
+      value = newValue
+    }
+  }
+
+  private func logWarning(for value: Value) {
+    FIRLogWarningSwift(
+      "[FirebaseFirestoreSwift]",
+      "I-FST000002",
+      """
+      Attempting to initialize or set a @DocumentID property with a non-nil
+      value: \(value). The document ID is managed by Firestore and any
+      initialized or set value will be ignored. The ID is automatically set
+      when reading from Firestore."
+      """
+    )
   }
 }
 
