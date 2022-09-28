@@ -16,7 +16,7 @@
 
 import FirebaseFirestore
 import FirebaseSharedSwift
-@implementationOnly import FirebaseCoreExtension
+@_implementationOnly import FirebaseCoreExtension
 
 let documentRefUserInfoKey =
   CodingUserInfoKey(rawValue: "DocumentRefUserInfoKey")!
