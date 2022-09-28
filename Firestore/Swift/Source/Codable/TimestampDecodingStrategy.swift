@@ -16,10 +16,11 @@
 
 import Foundation
 import FirebaseFirestore
+import FirebaseSharedSwift
 
-public extension Firestore.Decoder.DateDecodingStrategy {
+public extension FirebaseDataDecoder.DateDecodingStrategy {
   /// Decode the `Date` from a Firestore `Timestamp`
-  static var timestamp: Firestore.Decoder.DateDecodingStrategy {
+  static var timestamp: FirebaseDataDecoder.DateDecodingStrategy {
     return .custom { decoder in
       let container = try decoder.singleValueContainer()
       let value = try container.decode(Timestamp.self)

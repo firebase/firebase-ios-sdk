@@ -15,11 +15,12 @@
  */
 
 import FirebaseFirestore
+import FirebaseSharedSwift
 import Foundation
 
-public extension Firestore.Encoder.DateEncodingStrategy {
+public extension FirebaseDataEncoder.DateEncodingStrategy {
   /// Encode the `Date` as a Firestore `Timestamp`.
-  static var timestamp: Firestore.Encoder.DateEncodingStrategy {
+  static var timestamp: FirebaseDataEncoder.DateEncodingStrategy {
     return .custom { date, encoder in
       var container = encoder.singleValueContainer()
       try container.encode(Timestamp(date: date))
