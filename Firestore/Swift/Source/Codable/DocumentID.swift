@@ -16,6 +16,7 @@
 
 import FirebaseFirestore
 import FirebaseSharedSwift
+@implementationOnly import FirebaseCoreExtension
 
 let documentRefUserInfoKey =
   CodingUserInfoKey(rawValue: "DocumentRefUserInfoKey")!
@@ -105,11 +106,28 @@ public struct DocumentID<Value: DocumentIDWrappable & Codable>:
   private var value: Value? = nil
 
   public init(wrappedValue value: Value?) {
+    if let value = value {
+      // TODO: Define better way to use FIRLogger from Swift.
+      FIRLogDebugSwift(
+        "[FirebaseFirestoreSwift]",
+        "I-FST000001",
+        """
+        The document ID \(value) is managed by Firestore and any initialized
+        value will be ignored. The ID is automatically set when reading from
+        Firestore."
+        """
+      )
+    }
     self.value = value
   }
 
-  public internal(set) var wrappedValue: Value? {
+  public var wrappedValue: Value? {
     get { value }
+    @available(
+      *,
+      deprecated,
+      message: "This setter is non-functional. The document ID is managed by Firestore."
+    )
     set { value = newValue }
   }
 }
