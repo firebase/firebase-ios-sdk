@@ -41,7 +41,7 @@ struct SwiftUISampleApp: App {
 
   var body: some Scene {
     WindowGroup {
-      ContentView(realtimeToggle: false)
+      ContentView().analyticsScreen(name: "ContentView")
     }
   }
 }

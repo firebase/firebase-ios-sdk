@@ -16,6 +16,8 @@
 
 import FirebaseRemoteConfig
 import FirebaseRemoteConfigSwift
+import FirebaseAnalyticsSwift
+import FirebaseAnalytics
 import SwiftUI
 
 struct Recipe: Decodable {
@@ -25,9 +27,8 @@ struct Recipe: Decodable {
 }
 
 struct ContentView: View {
-  @RemoteConfigProperty(key: "Color", fallback: "blue") var colorValue: String
-  @RemoteConfigProperty(key: "Food", fallback: nil) var foodValue: String?
-  @RemoteConfigProperty(key: "Toggle", fallback: false) var toggleValue: Bool
+  @RemoteConfigProperty(key: "Color", fallback: nil) var colorValue: String?
+  @RemoteConfigProperty(key: "toggleStyleSquare", fallback: false) var toggleStyleSquare: Bool
   @RemoteConfigProperty(key: "fruits", fallback: []) var fruits: [String]
   @RemoteConfigProperty(key: "counter", fallback: 1) var counter: Int
   @RemoteConfigProperty(key: "mobileweek", fallback: ["section 0": "breakfast"]) var sessions:
@@ -35,10 +36,9 @@ struct ContentView: View {
   @RemoteConfigProperty(
     key: "recipe", fallback: Recipe(recipeName: "banana bread", cookTime: 40, notes: "yum!")
   )
-  var recipe: Recipe
 
-  @State private var realtimeSwitch = false
-  var realtimeToggle: Bool
+  var recipe: Recipe
+  @State var isChecked = false
 
   var body: some View {
     VStack {
@@ -47,7 +47,16 @@ struct ContentView: View {
       }
 
       List(fruits, id: \.self) { fruit in
-        Text(fruit)
+        HStack {
+          Button(action: toggle) {
+            if toggleStyleSquare {
+              Image(systemName: isChecked ? "checkmark.square.fill" : "square")
+            } else {
+              Image(systemName: isChecked ? "checkmark.circle.fill" : "circle")
+            }
+          }
+          Text(fruit)
+        }
       }
       List {
         ForEach(sessions.sorted(by: >), id: \.key) { key, value in
@@ -60,27 +69,28 @@ struct ContentView: View {
         Text(recipe.recipeName)
         Text(recipe.notes)
         Text("cook time: \(recipe.cookTime)")
+          .analyticsScreen(name: "recipe")
       }
-      ForEach(0 ... counter, id: \.self) { i in
-        Text(colorValue)
+      // Test non exist key
+      if colorValue != nil {
+        Text(colorValue!)
           .padding()
-          .foregroundStyle(toggleValue ? .primary : .secondary)
-        if foodValue != nil {
-          Text(foodValue!)
-            .padding()
-            .foregroundStyle(toggleValue ? .primary : .secondary)
-        }
       }
     }
   }
 
+  func toggle() {
+    isChecked.toggle()
+  }
+
   func fetchAndActivate() {
     RemoteConfig.remoteConfig().fetchAndActivate()
+    Analytics.logEvent("activate", parameters: [:])
   }
 }
 
 struct ContentView_Previews: PreviewProvider {
   static var previews: some View {
-    ContentView(realtimeToggle: false)
+    ContentView()
   }
 }
