@@ -5,7 +5,7 @@
   `open func reference(forURL url: String) -> StorageReference` except it throws instead of
   erroring. (#6974)
 - [changed] The `FirebaseStorageInternal` CocoaPod has been discontinued.
-- [changed] Remove the `storageReference` property of `StorageMetadata`. It had never been implemented
+- [changed] Deprecate the `storageReference` property of `StorageMetadata`. It had never been implemented
   and always returned `nil`.
 - [changed] Storage APIs that previously threw an Objective-C exception now generate a Swift
   `fatalError`.
