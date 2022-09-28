@@ -159,23 +159,23 @@ FIR_LOGGING_FUNCTION(Debug)
 
 #undef FIR_MAKE_LOGGER
 
-#pragma mark - FIRLogger
+#pragma mark - FIRLoggerWrapper
 
-@implementation FIRLogger
+@implementation FIRLoggerWrapper
 
 + (void)logWithLevel:(FIRLoggerLevel)level
-             service:(FIRLoggerService)service
-                code:(NSString *)code
-             message:(NSString *)message
-                args:(va_list)args {
-  FIRLogBasic(level, service, code, message, args);
+         withService:(FIRLoggerService)service
+            withCode:(NSString *)messageCode
+         withMessage:(NSString *)message
+            withArgs:(va_list)args {
+  FIRLogBasic(level, service, messageCode, message, args);
 }
 
 + (void)logWithLevel:(FIRLoggerLevel)level
              service:(FIRLoggerService)service
                 code:(NSString *)code
              message:(NSString *)message {
-  FIRLogBasic(level, service, code, @"%@", message);
+  FIRLogBasic(level, service, code, message, NULL);
 }
 
 @end
