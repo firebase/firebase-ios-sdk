@@ -175,26 +175,7 @@ FIR_LOGGING_FUNCTION(Debug)
              service:(FIRLoggerService)service
                 code:(NSString *)code
              message:(NSString *)message {
-  if (level == FIRLoggerLevelMin) {
-    return FIRLogError(service, code, @"%@", message);
-  } else if (level == FIRLoggerLevelMax) {
-    return FIRLogDebug(service, code, @"%@", message);
-  }
-
-  switch (level) {
-    case FIRLoggerLevelError:
-      return FIRLogError(service, code, @"%@", message);
-    case FIRLoggerLevelWarning:
-      return FIRLogWarning(service, code, @"%@", message);
-    case FIRLoggerLevelNotice:
-      return FIRLogNotice(service, code, @"%@", message);
-    case FIRLoggerLevelInfo:
-      return FIRLogInfo(service, code, @"%@", message);
-    case FIRLoggerLevelDebug:
-      return FIRLogDebug(service, code, @"%@", message);
-    default:
-      return FIRLogDebug(service, code, @"%@", message);
-  }
+  FIRLogBasic(level, service, code, @"%@", message);
 }
 
 @end
