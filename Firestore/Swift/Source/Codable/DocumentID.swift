@@ -125,7 +125,7 @@ public struct DocumentID<Value: DocumentIDWrappable & Codable>:
   }
 
   private func logWarning(for value: Value) {
-    FirebaseLogger.foobar()
+    FIRLoggerWrapper.foobar()
     // FIRLogWarningSwift(
     //   "[FirebaseFirestoreSwift]",
     //   "I-FST000002",
