@@ -24,18 +24,38 @@
 #include "Firestore/core/src/util/error_apple.h"
 #include "Firestore/core/src/util/statusor.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
+#pragma mark - FIRAggregateQuery
+
 @implementation FIRAggregateQuery {
   FIRQuery *_query;
   std::unique_ptr<api::AggregateQuery> _aggregation;
 }
 
-- (instancetype _Nonnull)initWithQuery:(FIRQuery *)query {
+- (instancetype)initWithQuery:(FIRQuery *)query {
   if (self = [super init]) {
     _query = query;
     _aggregation = absl::make_unique<api::AggregateQuery>(query.apiQuery.Count());
   }
   return self;
 }
+
+#pragma mark - NSObject Methods
+
+- (BOOL)isEqual:(nullable id)other {
+  if (other == self) return YES;
+  if (![[other class] isEqual:[self class]]) return NO;
+
+  auto otherQuery = static_cast<FIRAggregateQuery *>(other);
+  return [_query isEqual:otherQuery->_query];
+}
+
+- (NSUInteger)hash {
+  return [_query hash];
+}
+
+#pragma mark - Public Methods
 
 - (FIRQuery *)query {
   return _query;
@@ -46,7 +66,7 @@
                                         NSError *_Nullable error))completion {
   _aggregation->Get([self, completion](const firebase::firestore::util::StatusOr<int64_t> &result) {
     if (result.ok()) {
-      completion([[FIRAggregateQuerySnapshot alloc] initWithCount:result.ValueOrDie() Query:self],
+      completion([[FIRAggregateQuerySnapshot alloc] initWithCount:result.ValueOrDie() query:self],
                  nil);
     } else {
       completion(nil, MakeNSError(result.status()));
@@ -55,3 +75,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

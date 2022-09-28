@@ -14,17 +14,28 @@
  * limitations under the License.
  */
 
-// TODO(b/246760853): Move FIRAggregateSource to public headers to release it.
-
 #import <Foundation/Foundation.h>
 
-/** Configures the behavior of `AggregateQuery.aggregateWithSource(source:completion:)`. */
-typedef NS_ENUM(NSUInteger, FIRAggregateSource) {
-  /**
-   * Reach to the Firestore backend and surface the result verbatim, that is no local documents or
-   * mutations in the SDK cache will be included in the surfaced result.
-   *
-   * NOTE: Requires client to be online.
-   */
-  FIRAggregateSourceServer,
-} NS_SWIFT_NAME(AggregateSource);
+NS_ASSUME_NONNULL_BEGIN
+
+@class FIRAggregateQuery;
+
+/**
+ * The results of executing an `AggregateQuery`.
+ */
+NS_SWIFT_NAME(AggregateQuerySnapshot)
+@interface FIRAggregateQuerySnapshot : NSObject
+
+/** :nodoc: */
+- (instancetype)init
+    __attribute__((unavailable("FIRAggregateQuerySnapshot cannot be created directly.")));
+
+/** The query that was executed to produce this result. */
+@property(nonatomic, readonly) FIRAggregateQuery* query;
+
+/** The number of documents in the result set of the underlying query. */
+@property(nonatomic, readonly) NSNumber* count;
+
+@end
+
+NS_ASSUME_NONNULL_END
