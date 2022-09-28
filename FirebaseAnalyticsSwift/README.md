@@ -11,7 +11,7 @@ struct ContentView: View {
   var body: some View {
     Text("Hello, world!")
       // Logging screen name with class and a custom parameter.
-      .onAppear { 
+      .onAppear {
         Analytics.logEvent(AnalyticsEventScreenView,
                            parameters: [AnalyticsParameterScreenName: "main_content",
                                         AnalyticsParameterScreenClass: "ContentView",
@@ -22,7 +22,7 @@ struct ContentView: View {
       .onAppear {
         Analytics.logEvent(AnalyticsEventScreenView,
                            parameters: [AnalyticsParameterScreenName: "main_content"])
-      } 
+      }
   }
 }
 
@@ -34,7 +34,7 @@ struct ContentView: View {
   var body: some View {
     Text("Hello, world!")
        // Logging screen name with class and a custom parameter.
-      .analyticsScreen(name: "main_content", 
+      .analyticsScreen(name: "main_content",
                        class: "ContentView",
                        extraParameters: ["my_custom_param": 5])
 
