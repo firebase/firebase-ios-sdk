@@ -49,7 +49,7 @@ struct ContentView: View {
       List(fruits, id: \.self) { fruit in
         HStack {
           Button(action: toggle) {
-            if (toggleStyleSquare) {
+            if toggleStyleSquare {
               Image(systemName: isChecked ? "checkmark.square.fill" : "square")
             } else {
               Image(systemName: isChecked ? "checkmark.circle.fill" : "circle")
@@ -81,7 +81,6 @@ struct ContentView: View {
 
   func toggle() {
     isChecked.toggle()
-    
   }
 
   func fetchAndActivate() {
