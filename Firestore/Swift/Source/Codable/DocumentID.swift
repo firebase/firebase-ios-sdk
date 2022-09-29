@@ -131,7 +131,7 @@ public struct DocumentID<Value: DocumentIDWrappable & Codable>:
       code: "I-FST000002",
       message: """
       Attempting to initialize or set a @DocumentID property with a non-nil \
-      value: \(value). The document ID is managed by Firestore and any \
+      value: "\(value)". The document ID is managed by Firestore and any \
       initialized or set value will be ignored. The ID is automatically set \
       when reading from Firestore.
       """
