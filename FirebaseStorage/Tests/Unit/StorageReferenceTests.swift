@@ -266,7 +266,7 @@ class StorageReferenceTests: XCTestCase {
       XCTAssertEqual(expectedDescription, nsError.localizedDescription)
       XCTAssertEqual(nsError.domain, StorageErrorDomain)
     }
-    waitForExpectations(timeout: 0.5)
+    waitForExpectations(timeout: 1.0)
   }
 
   // MARK: Private Helpers
