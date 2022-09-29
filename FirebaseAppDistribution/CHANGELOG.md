@@ -1,5 +1,5 @@
 # 9.0.1
-- [fixed] Fixed inconsistent sign in prompts in single scenes (#8096).
+- [fixed] Fixed inconsistent sign in prompts in single scene apps (#8096).
 
 # 9.0.0
 - [fixed] Marked `releaseNotes` as `nullable` as they don't always exist (#8602).
