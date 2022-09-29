@@ -157,15 +157,6 @@ FIR_LOGGING_FUNCTION(Notice)
 FIR_LOGGING_FUNCTION(Info)
 FIR_LOGGING_FUNCTION(Debug)
 
-// Swift does not support variadic function calls
-void FIRLogDebugSwift(FIRLoggerService service, NSString *messageCode, NSString *message) {
-  FIRLogDebug(service, messageCode, @"%@", message);
-}
-
-void FIRLogWarningSwift(FIRLoggerService service, NSString *messageCode, NSString *message) {
-  FIRLogWarning(service, messageCode, @"%@", message);
-}
-
 #undef FIR_MAKE_LOGGER
 
 #pragma mark - FIRLoggerWrapper
@@ -178,6 +169,13 @@ void FIRLogWarningSwift(FIRLoggerService service, NSString *messageCode, NSStrin
          withMessage:(NSString *)message
             withArgs:(va_list)args {
   FIRLogBasic(level, service, messageCode, message, args);
+}
+
++ (void)logWithLevel:(FIRLoggerLevel)level
+             service:(FIRLoggerService)service
+                code:(NSString *)code
+             message:(NSString *)message {
+  FIRLogBasic(level, service, code, message, NULL);
 }
 
 @end

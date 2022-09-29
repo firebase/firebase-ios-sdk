@@ -64,10 +64,11 @@ internal class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
         request?.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
 
         if let error = tokenResult.error {
-          FIRLogDebugSwift(
-            "[FirebaseStorage]",
-            "I-STR000001",
-            "Failed to fetch AppCheck token. Error: \(error)"
+          FirebaseLogger.log(
+            level: .debug,
+            service: "[FirebaseStorage]",
+            code: "I-STR000001",
+            message: "Failed to fetch AppCheck token. Error: \(error)"
           )
         }
         fetchTokenGroup.leave()
