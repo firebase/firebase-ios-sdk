@@ -217,7 +217,8 @@ SFAuthenticationSession *_safariAuthenticationVC;
       // There are situations where a scene isn't considered foreground in viewDidAppear
       // and this fixes the issue in single scene apps.
       // https://github.com/firebase/firebase-ios-sdk/issues/8096
-      UIWindowScene *scene = (UIWindowScene *)[UIApplication sharedApplication].connectedScenes.anyObject;
+      UIWindowScene *scene =
+          (UIWindowScene *)[UIApplication sharedApplication].connectedScenes.anyObject;
       self.window = [[UIWindow alloc] initWithWindowScene:scene];
     } else {
       // TODO: Consider using UISceneDidActivateNotification.
