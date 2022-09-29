@@ -293,7 +293,7 @@ model::DocumentComparator Query::Comparator() const {
       });
 }
 
-const std::string Query::CanonicalId() const {
+std::string Query::CanonicalId() const {
   if (limit_type_ != LimitType::None) {
     return absl::StrCat(ToTarget().CanonicalId(),
                         "|lt:", (limit_type_ == LimitType::Last) ? "l" : "f");

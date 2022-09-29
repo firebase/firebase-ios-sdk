@@ -69,12 +69,14 @@ using model::PatchMutation;
 using model::Precondition;
 using model::SnapshotVersion;
 using model::TargetId;
+using testutil::AndFilters;
 using testutil::Doc;
 using testutil::DocSet;
 using testutil::Filter;
 using testutil::Key;
 using testutil::Map;
 using testutil::OrderBy;
+using testutil::OrFilters;
 using testutil::Query;
 using testutil::Version;
 
@@ -166,16 +168,16 @@ void QueryEngineTestBase::AddMutation(Mutation mutation) {
 }
 
 DocumentSet QueryEngineTestBase::ExpectOptimizedCollectionScan(
-    const std::function<DocumentSet(void)>& f) {
+    const std::function<DocumentSet(void)>& fun) {
   local_documents_view_.ExpectFullCollectionScan(false);
-  return f();
+  return fun();
 }
 
 template <typename T>
 T QueryEngineTestBase::ExpectFullCollectionScan(
-    const std::function<T(void)>& f) {
+    const std::function<T(void)>& fun) {
   local_documents_view_.ExpectFullCollectionScan(true);
-  return f();
+  return fun();
 }
 
 DocumentSet QueryEngineTestBase::RunQuery(
@@ -495,13 +497,128 @@ TEST_P(QueryEngineTest, DoesNotIncludeDocumentsDeletedByMutation) {
     });
     DocumentMap result;
     result = result.insert(kMatchingDocA.key(), kMatchingDocA);
-    EXPECT_EQ(1u, result.size());
+    EXPECT_EQ(1U, result.size());
     EXPECT_TRUE(result.find(kMatchingDocA.key()) != result.end());
     EXPECT_EQ(result.get(kMatchingDocA.key()), kMatchingDocA);
   });
 }
 
-// TODO(orquery): Port test canPerformOrQueriesUsingFullCollectionScan
+TEST_P(QueryEngineTest, CanPerformOrQueriesUsingFullCollectionScan1) {
+  persistence_->Run("CanPerformOrQueriesUsingFullCollectionScan1", [&] {
+    mutation_queue_->Start();
+    index_manager_->Start();
+
+    MutableDocument doc1 = Doc("coll/1", 1, Map("a", 1, "b", 0));
+    MutableDocument doc2 = Doc("coll/2", 1, Map("a", 2, "b", 1));
+    MutableDocument doc3 = Doc("coll/3", 1, Map("a", 3, "b", 2));
+    MutableDocument doc4 = Doc("coll/4", 1, Map("a", 1, "b", 3));
+    MutableDocument doc5 = Doc("coll/5", 1, Map("a", 1, "b", 1));
+    AddDocuments({doc1, doc2, doc3, doc4, doc5});
+
+    // Two equalities: a==1 || b==1.
+    core::Query query1 = Query("coll").AddingFilter(
+        OrFilters({Filter("a", "==", 1), Filter("b", "==", 1)}));
+    DocumentSet result1 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query1, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result1, DocSet(query1.Comparator(), {doc1, doc2, doc4, doc5}));
+
+    // with one inequality: a>2 || b==1.
+    core::Query query2 = Query("coll").AddingFilter(
+        OrFilters({Filter("a", ">", 2), Filter("b", "==", 1)}));
+    DocumentSet result2 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query2, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result2, DocSet(query2.Comparator(), {doc2, doc3, doc5}));
+
+    // (a==1 && b==0) || (a==3 && b==2)
+    core::Query query3 = Query("coll").AddingFilter(
+        OrFilters({AndFilters({Filter("a", "==", 1), Filter("b", "==", 0)}),
+                   AndFilters({Filter("a", "==", 3), Filter("b", "==", 2)})}));
+    DocumentSet result3 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query3, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result3, DocSet(query3.Comparator(), {doc1, doc3}));
+
+    // a==1 && (b==0 || b==3).
+    core::Query query4 = Query("coll").AddingFilter(
+        AndFilters({Filter("a", "==", 1),
+                    OrFilters({Filter("b", "==", 0), Filter("b", "==", 3)})}));
+    DocumentSet result4 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query4, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result4, DocSet(query4.Comparator(), {doc1, doc4}));
+
+    // (a==2 || b==2) && (a==3 || b==3)
+    core::Query query5 = Query("coll").AddingFilter(
+        AndFilters({OrFilters({Filter("a", "==", 2), Filter("b", "==", 2)}),
+                    OrFilters({Filter("a", "==", 3), Filter("b", "==", 3)})}));
+    DocumentSet result5 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query5, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result5, DocSet(query5.Comparator(), {doc3}));
+  });
+}
+
+TEST_P(QueryEngineTest, CanPerformOrQueriesUsingFullCollectionScan2) {
+  persistence_->Run("CanPerformOrQueriesUsingFullCollectionScan2", [&] {
+    mutation_queue_->Start();
+    index_manager_->Start();
+
+    MutableDocument doc1 = Doc("coll/1", 1, Map("a", 1, "b", 0));
+    MutableDocument doc2 = Doc("coll/2", 1, Map("a", 2, "b", 1));
+    MutableDocument doc3 = Doc("coll/3", 1, Map("a", 3, "b", 2));
+    MutableDocument doc4 = Doc("coll/4", 1, Map("a", 1, "b", 3));
+    MutableDocument doc5 = Doc("coll/5", 1, Map("a", 1, "b", 1));
+    AddDocuments({doc1, doc2, doc3, doc4, doc5});
+
+    // Test with limits (implicit order by ASC): (a==1) || (b > 0) LIMIT 2
+    core::Query query6 = Query("coll")
+                             .AddingFilter(OrFilters(
+                                 {Filter("a", "==", 1), Filter("b", ">", 0)}))
+                             .WithLimitToFirst(2);
+    DocumentSet result6 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query6, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result6, DocSet(query6.Comparator(), {doc1, doc2}));
+
+    // Test with limits (implicit order by DESC): (a==1) || (b > 0)
+    // LIMIT_TO_LAST 2
+    core::Query query7 = Query("coll")
+                             .AddingFilter(OrFilters(
+                                 {Filter("a", "==", 1), Filter("b", ">", 0)}))
+                             .WithLimitToLast(2);
+    DocumentSet result7 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query7, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result7, DocSet(query7.Comparator(), {doc3, doc4}));
+
+    // Test with limits (explicit order by ASC): (a==2) || (b == 1) ORDER BY a
+    // LIMIT 1
+    core::Query query8 = Query("coll")
+                             .AddingFilter(OrFilters(
+                                 {Filter("a", "==", 2), Filter("b", "==", 1)}))
+                             .WithLimitToFirst(1)
+                             .AddingOrderBy(OrderBy("a", "asc"));
+    DocumentSet result8 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query8, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result8, DocSet(query8.Comparator(), {doc5}));
+
+    // Test with limits (explicit order by DESC): (a==2) || (b == 1) ORDER BY a
+    // LIMIT_TO_LAST 1
+    core::Query query9 = Query("coll")
+                             .AddingFilter(OrFilters(
+                                 {Filter("a", "==", 2), Filter("b", "==", 1)}))
+                             .WithLimitToLast(1)
+                             .AddingOrderBy(OrderBy("a", "asc"));
+    DocumentSet result9 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query9, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result9, DocSet(query9.Comparator(), {doc2}));
+
+    // Test with limits without orderBy (the __name__ ordering is the tie
+    // breaker).
+    core::Query query10 = Query("coll")
+                              .AddingFilter(OrFilters(
+                                  {Filter("a", "==", 2), Filter("b", "==", 1)}))
+                              .WithLimitToFirst(1);
+    DocumentSet result10 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query10, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result10, DocSet(query10.Comparator(), {doc2}));
+  });
+}
 
 }  // namespace local
 }  // namespace firestore

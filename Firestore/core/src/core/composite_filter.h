@@ -80,6 +80,12 @@ class CompositeFilter : public Filter {
     return composite_filter_rep().IsFlat();
   }
 
+  /**
+   * Returns a new composite filter that contains all filter from `this`
+   * plus all the given filters.
+   */
+  CompositeFilter WithAddedFilters(std::vector<core::Filter>&& other_filters);
+
  private:
   class Rep : public Filter::Rep {
    private:

@@ -186,9 +186,7 @@ std::string FieldFilter::Rep::CanonicalId() const {
 }
 
 std::string FieldFilter::Rep::ToString() const {
-  return util::StringFormat("%s %s %s", field_.CanonicalString(),
-                            CanonicalName(op_),
-                            model::CanonicalId(*value_rhs_));
+  return CanonicalId();
 }
 
 bool FieldFilter::Rep::Equals(const Filter::Rep& other) const {

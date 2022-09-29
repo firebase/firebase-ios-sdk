@@ -24,7 +24,6 @@
 #include "Firestore/core/src/util/async_queue.h"
 
 @class FIRApp;
-@class FSTFirestoreClient;
 @class FSTUserDataReader;
 
 namespace firebase {
