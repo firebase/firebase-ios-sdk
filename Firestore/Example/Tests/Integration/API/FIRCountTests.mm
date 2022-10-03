@@ -19,9 +19,6 @@
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
-#import "Firestore/Source/Public/FirebaseFirestore/FIRAggregateQuery.h"
-#import "Firestore/Source/Public/FirebaseFirestore/FIRAggregateQuerySnapshot.h"
-#import "Firestore/Source/Public/FirebaseFirestore/FIRAggregateSource.h"
 
 @interface FIRCountTests : FSTIntegrationTestCase
 @end
