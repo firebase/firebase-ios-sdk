@@ -546,13 +546,11 @@ NS_SWIFT_NAME(Query)
 #pragma mark - Aggregation
 
 /**
- * A query that counts the documents in the result set of this query.
+ * A query that counts the documents in the result set of this query, without actually downloading
+ * the documents.
  *
- * The `AggregateQuery` query, when executed, counts the documents in the result set of this `Query`
- * without actually downloading the documents.
- *
- * Using the returned query to count the documents is efficient because only the final count, not
- * the documents' data, is downloaded. The returned query can even count the documents if the result
+ * Using this `AggregateQuery` to count the documents is efficient because only the final count,
+ * not the documents' data, is downloaded. The query can even count the documents if the result
  * set would be prohibitively large to download entirely (e.g. thousands of documents).
  */
 @property(nonatomic, readonly) FIRAggregateQuery *count;
