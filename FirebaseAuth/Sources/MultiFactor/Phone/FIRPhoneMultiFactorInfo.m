@@ -47,7 +47,7 @@ extern NSString *const FIRPhoneMultiFactorID;
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
   self = [super initWithCoder:aDecoder];
   if (self) {
-      _phoneNumber = [aDecoder decodeObjectOfClass:[NSString class] forKey:kPhoneNumberCodingKey];
+    _phoneNumber = [aDecoder decodeObjectOfClass:[NSString class] forKey:kPhoneNumberCodingKey];
   }
   return self;
 }

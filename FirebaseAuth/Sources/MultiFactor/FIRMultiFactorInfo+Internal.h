@@ -31,7 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithProto:(FIRAuthProtoMFAEnrollment *)proto;
 
 #pragma mark - NSSecureCoding
-// Note that we're not able to indicate FIRMultiFactorInfo conforming to NSSecureCoding in an internal header file, the following NSSecureCoding methods are explicitly declared.
+// Note that we're not able to indicate FIRMultiFactorInfo conforming to NSSecureCoding in an
+// internal header file, the following NSSecureCoding methods are explicitly declared.
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder;
 
