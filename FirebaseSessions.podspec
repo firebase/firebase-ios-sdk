@@ -4,7 +4,8 @@ Pod::Spec.new do |s|
   s.summary          = 'Firebase Sessions'
 
   s.description      = <<-DESC
-  Firebase Sessions.
+  Not for public use.
+  SDK for sending events for Firebase App Quality Sessions.
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
