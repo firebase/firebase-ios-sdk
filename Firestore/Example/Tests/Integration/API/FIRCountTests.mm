@@ -58,11 +58,6 @@
 }
 
 - (void)testCanRunCountQuery {
-  // TODO(b/246758022): Remove this (and below) once COUNT is release for the backend.
-  if (![FSTIntegrationTestCase isRunningAgainstEmulator]) {
-    return;
-  }
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{@"k" : @"a"},
     @"b" : @{@"k" : @"b"},
@@ -74,10 +69,6 @@
 }
 
 - (void)testCanRunCountWithFilters {
-  if (![FSTIntegrationTestCase isRunningAgainstEmulator]) {
-    return;
-  }
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{@"k" : @"a"},
     @"b" : @{@"k" : @"b"},
@@ -90,10 +81,6 @@
 }
 
 - (void)testCanRunCountWithOrderBys {
-  if (![FSTIntegrationTestCase isRunningAgainstEmulator]) {
-    return;
-  }
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{@"k" : @"a"},
     @"b" : @{@"k" : @"b"},
@@ -107,10 +94,6 @@
 }
 
 - (void)testSnapshotEquals {
-  if (![FSTIntegrationTestCase isRunningAgainstEmulator]) {
-    return;
-  }
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{@"k" : @"a"},
     @"b" : @{@"k" : @"b"},
@@ -149,10 +132,6 @@
 }
 
 - (void)testTerminateDoesNotCrashWithFlyingCountQuery {
-  if (![FSTIntegrationTestCase isRunningAgainstEmulator]) {
-    return;
-  }
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{@"k" : @"a"},
     @"b" : @{@"k" : @"b"},
@@ -169,10 +148,6 @@
 }
 
 - (void)testCanRunCollectionGroupCountQuery {
-  if (![FSTIntegrationTestCase isRunningAgainstEmulator]) {
-    return;
-  }
-
   NSString* collectionGroup =
       [NSString stringWithFormat:@"%@%@", @"b",
                                  [self.db collectionWithPath:@"foo"].documentWithAutoID.documentID];
@@ -202,10 +177,6 @@
 }
 
 - (void)testCanRunCountWithFiltersAndLimits {
-  if (![FSTIntegrationTestCase isRunningAgainstEmulator]) {
-    return;
-  }
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{@"k" : @"a"},
     @"b" : @{@"k" : @"a"},
@@ -230,10 +201,6 @@
 }
 
 - (void)testCanRunCountOnNonExistentCollection {
-  if (![FSTIntegrationTestCase isRunningAgainstEmulator]) {
-    return;
-  }
-
   FIRCollectionReference* testCollection = [self collectionRef];
 
   FIRAggregateQuerySnapshot* snapshot = [self readSnapshotForAggregate:[testCollection count]];
@@ -245,10 +212,6 @@
 }
 
 - (void)testFailWithoutNetwork {
-  if (![FSTIntegrationTestCase isRunningAgainstEmulator]) {
-    return;
-  }
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{@"k" : @"a"},
     @"b" : @{@"k" : @"b"},
