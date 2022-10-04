@@ -105,21 +105,34 @@ internal protocol DocumentIDProtocol {
 @propertyWrapper
 public struct DocumentID<Value: DocumentIDWrappable & Codable>:
   StructureCodingUncodedUnkeyed {
-  private var value: Value? = nil
+  private var value: Value?
 
+  /// Constructs a `DocumentID` property wrapper with a value of `nil`.
+  ///
+  /// The `DocumentID` property wrapper should be considered read-only, the
+  /// `@DocumentID` field is populated with a document identifier when the
+  /// `Codable` is read using the Firestore APIs.
+  ///
+  /// - Parameter wrappedValue: An initial `String`, `DocumentReference` or
+  ///   `nil` value that will be ignored.
+  ///
+  /// - Important: The initial value is always `nil` regardless of the value
+  ///   specified in the `wrappedValue` parameter.
   public init(wrappedValue value: Value?) {
     if let value = value {
       logIgnoredValueWarning(value: value)
     }
-    self.value = value
+    self.value = nil
   }
 
-  public var wrappedValue: Value? {
+  
+  /// Gets the document identifier if populated; `nil` otherwise.
+  ///
+  /// - Important: This property is read-only; the setter is `internal`.
+  public internal(set) var wrappedValue: Value? {
     get { value }
     set {
-      if let someNewValue = newValue {
-        logIgnoredValueWarning(value: someNewValue)
-      }
+      // The setter can only be accessed internally or with `@testable`.
       value = newValue
     }
   }

@@ -214,6 +214,11 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
     struct Model: Codable, Equatable {
       var name: String
       @DocumentID var docId: DocumentReference?
+      
+      init(name: String, docId: DocumentReference?) {
+        self.name = name
+        self.docId = docId
+      }
     }
 
     let docToWrite = documentRef()

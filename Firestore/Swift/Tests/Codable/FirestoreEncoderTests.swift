@@ -16,7 +16,7 @@
 
 import Foundation
 import FirebaseFirestore
-import FirebaseFirestoreSwift
+@testable import FirebaseFirestoreSwift
 import XCTest
 
 class FirestoreEncoderTests: XCTestCase {
@@ -536,7 +536,13 @@ class FirestoreEncoderTests: XCTestCase {
     struct Model: Codable, Equatable {
       var name: String
       @DocumentID var docId: DocumentReference?
+      
+      init(name: String, docId: DocumentReference?) {
+        self.name = name
+        self.docId = docId
+      }
     }
+
     assertThat(["name": "abc"], in: "abc/123")
       .decodes(to: Model(name: "abc", docId: FSTTestDocRef("abc/123")))
   }
@@ -545,7 +551,13 @@ class FirestoreEncoderTests: XCTestCase {
     struct Model: Codable, Equatable {
       var name: String
       @DocumentID var docId: String?
+      
+      init(name: String, docId: String?) {
+        self.name = name
+        self.docId = docId
+      }
     }
+
     assertThat(["name": "abc"], in: "abc/123")
       .decodes(to: Model(name: "abc", docId: "123"))
   }
