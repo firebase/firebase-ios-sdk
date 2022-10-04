@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - NSSecureCoding
 // Note that we're not able to indicate FIRMultiFactorInfo conforming to NSSecureCoding in an
-// internal header file, the following NSSecureCoding methods are explicitly declared.
+// internal header file, so the following NSSecureCoding methods are explicitly declared.
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder;
 
