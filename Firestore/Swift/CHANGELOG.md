@@ -1,9 +1,7 @@
 # 10.0.0
-- [changed] **Breaking Change:** Made the `@DocumentID` property wrapper value
-  setter internal to clarify that the value is ignored during writes. (#9368)
-- [changed] Initializing a `@DocumentID` property wrapper with a non-nil value
-  or using the `@DocumentID` property wrapper value setter will log a warning.
-  This is because the set value will be ignored. (#9368)
+- [changed] Passing a non-nil value to the `@DocumentID` property wrapper's
+  constructor or setter will log a warning. This is because the set value will
+  be ignored. (#9368)
 - [changed] `Firestore.Encoder` and `Firestore.Decoder` now wraps the shared
   `FirebaseDataEncoder` and `FirebaseDataDecoder` types, which provides new
   customization options for encoding and decoding data to and from Firestore
