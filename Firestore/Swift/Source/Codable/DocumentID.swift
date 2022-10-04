@@ -125,7 +125,6 @@ public struct DocumentID<Value: DocumentIDWrappable & Codable>:
     self.value = nil
   }
 
-  
   /// Gets the document identifier if populated; `nil` otherwise.
   ///
   /// - Important: This property is read-only; the setter is `internal`.

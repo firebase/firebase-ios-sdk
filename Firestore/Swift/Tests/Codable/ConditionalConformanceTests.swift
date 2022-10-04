@@ -33,7 +33,7 @@ class ConditionalConformanceTests: XCTestCase {
   func testDocumentIDOfString() {
     struct Model: Codable, Equatable, Hashable {
       @DocumentID var x: String?
-      
+
       init(x: String?) {
         self.x = x
       }
@@ -45,15 +45,15 @@ class ConditionalConformanceTests: XCTestCase {
     let dict: [Model: String] = [Model(x: "42"): "foo"]
     XCTAssertEqual("foo", dict[Model(x: "42")])
   }
-  
+
   func testDocumentIDConstructorSetsNilString() {
     struct Model: Codable, Equatable, Hashable {
       @DocumentID var x: String? = "foo"
     }
-    
+
     let model1 = Model()
     let model2 = Model(x: "bar")
-    
+
     XCTAssertNil(model1.x)
     XCTAssertNil(model2.x)
   }
@@ -63,7 +63,7 @@ class ConditionalConformanceTests: XCTestCase {
     // and that's automatically bridged to conform to Swift `Hashable`.
     struct Model: Codable, Equatable, Hashable {
       @DocumentID var x: DocumentReference?
-      
+
       init(x: DocumentReference?) {
         self.x = x
       }
@@ -80,15 +80,15 @@ class ConditionalConformanceTests: XCTestCase {
     let dict: [Model: String] = [Model(x: doc1): "foo"]
     XCTAssertEqual("foo", dict[Model(x: doc2)])
   }
-  
+
   func testDocumentIDConstructorSetsNilDocumentReference() {
     struct Model: Codable, Equatable, Hashable {
       @DocumentID var x: DocumentReference? = FSTTestDocRef("abc/xyz")
     }
-    
+
     let model1 = Model()
     let model2 = Model(x: FSTTestDocRef("abc/def"))
-    
+
     XCTAssertNil(model1.x)
     XCTAssertNil(model2.x)
   }

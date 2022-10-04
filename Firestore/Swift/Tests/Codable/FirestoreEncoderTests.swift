@@ -536,7 +536,7 @@ class FirestoreEncoderTests: XCTestCase {
     struct Model: Codable, Equatable {
       var name: String
       @DocumentID var docId: DocumentReference?
-      
+
       init(name: String, docId: DocumentReference?) {
         self.name = name
         self.docId = docId
@@ -551,7 +551,7 @@ class FirestoreEncoderTests: XCTestCase {
     struct Model: Codable, Equatable {
       var name: String
       @DocumentID var docId: String?
-      
+
       init(name: String, docId: String?) {
         self.name = name
         self.docId = docId
