@@ -18,8 +18,8 @@ import XCTest
 @testable import FirebaseSessions
 @testable import FirebaseInstallations
 
-var installationIDProvider = MockInstallationIDProvider()
-var identifiers = Identifiers(installationIDProvider: installationIDProvider)
+var installations = MockInstallationsProtocol()
+var identifiers = Identifiers(installations: installations)
 
 class IdentifiersTests: XCTestCase {
   override func setUpWithError() throws {
@@ -28,8 +28,8 @@ class IdentifiersTests: XCTestCase {
       UserDefaults.standard.removePersistentDomain(forName: appDomain)
     }
 
-    installationIDProvider = MockInstallationIDProvider()
-    identifiers = Identifiers(installationIDProvider: installationIDProvider)
+    installations = MockInstallationsProtocol()
+    identifiers = Identifiers(installations: installations)
   }
 
   func isValidSessionID(_ sessionID: String) -> Bool {
@@ -74,7 +74,7 @@ class IdentifiersTests: XCTestCase {
   func testSuccessfulFIID() throws {
     // Make our mock return an ID
     let testID = "testID"
-    installationIDProvider.ID = testID
+    installations.ID = testID
 
     let expectation = XCTestExpectation(description: "Get the Installation ID Asynchronously")
 
@@ -88,7 +88,7 @@ class IdentifiersTests: XCTestCase {
 
   func testFailedFIID() throws {
     // Make our mock return an error
-    installationIDProvider.error = NSError(domain: "FestFailedFIIDErrorDomain", code: 0)
+    installations.error = NSError(domain: "FestFailedFIIDErrorDomain", code: 0)
 
     let expectation = XCTestExpectation(description: "Get the Installation ID Asynchronously")
 

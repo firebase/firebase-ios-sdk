@@ -17,7 +17,7 @@ import FirebaseInstallations
 
 @testable import FirebaseSessions
 
-class MockInstallationIDProvider: InstallationsProtocol {
+class MockInstallationsProtocol: InstallationsProtocol {
   var ID: String?
   var error: Error?
 
