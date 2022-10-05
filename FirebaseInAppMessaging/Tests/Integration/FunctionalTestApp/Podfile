@@ -7,11 +7,10 @@ source 'https://cdn.cocoapods.org/'
 pod 'FirebaseAnalytics'
 pod 'FirebaseCore', :path => '../../../..'
 pod 'FirebaseInstallations', :path => '../../../..'
-pod 'FirebaseCoreDiagnostics', :path => '../../../..'
 pod 'FirebaseABTesting', :path => '../../../..'
 
 target 'InAppMessaging_Example_iOS' do
-  platform :ios, '9.0'
+  platform :ios, '11.0'
 
   pod 'FirebaseInAppMessaging', :path => '../../../..'
   pod 'FirebaseDynamicLinks',  :path => '../../../..'

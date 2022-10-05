@@ -34,7 +34,6 @@ on:
     # - 'FirebaseAuth/**'
     # - 'FirebaseFunctions/**'
     # - 'Firestore/**'
-    # - 'FirebaseStorageInternal/**'
     # - 'FirebaseStorage/**'
 
   schedule:
@@ -90,10 +89,10 @@ jobs:
       run: gem install xcpretty
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
-          FirebaseStorageInternal/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
+          FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
     - name: Install Credentials.h
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Storage/Credentials.h.gpg \
-          FirebaseStorageInternal/Tests/Integration/Credentials.h "$plist_secret"
+          FirebaseStorage/Tests/ObjCIntegration/Credentials.h "$plist_secret"
     - name: Install Credentials.swift
       run: |
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Storage/Credentials.swift.gpg \

@@ -79,5 +79,7 @@
   "9.1.0": "https://dl.google.com/dl/firebase/ios/carthage/9.1.0/Google-Mobile-Ads-SDK-8212e9feeeb878e1.zip",
   "9.2.0": "https://dl.google.com/dl/firebase/ios/carthage/9.2.0/Google-Mobile-Ads-SDK-e27f08e494c0347a.zip",
   "9.3.0": "https://dl.google.com/dl/firebase/ios/carthage/9.3.0/Google-Mobile-Ads-SDK-df328535e0498229.zip",
-  "9.4.0": "https://dl.google.com/dl/firebase/ios/carthage/9.4.0/Google-Mobile-Ads-SDK-28620894ab20be6f.zip"
+  "9.4.0": "https://dl.google.com/dl/firebase/ios/carthage/9.4.0/Google-Mobile-Ads-SDK-28620894ab20be6f.zip",
+  "9.5.0": "https://dl.google.com/dl/firebase/ios/carthage/9.5.0/Google-Mobile-Ads-SDK-ca4106ad49754131.zip",
+  "9.6.0": "https://dl.google.com/dl/firebase/ios/carthage/9.6.0/Google-Mobile-Ads-SDK-df0c3d19c2b4f83a.zip"
 }

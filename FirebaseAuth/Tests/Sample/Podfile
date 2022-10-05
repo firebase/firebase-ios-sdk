@@ -9,13 +9,12 @@ source 'https://cdn.cocoapods.org/'
 use_frameworks!
 
 target 'AuthSample' do
-  platform :ios, '10.0'
+  platform :ios, '11.0'
   pod 'FirebaseCore', :path => '../../../'
-  pod 'FirebaseCoreDiagnostics', :path => '../../../'
   pod 'FirebaseCoreInternal', :path => '../../../'
   pod 'FirebaseAuth', :path => '../../../', :testspecs => ['unit']
   pod 'FirebaseInstallations', :path => '../../..'
-  pod 'FBSDKLoginKit'
+  pod 'FBSDKLoginKit', '< 13'
   pod 'GoogleSignIn', '~> 6'
   pod 'GTMSessionFetcher/Core'
 

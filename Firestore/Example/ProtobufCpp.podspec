@@ -29,9 +29,9 @@ Pod::Spec.new do |s|
     :tag => "v#{s.version}"
   }
 
-  s.ios.deployment_target = '10.0'
-  s.osx.deployment_target = '10.12'
-  s.tvos.deployment_target = '10.0'
+  s.ios.deployment_target = '11.0'
+  s.osx.deployment_target = '10.13'
+  s.tvos.deployment_target = '12.0'
 
   s.source_files = 'src/**/*.{h,cc,inc}'
   s.exclude_files = # skip test files. (Yes, the test files are intermixed with

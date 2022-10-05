@@ -19,6 +19,7 @@
 #import "FIRFirestoreSource.h"
 #import "FIRListenerRegistration.h"
 
+@class FIRAggregateQuery;
 @class FIRFieldPath;
 @class FIRFirestore;
 @class FIRQuerySnapshot;
@@ -541,6 +542,18 @@ NS_SWIFT_NAME(Query)
  * @return The created `Query`.
  */
 - (FIRQuery *)queryEndingAtValues:(NSArray *)fieldValues NS_SWIFT_NAME(end(at:));
+
+#pragma mark - Aggregation
+
+/**
+ * A query that counts the documents in the result set of this query, without actually downloading
+ * the documents.
+ *
+ * Using this `AggregateQuery` to count the documents is efficient because only the final count,
+ * not the documents' data, is downloaded. The query can even count the documents if the result
+ * set would be prohibitively large to download entirely (e.g. thousands of documents).
+ */
+@property(nonatomic, readonly) FIRAggregateQuery *count;
 
 @end
 

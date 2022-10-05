@@ -14,8 +14,6 @@
 
 import Foundation
 
-import FirebaseStorageInternal
-
 /** Contains the prefixes and items returned by a `StorageReference.list()` call. */
 @objc(FIRStorageListResult) open class StorageListResult: NSObject {
   /**
@@ -43,17 +41,44 @@ import FirebaseStorageInternal
   // MARK: - NSObject overrides
 
   @objc override open func copy() -> Any {
-    return StorageListResult(impl.copy() as! FIRIMPLStorageListResult)
+    return StorageListResult(withPrefixes: prefixes,
+                             items: items,
+                             pageToken: pageToken)
   }
 
   // MARK: - Internal APIs
 
-  internal let impl: FIRIMPLStorageListResult
+  internal convenience init(with dictionary: [String: Any], reference: StorageReference) {
+    var prefixes = [StorageReference]()
+    var items = [StorageReference]()
 
-  internal init(_ impl: FIRIMPLStorageListResult) {
-    self.impl = impl
-    prefixes = impl.prefixes.map { StorageReference($0) }
-    items = impl.items.map { StorageReference($0) }
-    pageToken = impl.pageToken
+    let rootReference = reference.root()
+    if let prefixEntries = dictionary["prefixes"] as? [String] {
+      for prefixEntry in prefixEntries {
+        var pathWithoutTrailingSlash = prefixEntry
+        if prefixEntry.hasSuffix("/") {
+          pathWithoutTrailingSlash = String(prefixEntry.dropLast())
+        }
+        prefixes.append(rootReference.child(pathWithoutTrailingSlash))
+      }
+    }
+
+    if let itemEntries = dictionary["items"] as? [[String: String]] {
+      for itemEntry in itemEntries {
+        if let item = itemEntry["name"] {
+          items.append(rootReference.child(item))
+        }
+      }
+    }
+    let pageToken = dictionary["nextPageToken"] as? String
+    self.init(withPrefixes: prefixes, items: items, pageToken: pageToken)
+  }
+
+  internal init(withPrefixes prefixes: [StorageReference],
+                items: [StorageReference],
+                pageToken: String?) {
+    self.prefixes = prefixes
+    self.items = items
+    self.pageToken = pageToken
   }
 }

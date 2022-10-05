@@ -19,6 +19,7 @@
 #include <map>
 
 #include "Firestore/core/src/core/database_info.h"
+#include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/mutation.h"
@@ -262,6 +263,51 @@ DatastoreSerializer::MergeLookupResponses(
 
   StatusOr<std::vector<Document>> result{std::move(docs)};
   return result;
+}
+
+nanopb::Message<google_firestore_v1_RunAggregationQueryRequest>
+DatastoreSerializer::EncodeCountQueryRequest(const core::Query& query) const {
+  Message<google_firestore_v1_RunAggregationQueryRequest> result;
+  auto encodedTarget = serializer_.EncodeQueryTarget(query.ToTarget());
+  result->parent = encodedTarget.parent;
+  result->which_query_type =
+      google_firestore_v1_RunAggregationQueryRequest_structured_aggregation_query_tag;  // NOLINT
+
+  result->query_type.structured_aggregation_query.which_query_type =
+      google_firestore_v1_StructuredAggregationQuery_structured_query_tag;
+  result->query_type.structured_aggregation_query.structured_query =
+      encodedTarget.structured_query;
+
+  result->query_type.structured_aggregation_query.aggregations_count = 1;
+  result->query_type.structured_aggregation_query.aggregations =
+      MakeArray<_google_firestore_v1_StructuredAggregationQuery_Aggregation>(1);
+  result->query_type.structured_aggregation_query.aggregations[0].alias =
+      nanopb::MakeBytesArray("count_alias");
+  result->query_type.structured_aggregation_query.aggregations[0]
+      .which_operator =
+      google_firestore_v1_StructuredAggregationQuery_Aggregation_count_tag;
+  result->query_type.structured_aggregation_query.aggregations[0].count =
+      google_firestore_v1_StructuredAggregationQuery_Aggregation_Count{};
+
+  return result;
+}
+
+util::StatusOr<int64_t> DatastoreSerializer::DecodeCountQueryResponse(
+    const grpc::ByteBuffer& response) const {
+  ByteBufferReader reader{response};
+  auto message =
+      Message<google_firestore_v1_RunAggregationQueryResponse>::TryParse(
+          &reader);
+  if (!reader.ok()) {
+    return reader.status();
+  }
+
+  HARD_ASSERT(message->result.aggregate_fields_count == 1);
+  HARD_ASSERT(nanopb::MakeStringView(message->result.aggregate_fields[0].key) ==
+              "count_alias");
+  HARD_ASSERT(message->result.aggregate_fields[0].value.which_value_type ==
+              google_firestore_v1_Value_integer_value_tag);
+  return message->result.aggregate_fields[0].value.integer_value;
 }
 
 }  // namespace remote

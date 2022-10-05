@@ -32,8 +32,6 @@ namespace local {
 class LocalDocumentsView;
 class IndexManager;
 
-// TODO(cheryllin): Add function name into documentation which configures index
-// (e.g. setIndexConfiguration).
 /**
  * Firestore queries can be executed in three modes. The Query Engine determines
  * what mode to use based on what data is persisted. The mode only determines
@@ -41,9 +39,10 @@ class IndexManager;
  * implementations.
  *
  * The Query engine will use indexed-based execution if a user has configured
- * any index that can be used to execute query. Otherwise, the engine will try
- * to optimize the query by re-using a previously persisted query result. If
- * that is not possible, the query will be executed via a full collection scan.
+ * any index that can be used to execute query (via SetIndexConfiguration in
+ * Firestore/core/src/api/firestore.cc). Otherwise, the engine will try to
+ * optimize the query by re-using a previously persisted query result. If that
+ * is not possible, the query will be executed via a full collection scan.
  *
  * Index-based execution is the default when available. The query engine
  * supports partial indexed execution and merges the result from the index

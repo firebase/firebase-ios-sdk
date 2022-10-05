@@ -117,7 +117,7 @@ void TestLocalDocumentsView::ExpectFullCollectionScan(
 }
 
 QueryEngineTestBase::QueryEngineTestBase(
-    std::unique_ptr<Persistence> persistence)
+    std::unique_ptr<Persistence>&& persistence)
     : persistence_(std::move(persistence)),
       remote_document_cache_(persistence_->remote_document_cache()),
       document_overlay_cache_(

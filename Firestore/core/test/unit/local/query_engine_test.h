@@ -72,7 +72,7 @@ using FactoryFunc = std::unique_ptr<Persistence> (*)();
  */
 class QueryEngineTestBase : public testing::Test {
  protected:
-  explicit QueryEngineTestBase(std::unique_ptr<Persistence> persistence);
+  explicit QueryEngineTestBase(std::unique_ptr<Persistence>&& persistence);
 
   /** Adds the provided documents to the query target mapping. */
   void PersistQueryMapping(const std::vector<model::DocumentKey>& keys);

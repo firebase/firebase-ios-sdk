@@ -18,6 +18,8 @@
 
 #import <OCMock/OCMock.h>
 
+#import <TargetConditionals.h>
+
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefresher.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProviderFactory.h"
@@ -31,6 +33,8 @@
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+#if FIR_DEVICE_CHECK_SUPPORTED_TARGETS
 
 @interface DummyAppCheckProvider : NSObject <FIRAppCheckProvider>
 @end
@@ -62,6 +66,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, nullable) id mockAppCheckProvider;
 @property(nonatomic, nullable) id mockTokenRefresher;
 
+- (void)testDefaultAppCheckProvider FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY;
+
 @end
 
 @implementation FIRAppCheckIntegrationTests
@@ -79,7 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)tearDown {
   [FIRApp resetApps];
 
-  if (@available(iOS 11.0, macOS 10.15, macCatalyst 13.0, tvOS 11.0, *)) {
+  if (@available(iOS 11.0, macOS 10.15, macCatalyst 13.0, tvOS 11.0, watchOS 9.0, *)) {
     // Recover default provider factory.
     [FIRAppCheck setAppCheckProviderFactory:[[FIRDeviceCheckProviderFactory alloc] init]];
   }
@@ -95,40 +101,44 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testDefaultAppCheckProvider {
-  if (@available(iOS 11.0, tvOS 11.0, macOS 10.15, *)) {
-    NSString *appName = @"testDefaultAppCheckProvider";
+  NSString *appName = @"testDefaultAppCheckProvider";
 
-    // 1. Expect FIRDeviceCheckProvider to be instantiated.
+  // 1. Expect FIRDeviceCheckProvider to be instantiated.
 
-    id deviceCheckProviderMock = OCMClassMock([FIRDeviceCheckProvider class]);
-    id appValidationArg = [OCMArg checkWithBlock:^BOOL(FIRApp *app) {
-      XCTAssertEqualObjects(app.name, appName);
-      return YES;
-    }];
+  id deviceCheckProviderMock = OCMClassMock([FIRDeviceCheckProvider class]);
+  id appValidationArg = [OCMArg checkWithBlock:^BOOL(FIRApp *app) {
+    XCTAssertEqualObjects(app.name, appName);
+    return YES;
+  }];
 
-    OCMStub([deviceCheckProviderMock alloc]).andReturn(deviceCheckProviderMock);
-    OCMExpect([deviceCheckProviderMock initWithApp:appValidationArg])
-        .andReturn(deviceCheckProviderMock);
+  OCMStub([deviceCheckProviderMock alloc]).andReturn(deviceCheckProviderMock);
+  OCMExpect([deviceCheckProviderMock initWithApp:appValidationArg])
+      .andReturn(deviceCheckProviderMock);
 
-    // 2. Configure Firebase
-    [self configureAppWithName:appName];
+  // 2. Configure Firebase
+  [self configureAppWithName:appName];
 
-    FIRApp *app = [FIRApp appNamed:appName];
-    XCTAssertNotNil(FIR_COMPONENT(FIRAppCheckInterop, app.container));
+  FIRApp *app = [FIRApp appNamed:appName];
+  XCTAssertNotNil(FIR_COMPONENT(FIRAppCheckInterop, app.container));
 
-    // 3. Verify
-    OCMVerifyAll(deviceCheckProviderMock);
+  // 3. Verify
+  OCMVerifyAll(deviceCheckProviderMock);
 
-    // 4. Cleanup
-    // Recover default provider factory.
-    [FIRAppCheck setAppCheckProviderFactory:[[FIRDeviceCheckProviderFactory alloc] init]];
-    [deviceCheckProviderMock stopMocking];
-  } else {
-    // Fallback on earlier versions
-  }
+  // 4. Cleanup
+  // Recover default provider factory.
+  [FIRAppCheck setAppCheckProviderFactory:[[FIRDeviceCheckProviderFactory alloc] init]];
+  [deviceCheckProviderMock stopMocking];
 }
 
-#if !TARGET_OS_MACCATALYST  // Catalyst should be possible with Xcode 12.5+
+// Tests that use the Keychain require a host app and Swift Package Manager
+// does not support adding a host app to test targets.
+#if !SWIFT_PACKAGE
+
+// Skip keychain tests on Catalyst and macOS. Tests are skipped because they
+// involve interactions with the keychain that require a provisioning profile.
+// See go/firebase-macos-keychain-popups for more details.
+#if !TARGET_OS_MACCATALYST && !TARGET_OS_OSX
+
 - (void)testSetAppCheckProviderFactoryWithDefaultApp {
   NSString *appName = kFIRDefaultAppName;
 
@@ -172,7 +182,10 @@ NS_ASSUME_NONNULL_BEGIN
   OCMVerifyAll(self.mockProviderFactory);
   OCMVerifyAll(self.mockAppCheckProvider);
 }
-#endif  // !TARGET_OS_MACCATALYST
+
+#endif  // !TARGET_OS_MACCATALYST && !TARGET_OS_OSX
+
+#endif  // !SWIFT_PACKAGE
 
 #pragma mark - Helpers
 
@@ -212,5 +225,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 @end
+
+#endif  // FIR_DEVICE_CHECK_SUPPORTED_TARGETS
 
 NS_ASSUME_NONNULL_END
