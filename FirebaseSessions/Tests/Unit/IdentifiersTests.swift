@@ -70,14 +70,33 @@ class IdentifiersTests: XCTestCase {
     assert(identifiers.lastSessionID.compare(firstSessionID) == ComparisonResult.orderedSame)
   }
 
+  // Fetching FIIDs requires that we are on a background thread.
   func testSuccessfulFIID() throws {
+    // Make our mock return an ID
     let testID = "testID"
     installationIDProvider.ID = testID
-    assert(identifiers.installationID.compare(testID) == ComparisonResult.orderedSame)
+
+    let expectation = XCTestExpectation(description: "Get the Installation ID Asynchronously")
+
+    DispatchQueue.global().async {
+      XCTAssertEqual(identifiers.installationID, testID)
+      expectation.fulfill()
+    }
+    
+    wait(for: [expectation], timeout: 1.0)
   }
 
   func testFailedFIID() throws {
+    // Make our mock return an error
     installationIDProvider.error = NSError(domain: "FestFailedFIIDErrorDomain", code: 0)
-    assert(identifiers.installationID.compare("") == ComparisonResult.orderedSame)
+    
+    let expectation = XCTestExpectation(description: "Get the Installation ID Asynchronously")
+
+    DispatchQueue.global().async {
+      XCTAssertEqual(identifiers.installationID, "")
+      expectation.fulfill()
+    }
+    
+    wait(for: [expectation], timeout: 1.0)
   }
 }
