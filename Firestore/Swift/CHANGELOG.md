@@ -1,7 +1,7 @@
 # 10.0.0
 - [changed] Passing a non-nil value to the `@DocumentID` property wrapper's
-  constructor or setter will log a warning. This is because the set value will
-  be ignored. (#9368)
+  constructor or setter will log a warning and the set value will be ignored.
+  (#9368)
 - [changed] `Firestore.Encoder` and `Firestore.Decoder` now wraps the shared
   `FirebaseDataEncoder` and `FirebaseDataDecoder` types, which provides new
   customization options for encoding and decoding data to and from Firestore
