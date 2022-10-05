@@ -62,7 +62,7 @@ static NSString *const kIsFeatureDisabled = @"featureDisabled";
 /// @param error  Error message on failure.
 typedef void (^RCNConfigUpdateCompletion)(NSError *_Nullable error);
 
-static NSTimeInterval gTimeoutSeconds = 4320;
+static NSTimeInterval gTimeoutSeconds = 330;
 static NSInteger const gFetchAttempts = 3;
 
 // Retry parameters
@@ -590,7 +590,7 @@ static NSInteger const gMaxRetries = 7;
       [self retryHTTPConnection];
     }
   } else {
-    // on success reset retry parameters
+    /// on success reset retry parameters
     _remainingRetryCount = gMaxRetries;
     _retrySeconds = arc4random_uniform(5) + 1;
 
