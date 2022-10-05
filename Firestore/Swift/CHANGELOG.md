@@ -1,4 +1,7 @@
 # 10.0.0
+- [changed] **Breaking Change:** The `DocumentID` constructor from a
+  `DocumentReference` is now internal; this does not affect instantiating a
+  `@DocumentID` property wrapper for a `DocumentReference`. (#9368)
 - [changed] Passing a non-nil value to the `@DocumentID` property wrapper's
   constructor or setter will log a warning and the set value will be ignored.
   (#9368)
