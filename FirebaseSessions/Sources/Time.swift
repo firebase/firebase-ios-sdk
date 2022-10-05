@@ -15,20 +15,16 @@
 
 import Foundation
 
-@_implementationOnly import FirebaseInstallations
-
-protocol InstallationsProtocol {
-  func installationID(completion: @escaping (Result<String, Error>) -> Void)
+protocol TimeProvider {
+  var timestampUS: Int64 { get }
 }
 
-extension Installations: InstallationsProtocol {
-  func installationID(completion: @escaping (Result<String, Error>) -> Void) {
-    installationID { (installationID: String?, error: Error?) in
-      if let installationID = installationID {
-        completion(.success(installationID))
-      } else if let error = error {
-        completion(.failure(error))
-      }
-    }
+///
+/// Time is provides timestamp values in different formats to classes in the Sessions SDK. It mainly exists for testing purposes.
+///
+class Time: TimeProvider {
+  // Returns the current time as a timestamp in microseconds
+  var timestampUS: Int64 {
+    return Int64(UInt64(Date().timeIntervalSince1970) * USEC_PER_SEC)
   }
 }

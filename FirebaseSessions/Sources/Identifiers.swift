@@ -14,7 +14,8 @@
 // limitations under the License.
 
 import Foundation
-import FirebaseInstallations
+
+@_implementationOnly import FirebaseInstallations
 
 let sessionIDUserDefaultsKey = "com.firebase.sessions.sessionID"
 let lastSessionIDUserDefaultsKey = "com.firebase.sessions.lastSessionID"
@@ -28,7 +29,7 @@ protocol IdentifierProvider {
     get
   }
 
-  var lastSessionID: String {
+  var previousSessionID: String {
     get
   }
 }
@@ -50,6 +51,8 @@ class Identifiers: IdentifierProvider {
     uuid = UUID()
   }
 
+  // Generates a new Session ID. If there was already a generated Session ID
+  // from the last session during the app's lifecycle, it will also set the last Session ID
   func generateNewSessionID() {
     uuid = UUID()
 
@@ -60,7 +63,7 @@ class Identifiers: IdentifierProvider {
     UserDefaults.standard.set(newSessionID, forKey: sessionIDUserDefaultsKey)
   }
 
-  // This method must be run on a background thread due to how Firebase Installations
+  // Fetches the Installation ID from Firebase Installation Service. This method must be run on a background thread due to how Firebase Installations
   // handles threading.
   var installationID: String {
     if Thread.isMainThread {
@@ -103,7 +106,7 @@ class Identifiers: IdentifierProvider {
     return UserDefaults.standard.string(forKey: sessionIDUserDefaultsKey) ?? ""
   }
 
-  var lastSessionID: String {
+  var previousSessionID: String {
     return UserDefaults.standard.string(forKey: lastSessionIDUserDefaultsKey) ?? ""
   }
 }
