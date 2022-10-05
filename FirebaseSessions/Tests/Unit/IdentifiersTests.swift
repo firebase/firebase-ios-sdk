@@ -82,21 +82,21 @@ class IdentifiersTests: XCTestCase {
       XCTAssertEqual(identifiers.installationID, testID)
       expectation.fulfill()
     }
-    
+
     wait(for: [expectation], timeout: 1.0)
   }
 
   func testFailedFIID() throws {
     // Make our mock return an error
     installationIDProvider.error = NSError(domain: "FestFailedFIIDErrorDomain", code: 0)
-    
+
     let expectation = XCTestExpectation(description: "Get the Installation ID Asynchronously")
 
     DispatchQueue.global().async {
       XCTAssertEqual(identifiers.installationID, "")
       expectation.fulfill()
     }
-    
+
     wait(for: [expectation], timeout: 1.0)
   }
 }
