@@ -15,9 +15,6 @@
 #import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRTrace.h"
 
 FOUNDATION_EXTERN NSString *__nonnull const kFPRAppStartTraceName;
-FOUNDATION_EXTERN NSString *__nonnull const kFPRAppStartStageNameTimeToUI;
-FOUNDATION_EXTERN NSString *__nonnull const kFPRAppStartStageNameTimeToFirstDraw;
-FOUNDATION_EXTERN NSString *__nonnull const kFPRAppStartStageNameTimeToUserInteraction;
 FOUNDATION_EXTERN NSString *__nonnull const kFPRAppTraceNameForegroundSession;
 FOUNDATION_EXTERN NSString *__nonnull const kFPRAppTraceNameBackgroundSession;
 FOUNDATION_EXTERN NSString *__nonnull const kFPRAppCounterNameTraceEventsRateLimited;

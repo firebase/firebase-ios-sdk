@@ -21,12 +21,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @param traceName Name of the current trace.
- * @return An AccessibilityItem for a stage UI element reflecting the current trace name.
- */
-+ (AccessibilityItem *)stageAccessibilityItemWithTraceName:(NSString *)traceName;
-
-/**
- * @param traceName Name of the current trace.
  * @return An AccessibilityItem for a stop UI element reflecting the current trace name.
  */
 + (AccessibilityItem *)stopAccessibilityItemWithTraceName:(NSString *)traceName;

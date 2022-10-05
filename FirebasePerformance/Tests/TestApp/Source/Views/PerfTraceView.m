@@ -26,9 +26,6 @@
 /** A button that will stop the currently running trace. */
 @property(nonatomic) UIButton *stopTraceButton;
 
-/** A button to start a new stage on the currently running trace. */
-@property(nonatomic) UIButton *stageButton;
-
 /** A button to increment a metric on the currently running trace. */
 @property(nonatomic) UIButton *metricOneButton;
 
@@ -38,16 +35,10 @@
 /** A button to add a custom attribute to the currrently running trace. */
 @property(nonatomic) UIButton *customAttributeButton;
 
-/** A label for the current stage state. */
-@property(nonatomic) UILabel *recentStageLabel;
-
 // State preserving properties.
 
 /** The current trace. */
 @property(nonatomic, readwrite, copy) FIRTrace *trace;
-
-/** The current stage number. */
-@property(nonatomic, assign) NSInteger stageNumber;
 
 /** The current value of metric one. */
 @property(nonatomic, assign) NSInteger metricOneValue;
@@ -131,52 +122,6 @@
   self.stopTraceButton.enabled = NO;
   self.metricOneButton.enabled = NO;
   self.metricTwoButton.enabled = NO;
-  self.stageButton.enabled = NO;
-}
-
-/**
- * Creates new Stage in the trace and adds it to the visual list of stages created.
- *
- * @param button Button that initiated the request.
- */
-- (void)createStage:(UIButton *)button {
-  NSString *stageName = [NSString stringWithFormat:@"Stage%zd", self.stageNumber];
-
-  NSString *stageNameLabelText = [NSString
-      stringWithFormat:@"%@ - %0.2fs", stageName, (-1 * [self.traceDate timeIntervalSinceNow])];
-
-  UILabel *currentLabel = self.recentStageLabel;
-  self.recentStageLabel = [self newStageLabel];
-  self.recentStageLabel.text = stageNameLabelText;
-  [self addSubview:self.recentStageLabel];
-
-  // Stage feature is currently disabled.
-  // [self.trace startStageNamed:stageName];
-
-  if (currentLabel) {
-    [NSLayoutConstraint activateConstraints:@[
-      [self.recentStageLabel.topAnchor constraintEqualToAnchor:currentLabel.bottomAnchor
-                                                      constant:10.0f],
-      [self.recentStageLabel.leftAnchor constraintEqualToAnchor:currentLabel.leftAnchor],
-    ]];
-  } else {
-    [NSLayoutConstraint activateConstraints:@[
-      [self.recentStageLabel.topAnchor
-          constraintEqualToAnchor:self.customAttributeButton.bottomAnchor
-                         constant:10.0f],
-      [self.recentStageLabel.centerXAnchor constraintEqualToAnchor:self.centerXAnchor],
-    ]];
-  }
-
-  if (self.bottomConstraint) {
-    [self removeConstraint:self.bottomConstraint];
-  }
-  self.bottomConstraint =
-      [self.bottomAnchor constraintGreaterThanOrEqualToAnchor:self.recentStageLabel.bottomAnchor
-                                                     constant:5.0f];
-  [self addConstraint:self.bottomConstraint];
-
-  self.stageNumber++;
 }
 
 /**
@@ -221,7 +166,6 @@
 - (void)createViewTree {
   [self addSubview:self.nameLabel];
   [self addSubview:self.stopTraceButton];
-  [self addSubview:self.stageButton];
   [self addSubview:self.metricOneButton];
   [self addSubview:self.metricTwoButton];
   [self addSubview:self.customAttributeButton];
@@ -233,17 +177,14 @@
     [self.nameLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:5.0f],
     [self.nameLabel.centerXAnchor constraintEqualToAnchor:self.centerXAnchor],
 
-    // Position adding a stage button and stop trace button.
+    // Position adding a stop trace button.
     [self.stopTraceButton.topAnchor constraintEqualToAnchor:self.nameLabel.bottomAnchor
                                                    constant:10.0f],
-    [self.stageButton.centerYAnchor constraintEqualToAnchor:self.stopTraceButton.centerYAnchor],
-    [self.stopTraceButton.widthAnchor constraintEqualToAnchor:self.stageButton.widthAnchor],
-    [self.stageButton.leftAnchor constraintEqualToAnchor:self.stopTraceButton.rightAnchor
-                                                constant:50.0f],
+    [self.stopTraceButton.widthAnchor constraintEqualToAnchor:self.stopTraceButton.widthAnchor],
     [self.stopTraceButton.rightAnchor constraintEqualToAnchor:self.centerXAnchor constant:-25.0f],
 
-    // Position metric button below stage button.
-    [self.metricOneButton.topAnchor constraintEqualToAnchor:self.stageButton.bottomAnchor
+    // Position metric button below trace button.
+    [self.metricOneButton.topAnchor constraintEqualToAnchor:self.stopTraceButton.bottomAnchor
                                                    constant:5.0f],
     [self.metricTwoButton.centerYAnchor constraintEqualToAnchor:self.metricOneButton.centerYAnchor],
     [self.metricOneButton.widthAnchor constraintEqualToAnchor:self.metricTwoButton.widthAnchor],
@@ -272,13 +213,6 @@
   return _nameLabel;
 }
 
-- (UILabel *)newStageLabel {
-  UILabel *label = [[UILabel alloc] init];
-  label.translatesAutoresizingMaskIntoConstraints = NO;
-
-  return label;
-}
-
 - (UIButton *)stopTraceButton {
   if (!_stopTraceButton) {
     _stopTraceButton = [self newButton];
@@ -294,23 +228,6 @@
                forControlEvents:UIControlEventTouchUpInside];
   }
   return _stopTraceButton;
-}
-
-- (UIButton *)stageButton {
-  if (!_stageButton) {
-    _stageButton = [self newButton];
-
-    AccessibilityItem *item = [[self class] stageAccessibilityItemWithTraceName:self.trace.name];
-
-    _stageButton.accessibilityLabel = item.accessibilityLabel;
-    _stageButton.accessibilityIdentifier = item.accessibilityID;
-
-    [_stageButton setTitle:@"Stage" forState:UIControlStateNormal];
-    [_stageButton addTarget:self
-                     action:@selector(createStage:)
-           forControlEvents:UIControlEventTouchUpInside];
-  }
-  return _stageButton;
 }
 
 - (UIButton *)metricOneButton {

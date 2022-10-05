@@ -16,17 +16,6 @@
 
 @implementation PerfTraceView (Accessibility)
 
-+ (AccessibilityItem *)stageAccessibilityItemWithTraceName:(NSString *)traceName {
-  NSString *accessibilityIdentifier = [NSString stringWithFormat:@"%@Stage", traceName];
-
-  NSDictionary *accessibilityDictionary = @{
-    kAccessibilityIdentifierKey : accessibilityIdentifier,
-    kAccessibilityLabelKey : @"Add Stage",
-  };
-
-  return [[AccessibilityItem alloc] initWithDictionary:accessibilityDictionary];
-}
-
 + (AccessibilityItem *)stopAccessibilityItemWithTraceName:(NSString *)traceName {
   NSString *accessibilityIdentifier = [NSString stringWithFormat:@"%@Stop", traceName];
 

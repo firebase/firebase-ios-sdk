@@ -1,3 +1,6 @@
+# Pending
+- Remove the unused stage implementation on Firebase Performance.
+
 # 9.3.0
 - [changed] Update the console logging URL to troubleshooting page.
 

@@ -5,6 +5,8 @@ platform :ios, '11.0'
 #source 'sso://cpdc-eap/spec'
 #source 'https://github.com/CocoaPods/Specs.git'
 
+use_modular_headers!
+
 target 'PerfTestRigApp' do
   pod 'FirebasePerformance'
   target 'PerfTestRigAppTests' do

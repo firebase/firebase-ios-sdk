@@ -32,8 +32,8 @@
 
 /**
  * PerfTraceView represents an FPRTrace in the PerfSDK. This class will enable the user to create
- * a view, add stages, initialize/increment metrics and stop the trace. This object also
- * abstracts the use of the PerfSDK's FPRTrace object.
+ * a view, initialize/increment metrics and stop the trace. This object also abstracts the
+ * use of the PerfSDK's FPRTrace object.
  */
 @interface PerfTraceView : UIView
 

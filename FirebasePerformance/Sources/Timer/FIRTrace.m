@@ -43,12 +43,6 @@
 /** Background activity tracker to know the background state of the trace. */
 @property(nonatomic) FPRTraceBackgroundActivityTracker *backgroundActivityTracker;
 
-/** Property that denotes if the trace is a stage. */
-@property(nonatomic) BOOL isStage;
-
-/** Stops an active stage that is currently active. */
-- (void)stopActiveStage;
-
 /**
  * Updates the current trace with the session id.
  * @param sessionDetails Updated session details of the currently active session.
@@ -97,7 +91,6 @@
   self = [super init];
   if (self) {
     _name = [name copy];
-    _stages = [[NSMutableArray<FIRTrace *> alloc] init];
     _counterList = [[FPRCounterList alloc] init];
     _customAttributes = [[NSMutableDictionary<NSString *, NSString *> alloc] init];
     _customAttributesSerialQueue =
@@ -105,7 +98,6 @@
     _sessionIdSerialQueue =
         dispatch_queue_create("com.google.perf.sessionIds.trace", DISPATCH_QUEUE_SERIAL);
     _activeSessions = [[NSMutableArray<FPRSessionDetails *> alloc] init];
-    _isStage = NO;
     _fprClient = [FPRClient sharedInstance];
   }
 
@@ -119,7 +111,7 @@
 
 - (void)dealloc {
   // Track the number of traces that have started and not stopped.
-  if (!self.isStage && [self isTraceStarted] && ![self isTraceStopped]) {
+  if ([self isTraceStarted] && ![self isTraceStopped]) {
     FIRTrace *activeTrace = [FPRAppActivityTracker sharedInstance].activeTrace;
     [activeTrace incrementMetric:kFPRAppCounterNameTraceNotStopped byInt:1];
     FPRLogError(kFPRTraceStartedNotStopped, @"Trace name %@ started, not stopped", self.name);
@@ -135,19 +127,15 @@
 
 - (void)start {
   if (![self isTraceStarted]) {
-    if (!self.isStage) {
-      [[FPRGaugeManager sharedInstance] collectAllGauges];
-    }
+    [[FPRGaugeManager sharedInstance] collectAllGauges];
     self.startTime = [NSDate date];
     self.backgroundActivityTracker = [[FPRTraceBackgroundActivityTracker alloc] init];
     FPRSessionManager *sessionManager = [FPRSessionManager sharedInstance];
-    if (!self.isStage) {
-      [self updateTraceWithSessionId:[sessionManager.sessionDetails copy]];
-      [sessionManager.sessionNotificationCenter addObserver:self
-                                                   selector:@selector(sessionChanged:)
-                                                       name:kFPRSessionIdUpdatedNotification
-                                                     object:sessionManager];
-    }
+    [self updateTraceWithSessionId:[sessionManager.sessionDetails copy]];
+    [sessionManager.sessionNotificationCenter addObserver:self
+                                                 selector:@selector(sessionChanged:)
+                                                     name:kFPRSessionIdUpdatedNotification
+                                                   object:sessionManager];
   } else {
     FPRLogError(kFPRTraceAlreadyStopped,
                 @"Failed to start trace %@ because it has already been started and stopped.",
@@ -163,14 +151,10 @@
 }
 
 - (void)stop {
-  [self stopActiveStage];
-
   if ([self isTraceActive]) {
     self.stopTime = [NSDate date];
     [self.fprClient logTrace:self];
-    if (!self.isStage) {
-      [[FPRGaugeManager sharedInstance] collectAllGauges];
-    }
+    [[FPRGaugeManager sharedInstance] collectAllGauges];
   } else {
     FPRLogError(kFPRTraceNotStarted,
                 @"Failed to stop the trace %@ because it has not been started.", self.name);
@@ -183,8 +167,6 @@
 }
 
 - (void)cancel {
-  [self stopActiveStage];
-
   if ([self isTraceActive]) {
     self.stopTime = [NSDate date];
   } else {
@@ -212,16 +194,7 @@
     return NO;
   }
 
-  // Check if the stages are valid.
-  __block BOOL validTrace = YES;
-  [self.stages enumerateObjectsUsingBlock:^(FIRTrace *stage, NSUInteger idx, BOOL *stop) {
-    validTrace = [stage isCompleteAndValid];
-    if (!validTrace) {
-      *stop = YES;
-    }
-  }];
-
-  return validTrace;
+  return YES;
 }
 
 - (FPRTraceState)backgroundTraceState {
@@ -239,46 +212,6 @@
     sessionInfos = [self.activeSessions copy];
   });
   return sessionInfos;
-}
-
-#pragma mark - Stage related methods
-
-- (void)startStageNamed:(NSString *)stageName startTime:(NSDate *)startTime {
-  if ([self isTraceActive]) {
-    [self stopActiveStage];
-
-    if (self.isInternal) {
-      self.activeStage = [[FIRTrace alloc] initInternalTraceWithName:stageName];
-      [self.activeStage startWithStartTime:startTime];
-    } else {
-      NSString *validatedStageName = FPRReservableName(stageName);
-      if (validatedStageName.length > 0) {
-        self.activeStage = [[FIRTrace alloc] initWithName:validatedStageName];
-        [self.activeStage startWithStartTime:startTime];
-      } else {
-        FPRLogError(kFPRTraceEmptyName, @"The stage name cannot be empty.");
-      }
-    }
-
-    self.activeStage.isStage = YES;
-    // Do not track background activity tracker for stages.
-    self.activeStage.backgroundActivityTracker = nil;
-  } else {
-    FPRLogError(kFPRTraceNotStarted,
-                @"Failed to create stage %@ because the trace has not been started.", stageName);
-  }
-}
-
-- (void)startStageNamed:(NSString *)stageName {
-  [self startStageNamed:stageName startTime:nil];
-}
-
-- (void)stopActiveStage {
-  if (self.activeStage) {
-    [self.activeStage cancel];
-    [self.stages addObject:self.activeStage];
-    self.activeStage = nil;
-  }
 }
 
 #pragma mark - Counter related methods
@@ -302,7 +235,6 @@
     NSString *validatedMetricName = self.isInternal ? metricName : FPRReservableName(metricName);
     if (validatedMetricName.length > 0) {
       [self.counterList setIntValue:value forMetric:validatedMetricName];
-      [self.activeStage setIntValue:value forMetric:validatedMetricName];
     } else {
       FPRLogError(kFPRTraceInvalidName, @"The metric name is invalid.");
     }
@@ -318,7 +250,6 @@
     NSString *validatedMetricName = self.isInternal ? metricName : FPRReservableName(metricName);
     if (validatedMetricName.length > 0) {
       [self.counterList incrementMetric:validatedMetricName byInt:incrementValue];
-      [self.activeStage incrementMetric:validatedMetricName byInt:incrementValue];
       FPRLogDebug(kFPRClientMetricLogged, @"Incrementing metric %@ to %lld on trace %@",
                   validatedMetricName, [self valueForIntMetric:metricName], self.name);
     } else {
@@ -334,7 +265,6 @@
 - (void)deleteMetric:(nonnull NSString *)metricName {
   if ([self isTraceActive]) {
     [self.counterList deleteMetric:metricName];
-    [self.activeStage deleteMetric:metricName];
   }
 }
 

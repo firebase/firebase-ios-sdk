@@ -124,20 +124,15 @@
 - (void)testTraceMetricMessageCreation {
   FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
   [trace start];
-  [trace startStageNamed:@"1"];
-  [trace startStageNamed:@"2"];
   [trace incrementMetric:@"c1" byInt:2];
   [trace setValue:@"bar" forAttribute:@"foo"];
   [trace stop];
   firebase_perf_v1_TraceMetric traceMetric = FPRGetTraceMetric(trace);
   XCTAssertEqualObjects(FPRDecodeString(traceMetric.name), @"Random");
-  XCTAssertEqual(traceMetric.subtraces_count, 2);
   XCTAssertEqual(traceMetric.counters_count, 1);
   NSDictionary *counters = FPRDecodeStringToNumberMap((StringToNumberMap *)traceMetric.counters,
                                                       traceMetric.counters_count);
   XCTAssertEqual([counters[@"c1"] intValue], 2);
-  XCTAssertEqualObjects(FPRDecodeString(traceMetric.subtraces[0].name), @"1");
-  XCTAssertEqualObjects(FPRDecodeString(traceMetric.subtraces[1].name), @"2");
   XCTAssertTrue(traceMetric.custom_attributes != NULL);
   XCTAssertEqual(traceMetric.custom_attributes_count, 1);
   NSDictionary *attributes = FPRDecodeStringToStringMap(

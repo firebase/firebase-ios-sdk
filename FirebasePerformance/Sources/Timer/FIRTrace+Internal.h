@@ -73,16 +73,6 @@
  */
 - (void)startWithStartTime:(nullable NSDate *)startTime;
 
-/**
- * Creates a stage inside the trace with a defined start time. This stops the already existing
- * active stage if any and starts the new stage with the name provided. If the startTime is nil, the
- * start time of the stage is set to the current date.
-
- * @param stageName Name of the stages.
- * @param startTime Start time of the stage.
- */
-- (void)startStageNamed:(nonnull NSString *)stageName startTime:(nullable NSDate *)startTime;
-
 /** Cancels the trace without sending an event to Google Data Transport. */
 - (void)cancel;
 

@@ -264,18 +264,6 @@ firebase_perf_v1_TraceMetric FPRGetTraceMetric(FIRTrace *trace) {
   traceMetric.counters =
       (firebase_perf_v1_TraceMetric_CountersEntry *)FPREncodeStringToNumberMap(counters);
 
-  // Filling subtraces
-  traceMetric.subtraces_count = (pb_size_t)[trace.stages count];
-  firebase_perf_v1_TraceMetric *subtraces =
-      calloc(traceMetric.subtraces_count, sizeof(firebase_perf_v1_TraceMetric));
-  __block NSUInteger subtraceIndex = 0;
-  [trace.stages
-      enumerateObjectsUsingBlock:^(FIRTrace *_Nonnull stage, NSUInteger idx, BOOL *_Nonnull stop) {
-        subtraces[subtraceIndex] = FPRGetTraceMetric(stage);
-        subtraceIndex++;
-      }];
-  traceMetric.subtraces = subtraces;
-
   // Filling custom attributes
   NSDictionary<NSString *, NSString *> *attributes = [trace.attributes mutableCopy];
   traceMetric.custom_attributes_count = (pb_size_t)attributes.count;

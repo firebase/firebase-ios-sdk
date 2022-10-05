@@ -91,7 +91,7 @@ message TraceMetric {
   // Subtraces should only have 1 level of nesting.
   // Subtraces should be non overlapping.
   // Subtraces should be continuous, i.e no gaps between consecutive subtraces.
-  repeated TraceMetric subtraces = 7;
+  repeated TraceMetric subtraces = 7; // DEPRECATED - This feature is now removed.
 
   // A map of trace-level custom attribute names to values.
   map<string, string> custom_attributes = 8;

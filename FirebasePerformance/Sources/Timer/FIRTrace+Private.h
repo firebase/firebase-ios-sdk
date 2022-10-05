@@ -33,22 +33,8 @@
 /** @brief Start time of the trace since epoch. */
 @property(nonatomic, assign, readonly) NSTimeInterval startTimeSinceEpoch;
 
-/**
- * Starts a stage with the given name. Multiple stages can have a same name. Starting a new stage
- * would stop the previous active stage if any.
- *
- * @param stageName name of the Stage.
- */
-- (void)startStageNamed:(nonnull NSString *)stageName;
-
-/** @brief List of stages in the trace. */
+/** @brief Reference of FPR client. */
 @property(nonnull, nonatomic) FPRClient *fprClient;
-
-/** @brief List of stages in the trace. */
-@property(nonnull, nonatomic) NSMutableArray<FIRTrace *> *stages;
-
-/** @brief The current active stage. */
-@property(nullable, nonatomic) FIRTrace *activeStage;
 
 /** List of counters managed by the Trace. */
 @property(nonnull, nonatomic, readonly) FPRCounterList *counterList;

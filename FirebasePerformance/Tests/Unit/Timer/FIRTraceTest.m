@@ -126,68 +126,6 @@
   XCTAssertNil([[FIRTrace alloc] initWithName:@"Random"]);
 }
 
-#pragma mark - Stages related testing
-
-/** Validates that stages are created. */
-- (void)testStaging {
-  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
-  [trace start];
-  [trace startStageNamed:@"1"];
-  [trace startStageNamed:@"2"];
-  [trace stop];
-  XCTAssertEqual(trace.stages.count, 2);
-}
-
-/** Validates that stages are not created without calling a start on the trace. */
-- (void)testStageWithoutStart {
-  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
-  [trace startStageNamed:@"1"];
-  XCTAssertEqual(trace.stages.count, 0);
-}
-
-/** Validates that stages are not created without calling a start on the trace, but calling stop. */
-- (void)testStageWithoutStartWithStop {
-  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
-  [trace startStageNamed:@"1"];
-  [trace stop];
-  XCTAssertEqual(trace.stages.count, 0);
-}
-
-/** Validates that stages are not created after calling stop on the trace. */
-- (void)testStageAfterStop {
-  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
-  [trace start];
-  [trace startStageNamed:@"1"];
-  [trace startStageNamed:@"2"];
-  [trace stop];
-  [trace startStageNamed:@"3"];
-  XCTAssertEqual(trace.stages.count, 2);
-}
-
-/** Validates that stopping a stage does not trigger an event being sent to Fll */
-- (void)testStageStopDoesNotTriggerEventSend {
-  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
-  id mock = [OCMockObject partialMockForObject:[FPRClient sharedInstance]];
-  OCMStub([mock logTrace:[OCMArg any]]).andDo(nil);
-  [trace start];
-  [trace startStageNamed:@"1"];
-  [[mock reject] logTrace:trace.activeStage];
-  [trace startStageNamed:@"2"];
-  [trace stop];
-}
-
-/** Validates that stopping a trace does trigger an event being sent to Fll. */
-- (void)testTraceStopDoesTriggerEventSend {
-  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
-  id mock = [OCMockObject partialMockForObject:[FPRClient sharedInstance]];
-  OCMStub([mock logTrace:[OCMArg any]]).andDo(nil);
-  [trace start];
-  [trace startStageNamed:@"1"];
-  [trace startStageNamed:@"2"];
-  [trace stop];
-  OCMVerify([mock logTrace:trace]);
-}
-
 /** Validates that the name of the trace is dropped if its length is above max admissible length. */
 - (void)testNameLengthMax {
   NSString *testName = [@"abc" stringByPaddingToLength:kFPRMaxNameLength + 1
@@ -275,25 +213,6 @@
   XCTAssertEqual(metricValue, 35);
 }
 
-/** Validates that calling setMetric on a trace also sets it on the active stage. */
-- (void)testSetMetricCalledOnTraceAlsoSetsMetricOnStage {
-  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
-  [trace start];
-  [trace startStageNamed:@"stage 1"];
-  [trace setIntValue:35 forMetric:@"testing"];
-  [trace startStageNamed:@"stage 2"];
-  [trace setIntValue:40 forMetric:@"testing"];
-  [trace stop];
-  XCTAssertEqual([trace valueForIntMetric:@"testing"], 40);
-  for (FIRTrace *stage in trace.stages) {
-    if ([stage.name isEqualToString:@"stage 1"]) {
-      XCTAssertEqual([stage valueForIntMetric:@"testing"], 35);
-    } else if ([stage.name isEqualToString:@"stage 2"]) {
-      XCTAssertEqual([stage valueForIntMetric:@"testing"], 40);
-    }
-  }
-}
-
 /** Validates that deleting a metric deletes it. */
 - (void)testDeleteMetricDeletesAMetric {
   FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
@@ -326,22 +245,6 @@
   XCTAssertEqual([trace valueForIntMetric:@"testing"], 1);
 }
 
-/** Tests deleting a metric also deletes it from the active stage if it exists. */
-- (void)testDeleteMetricAlsoDeletesItFromActiveStage {
-  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
-  [trace start];
-  [trace startStageNamed:@"stage 1"];
-  FIRTrace *activeStage = trace.activeStage;
-  [trace setIntValue:1 forMetric:@"testing"];
-  [trace setIntValue:1 forMetric:@"testing2"];
-  [trace deleteMetric:@"testing"];
-  [trace stop];
-  XCTAssertEqual([trace valueForIntMetric:@"testing2"], 1);
-  XCTAssertEqual([activeStage valueForIntMetric:@"testing2"], 1);
-  XCTAssertNil(trace.counters[@"testing"]);
-  XCTAssertNil(activeStage.counters[@"testing"]);
-}
-
 /** Tests that deleteMetric has no effect after the trace has been stopped. */
 - (void)testDeleteMetricDoesNothingAfterTraceHasBeenStopped {
   FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
@@ -367,16 +270,12 @@
 }
 
 /** Validates that traces could start with a custom start time. */
-- (void)testStartTraceWithStartTimeAndStageDefined {
+- (void)testStartTraceWithStartTime {
   NSDate *traceStartTime = [NSDate date];
   FIRTrace *trace = [[FIRTrace alloc] initWithName:@"testTrace"];
   [trace startWithStartTime:traceStartTime];
   XCTAssertEqual(trace.startTimeSinceEpoch, [traceStartTime timeIntervalSince1970]);
-  [trace startStageNamed:@"testStage" startTime:traceStartTime];
   [trace stop];
-  XCTAssertEqual(trace.stages.count, 1);
-  FIRTrace *stage = trace.stages.lastObject;
-  XCTAssertEqual(stage.startTimeSinceEpoch, [traceStartTime timeIntervalSince1970]);
 }
 
 - (void)testMetrics {
@@ -404,22 +303,6 @@
   FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
   [trace stop];
   XCTAssertFalse([trace isCompleteAndValid]);
-}
-
-/** Validates that valid traces with stages and metrics are marked as valid. */
-- (void)testValidTraceWithStageAndMetrics {
-  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
-  [trace start];
-  [trace incrementMetric:@"counter 1" byInt:1];
-  [trace incrementMetric:@"counter 2" byInt:1];
-  [trace startStageNamed:@"1"];
-  [trace incrementMetric:@"counter 1" byInt:1];
-  [trace incrementMetric:@"counter 2" byInt:1];
-  [trace startStageNamed:@"2"];
-  [trace incrementMetric:@"counter 1" byInt:1];
-  [trace incrementMetric:@"counter 2" byInt:1];
-  [trace stop];
-  XCTAssertTrue([trace isCompleteAndValid]);
 }
 
 /** Validates the value of background state when the app is backgrounded. */
@@ -460,35 +343,15 @@
   XCTAssertEqual(trace.backgroundTraceState, FPRTraceStateBackgroundAndForeground);
 }
 
-/** Validates that stages do not have any valid background state. */
-- (void)testValidTraceWithActiveStageHavingNoBackgroundState {
-  NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
-  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
-  [trace start];
-  [trace startStageNamed:@"RandomStage"];
-  [defaultCenter postNotificationName:UIApplicationDidEnterBackgroundNotification
-                               object:[UIApplication sharedApplication]];
-  [defaultCenter postNotificationName:UIApplicationDidBecomeActiveNotification
-                               object:[UIApplication sharedApplication]];
-  [trace stop];
-  XCTAssertEqual(trace.stages.count, 1);
-  FIRTrace *activeStage = [trace.stages lastObject];
-  XCTAssertEqual(activeStage.backgroundTraceState, FPRTraceStateUnknown);
-}
-
 /** Validates that internal trace names allow the reserved prefix value. */
 - (void)testInternalTraceCreationWithInternalPrefix {
   FIRTrace *trace = [[FIRTrace alloc] initInternalTraceWithName:@"_Random"];
   XCTAssertNotNil(trace);
   NSString *metricName = @"_counter";
   [trace start];
-  [trace startStageNamed:@"_1"];
   [trace incrementMetric:metricName byInt:5];
   [trace stop];
 
-  XCTAssertEqual(trace.stages.count, 1);
-  FIRTrace *stage1 = [trace.stages lastObject];
-  XCTAssertEqual(stage1.name, @"_1");
   NSUInteger metricValue = [[trace.counters objectForKey:metricName] integerValue];
   XCTAssertEqual(metricValue, 5);
 }
@@ -508,7 +371,6 @@
     FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
     weakReferencedTrace = trace;
     [trace start];
-    [trace startStageNamed:@"1"];
   }
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"Expectation - Wait for 2s"];
@@ -536,7 +398,6 @@
     FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
     weakReferencedTrace = trace;
     [trace start];
-    [trace startStageNamed:@"1"];
     [trace stop];
   }
   NSNumber *updatedMetric = [activeTrace.counters objectForKey:kFPRAppCounterNameTraceNotStopped];
