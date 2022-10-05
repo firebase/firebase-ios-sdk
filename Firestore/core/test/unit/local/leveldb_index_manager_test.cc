@@ -37,6 +37,7 @@ using model::IndexOffset;
 using model::IndexState;
 using model::ResourcePath;
 using model::Segment;
+using testutil::AndFilters;
 using testutil::Array;
 using testutil::CollectionGroupQuery;
 using testutil::DeletedDoc;
@@ -46,6 +47,7 @@ using testutil::Key;
 using testutil::MakeFieldIndex;
 using testutil::Map;
 using testutil::OrderBy;
+using testutil::OrFilters;
 using testutil::Query;
 using testutil::Version;
 
@@ -130,6 +132,13 @@ class LevelDbIndexManagerTest : public ::testing::Test {
     }
     EXPECT_EQ(expected, results.value())
         << "Query returned unexpected documents.";
+  }
+
+  void ValidateIndexType(const core::Query& query,
+                         IndexManager::IndexType expected) {
+    IndexManager::IndexType index_type =
+        index_manager_->GetIndexType(query.ToTarget());
+    EXPECT_EQ(index_type, expected);
   }
 
   std::unique_ptr<Persistence> persistence_;
@@ -1299,6 +1308,195 @@ TEST_F(LevelDbIndexManagerTest, CanChangeUser) {
     VerifySequenceNumber(index_manager, "coll1", 0);
     VerifySequenceNumber(index_manager, "coll2", 1);
     VerifySequenceNumber(index_manager, "coll3", 0);
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, PartialIndexAndFullIndex) {
+  persistence_->Run("TestPartialIndexAndFullIndex", [&]() {
+    index_manager_->Start();
+
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "a", model::Segment::kAscending));
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "b", model::Segment::kAscending));
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "c", model::Segment::kAscending, "d",
+                       model::Segment::kAscending));
+
+    auto query1 = Query("coll").AddingFilter(Filter("a", "==", 1));
+    ValidateIndexType(query1, IndexManager::IndexType::FULL);
+
+    auto query2 = Query("coll").AddingFilter(Filter("b", "==", 1));
+    ValidateIndexType(query2, IndexManager::IndexType::FULL);
+
+    auto query3 = Query("coll")
+                      .AddingFilter(Filter("a", "==", 1))
+                      .AddingOrderBy(OrderBy("a"));
+    ValidateIndexType(query3, IndexManager::IndexType::FULL);
+
+    auto query4 = Query("coll")
+                      .AddingFilter(Filter("b", "==", 1))
+                      .AddingOrderBy(OrderBy("b"));
+    ValidateIndexType(query4, IndexManager::IndexType::FULL);
+
+    auto query5 = Query("coll")
+                      .AddingFilter(Filter("a", "==", 1))
+                      .AddingFilter(Filter("b", "==", 1));
+    ValidateIndexType(query5, IndexManager::IndexType::PARTIAL);
+
+    auto query6 = Query("coll")
+                      .AddingFilter(Filter("a", "==", 1))
+                      .AddingOrderBy(OrderBy("b"));
+    ValidateIndexType(query6, IndexManager::IndexType::PARTIAL);
+
+    auto query7 = Query("coll")
+                      .AddingFilter(Filter("b", "==", 1))
+                      .AddingOrderBy(OrderBy("a"));
+    ValidateIndexType(query7, IndexManager::IndexType::PARTIAL);
+
+    auto query8 = Query("coll")
+                      .AddingFilter(Filter("c", "==", 1))
+                      .AddingFilter(Filter("d", "==", 1));
+    ValidateIndexType(query8, IndexManager::IndexType::FULL);
+
+    auto query9 = Query("coll")
+                      .AddingFilter(Filter("c", "==", 1))
+                      .AddingFilter(Filter("d", "==", 1))
+                      .AddingOrderBy(OrderBy("c"));
+    ValidateIndexType(query9, IndexManager::IndexType::FULL);
+
+    auto query10 = Query("coll")
+                       .AddingFilter(Filter("c", "==", 1))
+                       .AddingFilter(Filter("d", "==", 1))
+                       .AddingOrderBy(OrderBy("d"));
+    ValidateIndexType(query10, IndexManager::IndexType::FULL);
+
+    auto query11 = Query("coll")
+                       .AddingFilter(Filter("c", "==", 1))
+                       .AddingFilter(Filter("d", "==", 1))
+                       .AddingOrderBy(OrderBy("c"))
+                       .AddingOrderBy(OrderBy("d"));
+    ValidateIndexType(query11, IndexManager::IndexType::FULL);
+
+    auto query12 = Query("coll")
+                       .AddingFilter(Filter("c", "==", 1))
+                       .AddingFilter(Filter("d", "==", 1))
+                       .AddingOrderBy(OrderBy("d"))
+                       .AddingOrderBy(OrderBy("c"));
+    ValidateIndexType(query12, IndexManager::IndexType::FULL);
+
+    auto query13 = Query("coll")
+                       .AddingFilter(Filter("c", "==", 1))
+                       .AddingFilter(Filter("d", "==", 1))
+                       .AddingOrderBy(OrderBy("e"));
+    ValidateIndexType(query13, IndexManager::IndexType::PARTIAL);
+
+    auto query14 = Query("coll")
+                       .AddingFilter(Filter("c", "==", 1))
+                       .AddingFilter(Filter("d", "<=", 1));
+    ValidateIndexType(query14, IndexManager::IndexType::FULL);
+
+    auto query15 = Query("coll")
+                       .AddingFilter(Filter("c", "==", 1))
+                       .AddingFilter(Filter("d", ">", 1))
+                       .AddingOrderBy(OrderBy("d"));
+    ValidateIndexType(query15, IndexManager::IndexType::FULL);
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, IndexTypeForOrQueries) {
+  persistence_->Run("TestPartialIndexAndFullIndex", [&]() {
+    index_manager_->Start();
+
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "a", model::Segment::kAscending));
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "a", model::Segment::kDescending));
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "b", model::Segment::kAscending));
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "b", model::Segment::kAscending, "a",
+                       model::Segment::kAscending));
+
+    // OR query without orderBy without limit which has missing sub-target
+    // indexes.
+    auto query1 = Query("coll").AddingFilter(
+        OrFilters({Filter("a", "==", 1), Filter("c", "==", 1)}));
+    ValidateIndexType(query1, IndexManager::IndexType::NONE);
+
+    // OR query with explicit orderBy without limit which has missing sub-target
+    // indexes.
+    auto query2 = Query("coll")
+                      .AddingFilter(OrFilters(
+                          {Filter("a", "==", 1), Filter("c", "==", 1)}))
+                      .AddingOrderBy(OrderBy("c"));
+    ValidateIndexType(query2, IndexManager::IndexType::NONE);
+
+    // OR query with implicit orderBy without limit which has missing sub-target
+    // indexes.
+    auto query3 = Query("coll").AddingFilter(
+        OrFilters({Filter("a", "==", 1), Filter("c", ">", 1)}));
+    ValidateIndexType(query3, IndexManager::IndexType::NONE);
+
+    // OR query with explicit orderBy with limit which has missing sub-target
+    // indexes.
+    auto query4 = Query("coll")
+                      .AddingFilter(OrFilters(
+                          {Filter("a", "==", 1), Filter("c", "==", 1)}))
+                      .AddingOrderBy(OrderBy("c"))
+                      .WithLimitToFirst(2);
+    ValidateIndexType(query4, IndexManager::IndexType::NONE);
+
+    // OR query with implicit orderBy with limit which has missing sub-target
+    // indexes.
+    auto query5 = Query("coll")
+                      .AddingFilter(OrFilters(
+                          {Filter("a", "==", 1), Filter("c", ">", 1)}))
+                      .WithLimitToLast(2);
+    ValidateIndexType(query5, IndexManager::IndexType::NONE);
+
+    // OR query without orderBy without limit which has all sub-target indexes.
+    auto query6 = Query("coll").AddingFilter(
+        OrFilters({Filter("a", "==", 1), Filter("b", "==", 1)}));
+    ValidateIndexType(query6, IndexManager::IndexType::FULL);
+
+    // OR query with explicit orderBy without limit which has all sub-target
+    // indexes.
+    auto query7 = Query("coll")
+                      .AddingFilter(OrFilters(
+                          {Filter("a", "==", 1), Filter("b", "==", 1)}))
+                      .AddingOrderBy(OrderBy("a"));
+    ValidateIndexType(query7, IndexManager::IndexType::FULL);
+
+    // OR query with implicit orderBy without limit which has all sub-target
+    // indexes.
+    auto query8 = Query("coll").AddingFilter(
+        OrFilters({Filter("a", ">", 1), Filter("b", "==", 1)}));
+    ValidateIndexType(query8, IndexManager::IndexType::FULL);
+
+    // OR query without orderBy with limit which has all sub-target indexes.
+    auto query9 = Query("coll")
+                      .AddingFilter(OrFilters(
+                          {Filter("a", "==", 1), Filter("b", "==", 1)}))
+                      .WithLimitToFirst(2);
+    ValidateIndexType(query9, IndexManager::IndexType::PARTIAL);
+
+    // OR query with explicit orderBy with limit which has all sub-target
+    // indexes.
+    auto query10 = Query("coll")
+                       .AddingFilter(OrFilters(
+                           {Filter("a", "==", 1), Filter("b", "==", 1)}))
+                       .AddingOrderBy(OrderBy("a"))
+                       .WithLimitToFirst(2);
+    ValidateIndexType(query10, IndexManager::IndexType::PARTIAL);
+
+    // OR query with implicit orderBy with limit which has all sub-target
+    // indexes.
+    auto query11 = Query("coll")
+                       .AddingFilter(OrFilters(
+                           {Filter("a", ">", 1), Filter("b", "==", 1)}))
+                       .WithLimitToLast(2);
+    ValidateIndexType(query11, IndexManager::IndexType::PARTIAL);
   });
 }
 
