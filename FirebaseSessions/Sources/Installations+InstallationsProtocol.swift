@@ -17,11 +17,17 @@ import Foundation
 import FirebaseInstallations
 
 protocol InstallationsProtocol {
-  func provideInstallationID(provide: @escaping (String?, Error?) -> Void)
+  func installationID(completion: @escaping (Result<String, Error>) -> Void)
 }
 
 extension Installations: InstallationsProtocol {
-  func provideInstallationID(provide: @escaping (String?, Error?) -> Void) {
-    installationID(completion: provide)
+  func installationID(completion: @escaping (Result<String, Error>) -> Void) {
+    installationID { (installationID: String?, error: Error?) in
+      if let installationID = installationID {
+        completion(.success(installationID))
+      } else if let error = error {
+        completion(.failure(error))
+      }
+    }
   }
 }

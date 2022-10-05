@@ -75,15 +75,17 @@ class Identifiers: IdentifierProvider {
 
     let semaphore = DispatchSemaphore(value: 0)
 
-    installations.provideInstallationID { fiid, error in
-      if let fiid = fiid {
+    installations.installationID { result in
+      switch result {
+      case let .success(fiid):
         localInstallationID = fiid
-      } else if let error = error {
+      case let .failure(error):
         Logger
           .logError(
             "Error getting Firebase Installation ID: \(error). Using an empty ID"
           )
       }
+
       semaphore.signal()
     }
 

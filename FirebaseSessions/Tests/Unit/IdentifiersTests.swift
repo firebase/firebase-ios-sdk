@@ -74,7 +74,7 @@ class IdentifiersTests: XCTestCase {
   func testSuccessfulFIID() throws {
     // Make our mock return an ID
     let testID = "testID"
-    installations.ID = testID
+    installations.result = .success(testID)
 
     let expectation = XCTestExpectation(description: "Get the Installation ID Asynchronously")
 
@@ -88,7 +88,7 @@ class IdentifiersTests: XCTestCase {
 
   func testFailedFIID() throws {
     // Make our mock return an error
-    installations.error = NSError(domain: "FestFailedFIIDErrorDomain", code: 0)
+    installations.result = .failure(NSError(domain: "FestFailedFIIDErrorDomain", code: 0))
 
     let expectation = XCTestExpectation(description: "Get the Installation ID Asynchronously")
 
