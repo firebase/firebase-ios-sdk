@@ -22,7 +22,7 @@ import Foundation
 ///      and comes to the foreground.
 ///
 class Initiator {
-  public func beginListening(initiateSessionStart: @escaping () -> Void) {
+  func beginListening(initiateSessionStart: @escaping () -> Void) {
     // Only cold start is implemented right now
     initiateSessionStart()
   }

@@ -50,7 +50,7 @@ class Identifiers: IdentifierProvider {
     uuid = UUID()
   }
 
-  public func generateNewSessionID() {
+  func generateNewSessionID() {
     uuid = UUID()
 
     let lastStoredSessionID = UserDefaults.standard.string(forKey: sessionIDUserDefaultsKey) ?? ""
@@ -62,7 +62,7 @@ class Identifiers: IdentifierProvider {
 
   // This method must be run on a background thread due to how Firebase Installations
   // handles threading.
-  public var installationID: String {
+  var installationID: String {
     if Thread.isMainThread {
       Logger
         .logError(
@@ -96,11 +96,11 @@ class Identifiers: IdentifierProvider {
     return localInstallationID
   }
 
-  public var sessionID: String {
+  var sessionID: String {
     return UserDefaults.standard.string(forKey: sessionIDUserDefaultsKey) ?? ""
   }
 
-  public var lastSessionID: String {
+  var lastSessionID: String {
     return UserDefaults.standard.string(forKey: lastSessionIDUserDefaultsKey) ?? ""
   }
 }

@@ -24,7 +24,7 @@ class Coordinator {
     self.identifiers = identifiers
   }
 
-  public func runMain() {
+  func runMain() {
     // TODO:
   }
 }
