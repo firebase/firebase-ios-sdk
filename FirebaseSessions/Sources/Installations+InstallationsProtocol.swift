@@ -16,11 +16,11 @@
 import Foundation
 import FirebaseInstallations
 
-protocol InstallationIDProvider {
+protocol InstallationsProtocol {
   func provideInstallationID(provide: @escaping (String?, Error?) -> Void)
 }
 
-extension Installations: InstallationIDProvider {
+extension Installations: InstallationsProtocol {
   func provideInstallationID(provide: @escaping (String?, Error?) -> Void) {
     installationID(completion: provide)
   }

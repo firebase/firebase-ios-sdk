@@ -38,8 +38,8 @@ protocol SessionsProvider {
 
   // MARK: - Initializers
 
-  required convenience init(appID: String, installationIDProvider: InstallationIDProvider) {
-    let identifiers = Identifiers(installationIDProvider: installationIDProvider)
+  required convenience init(appID: String, installations: InstallationsProtocol) {
+    let identifiers = Identifiers(installations: installations)
     let coordinator = Coordinator(identifiers: identifiers)
     let initiator = Initiator()
 
@@ -74,7 +74,7 @@ protocol SessionsProvider {
         guard let app = container.app, app.isDefaultApp else { return nil }
         isCacheable.pointee = true
         let installations = Installations.installations(app: app)
-        return self.init(appID: app.options.googleAppID, installationIDProvider: installations)
+        return self.init(appID: app.options.googleAppID, installations: installations)
       }]
   }
 

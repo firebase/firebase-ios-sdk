@@ -41,12 +41,12 @@ protocol IdentifierProvider {
 ///   (Maybe) 4) Persisting, reading, and incrementing an increasing index
 ///
 class Identifiers: IdentifierProvider {
-  private let installationIDProvider: InstallationIDProvider
+  private let installations: InstallationsProtocol
 
   private var uuid: UUID
 
-  init(installationIDProvider: InstallationIDProvider) {
-    self.installationIDProvider = installationIDProvider
+  init(installations: InstallationsProtocol) {
+    self.installations = installations
     uuid = UUID()
   }
 
@@ -75,7 +75,7 @@ class Identifiers: IdentifierProvider {
 
     let semaphore = DispatchSemaphore(value: 0)
 
-    installationIDProvider.provideInstallationID { fiid, error in
+    installations.provideInstallationID { fiid, error in
       if let fiid = fiid {
         localInstallationID = fiid
       } else if let error = error {
