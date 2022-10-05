@@ -45,16 +45,18 @@ const pb_field_t google_protobuf_Timestamp_fields[3] = {
 
 
 std::string google_protobuf_Timestamp::ToString(int indent) const {
-    std::string header = PrintHeader(indent, "Timestamp", this);
-    std::string result;
+    std::string tostring_header = PrintHeader(indent, "Timestamp", this);
+    std::string tostring_result;
 
-    result += PrintPrimitiveField("seconds: ", seconds, indent + 1, false);
-    result += PrintPrimitiveField("nanos: ", nanos, indent + 1, false);
+    tostring_result += PrintPrimitiveField("seconds: ",
+        seconds, indent + 1, false);
+    tostring_result += PrintPrimitiveField("nanos: ",
+        nanos, indent + 1, false);
 
     bool is_root = indent == 0;
-    if (!result.empty() || is_root) {
-      std::string tail = PrintTail(indent);
-      return header + result + tail;
+    if (!tostring_result.empty() || is_root) {
+      std::string tostring_tail = PrintTail(indent);
+      return tostring_header + tostring_result + tostring_tail;
     } else {
       return "";
     }

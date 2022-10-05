@@ -23,9 +23,6 @@ import FirebaseCore
 @objc(FIRStorageProvider)
 protocol StorageProvider {
   @objc func storage(for bucket: String) -> Storage
-  // TODO: See if we can avoid the `type` parameter by either making it a `Storage` argument to
-  // allow subclasses, or avoid it entirely and fix tests. This was done for StorageCombineUnit,
-  // although we may be able to now port to using `@testable` instead of using the mock.
 }
 
 @objc(FIRStorageComponent) class StorageComponent: NSObject, Library, StorageProvider {

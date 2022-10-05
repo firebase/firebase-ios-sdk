@@ -30,7 +30,6 @@ import Foundation
     /// - Returns: Data object.
     func data(maxSize: Int64) async throws -> Data {
       return try await withCheckedThrowingContinuation { continuation in
-        // TODO: Use task to handle progress and cancellation.
         _ = self.getData(maxSize: maxSize) { result in
           continuation.resume(with: result)
         }
@@ -51,7 +50,6 @@ import Foundation
     func putDataAsync(_ uploadData: Data,
                       metadata: StorageMetadata? = nil) async throws -> StorageMetadata {
       return try await withCheckedThrowingContinuation { continuation in
-        // TODO: Use task to handle progress and cancellation.
         _ = self.putData(uploadData, metadata: metadata) { result in
           continuation.resume(with: result)
         }
@@ -59,6 +57,7 @@ import Foundation
     }
 
     /// Asynchronously uploads a file to the currently specified StorageReference.
+    /// `putDataAsync` should be used instead of `putFileAsync` in Extensions.
     ///
     /// - Parameters:
     ///   - url: A URL representing the system file path of the object to be uploaded.
@@ -70,7 +69,6 @@ import Foundation
     func putFileAsync(from url: URL,
                       metadata: StorageMetadata? = nil) async throws -> StorageMetadata {
       return try await withCheckedThrowingContinuation { continuation in
-        // TODO: Use task to handle progress and cancellation.
         _ = self.putFile(from: url, metadata: metadata) { result in
           continuation.resume(with: result)
         }
@@ -87,7 +85,6 @@ import Foundation
     /// - Returns: A `URL` pointing to the file path of the downloaded file.
     func writeAsync(toFile fileURL: URL) async throws -> URL {
       return try await withCheckedThrowingContinuation { continuation in
-        // TODO: Use task to handle progress and cancellation.
         _ = self.write(toFile: fileURL) { result in
           continuation.resume(with: result)
         }

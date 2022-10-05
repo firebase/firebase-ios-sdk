@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_UTIL_SET_UTIL_H_
 #define FIRESTORE_CORE_SRC_UTIL_SET_UTIL_H_
 
+#include <functional>
 #include <set>
 
 #include "Firestore/core/src/util/comparison.h"
@@ -35,16 +36,16 @@ namespace util {
  *
  * @param existing - The elements that exist in the original set.
  * @param new_entries - The elements to diff against the original set.
- * @param comparator - The comparator for the elements in before and after.
+ * @param cmp - The comparator for the elements in before and after.
  * @param on_add - A function to invoke for every element that is part of `
  * after` but not `before`.
  * @param on_remove - A function to invoke for every element that is part of
  * `before` but not `after`.
  */
-template <typename T>
-void DiffSets(std::set<T> existing,
-              std::set<T> new_entries,
-              Comparator<T> comparator,
+template <typename T, typename P = std::less<T>>
+void DiffSets(std::set<T, P> existing,
+              std::set<T, P> new_entries,
+              std::function<util::ComparisonResult(const T&, const T&)> cmp,
               std::function<void(const T&)> on_add,
               std::function<void(const T&)> on_remove) {
   auto existing_iter = existing.cbegin();
@@ -56,13 +57,12 @@ void DiffSets(std::set<T> existing,
     bool removed = false;
 
     if (existing_iter != existing.cend() && new_iter != new_entries.cend()) {
-      util::ComparisonResult cmp =
-          comparator.Compare(*existing_iter, *new_iter);
-      if (cmp == util::ComparisonResult::Ascending) {
+      if (cmp(*existing_iter, *new_iter) == util::ComparisonResult::Ascending) {
         // The element was removed if the next element in our ordered
         // walkthrough is only in `existing`.
         removed = true;
-      } else if (cmp == util::ComparisonResult::Descending) {
+      } else if (cmp(*existing_iter, *new_iter) ==
+                 util::ComparisonResult::Descending) {
         // The element was added if the next element in our ordered
         // walkthrough is only in `new_entries`.
         added = true;

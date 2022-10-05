@@ -1,3 +1,15 @@
+# Unreleased
+- [feature] Added `Query.count()`, which fetches the number of documents in the
+  result set without actually downloading the documents (#10246).
+
+# 10.0.0
+- [fixed] Fixed compiler warning about `@param comparator` (#10226).
+
+# 9.6.0
+- [added] Expose client side indexing feature with `FIRFirestore.setIndexConfigurationFromJSON` and
+  `FIRFirestore.setIndexConfigurationFromStream` (#10090).
+- [fixed] Fixed high CPU usage whenever Firestore was in use (#10168).
+
 # 9.5.0
 - [fixed] Fixed an intermittent crash if `ListenerRegistration::Remove()` was
   invoked concurrently (#10065).

@@ -35,10 +35,9 @@ if arg_cnts > 2 {
 let implicitPods = [
   "FirebaseCore", "FirebaseInstallations", "Firebase",
   "FirebaseAuth", "FirebaseABTesting",
-  "FirebaseCoreDiagnostics", "FirebaseRemoteConfig",
-  "FirebaseCoreExtension", "FirebaseAppCheckInterop",
-  "FirebaseAuthInterop", "FirebaseMessagingInterop",
-  "FirebaseStorageInternal", "FirebaseCoreInternal",
+  "FirebaseRemoteConfig", "FirebaseCoreExtension",
+  "FirebaseAppCheckInterop", "FirebaseAuthInterop",
+  "FirebaseMessagingInterop", "FirebaseCoreInternal",
   "FirebaseSharedSwift",
 ]
 

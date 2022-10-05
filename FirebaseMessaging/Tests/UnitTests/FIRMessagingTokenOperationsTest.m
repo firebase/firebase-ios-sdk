@@ -71,7 +71,7 @@ static NSString *kRegistrationToken = @"token-12345";
 
 /// A fake heartbeat logger used for dependency injection during testing.
 @interface FIRHeartbeatLoggerFake : NSObject <FIRHeartbeatLoggerProtocol>
-@property(nonatomic, copy, nullable) FIRHeartbeatInfoCode (^onHeartbeatCodeForTodayHandler)(void);
+@property(nonatomic, copy, nullable) FIRDailyHeartbeatCode (^onHeartbeatCodeForTodayHandler)(void);
 @end
 
 @implementation FIRHeartbeatLoggerFake
@@ -84,11 +84,11 @@ static NSString *kRegistrationToken = @"token-12345";
   return nil;
 }
 
-- (FIRHeartbeatInfoCode)heartbeatCodeForToday {
+- (FIRDailyHeartbeatCode)heartbeatCodeForToday {
   if (self.onHeartbeatCodeForTodayHandler) {
     return self.onHeartbeatCodeForTodayHandler();
   } else {
-    return FIRHeartbeatInfoCodeNone;
+    return FIRDailyHeartbeatCodeNone;
   }
 }
 
@@ -396,25 +396,25 @@ static NSString *kRegistrationToken = @"token-12345";
 
 - (void)testTokenFetchOperationFirebaseUserAgentAndHeartbeatHeader_WhenHeartbeatNeedsSending {
   [self assertTokenFetchOperationRequestContainsFirebaseUserAgentAndHeartbeatInfoCode:
-            FIRHeartbeatInfoCodeGlobal];
+            FIRDailyHeartbeatCodeSome];
 }
 
 - (void)testTokenFetchOperationFirebaseUserAgentAndHeartbeatHeader_WhenNoHeartbeatNeedsSending {
   [self assertTokenFetchOperationRequestContainsFirebaseUserAgentAndHeartbeatInfoCode:
-            FIRHeartbeatInfoCodeNone];
+            FIRDailyHeartbeatCodeNone];
 }
 
 #pragma mark - Internal Helpers
 
 - (void)assertTokenFetchOperationRequestContainsFirebaseUserAgentAndHeartbeatInfoCode:
-    (FIRHeartbeatInfoCode)heartbeatInfoCode {
+    (FIRDailyHeartbeatCode)heartbeatInfoCode {
   XCTestExpectation *completionExpectation =
       [self expectationWithDescription:@"completionExpectation"];
 
   FIRHeartbeatLoggerFake *heartbeatLoggerFake = [[FIRHeartbeatLoggerFake alloc] init];
   XCTestExpectation *heartbeatExpectation =
       [self expectationWithDescription:@"heartbeatExpectation"];
-  heartbeatLoggerFake.onHeartbeatCodeForTodayHandler = ^FIRHeartbeatInfoCode {
+  heartbeatLoggerFake.onHeartbeatCodeForTodayHandler = ^FIRDailyHeartbeatCode {
     [heartbeatExpectation fulfill];
     return heartbeatInfoCode;
   };

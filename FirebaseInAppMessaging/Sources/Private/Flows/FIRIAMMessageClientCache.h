@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @protocol FIRIAMCacheDataObserver
-- (void)dataChanged;
+- (void)messageDataChanged;
 @end
 
 // This class serves as an in-memory cache of the messages that would be searched for finding next

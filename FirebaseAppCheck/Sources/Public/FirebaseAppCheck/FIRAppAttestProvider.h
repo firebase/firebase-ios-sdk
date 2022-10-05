@@ -24,12 +24,20 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// Firebase App Check provider that verifies app integrity using the
+/// [DeviceCheck](https://developer.apple.com/documentation/devicecheck/dcappattestservice) API.
+/// This class is available on all platforms for select OS versions. See
+/// https://firebase.google.com/docs/ios/learn-more for more details.
 FIR_APP_ATTEST_PROVIDER_AVAILABILITY
 NS_SWIFT_NAME(AppAttestProvider)
 @interface FIRAppAttestProvider : NSObject <FIRAppCheckProvider>
 
 - (instancetype)init NS_UNAVAILABLE;
 
+/// The default initializer.
+/// @param app A `FirebaseApp` instance.
+/// @return An instance of `AppAttestProvider` if the provided `FirebaseApp` instance contains all
+/// required parameters.
 - (nullable instancetype)initWithApp:(FIRApp *)app;
 
 @end

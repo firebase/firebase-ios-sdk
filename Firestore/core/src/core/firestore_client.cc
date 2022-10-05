@@ -45,6 +45,7 @@
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_set.h"
+#include "Firestore/core/src/model/field_index.h"
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/remote/connectivity_monitor.h"
 #include "Firestore/core/src/remote/datastore.h"
@@ -84,6 +85,7 @@ using local::QueryResult;
 using model::Document;
 using model::DocumentKeySet;
 using model::DocumentMap;
+using model::FieldIndex;
 using model::Mutation;
 using model::OnlineState;
 using remote::ConnectivityMonitor;
@@ -109,9 +111,9 @@ static const auto kInitialGCDelay = std::chrono::minutes(1);
 static const auto kRegularGCDelay = std::chrono::minutes(5);
 
 /** How long we wait to try running index backfill after SDK initialization. */
-static const auto kInitialBackfillDelay = std::chrono::milliseconds(15);
+static const auto kInitialBackfillDelay = std::chrono::seconds(15);
 /** Minimum amount of time between backfill checks, after the first one. */
-static const auto kRegularBackfillDelay = std::chrono::milliseconds(1);
+static const auto kRegularBackfillDelay = std::chrono::minutes(1);
 
 }  // namespace
 
@@ -534,6 +536,23 @@ void FirestoreClient::Transaction(int max_attempts,
   });
 }
 
+void FirestoreClient::RunCountQuery(const Query& query,
+                                    api::CountQueryCallback&& result_callback) {
+  VerifyNotTerminated();
+
+  // Dispatch the result back onto the user dispatch queue.
+  auto async_callback = [this,
+                         result_callback](const StatusOr<int64_t>& status) {
+    if (result_callback) {
+      user_executor_->Execute([=] { result_callback(std::move(status)); });
+    }
+  };
+
+  worker_queue_->Enqueue([this, query, async_callback] {
+    sync_engine_->RunCountQuery(query, std::move(async_callback));
+  });
+}
+
 void FirestoreClient::AddSnapshotsInSyncListener(
     const std::shared_ptr<EventListener<Empty>>& user_listener) {
   worker_queue_->Enqueue([this, user_listener] {
@@ -545,6 +564,14 @@ void FirestoreClient::RemoveSnapshotsInSyncListener(
     const std::shared_ptr<EventListener<Empty>>& user_listener) {
   worker_queue_->Enqueue([this, user_listener] {
     event_manager_->RemoveSnapshotsInSyncListener(user_listener);
+  });
+}
+
+void FirestoreClient::ConfigureFieldIndexes(
+    std::vector<FieldIndex> parsed_indexes) {
+  VerifyNotTerminated();
+  worker_queue_->Enqueue([this, parsed_indexes] {
+    local_store_->ConfigureFieldIndexes(std::move(parsed_indexes));
   });
 }
 

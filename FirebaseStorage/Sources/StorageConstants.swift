@@ -14,8 +14,6 @@
 
 import Foundation
 
-import FirebaseStorageInternal
-
 @objc(FIRStorageTaskStatus) public enum StorageTaskStatus: Int {
   case unknown
   case resume
@@ -23,19 +21,4 @@ import FirebaseStorageInternal
   case pause
   case success
   case failure
-}
-
-@objc(FIRStorageErrorCode) public enum StorageErrorCode: Int {
-  case unknown = -13000
-  case objectNotFound = -13010
-  case bucketNotFound = -13011
-  case projectNotFound = -13012
-  case quotaExceeded = -13013
-  case unauthenticated = -13020
-  case unauthorized = -13021
-  case retryLimitExceeded = -13030
-  case nonMatchingChecksum = -13031
-  case downloadSizeExceeded = -13032
-  case cancelled = -13040
-  case invalidArgument = -13050
 }

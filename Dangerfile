@@ -93,7 +93,6 @@ has_license_changes = didModify(["LICENSE"])
 @has_auth_api_changes = hasChangesIn("FirebaseAuth/Sources/Public/")
 @has_core_changes = hasChangesIn([
   "FirebaseCore",
-  "Firebase/CoreDiagnostics/",
   "CoreOnly/"])
 @has_core_api_changes = hasChangesIn("FirebaseCore/Sources/Public/")
 @has_crashlytics_changes = hasChangesIn("Crashlytics")
@@ -117,7 +116,6 @@ has_license_changes = didModify(["LICENSE"])
 @has_remoteconfig_changes = hasChangesIn("FirebaseRemoteConfig")
 @has_remoteconfig_api_changes = hasChangesIn("FirebaseRemoteConfig/Sources/Public/")
 @has_storage_changes = hasChangesIn("FirebaseStorage")
-@has_storage_api_changes = hasChangesIn("FirebaseStorageInternal/Sources/Public/")
 
 @has_releasetooling_changes = hasChangesIn("ReleaseTooling/")
 

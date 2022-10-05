@@ -6,7 +6,6 @@ use_frameworks!
 
 pod 'FirebaseCore', :path => '../../../../..'
 pod 'FirebaseInstallations', :path => '../../../../..'
-pod 'FirebaseCoreDiagnostics', :path => '../../../../..'
 pod 'FirebaseABTesting', :path => '../../../../..'
 pod 'FirebaseInAppMessaging', :path => '../../../../..'
 

@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/core/filter.h"
@@ -59,7 +60,7 @@ class FieldFilter : public Filter {
   };
 
   /**
-   * Creates a Filter instance for the provided path, operator, and value.
+   * Creates a FieldFilter instance for the provided path, operator, and value.
    */
   static FieldFilter Create(
       const model::FieldPath& path,
@@ -93,7 +94,8 @@ class FieldFilter : public Filter {
 
     bool IsInequality() const override;
 
-    const model::FieldPath& field() const override {
+    /** Returns the field the Filter operates over. */
+    const model::FieldPath& field() const {
       return field_;
     }
 
@@ -111,7 +113,13 @@ class FieldFilter : public Filter {
 
     std::string ToString() const override;
 
-    size_t Hash() const override;
+    bool IsEmpty() const override {
+      return false;
+    }
+
+    const model::FieldPath* GetFirstInequalityField() const override;
+
+    const std::vector<FieldFilter>& GetFlattenedFilters() const override;
 
    protected:
     /**

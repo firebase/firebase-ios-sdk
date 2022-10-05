@@ -261,7 +261,6 @@ FirebaseAppDistribution
 FirebaseAuth
 FirebaseAuthInterop
 FirebaseCore
-FirebaseCoreDiagnostics
 FirebaseCoreExtension
 FirebaseCoreInternal
 FirebaseDatabaseSwift
@@ -278,7 +277,6 @@ FirebasePerformance
 FirebaseRemoteConfig
 FirebaseRemoteConfigSwift
 FirebaseStorage
-FirebaseStorageInternal
 GTMSessionFetcher
 GoogleDataTransport
 PromisesObjC

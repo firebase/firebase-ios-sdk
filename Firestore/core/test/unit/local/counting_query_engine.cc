@@ -168,7 +168,10 @@ model::MutableDocument WrappedRemoteDocumentCache::Get(
 model::MutableDocumentMap WrappedRemoteDocumentCache::GetAll(
     const model::DocumentKeySet& keys) const {
   auto result = subject_->GetAll(keys);
-  query_engine_->documents_read_by_key_ += result.size();
+  for (const auto& key_doc : result) {
+    query_engine_->documents_read_by_key_ +=
+        key_doc.second.is_found_document() ? 1 : 0;
+  }
   return result;
 }
 
