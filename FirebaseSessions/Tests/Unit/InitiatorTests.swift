@@ -17,7 +17,7 @@ import XCTest
 
 class InitiatorTests: XCTestCase {
   func testColdStart() throws {
-    let initiator = Initiator()
+    let initiator = SessionInitiator()
     var initiateCalled = false
     initiator.beginListening {
       initiateCalled = true

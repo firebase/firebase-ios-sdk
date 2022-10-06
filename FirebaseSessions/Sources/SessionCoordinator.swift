@@ -15,15 +15,17 @@
 import Foundation
 
 ///
-/// The Initiator is responsible for:
-///   1) Running the initiate callback whenever a Session Start Event should
-///      begin sending. This can happen at a cold start of the app, and when it
-///      been in the background for a period of time (originally set at 30 mins)
-///      and comes to the foreground.
+/// SessionCoordinator is responsible for coordinating the systems in this SDK
+/// involved with sending a Session Start event.
 ///
-class Initiator {
-  func beginListening(initiateSessionStart: @escaping () -> Void) {
-    // Only cold start is implemented right now
-    initiateSessionStart()
+class SessionCoordinator {
+  private let identifiers: IdentifierProvider
+
+  init(identifiers: IdentifierProvider) {
+    self.identifiers = identifiers
+  }
+
+  func runMain() {
+    // TODO:
   }
 }

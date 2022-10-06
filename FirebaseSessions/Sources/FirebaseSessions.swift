@@ -32,16 +32,16 @@ protocol SessionsProvider {
   private let appID: String
 
   /// Top-level Classes in the Sessions SDK
-  private let coordinator: Coordinator
-  private let initiator: Initiator
+  private let coordinator: SessionCoordinator
+  private let initiator: SessionInitiator
   private let identifiers: Identifiers
 
   // MARK: - Initializers
 
   required convenience init(appID: String, installations: InstallationsProtocol) {
     let identifiers = Identifiers(installations: installations)
-    let coordinator = Coordinator(identifiers: identifiers)
-    let initiator = Initiator()
+    let coordinator = SessionCoordinator(identifiers: identifiers)
+    let initiator = SessionInitiator()
 
     self.init(appID: appID,
               identifiers: identifiers,
@@ -49,7 +49,8 @@ protocol SessionsProvider {
               initiator: initiator)
   }
 
-  init(appID: String, identifiers: Identifiers, coordinator: Coordinator, initiator: Initiator) {
+  init(appID: String, identifiers: Identifiers, coordinator: SessionCoordinator,
+       initiator: SessionInitiator) {
     self.appID = appID
 
     self.identifiers = identifiers
