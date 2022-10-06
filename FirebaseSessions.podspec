@@ -42,11 +42,6 @@ Pod::Spec.new do |s|
   s.dependency 'FirebaseCoreExtension', '~> 10.0'
   s.dependency 'FirebaseInstallations', '~> 10.0'
 
-<<<<<<< HEAD:FirebaseStorageInternal.podspec
-  s.dependency 'FirebaseCore', '~> 9.0'
-  s.dependency 'GTMSessionFetcher/Core', '>= 1.7', '< 2.1'
-=======
->>>>>>> master:FirebaseSessions.podspec
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
