@@ -127,7 +127,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDatabase.podspec --skip-tests --platforms=${{ matrix.target }}
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDatabase.podspec --verbose --skip-tests --platforms=${{ matrix.target }}
 
   database-cron-only:
     # Don't run on private repo.
