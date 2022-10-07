@@ -242,6 +242,8 @@ let package = Package(
     // MARK: - Firebase Core Extension
 
     // Extension of FirebaseCore for consuming by Swift product SDKs.
+    // When depending on `FirebaseCoreExtension`, also depend on `FirebaseCore`
+    // to avoid potential linker issues.
     .target(
       name: "FirebaseCoreExtension",
       path: "FirebaseCore/Extension",
