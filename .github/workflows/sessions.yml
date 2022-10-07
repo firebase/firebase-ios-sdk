@@ -25,7 +25,7 @@ jobs:
 
     strategy:
       matrix:
-        target: [ios, tvos, macos, watchos --skip-tests]
+        target: [ios, tvos, macos]
     steps:
     - uses: actions/checkout@v2
     - uses: ruby/setup-ruby@v1
