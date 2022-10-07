@@ -6,6 +6,8 @@ Pod::Spec.new do |s|
     s.description      = <<-DESC
     Not for public use.
     Common FirebaseCore APIs for use in Firebase product SDKs.
+    When depending on `FirebaseCoreExtension`, also depend on `FirebaseCore` to
+    avoid potential linker issues.
                          DESC
 
     s.homepage         = 'https://firebase.google.com'
