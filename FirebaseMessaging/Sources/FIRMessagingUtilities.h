@@ -30,6 +30,7 @@ FOUNDATION_EXPORT int64_t FIRMessagingCurrentTimestampInMilliseconds(void);
 FOUNDATION_EXPORT NSString *FIRMessagingCurrentAppVersion(void);
 FOUNDATION_EXPORT NSString *FIRMessagingAppIdentifier(void);
 FOUNDATION_EXPORT NSString *FIRMessagingFirebaseAppID(void);
+FOUNDATION_EXPORT BOOL FIRMessagingIsWatchKitExtension(void);
 
 #pragma mark - Others
 
