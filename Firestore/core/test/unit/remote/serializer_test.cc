@@ -1316,9 +1316,7 @@ TEST_F(SerializerTest, EncodesCompositeFiltersOnDeeperCollections) {
            ->mutable_structured_query()
            ->mutable_where()
            ->mutable_composite_filter();
-  // TODO(orquery): Replace with Operator_OR.
-  or_composite.set_op(
-      v1::StructuredQuery::CompositeFilter::OPERATOR_UNSPECIFIED);
+  or_composite.set_op(v1::StructuredQuery::CompositeFilter::OR);
   *or_composite.add_filters() = std::move(filter1);
   *or_composite.add_filters() = std::move(filter4);
 

@@ -750,7 +750,8 @@ TEST_F(LevelDbIndexManagerTest, NoMatchingFilter) {
     index_manager_->Start();
     SetUpSingleValueFilter();
     auto query = Query("coll").AddingFilter(Filter("unknown", "==", true));
-    EXPECT_FALSE(index_manager_->GetFieldIndex(query.ToTarget()).has_value());
+    EXPECT_EQ(index_manager_->GetIndexType(query.ToTarget()),
+              IndexManager::IndexType::NONE);
     EXPECT_FALSE(index_manager_->GetDocumentsMatchingTarget(query.ToTarget())
                      .has_value());
   });
@@ -1127,9 +1128,7 @@ TEST_F(LevelDbIndexManagerTest, AdvancedQueries) {
 }
 
 TEST_F(LevelDbIndexManagerTest, CreateReadFieldsIndexes) {
-  persistence_->Run("CreateReadDeleteFieldsIndexes", [&]() {
-    IndexManager* index_manager_ =
-        persistence_->GetIndexManager(User::Unauthenticated());
+  persistence_->Run("TestCreateReadFieldsIndexes", [&]() {
     index_manager_->Start();
 
     index_manager_->AddFieldIndex(
@@ -1168,53 +1167,46 @@ TEST_F(LevelDbIndexManagerTest, CreateReadFieldsIndexes) {
 
 TEST_F(LevelDbIndexManagerTest,
        NextCollectionGroupAdvancesWhenCollectionIsUpdated) {
-  persistence_->Run("CreateReadDeleteFieldsIndexes", [&]() {
-    IndexManager* index_manager_ =
-        persistence_->GetIndexManager(User::Unauthenticated());
-    index_manager_->Start();
+  persistence_->Run(
+      "TestNextCollectionGroupAdvancesWhenCollectionIsUpdated", [&]() {
+        index_manager_->Start();
 
-    index_manager_->AddFieldIndex(MakeFieldIndex("coll1"));
-    index_manager_->AddFieldIndex(MakeFieldIndex("coll2"));
+        index_manager_->AddFieldIndex(MakeFieldIndex("coll1"));
+        index_manager_->AddFieldIndex(MakeFieldIndex("coll2"));
 
-    {
-      const auto& collection_group =
-          index_manager_->GetNextCollectionGroupToUpdate();
-      EXPECT_TRUE(collection_group.has_value());
-      EXPECT_EQ(collection_group.value(), "coll1");
-    }
+        {
+          const auto& collection_group =
+              index_manager_->GetNextCollectionGroupToUpdate();
+          EXPECT_TRUE(collection_group.has_value());
+          EXPECT_EQ(collection_group.value(), "coll1");
+        }
 
-    index_manager_->UpdateCollectionGroup("coll1", IndexOffset::None());
-    {
-      const auto& collection_group =
-          index_manager_->GetNextCollectionGroupToUpdate();
-      EXPECT_TRUE(collection_group.has_value());
-      EXPECT_EQ(collection_group.value(), "coll2");
-    }
+        index_manager_->UpdateCollectionGroup("coll1", IndexOffset::None());
+        {
+          const auto& collection_group =
+              index_manager_->GetNextCollectionGroupToUpdate();
+          EXPECT_TRUE(collection_group.has_value());
+          EXPECT_EQ(collection_group.value(), "coll2");
+        }
 
-    index_manager_->UpdateCollectionGroup("coll2", IndexOffset::None());
-    {
-      const auto& collection_group =
-          index_manager_->GetNextCollectionGroupToUpdate();
-      EXPECT_TRUE(collection_group.has_value());
-      EXPECT_EQ(collection_group.value(), "coll1");
-    }
-  });
+        index_manager_->UpdateCollectionGroup("coll2", IndexOffset::None());
+        {
+          const auto& collection_group =
+              index_manager_->GetNextCollectionGroupToUpdate();
+          EXPECT_TRUE(collection_group.has_value());
+          EXPECT_EQ(collection_group.value(), "coll1");
+        }
+      });
 }
 
 TEST_F(LevelDbIndexManagerTest, PersistsIndexOffset) {
-  persistence_->Run("CreateReadDeleteFieldsIndexes", [&]() {
-    IndexManager* index_manager_ =
-        persistence_->GetIndexManager(User::Unauthenticated());
+  persistence_->Run("TestPersistsIndexOffset", [&]() {
     index_manager_->Start();
 
     index_manager_->AddFieldIndex(
         MakeFieldIndex("coll1", "value", model::Segment::kAscending));
     IndexOffset offset{Version(20), Key("coll/doc"), 42};
     index_manager_->UpdateCollectionGroup("coll1", offset);
-
-    index_manager_ =
-        persistence_->GetIndexManager(credentials::User::Unauthenticated());
-    index_manager_->Start();
 
     std::vector<FieldIndex> indexes = index_manager_->GetFieldIndexes("coll1");
     EXPECT_EQ(indexes.size(), 1);
@@ -1224,9 +1216,7 @@ TEST_F(LevelDbIndexManagerTest, PersistsIndexOffset) {
 }
 
 TEST_F(LevelDbIndexManagerTest, DeleteFieldsIndexeRemovesAllMetadata) {
-  persistence_->Run("CreateReadDeleteFieldsIndexes", [&]() {
-    IndexManager* index_manager_ =
-        persistence_->GetIndexManager(User::Unauthenticated());
+  persistence_->Run("TestDeleteFieldsIndexeRemovesAllMetadata", [&]() {
     index_manager_->Start();
 
     auto index = MakeFieldIndex("coll1", 0, model::FieldIndex::InitialState(),
@@ -1247,67 +1237,68 @@ TEST_F(LevelDbIndexManagerTest, DeleteFieldsIndexeRemovesAllMetadata) {
 
 TEST_F(LevelDbIndexManagerTest,
        DeleteFieldIndexRemovesEntryFromCollectionGroup) {
-  persistence_->Run("CreateReadDeleteFieldsIndexes", [&]() {
-    IndexManager* index_manager_ =
-        persistence_->GetIndexManager(User::Unauthenticated());
-    index_manager_->Start();
+  persistence_->Run(
+      "TestDeleteFieldIndexRemovesEntryFromCollectionGroup", [&]() {
+        index_manager_->Start();
 
-    index_manager_->AddFieldIndex(
-        MakeFieldIndex("coll1", 1, IndexState{1, IndexOffset::None()}, "value",
-                       model::Segment::kAscending));
-    index_manager_->AddFieldIndex(
-        MakeFieldIndex("coll2", 2, IndexState{2, IndexOffset::None()}, "value",
-                       model::Segment::kContains));
-    auto collection_group = index_manager_->GetNextCollectionGroupToUpdate();
-    EXPECT_TRUE(collection_group);
-    EXPECT_EQ(collection_group.value(), "coll1");
+        index_manager_->AddFieldIndex(
+            MakeFieldIndex("coll1", 1, IndexState{1, IndexOffset::None()},
+                           "value", model::Segment::kAscending));
+        index_manager_->AddFieldIndex(
+            MakeFieldIndex("coll2", 2, IndexState{2, IndexOffset::None()},
+                           "value", model::Segment::kContains));
+        auto collection_group =
+            index_manager_->GetNextCollectionGroupToUpdate();
+        EXPECT_TRUE(collection_group);
+        EXPECT_EQ(collection_group.value(), "coll1");
 
-    std::vector<FieldIndex> indexes = index_manager_->GetFieldIndexes("coll1");
-    EXPECT_EQ(indexes.size(), 1);
-    index_manager_->DeleteFieldIndex(indexes[0]);
-    collection_group = index_manager_->GetNextCollectionGroupToUpdate();
-    EXPECT_EQ(collection_group, "coll2");
-  });
+        std::vector<FieldIndex> indexes =
+            index_manager_->GetFieldIndexes("coll1");
+        EXPECT_EQ(indexes.size(), 1);
+        index_manager_->DeleteFieldIndex(indexes[0]);
+        collection_group = index_manager_->GetNextCollectionGroupToUpdate();
+        EXPECT_EQ(collection_group, "coll2");
+      });
 }
 
 TEST_F(LevelDbIndexManagerTest, CanChangeUser) {
   persistence_->Run("CreateReadDeleteFieldsIndexes", [&]() {
-    IndexManager* index_manager_ =
+    IndexManager* index_manager =
         persistence_->GetIndexManager(User::Unauthenticated());
-    index_manager_->Start();
+    index_manager->Start();
 
     // Add two indexes and mark one as updated.
-    index_manager_->AddFieldIndex(
+    index_manager->AddFieldIndex(
         MakeFieldIndex("coll1", 1, FieldIndex::InitialState()));
-    index_manager_->AddFieldIndex(
+    index_manager->AddFieldIndex(
         MakeFieldIndex("coll2", 2, FieldIndex::InitialState()));
-    index_manager_->UpdateCollectionGroup("coll2", IndexOffset::None());
+    index_manager->UpdateCollectionGroup("coll2", IndexOffset::None());
 
-    VerifySequenceNumber(index_manager_, "coll1", 0);
-    VerifySequenceNumber(index_manager_, "coll2", 1);
+    VerifySequenceNumber(index_manager, "coll1", 0);
+    VerifySequenceNumber(index_manager, "coll2", 1);
 
     // New user signs it. The user should see all existing field indices.
     // Sequence numbers are set to 0.
-    index_manager_ = persistence_->GetIndexManager(User("authenticated"));
-    index_manager_->Start();
+    index_manager = persistence_->GetIndexManager(User("authenticated"));
+    index_manager->Start();
 
     // Add a new index and mark it as updated.
-    index_manager_->AddFieldIndex(
+    index_manager->AddFieldIndex(
         MakeFieldIndex("coll3", 2, FieldIndex::InitialState()));
-    index_manager_->UpdateCollectionGroup("coll3", IndexOffset::None());
+    index_manager->UpdateCollectionGroup("coll3", IndexOffset::None());
 
-    VerifySequenceNumber(index_manager_, "coll1", 0);
-    VerifySequenceNumber(index_manager_, "coll2", 0);
-    VerifySequenceNumber(index_manager_, "coll3", 1);
+    VerifySequenceNumber(index_manager, "coll1", 0);
+    VerifySequenceNumber(index_manager, "coll2", 0);
+    VerifySequenceNumber(index_manager, "coll3", 1);
 
     // Original user signs it. The user should also see the new index with a
     // zero sequence number.
-    index_manager_ = persistence_->GetIndexManager(User::Unauthenticated());
-    index_manager_->Start();
+    index_manager = persistence_->GetIndexManager(User::Unauthenticated());
+    index_manager->Start();
 
-    VerifySequenceNumber(index_manager_, "coll1", 0);
-    VerifySequenceNumber(index_manager_, "coll2", 1);
-    VerifySequenceNumber(index_manager_, "coll3", 0);
+    VerifySequenceNumber(index_manager, "coll1", 0);
+    VerifySequenceNumber(index_manager, "coll2", 1);
+    VerifySequenceNumber(index_manager, "coll3", 0);
   });
 }
 
