@@ -702,6 +702,7 @@ let package = Package(
     .target(
       name: "FirebaseFirestoreSwift",
       dependencies: [
+        "FirebaseCore",
         "FirebaseCoreExtension",
         "FirebaseFirestore",
         "FirebaseSharedSwift",
