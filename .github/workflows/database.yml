@@ -72,6 +72,8 @@ jobs:
         cache_key: ${{ matrix.os }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
+    - name: Create watch simulator
+      run: xcrun simctl create "Apple Watch Series 7 - 45mm" "com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-7-45mm"
     - name: Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh DatabaseUnit ${{ matrix.target }} spm
     - name: iOS Swift Unit Tests
@@ -126,6 +128,8 @@ jobs:
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
+    - name: Create watch simulator
+      run: xcrun simctl create "Apple Watch Series 7 - 45mm" "com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-7-45mm"
     - name: Build and test
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDatabase.podspec --skip-tests --platforms=${{ matrix.target }}
 
