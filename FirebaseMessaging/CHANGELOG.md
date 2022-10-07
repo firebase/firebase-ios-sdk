@@ -1,3 +1,6 @@
+# 10.1.0
+- [fixed] App bundle identifier gets incorrectly shortened for watchOS apps created on Xcode 14 (#10147)
+
 # 8.12.0
 - [changed] Improved reporting for SQLite errors when failing to open a local database (#8699).
 
