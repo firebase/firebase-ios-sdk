@@ -141,12 +141,13 @@ namespace v1 {
 enum StructuredQuery_CompositeFilter_Operator : int {
   StructuredQuery_CompositeFilter_Operator_OPERATOR_UNSPECIFIED = 0,
   StructuredQuery_CompositeFilter_Operator_AND = 1,
+  StructuredQuery_CompositeFilter_Operator_OR = 2,
   StructuredQuery_CompositeFilter_Operator_StructuredQuery_CompositeFilter_Operator_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   StructuredQuery_CompositeFilter_Operator_StructuredQuery_CompositeFilter_Operator_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
 bool StructuredQuery_CompositeFilter_Operator_IsValid(int value);
 constexpr StructuredQuery_CompositeFilter_Operator StructuredQuery_CompositeFilter_Operator_Operator_MIN = StructuredQuery_CompositeFilter_Operator_OPERATOR_UNSPECIFIED;
-constexpr StructuredQuery_CompositeFilter_Operator StructuredQuery_CompositeFilter_Operator_Operator_MAX = StructuredQuery_CompositeFilter_Operator_AND;
+constexpr StructuredQuery_CompositeFilter_Operator StructuredQuery_CompositeFilter_Operator_Operator_MAX = StructuredQuery_CompositeFilter_Operator_OR;
 constexpr int StructuredQuery_CompositeFilter_Operator_Operator_ARRAYSIZE = StructuredQuery_CompositeFilter_Operator_Operator_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* StructuredQuery_CompositeFilter_Operator_descriptor();
@@ -695,6 +696,8 @@ class StructuredQuery_CompositeFilter :
     StructuredQuery_CompositeFilter_Operator_OPERATOR_UNSPECIFIED;
   static constexpr Operator AND =
     StructuredQuery_CompositeFilter_Operator_AND;
+  static constexpr Operator OR =
+    StructuredQuery_CompositeFilter_Operator_OR;
   static inline bool Operator_IsValid(int value) {
     return StructuredQuery_CompositeFilter_Operator_IsValid(value);
   }
