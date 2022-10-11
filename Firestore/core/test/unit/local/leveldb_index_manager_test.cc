@@ -53,10 +53,10 @@ std::unique_ptr<Persistence> PersistenceFactory() {
   return LevelDbPersistenceForTesting();
 }
 
-void VerifySequenceNumber(IndexManager* index_manager_,
+void VerifySequenceNumber(IndexManager* index_manager,
                           const std::string& group,
                           int32_t expected_seq_num) {
-  std::vector<FieldIndex> indexes = index_manager_->GetFieldIndexes(group);
+  std::vector<FieldIndex> indexes = index_manager->GetFieldIndexes(group);
   EXPECT_EQ(indexes.size(), 1);
   EXPECT_EQ(indexes[0].index_state().sequence_number(), expected_seq_num);
 }

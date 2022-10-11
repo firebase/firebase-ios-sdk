@@ -927,8 +927,8 @@ void LevelDbIndexManager::DeleteIndexEntry(const model::Document& document,
 }
 
 std::vector<Target> LevelDbIndexManager::GetSubTargets(const Target& target) {
-  auto it = target_to_DNF_subtargets_.find(target);
-  if (it != target_to_DNF_subtargets_.end()) {
+  auto it = target_to_dnf_subtargets_.find(target);
+  if (it != target_to_dnf_subtargets_.end()) {
     return it->second;
   }
 
@@ -954,14 +954,13 @@ std::vector<Target> LevelDbIndexManager::GetSubTargets(const Target& target) {
           filter_list = filter_list.push_back(filter);
         }
       }
-      const core::Query query(target.path(), target.collection_group(),
-                              filter_list, target.order_bys(), target.limit(),
-                              core::LimitType::None, target.start_at(),
-                              target.end_at());
-      subtargets.push_back(query.ToTarget());
+      subtargets.push_back({target.path(), target.collection_group(),
+                            std::move(filter_list), target.order_bys(),
+                            target.limit(), target.start_at(),
+                            target.end_at()});
     }
   }
-  return target_to_DNF_subtargets_[target] = subtargets;
+  return target_to_dnf_subtargets_[target] = subtargets;
 }
 
 }  // namespace local

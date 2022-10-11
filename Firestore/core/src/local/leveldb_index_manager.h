@@ -211,7 +211,7 @@ class LevelDbIndexManager : public IndexManager {
   // TODO(orquery): Find a way for the GC algorithm to remove the mapping
   //  once we remove a target.
   std::unordered_map<core::Target, std::vector<core::Target>>
-      target_to_DNF_subtargets_;
+      target_to_dnf_subtargets_;
 
   /**
    * An in-memory copy of the index entries we've already written since the SDK

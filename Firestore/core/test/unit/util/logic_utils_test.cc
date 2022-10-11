@@ -159,20 +159,20 @@ TEST_F(LogicUtilsTest, ComputeDnfFlatAndFilter) {
 TEST_F(LogicUtilsTest, ComputeDnfFlatOrFilter) {
   CompositeFilter composite_filter = OrFilters({A, B, C});
   EXPECT_EQ(ComputeDistributedNormalForm(composite_filter), composite_filter);
-  std::vector<core::Filter> expected_DNF_terms{A, B, C};
+  std::vector<core::Filter> expected_dnf_terms{A, B, C};
   EXPECT_EQ(GetDnfTerms(composite_filter),
-            std::vector<core::Filter>{expected_DNF_terms});
+            std::vector<core::Filter>{expected_dnf_terms});
 }
 
 TEST_F(LogicUtilsTest, ComputeDnf1) {
   // A & (B | C) --> (A & B) | (A & C)
   CompositeFilter composite_filter = AndFilters({A, OrFilters({B, C})});
-  std::vector<core::Filter> expected_DNF_terms{AndFilters({A, B}),
+  std::vector<core::Filter> expected_dnf_terms{AndFilters({A, B}),
                                                AndFilters({A, C})};
-  CompositeFilter expected = OrFilters(expected_DNF_terms);
+  CompositeFilter expected = OrFilters(expected_dnf_terms);
   EXPECT_EQ(ComputeDistributedNormalForm(composite_filter), expected);
   EXPECT_EQ(GetDnfTerms(composite_filter),
-            std::vector<core::Filter>{expected_DNF_terms});
+            std::vector<core::Filter>{expected_dnf_terms});
 }
 
 TEST_F(LogicUtilsTest, ComputeDnf2) {
@@ -188,9 +188,9 @@ TEST_F(LogicUtilsTest, ComputeDnf3) {
   // A | (B & C)
   CompositeFilter composite_filter = OrFilters({A, AndFilters({B, C})});
   EXPECT_EQ(ComputeDistributedNormalForm(composite_filter), composite_filter);
-  std::vector<core::Filter> expected_DNF_terms{A, AndFilters({B, C})};
+  std::vector<core::Filter> expected_dnf_terms{A, AndFilters({B, C})};
   EXPECT_EQ(GetDnfTerms(composite_filter),
-            std::vector<core::Filter>{expected_DNF_terms});
+            std::vector<core::Filter>{expected_dnf_terms});
 }
 
 TEST_F(LogicUtilsTest, ComputeDnf4) {
@@ -200,12 +200,12 @@ TEST_F(LogicUtilsTest, ComputeDnf4) {
       OrFilters({A, AndFilters({B, C}),
                  OrFilters({AndFilters({OrFilters({D})}), OrFilters({E, F}),
                             AndFilters({G, H})})});
-  std::vector<core::Filter> expected_DNF_terms{A, AndFilters({B, C}), D, E,
+  std::vector<core::Filter> expected_dnf_terms{A, AndFilters({B, C}), D, E,
                                                F, AndFilters({G, H})};
-  CompositeFilter expected = OrFilters({expected_DNF_terms});
+  CompositeFilter expected = OrFilters({expected_dnf_terms});
   EXPECT_EQ(ComputeDistributedNormalForm(composite_filter), expected);
   EXPECT_EQ(GetDnfTerms(composite_filter),
-            std::vector<core::Filter>{expected_DNF_terms});
+            std::vector<core::Filter>{expected_dnf_terms});
 }
 
 TEST_F(LogicUtilsTest, ComputeDnf5) {
@@ -223,13 +223,13 @@ TEST_F(LogicUtilsTest, ComputeDnf5) {
       AndFilters({A, OrFilters({B, C}),
                   AndFilters({AndFilters({OrFilters({D})}), OrFilters({E, F}),
                               AndFilters({G, H})})});
-  std::vector<core::Filter> expected_DNF_terms{
+  std::vector<core::Filter> expected_dnf_terms{
       AndFilters({D, E, G, H, A, B}), AndFilters({D, F, G, H, A, B}),
       AndFilters({D, E, G, H, A, C}), AndFilters({D, F, G, H, A, C})};
-  CompositeFilter expected = OrFilters({expected_DNF_terms});
+  CompositeFilter expected = OrFilters({expected_dnf_terms});
   EXPECT_EQ(ComputeDistributedNormalForm(composite_filter), expected);
   EXPECT_EQ(GetDnfTerms(composite_filter),
-            std::vector<core::Filter>{expected_DNF_terms});
+            std::vector<core::Filter>{expected_dnf_terms});
 }
 
 TEST_F(LogicUtilsTest, ComputeDnf6) {
@@ -238,12 +238,12 @@ TEST_F(LogicUtilsTest, ComputeDnf6) {
   // -> (A & B) | (A & C & D) | (A & C & E & F)
   CompositeFilter composite_filter = AndFilters(
       {A, OrFilters({B, AndFilters({C, OrFilters({D, AndFilters({E, F})})})})});
-  std::vector<core::Filter> expected_DNF_terms{
+  std::vector<core::Filter> expected_dnf_terms{
       AndFilters({A, B}), AndFilters({C, D, A}), AndFilters({E, F, C, A})};
-  CompositeFilter expected = OrFilters({expected_DNF_terms});
+  CompositeFilter expected = OrFilters({expected_dnf_terms});
   EXPECT_EQ(ComputeDistributedNormalForm(composite_filter), expected);
   EXPECT_EQ(GetDnfTerms(composite_filter),
-            std::vector<core::Filter>{expected_DNF_terms});
+            std::vector<core::Filter>{expected_dnf_terms});
 }
 
 TEST_F(LogicUtilsTest, ComputeDnf7) {
@@ -252,14 +252,14 @@ TEST_F(LogicUtilsTest, ComputeDnf7) {
   CompositeFilter composite_filter =
       OrFilters({AndFilters({OrFilters({A, B}), OrFilters({C, D})}),
                  AndFilters({OrFilters({E, F}), OrFilters({G, H})})});
-  std::vector<core::Filter> expected_DNF_terms{
+  std::vector<core::Filter> expected_dnf_terms{
       AndFilters({A, C}), AndFilters({A, D}), AndFilters({B, C}),
       AndFilters({B, D}), AndFilters({E, G}), AndFilters({E, H}),
       AndFilters({F, G}), AndFilters({F, H})};
-  CompositeFilter expected = OrFilters({expected_DNF_terms});
+  CompositeFilter expected = OrFilters({expected_dnf_terms});
   EXPECT_EQ(ComputeDistributedNormalForm(composite_filter), expected);
   EXPECT_EQ(GetDnfTerms(composite_filter),
-            std::vector<core::Filter>{expected_DNF_terms});
+            std::vector<core::Filter>{expected_dnf_terms});
 }
 
 TEST_F(LogicUtilsTest, ComputeDnf8) {
@@ -268,13 +268,13 @@ TEST_F(LogicUtilsTest, ComputeDnf8) {
   CompositeFilter composite_filter =
       AndFilters({OrFilters({AndFilters({A, B}), AndFilters({C, D})}),
                   OrFilters({AndFilters({E, F}), AndFilters({G, H})})});
-  std::vector<core::Filter> expected_DNF_terms{
+  std::vector<core::Filter> expected_dnf_terms{
       AndFilters({E, F, A, B}), AndFilters({G, H, A, B}),
       AndFilters({E, F, C, D}), AndFilters({G, H, C, D})};
-  CompositeFilter expected = OrFilters({expected_DNF_terms});
+  CompositeFilter expected = OrFilters({expected_dnf_terms});
   EXPECT_EQ(ComputeDistributedNormalForm(composite_filter), expected);
   EXPECT_EQ(GetDnfTerms(composite_filter),
-            std::vector<core::Filter>{expected_DNF_terms});
+            std::vector<core::Filter>{expected_dnf_terms});
 }
 
 }  // namespace util
