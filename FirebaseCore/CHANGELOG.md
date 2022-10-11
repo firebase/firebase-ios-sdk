@@ -45,6 +45,7 @@
 - [fixed] Fixed rare crash on launch due to out-of-bounds exception in FirebaseCore. (#10025)
 
 # Firebase 9.3.0
+- [changed] Discontinue bitcode inclusion in all binary distributions.
 - [fixed] Remove GoogleSignInSwiftSupport from Zip and Carthage distributions due to
   infeasibility. The GoogleSignIn distribution continues. (#9937)
 

@@ -46,17 +46,6 @@ enum TargetPlatform: CaseIterable {
     }
   }
 
-  /// Flag to determine if bitcode should be used for the target platform.
-  var shouldEnableBitcode: Bool {
-    switch self {
-    // TODO: Do we need to include bitcode for Catalyst? We weren't before the latest arm64 changes.
-    case .iOSDevice: return true
-    case .macOS: return true
-    case .tvOSDevice: return true
-    default: return false
-    }
-  }
-
   /// Name of the SDK as used by `xcodebuild` for the target platforms.
   var sdkName: String {
     switch self {

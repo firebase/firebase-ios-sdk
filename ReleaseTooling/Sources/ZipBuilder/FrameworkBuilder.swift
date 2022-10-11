@@ -215,10 +215,7 @@ struct FrameworkBuilder {
                 "BUILD_DIR=\(buildDir.path)",
                 "-sdk", targetPlatform.sdkName,
                 cFlags]
-    // Add bitcode option for platforms that need it.
-    if targetPlatform.shouldEnableBitcode {
-      args.append("BITCODE_GENERATION_MODE=bitcode")
-    }
+
     // Code signing isn't needed for libraries. Disabling signing is required for
     // Catalyst libs with resources. See
     // https://github.com/CocoaPods/CocoaPods/issues/8891#issuecomment-573301570
