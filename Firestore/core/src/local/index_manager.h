@@ -124,16 +124,15 @@ class IndexManager {
    * and returns the minimum offset of them all. Asserts that the target can be
    * served from index.
    */
-  virtual const model::IndexOffset GetMinOffset(
-      const core::Target& target) const = 0;
+  virtual model::IndexOffset GetMinOffset(const core::Target& target) = 0;
 
   /** Returns the minimum offset for the given collection group. */
-  virtual const model::IndexOffset GetMinOffset(
+  virtual model::IndexOffset GetMinOffset(
       const std::string& collection_group) const = 0;
 
   /** Returns the type of index (if any) that can be used to serve the given
    * target */
-  virtual IndexType GetIndexType(const core::Target& target) const = 0;
+  virtual IndexType GetIndexType(const core::Target& target) = 0;
 
   /**
    * Returns the documents that match the given target based on the provided

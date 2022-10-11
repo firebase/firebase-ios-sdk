@@ -72,13 +72,12 @@ class LevelDbIndexManager : public IndexManager {
   absl::optional<model::FieldIndex> GetFieldIndex(
       const core::Target& target) const override;
 
-  const model::IndexOffset GetMinOffset(
-      const core::Target& target) const override;
+  model::IndexOffset GetMinOffset(const core::Target& target) override;
 
-  const model::IndexOffset GetMinOffset(
+  model::IndexOffset GetMinOffset(
       const std::string& collection_group) const override;
 
-  IndexType GetIndexType(const core::Target& target) const override;
+  IndexType GetIndexType(const core::Target& target) override;
 
   absl::optional<std::vector<model::DocumentKey>> GetDocumentsMatchingTarget(
       const core::Target& target) override;
@@ -154,10 +153,9 @@ class LevelDbIndexManager : public IndexManager {
   std::string EncodedDirectionalKey(const model::FieldIndex& index,
                                     const model::DocumentKey& key);
 
-  const std::vector<core::Target> GetSubTargets(
-      const core::Target& target) const;
+  std::vector<core::Target> GetSubTargets(const core::Target& target);
 
-  const model::IndexOffset GetMinOffset(
+  model::IndexOffset GetMinOffset(
       const std::vector<model::FieldIndex>& indexes) const;
 
   /**
@@ -205,6 +203,15 @@ class LevelDbIndexManager : public IndexManager {
 
   // The LevelDbIndexManager is owned by LevelDbPersistence.
   LevelDbPersistence* db_;
+
+  /**
+   * Maps from a target to its equivalent list of sub-targets. Each sub-target
+   * contains only one term from the target's disjunctive normal form (DNF).
+   */
+  // TODO(orquery): Find a way for the GC algorithm to remove the mapping
+  //  once we remove a target.
+  std::unordered_map<core::Target, std::vector<core::Target>>
+      target_to_dnf_subtargets_;
 
   /**
    * An in-memory copy of the index entries we've already written since the SDK
