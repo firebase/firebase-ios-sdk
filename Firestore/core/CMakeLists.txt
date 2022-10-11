@@ -143,9 +143,6 @@ target_link_libraries(
   absl::optional
   absl::strings
   absl::time
-  protobuf-nanopb-static
-  firestore_protos_nanopb
-  grpc++
 )
 
 if(HAVE_OPENSSL_RAND_H)
