@@ -526,10 +526,6 @@ IndexManager::IndexType LevelDbIndexManager::GetIndexType(
   // We currently consider OR queries that have a `limit` to have a partial
   // index. For such queries we perform sorting and apply the limit in memory as
   // a post-processing step.
-  // TODO(orquery): If we have a FULL index *and* we have the index that
-  //  can be used for sorting all DNF branches on the same value, we can improve
-  //  performance by performing a JOIN in SQL.
-  //  See b/235224019 for more information.
   if (target.HasLimit() && sub_targets.size() > 1U &&
       result == IndexManager::IndexType::FULL) {
     result = IndexManager::IndexType::PARTIAL;
