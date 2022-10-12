@@ -50,7 +50,7 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseRemoteConfigBinar
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.json"
 ```
 - Run `carthage update`
-- Use Finder to open `Carthage/Build/iOS`.
+- Use Finder to open `Carthage/Build`.
 - Copy the contents into the top level of your Xcode project and make sure
     they're added to the right build target(s).
     - To disable AdId support, do not copy

@@ -33,7 +33,10 @@ Pod::Spec.new do |s|
   s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
 
-  s.source_files = "FirebaseSessions/Sources/**/*.swift"
+  base_dir = "FirebaseSessions/"
+  s.source_files = [
+    base_dir + 'Sources/**/*.swift',
+  ]
 
   s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'FirebaseCoreExtension', '~> 10.0'
@@ -48,4 +51,18 @@ Pod::Spec.new do |s|
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
+
+  s.test_spec 'unit' do |unit_tests|
+    unit_tests.scheme = { :code_coverage => true }
+    unit_tests.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target,
+      # https://github.com/CocoaPods/CocoaPods/issues/8283
+      # :watchos => watchos_deployment_target,
+    }
+    unit_tests.source_files = base_dir + 'Tests/Unit/**/*.swift'
+    unit_tests.resources = base_dir + 'Tests/Fixtures/**/*'
+    unit_tests.requires_app_host = true
+  end
 end

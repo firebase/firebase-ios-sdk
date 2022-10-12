@@ -19,7 +19,7 @@
 import PackageDescription
 import class Foundation.ProcessInfo
 
-let firebaseVersion = "10.0.0"
+let firebaseVersion = "10.1.0"
 
 let package = Package(
   name: "Firebase",
@@ -246,6 +246,8 @@ let package = Package(
     // MARK: - Firebase Core Extension
 
     // Extension of FirebaseCore for consuming by Swift product SDKs.
+    // When depending on `FirebaseCoreExtension`, also depend on `FirebaseCore`
+    // to avoid potential linker issues.
     .target(
       name: "FirebaseCoreExtension",
       path: "FirebaseCore/Extension",
@@ -706,6 +708,7 @@ let package = Package(
     .target(
       name: "FirebaseFirestoreSwift",
       dependencies: [
+        "FirebaseCore",
         "FirebaseCoreExtension",
         "FirebaseFirestore",
         "FirebaseSharedSwift",

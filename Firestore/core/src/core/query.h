@@ -235,7 +235,7 @@ class Query {
    */
   model::DocumentComparator Comparator() const;
 
-  const std::string CanonicalId() const;
+  std::string CanonicalId() const;
 
   std::string ToString() const;
 
