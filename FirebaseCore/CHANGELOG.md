@@ -1,3 +1,8 @@
+# Firebase 10.1.0
+- [changed] Bitcode is no longer included in Firebase binary distributions. Xcode 14 does not
+  support bitcode. tvOS apps using a Firebase binary distribution will now need to use
+  Xcode 14. (#9962)
+
 # Firebase 10.0.0
 - [changed] **Breaking change**: Firebase's minimum supported versions have
   updated for the following platforms:
