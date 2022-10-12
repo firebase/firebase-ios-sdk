@@ -46,12 +46,9 @@ typedef void (^RCNConfigFetcherCompletion)(NSData *data, NSURLResponse *response
 
 /// Fetches config data keyed by namespace. Completion block will be called on the main queue.
 /// @param expirationDuration  Expiration duration, in seconds.
-/// @param excludeEtagHeaderForRealtime Needed for fetches from Realtime when an UPDATE response is
-/// required
 /// @param completionHandler   Callback handler.
 - (void)fetchConfigWithExpirationDuration:(NSTimeInterval)expirationDuration
-                        completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler
-             excludeEtagHeaderForRealtime:(bool)excludeEtagHeaderForRealtime;
+                        completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
 
 /// Add the ability to update NSURLSession's timeout after a session has already been created.
 - (void)recreateNetworkSession;
