@@ -99,6 +99,10 @@ class Target {
     return limit_;
   }
 
+  bool HasLimit() const {
+    return limit_ != kNoLimit;
+  }
+
   const absl::optional<Bound>& start_at() const {
     return start_at_;
   }

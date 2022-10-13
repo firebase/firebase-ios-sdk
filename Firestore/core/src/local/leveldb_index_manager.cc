@@ -508,7 +508,9 @@ model::IndexOffset LevelDbIndexManager::GetMinOffset(
 IndexManager::IndexType LevelDbIndexManager::GetIndexType(
     const core::Target& target) {
   IndexManager::IndexType result = IndexManager::IndexType::FULL;
-  for (const Target& sub_target : GetSubTargets(target)) {
+  const auto sub_targets = GetSubTargets(target);
+
+  for (const Target& sub_target : sub_targets) {
     absl::optional<model::FieldIndex> index = GetFieldIndex(sub_target);
     if (!index) {
       result = IndexManager::IndexType::NONE;
@@ -519,6 +521,16 @@ IndexManager::IndexType LevelDbIndexManager::GetIndexType(
       result = IndexManager::IndexType::PARTIAL;
     }
   }
+
+  // OR queries have more than one sub-target (one sub-target per DNF term).
+  // We currently consider OR queries that have a `limit` to have a partial
+  // index. For such queries we perform sorting and apply the limit in memory as
+  // a post-processing step.
+  if (target.HasLimit() && sub_targets.size() > 1U &&
+      result == IndexManager::IndexType::FULL) {
+    result = IndexManager::IndexType::PARTIAL;
+  }
+
   return result;
 }
 
