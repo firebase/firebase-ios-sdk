@@ -28,7 +28,7 @@ jobs:
       matrix:
         target: [ios, tvos, macos]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -55,7 +55,7 @@ jobs:
       matrix:
         target: [iOS, tvOS, macOS, catalyst, watchOS]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
@@ -71,7 +71,7 @@ jobs:
       # This env var is set because the job has a dependency on the unpublished HeatbeatLoggingTestUtils.
       POD_LIB_LINT_ONLY: 1
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
@@ -87,8 +87,8 @@ jobs:
 
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
+    - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh installations
@@ -116,7 +116,7 @@ jobs:
         ]
     needs: pod-lib-lint
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh

@@ -25,7 +25,7 @@ jobs:
         # These need to be on a single line or else the formatting won't validate.
         pod: ["FirebaseAppDistribution", "FirebaseDynamicLinks", "FirebaseInAppMessaging", "FirebasePerformance"]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
@@ -48,7 +48,7 @@ jobs:
         # These need to be on a single line or else the formatting won't validate.
         pod: ["FirebaseABTesting", "FirebaseAuth", "FirebaseCore", "FirebaseCrashlytics", "FirebaseDatabase", "FirebaseFirestore", "FirebaseFunctions", "FirebaseMessaging", "FirebaseRemoteConfig", "FirebaseStorage"]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
