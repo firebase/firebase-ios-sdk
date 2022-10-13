@@ -250,8 +250,7 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
     completionHandlerCopy = [completionHandler copy];
   }
   [_configFetch fetchConfigWithExpirationDuration:expirationDuration
-                                completionHandler:completionHandlerCopy
-                     excludeEtagHeaderForRealtime:false];
+                                completionHandler:completionHandlerCopy];
 }
 
 #pragma mark - fetchAndActivate
