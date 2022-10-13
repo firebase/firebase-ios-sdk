@@ -19,6 +19,10 @@
 // 2. Copy everything below the options, and past it here below the package
 //    declaraction.
 // 3. Remove all the datapol.semantic_type tags
+// 4. Remove "wireless_android_play_playlog." from
+//    "wireless_android_play_playlog.NetworkConnectionInfo"
+// 5. Any new proto fields of type string, repeated, or bytes must be specified
+//    in the sessions.options file as "type:FT_POINTER"
 //
 
 syntax = "proto3";
@@ -139,8 +143,7 @@ message AppleApplicationInfo {
   // The version of the Apple Firebase-Sessions SDK in use
   string sdk_version = 2;
   // Describes the network connectivity of the device
-  wireless_android_play_playlog.NetworkConnectionInfo network_connection_info =
-      3;
+  NetworkConnectionInfo network_connection_info = 3;
   // Collects the OS running. Eg. iOS, iPadOs, tvOS, etc.
   OsName os_name = 4;
 }

@@ -43,7 +43,7 @@ typedef enum _firebase_appquality_DataCollectionState {
     firebase_appquality_DataCollectionState_COLLECTION_SDK_NOT_INSTALLED = 1,
     firebase_appquality_DataCollectionState_COLLECTION_ENABLED = 2,
     firebase_appquality_DataCollectionState_COLLECTION_DISABLED = 3,
-    firebase_appquality_DataCollectionState_COLLECTION_DISABLED_VIA_SETTINGS = 4,
+    firebase_appquality_DataCollectionState_COLLECTION_DISABLED_REMOTE = 4,
     firebase_appquality_DataCollectionState_COLLECTION_SAMPLED = 5
 } firebase_appquality_DataCollectionState;
 #define _firebase_appquality_DataCollectionState_MIN firebase_appquality_DataCollectionState_COLLECTION_UNKNOWN
@@ -97,27 +97,34 @@ typedef struct _firebase_appquality_ApplicationInfo {
 /* @@protoc_insertion_point(struct:firebase_appquality_ApplicationInfo) */
 } firebase_appquality_ApplicationInfo;
 
-typedef struct _firebase_appquality_SessionEvent {
-    firebase_appquality_EventType event_type;
-    pb_bytes_array_t *session_id;
-    pb_bytes_array_t *previous_session_id;
-    pb_bytes_array_t *firebase_installation_id;
+typedef struct _firebase_appquality_SessionInfo {
+    pb_callback_t session_id;
+    pb_callback_t previous_session_id;
+    pb_callback_t firebase_installation_id;
     int64_t event_timestamp_us;
     float sampling_rate;
-    firebase_appquality_ApplicationInfo application_info;
     firebase_appquality_DataCollectionStatus data_collection_status;
+/* @@protoc_insertion_point(struct:firebase_appquality_SessionInfo) */
+} firebase_appquality_SessionInfo;
+
+typedef struct _firebase_appquality_SessionEvent {
+    firebase_appquality_EventType event_type;
+    firebase_appquality_SessionInfo session_data;
+    firebase_appquality_ApplicationInfo application_info;
 /* @@protoc_insertion_point(struct:firebase_appquality_SessionEvent) */
 } firebase_appquality_SessionEvent;
 
 /* Default values for struct fields */
 
 /* Initializer values for message structs */
-#define firebase_appquality_SessionEvent_init_default {_firebase_appquality_EventType_MIN, NULL, NULL, NULL, 0, 0, firebase_appquality_ApplicationInfo_init_default, firebase_appquality_DataCollectionStatus_init_default}
+#define firebase_appquality_SessionEvent_init_default {_firebase_appquality_EventType_MIN, firebase_appquality_SessionInfo_init_default, firebase_appquality_ApplicationInfo_init_default}
+#define firebase_appquality_SessionInfo_init_default {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, 0, 0, firebase_appquality_DataCollectionStatus_init_default}
 #define firebase_appquality_DataCollectionStatus_init_default {_firebase_appquality_DataCollectionState_MIN, _firebase_appquality_DataCollectionState_MIN}
 #define firebase_appquality_ApplicationInfo_init_default {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, 0, {firebase_appquality_AndroidApplicationInfo_init_default}}
 #define firebase_appquality_AndroidApplicationInfo_init_default {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}}
 #define firebase_appquality_AppleApplicationInfo_init_default {{{NULL}, NULL}, {{NULL}, NULL}, NetworkConnectionInfo_init_default, _firebase_appquality_OsName_MIN}
-#define firebase_appquality_SessionEvent_init_zero {_firebase_appquality_EventType_MIN, NULL, NULL, NULL, 0, 0, firebase_appquality_ApplicationInfo_init_zero, firebase_appquality_DataCollectionStatus_init_zero}
+#define firebase_appquality_SessionEvent_init_zero {_firebase_appquality_EventType_MIN, firebase_appquality_SessionInfo_init_zero, firebase_appquality_ApplicationInfo_init_zero}
+#define firebase_appquality_SessionInfo_init_zero {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, 0, 0, firebase_appquality_DataCollectionStatus_init_zero}
 #define firebase_appquality_DataCollectionStatus_init_zero {_firebase_appquality_DataCollectionState_MIN, _firebase_appquality_DataCollectionState_MIN}
 #define firebase_appquality_ApplicationInfo_init_zero {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, 0, {firebase_appquality_AndroidApplicationInfo_init_zero}}
 #define firebase_appquality_AndroidApplicationInfo_init_zero {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}}
@@ -139,17 +146,19 @@ typedef struct _firebase_appquality_SessionEvent {
 #define firebase_appquality_ApplicationInfo_device_model_tag 2
 #define firebase_appquality_ApplicationInfo_development_platform_name_tag 3
 #define firebase_appquality_ApplicationInfo_development_platform_version_tag 4
+#define firebase_appquality_SessionInfo_session_id_tag 1
+#define firebase_appquality_SessionInfo_previous_session_id_tag 2
+#define firebase_appquality_SessionInfo_firebase_installation_id_tag 3
+#define firebase_appquality_SessionInfo_event_timestamp_us_tag 4
+#define firebase_appquality_SessionInfo_sampling_rate_tag 5
+#define firebase_appquality_SessionInfo_data_collection_status_tag 6
 #define firebase_appquality_SessionEvent_event_type_tag 1
-#define firebase_appquality_SessionEvent_session_id_tag 2
-#define firebase_appquality_SessionEvent_previous_session_id_tag 3
-#define firebase_appquality_SessionEvent_firebase_installation_id_tag 4
-#define firebase_appquality_SessionEvent_event_timestamp_us_tag 5
-#define firebase_appquality_SessionEvent_sampling_rate_tag 6
-#define firebase_appquality_SessionEvent_application_info_tag 7
-#define firebase_appquality_SessionEvent_data_collection_status_tag 8
+#define firebase_appquality_SessionEvent_session_data_tag 2
+#define firebase_appquality_SessionEvent_application_info_tag 3
 
 /* Struct field encoding specification for nanopb */
-extern const pb_field_t firebase_appquality_SessionEvent_fields[9];
+extern const pb_field_t firebase_appquality_SessionEvent_fields[4];
+extern const pb_field_t firebase_appquality_SessionInfo_fields[7];
 extern const pb_field_t firebase_appquality_DataCollectionStatus_fields[3];
 extern const pb_field_t firebase_appquality_ApplicationInfo_fields[7];
 extern const pb_field_t firebase_appquality_AndroidApplicationInfo_fields[4];
@@ -157,6 +166,7 @@ extern const pb_field_t firebase_appquality_AppleApplicationInfo_fields[5];
 
 /* Maximum encoded size of messages (where known) */
 /* firebase_appquality_SessionEvent_size depends on runtime parameters */
+/* firebase_appquality_SessionInfo_size depends on runtime parameters */
 #define firebase_appquality_DataCollectionStatus_size 4
 /* firebase_appquality_ApplicationInfo_size depends on runtime parameters */
 /* firebase_appquality_AndroidApplicationInfo_size depends on runtime parameters */
