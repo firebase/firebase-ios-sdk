@@ -195,7 +195,7 @@ Filter LogicUtils::ApplyDistribution(CompositeFilter&& lhs,
 
   // Case 1 is a merge.
   if (lhs.IsConjunction() && rhs.IsConjunction()) {
-    return lhs.WithAddedFilters(std::vector<Filter>(rhs.filters()));
+    return lhs.WithAddedFilters(rhs.filters());
   }
 
   // Case 2,3,4 all have at least one side (lhs or rhs) that is a disjunction.
