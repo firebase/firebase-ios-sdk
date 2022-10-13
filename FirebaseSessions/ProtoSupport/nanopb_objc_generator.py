@@ -129,7 +129,7 @@ def nanopb_parse_options(request):
   # Force certain options
   options.extension = '.nanopb'
   options.verbose = True
-  
+
   # Replicate options setup from nanopb_generator.main_plugin.
   nanopb.Globals.verbose_options = options.verbose
 
