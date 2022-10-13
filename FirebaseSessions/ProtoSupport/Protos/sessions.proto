@@ -12,6 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//
+// Instructions for updating this file:
+//
+// 1. Get the session_event.proto from the backend
+// 2. Copy everything below the options, and past it here below the package
+//    declaraction.
+// 3. Remove all the datapol.semantic_type tags
+//
+
 syntax = "proto3";
 
 import "clientanalytics.proto";
@@ -23,21 +32,10 @@ package firebase.appquality;
 message SessionEvent {
   // The type of event being reported.
   EventType event_type = 1;
-  // A globally unique identifier for the session.
-  string session_id = 2;
-  // The unique identifier for the session that preceded this one on the device.
-  string previous_session_id = 3;
-  // Identifies a unique device+app installation: go/firebase-installations
-  string firebase_installation_id = 4;
-  // The device-reported timestamp at which the event occurred.
-  int64 event_timestamp_us = 5;
-  // Any sampling rate being applied to these events on device.
-  // 1.0 implies no sampling.
-  float sampling_rate = 6;
+  // Information about the session triggering the event.
+  SessionInfo session_data = 2;
   // Information about the running application.
-  ApplicationInfo application_info = 7;
-  // The data collection status for each related SDK.
-  DataCollectionStatus data_collection_status = 8;
+  ApplicationInfo application_info = 3;
 }
 
 // Enum denoting all possible session event types.
@@ -45,6 +43,24 @@ enum EventType {
   EVENT_UNKNOWN = 0;
   // This event type is fired as soon as a new session begins.
   EVENT_SESSION_START = 1;
+}
+
+// Contains session-specific information relating to the event being uploaded.
+message SessionInfo {
+  // A globally unique identifier for the session.
+  string session_id = 1;
+  // The unique identifier for the session that preceded this one on the device.
+  // This will be the empty string if there was no previous session.
+  string previous_session_id = 2;
+  // Identifies a unique device+app installation: go/firebase-installations
+  string firebase_installation_id = 3;
+  // The device-reported timestamp at which the event occurred.
+  int64 event_timestamp_us = 4;
+  // Any sampling rate being applied to these events on device.
+  // 1.0 implies no sampling.
+  float sampling_rate = 5;
+  // The data collection status for each related SDK.
+  DataCollectionStatus data_collection_status = 6;
 }
 
 // Contains the data collection status for each related SDK.
@@ -58,10 +74,17 @@ message DataCollectionStatus {
 // Enum denoting all possible states for SDK data collection.
 enum DataCollectionState {
   COLLECTION_UNKNOWN = 0;
+  // This product SDK is not present in this version of the app.
   COLLECTION_SDK_NOT_INSTALLED = 1;
+  // The product SDK is present and collecting all product-level events.
   COLLECTION_ENABLED = 2;
+  // The product SDK is present but data collection for it has been locally
+  // disabled.
   COLLECTION_DISABLED = 3;
-  COLLECTION_DISABLED_VIA_SETTINGS = 4;
+  // The product SDK is present but data collection has been remotely disabled.
+  COLLECTION_DISABLED_REMOTE = 4;
+  // Indicates that the product SDK is present, but session data is being
+  // collected, but the product-level events are not being uploaded.
   COLLECTION_SAMPLED = 5;
 }
 
@@ -75,6 +98,7 @@ message ApplicationInfo {
   string development_platform_name = 3;
   // The version of the development platform in use by the app. Eg. 2020.3.33f1
   string development_platform_version = 4;
+
   oneof platform_info {
     // App info relevant only to Android apps
     AndroidApplicationInfo android_app_info = 5;
@@ -115,7 +139,7 @@ message AppleApplicationInfo {
   // The version of the Apple Firebase-Sessions SDK in use
   string sdk_version = 2;
   // Describes the network connectivity of the device
-  NetworkConnectionInfo network_connection_info =
+  wireless_android_play_playlog.NetworkConnectionInfo network_connection_info =
       3;
   // Collects the OS running. Eg. iOS, iPadOs, tvOS, etc.
   OsName os_name = 4;
@@ -131,5 +155,3 @@ enum OsName {
   OS_NAME_TV_OS = 4;
   OS_NAME_WATCH_OS = 5;
 }
-
-

@@ -22,9 +22,9 @@
 # Eg: `# google_crashlytics.Report.sdk_version type:FT_POINTER`
 #
 
-firebase.appquality.SessionEvent.session_id type:FT_POINTER
-firebase.appquality.SessionEvent.previous_session_id type:FT_POINTER
-firebase.appquality.SessionEvent.firebase_installation_id type:FT_POINTER
+firebase.appquality.SessionEvent.session_data.session_id type:FT_POINTER
+firebase.appquality.SessionEvent.session_data.previous_session_id type:FT_POINTER
+firebase.appquality.SessionEvent.session_data.firebase_installation_id type:FT_POINTER
 firebase.appquality.SessionEvent.application_info.app_id type:FT_POINTER
 firebase.appquality.SessionEvent.application_info.device_model type:FT_POINTER
 firebase.appquality.SessionEvent.application_info.development_platform_name type:FT_POINTER
