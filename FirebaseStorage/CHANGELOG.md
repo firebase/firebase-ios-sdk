@@ -1,3 +1,6 @@
+# 10.0.1
+- [fixed] When passing in metadata to `putFile`, the metadata is properly initialized (#10353)
+
 # 10.0.0
 - [changed] FirebaseStorage is now completely implemented in Swift. Swift-specific API improvements
   are planned for subsequent releases. (#9963)
