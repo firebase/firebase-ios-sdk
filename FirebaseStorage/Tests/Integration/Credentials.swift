@@ -31,5 +31,6 @@ import Foundation
 
 class Credentials {
   static let kUserName = KUSER_NAME
+
   static let kPassword = KPASSWORD
 }

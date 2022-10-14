@@ -344,6 +344,48 @@ NSString *const kTestPassword = KPASSWORD;
   [self waitForExpectations];
 }
 
+- (void)testPutFileWithMetadata {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testPutFileWithMetaData"];
+
+  FIRStorageReference *ref =
+      [self.storage referenceWithPath:@"ios/public/testUnauthenticatedSimplePutFile"];
+
+  NSData *data = [@"Hello World" dataUsingEncoding:NSUTF8StringEncoding];
+  NSURL *tmpDirURL = [NSURL fileURLWithPath:NSTemporaryDirectory()];
+  NSURL *fileURL =
+      [[tmpDirURL URLByAppendingPathComponent:@"hello"] URLByAppendingPathExtension:@"txt"];
+  [data writeToURL:fileURL atomically:YES];
+    
+  FIRStorageMetadata *putMetadata = [[FIRStorageMetadata alloc] init];
+  putMetadata.contentType = @"text/plain";
+
+  FIRStorageUploadTask *task = [ref putFile:fileURL
+                                   metadata:putMetadata
+                                 completion:^(FIRStorageMetadata *metadata, NSError *error) {
+                                   XCTAssertNotNil(metadata, "Metadata should not be nil");
+                                   XCTAssertNil(error, "Error should be nil");
+                                 }];
+
+  __block long uploadedBytes = -1;
+
+  [task observeStatus:FIRStorageTaskStatusSuccess
+              handler:^(FIRStorageTaskSnapshot *snapshot) {
+                XCTAssertEqualObjects([snapshot description], @"<State: Success>");
+                [expectation fulfill];
+              }];
+
+  [task observeStatus:FIRStorageTaskStatusProgress
+              handler:^(FIRStorageTaskSnapshot *_Nonnull snapshot) {
+                XCTAssertTrue([[snapshot description] containsString:@"State: Progress"] ||
+                              [[snapshot description] containsString:@"State: Resume"]);
+                NSProgress *progress = snapshot.progress;
+                XCTAssertGreaterThanOrEqual(progress.completedUnitCount, uploadedBytes);
+                uploadedBytes = (long)progress.completedUnitCount;
+              }];
+
+  [self waitForExpectations];
+}
+
 - (void)testPutFileWithSpecialCharacters {
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"testPutFileWithSpecialCharacters"];
