@@ -64,15 +64,15 @@ typedef enum _firebase_appquality_sessions_OsName {
 
 /* Struct definitions */
 typedef struct _firebase_appquality_sessions_AndroidApplicationInfo {
-    pb_callback_t package_name;
-    pb_callback_t sdk_version;
-    pb_callback_t version_name;
+    pb_bytes_array_t *package_name;
+    pb_bytes_array_t *sdk_version;
+    pb_bytes_array_t *version_name;
 /* @@protoc_insertion_point(struct:firebase_appquality_sessions_AndroidApplicationInfo) */
 } firebase_appquality_sessions_AndroidApplicationInfo;
 
 typedef struct _firebase_appquality_sessions_AppleApplicationInfo {
-    pb_callback_t bundle_short_version;
-    pb_callback_t sdk_version;
+    pb_bytes_array_t *bundle_short_version;
+    pb_bytes_array_t *sdk_version;
     NetworkConnectionInfo network_connection_info;
     firebase_appquality_sessions_OsName os_name;
 /* @@protoc_insertion_point(struct:firebase_appquality_sessions_AppleApplicationInfo) */
@@ -85,10 +85,10 @@ typedef struct _firebase_appquality_sessions_DataCollectionStatus {
 } firebase_appquality_sessions_DataCollectionStatus;
 
 typedef struct _firebase_appquality_sessions_ApplicationInfo {
-    pb_callback_t app_id;
-    pb_callback_t device_model;
-    pb_callback_t development_platform_name;
-    pb_callback_t development_platform_version;
+    pb_bytes_array_t *app_id;
+    pb_bytes_array_t *device_model;
+    pb_bytes_array_t *development_platform_name;
+    pb_bytes_array_t *development_platform_version;
     pb_size_t which_platform_info;
     union {
         firebase_appquality_sessions_AndroidApplicationInfo android_app_info;
@@ -98,9 +98,9 @@ typedef struct _firebase_appquality_sessions_ApplicationInfo {
 } firebase_appquality_sessions_ApplicationInfo;
 
 typedef struct _firebase_appquality_sessions_SessionInfo {
-    pb_callback_t session_id;
-    pb_callback_t previous_session_id;
-    pb_callback_t firebase_installation_id;
+    pb_bytes_array_t *session_id;
+    pb_bytes_array_t *previous_session_id;
+    pb_bytes_array_t *firebase_installation_id;
     int64_t event_timestamp_us;
     float sampling_rate;
     firebase_appquality_sessions_DataCollectionStatus data_collection_status;
@@ -118,17 +118,17 @@ typedef struct _firebase_appquality_sessions_SessionEvent {
 
 /* Initializer values for message structs */
 #define firebase_appquality_sessions_SessionEvent_init_default {_firebase_appquality_sessions_EventType_MIN, firebase_appquality_sessions_SessionInfo_init_default, firebase_appquality_sessions_ApplicationInfo_init_default}
-#define firebase_appquality_sessions_SessionInfo_init_default {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, 0, 0, firebase_appquality_sessions_DataCollectionStatus_init_default}
+#define firebase_appquality_sessions_SessionInfo_init_default {NULL, NULL, NULL, 0, 0, firebase_appquality_sessions_DataCollectionStatus_init_default}
 #define firebase_appquality_sessions_DataCollectionStatus_init_default {_firebase_appquality_sessions_DataCollectionState_MIN, _firebase_appquality_sessions_DataCollectionState_MIN}
-#define firebase_appquality_sessions_ApplicationInfo_init_default {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, 0, {firebase_appquality_sessions_AndroidApplicationInfo_init_default}}
-#define firebase_appquality_sessions_AndroidApplicationInfo_init_default {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}}
-#define firebase_appquality_sessions_AppleApplicationInfo_init_default {{{NULL}, NULL}, {{NULL}, NULL}, NetworkConnectionInfo_init_default, _firebase_appquality_sessions_OsName_MIN}
+#define firebase_appquality_sessions_ApplicationInfo_init_default {NULL, NULL, NULL, NULL, 0, {firebase_appquality_sessions_AndroidApplicationInfo_init_default}}
+#define firebase_appquality_sessions_AndroidApplicationInfo_init_default {NULL, NULL, NULL}
+#define firebase_appquality_sessions_AppleApplicationInfo_init_default {NULL, NULL, NetworkConnectionInfo_init_default, _firebase_appquality_sessions_OsName_MIN}
 #define firebase_appquality_sessions_SessionEvent_init_zero {_firebase_appquality_sessions_EventType_MIN, firebase_appquality_sessions_SessionInfo_init_zero, firebase_appquality_sessions_ApplicationInfo_init_zero}
-#define firebase_appquality_sessions_SessionInfo_init_zero {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, 0, 0, firebase_appquality_sessions_DataCollectionStatus_init_zero}
+#define firebase_appquality_sessions_SessionInfo_init_zero {NULL, NULL, NULL, 0, 0, firebase_appquality_sessions_DataCollectionStatus_init_zero}
 #define firebase_appquality_sessions_DataCollectionStatus_init_zero {_firebase_appquality_sessions_DataCollectionState_MIN, _firebase_appquality_sessions_DataCollectionState_MIN}
-#define firebase_appquality_sessions_ApplicationInfo_init_zero {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, 0, {firebase_appquality_sessions_AndroidApplicationInfo_init_zero}}
-#define firebase_appquality_sessions_AndroidApplicationInfo_init_zero {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}}
-#define firebase_appquality_sessions_AppleApplicationInfo_init_zero {{{NULL}, NULL}, {{NULL}, NULL}, NetworkConnectionInfo_init_zero, _firebase_appquality_sessions_OsName_MIN}
+#define firebase_appquality_sessions_ApplicationInfo_init_zero {NULL, NULL, NULL, NULL, 0, {firebase_appquality_sessions_AndroidApplicationInfo_init_zero}}
+#define firebase_appquality_sessions_AndroidApplicationInfo_init_zero {NULL, NULL, NULL}
+#define firebase_appquality_sessions_AppleApplicationInfo_init_zero {NULL, NULL, NetworkConnectionInfo_init_zero, _firebase_appquality_sessions_OsName_MIN}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define firebase_appquality_sessions_AndroidApplicationInfo_package_name_tag 1

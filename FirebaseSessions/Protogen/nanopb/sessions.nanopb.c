@@ -34,9 +34,9 @@ const pb_field_t firebase_appquality_sessions_SessionEvent_fields[4] = {
 };
 
 const pb_field_t firebase_appquality_sessions_SessionInfo_fields[7] = {
-    PB_FIELD(  1, BYTES   , SINGULAR, CALLBACK, FIRST, firebase_appquality_sessions_SessionInfo, session_id, session_id, 0),
-    PB_FIELD(  2, BYTES   , SINGULAR, CALLBACK, OTHER, firebase_appquality_sessions_SessionInfo, previous_session_id, session_id, 0),
-    PB_FIELD(  3, BYTES   , SINGULAR, CALLBACK, OTHER, firebase_appquality_sessions_SessionInfo, firebase_installation_id, previous_session_id, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, firebase_appquality_sessions_SessionInfo, session_id, session_id, 0),
+    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, firebase_appquality_sessions_SessionInfo, previous_session_id, session_id, 0),
+    PB_FIELD(  3, BYTES   , SINGULAR, POINTER , OTHER, firebase_appquality_sessions_SessionInfo, firebase_installation_id, previous_session_id, 0),
     PB_FIELD(  4, INT64   , SINGULAR, STATIC  , OTHER, firebase_appquality_sessions_SessionInfo, event_timestamp_us, firebase_installation_id, 0),
     PB_FIELD(  5, FLOAT   , SINGULAR, STATIC  , OTHER, firebase_appquality_sessions_SessionInfo, sampling_rate, event_timestamp_us, 0),
     PB_FIELD(  6, MESSAGE , SINGULAR, STATIC  , OTHER, firebase_appquality_sessions_SessionInfo, data_collection_status, sampling_rate, &firebase_appquality_sessions_DataCollectionStatus_fields),
@@ -50,25 +50,25 @@ const pb_field_t firebase_appquality_sessions_DataCollectionStatus_fields[3] = {
 };
 
 const pb_field_t firebase_appquality_sessions_ApplicationInfo_fields[7] = {
-    PB_FIELD(  1, BYTES   , SINGULAR, CALLBACK, FIRST, firebase_appquality_sessions_ApplicationInfo, app_id, app_id, 0),
-    PB_FIELD(  2, BYTES   , SINGULAR, CALLBACK, OTHER, firebase_appquality_sessions_ApplicationInfo, device_model, app_id, 0),
-    PB_FIELD(  3, BYTES   , SINGULAR, CALLBACK, OTHER, firebase_appquality_sessions_ApplicationInfo, development_platform_name, device_model, 0),
-    PB_FIELD(  4, BYTES   , SINGULAR, CALLBACK, OTHER, firebase_appquality_sessions_ApplicationInfo, development_platform_version, development_platform_name, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, firebase_appquality_sessions_ApplicationInfo, app_id, app_id, 0),
+    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, firebase_appquality_sessions_ApplicationInfo, device_model, app_id, 0),
+    PB_FIELD(  3, BYTES   , SINGULAR, POINTER , OTHER, firebase_appquality_sessions_ApplicationInfo, development_platform_name, device_model, 0),
+    PB_FIELD(  4, BYTES   , SINGULAR, POINTER , OTHER, firebase_appquality_sessions_ApplicationInfo, development_platform_version, development_platform_name, 0),
     PB_ANONYMOUS_ONEOF_FIELD(platform_info,   5, MESSAGE , ONEOF, STATIC  , OTHER, firebase_appquality_sessions_ApplicationInfo, android_app_info, development_platform_version, &firebase_appquality_sessions_AndroidApplicationInfo_fields),
     PB_ANONYMOUS_ONEOF_FIELD(platform_info,   6, MESSAGE , ONEOF, STATIC  , UNION, firebase_appquality_sessions_ApplicationInfo, apple_app_info, development_platform_version, &firebase_appquality_sessions_AppleApplicationInfo_fields),
     PB_LAST_FIELD
 };
 
 const pb_field_t firebase_appquality_sessions_AndroidApplicationInfo_fields[4] = {
-    PB_FIELD(  1, BYTES   , SINGULAR, CALLBACK, FIRST, firebase_appquality_sessions_AndroidApplicationInfo, package_name, package_name, 0),
-    PB_FIELD(  2, BYTES   , SINGULAR, CALLBACK, OTHER, firebase_appquality_sessions_AndroidApplicationInfo, sdk_version, package_name, 0),
-    PB_FIELD(  3, BYTES   , SINGULAR, CALLBACK, OTHER, firebase_appquality_sessions_AndroidApplicationInfo, version_name, sdk_version, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, firebase_appquality_sessions_AndroidApplicationInfo, package_name, package_name, 0),
+    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, firebase_appquality_sessions_AndroidApplicationInfo, sdk_version, package_name, 0),
+    PB_FIELD(  3, BYTES   , SINGULAR, POINTER , OTHER, firebase_appquality_sessions_AndroidApplicationInfo, version_name, sdk_version, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t firebase_appquality_sessions_AppleApplicationInfo_fields[5] = {
-    PB_FIELD(  1, BYTES   , SINGULAR, CALLBACK, FIRST, firebase_appquality_sessions_AppleApplicationInfo, bundle_short_version, bundle_short_version, 0),
-    PB_FIELD(  2, BYTES   , SINGULAR, CALLBACK, OTHER, firebase_appquality_sessions_AppleApplicationInfo, sdk_version, bundle_short_version, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, firebase_appquality_sessions_AppleApplicationInfo, bundle_short_version, bundle_short_version, 0),
+    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, firebase_appquality_sessions_AppleApplicationInfo, sdk_version, bundle_short_version, 0),
     PB_FIELD(  3, MESSAGE , SINGULAR, STATIC  , OTHER, firebase_appquality_sessions_AppleApplicationInfo, network_connection_info, sdk_version, &NetworkConnectionInfo_fields),
     PB_FIELD(  4, UENUM   , SINGULAR, STATIC  , OTHER, firebase_appquality_sessions_AppleApplicationInfo, os_name, network_connection_info, 0),
     PB_LAST_FIELD
