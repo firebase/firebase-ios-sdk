@@ -24,18 +24,6 @@ def hasChangesIn(paths)
   return false
 end
 
-# Determine if any new files were added to paths matching any of the
-# path patterns provided.
-def hasAdditionsIn(paths)
-  path_array = Array(paths)
-  path_array.each do |dir|
-    if !git.added_files.grep(/#{dir}/).empty?
-      return true
-    end
-  end
-  return false
-end
-
 # Adds the provided labels to the current PR.
 def addLabels(label_array)
   issue_number = github.pr_json["number"]
@@ -130,8 +118,6 @@ has_license_changes = didModify(["LICENSE"])
 @has_storage_changes = hasChangesIn("FirebaseStorage")
 
 @has_releasetooling_changes = hasChangesIn("ReleaseTooling/")
-@has_public_additions = hasAdditionsIn("Public/")
-@has_umbrella_changes = hasChangesIn("Firebase*.h")
 
 # Convenient flag for all API changes.
 @has_api_changes = @has_abtesting_api_changes ||
@@ -176,14 +162,6 @@ if has_sdk_changes
       " to the PR description to silence this warning.)"
     warn(warning)
   end
-end
-
-# Warn if a new public header file is added but no umbrella header changes
-# are detected. Prevents regression of #10301
-if @has_public_additions && !@has_umbrella_changes
-  error = "New public headers were added, "\
-      "did you remember to add them to the umbrella header?"
-  fail(error)
 end
 
 # Error on license edits
