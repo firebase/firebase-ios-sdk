@@ -1,3 +1,5 @@
+# Unreleased
+- [feature] PLACEHOLDER: Add `FIRFilter` and `whereFilter(_:)`.
 
 # 10.6.0
 - [fixed] Fix a potential high memory usage issue.
