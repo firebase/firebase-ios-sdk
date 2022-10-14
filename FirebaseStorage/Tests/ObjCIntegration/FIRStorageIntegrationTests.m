@@ -355,7 +355,7 @@ NSString *const kTestPassword = KPASSWORD;
   NSURL *fileURL =
       [[tmpDirURL URLByAppendingPathComponent:@"hello"] URLByAppendingPathExtension:@"txt"];
   [data writeToURL:fileURL atomically:YES];
-    
+
   FIRStorageMetadata *putMetadata = [[FIRStorageMetadata alloc] init];
   putMetadata.contentType = @"text/plain";
 
