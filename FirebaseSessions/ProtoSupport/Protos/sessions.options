@@ -22,15 +22,15 @@
 # Eg: `# google_crashlytics.Report.sdk_version type:FT_POINTER`
 #
 
-firebase.appquality.SessionEvent.session_data.session_id type:FT_POINTER
-firebase.appquality.SessionEvent.session_data.previous_session_id type:FT_POINTER
-firebase.appquality.SessionEvent.session_data.firebase_installation_id type:FT_POINTER
-firebase.appquality.SessionEvent.application_info.app_id type:FT_POINTER
-firebase.appquality.SessionEvent.application_info.device_model type:FT_POINTER
-firebase.appquality.SessionEvent.application_info.development_platform_name type:FT_POINTER
-firebase.appquality.SessionEvent.application_info.development_platform_version type:FT_POINTER
-firebase.appquality.SessionEvent.application_info.platform_info.android_app_info.package_name type:FT_POINTER
-firebase.appquality.SessionEvent.application_info.platform_info.android_app_info.sdk_version type:FT_POINTER
-firebase.appquality.SessionEvent.application_info.platform_info.android_app_info.version_name type:FT_POINTER
-firebase.appquality.SessionEvent.application_info.platform_info.apple_app_info.bundle_short_version type:FT_POINTER
-firebase.appquality.SessionEvent.application_info.platform_info.apple_app_info.sdk_version type:FT_POINTER
+firebase.appquality.sessions.SessionEvent.session_data.session_id type:FT_POINTER
+firebase.appquality.sessions.SessionEvent.session_data.previous_session_id type:FT_POINTER
+firebase.appquality.sessions.SessionEvent.session_data.firebase_installation_id type:FT_POINTER
+firebase.appquality.sessions.SessionEvent.application_info.app_id type:FT_POINTER
+firebase.appquality.sessions.SessionEvent.application_info.device_model type:FT_POINTER
+firebase.appquality.sessions.SessionEvent.application_info.development_platform_name type:FT_POINTER
+firebase.appquality.sessions.SessionEvent.application_info.development_platform_version type:FT_POINTER
+firebase.appquality.sessions.SessionEvent.application_info.platform_info.android_app_info.package_name type:FT_POINTER
+firebase.appquality.sessions.SessionEvent.application_info.platform_info.android_app_info.sdk_version type:FT_POINTER
+firebase.appquality.sessions.SessionEvent.application_info.platform_info.android_app_info.version_name type:FT_POINTER
+firebase.appquality.sessions.SessionEvent.application_info.platform_info.apple_app_info.bundle_short_version type:FT_POINTER
+firebase.appquality.sessions.SessionEvent.application_info.platform_info.apple_app_info.sdk_version type:FT_POINTER

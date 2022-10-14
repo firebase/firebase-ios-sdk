@@ -29,7 +29,7 @@ syntax = "proto3";
 
 import "clientanalytics.proto";
 
-package firebase.appquality;
+package firebase.appquality.sessions;
 
 // Contains the relevant information around an App Quality Session.
 // See go/app-quality-unified-session-definition for more details.
