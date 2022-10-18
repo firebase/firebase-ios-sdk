@@ -13,6 +13,10 @@
 // limitations under the License.
 
 import Foundation
+#if os(OSX)
+import Cocoa
+import AppKit
+#endif
 
 ///
 /// The SessionInitiator is responsible for:
@@ -22,8 +26,43 @@ import Foundation
 ///      and comes to the foreground.
 ///
 class SessionInitiator {
+  let sessionTimeout: Double = 1800
+  let now: () -> Date
+  var backgroundTime = Date.distantFuture
+  var initiateSessionStart: () -> Void = {}
+  
+  init(now: @escaping () -> Date = Date.init) {
+    self.now = now
+  }
+  
   func beginListening(initiateSessionStart: @escaping () -> Void) {
-    // Only cold start is implemented right now
-    initiateSessionStart()
+    self.initiateSessionStart = initiateSessionStart
+    self.initiateSessionStart()
+    
+    let notificationCenter = NotificationCenter.default
+    #if os(iOS) || os(tvOS)
+    notificationCenter.addObserver(self, selector: #selector(appBackgrounded), name: UIApplication.didEnterBackgroundNotification, object: nil)
+    notificationCenter.addObserver(self, selector: #selector(appForegrounded), name: UIApplication.didBecomeActiveNotification, object: nil)
+    #elseif os(OSX)
+    notificationCenter.addObserver(self, selector: #selector(appBackgrounded), name: NSApplication.didResignActiveNotification, object: nil)
+    notificationCenter.addObserver(self, selector: #selector(appForegrounded), name: NSApplication.didBecomeActiveNotification, object: nil)
+    #elseif os(watchOS)
+    // TODO: test on watchOS
+    notificationCenter.addObserver(self, selector: #selector(appBackgrounded), name: WKExtension.applicationDidEnterBackgroundNotification, object: nil)
+    notificationCenter.addObserver(self, selector: #selector(appForegrounded), name: WKExtension.applicationDidBecomeActiveNotification, object: nil)
+    #endif
+  }
+  
+  @objc func appBackgrounded() {
+    print("hello")
+    backgroundTime = now()
+  }
+  
+  @objc func appForegrounded() {
+    print("foregrounded")
+    let interval = now().timeIntervalSince(backgroundTime)
+    if (interval > sessionTimeout) {
+      initiateSessionStart()
+    }
   }
 }
