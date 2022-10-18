@@ -211,8 +211,6 @@ struct FrameworkBuilder {
                 // files to be generated in the .swiftmodule directory. The .swiftinterface files
                 // are required for xcodebuild to successfully generate an xcframework.
                 "BUILD_LIBRARY_FOR_DISTRIBUTION=YES",
-                // Remove the -fembed-bitcode-marker compiling flag.
-                "ENABLE_BITCODE=NO",
                 "SUPPORTS_MACCATALYST=\(isMacCatalystString)",
                 "BUILD_DIR=\(buildDir.path)",
                 "-sdk", targetPlatform.sdkName,
