@@ -148,7 +148,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
     }
 
     NSString *requestURL = [NSString
-        stringWithFormat:@"https://appdistribution.firebase.dev/nba/pub/apps/%@/"
+        stringWithFormat:@"https://appdistribution.firebase.dev/pub/testerapps/%@/"
                          @"installations/%@/buildalerts?appName=%@",
                          [[FIRApp defaultApp] options].googleAppID, identifier, [self getAppName]];
 
