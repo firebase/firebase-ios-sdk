@@ -27,6 +27,8 @@ NSString *const kFIRMessagingInstanceIDUserDefaultsKeyLocale =
 static NSString *const kFIRMessagingAPNSSandboxPrefix = @"s_";
 static NSString *const kFIRMessagingAPNSProdPrefix = @"p_";
 
+static NSString *const kFIRMessagingWatchKitExtensionPoint = @"com.apple.watchkit";
+
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH
 static NSString *const kEntitlementsAPSEnvironmentKey = @"Entitlements.aps-environment";
 #else
@@ -76,10 +78,14 @@ NSString *FIRMessagingBundleIDByRemovingLastPartFrom(NSString *bundleID) {
 NSString *FIRMessagingAppIdentifier(void) {
   NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
 #if TARGET_OS_WATCH
-  // The code is running in watchKit extension target but the actually bundleID is in the watchKit
-  // target. So we need to remove the last part of the bundle ID in watchKit extension to match
-  // the one in watchKit target.
-  return FIRMessagingBundleIDByRemovingLastPartFrom(bundleID);
+  if (FIRMessagingIsWatchKitExtension()) {
+    // The code is running in watchKit extension target but the actually bundleID is in the watchKit
+    // target. So we need to remove the last part of the bundle ID in watchKit extension to match
+    // the one in watchKit target.
+    return FIRMessagingBundleIDByRemovingLastPartFrom(bundleID);
+  } else {
+    return bundleID;
+  }
 #else
   return bundleID;
 #endif
@@ -87,6 +93,25 @@ NSString *FIRMessagingAppIdentifier(void) {
 
 NSString *FIRMessagingFirebaseAppID() {
   return [FIROptions defaultOptions].googleAppID;
+}
+
+BOOL FIRMessagingIsWatchKitExtension(void) {
+#if TARGET_OS_WATCH
+  NSDictionary<NSString *, id> *infoDict = [[NSBundle mainBundle] infoDictionary];
+  NSDictionary<NSString *, id> *extensionAttrDict = infoDict[@"NSExtension"];
+  if (!extensionAttrDict) {
+    return NO;
+  }
+
+  NSString *extensionPointId = extensionAttrDict[@"NSExtensionPointIdentifier"];
+  if (extensionPointId) {
+    return [extensionPointId isEqualToString:kFIRMessagingWatchKitExtensionPoint];
+  } else {
+    return NO;
+  }
+#else
+  return NO;
+#endif
 }
 
 uint64_t FIRMessagingGetFreeDiskSpaceInMB(void) {

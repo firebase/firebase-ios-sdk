@@ -73,32 +73,23 @@ bool CompositeFilter::Rep::IsDisjunction() const {
 }
 
 bool CompositeFilter::Rep::IsFlat() const {
-  for (const auto& filter : filters_) {
-    if (filter.IsACompositeFilter()) {
-      return false;
-    }
-  }
-  return true;
+  return std::all_of(
+      filters_.cbegin(), filters_.cend(),
+      [](const Filter& filter) { return filter.IsAFieldFilter(); });
 }
 
 bool CompositeFilter::Rep::Matches(const model::Document& doc) const {
   if (IsConjunction()) {
     // For conjunctions, all filters must match, so return false if any filter
     // doesn't match.
-    for (const auto& filter : filters_) {
-      if (!filter.Matches(doc)) {
-        return false;
-      }
-    }
-    return true;
+    return std::all_of(
+        filters_.cbegin(), filters_.cend(),
+        [&doc](const Filter& filter) { return filter.Matches(doc); });
   } else {
     // For disjunctions, at least one filter should match.
-    for (const auto& filter : filters_) {
-      if (filter.Matches(doc)) {
-        return true;
-      }
-    }
-    return false;
+    return std::any_of(
+        filters_.cbegin(), filters_.cend(),
+        [&doc](const Filter& filter) { return filter.Matches(doc); });
   }
 }
 
@@ -120,6 +111,14 @@ bool CompositeFilter::Rep::Equals(const Filter::Rep& other) const {
   // TODO(orquery): Consider removing duplicates and ignoring order of filters
   // in the list.
   return op_ == other_rep.op_ && filters_ == other_rep.filters_;
+}
+
+CompositeFilter CompositeFilter::WithAddedFilters(
+    const std::vector<core::Filter>& other_filters) {
+  std::vector<Filter> merged_filters(filters());
+  merged_filters.insert(merged_filters.end(), other_filters.begin(),
+                        other_filters.end());
+  return CompositeFilter::Create(std::move(merged_filters), op());
 }
 
 const FieldFilter* CompositeFilter::Rep::FindFirstMatchingFilter(

@@ -822,6 +822,7 @@ static FIRApp *sDefaultApp;
   // Dictionary of class names that conform to `FIRLibrary` and their user agents. These should only
   // be SDKs that are written in Swift but still visible to ObjC.
   NSDictionary<NSString *, NSString *> *swiftComponents = @{
+    @"FIRSessions" : @"fire-ses",
     @"FIRFunctionsComponent" : @"fire-fun",
     @"FIRStorageComponent" : @"fire-str",
   };

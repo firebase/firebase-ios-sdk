@@ -1,3 +1,6 @@
+# 10.1.0
+- [fixed] Fix a bug where multi factor phone number returns `NULL`. (#10296)
+
 # 9.5.0
 - [fixed] Fix a bug where phone multi factor id is not correctly retrieved. (#10061)
 

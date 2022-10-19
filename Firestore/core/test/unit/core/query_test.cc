@@ -42,6 +42,7 @@ using nanopb::MakeSharedMessage;
 
 using testing::AssertionResult;
 using testing::Not;
+using testutil::AndFilters;
 using testutil::Array;
 using testutil::CollectionGroupQuery;
 using testutil::DbId;
@@ -50,6 +51,7 @@ using testutil::Field;
 using testutil::Filter;
 using testutil::Map;
 using testutil::OrderBy;
+using testutil::OrFilters;
 using testutil::Ref;
 using testutil::Value;
 using testutil::Vector;
@@ -121,6 +123,80 @@ TEST(QueryTest, EmptyFieldsAreAllowedForQueries) {
                    .AddingFilter(Filter("text", "==", "msg1"));
   EXPECT_THAT(query, Matches(doc1));
   EXPECT_THAT(query, Not(Matches(doc2)));
+}
+
+MATCHER_P2(AssertQueryMatches, matching, non_matching, "") {
+  return std::all_of(
+             matching.cbegin(), matching.cend(),
+             [&arg](const MutableDocument& doc) { return arg.Matches(doc); }) &&
+         std::none_of(
+             non_matching.cbegin(), non_matching.cend(),
+             [&arg](const MutableDocument& doc) { return arg.Matches(doc); });
+}
+
+TEST(QueryTest, OrQuery) {
+  auto doc1 = Doc("collection/1", 0, Map("a", 1, "b", 0));
+  auto doc2 = Doc("collection/2", 0, Map("a", 2, "b", 1));
+  auto doc3 = Doc("collection/3", 0, Map("a", 3, "b", 2));
+  auto doc4 = Doc("collection/4", 0, Map("a", 1, "b", 3));
+  auto doc5 = Doc("collection/5", 0, Map("a", 1, "b", 1));
+
+  // Two equalities: a==1 || b==1.
+  auto query1 = testutil::Query("collection")
+                    .AddingFilter(OrFilters(
+                        {Filter("a", "==", 1), Filter("b", "==", 1)}));
+  EXPECT_THAT(query1, AssertQueryMatches(
+                          /* match */
+                          std::vector<MutableDocument>{doc1, doc2, doc4, doc5},
+                          /* not match */
+                          std::vector<MutableDocument>{doc3}));
+
+  // With one inequality: a>2 || b==1.
+  auto query2 =
+      testutil::Query("collection")
+          .AddingFilter(OrFilters({Filter("a", ">", 2), Filter("b", "==", 1)}));
+  EXPECT_THAT(query2, AssertQueryMatches(
+                          /* match */
+                          std::vector<MutableDocument>{doc2, doc3, doc5},
+                          /* not match */
+                          std::vector<MutableDocument>{doc1, doc4}));
+
+  // (a==1 && b==0) || (a==3 && b==2)
+  auto query3 =
+      testutil::Query("collection")
+          .AddingFilter(OrFilters(
+              {AndFilters({Filter("a", "==", 1), Filter("b", "==", 0)}),
+               AndFilters({Filter("a", "==", 3), Filter("b", "==", 2)})}));
+  EXPECT_THAT(query3, AssertQueryMatches(
+                          /* match */
+                          std::vector<MutableDocument>{doc1, doc3},
+                          /* not match */
+                          std::vector<MutableDocument>{doc2, doc4, doc5}));
+
+  // a==1 && (b==0 || b==3).
+  auto query4 =
+      testutil::Query("collection")
+          .AddingFilter(AndFilters(
+              {Filter("a", "==", 1),
+               OrFilters({Filter("b", "==", 0), Filter("b", "==", 3)})}));
+  EXPECT_THAT(query4, AssertQueryMatches(
+                          /* match */
+                          std::vector<MutableDocument>{doc1, doc4},
+                          /* not match */
+                          std::vector<MutableDocument>{doc2, doc3, doc5}));
+
+  // (a==2 || b==2) && (a==3 || b==3)
+  auto query5 =
+      testutil::Query("collection")
+          .AddingFilter(AndFilters(
+              {OrFilters({Filter("a", "==", 2), Filter("b", "==", 2)}),
+               OrFilters({Filter("a", "==", 3), Filter("b", "==", 3)})}));
+  EXPECT_THAT(query5,
+              AssertQueryMatches(
+                  /* match */
+                  std::vector<MutableDocument>{doc3},
+                  /* not match */
+                  std::vector<MutableDocument>{doc1, doc2, doc4, doc5}));
 }
 
 TEST(QueryTest, PrimitiveValueFilter) {

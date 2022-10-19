@@ -34,6 +34,7 @@ let skipDirPatterns = ["/Sample/", "/Pods/",
   [
     "CoreOnly/Sources", // Skip Firebase.h.
     "SwiftPMTests", // The SwiftPM imports test module imports.
+    "FirebaseSessions/Protogen/", // Generated nanopb code with imports
   ] +
 
   // The following are temporary skips pending working through a first pass of the repo:
@@ -64,7 +65,8 @@ private class ErrorLogger {
   }
 }
 
-private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL) {
+private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL,
+                       isSwiftFile: Bool) {
   var fileContents = ""
   do {
     fileContents = try String(contentsOfFile: file, encoding: .utf8)
@@ -73,6 +75,22 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL)
     // Not a source file, give up and return.
     return
   }
+
+  guard !isSwiftFile else {
+    // Swift specific checks.
+    fileContents.components(separatedBy: .newlines)
+      .enumerated() // [(lineNum, line), ...]
+      .filter { $1.starts(with: "import FirebaseCoreExtension") }
+      .forEach { lineNum, line in
+        logger
+          .importLog(
+            "Use `@_implementationOnly import FirebaseCoreExtension` when importing `FirebaseCoreExtension`.",
+            file, lineNum
+          )
+      }
+    return
+  }
+
   let isPublic = file.range(of: "/Public/") != nil &&
     // TODO: Skip legacy GDTCCTLibrary file that isn't Public and should be moved.
     // This test is used in the GoogleDataTransport's repo's CI clone of this repo.
@@ -186,7 +204,8 @@ private func main() -> Int32 {
         if !(file.hasSuffix(".h") ||
           file.hasSuffix(".m") ||
           file.hasSuffix(".mm") ||
-          file.hasSuffix(".c")) {
+          file.hasSuffix(".c") ||
+          file.hasSuffix(".swift")) {
           continue
         }
         let fullTransformPath = rootURL.path + "/" + file
@@ -195,7 +214,12 @@ private func main() -> Int32 {
             continue whileLoop
           }
         }
-        checkFile(fullTransformPath, logger: logger, inRepo: repoURL)
+        checkFile(
+          fullTransformPath,
+          logger: logger,
+          inRepo: repoURL,
+          isSwiftFile: file.hasSuffix(".swift")
+        )
       }
     }
   }

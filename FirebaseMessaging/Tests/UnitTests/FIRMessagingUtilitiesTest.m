@@ -69,6 +69,9 @@
 
 - (void)testAppIdentifierReturnsExpectedValue {
 #if TARGET_OS_WATCH
+  NSDictionary *fakeInfoDictionary =
+      @{@"NSExtension" : @{@"NSExtensionPointIdentifier" : @"com.apple.watchkit"}};
+  [[[_mainBundleMock stub] andReturn:fakeInfoDictionary] infoDictionary];
   NSString *bundleIdentifier = @"com.me.myapp.watchkit.watchkitextensions";
   NSString *expectedIdentifier = @"com.me.myapp.watchkit";
 #else

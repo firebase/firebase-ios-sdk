@@ -179,8 +179,7 @@ static NSString *kUserCodingKey = @"user";
   self = [self init];
   if (self) {
     NSArray<FIRMultiFactorInfo *> *enrolledFactors =
-        [aDecoder decodeObjectOfClass:[NSArray<FIRMultiFactorInfo *> class]
-                               forKey:kEnrolledFactorsCodingKey];
+        [aDecoder decodeObjectForKey:kEnrolledFactorsCodingKey];
     _enrolledFactors = enrolledFactors;
     _user = [aDecoder decodeObjectOfClass:[FIRUser class] forKey:kUserCodingKey];
   }
