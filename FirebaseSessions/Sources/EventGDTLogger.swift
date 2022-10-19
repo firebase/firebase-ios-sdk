@@ -39,10 +39,10 @@ class EventGDTLogger: EventGDTLoggerProtocol {
     let gdtEvent = googleDataTransport.eventForTransport()
     gdtEvent.dataObject = event
     gdtEvent.qosTier = GDTCOREventQoS.qosDefault
-    if ProcessInfo.processInfo.environment["SIMULATOR_UDID"] != nil {
+    #if targetEnvironment(simulator)
       Logger.logDebug("Logging events using fast QOS due to running on a simulator")
       gdtEvent.qosTier = GDTCOREventQoS.qoSFast
-    }
+    #endif  // targetEnvironment(simulator)
 
     googleDataTransport.logGDTEvent(event: gdtEvent, completion: completion)
   }
