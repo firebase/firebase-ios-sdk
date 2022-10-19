@@ -16,7 +16,7 @@ import XCTest
 @testable import FirebaseSessions
 
 class InitiatorTests: XCTestCase {
-  func testColdStart() throws {
+  func test_beginListening_initiatesColdStart() throws {
     let initiator = SessionInitiator()
     var initiateCalled = false
     initiator.beginListening {

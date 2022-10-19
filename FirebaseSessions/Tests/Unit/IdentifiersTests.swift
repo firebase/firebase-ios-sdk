@@ -48,14 +48,14 @@ class IdentifiersTests: XCTestCase {
     return true
   }
 
-  func testInitialSessionIDGeneration() throws {
+  func test_generateNewSessionID_generatesValidID() throws {
     identifiers.generateNewSessionID()
     assert(isValidSessionID(identifiers.sessionID))
     assert(identifiers.previousSessionID.count == 0)
   }
 
   /// Ensures that generating a Session ID multiple times results in the last Session ID being set in the previousSessionID field
-  func testRotateSessionID() throws {
+  func test_generateNewSessionID_rotatesPreviousID() throws {
     identifiers.generateNewSessionID()
 
     let firstSessionID = identifiers.sessionID
@@ -72,7 +72,7 @@ class IdentifiersTests: XCTestCase {
   }
 
   // Fetching FIIDs requires that we are on a background thread.
-  func testSuccessfulFIID() throws {
+  func test_installationID_getsValidID() throws {
     // Make our mock return an ID
     let testID = "testID"
     installations.result = .success(testID)
@@ -87,7 +87,7 @@ class IdentifiersTests: XCTestCase {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFailedFIID() throws {
+  func test_installationID_handlesFailedFetch() throws {
     // Make our mock return an error
     installations.result = .failure(NSError(domain: "FestFailedFIIDErrorDomain", code: 0))
 

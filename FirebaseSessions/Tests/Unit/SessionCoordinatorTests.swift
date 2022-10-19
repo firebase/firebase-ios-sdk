@@ -30,7 +30,7 @@ class SessionCoordinatorTests: XCTestCase {
     coordinator = SessionCoordinator(identifiers: identifiers, fireLogger: fireLogger)
   }
 
-  func testValidLog() throws {
+  func test_beginLoggingSessionStart_logsToGDT() throws {
     identifiers.mockAllValidIDs()
 
     let event = SessionStartEvent(identifiers: identifiers, time: time)
@@ -56,7 +56,7 @@ class SessionCoordinatorTests: XCTestCase {
     XCTAssert(resultSuccess)
   }
 
-  func testFailedLog() throws {
+  func test_beginLoggingSessionStart_handlesGDTError() throws {
     identifiers.mockAllValidIDs()
     fireLogger.result = .failure(NSError(domain: "TestError", code: -1))
 

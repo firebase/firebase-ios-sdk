@@ -28,7 +28,7 @@ class SessionStartEventTests: XCTestCase {
     time = MockTimeProvider()
   }
 
-  func testValidSessionStartEventBegin() {
+  func test_init_setsSessionIDs() {
     identifiers.mockAllValidIDs()
 
     let event = SessionStartEvent(identifiers: identifiers, time: time)
@@ -46,7 +46,7 @@ class SessionStartEventTests: XCTestCase {
     XCTAssertEqual(event.proto.session_data.event_timestamp_us, 123)
   }
 
-  func testSetInstallationID() {
+  func test_setInstallationID_setsInstallationID() {
     identifiers.mockAllValidIDs()
 
     let event = SessionStartEvent(identifiers: identifiers, time: time)
