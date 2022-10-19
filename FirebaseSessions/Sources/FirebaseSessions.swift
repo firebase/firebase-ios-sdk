@@ -39,6 +39,7 @@ protocol SessionsProvider {
   private let coordinator: SessionCoordinator
   private let initiator: SessionInitiator
   private let identifiers: Identifiers
+  private let appInfo: ApplicationInfo
 
   // MARK: - Initializers
 
@@ -55,27 +56,30 @@ protocol SessionsProvider {
     let identifiers = Identifiers(installations: installations)
     let coordinator = SessionCoordinator(identifiers: identifiers, fireLogger: fireLogger)
     let initiator = SessionInitiator()
+    let appInfo = ApplicationInfo(appID: appID)
 
     self.init(appID: appID,
               identifiers: identifiers,
               coordinator: coordinator,
-              initiator: initiator)
+              initiator: initiator,
+              appInfo: appInfo)
   }
 
   // Initializes the SDK and begines the process of listening for lifecycle events and logging events
   init(appID: String, identifiers: Identifiers, coordinator: SessionCoordinator,
-       initiator: SessionInitiator) {
+       initiator: SessionInitiator, appInfo: ApplicationInfo) {
     self.appID = appID
 
     self.identifiers = identifiers
     self.coordinator = coordinator
     self.initiator = initiator
+    self.appInfo = appInfo
 
     super.init()
 
     self.initiator.beginListening {
       self.identifiers.generateNewSessionID()
-      let event = SessionStartEvent(identifiers: self.identifiers)
+      let event = SessionStartEvent(identifiers: self.identifiers, appInfo: self.appInfo)
       DispatchQueue.global().async {
         self.coordinator.attemptLoggingSessionStart(event: event) { result in
         }
