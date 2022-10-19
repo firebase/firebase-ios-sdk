@@ -205,7 +205,7 @@ end
 # Warn if a new public header file is added but no umbrella header changes
 # are detected. Prevents regression of #10301
 if @has_public_additions && !@has_umbrella_changes
-  error = "New public headers were added, "
+  error = "New public headers were added, "\
       "did you remember to add them to the umbrella header?"
   warn(error)
 end
