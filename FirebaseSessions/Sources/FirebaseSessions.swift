@@ -14,11 +14,15 @@
 
 import Foundation
 
-import FirebaseCore
-import FirebaseInstallations
-
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 @_implementationOnly import FirebaseCoreExtension
+@_implementationOnly import FirebaseInstallations
+@_implementationOnly import GoogleDataTransport
+
+private enum GoogleDataTransportConfig {
+  static let sessionsLogSource = "1974"
+  static let sessionsTarget = GDTCORTarget.FLL
+}
 
 @objc(FIRSessionsProvider)
 protocol SessionsProvider {
@@ -38,9 +42,18 @@ protocol SessionsProvider {
 
   // MARK: - Initializers
 
+  // Initializes the SDK and top-level classes
   required convenience init(appID: String, installations: InstallationsProtocol) {
+    let googleDataTransport = GDTCORTransport(
+      mappingID: GoogleDataTransportConfig.sessionsLogSource,
+      transformers: nil,
+      target: GoogleDataTransportConfig.sessionsTarget
+    )
+
+    let fireLogger = EventGDTLogger(googleDataTransport: googleDataTransport!)
+
     let identifiers = Identifiers(installations: installations)
-    let coordinator = SessionCoordinator(identifiers: identifiers)
+    let coordinator = SessionCoordinator(identifiers: identifiers, fireLogger: fireLogger)
     let initiator = SessionInitiator()
 
     self.init(appID: appID,
@@ -49,6 +62,7 @@ protocol SessionsProvider {
               initiator: initiator)
   }
 
+  // Initializes the SDK and begines the process of listening for lifecycle events and logging events
   init(appID: String, identifiers: Identifiers, coordinator: SessionCoordinator,
        initiator: SessionInitiator) {
     self.appID = appID
@@ -61,7 +75,11 @@ protocol SessionsProvider {
 
     self.initiator.beginListening {
       self.identifiers.generateNewSessionID()
-      self.coordinator.runMain()
+      let event = SessionStartEvent(identifiers: self.identifiers)
+      DispatchQueue.global().async {
+        self.coordinator.attemptLoggingSessionStart(event: event) { result in
+        }
+      }
     }
   }
 

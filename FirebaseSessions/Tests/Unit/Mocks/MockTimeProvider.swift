@@ -15,20 +15,8 @@
 
 import Foundation
 
-@_implementationOnly import FirebaseInstallations
+@testable import FirebaseSessions
 
-protocol InstallationsProtocol {
-  func installationID(completion: @escaping (Result<String, Error>) -> Void)
-}
-
-extension Installations: InstallationsProtocol {
-  func installationID(completion: @escaping (Result<String, Error>) -> Void) {
-    installationID { (installationID: String?, error: Error?) in
-      if let installationID = installationID {
-        completion(.success(installationID))
-      } else if let error = error {
-        completion(.failure(error))
-      }
-    }
-  }
+class MockTimeProvider: TimeProvider {
+  var timestampUS: Int64 = 123
 }

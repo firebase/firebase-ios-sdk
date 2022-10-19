@@ -15,20 +15,14 @@
 
 import Foundation
 
-@_implementationOnly import FirebaseInstallations
+@testable import FirebaseSessions
 
-protocol InstallationsProtocol {
-  func installationID(completion: @escaping (Result<String, Error>) -> Void)
-}
+class MockGDTLogger: EventGDTLoggerProtocol {
+  var loggedEvent: SessionStartEvent?
+  var result: Result<Void, Error> = .success(())
 
-extension Installations: InstallationsProtocol {
-  func installationID(completion: @escaping (Result<String, Error>) -> Void) {
-    installationID { (installationID: String?, error: Error?) in
-      if let installationID = installationID {
-        completion(.success(installationID))
-      } else if let error = error {
-        completion(.failure(error))
-      }
-    }
+  func logEvent(event: SessionStartEvent, completion: @escaping (Result<Void, Error>) -> Void) {
+    loggedEvent = event
+    completion(result)
   }
 }

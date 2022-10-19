@@ -15,20 +15,22 @@
 
 import Foundation
 
-@_implementationOnly import FirebaseInstallations
+@testable import FirebaseSessions
 
-protocol InstallationsProtocol {
-  func installationID(completion: @escaping (Result<String, Error>) -> Void)
-}
+class MockIdentifierProvider: IdentifierProvider {
+  var sessionID: String = ""
 
-extension Installations: InstallationsProtocol {
-  func installationID(completion: @escaping (Result<String, Error>) -> Void) {
-    installationID { (installationID: String?, error: Error?) in
-      if let installationID = installationID {
-        completion(.success(installationID))
-      } else if let error = error {
-        completion(.failure(error))
-      }
-    }
+  var previousSessionID: String = ""
+
+  var installationID: String = ""
+
+  static let testSessionID = "testSessionID"
+  static let testPreviousSessionID = "testPreviousSessionID"
+  static let testInstallationID = "testInstallationID"
+
+  func mockAllValidIDs() {
+    sessionID = MockIdentifierProvider.testSessionID
+    previousSessionID = MockIdentifierProvider.testPreviousSessionID
+    installationID = MockIdentifierProvider.testInstallationID
   }
 }
