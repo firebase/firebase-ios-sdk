@@ -69,19 +69,20 @@ class SessionInitiator {
         object: nil
       )
     #elseif os(watchOS)
-      // TODO: test on watchOS
-      notificationCenter.addObserver(
-        self,
-        selector: #selector(appBackgrounded),
-        name: WKExtension.applicationDidEnterBackgroundNotification,
-        object: nil
-      )
-      notificationCenter.addObserver(
-        self,
-        selector: #selector(appForegrounded),
-        name: WKExtension.applicationDidBecomeActiveNotification,
-        object: nil
-      )
+      if #available(watchOSApplicationExtension 7.0, *) {
+        notificationCenter.addObserver(
+          self,
+          selector: #selector(appBackgrounded),
+          name: WKExtension.applicationDidEnterBackgroundNotification,
+          object: nil
+        )
+        notificationCenter.addObserver(
+          self,
+          selector: #selector(appForegrounded),
+          name: WKExtension.applicationDidBecomeActiveNotification,
+          object: nil
+        )
+      }
     #endif
   }
 
