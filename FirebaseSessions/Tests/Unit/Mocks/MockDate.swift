@@ -8,7 +8,7 @@
 import Foundation
 
 // A paused Date that can only be advanced through functions
-class ShadowDate {
+class MockDate {
   private var date = Date()
   
   func advance(by timeInterval: TimeInterval) {

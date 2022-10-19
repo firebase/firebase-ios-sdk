@@ -26,7 +26,7 @@ class InitiatorTests: XCTestCase {
   }
   
   func testForegounding_initiatesNewSession() throws {
-    let pausedClock = ShadowDate()
+    let pausedClock = MockDate()
     let initiator = SessionInitiator(now: pausedClock.getDate)
     var sessionCount = 0
     initiator.beginListening {

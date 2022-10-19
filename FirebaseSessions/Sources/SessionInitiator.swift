@@ -16,6 +16,8 @@ import Foundation
 #if os(OSX)
 import Cocoa
 import AppKit
+#elseif os(watchOS)
+import WatchKit
 #endif
 
 ///
@@ -27,12 +29,12 @@ import AppKit
 ///
 class SessionInitiator {
   let sessionTimeout: TimeInterval = 30 * 60 // 30 minutes
-  let now: () -> Date
+  let getDate: () -> Date
   var backgroundTime = Date.distantFuture
   var initiateSessionStart: () -> Void = {}
   
-  init(now: @escaping () -> Date = Date.init) {
-    self.now = now
+  init(getDate: @escaping () -> Date = Date.init) {
+    self.getDate = getDate
   }
   
   func beginListening(initiateSessionStart: @escaping () -> Void) {
@@ -54,13 +56,11 @@ class SessionInitiator {
   }
   
   @objc func appBackgrounded() {
-    print("hello")
-    backgroundTime = now()
+    backgroundTime = getDate()
   }
   
   @objc func appForegrounded() {
-    print("foregrounded")
-    let interval = now().timeIntervalSince(backgroundTime)
+    let interval = getDate().timeIntervalSince(backgroundTime)
     if (interval > sessionTimeout) {
       initiateSessionStart()
     }
