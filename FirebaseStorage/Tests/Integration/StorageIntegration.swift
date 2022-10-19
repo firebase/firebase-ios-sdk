@@ -78,6 +78,37 @@ class StorageResultTests: StorageIntegrationCommon {
     waitForExpectations()
   }
 
+  func testUpdateMetadata2() {
+      let expectation = self.expectation(description: #function)
+
+      let meta = StorageMetadata(
+        dictionary: [
+            "contentType": "lol/custom",
+            "metadata": [
+                "lol": "custom metadata is neat",
+                "ちかてつ": "🚇",
+                "shinkansen": "新幹線"
+            ]
+        ]
+      )
+
+      let ref = storage.reference(withPath: "ios/public/1mb")
+      ref.updateMetadata(meta) { result in
+      switch result {
+      case let .success(metadata):
+          XCTAssertEqual(meta.contentType, metadata.contentType)
+          XCTAssertEqual(meta.customMetadata!["lol"], metadata.customMetadata!["lol"])
+          XCTAssertEqual(meta.customMetadata!["ちかてつ"], metadata.customMetadata!["ちかてつ"])
+          XCTAssertEqual(meta.customMetadata!["shinkansen"],
+                          metadata.customMetadata!["shinkansen"])
+      case let .failure(error):
+          XCTFail("Unexpected error \(error) from updateMetadata")
+      }
+      expectation.fulfill()
+      }
+      waitForExpectations()
+  }
+
   func testDelete() throws {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/fileToDelete")
@@ -488,7 +519,7 @@ class StorageResultTests: StorageIntegrationCommon {
     XCTAssertNil(actualMetadata.customMetadata)
   }
 
-  func testUpdateMetadata2() {
+  func testUpdateMetadata3() {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/1mb")
 

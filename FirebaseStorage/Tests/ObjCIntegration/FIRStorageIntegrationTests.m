@@ -719,6 +719,28 @@ NSString *const kTestPassword = KPASSWORD;
   [self waitForExpectations];
 }
 
+- (void)testUpdateMetadata2 {
+  NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
+  // This custom metadata will be removed when using
+  // initWithDictionary method
+  dictionary[@"metadata"] = @{@"foo" : @"bar"};
+  FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:dictionary];
+
+  // PLEASE UNCOMMENT THIS AND COMMENT OUT THE TWO ABOVE LINES TO SEE METADATA CORRECTLY UPDATED
+  //  FIRStorageMetadata *metadata =[[FIRStorageMetadata alloc] init];
+  //  metadata.customMetadata = @{@"foo" : @"bar"};
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testUpdateMetadata"];
+
+  FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
+  [ref updateMetadata:metadata
+           completion:^(FIRStorageMetadata *updatedMetadata, NSError *error) {
+             [expectation fulfill];
+             XCTAssertNil(error);
+           }];
+
+  [self waitForExpectations];
+}
+
 - (void)testMetadataDictInitAndClear {
   FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:@{
     @"cacheControl" : @"cache-control",
