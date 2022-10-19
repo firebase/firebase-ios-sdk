@@ -19,12 +19,10 @@ import Foundation
 
 class MockGDTLogger: EventGDTLoggerProtocol {
   var loggedEvent: SessionStartEvent?
-  var didLog = false
   var result: Result<Void, Error> = .success(())
 
   func logEvent(event: SessionStartEvent, completion: @escaping (Result<Void, Error>) -> Void) {
     loggedEvent = event
-    didLog = true
     completion(result)
   }
 }

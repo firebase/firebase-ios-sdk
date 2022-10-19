@@ -77,7 +77,7 @@ protocol SessionsProvider {
       self.identifiers.generateNewSessionID()
       let event = SessionStartEvent(identifiers: self.identifiers)
       DispatchQueue.global().async {
-        self.coordinator.beginLoggingSessionStart(event: event) { result in
+        self.coordinator.attemptLoggingSessionStart(event: event) { result in
         }
       }
     }

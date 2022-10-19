@@ -28,8 +28,8 @@ class SessionCoordinator {
   }
 
   // Begins the process of logging a SessionStartEvent to FireLog, while taking into account Data Collection, Sampling, and fetching Settings
-  func beginLoggingSessionStart(event: SessionStartEvent,
-                                callback: @escaping (Result<Void, Error>) -> Void) {
+  func attemptLoggingSessionStart(event: SessionStartEvent,
+                                  callback: @escaping (Result<Void, Error>) -> Void) {
     event.setInstallationID(identifiers: identifiers)
 
     fireLogger.logEvent(event: event) { result in

@@ -50,8 +50,8 @@ class IdentifiersTests: XCTestCase {
 
   func test_generateNewSessionID_generatesValidID() throws {
     identifiers.generateNewSessionID()
-    assert(isValidSessionID(identifiers.sessionID))
-    assert(identifiers.previousSessionID.count == 0)
+    XCTAssert(isValidSessionID(identifiers.sessionID))
+    XCTAssert(identifiers.previousSessionID.count == 0)
   }
 
   /// Ensures that generating a Session ID multiple times results in the last Session ID being set in the previousSessionID field
@@ -59,16 +59,16 @@ class IdentifiersTests: XCTestCase {
     identifiers.generateNewSessionID()
 
     let firstSessionID = identifiers.sessionID
-    assert(isValidSessionID(identifiers.sessionID))
-    assert(identifiers.previousSessionID.count == 0)
+    XCTAssert(isValidSessionID(identifiers.sessionID))
+    XCTAssert(identifiers.previousSessionID.count == 0)
 
     identifiers.generateNewSessionID()
 
-    assert(isValidSessionID(identifiers.sessionID))
-    assert(isValidSessionID(identifiers.previousSessionID))
+    XCTAssert(isValidSessionID(identifiers.sessionID))
+    XCTAssert(isValidSessionID(identifiers.previousSessionID))
 
     // Ensure the new lastSessionID is equal to the sessionID from earlier
-    assert(identifiers.previousSessionID.compare(firstSessionID) == ComparisonResult.orderedSame)
+    XCTAssert(identifiers.previousSessionID.compare(firstSessionID) == ComparisonResult.orderedSame)
   }
 
   // Fetching FIIDs requires that we are on a background thread.

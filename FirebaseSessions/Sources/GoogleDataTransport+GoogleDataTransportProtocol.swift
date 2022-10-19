@@ -17,8 +17,8 @@ import Foundation
 
 @_implementationOnly import GoogleDataTransport
 
-struct GoogleDataTransportProtocolErrors {
-  static let writeFailureError = NSError(domain: "GoogleDataTransportProtocol", code: -1)
+enum GoogleDataTransportProtocolErrors: Error {
+  case writeFailure
 }
 
 protocol GoogleDataTransportProtocol {
@@ -32,7 +32,7 @@ extension GDTCORTransport: GoogleDataTransportProtocol {
       if let error = error {
         completion(.failure(error))
       } else if !wasWritten {
-        completion(.failure(GoogleDataTransportProtocolErrors.writeFailureError))
+        completion(.failure(GoogleDataTransportProtocolErrors.writeFailure))
       } else {
         completion(.success(()))
       }

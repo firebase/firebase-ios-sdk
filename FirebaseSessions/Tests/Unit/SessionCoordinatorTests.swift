@@ -30,12 +30,12 @@ class SessionCoordinatorTests: XCTestCase {
     coordinator = SessionCoordinator(identifiers: identifiers, fireLogger: fireLogger)
   }
 
-  func test_beginLoggingSessionStart_logsToGDT() throws {
+  func test_attemptLoggingSessionStart_logsToGDT() throws {
     identifiers.mockAllValidIDs()
 
     let event = SessionStartEvent(identifiers: identifiers, time: time)
     var resultSuccess = false
-    coordinator.beginLoggingSessionStart(event: event) { result in
+    coordinator.attemptLoggingSessionStart(event: event) { result in
       switch result {
       case .success(()):
         resultSuccess = true
@@ -51,12 +51,11 @@ class SessionCoordinatorTests: XCTestCase {
     )
 
     // We should have logged successfully
-    XCTAssert(fireLogger.didLog)
     XCTAssertEqual(fireLogger.loggedEvent, event)
     XCTAssert(resultSuccess)
   }
 
-  func test_beginLoggingSessionStart_handlesGDTError() throws {
+  func test_attemptLoggingSessionStart_handlesGDTError() throws {
     identifiers.mockAllValidIDs()
     fireLogger.result = .failure(NSError(domain: "TestError", code: -1))
 
@@ -64,7 +63,7 @@ class SessionCoordinatorTests: XCTestCase {
 
     // Start success so it must be set to false
     var resultSuccess = true
-    coordinator.beginLoggingSessionStart(event: event) { result in
+    coordinator.attemptLoggingSessionStart(event: event) { result in
       switch result {
       case .success(()):
         resultSuccess = true
@@ -81,7 +80,6 @@ class SessionCoordinatorTests: XCTestCase {
     )
 
     // We should have logged the event, but with a failed result
-    XCTAssert(fireLogger.didLog)
     XCTAssertEqual(fireLogger.loggedEvent, event)
     XCTAssertFalse(resultSuccess)
   }

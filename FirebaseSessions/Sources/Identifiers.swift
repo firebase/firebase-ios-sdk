@@ -44,22 +44,22 @@ protocol IdentifierProvider {
 class Identifiers: IdentifierProvider {
   private let installations: InstallationsProtocol
 
-  private var uuid: UUID
+  private var _sessionID: UUID
 
   init(installations: InstallationsProtocol) {
     self.installations = installations
-    uuid = UUID()
+    _sessionID = UUID()
   }
 
   // Generates a new Session ID. If there was already a generated Session ID
   // from the last session during the app's lifecycle, it will also set the last Session ID
   func generateNewSessionID() {
-    uuid = UUID()
+    _sessionID = UUID()
 
     let lastStoredSessionID = UserDefaults.standard.string(forKey: sessionIDUserDefaultsKey) ?? ""
     UserDefaults.standard.set(lastStoredSessionID, forKey: lastSessionIDUserDefaultsKey)
 
-    let newSessionID = uuid.uuidString.replacingOccurrences(of: "-", with: "").lowercased()
+    let newSessionID = _sessionID.uuidString.replacingOccurrences(of: "-", with: "").lowercased()
     UserDefaults.standard.set(newSessionID, forKey: sessionIDUserDefaultsKey)
   }
 
