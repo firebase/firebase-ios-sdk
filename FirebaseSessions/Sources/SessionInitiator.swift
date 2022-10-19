@@ -26,7 +26,7 @@ import AppKit
 ///      and comes to the foreground.
 ///
 class SessionInitiator {
-  let sessionTimeout: Double = 1800
+  let sessionTimeout: TimeInterval = 30 * 60 // 30 minutes
   let now: () -> Date
   var backgroundTime = Date.distantFuture
   var initiateSessionStart: () -> Void = {}

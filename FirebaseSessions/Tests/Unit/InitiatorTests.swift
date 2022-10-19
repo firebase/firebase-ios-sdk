@@ -34,16 +34,18 @@ class InitiatorTests: XCTestCase {
     }
     assert(sessionCount == 1)
     
-    // Simulate 30 minutes + 1 second of backgrounding
+    // Simulate 30 minutes + 1 second of backgrounding, > session timeout
     initiator.appBackgrounded()
     pausedClock.advance(by: 60 * 30 + 1)
     initiator.appForegrounded()
+    // A new session is created, so count increases
     assert(sessionCount == 2)
     
-    // Simulate only 30 minutes of backgrounding
+    // Simulate only 30 minutes of backgrounding, <= session timeout
     initiator.appBackgrounded()
     pausedClock.advance(by: 60 * 30)
     initiator.appForegrounded()
+    // A new session isn't created, so count doesn't increase
     assert(sessionCount == 2)
   }
 }
