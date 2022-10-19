@@ -207,7 +207,7 @@ end
 if @has_public_additions && !@has_umbrella_changes
   error = "New public headers were added, "\
       "did you remember to add them to the umbrella header?"
-  fail(error)
+  warn(error)
 end
 
 # Error on license edits
