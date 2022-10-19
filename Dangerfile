@@ -153,7 +153,7 @@ has_license_changes = didModify(["LICENSE"])
 @has_releasetooling_changes = hasChangesIn("ReleaseTooling/")
 @has_public_additions = hasAdditionsIn("Public/")
 
-@has_umbrella_changes = @product_list.reduce(false) |accum, product| do
+@has_umbrella_changes = @product_list.reduce(false) do |accum, product|
   return accum || hasChangesIn("Firebase#{product}.h")
 end
 
