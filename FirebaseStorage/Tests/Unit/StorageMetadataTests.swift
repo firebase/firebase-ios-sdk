@@ -138,6 +138,27 @@ class StorageMetadataTests: StorageTestHelpers {
     XCTAssertEqual(actualURL?.absoluteString, expectedURL)
   }
 
+  // Regression test for #10370
+  func testInitializeDownloadURLFromTokenWithEmptyMetadata() {
+    let metaDict = [
+      "bucket": "bucket",
+      "downloadTokens": "12345,ignored",
+      "name": "path/to/object",
+      "metadata": {},
+    ] as [String: Any]
+
+    let rootReference = rootReference()
+    let escapedPath = StorageUtils.GCSEscapedString("path/to/object")
+    let expectedURL =
+      "https://firebasestorage.googleapis.com:443/v0/b/bucket/o/\(escapedPath)?alt=media&token=12345"
+    let task = StorageGetDownloadURLTask(reference: rootReference,
+                                         fetcherService: GTMSessionFetcherService(),
+                                         queue: DispatchQueue.main,
+                                         completion: nil)
+    let actualURL = task.downloadURLFromMetadataDictionary(metaDict)
+    XCTAssertEqual(actualURL?.absoluteString, expectedURL)
+  }
+
   func testInitializeMetadataWithFile() {
     let metaDict = ["bucket": "bucket", "name": "/path/to/file"]
     let metadata = StorageMetadata(dictionary: metaDict)
