@@ -19,3 +19,4 @@
 #import "FIRLoggerLevel.h"
 #import "FIROptions.h"
 #import "FIRVersion.h"
+#import "FIRTestClass.h"
