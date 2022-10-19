@@ -14,10 +14,10 @@
 
 import Foundation
 #if os(OSX)
-import Cocoa
-import AppKit
+  import Cocoa
+  import AppKit
 #elseif os(watchOS)
-import WatchKit
+  import WatchKit
 #endif
 
 ///
@@ -32,36 +32,66 @@ class SessionInitiator {
   let getDate: () -> Date
   var backgroundTime = Date.distantFuture
   var initiateSessionStart: () -> Void = {}
-  
+
   init(getDate: @escaping () -> Date = Date.init) {
     self.getDate = getDate
   }
-  
+
   func beginListening(initiateSessionStart: @escaping () -> Void) {
     self.initiateSessionStart = initiateSessionStart
     self.initiateSessionStart()
-    
+
     let notificationCenter = NotificationCenter.default
     #if os(iOS) || os(tvOS)
-    notificationCenter.addObserver(self, selector: #selector(appBackgrounded), name: UIApplication.didEnterBackgroundNotification, object: nil)
-    notificationCenter.addObserver(self, selector: #selector(appForegrounded), name: UIApplication.didBecomeActiveNotification, object: nil)
+      notificationCenter.addObserver(
+        self,
+        selector: #selector(appBackgrounded),
+        name: UIApplication.didEnterBackgroundNotification,
+        object: nil
+      )
+      notificationCenter.addObserver(
+        self,
+        selector: #selector(appForegrounded),
+        name: UIApplication.didBecomeActiveNotification,
+        object: nil
+      )
     #elseif os(OSX)
-    notificationCenter.addObserver(self, selector: #selector(appBackgrounded), name: NSApplication.didResignActiveNotification, object: nil)
-    notificationCenter.addObserver(self, selector: #selector(appForegrounded), name: NSApplication.didBecomeActiveNotification, object: nil)
+      notificationCenter.addObserver(
+        self,
+        selector: #selector(appBackgrounded),
+        name: NSApplication.didResignActiveNotification,
+        object: nil
+      )
+      notificationCenter.addObserver(
+        self,
+        selector: #selector(appForegrounded),
+        name: NSApplication.didBecomeActiveNotification,
+        object: nil
+      )
     #elseif os(watchOS)
-    // TODO: test on watchOS
-    notificationCenter.addObserver(self, selector: #selector(appBackgrounded), name: WKExtension.applicationDidEnterBackgroundNotification, object: nil)
-    notificationCenter.addObserver(self, selector: #selector(appForegrounded), name: WKExtension.applicationDidBecomeActiveNotification, object: nil)
+      // TODO: test on watchOS
+      notificationCenter.addObserver(
+        self,
+        selector: #selector(appBackgrounded),
+        name: WKExtension.applicationDidEnterBackgroundNotification,
+        object: nil
+      )
+      notificationCenter.addObserver(
+        self,
+        selector: #selector(appForegrounded),
+        name: WKExtension.applicationDidBecomeActiveNotification,
+        object: nil
+      )
     #endif
   }
-  
+
   @objc func appBackgrounded() {
     backgroundTime = getDate()
   }
-  
+
   @objc func appForegrounded() {
     let interval = getDate().timeIntervalSince(backgroundTime)
-    if (interval > sessionTimeout) {
+    if interval > sessionTimeout {
       initiateSessionStart()
     }
   }
