@@ -1,8 +1,6 @@
-# Unreleased
+# 10.0.0
 - [feature] Added `Query.count()`, which fetches the number of documents in the
   result set without actually downloading the documents (#10246).
-
-# 10.0.0
 - [fixed] Fixed compiler warning about `@param comparator` (#10226).
 
 # 9.6.0

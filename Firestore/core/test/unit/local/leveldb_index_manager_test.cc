@@ -70,44 +70,44 @@ INSTANTIATE_TEST_SUITE_P(LevelDbIndexManagerTest,
 class LevelDbIndexManagerTest : public ::testing::Test {
  public:
   // `GetParam()` must return a factory function.
-  LevelDbIndexManagerTest() : persistence{PersistenceFactory()} {
-    index_manager = persistence->GetIndexManager(User::Unauthenticated());
+  LevelDbIndexManagerTest() : persistence_{PersistenceFactory()} {
+    index_manager_ = persistence_->GetIndexManager(User::Unauthenticated());
   }
 
-  void AddDocs(const std::vector<model::MutableDocument>& docs) {
+  void AddDocs(const std::vector<model::MutableDocument>& docs) const {
     model::DocumentMap map;
     for (const auto& doc : docs) {
       map = map.insert(doc.key(), doc);
     }
-    index_manager->UpdateIndexEntries(std::move(map));
+    index_manager_->UpdateIndexEntries(std::move(map));
   }
 
   void AddDoc(const std::string& key,
-              nanopb::Message<google_firestore_v1_Value> data) {
+              nanopb::Message<google_firestore_v1_Value> data) const {
     AddDocs({Doc(key, 1, std::move(data))});
   }
 
-  void SetUpSingleValueFilter() {
-    index_manager->AddFieldIndex(
+  void SetUpSingleValueFilter() const {
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "count", model::Segment::kAscending));
     AddDoc("coll/val1", Map("count", 1));
     AddDoc("coll/val2", Map("count", 2));
     AddDoc("coll/val3", Map("count", 3));
   }
 
-  void SetUpArrayValueFilter() {
-    index_manager->AddFieldIndex(
+  void SetUpArrayValueFilter() const {
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "values", model::Segment::kContains));
     AddDoc("coll/arr1", Map("values", Array(1, 2, 3)));
     AddDoc("coll/arr2", Map("values", Array(4, 5, 6)));
     AddDoc("coll/arr3", Map("values", Array(7, 8, 9)));
   }
 
-  void SetUpMultipleOrderBys() {
-    index_manager->AddFieldIndex(MakeFieldIndex(
+  void SetUpMultipleOrderBys() const {
+    index_manager_->AddFieldIndex(MakeFieldIndex(
         "coll", "a", model::Segment::kAscending, "b",
         model::Segment::kDescending, "c", model::Segment::kAscending));
-    index_manager->AddFieldIndex(MakeFieldIndex(
+    index_manager_->AddFieldIndex(MakeFieldIndex(
         "coll", "a", model::Segment::kDescending, "b",
         model::Segment::kAscending, "c", model::Segment::kDescending));
     AddDoc("coll/val1", Map("a", 1, "b", 1, "c", 3));
@@ -119,10 +119,10 @@ class LevelDbIndexManagerTest : public ::testing::Test {
   }
 
   void VerifyResults(const core::Query& query,
-                     const std::vector<std::string>& documents) {
-    auto target = query.ToTarget();
+                     const std::vector<std::string>& documents) const {
+    const auto& target = query.ToTarget();
     absl::optional<std::vector<model::DocumentKey>> results =
-        index_manager->GetDocumentsMatchingTarget(target);
+        index_manager_->GetDocumentsMatchingTarget(target);
     EXPECT_TRUE(results.has_value()) << "Target cannot be served from index.";
     std::vector<model::DocumentKey> expected;
     for (const auto& key : documents) {
@@ -132,14 +132,14 @@ class LevelDbIndexManagerTest : public ::testing::Test {
         << "Query returned unexpected documents.";
   }
 
-  std::unique_ptr<Persistence> persistence;
-  IndexManager* index_manager;
+  std::unique_ptr<Persistence> persistence_;
+  IndexManager* index_manager_;
 };
 
 TEST_F(LevelDbIndexManagerTest, AddsDocuments) {
-  persistence->Run("AddsDocuments", [&]() {
-    index_manager->Start();
-    index_manager->AddFieldIndex(
+  persistence_->Run("AddsDocuments", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "exists", model::Segment::kAscending));
     AddDoc("coll/doc1", Map("exists", 1));
     AddDoc("coll/doc2", Map());
@@ -147,9 +147,9 @@ TEST_F(LevelDbIndexManagerTest, AddsDocuments) {
 }
 
 TEST_F(LevelDbIndexManagerTest, OrderByFilter) {
-  persistence->Run("TestOrderByFilter", [&]() {
-    index_manager->Start();
-    index_manager->AddFieldIndex(
+  persistence_->Run("TestOrderByFilter", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "count", model::Segment::kAscending));
     AddDoc("coll/val1", Map("count", 1));
     AddDoc("coll/val2", Map("not-count", 2));
@@ -160,11 +160,11 @@ TEST_F(LevelDbIndexManagerTest, OrderByFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, OrderByKeyFilter) {
-  persistence->Run("TestOrderByKeyFilter", [&]() {
-    index_manager->Start();
-    index_manager->AddFieldIndex(
+  persistence_->Run("TestOrderByKeyFilter", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "count", model::Segment::kAscending));
-    index_manager->AddFieldIndex(
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "count", model::Segment::kDescending));
     AddDoc("coll/val1", Map("count", 1));
     AddDoc("coll/val2", Map("count", 1));
@@ -185,8 +185,8 @@ TEST_F(LevelDbIndexManagerTest, OrderByKeyFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, AscendingOrderWithLessThanFilter) {
-  persistence->Run("TestAscendingOrderWithLessThanFilter", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestAscendingOrderWithLessThanFilter", [&]() {
+    index_manager_->Start();
     SetUpMultipleOrderBys();
 
     auto original_query = Query("coll")
@@ -220,8 +220,8 @@ TEST_F(LevelDbIndexManagerTest, AscendingOrderWithLessThanFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, DescendingOrderWithLessThanFilter) {
-  persistence->Run("TestDescendingOrderWithLessThanFilter", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestDescendingOrderWithLessThanFilter", [&]() {
+    index_manager_->Start();
     SetUpMultipleOrderBys();
 
     auto original_query = Query("coll")
@@ -254,8 +254,8 @@ TEST_F(LevelDbIndexManagerTest, DescendingOrderWithLessThanFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, AscendingOrderWithGreaterThanFilter) {
-  persistence->Run("TestAscendingOrderWithGreaterThanFilter", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestAscendingOrderWithGreaterThanFilter", [&]() {
+    index_manager_->Start();
     SetUpMultipleOrderBys();
 
     auto original_query = Query("coll")
@@ -288,8 +288,8 @@ TEST_F(LevelDbIndexManagerTest, AscendingOrderWithGreaterThanFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, DescendingOrderWithGreaterThanFilter) {
-  persistence->Run("TestDescendingOrderWithGreaterThanFilter", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestDescendingOrderWithGreaterThanFilter", [&]() {
+    index_manager_->Start();
     SetUpMultipleOrderBys();
 
     auto original_query = Query("coll")
@@ -323,12 +323,12 @@ TEST_F(LevelDbIndexManagerTest, DescendingOrderWithGreaterThanFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, CursorCannotExpandResult) {
-  persistence->Run("TestDescendingOrderWithGreaterThanFilter", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestDescendingOrderWithGreaterThanFilter", [&]() {
+    index_manager_->Start();
 
-    index_manager->AddFieldIndex(
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "c", model::Segment::kAscending));
-    index_manager->AddFieldIndex(
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "c", model::Segment::kDescending));
     AddDoc("coll/val1", Map("a", 1, "b", 1, "c", 3));
     AddDoc("coll/val2", Map("a", 2, "b", 2, "c", 2));
@@ -353,8 +353,8 @@ TEST_F(LevelDbIndexManagerTest, CursorCannotExpandResult) {
 }
 
 TEST_F(LevelDbIndexManagerTest, EqualityFilter) {
-  persistence->Run("TestEqualityFilter", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestEqualityFilter", [&]() {
+    index_manager_->Start();
     SetUpSingleValueFilter();
     auto query = Query("coll").AddingFilter(Filter("count", "==", 2));
     VerifyResults(query, {"coll/val2"});
@@ -362,9 +362,9 @@ TEST_F(LevelDbIndexManagerTest, EqualityFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, OrderByWithNotEqualsFilter) {
-  persistence->Run("TestOrderByWithNotEqualsFilter", [&]() {
-    index_manager->Start();
-    index_manager->AddFieldIndex(
+  persistence_->Run("TestOrderByWithNotEqualsFilter", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "count", model::Segment::kAscending));
     AddDoc("coll/val1", Map("count", 1));
     AddDoc("coll/val2", Map("count", 2));
@@ -377,9 +377,9 @@ TEST_F(LevelDbIndexManagerTest, OrderByWithNotEqualsFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, NestedFieldEqualityFilter) {
-  persistence->Run("TestNestedFieldEqualityFilter", [&]() {
-    index_manager->Start();
-    index_manager->AddFieldIndex(
+  persistence_->Run("TestNestedFieldEqualityFilter", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "a.b", model::Segment::kAscending));
     AddDoc("coll/doc1", Map("a", Map("b", 1)));
     AddDoc("coll/doc2", Map("a", Map("b", 2)));
@@ -389,8 +389,8 @@ TEST_F(LevelDbIndexManagerTest, NestedFieldEqualityFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, NotEqualsFilter) {
-  persistence->Run("TestNotEqualsFilter", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestNotEqualsFilter", [&]() {
+    index_manager_->Start();
     SetUpSingleValueFilter();
     auto query = Query("coll").AddingFilter(Filter("count", "!=", 2));
     VerifyResults(query, {"coll/val1", "coll/val3"});
@@ -398,11 +398,11 @@ TEST_F(LevelDbIndexManagerTest, NotEqualsFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, EqualsWithNotEqualsFilter) {
-  persistence->Run("TestEqualsWithNotEqualsFilter", [&]() {
-    index_manager->Start();
-    index_manager->AddFieldIndex(MakeFieldIndex("coll", "a",
-                                                model::Segment::kAscending, "b",
-                                                model::Segment::kAscending));
+  persistence_->Run("TestEqualsWithNotEqualsFilter", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "a", model::Segment::kAscending, "b",
+                       model::Segment::kAscending));
     AddDoc("coll/val1", Map("a", 1, "b", 1));
     AddDoc("coll/val2", Map("a", 1, "b", 2));
     AddDoc("coll/val3", Map("a", 2, "b", 1));
@@ -428,8 +428,8 @@ TEST_F(LevelDbIndexManagerTest, EqualsWithNotEqualsFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, EqualsWithNotEqualsFilterSameField) {
-  persistence->Run("TestEqualsWithNotEqualsFilterSameField", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestEqualsWithNotEqualsFilterSameField", [&]() {
+    index_manager_->Start();
     SetUpSingleValueFilter();
     {
       SCOPED_TRACE("Verifying > then !=");
@@ -456,8 +456,8 @@ TEST_F(LevelDbIndexManagerTest, EqualsWithNotEqualsFilterSameField) {
 }
 
 TEST_F(LevelDbIndexManagerTest, LessThanFilter) {
-  persistence->Run("TestLessThanFilter", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestLessThanFilter", [&]() {
+    index_manager_->Start();
     SetUpSingleValueFilter();
     auto query = Query("coll").AddingFilter(Filter("count", "<", 2));
     VerifyResults(query, {"coll/val1"});
@@ -465,8 +465,8 @@ TEST_F(LevelDbIndexManagerTest, LessThanFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, LessThanOrEqualsFilter) {
-  persistence->Run("TestLessThanOrEqualsFilter", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestLessThanOrEqualsFilter", [&]() {
+    index_manager_->Start();
     SetUpSingleValueFilter();
     auto query = Query("coll").AddingFilter(Filter("count", "<=", 2));
     VerifyResults(query, {"coll/val1", "coll/val2"});
@@ -474,8 +474,8 @@ TEST_F(LevelDbIndexManagerTest, LessThanOrEqualsFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, GreaterThanOrEqualsFilter) {
-  persistence->Run("TestGreaterThanOrEqualsFilter", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestGreaterThanOrEqualsFilter", [&]() {
+    index_manager_->Start();
     SetUpSingleValueFilter();
     auto query = Query("coll").AddingFilter(Filter("count", ">=", 2));
     VerifyResults(query, {"coll/val2", "coll/val3"});
@@ -483,8 +483,8 @@ TEST_F(LevelDbIndexManagerTest, GreaterThanOrEqualsFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, GreaterThanFilter) {
-  persistence->Run("TestGreaterThanFilter", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestGreaterThanFilter", [&]() {
+    index_manager_->Start();
     SetUpSingleValueFilter();
     auto query = Query("coll").AddingFilter(Filter("count", ">", 2));
     VerifyResults(query, {"coll/val3"});
@@ -492,8 +492,8 @@ TEST_F(LevelDbIndexManagerTest, GreaterThanFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, RangeFilter) {
-  persistence->Run("TestRangeFilter", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestRangeFilter", [&]() {
+    index_manager_->Start();
     SetUpSingleValueFilter();
     auto query = Query("coll")
                      .AddingFilter(Filter("count", ">", 1))
@@ -503,8 +503,8 @@ TEST_F(LevelDbIndexManagerTest, RangeFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, StartAtFilter) {
-  persistence->Run("TestStartAtFilter", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestStartAtFilter", [&]() {
+    index_manager_->Start();
     SetUpSingleValueFilter();
     auto query =
         Query("coll")
@@ -515,8 +515,8 @@ TEST_F(LevelDbIndexManagerTest, StartAtFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, AppliesStartAtFilterWithNotIn) {
-  persistence->Run("TestAppliesStartAtFilterWithNotIn", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestAppliesStartAtFilterWithNotIn", [&]() {
+    index_manager_->Start();
     SetUpSingleValueFilter();
     auto query =
         Query("coll")
@@ -528,8 +528,8 @@ TEST_F(LevelDbIndexManagerTest, AppliesStartAtFilterWithNotIn) {
 }
 
 TEST_F(LevelDbIndexManagerTest, StartAfterFilter) {
-  persistence->Run("TestStartAfterFilter", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestStartAfterFilter", [&]() {
+    index_manager_->Start();
     SetUpSingleValueFilter();
     auto query =
         Query("coll")
@@ -540,8 +540,8 @@ TEST_F(LevelDbIndexManagerTest, StartAfterFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, EndAtFilter) {
-  persistence->Run("TestEndAtFilter", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestEndAtFilter", [&]() {
+    index_manager_->Start();
     SetUpSingleValueFilter();
     auto query =
         Query("coll")
@@ -552,8 +552,8 @@ TEST_F(LevelDbIndexManagerTest, EndAtFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, EndBeforeFilter) {
-  persistence->Run("TestEndBeforeFilter", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestEndBeforeFilter", [&]() {
+    index_manager_->Start();
     SetUpSingleValueFilter();
     auto query =
         Query("coll")
@@ -564,8 +564,8 @@ TEST_F(LevelDbIndexManagerTest, EndBeforeFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, RangeWithBoundFilter) {
-  persistence->Run("TestRangeWithBoundFilter", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestRangeWithBoundFilter", [&]() {
+    index_manager_->Start();
     SetUpSingleValueFilter();
     auto start_at =
         Query("coll")
@@ -579,8 +579,8 @@ TEST_F(LevelDbIndexManagerTest, RangeWithBoundFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, InFilter) {
-  persistence->Run("TestInFilter", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestInFilter", [&]() {
+    index_manager_->Start();
     SetUpSingleValueFilter();
     auto query = Query("coll").AddingFilter(Filter("count", "in", Array(1, 3)));
     VerifyResults(query, {"coll/val1", "coll/val3"});
@@ -588,8 +588,8 @@ TEST_F(LevelDbIndexManagerTest, InFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, NotInFilter) {
-  persistence->Run("TestNotInFilter", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestNotInFilter", [&]() {
+    index_manager_->Start();
     SetUpSingleValueFilter();
     auto query =
         Query("coll").AddingFilter(Filter("count", "not-in", Array(1, 2)));
@@ -598,8 +598,8 @@ TEST_F(LevelDbIndexManagerTest, NotInFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, NotInWithGreaterThanFilter) {
-  persistence->Run("TestNotInWithGreaterThanFilter", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestNotInWithGreaterThanFilter", [&]() {
+    index_manager_->Start();
     SetUpSingleValueFilter();
     auto query = Query("coll")
                      .AddingFilter(Filter("count", ">", 1))
@@ -609,8 +609,8 @@ TEST_F(LevelDbIndexManagerTest, NotInWithGreaterThanFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, OutOfBoundsNotInWithGreaterThanFilter) {
-  persistence->Run("TestOutOfBoundsNotInWithGreaterThanFilter", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestOutOfBoundsNotInWithGreaterThanFilter", [&]() {
+    index_manager_->Start();
     SetUpSingleValueFilter();
     auto query = Query("coll")
                      .AddingFilter(Filter("count", ">", 2))
@@ -620,8 +620,8 @@ TEST_F(LevelDbIndexManagerTest, OutOfBoundsNotInWithGreaterThanFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, ArrayContainsFilter) {
-  persistence->Run("TestArrayContainsFilter", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestArrayContainsFilter", [&]() {
+    index_manager_->Start();
     SetUpArrayValueFilter();
     auto query =
         Query("coll").AddingFilter(Filter("values", "array-contains", 1));
@@ -630,11 +630,11 @@ TEST_F(LevelDbIndexManagerTest, ArrayContainsFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, ArrayContainsWithNotEqualsFilter) {
-  persistence->Run("TestArrayContainsWithNotEqualsFilter", [&]() {
-    index_manager->Start();
-    index_manager->AddFieldIndex(MakeFieldIndex("coll", "a",
-                                                model::Segment::kContains, "b",
-                                                model::Segment::kAscending));
+  persistence_->Run("TestArrayContainsWithNotEqualsFilter", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(MakeFieldIndex("coll", "a",
+                                                 model::Segment::kContains, "b",
+                                                 model::Segment::kAscending));
     AddDoc("coll/val1", Map("a", Array(1), "b", 1));
     AddDoc("coll/val2", Map("a", Array(1), "b", 2));
     AddDoc("coll/val3", Map("a", Array(2), "b", 1));
@@ -649,11 +649,11 @@ TEST_F(LevelDbIndexManagerTest, ArrayContainsWithNotEqualsFilter) {
 
 TEST_F(LevelDbIndexManagerTest,
        TestArrayContainsWithNotEqualsFilterOnSameField) {
-  persistence->Run("TestArrayContainsWithNotEqualsFilterOnSameField", [&]() {
-    index_manager->Start();
-    index_manager->AddFieldIndex(MakeFieldIndex("coll", "a",
-                                                model::Segment::kContains, "a",
-                                                model::Segment::kAscending));
+  persistence_->Run("TestArrayContainsWithNotEqualsFilterOnSameField", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(MakeFieldIndex("coll", "a",
+                                                 model::Segment::kContains, "a",
+                                                 model::Segment::kAscending));
     AddDoc("coll/val1", Map("a", Array(1, 1)));
     AddDoc("coll/val2", Map("a", Array(1, 2)));
     AddDoc("coll/val3", Map("a", Array(2, 1)));
@@ -667,8 +667,8 @@ TEST_F(LevelDbIndexManagerTest,
 }
 
 TEST_F(LevelDbIndexManagerTest, EqualsWithNotEqualsOnSameField) {
-  persistence->Run("TestEqualsWithNotEqualsOnSameField", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestEqualsWithNotEqualsOnSameField", [&]() {
+    index_manager_->Start();
     SetUpSingleValueFilter();
 
     std::vector<
@@ -722,8 +722,8 @@ TEST_F(LevelDbIndexManagerTest, EqualsWithNotEqualsOnSameField) {
 }
 
 TEST_F(LevelDbIndexManagerTest, ArrayContainsAnyFilter) {
-  persistence->Run("TestArrayContainsAnyFilter", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestArrayContainsAnyFilter", [&]() {
+    index_manager_->Start();
     SetUpArrayValueFilter();
     auto query = Query("coll").AddingFilter(
         Filter("values", "array-contains-any", Array(1, 2, 4)));
@@ -732,8 +732,8 @@ TEST_F(LevelDbIndexManagerTest, ArrayContainsAnyFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, ArrayContainsDoesNotMatchNonArray) {
-  persistence->Run("TestArrayContainsDoesNotMatchNonArray", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestArrayContainsDoesNotMatchNonArray", [&]() {
+    index_manager_->Start();
     // Set up two field indices. This causes two index entries to be written,
     // but our query should only use one index.
     SetUpArrayValueFilter();
@@ -746,19 +746,20 @@ TEST_F(LevelDbIndexManagerTest, ArrayContainsDoesNotMatchNonArray) {
 }
 
 TEST_F(LevelDbIndexManagerTest, NoMatchingFilter) {
-  persistence->Run("TestNoMatchingFilter", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestNoMatchingFilter", [&]() {
+    index_manager_->Start();
     SetUpSingleValueFilter();
     auto query = Query("coll").AddingFilter(Filter("unknown", "==", true));
-    EXPECT_FALSE(index_manager->GetFieldIndex(query.ToTarget()).has_value());
-    EXPECT_FALSE(index_manager->GetDocumentsMatchingTarget(query.ToTarget())
+    EXPECT_EQ(index_manager_->GetIndexType(query.ToTarget()),
+              IndexManager::IndexType::NONE);
+    EXPECT_FALSE(index_manager_->GetDocumentsMatchingTarget(query.ToTarget())
                      .has_value());
   });
 }
 
 TEST_F(LevelDbIndexManagerTest, NoMatchingDocs) {
-  persistence->Run("TestNoMatchingDocs", [&]() {
-    index_manager->Start();
+  persistence_->Run("TestNoMatchingDocs", [&]() {
+    index_manager_->Start();
     SetUpSingleValueFilter();
     auto query = Query("coll").AddingFilter(Filter("count", "==", -1));
     VerifyResults(query, {});
@@ -766,9 +767,9 @@ TEST_F(LevelDbIndexManagerTest, NoMatchingDocs) {
 }
 
 TEST_F(LevelDbIndexManagerTest, EqualityFilterWithNonMatchingType) {
-  persistence->Run("TestEqualityFilterWithNonMatchingType", [&]() {
-    index_manager->Start();
-    index_manager->AddFieldIndex(
+  persistence_->Run("TestEqualityFilterWithNonMatchingType", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "value", model::Segment::kAscending));
     AddDoc("coll/boolean", Map("value", true));
     AddDoc("coll/string", Map("value", "true"));
@@ -779,9 +780,9 @@ TEST_F(LevelDbIndexManagerTest, EqualityFilterWithNonMatchingType) {
 }
 
 TEST_F(LevelDbIndexManagerTest, CollectionGroup) {
-  persistence->Run("TestCollectionGroup", [&]() {
-    index_manager->Start();
-    index_manager->AddFieldIndex(
+  persistence_->Run("TestCollectionGroup", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll1", "value", model::Segment::kAscending));
     AddDoc("coll1/doc1", Map("value", true));
     AddDoc("coll2/doc2/coll1/doc1", Map("value", true));
@@ -793,9 +794,9 @@ TEST_F(LevelDbIndexManagerTest, CollectionGroup) {
 }
 
 TEST_F(LevelDbIndexManagerTest, LimitFilter) {
-  persistence->Run("TestLimitFilter", [&]() {
-    index_manager->Start();
-    index_manager->AddFieldIndex(
+  persistence_->Run("TestLimitFilter", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "value", model::Segment::kAscending));
     AddDoc("coll/doc1", Map("value", 1));
     AddDoc("coll/doc2", Map("value", 1));
@@ -808,9 +809,9 @@ TEST_F(LevelDbIndexManagerTest, LimitFilter) {
 }
 
 TEST_F(LevelDbIndexManagerTest, LimitAppliesOrdering) {
-  persistence->Run("TestLimitAppliesOrdering", [&]() {
-    index_manager->Start();
-    index_manager->AddFieldIndex(
+  persistence_->Run("TestLimitAppliesOrdering", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "value", model::Segment::kContains, "value",
                        model::Segment::kAscending));
     AddDoc("coll/doc1", Map("value", Array(1, "foo")));
@@ -825,9 +826,9 @@ TEST_F(LevelDbIndexManagerTest, LimitAppliesOrdering) {
 }
 
 TEST_F(LevelDbIndexManagerTest, IndexEntriesAreUpdated) {
-  persistence->Run("TestIndexEntriesAreUpdated", [&]() {
-    index_manager->Start();
-    index_manager->AddFieldIndex(
+  persistence_->Run("TestIndexEntriesAreUpdated", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "value", model::Segment::kAscending));
     auto query = Query("coll").AddingOrderBy(OrderBy("value"));
 
@@ -847,9 +848,9 @@ TEST_F(LevelDbIndexManagerTest, IndexEntriesAreUpdated) {
 }
 
 TEST_F(LevelDbIndexManagerTest, IndexEntriesAreUpdatedWithDeletedDoc) {
-  persistence->Run("TestIndexEntriesAreUpdatedWithDeletedDoc", [&]() {
-    index_manager->Start();
-    index_manager->AddFieldIndex(
+  persistence_->Run("TestIndexEntriesAreUpdatedWithDeletedDoc", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "value", model::Segment::kAscending));
     auto query = Query("coll").AddingOrderBy(OrderBy("value"));
 
@@ -870,50 +871,50 @@ TEST_F(LevelDbIndexManagerTest, IndexEntriesAreUpdatedWithDeletedDoc) {
 TEST_F(LevelDbIndexManagerTest, AdvancedQueries) {
   // This test compares local query results with those received from the Java
   // Server SDK.
-  persistence->Run("TestAdvancedQueries", [&]() {
-    index_manager->Start();
-    index_manager->AddFieldIndex(
+  persistence_->Run("TestAdvancedQueries", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "null", model::Segment::kAscending));
-    index_manager->AddFieldIndex(
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "int", model::Segment::kAscending));
-    index_manager->AddFieldIndex(
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "float", model::Segment::kAscending));
-    index_manager->AddFieldIndex(
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "string", model::Segment::kAscending));
-    index_manager->AddFieldIndex(
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "multi", model::Segment::kAscending));
-    index_manager->AddFieldIndex(
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "array", model::Segment::kAscending));
-    index_manager->AddFieldIndex(
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "array", model::Segment::kDescending));
-    index_manager->AddFieldIndex(
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "array", model::Segment::kContains));
-    index_manager->AddFieldIndex(
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "map", model::Segment::kAscending));
-    index_manager->AddFieldIndex(
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "map.field", model::Segment::kAscending));
-    index_manager->AddFieldIndex(
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "prefix", model::Segment::kAscending));
-    index_manager->AddFieldIndex(
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "prefix", model::Segment::kAscending, "suffix",
                        model::Segment::kAscending));
-    index_manager->AddFieldIndex(
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "a", model::Segment::kAscending));
-    index_manager->AddFieldIndex(MakeFieldIndex("coll", "a",
-                                                model::Segment::kAscending, "b",
-                                                model::Segment::kAscending));
-    index_manager->AddFieldIndex(
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "a", model::Segment::kAscending, "b",
+                       model::Segment::kAscending));
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "a", model::Segment::kDescending, "b",
                        model::Segment::kAscending));
-    index_manager->AddFieldIndex(MakeFieldIndex("coll", "a",
-                                                model::Segment::kAscending, "b",
-                                                model::Segment::kDescending));
-    index_manager->AddFieldIndex(
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "a", model::Segment::kAscending, "b",
+                       model::Segment::kDescending));
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "a", model::Segment::kDescending, "b",
                        model::Segment::kDescending));
-    index_manager->AddFieldIndex(MakeFieldIndex("coll", "b",
-                                                model::Segment::kAscending, "a",
-                                                model::Segment::kAscending));
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "b", model::Segment::kAscending, "a",
+                       model::Segment::kAscending));
 
     std::vector<nanopb::Message<google_firestore_v1_Value>> data;
     data.push_back(Map());
@@ -1127,20 +1128,18 @@ TEST_F(LevelDbIndexManagerTest, AdvancedQueries) {
 }
 
 TEST_F(LevelDbIndexManagerTest, CreateReadFieldsIndexes) {
-  persistence->Run("CreateReadDeleteFieldsIndexes", [&]() {
-    IndexManager* index_manager =
-        persistence->GetIndexManager(User::Unauthenticated());
-    index_manager->Start();
+  persistence_->Run("TestCreateReadFieldsIndexes", [&]() {
+    index_manager_->Start();
 
-    index_manager->AddFieldIndex(
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll1", 1, model::FieldIndex::InitialState(), "value",
                        model::Segment::kAscending));
-    index_manager->AddFieldIndex(
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll2", 2, model::FieldIndex::InitialState(), "value",
                        model::Segment::kContains));
 
     {
-      auto indexes = index_manager->GetFieldIndexes("coll1");
+      auto indexes = index_manager_->GetFieldIndexes("coll1");
       EXPECT_EQ(indexes.size(), 1);
       // Note index_id() is 0 because index manager rewrites it using its
       // internal id.
@@ -1148,18 +1147,18 @@ TEST_F(LevelDbIndexManagerTest, CreateReadFieldsIndexes) {
       EXPECT_EQ(indexes[0].collection_group(), "coll1");
     }
 
-    index_manager->AddFieldIndex(
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll1", 3, model::FieldIndex::InitialState(),
                        "newValue", model::Segment::kContains));
     {
-      auto indexes = index_manager->GetFieldIndexes("coll1");
+      auto indexes = index_manager_->GetFieldIndexes("coll1");
       EXPECT_EQ(indexes.size(), 2);
       EXPECT_EQ(indexes[0].collection_group(), "coll1");
       EXPECT_EQ(indexes[1].collection_group(), "coll1");
     }
 
     {
-      auto indexes = index_manager->GetFieldIndexes("coll2");
+      auto indexes = index_manager_->GetFieldIndexes("coll2");
       EXPECT_EQ(indexes.size(), 1);
       EXPECT_EQ(indexes[0].collection_group(), "coll2");
     }
@@ -1168,55 +1167,48 @@ TEST_F(LevelDbIndexManagerTest, CreateReadFieldsIndexes) {
 
 TEST_F(LevelDbIndexManagerTest,
        NextCollectionGroupAdvancesWhenCollectionIsUpdated) {
-  persistence->Run("CreateReadDeleteFieldsIndexes", [&]() {
-    IndexManager* index_manager =
-        persistence->GetIndexManager(User::Unauthenticated());
-    index_manager->Start();
+  persistence_->Run(
+      "TestNextCollectionGroupAdvancesWhenCollectionIsUpdated", [&]() {
+        index_manager_->Start();
 
-    index_manager->AddFieldIndex(MakeFieldIndex("coll1"));
-    index_manager->AddFieldIndex(MakeFieldIndex("coll2"));
+        index_manager_->AddFieldIndex(MakeFieldIndex("coll1"));
+        index_manager_->AddFieldIndex(MakeFieldIndex("coll2"));
 
-    {
-      const auto& collection_group =
-          index_manager->GetNextCollectionGroupToUpdate();
-      EXPECT_TRUE(collection_group.has_value());
-      EXPECT_EQ(collection_group.value(), "coll1");
-    }
+        {
+          const auto& collection_group =
+              index_manager_->GetNextCollectionGroupToUpdate();
+          EXPECT_TRUE(collection_group.has_value());
+          EXPECT_EQ(collection_group.value(), "coll1");
+        }
 
-    index_manager->UpdateCollectionGroup("coll1", IndexOffset::None());
-    {
-      const auto& collection_group =
-          index_manager->GetNextCollectionGroupToUpdate();
-      EXPECT_TRUE(collection_group.has_value());
-      EXPECT_EQ(collection_group.value(), "coll2");
-    }
+        index_manager_->UpdateCollectionGroup("coll1", IndexOffset::None());
+        {
+          const auto& collection_group =
+              index_manager_->GetNextCollectionGroupToUpdate();
+          EXPECT_TRUE(collection_group.has_value());
+          EXPECT_EQ(collection_group.value(), "coll2");
+        }
 
-    index_manager->UpdateCollectionGroup("coll2", IndexOffset::None());
-    {
-      const auto& collection_group =
-          index_manager->GetNextCollectionGroupToUpdate();
-      EXPECT_TRUE(collection_group.has_value());
-      EXPECT_EQ(collection_group.value(), "coll1");
-    }
-  });
+        index_manager_->UpdateCollectionGroup("coll2", IndexOffset::None());
+        {
+          const auto& collection_group =
+              index_manager_->GetNextCollectionGroupToUpdate();
+          EXPECT_TRUE(collection_group.has_value());
+          EXPECT_EQ(collection_group.value(), "coll1");
+        }
+      });
 }
 
 TEST_F(LevelDbIndexManagerTest, PersistsIndexOffset) {
-  persistence->Run("CreateReadDeleteFieldsIndexes", [&]() {
-    IndexManager* index_manager =
-        persistence->GetIndexManager(User::Unauthenticated());
-    index_manager->Start();
+  persistence_->Run("TestPersistsIndexOffset", [&]() {
+    index_manager_->Start();
 
-    index_manager->AddFieldIndex(
+    index_manager_->AddFieldIndex(
         MakeFieldIndex("coll1", "value", model::Segment::kAscending));
     IndexOffset offset{Version(20), Key("coll/doc"), 42};
-    index_manager->UpdateCollectionGroup("coll1", offset);
+    index_manager_->UpdateCollectionGroup("coll1", offset);
 
-    index_manager =
-        persistence->GetIndexManager(credentials::User::Unauthenticated());
-    index_manager->Start();
-
-    std::vector<FieldIndex> indexes = index_manager->GetFieldIndexes("coll1");
+    std::vector<FieldIndex> indexes = index_manager_->GetFieldIndexes("coll1");
     EXPECT_EQ(indexes.size(), 1);
     FieldIndex index = indexes[0];
     EXPECT_EQ(index.index_state().index_offset(), offset);
@@ -1224,22 +1216,20 @@ TEST_F(LevelDbIndexManagerTest, PersistsIndexOffset) {
 }
 
 TEST_F(LevelDbIndexManagerTest, DeleteFieldsIndexeRemovesAllMetadata) {
-  persistence->Run("CreateReadDeleteFieldsIndexes", [&]() {
-    IndexManager* index_manager =
-        persistence->GetIndexManager(User::Unauthenticated());
-    index_manager->Start();
+  persistence_->Run("TestDeleteFieldsIndexeRemovesAllMetadata", [&]() {
+    index_manager_->Start();
 
     auto index = MakeFieldIndex("coll1", 0, model::FieldIndex::InitialState(),
                                 "value", model::Segment::kAscending);
-    index_manager->AddFieldIndex(index);
+    index_manager_->AddFieldIndex(index);
     {
-      auto indexes = index_manager->GetFieldIndexes("coll1");
+      auto indexes = index_manager_->GetFieldIndexes("coll1");
       EXPECT_EQ(indexes.size(), 1);
     }
 
-    index_manager->DeleteFieldIndex(index);
+    index_manager_->DeleteFieldIndex(index);
     {
-      auto indexes = index_manager->GetFieldIndexes("coll1");
+      auto indexes = index_manager_->GetFieldIndexes("coll1");
       EXPECT_EQ(indexes.size(), 0);
     }
   });
@@ -1247,33 +1237,34 @@ TEST_F(LevelDbIndexManagerTest, DeleteFieldsIndexeRemovesAllMetadata) {
 
 TEST_F(LevelDbIndexManagerTest,
        DeleteFieldIndexRemovesEntryFromCollectionGroup) {
-  persistence->Run("CreateReadDeleteFieldsIndexes", [&]() {
-    IndexManager* index_manager =
-        persistence->GetIndexManager(User::Unauthenticated());
-    index_manager->Start();
+  persistence_->Run(
+      "TestDeleteFieldIndexRemovesEntryFromCollectionGroup", [&]() {
+        index_manager_->Start();
 
-    index_manager->AddFieldIndex(
-        MakeFieldIndex("coll1", 1, IndexState{1, IndexOffset::None()}, "value",
-                       model::Segment::kAscending));
-    index_manager->AddFieldIndex(
-        MakeFieldIndex("coll2", 2, IndexState{2, IndexOffset::None()}, "value",
-                       model::Segment::kContains));
-    auto collection_group = index_manager->GetNextCollectionGroupToUpdate();
-    EXPECT_TRUE(collection_group);
-    EXPECT_EQ(collection_group.value(), "coll1");
+        index_manager_->AddFieldIndex(
+            MakeFieldIndex("coll1", 1, IndexState{1, IndexOffset::None()},
+                           "value", model::Segment::kAscending));
+        index_manager_->AddFieldIndex(
+            MakeFieldIndex("coll2", 2, IndexState{2, IndexOffset::None()},
+                           "value", model::Segment::kContains));
+        auto collection_group =
+            index_manager_->GetNextCollectionGroupToUpdate();
+        EXPECT_TRUE(collection_group);
+        EXPECT_EQ(collection_group.value(), "coll1");
 
-    std::vector<FieldIndex> indexes = index_manager->GetFieldIndexes("coll1");
-    EXPECT_EQ(indexes.size(), 1);
-    index_manager->DeleteFieldIndex(indexes[0]);
-    collection_group = index_manager->GetNextCollectionGroupToUpdate();
-    EXPECT_EQ(collection_group, "coll2");
-  });
+        std::vector<FieldIndex> indexes =
+            index_manager_->GetFieldIndexes("coll1");
+        EXPECT_EQ(indexes.size(), 1);
+        index_manager_->DeleteFieldIndex(indexes[0]);
+        collection_group = index_manager_->GetNextCollectionGroupToUpdate();
+        EXPECT_EQ(collection_group, "coll2");
+      });
 }
 
 TEST_F(LevelDbIndexManagerTest, CanChangeUser) {
-  persistence->Run("CreateReadDeleteFieldsIndexes", [&]() {
+  persistence_->Run("CreateReadDeleteFieldsIndexes", [&]() {
     IndexManager* index_manager =
-        persistence->GetIndexManager(User::Unauthenticated());
+        persistence_->GetIndexManager(User::Unauthenticated());
     index_manager->Start();
 
     // Add two indexes and mark one as updated.
@@ -1288,7 +1279,7 @@ TEST_F(LevelDbIndexManagerTest, CanChangeUser) {
 
     // New user signs it. The user should see all existing field indices.
     // Sequence numbers are set to 0.
-    index_manager = persistence->GetIndexManager(User("authenticated"));
+    index_manager = persistence_->GetIndexManager(User("authenticated"));
     index_manager->Start();
 
     // Add a new index and mark it as updated.
@@ -1302,7 +1293,7 @@ TEST_F(LevelDbIndexManagerTest, CanChangeUser) {
 
     // Original user signs it. The user should also see the new index with a
     // zero sequence number.
-    index_manager = persistence->GetIndexManager(User::Unauthenticated());
+    index_manager = persistence_->GetIndexManager(User::Unauthenticated());
     index_manager->Start();
 
     VerifySequenceNumber(index_manager, "coll1", 0);

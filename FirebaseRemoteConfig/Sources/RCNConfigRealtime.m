@@ -430,10 +430,6 @@ static NSInteger const gMaxRetries = 7;
         [strongSelf autoFetch:remainingAttempts - 1 targetVersion:targetVersion];
       }
     } else {
-      /// If the template version is it's default value, 0, then we need to exclude the Etag from
-      /// the fetch to get a response with the current template version.
-      bool excludeEtagHeaderForRealtime =
-          [[strongSelf->_configFetch templateVersionNumber] integerValue] == 0;
       [strongSelf->_configFetch
           fetchConfigWithExpirationDuration:0
                           completionHandler:^(FIRRemoteConfigFetchStatus status, NSError *error) {
@@ -465,8 +461,7 @@ static NSInteger const gMaxRetries = 7;
                                         targetVersion:targetVersion];
                               }
                             }
-                          }
-               excludeEtagHeaderForRealtime:excludeEtagHeaderForRealtime];
+                          }];
     }
   });
 }

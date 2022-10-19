@@ -13,7 +13,9 @@
 // limitations under the License.
 
 import Foundation
+
 import FirebaseCore
+import FirebaseInstallations
 
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 @_implementationOnly import FirebaseCoreExtension
@@ -23,16 +25,44 @@ protocol SessionsProvider {
   @objc static func sessions() -> Void
 }
 
-@objc(FIRSessions) class Sessions: NSObject, Library, SessionsProvider {
+@objc(FIRSessions) final class Sessions: NSObject, Library, SessionsProvider {
   // MARK: - Private Variables
 
-  /// The app associated with all sessions.
-  private let googleAppID: String
+  /// The Firebase App ID associated with Sessions.
+  private let appID: String
+
+  /// Top-level Classes in the Sessions SDK
+  private let coordinator: SessionCoordinator
+  private let initiator: SessionInitiator
+  private let identifiers: Identifiers
 
   // MARK: - Initializers
 
-  required init(app: FirebaseApp) {
-    googleAppID = app.options.googleAppID
+  required convenience init(appID: String, installations: InstallationsProtocol) {
+    let identifiers = Identifiers(installations: installations)
+    let coordinator = SessionCoordinator(identifiers: identifiers)
+    let initiator = SessionInitiator()
+
+    self.init(appID: appID,
+              identifiers: identifiers,
+              coordinator: coordinator,
+              initiator: initiator)
+  }
+
+  init(appID: String, identifiers: Identifiers, coordinator: SessionCoordinator,
+       initiator: SessionInitiator) {
+    self.appID = appID
+
+    self.identifiers = identifiers
+    self.coordinator = coordinator
+    self.initiator = initiator
+
+    super.init()
+
+    self.initiator.beginListening {
+      self.identifiers.generateNewSessionID()
+      self.coordinator.runMain()
+    }
   }
 
   // MARK: - Library conformance
@@ -44,7 +74,8 @@ protocol SessionsProvider {
         // Sessions SDK only works for the default app
         guard let app = container.app, app.isDefaultApp else { return nil }
         isCacheable.pointee = true
-        return self.init(app: app)
+        let installations = Installations.installations(app: app)
+        return self.init(appID: app.options.googleAppID, installations: installations)
       }]
   }
 

@@ -23,7 +23,7 @@ jobs:
     runs-on: macos-12
     strategy:
       matrix:
-        target: [ios, tvos, macos, watchos]
+        target: [ios, tvos, macos]
     steps:
     - uses: actions/checkout@v2
     - uses: ruby/setup-ruby@v1
