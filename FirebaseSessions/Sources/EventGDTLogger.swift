@@ -42,7 +42,7 @@ class EventGDTLogger: EventGDTLoggerProtocol {
     #if targetEnvironment(simulator)
       Logger.logDebug("Logging events using fast QOS due to running on a simulator")
       gdtEvent.qosTier = GDTCOREventQoS.qoSFast
-    #endif  // targetEnvironment(simulator)
+    #endif // targetEnvironment(simulator)
 
     googleDataTransport.logGDTEvent(event: gdtEvent, completion: completion)
   }
