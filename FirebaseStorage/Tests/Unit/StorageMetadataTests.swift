@@ -144,7 +144,7 @@ class StorageMetadataTests: StorageTestHelpers {
       "bucket": "bucket",
       "downloadTokens": "12345,ignored",
       "name": "path/to/object",
-      "metadata": {}
+      "metadata": {},
     ] as [String: Any]
 
     let rootReference = rootReference()
