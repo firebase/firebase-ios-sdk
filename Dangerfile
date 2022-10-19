@@ -154,7 +154,9 @@ has_license_changes = didModify(["LICENSE"])
 @has_public_additions = hasAdditionsIn("Public/")
 
 @has_umbrella_changes = @product_list.reduce(false) do |accum, product|
-  return accum || hasChangesIn("Firebase#{product}.h")
+  has_change = hasChangesIn("Firebase#{product}.h")
+  message("Has change: #{product}") if has_change
+  return accum || has_change
 end
 
 # Convenient flag for all API changes.
