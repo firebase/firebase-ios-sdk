@@ -10,6 +10,7 @@ on:
   schedule:
     # Run every day at 1am (PST) - cron uses UTC times
     - cron:  '0 9 * * *'
+  workflow_dispatch:
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
@@ -77,6 +78,53 @@ jobs:
 
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh Auth iOS)
+
+  integration-tests-ftl:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
+
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      # This env var is set because the job has a dependency on the unpublished HeatbeatLoggingTestUtils.
+      POD_LIB_LINT_ONLY: 1
+    runs-on: macos-12
+    steps:
+    - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+      with:
+        cache_key: ${{ matrix.os }}
+    - uses: ruby/setup-ruby@v1
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Prereqs
+      run: scripts/install_prereqs.sh Auth iOS
+    - name: Install Secrets
+      run: |
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthCredentials.h.gpg \
+          FirebaseAuth/Tests/Sample/ApiTests/AuthCredentials.h "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/Application.plist.gpg \
+          FirebaseAuth/Tests/Sample/Sample/Application.plist "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/AuthCredentials.h.gpg \
+          FirebaseAuth/Tests/Sample/Sample/AuthCredentials.h "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/GoogleService-Info.plist.gpg \
+          FirebaseAuth/Tests/Sample/Sample/GoogleService-Info.plist "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/GoogleService-Info_multi.plist.gpg \
+          FirebaseAuth/Tests/Sample/Sample/GoogleService-Info_multi.plist "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/Sample.entitlements.gpg \
+          FirebaseAuth/Tests/Sample/Sample/Sample.entitlements "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/Credentials.swift.gpg \
+          FirebaseAuth/Tests/Sample/SwiftApiTests/Credentials.swift "$plist_secret"
+
+    - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
+      run: /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -workspace FirebaseAuth/Tests/Sample/AuthSample.xcworkspace -scheme Auth_ApiTests -sdk iphoneos -derivedDataPath FirebaseAuth/Tests/build-for-testing ONLY_ACTIVE_ARCH=YES CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=YES COMPILER_INDEX_STORE_ENABLE=NO CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ build-for-testing
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      if: ${{ !cancelled() }}
+      with:
+        name: FirebaseAuth/Tests/build-for-testing
+        path: FirebaseAuth/Tests/build-for-testing
+        retention-days: 1
 
   spm:
     # Don't run on private repo unless it is a PR.
