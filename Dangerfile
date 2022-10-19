@@ -154,7 +154,7 @@ has_license_changes = didModify(["LICENSE"])
 @has_public_additions = hasAdditionsIn("Public/")
 
 @has_umbrella_changes = @product_list.reduce(false) do |accum, product|
-  return accum || false
+  return accum || hasChangesIn("Firebase#{product}.h")
 end
 
 # Convenient flag for all API changes.
@@ -205,7 +205,7 @@ end
 # Warn if a new public header file is added but no umbrella header changes
 # are detected. Prevents regression of #10301
 if @has_public_additions && !@has_umbrella_changes
-  error = "New public headers were added, "\
+  error = "New public headers were added, "
       "did you remember to add them to the umbrella header?"
   warn(error)
 end
