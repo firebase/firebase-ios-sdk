@@ -28,7 +28,7 @@ class InitiatorTests: XCTestCase {
     assert(initiateCalled)
   }
 
-  func testForegounding_initiatesNewSession() throws {
+  func test_appForegrounded_initiatesNewSession() throws {
     // Given
     var pausedClock = date
     let initiator = SessionInitiator(dateProvider: { pausedClock })
