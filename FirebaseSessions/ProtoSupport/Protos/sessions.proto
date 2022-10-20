@@ -23,6 +23,7 @@
 //    "wireless_android_play_playlog.NetworkConnectionInfo"
 // 5. Any new proto fields of type string, repeated, or bytes must be specified
 //    in the sessions.options file as "type:FT_POINTER"
+// 6. Remove any Lint comments (eg. IfChanged lines)
 //
 
 syntax = "proto3";
@@ -33,6 +34,7 @@ package firebase.appquality.sessions;
 
 // Contains the relevant information around an App Quality Session.
 // See go/app-quality-unified-session-definition for more details.
+// Next tag: 4
 message SessionEvent {
   // The type of event being reported.
   EventType event_type = 1;
@@ -43,13 +45,15 @@ message SessionEvent {
 }
 
 // Enum denoting all possible session event types.
+// Next tag: 2
 enum EventType {
-  EVENT_UNKNOWN = 0;
+  EVENT_TYPE_UNKNOWN = 0;
   // This event type is fired as soon as a new session begins.
-  EVENT_SESSION_START = 1;
+  SESSION_START = 1;
 }
 
 // Contains session-specific information relating to the event being uploaded.
+// Next tag: 7
 message SessionInfo {
   // A globally unique identifier for the session.
   string session_id = 1;
@@ -60,22 +64,25 @@ message SessionInfo {
   string firebase_installation_id = 3;
   // The device-reported timestamp at which the event occurred.
   int64 event_timestamp_us = 4;
-  // Any sampling rate being applied to these events on device.
-  // 1.0 implies no sampling.
-  float sampling_rate = 5;
+
   // The data collection status for each related SDK.
   DataCollectionStatus data_collection_status = 6;
 }
 
 // Contains the data collection status for each related SDK.
+// Next tag: 4
 message DataCollectionStatus {
   // The collection status of the FirePerf SDK.
   DataCollectionState performance = 1;
   // The collection status for the Crashlytics SDK.
   DataCollectionState crashlytics = 2;
+  // Any sampling rate being applied to these events on device.
+  // 1.0 implies no sampling.
+  float session_sampling_rate = 3;
 }
 
 // Enum denoting all possible states for SDK data collection.
+// Next tag: 6
 enum DataCollectionState {
   COLLECTION_UNKNOWN = 0;
   // This product SDK is not present in this version of the app.
@@ -93,6 +100,7 @@ enum DataCollectionState {
 }
 
 // App-level information collected from the device.
+// Next tag: 8
 message ApplicationInfo {
   // Commonly known as the GMP App Id
   string app_id = 1;
@@ -102,6 +110,8 @@ message ApplicationInfo {
   string development_platform_name = 3;
   // The version of the development platform in use by the app. Eg. 2020.3.33f1
   string development_platform_version = 4;
+  // The version of the Firebase-Sessions SDK in use
+  string session_sdk_version = 7;
 
   oneof platform_info {
     // App info relevant only to Android apps
@@ -120,11 +130,10 @@ message ApplicationInfo {
 // - model
 // - country
 // - network_connection_info
+// Next tag: 4
 message AndroidApplicationInfo {
   // The applications package name. Eg. com.google.search
   string package_name = 1;
-  // The version of the Android Firebase-Sessions SDK in use
-  string sdk_version = 2;
   // The version name as specified in the app's manifest
   // https://developer.android.com/guide/topics/manifest/manifest-element#vname
   string version_name = 3;
@@ -137,24 +146,31 @@ message AndroidApplicationInfo {
 // - os_full_version
 // - model
 // - country
+// Next tag: 6
 message AppleApplicationInfo {
   // The application's bundle id. Eg. com.google.search
   string bundle_short_version = 1;
-  // The version of the Apple Firebase-Sessions SDK in use
-  string sdk_version = 2;
   // Describes the network connectivity of the device
   NetworkConnectionInfo network_connection_info = 3;
   // Collects the OS running. Eg. iOS, iPadOs, tvOS, etc.
   OsName os_name = 4;
+  // The mobile country code / mobile network code (MCC/MNC) of the device's
+  // SIM/home network (not the device's active network)
+  // e.g., 310004 for Verizon USA.
+  optional string mcc_mnc = 5;
 }
 
 // The name of the operating system on which the application is running.
 // Currently Apple only.
 enum OsName {
-  OS_NAME_UNKNOWN = 0;
-  OS_NAME_IOS = 1;
-  OS_NAME_IPAD_OS = 2;
-  OS_NAME_MAC_OS = 3;
-  OS_NAME_TV_OS = 4;
-  OS_NAME_WATCH_OS = 5;
+  UNKNOWN_OSNAME = 0;
+  MACOS = 1;
+  MACCATALYST = 2;
+  IOS_ON_MAC = 3;
+  IOS = 4;
+  TVOS = 5;
+  WATCHOS = 6;
+  IPADOS = 7;
+  // Indicates no data was provided by the device (old sdk, Android)
+  UNSPECIFIED = 8;
 }
