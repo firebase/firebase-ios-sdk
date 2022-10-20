@@ -83,6 +83,30 @@ jobs:
     - name: Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctionsUnit ${{ matrix.target }} spm
 
+  spm-unit-ftl:
+    # Don't run on private repo.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    runs-on: macos-12
+    strategy:
+      matrix:
+        target: [iOS, tvOS, macOS, catalyst, watchOS]
+    steps:
+    - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+      with:
+        cache_key: ${{ matrix.os }}
+    - name: Initialize xcodebuild
+      run: scripts/setup_spm_tests.sh
+    - name: Unit Tests
+      run: xcodebuild -scheme FirebaseFunctionsUnit -sdk iphoneos -derivedDataPath Functions/Tests/Unit ONLY_ACTIVE_ARCH=YES CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=YES COMPILER_INDEX_STORE_ENABLE=NO CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ IPHONEOS_DEPLOYMENT_TARGET=13.0 TVOS_DEPLOYMENT_TARGET=13.0 build-for-testing
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      if: ${{ !cancelled() }}
+      with:
+        name: FirebaseFunctionsUnit
+        path: Functions/Tests/Unit/Build/Products
+        retention-days: 1
+
   quickstart:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
@@ -109,6 +133,47 @@ jobs:
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] ||
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions true swift)
+
+  quickstart-ftl:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      LEGACY: true
+    runs-on: macos-12
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/checkout@v2
+    - uses: ruby/setup-ruby@v1
+    - name: Setup quickstart
+      run: scripts/setup_quickstart.sh functions
+    - name: install secret googleservice-info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-functions.plist.gpg \
+          quickstart-ios/functions/GoogleService-Info.plist "$plist_secret"
+    - name: Setup custom URL scheme
+      run: sed -i '' 's/REVERSED_CLIENT_ID/com.googleusercontent.apps.1025801074639-6p6ebi8amuklcjrto20gvpe295smm8u6/' quickstart-ios/functions/LegacyFunctionsQuickstart/FunctionsExample/Info.plist
+    - name: Test objc quickstart
+      run: ([ -z $plist_secret ] ||
+            xcodebuild -workspace Functions/LegacyFunctionsQuickstart/FunctionsExample.xcworkspace  -sdk iphoneos -derivedDataPath Functions/Tests/QuickstartObjc -scheme FunctionsExample CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build-for-testing)
+    - name: Test swift quickstart
+      run: ([ -z $plist_secret ] ||
+            xcodebuild -workspace Functions/LegacyFunctionsQuickstart/FunctionsExample.xcworkspace  -sdk iphoneos -derivedDataPath Functions/Tests/QuickstartSwift -scheme FunctionsExampleSwift CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build-for-testing)
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      if: ${{ !cancelled() }}
+      with:
+        name: FirebaseFunctionsQuickstartObjc
+        path: Functions/Tests/QuickstartObjc/Products
+        retention-days: 1
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      if: ${{ !cancelled() }}
+      with:
+        name: FirebaseFunctionsQuickstartSwift
+        path: Functions/Tests/QuickstartSwift/Build/Products
+        retention-days: 1
 
   functions-cron-only:
     # Don't run on private repo.

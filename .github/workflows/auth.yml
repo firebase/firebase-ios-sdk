@@ -121,7 +121,7 @@ jobs:
       if: ${{ !cancelled() }}
       with:
         name: FirebaseAuthProject
-        path: FirebaseAuth/Tests
+        path: FirebaseAuth/Tests/build-for-testing/Build/Products
         retention-days: 1
     # - id: ftl_test
     #   if: steps.device-info.outputs.device_type == 'real'
