@@ -24,6 +24,7 @@
 // 5. Any new proto fields of type string, repeated, or bytes must be specified
 //    in the sessions.options file as "type:FT_POINTER"
 // 6. Remove any Lint comments (eg. IfChanged lines)
+// 7. Remove any optional specifiers
 //
 
 syntax = "proto3";
@@ -157,7 +158,7 @@ message AppleApplicationInfo {
   // The mobile country code / mobile network code (MCC/MNC) of the device's
   // SIM/home network (not the device's active network)
   // e.g., 310004 for Verizon USA.
-  optional string mcc_mnc = 5;
+  string mcc_mnc = 5;
 }
 
 // The name of the operating system on which the application is running.
