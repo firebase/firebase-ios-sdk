@@ -33,8 +33,8 @@ class SessionInitiator {
   var backgroundTime = Date.distantFuture
   var initiateSessionStart: () -> Void = {}
 
-  init(dateProvider: @escaping () -> Date = Date.init) {
-    currentTime = dateProvider
+  init(currentTimeProvider: @escaping () -> Date = Date.init) {
+    currentTime = currentTimeProvider
   }
 
   func beginListening(initiateSessionStart: @escaping () -> Void) {
@@ -69,6 +69,7 @@ class SessionInitiator {
         object: nil
       )
     #elseif os(watchOS)
+      // Versions below WatchOS 7 do not support lifecycle events
       if #available(watchOSApplicationExtension 7.0, *) {
         notificationCenter.addObserver(
           self,

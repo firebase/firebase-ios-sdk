@@ -31,7 +31,7 @@ class InitiatorTests: XCTestCase {
   func test_appForegrounded_initiatesNewSession() throws {
     // Given
     var pausedClock = date
-    let initiator = SessionInitiator(dateProvider: { pausedClock })
+    let initiator = SessionInitiator(currentTimeProvider: { pausedClock })
     var sessionCount = 0
     initiator.beginListening {
       sessionCount += 1
