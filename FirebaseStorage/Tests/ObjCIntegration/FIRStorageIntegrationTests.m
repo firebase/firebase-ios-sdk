@@ -729,28 +729,35 @@ NSString *const kTestPassword = KPASSWORD;
   // This custom metadata will be removed when using
   // initWithDictionary method
   dictionary[@"metadata"] = expectedMetadata;
-  FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:dictionary];
-  XCTAssertEqualObjects(expectedMetadata, metadata.customMetadata);
+  FIRStorageMetadata *metadata1 = [[FIRStorageMetadata alloc] initWithDictionary:dictionary];
+  XCTAssertEqualObjects(expectedMetadata, metadata1.customMetadata);
+
+  // Approach 2 - Works
+
+  FIRStorageMetadata *metadata2 = [[FIRStorageMetadata alloc] init];
+  metadata2.customMetadata = @{@"foo" : @"bar"};
+  XCTAssertEqualObjects(expectedMetadata, metadata2.customMetadata);
+
+  XCTAssertEqualObjects([metadata1 dictionaryRepresentation], [metadata2 dictionaryRepresentation]);
+
+  // Testing Approach 1
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"testUpdateMetadata1"];
-  [ref updateMetadata:metadata
+  [ref updateMetadata:metadata1
            completion:^(FIRStorageMetadata *updatedMetadata, NSError *error) {
              [expectation fulfill];
              XCTAssertNil(error);
              XCTAssertNotNil(updatedMetadata);
              XCTAssertNotNil(updatedMetadata.customMetadata);
+             // Failing Assertion: ("{ foo = bar; }") is not equal to ("{ }")
              XCTAssertEqualObjects(expectedMetadata, updatedMetadata.customMetadata);
            }];
   [self waitForExpectations:@[ expectation ] timeout:kFIRStorageIntegrationTestTimeout];
 
-  // Approach 2 - Works
-
-  metadata = [[FIRStorageMetadata alloc] init];
-  metadata.customMetadata = @{@"foo" : @"bar"};
-  XCTAssertEqualObjects(expectedMetadata, metadata.customMetadata);
+  // Testing Approach 2
 
   expectation = [self expectationWithDescription:@"testUpdateMetadata2"];
-  [ref updateMetadata:metadata
+  [ref updateMetadata:metadata2
            completion:^(FIRStorageMetadata *updatedMetadata, NSError *error) {
              [expectation fulfill];
              XCTAssertNil(error);

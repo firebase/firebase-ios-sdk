@@ -146,6 +146,7 @@ import Foundation
   // MARK: - Public Initializers
 
   @objc override public convenience init() {
+    // Approach 2: `initialMetadata` is `[:]`
     self.init(dictionary: [:])
   }
 
@@ -203,6 +204,8 @@ import Foundation
   // MARK: - Internal APIs
 
   internal func updatedMetadata() -> [String: AnyHashable] {
+    // In Approach 1 `initialMetadata` is populated, in Approach 2 it's `[:]`.
+    print("Initial Metadata: \(initialMetadata)")
     return remove(matchingMetadata: dictionaryRepresentation(), oldMetadata: initialMetadata)
   }
 
