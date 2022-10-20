@@ -16,6 +16,9 @@ import XCTest
 @testable import FirebaseSessions
 
 class InitiatorTests: XCTestCase {
+  // 2021-11-01 @ 00:00:00 (EST)
+  let date = Date(timeIntervalSince1970: 1_635_739_200)
+
   func test_beginListening_initiatesColdStart() throws {
     let initiator = SessionInitiator()
     var initiateCalled = false
@@ -26,26 +29,31 @@ class InitiatorTests: XCTestCase {
   }
 
   func testForegounding_initiatesNewSession() throws {
-    let pausedClock = MockDate()
-    let initiator = SessionInitiator(getDate: pausedClock.getDate)
+    // Given
+    var pausedClock = date
+    let initiator = SessionInitiator(dateProvider: { pausedClock })
     var sessionCount = 0
     initiator.beginListening {
       sessionCount += 1
     }
     assert(sessionCount == 1)
 
-    // Simulate 30 minutes + 1 second of backgrounding, > session timeout
+    // When
+    // Background, advance time by 30 minutes + 1 second, then foreground
     initiator.appBackgrounded()
-    pausedClock.advance(by: 60 * 30 + 1)
+    pausedClock.addTimeInterval(30 * 60 + 1)
     initiator.appForegrounded()
-    // A new session is created, so count increases
+    // Then
+    // Session count increases because time spent in background > 30 minutes
     assert(sessionCount == 2)
 
-    // Simulate only 30 minutes of backgrounding, <= session timeout
+    // When
+    // Background, advance time by exactly 30 minutes, then foreground
     initiator.appBackgrounded()
-    pausedClock.advance(by: 60 * 30)
+    pausedClock.addTimeInterval(30 * 60)
     initiator.appForegrounded()
-    // A new session isn't created, so count doesn't increase
+    // Then
+    // Session count doesn't increase because time spent in background <= 30 minutes
     assert(sessionCount == 2)
   }
 }

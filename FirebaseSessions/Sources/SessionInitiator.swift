@@ -29,12 +29,12 @@ import Foundation
 ///
 class SessionInitiator {
   let sessionTimeout: TimeInterval = 30 * 60 // 30 minutes
-  let getDate: () -> Date
+  let currentTime: () -> Date
   var backgroundTime = Date.distantFuture
   var initiateSessionStart: () -> Void = {}
 
-  init(getDate: @escaping () -> Date = Date.init) {
-    self.getDate = getDate
+  init(dateProvider: @escaping () -> Date = Date.init) {
+    currentTime = dateProvider
   }
 
   func beginListening(initiateSessionStart: @escaping () -> Void) {
@@ -87,11 +87,11 @@ class SessionInitiator {
   }
 
   @objc func appBackgrounded() {
-    backgroundTime = getDate()
+    backgroundTime = currentTime()
   }
 
   @objc func appForegrounded() {
-    let interval = getDate().timeIntervalSince(backgroundTime)
+    let interval = currentTime().timeIntervalSince(backgroundTime)
     if interval > sessionTimeout {
       initiateSessionStart()
     }
