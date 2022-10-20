@@ -719,6 +719,46 @@ NSString *const kTestPassword = KPASSWORD;
   [self waitForExpectations];
 }
 
+- (void)testUpdateMetadataDebugging {
+  FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
+  NSDictionary<NSString *, NSString *> *expectedMetadata = @{@"foo" : @"bar"};
+
+  // Approach 1 - Fails
+
+  NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
+  // This custom metadata will be removed when using
+  // initWithDictionary method
+  dictionary[@"metadata"] = expectedMetadata;
+  FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:dictionary];
+  XCTAssertEqualObjects(expectedMetadata, metadata.customMetadata);
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"testUpdateMetadata1"];
+  [ref updateMetadata:metadata
+           completion:^(FIRStorageMetadata *updatedMetadata, NSError *error) {
+             [expectation fulfill];
+             XCTAssertNil(error);
+             XCTAssertNotNil(updatedMetadata);
+             XCTAssertNotNil(updatedMetadata.customMetadata);
+             XCTAssertEqualObjects(expectedMetadata, updatedMetadata.customMetadata);
+           }];
+  [self waitForExpectations:@[ expectation ] timeout:kFIRStorageIntegrationTestTimeout];
+
+  // Approach 2 - Works
+
+  metadata = [[FIRStorageMetadata alloc] init];
+  metadata.customMetadata = @{@"foo" : @"bar"};
+  XCTAssertEqualObjects(expectedMetadata, metadata.customMetadata);
+
+  expectation = [self expectationWithDescription:@"testUpdateMetadata2"];
+  [ref updateMetadata:metadata
+           completion:^(FIRStorageMetadata *updatedMetadata, NSError *error) {
+             [expectation fulfill];
+             XCTAssertNil(error);
+             XCTAssertEqualObjects(expectedMetadata, updatedMetadata.customMetadata);
+           }];
+  [self waitForExpectations:@[ expectation ] timeout:kFIRStorageIntegrationTestTimeout];
+}
+
 - (void)testMetadataDictInitAndClear {
   FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] initWithDictionary:@{
     @"cacheControl" : @"cache-control",
