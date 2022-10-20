@@ -15,7 +15,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseSessions/Sources/NanoPB/FIRSESNanoPBHelpers.m"
+#import "FirebaseSessions/Sources/NanoPB/FIRSESNanoPBHelpers.h"
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
@@ -124,6 +124,39 @@ BOOL FIRSESIsPBDataEqual(pb_bytes_array_t *_Nullable pbArray, NSData *_Nullable 
   BOOL equal = FIRSESIsPBArrayEqual(pbArray, expected);
   free(expected);
   return equal;
+}
+
+#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
+CTTelephonyNetworkInfo *_Nullable FIRSESNetworkInfo(void) {
+  static CTTelephonyNetworkInfo *networkInfo;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    networkInfo = [[CTTelephonyNetworkInfo alloc] init];
+  });
+  return networkInfo;
+}
+
+NSString *FIRSESValidatedMccMnc(NSString *mcc, NSString *mnc) {
+  if ([mcc length] != 3 || [mnc length] < 2 || [mnc length] > 3) return nil;
+
+  static NSCharacterSet *notDigits;
+  static dispatch_once_t token;
+  dispatch_once(&token, ^{
+    notDigits = [[NSCharacterSet decimalDigitCharacterSet] invertedSet];
+  });
+  NSString *mccMnc = [mcc stringByAppendingString:mnc];
+  if ([mccMnc rangeOfCharacterFromSet:notDigits].location != NSNotFound) return nil;
+  return mccMnc;
+}
+#endif
+
+NSString * _Nullable FIRSESGetMccMnc(void) {
+#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
+  CTTelephonyNetworkInfo *networkInfo = FIRSESNetworkInfo();
+  CTCarrier *provider = networkInfo.subscriberCellularProvider;
+  return FIRSESValidatedMccMnc(provider.mobileCountryCode, provider.mobileNetworkCode);
+#endif
+  return nil;
 }
 
 NS_ASSUME_NONNULL_END

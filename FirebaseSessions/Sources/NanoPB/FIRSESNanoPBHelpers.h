@@ -16,6 +16,13 @@
 #ifndef FIRSESNanoPBHelpers_h
 #define FIRSESNanoPBHelpers_h
 
+#import <TargetConditionals.h>
+#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h") && !TARGET_OS_MACCATALYST
+#define TARGET_HAS_MOBILE_CONNECTIVITY
+#import <CoreTelephony/CTCarrier.h>
+#import <CoreTelephony/CTTelephonyNetworkInfo.h>
+#endif
+
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
@@ -56,6 +63,9 @@ BOOL FIRSESIsPBStringEqual(pb_bytes_array_t* _Nullable pbString, NSString* _Null
 /// @param pbArray nanopb array to check
 /// @param data NSData that's expected
 BOOL FIRSESIsPBDataEqual(pb_bytes_array_t* _Nullable pbArray, NSData* _Nullable data);
+
+/// Returns the validated MccMnc if it is available, or nil if the device does not support telephone
+NSString * _Nullable FIRSESGetMccMnc(void);
 
 NS_ASSUME_NONNULL_END
 

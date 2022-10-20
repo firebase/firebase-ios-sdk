@@ -21,6 +21,7 @@ class SessionCoordinatorTests: XCTestCase {
   var identifiers = MockIdentifierProvider()
   var time = MockTimeProvider()
   var fireLogger = MockGDTLogger()
+  var appInfo = MockApplicationInfo()
 
   var coordinator: SessionCoordinator!
 
@@ -33,7 +34,7 @@ class SessionCoordinatorTests: XCTestCase {
   func test_attemptLoggingSessionStart_logsToGDT() throws {
     identifiers.mockAllValidIDs()
 
-    let event = SessionStartEvent(identifiers: identifiers, time: time)
+    let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
     var resultSuccess = false
     coordinator.attemptLoggingSessionStart(event: event) { result in
       switch result {
@@ -59,7 +60,7 @@ class SessionCoordinatorTests: XCTestCase {
     identifiers.mockAllValidIDs()
     fireLogger.result = .failure(NSError(domain: "TestError", code: -1))
 
-    let event = SessionStartEvent(identifiers: identifiers, time: time)
+    let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
 
     // Start success so it must be set to false
     var resultSuccess = true
