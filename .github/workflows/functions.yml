@@ -89,7 +89,7 @@ jobs:
     runs-on: macos-12
     strategy:
       matrix:
-        target: [iOS, tvOS, macOS, catalyst, watchOS]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v2
     - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
@@ -156,23 +156,23 @@ jobs:
       run: sed -i '' 's/REVERSED_CLIENT_ID/com.googleusercontent.apps.1025801074639-6p6ebi8amuklcjrto20gvpe295smm8u6/' quickstart-ios/functions/LegacyFunctionsQuickstart/FunctionsExample/Info.plist
     - name: Test objc quickstart
       run: ([ -z $plist_secret ] ||
-            xcodebuild -workspace Functions/LegacyFunctionsQuickstart/FunctionsExample.xcworkspace  -sdk iphoneos -derivedDataPath Functions/Tests/QuickstartObjc -scheme FunctionsExample CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build-for-testing)
+            xcodebuild -workspace quickstart-ios/Functions/LegacyFunctionsQuickstart/FunctionsExample.xcworkspace  -sdk iphoneos -derivedDataPath quickstart-ios/Functions/Tests/QuickstartObjc -scheme FunctionsExample CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build-for-testing)
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] ||
-            xcodebuild -workspace Functions/LegacyFunctionsQuickstart/FunctionsExample.xcworkspace  -sdk iphoneos -derivedDataPath Functions/Tests/QuickstartSwift -scheme FunctionsExampleSwift CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build-for-testing)
+            xcodebuild -workspace quickstart-ios/Functions/LegacyFunctionsQuickstart/FunctionsExample.xcworkspace  -sdk iphoneos -derivedDataPath quickstart-ios/Functions/Tests/QuickstartSwift -scheme FunctionsExampleSwift CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build-for-testing)
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       if: ${{ !cancelled() }}
       with:
         name: FirebaseFunctionsQuickstartObjc
-        path: Functions/Tests/QuickstartObjc/Products
+        path: quickstart-ios/Functions/Tests/QuickstartObjc/Products
         retention-days: 1
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       if: ${{ !cancelled() }}
       with:
         name: FirebaseFunctionsQuickstartSwift
-        path: Functions/Tests/QuickstartSwift/Build/Products
+        path: quickstart-ios/Functions/Tests/QuickstartSwift/Build/Products
         retention-days: 1
 
   functions-cron-only:
