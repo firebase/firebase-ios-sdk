@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-#if os(OSX)
+#if os(macOS)
   import Cocoa
   import AppKit
 #elseif os(watchOS)
@@ -55,7 +55,7 @@ class SessionInitiator {
         name: UIApplication.didBecomeActiveNotification,
         object: nil
       )
-    #elseif os(OSX)
+    #elseif os(macOS)
       notificationCenter.addObserver(
         self,
         selector: #selector(appBackgrounded),
