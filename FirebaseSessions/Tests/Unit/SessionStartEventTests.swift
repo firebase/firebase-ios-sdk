@@ -24,7 +24,7 @@ class SessionStartEventTests: XCTestCase {
 
   override func setUp() {
     super.setUp()
-    
+
     identifiers = MockIdentifierProvider()
     time = MockTimeProvider()
     appInfo = MockApplicationInfo()
@@ -47,12 +47,12 @@ class SessionStartEventTests: XCTestCase {
 
     XCTAssertEqual(event.proto.session_data.event_timestamp_us, 123)
   }
-  
+
   func test_init_setsApplicationInfo() {
     appInfo.mockAllInfo()
 
     let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
-    
+
     assertEqualProtoString(
       event.proto.application_info.app_id,
       expected: MockApplicationInfo.testAppID,
@@ -75,11 +75,14 @@ class SessionStartEventTests: XCTestCase {
       expected: "",
       fieldName: "mcc_mnc"
     )
-    
+
     // Ensure we convert the test OS name into the enum.
-    XCTAssertEqual(event.proto.application_info.apple_app_info.os_name, firebase_appquality_sessions_OsName_IOS)
+    XCTAssertEqual(
+      event.proto.application_info.apple_app_info.os_name,
+      firebase_appquality_sessions_OsName_IOS
+    )
   }
-  
+
   func test_setInstallationID_setsInstallationID() {
     identifiers.mockAllValidIDs()
 
@@ -91,7 +94,7 @@ class SessionStartEventTests: XCTestCase {
       fieldName: "firebase_installation_id"
     )
   }
-  
+
   func test_convertOSName_convertsCorrectly() {
     let expectations: [(given: String, expected: firebase_appquality_sessions_OsName)] = [
       ("macos", firebase_appquality_sessions_OsName_MACOS),
@@ -103,13 +106,13 @@ class SessionStartEventTests: XCTestCase {
       ("ipados", firebase_appquality_sessions_OsName_IPADOS),
       ("something unknown", firebase_appquality_sessions_OsName_UNKNOWN_OSNAME),
     ]
-    
-    expectations.forEach({ (given: String, expected: firebase_appquality_sessions_OsName) in
+
+    expectations.forEach { (given: String, expected: firebase_appquality_sessions_OsName) in
       appInfo.osName = given
-      
+
       let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
-      
+
       XCTAssertEqual(event.proto.application_info.apple_app_info.os_name, expected)
-    })
+    }
   }
 }

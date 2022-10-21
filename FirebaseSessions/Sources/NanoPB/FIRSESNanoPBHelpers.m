@@ -150,7 +150,7 @@ NSString *FIRSESValidatedMccMnc(NSString *mcc, NSString *mnc) {
 }
 #endif
 
-NSString * _Nullable FIRSESGetMccMnc(void) {
+NSString *_Nullable FIRSESGetMccMnc(void) {
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
   CTTelephonyNetworkInfo *networkInfo = FIRSESNetworkInfo();
   CTCarrier *provider = networkInfo.subscriberCellularProvider;

@@ -65,7 +65,7 @@ BOOL FIRSESIsPBStringEqual(pb_bytes_array_t* _Nullable pbString, NSString* _Null
 BOOL FIRSESIsPBDataEqual(pb_bytes_array_t* _Nullable pbArray, NSData* _Nullable data);
 
 /// Returns the validated MccMnc if it is available, or nil if the device does not support telephone
-NSString * _Nullable FIRSESGetMccMnc(void);
+NSString* _Nullable FIRSESGetMccMnc(void);
 
 NS_ASSUME_NONNULL_END
 

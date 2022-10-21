@@ -25,7 +25,8 @@ import Foundation
 class SessionStartEvent: NSObject, GDTCOREventDataObject {
   var proto: firebase_appquality_sessions_SessionEvent
 
-  init(identifiers: IdentifierProvider, appInfo: ApplicationInfoProtocol, time: TimeProvider = Time()) {
+  init(identifiers: IdentifierProvider, appInfo: ApplicationInfoProtocol,
+       time: TimeProvider = Time()) {
     proto = firebase_appquality_sessions_SessionEvent()
 
     super.init()
@@ -34,7 +35,7 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     proto.session_data.session_id = makeProtoString(identifiers.sessionID)
     proto.session_data.previous_session_id = makeProtoString(identifiers.previousSessionID)
     proto.session_data.event_timestamp_us = time.timestampUS
-    
+
     proto.application_info.app_id = makeProtoString(appInfo.appID)
     proto.application_info.session_sdk_version = makeProtoString(appInfo.sdkVersion)
 //    proto.application_info.device_model = makeProtoString(appInfo.deviceModel)

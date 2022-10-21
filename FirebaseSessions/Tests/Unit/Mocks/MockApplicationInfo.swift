@@ -13,20 +13,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 import Foundation
 
 @testable import FirebaseSessions
 
 class MockApplicationInfo: ApplicationInfoProtocol {
   var appID: String = ""
-  
+
   var bundleID: String = ""
-  
+
   var sdkVersion: String = ""
-  
+
   var osName: String = ""
-  
+
   static let testAppID = "testAppID"
   static let testBundleID = "testBundleID"
   static let testSDKVersion = "testSDKVersion"

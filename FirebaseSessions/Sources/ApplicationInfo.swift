@@ -13,7 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 import Foundation
 
 @_implementationOnly import FirebaseCore
@@ -22,35 +21,33 @@ import Foundation
 protocol ApplicationInfoProtocol {
   /// Google App ID / GMP App ID
   var appID: String { get }
-  
+
   /// App's bundle ID / bundle short version
   var bundleID: String { get }
-  
+
   /// Version of the Firebase SDK
   var sdkVersion: String { get }
-  
+
   /// Crashlytics-specific device / OS filter values.
   var osName: String { get }
 }
 
 class ApplicationInfo: ApplicationInfoProtocol {
-  
   let appID: String
 
   init(appID: String) {
     self.appID = appID
   }
-  
+
   var bundleID: String {
     return Bundle.main.bundleIdentifier ?? ""
   }
-  
+
   var sdkVersion: String {
     return FirebaseVersion()
   }
-  
+
   var osName: String {
-    
     // TODO: This must share code with Crashlytics
     // TODO: This must share code with Crashlytics
     // TODO: This must share code with Crashlytics
@@ -72,9 +69,8 @@ class ApplicationInfo: ApplicationInfoProtocol {
 //
 //      return firebasePlatform;
 //    }
-    
+
     // TODO: Update once https://github.com/google/GoogleUtilities/pull/89 is submitted
     return GULAppEnvironmentUtil.applePlatform()
   }
-
 }
