@@ -1,0 +1,252 @@
+{
+  "Index Creation succeeds even if not primary": {
+    "describeName": "Client Side Index",
+    "itName": "Index Creation succeeds even if not primary",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "numClients": 2,
+      "useGarbageCollection": false
+    },
+    "steps": [
+      {
+        "clientIndex": 0,
+        "drainQueue": true,
+        "expectedState": {
+          "isPrimary": true
+        }
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true,
+        "expectedState": {
+          "isPrimary": false
+        }
+      },
+      {
+        "clientIndex": 1,
+        "setIndexConfiguration": {
+          "indexes": [
+            {
+              "collectionGroup": "restaurants",
+              "fields": [
+                {
+                  "fieldPath": "price",
+                  "order": "ASCENDING"
+                }
+              ],
+              "queryScope": "COLLECTION"
+            }
+          ]
+        },
+        "expectedState": {
+          "indexes": [
+            {
+              "collectionGroup": "restaurants",
+              "fields": [
+                {
+                  "fieldPath": {
+                    "len": 1,
+                    "offset": 0,
+                    "segments": [
+                      "price"
+                    ]
+                  },
+                  "kind": 0
+                }
+              ],
+              "indexId": -1,
+              "indexState": {
+                "offset": {
+                  "documentKey": {
+                    "path": {
+                      "len": 0,
+                      "offset": 0,
+                      "segments": [
+                      ]
+                    }
+                  },
+                  "largestBatchId": -1,
+                  "readTime": {
+                    "timestamp": {
+                      "nanoseconds": 0,
+                      "seconds": 0
+                    }
+                  }
+                },
+                "sequenceNumber": 0
+              }
+            }
+          ]
+        }
+      },
+      {
+        "clientIndex": 0,
+        "drainQueue": true,
+        "expectedState": {
+          "indexes": [
+            {
+              "collectionGroup": "restaurants",
+              "fields": [
+                {
+                  "fieldPath": {
+                    "len": 1,
+                    "offset": 0,
+                    "segments": [
+                      "price"
+                    ]
+                  },
+                  "kind": 0
+                }
+              ],
+              "indexId": -1,
+              "indexState": {
+                "offset": {
+                  "documentKey": {
+                    "path": {
+                      "len": 0,
+                      "offset": 0,
+                      "segments": [
+                      ]
+                    }
+                  },
+                  "largestBatchId": -1,
+                  "readTime": {
+                    "timestamp": {
+                      "nanoseconds": 0,
+                      "seconds": 0
+                    }
+                  }
+                },
+                "sequenceNumber": 0
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "Index Creation visible on all clients": {
+    "describeName": "Client Side Index",
+    "itName": "Index Creation visible on all clients",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "numClients": 2,
+      "useGarbageCollection": false
+    },
+    "steps": [
+      {
+        "clientIndex": 0,
+        "drainQueue": true,
+        "expectedState": {
+          "isPrimary": true
+        }
+      },
+      {
+        "clientIndex": 0,
+        "setIndexConfiguration": {
+          "indexes": [
+            {
+              "collectionGroup": "restaurants",
+              "fields": [
+                {
+                  "fieldPath": "price",
+                  "order": "ASCENDING"
+                }
+              ],
+              "queryScope": "COLLECTION"
+            }
+          ]
+        },
+        "expectedState": {
+          "indexes": [
+            {
+              "collectionGroup": "restaurants",
+              "fields": [
+                {
+                  "fieldPath": {
+                    "len": 1,
+                    "offset": 0,
+                    "segments": [
+                      "price"
+                    ]
+                  },
+                  "kind": 0
+                }
+              ],
+              "indexId": -1,
+              "indexState": {
+                "offset": {
+                  "documentKey": {
+                    "path": {
+                      "len": 0,
+                      "offset": 0,
+                      "segments": [
+                      ]
+                    }
+                  },
+                  "largestBatchId": -1,
+                  "readTime": {
+                    "timestamp": {
+                      "nanoseconds": 0,
+                      "seconds": 0
+                    }
+                  }
+                },
+                "sequenceNumber": 0
+              }
+            }
+          ]
+        }
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true,
+        "expectedState": {
+          "indexes": [
+            {
+              "collectionGroup": "restaurants",
+              "fields": [
+                {
+                  "fieldPath": {
+                    "len": 1,
+                    "offset": 0,
+                    "segments": [
+                      "price"
+                    ]
+                  },
+                  "kind": 0
+                }
+              ],
+              "indexId": -1,
+              "indexState": {
+                "offset": {
+                  "documentKey": {
+                    "path": {
+                      "len": 0,
+                      "offset": 0,
+                      "segments": [
+                      ]
+                    }
+                  },
+                  "largestBatchId": -1,
+                  "readTime": {
+                    "timestamp": {
+                      "nanoseconds": 0,
+                      "seconds": 0
+                    }
+                  }
+                },
+                "sequenceNumber": 0
+              }
+            }
+          ],
+          "isPrimary": false
+        }
+      }
+    ]
+  }
+}

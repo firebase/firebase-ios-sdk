@@ -2627,7 +2627,7 @@
                   "matches": true,
                   "modified": true
                 },
-                "version": 1000
+                "version": 0
               }
             ],
             "query": {
@@ -2690,7 +2690,7 @@
                   "matches": true,
                   "modified": true
                 },
-                "version": 1000
+                "version": 0
               }
             ],
             "errorCode": 0,
