@@ -68,12 +68,13 @@ class SessionStartEventTests: XCTestCase {
       expected: MockApplicationInfo.testBundleID,
       fieldName: "bundle_short_version"
     )
-    
-//    assertEqualProtoString(
-//      event.proto.application_info.apple_app_info.mcc_mnc,
-//      expected: "",
-//      fieldName: "mcc_mnc"
-//    )
+
+    // On simulator, the mcc_mnc isn't set
+    assertEqualProtoString(
+      event.proto.application_info.apple_app_info.mcc_mnc,
+      expected: "",
+      fieldName: "mcc_mnc"
+    )
     
     // Ensure we convert the test OS name into the enum.
     XCTAssertEqual(event.proto.application_info.apple_app_info.os_name, firebase_appquality_sessions_OsName_IOS)
