@@ -48,29 +48,9 @@ class ApplicationInfo: ApplicationInfoProtocol {
   }
 
   var osName: String {
-    // TODO: This must share code with Crashlytics
-    // TODO: This must share code with Crashlytics
-    // TODO: This must share code with Crashlytics
-    // TODO: This must share code with Crashlytics
-    // TODO: This must share code with Crashlytics
-    // TODO: This must share code with Crashlytics
-    // TODO: This must share code with Crashlytics
-//    NSString* FIRCLSApplicationGetFirebasePlatform(void) {
-//      NSString* firebasePlatform = [GULAppEnvironmentUtil applePlatform];
-//    #if TARGET_OS_IOS
-//      // This check is necessary because iOS-only apps running on iPad
-//      // will report UIUserInterfaceIdiomPhone via UI_USER_INTERFACE_IDIOM().
-//      if ([firebasePlatform isEqualToString:@"ios"] &&
-//          ([[UIDevice currentDevice].model.lowercaseString containsString:@"ipad"] ||
-//           [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)) {
-//        return @"ipados";
-//      }
-//    #endif
-//
-//      return firebasePlatform;
-//    }
-
-    // TODO: Update once https://github.com/google/GoogleUtilities/pull/89 is submitted
+    // TODO: Update once https://github.com/google/GoogleUtilities/pull/89 is released
+    // to production, update this to GULAppEnvironmentUtil.appleDevicePlatform() and update
+    // the podfile to depend on the newest version of GoogleUtilities
     return GULAppEnvironmentUtil.applePlatform()
   }
 }
