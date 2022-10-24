@@ -17,7 +17,8 @@
 #define FIRSESNanoPBHelpers_h
 
 #import <TargetConditionals.h>
-#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h") && !TARGET_OS_MACCATALYST && !TARGET_OS_OSX && !TARGET_OS_TV
+#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h") && !TARGET_OS_MACCATALYST && \
+                  !TARGET_OS_OSX && !TARGET_OS_TV
 #define TARGET_HAS_MOBILE_CONNECTIVITY
 #import <CoreTelephony/CTCarrier.h>
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
