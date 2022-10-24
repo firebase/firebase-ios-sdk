@@ -38,8 +38,11 @@ protocol ApplicationInfoProtocol {
 class ApplicationInfo: ApplicationInfoProtocol {
   let appID: String
 
-  init(appID: String) {
+  private let networkInfo: NetworkInfoProtocol
+
+  init(appID: String, networkInfo: NetworkInfoProtocol = NetworkInfo()) {
     self.appID = appID
+    self.networkInfo = networkInfo
   }
 
   var bundleID: String {
@@ -58,6 +61,6 @@ class ApplicationInfo: ApplicationInfoProtocol {
   }
 
   var mccMNC: String {
-    return FIRSESGetMccMnc() ?? ""
+    return FIRSESValidateMccMnc(networkInfo.mobileCountryCode, networkInfo.mobileNetworkCode)
   }
 }
