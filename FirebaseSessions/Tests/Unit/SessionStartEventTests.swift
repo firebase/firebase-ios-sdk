@@ -68,11 +68,9 @@ class SessionStartEventTests: XCTestCase {
       expected: MockApplicationInfo.testBundleID,
       fieldName: "bundle_short_version"
     )
-
-    // On simulator, the mcc_mnc isn't set
     assertEqualProtoString(
       event.proto.application_info.apple_app_info.mcc_mnc,
-      expected: "",
+      expected: MockApplicationInfo.testMCCMNC,
       fieldName: "mcc_mnc"
     )
 

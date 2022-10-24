@@ -30,6 +30,9 @@ protocol ApplicationInfoProtocol {
 
   /// Crashlytics-specific device / OS filter values.
   var osName: String { get }
+
+  /// Validated Mobile Country Code and Mobile Network Code
+  var mccMNC: String { get }
 }
 
 class ApplicationInfo: ApplicationInfoProtocol {
@@ -52,5 +55,9 @@ class ApplicationInfo: ApplicationInfoProtocol {
     // to production, update this to GULAppEnvironmentUtil.appleDevicePlatform() and update
     // the podfile to depend on the newest version of GoogleUtilities
     return GULAppEnvironmentUtil.applePlatform()
+  }
+
+  var mccMNC: String {
+    return FIRSESGetMccMnc() ?? ""
   }
 }
