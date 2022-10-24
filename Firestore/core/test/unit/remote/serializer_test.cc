@@ -42,6 +42,7 @@
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/core/bound.h"
 #include "Firestore/core/src/core/field_filter.h"
+#include "Firestore/core/src/core/filter.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/model/delete_mutation.h"
@@ -74,7 +75,6 @@ namespace {
 
 namespace v1 = google::firestore::v1;
 using core::Bound;
-using core::FilterList;
 using google::protobuf::util::MessageDifferencer;
 using local::QueryPurpose;
 using local::TargetData;
@@ -556,11 +556,11 @@ class SerializerTest : public ::testing::Test {
 
   void ExpectDeserializationRoundTrip(
       const core::Filter& model, const v1::StructuredQuery::Filter& proto) {
-    FilterList actual_model =
+    std::vector<core::Filter> actual_model =
         Decode<google_firestore_v1_StructuredQuery_Filter>(
             std::mem_fn(&Serializer::DecodeFilters), proto);
 
-    EXPECT_EQ(FilterList{model}, actual_model);
+    EXPECT_EQ(std::vector<core::Filter>{model}, actual_model);
   }
 
   template <typename T>

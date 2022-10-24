@@ -86,7 +86,7 @@ class Target {
   bool IsDocumentQuery() const;
 
   /** The filters on the documents returned by the target. */
-  const FilterList& filters() const {
+  const std::vector<Filter>& filters() const {
     return filters_;
   }
 
@@ -178,7 +178,7 @@ class Target {
    */
   Target(model::ResourcePath path,
          CollectionGroupId collection_group,
-         FilterList filters,
+         std::vector<Filter> filters,
          OrderByList order_bys,
          int32_t limit,
          absl::optional<Bound> start_at,
@@ -221,7 +221,7 @@ class Target {
 
   model::ResourcePath path_;
   std::shared_ptr<const std::string> collection_group_;
-  FilterList filters_;
+  std::vector<Filter> filters_;
   OrderByList order_bys_;
   int32_t limit_ = kNoLimit;
   absl::optional<Bound> start_at_;

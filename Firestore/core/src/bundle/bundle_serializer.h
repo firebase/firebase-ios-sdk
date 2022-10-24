@@ -26,6 +26,7 @@
 #include "Firestore/core/src/bundle/bundled_document_metadata.h"
 #include "Firestore/core/src/bundle/named_query.h"
 #include "Firestore/core/src/core/core_fwd.h"
+#include "Firestore/core/src/core/filter.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/snapshot_version.h"
 #include "Firestore/core/src/nanopb/message.h"
@@ -60,12 +61,12 @@ class BundleSerializer {
  private:
   BundledQuery DecodeBundledQuery(util::JsonReader& reader,
                                   const nlohmann::json& query) const;
-  core::FilterList DecodeWhere(util::JsonReader& reader,
-                               const nlohmann::json& query) const;
+  std::vector<core::Filter> DecodeWhere(util::JsonReader& reader,
+                                        const nlohmann::json& query) const;
   core::Filter DecodeFieldFilter(util::JsonReader& reader,
                                  const nlohmann::json& filter) const;
-  core::FilterList DecodeCompositeFilter(util::JsonReader& reader,
-                                         const nlohmann::json& filter) const;
+  std::vector<core::Filter> DecodeCompositeFilter(
+      util::JsonReader& reader, const nlohmann::json& filter) const;
   nanopb::Message<google_firestore_v1_Value> DecodeValue(
       util::JsonReader& reader, const nlohmann::json& value) const;
 
