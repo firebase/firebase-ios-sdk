@@ -1,0 +1,34 @@
+# Uncomment the next line to define a global platform for your project
+# platform :ios, '9.0'
+
+# Pods for AppQualityDevApp (iOS)
+pod 'FirebaseCore', :path => '../../../'
+# pod 'FirebaseCrashlytics', :path => '../../../'
+pod 'FirebaseInstallations', :path => '../../../'
+pod 'FirebaseCoreInternal', :path => '../../../'
+pod 'FirebaseCoreExtension', :path => '../../../'
+pod 'FirebaseSessions', :path => '../../../'
+
+target 'AppQualityDevApp (iOS)' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  
+
+end
+
+target 'AppQualityDevApp (macOS)' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  # Pods for AppQualityDevApp (macOS)
+
+end
+
+target 'AppQualityDevAppWatchOS WatchKit Extension' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  # Pods for AppQualityDevAppWatchOS
+
+end
