@@ -25,7 +25,8 @@ import Foundation
 class SessionStartEvent: NSObject, GDTCOREventDataObject {
   var proto: firebase_appquality_sessions_SessionEvent
 
-  init(identifiers: IdentifierProvider, time: TimeProvider = Time()) {
+  init(identifiers: IdentifierProvider, appInfo: ApplicationInfoProtocol,
+       time: TimeProvider = Time()) {
     proto = firebase_appquality_sessions_SessionEvent()
 
     super.init()
@@ -34,14 +35,21 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     proto.session_data.session_id = makeProtoString(identifiers.sessionID)
     proto.session_data.previous_session_id = makeProtoString(identifiers.previousSessionID)
     proto.session_data.event_timestamp_us = time.timestampUS
+
+    proto.application_info.app_id = makeProtoString(appInfo.appID)
+    proto.application_info.session_sdk_version = makeProtoString(appInfo.sdkVersion)
+//    proto.application_info.device_model = makeProtoString(appInfo.deviceModel)
+//    proto.application_info.development_platform_name;
+//    proto.application_info.development_platform_version;
+
+    proto.application_info.apple_app_info.bundle_short_version = makeProtoString(appInfo.bundleID)
+//    proto.application_info.apple_app_info.network_connection_info
+    proto.application_info.apple_app_info.os_name = convertOSName(osName: appInfo.osName)
+    proto.application_info.apple_app_info.mcc_mnc = makeProtoString(appInfo.mccMNC)
   }
 
   func setInstallationID(identifiers: IdentifierProvider) {
     proto.session_data.firebase_installation_id = makeProtoString(identifiers.installationID)
-  }
-
-  private func makeProtoString(_ string: String) -> UnsafeMutablePointer<pb_bytes_array_t>? {
-    return FIRSESEncodeString(string)
   }
 
   // MARK: - GDTCOREventDataObject
@@ -58,5 +66,33 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
       return Data()
     }
     return data
+  }
+
+  // MARK: - Data Conversion
+
+  private func makeProtoString(_ string: String) -> UnsafeMutablePointer<pb_bytes_array_t>? {
+    return FIRSESEncodeString(string)
+  }
+
+  private func convertOSName(osName: String) -> firebase_appquality_sessions_OsName {
+    switch osName.lowercased() {
+    case "macos":
+      return firebase_appquality_sessions_OsName_MACOS
+    case "maccatalyst":
+      return firebase_appquality_sessions_OsName_MACCATALYST
+    case "ios_on_mac":
+      return firebase_appquality_sessions_OsName_IOS_ON_MAC
+    case "ios":
+      return firebase_appquality_sessions_OsName_IOS
+    case "tvos":
+      return firebase_appquality_sessions_OsName_TVOS
+    case "watchos":
+      return firebase_appquality_sessions_OsName_WATCHOS
+    case "ipados":
+      return firebase_appquality_sessions_OsName_IPADOS
+    default:
+      Logger.logWarning("Found unknown OSName: \"\(osName)\" while converting.")
+      return firebase_appquality_sessions_OsName_UNKNOWN_OSNAME
+    }
   }
 }
