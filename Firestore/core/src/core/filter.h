@@ -110,6 +110,13 @@ class Filter {
     return rep_->GetFlattenedFilters();
   }
 
+  /**
+   * Returns a list of all filters that are contained within this filter
+   */
+  std::vector<Filter> GetFilters() const {
+    return rep_->GetFilters();
+  }
+
   friend bool operator==(const Filter& lhs, const Filter& rhs);
 
  protected:
@@ -149,6 +156,8 @@ class Filter {
     virtual const model::FieldPath* GetFirstInequalityField() const = 0;
 
     virtual const std::vector<FieldFilter>& GetFlattenedFilters() const = 0;
+
+    virtual std::vector<Filter> GetFilters() const = 0;
 
     /**
      * Memoized list of all field filters that can be found by

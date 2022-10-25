@@ -908,7 +908,7 @@ google_firestore_v1_StructuredQuery_Filter Serializer::EncodeUnaryOrFieldFilter(
 google_firestore_v1_StructuredQuery_Filter Serializer::EncodeCompositeFilter(
     const core::CompositeFilter& filter) const {
   // If there's only one filter in the composite filter, use it directly.
-  if (filter.filters().size() == 1u) {
+  if (filter.filters().size() == 1U) {
     return EncodeFilter(filter.filters()[0]);
   }
 
