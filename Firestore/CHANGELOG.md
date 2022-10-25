@@ -1,9 +1,10 @@
 # Unreleased
-- [feature] Added `Query.count()`, which fetches the number of documents in the
-  result set without actually downloading the documents (#10246).
+- [fixed] Fixed data race in credentials provider (#10393).
 
 # 10.0.0
 - [fixed] Fixed compiler warning about `@param comparator` (#10226).
+- [feature] Added `Query.count()`, which fetches the number of documents in the
+  result set without actually downloading the documents (#10246).
 
 # 9.6.0
 - [added] Expose client side indexing feature with `FIRFirestore.setIndexConfigurationFromJSON` and
