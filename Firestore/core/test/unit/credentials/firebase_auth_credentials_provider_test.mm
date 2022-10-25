@@ -20,7 +20,7 @@
 #include <chrono>  // NOLINT(build/c++11)
 #include <future>  // NOLINT(build/c++11)
 #include <memory>
-#include <thread>
+#include <thread>  // NOLINT(build/c++11)
 
 #import "FirebaseAuth/Interop/FIRAuthInterop.h"
 
