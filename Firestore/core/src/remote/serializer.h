@@ -32,6 +32,7 @@
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/core/filter.h"
+#include "Firestore/core/src/core/order_by.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/resource_path.h"
@@ -305,8 +306,8 @@ class Serializer {
       google_firestore_v1_StructuredQuery_CompositeFilter_Operator op) const;
 
   google_firestore_v1_StructuredQuery_Order* EncodeOrderBys(
-      const core::OrderByList& orders) const;
-  core::OrderByList DecodeOrderBys(
+      const std::vector<core::OrderBy>& orders) const;
+  std::vector<core::OrderBy> DecodeOrderBys(
       util::ReadContext* context,
       google_firestore_v1_StructuredQuery_Order* order_bys,
       pb_size_t size) const;

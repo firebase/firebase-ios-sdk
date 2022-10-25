@@ -67,7 +67,6 @@ using core::Direction;
 using core::FieldFilter;
 using core::Filter;
 using core::OrderBy;
-using core::OrderByList;
 using core::Query;
 using core::Target;
 using local::QueryPurpose;
@@ -761,7 +760,7 @@ Target Serializer::DecodeStructuredQuery(
     filter_by = DecodeFilters(context, query.where);
   }
 
-  OrderByList order_by;
+  std::vector<OrderBy> order_by;
   if (query.order_by_count > 0) {
     order_by = DecodeOrderBys(context, query.order_by, query.order_by_count);
   }
@@ -1095,7 +1094,7 @@ CompositeFilter::Operator Serializer::DecodeCompositeFilterOperator(
 }
 
 google_firestore_v1_StructuredQuery_Order* Serializer::EncodeOrderBys(
-    const OrderByList& orders) const {
+    const std::vector<OrderBy>& orders) const {
   auto* result = MakeArray<google_firestore_v1_StructuredQuery_Order>(
       CheckedSize(orders.size()));
 
@@ -1115,15 +1114,15 @@ google_firestore_v1_StructuredQuery_Order* Serializer::EncodeOrderBys(
   return result;
 }
 
-OrderByList Serializer::DecodeOrderBys(
+std::vector<OrderBy> Serializer::DecodeOrderBys(
     ReadContext* context,
     google_firestore_v1_StructuredQuery_Order* order_bys,
     pb_size_t size) const {
-  OrderByList result;
-  result = result.reserve(size);
+  std::vector<OrderBy> result;
+  result.reserve(size);
 
   for (pb_size_t i = 0; i != size; ++i) {
-    result = result.push_back(DecodeOrderBy(context, order_bys[i]));
+    result.push_back(DecodeOrderBy(context, order_bys[i]));
   }
 
   return result;

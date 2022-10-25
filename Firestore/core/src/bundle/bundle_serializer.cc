@@ -53,7 +53,6 @@ using core::FieldFilter;
 using core::Filter;
 using core::LimitType;
 using core::OrderBy;
-using core::OrderByList;
 using core::Target;
 using model::DeepClone;
 using model::Document;
@@ -242,8 +241,8 @@ Filter DecodeUnaryFilter(JsonReader& reader, const json& filter) {
   return InvalidFilter();
 }
 
-OrderByList DecodeOrderBy(JsonReader& reader, const json& query) {
-  OrderByList result;
+std::vector<OrderBy> DecodeOrderBy(JsonReader& reader, const json& query) {
+  std::vector<OrderBy> result;
   std::vector<json> default_order_by;
   for (const auto& order_by :
        reader.OptionalArray("orderBy", query, default_order_by)) {
@@ -261,7 +260,7 @@ OrderByList DecodeOrderBy(JsonReader& reader, const json& query) {
                               ? Direction::Ascending
                               : Direction::Descending;
 
-    result = result.push_back(OrderBy(std::move(path), direction));
+    result.emplace_back(std::move(path), direction);
   }
 
   return result;
