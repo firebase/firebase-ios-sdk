@@ -16,9 +16,11 @@
 
 #include "Firestore/core/src/credentials/firebase_auth_credentials_provider_apple.h"
 
+#include <atomic>
 #include <chrono>  // NOLINT(build/c++11)
 #include <future>  // NOLINT(build/c++11)
 #include <memory>
+#include <thread>
 
 #import "FirebaseAuth/Interop/FIRAuthInterop.h"
 
@@ -38,7 +40,9 @@
 - (instancetype)init NS_UNAVAILABLE;
 @end
 
-@implementation FSTAuthFake
+@implementation FSTAuthFake {
+  std::atomic<bool> _forceRefreshTriggered;
+}
 
 - (instancetype)initWithToken:(nullable NSString*)token
                           uid:(nullable NSString*)uid {
@@ -46,7 +50,7 @@
   if (self) {
     _token = [token copy];
     _uid = [uid copy];
-    _forceRefreshTriggered = NO;
+    _forceRefreshTriggered = false;
   }
   return self;
 }
@@ -61,6 +65,10 @@
                   withCallback:(nonnull FIRTokenCallback)callback {
   _forceRefreshTriggered = forceRefresh;
   callback(self.token, nil);
+}
+
+- (BOOL)forceRefreshTriggered {
+  return _forceRefreshTriggered ? YES : NO;
 }
 
 @end
@@ -151,6 +159,29 @@ TEST(FirebaseAuthCredentialsProviderTest, InvalidateToken) {
     EXPECT_EQ("token for fake uid", token.token());
     EXPECT_EQ("fake uid", token.user().uid());
   });
+}
+
+// Catch race conditions in FirebaseAuthCredentialsProvider::GetToken() when
+// run under thread sanitizer.
+// See https://github.com/firebase/firebase-ios-sdk/issues/10393
+TEST(FirebaseAuthCredentialsProviderTest, GetTokenCalledByAnotherThread) {
+  FIRApp* app = testutil::AppForUnitTesting();
+  FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:@"token for fake uid"
+                                                     uid:@"fake uid"];
+  FirebaseAuthCredentialsProvider credentials_provider(app, auth);
+  credentials_provider.InvalidateToken();
+
+  std::thread thread1([&credentials_provider] {
+    credentials_provider.GetToken(
+        [](util::StatusOr<AuthToken> result) { EXPECT_TRUE(result.ok()); });
+  });
+  std::thread thread2([&credentials_provider] {
+    credentials_provider.GetToken(
+        [](util::StatusOr<AuthToken> result) { EXPECT_TRUE(result.ok()); });
+  });
+
+  thread1.join();
+  thread2.join();
 }
 
 }  // namespace credentials
