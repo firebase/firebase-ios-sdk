@@ -14,11 +14,15 @@
 
 import Foundation
 
-import FirebaseCore
-import FirebaseInstallations
-
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 @_implementationOnly import FirebaseCoreExtension
+@_implementationOnly import FirebaseInstallations
+@_implementationOnly import GoogleDataTransport
+
+private enum GoogleDataTransportConfig {
+  static let sessionsLogSource = "1974"
+  static let sessionsTarget = GDTCORTarget.FLL
+}
 
 @objc(FIRSessionsProvider)
 protocol SessionsProvider {
@@ -35,33 +39,51 @@ protocol SessionsProvider {
   private let coordinator: SessionCoordinator
   private let initiator: SessionInitiator
   private let identifiers: Identifiers
+  private let appInfo: ApplicationInfo
 
   // MARK: - Initializers
 
+  // Initializes the SDK and top-level classes
   required convenience init(appID: String, installations: InstallationsProtocol) {
+    let googleDataTransport = GDTCORTransport(
+      mappingID: GoogleDataTransportConfig.sessionsLogSource,
+      transformers: nil,
+      target: GoogleDataTransportConfig.sessionsTarget
+    )
+
+    let fireLogger = EventGDTLogger(googleDataTransport: googleDataTransport!)
+
     let identifiers = Identifiers(installations: installations)
-    let coordinator = SessionCoordinator(identifiers: identifiers)
+    let coordinator = SessionCoordinator(identifiers: identifiers, fireLogger: fireLogger)
     let initiator = SessionInitiator()
+    let appInfo = ApplicationInfo(appID: appID)
 
     self.init(appID: appID,
               identifiers: identifiers,
               coordinator: coordinator,
-              initiator: initiator)
+              initiator: initiator,
+              appInfo: appInfo)
   }
 
+  // Initializes the SDK and begines the process of listening for lifecycle events and logging events
   init(appID: String, identifiers: Identifiers, coordinator: SessionCoordinator,
-       initiator: SessionInitiator) {
+       initiator: SessionInitiator, appInfo: ApplicationInfo) {
     self.appID = appID
 
     self.identifiers = identifiers
     self.coordinator = coordinator
     self.initiator = initiator
+    self.appInfo = appInfo
 
     super.init()
 
     self.initiator.beginListening {
       self.identifiers.generateNewSessionID()
-      self.coordinator.runMain()
+      let event = SessionStartEvent(identifiers: self.identifiers, appInfo: self.appInfo)
+      DispatchQueue.global().async {
+        self.coordinator.attemptLoggingSessionStart(event: event) { result in
+        }
+      }
     }
   }
 

@@ -18,11 +18,11 @@ import XCTest
 @testable import FirebaseSessions
 @testable import FirebaseInstallations
 
-var installations = MockInstallationsProtocol()
-var identifiers = Identifiers(installations: installations)
-
 class IdentifiersTests: XCTestCase {
-  override func setUpWithError() throws {
+  var installations: MockInstallationsProtocol!
+  var identifiers: Identifiers!
+
+  override func setUp() {
     // Clear all UserDefaults
     if let appDomain = Bundle.main.bundleIdentifier {
       UserDefaults.standard.removePersistentDomain(forName: appDomain)
@@ -48,52 +48,53 @@ class IdentifiersTests: XCTestCase {
     return true
   }
 
-  func testInitialSessionIDGeneration() throws {
+  func test_generateNewSessionID_generatesValidID() throws {
     identifiers.generateNewSessionID()
-    assert(isValidSessionID(identifiers.sessionID))
-    assert(identifiers.lastSessionID.count == 0)
+    XCTAssert(isValidSessionID(identifiers.sessionID))
+    XCTAssert(identifiers.previousSessionID.count == 0)
   }
 
-  func testRotateSessionID() throws {
+  /// Ensures that generating a Session ID multiple times results in the last Session ID being set in the previousSessionID field
+  func test_generateNewSessionID_rotatesPreviousID() throws {
     identifiers.generateNewSessionID()
 
     let firstSessionID = identifiers.sessionID
-    assert(isValidSessionID(identifiers.sessionID))
-    assert(identifiers.lastSessionID.count == 0)
+    XCTAssert(isValidSessionID(identifiers.sessionID))
+    XCTAssert(identifiers.previousSessionID.count == 0)
 
     identifiers.generateNewSessionID()
 
-    assert(isValidSessionID(identifiers.sessionID))
-    assert(isValidSessionID(identifiers.lastSessionID))
+    XCTAssert(isValidSessionID(identifiers.sessionID))
+    XCTAssert(isValidSessionID(identifiers.previousSessionID))
 
     // Ensure the new lastSessionID is equal to the sessionID from earlier
-    assert(identifiers.lastSessionID.compare(firstSessionID) == ComparisonResult.orderedSame)
+    XCTAssert(identifiers.previousSessionID.compare(firstSessionID) == ComparisonResult.orderedSame)
   }
 
   // Fetching FIIDs requires that we are on a background thread.
-  func testSuccessfulFIID() throws {
+  func test_installationID_getsValidID() throws {
     // Make our mock return an ID
     let testID = "testID"
     installations.result = .success(testID)
 
     let expectation = XCTestExpectation(description: "Get the Installation ID Asynchronously")
 
-    DispatchQueue.global().async {
-      XCTAssertEqual(identifiers.installationID, testID)
+    DispatchQueue.global().async { [self] in
+      XCTAssertEqual(self.identifiers.installationID, testID)
       expectation.fulfill()
     }
 
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFailedFIID() throws {
+  func test_installationID_handlesFailedFetch() throws {
     // Make our mock return an error
     installations.result = .failure(NSError(domain: "FestFailedFIIDErrorDomain", code: 0))
 
     let expectation = XCTestExpectation(description: "Get the Installation ID Asynchronously")
 
-    DispatchQueue.global().async {
-      XCTAssertEqual(identifiers.installationID, "")
+    DispatchQueue.global().async { [self] in
+      XCTAssertEqual(self.identifiers.installationID, "")
       expectation.fulfill()
     }
 

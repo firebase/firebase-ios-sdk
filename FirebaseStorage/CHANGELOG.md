@@ -1,3 +1,7 @@
+# 10.1.0
+- [fixed] Fixed a 10.0.0 regression where metadata passed to `putFile` was not properly initialized. (#10353)
+- [fixed] Fixed a 10.0.0 regression handling an empty JSON metadata field from the emulator. (#10370)
+
 # 10.0.0
 - [changed] FirebaseStorage is now completely implemented in Swift. Swift-specific API improvements
   are planned for subsequent releases. (#9963)

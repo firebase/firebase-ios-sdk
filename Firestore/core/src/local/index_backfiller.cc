@@ -69,7 +69,7 @@ int IndexBackfiller::WriteEntriesForCollectionGroup(
     const std::string& collection_group,
     int documents_remaining_under_cap) const {
   IndexManager* index_manager = local_store->index_manager();
-  const auto local_documents_view = local_store->local_documents();
+  const auto* const local_documents_view = local_store->local_documents();
 
   // Use the earliest offset of all field indexes to query the local cache.
   const auto existing_offset = index_manager->GetMinOffset(collection_group);
@@ -95,9 +95,9 @@ model::IndexOffset IndexBackfiller::GetNewOffset(
       max_offset = std::move(new_offset);
     }
   }
-  return IndexOffset(
+  return {
       max_offset.read_time(), max_offset.document_key(),
-      std::max(lookup_result.batch_id(), existing_offset.largest_batch_id()));
+      std::max(lookup_result.batch_id(), existing_offset.largest_batch_id())};
 }
 
 }  // namespace local

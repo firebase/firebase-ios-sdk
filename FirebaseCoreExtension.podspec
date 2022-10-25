@@ -1,11 +1,13 @@
 Pod::Spec.new do |s|
     s.name             = 'FirebaseCoreExtension'
-    s.version          = '10.0.0'
+    s.version          = '10.1.0'
     s.summary          = 'Extended FirebaseCore APIs for Firebase product SDKs'
 
     s.description      = <<-DESC
     Not for public use.
     Common FirebaseCore APIs for use in Firebase product SDKs.
+    When depending on `FirebaseCoreExtension`, also depend on `FirebaseCore` to
+    avoid potential linker issues.
                          DESC
 
     s.homepage         = 'https://firebase.google.com'

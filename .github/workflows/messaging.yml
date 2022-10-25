@@ -30,8 +30,8 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
     - name: Configure test keychain
@@ -59,7 +59,7 @@ jobs:
       matrix:
         target: [ios, tvos, macos --skip-tests] # skipping tests on mac because of keychain access
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -74,8 +74,8 @@ jobs:
       matrix:
         target: [iOS, watchOS]
     steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
     - name: Initialize xcodebuild
@@ -91,8 +91,8 @@ jobs:
       matrix:
         target: [tvOS, macOS, catalyst]
     steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
     - name: Initialize xcodebuild
@@ -105,8 +105,8 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
     - uses: ruby/setup-ruby@v1
@@ -123,8 +123,8 @@ jobs:
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
+    - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh messaging
@@ -138,20 +138,6 @@ jobs:
       run: ([ -z $plist_secret ] ||
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Messaging false swift)
 
-  pod-lib-lint-watchos:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-12
-
-    steps:
-    - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Build and test
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMessaging.podspec --skip-tests --platforms=watchos
-
-
   messaging-cron-only:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
@@ -164,30 +150,12 @@ jobs:
         ]
     needs: pod-lib-lint
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint Messaging Cron
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=${{ matrix.target }}
-
-  messaging-watchos-cron-only:
-    # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-12
-    strategy:
-      matrix:
-        flags: [
-          '--use-static-frameworks'
-        ]
-    needs: pod-lib-lint-watchos
-    steps:
-    - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: PodLibLint Messaging Cron
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=watchos
 
   messaging-sample-build-test:
     # Don't run on private repo unless it is a PR.
@@ -196,8 +164,8 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
     - uses: ruby/setup-ruby@v1
@@ -219,8 +187,8 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
     - uses: ruby/setup-ruby@v1

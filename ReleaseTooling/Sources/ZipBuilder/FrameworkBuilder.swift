@@ -211,14 +211,13 @@ struct FrameworkBuilder {
                 // files to be generated in the .swiftmodule directory. The .swiftinterface files
                 // are required for xcodebuild to successfully generate an xcframework.
                 "BUILD_LIBRARY_FOR_DISTRIBUTION=YES",
+                // Remove the -fembed-bitcode-marker compiling flag.
+                "ENABLE_BITCODE=NO",
                 "SUPPORTS_MACCATALYST=\(isMacCatalystString)",
                 "BUILD_DIR=\(buildDir.path)",
                 "-sdk", targetPlatform.sdkName,
                 cFlags]
-    // Add bitcode option for platforms that need it.
-    if targetPlatform.shouldEnableBitcode {
-      args.append("BITCODE_GENERATION_MODE=bitcode")
-    }
+
     // Code signing isn't needed for libraries. Disabling signing is required for
     // Catalyst libs with resources. See
     // https://github.com/CocoaPods/CocoaPods/issues/8891#issuecomment-573301570

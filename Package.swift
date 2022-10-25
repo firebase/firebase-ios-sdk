@@ -19,7 +19,7 @@
 import PackageDescription
 import class Foundation.ProcessInfo
 
-let firebaseVersion = "10.0.0"
+let firebaseVersion = "10.1.0"
 
 let package = Package(
   name: "Firebase",
@@ -150,7 +150,7 @@ let package = Package(
       url: "https://github.com/google/GoogleAppMeasurement.git",
       // Note that CI changes the version to the head of main for CI.
       // See scripts/setup_spm_tests.sh.
-      .exact("10.0.0")
+      .exact("10.1.0")
     ),
     .package(
       name: "GoogleDataTransport",
@@ -242,6 +242,8 @@ let package = Package(
     // MARK: - Firebase Core Extension
 
     // Extension of FirebaseCore for consuming by Swift product SDKs.
+    // When depending on `FirebaseCoreExtension`, also depend on `FirebaseCore`
+    // to avoid potential linker issues.
     .target(
       name: "FirebaseCoreExtension",
       path: "FirebaseCore/Extension",
@@ -326,8 +328,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/10.0.0/FirebaseAnalytics.zip",
-      checksum: "da414536ac01adcfc8038052e6eb4098e10612db8353d1478edeb38a46b4e93c"
+      url: "https://dl.google.com/firebase/ios/swiftpm/10.1.0/FirebaseAnalytics.zip",
+      checksum: "c5429b2e293d7ab2ed2f291bd5edf13f7612b4b69c8261259f48a7b948fa824d"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
@@ -702,6 +704,7 @@ let package = Package(
     .target(
       name: "FirebaseFirestoreSwift",
       dependencies: [
+        "FirebaseCore",
         "FirebaseCoreExtension",
         "FirebaseFirestore",
         "FirebaseSharedSwift",

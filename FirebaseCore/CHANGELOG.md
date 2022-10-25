@@ -1,3 +1,8 @@
+# Firebase 10.1.0
+- [changed] Bitcode is no longer included in Firebase binary distributions. Xcode 14 does not
+  support bitcode. tvOS apps using a Firebase binary distribution will now need to use
+  Xcode 14. (#10372)
+
 # Firebase 10.0.0
 - [changed] **Breaking change**: Firebase's minimum supported versions have
   updated for the following platforms:
@@ -45,6 +50,7 @@
 - [fixed] Fixed rare crash on launch due to out-of-bounds exception in FirebaseCore. (#10025)
 
 # Firebase 9.3.0
+- [changed] Discontinue bitcode inclusion in all binary distributions.
 - [fixed] Remove GoogleSignInSwiftSupport from Zip and Carthage distributions due to
   infeasibility. The GoogleSignIn distribution continues. (#9937)
 

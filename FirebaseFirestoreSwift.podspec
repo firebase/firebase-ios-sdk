@@ -5,7 +5,7 @@
 
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseFirestoreSwift'
-  s.version                 = '10.0.0'
+  s.version                 = '10.1.0'
   s.summary                 = 'Swift Extensions for Google Cloud Firestore'
 
   s.description      = <<-DESC
@@ -34,6 +34,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/Swift/Source/**/*.swift',
   ]
 
+  s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'FirebaseCoreExtension', '~> 10.0'
   s.dependency 'FirebaseFirestore', '~> 10.0'
   s.dependency 'FirebaseSharedSwift', '~> 10.0'

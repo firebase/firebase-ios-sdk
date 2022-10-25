@@ -19,13 +19,31 @@ import Foundation
 /// involved with sending a Session Start event.
 ///
 class SessionCoordinator {
-  private let identifiers: IdentifierProvider
+  let identifiers: IdentifierProvider
+  let fireLogger: EventGDTLoggerProtocol
 
-  init(identifiers: IdentifierProvider) {
+  init(identifiers: IdentifierProvider, fireLogger: EventGDTLoggerProtocol) {
     self.identifiers = identifiers
+    self.fireLogger = fireLogger
   }
 
-  func runMain() {
-    // TODO:
+  // Begins the process of logging a SessionStartEvent to FireLog, while taking into account Data Collection, Sampling, and fetching Settings
+  func attemptLoggingSessionStart(event: SessionStartEvent,
+                                  callback: @escaping (Result<Void, Error>) -> Void) {
+    event.setInstallationID(identifiers: identifiers)
+
+    fireLogger.logEvent(event: event) { result in
+      switch result {
+      case .success():
+        Logger.logInfo("Successfully logged Session Start event to GoogleDataTransport")
+        callback(.success(()))
+      case let .failure(error):
+        Logger
+          .logError(
+            "Error logging Session Start event to GoogleDataTransport: \(error)."
+          )
+        callback(.failure(error))
+      }
+    }
   }
 }
