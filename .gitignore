@@ -11,6 +11,7 @@ FirebaseDatabase/Tests/Resources/GoogleService-Info.plist
 FirebaseRemoteConfig/Tests/Sample/GoogleService-Info.plist
 FirebaseRemoteConfigSwift/Apps/SwiftUISample/SwiftUISample/GoogleService-Info.plist
 
+# Firebase Sessions test app and integration tests GoogleService-Info.plist
 FirebaseSessions/**/GoogleService-Info.plist
 
 # FirebaseStorage integration tests GoogleService-Info.plist

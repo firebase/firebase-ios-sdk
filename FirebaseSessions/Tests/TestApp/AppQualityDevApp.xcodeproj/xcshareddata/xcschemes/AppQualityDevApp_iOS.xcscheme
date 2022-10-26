@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "DF33DA6A28E4941400F7B88B"
-               BuildableName = "AppQualityDevApp.app"
-               BlueprintName = "AppQualityDevApp (iOS)"
+               BuildableName = "AppQualityDevApp_iOS.app"
+               BlueprintName = "AppQualityDevApp_iOS"
                ReferencedContainer = "container:AppQualityDevApp.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -44,8 +44,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "CF94D83929070DF600308FF7"
-               BuildableName = "AppQualityDevAppUITests (iOS).xctest"
-               BlueprintName = "AppQualityDevAppUITests (iOS)"
+               BuildableName = "UITests_iOS.xctest"
+               BlueprintName = "UITests_iOS"
                ReferencedContainer = "container:AppQualityDevApp.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -66,8 +66,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DF33DA6A28E4941400F7B88B"
-            BuildableName = "AppQualityDevApp.app"
-            BlueprintName = "AppQualityDevApp (iOS)"
+            BuildableName = "AppQualityDevApp_iOS.app"
+            BlueprintName = "AppQualityDevApp_iOS"
             ReferencedContainer = "container:AppQualityDevApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -89,8 +89,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DF33DA6A28E4941400F7B88B"
-            BuildableName = "AppQualityDevApp.app"
-            BlueprintName = "AppQualityDevApp (iOS)"
+            BuildableName = "AppQualityDevApp_iOS.app"
+            BlueprintName = "AppQualityDevApp_iOS"
             ReferencedContainer = "container:AppQualityDevApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

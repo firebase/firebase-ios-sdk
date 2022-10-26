@@ -7,27 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5B45C7FF77CC619AF4CB961D /* Pods_AppQualityDevApp__macOS_.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42CD9244751EF18F20F65858 /* Pods_AppQualityDevApp__macOS_.framework */; };
-		A0222F24C5D449CF0A43FDD7 /* Pods_AppQualityDevAppWatchOS_WatchKit_Extension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E45D9F3074AFEE870882CC6 /* Pods_AppQualityDevAppWatchOS_WatchKit_Extension.framework */; };
-		CF94D8332900B56400308FF7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DF68F14228E4A34B00753C7E /* GoogleService-Info.plist */; };
-		CF94D8342900B5E800308FF7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DF68F14228E4A34B00753C7E /* GoogleService-Info.plist */; };
-		CF94D83D29070DF600308FF7 /* AppQualityDevAppUITests__iOS_.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF94D83C29070DF600308FF7 /* AppQualityDevAppUITests__iOS_.swift */; };
-		CF94D83F29070DF600308FF7 /* AppQualityDevAppUITests__iOS_LaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF94D83E29070DF600308FF7 /* AppQualityDevAppUITests__iOS_LaunchTests.swift */; };
-		CFF5AB1129004E38004A35A0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CFF5AB1029004E38004A35A0 /* Assets.xcassets */; };
-		CFF5AB1729004E39004A35A0 /* AppQualityDevAppWatchOS WatchKit Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = CFF5AB1629004E39004A35A0 /* AppQualityDevAppWatchOS WatchKit Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		CFF5AB1C29004E39004A35A0 /* AppQualityDevAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFF5AB1B29004E39004A35A0 /* AppQualityDevAppApp.swift */; };
-		CFF5AB1E29004E39004A35A0 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFF5AB1D29004E39004A35A0 /* ContentView.swift */; };
-		CFF5AB2029004E39004A35A0 /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFF5AB1F29004E39004A35A0 /* NotificationController.swift */; };
-		CFF5AB2229004E39004A35A0 /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFF5AB2129004E39004A35A0 /* NotificationView.swift */; };
-		CFF5AB2429004E39004A35A0 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFF5AB2329004E39004A35A0 /* ComplicationController.swift */; };
-		CFF5AB2629004E3A004A35A0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CFF5AB2529004E3A004A35A0 /* Assets.xcassets */; };
-		CFF5AB2929004E3A004A35A0 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CFF5AB2829004E3A004A35A0 /* Preview Assets.xcassets */; };
-		CFF5AB2E29004E3A004A35A0 /* AppQualityDevAppWatchOS.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = CFF5AB0E29004E37004A35A0 /* AppQualityDevAppWatchOS.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		D5354CACAEEB222A1DD391A5 /* Pods_AppQualityDevApp__iOS_.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4047C918633376163C5FA07 /* Pods_AppQualityDevApp__iOS_.framework */; };
-		DF33DA7D28E4941400F7B88B /* Tests_iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF33DA7C28E4941400F7B88B /* Tests_iOS.swift */; };
-		DF33DA7F28E4941400F7B88B /* Tests_iOSLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF33DA7E28E4941400F7B88B /* Tests_iOSLaunchTests.swift */; };
-		DF33DA8928E4941400F7B88B /* Tests_macOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF33DA8828E4941400F7B88B /* Tests_macOS.swift */; };
-		DF33DA8B28E4941400F7B88B /* Tests_macOSLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF33DA8A28E4941400F7B88B /* Tests_macOSLaunchTests.swift */; };
+		1242A440A78627992C815FEE /* Pods_AppQualityDevApp_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2F5903A77C9DE64AEA664C98 /* Pods_AppQualityDevApp_iOS.framework */; };
+		CF94D83D29070DF600308FF7 /* UITestsiOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF94D83C29070DF600308FF7 /* UITestsiOS.swift */; };
 		DF33DA8C28E4941400F7B88B /* AppQualityDevAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF33DA6428E4941100F7B88B /* AppQualityDevAppApp.swift */; };
 		DF33DA8D28E4941400F7B88B /* AppQualityDevAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF33DA6428E4941100F7B88B /* AppQualityDevAppApp.swift */; };
 		DF33DA8E28E4941400F7B88B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF33DA6528E4941100F7B88B /* ContentView.swift */; };
@@ -36,6 +17,7 @@
 		DF33DA9128E4941400F7B88B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DF33DA6628E4941400F7B88B /* Assets.xcassets */; };
 		DF68F14328E4A34B00753C7E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DF68F14228E4A34B00753C7E /* GoogleService-Info.plist */; };
 		DF68F14428E4A34B00753C7E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DF68F14228E4A34B00753C7E /* GoogleService-Info.plist */; };
+		E16DE450B5A5D7EC71FCDF4D /* Pods_AppQualityDevApp_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDA875D20BA56FABDFC9A521 /* Pods_AppQualityDevApp_macOS.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,34 +28,6 @@
 			remoteGlobalIDString = DF33DA6A28E4941400F7B88B;
 			remoteInfo = "AppQualityDevApp (iOS)";
 		};
-		CFF5AB1829004E39004A35A0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DF33DA5F28E4941100F7B88B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = CFF5AB1529004E39004A35A0;
-			remoteInfo = "AppQualityDevAppWatchOS WatchKit Extension";
-		};
-		CFF5AB2C29004E3A004A35A0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DF33DA5F28E4941100F7B88B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = CFF5AB0D29004E37004A35A0;
-			remoteInfo = AppQualityDevAppWatchOS;
-		};
-		DF33DA7928E4941400F7B88B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DF33DA5F28E4941100F7B88B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = DF33DA6A28E4941400F7B88B;
-			remoteInfo = "AppQualityDevApp (iOS)";
-		};
-		DF33DA8528E4941400F7B88B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DF33DA5F28E4941100F7B88B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = DF33DA7028E4941400F7B88B;
-			remoteInfo = "AppQualityDevApp (macOS)";
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -83,72 +37,38 @@
 			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
 			dstSubfolderSpec = 16;
 			files = (
-				CFF5AB2E29004E3A004A35A0 /* AppQualityDevAppWatchOS.app in Embed Watch Content */,
 			);
 			name = "Embed Watch Content";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		CFF5AB3229004E3A004A35A0 /* Embed App Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				CFF5AB1729004E39004A35A0 /* AppQualityDevAppWatchOS WatchKit Extension.appex in Embed App Extensions */,
-			);
-			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		07E76FAAB76A1A45E5424480 /* Pods-AppQualityDevApp_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp_iOS.debug.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp_iOS/Pods-AppQualityDevApp_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		08AEDE74D9B112F287377B00 /* Pods-AppQualityDevApp (macOS).debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp (macOS).debug.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp (macOS)/Pods-AppQualityDevApp (macOS).debug.xcconfig"; sourceTree = "<group>"; };
-		42CD9244751EF18F20F65858 /* Pods_AppQualityDevApp__macOS_.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AppQualityDevApp__macOS_.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		2F5903A77C9DE64AEA664C98 /* Pods_AppQualityDevApp_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AppQualityDevApp_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		6FC095AC414056CA646AD6EC /* Pods-AppQualityDevApp_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp_iOS.release.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp_iOS/Pods-AppQualityDevApp_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		717BB1A07D505205E6624565 /* Pods-AppQualityDevApp (macOS).release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp (macOS).release.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp (macOS)/Pods-AppQualityDevApp (macOS).release.xcconfig"; sourceTree = "<group>"; };
 		8E45D9F3074AFEE870882CC6 /* Pods_AppQualityDevAppWatchOS_WatchKit_Extension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AppQualityDevAppWatchOS_WatchKit_Extension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF451CCC16240EE7C1CAE92D /* Pods-AppQualityDevApp (iOS).release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp (iOS).release.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp (iOS)/Pods-AppQualityDevApp (iOS).release.xcconfig"; sourceTree = "<group>"; };
-		CF94D83A29070DF600308FF7 /* AppQualityDevAppUITests (iOS).xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "AppQualityDevAppUITests (iOS).xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		CF94D83C29070DF600308FF7 /* AppQualityDevAppUITests__iOS_.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppQualityDevAppUITests__iOS_.swift; sourceTree = "<group>"; };
-		CF94D83E29070DF600308FF7 /* AppQualityDevAppUITests__iOS_LaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppQualityDevAppUITests__iOS_LaunchTests.swift; sourceTree = "<group>"; };
-		CFF5AB0E29004E37004A35A0 /* AppQualityDevAppWatchOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppQualityDevAppWatchOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		CFF5AB1029004E38004A35A0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		CFF5AB1629004E39004A35A0 /* AppQualityDevAppWatchOS WatchKit Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "AppQualityDevAppWatchOS WatchKit Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
-		CFF5AB1B29004E39004A35A0 /* AppQualityDevAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppQualityDevAppApp.swift; sourceTree = "<group>"; };
-		CFF5AB1D29004E39004A35A0 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		CFF5AB1F29004E39004A35A0 /* NotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationController.swift; sourceTree = "<group>"; };
-		CFF5AB2129004E39004A35A0 /* NotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
-		CFF5AB2329004E39004A35A0 /* ComplicationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComplicationController.swift; sourceTree = "<group>"; };
-		CFF5AB2529004E3A004A35A0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		CFF5AB2829004E3A004A35A0 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		CFF5AB2A29004E3A004A35A0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		CFF5AB2B29004E3A004A35A0 /* PushNotificationPayload.apns */ = {isa = PBXFileReference; lastKnownFileType = text; path = PushNotificationPayload.apns; sourceTree = "<group>"; };
+		C06F31362C6E829883D925CB /* Pods-AppQualityDevApp_macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp_macOS.release.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp_macOS/Pods-AppQualityDevApp_macOS.release.xcconfig"; sourceTree = "<group>"; };
+		CF94D83A29070DF600308FF7 /* UITests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UITests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CF94D83C29070DF600308FF7 /* UITestsiOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestsiOS.swift; sourceTree = "<group>"; };
 		D18C61BD25DEE281DA8E8007 /* Pods-AppQualityDevAppWatchOS WatchKit Extension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevAppWatchOS WatchKit Extension.release.xcconfig"; path = "Target Support Files/Pods-AppQualityDevAppWatchOS WatchKit Extension/Pods-AppQualityDevAppWatchOS WatchKit Extension.release.xcconfig"; sourceTree = "<group>"; };
-		D4047C918633376163C5FA07 /* Pods_AppQualityDevApp__iOS_.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AppQualityDevApp__iOS_.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DAA707D0793CF2FF718DDDD6 /* Pods-AppQualityDevApp (iOS).debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp (iOS).debug.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp (iOS)/Pods-AppQualityDevApp (iOS).debug.xcconfig"; sourceTree = "<group>"; };
 		DF33DA6428E4941100F7B88B /* AppQualityDevAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppQualityDevAppApp.swift; sourceTree = "<group>"; };
 		DF33DA6528E4941100F7B88B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		DF33DA6628E4941400F7B88B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		DF33DA6B28E4941400F7B88B /* AppQualityDevApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppQualityDevApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		DF33DA7128E4941400F7B88B /* AppQualityDevApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppQualityDevApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF33DA6B28E4941400F7B88B /* AppQualityDevApp_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppQualityDevApp_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF33DA7128E4941400F7B88B /* AppQualityDevApp_macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppQualityDevApp_macOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DF33DA7328E4941400F7B88B /* macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macOS.entitlements; sourceTree = "<group>"; };
-		DF33DA7828E4941400F7B88B /* Tests iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Tests iOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		DF33DA7C28E4941400F7B88B /* Tests_iOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests_iOS.swift; sourceTree = "<group>"; };
-		DF33DA7E28E4941400F7B88B /* Tests_iOSLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests_iOSLaunchTests.swift; sourceTree = "<group>"; };
-		DF33DA8428E4941400F7B88B /* Tests macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Tests macOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		DF33DA8828E4941400F7B88B /* Tests_macOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests_macOS.swift; sourceTree = "<group>"; };
-		DF33DA8A28E4941400F7B88B /* Tests_macOSLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests_macOSLaunchTests.swift; sourceTree = "<group>"; };
 		DF68F14228E4A34B00753C7E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		EDA875D20BA56FABDFC9A521 /* Pods_AppQualityDevApp_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AppQualityDevApp_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F1720B933F39C0D8D6A031E5 /* Pods-AppQualityDevAppWatchOS WatchKit Extension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevAppWatchOS WatchKit Extension.debug.xcconfig"; path = "Target Support Files/Pods-AppQualityDevAppWatchOS WatchKit Extension/Pods-AppQualityDevAppWatchOS WatchKit Extension.debug.xcconfig"; sourceTree = "<group>"; };
+		F76B72FAB04F881C67E2512B /* Pods-AppQualityDevApp_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp_macOS.debug.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp_macOS/Pods-AppQualityDevApp_macOS.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		B8B1E22B46956E5DE21C2149 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		CF94D83729070DF600308FF7 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -156,19 +76,11 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		CFF5AB1329004E39004A35A0 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				A0222F24C5D449CF0A43FDD7 /* Pods_AppQualityDevAppWatchOS_WatchKit_Extension.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		DF33DA6828E4941400F7B88B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D5354CACAEEB222A1DD391A5 /* Pods_AppQualityDevApp__iOS_.framework in Frameworks */,
+				1242A440A78627992C815FEE /* Pods_AppQualityDevApp_iOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -176,21 +88,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5B45C7FF77CC619AF4CB961D /* Pods_AppQualityDevApp__macOS_.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DF33DA7528E4941400F7B88B /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DF33DA8128E4941400F7B88B /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+				E16DE450B5A5D7EC71FCDF4D /* Pods_AppQualityDevApp_macOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -206,6 +104,10 @@
 				717BB1A07D505205E6624565 /* Pods-AppQualityDevApp (macOS).release.xcconfig */,
 				F1720B933F39C0D8D6A031E5 /* Pods-AppQualityDevAppWatchOS WatchKit Extension.debug.xcconfig */,
 				D18C61BD25DEE281DA8E8007 /* Pods-AppQualityDevAppWatchOS WatchKit Extension.release.xcconfig */,
+				07E76FAAB76A1A45E5424480 /* Pods-AppQualityDevApp_iOS.debug.xcconfig */,
+				6FC095AC414056CA646AD6EC /* Pods-AppQualityDevApp_iOS.release.xcconfig */,
+				F76B72FAB04F881C67E2512B /* Pods-AppQualityDevApp_macOS.debug.xcconfig */,
+				C06F31362C6E829883D925CB /* Pods-AppQualityDevApp_macOS.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -213,52 +115,19 @@
 		C4EA09EA494417D4E7353C93 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				D4047C918633376163C5FA07 /* Pods_AppQualityDevApp__iOS_.framework */,
-				42CD9244751EF18F20F65858 /* Pods_AppQualityDevApp__macOS_.framework */,
 				8E45D9F3074AFEE870882CC6 /* Pods_AppQualityDevAppWatchOS_WatchKit_Extension.framework */,
+				2F5903A77C9DE64AEA664C98 /* Pods_AppQualityDevApp_iOS.framework */,
+				EDA875D20BA56FABDFC9A521 /* Pods_AppQualityDevApp_macOS.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		CF94D83B29070DF600308FF7 /* AppQualityDevAppUITests (iOS) */ = {
+		CF94D83B29070DF600308FF7 /* UITestsiOS */ = {
 			isa = PBXGroup;
 			children = (
-				CF94D83C29070DF600308FF7 /* AppQualityDevAppUITests__iOS_.swift */,
-				CF94D83E29070DF600308FF7 /* AppQualityDevAppUITests__iOS_LaunchTests.swift */,
+				CF94D83C29070DF600308FF7 /* UITestsiOS.swift */,
 			);
-			path = "AppQualityDevAppUITests (iOS)";
-			sourceTree = "<group>";
-		};
-		CFF5AB0F29004E37004A35A0 /* AppQualityDevAppWatchOS */ = {
-			isa = PBXGroup;
-			children = (
-				CFF5AB1029004E38004A35A0 /* Assets.xcassets */,
-			);
-			path = AppQualityDevAppWatchOS;
-			sourceTree = "<group>";
-		};
-		CFF5AB1A29004E39004A35A0 /* AppQualityDevAppWatchOS WatchKit Extension */ = {
-			isa = PBXGroup;
-			children = (
-				CFF5AB1B29004E39004A35A0 /* AppQualityDevAppApp.swift */,
-				CFF5AB1D29004E39004A35A0 /* ContentView.swift */,
-				CFF5AB1F29004E39004A35A0 /* NotificationController.swift */,
-				CFF5AB2129004E39004A35A0 /* NotificationView.swift */,
-				CFF5AB2329004E39004A35A0 /* ComplicationController.swift */,
-				CFF5AB2529004E3A004A35A0 /* Assets.xcassets */,
-				CFF5AB2A29004E3A004A35A0 /* Info.plist */,
-				CFF5AB2B29004E3A004A35A0 /* PushNotificationPayload.apns */,
-				CFF5AB2729004E3A004A35A0 /* Preview Content */,
-			);
-			path = "AppQualityDevAppWatchOS WatchKit Extension";
-			sourceTree = "<group>";
-		};
-		CFF5AB2729004E3A004A35A0 /* Preview Content */ = {
-			isa = PBXGroup;
-			children = (
-				CFF5AB2829004E3A004A35A0 /* Preview Assets.xcassets */,
-			);
-			path = "Preview Content";
+			path = UITestsiOS;
 			sourceTree = "<group>";
 		};
 		DF33DA5E28E4941100F7B88B = {
@@ -266,11 +135,7 @@
 			children = (
 				DF33DA6328E4941100F7B88B /* Shared */,
 				DF33DA7228E4941400F7B88B /* macOS */,
-				DF33DA7B28E4941400F7B88B /* Tests iOS */,
-				DF33DA8728E4941400F7B88B /* Tests macOS */,
-				CFF5AB0F29004E37004A35A0 /* AppQualityDevAppWatchOS */,
-				CFF5AB1A29004E39004A35A0 /* AppQualityDevAppWatchOS WatchKit Extension */,
-				CF94D83B29070DF600308FF7 /* AppQualityDevAppUITests (iOS) */,
+				CF94D83B29070DF600308FF7 /* UITestsiOS */,
 				DF33DA6C28E4941400F7B88B /* Products */,
 				B331F12D6E48AEAE498652CE /* Pods */,
 				C4EA09EA494417D4E7353C93 /* Frameworks */,
@@ -291,13 +156,9 @@
 		DF33DA6C28E4941400F7B88B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				DF33DA6B28E4941400F7B88B /* AppQualityDevApp.app */,
-				DF33DA7128E4941400F7B88B /* AppQualityDevApp.app */,
-				DF33DA7828E4941400F7B88B /* Tests iOS.xctest */,
-				DF33DA8428E4941400F7B88B /* Tests macOS.xctest */,
-				CFF5AB0E29004E37004A35A0 /* AppQualityDevAppWatchOS.app */,
-				CFF5AB1629004E39004A35A0 /* AppQualityDevAppWatchOS WatchKit Extension.appex */,
-				CF94D83A29070DF600308FF7 /* AppQualityDevAppUITests (iOS).xctest */,
+				DF33DA6B28E4941400F7B88B /* AppQualityDevApp_iOS.app */,
+				DF33DA7128E4941400F7B88B /* AppQualityDevApp_macOS.app */,
+				CF94D83A29070DF600308FF7 /* UITests_iOS.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -310,30 +171,12 @@
 			path = macOS;
 			sourceTree = "<group>";
 		};
-		DF33DA7B28E4941400F7B88B /* Tests iOS */ = {
-			isa = PBXGroup;
-			children = (
-				DF33DA7C28E4941400F7B88B /* Tests_iOS.swift */,
-				DF33DA7E28E4941400F7B88B /* Tests_iOSLaunchTests.swift */,
-			);
-			path = "Tests iOS";
-			sourceTree = "<group>";
-		};
-		DF33DA8728E4941400F7B88B /* Tests macOS */ = {
-			isa = PBXGroup;
-			children = (
-				DF33DA8828E4941400F7B88B /* Tests_macOS.swift */,
-				DF33DA8A28E4941400F7B88B /* Tests_macOSLaunchTests.swift */,
-			);
-			path = "Tests macOS";
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		CF94D83929070DF600308FF7 /* AppQualityDevAppUITests (iOS) */ = {
+		CF94D83929070DF600308FF7 /* UITests_iOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = CF94D84429070DF600308FF7 /* Build configuration list for PBXNativeTarget "AppQualityDevAppUITests (iOS)" */;
+			buildConfigurationList = CF94D84429070DF600308FF7 /* Build configuration list for PBXNativeTarget "UITests_iOS" */;
 			buildPhases = (
 				CF94D83629070DF600308FF7 /* Sources */,
 				CF94D83729070DF600308FF7 /* Frameworks */,
@@ -344,51 +187,14 @@
 			dependencies = (
 				CF94D84129070DF600308FF7 /* PBXTargetDependency */,
 			);
-			name = "AppQualityDevAppUITests (iOS)";
+			name = UITests_iOS;
 			productName = "AppQualityDevAppUITests (iOS)";
-			productReference = CF94D83A29070DF600308FF7 /* AppQualityDevAppUITests (iOS).xctest */;
+			productReference = CF94D83A29070DF600308FF7 /* UITests_iOS.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
-		CFF5AB0D29004E37004A35A0 /* AppQualityDevAppWatchOS */ = {
+		DF33DA6A28E4941400F7B88B /* AppQualityDevApp_iOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = CFF5AB3629004E3A004A35A0 /* Build configuration list for PBXNativeTarget "AppQualityDevAppWatchOS" */;
-			buildPhases = (
-				CFF5AB0C29004E37004A35A0 /* Resources */,
-				CFF5AB3229004E3A004A35A0 /* Embed App Extensions */,
-				B8B1E22B46956E5DE21C2149 /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				CFF5AB1929004E39004A35A0 /* PBXTargetDependency */,
-			);
-			name = AppQualityDevAppWatchOS;
-			productName = AppQualityDevAppWatchOS;
-			productReference = CFF5AB0E29004E37004A35A0 /* AppQualityDevAppWatchOS.app */;
-			productType = "com.apple.product-type.application.watchapp2";
-		};
-		CFF5AB1529004E39004A35A0 /* AppQualityDevAppWatchOS WatchKit Extension */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = CFF5AB3529004E3A004A35A0 /* Build configuration list for PBXNativeTarget "AppQualityDevAppWatchOS WatchKit Extension" */;
-			buildPhases = (
-				99088C6B04856507D5D7593C /* [CP] Check Pods Manifest.lock */,
-				CFF5AB1229004E39004A35A0 /* Sources */,
-				CFF5AB1329004E39004A35A0 /* Frameworks */,
-				CFF5AB1429004E39004A35A0 /* Resources */,
-				79D60D5867B527C6837AFD74 /* [CP] Embed Pods Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "AppQualityDevAppWatchOS WatchKit Extension";
-			productName = "AppQualityDevAppWatchOS WatchKit Extension";
-			productReference = CFF5AB1629004E39004A35A0 /* AppQualityDevAppWatchOS WatchKit Extension.appex */;
-			productType = "com.apple.product-type.watchkit2-extension";
-		};
-		DF33DA6A28E4941400F7B88B /* AppQualityDevApp (iOS) */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = DF33DA9428E4941400F7B88B /* Build configuration list for PBXNativeTarget "AppQualityDevApp (iOS)" */;
+			buildConfigurationList = DF33DA9428E4941400F7B88B /* Build configuration list for PBXNativeTarget "AppQualityDevApp_iOS" */;
 			buildPhases = (
 				50BFC0466FC94F7304B5B39F /* [CP] Check Pods Manifest.lock */,
 				DF33DA6728E4941400F7B88B /* Sources */,
@@ -400,16 +206,15 @@
 			buildRules = (
 			);
 			dependencies = (
-				CFF5AB2D29004E3A004A35A0 /* PBXTargetDependency */,
 			);
-			name = "AppQualityDevApp (iOS)";
+			name = AppQualityDevApp_iOS;
 			productName = "AppQualityDevApp (iOS)";
-			productReference = DF33DA6B28E4941400F7B88B /* AppQualityDevApp.app */;
+			productReference = DF33DA6B28E4941400F7B88B /* AppQualityDevApp_iOS.app */;
 			productType = "com.apple.product-type.application";
 		};
-		DF33DA7028E4941400F7B88B /* AppQualityDevApp (macOS) */ = {
+		DF33DA7028E4941400F7B88B /* AppQualityDevApp_macOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DF33DA9728E4941400F7B88B /* Build configuration list for PBXNativeTarget "AppQualityDevApp (macOS)" */;
+			buildConfigurationList = DF33DA9728E4941400F7B88B /* Build configuration list for PBXNativeTarget "AppQualityDevApp_macOS" */;
 			buildPhases = (
 				128C467FAF5CA2ED8E617ABE /* [CP] Check Pods Manifest.lock */,
 				DF33DA6D28E4941400F7B88B /* Sources */,
@@ -421,46 +226,10 @@
 			);
 			dependencies = (
 			);
-			name = "AppQualityDevApp (macOS)";
+			name = AppQualityDevApp_macOS;
 			productName = "AppQualityDevApp (macOS)";
-			productReference = DF33DA7128E4941400F7B88B /* AppQualityDevApp.app */;
+			productReference = DF33DA7128E4941400F7B88B /* AppQualityDevApp_macOS.app */;
 			productType = "com.apple.product-type.application";
-		};
-		DF33DA7728E4941400F7B88B /* Tests iOS */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = DF33DA9A28E4941400F7B88B /* Build configuration list for PBXNativeTarget "Tests iOS" */;
-			buildPhases = (
-				DF33DA7428E4941400F7B88B /* Sources */,
-				DF33DA7528E4941400F7B88B /* Frameworks */,
-				DF33DA7628E4941400F7B88B /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				DF33DA7A28E4941400F7B88B /* PBXTargetDependency */,
-			);
-			name = "Tests iOS";
-			productName = "Tests iOS";
-			productReference = DF33DA7828E4941400F7B88B /* Tests iOS.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
-		DF33DA8328E4941400F7B88B /* Tests macOS */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = DF33DA9D28E4941400F7B88B /* Build configuration list for PBXNativeTarget "Tests macOS" */;
-			buildPhases = (
-				DF33DA8028E4941400F7B88B /* Sources */,
-				DF33DA8128E4941400F7B88B /* Frameworks */,
-				DF33DA8228E4941400F7B88B /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				DF33DA8628E4941400F7B88B /* PBXTargetDependency */,
-			);
-			name = "Tests macOS";
-			productName = "Tests macOS";
-			productReference = DF33DA8428E4941400F7B88B /* Tests macOS.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
 
@@ -476,25 +245,11 @@
 						CreatedOnToolsVersion = 14.0.1;
 						TestTargetID = DF33DA6A28E4941400F7B88B;
 					};
-					CFF5AB0D29004E37004A35A0 = {
-						CreatedOnToolsVersion = 13.2.1;
-					};
-					CFF5AB1529004E39004A35A0 = {
-						CreatedOnToolsVersion = 13.2.1;
-					};
 					DF33DA6A28E4941400F7B88B = {
 						CreatedOnToolsVersion = 13.4.1;
 					};
 					DF33DA7028E4941400F7B88B = {
 						CreatedOnToolsVersion = 13.4.1;
-					};
-					DF33DA7728E4941400F7B88B = {
-						CreatedOnToolsVersion = 13.4.1;
-						TestTargetID = DF33DA6A28E4941400F7B88B;
-					};
-					DF33DA8328E4941400F7B88B = {
-						CreatedOnToolsVersion = 13.4.1;
-						TestTargetID = DF33DA7028E4941400F7B88B;
 					};
 				};
 			};
@@ -511,13 +266,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				DF33DA6A28E4941400F7B88B /* AppQualityDevApp (iOS) */,
-				DF33DA7028E4941400F7B88B /* AppQualityDevApp (macOS) */,
-				DF33DA7728E4941400F7B88B /* Tests iOS */,
-				DF33DA8328E4941400F7B88B /* Tests macOS */,
-				CFF5AB0D29004E37004A35A0 /* AppQualityDevAppWatchOS */,
-				CFF5AB1529004E39004A35A0 /* AppQualityDevAppWatchOS WatchKit Extension */,
-				CF94D83929070DF600308FF7 /* AppQualityDevAppUITests (iOS) */,
+				DF33DA6A28E4941400F7B88B /* AppQualityDevApp_iOS */,
+				DF33DA7028E4941400F7B88B /* AppQualityDevApp_macOS */,
+				CF94D83929070DF600308FF7 /* UITests_iOS */,
 			);
 		};
 /* End PBXProject section */
@@ -527,25 +278,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		CFF5AB0C29004E37004A35A0 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				CFF5AB1129004E38004A35A0 /* Assets.xcassets in Resources */,
-				CF94D8332900B56400308FF7 /* GoogleService-Info.plist in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		CFF5AB1429004E39004A35A0 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				CFF5AB2929004E3A004A35A0 /* Preview Assets.xcassets in Resources */,
-				CFF5AB2629004E3A004A35A0 /* Assets.xcassets in Resources */,
-				CF94D8342900B5E800308FF7 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -567,20 +299,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DF33DA7628E4941400F7B88B /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DF33DA8228E4941400F7B88B /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
@@ -590,15 +308,15 @@
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-AppQualityDevApp (iOS)/Pods-AppQualityDevApp (iOS)-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-AppQualityDevApp_iOS/Pods-AppQualityDevApp_iOS-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-AppQualityDevApp (iOS)/Pods-AppQualityDevApp (iOS)-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-AppQualityDevApp_iOS/Pods-AppQualityDevApp_iOS-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AppQualityDevApp (iOS)/Pods-AppQualityDevApp (iOS)-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AppQualityDevApp_iOS/Pods-AppQualityDevApp_iOS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		128C467FAF5CA2ED8E617ABE /* [CP] Check Pods Manifest.lock */ = {
@@ -616,7 +334,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-AppQualityDevApp (macOS)-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-AppQualityDevApp_macOS-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -629,15 +347,15 @@
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-AppQualityDevApp (macOS)/Pods-AppQualityDevApp (macOS)-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-AppQualityDevApp_macOS/Pods-AppQualityDevApp_macOS-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-AppQualityDevApp (macOS)/Pods-AppQualityDevApp (macOS)-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-AppQualityDevApp_macOS/Pods-AppQualityDevApp_macOS-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AppQualityDevApp (macOS)/Pods-AppQualityDevApp (macOS)-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AppQualityDevApp_macOS/Pods-AppQualityDevApp_macOS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		50BFC0466FC94F7304B5B39F /* [CP] Check Pods Manifest.lock */ = {
@@ -655,46 +373,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-AppQualityDevApp (iOS)-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		79D60D5867B527C6837AFD74 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-AppQualityDevAppWatchOS WatchKit Extension/Pods-AppQualityDevAppWatchOS WatchKit Extension-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-AppQualityDevAppWatchOS WatchKit Extension/Pods-AppQualityDevAppWatchOS WatchKit Extension-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AppQualityDevAppWatchOS WatchKit Extension/Pods-AppQualityDevAppWatchOS WatchKit Extension-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		99088C6B04856507D5D7593C /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-AppQualityDevAppWatchOS WatchKit Extension-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-AppQualityDevApp_iOS-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -708,20 +387,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CF94D83F29070DF600308FF7 /* AppQualityDevAppUITests__iOS_LaunchTests.swift in Sources */,
-				CF94D83D29070DF600308FF7 /* AppQualityDevAppUITests__iOS_.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		CFF5AB1229004E39004A35A0 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				CFF5AB2029004E39004A35A0 /* NotificationController.swift in Sources */,
-				CFF5AB1E29004E39004A35A0 /* ContentView.swift in Sources */,
-				CFF5AB2429004E39004A35A0 /* ComplicationController.swift in Sources */,
-				CFF5AB1C29004E39004A35A0 /* AppQualityDevAppApp.swift in Sources */,
-				CFF5AB2229004E39004A35A0 /* NotificationView.swift in Sources */,
+				CF94D83D29070DF600308FF7 /* UITestsiOS.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -743,51 +409,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DF33DA7428E4941400F7B88B /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				DF33DA7F28E4941400F7B88B /* Tests_iOSLaunchTests.swift in Sources */,
-				DF33DA7D28E4941400F7B88B /* Tests_iOS.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DF33DA8028E4941400F7B88B /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				DF33DA8B28E4941400F7B88B /* Tests_macOSLaunchTests.swift in Sources */,
-				DF33DA8928E4941400F7B88B /* Tests_macOS.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
 		CF94D84129070DF600308FF7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = DF33DA6A28E4941400F7B88B /* AppQualityDevApp (iOS) */;
+			target = DF33DA6A28E4941400F7B88B /* AppQualityDevApp_iOS */;
 			targetProxy = CF94D84029070DF600308FF7 /* PBXContainerItemProxy */;
-		};
-		CFF5AB1929004E39004A35A0 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = CFF5AB1529004E39004A35A0 /* AppQualityDevAppWatchOS WatchKit Extension */;
-			targetProxy = CFF5AB1829004E39004A35A0 /* PBXContainerItemProxy */;
-		};
-		CFF5AB2D29004E3A004A35A0 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = CFF5AB0D29004E37004A35A0 /* AppQualityDevAppWatchOS */;
-			targetProxy = CFF5AB2C29004E3A004A35A0 /* PBXContainerItemProxy */;
-		};
-		DF33DA7A28E4941400F7B88B /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = DF33DA6A28E4941400F7B88B /* AppQualityDevApp (iOS) */;
-			targetProxy = DF33DA7928E4941400F7B88B /* PBXContainerItemProxy */;
-		};
-		DF33DA8628E4941400F7B88B /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = DF33DA7028E4941400F7B88B /* AppQualityDevApp (macOS) */;
-			targetProxy = DF33DA8528E4941400F7B88B /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -802,14 +430,14 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.google.AppQualityDevAppUITests--iOS-";
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.AppQualityDevAppUITestsiOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = "AppQualityDevApp (iOS)";
+				TEST_TARGET_NAME = AppQualityDevApp_iOS;
 			};
 			name = Debug;
 		};
@@ -823,132 +451,14 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.google.AppQualityDevAppUITests--iOS-";
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.AppQualityDevAppUITestsiOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = "AppQualityDevApp (iOS)";
-			};
-			name = Release;
-		};
-		CFF5AB3029004E3A004A35A0 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CLANG_CXX_LIBRARY = "libc++";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				IBSC_MODULE = AppQualityDevAppWatchOS_WatchKit_Extension;
-				INFOPLIST_KEY_CFBundleDisplayName = AppQualityDevAppWatchOS;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.firebase.AppQualityDevApp;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.firebase.AppQualityDevApp.watchkitapp;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = watchos;
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 8.3;
-			};
-			name = Debug;
-		};
-		CFF5AB3129004E3A004A35A0 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CLANG_CXX_LIBRARY = "libc++";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				IBSC_MODULE = AppQualityDevAppWatchOS_WatchKit_Extension;
-				INFOPLIST_KEY_CFBundleDisplayName = AppQualityDevAppWatchOS;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.firebase.AppQualityDevApp;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.firebase.AppQualityDevApp.watchkitapp;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = watchos;
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				VALIDATE_PRODUCT = YES;
-				WATCHOS_DEPLOYMENT_TARGET = 8.3;
-			};
-			name = Release;
-		};
-		CFF5AB3329004E3A004A35A0 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = F1720B933F39C0D8D6A031E5 /* Pods-AppQualityDevAppWatchOS WatchKit Extension.debug.xcconfig */;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
-				CLANG_CXX_LIBRARY = "libc++";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"AppQualityDevAppWatchOS WatchKit Extension/Preview Content\"";
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "AppQualityDevAppWatchOS WatchKit Extension/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "AppQualityDevAppWatchOS WatchKit Extension";
-				INFOPLIST_KEY_CLKComplicationPrincipalClass = "$(PRODUCT_MODULE_NAME).ComplicationController";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.firebase.AppQualityDevApp.watchkitapp.watchkitextension;
-				PRODUCT_NAME = "${TARGET_NAME}";
-				SDKROOT = watchos;
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 8.3;
-			};
-			name = Debug;
-		};
-		CFF5AB3429004E3A004A35A0 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = D18C61BD25DEE281DA8E8007 /* Pods-AppQualityDevAppWatchOS WatchKit Extension.release.xcconfig */;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
-				CLANG_CXX_LIBRARY = "libc++";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"AppQualityDevAppWatchOS WatchKit Extension/Preview Content\"";
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "AppQualityDevAppWatchOS WatchKit Extension/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "AppQualityDevAppWatchOS WatchKit Extension";
-				INFOPLIST_KEY_CLKComplicationPrincipalClass = "$(PRODUCT_MODULE_NAME).ComplicationController";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.firebase.AppQualityDevApp.watchkitapp.watchkitextension;
-				PRODUCT_NAME = "${TARGET_NAME}";
-				SDKROOT = watchos;
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				VALIDATE_PRODUCT = YES;
-				WATCHOS_DEPLOYMENT_TARGET = 8.3;
+				TEST_TARGET_NAME = AppQualityDevApp_iOS;
 			};
 			name = Release;
 		};
@@ -1065,15 +575,17 @@
 		};
 		DF33DA9528E4941400F7B88B /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DAA707D0793CF2FF718DDDD6 /* Pods-AppQualityDevApp (iOS).debug.xcconfig */;
+			baseConfigurationReference = 07E76FAAB76A1A45E5424480 /* Pods-AppQualityDevApp_iOS.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = AppQualityDevApp_iOS;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -1086,8 +598,11 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.firebase.AppQualityDevApp;
-				PRODUCT_NAME = AppQualityDevApp;
+				PRODUCT_NAME = AppQualityDevApp_iOS;
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1096,15 +611,17 @@
 		};
 		DF33DA9628E4941400F7B88B /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = AF451CCC16240EE7C1CAE92D /* Pods-AppQualityDevApp (iOS).release.xcconfig */;
+			baseConfigurationReference = 6FC095AC414056CA646AD6EC /* Pods-AppQualityDevApp_iOS.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = AppQualityDevApp_iOS;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -1117,8 +634,11 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.firebase.AppQualityDevApp;
-				PRODUCT_NAME = AppQualityDevApp;
+				PRODUCT_NAME = AppQualityDevApp_iOS;
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1128,7 +648,7 @@
 		};
 		DF33DA9828E4941400F7B88B /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 08AEDE74D9B112F287377B00 /* Pods-AppQualityDevApp (macOS).debug.xcconfig */;
+			baseConfigurationReference = F76B72FAB04F881C67E2512B /* Pods-AppQualityDevApp_macOS.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -1138,6 +658,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = AppQualityDevApp_macOS;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1146,7 +667,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.firebase.AppQualityDevApp;
-				PRODUCT_NAME = AppQualityDevApp;
+				PRODUCT_NAME = AppQualityDevApp_macOS;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -1155,7 +676,7 @@
 		};
 		DF33DA9928E4941400F7B88B /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 717BB1A07D505205E6624565 /* Pods-AppQualityDevApp (macOS).release.xcconfig */;
+			baseConfigurationReference = C06F31362C6E829883D925CB /* Pods-AppQualityDevApp_macOS.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -1165,6 +686,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = AppQualityDevApp_macOS;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1173,114 +695,21 @@
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.firebase.AppQualityDevApp;
-				PRODUCT_NAME = AppQualityDevApp;
+				PRODUCT_NAME = AppQualityDevApp_macOS;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
-		DF33DA9B28E4941400F7B88B /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.firebase.Tests-iOS";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = "AppQualityDevApp (iOS)";
-			};
-			name = Debug;
-		};
-		DF33DA9C28E4941400F7B88B /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.firebase.Tests-iOS";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = "AppQualityDevApp (iOS)";
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
-		DF33DA9E28E4941400F7B88B /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 12.3;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.firebase.Tests-macOS";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = "AppQualityDevApp (macOS)";
-			};
-			name = Debug;
-		};
-		DF33DA9F28E4941400F7B88B /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 12.3;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.firebase.Tests-macOS";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = "AppQualityDevApp (macOS)";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		CF94D84429070DF600308FF7 /* Build configuration list for PBXNativeTarget "AppQualityDevAppUITests (iOS)" */ = {
+		CF94D84429070DF600308FF7 /* Build configuration list for PBXNativeTarget "UITests_iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CF94D84229070DF600308FF7 /* Debug */,
 				CF94D84329070DF600308FF7 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		CFF5AB3529004E3A004A35A0 /* Build configuration list for PBXNativeTarget "AppQualityDevAppWatchOS WatchKit Extension" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				CFF5AB3329004E3A004A35A0 /* Debug */,
-				CFF5AB3429004E3A004A35A0 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		CFF5AB3629004E3A004A35A0 /* Build configuration list for PBXNativeTarget "AppQualityDevAppWatchOS" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				CFF5AB3029004E3A004A35A0 /* Debug */,
-				CFF5AB3129004E3A004A35A0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -1294,7 +723,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DF33DA9428E4941400F7B88B /* Build configuration list for PBXNativeTarget "AppQualityDevApp (iOS)" */ = {
+		DF33DA9428E4941400F7B88B /* Build configuration list for PBXNativeTarget "AppQualityDevApp_iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DF33DA9528E4941400F7B88B /* Debug */,
@@ -1303,29 +732,11 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DF33DA9728E4941400F7B88B /* Build configuration list for PBXNativeTarget "AppQualityDevApp (macOS)" */ = {
+		DF33DA9728E4941400F7B88B /* Build configuration list for PBXNativeTarget "AppQualityDevApp_macOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DF33DA9828E4941400F7B88B /* Debug */,
 				DF33DA9928E4941400F7B88B /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		DF33DA9A28E4941400F7B88B /* Build configuration list for PBXNativeTarget "Tests iOS" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				DF33DA9B28E4941400F7B88B /* Debug */,
-				DF33DA9C28E4941400F7B88B /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		DF33DA9D28E4941400F7B88B /* Build configuration list for PBXNativeTarget "Tests macOS" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				DF33DA9E28E4941400F7B88B /* Debug */,
-				DF33DA9F28E4941400F7B88B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

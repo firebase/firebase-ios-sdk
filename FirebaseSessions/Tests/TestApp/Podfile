@@ -1,34 +1,28 @@
 # Uncomment the next line to define a global platform for your project
 # platform :ios, '9.0'
 
-# Pods for AppQualityDevApp (iOS)
-pod 'FirebaseCore', :path => '../../../'
-# pod 'FirebaseCrashlytics', :path => '../../../'
-pod 'FirebaseInstallations', :path => '../../../'
-pod 'FirebaseCoreInternal', :path => '../../../'
-pod 'FirebaseCoreExtension', :path => '../../../'
-pod 'FirebaseSessions', :path => '../../../'
-
-target 'AppQualityDevApp (iOS)' do
-  # Comment the next line if you don't want to use dynamic frameworks
-  use_frameworks!
-
-  
-
+def shared_pods
+  pod 'FirebaseCore', :path => '../../../'
+  pod 'FirebaseInstallations', :path => '../../../'
+  pod 'FirebaseCoreInternal', :path => '../../../'
+  pod 'FirebaseCoreExtension', :path => '../../../'
+  pod 'FirebaseSessions', :path => '../../../'
 end
 
-target 'AppQualityDevApp (macOS)' do
+target 'AppQualityDevApp_iOS' do
+  platform :ios, '15.0'
+
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
 
-  # Pods for AppQualityDevApp (macOS)
-
+  shared_pods
 end
 
-target 'AppQualityDevAppWatchOS WatchKit Extension' do
+target 'AppQualityDevApp_macOS' do
+  platform :macos, '12.3'
+
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
 
-  # Pods for AppQualityDevAppWatchOS
-
+  shared_pods
 end

@@ -18,8 +18,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "CF94D83929070DF600308FF7"
-               BuildableName = "AppQualityDevAppUITests (iOS).xctest"
-               BlueprintName = "AppQualityDevAppUITests (iOS)"
+               BuildableName = "UITests_iOS.xctest"
+               BlueprintName = "UITests_iOS"
                ReferencedContainer = "container:AppQualityDevApp.xcodeproj">
             </BuildableReference>
          </TestableReference>
