@@ -536,21 +536,14 @@ IndexManager::IndexType LevelDbIndexManager::GetIndexType(
 
 absl::optional<std::vector<model::DocumentKey>>
 LevelDbIndexManager::GetDocumentsMatchingTarget(const core::Target& target) {
-  std::unordered_map<core::Target, model::FieldIndex> indexes;
+  std::vector<DocumentKey> result;
+  std::unordered_set<std::string> existing_keys;
   for (const auto& sub_target : GetSubTargets(target)) {
     auto index_opt = GetFieldIndex(sub_target);
     if (!index_opt.has_value()) {
       return absl::nullopt;
     }
-
-    indexes.insert({sub_target, index_opt.value()});
-  }
-
-  std::vector<DocumentKey> result;
-  std::unordered_set<std::string> existing_keys;
-  for (const auto& entry : indexes) {
-    const Target& sub_target = entry.first;
-    const FieldIndex& index = entry.second;
+    const FieldIndex& index = index_opt.value();
 
     LOG_DEBUG("Using index %s to execute target %s", index.collection_group(),
               sub_target.CanonicalId());
