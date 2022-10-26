@@ -61,6 +61,6 @@ class ApplicationInfo: ApplicationInfoProtocol {
   }
 
   var mccMNC: String {
-    return FIRSESValidateMccMnc(networkInfo.mobileCountryCode, networkInfo.mobileNetworkCode)
+    return FIRSESValidateMccMnc(networkInfo.mobileCountryCode, networkInfo.mobileNetworkCode) ?? ""
   }
 }
