@@ -219,7 +219,7 @@ class Serializer {
    * Decodes the structured query. Modifies the provided proto to release
    * ownership of any Value messages.
    */
-  core::FilterList DecodeFilters(
+  std::vector<core::Filter> DecodeFilters(
       util::ReadContext* context,
       google_firestore_v1_StructuredQuery_Filter& proto) const;
 
@@ -270,7 +270,7 @@ class Serializer {
   std::string EncodeLabel(local::QueryPurpose purpose) const;
 
   google_firestore_v1_StructuredQuery_Filter EncodeFilters(
-      const core::FilterList& filter_list) const;
+      const std::vector<core::Filter>& filter_list) const;
   google_firestore_v1_StructuredQuery_Filter EncodeFilter(
       const core::Filter& filter) const;
   google_firestore_v1_StructuredQuery_Filter EncodeUnaryOrFieldFilter(

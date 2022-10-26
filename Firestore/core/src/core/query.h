@@ -63,7 +63,7 @@ class Query {
    */
   Query(model::ResourcePath path,
         CollectionGroupId collection_group,
-        FilterList filters,
+        std::vector<Filter> filters,
         OrderByList explicit_order_bys,
         int32_t limit,
         LimitType limit_type,
@@ -108,7 +108,7 @@ class Query {
   bool MatchesAllDocuments() const;
 
   /** The filters on the documents returned by the query. */
-  const FilterList& filters() const {
+  const std::vector<Filter>& filters() const {
     return filters_;
   }
 
@@ -260,10 +260,11 @@ class Query {
   std::shared_ptr<const std::string> collection_group_;
 
   // Filters are shared across related Query instance. i.e. when you call
-  // Query::Filter(f), a new Query instance is created that contains all of the
-  // existing filters, plus the new one. (Both Query and Filter objects are
-  // immutable.) Filters are not shared across unrelated Query instances.
-  FilterList filters_;
+  // Query::AddingFilter(f), a new Query instance is created that contains
+  // all of the existing filters, plus the new one. (Both Query and Filter
+  // objects are immutable.) Filters are not shared across unrelated Query
+  // instances.
+  std::vector<Filter> filters_;
 
   // A list of fields given to sort by. This does not include the implicit key
   // sort at the end.

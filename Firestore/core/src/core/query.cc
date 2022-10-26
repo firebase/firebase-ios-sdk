@@ -172,9 +172,12 @@ Query Query::AddingFilter(Filter filter) const {
                   explicit_order_bys_[0].field() == *new_inequality_field,
               "First orderBy must match inequality field");
 
+  std::vector<Filter> filters_copy(filters_);
+  filters_copy.push_back(std::move(filter));
+
   return {path_,
           collection_group_,
-          filters_.push_back(std::move(filter)),
+          std::move(filters_copy),
           explicit_order_bys_,
           limit_,
           limit_type_,
