@@ -155,7 +155,7 @@ NSString *_Nullable FIRSESNetworkMobileNetworkCode(void) {
   return nil;
 }
 
-NSString *FIRSESValidateMccMnc(NSString *_Nullable mcc, NSString *_Nullable mnc) {
+NSString *_Nullable FIRSESValidateMccMnc(NSString *_Nullable mcc, NSString *_Nullable mnc) {
   // These are both nil if the target does not support mobile connectivity
   if (mcc == nil && mnc == nil) {
     return nil;

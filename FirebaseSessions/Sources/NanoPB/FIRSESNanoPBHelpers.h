@@ -72,7 +72,7 @@ NSString* _Nullable FIRSESNetworkMobileCountryCode(void);
 NSString* _Nullable FIRSESNetworkMobileNetworkCode(void);
 
 /// Returns the validated MccMnc if it is available, or nil if the device does not support telephone
-NSString* FIRSESValidateMccMnc(NSString* _Nullable mcc, NSString* _Nullable mnc);
+NSString* _Nullable FIRSESValidateMccMnc(NSString* _Nullable mcc, NSString* _Nullable mnc);
 
 NS_ASSUME_NONNULL_END
 
