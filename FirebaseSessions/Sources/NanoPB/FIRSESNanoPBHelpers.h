@@ -66,13 +66,13 @@ BOOL FIRSESIsPBStringEqual(pb_bytes_array_t* _Nullable pbString, NSString* _Null
 BOOL FIRSESIsPBDataEqual(pb_bytes_array_t* _Nullable pbArray, NSData* _Nullable data);
 
 /// Returns the cellular mobile country code (mnc) if CoreTelephony is supported, otherwise nil
-NSString *_Nullable FIRSESNetworkMobileCountryCode(void);
+NSString* _Nullable FIRSESNetworkMobileCountryCode(void);
 
 /// Returns the cellular mobile network code (mnc) if CoreTelephony is supported, otherwise nil
-NSString *_Nullable FIRSESNetworkMobileNetworkCode(void);
+NSString* _Nullable FIRSESNetworkMobileNetworkCode(void);
 
 /// Returns the validated MccMnc if it is available, or nil if the device does not support telephone
-NSString *FIRSESValidateMccMnc(NSString *_Nullable mcc, NSString *_Nullable mnc);
+NSString* FIRSESValidateMccMnc(NSString* _Nullable mcc, NSString* _Nullable mnc);
 
 NS_ASSUME_NONNULL_END
 

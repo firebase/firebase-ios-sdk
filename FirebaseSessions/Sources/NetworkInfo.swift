@@ -13,11 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 import Foundation
 protocol NetworkInfoProtocol {
   var mobileCountryCode: String? { get }
-  
+
   var mobileNetworkCode: String? { get }
 }
 
@@ -25,7 +24,7 @@ class NetworkInfo: NetworkInfoProtocol {
   var mobileCountryCode: String? {
     return FIRSESNetworkMobileCountryCode()
   }
-  
+
   var mobileNetworkCode: String? {
     return FIRSESNetworkMobileNetworkCode()
   }

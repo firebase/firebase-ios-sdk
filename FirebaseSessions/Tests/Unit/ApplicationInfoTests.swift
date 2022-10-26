@@ -38,7 +38,7 @@ class ApplicationInfoTests: XCTestCase {
     mockNetworkInfo.mobileNetworkCode = "0040"
     XCTAssertEqual(appInfo.mccMNC, "")
   }
-  
+
   func test_mccMNC_isEmptyWhenNil() {
     mockNetworkInfo.mobileCountryCode = nil
     mockNetworkInfo.mobileNetworkCode = nil

@@ -13,12 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 import Foundation
 
 @testable import FirebaseSessions
 
 class MockNetworkInfo: NetworkInfoProtocol {
-  var mobileCountryCode: String? = nil
-  var mobileNetworkCode: String? = nil
+  var mobileCountryCode: String?
+  var mobileNetworkCode: String?
 }
