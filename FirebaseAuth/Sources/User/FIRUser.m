@@ -1335,6 +1335,10 @@ static void callInMainThreadWithAuthDataResultAndError(
     [provider getCredentialWithUIDelegate:UIDelegate
                                completion:^(FIRAuthCredential *_Nullable credential,
                                             NSError *_Nullable error) {
+                                  if (error) {
+                                      completion(nil, error);
+                                    return;
+                                  }
                                  [self linkWithCredential:credential completion:completion];
                                }];
   });
