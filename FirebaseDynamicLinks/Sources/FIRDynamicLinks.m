@@ -418,9 +418,17 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
         NSURL *deepLinkURL = [NSURL URLWithString:urlString];
         if (deepLinkURL) {
           FIRDynamicLink *dynamicLink = [[FIRDynamicLink alloc]
-              initWithParametersDictionary:@{kFIRDLParameterDeepLinkIdentifier : urlString}];
+                                         initWithParametersDictionary:@{
+            kFIRDLParameterDeepLinkIdentifier : urlString,
+            kFIRDLParameterCampaign: parameters[kFIRDLParameterCampaign],
+            kFIRDLParameterContent: parameters[kFIRDLParameterContent],
+            kFIRDLParameterMedium: parameters[kFIRDLParameterMedium],
+            kFIRDLParameterSource: parameters[kFIRDLParameterSource],
+            kFIRDLParameterTerm: parameters[kFIRDLParameterTerm],
+            kFIRDLParameterMinimumAppVersion: parameters[kFIRDLParameterMinimumAppVersion],
+          }];
           dynamicLink.matchType = FIRDLMatchTypeUnique;
-          dynamicLink.minimumAppVersion = parameters[kFIRDLParameterMinimumAppVersion];
+          
           // Call resolveShortLink:completion: to do logging.
           // TODO: Create dedicated logging function to prevent this.
           [self.dynamicLinkNetworking
