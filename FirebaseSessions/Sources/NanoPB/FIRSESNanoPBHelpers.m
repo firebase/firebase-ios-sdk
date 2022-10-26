@@ -165,13 +165,18 @@ NSString *_Nullable FIRSESValidateMccMnc(NSString *_Nullable mcc, NSString *_Nul
     return nil;
   }
 
+  // If the resulting appended mcc + mnc contains characters that are not
+  // decimal digits, return nil
   static NSCharacterSet *notDigits;
   static dispatch_once_t token;
   dispatch_once(&token, ^{
     notDigits = [[NSCharacterSet decimalDigitCharacterSet] invertedSet];
   });
   NSString *mccMnc = [mcc stringByAppendingString:mnc];
-  if ([mccMnc rangeOfCharacterFromSet:notDigits].location != NSNotFound) return nil;
+  if ([mccMnc rangeOfCharacterFromSet:notDigits].location != NSNotFound) {
+    return nil;
+  }
+
   return mccMnc;
 }
 

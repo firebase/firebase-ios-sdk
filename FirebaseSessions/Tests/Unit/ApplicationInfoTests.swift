@@ -28,20 +28,38 @@ class ApplicationInfoTests: XCTestCase {
   }
 
   func test_mccMNC_validatesCorrectly() {
-    mockNetworkInfo.mobileCountryCode = "310"
-    mockNetworkInfo.mobileNetworkCode = "004"
-    XCTAssertEqual(appInfo.mccMNC, "310004")
+    let expectations: [(mobileCountryCode: String, mobileNetworkCode: String, expected: String)] = [
+      ("310", "004", "310004"),
+      ("310", "01", "31001"),
+      ("001", "50", "00150"),
+    ]
+
+    expectations
+      .forEach { (mobileCountryCode: String, mobileNetworkCode: String, expected: String) in
+        mockNetworkInfo.mobileCountryCode = mobileCountryCode
+        mockNetworkInfo.mobileNetworkCode = mobileNetworkCode
+
+        XCTAssertEqual(appInfo.mccMNC, expected)
+      }
   }
 
   func test_mccMNC_isEmptyWhenInvalid() {
-    mockNetworkInfo.mobileCountryCode = "3100"
-    mockNetworkInfo.mobileNetworkCode = "0040"
-    XCTAssertEqual(appInfo.mccMNC, "")
-  }
+    let expectations: [(mobileCountryCode: String?, mobileNetworkCode: String?)] = [
+      ("3100", "004"), // MCC too long
+      ("31", "01"), // MCC too short
+      ("310", "0512"), // MNC too long
+      ("L00", "003"), // MCC contains non-decimal characters
+      ("300", "00T"), // MNC contains non-decimal characters
+      (nil, nil), // Handle nils gracefully
+      (nil, "001"),
+      ("310", nil),
+    ]
 
-  func test_mccMNC_isEmptyWhenNil() {
-    mockNetworkInfo.mobileCountryCode = nil
-    mockNetworkInfo.mobileNetworkCode = nil
-    XCTAssertEqual(appInfo.mccMNC, "")
+    expectations.forEach { (mobileCountryCode: String?, mobileNetworkCode: String?) in
+      mockNetworkInfo.mobileCountryCode = mobileCountryCode
+      mockNetworkInfo.mobileNetworkCode = mobileNetworkCode
+
+      XCTAssertEqual(appInfo.mccMNC, "")
+    }
   }
 }
