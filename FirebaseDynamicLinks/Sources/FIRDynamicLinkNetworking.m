@@ -175,9 +175,9 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
             NSString *utmCampaign = result[kFDLAnalyticsDataCampaignKey];
             NSString *utmContent = result[kFDLAnalyticsDataContentKey];
             NSString *utmTerm = result[kFDLAnalyticsDataTermKey];
-            resolvedURL = FIRDLDeepLinkURLWithInviteID(invitationIDString, deepLinkString,
-                                                       utmSource, utmMedium, utmCampaign, utmContent, utmTerm, NO, nil,
-                                                       minAppVersion, self->_URLScheme, nil);
+            resolvedURL = FIRDLDeepLinkURLWithInviteID(
+                invitationIDString, deepLinkString, utmSource, utmMedium, utmCampaign, utmContent,
+                utmTerm, NO, nil, minAppVersion, self->_URLScheme, nil);
           }
         }
         handler(resolvedURL, extractedError);

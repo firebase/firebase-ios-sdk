@@ -417,18 +417,18 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
         NSString *urlString = parameters[kFIRDLParameterLink];
         NSURL *deepLinkURL = [NSURL URLWithString:urlString];
         if (deepLinkURL) {
-          FIRDynamicLink *dynamicLink = [[FIRDynamicLink alloc]
-                                         initWithParametersDictionary:@{
+          FIRDynamicLink *dynamicLink = [[FIRDynamicLink alloc] initWithParametersDictionary:@{
             kFIRDLParameterDeepLinkIdentifier : urlString,
-            kFIRDLParameterCampaign: parameters[kFIRDLParameterCampaign] ?: [NSNull null],
-            kFIRDLParameterContent: parameters[kFIRDLParameterContent] ?: [NSNull null],
-            kFIRDLParameterMedium: parameters[kFIRDLParameterMedium] ?: [NSNull null],
-            kFIRDLParameterSource: parameters[kFIRDLParameterSource] ?: [NSNull null],
-            kFIRDLParameterTerm: parameters[kFIRDLParameterTerm] ?: [NSNull null],
-            kFIRDLParameterMinimumAppVersion: parameters[kFIRDLParameterMinimumAppVersion] ?: [NSNull null],
+            kFIRDLParameterCampaign : parameters[kFIRDLParameterCampaign] ?: [NSNull null],
+            kFIRDLParameterContent : parameters[kFIRDLParameterContent] ?: [NSNull null],
+            kFIRDLParameterMedium : parameters[kFIRDLParameterMedium] ?: [NSNull null],
+            kFIRDLParameterSource : parameters[kFIRDLParameterSource] ?: [NSNull null],
+            kFIRDLParameterTerm : parameters[kFIRDLParameterTerm] ?: [NSNull null],
+            kFIRDLParameterMinimumAppVersion : parameters[kFIRDLParameterMinimumAppVersion]
+                ?: [NSNull null],
           }];
           dynamicLink.matchType = FIRDLMatchTypeUnique;
-          
+
           // Call resolveShortLink:completion: to do logging.
           // TODO: Create dedicated logging function to prevent this.
           [self.dynamicLinkNetworking
