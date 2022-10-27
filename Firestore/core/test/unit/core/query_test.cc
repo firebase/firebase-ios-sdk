@@ -19,8 +19,8 @@
 #include <cmath>
 
 #include "Firestore/core/src/core/bound.h"
-#include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/core/filter.h"
+#include "Firestore/core/src/core/order_by.h"
 #include "Firestore/core/src/model/document_set.h"
 #include "Firestore/core/src/model/field_path.h"
 #include "Firestore/core/src/model/mutable_document.h"
@@ -50,7 +50,6 @@ using testutil::DbId;
 using testutil::Doc;
 using testutil::Field;
 using testutil::Map;
-using testutil::OrderBy;
 using testutil::OrFilters;
 using testutil::Ref;
 using testutil::Value;
@@ -75,9 +74,9 @@ TEST(QueryTest, Constructor) {
 }
 
 TEST(QueryTest, OrderBy) {
-  auto query =
-      testutil::Query("rooms/Firestore/messages")
-          .AddingOrderBy(OrderBy(Field("length"), Direction::Descending));
+  auto query = testutil::Query("rooms/Firestore/messages")
+                   .AddingOrderBy(testutil::OrderBy(Field("length"),
+                                                    Direction::Descending));
 
   ASSERT_EQ(2, query.order_bys().size());
   EXPECT_EQ("length", query.order_bys()[0].field().CanonicalString());
@@ -480,8 +479,8 @@ TEST(QueryTest, DoesNotMatchComplexObjectsForFilters) {
 }
 
 TEST(QueryTest, DoesntRemoveComplexObjectsWithOrderBy) {
-  auto query1 =
-      testutil::Query("collection").AddingOrderBy(OrderBy("sort", "asc"));
+  auto query1 = testutil::Query("collection")
+                    .AddingOrderBy(testutil::OrderBy("sort", "asc"));
 
   auto doc1 = Doc("collection/1", 0, Map("sort", 2));
   auto doc2 = Doc("collection/2", 0, Map("sort", Array()));
@@ -569,7 +568,8 @@ testing::AssertionResult CorrectComparisons(
 }
 
 TEST(QueryTest, SortsDocumentsInTheCorrectOrder) {
-  auto query = testutil::Query("collection").AddingOrderBy(OrderBy("sort"));
+  auto query =
+      testutil::Query("collection").AddingOrderBy(testutil::OrderBy("sort"));
 
   // clang-format off
   std::vector<MutableDocument> docs = {
@@ -595,8 +595,8 @@ TEST(QueryTest, SortsDocumentsInTheCorrectOrder) {
 
 TEST(QueryTest, SortsDocumentsUsingMultipleFields) {
   auto query = testutil::Query("collection")
-                   .AddingOrderBy(OrderBy("sort1"))
-                   .AddingOrderBy(OrderBy("sort2"));
+                   .AddingOrderBy(testutil::OrderBy("sort1"))
+                   .AddingOrderBy(testutil::OrderBy("sort2"));
 
   // clang-format off
   std::vector<MutableDocument> docs = {
@@ -618,8 +618,8 @@ TEST(QueryTest, SortsDocumentsUsingMultipleFields) {
 
 TEST(QueryTest, SortsDocumentsWithDescendingToo) {
   auto query = testutil::Query("collection")
-                   .AddingOrderBy(OrderBy("sort1", "desc"))
-                   .AddingOrderBy(OrderBy("sort2", "desc"));
+                   .AddingOrderBy(testutil::OrderBy("sort1", "desc"))
+                   .AddingOrderBy(testutil::OrderBy("sort2", "desc"));
 
   // clang-format off
   std::vector<MutableDocument> docs = {
@@ -654,24 +654,24 @@ TEST(QueryTest, Equality) {
   auto q32 = testutil::Query("foo/bar");
 
   auto q41 = testutil::Query("foo")
-                 .AddingOrderBy(OrderBy("foo", "asc"))
-                 .AddingOrderBy(OrderBy("bar", "asc"));
+                 .AddingOrderBy(testutil::OrderBy("foo", "asc"))
+                 .AddingOrderBy(testutil::OrderBy("bar", "asc"));
   auto q42 = testutil::Query("foo")
-                 .AddingOrderBy(OrderBy("foo", "asc"))
-                 .AddingOrderBy(OrderBy("bar", "asc"));
+                 .AddingOrderBy(testutil::OrderBy("foo", "asc"))
+                 .AddingOrderBy(testutil::OrderBy("bar", "asc"));
   auto q43Diff = testutil::Query("foo")
-                     .AddingOrderBy(OrderBy("bar", "asc"))
-                     .AddingOrderBy(OrderBy("foo", "asc"));
+                     .AddingOrderBy(testutil::OrderBy("bar", "asc"))
+                     .AddingOrderBy(testutil::OrderBy("foo", "asc"));
 
   auto q51 = testutil::Query("foo")
-                 .AddingOrderBy(OrderBy("foo", "asc"))
+                 .AddingOrderBy(testutil::OrderBy("foo", "asc"))
                  .AddingFilter(testutil::Filter("foo", ">", 2));
   auto q52 = testutil::Query("foo")
                  .AddingFilter(testutil::Filter("foo", ">", 2))
-                 .AddingOrderBy(OrderBy("foo", "asc"));
+                 .AddingOrderBy(testutil::OrderBy("foo", "asc"));
   auto q53Diff = testutil::Query("foo")
                      .AddingFilter(testutil::Filter("bar", ">", 2))
-                     .AddingOrderBy(OrderBy("bar", "asc"));
+                     .AddingOrderBy(testutil::OrderBy("bar", "asc"));
 
   auto q61 = testutil::Query("foo").WithLimitToFirst(10);
 
@@ -718,24 +718,24 @@ TEST(QueryTest, UniqueIds) {
   auto q32 = testutil::Query("foo/bar");
 
   auto q41 = testutil::Query("foo")
-                 .AddingOrderBy(OrderBy("foo", "asc"))
-                 .AddingOrderBy(OrderBy("bar", "asc"));
+                 .AddingOrderBy(testutil::OrderBy("foo", "asc"))
+                 .AddingOrderBy(testutil::OrderBy("bar", "asc"));
   auto q42 = testutil::Query("foo")
-                 .AddingOrderBy(OrderBy("foo", "asc"))
-                 .AddingOrderBy(OrderBy("bar", "asc"));
+                 .AddingOrderBy(testutil::OrderBy("foo", "asc"))
+                 .AddingOrderBy(testutil::OrderBy("bar", "asc"));
   auto q43Diff = testutil::Query("foo")
-                     .AddingOrderBy(OrderBy("bar", "asc"))
-                     .AddingOrderBy(OrderBy("foo", "asc"));
+                     .AddingOrderBy(testutil::OrderBy("bar", "asc"))
+                     .AddingOrderBy(testutil::OrderBy("foo", "asc"));
 
   auto q51 = testutil::Query("foo")
-                 .AddingOrderBy(OrderBy("foo", "asc"))
+                 .AddingOrderBy(testutil::OrderBy("foo", "asc"))
                  .AddingFilter(testutil::Filter("foo", ">", 2));
   auto q52 = testutil::Query("foo")
                  .AddingFilter(testutil::Filter("foo", ">", 2))
-                 .AddingOrderBy(OrderBy("foo", "asc"));
+                 .AddingOrderBy(testutil::OrderBy("foo", "asc"));
   auto q53Diff = testutil::Query("foo")
                      .AddingFilter(testutil::Filter("bar", ">", 2))
-                     .AddingOrderBy(OrderBy("bar", "asc"));
+                     .AddingOrderBy(testutil::OrderBy("bar", "asc"));
 
   auto q61 = testutil::Query("foo").WithLimitToFirst(10);
 
@@ -771,55 +771,67 @@ TEST(QueryTest, ImplicitOrderBy) {
   auto base_query = testutil::Query("foo");
   // Default is ascending
   ASSERT_EQ(base_query.order_bys(),
-            OrderByList{OrderBy(FieldPath::kDocumentKeyPath, "asc")});
+            std::vector<core::OrderBy>{
+                testutil::OrderBy(FieldPath::kDocumentKeyPath, "asc")});
 
   // Explicit key ordering is respected
   ASSERT_EQ(
-      base_query.AddingOrderBy(OrderBy(FieldPath::kDocumentKeyPath, "asc"))
+      base_query
+          .AddingOrderBy(testutil::OrderBy(FieldPath::kDocumentKeyPath, "asc"))
           .order_bys(),
-      OrderByList{OrderBy(FieldPath::kDocumentKeyPath, "asc")});
+      std::vector<OrderBy>{
+          testutil::OrderBy(FieldPath::kDocumentKeyPath, "asc")});
   ASSERT_EQ(
-      base_query.AddingOrderBy(OrderBy(FieldPath::kDocumentKeyPath, "desc"))
+      base_query
+          .AddingOrderBy(testutil::OrderBy(FieldPath::kDocumentKeyPath, "desc"))
           .order_bys(),
-      OrderByList{OrderBy(FieldPath::kDocumentKeyPath, "desc")});
+      std::vector<OrderBy>{
+          testutil::OrderBy(FieldPath::kDocumentKeyPath, "desc")});
 
-  ASSERT_EQ(base_query.AddingOrderBy(OrderBy("foo", "asc"))
-                .AddingOrderBy(OrderBy(FieldPath::kDocumentKeyPath, "asc"))
-                .order_bys(),
-            (OrderByList{OrderBy("foo", "asc"),
-                         OrderBy(FieldPath::kDocumentKeyPath, "asc")}));
+  ASSERT_EQ(
+      base_query.AddingOrderBy(testutil::OrderBy("foo", "asc"))
+          .AddingOrderBy(testutil::OrderBy(FieldPath::kDocumentKeyPath, "asc"))
+          .order_bys(),
+      (std::vector<OrderBy>{
+          testutil::OrderBy("foo", "asc"),
+          testutil::OrderBy(FieldPath::kDocumentKeyPath, "asc")}));
 
-  ASSERT_EQ(base_query.AddingOrderBy(OrderBy("foo", "asc"))
-                .AddingOrderBy(OrderBy(FieldPath::kDocumentKeyPath, "desc"))
-                .order_bys(),
-            (OrderByList{OrderBy("foo", "asc"),
-                         OrderBy(FieldPath::kDocumentKeyPath, "desc")}));
+  ASSERT_EQ(
+      base_query.AddingOrderBy(testutil::OrderBy("foo", "asc"))
+          .AddingOrderBy(testutil::OrderBy(FieldPath::kDocumentKeyPath, "desc"))
+          .order_bys(),
+      (std::vector<OrderBy>{
+          testutil::OrderBy("foo", "asc"),
+          testutil::OrderBy(FieldPath::kDocumentKeyPath, "desc")}));
 
   // Inequality filters add order bys
   ASSERT_EQ(
       base_query.AddingFilter(testutil::Filter("foo", "<", 5)).order_bys(),
-      (OrderByList{OrderBy("foo", "asc"),
-                   OrderBy(FieldPath::kDocumentKeyPath, "asc")}));
+      (std::vector<OrderBy>{
+          testutil::OrderBy("foo", "asc"),
+          testutil::OrderBy(FieldPath::kDocumentKeyPath, "asc")}));
 
   // Descending order by applies to implicit key ordering
-  ASSERT_EQ(base_query.AddingOrderBy(OrderBy("foo", "desc")).order_bys(),
-            (OrderByList{OrderBy("foo", "desc"),
-                         OrderBy(FieldPath::kDocumentKeyPath, "desc")}));
-  ASSERT_EQ(base_query.AddingOrderBy(OrderBy("foo", "asc"))
-                .AddingOrderBy(OrderBy("bar", "desc"))
+  ASSERT_EQ(
+      base_query.AddingOrderBy(testutil::OrderBy("foo", "desc")).order_bys(),
+      (std::vector<OrderBy>{
+          testutil::OrderBy("foo", "desc"),
+          testutil::OrderBy(FieldPath::kDocumentKeyPath, "desc")}));
+  ASSERT_EQ(base_query.AddingOrderBy(testutil::OrderBy("foo", "asc"))
+                .AddingOrderBy(testutil::OrderBy("bar", "desc"))
                 .order_bys(),
-            (OrderByList{
-                OrderBy("foo", "asc"),
-                OrderBy("bar", "desc"),
-                OrderBy(FieldPath::kDocumentKeyPath, "desc"),
+            (std::vector<OrderBy>{
+                testutil::OrderBy("foo", "asc"),
+                testutil::OrderBy("bar", "desc"),
+                testutil::OrderBy(FieldPath::kDocumentKeyPath, "desc"),
             }));
-  ASSERT_EQ(base_query.AddingOrderBy(OrderBy("foo", "desc"))
-                .AddingOrderBy(OrderBy("bar", "asc"))
+  ASSERT_EQ(base_query.AddingOrderBy(testutil::OrderBy("foo", "desc"))
+                .AddingOrderBy(testutil::OrderBy("bar", "asc"))
                 .order_bys(),
-            (OrderByList{
-                OrderBy("foo", "desc"),
-                OrderBy("bar", "asc"),
-                OrderBy(FieldPath::kDocumentKeyPath, "asc"),
+            (std::vector<OrderBy>{
+                testutil::OrderBy("foo", "desc"),
+                testutil::OrderBy("bar", "asc"),
+                testutil::OrderBy(FieldPath::kDocumentKeyPath, "asc"),
             }));
 }
 
@@ -859,11 +871,12 @@ TEST(QueryTest, CanonicalIDs) {
   EXPECT_THAT(filters,
               HasCanonicalId("coll|f:anot-in[1,2,3]|ob:aasc__name__asc"));
 
-  auto order_bys = testutil::Query("coll").AddingOrderBy(OrderBy("up", "asc"));
+  auto order_bys =
+      testutil::Query("coll").AddingOrderBy(testutil::OrderBy("up", "asc"));
   EXPECT_THAT(order_bys, HasCanonicalId("coll|f:|ob:upasc__name__asc"));
 
   // __name__'s order matches the trailing component
-  order_bys = order_bys.AddingOrderBy(OrderBy("down", "desc"));
+  order_bys = order_bys.AddingOrderBy(testutil::OrderBy("down", "desc"));
   EXPECT_THAT(order_bys,
               HasCanonicalId("coll|f:|ob:upascdowndesc__name__desc"));
 
@@ -871,8 +884,8 @@ TEST(QueryTest, CanonicalIDs) {
   EXPECT_THAT(limit, HasCanonicalId("coll|f:|ob:__name__asc|l:25|lt:f"));
 
   auto bounds = testutil::Query("airports")
-                    .AddingOrderBy(OrderBy("name", "asc"))
-                    .AddingOrderBy(OrderBy("score", "desc"))
+                    .AddingOrderBy(testutil::OrderBy("name", "asc"))
+                    .AddingOrderBy(testutil::OrderBy("score", "desc"))
                     .StartingAt(Bound::FromValue(Array("OAK", 1000),
                                                  /* inclusive= */ true))
                     .EndingAt(Bound::FromValue(Array("SFO", 2000),
@@ -885,10 +898,10 @@ TEST(QueryTest, MatchesAllDocuments) {
   auto base_query = testutil::Query("coll");
   EXPECT_TRUE(base_query.MatchesAllDocuments());
 
-  auto query = base_query.AddingOrderBy(OrderBy("__name__"));
+  auto query = base_query.AddingOrderBy(testutil::OrderBy("__name__"));
   EXPECT_TRUE(query.MatchesAllDocuments());
 
-  query = base_query.AddingOrderBy(OrderBy("foo"));
+  query = base_query.AddingOrderBy(testutil::OrderBy("foo"));
   EXPECT_FALSE(query.MatchesAllDocuments());
 
   query = base_query.AddingFilter(testutil::Filter("foo", "==", "bar"));

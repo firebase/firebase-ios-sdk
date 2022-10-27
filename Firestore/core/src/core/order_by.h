@@ -89,9 +89,6 @@ class OrderBy {
   Direction direction_;
 };
 
-/** A list of OrderBys, as used in Queries and elsewhere. */
-using OrderByList = immutable::AppendOnlyList<OrderBy>;
-
 std::ostream& operator<<(std::ostream& os, const OrderBy& order);
 
 bool operator==(const OrderBy& lhs, const OrderBy& rhs);

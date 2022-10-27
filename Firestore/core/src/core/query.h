@@ -28,7 +28,6 @@
 #include "Firestore/core/src/core/filter.h"
 #include "Firestore/core/src/core/order_by.h"
 #include "Firestore/core/src/core/target.h"
-#include "Firestore/core/src/immutable/append_only_list.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/resource_path.h"
 
@@ -64,7 +63,7 @@ class Query {
   Query(model::ResourcePath path,
         CollectionGroupId collection_group,
         std::vector<Filter> filters,
-        OrderByList explicit_order_bys,
+        std::vector<OrderBy> explicit_order_bys,
         int32_t limit,
         LimitType limit_type,
         absl::optional<Bound> start_at,
@@ -132,7 +131,7 @@ class Query {
    * Note that the actual query performed might add additional sort orders to
    * match the behavior of the backend.
    */
-  const OrderByList& explicit_order_bys() const {
+  const std::vector<OrderBy>& explicit_order_bys() const {
     return explicit_order_bys_;
   }
 
@@ -142,7 +141,7 @@ class Query {
    * This might include additional sort orders added implicitly to match the
    * backend behavior.
    */
-  const OrderByList& order_bys() const;
+  const std::vector<OrderBy>& order_bys() const;
 
   /** Returns the first field in an order-by constraint, or nullptr if none. */
   const model::FieldPath* FirstOrderByField() const;
@@ -268,10 +267,10 @@ class Query {
 
   // A list of fields given to sort by. This does not include the implicit key
   // sort at the end.
-  OrderByList explicit_order_bys_;
+  std::vector<OrderBy> explicit_order_bys_;
 
   // The memoized list of sort orders.
-  mutable OrderByList memoized_order_bys_;
+  mutable std::vector<OrderBy> memoized_order_bys_;
 
   int32_t limit_ = Target::kNoLimit;
   LimitType limit_type_ = LimitType::None;
