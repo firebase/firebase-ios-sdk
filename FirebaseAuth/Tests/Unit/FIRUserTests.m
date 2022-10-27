@@ -2811,21 +2811,18 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                         });
                       });
 
-                  FIRAuthCredential *linkFacebookCredential =
-                      [FIRFacebookAuthProvider credentialWithAccessToken:kGoogleAccessToken];
                   [authResult.user
-                      reauthenticateWithProvider:mockProvider
-                                      completion:^(FIRAuthDataResult *_Nullable result,
-                                                   NSError *_Nullable error) {
-                                        XCTAssertTrue([NSThread isMainThread]);
-                                        XCTAssertEqual(
-                                            error.code,
-                                            FIRAuthErrorCodeWebSignInUserInteractionFailure);
-                                        XCTAssertEqualObjects(
-                                            error.userInfo[NSLocalizedFailureReasonErrorKey],
-                                            kFakeWebSignInUserInteractionFailureReason);
-                                        [expectation fulfill];
-                                      }];
+                      linkWithProvider:mockProvider
+                            completion:^(FIRAuthDataResult *_Nullable result,
+                                         NSError *_Nullable error) {
+                              XCTAssertTrue([NSThread isMainThread]);
+                              XCTAssertEqual(error.code,
+                                             FIRAuthErrorCodeWebSignInUserInteractionFailure);
+                              XCTAssertEqualObjects(
+                                  error.userInfo[NSLocalizedFailureReasonErrorKey],
+                                  kFakeWebSignInUserInteractionFailureReason);
+                              [expectation fulfill];
+                            }];
                 }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
