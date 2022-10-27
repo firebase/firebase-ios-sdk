@@ -270,8 +270,7 @@ std::vector<core::Filter> LogicUtils::GetDnfTerms(
     return {std::move(result)};
   }
 
-  const CompositeFilter composite_filter(result);
-  return composite_filter.filters();
+  return result.GetFilters();
 }
 
 }  // namespace util

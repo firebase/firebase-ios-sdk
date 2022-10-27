@@ -138,6 +138,10 @@ class CompositeFilter : public Filter {
 
     const model::FieldPath* GetFirstInequalityField() const override;
 
+    std::vector<Filter> GetFilters() const override {
+      return filters();
+    }
+
     /**
      * Performs a depth-first search to find and return the first FieldFilter in
      * the composite filter that satisfies the condition. Returns nullptr if

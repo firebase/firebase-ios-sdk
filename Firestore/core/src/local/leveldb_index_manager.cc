@@ -957,18 +957,9 @@ std::vector<Target> LevelDbIndexManager::GetSubTargets(const Target& target) {
     std::vector<Filter> dnf = LogicUtils::GetDnfTerms(CompositeFilter::Create(
         std::move(filters), CompositeFilter::Operator::And));
 
-    // TODO(orquery): Add getFilters() in Filter class.
     for (const Filter& term : dnf) {
-      std::vector<Filter> subfilters;
-      if (term.IsAFieldFilter()) {
-        subfilters.push_back(term);
-      } else if (term.IsACompositeFilter()) {
-        for (const auto& filter : (CompositeFilter(term)).filters()) {
-          subfilters.push_back(filter);
-        }
-      }
       subtargets.push_back({target.path(), target.collection_group(),
-                            std::move(subfilters), target.order_bys(),
+                            term.GetFilters(), target.order_bys(),
                             target.limit(), target.start_at(),
                             target.end_at()});
     }
