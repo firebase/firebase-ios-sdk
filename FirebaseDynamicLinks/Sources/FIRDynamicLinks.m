@@ -420,12 +420,12 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
           FIRDynamicLink *dynamicLink = [[FIRDynamicLink alloc]
                                          initWithParametersDictionary:@{
             kFIRDLParameterDeepLinkIdentifier : urlString,
-            kFIRDLParameterCampaign: parameters[kFIRDLParameterCampaign],
-            kFIRDLParameterContent: parameters[kFIRDLParameterContent],
-            kFIRDLParameterMedium: parameters[kFIRDLParameterMedium],
-            kFIRDLParameterSource: parameters[kFIRDLParameterSource],
-            kFIRDLParameterTerm: parameters[kFIRDLParameterTerm],
-            kFIRDLParameterMinimumAppVersion: parameters[kFIRDLParameterMinimumAppVersion],
+            kFIRDLParameterCampaign: parameters[kFIRDLParameterCampaign] ?: [NSNull null],
+            kFIRDLParameterContent: parameters[kFIRDLParameterContent] ?: [NSNull null],
+            kFIRDLParameterMedium: parameters[kFIRDLParameterMedium] ?: [NSNull null],
+            kFIRDLParameterSource: parameters[kFIRDLParameterSource] ?: [NSNull null],
+            kFIRDLParameterTerm: parameters[kFIRDLParameterTerm] ?: [NSNull null],
+            kFIRDLParameterMinimumAppVersion: parameters[kFIRDLParameterMinimumAppVersion] ?: [NSNull null],
           }];
           dynamicLink.matchType = FIRDLMatchTypeUnique;
           

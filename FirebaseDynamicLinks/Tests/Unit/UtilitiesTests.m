@@ -145,18 +145,23 @@ static NSString *const kURLScheme = @"gindeeplinkurl";
   NSString *utmSource = @"firebase";
   NSString *utmMedium = @"email";
   NSString *utmCampaign = @"testCampaign";
+  NSString *utmTerm = @"testTerm";
+  NSString *utmContent = @"testContent";
   NSString *matchType = @"unique";
 
   NSString *expectedURLString =
       [NSString stringWithFormat:@"%@://google/link/?utm_campaign=%@"
                                  @"&deep_link_id=%@&utm_medium=%@&invitation_weakMatchEndpoint=%@"
-                                 @"&utm_source=%@&invitation_id=%@&match_type=%@",
+                                 @"&utm_source=%@&invitation_id=%@&match_type=%@"
+                                 @"&utm_content=%@&utm_term=%@",
                                  kURLScheme, utmCampaign, encodedDeepLinkString, utmMedium,
-                                 weakMatchEndpoint, utmSource, inviteID, matchType];
+                                 weakMatchEndpoint, utmSource, inviteID, matchType,
+                                 utmContent, utmTerm];
   NSURLComponents *expectedURLComponents = [NSURLComponents componentsWithString:expectedURLString];
 
   NSURL *actualURL =
-      FIRDLDeepLinkURLWithInviteID(inviteID, deepLinkString, utmSource, utmMedium, utmCampaign, NO,
+      FIRDLDeepLinkURLWithInviteID(inviteID, deepLinkString, utmSource, utmMedium, utmCampaign,
+                                   utmContent, utmTerm, NO,
                                    weakMatchEndpoint, nil, kURLScheme, nil);
 
   NSURLComponents *actualURLComponents = [NSURLComponents componentsWithURL:actualURL
