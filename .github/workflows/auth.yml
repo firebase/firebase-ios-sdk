@@ -156,7 +156,7 @@ jobs:
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Unit Tests
-      run: xcodebuild -scheme AuthUnit -sdk iphoneos -derivedDataPath FirebaseAuth/Tests/spm ONLY_ACTIVE_ARCH=YES CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=YES COMPILER_INDEX_STORE_ENABLE=NO CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ IPHONEOS_DEPLOYMENT_TARGET=13.0 TVOS_DEPLOYMENT_TARGET=13.0 build-for-testing
+      run: xcodebuild -scheme AuthUnit -sdk iphoneos -destination "generic/platform=iOS" -derivedDataPath FirebaseAuth/Tests/spm ONLY_ACTIVE_ARCH=YES CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=YES COMPILER_INDEX_STORE_ENABLE=NO CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ IPHONEOS_DEPLOYMENT_TARGET=13.0 TVOS_DEPLOYMENT_TARGET=13.0 build-for-testing
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       if: ${{ !cancelled() }}
