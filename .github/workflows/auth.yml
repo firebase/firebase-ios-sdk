@@ -115,22 +115,14 @@ jobs:
           FirebaseAuth/Tests/Sample/SwiftApiTests/Credentials.swift "$plist_secret"
 
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
-      run: /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -workspace FirebaseAuth/Tests/Sample/AuthSample.xcworkspace -scheme Auth_ApiTests -sdk iphoneos -derivedDataPath FirebaseAuth/Tests/build-for-testing ONLY_ACTIVE_ARCH=YES CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=YES COMPILER_INDEX_STORE_ENABLE=NO CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ build-for-testing
+      run: /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -workspace FirebaseAuth/Tests/Sample/AuthSample.xcworkspace -scheme Auth_ApiTests -sdk iphoneos -derivedDataPath FirebaseAuth/Tests/integration-tests ONLY_ACTIVE_ARCH=YES CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=YES COMPILER_INDEX_STORE_ENABLE=NO CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ PHONEOS_DEPLOYMENT_TARGET=13.0 build-for-testing
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       if: ${{ !cancelled() }}
       with:
         name: FirebaseAuthProject
-        path: FirebaseAuth/Tests/build-for-testing/Build/Products
+        path: FirebaseAuth/Tests/integration-tests/Build/Products
         retention-days: 1
-    # - id: ftl_test
-    #   if: steps.device-info.outputs.device_type == 'real'
-    #   uses: FirebaseExtended/github-actions/firebase-test-lab@v1.2
-    #   timeout-minutes: 90
-    #   with:
-    #     credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
-    #     testapp_dir: FirebaseAuth/Tests/build-for-testing
-    #     test_type: "xctest"
 
   spm:
     # Don't run on private repo unless it is a PR.
@@ -148,6 +140,30 @@ jobs:
       run: scripts/setup_spm_tests.sh
     - name: Unit Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh AuthUnit ${{ matrix.target }} spm
+
+  spm-ftl:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    runs-on: macos-12
+    strategy:
+      matrix:
+        target: [iOS]
+    steps:
+    - uses: actions/checkout@v2
+    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+      with:
+        cache_key: ${{ matrix.os }}
+    - name: Initialize xcodebuild
+      run: scripts/setup_spm_tests.sh
+    - name: Unit Tests
+      run: xcodebuild -scheme AuthUnit -sdk iphoneos -derivedDataPath FirebaseAuth/Tests/spm ONLY_ACTIVE_ARCH=YES CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=YES COMPILER_INDEX_STORE_ENABLE=NO CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ IPHONEOS_DEPLOYMENT_TARGET=13.0 TVOS_DEPLOYMENT_TARGET=13.0 build-for-testing
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      if: ${{ !cancelled() }}
+      with:
+        name: FirebaseAuthProject
+        path: FirebaseAuth/Tests/spm/Build/Products
+        retention-days: 1
 
   catalyst:
     # Don't run on private repo unless it is a PR.

@@ -156,10 +156,10 @@ jobs:
       run: sed -i '' 's/REVERSED_CLIENT_ID/com.googleusercontent.apps.1025801074639-6p6ebi8amuklcjrto20gvpe295smm8u6/' quickstart-ios/functions/LegacyFunctionsQuickstart/FunctionsExample/Info.plist
     - name: Test objc quickstart
       run: ([ -z $plist_secret ] ||
-            xcodebuild -workspace quickstart-ios/Functions/LegacyFunctionsQuickstart/FunctionsExample.xcworkspace  -sdk iphoneos -derivedDataPath quickstart-ios/Functions/Tests/QuickstartObjc -scheme FunctionsExample CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build-for-testing)
+            xcodebuild -workspace quickstart-ios/Functions/LegacyFunctionsQuickstart/FunctionsExample.xcworkspace  -sdk iphoneos -derivedDataPath quickstart-ios/Functions/Tests/QuickstartObjc -scheme FunctionsExample CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO PHONEOS_DEPLOYMENT_TARGET=13.0 build-for-testing)
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] ||
-            xcodebuild -workspace quickstart-ios/Functions/LegacyFunctionsQuickstart/FunctionsExample.xcworkspace  -sdk iphoneos -derivedDataPath quickstart-ios/Functions/Tests/QuickstartSwift -scheme FunctionsExampleSwift CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build-for-testing)
+            xcodebuild -workspace quickstart-ios/Functions/LegacyFunctionsQuickstart/FunctionsExample.xcworkspace  -sdk iphoneos -derivedDataPath quickstart-ios/Functions/Tests/QuickstartSwift -scheme FunctionsExampleSwift CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO PHONEOS_DEPLOYMENT_TARGET=13.0 build-for-testing)
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       if: ${{ !cancelled() }}
