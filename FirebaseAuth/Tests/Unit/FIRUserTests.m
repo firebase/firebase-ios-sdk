@@ -18,10 +18,12 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+#import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthTokenResult.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIREmailAuthProvider.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRFacebookAuthProvider.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRGoogleAuthProvider.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIROAuthCredential.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIROAuthProvider.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRUserInfo.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRUserMetadata.h"
@@ -383,6 +385,21 @@ static NSString *const kDisplayName = @"mockDisplayName";
     @brief The mock multi factor enroll at date.
  */
 static NSString *const kEnrolledAt = @"2022-08-01T18:31:15.426458Z";
+
+/** @var kOAuthRequestURI
+    @brief Fake OAuthRequest URI for testing.
+ */
+static NSString *const kOAuthRequestURI = @"requestURI";
+
+/** @var kOAuthSessionID
+    @brief Fake session ID for testing.
+ */
+static NSString *const kOAuthSessionID = @"sessionID";
+
+/** @var kFakeWebSignInUserInteractionFailureReason
+    @brief Fake reason for FIRAuthErrorCodeWebSignInUserInteractionFailure error while testing.
+ */
+static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reason";
 
 /** @extention FIRSecureTokenService
     @brief Extends the FIRSecureTokenService class to expose one private method for testing only.
@@ -2089,7 +2106,6 @@ static NSString *const kEnrolledAt = @"2022-08-01T18:31:15.426458Z";
                                                                      NSError *_Nullable error) {
                                                                    XCTAssertTrue(
                                                                        [NSThread isMainThread]);
-                                                                   XCTAssertNil(authResult);
                                                                    XCTAssertEqual(
                                                                        error.code,
                                                                        FIRAuthErrorCodeWebSignInUserInteractionFailure);
