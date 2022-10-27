@@ -1,4 +1,4 @@
-# 10.0.1
+# unreleased
 - [fixed] Fixes utm parameters not being returned to dynamic link when using universal links
 
 # 10.0.0
