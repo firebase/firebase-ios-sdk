@@ -2765,6 +2765,72 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
   OCMVerifyAll(_mockBackend);
 }
 
+/** @fn testlinkProviderFailure
+    @brief Tests the flow of a failed @c linkWithProvider:completion:
+        call.
+ */
+- (void)testlinkProviderFailure {
+  [self expectVerifyAssertionRequest:FIRFacebookAuthProviderID
+                         federatedID:kFacebookID
+                         displayName:kFacebookDisplayName
+                             profile:[[self class] googleProfile]
+                     providerIDToken:kFacebookIDToken
+                 providerAccessToken:kFacebookAccessToken];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] signOut:NULL];
+  FIRAuthCredential *facebookCredential =
+      [FIRFacebookAuthProvider credentialWithAccessToken:kFacebookAccessToken];
+  [[FIRAuth auth]
+      signInWithCredential:facebookCredential
+                completion:^(FIRAuthDataResult *_Nullable authResult, NSError *_Nullable error) {
+                  XCTAssertTrue([NSThread isMainThread]);
+                  [self assertUserFacebook:authResult.user];
+                  XCTAssertEqualObjects(authResult.additionalUserInfo.profile,
+                                        [[self class] googleProfile]);
+                  XCTAssertEqualObjects(authResult.additionalUserInfo.username, kUserName);
+                  XCTAssertEqualObjects(authResult.additionalUserInfo.providerID,
+                                        FIRFacebookAuthProviderID);
+                  XCTAssertNil(error);
+
+                  OCMExpect([_mockBackend verifyAssertion:[OCMArg any] callback:[OCMArg any]])
+                      .andDispatchError2(
+                          [FIRAuthErrorUtils webSignInUserInteractionFailureWithReason:
+                                                 kFakeWebSignInUserInteractionFailureReason]);
+                  id mockProvider = OCMClassMock([FIROAuthProvider class]);
+                  OCMExpect([mockProvider getCredentialWithUIDelegate:[OCMArg any]
+                                                           completion:[OCMArg any]])
+                      .andCallBlock2(^(id<FIRAuthUIDelegate> delegate,
+                                       FIRAuthCredentialCallback callback) {
+                        dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+                          FIROAuthCredential *credential =
+                              [[FIROAuthCredential alloc] initWithProviderID:FIRGoogleAuthProviderID
+                                                                   sessionID:kOAuthSessionID
+                                                      OAuthResponseURLString:kOAuthRequestURI];
+                          callback(credential, nil);
+                        });
+                      });
+
+                  FIRAuthCredential *linkFacebookCredential =
+                      [FIRFacebookAuthProvider credentialWithAccessToken:kGoogleAccessToken];
+                  [authResult.user
+                      reauthenticateWithProvider:mockProvider
+                                      completion:^(FIRAuthDataResult *_Nullable result,
+                                                   NSError *_Nullable error) {
+                                        XCTAssertTrue([NSThread isMainThread]);
+                                        XCTAssertEqual(
+                                            error.code,
+                                            FIRAuthErrorCodeWebSignInUserInteractionFailure);
+                                        XCTAssertEqualObjects(
+                                            error.userInfo[NSLocalizedFailureReasonErrorKey],
+                                            kFakeWebSignInUserInteractionFailureReason);
+                                        [expectation fulfill];
+                                      }];
+                }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
 #if TARGET_OS_IOS
 /** @fn testlinkPhoneAuthCredentialSuccess
     @brief Tests the flow of a successful @c linkWithCredential:completion:
