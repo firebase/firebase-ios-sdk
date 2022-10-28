@@ -57,7 +57,9 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Install xcpretty
       run: gem install xcpretty
-    - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
+    - name: BuildAndTest1 # can be replaced with pod lib lint with CocoaPods 1.10
+      run: scripts/third_party/travis/retry.sh scripts/build.sh Database ${{ matrix.target }} unit
+    - name: BuildAndTest2 # can be replaced with pod lib lint with CocoaPods 1.10
       run: xcodebuild -workspace gen/FirebaseDatabase/FirebaseDatabase.xcworkspace -scheme FirebaseDatabase-Unit-unit -sdk iphoneos -derivedDataPath gen/FirebaseDatabase/unit CODE_SIGN_IDENTITY="" ONLY_ACTIVE_ARCH=YES CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=YES COMPILER_INDEX_STORE_ENABLE=NO CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ IPHONEOS_DEPLOYMENT_TARGET=13.0 build-for-testing
     - name: Upload artifact
       uses: actions/upload-artifact@v3
