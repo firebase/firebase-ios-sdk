@@ -86,6 +86,8 @@ def main(args)
   command.push(*pod_args)
   puts command.join(' ')
 
+  STDERR.puts("print command")
+  STDERR.puts(*command)
   STDERR.puts(command)
   # Run the lib lint command in a thread.
   pod_lint_status = 1
