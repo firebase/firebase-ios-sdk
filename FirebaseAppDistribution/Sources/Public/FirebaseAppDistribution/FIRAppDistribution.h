@@ -13,6 +13,7 @@
 // limitations under the License.
 
 @class FIRAppDistributionRelease;
+@class UIApplication;
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
