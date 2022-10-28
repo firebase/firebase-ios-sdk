@@ -115,13 +115,22 @@ jobs:
           FirebaseAuth/Tests/Sample/SwiftApiTests/Credentials.swift "$plist_secret"
 
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
-      run: /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -workspace FirebaseAuth/Tests/Sample/AuthSample.xcworkspace -scheme Auth_ApiTests -sdk iphoneos -derivedDataPath FirebaseAuth/Tests/integration-tests ONLY_ACTIVE_ARCH=YES CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=YES COMPILER_INDEX_STORE_ENABLE=NO CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ PHONEOS_DEPLOYMENT_TARGET=13.0 build-for-testing
+      run: |
+        /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -workspace FirebaseAuth/Tests/Sample/AuthSample.xcworkspace -scheme Auth_ApiTests -sdk iphoneos -derivedDataPath FirebaseAuth/Tests/integration-tests ONLY_ACTIVE_ARCH=YES CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=YES COMPILER_INDEX_STORE_ENABLE=NO CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ PHONEOS_DEPLOYMENT_TARGET=13.0 build-for-testing
+        cd FirebaseAuth/Tests/integration-tests
+        zip -r MyTests.zip Products
+    - id: ftl_test
+      uses: FirebaseExtended/github-actions/firebase-test-lab@v1.2
+      with:
+        credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
+        testapp_dir: FirebaseAuth/Tests/integration-tests
+        test_type: "xctest"
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       if: ${{ !cancelled() }}
       with:
         name: FirebaseAuthProject
-        path: FirebaseAuth/Tests/integration-tests/Build/Products
+        path: FirebaseAuth/Tests/integration-tests/Build/MyTests.zip
         retention-days: 1
 
   spm:
