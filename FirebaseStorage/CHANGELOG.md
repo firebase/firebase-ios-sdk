@@ -1,3 +1,6 @@
+# 10.2.0
+- [fixed] Fix a race condition where a download size could exceed the value of the `maxSize` parameter. (#10358)
+
 # 10.1.0
 - [fixed] Fixed a 10.0.0 regression where metadata passed to `putFile` was not properly initialized. (#10353)
 - [fixed] Fixed a 10.0.0 regression handling an empty JSON metadata field from the emulator. (#10370)
