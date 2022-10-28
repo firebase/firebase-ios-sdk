@@ -2729,103 +2729,62 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
     @brief Tests the flow of a failed @c reauthenticateWithProvider:completion: call.
  */
 - (void)testReauthenticateWithProviderFailure {
-  id mockGetAccountInfoResponseUser = OCMClassMock([FIRGetAccountInfoResponseUser class]);
-  OCMStub([mockGetAccountInfoResponseUser localID]).andReturn(kLocalID);
-  OCMStub([mockGetAccountInfoResponseUser email]).andReturn(kEmail);
-  OCMStub([mockGetAccountInfoResponseUser displayName]).andReturn(kGoogleDisplayName);
-  OCMStub([mockGetAccountInfoResponseUser passwordHash]).andReturn(kPasswordHash);
+  [self expectVerifyAssertionRequest:FIRFacebookAuthProviderID
+                         federatedID:kFacebookID
+                         displayName:kFacebookDisplayName
+                             profile:[[self class] googleProfile]
+                     providerIDToken:kFacebookIDToken
+                 providerAccessToken:kFacebookAccessToken];
+
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-  [self
-      signInWithEmailPasswordWithMockUserInfoResponse:mockGetAccountInfoResponseUser
-                                           completion:^(FIRUser *user) {
-                                             OCMExpect([self->_mockBackend
-                                                           verifyPassword:[OCMArg any]
-                                                                 callback:[OCMArg any]])
-                                                 .andCallBlock2(^(
-                                                     FIRVerifyPasswordRequest *_Nullable request,
-                                                     FIRVerifyPasswordResponseCallback callback) {
-                                                   dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-                                                     id mockVerifyPasswordResponse = OCMClassMock(
-                                                         [FIRVerifyPasswordResponse class]);
-                                                     // New authentication comes back with new
-                                                     // access token.
-                                                     OCMStub([mockVerifyPasswordResponse IDToken])
-                                                         .andReturn(kNewAccessToken);
-                                                     OCMStub([mockVerifyPasswordResponse
-                                                                 approximateExpirationDate])
-                                                         .andReturn(
-                                                             [NSDate dateWithTimeIntervalSinceNow:
-                                                                         kAccessTokenTimeToLive]);
-                                                     OCMStub(
-                                                         [mockVerifyPasswordResponse refreshToken])
-                                                         .andReturn(kRefreshToken);
-                                                     callback(mockVerifyPasswordResponse, nil);
-                                                   });
-                                                 });
-                                             OCMExpect([self->_mockBackend
-                                                           getAccountInfo:[OCMArg any]
-                                                                 callback:[OCMArg any]])
-                                                 .andCallBlock2(^(
-                                                     FIRGetAccountInfoRequest *_Nullable request,
-                                                     FIRGetAccountInfoResponseCallback callback) {
-                                                   XCTAssertEqualObjects(request.APIKey, kAPIKey);
-                                                   // Verify that the new access token is being used
-                                                   // for subsequent requests.
-                                                   XCTAssertEqualObjects(request.accessToken,
-                                                                         kNewAccessToken);
-                                                   dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-                                                     id mockGetAccountInfoResponse = OCMClassMock(
-                                                         [FIRGetAccountInfoResponse class]);
-                                                     OCMStub([mockGetAccountInfoResponse users])
-                                                         .andReturn(
-                                                             @[ mockGetAccountInfoResponseUser ]);
-                                                     callback(mockGetAccountInfoResponse, nil);
-                                                   });
-                                                 });
-                                             OCMExpect([_mockBackend verifyAssertion:[OCMArg any]
-                                                                            callback:[OCMArg any]])
-                                                 .andDispatchError2([FIRAuthErrorUtils
-                                                     webSignInUserInteractionFailureWithReason:
-                                                         kFakeWebSignInUserInteractionFailureReason]);
-                                             id mockProvider =
-                                                 OCMClassMock([FIROAuthProvider class]);
-                                             OCMExpect(
-                                                 [mockProvider
-                                                     getCredentialWithUIDelegate:[OCMArg any]
-                                                                      completion:[OCMArg any]])
-                                                 .andCallBlock2(^(
-                                                     id<FIRAuthUIDelegate> delegate,
-                                                     FIRAuthCredentialCallback callback) {
-                                                   dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-                                                     FIROAuthCredential *credential =
-                                                         [[FIROAuthCredential alloc]
-                                                                 initWithProviderID:
-                                                                     FIRGoogleAuthProviderID
-                                                                          sessionID:kOAuthSessionID
-                                                             OAuthResponseURLString:
-                                                                 kOAuthRequestURI];
-                                                     callback(credential, nil);
-                                                   });
-                                                 });
-                                             [user
-                                                 reauthenticateWithProvider:mockProvider
-                                                                 UIDelegate:nil
-                                                                 completion:^(
-                                                                     FIRAuthDataResult
-                                                                         *_Nullable result,
-                                                                     NSError *_Nullable error) {
-                                                                   XCTAssertTrue(
-                                                                       [NSThread isMainThread]);
-                                                                   XCTAssertEqual(
-                                                                       error.code,
-                                                                       FIRAuthErrorCodeWebSignInUserInteractionFailure);
-                                                                   XCTAssertEqualObjects(
-                                                                       error.userInfo
-                                                                           [NSLocalizedFailureReasonErrorKey],
-                                                                       kFakeWebSignInUserInteractionFailureReason);
-                                                                   [expectation fulfill];
-                                                                 }];
-                                           }];
+  [[FIRAuth auth] signOut:NULL];
+  FIRAuthCredential *facebookCredential =
+      [FIRFacebookAuthProvider credentialWithAccessToken:kFacebookAccessToken];
+  [[FIRAuth auth]
+      signInWithCredential:facebookCredential
+                completion:^(FIRAuthDataResult *_Nullable authResult, NSError *_Nullable error) {
+                  XCTAssertTrue([NSThread isMainThread]);
+                  [self assertUserFacebook:authResult.user];
+                  XCTAssertEqualObjects(authResult.additionalUserInfo.profile,
+                                        [[self class] googleProfile]);
+                  XCTAssertEqualObjects(authResult.additionalUserInfo.username, kUserName);
+                  XCTAssertEqualObjects(authResult.additionalUserInfo.providerID,
+                                        FIRFacebookAuthProviderID);
+                  XCTAssertNil(error);
+
+                  OCMExpect([_mockBackend verifyAssertion:[OCMArg any] callback:[OCMArg any]])
+                      .andDispatchError2(
+                          [FIRAuthErrorUtils webSignInUserInteractionFailureWithReason:
+                                                 kFakeWebSignInUserInteractionFailureReason]);
+                  id mockProvider = OCMClassMock([FIROAuthProvider class]);
+                  OCMExpect([mockProvider getCredentialWithUIDelegate:[OCMArg any]
+                                                           completion:[OCMArg any]])
+                      .andCallBlock2(^(id<FIRAuthUIDelegate> delegate,
+                                       FIRAuthCredentialCallback callback) {
+                        dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+                          FIROAuthCredential *credential =
+                              [[FIROAuthCredential alloc] initWithProviderID:FIRGoogleAuthProviderID
+                                                                   sessionID:kOAuthSessionID
+                                                      OAuthResponseURLString:kOAuthRequestURI];
+                          callback(credential, nil);
+                        });
+                      });
+
+                  [authResult.user
+                      reauthenticateWithProvider:mockProvider
+                                      UIDelegate:nil
+                                      completion:^(FIRAuthDataResult *_Nullable result,
+                                                   NSError *_Nullable error) {
+                                        XCTAssertTrue([NSThread isMainThread]);
+                                        XCTAssertEqual(
+                                            error.code,
+                                            FIRAuthErrorCodeWebSignInUserInteractionFailure);
+                                        XCTAssertEqualObjects(
+                                            error.userInfo[NSLocalizedFailureReasonErrorKey],
+                                            kFakeWebSignInUserInteractionFailureReason);
+                                        [expectation fulfill];
+                                      }];
+                }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }
