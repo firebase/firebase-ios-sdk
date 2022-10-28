@@ -10,7 +10,7 @@ def shared_pods
 end
 
 target 'AppQualityDevApp_iOS' do
-  platform :ios, '15.0'
+  platform :ios, '11.0'
 
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
@@ -19,7 +19,7 @@ target 'AppQualityDevApp_iOS' do
 end
 
 target 'AppQualityDevApp_macOS' do
-  platform :macos, '12.3'
+  platform :macos, '10.13'
 
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
