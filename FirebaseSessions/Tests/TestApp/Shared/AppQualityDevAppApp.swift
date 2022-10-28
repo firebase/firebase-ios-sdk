@@ -15,7 +15,6 @@
 
 import SwiftUI
 import FirebaseCore
-import FirebaseSessions
 
 @main
 struct AppQualityDevAppApp: App {
