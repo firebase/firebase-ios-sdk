@@ -158,25 +158,25 @@ jobs:
       run: |
         ([ -z $plist_secret ] ||
           xcodebuild -workspace quickstart-ios/Functions/LegacyFunctionsQuickstart/FunctionsExample.xcworkspace  -sdk iphoneos -derivedDataPath quickstart-ios/Functions/Tests/QuickstartObjc -scheme FunctionsExample CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO PHONEOS_DEPLOYMENT_TARGET=13.0 build-for-testing)
-        cd quickstart-ios/Functions/Tests/QuickstartObjc
+        cd quickstart-ios/Functions/Tests/QuickstartObjc/Build
         zip -r MyTests.zip Products
     - id: ftl_test
       uses: FirebaseExtended/github-actions/firebase-test-lab@v1.2
       with:
         credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
-        testapp_dir: quickstart-ios/Functions/Tests/QuickstartObjc
+        testapp_dir: quickstart-ios/Functions/Tests/QuickstartObjc/Build
         test_type: "xctest"
     - name: Test swift quickstart
       run: |
         ([ -z $plist_secret ] ||
           xcodebuild -workspace quickstart-ios/Functions/LegacyFunctionsQuickstart/FunctionsExample.xcworkspace  -sdk iphoneos -derivedDataPath quickstart-ios/Functions/Tests/QuickstartSwift -scheme FunctionsExampleSwift CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO PHONEOS_DEPLOYMENT_TARGET=13.0 build-for-testing)
-        cd quickstart-ios/Functions/Tests/QuickstartSwift
+        cd quickstart-ios/Functions/Tests/QuickstartSwift/Build
         zip -r MyTests.zip Products
     - id: ftl_test
       uses: FirebaseExtended/github-actions/firebase-test-lab@v1.2
       with:
         credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
-        testapp_dir: quickstart-ios/Functions/Tests/QuickstartSwift
+        testapp_dir: quickstart-ios/Functions/Tests/QuickstartSwift/Build
         test_type: "xctest"
 
     - name: Upload artifact
