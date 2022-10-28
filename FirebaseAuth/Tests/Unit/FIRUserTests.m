@@ -2765,6 +2765,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
   OCMVerifyAll(_mockBackend);
 }
 
+#if TARGET_OS_IOS
 /** @fn testlinkProviderFailure
     @brief Tests the flow of a failed @c linkWithProvider:completion:
         call.
@@ -2829,7 +2830,6 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
   OCMVerifyAll(_mockBackend);
 }
 
-#if TARGET_OS_IOS
 /** @fn testlinkPhoneAuthCredentialSuccess
     @brief Tests the flow of a successful @c linkWithCredential:completion:
         call using a phoneAuthCredential.
