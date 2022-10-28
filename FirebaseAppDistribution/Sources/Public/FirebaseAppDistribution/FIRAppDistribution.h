@@ -56,6 +56,14 @@ NS_SWIFT_NAME(AppDistribution)
 - (void)signOutTester;
 
 /**
+ * Handle an App Distribution URL, for example a link to download a new pre-release version.
+ * Call this method in your app delegate's `openURL` implementation if swizzling is disabled.
+ */
+- (BOOL)application:(UIApplication *)application
+            openURL:(NSURL *)url
+            options:(NSDictionary<NSString *, id> *)options;
+
+/**
  * Accesses the singleton App Distribution instance.
  *
  * @return The singleton App Distribution instance.

@@ -336,4 +336,13 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 
   return codeHash && [codeHash isEqualToString:[machO codeHash]];
 }
+
+#pragma mark - Swizzling disabled
+
+- (BOOL)application:(UIApplication *)application
+            openURL:(NSURL *)url
+            options:(NSDictionary<NSString *, id> *)options {
+  return [self.uiService application:application openURL:url options:options];
+}
+
 @end
