@@ -2813,6 +2813,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
 
                   [authResult.user
                       linkWithProvider:mockProvider
+                            UIDelegate:nil
                             completion:^(FIRAuthDataResult *_Nullable result,
                                          NSError *_Nullable error) {
                               XCTAssertTrue([NSThread isMainThread]);
