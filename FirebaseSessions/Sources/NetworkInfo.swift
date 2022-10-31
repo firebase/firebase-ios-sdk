@@ -22,10 +22,20 @@ protocol NetworkInfoProtocol {
 
 class NetworkInfo: NetworkInfoProtocol {
   var mobileCountryCode: String? {
+    // Don't look these up when in the simulator because they always fail
+    // and put unnecessary logs in the customer's output
+    #if targetEnvironment(simulator)
+    return ""
+    #else
     return FIRSESNetworkMobileCountryCode()
+    #endif // targetEnvironment(simulator)
   }
 
   var mobileNetworkCode: String? {
+    #if targetEnvironment(simulator)
+    return ""
+    #else
     return FIRSESNetworkMobileNetworkCode()
+    #endif // targetEnvironment(simulator)
   }
 }
