@@ -38,7 +38,7 @@ jobs:
       run: gem install xcpretty
     - name: Install Secret GoogleService-Info.plist
       run: |
-        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Sessions/GoogleService-Info_TestApp_autopush.plist.gpg \
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Sessions/GoogleService-Info_TestApp.plist.gpg \
             FirebaseSessions/Tests/TestApp/Shared/GoogleService-Info.plist "$plist_secret"
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: scripts/third_party/travis/retry.sh scripts/build.sh Sessions all integration
