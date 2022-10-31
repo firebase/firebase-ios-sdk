@@ -48,10 +48,18 @@ class IdentifiersTests: XCTestCase {
     return true
   }
 
+  // This test case isn't important behavior. When Crash and Perf integrate
+  // with the Sessions SDK, we may want to move to a lazy solution where
+  // sessionID can never be empty
+  func test_sessionID_beforeGenerateReturnsNothing() throws {
+    XCTAssert(identifiers.sessionID.count == 0)
+    XCTAssertNil(identifiers.previousSessionID)
+  }
+
   func test_generateNewSessionID_generatesValidID() throws {
     identifiers.generateNewSessionID()
     XCTAssert(isValidSessionID(identifiers.sessionID))
-    XCTAssert(identifiers.previousSessionID.count == 0)
+    XCTAssertNil(identifiers.previousSessionID)
   }
 
   /// Ensures that generating a Session ID multiple times results in the last Session ID being set in the previousSessionID field
@@ -60,15 +68,15 @@ class IdentifiersTests: XCTestCase {
 
     let firstSessionID = identifiers.sessionID
     XCTAssert(isValidSessionID(identifiers.sessionID))
-    XCTAssert(identifiers.previousSessionID.count == 0)
+    XCTAssertNil(identifiers.previousSessionID)
 
     identifiers.generateNewSessionID()
 
     XCTAssert(isValidSessionID(identifiers.sessionID))
-    XCTAssert(isValidSessionID(identifiers.previousSessionID))
+    XCTAssert(isValidSessionID(identifiers.previousSessionID ?? ""))
 
     // Ensure the new lastSessionID is equal to the sessionID from earlier
-    XCTAssert(identifiers.previousSessionID.compare(firstSessionID) == ComparisonResult.orderedSame)
+    XCTAssert((identifiers.previousSessionID ?? "").compare(firstSessionID) == ComparisonResult.orderedSame)
   }
 
   // Fetching FIIDs requires that we are on a background thread.
