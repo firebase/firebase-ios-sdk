@@ -16,11 +16,9 @@
 
 #include "Firestore/core/src/credentials/firebase_auth_credentials_provider_apple.h"
 
-#include <atomic>
 #include <chrono>  // NOLINT(build/c++11)
 #include <future>  // NOLINT(build/c++11)
 #include <memory>
-#include <thread>  // NOLINT(build/c++11)
 
 #import "FirebaseAuth/Interop/FIRAuthInterop.h"
 
@@ -34,15 +32,14 @@
 @interface FSTAuthFake : NSObject <FIRAuthInterop>
 @property(nonatomic, nullable, strong, readonly) NSString* token;
 @property(nonatomic, nullable, strong, readonly) NSString* uid;
-@property(nonatomic, readonly) BOOL forceRefreshTriggered;
+// Omit `nonatomic` from  `forceRefreshTriggered` since it's accessed concurrently.
+@property(readonly) BOOL forceRefreshTriggered;
 - (instancetype)initWithToken:(nullable NSString*)token
                           uid:(nullable NSString*)uid NS_DESIGNATED_INITIALIZER;
 - (instancetype)init NS_UNAVAILABLE;
 @end
 
-@implementation FSTAuthFake {
-  std::atomic<bool> _forceRefreshTriggered;
-}
+@implementation FSTAuthFake
 
 - (instancetype)initWithToken:(nullable NSString*)token
                           uid:(nullable NSString*)uid {
@@ -50,7 +47,7 @@
   if (self) {
     _token = [token copy];
     _uid = [uid copy];
-    _forceRefreshTriggered = false;
+    _forceRefreshTriggered = NO;
   }
   return self;
 }
@@ -65,10 +62,6 @@
                   withCallback:(nonnull FIRTokenCallback)callback {
   _forceRefreshTriggered = forceRefresh;
   callback(self.token, nil);
-}
-
-- (BOOL)forceRefreshTriggered {
-  return _forceRefreshTriggered ? YES : NO;
 }
 
 @end
