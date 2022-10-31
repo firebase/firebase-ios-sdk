@@ -1,161 +1,161 @@
-name: remoteconfig
-
-on:
-  pull_request:
-    paths:
-    - 'FirebaseRemoteConfig**'
-    - 'Interop/Analytics/Public/*.h'
-    - '.github/workflows/remoteconfig.yml'
-    - 'Gemfile*'
-    - 'scripts/generate_access_token.sh'
-    - 'scripts/gha-encrypted/RemoteConfigSwiftAPI/**'
-  schedule:
-    # Run every day at 12am (PST) - cron uses UTC times
-    - cron:  '0 8 * * *'
-
-concurrency:
-    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-    cancel-in-progress: true
-
-jobs:
-
-  remoteconfig:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-12
-    strategy:
-      matrix:
-        target: [iOS, tvOS, macOS]
-    steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
-      with:
-        cache_key: ${{ matrix.os }}
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Install xcpretty
-      run: gem install xcpretty
-    - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/RemoteConfigSwiftAPI/GoogleService-Info.plist.gpg \
-          FirebaseRemoteConfigSwift/Tests/SwiftAPI/GoogleService-Info.plist "$plist_secret"
-    - name: Generate Access Token for RemoteConfigConsoleAPI in IntegrationTests
-      if: matrix.target == 'iOS'
-      run: ([ -z $plist_secret ] || scripts/generate_access_token.sh "$plist_secret" scripts/gha-encrypted/RemoteConfigSwiftAPI/ServiceAccount.json.gpg
-          FirebaseRemoteConfigSwift/Tests/AccessToken.json)
-    - name: Fake Console API Tests
-      run: scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig iOS fakeconsole
-    - name: IntegrationTest
-      if: matrix.target == 'iOS'
-      # No retry to avoid exhausting AccessToken quota.
-      run: ([ -z $plist_secret ] || scripts/build.sh RemoteConfig iOS integration)
-
-  pod-lib-lint:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-12
-
-    strategy:
-      matrix:
-        target: [ios, tvos, macos]
-        podspec: [FirebaseRemoteConfig.podspec, FirebaseRemoteConfigSwift.podspec --skip-tests]
-    steps:
-    - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Build and test
-      run: |
-       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }} --platforms=${{ matrix.target }}
-
-  spm:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-12
-    strategy:
-      matrix:
-        target: [iOS, tvOS, macOS, catalyst, watchOS]
-    steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
-      with:
-        cache_key: ${{ matrix.os }}
-    - name: Initialize xcodebuild
-      run: scripts/setup_spm_tests.sh
-    - name: Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh RemoteConfigUnit ${{ matrix.target }} spm
-    - name: Fake Console tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh RemoteConfigFakeConsole ${{ matrix.target }} spm
-
-  catalyst:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-12
-    steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
-      with:
-        cache_key: ${{ matrix.os }}
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Setup project and Build for Catalyst
-      run: scripts/test_catalyst.sh FirebaseRemoteConfig test FirebaseRemoteConfig-Unit-unit
-
-  quickstart:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-12
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@v1
-    - name: Setup quickstart
-      run: scripts/setup_quickstart.sh config
-    - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-config.plist.gpg \
-          quickstart-ios/config/GoogleService-Info.plist "$plist_secret"
-    - name: Test Swift Quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Config true)
-
-  sample-build-test:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-12
-    steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
-      with:
-        cache_key: ${{ matrix.os }}
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Prereqs
-      run: scripts/install_prereqs.sh RemoteConfigSample iOS
-    - name: Build
-      run: scripts/build.sh RemoteConfigSample iOS
-
-  remoteconfig-cron-only:
-    # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-12
-    strategy:
-      matrix:
-        target: [ios, tvos, macos]
-        flags: [
-          '--skip-tests --use-static-frameworks'
-        ]
-    needs: pod-lib-lint
-    steps:
-    - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: PodLibLint RemoteConfig Cron
-      run: |
-        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+#name: remoteconfig
+#
+#on:
+#  pull_request:
+#    paths:
+#    - 'FirebaseRemoteConfig**'
+#    - 'Interop/Analytics/Public/*.h'
+#    - '.github/workflows/remoteconfig.yml'
+#    - 'Gemfile*'
+#    - 'scripts/generate_access_token.sh'
+#    - 'scripts/gha-encrypted/RemoteConfigSwiftAPI/**'
+#  schedule:
+#    # Run every day at 12am (PST) - cron uses UTC times
+#    - cron:  '0 8 * * *'
+#
+#concurrency:
+#    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+#    cancel-in-progress: true
+#
+#jobs:
+#
+#  remoteconfig:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#    env:
+#      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#    runs-on: macos-12
+#    strategy:
+#      matrix:
+#        target: [iOS, tvOS, macOS]
+#    steps:
+#    - uses: actions/checkout@v2
+#    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+#      with:
+#        cache_key: ${{ matrix.os }}
+#    - uses: ruby/setup-ruby@v1
+#    - name: Setup Bundler
+#      run: scripts/setup_bundler.sh
+#    - name: Install xcpretty
+#      run: gem install xcpretty
+#    - name: Install Secret GoogleService-Info.plist
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/RemoteConfigSwiftAPI/GoogleService-Info.plist.gpg \
+#          FirebaseRemoteConfigSwift/Tests/SwiftAPI/GoogleService-Info.plist "$plist_secret"
+#    - name: Generate Access Token for RemoteConfigConsoleAPI in IntegrationTests
+#      if: matrix.target == 'iOS'
+#      run: ([ -z $plist_secret ] || scripts/generate_access_token.sh "$plist_secret" scripts/gha-encrypted/RemoteConfigSwiftAPI/ServiceAccount.json.gpg
+#          FirebaseRemoteConfigSwift/Tests/AccessToken.json)
+#    - name: Fake Console API Tests
+#      run: scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig iOS fakeconsole
+#    - name: IntegrationTest
+#      if: matrix.target == 'iOS'
+#      # No retry to avoid exhausting AccessToken quota.
+#      run: ([ -z $plist_secret ] || scripts/build.sh RemoteConfig iOS integration)
+#
+#  pod-lib-lint:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#    runs-on: macos-12
+#
+#    strategy:
+#      matrix:
+#        target: [ios, tvos, macos]
+#        podspec: [FirebaseRemoteConfig.podspec, FirebaseRemoteConfigSwift.podspec --skip-tests]
+#    steps:
+#    - uses: actions/checkout@v2
+#    - uses: ruby/setup-ruby@v1
+#    - name: Setup Bundler
+#      run: scripts/setup_bundler.sh
+#    - name: Build and test
+#      run: |
+#       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }} --platforms=${{ matrix.target }}
+#
+#  spm:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#    runs-on: macos-12
+#    strategy:
+#      matrix:
+#        target: [iOS, tvOS, macOS, catalyst, watchOS]
+#    steps:
+#    - uses: actions/checkout@v2
+#    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+#      with:
+#        cache_key: ${{ matrix.os }}
+#    - name: Initialize xcodebuild
+#      run: scripts/setup_spm_tests.sh
+#    - name: Unit Tests
+#      run: scripts/third_party/travis/retry.sh ./scripts/build.sh RemoteConfigUnit ${{ matrix.target }} spm
+#    - name: Fake Console tests
+#      run: scripts/third_party/travis/retry.sh ./scripts/build.sh RemoteConfigFakeConsole ${{ matrix.target }} spm
+#
+#  catalyst:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#    runs-on: macos-12
+#    steps:
+#    - uses: actions/checkout@v2
+#    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+#      with:
+#        cache_key: ${{ matrix.os }}
+#    - uses: ruby/setup-ruby@v1
+#    - name: Setup Bundler
+#      run: scripts/setup_bundler.sh
+#    - name: Setup project and Build for Catalyst
+#      run: scripts/test_catalyst.sh FirebaseRemoteConfig test FirebaseRemoteConfig-Unit-unit
+#
+#  quickstart:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#    env:
+#      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#    runs-on: macos-12
+#    steps:
+#    - uses: actions/checkout@v2
+#    - uses: actions/checkout@v2
+#    - uses: ruby/setup-ruby@v1
+#    - name: Setup quickstart
+#      run: scripts/setup_quickstart.sh config
+#    - name: Install Secret GoogleService-Info.plist
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-config.plist.gpg \
+#          quickstart-ios/config/GoogleService-Info.plist "$plist_secret"
+#    - name: Test Swift Quickstart
+#      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Config true)
+#
+#  sample-build-test:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#    runs-on: macos-12
+#    steps:
+#    - uses: actions/checkout@v2
+#    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+#      with:
+#        cache_key: ${{ matrix.os }}
+#    - uses: ruby/setup-ruby@v1
+#    - name: Setup Bundler
+#      run: scripts/setup_bundler.sh
+#    - name: Prereqs
+#      run: scripts/install_prereqs.sh RemoteConfigSample iOS
+#    - name: Build
+#      run: scripts/build.sh RemoteConfigSample iOS
+#
+#  remoteconfig-cron-only:
+#    # Don't run on private repo.
+#    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+#    runs-on: macos-12
+#    strategy:
+#      matrix:
+#        target: [ios, tvos, macos]
+#        flags: [
+#          '--skip-tests --use-static-frameworks'
+#        ]
+#    needs: pod-lib-lint
+#    steps:
+#    - uses: actions/checkout@v2
+#    - uses: ruby/setup-ruby@v1
+#    - name: Setup Bundler
+#      run: scripts/setup_bundler.sh
+#    - name: PodLibLint RemoteConfig Cron
+#      run: |
+#        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}

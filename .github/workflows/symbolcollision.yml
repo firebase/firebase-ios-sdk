@@ -1,36 +1,36 @@
-name: symbolcollision
-
-# Tests the Pods listed in SymbolCollisionTest/Podfile for symbol collisions.
-
-on:
-  pull_request:
-    paths:
-    - '.github/workflows/symbolcollision.yml'
-    - 'SymbolCollisionTest/**'
-    - 'Gemfile*'
-  schedule:
-    # Run every day at 12am (PST) - cron uses UTC times
-    - cron:  '0 8 * * *'
-
-concurrency:
-    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-    cancel-in-progress: true
-
-jobs:
-  installation-test:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-12
-
-    steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
-      with:
-        cache_key: ${{ matrix.os }}
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Prereqs
-      run: scripts/install_prereqs.sh SymbolCollision iOS
-    - name: Build
-      run: scripts/build.sh SymbolCollision iOS
+#name: symbolcollision
+#
+## Tests the Pods listed in SymbolCollisionTest/Podfile for symbol collisions.
+#
+#on:
+#  pull_request:
+#    paths:
+#    - '.github/workflows/symbolcollision.yml'
+#    - 'SymbolCollisionTest/**'
+#    - 'Gemfile*'
+#  schedule:
+#    # Run every day at 12am (PST) - cron uses UTC times
+#    - cron:  '0 8 * * *'
+#
+#concurrency:
+#    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+#    cancel-in-progress: true
+#
+#jobs:
+#  installation-test:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#    runs-on: macos-12
+#
+#    steps:
+#    - uses: actions/checkout@v2
+#    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+#      with:
+#        cache_key: ${{ matrix.os }}
+#    - uses: ruby/setup-ruby@v1
+#    - name: Setup Bundler
+#      run: scripts/setup_bundler.sh
+#    - name: Prereqs
+#      run: scripts/install_prereqs.sh SymbolCollision iOS
+#    - name: Build
+#      run: scripts/build.sh SymbolCollision iOS

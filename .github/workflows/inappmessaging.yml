@@ -1,117 +1,117 @@
-name: inappmessaging
-
-on:
-  pull_request:
-    paths:
-    - 'FirebaseInAppMessaging**'
-    - 'Interop/Analytics/Public/*.h'
-    - '.github/workflows/inappmessaging.yml'
-    - 'Gemfile*'
-  schedule:
-    # Run every day at 10pm (PST) - cron uses UTC times
-    - cron:  '0 6 * * *'
-
-concurrency:
-    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-    cancel-in-progress: true
-
-jobs:
-
-  pod_lib_lint:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-
-    runs-on: macos-12
-    strategy:
-      matrix:
-        podspec: [FirebaseInAppMessaging.podspec, FirebaseInAppMessagingSwift.podspec]
-    steps:
-    - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: FirebaseInAppMessaging
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec}}
-
-  tests:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-
-    runs-on: macos-12
-    strategy:
-      matrix:
-# TODO(#8682): Reenable iPad after fixing Xcode 13 test failures.
-#        platform: [iOS, iPad]
-        platform: [iOS]
-
-    steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
-      with:
-        cache_key: ${{ matrix.os }}
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Prereqs
-      run: scripts/install_prereqs.sh InAppMessaging ${{ matrix.platform }} xcodebuild
-    - name: Build and test
-      run: scripts/third_party/travis/retry.sh scripts/build.sh InAppMessaging ${{ matrix.platform }} xcodebuild
-
-  spm:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-12
-    steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
-      with:
-        cache_key: ${{ matrix.os }}
-    - name: Initialize xcodebuild
-      run: scripts/setup_spm_tests.sh
-    - name: iOS Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseInAppMessaging-Beta iOS spmbuildonly
-
-  fiam-cron-only:
-    # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-
-    runs-on: macos-12
-    strategy:
-      matrix:
-        flags: [
-          '--use-static-frameworks'
-        ]
-        platform: [ios, tvos]
-    needs: pod_lib_lint
-    steps:
-    - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: PodLibLint InAppMessaging Cron
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --platforms=${{ matrix.platform }} ${{ matrix.flags }}
-
-  quickstart:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-12
-
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@v1
-    - name: Setup quickstart
-      run: scripts/setup_quickstart.sh inappmessaging
-    - name: install secret googleservice-info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-inappmessaging.plist.gpg \
-          quickstart-ios/inappmessaging/GoogleService-Info.plist "$plist_secret"
-    - name: Test objc quickstart
-      run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh InAppMessaging true)
-    - name: Test swift quickstart
-      run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh InAppMessaging true swift)
+#name: inappmessaging
+#
+#on:
+#  pull_request:
+#    paths:
+#    - 'FirebaseInAppMessaging**'
+#    - 'Interop/Analytics/Public/*.h'
+#    - '.github/workflows/inappmessaging.yml'
+#    - 'Gemfile*'
+#  schedule:
+#    # Run every day at 10pm (PST) - cron uses UTC times
+#    - cron:  '0 6 * * *'
+#
+#concurrency:
+#    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+#    cancel-in-progress: true
+#
+#jobs:
+#
+#  pod_lib_lint:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#
+#    runs-on: macos-12
+#    strategy:
+#      matrix:
+#        podspec: [FirebaseInAppMessaging.podspec, FirebaseInAppMessagingSwift.podspec]
+#    steps:
+#    - uses: actions/checkout@v2
+#    - uses: ruby/setup-ruby@v1
+#    - name: Setup Bundler
+#      run: scripts/setup_bundler.sh
+#    - name: FirebaseInAppMessaging
+#      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec}}
+#
+#  tests:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#
+#    runs-on: macos-12
+#    strategy:
+#      matrix:
+## TODO(#8682): Reenable iPad after fixing Xcode 13 test failures.
+##        platform: [iOS, iPad]
+#        platform: [iOS]
+#
+#    steps:
+#    - uses: actions/checkout@v2
+#    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+#      with:
+#        cache_key: ${{ matrix.os }}
+#    - uses: ruby/setup-ruby@v1
+#    - name: Setup Bundler
+#      run: scripts/setup_bundler.sh
+#    - name: Prereqs
+#      run: scripts/install_prereqs.sh InAppMessaging ${{ matrix.platform }} xcodebuild
+#    - name: Build and test
+#      run: scripts/third_party/travis/retry.sh scripts/build.sh InAppMessaging ${{ matrix.platform }} xcodebuild
+#
+#  spm:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#    runs-on: macos-12
+#    steps:
+#    - uses: actions/checkout@v2
+#    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+#      with:
+#        cache_key: ${{ matrix.os }}
+#    - name: Initialize xcodebuild
+#      run: scripts/setup_spm_tests.sh
+#    - name: iOS Unit Tests
+#      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseInAppMessaging-Beta iOS spmbuildonly
+#
+#  fiam-cron-only:
+#    # Don't run on private repo.
+#    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+#
+#    runs-on: macos-12
+#    strategy:
+#      matrix:
+#        flags: [
+#          '--use-static-frameworks'
+#        ]
+#        platform: [ios, tvos]
+#    needs: pod_lib_lint
+#    steps:
+#    - uses: actions/checkout@v2
+#    - uses: ruby/setup-ruby@v1
+#    - name: Setup Bundler
+#      run: scripts/setup_bundler.sh
+#    - name: PodLibLint InAppMessaging Cron
+#      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec --platforms=${{ matrix.platform }} ${{ matrix.flags }}
+#
+#  quickstart:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#
+#    env:
+#      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#    runs-on: macos-12
+#
+#    steps:
+#    - uses: actions/checkout@v2
+#    - uses: actions/checkout@v2
+#    - uses: ruby/setup-ruby@v1
+#    - name: Setup quickstart
+#      run: scripts/setup_quickstart.sh inappmessaging
+#    - name: install secret googleservice-info.plist
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-inappmessaging.plist.gpg \
+#          quickstart-ios/inappmessaging/GoogleService-Info.plist "$plist_secret"
+#    - name: Test objc quickstart
+#      run: ([ -z $plist_secret ] ||
+#            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh InAppMessaging true)
+#    - name: Test swift quickstart
+#      run: ([ -z $plist_secret ] ||
+#            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh InAppMessaging true swift)

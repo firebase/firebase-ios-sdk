@@ -156,7 +156,7 @@ s%^./%%
 \%^/?vendor/bundle/% d
 
 # Sources pulled in by the Mint package manager
-\%^Mint% d
+\%^mint% d
 
 # Auth Sample Objective-C does not format well
 \%^(FirebaseAuth/Tests/Sample/Sample)/% d

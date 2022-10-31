@@ -1,124 +1,124 @@
-name: crashlytics
-
-on:
-  pull_request:
-    paths:
-    - 'Crashlytics**'
-    - 'FirebaseCrashlytics.podspec'
-    - '.github/workflows/crashlytics.yml'
-    - 'Interop/Analytics/Public/*.h'
-    - 'Gemfile*'
-  schedule:
-    # Run every day at 10am (PST) - cron uses UTC times
-    - cron:  '0 2 * * *'
-
-concurrency:
-    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-    cancel-in-progress: true
-
-jobs:
-
-  pod-lib-lint:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-
-    runs-on: macos-12
-
-    strategy:
-      matrix:
-        target: [ios, tvos, macos]
-    steps:
-    - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Build and test
-      run: |
-        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseCrashlytics.podspec --platforms=${{ matrix.target }}
-
-  spm:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-12
-    strategy:
-      matrix:
-        target: [iOS, tvOS, macOS, catalyst, watchOS]
-    steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
-      with:
-        cache_key: ${{ matrix.os }}
-    - name: Initialize xcodebuild
-      run: scripts/setup_spm_tests.sh
-    - name: Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseCrashlytics ${{ matrix.target }} spmbuildonly
-
-
-  catalyst:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-
-    runs-on: macos-12
-    steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
-      with:
-        cache_key: ${{ matrix.os }}
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Setup project and Build for Catalyst
-      run: scripts/test_catalyst.sh FirebaseCrashlytics test FirebaseCrashlytics-Unit-unit
-
-  quickstart:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-12
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@v1
-    - name: Setup quickstart
-      run: scripts/setup_quickstart.sh crashlytics
-      env:
-        LEGACY: true
-    - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-crashlytics.plist.gpg \
-          quickstart-ios/crashlytics/GoogleService-Info.plist "$plist_secret"
-    - name: Test objc quickstart
-      run: |
-        mkdir quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics
-        # Set the deployed pod location of run and upload-symbols with the development pod version.
-        cp Crashlytics/run quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
-        cp Crashlytics/upload-symbols quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
-        ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics true)
-      env:
-        LEGACY: true
-    - name: Test swift quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics true swift)
-      env:
-        LEGACY: true
-
-  crashlytics-cron-only:
-    # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-
-    runs-on: macos-12
-    strategy:
-      matrix:
-        target: [ios, tvos, macos]
-        flags: [
-          '--use-static-frameworks'
-        ]
-    needs: pod-lib-lint
-    steps:
-    - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: PodLibLint Auth Cron
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseCrashlytics.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+#name: crashlytics
+#
+#on:
+#  pull_request:
+#    paths:
+#    - 'Crashlytics**'
+#    - 'FirebaseCrashlytics.podspec'
+#    - '.github/workflows/crashlytics.yml'
+#    - 'Interop/Analytics/Public/*.h'
+#    - 'Gemfile*'
+#  schedule:
+#    # Run every day at 10am (PST) - cron uses UTC times
+#    - cron:  '0 2 * * *'
+#
+#concurrency:
+#    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+#    cancel-in-progress: true
+#
+#jobs:
+#
+#  pod-lib-lint:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#
+#    runs-on: macos-12
+#
+#    strategy:
+#      matrix:
+#        target: [ios, tvos, macos]
+#    steps:
+#    - uses: actions/checkout@v2
+#    - uses: ruby/setup-ruby@v1
+#    - name: Setup Bundler
+#      run: scripts/setup_bundler.sh
+#    - name: Build and test
+#      run: |
+#        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseCrashlytics.podspec --platforms=${{ matrix.target }}
+#
+#  spm:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#    runs-on: macos-12
+#    strategy:
+#      matrix:
+#        target: [iOS, tvOS, macOS, catalyst, watchOS]
+#    steps:
+#    - uses: actions/checkout@v2
+#    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+#      with:
+#        cache_key: ${{ matrix.os }}
+#    - name: Initialize xcodebuild
+#      run: scripts/setup_spm_tests.sh
+#    - name: Unit Tests
+#      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseCrashlytics ${{ matrix.target }} spmbuildonly
+#
+#
+#  catalyst:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#
+#    runs-on: macos-12
+#    steps:
+#    - uses: actions/checkout@v2
+#    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+#      with:
+#        cache_key: ${{ matrix.os }}
+#    - uses: ruby/setup-ruby@v1
+#    - name: Setup Bundler
+#      run: scripts/setup_bundler.sh
+#    - name: Setup project and Build for Catalyst
+#      run: scripts/test_catalyst.sh FirebaseCrashlytics test FirebaseCrashlytics-Unit-unit
+#
+#  quickstart:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#
+#    env:
+#      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#    runs-on: macos-12
+#    steps:
+#    - uses: actions/checkout@v2
+#    - uses: actions/checkout@v2
+#    - uses: ruby/setup-ruby@v1
+#    - name: Setup quickstart
+#      run: scripts/setup_quickstart.sh crashlytics
+#      env:
+#        LEGACY: true
+#    - name: Install Secret GoogleService-Info.plist
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-crashlytics.plist.gpg \
+#          quickstart-ios/crashlytics/GoogleService-Info.plist "$plist_secret"
+#    - name: Test objc quickstart
+#      run: |
+#        mkdir quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics
+#        # Set the deployed pod location of run and upload-symbols with the development pod version.
+#        cp Crashlytics/run quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
+#        cp Crashlytics/upload-symbols quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
+#        ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics true)
+#      env:
+#        LEGACY: true
+#    - name: Test swift quickstart
+#      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics true swift)
+#      env:
+#        LEGACY: true
+#
+#  crashlytics-cron-only:
+#    # Don't run on private repo.
+#    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+#
+#    runs-on: macos-12
+#    strategy:
+#      matrix:
+#        target: [ios, tvos, macos]
+#        flags: [
+#          '--use-static-frameworks'
+#        ]
+#    needs: pod-lib-lint
+#    steps:
+#    - uses: actions/checkout@v2
+#    - uses: ruby/setup-ruby@v1
+#    - name: Setup Bundler
+#      run: scripts/setup_bundler.sh
+#    - name: PodLibLint Auth Cron
+#      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseCrashlytics.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
