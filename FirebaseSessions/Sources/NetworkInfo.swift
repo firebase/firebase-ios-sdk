@@ -25,17 +25,17 @@ class NetworkInfo: NetworkInfoProtocol {
     // Don't look these up when in the simulator because they always fail
     // and put unnecessary logs in the customer's output
     #if targetEnvironment(simulator)
-    return ""
+      return ""
     #else
-    return FIRSESNetworkMobileCountryCode()
+      return FIRSESNetworkMobileCountryCode()
     #endif // targetEnvironment(simulator)
   }
 
   var mobileNetworkCode: String? {
     #if targetEnvironment(simulator)
-    return ""
+      return ""
     #else
-    return FIRSESNetworkMobileNetworkCode()
+      return FIRSESNetworkMobileNetworkCode()
     #endif // targetEnvironment(simulator)
   }
 }
