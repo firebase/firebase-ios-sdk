@@ -1,658 +1,658 @@
-name: prerelease
-
-on:
-  pull_request:
-    # closed will be triggered when a pull request is merged. This is to keep https://github.com/firebase/SpecsTesting up to date.
-    types: [closed]
-  workflow_dispatch:
-  schedule:
-    # Run every day at 9pm (PST) - cron uses UTC times
-    - cron:  '0 5 * * *'
-
-concurrency:
-    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-    cancel-in-progress: true
-
-jobs:
-  specs_checking:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
-    runs-on: macos-12
-    env:
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      # The SDK repo will be cloned to this dir and podspecs from
-      # 'podspec_repo_branch' of this repo will be validated and pushed to the
-      # testing repo.
-      local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
-      local_repo: specstesting
-      podspec_repo_branch: master
-    outputs:
-      matrix: ${{ steps.generate_matrix.outputs.matrix }}
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-    - name: Generate matrix
-      id: generate_matrix
-      run: |
-        cd "${GITHUB_WORKSPACE}/ReleaseTooling"
-        swift run manifest --sdk-repo-url "${GITHUB_WORKSPACE}" --output-file-path ./output.json --for-gha-matrix-generation
-        echo "::set-output name=matrix::{\"include\":$( cat output.json )}"
-    - name: Get token
-      run: |
-         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/oss-bot-access.txt.gpg \
-         oss-bot-access.txt "$bot_token_secret"
-         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
-         bot-access.txt "$bot_token_secret"
-    - name: Update SpecsTesting repo setup
-      run: |
-         ossbotaccess=`cat oss-bot-access.txt`
-         BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" local_sdk_repo_dir="${local_sdk_repo_dir}" podspec_repo_branch="${podspec_repo_branch}" scripts/release_testing_setup.sh prerelease_testing
-    - name: Clean spec repo
-      run: |
-         ossbotaccess=`cat oss-bot-access.txt`
-         git clone --quiet https://${ossbotaccess}@github.com/Firebase/SpecsTesting.git "${local_repo}"
-         cd "${local_repo}"
-         # Remove all unhidden dirs, i.e. all podspec dir from the spec repo.
-         rm -Rf -- */
-         git add .
-         # commit without diff will throw an error. `git diff --exit-code` can avoid such error.
-         git diff --staged --exit-code || git commit -m "Empty spec repo."
-         git push
-    - name: Clean Artifacts
-      if: ${{ always() }}
-      run: |
-        rm -rf oss-bot-access.txt
-    - uses: actions/upload-artifact@v3
-      with:
-        name: firebase-ios-sdk
-        path: |
-          ${{ env.local_sdk_repo_dir }}/*.podspec
-          ${{ env.local_sdk_repo_dir }}/*.podspec.json
-  buildup_SpecsTesting_repo_FirebaseCore:
-    needs: specs_checking
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
-    runs-on: macos-12
-    env:
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      local_repo: specstesting
-      local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
-      targeted_pod: FirebaseCore
-    steps:
-    - uses: actions/checkout@v3
-    - uses: actions/download-artifact@v3
-      with:
-        name: firebase-ios-sdk
-        path: ${{ env.local_sdk_repo_dir }}
-    - name: Get token
-      run: |
-         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
-         bot-access.txt "$bot_token_secret"
-    - name: Update SpecsTesting repo
-      run: |
-        botaccess=`cat bot-access.txt`
-        cd scripts/create_spec_repo/
-        swift build
-        pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/Firebase/SpecsTesting.git
-        BOT_TOKEN="${botaccess}" ${GITHUB_WORKSPACE}/scripts/third_party/travis/retry.sh .build/debug/spec-repo-builder \
-          --sdk-repo "${local_sdk_repo_dir}" \
-          --local-spec-repo-name "${local_repo}" \
-          --sdk-repo-name SpecsTesting \
-          --github-account Firebase \
-          --pod-sources 'https://${BOT_TOKEN}@github.com/Firebase/SpecsTesting' "https://github.com/firebase/SpecsDev.git" "https://github.com/firebase/SpecsStaging.git" "https://github.com/CocoaPods/Specs.git" \
-          --include-pods "${targeted_pod}" --keep-repo
-    - name: Clean Artifacts
-      if: ${{ always() }}
-      run: |
-        pod repo remove "${local_repo}"
-        rm -rf bot-access.txt
-
-  buildup_SpecsTesting_repo:
-    needs: [buildup_SpecsTesting_repo_FirebaseCore, specs_checking]
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
-    runs-on: macos-12
-    strategy:
-      fail-fast: false
-      matrix: ${{fromJson(needs.specs_checking.outputs.matrix)}}
-    env:
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      local_repo: specstesting
-      local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
-      targeted_pod: ${{ matrix.podspec }}
-    steps:
-    - uses: actions/checkout@v3
-    - uses: actions/download-artifact@v3
-      with:
-        name: firebase-ios-sdk
-        path: ${{ env.local_sdk_repo_dir }}
-    - name: Get token
-      run: |
-         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
-         bot-access.txt "$bot_token_secret"
-    - name: Update SpecsTesting repo
-      run: |
-        [[ ${{ matrix.allowwarnings }} == true ]] && ALLOWWARNINGS=true
-        botaccess=`cat bot-access.txt`
-        cd scripts/create_spec_repo/
-        swift build
-        pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/Firebase/SpecsTesting.git
-        # ${ALLOWWARNINGS:+--allow-warnings} will add --allow-warnings to the
-        # command if ${ALLOWWARNINGS} is not null.
-        BOT_TOKEN="${botaccess}" ${GITHUB_WORKSPACE}/scripts/third_party/travis/retry.sh .build/debug/spec-repo-builder \
-                                  --sdk-repo "${local_sdk_repo_dir}" \
-                                  --local-spec-repo-name "${local_repo}" \
-                                  --sdk-repo-name SpecsTesting \
-                                  --github-account Firebase \
-                                  --pod-sources 'https://${BOT_TOKEN}@github.com/Firebase/SpecsTesting' "https://github.com/firebase/SpecsDev.git" "https://github.com/firebase/SpecsStaging.git" "https://github.com/CocoaPods/Specs.git" \
-                                  --include-pods "${targeted_pod}" \
-                                  --keep-repo ${ALLOWWARNINGS:+--allow-warnings}
-    - name: Clean Artifacts
-      if: ${{ always() }}
-      run: |
-        pod repo remove "${local_repo}"
-        rm -rf bot-access.txt
-
-  update_SpecsTesting_repo:
-    # Don't run on private repo unless it is a PR.
-    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event.pull_request.merged == true
-    runs-on: macos-12
-    env:
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      local_repo: specstesting
-      local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
-      podspec_repo_branch: master
-    steps:
-    - uses: actions/checkout@v3
-    - name: Get token
-      run: |
-         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/oss-bot-access.txt.gpg \
-         oss-bot-access.txt "$bot_token_secret"
-         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
-         bot-access.txt "$bot_token_secret"
-    - name: Update SpecsTesting repo setup
-      run: |
-         ossbotaccess=`cat oss-bot-access.txt`
-         # Update/create a nightly tag to the head of the master branch.
-         BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" local_sdk_repo_dir="${local_sdk_repo_dir}" podspec_repo_branch="${podspec_repo_branch}" scripts/release_testing_setup.sh prerelease_testing
-    - name: Push updated podspecs
-      run: |
-        botaccess=`cat bot-access.txt`
-        cd "${local_sdk_repo_dir}"
-        # Changes in post submit tests will be fetched by getting diff between
-        # the HEAD and HEAD^ of the master branch.
-        common_commit=$(git rev-parse HEAD^)
-        git diff --name-only $common_commit remotes/origin/${podspec_repo_branch} > updated_files.txt
-        updated_podspecs=()
-        while IFS= read -r line;
-        do
-          echo $line
-          if [ ${line: -8} == ".podspec" ]
-          then
-            updated_podspecs+=("$(basename -s .podspec ${line})")
-          fi
-        done < updated_files.txt
-        if [ -z "$updated_podspecs" ]
-        then
-          exit
-        fi
-        cd scripts/create_spec_repo/
-        swift build
-        pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/Firebase/SpecsTesting.git
-        BOT_TOKEN="${botaccess}" .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}" --sdk-repo-name SpecsTesting --github-account Firebase --pod-sources 'https://${BOT_TOKEN}@github.com/Firebase/SpecsTesting' "https://github.com/firebase/SpecsDev.git" "https://github.com/firebase/SpecsStaging.git" "https://cdn.cocoapods.org/" "FirebaseFirestoreTestingSupport" "FirebaseAuthTestingSupport" "FirebaseCombineSwift" --keep-repo --include-pods "${updated_podspecs[@]}"
-
-  abtesting_quickstart:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
-
-    needs: buildup_SpecsTesting_repo
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-12
-    steps:
-    - uses: actions/checkout@v3
-    - uses: ruby/setup-ruby@v1
-    - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
-          bot-access.txt "$bot_token_secret"
-    - name: Setup testing repo and quickstart
-      env:
-        LEGACY: true
-      run: |
-          botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh abtesting prerelease_testing
-    - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-abtesting.plist.gpg \
-          quickstart-ios/abtesting/GoogleService-Info.plist "$plist_secret"
-    - name: Test swift quickstart
-      env:
-        LEGACY: true
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh ABTesting true)
-    - name: Remove data before upload
-      env:
-        LEGACY: true
-      run: scripts/remove_data.sh config release_testing
-    - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_abtesting
-        path: quickstart-ios/
-
-  auth_quickstart:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
-    needs: buildup_SpecsTesting_repo
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-12
-    steps:
-    - uses: actions/checkout@v3
-    - uses: ruby/setup-ruby@v1
-    - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
-          bot-access.txt "$bot_token_secret"
-    - name: Setup testing repo and quickstart
-      run: |
-          botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Authentication prerelease_testing
-    - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-auth.plist.gpg \
-          quickstart-ios/authentication/GoogleService-Info.plist "$plist_secret"
-    - name: Test swift quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Authentication false)
-    - name: Remove data before upload
-      run: scripts/remove_data.sh authentication release_testing
-    - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_auth
-        path: quickstart-ios/
-
-  crashlytics_quickstart:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
-    needs: buildup_SpecsTesting_repo
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      testing_repo_dir: "/tmp/test/"
-      testing_repo: "firebase-ios-sdk"
-    runs-on: macos-12
-    steps:
-    - uses: actions/checkout@v3
-    - uses: ruby/setup-ruby@v1
-    - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
-          bot-access.txt "$bot_token_secret"
-    - name: Setup testing repo and quickstart
-      env:
-        LEGACY: true
-      run: |
-          botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Crashlytics prerelease_testing
-    - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-crashlytics.plist.gpg \
-          quickstart-ios/crashlytics/GoogleService-Info.plist "$plist_secret"
-    - name: Test objc quickstart
-      env:
-        LEGACY: true
-      run: |
-        mkdir -p quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics
-        # Set the deployed pod location of run and upload-symbols with the development pod version.
-        cp Crashlytics/run quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
-        cp Crashlytics/upload-symbols quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
-        ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics true)
-    - name: Test swift quickstart
-      env:
-        LEGACY: true
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics true swift)
-    - name: Remove data before upload
-      env:
-        LEGACY: true
-      run: scripts/remove_data.sh crashlytics release_testing
-    - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_crashlytics
-        path: quickstart-ios/
-
-  database_quickstart:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
-    needs: buildup_SpecsTesting_repo
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      testing_repo_dir: "/tmp/test/"
-      testing_repo: "firebase-ios-sdk"
-    runs-on: macos-12
-    steps:
-    - uses: actions/checkout@v3
-    - uses: ruby/setup-ruby@v1
-    - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
-          bot-access.txt "$bot_token_secret"
-    - name: Setup testing repo and quickstart
-      run: |
-          botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh database prerelease_testing
-    - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-database.plist.gpg \
-          quickstart-ios/database/GoogleService-Info.plist "$plist_secret"
-    - name: Test objc quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Database false)
-    - name: Test swift quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Database false swift)
-    - name: Remove data before upload
-      run: scripts/remove_data.sh database release_testing
-    - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_database
-        path: quickstart-ios/
-
-  dynamiclinks_quickstart:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
-    needs: buildup_SpecsTesting_repo
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      testing_repo_dir: "/tmp/test/"
-      testing_repo: "firebase-ios-sdk"
-    runs-on: macos-12
-    steps:
-    - uses: actions/checkout@v3
-    - uses: ruby/setup-ruby@v1
-    - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
-          bot-access.txt "$bot_token_secret"
-    - name: Setup testing repo and quickstart
-      run: |
-          botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh dynamiclinks prerelease_testing
-    - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-dynamiclinks.plist.gpg \
-          quickstart-ios/dynamiclinks/GoogleService-Info.plist "$plist_secret"
-    - name: Update Environment Variable For DynamicLinks
-      run: |
-        sed -i '' 's#DYNAMIC_LINK_DOMAIN#https://qpf6m.app.goo.gl#' quickstart-ios/dynamiclinks/DynamicLinksExample/DynamicLinksExample.entitlements
-        sed -i '' 's#YOUR_DOMAIN_URI_PREFIX";#https://qpf6m.app.goo.gl";#' quickstart-ios/dynamiclinks/DynamicLinksExample/ViewController.m
-        sed -i '' 's#YOUR_DOMAIN_URI_PREFIX";#https://qpf6m.app.goo.gl";#' quickstart-ios/dynamiclinks/DynamicLinksExampleSwift/ViewController.swift
-    - name: Test objc quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh DynamicLinks true)
-    - name: Test swift quickstart
-      if: ${{ always() }}
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh DynamicLinks true swift)
-    - name: Remove data before upload
-      run: scripts/remove_data.sh dynamiclinks release_testing
-    - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_dynamiclinks
-        path: quickstart-ios/
-
-  firestore_quickstart:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
-    needs: buildup_SpecsTesting_repo
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      testing_repo_dir: "/tmp/test/"
-      testing_repo: "firebase-ios-sdk"
-    runs-on: macos-12
-    steps:
-    - uses: actions/checkout@v3
-    - uses: ruby/setup-ruby@v1
-    - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
-          bot-access.txt "$bot_token_secret"
-    - name: Setup testing repo and quickstart
-      run: |
-          botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh firestore prerelease_testing
-    - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-firestore.plist.gpg \
-          quickstart-ios/firestore/GoogleService-Info.plist "$plist_secret"
-    - name: Test swift quickstart
-      run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Firestore false)
-    - name: Remove data before upload
-      run: scripts/remove_data.sh firestore release_testing
-    - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_firestore
-        path: quickstart-ios/
-
-  functions_quickstart:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
-    needs: buildup_SpecsTesting_repo
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      testing_repo_dir: "/tmp/test/"
-      testing_repo: "firebase-ios-sdk"
-      LEGACY: true
-    runs-on: macos-12
-    steps:
-    - uses: actions/checkout@v3
-    - uses: ruby/setup-ruby@v1
-    - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
-          bot-access.txt "$bot_token_secret"
-    - name: Setup testing repo and quickstart
-      run: |
-          botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh functions prerelease_testing
-    - name: install secret googleservice-info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-functions.plist.gpg \
-          quickstart-ios/functions/GoogleService-Info.plist "$plist_secret"
-    - name: Setup custom URL scheme
-      run: sed -i '' 's/REVERSED_CLIENT_ID/com.googleusercontent.apps.1025801074639-6p6ebi8amuklcjrto20gvpe295smm8u6/' quickstart-ios/functions/LegacyFunctionsQuickstart/FunctionsExample/Info.plist
-    - name: Test objc quickstart
-      run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions true)
-    - name: Test swift quickstart
-      run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions true swift)
-    - name: Remove data before upload
-      run: scripts/remove_data.sh functions release_testing
-    - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_functions
-        path: quickstart-ios/
-
-  inappmessaging_quickstart:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
-    needs: buildup_SpecsTesting_repo
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      testing_repo_dir: "/tmp/test/"
-      testing_repo: "firebase-ios-sdk"
-    runs-on: macos-12
-    steps:
-    - uses: actions/checkout@v3
-    - uses: ruby/setup-ruby@v1
-    - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
-          bot-access.txt "$bot_token_secret"
-    - name: Setup testing repo and quickstart
-      run: |
-          botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh inappmessaging prerelease_testing
-    - name: install secret googleservice-info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-inappmessaging.plist.gpg \
-          quickstart-ios/inappmessaging/GoogleService-Info.plist "$plist_secret"
-    - name: Test objc quickstart
-      run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh InAppMessaging true)
-    - name: Test swift quickstart
-      run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh InAppMessaging true swift)
-    - name: Remove data before upload
-      run: scripts/remove_data.sh inappmessaging release_testing
-    - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_inappmessaging
-        path: quickstart-ios/
-
-  messaging_quickstart:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
-    needs: buildup_SpecsTesting_repo
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      testing_repo_dir: "/tmp/test/"
-      testing_repo: "firebase-ios-sdk"
-    runs-on: macos-12
-    steps:
-    - uses: actions/checkout@v3
-    - uses: ruby/setup-ruby@v1
-    - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
-          bot-access.txt "$bot_token_secret"
-    - name: Setup testing repo and quickstart
-      run: |
-          botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh messaging prerelease_testing
-    - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-messaging.plist.gpg \
-          quickstart-ios/messaging/GoogleService-Info.plist "$plist_secret"
-    - name: Test objc quickstart
-      run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Messaging false)
-    - name: Test swift quickstart
-      run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Messaging false swift)
-    - name: Remove data before upload
-      run: scripts/remove_data.sh messaging release_testing
-    - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_messaging
-        path: quickstart-ios/
-
-  remoteconfig_quickstart:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
-    needs: buildup_SpecsTesting_repo
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-12
-    steps:
-    - uses: actions/checkout@v3
-    - uses: ruby/setup-ruby@v1
-    - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
-          bot-access.txt "$bot_token_secret"
-    - name: Setup testing repo and quickstart
-      run: |
-          botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh config prerelease_testing
-    - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-config.plist.gpg \
-          quickstart-ios/config/GoogleService-Info.plist "$plist_secret"
-    - name: Test Swift Quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Config true)
-    - name: Remove data before upload
-      run: scripts/remove_data.sh config release_testing
-    - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_config
-        path: quickstart-ios/
-
-  storage_quickstart:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
-    needs: buildup_SpecsTesting_repo
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      testing_repo_dir: "/tmp/test/"
-      testing_repo: "firebase-ios-sdk"
-      LEGACY: true
-    runs-on: macos-12
-    steps:
-    - uses: actions/checkout@v3
-    - uses: ruby/setup-ruby@v1
-    - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
-          bot-access.txt "$bot_token_secret"
-    - name: Setup testing repo and quickstart
-      run: |
-          botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh storage prerelease_testing
-    - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-storage.plist.gpg \
-          quickstart-ios/storage/GoogleService-Info.plist "$plist_secret"
-    - name: Test objc quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage true)
-    - name: Test swift quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage true swift)
-    - name: Remove data before upload
-      run: scripts/remove_data.sh storage release_testing
-    - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_storage
-        path: quickstart-ios/
-
-  performance_quickstart:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
-    needs: buildup_SpecsTesting_repo
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      testing_repo_dir: "/tmp/test/"
-      testing_repo: "firebase-ios-sdk"
-    runs-on: macos-12
-    steps:
-    - uses: actions/checkout@v3
-    - uses: ruby/setup-ruby@v1
-    - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
-          bot-access.txt "$bot_token_secret"
-    - name: Setup testing repo and quickstart
-      run: |
-          botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Performance prerelease_testing
-    - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-performance.plist.gpg \
-          quickstart-ios/performance/GoogleService-Info.plist "$plist_secret"
-    - name: Test objc quickstart
-      run: |
-        ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance true)
-    - name: Test swift quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance true swift)
-    - name: Remove data before upload
-      run: scripts/remove_data.sh performance release_testing
-    - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_performance
-        path: quickstart-ios/
+#name: prerelease
+#
+#on:
+#  pull_request:
+#    # closed will be triggered when a pull request is merged. This is to keep https://github.com/firebase/SpecsTesting up to date.
+#    types: [closed]
+#  workflow_dispatch:
+#  schedule:
+#    # Run every day at 9pm (PST) - cron uses UTC times
+#    - cron:  '0 5 * * *'
+#
+#concurrency:
+#    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+#    cancel-in-progress: true
+#
+#jobs:
+#  specs_checking:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
+#    runs-on: macos-12
+#    env:
+#      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      # The SDK repo will be cloned to this dir and podspecs from
+#      # 'podspec_repo_branch' of this repo will be validated and pushed to the
+#      # testing repo.
+#      local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
+#      local_repo: specstesting
+#      podspec_repo_branch: master
+#    outputs:
+#      matrix: ${{ steps.generate_matrix.outputs.matrix }}
+#    steps:
+#    - name: Checkout code
+#      uses: actions/checkout@v3
+#    - name: Generate matrix
+#      id: generate_matrix
+#      run: |
+#        cd "${GITHUB_WORKSPACE}/ReleaseTooling"
+#        swift run manifest --sdk-repo-url "${GITHUB_WORKSPACE}" --output-file-path ./output.json --for-gha-matrix-generation
+#        echo "::set-output name=matrix::{\"include\":$( cat output.json )}"
+#    - name: Get token
+#      run: |
+#         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/oss-bot-access.txt.gpg \
+#         oss-bot-access.txt "$bot_token_secret"
+#         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+#         bot-access.txt "$bot_token_secret"
+#    - name: Update SpecsTesting repo setup
+#      run: |
+#         ossbotaccess=`cat oss-bot-access.txt`
+#         BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" local_sdk_repo_dir="${local_sdk_repo_dir}" podspec_repo_branch="${podspec_repo_branch}" scripts/release_testing_setup.sh prerelease_testing
+#    - name: Clean spec repo
+#      run: |
+#         ossbotaccess=`cat oss-bot-access.txt`
+#         git clone --quiet https://${ossbotaccess}@github.com/Firebase/SpecsTesting.git "${local_repo}"
+#         cd "${local_repo}"
+#         # Remove all unhidden dirs, i.e. all podspec dir from the spec repo.
+#         rm -Rf -- */
+#         git add .
+#         # commit without diff will throw an error. `git diff --exit-code` can avoid such error.
+#         git diff --staged --exit-code || git commit -m "Empty spec repo."
+#         git push
+#    - name: Clean Artifacts
+#      if: ${{ always() }}
+#      run: |
+#        rm -rf oss-bot-access.txt
+#    - uses: actions/upload-artifact@v3
+#      with:
+#        name: firebase-ios-sdk
+#        path: |
+#          ${{ env.local_sdk_repo_dir }}/*.podspec
+#          ${{ env.local_sdk_repo_dir }}/*.podspec.json
+#  buildup_SpecsTesting_repo_FirebaseCore:
+#    needs: specs_checking
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
+#    runs-on: macos-12
+#    env:
+#      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      local_repo: specstesting
+#      local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
+#      targeted_pod: FirebaseCore
+#    steps:
+#    - uses: actions/checkout@v3
+#    - uses: actions/download-artifact@v3
+#      with:
+#        name: firebase-ios-sdk
+#        path: ${{ env.local_sdk_repo_dir }}
+#    - name: Get token
+#      run: |
+#         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+#         bot-access.txt "$bot_token_secret"
+#    - name: Update SpecsTesting repo
+#      run: |
+#        botaccess=`cat bot-access.txt`
+#        cd scripts/create_spec_repo/
+#        swift build
+#        pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/Firebase/SpecsTesting.git
+#        BOT_TOKEN="${botaccess}" ${GITHUB_WORKSPACE}/scripts/third_party/travis/retry.sh .build/debug/spec-repo-builder \
+#          --sdk-repo "${local_sdk_repo_dir}" \
+#          --local-spec-repo-name "${local_repo}" \
+#          --sdk-repo-name SpecsTesting \
+#          --github-account Firebase \
+#          --pod-sources 'https://${BOT_TOKEN}@github.com/Firebase/SpecsTesting' "https://github.com/firebase/SpecsDev.git" "https://github.com/firebase/SpecsStaging.git" "https://github.com/CocoaPods/Specs.git" \
+#          --include-pods "${targeted_pod}" --keep-repo
+#    - name: Clean Artifacts
+#      if: ${{ always() }}
+#      run: |
+#        pod repo remove "${local_repo}"
+#        rm -rf bot-access.txt
+#
+#  buildup_SpecsTesting_repo:
+#    needs: [buildup_SpecsTesting_repo_FirebaseCore, specs_checking]
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
+#    runs-on: macos-12
+#    strategy:
+#      fail-fast: false
+#      matrix: ${{fromJson(needs.specs_checking.outputs.matrix)}}
+#    env:
+#      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      local_repo: specstesting
+#      local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
+#      targeted_pod: ${{ matrix.podspec }}
+#    steps:
+#    - uses: actions/checkout@v3
+#    - uses: actions/download-artifact@v3
+#      with:
+#        name: firebase-ios-sdk
+#        path: ${{ env.local_sdk_repo_dir }}
+#    - name: Get token
+#      run: |
+#         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+#         bot-access.txt "$bot_token_secret"
+#    - name: Update SpecsTesting repo
+#      run: |
+#        [[ ${{ matrix.allowwarnings }} == true ]] && ALLOWWARNINGS=true
+#        botaccess=`cat bot-access.txt`
+#        cd scripts/create_spec_repo/
+#        swift build
+#        pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/Firebase/SpecsTesting.git
+#        # ${ALLOWWARNINGS:+--allow-warnings} will add --allow-warnings to the
+#        # command if ${ALLOWWARNINGS} is not null.
+#        BOT_TOKEN="${botaccess}" ${GITHUB_WORKSPACE}/scripts/third_party/travis/retry.sh .build/debug/spec-repo-builder \
+#                                  --sdk-repo "${local_sdk_repo_dir}" \
+#                                  --local-spec-repo-name "${local_repo}" \
+#                                  --sdk-repo-name SpecsTesting \
+#                                  --github-account Firebase \
+#                                  --pod-sources 'https://${BOT_TOKEN}@github.com/Firebase/SpecsTesting' "https://github.com/firebase/SpecsDev.git" "https://github.com/firebase/SpecsStaging.git" "https://github.com/CocoaPods/Specs.git" \
+#                                  --include-pods "${targeted_pod}" \
+#                                  --keep-repo ${ALLOWWARNINGS:+--allow-warnings}
+#    - name: Clean Artifacts
+#      if: ${{ always() }}
+#      run: |
+#        pod repo remove "${local_repo}"
+#        rm -rf bot-access.txt
+#
+#  update_SpecsTesting_repo:
+#    # Don't run on private repo unless it is a PR.
+#    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event.pull_request.merged == true
+#    runs-on: macos-12
+#    env:
+#      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      local_repo: specstesting
+#      local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
+#      podspec_repo_branch: master
+#    steps:
+#    - uses: actions/checkout@v3
+#    - name: Get token
+#      run: |
+#         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/oss-bot-access.txt.gpg \
+#         oss-bot-access.txt "$bot_token_secret"
+#         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+#         bot-access.txt "$bot_token_secret"
+#    - name: Update SpecsTesting repo setup
+#      run: |
+#         ossbotaccess=`cat oss-bot-access.txt`
+#         # Update/create a nightly tag to the head of the master branch.
+#         BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" local_sdk_repo_dir="${local_sdk_repo_dir}" podspec_repo_branch="${podspec_repo_branch}" scripts/release_testing_setup.sh prerelease_testing
+#    - name: Push updated podspecs
+#      run: |
+#        botaccess=`cat bot-access.txt`
+#        cd "${local_sdk_repo_dir}"
+#        # Changes in post submit tests will be fetched by getting diff between
+#        # the HEAD and HEAD^ of the master branch.
+#        common_commit=$(git rev-parse HEAD^)
+#        git diff --name-only $common_commit remotes/origin/${podspec_repo_branch} > updated_files.txt
+#        updated_podspecs=()
+#        while IFS= read -r line;
+#        do
+#          echo $line
+#          if [ ${line: -8} == ".podspec" ]
+#          then
+#            updated_podspecs+=("$(basename -s .podspec ${line})")
+#          fi
+#        done < updated_files.txt
+#        if [ -z "$updated_podspecs" ]
+#        then
+#          exit
+#        fi
+#        cd scripts/create_spec_repo/
+#        swift build
+#        pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/Firebase/SpecsTesting.git
+#        BOT_TOKEN="${botaccess}" .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}" --sdk-repo-name SpecsTesting --github-account Firebase --pod-sources 'https://${BOT_TOKEN}@github.com/Firebase/SpecsTesting' "https://github.com/firebase/SpecsDev.git" "https://github.com/firebase/SpecsStaging.git" "https://cdn.cocoapods.org/" "FirebaseFirestoreTestingSupport" "FirebaseAuthTestingSupport" "FirebaseCombineSwift" --keep-repo --include-pods "${updated_podspecs[@]}"
+#
+#  abtesting_quickstart:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
+#
+#    needs: buildup_SpecsTesting_repo
+#    env:
+#      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#    runs-on: macos-12
+#    steps:
+#    - uses: actions/checkout@v3
+#    - uses: ruby/setup-ruby@v1
+#    - name: Get token
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+#          bot-access.txt "$bot_token_secret"
+#    - name: Setup testing repo and quickstart
+#      env:
+#        LEGACY: true
+#      run: |
+#          botaccess=`cat bot-access.txt`
+#          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh abtesting prerelease_testing
+#    - name: Install Secret GoogleService-Info.plist
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-abtesting.plist.gpg \
+#          quickstart-ios/abtesting/GoogleService-Info.plist "$plist_secret"
+#    - name: Test swift quickstart
+#      env:
+#        LEGACY: true
+#      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh ABTesting true)
+#    - name: Remove data before upload
+#      env:
+#        LEGACY: true
+#      run: scripts/remove_data.sh config release_testing
+#    - uses: actions/upload-artifact@v2
+#      if: ${{ failure() }}
+#      with:
+#        name: quickstart_artifacts_abtesting
+#        path: quickstart-ios/
+#
+#  auth_quickstart:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
+#    needs: buildup_SpecsTesting_repo
+#    env:
+#      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#    runs-on: macos-12
+#    steps:
+#    - uses: actions/checkout@v3
+#    - uses: ruby/setup-ruby@v1
+#    - name: Get token
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+#          bot-access.txt "$bot_token_secret"
+#    - name: Setup testing repo and quickstart
+#      run: |
+#          botaccess=`cat bot-access.txt`
+#          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Authentication prerelease_testing
+#    - name: Install Secret GoogleService-Info.plist
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-auth.plist.gpg \
+#          quickstart-ios/authentication/GoogleService-Info.plist "$plist_secret"
+#    - name: Test swift quickstart
+#      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Authentication false)
+#    - name: Remove data before upload
+#      run: scripts/remove_data.sh authentication release_testing
+#    - uses: actions/upload-artifact@v2
+#      if: ${{ failure() }}
+#      with:
+#        name: quickstart_artifacts_auth
+#        path: quickstart-ios/
+#
+#  crashlytics_quickstart:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
+#    needs: buildup_SpecsTesting_repo
+#    env:
+#      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      testing_repo_dir: "/tmp/test/"
+#      testing_repo: "firebase-ios-sdk"
+#    runs-on: macos-12
+#    steps:
+#    - uses: actions/checkout@v3
+#    - uses: ruby/setup-ruby@v1
+#    - name: Get token
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+#          bot-access.txt "$bot_token_secret"
+#    - name: Setup testing repo and quickstart
+#      env:
+#        LEGACY: true
+#      run: |
+#          botaccess=`cat bot-access.txt`
+#          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Crashlytics prerelease_testing
+#    - name: Install Secret GoogleService-Info.plist
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-crashlytics.plist.gpg \
+#          quickstart-ios/crashlytics/GoogleService-Info.plist "$plist_secret"
+#    - name: Test objc quickstart
+#      env:
+#        LEGACY: true
+#      run: |
+#        mkdir -p quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics
+#        # Set the deployed pod location of run and upload-symbols with the development pod version.
+#        cp Crashlytics/run quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
+#        cp Crashlytics/upload-symbols quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
+#        ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics true)
+#    - name: Test swift quickstart
+#      env:
+#        LEGACY: true
+#      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics true swift)
+#    - name: Remove data before upload
+#      env:
+#        LEGACY: true
+#      run: scripts/remove_data.sh crashlytics release_testing
+#    - uses: actions/upload-artifact@v2
+#      if: ${{ failure() }}
+#      with:
+#        name: quickstart_artifacts_crashlytics
+#        path: quickstart-ios/
+#
+#  database_quickstart:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
+#    needs: buildup_SpecsTesting_repo
+#    env:
+#      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      testing_repo_dir: "/tmp/test/"
+#      testing_repo: "firebase-ios-sdk"
+#    runs-on: macos-12
+#    steps:
+#    - uses: actions/checkout@v3
+#    - uses: ruby/setup-ruby@v1
+#    - name: Get token
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+#          bot-access.txt "$bot_token_secret"
+#    - name: Setup testing repo and quickstart
+#      run: |
+#          botaccess=`cat bot-access.txt`
+#          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh database prerelease_testing
+#    - name: Install Secret GoogleService-Info.plist
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-database.plist.gpg \
+#          quickstart-ios/database/GoogleService-Info.plist "$plist_secret"
+#    - name: Test objc quickstart
+#      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Database false)
+#    - name: Test swift quickstart
+#      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Database false swift)
+#    - name: Remove data before upload
+#      run: scripts/remove_data.sh database release_testing
+#    - uses: actions/upload-artifact@v2
+#      if: ${{ failure() }}
+#      with:
+#        name: quickstart_artifacts_database
+#        path: quickstart-ios/
+#
+#  dynamiclinks_quickstart:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
+#    needs: buildup_SpecsTesting_repo
+#    env:
+#      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      testing_repo_dir: "/tmp/test/"
+#      testing_repo: "firebase-ios-sdk"
+#    runs-on: macos-12
+#    steps:
+#    - uses: actions/checkout@v3
+#    - uses: ruby/setup-ruby@v1
+#    - name: Get token
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+#          bot-access.txt "$bot_token_secret"
+#    - name: Setup testing repo and quickstart
+#      run: |
+#          botaccess=`cat bot-access.txt`
+#          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh dynamiclinks prerelease_testing
+#    - name: Install Secret GoogleService-Info.plist
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-dynamiclinks.plist.gpg \
+#          quickstart-ios/dynamiclinks/GoogleService-Info.plist "$plist_secret"
+#    - name: Update Environment Variable For DynamicLinks
+#      run: |
+#        sed -i '' 's#DYNAMIC_LINK_DOMAIN#https://qpf6m.app.goo.gl#' quickstart-ios/dynamiclinks/DynamicLinksExample/DynamicLinksExample.entitlements
+#        sed -i '' 's#YOUR_DOMAIN_URI_PREFIX";#https://qpf6m.app.goo.gl";#' quickstart-ios/dynamiclinks/DynamicLinksExample/ViewController.m
+#        sed -i '' 's#YOUR_DOMAIN_URI_PREFIX";#https://qpf6m.app.goo.gl";#' quickstart-ios/dynamiclinks/DynamicLinksExampleSwift/ViewController.swift
+#    - name: Test objc quickstart
+#      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh DynamicLinks true)
+#    - name: Test swift quickstart
+#      if: ${{ always() }}
+#      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh DynamicLinks true swift)
+#    - name: Remove data before upload
+#      run: scripts/remove_data.sh dynamiclinks release_testing
+#    - uses: actions/upload-artifact@v2
+#      if: ${{ failure() }}
+#      with:
+#        name: quickstart_artifacts_dynamiclinks
+#        path: quickstart-ios/
+#
+#  firestore_quickstart:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
+#    needs: buildup_SpecsTesting_repo
+#    env:
+#      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      testing_repo_dir: "/tmp/test/"
+#      testing_repo: "firebase-ios-sdk"
+#    runs-on: macos-12
+#    steps:
+#    - uses: actions/checkout@v3
+#    - uses: ruby/setup-ruby@v1
+#    - name: Get token
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+#          bot-access.txt "$bot_token_secret"
+#    - name: Setup testing repo and quickstart
+#      run: |
+#          botaccess=`cat bot-access.txt`
+#          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh firestore prerelease_testing
+#    - name: Install Secret GoogleService-Info.plist
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-firestore.plist.gpg \
+#          quickstart-ios/firestore/GoogleService-Info.plist "$plist_secret"
+#    - name: Test swift quickstart
+#      run: ([ -z $plist_secret ] ||
+#            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Firestore false)
+#    - name: Remove data before upload
+#      run: scripts/remove_data.sh firestore release_testing
+#    - uses: actions/upload-artifact@v2
+#      if: ${{ failure() }}
+#      with:
+#        name: quickstart_artifacts_firestore
+#        path: quickstart-ios/
+#
+#  functions_quickstart:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
+#    needs: buildup_SpecsTesting_repo
+#    env:
+#      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      testing_repo_dir: "/tmp/test/"
+#      testing_repo: "firebase-ios-sdk"
+#      LEGACY: true
+#    runs-on: macos-12
+#    steps:
+#    - uses: actions/checkout@v3
+#    - uses: ruby/setup-ruby@v1
+#    - name: Get token
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+#          bot-access.txt "$bot_token_secret"
+#    - name: Setup testing repo and quickstart
+#      run: |
+#          botaccess=`cat bot-access.txt`
+#          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh functions prerelease_testing
+#    - name: install secret googleservice-info.plist
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-functions.plist.gpg \
+#          quickstart-ios/functions/GoogleService-Info.plist "$plist_secret"
+#    - name: Setup custom URL scheme
+#      run: sed -i '' 's/REVERSED_CLIENT_ID/com.googleusercontent.apps.1025801074639-6p6ebi8amuklcjrto20gvpe295smm8u6/' quickstart-ios/functions/LegacyFunctionsQuickstart/FunctionsExample/Info.plist
+#    - name: Test objc quickstart
+#      run: ([ -z $plist_secret ] ||
+#            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions true)
+#    - name: Test swift quickstart
+#      run: ([ -z $plist_secret ] ||
+#            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions true swift)
+#    - name: Remove data before upload
+#      run: scripts/remove_data.sh functions release_testing
+#    - uses: actions/upload-artifact@v2
+#      if: ${{ failure() }}
+#      with:
+#        name: quickstart_artifacts_functions
+#        path: quickstart-ios/
+#
+#  inappmessaging_quickstart:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
+#    needs: buildup_SpecsTesting_repo
+#    env:
+#      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      testing_repo_dir: "/tmp/test/"
+#      testing_repo: "firebase-ios-sdk"
+#    runs-on: macos-12
+#    steps:
+#    - uses: actions/checkout@v3
+#    - uses: ruby/setup-ruby@v1
+#    - name: Get token
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+#          bot-access.txt "$bot_token_secret"
+#    - name: Setup testing repo and quickstart
+#      run: |
+#          botaccess=`cat bot-access.txt`
+#          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh inappmessaging prerelease_testing
+#    - name: install secret googleservice-info.plist
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-inappmessaging.plist.gpg \
+#          quickstart-ios/inappmessaging/GoogleService-Info.plist "$plist_secret"
+#    - name: Test objc quickstart
+#      run: ([ -z $plist_secret ] ||
+#            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh InAppMessaging true)
+#    - name: Test swift quickstart
+#      run: ([ -z $plist_secret ] ||
+#            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh InAppMessaging true swift)
+#    - name: Remove data before upload
+#      run: scripts/remove_data.sh inappmessaging release_testing
+#    - uses: actions/upload-artifact@v2
+#      if: ${{ failure() }}
+#      with:
+#        name: quickstart_artifacts_inappmessaging
+#        path: quickstart-ios/
+#
+#  messaging_quickstart:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
+#    needs: buildup_SpecsTesting_repo
+#    env:
+#      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      testing_repo_dir: "/tmp/test/"
+#      testing_repo: "firebase-ios-sdk"
+#    runs-on: macos-12
+#    steps:
+#    - uses: actions/checkout@v3
+#    - uses: ruby/setup-ruby@v1
+#    - name: Get token
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+#          bot-access.txt "$bot_token_secret"
+#    - name: Setup testing repo and quickstart
+#      run: |
+#          botaccess=`cat bot-access.txt`
+#          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh messaging prerelease_testing
+#    - name: Install Secret GoogleService-Info.plist
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-messaging.plist.gpg \
+#          quickstart-ios/messaging/GoogleService-Info.plist "$plist_secret"
+#    - name: Test objc quickstart
+#      run: ([ -z $plist_secret ] ||
+#            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Messaging false)
+#    - name: Test swift quickstart
+#      run: ([ -z $plist_secret ] ||
+#            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Messaging false swift)
+#    - name: Remove data before upload
+#      run: scripts/remove_data.sh messaging release_testing
+#    - uses: actions/upload-artifact@v2
+#      if: ${{ failure() }}
+#      with:
+#        name: quickstart_artifacts_messaging
+#        path: quickstart-ios/
+#
+#  remoteconfig_quickstart:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
+#    needs: buildup_SpecsTesting_repo
+#    env:
+#      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#    runs-on: macos-12
+#    steps:
+#    - uses: actions/checkout@v3
+#    - uses: ruby/setup-ruby@v1
+#    - name: Get token
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+#          bot-access.txt "$bot_token_secret"
+#    - name: Setup testing repo and quickstart
+#      run: |
+#          botaccess=`cat bot-access.txt`
+#          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh config prerelease_testing
+#    - name: Install Secret GoogleService-Info.plist
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-config.plist.gpg \
+#          quickstart-ios/config/GoogleService-Info.plist "$plist_secret"
+#    - name: Test Swift Quickstart
+#      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Config true)
+#    - name: Remove data before upload
+#      run: scripts/remove_data.sh config release_testing
+#    - uses: actions/upload-artifact@v2
+#      if: ${{ failure() }}
+#      with:
+#        name: quickstart_artifacts_config
+#        path: quickstart-ios/
+#
+#  storage_quickstart:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
+#    needs: buildup_SpecsTesting_repo
+#    env:
+#      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      testing_repo_dir: "/tmp/test/"
+#      testing_repo: "firebase-ios-sdk"
+#      LEGACY: true
+#    runs-on: macos-12
+#    steps:
+#    - uses: actions/checkout@v3
+#    - uses: ruby/setup-ruby@v1
+#    - name: Get token
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+#          bot-access.txt "$bot_token_secret"
+#    - name: Setup testing repo and quickstart
+#      run: |
+#          botaccess=`cat bot-access.txt`
+#          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh storage prerelease_testing
+#    - name: Install Secret GoogleService-Info.plist
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-storage.plist.gpg \
+#          quickstart-ios/storage/GoogleService-Info.plist "$plist_secret"
+#    - name: Test objc quickstart
+#      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage true)
+#    - name: Test swift quickstart
+#      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage true swift)
+#    - name: Remove data before upload
+#      run: scripts/remove_data.sh storage release_testing
+#    - uses: actions/upload-artifact@v2
+#      if: ${{ failure() }}
+#      with:
+#        name: quickstart_artifacts_storage
+#        path: quickstart-ios/
+#
+#  performance_quickstart:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
+#    needs: buildup_SpecsTesting_repo
+#    env:
+#      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      testing_repo_dir: "/tmp/test/"
+#      testing_repo: "firebase-ios-sdk"
+#    runs-on: macos-12
+#    steps:
+#    - uses: actions/checkout@v3
+#    - uses: ruby/setup-ruby@v1
+#    - name: Get token
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+#          bot-access.txt "$bot_token_secret"
+#    - name: Setup testing repo and quickstart
+#      run: |
+#          botaccess=`cat bot-access.txt`
+#          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Performance prerelease_testing
+#    - name: Install Secret GoogleService-Info.plist
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-performance.plist.gpg \
+#          quickstart-ios/performance/GoogleService-Info.plist "$plist_secret"
+#    - name: Test objc quickstart
+#      run: |
+#        ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance true)
+#    - name: Test swift quickstart
+#      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance true swift)
+#    - name: Remove data before upload
+#      run: scripts/remove_data.sh performance release_testing
+#    - uses: actions/upload-artifact@v2
+#      if: ${{ failure() }}
+#      with:
+#        name: quickstart_artifacts_performance
+#        path: quickstart-ios/

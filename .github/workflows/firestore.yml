@@ -1,306 +1,306 @@
-# Copyright 2020 Google LLC
+## Copyright 2020 Google LLC
+##
+## Licensed under the Apache License, Version 2.0 (the "License");
+## you may not use this file except in compliance with the License.
+## You may obtain a copy of the License at
+##
+##      http://www.apache.org/licenses/LICENSE-2.0
+##
+## Unless required by applicable law or agreed to in writing, software
+## distributed under the License is distributed on an "AS IS" BASIS,
+## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+## See the License for the specific language governing permissions and
+## limitations under the License.
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+#name: firestore
 #
-#      http://www.apache.org/licenses/LICENSE-2.0
+#on:
+#  pull_request:
+#    paths:
+#    # Firestore sources
+#    - 'Firestore/**'
 #
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-name: firestore
-
-on:
-  pull_request:
-    paths:
-    # Firestore sources
-    - 'Firestore/**'
-
-    # Interop headers
-    - 'FirebaseAuth/Interop/*.h'
-
-    # FirebaseCore header change
-    - 'FirebaseCore/Internal'
-    - 'FirebaseCore/Sources/Public'
-
-    # Podspec
-    - 'FirebaseFirestore.podspec'
-
-    # CMake
-    - '**CMakeLists.txt'
-    - 'cmake/**'
-
-    # Build scripts to which Firestore is sensitive
-    #
-    # Note that this doesn't include check scripts because changing those will
-    # already trigger the check workflow.
-    - 'scripts/binary_to_array.py'
-    - 'scripts/build.sh'
-    - 'scripts/install_prereqs.sh'
-    - 'scripts/localize_podfile.swift'
-    - 'scripts/pod_lib_lint.rb'
-    - 'scripts/run_firestore_emulator.sh'
-    - 'scripts/setup_*'
-    - 'scripts/sync_project.rb'
-    - 'scripts/test_quickstart.sh'
-    - 'scripts/xcresult_logs.py'
-
-    # This workflow
-    - '.github/workflows/firestore.yml'
-
-    # Rebuild on Ruby infrastructure changes.
-    - 'Gemfile*'
-
-  schedule:
-    # Run every day at 12am (PST) - cron uses UTC times
-    - cron:  '0 8 * * *'
-
-concurrency:
-    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-    cancel-in-progress: true
-
-jobs:
-  check:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-12
-    steps:
-    - uses: actions/checkout@v3
-
-    - uses: actions/setup-python@v2
-      with:
-        python-version: 3.6
-
-    - name: Setup check
-      run:  scripts/setup_check.sh
-
-    - name: Run check
-      run:  scripts/check.sh --test-only
-
-
-  cmake:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    needs: check
-
-    strategy:
-      matrix:
-        os: [macos-12, ubuntu-latest]
-
-    env:
-      MINT_PATH: ${{ github.workspace }}/mint
-
-    runs-on: ${{ matrix.os }}
-    steps:
-    - uses: actions/checkout@v3
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: ${{ matrix.os }}
-
-    - name: Prepare ccache
-      uses: actions/cache@v1
-      with:
-        path: ~/.ccache
-        key: firestore-ccache-${{ runner.os }}-${{ github.sha }}
-        restore-keys: |
-          firestore-ccache-${{ runner.os }}-
-
-    - name: Cache Mint packages
-      uses: actions/cache@v1
-      with:
-        path: ${{ env.MINT_PATH }}
-        key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
-        restore-keys: ${{ runner.os }}-mint-
-
-    - name: Setup build
-      run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
-
-    - name: Build and test
-      run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
-
-
-  sanitizers:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    needs: check
-
-    strategy:
-      matrix:
-        os: [macos-12, ubuntu-latest]
-        sanitizer: [asan, tsan]
-
-    runs-on: ${{ matrix.os }}
-
-    env:
-      SANITIZERS: ${{ matrix.sanitizer }}
-
-    steps:
-    - uses: actions/checkout@v3
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: ${{ matrix.os }}
-
-    - name: Prepare ccache
-      uses: actions/cache@v1
-      with:
-        path: ~/.ccache
-        key: firestore-ccache-${{ runner.os }}-${{ matrix.sanitizer }}-${{ github.sha }}
-        restore-keys: |
-          firestore-ccache-${{ runner.os }}-${{ matrix.sanitizer }}-
-
-    - name: Setup build
-      run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
-
-    - name: Build and test
-      run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
-
-
-  xcodebuild:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-12
-    needs: check
-
-    strategy:
-      matrix:
-        target: [iOS, tvOS, macOS]
-
-    steps:
-    - uses: actions/checkout@v3
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: ${{ matrix.os }}
-
-    - uses: ruby/setup-ruby@v1
-
-    - name: Setup build
-      run:  scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
-
-    - name: Build and test
-      run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ matrix.target }} xcodebuild
-
-
-  pod-lib-lint:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-12
-    needs: check
-    strategy:
-      matrix:
-        podspec: [
-          'FirebaseFirestore.podspec',
-          'FirebaseFirestoreSwift.podspec',
-        ]
-
-    steps:
-    - uses: actions/checkout@v3
-
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: ./scripts/setup_bundler.sh
-
-    - name: Pod lib lint
-      # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
-      run: |
-        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }} \
-            --platforms=ios \
-            --allow-warnings \
-            --no-analyze
-
-  # `pod lib lint` takes a long time so only run the other platforms and static frameworks build in the cron.
-  pod-lib-lint-cron:
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-12
-    needs: check
-    strategy:
-      matrix:
-        podspec: [
-          'FirebaseFirestore.podspec',
-          'FirebaseFirestoreSwift.podspec',
-        ]
-        platforms: [
-          'macos',
-          'tvos',
-        ]
-        flags: [
-          '--use-static-frameworks',
-          '',
-        ]
-
-    steps:
-    - uses: actions/checkout@v3
-
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: ./scripts/setup_bundler.sh
-
-    - name: Pod lib lint
-      # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
-      run: |
-        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }}\
-            ${{ matrix.flags }} \
-            --platforms=${{ matrix.platforms }} \
-            --allow-warnings \
-            --no-analyze
-
-  spm:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-12
-    needs: check
-    steps:
-    - uses: actions/checkout@v3
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: ${{ matrix.os }}
-    - name: Initialize xcodebuild
-      run: scripts/setup_spm_tests.sh
-    - name: iOS Build Test
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore iOS spmbuildonly
-    - name: Swift Build
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift iOS spmbuildonly
-
-  spm-cron:
-    # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-12
-    strategy:
-      matrix:
-        target: [tvOS, macOS, catalyst]
-    steps:
-    - uses: actions/checkout@v3
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: ${{ matrix.os }}
-    - name: Initialize xcodebuild
-      run: scripts/setup_spm_tests.sh
-    - name: Build Test
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
-    - name: Swift Build
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift ${{ matrix.target }} spmbuildonly
-
-  # Disable until FirebaseUI is updated to accept Firebase 9 and quickstart is updated to accept
-  # Firebase UI 12
-  # quickstart:
-  #   # Don't run on private repo unless it is a PR.
-  #   if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-  #   env:
-  #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-  #     signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-  #   runs-on: macos-12
-  #   needs: check
-
-  #   steps:
-  #   - uses: actions/checkout@v3
-  #   - name: Setup quickstart
-  #     run: scripts/setup_quickstart.sh firestore
-  #   - name: Install Secret GoogleService-Info.plist
-  #     run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-firestore.plist.gpg \
-  #         quickstart-ios/firestore/GoogleService-Info.plist "$plist_secret"
-  #   - name: Test swift quickstart
-  #     run: ([ -z $plist_secret ] ||
-  #           scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Firestore false)
+#    # Interop headers
+#    - 'FirebaseAuth/Interop/*.h'
+#
+#    # FirebaseCore header change
+#    - 'FirebaseCore/Internal'
+#    - 'FirebaseCore/Sources/Public'
+#
+#    # Podspec
+#    - 'FirebaseFirestore.podspec'
+#
+#    # CMake
+#    - '**CMakeLists.txt'
+#    - 'cmake/**'
+#
+#    # Build scripts to which Firestore is sensitive
+#    #
+#    # Note that this doesn't include check scripts because changing those will
+#    # already trigger the check workflow.
+#    - 'scripts/binary_to_array.py'
+#    - 'scripts/build.sh'
+#    - 'scripts/install_prereqs.sh'
+#    - 'scripts/localize_podfile.swift'
+#    - 'scripts/pod_lib_lint.rb'
+#    - 'scripts/run_firestore_emulator.sh'
+#    - 'scripts/setup_*'
+#    - 'scripts/sync_project.rb'
+#    - 'scripts/test_quickstart.sh'
+#    - 'scripts/xcresult_logs.py'
+#
+#    # This workflow
+#    - '.github/workflows/firestore.yml'
+#
+#    # Rebuild on Ruby infrastructure changes.
+#    - 'Gemfile*'
+#
+#  schedule:
+#    # Run every day at 12am (PST) - cron uses UTC times
+#    - cron:  '0 8 * * *'
+#
+#concurrency:
+#    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+#    cancel-in-progress: true
+#
+#jobs:
+#  check:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#    runs-on: macos-12
+#    steps:
+#    - uses: actions/checkout@v3
+#
+#    - uses: actions/setup-python@v2
+#      with:
+#        python-version: 3.6
+#
+#    - name: Setup check
+#      run:  scripts/setup_check.sh
+#
+#    - name: Run check
+#      run:  scripts/check.sh --test-only
+#
+#
+#  cmake:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#    needs: check
+#
+#    strategy:
+#      matrix:
+#        os: [macos-12, ubuntu-latest]
+#
+#    env:
+#      MINT_PATH: ${{ github.workspace }}/mint
+#
+#    runs-on: ${{ matrix.os }}
+#    steps:
+#    - uses: actions/checkout@v3
+#    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+#      with:
+#        cache_key: ${{ matrix.os }}
+#
+#    - name: Prepare ccache
+#      uses: actions/cache@v1
+#      with:
+#        path: ~/.ccache
+#        key: firestore-ccache-${{ runner.os }}-${{ github.sha }}
+#        restore-keys: |
+#          firestore-ccache-${{ runner.os }}-
+#
+#    - name: Cache Mint packages
+#      uses: actions/cache@v1
+#      with:
+#        path: ${{ env.MINT_PATH }}
+#        key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+#        restore-keys: ${{ runner.os }}-mint-
+#
+#    - name: Setup build
+#      run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
+#
+#    - name: Build and test
+#      run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
+#
+#
+#  sanitizers:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#    needs: check
+#
+#    strategy:
+#      matrix:
+#        os: [macos-12, ubuntu-latest]
+#        sanitizer: [asan, tsan]
+#
+#    runs-on: ${{ matrix.os }}
+#
+#    env:
+#      SANITIZERS: ${{ matrix.sanitizer }}
+#
+#    steps:
+#    - uses: actions/checkout@v3
+#    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+#      with:
+#        cache_key: ${{ matrix.os }}
+#
+#    - name: Prepare ccache
+#      uses: actions/cache@v1
+#      with:
+#        path: ~/.ccache
+#        key: firestore-ccache-${{ runner.os }}-${{ matrix.sanitizer }}-${{ github.sha }}
+#        restore-keys: |
+#          firestore-ccache-${{ runner.os }}-${{ matrix.sanitizer }}-
+#
+#    - name: Setup build
+#      run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
+#
+#    - name: Build and test
+#      run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
+#
+#
+#  xcodebuild:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#    runs-on: macos-12
+#    needs: check
+#
+#    strategy:
+#      matrix:
+#        target: [iOS, tvOS, macOS]
+#
+#    steps:
+#    - uses: actions/checkout@v3
+#    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+#      with:
+#        cache_key: ${{ matrix.os }}
+#
+#    - uses: ruby/setup-ruby@v1
+#
+#    - name: Setup build
+#      run:  scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
+#
+#    - name: Build and test
+#      run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ matrix.target }} xcodebuild
+#
+#
+#  pod-lib-lint:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#    runs-on: macos-12
+#    needs: check
+#    strategy:
+#      matrix:
+#        podspec: [
+#          'FirebaseFirestore.podspec',
+#          'FirebaseFirestoreSwift.podspec',
+#        ]
+#
+#    steps:
+#    - uses: actions/checkout@v3
+#
+#    - uses: ruby/setup-ruby@v1
+#    - name: Setup Bundler
+#      run: ./scripts/setup_bundler.sh
+#
+#    - name: Pod lib lint
+#      # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
+#      run: |
+#        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }} \
+#            --platforms=ios \
+#            --allow-warnings \
+#            --no-analyze
+#
+#  # `pod lib lint` takes a long time so only run the other platforms and static frameworks build in the cron.
+#  pod-lib-lint-cron:
+#    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+#    runs-on: macos-12
+#    needs: check
+#    strategy:
+#      matrix:
+#        podspec: [
+#          'FirebaseFirestore.podspec',
+#          'FirebaseFirestoreSwift.podspec',
+#        ]
+#        platforms: [
+#          'macos',
+#          'tvos',
+#        ]
+#        flags: [
+#          '--use-static-frameworks',
+#          '',
+#        ]
+#
+#    steps:
+#    - uses: actions/checkout@v3
+#
+#    - uses: ruby/setup-ruby@v1
+#    - name: Setup Bundler
+#      run: ./scripts/setup_bundler.sh
+#
+#    - name: Pod lib lint
+#      # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
+#      run: |
+#        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }}\
+#            ${{ matrix.flags }} \
+#            --platforms=${{ matrix.platforms }} \
+#            --allow-warnings \
+#            --no-analyze
+#
+#  spm:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#    runs-on: macos-12
+#    needs: check
+#    steps:
+#    - uses: actions/checkout@v3
+#    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+#      with:
+#        cache_key: ${{ matrix.os }}
+#    - name: Initialize xcodebuild
+#      run: scripts/setup_spm_tests.sh
+#    - name: iOS Build Test
+#      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore iOS spmbuildonly
+#    - name: Swift Build
+#      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift iOS spmbuildonly
+#
+#  spm-cron:
+#    # Don't run on private repo.
+#    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+#    runs-on: macos-12
+#    strategy:
+#      matrix:
+#        target: [tvOS, macOS, catalyst]
+#    steps:
+#    - uses: actions/checkout@v3
+#    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+#      with:
+#        cache_key: ${{ matrix.os }}
+#    - name: Initialize xcodebuild
+#      run: scripts/setup_spm_tests.sh
+#    - name: Build Test
+#      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
+#    - name: Swift Build
+#      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift ${{ matrix.target }} spmbuildonly
+#
+#  # Disable until FirebaseUI is updated to accept Firebase 9 and quickstart is updated to accept
+#  # Firebase UI 12
+#  # quickstart:
+#  #   # Don't run on private repo unless it is a PR.
+#  #   if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#  #   env:
+#  #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#  #     signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#  #   runs-on: macos-12
+#  #   needs: check
+#
+#  #   steps:
+#  #   - uses: actions/checkout@v3
+#  #   - name: Setup quickstart
+#  #     run: scripts/setup_quickstart.sh firestore
+#  #   - name: Install Secret GoogleService-Info.plist
+#  #     run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-firestore.plist.gpg \
+#  #         quickstart-ios/firestore/GoogleService-Info.plist "$plist_secret"
+#  #   - name: Test swift quickstart
+#  #     run: ([ -z $plist_secret ] ||
+#  #           scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Firestore false)

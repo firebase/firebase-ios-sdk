@@ -1,21 +1,21 @@
-name: danger
-
-on:
-  pull_request
-
-concurrency:
-    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-    cancel-in-progress: true
-
-jobs:
-  danger:
-    runs-on: macos-12
-    steps:
-    - uses: actions/checkout@v3
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Danger
-      env:
-        DANGER_GITHUB_API_TOKEN: ${{ secrets.DangerGitHubAPIToken }}
-      run:  '[ ! -z $DANGER_GITHUB_API_TOKEN ] && bundle exec danger || echo "Skipping Danger for External Contributor"'
+#name: danger
+#
+#on:
+#  pull_request
+#
+#concurrency:
+#    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+#    cancel-in-progress: true
+#
+#jobs:
+#  danger:
+#    runs-on: macos-12
+#    steps:
+#    - uses: actions/checkout@v3
+#    - uses: ruby/setup-ruby@v1
+#    - name: Setup Bundler
+#      run: scripts/setup_bundler.sh
+#    - name: Danger
+#      env:
+#        DANGER_GITHUB_API_TOKEN: ${{ secrets.DangerGitHubAPIToken }}
+#      run:  '[ ! -z $DANGER_GITHUB_API_TOKEN ] && bundle exec danger || echo "Skipping Danger for External Contributor"'

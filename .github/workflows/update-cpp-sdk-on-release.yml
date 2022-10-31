@@ -1,84 +1,84 @@
-# Whenever a new Firebase iOS SDK is released, this workflow triggers *another*
-# workflow on the Firebase C++ SDK, which will check for the iOS version update
-# and create a PR updating its iOS dependencies if the version number has
-# changed.
-name: update-cpp-sdk-on-release
-on:
-  release:
-    types: [ published ]
-
-concurrency:
-    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-    cancel-in-progress: true
-
-jobs:
-  trigger_cpp_sdk_update:
-    # Only when a new release (not just the CocoaPods-* tag) is published.
-    if: ${{ (github.event_name == 'release' && !contains(github.ref, 'CocoaPods')) }}
-    # Fetch an authentication token for firebase-workflow-trigger, then use that
-    # token to trigger the update-dependencies workflow in firebase-cpp-sdk.
-    name: Trigger C++ SDK update
-    runs-on: ubuntu-latest
-    steps:
-      - name: Setup python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.7
-
-      - name: Check out firebase-cpp-sdk
-        uses: actions/checkout@v3.3.1
-        with:
-          repository: firebase/firebase-cpp-sdk
-          ref: main
-
-      - name: Get firebase-workflow-trigger token
-        uses: tibdex/github-app-token@v1
-        id: generate-token
-        with:
-          app_id: ${{ secrets.CPP_WORKFLOW_TRIGGER_APP_ID }}
-          private_key: ${{ secrets.CPP_WORKFLOW_TRIGGER_APP_PRIVATE_KEY }}
-          repository: firebase/firebase-cpp-sdk
-
-      - name: Ensure Cocoapods repo has been updated
-        run: |
-          # If the new version is simply vX.Y.Z or X.Y.Z, wait up to an hour each for its podspec and prebuilt zip file to be present.
-          if [[ "$GITHUB_REF" =~ ^(refs/tags/)?v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            version=$(echo "$GITHUB_REF" | sed 's|^refs/tags/||' | sed s/^v//)  # remove leading refs/tags and v if present
-            echo "Checking Cocoapods repo for associated Firebase ${version} podspec."
-            podspec_url="https://github.com/CocoaPods/Specs/blob/master/Specs/0/3/5/Firebase/${version}/Firebase.podspec.json"
-            for retry in {1..12} error; do
-              # Check every 5 minutes, up to an hour, for the new podspec to be present.
-              # If it's still not present, trigger the update anyway.
-              if [[ $retry == "error" ]]; then
-                echo "::warning ::Firebase ${version} podspec not found, updating anyway."
-                exit 0
-              fi
-              echo -n "Check ${podspec_url} (attempt ${retry}) ..."
-              curl -H 'Authorization: token ${{ github.token }}' -L -f -o /dev/null "${podspec_url}" 2> /dev/null && echo " success!" && break
-              echo " failed."
-              sleep 300
-            done
-            echo "Checking firebase-ios-sdk repo for ${version} prebuilt zip."
-            # Check for the zip file on this actual release URL (which might include the leading v)
-            zipfile_url="https://github.com/firebase/firebase-ios-sdk/releases/download/${GITHUB_REF}/Firebase.zip"
-            for retry in {1..12} error; do
-              # Check every 5 minutes, up to an hour, for the new zip file to be present.
-              # If it's still not present, trigger the update anyway.
-              if [[ $retry == "error" ]]; then
-                echo "::warning ::Firebase ${version} zip file not found, updating anyway."
-                exit 0
-              fi
-              echo -n "Check ${zipfile_url} (attempt ${retry}) ..."
-              # curl's "-r 0-0" option means only download the first byte, this prevents us from downloading 300+ MB.
-              curl -H 'Authorization: token ${{ github.token }}' -L -f -o /dev/null -r 0-0 "${zipfile_url}" 2> /dev/null && echo " success!" && break
-              echo " failed."
-              sleep 300
-            done
-          else
-            echo "Tag '$GITHUB_REF' doesn't match the 'vX.Y.Z' or 'X.Y.Z' format, skipping Cocoapods repo and release zip check."
-          fi
-
-      - name: Trigger firebase-cpp-sdk update
-        run: |
-          pip install -r scripts/gha/python_requirements.txt
-          python scripts/gha/trigger_workflow.py -t ${{ steps.generate-token.outputs.token }} -w update-dependencies.yml -p updateAndroid 0 -p updateiOS 1 -p comment "[Triggered]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID) by [firebase-ios-sdk $GITHUB_REF release]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/$GITHUB_REF)." -s 10 -A
+## Whenever a new Firebase iOS SDK is released, this workflow triggers *another*
+## workflow on the Firebase C++ SDK, which will check for the iOS version update
+## and create a PR updating its iOS dependencies if the version number has
+## changed.
+#name: update-cpp-sdk-on-release
+#on:
+#  release:
+#    types: [ published ]
+#
+#concurrency:
+#    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+#    cancel-in-progress: true
+#
+#jobs:
+#  trigger_cpp_sdk_update:
+#    # Only when a new release (not just the CocoaPods-* tag) is published.
+#    if: ${{ (github.event_name == 'release' && !contains(github.ref, 'CocoaPods')) }}
+#    # Fetch an authentication token for firebase-workflow-trigger, then use that
+#    # token to trigger the update-dependencies workflow in firebase-cpp-sdk.
+#    name: Trigger C++ SDK update
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Setup python
+#        uses: actions/setup-python@v2
+#        with:
+#          python-version: 3.7
+#
+#      - name: Check out firebase-cpp-sdk
+#        uses: actions/checkout@v3.3.1
+#        with:
+#          repository: firebase/firebase-cpp-sdk
+#          ref: main
+#
+#      - name: Get firebase-workflow-trigger token
+#        uses: tibdex/github-app-token@v1
+#        id: generate-token
+#        with:
+#          app_id: ${{ secrets.CPP_WORKFLOW_TRIGGER_APP_ID }}
+#          private_key: ${{ secrets.CPP_WORKFLOW_TRIGGER_APP_PRIVATE_KEY }}
+#          repository: firebase/firebase-cpp-sdk
+#
+#      - name: Ensure Cocoapods repo has been updated
+#        run: |
+#          # If the new version is simply vX.Y.Z or X.Y.Z, wait up to an hour each for its podspec and prebuilt zip file to be present.
+#          if [[ "$GITHUB_REF" =~ ^(refs/tags/)?v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+#            version=$(echo "$GITHUB_REF" | sed 's|^refs/tags/||' | sed s/^v//)  # remove leading refs/tags and v if present
+#            echo "Checking Cocoapods repo for associated Firebase ${version} podspec."
+#            podspec_url="https://github.com/CocoaPods/Specs/blob/master/Specs/0/3/5/Firebase/${version}/Firebase.podspec.json"
+#            for retry in {1..12} error; do
+#              # Check every 5 minutes, up to an hour, for the new podspec to be present.
+#              # If it's still not present, trigger the update anyway.
+#              if [[ $retry == "error" ]]; then
+#                echo "::warning ::Firebase ${version} podspec not found, updating anyway."
+#                exit 0
+#              fi
+#              echo -n "Check ${podspec_url} (attempt ${retry}) ..."
+#              curl -H 'Authorization: token ${{ github.token }}' -L -f -o /dev/null "${podspec_url}" 2> /dev/null && echo " success!" && break
+#              echo " failed."
+#              sleep 300
+#            done
+#            echo "Checking firebase-ios-sdk repo for ${version} prebuilt zip."
+#            # Check for the zip file on this actual release URL (which might include the leading v)
+#            zipfile_url="https://github.com/firebase/firebase-ios-sdk/releases/download/${GITHUB_REF}/Firebase.zip"
+#            for retry in {1..12} error; do
+#              # Check every 5 minutes, up to an hour, for the new zip file to be present.
+#              # If it's still not present, trigger the update anyway.
+#              if [[ $retry == "error" ]]; then
+#                echo "::warning ::Firebase ${version} zip file not found, updating anyway."
+#                exit 0
+#              fi
+#              echo -n "Check ${zipfile_url} (attempt ${retry}) ..."
+#              # curl's "-r 0-0" option means only download the first byte, this prevents us from downloading 300+ MB.
+#              curl -H 'Authorization: token ${{ github.token }}' -L -f -o /dev/null -r 0-0 "${zipfile_url}" 2> /dev/null && echo " success!" && break
+#              echo " failed."
+#              sleep 300
+#            done
+#          else
+#            echo "Tag '$GITHUB_REF' doesn't match the 'vX.Y.Z' or 'X.Y.Z' format, skipping Cocoapods repo and release zip check."
+#          fi
+#
+#      - name: Trigger firebase-cpp-sdk update
+#        run: |
+#          pip install -r scripts/gha/python_requirements.txt
+#          python scripts/gha/trigger_workflow.py -t ${{ steps.generate-token.outputs.token }} -w update-dependencies.yml -p updateAndroid 0 -p updateiOS 1 -p comment "[Triggered]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID) by [firebase-ios-sdk $GITHUB_REF release]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/$GITHUB_REF)." -s 10 -A
