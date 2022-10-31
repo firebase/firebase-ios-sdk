@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <TargetConditionals.h>
+
 #if TARGET_OS_IOS
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthSettings.h"
@@ -593,6 +595,10 @@ extern NSString *const FIRPhoneMultiFactorID;
  */
 - (void)verifyClientWithUIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
                         completion:(FIRVerifyClientCallback)completion {
+  if ([GULAppEnvironmentUtil isSimulator]) {
+    [self reCAPTCHAFlowWithUIDelegate:UIDelegate completion:completion];
+    return;
+  }
   if (_auth.appCredentialManager.credential) {
     completion(_auth.appCredentialManager.credential, nil, nil);
     return;
