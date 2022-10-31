@@ -135,28 +135,49 @@ CTTelephonyNetworkInfo *_Nullable FIRSESNetworkInfo(void) {
   });
   return networkInfo;
 }
+#endif
 
-NSString *FIRSESValidatedMccMnc(NSString *mcc, NSString *mnc) {
-  if ([mcc length] != 3 || [mnc length] < 2 || [mnc length] > 3) return nil;
+NSString *_Nullable FIRSESNetworkMobileCountryCode(void) {
+#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
+  CTTelephonyNetworkInfo *networkInfo = FIRSESNetworkInfo();
+  CTCarrier *provider = networkInfo.subscriberCellularProvider;
+  return provider.mobileCountryCode;
+#endif
+  return nil;
+}
 
+NSString *_Nullable FIRSESNetworkMobileNetworkCode(void) {
+#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
+  CTTelephonyNetworkInfo *networkInfo = FIRSESNetworkInfo();
+  CTCarrier *provider = networkInfo.subscriberCellularProvider;
+  return provider.mobileNetworkCode;
+#endif
+  return nil;
+}
+
+NSString *_Nullable FIRSESValidateMccMnc(NSString *_Nullable mcc, NSString *_Nullable mnc) {
+  // These are both nil if the target does not support mobile connectivity
+  if (mcc == nil && mnc == nil) {
+    return nil;
+  }
+
+  if (mcc.length != 3 || mnc.length < 2 || mnc.length > 3) {
+    return nil;
+  }
+
+  // If the resulting appended mcc + mnc contains characters that are not
+  // decimal digits, return nil
   static NSCharacterSet *notDigits;
   static dispatch_once_t token;
   dispatch_once(&token, ^{
     notDigits = [[NSCharacterSet decimalDigitCharacterSet] invertedSet];
   });
   NSString *mccMnc = [mcc stringByAppendingString:mnc];
-  if ([mccMnc rangeOfCharacterFromSet:notDigits].location != NSNotFound) return nil;
-  return mccMnc;
-}
-#endif
+  if ([mccMnc rangeOfCharacterFromSet:notDigits].location != NSNotFound) {
+    return nil;
+  }
 
-NSString *_Nullable FIRSESGetMccMnc(void) {
-#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
-  CTTelephonyNetworkInfo *networkInfo = FIRSESNetworkInfo();
-  CTCarrier *provider = networkInfo.subscriberCellularProvider;
-  return FIRSESValidatedMccMnc(provider.mobileCountryCode, provider.mobileNetworkCode);
-#endif
-  return nil;
+  return mccMnc;
 }
 
 NS_ASSUME_NONNULL_END

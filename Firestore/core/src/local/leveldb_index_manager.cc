@@ -958,16 +958,8 @@ std::vector<Target> LevelDbIndexManager::GetSubTargets(const Target& target) {
         std::move(filters), CompositeFilter::Operator::And));
 
     for (const Filter& term : dnf) {
-      core::FilterList filter_list;
-      if (term.IsAFieldFilter()) {
-        filter_list = filter_list.push_back(term);
-      } else if (term.IsACompositeFilter()) {
-        for (const auto& filter : (CompositeFilter(term)).filters()) {
-          filter_list = filter_list.push_back(filter);
-        }
-      }
       subtargets.push_back({target.path(), target.collection_group(),
-                            std::move(filter_list), target.order_bys(),
+                            term.GetFilters(), target.order_bys(),
                             target.limit(), target.start_at(),
                             target.end_at()});
     }

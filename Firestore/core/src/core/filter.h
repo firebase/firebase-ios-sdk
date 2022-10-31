@@ -27,11 +27,6 @@
 namespace firebase {
 namespace firestore {
 
-namespace immutable {
-template <typename T>
-class AppendOnlyList;
-}  // namespace immutable
-
 namespace core {
 
 class FieldFilter;
@@ -115,6 +110,13 @@ class Filter {
     return rep_->GetFlattenedFilters();
   }
 
+  /**
+   * Returns a list of all filters that are contained within this filter
+   */
+  std::vector<Filter> GetFilters() const {
+    return rep_->GetFilters();
+  }
+
   friend bool operator==(const Filter& lhs, const Filter& rhs);
 
  protected:
@@ -155,6 +157,8 @@ class Filter {
 
     virtual const std::vector<FieldFilter>& GetFlattenedFilters() const = 0;
 
+    virtual std::vector<Filter> GetFilters() const = 0;
+
     /**
      * Memoized list of all field filters that can be found by
      * traversing the tree of filters contained in this composite filter.
@@ -176,9 +180,6 @@ class Filter {
 inline bool operator!=(const Filter& lhs, const Filter& rhs) {
   return !(lhs == rhs);
 }
-
-/** A list of Filters, as used in Queries and elsewhere. */
-using FilterList = immutable::AppendOnlyList<Filter>;
 
 std::ostream& operator<<(std::ostream& os, const Filter& filter);
 

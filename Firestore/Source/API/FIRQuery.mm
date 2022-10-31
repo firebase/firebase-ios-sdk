@@ -81,7 +81,6 @@ using firebase::firestore::core::Filter;
 using firebase::firestore::core::CompositeFilter;
 using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::OrderBy;
-using firebase::firestore::core::OrderByList;
 using firebase::firestore::core::QueryListener;
 using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::google_firestore_v1_ArrayValue;
@@ -574,7 +573,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
   }
   const Document &document = *snapshot.internalDocument;
   const DatabaseId &databaseID = self.firestore.databaseID;
-  const OrderByList &order_bys = self.query.order_bys();
+  const std::vector<OrderBy> &order_bys = self.query.order_bys();
 
   SharedMessage<google_firestore_v1_ArrayValue> components{{}};
   components->values_count = CheckedSize(order_bys.size());
@@ -615,7 +614,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
 /** Converts a list of field values to an Bound. */
 - (Bound)boundFromFieldValues:(NSArray<id> *)fieldValues isInclusive:(BOOL)isInclusive {
   // Use explicit sort order because it has to match the query the user made
-  const OrderByList &explicitSortOrders = self.query.explicit_order_bys();
+  const std::vector<OrderBy> &explicitSortOrders = self.query.explicit_order_bys();
   if (fieldValues.count > explicitSortOrders.size()) {
     ThrowInvalidArgument("Invalid query. You are trying to start or end a query using more values "
                          "than were specified in the order by.");
