@@ -595,9 +595,12 @@ extern NSString *const FIRPhoneMultiFactorID;
  */
 - (void)verifyClientWithUIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
                         completion:(FIRVerifyClientCallback)completion {
-  if ([GULAppEnvironmentUtil isSimulator]) {
-    [self reCAPTCHAFlowWithUIDelegate:UIDelegate completion:completion];
-    return;
+  // Remove the simulator check below after FCM supports APNs in simulators
+  if (@available(iOS 16, *)) {
+    if ([GULAppEnvironmentUtil isSimulator]) {
+      [self reCAPTCHAFlowWithUIDelegate:UIDelegate completion:completion];
+      return;
+    }
   }
   if (_auth.appCredentialManager.credential) {
     completion(_auth.appCredentialManager.credential, nil, nil);
