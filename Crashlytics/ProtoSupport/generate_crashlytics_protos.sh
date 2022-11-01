@@ -22,35 +22,8 @@
 
 readonly DIR="$( git rev-parse --show-toplevel )"
 
-# Current release of nanopb being used  to build the CCT protos
-readonly NANOPB_VERSION="0.3.9.8"
-readonly NANOPB_TEMPDIR="${DIR}/Crashlytics/nanopb_temp"
-
 readonly LIBRARY_DIR="${DIR}/Crashlytics/Crashlytics/"
 readonly PROTO_DIR="${DIR}/Crashlytics/ProtoSupport/Protos/"
 readonly PROTOGEN_DIR="${DIR}/Crashlytics/Protogen/"
 
-rm -rf "${NANOPB_TEMPDIR}"
-
-echo "Downloading nanopb..."
-git clone --branch "${NANOPB_VERSION}" https://github.com/nanopb/nanopb.git "${NANOPB_TEMPDIR}"
-
-echo "Building nanopb..."
-pushd "${NANOPB_TEMPDIR}"
-./tools/make_mac_package.sh
-GIT_DESCRIPTION=`git describe --always`-macosx-x86
-NANOPB_BIN_DIR="dist/${GIT_DESCRIPTION}"
-popd
-
-echo "Removing existing CCT protos..."
-rm -rf "${PROTOGEN_DIR}/*"
-
-echo "Generating CCT protos..."
-python "${DIR}/Crashlytics/ProtoSupport/proto_generator.py" \
-  --nanopb \
-  --protos_dir="${PROTO_DIR}" \
-  --pythonpath="${NANOPB_TEMPDIR}/${NANOPB_BIN_DIR}/generator" \
-  --output_dir="${PROTOGEN_DIR}" \
-  --include="${PROTO_DIR}"
-
-rm -rf "${NANOPB_TEMPDIR}"
+./scripts/nanopb/generate_protos.sh "$LIBRARY_DIR" "$PROTO_DIR" "$PROTOGEN_DIR"

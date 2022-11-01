@@ -15,4 +15,10 @@
 # limitations under the License.
 #
 
-./scripts/nanopb/generate_protos.sh
+readonly DIR="$( git rev-parse --show-toplevel )"
+
+readonly LIBRARY_DIR="${DIR}/FirebaseSessions/Sources/"
+readonly PROTO_DIR="${DIR}/FirebaseSessions/ProtoSupport/Protos/"
+readonly PROTOGEN_DIR="${DIR}/FirebaseSessions/Protogen/"
+
+./scripts/nanopb/generate_protos.sh "$LIBRARY_DIR" "$PROTO_DIR" "$PROTOGEN_DIR"
