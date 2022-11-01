@@ -760,7 +760,7 @@ typedef NS_ENUM(NSUInteger, FIRFromDocumentType) {
   [firestore
       runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
         int callbackNum = ++(*transactionCallbackCallCount);
-        // Get the first doc.
+
         FIRDocumentSnapshot *snapshot = [transaction getDocument:doc1 error:error];
         XCTAssertNil(*error);
 
