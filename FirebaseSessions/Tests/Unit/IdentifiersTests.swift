@@ -73,11 +73,10 @@ class IdentifiersTests: XCTestCase {
     identifiers.generateNewSessionID()
 
     XCTAssert(isValidSessionID(identifiers.sessionID))
-    XCTAssert(isValidSessionID(identifiers.previousSessionID ?? ""))
+    XCTAssert(isValidSessionID(identifiers.previousSessionID!))
 
     // Ensure the new lastSessionID is equal to the sessionID from earlier
-    XCTAssert((identifiers.previousSessionID ?? "").compare(firstSessionID) == ComparisonResult
-      .orderedSame)
+    XCTAssertEqual(identifiers.previousSessionID, firstSessionID)
   }
 
   // Fetching FIIDs requires that we are on a background thread.
