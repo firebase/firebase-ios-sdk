@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fix Firestore failing to raise initial snapshot from empty local cache
+  result (#nnnnn).
+
 # 10.0.0
 - [feature] Added `Query.count()`, which fetches the number of documents in the
   result set without actually downloading the documents (#10246).
