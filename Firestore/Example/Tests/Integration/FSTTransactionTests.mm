@@ -1005,7 +1005,7 @@ typedef NS_ENUM(NSUInteger, FIRFromDocumentType) {
   __block FIRDocumentSnapshot *snapshotResult;
   XCTestExpectation *expectation = [self expectationWithDescription:@"prepareDoc:get"];
   [ref getDocumentWithCompletion:^(FIRDocumentSnapshot *_Nullable snapshot, NSError *error) {
-    snapshotResult = snapshotResult;
+    snapshotResult = snapshot;
     errorResult = error;
     [expectation fulfill];
   }];
