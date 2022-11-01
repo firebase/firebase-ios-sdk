@@ -18,6 +18,7 @@ syntax = "proto3";
 package google.firestore.admin.v1;
 
 import "google/api/resource.proto";
+import "google/api/annotations.proto";
 
 option csharp_namespace = "Google.Cloud.Firestore.Admin.V1";
 option go_package = "google.golang.org/genproto/googleapis/firestore/admin/v1;admin";
