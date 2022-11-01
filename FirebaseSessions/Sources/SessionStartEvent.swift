@@ -33,7 +33,7 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
 
     proto.event_type = firebase_appquality_sessions_EventType_SESSION_START
     proto.session_data.session_id = makeProtoString(identifiers.sessionID)
-    proto.session_data.previous_session_id = makeProtoString(identifiers.previousSessionID)
+    proto.session_data.previous_session_id = makeProtoStringOrNil(identifiers.previousSessionID)
     proto.session_data.event_timestamp_us = time.timestampUS
 
     proto.application_info.app_id = makeProtoString(appInfo.appID)
@@ -69,6 +69,13 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
   }
 
   // MARK: - Data Conversion
+
+  private func makeProtoStringOrNil(_ string: String?) -> UnsafeMutablePointer<pb_bytes_array_t>? {
+    guard let string = string else {
+      return nil
+    }
+    return FIRSESEncodeString(string)
+  }
 
   private func makeProtoString(_ string: String) -> UnsafeMutablePointer<pb_bytes_array_t>? {
     return FIRSESEncodeString(string)
