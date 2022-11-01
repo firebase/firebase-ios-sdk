@@ -126,6 +126,7 @@ typedef NS_ENUM(NSUInteger, FIRFromDocumentType) {
 @interface FSTTransactionTester : NSObject
 - (FSTTransactionTester *)withExistingDoc;
 - (FSTTransactionTester *)withNonexistentDoc;
+- (FSTTransactionTester *)withDeletedDoc;
 - (FSTTransactionTester *)runWithStages:(NSArray<TransactionStage> *)stages;
 - (void)expectDoc:(NSObject *)expected;
 - (void)expectNoDoc;
@@ -367,6 +368,32 @@ typedef NS_ENUM(NSUInteger, FIRFromDocumentType) {
   [[[tt withNonexistentDoc] runWithStages:@[ get, set1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
 }
 
+// This test is identical to the test above, except that withNonexistentDoc() is replaced by
+// withDeletedDoc(), to guard against regression of
+// https://github.com/firebase/firebase-js-sdk/issues/5871, where transactions would incorrectly
+// fail with FAILED_PRECONDITION when operations were performed on a deleted document (rather than
+// a non-existent document).
+- (void)testRunsTransactionsAfterGettingDeletedDoc {
+  FIRFirestore *firestore = [self firestore];
+  FSTTransactionTester *tt = [[FSTTransactionTester alloc] initWithDb:firestore testCase:self];
+
+  [[[tt withDeletedDoc] runWithStages:@[ get, delete1, delete1 ]] expectNoDoc];
+  [[[tt withDeletedDoc] runWithStages:@[ get, delete1, update2 ]]
+      expectError:FIRFirestoreErrorCodeInvalidArgument];
+  [[[tt withDeletedDoc] runWithStages:@[ get, delete1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
+
+  [[[tt withDeletedDoc] runWithStages:@[ get, update1, delete1 ]]
+      expectError:FIRFirestoreErrorCodeInvalidArgument];
+  [[[tt withDeletedDoc] runWithStages:@[ get, update1, update2 ]]
+      expectError:FIRFirestoreErrorCodeInvalidArgument];
+  [[[tt withDeletedDoc] runWithStages:@[ get, update1, set2 ]]
+      expectError:FIRFirestoreErrorCodeInvalidArgument];
+
+  [[[tt withDeletedDoc] runWithStages:@[ get, set1, delete1 ]] expectNoDoc];
+  [[[tt withDeletedDoc] runWithStages:@[ get, set1, update2 ]] expectDoc:@{@"foo" : @"bar2"}];
+  [[[tt withDeletedDoc] runWithStages:@[ get, set1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
+}
+
 - (void)testRunsTransactionOnExistingDoc {
   FIRFirestore *firestore = [self firestore];
   FSTTransactionTester *tt = [[FSTTransactionTester alloc] initWithDb:firestore testCase:self];
@@ -404,6 +431,27 @@ typedef NS_ENUM(NSUInteger, FIRFromDocumentType) {
   [[[tt withNonexistentDoc] runWithStages:@[ set1, delete1 ]] expectNoDoc];
   [[[tt withNonexistentDoc] runWithStages:@[ set1, update2 ]] expectDoc:@{@"foo" : @"bar2"}];
   [[[tt withNonexistentDoc] runWithStages:@[ set1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
+}
+
+- (void)testRunsTransactionsOnDeletedDoc {
+  FIRFirestore *firestore = [self firestore];
+  FSTTransactionTester *tt = [[FSTTransactionTester alloc] initWithDb:firestore testCase:self];
+
+  [[[tt withDeletedDoc] runWithStages:@[ delete1, delete1 ]] expectNoDoc];
+  [[[tt withDeletedDoc] runWithStages:@[ delete1, update2 ]]
+      expectError:FIRFirestoreErrorCodeInvalidArgument];
+  [[[tt withDeletedDoc] runWithStages:@[ delete1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
+
+  [[[tt withDeletedDoc] runWithStages:@[ update1, delete1 ]]
+      expectError:FIRFirestoreErrorCodeNotFound];
+  [[[tt withDeletedDoc] runWithStages:@[ update1, update2 ]]
+      expectError:FIRFirestoreErrorCodeNotFound];
+  [[[tt withDeletedDoc] runWithStages:@[ update1, set2 ]]
+      expectError:FIRFirestoreErrorCodeNotFound];
+
+  [[[tt withDeletedDoc] runWithStages:@[ set1, delete1 ]] expectNoDoc];
+  [[[tt withDeletedDoc] runWithStages:@[ set1, update2 ]] expectDoc:@{@"foo" : @"bar2"}];
+  [[[tt withDeletedDoc] runWithStages:@[ set1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
 }
 
 - (void)testSetDocumentWithMerge {
