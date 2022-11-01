@@ -764,7 +764,7 @@ typedef NS_ENUM(NSUInteger, FIRFromDocumentType) {
         FIRDocumentSnapshot *snapshot = [transaction getDocument:doc1 error:error];
         XCTAssertNil(*error);
 
-        if (callbackNum == 0) {
+        if (callbackNum == 1) {
           XCTAssertFalse(snapshot.exists);
           // Create the document outside of the transaction to cause the commit to fail with
           // ALREADY_EXISTS.
@@ -775,7 +775,7 @@ typedef NS_ENUM(NSUInteger, FIRFromDocumentType) {
               }];
           // We can block on it, because transactions run on a background queue.
           dispatch_semaphore_wait(writeSemaphore, DISPATCH_TIME_FOREVER);
-        } else if (callbackNum == 1) {
+        } else if (callbackNum == 2) {
           XCTAssertTrue(snapshot.exists);
         } else {
           XCTFail(@"unexpected callbackNum: %@", @(callbackNum));
