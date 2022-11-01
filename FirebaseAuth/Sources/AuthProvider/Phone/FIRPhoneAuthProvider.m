@@ -596,7 +596,6 @@ extern NSString *const FIRPhoneMultiFactorID;
 - (void)verifyClientWithUIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
                         completion:(FIRVerifyClientCallback)completion {
   // Remove the simulator check below after FCM supports APNs in simulators
-#if TESTING
   if (@available(iOS 17, *)) {
     if ([GULAppEnvironmentUtil isSimulator]) {
       NSDictionary *environment = [[NSProcessInfo processInfo] environment];
