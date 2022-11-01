@@ -27,6 +27,7 @@ using firebase::firestore::util::TimerId;
 @interface FSTTransactionTests : FSTIntegrationTestCase
 - (void)runFailedPreconditionTransactionWithOptions:(FIRTransactionOptions *_Nullable)options
                                   expectNumAttempts:(int)expectedNumAttempts;
+- (nullable FIRDocumentSnapshot *)getDocumentRef:(FIRDocumentReference *)ref;
 @end
 
 /**
@@ -791,14 +792,10 @@ typedef NS_ENUM(NSUInteger, FIRFromDocumentType) {
   [self awaitExpectations];
 
   XCTAssertEqual(transactionCallbackCallCount->load(), 2);
-
-  XCTestExpectation *getExpectation = [self expectationWithDescription:@"getDoc"];
-  [doc1 getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
-    [getExpectation fulfill];
-    XCTAssertNil(error);
-    XCTAssertEqualObjects(snapshot.data, (@{@"foo2" : @"bar2"}));
-  }];
-  [self awaitExpectations];
+  FIRDocumentSnapshot *snapshot = [self getDocumentRef:doc1];
+  XCTAssertNotNil(snapshot);
+  XCTAssertTrue(snapshot.exists);
+  XCTAssertEqualObjects(snapshot.data, (@{@"foo2" : @"bar2"}));
 }
 
 - (void)testMakesDefaultMaxAttempts {
@@ -1001,6 +998,20 @@ typedef NS_ENUM(NSUInteger, FIRFromDocumentType) {
   FIRTransactionOptions *options = [[FIRTransactionOptions alloc] init];
   options.maxAttempts = 7;
   [self runFailedPreconditionTransactionWithOptions:options expectNumAttempts:7];
+}
+
+- (nullable FIRDocumentSnapshot *)getDocumentRef:(FIRDocumentReference *)ref {
+  __block NSError *errorResult;
+  __block FIRDocumentSnapshot *snapshotResult;
+  XCTestExpectation *expectation = [self expectationWithDescription:@"prepareDoc:get"];
+  [ref getDocumentWithCompletion:^(FIRDocumentSnapshot *_Nullable snapshot, NSError *error) {
+    snapshotResult = snapshotResult;
+    errorResult = error;
+    [expectation fulfill];
+  }];
+  [self awaitExpectations];
+  XCTAssertNil(errorResult);
+  return (errorResult != nil) ? nil : snapshotResult;
 }
 
 @end
