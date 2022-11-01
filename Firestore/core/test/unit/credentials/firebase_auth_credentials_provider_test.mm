@@ -32,7 +32,8 @@
 @interface FSTAuthFake : NSObject <FIRAuthInterop>
 @property(nonatomic, nullable, strong, readonly) NSString* token;
 @property(nonatomic, nullable, strong, readonly) NSString* uid;
-// Omit `nonatomic` from  `forceRefreshTriggered` since it's accessed concurrently.
+// Omit `nonatomic` from `forceRefreshTriggered` since it's accessed
+// concurrently.
 @property(readonly) BOOL forceRefreshTriggered;
 - (instancetype)initWithToken:(nullable NSString*)token
                           uid:(nullable NSString*)uid NS_DESIGNATED_INITIALIZER;
