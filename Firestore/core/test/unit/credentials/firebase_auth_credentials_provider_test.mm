@@ -30,11 +30,9 @@
 
 /// A fake class to handle Auth interaction.
 @interface FSTAuthFake : NSObject <FIRAuthInterop>
-@property(nonatomic, nullable, strong, readonly) NSString* token;
-@property(nonatomic, nullable, strong, readonly) NSString* uid;
-// Omit `nonatomic` from `forceRefreshTriggered` since it's accessed
-// concurrently.
-@property(readonly) BOOL forceRefreshTriggered;
+@property(atomic, nullable, strong, readonly) NSString* token;
+@property(atomic, nullable, strong, readonly) NSString* uid;
+@property(atomic, readonly) BOOL forceRefreshTriggered;
 - (instancetype)initWithToken:(nullable NSString*)token
                           uid:(nullable NSString*)uid NS_DESIGNATED_INITIALIZER;
 - (instancetype)init NS_UNAVAILABLE;
