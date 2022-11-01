@@ -143,7 +143,8 @@ ViewSnapshot::ViewSnapshot(Query query,
                            model::DocumentKeySet mutated_keys,
                            bool from_cache,
                            bool sync_state_changed,
-                           bool excludes_metadata_changes)
+                           bool excludes_metadata_changes,
+                           bool has_cached_results)
     : query_{std::move(query)},
       documents_{std::move(documents)},
       old_documents_{std::move(old_documents)},
@@ -151,15 +152,16 @@ ViewSnapshot::ViewSnapshot(Query query,
       mutated_keys_{std::move(mutated_keys)},
       from_cache_{from_cache},
       sync_state_changed_{sync_state_changed},
-      excludes_metadata_changes_{excludes_metadata_changes} {
+      excludes_metadata_changes_{excludes_metadata_changes},
+      has_cached_results_{has_cached_results} {
 }
 
-ViewSnapshot ViewSnapshot::FromInitialDocuments(
-    Query query,
-    DocumentSet documents,
-    DocumentKeySet mutated_keys,
-    bool from_cache,
-    bool excludes_metadata_changes) {
+ViewSnapshot ViewSnapshot::FromInitialDocuments(Query query,
+                                                DocumentSet documents,
+                                                DocumentKeySet mutated_keys,
+                                                bool from_cache,
+                                                bool excludes_metadata_changes,
+                                                bool has_cached_results) {
   std::vector<DocumentViewChange> view_changes;
   for (const Document& doc : documents) {
     view_changes.emplace_back(doc, DocumentViewChange::Type::Added);
@@ -173,7 +175,8 @@ ViewSnapshot ViewSnapshot::FromInitialDocuments(
                       std::move(mutated_keys),
                       from_cache,
                       /*sync_state_changed=*/true,
-                      excludes_metadata_changes};
+                      excludes_metadata_changes,
+                      has_cached_results};
 }
 
 const Query& ViewSnapshot::query() const {
