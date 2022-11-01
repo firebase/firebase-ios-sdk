@@ -91,13 +91,11 @@ static std::vector<Operator> ConflictingOps(Operator op) {
     case Operator::NotEqual:
       return {Operator::NotEqual, Operator::NotIn};
     case Operator::ArrayContains:
+    case Operator::ArrayContainsAny:
       return {Operator::ArrayContains, Operator::ArrayContainsAny,
               Operator::NotIn};
     case Operator::In:
-      return {Operator::ArrayContainsAny, Operator::In, Operator::NotIn};
-    case Operator::ArrayContainsAny:
-      return {Operator::ArrayContains, Operator::ArrayContainsAny, Operator::In,
-              Operator::NotIn};
+      return {Operator::NotIn};
     case Operator::NotIn:
       return {Operator::ArrayContains, Operator::ArrayContainsAny, Operator::In,
               Operator::NotIn, Operator::NotEqual};
