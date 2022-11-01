@@ -746,6 +746,59 @@ typedef NS_ENUM(NSUInteger, FIRFromDocumentType) {
   [self awaitExpectations];
 }
 
+- (void)testRetryOnAlreadyExistsError {
+  FIRFirestore *firestore = [self firestore];
+  FIRDocumentReference *doc1 = [[firestore collectionWithPath:@"counters"] documentWithAutoID];
+  auto transactionCallbackCallCount = std::make_shared<std::atomic_int>(0);
+
+  // Skip backoff delays.
+  [firestore workerQueue]->SkipDelaysForTimerId(TimerId::RetryTransaction);
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
+  [firestore
+      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
+        int callbackNum = ++(*transactionCallbackCallCount);
+        // Get the first doc.
+        FIRDocumentSnapshot* snapshot = [transaction getDocument:doc1 error:error];
+        XCTAssertNil(*error);
+
+        if (callbackNum == 0) {
+          XCTAssertFalse(snapshot.exists);
+          // Create the document outside of the transaction to cause the commit to fail with
+          // ALREADY_EXISTS.
+          dispatch_semaphore_t writeSemaphore = dispatch_semaphore_create(0);
+          [doc1 setData:@{@"foo1" : @"bar1"} completion:^(NSError *) {
+                dispatch_semaphore_signal(writeSemaphore);
+              }];
+          // We can block on it, because transactions run on a background queue.
+          dispatch_semaphore_wait(writeSemaphore, DISPATCH_TIME_FOREVER);
+        } else if (callbackNum == 1) {
+          XCTAssertTrue(snapshot.exists);
+        } else {
+          XCTFail(@"unexpected callbackNum: %@", @(callbackNum));
+        }
+
+        [transaction setData:@{@"foo2" : @"bar2"} forDocument:doc1];
+
+        return nil;
+      }
+      completion:^(id, NSError *_Nullable error) {
+        [expectation fulfill];
+        XCTAssertNil(error);
+      }];
+  [self awaitExpectations];
+
+  XCTAssertEqual(transactionCallbackCallCount->load(), 2);
+
+  XCTestExpectation *getExpectation = [self expectationWithDescription:@"getDoc"];
+  [doc1 getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+    [getExpectation fulfill];
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(snapshot.data, (@{@"foo2" : @"bar2"}));
+  }];
+  [self awaitExpectations];
+}
+
 - (void)testMakesDefaultMaxAttempts {
   FIRFirestore *firestore = [self firestore];
   FIRDocumentReference *doc1 = [[firestore collectionWithPath:@"counters"] documentWithAutoID];
