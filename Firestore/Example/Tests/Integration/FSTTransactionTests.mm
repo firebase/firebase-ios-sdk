@@ -216,10 +216,12 @@ typedef NS_ENUM(NSUInteger, FIRFromDocumentType) {
       NSError *setError = [self writeDocumentRef:self.docRef data:@{@"foo" : @"bar"}];
       NSString *message = [NSString stringWithFormat:@"Failed set at %@", [self stageNames]];
       [_testCase assertNilError:setError message:message];
-    } break;
-    case FIRFromDocumentTypeNonExistent:
+      break;
+    }
+    case FIRFromDocumentTypeNonExistent: {
       // Nothing to do; document does not exist.
       break;
+    }
     case FIRFromDocumentTypeDeleted: {
       {
         NSError *setError = [self writeDocumentRef:self.docRef data:@{@"foo" : @"bar"}];
