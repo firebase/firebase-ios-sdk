@@ -175,7 +175,8 @@ def run_protoc(args, cmd):
     kwargs['env'] = env
 
   try:
-    print(subprocess.check_output(cmd, stderr=subprocess.STDOUT, **kwargs))
+    outputString = subprocess.check_output(cmd, stderr=subprocess.STDOUT, **kwargs)
+    print(outputString.decode("utf-8"))
   except subprocess.CalledProcessError as error:
     print('command failed: ', ' '.join(cmd), '\nerror: ', error.output)
 
