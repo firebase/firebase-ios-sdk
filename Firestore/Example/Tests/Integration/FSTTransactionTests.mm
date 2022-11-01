@@ -212,17 +212,15 @@ typedef NS_ENUM(NSUInteger, FIRFromDocumentType) {
 - (void)prepareDoc {
   self.docRef = [[_db collectionWithPath:@"nonexistent"] documentWithAutoID];
   switch (_fromDocumentType) {
-    case FIRFromDocumentTypeExisting:
-      {
-        NSError *setError = [self writeDocumentRef:self.docRef data:@{@"foo" : @"bar"}];
-        NSString *message = [NSString stringWithFormat:@"Failed set at %@", [self stageNames]];
-        [_testCase assertNilError:setError message:message];
-      }
-      break;
+    case FIRFromDocumentTypeExisting: {
+      NSError *setError = [self writeDocumentRef:self.docRef data:@{@"foo" : @"bar"}];
+      NSString *message = [NSString stringWithFormat:@"Failed set at %@", [self stageNames]];
+      [_testCase assertNilError:setError message:message];
+    } break;
     case FIRFromDocumentTypeNonExistent:
       // Nothing to do; document does not exist.
       break;
-    case FIRFromDocumentTypeDeleted:
+    case FIRFromDocumentTypeDeleted: {
       {
         NSError *setError = [self writeDocumentRef:self.docRef data:@{@"foo" : @"bar"}];
         NSString *message = [NSString stringWithFormat:@"Failed set at %@", [self stageNames]];
@@ -234,6 +232,7 @@ typedef NS_ENUM(NSUInteger, FIRFromDocumentType) {
         [_testCase assertNilError:deleteError message:message];
       }
       break;
+    }
   }
 }
 
@@ -759,7 +758,7 @@ typedef NS_ENUM(NSUInteger, FIRFromDocumentType) {
       runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
         int callbackNum = ++(*transactionCallbackCallCount);
         // Get the first doc.
-        FIRDocumentSnapshot* snapshot = [transaction getDocument:doc1 error:error];
+        FIRDocumentSnapshot *snapshot = [transaction getDocument:doc1 error:error];
         XCTAssertNil(*error);
 
         if (callbackNum == 0) {
@@ -767,7 +766,8 @@ typedef NS_ENUM(NSUInteger, FIRFromDocumentType) {
           // Create the document outside of the transaction to cause the commit to fail with
           // ALREADY_EXISTS.
           dispatch_semaphore_t writeSemaphore = dispatch_semaphore_create(0);
-          [doc1 setData:@{@"foo1" : @"bar1"} completion:^(NSError *) {
+          [doc1 setData:@{@"foo1" : @"bar1"}
+              completion:^(NSError *) {
                 dispatch_semaphore_signal(writeSemaphore);
               }];
           // We can block on it, because transactions run on a background queue.
