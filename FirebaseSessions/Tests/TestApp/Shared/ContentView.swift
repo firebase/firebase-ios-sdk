@@ -13,24 +13,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+import SwiftUI
 
-@testable import FirebaseSessions
+struct ContentView: View {
+  var body: some View {
+    Text("Hello, world!")
+      .padding()
+  }
+}
 
-class MockIdentifierProvider: IdentifierProvider {
-  var sessionID: String = ""
-
-  var previousSessionID: String?
-
-  var installationID: String = ""
-
-  static let testSessionID = "testSessionID"
-  static let testPreviousSessionID = "testPreviousSessionID"
-  static let testInstallationID = "testInstallationID"
-
-  func mockAllValidIDs() {
-    sessionID = MockIdentifierProvider.testSessionID
-    previousSessionID = MockIdentifierProvider.testPreviousSessionID
-    installationID = MockIdentifierProvider.testInstallationID
+struct ContentView_Previews: PreviewProvider {
+  static var previews: some View {
+    ContentView()
   }
 }
