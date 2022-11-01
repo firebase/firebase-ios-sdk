@@ -28,7 +28,6 @@
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/core/filter.h"
 #include "Firestore/core/src/core/order_by.h"
-#include "Firestore/core/src/immutable/append_only_list.h"
 #include "Firestore/core/src/model/field_index.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/remote/serializer.h"
@@ -91,7 +90,7 @@ class Target {
   }
 
   /** Returns the list of ordering constraints by the target. */
-  const OrderByList& order_bys() const {
+  const std::vector<OrderBy>& order_bys() const {
     return order_bys_;
   }
 
@@ -179,7 +178,7 @@ class Target {
   Target(model::ResourcePath path,
          CollectionGroupId collection_group,
          std::vector<Filter> filters,
-         OrderByList order_bys,
+         std::vector<OrderBy> order_bys,
          int32_t limit,
          absl::optional<Bound> start_at,
          absl::optional<Bound> end_at)
@@ -222,7 +221,7 @@ class Target {
   model::ResourcePath path_;
   std::shared_ptr<const std::string> collection_group_;
   std::vector<Filter> filters_;
-  OrderByList order_bys_;
+  std::vector<OrderBy> order_bys_;
   int32_t limit_ = kNoLimit;
   absl::optional<Bound> start_at_;
   absl::optional<Bound> end_at_;

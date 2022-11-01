@@ -21,6 +21,7 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/core/core_fwd.h"
@@ -75,14 +76,14 @@ class Bound {
    * Returns true if the given document comes before this bound using the
    * provided sort order.
    */
-  bool SortsBeforeDocument(const OrderByList& order_by,
+  bool SortsBeforeDocument(const std::vector<OrderBy>& order_by,
                            const model::Document& document) const;
 
   /**
    * Returns true if the given document comes after this bound using the
    * provided sort order.
    */
-  bool SortsAfterDocument(const OrderByList& order_by,
+  bool SortsAfterDocument(const std::vector<OrderBy>& order_by,
                           const model::Document& document) const;
 
   std::string PositionString() const;
@@ -98,7 +99,8 @@ class Bound {
   }
 
   util::ComparisonResult CompareToDocument(
-      const OrderByList& order_by, const model::Document& document) const;
+      const std::vector<OrderBy>& order_by,
+      const model::Document& document) const;
 
   nanopb::SharedMessage<google_firestore_v1_ArrayValue> position_;
   bool inclusive_;

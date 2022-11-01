@@ -17,9 +17,6 @@ import Foundation
 
 @_implementationOnly import FirebaseInstallations
 
-let sessionIDUserDefaultsKey = "com.firebase.sessions.sessionID"
-let lastSessionIDUserDefaultsKey = "com.firebase.sessions.lastSessionID"
-
 protocol IdentifierProvider {
   var installationID: String {
     get
@@ -29,7 +26,7 @@ protocol IdentifierProvider {
     get
   }
 
-  var previousSessionID: String {
+  var previousSessionID: String? {
     get
   }
 }
@@ -44,23 +41,18 @@ protocol IdentifierProvider {
 class Identifiers: IdentifierProvider {
   private let installations: InstallationsProtocol
 
-  private var _sessionID: UUID
+  private var _sessionID: String?
+  private var _previousSessionID: String?
 
   init(installations: InstallationsProtocol) {
     self.installations = installations
-    _sessionID = UUID()
   }
 
   // Generates a new Session ID. If there was already a generated Session ID
   // from the last session during the app's lifecycle, it will also set the last Session ID
   func generateNewSessionID() {
-    _sessionID = UUID()
-
-    let lastStoredSessionID = UserDefaults.standard.string(forKey: sessionIDUserDefaultsKey) ?? ""
-    UserDefaults.standard.set(lastStoredSessionID, forKey: lastSessionIDUserDefaultsKey)
-
-    let newSessionID = _sessionID.uuidString.replacingOccurrences(of: "-", with: "").lowercased()
-    UserDefaults.standard.set(newSessionID, forKey: sessionIDUserDefaultsKey)
+    _previousSessionID = _sessionID
+    _sessionID = UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased()
   }
 
   // Fetches the Installation ID from Firebase Installation Service. This method must be run on a background thread due to how Firebase Installations
@@ -103,10 +95,14 @@ class Identifiers: IdentifierProvider {
   }
 
   var sessionID: String {
-    return UserDefaults.standard.string(forKey: sessionIDUserDefaultsKey) ?? ""
+    guard let _sessionID = _sessionID else {
+      Logger.logError("Error: Sessions SDK did not generate a Session ID")
+      return ""
+    }
+    return _sessionID
   }
 
-  var previousSessionID: String {
-    return UserDefaults.standard.string(forKey: lastSessionIDUserDefaultsKey) ?? ""
+  var previousSessionID: String? {
+    return _previousSessionID
   }
 }
