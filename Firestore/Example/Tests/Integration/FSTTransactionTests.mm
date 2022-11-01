@@ -104,6 +104,15 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [transaction getDocument:doc error:&error];
 };
 
+typedef NS_ENUM(NSUInteger, FIRFromDocumentType) {
+  // The operation will be performed on a document that exists.
+  FIRFromDocumentTypeExisting,
+  // The operation will be performed on a document that has never existed.
+  FIRFromDocumentTypeNonExistent,
+  // The operation will be performed on a document that existed, but was deleted.
+  FIRFromDocumentTypeDeleted,
+};
+
 /**
  * Used for testing that all possible combinations of executing transactions result in the desired
  * document value or error.
@@ -124,7 +133,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 
 @property(atomic, strong, readwrite) NSArray<TransactionStage> *stages;
 @property(atomic, strong, readwrite) FIRDocumentReference *docRef;
-@property(atomic, assign, readwrite) BOOL fromExistingDoc;
+@property(atomic, assign, readwrite) FIRFromDocumentType fromDocumentType;
 @end
 
 @implementation FSTTransactionTester {
@@ -137,6 +146,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   if (self) {
     _db = db;
     _stages = [NSArray array];
+    _fromDocumentType = FIRFromDocumentTypeNonExistent;
     _testCase = testCase;
     _testExpectations = [NSMutableArray array];
   }
@@ -144,12 +154,17 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 }
 
 - (FSTTransactionTester *)withExistingDoc {
-  self.fromExistingDoc = YES;
+  self.fromDocumentType = FIRFromDocumentTypeExisting;
   return self;
 }
 
 - (FSTTransactionTester *)withNonexistentDoc {
-  self.fromExistingDoc = NO;
+  self.fromDocumentType = FIRFromDocumentTypeNonExistent;
+  return self;
+}
+
+- (FSTTransactionTester *)withDeletedDoc {
+  self.fromDocumentType = FIRFromDocumentTypeDeleted;
   return self;
 }
 
@@ -195,10 +210,29 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 
 - (void)prepareDoc {
   self.docRef = [[_db collectionWithPath:@"nonexistent"] documentWithAutoID];
-  if (_fromExistingDoc) {
-    NSError *setError = [self writeDocumentRef:self.docRef data:@{@"foo" : @"bar"}];
-    NSString *message = [NSString stringWithFormat:@"Failed set at %@", [self stageNames]];
-    [_testCase assertNilError:setError message:message];
+  switch (_fromDocumentType) {
+    case FIRFromDocumentTypeExisting:
+      {
+        NSError *setError = [self writeDocumentRef:self.docRef data:@{@"foo" : @"bar"}];
+        NSString *message = [NSString stringWithFormat:@"Failed set at %@", [self stageNames]];
+        [_testCase assertNilError:setError message:message];
+      }
+      break;
+    case FIRFromDocumentTypeNonExistent:
+      // Nothing to do; document does not exist.
+      break;
+    case FIRFromDocumentTypeDeleted:
+      {
+        NSError *setError = [self writeDocumentRef:self.docRef data:@{@"foo" : @"bar"}];
+        NSString *message = [NSString stringWithFormat:@"Failed set at %@", [self stageNames]];
+        [_testCase assertNilError:setError message:message];
+      }
+      {
+        NSError *deleteError = [self deleteDocumentRef:self.docRef];
+        NSString *message = [NSString stringWithFormat:@"Failed delete at %@", [self stageNames]];
+        [_testCase assertNilError:deleteError message:message];
+      }
+      break;
   }
 }
 
@@ -211,6 +245,17 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         errorResult = error;
         [expectation fulfill];
       }];
+  [_testCase awaitExpectations];
+  return errorResult;
+}
+
+- (NSError *)deleteDocumentRef:(FIRDocumentReference *)ref {
+  __block NSError *errorResult;
+  XCTestExpectation *expectation = [_testCase expectationWithDescription:@"prepareDoc:delete"];
+  [ref deleteDocumentWithCompletion:^(NSError *error) {
+    errorResult = error;
+    [expectation fulfill];
+  }];
   [_testCase awaitExpectations];
   return errorResult;
 }
