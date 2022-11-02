@@ -103,7 +103,8 @@ NS_ASSUME_NONNULL_BEGIN
                             /*mutated_keys=*/DocumentKeySet(),
                             /*from_cache=*/false,
                             /*sync_state_changed=*/true,
-                            /*excludes_metadata_changes=*/false);
+                            /*excludes_metadata_changes=*/false,
+                            /*has_cached_results=*/false);
   SnapshotMetadata metadata(/*pending_writes=*/false, /*from_cache=*/false);
   FIRQuerySnapshot *snapshot = [[FIRQuerySnapshot alloc] initWithFirestore:firestore
                                                              originalQuery:query
