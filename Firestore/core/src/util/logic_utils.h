@@ -90,6 +90,14 @@ class LogicUtils {
 
   static core::Filter ComputeDistributedNormalForm(const core::Filter& filter);
 
+  /**
+   * The `in` filter is only a syntactic sugar over a disjunction of equalities.
+   * For instance: `a in [1,2,3]` is in fact `a==1 || a==2 || a==3`. This method
+   * expands any `in` filter in the given input into a disjunction of equality
+   * filters and returns the expanded filter.
+   */
+  static core::Filter ComputeInExpansion(const core::Filter& filter);
+
  private:
   /**
    * Asserts that the given filter is a FieldFilter or CompositeFilter.

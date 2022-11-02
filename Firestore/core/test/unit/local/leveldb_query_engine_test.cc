@@ -34,7 +34,6 @@ namespace firestore {
 namespace local {
 namespace {
 
-using model::DocumentMap;
 using model::DocumentSet;
 using model::SnapshotVersion;
 using testutil::AndFilters;
@@ -53,6 +52,15 @@ using testutil::Version;
 
 std::unique_ptr<Persistence> PersistenceFactory() {
   return LevelDbPersistenceForTesting();
+}
+
+model::DocumentMap DocumentMap(
+    const std::vector<model::MutableDocument>& docs) {
+  model::DocumentMap doc_map;
+  for (const auto& doc : docs) {
+    doc_map = doc_map.insert(doc.key(), doc);
+  }
+  return doc_map;
 }
 
 }  // namespace
@@ -81,11 +89,7 @@ TEST_F(LevelDbQueryEngineTest, CombinesIndexedWithNonIndexedResults) {
         MakeFieldIndex("coll", "foo", model::Segment::kAscending));
 
     AddDocuments({doc1, doc2});
-
-    DocumentMap doc_map;
-    doc_map = doc_map.insert(doc1.key(), doc1);
-    doc_map = doc_map.insert(doc2.key(), doc2);
-    index_manager_->UpdateIndexEntries(doc_map);
+    index_manager_->UpdateIndexEntries(DocumentMap({doc1, doc2}));
     index_manager_->UpdateCollectionGroup(
         "coll", model::IndexOffset::FromDocument(doc2));
 
@@ -114,11 +118,7 @@ TEST_F(LevelDbQueryEngineTest, UsesPartialIndexForLimitQueries) {
 
     index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "a", model::Segment::kAscending));
-
-    DocumentMap doc_map;
-    doc_map = doc_map.insert(doc1.key(), doc1);
-    doc_map = doc_map.insert(doc2.key(), doc2);
-    index_manager_->UpdateIndexEntries(doc_map);
+    index_manager_->UpdateIndexEntries(DocumentMap({doc1, doc2}));
     index_manager_->UpdateCollectionGroup(
         "coll", model::IndexOffset::FromDocument(doc5));
 
@@ -145,13 +145,7 @@ TEST_F(LevelDbQueryEngineTest, RefillsIndexedLimitQueries) {
 
     index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "a", model::Segment::kAscending));
-
-    DocumentMap doc_map;
-    doc_map = doc_map.insert(doc1.key(), doc1);
-    doc_map = doc_map.insert(doc2.key(), doc2);
-    doc_map = doc_map.insert(doc3.key(), doc3);
-    doc_map = doc_map.insert(doc4.key(), doc4);
-    index_manager_->UpdateIndexEntries(doc_map);
+    index_manager_->UpdateIndexEntries(DocumentMap({doc1, doc2, doc3, doc4}));
     index_manager_->UpdateCollectionGroup(
         "coll", model::IndexOffset::FromDocument(doc4));
 
@@ -185,14 +179,8 @@ TEST_F(LevelDbQueryEngineTest, CanPerformOrQueriesUsingIndexes1) {
         MakeFieldIndex("coll", "b", model::Segment::kAscending));
     index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "b", model::Segment::kDescending));
-
-    DocumentMap doc_map;
-    doc_map = doc_map.insert(doc1.key(), doc1);
-    doc_map = doc_map.insert(doc2.key(), doc2);
-    doc_map = doc_map.insert(doc3.key(), doc3);
-    doc_map = doc_map.insert(doc4.key(), doc4);
-    doc_map = doc_map.insert(doc5.key(), doc5);
-    index_manager_->UpdateIndexEntries(doc_map);
+    index_manager_->UpdateIndexEntries(
+        DocumentMap({doc1, doc2, doc3, doc4, doc5}));
     index_manager_->UpdateCollectionGroup(
         "coll", model::IndexOffset::FromDocument(doc5));
 
@@ -256,14 +244,8 @@ TEST_F(LevelDbQueryEngineTest, CanPerformOrQueriesUsingIndexes2) {
         MakeFieldIndex("coll", "b", model::Segment::kAscending));
     index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "b", model::Segment::kDescending));
-
-    DocumentMap doc_map;
-    doc_map = doc_map.insert(doc1.key(), doc1);
-    doc_map = doc_map.insert(doc2.key(), doc2);
-    doc_map = doc_map.insert(doc3.key(), doc3);
-    doc_map = doc_map.insert(doc4.key(), doc4);
-    doc_map = doc_map.insert(doc5.key(), doc5);
-    index_manager_->UpdateIndexEntries(doc_map);
+    index_manager_->UpdateIndexEntries(
+        DocumentMap({doc1, doc2, doc3, doc4, doc5}));
     index_manager_->UpdateCollectionGroup(
         "coll", model::IndexOffset::FromDocument(doc5));
 
@@ -340,15 +322,8 @@ TEST_F(LevelDbQueryEngineTest, OrQueryWithInAndNotInUsingIndexes) {
         MakeFieldIndex("coll", "b", model::Segment::kAscending));
     index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "b", model::Segment::kDescending));
-
-    DocumentMap doc_map;
-    doc_map = doc_map.insert(doc1.key(), doc1);
-    doc_map = doc_map.insert(doc2.key(), doc2);
-    doc_map = doc_map.insert(doc3.key(), doc3);
-    doc_map = doc_map.insert(doc4.key(), doc4);
-    doc_map = doc_map.insert(doc5.key(), doc5);
-    doc_map = doc_map.insert(doc6.key(), doc6);
-    index_manager_->UpdateIndexEntries(doc_map);
+    index_manager_->UpdateIndexEntries(
+        DocumentMap({doc1, doc2, doc3, doc4, doc5, doc6}));
     index_manager_->UpdateCollectionGroup(
         "coll", model::IndexOffset::FromDocument(doc6));
 
@@ -387,15 +362,8 @@ TEST_F(LevelDbQueryEngineTest, OrQueryWithArrayMembershipUsingIndexes) {
         MakeFieldIndex("coll", "a", model::Segment::kDescending));
     index_manager_->AddFieldIndex(
         MakeFieldIndex("coll", "b", model::Segment::kContains));
-
-    DocumentMap doc_map;
-    doc_map = doc_map.insert(doc1.key(), doc1);
-    doc_map = doc_map.insert(doc2.key(), doc2);
-    doc_map = doc_map.insert(doc3.key(), doc3);
-    doc_map = doc_map.insert(doc4.key(), doc4);
-    doc_map = doc_map.insert(doc5.key(), doc5);
-    doc_map = doc_map.insert(doc6.key(), doc6);
-    index_manager_->UpdateIndexEntries(doc_map);
+    index_manager_->UpdateIndexEntries(
+        DocumentMap({doc1, doc2, doc3, doc4, doc5, doc6}));
     index_manager_->UpdateCollectionGroup(
         "coll", model::IndexOffset::FromDocument(doc6));
 
@@ -411,6 +379,262 @@ TEST_F(LevelDbQueryEngineTest, OrQueryWithArrayMembershipUsingIndexes) {
     DocumentSet result2 = ExpectOptimizedCollectionScan(
         [&] { return RunQuery(query2, SnapshotVersion::None()); });
     EXPECT_EQ(result2, DocSet(query2.Comparator(), {doc1, doc4, doc6}));
+  });
+}
+
+TEST_F(LevelDbQueryEngineTest, QueryWithMultipleInsOnTheSameField) {
+  persistence_->Run("QueryWithMultipleInsOnTheSameField", [&] {
+    mutation_queue_->Start();
+    index_manager_->Start();
+
+    auto doc1 = Doc("coll/1", 1, Map("a", 1, "b", 0));
+    auto doc2 = Doc("coll/2", 1, Map("b", 1));
+    auto doc3 = Doc("coll/3", 1, Map("a", 3, "b", 2));
+    auto doc4 = Doc("coll/4", 1, Map("a", 1, "b", 3));
+    auto doc5 = Doc("coll/5", 1, Map("a", 1));
+    auto doc6 = Doc("coll/6", 1, Map("a", 2));
+    AddDocuments({doc1, doc2, doc3, doc4, doc5, doc6});
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "a", model::Segment::kAscending));
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "a", model::Segment::kDescending));
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "b", model::Segment::kAscending));
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "b", model::Segment::kDescending));
+    index_manager_->UpdateIndexEntries(
+        DocumentMap({doc1, doc2, doc3, doc4, doc5, doc6}));
+    index_manager_->UpdateCollectionGroup(
+        "coll", model::IndexOffset::FromDocument(doc6));
+
+    // a IN [1,2,3] && a IN [0,1,4] should result in "a==1".
+    auto query1 = testutil::Query("coll").AddingFilter(
+        AndFilters({Filter("a", "in", Array(1, 2, 3)),
+                    Filter("a", "in", Array(0, 1, 4))}));
+    DocumentSet result1 = ExpectOptimizedCollectionScan(
+        [&] { return RunQuery(query1, SnapshotVersion::None()); });
+    EXPECT_EQ(result1, DocSet(query1.Comparator(), {doc1, doc4, doc5}));
+
+    // a IN [2,3] && a IN [0,1,4] is never true and so the result should be an
+    // empty set.
+    auto query2 = testutil::Query("coll").AddingFilter(AndFilters(
+        {Filter("a", "in", Array(2, 3)), Filter("a", "in", Array(0, 1, 4))}));
+    DocumentSet result2 = ExpectOptimizedCollectionScan(
+        [&] { return RunQuery(query2, SnapshotVersion::None()); });
+    EXPECT_EQ(result2, DocSet(query2.Comparator(), {}));
+
+    // a IN [0,3] || a IN [0,2] should union them (similar to: a IN [0,2,3]).
+    auto query3 = testutil::Query("coll").AddingFilter(OrFilters(
+        {Filter("a", "in", Array(0, 3)), Filter("a", "in", Array(0, 2))}));
+    DocumentSet result3 = ExpectOptimizedCollectionScan(
+        [&] { return RunQuery(query3, SnapshotVersion::None()); });
+    EXPECT_EQ(result3, DocSet(query3.Comparator(), {doc3, doc6}));
+
+    // Nested composite filter: (a IN [0,1,2,3] && (a IN [0,2] || (b>1 && a IN
+    // [1,3]))
+    auto query4 = testutil::Query("coll").AddingFilter(AndFilters(
+        {Filter("a", "in", Array(0, 1, 2, 3)),
+         OrFilters({Filter("a", "in", Array(0, 2)),
+                    AndFilters({Filter("b", ">=", 1),
+                                Filter("a", "in", Array(1, 3))})})}));
+    DocumentSet result4 = ExpectOptimizedCollectionScan(
+        [&] { return RunQuery(query4, SnapshotVersion::None()); });
+    EXPECT_EQ(result4, DocSet(query4.Comparator(), {doc3, doc4}));
+  });
+}
+
+TEST_F(LevelDbQueryEngineTest, QueryWithMultipleInsOnDifferentFields) {
+  persistence_->Run("QueryWithMultipleInsOnDifferentFields", [&] {
+    mutation_queue_->Start();
+    index_manager_->Start();
+
+    auto doc1 = Doc("coll/1", 1, Map("a", 1, "b", 0));
+    auto doc2 = Doc("coll/2", 1, Map("b", 1));
+    auto doc3 = Doc("coll/3", 1, Map("a", 3, "b", 2));
+    auto doc4 = Doc("coll/4", 1, Map("a", 1, "b", 3));
+    auto doc5 = Doc("coll/5", 1, Map("a", 1));
+    auto doc6 = Doc("coll/6", 1, Map("a", 2));
+    AddDocuments({doc1, doc2, doc3, doc4, doc5, doc6});
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "a", model::Segment::kAscending));
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "a", model::Segment::kDescending));
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "b", model::Segment::kAscending));
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "b", model::Segment::kDescending));
+    index_manager_->UpdateIndexEntries(
+        DocumentMap({doc1, doc2, doc3, doc4, doc5, doc6}));
+    index_manager_->UpdateCollectionGroup(
+        "coll", model::IndexOffset::FromDocument(doc6));
+
+    auto query1 = testutil::Query("coll").AddingFilter(OrFilters(
+        {Filter("a", "in", Array(2, 3)), Filter("b", "in", Array(0, 2))}));
+    DocumentSet result1 = ExpectOptimizedCollectionScan(
+        [&] { return RunQuery(query1, SnapshotVersion::None()); });
+    EXPECT_EQ(result1, DocSet(query1.Comparator(), {doc1, doc3, doc6}));
+
+    auto query2 = testutil::Query("coll").AddingFilter(AndFilters(
+        {Filter("a", "in", Array(2, 3)), Filter("b", "in", Array(0, 2))}));
+    DocumentSet result2 = ExpectOptimizedCollectionScan(
+        [&] { return RunQuery(query2, SnapshotVersion::None()); });
+    EXPECT_EQ(result2, DocSet(query2.Comparator(), {doc3}));
+
+    // Nested composite filter: (b in [0,3] && (b IN [1] || (b in [2,3] && a IN
+    // [1,3]))
+    auto query3 = testutil::Query("coll").AddingFilter(AndFilters(
+        {Filter("b", "in", Array(0, 3)),
+         OrFilters({Filter("b", "in", Array(1)),
+                    AndFilters({Filter("b", "in", Array(2, 3)),
+                                Filter("a", "in", Array(1, 3))})})}));
+    DocumentSet result3 = ExpectOptimizedCollectionScan(
+        [&] { return RunQuery(query3, SnapshotVersion::None()); });
+    EXPECT_EQ(result3, DocSet(query3.Comparator(), {doc4}));
+  });
+}
+
+TEST_F(LevelDbQueryEngineTest, QueryInWithArrayContainsAny) {
+  persistence_->Run("QueryInWithArrayContainsAny", [&] {
+    mutation_queue_->Start();
+    index_manager_->Start();
+
+    auto doc1 = Doc("coll/1", 1, Map("a", 1, "b", Array(0)));
+    auto doc2 = Doc("coll/2", 1, Map("b", Array(1)));
+    auto doc3 = Doc("coll/3", 1, Map("a", 3, "b", Array(2, 7), "c", 10));
+    auto doc4 = Doc("coll/4", 1, Map("a", 1, "b", Array(3, 7)));
+    auto doc5 = Doc("coll/5", 1, Map("a", 1));
+    auto doc6 = Doc("coll/6", 1, Map("a", 2, "c", 20));
+    AddDocuments({doc1, doc2, doc3, doc4, doc5, doc6});
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "a", model::Segment::kAscending));
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "a", model::Segment::kDescending));
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "b", model::Segment::kContains));
+    index_manager_->UpdateIndexEntries(
+        DocumentMap({doc1, doc2, doc3, doc4, doc5, doc6}));
+    index_manager_->UpdateCollectionGroup(
+        "coll", model::IndexOffset::FromDocument(doc6));
+
+    auto query1 = testutil::Query("coll").AddingFilter(
+        OrFilters({Filter("a", "in", Array(2, 3)),
+                   Filter("b", "array-contains-any", Array(0, 7))}));
+    DocumentSet result1 = ExpectOptimizedCollectionScan(
+        [&] { return RunQuery(query1, SnapshotVersion::None()); });
+    EXPECT_EQ(result1, DocSet(query1.Comparator(), {doc1, doc3, doc4, doc6}));
+
+    auto query2 = testutil::Query("coll").AddingFilter(
+        AndFilters({Filter("a", "in", Array(2, 3)),
+                    Filter("b", "array-contains-any", Array(0, 7))}));
+    DocumentSet result2 = ExpectOptimizedCollectionScan(
+        [&] { return RunQuery(query2, SnapshotVersion::None()); });
+    EXPECT_EQ(result2, DocSet(query2.Comparator(), {doc3}));
+
+    auto query3 = testutil::Query("coll").AddingFilter(OrFilters(
+        {AndFilters({Filter("a", "in", Array(2, 3)), Filter("c", "==", 10)}),
+         Filter("b", "array-contains-any", Array(0, 7))}));
+    DocumentSet result3 = ExpectOptimizedCollectionScan(
+        [&] { return RunQuery(query3, SnapshotVersion::None()); });
+    EXPECT_EQ(result3, DocSet(query3.Comparator(), {doc1, doc3, doc4}));
+
+    auto query4 = testutil::Query("coll").AddingFilter(
+        AndFilters({Filter("a", "in", Array(2, 3)),
+                    OrFilters({Filter("b", "array-contains-any", Array(0, 7)),
+                               Filter("c", "==", 20)})}));
+    DocumentSet result4 = ExpectOptimizedCollectionScan(
+        [&] { return RunQuery(query4, SnapshotVersion::None()); });
+    EXPECT_EQ(result4, DocSet(query4.Comparator(), {doc3, doc6}));
+  });
+}
+
+TEST_F(LevelDbQueryEngineTest, QueryInWithArrayContains) {
+  persistence_->Run("QueryInWithArrayContains", [&] {
+    mutation_queue_->Start();
+    index_manager_->Start();
+
+    auto doc1 = Doc("coll/1", 1, Map("a", 1, "b", Array(0)));
+    auto doc2 = Doc("coll/2", 1, Map("b", Array(1)));
+    auto doc3 = Doc("coll/3", 1, Map("a", 3, "b", Array(2, 7), "c", 10));
+    auto doc4 = Doc("coll/4", 1, Map("a", 1, "b", Array(3, 7)));
+    auto doc5 = Doc("coll/5", 1, Map("a", 1));
+    auto doc6 = Doc("coll/6", 1, Map("a", 2, "c", 20));
+    AddDocuments({doc1, doc2, doc3, doc4, doc5, doc6});
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "a", model::Segment::kAscending));
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "a", model::Segment::kDescending));
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "b", model::Segment::kContains));
+    index_manager_->UpdateIndexEntries(
+        DocumentMap({doc1, doc2, doc3, doc4, doc5, doc6}));
+    index_manager_->UpdateCollectionGroup(
+        "coll", model::IndexOffset::FromDocument(doc6));
+
+    auto query1 = testutil::Query("coll").AddingFilter(OrFilters(
+        {Filter("a", "in", Array(2, 3)), Filter("b", "array-contains", 3)}));
+    DocumentSet result1 = ExpectOptimizedCollectionScan(
+        [&] { return RunQuery(query1, SnapshotVersion::None()); });
+    EXPECT_EQ(result1, DocSet(query1.Comparator(), {doc3, doc4, doc6}));
+
+    auto query2 = testutil::Query("coll").AddingFilter(AndFilters(
+        {Filter("a", "in", Array(2, 3)), Filter("b", "array-contains", 7)}));
+    DocumentSet result2 = ExpectOptimizedCollectionScan(
+        [&] { return RunQuery(query2, SnapshotVersion::None()); });
+    EXPECT_EQ(result2, DocSet(query2.Comparator(), {doc3}));
+
+    auto query3 = testutil::Query("coll").AddingFilter(
+        OrFilters({Filter("a", "in", Array(2, 3)),
+                   AndFilters({Filter("b", "array-contains", 3),
+                               Filter("a", "==", 1)})}));
+    DocumentSet result3 = ExpectOptimizedCollectionScan(
+        [&] { return RunQuery(query3, SnapshotVersion::None()); });
+    EXPECT_EQ(result3, DocSet(query3.Comparator(), {doc3, doc4, doc6}));
+
+    auto query4 = testutil::Query("coll").AddingFilter(AndFilters(
+        {Filter("a", "in", Array(2, 3)),
+         OrFilters({Filter("b", "array-contains", 7), Filter("a", "==", 1)})}));
+    DocumentSet result4 = ExpectOptimizedCollectionScan(
+        [&] { return RunQuery(query4, SnapshotVersion::None()); });
+    EXPECT_EQ(result4, DocSet(query4.Comparator(), {doc3}));
+  });
+}
+
+TEST_F(LevelDbQueryEngineTest, OrderByEquality) {
+  persistence_->Run("OrderByEquality", [&] {
+    mutation_queue_->Start();
+    index_manager_->Start();
+
+    auto doc1 = Doc("coll/1", 1, Map("a", 1, "b", Array(0)));
+    auto doc2 = Doc("coll/2", 1, Map("b", Array(1)));
+    auto doc3 = Doc("coll/3", 1, Map("a", 3, "b", Array(2, 7), "c", 10));
+    auto doc4 = Doc("coll/4", 1, Map("a", 1, "b", Array(3, 7)));
+    auto doc5 = Doc("coll/5", 1, Map("a", 1));
+    auto doc6 = Doc("coll/6", 1, Map("a", 2, "c", 20));
+    AddDocuments({doc1, doc2, doc3, doc4, doc5, doc6});
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "a", model::Segment::kAscending));
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "a", model::Segment::kDescending));
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "b", model::Segment::kContains));
+    index_manager_->UpdateIndexEntries(
+        DocumentMap({doc1, doc2, doc3, doc4, doc5, doc6}));
+    index_manager_->UpdateCollectionGroup(
+        "coll", model::IndexOffset::FromDocument(doc6));
+
+    auto query1 = testutil::Query("coll")
+                      .AddingFilter(Filter("a", "==", 1))
+                      .AddingOrderBy(OrderBy("a"));
+    DocumentSet result1 = ExpectOptimizedCollectionScan(
+        [&] { return RunQuery(query1, SnapshotVersion::None()); });
+    EXPECT_EQ(result1, DocSet(query1.Comparator(), {doc1, doc4, doc5}));
+
+    auto query2 = testutil::Query("coll")
+                      .AddingFilter(Filter("a", "in", Array(2, 3)))
+                      .AddingOrderBy(OrderBy("a"));
+    DocumentSet result2 = ExpectOptimizedCollectionScan(
+        [&] { return RunQuery(query2, SnapshotVersion::None()); });
+    EXPECT_EQ(result2, DocSet(query2.Comparator(), {doc6, doc3}));
   });
 }
 
