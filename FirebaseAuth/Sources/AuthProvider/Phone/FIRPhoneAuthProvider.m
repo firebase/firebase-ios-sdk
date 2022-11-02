@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <TargetConditionals.h>
-
 #if TARGET_OS_IOS
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthSettings.h"
