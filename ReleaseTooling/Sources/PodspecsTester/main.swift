@@ -104,7 +104,7 @@ struct PodspecsTester: ParsableCommand {
     InitializeSpecTesting.setupRepo(sdkRepoURL: gitRoot)
     let manifest = FirebaseManifest.shared
     var minutes = 0
-    var timer: DispatchSourceTimer = {
+    let timer: DispatchSourceTimer = {
       let t = DispatchSource.makeTimerSource()
       t.schedule(deadline: .now(), repeating: 60)
       t.setEventHandler(handler: {
