@@ -49,8 +49,8 @@
 @end
 
 @interface FSTAppCheckFake : NSObject <FIRAppCheckInterop>
-@property(atomic, nullable, strong, readonly) NSString* token;
-@property(atomic, readonly) BOOL forceRefreshTriggered;
+@property(nonatomic, nullable, strong, readonly) NSString* token;
+@property(nonatomic, readonly) BOOL forceRefreshTriggered;
 - (instancetype)initWithToken:(nullable NSString*)token
     NS_DESIGNATED_INITIALIZER;
 - (instancetype)init NS_UNAVAILABLE;
