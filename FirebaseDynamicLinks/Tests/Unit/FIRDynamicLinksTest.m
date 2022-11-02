@@ -811,8 +811,8 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
                                 apiKey:kAPIKey
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
-  NSURL *url = FIRDLDeepLinkURLWithInviteID(nil, kEncodedComplicatedURLString, nil, nil, nil, NO,
-                                            nil, nil, kURLScheme, nil);
+  NSURL *url = FIRDLDeepLinkURLWithInviteID(nil, kEncodedComplicatedURLString, nil, nil, nil, nil,
+                                            nil, NO, nil, nil, kURLScheme, nil);
   FIRDynamicLink *dynamicLink = [self.service dynamicLinkFromCustomSchemeURL:url];
 
   XCTAssertNil(dynamicLink.minimumAppVersion, @"Min app version was not nil when not set.");
@@ -825,8 +825,8 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
                                 apiKey:kAPIKey
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
-  NSURL *url = FIRDLDeepLinkURLWithInviteID(nil, kEncodedComplicatedURLString, nil, nil, nil, NO,
-                                            nil, expectedMinVersion, kURLScheme, nil);
+  NSURL *url = FIRDLDeepLinkURLWithInviteID(nil, kEncodedComplicatedURLString, nil, nil, nil, nil,
+                                            nil, NO, nil, expectedMinVersion, kURLScheme, nil);
   FIRDynamicLink *dynamicLink = [self.service dynamicLinkFromCustomSchemeURL:url];
 
   NSString *minVersion = dynamicLink.minimumAppVersion;
@@ -841,8 +841,8 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
 
-  NSURL *url = FIRDLDeepLinkURLWithInviteID(nil, kEncodedComplicatedURLString, nil, nil, nil, NO,
-                                            nil, nil, kURLScheme, nil);
+  NSURL *url = FIRDLDeepLinkURLWithInviteID(nil, kEncodedComplicatedURLString, nil, nil, nil, nil,
+                                            nil, NO, nil, nil, kURLScheme, nil);
 
   FIRDynamicLink *dynamicLink = [self.service dynamicLinkFromUniversalLinkURL:url];
 
@@ -857,8 +857,8 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
 
-  NSURL *url = FIRDLDeepLinkURLWithInviteID(nil, kEncodedComplicatedURLString, nil, nil, nil, NO,
-                                            nil, nil, kURLScheme, nil);
+  NSURL *url = FIRDLDeepLinkURLWithInviteID(nil, kEncodedComplicatedURLString, nil, nil, nil, nil,
+                                            nil, NO, nil, nil, kURLScheme, nil);
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"completion called"];
   [self.service
@@ -1478,6 +1478,8 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
     @"utm_campaign" : @"Maksym M Test",
     @"utm_medium" : @"test_medium",
     @"utm_source" : @"test_source",
+    @"utm_content" : @"test_content",
+    @"utm_term" : @"test_term",
     @"a_parameter" : @"a_value"
   };
 
