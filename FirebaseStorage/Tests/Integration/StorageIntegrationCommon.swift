@@ -46,7 +46,7 @@ class StorageIntegrationCommon: XCTestCase {
       StorageIntegrationCommon.once = true
       let setupExpectation = expectation(description: "setUp")
 
-      let largeFiles = ["ios/public/1mb", "ios/public/1mb2"]
+      let largeFiles = ["ios/public/1mb", "ios/public/1mb2", "ios/public/1mb-result"]
       let emptyFiles =
         ["ios/public/empty", "ios/public/list/a", "ios/public/list/b", "ios/public/list/prefix/c"]
       setupExpectation.expectedFulfillmentCount = largeFiles.count + emptyFiles.count

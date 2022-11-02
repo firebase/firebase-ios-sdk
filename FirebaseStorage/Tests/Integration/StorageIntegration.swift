@@ -44,7 +44,7 @@ import XCTest
 class StorageResultTests: StorageIntegrationCommon {
   func testGetMetadata() {
     let expectation = self.expectation(description: "testGetMetadata")
-    let ref = storage.reference().child("ios/public/1mb")
+    let ref = storage.reference().child("ios/public/1mb-result")
     ref.getMetadata { result in
       self.assertResultSuccess(result)
       expectation.fulfill()
@@ -61,7 +61,7 @@ class StorageResultTests: StorageIntegrationCommon {
                            "ちかてつ": "🚇",
                            "shinkansen": "新幹線"]
 
-    let ref = storage.reference(withPath: "ios/public/1mb")
+    let ref = storage.reference(withPath: "ios/public/1mb-result")
     ref.updateMetadata(meta) { result in
       switch result {
       case let .success(metadata):
@@ -318,7 +318,7 @@ class StorageResultTests: StorageIntegrationCommon {
   func testSimpleGetData() {
     let expectation = self.expectation(description: #function)
 
-    let ref = storage.reference(withPath: "ios/public/1mb")
+    let ref = storage.reference(withPath: "ios/public/1mb-result")
     ref.getData(maxSize: 1024 * 1024) { result in
       self.assertResultSuccess(result)
       expectation.fulfill()
@@ -329,7 +329,7 @@ class StorageResultTests: StorageIntegrationCommon {
   func testSimpleGetDataInBackgroundQueue() {
     let expectation = self.expectation(description: #function)
 
-    let ref = storage.reference(withPath: "ios/public/1mb")
+    let ref = storage.reference(withPath: "ios/public/1mb-result")
     DispatchQueue.global(qos: .background).async {
       ref.getData(maxSize: 1024 * 1024) { result in
         self.assertResultSuccess(result)
@@ -348,7 +348,7 @@ class StorageResultTests: StorageIntegrationCommon {
     callbackQueue.setSpecific(key: callbackQueueKey, value: callbackQueueLabel)
     storage.callbackQueue = callbackQueue
 
-    let ref = storage.reference(withPath: "ios/public/1mb")
+    let ref = storage.reference(withPath: "ios/public/1mb-result")
     ref.getData(maxSize: 1024 * 1024) { result in
       self.assertResultSuccess(result)
 
@@ -369,7 +369,7 @@ class StorageResultTests: StorageIntegrationCommon {
   func testSimpleGetDataTooSmall() {
     let expectation = self.expectation(description: #function)
 
-    let ref = storage.reference(withPath: "ios/public/1mb")
+    let ref = storage.reference(withPath: "ios/public/1mb-result")
     let maxSize: Int64 = 1024
     ref.getData(maxSize: maxSize) { result in
       switch result {
@@ -394,13 +394,13 @@ class StorageResultTests: StorageIntegrationCommon {
   func testSimpleGetDownloadURL() {
     let expectation = self.expectation(description: #function)
 
-    let ref = storage.reference(withPath: "ios/public/1mb")
+    let ref = storage.reference(withPath: "ios/public/1mb-result")
 
     // Download URL format is
     // "https://firebasestorage.googleapis.com:443/v0/b/{bucket}/o/{path}?alt=media&token={token}"
     let downloadURLPattern =
       "^https:\\/\\/firebasestorage.googleapis.com:443\\/v0\\/b\\/[^\\/]*\\/o\\/" +
-      "ios%2Fpublic%2F1mb\\?alt=media&token=[a-z0-9-]*$"
+      "ios%2Fpublic%2F1mb-result\\?alt=media&token=[a-z0-9-]*$"
 
     ref.downloadURL { result in
       switch result {
@@ -490,7 +490,7 @@ class StorageResultTests: StorageIntegrationCommon {
 
   func testUpdateMetadata2() {
     let expectation = self.expectation(description: #function)
-    let ref = storage.reference(withPath: "ios/public/1mb")
+    let ref = storage.reference(withPath: "ios/public/1mb-result")
 
     let metadata = StorageMetadata()
     metadata.cacheControl = "cache-control"
