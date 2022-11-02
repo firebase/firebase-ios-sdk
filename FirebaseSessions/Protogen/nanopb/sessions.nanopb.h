@@ -21,7 +21,7 @@
 #define PB_FIREBASE_APPQUALITY_SESSIONS_SESSIONS_NANOPB_H_INCLUDED
 #include <nanopb/pb.h>
 
-#include "FirebaseSessions/Protogen/nanopb/clientanalytics.nanopb.h"
+#include "clientanalytics.nanopb.h"
 
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30

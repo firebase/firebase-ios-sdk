@@ -26,6 +26,7 @@ python Crashlytics/ProtoSupport/build_protos.py \
 """
 
 from __future__ import print_function
+from inspect import signature
 
 import sys
 
@@ -34,6 +35,7 @@ import os
 import os.path
 import re
 import subprocess
+
 
 OBJC_GENERATOR='nanopb_objc_generator.py'
 
@@ -206,7 +208,11 @@ def post_process_files(filenames, *processors):
       lines = fd.readlines()
 
     for processor in processors:
-      lines = processor(lines)
+      sig = signature(processor)
+      if len(sig.parameters) == 1:
+        lines = processor(lines)
+      else:
+        lines = processor(lines, filename)
 
     write_file(filename, lines)
 
@@ -274,12 +280,17 @@ def nanopb_use_module_import(lines):
 def make_use_absolute_import(nanopb_out, args):
   import_file = collect_files(nanopb_out, '.nanopb.h')[0]
 
-  def nanopb_use_absolute_import(lines):
+  def nanopb_use_absolute_import(lines, filename):
     """Makes repo-relative imports
 
        #include "crashlytics.nanopb.h" =>
        #include "Crashlytics/Protogen/nanopb/crashlytics.nanopb.h"
+
+       This only applies to .nanopb.c files because it causes errors if
+       .nanopb.h files import other .nanopb.h files with full relative paths.
     """
+    if ".h" in filename:
+      return lines
     include_prefix = args.include_prefix[0]
     header = os.path.basename(import_file)
     return [line.replace('#include "{0}"'.format(header), '#include "{0}{1}"'.format(include_prefix, header)) for line in lines]
