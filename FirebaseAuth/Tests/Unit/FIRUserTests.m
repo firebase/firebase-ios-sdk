@@ -2689,7 +2689,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                         FIRFacebookAuthProviderID);
                   XCTAssertNil(error);
 
-                  OCMExpect([_mockBackend verifyAssertion:[OCMArg any] callback:[OCMArg any]])
+                  OCMExpect([self->_mockBackend verifyAssertion:[OCMArg any] callback:[OCMArg any]])
                       .andDispatchError2(
                           [FIRAuthErrorUtils webSignInUserInteractionFailureWithReason:
                                                  kFakeWebSignInUserInteractionFailureReason]);
@@ -2752,7 +2752,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                         FIRFacebookAuthProviderID);
                   XCTAssertNil(error);
 
-                  OCMExpect([_mockBackend verifyAssertion:[OCMArg any] callback:[OCMArg any]])
+                  OCMExpect([self->_mockBackend verifyAssertion:[OCMArg any] callback:[OCMArg any]])
                       .andDispatchError2(
                           [FIRAuthErrorUtils webSignInUserInteractionFailureWithReason:
                                                  kFakeWebSignInUserInteractionFailureReason]);
