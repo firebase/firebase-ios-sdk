@@ -746,6 +746,189 @@ TEST_P(QueryEngineTest, OrQueryWithArrayMembership) {
   });
 }
 
+TEST_P(QueryEngineTest, QueryWithMultipleInsOnTheSameField) {
+  persistence_->Run("QueryWithMultipleInsOnTheSameField", [&] {
+    mutation_queue_->Start();
+    index_manager_->Start();
+
+    MutableDocument doc1 = Doc("coll/1", 1, Map("a", 1, "b", 0));
+    MutableDocument doc2 = Doc("coll/2", 1, Map("b", 1));
+    MutableDocument doc3 = Doc("coll/3", 1, Map("a", 3, "b", 2));
+    MutableDocument doc4 = Doc("coll/4", 1, Map("a", 1, "b", 3));
+    MutableDocument doc5 = Doc("coll/5", 1, Map("a", 1));
+    MutableDocument doc6 = Doc("coll/6", 1, Map("a", 2));
+    AddDocuments({doc1, doc2, doc3, doc4, doc5, doc6});
+
+    // a IN [1,2,3] && a IN [0,1,4] should result in "a==1".
+    auto query1 = testutil::Query("coll").AddingFilter(
+        AndFilters({Filter("a", "in", Array(1, 2, 3)),
+                    Filter("a", "in", Array(0, 1, 4))}));
+    DocumentSet result1 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query1, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result1, DocSet(query1.Comparator(), {doc1, doc4, doc5}));
+
+    // a IN [2,3] && a IN [0,1,4] is never true and so the result should be an
+    // empty set.
+    auto query2 = testutil::Query("coll").AddingFilter(AndFilters(
+        {Filter("a", "in", Array(2, 3)), Filter("a", "in", Array(0, 1, 4))}));
+    DocumentSet result2 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query2, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result2, DocSet(query2.Comparator(), {}));
+
+    // a IN [0,3] || a IN [0,2] should union them (similar to: a IN [0,2,3]).
+    auto query3 = testutil::Query("coll").AddingFilter(OrFilters(
+        {Filter("a", "in", Array(0, 3)), Filter("a", "in", Array(0, 2))}));
+    DocumentSet result3 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query3, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result3, DocSet(query3.Comparator(), {doc3, doc6}));
+  });
+}
+
+TEST_P(QueryEngineTest, QueryWithMultipleInsOnDifferentFields) {
+  persistence_->Run("QueryWithMultipleInsOnDifferentFields", [&] {
+    mutation_queue_->Start();
+    index_manager_->Start();
+
+    MutableDocument doc1 = Doc("coll/1", 1, Map("a", 1, "b", 0));
+    MutableDocument doc2 = Doc("coll/2", 1, Map("b", 1));
+    MutableDocument doc3 = Doc("coll/3", 1, Map("a", 3, "b", 2));
+    MutableDocument doc4 = Doc("coll/4", 1, Map("a", 1, "b", 3));
+    MutableDocument doc5 = Doc("coll/5", 1, Map("a", 1));
+    MutableDocument doc6 = Doc("coll/6", 1, Map("a", 2));
+    AddDocuments({doc1, doc2, doc3, doc4, doc5, doc6});
+
+    auto query1 = testutil::Query("coll").AddingFilter(OrFilters(
+        {Filter("a", "in", Array(2, 3)), Filter("b", "in", Array(0, 2))}));
+    DocumentSet result1 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query1, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result1, DocSet(query1.Comparator(), {doc1, doc3, doc6}));
+
+    auto query2 = testutil::Query("coll").AddingFilter(AndFilters(
+        {Filter("a", "in", Array(2, 3)), Filter("b", "in", Array(0, 2))}));
+    DocumentSet result2 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query2, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result2, DocSet(query2.Comparator(), {doc3}));
+  });
+}
+
+TEST_P(QueryEngineTest, QueryInWithArrayContainsAny) {
+  persistence_->Run("QueryInWithArrayContainsAny", [&] {
+    mutation_queue_->Start();
+    index_manager_->Start();
+
+    MutableDocument doc1 = Doc("coll/1", 1, Map("a", 1, "b", Array(0)));
+    MutableDocument doc2 = Doc("coll/2", 1, Map("b", Array(1)));
+    MutableDocument doc3 =
+        Doc("coll/3", 1, Map("a", 3, "b", Array(2, 7), "c", 10));
+    MutableDocument doc4 = Doc("coll/4", 1, Map("a", 1, "b", Array(3, 7)));
+    MutableDocument doc5 = Doc("coll/5", 1, Map("a", 1));
+    MutableDocument doc6 = Doc("coll/6", 1, Map("a", 2, "c", 20));
+    AddDocuments({doc1, doc2, doc3, doc4, doc5, doc6});
+
+    auto query1 = testutil::Query("coll").AddingFilter(
+        OrFilters({Filter("a", "in", Array(2, 3)),
+                   Filter("b", "array-contains-any", Array(0, 7))}));
+    DocumentSet result1 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query1, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result1, DocSet(query1.Comparator(), {doc1, doc3, doc4, doc6}));
+
+    auto query2 = testutil::Query("coll").AddingFilter(
+        AndFilters({Filter("a", "in", Array(2, 3)),
+                    Filter("b", "array-contains-any", Array(0, 7))}));
+    DocumentSet result2 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query2, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result2, DocSet(query2.Comparator(), {doc3}));
+
+    auto query3 = testutil::Query("coll").AddingFilter(OrFilters(
+        {AndFilters({Filter("a", "in", Array(2, 3)), Filter("c", "==", 10)}),
+         Filter("b", "array-contains-any", Array(0, 7))}));
+    DocumentSet result3 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query3, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result3, DocSet(query3.Comparator(), {doc1, doc3, doc4}));
+
+    auto query4 = testutil::Query("coll").AddingFilter(
+        AndFilters({Filter("a", "in", Array(2, 3)),
+                    OrFilters({Filter("b", "array-contains-any", Array(0, 7)),
+                               Filter("c", "==", 20)})}));
+    DocumentSet result4 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query4, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result4, DocSet(query4.Comparator(), {doc3, doc6}));
+  });
+}
+
+TEST_P(QueryEngineTest, QueryInWithArrayContains) {
+  persistence_->Run("QueryInWithArrayContains", [&] {
+    mutation_queue_->Start();
+    index_manager_->Start();
+
+    MutableDocument doc1 = Doc("coll/1", 1, Map("a", 1, "b", Array(0)));
+    MutableDocument doc2 = Doc("coll/2", 1, Map("b", Array(1)));
+    MutableDocument doc3 =
+        Doc("coll/3", 1, Map("a", 3, "b", Array(2, 7), "c", 10));
+    MutableDocument doc4 = Doc("coll/4", 1, Map("a", 1, "b", Array(3, 7)));
+    MutableDocument doc5 = Doc("coll/5", 1, Map("a", 1));
+    MutableDocument doc6 = Doc("coll/6", 1, Map("a", 2, "c", 20));
+    AddDocuments({doc1, doc2, doc3, doc4, doc5, doc6});
+
+    auto query1 = testutil::Query("coll").AddingFilter(OrFilters(
+        {Filter("a", "in", Array(2, 3)), Filter("b", "array-contains", 3)}));
+    DocumentSet result1 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query1, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result1, DocSet(query1.Comparator(), {doc3, doc4, doc6}));
+
+    auto query2 = testutil::Query("coll").AddingFilter(AndFilters(
+        {Filter("a", "in", Array(2, 3)), Filter("b", "array-contains", 7)}));
+    DocumentSet result2 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query2, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result2, DocSet(query2.Comparator(), {doc3}));
+
+    auto query3 = testutil::Query("coll").AddingFilter(
+        OrFilters({Filter("a", "in", Array(2, 3)),
+                   AndFilters({Filter("b", "array-contains", 3),
+                               Filter("a", "==", 1)})}));
+    DocumentSet result3 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query3, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result3, DocSet(query3.Comparator(), {doc3, doc4, doc6}));
+
+    auto query4 = testutil::Query("coll").AddingFilter(AndFilters(
+        {Filter("a", "in", Array(2, 3)),
+         OrFilters({Filter("b", "array-contains", 7), Filter("a", "==", 1)})}));
+    DocumentSet result4 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query4, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result4, DocSet(query4.Comparator(), {doc3}));
+  });
+}
+
+TEST_P(QueryEngineTest, OrderByEquality) {
+  persistence_->Run("OrderByEquality", [&] {
+    mutation_queue_->Start();
+    index_manager_->Start();
+
+    MutableDocument doc1 = Doc("coll/1", 1, Map("a", 1, "b", Array(0)));
+    MutableDocument doc2 = Doc("coll/2", 1, Map("b", Array(1)));
+    MutableDocument doc3 =
+        Doc("coll/3", 1, Map("a", 3, "b", Array(2, 7), "c", 10));
+    MutableDocument doc4 = Doc("coll/4", 1, Map("a", 1, "b", Array(3, 7)));
+    MutableDocument doc5 = Doc("coll/5", 1, Map("a", 1));
+    MutableDocument doc6 = Doc("coll/6", 1, Map("a", 2, "c", 20));
+    AddDocuments({doc1, doc2, doc3, doc4, doc5, doc6});
+
+    auto query1 = testutil::Query("coll")
+                      .AddingFilter(Filter("a", "==", 1))
+                      .AddingOrderBy(OrderBy("a"));
+    DocumentSet result1 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query1, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result1, DocSet(query1.Comparator(), {doc1, doc4, doc5}));
+
+    auto query2 = testutil::Query("coll")
+                      .AddingFilter(Filter("a", "in", Array(2, 3)))
+                      .AddingOrderBy(OrderBy("a"));
+    DocumentSet result2 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query2, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result2, DocSet(query2.Comparator(), {doc6, doc3}));
+  });
+}
+
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
