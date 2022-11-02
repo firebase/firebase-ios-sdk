@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,16 +15,11 @@
 # limitations under the License.
 #
 
-# Example usage:
-# ./generate_protos.sh <path to nanopb>
-
-# Dependencies: git, protobuf, python-protobuf, pyinstaller
-
 readonly DIR="$( git rev-parse --show-toplevel )"
 
-readonly LIBRARY_DIR="${DIR}/FirebaseMessaging/Sources/"
-readonly PROTO_DIR="${DIR}/FirebaseMessaging/ProtoSupport/Protos/"
-readonly PROTOGEN_DIR="${LIBRARY_DIR}/Protogen/"
-readonly INCLUDE_PREFIX="FirebaseMessaging/Sources/Protogen/nanopb/"
+readonly LIBRARY_DIR="${DIR}/FirebaseSessions/Sources/"
+readonly PROTO_DIR="${DIR}/FirebaseSessions/ProtoSupport/Protos/"
+readonly PROTOGEN_DIR="${DIR}/FirebaseSessions/Protogen/"
+readonly INCLUDE_PREFIX="FirebaseSessions/Protogen/nanopb/"
 
 ./scripts/nanopb/generate_protos.sh "$PROTO_DIR" "$PROTOGEN_DIR" "$INCLUDE_PREFIX"

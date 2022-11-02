@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ python Crashlytics/ProtoSupport/build_protos.py \
 """
 
 from __future__ import print_function
+from inspect import signature
 
 import sys
 
@@ -35,11 +36,12 @@ import os.path
 import re
 import subprocess
 
+
 OBJC_GENERATOR='nanopb_objc_generator.py'
 
 COPYRIGHT_NOTICE = '''
 /*
- * Copyright 2019 Google
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,6 +82,9 @@ def main():
   parser.add_argument(
       '--include', '-I', action='append', default=[],
       help='Adds INCLUDE to the proto path.')
+  parser.add_argument(
+      '--include_prefix', '-p', action='append', default=[],
+      help='Adds include_prefix to the <product>.nanopb.h include in .nanopb.c')
 
 
   args = parser.parse_args()
@@ -126,7 +131,8 @@ class NanopbGenerator(object):
         add_copyright,
         nanopb_remove_extern_c,
         nanopb_rename_delete,
-        nanopb_use_module_import
+        nanopb_use_module_import,
+        make_use_absolute_import(nanopb_out, self.args)
     )
 
   def __run_generator(self, out_dir):
@@ -163,7 +169,6 @@ def run_protoc(args, cmd):
     args: The command-line args (including pythonpath)
     cmd: The command to run expressed as a list of strings
   """
-
   kwargs = {}
   if args.pythonpath:
     env = os.environ.copy()
@@ -174,7 +179,8 @@ def run_protoc(args, cmd):
     kwargs['env'] = env
 
   try:
-    print(subprocess.check_output(cmd, stderr=subprocess.STDOUT, **kwargs))
+    outputString = subprocess.check_output(cmd, stderr=subprocess.STDOUT, **kwargs)
+    print(outputString.decode("utf-8"))
   except subprocess.CalledProcessError as error:
     print('command failed: ', ' '.join(cmd), '\nerror: ', error.output)
 
@@ -202,7 +208,11 @@ def post_process_files(filenames, *processors):
       lines = fd.readlines()
 
     for processor in processors:
-      lines = processor(lines)
+      sig = signature(processor)
+      if len(sig.parameters) == 1:
+        lines = processor(lines)
+      else:
+        lines = processor(lines, filename)
 
     write_file(filename, lines)
 
@@ -215,6 +225,8 @@ def write_file(filename, lines):
 
 def add_copyright(lines):
   """Adds a copyright notice to the lines."""
+  if COPYRIGHT_NOTICE in lines:
+    return lines
   result = [COPYRIGHT_NOTICE, '\n']
   result.extend(lines)
   return result
@@ -265,6 +277,25 @@ def nanopb_use_module_import(lines):
   """Changes #include <pb.h> to include <nanopb/pb.h>""" # Don't let Copybara alter these lines.
   return [line.replace('#include <pb.h>', '{}include <nanopb/pb.h>'.format("#")) for line in lines]
 
+def make_use_absolute_import(nanopb_out, args):
+  import_file = collect_files(nanopb_out, '.nanopb.h')[0]
+
+  def nanopb_use_absolute_import(lines, filename):
+    """Makes repo-relative imports
+
+       #include "crashlytics.nanopb.h" =>
+       #include "Crashlytics/Protogen/nanopb/crashlytics.nanopb.h"
+
+       This only applies to .nanopb.c files because it causes errors if
+       .nanopb.h files import other .nanopb.h files with full relative paths.
+    """
+    if ".h" in filename:
+      return lines
+    include_prefix = args.include_prefix[0]
+    header = os.path.basename(import_file)
+    return [line.replace('#include "{0}"'.format(header), '#include "{0}{1}"'.format(include_prefix, header)) for line in lines]
+
+  return nanopb_use_absolute_import
 
 def strip_trailing_whitespace(lines):
   """Removes trailing whitespace from the given lines."""

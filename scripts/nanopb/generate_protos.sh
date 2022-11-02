@@ -24,34 +24,41 @@ readonly DIR="$( git rev-parse --show-toplevel )"
 
 # Current release of nanopb being used  to build the CCT protos
 readonly NANOPB_VERSION="0.3.9.8"
-readonly NANOPB_TEMPDIR="${DIR}/FirebaseSessions/nanopb_temp"
+readonly NANOPB_TEMPDIR="${DIR}/scripts/nanopb/nanopb_temp"
 
-readonly LIBRARY_DIR="${DIR}/FirebaseSessions/Sources/"
-readonly PROTO_DIR="${DIR}/FirebaseSessions/ProtoSupport/Protos/"
-readonly PROTOGEN_DIR="${DIR}/FirebaseSessions/Protogen/"
+readonly PROTO_DIR="$1"
+readonly PROTOGEN_DIR="$2"
+readonly INCLUDE_PREFIX="$3"
+
+echoColor() {
+  COLOR='\033[0;35m'
+  NC='\033[0m'
+  printf "${COLOR}$1${NC}\n"
+}
 
 rm -rf "${NANOPB_TEMPDIR}"
 
-echo "Downloading nanopb..."
+echoColor "Downloading nanopb..."
 git clone --branch "${NANOPB_VERSION}" https://github.com/nanopb/nanopb.git "${NANOPB_TEMPDIR}"
 
-echo "Building nanopb..."
+echoColor "Building nanopb..."
 pushd "${NANOPB_TEMPDIR}"
 ./tools/make_mac_package.sh
 GIT_DESCRIPTION=`git describe --always`-macosx-x86
 NANOPB_BIN_DIR="dist/${GIT_DESCRIPTION}"
 popd
 
-echo "Removing existing protos..."
+echoColor "Removing existing protos..."
 rm -rf "${PROTOGEN_DIR}/*"
 
-echo "Generating protos..."
-python "${DIR}/FirebaseSessions/ProtoSupport/proto_generator.py" \
+echoColor "Generating protos..."
+python "${DIR}/scripts/nanopb/proto_generator.py" \
   --nanopb \
   --protos_dir="${PROTO_DIR}" \
   --pythonpath="${NANOPB_TEMPDIR}/${NANOPB_BIN_DIR}/generator" \
   --output_dir="${PROTOGEN_DIR}" \
-  --include="${PROTO_DIR}"
+  --include="${PROTO_DIR}" \
+  --include_prefix="${INCLUDE_PREFIX}"
 
 rm -rf "${NANOPB_TEMPDIR}"
 
@@ -59,6 +66,6 @@ RED='\033[0;31m'
 NC='\033[0m'
 echo ""
 echo ""
-echo -e "${RED}Important: Any new proto fields of type string, repeated, or bytes must be specified in the sessions.options file${NC}"
+echo -e "${RED}Important: Any new proto fields of type string, repeated, or bytes must be specified in the proto's .options file with type:FT_POINTER${NC}"
 echo ""
 echo ""
