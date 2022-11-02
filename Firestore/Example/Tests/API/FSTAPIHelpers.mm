@@ -156,7 +156,7 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
                             static_cast<bool>(fromCache),
                             /*sync_state_changed=*/true,
                             /*excludes_metadata_changes=*/false,
-                            hasCachedResults ? true : false};
+                            static_cast<bool>(hasCachedResults);
   return [[FIRQuerySnapshot alloc] initWithFirestore:FSTTestFirestore().wrapped
                                        originalQuery:Query(path)
                                             snapshot:std::move(viewSnapshot)
