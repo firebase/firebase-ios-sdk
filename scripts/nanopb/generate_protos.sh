@@ -26,13 +26,9 @@ readonly DIR="$( git rev-parse --show-toplevel )"
 readonly NANOPB_VERSION="0.3.9.8"
 readonly NANOPB_TEMPDIR="${DIR}/scripts/nanopb/nanopb_temp"
 
-readonly LIBRARY_DIR="$1"
-readonly PROTO_DIR="$2"
-readonly PROTOGEN_DIR="$3"
-
-# readonly LIBRARY_DIR="${DIR}/FirebaseSessions/Sources/"
-# readonly PROTO_DIR="${DIR}/FirebaseSessions/ProtoSupport/Protos/"
-# readonly PROTOGEN_DIR="${DIR}/FirebaseSessions/Protogen/"
+readonly PROTO_DIR="$1"
+readonly PROTOGEN_DIR="$2"
+readonly INCLUDE_PREFIX="$3"
 
 echoColor() {
   COLOR='\033[0;35m'
@@ -61,7 +57,8 @@ python "${DIR}/scripts/nanopb/proto_generator.py" \
   --protos_dir="${PROTO_DIR}" \
   --pythonpath="${NANOPB_TEMPDIR}/${NANOPB_BIN_DIR}/generator" \
   --output_dir="${PROTOGEN_DIR}" \
-  --include="${PROTO_DIR}"
+  --include="${PROTO_DIR}" \
+  --include_prefix="${INCLUDE_PREFIX}"
 
 rm -rf "${NANOPB_TEMPDIR}"
 
@@ -69,6 +66,6 @@ RED='\033[0;31m'
 NC='\033[0m'
 echo ""
 echo ""
-echo -e "${RED}Important: Any new proto fields of type string, repeated, or bytes must be specified in the sessions.options file with type:FT_POINTER${NC}"
+echo -e "${RED}Important: Any new proto fields of type string, repeated, or bytes must be specified in the proto's .options file with type:FT_POINTER${NC}"
 echo ""
 echo ""

@@ -23,6 +23,7 @@
 readonly REPO_DIR="$( git rev-parse --show-toplevel )"
 
 readonly PROTO_DIR="${REPO_DIR}/FirebaseInAppMessaging/ProtoSupport/Protos"
-readonly PROTOGEN_DIR="${REPO_DIR}/FirebaseInAppMessaging/Analytics/Protogen"
+readonly PROTOGEN_DIR="${REPO_DIR}/FirebaseInAppMessaging/Sources/Analytics/Protogen"
+readonly INCLUDE_PREFIX="FirebaseInAppMessaging/Sources/Analytics/Protogen/nanopb/"
 
-./scripts/nanopb/generate_protos.sh "$LIBRARY_DIR" "$PROTO_DIR" "$PROTOGEN_DIR"
+./scripts/nanopb/generate_protos.sh "$PROTO_DIR" "$PROTOGEN_DIR" "$INCLUDE_PREFIX"

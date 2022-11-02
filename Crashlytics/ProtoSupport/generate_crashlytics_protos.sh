@@ -22,8 +22,8 @@
 
 readonly DIR="$( git rev-parse --show-toplevel )"
 
-readonly LIBRARY_DIR="${DIR}/Crashlytics/Crashlytics/"
 readonly PROTO_DIR="${DIR}/Crashlytics/ProtoSupport/Protos/"
 readonly PROTOGEN_DIR="${DIR}/Crashlytics/Protogen/"
+readonly INCLUDE_PREFIX="Crashlytics/Protogen/nanopb/"
 
-./scripts/nanopb/generate_protos.sh "$LIBRARY_DIR" "$PROTO_DIR" "$PROTOGEN_DIR"
+./scripts/nanopb/generate_protos.sh "$PROTO_DIR" "$PROTOGEN_DIR" "$INCLUDE_PREFIX"

@@ -80,6 +80,9 @@ def main():
   parser.add_argument(
       '--include', '-I', action='append', default=[],
       help='Adds INCLUDE to the proto path.')
+  parser.add_argument(
+      '--include_prefix', '-p', action='append', default=[],
+      help='Adds include_prefix to the <product>.nanopb.h include in .nanopb.c')
 
 
   args = parser.parse_args()
@@ -126,7 +129,8 @@ class NanopbGenerator(object):
         add_copyright,
         nanopb_remove_extern_c,
         nanopb_rename_delete,
-        nanopb_use_module_import
+        nanopb_use_module_import,
+        make_use_absolute_import(nanopb_out, self.args)
     )
 
   def __run_generator(self, out_dir):
@@ -163,7 +167,6 @@ def run_protoc(args, cmd):
     args: The command-line args (including pythonpath)
     cmd: The command to run expressed as a list of strings
   """
-
   kwargs = {}
   if args.pythonpath:
     env = os.environ.copy()
@@ -216,6 +219,8 @@ def write_file(filename, lines):
 
 def add_copyright(lines):
   """Adds a copyright notice to the lines."""
+  if COPYRIGHT_NOTICE in lines:
+    return lines
   result = [COPYRIGHT_NOTICE, '\n']
   result.extend(lines)
   return result
@@ -266,6 +271,20 @@ def nanopb_use_module_import(lines):
   """Changes #include <pb.h> to include <nanopb/pb.h>""" # Don't let Copybara alter these lines.
   return [line.replace('#include <pb.h>', '{}include <nanopb/pb.h>'.format("#")) for line in lines]
 
+def make_use_absolute_import(nanopb_out, args):
+  import_file = collect_files(nanopb_out, '.nanopb.h')[0]
+
+  def nanopb_use_absolute_import(lines):
+    """Makes repo-relative imports
+
+       #include "crashlytics.nanopb.h" =>
+       #include "Crashlytics/Protogen/nanopb/crashlytics.nanopb.h"
+    """
+    include_prefix = args.include_prefix[0]
+    header = os.path.basename(import_file)
+    return [line.replace('#include "{0}"'.format(header), '#include "{0}{1}"'.format(include_prefix, header)) for line in lines]
+
+  return nanopb_use_absolute_import
 
 def strip_trailing_whitespace(lines):
   """Removes trailing whitespace from the given lines."""
