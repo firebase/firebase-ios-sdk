@@ -1012,20 +1012,6 @@
           },
           "targetId": 2
         },
-        "expectedSnapshotEvents": [
-          {
-            "errorCode": 0,
-            "fromCache": true,
-            "hasPendingWrites": false,
-            "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
-              "path": "collection"
-            }
-          }
-        ],
         "expectedState": {
           "activeTargets": {
             "2": {
