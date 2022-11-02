@@ -233,8 +233,10 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
 
   void AssertCallbackExists(absl::string_view source);
 
-  ViewSnapshot InitializeViewAndComputeSnapshot(const Query& query,
-                                                model::TargetId target_id);
+  ViewSnapshot InitializeViewAndComputeSnapshot(
+      const Query& query,
+      model::TargetId target_id,
+      nanopb::ByteString resume_token);
 
   void RemoveAndCleanupTarget(model::TargetId target_id, util::Status status);
 
