@@ -33,6 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable instancetype)initWithPlayerID:(NSString *)playerID
+                             teamPlayerID:(nullable NSString *)teamPlayerID
+                             gamePlayerID:(nullable NSString *)gamePlayerID
                              publicKeyURL:(NSURL *)publicKeyURL
                                 signature:(NSData *)signature
                                      salt:(NSData *)salt
@@ -41,6 +43,8 @@ NS_ASSUME_NONNULL_BEGIN
   self = [super initWithProvider:FIRGameCenterAuthProviderID];
   if (self) {
     _playerID = [playerID copy];
+    _teamPlayerID = [teamPlayerID copy];
+    _gamePlayerID = [gamePlayerID copy];
     _publicKeyURL = [publicKeyURL copy];
     _signature = [signature copy];
     _salt = [salt copy];
@@ -64,12 +68,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
   NSString *playerID = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"playerID"];
+  NSString *teamPlayerID = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"teamPlayerID"];
+  NSString *gamePlayerID = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"gamePlayerID"];
   NSURL *publicKeyURL = [aDecoder decodeObjectOfClass:[NSURL class] forKey:@"publicKeyURL"];
   NSData *signature = [aDecoder decodeObjectOfClass:[NSData class] forKey:@"signature"];
   NSData *salt = [aDecoder decodeObjectOfClass:[NSData class] forKey:@"salt"];
   NSNumber *timestamp = [aDecoder decodeObjectOfClass:[NSNumber class] forKey:@"timestamp"];
   NSString *displayName = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"displayName"];
   self = [self initWithPlayerID:playerID
+                   teamPlayerID:teamPlayerID
+                   gamePlayerID:gamePlayerID
                    publicKeyURL:publicKeyURL
                       signature:signature
                            salt:salt
@@ -80,6 +88,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
   [aCoder encodeObject:self.playerID forKey:@"playerID"];
+  [aCoder encodeObject:self.teamPlayerID forKey:@"teamPlayerID"];
+  [aCoder encodeObject:self.gamePlayerID forKey:@"gamePlayerID"];
   [aCoder encodeObject:self.publicKeyURL forKey:@"publicKeyURL"];
   [aCoder encodeObject:self.signature forKey:@"signature"];
   [aCoder encodeObject:self.salt forKey:@"salt"];

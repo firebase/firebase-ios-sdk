@@ -1176,6 +1176,8 @@ static void callInMainThreadWithAuthDataResultAndError(
         FIRAuthRequestConfiguration *requestConfiguration = self.auth.requestConfiguration;
         FIRSignInWithGameCenterRequest *gameCenterRequest = [[FIRSignInWithGameCenterRequest alloc]
                 initWithPlayerID:gameCenterCredential.playerID
+                    teamPlayerID:gameCenterCredential.teamPlayerID
+                    gamePlayerID:gameCenterCredential.gamePlayerID
                     publicKeyURL:gameCenterCredential.publicKeyURL
                        signature:gameCenterCredential.signature
                             salt:gameCenterCredential.salt
