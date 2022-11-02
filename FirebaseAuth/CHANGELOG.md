@@ -1,3 +1,6 @@
+# Unreleased
+Fix a bug where the linking/reauth flows errors are not caught. (#10407)
+
 # 10.1.0
 - [fixed] Fix a bug where multi factor phone number returns `NULL`. (#10296)
 
