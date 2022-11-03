@@ -16,25 +16,42 @@
 
 import Foundation
 
+extension URL {
+  func appendingCompatible(path: String) -> URL {
+    if #available(iOS 16.0, *) {
+      return self.appending(path: path)
+    } else {
+      return self.appendingPathComponent(path)
+    }
+  }
+}
+
 class SettingsFileManager {
   private static let directoryName: String = "com.firebase.sessions.data-v1"
   private let fileManager: FileManager
   private let directoryUrl: URL
   
   var settingsCacheContentPath: URL {
-    get { return self.directoryUrl.appending(path: "settings.json") }
+    get { return self.directoryUrl.appendingCompatible(path: "settings.json") }
   }
   var settingsCacheKeyPath: URL {
-    get { return self.directoryUrl.appending(path: "cache-key.json") }
+    get { return self.directoryUrl.appendingCompatible(path: "cache-key.json") }
   }
   
   init(fileManager: FileManager = FileManager.default) {
     self.fileManager = fileManager
-    self.directoryUrl = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first
-    self.directoryUrl.appending(path: SettingsFileManager.directoryName)
+    guard let cachesDirectory = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first else {
+      self.directoryUrl = URL(fileURLWithPath:"/")
+      return
+    }
+    self.directoryUrl = cachesDirectory.appendingCompatible(path: SettingsFileManager.directoryName)
   }
   
-  func data(contentsOf url: URL) {
-    return Data(contentsOf: url)
+  func data(contentsOf url: URL) -> Data? {
+    do {
+      return try Data(contentsOf: url)
+    } catch {
+      return nil
+    }
   }
 }

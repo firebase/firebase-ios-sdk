@@ -17,23 +17,27 @@
 import Foundation
 
 class Settings {
-  private let settingsDictionary: [:]
+  private static let cacheDurationSecondsDefault: TimeInterval = 60 * 60
+  private var settingsDictionary: [String: AnyObject]?
   private let fileManager: SettingsFileManager
   private var isCacheKeyExpired: Bool
   var isCacheExpired: Bool {
     get {
-      guard let dictionary = settingsDictionary else {
+      guard settingsDictionary != nil else {
         return true
       }
       return isCacheKeyExpired
     }
   }
-  private var cacheDurationSeconds: UInt32 {
+  private var cacheDurationSeconds: TimeInterval {
     get {
-      if let duration = settingsDictionary["cache_duration"] {
-        return duration
+      guard let durationDict = settingsDictionary?["cache_duration"] else {
+        return Settings.cacheDurationSecondsDefault
       }
-      return 60 * 60
+      guard let duration = durationDict.doubleValue else {
+        return Settings.cacheDurationSecondsDefault
+      }
+      return duration
     }
   }
   struct CacheKey: Decodable {
@@ -53,10 +57,11 @@ class Settings {
       Logger.logDebug("[Sessions:Settings] No settings were cached")
       return
     }
-    guard settingsDictionary = parseDictionary(data: cacheData) else {
+    guard let parsedDictionary = parseDictionary(data: cacheData) else {
       // TODO: delete file
       return
     }
+    self.settingsDictionary = parsedDictionary
     guard let cacheKeyData = fileManager.data(contentsOf: fileManager.settingsCacheKeyPath), let cacheKey = parseCacheKey(data: cacheKeyData) else {
       Logger.logError("[Sessions:Settings] Could not load settings cache key")
       // TODO: delete file
@@ -67,7 +72,7 @@ class Settings {
       // TODO: delete file
       return
     }
-    guard currentTime.timeIntervalSince(cacheKey.createdAt) > cacheDurationSeconds else {
+    if currentTime.timeIntervalSince(cacheKey.createdAt) > cacheDurationSeconds {
       Logger.logDebug("[Sessions:Settings] Settings TTL expired")
       self.isCacheKeyExpired = true
     }
