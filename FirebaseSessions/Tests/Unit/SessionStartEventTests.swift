@@ -122,8 +122,6 @@ class SessionStartEventTests: XCTestCase {
       ("PROD", firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_PROD),
       ("STAGING", firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_STAGING),
       ("AUTOPUSH", firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_AUTOPUSH),
-      ("", firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_UNKNOWN),
-      (" ", firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_UNKNOWN),
       ("random", firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_UNKNOWN),
     ]
 
