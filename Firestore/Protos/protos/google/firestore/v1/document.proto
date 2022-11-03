@@ -17,7 +17,6 @@ syntax = "proto3";
 
 package google.firestore.v1;
 
-import "google/api/annotations.proto";
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
 import "google/type/latlng.proto";
