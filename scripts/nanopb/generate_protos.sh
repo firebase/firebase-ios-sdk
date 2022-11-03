@@ -36,6 +36,17 @@ echoColor() {
   printf "${COLOR}$1${NC}\n"
 }
 
+echoRed() {
+  RED='\033[0;31m'
+  NC='\033[0m'
+  printf "${RED}$1${NC}\n"
+}
+
+cleanup_and_exit() {
+  rm -rf "${NANOPB_TEMPDIR}"
+  exit
+}
+
 rm -rf "${NANOPB_TEMPDIR}"
 
 echoColor "Downloading nanopb..."
@@ -52,6 +63,18 @@ echoColor "Removing existing protos..."
 rm -rf "${PROTOGEN_DIR}/*"
 
 echoColor "Generating protos..."
+
+if ! command -v python &> /dev/null
+then
+    echoRed ""
+    echoRed "'python' command not found."
+    echoRed "You may be able to resolve this by installing python with homebrew and linking 'python' to 'python3'. Eg. run:"
+    echoRed ""
+    echoRed '$ brew install python && cd $(dirname $(which python3)) && ln -s python3 python'
+    echoRed ""
+    cleanup_and_exit
+fi
+
 python "${DIR}/scripts/nanopb/proto_generator.py" \
   --nanopb \
   --protos_dir="${PROTO_DIR}" \
@@ -60,12 +83,12 @@ python "${DIR}/scripts/nanopb/proto_generator.py" \
   --include="${PROTO_DIR}" \
   --include_prefix="${INCLUDE_PREFIX}"
 
-rm -rf "${NANOPB_TEMPDIR}"
-
 RED='\033[0;31m'
 NC='\033[0m'
-echo ""
-echo ""
-echo -e "${RED}Important: Any new proto fields of type string, repeated, or bytes must be specified in the proto's .options file with type:FT_POINTER${NC}"
-echo ""
-echo ""
+echoRed ""
+echoRed ""
+echoRed -e "Important: Any new proto fields of type string, repeated, or bytes must be specified in the proto's .options file with type:FT_POINTER"
+echoRed ""
+echoRed ""
+
+cleanup_and_exit
