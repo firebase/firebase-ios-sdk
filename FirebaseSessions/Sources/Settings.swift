@@ -16,10 +16,15 @@
 
 import Foundation
 
+protocol SettingsProtocol {
+  // TODO
+}
+
 class Settings {
   private static let cacheDurationSecondsDefault: TimeInterval = 60 * 60
-  private var settingsDictionary: [String: AnyObject]?
   private let fileManager: SettingsFileManager
+  private let appInfo: ApplicationInfoProtocol
+  private var settingsDictionary: [String: AnyObject]?
   private var isCacheKeyExpired: Bool
   var isCacheExpired: Bool {
     get {
@@ -31,10 +36,7 @@ class Settings {
   }
   private var cacheDurationSeconds: TimeInterval {
     get {
-      guard let durationDict = settingsDictionary?["cache_duration"] else {
-        return Settings.cacheDurationSecondsDefault
-      }
-      guard let duration = durationDict.doubleValue else {
+      guard let duration = settingsDictionary?["cache_duration"]?.doubleValue else {
         return Settings.cacheDurationSecondsDefault
       }
       return duration
@@ -43,13 +45,13 @@ class Settings {
   struct CacheKey: Decodable {
     var createdAt: Date
     var googleAppID: String
-    var buildInstanceID: String
     var appVersion: String
   }
   
-  init(fileManager: SettingsFileManager = SettingsFileManager()) {
+  init(fileManager: SettingsFileManager = SettingsFileManager(), appInfo: ApplicationInfoProtocol) {
     self.fileManager = fileManager
     self.isCacheKeyExpired = false
+    self.appInfo = appInfo
   }
   
   func loadCache(googleAppID: String, currentTime: Date) {
@@ -76,6 +78,10 @@ class Settings {
       Logger.logDebug("[Sessions:Settings] Settings TTL expired")
       self.isCacheKeyExpired = true
     }
+    if appInfo.synthesizedVersion != cacheKey.appVersion {
+      Logger.logDebug("[Sessions:Settings] Settings expired because app version changed")
+      self.isCacheKeyExpired = true
+    }
   }
   
   func parseDictionary(data: Data) -> [String: AnyObject]? {
@@ -100,5 +106,11 @@ class Settings {
       Logger.logError("[Sessions:Settings] Error: \(error)")
     }
     return nil
+  }
+}
+
+fileprivate extension ApplicationInfoProtocol {
+  var synthesizedVersion: String {
+    get { return "\(self.appDisplayVersion) (\(self.appBuildVersion))" }
   }
 }

@@ -43,6 +43,10 @@ protocol ApplicationInfoProtocol {
 
   /// Development environment on which the application is running.
   var environment: DevEnvironment { get }
+  
+  var appBuildVersion: String { get }
+  
+  var appDisplayVersion: String { get }
 }
 
 class ApplicationInfo: ApplicationInfoProtocol {
@@ -80,8 +84,16 @@ class ApplicationInfo: ApplicationInfoProtocol {
   var environment: DevEnvironment {
     if let environment = envParams["FirebaseSessionsRunEnvironment"] {
       return DevEnvironment(rawValue: environment.trimmingCharacters(in: .whitespaces).lowercased())
-        ?? DevEnvironment.prod
+      ?? DevEnvironment.prod
     }
     return DevEnvironment.prod
+  }
+  
+  var appBuildVersion: String {
+    return Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+  }
+  
+  var appDisplayVersion: String {
+    return Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
   }
 }
