@@ -161,7 +161,6 @@ TEST(FirebaseAuthCredentialsProviderTest, GetTokenCalledByAnotherThread) {
   FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:@"token for fake uid"
                                                      uid:@"fake uid"];
   FirebaseAuthCredentialsProvider credentials_provider(app, auth);
-  credentials_provider.InvalidateToken();
 
   std::thread thread1([&credentials_provider] {
     credentials_provider.GetToken(
