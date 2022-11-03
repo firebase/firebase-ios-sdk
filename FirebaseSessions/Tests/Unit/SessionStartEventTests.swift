@@ -137,11 +137,7 @@ class SessionStartEventTests: XCTestCase {
       }
     }
   }
-<<<<<<< HEAD
 
-=======
-  
->>>>>>> 31dbba3b1 (Apply environment variable value to the application Info in the session start event.)
   func test_convertLogEnvironment_convertsCorrectly() {
     let expectations: [(given: String, expected: firebase_appquality_sessions_LogEnvironment)] = [
       ("prod", firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_PROD),
@@ -150,11 +146,8 @@ class SessionStartEventTests: XCTestCase {
       ("PROD", firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_PROD),
       ("STAGING", firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_STAGING),
       ("AUTOPUSH", firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_AUTOPUSH),
-<<<<<<< HEAD
-=======
       ("", firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_UNKNOWN),
       (" ", firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_UNKNOWN),
->>>>>>> 31dbba3b1 (Apply environment variable value to the application Info in the session start event.)
       ("random", firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_UNKNOWN),
     ]
 
