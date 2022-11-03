@@ -30,6 +30,9 @@ static NSString *const kRCNUserDefaultsKeyNameIsClientThrottled =
 static NSString *const kRCNUserDefaultsKeyNameThrottleEndTime = @"throttleEndTime";
 static NSString *const kRCNUserDefaultsKeyNamecurrentThrottlingRetryInterval =
     @"currentThrottlingRetryInterval";
+static NSString *const kRCNUserDefaultsKeyNameRealtimeThrottleEndTime = @"throttleRealtimeEndTime";
+static NSString *const kRCNUserDefaultsKeyNamecurrentRealtimeThrottlingRetryInterval =
+    @"currentRealtimeThrottlingRetryInterval";
 
 @interface RCNUserDefaultsManager () {
   /// User Defaults instance for this bundleID. NSUserDefaults is guaranteed to be thread-safe.
@@ -188,6 +191,36 @@ static NSString *const kRCNUserDefaultsKeyNamecurrentThrottlingRetryInterval =
 - (void)setCurrentThrottlingRetryIntervalSeconds:(NSTimeInterval)throttlingRetryIntervalSeconds {
   [self setInstanceUserDefaultsValue:@(throttlingRetryIntervalSeconds)
                               forKey:kRCNUserDefaultsKeyNamecurrentThrottlingRetryInterval];
+}
+
+- (NSTimeInterval)realtimeThrottleEndTime {
+  NSNumber *realtimeThrottleEndTime = 0;
+  if ([[self instanceUserDefaults] objectForKey:kRCNUserDefaultsKeyNameRealtimeThrottleEndTime]) {
+    realtimeThrottleEndTime =
+        [[self instanceUserDefaults] objectForKey:kRCNUserDefaultsKeyNameRealtimeThrottleEndTime];
+  }
+  return realtimeThrottleEndTime.doubleValue;
+}
+
+- (void)setRealtimeThrottleEndTime:(NSTimeInterval)throttleEndTime {
+  [self setInstanceUserDefaultsValue:@(throttleEndTime)
+                              forKey:kRCNUserDefaultsKeyNameRealtimeThrottleEndTime];
+}
+
+- (NSTimeInterval)currentRealtimeThrottlingRetryIntervalSeconds {
+  NSNumber *realtimeThrottleEndTime = 0;
+  if ([[self instanceUserDefaults]
+          objectForKey:kRCNUserDefaultsKeyNamecurrentRealtimeThrottlingRetryInterval]) {
+    realtimeThrottleEndTime = [[self instanceUserDefaults]
+        objectForKey:kRCNUserDefaultsKeyNamecurrentRealtimeThrottlingRetryInterval];
+  }
+  return realtimeThrottleEndTime.doubleValue;
+}
+
+- (void)setCurrentRealtimeThrottlingRetryIntervalSeconds:
+    (NSTimeInterval)throttlingRetryIntervalSeconds {
+  [self setInstanceUserDefaultsValue:@(throttlingRetryIntervalSeconds)
+                              forKey:kRCNUserDefaultsKeyNamecurrentRealtimeThrottlingRetryInterval];
 }
 
 #pragma mark Public methods.

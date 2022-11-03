@@ -111,6 +111,9 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 
     _isFetchInProgress = NO;
     _lastTemplateVersion = [_userDefaultsManager lastTemplateVersion];
+    _realtimeExponentialBackoffRetryInterval =
+        [_userDefaultsManager currentRealtimeThrottlingRetryIntervalSeconds];
+    _realtimeExponentialBackoffThrottleEndTime = [_userDefaultsManager realtimeThrottleEndTime];
   }
   return self;
 }
@@ -232,6 +235,39 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
       (0.5 * _exponentialBackoffRetryInterval * randomPlusMinusInterval);
   _exponentialBackoffThrottleEndTime =
       [[NSDate date] timeIntervalSince1970] + randomizedRetryInterval;
+}
+
+/// If the last Realtime stream attempt was not successful, update the (exponential backoff) period
+/// that we wait until trying again. Any subsequent Realtime requests will be checked and allowed
+/// only if past this throttle end time.
+- (void)updateRealtimeExponentialBackoffTime:(BOOL)firstBackoff {
+  // If there was only one stream attempt before, reset the retry interval.
+  if (firstBackoff) {
+    FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000057",
+                @"Throttling: Entering exponential backoff mode.");
+    _realtimeExponentialBackoffRetryInterval = kRCNExponentialBackoffMinimumInterval;
+  } else {
+    FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000057",
+                @"Throttling: Updating throttling interval.");
+    // Double the retry interval until we hit the truncated exponential backoff. More info here:
+    // https://cloud.google.com/storage/docs/exponential-backoff
+    _realtimeExponentialBackoffRetryInterval =
+        ((_realtimeExponentialBackoffRetryInterval * 2) < kRCNExponentialBackoffMaximumInterval)
+            ? _realtimeExponentialBackoffRetryInterval * 2
+            : _realtimeExponentialBackoffRetryInterval;
+  }
+
+  // Randomize the next retry interval.
+  int randomPlusMinusInterval = ((arc4random() % 2) == 0) ? -1 : 1;
+  NSTimeInterval randomizedRetryInterval =
+      _realtimeExponentialBackoffRetryInterval +
+      (0.5 * _realtimeExponentialBackoffRetryInterval * randomPlusMinusInterval);
+  _realtimeExponentialBackoffThrottleEndTime =
+      [[NSDate date] timeIntervalSince1970] + randomizedRetryInterval;
+
+  [_userDefaultsManager setRealtimeThrottleEndTime:_realtimeExponentialBackoffThrottleEndTime];
+  [_userDefaultsManager
+      setCurrentThrottlingRetryIntervalSeconds:_realtimeExponentialBackoffRetryInterval];
 }
 
 - (void)updateMetadataWithFetchSuccessStatus:(BOOL)fetchSuccess

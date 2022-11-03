@@ -124,6 +124,41 @@ static NSString* const FQNamespace2 = @"testNamespace2:testApp";
                  RCNUserDefaultsSampleTimeStamp - 2.0);
 }
 
+- (void)testUserDefaultsTemplateVersionWriteAndRead {
+  RCNUserDefaultsManager* manager =
+      [[RCNUserDefaultsManager alloc] initWithAppName:AppName
+                                             bundleID:[NSBundle mainBundle].bundleIdentifier
+                                            namespace:FQNamespace1];
+  [manager setLastTemplateVersion:@"1"];
+  XCTAssertEqual([manager lastTemplateVersion], @"1");
+}
+
+- (void)testUserDefaultsRealtimeThrottleEndTimeWriteAndRead {
+  RCNUserDefaultsManager* manager =
+      [[RCNUserDefaultsManager alloc] initWithAppName:AppName
+                                             bundleID:[NSBundle mainBundle].bundleIdentifier
+                                            namespace:FQNamespace1];
+  [manager setRealtimeThrottleEndTime:RCNUserDefaultsSampleTimeStamp - 7.0];
+  XCTAssertEqual([manager realtimeThrottleEndTime], RCNUserDefaultsSampleTimeStamp - 7.0);
+
+  [manager setRealtimeThrottleEndTime:RCNUserDefaultsSampleTimeStamp - 8.0];
+  XCTAssertEqual([manager realtimeThrottleEndTime], RCNUserDefaultsSampleTimeStamp - 8.0);
+}
+
+- (void)testUserDefaultsCurrentRealtimeThrottlingRetryIntervalWriteAndRead {
+  RCNUserDefaultsManager* manager =
+      [[RCNUserDefaultsManager alloc] initWithAppName:AppName
+                                             bundleID:[NSBundle mainBundle].bundleIdentifier
+                                            namespace:FQNamespace1];
+  [manager setCurrentRealtimeThrottlingRetryIntervalSeconds:RCNUserDefaultsSampleTimeStamp - 1.0];
+  XCTAssertEqual([manager currentRealtimeThrottlingRetryIntervalSeconds],
+                 RCNUserDefaultsSampleTimeStamp - 1.0);
+
+  [manager setCurrentRealtimeThrottlingRetryIntervalSeconds:RCNUserDefaultsSampleTimeStamp - 2.0];
+  XCTAssertEqual([manager currentRealtimeThrottlingRetryIntervalSeconds],
+                 RCNUserDefaultsSampleTimeStamp - 2.0);
+}
+
 - (void)testUserDefaultsForMultipleNamespaces {
   RCNUserDefaultsManager* manager1 =
       [[RCNUserDefaultsManager alloc] initWithAppName:AppName
@@ -172,6 +207,26 @@ static NSString* const FQNamespace2 = @"testNamespace2:testApp";
                  RCNUserDefaultsSampleTimeStamp - 1.0);
   XCTAssertEqual([manager2 currentThrottlingRetryIntervalSeconds],
                  RCNUserDefaultsSampleTimeStamp - 2.0);
+
+  /// Realtime throttle end time.
+  [manager1 setRealtimeThrottleEndTime:RCNUserDefaultsSampleTimeStamp - 7.0];
+  [manager2 setRealtimeThrottleEndTime:RCNUserDefaultsSampleTimeStamp - 8.0];
+  XCTAssertEqual([manager1 realtimeThrottleEndTime], RCNUserDefaultsSampleTimeStamp - 7.0);
+  XCTAssertEqual([manager2 realtimeThrottleEndTime], RCNUserDefaultsSampleTimeStamp - 8.0);
+
+  /// Realtime throttling retry interval.
+  [manager1 setCurrentRealtimeThrottlingRetryIntervalSeconds:RCNUserDefaultsSampleTimeStamp - 1.0];
+  [manager2 setCurrentRealtimeThrottlingRetryIntervalSeconds:RCNUserDefaultsSampleTimeStamp - 2.0];
+  XCTAssertEqual([manager1 currentRealtimeThrottlingRetryIntervalSeconds],
+                 RCNUserDefaultsSampleTimeStamp - 1.0);
+  XCTAssertEqual([manager2 currentRealtimeThrottlingRetryIntervalSeconds],
+                 RCNUserDefaultsSampleTimeStamp - 2.0);
+
+  /// Fetch template version.
+  [manager1 setLastTemplateVersion:@"1"];
+  [manager2 setLastTemplateVersion:@"2"];
+  XCTAssertEqual([manager1 lastTemplateVersion], @"1");
+  XCTAssertEqual([manager2 lastTemplateVersion], @"2");
 }
 
 - (void)testUserDefaultsReset {
