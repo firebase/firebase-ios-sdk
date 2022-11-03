@@ -204,7 +204,7 @@ size_t ViewSnapshot::Hash() const {
 
   return util::Hash(query(), documents(), old_documents(), document_changes(),
                     from_cache(), sync_state_changed(),
-                    excludes_metadata_changes());
+                    excludes_metadata_changes(), has_cached_results());
 }
 
 bool operator==(const ViewSnapshot& lhs, const ViewSnapshot& rhs) {
@@ -214,7 +214,8 @@ bool operator==(const ViewSnapshot& lhs, const ViewSnapshot& rhs) {
          lhs.from_cache() == rhs.from_cache() &&
          lhs.mutated_keys() == rhs.mutated_keys() &&
          lhs.sync_state_changed() == rhs.sync_state_changed() &&
-         lhs.excludes_metadata_changes() == rhs.excludes_metadata_changes();
+         lhs.excludes_metadata_changes() == rhs.excludes_metadata_changes() &&
+         lhs.has_cached_results() == rhs.has_cached_results();
 }
 
 }  // namespace core
