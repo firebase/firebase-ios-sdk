@@ -17,9 +17,25 @@
 import Foundation
 
 class Settings {
-  let cacheFileName = "settingsCacheDictionary"
-  let cacheKeyFileName = "settingsCacheKey"
-  let settingsDictionary: [:]
+  private let settingsDictionary: [:]
+  private let fileManager: SettingsFileManager
+  private var isCacheKeyExpired: Bool
+  var isCacheExpired: Bool {
+    get {
+      guard let dictionary = settingsDictionary else {
+        return true
+      }
+      return isCacheKeyExpired
+    }
+  }
+  private var cacheDurationSeconds: UInt32 {
+    get {
+      if let duration = settingsDictionary["cache_duration"] {
+        return duration
+      }
+      return 60 * 60
+    }
+  }
   struct CacheKey: Decodable {
     var createdAt: Date
     var googleAppID: String
@@ -27,12 +43,13 @@ class Settings {
     var appVersion: String
   }
   
-  init() {
-    
+  init(fileManager: SettingsFileManager = SettingsFileManager()) {
+    self.fileManager = fileManager
+    self.isCacheKeyExpired = false
   }
   
-  func loadCache() {
-    guard let cacheData = loadFile(name: cacheFileName) else {
+  func loadCache(googleAppID: String, currentTime: Date) {
+    guard let cacheData = fileManager.data(contentsOf: fileManager.settingsCacheContentPath) else {
       Logger.logDebug("[Sessions:Settings] No settings were cached")
       return
     }
@@ -40,21 +57,20 @@ class Settings {
       // TODO: delete file
       return
     }
-    guard let cacheKeyData = loadFile(name: cacheKeyFileName), let cacheKey = parseCacheKey(data: cacheKeyData) else {
+    guard let cacheKeyData = fileManager.data(contentsOf: fileManager.settingsCacheKeyPath), let cacheKey = parseCacheKey(data: cacheKeyData) else {
       Logger.logError("[Sessions:Settings] Could not load settings cache key")
       // TODO: delete file
       return
     }
-    
-  }
-  
-  func loadFile(name: String) -> Data? {
-    if let url = Bundle.main.url(forResource: name, withExtension: "json") {
-      if let data = Data(contentsOf: url) {
-        return data
-      }
+    guard cacheKey.googleAppID == googleAppID else {
+      Logger.logDebug("[Sessions:Settings] Invalidating settings cache because Google App ID changed")
+      // TODO: delete file
+      return
     }
-    return nil
+    guard currentTime.timeIntervalSince(cacheKey.createdAt) > cacheDurationSeconds else {
+      Logger.logDebug("[Sessions:Settings] Settings TTL expired")
+      self.isCacheKeyExpired = true
+    }
   }
   
   func parseDictionary(data: Data) -> [String: AnyObject]? {
@@ -80,5 +96,4 @@ class Settings {
     }
     return nil
   }
-  
 }
