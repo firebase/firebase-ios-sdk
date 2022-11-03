@@ -138,7 +138,7 @@ class TargetChange {
   }
 
  private:
-  explicit TargetChange(nanopb::ByteString resume_token, bool current)
+  TargetChange(nanopb::ByteString resume_token, bool current)
       : resume_token_(std::move(resume_token)), current_{current} {
   }
 
