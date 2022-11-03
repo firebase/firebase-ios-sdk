@@ -33,7 +33,7 @@ protocol ApplicationInfoProtocol {
 
   /// Validated Mobile Country Code and Mobile Network Code
   var mccMNC: String { get }
-  
+
   /// Development environment on which the application is running.
   var environment: String { get }
 }
@@ -66,7 +66,7 @@ class ApplicationInfo: ApplicationInfoProtocol {
   var mccMNC: String {
     return FIRSESValidateMccMnc(networkInfo.mobileCountryCode, networkInfo.mobileNetworkCode) ?? ""
   }
-  
+
   var environment: String {
     if let env = ProcessInfo.processInfo.environment["FIREBASE_RUN_ENVIRONMENT"] {
       // If the variable is set without any value, assume it is PROD.

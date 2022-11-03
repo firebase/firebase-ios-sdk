@@ -19,7 +19,7 @@ import Foundation
 
 class MockApplicationInfo: ApplicationInfoProtocol {
   var environment: String = ""
-  
+
   var appID: String = ""
 
   var bundleID: String = ""

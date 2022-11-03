@@ -103,7 +103,7 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
       return firebase_appquality_sessions_OsName_UNKNOWN_OSNAME
     }
   }
-  
+
   private func convertLogEnvironment(environment: String) -> firebase_appquality_sessions_LogEnvironment {
     switch environment.lowercased() {
     case "prod":

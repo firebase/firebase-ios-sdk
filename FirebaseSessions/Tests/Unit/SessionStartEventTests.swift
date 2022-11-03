@@ -113,7 +113,7 @@ class SessionStartEventTests: XCTestCase {
       XCTAssertEqual(event.proto.application_info.apple_app_info.os_name, expected)
     }
   }
-  
+
   func test_convertLogEnvironment_convertsCorrectly() {
     let expectations: [(given: String, expected: firebase_appquality_sessions_LogEnvironment)] = [
       ("prod", firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_PROD),
