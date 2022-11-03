@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fix FAILED_PRECONDITION when writing to a deleted document in a
+  transaction (#10431).
+
 # 10.0.0
 - [feature] Added `Query.count()`, which fetches the number of documents in the
   result set without actually downloading the documents (#10246).
