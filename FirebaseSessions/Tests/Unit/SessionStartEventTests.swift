@@ -113,4 +113,26 @@ class SessionStartEventTests: XCTestCase {
       XCTAssertEqual(event.proto.application_info.apple_app_info.os_name, expected)
     }
   }
+  
+  func test_convertLogEnvironment_convertsCorrectly() {
+    let expectations: [(given: String, expected: firebase_appquality_sessions_LogEnvironment)] = [
+      ("prod", firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_PROD),
+      ("staging", firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_STAGING),
+      ("autopush", firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_AUTOPUSH),
+      ("PROD", firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_PROD),
+      ("STAGING", firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_STAGING),
+      ("AUTOPUSH", firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_AUTOPUSH),
+      ("", firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_UNKNOWN),
+      (" ", firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_UNKNOWN),
+      ("random", firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_UNKNOWN),
+    ]
+
+    expectations.forEach { (given: String, expected: firebase_appquality_sessions_LogEnvironment) in
+      appInfo.environment = given
+
+      let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
+
+      XCTAssertEqual(event.proto.application_info.log_environment, expected)
+    }
+  }
 }

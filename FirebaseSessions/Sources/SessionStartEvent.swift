@@ -38,6 +38,7 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
 
     proto.application_info.app_id = makeProtoString(appInfo.appID)
     proto.application_info.session_sdk_version = makeProtoString(appInfo.sdkVersion)
+    proto.application_info.log_environment = convertLogEnvironment(environment: appInfo.environment)
 //    proto.application_info.device_model = makeProtoString(appInfo.deviceModel)
 //    proto.application_info.development_platform_name;
 //    proto.application_info.development_platform_version;
@@ -100,6 +101,19 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     default:
       Logger.logWarning("Found unknown OSName: \"\(osName)\" while converting.")
       return firebase_appquality_sessions_OsName_UNKNOWN_OSNAME
+    }
+  }
+  
+  private func convertLogEnvironment(environment: String) -> firebase_appquality_sessions_LogEnvironment {
+    switch environment.lowercased() {
+    case "prod":
+      return firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_PROD
+    case "staging":
+      return firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_STAGING
+    case "autopush":
+      return firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_AUTOPUSH
+    default:
+      return firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_UNKNOWN
     }
   }
 }
