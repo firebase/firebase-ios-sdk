@@ -50,6 +50,9 @@ NS_SWIFT_NAME(LoadBundleTaskProgress)
 /** The total number of bytes in the bundle. 0 if the bundle failed to parse. */
 @property(readonly, nonatomic) NSInteger totalBytes;
 
+/** An error if loading failed. `nil` if the task is in progress or finished successfully. */
+@property(readonly, nonatomic, strong, nullable) NSError *error;
+
 /** The current state of `LoadBundleTask`. */
 @property(readonly, nonatomic) FIRLoadBundleTaskState state;
 

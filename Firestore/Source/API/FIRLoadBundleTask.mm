@@ -40,6 +40,7 @@ using firebase::firestore::util::ThrowInvalidArgument;
     _documentsLoaded = progress.documents_loaded();
     _totalBytes = (NSInteger)progress.total_bytes();
     _totalDocuments = progress.total_documents();
+    _error = progress.error_status().ToNSError();
 
     switch (progress.state()) {
       case api::LoadBundleTaskState::kInProgress:
@@ -67,7 +68,8 @@ using firebase::firestore::util::ThrowInvalidArgument;
   return self.documentsLoaded == otherProgress.documentsLoaded &&
          self.totalDocuments == otherProgress.totalDocuments &&
          self.bytesLoaded == otherProgress.bytesLoaded &&
-         self.totalBytes == otherProgress.totalBytes && self.state == otherProgress.state;
+         self.totalBytes == otherProgress.totalBytes && self.state == otherProgress.state &&
+         [self.error isEqual:otherProgress.error];
 }
 
 @end
