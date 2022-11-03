@@ -395,6 +395,50 @@
   [registration remove];
 }
 
+- (void)testQueriesCanRaiseInitialSnapshotFromCachedEmptyResults {
+  FIRCollectionReference *collection = [self collectionRefWithDocuments:@{}];
+
+  // Populate the cache with empty query result.
+  FIRQuerySnapshot *querySnapshotA = [self readDocumentSetForRef:collection];
+  XCTAssertFalse(querySnapshotA.metadata.fromCache);
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnapshotA), @[]);
+
+  // Add a snapshot listener whose first event should be raised from cache.
+  id<FIRListenerRegistration> registration = [collection
+      addSnapshotListenerWithIncludeMetadataChanges:YES
+                                           listener:self.eventAccumulator.valueEventHandler];
+  FIRQuerySnapshot *querySnapshotB = [self.eventAccumulator awaitEventWithName:@"initial event"];
+  XCTAssertTrue(querySnapshotB.metadata.fromCache);
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnapshotB), @[]);
+
+  [registration remove];
+}
+
+- (void)testQueriesCanRaiseInitialSnapshotFromEmptyDueToDeleteCachedResults {
+  NSDictionary *testDocs = @{
+    @"a" : @{@"foo" : @1},
+  };
+  FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
+  // Populate the cache with a single document.
+  FIRQuerySnapshot *querySnapshotA = [self readDocumentSetForRef:collection];
+  XCTAssertFalse(querySnapshotA.metadata.fromCache);
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnapshotA), @[ @{@"foo" : @1} ]);
+
+  // Delete the document, making the cached query result empty.
+  FIRDocumentReference *docRef = [collection documentWithPath:@"a"];
+  [self deleteDocumentRef:docRef];
+
+  // Add a snapshot listener whose first event should be raised from cache.
+  id<FIRListenerRegistration> registration = [collection
+      addSnapshotListenerWithIncludeMetadataChanges:YES
+                                           listener:self.eventAccumulator.valueEventHandler];
+  FIRQuerySnapshot *querySnapshotB = [self.eventAccumulator awaitEventWithName:@"initial event"];
+  XCTAssertTrue(querySnapshotB.metadata.fromCache);
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnapshotB), @[]);
+
+  [registration remove];
+}
+
 - (void)testDocumentChangesUseNSNotFound {
   NSDictionary *testDocs = @{
     @"a" : @{@"foo" : @1},
