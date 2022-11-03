@@ -115,36 +115,35 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 const char descriptor_table_protodef_google_2ffirestore_2fadmin_2findex_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\"google/firestore/admin/index.proto\022\031go"
   "ogle.firestore.admin.v1\032\031google/api/reso"
-  "urce.proto\032\034google/api/annotations.proto"
-  "\"\243\006\n\005Index\022\014\n\004name\030\001 \001(\t\022@\n\013query_scope\030"
-  "\002 \001(\0162+.google.firestore.admin.v1.Index."
-  "QueryScope\022;\n\006fields\030\003 \003(\0132+.google.fire"
-  "store.admin.v1.Index.IndexField\0225\n\005state"
-  "\030\004 \001(\0162&.google.firestore.admin.v1.Index"
-  ".State\032\275\002\n\nIndexField\022\022\n\nfield_path\030\001 \001("
-  "\t\022B\n\005order\030\002 \001(\01621.google.firestore.admi"
-  "n.v1.Index.IndexField.OrderH\000\022O\n\014array_c"
-  "onfig\030\003 \001(\01627.google.firestore.admin.v1."
-  "Index.IndexField.ArrayConfigH\000\"=\n\005Order\022"
-  "\025\n\021ORDER_UNSPECIFIED\020\000\022\r\n\tASCENDING\020\001\022\016\n"
-  "\nDESCENDING\020\002\"9\n\013ArrayConfig\022\034\n\030ARRAY_CO"
-  "NFIG_UNSPECIFIED\020\000\022\014\n\010CONTAINS\020\001B\014\n\nvalu"
-  "e_mode\"O\n\nQueryScope\022\033\n\027QUERY_SCOPE_UNSP"
-  "ECIFIED\020\000\022\016\n\nCOLLECTION\020\001\022\024\n\020COLLECTION_"
-  "GROUP\020\002\"I\n\005State\022\025\n\021STATE_UNSPECIFIED\020\000\022"
-  "\014\n\010CREATING\020\001\022\t\n\005READY\020\002\022\020\n\014NEEDS_REPAIR"
-  "\020\003:z\352Aw\n\036firestore.googleapis.com/Index\022"
-  "Uprojects/{project}/databases/{database}"
-  "/collectionGroups/{collection}/indexes/{"
-  "index}B\336\001\n\035com.google.firestore.admin.v1"
-  "B\nIndexProtoP\001Z>google.golang.org/genpro"
-  "to/googleapis/firestore/admin/v1;admin\242\002"
-  "\004GCFS\252\002\037Google.Cloud.Firestore.Admin.V1\312"
-  "\002\037Google\\Cloud\\Firestore\\Admin\\V1\352\002#Goog"
-  "le::Cloud::Firestore::Admin::V1b\006proto3"
+  "urce.proto\"\243\006\n\005Index\022\014\n\004name\030\001 \001(\t\022@\n\013qu"
+  "ery_scope\030\002 \001(\0162+.google.firestore.admin"
+  ".v1.Index.QueryScope\022;\n\006fields\030\003 \003(\0132+.g"
+  "oogle.firestore.admin.v1.Index.IndexFiel"
+  "d\0225\n\005state\030\004 \001(\0162&.google.firestore.admi"
+  "n.v1.Index.State\032\275\002\n\nIndexField\022\022\n\nfield"
+  "_path\030\001 \001(\t\022B\n\005order\030\002 \001(\01621.google.fire"
+  "store.admin.v1.Index.IndexField.OrderH\000\022"
+  "O\n\014array_config\030\003 \001(\01627.google.firestore"
+  ".admin.v1.Index.IndexField.ArrayConfigH\000"
+  "\"=\n\005Order\022\025\n\021ORDER_UNSPECIFIED\020\000\022\r\n\tASCE"
+  "NDING\020\001\022\016\n\nDESCENDING\020\002\"9\n\013ArrayConfig\022\034"
+  "\n\030ARRAY_CONFIG_UNSPECIFIED\020\000\022\014\n\010CONTAINS"
+  "\020\001B\014\n\nvalue_mode\"O\n\nQueryScope\022\033\n\027QUERY_"
+  "SCOPE_UNSPECIFIED\020\000\022\016\n\nCOLLECTION\020\001\022\024\n\020C"
+  "OLLECTION_GROUP\020\002\"I\n\005State\022\025\n\021STATE_UNSP"
+  "ECIFIED\020\000\022\014\n\010CREATING\020\001\022\t\n\005READY\020\002\022\020\n\014NE"
+  "EDS_REPAIR\020\003:z\352Aw\n\036firestore.googleapis."
+  "com/Index\022Uprojects/{project}/databases/"
+  "{database}/collectionGroups/{collection}"
+  "/indexes/{index}B\336\001\n\035com.google.firestor"
+  "e.admin.v1B\nIndexProtoP\001Z>google.golang."
+  "org/genproto/googleapis/firestore/admin/"
+  "v1;admin\242\002\004GCFS\252\002\037Google.Cloud.Firestore"
+  ".Admin.V1\312\002\037Google\\Cloud\\Firestore\\Admin"
+  "\\V1\352\002#Google::Cloud::Firestore::Admin::V"
+  "1b\006proto3"
   ;
-static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_google_2ffirestore_2fadmin_2findex_2eproto_deps[2] = {
-  &::descriptor_table_google_2fapi_2fannotations_2eproto,
+static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_google_2ffirestore_2fadmin_2findex_2eproto_deps[1] = {
   &::descriptor_table_google_2fapi_2fresource_2eproto,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_google_2ffirestore_2fadmin_2findex_2eproto_sccs[2] = {
@@ -154,8 +153,8 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_goo
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_google_2ffirestore_2fadmin_2findex_2eproto_once;
 static bool descriptor_table_google_2ffirestore_2fadmin_2findex_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_google_2ffirestore_2fadmin_2findex_2eproto = {
-  &descriptor_table_google_2ffirestore_2fadmin_2findex_2eproto_initialized, descriptor_table_protodef_google_2ffirestore_2fadmin_2findex_2eproto, "google/firestore/admin/index.proto", 1159,
-  &descriptor_table_google_2ffirestore_2fadmin_2findex_2eproto_once, descriptor_table_google_2ffirestore_2fadmin_2findex_2eproto_sccs, descriptor_table_google_2ffirestore_2fadmin_2findex_2eproto_deps, 2, 2,
+  &descriptor_table_google_2ffirestore_2fadmin_2findex_2eproto_initialized, descriptor_table_protodef_google_2ffirestore_2fadmin_2findex_2eproto, "google/firestore/admin/index.proto", 1129,
+  &descriptor_table_google_2ffirestore_2fadmin_2findex_2eproto_once, descriptor_table_google_2ffirestore_2fadmin_2findex_2eproto_sccs, descriptor_table_google_2ffirestore_2fadmin_2findex_2eproto_deps, 2, 1,
   schemas, file_default_instances, TableStruct_google_2ffirestore_2fadmin_2findex_2eproto::offsets,
   file_level_metadata_google_2ffirestore_2fadmin_2findex_2eproto, 2, file_level_enum_descriptors_google_2ffirestore_2fadmin_2findex_2eproto, file_level_service_descriptors_google_2ffirestore_2fadmin_2findex_2eproto,
 };
