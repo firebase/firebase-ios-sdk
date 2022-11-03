@@ -131,7 +131,11 @@ void Transaction::WriteMutations(std::vector<Mutation>&& mutations) {
 Precondition Transaction::CreatePrecondition(const DocumentKey& key) {
   absl::optional<SnapshotVersion> version = GetVersion(key);
   if (written_docs_.count(key) == 0 && version.has_value()) {
-    return Precondition::UpdateTime(version.value());
+    if (version.value() == SnapshotVersion::None()) {
+      return Precondition::Exists(false);
+    } else {
+      return Precondition::UpdateTime(version.value());
+    }
   } else {
     return Precondition::None();
   }
