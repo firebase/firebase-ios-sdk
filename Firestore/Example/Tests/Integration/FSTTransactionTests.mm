@@ -104,6 +104,15 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [transaction getDocument:doc error:&error];
 };
 
+typedef NS_ENUM(NSUInteger, FIRFromDocumentType) {
+  // The operation will be performed on a document that exists.
+  FIRFromDocumentTypeExisting,
+  // The operation will be performed on a document that has never existed.
+  FIRFromDocumentTypeNonExistent,
+  // The operation will be performed on a document that existed, but was deleted.
+  FIRFromDocumentTypeDeleted,
+};
+
 /**
  * Used for testing that all possible combinations of executing transactions result in the desired
  * document value or error.
@@ -117,6 +126,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 @interface FSTTransactionTester : NSObject
 - (FSTTransactionTester *)withExistingDoc;
 - (FSTTransactionTester *)withNonexistentDoc;
+- (FSTTransactionTester *)withDeletedDoc;
 - (FSTTransactionTester *)runWithStages:(NSArray<TransactionStage> *)stages;
 - (void)expectDoc:(NSObject *)expected;
 - (void)expectNoDoc;
@@ -124,7 +134,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 
 @property(atomic, strong, readwrite) NSArray<TransactionStage> *stages;
 @property(atomic, strong, readwrite) FIRDocumentReference *docRef;
-@property(atomic, assign, readwrite) BOOL fromExistingDoc;
+@property(atomic, assign, readwrite) FIRFromDocumentType fromDocumentType;
 @end
 
 @implementation FSTTransactionTester {
@@ -137,6 +147,7 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   if (self) {
     _db = db;
     _stages = [NSArray array];
+    _fromDocumentType = FIRFromDocumentTypeNonExistent;
     _testCase = testCase;
     _testExpectations = [NSMutableArray array];
   }
@@ -144,12 +155,17 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 }
 
 - (FSTTransactionTester *)withExistingDoc {
-  self.fromExistingDoc = YES;
+  self.fromDocumentType = FIRFromDocumentTypeExisting;
   return self;
 }
 
 - (FSTTransactionTester *)withNonexistentDoc {
-  self.fromExistingDoc = NO;
+  self.fromDocumentType = FIRFromDocumentTypeNonExistent;
+  return self;
+}
+
+- (FSTTransactionTester *)withDeletedDoc {
+  self.fromDocumentType = FIRFromDocumentTypeDeleted;
   return self;
 }
 
@@ -195,10 +211,30 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
 
 - (void)prepareDoc {
   self.docRef = [[_db collectionWithPath:@"nonexistent"] documentWithAutoID];
-  if (_fromExistingDoc) {
-    NSError *setError = [self writeDocumentRef:self.docRef data:@{@"foo" : @"bar"}];
-    NSString *message = [NSString stringWithFormat:@"Failed set at %@", [self stageNames]];
-    [_testCase assertNilError:setError message:message];
+  switch (_fromDocumentType) {
+    case FIRFromDocumentTypeExisting: {
+      NSError *setError = [self writeDocumentRef:self.docRef data:@{@"foo" : @"bar"}];
+      NSString *message = [NSString stringWithFormat:@"Failed set at %@", [self stageNames]];
+      [_testCase assertNilError:setError message:message];
+      break;
+    }
+    case FIRFromDocumentTypeNonExistent: {
+      // Nothing to do; document does not exist.
+      break;
+    }
+    case FIRFromDocumentTypeDeleted: {
+      {
+        NSError *setError = [self writeDocumentRef:self.docRef data:@{@"foo" : @"bar"}];
+        NSString *message = [NSString stringWithFormat:@"Failed set at %@", [self stageNames]];
+        [_testCase assertNilError:setError message:message];
+      }
+      {
+        NSError *deleteError = [self deleteDocumentRef:self.docRef];
+        NSString *message = [NSString stringWithFormat:@"Failed delete at %@", [self stageNames]];
+        [_testCase assertNilError:deleteError message:message];
+      }
+      break;
+    }
   }
 }
 
@@ -211,6 +247,17 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         errorResult = error;
         [expectation fulfill];
       }];
+  [_testCase awaitExpectations];
+  return errorResult;
+}
+
+- (NSError *)deleteDocumentRef:(FIRDocumentReference *)ref {
+  __block NSError *errorResult;
+  XCTestExpectation *expectation = [_testCase expectationWithDescription:@"prepareDoc:delete"];
+  [ref deleteDocumentWithCompletion:^(NSError *error) {
+    errorResult = error;
+    [expectation fulfill];
+  }];
   [_testCase awaitExpectations];
   return errorResult;
 }
@@ -322,6 +369,32 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [[[tt withNonexistentDoc] runWithStages:@[ get, set1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
 }
 
+// This test is identical to the test above, except that withNonexistentDoc() is replaced by
+// withDeletedDoc(), to guard against regression of
+// https://github.com/firebase/firebase-js-sdk/issues/5871, where transactions would incorrectly
+// fail with FAILED_PRECONDITION when operations were performed on a deleted document (rather than
+// a non-existent document).
+- (void)testRunsTransactionsAfterGettingDeletedDoc {
+  FIRFirestore *firestore = [self firestore];
+  FSTTransactionTester *tt = [[FSTTransactionTester alloc] initWithDb:firestore testCase:self];
+
+  [[[tt withDeletedDoc] runWithStages:@[ get, delete1, delete1 ]] expectNoDoc];
+  [[[tt withDeletedDoc] runWithStages:@[ get, delete1, update2 ]]
+      expectError:FIRFirestoreErrorCodeInvalidArgument];
+  [[[tt withDeletedDoc] runWithStages:@[ get, delete1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
+
+  [[[tt withDeletedDoc] runWithStages:@[ get, update1, delete1 ]]
+      expectError:FIRFirestoreErrorCodeInvalidArgument];
+  [[[tt withDeletedDoc] runWithStages:@[ get, update1, update2 ]]
+      expectError:FIRFirestoreErrorCodeInvalidArgument];
+  [[[tt withDeletedDoc] runWithStages:@[ get, update1, set2 ]]
+      expectError:FIRFirestoreErrorCodeInvalidArgument];
+
+  [[[tt withDeletedDoc] runWithStages:@[ get, set1, delete1 ]] expectNoDoc];
+  [[[tt withDeletedDoc] runWithStages:@[ get, set1, update2 ]] expectDoc:@{@"foo" : @"bar2"}];
+  [[[tt withDeletedDoc] runWithStages:@[ get, set1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
+}
+
 - (void)testRunsTransactionOnExistingDoc {
   FIRFirestore *firestore = [self firestore];
   FSTTransactionTester *tt = [[FSTTransactionTester alloc] initWithDb:firestore testCase:self];
@@ -359,6 +432,27 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
   [[[tt withNonexistentDoc] runWithStages:@[ set1, delete1 ]] expectNoDoc];
   [[[tt withNonexistentDoc] runWithStages:@[ set1, update2 ]] expectDoc:@{@"foo" : @"bar2"}];
   [[[tt withNonexistentDoc] runWithStages:@[ set1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
+}
+
+- (void)testRunsTransactionsOnDeletedDoc {
+  FIRFirestore *firestore = [self firestore];
+  FSTTransactionTester *tt = [[FSTTransactionTester alloc] initWithDb:firestore testCase:self];
+
+  [[[tt withDeletedDoc] runWithStages:@[ delete1, delete1 ]] expectNoDoc];
+  [[[tt withDeletedDoc] runWithStages:@[ delete1, update2 ]]
+      expectError:FIRFirestoreErrorCodeInvalidArgument];
+  [[[tt withDeletedDoc] runWithStages:@[ delete1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
+
+  [[[tt withDeletedDoc] runWithStages:@[ update1, delete1 ]]
+      expectError:FIRFirestoreErrorCodeNotFound];
+  [[[tt withDeletedDoc] runWithStages:@[ update1, update2 ]]
+      expectError:FIRFirestoreErrorCodeNotFound];
+  [[[tt withDeletedDoc] runWithStages:@[ update1, set2 ]]
+      expectError:FIRFirestoreErrorCodeNotFound];
+
+  [[[tt withDeletedDoc] runWithStages:@[ set1, delete1 ]] expectNoDoc];
+  [[[tt withDeletedDoc] runWithStages:@[ set1, update2 ]] expectDoc:@{@"foo" : @"bar2"}];
+  [[[tt withDeletedDoc] runWithStages:@[ set1, set2 ]] expectDoc:@{@"foo" : @"bar2"}];
 }
 
 - (void)testSetDocumentWithMerge {
@@ -651,6 +745,56 @@ TransactionStage get = ^(FIRTransaction *transaction, FIRDocumentReference *doc)
         XCTAssertEqual(counter->load(), 1);
       }];
   [self awaitExpectations];
+}
+
+- (void)testRetryOnAlreadyExistsError {
+  FIRFirestore *firestore = [self firestore];
+  FIRDocumentReference *doc1 = [[firestore collectionWithPath:@"counters"] documentWithAutoID];
+  auto transactionCallbackCallCount = std::make_shared<std::atomic_int>(0);
+
+  // Skip backoff delays.
+  [firestore workerQueue]->SkipDelaysForTimerId(TimerId::RetryTransaction);
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
+  [firestore
+      runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
+        int callbackNum = ++(*transactionCallbackCallCount);
+
+        FIRDocumentSnapshot *snapshot = [transaction getDocument:doc1 error:error];
+        XCTAssertNil(*error);
+
+        if (callbackNum == 1) {
+          XCTAssertFalse(snapshot.exists);
+          // Create the document outside of the transaction to cause the commit to fail with
+          // ALREADY_EXISTS.
+          dispatch_semaphore_t writeSemaphore = dispatch_semaphore_create(0);
+          [doc1 setData:@{@"foo1" : @"bar1"}
+              completion:^(NSError *) {
+                dispatch_semaphore_signal(writeSemaphore);
+              }];
+          // We can block on it, because transactions run on a background queue.
+          dispatch_semaphore_wait(writeSemaphore, DISPATCH_TIME_FOREVER);
+        } else if (callbackNum == 2) {
+          XCTAssertTrue(snapshot.exists);
+        } else {
+          XCTFail(@"unexpected callbackNum: %@", @(callbackNum));
+        }
+
+        [transaction setData:@{@"foo2" : @"bar2"} forDocument:doc1];
+
+        return nil;
+      }
+      completion:^(id, NSError *_Nullable error) {
+        [expectation fulfill];
+        XCTAssertNil(error);
+      }];
+  [self awaitExpectations];
+
+  XCTAssertEqual(transactionCallbackCallCount->load(), 2);
+  FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc1];
+  XCTAssertNotNil(snapshot);
+  XCTAssertTrue(snapshot.exists);
+  XCTAssertEqualObjects(snapshot.data, (@{@"foo2" : @"bar2"}));
 }
 
 - (void)testMakesDefaultMaxAttempts {
