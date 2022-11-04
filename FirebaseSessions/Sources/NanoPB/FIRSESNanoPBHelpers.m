@@ -126,6 +126,10 @@ BOOL FIRSESIsPBDataEqual(pb_bytes_array_t *_Nullable pbArray, NSData *_Nullable 
   return equal;
 }
 
+pb_size_t FIRSESGetAppleApplicationInfoTag(void) {
+  return firebase_appquality_sessions_ApplicationInfo_apple_app_info_tag;
+}
+
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
 CTTelephonyNetworkInfo *_Nullable FIRSESNetworkInfo(void) {
   static CTTelephonyNetworkInfo *networkInfo;

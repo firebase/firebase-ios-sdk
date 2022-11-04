@@ -65,6 +65,11 @@ BOOL FIRSESIsPBStringEqual(pb_bytes_array_t* _Nullable pbString, NSString* _Null
 /// @param data NSData that's expected
 BOOL FIRSESIsPBDataEqual(pb_bytes_array_t* _Nullable pbArray, NSData* _Nullable data);
 
+/// Returns the protobuf tag number. Use this to specify which oneof message type we are
+/// using for the platform\_info field. This function is required to be in Objective-C because
+/// Swift does not support c-style macros.
+pb_size_t FIRSESGetAppleApplicationInfoTag(void);
+
 /// Returns the cellular mobile country code (mnc) if CoreTelephony is supported, otherwise nil
 NSString* _Nullable FIRSESNetworkMobileCountryCode(void);
 
