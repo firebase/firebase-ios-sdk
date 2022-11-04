@@ -17,10 +17,11 @@
 import Foundation
 
 protocol SettingsProtocol {
-  // TODO
+  func loadCache(googleAppID: String, currentTime: Date)
+  func saveCache(googleAppID: String, currentTime: Date, settings: [String: AnyObject])
 }
 
-class Settings {
+class Settings : SettingsProtocol {
   private static let cacheDurationSecondsDefault: TimeInterval = 60 * 60
   private let fileManager: SettingsFileManager
   private let appInfo: ApplicationInfoProtocol
@@ -106,6 +107,10 @@ class Settings {
       Logger.logError("[Sessions:Settings] Error: \(error)")
     }
     return nil
+  }
+  
+  func saveCache(googleAppID: String, currentTime: Date, settings: [String : AnyObject]) {
+    <#code#>
   }
 }
 

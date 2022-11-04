@@ -40,7 +40,7 @@ protocol SessionsProvider {
   private let initiator: SessionInitiator
   private let identifiers: Identifiers
   private let appInfo: ApplicationInfo
-  private let settings: Settings
+  private let settings: SettingsProtocol
 
   // MARK: - Initializers
 
@@ -70,7 +70,7 @@ protocol SessionsProvider {
 
   // Initializes the SDK and begines the process of listening for lifecycle events and logging events
   init(appID: String, identifiers: Identifiers, coordinator: SessionCoordinator,
-       initiator: SessionInitiator, appInfo: ApplicationInfo, settings: Settings) {
+       initiator: SessionInitiator, appInfo: ApplicationInfo, settings: SettingsProtocol) {
     self.appID = appID
 
     self.identifiers = identifiers
