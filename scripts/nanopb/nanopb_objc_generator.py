@@ -148,8 +148,8 @@ def nanopb_parse_files(request, options):
       options: The command-line options from nanopb_parse_options.
 
     Returns:
-      A dictionary of filename to nanopb.ProtoFile objects, each one representing
-      the parsed form of a FileDescriptor in the request.
+      A dictionary of filename to nanopb.ProtoFile objects, each one
+      representing the parsed form of a FileDescriptor in the request.
     """
     # Process any include files first, in order to have them
     # available as dependencies

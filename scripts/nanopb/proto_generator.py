@@ -84,7 +84,8 @@ def main():
         help='Adds INCLUDE to the proto path.')
     parser.add_argument(
         '--include_prefix', '-p', action='append', default=[],
-        help='Adds include_prefix to the <product>.nanopb.h include in .nanopb.c')
+        help='Adds include_prefix to the <product>.nanopb.h include in'
+             ' .nanopb.c')
 
     args = parser.parse_args()
     if args.nanopb is None and args.objc is None:
@@ -104,10 +105,9 @@ def main():
     if args.nanopb:
         NanopbGenerator(args, all_proto_files).run()
 
-    proto_files = remove_well_known_protos(all_proto_files)
-
     if args.objc:
-        ObjcProtobufGenerator(args, proto_files).run()
+        print('Generating objc code is unsupported because it depends on the'
+              'main protobuf Podspec that adds a lot of size to SDKs.')
 
 
 class NanopbGenerator(object):
@@ -186,22 +186,6 @@ def run_protoc(args, cmd):
         print('command failed: ', ' '.join(cmd), '\nerror: ', error.output)
 
 
-def remove_well_known_protos(filenames):
-    """Remove "well-known" protos for objc.
-
-    On those platforms we get these for free as a part of the protobuf runtime.
-    We only need them for nanopb.
-
-    Args:
-      filenames: A list of filenames, each naming a .proto file.
-
-    Returns:
-      The filenames with members of google/protobuf removed.
-    """
-
-    return [f for f in filenames if 'protos/google/protobuf/' not in f]
-
-
 def post_process_files(filenames, *processors):
     for filename in filenames:
         lines = []
@@ -274,9 +258,12 @@ def nanopb_rename_delete(lines):
     return [delete_keyword.sub('delete_', line) for line in lines]
 
 
+# Don't let Copybara alter these lines.
 def nanopb_use_module_import(lines):
-    """Changes #include <pb.h> to include <nanopb/pb.h>"""  # Don't let Copybara alter these lines.
-    return [line.replace('#include <pb.h>', '{}include <nanopb/pb.h>'.format("#")) for line in lines]
+    """Changes #include <pb.h> to include <nanopb/pb.h>"""
+    return [line.replace('#include <pb.h>',
+            '{}include <nanopb/pb.h>'.format("#"))
+            for line in lines]
 
 
 def make_use_absolute_import(nanopb_out, args):
@@ -289,13 +276,16 @@ def make_use_absolute_import(nanopb_out, args):
            #include "Crashlytics/Protogen/nanopb/crashlytics.nanopb.h"
 
            This only applies to .nanopb.c files because it causes errors if
-           .nanopb.h files import other .nanopb.h files with full relative paths.
+           .nanopb.h files import other .nanopb.h files with full relative
+           paths.
         """
         if ".h" in filename:
             return lines
         include_prefix = args.include_prefix[0]
         header = os.path.basename(import_file)
-        return [line.replace('#include "{0}"'.format(header), '#include "{0}{1}"'.format(include_prefix, header)) for line in lines]
+        return [line.replace('#include "{0}"'.format(header),
+                '#include "{0}{1}"'.format(include_prefix, header))
+                for line in lines]
 
     return nanopb_use_absolute_import
 
@@ -335,8 +325,8 @@ def collect_files(root_dir, *extensions):
       *extensions: Filename extensions (including the leading dot) to find.
 
     Returns:
-      A list of filenames, all starting with root_dir, that have one of the given
-      extensions.
+      A list of filenames, all starting with root_dir, that have one of the
+      given extensions.
     """
     result = []
     for root, _, files in os.walk(root_dir):
