@@ -128,7 +128,6 @@ NS_ASSUME_NONNULL_BEGIN
   return [self firestoreForApp:app database:MakeNSString(DatabaseId::kDefault)];
 }
 
-// TODO(b/62410906): make this public
 + (instancetype)firestoreForApp:(FIRApp *)app database:(NSString *)database {
   if (!app) {
     ThrowInvalidArgument("FirebaseApp instance may not be nil. Use FirebaseApp.app() if you'd like "
@@ -143,6 +142,15 @@ NS_ASSUME_NONNULL_BEGIN
   id<FSTFirestoreMultiDBProvider> provider =
       FIR_COMPONENT(FSTFirestoreMultiDBProvider, app.container);
   return [provider firestoreForDatabase:database];
+}
+
++ (instancetype)firestoreForDatabase:(NSString *)database {
+  FIRApp *app = [FIRApp defaultApp];
+  if (!app) {
+    ThrowIllegalState("Failed to get FirebaseApp instance. Please call FirebaseApp.configure() "
+                      "before using Firestore");
+  }
+  return [self firestoreForApp:app database:database];
 }
 
 - (instancetype)initWithDatabaseID:(model::DatabaseId)databaseID

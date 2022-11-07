@@ -19,6 +19,7 @@
 #import <XCTest/XCTest.h>
 #include <limits>
 
+#import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIROptionsInternal.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
@@ -74,6 +75,27 @@ using firebase::firestore::testutil::OptionsForUnitTesting;
        "default FirebaseApp instance.");
 }
 
+- (void)testNilFIRAppDatabaseFails1 {
+  FIRApp *app = AppForUnitTesting();
+  FSTAssertThrows(
+      [FIRFirestore firestoreForApp:app database:nil],
+      @"Database identifier may not be nil. Use '(default)' if you want the default database");
+}
+
+- (void)testNilFIRAppDatabaseFails2 {
+  FSTAssertThrows(
+      [FIRFirestore firestoreForApp:nil database:@"NotNil"],
+      @"FirebaseApp instance may not be nil. Use FirebaseApp.app() if you'd like to use the "
+       "default FirebaseApp instance.");
+}
+
+- (void)testNilDatabaseFails {
+  [FIRApp configure];
+  FSTAssertThrows(
+      [FIRFirestore firestoreForDatabase:nil],
+      @"Database identifier may not be nil. Use '(default)' if you want the default database");
+}
+
 - (void)testNilProjectIDFails {
   FIROptions *options = OptionsForUnitTesting("ignored");
   options.projectID = nil;
@@ -81,8 +103,6 @@ using firebase::firestore::testutil::OptionsForUnitTesting;
   FSTAssertThrows([FIRFirestore firestoreForApp:app],
                   @"FIROptions.projectID must be set to a valid project ID.");
 }
-
-// TODO(b/62410906): Test for firestoreForApp:database: with nil DatabaseID.
 
 - (void)testNilTransactionBlocksFail {
   FSTAssertThrows([self.db runTransactionWithBlock:nil
