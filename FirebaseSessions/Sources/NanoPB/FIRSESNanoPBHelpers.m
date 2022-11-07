@@ -17,6 +17,8 @@
 
 #import "FirebaseSessions/Sources/NanoPB/FIRSESNanoPBHelpers.h"
 
+#import "FirebaseSessions/Protogen/nanopb/sessions.nanopb.h"
+
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
@@ -124,6 +126,10 @@ BOOL FIRSESIsPBDataEqual(pb_bytes_array_t *_Nullable pbArray, NSData *_Nullable 
   BOOL equal = FIRSESIsPBArrayEqual(pbArray, expected);
   free(expected);
   return equal;
+}
+
+pb_size_t FIRSESGetAppleApplicationInfoTag(void) {
+  return firebase_appquality_sessions_ApplicationInfo_apple_app_info_tag;
 }
 
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
