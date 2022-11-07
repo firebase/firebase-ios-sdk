@@ -36,6 +36,8 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     proto.session_data.previous_session_id = makeProtoStringOrNil(identifiers.previousSessionID)
     proto.session_data.event_timestamp_us = time.timestampUS
 
+    // `which_platform_info` tells nanopb which oneof we're choosing to fill in for our proto
+    proto.application_info.which_platform_info = FIRSESGetAppleApplicationInfoTag()
     proto.application_info.app_id = makeProtoString(appInfo.appID)
     proto.application_info.session_sdk_version = makeProtoString(appInfo.sdkVersion)
 //    proto.application_info.device_model = makeProtoString(appInfo.deviceModel)
