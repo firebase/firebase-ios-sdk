@@ -25,9 +25,9 @@
 
 #include "Firestore/core/src/api/query_snapshot.h"
 #include "Firestore/core/src/core/firestore_client.h"
-#include "Firestore/core/test/unit/testutil/app_testing.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/util/string_apple.h"
+#include "Firestore/core/test/unit/testutil/app_testing.h"
 
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::testutil::AppForUnitTesting;

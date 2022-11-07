@@ -73,7 +73,8 @@ NS_SWIFT_NAME(Firestore)
  *
  * @return The named `Firestore` instance.
  */
-+ (instancetype)firestoreForApp:(FIRApp *)app database:(NSString *)database NS_SWIFT_NAME(firestore(app:database:));
++ (instancetype)firestoreForApp:(FIRApp *)app
+                       database:(NSString *)database NS_SWIFT_NAME(firestore(app:database:));
 
 /**
  * Creates, caches, and returns named `Firestore` object for the default _app_. Each subsequent
