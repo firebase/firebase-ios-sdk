@@ -233,14 +233,17 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000073", @"%@",
                   [NSString stringWithFormat:@"%@", errorDescription]);
       strongSelf->_settings.isFetchInProgress = NO;
+
+      NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+      userInfo[NSLocalizedDescriptionKey] = errorDescription;
+      userInfo[NSUnderlyingErrorKey] = error.userInfo[NSUnderlyingErrorKey];
+
       return [strongSelf
           reportCompletionOnHandler:completionHandler
                          withStatus:FIRRemoteConfigFetchStatusFailure
                           withError:[NSError errorWithDomain:FIRRemoteConfigErrorDomain
                                                         code:FIRRemoteConfigErrorInternalError
-                                                    userInfo:@{
-                                                      NSLocalizedDescriptionKey : errorDescription
-                                                    }]];
+                                                    userInfo:userInfo]];
     }
 
     // We have a valid token. Get the backing installationID.
@@ -265,18 +268,20 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
         if (!identifier || error) {
           NSString *errorDescription =
               [NSString stringWithFormat:@"Error getting iid : %@.", error];
+
+          NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+          userInfo[NSLocalizedDescriptionKey] = errorDescription;
+          userInfo[NSUnderlyingErrorKey] = error.userInfo[NSUnderlyingErrorKey];
+
           FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000055", @"%@",
                       [NSString stringWithFormat:@"%@", errorDescription]);
           strongSelfQueue->_settings.isFetchInProgress = NO;
           return [strongSelfQueue
               reportCompletionOnHandler:completionHandler
                              withStatus:FIRRemoteConfigFetchStatusFailure
-                              withError:[NSError
-                                            errorWithDomain:FIRRemoteConfigErrorDomain
-                                                       code:FIRRemoteConfigErrorInternalError
-                                                   userInfo:@{
-                                                     NSLocalizedDescriptionKey : errorDescription
-                                                   }]];
+                              withError:[NSError errorWithDomain:FIRRemoteConfigErrorDomain
+                                                            code:FIRRemoteConfigErrorInternalError
+                                                        userInfo:userInfo]];
         }
 
         FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000022", @"Success to get iid : %@.",
