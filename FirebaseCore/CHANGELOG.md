@@ -1,3 +1,7 @@
+# Firebase 10.2.0
+- Update GTMSessionFetcher dependency specifications to enable support for the compatible
+  GTMSessionFetcher 3.x versions.
+
 # Firebase 10.1.0
 - [changed] Bitcode is no longer included in Firebase binary distributions. Xcode 14 does not
   support bitcode. tvOS apps using a Firebase binary distribution will now need to use
