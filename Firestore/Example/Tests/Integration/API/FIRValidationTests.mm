@@ -39,6 +39,11 @@ using firebase::firestore::testutil::OptionsForUnitTesting;
 
 @implementation FIRValidationTests
 
+- (void)tearDown {
+  [FIRApp resetApps];
+  [super tearDown];
+}
+
 #pragma mark - FIRFirestoreSettings Validation
 
 - (void)testNilHostFails {
