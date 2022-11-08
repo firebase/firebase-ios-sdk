@@ -584,15 +584,17 @@ static NSInteger const gMaxRetries = 7;
     if ([self isStatusCodeRetryable:statusCode]) {
       [self retryHTTPConnection];
     } else {
-        NSError *error = [NSError
-            errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
-                       code:FIRRemoteConfigRealtimeErrorStream
-                   userInfo:@{
-            NSLocalizedDescriptionKey : [NSString stringWithFormat:@"StreamError: Received non-retryable status code: %@", [@(statusCode) stringValue]]
-                   }];
-        FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000021", @"Cannot establish connection. Error: %@",
-                    error);
-        [self propogateErrors:error];
+      NSError *error = [NSError
+          errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
+                     code:FIRRemoteConfigRealtimeErrorStream
+                 userInfo:@{
+                   NSLocalizedDescriptionKey : [NSString
+                       stringWithFormat:@"StreamError: Received non-retryable status code: %@",
+                                        [@(statusCode) stringValue]]
+                 }];
+      FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000021", @"Cannot establish connection. Error: %@",
+                  error);
+      [self propogateErrors:error];
     }
   } else {
     /// on success reset retry parameters
