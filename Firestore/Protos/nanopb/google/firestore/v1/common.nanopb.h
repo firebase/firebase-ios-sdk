@@ -21,8 +21,6 @@
 #define PB_GOOGLE_FIRESTORE_V1_COMMON_NANOPB_H_INCLUDED
 #include <pb.h>
 
-#include "google/api/annotations.nanopb.h"
-
 #include "google/protobuf/timestamp.nanopb.h"
 
 #include <string>

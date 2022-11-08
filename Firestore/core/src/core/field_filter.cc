@@ -131,6 +131,12 @@ const std::vector<FieldFilter>& FieldFilter::Rep::GetFlattenedFilters() const {
   return Filter::Rep::memoized_flattened_filters_;
 }
 
+std::vector<Filter> FieldFilter::Rep::GetFilters() const {
+  // This is the only filter within this object, so we return a list of size
+  // one.
+  return std::vector<Filter>{FieldFilter(std::make_shared<const Rep>(*this))};
+}
+
 FieldFilter::Rep::Rep(FieldPath field,
                       Operator op,
                       SharedMessage<google_firestore_v1_Value> value_rhs)

@@ -1,3 +1,7 @@
+# Unreleased
+- [added] Added a public `application(_:openURL:options:)` method so users
+  with swizzling disabled can still use App Distribution (#10418).
+
 # 10.1.0
 - [fixed] Fixed inconsistent sign in prompts in single scene apps (#8096).
 

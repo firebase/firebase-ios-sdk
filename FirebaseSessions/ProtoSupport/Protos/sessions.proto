@@ -101,7 +101,7 @@ enum DataCollectionState {
 }
 
 // App-level information collected from the device.
-// Next tag: 8
+// Next tag: 9
 message ApplicationInfo {
   // Commonly known as the GMP App Id
   string app_id = 1;
@@ -113,6 +113,8 @@ message ApplicationInfo {
   string development_platform_version = 4;
   // The version of the Firebase-Sessions SDK in use
   string session_sdk_version = 7;
+  // The destination environment to send the logs to
+  LogEnvironment log_environment = 8;
 
   oneof platform_info {
     // App info relevant only to Android apps
@@ -174,4 +176,12 @@ enum OsName {
   IPADOS = 7;
   // Indicates no data was provided by the device (old sdk, Android)
   UNSPECIFIED = 8;
+}
+
+// Enum containing the destination environment the events will be sent to.
+enum LogEnvironment {
+  LOG_ENVIRONMENT_UNKNOWN = 0;
+  LOG_ENVIRONMENT_AUTOPUSH = 1;
+  LOG_ENVIRONMENT_STAGING = 2;
+  LOG_ENVIRONMENT_PROD = 3;
 }

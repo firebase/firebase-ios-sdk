@@ -21,8 +21,6 @@
 #define PB_GOOGLE_FIRESTORE_V1_QUERY_NANOPB_H_INCLUDED
 #include <pb.h>
 
-#include "google/api/annotations.nanopb.h"
-
 #include "google/firestore/v1/document.nanopb.h"
 
 #include "google/protobuf/wrappers.nanopb.h"

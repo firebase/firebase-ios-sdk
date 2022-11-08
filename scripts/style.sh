@@ -42,7 +42,7 @@ version="${version/ (*)/}"
 version="${version/.*/}"
 
 case "$version" in
-  14)
+  15)
     ;;
   google3-trunk)
     echo "Please use a publicly released clang-format; a recent LLVM release"
@@ -51,7 +51,7 @@ case "$version" in
     exit 1
     ;;
   *)
-    echo "Please upgrade to clang-format version 14."
+    echo "Please upgrade to clang-format version 15."
     echo "If it's installed via homebrew you can run:"
     echo "brew upgrade clang-format"
     exit 1
@@ -156,7 +156,7 @@ s%^./%%
 \%^/?vendor/bundle/% d
 
 # Sources pulled in by the Mint package manager
-\%^Mint% d
+\%^mint% d
 
 # Auth Sample Objective-C does not format well
 \%^(FirebaseAuth/Tests/Sample/Sample)/% d

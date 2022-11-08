@@ -20,7 +20,7 @@ import Foundation
 class MockIdentifierProvider: IdentifierProvider {
   var sessionID: String = ""
 
-  var previousSessionID: String = ""
+  var previousSessionID: String?
 
   var installationID: String = ""
 

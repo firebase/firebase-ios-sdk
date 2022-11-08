@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAuth'
-  s.version          = '10.1.0'
+  s.version          = '10.2.0'
   s.summary          = 'Apple platform client for Firebase Authentication'
 
   s.description      = <<-DESC
@@ -54,7 +54,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.8'
   s.dependency 'GoogleUtilities/Environment', '~> 7.8'
-  s.dependency 'GTMSessionFetcher/Core', '~> 2.1'
+  s.dependency 'GTMSessionFetcher/Core', '>= 2.1', '< 4.0'
 
   # Using environment variable because of the dependency on the unpublished
   # HeartbeatLoggingTestUtils.

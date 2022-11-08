@@ -536,14 +536,13 @@ IndexManager::IndexType LevelDbIndexManager::GetIndexType(
 
 absl::optional<std::vector<model::DocumentKey>>
 LevelDbIndexManager::GetDocumentsMatchingTarget(const core::Target& target) {
-  std::unordered_map<core::Target, model::FieldIndex> indexes;
+  std::vector<std::pair<core::Target, model::FieldIndex>> indexes;
   for (const auto& sub_target : GetSubTargets(target)) {
     auto index_opt = GetFieldIndex(sub_target);
     if (!index_opt.has_value()) {
       return absl::nullopt;
     }
-
-    indexes.insert({sub_target, index_opt.value()});
+    indexes.emplace_back(sub_target, index_opt.value());
   }
 
   std::vector<DocumentKey> result;
@@ -958,16 +957,8 @@ std::vector<Target> LevelDbIndexManager::GetSubTargets(const Target& target) {
         std::move(filters), CompositeFilter::Operator::And));
 
     for (const Filter& term : dnf) {
-      core::FilterList filter_list;
-      if (term.IsAFieldFilter()) {
-        filter_list = filter_list.push_back(term);
-      } else if (term.IsACompositeFilter()) {
-        for (const auto& filter : (CompositeFilter(term)).filters()) {
-          filter_list = filter_list.push_back(filter);
-        }
-      }
       subtargets.push_back({target.path(), target.collection_group(),
-                            std::move(filter_list), target.order_bys(),
+                            term.GetFilters(), target.order_bys(),
                             target.limit(), target.start_at(),
                             target.end_at()});
     }

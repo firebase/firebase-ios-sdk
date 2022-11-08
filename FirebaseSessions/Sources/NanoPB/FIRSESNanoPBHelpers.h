@@ -30,6 +30,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// Returns an error associated with the istream. Written in Objective-C because Swift does not
+/// support C language macros
+NSString* FIRSESPBGetError(pb_istream_t istream);
+
 // It seems impossible to specify the nullability of the `fields` parameter below,
 // yet the compiler complains that it's missing a nullability specifier. Google
 // yields no results at this time.
@@ -50,6 +54,14 @@ pb_bytes_array_t* _Nullable FIRSESEncodeData(NSData* _Nullable data);
 /// @param string The string to encode as pb_bytes.
 pb_bytes_array_t* _Nullable FIRSESEncodeString(NSString* _Nullable string);
 
+/// Decodes an array of nanopb bytes into an NSData object
+/// @param pbData nanopb data
+NSData* FIRSESDecodeData(pb_bytes_array_t* pbData);
+
+/// Decodes an array of nanopb bytes into an NSString object
+/// @param pbData nanopb data
+NSString* FIRSESDecodeString(pb_bytes_array_t* pbData);
+
 /// Checks if 2 nanopb arrays are equal
 /// @param array array to check
 /// @param expected expected value of the array
@@ -65,8 +77,19 @@ BOOL FIRSESIsPBStringEqual(pb_bytes_array_t* _Nullable pbString, NSString* _Null
 /// @param data NSData that's expected
 BOOL FIRSESIsPBDataEqual(pb_bytes_array_t* _Nullable pbArray, NSData* _Nullable data);
 
+/// Returns the protobuf tag number. Use this to specify which oneof message type we are
+/// using for the platform\_info field. This function is required to be in Objective-C because
+/// Swift does not support c-style macros.
+pb_size_t FIRSESGetAppleApplicationInfoTag(void);
+
+/// Returns the cellular mobile country code (mnc) if CoreTelephony is supported, otherwise nil
+NSString* _Nullable FIRSESNetworkMobileCountryCode(void);
+
+/// Returns the cellular mobile network code (mnc) if CoreTelephony is supported, otherwise nil
+NSString* _Nullable FIRSESNetworkMobileNetworkCode(void);
+
 /// Returns the validated MccMnc if it is available, or nil if the device does not support telephone
-NSString* _Nullable FIRSESGetMccMnc(void);
+NSString* _Nullable FIRSESValidateMccMnc(NSString* _Nullable mcc, NSString* _Nullable mnc);
 
 NS_ASSUME_NONNULL_END
 

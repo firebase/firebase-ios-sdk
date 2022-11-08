@@ -17,9 +17,11 @@
 #include "Firestore/core/src/util/logic_utils.h"
 
 #include <utility>
+#include <vector>
 
 #include "Firestore/core/src/core/composite_filter.h"
 #include "Firestore/core/src/core/field_filter.h"
+#include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/util/hard_assert.h"
 
 namespace firebase {
@@ -254,13 +256,49 @@ Filter LogicUtils::ComputeDistributedNormalForm(const core::Filter& filter) {
   return running_result;
 }
 
+Filter LogicUtils::ComputeInExpansion(const Filter& filter) {
+  AssertFieldFilterOrCompositeFilter(filter);
+
+  std::vector<Filter> expanded_filters;
+
+  if (filter.IsAFieldFilter()) {
+    if (filter.type() == Filter::Type::kInFilter) {
+      // We have reached a field filter with `in` operator.
+      FieldFilter in_filter(filter);
+      for (pb_size_t i = 0; i < in_filter.value().array_value.values_count;
+           ++i) {
+        expanded_filters.push_back(
+            FieldFilter::Create(in_filter.field(), FieldFilter::Operator::Equal,
+                                nanopb::MakeSharedMessage(
+                                    in_filter.value().array_value.values[i])));
+      }
+      return CompositeFilter::Create(std::move(expanded_filters),
+                                     CompositeFilter::Operator::Or);
+    } else {
+      // We have reached other kinds of field filters.
+      return filter;
+    }
+  }
+
+  // We have a composite filter.
+  CompositeFilter composite_filter(filter);
+  for (const auto& subfilter : composite_filter.filters()) {
+    expanded_filters.push_back(ComputeInExpansion(subfilter));
+  }
+  return CompositeFilter::Create(std::move(expanded_filters),
+                                 composite_filter.op());
+}
+
 std::vector<core::Filter> LogicUtils::GetDnfTerms(
     const core::CompositeFilter& filter) {
   if (filter.IsEmpty()) {
     return {};
   }
 
-  Filter result = ComputeDistributedNormalForm(filter);
+  // The `in` operator is a syntactic sugar over a disjunction of equalities.
+  // We should first replace such filters with equality filters before running
+  // the DNF transform.
+  Filter result = ComputeDistributedNormalForm(ComputeInExpansion(filter));
 
   HARD_ASSERT(
       IsDisjunctiveNormalForm(result),
@@ -270,8 +308,7 @@ std::vector<core::Filter> LogicUtils::GetDnfTerms(
     return {std::move(result)};
   }
 
-  const CompositeFilter composite_filter(result);
-  return composite_filter.filters();
+  return result.GetFilters();
 }
 
 }  // namespace util

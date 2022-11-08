@@ -17,6 +17,8 @@
 
 #import "FirebaseSessions/Sources/NanoPB/FIRSESNanoPBHelpers.h"
 
+#import "FirebaseSessions/Protogen/nanopb/sessions.nanopb.h"
+
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
@@ -27,6 +29,10 @@ NSError *FIRSESMakeEncodeError(NSString *description) {
   return [NSError errorWithDomain:@"FIRSESEncodeError"
                              code:-1
                          userInfo:@{@"NSLocalizedDescriptionKey" : description}];
+}
+
+NSString *FIRSESPBGetError(pb_istream_t istream) {
+  return [NSString stringWithCString:PB_GET_ERROR(&istream) encoding:NSASCIIStringEncoding];
 }
 
 // It seems impossible to specify the nullability of the `fields` parameter below,
@@ -91,8 +97,28 @@ pb_bytes_array_t *_Nullable FIRSESEncodeString(NSString *_Nullable string) {
     string = nil;
   }
   NSString *stringToEncode = string ? string : @"";
-  NSData *stringBytes = [stringToEncode dataUsingEncoding:NSUTF8StringEncoding];
+  // There was a bug where length 32 strings were sometimes null after encoding
+  // and decoding. I found that this was due to the null terminator sometimes not
+  // being included. This was fixed by using `cStringUsingEncoding` instead of
+  // `dataUsingEncoding` because `cStringUsingEncoding` includes the null
+  // terminator of a c string.
+  const char *cStr = [stringToEncode cStringUsingEncoding:NSUTF8StringEncoding];
+  // `strlen` does not include the null terminator, so we must add 1 here.
+  NSData *stringBytes = [NSData dataWithBytes:cStr length:strlen(cStr) + 1];
   return FIRSESEncodeData(stringBytes);
+}
+
+NSData *FIRSESDecodeData(pb_bytes_array_t *pbData) {
+  NSData *data = [NSData dataWithBytes:&(pbData->bytes) length:pbData->size];
+  return data;
+}
+
+NSString *FIRSESDecodeString(pb_bytes_array_t *pbData) {
+  if (pbData->size == 0) {
+    return @"";
+  }
+  NSData *data = FIRSESDecodeData(pbData);
+  return [NSString stringWithCString:[data bytes] encoding:NSUTF8StringEncoding];
 }
 
 BOOL FIRSESIsPBArrayEqual(pb_bytes_array_t *_Nullable array, pb_bytes_array_t *_Nullable expected) {
@@ -126,6 +152,10 @@ BOOL FIRSESIsPBDataEqual(pb_bytes_array_t *_Nullable pbArray, NSData *_Nullable 
   return equal;
 }
 
+pb_size_t FIRSESGetAppleApplicationInfoTag(void) {
+  return firebase_appquality_sessions_ApplicationInfo_apple_app_info_tag;
+}
+
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
 CTTelephonyNetworkInfo *_Nullable FIRSESNetworkInfo(void) {
   static CTTelephonyNetworkInfo *networkInfo;
@@ -135,28 +165,49 @@ CTTelephonyNetworkInfo *_Nullable FIRSESNetworkInfo(void) {
   });
   return networkInfo;
 }
+#endif
 
-NSString *FIRSESValidatedMccMnc(NSString *mcc, NSString *mnc) {
-  if ([mcc length] != 3 || [mnc length] < 2 || [mnc length] > 3) return nil;
+NSString *_Nullable FIRSESNetworkMobileCountryCode(void) {
+#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
+  CTTelephonyNetworkInfo *networkInfo = FIRSESNetworkInfo();
+  CTCarrier *provider = networkInfo.subscriberCellularProvider;
+  return provider.mobileCountryCode;
+#endif
+  return nil;
+}
 
+NSString *_Nullable FIRSESNetworkMobileNetworkCode(void) {
+#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
+  CTTelephonyNetworkInfo *networkInfo = FIRSESNetworkInfo();
+  CTCarrier *provider = networkInfo.subscriberCellularProvider;
+  return provider.mobileNetworkCode;
+#endif
+  return nil;
+}
+
+NSString *_Nullable FIRSESValidateMccMnc(NSString *_Nullable mcc, NSString *_Nullable mnc) {
+  // These are both nil if the target does not support mobile connectivity
+  if (mcc == nil && mnc == nil) {
+    return nil;
+  }
+
+  if (mcc.length != 3 || mnc.length < 2 || mnc.length > 3) {
+    return nil;
+  }
+
+  // If the resulting appended mcc + mnc contains characters that are not
+  // decimal digits, return nil
   static NSCharacterSet *notDigits;
   static dispatch_once_t token;
   dispatch_once(&token, ^{
     notDigits = [[NSCharacterSet decimalDigitCharacterSet] invertedSet];
   });
   NSString *mccMnc = [mcc stringByAppendingString:mnc];
-  if ([mccMnc rangeOfCharacterFromSet:notDigits].location != NSNotFound) return nil;
-  return mccMnc;
-}
-#endif
+  if ([mccMnc rangeOfCharacterFromSet:notDigits].location != NSNotFound) {
+    return nil;
+  }
 
-NSString *_Nullable FIRSESGetMccMnc(void) {
-#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
-  CTTelephonyNetworkInfo *networkInfo = FIRSESNetworkInfo();
-  CTCarrier *provider = networkInfo.subscriberCellularProvider;
-  return FIRSESValidatedMccMnc(provider.mobileCountryCode, provider.mobileNetworkCode);
-#endif
-  return nil;
+  return mccMnc;
 }
 
 NS_ASSUME_NONNULL_END

@@ -21,9 +21,11 @@ NS_ASSUME_NONNULL_BEGIN
 FOUNDATION_EXPORT NSString *const kFIRDLParameterDeepLinkIdentifier;
 FOUNDATION_EXPORT NSString *const kFIRDLParameterLink;
 FOUNDATION_EXPORT NSString *const kFIRDLParameterMinimumAppVersion;
-FOUNDATION_EXPORT NSString *const kFIRDLParameterSource;
-FOUNDATION_EXPORT NSString *const kFIRDLParameterMedium;
 FOUNDATION_EXPORT NSString *const kFIRDLParameterCampaign;
+FOUNDATION_EXPORT NSString *const kFIRDLParameterContent;
+FOUNDATION_EXPORT NSString *const kFIRDLParameterMedium;
+FOUNDATION_EXPORT NSString *const kFIRDLParameterTerm;
+FOUNDATION_EXPORT NSString *const kFIRDLParameterSource;
 FOUNDATION_EXPORT NSString *const kFIRDLParameterMatchType;
 FOUNDATION_EXPORT NSString *const kFIRDLParameterInviteId;
 FOUNDATION_EXPORT NSString *const kFIRDLParameterWeakMatchEndpoint;
@@ -79,6 +81,8 @@ NSURL *FIRDLDeepLinkURLWithInviteID(NSString *_Nullable inviteID,
                                     NSString *_Nullable utmSource,
                                     NSString *_Nullable utmMedium,
                                     NSString *_Nullable utmCampaign,
+                                    NSString *_Nullable utmContent,
+                                    NSString *_Nullable utmTerm,
                                     BOOL isWeakLink,
                                     NSString *_Nullable weakMatchEndpoint,
                                     NSString *_Nullable minAppVersion,
