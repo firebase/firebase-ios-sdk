@@ -1,3 +1,6 @@
+# 10.2.0
+- [fixed] Fixed an issue where using Storage with more than one FirebaseApp instance caused non-default Storage instances to deadlock (#10463).
+
 # 10.1.0
 - [fixed] Fixed a 10.0.0 regression where metadata passed to `putFile` was not properly initialized. (#10353)
 - [fixed] Fixed a 10.0.0 regression handling an empty JSON metadata field from the emulator. (#10370)

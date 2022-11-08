@@ -42,6 +42,7 @@ import XCTest
  */
 
 class StorageResultTests: StorageIntegrationCommon {
+
   func testGetMetadata() {
     let expectation = self.expectation(description: "testGetMetadata")
     let ref = storage.reference().child("ios/public/1mb")
@@ -135,6 +136,24 @@ class StorageResultTests: StorageIntegrationCommon {
       expectation.fulfill()
     }
     waitForExpectations()
+  }
+
+  func testNoDeadlocks() throws {
+    let storage2 = Storage.storage(url: "")
+
+    let expectation1 = self.expectation(description: #function)
+    let expectation2 = self.expectation(description: #function)
+    let ref = storage.reference(withPath: "ios/public/testBytesUpload")
+    let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
+    ref.putData(data) { result in
+      expectation1.fulfill()
+
+      let ref2 = storage2.reference(withPath: "ios/public/testBytesUpload")
+      ref2.putData(data) { result in
+        expectation2.fulfill()
+      }
+    }
+    waitForExpectations(timeout: 30)
   }
 
   func testSimplePutSpecialCharacter() throws {
