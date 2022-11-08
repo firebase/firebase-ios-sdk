@@ -28,8 +28,8 @@ static NSString *const kSignInWithGameCenterEndPoint = @"signInWithGameCenter";
 @implementation FIRSignInWithGameCenterRequest
 
 - (nullable instancetype)initWithPlayerID:(NSString *)playerID
-                             teamPlayerID:(NSString *)teamPlayerID
-                             gamePlayerID:(NSString *)gamePlayerID
+                             teamPlayerID:(nullable NSString *)teamPlayerID
+                             gamePlayerID:(nullable NSString *)gamePlayerID
                              publicKeyURL:(NSURL *)publicKeyURL
                                 signature:(NSData *)signature
                                      salt:(NSData *)salt
