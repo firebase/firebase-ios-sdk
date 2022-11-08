@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
     return;
   }
-  if (@available(iOS 13.5, macOS 10.15.5, macCatalyst 13.5, tvOS 13.4.8, watchOS 6.5, *)) {
+  if (@available(iOS 13.5, macOS 10.15.5, macCatalyst 13.5, tvOS 13.4.8, *)) {
     [localPlayer fetchItemsForIdentityVerificationSignature:^(
                      NSURL *_Nullable publicKeyURL, NSData *_Nullable signature,
                      NSData *_Nullable salt, uint64_t timestamp, NSError *_Nullable error) {
