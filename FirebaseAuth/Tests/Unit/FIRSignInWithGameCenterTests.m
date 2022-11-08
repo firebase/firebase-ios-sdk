@@ -258,6 +258,8 @@ static NSString *const kAccessToken = @"ACCESSTOKEN";
     @"refreshToken" : kRefreshToken,
     @"localId" : kLocalID,
     @"playerId" : kPlayerID,
+    @"teamPlayerId" : kTeamPlayerID,
+    @"gamePlayerId" : kGamePlayerID,
     @"expiresIn" : kApproximateExpirationDate,
     @"isNewUser" : [NSNumber numberWithBool:kIsNewUser],
     @"displayName" : kDisplayName,
