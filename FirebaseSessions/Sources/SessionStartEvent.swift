@@ -36,8 +36,6 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     proto.session_data.previous_session_id = makeProtoStringOrNil(identifiers.previousSessionID)
     proto.session_data.event_timestamp_us = time.timestampUS
 
-    // `which_platform_info` tells nanopb which oneof we're choosing to fill in for our proto
-    proto.application_info.which_platform_info = FIRSESGetAppleApplicationInfoTag()
     proto.application_info.app_id = makeProtoString(appInfo.appID)
     proto.application_info.session_sdk_version = makeProtoString(appInfo.sdkVersion)
     proto.application_info.log_environment = convertLogEnvironment(environment: appInfo.environment)
@@ -45,6 +43,8 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
 //    proto.application_info.development_platform_name;
 //    proto.application_info.development_platform_version;
 
+    // `which_platform_info` tells nanopb which oneof we're choosing to fill in for our proto
+    proto.application_info.which_platform_info = FIRSESGetAppleApplicationInfoTag()
     proto.application_info.apple_app_info.bundle_short_version = makeProtoString(appInfo.bundleID)
 //    proto.application_info.apple_app_info.network_connection_info
     proto.application_info.apple_app_info.os_name = convertOSName(osName: appInfo.osName)
@@ -117,5 +117,25 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     default:
       return firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_UNKNOWN
     }
+  }
+
+  /// Encodes the proto in this SessionStartEvent to Data, and then decodes the Data back into
+  /// the proto object and returns the decoded proto. This is used for validating encoding works
+  /// and should not be used in production code.
+  func encodeDecodeEvent() -> firebase_appquality_sessions_SessionEvent {
+    let transportBytes = self.transportBytes()
+    var proto = firebase_appquality_sessions_SessionEvent()
+    var fields = firebase_appquality_sessions_SessionEvent_fields
+
+    let bytes = (transportBytes as NSData).bytes
+    var istream: pb_istream_t = pb_istream_from_buffer(bytes, transportBytes.count)
+
+    if !pb_decode(&istream, &fields.0, &proto) {
+      let errorMessage = FIRSESPBGetError(istream)
+      if errorMessage.count > 0 {
+        Logger.logInfo("Failed to decode transportBytes: \(errorMessage)")
+      }
+    }
+    return proto
   }
 }

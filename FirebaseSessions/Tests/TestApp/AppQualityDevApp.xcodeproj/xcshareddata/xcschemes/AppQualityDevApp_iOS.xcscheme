@@ -73,6 +73,10 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
+            argument = "-FIRSessionsDebugEvents"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "-FIRDebugEnabled"
             isEnabled = "YES">
          </CommandLineArgument>
