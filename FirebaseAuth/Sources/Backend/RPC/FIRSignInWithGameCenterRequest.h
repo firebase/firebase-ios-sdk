@@ -88,8 +88,8 @@ NS_ASSUME_NONNULL_BEGIN
     @param displayName The display name of the Game Center player.
  */
 - (nullable instancetype)initWithPlayerID:(NSString *)playerID
-                             teamPlayerID:(NSString *)teamPlayerID
-                             gamePlayerID:(NSString *)gamePlayerID
+                             teamPlayerID:(nullable NSString *)teamPlayerID
+                             gamePlayerID:(nullable NSString *)gamePlayerID
                              publicKeyURL:(NSURL *)publicKeyURL
                                 signature:(NSData *)signature
                                      salt:(NSData *)salt
