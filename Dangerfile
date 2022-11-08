@@ -82,6 +82,27 @@ has_changelog_changes = hasChangesIn(["CHANGELOG"])
 # Whether or not the LICENSE file has been modified or deleted.
 has_license_changes = didModify(["LICENSE"])
 
+# A list of published Firebase products.
+@product_list = [
+  "ABTesting",
+  "AppCheck",
+  "AppDistribution",
+  "Analytics",
+  "Authentication",
+  "Core",
+  "Crashlytics",
+  "Database",
+  "DynamicLinks",
+  "Firestore",
+  "Functions",
+  "InAppMessaging",
+  "Installations",
+  "Messaging",
+  "Performance",
+  "RemoteConfig",
+  "Storage"
+]
+
 ## Product directories
 @has_analytics_changes = hasChangesIn([
   "FirebaseAnalyticsOnDeviceConversionWrapper",
@@ -131,7 +152,9 @@ has_license_changes = didModify(["LICENSE"])
 
 @has_releasetooling_changes = hasChangesIn("ReleaseTooling/")
 @has_public_additions = hasAdditionsIn("Public/")
-@has_umbrella_changes = hasChangesIn("Firebase*.h")
+
+@has_umbrella_changes =
+    @product_list.reduce(false) { |accum, product| accum || hasChangesIn("Firebase#{product}.h") }
 
 # Convenient flag for all API changes.
 @has_api_changes = @has_abtesting_api_changes ||
@@ -183,7 +206,7 @@ end
 if @has_public_additions && !@has_umbrella_changes
   error = "New public headers were added, "\
       "did you remember to add them to the umbrella header?"
-  fail(error)
+  warn(error)
 end
 
 # Error on license edits

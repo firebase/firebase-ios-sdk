@@ -29,6 +29,7 @@ namespace util {
 using core::CompositeFilter;
 using core::FieldFilter;
 using testutil::AndFilters;
+using testutil::Array;
 using testutil::OrFilters;
 
 namespace {
@@ -275,6 +276,77 @@ TEST_F(LogicUtilsTest, ComputeDnf8) {
   EXPECT_EQ(ComputeDistributedNormalForm(composite_filter), expected);
   EXPECT_EQ(GetDnfTerms(composite_filter),
             std::vector<core::Filter>{expected_dnf_terms});
+}
+
+TEST_F(LogicUtilsTest, InExpansionForFieldFilters) {
+  auto input1 = testutil::Filter("a", "in", Array(1, 2, 3));
+  auto input2 = testutil::Filter("a", "<", 1);
+  auto input3 = testutil::Filter("a", "<=", 1);
+  auto input4 = testutil::Filter("a", "==", 1);
+  auto input5 = testutil::Filter("a", "!=", 1);
+  auto input6 = testutil::Filter("a", ">", 1);
+  auto input7 = testutil::Filter("a", ">=", 1);
+  auto input8 = testutil::Filter("a", "array-contains", 1);
+  auto input9 = testutil::Filter("a", "array-contains-any", Array(1, 2));
+  auto input10 = testutil::Filter("a", "not-in", Array(1, 2));
+
+  EXPECT_EQ(
+      ComputeInExpansion(input1),
+      OrFilters({testutil::Filter("a", "==", 1), testutil::Filter("a", "==", 2),
+                 testutil::Filter("a", "==", 3)}));
+
+  // Other operators should remain the same
+  EXPECT_EQ(ComputeInExpansion(input2), input2);
+  EXPECT_EQ(ComputeInExpansion(input3), input3);
+  EXPECT_EQ(ComputeInExpansion(input4), input4);
+  EXPECT_EQ(ComputeInExpansion(input5), input5);
+  EXPECT_EQ(ComputeInExpansion(input6), input6);
+  EXPECT_EQ(ComputeInExpansion(input7), input7);
+  EXPECT_EQ(ComputeInExpansion(input8), input8);
+  EXPECT_EQ(ComputeInExpansion(input9), input9);
+  EXPECT_EQ(ComputeInExpansion(input10), input10);
+}
+
+TEST_F(LogicUtilsTest, InExpansionForCompositeFilters) {
+  auto cf1 = AndFilters({testutil::Filter("a", "==", 1),
+                         testutil::Filter("b", "in", Array(2, 3, 4))});
+  EXPECT_EQ(ComputeInExpansion(cf1),
+            AndFilters({testutil::Filter("a", "==", 1),
+                        OrFilters({testutil::Filter("b", "==", 2),
+                                   testutil::Filter("b", "==", 3),
+                                   testutil::Filter("b", "==", 4)})}));
+
+  auto cf2 = OrFilters({testutil::Filter("a", "==", 1),
+                        testutil::Filter("b", "in", Array(2, 3, 4))});
+  EXPECT_EQ(ComputeInExpansion(cf2),
+            OrFilters({testutil::Filter("a", "==", 1),
+                       OrFilters({testutil::Filter("b", "==", 2),
+                                  testutil::Filter("b", "==", 3),
+                                  testutil::Filter("b", "==", 4)})}));
+
+  auto cf3 =
+      AndFilters({testutil::Filter("a", "==", 1),
+                  OrFilters({testutil::Filter("b", "==", 2),
+                             testutil::Filter("c", "in", Array(2, 3, 4))})});
+  EXPECT_EQ(
+      ComputeInExpansion(cf3),
+      AndFilters({testutil::Filter("a", "==", 1),
+                  OrFilters({testutil::Filter("b", "==", 2),
+                             OrFilters({testutil::Filter("c", "==", 2),
+                                        testutil::Filter("c", "==", 3),
+                                        testutil::Filter("c", "==", 4)})})}));
+
+  CompositeFilter cf4 =
+      OrFilters({testutil::Filter("a", "==", 1),
+                 AndFilters({testutil::Filter("b", "==", 2),
+                             testutil::Filter("c", "in", Array(2, 3, 4))})});
+  EXPECT_EQ(
+      ComputeInExpansion(cf4),
+      OrFilters({testutil::Filter("a", "==", 1),
+                 AndFilters({testutil::Filter("b", "==", 2),
+                             OrFilters({testutil::Filter("c", "==", 2),
+                                        testutil::Filter("c", "==", 3),
+                                        testutil::Filter("c", "==", 4)})})}));
 }
 
 }  // namespace util

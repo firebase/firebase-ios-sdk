@@ -179,9 +179,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
   if (self.registrationFlowCompletion) {
     FIRFADDebugLog(@"Continuing registration flow: %@", [self registrationFlowCompletion]);
     [self resetUIState];
-    if (@available(iOS 9.0, *)) {
-      [self logRegistrationCompletion:nil authType:[SFSafariViewController description]];
-    }
+    [self logRegistrationCompletion:nil authType:[SFSafariViewController description]];
     self.registrationFlowCompletion(nil);
   }
   return NO;

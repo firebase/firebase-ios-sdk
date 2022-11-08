@@ -18,6 +18,7 @@
 
 #include <set>
 #include <string>
+#include <unordered_set>
 #include <utility>
 
 #include "Firestore/core/src/core/field_filter.h"

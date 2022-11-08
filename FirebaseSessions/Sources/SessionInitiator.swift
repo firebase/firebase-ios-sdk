@@ -13,6 +13,12 @@
 // limitations under the License.
 
 import Foundation
+#if os(macOS)
+  import Cocoa
+  import AppKit
+#elseif os(watchOS)
+  import WatchKit
+#endif
 
 ///
 /// The SessionInitiator is responsible for:
@@ -22,8 +28,73 @@ import Foundation
 ///      and comes to the foreground.
 ///
 class SessionInitiator {
+  let sessionTimeout: TimeInterval = 30 * 60 // 30 minutes
+  let currentTime: () -> Date
+  var backgroundTime = Date.distantFuture
+  var initiateSessionStart: () -> Void = {}
+
+  init(currentTimeProvider: @escaping () -> Date = Date.init) {
+    currentTime = currentTimeProvider
+  }
+
   func beginListening(initiateSessionStart: @escaping () -> Void) {
-    // Only cold start is implemented right now
-    initiateSessionStart()
+    self.initiateSessionStart = initiateSessionStart
+    self.initiateSessionStart()
+
+    let notificationCenter = NotificationCenter.default
+    #if os(iOS) || os(tvOS)
+      notificationCenter.addObserver(
+        self,
+        selector: #selector(appBackgrounded),
+        name: UIApplication.didEnterBackgroundNotification,
+        object: nil
+      )
+      notificationCenter.addObserver(
+        self,
+        selector: #selector(appForegrounded),
+        name: UIApplication.didBecomeActiveNotification,
+        object: nil
+      )
+    #elseif os(macOS)
+      notificationCenter.addObserver(
+        self,
+        selector: #selector(appBackgrounded),
+        name: NSApplication.didResignActiveNotification,
+        object: nil
+      )
+      notificationCenter.addObserver(
+        self,
+        selector: #selector(appForegrounded),
+        name: NSApplication.didBecomeActiveNotification,
+        object: nil
+      )
+    #elseif os(watchOS)
+      // Versions below WatchOS 7 do not support lifecycle events
+      if #available(watchOSApplicationExtension 7.0, *) {
+        notificationCenter.addObserver(
+          self,
+          selector: #selector(appBackgrounded),
+          name: WKExtension.applicationDidEnterBackgroundNotification,
+          object: nil
+        )
+        notificationCenter.addObserver(
+          self,
+          selector: #selector(appForegrounded),
+          name: WKExtension.applicationDidBecomeActiveNotification,
+          object: nil
+        )
+      }
+    #endif
+  }
+
+  @objc func appBackgrounded() {
+    backgroundTime = currentTime()
+  }
+
+  @objc func appForegrounded() {
+    let interval = currentTime().timeIntervalSince(backgroundTime)
+    if interval > sessionTimeout {
+      initiateSessionStart()
+    }
   }
 }

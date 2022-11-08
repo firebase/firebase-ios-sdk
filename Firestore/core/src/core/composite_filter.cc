@@ -114,11 +114,10 @@ bool CompositeFilter::Rep::Equals(const Filter::Rep& other) const {
 }
 
 CompositeFilter CompositeFilter::WithAddedFilters(
-    std::vector<core::Filter>&& other_filters) {
+    const std::vector<core::Filter>& other_filters) {
   std::vector<Filter> merged_filters(filters());
-  merged_filters.insert(merged_filters.end(),
-                        std::make_move_iterator(other_filters.begin()),
-                        std::make_move_iterator(other_filters.end()));
+  merged_filters.insert(merged_filters.end(), other_filters.begin(),
+                        other_filters.end());
   return CompositeFilter::Create(std::move(merged_filters), op());
 }
 

@@ -1,4 +1,8 @@
 # Unreleased
+- [fixed] Fix a bug where the linking/reauth flows errors are not caught. (#10267)
+- [fixed] Force to recaptcha verification flow for phone auth in simulators. (#10426)
+
+# 10.1.0
 - [fixed] Fix a bug where multi factor phone number returns `NULL`. (#10296)
 
 # 9.5.0

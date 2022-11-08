@@ -14,7 +14,8 @@
 // limitations under the License.
 
 import Foundation
-import FirebaseInstallations
+
+@_implementationOnly import FirebaseInstallations
 
 protocol InstallationsProtocol {
   func installationID(completion: @escaping (Result<String, Error>) -> Void)

@@ -508,7 +508,9 @@ model::IndexOffset LevelDbIndexManager::GetMinOffset(
 IndexManager::IndexType LevelDbIndexManager::GetIndexType(
     const core::Target& target) {
   IndexManager::IndexType result = IndexManager::IndexType::FULL;
-  for (const Target& sub_target : GetSubTargets(target)) {
+  const auto sub_targets = GetSubTargets(target);
+
+  for (const Target& sub_target : sub_targets) {
     absl::optional<model::FieldIndex> index = GetFieldIndex(sub_target);
     if (!index) {
       result = IndexManager::IndexType::NONE;
@@ -519,19 +521,28 @@ IndexManager::IndexType LevelDbIndexManager::GetIndexType(
       result = IndexManager::IndexType::PARTIAL;
     }
   }
+
+  // OR queries have more than one sub-target (one sub-target per DNF term).
+  // We currently consider OR queries that have a `limit` to have a partial
+  // index. For such queries we perform sorting and apply the limit in memory as
+  // a post-processing step.
+  if (target.HasLimit() && sub_targets.size() > 1U &&
+      result == IndexManager::IndexType::FULL) {
+    result = IndexManager::IndexType::PARTIAL;
+  }
+
   return result;
 }
 
 absl::optional<std::vector<model::DocumentKey>>
 LevelDbIndexManager::GetDocumentsMatchingTarget(const core::Target& target) {
-  std::unordered_map<core::Target, model::FieldIndex> indexes;
+  std::vector<std::pair<core::Target, model::FieldIndex>> indexes;
   for (const auto& sub_target : GetSubTargets(target)) {
     auto index_opt = GetFieldIndex(sub_target);
     if (!index_opt.has_value()) {
       return absl::nullopt;
     }
-
-    indexes.insert({sub_target, index_opt.value()});
+    indexes.emplace_back(sub_target, index_opt.value());
   }
 
   std::vector<DocumentKey> result;
@@ -946,16 +957,8 @@ std::vector<Target> LevelDbIndexManager::GetSubTargets(const Target& target) {
         std::move(filters), CompositeFilter::Operator::And));
 
     for (const Filter& term : dnf) {
-      core::FilterList filter_list;
-      if (term.IsAFieldFilter()) {
-        filter_list = filter_list.push_back(term);
-      } else if (term.IsACompositeFilter()) {
-        for (const auto& filter : (CompositeFilter(term)).filters()) {
-          filter_list = filter_list.push_back(filter);
-        }
-      }
       subtargets.push_back({target.path(), target.collection_group(),
-                            std::move(filter_list), target.order_bys(),
+                            term.GetFilters(), target.order_bys(),
                             target.limit(), target.start_at(),
                             target.end_at()});
     }
