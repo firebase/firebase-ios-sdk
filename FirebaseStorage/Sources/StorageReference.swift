@@ -212,15 +212,10 @@ import Foundation
   open func putFile(from fileURL: URL,
                     metadata: StorageMetadata? = nil,
                     completion: ((_: StorageMetadata?, _: Error?) -> Void)?) -> StorageUploadTask {
-    var putMetadata: StorageMetadata
-    if metadata == nil {
-      putMetadata = StorageMetadata()
-      if let path = path.object {
-        putMetadata.path = path
-        putMetadata.name = (path as NSString).lastPathComponent as String
-      }
-    } else {
-      putMetadata = metadata!
+    let putMetadata: StorageMetadata = metadata ?? StorageMetadata()
+    if let path = path.object {
+      putMetadata.path = path
+      putMetadata.name = (path as NSString).lastPathComponent as String
     }
     let fetcherService = storage.fetcherServiceForApp
     let task = StorageUploadTask(reference: self,
@@ -280,10 +275,12 @@ import Foundation
     let callbackQueue = fetcherService.callbackQueue ?? DispatchQueue.main
 
     task.observe(.success) { snapshot in
+      let error = self.checkSizeOverflow(task: snapshot.task, maxSize: maxSize)
       callbackQueue.async {
         if !completed {
           completed = true
-          completion(task.downloadData, nil)
+          let data = error == nil ? task.downloadData : nil
+          completion(data, error)
         }
       }
     }
@@ -296,14 +293,8 @@ import Foundation
       }
     }
     task.observe(.progress) { snapshot in
-      let task = snapshot.task
-      if task.progress.totalUnitCount > maxSize || task.progress.completedUnitCount > maxSize {
-        let error = StorageErrorCode.error(withCode: .downloadSizeExceeded,
-                                           infoDictionary: [
-                                             "totalSize": task.progress.totalUnitCount,
-                                             "maxAllowedSize": maxSize,
-                                           ])
-        (task as? StorageDownloadTask)?.cancel(withError: error)
+      if let error = self.checkSizeOverflow(task: snapshot.task, maxSize: maxSize) {
+        task.cancel(withError: error)
       }
     }
     task.enqueue()
@@ -699,5 +690,19 @@ import Foundation
   init(storage: Storage, path: StoragePath) {
     self.storage = storage
     self.path = path
+  }
+
+  /**
+   * For maxSize API, return an error if the size is exceeded.
+   */
+  private func checkSizeOverflow(task: StorageTask, maxSize: Int64) -> NSError? {
+    if task.progress.totalUnitCount > maxSize || task.progress.completedUnitCount > maxSize {
+      return StorageErrorCode.error(withCode: .downloadSizeExceeded,
+                                    infoDictionary: [
+                                      "totalSize": task.progress.totalUnitCount,
+                                      "maxAllowedSize": maxSize,
+                                    ])
+    }
+    return nil
   }
 }

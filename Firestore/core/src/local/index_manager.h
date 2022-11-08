@@ -113,13 +113,6 @@ class IndexManager {
   virtual std::vector<model::FieldIndex> GetFieldIndexes() const = 0;
 
   /**
-   * Returns an index that can be used to serve the provided target. Returns
-   * `nullopt` if no index is configured.
-   */
-  virtual absl::optional<model::FieldIndex> GetFieldIndex(
-      const core::Target& target) const = 0;
-
-  /**
    * Iterates over all field indexes that are used to serve the given target,
    * and returns the minimum offset of them all. Asserts that the target can be
    * served from index.

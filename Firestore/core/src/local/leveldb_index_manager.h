@@ -69,9 +69,6 @@ class LevelDbIndexManager : public IndexManager {
 
   std::vector<model::FieldIndex> GetFieldIndexes() const override;
 
-  absl::optional<model::FieldIndex> GetFieldIndex(
-      const core::Target& target) const override;
-
   model::IndexOffset GetMinOffset(const core::Target& target) override;
 
   model::IndexOffset GetMinOffset(
@@ -200,6 +197,13 @@ class LevelDbIndexManager : public IndexManager {
       const index::IndexEntry& lower_bound,
       const index::IndexEntry& upper_bound,
       std::vector<index::IndexEntry> not_in_bounds) const;
+
+  /**
+   * Returns an index that can be used to serve the provided target. Returns
+   * `nullopt` if no index is configured.
+   */
+  absl::optional<model::FieldIndex> GetFieldIndex(
+      const core::Target& target) const;
 
   // The LevelDbIndexManager is owned by LevelDbPersistence.
   LevelDbPersistence* db_;

@@ -1,3 +1,6 @@
+# 10.1.0
+- [fixed] Fix CocoaPods release did not include the RemoteConfigProperty feature. (#10371)
+
 # 10.0.0
 - [added] Added a new dynamic property wrapper API that enables developers to configure UI components to automatically updates when new config are activated. (#10155)
 

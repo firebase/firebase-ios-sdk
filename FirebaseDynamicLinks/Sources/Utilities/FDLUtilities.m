@@ -27,9 +27,11 @@ NS_ASSUME_NONNULL_BEGIN
 NSString *const kFIRDLParameterDeepLinkIdentifier = @"deep_link_id";
 NSString *const kFIRDLParameterLink = @"link";
 NSString *const kFIRDLParameterMinimumAppVersion = @"imv";
-NSString *const kFIRDLParameterSource = @"utm_source";
-NSString *const kFIRDLParameterMedium = @"utm_medium";
 NSString *const kFIRDLParameterCampaign = @"utm_campaign";
+NSString *const kFIRDLParameterContent = @"utm_content";
+NSString *const kFIRDLParameterMedium = @"utm_medium";
+NSString *const kFIRDLParameterSource = @"utm_source";
+NSString *const kFIRDLParameterTerm = @"utm_term";
 NSString *const kFIRDLParameterMatchType = @"match_type";
 NSString *const kFIRDLParameterInviteId = @"invitation_id";
 NSString *const kFIRDLParameterWeakMatchEndpoint = @"invitation_weakMatchEndpoint";
@@ -98,6 +100,8 @@ NSURL *FIRDLDeepLinkURLWithInviteID(NSString *_Nullable inviteID,
                                     NSString *_Nullable utmSource,
                                     NSString *_Nullable utmMedium,
                                     NSString *_Nullable utmCampaign,
+                                    NSString *_Nullable utmContent,
+                                    NSString *_Nullable utmTerm,
                                     BOOL isWeakLink,
                                     NSString *_Nullable weakMatchEndpoint,
                                     NSString *_Nullable minAppVersion,
@@ -122,6 +126,15 @@ NSURL *FIRDLDeepLinkURLWithInviteID(NSString *_Nullable inviteID,
   if (utmCampaign != nil) {
     queryDictionary[kFIRDLParameterCampaign] = utmCampaign;
   }
+
+  if (utmContent != nil) {
+    queryDictionary[kFIRDLParameterContent] = utmContent;
+  }
+
+  if (utmTerm != nil) {
+    queryDictionary[kFIRDLParameterTerm] = utmTerm;
+  }
+
   if (isWeakLink) {
     queryDictionary[kFIRDLParameterMatchType] = @"weak";
   } else {

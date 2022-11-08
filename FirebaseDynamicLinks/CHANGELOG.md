@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fixes utm parameters not being returned to dynamic link when using universal links (#10341)
+
 # 10.0.0
 - [removed] Removed bare initializer from `DynamicLink`. (#10000)
 - [fixed] Added app.google (1p domain) support in FDL SDK which was missing.

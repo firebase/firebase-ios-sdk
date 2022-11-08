@@ -89,12 +89,6 @@ std::vector<model::FieldIndex> MemoryIndexManager::GetFieldIndexes() const {
   return {};
 }
 
-absl::optional<model::FieldIndex> MemoryIndexManager::GetFieldIndex(
-    const core::Target& target) const {
-  (void)target;
-  return absl::nullopt;
-}
-
 model::IndexOffset MemoryIndexManager::GetMinOffset(const core::Target&) {
   return model::IndexOffset::None();
 }
