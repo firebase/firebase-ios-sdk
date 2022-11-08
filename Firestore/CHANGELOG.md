@@ -2,7 +2,7 @@
 - [fixed] Fix FAILED_PRECONDITION when writing to a deleted document in a
   transaction (#10431).
 - [fixed] Fixed data race in credentials provider (#10393).
-- [changed] Internal handling of MultiDb support.
+- [feature] Add MultiDb support.
 
 # 10.0.0
 - [feature] Added `Query.count()`, which fetches the number of documents in the
