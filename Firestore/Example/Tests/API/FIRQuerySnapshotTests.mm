@@ -60,16 +60,18 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRQuerySnapshotTests
 
 - (void)testEquals {
-  FIRQuerySnapshot *foo = FSTTestQuerySnapshot("foo", @{}, @{@"a" : @{@"a" : @1}}, true, false);
-  FIRQuerySnapshot *fooDup = FSTTestQuerySnapshot("foo", @{}, @{@"a" : @{@"a" : @1}}, true, false);
+  FIRQuerySnapshot *foo =
+      FSTTestQuerySnapshot("foo", @{}, @{@"a" : @{@"a" : @1}}, true, false, false);
+  FIRQuerySnapshot *fooDup =
+      FSTTestQuerySnapshot("foo", @{}, @{@"a" : @{@"a" : @1}}, true, false, false);
   FIRQuerySnapshot *differentPath =
-      FSTTestQuerySnapshot("bar", @{}, @{@"a" : @{@"a" : @1}}, true, false);
+      FSTTestQuerySnapshot("bar", @{}, @{@"a" : @{@"a" : @1}}, true, false, false);
   FIRQuerySnapshot *differentDoc =
-      FSTTestQuerySnapshot("foo", @{@"a" : @{@"b" : @1}}, @{}, true, false);
+      FSTTestQuerySnapshot("foo", @{@"a" : @{@"b" : @1}}, @{}, true, false, false);
   FIRQuerySnapshot *noPendingWrites =
-      FSTTestQuerySnapshot("foo", @{}, @{@"a" : @{@"a" : @1}}, false, false);
+      FSTTestQuerySnapshot("foo", @{}, @{@"a" : @{@"a" : @1}}, false, false, false);
   FIRQuerySnapshot *fromCache =
-      FSTTestQuerySnapshot("foo", @{}, @{@"a" : @{@"a" : @1}}, true, true);
+      FSTTestQuerySnapshot("foo", @{}, @{@"a" : @{@"a" : @1}}, true, true, true);
   XCTAssertEqualObjects(foo, fooDup);
   XCTAssertNotEqualObjects(foo, differentPath);
   XCTAssertNotEqualObjects(foo, differentDoc);
@@ -103,7 +105,8 @@ NS_ASSUME_NONNULL_BEGIN
                             /*mutated_keys=*/DocumentKeySet(),
                             /*from_cache=*/false,
                             /*sync_state_changed=*/true,
-                            /*excludes_metadata_changes=*/false);
+                            /*excludes_metadata_changes=*/false,
+                            /*has_cached_results=*/false);
   SnapshotMetadata metadata(/*pending_writes=*/false, /*from_cache=*/false);
   FIRQuerySnapshot *snapshot = [[FIRQuerySnapshot alloc] initWithFirestore:firestore
                                                              originalQuery:query

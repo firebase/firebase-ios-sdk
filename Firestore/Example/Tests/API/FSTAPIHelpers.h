@@ -58,6 +58,7 @@ FIRDocumentReference *FSTTestDocRef(const char *path);
  * contents.
  * @param hasPendingWrites Whether the query snapshot has pending writes to the server.
  * @param fromCache Whether the query snapshot is cache result.
+ * @param hasCachedResults Whether the query snapshot has results in the cache.
  * @return A query snapshot that consists of both sets of documents.
  */
 FIRQuerySnapshot *FSTTestQuerySnapshot(
@@ -65,7 +66,8 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *oldDocs,
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *docsToAdd,
     BOOL hasPendingWrites,
-    BOOL fromCache);
+    BOOL fromCache,
+    BOOL hasCachedResults);
 
 #if __cplusplus
 }  // extern "C"

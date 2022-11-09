@@ -2261,7 +2261,6 @@
     "describeName": "Listens:",
     "itName": "Empty initial snapshot is raised from cache",
     "tags": [
-      "no-ios"
     ],
     "config": {
       "numClients": 1,
@@ -2689,7 +2688,6 @@
     "describeName": "Listens:",
     "itName": "Empty-due-to-delete initial snapshot is raised from cache",
     "tags": [
-      "no-ios"
     ],
     "config": {
       "numClients": 1,
@@ -3858,6 +3856,25 @@
           },
           "targetId": 2
         },
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+                [
+                  "visible",
+                  "==",
+                  true
+                ]
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
         "expectedState": {
           "activeTargets": {
             "2": {
@@ -3979,6 +3996,20 @@
           },
           "targetId": 4
         },
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
         "expectedState": {
           "activeTargets": {
             "4": {
@@ -4355,6 +4386,25 @@
           },
           "targetId": 2
         },
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+                [
+                  "visible",
+                  "==",
+                  true
+                ]
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
         "expectedState": {
           "activeTargets": {
             "2": {
