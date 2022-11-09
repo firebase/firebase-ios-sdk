@@ -1,4 +1,4 @@
-# Unreleased
+# 10.2.0
 - [fixed] Fix FAILED_PRECONDITION when writing to a deleted document in a
   transaction (#10431).
 - [fixed] Fixed data race in credentials provider (#10393).
