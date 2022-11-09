@@ -106,19 +106,6 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     }
   }
 
-  private func convertLogEnvironment(environment: String) -> firebase_appquality_sessions_LogEnvironment {
-    switch environment.lowercased() {
-    case "prod":
-      return firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_PROD
-    case "staging":
-      return firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_STAGING
-    case "autopush":
-      return firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_AUTOPUSH
-    default:
-      return firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_UNKNOWN
-    }
-  }
-
   /// Encodes the proto in this SessionStartEvent to Data, and then decodes the Data back into
   /// the proto object and returns the decoded proto. This is used for validating encoding works
   /// and should not be used in production code.
