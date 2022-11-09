@@ -67,7 +67,7 @@ class StorageIntegrationCommon: XCTestCase {
         }
         for emptyFile in emptyFiles {
           let ref = storage.reference().child(emptyFile)
-          ref.putData(data) { result in
+          ref.putData(Data()) { result in
             self.assertResultSuccess(result)
             setupExpectation.fulfill()
           }

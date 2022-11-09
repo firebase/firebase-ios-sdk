@@ -3,6 +3,8 @@
   transaction (#10431).
 - [fixed] Fixed data race in credentials provider (#10393).
 - [feature] Add MultiDb support.
+- [fixed] Fix Firestore failing to raise initial snapshot from empty local cache
+  result (#10437).
 
 # 10.0.0
 - [feature] Added `Query.count()`, which fetches the number of documents in the

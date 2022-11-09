@@ -137,6 +137,24 @@ class StorageResultTests: StorageIntegrationCommon {
     waitForExpectations()
   }
 
+  func testNoDeadlocks() throws {
+    let storage2 = Storage.storage(url: "")
+
+    let expectation1 = expectation(description: #function)
+    let expectation2 = expectation(description: #function)
+    let ref = storage.reference(withPath: "ios/public/testBytesUpload")
+    let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
+    ref.putData(data) { result in
+      expectation1.fulfill()
+
+      let ref2 = storage2.reference(withPath: "ios/public/testBytesUpload")
+      ref2.putData(data) { result in
+        expectation2.fulfill()
+      }
+    }
+    waitForExpectations(timeout: 30)
+  }
+
   func testSimplePutSpecialCharacter() throws {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/-._~!$'()*,=:@&+;")
@@ -398,22 +416,15 @@ class StorageResultTests: StorageIntegrationCommon {
 
     // Download URL format is
     // "https://firebasestorage.googleapis.com:443/v0/b/{bucket}/o/{path}?alt=media&token={token}"
-    let downloadURLPattern =
-      "^https:\\/\\/firebasestorage.googleapis.com:443\\/v0\\/b\\/[^\\/]*\\/o\\/" +
-      "ios%2Fpublic%2F1mb\\?alt=media&token=[a-z0-9-]*$"
+    let downloadURLPrefix =
+      "https://firebasestorage.googleapis.com:443/v0/b/ios-opensource-samples" +
+      ".appspot.com/o/ios%2Fpublic%2F1mb?alt=media&token"
 
     ref.downloadURL { result in
       switch result {
       case let .success(downloadURL):
-        do {
-          let testRegex = try NSRegularExpression(pattern: downloadURLPattern)
-          let urlString = downloadURL.absoluteString
-          XCTAssertEqual(testRegex.numberOfMatches(in: urlString,
-                                                   range: NSRange(location: 0,
-                                                                  length: urlString.count)), 1)
-        } catch {
-          XCTFail("Throw in downloadURL completion block")
-        }
+        let urlString = downloadURL.absoluteString
+        XCTAssertTrue(urlString.hasPrefix(downloadURLPrefix))
       case let .failure(error):
         XCTFail("Unexpected error \(error) from downloadURL")
       }
