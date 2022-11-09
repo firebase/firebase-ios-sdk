@@ -18,6 +18,13 @@ import Foundation
 @_implementationOnly import FirebaseCore
 @_implementationOnly import GoogleUtilities
 
+/// Development environment for the application.
+enum DevEnvironment: String {
+  case prod       = "prod" // Prod environment
+  case staging    = "staging" // Staging environment
+  case autopush   = "autopush" // Autopush environment
+}
+
 protocol ApplicationInfoProtocol {
   /// Google App ID / GMP App ID
   var appID: String { get }
@@ -35,17 +42,19 @@ protocol ApplicationInfoProtocol {
   var mccMNC: String { get }
 
   /// Development environment on which the application is running.
-  var environment: String { get }
+  var environment: DevEnvironment { get }
 }
 
 class ApplicationInfo: ApplicationInfoProtocol {
   let appID: String
 
   private let networkInfo: NetworkInfoProtocol
+  private let envParams: [String : String]
 
-  init(appID: String, networkInfo: NetworkInfoProtocol = NetworkInfo()) {
+  init(appID: String, networkInfo: NetworkInfoProtocol = NetworkInfo(), envParams: [String : String] = ProcessInfo.processInfo.environment) {
     self.appID = appID
     self.networkInfo = networkInfo
+    self.envParams = envParams
   }
 
   var bundleID: String {
@@ -67,14 +76,11 @@ class ApplicationInfo: ApplicationInfoProtocol {
     return FIRSESValidateMccMnc(networkInfo.mobileCountryCode, networkInfo.mobileNetworkCode) ?? ""
   }
 
-  var environment: String {
-    if let env = ProcessInfo.processInfo.environment["FIREBASE_RUN_ENVIRONMENT"] {
-      // If the variable is set without any value, assume it is PROD.
-      if (env.trimmingCharacters(in: .whitespaces).isEmpty) {
-        return "PROD"
-      }
-      return env
+  var environment: DevEnvironment {
+    let environment = envParams["FIREBASE_RUN_ENVIRONMENT"]
+    if (environment != nil) {
+      return DevEnvironment(rawValue: environment!.trimmingCharacters(in: .whitespaces).lowercased()) ?? DevEnvironment.prod
     }
-    return "PROD"
+    return DevEnvironment.prod
   }
 }

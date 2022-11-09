@@ -62,4 +62,42 @@ class ApplicationInfoTests: XCTestCase {
       XCTAssertEqual(appInfo.mccMNC, "")
     }
   }
+  
+  func test_LogEnvironment_hasProdAsDefault() {
+    XCTAssertEqual(appInfo.environment, .prod)
+  }
+  
+  func test_LogEnvironment_takesOverrideValues() {
+    var envValues: [String: String] = ["FIREBASE_RUN_ENVIRONMENT": "prod"]
+    var appInfo = ApplicationInfo(appID: "testAppID", envParams: envValues)
+    XCTAssertEqual(appInfo.environment, .prod)
+    
+    envValues = ["FIREBASE_RUN_ENVIRONMENT": "PROD"]
+    appInfo = ApplicationInfo(appID: "testAppID", envParams: envValues)
+    XCTAssertEqual(appInfo.environment, .prod)
+    
+    // Verify staging overrides
+    envValues = ["FIREBASE_RUN_ENVIRONMENT": "staging"]
+    appInfo = ApplicationInfo(appID: "testAppID", envParams: envValues)
+    XCTAssertEqual(appInfo.environment, .staging)
+    
+    // Verify staging overrides
+    envValues = ["FIREBASE_RUN_ENVIRONMENT": "STAGING"]
+    appInfo = ApplicationInfo(appID: "testAppID", envParams: envValues)
+    XCTAssertEqual(appInfo.environment, .staging)
+    
+    // Verify autopush overrides
+    envValues = ["FIREBASE_RUN_ENVIRONMENT": "autopush"]
+    appInfo = ApplicationInfo(appID: "testAppID", envParams: envValues)
+    XCTAssertEqual(appInfo.environment, .autopush)
+    
+    envValues = ["FIREBASE_RUN_ENVIRONMENT": "AUTOPUSH"]
+    appInfo = ApplicationInfo(appID: "testAppID", envParams: envValues)
+    XCTAssertEqual(appInfo.environment, .autopush)
+    
+    // Verify random overrides
+    envValues = ["FIREBASE_RUN_ENVIRONMENT": "random"]
+    appInfo = ApplicationInfo(appID: "testAppID", envParams: envValues)
+    XCTAssertEqual(appInfo.environment, .prod)
+  }
 }

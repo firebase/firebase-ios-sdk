@@ -18,8 +18,6 @@ import Foundation
 @testable import FirebaseSessions
 
 class MockApplicationInfo: ApplicationInfoProtocol {
-  var environment: String = ""
-
   var appID: String = ""
 
   var bundleID: String = ""
@@ -29,13 +27,15 @@ class MockApplicationInfo: ApplicationInfoProtocol {
   var osName: String = ""
 
   var mccMNC: String = ""
+  
+  var environment: DevEnvironment = .prod
 
   static let testAppID = "testAppID"
   static let testBundleID = "testBundleID"
   static let testSDKVersion = "testSDKVersion"
   static let testOSName = "ios"
   static let testMCCMNC = "testMCCMNC"
-  static let testEnvironment = "prod"
+  static let testEnvironment: DevEnvironment = .prod
 
   func mockAllInfo() {
     appID = MockApplicationInfo.testAppID

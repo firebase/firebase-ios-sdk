@@ -139,16 +139,14 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     return proto
   }
   
-  private func convertLogEnvironment(environment: String) -> firebase_appquality_sessions_LogEnvironment {
-    switch environment.lowercased() {
-    case "prod":
+  private func convertLogEnvironment(environment: DevEnvironment) -> firebase_appquality_sessions_LogEnvironment {
+    switch environment {
+    case .prod:
       return firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_PROD
-    case "staging":
+    case .staging:
       return firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_STAGING
-    case "autopush":
+    case .autopush:
       return firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_AUTOPUSH
-    default:
-      return firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_UNKNOWN
     }
   }
 }
