@@ -75,8 +75,9 @@ class TargetMetadataProvider {
  */
 class TargetChange {
  public:
-  static TargetChange CreateSynthesizedTargetChange(bool current) {
-    return TargetChange(current);
+  static TargetChange CreateSynthesizedTargetChange(
+      bool current, nanopb::ByteString resume_token) {
+    return TargetChange(std::move(resume_token), current);
   }
 
   TargetChange() = default;
@@ -137,7 +138,8 @@ class TargetChange {
   }
 
  private:
-  explicit TargetChange(bool current) : current_{current} {
+  TargetChange(nanopb::ByteString resume_token, bool current)
+      : resume_token_(std::move(resume_token)), current_{current} {
   }
 
   nanopb::ByteString resume_token_;
