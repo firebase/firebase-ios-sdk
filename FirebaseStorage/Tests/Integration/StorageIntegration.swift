@@ -416,22 +416,15 @@ class StorageResultTests: StorageIntegrationCommon {
 
     // Download URL format is
     // "https://firebasestorage.googleapis.com:443/v0/b/{bucket}/o/{path}?alt=media&token={token}"
-    let downloadURLPattern =
-      "^https:\\/\\/firebasestorage.googleapis.com:443\\/v0\\/b\\/[^\\/]*\\/o\\/" +
-      "ios%2Fpublic%2F1mb\\?alt=media&token=[a-z0-9-]*$"
+    let downloadURLPrefix =
+      "https://firebasestorage.googleapis.com:443/v0/b/ios-opensource-samples" +
+      ".appspot.com/o/ios%2Fpublic%2F1mb?alt=media&token"
 
     ref.downloadURL { result in
       switch result {
       case let .success(downloadURL):
-        do {
-          let testRegex = try NSRegularExpression(pattern: downloadURLPattern)
-          let urlString = downloadURL.absoluteString
-          XCTAssertEqual(testRegex.numberOfMatches(in: urlString,
-                                                   range: NSRange(location: 0,
-                                                                  length: urlString.count)), 1)
-        } catch {
-          XCTFail("Throw in downloadURL completion block")
-        }
+        let urlString = downloadURL.absoluteString
+        XCTAssertTrue(urlString.hasPrefix(downloadURLPrefix))
       case let .failure(error):
         XCTFail("Unexpected error \(error) from downloadURL")
       }
