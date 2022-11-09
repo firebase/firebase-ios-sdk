@@ -77,7 +77,7 @@ class ApplicationInfo: ApplicationInfoProtocol {
   }
   
   var environment: DevEnvironment {
-    let environment = envParams["FIREBASE_RUN_ENVIRONMENT"]
+    let environment = envParams["FirebaseSessionsRunEnvironment"]
     if (environment != nil) {
       return DevEnvironment(rawValue: environment!.trimmingCharacters(in: .whitespaces).lowercased()) ?? DevEnvironment.prod
     }
