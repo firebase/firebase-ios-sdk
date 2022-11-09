@@ -30,12 +30,18 @@ class MockApplicationInfo: ApplicationInfoProtocol {
 
   var environment: DevEnvironment = .prod
 
+  var appBuildVersion: String = ""
+
+  var appDisplayVersion: String = ""
+
   static let testAppID = "testAppID"
   static let testBundleID = "testBundleID"
   static let testSDKVersion = "testSDKVersion"
   static let testOSName = "ios"
   static let testMCCMNC = "testMCCMNC"
   static let testEnvironment: DevEnvironment = .prod
+  static let testAppBuildVersion = "testAppBuildVersion"
+  static let testAppDisplayVersion = "testAppDisplayVersion"
 
   func mockAllInfo() {
     appID = MockApplicationInfo.testAppID
@@ -44,5 +50,7 @@ class MockApplicationInfo: ApplicationInfoProtocol {
     osName = MockApplicationInfo.testOSName
     mccMNC = MockApplicationInfo.testMCCMNC
     environment = MockApplicationInfo.testEnvironment
+    appBuildVersion = MockApplicationInfo.testAppBuildVersion
+    appDisplayVersion = MockApplicationInfo.testAppDisplayVersion
   }
 }

@@ -13,7 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 import Foundation
 
 extension URL {
@@ -21,7 +20,7 @@ extension URL {
     if #available(iOS 16.0, *) {
       return self.appending(path: path)
     } else {
-      return self.appendingPathComponent(path)
+      return appendingPathComponent(path)
     }
   }
 }
@@ -30,23 +29,23 @@ class SettingsFileManager {
   private static let directoryName: String = "com.firebase.sessions.data-v1"
   private let fileManager: FileManager
   private let directoryUrl: URL
-  
+
   var settingsCacheContentPath: URL {
-    get { return self.directoryUrl.appendingCompatible(path: "settings.json") }
+    return directoryUrl.appendingCompatible(path: "settings.json")
   }
-  var settingsCacheKeyPath: URL {
-    get { return self.directoryUrl.appendingCompatible(path: "cache-key.json") }
-  }
-  
+
+  var settingsCacheKeyPath: URL { return directoryUrl.appendingCompatible(path: "cache-key.json") }
+
   init(fileManager: FileManager = FileManager.default) {
     self.fileManager = fileManager
-    guard let cachesDirectory = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first else {
-      self.directoryUrl = URL(fileURLWithPath:"/")
+    guard let cachesDirectory = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first
+    else {
+      directoryUrl = URL(fileURLWithPath: "/")
       return
     }
-    self.directoryUrl = cachesDirectory.appendingCompatible(path: SettingsFileManager.directoryName)
+    directoryUrl = cachesDirectory.appendingCompatible(path: SettingsFileManager.directoryName)
   }
-  
+
   func data(contentsOf url: URL) -> Data? {
     do {
       return try Data(contentsOf: url)

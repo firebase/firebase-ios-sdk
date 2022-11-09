@@ -13,29 +13,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 import XCTest
 @testable import FirebaseSessions
 
 class SettingsTests: XCTestCase {
   let settingsJSONString = "{\"cache_duration\":0}"
-  let fileManager: FileManager = FileManager.default
+  let fileManager: FileManager = .default
   var settingsFileManager: SettingsFileManager!
   var settings: Settings!
-  
+  var appInfo: MockApplicationInfo!
+
   override func setUp() {
-    settingsFileManager = SettingsFileManager(fileManager: self.fileManager)
-    settings = Settings(fileManager: settingsFileManager)
+    appInfo = MockApplicationInfo()
+    settingsFileManager = SettingsFileManager(fileManager: fileManager)
+    settings = Settings(fileManager: settingsFileManager, appInfo: appInfo)
   }
-  
+
   func test_activatedCache_returnsCachedSettings() {
     write(settings: settingsJSONString)
     assert(settings.isCacheExpired == true)
   }
-  
+
   func write(settings string: String) {
     do {
-      try string.write(to: settingsFileManager.settingsCacheContentPath, atomically: true, encoding: .utf8)
+      try string.write(
+        to: settingsFileManager.settingsCacheContentPath,
+        atomically: true,
+        encoding: .utf8
+      )
     } catch {
       print("Error: \(error)")
     }

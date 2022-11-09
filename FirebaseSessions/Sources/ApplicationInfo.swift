@@ -41,11 +41,14 @@ protocol ApplicationInfoProtocol {
   /// Validated Mobile Country Code and Mobile Network Code
   var mccMNC: String { get }
 
+<<<<<<< HEAD
   /// Development environment on which the application is running.
   var environment: DevEnvironment { get }
   
+=======
+>>>>>>> f25ee4cc2 (properties)
   var appBuildVersion: String { get }
-  
+
   var appDisplayVersion: String { get }
 }
 
@@ -81,6 +84,7 @@ class ApplicationInfo: ApplicationInfoProtocol {
     return FIRSESValidateMccMnc(networkInfo.mobileCountryCode, networkInfo.mobileNetworkCode) ?? ""
   }
 
+<<<<<<< HEAD
   var environment: DevEnvironment {
     if let environment = envParams["FirebaseSessionsRunEnvironment"] {
       return DevEnvironment(rawValue: environment.trimmingCharacters(in: .whitespaces).lowercased())
@@ -89,10 +93,12 @@ class ApplicationInfo: ApplicationInfoProtocol {
     return DevEnvironment.prod
   }
   
+=======
+>>>>>>> f25ee4cc2 (properties)
   var appBuildVersion: String {
     return Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
   }
-  
+
   var appDisplayVersion: String {
     return Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
   }
