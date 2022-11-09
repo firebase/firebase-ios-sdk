@@ -126,10 +126,10 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     let transportBytes = self.transportBytes()
     var proto = firebase_appquality_sessions_SessionEvent()
     var fields = firebase_appquality_sessions_SessionEvent_fields
-
+    
     let bytes = (transportBytes as NSData).bytes
     var istream: pb_istream_t = pb_istream_from_buffer(bytes, transportBytes.count)
-
+    
     if !pb_decode(&istream, &fields.0, &proto) {
       let errorMessage = FIRSESPBGetError(istream)
       if errorMessage.count > 0 {
@@ -137,5 +137,18 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
       }
     }
     return proto
+  }
+  
+  private func convertLogEnvironment(environment: String) -> firebase_appquality_sessions_LogEnvironment {
+    switch environment.lowercased() {
+    case "prod":
+      return firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_PROD
+    case "staging":
+      return firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_STAGING
+    case "autopush":
+      return firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_AUTOPUSH
+    default:
+      return firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_UNKNOWN
+    }
   }
 }
