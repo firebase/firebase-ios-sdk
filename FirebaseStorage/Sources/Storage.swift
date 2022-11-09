@@ -302,6 +302,7 @@ import FirebaseAuthInterop
   }
 
   /// Map of apps to a dictionary of buckets to GTMSessionFetcherService.
+  private static let fetcherServiceLock = NSObject()
   private static var fetcherServiceMap: [String: [String: GTMSessionFetcherService]] = [:]
   private static var retryWhenOffline: GTMSessionFetcherRetryBlock = {
     (suggestedWillRetry: Bool,
@@ -321,8 +322,8 @@ import FirebaseAuthInterop
                                                _ auth: AuthInterop,
                                                _ appCheck: AppCheckInterop)
     -> GTMSessionFetcherService {
-    objc_sync_enter(fetcherServiceMap)
-    defer { objc_sync_exit(fetcherServiceMap) }
+    objc_sync_enter(fetcherServiceLock)
+    defer { objc_sync_exit(fetcherServiceLock) }
     var bucketMap = fetcherServiceMap[app.name]
     if bucketMap == nil {
       bucketMap = [:]
