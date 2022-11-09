@@ -99,5 +99,9 @@ class ApplicationInfoTests: XCTestCase {
     envValues = ["FIREBASE_RUN_ENVIRONMENT": "random"]
     appInfo = ApplicationInfo(appID: "testAppID", envParams: envValues)
     XCTAssertEqual(appInfo.environment, .prod)
+    
+    envValues = ["FIREBASE_RUN_ENVIRONMENT": ""]
+    appInfo = ApplicationInfo(appID: "testAppID", envParams: envValues)
+    XCTAssertEqual(appInfo.environment, .prod)
   }
 }
