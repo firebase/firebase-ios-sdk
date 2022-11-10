@@ -68,39 +68,39 @@ class ApplicationInfoTests: XCTestCase {
   }
 
   func test_LogEnvironment_takesOverrideValues() {
-    var envValues: [String: String] = ["FIREBASE_RUN_ENVIRONMENT": "prod"]
+    var envValues: [String: String] = ["FirebaseSessionsRunEnvironment": "prod"]
     var appInfo = ApplicationInfo(appID: "testAppID", envParams: envValues)
     XCTAssertEqual(appInfo.environment, .prod)
 
-    envValues = ["FIREBASE_RUN_ENVIRONMENT": "PROD"]
+    envValues = ["FirebaseSessionsRunEnvironment": "PROD"]
     appInfo = ApplicationInfo(appID: "testAppID", envParams: envValues)
     XCTAssertEqual(appInfo.environment, .prod)
 
     // Verify staging overrides
-    envValues = ["FIREBASE_RUN_ENVIRONMENT": "staging"]
+    envValues = ["FirebaseSessionsRunEnvironment": "staging"]
     appInfo = ApplicationInfo(appID: "testAppID", envParams: envValues)
     XCTAssertEqual(appInfo.environment, .staging)
 
     // Verify staging overrides
-    envValues = ["FIREBASE_RUN_ENVIRONMENT": "STAGING"]
+    envValues = ["FirebaseSessionsRunEnvironment": "STAGING"]
     appInfo = ApplicationInfo(appID: "testAppID", envParams: envValues)
     XCTAssertEqual(appInfo.environment, .staging)
 
     // Verify autopush overrides
-    envValues = ["FIREBASE_RUN_ENVIRONMENT": "autopush"]
+    envValues = ["FirebaseSessionsRunEnvironment": "autopush"]
     appInfo = ApplicationInfo(appID: "testAppID", envParams: envValues)
     XCTAssertEqual(appInfo.environment, .autopush)
 
-    envValues = ["FIREBASE_RUN_ENVIRONMENT": "AUTOPUSH"]
+    envValues = ["FirebaseSessionsRunEnvironment": "AUTOPUSH"]
     appInfo = ApplicationInfo(appID: "testAppID", envParams: envValues)
     XCTAssertEqual(appInfo.environment, .autopush)
 
     // Verify random overrides
-    envValues = ["FIREBASE_RUN_ENVIRONMENT": "random"]
+    envValues = ["FirebaseSessionsRunEnvironment": "random"]
     appInfo = ApplicationInfo(appID: "testAppID", envParams: envValues)
     XCTAssertEqual(appInfo.environment, .prod)
     
-    envValues = ["FIREBASE_RUN_ENVIRONMENT": ""]
+    envValues = ["FirebaseSessionsRunEnvironment": ""]
     appInfo = ApplicationInfo(appID: "testAppID", envParams: envValues)
     XCTAssertEqual(appInfo.environment, .prod)
   }
