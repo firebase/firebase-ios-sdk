@@ -31,6 +31,10 @@ NSError *FIRSESMakeEncodeError(NSString *description) {
                          userInfo:@{@"NSLocalizedDescriptionKey" : description}];
 }
 
+NSString *FIRSESPBGetError(pb_istream_t istream) {
+  return [NSString stringWithCString:PB_GET_ERROR(&istream) encoding:NSASCIIStringEncoding];
+}
+
 // It seems impossible to specify the nullability of the `fields` parameter below,
 // yet the compiler complains that it's missing a nullability specifier. Google
 // yields no results at this time.
@@ -95,6 +99,25 @@ pb_bytes_array_t *_Nullable FIRSESEncodeString(NSString *_Nullable string) {
   NSString *stringToEncode = string ? string : @"";
   NSData *stringBytes = [stringToEncode dataUsingEncoding:NSUTF8StringEncoding];
   return FIRSESEncodeData(stringBytes);
+}
+
+NSData *FIRSESDecodeData(pb_bytes_array_t *pbData) {
+  NSData *data = [NSData dataWithBytes:&(pbData->bytes) length:pbData->size];
+  return data;
+}
+
+NSString *FIRSESDecodeString(pb_bytes_array_t *pbData) {
+  if (pbData->size == 0) {
+    return @"";
+  }
+  NSData *data = FIRSESDecodeData(pbData);
+  // There was a bug where length 32 strings were sometimes null after encoding
+  // and decoding. We found that this was due to the null terminator sometimes not
+  // being included in the decoded code. Using stringWithCString assumes the string
+  // is null terminated, so we switched to initWithBytes because it takes a length.
+  return [[NSString alloc] initWithBytes:data.bytes
+                                  length:data.length
+                                encoding:NSUTF8StringEncoding];
 }
 
 BOOL FIRSESIsPBArrayEqual(pb_bytes_array_t *_Nullable array, pb_bytes_array_t *_Nullable expected) {

@@ -1,4 +1,4 @@
-# Unreleased
+# 10.2.0
 - [added] Added a public `application(_:openURL:options:)` method so users
   with swizzling disabled can still use App Distribution (#10418).
 
