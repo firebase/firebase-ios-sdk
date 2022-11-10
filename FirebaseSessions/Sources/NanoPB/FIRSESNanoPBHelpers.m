@@ -111,10 +111,13 @@ NSString *FIRSESDecodeString(pb_bytes_array_t *pbData) {
     return @"";
   }
   NSData *data = FIRSESDecodeData(pbData);
-  NSMutableData *mutableData = [NSMutableData dataWithData:data];
-  void * nullTerminator = calloc(1, sizeof(int));
-  [mutableData appendBytes:nullTerminator length:1];
-  return [NSString stringWithCString:[mutableData bytes] encoding:NSUTF8StringEncoding];
+  // There was a bug where length 32 strings were sometimes null after encoding
+  // and decoding. We found that this was due to the null terminator sometimes not
+  // being included in the decoded code. Using stringWithCString assumes the string
+  // is null terminated, so we switched to initWithBytes because it takes a length.
+  return [[NSString alloc] initWithBytes:data.bytes
+                                  length:data.length
+                                encoding:NSUTF8StringEncoding];
 }
 
 BOOL FIRSESIsPBArrayEqual(pb_bytes_array_t *_Nullable array, pb_bytes_array_t *_Nullable expected) {
