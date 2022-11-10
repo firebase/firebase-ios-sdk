@@ -142,17 +142,23 @@ class SessionStartEventTests: XCTestCase {
     let expectations: [(given: DevEnvironment,
                         expected: firebase_appquality_sessions_LogEnvironment)] = [
       (.prod, firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_PROD),
-      (.staging, firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_STAGING),
-      (.autopush, firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_AUTOPUSH),
+      (
+        .staging,
+        firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_STAGING
+      ),
+      (
+        .autopush,
+        firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_AUTOPUSH
+      ),
     ]
 
     expectations.forEach { (given: DevEnvironment,
                             expected: firebase_appquality_sessions_LogEnvironment) in
-      appInfo.environment = given
+        appInfo.environment = given
 
-      let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
+        let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
 
-      XCTAssertEqual(event.proto.application_info.log_environment, expected)
+        XCTAssertEqual(event.proto.application_info.log_environment, expected)
     }
   }
 }

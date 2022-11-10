@@ -20,9 +20,9 @@ import Foundation
 
 /// Development environment for the application.
 enum DevEnvironment: String {
-  case prod       = "prod" // Prod environment
-  case staging    = "staging" // Staging environment
-  case autopush   = "autopush" // Autopush environment
+  case prod // Prod environment
+  case staging // Staging environment
+  case autopush // Autopush environment
 }
 
 protocol ApplicationInfoProtocol {
@@ -40,7 +40,7 @@ protocol ApplicationInfoProtocol {
 
   /// Validated Mobile Country Code and Mobile Network Code
   var mccMNC: String { get }
-  
+
   /// Development environment on which the application is running.
   var environment: DevEnvironment { get }
 }
@@ -49,10 +49,10 @@ class ApplicationInfo: ApplicationInfoProtocol {
   let appID: String
 
   private let networkInfo: NetworkInfoProtocol
-  private let envParams: [String : String]
+  private let envParams: [String: String]
 
   init(appID: String, networkInfo: NetworkInfoProtocol = NetworkInfo(),
-       envParams: [String : String] = ProcessInfo.processInfo.environment) {
+       envParams: [String: String] = ProcessInfo.processInfo.environment) {
     self.appID = appID
     self.networkInfo = networkInfo
     self.envParams = envParams
@@ -80,7 +80,7 @@ class ApplicationInfo: ApplicationInfoProtocol {
   var environment: DevEnvironment {
     if let environment = envParams["FirebaseSessionsRunEnvironment"] {
       return DevEnvironment(rawValue: environment.trimmingCharacters(in: .whitespaces).lowercased())
-          ?? DevEnvironment.prod
+        ?? DevEnvironment.prod
     }
     return DevEnvironment.prod
   }

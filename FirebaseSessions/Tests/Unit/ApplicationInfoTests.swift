@@ -62,13 +62,13 @@ class ApplicationInfoTests: XCTestCase {
       XCTAssertEqual(appInfo.mccMNC, "")
     }
   }
-  
+
   func test_LogEnvironment_hasProdAsDefault() {
     XCTAssertEqual(appInfo.environment, .prod)
   }
 
   func test_LogEnvironment_takesOverrideValues() {
-    var envValues: [String: String] = ["FirebaseSessionsRunEnvironment": "prod"]
+    var envValues = ["FirebaseSessionsRunEnvironment": "prod"]
     var appInfo = ApplicationInfo(appID: "testAppID", envParams: envValues)
     XCTAssertEqual(appInfo.environment, .prod)
 
