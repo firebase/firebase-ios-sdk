@@ -30,6 +30,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// Returns an error associated with the istream. Written in Objective-C because Swift does not
+/// support C language macros
+NSString* FIRSESPBGetError(pb_istream_t istream);
+
 // It seems impossible to specify the nullability of the `fields` parameter below,
 // yet the compiler complains that it's missing a nullability specifier. Google
 // yields no results at this time.
@@ -49,6 +53,14 @@ pb_bytes_array_t* _Nullable FIRSESEncodeData(NSData* _Nullable data);
 /// @note Memory needs to be freed manually, through pb_free or pb_release.
 /// @param string The string to encode as pb_bytes.
 pb_bytes_array_t* _Nullable FIRSESEncodeString(NSString* _Nullable string);
+
+/// Decodes an array of nanopb bytes into an NSData object
+/// @param pbData nanopb data
+NSData* FIRSESDecodeData(pb_bytes_array_t* pbData);
+
+/// Decodes an array of nanopb bytes into an NSString object
+/// @param pbData nanopb data
+NSString* FIRSESDecodeString(pb_bytes_array_t* pbData);
 
 /// Checks if 2 nanopb arrays are equal
 /// @param array array to check

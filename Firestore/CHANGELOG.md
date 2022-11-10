@@ -1,7 +1,9 @@
-# Unreleased
+# 10.2.0
 - [fixed] Fix FAILED_PRECONDITION when writing to a deleted document in a
   transaction (#10431).
 - [fixed] Fixed data race in credentials provider (#10393).
+- [fixed] Fix Firestore failing to raise initial snapshot from empty local cache
+  result (#10437).
 
 # 10.0.0
 - [feature] Added `Query.count()`, which fetches the number of documents in the
