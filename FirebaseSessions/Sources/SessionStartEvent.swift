@@ -127,7 +127,8 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
   }
   
   /// Converts the provided log environment to its Proto format.
-  private func convertLogEnvironment(environment: DevEnvironment) -> firebase_appquality_sessions_LogEnvironment {
+  private func convertLogEnvironment(environment: DevEnvironment)
+      -> firebase_appquality_sessions_LogEnvironment {
     switch environment {
     case .prod:
       return firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_PROD

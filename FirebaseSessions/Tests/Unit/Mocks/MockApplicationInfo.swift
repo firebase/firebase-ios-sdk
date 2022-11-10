@@ -27,7 +27,7 @@ class MockApplicationInfo: ApplicationInfoProtocol {
   var osName: String = ""
 
   var mccMNC: String = ""
-  
+
   var environment: DevEnvironment = .prod
 
   static let testAppID = "testAppID"

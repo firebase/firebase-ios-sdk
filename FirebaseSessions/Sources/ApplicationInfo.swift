@@ -51,7 +51,8 @@ class ApplicationInfo: ApplicationInfoProtocol {
   private let networkInfo: NetworkInfoProtocol
   private let envParams: [String : String]
 
-  init(appID: String, networkInfo: NetworkInfoProtocol = NetworkInfo(), envParams: [String : String] = ProcessInfo.processInfo.environment) {
+  init(appID: String, networkInfo: NetworkInfoProtocol = NetworkInfo(),
+       envParams: [String : String] = ProcessInfo.processInfo.environment) {
     self.appID = appID
     self.networkInfo = networkInfo
     self.envParams = envParams
@@ -75,10 +76,11 @@ class ApplicationInfo: ApplicationInfoProtocol {
   var mccMNC: String {
     return FIRSESValidateMccMnc(networkInfo.mobileCountryCode, networkInfo.mobileNetworkCode) ?? ""
   }
-  
+
   var environment: DevEnvironment {
     if let environment = envParams["FirebaseSessionsRunEnvironment"] {
-      return DevEnvironment(rawValue: environment.trimmingCharacters(in: .whitespaces).lowercased()) ?? DevEnvironment.prod
+      return DevEnvironment(rawValue: environment.trimmingCharacters(in: .whitespaces).lowercased())
+          ?? DevEnvironment.prod
     }
     return DevEnvironment.prod
   }

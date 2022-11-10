@@ -99,7 +99,7 @@ class ApplicationInfoTests: XCTestCase {
     envValues = ["FirebaseSessionsRunEnvironment": "random"]
     appInfo = ApplicationInfo(appID: "testAppID", envParams: envValues)
     XCTAssertEqual(appInfo.environment, .prod)
-    
+
     envValues = ["FirebaseSessionsRunEnvironment": ""]
     appInfo = ApplicationInfo(appID: "testAppID", envParams: envValues)
     XCTAssertEqual(appInfo.environment, .prod)
