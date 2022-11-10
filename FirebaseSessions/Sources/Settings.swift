@@ -108,7 +108,7 @@ class Settings: SettingsProtocol {
   }
 }
 
-private extension ApplicationInfoProtocol {
+extension ApplicationInfoProtocol {
   var synthesizedVersion: String { return "\(appDisplayVersion) (\(appBuildVersion))" }
 }
 
