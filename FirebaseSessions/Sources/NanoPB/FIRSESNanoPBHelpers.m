@@ -97,14 +97,7 @@ pb_bytes_array_t *_Nullable FIRSESEncodeString(NSString *_Nullable string) {
     string = nil;
   }
   NSString *stringToEncode = string ? string : @"";
-  // There was a bug where length 32 strings were sometimes null after encoding
-  // and decoding. I found that this was due to the null terminator sometimes not
-  // being included. This was fixed by using `cStringUsingEncoding` instead of
-  // `dataUsingEncoding` because `cStringUsingEncoding` includes the null
-  // terminator of a c string.
-  const char *cStr = [stringToEncode cStringUsingEncoding:NSUTF8StringEncoding];
-  // `strlen` does not include the null terminator, so we must add 1 here.
-  NSData *stringBytes = [NSData dataWithBytes:cStr length:strlen(cStr) + 1];
+  NSData *stringBytes = [stringToEncode dataUsingEncoding:NSUTF8StringEncoding];
   return FIRSESEncodeData(stringBytes);
 }
 
@@ -118,7 +111,10 @@ NSString *FIRSESDecodeString(pb_bytes_array_t *pbData) {
     return @"";
   }
   NSData *data = FIRSESDecodeData(pbData);
-  return [NSString stringWithCString:[data bytes] encoding:NSUTF8StringEncoding];
+  NSMutableData *mutableData = [NSMutableData dataWithData:data];
+  void * nullTerminator = calloc(1, sizeof(int));
+  [mutableData appendBytes:nullTerminator length:1];
+  return [NSString stringWithCString:[mutableData bytes] encoding:NSUTF8StringEncoding];
 }
 
 BOOL FIRSESIsPBArrayEqual(pb_bytes_array_t *_Nullable array, pb_bytes_array_t *_Nullable expected) {
