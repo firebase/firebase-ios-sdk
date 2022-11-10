@@ -370,10 +370,11 @@ static NSInteger const gMaxRetries = 7;
       });
     } else {
       NSError *error = [NSError
-          errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
-                     code:FIRRemoteConfigRealtimeErrorStream
+          errorWithDomain:FIRRemoteConfigUpdateErrorDomain
+                     code:FIRRemoteConfigUpdateErrorStreamError
                  userInfo:@{
-                   NSLocalizedDescriptionKey : @"StreamError: Unable to establish http connection."
+                   NSLocalizedDescriptionKey :
+                       @"SUnable to connect to the server. Check your connection and try again."
                  }];
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000014", @"Cannot establish connection. Error: %@",
                   error);
@@ -481,13 +482,12 @@ static NSInteger const gMaxRetries = 7;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
     if (remainingAttempts == 0) {
-      NSError *error =
-          [NSError errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
-                              code:FIRRemoteConfigRealtimeErrorFetch
-                          userInfo:@{
-                            NSLocalizedDescriptionKey :
-                                @"FetchError: Unable to retrieve the latest config version."
-                          }];
+      NSError *error = [NSError errorWithDomain:FIRRemoteConfigUpdateErrorDomain
+                                           code:FIRRemoteConfigUpdateErrorNotFetched
+                                       userInfo:@{
+                                         NSLocalizedDescriptionKey :
+                                             @"Unable to fetch the latest version of the template.."
+                                       }];
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000011",
                   @"Ran out of fetch attempts, cannot find target config version.");
       [self propogateErrors:error];
@@ -512,14 +512,13 @@ static NSInteger const gMaxRetries = 7;
 
     if (self->_isRealtimeDisabled) {
       [self pauseRealtimeStream];
-      NSError *error =
-          [NSError errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
-                              code:FIRRemoteConfigRealtimeErrorStream
-                          userInfo:@{
-                            NSLocalizedDescriptionKey :
-                                @"StreamError: The backend has issued a backoff for Realtime "
-                                @"in this SDK. Will check again next app start up."
-                          }];
+      NSError *error = [NSError
+          errorWithDomain:FIRRemoteConfigUpdateErrorDomain
+                     code:FIRRemoteConfigUpdateErrorUnavailable
+                 userInfo:@{
+                   NSLocalizedDescriptionKey :
+                       @"The server is temporarily unavailable. Try again in a few minutes."
+                 }];
       [self propogateErrors:error];
     } else {
       NSInteger clientTemplateVersion = [_configFetch.templateVersionNumber integerValue];
@@ -528,12 +527,10 @@ static NSInteger const gMaxRetries = 7;
       }
     }
   } else {
-    NSError *error = [NSError
-        errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
-                   code:FIRRemoteConfigRealtimeErrorStream
-               userInfo:@{
-                 NSLocalizedDescriptionKey : @"StreamError: Unable to parse config update message."
-               }];
+    NSError *error =
+        [NSError errorWithDomain:FIRRemoteConfigUpdateErrorDomain
+                            code:FIRRemoteConfigUpdateErrorMessageInvalid
+                        userInfo:@{NSLocalizedDescriptionKey : @"Unable to parse ConfigUpdate."}];
     [self propogateErrors:error];
   }
 }
@@ -585,12 +582,13 @@ static NSInteger const gMaxRetries = 7;
       [self retryHTTPConnection];
     } else {
       NSError *error = [NSError
-          errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
-                     code:FIRRemoteConfigRealtimeErrorStream
+          errorWithDomain:FIRRemoteConfigUpdateErrorDomain
+                     code:FIRRemoteConfigUpdateErrorStreamError
                  userInfo:@{
-                   NSLocalizedDescriptionKey : [NSString
-                       stringWithFormat:@"StreamError: Received non-retryable status code: %@",
-                                        [@(statusCode) stringValue]]
+                   NSLocalizedDescriptionKey :
+                       [NSString stringWithFormat:@"Unable to connect to the server. Try again in "
+                                                  @"a few minutes. Http Status code: %@",
+                                                  [@(statusCode) stringValue]]
                  }];
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000021", @"Cannot establish connection. Error: %@",
                   error);
