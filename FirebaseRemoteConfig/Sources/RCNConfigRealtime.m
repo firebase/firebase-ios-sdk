@@ -574,26 +574,26 @@ static NSInteger const gMaxRetries = 7;
   _isRequestInProgress = false;
   NSHTTPURLResponse *_httpURLResponse = (NSHTTPURLResponse *)response;
   NSInteger statusCode = [_httpURLResponse statusCode];
+  [self->_settings updateRealtimeExponentialBackoffTime:self->_remainingRetryCount == gMaxRetries];
+
   if (statusCode != kRCNFetchResponseHTTPStatusOk) {
     [self pauseRealtimeStream];
-      
-      if ([self isStatusCodeRetryable:statusCode]) {
-        [self->_settings
-              updateRealtimeExponentialBackoffTime:self->_remainingRetryCount == gMaxRetries];
-        [self retryHTTPConnection];
-      } else {
-        NSError *error = [NSError
-            errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
-                       code:FIRRemoteConfigRealtimeErrorStream
-                   userInfo:@{
-                     NSLocalizedDescriptionKey : [NSString
-                         stringWithFormat:@"StreamError: Received non-retryable status code: %@",
-                                          [@(statusCode) stringValue]]
-                   }];
-        FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000021", @"Cannot establish connection. Error: %@",
-                    error);
-        [self propogateErrors:error];
-      }
+
+    if ([self isStatusCodeRetryable:statusCode]) {
+      [self retryHTTPConnection];
+    } else {
+      NSError *error = [NSError
+          errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
+                     code:FIRRemoteConfigRealtimeErrorStream
+                 userInfo:@{
+                   NSLocalizedDescriptionKey : [NSString
+                       stringWithFormat:@"StreamError: Received non-retryable status code: %@",
+                                        [@(statusCode) stringValue]]
+                 }];
+      FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000021", @"Cannot establish connection. Error: %@",
+                  error);
+      [self propogateErrors:error];
+    }
   } else {
     /// on success reset retry parameters
     _remainingRetryCount = gMaxRetries;
