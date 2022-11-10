@@ -374,7 +374,7 @@ static NSInteger const gMaxRetries = 7;
                      code:FIRRemoteConfigUpdateErrorStreamError
                  userInfo:@{
                    NSLocalizedDescriptionKey :
-                       @"SUnable to connect to the server. Check your connection and try again."
+                       @"Unable to connect to the server. Check your connection and try again."
                  }];
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000014", @"Cannot establish connection. Error: %@",
                   error);
