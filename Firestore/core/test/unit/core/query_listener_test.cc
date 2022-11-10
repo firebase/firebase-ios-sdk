@@ -65,16 +65,15 @@ using testutil::MarkCurrent;
 namespace {
 
 ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot& snapshot) {
-  return ViewSnapshot{
-      snapshot.query(),
-      snapshot.documents(),
-      snapshot.old_documents(),
-      snapshot.document_changes(),
-      snapshot.mutated_keys(),
-      snapshot.from_cache(),
-      snapshot.sync_state_changed(),
-      /*excludes_metadata_changes=*/true,
-  };
+  return ViewSnapshot{snapshot.query(),
+                      snapshot.documents(),
+                      snapshot.old_documents(),
+                      snapshot.document_changes(),
+                      snapshot.mutated_keys(),
+                      snapshot.from_cache(),
+                      snapshot.sync_state_changed(),
+                      /*excludes_metadata_changes=*/true,
+                      snapshot.has_cached_results()};
 }
 
 ViewSnapshotListener Accumulating(std::vector<ViewSnapshot>* values) {
@@ -137,7 +136,8 @@ TEST_F(QueryListenerTest, RaisesCollectionEvents) {
       snap2.mutated_keys(),
       snap2.from_cache(),
       /*sync_state_changed=*/true,
-      /*excludes_metadata_changes=*/true};
+      /*excludes_metadata_changes=*/true,
+      snap2.has_cached_results()};
   ASSERT_THAT(other_accum, ElementsAre(expected_snap2));
 }
 
@@ -323,17 +323,15 @@ TEST_F(QueryListenerTest,
   full_listener->OnViewSnapshot(snap3);
   full_listener->OnViewSnapshot(snap4);  // Metadata change event.
 
-  ViewSnapshot expected_snap4{
-      snap4.query(),
-      snap4.documents(),
-      snap3.documents(),
-      /*document_changes=*/{},
-      snap4.mutated_keys(),
-      snap4.from_cache(),
-      snap4.sync_state_changed(),
-      /*excludes_metadata_changes=*/true  // This test excludes document
-                                          // metadata changes
-  };
+  ViewSnapshot expected_snap4{snap4.query(),
+                              snap4.documents(),
+                              snap3.documents(),
+                              /*document_changes=*/{},
+                              snap4.mutated_keys(),
+                              snap4.from_cache(),
+                              snap4.sync_state_changed(),
+                              /*excludes_metadata_changes=*/true,
+                              snap4.has_cached_results()};
 
   ASSERT_THAT(full_accum,
               ElementsAre(ExcludingMetadataChanges(snap1),
@@ -371,7 +369,8 @@ TEST_F(QueryListenerTest,
                               snap2.mutated_keys(),
                               snap2.from_cache(),
                               snap2.sync_state_changed(),
-                              /*excludes_metadata_changes=*/true};
+                              /*excludes_metadata_changes=*/true,
+                              snap2.has_cached_results()};
   ASSERT_THAT(filtered_accum,
               ElementsAre(ExcludingMetadataChanges(snap1), expected_snap2));
 }
@@ -411,7 +410,8 @@ TEST_F(QueryListenerTest, WillWaitForSyncIfOnline) {
       snap3.mutated_keys(),
       /*from_cache=*/false,
       /*sync_state_changed=*/true,
-      /*excludes_metadata_changes=*/true};
+      /*excludes_metadata_changes=*/true,
+      snap3.has_cached_results()};
   ASSERT_THAT(events, ElementsAre(expected_snap));
 }
 
@@ -450,7 +450,8 @@ TEST_F(QueryListenerTest, WillRaiseInitialEventWhenGoingOffline) {
       snap1.mutated_keys(),
       /*from_cache=*/true,
       /*sync_state_changed=*/true,
-      /*excludes_metadata_changes=*/true};
+      /*excludes_metadata_changes=*/true,
+      snap1.has_cached_results()};
 
   ViewSnapshot expected_snap2{query,
                               /*documents=*/snap2.documents(),
@@ -459,7 +460,8 @@ TEST_F(QueryListenerTest, WillRaiseInitialEventWhenGoingOffline) {
                               snap2.mutated_keys(),
                               /*from_cache=*/true,
                               /*sync_state_changed=*/false,
-                              /*excludes_metadata_changes=*/true};
+                              /*excludes_metadata_changes=*/true,
+                              snap2.has_cached_results()};
   ASSERT_THAT(events, ElementsAre(expected_snap1, expected_snap2));
 }
 
@@ -485,7 +487,8 @@ TEST_F(QueryListenerTest,
       snap1.mutated_keys(),
       /*from_cache=*/true,
       /*sync_state_changed=*/true,
-      /*excludes_metadata_changes=*/true};
+      /*excludes_metadata_changes=*/true,
+      snap1.has_cached_results()};
   ASSERT_THAT(events, ElementsAre(expected_snap));
 }
 
@@ -510,7 +513,8 @@ TEST_F(QueryListenerTest,
       snap1.mutated_keys(),
       /*from_cache=*/true,
       /*sync_state_changed=*/true,
-      /*excludes_metadata_changes=*/true};
+      /*excludes_metadata_changes=*/true,
+      snap1.has_cached_results()};
   ASSERT_THAT(events, ElementsAre(expected_snap));
 }
 

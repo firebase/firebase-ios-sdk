@@ -121,6 +121,8 @@ class FieldFilter : public Filter {
 
     const std::vector<FieldFilter>& GetFlattenedFilters() const override;
 
+    std::vector<Filter> GetFilters() const override;
+
    protected:
     /**
      * Creates a new filter that compares fields and values. Only intended to be

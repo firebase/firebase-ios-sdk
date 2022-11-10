@@ -17,6 +17,9 @@ import Foundation
 
 @_implementationOnly import FirebaseCoreExtension
 
+///
+/// Logger is responsible for printing console logs
+///
 enum Logger {
   private static let logServiceTag = "[FirebaseSessions]"
   private static let logCode = "I-SES000000"

@@ -153,6 +153,28 @@ TEST(FirebaseAuthCredentialsProviderTest, InvalidateToken) {
   });
 }
 
+// Catch race conditions in FirebaseAuthCredentialsProvider::GetToken() when
+// run under thread sanitizer.
+// See https://github.com/firebase/firebase-ios-sdk/issues/10393
+TEST(FirebaseAuthCredentialsProviderTest, GetTokenCalledByAnotherThread) {
+  FIRApp* app = testutil::AppForUnitTesting();
+  FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:@"token for fake uid"
+                                                     uid:@"fake uid"];
+  FirebaseAuthCredentialsProvider credentials_provider(app, auth);
+
+  std::thread thread1([&credentials_provider] {
+    credentials_provider.GetToken(
+        [](util::StatusOr<AuthToken> result) { EXPECT_TRUE(result.ok()); });
+  });
+  std::thread thread2([&credentials_provider] {
+    credentials_provider.GetToken(
+        [](util::StatusOr<AuthToken> result) { EXPECT_TRUE(result.ok()); });
+  });
+
+  thread1.join();
+  thread2.join();
+}
+
 }  // namespace credentials
 }  // namespace firestore
 }  // namespace firebase

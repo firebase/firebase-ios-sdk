@@ -197,27 +197,25 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 
 const char descriptor_table_protodef_google_2ffirestore_2fv1_2fcommon_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n google/firestore/v1/common.proto\022\023goog"
-  "le.firestore.v1\032\034google/api/annotations."
-  "proto\032\037google/protobuf/timestamp.proto\"#"
-  "\n\014DocumentMask\022\023\n\013field_paths\030\001 \003(\t\"e\n\014P"
-  "recondition\022\020\n\006exists\030\001 \001(\010H\000\0221\n\013update_"
-  "time\030\002 \001(\0132\032.google.protobuf.TimestampH\000"
-  "B\020\n\016condition_type\"\251\002\n\022TransactionOption"
-  "s\022E\n\tread_only\030\002 \001(\01320.google.firestore."
-  "v1.TransactionOptions.ReadOnlyH\000\022G\n\nread"
-  "_write\030\003 \001(\01321.google.firestore.v1.Trans"
-  "actionOptions.ReadWriteH\000\032&\n\tReadWrite\022\031"
-  "\n\021retry_transaction\030\001 \001(\014\032S\n\010ReadOnly\022/\n"
-  "\tread_time\030\002 \001(\0132\032.google.protobuf.Times"
-  "tampH\000B\026\n\024consistency_selectorB\006\n\004modeB\257"
-  "\001\n\027com.google.firestore.v1B\013CommonProtoP"
-  "\001Z<google.golang.org/genproto/googleapis"
-  "/firestore/v1;firestore\242\002\004GCFS\252\002\036Google."
-  "Cloud.Firestore.V1Beta1\312\002\036Google\\Cloud\\F"
-  "irestore\\V1beta1b\006proto3"
+  "le.firestore.v1\032\037google/protobuf/timesta"
+  "mp.proto\"#\n\014DocumentMask\022\023\n\013field_paths\030"
+  "\001 \003(\t\"e\n\014Precondition\022\020\n\006exists\030\001 \001(\010H\000\022"
+  "1\n\013update_time\030\002 \001(\0132\032.google.protobuf.T"
+  "imestampH\000B\020\n\016condition_type\"\251\002\n\022Transac"
+  "tionOptions\022E\n\tread_only\030\002 \001(\01320.google."
+  "firestore.v1.TransactionOptions.ReadOnly"
+  "H\000\022G\n\nread_write\030\003 \001(\01321.google.firestor"
+  "e.v1.TransactionOptions.ReadWriteH\000\032&\n\tR"
+  "eadWrite\022\031\n\021retry_transaction\030\001 \001(\014\032S\n\010R"
+  "eadOnly\022/\n\tread_time\030\002 \001(\0132\032.google.prot"
+  "obuf.TimestampH\000B\026\n\024consistency_selector"
+  "B\006\n\004modeB\257\001\n\027com.google.firestore.v1B\013Co"
+  "mmonProtoP\001Z<google.golang.org/genproto/"
+  "googleapis/firestore/v1;firestore\242\002\004GCFS"
+  "\252\002\036Google.Cloud.Firestore.V1Beta1\312\002\036Goog"
+  "le\\Cloud\\Firestore\\V1beta1b\006proto3"
   ;
-static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_google_2ffirestore_2fv1_2fcommon_2eproto_deps[2] = {
-  &::descriptor_table_google_2fapi_2fannotations_2eproto,
+static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_google_2ffirestore_2fv1_2fcommon_2eproto_deps[1] = {
   &::descriptor_table_google_2fprotobuf_2ftimestamp_2eproto,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_google_2ffirestore_2fv1_2fcommon_2eproto_sccs[5] = {
@@ -230,8 +228,8 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_goo
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_google_2ffirestore_2fv1_2fcommon_2eproto_once;
 static bool descriptor_table_google_2ffirestore_2fv1_2fcommon_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_google_2ffirestore_2fv1_2fcommon_2eproto = {
-  &descriptor_table_google_2ffirestore_2fv1_2fcommon_2eproto_initialized, descriptor_table_protodef_google_2ffirestore_2fv1_2fcommon_2eproto, "google/firestore/v1/common.proto", 744,
-  &descriptor_table_google_2ffirestore_2fv1_2fcommon_2eproto_once, descriptor_table_google_2ffirestore_2fv1_2fcommon_2eproto_sccs, descriptor_table_google_2ffirestore_2fv1_2fcommon_2eproto_deps, 5, 2,
+  &descriptor_table_google_2ffirestore_2fv1_2fcommon_2eproto_initialized, descriptor_table_protodef_google_2ffirestore_2fv1_2fcommon_2eproto, "google/firestore/v1/common.proto", 714,
+  &descriptor_table_google_2ffirestore_2fv1_2fcommon_2eproto_once, descriptor_table_google_2ffirestore_2fv1_2fcommon_2eproto_sccs, descriptor_table_google_2ffirestore_2fv1_2fcommon_2eproto_deps, 5, 1,
   schemas, file_default_instances, TableStruct_google_2ffirestore_2fv1_2fcommon_2eproto::offsets,
   file_level_metadata_google_2ffirestore_2fv1_2fcommon_2eproto, 5, file_level_enum_descriptors_google_2ffirestore_2fv1_2fcommon_2eproto, file_level_service_descriptors_google_2ffirestore_2fv1_2fcommon_2eproto,
 };

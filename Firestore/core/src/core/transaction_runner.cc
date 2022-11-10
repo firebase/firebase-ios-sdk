@@ -33,10 +33,11 @@ using util::TimerId;
 
 bool IsRetryableTransactionError(const util::Status& error) {
   // In transactions, the backend will fail outdated reads with
-  // FAILED_PRECONDITION and non-matching document versions with ABORTED. These
+  // FAILED_PRECONDITION, non-matching document versions with ABORTED, and
+  // attempts to create already-existing document with ALREADY_EXISTS. These
   // errors should be retried.
   Error code = error.code();
-  return code == Error::kErrorAborted ||
+  return code == Error::kErrorAborted || code == Error::kErrorAlreadyExists ||
          code == Error::kErrorFailedPrecondition ||
          !remote::Datastore::IsPermanentError(error);
 }

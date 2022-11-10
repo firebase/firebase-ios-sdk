@@ -1,0 +1,28 @@
+# Uncomment the next line to define a global platform for your project
+# platform :ios, '9.0'
+
+def shared_pods
+  pod 'FirebaseCore', :path => '../../../'
+  pod 'FirebaseInstallations', :path => '../../../'
+  pod 'FirebaseCoreInternal', :path => '../../../'
+  pod 'FirebaseCoreExtension', :path => '../../../'
+  pod 'FirebaseSessions', :path => '../../../'
+end
+
+target 'AppQualityDevApp_iOS' do
+  platform :ios, '11.0'
+
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  shared_pods
+end
+
+target 'AppQualityDevApp_macOS' do
+  platform :macos, '10.13'
+
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  shared_pods
+end

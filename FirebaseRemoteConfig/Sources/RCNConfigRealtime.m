@@ -44,6 +44,16 @@ static NSString *const kInstallationsAuthTokenHeaderName = @"x-goog-firebase-ins
 // Sends the bundle ID. Refer to b/130301479 for details.
 static NSString *const kiOSBundleIdentifierHeaderName =
     @"X-Ios-Bundle-Identifier";  ///< HTTP Header Field Name
+
+/// Retryable HTTP status code.
+static NSInteger const kRCNFetchResponseHTTPStatusOk = 200;
+static NSInteger const kRCNFetchResponseHTTPStatusClientTimeout = 429;
+static NSInteger const kRCNFetchResponseHTTPStatusTooManyRequests = 429;
+static NSInteger const kRCNFetchResponseHTTPStatusCodeBadGateway = 502;
+static NSInteger const kRCNFetchResponseHTTPStatusCodeServiceUnavailable = 503;
+static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
+
+/// Invalidation message field names.
 static NSString *const kTemplateVersionNumberKey = @"latestTemplateVersionNumber";
 static NSString *const kIsFeatureDisabled = @"featureDisabled";
 
@@ -52,7 +62,7 @@ static NSString *const kIsFeatureDisabled = @"featureDisabled";
 /// @param error  Error message on failure.
 typedef void (^RCNConfigUpdateCompletion)(NSError *_Nullable error);
 
-static NSTimeInterval gTimeoutSeconds = 4320;
+static NSTimeInterval gTimeoutSeconds = 330;
 static NSInteger const gFetchAttempts = 3;
 
 // Retry parameters
@@ -547,6 +557,15 @@ static NSInteger const gMaxRetries = 7;
   }
 }
 
+/// Check if response code is retryable
+- (bool)isStatusCodeRetryable:(NSInteger)statusCode {
+  return statusCode == kRCNFetchResponseHTTPStatusClientTimeout ||
+         statusCode == kRCNFetchResponseHTTPStatusTooManyRequests ||
+         statusCode == kRCNFetchResponseHTTPStatusCodeServiceUnavailable ||
+         statusCode == kRCNFetchResponseHTTPStatusCodeBadGateway ||
+         statusCode == kRCNFetchResponseHTTPStatusCodeGatewayTimeout;
+}
+
 /// Delegate to handle initial reply from the server
 - (void)URLSession:(NSURLSession *)session
               dataTask:(NSURLSessionDataTask *)dataTask
@@ -554,13 +573,29 @@ static NSInteger const gMaxRetries = 7;
      completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
   _isRequestInProgress = false;
   NSHTTPURLResponse *_httpURLResponse = (NSHTTPURLResponse *)response;
-  if ([_httpURLResponse statusCode] != 200) {
+  NSInteger statusCode = [_httpURLResponse statusCode];
+  if (statusCode != kRCNFetchResponseHTTPStatusOk) {
     [self pauseRealtimeStream];
-    [self->_settings
-        updateRealtimeExponentialBackoffTime:self->_remainingRetryCount == gMaxRetries];
-    [self retryHTTPConnection];
+      
+      if ([self isStatusCodeRetryable:statusCode]) {
+        [self->_settings
+              updateRealtimeExponentialBackoffTime:self->_remainingRetryCount == gMaxRetries];
+        [self retryHTTPConnection];
+      } else {
+        NSError *error = [NSError
+            errorWithDomain:FIRRemoteConfigRealtimeErrorDomain
+                       code:FIRRemoteConfigRealtimeErrorStream
+                   userInfo:@{
+                     NSLocalizedDescriptionKey : [NSString
+                         stringWithFormat:@"StreamError: Received non-retryable status code: %@",
+                                          [@(statusCode) stringValue]]
+                   }];
+        FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000021", @"Cannot establish connection. Error: %@",
+                    error);
+        [self propogateErrors:error];
+      }
   } else {
-    // on success reset retry parameters
+    /// on success reset retry parameters
     _remainingRetryCount = gMaxRetries;
 
     completionHandler(NSURLSessionResponseAllow);

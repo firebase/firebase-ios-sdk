@@ -32,6 +32,7 @@
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/core/filter.h"
+#include "Firestore/core/src/core/order_by.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/resource_path.h"
@@ -219,7 +220,7 @@ class Serializer {
    * Decodes the structured query. Modifies the provided proto to release
    * ownership of any Value messages.
    */
-  core::FilterList DecodeFilters(
+  std::vector<core::Filter> DecodeFilters(
       util::ReadContext* context,
       google_firestore_v1_StructuredQuery_Filter& proto) const;
 
@@ -270,7 +271,7 @@ class Serializer {
   std::string EncodeLabel(local::QueryPurpose purpose) const;
 
   google_firestore_v1_StructuredQuery_Filter EncodeFilters(
-      const core::FilterList& filter_list) const;
+      const std::vector<core::Filter>& filter_list) const;
   google_firestore_v1_StructuredQuery_Filter EncodeFilter(
       const core::Filter& filter) const;
   google_firestore_v1_StructuredQuery_Filter EncodeUnaryOrFieldFilter(
@@ -305,8 +306,8 @@ class Serializer {
       google_firestore_v1_StructuredQuery_CompositeFilter_Operator op) const;
 
   google_firestore_v1_StructuredQuery_Order* EncodeOrderBys(
-      const core::OrderByList& orders) const;
-  core::OrderByList DecodeOrderBys(
+      const std::vector<core::OrderBy>& orders) const;
+  std::vector<core::OrderBy> DecodeOrderBys(
       util::ReadContext* context,
       google_firestore_v1_StructuredQuery_Order* order_bys,
       pb_size_t size) const;

@@ -107,6 +107,7 @@ TEST(ViewSnapshotTest, ViewSnapshotConstructor) {
   bool from_cache = true;
   DocumentKeySet mutated_keys;
   bool sync_state_changed = true;
+  bool has_cached_results = true;
 
   ViewSnapshot snapshot{query,
                         documents,
@@ -115,7 +116,8 @@ TEST(ViewSnapshotTest, ViewSnapshotConstructor) {
                         mutated_keys,
                         from_cache,
                         sync_state_changed,
-                        /*excludes_metadata_changes=*/false};
+                        /*excludes_metadata_changes=*/false,
+                        has_cached_results};
 
   ASSERT_EQ(snapshot.query(), query);
   ASSERT_EQ(snapshot.documents(), documents);
@@ -124,6 +126,7 @@ TEST(ViewSnapshotTest, ViewSnapshotConstructor) {
   ASSERT_EQ(snapshot.from_cache(), from_cache);
   ASSERT_EQ(snapshot.mutated_keys(), mutated_keys);
   ASSERT_EQ(snapshot.sync_state_changed(), sync_state_changed);
+  ASSERT_EQ(snapshot.has_cached_results(), has_cached_results);
 }
 
 }  // namespace core

@@ -22,34 +22,8 @@
 
 readonly REPO_DIR="$( git rev-parse --show-toplevel )"
 
-# Current release of nanopb being used  to build the CCT protos
-readonly NANOPB_VERSION="0.3.9.8"
-readonly NANOPB_TEMPDIR="$(mktemp -d)"
-
 readonly PROTO_DIR="${REPO_DIR}/FirebaseInAppMessaging/ProtoSupport/Protos"
-readonly PROTOGEN_DIR="${REPO_DIR}/FirebaseInAppMessaging/Analytics/Protogen"
+readonly PROTOGEN_DIR="${REPO_DIR}/FirebaseInAppMessaging/Sources/Analytics/Protogen"
+readonly INCLUDE_PREFIX="FirebaseInAppMessaging/Sources/Analytics/Protogen/nanopb/"
 
-rm -rf "${NANOPB_TEMPDIR}"
-
-echo "Downloading nanopb..."
-git clone --branch "${NANOPB_VERSION}" https://github.com/nanopb/nanopb.git "${NANOPB_TEMPDIR}"
-
-echo "Building nanopb..."
-pushd "${NANOPB_TEMPDIR}"
-./tools/make_mac_package.sh
-GIT_DESCRIPTION=`git describe --always`-macosx-x86
-NANOPB_BIN_DIR="dist/${GIT_DESCRIPTION}"
-popd
-
-echo "Removing existing generated protos..."
-rm -rf "${PROTOGEN_DIR}/*"
-
-echo "Generating nanopb protos..."
-python "${REPO_DIR}/FirebaseInAppMessaging/ProtoSupport/nanopb_build_protos.py" \
-  --nanopb \
-  --protos_dir="${PROTO_DIR}" \
-  --pythonpath="${NANOPB_TEMPDIR}/${NANOPB_BIN_DIR}/generator" \
-  --output_dir="${PROTOGEN_DIR}" \
-  --include="${PROTO_DIR}"
-
-rm -rf "${NANOPB_TEMPDIR}"
+./scripts/nanopb/generate_protos.sh "$PROTO_DIR" "$PROTOGEN_DIR" "$INCLUDE_PREFIX"

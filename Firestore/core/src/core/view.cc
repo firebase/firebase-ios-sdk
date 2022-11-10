@@ -285,6 +285,8 @@ ViewChange View::ApplyChanges(
     // No changes.
     return ViewChange(absl::nullopt, std::move(limbo_changes));
   } else {
+    bool has_cached_results =
+        target_change.has_value() && !target_change->resume_token().empty();
     ViewSnapshot snapshot{query_,
                           doc_changes.document_set(),
                           old_documents,
@@ -292,7 +294,8 @@ ViewChange View::ApplyChanges(
                           doc_changes.mutated_keys(),
                           /*from_cache=*/new_sync_state == SyncState::Local,
                           sync_state_changed,
-                          /*excludes_metadata_changes=*/false};
+                          /*excludes_metadata_changes=*/false,
+                          has_cached_results};
 
     return ViewChange(std::move(snapshot), std::move(limbo_changes));
   }
