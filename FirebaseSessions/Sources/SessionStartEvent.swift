@@ -38,6 +38,7 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
 
     proto.application_info.app_id = makeProtoString(appInfo.appID)
     proto.application_info.session_sdk_version = makeProtoString(appInfo.sdkVersion)
+    proto.application_info.log_environment = convertLogEnvironment(environment: appInfo.environment)
 //    proto.application_info.device_model = makeProtoString(appInfo.deviceModel)
 //    proto.application_info.development_platform_name;
 //    proto.application_info.development_platform_version;
@@ -123,5 +124,18 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
       }
     }
     return proto
+  }
+
+  /// Converts the provided log environment to its Proto format.
+  private func convertLogEnvironment(environment: DevEnvironment)
+    -> firebase_appquality_sessions_LogEnvironment {
+    switch environment {
+    case .prod:
+      return firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_PROD
+    case .staging:
+      return firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_STAGING
+    case .autopush:
+      return firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_AUTOPUSH
+    }
   }
 }
