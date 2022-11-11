@@ -51,7 +51,7 @@ class SettingsFileManager {
 
   func removeCacheFiles() {
     DispatchQueue.global(qos: .background).async { [weak self] in
-      guard let strongSelf: SettingsFileManager = self else {
+      guard let strongSelf = self else {
         return
       }
       do {
