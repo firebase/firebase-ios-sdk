@@ -14,7 +14,7 @@
 
 import FirebaseAuth
 import FirebaseCore
-import FirebaseStorage
+@testable import FirebaseStorage
 import XCTest
 
 /**
@@ -466,6 +466,42 @@ class StorageResultTests: StorageIntegrationCommon {
         }
         task.observe(StorageTaskStatus.failure) { snapshot in
           XCTAssertNil(snapshot.error, "Error should be nil")
+        }
+      case let .failure(error):
+        XCTFail("Unexpected error \(error) from putData")
+        expectation.fulfill()
+      }
+    }
+    waitForExpectations()
+  }
+
+  func testCancelErrorCode() throws {
+    let expectation = self.expectation(description: #function)
+    let ref = storage.reference(withPath: "ios/public/helloworld")
+    let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
+    let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
+    let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
+
+    ref.putData(data) { result in
+      switch result {
+      case .success:
+        let task = ref.write(toFile: fileURL)
+        task.cancel()
+
+        task.observe(StorageTaskStatus.success) { snapshot in
+          XCTFail("Error processing success snapshot")
+          expectation.fulfill()
+        }
+
+        task.observe(StorageTaskStatus.failure) { snapshot in
+          let expected = "User cancelled the upload/download."
+          if let error = snapshot.error {
+            let errorDescription = error.localizedDescription
+            XCTAssertEqual(errorDescription, expected)
+            let code = (error as NSError).code
+            XCTAssertEqual(code, StorageErrorCode.cancelled.rawValue)
+          }
+          expectation.fulfill()
         }
       case let .failure(error):
         XCTFail("Unexpected error \(error) from putData")
