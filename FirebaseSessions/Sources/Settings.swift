@@ -26,12 +26,19 @@ class Settings: SettingsProtocol {
   private static let cacheDurationSecondsDefault: TimeInterval = 60 * 60
   private let fileManager: SettingsFileManager
   private let appInfo: ApplicationInfoProtocol
-  private var settingsDictionary: [String: AnyObject]?
+  private let lock = NSLock()
+  private var _settingsDictionary: [String: AnyObject]?
   private var isCacheKeyExpired: Bool
   struct CacheKey: Codable {
     var createdAt: Date
     var googleAppID: String
     var appVersion: String
+  }
+
+  var settingsDictionary: [String: AnyObject]? {
+    objc_sync_enter(lock)
+    defer { objc_sync_exit(lock) }
+    return _settingsDictionary
   }
 
   var sessionsEnabled: Bool {
@@ -84,7 +91,11 @@ class Settings: SettingsProtocol {
       removeCache()
       return
     }
-    settingsDictionary = parsedDictionary
+    do {
+      objc_sync_enter(lock)
+      defer { objc_sync_exit(lock) }
+      _settingsDictionary = parsedDictionary
+    }
     guard let cacheKeyData = fileManager.data(contentsOf: fileManager.settingsCacheKeyPath),
           let cacheKey = cacheKeyData.cacheKeyValue else {
       Logger.logError("[Sessions:Settings] Could not load settings cache key")
@@ -99,18 +110,28 @@ class Settings: SettingsProtocol {
     }
     if currentTime.timeIntervalSince(cacheKey.createdAt) > cacheDurationSeconds {
       Logger.logDebug("[Sessions:Settings] Settings TTL expired")
-      isCacheKeyExpired = true
+      do {
+        objc_sync_enter(lock)
+        defer { objc_sync_exit(lock) }
+        isCacheKeyExpired = true
+      }
     }
     if appInfo.synthesizedVersion != cacheKey.appVersion {
       Logger.logDebug("[Sessions:Settings] Settings expired because app version changed")
-      isCacheKeyExpired = true
+      do {
+        objc_sync_enter(lock)
+        defer { objc_sync_exit(lock) }
+        isCacheKeyExpired = true
+      }
     }
   }
 
   private func removeCache() {
+    objc_sync_enter(lock)
+    defer { objc_sync_exit(lock) }
     fileManager.removeCacheFiles()
     isCacheKeyExpired = true
-    settingsDictionary = nil
+    _settingsDictionary = nil
   }
 }
 

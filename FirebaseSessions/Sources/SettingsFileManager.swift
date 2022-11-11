@@ -66,7 +66,7 @@ class SettingsFileManager {
 
 extension URL {
   func appendingCompatible(path: String) -> URL {
-    if #available(iOS 16.0, *) {
+    if #available(iOS 16.0, tvOS 16.0, *) {
       return self.appending(path: path)
     } else {
       return appendingPathComponent(path)
