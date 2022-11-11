@@ -19,8 +19,13 @@ import XCTest
 class SettingsTests: XCTestCase {
   // 2021-11-01 @ 00:00:00 (EST)
   let date = Date(timeIntervalSince1970: 1_635_739_200)
-  let settingsJSONString = "{\"cache_duration\":0,\"sessions_enabled\":false,\"sampling_rate\":0.5,\"session_timeout\":10}"
-//  let settingsDictionary: [String: Any] = ["cache_duration": 0, "sessions_enabled": false, "sampling_rate": 0.5, "session_timeout": 10]
+  let validSettings: [String: Any] = [
+    "cache_duration": 10,
+    "sessions_enabled": false,
+    "sampling_rate": 0.5,
+    "session_timeout": 10,
+  ]
+  let corruptedJSONString: String = "{{{{ non_key: non\"value {}"
   let fileManager: FileManager = .default
   var settingsFileManager: SettingsFileManager!
   var settings: Settings!
@@ -31,8 +36,9 @@ class SettingsTests: XCTestCase {
     settingsFileManager = SettingsFileManager(fileManager: fileManager)
     settings = Settings(fileManager: settingsFileManager, appInfo: appInfo)
   }
-  
+
   func test_noCacheSaved_returnsDefaultSettings() {
+    assert(settings.isCacheExpired == true)
     assert(settings.sessionsEnabled == true)
     assert(settings.samplingRate == 1)
     assert(settings.sessionTimeout == 30 * 60)
@@ -40,25 +46,165 @@ class SettingsTests: XCTestCase {
 
   func test_activatedCache_returnsCachedSettings() {
     appInfo.mockAllInfo()
-    write(string: settingsJSONString)
-    write(string: "{\"createdAt\":\"\(date)\",\"googleAppID\":\"\(appInfo.appID)\",\"appVersion\":\"\(appInfo.synthesizedVersion)\"}", isCacheKey: true)
-    settings.loadCache(googleAppID: appInfo.appID, currentTime: date.addingTimeInterval(5))
-    assert(settings.isCacheExpired == true)
+    let cacheKey = Settings.CacheKey(
+      createdAt: date,
+      googleAppID: appInfo.appID,
+      appVersion: appInfo.synthesizedVersion
+    )
+    write(settings: validSettings)
+    write(cacheKey: cacheKey)
+
+    // time passed = 5, TTL = 10, time passed < TTL
+    let now = date.addingTimeInterval(5)
+    settings.loadCache(googleAppID: appInfo.appID, currentTime: now)
+    // Should be same as self.validSettings
+    assert(settings.isCacheExpired == false)
     assert(settings.sessionsEnabled == false)
     assert(settings.samplingRate == 0.5)
     assert(settings.sessionTimeout == 10)
   }
 
-  func write(string: String, isCacheKey: Bool = false) {
-    let path = isCacheKey ? settingsFileManager.settingsCacheKeyPath : settingsFileManager.settingsCacheContentPath
-    print(path)
+  func test_cacheKeyExpiredFromAppVersion_returnsDefaultSettings() {
+    appInfo.mockAllInfo()
+    let cacheKey = Settings.CacheKey(
+      createdAt: date,
+      googleAppID: appInfo.appID,
+      appVersion: appInfo.synthesizedVersion
+    )
+    write(settings: validSettings)
+    write(cacheKey: cacheKey)
+
+    // time passed = 5, TTL = 10, time passed < TTL
+    let now = date.addingTimeInterval(5)
+    appInfo.appBuildVersion = "testNewAppBuildVersion"
+    appInfo.appDisplayVersion = "testNewAppDisplayVersion"
+    settings.loadCache(googleAppID: appInfo.appID, currentTime: now)
+    // App version change warrnts refetch
+    assert(settings.isCacheExpired == true) // only change from self.validSettings
+    assert(settings.sessionsEnabled == false)
+    assert(settings.samplingRate == 0.5)
+    assert(settings.sessionTimeout == 10)
+  }
+
+  func test_cacheKeyExpiredFromTTL_marksCacheAsExpired() {
+    appInfo.mockAllInfo()
+    let cacheKey = Settings.CacheKey(
+      createdAt: date,
+      googleAppID: appInfo.appID,
+      appVersion: appInfo.synthesizedVersion
+    )
+    write(settings: validSettings)
+    write(cacheKey: cacheKey)
+
+    // time passed = 11, TTL = 10, tim passed > TTL
+    let now = date.addingTimeInterval(11)
+    settings.loadCache(googleAppID: appInfo.appID, currentTime: now)
+    assert(settings.isCacheExpired == true) // only change from self.validSettings
+    assert(settings.sessionsEnabled == false)
+    assert(settings.samplingRate == 0.5)
+    assert(settings.sessionTimeout == 10)
+  }
+
+  func test_cacheKeyGoogleAppIDChanged_returnsDefaultSettings() {
+    appInfo.mockAllInfo()
+    let cacheKey = Settings.CacheKey(
+      createdAt: date,
+      googleAppID: appInfo.appID,
+      appVersion: appInfo.synthesizedVersion
+    )
+    write(settings: validSettings)
+    write(cacheKey: cacheKey)
+
+    // change appID
+    appInfo.appID = "testDifferentGoogleAppID"
+    // time passed = 5, TTL = 10, time passed < TTL
+    let now = date.addingTimeInterval(5)
+    settings.loadCache(googleAppID: appInfo.appID, currentTime: now)
+    // these are the default settings
+    assert(settings.isCacheExpired == true)
+    assert(settings.sessionsEnabled == true)
+    assert(settings.samplingRate == 1)
+    assert(settings.sessionTimeout == 30 * 60)
+  }
+
+  func test_corruptedCache_returnsDefaultSettings() {
+    // First write and load a valid settings file
+    appInfo.mockAllInfo()
+    let cacheKey = Settings.CacheKey(
+      createdAt: date,
+      googleAppID: appInfo.appID,
+      appVersion: appInfo.synthesizedVersion
+    )
+    write(settings: validSettings)
+    write(cacheKey: cacheKey)
+    let now = date.addingTimeInterval(5)
+    settings.loadCache(googleAppID: appInfo.appID, currentTime: now)
+    assert(settings.isCacheExpired == false)
+    assert(settings.sessionsEnabled == false)
+    assert(settings.samplingRate == 0.5)
+    assert(settings.sessionTimeout == 10)
+
+    // Then write a corrupted one and reload it
+    write(jsonString: corruptedJSONString)
+    settings.loadCache(googleAppID: appInfo.appID, currentTime: now)
+    // should have default values
+    assert(settings.isCacheExpired == true)
+    assert(settings.sessionsEnabled == true)
+    assert(settings.samplingRate == 1)
+    assert(settings.sessionTimeout == 30 * 60)
+  }
+
+  func test_corruptedCacheKey_returnsDefaultSettings() {
+    // First write and load a valid settings file
+    appInfo.mockAllInfo()
+    let cacheKey = Settings.CacheKey(
+      createdAt: date,
+      googleAppID: appInfo.appID,
+      appVersion: appInfo.synthesizedVersion
+    )
+    write(settings: validSettings)
+    write(cacheKey: cacheKey)
+    let now = date.addingTimeInterval(5)
+    settings.loadCache(googleAppID: appInfo.appID, currentTime: now)
+    assert(settings.isCacheExpired == false)
+    assert(settings.sessionsEnabled == false)
+    assert(settings.samplingRate == 0.5)
+    assert(settings.sessionTimeout == 10)
+
+    // Then write a corrupted one and reload it
+    write(jsonString: corruptedJSONString, isCacheKey: true)
+    settings.loadCache(googleAppID: appInfo.appID, currentTime: now)
+    // should have default values
+    assert(settings.isCacheExpired == true)
+    assert(settings.sessionsEnabled == true)
+    assert(settings.samplingRate == 1)
+    assert(settings.sessionTimeout == 30 * 60)
+  }
+
+  // TODO: make Settings.CacheKey private again after implementing download and save
+  func write(cacheKey: Settings.CacheKey) {
     do {
-//      try JSONSerialization.data(withJSONObject: settingsDictionary).write(to: path)
-      try string.write(
-        to: path,
-        atomically: true,
-        encoding: .utf8
-      )
+      try JSONEncoder().encode(cacheKey).write(to:
+        settingsFileManager.settingsCacheKeyPath)
+    } catch {
+      print("Error: \(error)")
+    }
+  }
+
+  func write(settings: [String: Any]) {
+    do {
+      try JSONSerialization.data(withJSONObject: settings)
+        .write(to: settingsFileManager.settingsCacheContentPath)
+    } catch {
+      print("Error: \(error)")
+    }
+  }
+
+  func write(jsonString: String, isCacheKey: Bool = true) {
+    let path = isCacheKey ? settingsFileManager.settingsCacheKeyPath : settingsFileManager
+      .settingsCacheContentPath
+    do {
+      try jsonString.write(to: path, atomically: false, encoding: .utf8)
     } catch {
       print("Error: \(error)")
     }

@@ -15,18 +15,8 @@
 
 import Foundation
 
-extension URL {
-  func appendingCompatible(path: String) -> URL {
-    if #available(iOS 16.0, *) {
-      return self.appending(path: path)
-    } else {
-      return appendingPathComponent(path)
-    }
-  }
-}
-
 class SettingsFileManager {
-  private static let directoryName: String = "com.firebase.sessions.data-v1"
+  private static let directoryName: String = "com.firebase.sessions.data-v1/"
   private let fileManager: FileManager
   private let directoryUrl: URL
 
@@ -44,6 +34,11 @@ class SettingsFileManager {
       return
     }
     directoryUrl = cachesDirectory.appendingCompatible(path: SettingsFileManager.directoryName)
+    do {
+      try fileManager.createDirectory(at: directoryUrl, withIntermediateDirectories: true)
+    } catch {
+      Logger.logDebug("SettingsFileManager: \(error)")
+    }
   }
 
   func data(contentsOf url: URL) -> Data? {
@@ -51,6 +46,30 @@ class SettingsFileManager {
       return try Data(contentsOf: url)
     } catch {
       return nil
+    }
+  }
+
+  func removeCacheFiles() {
+    DispatchQueue.global(qos: .background).async { [weak self] in
+      guard let strongSelf: SettingsFileManager = self else {
+        return
+      }
+      do {
+        try strongSelf.fileManager.removeItem(at: strongSelf.settingsCacheKeyPath)
+        try strongSelf.fileManager.removeItem(at: strongSelf.settingsCacheContentPath)
+      } catch {
+        Logger.logDebug("removeItem failed: \(error)")
+      }
+    }
+  }
+}
+
+extension URL {
+  func appendingCompatible(path: String) -> URL {
+    if #available(iOS 16.0, *) {
+      return self.appending(path: path)
+    } else {
+      return appendingPathComponent(path)
     }
   }
 }

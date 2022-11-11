@@ -23,6 +23,17 @@ protocol SettingsProtocol {
 }
 
 class Settings: SettingsProtocol {
+  private static let cacheDurationSecondsDefault: TimeInterval = 60 * 60
+  private let fileManager: SettingsFileManager
+  private let appInfo: ApplicationInfoProtocol
+  private var settingsDictionary: [String: AnyObject]?
+  private var isCacheKeyExpired: Bool
+  struct CacheKey: Codable {
+    var createdAt: Date
+    var googleAppID: String
+    var appVersion: String
+  }
+
   var sessionsEnabled: Bool {
     guard let enabled = settingsDictionary?["sessions_enabled"]?.boolValue else {
       return true
@@ -58,17 +69,6 @@ class Settings: SettingsProtocol {
     return duration
   }
 
-  private static let cacheDurationSecondsDefault: TimeInterval = 60 * 60
-  private let fileManager: SettingsFileManager
-  private let appInfo: ApplicationInfoProtocol
-  private var settingsDictionary: [String: AnyObject]?
-  private var isCacheKeyExpired: Bool
-  struct CacheKey: Decodable {
-    var createdAt: Date
-    var googleAppID: String
-    var appVersion: String
-  }
-
   init(fileManager: SettingsFileManager = SettingsFileManager(), appInfo: ApplicationInfoProtocol) {
     self.fileManager = fileManager
     isCacheKeyExpired = false
@@ -81,20 +81,20 @@ class Settings: SettingsProtocol {
       return
     }
     guard let parsedDictionary = cacheData.dictionaryValue else {
-      // TODO: delete file
+      removeCache()
       return
     }
     settingsDictionary = parsedDictionary
     guard let cacheKeyData = fileManager.data(contentsOf: fileManager.settingsCacheKeyPath),
           let cacheKey = cacheKeyData.cacheKeyValue else {
       Logger.logError("[Sessions:Settings] Could not load settings cache key")
-      // TODO: delete file
+      removeCache()
       return
     }
     guard cacheKey.googleAppID == googleAppID else {
       Logger
         .logDebug("[Sessions:Settings] Invalidating settings cache because Google App ID changed")
-      // TODO: delete file
+      removeCache()
       return
     }
     if currentTime.timeIntervalSince(cacheKey.createdAt) > cacheDurationSeconds {
@@ -105,6 +105,12 @@ class Settings: SettingsProtocol {
       Logger.logDebug("[Sessions:Settings] Settings expired because app version changed")
       isCacheKeyExpired = true
     }
+  }
+
+  private func removeCache() {
+    fileManager.removeCacheFiles()
+    isCacheKeyExpired = true
+    settingsDictionary = nil
   }
 }
 
