@@ -27,21 +27,21 @@ class SettingsTests: XCTestCase {
   ]
   let corruptedJSONString: String = "{{{{ non_key: non\"value {}"
   let fileManager: FileManager = .default
-  var settingsFileManager: SettingsFileManager!
+  var settingsFileManager: SettingsFileManagerProtocol!
   var settings: Settings!
   var appInfo: MockApplicationInfo!
 
   override func setUp() {
     appInfo = MockApplicationInfo()
-    settingsFileManager = SettingsFileManager(fileManager: fileManager)
+    settingsFileManager = MockSettingsFileManager(fileManager: fileManager)
     settings = Settings(fileManager: settingsFileManager, appInfo: appInfo)
   }
 
   func test_noCacheSaved_returnsDefaultSettings() {
-    assert(settings.isCacheExpired == true)
-    assert(settings.sessionsEnabled == true)
-    assert(settings.samplingRate == 1)
-    assert(settings.sessionTimeout == 30 * 60)
+    XCTAssertTrue(settings.isCacheExpired)
+    XCTAssertTrue(settings.sessionsEnabled)
+    XCTAssertEqual(settings.samplingRate, 1)
+    XCTAssertEqual(settings.sessionTimeout, 30 * 60)
   }
 
   func test_activatedCache_returnsCachedSettings() {
@@ -58,13 +58,13 @@ class SettingsTests: XCTestCase {
     let now = date.addingTimeInterval(5)
     settings.loadCache(googleAppID: appInfo.appID, currentTime: now)
     // Should be same as self.validSettings
-    assert(settings.isCacheExpired == false)
-    assert(settings.sessionsEnabled == false)
-    assert(settings.samplingRate == 0.5)
-    assert(settings.sessionTimeout == 10)
+    XCTAssertFalse(settings.isCacheExpired)
+    XCTAssertFalse(settings.sessionsEnabled)
+    XCTAssertEqual(settings.samplingRate, 0.5)
+    XCTAssertEqual(settings.sessionTimeout, 10)
   }
 
-  func test_cacheKeyExpiredFromAppVersion_returnsDefaultSettings() {
+  func test_cacheKeyExpiredFromAppVersion_marksCacheAsExpired() {
     appInfo.mockAllInfo()
     let cacheKey = Settings.CacheKey(
       createdAt: date,
@@ -79,11 +79,11 @@ class SettingsTests: XCTestCase {
     appInfo.appBuildVersion = "testNewAppBuildVersion"
     appInfo.appDisplayVersion = "testNewAppDisplayVersion"
     settings.loadCache(googleAppID: appInfo.appID, currentTime: now)
-    // App version change warrnts refetch
-    assert(settings.isCacheExpired == true) // only change from self.validSettings
-    assert(settings.sessionsEnabled == false)
-    assert(settings.samplingRate == 0.5)
-    assert(settings.sessionTimeout == 10)
+    // App version change warrants refetch
+    XCTAssertTrue(settings.isCacheExpired) // only change from self.validSettings
+    XCTAssertFalse(settings.sessionsEnabled)
+    XCTAssertEqual(settings.samplingRate, 0.5)
+    XCTAssertEqual(settings.sessionTimeout, 10)
   }
 
   func test_cacheKeyExpiredFromTTL_marksCacheAsExpired() {
@@ -99,10 +99,10 @@ class SettingsTests: XCTestCase {
     // time passed = 11, TTL = 10, tim passed > TTL
     let now = date.addingTimeInterval(11)
     settings.loadCache(googleAppID: appInfo.appID, currentTime: now)
-    assert(settings.isCacheExpired == true) // only change from self.validSettings
-    assert(settings.sessionsEnabled == false)
-    assert(settings.samplingRate == 0.5)
-    assert(settings.sessionTimeout == 10)
+    XCTAssertTrue(settings.isCacheExpired) // only change from self.validSettings
+    XCTAssertFalse(settings.sessionsEnabled)
+    XCTAssertEqual(settings.samplingRate, 0.5)
+    XCTAssertEqual(settings.sessionTimeout, 10)
   }
 
   func test_cacheKeyGoogleAppIDChanged_returnsDefaultSettings() {
@@ -121,10 +121,10 @@ class SettingsTests: XCTestCase {
     let now = date.addingTimeInterval(5)
     settings.loadCache(googleAppID: appInfo.appID, currentTime: now)
     // these are the default settings
-    assert(settings.isCacheExpired == true)
-    assert(settings.sessionsEnabled == true)
-    assert(settings.samplingRate == 1)
-    assert(settings.sessionTimeout == 30 * 60)
+    XCTAssertTrue(settings.isCacheExpired)
+    XCTAssertTrue(settings.sessionsEnabled)
+    XCTAssertEqual(settings.samplingRate, 1)
+    XCTAssertEqual(settings.sessionTimeout, 30 * 60)
   }
 
   func test_corruptedCache_returnsDefaultSettings() {
@@ -139,19 +139,19 @@ class SettingsTests: XCTestCase {
     write(cacheKey: cacheKey)
     let now = date.addingTimeInterval(5)
     settings.loadCache(googleAppID: appInfo.appID, currentTime: now)
-    assert(settings.isCacheExpired == false)
-    assert(settings.sessionsEnabled == false)
-    assert(settings.samplingRate == 0.5)
-    assert(settings.sessionTimeout == 10)
+    XCTAssertFalse(settings.isCacheExpired)
+    XCTAssertFalse(settings.sessionsEnabled)
+    XCTAssertEqual(settings.samplingRate, 0.5)
+    XCTAssertEqual(settings.sessionTimeout, 10)
 
     // Then write a corrupted one and reload it
     write(jsonString: corruptedJSONString)
     settings.loadCache(googleAppID: appInfo.appID, currentTime: now)
     // should have default values
-    assert(settings.isCacheExpired == true)
-    assert(settings.sessionsEnabled == true)
-    assert(settings.samplingRate == 1)
-    assert(settings.sessionTimeout == 30 * 60)
+    XCTAssertTrue(settings.isCacheExpired)
+    XCTAssertTrue(settings.sessionsEnabled)
+    XCTAssertEqual(settings.samplingRate, 1)
+    XCTAssertEqual(settings.sessionTimeout, 30 * 60)
   }
 
   func test_corruptedCacheKey_returnsDefaultSettings() {
@@ -166,19 +166,19 @@ class SettingsTests: XCTestCase {
     write(cacheKey: cacheKey)
     let now = date.addingTimeInterval(5)
     settings.loadCache(googleAppID: appInfo.appID, currentTime: now)
-    assert(settings.isCacheExpired == false)
-    assert(settings.sessionsEnabled == false)
-    assert(settings.samplingRate == 0.5)
-    assert(settings.sessionTimeout == 10)
+    XCTAssertFalse(settings.isCacheExpired)
+    XCTAssertFalse(settings.sessionsEnabled)
+    XCTAssertEqual(settings.samplingRate, 0.5)
+    XCTAssertEqual(settings.sessionTimeout, 10)
 
     // Then write a corrupted one and reload it
     write(jsonString: corruptedJSONString, isCacheKey: true)
     settings.loadCache(googleAppID: appInfo.appID, currentTime: now)
     // should have default values
-    assert(settings.isCacheExpired == true)
-    assert(settings.sessionsEnabled == true)
-    assert(settings.samplingRate == 1)
-    assert(settings.sessionTimeout == 30 * 60)
+    XCTAssertTrue(settings.isCacheExpired)
+    XCTAssertTrue(settings.sessionsEnabled)
+    XCTAssertEqual(settings.samplingRate, 1)
+    XCTAssertEqual(settings.sessionTimeout, 30 * 60)
   }
 
   // TODO: make Settings.CacheKey private again after implementing download and save
@@ -187,7 +187,7 @@ class SettingsTests: XCTestCase {
       try JSONEncoder().encode(cacheKey).write(to:
         settingsFileManager.settingsCacheKeyPath)
     } catch {
-      print("Error: \(error)")
+      print("SettingsTests: \(error)")
     }
   }
 
@@ -196,7 +196,7 @@ class SettingsTests: XCTestCase {
       try JSONSerialization.data(withJSONObject: settings)
         .write(to: settingsFileManager.settingsCacheContentPath)
     } catch {
-      print("Error: \(error)")
+      print("SettingsTests: \(error)")
     }
   }
 
@@ -206,7 +206,7 @@ class SettingsTests: XCTestCase {
     do {
       try jsonString.write(to: path, atomically: false, encoding: .utf8)
     } catch {
-      print("Error: \(error)")
+      print("SettingsTests: \(error)")
     }
   }
 }

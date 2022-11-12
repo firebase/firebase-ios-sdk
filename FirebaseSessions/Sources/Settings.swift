@@ -15,6 +15,45 @@
 
 import Foundation
 
+extension ApplicationInfoProtocol {
+  var synthesizedVersion: String { return "\(appDisplayVersion) (\(appBuildVersion))" }
+}
+
+private extension Data {
+  var dictionaryValue: [String: AnyObject]? {
+    do {
+      let json = try JSONSerialization.jsonObject(with: self)
+      if let dictionary = json as? [String: AnyObject] {
+        return dictionary
+      } else {
+        Logger
+          .logError("[Settings] Could not cast JSON object as a Dictionary<String, Any>")
+      }
+    } catch {
+      Logger.logError("[Settings] Error: \(error)")
+    }
+    return nil
+  }
+
+  var cacheKeyValue: Settings.CacheKey? {
+    do {
+      let cacheKey = try JSONDecoder().decode(Settings.CacheKey.self, from: self)
+      return cacheKey
+    } catch {
+      Logger.logError("[Settings] Error: \(error)")
+    }
+    return nil
+  }
+}
+
+extension NSLocking {
+  func synchronized<T>(_ closure: () throws -> T) rethrows -> T {
+    lock()
+    defer { unlock() }
+    return try closure()
+  }
+}
+
 protocol SettingsProtocol {
   func loadCache(googleAppID: String, currentTime: Date)
   var sessionsEnabled: Bool { get }
@@ -24,11 +63,12 @@ protocol SettingsProtocol {
 
 class Settings: SettingsProtocol {
   private static let cacheDurationSecondsDefault: TimeInterval = 60 * 60
-  private let fileManager: SettingsFileManager
+  private let fileManager: SettingsFileManagerProtocol
   private let appInfo: ApplicationInfoProtocol
+  // Underscored variables may be accessed in different threads,
   private let lock = NSLock()
   private var _settingsDictionary: [String: AnyObject]?
-  private var isCacheKeyExpired: Bool
+  private var _isCacheKeyExpired: Bool
   struct CacheKey: Codable {
     var createdAt: Date
     var googleAppID: String
@@ -36,9 +76,9 @@ class Settings: SettingsProtocol {
   }
 
   var settingsDictionary: [String: AnyObject]? {
-    objc_sync_enter(lock)
-    defer { objc_sync_exit(lock) }
-    return _settingsDictionary
+    lock.synchronized {
+      _settingsDictionary
+    }
   }
 
   var sessionsEnabled: Bool {
@@ -66,7 +106,9 @@ class Settings: SettingsProtocol {
     guard settingsDictionary != nil else {
       return true
     }
-    return isCacheKeyExpired
+    return lock.synchronized {
+      return _isCacheKeyExpired
+    }
   }
 
   private var cacheDurationSeconds: TimeInterval {
@@ -76,92 +118,56 @@ class Settings: SettingsProtocol {
     return duration
   }
 
-  init(fileManager: SettingsFileManager = SettingsFileManager(), appInfo: ApplicationInfoProtocol) {
+  init(fileManager: SettingsFileManagerProtocol = SettingsFileManager(),
+       appInfo: ApplicationInfoProtocol) {
     self.fileManager = fileManager
-    isCacheKeyExpired = false
+    _isCacheKeyExpired = false
     self.appInfo = appInfo
   }
 
   func loadCache(googleAppID: String, currentTime: Date) {
     guard let cacheData = fileManager.data(contentsOf: fileManager.settingsCacheContentPath) else {
-      Logger.logDebug("[Sessions:Settings] No settings were cached")
+      Logger.logDebug("[Settings] No settings were cached")
       return
     }
     guard let parsedDictionary = cacheData.dictionaryValue else {
       removeCache()
       return
     }
-    do {
-      objc_sync_enter(lock)
-      defer { objc_sync_exit(lock) }
+    lock.synchronized {
       _settingsDictionary = parsedDictionary
     }
     guard let cacheKeyData = fileManager.data(contentsOf: fileManager.settingsCacheKeyPath),
           let cacheKey = cacheKeyData.cacheKeyValue else {
-      Logger.logError("[Sessions:Settings] Could not load settings cache key")
+      Logger.logError("[Settings] Could not load settings cache key")
       removeCache()
       return
     }
     guard cacheKey.googleAppID == googleAppID else {
       Logger
-        .logDebug("[Sessions:Settings] Invalidating settings cache because Google App ID changed")
+        .logDebug("[Settings] Cache expired because Google App ID changed")
       removeCache()
       return
     }
     if currentTime.timeIntervalSince(cacheKey.createdAt) > cacheDurationSeconds {
-      Logger.logDebug("[Sessions:Settings] Settings TTL expired")
-      do {
-        objc_sync_enter(lock)
-        defer { objc_sync_exit(lock) }
-        isCacheKeyExpired = true
+      Logger.logDebug("[Settings] Cache TTL expired")
+      lock.synchronized {
+        _isCacheKeyExpired = true
       }
     }
     if appInfo.synthesizedVersion != cacheKey.appVersion {
-      Logger.logDebug("[Sessions:Settings] Settings expired because app version changed")
-      do {
-        objc_sync_enter(lock)
-        defer { objc_sync_exit(lock) }
-        isCacheKeyExpired = true
+      Logger.logDebug("[Settings] Cache expired because app version changed")
+      lock.synchronized {
+        _isCacheKeyExpired = true
       }
     }
   }
 
   private func removeCache() {
-    objc_sync_enter(lock)
-    defer { objc_sync_exit(lock) }
-    fileManager.removeCacheFiles()
-    isCacheKeyExpired = true
-    _settingsDictionary = nil
-  }
-}
-
-extension ApplicationInfoProtocol {
-  var synthesizedVersion: String { return "\(appDisplayVersion) (\(appBuildVersion))" }
-}
-
-private extension Data {
-  var dictionaryValue: [String: AnyObject]? {
-    do {
-      let json = try JSONSerialization.jsonObject(with: self)
-      if let dictionary = json as? [String: AnyObject] {
-        return dictionary
-      } else {
-        Logger
-          .logError("[Sessions:Settings] Could not cast JSON object as a Dictionary<String, Any>")
-      }
-    } catch {
-      Logger.logError("[Sessions:Settings] Error: \(error)")
+    fileManager.removeCacheFilesAsync()
+    lock.synchronized {
+      _isCacheKeyExpired = true
+      _settingsDictionary = nil
     }
-    return nil
-  }
-
-  var cacheKeyValue: Settings.CacheKey? {
-    do {
-      let cacheKey = try JSONDecoder().decode(Settings.CacheKey.self, from: self)
-      return cacheKey
-    } catch {
-      Logger.logError("[Sessions:Settings] Error: \(error)")
-    }
-    return nil
   }
 }
