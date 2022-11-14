@@ -44,7 +44,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
    */
   @objc open func pause() {
     weak var weakSelf = self
-    DispatchQueue.global(qos: .background).async {
+    dispatchQueue.async {
       guard let strongSelf = weakSelf else { return }
       if strongSelf.state == .paused || strongSelf.state == .pausing {
         return
@@ -77,7 +77,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
    */
   @objc open func resume() {
     weak var weakSelf = self
-    DispatchQueue.global(qos: .background).async {
+    dispatchQueue.async {
       weakSelf?.state = .resuming
       if let snapshot = weakSelf?.snapshot {
         weakSelf?.fire(for: .resume, snapshot: snapshot)
@@ -106,7 +106,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
 
   internal func enqueueImplementation(resumeWith resumeData: Data? = nil) {
     weak var weakSelf = self
-    DispatchQueue.global(qos: .background).async {
+    dispatchQueue.async {
       guard let strongSelf = weakSelf else { return }
       strongSelf.state = .queueing
       var request = strongSelf.baseRequest
@@ -188,7 +188,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
 
   internal func cancel(withError error: NSError) {
     weak var weakSelf = self
-    DispatchQueue.global(qos: .background).async {
+    dispatchQueue.async {
       weakSelf?.state = .cancelled
       weakSelf?.fetcher?.stopFetching()
       weakSelf?.error = error
