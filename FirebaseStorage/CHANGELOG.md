@@ -1,6 +1,6 @@
 # 10.3.0
-- [fixed] Use dedicated queue for Storage uploads and downloads instead of global queue. Fixes regression
-  introduced in 10.0.0. (#10487)
+- [fixed] Use dedicated serial queue for Storage uploads and downloads instead of a (concurrent) global queue.
+  Fixes regression introduced in 10.0.0. (#10487)
 
 # 10.2.0
 - [fixed] Fixed an issue where using Storage with more than one FirebaseApp instance caused non-default Storage instances to deadlock (#10463).
