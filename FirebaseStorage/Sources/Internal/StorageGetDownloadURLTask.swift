@@ -45,7 +45,7 @@ internal class StorageGetDownloadURLTask: StorageTask, StorageTaskManagement {
    */
   internal func enqueue() {
     weak var weakSelf = self
-    DispatchQueue.global(qos: .background).async {
+    dispatchQueue.async {
       guard let strongSelf = weakSelf else { return }
       var request = strongSelf.baseRequest
       request.httpMethod = "GET"

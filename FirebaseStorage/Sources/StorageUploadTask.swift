@@ -37,7 +37,7 @@ import Foundation
    */
   @objc open func enqueue() {
     weak var weakSelf = self
-    DispatchQueue.global(qos: .background).async {
+    dispatchQueue.async {
       guard let strongSelf = weakSelf else { return }
       if let contentValidationError = strongSelf.contentUploadError() {
         strongSelf.error = contentValidationError
@@ -148,7 +148,7 @@ import Foundation
    */
   @objc open func pause() {
     weak var weakSelf = self
-    DispatchQueue.global(qos: .background).async {
+    dispatchQueue.async {
       weakSelf?.state = .paused
       weakSelf?.uploadFetcher?.pauseFetching()
       if weakSelf?.state != .success {
@@ -165,7 +165,7 @@ import Foundation
    */
   @objc open func cancel() {
     weak var weakSelf = self
-    DispatchQueue.global(qos: .background).async {
+    dispatchQueue.async {
       weakSelf?.state = .cancelled
       weakSelf?.uploadFetcher?.stopFetching()
       if weakSelf?.state != .success {
@@ -186,7 +186,7 @@ import Foundation
    */
   @objc open func resume() {
     weak var weakSelf = self
-    DispatchQueue.global(qos: .background).async {
+    dispatchQueue.async {
       weakSelf?.state = .resuming
       weakSelf?.uploadFetcher?.resumeFetching()
       if weakSelf?.state != .success {
