@@ -431,37 +431,41 @@ static NSInteger const gMaxRetries = 7;
       }
     } else {
       [strongSelf->_configFetch
-          fetchConfigWithExpirationDuration:0
-                          completionHandler:^(FIRRemoteConfigFetchStatus status, NSError *error) {
-                            if (error != nil) {
-                              FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000010",
+          realtimeFetchConfigWithExpirationDuration:0
+                                 fetchAttemptNumber:gFetchAttempts - remainingAttempts + 1
+                                  completionHandler:^(FIRRemoteConfigFetchStatus status,
+                                                      NSError *error) {
+                                    if (error != nil) {
+                                      FIRLogError(
+                                          kFIRLoggerRemoteConfig, @"I-RCN000010",
                                           @"Failed to retrive config due to fetch error. Error: %@",
                                           error);
-                              [self propogateErrors:error];
-                            } else {
-                              if (status == FIRRemoteConfigFetchStatusSuccess) {
-                                if ([strongSelf->_configFetch.templateVersionNumber integerValue] >=
-                                    targetVersion) {
-                                  for (RCNConfigUpdateCompletion listener in strongSelf
-                                           ->_listeners) {
-                                    listener(nil);
-                                  }
-                                } else {
-                                  FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000016",
+                                      [self propogateErrors:error];
+                                    } else {
+                                      if (status == FIRRemoteConfigFetchStatusSuccess) {
+                                        if ([strongSelf->_configFetch.templateVersionNumber
+                                                    integerValue] >= targetVersion) {
+                                          for (RCNConfigUpdateCompletion listener in strongSelf
+                                                   ->_listeners) {
+                                            listener(nil);
+                                          }
+                                        } else {
+                                          FIRLogDebug(
+                                              kFIRLoggerRemoteConfig, @"I-RCN000016",
                                               @"Fetched config's template version is outdated, "
                                               @"re-fetching");
-                                  [strongSelf autoFetch:remainingAttempts - 1
-                                          targetVersion:targetVersion];
-                                }
-                              } else {
-                                FIRLogDebug(
-                                    kFIRLoggerRemoteConfig, @"I-RCN000016",
-                                    @"Fetched config's template version is outdated, re-fetching");
-                                [strongSelf autoFetch:remainingAttempts - 1
-                                        targetVersion:targetVersion];
-                              }
-                            }
-                          }];
+                                          [strongSelf autoFetch:remainingAttempts - 1
+                                                  targetVersion:targetVersion];
+                                        }
+                                      } else {
+                                        FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000016",
+                                                    @"Fetched config's template version is "
+                                                    @"outdated, re-fetching");
+                                        [strongSelf autoFetch:remainingAttempts - 1
+                                                targetVersion:targetVersion];
+                                      }
+                                    }
+                                  }];
     }
   });
 }
