@@ -164,8 +164,8 @@ let package = Package(
     ),
     .package(
       name: "GTMSessionFetcher",
-      url: "https://github.com/google/gtm-session-fetcher.git",
-      "2.1.0" ..< "4.0.0"
+      url: "https://github.com/paulb777/gtm-session-fetcher.git",
+      .branch("cancel-and-callback")
     ),
     .package(
       name: "nanopb",

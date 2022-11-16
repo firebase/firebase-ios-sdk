@@ -127,8 +127,8 @@ class StorageApiV2Tests: StorageIntegrationCommon {
   }
 
   func testSimplePutFileWithCancel() async throws {
-    let ref = storage.reference(withPath: "ios/public/testSimplePutFile")
-    let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
+    let ref = storage.reference(withPath: "ios/public/1mb2")
+    let data = try await ref.data(maxSize: 1024 * 1024)
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
     try data.write(to: fileURL, options: .atomicWrite)

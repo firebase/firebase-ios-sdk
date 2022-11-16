@@ -81,6 +81,7 @@ internal class StorageUploadTaskV2: StorageTask {
       uploadFetcher.comment = "File UploadTask"
     }
     uploadFetcher.maxRetryInterval = reference.storage.maxUploadRetryInterval
+    uploadFetcher.stopFetchingTriggersCompletionHandler = true
 
     if let progressBlock = progressBlock {
       uploadFetcher.sendProgressBlock = { (bytesSent: Int64, totalBytesSent: Int64,

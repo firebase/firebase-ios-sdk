@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+import GTMSessionFetcher
 
 /// The error domain for codes in the `StorageErrorCode` enum.
 public let StorageErrorDomain: String = "FIRStorageErrorDomain"
@@ -51,6 +52,7 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
     case 402: errorCode = .quotaExceeded
     case 403: errorCode = .unauthorized
     case 404: errorCode = .objectNotFound
+    case GTMSessionFetcherError.userCancelled.rawValue: errorCode = .cancelled
     default: errorCode = .unknown
     }
 
