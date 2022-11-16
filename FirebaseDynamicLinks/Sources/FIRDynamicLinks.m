@@ -417,30 +417,35 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
         NSString *urlString = parameters[kFIRDLParameterLink];
         NSURL *deepLinkURL = [NSURL URLWithString:urlString];
         if (deepLinkURL) {
-          NSMutableDictionary *paramsDictionary =
-                    [[NSMutableDictionary alloc] initWithDictionary:@{kFIRDLParameterDeepLinkIdentifier: urlString}];
+          NSMutableDictionary *paramsDictionary = [[NSMutableDictionary alloc]
+              initWithDictionary:@{kFIRDLParameterDeepLinkIdentifier : urlString}];
 
           if (parameters[kFIRDLParameterSource] != nil) {
-            [paramsDictionary setValue:parameters[kFIRDLParameterSource] forKey:kFIRDLParameterSource];
+            [paramsDictionary setValue:parameters[kFIRDLParameterSource]
+                                forKey:kFIRDLParameterSource];
           }
 
           if (parameters[kFIRDLParameterMedium] != nil) {
-            [paramsDictionary setValue:parameters[kFIRDLParameterMedium] forKey:kFIRDLParameterMedium];
+            [paramsDictionary setValue:parameters[kFIRDLParameterMedium]
+                                forKey:kFIRDLParameterMedium];
           }
 
           if (parameters[kFIRDLParameterTerm] != nil) {
             [paramsDictionary setValue:parameters[kFIRDLParameterTerm] forKey:kFIRDLParameterTerm];
           }
 
-           if (parameters[kFIRDLParameterCampaign] != nil) {
-             [paramsDictionary setValue:parameters[kFIRDLParameterCampaign] forKey:(kFIRDLParameterCampaign)];
-           }
+          if (parameters[kFIRDLParameterCampaign] != nil) {
+            [paramsDictionary setValue:parameters[kFIRDLParameterCampaign]
+                                forKey:(kFIRDLParameterCampaign)];
+          }
 
-           if (parameters[kFIRDLParameterContent] != nil) {
-             [paramsDictionary setValue:parameters[kFIRDLParameterContent] forKey:kFIRDLParameterContent];
-           }
+          if (parameters[kFIRDLParameterContent] != nil) {
+            [paramsDictionary setValue:parameters[kFIRDLParameterContent]
+                                forKey:kFIRDLParameterContent];
+          }
 
-          FIRDynamicLink *dynamicLink = [[FIRDynamicLink alloc] initWithParametersDictionary:paramsDictionary];
+          FIRDynamicLink *dynamicLink =
+              [[FIRDynamicLink alloc] initWithParametersDictionary:paramsDictionary];
           dynamicLink.matchType = FIRDLMatchTypeUnique;
           dynamicLink.minimumAppVersion = parameters[kFIRDLParameterMinimumAppVersion];
 

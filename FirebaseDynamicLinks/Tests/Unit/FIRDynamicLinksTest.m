@@ -894,15 +894,17 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
   XCTAssertEqualObjects(expectedMinVersion, minVersion, @"Min version didn't match imv= parameter");
 }
 
-- (void) testDynamicLinkFromUniversalLinkURLReturnsUTMParams {
+- (void)testDynamicLinkFromUniversalLinkURLReturnsUTMParams {
   NSString *expectedUtmSource = @"utm_source";
-  NSString *expectedUtmMedium =  @"utm_medium";
+  NSString *expectedUtmMedium = @"utm_medium";
   NSString *expectedUtmCampaign = @"utm_campaign";
   NSString *expectedUtmTerm = @"utm_term";
   NSString *expectedUtmContent = @"utm_content";
 
-  NSString *utmParamsString =
-    [NSString stringWithFormat:@"utm_source=%@&utm_medium=%@&utm_campaign=%@&utm_term=%@&utm_content=%@", expectedUtmSource, expectedUtmMedium, expectedUtmCampaign, expectedUtmTerm, expectedUtmContent];
+  NSString *utmParamsString = [NSString
+      stringWithFormat:@"utm_source=%@&utm_medium=%@&utm_campaign=%@&utm_term=%@&utm_content=%@",
+                       expectedUtmSource, expectedUtmMedium, expectedUtmCampaign, expectedUtmTerm,
+                       expectedUtmContent];
   NSString *urlSuffix =
       [NSString stringWithFormat:@"%@&%@", kEncodedComplicatedURLString, utmParamsString];
 
@@ -917,28 +919,34 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
   XCTestExpectation *expectation = [self expectationWithDescription:@"completion called"];
   [self.service
       dynamicLinkFromUniversalLinkURL:url
-   completion: ^(FIRDynamicLink *_Nullable dynamicLink,
-                 NSError *_Nullable error) {
-    XCTAssertTrue([NSThread isMainThread]);
-    NSDictionary *utmParameters = dynamicLink.utmParametersDictionary;
-    NSString *utmSource = [utmParameters objectForKey:@"utm_source"];
-    XCTAssertEqualObjects(utmSource, expectedUtmSource, @"UtmSource doesn't match utm_source parameter");
+                           completion:^(FIRDynamicLink *_Nullable dynamicLink,
+                                        NSError *_Nullable error) {
+                             XCTAssertTrue([NSThread isMainThread]);
+                             NSDictionary *utmParameters = dynamicLink.utmParametersDictionary;
+                             NSString *utmSource = [utmParameters objectForKey:@"utm_source"];
+                             XCTAssertEqualObjects(utmSource, expectedUtmSource,
+                                                   @"UtmSource doesn't match utm_source parameter");
 
-    NSString *utmMedium = [utmParameters objectForKey:@"utm_medium"];
-    XCTAssertEqualObjects(utmMedium, expectedUtmMedium, @"UtmMedium doesn't match utm_medium parameter");
+                             NSString *utmMedium = [utmParameters objectForKey:@"utm_medium"];
+                             XCTAssertEqualObjects(utmMedium, expectedUtmMedium,
+                                                   @"UtmMedium doesn't match utm_medium parameter");
 
-    NSString *utmCampaign = [utmParameters objectForKey:@"utm_campaign"];
-    XCTAssertEqualObjects(utmCampaign, expectedUtmCampaign, @"UtmCampaign doesn't match utm_campaign parameter");
+                             NSString *utmCampaign = [utmParameters objectForKey:@"utm_campaign"];
+                             XCTAssertEqualObjects(
+                                 utmCampaign, expectedUtmCampaign,
+                                 @"UtmCampaign doesn't match utm_campaign parameter");
 
-    NSString *utmTerm = [utmParameters objectForKey:@"utm_term"];
-    XCTAssertEqualObjects(utmTerm, expectedUtmTerm, @"UtmTerm doesn't match utm_term parameter");
+                             NSString *utmTerm = [utmParameters objectForKey:@"utm_term"];
+                             XCTAssertEqualObjects(utmTerm, expectedUtmTerm,
+                                                   @"UtmTerm doesn't match utm_term parameter");
 
-    NSString *utmContent = [utmParameters objectForKey:@"utm_content"];
-    XCTAssertEqualObjects(utmContent, expectedUtmContent, @"UtmContent doesn't match utm_content parameter");
+                             NSString *utmContent = [utmParameters objectForKey:@"utm_content"];
+                             XCTAssertEqualObjects(
+                                 utmContent, expectedUtmContent,
+                                 @"UtmContent doesn't match utm_content parameter");
 
-
-    [expectation fulfill];
-  }];
+                             [expectation fulfill];
+                           }];
 
   [self waitForExpectationsWithTimeout:kAsyncTestTimout handler:nil];
 }
