@@ -50,10 +50,11 @@ static NSString *const kInstallationsAuthTokenHeaderName = @"x-goog-firebase-ins
 // Sends the bundle ID. Refer to b/130301479 for details.
 static NSString *const kiOSBundleIdentifierHeaderName =
     @"X-Ios-Bundle-Identifier";  ///< HTTP Header Field Name
-static NSString *const kFetchTypeHeaderName = @"X-Firebase-RC-Fetch-Type";
 
-static NSString *const kBaseFetchType = @"BaseFetch";
-static NSString *const kRealtimeFetchType = @"Realtime";
+static NSString *const kFetchTypeHeaderName =
+    @"X-Firebase-RC-Fetch-Type";  ///< Custom Http header key to identify the fetch type
+static NSString *const kBaseFetchType = @"BaseFetch";     ///< Fetch identifier for Base Fetch
+static NSString *const kRealtimeFetchType = @"Realtime";  ///< Fetch identifier for Realtime Fetch
 
 /// Config HTTP request content type proto buffer
 static NSString *const kContentTypeValueJSON = @"application/json";
