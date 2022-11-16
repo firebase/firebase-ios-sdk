@@ -50,6 +50,9 @@
                                           (RCNConfigFetcherCompletion)fetcherCompletion;
 - (void)fetchConfigWithExpirationDuration:(NSTimeInterval)expirationDuration
                         completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
+- (void)realtimeFetchConfigWithExpirationDuration:(NSTimeInterval)expirationDuration
+                               fetchAttemptNumber:(NSInteger)fetchAttemptNumber
+                                completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
 - (void)fetchWithUserProperties:(NSDictionary *)userProperties
                 fetchTypeHeader:(NSString *)fetchTypeHeader
               completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
@@ -1624,6 +1627,35 @@ static NSString *UTCToLocal(NSString *utcTime) {
           OCMVerify([self->_configRealtime[i] addConfigUpdateListener:completion]);
           OCMVerify([self->_configRealtime[i] removeConfigUpdateListener:completion]);
           OCMVerify([self->_configRealtime[i] pauseRealtimeStream]);
+          [expectations[i] fulfill];
+        });
+
+    [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+  }
+}
+
+- (void)testRealtimeFetch {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] = [self
+        expectationWithDescription:
+            [NSString stringWithFormat:@"Test Realtime Autofetch successfully - instance %d", i]];
+
+    OCMStub([_configFetch[i] realtimeFetchConfigWithExpirationDuration:0
+                                                    fetchAttemptNumber:1
+                                                     completionHandler:OCMOCK_ANY])
+        .andDo(nil);
+    OCMStub([_configRealtime[i] scheduleFetch:1 targetVersion:1]).andDo(nil);
+
+    [_configRealtime[i] fetchLatestConfig:3 targetVersion:1];
+
+    dispatch_after(
+        dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
+        dispatch_get_main_queue(), ^{
+          OCMVerify([self->_configFetch[i] realtimeFetchConfigWithExpirationDuration:0
+                                                                  fetchAttemptNumber:1
+                                                                   completionHandler:OCMOCK_ANY]);
           [expectations[i] fulfill];
         });
 
