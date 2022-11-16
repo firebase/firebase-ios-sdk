@@ -1,3 +1,6 @@
+# unreleased
+- [fixed] Fixes utm params breaking certaing flows
+
 # 10.2.0
 - [fixed] Fixes utm parameters not being returned to dynamic link when using universal links (#10341)
 
