@@ -4157,6 +4157,311 @@
   WAIT_FOR(done);
 }
 
+- (void)testGetResolvesToPersistentCacheWhenOfflineAndNoListeners {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+  [self waitForCompletionOf:ref setValue:@1];
+  @try {
+    [[ref database] goOffline];
+    __block BOOL done = NO;
+    [ref getDataWithCompletionBlock:^(NSError* _Nullable error,
+                                      FIRDataSnapshot* _Nullable snapshot) {
+      XCTAssertNil(error);
+      XCTAssertEqualObjects(@1, snapshot.value);
+      done = YES;
+    }];
+    WAIT_FOR(done);
+  } @finally {
+    [[ref database] goOnline];
+  }
+}
+
+- (void)testGetResolvesToCacheWhenOnlineAndParentListener {
+  FTupleFirebase* pair = [FTestHelpers getRandomNodePair];
+  FIRDatabaseReference* writer = pair.one;
+  FIRDatabaseReference* reader = pair.two;
+  [self waitForCompletionOf:writer setValue:@{@"a" : @1}];
+  [self snapWaiter:reader
+         withBlock:^(FIRDataSnapshot* snapshot) {
+           XCTAssertEqualObjects(
+               @{@"a" : @1}, snapshot.value);
+         }];
+  __block BOOL done = NO;
+  [[reader child:@"a"]
+      getDataWithCompletionBlock:^(NSError* _Nullable error, FIRDataSnapshot* _Nullable snapshot) {
+        XCTAssertNil(error);
+        XCTAssertEqualObjects(@1, snapshot.value);
+        done = YES;
+      }];
+  WAIT_FOR(done);
+}
+
+- (void)testGetResolvesToCacheWhenOnlineAndSameLevelListener {
+  FTupleFirebase* pair = [FTestHelpers getRandomNodePair];
+  FIRDatabaseReference* writer = pair.one;
+  FIRDatabaseReference* reader = pair.two;
+  [self waitForCompletionOf:writer setValue:@{@"a" : @1}];
+  [self snapWaiter:reader
+         withBlock:^(FIRDataSnapshot* snapshot) {
+           XCTAssertEqualObjects(
+               @{@"a" : @1}, snapshot.value);
+         }];
+  __block BOOL done = NO;
+  [reader
+      getDataWithCompletionBlock:^(NSError* _Nullable error, FIRDataSnapshot* _Nullable snapshot) {
+        XCTAssertNil(error);
+        XCTAssertEqualObjects(
+            @{@"a" : @1}, snapshot.value);
+        done = YES;
+      }];
+  WAIT_FOR(done);
+}
+
+- (void)testGetResolvesToServerCacheWhenListenerIsAvailable {
+  FTupleFirebase* pair = [FTestHelpers getRandomNodePairWithoutPersistence];
+  FIRDatabaseReference* writer = pair.one;
+  FIRDatabaseReference* reader = pair.two;
+  [self waitForCompletionOf:writer setValue:@{@"a" : @1}];
+  __block BOOL done = NO;
+  FIRDatabaseHandle handle = [reader observeEventType:FIRDataEventTypeValue
+                                            withBlock:^(FIRDataSnapshot* _Nonnull snapshot) {
+                                              XCTAssertEqualObjects(
+                                                  @{@"a" : @1}, snapshot.value);
+                                              done = YES;
+                                            }];
+  WAIT_FOR(done);
+  done = NO;
+  @try {
+    [[reader database] goOffline];
+    [reader getDataWithCompletionBlock:^(NSError* _Nullable error,
+                                         FIRDataSnapshot* _Nullable snapshot) {
+      XCTAssertNil(error);
+      XCTAssertEqualObjects(
+          @{@"a" : @1}, snapshot.value);
+      done = YES;
+    }];
+    WAIT_FOR(done);
+    [reader removeObserverWithHandle:handle];
+  } @finally {
+    [[reader database] goOnline];
+  }
+}
+
+- (void)testGetResolvesToCacheWhenOnlineAndChildLevelListener {
+  FTupleFirebase* pair = [FTestHelpers getRandomNodePair];
+  FIRDatabaseReference* parentWriteNode = [pair.one childByAutoId];
+  FIRDatabaseReference* parentReadNode = [pair.two child:parentWriteNode.key];
+  FIRDatabaseReference* childWriteNode = [parentWriteNode childByAutoId];
+  FIRDatabaseReference* childReadNode = [parentReadNode child:childWriteNode.key];
+
+  [self waitForCompletionOf:childWriteNode setValue:@42];
+  [self snapWaiter:childReadNode
+         withBlock:^(FIRDataSnapshot* snapshot) {
+           XCTAssertEqualObjects(@42, snapshot.value);
+         }];
+  [parentReadNode
+      getDataWithCompletionBlock:^(NSError* _Nullable error, FIRDataSnapshot* _Nullable snapshot) {
+        XCTAssertNil(error);
+        XCTAssertEqualObjects(
+            @{childReadNode.key : @42}, snapshot.value);
+      }];
+  [self waitForCompletionOf:parentWriteNode setValue:@{childWriteNode.key : @43}];
+  [self snapWaiter:parentReadNode
+         withBlock:^(FIRDataSnapshot* snapshot) {
+           XCTAssertEqualObjects(
+               @{childReadNode.key : @43}, snapshot.value);
+         }];
+  [childReadNode
+      getDataWithCompletionBlock:^(NSError* _Nullable error, FIRDataSnapshot* _Nullable snapshot) {
+        XCTAssertNil(error);
+        XCTAssertEqual(@43, snapshot.value);
+      }];
+}
+
+- (void)testLimitToGetWithListenerOnlyFiresOnce {
+  FTupleFirebase* pair = [FTestHelpers getRandomNodePair];
+  FIRDatabaseReference* writeNode = pair.one;
+  FIRDatabaseReference* readNode = pair.two;
+
+  [self waitForCompletionOf:writeNode setValue:@{@"a" : @1}];
+
+  __block int received = 0;
+
+  [readNode observeEventType:FIRDataEventTypeValue
+                   withBlock:^(FIRDataSnapshot* _Nonnull snapshot) {
+                     XCTAssertEqualObjects(
+                         @{@"a" : @1}, snapshot.value);
+                     received++;
+                   }];
+
+  __block BOOL done = NO;
+  [readNode
+      getDataWithCompletionBlock:^(NSError* _Nullable error, FIRDataSnapshot* _Nullable snapshot) {
+        done = YES;
+      }];
+  WAIT_FOR(done);
+
+  [self waitForSeconds:3.0];
+  XCTAssertEqual(1, received);
+}
+
+- (void)testRangedGetDoesntPoisonRangedObservers {
+  FTupleFirebase* pair = [FTestHelpers getRandomNodePair];
+  FIRDatabaseReference* writeNode = pair.one;
+  FIRDatabaseReference* readNode = pair.two;
+  FIRDatabaseQuery* query = [[[readNode queryOrderedByPriority]
+      queryStartingAtValue:nil
+                  childKey:@"2"] queryEndingAtValue:nil childKey:@"3"];
+  // Wait for `getDataWithCompletionBlock` to complete before we start registering listeners.
+  [self waitForCompletionOf:writeNode setValue:@{@"1" : @1, @"2" : @2, @"3" : @3, @"4" : @4}];
+  __block BOOL done = NO;
+  [query
+      getDataWithCompletionBlock:^(NSError* _Nullable error, FIRDataSnapshot* _Nullable snapshot) {
+        XCTAssertNil(error);
+        NSDictionary* const expected = @{@"2" : @2, @"3" : @3};
+        XCTAssertEqualObjects(expected, snapshot.valueInExportFormat);
+        done = YES;
+      }];
+  WAIT_FOR(done);
+  FIRDatabaseQuery* byPriority = [readNode queryOrderedByPriority];
+  FIRDatabaseQuery* queryBefore = [byPriority queryEndingAtValue:nil childKey:@"1"];
+  FIRDatabaseQuery* queryPrefix = [byPriority queryEndingAtValue:nil childKey:@"2"];
+  FIRDatabaseQuery* querySuffix = [byPriority queryStartingAtValue:nil childKey:@"3"];
+  FIRDatabaseQuery* queryAfter = [byPriority queryStartingAtValue:nil childKey:@"4"];
+  done = NO;
+  [queryBefore observeEventType:FIRDataEventTypeValue
+                      withBlock:^(FIRDataSnapshot* _Nonnull snapshot) {
+                        XCTAssertEqualObjects(
+                            @{@"1" : @1}, snapshot.valueInExportFormat);
+                        done = YES;
+                      }];
+  WAIT_FOR(done);
+  done = NO;
+  [queryPrefix observeEventType:FIRDataEventTypeValue
+                      withBlock:^(FIRDataSnapshot* _Nonnull snapshot) {
+                        id expected = @{@"1" : @1, @"2" : @2};
+                        XCTAssertEqualObjects(expected, snapshot.valueInExportFormat);
+                        done = YES;
+                      }];
+  WAIT_FOR(done);
+  done = NO;
+  [querySuffix observeEventType:FIRDataEventTypeValue
+                      withBlock:^(FIRDataSnapshot* _Nonnull snapshot) {
+                        id expected = @{@"3" : @3, @"4" : @4};
+                        XCTAssertEqualObjects(expected, snapshot.valueInExportFormat);
+                        done = YES;
+                      }];
+  WAIT_FOR(done);
+  done = NO;
+  [queryAfter observeEventType:FIRDataEventTypeValue
+                     withBlock:^(FIRDataSnapshot* _Nonnull snapshot) {
+                       XCTAssertEqualObjects(
+                           @{@"4" : @4}, snapshot.valueInExportFormat);
+                       done = YES;
+                     }];
+  WAIT_FOR(done);
+  done = NO;
+  [query observeEventType:FIRDataEventTypeValue
+                withBlock:^(FIRDataSnapshot* _Nonnull snapshot) {
+                  id expected = @{@"2" : @2, @"3" : @3};
+                  XCTAssertEqualObjects(expected, snapshot.valueInExportFormat);
+                  done = YES;
+                }];
+  WAIT_FOR(done);
+}
+
+- (void)testRangedGetDoesntPoisonLimitedObservers {
+  FTupleFirebase* pair = [FTestHelpers getRandomNodePair];
+  FIRDatabaseReference* writeNode = pair.one;
+  FIRDatabaseReference* readNode = pair.two;
+  FIRDatabaseQuery* query = [[readNode queryOrderedByPriority] queryEqualToValue:nil childKey:@"2"];
+  // Wait for `getDataWithCompletionBlock` to complete before we start registering listeners.
+  [self waitForCompletionOf:writeNode setValue:@{@"1" : @1, @"2" : @2}];
+  __block BOOL done = NO;
+  [query
+      getDataWithCompletionBlock:^(NSError* _Nullable error, FIRDataSnapshot* _Nullable snapshot) {
+        XCTAssertNil(error);
+        XCTAssertEqualObjects(
+            @{@"2" : @2}, snapshot.valueInExportFormat);
+        done = YES;
+      }];
+  WAIT_FOR(done);
+  FIRDatabaseQuery* queryLimitOne = [readNode queryLimitedToFirst:1];
+  FIRDatabaseQuery* queryLimitTwo = [readNode queryLimitedToFirst:2];
+  FIRDatabaseQuery* queryLimitLastOne = [readNode queryLimitedToLast:1];
+  FIRDatabaseQuery* queryLimitLastTwo = [readNode queryLimitedToLast:2];
+  done = NO;
+  [queryLimitOne observeEventType:FIRDataEventTypeValue
+                        withBlock:^(FIRDataSnapshot* _Nonnull snapshot) {
+                          XCTAssertEqualObjects(
+                              @{@"1" : @1}, snapshot.valueInExportFormat);
+                          done = YES;
+                        }];
+  WAIT_FOR(done);
+  done = NO;
+  [queryLimitTwo observeEventType:FIRDataEventTypeValue
+                        withBlock:^(FIRDataSnapshot* _Nonnull snapshot) {
+                          id expected = @{@"1" : @1, @"2" : @2};
+                          XCTAssertEqualObjects(expected, snapshot.valueInExportFormat);
+                          done = YES;
+                        }];
+  WAIT_FOR(done);
+  done = NO;
+  [queryLimitLastOne observeEventType:FIRDataEventTypeValue
+                            withBlock:^(FIRDataSnapshot* _Nonnull snapshot) {
+                              XCTAssertEqualObjects(
+                                  @{@"2" : @2}, snapshot.valueInExportFormat);
+                              done = YES;
+                            }];
+  [queryLimitLastTwo observeEventType:FIRDataEventTypeValue
+                            withBlock:^(FIRDataSnapshot* _Nonnull snapshot) {
+                              id expected = @{@"1" : @1, @"2" : @2};
+                              XCTAssertEqualObjects(expected, snapshot.valueInExportFormat);
+                              done = YES;
+                            }];
+  WAIT_FOR(done);
+}
+
+- (void)testGetDoesntTriggerRedundantObserverEvents {
+  FTupleFirebase* pair = [FTestHelpers getRandomNodePair];
+  FIRDatabaseReference* writeNode = pair.one;
+  FIRDatabaseReference* readNode = pair.two;
+  NSDictionary* data = @{@"1" : @1, @"2" : @2, @"3" : @3};
+  [self waitForCompletionOf:writeNode setValue:data];
+  FIRDatabaseQuery* queryLimitToFirst = [readNode queryLimitedToFirst:1];
+  FIRDatabaseQuery* queryLimitToLast = [readNode queryLimitedToLast:1];
+  FIRDatabaseQuery* byPriority = [readNode queryOrderedByPriority];
+  FIRDatabaseQuery* queryStartingAt = [byPriority queryStartingAtValue:@"2"];
+  FIRDatabaseQuery* queryEndingAt = [byPriority queryEndingAtValue:@"2"];
+  NSArray* queries = @[ queryLimitToFirst, queryLimitToLast, queryStartingAt, queryEndingAt ];
+  __block NSMutableDictionary* received =
+      [NSMutableDictionary dictionaryWithCapacity:[queries count]];
+  for (FIRDatabaseQuery* query in queries) {
+    NSString* queryId = query.querySpec.description;
+    [received setValue:[NSNumber numberWithInt:0] forKey:queryId];
+  }
+  for (FIRDatabaseQuery* query in queries) {
+    NSString* queryId = query.querySpec.description;
+    [query observeEventType:FIRDataEventTypeValue
+                  withBlock:^(FIRDataSnapshot* _Nonnull snapshot) {
+                    int curr = [[received valueForKey:queryId] intValue];
+                    [received setValue:[NSNumber numberWithInt:(curr + 1)] forKey:queryId];
+                  }];
+  }
+  __block BOOL done = NO;
+  [readNode
+      getDataWithCompletionBlock:^(NSError* _Nullable error, FIRDataSnapshot* _Nullable snapshot) {
+        XCTAssertNil(error);
+        XCTAssertEqualObjects(data, snapshot.valueInExportFormat);
+        done = YES;
+      }];
+  WAIT_FOR(done);
+  [self waitForSeconds:3.0];
+  for (id queryId in received) {
+    NSNumber* events = [received valueForKey:queryId];
+    XCTAssertEqual(@1, events, @"query %@ got %@ events, but expected 1", queryId, events);
+  }
+}
+
 - (void)testGetForChildReturnsCorrectValue {
   FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
 

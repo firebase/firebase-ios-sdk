@@ -75,11 +75,17 @@
                             forQuery:(FQuerySpec *)query
                          cancelError:(NSError *)cancelError;
 - (void)keepQuery:(FQuerySpec *)query synced:(BOOL)keepSynced;
+- (void)keepQuery:(FQuerySpec *)query
+           synced:(BOOL)keepSynced
+       skipListen:(BOOL)skipListenDedup;
 - (NSArray *)removeAllWrites;
 
 - (FIndexedNode *)persistenceServerCache:(FQuerySpec *)querySpec;
 - (id<FNode>)getServerValue:(FQuerySpec *)query;
 - (id<FNode>)calcCompleteEventCacheAtPath:(FPath *)path
                           excludeWriteIds:(NSArray *)writeIdsToExclude;
+
+- (NSNumber *)trackTagForQuery:(FQuerySpec *)query;
+- (void)removeTags:(NSArray *)queries;
 
 @end

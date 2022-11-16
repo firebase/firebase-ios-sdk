@@ -448,14 +448,19 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
     }
 }
 
-/**
- * Add an event callback for the specified query
- * @return NSArray of FEvent to raise.
- */
-- (NSArray *)addEventRegistration:(id<FEventRegistration>)eventRegistration
-                         forQuery:(FQuerySpec *)query {
-    FPath *path = query.path;
+- (NSNumber *)trackTagForQuery:(FQuerySpec *)query {
+    NSAssert(self.queryToTagMap[query] == nil,
+             @"View does not exist, but we have a tag");
+    NSNumber *tagId = [self.queryTagCounter getAndIncrement];
+    self.queryToTagMap[query] = tagId;
+    self.tagToQueryMap[tagId] = query;
+    return tagId;
+}
 
+- (NSArray *)addEventRegistration:(id<FEventRegistration>)eventRegistration
+                         forQuery:(FQuerySpec *)query
+                  skipListenSetup:(BOOL)skipListenSetup {
+    FPath *path = query.path;
     __block BOOL foundAncestorDefaultView = NO;
     [self.syncPointTree
         forEachOnPath:query.path
@@ -481,13 +486,11 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
         events = [syncPoint addEventRegistration:eventRegistration
                          forExistingViewForQuery:query];
     } else {
-        if (![query loadsAllData]) {
-            // We need to track a tag for this query
-            NSAssert(self.queryToTagMap[query] == nil,
-                     @"View does not exist, but we have a tag");
-            NSNumber *tagId = [self.queryTagCounter getAndIncrement];
-            self.queryToTagMap[query] = tagId;
-            self.tagToQueryMap[tagId] = query;
+        if (![query loadsAllData] && !skipListenSetup) {
+            // We need to track a tag for this query. If this is an
+            // FRepo#getData, then we've already tracked a tag at
+            // a higher level.
+            [self trackTagForQuery:query];
         }
 
         FWriteTreeRef *writesCache =
@@ -499,7 +502,7 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
                                      serverCache:serverCache];
 
         // There was no view and no default listen
-        if (!foundAncestorDefaultView) {
+        if (!foundAncestorDefaultView && !skipListenSetup) {
             FView *view = [syncPoint viewForQuery:query];
             NSMutableArray *mutableEvents = [events mutableCopy];
             [mutableEvents
@@ -508,8 +511,18 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
             events = mutableEvents;
         }
     }
-
     return events;
+}
+
+/**
+ * Add an event callback for the specified query
+ * @return NSArray of FEvent to raise.
+ */
+- (NSArray *)addEventRegistration:(id<FEventRegistration>)eventRegistration
+                         forQuery:(FQuerySpec *)query {
+    return [self addEventRegistration:eventRegistration
+                             forQuery:query
+                      skipListenSetup:NO];
 }
 
 - (FCacheNode *)serverCacheForQuery:(FQuerySpec *)query {
@@ -584,11 +597,14 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
  *
  * @param eventRegistration if nil, all callbacks are removed
  * @param cancelError If provided, appropriate cancel events will be returned
+ * @param skipListenDedup If provided, don't try to deduplicate listens, see
+ * FRepo#getData.
  * @return NSArray of FEvent to raise.
  */
 - (NSArray *)removeEventRegistration:(id<FEventRegistration>)eventRegistration
                             forQuery:(FQuerySpec *)query
-                         cancelError:(NSError *)cancelError {
+                         cancelError:(NSError *)cancelError
+                     skipListenDedup:(BOOL)skipListenDedup {
     // Find the syncPoint first. Then deal with whether or not it has matching
     // listeners
     FPath *path = query.path;
@@ -628,6 +644,12 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
                                               BOOL *stop) {
           [self.persistenceManager setQueryInactive:query];
         }];
+        if (skipListenDedup) {
+            NSAssert(cancelEvents.count == 0,
+                     @"Non-empty cancelEvents for skipListenDedup "
+                     @"removeRegistration");
+            return cancelEvents;
+        }
         NSNumber *covered = [self.syncPointTree
                findOnPath:path
             andApplyBlock:^id(FPath *relativePath,
@@ -695,18 +717,35 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
     return cancelEvents;
 }
 
-- (void)keepQuery:(FQuerySpec *)query synced:(BOOL)keepSynced {
+- (NSArray *)removeEventRegistration:(id<FEventRegistration>)eventRegistration
+                            forQuery:(FQuerySpec *)query
+                         cancelError:(NSError *)cancelError {
+    return [self removeEventRegistration:eventRegistration
+                                forQuery:query
+                             cancelError:cancelError
+                         skipListenDedup:NO];
+}
+
+- (void)keepQuery:(FQuerySpec *)query
+           synced:(BOOL)keepSynced
+       skipListen:(BOOL)skip {
     // Only do something if we actually need to add/remove an event registration
     if (keepSynced && ![self.keepSyncedQueries containsObject:query]) {
         [self addEventRegistration:[FKeepSyncedEventRegistration instance]
-                          forQuery:query];
+                          forQuery:query
+                   skipListenSetup:skip];
         [self.keepSyncedQueries addObject:query];
     } else if (!keepSynced && [self.keepSyncedQueries containsObject:query]) {
         [self removeEventRegistration:[FKeepSyncedEventRegistration instance]
                              forQuery:query
-                          cancelError:nil];
+                          cancelError:nil
+                      skipListenDedup:skip];
         [self.keepSyncedQueries removeObject:query];
     }
+}
+
+- (void)keepQuery:(FQuerySpec *)query synced:(BOOL)keepSynced {
+    [self keepQuery:query synced:keepSynced skipListen:NO];
 }
 
 - (NSArray *)removeAllWrites {

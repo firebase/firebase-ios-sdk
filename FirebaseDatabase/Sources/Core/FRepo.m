@@ -533,27 +533,32 @@
         }];
         return;
     }
+    __block FIndexedNode *persisted = nil;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW,
+                                 kPersistentConnectionGetConnectTimeout),
+                   [FIRDatabaseQuery sharedQueue], ^{
+                     persisted =
+                         [self.serverSyncTree persistenceServerCache:querySpec];
+                   });
     [self.persistenceManager setQueryActive:querySpec];
     [self.connection
         getDataAtPath:[query.path toString]
            withParams:querySpec.params.wireProtocolParams
          withCallback:^(NSString *status, id data, NSString *errorReason) {
-           id<FNode> node;
            if (![status isEqualToString:kFWPResponseForActionStatusOk]) {
                FFLog(@"I-RDB038024",
                      @"getValue for query %@ falling back to disk cache",
                      [querySpec.path toString]);
-               FIndexedNode *node =
-                   [self.serverSyncTree persistenceServerCache:querySpec];
-               if (node == nil) {
+               if (persisted == nil) {
                    NSDictionary *errorDict = @{
                        NSLocalizedFailureReasonErrorKey : errorReason,
                        NSLocalizedDescriptionKey : [NSString
                            stringWithFormat:
                                @"Unable to get latest value for query %@, "
+                               @"status = '%@', errorReason = '%@', "
                                @"client offline with no active listeners "
                                @"and no matching disk cache entries",
-                               querySpec]
+                               querySpec, status, errorReason]
                    };
                    [self.eventRaiser raiseCallback:^{
                      block([NSError errorWithDomain:kFirebaseCoreErrorDomain
@@ -565,22 +570,31 @@
                }
                [self.eventRaiser raiseCallback:^{
                  block(nil, [[FIRDataSnapshot alloc] initWithRef:query.ref
-                                                     indexedNode:node]);
+                                                     indexedNode:persisted]);
                }];
            } else {
-               node = [FSnapshotUtilities nodeFrom:data];
-               [self.eventRaiser
-                   raiseEvents:[self.serverSyncTree
-                                   applyServerOverwriteAtPath:[query path]
-                                                      newData:node]];
+               NSNumber *tagId =
+                   ![querySpec loadsAllData]
+                       ? [[self serverSyncTree] trackTagForQuery:querySpec]
+                       : nil;
+               // Set up a short-lived FKeepSyncedEventRegistration to populate
+               // cache with the data update.
+               [self keepQuery:querySpec synced:YES skipListen:YES];
+               NSArray *events = [self processDataUpdateForPath:query.path
+                                                        message:data
+                                                        isMerge:NO
+                                                          tagId:tagId];
+               [self keepQuery:querySpec synced:NO skipListen:YES];
+               if (tagId != nil) {
+                   [[self serverSyncTree] removeTags:@[ querySpec ]];
+               }
+               [self.eventRaiser raiseEvents:events];
                [self.eventRaiser raiseCallback:^{
-                 block(
-                     nil,
-                     [[FIRDataSnapshot alloc]
-                         initWithRef:query.ref
-                         indexedNode:[FIndexedNode
-                                         indexedNodeWithNode:node
-                                                       index:querySpec.index]]);
+                 FIndexedNode *indexedNode = [FIndexedNode
+                     indexedNodeWithNode:[FSnapshotUtilities nodeFrom:data]
+                                   index:querySpec.index];
+                 block(nil, [[FIRDataSnapshot alloc] initWithRef:query.ref
+                                                     indexedNode:indexedNode]);
                }];
            }
            [self.persistenceManager setQueryInactive:querySpec];
@@ -620,10 +634,16 @@
     [self.eventRaiser raiseEvents:events];
 }
 
-- (void)keepQuery:(FQuerySpec *)query synced:(BOOL)synced {
+- (void)keepQuery:(FQuerySpec *)query
+           synced:(BOOL)synced
+       skipListen:(BOOL)skip {
     NSAssert(![[query.path getFront] isEqualToString:kDotInfoPrefix],
              @"Can't keep .info tree synced!");
-    [self.serverSyncTree keepQuery:query synced:synced];
+    [self.serverSyncTree keepQuery:query synced:synced skipListen:skip];
+}
+
+- (void)keepQuery:(FQuerySpec *)query synced:(BOOL)synced {
+    [self keepQuery:query synced:synced skipListen:NO];
 }
 
 - (void)updateInfo:(NSString *)pathString withValue:(id)value {
@@ -695,23 +715,11 @@
 #pragma mark -
 #pragma mark FPersistentConnectionDelegate methods
 
-- (void)onDataUpdate:(FPersistentConnection *)fpconnection
-             forPath:(NSString *)pathString
-             message:(id)data
-             isMerge:(BOOL)isMerge
-               tagId:(NSNumber *)tagId {
-    FFLog(@"I-RDB038013", @"onDataUpdateForPath: %@ withMessage: %@",
-          pathString, data);
-
-    // For testing.
-    self.dataUpdateCount++;
-
-    FPath *path = [[FPath alloc] initWith:pathString];
-    data = self.interceptServerDataCallback
-               ? self.interceptServerDataCallback(pathString, data)
-               : data;
+- (NSArray *)processDataUpdateForPath:(FPath *)path
+                              message:(id)data
+                              isMerge:(BOOL)isMerge
+                                tagId:(NSNumber *)tagId {
     NSArray *events = nil;
-
     if (tagId != nil) {
         if (isMerge) {
             NSDictionary *message = data;
@@ -739,7 +747,28 @@
         events = [self.serverSyncTree applyServerOverwriteAtPath:path
                                                          newData:snap];
     }
+    return events;
+}
 
+- (void)onDataUpdate:(FPersistentConnection *)fpconnection
+             forPath:(NSString *)pathString
+             message:(id)data
+             isMerge:(BOOL)isMerge
+               tagId:(NSNumber *)tagId {
+    FFLog(@"I-RDB038013", @"onDataUpdateForPath: %@ withMessage: %@",
+          pathString, data);
+
+    // For testing.
+    self.dataUpdateCount++;
+
+    FPath *path = [[FPath alloc] initWith:pathString];
+    data = self.interceptServerDataCallback
+               ? self.interceptServerDataCallback(pathString, data)
+               : data;
+    NSArray *events = [self processDataUpdateForPath:path
+                                             message:data
+                                             isMerge:isMerge
+                                               tagId:tagId];
     if ([events count] > 0) {
         // Since we have a listener outstanding for each transaction, receiving
         // any events is a proxy for some change having occurred.

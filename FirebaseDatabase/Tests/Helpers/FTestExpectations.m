@@ -62,6 +62,7 @@
     }
     // Note that a failure here will end up triggering the timeout
     FIRDataSnapshot* snap = exp.snap;
+
     NSDictionary* result = snap.value;
     NSDictionary* expected = exp.expectation;
     if ([result isEqual:[NSNull null]] && [expected count] == 0) {

@@ -24,5 +24,6 @@
 - (NSTimeInterval)waitUntil:(BOOL (^)(void))predicate
                     timeout:(NSTimeInterval)seconds
                 description:(NSString*)desc;
+- (NSTimeInterval)waitForSeconds:(NSTimeInterval)seconds;
 
 @end

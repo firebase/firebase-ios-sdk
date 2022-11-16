@@ -56,6 +56,9 @@
 - (void)removeEventRegistration:
             (id<FEventRegistration> _Nullable)eventRegistration
                        forQuery:(FQuerySpec *_Nullable)query;
+- (void)keepQuery:(FQuerySpec *_Nullable)query
+           synced:(BOOL)synced
+       skipListen:(BOOL)skip;
 - (void)keepQuery:(FQuerySpec *_Nullable)query synced:(BOOL)synced;
 
 - (NSString *_Nullable)name;

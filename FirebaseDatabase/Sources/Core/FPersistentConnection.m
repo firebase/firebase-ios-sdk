@@ -861,25 +861,6 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
     NSNumber *index = [self.getCounter getAndIncrement];
     self.outstandingGets[index] = get;
 
-    if (![self connected]) {
-        dispatch_after(
-            dispatch_time(DISPATCH_TIME_NOW,
-                          kPersistentConnectionGetConnectTimeout),
-            self.dispatchQueue, ^{
-              FOutstandingGet *currGet = self.outstandingGets[index];
-              if ([currGet sent] || currGet == nil) {
-                  return;
-              }
-              FFLog(@"I-RDB034045",
-                    @"get %@ timed out waiting for a connection", index);
-              currGet.sent = YES;
-              currGet.onCompleteBlock(kFWPResponseForActionStatusFailed, nil,
-                                      kPersistentConnectionOffline);
-              [self.outstandingGets removeObjectForKey:index];
-            });
-        return;
-    }
-
     if ([self canSendReads]) {
         FFLog(@"I-RDB034024", @"Sending get: %@", index);
         [self sendGet:index];

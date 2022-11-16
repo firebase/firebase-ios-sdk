@@ -34,6 +34,23 @@
 - (NSTimeInterval)waitUntil:(BOOL (^)(void))predicate
                     timeout:(NSTimeInterval)seconds
                 description:(NSString *)desc {
+  return [self waitUntil:predicate timeout:seconds description:nil failOnTimeout:YES];
+}
+
+- (NSTimeInterval)waitForSeconds:(NSTimeInterval)seconds {
+  return [self
+          waitUntil:^{
+            return NO;
+          }
+            timeout:seconds
+        description:nil
+      failOnTimeout:NO];
+}
+
+- (NSTimeInterval)waitUntil:(BOOL (^)(void))predicate
+                    timeout:(NSTimeInterval)seconds
+                description:(NSString *)desc
+              failOnTimeout:(BOOL)fail {
   NSTimeInterval start = [NSDate timeIntervalSinceReferenceDate];
   NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:seconds];
   NSTimeInterval timeoutTime = [timeoutDate timeIntervalSinceReferenceDate];
@@ -47,7 +64,7 @@
   }
 
   NSTimeInterval finish = [NSDate timeIntervalSinceReferenceDate];
-  if (currentTime > timeoutTime) {
+  if ((currentTime > timeoutTime) && fail) {
     if (desc != nil) {
       XCTFail("Timed out on: %@", desc);
     } else {
