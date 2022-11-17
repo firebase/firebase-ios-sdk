@@ -180,13 +180,13 @@
     [tokenOptions addEntriesFromDictionary:options];
   }
 
-  #if TARGET_OS_SIMULATOR && TARGET_OS_IOS
+#if TARGET_OS_SIMULATOR && TARGET_OS_IOS
   if (tokenOptions[kFIRMessagingTokenOptionsAPNSKey] != nil) {
     // If APNS token is available on iOS Simulator, we must use the sandbox profile
     // https://developer.apple.com/documentation/xcode-release-notes/xcode-14-release-notes
     tokenOptions[kFIRMessagingTokenOptionsAPNSIsSandboxKey] = @(YES);
   }
-  #endif
+#endif
 
   if (tokenOptions[kFIRMessagingTokenOptionsAPNSKey] != nil &&
       tokenOptions[kFIRMessagingTokenOptionsAPNSIsSandboxKey] == nil) {
