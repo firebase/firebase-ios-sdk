@@ -34,16 +34,6 @@ private extension Data {
     }
     return nil
   }
-
-  var cacheKeyValue: Settings.CacheKey? {
-    do {
-      let cacheKey = try JSONDecoder().decode(Settings.CacheKey.self, from: self)
-      return cacheKey
-    } catch {
-      Logger.logError("[Settings] Error: \(error)")
-    }
-    return nil
-  }
 }
 
 extension NSLocking {
@@ -55,7 +45,7 @@ extension NSLocking {
 }
 
 protocol SettingsProtocol {
-  func loadCache(googleAppID: String, currentTime: Date)
+  func isCacheExpired(currentTime: Date) -> Bool
   var sessionsEnabled: Bool { get }
   var samplingRate: Double { get }
   var sessionTimeout: TimeInterval { get }
@@ -63,111 +53,67 @@ protocol SettingsProtocol {
 
 class Settings: SettingsProtocol {
   private static let cacheDurationSecondsDefault: TimeInterval = 60 * 60
-  private let fileManager: SettingsFileManagerProtocol
+  private let cache: SettingsCacheClient
   private let appInfo: ApplicationInfoProtocol
-  // Underscored variables may be accessed in different threads,
-  private let lock = NSLock()
-  private var _settingsDictionary: [String: AnyObject]?
-  private var _isCacheKeyExpired: Bool
-  struct CacheKey: Codable {
-    var createdAt: Date
-    var googleAppID: String
-    var appVersion: String
-  }
-
-  var settingsDictionary: [String: AnyObject]? {
-    lock.synchronized {
-      _settingsDictionary
-    }
-  }
 
   var sessionsEnabled: Bool {
-    guard let enabled = settingsDictionary?["sessions_enabled"]?.boolValue else {
+    guard let enabled = cache.cacheContent?["sessions_enabled"] as? Bool else {
       return true
     }
     return enabled
   }
 
   var samplingRate: Double {
-    guard let rate = settingsDictionary?["sampling_rate"]?.doubleValue else {
+    guard let rate = cache.cacheContent?["sampling_rate"] as? Double else {
       return 1
     }
     return rate
   }
 
   var sessionTimeout: TimeInterval {
-    guard let timeout = settingsDictionary?["session_timeout"]?.doubleValue else {
+    guard let timeout = cache.cacheContent?["session_timeout"] as? Double else {
       return 30 * 60
     }
     return timeout
   }
 
-  var isCacheExpired: Bool {
-    guard settingsDictionary != nil else {
-      return true
-    }
-    return lock.synchronized {
-      return _isCacheKeyExpired
-    }
-  }
-
   private var cacheDurationSeconds: TimeInterval {
-    guard let duration = settingsDictionary?["cache_duration"]?.doubleValue else {
+    guard let duration = cache.cacheContent?["cache_duration"] as? Double else {
       return Settings.cacheDurationSecondsDefault
     }
     return duration
   }
 
-  init(fileManager: SettingsFileManagerProtocol = SettingsFileManager(),
+  init(cache: SettingsCacheClient = SettingsCache(),
        appInfo: ApplicationInfoProtocol) {
-    self.fileManager = fileManager
-    _isCacheKeyExpired = false
+    self.cache = cache
     self.appInfo = appInfo
   }
 
-  func loadCache(googleAppID: String, currentTime: Date) {
-    guard let cacheData = fileManager.data(contentsOf: fileManager.settingsCacheContentPath) else {
-      Logger.logDebug("[Settings] No settings were cached")
-      return
+  func isCacheExpired(currentTime: Date) -> Bool {
+    guard cache.cacheContent != nil else {
+      cache.removeCache()
+      return true
     }
-    guard let parsedDictionary = cacheData.dictionaryValue else {
-      removeCache()
-      return
-    }
-    lock.synchronized {
-      _settingsDictionary = parsedDictionary
-    }
-    guard let cacheKeyData = fileManager.data(contentsOf: fileManager.settingsCacheKeyPath),
-          let cacheKey = cacheKeyData.cacheKeyValue else {
+    guard let cacheKey = cache.cacheKey else {
       Logger.logError("[Settings] Could not load settings cache key")
-      removeCache()
-      return
+      cache.removeCache()
+      return true
     }
-    guard cacheKey.googleAppID == googleAppID else {
+    guard cacheKey.googleAppID == appInfo.appID else {
       Logger
         .logDebug("[Settings] Cache expired because Google App ID changed")
-      removeCache()
-      return
+      cache.removeCache()
+      return true
     }
     if currentTime.timeIntervalSince(cacheKey.createdAt) > cacheDurationSeconds {
       Logger.logDebug("[Settings] Cache TTL expired")
-      lock.synchronized {
-        _isCacheKeyExpired = true
-      }
+      return true
     }
     if appInfo.synthesizedVersion != cacheKey.appVersion {
       Logger.logDebug("[Settings] Cache expired because app version changed")
-      lock.synchronized {
-        _isCacheKeyExpired = true
-      }
+      return true
     }
-  }
-
-  private func removeCache() {
-    fileManager.removeCacheFilesAsync()
-    lock.synchronized {
-      _isCacheKeyExpired = true
-      _settingsDictionary = nil
-    }
+    return false
   }
 }
