@@ -45,24 +45,24 @@ static NSString *const kFacebookAppID = KFACEBOOK_APP_ID;
 
 - (void)getAuthCredentialWithPresentingViewController:(UIViewController *)viewController
                                              callback:(AuthCredentialCallback)callback {
-  [self signOut];
-
-  [ApplicationDelegate setOpenURLDelegate:self];
-  [FBSDKSettings setAppID:kFacebookAppID];
-  [_loginManager logInWithPermissions:@[ @"email" ]
-                   fromViewController:viewController
-                              handler:^(FBSDKLoginManagerLoginResult *result, NSError *error) {
-    [ApplicationDelegate setOpenURLDelegate:nil];
-    if (!error && result.isCancelled) {
-      error = [NSError errorWithDomain:@"com.google.FirebaseAuthSample" code:-1 userInfo:nil];
-    }
-    if (error) {
-      callback(nil, error);
-      return;
-    }
-    NSString *accessToken = [FBSDKAccessToken currentAccessToken].tokenString;
-    callback([FIRFacebookAuthProvider credentialWithAccessToken:accessToken], nil);
-  }];
+//  [self signOut];
+//
+//  [ApplicationDelegate setOpenURLDelegate:self];
+//  [FBSDKSettings setAppID:kFacebookAppID];
+//  [_loginManager logInWithPermissions:@[ @"email" ]
+//                   fromViewController:viewController
+//                              handler:^(FBSDKLoginManagerLoginResult *result, NSError *error) {
+//    [ApplicationDelegate setOpenURLDelegate:nil];
+//    if (!error && result.isCancelled) {
+//      error = [NSError errorWithDomain:@"com.google.FirebaseAuthSample" code:-1 userInfo:nil];
+//    }
+//    if (error) {
+//      callback(nil, error);
+//      return;
+//    }
+//    NSString *accessToken = [FBSDKAccessToken currentAccessToken].tokenString;
+//    callback([FIRFacebookAuthProvider credentialWithAccessToken:accessToken], nil);
+//  }];
 }
 
 - (void)signOut {

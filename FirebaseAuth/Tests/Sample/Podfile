@@ -2,18 +2,17 @@
 #source 'sso://cpdc-internal/firebase'
 #source 'https://cdn.cocoapods.org/'
 
-source 'https://github.com/firebase/SpecsDev.git'
-source 'https://github.com/firebase/SpecsStaging.git'
-source 'https://cdn.cocoapods.org/'
+source "https://github.com/CocoaPods/Specs.git"
 
 use_frameworks!
 
 target 'AuthSample' do
-  platform :ios, '10.0'
+  platform :ios, '14.0'  
   pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseCoreDiagnostics', :path => '../../../'
   pod 'FirebaseCoreInternal', :path => '../../../'
-  pod 'FirebaseAuth', :path => '../../../', :testspecs => ['unit']
+  # pod 'FirebaseAuth', :path => '../../../', :testspecs => ['unit']
+  pod 'FirebaseAuth', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../..'
   pod 'FBSDKLoginKit'
   pod 'GoogleSignIn', '~> 6'
