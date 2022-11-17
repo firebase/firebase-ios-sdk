@@ -69,7 +69,6 @@
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
-#import "FirebaseAuth/Sources/Utilities/FIRAuthRecaptchaVerifier.h"
 
 #if TARGET_OS_IOS
 #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
@@ -697,10 +696,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 - (void)signInWithEmail:(NSString *)email
                password:(NSString *)password
              completion:(nullable FIRAuthDataResultCallback)completion {
-    [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier] verifyWithCompletion:^(NSString * _Nullable token, NSError * _Nullable error) {
-        
-    }];
-    
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     FIRAuthDataResultCallback decoratedCallback =
         [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
