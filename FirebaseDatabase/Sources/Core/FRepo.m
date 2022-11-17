@@ -534,12 +534,11 @@
         return;
     }
     __block FIndexedNode *persisted = nil;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW,
-                                 kPersistentConnectionGetConnectTimeout),
-                   [FIRDatabaseQuery sharedQueue], ^{
-                     persisted =
-                         [self.serverSyncTree persistenceServerCache:querySpec];
-                   });
+    dispatch_after(
+        dispatch_time(DISPATCH_TIME_NOW, kGetDataPersistenceFallbackTimeout),
+        [FIRDatabaseQuery sharedQueue], ^{
+          persisted = [self.serverSyncTree persistenceServerCache:querySpec];
+        });
     [self.persistenceManager setQueryActive:querySpec];
     [self.connection
         getDataAtPath:[query.path toString]

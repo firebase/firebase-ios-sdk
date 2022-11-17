@@ -107,7 +107,7 @@ NSString *const kPersistentConnectionOffline = @"Client is offline.";
 const int kWebsocketMaxFrameSize = 16384;
 NSUInteger const kWebsocketKeepaliveInterval = 45;
 NSUInteger const kWebsocketConnectTimeout = 30;
-UInt64 const kPersistentConnectionGetConnectTimeout = 3 * NSEC_PER_SEC;
+UInt64 const kGetDataPersistenceFallbackTimeout = 3 * NSEC_PER_SEC;
 
 float const kPersistentConnReconnectMinDelay = 1.0;
 float const kPersistentConnReconnectMaxDelay = 30.0;

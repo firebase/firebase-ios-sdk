@@ -645,9 +645,11 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
           [self.persistenceManager setQueryInactive:query];
         }];
         if (skipListenDedup) {
-            NSAssert(cancelEvents.count == 0,
-                     @"Non-empty cancelEvents for skipListenDedup "
-                     @"removeRegistration");
+            if ([cancelEvents count] > 0) {
+                FFWarn(@"I-RDB086004",
+                       @"Non-empty cancelEvents for skipListenDedup "
+                       @"removeRegistration");
+            }
             return cancelEvents;
         }
         NSNumber *covered = [self.syncPointTree

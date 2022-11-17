@@ -77,7 +77,7 @@
 - (void)keepQuery:(FQuerySpec *)query synced:(BOOL)keepSynced;
 - (void)keepQuery:(FQuerySpec *)query
            synced:(BOOL)keepSynced
-       skipListen:(BOOL)skipListenDedup;
+       skipListen:(BOOL)skip;
 - (NSArray *)removeAllWrites;
 
 - (FIndexedNode *)persistenceServerCache:(FQuerySpec *)querySpec;
