@@ -1,3 +1,6 @@
+# unreleased
+- [fixed] Fixes issue where `utmParametersDictionary` / `minimumAppVersion` were not provided and their value were set to `[NSNull null]` instead of `nil`.
+
 # 10.2.0
 - [fixed] Fixes utm parameters not being returned to dynamic link when using universal links (#10341)
 
