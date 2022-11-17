@@ -31,12 +31,10 @@ protocol SettingsCacheClient {
 
 class SettingsCache: SettingsCacheClient {
   private static let settingsVersion: Int = 1
-  private static let content: String = "settings"
-  private static let key: String = "cache-key"
+  private static let content: String = "firebase-sessions-settings"
+  private static let key: String = "firebase-sessions-cache-key"
   /// UserDefaults holds values in memory, making access O(1) and synchronous within the app, while abstracting away async disk IO.
   private let cache: UserDefaults = .standard
-
-  init() {}
 
   /// Converting to dictionary is O(1) because object conversion is O(1)
   var cacheContent: [String: Any]? {

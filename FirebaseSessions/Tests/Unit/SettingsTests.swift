@@ -26,14 +26,15 @@ class SettingsTests: XCTestCase {
     "session_timeout": 10,
   ]
   let corruptedJSONString: String = "{{{{ non_key: non\"value {}"
-  let fileManager: FileManager = .default
-  var settingsFileManager: SettingsCacheClient!
+  var cache: SettingsCacheClient!
   var settings: Settings!
   var appInfo: MockApplicationInfo!
 
   override func setUp() {
     appInfo = MockApplicationInfo()
-    settings = Settings(appInfo: appInfo)
+    cache = SettingsCache()
+    cache.removeCache()
+    settings = Settings(cache: cache, appInfo: appInfo)
   }
 
   func test_noCacheSaved_returnsDefaultSettings() {
@@ -176,18 +177,21 @@ class SettingsTests: XCTestCase {
   // TODO: make Settings.CacheKey private again after implementing download and save
   func write(cacheKey: CacheKey) {
     do {
-      try UserDefaults.standard.set(JSONEncoder().encode(cacheKey), forKey: "cache-key")
+      try UserDefaults.standard.set(
+        JSONEncoder().encode(cacheKey),
+        forKey: "firebase-sessions-cache-key"
+      )
     } catch {
       print("SettingsTests: \(error)")
     }
   }
 
   func write(settings: [String: Any]) {
-    UserDefaults.standard.set(settings, forKey: "settings")
+    UserDefaults.standard.set(settings, forKey: "firebase-sessions-settings")
   }
 
   func write(jsonString: String, isCacheKey: Bool = true) {
-    let name = isCacheKey ? "cache-key" : "settings"
+    let name = isCacheKey ? "firebase-sessions-cache-key" : "firebase-sessions-settings"
     UserDefaults.standard.set(jsonString, forKey: name)
   }
 }
