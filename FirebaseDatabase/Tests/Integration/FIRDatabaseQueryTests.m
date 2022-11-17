@@ -4548,6 +4548,38 @@
   }
 }
 
+- (void)testGetWaitsForConnection {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+  FIRDatabase* db = [ref database];
+  __block BOOL received = NO;
+  @try {
+    [db goOffline];
+    id this = self;
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+    dispatch_async(dispatch_queue_create("", DISPATCH_QUEUE_CONCURRENT), ^{
+      [NSThread sleepForTimeInterval:0.2];
+      @synchronized(this) {
+        XCTAssertFalse(received);
+        [db goOnline];
+      }
+      dispatch_semaphore_signal(semaphore);
+    });
+    __block BOOL done = NO;
+    [ref getDataWithCompletionBlock:^(NSError* _Nullable error,
+                                      FIRDataSnapshot* _Nullable snapshot) {
+      XCTAssertNil(error);
+      @synchronized(this) {
+        received = YES;
+      }
+      done = YES;
+    }];
+    WAIT_FOR(done);
+    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+  } @finally {
+    [db goOnline];
+  }
+}
+
 - (void)testGetReturnsErrorForUnknownNodeWhenOffline {
   FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
   FIRDatabase* db = [ref database];
