@@ -19,31 +19,6 @@ extension ApplicationInfoProtocol {
   var synthesizedVersion: String { return "\(appDisplayVersion) (\(appBuildVersion))" }
 }
 
-private extension Data {
-  var dictionaryValue: [String: AnyObject]? {
-    do {
-      let json = try JSONSerialization.jsonObject(with: self)
-      if let dictionary = json as? [String: AnyObject] {
-        return dictionary
-      } else {
-        Logger
-          .logError("[Settings] Could not cast JSON object as a Dictionary<String, Any>")
-      }
-    } catch {
-      Logger.logError("[Settings] Error: \(error)")
-    }
-    return nil
-  }
-}
-
-extension NSLocking {
-  func synchronized<T>(_ closure: () throws -> T) rethrows -> T {
-    lock()
-    defer { unlock() }
-    return try closure()
-  }
-}
-
 protocol SettingsProtocol {
   func isCacheExpired(currentTime: Date) -> Bool
   var sessionsEnabled: Bool { get }
@@ -65,7 +40,7 @@ class Settings: SettingsProtocol {
 
   var samplingRate: Double {
     guard let rate = cache.cacheContent?["sampling_rate"] as? Double else {
-      return 1
+      return 1.0
     }
     return rate
   }

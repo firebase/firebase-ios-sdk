@@ -15,17 +15,6 @@
 
 import Foundation
 
-extension URL {
-  func appendingCompatible(path: String) -> URL {
-    #if (os(iOS) && !targetEnvironment(macCatalyst)) || os(tvOS)
-      if #available(iOS 16.0, tvOS 16.0, *) {
-        return appending(path: path)
-      }
-    #endif
-    return appendingPathComponent(path)
-  }
-}
-
 struct CacheKey: Codable {
   var createdAt: Date
   var googleAppID: String
