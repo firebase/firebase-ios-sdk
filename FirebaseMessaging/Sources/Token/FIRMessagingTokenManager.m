@@ -642,7 +642,6 @@
     }
     return;
   }
-  NSInteger type = [userInfo[kFIRMessagingAPNSTokenType] integerValue];
 
   // The APNS token is being added, or has changed (rare)
   if ([self.currentAPNSInfo.deviceToken isEqualToData:APNSToken]) {
@@ -656,6 +655,7 @@
   // https://developer.apple.com/documentation/xcode-release-notes/xcode-14-release-notes
   BOOL isSandboxApp = YES;
 #else
+  NSInteger type = [userInfo[kFIRMessagingAPNSTokenType] integerValue];
   BOOL isSandboxApp = (type == FIRMessagingAPNSTokenTypeSandbox);
   if (type == FIRMessagingAPNSTokenTypeUnknown) {
     isSandboxApp = FIRMessagingIsSandboxApp();
