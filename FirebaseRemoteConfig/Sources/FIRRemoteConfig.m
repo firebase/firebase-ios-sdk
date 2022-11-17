@@ -35,8 +35,7 @@
 /// TODO: Rename according to obj-c style for constants.
 NSString *const FIRRemoteConfigErrorDomain = @"com.google.remoteconfig.ErrorDomain";
 // Remote Config Realtime Error Domain
-NSString *const FIRRemoteConfigRealtimeErrorDomain =
-    @"com.google.remoteconfig.realtime.ErrorDomain";
+NSString *const FIRRemoteConfigUpdateErrorDomain = @"com.google.remoteconfig.update.ErrorDomain";
 /// Remote Config Error Info End Time Seconds;
 NSString *const FIRRemoteConfigThrottledEndTimeInSecondsKey = @"error_throttled_end_time_seconds";
 /// Minimum required time interval between fetch requests made to the backend.
