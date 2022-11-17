@@ -19,18 +19,18 @@ import Foundation
 /// involved with sending a Session Start event.
 ///
 class SessionCoordinator {
-  let identifiers: IdentifierProvider
+  let session: SessionProtocol
   let fireLogger: EventGDTLoggerProtocol
 
-  init(identifiers: IdentifierProvider, fireLogger: EventGDTLoggerProtocol) {
-    self.identifiers = identifiers
+  init(session: SessionProtocol, fireLogger: EventGDTLoggerProtocol) {
+    self.session = session
     self.fireLogger = fireLogger
   }
 
   // Begins the process of logging a SessionStartEvent to FireLog, while taking into account Data Collection, Sampling, and fetching Settings
   func attemptLoggingSessionStart(event: SessionStartEvent,
                                   callback: @escaping (Result<Void, Error>) -> Void) {
-    event.setInstallationID(identifiers: identifiers)
+    event.setInstallationID(session: session)
 
     fireLogger.logEvent(event: event) { result in
       switch result {

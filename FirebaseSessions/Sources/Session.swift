@@ -17,7 +17,7 @@ import Foundation
 
 @_implementationOnly import FirebaseInstallations
 
-protocol IdentifierProvider {
+protocol SessionProtocol {
   var installationID: String {
     get
   }
@@ -32,13 +32,13 @@ protocol IdentifierProvider {
 }
 
 ///
-/// Identifiers is responsible for:
+/// Session is responsible for:
 ///   1) Getting the Installation ID from Installations
 ///   2) Generating the Session ID
 ///   3) Persisting and reading the Session ID from the last session
 ///   (Maybe) 4) Persisting, reading, and incrementing an increasing index
 ///
-class Identifiers: IdentifierProvider {
+class Session: SessionProtocol {
   private let installations: InstallationsProtocol
 
   private var _sessionID: String?
@@ -61,7 +61,7 @@ class Identifiers: IdentifierProvider {
     if Thread.isMainThread {
       Logger
         .logError(
-          "Error: Identifiers.installationID getter must be called on a background thread. Using an empty ID"
+          "Error: Session.installationID getter must be called on a background thread. Using an empty ID"
         )
       return ""
     }

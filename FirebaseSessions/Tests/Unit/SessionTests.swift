@@ -18,9 +18,9 @@ import XCTest
 @testable import FirebaseSessions
 @testable import FirebaseInstallations
 
-class IdentifiersTests: XCTestCase {
+class SessionTests: XCTestCase {
   var installations: MockInstallationsProtocol!
-  var identifiers: Identifiers!
+  var session: Session!
 
   override func setUp() {
     // Clear all UserDefaults
@@ -29,7 +29,7 @@ class IdentifiersTests: XCTestCase {
     }
 
     installations = MockInstallationsProtocol()
-    identifiers = Identifiers(installations: installations)
+    session = Session(installations: installations)
   }
 
   func isValidSessionID(_ sessionID: String) -> Bool {
@@ -52,31 +52,31 @@ class IdentifiersTests: XCTestCase {
   // with the Sessions SDK, we may want to move to a lazy solution where
   // sessionID can never be empty
   func test_sessionID_beforeGenerateReturnsNothing() throws {
-    XCTAssert(identifiers.sessionID.count == 0)
-    XCTAssertNil(identifiers.previousSessionID)
+    XCTAssert(session.sessionID.count == 0)
+    XCTAssertNil(session.previousSessionID)
   }
 
   func test_generateNewSessionID_generatesValidID() throws {
-    identifiers.generateNewSessionID()
-    XCTAssert(isValidSessionID(identifiers.sessionID))
-    XCTAssertNil(identifiers.previousSessionID)
+    session.generateNewSessionID()
+    XCTAssert(isValidSessionID(session.sessionID))
+    XCTAssertNil(session.previousSessionID)
   }
 
   /// Ensures that generating a Session ID multiple times results in the last Session ID being set in the previousSessionID field
   func test_generateNewSessionID_rotatesPreviousID() throws {
-    identifiers.generateNewSessionID()
+    session.generateNewSessionID()
 
-    let firstSessionID = identifiers.sessionID
-    XCTAssert(isValidSessionID(identifiers.sessionID))
-    XCTAssertNil(identifiers.previousSessionID)
+    let firstSessionID = session.sessionID
+    XCTAssert(isValidSessionID(session.sessionID))
+    XCTAssertNil(session.previousSessionID)
 
-    identifiers.generateNewSessionID()
+    session.generateNewSessionID()
 
-    XCTAssert(isValidSessionID(identifiers.sessionID))
-    XCTAssert(isValidSessionID(identifiers.previousSessionID!))
+    XCTAssert(isValidSessionID(session.sessionID))
+    XCTAssert(isValidSessionID(session.previousSessionID!))
 
     // Ensure the new lastSessionID is equal to the sessionID from earlier
-    XCTAssertEqual(identifiers.previousSessionID, firstSessionID)
+    XCTAssertEqual(session.previousSessionID, firstSessionID)
   }
 
   // Fetching FIIDs requires that we are on a background thread.
@@ -88,7 +88,7 @@ class IdentifiersTests: XCTestCase {
     let expectation = XCTestExpectation(description: "Get the Installation ID Asynchronously")
 
     DispatchQueue.global().async { [self] in
-      XCTAssertEqual(self.identifiers.installationID, testID)
+      XCTAssertEqual(self.session.installationID, testID)
       expectation.fulfill()
     }
 
@@ -102,7 +102,7 @@ class IdentifiersTests: XCTestCase {
     let expectation = XCTestExpectation(description: "Get the Installation ID Asynchronously")
 
     DispatchQueue.global().async { [self] in
-      XCTAssertEqual(self.identifiers.installationID, "")
+      XCTAssertEqual(self.session.installationID, "")
       expectation.fulfill()
     }
 

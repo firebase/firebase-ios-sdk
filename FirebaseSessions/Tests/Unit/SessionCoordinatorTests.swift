@@ -18,7 +18,7 @@ import XCTest
 @testable import FirebaseSessions
 
 class SessionCoordinatorTests: XCTestCase {
-  var identifiers = MockIdentifierProvider()
+  var session = MockSessionProvider()
   var time = MockTimeProvider()
   var fireLogger = MockGDTLogger()
   var appInfo = MockApplicationInfo()
@@ -28,13 +28,13 @@ class SessionCoordinatorTests: XCTestCase {
   override func setUp() {
     super.setUp()
 
-    coordinator = SessionCoordinator(identifiers: identifiers, fireLogger: fireLogger)
+    coordinator = SessionCoordinator(session: session, fireLogger: fireLogger)
   }
 
   func test_attemptLoggingSessionStart_logsToGDT() throws {
-    identifiers.mockAllValidIDs()
+    session.mockAllValidIDs()
 
-    let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
+    let event = SessionStartEvent(session: session, appInfo: appInfo, time: time)
     var resultSuccess = false
     coordinator.attemptLoggingSessionStart(event: event) { result in
       switch result {
@@ -47,7 +47,7 @@ class SessionCoordinatorTests: XCTestCase {
     // Make sure we've set the Installation ID
     assertEqualProtoString(
       event.proto.session_data.firebase_installation_id,
-      expected: MockIdentifierProvider.testInstallationID,
+      expected: MockSessionProvider.testInstallationID,
       fieldName: "installation_id"
     )
 
@@ -57,10 +57,10 @@ class SessionCoordinatorTests: XCTestCase {
   }
 
   func test_attemptLoggingSessionStart_handlesGDTError() throws {
-    identifiers.mockAllValidIDs()
+    session.mockAllValidIDs()
     fireLogger.result = .failure(NSError(domain: "TestError", code: -1))
 
-    let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
+    let event = SessionStartEvent(session: session, appInfo: appInfo, time: time)
 
     // Start success so it must be set to false
     var resultSuccess = true
@@ -76,7 +76,7 @@ class SessionCoordinatorTests: XCTestCase {
     // Make sure we've set the Installation ID
     assertEqualProtoString(
       event.proto.session_data.firebase_installation_id,
-      expected: MockIdentifierProvider.testInstallationID,
+      expected: MockSessionProvider.testInstallationID,
       fieldName: "installation_id"
     )
 

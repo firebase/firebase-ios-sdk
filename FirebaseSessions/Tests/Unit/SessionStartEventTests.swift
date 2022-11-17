@@ -18,14 +18,14 @@ import XCTest
 @testable import FirebaseSessions
 
 class SessionStartEventTests: XCTestCase {
-  var identifiers: MockIdentifierProvider!
+  var session: MockSessionProvider!
   var time: MockTimeProvider!
   var appInfo: MockApplicationInfo!
 
   override func setUp() {
     super.setUp()
 
-    identifiers = MockIdentifierProvider()
+    session = MockSessionProvider()
     time = MockTimeProvider()
     appInfo = MockApplicationInfo()
   }
@@ -45,19 +45,19 @@ class SessionStartEventTests: XCTestCase {
   }
 
   func test_init_setsSessionIDs() {
-    identifiers.mockAllValidIDs()
+    session.mockAllValidIDs()
 
-    let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
+    let event = SessionStartEvent(session: session, appInfo: appInfo, time: time)
 
     testProtoAndDecodedProto(sessionEvent: event) { proto in
       assertEqualProtoString(
         proto.session_data.session_id,
-        expected: MockIdentifierProvider.testSessionID,
+        expected: MockSessionProvider.testSessionID,
         fieldName: "session_id"
       )
       assertEqualProtoString(
         proto.session_data.previous_session_id,
-        expected: MockIdentifierProvider.testPreviousSessionID,
+        expected: MockSessionProvider.testPreviousSessionID,
         fieldName: "previous_session_id"
       )
 
@@ -68,7 +68,7 @@ class SessionStartEventTests: XCTestCase {
   func test_init_setsApplicationInfo() {
     appInfo.mockAllInfo()
 
-    let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
+    let event = SessionStartEvent(session: session, appInfo: appInfo, time: time)
 
     testProtoAndDecodedProto(sessionEvent: event) { proto in
       assertEqualProtoString(
@@ -101,15 +101,15 @@ class SessionStartEventTests: XCTestCase {
   }
 
   func test_setInstallationID_setsInstallationID() {
-    identifiers.mockAllValidIDs()
+    session.mockAllValidIDs()
 
-    let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
-    event.setInstallationID(identifiers: identifiers)
+    let event = SessionStartEvent(session: session, appInfo: appInfo, time: time)
+    event.setInstallationID(session: session)
 
     testProtoAndDecodedProto(sessionEvent: event) { proto in
       assertEqualProtoString(
         proto.session_data.firebase_installation_id,
-        expected: MockIdentifierProvider.testInstallationID,
+        expected: MockSessionProvider.testInstallationID,
         fieldName: "firebase_installation_id"
       )
     }
@@ -130,7 +130,7 @@ class SessionStartEventTests: XCTestCase {
     expectations.forEach { (given: String, expected: firebase_appquality_sessions_OsName) in
       appInfo.osName = given
 
-      let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
+      let event = SessionStartEvent(session: session, appInfo: appInfo, time: time)
 
       testProtoAndDecodedProto(sessionEvent: event) { proto in
         XCTAssertEqual(event.proto.application_info.apple_app_info.os_name, expected)
@@ -156,7 +156,7 @@ class SessionStartEventTests: XCTestCase {
                             expected: firebase_appquality_sessions_LogEnvironment) in
         appInfo.environment = given
 
-        let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
+        let event = SessionStartEvent(session: session, appInfo: appInfo, time: time)
 
         XCTAssertEqual(event.proto.application_info.log_environment, expected)
     }

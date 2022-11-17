@@ -38,7 +38,7 @@ protocol SessionsProvider {
   /// Top-level Classes in the Sessions SDK
   private let coordinator: SessionCoordinator
   private let initiator: SessionInitiator
-  private let identifiers: Identifiers
+  private let session: Session
   private let appInfo: ApplicationInfo
 
   // MARK: - Initializers
@@ -53,24 +53,24 @@ protocol SessionsProvider {
 
     let fireLogger = EventGDTLogger(googleDataTransport: googleDataTransport!)
 
-    let identifiers = Identifiers(installations: installations)
-    let coordinator = SessionCoordinator(identifiers: identifiers, fireLogger: fireLogger)
+    let session = Session(installations: installations)
+    let coordinator = SessionCoordinator(session: session, fireLogger: fireLogger)
     let initiator = SessionInitiator()
     let appInfo = ApplicationInfo(appID: appID)
 
     self.init(appID: appID,
-              identifiers: identifiers,
+              session: session,
               coordinator: coordinator,
               initiator: initiator,
               appInfo: appInfo)
   }
 
   // Initializes the SDK and begines the process of listening for lifecycle events and logging events
-  init(appID: String, identifiers: Identifiers, coordinator: SessionCoordinator,
+  init(appID: String, session: Session, coordinator: SessionCoordinator,
        initiator: SessionInitiator, appInfo: ApplicationInfo) {
     self.appID = appID
 
-    self.identifiers = identifiers
+    self.session = session
     self.coordinator = coordinator
     self.initiator = initiator
     self.appInfo = appInfo
@@ -78,8 +78,8 @@ protocol SessionsProvider {
     super.init()
 
     self.initiator.beginListening {
-      self.identifiers.generateNewSessionID()
-      let event = SessionStartEvent(identifiers: self.identifiers, appInfo: self.appInfo)
+      self.session.generateNewSessionID()
+      let event = SessionStartEvent(session: self.session, appInfo: self.appInfo)
       DispatchQueue.global().async {
         self.coordinator.attemptLoggingSessionStart(event: event) { result in
         }

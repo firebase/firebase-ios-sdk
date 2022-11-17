@@ -17,7 +17,7 @@ import Foundation
 
 @testable import FirebaseSessions
 
-class MockIdentifierProvider: IdentifierProvider {
+class MockSessionProvider: SessionProtocol {
   var sessionID: String = ""
 
   var previousSessionID: String?
@@ -29,8 +29,8 @@ class MockIdentifierProvider: IdentifierProvider {
   static let testInstallationID = "testInstallationID"
 
   func mockAllValidIDs() {
-    sessionID = MockIdentifierProvider.testSessionID
-    previousSessionID = MockIdentifierProvider.testPreviousSessionID
-    installationID = MockIdentifierProvider.testInstallationID
+    sessionID = MockSessionProvider.testSessionID
+    previousSessionID = MockSessionProvider.testPreviousSessionID
+    installationID = MockSessionProvider.testInstallationID
   }
 }
