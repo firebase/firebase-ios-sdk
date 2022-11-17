@@ -1,3 +1,6 @@
+# 10.3.0
+- [changed] Allow notification support on iOS 16 Simulator on Xcode 14 (Reference: Xcode 14 Release Notes -> Simulator -> New Features: https://developer.apple.com/documentation/xcode-release-notes/xcode-14-release-notes)
+
 # 10.1.0
 - [fixed] App bundle identifier gets incorrectly shortened for watchOS apps created on Xcode 14 (#10147)
 
