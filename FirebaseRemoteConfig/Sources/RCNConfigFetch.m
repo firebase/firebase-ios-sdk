@@ -53,7 +53,7 @@ static NSString *const kiOSBundleIdentifierHeaderName =
 
 static NSString *const kFetchTypeHeaderName =
     @"X-Firebase-RC-Fetch-Type";  ///< Custom Http header key to identify the fetch type
-static NSString *const kBaseFetchType = @"BaseFetch";     ///< Fetch identifier for Base Fetch
+static NSString *const kBaseFetchType = @"Base";          ///< Fetch identifier for Base Fetch
 static NSString *const kRealtimeFetchType = @"Realtime";  ///< Fetch identifier for Realtime Fetch
 
 /// Config HTTP request content type proto buffer
