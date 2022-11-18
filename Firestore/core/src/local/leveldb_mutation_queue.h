@@ -29,7 +29,6 @@
 #include "Firestore/core/src/nanopb/message.h"
 #include "absl/strings/string_view.h"
 #include "absl/types/optional.h"
-#include "leveldb/db.h"
 
 namespace firebase {
 class Timestamp;
@@ -48,7 +47,7 @@ class LocalSerializer;
  * Returns one larger than the largest batch ID that has been stored. If there
  * are no mutations returns 0. Note that batch IDs are global.
  */
-model::BatchId LoadNextBatchIdFromDb(leveldb::DB* db);
+model::BatchId LoadNextBatchIdFromDb(ldb::DB* db);
 
 class LevelDbMutationQueue : public MutationQueue {
  public:

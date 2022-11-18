@@ -21,13 +21,13 @@
 #include <unordered_set>
 
 #include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
+#include "Firestore/core/src/local/ldb/leveldb_interface.h"
 #include "Firestore/core/src/local/target_cache.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/snapshot_version.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "absl/strings/string_view.h"
 #include "absl/types/optional.h"
-#include "leveldb/db.h"
 
 namespace firebase {
 namespace firestore {
@@ -47,14 +47,14 @@ class LevelDbTargetCache : public TargetCache {
    * TODO(gsoltis): remove this method once fully ported to transactions.
    */
   static nanopb::Message<firestore_client_TargetGlobal> ReadMetadata(
-      leveldb::DB* db);
+      ldb::DB* db);
 
   /**
    * Test-only -- same as `ReadMetadata`, but returns an empty optional if the
    * metadata row doesn't exist.
    */
   static absl::optional<nanopb::Message<firestore_client_TargetGlobal>>
-  TryReadMetadata(leveldb::DB* db);
+  TryReadMetadata(ldb::DB* db);
 
   /**
    * Creates a new target cache in the given LevelDB.

@@ -55,11 +55,11 @@
 #include "absl/memory/memory.h"
 
 using firebase::Timestamp;
+using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::credentials::EmptyAppCheckCredentialsProvider;
 using firebase::firestore::credentials::EmptyAuthCredentialsProvider;
 using firebase::firestore::credentials::User;
-using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::local::LocalStore;
 using firebase::firestore::local::MemoryPersistence;
 using firebase::firestore::local::Persistence;

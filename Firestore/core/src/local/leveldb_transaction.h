@@ -24,11 +24,11 @@
 #include <string>
 #include <utility>
 
+#include "Firestore/core/src/local/ldb/leveldb_interface.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/writer.h"
 #include "absl/strings/string_view.h"
-#include "leveldb/db.h"
 
 namespace firebase {
 namespace firestore {
@@ -90,7 +90,7 @@ class LevelDbTransaction {
      * Returns true if the given slice matches a key present in the deletions_
      * set.
      */
-    bool IsDeleted(leveldb::Slice slice);
+    bool IsDeleted(ldb::Slice slice);
 
     /**
      * Syncs with the underlying transaction. If the transaction has been
@@ -106,7 +106,7 @@ class LevelDbTransaction {
      */
     void UpdateCurrent();
 
-    std::unique_ptr<leveldb::Iterator> db_iter_;
+    std::unique_ptr<ldb::Iterator> db_iter_;
 
     // The last observed version of the underlying transaction
     int32_t last_version_;
@@ -126,10 +126,10 @@ class LevelDbTransaction {
   };
 
   explicit LevelDbTransaction(
-      leveldb::DB* db,
+      ldb::DB* db,
       absl::string_view label,
-      const leveldb::ReadOptions& read_options = DefaultReadOptions(),
-      const leveldb::WriteOptions& write_options = DefaultWriteOptions());
+      const ldb::ReadOptions& read_options = DefaultReadOptions(),
+      const ldb::WriteOptions& write_options = DefaultWriteOptions());
 
   LevelDbTransaction(const LevelDbTransaction& other) = delete;
 
@@ -138,12 +138,12 @@ class LevelDbTransaction {
   /**
    * Returns a default set of ReadOptions
    */
-  static const leveldb::ReadOptions& DefaultReadOptions();
+  static const ldb::ReadOptions& DefaultReadOptions();
 
   /**
    * Returns a default set of WriteOptions
    */
-  static const leveldb::WriteOptions& DefaultWriteOptions();
+  static const ldb::WriteOptions& DefaultWriteOptions();
 
   size_t changed_keys() const {
     return mutations_.size() + deletions_.size();
@@ -176,7 +176,7 @@ class LevelDbTransaction {
    * doesn't exist in leveldb, or it is scheduled for deletion in this
    * transaction, `Status::NotFound` is returned.
    */
-  leveldb::Status Get(absl::string_view key, std::string* value);
+  ldb::Status Get(absl::string_view key, std::string* value);
 
   /**
    * Returns a new Iterator over the pending changes in this transaction, merged
@@ -193,11 +193,11 @@ class LevelDbTransaction {
   std::string ToString();
 
  private:
-  leveldb::DB* db_ = nullptr;
+  ldb::DB* db_ = nullptr;
   Mutations mutations_;
   Deletions deletions_;
-  leveldb::ReadOptions read_options_;
-  leveldb::WriteOptions write_options_;
+  ldb::ReadOptions read_options_;
+  ldb::WriteOptions write_options_;
   int32_t version_ = 0;
   std::string label_;
 };

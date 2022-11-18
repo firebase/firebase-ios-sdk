@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2022 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,34 +14,35 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_LOCAL_LEVELDB_UTIL_H_
-#define FIRESTORE_CORE_SRC_LOCAL_LEVELDB_UTIL_H_
+#ifndef FIRESTORE_CORE_SRC_LOCAL_LEVELDB_LEVELDB_INTERFACE_H_
+#define FIRESTORE_CORE_SRC_LOCAL_LEVELDB_LEVELDB_INTERFACE_H_
 
 #include <string>
+#include <utility>
 
-#include "Firestore/core/src/local/ldb/leveldb_interface.h"
-#include "Firestore/core/src/util/status_fwd.h"
 #include "absl/strings/string_view.h"
+#include "leveldb/db.h"
+#include "leveldb/options.h"
+#include "leveldb/slice.h"
+#include "leveldb/write_batch.h"
 
 namespace firebase {
 namespace firestore {
 namespace local {
+namespace ldb {
 
-/** Creates a Slice from a string_view. */
-inline ldb::Slice MakeSlice(absl::string_view view) {
-  return ldb::Slice{view.data(), view.size()};
-}
+using DB = ::leveldb::DB;
+using Slice = ::leveldb::Slice;
+using Iterator = ::leveldb::Iterator;
+using Options = ::leveldb::Options;
+using ReadOptions = ::leveldb::ReadOptions;
+using WriteOptions = ::leveldb::WriteOptions;
+using WriteBatch = ::leveldb::WriteBatch;
+using Status = ::leveldb::Status;
 
-/** Creates a string_view from a Slice. */
-inline absl::string_view MakeStringView(ldb::Slice slice) {
-  return absl::string_view{slice.data(), slice.size()};
-}
-
-/** Converts the given LevelDB status to a Firestore status. */
-util::Status ConvertStatus(const ldb::Status& status);
-
+}  // namespace ldb
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_LOCAL_LEVELDB_UTIL_H_
+#endif  // FIRESTORE_CORE_SRC_LOCAL_LEVELDB__H_

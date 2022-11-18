@@ -20,12 +20,12 @@
 #include <string>
 #include <utility>
 
+#include "Firestore/core/src/local/ldb/leveldb_interface.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/mutation_batch.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/types.h"
 #include "absl/strings/string_view.h"
-#include "leveldb/slice.h"
 
 namespace firebase {
 namespace firestore {
@@ -157,7 +157,7 @@ namespace local {
  * Parses the given key and returns a human readable description of its
  * contents, suitable for error messages and logging.
  */
-std::string DescribeKey(leveldb::Slice key);
+std::string DescribeKey(ldb::Slice key);
 std::string DescribeKey(absl::string_view key);
 std::string DescribeKey(const std::string& key);
 std::string DescribeKey(const char* key);
@@ -336,7 +336,7 @@ class LevelDbTargetGlobalKey {
    * that the key has the correct table name.
    */
   ABSL_MUST_USE_RESULT
-  bool Decode(leveldb::Slice key);
+  bool Decode(ldb::Slice key);
 };
 
 /** A key in the targets table. */
@@ -359,7 +359,7 @@ class LevelDbTargetKey {
    * `Decode()`.
    */
   ABSL_MUST_USE_RESULT
-  bool Decode(leveldb::Slice key);
+  bool Decode(ldb::Slice key);
 
   model::TargetId target_id() {
     return target_id_;

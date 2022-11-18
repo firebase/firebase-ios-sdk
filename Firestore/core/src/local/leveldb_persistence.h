@@ -64,7 +64,7 @@ class LevelDbPersistence : public Persistence {
 
   LevelDbTransaction* current_transaction();
 
-  leveldb::DB* ptr() {
+  ldb::DB* ptr() {
     return db_.get();
   }
 
@@ -108,7 +108,7 @@ class LevelDbPersistence : public Persistence {
 
  private:
   friend class LevelDbOverlayMigrationManagerTest;
-  LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
+  LevelDbPersistence(std::unique_ptr<ldb::DB> db,
                      util::Path directory,
                      std::set<std::string> users,
                      LocalSerializer serializer,
@@ -120,8 +120,7 @@ class LevelDbPersistence : public Persistence {
   static util::Status EnsureDirectory(const util::Path& dir);
 
   /** Opens the database within the given directory. */
-  static util::StatusOr<std::unique_ptr<leveldb::DB>> OpenDb(
-      const util::Path& dir);
+  static util::StatusOr<std::unique_ptr<ldb::DB>> OpenDb(const util::Path& dir);
 
   static util::StatusOr<std::unique_ptr<LevelDbPersistence>> Create(
       util::Path dir,
@@ -129,7 +128,7 @@ class LevelDbPersistence : public Persistence {
       LocalSerializer serializer,
       const LruParams& lru_params);
 
-  std::unique_ptr<leveldb::DB> db_;
+  std::unique_ptr<ldb::DB> db_;
 
   util::Path directory_;
   std::set<std::string> users_;
@@ -154,7 +153,7 @@ class LevelDbPersistence : public Persistence {
 };
 
 /** Returns a standard set of read options. */
-leveldb::ReadOptions StandardReadOptions();
+ldb::ReadOptions StandardReadOptions();
 
 }  // namespace local
 }  // namespace firestore

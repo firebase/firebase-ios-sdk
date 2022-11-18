@@ -39,7 +39,7 @@ namespace firestore {
 namespace local {
 
 using core::Target;
-using leveldb::Status;
+using ldb::Status;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::ListenSequenceNumber;
@@ -49,7 +49,7 @@ using nanopb::Message;
 using nanopb::StringReader;
 
 absl::optional<Message<firestore_client_TargetGlobal>>
-LevelDbTargetCache::TryReadMetadata(leveldb::DB* db) {
+LevelDbTargetCache::TryReadMetadata(ldb::DB* db) {
   std::string key = LevelDbTargetGlobalKey::Key();
   std::string value;
   Status status = db->Get(StandardReadOptions(), key, &value);
@@ -71,7 +71,7 @@ LevelDbTargetCache::TryReadMetadata(leveldb::DB* db) {
 }
 
 Message<firestore_client_TargetGlobal> LevelDbTargetCache::ReadMetadata(
-    leveldb::DB* db) {
+    ldb::DB* db) {
   auto maybe_metadata = TryReadMetadata(db);
   if (!maybe_metadata) {
     HARD_FAIL(

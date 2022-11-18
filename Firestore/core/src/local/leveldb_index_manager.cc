@@ -31,6 +31,7 @@
 #include "Firestore/core/src/index/firestore_index_value_writer.h"
 #include "Firestore/core/src/index/index_byte_encoder.h"
 #include "Firestore/core/src/index/index_entry.h"
+#include "Firestore/core/src/local/ldb/leveldb_interface.h"
 #include "Firestore/core/src/local/leveldb_key.h"
 #include "Firestore/core/src/local/leveldb_persistence.h"
 #include "Firestore/core/src/local/leveldb_util.h"
@@ -48,7 +49,6 @@
 #include "Firestore/core/src/util/string_util.h"
 #include "Firestore/third_party/nlohmann_json/json.hpp"
 #include "absl/strings/match.h"
-#include "leveldb/iterator.h"
 
 namespace firebase {
 namespace firestore {
@@ -880,7 +880,7 @@ void LevelDbIndexManager::AddIndexEntry(const model::Document& document,
   auto document_key_index_prefix =
       LevelDbIndexEntryDocumentKeyIndexKey::KeyPrefix(entry.index_id(), uid_,
                                                       document_key);
-  std::unique_ptr<leveldb::Iterator> iter(
+  std::unique_ptr<ldb::Iterator> iter(
       db_->ptr()->NewIterator(LevelDbTransaction::DefaultReadOptions()));
   iter->Seek(util::PrefixSuccessor(document_key_index_prefix));
   iter->Prev();

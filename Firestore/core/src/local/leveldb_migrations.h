@@ -19,9 +19,9 @@
 
 #include <cstdint>
 
+#include "Firestore/core/src/local/ldb/leveldb_interface.h"
 #include "Firestore/core/src/local/leveldb_transaction.h"
 #include "Firestore/core/src/local/local_serializer.h"
-#include "leveldb/db.h"
 
 namespace firebase {
 namespace firestore {
@@ -34,19 +34,19 @@ class LevelDbMigrations {
   /**
    * Returns the current version of the schema for the given database
    */
-  static SchemaVersion ReadSchemaVersion(leveldb::DB* db);
+  static SchemaVersion ReadSchemaVersion(ldb::DB* db);
 
   /**
    * Runs any migrations needed to bring the given database up to the current
    * schema version
    */
-  static void RunMigrations(leveldb::DB* db, const LocalSerializer& serializer);
+  static void RunMigrations(ldb::DB* db, const LocalSerializer& serializer);
 
   /**
    * Runs any migrations needed to bring the given database up to the given
    * schema version
    */
-  static void RunMigrations(leveldb::DB* db,
+  static void RunMigrations(ldb::DB* db,
                             SchemaVersion version,
                             const LocalSerializer& serializer);
 };

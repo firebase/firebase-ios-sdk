@@ -22,6 +22,7 @@
 
 #include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
 #include "Firestore/core/src/core/query.h"
+#include "Firestore/core/src/local/ldb/leveldb_interface.h"
 #include "Firestore/core/src/local/leveldb_key.h"
 #include "Firestore/core/src/local/leveldb_persistence.h"
 #include "Firestore/core/src/local/local_serializer.h"
@@ -33,7 +34,6 @@
 #include "Firestore/core/src/util/executor.h"
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/string_util.h"
-#include "leveldb/db.h"
 
 namespace firebase {
 namespace firestore {
@@ -41,7 +41,7 @@ namespace local {
 namespace {
 
 using core::Query;
-using leveldb::Status;
+using ldb::Status;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::DocumentVersionMap;

@@ -43,7 +43,7 @@ namespace local {
 namespace {
 
 using credentials::User;
-using leveldb::DB;
+using ldb::DB;
 using model::ListenSequenceNumber;
 using util::Filesystem;
 using util::Path;
@@ -111,7 +111,7 @@ StatusOr<std::unique_ptr<LevelDbPersistence>> LevelDbPersistence::Create(
                 lru_params);
 }
 
-LevelDbPersistence::LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
+LevelDbPersistence::LevelDbPersistence(std::unique_ptr<ldb::DB> db,
                                        util::Path directory,
                                        std::set<std::string> users,
                                        LocalSerializer serializer,
@@ -151,11 +151,11 @@ Status LevelDbPersistence::EnsureDirectory(const Path& dir) {
 }
 
 StatusOr<std::unique_ptr<DB>> LevelDbPersistence::OpenDb(const Path& dir) {
-  leveldb::Options options;
+  ldb::Options options;
   options.create_if_missing = true;
 
   DB* database = nullptr;
-  leveldb::Status status = DB::Open(options, dir.ToUtf8String(), &database);
+  ldb::Status status = DB::Open(options, dir.ToUtf8String(), &database);
   if (!status.ok()) {
     return Status{Error::kErrorInternal,
                   StringFormat("Failed to open LevelDB database at %s",
@@ -322,9 +322,9 @@ void LevelDbPersistence::RunInternal(absl::string_view label,
   transaction_.reset();
 }
 
-leveldb::ReadOptions StandardReadOptions() {
+ldb::ReadOptions StandardReadOptions() {
   // For now this is paranoid, but perhaps disable that in production builds.
-  leveldb::ReadOptions options;
+  ldb::ReadOptions options;
   options.verify_checksums = true;
   return options;
 }

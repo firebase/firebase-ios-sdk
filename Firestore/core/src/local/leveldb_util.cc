@@ -25,7 +25,7 @@ namespace firestore {
 namespace local {
 namespace {
 
-Error ConvertStatusCode(const leveldb::Status& status) {
+Error ConvertStatusCode(const ldb::Status& status) {
   if (status.ok()) return Error::kErrorOk;
   if (status.IsNotFound()) return Error::kErrorNotFound;
   if (status.IsCorruption()) return Error::kErrorDataLoss;
@@ -37,7 +37,7 @@ Error ConvertStatusCode(const leveldb::Status& status) {
 
 }  // namespace
 
-util::Status ConvertStatus(const leveldb::Status& status) {
+util::Status ConvertStatus(const ldb::Status& status) {
   if (status.ok()) return util::Status::OK();
 
   Error code = ConvertStatusCode(status);

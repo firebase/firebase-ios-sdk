@@ -38,7 +38,7 @@ namespace firestore {
 namespace local {
 namespace {
 
-using leveldb::Status;
+using ldb::Status;
 using model::DocumentKey;
 using model::ResourcePath;
 using nanopb::Message;
@@ -57,7 +57,7 @@ void SaveVersion(LevelDbMigrations::SchemaVersion version,
   transaction->Put(key, version_string);
 }
 
-void DeleteEverythingWithPrefix(const std::string& prefix, leveldb::DB* db) {
+void DeleteEverythingWithPrefix(const std::string& prefix, ldb::DB* db) {
   bool more_deletes = true;
   while (more_deletes) {
     LevelDbTransaction transaction(db, "Delete everything with prefix");
@@ -78,7 +78,7 @@ void DeleteEverythingWithPrefix(const std::string& prefix, leveldb::DB* db) {
 }
 
 /** Migration 3. */
-void ClearQueryCache(leveldb::DB* db) {
+void ClearQueryCache(ldb::DB* db) {
   DeleteEverythingWithPrefix(LevelDbTargetKey::KeyPrefix(), db);
   DeleteEverythingWithPrefix(LevelDbDocumentTargetKey::KeyPrefix(), db);
   DeleteEverythingWithPrefix(LevelDbTargetDocumentKey::KeyPrefix(), db);
@@ -137,7 +137,7 @@ void RemoveMutationBatches(LevelDbTransaction* transaction,
 }
 
 /** Migration 5. */
-void RemoveAcknowledgedMutations(leveldb::DB* db) {
+void RemoveAcknowledgedMutations(ldb::DB* db) {
   LevelDbTransaction transaction(db, "remove acknowledged mutations");
   std::string mutation_queue_start = LevelDbMutationQueueKey::KeyPrefix();
 
@@ -196,7 +196,7 @@ void EnsureSentinelRow(LevelDbTransaction* transaction,
  * Ensure each document in the remote document table has a corresponding
  * sentinel row in the document target index.
  */
-void EnsureSentinelRows(leveldb::DB* db) {
+void EnsureSentinelRows(ldb::DB* db) {
   LevelDbTransaction transaction(db, "Ensure sentinel rows");
 
   // Get the value we'll use for anything that's missing a row.
@@ -243,7 +243,7 @@ void EnsureCollectionParentRow(LevelDbTransaction* transaction,
  * Creates appropriate LevelDbCollectionParentKey rows for all collections
  * of documents in the remote document cache and mutation queue.
  */
-void EnsureCollectionParentsIndex(leveldb::DB* db) {
+void EnsureCollectionParentsIndex(ldb::DB* db) {
   LevelDbTransaction transaction(db, "Ensure Collection Parents Index");
 
   MemoryCollectionParentIndex cache;
@@ -321,7 +321,7 @@ util::StatusOr<TargetData> ReadTargetData(
  *
  * Rewrites targets canonical IDs with new format.
  */
-void RewriteTargetsCanonicalIds(leveldb::DB* db,
+void RewriteTargetsCanonicalIds(ldb::DB* db,
                                 const LocalSerializer& serializer) {
   LevelDbTransaction transaction(db, "Rewrite Targets Canonical Ids");
 
@@ -360,7 +360,7 @@ void RewriteTargetsCanonicalIds(leveldb::DB* db,
  *
  * Writes 'overlay_migration' into data_migration table.
  */
-void EnsureOverlayDataMigrationIsRequired(leveldb::DB* db) {
+void EnsureOverlayDataMigrationIsRequired(ldb::DB* db) {
   LevelDbTransaction transaction(
       db, "Ensure overlay data migration is marked as required");
 
@@ -373,7 +373,7 @@ void EnsureOverlayDataMigrationIsRequired(leveldb::DB* db) {
 }  // namespace
 
 LevelDbMigrations::SchemaVersion LevelDbMigrations::ReadSchemaVersion(
-    leveldb::DB* db) {
+    ldb::DB* db) {
   LevelDbTransaction transaction(db, "Read schema version");
   std::string key = LevelDbVersionKey::Key();
   std::string version_string;
@@ -388,12 +388,12 @@ LevelDbMigrations::SchemaVersion LevelDbMigrations::ReadSchemaVersion(
   }
 }
 
-void LevelDbMigrations::RunMigrations(leveldb::DB* db,
+void LevelDbMigrations::RunMigrations(ldb::DB* db,
                                       const LocalSerializer& serializer) {
   RunMigrations(db, kSchemaVersion, serializer);
 }
 
-void LevelDbMigrations::RunMigrations(leveldb::DB* db,
+void LevelDbMigrations::RunMigrations(ldb::DB* db,
                                       SchemaVersion to_version,
                                       const LocalSerializer& serializer) {
   SchemaVersion from_version = ReadSchemaVersion(db);

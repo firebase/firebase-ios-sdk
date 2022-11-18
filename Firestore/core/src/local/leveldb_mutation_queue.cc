@@ -41,9 +41,9 @@ namespace local {
 
 using core::Query;
 using credentials::User;
-using leveldb::DB;
-using leveldb::Iterator;
-using leveldb::Status;
+using ldb::DB;
+using ldb::Iterator;
+using ldb::Status;
 using model::BatchId;
 using model::DocumentKey;
 using model::DocumentKeySet;

@@ -23,18 +23,17 @@
 #include "Firestore/core/src/util/log.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_cat.h"
-#include "leveldb/write_batch.h"
-
-using leveldb::DB;
-using leveldb::ReadOptions;
-using leveldb::Slice;
-using leveldb::Status;
-using leveldb::WriteBatch;
-using leveldb::WriteOptions;
 
 namespace firebase {
 namespace firestore {
 namespace local {
+
+using ldb::DB;
+using ldb::ReadOptions;
+using ldb::Slice;
+using ldb::Status;
+using ldb::WriteBatch;
+using ldb::WriteOptions;
 
 LevelDbTransaction::Iterator::Iterator(LevelDbTransaction* txn)
     : db_iter_(txn->db_->NewIterator(txn->read_options_)),
@@ -95,7 +94,7 @@ const std::string& LevelDbTransaction::Iterator::value() const {
   return current_.second;
 }
 
-bool LevelDbTransaction::Iterator::IsDeleted(leveldb::Slice slice) {
+bool LevelDbTransaction::Iterator::IsDeleted(ldb::Slice slice) {
   return txn_->deletions_.find(slice.ToString()) != txn_->deletions_.end();
 }
 

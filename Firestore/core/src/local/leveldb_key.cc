@@ -185,7 +185,7 @@ enum ComponentLabel {
  */
 class Reader {
  public:
-  explicit Reader(leveldb::Slice src) : src_(src), ok_(true) {
+  explicit Reader(ldb::Slice src) : src_(src), ok_(true) {
   }
 
   explicit Reader(absl::string_view src) : Reader{MakeSlice(src)} {
@@ -316,7 +316,7 @@ class Reader {
   }
 
  private:
-  /** OrderedCode::ReadSignedNumIncreasing adapted to leveldb::Slice. */
+  /** OrderedCode::ReadSignedNumIncreasing adapted to ldb::Slice. */
   int64_t ReadSignedNumIncreasing() {
     if (ok_) {
       int64_t result = 0;
@@ -331,7 +331,7 @@ class Reader {
     return 0;
   }
 
-  /** OrderedCode::ReadString adapted to leveldb::Slice. */
+  /** OrderedCode::ReadString adapted to ldb::Slice. */
   std::string ReadString() {
     if (ok_) {
       std::string result;
@@ -511,7 +511,7 @@ class Reader {
     ok_ = false;
   }
 
-  leveldb::Slice src_;
+  ldb::Slice src_;
   bool ok_;
 };
 
@@ -520,7 +520,7 @@ ResourcePath Reader::ReadResourcePath() {
   while (!empty()) {
     // Advance a temporary slice to avoid advancing contents into the next key
     // component which may not be a path segment.
-    leveldb::Slice saved_position = src_;
+    ldb::Slice saved_position = src_;
     if (!ReadComponentLabelMatching(ComponentLabel::PathSegment)) {
       src_ = saved_position;
       break;
@@ -562,14 +562,14 @@ model::SnapshotVersion Reader::ReadSnapshotVersion() {
  * Returns a base64-encoded string for an invalid key, used for debug-friendly
  * description text.
  */
-std::string InvalidKey(leveldb::Slice key) {
+std::string InvalidKey(ldb::Slice key) {
   std::string result;
   absl::Base64Escape(MakeStringView(key), &result);
   return result;
 }
 
 std::string Reader::Describe() {
-  leveldb::Slice original = src_;
+  ldb::Slice original = src_;
 
   bool is_terminated = false;
 
@@ -577,7 +577,7 @@ std::string Reader::Describe() {
   absl::StrAppend(&description, "[");
 
   while (!empty()) {
-    leveldb::Slice saved_source = src_;
+    ldb::Slice saved_source = src_;
 
     ComponentLabel label = ReadComponentLabel();
     if (!ok_) {
@@ -834,7 +834,7 @@ class Writer {
 
 }  // namespace
 
-std::string DescribeKey(leveldb::Slice key) {
+std::string DescribeKey(ldb::Slice key) {
   Reader reader{key};
   return reader.Describe();
 }
@@ -844,11 +844,11 @@ std::string DescribeKey(absl::string_view key) {
 }
 
 std::string DescribeKey(const std::string& key) {
-  return DescribeKey(leveldb::Slice{key});
+  return DescribeKey(ldb::Slice{key});
 }
 
 std::string DescribeKey(const char* key) {
-  return DescribeKey(leveldb::Slice{key});
+  return DescribeKey(ldb::Slice{key});
 }
 
 std::string LevelDbVersionKey::Key() {
@@ -963,7 +963,7 @@ std::string LevelDbTargetGlobalKey::Key() {
   return writer.result();
 }
 
-bool LevelDbTargetGlobalKey::Decode(leveldb::Slice key) {
+bool LevelDbTargetGlobalKey::Decode(ldb::Slice key) {
   Reader reader{key};
   reader.ReadTableNameMatching(kTargetGlobalTable);
   reader.ReadTerminator();
@@ -984,7 +984,7 @@ std::string LevelDbTargetKey::Key(model::TargetId target_id) {
   return writer.result();
 }
 
-bool LevelDbTargetKey::Decode(leveldb::Slice key) {
+bool LevelDbTargetKey::Decode(ldb::Slice key) {
   Reader reader{key};
   reader.ReadTableNameMatching(kTargetsTable);
   target_id_ = reader.ReadTargetId();
