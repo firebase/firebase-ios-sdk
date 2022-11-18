@@ -15,20 +15,24 @@
 
 import Foundation
 
+/// CacheKey is like a "key" to a "safe". It provides necessary metadata about the current cache to know if it should be expired.
 struct CacheKey: Codable {
   var createdAt: Date
   var googleAppID: String
   var appVersion: String
 }
 
+/// SettingsCacheClient is responsible for accessing the cache that Settings are stored in.
 protocol SettingsCacheClient {
   /// Returns in-memory cache content in O(1) time
   var cacheContent: [String: Any]? { get }
-  /// Returns in-memory cache key, no performance guarantee because conversion depends on size of CacheKey
+  /// Returns in-memory cache-key, no performance guarantee because type-casting depends on size of CacheKey
   var cacheKey: CacheKey? { get }
+  /// Removes all cache content and cache-key
   func removeCache()
 }
 
+/// SettingsCache uses UserDefaults to store Settings on-disk, but also directly query UserDefaults when accessing Settings values during run-time. This is because UserDefaults encapsulates both in-memory and persisted-on-disk storage, allowing fast synchronous access in-app while hiding away the complexity of managing persistence asynchronously.
 class SettingsCache: SettingsCacheClient {
   private static let settingsVersion: Int = 1
   private static let content: String = "firebase-sessions-settings"

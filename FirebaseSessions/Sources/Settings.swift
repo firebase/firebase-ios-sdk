@@ -15,10 +15,12 @@
 
 import Foundation
 
+/// Extends ApplicationInfoProtocol to string-format a combined appDisplayVersion and appBuildVersion
 extension ApplicationInfoProtocol {
   var synthesizedVersion: String { return "\(appDisplayVersion) (\(appBuildVersion))" }
 }
 
+/// Provides the APIs to access Settings and their configuration values
 protocol SettingsProtocol {
   func isCacheExpired(currentTime: Date) -> Bool
   var sessionsEnabled: Bool { get }
