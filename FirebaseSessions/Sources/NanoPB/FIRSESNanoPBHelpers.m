@@ -15,6 +15,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import <GoogleUtilities/GULNetworkInfo.h>
+
 #import "FirebaseSessions/Sources/NanoPB/FIRSESNanoPBHelpers.h"
 
 #import "FirebaseSessions/Protogen/nanopb/sessions.nanopb.h"
@@ -153,35 +155,6 @@ BOOL FIRSESIsPBDataEqual(pb_bytes_array_t *_Nullable pbArray, NSData *_Nullable 
 
 pb_size_t FIRSESGetAppleApplicationInfoTag(void) {
   return firebase_appquality_sessions_ApplicationInfo_apple_app_info_tag;
-}
-
-#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
-CTTelephonyNetworkInfo *_Nullable FIRSESNetworkInfo(void) {
-  static CTTelephonyNetworkInfo *networkInfo;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    networkInfo = [[CTTelephonyNetworkInfo alloc] init];
-  });
-  return networkInfo;
-}
-#endif
-
-NSString *_Nullable FIRSESNetworkMobileCountryCode(void) {
-#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
-  CTTelephonyNetworkInfo *networkInfo = FIRSESNetworkInfo();
-  CTCarrier *provider = networkInfo.subscriberCellularProvider;
-  return provider.mobileCountryCode;
-#endif
-  return nil;
-}
-
-NSString *_Nullable FIRSESNetworkMobileNetworkCode(void) {
-#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
-  CTTelephonyNetworkInfo *networkInfo = FIRSESNetworkInfo();
-  CTCarrier *provider = networkInfo.subscriberCellularProvider;
-  return provider.mobileNetworkCode;
-#endif
-  return nil;
 }
 
 NSString *_Nullable FIRSESValidateMccMnc(NSString *_Nullable mcc, NSString *_Nullable mnc) {
