@@ -39,7 +39,6 @@ Pod::Spec.new do |s|
     base_dir + 'Protogen/**/*.{c,h,m,mm}',
   ]
 
-  s.ios.framework = 'CoreTelephony'
   s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'FirebaseCoreExtension', '~> 10.0'
   s.dependency 'FirebaseInstallations', '~> 10.0'
