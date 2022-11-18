@@ -30,32 +30,36 @@ protocol SettingsProtocol {
 
 class Settings: SettingsProtocol {
   private static let cacheDurationSecondsDefault: TimeInterval = 60 * 60
+  private static let flagSessionsEnabled = "sessions_enabled"
+  private static let flagSamplingRate = "sampling_rate"
+  private static let flagSessionTimeout = "session_timeout"
+  private static let flagCacheDuration = "cache_duration"
   private let cache: SettingsCacheClient
   private let appInfo: ApplicationInfoProtocol
 
   var sessionsEnabled: Bool {
-    guard let enabled = cache.cacheContent?["sessions_enabled"] as? Bool else {
+    guard let enabled = cache.cacheContent?[Settings.flagSessionsEnabled] as? Bool else {
       return true
     }
     return enabled
   }
 
   var samplingRate: Double {
-    guard let rate = cache.cacheContent?["sampling_rate"] as? Double else {
+    guard let rate = cache.cacheContent?[Settings.flagSamplingRate] as? Double else {
       return 1.0
     }
     return rate
   }
 
   var sessionTimeout: TimeInterval {
-    guard let timeout = cache.cacheContent?["session_timeout"] as? Double else {
+    guard let timeout = cache.cacheContent?[Settings.flagSessionTimeout] as? Double else {
       return 30 * 60
     }
     return timeout
   }
 
   private var cacheDurationSeconds: TimeInterval {
-    guard let duration = cache.cacheContent?["cache_duration"] as? Double else {
+    guard let duration = cache.cacheContent?[Settings.flagCacheDuration] as? Double else {
       return Settings.cacheDurationSecondsDefault
     }
     return duration
