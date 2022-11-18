@@ -39,7 +39,7 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     proto.application_info.app_id = makeProtoString(appInfo.appID)
     proto.application_info.session_sdk_version = makeProtoString(appInfo.sdkVersion)
     proto.application_info.log_environment = convertLogEnvironment(environment: appInfo.environment)
-//    proto.application_info.device_model = makeProtoString(appInfo.deviceModel)
+    proto.application_info.device_model = makeProtoString(appInfo.deviceModel)
 //    proto.application_info.development_platform_name;
 //    proto.application_info.development_platform_version;
 

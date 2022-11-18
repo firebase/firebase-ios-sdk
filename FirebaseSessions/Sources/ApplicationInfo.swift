@@ -38,6 +38,9 @@ protocol ApplicationInfoProtocol {
   /// Crashlytics-specific device / OS filter values.
   var osName: String { get }
 
+  /// Model of the device
+  var deviceModel: String { get }
+
   /// Validated Mobile Country Code and Mobile Network Code
   var mccMNC: String { get }
 
@@ -67,10 +70,15 @@ class ApplicationInfo: ApplicationInfoProtocol {
   }
 
   var osName: String {
-    // TODO: Update once https://github.com/google/GoogleUtilities/pull/89 is released
-    // to production, update this to GULAppEnvironmentUtil.appleDevicePlatform() and update
-    // the podfile to depend on the newest version of GoogleUtilities
-    return GULAppEnvironmentUtil.applePlatform()
+    return GULAppEnvironmentUtil.appleDevicePlatform()
+  }
+
+  var deviceModel: String {
+    #if targetEnvironment(simulator)
+      return GULAppEnvironmentUtil.deviceSimulatorModel() ?? ""
+    #else
+      return GULAppEnvironmentUtil.deviceModel() ?? ""
+    #endif // targetEnvironment(simulator)
   }
 
   var mccMNC: String {

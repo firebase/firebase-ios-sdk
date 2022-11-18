@@ -14,6 +14,9 @@
 // limitations under the License.
 
 import Foundation
+
+@_implementationOnly import GoogleUtilities
+
 protocol NetworkInfoProtocol {
   var mobileCountryCode: String? { get }
 
@@ -22,10 +25,10 @@ protocol NetworkInfoProtocol {
 
 class NetworkInfo: NetworkInfoProtocol {
   var mobileCountryCode: String? {
-    return FIRSESNetworkMobileCountryCode()
+    return GULNetworkInfo.getNetworkMobileCountryCode()
   }
 
   var mobileNetworkCode: String? {
-    return FIRSESNetworkMobileNetworkCode()
+    return GULNetworkInfo.getNetworkMobileNetworkCode()
   }
 }

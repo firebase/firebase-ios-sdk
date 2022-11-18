@@ -87,6 +87,11 @@ class SessionStartEventTests: XCTestCase {
         fieldName: "bundle_short_version"
       )
       assertEqualProtoString(
+        proto.application_info.device_model,
+        expected: MockApplicationInfo.testDeviceModel,
+        fieldName: "device_model"
+      )
+      assertEqualProtoString(
         proto.application_info.apple_app_info.mcc_mnc,
         expected: MockApplicationInfo.testMCCMNC,
         fieldName: "mcc_mnc"

@@ -39,12 +39,11 @@ Pod::Spec.new do |s|
     base_dir + 'Protogen/**/*.{c,h,m,mm}',
   ]
 
-  s.ios.framework = 'CoreTelephony'
   s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'FirebaseCoreExtension', '~> 10.0'
   s.dependency 'FirebaseInstallations', '~> 10.0'
   s.dependency 'GoogleDataTransport', '~> 9.2'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.8'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.10'
   s.dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
 
   s.pod_target_xcconfig = {
