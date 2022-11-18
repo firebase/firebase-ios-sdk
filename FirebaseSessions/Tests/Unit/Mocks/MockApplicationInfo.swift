@@ -27,7 +27,7 @@ class MockApplicationInfo: ApplicationInfoProtocol {
   var osName: String = ""
 
   var deviceModel: String = ""
-  
+
   var mccMNC: String = ""
 
   var environment: DevEnvironment = .prod

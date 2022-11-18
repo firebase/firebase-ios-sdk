@@ -80,7 +80,7 @@ class ApplicationInfo: ApplicationInfoProtocol {
       return GULAppEnvironmentUtil.deviceModel() ?? ""
     #endif // targetEnvironment(simulator)
   }
-  
+
   var mccMNC: String {
     return FIRSESValidateMccMnc(networkInfo.mobileCountryCode, networkInfo.mobileNetworkCode) ?? ""
   }
