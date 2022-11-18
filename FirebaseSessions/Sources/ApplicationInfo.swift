@@ -40,7 +40,7 @@ protocol ApplicationInfoProtocol {
 
   /// Model of the device
   var deviceModel: String { get }
-  
+
   /// Validated Mobile Country Code and Mobile Network Code
   var mccMNC: String { get }
 
