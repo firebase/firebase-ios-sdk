@@ -24,7 +24,7 @@ namespace remote {
 
 std::unique_ptr<ConnectivityMonitor> CreateNoOpConnectivityMonitor() {
   // The default implementation does nothing
-  return absl::make_unique<ConnectivityMonitor>(nullptr);
+  return std::make_unique<ConnectivityMonitor>(nullptr);
 }
 
 }  // namespace remote

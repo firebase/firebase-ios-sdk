@@ -105,7 +105,7 @@ class GrpcStreamTest : public testing::Test {
       : worker_queue{testutil::AsyncQueueForTesting()},
         connectivity_monitor{CreateNoOpConnectivityMonitor()},
         tester{worker_queue, connectivity_monitor.get()},
-        observer{absl::make_unique<Observer>()},
+        observer{std::make_unique<Observer>()},
         stream{tester.CreateStream(observer.get())} {
   }
 

@@ -29,13 +29,13 @@ namespace {
 class ByteStreamCppFactory : public ByteStreamFactory {
   std::unique_ptr<ByteStream> CreateByteStream(
       const std::string& data) override {
-    return absl::make_unique<ByteStreamCpp>(
-        absl::make_unique<std::stringstream>(std::stringstream(data)));
+    return std::make_unique<ByteStreamCpp>(
+        std::make_unique<std::stringstream>(std::stringstream(data)));
   }
 };
 
 std::unique_ptr<ByteStreamFactory> ExecutorFactory() {
-  return absl::make_unique<ByteStreamCppFactory>();
+  return std::make_unique<ByteStreamCppFactory>();
 }
 
 INSTANTIATE_TEST_SUITE_P(ByteStreamCppTest,

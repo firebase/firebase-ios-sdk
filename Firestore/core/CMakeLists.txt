@@ -15,6 +15,21 @@
 include(CheckSymbolExists)
 include(CheckIncludeFiles)
 
+include(FetchContent)
+
+set(SKIP_BUILD_TESTS ON CACHE BOOL "Firestore disabled")
+set(libpqxx_SKIP_BUILD_TESTS ON CACHE BOOL "Firestore disabled")
+FetchContent_Declare(
+  libpqxx
+  GIT_REPOSITORY https://github.com/jtv/libpqxx.git
+  GIT_TAG 7.7.4
+  OVERRIDE_FIND_PACKAGE
+)
+
+find_package(libpqxx REQUIRED)
+
+# FetchContent_MakeAvailable(libpqxx)
+
 include(python_setup)
 FirebaseSetupPythonInterpreter(
   OUTVAR MY_PYTHON_EXECUTABLE
@@ -255,6 +270,8 @@ target_link_libraries(
   absl::meta
   absl::optional
   absl::strings
+  pqxx#::pqxx_static
+  # pqxx_static
   firestore_nanopb
   firestore_protos_nanopb
   firestore_util

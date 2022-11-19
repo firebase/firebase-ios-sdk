@@ -40,13 +40,13 @@ CountingQueryEngine::CountingQueryEngine() = default;
 CountingQueryEngine::~CountingQueryEngine() = default;
 
 void CountingQueryEngine::Initialize(LocalDocumentsView* local_documents) {
-  remote_documents_ = absl::make_unique<WrappedRemoteDocumentCache>(
+  remote_documents_ = std::make_unique<WrappedRemoteDocumentCache>(
       local_documents->remote_document_cache(), this);
-  mutation_queue_ = absl::make_unique<WrappedMutationQueue>(
+  mutation_queue_ = std::make_unique<WrappedMutationQueue>(
       local_documents->mutation_queue(), this);
-  document_overlay_cache_ = absl::make_unique<WrappedDocumentOverlayCache>(
+  document_overlay_cache_ = std::make_unique<WrappedDocumentOverlayCache>(
       local_documents->document_overlay_cache(), this);
-  local_documents_ = absl::make_unique<LocalDocumentsView>(
+  local_documents_ = std::make_unique<LocalDocumentsView>(
       remote_documents_.get(), mutation_queue_.get(),
       document_overlay_cache_.get(), local_documents->index_manager());
   QueryEngine::Initialize(local_documents_.get());

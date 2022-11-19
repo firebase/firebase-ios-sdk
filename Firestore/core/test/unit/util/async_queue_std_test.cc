@@ -28,7 +28,7 @@ namespace util {
 namespace {
 
 std::unique_ptr<Executor> ExecutorFactory() {
-  return absl::make_unique<ExecutorStd>(/*threads=*/1);
+  return std::make_unique<ExecutorStd>(/*threads=*/1);
 }
 
 }  // namespace

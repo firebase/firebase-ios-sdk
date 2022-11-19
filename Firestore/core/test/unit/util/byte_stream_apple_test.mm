@@ -32,12 +32,12 @@ class ByteStreamAppleFactory : public ByteStreamFactory {
     NSInputStream* stream = [NSInputStream
         inputStreamWithData:[str dataUsingEncoding:NSUTF8StringEncoding]];
     [stream open];
-    return absl::make_unique<ByteStreamApple>(stream);
+    return std::make_unique<ByteStreamApple>(stream);
   }
 };
 
 std::unique_ptr<ByteStreamFactory> ExecutorFactory() {
-  return absl::make_unique<ByteStreamAppleFactory>();
+  return std::make_unique<ByteStreamAppleFactory>();
 }
 
 INSTANTIATE_TEST_SUITE_P(ByteStreamAppleTest,

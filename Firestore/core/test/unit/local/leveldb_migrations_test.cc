@@ -93,7 +93,7 @@ void LevelDbMigrationsTest::SetUp() {
                            << status.ToString().c_str();
   db_.reset(db);
 
-  serializer_ = absl::make_unique<LocalSerializer>(MakeLocalSerializer());
+  serializer_ = std::make_unique<LocalSerializer>(MakeLocalSerializer());
 }
 
 TEST_F(LevelDbMigrationsTest, AddsTargetGlobal) {

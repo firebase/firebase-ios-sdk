@@ -84,14 +84,14 @@ class LevelDbOverlayMigrationManagerTest : public testing::Test {
 void LevelDbOverlayMigrationManagerTest::SetUp() {
   dir_ = LevelDbDir();
 
-  serializer_ = absl::make_unique<LocalSerializer>(MakeLocalSerializer());
-  query_engine_ = absl::make_unique<CountingQueryEngine>();
+  serializer_ = std::make_unique<LocalSerializer>(MakeLocalSerializer());
+  query_engine_ = std::make_unique<CountingQueryEngine>();
   // Creates the persistence with schema version before overlay is supported.
   persistence_ = LevelDbPersistence::Create(dir_, /* schema_version */ 7,
                                             *serializer_, LruParams::Default())
                      .ValueOrDie();
   local_store_ =
-      absl::make_unique<LocalStore>(persistence_.get(), query_engine_.get(),
+      std::make_unique<LocalStore>(persistence_.get(), query_engine_.get(),
                                     credentials::User::Unauthenticated());
   local_store_->Start();
 }
@@ -138,7 +138,7 @@ TEST_F(LevelDbOverlayMigrationManagerTest, CreateOverlayFromSet) {
                     [&] { EXPECT_TRUE(has_pending_overlay_migration()); });
 
   local_store_ =
-      absl::make_unique<LocalStore>(persistence_.get(), query_engine_.get(),
+      std::make_unique<LocalStore>(persistence_.get(), query_engine_.get(),
                                     credentials::User::Unauthenticated());
   local_store_->Start();
 
@@ -168,7 +168,7 @@ TEST_F(LevelDbOverlayMigrationManagerTest, SkipsIfAlreadyMigrated) {
       LevelDbPersistence::Create(dir_, *serializer_, LruParams::Default())
           .ValueOrDie();
   local_store_ =
-      absl::make_unique<LocalStore>(persistence_.get(), query_engine_.get(),
+      std::make_unique<LocalStore>(persistence_.get(), query_engine_.get(),
                                     credentials::User::Unauthenticated());
   local_store_->Start();
   EXPECT_EQ(Doc("foo/bar", 2, Map("foo", "bar")).SetHasLocalMutations(),
@@ -192,7 +192,7 @@ TEST_F(LevelDbOverlayMigrationManagerTest, SkipsIfAlreadyMigrated) {
   persistence_->Run("Verify flag",
                     [&] { EXPECT_FALSE(has_pending_overlay_migration()); });
   local_store_ =
-      absl::make_unique<LocalStore>(persistence_.get(), query_engine_.get(),
+      std::make_unique<LocalStore>(persistence_.get(), query_engine_.get(),
                                     credentials::User::Unauthenticated());
   local_store_->Start();
 
@@ -219,7 +219,7 @@ TEST_F(LevelDbOverlayMigrationManagerTest, CreateOverlayFromDelete) {
                     [&] { EXPECT_TRUE(has_pending_overlay_migration()); });
 
   local_store_ =
-      absl::make_unique<LocalStore>(persistence_.get(), query_engine_.get(),
+      std::make_unique<LocalStore>(persistence_.get(), query_engine_.get(),
                                     credentials::User::Unauthenticated());
   local_store_->Start();
 
@@ -256,7 +256,7 @@ TEST_F(LevelDbOverlayMigrationManagerTest, CreateOverlayFromPatch) {
                     [&] { EXPECT_TRUE(has_pending_overlay_migration()); });
 
   local_store_ =
-      absl::make_unique<LocalStore>(persistence_.get(), query_engine_.get(),
+      std::make_unique<LocalStore>(persistence_.get(), query_engine_.get(),
                                     credentials::User::Unauthenticated());
   local_store_->Start();
 
@@ -289,7 +289,7 @@ TEST_F(LevelDbOverlayMigrationManagerTest, CreateOverlaysForDifferentUsers) {
   WriteMutation(SetMutation("foo/bar", Map("foo", "set-by-unauthenticated")));
 
   local_store_ =
-      absl::make_unique<LocalStore>(persistence_.get(), query_engine_.get(),
+      std::make_unique<LocalStore>(persistence_.get(), query_engine_.get(),
                                     credentials::User("another_user"));
   local_store_->Start();
   WriteMutation(SetMutation("foo/bar", Map("foo", "set-by-another_user")));
@@ -306,7 +306,7 @@ TEST_F(LevelDbOverlayMigrationManagerTest, CreateOverlaysForDifferentUsers) {
                     [&] { EXPECT_TRUE(has_pending_overlay_migration()); });
 
   local_store_ =
-      absl::make_unique<LocalStore>(persistence_.get(), query_engine_.get(),
+      std::make_unique<LocalStore>(persistence_.get(), query_engine_.get(),
                                     credentials::User::Unauthenticated());
   local_store_->Start();
 

@@ -128,8 +128,8 @@ class BundleReaderTest : public ::testing::Test {
   }
 
   std::unique_ptr<util::ByteStream> ToByteStream(const std::string& bundle) {
-    auto bundle_istream = absl::make_unique<std::stringstream>(bundle);
-    return absl::make_unique<ByteStreamCpp>(
+    auto bundle_istream = std::make_unique<std::stringstream>(bundle);
+    return std::make_unique<ByteStreamCpp>(
         ByteStreamCpp(std::move(bundle_istream)));
   }
 

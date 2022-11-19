@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_LOCAL_LEVELDB_LEVELDB_INTERFACE_H_
-#define FIRESTORE_CORE_SRC_LOCAL_LEVELDB_LEVELDB_INTERFACE_H_
+#ifndef FIRESTORE_CORE_SRC_LOCAL_LDB_LEVELDB_INTERFACE_H_
+#define FIRESTORE_CORE_SRC_LOCAL_LDB_LEVELDB_INTERFACE_H_
 
 #include <string>
 #include <utility>
@@ -25,6 +25,8 @@
 #include "leveldb/options.h"
 #include "leveldb/slice.h"
 #include "leveldb/write_batch.h"
+
+#include <pqxx/pqxx>
 
 namespace firebase {
 namespace firestore {
@@ -40,9 +42,14 @@ using WriteOptions = ::leveldb::WriteOptions;
 using WriteBatch = ::leveldb::WriteBatch;
 using Status = ::leveldb::Status;
 
+void test() {
+  auto conn = pqxx::connection();
+  conn.close();
+}
+
 }  // namespace ldb
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_LOCAL_LEVELDB__H_
+#endif // FIRESTORE_CORE_SRC_LOCAL_LDB_LEVELDB_INTERFACE_H_

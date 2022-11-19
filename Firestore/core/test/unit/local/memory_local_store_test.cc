@@ -38,7 +38,7 @@ class TestHelper : public LocalStoreTestHelper {
 };
 
 std::unique_ptr<LocalStoreTestHelper> Factory() {
-  return absl::make_unique<TestHelper>();
+  return std::make_unique<TestHelper>();
 }
 
 }  // namespace

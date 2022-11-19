@@ -52,7 +52,7 @@ class TestHelper : public LruGarbageCollectorTestHelper {
 };
 
 std::unique_ptr<LruGarbageCollectorTestHelper> Factory() {
-  return absl::make_unique<TestHelper>();
+  return std::make_unique<TestHelper>();
 }
 
 }  // namespace

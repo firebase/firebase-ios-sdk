@@ -89,7 +89,7 @@ class GrpcConnectionTest : public testing::Test {
   GrpcConnectionTest()
       : worker_queue{testutil::AsyncQueueForTesting()},
         connectivity_monitor{
-            absl::make_unique<FakeConnectivityMonitor>(worker_queue)},
+            std::make_unique<FakeConnectivityMonitor>(worker_queue)},
         tester{worker_queue, connectivity_monitor.get()} {
   }
 

@@ -15,7 +15,7 @@
 # C++ Compiler setup
 
 # We use C++11
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -34,7 +34,7 @@ endif()
 if(CXX_CLANG OR CXX_GNU)
   set(
     common_flags
-    -Wall -Wextra -Werror
+    -Wall -Wextra -Werror -Wno-deprecated-declarations
 
     # Be super pedantic about format strings
     -Wformat

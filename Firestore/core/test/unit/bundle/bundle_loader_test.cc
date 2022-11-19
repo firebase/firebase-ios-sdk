@@ -76,7 +76,7 @@ class BundleLoaderTest : public ::testing::Test {
     BundleLoaderTest& parent_;
   };
 
-  BundleLoaderTest() : callback_(absl::make_unique<TestBundleCallback>(*this)) {
+  BundleLoaderTest() : callback_(std::make_unique<TestBundleCallback>(*this)) {
   }
 
   static void AssertProgress(
@@ -112,7 +112,7 @@ TEST_F(BundleLoaderTest, LoadsDocuments) {
   BundleLoader loader(callback_.get(), CreateMetadata(2));
 
   BundleLoader::AddElementResult result = loader.AddElement(
-      absl::make_unique<BundledDocumentMetadata>(
+      std::make_unique<BundledDocumentMetadata>(
           testutil::Key("coll/doc1"), create_time_,
           /*exists=*/true, /*queries*/ std::vector<std::string>{}),
       /*byte_size=*/1);
@@ -120,14 +120,14 @@ TEST_F(BundleLoaderTest, LoadsDocuments) {
   EXPECT_EQ(result.ValueOrDie(), absl::nullopt);
 
   result = loader.AddElement(
-      absl::make_unique<BundleDocument>(testutil::Doc("coll/doc1", 1)),
+      std::make_unique<BundleDocument>(testutil::Doc("coll/doc1", 1)),
       /*byte_size=*/4);
   EXPECT_OK(result);
   AssertProgress(result.ValueOrDie(), /*documents_loaded=*/1,
                  /*total_documents=*/2, /*bytes_loaded*/ 5, /*total_bytes*/ 10,
                  LoadBundleTaskState::kInProgress);
 
-  result = loader.AddElement(absl::make_unique<BundledDocumentMetadata>(
+  result = loader.AddElement(std::make_unique<BundledDocumentMetadata>(
                                  testutil::Key("coll/doc2"), create_time_, true,
                                  std::vector<std::string>{}),
                              /*byte_size=*/1);
@@ -135,7 +135,7 @@ TEST_F(BundleLoaderTest, LoadsDocuments) {
   EXPECT_EQ(result.ValueOrDie(), absl::nullopt);
 
   result = loader.AddElement(
-      absl::make_unique<BundleDocument>(testutil::Doc("coll/doc2", 1)),
+      std::make_unique<BundleDocument>(testutil::Doc("coll/doc2", 1)),
       /*byte_size=*/4);
   EXPECT_OK(result);
   AssertProgress(result.ValueOrDie(), /*documents_loaded=*/2,
@@ -147,7 +147,7 @@ TEST_F(BundleLoaderTest, LoadsDeletedDocuments) {
   BundleLoader loader(callback_.get(), CreateMetadata(1));
 
   BundleLoader::AddElementResult result = loader.AddElement(
-      absl::make_unique<BundledDocumentMetadata>(
+      std::make_unique<BundledDocumentMetadata>(
           testutil::Key("coll/doc1"), create_time_,
           /*exists=*/false, /*queries=*/std::vector<std::string>{}),
       /*byte_size*/ 10);
@@ -162,12 +162,12 @@ TEST_F(BundleLoaderTest, AppliesDocumentChanges) {
   BundleLoader loader(callback_.get(), CreateMetadata(1));
 
   EXPECT_OK(loader.AddElement(
-      absl::make_unique<BundledDocumentMetadata>(
+      std::make_unique<BundledDocumentMetadata>(
           testutil::Key("coll/doc1"), create_time_,
           /*exists=*/true, /*queries=*/std::vector<std::string>{}),
       1));
   EXPECT_OK(loader.AddElement(
-      absl::make_unique<BundleDocument>(testutil::Doc("coll/doc1", 1)),
+      std::make_unique<BundleDocument>(testutil::Doc("coll/doc1", 1)),
       /*byte_size=*/9));
   EXPECT_OK(loader.ApplyChanges());
 
@@ -179,23 +179,23 @@ TEST_F(BundleLoaderTest, AppliesNamedQueries) {
   BundleLoader loader(callback_.get(), CreateMetadata(2));
 
   EXPECT_OK(loader.AddElement(
-      absl::make_unique<BundledDocumentMetadata>(
+      std::make_unique<BundledDocumentMetadata>(
           testutil::Key("coll/doc1"), create_time_,
           /*exists=*/false, std::vector<std::string>{"query-1"}),
       /*byte_size=*/2));
   EXPECT_OK(loader.AddElement(
-      absl::make_unique<BundledDocumentMetadata>(
+      std::make_unique<BundledDocumentMetadata>(
           testutil::Key("coll/doc2"), create_time_,
           /*exists=*/false, std::vector<std::string>{"query-2"}),
       /*byte_size=*/2));
   EXPECT_OK(loader.AddElement(
-      absl::make_unique<NamedQuery>(
+      std::make_unique<NamedQuery>(
           "query-1",
           BundledQuery(testutil::Query("foo").ToTarget(), LimitType::First),
           create_time_),
       /*byte_size=*/2));
   EXPECT_OK(loader.AddElement(
-      absl::make_unique<NamedQuery>(
+      std::make_unique<NamedQuery>(
           "query-2",
           BundledQuery(testutil::Query("foo").ToTarget(), LimitType::First),
           create_time_),
@@ -212,26 +212,26 @@ TEST_F(BundleLoaderTest, VerifiesDocumentMetadataSet) {
   BundleLoader loader(callback_.get(), CreateMetadata(1));
 
   EXPECT_NOT_OK(loader.AddElement(
-      absl::make_unique<BundleDocument>(testutil::Doc("coll/doc1", 1)),
+      std::make_unique<BundleDocument>(testutil::Doc("coll/doc1", 1)),
       /*byte_size=*/10));
 }
 
 TEST_F(BundleLoaderTest, VerifiesDocumentMetadataMatches) {
   BundleLoader loader(callback_.get(), CreateMetadata(1));
 
-  EXPECT_OK(loader.AddElement(absl::make_unique<BundledDocumentMetadata>(
+  EXPECT_OK(loader.AddElement(std::make_unique<BundledDocumentMetadata>(
                                   testutil::Key("coll/doc1"), create_time_,
                                   /*exists=*/true, std::vector<std::string>{}),
                               /*byte_size=*/1));
   EXPECT_NOT_OK(loader.AddElement(
-      absl::make_unique<BundleDocument>(testutil::Doc("coll/doc_NOT_MATCH", 1)),
+      std::make_unique<BundleDocument>(testutil::Doc("coll/doc_NOT_MATCH", 1)),
       /*byte_size=*/9));
 }
 
 TEST_F(BundleLoaderTest, VerifiesDocumentFollowsMetadata) {
   BundleLoader loader(callback_.get(), CreateMetadata(1));
 
-  EXPECT_OK(loader.AddElement(absl::make_unique<BundledDocumentMetadata>(
+  EXPECT_OK(loader.AddElement(std::make_unique<BundledDocumentMetadata>(
                                   testutil::Key("coll/doc1"), create_time_,
                                   /*exists=*/true, std::vector<std::string>{}),
                               /*byte_size=*/10));
@@ -242,7 +242,7 @@ TEST_F(BundleLoaderTest, VerifiesDocumentFollowsMetadata) {
 TEST_F(BundleLoaderTest, VerifiesDocumentCount) {
   BundleLoader loader(callback_.get(), CreateMetadata(2));
 
-  EXPECT_OK(loader.AddElement(absl::make_unique<BundledDocumentMetadata>(
+  EXPECT_OK(loader.AddElement(std::make_unique<BundledDocumentMetadata>(
                                   testutil::Key("coll/doc1"), create_time_,
                                   /*exists=*/false, std::vector<std::string>{}),
                               /*byte_size=*/10));

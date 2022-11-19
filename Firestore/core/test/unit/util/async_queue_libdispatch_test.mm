@@ -35,7 +35,7 @@ dispatch_queue_t CreateDispatchQueue() {
 
 std::unique_ptr<Executor> CreateExecutorFromQueue(
     const dispatch_queue_t queue) {
-  return absl::make_unique<ExecutorLibdispatch>(queue);
+  return std::make_unique<ExecutorLibdispatch>(queue);
 }
 
 std::unique_ptr<Executor> CreateExecutorLibdispatch() {

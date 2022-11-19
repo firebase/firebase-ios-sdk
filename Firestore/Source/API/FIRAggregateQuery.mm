@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithQuery:(FIRQuery *)query {
   if (self = [super init]) {
     _query = query;
-    _aggregation = absl::make_unique<api::AggregateQuery>(query.apiQuery.Count());
+    _aggregation = std::make_unique<api::AggregateQuery>(query.apiQuery.Count());
   }
   return self;
 }

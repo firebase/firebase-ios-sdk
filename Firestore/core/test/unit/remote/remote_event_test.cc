@@ -67,20 +67,20 @@ std::unique_ptr<DocumentWatchChange> MakeDocChange(
     std::vector<TargetId> removed,
     DocumentKey key,
     const MutableDocument& doc) {
-  return absl::make_unique<DocumentWatchChange>(
+  return std::make_unique<DocumentWatchChange>(
       std::move(updated), std::move(removed), std::move(key), doc);
 }
 
 std::unique_ptr<WatchTargetChange> MakeTargetChange(
     WatchTargetChangeState state, std::vector<TargetId> target_ids) {
-  return absl::make_unique<WatchTargetChange>(state, std::move(target_ids));
+  return std::make_unique<WatchTargetChange>(state, std::move(target_ids));
 }
 
 std::unique_ptr<WatchTargetChange> MakeTargetChange(
     WatchTargetChangeState state,
     std::vector<TargetId> target_ids,
     ByteString token) {
-  return absl::make_unique<WatchTargetChange>(state, std::move(target_ids),
+  return std::make_unique<WatchTargetChange>(state, std::move(target_ids),
                                               std::move(token));
 }
 
