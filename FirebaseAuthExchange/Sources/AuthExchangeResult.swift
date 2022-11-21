@@ -8,4 +8,3 @@
 
   @objc public private(set) var providerRefreshToken: String?
 }
-

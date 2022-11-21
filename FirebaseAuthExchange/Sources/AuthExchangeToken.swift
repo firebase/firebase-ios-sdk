@@ -4,4 +4,3 @@
 
   @objc public var expirationDate: Date
 }
-
