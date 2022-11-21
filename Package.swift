@@ -531,7 +531,23 @@ let package = Package(
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
       ]
     ),
-
+    .testTarget(
+      name: "FirebaseCrashlyticsUnit",
+      dependencies: ["FirebaseCrashlytics", "OCMock"],
+      path: "Crashlytics/UnitTests",
+      resources: [
+        .process("FIRCLSMachO/data"),
+        .copy("Data"),
+      ],
+      cSettings: [
+        .headerSearchPath("../.."),
+        .define("DISPLAY_VERSION", to: firebaseVersion),
+        .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: [.iOS])),
+        .define("CLS_SDK_NAME", to: "Crashlytics macOS SDK", .when(platforms: [.macOS])),
+        .define("CLS_SDK_NAME", to: "Crashlytics tvOS SDK", .when(platforms: [.tvOS])),
+        .define("CLS_SDK_NAME", to: "Crashlytics watchOS SDK", .when(platforms: [.watchOS])),
+      ]
+    ),
     .target(
       name: "FirebaseDatabase",
       dependencies: [

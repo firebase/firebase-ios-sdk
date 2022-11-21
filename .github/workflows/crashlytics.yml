@@ -51,7 +51,7 @@ jobs:
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseCrashlytics ${{ matrix.target }} spmbuildonly
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseCrashlyticsUnit ${{ matrix.target }} spm
 
 
   catalyst:
