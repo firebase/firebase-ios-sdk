@@ -42,13 +42,19 @@
                             app:firebaseApp;
 /// Skip fetching user properties from analytics because we cannot mock the action here. Instead
 /// overriding the method to skip.
-- (void)fetchWithUserPropertiesCompletionHandler:(FIRAInteropUserPropertiesCallback)block;
+- (void)fetchWithUserPropertiesCompletionHandler:(NSString *)fetchTypeHeader
+                               completionHandler:(FIRAInteropUserPropertiesCallback)block;
 - (NSURLSessionDataTask *)URLSessionDataTaskWithContent:(NSData *)content
+                                        fetchTypeHeader:(NSString *)fetchTypeHeader
                                       completionHandler:
                                           (RCNConfigFetcherCompletion)fetcherCompletion;
 - (void)fetchConfigWithExpirationDuration:(NSTimeInterval)expirationDuration
                         completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
+- (void)realtimeFetchConfigWithNoExpirationDuration:(NSInteger)fetchAttemptNumber
+                                  completionHandler:
+                                      (FIRRemoteConfigFetchCompletion)completionHandler;
 - (void)fetchWithUserProperties:(NSDictionary *)userProperties
+                fetchTypeHeader:(NSString *)fetchTypeHeader
               completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
 - (NSString *)constructServerURL;
 - (NSURLSession *)currentNetworkSession;
@@ -246,6 +252,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                           NSError *_Nullable error) = nil;
       [invocation getArgument:&handler atIndex:3];
       [self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
+                                     fetchTypeHeader:@"Base/1"
                                    completionHandler:handler];
     });
 
@@ -263,6 +270,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         [OCMArg invokeBlockWithArgs:_responseData[i], _URLResponse[i], [NSNull null], nil];
 
     OCMStub([_configFetch[i] URLSessionDataTaskWithContent:[OCMArg any]
+                                           fetchTypeHeader:[OCMArg any]
                                          completionHandler:completionBlock])
         .andReturn(nil);
     [_configInstances[i] updateWithNewInstancesForConfigFetch:_configFetch[i]
@@ -628,6 +636,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                               NSError *_Nullable error) = nil;
           [invocation getArgument:&handler atIndex:3];
           [self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
+                                         fetchTypeHeader:@"Base/1"
                                        completionHandler:handler];
         });
 
@@ -748,6 +757,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                               NSError *_Nullable error) = nil;
           [invocation getArgument:&handler atIndex:3];
           [self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
+                                         fetchTypeHeader:@"Base/1"
                                        completionHandler:handler];
         });
 
@@ -841,7 +851,9 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
                                             NSError *_Nullable error) = nil;
         [invocation getArgument:&handler atIndex:3];
-        [configFetch fetchWithUserProperties:[[NSDictionary alloc] init] completionHandler:handler];
+        [configFetch fetchWithUserProperties:[[NSDictionary alloc] init]
+                             fetchTypeHeader:@"Base/1"
+                           completionHandler:handler];
       });
   _responseData[0] = [NSJSONSerialization dataWithJSONObject:@{} options:0 error:nil];
 
@@ -953,6 +965,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 
           [invocation getArgument:&handler atIndex:3];
           [self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
+                                         fetchTypeHeader:@"Base/1"
                                        completionHandler:handler];
         });
 
@@ -970,6 +983,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         [OCMArg invokeBlockWithArgs:_responseData[i], _URLResponse[i], [NSNull null], nil];
 
     OCMStub([_configFetch[i] URLSessionDataTaskWithContent:[OCMArg any]
+                                           fetchTypeHeader:@"Base/1"
                                          completionHandler:completionBlock])
         .andReturn(nil);
 
@@ -1613,6 +1627,33 @@ static NSString *UTCToLocal(NSString *utcTime) {
           OCMVerify([self->_configRealtime[i] addConfigUpdateListener:completion]);
           OCMVerify([self->_configRealtime[i] removeConfigUpdateListener:completion]);
           OCMVerify([self->_configRealtime[i] pauseRealtimeStream]);
+          [expectations[i] fulfill];
+        });
+
+    [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+  }
+}
+
+- (void)testRealtimeFetch {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] = [self
+        expectationWithDescription:
+            [NSString stringWithFormat:@"Test Realtime Autofetch successfully - instance %d", i]];
+
+    OCMStub([_configFetch[i] realtimeFetchConfigWithNoExpirationDuration:1
+                                                       completionHandler:OCMOCK_ANY])
+        .andDo(nil);
+    OCMStub([_configRealtime[i] scheduleFetch:1 targetVersion:1]).andDo(nil);
+
+    [_configRealtime[i] fetchLatestConfig:3 targetVersion:1];
+
+    dispatch_after(
+        dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
+        dispatch_get_main_queue(), ^{
+          OCMVerify([self->_configFetch[i] realtimeFetchConfigWithNoExpirationDuration:1
+                                                                     completionHandler:OCMOCK_ANY]);
           [expectations[i] fulfill];
         });
 
