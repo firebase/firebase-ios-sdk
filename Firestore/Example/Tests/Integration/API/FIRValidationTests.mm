@@ -26,6 +26,7 @@
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/API/FIRFilter+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
 #include "Firestore/core/test/unit/testutil/app_testing.h"
 
 using firebase::firestore::testutil::AppForUnitTesting;

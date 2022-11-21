@@ -128,31 +128,6 @@ NS_ASSUME_NONNULL_BEGIN
   return [self firestoreForApp:app database:MakeNSString(DatabaseId::kDefault)];
 }
 
-+ (instancetype)firestoreForApp:(FIRApp *)app database:(NSString *)database {
-  if (!app) {
-    ThrowInvalidArgument("FirebaseApp instance may not be nil. Use FirebaseApp.app() if you'd like "
-                         "to use the default FirebaseApp instance.");
-  }
-  if (!database) {
-    ThrowInvalidArgument("Database identifier may not be nil. Use '%s' if you want the default "
-                         "database",
-                         DatabaseId::kDefault);
-  }
-
-  id<FSTFirestoreMultiDBProvider> provider =
-      FIR_COMPONENT(FSTFirestoreMultiDBProvider, app.container);
-  return [provider firestoreForDatabase:database];
-}
-
-+ (instancetype)firestoreForDatabase:(NSString *)database {
-  FIRApp *app = [FIRApp defaultApp];
-  if (!app) {
-    ThrowIllegalState("Failed to get FirebaseApp instance. Please call FirebaseApp.configure() "
-                      "before using Firestore");
-  }
-  return [self firestoreForApp:app database:database];
-}
-
 - (instancetype)initWithDatabaseID:(model::DatabaseId)databaseID
                     persistenceKey:(std::string)persistenceKey
            authCredentialsProvider:
@@ -535,6 +510,31 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (const DatabaseId &)databaseID {
   return _firestore->database_id();
+}
+
++ (instancetype)firestoreForApp:(FIRApp *)app database:(NSString *)database {
+  if (!app) {
+    ThrowInvalidArgument("FirebaseApp instance may not be nil. Use FirebaseApp.app() if you'd like "
+                         "to use the default FirebaseApp instance.");
+  }
+  if (!database) {
+    ThrowInvalidArgument("Database identifier may not be nil. Use '%s' if you want the default "
+                         "database",
+                         DatabaseId::kDefault);
+  }
+
+  id<FSTFirestoreMultiDBProvider> provider =
+      FIR_COMPONENT(FSTFirestoreMultiDBProvider, app.container);
+  return [provider firestoreForDatabase:database];
+}
+
++ (instancetype)firestoreForDatabase:(NSString *)database {
+  FIRApp *app = [FIRApp defaultApp];
+  if (!app) {
+    ThrowIllegalState("Failed to get FirebaseApp instance. Please call FirebaseApp.configure() "
+                      "before using Firestore");
+  }
+  return [self firestoreForApp:app database:database];
 }
 
 + (FIRFirestore *)recoverFromFirestore:(std::shared_ptr<Firestore>)firestore {
