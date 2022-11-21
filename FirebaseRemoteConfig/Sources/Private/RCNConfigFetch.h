@@ -50,13 +50,13 @@ typedef void (^RCNConfigFetcherCompletion)(NSData *data, NSURLResponse *response
 - (void)fetchConfigWithExpirationDuration:(NSTimeInterval)expirationDuration
                         completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
 
-/// Fetches config data keyed by namespace. Completion block will be called on the main queue.
-/// @param expirationDuration  Expiration duration, in seconds.
+/// Fetches config data immediately, keyed by namespace. Completion block will be called on the main
+/// queue.
 /// @param fetchAttemptNumber The number of the fetch attempt.
 /// @param completionHandler   Callback handler.
-- (void)realtimeFetchConfigWithExpirationDuration:(NSTimeInterval)expirationDuration
-                               fetchAttemptNumber:(NSInteger)fetchAttemptNumber
-                                completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
+- (void)realtimeFetchConfigWithNoExpirationDuration:(NSInteger)fetchAttemptNumber
+                                  completionHandler:
+                                      (FIRRemoteConfigFetchCompletion)completionHandler;
 
 /// Add the ability to update NSURLSession's timeout after a session has already been created.
 - (void)recreateNetworkSession;

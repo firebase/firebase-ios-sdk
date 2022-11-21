@@ -246,12 +246,12 @@
         __unsafe_unretained FIRRemoteConfigFetchCompletion handler;
         [invocation getArgument:&handler atIndex:3];
         [configFetch fetchWithUserProperties:[[NSDictionary alloc] init]
-                             fetchTypeHeader:@"BaseFetch/1"
+                             fetchTypeHeader:@"Base/1"
                            completionHandler:handler];
       });
   OCMExpect([configFetch
                 URLSessionDataTaskWithContent:[OCMArg any]
-                              fetchTypeHeader:@"BaseFetch/1"
+                              fetchTypeHeader:@"Base/1"
                             completionHandler:[RCNPersonalizationTest mockResponseHandler]])
       .andReturn(nil);
   return configFetch;

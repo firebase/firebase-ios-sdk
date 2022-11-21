@@ -50,9 +50,9 @@
                                           (RCNConfigFetcherCompletion)fetcherCompletion;
 - (void)fetchConfigWithExpirationDuration:(NSTimeInterval)expirationDuration
                         completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
-- (void)realtimeFetchConfigWithExpirationDuration:(NSTimeInterval)expirationDuration
-                               fetchAttemptNumber:(NSInteger)fetchAttemptNumber
-                                completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
+- (void)realtimeFetchConfigWithNoExpirationDuration:(NSInteger)fetchAttemptNumber
+                                  completionHandler:
+                                      (FIRRemoteConfigFetchCompletion)completionHandler;
 - (void)fetchWithUserProperties:(NSDictionary *)userProperties
                 fetchTypeHeader:(NSString *)fetchTypeHeader
               completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
@@ -252,7 +252,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                           NSError *_Nullable error) = nil;
       [invocation getArgument:&handler atIndex:3];
       [self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
-                                     fetchTypeHeader:@"BaseFetch/1"
+                                     fetchTypeHeader:@"Base/1"
                                    completionHandler:handler];
     });
 
@@ -636,7 +636,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                               NSError *_Nullable error) = nil;
           [invocation getArgument:&handler atIndex:3];
           [self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
-                                         fetchTypeHeader:@"BaseFetch/1"
+                                         fetchTypeHeader:@"Base/1"
                                        completionHandler:handler];
         });
 
@@ -757,7 +757,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                               NSError *_Nullable error) = nil;
           [invocation getArgument:&handler atIndex:3];
           [self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
-                                         fetchTypeHeader:@"BaseFetch/1"
+                                         fetchTypeHeader:@"Base/1"
                                        completionHandler:handler];
         });
 
@@ -852,7 +852,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                             NSError *_Nullable error) = nil;
         [invocation getArgument:&handler atIndex:3];
         [configFetch fetchWithUserProperties:[[NSDictionary alloc] init]
-                             fetchTypeHeader:@"BaseFetch/1"
+                             fetchTypeHeader:@"Base/1"
                            completionHandler:handler];
       });
   _responseData[0] = [NSJSONSerialization dataWithJSONObject:@{} options:0 error:nil];
@@ -965,7 +965,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 
           [invocation getArgument:&handler atIndex:3];
           [self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
-                                         fetchTypeHeader:@"BaseFetch/1"
+                                         fetchTypeHeader:@"Base/1"
                                        completionHandler:handler];
         });
 
@@ -983,7 +983,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         [OCMArg invokeBlockWithArgs:_responseData[i], _URLResponse[i], [NSNull null], nil];
 
     OCMStub([_configFetch[i] URLSessionDataTaskWithContent:[OCMArg any]
-                                           fetchTypeHeader:@"BaseFetch/1"
+                                           fetchTypeHeader:@"Base/1"
                                          completionHandler:completionBlock])
         .andReturn(nil);
 
@@ -1642,9 +1642,8 @@ static NSString *UTCToLocal(NSString *utcTime) {
         expectationWithDescription:
             [NSString stringWithFormat:@"Test Realtime Autofetch successfully - instance %d", i]];
 
-    OCMStub([_configFetch[i] realtimeFetchConfigWithExpirationDuration:0
-                                                    fetchAttemptNumber:1
-                                                     completionHandler:OCMOCK_ANY])
+    OCMStub([_configFetch[i] realtimeFetchConfigWithNoExpirationDuration:1
+                                                       completionHandler:OCMOCK_ANY])
         .andDo(nil);
     OCMStub([_configRealtime[i] scheduleFetch:1 targetVersion:1]).andDo(nil);
 
@@ -1653,9 +1652,8 @@ static NSString *UTCToLocal(NSString *utcTime) {
     dispatch_after(
         dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
         dispatch_get_main_queue(), ^{
-          OCMVerify([self->_configFetch[i] realtimeFetchConfigWithExpirationDuration:0
-                                                                  fetchAttemptNumber:1
-                                                                   completionHandler:OCMOCK_ANY]);
+          OCMVerify([self->_configFetch[i] realtimeFetchConfigWithNoExpirationDuration:1
+                                                                     completionHandler:OCMOCK_ANY]);
           [expectations[i] fulfill];
         });
 

@@ -202,10 +202,9 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
   });
 }
 
-- (void)realtimeFetchConfigWithExpirationDuration:(NSTimeInterval)expirationDuration
-                               fetchAttemptNumber:(NSInteger)fetchAttemptNumber
-                                completionHandler:
-                                    (FIRRemoteConfigFetchCompletion)completionHandler {
+- (void)realtimeFetchConfigWithNoExpirationDuration:(NSInteger)fetchAttemptNumber
+                                  completionHandler:
+                                      (FIRRemoteConfigFetchCompletion)completionHandler {
   // Note: We expect the googleAppID to always be available.
   BOOL hasDeviceContextChanged =
       FIRRemoteConfigHasDeviceContextChanged(_settings.deviceContext, _options.googleAppID);
@@ -218,8 +217,7 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
     }
 
     // Check whether we are outside of the minimum fetch interval.
-    if (![strongSelf->_settings hasMinimumFetchIntervalElapsed:expirationDuration] &&
-        !hasDeviceContextChanged) {
+    if (![strongSelf->_settings hasMinimumFetchIntervalElapsed:0] && !hasDeviceContextChanged) {
       FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000051", @"Returning cached data.");
       return [strongSelf reportCompletionOnHandler:completionHandler
                                         withStatus:FIRRemoteConfigFetchStatusSuccess
