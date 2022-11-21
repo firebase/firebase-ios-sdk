@@ -31,14 +31,25 @@ to GoogleService-Info.plist attributes.
 
 ## Questions
 
-Why isn't *deepLinkURLScheme* set from the GoogleService-Info.plist field `REVERSED_CLIENT_ID` like
-other Firebase Options?
+* *apiKey*, *projectID*, *gcmSenderID*, *projectID*, and *googleAppID* seem to have overlapping
+  functionality. Can they be consolidated?
+* *gcmSenderID* is the second subfield of *googleAppID*. Can it be eliminated?
+* *bundleID* seems to have three purposes: Performance SDK uses it. Messaging back end uses it. Core
+  will generate an error message if it doesn't match the actual bundleID. Anything else?
+* Why isn't *deepLinkURLScheme* set from the GoogleService-Info.plist field `REVERSED_CLIENT_ID` like
+  other Firebase Options? The client code is required to explicitly set it.
+* Is there a better way to manage the fields that are only used by one product? *clientID*, *databaseURL*,
+  *deepLinkURLScheme*, and *storageBucket*.
 
 ## Unused FirebaseOptions
+Proposal: Deprecate these in the SDK and stop generating them for GoogleService-Info.plist.
+
 * *androidClientID*
 * *trackingID*
 
 ## Unread GoogleService-Info.plist fields
+Proposal: Stop generating these for GoogleService-Info.plist.
+
  * PLIST_VERSION
  * IS_ADS_ENABLED
  * IS_ANALYTICS_ENABLED
