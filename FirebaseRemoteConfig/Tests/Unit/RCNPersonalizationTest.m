@@ -29,10 +29,12 @@
 
 @interface RCNConfigFetch (ForTest)
 - (NSURLSessionDataTask *)URLSessionDataTaskWithContent:(NSData *)content
+                                        fetchTypeHeader:(NSString *)fetchTypeHeader
                                       completionHandler:
                                           (RCNConfigFetcherCompletion)fetcherCompletion;
 
 - (void)fetchWithUserProperties:(NSDictionary *)userProperties
+                fetchTypeHeader:(NSString *)fetchTypeHeader
               completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
 @end
 
@@ -243,10 +245,13 @@
       .andDo(^(NSInvocation *invocation) {
         __unsafe_unretained FIRRemoteConfigFetchCompletion handler;
         [invocation getArgument:&handler atIndex:3];
-        [configFetch fetchWithUserProperties:[[NSDictionary alloc] init] completionHandler:handler];
+        [configFetch fetchWithUserProperties:[[NSDictionary alloc] init]
+                             fetchTypeHeader:@"Base/1"
+                           completionHandler:handler];
       });
   OCMExpect([configFetch
                 URLSessionDataTaskWithContent:[OCMArg any]
+                              fetchTypeHeader:@"Base/1"
                             completionHandler:[RCNPersonalizationTest mockResponseHandler]])
       .andReturn(nil);
   return configFetch;
