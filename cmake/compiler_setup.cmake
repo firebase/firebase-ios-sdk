@@ -45,6 +45,8 @@ if(CXX_CLANG OR CXX_GNU)
 
     # Delete unused things
     -Wunused-function -Wunused-value -Wunused-variable
+
+    -DPG_PERSISTENCE
   )
 
   set(

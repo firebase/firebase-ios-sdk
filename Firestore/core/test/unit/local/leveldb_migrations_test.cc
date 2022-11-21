@@ -42,9 +42,9 @@ namespace firestore {
 namespace local {
 namespace {
 
-using leveldb::DB;
-using leveldb::Options;
-using leveldb::Status;
+using ldb::DB;
+using ldb::Options;
+using ldb::Status;
 using model::BatchId;
 using model::DocumentKey;
 using model::ListenSequenceNumber;

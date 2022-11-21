@@ -34,6 +34,11 @@ using bundle::NamedQuery;
 using nanopb::Message;
 using nanopb::StringReader;
 
+void test() {
+  auto conn = pqxx::connection();
+  conn.close();
+}
+
 LevelDbBundleCache::LevelDbBundleCache(LevelDbPersistence* db,
                                        LocalSerializer* serializer)
     : db_(NOT_NULL(db)), serializer_(NOT_NULL(serializer)) {

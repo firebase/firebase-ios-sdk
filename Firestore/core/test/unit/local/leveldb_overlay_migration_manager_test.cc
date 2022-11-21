@@ -37,9 +37,9 @@ namespace firestore {
 namespace local {
 namespace {
 
-using leveldb::DB;
-using leveldb::Options;
-using leveldb::Status;
+using ldb::DB;
+using ldb::Options;
+using ldb::Status;
 using model::MutableDocument;
 using model::Mutation;
 using nanopb::Message;
@@ -92,7 +92,7 @@ void LevelDbOverlayMigrationManagerTest::SetUp() {
                      .ValueOrDie();
   local_store_ =
       std::make_unique<LocalStore>(persistence_.get(), query_engine_.get(),
-                                    credentials::User::Unauthenticated());
+                                   credentials::User::Unauthenticated());
   local_store_->Start();
 }
 
@@ -139,7 +139,7 @@ TEST_F(LevelDbOverlayMigrationManagerTest, CreateOverlayFromSet) {
 
   local_store_ =
       std::make_unique<LocalStore>(persistence_.get(), query_engine_.get(),
-                                    credentials::User::Unauthenticated());
+                                   credentials::User::Unauthenticated());
   local_store_->Start();
 
   persistence_->Run("Verify mutation", [&] {
@@ -169,7 +169,7 @@ TEST_F(LevelDbOverlayMigrationManagerTest, SkipsIfAlreadyMigrated) {
           .ValueOrDie();
   local_store_ =
       std::make_unique<LocalStore>(persistence_.get(), query_engine_.get(),
-                                    credentials::User::Unauthenticated());
+                                   credentials::User::Unauthenticated());
   local_store_->Start();
   EXPECT_EQ(Doc("foo/bar", 2, Map("foo", "bar")).SetHasLocalMutations(),
             local_store_->ReadDocument(Key("foo/bar")));
@@ -193,7 +193,7 @@ TEST_F(LevelDbOverlayMigrationManagerTest, SkipsIfAlreadyMigrated) {
                     [&] { EXPECT_FALSE(has_pending_overlay_migration()); });
   local_store_ =
       std::make_unique<LocalStore>(persistence_.get(), query_engine_.get(),
-                                    credentials::User::Unauthenticated());
+                                   credentials::User::Unauthenticated());
   local_store_->Start();
 
   // No overlay should exist since migration is not run.
@@ -220,7 +220,7 @@ TEST_F(LevelDbOverlayMigrationManagerTest, CreateOverlayFromDelete) {
 
   local_store_ =
       std::make_unique<LocalStore>(persistence_.get(), query_engine_.get(),
-                                    credentials::User::Unauthenticated());
+                                   credentials::User::Unauthenticated());
   local_store_->Start();
 
   persistence_->Run("Verify mutation", [&] {
@@ -257,7 +257,7 @@ TEST_F(LevelDbOverlayMigrationManagerTest, CreateOverlayFromPatch) {
 
   local_store_ =
       std::make_unique<LocalStore>(persistence_.get(), query_engine_.get(),
-                                    credentials::User::Unauthenticated());
+                                   credentials::User::Unauthenticated());
   local_store_->Start();
 
   persistence_->Run("Verify mutation", [&] {
@@ -290,7 +290,7 @@ TEST_F(LevelDbOverlayMigrationManagerTest, CreateOverlaysForDifferentUsers) {
 
   local_store_ =
       std::make_unique<LocalStore>(persistence_.get(), query_engine_.get(),
-                                    credentials::User("another_user"));
+                                   credentials::User("another_user"));
   local_store_->Start();
   WriteMutation(SetMutation("foo/bar", Map("foo", "set-by-another_user")));
 
@@ -307,7 +307,7 @@ TEST_F(LevelDbOverlayMigrationManagerTest, CreateOverlaysForDifferentUsers) {
 
   local_store_ =
       std::make_unique<LocalStore>(persistence_.get(), query_engine_.get(),
-                                    credentials::User::Unauthenticated());
+                                   credentials::User::Unauthenticated());
   local_store_->Start();
 
   persistence_->Run("Verify mutation", [&] {

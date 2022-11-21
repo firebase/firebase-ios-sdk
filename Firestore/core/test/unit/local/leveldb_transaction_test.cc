@@ -36,11 +36,11 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-using leveldb::DB;
-using leveldb::Options;
-using leveldb::ReadOptions;
-using leveldb::Status;
-using leveldb::WriteOptions;
+using ldb::DB;
+using ldb::Options;
+using ldb::ReadOptions;
+using ldb::Status;
+using ldb::WriteOptions;
 using nanopb::ByteString;
 using nanopb::Message;
 using nanopb::StringReader;

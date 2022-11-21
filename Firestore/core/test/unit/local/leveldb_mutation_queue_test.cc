@@ -35,7 +35,6 @@
 #include "Firestore/core/test/unit/testutil/status_testing.h"
 #include "absl/strings/string_view.h"
 #include "gtest/gtest.h"
-#include "leveldb/db.h"
 
 namespace firebase {
 namespace firestore {
@@ -43,10 +42,10 @@ namespace local {
 namespace {
 
 using credentials::User;
-using leveldb::DB;
-using leveldb::Slice;
-using leveldb::Status;
-using leveldb::WriteOptions;
+using ldb::DB;
+using ldb::Slice;
+using ldb::Status;
+using ldb::WriteOptions;
 using model::BatchId;
 using nanopb::ByteString;
 using nanopb::Message;

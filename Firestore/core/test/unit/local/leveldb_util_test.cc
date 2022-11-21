@@ -24,12 +24,12 @@ namespace firestore {
 namespace local {
 
 TEST(LevelDbUtilTest, ConvertsStatus) {
-  EXPECT_EQ(util::Status::OK(), ConvertStatus(leveldb::Status::OK()));
+  EXPECT_EQ(util::Status::OK(), ConvertStatus(ldb::Status::OK()));
 
   EXPECT_EQ(Error::kErrorNotFound,
-            ConvertStatus(leveldb::Status::NotFound("")).code());
+            ConvertStatus(ldb::Status::NotFound("")).code());
   EXPECT_EQ(Error::kErrorUnavailable,
-            ConvertStatus(leveldb::Status::IOError("")).code());
+            ConvertStatus(ldb::Status::IOError("")).code());
 }
 
 }  // namespace local

@@ -21,6 +21,7 @@
 #include <memory>
 #include <string>
 
+#include "Firestore/core/src/local/ldb/leveldb_interface.h"
 #include "Firestore/core/src/local/leveldb_util.h"
 #include "Firestore/core/src/util/filesystem.h"
 #include "Firestore/core/src/util/path.h"
@@ -34,6 +35,7 @@ using ::firebase::firestore::local::ConvertStatus;
 using ::firebase::firestore::util::Filesystem;
 using ::firebase::firestore::util::Path;
 
+#if not PG_PERSISTENCE
 // Creates a LevelDb database that uses Snappy compression for at least one of
 // its blocks. Attempting to iterate over this database using a LevelDb library
 // that does not have Snappy compression compiled in will return a failed status
@@ -46,7 +48,7 @@ Path CreateLevelDbDatabaseThatUsesSnappyCompression();
 // callback is invoked with a `status` where `status.ok()` is not true, then
 // iteration will stop and the callback will not be invoked again.
 void IterateOverLevelDbDatabaseThatUsesSnappyCompression(
-    std::function<void(const leveldb::Status&)>);
+    std::function<void(const ldb::Status&)>);
 
 #if FIREBASE_TESTS_BUILT_BY_CMAKE
 
@@ -54,7 +56,7 @@ void IterateOverLevelDbDatabaseThatUsesSnappyCompression(
 // See https://github.com/firebase/firebase-ios-sdk/pull/9596 for details.
 TEST(LevelDbSnappy, LevelDbSupportsSnappy) {
   IterateOverLevelDbDatabaseThatUsesSnappyCompression(
-      [](const leveldb::Status& status) {
+      [](const ldb::Status& status) {
         ASSERT_TRUE(status.ok()) << ConvertStatus(status);
       });
 }
@@ -65,7 +67,7 @@ TEST(LevelDbSnappy, LevelDbSupportsSnappy) {
 TEST(LevelDbSnappy, LevelDbDoesNotSupportSnappy) {
   bool got_failed_status = false;
   IterateOverLevelDbDatabaseThatUsesSnappyCompression(
-      [&](const leveldb::Status& status) {
+      [&](const ldb::Status& status) {
         if (!status.ok()) {
           got_failed_status = true;
           ASSERT_TRUE(status.IsCorruption()) << ConvertStatus(status);
@@ -83,20 +85,20 @@ TEST(LevelDbSnappy, LevelDbDoesNotSupportSnappy) {
 #endif  // FIREBASE_TESTS_BUILT_BY_CMAKE
 
 void IterateOverLevelDbDatabaseThatUsesSnappyCompression(
-    std::function<void(const leveldb::Status&)> callback) {
-  std::unique_ptr<leveldb::DB> db;
+    std::function<void(const ldb::Status&)> callback) {
+  std::unique_ptr<ldb::DB> db;
   {
     Path leveldb_path = CreateLevelDbDatabaseThatUsesSnappyCompression();
     if (leveldb_path.empty()) {
       return;
     }
 
-    leveldb::Options options;
+    ldb::Options options;
     options.create_if_missing = false;
 
-    leveldb::DB* db_ptr;
-    leveldb::Status status =
-        leveldb::DB::Open(options, leveldb_path.ToUtf8String(), &db_ptr);
+    ldb::DB* db_ptr;
+    ldb::Status status =
+        ldb::DB::Open(options, leveldb_path.ToUtf8String(), &db_ptr);
 
     ASSERT_TRUE(status.ok())
         << "Opening LevelDb database " << leveldb_path.ToUtf8String()
@@ -105,8 +107,7 @@ void IterateOverLevelDbDatabaseThatUsesSnappyCompression(
     db.reset(db_ptr);
   }
 
-  std::unique_ptr<leveldb::Iterator> it(
-      db->NewIterator(leveldb::ReadOptions()));
+  std::unique_ptr<ldb::Iterator> it(db->NewIterator(ldb::ReadOptions()));
   for (it->SeekToFirst(); it->Valid(); it->Next()) {
     callback(it->status());
     if (!it->status().ok()) {
@@ -291,5 +292,7 @@ Path CreateLevelDbDatabaseThatUsesSnappyCompression() {
 
   return leveldb_dir;
 }
+
+#endif
 
 }  // namespace

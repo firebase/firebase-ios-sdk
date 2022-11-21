@@ -31,7 +31,7 @@ namespace firestore {
 namespace local {
 namespace {
 
-using leveldb::WriteOptions;
+using ldb::WriteOptions;
 using util::OrderedCode;
 
 // A dummy document value, useful for testing code that's known to examine only

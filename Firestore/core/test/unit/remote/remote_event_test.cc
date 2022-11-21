@@ -81,7 +81,7 @@ std::unique_ptr<WatchTargetChange> MakeTargetChange(
     std::vector<TargetId> target_ids,
     ByteString token) {
   return std::make_unique<WatchTargetChange>(state, std::move(target_ids),
-                                              std::move(token));
+                                             std::move(token));
 }
 
 }  // namespace
