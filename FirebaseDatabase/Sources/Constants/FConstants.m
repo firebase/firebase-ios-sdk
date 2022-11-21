@@ -103,7 +103,6 @@ NSString *const kFWPRequestStatus = @"s";
 NSString *const kWireProtocolVersionParam = @"v";
 NSString *const kWebsocketProtocolVersion = @"5";
 NSString *const kWebsocketServerKillPacket = @"kill";
-NSString *const kPersistentConnectionOffline = @"Client is offline.";
 const int kWebsocketMaxFrameSize = 16384;
 NSUInteger const kWebsocketKeepaliveInterval = 45;
 NSUInteger const kWebsocketConnectTimeout = 30;

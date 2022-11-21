@@ -4254,27 +4254,26 @@
   FIRDatabaseReference* childReadNode = [parentReadNode child:childWriteNode.key];
 
   [self waitForCompletionOf:childWriteNode setValue:@42];
-  [self snapWaiter:childReadNode
-         withBlock:^(FIRDataSnapshot* snapshot) {
-           XCTAssertEqualObjects(@42, snapshot.value);
-         }];
+  [self waitForValueOf:childReadNode toBe:@42];
+  __block BOOL done = NO;
   [parentReadNode
       getDataWithCompletionBlock:^(NSError* _Nullable error, FIRDataSnapshot* _Nullable snapshot) {
         XCTAssertNil(error);
         XCTAssertEqualObjects(
             @{childReadNode.key : @42}, snapshot.value);
+        done = YES;
       }];
+  WAIT_FOR(done);
+  done = NO;
   [self waitForCompletionOf:parentWriteNode setValue:@{childWriteNode.key : @43}];
-  [self snapWaiter:parentReadNode
-         withBlock:^(FIRDataSnapshot* snapshot) {
-           XCTAssertEqualObjects(
-               @{childReadNode.key : @43}, snapshot.value);
-         }];
+  [self waitForValueOf:parentReadNode toBe:@{childReadNode.key : @43}];
   [childReadNode
       getDataWithCompletionBlock:^(NSError* _Nullable error, FIRDataSnapshot* _Nullable snapshot) {
         XCTAssertNil(error);
-        XCTAssertEqual(@43, snapshot.value);
+        XCTAssertEqualObjects(@43, snapshot.value);
+        done = YES;
       }];
+  WAIT_FOR(done);
 }
 
 - (void)testLimitToGetWithListenerOnlyFiresOnce {
@@ -4580,27 +4579,6 @@
   }
 }
 
-- (void)testGetReturnsErrorForUnknownNodeWhenOffline {
-  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
-  FIRDatabase* db = [ref database];
-
-  __block BOOL done = NO;
-
-  @try {
-    [db goOffline];
-
-    [ref getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
-      XCTAssertNotNil(err);
-      XCTAssertEqualObjects([err localizedFailureReason], kPersistentConnectionOffline);
-      done = YES;
-    }];
-
-    WAIT_FOR(done);
-  } @finally {
-    [db goOnline];
-  }
-}
-
 - (void)testGetProbesInMemoryCacheForActiveListenerWhenOffline {
   FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
   FIRDatabase* db = [ref database];
@@ -4688,27 +4666,6 @@
     }];
   } @finally {
     [db2 goOnline];
-  }
-}
-
-- (void)testGetThrowsExceptionNewNodeWhenOfflineWithPersistenceEnabled {
-  FIRDatabase* db = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
-  [db setPersistenceEnabled:true];
-
-  NSString* uuidPath = [[NSUUID UUID] UUIDString];
-  FIRDatabaseReference* readRef = [db referenceWithPath:uuidPath];
-
-  [db goOffline];
-  @try {
-    __block BOOL done = NO;
-    [readRef getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
-      XCTAssertNotNil(err);
-      XCTAssertEqualObjects([err localizedFailureReason], kPersistentConnectionOffline);
-      done = YES;
-    }];
-    WAIT_FOR(done);
-  } @finally {
-    [db goOnline];
   }
 }
 

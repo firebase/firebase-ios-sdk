@@ -533,21 +533,40 @@
         }];
         return;
     }
-    __block FIndexedNode *persisted = nil;
-    dispatch_after(
-        dispatch_time(DISPATCH_TIME_NOW, kGetDataPersistenceFallbackTimeout),
-        [FIRDatabaseQuery sharedQueue], ^{
-          persisted = [self.serverSyncTree persistenceServerCache:querySpec];
-        });
     [self.persistenceManager setQueryActive:querySpec];
+    FIndexedNode *persisted =
+        [self.serverSyncTree persistenceServerCache:querySpec];
+    __block BOOL done = NO;
+    if (![persisted.node isEmpty]) {
+        dispatch_after(
+            dispatch_time(DISPATCH_TIME_NOW,
+                          kGetDataPersistenceFallbackTimeout),
+            [FIRDatabaseQuery sharedQueue], ^{
+              // get callback was invoked.
+              if (done) {
+                  return;
+              }
+              done = YES;
+              FFLog(@"I-RDB038024",
+                    @"getValue for query %@ falling back to disk cache",
+                    [querySpec.path toString]);
+              [self.eventRaiser raiseCallback:^{
+                block(nil, [[FIRDataSnapshot alloc] initWithRef:query.ref
+                                                    indexedNode:persisted]);
+              }];
+              [self.persistenceManager setQueryInactive:querySpec];
+            });
+    }
     [self.connection
         getDataAtPath:[query.path toString]
            withParams:querySpec.params.wireProtocolParams
          withCallback:^(NSString *status, id data, NSString *errorReason) {
+           // already return persisted cache value
+           if (done) {
+               return;
+           }
+           done = YES;
            if (![status isEqualToString:kFWPResponseForActionStatusOk]) {
-               FFLog(@"I-RDB038024",
-                     @"getValue for query %@ falling back to disk cache",
-                     [querySpec.path toString]);
                if (persisted == nil) {
                    NSDictionary *errorDict = @{
                        NSLocalizedFailureReasonErrorKey : errorReason,
