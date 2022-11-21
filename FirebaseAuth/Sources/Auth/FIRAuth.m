@@ -1579,6 +1579,13 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   });
 }
 
+- (void)initializeRecaptchaConfigWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
+    [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier] verifyForceRefresh:YES completion:^(NSString * _Nullable token, NSError * _Nullable error) {
+        // TODO:
+        ;
+    }];
+}
+
 #if TARGET_OS_IOS
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-property-ivar"

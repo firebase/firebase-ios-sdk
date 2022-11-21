@@ -37,6 +37,8 @@ typedef void (^FIRAuthInjectRequestCallback)(FIRIdentityToolkitRequest <FIRAuthR
 
 + (id)sharedRecaptchaVerifier;
 
+- (void)verifyForceRefresh:(BOOL)forceRefresh completion:(nullable FIRAuthRecaptchaTokenCallback)completion;
+
 + (void)injectRecaptchaFields:(FIRIdentityToolkitRequest <FIRAuthRPCRequest>*)request forceRefresh:(BOOL)forceRefresh completion:(nullable FIRAuthInjectRequestCallback)completion;
 
 @end

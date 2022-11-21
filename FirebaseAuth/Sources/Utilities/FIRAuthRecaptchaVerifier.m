@@ -34,7 +34,7 @@
     return sharedRecaptchaVerifier;
 }
 
-- (void)verifyForceRefresh:(BOOL)forceRefresh completion:(nullable FIRAuthRecaptchaTokenCallback)completion  {
+- (void)verifyForceRefresh:(BOOL)forceRefresh completion:(nullable FIRAuthRecaptchaTokenCallback)completion {
     // Enablement?
     [self retrieveSiteKeyForceRefresh:forceRefresh
                            completion:^(NSString * _Nullable siteKey, NSError * _Nullable error) {
