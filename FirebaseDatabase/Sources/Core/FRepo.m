@@ -533,7 +533,6 @@
         }];
         return;
     }
-    [self.persistenceManager setQueryActive:querySpec];
     FIndexedNode *persisted =
         [self.serverSyncTree persistenceServerCache:querySpec];
     __block BOOL done = NO;
@@ -554,7 +553,6 @@
                 block(nil, [[FIRDataSnapshot alloc] initWithRef:query.ref
                                                     indexedNode:persisted]);
               }];
-              [self.persistenceManager setQueryInactive:querySpec];
             });
     }
     [self.connection
@@ -615,7 +613,6 @@
                                                      indexedNode:indexedNode]);
                }];
            }
-           [self.persistenceManager setQueryInactive:querySpec];
          }];
 }
 
