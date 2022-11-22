@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_LOCAL_LDB_LEVELDB_INTERFACE_H_
 #define FIRESTORE_CORE_SRC_LOCAL_LDB_LEVELDB_INTERFACE_H_
 
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -318,7 +319,7 @@ class WriteBatch {
 
 class Iterator {
  public:
-  Iterator() = default;
+  explicit Iterator(pqxx::nontransaction* txn);
 
   Iterator(const Iterator&) = delete;
   Iterator& operator=(const Iterator&) = delete;
@@ -367,6 +368,7 @@ class Iterator {
   bool valid_ = false;
   Slice key_;
   Slice value_;
+  pqxx::nontransaction* txn_;
 };
 
 class DB {
@@ -395,6 +397,7 @@ class DB {
 
  private:
   pqxx::connection conn_;
+  std::unique_ptr<pqxx::nontransaction> txn_;
 };
 
 #else

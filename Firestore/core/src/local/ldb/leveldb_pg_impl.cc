@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
+#include <memory>
 #include <optional>
 #include <string>
 #include <tuple>
 #include <utility>
 
 #include "Firestore/core/src/local/ldb/leveldb_interface.h"
+#include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
 #include "absl/strings/string_view.h"
 
@@ -33,15 +35,16 @@ namespace ldb {
 
 #ifdef PG_PERSISTENCE
 namespace {
-void DoPut(pqxx::work& txn, const Slice& key, const Slice& value) {
+void DoPut(pqxx::nontransaction& txn, const Slice& key, const Slice& value) {
   txn.exec_params(
       "insert into firestore_cache (key, value) values ($1, $2) ON CONFLICT "
       "(key) DO UPDATE set value = $2",
-      key.ToString(), value.ToString());
+      pqxx::binarystring(key.ToString()), pqxx::binarystring(value.ToString()));
 }
 
-void DoDelete(pqxx::work& txn, const Slice& key) {
-  txn.exec_params("delete from firestore_cache where key = $1", key.ToString());
+void DoDelete(pqxx::nontransaction& txn, const Slice& key) {
+  txn.exec_params("delete from firestore_cache where key = $1",
+                  pqxx::binarystring(key.ToString()));
 }
 }  // namespace
 
@@ -120,9 +123,11 @@ void WriteBatch::Delete(const Slice& key) {
 }
 
 DB::DB() : conn_(pqxx::connection()) {
+  txn_ = std::make_unique<pqxx::nontransaction>(conn_);
 }
 
 DB::DB(pqxx::connection conn) : conn_(std::move(conn)) {
+  txn_ = std::make_unique<pqxx::nontransaction>(conn_);
 }
 
 Status DB::Open(const Options& options, const std::string& name, DB** dbptr) {
@@ -131,10 +136,9 @@ Status DB::Open(const Options& options, const std::string& name, DB** dbptr) {
 
   DB* db = new DB(pqxx::connection("postgresql://localhost/leveldb"));
   LOG_DEBUG("Connecting to ", db->conn_.connection_string());
-  pqxx::work txn{db->conn_};
-  txn.exec(
-      "CREATE TABLE IF NOT EXISTS firestore_cache (key text, value text);");
-  txn.commit();
+  db->txn_->exec(
+      "CREATE TABLE IF NOT EXISTS firestore_cache (key bytea, value bytea, "
+      "PRIMARY KEY(key))");
 
   *dbptr = db;
 
@@ -145,38 +149,31 @@ Status DB::Put(const WriteOptions& options,
                const Slice& key,
                const Slice& value) {
   (void)options;
-  pqxx::work txn(conn_);
-  DoPut(txn, key, value);
-  txn.commit();
+  DoPut(*txn_, key, value);
 
   return Status::OK();
 }
 
 Status DB::Delete(const WriteOptions& options, const Slice& key) {
   (void)options;
-  pqxx::work txn(conn_);
-  DoDelete(txn, key);
-  txn.commit();
+  DoDelete(*txn_, key);
 
   return Status::OK();
 }
 
 Status DB::Write(const WriteOptions& options, WriteBatch* updates) {
   (void)options;
-  pqxx::work txn(conn_);
-
+  LOG_WARN("Writing batch...");
   for (const auto& op : updates->oprations()) {
     const auto* delete_key = std::get_if<Slice>(&op);
     if (delete_key != nullptr) {
-      DoDelete(txn, *delete_key);
+      DoDelete(*txn_, *delete_key);
     } else {
       const auto* update = std::get_if<std::tuple<Slice, Slice>>(&op);
-      DoPut(txn, std::get<0>(*update), std::get<1>(*update));
+      DoPut(*txn_, std::get<0>(*update), std::get<1>(*update));
     }
   }
-
-  txn.commit();
-
+  LOG_WARN("Done writing batch...");
   return Status::OK();
 }
 
@@ -184,11 +181,11 @@ Status DB::Get(const ReadOptions& options,
                const Slice& key,
                std::string* value) {
   (void)options;
-  pqxx::work txn(conn_);
-  std::optional<std::tuple<std::string>> result = txn.query01<std::string>(
+  LOG_WARN("Running get for key ", key.ToString());
+  std::optional<std::tuple<std::string>> result = txn_->query01<std::string>(
       "select value from firestore_cache where key = " +
-      txn.quote(key.ToString()));
-  txn.commit();
+      txn_->quote_raw(key.ToString()));
+  LOG_WARN("Done running get for key ", key.ToString());
 
   if (result.has_value()) {
     *value = std::get<0>(result.value());
@@ -198,23 +195,84 @@ Status DB::Get(const ReadOptions& options,
   }
 }
 
+Iterator::Iterator(pqxx::nontransaction* txn) : txn_(txn) {
+}
+
 bool Iterator::Valid() const {
   return valid_;
 }
 
 void Iterator::SeekToLast() {
+  auto result = txn_->query01<std::string, std::string>(
+      "select key, value from firestore_cache ordered by key DESC limit 1");
+
+  if (result.has_value()) {
+    valid_ = true;
+    key_ = Slice{std::get<0>(result.value())};
+    value_ = Slice{std::get<1>(result.value())};
+  } else {
+    valid_ = false;
+    key_ = Slice{};
+    value_ = Slice{};
+  }
 }
 
+// Position at the first key in the source that is at or past target.
+// The iterator is Valid() after this call iff the source contains
+// an entry that comes at or past target.
 void Iterator::Seek(const Slice& target) {
-  (void)target;
+  LOG_WARN("Seeking..");
+  auto result = txn_->query01<std::string, std::string>(
+      "select key, value from firestore_cache where key >= " +
+      txn_->quote_raw(target.ToString()));
+  LOG_WARN("Done seeking..");
+
+  if (result.has_value()) {
+    valid_ = true;
+    key_ = Slice{std::get<0>(result.value())};
+    value_ = Slice{std::get<1>(result.value())};
+  } else {
+    valid_ = false;
+    key_ = Slice{};
+    value_ = Slice{};
+  }
 }
 
 // REQUIRES: Valid()
 void Iterator::Next() {
+  HARD_ASSERT(valid_, "Next() expect iterator to be valid");
+  auto result = txn_->query01<std::string, std::string>(
+      "select key, value from firestore_cache where key > " +
+      txn_->quote_raw(key_.ToString()));
+
+  if (result.has_value()) {
+    valid_ = true;
+    key_ = Slice{std::get<0>(result.value())};
+    value_ = Slice{std::get<1>(result.value())};
+  } else {
+    valid_ = false;
+    key_ = Slice{};
+    value_ = Slice{};
+  }
 }
 
 // REQUIRES: Valid()
 void Iterator::Prev() {
+  HARD_ASSERT(valid_, "Prev() expect iterator to be valid");
+
+  auto result = txn_->query01<std::string, std::string>(
+      "select key, value from firestore_cache where key < " +
+      txn_->quote_raw(key_.ToString()));
+
+  if (result.has_value()) {
+    valid_ = true;
+    key_ = Slice{std::get<0>(result.value())};
+    value_ = Slice{std::get<1>(result.value())};
+  } else {
+    valid_ = false;
+    key_ = Slice{};
+    value_ = Slice{};
+  }
 }
 
 // REQUIRES: Valid()
@@ -229,16 +287,12 @@ Slice Iterator::value() {
 
 // If an error has occurred, return it.  Else return an ok status.
 Status Iterator::status() {
-  if (valid_) {
-    return Status::OK();
-  }
-
-  return Status::InvalidArgument("Invalid iterator position.");
+  return Status::OK();
 }
 
 Iterator* DB::NewIterator(const ReadOptions& options) {
   (void)options;
-  return new Iterator();
+  return new Iterator(txn_.get());
 }
 
 #endif
