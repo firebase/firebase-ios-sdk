@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/** A class that wraps around the Auth Exchange response from the backend. This will always contain the `AuthExchangeToken`. For some provider flows (i.e. OIDC), a provider ID token and/or a provider refresh token may also be returned. */
+/**
+ * A class that wraps around the Auth Exchange response from the backend. This will always contain the `AuthExchangeToken`. For
+ * some provider flows (i.e. OIDC), a provider ID token and/or a provider refresh token may also be returned.
+ */
 @objc(FIRAuthExchangeResult) public class AuthExchangeResult: NSObject {
   @objc public init(authExchangeToken: AuthExchangeToken, providerIDToken: String?,
                     providerRefreshToken: String?) {

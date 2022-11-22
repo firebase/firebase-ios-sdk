@@ -15,12 +15,13 @@
 /** The Firebase Auth Exchange interop protocol. This is intended for use only by other Firebase SDKs. */
 @objc(FIRAuthExchangeInterop) public protocol AuthExchangeInterop {
   /**
-   * Returns the stored Auth Exchange token if valid and fetches a new token from the backend otherwise. This method is an interop method and intended for use only by other Firebase SDKs.
+   * Returns the stored Auth Exchange token if valid and fetches a new token from the backend otherwise. This method is an interop
+   * method and intended for use only by other Firebase SDKs.
    * - Parameters:
    *  - forceRefresh: Whether or not a new token should be fetched regardless of the validity of the stored token.
    * - Returns: A valid Auth Exchange token.
    */
-  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
   func getToken(forceRefresh: Bool) async throws -> String
 
   /** See `getToken(forceRefresh:)`. */

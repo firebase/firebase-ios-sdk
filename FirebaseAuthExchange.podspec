@@ -23,7 +23,7 @@ Firebase Authentication Exchange allows you to bring your own Customer Identity 
   tvos_deployment_target = '12.0'
   watchos_deployment_target = '6.0'
 
-  s.swift_version = '5.3'
+  s.swift_version = '5.6'
 
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
@@ -43,8 +43,6 @@ Firebase Authentication Exchange allows you to bring your own Customer Identity 
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
 
-  # TODO(rosalyntan): Is this the correct framework?
-  s.framework = 'Security'
   s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'FirebaseCoreExtension', '~> 10.0'
 end

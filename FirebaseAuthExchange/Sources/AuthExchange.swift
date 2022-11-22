@@ -14,8 +14,16 @@
 
 import FirebaseCore
 
-@objc
-(FIRAuthExchange) public class AuthExchange: NSObject, AuthExchangeInterop {
+@objc(FIRTokenRefreshDelegate) public protocol TokenRefreshDelegate {
+  /**
+   * This method is invoked whenever a new Auth Exchange token is needed. Developers should implement this method to request a
+   * new token from an identity provider and then exchange it for a new Auth Exchange token.
+   */
+  @objc(refreshAuthExchangeTokenWithCompletion:)
+  func refreshAuthExchangeToken(completion: @escaping (AuthExchangeToken?, Error?) -> Void)
+}
+
+@objc(FIRAuthExchange) public class AuthExchange: NSObject, AuthExchangeInterop {
   // MARK: - Public APIs
 
   /** Creates an `AuthExchange` instance, initialized with the default `FirebaseApp`. */
@@ -44,7 +52,7 @@ import FirebaseCore
 
   // MARK: - Interop APIs
 
-  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
   public func getToken(forceRefresh: Bool) async throws -> String {
     // TODO: Implement interop methods.
     return "Unimplemented"
