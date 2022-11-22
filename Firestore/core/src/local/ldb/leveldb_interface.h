@@ -19,6 +19,7 @@
 
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "absl/strings/string_view.h"
 #include "leveldb/db.h"
@@ -259,7 +260,7 @@ enum CompressionType {
 // Options to control the behavior of a database (passed to DB::Open)
 struct Options {
   // Create an Options object with default values for all fields.
-  Options();
+  Options() = default;
 
   // If true, the database will be created if it is missing.
   bool create_if_missing = false;
@@ -292,7 +293,7 @@ struct WriteOptions {
 
 class WriteBatch {
  public:
-  WriteBatch();
+  WriteBatch() = default;
 
   // Intentionally copyable.
   WriteBatch(const WriteBatch&) = default;
@@ -306,18 +307,23 @@ class WriteBatch {
   // If the database contains a mapping for "key", erase it.  Else do nothing.
   void Delete(const Slice& key);
 
+  const std::vector<std::variant<std::tuple<Slice, Slice>, Slice>>&
+  oprations() {
+    return operations_;
+  }
+
  private:
-  std::string rep_;  // See comment in write_batch.cc for the format of rep_
+  std::vector<std::variant<std::tuple<Slice, Slice>, Slice>> operations_;
 };
 
 class Iterator {
  public:
-  Iterator();
+  Iterator() = default;
 
   Iterator(const Iterator&) = delete;
   Iterator& operator=(const Iterator&) = delete;
 
-  ~Iterator();
+  ~Iterator() = default;
 
   // An iterator is either positioned at a key/value pair, or
   // not valid.  This method returns true iff the iterator is valid.
@@ -356,6 +362,11 @@ class Iterator {
 
   // If an error has occurred, return it.  Else return an ok status.
   Status status();
+
+ private:
+  bool valid_ = false;
+  Slice key_;
+  Slice value_;
 };
 
 class DB {
@@ -370,7 +381,7 @@ class DB {
   DB(const DB&) = delete;
   DB& operator=(const DB&) = delete;
 
-  ~DB();
+  ~DB() = default;
 
   Status Put(const WriteOptions& options, const Slice& key, const Slice& value);
 
@@ -382,8 +393,7 @@ class DB {
 
   Iterator* NewIterator(const ReadOptions& options);
 
-  bool GetProperty(const Slice& property, std::string* value);
-  private:
+ private:
   pqxx::connection conn_;
 };
 
