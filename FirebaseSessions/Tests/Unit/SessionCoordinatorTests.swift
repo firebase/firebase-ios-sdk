@@ -110,7 +110,7 @@ class SessionCoordinatorTests: XCTestCase {
     XCTAssertTrue(resultSuccess)
   }
 
-  func test_eventDropped_EventsSampled() throws {
+  func test_eventDropped_handlesZeroSamplingRate() throws {
     identifiers.mockAllValidIDs()
 
     let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)

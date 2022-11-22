@@ -54,7 +54,7 @@ class SessionCoordinator {
         .logInfo(
           "Session event dropped due to sampling."
         )
-      callback(.failure(FirebaseSessionsError.SessionSampledError))
+      callback(.failure(FirebaseSessionsError.SessionSamplingError))
     }
   }
 }

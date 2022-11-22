@@ -19,20 +19,20 @@ import XCTest
 
 class SessionSamplerTests: XCTestCase {
   /// Validates if the default sampling rate is to allow all events.
-  func test_DefaultSamplingRate() {
+  func test_defaultSamplingRate() {
     let localSampler = SessionSampler()
     XCTAssertEqual(localSampler.sessionSamplingRate, 1.0)
   }
 
   /// Validates if the events are disabled when the sampling rate is Zero.
-  func test_DisablesEventCollection_samplingRateZero() {
+  func test_disablesEventCollection_samplingRateZero() {
     let localSampler = SessionSampler(sessionSamplingRate: 0.0)
     XCTAssertEqual(localSampler.shouldSendEventForSession(sessionId: "random"), false)
     XCTAssertEqual(localSampler.shouldSendEventForSession(sessionId: "anyEvent"), false)
   }
 
   /// Validates if the events are allowed when the sampling rate is One.
-  func test_AllowsEventCollection_samplingRateOne() {
+  func test_allowsEventCollection_samplingRateOne() {
     let localSampler = SessionSampler(sessionSamplingRate: 1.0)
     XCTAssertEqual(localSampler.shouldSendEventForSession(sessionId: "random"), true)
     XCTAssertEqual(localSampler.shouldSendEventForSession(sessionId: "anyEvent"), true)
