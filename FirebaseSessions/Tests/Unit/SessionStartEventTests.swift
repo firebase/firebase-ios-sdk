@@ -161,4 +161,21 @@ class SessionStartEventTests: XCTestCase {
         XCTAssertEqual(event.proto.application_info.log_environment, expected)
     }
   }
+
+  func test_dataCollectionState_defaultIsUnknown() {
+    identifiers.mockAllValidIDs()
+
+    let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
+
+    testProtoAndDecodedProto(sessionEvent: event) { proto in
+      XCTAssertEqual(
+        proto.session_data.data_collection_status.performance,
+        firebase_appquality_sessions_DataCollectionState_COLLECTION_UNKNOWN
+      )
+      XCTAssertEqual(
+        proto.session_data.data_collection_status.crashlytics,
+        firebase_appquality_sessions_DataCollectionState_COLLECTION_UNKNOWN
+      )
+    }
+  }
 }
