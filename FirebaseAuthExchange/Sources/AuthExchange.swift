@@ -16,7 +16,6 @@ import FirebaseCore
 
 @objc
 (FIRAuthExchange) public class AuthExchange: NSObject, AuthExchangeInterop {
-
   // MARK: - Public APIs
 
   /** Creates an `AuthExchange` instance, initialized with the default `FirebaseApp`. */
@@ -28,8 +27,8 @@ import FirebaseCore
   private static var instanceDictionary: [String: AuthExchange] = [:]
 
   // TODO: Integrate with ComponentProvider.
-  public override required init() {
-    self.tokenRefreshDelegate = nil
+  override public required init() {
+    tokenRefreshDelegate = nil
   }
 
   /** Creates an `AuthExchange` instance, initialized with the provided `FirebaseApp`. */
@@ -51,7 +50,7 @@ import FirebaseCore
     return "Unimplemented"
   }
 
-  public func getToken(forceRefresh: Bool, completion: ((String?, Error?) -> Void)) {
+  public func getToken(forceRefresh: Bool, completion: (String?, Error?) -> Void) {
     // TODO: Implement interop methods.
   }
 }

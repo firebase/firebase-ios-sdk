@@ -14,7 +14,6 @@
 
 /** The Firebase Auth Exchange interop protocol. This is intended for use only by other Firebase SDKs. */
 @objc(FIRAuthExchangeInterop) public protocol AuthExchangeInterop {
-
   /**
    * Returns the stored Auth Exchange token if valid and fetches a new token from the backend otherwise. This method is an interop method and intended for use only by other Firebase SDKs.
    * - Parameters:
@@ -26,6 +25,5 @@
 
   /** See `getToken(forceRefresh:)`. */
   @objc(getTokenForcingRefresh:completion:)
-  func getToken(forceRefresh: Bool, completion: ((String?, Error?) -> Void))
+  func getToken(forceRefresh: Bool, completion: (String?, Error?) -> Void)
 }
-
