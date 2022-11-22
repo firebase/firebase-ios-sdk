@@ -292,45 +292,19 @@ struct WriteOptions {
 
 class WriteBatch {
  public:
-  class Handler {
-   public:
-    virtual ~Handler();
-    virtual void Put(const Slice& key, const Slice& value) = 0;
-    virtual void Delete(const Slice& key) = 0;
-  };
-
   WriteBatch();
 
   // Intentionally copyable.
   WriteBatch(const WriteBatch&) = default;
   WriteBatch& operator=(const WriteBatch&) = default;
 
-  ~WriteBatch();
+  ~WriteBatch() = default;
 
   // Store the mapping "key->value" in the database.
   void Put(const Slice& key, const Slice& value);
 
   // If the database contains a mapping for "key", erase it.  Else do nothing.
   void Delete(const Slice& key);
-
-  // Clear all updates buffered in this batch.
-  void Clear();
-
-  // The size of the database changes caused by this batch.
-  //
-  // This number is tied to implementation details, and may change across
-  // releases. It is intended for LevelDB usage metrics.
-  size_t ApproximateSize() const;
-
-  // Copies the operations in "source" to this batch.
-  //
-  // This runs in O(source size) time. However, the constant factor is better
-  // than calling Iterate() over the source batch with a Handler that replicates
-  // the operations into this batch.
-  void Append(const WriteBatch& source);
-
-  // Support for iterating over the contents of a batch.
-  Status Iterate(Handler* handler) const;
 
  private:
   std::string rep_;  // See comment in write_batch.cc for the format of rep_
@@ -348,10 +322,6 @@ class Iterator {
   // An iterator is either positioned at a key/value pair, or
   // not valid.  This method returns true iff the iterator is valid.
   bool Valid() const;
-
-  // Position at the first key in the source.  The iterator is Valid()
-  // after this call iff the source is not empty.
-  void SeekToFirst();
 
   // Position at the last key in the source.  The iterator is
   // Valid() after this call iff the source is not empty.
@@ -386,36 +356,6 @@ class Iterator {
 
   // If an error has occurred, return it.  Else return an ok status.
   Status status();
-
-  // Clients are allowed to register function/arg1/arg2 triples that
-  // will be invoked when this iterator is destroyed.
-  //
-  // Note that unlike all of the preceding methods, this method is
-  // not abstract and therefore clients should not override it.
-  using CleanupFunction = void (*)(void* arg1, void* arg2);
-  void RegisterCleanup(CleanupFunction function, void* arg1, void* arg2);
-
- private:
-  // Cleanup functions are stored in a single-linked list.
-  // The list's head node is inlined in the iterator.
-  struct CleanupNode {
-    // True if the node is not used. Only head nodes might be unused.
-    bool IsEmpty() const {
-      return function == nullptr;
-    }
-    // Invokes the cleanup function.
-    void Run() {
-      assert(function != nullptr);
-      (*function)(arg1, arg2);
-    }
-
-    // The head node is used if the function pointer is not null.
-    CleanupFunction function;
-    void* arg1;
-    void* arg2;
-    CleanupNode* next;
-  };
-  CleanupNode cleanup_head_;
 };
 
 class DB {
@@ -424,7 +364,8 @@ class DB {
                      const std::string& name,
                      DB** dbptr);
 
-  DB() = default;
+  DB();
+  explicit DB(pqxx::connection conn);
 
   DB(const DB&) = delete;
   DB& operator=(const DB&) = delete;
@@ -442,6 +383,8 @@ class DB {
   Iterator* NewIterator(const ReadOptions& options);
 
   bool GetProperty(const Slice& property, std::string* value);
+  private:
+  pqxx::connection conn_;
 };
 
 #else

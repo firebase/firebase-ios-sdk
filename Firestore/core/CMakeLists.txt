@@ -223,6 +223,7 @@ firebase_ios_glob(
   src/index/*.cc
   src/index/*.h
   src/local/*.cc
+  src/local/ldb/*.cc
   src/local/*.h
   src/model/*.cc
   src/model/*.h
