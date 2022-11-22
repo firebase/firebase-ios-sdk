@@ -14,7 +14,8 @@
 
 /** A class that wraps around the Auth Exchange response from the backend. This will always contain the `AuthExchangeToken`. For some provider flows (i.e. OIDC), a provider ID token and/or a provider refresh token may also be returned. */
 @objc(FIRAuthExchangeResult) public class AuthExchangeResult: NSObject {
-  @objc public init(authExchangeToken: AuthExchangeToken, providerIDToken: String?, providerRefreshToken: String?) {
+  @objc public init(authExchangeToken: AuthExchangeToken, providerIDToken: String?,
+                    providerRefreshToken: String?) {
     self.authExchangeToken = authExchangeToken
     self.providerIDToken = providerIDToken
     self.providerRefreshToken = providerRefreshToken
@@ -22,8 +23,8 @@
 
   @objc public init(authExchangeToken: AuthExchangeToken) {
     self.authExchangeToken = authExchangeToken
-    self.providerIDToken = nil
-    self.providerRefreshToken = nil
+    providerIDToken = nil
+    providerRefreshToken = nil
   }
 
   @objc public let authExchangeToken: AuthExchangeToken
