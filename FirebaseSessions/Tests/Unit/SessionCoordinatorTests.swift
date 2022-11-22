@@ -29,7 +29,11 @@ class SessionCoordinatorTests: XCTestCase {
   override func setUp() {
     super.setUp()
 
-    coordinator = SessionCoordinator(identifiers: identifiers, fireLogger: fireLogger, sampler: sampler)
+    coordinator = SessionCoordinator(
+      identifiers: identifiers,
+      fireLogger: fireLogger,
+      sampler: sampler
+    )
     sampler.sessionSamplingRate = 1.0
   }
 
@@ -86,7 +90,7 @@ class SessionCoordinatorTests: XCTestCase {
     XCTAssertEqual(fireLogger.loggedEvent, event)
     XCTAssertFalse(resultSuccess)
   }
-  
+
   func test_eventNotDropped_handlesAllEventsAllowed() throws {
     identifiers.mockAllValidIDs()
 
@@ -102,17 +106,17 @@ class SessionCoordinatorTests: XCTestCase {
         resultSuccess = false
       }
     }
-    
+
     XCTAssertTrue(resultSuccess)
   }
-  
+
   func test_eventDropped_EventsSampled() throws {
     identifiers.mockAllValidIDs()
 
     let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
 
     sampler.sessionSamplingRate = 0.0
-    
+
     var resultSuccess = true
     coordinator.attemptLoggingSessionStart(event: event) { result in
       switch result {
@@ -122,7 +126,7 @@ class SessionCoordinatorTests: XCTestCase {
         resultSuccess = false
       }
     }
-    
+
     XCTAssertFalse(resultSuccess)
   }
 }

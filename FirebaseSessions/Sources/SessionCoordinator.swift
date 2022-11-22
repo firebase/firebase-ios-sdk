@@ -23,7 +23,8 @@ class SessionCoordinator {
   let fireLogger: EventGDTLoggerProtocol
   let sampler: SessionSamplerProtocol
 
-  init(identifiers: IdentifierProvider, fireLogger: EventGDTLoggerProtocol, sampler: SessionSamplerProtocol) {
+  init(identifiers: IdentifierProvider, fireLogger: EventGDTLoggerProtocol,
+       sampler: SessionSamplerProtocol) {
     self.identifiers = identifiers
     self.fireLogger = fireLogger
     self.sampler = sampler
@@ -32,10 +33,9 @@ class SessionCoordinator {
   // Begins the process of logging a SessionStartEvent to FireLog, while taking into account Data Collection, Sampling, and fetching Settings
   func attemptLoggingSessionStart(event: SessionStartEvent,
                                   callback: @escaping (Result<Void, Error>) -> Void) {
-    
-    if (self.sampler.shouldSendEventForSession(sessionId: identifiers.sessionID) == true) {
+    if sampler.shouldSendEventForSession(sessionId: identifiers.sessionID) == true {
       event.setInstallationID(identifiers: identifiers)
-      
+
       fireLogger.logEvent(event: event) { result in
         switch result {
         case .success():

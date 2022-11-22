@@ -15,10 +15,9 @@
 import Foundation
 
 protocol SessionSamplerProtocol {
-
   /// Sampling rate that has to be applied across sessions.
   /// Ranges from 0 to 1 in Double.
-  var sessionSamplingRate:Double { get set }
+  var sessionSamplingRate: Double { get set }
 
   /// Determines if a provided sessionID should be sampled or not.
   /// Note: Sample means allowed. A return of true means the event should be allowed, else dropped.
@@ -26,7 +25,6 @@ protocol SessionSamplerProtocol {
 }
 
 class SessionSampler: SessionSamplerProtocol {
-
   var sessionSamplingRate: Double
 
   /// TODO: Update this to a sampling logic once we have the configuration flags in place.
@@ -36,8 +34,8 @@ class SessionSampler: SessionSamplerProtocol {
   }
 
   func shouldSendEventForSession(sessionId: String) -> Bool {
-    let randomFloat = Double.random(in: 0..<1)
-    if (randomFloat > sessionSamplingRate) {
+    let randomFloat = Double.random(in: 0 ..< 1)
+    if randomFloat > sessionSamplingRate {
       return false
     }
     return true

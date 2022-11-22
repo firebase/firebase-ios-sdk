@@ -18,7 +18,6 @@ import XCTest
 @testable import FirebaseSessions
 
 class SessionSamplerTests: XCTestCase {
-
   /// Validates if the default sampling rate is to allow all events.
   func test_DefaultSamplingRate() {
     let localSampler = SessionSampler()
