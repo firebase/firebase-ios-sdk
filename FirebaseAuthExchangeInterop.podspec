@@ -15,7 +15,6 @@ Pod::Spec.new do |s|
 
   # NOTE that these should not be used externally, this is for Firebase pods to depend on each
   # other.
-  # TODO(rosalyntan): Change this to point to private branch while under development?
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
     :tag => 'CocoaPods-' + s.version.to_s

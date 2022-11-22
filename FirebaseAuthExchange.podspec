@@ -11,7 +11,6 @@ Firebase Authentication Exchange allows you to bring your own Customer Identity 
   s.license          = { :type => 'Apache-2.0', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
 
-  # TODO(rosalyntan): Change to private branch while under development?
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
     :tag => 'CocoaPods-' + s.version.to_s

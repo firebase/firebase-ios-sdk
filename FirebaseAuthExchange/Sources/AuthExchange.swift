@@ -1,58 +1,57 @@
+// Copyright 2022 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+import FirebaseCore
+
 @objc
-(FIRAuthExchange) public class AuthExchange: AuthExchangeInterop, NSObject {
-  /// Initializes an `AuthExchange` instance with the default `FirebaseApp`.
-  @objc public static func authExchange() -> AuthExchange
+(FIRAuthExchange) public class AuthExchange: NSObject, AuthExchangeInterop {
 
-  /// Initializes an `AuthExchange` instance with the provided `FirebaseApp`.
-  @objc(authExchangeWithApp:) public static func authExchange(app: FirebaseApp) -> AuthExchange
+  // MARK: - Public APIs
 
-  /// Returns the current Auth Exchange token if valid and fetches a new one from the backend
-  /// otherwise. If `forceRefresh` is true, then a new token is fetched regardless of the
-  /// validity of the stored token.
-  ///
-  /// In order for a new token to be successfully fetched, a `TokenRefreshHandler` must be
-  /// registered.
-  public func getAuthExchangeToken(forceRefresh: Bool) async throws -> AuthExchangeToken
+  /** Creates an `AuthExchange` instance, initialized with the default `FirebaseApp`. */
+  @objc public static func authExchange() -> AuthExchange {
+    return authExchange(app: FirebaseApp.app()!)
+  }
 
-  /// See `getAuthExchangeToken(forceRefresh:)`.
-  @objc(getAuthExchangeTokenForcingRefresh:completion:)
-  public func getAuthExchangeToken(forceRefresh: Bool,
-                                   completion: (AuthExchangeToken?, Error?) -> Void)
+  // TODO: Integrate with ComponentProvider.
+  private static var instanceDictionary: [String: AuthExchange] = [:]
 
-  /// Clears the stored Auth Exchange token. This also has the side effect of clearing the
-  /// `tokenRefreshDelegate`, if one is set.
-  @objc public func clearAuthExchangeToken() throws
+  // TODO: Integrate with ComponentProvider.
+  public override required init() {
+    self.tokenRefreshDelegate = nil
+  }
 
-  // Exchange methods
+  /** Creates an `AuthExchange` instance, initialized with the provided `FirebaseApp`. */
+  @objc(authExchangeWithApp:) public static func authExchange(app: FirebaseApp) -> AuthExchange {
+    // TODO: Integrate with ComponentProvider.
+    let instance = self.init()
+    instanceDictionary[app.name] = instance
+    return instance
+  }
 
-  /// Exchanges a custom token for an Auth Exchange token by calling the corresponding backend
-  /// endpoint.
-  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-  public func exchange(customToken: String) async throws -> AuthExchangeResult
-
-  /// See `exchange(customToken:)`.
-  @objc public func exchange(customToken: String,
-                             completion: (AuthExchangeResult?, Error?) -> Void)
-
-  /// Exchanges a Firebase Installations token for an Auth Exchange token by calling the
-  /// corresponding backend endpoint.
-  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-  public func exchange(installationsToken: String) async throws -> AuthExchangeResult
-
-  /// See `exchange(installationsToken:)`.
-  @objc public func exchange(installationsToken: String,
-                             completion: (AuthExchangeResult?, Error?) -> Void)
-
-  /// Exchanges an OIDC token for an Auth Exchange token by calling the corresponding backend
-  /// endpoint.
-  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-  public func exchange(OIDCToken: String) async throws -> AuthExchangeResult
-
-  /// See `exchange(OIDCToken:)`.
-  @objc public func exchange(OIDCToken: String,
-                             completion: (AuthExchangeResult?, Error?) -> Void)
-
-  // Token refresh methods
-
+  /** The delegate object used to request a new Auth Exchange token when the current one has expired. */
   @objc public var tokenRefreshDelegate: TokenRefreshDelegate?
+
+  // MARK: - Interop APIs
+
+  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+  public func getToken(forceRefresh: Bool) async throws -> String {
+    // TODO: Implement interop methods.
+    return "Unimplemented"
+  }
+
+  public func getToken(forceRefresh: Bool, completion: ((String?, Error?) -> Void)) {
+    // TODO: Implement interop methods.
+  }
 }
