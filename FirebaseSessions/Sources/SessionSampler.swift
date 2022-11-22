@@ -34,7 +34,7 @@ class SessionSampler: SessionSamplerProtocol {
   }
 
   func shouldSendEventForSession(sessionId: String) -> Bool {
-    let randomFloat = Double.random(in: 0 ..< 1)
+    let randomFloat = Double.random(in: 0 ... 1)
     if randomFloat > sessionSamplingRate {
       return false
     }
