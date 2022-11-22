@@ -1,37 +1,31 @@
-/// The name of the `NSNotificationCenter` notification that is posted when the Auth Exchange
-/// token changes. The object parameter of the notification is the new token.
-@objc(FIRAuthExchangeInternalTokenDidChangeNotification)
-public static let AuthExchangeInternalTokenDidChange: NSNotification.Name
+// Copyright 2022 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-/// The type of the listener handle returned by `addAuthExchangeInternalTokenListener`.
-@objc(FIRAuthExchangeInternalTokenListenerHandle) typealias AuthExchangeInternalTokenListenerHandle = NSObjectProtocol
-
-
-/// Firebase Auth Exchange SDK interop protocol. This is intended for use only by other Firebase
-/// SDKs.
+/** The Firebase Auth Exchange interop protocol. This is intended for use only by other Firebase SDKs. */
 @objc(FIRAuthExchangeInterop) public protocol AuthExchangeInterop {
 
-  /// Returns the current Auth Exchange token if valid and fetches a new one from the backend
-  /// otherwise. If `forceRefresh` is true, then a new token is fetched regardless of the
-  /// validity of the stored token.
-  ///
-  /// This method is an interop method and intended for use only by other Firebase SDKs.
-  public func getToken(forceRefresh: Bool) async throws -> String
+  /**
+   * Returns the stored Auth Exchange token if valid and fetches a new token from the backend otherwise. This method is an interop method and intended for use only by other Firebase SDKs.
+   * - Parameters:
+   *  - forceRefresh: Whether or not a new token should be fetched regardless of the validity of the stored token.
+   * - Returns: A valid Auth Exchange token.
+   */
+  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+  func getToken(forceRefresh: Bool) async throws -> String
 
-  /// See `getToken(forceRefresh:)`.
+  /** See `getToken(forceRefresh:)`. */
   @objc(getTokenForcingRefresh:completion:)
-  public func getToken(forceRefresh: Bool, completion: ((String?, Error?) -> Void))
-
-
-  // Listener methods
-
-  /// Registers a block that listens to changes in the Auth Exchange token.
-  @objc
-  public func addAuthExchangeInternalTokenListener(_ listener: String -> Void)
-                                                     -> AuthExchangeInternalTokenListenerHandle
-
-  // Unregisters a block from listening to changes in the Auth Exchange token.
-  @objc public func removeAuthExchangeInternalTokenListener(
-      _ listenerHandle: AuthExchangeInternalTokenListenerHandle)
+  func getToken(forceRefresh: Bool, completion: ((String?, Error?) -> Void))
 }
 
