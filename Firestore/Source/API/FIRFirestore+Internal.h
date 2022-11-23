@@ -84,8 +84,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, readonly) FSTUserDataReader *dataReader;
 
 /**
- * Creates, caches, and returns named `Firestore` object for the specified `FirebaseApp`. Each subsequent
- * invocation returns the same `Firestore` object.
+ * Creates, caches, and returns named `Firestore` object for the specified `FirebaseApp`. Each
+ * subsequent invocation returns the same `Firestore` object.
  *
  * @param app The `FirebaseApp` instance to use for authentication and as a source of the Google
  * Cloud Project ID for your Firestore Database. If you want the default instance, you should
