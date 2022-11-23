@@ -104,7 +104,7 @@ jobs:
       run: sed -i '' 's/REVERSED_CLIENT_ID/com.googleusercontent.apps.1025801074639-6p6ebi8amuklcjrto20gvpe295smm8u6/' quickstart-ios/functions/LegacyFunctionsQuickstart/FunctionsExample/Info.plist
     - name: Test objc quickstart
       run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions iphonesimulator true)
+            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions true iphonesimulator)
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] ||
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions true iphonesimulator swift)
@@ -134,6 +134,12 @@ jobs:
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] ||
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions false iphoneos swift)
+    - id: ftl_test
+      uses: FirebaseExtended/github-actions/firebase-test-lab@v1.2
+      with:
+        credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
+        testapp_dir: quickstart-ios/Functions
+        test_type: "xctest"
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       if: ${{ !cancelled() }}
