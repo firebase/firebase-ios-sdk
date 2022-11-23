@@ -14,7 +14,7 @@
 
 import FirebaseCore
 
-@objc(FIRTokenRefreshDelegate) public protocol TokenRefreshDelegate {
+@objc(FIRAuthExchangeDelegate) public protocol AuthExchangeDelegate {
   /**
    * This method is invoked whenever a new Auth Exchange token is needed. Developers should implement this method to request a
    * new token from an identity provider and then exchange it for a new Auth Exchange token.
@@ -36,7 +36,7 @@ import FirebaseCore
 
   // TODO: Integrate with ComponentProvider.
   override public required init() {
-    tokenRefreshDelegate = nil
+    authExchangeDelegate = nil
   }
 
   /** Creates an `AuthExchange` instance, initialized with the provided `FirebaseApp`. */
@@ -48,7 +48,53 @@ import FirebaseCore
   }
 
   /** The delegate object used to request a new Auth Exchange token when the current one has expired. */
-  @objc public var tokenRefreshDelegate: TokenRefreshDelegate?
+  @objc public var authExchangeDelegate: AuthExchangeDelegate?
+
+  /** The cached Auth Exchange token */
+  var authExchangeToken: AuthExchangeToken?
+
+  // MARK: - Exchange Token APIs
+
+  // TODO: Replace this test function with real implementation.
+  @objc(exchangeInstallationsToken:completion:)
+  public func exchange(installationsToken: String,
+                       handler: @escaping (AuthExchangeResult?, Error?) -> Void) {
+    let token = AuthExchangeToken(token: installationsToken, expirationDate: Date())
+    let result = AuthExchangeResult(
+      authExchangeToken: token,
+      providerIDToken: "ID123",
+      providerRefreshToken: "refresh123"
+    )
+    handler(result, nil)
+  }
+
+  // TODO: Replace this test function with real implementation.
+  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
+  public func exchange(installationsToken: String) async throws -> AuthExchangeResult? {
+    let token = AuthExchangeToken(token: installationsToken, expirationDate: Date())
+    let result = AuthExchangeResult(
+      authExchangeToken: token,
+      providerIDToken: "ID123",
+      providerRefreshToken: "refresh123"
+    )
+    return result
+  }
+
+  public func clearAuthExchangeToken() {
+    // TODO: Implement methods.
+  }
+
+  // TODO: Replace this test function with real implementation.
+  /** This is a test funciton to trigger delegate call */
+  public func tryDelegate() {
+    let returnToAuthExchangeHandler: (AuthExchangeToken?, Error?) -> Void = {
+      token, error in
+      self.authExchangeToken = token
+      print("[delegate] token: \(String(describing: token?.token))")
+      // Auth exchange can do sth with this token
+    }
+    authExchangeDelegate?.refreshAuthExchangeToken(completion: returnToAuthExchangeHandler)
+  }
 
   // MARK: - Interop APIs
 
