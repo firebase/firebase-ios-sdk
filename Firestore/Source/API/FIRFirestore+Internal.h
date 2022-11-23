@@ -84,7 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, readonly) FSTUserDataReader *dataReader;
 
 /**
- * Creates, caches, and returns named `Firestore` object for the specified _app_. Each subsequent
+ * Creates, caches, and returns named `Firestore` object for the specified `FirebaseApp`. Each subsequent
  * invocation returns the same `Firestore` object.
  *
  * @param app The `FirebaseApp` instance to use for authentication and as a source of the Google

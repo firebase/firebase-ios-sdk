@@ -43,16 +43,16 @@ NS_SWIFT_NAME(Firestore)
 - (instancetype)init __attribute__((unavailable("Use a static constructor method.")));
 
 /**
- * Creates, caches, and returns default `Firestore` using the default `FirebaseApp`. Each subsequent
- * invocation returns the same `Firestore` object.
+ * Creates, caches, and returns the default `Firestore` using the default `FirebaseApp`. Each
+ * subsequent invocation returns the same `Firestore` object.
  *
  * @return The default `Firestore` instance.
  */
 + (instancetype)firestore NS_SWIFT_NAME(firestore());
 
 /**
- * Creates, caches, and returns default `Firestore` object for the specified _app_. Each subsequent
- * invocation returns the same `Firestore` object.
+ * Creates, caches, and returns the default `Firestore` object for the specified _app_. Each
+ * subsequent invocation returns the same `Firestore` object.
  *
  * @param app The `FirebaseApp` instance to use for authentication and as a source of the Google
  * Cloud Project ID for your Firestore Database. If you want the default instance, you should

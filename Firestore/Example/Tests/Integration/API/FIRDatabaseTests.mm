@@ -1775,7 +1775,7 @@ using firebase::firestore::util::TimerId;
   XCTAssertIdentical(db1, db2);
 }
 
-- (void)testNamedDbHaveDifferentPersistence {
+- (void)testNamedDbHaveDifferentInstance {
   [FIRApp configure];
   FIRFirestore *db1 = [FIRFirestore firestore];
   FIRFirestore *db2 = [FIRFirestore firestoreForDatabase:@"db1"];
