@@ -138,8 +138,16 @@ jobs:
       uses: FirebaseExtended/github-actions/firebase-test-lab@v1.2
       with:
         credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
-        testapp_dir: quickstart-ios/Functions
+        testapp_dir: quickstart-ios/build-for-testing
         test_type: "xctest"
+        test_devices: model=iphone8,version=13.6;model=iphone11pro,version=14.7;model=iphone8,version=15.7
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      if: ${{ !cancelled() }}
+      with:
+        name: build-for-testing
+        path: quickstart-ios/build-for-testing
+        retention-days: 1
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       if: ${{ !cancelled() }}
