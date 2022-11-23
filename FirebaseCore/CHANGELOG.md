@@ -1,3 +1,6 @@
+# Firebase 10.4.0
+- Deprecate `androidClientID` and `trackingID` from FirebaseOptions. (#10520)
+
 # Firebase 10.2.0
 - Update GTMSessionFetcher dependency specifications to enable support for the compatible
   GTMSessionFetcher 3.x versions.
