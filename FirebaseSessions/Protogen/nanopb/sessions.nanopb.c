@@ -45,7 +45,7 @@ const pb_field_t firebase_appquality_sessions_SessionInfo_fields[6] = {
 const pb_field_t firebase_appquality_sessions_DataCollectionStatus_fields[4] = {
     PB_FIELD(  1, UENUM   , SINGULAR, STATIC  , FIRST, firebase_appquality_sessions_DataCollectionStatus, performance, performance, 0),
     PB_FIELD(  2, UENUM   , SINGULAR, STATIC  , OTHER, firebase_appquality_sessions_DataCollectionStatus, crashlytics, performance, 0),
-    PB_FIELD(  3, FLOAT   , SINGULAR, STATIC  , OTHER, firebase_appquality_sessions_DataCollectionStatus, session_sampling_rate, crashlytics, 0),
+    PB_FIELD(  3, DOUBLE  , SINGULAR, STATIC  , OTHER, firebase_appquality_sessions_DataCollectionStatus, session_sampling_rate, crashlytics, 0),
     PB_LAST_FIELD
 };
 
@@ -103,5 +103,11 @@ PB_STATIC_ASSERT((pb_membersize(firebase_appquality_sessions_SessionEvent, sessi
 PB_STATIC_ASSERT((pb_membersize(firebase_appquality_sessions_SessionEvent, session_data) < 256 && pb_membersize(firebase_appquality_sessions_SessionEvent, application_info) < 256 && pb_membersize(firebase_appquality_sessions_SessionInfo, data_collection_status) < 256 && pb_membersize(firebase_appquality_sessions_ApplicationInfo, android_app_info) < 256 && pb_membersize(firebase_appquality_sessions_ApplicationInfo, apple_app_info) < 256 && pb_membersize(firebase_appquality_sessions_AppleApplicationInfo, network_connection_info) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_firebase_appquality_sessions_SessionEvent_firebase_appquality_sessions_SessionInfo_firebase_appquality_sessions_DataCollectionStatus_firebase_appquality_sessions_ApplicationInfo_firebase_appquality_sessions_AndroidApplicationInfo_firebase_appquality_sessions_AppleApplicationInfo)
 #endif
 
+
+/* On some platforms (such as AVR), double is really float.
+ * These are not directly supported by nanopb, but see example_avr_double.
+ * To get rid of this error, remove any double fields from your .proto.
+ */
+PB_STATIC_ASSERT(sizeof(double) == 8, DOUBLE_MUST_BE_8_BYTES)
 
 /* @@protoc_insertion_point(eof) */

@@ -93,7 +93,7 @@ typedef struct _firebase_appquality_sessions_AppleApplicationInfo {
 typedef struct _firebase_appquality_sessions_DataCollectionStatus {
     firebase_appquality_sessions_DataCollectionState performance;
     firebase_appquality_sessions_DataCollectionState crashlytics;
-    float session_sampling_rate;
+    double session_sampling_rate;
 /* @@protoc_insertion_point(struct:firebase_appquality_sessions_DataCollectionStatus) */
 } firebase_appquality_sessions_DataCollectionStatus;
 
@@ -182,7 +182,7 @@ extern const pb_field_t firebase_appquality_sessions_AppleApplicationInfo_fields
 /* Maximum encoded size of messages (where known) */
 /* firebase_appquality_sessions_SessionEvent_size depends on runtime parameters */
 /* firebase_appquality_sessions_SessionInfo_size depends on runtime parameters */
-#define firebase_appquality_sessions_DataCollectionStatus_size 9
+#define firebase_appquality_sessions_DataCollectionStatus_size 13
 /* firebase_appquality_sessions_ApplicationInfo_size depends on runtime parameters */
 /* firebase_appquality_sessions_AndroidApplicationInfo_size depends on runtime parameters */
 /* firebase_appquality_sessions_AppleApplicationInfo_size depends on runtime parameters */
