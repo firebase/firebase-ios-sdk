@@ -21,6 +21,8 @@
 #include <utility>
 
 #include "Firestore/core/src/local/ldb/leveldb_interface.h"
+#include "Firestore/core/src/util/async_queue.h"
+#include "Firestore/core/src/util/executor.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
 #include "absl/strings/string_view.h"
@@ -124,10 +126,14 @@ void WriteBatch::Delete(const Slice& key) {
 
 DB::DB() : conn_(pqxx::connection()) {
   txn_ = std::make_unique<pqxx::nontransaction>(conn_);
+  async_queue_ =
+      util::AsyncQueue::Create(util::Executor::CreateSerial("ldb_pg"));
 }
 
 DB::DB(pqxx::connection conn) : conn_(std::move(conn)) {
   txn_ = std::make_unique<pqxx::nontransaction>(conn_);
+  async_queue_ =
+      util::AsyncQueue::Create(util::Executor::CreateSerial("ldb_pg"));
 }
 
 Status DB::Open(const Options& options, const std::string& name, DB** dbptr) {
@@ -149,35 +155,39 @@ Status DB::Put(const WriteOptions& options,
                const Slice& key,
                const Slice& value) {
   (void)options;
-  DoPut(*txn_, key, value);
+  async_queue_->EnqueueBlocking(
+      [this, key, value]() { DoPut(*txn_, key, value); });
 
   return Status::OK();
 }
 
 Status DB::Delete(const WriteOptions& options, const Slice& key) {
   (void)options;
-  DoDelete(*txn_, key);
+  async_queue_->EnqueueBlocking([this, key]() { DoDelete(*txn_, key); });
 
   return Status::OK();
 }
 
 Status DB::DropCache() {
-  txn_->exec_params("DELETE from firestore_cache");
+  async_queue_->EnqueueBlocking(
+      [this]() { txn_->exec_params("DELETE from firestore_cache"); });
   return Status::OK();
 }
 
 Status DB::Write(const WriteOptions& options, WriteBatch* updates) {
   (void)options;
   LOG_WARN("Writing batch...");
-  for (const auto& op : updates->oprations()) {
-    const auto* delete_key = std::get_if<Slice>(&op);
-    if (delete_key != nullptr) {
-      DoDelete(*txn_, *delete_key);
-    } else {
-      const auto* update = std::get_if<std::tuple<Slice, Slice>>(&op);
-      DoPut(*txn_, std::get<0>(*update), std::get<1>(*update));
+  async_queue_->EnqueueBlocking([this, updates]() {
+    for (const auto& op : updates->oprations()) {
+      const auto* delete_key = std::get_if<Slice>(&op);
+      if (delete_key != nullptr) {
+        DoDelete(*txn_, *delete_key);
+      } else {
+        const auto* update = std::get_if<std::tuple<Slice, Slice>>(&op);
+        DoPut(*txn_, std::get<0>(*update), std::get<1>(*update));
+      }
     }
-  }
+  });
   LOG_WARN("Done writing batch...");
   return Status::OK();
 }
@@ -187,11 +197,13 @@ Status DB::Get(const ReadOptions& options,
                std::string* value) {
   (void)options;
   LOG_WARN("Running get for key ", key.ToString());
-  std::optional<std::tuple<pqxx::binarystring>> result =
-      txn_->query01<pqxx::binarystring>(
-          "select value from firestore_cache where key = " +
-          txn_->quote_raw(key.ToString()));
-  LOG_WARN("Done running get for key ", key.ToString());
+  std::optional<std::tuple<pqxx::binarystring>> result;
+  async_queue_->EnqueueBlocking([this, key, &result]() {
+    result = txn_->query01<pqxx::binarystring>(
+        "select value from firestore_cache where key = " +
+        txn_->quote_raw(key.ToString()));
+    LOG_WARN("Done running get for key ", key.ToString());
+  });
 
   if (result.has_value()) {
     LOG_WARN("Get one");
@@ -202,7 +214,9 @@ Status DB::Get(const ReadOptions& options,
   }
 }
 
-Iterator::Iterator(pqxx::nontransaction* txn) : txn_(txn) {
+Iterator::Iterator(pqxx::nontransaction* txn,
+                   std::shared_ptr<util::AsyncQueue> queue)
+    : txn_(txn), queue_(queue) {
 }
 
 bool Iterator::Valid() const {
@@ -210,18 +224,20 @@ bool Iterator::Valid() const {
 }
 
 void Iterator::SeekToLast() {
-  auto result = txn_->query01<pqxx::binarystring, pqxx::binarystring>(
-      "select key, value from firestore_cache ordered by key DESC limit 1");
+  queue_->EnqueueBlocking([this]() {
+    auto result = txn_->query01<pqxx::binarystring, pqxx::binarystring>(
+        "select key, value from firestore_cache order by key DESC limit 1");
 
-  if (result.has_value()) {
-    valid_ = true;
-    key_ = std::get<0>(result.value()).str();
-    value_ = std::get<1>(result.value()).str();
-  } else {
-    valid_ = false;
-    key_ = "";
-    value_ = "";
-  }
+    if (result.has_value()) {
+      valid_ = true;
+      key_ = std::get<0>(result.value()).str();
+      value_ = std::get<1>(result.value()).str();
+    } else {
+      valid_ = false;
+      key_ = "";
+      value_ = "";
+    }
+  });
 }
 
 // Position at the first key in the source that is at or past target.
@@ -229,57 +245,63 @@ void Iterator::SeekToLast() {
 // an entry that comes at or past target.
 void Iterator::Seek(const Slice& target) {
   LOG_WARN("Seeking..");
-  auto result = txn_->query01<pqxx::binarystring, pqxx::binarystring>(
-      "select key, value from firestore_cache where key >= " +
-      txn_->quote_raw(target.ToString()) + " order by key limit 1");
-  LOG_WARN("Done seeking..");
+  queue_->EnqueueBlocking([this, target]() {
+    auto result = txn_->query01<pqxx::binarystring, pqxx::binarystring>(
+        "select key, value from firestore_cache where key >= " +
+        txn_->quote_raw(target.ToString()) + " order by key limit 1");
+    LOG_WARN("Done seeking..");
 
-  if (result.has_value()) {
-    valid_ = true;
-    key_ = std::get<0>(result.value()).str();
-    value_ = std::get<1>(result.value()).str();
-  } else {
-    valid_ = false;
-    key_ = "";
-    value_ = "";
-  }
+    if (result.has_value()) {
+      valid_ = true;
+      key_ = std::get<0>(result.value()).str();
+      value_ = std::get<1>(result.value()).str();
+    } else {
+      valid_ = false;
+      key_ = "";
+      value_ = "";
+    }
+  });
 }
 
 // REQUIRES: Valid()
 void Iterator::Next() {
   HARD_ASSERT(valid_, "Next() expect iterator to be valid");
-  auto result = txn_->query01<pqxx::binarystring, pqxx::binarystring>(
-      "select key, value from firestore_cache where key > " +
-      txn_->quote_raw(key_) + " order by key limit 1");
+  queue_->EnqueueBlocking([this]() {
+    auto result = txn_->query01<pqxx::binarystring, pqxx::binarystring>(
+        "select key, value from firestore_cache where key > " +
+        txn_->quote_raw(key_) + " order by key limit 1");
 
-  if (result.has_value()) {
-    valid_ = true;
-    key_ = std::get<0>(result.value()).str();
-    value_ = std::get<1>(result.value()).str();
-  } else {
-    valid_ = false;
-    key_ = "";
-    value_ = "";
-  }
+    if (result.has_value()) {
+      valid_ = true;
+      key_ = std::get<0>(result.value()).str();
+      value_ = std::get<1>(result.value()).str();
+    } else {
+      valid_ = false;
+      key_ = "";
+      value_ = "";
+    }
+  });
 }
 
 // REQUIRES: Valid()
 void Iterator::Prev() {
   HARD_ASSERT(valid_, "Prev() expect iterator to be valid");
 
-  auto result = txn_->query01<pqxx::binarystring, pqxx::binarystring>(
-      "select key, value from firestore_cache where key < " +
-      txn_->quote_raw(key_) + " order by key DESC limit 1");
+  queue_->EnqueueBlocking([this]() {
+    auto result = txn_->query01<pqxx::binarystring, pqxx::binarystring>(
+        "select key, value from firestore_cache where key < " +
+        txn_->quote_raw(key_) + " order by key DESC limit 1");
 
-  if (result.has_value()) {
-    valid_ = true;
-    key_ = std::get<0>(result.value()).str();
-    value_ = std::get<1>(result.value()).str();
-  } else {
-    valid_ = false;
-    key_ = "";
-    value_ = "";
-  }
+    if (result.has_value()) {
+      valid_ = true;
+      key_ = std::get<0>(result.value()).str();
+      value_ = std::get<1>(result.value()).str();
+    } else {
+      valid_ = false;
+      key_ = "";
+      value_ = "";
+    }
+  });
 }
 
 // REQUIRES: Valid()
@@ -299,7 +321,7 @@ Status Iterator::status() {
 
 Iterator* DB::NewIterator(const ReadOptions& options) {
   (void)options;
-  return new Iterator(txn_.get());
+  return new Iterator(txn_.get(), async_queue_);
 }
 
 #endif

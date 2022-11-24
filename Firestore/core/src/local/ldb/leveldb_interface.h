@@ -22,6 +22,7 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/util/async_queue.h"
 #include "absl/strings/string_view.h"
 #include "leveldb/db.h"
 #include "leveldb/options.h"
@@ -319,7 +320,7 @@ class WriteBatch {
 
 class Iterator {
  public:
-  explicit Iterator(pqxx::nontransaction* txn);
+  Iterator(pqxx::nontransaction* txn, std::shared_ptr<util::AsyncQueue> queue);
 
   Iterator(const Iterator&) = delete;
   Iterator& operator=(const Iterator&) = delete;
@@ -369,6 +370,7 @@ class Iterator {
   std::string key_;
   std::string value_;
   pqxx::nontransaction* txn_;
+  std::shared_ptr<util::AsyncQueue> queue_;
 };
 
 class DB {
@@ -400,6 +402,7 @@ class DB {
  private:
   pqxx::connection conn_;
   std::unique_ptr<pqxx::nontransaction> txn_;
+  std::shared_ptr<util::AsyncQueue> async_queue_;
 };
 
 #else
