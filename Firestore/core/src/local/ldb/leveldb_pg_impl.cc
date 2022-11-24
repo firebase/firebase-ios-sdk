@@ -161,6 +161,11 @@ Status DB::Delete(const WriteOptions& options, const Slice& key) {
   return Status::OK();
 }
 
+Status DB::DropCache() {
+  txn_->exec_params("DELETE from firestore_cache");
+  return Status::OK();
+}
+
 Status DB::Write(const WriteOptions& options, WriteBatch* updates) {
   (void)options;
   LOG_WARN("Writing batch...");
@@ -182,13 +187,15 @@ Status DB::Get(const ReadOptions& options,
                std::string* value) {
   (void)options;
   LOG_WARN("Running get for key ", key.ToString());
-  std::optional<std::tuple<std::string>> result = txn_->query01<std::string>(
-      "select value from firestore_cache where key = " +
-      txn_->quote_raw(key.ToString()));
+  std::optional<std::tuple<pqxx::binarystring>> result =
+      txn_->query01<pqxx::binarystring>(
+          "select value from firestore_cache where key = " +
+          txn_->quote_raw(key.ToString()));
   LOG_WARN("Done running get for key ", key.ToString());
 
   if (result.has_value()) {
-    *value = std::get<0>(result.value());
+    LOG_WARN("Get one");
+    *value = std::get<0>(result.value()).view();
     return Status::OK();
   } else {
     return Status::NotFound("No value is found for key " + key.ToString());
@@ -203,17 +210,17 @@ bool Iterator::Valid() const {
 }
 
 void Iterator::SeekToLast() {
-  auto result = txn_->query01<std::string, std::string>(
+  auto result = txn_->query01<pqxx::binarystring, pqxx::binarystring>(
       "select key, value from firestore_cache ordered by key DESC limit 1");
 
   if (result.has_value()) {
     valid_ = true;
-    key_ = Slice{std::get<0>(result.value())};
-    value_ = Slice{std::get<1>(result.value())};
+    key_ = std::get<0>(result.value()).str();
+    value_ = std::get<1>(result.value()).str();
   } else {
     valid_ = false;
-    key_ = Slice{};
-    value_ = Slice{};
+    key_ = "";
+    value_ = "";
   }
 }
 
@@ -222,37 +229,37 @@ void Iterator::SeekToLast() {
 // an entry that comes at or past target.
 void Iterator::Seek(const Slice& target) {
   LOG_WARN("Seeking..");
-  auto result = txn_->query01<std::string, std::string>(
+  auto result = txn_->query01<pqxx::binarystring, pqxx::binarystring>(
       "select key, value from firestore_cache where key >= " +
-      txn_->quote_raw(target.ToString()));
+      txn_->quote_raw(target.ToString()) + " order by key limit 1");
   LOG_WARN("Done seeking..");
 
   if (result.has_value()) {
     valid_ = true;
-    key_ = Slice{std::get<0>(result.value())};
-    value_ = Slice{std::get<1>(result.value())};
+    key_ = std::get<0>(result.value()).str();
+    value_ = std::get<1>(result.value()).str();
   } else {
     valid_ = false;
-    key_ = Slice{};
-    value_ = Slice{};
+    key_ = "";
+    value_ = "";
   }
 }
 
 // REQUIRES: Valid()
 void Iterator::Next() {
   HARD_ASSERT(valid_, "Next() expect iterator to be valid");
-  auto result = txn_->query01<std::string, std::string>(
+  auto result = txn_->query01<pqxx::binarystring, pqxx::binarystring>(
       "select key, value from firestore_cache where key > " +
-      txn_->quote_raw(key_.ToString()));
+      txn_->quote_raw(key_) + " order by key limit 1");
 
   if (result.has_value()) {
     valid_ = true;
-    key_ = Slice{std::get<0>(result.value())};
-    value_ = Slice{std::get<1>(result.value())};
+    key_ = std::get<0>(result.value()).str();
+    value_ = std::get<1>(result.value()).str();
   } else {
     valid_ = false;
-    key_ = Slice{};
-    value_ = Slice{};
+    key_ = "";
+    value_ = "";
   }
 }
 
@@ -260,18 +267,18 @@ void Iterator::Next() {
 void Iterator::Prev() {
   HARD_ASSERT(valid_, "Prev() expect iterator to be valid");
 
-  auto result = txn_->query01<std::string, std::string>(
+  auto result = txn_->query01<pqxx::binarystring, pqxx::binarystring>(
       "select key, value from firestore_cache where key < " +
-      txn_->quote_raw(key_.ToString()));
+      txn_->quote_raw(key_) + " order by key DESC limit 1");
 
   if (result.has_value()) {
     valid_ = true;
-    key_ = Slice{std::get<0>(result.value())};
-    value_ = Slice{std::get<1>(result.value())};
+    key_ = std::get<0>(result.value()).str();
+    value_ = std::get<1>(result.value()).str();
   } else {
     valid_ = false;
-    key_ = Slice{};
-    value_ = Slice{};
+    key_ = "";
+    value_ = "";
   }
 }
 

@@ -366,8 +366,8 @@ class Iterator {
 
  private:
   bool valid_ = false;
-  Slice key_;
-  Slice value_;
+  std::string key_;
+  std::string value_;
   pqxx::nontransaction* txn_;
 };
 
@@ -388,6 +388,8 @@ class DB {
   Status Put(const WriteOptions& options, const Slice& key, const Slice& value);
 
   Status Delete(const WriteOptions& options, const Slice& key);
+
+  Status DropCache();
 
   Status Write(const WriteOptions& options, WriteBatch* updates);
 
