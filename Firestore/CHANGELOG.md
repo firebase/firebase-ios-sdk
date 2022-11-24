@@ -2,6 +2,7 @@
 - [fixed] Fix FAILED_PRECONDITION when writing to a deleted document in a
   transaction (#10431).
 - [fixed] Fixed data race in credentials provider (#10393).
+- [feature] Add MultiDb support.
 - [fixed] Fix Firestore failing to raise initial snapshot from empty local cache
   result (#10437).
 
