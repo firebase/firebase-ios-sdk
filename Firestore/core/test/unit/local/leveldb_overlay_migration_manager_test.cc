@@ -90,6 +90,9 @@ void LevelDbOverlayMigrationManagerTest::SetUp() {
   persistence_ = LevelDbPersistence::Create(dir_, /* schema_version */ 7,
                                             *serializer_, LruParams::Default())
                      .ValueOrDie();
+#ifdef PG_PERSISTENCE
+  persistence_->db_->DropCache();
+#endif
   local_store_ =
       std::make_unique<LocalStore>(persistence_.get(), query_engine_.get(),
                                    credentials::User::Unauthenticated());

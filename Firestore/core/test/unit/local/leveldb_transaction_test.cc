@@ -64,6 +64,10 @@ void LevelDbTransactionTest::SetUp() {
   ASSERT_TRUE(status.ok()) << "Failed to create db: "
                            << status.ToString().c_str();
   db_.reset(db);
+
+#ifdef PG_PERSISTENCE
+  db->DropCache();
+#endif
 }
 
 TEST_F(LevelDbTransactionTest, CreateTransaction) {

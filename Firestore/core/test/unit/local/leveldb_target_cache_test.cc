@@ -72,6 +72,9 @@ TEST_F(LevelDbTargetCacheTest, MetadataPersistedAcrossRestarts) {
   Path dir = LevelDbDir();
 
   auto db1 = LevelDbPersistenceForTesting(dir);
+#ifdef PG_PERSISTENCE
+  db1->ptr()->DropCache();
+#endif
   LevelDbTargetCache* target_cache = db1->target_cache();
 
   ASSERT_EQ(0, target_cache->highest_listen_sequence_number());

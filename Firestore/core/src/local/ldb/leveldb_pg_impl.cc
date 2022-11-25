@@ -267,6 +267,7 @@ void Iterator::Seek(const Slice& target) {
 void Iterator::Next() {
   HARD_ASSERT(valid_, "Next() expect iterator to be valid");
   queue_->EnqueueBlocking([this]() {
+    LOG_WARN("Nexting");
     auto result = txn_->query01<pqxx::binarystring, pqxx::binarystring>(
         "select key, value from firestore_cache where key > " +
         txn_->quote_raw(key_) + " order by key limit 1");
@@ -280,13 +281,11 @@ void Iterator::Next() {
       key_ = "";
       value_ = "";
     }
+    LOG_WARN("Done nexting ", valid_);
   });
 }
 
-// REQUIRES: Valid()
 void Iterator::Prev() {
-  HARD_ASSERT(valid_, "Prev() expect iterator to be valid");
-
   queue_->EnqueueBlocking([this]() {
     auto result = txn_->query01<pqxx::binarystring, pqxx::binarystring>(
         "select key, value from firestore_cache where key < " +
