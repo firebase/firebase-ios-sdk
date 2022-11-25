@@ -37,16 +37,18 @@ namespace ldb {
 
 #ifdef PG_PERSISTENCE
 namespace {
-void DoPut(pqxx::nontransaction& txn, const Slice& key, const Slice& value) {
+void DoPut(pqxx::nontransaction& txn,
+           const std::string& key,
+           const std::string& value) {
   txn.exec_params(
       "insert into firestore_cache (key, value) values ($1, $2) ON CONFLICT "
       "(key) DO UPDATE set value = $2",
-      pqxx::binarystring(key.ToString()), pqxx::binarystring(value.ToString()));
+      pqxx::binarystring(key), pqxx::binarystring(value));
 }
 
-void DoDelete(pqxx::nontransaction& txn, const Slice& key) {
+void DoDelete(pqxx::nontransaction& txn, const std::string& key) {
   txn.exec_params("delete from firestore_cache where key = $1",
-                  pqxx::binarystring(key.ToString()));
+                  pqxx::binarystring(key));
 }
 }  // namespace
 
@@ -115,12 +117,12 @@ std::string Status::ToString() const {
 }
 
 // Store the mapping "key->value" in the database.
-void WriteBatch::Put(const Slice& key, const Slice& value) {
+void WriteBatch::Put(const std::string& key, const std::string& value) {
   operations_.push_back(std::make_tuple(key, value));
 }
 
 // If the database contains a mapping for "key", erase it.  Else do nothing.
-void WriteBatch::Delete(const Slice& key) {
+void WriteBatch::Delete(const std::string& key) {
   operations_.push_back(key);
 }
 
@@ -156,14 +158,15 @@ Status DB::Put(const WriteOptions& options,
                const Slice& value) {
   (void)options;
   async_queue_->EnqueueBlocking(
-      [this, key, value]() { DoPut(*txn_, key, value); });
+      [this, key, value]() { DoPut(*txn_, key.ToString(), value.ToString()); });
 
   return Status::OK();
 }
 
 Status DB::Delete(const WriteOptions& options, const Slice& key) {
   (void)options;
-  async_queue_->EnqueueBlocking([this, key]() { DoDelete(*txn_, key); });
+  async_queue_->EnqueueBlocking(
+      [this, key]() { DoDelete(*txn_, key.ToString()); });
 
   return Status::OK();
 }
@@ -176,19 +179,20 @@ Status DB::DropCache() {
 
 Status DB::Write(const WriteOptions& options, WriteBatch* updates) {
   (void)options;
-  LOG_WARN("Writing batch...");
+  LOG_DEBUG("Writing batch...");
   async_queue_->EnqueueBlocking([this, updates]() {
     for (const auto& op : updates->oprations()) {
-      const auto* delete_key = std::get_if<Slice>(&op);
+      const auto* delete_key = std::get_if<std::string>(&op);
       if (delete_key != nullptr) {
         DoDelete(*txn_, *delete_key);
       } else {
-        const auto* update = std::get_if<std::tuple<Slice, Slice>>(&op);
+        const auto* update =
+            std::get_if<std::tuple<std::string, std::string>>(&op);
         DoPut(*txn_, std::get<0>(*update), std::get<1>(*update));
       }
     }
   });
-  LOG_WARN("Done writing batch...");
+  LOG_DEBUG("Done writing batch...");
   return Status::OK();
 }
 
@@ -196,17 +200,17 @@ Status DB::Get(const ReadOptions& options,
                const Slice& key,
                std::string* value) {
   (void)options;
-  LOG_WARN("Running get for key ", key.ToString());
+  LOG_DEBUG("Running get for key ", key.ToString());
   std::optional<std::tuple<pqxx::binarystring>> result;
   async_queue_->EnqueueBlocking([this, key, &result]() {
     result = txn_->query01<pqxx::binarystring>(
         "select value from firestore_cache where key = " +
         txn_->quote_raw(key.ToString()));
-    LOG_WARN("Done running get for key ", key.ToString());
+    LOG_DEBUG("Done running get for key ", key.ToString());
   });
 
   if (result.has_value()) {
-    LOG_WARN("Get one");
+    LOG_DEBUG("Get one");
     *value = std::get<0>(result.value()).view();
     return Status::OK();
   } else {
@@ -244,12 +248,12 @@ void Iterator::SeekToLast() {
 // The iterator is Valid() after this call iff the source contains
 // an entry that comes at or past target.
 void Iterator::Seek(const Slice& target) {
-  LOG_WARN("Seeking..");
+  LOG_DEBUG("Seeking..");
   queue_->EnqueueBlocking([this, target]() {
     auto result = txn_->query01<pqxx::binarystring, pqxx::binarystring>(
         "select key, value from firestore_cache where key >= " +
         txn_->quote_raw(target.ToString()) + " order by key limit 1");
-    LOG_WARN("Done seeking..");
+    LOG_DEBUG("Done seeking..");
 
     if (result.has_value()) {
       valid_ = true;
@@ -257,7 +261,7 @@ void Iterator::Seek(const Slice& target) {
       value_ = std::get<1>(result.value()).str();
     } else {
       valid_ = false;
-      key_ = "";
+      key_ = target.ToString();
       value_ = "";
     }
   });
@@ -267,7 +271,7 @@ void Iterator::Seek(const Slice& target) {
 void Iterator::Next() {
   HARD_ASSERT(valid_, "Next() expect iterator to be valid");
   queue_->EnqueueBlocking([this]() {
-    LOG_WARN("Nexting");
+    LOG_DEBUG("Nexting");
     auto result = txn_->query01<pqxx::binarystring, pqxx::binarystring>(
         "select key, value from firestore_cache where key > " +
         txn_->quote_raw(key_) + " order by key limit 1");
@@ -281,7 +285,7 @@ void Iterator::Next() {
       key_ = "";
       value_ = "";
     }
-    LOG_WARN("Done nexting ", valid_);
+    LOG_DEBUG("Done nexting ", valid_);
   });
 }
 

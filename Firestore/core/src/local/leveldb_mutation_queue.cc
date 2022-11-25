@@ -197,9 +197,9 @@ void LevelDbMutationQueue::RemoveMutationBatch(const MutationBatch& batch) {
   HARD_ASSERT(check_iterator->Valid(), "Mutation batch %s did not exist",
               DescribeKey(key));
 
-  HARD_ASSERT(key == check_iterator->key(),
-              "Mutation batch %s not found; found %s", DescribeKey(key),
-              DescribeKey(check_iterator->key()));
+  // HARD_ASSERT(key == check_iterator->key(),
+  //             "Mutation batch %s not found; found %s", DescribeKey(key),
+  //             DescribeKey(check_iterator->key()));
 
   db_->current_transaction()->Delete(key);
 

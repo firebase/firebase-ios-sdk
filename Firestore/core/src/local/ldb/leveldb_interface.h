@@ -304,18 +304,20 @@ class WriteBatch {
   ~WriteBatch() = default;
 
   // Store the mapping "key->value" in the database.
-  void Put(const Slice& key, const Slice& value);
+  void Put(const std::string& key, const std::string& value);
 
   // If the database contains a mapping for "key", erase it.  Else do nothing.
-  void Delete(const Slice& key);
+  void Delete(const std::string& key);
 
-  const std::vector<std::variant<std::tuple<Slice, Slice>, Slice>>&
+  const std::vector<
+      std::variant<std::tuple<std::string, std::string>, std::string>>&
   oprations() {
     return operations_;
   }
 
  private:
-  std::vector<std::variant<std::tuple<Slice, Slice>, Slice>> operations_;
+  std::vector<std::variant<std::tuple<std::string, std::string>, std::string>>
+      operations_;
 };
 
 class Iterator {

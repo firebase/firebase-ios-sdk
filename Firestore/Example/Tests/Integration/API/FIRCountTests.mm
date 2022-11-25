@@ -80,19 +80,6 @@
   XCTAssertEqual(snapshot.count, [NSNumber numberWithLong:1L]);
 }
 
-- (void)testCanRunCountWithOrderBys {
-  FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
-    @"a" : @{@"k" : @"a"},
-    @"b" : @{@"k" : @"b"},
-    @"c" : @{@"k" : @"c"},
-    @"d" : @{@"absent" : @"d"},
-  }];
-
-  FIRAggregateQuerySnapshot* snapshot =
-      [self readSnapshotForAggregate:[[testCollection queryOrderedByField:@"k"] count]];
-  XCTAssertEqual(snapshot.count, [NSNumber numberWithLong:3L]);
-}
-
 - (void)testSnapshotEquals {
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{@"k" : @"a"},

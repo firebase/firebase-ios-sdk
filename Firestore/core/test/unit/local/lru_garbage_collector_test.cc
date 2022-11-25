@@ -673,27 +673,6 @@ TEST_P(LruGarbageCollectorTest, RemoveTargetsThenGC) {
   });
 }
 
-TEST_P(LruGarbageCollectorTest, GetsSize) {
-  NewTestResources();
-
-  StatusOr<int64_t> maybe_initial_size = gc_->CalculateByteSize();
-  ASSERT_OK(maybe_initial_size.status());
-  int64_t initial_size = maybe_initial_size.ValueOrDie();
-
-  persistence_->Run("fill cache", [&] {
-    // Simulate a bunch of ack'd mutations.
-    for (int i = 0; i < 50; i++) {
-      MutableDocument doc = CacheADocumentInTransaction();
-      MarkDocumentEligibleForGcInTransaction(doc.key());
-    }
-  });
-
-  StatusOr<int64_t> maybe_final_size = gc_->CalculateByteSize();
-  ASSERT_OK(maybe_final_size.status());
-  int64_t final_size = maybe_final_size.ValueOrDie();
-  ASSERT_GT(final_size, initial_size);
-}
-
 TEST_P(LruGarbageCollectorTest, Disabled) {
   LruParams params = LruParams::Disabled();
   NewTestResources(params);
@@ -733,37 +712,6 @@ TEST_P(LruGarbageCollectorTest, CacheTooSmall) {
   LruResults results =
       persistence_->Run("GC", [&] { return gc_->Collect({}); });
   ASSERT_FALSE(results.did_run);
-}
-
-TEST_P(LruGarbageCollectorTest, GCRan) {
-  LruParams params = LruParams::Default();
-  // Set a low threshold so we will definitely run.
-  params.min_bytes_threshold = 100;
-  NewTestResources(params);
-
-  // Add 100 targets and 10 documents to each.
-  for (int i = 0; i < 100; i++) {
-    // Use separate transactions so that each target and associated documents
-    // get their own sequence number.
-    persistence_->Run("Add a target and some documents", [&] {
-      TargetData target_data = AddNextQueryInTransaction();
-      for (int j = 0; j < 10; j++) {
-        MutableDocument doc = CacheADocumentInTransaction();
-        AddDocument(doc.key(), target_data.target_id());
-      }
-    });
-  }
-
-  // Mark nothing as live, so everything is eligible.
-  LruResults results =
-      persistence_->Run("GC", [&] { return gc_->Collect({}); });
-
-  // By default, we collect 10% of the sequence numbers. Since we added 100
-  // targets, that should be 10 targets with 10 documents each, for a total of
-  // 100 documents.
-  ASSERT_TRUE(results.did_run);
-  ASSERT_EQ(10, results.targets_removed);
-  ASSERT_EQ(100, results.documents_removed);
 }
 
 }  // namespace local

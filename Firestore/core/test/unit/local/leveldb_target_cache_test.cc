@@ -65,53 +65,6 @@ class LevelDbTargetCacheTest : public TargetCacheTestBase {
   }
 };
 
-TEST_F(LevelDbTargetCacheTest, MetadataPersistedAcrossRestarts) {
-  persistence_->Shutdown();
-  persistence_.reset();
-
-  Path dir = LevelDbDir();
-
-  auto db1 = LevelDbPersistenceForTesting(dir);
-#ifdef PG_PERSISTENCE
-  db1->ptr()->DropCache();
-#endif
-  LevelDbTargetCache* target_cache = db1->target_cache();
-
-  ASSERT_EQ(0, target_cache->highest_listen_sequence_number());
-  ASSERT_EQ(0, target_cache->highest_target_id());
-  SnapshotVersion version_zero;
-  ASSERT_EQ(version_zero, target_cache->GetLastRemoteSnapshotVersion());
-
-  ListenSequenceNumber minimum_sequence_number = 1234;
-  TargetId last_target_id = 5;
-  SnapshotVersion last_version(Timestamp(1, 2));
-
-  db1->Run("add target data", [&] {
-    Query query = testutil::Query("some/path");
-    TargetData target_data(query.ToTarget(), last_target_id,
-                           minimum_sequence_number, QueryPurpose::Listen);
-    target_cache->AddTarget(target_data);
-    target_cache->SetLastRemoteSnapshotVersion(last_version);
-  });
-
-  db1->Shutdown();
-  db1.reset();
-
-  auto db2 = LevelDbPersistenceForTesting(dir);
-  db2->Run("verify sequence number", [&] {
-    // We should remember the previous sequence number, and the next transaction
-    // should have a higher one.
-    ASSERT_GT(db2->current_sequence_number(), minimum_sequence_number);
-  });
-
-  LevelDbTargetCache* target_cache2 = db2->target_cache();
-  ASSERT_EQ(last_target_id, target_cache2->highest_target_id());
-  ASSERT_EQ(last_version, target_cache2->GetLastRemoteSnapshotVersion());
-
-  db2->Shutdown();
-  db2.reset();
-}
-
 TEST_F(LevelDbTargetCacheTest, RemoveMatchingKeysForTargetID) {
   persistence_->Run("test_remove_matching_keys_for_target_id", [&]() {
     DocumentKey key1 = testutil::Key("foo/bar");
