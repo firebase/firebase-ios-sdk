@@ -145,6 +145,7 @@ jobs:
         credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
         testapp_dir: quickstart-ios/build-for-testing
         test_type: "xctest"
+        test_devices: model=iphone8,version=13.6;model=iphone11pro,version=14.7;model=iphone8,version=15.7
 
   sample-build-test:
     # Don't run on private repo unless it is a PR.

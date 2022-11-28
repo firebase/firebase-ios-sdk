@@ -111,7 +111,7 @@ jobs:
     - name: Copy mock plist
       run: cp quickstart-ios/mock-GoogleService-Info.plist quickstart-ios/installations/GoogleService-Info.plist
     - name: Build objc quickstart
-      run: scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Installations 
+      run: scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Installations
     - name: Build swift quickstart
       run: scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Installations swift
     - id: ftl_test
