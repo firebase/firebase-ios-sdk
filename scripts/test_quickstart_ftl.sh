@@ -14,7 +14,8 @@
 
 
 # Run a CI `script` phase to build the associated quickstart
-# sample and run its tests.
+# sample and generate build-for-testing artfact under dir:
+# `quickstart-ios/build-for-testing``
 
 set -xeuo pipefail
 
