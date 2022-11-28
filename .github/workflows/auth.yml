@@ -150,7 +150,7 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-auth.plist.gpg \
           quickstart-ios/authentication/GoogleService-Info.plist "$plist_secret"
     - name: Build swift quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Authentication)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Authentication)
     - id: ftl_test
       uses: FirebaseExtended/github-actions/firebase-test-lab@v1.2
       with:
