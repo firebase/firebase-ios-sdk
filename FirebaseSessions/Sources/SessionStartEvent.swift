@@ -60,6 +60,10 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     proto.session_data.firebase_installation_id = makeProtoString(identifiers.installationID)
   }
 
+  func setSamplingRate(samplingRate: Double) {
+    proto.session_data.data_collection_status.session_sampling_rate = samplingRate
+  }
+
   // MARK: - GDTCOREventDataObject
 
   func transportBytes() -> Data {

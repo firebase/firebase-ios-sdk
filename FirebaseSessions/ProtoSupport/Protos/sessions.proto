@@ -79,7 +79,7 @@ message DataCollectionStatus {
   DataCollectionState crashlytics = 2;
   // Any sampling rate being applied to these events on device.
   // 1.0 implies no sampling.
-  float session_sampling_rate = 3;
+  double session_sampling_rate = 3;
 }
 
 // Enum denoting all possible states for SDK data collection.

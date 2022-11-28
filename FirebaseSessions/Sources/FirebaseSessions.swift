@@ -55,7 +55,11 @@ protocol SessionsProvider {
     let fireLogger = EventGDTLogger(googleDataTransport: googleDataTransport!)
 
     let identifiers = Identifiers(installations: installations)
-    let coordinator = SessionCoordinator(identifiers: identifiers, fireLogger: fireLogger)
+    let coordinator = SessionCoordinator(
+      identifiers: identifiers,
+      fireLogger: fireLogger,
+      sampler: SessionSampler()
+    )
     let initiator = SessionInitiator()
     let appInfo = ApplicationInfo(appID: appID)
     let settings = Settings(appInfo: appInfo)
