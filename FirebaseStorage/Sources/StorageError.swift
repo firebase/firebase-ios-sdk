@@ -13,7 +13,11 @@
 // limitations under the License.
 
 import Foundation
-import GTMSessionFetcher
+#if COCOAPODS
+  import GTMSessionFetcher
+#else
+  import GTMSessionFetcherCore
+#endif
 
 /// The error domain for codes in the `StorageErrorCode` enum.
 public let StorageErrorDomain: String = "FIRStorageErrorDomain"
