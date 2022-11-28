@@ -1,0 +1,19 @@
+use_frameworks! :linkage => :static
+
+source 'https://github.com/firebase/SpecsDev.git'
+source 'https://github.com/firebase/SpecsStaging.git'
+source 'https://cdn.cocoapods.org/'
+
+def shared_pods
+  pod 'FirebaseCore' 
+  pod 'FirebaseInstallations'
+  pod 'FirebaseAuthExchange', :path => '../../../'
+end
+
+target 'ObjcSample' do
+  platform :ios, '13.0'
+  shared_pods
+end
+
+
+
