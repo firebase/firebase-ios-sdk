@@ -110,8 +110,8 @@ jobs:
         sed -i '' 's#DYNAMIC_LINK_DOMAIN#https://qpf6m.app.goo.gl#' quickstart-ios/dynamiclinks/DynamicLinksExample/DynamicLinksExample.entitlements
         sed -i '' 's#YOUR_DOMAIN_URI_PREFIX";#https://qpf6m.app.goo.gl";#' quickstart-ios/dynamiclinks/DynamicLinksExample/ViewController.m
         sed -i '' 's#YOUR_DOMAIN_URI_PREFIX";#https://qpf6m.app.goo.gl";#' quickstart-ios/dynamiclinks/DynamicLinksExampleSwift/ViewController.swift
-    - name: Build objc quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh DynamicLinks)
+    # - name: Build objc quickstart
+    #   run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh DynamicLinks)
     - name: Build swift quickstart
       if: ${{ always() }}
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh DynamicLinks swift)
@@ -121,4 +121,3 @@ jobs:
         credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
         testapp_dir: quickstart-ios/build-for-testing
         test_type: "xctest"
-        test_devices: model=iphone8,version=13.6;model=iphone11pro,version=14.7;model=iphone8,version=15.7

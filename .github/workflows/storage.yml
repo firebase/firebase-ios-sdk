@@ -115,8 +115,8 @@ jobs:
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-storage.plist.gpg \
           quickstart-ios/storage/GoogleService-Info.plist "$plist_secret"
-    - name: Build objc quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Storage)
+    # - name: Build objc quickstart
+    #   run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Storage)
     - name: Build swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Storage swift)
     - id: ftl_test
@@ -125,7 +125,6 @@ jobs:
         credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
         testapp_dir: quickstart-ios/build-for-testing
         test_type: "xctest"
-        test_devices: model=iphone8,version=13.6;model=iphone11pro,version=14.7;model=iphone8,version=15.7
 
   pod-lib-lint:
     # Don't run on private repo unless it is a PR.
