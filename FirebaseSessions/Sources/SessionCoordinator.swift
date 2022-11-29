@@ -21,29 +21,40 @@ import Foundation
 class SessionCoordinator {
   let identifiers: IdentifierProvider
   let fireLogger: EventGDTLoggerProtocol
+  let sampler: SessionSamplerProtocol
 
-  init(identifiers: IdentifierProvider, fireLogger: EventGDTLoggerProtocol) {
+  init(identifiers: IdentifierProvider, fireLogger: EventGDTLoggerProtocol,
+       sampler: SessionSamplerProtocol) {
     self.identifiers = identifiers
     self.fireLogger = fireLogger
+    self.sampler = sampler
   }
 
   // Begins the process of logging a SessionStartEvent to FireLog, while taking into account Data Collection, Sampling, and fetching Settings
   func attemptLoggingSessionStart(event: SessionStartEvent,
                                   callback: @escaping (Result<Void, Error>) -> Void) {
-    event.setInstallationID(identifiers: identifiers)
+    if sampler.shouldSendEventForSession(sessionId: identifiers.sessionID) {
+      event.setInstallationID(identifiers: identifiers)
 
-    fireLogger.logEvent(event: event) { result in
-      switch result {
-      case .success():
-        Logger.logInfo("Successfully logged Session Start event to GoogleDataTransport")
-        callback(.success(()))
-      case let .failure(error):
-        Logger
-          .logError(
-            "Error logging Session Start event to GoogleDataTransport: \(error)."
-          )
-        callback(.failure(error))
+      fireLogger.logEvent(event: event) { result in
+        switch result {
+        case .success():
+          Logger.logInfo("Successfully logged Session Start event to GoogleDataTransport")
+          callback(.success(()))
+        case let .failure(error):
+          Logger
+            .logError(
+              "Error logging Session Start event to GoogleDataTransport: \(error)."
+            )
+          callback(.failure(error))
+        }
       }
+    } else {
+      Logger
+        .logInfo(
+          "Session event dropped due to sampling."
+        )
+      callback(.failure(FirebaseSessionsError.SessionSamplingError))
     }
   }
 }

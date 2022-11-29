@@ -39,6 +39,7 @@ class DevEventConsoleLogger: EventGDTLoggerProtocol {
         data_collection_status
           crashlytics: \(proto.session_data.data_collection_status.crashlytics)
           performance: \(proto.session_data.data_collection_status.performance)
+          session_sampling_rate: \(proto.session_data.data_collection_status.session_sampling_rate)
       application_info
         app_id: \(proto.application_info.app_id.description)
         device_model: \(proto.application_info.device_model.description)

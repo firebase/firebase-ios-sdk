@@ -1,11 +1,13 @@
 # Unreleased
 - [fixed] Fix App crashed when there are nested data structures inside IN Filter.
 
+# 10.3.0
+- [feature] Add MultiDb support.
+
 # 10.2.0
 - [fixed] Fix FAILED_PRECONDITION when writing to a deleted document in a
   transaction (#10431).
 - [fixed] Fixed data race in credentials provider (#10393).
-- [feature] Add MultiDb support.
 - [fixed] Fix Firestore failing to raise initial snapshot from empty local cache
   result (#10437).
 
