@@ -130,8 +130,7 @@ jobs:
 
     strategy:
       matrix:
-        # TODO(b/260248007): ubuntue-latest reports tsan failure. Bring it back once it is resolved.
-        os: [macos-12]
+        os: [macos-12, ubuntu-latest]
         sanitizer: [asan, tsan]
 
     runs-on: ${{ matrix.os }}
