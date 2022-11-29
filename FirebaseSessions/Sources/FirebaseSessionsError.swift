@@ -20,4 +20,6 @@ enum FirebaseSessionsError: Error {
   case SessionSamplingError
   /// Firebase Installation ID related error
   case SessionInstallationsError
+  /// Settings related error
+  case SettingsError
 }
