@@ -21,5 +21,5 @@ enum FirebaseSessionsError: Error {
   /// Firebase Installation ID related error
   case SessionInstallationsError
   /// Settings related error
-  case SettingsError
+  case SettingsError(String)
 }

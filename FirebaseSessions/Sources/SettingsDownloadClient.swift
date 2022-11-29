@@ -16,16 +16,32 @@
 import Foundation
 
 protocol SettingsDownloadClient {
-  func fetch(completion block: @escaping (Result<[String: Any], Error>) -> Void)
+  func fetch(appInfo: ApplicationInfoProtocol, completion block: @escaping (Result<[String: Any], Error>) -> Void)
 }
 
 class SettingsDownloader: SettingsDownloadClient {
-  private static let baseEndpoint: String =
-    "https://firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/"
+  func fetch(appInfo: ApplicationInfoProtocol, completion: @escaping (Result<[String: Any], Error>) -> Void) {
+    guard let url = buildURL(appInfo: appInfo) else {
+      completion(.failure(FirebaseSessionsError.SettingsError("Invalid URL")))
+      return
+    }
+    var request = URLRequest(url: url)
+    request.setValue("application/json", forHTTPHeaderField: "Accept")
+    let task = URLSession.shared.dataTask(with: request) { data, response, error in
+      if let data = data {
+        if let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+          completion(.success(dict))
+        } else {
+          completion(.failure(FirebaseSessionsError.SettingsError("Failed to parse JSON to dictionary")))
+        }
+      } else if error != nil {
+        completion(.failure(FirebaseSessionsError.SettingsError("Network request failed with error \(String(describing: error))")))
+      }
+    }
+    task.resume()
+  }
 
-  private let appInfo: ApplicationInfoProtocol
-
-  private var url: URL? {
+  private func buildURL(appInfo: ApplicationInfoProtocol) -> URL? {
     var components = URLComponents()
     components.scheme = "https"
     components.host = "firebase-settings.crashlytics.com"
@@ -37,30 +53,5 @@ class SettingsDownloader: SettingsDownloadClient {
       URLQueryItem(name: "source", value: "4"), // 4 is enum value for AppStore
     ]
     return components.url
-  }
-
-  init(appInfo: ApplicationInfoProtocol) {
-    self.appInfo = appInfo
-  }
-
-  func fetch(completion: @escaping (Result<[String: Any], Error>) -> Void) {
-    guard let url = url else {
-      Logger.logError("[Settings] Invalid URL")
-      completion(.failure(FirebaseSessionsError.SettingsError))
-      return
-    }
-    var request = URLRequest(url: url)
-    request.setValue("application/json", forHTTPHeaderField: "Accept")
-    let task = URLSession.shared.dataTask(with: request) { data, response, error in
-      if let data = data {
-        if let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
-          completion(.success(dict))
-        } else {
-          completion(.failure(FirebaseSessionsError.SettingsError))
-        }
-      } else if error != nil {
-        completion(.failure(FirebaseSessionsError.SettingsError))
-      }
-    }
   }
 }

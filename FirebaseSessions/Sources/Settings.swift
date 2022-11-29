@@ -23,6 +23,7 @@ extension ApplicationInfoProtocol {
 /// Provides the APIs to access Settings and their configuration values
 protocol SettingsProtocol {
   func isCacheExpired(currentTime: Date) -> Bool
+  func fetchAndCacheSettings(currentTime: Date)
   var sessionsEnabled: Bool { get }
   var samplingRate: Double { get }
   var sessionTimeout: TimeInterval { get }
@@ -34,8 +35,9 @@ class Settings: SettingsProtocol {
   private static let flagSamplingRate = "sampling_rate"
   private static let flagSessionTimeout = "session_timeout"
   private static let flagCacheDuration = "cache_duration"
-  private let cache: SettingsCacheClient
   private let appInfo: ApplicationInfoProtocol
+  private let cache: SettingsCacheClient
+  private let downloader: SettingsDownloadClient
 
   var sessionsEnabled: Bool {
     guard let enabled = cache.cacheContent?[Settings.flagSessionsEnabled] as? Bool else {
@@ -65,10 +67,27 @@ class Settings: SettingsProtocol {
     return duration
   }
 
-  init(cache: SettingsCacheClient = SettingsCache(),
-       appInfo: ApplicationInfoProtocol) {
+  init(appInfo: ApplicationInfoProtocol,
+       cache: SettingsCacheClient = SettingsCache(),
+       downloader: SettingsDownloadClient = SettingsDownloader()) {
     self.cache = cache
     self.appInfo = appInfo
+    self.downloader = downloader
+  }
+  
+  func fetchAndCacheSettings(currentTime: Date) {
+    guard !isCacheExpired(currentTime: currentTime) else {
+      return
+    }
+    
+    downloader.fetch(appInfo: self.appInfo) { result in
+      switch result {
+      case .success(let dictionary):
+        // TODO
+      case .failure(let error):
+        Logger.logError("[Settings] Fetch failed with error: \(error)")
+      }
+    }
   }
 
   func isCacheExpired(currentTime: Date) -> Bool {
