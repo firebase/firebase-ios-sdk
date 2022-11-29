@@ -20,9 +20,9 @@
 #include "Firestore/core/src/util/comparison.h"
 #include "Firestore/core/src/util/exception.h"
 
-using firebase::firestore::util::ThrowInvalidArgument;
 using firebase::firestore::util::DoubleBitwiseEquals;
 using firebase::firestore::util::DoubleBitwiseHash;
+using firebase::firestore::util::ThrowInvalidArgument;
 using firebase::firestore::util::WrapCompare;
 
 NS_ASSUME_NONNULL_BEGIN
