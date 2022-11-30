@@ -170,7 +170,7 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     -> firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype {
     var subtype: firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype
 
-    #if TARGET_OS_IOS
+    #if os(iOS)
       switch mobileSubtype {
       case CTRadioAccessTechnologyGPRS:
         subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_GPRS
