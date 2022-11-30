@@ -15,6 +15,8 @@
 
 import Foundation
 
+@_implementationOnly import GoogleUtilities
+
 @testable import FirebaseSessions
 
 class MockApplicationInfo: ApplicationInfoProtocol {
@@ -35,6 +37,10 @@ class MockApplicationInfo: ApplicationInfoProtocol {
   var appBuildVersion: String = ""
 
   var appDisplayVersion: String = ""
+  
+  var networkType: GULNetworkType = .WIFI
+  
+  var mobileSubtype: String = ""
 
   static let testAppID = "testAppID"
   static let testBundleID = "testBundleID"
@@ -45,6 +51,8 @@ class MockApplicationInfo: ApplicationInfoProtocol {
   static let testEnvironment: DevEnvironment = .prod
   static let testAppBuildVersion = "testAppBuildVersion"
   static let testAppDisplayVersion = "testAppDisplayVersion"
+  static let testNetworkType = GULNetworkType.WIFI
+  static let testMobileSubtype = CTRadioAccessTechnologyGPRS
 
   func mockAllInfo() {
     appID = MockApplicationInfo.testAppID
@@ -56,5 +64,7 @@ class MockApplicationInfo: ApplicationInfoProtocol {
     environment = MockApplicationInfo.testEnvironment
     appBuildVersion = MockApplicationInfo.testAppBuildVersion
     appDisplayVersion = MockApplicationInfo.testAppDisplayVersion
+    networkType = MockApplicationInfo.testNetworkType
+    mobileSubtype = MockApplicationInfo.testMobileSubtype
   }
 }

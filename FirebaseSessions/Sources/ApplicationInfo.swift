@@ -44,6 +44,12 @@ protocol ApplicationInfoProtocol {
   /// Validated Mobile Country Code and Mobile Network Code
   var mccMNC: String { get }
 
+  /// Type of network the device is connected to
+  var networkType: GULNetworkType { get }
+
+  /// Mobile subtype the device is connected to
+  var mobileSubtype: String { get }
+
   /// Development environment on which the application is running.
   var environment: DevEnvironment { get }
 
@@ -87,6 +93,14 @@ class ApplicationInfo: ApplicationInfoProtocol {
 
   var mccMNC: String {
     return FIRSESValidateMccMnc(networkInfo.mobileCountryCode, networkInfo.mobileNetworkCode) ?? ""
+  }
+
+  var networkType: GULNetworkType {
+    return networkInfo.networkType
+  }
+
+  var mobileSubtype: String {
+    return networkInfo.mobileSubtype
   }
 
   var environment: DevEnvironment {

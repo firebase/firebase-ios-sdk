@@ -15,6 +15,8 @@
 
 import XCTest
 
+@_implementationOnly import GoogleUtilities
+
 @testable import FirebaseSessions
 
 class SessionStartEventTests: XCTestCase {
@@ -181,6 +183,81 @@ class SessionStartEventTests: XCTestCase {
         proto.session_data.data_collection_status.crashlytics,
         firebase_appquality_sessions_DataCollectionState_COLLECTION_UNKNOWN
       )
+    }
+  }
+  
+  func test_convertNetworkType_convertsCorrectly() {
+    let expectations: [(given: GULNetworkType, expected: firebase_appquality_sessions_NetworkConnectionInfo_NetworkType)] = [
+      (.WIFI, firebase_appquality_sessions_NetworkConnectionInfo_NetworkType_WIFI),
+      (.mobile, firebase_appquality_sessions_NetworkConnectionInfo_NetworkType_MOBILE),
+      (.none, firebase_appquality_sessions_NetworkConnectionInfo_NetworkType_DUMMY),
+    ]
+
+    expectations.forEach { (given: GULNetworkType, expected: firebase_appquality_sessions_NetworkConnectionInfo_NetworkType) in
+      appInfo.networkType = given
+
+      let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
+
+      testProtoAndDecodedProto(sessionEvent: event) { proto in
+        XCTAssertEqual(event.proto.application_info.apple_app_info.network_connection_info.network_type, expected)
+      }
+    }
+  }
+  
+  func test_convertMobileSubtype_convertsCorrectlyPreOS14() {
+    let expectations: [(given: String, expected: firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype)] = [
+      (CTRadioAccessTechnologyGPRS, firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_GPRS),
+      (CTRadioAccessTechnologyEdge, firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EDGE),
+      (CTRadioAccessTechnologyWCDMA, firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_CDMA),
+      (CTRadioAccessTechnologyCDMA1x, firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_CDMA),
+      (CTRadioAccessTechnologyHSDPA, firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSDPA),
+      (CTRadioAccessTechnologyHSUPA, firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSUPA),
+      (CTRadioAccessTechnologyCDMAEVDORev0, firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_0),
+      (CTRadioAccessTechnologyCDMAEVDORevA, firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_A),
+      (CTRadioAccessTechnologyCDMAEVDORevB, firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_B),
+      (CTRadioAccessTechnologyeHRPD, firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EHRPD),
+      (CTRadioAccessTechnologyLTE, firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_LTE),
+      ("random", firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE),
+    ]
+
+    expectations.forEach { (given: String, expected: firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype) in
+      appInfo.mobileSubtype = given
+
+      let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
+
+      testProtoAndDecodedProto(sessionEvent: event) { proto in
+        XCTAssertEqual(event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype, expected)
+      }
+    }
+  }
+  
+  @available(iOS 14.1, *)
+  func test_convertMobileSubtype_convertsCorrectlyPostOS14() {
+    let expectations: [(given: String, expected: firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype)] = [
+      (CTRadioAccessTechnologyGPRS, firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_GPRS),
+      (CTRadioAccessTechnologyEdge, firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EDGE),
+      (CTRadioAccessTechnologyWCDMA, firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_CDMA),
+      (CTRadioAccessTechnologyCDMA1x, firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_CDMA),
+      (CTRadioAccessTechnologyHSDPA, firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSDPA),
+      (CTRadioAccessTechnologyHSUPA, firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSUPA),
+      (CTRadioAccessTechnologyCDMAEVDORev0, firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_0),
+      (CTRadioAccessTechnologyCDMAEVDORevA, firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_A),
+      (CTRadioAccessTechnologyCDMAEVDORevB, firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_B),
+      (CTRadioAccessTechnologyeHRPD, firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EHRPD),
+      (CTRadioAccessTechnologyLTE, firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_LTE),
+      (CTRadioAccessTechnologyNRNSA, firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_NR),
+      (CTRadioAccessTechnologyNR, firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_NR),
+      ("random", firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE),
+    ]
+
+    expectations.forEach { (given: String, expected: firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype) in
+      appInfo.mobileSubtype = given
+
+      let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
+
+      testProtoAndDecodedProto(sessionEvent: event) { proto in
+        XCTAssertEqual(event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype, expected)
+      }
     }
   }
 }

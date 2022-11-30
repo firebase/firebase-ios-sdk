@@ -21,6 +21,10 @@ protocol NetworkInfoProtocol {
   var mobileCountryCode: String? { get }
 
   var mobileNetworkCode: String? { get }
+
+  var networkType: GULNetworkType { get }
+
+  var mobileSubtype: String { get }
 }
 
 class NetworkInfo: NetworkInfoProtocol {
@@ -30,5 +34,13 @@ class NetworkInfo: NetworkInfoProtocol {
 
   var mobileNetworkCode: String? {
     return GULNetworkInfo.getNetworkMobileNetworkCode()
+  }
+
+  var networkType: GULNetworkType {
+    return GULNetworkInfo.getNetworkType()
+  }
+
+  var mobileSubtype: String {
+    return GULNetworkInfo.getNetworkRadioType()
   }
 }
