@@ -109,7 +109,7 @@ class SessionStartEventTests: XCTestCase {
     identifiers.mockAllValidIDs()
 
     let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
-    event.setInstallationID(identifiers: identifiers)
+    event.setInstallationID(installationId: "testInstallationID")
 
     testProtoAndDecodedProto(sessionEvent: event) { proto in
       assertEqualProtoString(

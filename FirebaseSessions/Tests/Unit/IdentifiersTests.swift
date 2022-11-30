@@ -16,10 +16,8 @@
 import XCTest
 
 @testable import FirebaseSessions
-@testable import FirebaseInstallations
 
 class IdentifiersTests: XCTestCase {
-  var installations: MockInstallationsProtocol!
   var identifiers: Identifiers!
 
   override func setUp() {
@@ -28,8 +26,7 @@ class IdentifiersTests: XCTestCase {
       UserDefaults.standard.removePersistentDomain(forName: appDomain)
     }
 
-    installations = MockInstallationsProtocol()
-    identifiers = Identifiers(installations: installations)
+    identifiers = Identifiers()
   }
 
   func isValidSessionID(_ sessionID: String) -> Bool {
@@ -77,35 +74,5 @@ class IdentifiersTests: XCTestCase {
 
     // Ensure the new lastSessionID is equal to the sessionID from earlier
     XCTAssertEqual(identifiers.previousSessionID, firstSessionID)
-  }
-
-  // Fetching FIIDs requires that we are on a background thread.
-  func test_installationID_getsValidID() throws {
-    // Make our mock return an ID
-    let testID = "testID"
-    installations.result = .success(testID)
-
-    let expectation = XCTestExpectation(description: "Get the Installation ID Asynchronously")
-
-    DispatchQueue.global().async { [self] in
-      XCTAssertEqual(self.identifiers.installationID, testID)
-      expectation.fulfill()
-    }
-
-    wait(for: [expectation], timeout: 1.0)
-  }
-
-  func test_installationID_handlesFailedFetch() throws {
-    // Make our mock return an error
-    installations.result = .failure(NSError(domain: "FestFailedFIIDErrorDomain", code: 0))
-
-    let expectation = XCTestExpectation(description: "Get the Installation ID Asynchronously")
-
-    DispatchQueue.global().async { [self] in
-      XCTAssertEqual(self.identifiers.installationID, "")
-      expectation.fulfill()
-    }
-
-    wait(for: [expectation], timeout: 1.0)
   }
 }
