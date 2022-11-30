@@ -222,6 +222,8 @@ class SessionStartEventTests: XCTestCase {
     }
   }
 
+  /// Following tests can be run only in iOS environment
+  #if os(iOS)
   func test_convertMobileSubtype_convertsCorrectlyPreOS14() {
     let expectations: [(
       given: String,
@@ -376,4 +378,5 @@ class SessionStartEventTests: XCTestCase {
         }
       }
   }
+  #endif
 }
