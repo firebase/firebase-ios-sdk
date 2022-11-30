@@ -52,7 +52,7 @@ class MockApplicationInfo: ApplicationInfoProtocol {
   static let testAppBuildVersion = "testAppBuildVersion"
   static let testAppDisplayVersion = "testAppDisplayVersion"
   static let testNetworkType = GULNetworkType.WIFI
-  static let testMobileSubtype = CTRadioAccessTechnologyGPRS
+  static let testMobileSubtype = "random"
 
   func mockAllInfo() {
     appID = MockApplicationInfo.testAppID
