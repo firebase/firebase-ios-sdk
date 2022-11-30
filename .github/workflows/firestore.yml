@@ -130,7 +130,8 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-12, ubuntu-latest]
+        # TODO(b/260248007): Re-enable this once tsan passes on Linux
+        os: [macos-12]
         sanitizer: [asan, tsan]
 
     runs-on: ${{ matrix.os }}
