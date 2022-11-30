@@ -27,8 +27,8 @@
 #include "Firestore/core/test/unit/testutil/bundle_builder.h"
 
 using firebase::firestore::testutil::CreateBundle;
-using firebase::firestore::util::MakeString;
 using firebase::firestore::util::MakeNSString;
+using firebase::firestore::util::MakeString;
 
 @interface FIRBundlesTests : FSTIntegrationTestCase
 @end

@@ -57,8 +57,8 @@
 
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::credentials::CredentialChangeListener;
-using firebase::firestore::credentials::EmptyAuthCredentialsProvider;
 using firebase::firestore::credentials::EmptyAppCheckCredentialsProvider;
+using firebase::firestore::credentials::EmptyAuthCredentialsProvider;
 using firebase::firestore::credentials::User;
 using firebase::firestore::local::LevelDbOpener;
 using firebase::firestore::model::DatabaseId;

@@ -21,6 +21,7 @@
 
 #include "Firestore/core/src/core/composite_filter.h"
 #include "Firestore/core/src/core/field_filter.h"
+#include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/util/hard_assert.h"
 
@@ -267,10 +268,11 @@ Filter LogicUtils::ComputeInExpansion(const Filter& filter) {
       FieldFilter in_filter(filter);
       for (pb_size_t i = 0; i < in_filter.value().array_value.values_count;
            ++i) {
-        expanded_filters.push_back(
-            FieldFilter::Create(in_filter.field(), FieldFilter::Operator::Equal,
-                                nanopb::MakeSharedMessage(
-                                    in_filter.value().array_value.values[i])));
+        expanded_filters.push_back(FieldFilter::Create(
+            in_filter.field(), FieldFilter::Operator::Equal,
+            nanopb::MakeSharedMessage(
+                *model::DeepClone(in_filter.value().array_value.values[i])
+                     .release())));
       }
       return CompositeFilter::Create(std::move(expanded_filters),
                                      CompositeFilter::Operator::Or);
