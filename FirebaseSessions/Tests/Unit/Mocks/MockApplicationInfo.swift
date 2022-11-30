@@ -37,9 +37,9 @@ class MockApplicationInfo: ApplicationInfoProtocol {
   var appBuildVersion: String = ""
 
   var appDisplayVersion: String = ""
-  
+
   var networkType: GULNetworkType = .WIFI
-  
+
   var mobileSubtype: String = ""
 
   static let testAppID = "testAppID"

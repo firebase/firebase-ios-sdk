@@ -166,7 +166,8 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     }
   }
 
-  private func convertMobileSubtype(mobileSubtype: String) -> firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype {
+  private func convertMobileSubtype(mobileSubtype: String)
+    -> firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype {
     var subtype: firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype
 
     switch mobileSubtype {
@@ -193,7 +194,8 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     case CTRadioAccessTechnologyLTE:
       subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_LTE
     default:
-      subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE
+      subtype =
+        firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE
     }
 
     if #available(iOS 14.1, *) {
