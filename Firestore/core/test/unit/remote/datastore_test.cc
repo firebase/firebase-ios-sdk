@@ -182,9 +182,13 @@ class DatastoreTest : public testing::Test {
   FakeGrpcQueue fake_grpc_queue;
 };
 
+// TODO(b/260248007): This fails TSAN check on Linux due to a data race from
+// grpc. Try turn this back on when we move to newer grpc version.
+#if !__linux__
 TEST_F(DatastoreTest, CanShutdownWithNoOperations) {
   Shutdown();
 }
+#endif  // !__linux__
 
 TEST_F(DatastoreTest, AllowlistedHeaders) {
   GrpcStream::Metadata headers = {

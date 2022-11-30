@@ -68,7 +68,9 @@ class MessageTest : public testing::Test {
   grpc::GrpcLibraryCodegen grpc_initializer_;
 };
 
-#if !__clang_analyzer__
+// TODO(b/260248007): This fails TSAN check on Linux due to a data race from
+// grpc. Try turn this back on when we move to newer grpc version.
+#if !__linux__
 TEST_F(MessageTest, Move) {
   ByteBufferReader reader{GoodProto()};
   auto message1 = TestMessage::TryParse(&reader);
@@ -76,10 +78,8 @@ TEST_F(MessageTest, Move) {
   TestMessage message2 = std::move(message1);
   EXPECT_EQ(message1.get(), nullptr);
   EXPECT_NE(message2.get(), nullptr);
-  // This shouldn't result in a leak or double deletion; Address Sanitizer
-  // should be able to verify that.
 }
-#endif  // !__clang_analyzer__
+#endif  // !__linux__
 
 TEST_F(MessageTest, ParseFailure) {
   ByteBufferReader reader{BadProto()};
