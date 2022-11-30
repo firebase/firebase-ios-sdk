@@ -1,7 +1,7 @@
 # 10.3.0
 - [feature] Add MultiDb support.
 - [fixed] Fix App crashed when there are nested data structures inside IN
-  Filter (#10535).
+  Filter (#10507).
 
 # 10.2.0
 - [fixed] Fix FAILED_PRECONDITION when writing to a deleted document in a
