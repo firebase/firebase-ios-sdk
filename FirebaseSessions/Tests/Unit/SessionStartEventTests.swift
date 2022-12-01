@@ -225,7 +225,7 @@ class SessionStartEventTests: XCTestCase {
   }
 
   /// Following tests can be run only in iOS environment
-  #if os(iOS)
+  #if os(iOS) && !targetEnvironment(macCatalyst)
     func test_convertMobileSubtype_convertsCorrectlyPreOS14() {
       let expectations: [(
         given: String,
@@ -302,7 +302,7 @@ class SessionStartEventTests: XCTestCase {
     }
   #endif
 
-  #if os(iOS)
+  #if os(iOS) && !targetEnvironment(macCatalyst)
     @available(iOS 14.1, *)
     func test_convertMobileSubtype_convertsCorrectlyPostOS14() {
       let expectations: [(
