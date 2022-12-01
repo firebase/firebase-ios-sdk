@@ -15,9 +15,13 @@
 
 import Foundation
 
+@_implementationOnly import GoogleUtilities
+
 @testable import FirebaseSessions
 
 class MockNetworkInfo: NetworkInfoProtocol {
   var mobileCountryCode: String?
   var mobileNetworkCode: String?
+  var networkType: GULNetworkType = .WIFI
+  var mobileSubtype: String = ""
 }
