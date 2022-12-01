@@ -81,11 +81,7 @@ class ApplicationInfo: ApplicationInfoProtocol {
   }
 
   var deviceModel: String {
-    #if targetEnvironment(simulator)
-      return GULAppEnvironmentUtil.deviceSimulatorModel() ?? ""
-    #else
-      return GULAppEnvironmentUtil.deviceModel() ?? ""
-    #endif // targetEnvironment(simulator)
+    return GULAppEnvironmentUtil.deviceSimulatorModel() ?? ""
   }
 
   var mccMNC: String {
