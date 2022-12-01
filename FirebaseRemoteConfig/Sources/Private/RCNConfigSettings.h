@@ -98,6 +98,8 @@
 /// Returns the time in seconds until the next request is allowed while in exponential backoff mode
 /// for the Realtime service.
 @property(nonatomic, readonly, assign) NSTimeInterval realtimeExponentialBackoffThrottleEndTime;
+/// Realtime connection attempts.
+@property(nonatomic, readwrite, assign) int realtimeRetryCount;
 
 #pragma mark Throttling Methods
 
@@ -130,7 +132,11 @@
 
 /// Increases the throttling time for Realtime. Should only be called if the Realtime error
 /// indicates a server issue.
-- (void)updateRealtimeExponentialBackoffTime:(BOOL)firstBackoff;
+- (void)updateRealtimeExponentialBackoffTime;
+
+/// Returns the difference between the Realtime backoff end time and the current time in a
+/// NSTimeInterval format.
+- (NSTimeInterval)getRealtimeBackoffInterval;
 
 /// Returns true if we are in exponential backoff mode and it is not yet the next request time.
 - (BOOL)shouldThrottle;

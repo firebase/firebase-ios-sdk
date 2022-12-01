@@ -222,11 +222,17 @@ static NSString* const FQNamespace2 = @"testNamespace2:testApp";
   XCTAssertEqual([manager2 currentRealtimeThrottlingRetryIntervalSeconds],
                  RCNUserDefaultsSampleTimeStamp - 2.0);
 
+  /// Realtime retry count;
+  [manager1 setRealtimeRetryCount:1];
+  [manager2 setRealtimeRetryCount:2];
+  XCTAssertEqual([manager1 realtimeRetryCount], 1);
+  XCTAssertEqual([manager2 realtimeRetryCount], 2);
+
   /// Fetch template version.
   [manager1 setLastTemplateVersion:@"1"];
   [manager2 setLastTemplateVersion:@"2"];
-  XCTAssertEqual([manager1 lastTemplateVersion], @"1");
-  XCTAssertEqual([manager2 lastTemplateVersion], @"2");
+  XCTAssertEqualObjects([manager1 lastTemplateVersion], @"1");
+  XCTAssertEqualObjects([manager2 lastTemplateVersion], @"2");
 }
 
 - (void)testUserDefaultsReset {

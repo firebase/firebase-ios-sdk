@@ -114,6 +114,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
     _realtimeExponentialBackoffRetryInterval =
         [_userDefaultsManager currentRealtimeThrottlingRetryIntervalSeconds];
     _realtimeExponentialBackoffThrottleEndTime = [_userDefaultsManager realtimeThrottleEndTime];
+    _realtimeRetryCount = [_userDefaultsManager realtimeRetryCount];
   }
   return self;
 }
@@ -240,9 +241,9 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 /// If the last Realtime stream attempt was not successful, update the (exponential backoff) period
 /// that we wait until trying again. Any subsequent Realtime requests will be checked and allowed
 /// only if past this throttle end time.
-- (void)updateRealtimeExponentialBackoffTime:(BOOL)firstBackoff {
+- (void)updateRealtimeExponentialBackoffTime {
   // If there was only one stream attempt before, reset the retry interval.
-  if (firstBackoff) {
+  if (_realtimeRetryCount == 0) {
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000057",
                 @"Throttling: Entering exponential backoff mode.");
     _realtimeExponentialBackoffRetryInterval = kRCNExponentialBackoffMinimumInterval;
@@ -267,7 +268,17 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 
   [_userDefaultsManager setRealtimeThrottleEndTime:_realtimeExponentialBackoffThrottleEndTime];
   [_userDefaultsManager
-      setCurrentThrottlingRetryIntervalSeconds:_realtimeExponentialBackoffRetryInterval];
+      setCurrentRealtimeThrottlingRetryIntervalSeconds:_realtimeExponentialBackoffRetryInterval];
+}
+
+- (void)setRealtimeRetryCount:(int)realtimeRetryCount {
+  _realtimeRetryCount = realtimeRetryCount;
+  [_userDefaultsManager setRealtimeRetryCount:_realtimeRetryCount];
+}
+
+- (NSTimeInterval)getRealtimeBackoffInterval {
+  NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+  return _realtimeExponentialBackoffThrottleEndTime - now;
 }
 
 - (void)updateMetadataWithFetchSuccessStatus:(BOOL)fetchSuccess

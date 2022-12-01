@@ -130,7 +130,7 @@ static NSInteger const gMaxRetries = 7;
     _options = options;
     _namespace = namespace;
 
-    _remainingRetryCount = gMaxRetries;
+    _remainingRetryCount = MAX(gMaxRetries - [_settings realtimeRetryCount], 1);
     _isRequestInProgress = false;
     _isRealtimeDisabled = false;
     _isInBackground = false;
@@ -354,10 +354,10 @@ static NSInteger const gMaxRetries = 7;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
     if (strongSelf->_remainingRetryCount > 0) {
-      NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
-      NSTimeInterval backOffTime = self->_settings.realtimeExponentialBackoffThrottleEndTime - now;
+      NSTimeInterval backOffTime = self->_settings.getRealtimeBackoffInterval;
 
       strongSelf->_remainingRetryCount--;
+      [strongSelf->_settings setRealtimeRetryCount:[strongSelf->_settings realtimeRetryCount] + 1];
       dispatch_time_t executionDelay =
           dispatch_time(DISPATCH_TIME_NOW, (backOffTime * NSEC_PER_SEC));
       dispatch_after(executionDelay, strongSelf->_realtimeLockQueue, ^{
@@ -575,9 +575,9 @@ static NSInteger const gMaxRetries = 7;
   _isRequestInProgress = false;
   NSHTTPURLResponse *_httpURLResponse = (NSHTTPURLResponse *)response;
   NSInteger statusCode = [_httpURLResponse statusCode];
-  [self->_settings updateRealtimeExponentialBackoffTime:self->_remainingRetryCount == gMaxRetries];
 
   if (statusCode != kRCNFetchResponseHTTPStatusOk) {
+    [self->_settings updateRealtimeExponentialBackoffTime];
     [self pauseRealtimeStream];
 
     if ([self isStatusCodeRetryable:statusCode]) {
@@ -599,6 +599,7 @@ static NSInteger const gMaxRetries = 7;
   } else {
     /// on success reset retry parameters
     _remainingRetryCount = gMaxRetries;
+    [self->_settings setRealtimeRetryCount:0];
 
     completionHandler(NSURLSessionResponseAllow);
   }
@@ -609,7 +610,7 @@ static NSInteger const gMaxRetries = 7;
                     task:(NSURLSessionTask *)task
     didCompleteWithError:(NSError *)error {
   _isRequestInProgress = false;
-  [self->_settings updateRealtimeExponentialBackoffTime:self->_remainingRetryCount == gMaxRetries];
+  [self->_settings updateRealtimeExponentialBackoffTime];
   [self pauseRealtimeStream];
   [self retryHTTPConnection];
 }
@@ -617,8 +618,7 @@ static NSInteger const gMaxRetries = 7;
 /// Delegate to handle session invalidation
 - (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(NSError *)error {
   if (!_isRequestInProgress) {
-    [self->_settings
-        updateRealtimeExponentialBackoffTime:self->_remainingRetryCount == gMaxRetries];
+    [self->_settings updateRealtimeExponentialBackoffTime];
     [self pauseRealtimeStream];
     [self retryHTTPConnection];
   }
@@ -635,8 +635,7 @@ static NSInteger const gMaxRetries = 7;
     bool canMakeConnection = noRunningConnection && [strongSelf->_listeners count] > 0 &&
                              !strongSelf->_isInBackground && !strongSelf->_isRealtimeDisabled;
 
-    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
-    if (self->_settings.realtimeExponentialBackoffThrottleEndTime - now > 0) {
+    if (self->_settings.getRealtimeBackoffInterval > 0) {
       [self retryHTTPConnection];
       return;
     }
