@@ -18,4 +18,6 @@ import Foundation
 enum FirebaseSessionsError: Error {
   /// Event sampling related error
   case SessionSamplingError
+  /// Firebase Installation ID related error
+  case SessionInstallationsError
 }

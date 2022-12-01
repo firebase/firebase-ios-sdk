@@ -19,6 +19,7 @@ import XCTest
 
 class SessionCoordinatorTests: XCTestCase {
   var identifiers = MockIdentifierProvider()
+  var installations = MockInstallationsProtocol()
   var time = MockTimeProvider()
   var fireLogger = MockGDTLogger()
   var appInfo = MockApplicationInfo()
@@ -31,6 +32,7 @@ class SessionCoordinatorTests: XCTestCase {
 
     coordinator = SessionCoordinator(
       identifiers: identifiers,
+      installations: installations,
       fireLogger: fireLogger,
       sampler: sampler
     )
@@ -53,7 +55,7 @@ class SessionCoordinatorTests: XCTestCase {
     // Make sure we've set the Installation ID
     assertEqualProtoString(
       event.proto.session_data.firebase_installation_id,
-      expected: MockIdentifierProvider.testInstallationID,
+      expected: MockInstallationsProtocol.testInstallationId,
       fieldName: "installation_id"
     )
 
@@ -82,7 +84,7 @@ class SessionCoordinatorTests: XCTestCase {
     // Make sure we've set the Installation ID
     assertEqualProtoString(
       event.proto.session_data.firebase_installation_id,
-      expected: MockIdentifierProvider.testInstallationID,
+      expected: MockInstallationsProtocol.testInstallationId,
       fieldName: "installation_id"
     )
 

@@ -18,7 +18,8 @@ import FirebaseInstallations
 @testable import FirebaseSessions
 
 class MockInstallationsProtocol: InstallationsProtocol {
-  var result: Result<String, Error> = .success("adsgsadg")
+  static let testInstallationId = "testInstallationId"
+  var result: Result<String, Error> = .success(testInstallationId)
 
   func installationID(completion: @escaping (Result<String, Error>) -> Void) {
     completion(result)

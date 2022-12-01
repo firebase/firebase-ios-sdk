@@ -60,8 +60,8 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
       .performance = firebase_appquality_sessions_DataCollectionState_COLLECTION_UNKNOWN
   }
 
-  func setInstallationID(identifiers: IdentifierProvider) {
-    proto.session_data.firebase_installation_id = makeProtoString(identifiers.installationID)
+  func setInstallationID(installationId: String) {
+    proto.session_data.firebase_installation_id = makeProtoString(installationId)
   }
 
   func setSamplingRate(samplingRate: Double) {
