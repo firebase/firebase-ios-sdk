@@ -44,11 +44,8 @@ protocol ApplicationInfoProtocol {
   /// Validated Mobile Country Code and Mobile Network Code
   var mccMNC: String { get }
 
-  /// Type of network the device is connected to
-  var networkType: GULNetworkType { get }
-
-  /// Mobile subtype the device is connected to
-  var mobileSubtype: String { get }
+  /// Network information for the application
+  var networkInfo: NetworkInfoProtocol { get }
 
   /// Development environment on which the application is running.
   var environment: DevEnvironment { get }
@@ -61,13 +58,13 @@ protocol ApplicationInfoProtocol {
 class ApplicationInfo: ApplicationInfoProtocol {
   let appID: String
 
-  private let networkInfo: NetworkInfoProtocol
+  private let networkInformation: NetworkInfoProtocol
   private let envParams: [String: String]
 
   init(appID: String, networkInfo: NetworkInfoProtocol = NetworkInfo(),
        envParams: [String: String] = ProcessInfo.processInfo.environment) {
     self.appID = appID
-    self.networkInfo = networkInfo
+    networkInformation = networkInfo
     self.envParams = envParams
   }
 
@@ -95,12 +92,8 @@ class ApplicationInfo: ApplicationInfoProtocol {
     return FIRSESValidateMccMnc(networkInfo.mobileCountryCode, networkInfo.mobileNetworkCode) ?? ""
   }
 
-  var networkType: GULNetworkType {
-    return networkInfo.networkType
-  }
-
-  var mobileSubtype: String {
-    return networkInfo.mobileSubtype
+  var networkInfo: NetworkInfoProtocol {
+    return networkInformation
   }
 
   var environment: DevEnvironment {

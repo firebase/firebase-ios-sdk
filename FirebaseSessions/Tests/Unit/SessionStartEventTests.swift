@@ -209,7 +209,9 @@ class SessionStartEventTests: XCTestCase {
       given: GULNetworkType,
       expected: firebase_appquality_sessions_NetworkConnectionInfo_NetworkType
     ) in
-      appInfo.networkType = given
+      let mockNetworkInfo = MockNetworkInfo()
+      mockNetworkInfo.networkType = given
+      appInfo.networkInfo = mockNetworkInfo
 
       let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
 
@@ -284,7 +286,9 @@ class SessionStartEventTests: XCTestCase {
           given: String,
           expected: firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype
         ) in
-          appInfo.mobileSubtype = given
+          let mockNetworkInfo = MockNetworkInfo()
+          mockNetworkInfo.mobileSubtype = given
+          appInfo.networkInfo = mockNetworkInfo
 
           let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
 
@@ -368,7 +372,9 @@ class SessionStartEventTests: XCTestCase {
           given: String,
           expected: firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype
         ) in
-          appInfo.mobileSubtype = given
+          let mockNetworkInfo = MockNetworkInfo()
+          mockNetworkInfo.mobileSubtype = given
+          appInfo.networkInfo = mockNetworkInfo
 
           let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
 

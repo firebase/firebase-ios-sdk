@@ -48,9 +48,9 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     proto.application_info.which_platform_info = FIRSESGetAppleApplicationInfoTag()
     proto.application_info.apple_app_info.bundle_short_version = makeProtoString(appInfo.bundleID)
     proto.application_info.apple_app_info.network_connection_info
-      .network_type = convertNetworkType(networkType: appInfo.networkType)
+      .network_type = convertNetworkType(networkType: appInfo.networkInfo.networkType)
     proto.application_info.apple_app_info.network_connection_info
-      .mobile_subtype = convertMobileSubtype(mobileSubtype: appInfo.mobileSubtype)
+      .mobile_subtype = convertMobileSubtype(mobileSubtype: appInfo.networkInfo.mobileSubtype)
     proto.application_info.apple_app_info.os_name = convertOSName(osName: appInfo.osName)
     proto.application_info.apple_app_info.mcc_mnc = makeProtoString(appInfo.mccMNC)
 
@@ -170,7 +170,7 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     -> firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype {
     var subtype: firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype
 
-    #if os(iOS)
+    #if os(iOS) && !targetEnvironment(macCatalyst)
       switch mobileSubtype {
       case CTRadioAccessTechnologyGPRS:
         subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_GPRS
