@@ -64,6 +64,7 @@ class SessionCoordinator {
             .logError(
               "Error getting Firebase Installation ID: \(error). Skip sending event."
             )
+          callback(.failure(FirebaseSessionsError.SessionInstallationsError))
         }
       }
     } else {
