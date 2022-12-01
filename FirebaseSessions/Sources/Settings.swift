@@ -69,22 +69,21 @@ class Settings: SettingsProtocol {
 
   init(appInfo: ApplicationInfoProtocol,
        cache: SettingsCacheClient = SettingsCache(),
-       downloader: SettingsDownloadClient = SettingsDownloader()) {
+       downloader: SettingsDownloadClient) {
     self.cache = cache
     self.appInfo = appInfo
-    self.downloader = downloader
   }
-  
+
   func fetchAndCacheSettings(currentTime: Date) {
     guard !isCacheExpired(currentTime: currentTime) else {
       return
     }
-    
-    downloader.fetch(appInfo: self.appInfo) { result in
+
+    downloader.fetch { result in
       switch result {
-      case .success(let dictionary):
-        // TODO
-      case .failure(let error):
+      case let .success(dictionary):
+      // TODO:
+      case let .failure(error):
         Logger.logError("[Settings] Fetch failed with error: \(error)")
       }
     }
