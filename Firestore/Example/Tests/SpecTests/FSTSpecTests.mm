@@ -75,18 +75,17 @@
 
 namespace objc = firebase::firestore::objc;
 using firebase::firestore::Error;
+using firebase::firestore::google_firestore_v1_ArrayValue;
+using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::api::LoadBundleTask;
 using firebase::firestore::bundle::BundleReader;
 using firebase::firestore::bundle::BundleSerializer;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::Query;
 using firebase::firestore::credentials::User;
-using firebase::firestore::google_firestore_v1_ArrayValue;
-using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::local::Persistence;
 using firebase::firestore::local::QueryPurpose;
 using firebase::firestore::local::TargetData;
-using firebase::firestore::model::Document;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -117,8 +116,8 @@ using firebase::firestore::util::MakeStringPtr;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::TimerId;
-using firebase::firestore::util::WrapCompare;
 using firebase::firestore::util::ToString;
+using firebase::firestore::util::WrapCompare;
 
 NS_ASSUME_NONNULL_BEGIN
 

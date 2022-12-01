@@ -33,6 +33,12 @@ const pb_field_t firebase_appquality_sessions_SessionEvent_fields[4] = {
     PB_LAST_FIELD
 };
 
+const pb_field_t firebase_appquality_sessions_NetworkConnectionInfo_fields[3] = {
+    PB_FIELD(  1, UENUM   , SINGULAR, STATIC  , FIRST, firebase_appquality_sessions_NetworkConnectionInfo, network_type, network_type, 0),
+    PB_FIELD(  2, UENUM   , SINGULAR, STATIC  , OTHER, firebase_appquality_sessions_NetworkConnectionInfo, mobile_subtype, network_type, 0),
+    PB_LAST_FIELD
+};
+
 const pb_field_t firebase_appquality_sessions_SessionInfo_fields[6] = {
     PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, firebase_appquality_sessions_SessionInfo, session_id, session_id, 0),
     PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, firebase_appquality_sessions_SessionInfo, previous_session_id, session_id, 0),
@@ -69,11 +75,13 @@ const pb_field_t firebase_appquality_sessions_AndroidApplicationInfo_fields[3] =
 
 const pb_field_t firebase_appquality_sessions_AppleApplicationInfo_fields[5] = {
     PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, firebase_appquality_sessions_AppleApplicationInfo, bundle_short_version, bundle_short_version, 0),
-    PB_FIELD(  3, MESSAGE , SINGULAR, STATIC  , OTHER, firebase_appquality_sessions_AppleApplicationInfo, network_connection_info, bundle_short_version, &NetworkConnectionInfo_fields),
+    PB_FIELD(  3, MESSAGE , SINGULAR, STATIC  , OTHER, firebase_appquality_sessions_AppleApplicationInfo, network_connection_info, bundle_short_version, &firebase_appquality_sessions_NetworkConnectionInfo_fields),
     PB_FIELD(  4, UENUM   , SINGULAR, STATIC  , OTHER, firebase_appquality_sessions_AppleApplicationInfo, os_name, network_connection_info, 0),
     PB_FIELD(  5, BYTES   , SINGULAR, POINTER , OTHER, firebase_appquality_sessions_AppleApplicationInfo, mcc_mnc, os_name, 0),
     PB_LAST_FIELD
 };
+
+
 
 
 
@@ -89,7 +97,7 @@ const pb_field_t firebase_appquality_sessions_AppleApplicationInfo_fields[5] = {
  * numbers or field sizes that are larger than what can fit in 8 or 16 bit
  * field descriptors.
  */
-PB_STATIC_ASSERT((pb_membersize(firebase_appquality_sessions_SessionEvent, session_data) < 65536 && pb_membersize(firebase_appquality_sessions_SessionEvent, application_info) < 65536 && pb_membersize(firebase_appquality_sessions_SessionInfo, data_collection_status) < 65536 && pb_membersize(firebase_appquality_sessions_ApplicationInfo, android_app_info) < 65536 && pb_membersize(firebase_appquality_sessions_ApplicationInfo, apple_app_info) < 65536 && pb_membersize(firebase_appquality_sessions_AppleApplicationInfo, network_connection_info) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_firebase_appquality_sessions_SessionEvent_firebase_appquality_sessions_SessionInfo_firebase_appquality_sessions_DataCollectionStatus_firebase_appquality_sessions_ApplicationInfo_firebase_appquality_sessions_AndroidApplicationInfo_firebase_appquality_sessions_AppleApplicationInfo)
+PB_STATIC_ASSERT((pb_membersize(firebase_appquality_sessions_SessionEvent, session_data) < 65536 && pb_membersize(firebase_appquality_sessions_SessionEvent, application_info) < 65536 && pb_membersize(firebase_appquality_sessions_SessionInfo, data_collection_status) < 65536 && pb_membersize(firebase_appquality_sessions_ApplicationInfo, android_app_info) < 65536 && pb_membersize(firebase_appquality_sessions_ApplicationInfo, apple_app_info) < 65536 && pb_membersize(firebase_appquality_sessions_AppleApplicationInfo, network_connection_info) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_firebase_appquality_sessions_SessionEvent_firebase_appquality_sessions_NetworkConnectionInfo_firebase_appquality_sessions_SessionInfo_firebase_appquality_sessions_DataCollectionStatus_firebase_appquality_sessions_ApplicationInfo_firebase_appquality_sessions_AndroidApplicationInfo_firebase_appquality_sessions_AppleApplicationInfo)
 #endif
 
 #if !defined(PB_FIELD_16BIT) && !defined(PB_FIELD_32BIT)
@@ -100,7 +108,7 @@ PB_STATIC_ASSERT((pb_membersize(firebase_appquality_sessions_SessionEvent, sessi
  * numbers or field sizes that are larger than what can fit in the default
  * 8 bit descriptors.
  */
-PB_STATIC_ASSERT((pb_membersize(firebase_appquality_sessions_SessionEvent, session_data) < 256 && pb_membersize(firebase_appquality_sessions_SessionEvent, application_info) < 256 && pb_membersize(firebase_appquality_sessions_SessionInfo, data_collection_status) < 256 && pb_membersize(firebase_appquality_sessions_ApplicationInfo, android_app_info) < 256 && pb_membersize(firebase_appquality_sessions_ApplicationInfo, apple_app_info) < 256 && pb_membersize(firebase_appquality_sessions_AppleApplicationInfo, network_connection_info) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_firebase_appquality_sessions_SessionEvent_firebase_appquality_sessions_SessionInfo_firebase_appquality_sessions_DataCollectionStatus_firebase_appquality_sessions_ApplicationInfo_firebase_appquality_sessions_AndroidApplicationInfo_firebase_appquality_sessions_AppleApplicationInfo)
+PB_STATIC_ASSERT((pb_membersize(firebase_appquality_sessions_SessionEvent, session_data) < 256 && pb_membersize(firebase_appquality_sessions_SessionEvent, application_info) < 256 && pb_membersize(firebase_appquality_sessions_SessionInfo, data_collection_status) < 256 && pb_membersize(firebase_appquality_sessions_ApplicationInfo, android_app_info) < 256 && pb_membersize(firebase_appquality_sessions_ApplicationInfo, apple_app_info) < 256 && pb_membersize(firebase_appquality_sessions_AppleApplicationInfo, network_connection_info) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_firebase_appquality_sessions_SessionEvent_firebase_appquality_sessions_NetworkConnectionInfo_firebase_appquality_sessions_SessionInfo_firebase_appquality_sessions_DataCollectionStatus_firebase_appquality_sessions_ApplicationInfo_firebase_appquality_sessions_AndroidApplicationInfo_firebase_appquality_sessions_AppleApplicationInfo)
 #endif
 
 

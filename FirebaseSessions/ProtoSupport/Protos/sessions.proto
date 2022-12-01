@@ -29,8 +29,6 @@
 
 syntax = "proto3";
 
-import "clientanalytics.proto";
-
 package firebase.appquality.sessions;
 
 // Contains the relevant information around an App Quality Session.
@@ -51,6 +49,69 @@ enum EventType {
   EVENT_TYPE_UNKNOWN = 0;
   // This event type is fired as soon as a new session begins.
   SESSION_START = 1;
+}
+
+// To describe the network connectivity of the client.
+// Copied from android/play/playlog/proto/clientanalytics.proto
+// Next tag: 3
+message NetworkConnectionInfo {
+  enum NetworkType {
+    MOBILE = 0;
+    WIFI = 1;
+    MOBILE_MMS = 2;
+    MOBILE_SUPL = 3;
+    MOBILE_DUN = 4;
+    MOBILE_HIPRI = 5;
+    WIMAX = 6;
+    BLUETOOTH = 7;
+    DUMMY = 8;
+    ETHERNET = 9;
+    MOBILE_FOTA = 10;
+    MOBILE_IMS = 11;
+    MOBILE_CBS = 12;
+    WIFI_P2P = 13;
+    MOBILE_IA = 14;
+    MOBILE_EMERGENCY = 15;
+    PROXY = 16;
+    VPN = 17;
+  }
+
+  enum MobileSubtype {
+    UNKNOWN_MOBILE_SUBTYPE = 0;
+    GPRS = 1;
+    EDGE = 2;
+    UMTS = 3;
+    CDMA = 4;
+    EVDO_0 = 5;
+    EVDO_A = 6;
+    RTT = 7;
+    HSDPA = 8;
+    HSUPA = 9;
+    HSPA = 10;
+    IDEN = 11;
+    EVDO_B = 12;
+    LTE = 13;
+    EHRPD = 14;
+    HSPAP = 15;
+    GSM = 16;
+    TD_SCDMA = 17;
+    IWLAN = 18;
+    LTE_CA = 19;
+    NR = 20;
+
+    // COMBINED has value -1 in NetworkIdentity.java, but is given the value
+    // 100 here to save (disk) space. The value -1 takes up the full 10 bytes in
+    // a varint for enums, but the value 100 only takes up 1 byte.
+    COMBINED = 100;
+  }
+
+  // The current network connectivity type when the event was logged in the
+  // client
+  NetworkType network_type = 1;
+
+  // The current mobile connectivity subtype when the event was logged in the
+  // client
+  MobileSubtype mobile_subtype = 2;
 }
 
 // Contains session-specific information relating to the event being uploaded.
