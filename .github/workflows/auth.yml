@@ -131,32 +131,32 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-auth.plist.gpg \
           quickstart-ios/authentication/GoogleService-Info.plist "$plist_secret"
     - name: Test swift quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Authentication false)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Authentication true)
 
-  quickstart-ftl:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+  # quickstart-ftl:
+  #   # Don't run on private repo unless it is a PR.
+  #   if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-12
-    steps:
-    - uses: actions/checkout@v3
-    - uses: ruby/setup-ruby@v1
-    - name: Setup quickstart
-      run: scripts/setup_quickstart.sh authentication
-    - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-auth.plist.gpg \
-          quickstart-ios/authentication/GoogleService-Info.plist "$plist_secret"
-    - name: Build swift quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Authentication)
-    - id: ftl_test
-      uses: FirebaseExtended/github-actions/firebase-test-lab@v1.2
-      with:
-        credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
-        testapp_dir: quickstart-ios/build-for-testing
-        test_type: "xctest"
+  #   env:
+  #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+  #     signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+  #   runs-on: macos-12
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - uses: ruby/setup-ruby@v1
+  #   - name: Setup quickstart
+  #     run: scripts/setup_quickstart.sh authentication
+  #   - name: Install Secret GoogleService-Info.plist
+  #     run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-auth.plist.gpg \
+  #         quickstart-ios/authentication/GoogleService-Info.plist "$plist_secret"
+  #   - name: Build swift quickstart
+  #     run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Authentication)
+  #   - id: ftl_test
+  #     uses: FirebaseExtended/github-actions/firebase-test-lab@v1.2
+  #     with:
+  #       credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
+  #       testapp_dir: quickstart-ios/build-for-testing
+  #       test_type: "xctest"
 
   auth-cron-only:
     # Don't run on private repo.
