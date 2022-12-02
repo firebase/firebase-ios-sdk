@@ -66,7 +66,7 @@ if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
   cd "${WORKSPACE_DIR}"
 
   # To test a branch, uncomment the following line
-  git checkout build_iphone
+  # git checkout {BRANCH_NAME}
 
   bundle update --bundler
   bundle install
