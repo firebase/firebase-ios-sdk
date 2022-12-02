@@ -154,3 +154,4 @@ FirebaseAppCheck/Apps/AppCheckCustomProvideApp/AppCheckCustomProvideApp/GoogleSe
 /Example/FirestoreSample/FirestoreSample/GoogleService-Info.plist
 /Example/FirestoreSample/ui-debug.log
 /Example/FirestoreSample/firestore-debug.log
+FirebaseMessaging/Apps/SampleStandaloneWatchApp/SampleStandaloneWatchApp Watch App/GoogleService-Info.plist

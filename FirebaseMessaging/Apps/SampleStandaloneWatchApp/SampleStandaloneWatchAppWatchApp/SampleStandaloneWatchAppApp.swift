@@ -1,0 +1,55 @@
+// Copyright 2022 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+import SwiftUI
+import Firebase
+
+@main
+struct SampleStandaloneWatchApp_Watch_AppApp: App {
+  @WKApplicationDelegateAdaptor(FCMWatchAppDelegate.self) var appDelegate
+  var body: some Scene {
+    WindowGroup {
+      ContentView()
+    }
+  }
+}
+
+// MARK: AppDelegate
+
+class FCMWatchAppDelegate: NSObject, WKApplicationDelegate, MessagingDelegate {
+  func applicationDidFinishLaunching() {
+    FirebaseApp.configure()
+    let notifCenter = UNUserNotificationCenter.current()
+    notifCenter.requestAuthorization(options: [.alert, .sound]) { granted, error in
+      if granted {
+        WKApplication.shared().registerForRemoteNotifications()
+      }
+    }
+    Messaging.messaging().delegate = self
+  }
+
+  func didRegisterForRemoteNotifications(withDeviceToken deviceToken: Data) {
+    print("APNS didRegisterForRemoteNotifications. Got device token \(deviceToken)")
+    Messaging.messaging().apnsToken = deviceToken
+  }
+}
+
+// MARK: FCM MessagingDelegate
+
+extension FCMWatchAppDelegate {
+  func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+    // Use this FCM token to test sending a push using API or Firebase Console
+    print("FCM - didReceiveRegistrationToken \(String(describing: fcmToken))")
+  }
+}
