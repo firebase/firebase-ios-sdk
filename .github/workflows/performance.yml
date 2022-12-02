@@ -80,7 +80,7 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-performance.plist.gpg \
           quickstart-ios/performance/GoogleService-Info.plist "$plist_secret"
     - name: Test swift quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance true)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance true swift)
     - name: Test objc quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance true)
 
