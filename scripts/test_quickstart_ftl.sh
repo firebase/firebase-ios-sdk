@@ -1,4 +1,4 @@
-# Copyright 2019 Google
+# Copyright 2022 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,9 +13,11 @@
 # limitations under the License.
 
 
-# Run a CI `script` phase to build the associated quickstart
-# sample and generate build-for-testing artfact under dir:
-# `quickstart-ios/build-for-testing``
+# This script is modified from test_quickstart.sh. 
+# Run a CI `script` phase to build the associated quickstart sample 
+# and generate build-for-testing artfacts, which can be used to 
+# run test on Firebase Test Lab.
+# The artifacts are under dir: `quickstart-ios/build-for-testing``
 
 set -xeuo pipefail
 
