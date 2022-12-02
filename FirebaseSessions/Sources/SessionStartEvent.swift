@@ -46,7 +46,7 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
 
     // `which_platform_info` tells nanopb which oneof we're choosing to fill in for our proto
     proto.application_info.which_platform_info = FIRSESGetAppleApplicationInfoTag()
-    proto.application_info.apple_app_info.bundle_short_version = makeProtoString(appInfo.bundleID)
+    proto.application_info.apple_app_info.bundle_short_version = makeProtoString(appInfo.appDisplayVersion)
     proto.application_info.apple_app_info.network_connection_info
       .network_type = convertNetworkType(networkType: appInfo.networkInfo.networkType)
     proto.application_info.apple_app_info.network_connection_info
