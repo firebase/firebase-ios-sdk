@@ -212,7 +212,7 @@ message AndroidApplicationInfo {
 // - country
 // Next tag: 6
 message AppleApplicationInfo {
-  // The application's bundle id. Eg. com.google.search
+  // The application's display version, eg. 1.2.3
   string bundle_short_version = 1;
   // Describes the network connectivity of the device
   NetworkConnectionInfo network_connection_info = 3;

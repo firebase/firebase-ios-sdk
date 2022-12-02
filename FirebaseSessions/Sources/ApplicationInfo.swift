@@ -29,9 +29,6 @@ protocol ApplicationInfoProtocol {
   /// Google App ID / GMP App ID
   var appID: String { get }
 
-  /// App's bundle ID / bundle short version
-  var bundleID: String { get }
-
   /// Version of the Firebase SDK
   var sdkVersion: String { get }
 
@@ -66,10 +63,6 @@ class ApplicationInfo: ApplicationInfoProtocol {
     self.appID = appID
     networkInformation = networkInfo
     self.envParams = envParams
-  }
-
-  var bundleID: String {
-    return Bundle.main.bundleIdentifier ?? ""
   }
 
   var sdkVersion: String {

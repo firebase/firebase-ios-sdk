@@ -85,7 +85,7 @@ class SessionStartEventTests: XCTestCase {
       )
       assertEqualProtoString(
         proto.application_info.apple_app_info.bundle_short_version,
-        expected: MockApplicationInfo.testBundleID,
+        expected: MockApplicationInfo.testAppDisplayVersion,
         fieldName: "bundle_short_version"
       )
       assertEqualProtoString(
