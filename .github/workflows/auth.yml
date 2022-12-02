@@ -135,7 +135,7 @@ jobs:
 
   # TODO(@sunmou99): currently have issue with this job, will re-enable it once the issue resolved.
   # quickstart-ftl:
-  #   # Don't run on private repo unless it is a PR.
+  #   # Don't run on private repo.
   #   if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
   #   env:

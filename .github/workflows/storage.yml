@@ -100,7 +100,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage true swift)
 
   quickstart-ftl:
-    # Don't run on private repo unless it is a PR.
+    # Don't run on private repo.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
