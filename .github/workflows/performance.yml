@@ -83,8 +83,8 @@ jobs:
     - name: Test objc quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance true)
 
-  quickstart-ftl:
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+  quickstart-ftl-cron-only:
+    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule'
 
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}

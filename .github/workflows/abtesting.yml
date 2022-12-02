@@ -90,9 +90,9 @@ jobs:
         LEGACY: true
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh ABTesting true)
 
-  quickstart-ftl:
+  quickstart-ftl-cron-only:
     # Don't run on private repo.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule'
 
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}

@@ -123,7 +123,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Config true)
 
   # TODO(@sunmou99): currently have issue with this job, will re-enable it once the issue resolved.
-  # quickstart-ftl:
+  # quickstart-ftl-cron-only:
   #   # Don't run on private repo.
   #   if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
   #   env:
