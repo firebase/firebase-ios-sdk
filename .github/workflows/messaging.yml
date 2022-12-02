@@ -133,10 +133,10 @@ jobs:
           quickstart-ios/messaging/GoogleService-Info.plist "$plist_secret"
     - name: Test objc quickstart
       run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Messaging false)
+            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Messaging true)
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] ||
-            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Messaging false swift)
+            scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Messaging true swift)
 
   messaging-cron-only:
     # Don't run on private repo.
