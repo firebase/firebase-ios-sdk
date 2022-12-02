@@ -25,9 +25,9 @@ struct CacheKey: Codable {
 /// SettingsCacheClient is responsible for accessing the cache that Settings are stored in.
 protocol SettingsCacheClient {
   /// Returns in-memory cache content in O(1) time
-  var cacheContent: [String: Any]? { get }
+  var cacheContent: [String: Any]? { get set }
   /// Returns in-memory cache-key, no performance guarantee because type-casting depends on size of CacheKey
-  var cacheKey: CacheKey? { get }
+  var cacheKey: CacheKey? { get set }
   /// Removes all cache content and cache-key
   func removeCache()
 }
@@ -42,19 +42,33 @@ class SettingsCache: SettingsCacheClient {
 
   /// Converting to dictionary is O(1) because object conversion is O(1)
   var cacheContent: [String: Any]? {
-    return cache.dictionary(forKey: SettingsCache.content)
+    get {
+      return cache.dictionary(forKey: SettingsCache.content)
+    }
+    set {
+      cache.set(newValue, forKey: SettingsCache.content)
+    }
   }
 
   /// Casting to Codable from Data is O(n)
   var cacheKey: CacheKey? {
-    if let data = cache.data(forKey: SettingsCache.key) {
+    get {
+      if let data = cache.data(forKey: SettingsCache.key) {
+        do {
+          return try JSONDecoder().decode(CacheKey.self, from: data)
+        } catch {
+          Logger.logError("[Settings] Decoding CacheKey failed with error: \(error)")
+        }
+      }
+      return nil
+    }
+    set {
       do {
-        return try JSONDecoder().decode(CacheKey.self, from: data)
+        cache.set(try JSONEncoder().encode(newValue), forKey: SettingsCache.key)
       } catch {
-        Logger.logError("[Settings] Decoding CacheKey failed with error: \(error)")
+        Logger.logError("[Settings] Encoding CacheKey failed with error: \(error)")
       }
     }
-    return nil
   }
 
   /// Removes stored cache

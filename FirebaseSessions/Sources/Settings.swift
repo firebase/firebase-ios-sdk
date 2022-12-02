@@ -36,8 +36,8 @@ class Settings: SettingsProtocol {
   private static let flagSessionTimeout = "session_timeout"
   private static let flagCacheDuration = "cache_duration"
   private let appInfo: ApplicationInfoProtocol
-  private let cache: SettingsCacheClient
   private let downloader: SettingsDownloadClient
+  private var cache: SettingsCacheClient
 
   var sessionsEnabled: Bool {
     guard let enabled = cache.cacheContent?[Settings.flagSessionsEnabled] as? Bool else {
@@ -68,10 +68,11 @@ class Settings: SettingsProtocol {
   }
 
   init(appInfo: ApplicationInfoProtocol,
-       cache: SettingsCacheClient = SettingsCache(),
-       downloader: SettingsDownloadClient) {
-    self.cache = cache
+       downloader: SettingsDownloadClient,
+       cache: SettingsCacheClient = SettingsCache()) {
     self.appInfo = appInfo
+    self.cache = cache
+    self.downloader = downloader
   }
 
   func fetchAndCacheSettings(currentTime: Date) {
@@ -82,7 +83,12 @@ class Settings: SettingsProtocol {
     downloader.fetch { result in
       switch result {
       case let .success(dictionary):
-      // TODO:
+        self.cache.cacheContent = dictionary
+        self.cache.cacheKey = CacheKey(
+          createdAt: currentTime,
+          googleAppID: self.appInfo.appID,
+          appVersion: self.appInfo.synthesizedVersion
+        )
       case let .failure(error):
         Logger.logError("[Settings] Fetch failed with error: \(error)")
       }
