@@ -13,11 +13,11 @@
 # limitations under the License.
 
 
-# This script is modified from test_quickstart.sh. 
-# Run a CI `script` phase to build the associated quickstart sample 
-# and generate build-for-testing artfacts, which can be used to 
+# This script is modified from test_quickstart.sh.
+# Run a CI `script` phase to build the associated quickstart sample
+# and generate build-for-testing artfacts, which can be used to
 # run test on Firebase Test Lab.
-# The artifacts are under dir: `quickstart-ios/build-for-testing``
+# The artifacts are under dir: `quickstart-ios/build-for-testing`
 
 set -xeuo pipefail
 
