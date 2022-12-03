@@ -40,6 +40,11 @@ class FCMWatchAppDelegate: NSObject, WKApplicationDelegate, MessagingDelegate {
   }
 
   func didRegisterForRemoteNotifications(withDeviceToken deviceToken: Data) {
+    // Method swizzling should be disabled in Firebase Messaging on watchOS.
+    // Set the APNS token manually as is done here.
+    // More information on how to disable -
+    // https://firebase.google.com/docs/cloud-messaging/ios/client#method_swizzling_in
+
     print("APNS didRegisterForRemoteNotifications. Got device token \(deviceToken)")
     Messaging.messaging().apnsToken = deviceToken
   }
