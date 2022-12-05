@@ -10,7 +10,7 @@ This sample demonstrates how to use Firebase Cloud Messaging in a standalone wat
 1. Change the bundle identifier to a unique ID (e.g. `dev.<yourcompany>.WatchKitApp.dev.WatchKitApp`)
 1. Enable automatic code signing for the Xcode project
 1. [Add Firebase to your watchOS Project](https://firebase.google.com/docs/ios/setup)
-    > **Warning** 
+    > **Warning**
     > Make sure to add the `GoogleServices-Info.plist` file to the `SampleStandaloneWatchApp Watch App` target
 1. [Upload your APNs authentication key to Firebase](https://firebase.google.com/docs/cloud-messaging/ios/client#upload_your_apns_authentication_key)
 1. Run the app
