@@ -30,8 +30,8 @@ struct SampleStandaloneWatchApp_Watch_AppApp: App {
 class FCMWatchAppDelegate: NSObject, WKApplicationDelegate, MessagingDelegate {
   func applicationDidFinishLaunching() {
     FirebaseApp.configure()
-    let notifCenter = UNUserNotificationCenter.current()
-    notifCenter.requestAuthorization(options: [.alert, .sound]) { granted, error in
+    let notificationCenter = UNUserNotificationCenter.current()
+    notificationCenter.requestAuthorization(options: [.alert, .sound]) { granted, error in
       if granted {
         WKApplication.shared().registerForRemoteNotifications()
       }
