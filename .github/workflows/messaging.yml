@@ -249,7 +249,7 @@ jobs:
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/messaging-sample-plist.gpg \
           FirebaseMessaging/Apps/Shared/GoogleService-Info.plist "$plist_secret"
     - name: Prereqs
-      run: scripts/install_prereqs.sh SampleStandaloneWatchApp watchOS
+      run: scripts/install_prereqs.sh MessagingSampleStandaloneWatchApp watchOS
     - name: Build
-      run: ([ -z $plist_secret ] || scripts/build.sh SampleStandaloneWatchApp watchOS)
+      run: ([ -z $plist_secret ] || scripts/build.sh MessagingSampleStandaloneWatchApp watchOS)
 
