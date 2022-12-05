@@ -45,6 +45,7 @@ import FirebaseCore
   ///
   /// In order for a new token to be successfully fetched, a `TokenRefreshHandler` must be
   /// registered.
+  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
   public func getAuthExchangeToken(forceRefresh: Bool) async throws -> AuthExchangeToken? {
     // TODO: Implement methods.
     return self.authExchangeToken

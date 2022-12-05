@@ -45,4 +45,14 @@ Firebase Authentication Exchange allows you to bring your own Customer Identity 
 
   s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'FirebaseCoreExtension', '~> 10.0'
+
+  s.test_spec 'UnitTests' do |unit_tests|
+    unit_tests.scheme = { :code_coverage => true }
+    unit_tests.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
+    unit_tests.source_files = 'FirebaseAuthExchange/Tests/Unit/**/*.swift'
+  end
 end
