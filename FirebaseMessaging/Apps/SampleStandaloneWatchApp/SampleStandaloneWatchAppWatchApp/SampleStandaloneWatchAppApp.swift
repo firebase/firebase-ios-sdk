@@ -25,7 +25,7 @@ struct SampleStandaloneWatchApp_Watch_AppApp: App {
   }
 }
 
-// MARK: AppDelegate
+// MARK: - WKApplicationDelegate
 
 class FCMWatchAppDelegate: NSObject, WKApplicationDelegate, MessagingDelegate {
   func applicationDidFinishLaunching() {
@@ -50,7 +50,7 @@ class FCMWatchAppDelegate: NSObject, WKApplicationDelegate, MessagingDelegate {
   }
 }
 
-// MARK: FCM MessagingDelegate
+// MARK: - FCM MessagingDelegate
 
 extension FCMWatchAppDelegate {
   func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
