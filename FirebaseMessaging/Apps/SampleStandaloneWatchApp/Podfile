@@ -1,4 +1,4 @@
-use_frameworks! :linkage => :static
+use_frameworks!
 
 source 'https://github.com/firebase/SpecsDev.git'
 source 'https://github.com/firebase/SpecsStaging.git'
