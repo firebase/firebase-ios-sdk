@@ -434,7 +434,7 @@ case "$product-$platform-$method" in
     if check_secrets; then
       RunXcodebuild \
         -workspace 'FirebaseMessaging/Apps/SampleStandaloneWatchApp/SampleStandaloneWatchApp.xcworkspace' \
-        -scheme "SwiftUISample" \
+        -scheme "SampleStandaloneWatchApp Watch App" \
         "${xcb_flags[@]}" \
         build
     fi
