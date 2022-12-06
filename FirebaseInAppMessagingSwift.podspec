@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseInAppMessagingSwift'
-  s.version                 = '10.3.0-beta'
+  s.version                 = '10.4.0-beta'
   s.summary                 = 'Swift Extensions for Firebase In-App Messaging'
 
   s.description      = <<-DESC
