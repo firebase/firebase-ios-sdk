@@ -9,7 +9,7 @@ target 'SampleStandaloneWatchApp Watch App' do
 
   pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseMessaging', :path => '../../../'
+  pod 'FirebaseCoreInternal', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
-  pod 'GoogleDataTransport'
 
 end
