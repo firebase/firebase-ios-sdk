@@ -7,12 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D6B31A00293FE3B90008A527 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D6B319FF293FE3B90008A527 /* Assets.xcassets */; };
 		D6B31A02293FE3EA0008A527 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D6B31A01293FE3EA0008A527 /* GoogleService-Info.plist */; };
+		D6B31A03293FE99F0008A527 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D6E7BFEB293AAD83007A9699 /* Preview Assets.xcassets */; };
+		D6B31A05293FE9FF0008A527 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D6E7BFE8293AAD83007A9699 /* Assets.xcassets */; };
 		D6E7BFE0293AAD81007A9699 /* SampleStandaloneWatchApp Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = D6E7BFDF293AAD81007A9699 /* SampleStandaloneWatchApp Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D6E7BFE5293AAD81007A9699 /* SampleStandaloneWatchAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6E7BFE4293AAD81007A9699 /* SampleStandaloneWatchAppApp.swift */; };
 		D6E7BFE7293AAD81007A9699 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6E7BFE6293AAD81007A9699 /* ContentView.swift */; };
-		D6E7BFEC293AAD83007A9699 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D6E7BFEB293AAD83007A9699 /* Preview Assets.xcassets */; };
 		D6E7BFF8293AB0EF007A9699 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = D6E7BFF7293AB0EF007A9699 /* FirebaseMessaging */; };
 /* End PBXBuildFile section */
 
@@ -41,7 +41,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		D6B319FF293FE3B90008A527 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ../Shared/Assets.xcassets; sourceTree = "<group>"; };
 		D6B31A01293FE3EA0008A527 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../Shared/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		D6E7BFD9293AAD81007A9699 /* SampleStandaloneWatchApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SampleStandaloneWatchApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D6E7BFDF293AAD81007A9699 /* SampleStandaloneWatchApp Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SampleStandaloneWatchApp Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -70,7 +69,6 @@
 			isa = PBXGroup;
 			children = (
 				D6B31A01293FE3EA0008A527 /* GoogleService-Info.plist */,
-				D6B319FF293FE3B90008A527 /* Assets.xcassets */,
 				D6E7BFE3293AAD81007A9699 /* SampleStandaloneWatchAppWatchApp */,
 				D6E7BFDA293AAD81007A9699 /* Products */,
 			);
@@ -199,9 +197,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D6B31A05293FE9FF0008A527 /* Assets.xcassets in Resources */,
+				D6B31A03293FE99F0008A527 /* Preview Assets.xcassets in Resources */,
 				D6B31A02293FE3EA0008A527 /* GoogleService-Info.plist in Resources */,
-				D6B31A00293FE3B90008A527 /* Assets.xcassets in Resources */,
-				D6E7BFEC293AAD83007A9699 /* Preview Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
