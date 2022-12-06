@@ -1,16 +1,15 @@
-use_frameworks!
+use_frameworks! :linkage => :static
 
 source 'https://github.com/firebase/SpecsDev.git'
 source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
 
-target 'SampleStandaloneWatchApp' do
+target 'SampleStandaloneWatchApp Watch App' do
   platform :watchos, '9.0'
 
   pod 'FirebaseCore', :path => '../../../'
-  pod 'FirebaseCoreInternal', :path => '../../../'
   pod 'FirebaseMessaging', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
-  pod 'FirebaseAnalytics', '>= 9.0.0'
+  pod 'GoogleDataTransport'
 
 end
