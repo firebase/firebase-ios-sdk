@@ -16,6 +16,7 @@
 import Foundation
 
 @_implementationOnly import GoogleDataTransport
+@_implementationOnly import GoogleUtilities
 
 ///
 /// SessionStartEvent is responsible for:
@@ -45,8 +46,12 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
 
     // `which_platform_info` tells nanopb which oneof we're choosing to fill in for our proto
     proto.application_info.which_platform_info = FIRSESGetAppleApplicationInfoTag()
-    proto.application_info.apple_app_info.bundle_short_version = makeProtoString(appInfo.bundleID)
-//    proto.application_info.apple_app_info.network_connection_info
+    proto.application_info.apple_app_info
+      .bundle_short_version = makeProtoString(appInfo.appDisplayVersion)
+    proto.application_info.apple_app_info.network_connection_info
+      .network_type = convertNetworkType(networkType: appInfo.networkInfo.networkType)
+    proto.application_info.apple_app_info.network_connection_info
+      .mobile_subtype = convertMobileSubtype(mobileSubtype: appInfo.networkInfo.mobileSubtype)
     proto.application_info.apple_app_info.os_name = convertOSName(osName: appInfo.osName)
     proto.application_info.apple_app_info.mcc_mnc = makeProtoString(appInfo.mccMNC)
 
@@ -56,8 +61,8 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
       .performance = firebase_appquality_sessions_DataCollectionState_COLLECTION_UNKNOWN
   }
 
-  func setInstallationID(identifiers: IdentifierProvider) {
-    proto.session_data.firebase_installation_id = makeProtoString(identifiers.installationID)
+  func setInstallationID(installationId: String) {
+    proto.session_data.firebase_installation_id = makeProtoString(installationId)
   }
 
   func setSamplingRate(samplingRate: Double) {
@@ -146,5 +151,66 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     case .autopush:
       return firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_AUTOPUSH
     }
+  }
+
+  private func convertNetworkType(networkType: GULNetworkType)
+    -> firebase_appquality_sessions_NetworkConnectionInfo_NetworkType {
+    switch networkType {
+    case .WIFI:
+      return firebase_appquality_sessions_NetworkConnectionInfo_NetworkType_WIFI
+    case .mobile:
+      return firebase_appquality_sessions_NetworkConnectionInfo_NetworkType_MOBILE
+    case .none:
+      return firebase_appquality_sessions_NetworkConnectionInfo_NetworkType_DUMMY
+    @unknown default:
+      return firebase_appquality_sessions_NetworkConnectionInfo_NetworkType_DUMMY
+    }
+  }
+
+  private func convertMobileSubtype(mobileSubtype: String)
+    -> firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype {
+    var subtype: firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype
+
+    #if os(iOS) && !targetEnvironment(macCatalyst)
+      switch mobileSubtype {
+      case CTRadioAccessTechnologyGPRS:
+        subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_GPRS
+      case CTRadioAccessTechnologyEdge:
+        subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EDGE
+      case CTRadioAccessTechnologyWCDMA:
+        subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_CDMA
+      case CTRadioAccessTechnologyCDMA1x:
+        subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_CDMA
+      case CTRadioAccessTechnologyHSDPA:
+        subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSDPA
+      case CTRadioAccessTechnologyHSUPA:
+        subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSUPA
+      case CTRadioAccessTechnologyCDMAEVDORev0:
+        subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_0
+      case CTRadioAccessTechnologyCDMAEVDORevA:
+        subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_A
+      case CTRadioAccessTechnologyCDMAEVDORevB:
+        subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_B
+      case CTRadioAccessTechnologyeHRPD:
+        subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EHRPD
+      case CTRadioAccessTechnologyLTE:
+        subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_LTE
+      default:
+        subtype =
+          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE
+      }
+
+      if #available(iOS 14.1, *) {
+        if mobileSubtype == CTRadioAccessTechnologyNRNSA || mobileSubtype ==
+          CTRadioAccessTechnologyNR {
+          subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_NR
+        }
+      }
+    #else
+      subtype =
+        firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE
+    #endif
+
+    return subtype
   }
 }

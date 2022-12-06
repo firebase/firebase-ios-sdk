@@ -29,9 +29,6 @@ protocol ApplicationInfoProtocol {
   /// Google App ID / GMP App ID
   var appID: String { get }
 
-  /// App's bundle ID / bundle short version
-  var bundleID: String { get }
-
   /// Version of the Firebase SDK
   var sdkVersion: String { get }
 
@@ -44,6 +41,9 @@ protocol ApplicationInfoProtocol {
   /// Validated Mobile Country Code and Mobile Network Code
   var mccMNC: String { get }
 
+  /// Network information for the application
+  var networkInfo: NetworkInfoProtocol { get }
+
   /// Development environment on which the application is running.
   var environment: DevEnvironment { get }
 
@@ -55,18 +55,14 @@ protocol ApplicationInfoProtocol {
 class ApplicationInfo: ApplicationInfoProtocol {
   let appID: String
 
-  private let networkInfo: NetworkInfoProtocol
+  private let networkInformation: NetworkInfoProtocol
   private let envParams: [String: String]
 
   init(appID: String, networkInfo: NetworkInfoProtocol = NetworkInfo(),
        envParams: [String: String] = ProcessInfo.processInfo.environment) {
     self.appID = appID
-    self.networkInfo = networkInfo
+    networkInformation = networkInfo
     self.envParams = envParams
-  }
-
-  var bundleID: String {
-    return Bundle.main.bundleIdentifier ?? ""
   }
 
   var sdkVersion: String {
@@ -78,15 +74,15 @@ class ApplicationInfo: ApplicationInfoProtocol {
   }
 
   var deviceModel: String {
-    #if targetEnvironment(simulator)
-      return GULAppEnvironmentUtil.deviceSimulatorModel() ?? ""
-    #else
-      return GULAppEnvironmentUtil.deviceModel() ?? ""
-    #endif // targetEnvironment(simulator)
+    return GULAppEnvironmentUtil.deviceSimulatorModel() ?? ""
   }
 
   var mccMNC: String {
     return FIRSESValidateMccMnc(networkInfo.mobileCountryCode, networkInfo.mobileNetworkCode) ?? ""
+  }
+
+  var networkInfo: NetworkInfoProtocol {
+    return networkInformation
   }
 
   var environment: DevEnvironment {
