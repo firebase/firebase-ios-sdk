@@ -1,0 +1,16 @@
+use_frameworks!
+
+source 'https://github.com/firebase/SpecsDev.git'
+source 'https://github.com/firebase/SpecsStaging.git'
+source 'https://cdn.cocoapods.org/'
+
+target 'SampleStandaloneWatchApp' do
+  platform :watchos, '9.0'
+
+  pod 'FirebaseCore', :path => '../../../'
+  pod 'FirebaseCoreInternal', :path => '../../../'
+  pod 'FirebaseMessaging', :path => '../../../'
+  pod 'FirebaseInstallations', :path => '../../../'
+  pod 'FirebaseAnalytics', '>= 9.0.0'
+
+end
