@@ -229,3 +229,27 @@ jobs:
       run: scripts/install_prereqs.sh SwiftUISample iOS
     - name: Build
       run: ([ -z $plist_secret ] || scripts/build.sh SwiftUISample iOS)
+
+  messaging-watchos-standalone-sample-build-test:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    runs-on: macos-12
+    steps:
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+      with:
+        cache_key: ${{ matrix.os }}
+    - uses: ruby/setup-ruby@v1
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Install Secret GoogleService-Info.plist
+      run: |
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/messaging-sample-plist.gpg \
+          FirebaseMessaging/Apps/Shared/GoogleService-Info.plist "$plist_secret"
+    - name: Prereqs
+      run: scripts/install_prereqs.sh MessagingSampleStandaloneWatchApp watchOS
+    - name: Build
+      run: ([ -z $plist_secret ] || scripts/build.sh MessagingSampleStandaloneWatchApp watchOS)
+
