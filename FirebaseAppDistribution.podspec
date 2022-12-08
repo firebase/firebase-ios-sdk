@@ -35,7 +35,7 @@ iOS SDK for App Distribution for Firebase.
   s.dependency 'GoogleUtilities/UserDefaults', '~> 7.8'
   s.dependency 'FirebaseInstallations', '~> 10.0'
   s.dependency 'GoogleDataTransport', '~> 9.2'
-  s.dependency 'FirebaseAppDistributionInternal', , :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'td/in-app-feedback'
+  s.dependency 'FirebaseAppDistributionInternal', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'td/in-app-feedback'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
