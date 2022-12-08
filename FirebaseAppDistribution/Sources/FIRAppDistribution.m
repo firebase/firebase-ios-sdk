@@ -342,12 +342,14 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 - (void)startFeedback:(NSString *)infoText {
   UIViewController *feedbackViewController = [FIRFADInAppFeedback feedbackViewController];
   feedbackViewController.modalPresentationStyle = UIModalPresentationFullScreen;
+  [[self uiService] initializeUIState];
   [self.uiService.window.rootViewController presentViewController:feedbackViewController animated:YES completion:nil];
 }
 
 - (void)startFeedback:(NSString *)infoText withImage:(UIImage *)image {
   UIViewController *feedbackViewController = [FIRFADInAppFeedback feedbackViewController];
   feedbackViewController.modalPresentationStyle = UIModalPresentationFullScreen;
+  [[self uiService] initializeUIState];
   [self.uiService.window.rootViewController presentViewController:feedbackViewController animated:YES completion:nil];
 }
 
@@ -355,6 +357,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 - (void)startFeedbackOnScreenshot:(NSString *)infoText {
   UIViewController *feedbackViewController = [FIRFADInAppFeedback feedbackViewController];
   feedbackViewController.modalPresentationStyle = UIModalPresentationFullScreen;
+  [[self uiService] initializeUIState];
   [self.uiService.window.rootViewController presentViewController:feedbackViewController animated:YES completion:nil];
 }
 
