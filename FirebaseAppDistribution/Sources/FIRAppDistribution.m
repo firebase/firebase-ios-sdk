@@ -25,6 +25,8 @@
 #import "FirebaseAppDistribution/Sources/Private/FIRAppDistribution.h"
 #import "FirebaseAppDistribution/Sources/Private/FIRAppDistributionRelease.h"
 
+@import FirebaseAppDistributionInternal;
+
 /// Empty protocol to register with FirebaseCore's component system.
 @protocol FIRAppDistributionInstanceProvider <NSObject>
 @end
@@ -336,6 +338,26 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 
   return codeHash && [codeHash isEqualToString:[machO codeHash]];
 }
+
+- (void)startFeedback:(NSString *)infoText {
+  UIViewController *feedbackViewController = [FIRFADInAppFeedback feedbackViewController];
+  feedbackViewController.modalPresentationStyle = UIModalPresentationFullScreen;
+  [self.uiService.window.rootViewController presentViewController:feedbackViewController animated:YES completion:nil];
+}
+
+- (void)startFeedback:(NSString *)infoText withImage:(UIImage *)image {
+  UIViewController *feedbackViewController = [FIRFADInAppFeedback feedbackViewController];
+  feedbackViewController.modalPresentationStyle = UIModalPresentationFullScreen;
+  [self.uiService.window.rootViewController presentViewController:feedbackViewController animated:YES completion:nil];
+}
+
+
+- (void)startFeedbackOnScreenshot:(NSString *)infoText {
+  UIViewController *feedbackViewController = [FIRFADInAppFeedback feedbackViewController];
+  feedbackViewController.modalPresentationStyle = UIModalPresentationFullScreen;
+  [self.uiService.window.rootViewController presentViewController:feedbackViewController animated:YES completion:nil];
+}
+
 
 #pragma mark - Swizzling disabled
 

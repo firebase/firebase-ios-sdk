@@ -1,10 +1,9 @@
 import Foundation
 import UIKit
 
-class InAppFeedback {
-  static let shared = InAppFeedback()
+@objc(FIRFADInAppFeedback) open class InAppFeedback: NSObject {
   
-  func feedbackViewController() -> UIViewController {
+  @objc(feedbackViewController) static func feedbackViewController() -> UIViewController {
     let resourceBundle = Bundle(identifier: "main")
     let storyboard = UIStoryboard(name: "FIRAppDistributionInternalStoryboard", bundle: resourceBundle)
     let vc = storyboard.instantiateViewController(withIdentifier: "fir-ad-iaf")

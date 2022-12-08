@@ -57,12 +57,25 @@ NS_SWIFT_NAME(AppDistribution)
 - (void)signOutTester;
 
 /**
+ *  Start a modal view controller to collect and submit feedback from the tester and attach the image that's provided.
+ */
+- (void)startFeedback:(NSString *)infoText withImage:(UIImage *)image;
+
+/**
+ *  When a tester takes a screenshot, request access to it, and start a modal view controller to collect and submit feedback.
+ *
+ *  Note: Using this method requires you to add `NSPhotoLibraryUsageDescription` to your Info.plist, otherwise the app will crash.
+ */
+- (void)startFeedbackOnScreenshot:(NSString *)infoText;
+
+/**
  * Handle an App Distribution URL, for example a link to download a new pre-release version.
  * Call this method in your app delegate's `openURL` implementation if swizzling is disabled.
  */
 - (BOOL)application:(UIApplication *)application
             openURL:(NSURL *)url
             options:(NSDictionary<NSString *, id> *)options;
+
 
 /**
  * Accesses the singleton App Distribution instance.
