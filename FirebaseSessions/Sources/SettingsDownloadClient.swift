@@ -18,7 +18,7 @@ import Foundation
 @_implementationOnly import GoogleUtilities
 
 protocol SettingsDownloadClient {
-  func fetch(completion block: @escaping (Result<[String: Any], Error>) -> Void)
+  func fetch(completion: @escaping (Result<[String: Any], Error>) -> Void)
 }
 
 class SettingsDownloader: SettingsDownloadClient {
