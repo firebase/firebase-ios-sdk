@@ -22,7 +22,6 @@ extension ApplicationInfoProtocol {
 
 /// Provides the APIs to access Settings and their configuration values
 protocol SettingsProtocol {
-  func isCacheExpired(currentTime: Date) -> Bool
   func fetchAndCacheSettings(currentTime: Date)
   var sessionsEnabled: Bool { get }
   var samplingRate: Double { get }
@@ -33,28 +32,29 @@ class Settings: SettingsProtocol {
   private static let cacheDurationSecondsDefault: TimeInterval = 60 * 60
   private static let flagSessionsEnabled = "sessions_enabled"
   private static let flagSamplingRate = "sampling_rate"
-  private static let flagSessionTimeout = "session_timeout"
+  private static let flagSessionTimeout = "session_timeout_seconds"
   private static let flagCacheDuration = "cache_duration"
+  private static let flagSessionsCache = "app_quality"
   private let appInfo: ApplicationInfoProtocol
   private let downloader: SettingsDownloadClient
   private var cache: SettingsCacheClient
 
   var sessionsEnabled: Bool {
-    guard let enabled = cache.cacheContent?[Settings.flagSessionsEnabled] as? Bool else {
+    guard let enabled = sessionsCache?[Settings.flagSessionsEnabled] as? Bool else {
       return true
     }
     return enabled
   }
 
   var samplingRate: Double {
-    guard let rate = cache.cacheContent?[Settings.flagSamplingRate] as? Double else {
+    guard let rate = sessionsCache?[Settings.flagSamplingRate] as? Double else {
       return 1.0
     }
     return rate
   }
 
   var sessionTimeout: TimeInterval {
-    guard let timeout = cache.cacheContent?[Settings.flagSessionTimeout] as? Double else {
+    guard let timeout = sessionsCache?[Settings.flagSessionTimeout] as? Double else {
       return 30 * 60
     }
     return timeout
@@ -67,6 +67,10 @@ class Settings: SettingsProtocol {
     return duration
   }
 
+  private var sessionsCache: [String: Any]? {
+    return cache.cacheContent?[Settings.flagSessionsCache] as? [String: Any]
+  }
+
   init(appInfo: ApplicationInfoProtocol,
        downloader: SettingsDownloadClient,
        cache: SettingsCacheClient = SettingsCache()) {
@@ -76,7 +80,7 @@ class Settings: SettingsProtocol {
   }
 
   func fetchAndCacheSettings(currentTime: Date) {
-    guard !isCacheExpired(currentTime: currentTime) else {
+    guard isCacheExpired(currentTime: currentTime) else {
       return
     }
 
@@ -90,12 +94,12 @@ class Settings: SettingsProtocol {
           appVersion: self.appInfo.synthesizedVersion
         )
       case let .failure(error):
-        Logger.logError("[Settings] Fetch failed with error: \(error)")
+        Logger.logError("[Settings] Fetching newest settings failed with error: \(error)")
       }
     }
   }
 
-  func isCacheExpired(currentTime: Date) -> Bool {
+  private func isCacheExpired(currentTime: Date) -> Bool {
     guard cache.cacheContent != nil else {
       cache.removeCache()
       return true

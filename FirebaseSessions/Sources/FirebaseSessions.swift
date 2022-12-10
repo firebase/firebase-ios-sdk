@@ -63,7 +63,10 @@ protocol SessionsProvider {
     )
     let initiator = SessionInitiator()
     let appInfo = ApplicationInfo(appID: appID)
-    let settings = Settings(appInfo: appInfo)
+    let settings = Settings(
+      appInfo: appInfo,
+      downloader: SettingsDownloader(appInfo: appInfo, identifiers: identifiers)
+    )
 
     self.init(appID: appID,
               identifiers: identifiers,
@@ -85,6 +88,8 @@ protocol SessionsProvider {
     self.settings = settings
 
     super.init()
+
+    self.settings.fetchAndCacheSettings(currentTime: Date())
 
     self.initiator.beginListening {
       self.identifiers.generateNewSessionID()
