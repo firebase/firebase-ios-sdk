@@ -24,10 +24,13 @@ protocol SettingsDownloadClient {
 class SettingsDownloader: SettingsDownloadClient {
   private let appInfo: ApplicationInfoProtocol
   private let identifiers: IdentifierProvider
+  private let installations: InstallationsProtocol
 
-  init(appInfo: ApplicationInfoProtocol, identifiers: IdentifierProvider) {
+  init(appInfo: ApplicationInfoProtocol, identifiers: IdentifierProvider,
+       installations: InstallationsProtocol) {
     self.appInfo = appInfo
     self.identifiers = identifiers
+    self.installations = installations
   }
 
   func fetch(completion: @escaping (Result<[String: Any], Error>) -> Void) {
@@ -36,22 +39,26 @@ class SettingsDownloader: SettingsDownloadClient {
       return
     }
 
-    let request = buildRequest(url: url)
-
-    let task = URLSession.shared.dataTask(with: request) { data, response, error in
-      if let data = data {
-        if let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
-          completion(.success(dict))
-        } else {
-          completion(.failure(FirebaseSessionsError
-              .SettingsError("Failed to parse JSON to dictionary")))
+    buildRequest(url: url) { result in
+      switch result {
+      case let .success(request):
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+          if let data = data {
+            if let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+              completion(.success(dict))
+            } else {
+              completion(.failure(FirebaseSessionsError
+                  .SettingsError("Failed to parse JSON to dictionary")))
+            }
+          } else if let error = error {
+            completion(.failure(FirebaseSessionsError.SettingsError(error.localizedDescription)))
+          }
         }
-      } else if error != nil {
-        completion(.failure(FirebaseSessionsError
-            .SettingsError("Network request failed with error \(String(describing: error))")))
+        task.resume()
+      case let .failure(error):
+        completion(.failure(FirebaseSessionsError.SettingsError(error.localizedDescription)))
       }
     }
-    task.resume()
   }
 
   private var url: URL? {
@@ -66,23 +73,27 @@ class SettingsDownloader: SettingsDownloadClient {
     return components.url
   }
 
-  private func buildRequest(url: URL) -> URLRequest {
-    var request = URLRequest(url: url)
-    request.setValue("application/json", forHTTPHeaderField: "Accept")
-    request.setValue(
-      identifiers.installationID,
-      forHTTPHeaderField: "X-Crashlytics-Installation-ID"
-    )
-    request.setValue(appInfo.deviceModel, forHTTPHeaderField: "X-Crashlytics-Device-Model")
-    request.setValue(
-      FIRSESGetSysctlEntry("kern.osversion"),
-      forHTTPHeaderField: "X-Crashlytics-OS-Build-Version"
-    )
-    request.setValue(
-      GULAppEnvironmentUtil.systemVersion(),
-      forHTTPHeaderField: "X-Crashlytics-OS-Display-Version"
-    )
-    request.setValue(appInfo.sdkVersion, forHTTPHeaderField: "X-Crashlytics-API-Client-Version")
-    return request
+  private func buildRequest(url: URL, completion: @escaping (Result<URLRequest, Error>) -> Void) {
+    installations.installationID { [self] result in
+      switch result {
+      case let .success(fiid):
+        var request = URLRequest(url: url)
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue(fiid, forHTTPHeaderField: "X-Crashlytics-Installation-ID")
+        request.setValue(appInfo.deviceModel, forHTTPHeaderField: "X-Crashlytics-Device-Model")
+        request.setValue(
+          FIRSESGetSysctlEntry("kern.osversion"),
+          forHTTPHeaderField: "X-Crashlytics-OS-Build-Version"
+        )
+        request.setValue(
+          GULAppEnvironmentUtil.systemVersion(),
+          forHTTPHeaderField: "X-Crashlytics-OS-Display-Version"
+        )
+        request.setValue(appInfo.sdkVersion, forHTTPHeaderField: "X-Crashlytics-API-Client-Version")
+        completion(.success(request))
+      case let .failure(error):
+        completion(.failure(error))
+      }
+    }
   }
 }

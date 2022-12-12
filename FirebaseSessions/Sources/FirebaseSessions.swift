@@ -65,7 +65,11 @@ protocol SessionsProvider {
     let appInfo = ApplicationInfo(appID: appID)
     let settings = Settings(
       appInfo: appInfo,
-      downloader: SettingsDownloader(appInfo: appInfo, identifiers: identifiers)
+      downloader: SettingsDownloader(
+        appInfo: appInfo,
+        identifiers: identifiers,
+        installations: installations
+      )
     )
 
     self.init(appID: appID,
