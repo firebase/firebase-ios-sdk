@@ -158,7 +158,7 @@ pb_size_t FIRSESGetAppleApplicationInfoTag(void) {
   return firebase_appquality_sessions_ApplicationInfo_apple_app_info_tag;
 }
 
-NSString *FIRSESGetSysctlEntry(const char *sysctlKey) {
+NSString *_Nullable FIRSESGetSysctlEntry(const char *sysctlKey) {
   static NSString *entryValue;
   size_t size;
   sysctlbyname(sysctlKey, NULL, &size, NULL, 0);
