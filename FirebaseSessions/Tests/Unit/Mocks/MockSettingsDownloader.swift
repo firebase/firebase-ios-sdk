@@ -13,7 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 import Foundation
 
 @testable import FirebaseSessions
@@ -21,12 +20,12 @@ import Foundation
 class MockSettingsDownloader: SettingsDownloadClient {
   public var shouldSucceed: Bool = true
   public var successResponse: [String: Any]
-  
+
   init(successResponse: [String: Any]) {
     self.successResponse = successResponse
   }
-  
-  func fetch(completion: @escaping (Result<[String : Any], Error>) -> Void) {
+
+  func fetch(completion: @escaping (Result<[String: Any], Error>) -> Void) {
     if shouldSucceed {
       completion(.success(successResponse))
     } else {
