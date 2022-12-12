@@ -22,6 +22,7 @@ extension ApplicationInfoProtocol {
 
 /// Provides the APIs to access Settings and their configuration values
 protocol SettingsProtocol {
+  /// Attempts to fetch settings only if the current cache is expired
   func fetchAndCacheSettings(currentTime: Date)
   var sessionsEnabled: Bool { get }
   var samplingRate: Double { get }
@@ -80,6 +81,7 @@ class Settings: SettingsProtocol {
   }
 
   func fetchAndCacheSettings(currentTime: Date) {
+    // Only fetch if cache is expired, otherwise do nothing
     guard isCacheExpired(currentTime: currentTime) else {
       return
     }
