@@ -65,10 +65,10 @@ class SettingsDownloader: SettingsDownloadClient {
     var components = URLComponents()
     components.scheme = "https"
     components.host = "firebase-settings.crashlytics.com"
-    components.path = "/spi/v2/platforms/android/gmp/\(appInfo.appID)/settings"
+    components.path = "/spi/v2/platforms/\(appInfo.osName)/gmp/\(appInfo.appID)/settings"
     components.queryItems = [
       URLQueryItem(name: "build_version", value: appInfo.appBuildVersion),
-      URLQueryItem(name: "display_version", value: appInfo.appDisplayVersion),
+      URLQueryItem(name: "display_version", value: appInfo.appDisplayVersion)
     ]
     return components.url
   }
@@ -81,14 +81,8 @@ class SettingsDownloader: SettingsDownloadClient {
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue(fiid, forHTTPHeaderField: "X-Crashlytics-Installation-ID")
         request.setValue(appInfo.deviceModel, forHTTPHeaderField: "X-Crashlytics-Device-Model")
-        request.setValue(
-          FIRSESGetSysctlEntry("kern.osversion"),
-          forHTTPHeaderField: "X-Crashlytics-OS-Build-Version"
-        )
-        request.setValue(
-          GULAppEnvironmentUtil.systemVersion(),
-          forHTTPHeaderField: "X-Crashlytics-OS-Display-Version"
-        )
+        request.setValue(appInfo.osBuildVersion, forHTTPHeaderField: "X-Crashlytics-OS-Build-Version")
+        request.setValue(appInfo.osDisplayVersion, forHTTPHeaderField: "X-Crashlytics-OS-Display-Version")
         request.setValue(appInfo.sdkVersion, forHTTPHeaderField: "X-Crashlytics-API-Client-Version")
         completion(.success(request))
       case let .failure(error):
