@@ -83,6 +83,7 @@ class Settings: SettingsProtocol {
   func fetchAndCacheSettings(currentTime: Date) {
     // Only fetch if cache is expired, otherwise do nothing
     guard isCacheExpired(currentTime: currentTime) else {
+      Logger.logDebug("[Settings] Cache is not expired, no fetch will be made.")
       return
     }
 
