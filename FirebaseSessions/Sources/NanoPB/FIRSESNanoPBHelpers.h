@@ -82,7 +82,8 @@ BOOL FIRSESIsPBDataEqual(pb_bytes_array_t* _Nullable pbArray, NSData* _Nullable 
 /// Swift does not support c-style macros.
 pb_size_t FIRSESGetAppleApplicationInfoTag(void);
 
-/// Returns sysctl entry, useful for obtaining OS build version from the kernel.
+/// Returns sysctl entry, useful for obtaining OS build version from the kernel. Copied from a
+/// private method in GULAppEnvironmentUtil.
 NSString* _Nullable FIRSESGetSysctlEntry(const char* sysctlKey);
 
 /// Returns the validated MccMnc if it is available, or nil if the device does not support telephone
