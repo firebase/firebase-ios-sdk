@@ -39,9 +39,10 @@ class SettingsDownloader: SettingsDownloadClient {
       return
     }
 
-    buildRequest(url: validURL) { result in
+    installations.installationID { result in
       switch result {
-      case let .success(request):
+      case let .success(fiid):
+        let request = self.buildRequest(url: validURL, fiid: fiid)
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
           if let data = data {
             if let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
@@ -74,27 +75,20 @@ class SettingsDownloader: SettingsDownloadClient {
     return components.url
   }
 
-  private func buildRequest(url: URL, completion: @escaping (Result<URLRequest, Error>) -> Void) {
-    installations.installationID { [self] result in
-      switch result {
-      case let .success(fiid):
-        var request = URLRequest(url: url)
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
-        request.setValue(fiid, forHTTPHeaderField: "X-Crashlytics-Installation-ID")
-        request.setValue(appInfo.deviceModel, forHTTPHeaderField: "X-Crashlytics-Device-Model")
-        request.setValue(
-          appInfo.osBuildVersion,
-          forHTTPHeaderField: "X-Crashlytics-OS-Build-Version"
-        )
-        request.setValue(
-          appInfo.osDisplayVersion,
-          forHTTPHeaderField: "X-Crashlytics-OS-Display-Version"
-        )
-        request.setValue(appInfo.sdkVersion, forHTTPHeaderField: "X-Crashlytics-API-Client-Version")
-        completion(.success(request))
-      case let .failure(error):
-        completion(.failure(error))
-      }
-    }
+  private func buildRequest(url: URL, fiid: String) -> URLRequest {
+    var request = URLRequest(url: url)
+    request.setValue("application/json", forHTTPHeaderField: "Accept")
+    request.setValue(fiid, forHTTPHeaderField: "X-Crashlytics-Installation-ID")
+    request.setValue(appInfo.deviceModel, forHTTPHeaderField: "X-Crashlytics-Device-Model")
+    request.setValue(
+      appInfo.osBuildVersion,
+      forHTTPHeaderField: "X-Crashlytics-OS-Build-Version"
+    )
+    request.setValue(
+      appInfo.osDisplayVersion,
+      forHTTPHeaderField: "X-Crashlytics-OS-Display-Version"
+    )
+    request.setValue(appInfo.sdkVersion, forHTTPHeaderField: "X-Crashlytics-API-Client-Version")
+    return request
   }
 }

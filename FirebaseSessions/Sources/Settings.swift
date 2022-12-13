@@ -20,6 +20,12 @@ extension ApplicationInfoProtocol {
   var synthesizedVersion: String { return "\(appDisplayVersion) (\(appBuildVersion))" }
 }
 
+extension SettingsProtocol {
+  func fetchAndCacheSettings() {
+    return fetchAndCacheSettings(currentTime: Date())
+  }
+}
+
 /// Provides the APIs to access Settings and their configuration values
 protocol SettingsProtocol {
   /// Attempts to fetch settings only if the current cache is expired

@@ -35,25 +35,28 @@ protocol SettingsCacheClient {
 /// SettingsCache uses UserDefaults to store Settings on-disk, but also directly query UserDefaults when accessing Settings values during run-time. This is because UserDefaults encapsulates both in-memory and persisted-on-disk storage, allowing fast synchronous access in-app while hiding away the complexity of managing persistence asynchronously.
 class SettingsCache: SettingsCacheClient {
   private static let settingsVersion: Int = 1
-  private static let content: String = "firebase-sessions-settings"
-  private static let key: String = "firebase-sessions-cache-key"
+  private enum UserDefaultsKeys {
+    static let forContent = "firebase-sessions-settings"
+    static let forCacheKey = "firebase-sessions-cache-key"
+  }
+
   /// UserDefaults holds values in memory, making access O(1) and synchronous within the app, while abstracting away async disk IO.
   private let cache: UserDefaults = .standard
 
   /// Converting to dictionary is O(1) because object conversion is O(1)
   var cacheContent: [String: Any] {
     get {
-      return cache.dictionary(forKey: SettingsCache.content) ?? [:]
+      return cache.dictionary(forKey: UserDefaultsKeys.forContent) ?? [:]
     }
     set {
-      cache.set(newValue, forKey: SettingsCache.content)
+      cache.set(newValue, forKey: UserDefaultsKeys.forContent)
     }
   }
 
   /// Casting to Codable from Data is O(n)
   var cacheKey: CacheKey? {
     get {
-      if let data = cache.data(forKey: SettingsCache.key) {
+      if let data = cache.data(forKey: UserDefaultsKeys.forCacheKey) {
         do {
           return try JSONDecoder().decode(CacheKey.self, from: data)
         } catch {
@@ -64,7 +67,7 @@ class SettingsCache: SettingsCacheClient {
     }
     set {
       do {
-        cache.set(try JSONEncoder().encode(newValue), forKey: SettingsCache.key)
+        cache.set(try JSONEncoder().encode(newValue), forKey: UserDefaultsKeys.forCacheKey)
       } catch {
         Logger.logError("[Settings] Encoding CacheKey failed with error: \(error)")
       }
@@ -73,7 +76,7 @@ class SettingsCache: SettingsCacheClient {
 
   /// Removes stored cache
   func removeCache() {
-    cache.set(nil, forKey: SettingsCache.content)
-    cache.set(nil, forKey: SettingsCache.key)
+    cache.set(nil, forKey: UserDefaultsKeys.forContent)
+    cache.set(nil, forKey: UserDefaultsKeys.forCacheKey)
   }
 }

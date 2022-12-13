@@ -46,7 +46,7 @@ class SettingsTests: XCTestCase {
     appInfo = MockApplicationInfo()
     downloader = MockSettingsDownloader(successResponse: validSettings)
     cache = SettingsCache()
-    cache.removeCache() // just resintantiating cache isn't enough because of persistence
+    cache.removeCache() // just reinstantiating cache isn't enough because of persistence
     settings = Settings(appInfo: appInfo, downloader: downloader, cache: cache)
   }
 
@@ -76,6 +76,9 @@ class SettingsTests: XCTestCase {
     appInfo.mockAllInfo()
     downloader.shouldSucceed = true
     settings.fetchAndCacheSettings(currentTime: date)
+    XCTAssertFalse(settings.sessionsEnabled)
+    XCTAssertEqual(settings.samplingRate, 0.5)
+    XCTAssertEqual(settings.sessionTimeout, 10)
 
     // When
     // time passed = 5, TTL = 10, time passed < TTL
@@ -155,7 +158,7 @@ class SettingsTests: XCTestCase {
     XCTAssertEqual(settings.sessionTimeout, 20)
   }
 
-  func test_cacheKeyGoogleAppIDChanged_fetchNewSettingsOrUseDefaults() {
+  func test_cacheKeyGoogleAppIDChanged_fetchNewSettingsOrReturnDefaults() {
     // Given
     appInfo.mockAllInfo()
     downloader.shouldSucceed = true
@@ -188,7 +191,7 @@ class SettingsTests: XCTestCase {
     XCTAssertEqual(settings.sessionTimeout, 20)
   }
 
-  func test_corruptedCache_returnsDefaultSettings() {
+  func test_corruptedCache_fetchNewSettingsOrReturnDefaults() {
     // Given
     appInfo.mockAllInfo()
     downloader.shouldSucceed = true
@@ -218,7 +221,7 @@ class SettingsTests: XCTestCase {
     XCTAssertEqual(settings.sessionTimeout, 20)
   }
 
-  func test_corruptedCacheKey_returnsDefaultSettings() {
+  func test_corruptedCacheKey_fetchNewSettingsOrReturnDefaults() {
     // Given
     appInfo.mockAllInfo()
     downloader.shouldSucceed = true

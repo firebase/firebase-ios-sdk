@@ -93,7 +93,7 @@ protocol SessionsProvider {
 
     super.init()
 
-    self.settings.fetchAndCacheSettings(currentTime: Date())
+    self.settings.fetchAndCacheSettings()
 
     self.initiator.beginListening {
       self.identifiers.generateNewSessionID()
