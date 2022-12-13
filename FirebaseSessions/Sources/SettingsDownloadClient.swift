@@ -54,6 +54,7 @@ class SettingsDownloader: SettingsDownloadClient {
             completion(.failure(FirebaseSessionsError.SettingsError(error.localizedDescription)))
           }
         }
+        // Start the task that sends the network request
         task.resume()
       case let .failure(error):
         completion(.failure(FirebaseSessionsError.SettingsError(error.localizedDescription)))
