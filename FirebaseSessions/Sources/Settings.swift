@@ -41,35 +41,35 @@ class Settings: SettingsProtocol {
   private var cache: SettingsCacheClient
 
   var sessionsEnabled: Bool {
-    guard let enabled = sessionsCache?[Settings.flagSessionsEnabled] as? Bool else {
+    guard let enabled = sessionsCache[Settings.flagSessionsEnabled] as? Bool else {
       return true
     }
     return enabled
   }
 
   var samplingRate: Double {
-    guard let rate = sessionsCache?[Settings.flagSamplingRate] as? Double else {
+    guard let rate = sessionsCache[Settings.flagSamplingRate] as? Double else {
       return 1.0
     }
     return rate
   }
 
   var sessionTimeout: TimeInterval {
-    guard let timeout = sessionsCache?[Settings.flagSessionTimeout] as? Double else {
+    guard let timeout = sessionsCache[Settings.flagSessionTimeout] as? Double else {
       return 30 * 60
     }
     return timeout
   }
 
   private var cacheDurationSeconds: TimeInterval {
-    guard let duration = cache.cacheContent?[Settings.flagCacheDuration] as? Double else {
+    guard let duration = cache.cacheContent[Settings.flagCacheDuration] as? Double else {
       return Settings.cacheDurationSecondsDefault
     }
     return duration
   }
 
-  private var sessionsCache: [String: Any]? {
-    return cache.cacheContent?[Settings.flagSessionsCache] as? [String: Any]
+  private var sessionsCache: [String: Any] {
+    return cache.cacheContent[Settings.flagSessionsCache] as? [String: Any] ?? [:]
   }
 
   init(appInfo: ApplicationInfoProtocol,
@@ -103,7 +103,7 @@ class Settings: SettingsProtocol {
   }
 
   private func isCacheExpired(currentTime: Date) -> Bool {
-    guard cache.cacheContent != nil else {
+    guard !cache.cacheContent.isEmpty else {
       cache.removeCache()
       return true
     }

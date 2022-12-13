@@ -53,7 +53,7 @@ class SettingsTests: XCTestCase {
   func test_noCacheSaved_returnsDefaultSettings() {
     downloader.shouldSucceed = false
     settings.fetchAndCacheSettings(currentTime: Date.distantFuture)
-    XCTAssertNil(cache.cacheContent)
+    XCTAssertTrue(cache.cacheContent.isEmpty)
     XCTAssertNil(cache.cacheKey)
     XCTAssertTrue(settings.sessionsEnabled)
     XCTAssertEqual(settings.samplingRate, 1)

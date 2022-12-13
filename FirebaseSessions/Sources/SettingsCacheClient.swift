@@ -24,8 +24,8 @@ struct CacheKey: Codable {
 
 /// SettingsCacheClient is responsible for accessing the cache that Settings are stored in.
 protocol SettingsCacheClient {
-  /// Returns in-memory cache content in O(1) time
-  var cacheContent: [String: Any]? { get set }
+  /// Returns in-memory cache content in O(1) time. Returns empty dictionary if it does not exist in cache.
+  var cacheContent: [String: Any] { get set }
   /// Returns in-memory cache-key, no performance guarantee because type-casting depends on size of CacheKey
   var cacheKey: CacheKey? { get set }
   /// Removes all cache content and cache-key
@@ -41,9 +41,9 @@ class SettingsCache: SettingsCacheClient {
   private let cache: UserDefaults = .standard
 
   /// Converting to dictionary is O(1) because object conversion is O(1)
-  var cacheContent: [String: Any]? {
+  var cacheContent: [String: Any] {
     get {
-      return cache.dictionary(forKey: SettingsCache.content)
+      return cache.dictionary(forKey: SettingsCache.content) ?? [:]
     }
     set {
       cache.set(newValue, forKey: SettingsCache.content)
