@@ -57,7 +57,7 @@ function(firebase_execute_process)
   if(ARG_COMMAND_LENGTH EQUAL 0)
     message(
       FATAL_ERROR
-      "firebase_execute_process() COMMAND must be given at least one value. ${ARG_COMMAND}"
+      "firebase_execute_process() COMMAND must be given at least one value."
     )
   endif()
 
@@ -67,8 +67,8 @@ function(firebase_execute_process)
   if("${ARG_WORKING_DIRECTORY}" STREQUAL "")
     set(LOG_SUFFIX "")
   else()
-    list(APPEND execute_process_args "WORKING_DIRECTORY" ${ARG_WORKING_DIRECTORY})
     set(LOG_SUFFIX " (working directory: ${ARG_WORKING_DIRECTORY})")
+    list(APPEND execute_process_args "WORKING_DIRECTORY" "${ARG_WORKING_DIRECTORY}")
   endif()
 
   firebase_string_join(" " ARG_COMMAND_STR ${ARG_COMMAND})
