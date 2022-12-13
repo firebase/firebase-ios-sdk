@@ -88,7 +88,7 @@ class Settings: SettingsProtocol {
 
   func fetchAndCacheSettings(currentTime: Date) {
     // Only fetch if cache is expired, otherwise do nothing
-    guard isCacheExpired(currentTime: currentTime) else {
+    guard isCacheExpired(time: currentTime) else {
       Logger.logDebug("[Settings] Cache is not expired, no fetch will be made.")
       return
     }
@@ -110,7 +110,7 @@ class Settings: SettingsProtocol {
     }
   }
 
-  private func isCacheExpired(currentTime: Date) -> Bool {
+  private func isCacheExpired(time: Date) -> Bool {
     guard !cache.cacheContent.isEmpty else {
       cache.removeCache()
       return true
@@ -126,7 +126,7 @@ class Settings: SettingsProtocol {
       cache.removeCache()
       return true
     }
-    if currentTime.timeIntervalSince(cacheKey.createdAt) > cacheDurationSeconds {
+    if time.timeIntervalSince(cacheKey.createdAt) > cacheDurationSeconds {
       Logger.logDebug("[Settings] Cache TTL expired")
       return true
     }
