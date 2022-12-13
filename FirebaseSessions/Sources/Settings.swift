@@ -96,7 +96,9 @@ class Settings: SettingsProtocol {
     downloader.fetch { result in
       switch result {
       case let .success(dictionary):
+        // Saves all newly fetched Settings to cache
         self.cache.cacheContent = dictionary
+        // Saves a "cache-key" which carries TTL metadata about current cache
         self.cache.cacheKey = CacheKey(
           createdAt: currentTime,
           googleAppID: self.appInfo.appID,

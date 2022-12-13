@@ -93,9 +93,8 @@ protocol SessionsProvider {
 
     super.init()
 
-    self.settings.fetchAndCacheSettings()
-
     self.initiator.beginListening {
+      self.settings.fetchAndCacheSettings()
       self.identifiers.generateNewSessionID()
       let event = SessionStartEvent(identifiers: self.identifiers, appInfo: self.appInfo)
       DispatchQueue.global().async {
