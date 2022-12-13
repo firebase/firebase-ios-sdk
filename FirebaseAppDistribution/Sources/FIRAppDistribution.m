@@ -343,13 +343,14 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
   UIViewController *feedbackViewController = [FIRFADInAppFeedback feedbackViewController];
   feedbackViewController.modalPresentationStyle = UIModalPresentationFullScreen;
   [[self uiService] initializeUIState];
-  [self.uiService.window.rootViewController presentViewController:feedbackViewController animated:YES completion:nil];
+  [self.uiService.window.rootViewController presentViewController:feedbackViewController
+                                                         animated:YES
+                                                       completion:nil];
 }
 
 - (void)startFeedback:(NSString *)infoText withImage:(UIImage *)image {
   // TODO: Implement it.
 }
-
 
 - (void)enableFeedbackOnScreenshot:(NSString *)infoText {
   // TODO: Implement it.
