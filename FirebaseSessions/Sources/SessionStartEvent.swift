@@ -16,7 +16,16 @@
 import Foundation
 
 @_implementationOnly import GoogleDataTransport
-@_implementationOnly import GoogleUtilities
+
+#if SWIFT_PACKAGE
+  import FirebaseSessionsObjC
+#endif // SWIFT_PACKAGE
+
+#if SWIFT_PACKAGE
+  import GoogleUtilities_Environment
+#else
+  import GoogleUtilities
+#endif // SWIFT_PACKAGE
 
 ///
 /// SessionStartEvent is responsible for:

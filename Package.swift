@@ -130,6 +130,10 @@ let package = Package(
       targets: ["FirebaseRemoteConfigSwift"]
     ),
     .library(
+      name: "FirebaseSessions",
+      targets: ["FirebaseSessions"]
+    ),
+    .library(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
     ),
@@ -1080,6 +1084,57 @@ let package = Package(
       ]
     ),
 
+    // MARK: - Firebase Sessions
+
+    .target(
+      name: "FirebaseSessions",
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseInstallations",
+        "FirebaseCoreExtension",
+        "FirebaseSessionsObjC",
+        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
+      ],
+      path: "FirebaseSessions/Sources",
+      cSettings: [
+        .headerSearchPath(".."),
+        .define("DISPLAY_VERSION", to: firebaseVersion),
+        .define("PB_FIELD_32BIT", to: "1"),
+        .define("PB_NO_PACKED_STRUCTS", to: "1"),
+        .define("PB_ENABLE_MALLOC", to: "1"),
+      ],
+      linkerSettings: [
+        .linkedFramework("Security"),
+        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
+      ]
+    ),
+    .target(
+      name: "FirebaseSessionsObjC",
+      dependencies: [
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
+        .product(name: "nanopb", package: "nanopb")
+      ],
+      path: "FirebaseSessions/SourcesObjC",
+      publicHeadersPath: ".",
+      cSettings: [
+        .headerSearchPath(".."),
+        .define("DISPLAY_VERSION", to: firebaseVersion),
+        .define("PB_FIELD_32BIT", to: "1"),
+        .define("PB_NO_PACKED_STRUCTS", to: "1"),
+        .define("PB_ENABLE_MALLOC", to: "1"),
+      ],
+      linkerSettings: [
+        .linkedFramework("Security"),
+        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
+      ]
+    ),
+    .testTarget(
+      name: "FirebaseSessionsUnit",
+      dependencies: ["FirebaseSessions"],
+      path: "FirebaseSessions/Tests/Unit"
+    ),
+
     // MARK: - Firebase Storage
 
     .target(
@@ -1146,6 +1201,7 @@ let package = Package(
         .target(name: "FirebasePerformance",
                 condition: .when(platforms: [.iOS, .tvOS])),
         "FirebaseRemoteConfig",
+        "FirebaseSessions",
         "FirebaseStorage",
         .product(name: "nanopb", package: "nanopb"),
       ],

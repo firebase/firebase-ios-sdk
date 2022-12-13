@@ -38,6 +38,7 @@ import FirebaseMessaging
   import FirebasePerformance
 #endif
 import FirebaseRemoteConfig
+import FirebaseSessions
 import FirebaseStorage
 import GoogleDataTransport
 import GoogleUtilities_AppDelegateSwizzler
