@@ -59,14 +59,14 @@ NS_SWIFT_NAME(AppDistribution)
 /**
  *  Start a modal view controller to collect and submit feedback from the tester and attach the image that's provided.
  */
-- (void)startFeedback:(NSString *)infoText withImage:(UIImage *)image;
+- (void)startFeedback:(NSString *)infoText withImage:(UIImage *)image NS_SWIFT_NAME(startFeedback(infoText:withImage:));
 
 /**
  *  When a tester takes a screenshot, request access to it, and start a modal view controller to collect and submit feedback.
  *
  *  Note: Using this method requires you to add `NSPhotoLibraryUsageDescription` to your Info.plist, otherwise the app will crash.
  */
-- (void)startFeedbackOnScreenshot:(NSString *)infoText;
+- (void)enableFeedbackOnScreenshot:(NSString *)infoText NS_SWIFT_NAME(startFeedbackOnScreenshot(infoText:));
 
 /**
  * Handle an App Distribution URL, for example a link to download a new pre-release version.

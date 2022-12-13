@@ -5,8 +5,9 @@ import UIKit
   
   @objc(feedbackViewController) static public func feedbackViewController() -> UIViewController {
     let frameworkBundle = Bundle(for: self)
-    let bundleURL = frameworkBundle.resourceURL?.appendingPathComponent("-AppDistributionInternalResources")
-    let resourceBundle = Bundle(url: bundleURL!)
+    
+    let resourceBundleURL = frameworkBundle.url(forResource: "AppDistributionInternalResources", withExtension: "bundle")
+    let resourceBundle = Bundle(url: resourceBundleURL)
     
     let storyboard = UIStoryboard(name: "FIRAppDistributionInternalStoryboard", bundle: resourceBundle)
     let vc = storyboard.instantiateViewController(withIdentifier: "fir-ad-iaf")

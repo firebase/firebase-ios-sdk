@@ -347,20 +347,13 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 }
 
 - (void)startFeedback:(NSString *)infoText withImage:(UIImage *)image {
-  UIViewController *feedbackViewController = [FIRFADInAppFeedback feedbackViewController];
-  feedbackViewController.modalPresentationStyle = UIModalPresentationFullScreen;
-  [[self uiService] initializeUIState];
-  [self.uiService.window.rootViewController presentViewController:feedbackViewController animated:YES completion:nil];
+  // TODO: Implement it.
 }
 
 
-- (void)startFeedbackOnScreenshot:(NSString *)infoText {
-  UIViewController *feedbackViewController = [FIRFADInAppFeedback feedbackViewController];
-  feedbackViewController.modalPresentationStyle = UIModalPresentationFullScreen;
-  [[self uiService] initializeUIState];
-  [self.uiService.window.rootViewController presentViewController:feedbackViewController animated:YES completion:nil];
+- (void)enableFeedbackOnScreenshot:(NSString *)infoText {
+  // TODO: Implement it.
 }
-
 
 #pragma mark - Swizzling disabled
 
