@@ -34,12 +34,12 @@ class SettingsDownloader: SettingsDownloadClient {
   }
 
   func fetch(completion: @escaping (Result<[String: Any], Error>) -> Void) {
-    guard let url = url else {
+    guard let validURL = url else {
       completion(.failure(FirebaseSessionsError.SettingsError("Invalid URL")))
       return
     }
 
-    buildRequest(url: url) { result in
+    buildRequest(url: validURL) { result in
       switch result {
       case let .success(request):
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
@@ -68,7 +68,7 @@ class SettingsDownloader: SettingsDownloadClient {
     components.path = "/spi/v2/platforms/\(appInfo.osName)/gmp/\(appInfo.appID)/settings"
     components.queryItems = [
       URLQueryItem(name: "build_version", value: appInfo.appBuildVersion),
-      URLQueryItem(name: "display_version", value: appInfo.appDisplayVersion)
+      URLQueryItem(name: "display_version", value: appInfo.appDisplayVersion),
     ]
     return components.url
   }
@@ -81,8 +81,14 @@ class SettingsDownloader: SettingsDownloadClient {
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue(fiid, forHTTPHeaderField: "X-Crashlytics-Installation-ID")
         request.setValue(appInfo.deviceModel, forHTTPHeaderField: "X-Crashlytics-Device-Model")
-        request.setValue(appInfo.osBuildVersion, forHTTPHeaderField: "X-Crashlytics-OS-Build-Version")
-        request.setValue(appInfo.osDisplayVersion, forHTTPHeaderField: "X-Crashlytics-OS-Display-Version")
+        request.setValue(
+          appInfo.osBuildVersion,
+          forHTTPHeaderField: "X-Crashlytics-OS-Build-Version"
+        )
+        request.setValue(
+          appInfo.osDisplayVersion,
+          forHTTPHeaderField: "X-Crashlytics-OS-Display-Version"
+        )
         request.setValue(appInfo.sdkVersion, forHTTPHeaderField: "X-Crashlytics-API-Client-Version")
         completion(.success(request))
       case let .failure(error):

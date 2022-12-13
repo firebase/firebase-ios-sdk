@@ -37,7 +37,7 @@ class MockApplicationInfo: ApplicationInfoProtocol {
   var appBuildVersion: String = ""
 
   var appDisplayVersion: String = ""
-  
+
   var osBuildVersion: String = ""
 
   var osDisplayVersion: String = ""
