@@ -15,7 +15,11 @@
 
 import Foundation
 
-@_implementationOnly import GoogleUtilities
+#if SWIFT_PACKAGE
+  import GoogleUtilities_Environment
+#else
+  import GoogleUtilities
+#endif // SWIFT_PACKAGE
 
 protocol SettingsDownloadClient {
   func fetch(completion: @escaping (Result<[String: Any], Error>) -> Void)
