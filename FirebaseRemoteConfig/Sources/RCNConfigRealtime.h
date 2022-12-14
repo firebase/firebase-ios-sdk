@@ -21,13 +21,19 @@
 
 @interface RCNConfigRealtime : NSObject <NSURLSessionDataDelegate>
 
+/// Completion handler invoked by config update methods when they get a response from the server.
+///
+/// @param error  Error message on failure.
+typedef void (^RCNConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable configUpdate,
+                                          NSError *_Nullable error);
+
 - (instancetype _Nonnull)init:(RCNConfigFetch *_Nonnull)configFetch
                      settings:(RCNConfigSettings *_Nonnull)settings
                     namespace:(NSString *_Nonnull)namespace
                       options:(FIROptions *_Nonnull)options;
 
 - (FIRConfigUpdateListenerRegistration *_Nonnull)addConfigUpdateListener:
-    (void (^_Nonnull)(NSError *_Nullable error))listener;
-- (void)removeConfigUpdateListener:(void (^_Nonnull)(NSError *_Nullable error))listener;
+    (RCNConfigUpdateCompletion _Nonnull)listener;
+- (void)removeConfigUpdateListener:(RCNConfigUpdateCompletion _Nonnull)listener;
 
 @end

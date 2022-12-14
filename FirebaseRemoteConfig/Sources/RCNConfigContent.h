@@ -38,6 +38,9 @@ typedef NS_ENUM(NSInteger, RCNDBSource) {
 /// Local default config that is provided by external users;
 @property(nonatomic, readonly, copy) NSDictionary *defaultConfig;
 
+/// Active config that is available to external users;
+@property(nonatomic, readonly, copy) NSDictionary *activePersonalization;
+
 - (instancetype)init NS_UNAVAILABLE;
 
 /// Designated initializer;

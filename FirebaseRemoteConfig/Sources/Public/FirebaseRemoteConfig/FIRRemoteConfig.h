@@ -166,6 +166,15 @@ NS_SWIFT_NAME(RemoteConfigSettings)
 @property(nonatomic, assign) NSTimeInterval fetchTimeout;
 @end
 
+#pragma mark - FIRRemoteConfigUpdate
+/// Firebase Remote Config update
+NS_SWIFT_NAME(RemoteConfigUpdate)
+@interface FIRRemoteConfigUpdate : NSObject
+
+@property(nonatomic, readonly, nonnull) NSSet<NSString *> *updatedParams;
+
+@end
+
 #pragma mark - FIRRemoteConfig
 /// Firebase Remote Config class. The class method `remoteConfig()` can be used
 /// to fetch, activate and read config results and set default config results on the default
@@ -312,6 +321,14 @@ NS_SWIFT_NAME(RemoteConfig)
 
 #pragma mark - Realtime
 
+/// Completion handler invoked by fetch methods when they get a response from the server.
+///
+/// @param configUpdate Information on which key's values have changed
+/// @param error  Error message on failure.
+typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable configUpdate,
+                                                NSError *_Nullable error)
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
+
 /// Adds a listener to Realtime config updates. If it's the first listener, it starts off the
 /// stream.
 ///
@@ -319,6 +336,6 @@ NS_SWIFT_NAME(RemoteConfig)
 /// @return                 Returns a registration that is used to remove a listener. If it is the
 /// last listener, it stops the stream.
 - (FIRConfigUpdateListenerRegistration *_Nonnull)addOnConfigUpdateListener:
-    (void (^_Nonnull)(NSError *_Nullable error))listener;
+    (FIRRemoteConfigUpdateCompletion _Nonnull)listener;
 
 @end

@@ -609,7 +609,7 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 #pragma mark - Realtime
 
 - (FIRConfigUpdateListenerRegistration *)addOnConfigUpdateListener:
-    (void (^_Nonnull)(NSError *_Nullable error))listener {
+    (void (^_Nonnull)(FIRRemoteConfigUpdate *update, NSError *_Nullable error))listener {
   return [self->_configRealtime addConfigUpdateListener:listener];
 }
 
