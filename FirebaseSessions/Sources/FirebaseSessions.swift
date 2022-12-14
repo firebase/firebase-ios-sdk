@@ -55,13 +55,6 @@ protocol SessionsProvider {
     let fireLogger = EventGDTLogger(googleDataTransport: googleDataTransport!)
 
     let identifiers = Identifiers()
-    let coordinator = SessionCoordinator(
-      identifiers: identifiers,
-      installations: installations,
-      fireLogger: fireLogger,
-      sampler: SessionSampler()
-    )
-    let initiator = SessionInitiator()
     let appInfo = ApplicationInfo(appID: appID)
     let settings = Settings(
       appInfo: appInfo,
@@ -71,6 +64,14 @@ protocol SessionsProvider {
         installations: installations
       )
     )
+    let coordinator = SessionCoordinator(
+      identifiers: identifiers,
+      installations: installations,
+      fireLogger: fireLogger,
+      sampler: SessionSampler(sessionSamplingRate: settings.samplingRate),
+      loggingEnabled: settings.sessionsEnabled
+    )
+    let initiator = SessionInitiator(sessionTimeout: settings.sessionTimeout)
 
     self.init(appID: appID,
               identifiers: identifiers,

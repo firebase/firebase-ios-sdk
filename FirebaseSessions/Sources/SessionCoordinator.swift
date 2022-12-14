@@ -23,15 +23,18 @@ class SessionCoordinator {
   let installations: InstallationsProtocol
   let fireLogger: EventGDTLoggerProtocol
   let sampler: SessionSamplerProtocol
+  let loggingEnabled: Bool
 
   init(identifiers: IdentifierProvider,
        installations: InstallationsProtocol,
        fireLogger: EventGDTLoggerProtocol,
-       sampler: SessionSamplerProtocol) {
+       sampler: SessionSamplerProtocol,
+       loggingEnabled: Bool) {
     self.identifiers = identifiers
     self.installations = installations
     self.fireLogger = fireLogger
     self.sampler = sampler
+    self.loggingEnabled = loggingEnabled
   }
 
   // Begins the process of logging a SessionStartEvent to FireLog, while taking into account Data Collection, Sampling, and fetching Settings
@@ -41,7 +44,10 @@ class SessionCoordinator {
     /// 1. Check if the session can be sent. If yes, move to 2. Else, drop the event.
     /// 2. Fetch the installations Id. If successful, move to 3. Else, drop sending the event.
     /// 3. Log the event. If successful, all is good. Else, log the message with error.
-    if sampler.shouldSendEventForSession(sessionId: identifiers.sessionID) {
+    if !loggingEnabled {
+      Logger.logDebug("Logging disabled by configuration settings.")
+      callback(.success(()))
+    } else if sampler.shouldSendEventForSession(sessionId: identifiers.sessionID) {
       installations.installationID { result in
         switch result {
         case let .success(fiid):

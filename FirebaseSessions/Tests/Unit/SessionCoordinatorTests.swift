@@ -34,9 +34,36 @@ class SessionCoordinatorTests: XCTestCase {
       identifiers: identifiers,
       installations: installations,
       fireLogger: fireLogger,
-      sampler: sampler
+      sampler: sampler,
+      loggingEnabled: true
     )
     sampler.sessionSamplingRate = 1.0
+  }
+
+  func test_attemptLoggingSessionStart_logsNothingWhenDisabled() throws {
+    identifiers.mockAllValidIDs()
+    coordinator = SessionCoordinator(
+      identifiers: identifiers,
+      installations: installations,
+      fireLogger: fireLogger,
+      sampler: sampler,
+      loggingEnabled: false // logging is disabled
+    )
+
+    let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
+    var resultSuccess = false
+    coordinator.attemptLoggingSessionStart(event: event) { result in
+      switch result {
+      case .success(()):
+        resultSuccess = true
+      case .failure:
+        resultSuccess = false
+      }
+    }
+
+    // We should have logged nothing
+    XCTAssertNil(fireLogger.loggedEvent)
+    XCTAssertTrue(resultSuccess)
   }
 
   func test_attemptLoggingSessionStart_logsToGDT() throws {

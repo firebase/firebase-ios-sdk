@@ -28,12 +28,13 @@ import Foundation
 ///      and comes to the foreground.
 ///
 class SessionInitiator {
-  let sessionTimeout: TimeInterval = 30 * 60 // 30 minutes
+  let sessionTimeout: TimeInterval
   let currentTime: () -> Date
   var backgroundTime = Date.distantFuture
   var initiateSessionStart: () -> Void = {}
 
-  init(currentTimeProvider: @escaping () -> Date = Date.init) {
+  init(sessionTimeout: TimeInterval, currentTimeProvider: @escaping () -> Date = Date.init) {
+    self.sessionTimeout = sessionTimeout
     currentTime = currentTimeProvider
   }
 
