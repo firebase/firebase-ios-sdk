@@ -17,17 +17,8 @@
 
 #import <GoogleUtilities/GULNetworkInfo.h>
 
-#if SWIFT_PACKAGE
-#import "FIRSESNanoPBHelpers.h"
-#else
 #import "FirebaseSessions/SourcesObjC/NanoPB/FIRSESNanoPBHelpers.h"
-#endif  // SWIFT_PACKAGE
-
-#if SWIFT_PACKAGE
-#import "SourcesObjC/Protogen/nanopb/sessions.nanopb.h"
-#else
 #import "FirebaseSessions/SourcesObjC/Protogen/nanopb/sessions.nanopb.h"
-#endif  // SWIFT_PACKAGE
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
