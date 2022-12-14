@@ -30,28 +30,34 @@ class InitiatorTests: XCTestCase {
 
   func postBackgroundedNotification() {
     let notificationCenter = NotificationCenter.default
-#if os(iOS) || os(tvOS)
-    notificationCenter.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
-#elseif os(macOS)
-    notificationCenter.post(name: NSApplication.didResignActiveNotification, object: nil)
-#elseif os(watchOS)
-    if #available(watchOSApplicationExtension 7.0, *) {
-      notificationCenter.post(name: WKExtension.applicationDidEnterBackgroundNotification, object: nil)
-    }
-#endif
+    #if os(iOS) || os(tvOS)
+      notificationCenter.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+    #elseif os(macOS)
+      notificationCenter.post(name: NSApplication.didResignActiveNotification, object: nil)
+    #elseif os(watchOS)
+      if #available(watchOSApplicationExtension 7.0, *) {
+        notificationCenter.post(
+          name: WKExtension.applicationDidEnterBackgroundNotification,
+          object: nil
+        )
+      }
+    #endif
   }
 
   func postForegroundedNotification() {
     let notificationCenter = NotificationCenter.default
-#if os(iOS) || os(tvOS)
-    notificationCenter.post(name: UIApplication.didBecomeActiveNotification, object: nil)
-#elseif os(macOS)
-    notificationCenter.post(name: NSApplication.didBecomeActiveNotification, object: nil)
-#elseif os(watchOS)
-    if #available(watchOSApplicationExtension 7.0, *) {
-      notificationCenter.post(name: WKExtension.applicationDidBecomeActiveNotification, object: nil)
-    }
-#endif
+    #if os(iOS) || os(tvOS)
+      notificationCenter.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+    #elseif os(macOS)
+      notificationCenter.post(name: NSApplication.didBecomeActiveNotification, object: nil)
+    #elseif os(watchOS)
+      if #available(watchOSApplicationExtension 7.0, *) {
+        notificationCenter.post(
+          name: WKExtension.applicationDidBecomeActiveNotification,
+          object: nil
+        )
+      }
+    #endif
   }
 
   func test_beginListening_initiatesColdStart() throws {
