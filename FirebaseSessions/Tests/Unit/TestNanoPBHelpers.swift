@@ -16,7 +16,7 @@
 import XCTest
 
 #if SWIFT_PACKAGE
-  @_implementationOnly import FirebaseSessionsObjC
+  import FirebaseSessionsObjC
 #endif // SWIFT_PACKAGE
 
 @testable import FirebaseSessions

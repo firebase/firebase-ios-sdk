@@ -18,7 +18,7 @@ import Foundation
 @_implementationOnly import FirebaseCore
 
 #if SWIFT_PACKAGE
-  @_implementationOnly import FirebaseSessionsObjC
+  import FirebaseSessionsObjC
 #endif // SWIFT_PACKAGE
 
 #if SWIFT_PACKAGE

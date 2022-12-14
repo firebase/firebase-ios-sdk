@@ -16,7 +16,7 @@
 import Foundation
 
 #if SWIFT_PACKAGE
-  @_implementationOnly import FirebaseSessionsObjC
+  import FirebaseSessionsObjC
 #endif // SWIFT_PACKAGE
 
 class DevEventConsoleLogger: EventGDTLoggerProtocol {
