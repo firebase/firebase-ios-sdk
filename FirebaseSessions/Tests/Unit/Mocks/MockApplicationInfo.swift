@@ -38,6 +38,10 @@ class MockApplicationInfo: ApplicationInfoProtocol {
 
   var appDisplayVersion: String = ""
 
+  var osBuildVersion: String = ""
+
+  var osDisplayVersion: String = ""
+
   var networkInfo: NetworkInfoProtocol = MockNetworkInfo()
 
   static let testAppID = "testAppID"
@@ -49,6 +53,8 @@ class MockApplicationInfo: ApplicationInfoProtocol {
   static let testEnvironment: DevEnvironment = .prod
   static let testAppBuildVersion = "testAppBuildVersion"
   static let testAppDisplayVersion = "testAppDisplayVersion"
+  static let testOsBuildVersion = "testOsBuildVersion"
+  static let testOsDisplayVersion = "testOsDisplayVersion"
   static let testNetworkType = GULNetworkType.WIFI
   static let testMobileSubtype = "random"
 
@@ -62,5 +68,7 @@ class MockApplicationInfo: ApplicationInfoProtocol {
     environment = MockApplicationInfo.testEnvironment
     appBuildVersion = MockApplicationInfo.testAppBuildVersion
     appDisplayVersion = MockApplicationInfo.testAppDisplayVersion
+    osBuildVersion = MockApplicationInfo.testOsBuildVersion
+    osDisplayVersion = MockApplicationInfo.testOsDisplayVersion
   }
 }

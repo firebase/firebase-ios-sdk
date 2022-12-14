@@ -20,9 +20,16 @@ extension ApplicationInfoProtocol {
   var synthesizedVersion: String { return "\(appDisplayVersion) (\(appBuildVersion))" }
 }
 
+extension SettingsProtocol {
+  func fetchAndCacheSettings() {
+    return fetchAndCacheSettings(currentTime: Date())
+  }
+}
+
 /// Provides the APIs to access Settings and their configuration values
 protocol SettingsProtocol {
-  func isCacheExpired(currentTime: Date) -> Bool
+  /// Attempts to fetch settings only if the current cache is expired
+  func fetchAndCacheSettings(currentTime: Date)
   var sessionsEnabled: Bool { get }
   var samplingRate: Double { get }
   var sessionTimeout: TimeInterval { get }
@@ -32,47 +39,79 @@ class Settings: SettingsProtocol {
   private static let cacheDurationSecondsDefault: TimeInterval = 60 * 60
   private static let flagSessionsEnabled = "sessions_enabled"
   private static let flagSamplingRate = "sampling_rate"
-  private static let flagSessionTimeout = "session_timeout"
+  private static let flagSessionTimeout = "session_timeout_seconds"
   private static let flagCacheDuration = "cache_duration"
-  private let cache: SettingsCacheClient
+  private static let flagSessionsCache = "app_quality"
   private let appInfo: ApplicationInfoProtocol
+  private let downloader: SettingsDownloadClient
+  private var cache: SettingsCacheClient
 
   var sessionsEnabled: Bool {
-    guard let enabled = cache.cacheContent?[Settings.flagSessionsEnabled] as? Bool else {
+    guard let enabled = sessionsCache[Settings.flagSessionsEnabled] as? Bool else {
       return true
     }
     return enabled
   }
 
   var samplingRate: Double {
-    guard let rate = cache.cacheContent?[Settings.flagSamplingRate] as? Double else {
+    guard let rate = sessionsCache[Settings.flagSamplingRate] as? Double else {
       return 1.0
     }
     return rate
   }
 
   var sessionTimeout: TimeInterval {
-    guard let timeout = cache.cacheContent?[Settings.flagSessionTimeout] as? Double else {
+    guard let timeout = sessionsCache[Settings.flagSessionTimeout] as? Double else {
       return 30 * 60
     }
     return timeout
   }
 
   private var cacheDurationSeconds: TimeInterval {
-    guard let duration = cache.cacheContent?[Settings.flagCacheDuration] as? Double else {
+    guard let duration = cache.cacheContent[Settings.flagCacheDuration] as? Double else {
       return Settings.cacheDurationSecondsDefault
     }
     return duration
   }
 
-  init(cache: SettingsCacheClient = SettingsCache(),
-       appInfo: ApplicationInfoProtocol) {
-    self.cache = cache
-    self.appInfo = appInfo
+  private var sessionsCache: [String: Any] {
+    return cache.cacheContent[Settings.flagSessionsCache] as? [String: Any] ?? [:]
   }
 
-  func isCacheExpired(currentTime: Date) -> Bool {
-    guard cache.cacheContent != nil else {
+  init(appInfo: ApplicationInfoProtocol,
+       downloader: SettingsDownloadClient,
+       cache: SettingsCacheClient = SettingsCache()) {
+    self.appInfo = appInfo
+    self.cache = cache
+    self.downloader = downloader
+  }
+
+  func fetchAndCacheSettings(currentTime: Date) {
+    // Only fetch if cache is expired, otherwise do nothing
+    guard isCacheExpired(time: currentTime) else {
+      Logger.logDebug("[Settings] Cache is not expired, no fetch will be made.")
+      return
+    }
+
+    downloader.fetch { result in
+      switch result {
+      case let .success(dictionary):
+        // Saves all newly fetched Settings to cache
+        self.cache.cacheContent = dictionary
+        // Saves a "cache-key" which carries TTL metadata about current cache
+        self.cache.cacheKey = CacheKey(
+          createdAt: currentTime,
+          googleAppID: self.appInfo.appID,
+          appVersion: self.appInfo.synthesizedVersion
+        )
+      case let .failure(error):
+        Logger.logError("[Settings] Fetching newest settings failed with error: \(error)")
+      }
+    }
+  }
+
+  private func isCacheExpired(time: Date) -> Bool {
+    guard !cache.cacheContent.isEmpty else {
       cache.removeCache()
       return true
     }
@@ -87,7 +126,7 @@ class Settings: SettingsProtocol {
       cache.removeCache()
       return true
     }
-    if currentTime.timeIntervalSince(cacheKey.createdAt) > cacheDurationSeconds {
+    if time.timeIntervalSince(cacheKey.createdAt) > cacheDurationSeconds {
       Logger.logDebug("[Settings] Cache TTL expired")
       return true
     }

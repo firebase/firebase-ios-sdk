@@ -50,6 +50,10 @@ protocol ApplicationInfoProtocol {
   var appBuildVersion: String { get }
 
   var appDisplayVersion: String { get }
+
+  var osBuildVersion: String { get }
+
+  var osDisplayVersion: String { get }
 }
 
 class ApplicationInfo: ApplicationInfoProtocol {
@@ -99,5 +103,13 @@ class ApplicationInfo: ApplicationInfoProtocol {
 
   var appDisplayVersion: String {
     return Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
+  }
+
+  var osBuildVersion: String {
+    return FIRSESGetSysctlEntry("kern.osversion") ?? ""
+  }
+
+  var osDisplayVersion: String {
+    return GULAppEnvironmentUtil.systemVersion()
   }
 }

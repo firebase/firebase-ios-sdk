@@ -63,7 +63,14 @@ protocol SessionsProvider {
     )
     let initiator = SessionInitiator()
     let appInfo = ApplicationInfo(appID: appID)
-    let settings = Settings(appInfo: appInfo)
+    let settings = Settings(
+      appInfo: appInfo,
+      downloader: SettingsDownloader(
+        appInfo: appInfo,
+        identifiers: identifiers,
+        installations: installations
+      )
+    )
 
     self.init(appID: appID,
               identifiers: identifiers,
@@ -87,6 +94,8 @@ protocol SessionsProvider {
     super.init()
 
     self.initiator.beginListening {
+      // On each session start, first update Settings if expired
+      self.settings.fetchAndCacheSettings()
       self.identifiers.generateNewSessionID()
       let event = SessionStartEvent(identifiers: self.identifiers, appInfo: self.appInfo)
       DispatchQueue.global().async {

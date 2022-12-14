@@ -1,3 +1,4 @@
+//
 // Copyright 2022 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,12 +15,21 @@
 
 import Foundation
 
-/// Contains the list of errors that are localized for Firebase Sessions Library
-enum FirebaseSessionsError: Error {
-  /// Event sampling related error
-  case SessionSamplingError
-  /// Firebase Installation ID related error
-  case SessionInstallationsError
-  /// Settings related error
-  case SettingsError(String)
+@testable import FirebaseSessions
+
+class MockSettingsDownloader: SettingsDownloadClient {
+  public var shouldSucceed: Bool = true
+  public var successResponse: [String: Any]
+
+  init(successResponse: [String: Any]) {
+    self.successResponse = successResponse
+  }
+
+  func fetch(completion: @escaping (Result<[String: Any], Error>) -> Void) {
+    if shouldSucceed {
+      completion(.success(successResponse))
+    } else {
+      completion(.failure(FirebaseSessionsError.SettingsError("Mocked Error.")))
+    }
+  }
 }
