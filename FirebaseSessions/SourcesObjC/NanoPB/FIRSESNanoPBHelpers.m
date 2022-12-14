@@ -18,6 +18,7 @@
 #import <GoogleUtilities/GULNetworkInfo.h>
 
 #import "FirebaseSessions/SourcesObjC/NanoPB/FIRSESNanoPBHelpers.h"
+
 #import "FirebaseSessions/SourcesObjC/Protogen/nanopb/sessions.nanopb.h"
 
 #import <nanopb/pb.h>
