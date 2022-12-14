@@ -50,6 +50,8 @@ public extension StorageReference {
    *   - fileURL: A URL representing the system file path of the object to be uploaded.
    *   - metadata: `StorageMetadata` containing additional information (MIME type, etc.)
    *       about the object being uploaded.
+   *   - progress: Pass a `Progress` handle in for `pause`, `resume`, and `cancel` run control.
+   *   - progressBlock: A block to execute to do progress updates.
    * - Returns: A `StorageMetadata` on success.
    * - Throws: A StorageError on failure
    */
@@ -59,10 +61,6 @@ public extension StorageReference {
                  progress: Progress? = nil,
                  progressBlock: ((Progress) -> Void)? = nil) async throws -> StorageMetadata {
     var putMetadata: StorageMetadata
-    if let progress = progress,
-       progress.isCancelled {
-      throw StorageError.cancelled
-    }
     if metadata == nil {
       putMetadata = StorageMetadata()
       if let path = path.object {

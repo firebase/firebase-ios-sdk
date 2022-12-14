@@ -216,9 +216,7 @@ class StorageApiV2Tests: StorageIntegrationCommon {
 
     let metadata = try await ref.putFileV2(from: fileURL)
     XCTAssertEqual(fileName, metadata.name)
-    // TODO: Update getMetadata here.
-//        ref.getMetadata { result in
-//          self.assertResultSuccess(result)
-//        }
+    let metadataRef = try await ref.getMetadata()
+    XCTAssertEqual(fileName, metadataRef.name)
   }
 }

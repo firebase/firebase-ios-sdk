@@ -35,6 +35,9 @@ internal class StorageUploadTaskV2: StorageTask {
    * Prepares a GTMSessionFetcher task and does an upload.
    */
   internal func upload() async throws -> StorageMetadata {
+    if progress.isCancelled {
+      throw StorageError.cancelled
+    }
     if let contentValidationError = isContentToUploadInvalid() {
       throw StorageError.swiftConvert(objcError: contentValidationError)
     }
