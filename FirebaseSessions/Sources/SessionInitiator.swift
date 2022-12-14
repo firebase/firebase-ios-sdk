@@ -85,15 +85,17 @@ class SessionInitiator {
           name: WKExtension.applicationDidBecomeActiveNotification,
           object: nil
         )
+      } else {
+        Logger.logDebug("WatchOS Extensions do not support lifecycle notifications before watchOS 7. Therefore, FirebaseSessions SDK will only send one event at the start, which may affect watchOS metrics.")
       }
     #endif
   }
 
-  @objc func appBackgrounded() {
+  @objc private func appBackgrounded() {
     backgroundTime = currentTime()
   }
 
-  @objc func appForegrounded() {
+  @objc private func appForegrounded() {
     let interval = currentTime().timeIntervalSince(backgroundTime)
     if interval > sessionTimeout {
       initiateSessionStart()
