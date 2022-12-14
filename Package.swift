@@ -1113,7 +1113,7 @@ let package = Package(
       name: "FirebaseSessionsObjC",
       dependencies: [
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
-        .product(name: "nanopb", package: "nanopb")
+        .product(name: "nanopb", package: "nanopb"),
       ],
       path: "FirebaseSessions/SourcesObjC",
       publicHeadersPath: ".",
