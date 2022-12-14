@@ -18,13 +18,13 @@ import Foundation
 @_implementationOnly import GoogleDataTransport
 
 #if SWIFT_PACKAGE
-  import FirebaseSessionsObjC
+  @_implementationOnly import FirebaseSessionsObjC
 #endif // SWIFT_PACKAGE
 
 #if SWIFT_PACKAGE
-  import GoogleUtilities_Environment
+  @_implementationOnly import GoogleUtilities_Environment
 #else
-  import GoogleUtilities
+  @_implementationOnly import GoogleUtilities
 #endif // SWIFT_PACKAGE
 
 ///

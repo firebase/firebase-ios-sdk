@@ -16,9 +16,9 @@
 import Foundation
 
 #if SWIFT_PACKAGE
-  import GoogleUtilities_Environment
+  @_implementationOnly import GoogleUtilities_Environment
 #else
-  import GoogleUtilities
+  @_implementationOnly import GoogleUtilities
 #endif // SWIFT_PACKAGE
 
 @testable import FirebaseSessions
