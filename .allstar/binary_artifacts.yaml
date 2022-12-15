@@ -1,5 +1,7 @@
-# Ignore reason: These artifacts are used in unit tests
+# For understanding why this file exists, and how this list was generated, see
+# https://github.com/firebase/firebase-ios-sdk/issues/10577
 ignorePaths:
+  # Ignore reason: These artifacts are used in unit tests
 - Crashlytics/UnitTests/Data/10.9.3_libobjc.A.dylib
 - Crashlytics/UnitTests/Data/10.9.4_libsystem_kernel.dylib
 - Crashlytics/UnitTests/FIRCLSMachO/data/armv7-armv7s-arm64.dylib
@@ -10,3 +12,11 @@ ignorePaths:
 - Crashlytics/UnitTests/FIRCLSMachO/data/tvos-binary
 - Crashlytics/UnitTests/FIRCLSMachO/data/tvsimulator-binary
 - Crashlytics/UnitTests/FIRCLSMachO/data/watchOS-simulator
+- Crashlytics/UnitTests/FIRCLSMachO/data/x86_64-executable
+  # Ignore reason: Crashlytics precompiles this binary for public release
+- Crashlytics/upload-symbols
+  # Ignore reason: These artifacts are used in unit tests
+- FirebaseAppDistribution/Tests/Unit/Resources/armv7-armv7s-executable
+- FirebaseAppDistribution/Tests/Unit/Resources/x86_64-executable
+  # This is involved with release tooling, but not sent to customers
+- ReleaseTooling/Template/dummy_Firebase_lib
