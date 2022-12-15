@@ -1,0 +1,12 @@
+# Ignore reason: These artifacts are used in unit tests
+ignorePaths:
+- Crashlytics/UnitTests/Data/10.9.3_libobjc.A.dylib
+- Crashlytics/UnitTests/Data/10.9.4_libsystem_kernel.dylib
+- Crashlytics/UnitTests/FIRCLSMachO/data/armv7-armv7s-arm64.dylib
+- Crashlytics/UnitTests/FIRCLSMachO/data/armv7-armv7s-executable
+- Crashlytics/UnitTests/FIRCLSMachO/data/armv7-armv7s.dSYM/Contents/Resources/DWARF/CrashTest
+- Crashlytics/UnitTests/FIRCLSMachO/data/armv7k
+- Crashlytics/UnitTests/FIRCLSMachO/data/i386-simulator.dSYM/Contents/Resources/DWARF/CrashTest
+- Crashlytics/UnitTests/FIRCLSMachO/data/tvos-binary
+- Crashlytics/UnitTests/FIRCLSMachO/data/tvsimulator-binary
+- Crashlytics/UnitTests/FIRCLSMachO/data/watchOS-simulator
