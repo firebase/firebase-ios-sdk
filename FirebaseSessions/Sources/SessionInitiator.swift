@@ -89,11 +89,11 @@ class SessionInitiator {
     #endif
   }
 
-  @objc func appBackgrounded() {
+  @objc private func appBackgrounded() {
     backgroundTime = currentTime()
   }
 
-  @objc func appForegrounded() {
+  @objc private func appForegrounded() {
     let interval = currentTime().timeIntervalSince(backgroundTime)
     if interval > sessionTimeout {
       initiateSessionStart()
