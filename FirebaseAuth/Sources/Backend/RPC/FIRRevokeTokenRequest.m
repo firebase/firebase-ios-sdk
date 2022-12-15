@@ -21,7 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** @var kRevokeTokenEndpoint
     @brief The endpoint for the revokeToken request.
  */
-static NSString *const kRevokeTokenEndpoint = @"revokeToken"; // TODO: Double check the endpoint when backend is ready
+static NSString *const kRevokeTokenEndpoint =
+    @"revokeToken";  // TODO: Double check the endpoint when backend is ready
 
 /** @var kAppTokenKey
     @brief The key for the appToken request paramenter.
@@ -37,8 +38,8 @@ static NSString *const kIDTokenKey = @"idToken";
 @implementation FIRRevokeTokenRequest
 
 - (nullable instancetype)initWitToken:(NSString *)token
-                                  idToken:(NSString *)idToken
-                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+                              idToken:(NSString *)idToken
+                 requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kRevokeTokenEndpoint requestConfiguration:requestConfiguration];
   if (self) {
     _token = token;
@@ -52,9 +53,9 @@ static NSString *const kIDTokenKey = @"idToken";
   if (_token) {
     postBody[kTokenKey] = _token;
   }
-    if (_idToken) {
-      postBody[kIDTokenKey] = _idToken;
-    }
+  if (_idToken) {
+    postBody[kIDTokenKey] = _idToken;
+  }
   return [postBody copy];
 }
 
