@@ -56,6 +56,8 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRRevokeTokenRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRRevokeTokenResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordRequest.h"
@@ -1538,6 +1540,25 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
     self->_requestConfiguration.additionalFrameworkMarker = [additionalFrameworkMarker copy];
   });
+}
+
+- (void)revokeToken:(NSString *)token
+         completion:(nullable void (^)(NSError *_Nullable error))completion {
+    [self.currentUser getIDTokenWithCompletion:^(NSString * _Nullable idToken, NSError * _Nullable error) {
+        if (error) {
+          completion(error);
+          return;
+        }
+        FIRRevokeTokenRequest *request = [[FIRRevokeTokenRequest alloc] initWithToken:token idToken:idToken requestConfiguration:self->_requestConfiguration];
+        [FIRAuthBackend revokeToken:request
+                           callback:^(FIRRevokeTokenResponse * _Nullable response, NSError * _Nullable error) {
+            if (error) {
+                completion(error);
+            } else {
+                completion(nil);
+            }
+        }];
+    }];
 }
 
 #if TARGET_OS_IOS

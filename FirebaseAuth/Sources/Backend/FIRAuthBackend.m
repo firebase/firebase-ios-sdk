@@ -59,6 +59,8 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRRevokeTokenRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRRevokeTokenResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberResponse.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
@@ -603,6 +605,12 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 + (void)verifyClient:(id)request callback:(FIRVerifyClientResponseCallback)callback {
   [[self implementation] verifyClient:request callback:callback];
 }
+
++ (void)revokeToken:(FIRRevokeTokenRequest *)request
+           callback:(FIRRevokeTokenResponseCallback)callback {
+    [[self implementation] revokeToken:request callback:callback];
+}
+
 #endif
 
 + (void)resetPassword:(FIRResetPasswordRequest *)request
@@ -967,6 +975,21 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                  callback(response, nil);
                }];
 }
+
+- (void)revokeToken:(FIRRevokeTokenRequest *)request
+           callback:(FIRRevokeTokenResponseCallback)callback {
+    FIRRevokeTokenResponse *response = [[FIRRevokeTokenResponse alloc] init];
+    [self postWithRequest:request
+                 response:response
+                 callback:^(NSError *error) {
+                   if (error) {
+                     callback(nil, [FIRAuthErrorUtils invalidCredentialErrorWithMessage:[error localizedDescription]]);
+                     return;
+                   }
+                   callback(response, nil);
+                 }];
+}
+
 #endif
 
 - (void)resetPassword:(FIRResetPasswordRequest *)request
