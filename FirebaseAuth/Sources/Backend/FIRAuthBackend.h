@@ -229,7 +229,7 @@ typedef void (^FIRVerifyClientResponseCallback)(FIRVerifyClientResponse *_Nullab
     @remarks One of response or error will be non-nil.
  */
 typedef void (^FIRRevokeTokenResponseCallback)(FIRRevokeTokenResponse *_Nullable response,
-                                                NSError *_Nullable error);
+                                               NSError *_Nullable error);
 
 /** @typedef FIRSignInWithGameCenterResponseCallback
     @brief The type of block used to return the result of a call to the SignInWithGameCenter
@@ -433,7 +433,7 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
     @param callback The callback.
  */
 + (void)revokeToken:(FIRRevokeTokenRequest *)request
-            callback:(FIRRevokeTokenResponseCallback)callback;
+           callback:(FIRRevokeTokenResponseCallback)callback;
 
 #endif
 
@@ -607,7 +607,7 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
     @param callback The callback.
  */
 - (void)revokeToken:(FIRRevokeTokenRequest *)request
-            callback:(FIRRevokeTokenResponseCallback)callback;
+           callback:(FIRRevokeTokenResponseCallback)callback;
 
 #endif
 
