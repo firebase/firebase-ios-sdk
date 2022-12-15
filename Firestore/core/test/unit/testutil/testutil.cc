@@ -648,6 +648,21 @@ model::FieldIndex MakeFieldIndex(const std::string& collection_group,
           state};
 }
 
+std::unordered_map<model::DocumentKey,
+                   model::Mutation::Type,
+                   model::DocumentKeyHash>
+OverlayTypeMap(
+    std::vector<std::pair<model::DocumentKey, model::Mutation::Type>> pairs) {
+  std::unordered_map<model::DocumentKey, model::Mutation::Type,
+                     model::DocumentKeyHash>
+      result;
+  for (const auto& p : pairs) {
+    result.emplace(p.first, p.second);
+  }
+
+  return result;
+}
+
 }  // namespace testutil
 }  // namespace firestore
 }  // namespace firebase
