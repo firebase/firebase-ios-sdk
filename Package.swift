@@ -130,10 +130,6 @@ let package = Package(
       targets: ["FirebaseRemoteConfigSwift"]
     ),
     .library(
-      name: "FirebaseSessions",
-      targets: ["FirebaseSessions"]
-    ),
-    .library(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
     ),
