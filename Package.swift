@@ -160,7 +160,7 @@ let package = Package(
     .package(
       name: "GoogleUtilities",
       url: "https://github.com/google/GoogleUtilities.git",
-      "7.9.0" ..< "8.0.0"
+      "7.10.0" ..< "8.0.0"
     ),
     .package(
       name: "GTMSessionFetcher",
@@ -1080,6 +1080,70 @@ let package = Package(
       ]
     ),
 
+    // MARK: - Firebase Sessions
+
+    .target(
+      name: "FirebaseSessions",
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseInstallations",
+        "FirebaseCoreExtension",
+        "FirebaseSessionsObjC",
+        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
+      ],
+      path: "FirebaseSessions/Sources",
+      cSettings: [
+        .headerSearchPath(".."),
+        .define("DISPLAY_VERSION", to: firebaseVersion),
+        .define("PB_FIELD_32BIT", to: "1"),
+        .define("PB_NO_PACKED_STRUCTS", to: "1"),
+        .define("PB_ENABLE_MALLOC", to: "1"),
+      ],
+      linkerSettings: [
+        .linkedFramework("Security"),
+        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
+      ]
+    ),
+    // The Sessions SDK is Swift-first with Objective-C code to support
+    // nanopb. Because Swift Package Manager doesn't support mixed
+    // language targets, the ObjC code has been extracted out into
+    // a separate target.
+    .target(
+      name: "FirebaseSessionsObjC",
+      dependencies: [
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
+        .product(name: "nanopb", package: "nanopb"),
+      ],
+      path: "FirebaseSessions",
+      exclude: [
+        "README.md",
+        "Sources/",
+        "Tests/",
+        "ProtoSupport/",
+        "generate_project.sh",
+        "generate_protos.sh",
+        "generate_testapp.sh",
+      ],
+      publicHeadersPath: "SourcesObjC",
+      cSettings: [
+        .headerSearchPath(".."),
+        .define("DISPLAY_VERSION", to: firebaseVersion),
+        .define("PB_FIELD_32BIT", to: "1"),
+        .define("PB_NO_PACKED_STRUCTS", to: "1"),
+        .define("PB_ENABLE_MALLOC", to: "1"),
+      ],
+      linkerSettings: [
+        .linkedFramework("Security"),
+        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
+      ]
+    ),
+    .testTarget(
+      name: "FirebaseSessionsUnit",
+      dependencies: ["FirebaseSessions"],
+      path: "FirebaseSessions/Tests/Unit"
+    ),
+
     // MARK: - Firebase Storage
 
     .target(
@@ -1146,6 +1210,7 @@ let package = Package(
         .target(name: "FirebasePerformance",
                 condition: .when(platforms: [.iOS, .tvOS])),
         "FirebaseRemoteConfig",
+        "FirebaseSessions",
         "FirebaseStorage",
         .product(name: "nanopb", package: "nanopb"),
       ],

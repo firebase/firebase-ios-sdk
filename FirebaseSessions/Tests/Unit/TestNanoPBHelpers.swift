@@ -15,6 +15,10 @@
 
 import XCTest
 
+#if SWIFT_PACKAGE
+  import FirebaseSessionsObjC
+#endif // SWIFT_PACKAGE
+
 @testable import FirebaseSessions
 
 // The file and line fields in this function capture the file and line of the
