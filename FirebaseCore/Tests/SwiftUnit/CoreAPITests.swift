@@ -123,15 +123,7 @@ final class CoreAPITests {
         // ...
       }
 
-      if let _ /* trackingID */ = options.trackingID {
-        // ...
-      }
-
       if let _ /* projectID */ = options.projectID {
-        // ...
-      }
-
-      if let _ /* androidClientID */ = options.androidClientID {
         // ...
       }
 
