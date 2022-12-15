@@ -1105,6 +1105,10 @@ let package = Package(
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
       ]
     ),
+    // The Sessions SDK is Swift-first with Objective-C code to support
+    // nanopb. Because Swift Package Manager doesn't support mixed
+    // language targets, the ObjC code has been extracted out into
+    // a separate target.
     .target(
       name: "FirebaseSessionsObjC",
       dependencies: [
