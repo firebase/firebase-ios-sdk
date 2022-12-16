@@ -206,6 +206,24 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   [self waitForExpectationsWithTimeout:0.1 handler:nil];
 }
 
+- (void)testReturnsErrorWhenFetchingTokenWithoutAPNSToken {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Returned an error fetching token without APNS Token"];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+  [self.messaging
+      retrieveFCMTokenForSenderID:@"12345"
+                       completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error) {
+                         if (error != nil) {
+                           [expectation fulfill];
+                         }
+                       }];
+#pragma clang diagnostic pop
+  [self waitForExpectationsWithTimeout:0.1 handler:nil];
+}
+
+
+
 - (void)testReturnsErrorWhenFetchingTokenWithEmptySenderID {
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Returned an error fetching token with empty Sender ID"];
