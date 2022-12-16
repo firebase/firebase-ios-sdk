@@ -222,8 +222,6 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   [self waitForExpectationsWithTimeout:0.1 handler:nil];
 }
 
-
-
 - (void)testReturnsErrorWhenFetchingTokenWithEmptySenderID {
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Returned an error fetching token with empty Sender ID"];
