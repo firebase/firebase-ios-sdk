@@ -29,9 +29,9 @@ protocol SessionLocalConfigProtocol {
 
 /// Class that manages the local overrides configs related to the library.
 class SessionLocalConfig: SessionLocalConfigProtocol {
-  static let PlistKey_sessions_enabled = "firebase_sessions_enabled"
-  static let PlistKey_sessions_timeout = "firebase_sessions_timeout"
-  static let PlistKey_sessions_samplingRate = "firebase_sessions_samplingRate"
+  static let PlistKey_sessions_enabled = "FirebaseSessionsEnabled"
+  static let PlistKey_sessions_timeout = "FirebaseSessionsTimeout"
+  static let PlistKey_sessions_samplingRate = "FirebaseSessionsSampingRate"
 
   var sessionEnabled: Bool? {
     return plistValueForConfig(configName: SessionLocalConfig.PlistKey_sessions_enabled) as? Bool
