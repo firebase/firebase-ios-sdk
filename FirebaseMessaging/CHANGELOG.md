@@ -1,5 +1,5 @@
 # 10.4.0
-- [changed] On app startup, an APNS Token must be provided to FCM SDK before retrieving an FCM Token otherwise an error will be returned as part of the completion. 
+- [changed] On app startup, an APNS Token must be provided to FCM SDK before retrieving an FCM Token otherwise an error will be returned as part of the completion.
 
 # 10.3.0
 - [changed] Allow notification support on iOS 16 Simulator on Xcode 14 (#9968) (Reference: Xcode 14 Release Notes -> Simulator -> New Features: https://developer.apple.com/documentation/xcode-release-notes/xcode-14-release-notes)
