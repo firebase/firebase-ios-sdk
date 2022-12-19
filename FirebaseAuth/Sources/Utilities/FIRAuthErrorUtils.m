@@ -927,8 +927,8 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_TENANT_ID_MISMATCH";
     case FIRAuthErrorCodeUnsupportedTenantOperation:
       return @"ERROR_UNSUPPORTED_TENANT_OPERATION";
-      case FIRAuthErrorCodeRecaptchaNotEnabled:
-        return @"ERROR_RECAPTCHA_NOT_ENABLED";
+    case FIRAuthErrorCodeRecaptchaNotEnabled:
+      return @"ERROR_RECAPTCHA_NOT_ENABLED";
   }
 }
 

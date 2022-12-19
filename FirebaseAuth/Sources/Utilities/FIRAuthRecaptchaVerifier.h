@@ -26,20 +26,34 @@ typedef void (^FIRAuthRecaptchaTokenCallback)(NSString *_Nullable token, NSError
 
 typedef void (^FIRAuthSiteKeyCallback)(NSString *_Nullable siteKey, NSError *_Nullable error);
 
-typedef void (^FIRAuthInjectRequestCallback)(FIRIdentityToolkitRequest <FIRAuthRPCRequest> *request);
+typedef void (^FIRAuthEnablementStatusCallback)(BOOL enablemnetStatus, NSError *_Nullable error);
+
+typedef void (^FIRAuthInjectRequestCallback)(FIRIdentityToolkitRequest<FIRAuthRPCRequest> *request);
+
+@interface FIRAuthRecaptchaConfig : NSObject {
+}
+
+@end
 
 @interface FIRAuthRecaptchaVerifier : NSObject {
-    RecaptchaClient *_recaptchaClient;
-    
-    NSString *_agentSiteKey;
-    NSMutableDictionary<NSString *, NSString *> *_tenantSiteKeys;
+  RecaptchaClient *_recaptchaClient;
+
+  NSString *_agentSiteKey;
+  NSMutableDictionary<NSString *, NSString *> *_tenantSiteKeys;
+
+  FIRAuthRecaptchaConfig *_agentRecaptchaConfig;
+  NSMutableDictionary<NSString *, FIRAuthRecaptchaConfig *> *_tenantRecaptchaConfigs;
 }
 
 + (id)sharedRecaptchaVerifier;
 
-- (void)verifyForceRefresh:(BOOL)forceRefresh completion:(nullable FIRAuthRecaptchaTokenCallback)completion;
+- (void)verifyForceRefresh:(BOOL)forceRefresh
+                completion:(nullable FIRAuthRecaptchaTokenCallback)completion;
 
-+ (void)injectRecaptchaFields:(FIRIdentityToolkitRequest <FIRAuthRPCRequest>*)request forceRefresh:(BOOL)forceRefresh completion:(nullable FIRAuthInjectRequestCallback)completion;
++ (void)injectRecaptchaFields:(FIRIdentityToolkitRequest<FIRAuthRPCRequest> *)request
+                 forceRefresh:(BOOL)forceRefresh
+                  forProvider:(NSString *)provider
+                   completion:(nullable FIRAuthInjectRequestCallback)completion;
 
 @end
 

@@ -114,10 +114,12 @@ static NSString *const kTenantIDKey = @"tenantId";
   return [postBody copy];
 }
 
-- (void)injectRecaptchaFields:(NSString *_Nullable)recaptchaResponse recaptchaVersion:(NSString *)recaptchaVersion clientType:(NSString *)clientType {
-    _captchaResponse = recaptchaResponse;
-    _recaptchaVersion = recaptchaVersion;
-    _clientType = clientType;
+- (void)injectRecaptchaFields:(NSString *_Nullable)recaptchaResponse
+             recaptchaVersion:(NSString *)recaptchaVersion
+                   clientType:(NSString *)clientType {
+  _captchaResponse = recaptchaResponse;
+  _recaptchaVersion = recaptchaVersion;
+  _clientType = clientType;
 }
 
 @end
