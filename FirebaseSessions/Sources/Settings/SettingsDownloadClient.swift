@@ -27,13 +27,10 @@ protocol SettingsDownloadClient {
 
 class SettingsDownloader: SettingsDownloadClient {
   private let appInfo: ApplicationInfoProtocol
-  private let identifiers: IdentifierProvider
   private let installations: InstallationsProtocol
 
-  init(appInfo: ApplicationInfoProtocol, identifiers: IdentifierProvider,
-       installations: InstallationsProtocol) {
+  init(appInfo: ApplicationInfoProtocol, installations: InstallationsProtocol) {
     self.appInfo = appInfo
-    self.identifiers = identifiers
     self.installations = installations
   }
 

@@ -20,22 +20,7 @@ extension ApplicationInfoProtocol {
   var synthesizedVersion: String { return "\(appDisplayVersion) (\(appBuildVersion))" }
 }
 
-extension SettingsProtocol {
-  func fetchAndCacheSettings() {
-    return fetchAndCacheSettings(currentTime: Date())
-  }
-}
-
-/// Provides the APIs to access Settings and their configuration values
-protocol SettingsProtocol {
-  /// Attempts to fetch settings only if the current cache is expired
-  func fetchAndCacheSettings(currentTime: Date)
-  var sessionsEnabled: Bool { get }
-  var samplingRate: Double { get }
-  var sessionTimeout: TimeInterval { get }
-}
-
-class Settings: SettingsProtocol {
+class RemoteSettings: SettingsProvider, SettingsProtocol {
   private static let cacheDurationSecondsDefault: TimeInterval = 60 * 60
   private static let flagSessionsEnabled = "sessions_enabled"
   private static let flagSamplingRate = "sampling_rate"
@@ -46,36 +31,15 @@ class Settings: SettingsProtocol {
   private let downloader: SettingsDownloadClient
   private var cache: SettingsCacheClient
 
-  var sessionsEnabled: Bool {
-    guard let enabled = sessionsCache[Settings.flagSessionsEnabled] as? Bool else {
-      return true
-    }
-    return enabled
-  }
-
-  var samplingRate: Double {
-    guard let rate = sessionsCache[Settings.flagSamplingRate] as? Double else {
-      return 1.0
-    }
-    return rate
-  }
-
-  var sessionTimeout: TimeInterval {
-    guard let timeout = sessionsCache[Settings.flagSessionTimeout] as? Double else {
-      return 30 * 60
-    }
-    return timeout
-  }
-
   private var cacheDurationSeconds: TimeInterval {
-    guard let duration = cache.cacheContent[Settings.flagCacheDuration] as? Double else {
-      return Settings.cacheDurationSecondsDefault
+    guard let duration = cache.cacheContent[RemoteSettings.flagCacheDuration] as? Double else {
+      return RemoteSettings.cacheDurationSecondsDefault
     }
     return duration
   }
 
   private var sessionsCache: [String: Any] {
-    return cache.cacheContent[Settings.flagSessionsCache] as? [String: Any] ?? [:]
+    return cache.cacheContent[RemoteSettings.flagSessionsCache] as? [String: Any] ?? [:]
   }
 
   init(appInfo: ApplicationInfoProtocol,
@@ -86,7 +50,7 @@ class Settings: SettingsProtocol {
     self.downloader = downloader
   }
 
-  func fetchAndCacheSettings(currentTime: Date) {
+  private func fetchAndCacheSettings(currentTime: Date) {
     // Only fetch if cache is expired, otherwise do nothing
     guard isCacheExpired(time: currentTime) else {
       Logger.logDebug("[Settings] Cache is not expired, no fetch will be made.")
@@ -108,6 +72,36 @@ class Settings: SettingsProtocol {
         Logger.logError("[Settings] Fetching newest settings failed with error: \(error)")
       }
     }
+  }
+}
+
+typealias RemoteSettingsConfigurations = RemoteSettings
+extension RemoteSettingsConfigurations {
+  var sessionsEnabled: Bool? {
+    return sessionsCache[RemoteSettings.flagSessionsEnabled] as? Bool
+  }
+
+  var samplingRate: Double? {
+    return sessionsCache[RemoteSettings.flagSamplingRate] as? Double
+  }
+
+  var sessionTimeout: TimeInterval? {
+    return sessionsCache[RemoteSettings.flagSessionTimeout] as? Double
+  }
+}
+
+typealias RemoteSettingsProvider = RemoteSettings
+extension RemoteSettingsConfigurations {
+  func updateSettings(currentTime: Date) {
+    fetchAndCacheSettings(currentTime: currentTime)
+  }
+
+  func updateSettings() {
+    updateSettings(currentTime: Date())
+  }
+
+  func isSettingsStale() -> Bool {
+    return isCacheExpired(time: Date())
   }
 
   private func isCacheExpired(time: Date) -> Bool {

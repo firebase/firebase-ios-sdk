@@ -16,10 +16,19 @@
 import Foundation
 @testable import FirebaseSessions
 
-class MockSessionLocalConfig: SessionLocalConfigProtocol {
-  var sessionEnabled: Bool?
+class MockLocalOverrideSettings: SettingsProvider, SettingsProtocol {
+  func updateSettings() {
+    // Nothing to do here
+  }
+
+  func isSettingsStale() -> Bool {
+    // These values are never stale
+    return false
+  }
+
+  var sessionsEnabled: Bool?
 
   var sessionTimeout: TimeInterval?
 
-  var sessionSamplingRate: Double?
+  var samplingRate: Double?
 }
