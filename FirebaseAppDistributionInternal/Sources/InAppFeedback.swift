@@ -23,7 +23,7 @@ import UIKit
       forResource: "AppDistributionInternalResources",
       withExtension: "bundle"
     )
-    let resourceBundle = Bundle(url: resourceBundleURL)
+    let resourceBundle = Bundle(url: resourceBundleURL!)
 
     let storyboard = UIStoryboard(
       name: "FIRAppDistributionInternalStoryboard",
