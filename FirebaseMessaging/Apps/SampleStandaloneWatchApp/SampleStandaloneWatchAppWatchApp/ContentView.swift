@@ -12,14 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+import SwiftUI
 
-/// Contains the list of errors that are localized for Firebase Sessions Library
-enum FirebaseSessionsError: Error {
-  /// Event sampling related error
-  case SessionSamplingError
-  /// Firebase Installation ID related error
-  case SessionInstallationsError
-  /// Settings related error
-  case SettingsError(String)
+struct ContentView: View {
+  var body: some View {
+    VStack {
+      Image(systemName: "globe")
+        .imageScale(.large)
+        .foregroundColor(.accentColor)
+      Text("Hello, world from FCM Sample!")
+    }
+    .padding()
+  }
+}
+
+struct ContentView_Previews: PreviewProvider {
+  static var previews: some View {
+    ContentView()
+  }
 }

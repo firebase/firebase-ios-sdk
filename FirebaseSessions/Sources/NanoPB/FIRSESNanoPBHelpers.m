@@ -24,6 +24,7 @@
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
+#import <sys/sysctl.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -155,6 +156,22 @@ BOOL FIRSESIsPBDataEqual(pb_bytes_array_t *_Nullable pbArray, NSData *_Nullable 
 
 pb_size_t FIRSESGetAppleApplicationInfoTag(void) {
   return firebase_appquality_sessions_ApplicationInfo_apple_app_info_tag;
+}
+
+/// Copied from a private method in GULAppEnvironmentUtil.
+NSString *_Nullable FIRSESGetSysctlEntry(const char *sysctlKey) {
+  static NSString *entryValue;
+  size_t size;
+  sysctlbyname(sysctlKey, NULL, &size, NULL, 0);
+  if (size > 0) {
+    char *entryValueCStr = malloc(size);
+    sysctlbyname(sysctlKey, entryValueCStr, &size, NULL, 0);
+    entryValue = [NSString stringWithCString:entryValueCStr encoding:NSUTF8StringEncoding];
+    free(entryValueCStr);
+    return entryValue;
+  } else {
+    return nil;
+  }
 }
 
 NSString *_Nullable FIRSESValidateMccMnc(NSString *_Nullable mcc, NSString *_Nullable mnc) {
