@@ -63,7 +63,7 @@ public extension Firestore {
     public var dateDecodingStrategy: FirebaseDataDecoder.DateDecodingStrategy = .timestamp
 
     /// Firestore decodes Data from `NSData` blobs versus the default .base64 strings.
-    public var dataEncodingStrategy: FirebaseDataDecoder.DataEncodingStrategy = .blob
+    public var dataDecodingStrategy: FirebaseDataDecoder.DataDecodingStrategy = .blob
 
     /// The strategy to use in decoding non-conforming numbers. Defaults to `.throw`.
     public var nonConformingFloatDecodingStrategy: FirebaseDataDecoder

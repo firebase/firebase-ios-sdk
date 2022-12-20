@@ -139,10 +139,10 @@ public class FirebaseDataEncoder {
     /// Defer to `Data` for choosing an encoding.
     case deferredToData
 
-    /// Encoded the `Data` as a Base64-encoded string. This is the default strategy.
+    /// Encode the `Data` as a Base64-encoded string. This is the default strategy.
     case base64
 
-    /// Encoded the `Data` as an `NSData` blob.
+    /// Encode the `Data` as an `NSData` blob.
     case blob
 
     /// Encode the `Data` as a custom value encoded by the given closure.
