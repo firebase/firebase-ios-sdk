@@ -24,6 +24,13 @@ private struct NoPassthroughTypes: StructureCodingPassthroughTypeResolver {
     }
 }
 
+public struct PassthroughDataWrapper: Encodable {
+    public let wrapped: Data
+    public init(wrapped: Data) {
+        self.wrapped = wrapped
+    }
+}
+
 public protocol StructureCodingUncodedUnkeyed {}
 
 extension DecodingError {
@@ -936,8 +943,10 @@ extension __JSONEncoder {
       // Respect Date encoding strategy
       return try self.box((value as! Date))
     } else if type == Data.self || type == NSData.self {
-      // Respect Data encoding strategy
-      return try self.box((value as! Data))
+        // Respect Data encoding strategy
+        return try self.box((value as! Data))
+    } else if let wrapper = value as? PassthroughDataWrapper {
+        return (wrapper.wrapped as NSData)
     } else if type == URL.self || type == NSURL.self {
       // Encode URLs as single strings.
       return self.box((value as! URL).absoluteString)

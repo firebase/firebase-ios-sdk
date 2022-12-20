@@ -18,13 +18,23 @@ import FirebaseFirestore
 import FirebaseSharedSwift
 import Foundation
 
+public extension FirebaseDataEncoder.DataEncodingStrategy {
+  /// Encode the `Data` as a Firestore data blob.
+  static var blob: FirebaseDataEncoder.DataEncodingStrategy {
+    return .custom { data, encoder in
+      var container = encoder.singleValueContainer()
+      try container.encode(PassthroughDataWrapper(wrapped: data))
+    }
+  }
+}
+
 public extension Firestore {
   class Encoder {
     /// The strategy to use in encoding dates. Defaults to `.timestamp`.
     public var dateEncodingStrategy: FirebaseDataEncoder.DateEncodingStrategy = .timestamp
 
     /// The strategy to use in encoding binary data. Defaults to `.base64`.
-    public var dataEncodingStrategy: FirebaseDataEncoder.DataEncodingStrategy = .base64
+    public var dataEncodingStrategy: FirebaseDataEncoder.DataEncodingStrategy = .blob
 
     /// The strategy to use in encoding non-conforming numbers. Defaults to `.throw`.
     public var nonConformingFloatEncodingStrategy: FirebaseDataEncoder
