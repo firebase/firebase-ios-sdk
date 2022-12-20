@@ -142,6 +142,9 @@ public class FirebaseDataEncoder {
     /// Encoded the `Data` as a Base64-encoded string. This is the default strategy.
     case base64
 
+    /// Encoded the `Data` as an `NSData` blob.
+    case blob
+
     /// Encode the `Data` as a custom value encoded by the given closure.
     ///
     /// If the closure fails to encode a value into the given encoder, the encoder will encode an empty automatic container in its place.
@@ -874,6 +877,9 @@ extension __JSONEncoder {
     case .base64:
       return NSString(string: data.base64EncodedString())
 
+    case .blob:
+      return data as NSData
+
     case .custom(let closure):
       let depth = self.storage.count
       do {
@@ -1091,6 +1097,9 @@ public class FirebaseDataDecoder {
 
     /// Decode the `Data` from a Base64-encoded string. This is the default strategy.
     case base64
+
+    /// Decode the `Data` as an `NSData` blob.
+    case blob
 
     /// Decode the `Data` as a custom value decoded by the given closure.
     case custom((_ decoder: Swift.Decoder) throws -> Data)
@@ -2482,6 +2491,12 @@ extension __JSONDecoder {
         throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: self.codingPath, debugDescription: "Encountered Data is not valid Base64."))
       }
 
+      return data
+
+    case .blob:
+      guard let data = value as? Data else {
+        throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: value)
+      }
       return data
 
     case .custom(let closure):
