@@ -35,8 +35,8 @@ Pod::Spec.new do |s|
 
   base_dir = "FirebaseSessions/"
   s.source_files = [
-    base_dir + 'Sources/**/*.{swift,h,m}',
-    base_dir + 'Protogen/**/*.{c,h,m,mm}',
+    base_dir + 'Sources/**/*.{swift}',
+    base_dir + 'SourcesObjC/**/*.{c,h,m,mm}',
   ]
 
   s.dependency 'FirebaseCore', '~> 10.0'

@@ -28,7 +28,7 @@ import Foundation
  * Downloads can currently be returned as `Data` in memory, or as a `URL` to a file on disk.
  * Downloads are performed on a background queue, and callbacks are raised on the developer
  * specified `callbackQueue` in Storage, or the main queue if left unspecified.
- * Currently all uploads must be initiated and managed on the main queue.
+ * Currently all downloads must be initiated and managed on the main queue.
  */
 @objc(FIRStorageDownloadTask)
 open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
@@ -119,7 +119,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
         fetcher.comment = "Resuming DownloadTask"
       } else {
         fetcher = self.fetcherService.fetcher(with: request)
-        fetcher.comment = "Resuming DownloadTask"
+        fetcher.comment = "Starting DownloadTask"
       }
       fetcher.maxRetryInterval = self.reference.storage.maxDownloadRetryInterval
 

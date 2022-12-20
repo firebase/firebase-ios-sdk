@@ -13,15 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@_implementationOnly import FirebaseInstallations
-
+import Foundation
 @testable import FirebaseSessions
 
-class MockInstallationsProtocol: InstallationsProtocol {
-  static let testInstallationId = "testInstallationId"
-  var result: Result<String, Error> = .success(testInstallationId)
+class MockSessionLocalConfig: SessionLocalConfigProtocol {
+  var sessionEnabled: Bool?
 
-  func installationID(completion: @escaping (Result<String, Error>) -> Void) {
-    completion(result)
-  }
+  var sessionTimeout: TimeInterval?
+
+  var sessionSamplingRate: Double?
 }

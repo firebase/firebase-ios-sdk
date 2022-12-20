@@ -180,6 +180,20 @@
     [tokenOptions addEntriesFromDictionary:options];
   }
 
+  // ensure we have an APNS Token
+  if (tokenOptions[kFIRMessagingTokenOptionsAPNSKey] == nil) {
+    // we don't have an APNS token. Don't fetch or return a FCM Token
+    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeAPNSTokenNotAvailableDuringTokenFetch,
+                           @"Declining request for FCM Token since no APNS Token specified");
+    dispatch_async(dispatch_get_main_queue(), ^{
+      NSError *missingAPNSTokenError =
+          [NSError messagingErrorWithCode:kFIRMessagingErrorCodeMissingDeviceToken
+                            failureReason:@"No APNS token specified before fetching FCM Token"];
+      handler(nil, missingAPNSTokenError);
+    });
+    return;
+  }
+
 #if TARGET_OS_SIMULATOR && TARGET_OS_IOS
   if (tokenOptions[kFIRMessagingTokenOptionsAPNSKey] != nil) {
     // If APNS token is available on iOS Simulator, we must use the sandbox profile

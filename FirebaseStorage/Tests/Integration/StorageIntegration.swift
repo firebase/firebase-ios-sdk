@@ -587,6 +587,88 @@ class StorageResultTests: StorageIntegrationCommon {
     waitForExpectations()
   }
 
+  func testResumeGetFile() {
+    let expectation = self.expectation(description: #function)
+    let expectationPause = self.expectation(description: "pause")
+    let expectationResume = self.expectation(description: "resume")
+    let ref = storage.reference().child("ios/public/1mb")
+
+    let fileURL = URL(fileURLWithPath: "\(NSTemporaryDirectory())/hello.txt")
+    let task = ref.write(toFile: fileURL)
+    var downloadedBytes: Int64 = 0
+    var resumeAtBytes = 256 * 1024
+
+    task.observe(StorageTaskStatus.success) { snapshot in
+      XCTAssertEqual(snapshot.description, "<State: Success>")
+      expectation.fulfill()
+    }
+    task.observe(StorageTaskStatus.progress) { snapshot in
+      let description = snapshot.description
+      XCTAssertTrue(description.contains("State: Progress") ||
+        description.contains("State: Resume"))
+      let progress = snapshot.progress
+      if let completed = progress?.completedUnitCount {
+        XCTAssertGreaterThanOrEqual(completed, downloadedBytes)
+        downloadedBytes = completed
+        if completed > resumeAtBytes {
+          task.pause()
+          expectationPause.fulfill()
+          resumeAtBytes = Int.max
+        }
+      }
+    }
+    task.observe(StorageTaskStatus.pause) { snapshot in
+      XCTAssertEqual(snapshot.description, "<State: Paused>")
+      task.resume()
+      expectationResume.fulfill()
+    }
+    waitForExpectations()
+    XCTAssertEqual(resumeAtBytes, Int.max)
+  }
+
+  func testResumeGetFileInBackgroundQueue() {
+    let expectation = self.expectation(description: #function)
+    let expectationPause = self.expectation(description: "pause")
+    let expectationResume = self.expectation(description: "resume")
+    let ref = storage.reference().child("ios/public/1mb")
+
+    let fileURL = URL(fileURLWithPath: "\(NSTemporaryDirectory())/hello.txt")
+    let task = ref.write(toFile: fileURL)
+    var downloadedBytes: Int64 = 0
+    var resumeAtBytes = 256 * 1024
+
+    task.observe(StorageTaskStatus.success) { snapshot in
+      XCTAssertEqual(snapshot.description, "<State: Success>")
+      expectation.fulfill()
+    }
+    task.observe(StorageTaskStatus.progress) { snapshot in
+      let description = snapshot.description
+      XCTAssertTrue(description.contains("State: Progress") ||
+        description.contains("State: Resume"))
+      let progress = snapshot.progress
+      if let completed = progress?.completedUnitCount {
+        XCTAssertGreaterThanOrEqual(completed, downloadedBytes)
+        downloadedBytes = completed
+        if completed > resumeAtBytes {
+          DispatchQueue.global(qos: .background).async {
+            task.pause()
+          }
+          expectationPause.fulfill()
+          resumeAtBytes = Int.max
+        }
+      }
+    }
+    task.observe(StorageTaskStatus.pause) { snapshot in
+      XCTAssertEqual(snapshot.description, "<State: Paused>")
+      DispatchQueue.global(qos: .background).async {
+        task.resume()
+      }
+      expectationResume.fulfill()
+    }
+    waitForExpectations()
+    XCTAssertEqual(resumeAtBytes, Int.max)
+  }
+
   func testPagedListFiles() {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/list")

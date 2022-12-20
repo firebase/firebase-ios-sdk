@@ -13,7 +13,9 @@
 // limitations under the License.
 
 import Foundation
-#if os(macOS)
+#if os(iOS) || os(tvOS)
+  import UIKit
+#elseif os(macOS)
   import Cocoa
   import AppKit
 #elseif os(watchOS)
@@ -87,11 +89,11 @@ class SessionInitiator {
     #endif
   }
 
-  @objc func appBackgrounded() {
+  @objc private func appBackgrounded() {
     backgroundTime = currentTime()
   }
 
-  @objc func appForegrounded() {
+  @objc private func appForegrounded() {
     let interval = currentTime().timeIntervalSince(backgroundTime)
     if interval > sessionTimeout {
       initiateSessionStart()
