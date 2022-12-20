@@ -148,7 +148,6 @@ extern NSString *const kFIRLibraryVersionID;
   options.deepLinkURLScheme = kDeepLinkURLScheme;
   options.projectID = kProjectID;
   options.storageBucket = kStorageBucket;
-  options.trackingID = kTrackingID;
   [self assertOptionsMatchDefaults:options andProjectID:YES];
   XCTAssertEqualObjects(options.deepLinkURLScheme, kDeepLinkURLScheme);
   XCTAssertFalse(options.usingOptionsFromDefaultPlist);
@@ -158,9 +157,7 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertEqualObjects(options.googleAppID, kGoogleAppID);
   XCTAssertEqualObjects(options.APIKey, kAPIKey);
   XCTAssertEqualObjects(options.clientID, kClientID);
-  XCTAssertEqualObjects(options.trackingID, kTrackingID);
   XCTAssertEqualObjects(options.GCMSenderID, kGCMSenderID);
-  XCTAssertNil(options.androidClientID);
   XCTAssertEqualObjects(options.libraryVersionID, kFIRLibraryVersionID);
   XCTAssertEqualObjects(options.databaseURL, kDatabaseURL);
   XCTAssertEqualObjects(options.storageBucket, kStorageBucket);
@@ -193,11 +190,6 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertEqualObjects(options.clientID, @"1");
 
   mutableString = [[NSMutableString alloc] initWithString:@"1"];
-  options.trackingID = mutableString;
-  [mutableString appendString:@"2"];
-  XCTAssertEqualObjects(options.trackingID, @"1");
-
-  mutableString = [[NSMutableString alloc] initWithString:@"1"];
   options.GCMSenderID = mutableString;
   [mutableString appendString:@"2"];
   XCTAssertEqualObjects(options.GCMSenderID, @"1");
@@ -206,11 +198,6 @@ extern NSString *const kFIRLibraryVersionID;
   options.projectID = mutableString;
   [mutableString appendString:@"2"];
   XCTAssertEqualObjects(options.projectID, @"1");
-
-  mutableString = [[NSMutableString alloc] initWithString:@"1"];
-  options.androidClientID = mutableString;
-  [mutableString appendString:@"2"];
-  XCTAssertEqualObjects(options.androidClientID, @"1");
 
   mutableString = [[NSMutableString alloc] initWithString:@"1"];
   options.googleAppID = mutableString;
@@ -597,7 +584,6 @@ extern NSString *const kFIRLibraryVersionID;
   options.editingLocked = YES;
 
   // Modification to every property should result in an exception.
-  XCTAssertThrows(options.androidClientID = @"should_throw");
   XCTAssertThrows(options.APIKey = @"should_throw");
   XCTAssertThrows(options.bundleID = @"should_throw");
   XCTAssertThrows(options.clientID = @"should_throw");
@@ -607,7 +593,6 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertThrows(options.googleAppID = @"should_throw");
   XCTAssertThrows(options.projectID = @"should_throw");
   XCTAssertThrows(options.storageBucket = @"should_throw");
-  XCTAssertThrows(options.trackingID = @"should_throw");
 }
 
 - (void)testVersionFormat {

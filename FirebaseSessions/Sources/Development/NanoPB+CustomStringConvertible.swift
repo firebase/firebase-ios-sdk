@@ -15,6 +15,10 @@
 
 import Foundation
 
+#if SWIFT_PACKAGE
+  import FirebaseSessionsObjC
+#endif // SWIFT_PACKAGE
+
 ///
 /// These extensions allows us to console log properties of our Session Events
 /// proto for development and debugging purposes without having to call decode

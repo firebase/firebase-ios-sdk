@@ -15,6 +15,10 @@
 
 import Foundation
 
+#if SWIFT_PACKAGE
+  import FirebaseSessionsObjC
+#endif // SWIFT_PACKAGE
+
 class DevEventConsoleLogger: EventGDTLoggerProtocol {
   private let commandLineArgument = "-FIRSessionsDebugEvents"
 

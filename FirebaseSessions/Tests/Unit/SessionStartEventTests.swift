@@ -15,7 +15,15 @@
 
 import XCTest
 
-@_implementationOnly import GoogleUtilities
+#if SWIFT_PACKAGE
+  import FirebaseSessionsObjC
+#endif // SWIFT_PACKAGE
+
+#if SWIFT_PACKAGE
+  @_implementationOnly import GoogleUtilities_Environment
+#else
+  @_implementationOnly import GoogleUtilities
+#endif // SWIFT_PACKAGE
 
 @testable import FirebaseSessions
 
