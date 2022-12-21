@@ -2497,6 +2497,8 @@ extension __JSONDecoder {
       if let data = value as? Data {
         return data
       } else if let string = value as? String, let data = Data(base64Encoded: string) {
+        // Support implicit migration of data that was written with .base64 (String type) using
+        // Firestore 10.0 through 10.3.
         return data
       }
 
