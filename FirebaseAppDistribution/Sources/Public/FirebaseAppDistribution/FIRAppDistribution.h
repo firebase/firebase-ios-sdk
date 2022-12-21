@@ -57,17 +57,33 @@ NS_SWIFT_NAME(AppDistribution)
 - (void)signOutTester;
 
 /**
- *  Start a modal view controller to collect and submit feedback from the tester and attach the
+ * Take a screenshot, prompt the tester to sign in if they haven't already, the start a modal view
+ * controller to collect and submit feedback from the tester.
+ *
+ * @param infoText Text to display to the tester before collecting feedback data (eg. Terms and
+ * Conditions).
+ */
+- (void)startFeedback:(NSString *)infoText NS_SWIFT_NAME(startFeedback(infoText:));
+
+/**
+ * Start a modal view controller to collect and submit feedback from the tester and attach the
  * image that's provided.
+ *
+ * @param infoText Text to display to the tester before collecting feedback data (eg. Terms and
+ * Conditions).
  */
 - (void)startFeedback:(NSString *)infoText
             withImage:(UIImage *)image NS_SWIFT_NAME(startFeedback(infoText:withImage:));
 
 /**
- *  When a tester takes a screenshot, request access to it, and start a modal view controller to
+ * After calling the method, whenever a tester takes a screenshot, request access to it if needed,
+ * prompt the tester to sign in if they haven't already, and start a modal view controller to
  * collect and submit feedback.
  *
- *  Note: Using this method requires you to add `NSPhotoLibraryUsageDescription` to your Info.plist,
+ * @param infoText Text to display to the tester before collecting feedback data (eg. Terms and
+ * Conditions).
+ *
+ * Note: Using this method requires you to add `NSPhotoLibraryUsageDescription` to your Info.plist,
  * otherwise the app will crash.
  */
 - (void)enableFeedbackOnScreenshot:(NSString *)infoText
