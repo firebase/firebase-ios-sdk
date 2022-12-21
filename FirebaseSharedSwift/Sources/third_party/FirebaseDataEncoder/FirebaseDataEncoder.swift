@@ -2494,10 +2494,13 @@ extension __JSONDecoder {
       return data
 
     case .blob:
-      guard let data = value as? Data else {
-        throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: value)
+      if let data = value as? Data {
+        return data
+      } else if let string = value as? String, let data = Data(base64Encoded: string) {
+        return data
       }
-      return data
+
+      throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: value)
 
     case .custom(let closure):
       self.storage.push(container: value)

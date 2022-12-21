@@ -481,6 +481,35 @@ class TestFirebaseDataEncoder: XCTestCase {
                    dataEncodingStrategy: .custom(encode),
                    dataDecodingStrategy: .custom(decode))
   }
+  
+  func testDecodingBase64StringAsBlobData() {
+    let data = "abcdef".data(using: .utf8)!
+    let base64String = "YWJjZGVm"
+    
+    let encoder = FirebaseDataEncoder()
+    encoder.dataEncodingStrategy = .base64
+    var payload: Any! = nil
+    do {
+      payload = try encoder.encode(data)
+    } catch {
+      XCTFail("Failed to encode \(Data.self): \(error)")
+    }
+    
+    XCTAssertEqual(
+      base64String,
+      payload as? String,
+      "Encoding did not produce the expected base64-encoded \(String.self)."
+    )
+    
+    let decoder = FirebaseDataDecoder()
+    decoder.dataDecodingStrategy = .blob
+    do {
+      let decoded = try decoder.decode(Data.self, from: payload!)
+      XCTAssertEqual(data, decoded, "Decoding the base64-encoded payload did not produce a \(Data.self).")
+    } catch {
+      XCTFail("Failed to decode \(Data.self): \(error)")
+    }
+  }
 
   // MARK: - Non-Conforming Floating Point Strategy Tests
 
