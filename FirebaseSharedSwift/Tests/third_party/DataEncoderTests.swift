@@ -481,11 +481,11 @@ class TestFirebaseDataEncoder: XCTestCase {
                    dataEncodingStrategy: .custom(encode),
                    dataDecodingStrategy: .custom(decode))
   }
-  
+
   func testDecodingBase64StringAsBlobData() {
     let data = "abcdef".data(using: .utf8)!
     let base64String = "YWJjZGVm"
-    
+
     let encoder = FirebaseDataEncoder()
     encoder.dataEncodingStrategy = .base64
     var payload: Any! = nil
@@ -494,13 +494,13 @@ class TestFirebaseDataEncoder: XCTestCase {
     } catch {
       XCTFail("Failed to encode \(Data.self): \(error)")
     }
-    
+
     XCTAssertEqual(
       base64String,
       payload as? String,
       "Encoding did not produce the expected base64-encoded \(String.self)."
     )
-    
+
     let decoder = FirebaseDataDecoder()
     decoder.dataDecodingStrategy = .blob
     do {
