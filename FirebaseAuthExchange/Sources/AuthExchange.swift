@@ -30,7 +30,7 @@ import FirebaseCore
   @objc public static func authExchange() -> AuthExchange {
     return authExchange(app: FirebaseApp.app()!)
   }
-  
+
   /** Creates an `AuthExchange` instance, initialized with the provided `FirebaseApp`. */
   @objc(authExchangeWithApp:) public static func authExchange(app: FirebaseApp) -> AuthExchange {
     // TODO: Integrate with ComponentProvider.
@@ -38,7 +38,7 @@ import FirebaseCore
     instanceDictionary[app.name] = instance
     return instance
   }
-  
+
   /// Returns the current Auth Exchange token if valid and fetches a new one from the backend
   /// otherwise. If `forceRefresh` is true, then a new token is fetched regardless of the
   /// validity of the stored token.
@@ -48,26 +48,25 @@ import FirebaseCore
   @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
   public func getAuthExchangeToken(forceRefresh: Bool) async throws -> AuthExchangeToken? {
     // TODO: Implement methods.
-    return self.authExchangeToken
+    return authExchangeToken
   }
-  
+
   /// See `getAuthExchangeToken(forceRefresh:)`.
   @objc(getAuthExchangeTokenForcingRefresh:completion:)
   public func getAuthExchangeToken(forceRefresh: Bool,
-                                   completion: ((AuthExchangeToken?, Error?) -> Void)) {
+                                   completion: (AuthExchangeToken?, Error?) -> Void) {
     // TODO: Implement methods.
 
-    completion(self.authExchangeToken, nil)
+    completion(authExchangeToken, nil)
   }
-  
+
   /** The delegate object used to request a new Auth Exchange token when the current one has expired. */
   @objc public var authExchangeDelegate: AuthExchangeDelegate?
-  
-  
+
   @objc public func clearAuthExchangeToken() {
     // TODO: Implement methods.
   }
-  
+
   // MARK: - Exchange Token APIs
 
   // TODO: Replace this test function with real implementation.
@@ -96,6 +95,7 @@ import FirebaseCore
   }
 
   // MARK: - Internal APIs
+
   // TODO: Integrate with ComponentProvider.
   private static var instanceDictionary: [String: AuthExchange] = [:]
 
@@ -106,7 +106,6 @@ import FirebaseCore
 
   /** The cached Auth Exchange token */
   var authExchangeToken: AuthExchangeToken?
-
 
   // TODO: Replace this test function with real implementation.
   /** This is a test funciton to trigger delegate call */

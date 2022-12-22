@@ -51,12 +51,12 @@ struct ExchangeOIDCTokenRequest: Encodable {
   init(providerID: String, implicitCredentials: ImplicitCredentials) {
     self.providerID = providerID
     self.implicitCredentials = implicitCredentials
-    self.authCodeCredentials = nil
+    authCodeCredentials = nil
   }
 
   init(providerID: String, authCodeCredentials: AuthCodeCredentials) {
     self.providerID = providerID
-    self.implicitCredentials = nil
+    implicitCredentials = nil
     self.authCodeCredentials = authCodeCredentials
   }
 }
