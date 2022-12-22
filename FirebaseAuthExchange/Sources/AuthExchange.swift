@@ -58,7 +58,7 @@ import FirebaseCore
   /** See `getToken(forceRefresh:)`. */
   @objc(getTokenForcingRefresh:completion:)
   public func getToken(forceRefresh: Bool,
-                       completion: (AuthExchangeToken?, Error?) -> Void) {
+                       completion: @escaping (AuthExchangeToken?, Error?) -> Void) {
     // TODO: Implement methods.
 
     completion(authExchangeToken, nil)
@@ -184,7 +184,8 @@ import FirebaseCore
     return "Unimplemented"
   }
 
-  public func getTokenInternal(forceRefresh: Bool, completion: (String?, Error?) -> Void) {
+  public func getTokenInternal(forceRefresh: Bool,
+                               @escaping completion: (String?, Error?) -> Void) {
     // TODO: Implement interop methods.
   }
 }
