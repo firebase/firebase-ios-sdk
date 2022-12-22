@@ -63,7 +63,7 @@ NS_SWIFT_NAME(AppDistribution)
  * @param infoText Text to display to the tester before collecting feedback data (eg. Terms and
  * Conditions).
  */
-- (void)startFeedback:(NSString *)infoText NS_SWIFT_NAME(startFeedback(infoText:));
+- (void)startFeedbackWithInfoText:(NSString *)infoText NS_SWIFT_NAME(startFeedback(infoText:));
 
 /**
  * Start a modal view controller to collect and submit feedback from the tester and attach the
@@ -72,8 +72,9 @@ NS_SWIFT_NAME(AppDistribution)
  * @param infoText Text to display to the tester before collecting feedback data (eg. Terms and
  * Conditions).
  */
-- (void)startFeedback:(NSString *)infoText
-            withImage:(UIImage *)image NS_SWIFT_NAME(startFeedback(infoText:withImage:));
+- (void)startFeedbackWithInfoText:(NSString *)infoText
+                        withImage:(UIImage *)image
+    NS_SWIFT_NAME(startFeedback(infoText:withImage:));
 
 /**
  * After calling the method, whenever a tester takes a screenshot, request access to it if needed,
@@ -86,7 +87,7 @@ NS_SWIFT_NAME(AppDistribution)
  * Note: Using this method requires you to add `NSPhotoLibraryUsageDescription` to your Info.plist,
  * otherwise the app will crash.
  */
-- (void)enableFeedbackOnScreenshot:(NSString *)infoText
+- (void)enableFeedbackOnScreenshotWithInfoText:(NSString *)infoText
     NS_SWIFT_NAME(startFeedbackOnScreenshot(infoText:));
 
 /**
