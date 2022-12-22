@@ -265,6 +265,52 @@ class StorageResultTests: StorageIntegrationCommon {
     waitForExpectations()
   }
 
+  func testPutFileLimitedChunk() throws {
+    let expectation = self.expectation(description: #function)
+    let putFileExpectation = self.expectation(description: "putFile")
+    let ref = storage.reference(withPath: "ios/public/testPutFilePauseResume")
+    let bundle = Bundle(for: StorageIntegrationCommon.self)
+    let filePath = try XCTUnwrap(bundle.path(forResource: "1mb", ofType: "dat"),
+                                 "Failed to get filePath")
+    let data = try XCTUnwrap(try Data(contentsOf: URL(fileURLWithPath: filePath)),
+                             "Failed to load file")
+    let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
+    let fileURL = tmpDirURL.appendingPathComponent("LargePutFile.txt")
+    var progressCount = 0
+
+    try data.write(to: fileURL, options: .atomicWrite)
+
+    // Limit the upload chunk size
+    storage.uploadChunkSize = 256_000
+
+    let task = ref.putFile(from: fileURL) { result in
+      XCTAssertGreaterThanOrEqual(progressCount, 4)
+      self.assertResultSuccess(result)
+      putFileExpectation.fulfill()
+    }
+
+    task.observe(StorageTaskStatus.success) { snapshot in
+      XCTAssertEqual(snapshot.description, "<State: Success>")
+      expectation.fulfill()
+    }
+
+    var uploadedBytes: Int64 = -1
+
+    task.observe(StorageTaskStatus.progress) { snapshot in
+      XCTAssertTrue(snapshot.description.starts(with: "<State: Progress") ||
+        snapshot.description.starts(with: "<State: Resume"))
+      guard let progress = snapshot.progress else {
+        XCTFail("Failed to get snapshot.progress")
+        return
+      }
+      progressCount = progressCount + 1
+      XCTAssertGreaterThanOrEqual(progress.completedUnitCount, uploadedBytes)
+      uploadedBytes = progress.completedUnitCount
+    }
+    waitForExpectations()
+    storage.uploadChunkSize = Int64.max
+  }
+
   func testAttemptToUploadDirectoryShouldFail() throws {
     // This `.numbers` file is actually a directory.
     let fileName = "HomeImprovement.numbers"
