@@ -1,4 +1,4 @@
-// Copyright 2021 Google LLC
+// Copyright 2022 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,15 +17,18 @@ import SwiftUI
 struct MenuView: View {
   var body: some View {
     List {
-      Section(header: Text("Demos")) {
+      Section(header: Text("Firestore Property Wrapper")) {
         NavigationLink(destination: FavouriteFruitsView()) {
-          Label("Property Wrappers", systemImage: "shippingbox")
+          Label("**@FirestoreQuery** \nFetch data from a collection",
+                systemImage: "shippingbox")
         }
         NavigationLink(destination: FavouriteFruitsMappingErrorView()) {
-          Label("Mapping failure", systemImage: "shippingbox")
+          Label("**Mapping failure** \nDisplay a different view if any document cannot be mapped.",
+                systemImage: "shippingbox")
         }
         NavigationLink(destination: FavouriteFruitsMappingErrorView2()) {
-          Label("Mapping failure 2", systemImage: "shippingbox")
+          Label("**Mapping failure 2** \nShow how to recover from a mapping failure",
+                systemImage: "shippingbox")
         }
       }
     }
