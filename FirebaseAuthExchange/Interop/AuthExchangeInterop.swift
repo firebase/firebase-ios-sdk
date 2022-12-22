@@ -26,5 +26,5 @@
 
   /** See `getTokenInternal(forceRefresh:)`. */
   @objc(getTokenInternalForcingRefresh:completion:)
-  func getTokenInternal(forceRefresh: Bool, completion: (String?, Error?) -> Void)
+  func getTokenInternal(forceRefresh: Bool, completion: @escaping (String?, Error?) -> Void)
 }
