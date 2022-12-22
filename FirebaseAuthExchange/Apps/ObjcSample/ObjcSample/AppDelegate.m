@@ -22,8 +22,8 @@
 
 @implementation AppDelegate
 
-
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+- (BOOL)application:(UIApplication *)application
+    didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
   // Override point for customization after application launch.
   [FIRApp configure];
   FIRAuthExchange *authExchange = [FIRAuthExchange authExchange];
@@ -34,46 +34,51 @@
 
 #pragma mark - UISceneSession lifecycle
 
-- (UISceneConfiguration *)application:(UIApplication *)application configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession options:(UISceneConnectionOptions *)options {
+- (UISceneConfiguration *)application:(UIApplication *)application
+    configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession
+                                   options:(UISceneConnectionOptions *)options {
   // Called when a new scene session is being created.
   // Use this method to select a configuration to create the new scene with.
-  return [[UISceneConfiguration alloc] initWithName:@"Default Configuration" sessionRole:connectingSceneSession.role];
+  return [[UISceneConfiguration alloc] initWithName:@"Default Configuration"
+                                        sessionRole:connectingSceneSession.role];
 }
 
-
-- (void)application:(UIApplication *)application didDiscardSceneSessions:(NSSet<UISceneSession *> *)sceneSessions {
+- (void)application:(UIApplication *)application
+    didDiscardSceneSessions:(NSSet<UISceneSession *> *)sceneSessions {
   // Called when the user discards a scene session.
-  // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
-  // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
+  // If any sessions were discarded while the application was not running, this will be called
+  // shortly after application:didFinishLaunchingWithOptions. Use this method to release any
+  // resources that were specific to the discarded scenes, as they will not return.
 }
 
-- (void)authExchangeTokenWithCompletion:(
-      void (^)(FIRAuthExchangeToken *_Nullable authExchangeToken,
-               NSError *_Nullable error))completion {
-  [[FIRInstallations installations] authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable result,
-                                           NSError *_Nullable error) {
-    if (error) {
-      NSLog(@"FIRInstallations#authTokenWithCompletion failure");
-      completion(nil, error);
-    } else {
-      [[FIRAuthExchange authExchange] exchangeInstallationsToken:result.authToken
-                                    completion:^(FIRAuthExchangeResult *_Nullable result,
-                                                 NSError *_Nullable error) {
+- (void)authExchangeTokenWithCompletion:(void (^)(FIRAuthExchangeToken *_Nullable authExchangeToken,
+                                                  NSError *_Nullable error))completion {
+  [[FIRInstallations installations]
+      authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable result,
+                                NSError *_Nullable error) {
         if (error) {
-          NSLog(@"FIRAuthExchange#exchangeInstallationsToken failure");
+          NSLog(@"FIRInstallations#authTokenWithCompletion failure");
           completion(nil, error);
         } else {
-          NSLog(@"FIRAuthExchange#exchangeInstallationsToken success");
-          completion(result.authExchangeToken, nil);
+          [[FIRAuthExchange authExchange]
+              exchangeInstallationsToken:result.authToken
+                              completion:^(FIRAuthExchangeResult *_Nullable result,
+                                           NSError *_Nullable error) {
+                                if (error) {
+                                  NSLog(@"FIRAuthExchange#exchangeInstallationsToken failure");
+                                  completion(nil, error);
+                                } else {
+                                  NSLog(@"FIRAuthExchange#exchangeInstallationsToken success");
+                                  completion(result.authExchangeToken, nil);
+                                }
+                              }];
         }
       }];
-    }
-  }];
 }
 
-- (void)refreshAuthExchangeTokenWithCompletion:(void (^ _Nonnull)(FIRAuthExchangeToken * _Nullable, NSError * _Nullable))completion {
+- (void)refreshAuthExchangeTokenWithCompletion:(void (^_Nonnull)(FIRAuthExchangeToken *_Nullable,
+                                                                 NSError *_Nullable))completion {
   [self authExchangeTokenWithCompletion:completion];
-
 }
 
 @end
