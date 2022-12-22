@@ -65,7 +65,8 @@ import FirebaseCore
   }
 
   /** Clears the stored Auth Exchange token and delegate, if one is set. */
-  @objc public func clearState() {
+  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
+  public func clearState() async throws {
     // TODO: Implement methods.
   }
 
@@ -185,7 +186,7 @@ import FirebaseCore
   }
 
   public func getTokenInternal(forceRefresh: Bool,
-                               @escaping completion: (String?, Error?) -> Void) {
+                               completion: @escaping (String?, Error?) -> Void) {
     // TODO: Implement interop methods.
   }
 }
