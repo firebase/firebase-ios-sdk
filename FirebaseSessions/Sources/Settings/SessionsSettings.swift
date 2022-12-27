@@ -47,10 +47,9 @@ class SessionsSettings {
 
   var sessionsEnabled: Bool {
     // Order of precendence LocalOverrides > Remote Settings > SDK Defaults
-    if !localOverrides.isSettingsStale(), let sessionEnabled = localOverrides.sessionsEnabled {
+    if let sessionEnabled = localOverrides.sessionsEnabled {
       return sessionEnabled
-    } else if !remoteSettings.isSettingsStale(),
-              let sessionEnabled = remoteSettings.sessionsEnabled {
+    } else if let sessionEnabled = remoteSettings.sessionsEnabled {
       return sessionEnabled
     }
     return sdkDefaults.sessionsEnabled!
@@ -58,10 +57,9 @@ class SessionsSettings {
 
   var sessionTimeout: TimeInterval {
     // Order of precendence LocalOverrides > Remote Settings > SDK Defaults
-    if !localOverrides.isSettingsStale(), let sessionTimeout = localOverrides.sessionTimeout {
+    if let sessionTimeout = localOverrides.sessionTimeout {
       return sessionTimeout
-    } else if !remoteSettings.isSettingsStale(),
-              let sessionTimeout = remoteSettings.sessionTimeout {
+    } else if let sessionTimeout = remoteSettings.sessionTimeout {
       return sessionTimeout
     }
     return sdkDefaults.sessionTimeout!
@@ -69,9 +67,9 @@ class SessionsSettings {
 
   var samplingRate: Double {
     // Order of precendence LocalOverrides > Remote Settings > SDK Defaults
-    if !localOverrides.isSettingsStale(), let samplingRate = localOverrides.samplingRate {
+    if let samplingRate = localOverrides.samplingRate {
       return samplingRate
-    } else if !remoteSettings.isSettingsStale(), let samplingRate = remoteSettings.samplingRate {
+    } else if let samplingRate = remoteSettings.samplingRate {
       return samplingRate
     }
     return sdkDefaults.samplingRate!
