@@ -15,39 +15,41 @@
 
 import Foundation
 
-/// Protoco defining the loval override values for the SDK settings.
-protocol SessionLocalConfigProtocol {
-  /// Session enabled flag value.
-  var sessionEnabled: Bool? { get }
-
-  /// Session timeout flag value.
-  var sessionTimeout: TimeInterval? { get }
-
-  /// Session timeout flag value.
-  var sessionSamplingRate: Double? { get }
-}
-
 /// Class that manages the local overrides configs related to the library.
-class SessionLocalConfig: SessionLocalConfigProtocol {
+class LocalOverrideSettings: SettingsProvider, SettingsProtocol {
   static let PlistKey_sessions_enabled = "FirebaseSessionsEnabled"
   static let PlistKey_sessions_timeout = "FirebaseSessionsTimeout"
   static let PlistKey_sessions_samplingRate = "FirebaseSessionsSampingRate"
 
-  var sessionEnabled: Bool? {
-    return plistValueForConfig(configName: SessionLocalConfig.PlistKey_sessions_enabled) as? Bool
+  var sessionsEnabled: Bool? {
+    return plistValueForConfig(configName: LocalOverrideSettings.PlistKey_sessions_enabled) as? Bool
   }
 
   var sessionTimeout: TimeInterval? {
     return
-      plistValueForConfig(configName: SessionLocalConfig.PlistKey_sessions_timeout) as? TimeInterval
+      plistValueForConfig(configName: LocalOverrideSettings
+        .PlistKey_sessions_timeout) as? TimeInterval
   }
 
-  var sessionSamplingRate: Double? {
+  var samplingRate: Double? {
     return
-      plistValueForConfig(configName: SessionLocalConfig.PlistKey_sessions_samplingRate) as? Double
+      plistValueForConfig(configName: LocalOverrideSettings
+        .PlistKey_sessions_samplingRate) as? Double
   }
 
   private func plistValueForConfig(configName: String) -> Any? {
-    return Bundle.main.value(forKey: configName)
+    return Bundle.main.object(forInfoDictionaryKey: configName)
+  }
+}
+
+typealias LocalOverrideSettingsProvider = LocalOverrideSettings
+extension LocalOverrideSettingsProvider {
+  func updateSettings() {
+    // Nothing to be done since there is nothing to be updated.
+  }
+
+  func isSettingsStale() -> Bool {
+    // Settings are never stale since all of these are local settings from Plist
+    return false
   }
 }
