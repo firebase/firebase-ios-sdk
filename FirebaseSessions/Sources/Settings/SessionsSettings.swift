@@ -47,35 +47,37 @@ class SessionsSettings {
 
   var sessionsEnabled: Bool {
     // Order of precendence LocalOverrides > Remote Settings > SDK Defaults
-    if !localOverrides.isSettingsStale(), localOverrides.sessionsEnabled != nil {
-      return localOverrides.sessionsEnabled!
-    } else if !remoteSettings.isSettingsStale(), remoteSettings.sessionsEnabled != nil {
-      return remoteSettings.sessionsEnabled!
+    if !localOverrides.isSettingsStale(), let sessionEnabled = localOverrides.sessionsEnabled {
+      return sessionEnabled
+    } else if !remoteSettings.isSettingsStale(),
+              let sessionEnabled = remoteSettings.sessionsEnabled {
+      return sessionEnabled
     }
     return sdkDefaults.sessionsEnabled!
   }
 
   var sessionTimeout: TimeInterval {
     // Order of precendence LocalOverrides > Remote Settings > SDK Defaults
-    if !localOverrides.isSettingsStale(), localOverrides.sessionTimeout != nil {
-      return localOverrides.sessionTimeout!
-    } else if !remoteSettings.isSettingsStale(), remoteSettings.sessionTimeout != nil {
-      return remoteSettings.sessionTimeout!
+    if !localOverrides.isSettingsStale(), let sessionTimeout = localOverrides.sessionTimeout {
+      return sessionTimeout
+    } else if !remoteSettings.isSettingsStale(),
+              let sessionTimeout = remoteSettings.sessionTimeout {
+      return sessionTimeout
     }
     return sdkDefaults.sessionTimeout!
   }
 
   var samplingRate: Double {
     // Order of precendence LocalOverrides > Remote Settings > SDK Defaults
-    if !localOverrides.isSettingsStale(), localOverrides.samplingRate != nil {
-      return localOverrides.samplingRate!
-    } else if !remoteSettings.isSettingsStale(), remoteSettings.samplingRate != nil {
-      return remoteSettings.samplingRate!
+    if !localOverrides.isSettingsStale(), let samplingRate = localOverrides.samplingRate {
+      return samplingRate
+    } else if !remoteSettings.isSettingsStale(), let samplingRate = remoteSettings.samplingRate {
+      return samplingRate
     }
     return sdkDefaults.samplingRate!
   }
 
-  func checkAndUpdateSettings() {
+  func updateSettings() {
     // Update the settings for all the settings providers
     sdkDefaults.updateSettings()
     remoteSettings.updateSettings()

@@ -17,4 +17,100 @@ import XCTest
 
 @testable import FirebaseSessions
 
-class SessionsSettingsTests: XCTestCase {}
+class SessionsSettingsTests: XCTestCase {
+  let validSettings: [String: Any] = [
+    "cache_duration": 10,
+    "app_quality": [
+      "sessions_enabled": false,
+      "sampling_rate": 0.5,
+      "session_timeout_seconds": 10,
+    ],
+  ]
+
+  var cache: SettingsCacheClient!
+  var appInfo: MockApplicationInfo!
+  var downloader: MockSettingsDownloader!
+  var remoteSettings: RemoteSettings!
+  var localOverrideSettings: LocalOverrideSettings!
+  var sdkDefaultSettings: SDKDefaultSettings!
+  var sessionSettings: SessionsSettings!
+
+  override func setUp() {
+    super.setUp()
+    appInfo = MockApplicationInfo()
+    cache = SettingsCache()
+    cache.removeCache() // just reinstantiating cache isn't enough because of persistence
+    downloader = MockSettingsDownloader(successResponse: validSettings)
+    remoteSettings = RemoteSettings(appInfo: appInfo, downloader: downloader, cache: cache)
+    remoteSettings.updateSettings(currentTime: Date())
+
+    localOverrideSettings = LocalOverrideSettings()
+    sdkDefaultSettings = SDKDefaultSettings()
+
+    sessionSettings = SessionsSettings(
+      appInfo: appInfo,
+      installations: MockInstallationsProtocol(),
+      sdkDefaults: sdkDefaultSettings,
+      localOverrides: localOverrideSettings,
+      remoteSettings: remoteSettings
+    )
+  }
+
+  func test_RemoteAndDefaultsPresent_RemoteConfigsApplied() {
+    XCTAssertFalse(sessionSettings.sessionsEnabled)
+    XCTAssertEqual(sessionSettings.samplingRate, 0.5)
+    XCTAssertEqual(sessionSettings.sessionTimeout, 10)
+  }
+
+  func test_NoRemoteAndDefaultsPresent_DefaultConfigsApply() {
+    let emptySettings: [String: Any] = [
+      "cache_duration": 10,
+      "app_quality": [
+      ],
+    ]
+
+    cache.removeCache()
+    downloader = MockSettingsDownloader(successResponse: emptySettings)
+    remoteSettings = RemoteSettings(appInfo: appInfo, downloader: downloader, cache: cache)
+    remoteSettings.updateSettings(currentTime: Date())
+
+    sessionSettings = SessionsSettings(
+      appInfo: appInfo,
+      installations: MockInstallationsProtocol(),
+      sdkDefaults: sdkDefaultSettings,
+      localOverrides: localOverrideSettings,
+      remoteSettings: remoteSettings
+    )
+
+    XCTAssertTrue(sessionSettings.sessionsEnabled)
+    XCTAssertEqual(sessionSettings.samplingRate, 1.0)
+    XCTAssertEqual(sessionSettings.sessionTimeout, 30 * 60)
+  }
+
+  func test_SomeRemoteAndDefaultsPresent_SomeConfigsApply() {
+    let someSettings: [String: Any] = [
+      "cache_duration": 10,
+      "app_quality": [
+        "sampling_rate": 0.8,
+        "session_timeout_seconds": 50,
+      ],
+    ]
+
+    cache.removeCache()
+    downloader = MockSettingsDownloader(successResponse: someSettings)
+    remoteSettings = RemoteSettings(appInfo: appInfo, downloader: downloader, cache: cache)
+    remoteSettings.updateSettings(currentTime: Date())
+
+    sessionSettings = SessionsSettings(
+      appInfo: appInfo,
+      installations: MockInstallationsProtocol(),
+      sdkDefaults: sdkDefaultSettings,
+      localOverrides: localOverrideSettings,
+      remoteSettings: remoteSettings
+    )
+
+    XCTAssertTrue(sessionSettings.sessionsEnabled)
+    XCTAssertEqual(sessionSettings.samplingRate, 0.8)
+    XCTAssertEqual(sessionSettings.sessionTimeout, 50)
+  }
+}

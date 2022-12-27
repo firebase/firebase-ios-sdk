@@ -38,7 +38,10 @@ class LocalOverrideSettings: SettingsProvider, SettingsProtocol {
   }
 
   private func plistValueForConfig(configName: String) -> Any? {
-    return Bundle.main.value(forKey: configName)
+    guard let value = Bundle.main.object(forInfoDictionaryKey: configName) else {
+      return nil
+    }
+    return value
   }
 }
 

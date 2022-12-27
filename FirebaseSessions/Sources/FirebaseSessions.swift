@@ -91,7 +91,7 @@ protocol SessionsProvider {
 
     self.initiator.beginListening {
       // On each session start, first update Settings if expired
-      self.settings.checkAndUpdateSettings()
+      self.settings.updateSettings()
       self.identifiers.generateNewSessionID()
       let event = SessionStartEvent(identifiers: self.identifiers, appInfo: self.appInfo)
       DispatchQueue.global().async {
