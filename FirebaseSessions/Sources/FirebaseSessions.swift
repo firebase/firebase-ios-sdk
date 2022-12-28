@@ -25,7 +25,6 @@ private enum GoogleDataTransportConfig {
 }
 
 @objc(FIRSessions) final class Sessions: NSObject, Library, FIRSessionsProvider {
-
   // MARK: - Private Variables
 
   /// The Firebase App ID associated with Sessions.
@@ -100,7 +99,7 @@ private enum GoogleDataTransportConfig {
   // MARK: - SessionsProvider
 
   var sessionID: String {
-    return self.identifiers.sessionID
+    return identifiers.sessionID
   }
 
   // MARK: - Library conformance

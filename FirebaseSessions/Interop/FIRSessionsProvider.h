@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// FirebaseSessions.swift
 @protocol FIRSessionsProvider
 
-@property (nonatomic, readonly) NSString * sessionID;
+@property(nonatomic, readonly) NSString* sessionID;
 
 @end
 
