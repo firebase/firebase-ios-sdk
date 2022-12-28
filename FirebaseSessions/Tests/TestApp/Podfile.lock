@@ -12,7 +12,6 @@ PODS:
   - FirebaseCrashlytics (10.4.0):
     - FirebaseCore (~> 10.0)
     - FirebaseInstallations (~> 10.0)
-    - FirebaseSessions (~> 10.0)
     - GoogleDataTransport (~> 9.2)
     - GoogleUtilities/Environment (~> 7.8)
     - nanopb (< 2.30910.0, >= 2.30908.0)
@@ -104,7 +103,7 @@ SPEC CHECKSUMS:
   FirebaseCore: b8697a177690b69b0dbce9d612b69b893be70469
   FirebaseCoreExtension: d209ada6f48bac53d149e996cf1b2dafa632a615
   FirebaseCoreInternal: e301297f4c15a17489e48ed722d733b1578e0c02
-  FirebaseCrashlytics: 0bbbc830dbe2d4aec95adea996ecadd77159d3fe
+  FirebaseCrashlytics: 5edd15c2b0acd0a9626ac93c90b3c37820582f57
   FirebaseInstallations: 36b38c733fd37e50857e5e8d74138648f466f18c
   FirebasePerformance: b157e90b0fb79c3eb64de3934cfc040d587c95ee
   FirebaseRemoteConfig: c24f767c17b0440ee63c7e93380d599173556113

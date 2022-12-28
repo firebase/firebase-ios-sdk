@@ -55,29 +55,6 @@ Pod::Spec.new do |s|
     cp -f ./Crashlytics/upload-symbols ./upload-symbols
   PREPARE_COMMAND_END
 
-  # TODO REMOVE
-  # TODO REMOVE
-  # TODO REMOVE
-  # TODO REMOVE
-  # TODO REMOVE
-  # TODO REMOVE
-  # TODO REMOVE
-  # TODO REMOVE
-  # TODO REMOVE
-  # TODO REMOVE
-  s.dependency 'FirebaseSessions', '~> 10.0'
-  # TODO REMOVE
-  # TODO REMOVE
-  # TODO REMOVE
-  # TODO REMOVE
-  # TODO REMOVE
-  # TODO REMOVE
-  # TODO REMOVE
-  # TODO REMOVE
-  # TODO REMOVE
-  # TODO REMOVE
-  # TODO REMOVE
-  # TODO REMOVE
   s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'FirebaseInstallations', '~> 10.0'
   s.dependency 'PromisesObjC', '~> 2.1'
