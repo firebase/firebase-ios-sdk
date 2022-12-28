@@ -24,12 +24,8 @@ private enum GoogleDataTransportConfig {
   static let sessionsTarget = GDTCORTarget.FLL
 }
 
-@objc(FIRSessionsProvider)
-protocol SessionsProvider {
-  @objc static func sessions() -> Void
-}
+@objc(FIRSessions) final class Sessions: NSObject, Library, FIRSessionsProvider {
 
-@objc(FIRSessions) final class Sessions: NSObject, Library, SessionsProvider {
   // MARK: - Private Variables
 
   /// The Firebase App ID associated with Sessions.
@@ -101,12 +97,29 @@ protocol SessionsProvider {
     }
   }
 
+  // MARK: - SessionsProvider
+
+  var sessionID: String {
+    return self.identifiers.sessionID
+  }
+
   // MARK: - Library conformance
 
   static func componentsToRegister() -> [Component] {
-    return [Component(SessionsProvider.self,
+    return [Component(FIRSessionsProvider.self,
                       instantiationTiming: .alwaysEager,
                       dependencies: []) { container, isCacheable in
+      // TODO REMOVE
+      // TODO REMOVE
+      // TODO REMOVE
+      // TODO REMOVE
+      // TODO REMOVE
+        print("Firebase/Sessions")
+      // TODO REMOVE
+      // TODO REMOVE
+      // TODO REMOVE
+      // TODO REMOVE
+
         // Sessions SDK only works for the default app
         guard let app = container.app, app.isDefaultApp else { return nil }
         isCacheable.pointee = true
@@ -114,8 +127,4 @@ protocol SessionsProvider {
         return self.init(appID: app.options.googleAppID, installations: installations)
       }]
   }
-
-  // MARK: - SessionsProvider conformance
-
-  static func sessions() {}
 }

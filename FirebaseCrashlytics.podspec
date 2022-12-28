@@ -33,7 +33,9 @@ Pod::Spec.new do |s|
     'Crashlytics/third_party/**/*.{c,h,m,mm}',
     'FirebaseCore/Extension/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
-    'Interop/Analytics/Public/*.h',
+    # TODO(samedson) Remove Interop when FirebaseSessions releases and move to
+    # FirebaseSessions.swift
+    'FirebaseSessions/Interop/*.h',
   ]
 
   s.public_header_files = [
@@ -53,6 +55,29 @@ Pod::Spec.new do |s|
     cp -f ./Crashlytics/upload-symbols ./upload-symbols
   PREPARE_COMMAND_END
 
+  # TODO REMOVE
+  # TODO REMOVE
+  # TODO REMOVE
+  # TODO REMOVE
+  # TODO REMOVE
+  # TODO REMOVE
+  # TODO REMOVE
+  # TODO REMOVE
+  # TODO REMOVE
+  # TODO REMOVE
+  s.dependency 'FirebaseSessions', '~> 10.0'
+  # TODO REMOVE
+  # TODO REMOVE
+  # TODO REMOVE
+  # TODO REMOVE
+  # TODO REMOVE
+  # TODO REMOVE
+  # TODO REMOVE
+  # TODO REMOVE
+  # TODO REMOVE
+  # TODO REMOVE
+  # TODO REMOVE
+  # TODO REMOVE
   s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'FirebaseInstallations', '~> 10.0'
   s.dependency 'PromisesObjC', '~> 2.1'

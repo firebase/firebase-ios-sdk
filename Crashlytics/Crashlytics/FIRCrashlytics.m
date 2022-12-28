@@ -52,6 +52,7 @@
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+#import "FirebaseSessions/Interop/FIRSessionsProvider.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
@@ -100,7 +101,8 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 - (instancetype)initWithApp:(FIRApp *)app
                     appInfo:(NSDictionary *)appInfo
               installations:(FIRInstallations *)installations
-                  analytics:(id<FIRAnalyticsInterop>)analytics {
+                  analytics:(id<FIRAnalyticsInterop>)analytics
+                   sessions:(id<FIRSessionsProvider>)sessions {
   self = [super init];
 
   if (self) {
@@ -113,6 +115,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     FIRCLSProfileMark mark = FIRCLSProfilingStart();
 
     NSLog(@"[Firebase/Crashlytics] Version %@", FIRCLSSDKVersion());
+    NSLog(@"[Firebase/Crashlytics] SessionID %@", sessions.sessionID);
 
     FIRCLSDeveloperLog("Crashlytics", @"Running on %@, %@ (%@)", FIRCLSHostModelInfo(),
                        FIRCLSHostOSDisplayVersion(), FIRCLSHostOSBuildVersion());
@@ -186,6 +189,9 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
   FIRDependency *analyticsDep =
       [FIRDependency dependencyWithProtocol:@protocol(FIRAnalyticsInterop)];
 
+  FIRDependency *sessionsDep =
+      [FIRDependency dependencyWithProtocol:@protocol(FIRSessionsProvider) isRequired:YES];
+
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
     if (!container.app.isDefaultApp) {
@@ -194,6 +200,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     }
 
     id<FIRAnalyticsInterop> analytics = FIR_COMPONENT(FIRAnalyticsInterop, container);
+    id<FIRSessionsProvider> sessions = FIR_COMPONENT(FIRSessionsProvider, container);
 
     FIRInstallations *installations = [FIRInstallations installationsWithApp:container.app];
 
@@ -202,13 +209,14 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     return [[FIRCrashlytics alloc] initWithApp:container.app
                                        appInfo:NSBundle.mainBundle.infoDictionary
                                  installations:installations
-                                     analytics:analytics];
+                                     analytics:analytics
+                                      sessions:sessions];
   };
 
   FIRComponent *component =
       [FIRComponent componentWithProtocol:@protocol(FIRCrashlyticsInstanceProvider)
                       instantiationTiming:FIRInstantiationTimingEagerInDefaultApp
-                             dependencies:@[ analyticsDep ]
+                             dependencies:@[ analyticsDep, sessionsDep ]
                             creationBlock:creationBlock];
   return @[ component ];
 }
