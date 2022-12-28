@@ -491,7 +491,7 @@ let package = Package(
     ),
     .target(
       name: "FirebaseCrashlytics",
-      dependencies: ["FirebaseCore", "FirebaseInstallations",
+      dependencies: ["FirebaseCore", "FirebaseInstallations", "FirebaseSessions",
                      .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
                      .product(name: "GULEnvironment", package: "GoogleUtilities"),
                      .product(name: "FBLPromises", package: "Promises"),
@@ -1093,6 +1093,7 @@ let package = Package(
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
       ],
       path: "FirebaseSessions/Sources",
+      publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath(".."),
         .define("DISPLAY_VERSION", to: firebaseVersion),
