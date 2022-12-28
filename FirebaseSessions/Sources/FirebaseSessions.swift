@@ -109,17 +109,6 @@ private enum GoogleDataTransportConfig {
     return [Component(FIRSessionsProvider.self,
                       instantiationTiming: .alwaysEager,
                       dependencies: []) { container, isCacheable in
-      // TODO REMOVE
-      // TODO REMOVE
-      // TODO REMOVE
-      // TODO REMOVE
-      // TODO REMOVE
-        print("Firebase/Sessions")
-      // TODO REMOVE
-      // TODO REMOVE
-      // TODO REMOVE
-      // TODO REMOVE
-
         // Sessions SDK only works for the default app
         guard let app = container.app, app.isDefaultApp else { return nil }
         isCacheable.pointee = true
