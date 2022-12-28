@@ -189,7 +189,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
       [FIRDependency dependencyWithProtocol:@protocol(FIRAnalyticsInterop)];
 
   FIRDependency *sessionsDep =
-      [FIRDependency dependencyWithProtocol:@protocol(FIRSessionsProvider) isRequired:YES];
+      [FIRDependency dependencyWithProtocol:@protocol(FIRSessionsProvider)];
 
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
