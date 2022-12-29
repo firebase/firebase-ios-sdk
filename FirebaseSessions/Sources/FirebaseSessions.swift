@@ -38,7 +38,8 @@ private enum GoogleDataTransportConfig {
   private let settings: SessionsSettings
 
   /// Constants
-  static let SessionIDChangedNotificationName = Notification.Name("SessionIDChangedNotificationName")
+  static let SessionIDChangedNotificationName = Notification
+    .Name("SessionIDChangedNotificationName")
 
   // MARK: - Initializers
 
@@ -108,12 +109,12 @@ private enum GoogleDataTransportConfig {
                                            name: Sessions.SessionIDChangedNotificationName,
                                            object: nil)
     // Immediately post a notification
-    self.postSessionIDChangedNotification()
+    postSessionIDChangedNotification()
   }
 
   private func postSessionIDChangedNotification() {
     NotificationCenter.default.post(name: Sessions.SessionIDChangedNotificationName,
-                                    object: self.identifiers.sessionID)
+                                    object: identifiers.sessionID)
   }
 
   // MARK: - Library conformance

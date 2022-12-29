@@ -38,8 +38,9 @@ NS_SWIFT_NAME(SessionsProvider)
 
 /// Subscribes the given `subscriber` to the Notification for receiving SessionID changes.
 /// The `onSessionIDChanged` method will be called immediately with the existing Session ID
-/// to handle cases where the Sessions SDK has started and rotated before this subscription was made.
-- (void)subscribeForSessionIDchanged:(id <FIRSessionsSubscriber>)subscriber;
+/// to handle cases where the Sessions SDK has started and rotated before this subscription was
+/// made.
+- (void)subscribeForSessionIDchanged:(id<FIRSessionsSubscriber>)subscriber;
 
 @end
 
