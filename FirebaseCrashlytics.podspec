@@ -33,6 +33,7 @@ Pod::Spec.new do |s|
     'Crashlytics/third_party/**/*.{c,h,m,mm}',
     'FirebaseCore/Extension/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
+    'Interop/Analytics/Public/*.h',
     # TODO(samedson) Remove Interop when FirebaseSessions releases and move to
     # FirebaseSessions.swift
     'FirebaseSessions/Interop/*.h',
