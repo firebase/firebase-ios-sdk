@@ -105,15 +105,22 @@ private enum GoogleDataTransportConfig {
   // MARK: - SessionsProvider
 
   func register(_ subscriber: SessionsSubscriber) {
-    Logger.logDebug("Registering Sessions SDK subscriber with name: \(subscriber.subscriberName), data collection enabled: \(subscriber.isDataCollectionEnabled)")
+    Logger
+      .logDebug(
+        "Registering Sessions SDK subscriber with name: \(subscriber.subscriberName), data collection enabled: \(subscriber.isDataCollectionEnabled)"
+      )
 
-    NotificationCenter.default.addObserver(forName: Sessions.SessionIDChangedNotificationName, object: nil, queue: nil) { notification in
+    NotificationCenter.default.addObserver(
+      forName: Sessions.SessionIDChangedNotificationName,
+      object: nil,
+      queue: nil
+    ) { notification in
       subscriber.onSessionIDChanged(self.identifiers.sessionID)
     }
 
     // Immediately call the callback because the Sessions SDK starts
     // before subscribers, so subscribers will miss the first Notification
-    subscriber.onSessionIDChanged(self.identifiers.sessionID)
+    subscriber.onSessionIDChanged(identifiers.sessionID)
   }
 
   // MARK: - Library conformance
