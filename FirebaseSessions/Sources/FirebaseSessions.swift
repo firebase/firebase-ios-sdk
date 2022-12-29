@@ -92,7 +92,8 @@ private enum GoogleDataTransportConfig {
       // On each session start, first update Settings if expired
       self.settings.updateSettings()
       self.identifiers.generateNewSessionID()
-      self.postSessionIDChangedNotification()
+      NotificationCenter.default.post(name: Sessions.SessionIDChangedNotificationName,
+                                      object: nil)
       let event = SessionStartEvent(identifiers: self.identifiers, appInfo: self.appInfo)
       DispatchQueue.global().async {
         self.coordinator.attemptLoggingSessionStart(event: event) { result in
@@ -103,18 +104,16 @@ private enum GoogleDataTransportConfig {
 
   // MARK: - SessionsProvider
 
-  func subscribe(forSessionIDchanged subscriber: SessionsSubscriber) {
-    NotificationCenter.default.addObserver(subscriber,
-                                           selector: #selector(subscriber.onSessionIDChanged(_:)),
-                                           name: Sessions.SessionIDChangedNotificationName,
-                                           object: nil)
-    // Immediately post a notification
-    postSessionIDChangedNotification()
-  }
+  func register(_ subscriber: SessionsSubscriber) {
+    Logger.logDebug("Registering Sessions SDK subscriber with name: \(subscriber.subscriberName), data collection enabled: \(subscriber.isDataCollectionEnabled)")
 
-  private func postSessionIDChangedNotification() {
-    NotificationCenter.default.post(name: Sessions.SessionIDChangedNotificationName,
-                                    object: identifiers.sessionID)
+    NotificationCenter.default.addObserver(forName: Sessions.SessionIDChangedNotificationName, object: nil, queue: nil) { notification in
+      subscriber.onSessionIDChanged(self.identifiers.sessionID)
+    }
+
+    // Immediately call the callback because the Sessions SDK starts
+    // before subscribers, so subscribers will miss the first Notification
+    subscriber.onSessionIDChanged(self.identifiers.sessionID)
   }
 
   // MARK: - Library conformance

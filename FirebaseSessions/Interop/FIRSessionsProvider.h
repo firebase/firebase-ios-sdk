@@ -16,15 +16,25 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSInteger, FIRSessionsSubscriberName) {
+  FIRSessionsSubscriberNameUnknown,
+  FIRSessionsSubscriberNameCrashlytics,
+  FIRSessionsSubscriberNamePerformance,
+} NS_SWIFT_NAME(SessionsSubscriberName);
+
 NS_SWIFT_NAME(SessionsSubscriber)
 @protocol FIRSessionsSubscriber <NSObject>
 
-- (void)onSessionIDChanged:(NSNotification *)notification;
+- (void)onSessionIDChanged:(NSString *)sessionID;
+
+@property (nonatomic, readonly) BOOL isDataCollectionEnabled;
+
+@property (nonatomic, readonly) FIRSessionsSubscriberName subscriberName;
 
 @end
 
-/// Connector for bridging communication between Firebase SDKs and
-/// FirebaseSessions APIs.
+/// Connector for bridging communication between Firebase SDKs and the
+/// Sessions SDK.
 ///
 /// Normally this protocol would be defined in FirebaseSessions.swift, but
 /// we haven't yet released FirebaseSessions SDK, so it is an optional
@@ -37,10 +47,10 @@ NS_SWIFT_NAME(SessionsProvider)
 @protocol FIRSessionsProvider
 
 /// Subscribes the given `subscriber` to the Notification for receiving SessionID changes.
-/// The `onSessionIDChanged` method will be called immediately with the existing Session ID
-/// to handle cases where the Sessions SDK has started and rotated before this subscription was
-/// made.
-- (void)subscribeForSessionIDchanged:(id<FIRSessionsSubscriber>)subscriber;
+/// Upon subscribing, the `onSessionIDChanged` method will be called immediately with
+/// the existing Session ID to handle cases where the Sessions SDK has started before this
+/// subscription was made.
+- (void)registerSubscriber:(id<FIRSessionsSubscriber>)subscriber;
 
 @end
 

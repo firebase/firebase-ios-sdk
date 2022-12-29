@@ -119,10 +119,6 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     FIRCLSDeveloperLog("Crashlytics", @"Running on %@, %@ (%@)", FIRCLSHostModelInfo(),
                        FIRCLSHostOSDisplayVersion(), FIRCLSHostOSBuildVersion());
 
-    if (sessions) {
-      [sessions subscribeForSessionIDchanged:self];
-    }
-
     GDTCORTransport *googleTransport =
         [[GDTCORTransport alloc] initWithMappingID:FIRCLSGoogleTransportMappingID
                                       transformers:nil
@@ -131,6 +127,15 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     _fileManager = [[FIRCLSFileManager alloc] init];
     _googleAppID = app.options.googleAppID;
     _dataArbiter = [[FIRCLSDataCollectionArbiter alloc] initWithApp:app withAppInfo:appInfo];
+
+    if (sessions) {
+      FIRCLSDebugLog(@"Registering Sessions SDK subscription for session data");
+
+      // Subscription should be made after the DataCollectionArbiter
+      // is initialized so that the Sessions SDK can immediately get
+      // the data collection state.
+      [sessions registerSubscriber:self];
+    }
 
     FIRCLSApplicationIdentifierModel *appModel = [[FIRCLSApplicationIdentifierModel alloc] init];
     FIRCLSSettings *settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager
@@ -382,15 +387,16 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
 #pragma mark - FIRSessionsSubscriber
 
-- (void)onSessionIDChanged:(nonnull NSNotification *)notification {
-  if (!notification.object) {
-    FIRCLSErrorLog(@"Crashlytics received invalid notification in onSessionIDChanged");
-  }
-  if (![notification.object isKindOfClass:NSString.class]) {
-    FIRCLSErrorLog(@"Crashlytics received notification with invalid payload in onSessionIDChanged");
-  }
-  NSString *sessionID = notification.object;
-  NSLog(@"sessionIDChanged: %@", sessionID);
+- (void)onSessionIDChanged:(NSString *)sessionID {
+  FIRCLSDebugLog(@"Session ID changed: %@", sessionID);
+}
+
+- (BOOL)isDataCollectionEnabled {
+  return self.dataArbiter.isCrashlyticsCollectionEnabled;
+}
+
+- (FIRSessionsSubscriberName)subscriberName {
+  return FIRSessionsSubscriberNameCrashlytics;
 }
 
 @end
