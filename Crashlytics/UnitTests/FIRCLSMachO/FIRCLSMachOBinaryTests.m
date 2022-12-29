@@ -20,7 +20,7 @@
 
 - (NSString*)resourcePath {
 #if SWIFT_PACKAGE
-  NSBundle* bundle = Firebase_FirebaseCrashlyticsUnit_SWIFTPM_MODULE_BUNDLE();
+  NSBundle* bundle = SWIFTPM_MODULE_BUNDLE;
 #else
   NSBundle* bundle = [NSBundle bundleForClass:[self class]];
 #endif
