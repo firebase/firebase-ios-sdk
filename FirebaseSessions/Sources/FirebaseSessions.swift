@@ -24,7 +24,7 @@ private enum GoogleDataTransportConfig {
   static let sessionsTarget = GDTCORTarget.FLL
 }
 
-@objc(FIRSessions) final class Sessions: NSObject, Library, FIRSessionsProvider {
+@objc(FIRSessions) final class Sessions: NSObject, Library, SessionsProvider {
   // MARK: - Private Variables
 
   /// The Firebase App ID associated with Sessions.
@@ -36,6 +36,9 @@ private enum GoogleDataTransportConfig {
   private let identifiers: Identifiers
   private let appInfo: ApplicationInfo
   private let settings: SessionsSettings
+
+  /// Constants
+  static let SessionIDChangedNotificationName = Notification.Name("SessionIDChangedNotificationName")
 
   // MARK: - Initializers
 
@@ -88,6 +91,7 @@ private enum GoogleDataTransportConfig {
       // On each session start, first update Settings if expired
       self.settings.updateSettings()
       self.identifiers.generateNewSessionID()
+      self.postSessionIDChangedNotification()
       let event = SessionStartEvent(identifiers: self.identifiers, appInfo: self.appInfo)
       DispatchQueue.global().async {
         self.coordinator.attemptLoggingSessionStart(event: event) { result in
@@ -98,14 +102,24 @@ private enum GoogleDataTransportConfig {
 
   // MARK: - SessionsProvider
 
-  var sessionID: String {
-    return identifiers.sessionID
+  func subscribe(forSessionIDchanged subscriber: SessionsSubscriber) {
+    NotificationCenter.default.addObserver(subscriber,
+                                           selector: #selector(subscriber.onSessionIDChanged(_:)),
+                                           name: Sessions.SessionIDChangedNotificationName,
+                                           object: nil)
+    // Immediately post a notification
+    self.postSessionIDChangedNotification()
+  }
+
+  private func postSessionIDChangedNotification() {
+    NotificationCenter.default.post(name: Sessions.SessionIDChangedNotificationName,
+                                    object: self.identifiers.sessionID)
   }
 
   // MARK: - Library conformance
 
   static func componentsToRegister() -> [Component] {
-    return [Component(FIRSessionsProvider.self,
+    return [Component(SessionsProvider.self,
                       instantiationTiming: .alwaysEager,
                       dependencies: []) { container, isCacheable in
         // Sessions SDK only works for the default app

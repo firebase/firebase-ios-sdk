@@ -74,7 +74,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 @protocol FIRCrashlyticsInstanceProvider <NSObject>
 @end
 
-@interface FIRCrashlytics () <FIRLibrary, FIRCrashlyticsInstanceProvider>
+@interface FIRCrashlytics () <FIRLibrary, FIRCrashlyticsInstanceProvider, FIRSessionsSubscriber>
 
 @property(nonatomic) BOOL didPreviouslyCrash;
 @property(nonatomic, copy) NSString *googleAppID;
@@ -118,6 +118,10 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
     FIRCLSDeveloperLog("Crashlytics", @"Running on %@, %@ (%@)", FIRCLSHostModelInfo(),
                        FIRCLSHostOSDisplayVersion(), FIRCLSHostOSBuildVersion());
+
+    if (sessions) {
+      [sessions subscribeForSessionIDchanged:self];
+    }
 
     GDTCORTransport *googleTransport =
         [[GDTCORTransport alloc] initWithMappingID:FIRCLSGoogleTransportMappingID
@@ -374,6 +378,19 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
       recordOnDemandExceptionIfQuota:exceptionModel
            withDataCollectionEnabled:[self.dataArbiter isCrashlyticsCollectionEnabled]
           usingExistingReportManager:self.existingReportManager];
+}
+
+#pragma mark - FIRSessionsSubscriber
+
+- (void)onSessionIDChanged:(nonnull NSNotification *)notification {
+  if (!notification.object) {
+    FIRCLSErrorLog(@"Crashlytics received invalid notification in onSessionIDChanged");
+  }
+  if (![notification.object isKindOfClass:NSString.class]) {
+    FIRCLSErrorLog(@"Crashlytics received notification with invalid payload in onSessionIDChanged");
+  }
+  NSString *sessionID = notification.object;
+  NSLog(@"sessionIDChanged: %@", sessionID);
 }
 
 @end

@@ -16,6 +16,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+NS_SWIFT_NAME(SessionsSubscriber)
+@protocol FIRSessionsSubscriber <NSObject>
+
+- (void)onSessionIDChanged:(NSNotification *)notification;
+
+@end
+
 /// Connector for bridging communication between Firebase SDKs and
 /// FirebaseSessions APIs.
 ///
@@ -26,9 +33,13 @@ NS_ASSUME_NONNULL_BEGIN
 ///
 /// TODO(samedson) Remove Interop when FirebaseSessions releases and move to
 /// FirebaseSessions.swift
+NS_SWIFT_NAME(SessionsProvider)
 @protocol FIRSessionsProvider
 
-@property(nonatomic, readonly) NSString* sessionID;
+/// Subscribes the given `subscriber` to the Notification for receiving SessionID changes.
+/// The `onSessionIDChanged` method will be called immediately with the existing Session ID
+/// to handle cases where the Sessions SDK has started and rotated before this subscription was made.
+- (void)subscribeForSessionIDchanged:(id <FIRSessionsSubscriber>)subscriber;
 
 @end
 
