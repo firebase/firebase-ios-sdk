@@ -15,7 +15,7 @@
  */
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIREmailAuthProvider.h"
+#import "FirebaseAuth-Swift.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRFederatedAuthProvider.h"
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
@@ -25,12 +25,12 @@
 #import "FirebaseAuth/Sources/Auth/FIRAuthSerialTaskQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthTokenResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
-#import "FirebaseAuth/Sources/AuthProvider/Email/FIREmailPasswordAuthCredential.h"
+//#import "FirebaseAuth/Sources/AuthProvider/Email/FIREmailPasswordAuthCredential.h"
 #import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/AuthProvider/GameCenter/FIRGameCenterAuthCredential.h"
 #import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
-#import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthRequestConfiguration.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRDeleteAccountRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRDeleteAccountResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInRequest.h"
@@ -43,7 +43,7 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSetAccountInfoResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignInWithGameCenterRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignInWithGameCenterResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRVerifyAssertionRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenResponse.h"
@@ -649,7 +649,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                             for (FIRGetAccountInfoResponseProviderUserInfo
                                      *providerUserInfo in userAccountInfo.providerUserInfo) {
                               if ([providerUserInfo.providerID
-                                      isEqualToString:FIREmailAuthProviderID]) {
+                                      isEqualToString:FIREmailAuthProvider.id]) {
                                 self->_hasEmailPasswordCredential = YES;
                                 break;
                               }
@@ -1391,7 +1391,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                       [mutableProviderData removeObjectForKey:provider];
                       self->_providerData = [mutableProviderData copy];
 
-                      if ([provider isEqualToString:FIREmailAuthProviderID]) {
+                      if ([provider isEqualToString:FIREmailAuthProvider.id]) {
                         self->_hasEmailPasswordCredential = NO;
                       }
 #if TARGET_OS_IOS

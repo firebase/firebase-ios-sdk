@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAuth/Sources/Backend/FIRIdentityToolkitRequest.h"
+@import FirebaseAuth;
 
 /** @var kEndpoint
     @brief The endpoint for the requests.
