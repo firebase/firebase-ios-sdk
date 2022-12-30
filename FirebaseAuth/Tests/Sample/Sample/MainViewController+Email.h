@@ -18,8 +18,7 @@
 
 #import "MainViewController.h"
 
-#import <FirebaseAuth/FIRAuth.h>
-#import <FirebaseAuth/FIRAuthCredential.h>
+@import FirebaseAuth;
 #import "StaticContentTableViewManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
