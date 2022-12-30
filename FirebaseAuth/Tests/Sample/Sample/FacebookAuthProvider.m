@@ -48,7 +48,7 @@ static NSString *const kFacebookAppID = KFACEBOOK_APP_ID;
   [self signOut];
 
   [ApplicationDelegate setOpenURLDelegate:self];
-  [FBSDKSettings setAppID:kFacebookAppID];
+  //[FBSDKSettings setAppID:kFacebookAppID];
   [_loginManager logInWithPermissions:@[ @"email" ]
                    fromViewController:viewController
                               handler:^(FBSDKLoginManagerLoginResult *result, NSError *error) {
