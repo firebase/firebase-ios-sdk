@@ -16,8 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseAuth/Sources/Backend/FIRAuthRPCRequest.h"
-#import "FirebaseAuth/Sources/Backend/FIRIdentityToolkitRequest.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthRPCRequest.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRIdentityToolkitRequest.h"
 
 @class FIRGetAccountInfoResponse;
 
