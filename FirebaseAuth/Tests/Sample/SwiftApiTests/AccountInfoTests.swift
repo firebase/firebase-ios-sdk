@@ -75,29 +75,28 @@ class AccountInfoTests: TestsBase {
     waitForExpectations(timeout: TestsBase.kExpectationsTimeout)
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 7, *)
-    func testUpdatingUsersEmailAsync() async throws {
-      let auth = Auth.auth()
-      do {
-        _ = try await auth.createUser(withEmail: kOldUserEmail, password: "password")
-        XCTFail("Did not get error for recreating a user")
-      } catch {
-        XCTAssertEqual((error as NSError).code,
-                       AuthErrorCode.emailAlreadyInUse.rawValue,
-                       "Created a user despite it already exiting.")
-      }
+  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 7, *)
+  func testUpdatingUsersEmailAsync() async throws {
+    let auth = Auth.auth()
+    do {
+      let user = try await auth.createUser(withEmail: kOldUserEmail, password: "password")
 
-      let user = try await auth.signIn(withEmail: kOldUserEmail, password: "password")
-      XCTAssertEqual(user.user.email, kOldUserEmail)
-      XCTAssertEqual(auth.currentUser?.email,
-                     kOldUserEmail,
-                     "Signed user does not match request.")
-
-      try await auth.currentUser?.updateEmail(to: kNewUserEmail)
-      XCTAssertEqual(auth.currentUser?.email,
-                     kNewUserEmail,
-                     "Signed user does not match change.")
+      XCTFail("Did not get error for recreating a user")
+    } catch {
+      XCTAssertEqual((error as NSError).code,
+                     AuthErrorCode.emailAlreadyInUse.rawValue,
+                     "Created a user despite it already exiting.")
     }
-  #endif
+
+    let user = try await auth.signIn(withEmail: kOldUserEmail, password: "password")
+    XCTAssertEqual(user.user.email, kOldUserEmail)
+    XCTAssertEqual(auth.currentUser?.email,
+                   kOldUserEmail,
+                   "Signed user does not match request.")
+
+    try await auth.currentUser?.updateEmail(to: kNewUserEmail)
+    XCTAssertEqual(auth.currentUser?.email,
+                   kNewUserEmail,
+                   "Signed user does not match change.")
+  }
 }
