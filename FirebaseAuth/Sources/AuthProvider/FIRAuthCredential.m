@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
                                userInfo:nil];
 }
 
-- (nullable instancetype)initWithProvider:(NSString *)provider {
+- (instancetype)initWithProvider:(NSString *)provider {
   self = [super init];
   if (self) {
     _provider = [provider copy];

@@ -23,9 +23,9 @@
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "MainViewController+Internal.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyClientRequest.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyClientRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyClientResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRSendVerificationCodeRequest.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRSendVerificationCodeRequest.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import <FirebaseCore/FIRApp.h>
 

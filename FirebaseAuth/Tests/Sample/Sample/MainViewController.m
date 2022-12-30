@@ -40,6 +40,7 @@
 #import "UIViewController+Alerts.h"
 #import "UserInfoViewController.h"
 #import "UserTableViewCell.h"
+@import FirebaseAuth;;;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -81,7 +82,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
     _actionCodeContinueURL = [NSURL URLWithString:KCONTINUE_URL];
     _authStateDidChangeListeners = [NSMutableArray array];
     _IDTokenDidChangeListeners = [NSMutableArray array];
-    _googleOAuthProvider = [FIROAuthProvider providerWithProviderID:FIRGoogleAuthProviderID];
+    _googleOAuthProvider = [FIROAuthProvider providerWithProviderID:FIRGoogleAuthProvider.string];
     _microsoftOAuthProvider = [FIROAuthProvider providerWithProviderID:@"microsoft.com"];
     _twitterOAuthProvider = [FIROAuthProvider providerWithProviderID:@"twitter.com"];
     _linkedinOAuthProvider = [FIROAuthProvider providerWithProviderID:@"linkedin.com"];
