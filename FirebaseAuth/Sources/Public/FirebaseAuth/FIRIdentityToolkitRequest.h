@@ -16,8 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
-
 @class FIRAuthRequestConfiguration;
 
 NS_ASSUME_NONNULL_BEGIN
