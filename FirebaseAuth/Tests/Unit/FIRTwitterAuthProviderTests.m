@@ -19,7 +19,7 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTwitterAuthProvider.h"
 
 #import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
+@import FirebaseAuth;
 
 /** @var kTwitterToken
     @brief A testing Twitter token.
