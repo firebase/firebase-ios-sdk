@@ -20,9 +20,8 @@
 #import "AuthProviders.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorResolver+Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorSession+Internal.h"
-#import <FirebaseAuth/FIROAuthProvider.h>
-#import <FirebaseAuth/FIRPhoneMultiFactorInfo.h>
 #import "MainViewController+Internal.h"
+@import FirebaseAuth;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -38,7 +37,7 @@ extern NSString *const FIRAuthErrorUserInfoMultiFactorResolverKey;
     [StaticContentTableViewCell cellWithTitle:@"Link with Google"
                                       action:^{ [weakSelf linkWithGoogle]; }],
     [StaticContentTableViewCell cellWithTitle:@"Unlink from Google"
-                                      action:^{ [weakSelf unlinkFromProvider:FIRGoogleAuthProviderID completion:nil]; }],
+                                      action:^{ [weakSelf unlinkFromProvider:FIRGoogleAuthProvider.string completion:nil]; }],
     [StaticContentTableViewCell cellWithTitle:@"Reauthenticate Google"
                                       action:^{ [weakSelf reauthenticateGoogle]; }],
     ]];

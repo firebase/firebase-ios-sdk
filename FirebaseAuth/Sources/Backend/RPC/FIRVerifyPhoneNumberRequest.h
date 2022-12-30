@@ -15,8 +15,8 @@
  */
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthOperationType.h"
-#import "FirebaseAuth/Sources/Backend/FIRAuthRPCRequest.h"
-#import "FirebaseAuth/Sources/Backend/FIRIdentityToolkitRequest.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthRPCRequest.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRIdentityToolkitRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
