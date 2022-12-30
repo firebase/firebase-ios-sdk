@@ -36,6 +36,13 @@ NS_SWIFT_NAME(AuthCredential)
  */
 - (instancetype)init NS_UNAVAILABLE;
 
+/** @fn initWithProvider:
+    @brief Designated initializer.
+    @remarks This is the designated initializer for internal/friend subclasses.
+    @param provider The provider name.
+ */
+- (instancetype)initWithProvider:(NSString *)provider NS_DESIGNATED_INITIALIZER;
+
 @end
 
 NS_ASSUME_NONNULL_END
