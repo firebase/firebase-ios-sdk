@@ -1,16 +1,18 @@
-// Copyright 2020 Google LLC
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+* Copyright 2020 Google LLC
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 import Foundation
 
@@ -49,10 +51,11 @@ import Foundation
  */
 
 class Credentials {
-  static let kGoogleClientID = KGOOGLE_CLIENT_ID
-  static let kGoogleTestAccountRefreshToken = KGOOGLE_TEST_ACCOUNT_REFRESH_TOKEN
-  static let kGoogleUserName = KGOOGLE_USER_NAME
-  static let kFacebookAppID = KFACEBOOK_APP_ID
-  static let kFacebookAppAccessToken = KFACEBOOK_APP_ACCESS_TOKEN
-  static let kFacebookUserName = KFACEBOOK_USER_NAME
+  static let kGoogleClientID =
+    "636990941390-comoffgboe1r5kk0t6ttp7k3dhs1coal.apps.googleusercontent.com"
+  static let kGoogleTestAccountRefreshToken = "1/134hwdX7aAj8sskH0DUOtyj-3czoeH1htMUqJHaBb9w"
+  static let kGoogleUserName = "apitests ios"
+  static let kFacebookAppID = "452491954956225"
+  static let kFacebookAppAccessToken = "452491954956225|SWJY2EPl38uKLp-luKMSsGUvP4c"
+  static let kFacebookUserName = "Michael Test"
 }
