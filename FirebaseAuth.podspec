@@ -36,6 +36,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
 
   source = 'FirebaseAuth/Sources/'
   s.source_files = [
+    'FirebaseAuth/Sources/Swift/**/*.swift',
     source + '**/*.[mh]',
     'FirebaseCore/Extension/*.h',
     'FirebaseAuth/Interop/*.h',
@@ -47,7 +48,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
   ]
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}" "${OBJECT_FILE_DIR_normal}/${NATIVE_ARCH_ACTUAL}"'
   }
   s.framework = 'Security'
   s.ios.framework = 'SafariServices'

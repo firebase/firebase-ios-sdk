@@ -32,12 +32,12 @@
 #import "FirebaseAuth/Sources/Auth/FIRAuthDispatcher.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthOperationType.h"
-#import "FirebaseAuth/Sources/AuthProvider/Email/FIREmailPasswordAuthCredential.h"
+//#import "FirebaseAuth/Sources/AuthProvider/Email/FIREmailPasswordAuthCredential.h"
 #import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/AuthProvider/GameCenter/FIRGameCenterAuthCredential.h"
 #import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
-#import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthRequestConfiguration.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInRequest.h"
@@ -54,7 +54,7 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignInWithGameCenterResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRVerifyAssertionRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenResponse.h"
@@ -69,6 +69,7 @@
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
+#import "FirebaseAuth-Swift.h"
 
 #if TARGET_OS_IOS
 #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
@@ -885,7 +886,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                             }
                                             FIRAdditionalUserInfo *additionalUserInfo =
                                                 [[FIRAdditionalUserInfo alloc]
-                                                    initWithProviderID:FIREmailAuthProviderID
+                                                    initWithProviderID:FIREmailAuthProvider.id
                                                                profile:nil
                                                               username:nil
                                                              isNewUser:response.isNewUser];
@@ -945,7 +946,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                 return;
               }
               FIRAdditionalUserInfo *additionalUserInfo =
-                  [[FIRAdditionalUserInfo alloc] initWithProviderID:FIREmailAuthProviderID
+                  [[FIRAdditionalUserInfo alloc] initWithProviderID:FIREmailAuthProvider.id
                                                             profile:nil
                                                            username:nil
                                                           isNewUser:NO];
@@ -1170,7 +1171,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                                         FIRAdditionalUserInfo *additionalUserInfo =
                                                             [[FIRAdditionalUserInfo alloc]
                                                                 initWithProviderID:
-                                                                    FIREmailAuthProviderID
+                                                                    FIREmailAuthProvider.id
                                                                            profile:nil
                                                                           username:nil
                                                                          isNewUser:YES];

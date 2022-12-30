@@ -20,7 +20,7 @@
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
-#import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
+@import FirebaseAuth;
 #import "FirebaseAuth/Tests/Unit/FIRApp+FIRAuthUnitTests.h"
 
 /** @var kFirebaseAppName1

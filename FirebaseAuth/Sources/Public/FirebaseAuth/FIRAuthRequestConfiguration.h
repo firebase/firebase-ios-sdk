@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseAuth/Sources/Backend/FIRAuthRPCRequest.h"
+#import "FIRAuthRPCRequest.h"
 
 @protocol FIRHeartbeatLoggerProtocol;
 
