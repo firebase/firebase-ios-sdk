@@ -20,7 +20,7 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthErrors.h"
+@import FirebaseAuth;
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthUIDelegate.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIROAuthProvider.h"
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
@@ -29,7 +29,7 @@
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
-#import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
+@import FirebaseAuth;
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigResponse.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"

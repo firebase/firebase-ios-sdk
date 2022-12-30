@@ -18,7 +18,7 @@
 
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSecureTokenRequest.h"
 
-#import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
+@import FirebaseAuth;
 
 /** @var kAPIKey
     @brief A testing API Key.

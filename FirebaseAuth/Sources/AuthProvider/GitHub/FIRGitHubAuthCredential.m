@@ -18,7 +18,7 @@
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRGitHubAuthProvider.h"
 
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRVerifyAssertionRequest.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN

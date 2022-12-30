@@ -91,7 +91,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
     // If nilUser is not optional, this will raise a compiler error.
     // This condition does not need to execute, and may not if prior
     // functions throw.
-    if let value = nilUser {
+    if let _ = nilUser {
       XCTAssert(true)
     }
   }
@@ -337,6 +337,16 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = OAuthProvider.credential(withProviderID: "id", idToken: "idToken", rawNonce: "nonce",
                                  accessToken: "token")
     _ = OAuthProvider.credential(withProviderID: "id", idToken: "idToken", rawNonce: "nonce")
+    provider.getCredentialWith(provider as? AuthUIDelegate) { credential, error in
+    }
+  }
+
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  func FIROAuthProvider_h() async throws {
+    let provider = OAuthProvider(providerID: GoogleAuthProvider.string, auth: FirebaseAuth.Auth.auth())
+    provider.getCredentialWith(provider as? AuthUIDelegate) { credential, error in
+    }
+    try await provider.credential(with:provider as? AuthUIDelegate)
   }
 
   func FIRPhoneAuthProvider_h() {
