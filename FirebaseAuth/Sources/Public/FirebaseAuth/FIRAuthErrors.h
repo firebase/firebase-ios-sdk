@@ -429,8 +429,9 @@ typedef NS_ERROR_ENUM(FIRAuthErrorDomain, FIRAuthErrorCode){
         describing which step of the JWT parsing process failed.
      */
     FIRAuthErrorCodeMalformedJWT = 18000,
-    
-    /** Raised when an Cloud Function returns a blocking error. Will include a message returned from the function.
+
+    /** Raised when an Cloud Function returns a blocking error. Will include a message returned from
+     * the function.
      */
     FIRAuthErrorCodeBlockingCloudFunctionError = 18001,
 } NS_SWIFT_NAME(AuthErrorCode);

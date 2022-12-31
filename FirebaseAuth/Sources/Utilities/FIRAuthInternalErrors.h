@@ -476,10 +476,11 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
                                                      FIRAuthErrorCodeInvalidDynamicLinkDomain,
 
   FIRAuthInternalErrorCodeMalformedJWT = FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMalformedJWT,
-  
+
   /** Indicates that an authentication blocking cloud function returned an error.
-  */
-  FIRAuthInternalErrorBlockingCloudFunctionError = FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeBlockingCloudFunctionError,
+   */
+  FIRAuthInternalErrorBlockingCloudFunctionError = FIRAuthPublicErrorCodeFlag |
+                                                   FIRAuthErrorCodeBlockingCloudFunctionError,
 
   /** @var FIRAuthInternalErrorCodeRPCRequestEncodingError
       @brief Indicates an error encoding the RPC request.

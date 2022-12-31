@@ -1203,7 +1203,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
       return error;
     }
   }
-    
+
   if ([shortErrorMessage isEqualToString:kUserNotFoundErrorMessage]) {
     return [FIRAuthErrorUtils userNotFoundErrorWithMessage:serverDetailErrorMessage];
   }
@@ -1451,9 +1451,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   if ([shortErrorMessage isEqualToString:kUnsupportedTenantOperation]) {
     return [FIRAuthErrorUtils unsupportedTenantOperationError];
   }
-    
+
   if ([shortErrorMessage isEqualToString:kBlockingCloudFunctionErrorResponse]) {
-    return [FIRAuthErrorUtils blockingCloudFunctionServerResponseWithMessage:serverDetailErrorMessage];
+    return
+        [FIRAuthErrorUtils blockingCloudFunctionServerResponseWithMessage:serverDetailErrorMessage];
   }
 
   // In this case we handle an error that might be specified in the underlying errors dictionary,

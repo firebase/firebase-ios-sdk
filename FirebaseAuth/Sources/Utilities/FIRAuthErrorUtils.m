@@ -1416,21 +1416,25 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 }
 
 + (NSError *)blockingCloudFunctionServerResponseWithMessage:(NSString *)response {
-    NSString *jsonString = [response stringByReplacingOccurrencesOfString:@"HTTP Cloud Function returned an error:" withString:@""];
-    jsonString = [jsonString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-    
-    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
-    NSError *jsonError;
-    NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&jsonError];
-    
-    if (jsonError) {
-        return [self JSONSerializationErrorWithUnderlyingError:jsonError];
-    }
-    
-    NSDictionary *errorDict = jsonDict[@"error"];
-    NSString *message = errorDict[@"message"];
-    
-    return [self errorWithCode:FIRAuthInternalErrorBlockingCloudFunctionError message:message];
+  NSString *jsonString =
+      [response stringByReplacingOccurrencesOfString:@"HTTP Cloud Function returned an error:"
+                                          withString:@""];
+  jsonString = [jsonString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+
+  NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+  NSError *jsonError;
+  NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                           options:0
+                                                             error:&jsonError];
+
+  if (jsonError) {
+    return [self JSONSerializationErrorWithUnderlyingError:jsonError];
+  }
+
+  NSDictionary *errorDict = jsonDict[@"error"];
+  NSString *message = errorDict[@"message"];
+
+  return [self errorWithCode:FIRAuthInternalErrorBlockingCloudFunctionError message:message];
 }
 
 @end
