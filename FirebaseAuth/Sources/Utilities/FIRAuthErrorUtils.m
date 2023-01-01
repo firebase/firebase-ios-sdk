@@ -1415,7 +1415,11 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
   return [self errorWithCode:FIRAuthInternalErrorCodeUnsupportedTenantOperation];
 }
 
-+ (NSError *)blockingCloudFunctionServerResponseWithMessage:(NSString *)response {
++ (NSError *)blockingCloudFunctionServerResponseWithMessage:(nullable NSString *)response {
+  if (response == nil) {
+    return [self errorWithCode:FIRAuthInternalErrorBlockingCloudFunctionError message:message];
+  }
+
   NSString *jsonString =
       [response stringByReplacingOccurrencesOfString:@"HTTP Cloud Function returned an error:"
                                           withString:@""];
