@@ -605,7 +605,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSError *)unsupportedTenantOperationError;
 
-+ (NSError *)blockingCloudFunctionServerResponseWithMessage:(NSString *)response;
++ (NSError *)blockingCloudFunctionServerResponseWithMessage:(nullable NSString *)response;
 
 @end
 
