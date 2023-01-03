@@ -68,6 +68,7 @@
 #import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthRecaptchaVerifier.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
 
 #if TARGET_OS_IOS
@@ -741,24 +742,96 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       [[FIRVerifyPasswordRequest alloc] initWithEmail:email
                                              password:password
                                  requestConfiguration:_requestConfiguration];
-
   if (![request.password length]) {
     callback(nil, [FIRAuthErrorUtils wrongPasswordErrorWithMessage:nil]);
     return;
   }
-  [FIRAuthBackend
-      verifyPassword:request
-            callback:^(FIRVerifyPasswordResponse *_Nullable response, NSError *_Nullable error) {
-              if (error) {
-                callback(nil, error);
-                return;
-              }
-              [self completeSignInWithAccessToken:response.IDToken
-                        accessTokenExpirationDate:response.approximateExpirationDate
-                                     refreshToken:response.refreshToken
-                                        anonymous:NO
-                                         callback:callback];
-            }];
+  if (@available(iOS 14, *)) {
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
+    [FIRAuthRecaptchaVerifier
+        injectRecaptchaFields:request
+                 forceRefresh:NO
+                  forProvider:@"email"
+                   completion:^(FIRIdentityToolkitRequest<FIRAuthRPCRequest> *request) {
+                     [FIRAuthBackend
+                         verifyPassword:(FIRVerifyPasswordRequest *)request
+                               callback:^(FIRVerifyPasswordResponse *_Nullable response,
+                                          NSError *_Nullable error) {
+                                 if (error) {
+                                   NSError *underlyingError =
+                                       [error.userInfo objectForKey:NSUnderlyingErrorKey];
+                                   if (error.code == FIRAuthErrorCodeInternalError &&
+                                       [[underlyingError.userInfo
+                                           objectForKey:FIRAuthErrorUserInfoDeserializedResponseKey]
+                                               [@"message"] hasPrefix:@"MISSING_RECAPTCHA_TOKEN"]) {
+                                     [FIRAuthRecaptchaVerifier
+                                         injectRecaptchaFields:request
+                                                  forceRefresh:YES
+                                                   forProvider:@"email"
+                                                    completion:^(
+                                                        FIRIdentityToolkitRequest<FIRAuthRPCRequest>
+                                                            *request) {
+                                                      [FIRAuthBackend
+                                                          verifyPassword:(FIRVerifyPasswordRequest
+                                                                              *)request
+                                                                callback:^(
+                                                                    FIRVerifyPasswordResponse
+                                                                        *_Nullable response,
+                                                                    NSError *_Nullable error) {
+                                                                  if (error) {
+                                                                    callback(nil, error);
+                                                                    return;
+                                                                  }
+                                                                  [self
+                                                                      completeSignInWithAccessToken:
+                                                                          response.IDToken
+                                                                          accessTokenExpirationDate:
+                                                                              response
+                                                                                  .approximateExpirationDate
+                                                                                       refreshToken:
+                                                                                           response
+                                                                                               .refreshToken
+                                                                                          anonymous:
+                                                                                              NO
+                                                                                           callback:
+                                                                                               callback];
+                                                                }];
+                                                    }];
+                                   } else {
+                                     callback(nil, error);
+                                     return;
+                                   }
+                                 } else {
+                                   if (error) {
+                                     callback(nil, error);
+                                     return;
+                                   }
+                                   [self
+                                       completeSignInWithAccessToken:response.IDToken
+                                           accessTokenExpirationDate:response
+                                                                         .approximateExpirationDate
+                                                        refreshToken:response.refreshToken
+                                                           anonymous:NO
+                                                            callback:callback];
+                                 }
+                               }];
+                   }];
+#endif
+  } else {
+    [FIRAuthBackend
+        verifyPassword:request
+              callback:^(FIRVerifyPasswordResponse *_Nullable response, NSError *_Nullable error) {
+                if (error) {
+                  callback(nil, error);
+                  return;
+                }
+                [self completeSignInWithAccessToken:response.IDToken
+                          accessTokenExpirationDate:response.approximateExpirationDate
+                                       refreshToken:response.refreshToken
+                                          anonymous:NO
+                                           callback:callback];
+              }];
+  }
 }
 
 /** @fn internalSignInAndRetrieveDataWithEmail:password:callback:
@@ -1535,6 +1608,16 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
     self->_requestConfiguration.additionalFrameworkMarker = [additionalFrameworkMarker copy];
   });
+}
+
+- (void)initializeRecaptchaConfigWithCompletion:
+    (nullable void (^)(NSError *_Nullable error))completion {
+  //  [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier]
+  //      verifyForceRefresh:YES
+  //              completion:^(NSString *_Nullable token, NSError *_Nullable error) {
+  //                // TODO:
+  //                ;
+  //              }];
 }
 
 #if TARGET_OS_IOS

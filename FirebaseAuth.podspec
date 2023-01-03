@@ -19,7 +19,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
 
   s.social_media_url = 'https://twitter.com/Firebase'
 
-  ios_deployment_target = '11.0'
+  ios_deployment_target = '12.0'
   osx_deployment_target = '10.13'
   tvos_deployment_target = '12.0'
   watchos_deployment_target = '6.0'
@@ -55,6 +55,8 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.8'
   s.dependency 'GoogleUtilities/Environment', '~> 7.8'
   s.dependency 'GTMSessionFetcher/Core', '>= 2.1', '< 4.0'
+  s.ios.dependency 'RecaptchaEnterprise', '~> 18.0.0'
+  s.static_framework = true
 
   # Using environment variable because of the dependency on the unpublished
   # HeartbeatLoggingTestUtils.

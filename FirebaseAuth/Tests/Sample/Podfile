@@ -4,12 +4,12 @@
 
 source 'https://github.com/firebase/SpecsDev.git'
 source 'https://github.com/firebase/SpecsStaging.git'
-source 'https://cdn.cocoapods.org/'
+source "https://github.com/CocoaPods/Specs.git"
 
 use_frameworks!
 
 target 'AuthSample' do
-  platform :ios, '11.0'
+  platform :ios, '12.0'
   pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseCoreInternal', :path => '../../../'
   pod 'FirebaseAuth', :path => '../../../', :testspecs => ['unit']

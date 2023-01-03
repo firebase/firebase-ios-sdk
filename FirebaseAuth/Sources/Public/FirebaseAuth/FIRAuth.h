@@ -850,6 +850,9 @@ NS_SWIFT_NAME(Auth)
  */
 - (BOOL)canHandleNotification:(NSDictionary *)userInfo API_UNAVAILABLE(macos, tvos, watchos);
 
+- (void)initializeRecaptchaConfigWithCompletion:
+    (nullable void (^)(NSError *_Nullable error))completion;
+
 #pragma mark - User sharing
 
 /** @fn useUserAccessGroup:error:
