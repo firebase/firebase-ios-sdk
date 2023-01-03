@@ -18,10 +18,12 @@
 
 #import <Foundation/Foundation.h>
 
+#if SWIFT_PACKAGE
 // This header is necessary for including the Interop header
 // in the Swift part of the codebase under Swift Package Manager
 // TODO(b/264274170) Remove the interop and make the dependency direct
 #import "FirebaseSessions/Internal/FIRSessionsProvider.h"
+#endif  // SWIFT_PACKAGE
 
 NS_ASSUME_NONNULL_BEGIN
 

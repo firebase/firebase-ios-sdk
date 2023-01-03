@@ -41,7 +41,7 @@ NS_SWIFT_NAME(SessionsSubscriber)
 /// dependency. To make SDKs that depend on FirebaseSessions build,
 /// we're defining this header in Objective-C and including it in all places.
 ///
-/// TODO(b/264274170) Remove Interop when FirebaseSessions releases and move to
+/// TODO(b/264274170) Remove Internal when FirebaseSessions releases and move to
 /// FirebaseSessions.swift
 NS_SWIFT_NAME(SessionsProvider)
 @protocol FIRSessionsProvider

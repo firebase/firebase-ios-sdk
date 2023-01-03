@@ -37,9 +37,9 @@ Pod::Spec.new do |s|
   s.source_files = [
     base_dir + 'Sources/**/*.{swift}',
     base_dir + 'SourcesObjC/**/*.{c,h,m,mm}',
-    # TODO(b/264274170) Remove Interop when FirebaseSessions releases and move to
+    # TODO(b/264274170) Remove Internal when FirebaseSessions releases and move to
     # FirebaseSessions.swift
-    base_dir + 'Interop/*.h',
+    base_dir + 'Internal/*.h',
   ]
 
   s.dependency 'FirebaseCore', '~> 10.0'

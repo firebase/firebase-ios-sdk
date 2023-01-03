@@ -34,7 +34,7 @@ Pod::Spec.new do |s|
     'FirebaseCore/Extension/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
     'Interop/Analytics/Public/*.h',
-    # TODO(b/264274170) Remove Interop when FirebaseSessions releases and move to
+    # TODO(b/264274170) Remove Internal when FirebaseSessions releases and move to
     # FirebaseSessions.swift
     'FirebaseSessions/Internal/*.h',
   ]
