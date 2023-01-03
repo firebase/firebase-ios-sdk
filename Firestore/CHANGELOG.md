@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fix an issue that stops some performance optimization being applied.
+
 # 10.3.0
 - [feature] Add MultiDb support.
 - [fixed] Fix App crashed when there are nested data structures inside IN

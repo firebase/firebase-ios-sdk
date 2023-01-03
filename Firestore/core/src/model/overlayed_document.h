@@ -26,8 +26,10 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-/** Represents a local view (overlay) of a document, and the fields that are
- * locally mutated. */
+/**
+ * Represents a local view (overlay) of a document, and the fields that are
+ * locally mutated.
+ */
 class OverlayedDocument {
  public:
   OverlayedDocument(model::Document document,
@@ -44,6 +46,13 @@ class OverlayedDocument {
     return std::move(document_);
   }
 
+  /**
+   * The fields that are locally mutated by patch mutations.
+   *
+   * If the overlayed document is from set or delete mutations, returns
+   * `nullopt`. If there is no overlay (mutation) for the document, returns
+   * empty `FieldMask`.
+   */
   const absl::optional<model::FieldMask>& mutated_fields() const {
     return mutated_fields_;
   }
