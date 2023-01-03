@@ -115,6 +115,6 @@ Pod::Spec.new do |s|
                               'Crashlytics/UnitTests/*/*.[mh]'
     unit_tests.resources = 'Crashlytics/UnitTests/Data/*',
                            'Crashlytics/UnitTests/*.clsrecord',
-                           'Crashlytics/UnitTests/FIRCLSMachO/data/*'
+                           'Crashlytics/UnitTests/FIRCLSMachO/machO_data/*'
   end
 end

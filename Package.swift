@@ -1,4 +1,4 @@
-// swift-tools-version:5.3
+// swift-tools-version:5.6
 // The swift-tools-version declares the minimum version of Swift required to
 // build this package.
 
@@ -536,7 +536,7 @@ let package = Package(
       dependencies: ["FirebaseCrashlytics", "OCMock"],
       path: "Crashlytics/UnitTests",
       resources: [
-        .process("FIRCLSMachO/data"),
+        .copy("FIRCLSMachO/machO_data"),
         .copy("Data"),
       ],
       cSettings: [
