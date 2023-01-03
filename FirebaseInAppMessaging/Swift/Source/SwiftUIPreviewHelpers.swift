@@ -20,7 +20,6 @@ import FirebaseInAppMessaging
 @available(iOSApplicationExtension, unavailable)
 @available(tvOSApplicationExtension, unavailable)
 public enum InAppMessagingPreviewHelpers {
-  public static let foo = UIColor.black
   public static func cardMessage(campaignName: String = "Card message campaign",
                                  title: String = "Title for modal message",
                                  body: String? = "Body for modal message",

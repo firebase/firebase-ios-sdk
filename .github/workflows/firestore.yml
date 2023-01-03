@@ -69,7 +69,7 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - uses: actions/setup-python@v2
       with:
@@ -96,8 +96,8 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
 
@@ -126,20 +126,22 @@ jobs:
   sanitizers:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    # TODO(b/231154868): GRPC 1.44 cause link issues on Mac, moving it to Ubuntu for now and add Mac when it is resolved.
-    runs-on: ubuntu-latest
     needs: check
 
     strategy:
       matrix:
+        # TODO(b/260248007): Re-enable this once tsan passes on Linux
+        os: [macos-12]
         sanitizer: [asan, tsan]
+
+    runs-on: ${{ matrix.os }}
 
     env:
       SANITIZERS: ${{ matrix.sanitizer }}
 
     steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
 
@@ -169,8 +171,8 @@ jobs:
         target: [iOS, tvOS, macOS]
 
     steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
 
@@ -196,7 +198,7 @@ jobs:
         ]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
@@ -231,7 +233,7 @@ jobs:
         ]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
@@ -252,8 +254,8 @@ jobs:
     runs-on: macos-12
     needs: check
     steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
     - name: Initialize xcodebuild
@@ -271,8 +273,8 @@ jobs:
       matrix:
         target: [tvOS, macOS, catalyst]
     steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
     - name: Initialize xcodebuild
@@ -294,7 +296,7 @@ jobs:
   #   needs: check
 
   #   steps:
-  #   - uses: actions/checkout@v2
+  #   - uses: actions/checkout@v3
   #   - name: Setup quickstart
   #     run: scripts/setup_quickstart.sh firestore
   #   - name: Install Secret GoogleService-Info.plist

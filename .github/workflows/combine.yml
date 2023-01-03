@@ -34,7 +34,6 @@ on:
     # - 'FirebaseAuth/**'
     # - 'FirebaseFunctions/**'
     # - 'Firestore/**'
-    # - 'FirebaseStorageInternal/**'
     # - 'FirebaseStorage/**'
 
   schedule:
@@ -56,8 +55,8 @@ jobs:
         target: [iOS]
 
     steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
 
@@ -79,8 +78,8 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
     - uses: ruby/setup-ruby@v1
@@ -90,10 +89,10 @@ jobs:
       run: gem install xcpretty
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
-          FirebaseStorageInternal/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
+          FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
     - name: Install Credentials.h
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Storage/Credentials.h.gpg \
-          FirebaseStorageInternal/Tests/Integration/Credentials.h "$plist_secret"
+          FirebaseStorage/Tests/ObjCIntegration/Credentials.h "$plist_secret"
     - name: Install Credentials.swift
       run: |
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Storage/Credentials.swift.gpg \

@@ -1,0 +1,248 @@
+// Copyright 2022 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+//
+// Instructions for updating this file:
+//
+// 1. Get the session_event.proto from the backend
+// 2. Copy everything below the options, and past it here below the package
+//    declaraction.
+// 3. Remove all the datapol.semantic_type tags
+// 4. Remove "wireless_android_play_playlog." from
+//    "wireless_android_play_playlog.NetworkConnectionInfo"
+// 5. Any new proto fields of type string, repeated, or bytes must be specified
+//    in the sessions.options file as "type:FT_POINTER"
+// 6. Remove any Lint comments (eg. IfChanged lines)
+// 7. Remove any optional specifiers
+//
+
+syntax = "proto3";
+
+package firebase.appquality.sessions;
+
+// Contains the relevant information around an App Quality Session.
+// See go/app-quality-unified-session-definition for more details.
+// Next tag: 4
+message SessionEvent {
+  // The type of event being reported.
+  EventType event_type = 1;
+  // Information about the session triggering the event.
+  SessionInfo session_data = 2;
+  // Information about the running application.
+  ApplicationInfo application_info = 3;
+}
+
+// Enum denoting all possible session event types.
+// Next tag: 2
+enum EventType {
+  EVENT_TYPE_UNKNOWN = 0;
+  // This event type is fired as soon as a new session begins.
+  SESSION_START = 1;
+}
+
+// To describe the network connectivity of the client.
+// Copied from android/play/playlog/proto/clientanalytics.proto
+// Next tag: 3
+message NetworkConnectionInfo {
+  enum NetworkType {
+    MOBILE = 0;
+    WIFI = 1;
+    MOBILE_MMS = 2;
+    MOBILE_SUPL = 3;
+    MOBILE_DUN = 4;
+    MOBILE_HIPRI = 5;
+    WIMAX = 6;
+    BLUETOOTH = 7;
+    DUMMY = 8;
+    ETHERNET = 9;
+    MOBILE_FOTA = 10;
+    MOBILE_IMS = 11;
+    MOBILE_CBS = 12;
+    WIFI_P2P = 13;
+    MOBILE_IA = 14;
+    MOBILE_EMERGENCY = 15;
+    PROXY = 16;
+    VPN = 17;
+  }
+
+  enum MobileSubtype {
+    UNKNOWN_MOBILE_SUBTYPE = 0;
+    GPRS = 1;
+    EDGE = 2;
+    UMTS = 3;
+    CDMA = 4;
+    EVDO_0 = 5;
+    EVDO_A = 6;
+    RTT = 7;
+    HSDPA = 8;
+    HSUPA = 9;
+    HSPA = 10;
+    IDEN = 11;
+    EVDO_B = 12;
+    LTE = 13;
+    EHRPD = 14;
+    HSPAP = 15;
+    GSM = 16;
+    TD_SCDMA = 17;
+    IWLAN = 18;
+    LTE_CA = 19;
+    NR = 20;
+
+    // COMBINED has value -1 in NetworkIdentity.java, but is given the value
+    // 100 here to save (disk) space. The value -1 takes up the full 10 bytes in
+    // a varint for enums, but the value 100 only takes up 1 byte.
+    COMBINED = 100;
+  }
+
+  // The current network connectivity type when the event was logged in the
+  // client
+  NetworkType network_type = 1;
+
+  // The current mobile connectivity subtype when the event was logged in the
+  // client
+  MobileSubtype mobile_subtype = 2;
+}
+
+// Contains session-specific information relating to the event being uploaded.
+// Next tag: 7
+message SessionInfo {
+  // A globally unique identifier for the session.
+  string session_id = 1;
+  // The unique identifier for the session that preceded this one on the device.
+  // This will be the empty string if there was no previous session.
+  string previous_session_id = 2;
+  // Identifies a unique device+app installation: go/firebase-installations
+  string firebase_installation_id = 3;
+  // The device-reported timestamp at which the event occurred.
+  int64 event_timestamp_us = 4;
+
+  // The data collection status for each related SDK.
+  DataCollectionStatus data_collection_status = 6;
+}
+
+// Contains the data collection status for each related SDK.
+// Next tag: 4
+message DataCollectionStatus {
+  // The collection status of the FirePerf SDK.
+  DataCollectionState performance = 1;
+  // The collection status for the Crashlytics SDK.
+  DataCollectionState crashlytics = 2;
+  // Any sampling rate being applied to these events on device.
+  // 1.0 implies no sampling.
+  double session_sampling_rate = 3;
+}
+
+// Enum denoting all possible states for SDK data collection.
+// Next tag: 6
+enum DataCollectionState {
+  COLLECTION_UNKNOWN = 0;
+  // This product SDK is not present in this version of the app.
+  COLLECTION_SDK_NOT_INSTALLED = 1;
+  // The product SDK is present and collecting all product-level events.
+  COLLECTION_ENABLED = 2;
+  // The product SDK is present but data collection for it has been locally
+  // disabled.
+  COLLECTION_DISABLED = 3;
+  // The product SDK is present but data collection has been remotely disabled.
+  COLLECTION_DISABLED_REMOTE = 4;
+  // Indicates that the product SDK is present, but session data is being
+  // collected, but the product-level events are not being uploaded.
+  COLLECTION_SAMPLED = 5;
+}
+
+// App-level information collected from the device.
+// Next tag: 9
+message ApplicationInfo {
+  // Commonly known as the GMP App Id
+  string app_id = 1;
+  // The manufacturer supplied device model name. Eg. 'N5502L'
+  string device_model = 2;
+  // The development platform used by the app. Eg. 'Unity', 'Flutter'
+  string development_platform_name = 3;
+  // The version of the development platform in use by the app. Eg. 2020.3.33f1
+  string development_platform_version = 4;
+  // The version of the Firebase-Sessions SDK in use
+  string session_sdk_version = 7;
+  // The destination environment to send the logs to
+  LogEnvironment log_environment = 8;
+
+  oneof platform_info {
+    // App info relevant only to Android apps
+    AndroidApplicationInfo android_app_info = 5;
+    // App info relevant only to Apple apps
+    AppleApplicationInfo apple_app_info = 6;
+  }
+}
+
+// Android-specific app information
+// In addition to these fields, the Firelog SDK also collects:
+// - application_build
+// - mcc_mnc
+// - sdk_version(app's build version)
+// - manufacturer
+// - model
+// - country
+// - network_connection_info
+// Next tag: 4
+message AndroidApplicationInfo {
+  // The applications package name. Eg. com.google.search
+  string package_name = 1;
+  // The version name as specified in the app's manifest
+  // https://developer.android.com/guide/topics/manifest/manifest-element#vname
+  string version_name = 3;
+}
+
+// Apple-specific app information
+// In addition to these fields, the Firelog SDK also collects:
+// - application_build
+// - application_version
+// - os_full_version
+// - model
+// - country
+// Next tag: 6
+message AppleApplicationInfo {
+  // The application's display version, eg. 1.2.3
+  string bundle_short_version = 1;
+  // Describes the network connectivity of the device
+  NetworkConnectionInfo network_connection_info = 3;
+  // Collects the OS running. Eg. iOS, iPadOs, tvOS, etc.
+  OsName os_name = 4;
+  // The mobile country code / mobile network code (MCC/MNC) of the device's
+  // SIM/home network (not the device's active network)
+  // e.g., 310004 for Verizon USA.
+  string mcc_mnc = 5;
+}
+
+// The name of the operating system on which the application is running.
+// Currently Apple only.
+enum OsName {
+  UNKNOWN_OSNAME = 0;
+  MACOS = 1;
+  MACCATALYST = 2;
+  IOS_ON_MAC = 3;
+  IOS = 4;
+  TVOS = 5;
+  WATCHOS = 6;
+  IPADOS = 7;
+  // Indicates no data was provided by the device (old sdk, Android)
+  UNSPECIFIED = 8;
+}
+
+// Enum containing the destination environment the events will be sent to.
+enum LogEnvironment {
+  LOG_ENVIRONMENT_UNKNOWN = 0;
+  LOG_ENVIRONMENT_AUTOPUSH = 1;
+  LOG_ENVIRONMENT_STAGING = 2;
+  LOG_ENVIRONMENT_PROD = 3;
+}

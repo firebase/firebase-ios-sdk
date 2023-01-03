@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfig'
-  s.version          = '9.3.0'
+  s.version          = '10.4.0'
   s.summary          = 'Firebase Remote Config'
 
   s.description      = <<-DESC
@@ -18,9 +18,9 @@ app update.
     :tag => 'CocoaPods-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  ios_deployment_target = '10.0'
-  osx_deployment_target = '10.12'
-  tvos_deployment_target = '10.0'
+  ios_deployment_target = '11.0'
+  osx_deployment_target = '10.13'
+  tvos_deployment_target = '12.0'
   watchos_deployment_target = '6.0'
 
   s.swift_version = '5.3'
@@ -46,11 +46,11 @@ app update.
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
-  s.dependency 'FirebaseABTesting', '~> 9.0'
-  s.dependency 'FirebaseCore', '~> 9.0'
-  s.dependency 'FirebaseInstallations', '~> 9.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.7'
-  s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.7'
+  s.dependency 'FirebaseABTesting', '~> 10.0'
+  s.dependency 'FirebaseCore', '~> 10.0'
+  s.dependency 'FirebaseInstallations', '~> 10.0'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.8'
+  s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.8'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }

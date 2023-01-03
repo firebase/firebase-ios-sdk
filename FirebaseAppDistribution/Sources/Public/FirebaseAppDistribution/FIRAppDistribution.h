@@ -13,6 +13,7 @@
 // limitations under the License.
 
 @class FIRAppDistributionRelease;
+@class UIApplication;
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -54,6 +55,14 @@ NS_SWIFT_NAME(AppDistribution)
  * Sign out App Distribution tester
  */
 - (void)signOutTester;
+
+/**
+ * Handle an App Distribution URL, for example a link to download a new pre-release version.
+ * Call this method in your app delegate's `openURL` implementation if swizzling is disabled.
+ */
+- (BOOL)application:(UIApplication *)application
+            openURL:(NSURL *)url
+            options:(NSDictionary<NSString *, id> *)options;
 
 /**
  * Accesses the singleton App Distribution instance.

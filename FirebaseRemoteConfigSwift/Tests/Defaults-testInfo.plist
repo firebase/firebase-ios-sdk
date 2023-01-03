@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>lastCheckTime</key>
+	<date>2016-02-28T18:33:31Z</date>
+	<key>isPaidUser</key>
+	<true/>
+	<key>dataValue</key>
+	<data>Mi40</data>
+	<key>newItem</key>
+	<real>2.4</real>
+	<key>Languages</key>
+	<string>English</string>
+	<key>FileInfo</key>
+	<string>To setup default config.</string>
+	<key>format</key>
+	<string>key to value.</string>
+	<key>arrayValue</key>
+	<array>
+		<string>foo</string>
+		<string>bar</string>
+		<string>baz</string>
+	</array>
+	<key>arrayIntValue</key>
+	<array>
+		<integer>1</integer>
+		<integer>2</integer>
+		<integer>0</integer>
+		<integer>3</integer>
+	</array>
+	<key>dictValue</key>
+	<dict>
+		<key>foo</key>
+		<string>foo</string>
+		<key>bar</key>
+		<string>bar</string>
+		<key>baz</key>
+		<string>baz</string>
+	</dict>
+</dict>
+</plist>

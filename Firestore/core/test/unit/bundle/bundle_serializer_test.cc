@@ -65,6 +65,7 @@ using testutil::Filter;
 using testutil::Map;
 using testutil::OrderBy;
 using testutil::Value;
+using util::JsonReader;
 
 json Parse(const std::string& s) {
   return json::parse(s, /*callback=*/nullptr, /*allow_exception=*/false);

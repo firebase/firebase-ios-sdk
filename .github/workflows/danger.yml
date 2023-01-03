@@ -11,7 +11,7 @@ jobs:
   danger:
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh

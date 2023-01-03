@@ -138,6 +138,12 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
                    core::TransactionUpdateCallback update_callback,
                    core::TransactionResultCallback result_callback);
 
+  /**
+   * Executes a count query using the given query as the base.
+   */
+  void RunCountQuery(const core::Query& query,
+                     api::CountQueryCallback&& result_callback);
+
   void HandleCredentialChange(const credentials::User& user);
 
   // Implements `RemoteStoreCallback`
@@ -227,8 +233,10 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
 
   void AssertCallbackExists(absl::string_view source);
 
-  ViewSnapshot InitializeViewAndComputeSnapshot(const Query& query,
-                                                model::TargetId target_id);
+  ViewSnapshot InitializeViewAndComputeSnapshot(
+      const Query& query,
+      model::TargetId target_id,
+      nanopb::ByteString resume_token);
 
   void RemoveAndCleanupTarget(model::TargetId target_id, util::Status status);
 

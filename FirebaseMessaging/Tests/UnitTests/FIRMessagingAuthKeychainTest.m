@@ -214,6 +214,11 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
 #endif
 }
 
+// Skip keychain tests on Catalyst and macOS. Tests are skipped because they
+// involve interactions with the keychain that require a provisioning profile.
+// See go/firebase-macos-keychain-popups for more details.
+#if !TARGET_OS_MACCATALYST && !TARGET_OS_OSX
+
 - (void)testQueryCachedKeychainItems {
   XCTestExpectation *addItemToKeychainExpectation =
       [self expectationWithDescription:@"Test added item should be cached properly"];
@@ -395,6 +400,8 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
   // Service and account2 should exist in cache.
   XCTAssertNotNil(keychain.cachedKeychainData[service][account2]);
 }
+
+#endif
 
 #pragma mark - helper function
 - (NSData *)tokenDataWithAuthorizedEntity:(NSString *)authorizedEntity

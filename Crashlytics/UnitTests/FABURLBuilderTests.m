@@ -34,7 +34,7 @@
 - (void)tearDown {
   [super tearDown];
 }
-
+#if !TARGET_OS_WATCH
 - (void)testTheRightUrlEncodingIsUsed {
   NSString *actual =
       @"https://settings.crashlytics.com/spi/v2/platforms/ios/apps/"
@@ -52,5 +52,5 @@
   NSString *encoded = [urlBuilder escapeString:actual];
   XCTAssertEqualObjects(encoded, expected);
 }
-
+#endif
 @end

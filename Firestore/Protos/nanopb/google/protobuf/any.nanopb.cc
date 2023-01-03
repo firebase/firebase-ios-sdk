@@ -45,16 +45,18 @@ const pb_field_t google_protobuf_Any_fields[3] = {
 
 
 std::string google_protobuf_Any::ToString(int indent) const {
-    std::string header = PrintHeader(indent, "Any", this);
-    std::string result;
+    std::string tostring_header = PrintHeader(indent, "Any", this);
+    std::string tostring_result;
 
-    result += PrintPrimitiveField("type_url: ", type_url, indent + 1, false);
-    result += PrintPrimitiveField("value: ", value, indent + 1, false);
+    tostring_result += PrintPrimitiveField("type_url: ",
+        type_url, indent + 1, false);
+    tostring_result += PrintPrimitiveField("value: ",
+        value, indent + 1, false);
 
     bool is_root = indent == 0;
-    if (!result.empty() || is_root) {
-      std::string tail = PrintTail(indent);
-      return header + result + tail;
+    if (!tostring_result.empty() || is_root) {
+      std::string tostring_tail = PrintTail(indent);
+      return tostring_header + tostring_result + tostring_tail;
     } else {
       return "";
     }

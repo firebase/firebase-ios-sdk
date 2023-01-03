@@ -10,3 +10,17 @@ diff -Naur nanopb/CMakeLists.txt nanopb-fix/CMakeLists.txt
      execute_process(
          COMMAND ${PYTHON_EXECUTABLE} -c
              "from distutils import sysconfig; print(sysconfig.get_python_lib(prefix=''))"
+diff -Naur nanopb/generator/nanopb_generator.py nanopb-fix/generator/nanopb_generator.py
+--- nanopb/generator/nanopb_generator.py	2021-03-22 08:50:07.000000000 -0400
++++ nanopb-fix/generator/nanopb_generator.py	2022-11-01 15:37:38.112297044 -0400
+@@ -1641,7 +1641,9 @@
+             optfilename = os.path.join(p, optfilename)
+             if options.verbose:
+                 sys.stderr.write('Reading options from ' + optfilename + '\n')
+-            Globals.separate_options = read_options_file(open(optfilename, "rU"))
++            # Patch in https://github.com/nanopb/nanopb/commit/01e9186a8b to avoid
++            # using "U" in the filemode, whose support was removed in Python 3.11.
++            Globals.separate_options = read_options_file(open(optfilename, 'r', encoding = 'utf-8'))
+             break
+     else:
+         # If we are given a full filename and it does not exist, give an error.

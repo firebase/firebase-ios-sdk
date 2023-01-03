@@ -23,6 +23,8 @@
 
 #include "google/api/annotations.nanopb.h"
 
+#include "google/firestore/v1/aggregation_result.nanopb.h"
+
 #include "google/firestore/v1/common.nanopb.h"
 
 #include "google/firestore/v1/document.nanopb.h"
@@ -246,6 +248,32 @@ typedef struct _google_firestore_v1_ListDocumentsRequest {
 /* @@protoc_insertion_point(struct:google_firestore_v1_ListDocumentsRequest) */
 } google_firestore_v1_ListDocumentsRequest;
 
+typedef struct _google_firestore_v1_RunAggregationQueryRequest {
+    pb_bytes_array_t *parent;
+    pb_size_t which_query_type;
+    union {
+        google_firestore_v1_StructuredAggregationQuery structured_aggregation_query;
+    } query_type;
+    pb_size_t which_consistency_selector;
+    union {
+        pb_bytes_array_t *transaction;
+        google_firestore_v1_TransactionOptions new_transaction;
+        google_protobuf_Timestamp read_time;
+    } consistency_selector;
+
+    std::string ToString(int indent = 0) const;
+/* @@protoc_insertion_point(struct:google_firestore_v1_RunAggregationQueryRequest) */
+} google_firestore_v1_RunAggregationQueryRequest;
+
+typedef struct _google_firestore_v1_RunAggregationQueryResponse {
+    google_firestore_v1_AggregationResult result;
+    pb_bytes_array_t *transaction;
+    google_protobuf_Timestamp read_time;
+
+    std::string ToString(int indent = 0) const;
+/* @@protoc_insertion_point(struct:google_firestore_v1_RunAggregationQueryResponse) */
+} google_firestore_v1_RunAggregationQueryResponse;
+
 typedef struct _google_firestore_v1_RunQueryRequest {
     pb_bytes_array_t *parent;
     pb_size_t which_query_type;
@@ -382,6 +410,8 @@ typedef struct _google_firestore_v1_ListenRequest {
 #define google_firestore_v1_RollbackRequest_init_default {NULL, NULL}
 #define google_firestore_v1_RunQueryRequest_init_default {NULL, 0, {google_firestore_v1_StructuredQuery_init_default}, 0, {NULL}}
 #define google_firestore_v1_RunQueryResponse_init_default {google_firestore_v1_Document_init_default, NULL, google_protobuf_Timestamp_init_default, 0}
+#define google_firestore_v1_RunAggregationQueryRequest_init_default {NULL, 0, {google_firestore_v1_StructuredAggregationQuery_init_default}, 0, {NULL}}
+#define google_firestore_v1_RunAggregationQueryResponse_init_default {google_firestore_v1_AggregationResult_init_default, NULL, google_protobuf_Timestamp_init_default}
 #define google_firestore_v1_WriteRequest_init_default {NULL, NULL, 0, NULL, NULL, 0, NULL}
 #define google_firestore_v1_WriteRequest_LabelsEntry_init_default {NULL, NULL}
 #define google_firestore_v1_WriteResponse_init_default {NULL, NULL, 0, NULL, google_protobuf_Timestamp_init_default}
@@ -409,6 +439,8 @@ typedef struct _google_firestore_v1_ListenRequest {
 #define google_firestore_v1_RollbackRequest_init_zero {NULL, NULL}
 #define google_firestore_v1_RunQueryRequest_init_zero {NULL, 0, {google_firestore_v1_StructuredQuery_init_zero}, 0, {NULL}}
 #define google_firestore_v1_RunQueryResponse_init_zero {google_firestore_v1_Document_init_zero, NULL, google_protobuf_Timestamp_init_zero, 0}
+#define google_firestore_v1_RunAggregationQueryRequest_init_zero {NULL, 0, {google_firestore_v1_StructuredAggregationQuery_init_zero}, 0, {NULL}}
+#define google_firestore_v1_RunAggregationQueryResponse_init_zero {google_firestore_v1_AggregationResult_init_zero, NULL, google_protobuf_Timestamp_init_zero}
 #define google_firestore_v1_WriteRequest_init_zero {NULL, NULL, 0, NULL, NULL, 0, NULL}
 #define google_firestore_v1_WriteRequest_LabelsEntry_init_zero {NULL, NULL}
 #define google_firestore_v1_WriteResponse_init_zero {NULL, NULL, 0, NULL, google_protobuf_Timestamp_init_zero}
@@ -480,6 +512,14 @@ typedef struct _google_firestore_v1_ListenRequest {
 #define google_firestore_v1_ListDocumentsRequest_order_by_tag 6
 #define google_firestore_v1_ListDocumentsRequest_mask_tag 7
 #define google_firestore_v1_ListDocumentsRequest_show_missing_tag 12
+#define google_firestore_v1_RunAggregationQueryRequest_structured_aggregation_query_tag 2
+#define google_firestore_v1_RunAggregationQueryRequest_transaction_tag 4
+#define google_firestore_v1_RunAggregationQueryRequest_new_transaction_tag 5
+#define google_firestore_v1_RunAggregationQueryRequest_read_time_tag 6
+#define google_firestore_v1_RunAggregationQueryRequest_parent_tag 1
+#define google_firestore_v1_RunAggregationQueryResponse_result_tag 1
+#define google_firestore_v1_RunAggregationQueryResponse_transaction_tag 2
+#define google_firestore_v1_RunAggregationQueryResponse_read_time_tag 3
 #define google_firestore_v1_RunQueryRequest_structured_query_tag 2
 #define google_firestore_v1_RunQueryRequest_transaction_tag 5
 #define google_firestore_v1_RunQueryRequest_new_transaction_tag 6
@@ -536,6 +576,8 @@ extern const pb_field_t google_firestore_v1_CommitResponse_fields[3];
 extern const pb_field_t google_firestore_v1_RollbackRequest_fields[3];
 extern const pb_field_t google_firestore_v1_RunQueryRequest_fields[6];
 extern const pb_field_t google_firestore_v1_RunQueryResponse_fields[5];
+extern const pb_field_t google_firestore_v1_RunAggregationQueryRequest_fields[6];
+extern const pb_field_t google_firestore_v1_RunAggregationQueryResponse_fields[4];
 extern const pb_field_t google_firestore_v1_WriteRequest_fields[6];
 extern const pb_field_t google_firestore_v1_WriteRequest_LabelsEntry_fields[3];
 extern const pb_field_t google_firestore_v1_WriteResponse_fields[5];
@@ -565,6 +607,8 @@ extern const pb_field_t google_firestore_v1_ListCollectionIdsResponse_fields[3];
 /* google_firestore_v1_RollbackRequest_size depends on runtime parameters */
 /* google_firestore_v1_RunQueryRequest_size depends on runtime parameters */
 /* google_firestore_v1_RunQueryResponse_size depends on runtime parameters */
+/* google_firestore_v1_RunAggregationQueryRequest_size depends on runtime parameters */
+/* google_firestore_v1_RunAggregationQueryResponse_size depends on runtime parameters */
 /* google_firestore_v1_WriteRequest_size depends on runtime parameters */
 /* google_firestore_v1_WriteRequest_LabelsEntry_size depends on runtime parameters */
 /* google_firestore_v1_WriteResponse_size depends on runtime parameters */

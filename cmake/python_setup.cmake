@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+include("${CMAKE_CURRENT_LIST_DIR}/firebase_utils.cmake")
+
 # Sets up an isolated Python interpreter, installing required dependencies.
 #
 # This function does the following:
@@ -120,20 +122,13 @@ function(FirebaseSetupPythonInterpreter)
     "using ${FIREBASE_PYTHON_HOST_EXECUTABLE}"
   )
   file(REMOVE_RECURSE "${PYVENV_DIRECTORY}")
-  execute_process(
+  firebase_execute_process(
     COMMAND
       "${FIREBASE_PYTHON_HOST_EXECUTABLE}"
       -m
       venv
       "${PYVENV_DIRECTORY}"
-    RESULT_VARIABLE
-      FIREBASE_PYVENV_CREATE_RESULT
   )
-  if(NOT FIREBASE_PYVENV_CREATE_RESULT EQUAL 0)
-    message(FATAL_ERROR
-      "Failed to create a Python virtualenv in ${PYVENV_DIRECTORY} "
-      "using ${FIREBASE_PYTHON_HOST_EXECUTABLE}")
-  endif()
 
   # Find the Python interpreter in the virtualenv.
   find_program(
@@ -157,22 +152,14 @@ function(FirebaseSetupPythonInterpreter)
       "${LOG_PREFIX}: Installing Python dependencies into "
       "${PYVENV_DIRECTORY}: ${ARG_REQUIREMENTS}"
     )
-    execute_process(
+    firebase_execute_process(
       COMMAND
         "${PYTHON_EXECUTABLE}"
         -m
         pip
         install
         ${ARG_REQUIREMENTS}
-      RESULT_VARIABLE
-        PIP_INSTALL_RESULT
     )
-    if(NOT PIP_INSTALL_RESULT EQUAL 0)
-      message(FATAL_ERROR
-        "Failed to install Python dependencies into "
-        "${PYVENV_DIRECTORY}: ${ARG_REQUIREMENTS}"
-      )
-    endif()
   endif()
 
   # Write the stamp files.

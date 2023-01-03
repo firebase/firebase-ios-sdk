@@ -9,7 +9,6 @@ target 'SwiftUISample' do
 
   pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseMessaging', :path => '../../../'
-  pod 'FirebaseCoreDiagnostics', :path => '../../../'
   pod 'FirebaseCoreInternal', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
 

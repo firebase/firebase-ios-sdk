@@ -62,12 +62,11 @@ namespace remote {
 
 using core::Bound;
 using core::CollectionGroupId;
+using core::CompositeFilter;
 using core::Direction;
 using core::FieldFilter;
 using core::Filter;
-using core::FilterList;
 using core::OrderBy;
-using core::OrderByList;
 using core::Query;
 using core::Target;
 using local::QueryPurpose;
@@ -700,9 +699,9 @@ google_firestore_v1_Target_QueryTarget Serializer::EncodeQueryTarget(
   }
 
   // Encode the filters.
-  const auto& filters = target.filters();
-  if (!filters.empty()) {
-    result.structured_query.where = EncodeFilters(filters);
+  const auto& filter_list = target.filters();
+  if (!filter_list.empty()) {
+    result.structured_query.where = EncodeFilters(filter_list);
   }
 
   const auto& orders = target.order_bys();
@@ -756,12 +755,12 @@ Target Serializer::DecodeStructuredQuery(
     }
   }
 
-  FilterList filter_by;
+  std::vector<Filter> filter_by;
   if (query.where.which_filter_type != 0) {
     filter_by = DecodeFilters(context, query.where);
   }
 
-  OrderByList order_by;
+  std::vector<OrderBy> order_by;
   if (query.order_by_count > 0) {
     order_by = DecodeOrderBys(context, query.order_by, query.order_by_count);
   }
@@ -802,56 +801,65 @@ Target Serializer::DecodeQueryTarget(
 }
 
 google_firestore_v1_StructuredQuery_Filter Serializer::EncodeFilters(
-    const FilterList& filters) const {
-  google_firestore_v1_StructuredQuery_Filter result{};
-
-  auto is_field_filter = [](const Filter& f) { return f.IsAFieldFilter(); };
-  size_t filters_count = absl::c_count_if(filters, is_field_filter);
-  if (filters_count == 1) {
-    auto first = absl::c_find_if(filters, is_field_filter);
-    // Special case: no existing filters and we only need to add one filter.
-    // This can be made the single root filter without a composite filter.
-    FieldFilter filter{*first};
-    return EncodeSingularFilter(filter);
-  }
-
-  result.which_filter_type =
-      google_firestore_v1_StructuredQuery_Filter_composite_filter_tag;
-  google_firestore_v1_StructuredQuery_CompositeFilter& composite =
-      result.composite_filter;
-  composite.op =
-      google_firestore_v1_StructuredQuery_CompositeFilter_Operator_AND;
-
-  SetRepeatedField(
-      &composite.filters, &composite.filters_count, filters,
-      [&](const Filter& f) { return EncodeSingularFilter(FieldFilter{f}); });
-
-  return result;
+    const std::vector<Filter>& filter_list) const {
+  return EncodeCompositeFilter(CompositeFilter::Create(
+      std::vector<Filter>(filter_list), CompositeFilter::Operator::And));
 }
 
-FilterList Serializer::DecodeFilters(
+std::vector<Filter> Serializer::DecodeFilters(
     ReadContext* context,
     google_firestore_v1_StructuredQuery_Filter& proto) const {
-  FilterList result;
+  Filter decoded_filter = DecodeFilter(context, proto).ValueOrDie();
 
+  // Instead of a singletonList containing AND(F1, F2, ...), we can return
+  // a list containing F1, F2, ...
+  // TODO(orquery): Once proper support for composite filters has been
+  // completed, we can remove this flattening from here.
+  if (decoded_filter.IsACompositeFilter()) {
+    CompositeFilter composite_filter(decoded_filter);
+    if (composite_filter.IsFlatConjunction()) {
+      return composite_filter.filters();
+    }
+  }
+
+  return {decoded_filter};
+}
+
+StatusOr<Filter> Serializer::DecodeFilter(
+    ReadContext* context,
+    google_firestore_v1_StructuredQuery_Filter& proto) const {
   switch (proto.which_filter_type) {
     case google_firestore_v1_StructuredQuery_Filter_composite_filter_tag:
       return DecodeCompositeFilter(context, proto.composite_filter);
 
     case google_firestore_v1_StructuredQuery_Filter_unary_filter_tag:
-      return result.push_back(DecodeUnaryFilter(context, proto.unary_filter));
+      return DecodeUnaryFilter(context, proto.unary_filter);
 
     case google_firestore_v1_StructuredQuery_Filter_field_filter_tag:
-      return result.push_back(DecodeFieldFilter(context, proto.field_filter));
+      return DecodeFieldFilter(context, proto.field_filter);
 
     default:
-      context->Fail(StringFormat("Unrecognized Filter.which_filter_type %s",
-                                 proto.which_filter_type));
-      return result;
+      std::string description = StringFormat(
+          "Unrecognized Filter.which_filter_type %s", proto.which_filter_type);
+      context->Fail(description);
+      return util::Status(Error::kErrorDataLoss, description);
   }
 }
 
-google_firestore_v1_StructuredQuery_Filter Serializer::EncodeSingularFilter(
+google_firestore_v1_StructuredQuery_Filter Serializer::EncodeFilter(
+    const Filter& filter) const {
+  if (filter.IsAFieldFilter()) {
+    const FieldFilter field_filter(filter);
+    return EncodeUnaryOrFieldFilter(field_filter);
+  } else if (filter.IsACompositeFilter()) {
+    const CompositeFilter composite_filter(filter);
+    return EncodeCompositeFilter(composite_filter);
+  } else {
+    HARD_FAIL("Unrecognized filter type %s", filter.ToString());
+  }
+}
+
+google_firestore_v1_StructuredQuery_Filter Serializer::EncodeUnaryOrFieldFilter(
     const FieldFilter& filter) const {
   google_firestore_v1_StructuredQuery_Filter result{};
 
@@ -892,6 +900,27 @@ google_firestore_v1_StructuredQuery_Filter Serializer::EncodeSingularFilter(
   result.field_filter.op = EncodeFieldFilterOperator(filter.op());
   // TODO(mrschmidt): Figure out how to remove this copy
   result.field_filter.value = *DeepClone(filter.value()).release();
+
+  return result;
+}
+
+google_firestore_v1_StructuredQuery_Filter Serializer::EncodeCompositeFilter(
+    const core::CompositeFilter& filter) const {
+  // If there's only one filter in the composite filter, use it directly.
+  if (filter.filters().size() == 1U) {
+    return EncodeFilter(filter.filters()[0]);
+  }
+
+  google_firestore_v1_StructuredQuery_Filter result{};
+  result.which_filter_type =
+      google_firestore_v1_StructuredQuery_Filter_composite_filter_tag;
+  google_firestore_v1_StructuredQuery_CompositeFilter& composite =
+      result.composite_filter;
+  composite.op = EncodeCompositeFilterOperator(filter.op());
+
+  SetRepeatedField(&composite.filters, &composite.filters_count,
+                   filter.filters(),
+                   [&](const Filter& f) { return EncodeFilter(f); });
 
   return result;
 }
@@ -942,45 +971,18 @@ Filter Serializer::DecodeUnaryFilter(
   }
 }
 
-FilterList Serializer::DecodeCompositeFilter(
+core::Filter Serializer::DecodeCompositeFilter(
     ReadContext* context,
     const google_firestore_v1_StructuredQuery_CompositeFilter& composite)
     const {
-  if (composite.op !=
-      google_firestore_v1_StructuredQuery_CompositeFilter_Operator_AND) {
-    context->Fail(StringFormat(
-        "Only AND-type composite filters are supported, got %s", composite.op));
-    return FilterList{};
-  }
-
-  FilterList result;
-  result = result.reserve(composite.filters_count);
-
+  std::vector<core::Filter> filters;
   for (pb_size_t i = 0; i != composite.filters_count; ++i) {
     auto& filter = composite.filters[i];
-    switch (filter.which_filter_type) {
-      case google_firestore_v1_StructuredQuery_Filter_composite_filter_tag:
-        context->Fail("Nested composite filters are not supported");
-        return FilterList{};
-
-      case google_firestore_v1_StructuredQuery_Filter_unary_filter_tag:
-        result =
-            result.push_back(DecodeUnaryFilter(context, filter.unary_filter));
-        break;
-
-      case google_firestore_v1_StructuredQuery_Filter_field_filter_tag:
-        result =
-            result.push_back(DecodeFieldFilter(context, filter.field_filter));
-        break;
-
-      default:
-        context->Fail(StringFormat("Unrecognized Filter.which_filter_type %s",
-                                   filter.which_filter_type));
-        return FilterList{};
-    }
+    filters.push_back(DecodeFilter(context, filter).ValueOrDie());
   }
 
-  return result;
+  return CompositeFilter::Create(
+      std::move(filters), DecodeCompositeFilterOperator(context, composite.op));
 }
 
 google_firestore_v1_StructuredQuery_FieldFilter_Operator
@@ -1017,7 +1019,21 @@ Serializer::EncodeFieldFilterOperator(FieldFilter::Operator op) const {
       return google_firestore_v1_StructuredQuery_FieldFilter_Operator_NOT_IN;  // NOLINT
 
     default:
-      HARD_FAIL("Unhandled Filter::Operator: %s", op);
+      HARD_FAIL("Unhandled FieldFilter::Operator: %s", op);
+  }
+}
+
+google_firestore_v1_StructuredQuery_CompositeFilter_Operator
+Serializer::EncodeCompositeFilterOperator(CompositeFilter::Operator op) const {
+  switch (op) {
+    case CompositeFilter::Operator::And:
+      return google_firestore_v1_StructuredQuery_CompositeFilter_Operator_AND;
+
+    case CompositeFilter::Operator::Or:
+      return google_firestore_v1_StructuredQuery_CompositeFilter_Operator_OR;
+
+    default:
+      HARD_FAIL("Unhandled CompositeFilter::Operator: %s", op);
   }
 }
 
@@ -1061,8 +1077,24 @@ FieldFilter::Operator Serializer::DecodeFieldFilterOperator(
   }
 }
 
+CompositeFilter::Operator Serializer::DecodeCompositeFilterOperator(
+    ReadContext* context,
+    google_firestore_v1_StructuredQuery_CompositeFilter_Operator op) const {
+  switch (op) {
+    case google_firestore_v1_StructuredQuery_CompositeFilter_Operator_AND:
+      return CompositeFilter::Operator::And;
+
+    case google_firestore_v1_StructuredQuery_CompositeFilter_Operator_OR:
+      return CompositeFilter::Operator::Or;
+
+    default:
+      context->Fail(StringFormat("Unhandled CompositeFilter.op: %s", op));
+      return CompositeFilter::Operator{};
+  }
+}
+
 google_firestore_v1_StructuredQuery_Order* Serializer::EncodeOrderBys(
-    const OrderByList& orders) const {
+    const std::vector<OrderBy>& orders) const {
   auto* result = MakeArray<google_firestore_v1_StructuredQuery_Order>(
       CheckedSize(orders.size()));
 
@@ -1082,15 +1114,15 @@ google_firestore_v1_StructuredQuery_Order* Serializer::EncodeOrderBys(
   return result;
 }
 
-OrderByList Serializer::DecodeOrderBys(
+std::vector<OrderBy> Serializer::DecodeOrderBys(
     ReadContext* context,
     google_firestore_v1_StructuredQuery_Order* order_bys,
     pb_size_t size) const {
-  OrderByList result;
-  result = result.reserve(size);
+  std::vector<OrderBy> result;
+  result.reserve(size);
 
   for (pb_size_t i = 0; i != size; ++i) {
-    result = result.push_back(DecodeOrderBy(context, order_bys[i]));
+    result.push_back(DecodeOrderBy(context, order_bys[i]));
   }
 
   return result;

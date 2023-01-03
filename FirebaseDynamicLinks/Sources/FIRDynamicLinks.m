@@ -129,8 +129,7 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
     id<FIRAnalyticsInterop> analytics = FIR_COMPONENT(FIRAnalyticsInterop, container);
     FIRDynamicLinks *dynamicLinks = [[FIRDynamicLinks alloc] initWithAnalytics:analytics];
     [dynamicLinks configureDynamicLinks:container.app];
-    // Check for pending Dynamic Link automatically if enabled, otherwise we expect the developer to
-    // call strong match FDL API to retrieve a pending link.
+
     if ([FIRDynamicLinks isAutomaticRetrievalEnabled]) {
       [dynamicLinks checkForPendingDynamicLink];
     }
@@ -413,15 +412,43 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
 
   if ([self canParseUniversalLinkURL:url]) {
     if (url.query.length > 0) {
-      NSDictionary *parameters = FIRDLDictionaryFromQuery(url.query);
+      NSDictionary<NSString *, NSString *> *parameters = FIRDLDictionaryFromQuery(url.query);
       if (parameters[kFIRDLParameterLink]) {
-        FIRDynamicLink *dynamicLink = [[FIRDynamicLink alloc] init];
         NSString *urlString = parameters[kFIRDLParameterLink];
         NSURL *deepLinkURL = [NSURL URLWithString:urlString];
         if (deepLinkURL) {
-          dynamicLink.url = deepLinkURL;
+          NSMutableDictionary *paramsDictionary = [[NSMutableDictionary alloc]
+              initWithDictionary:@{kFIRDLParameterDeepLinkIdentifier : urlString}];
+
+          if (parameters[kFIRDLParameterSource] != nil) {
+            [paramsDictionary setValue:parameters[kFIRDLParameterSource]
+                                forKey:kFIRDLParameterSource];
+          }
+
+          if (parameters[kFIRDLParameterMedium] != nil) {
+            [paramsDictionary setValue:parameters[kFIRDLParameterMedium]
+                                forKey:kFIRDLParameterMedium];
+          }
+
+          if (parameters[kFIRDLParameterTerm] != nil) {
+            [paramsDictionary setValue:parameters[kFIRDLParameterTerm] forKey:kFIRDLParameterTerm];
+          }
+
+          if (parameters[kFIRDLParameterCampaign] != nil) {
+            [paramsDictionary setValue:parameters[kFIRDLParameterCampaign]
+                                forKey:(kFIRDLParameterCampaign)];
+          }
+
+          if (parameters[kFIRDLParameterContent] != nil) {
+            [paramsDictionary setValue:parameters[kFIRDLParameterContent]
+                                forKey:kFIRDLParameterContent];
+          }
+
+          FIRDynamicLink *dynamicLink =
+              [[FIRDynamicLink alloc] initWithParametersDictionary:paramsDictionary];
           dynamicLink.matchType = FIRDLMatchTypeUnique;
           dynamicLink.minimumAppVersion = parameters[kFIRDLParameterMinimumAppVersion];
+
           // Call resolveShortLink:completion: to do logging.
           // TODO: Create dedicated logging function to prevent this.
           [self.dynamicLinkNetworking

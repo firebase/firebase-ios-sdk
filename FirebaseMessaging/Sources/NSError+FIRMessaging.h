@@ -36,6 +36,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingErrorCode) {
   kFIRMessagingErrorCodeMissingAuthorizedEntity = 502,
   kFIRMessagingErrorCodeMissingScope = 503,
   kFIRMessagingErrorCodeMissingFid = 504,
+  kFIRMessagingErrorCodeMissingDeviceToken = 505,
 
   // Upstream send errors
   kFIRMessagingErrorCodeServiceNotAvailable = 1001,

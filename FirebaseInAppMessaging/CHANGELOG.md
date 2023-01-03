@@ -1,3 +1,7 @@
+# 10.0.0
+- [removed] Removed `foo` constant from Swift `InAppMessagingPreviewHelpers` API (#10222).
+- [fixed] Changed internal `dataChanged` symbol that triggered App Store warnings (#10276).
+
 # 9.2.0
 - [changed] Replaced unarchiveObjectWithFile with unarchivedObjectOfClass to conform to secure coding practices, and implemented NSSecureCoding (#9816).
 

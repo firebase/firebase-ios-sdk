@@ -1,4 +1,4 @@
-platform :ios, '10.0'
+platform :ios, '11.0'
 
 source 'https://github.com/firebase/SpecsDev.git'
 source 'https://github.com/firebase/SpecsStaging.git'
@@ -14,7 +14,6 @@ target 'SymbolCollisionTest' do
     pod 'FirebaseAnalytics'
     pod 'FirebaseAuth', :path => '../'
     pod 'FirebaseCore', :path => '../'
-    pod 'FirebaseCoreDiagnostics', :path => '../'
     pod 'FirebaseCoreExtension', :path => '../'
     pod 'FirebaseCoreInternal', :path => '../'
     pod 'FirebaseCrashlytics', :path => '../'
@@ -28,16 +27,17 @@ target 'SymbolCollisionTest' do
     pod 'FirebasePerformance', :path => '../'
     pod 'FirebaseRemoteConfig', :path => '../'
     pod 'FirebaseStorage', :path => '../'
-    pod 'FirebaseStorageInternal', :path => '../'
     pod 'GoogleUtilitiesComponents', :path => '../'
 
 #    pod 'FirebaseUI'. - requires use_frameworks!
 
     # Google Pods depending on a Firebase or GDT major version
-    pod 'GoogleMLKit'
+
+    # TODO(v10): Uncomment when MLKit updates to Firebase 10 and GTMSessionFetcher 2.x
+#    pod 'GoogleMLKit'
 
   # Other Google Pods
-#    pod 'ARCore' Conflicts with FirebasePerformance via Clearcut and google-cast-sdk
+    pod 'ARCore'
 #    pod 'Blockly'  `Blockly` does not specify a Swift version ...
     pod 'DigitsMigrationHelper'
     pod 'EarlGrey'
@@ -60,12 +60,12 @@ target 'SymbolCollisionTest' do
     pod 'GooglePlacePicker'
     pod 'GooglePlaces'
     pod 'GooglePlusUtilities'
-    pod 'GoogleSignIn'
+    pod 'GoogleSignIn', '> 6'
+    pod 'GTMAppAuth'
     pod 'GoogleSymbolUtilities'
     pod 'GoogleTagManager'
     pod 'GoogleToolboxForMac'
     pod 'GoogleUtilities'
-    pod 'GTMAppAuth'
 #    pod 'GTMHTTPFetcher' - conflicts with GTMSessionFetcher
     pod 'GTMSessionFetcher'
 #    pod 'GVRSDK' -- absl and protobuf duplicates

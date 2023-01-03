@@ -57,11 +57,11 @@ static NSString *const kProviderID = @"PROVIDER_ID";
   return kProfile;
 }
 
-/** @fn testAditionalUserInfoCreation
+/** @fn testAdditionalUserInfoCreation
     @brief Tests succuessful creation of @c FIRAdditionalUserInfo with
         @c initWithProviderID:profile:username: call.
  */
-- (void)testAditionalUserInfoCreation {
+- (void)testAdditionalUserInfoCreation {
   FIRAdditionalUserInfo *userInfo =
       [[FIRAdditionalUserInfo alloc] initWithProviderID:kProviderID
                                                 profile:[[self class] profile]
@@ -73,11 +73,11 @@ static NSString *const kProviderID = @"PROVIDER_ID";
   XCTAssertEqual(userInfo.isNewUser, kIsNewUser);
 }
 
-/** @fn testAditionalUserInfoCreationWithStaticInitializer
+/** @fn testAdditionalUserInfoCreationWithStaticInitializer
     @brief Tests succuessful creation of @c FIRAdditionalUserInfo with
         @c userInfoWithVerifyAssertionResponse call.
  */
-- (void)testAditionalUserInfoCreationWithStaticInitializer {
+- (void)testAdditionalUserInfoCreationWithStaticInitializer {
   id mockVerifyAssertionResponse = OCMClassMock([FIRVerifyAssertionResponse class]);
   OCMExpect([mockVerifyAssertionResponse providerID]).andReturn(kProviderID);
   OCMExpect([mockVerifyAssertionResponse profile]).andReturn([[self class] profile]);
@@ -102,11 +102,14 @@ static NSString *const kProviderID = @"PROVIDER_ID";
                                                 profile:[[self class] profile]
                                                username:kUserName
                                               isNewUser:kIsNewUser];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   NSData *data = [NSKeyedArchiver archivedDataWithRootObject:userInfo];
   XCTAssertNotNil(data, @"Should not be nil if archiving succeeded.");
   XCTAssertNoThrow([NSKeyedUnarchiver unarchiveObjectWithData:data],
                    @"Unarchiving should not throw and exception.");
   FIRAdditionalUserInfo *unarchivedUserInfo = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+#pragma clang diagnostic pop
   XCTAssertTrue([unarchivedUserInfo isKindOfClass:[FIRAdditionalUserInfo class]],
                 @"Unarchived object must be of kind FIRAdditionalUserInfo class.");
   XCTAssertEqualObjects(unarchivedUserInfo.providerID, userInfo.providerID);

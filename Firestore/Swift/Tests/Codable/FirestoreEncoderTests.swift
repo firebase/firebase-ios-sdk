@@ -134,7 +134,7 @@ class FirestoreEncoderTests: XCTestCase {
       let date: Date
     }
     let date = Date(timeIntervalSinceReferenceDate: 0)
-    assertThat(Model(date: date)).roundTrips(to: ["date": date])
+    assertThat(Model(date: date)).roundTrips(to: ["date": Timestamp(date: date)])
   }
 
   func testTimestampCanDecodeAsDate() {
@@ -564,26 +564,17 @@ class FirestoreEncoderTests: XCTestCase {
       .failsEncodingWithJSONEncoder()
   }
 
-  func testDecodingDocumentIDWithConfictingFieldsThrows() throws {
+  func testDecodingDocumentIDWithConfictingFieldsDoesNotThrow() throws {
     struct Model: Codable, Equatable {
       var name: String
       @DocumentID var docId: DocumentReference?
     }
 
-    do {
-      _ = try Firestore.Decoder().decode(
-        Model.self,
-        from: ["name": "abc", "docId": "Causing conflict"],
-        in: FSTTestDocRef("abc/123")
-      )
-      XCTFail("Failed to throw")
-    } catch let FirestoreDecodingError.fieldNameConflict(msg) {
-      XCTAssertEqual(msg, "Field name [\"docId\"] was found from document \"abc/123\", "
-        + "cannot assign the document reference to this field.")
-      return
-    } catch {
-      XCTFail("Unrecognized error: \(error)")
-    }
+    _ = try Firestore.Decoder().decode(
+      Model.self,
+      from: ["name": "abc", "docId": "Does not cause conflict"],
+      in: FSTTestDocRef("abc/123")
+    )
   }
 }
 

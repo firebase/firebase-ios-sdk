@@ -27,9 +27,9 @@ jobs:
       POD_LIB_LINT_ONLY: 1
     strategy:
       matrix:
-        target: [ios, tvos, macos, watchos]
+        target: [ios, tvos, macos]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -49,8 +49,8 @@ jobs:
       POD_LIB_LINT_ONLY: 1
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
     - uses: ruby/setup-ruby@v1
@@ -86,8 +86,8 @@ jobs:
       matrix:
         target: [iOS, tvOS, macOS, catalyst, watchOS]
     steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
     - name: Initialize xcodebuild
@@ -103,8 +103,8 @@ jobs:
       POD_LIB_LINT_ONLY: 1
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
     - uses: ruby/setup-ruby@v1
@@ -123,8 +123,7 @@ jobs:
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh authentication
@@ -134,6 +133,32 @@ jobs:
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Authentication false)
 
+  # TODO(@sunmou99): currently have issue with this job, will re-enable it once the issue resolved.
+  # quickstart-ftl-cron-only:
+  #   # Don't run on private repo.
+  #   if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+
+  #   env:
+  #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+  #     signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+  #   runs-on: macos-12
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - uses: ruby/setup-ruby@v1
+  #   - name: Setup quickstart
+  #     run: scripts/setup_quickstart.sh authentication
+  #   - name: Install Secret GoogleService-Info.plist
+  #     run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-auth.plist.gpg \
+  #         quickstart-ios/authentication/GoogleService-Info.plist "$plist_secret"
+  #   - name: Build swift quickstart
+  #     run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Authentication)
+  #   - id: ftl_test
+  #     uses: FirebaseExtended/github-actions/firebase-test-lab@v1.2
+  #     with:
+  #       credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
+  #       testapp_dir: quickstart-ios/build-for-testing
+  #       test_type: "xctest"
+
   auth-cron-only:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
@@ -141,14 +166,14 @@ jobs:
     runs-on: macos-12
     strategy:
       matrix:
-        # The macos and tvos tests can hang, and watchOS doesn't have tests.
-        target: [ios, tvos --skip-tests, macos --skip-tests, watchos --skip-tests]
+        # The macos and tvos tests can hang.
+        target: [ios, tvos --skip-tests, macos --skip-tests]
         flags: [
           '--use-static-frameworks'
         ]
     needs: pod-lib-lint
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh

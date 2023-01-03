@@ -77,40 +77,42 @@ PB_STATIC_ASSERT((pb_membersize(firestore_client_WriteBatch, local_write_time) <
 
 
 std::string firestore_client_MutationQueue::ToString(int indent) const {
-    std::string header = PrintHeader(indent, "MutationQueue", this);
-    std::string result;
+    std::string tostring_header = PrintHeader(indent, "MutationQueue", this);
+    std::string tostring_result;
 
-    result += PrintPrimitiveField("last_acknowledged_batch_id: ",
+    tostring_result += PrintPrimitiveField("last_acknowledged_batch_id: ",
         last_acknowledged_batch_id, indent + 1, false);
-    result += PrintPrimitiveField("last_stream_token: ",
+    tostring_result += PrintPrimitiveField("last_stream_token: ",
         last_stream_token, indent + 1, false);
 
     bool is_root = indent == 0;
-    if (!result.empty() || is_root) {
-      std::string tail = PrintTail(indent);
-      return header + result + tail;
+    if (!tostring_result.empty() || is_root) {
+      std::string tostring_tail = PrintTail(indent);
+      return tostring_header + tostring_result + tostring_tail;
     } else {
       return "";
     }
 }
 
 std::string firestore_client_WriteBatch::ToString(int indent) const {
-    std::string header = PrintHeader(indent, "WriteBatch", this);
-    std::string result;
+    std::string tostring_header = PrintHeader(indent, "WriteBatch", this);
+    std::string tostring_result;
 
-    result += PrintPrimitiveField("batch_id: ", batch_id, indent + 1, false);
+    tostring_result += PrintPrimitiveField("batch_id: ",
+        batch_id, indent + 1, false);
     for (pb_size_t i = 0; i != writes_count; ++i) {
-        result += PrintMessageField("writes ", writes[i], indent + 1, true);
+        tostring_result += PrintMessageField("writes ",
+            writes[i], indent + 1, true);
     }
-    result += PrintMessageField("local_write_time ",
+    tostring_result += PrintMessageField("local_write_time ",
         local_write_time, indent + 1, false);
     for (pb_size_t i = 0; i != base_writes_count; ++i) {
-        result += PrintMessageField("base_writes ",
+        tostring_result += PrintMessageField("base_writes ",
             base_writes[i], indent + 1, true);
     }
 
-    std::string tail = PrintTail(indent);
-    return header + result + tail;
+    std::string tostring_tail = PrintTail(indent);
+    return tostring_header + tostring_result + tostring_tail;
 }
 
 }  // namespace firestore

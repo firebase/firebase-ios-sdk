@@ -26,7 +26,12 @@ NS_ASSUME_NONNULL_BEGIN
  * by calling `Database.database()`. To access a location in the database and
  * read or write data, use `FIRDatabase.reference()`.
  */
-NS_SWIFT_NAME(Database)
+NS_SWIFT_NAME(Database) __attribute__((availability(
+    watchos, introduced = 6.0, deprecated = 9.0,
+    message = "Socket connections are not supported on watchOS 9.0 and higher. "
+              "Use the Firebase Database REST API instead. See "
+              "github.com/firebase/firebase-ios-sdk/issues/10195 "
+              "for more details.")))
 @interface FIRDatabase : NSObject
 
 /**

@@ -23,8 +23,6 @@
 
 #include "google/api/resource.nanopb.h"
 
-#include "google/api/annotations.nanopb.h"
-
 #include <string>
 
 namespace firebase {

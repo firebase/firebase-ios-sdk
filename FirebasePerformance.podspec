@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebasePerformance'
-  s.version          = '9.3.0'
+  s.version          = '10.4.0'
   s.summary          = 'Firebase Performance'
 
   s.description      = <<-DESC
@@ -17,8 +17,8 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   }
   s.social_media_url = 'https://twitter.com/Firebase'
 
-  ios_deployment_target = '10.0'
-  tvos_deployment_target = '10.0'
+  ios_deployment_target = '11.0'
+  tvos_deployment_target = '12.0'
 
   s.swift_version = '5.3'
 
@@ -59,13 +59,13 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   s.ios.framework = 'CoreTelephony'
   s.framework = 'QuartzCore'
   s.framework = 'SystemConfiguration'
-  s.dependency 'FirebaseCore', '~> 9.0'
-  s.dependency 'FirebaseInstallations', '~> 9.0'
-  s.dependency 'FirebaseRemoteConfig', '~> 9.0'
-  s.dependency 'GoogleDataTransport', '>= 9.1.4', '< 10.0.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.7'
-  s.dependency 'GoogleUtilities/ISASwizzler', '~> 7.7'
-  s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.7'
+  s.dependency 'FirebaseCore', '~> 10.0'
+  s.dependency 'FirebaseInstallations', '~> 10.0'
+  s.dependency 'FirebaseRemoteConfig', '~> 10.0'
+  s.dependency 'GoogleDataTransport', '~> 9.2'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.8'
+  s.dependency 'GoogleUtilities/ISASwizzler', '~> 7.8'
+  s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.8'
   s.dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
 
   s.test_spec 'unit' do |unit_tests|

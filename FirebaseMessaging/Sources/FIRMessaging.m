@@ -578,7 +578,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   } else {
     FIRMessagingLoggerWarn(kFIRMessagingMessageCodeAPNSTokenNotAvailableDuringTokenFetch,
                            @"APNS device token not set before retrieving FCM Token for Sender ID "
-                           @"'%@'. Notifications to this FCM Token will not be delivered over APNS."
+                           @"'%@'."
                            @"Be sure to re-retrieve the FCM token once the APNS device token is "
                            @"set.",
                            senderID);

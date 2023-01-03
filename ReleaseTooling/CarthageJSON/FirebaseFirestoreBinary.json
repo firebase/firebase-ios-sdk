@@ -1,4 +1,8 @@
 {
+  "10.0.0": "https://dl.google.com/dl/firebase/ios/carthage/10.0.0/FirebaseFirestore-07afb0388fbd6796.zip",
+  "10.1.0": "https://dl.google.com/dl/firebase/ios/carthage/10.1.0/FirebaseFirestore-2e32666a88605d1e.zip",
+  "10.2.0": "https://dl.google.com/dl/firebase/ios/carthage/10.2.0/FirebaseFirestore-4c3d1568e379a98c.zip",
+  "10.3.0": "https://dl.google.com/dl/firebase/ios/carthage/10.3.0/FirebaseFirestore-73ba0700b1aa6d6a.zip",
   "4.11.0": "https://dl.google.com/dl/firebase/ios/carthage/4.11.0/Firestore-68fc02c229d0cc69.zip",
   "4.12.0": "https://dl.google.com/dl/firebase/ios/carthage/4.12.0/Firestore-87a804ab561d91db.zip",
   "4.9.0": "https://dl.google.com/dl/firebase/ios/carthage/4.9.0/Firestore-ecb3eea7bde7e8e8.zip",
@@ -88,5 +92,8 @@
   "9.0.0": "https://dl.google.com/dl/firebase/ios/carthage/9.0.0/FirebaseFirestore-4a19778dfdd848bd.zip",
   "9.1.0": "https://dl.google.com/dl/firebase/ios/carthage/9.1.0/FirebaseFirestore-411a9038d6923c84.zip",
   "9.2.0": "https://dl.google.com/dl/firebase/ios/carthage/9.2.0/FirebaseFirestore-a01c805341cccd5b.zip",
-  "9.3.0": "https://dl.google.com/dl/firebase/ios/carthage/9.3.0/FirebaseFirestore-215b02f95e646406.zip"
+  "9.3.0": "https://dl.google.com/dl/firebase/ios/carthage/9.3.0/FirebaseFirestore-215b02f95e646406.zip",
+  "9.4.0": "https://dl.google.com/dl/firebase/ios/carthage/9.4.0/FirebaseFirestore-5048fc8d500b8e4b.zip",
+  "9.5.0": "https://dl.google.com/dl/firebase/ios/carthage/9.5.0/FirebaseFirestore-689f0864bd209e25.zip",
+  "9.6.0": "https://dl.google.com/dl/firebase/ios/carthage/9.6.0/FirebaseFirestore-af28ab960821784c.zip"
 }

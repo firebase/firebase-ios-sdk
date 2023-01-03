@@ -291,7 +291,6 @@ python --version
 "${top_dir}/scripts/check_copyright.sh"
 "${top_dir}/scripts/check_test_inclusion.py"
 "${top_dir}/scripts/check_imports.swift"
-"${top_dir}/scripts/check_firestore_core_api_absl.py"
 
 # Google C++ style
 lint_cmd=("${top_dir}/scripts/check_lint.py")

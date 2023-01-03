@@ -26,71 +26,19 @@
 #include "Firestore/core/src/bundle/bundled_document_metadata.h"
 #include "Firestore/core/src/bundle/named_query.h"
 #include "Firestore/core/src/core/core_fwd.h"
+#include "Firestore/core/src/core/filter.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/snapshot_version.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/remote/serializer.h"
+#include "Firestore/core/src/util/json_reader.h"
 #include "Firestore/core/src/util/read_context.h"
 #include "Firestore/third_party/nlohmann_json/json.hpp"
 
 namespace firebase {
 namespace firestore {
+
 namespace bundle {
-
-/**
- * Provides the ability to report failure cases by inheriting `ReadContext`, and
- * checks and reads json object into specified types.
- *
- * `Required*` methods check the existence of the given name and compatibility
- * of its value (can it be read into the given type?). They fail the reader if
- * any of the checks fail, otherwise return the read value.
- *
- * `Optional*` methods check the existence of the given name, and return a
- * specified default value if the name does not exist. They then check
- * compatibility of its value, fail the reader if that check fails, or return
- * the read value if it succeeds.
- */
-class JsonReader : public util::ReadContext {
- public:
-  const std::string& RequiredString(const char* name,
-                                    const nlohmann::json& json_object);
-  const std::string& OptionalString(const char* name,
-                                    const nlohmann::json& json_object,
-                                    const std::string& default_value);
-
-  const std::vector<nlohmann::json>& RequiredArray(
-      const char* name, const nlohmann::json& json_object);
-  const std::vector<nlohmann::json>& OptionalArray(
-      const char* name,
-      const nlohmann::json& json_object,
-      const std::vector<nlohmann::json>& default_value);
-
-  const nlohmann::json& RequiredObject(const char* child_name,
-                                       const nlohmann::json& json_object);
-  const nlohmann::json& OptionalObject(const char* child_name,
-                                       const nlohmann::json& json_object,
-                                       const nlohmann::json& default_value);
-
-  double RequiredDouble(const char* name, const nlohmann::json& json_object);
-  double OptionalDouble(const char* name,
-                        const nlohmann::json& json_object,
-                        double default_value = 0);
-
-  template <typename IntType>
-  IntType RequiredInt(const char* name, const nlohmann::json& json_object);
-
-  template <typename IntType>
-  IntType OptionalInt(const char* name,
-                      const nlohmann::json& json_object,
-                      IntType default_value);
-
-  static bool OptionalBool(const char* name,
-                           const nlohmann::json& json_object,
-                           bool default_value = false);
-
- private:
-  double DecodeDouble(const nlohmann::json& value);
-};
 
 /** A JSON serializer to deserialize Firestore Bundles. */
 class BundleSerializer {
@@ -98,48 +46,49 @@ class BundleSerializer {
   explicit BundleSerializer(remote::Serializer serializer)
       : rpc_serializer_(std::move(serializer)) {
   }
-  BundleMetadata DecodeBundleMetadata(JsonReader& reader,
+  BundleMetadata DecodeBundleMetadata(util::JsonReader& reader,
                                       const nlohmann::json& metadata) const;
 
-  NamedQuery DecodeNamedQuery(JsonReader& reader,
+  NamedQuery DecodeNamedQuery(util::JsonReader& reader,
                               const nlohmann::json& named_query) const;
 
   BundledDocumentMetadata DecodeDocumentMetadata(
-      JsonReader& reader, const nlohmann::json& document_metadata) const;
+      util::JsonReader& reader, const nlohmann::json& document_metadata) const;
 
-  BundleDocument DecodeDocument(JsonReader& reader,
+  BundleDocument DecodeDocument(util::JsonReader& reader,
                                 const nlohmann::json& document) const;
 
  private:
-  BundledQuery DecodeBundledQuery(JsonReader& reader,
+  BundledQuery DecodeBundledQuery(util::JsonReader& reader,
                                   const nlohmann::json& query) const;
-  core::FilterList DecodeWhere(JsonReader& reader,
-                               const nlohmann::json& query) const;
-  core::Filter DecodeFieldFilter(JsonReader& reader,
+  std::vector<core::Filter> DecodeWhere(util::JsonReader& reader,
+                                        const nlohmann::json& query) const;
+  core::Filter DecodeFieldFilter(util::JsonReader& reader,
                                  const nlohmann::json& filter) const;
-  core::FilterList DecodeCompositeFilter(JsonReader& reader,
-                                         const nlohmann::json& filter) const;
+  std::vector<core::Filter> DecodeCompositeFilter(
+      util::JsonReader& reader, const nlohmann::json& filter) const;
   nanopb::Message<google_firestore_v1_Value> DecodeValue(
-      JsonReader& reader, const nlohmann::json& value) const;
+      util::JsonReader& reader, const nlohmann::json& value) const;
 
-  core::Bound DecodeStartAtBound(JsonReader& reader,
+  core::Bound DecodeStartAtBound(util::JsonReader& reader,
                                  const nlohmann::json& query) const;
-  core::Bound DecodeEndAtBound(JsonReader& reader,
+  core::Bound DecodeEndAtBound(util::JsonReader& reader,
                                const nlohmann::json& query) const;
 
   // Decodes a `bound` JSON and returns a pair whose first element is the value
   // of the `before` JSON field, and second element is the array value
   // representing the bounded field values.
   std::pair<bool, nanopb::SharedMessage<google_firestore_v1_ArrayValue>>
-  DecodeBoundFields(JsonReader& reader, const nlohmann::json& bound_json) const;
+  DecodeBoundFields(util::JsonReader& reader,
+                    const nlohmann::json& bound_json) const;
 
-  model::ResourcePath DecodeName(JsonReader& reader,
+  model::ResourcePath DecodeName(util::JsonReader& reader,
                                  const nlohmann::json& name) const;
   nanopb::Message<google_firestore_v1_ArrayValue> DecodeArrayValue(
-      JsonReader& reader, const nlohmann::json& array_json) const;
+      util::JsonReader& reader, const nlohmann::json& array_json) const;
   nanopb::Message<google_firestore_v1_MapValue> DecodeMapValue(
-      JsonReader& reader, const nlohmann::json& map_json) const;
-  pb_bytes_array_t* DecodeReferenceValue(JsonReader& reader,
+      util::JsonReader& reader, const nlohmann::json& map_json) const;
+  pb_bytes_array_t* DecodeReferenceValue(util::JsonReader& reader,
                                          const std::string& ref_string) const;
 
   remote::Serializer rpc_serializer_;

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAuth'
-  s.version          = '9.3.0'
+  s.version          = '10.4.0'
   s.summary          = 'Apple platform client for Firebase Authentication'
 
   s.description      = <<-DESC
@@ -19,9 +19,9 @@ supports email and password accounts, as well as several 3rd party authenticatio
 
   s.social_media_url = 'https://twitter.com/Firebase'
 
-  ios_deployment_target = '10.0'
-  osx_deployment_target = '10.12'
-  tvos_deployment_target = '10.0'
+  ios_deployment_target = '11.0'
+  osx_deployment_target = '10.13'
+  tvos_deployment_target = '12.0'
   watchos_deployment_target = '6.0'
 
   s.swift_version = '5.3'
@@ -51,10 +51,10 @@ supports email and password accounts, as well as several 3rd party authenticatio
   }
   s.framework = 'Security'
   s.ios.framework = 'SafariServices'
-  s.dependency 'FirebaseCore', '~> 9.0'
-  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.7'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.7'
-  s.dependency 'GTMSessionFetcher/Core', '>= 1.7', '< 3.0'
+  s.dependency 'FirebaseCore', '~> 10.0'
+  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.8'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.8'
+  s.dependency 'GTMSessionFetcher/Core', '>= 2.1', '< 4.0'
 
   # Using environment variable because of the dependency on the unpublished
   # HeartbeatLoggingTestUtils.

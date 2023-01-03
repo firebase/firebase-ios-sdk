@@ -83,51 +83,54 @@ PB_STATIC_ASSERT((pb_membersize(firestore_client_NoDocument, read_time) < 256 &&
 
 
 std::string firestore_client_NoDocument::ToString(int indent) const {
-    std::string header = PrintHeader(indent, "NoDocument", this);
-    std::string result;
+    std::string tostring_header = PrintHeader(indent, "NoDocument", this);
+    std::string tostring_result;
 
-    result += PrintPrimitiveField("name: ", name, indent + 1, false);
-    result += PrintMessageField("read_time ", read_time, indent + 1, false);
+    tostring_result += PrintPrimitiveField("name: ", name, indent + 1, false);
+    tostring_result += PrintMessageField("read_time ",
+        read_time, indent + 1, false);
 
-    std::string tail = PrintTail(indent);
-    return header + result + tail;
+    std::string tostring_tail = PrintTail(indent);
+    return tostring_header + tostring_result + tostring_tail;
 }
 
 std::string firestore_client_UnknownDocument::ToString(int indent) const {
-    std::string header = PrintHeader(indent, "UnknownDocument", this);
-    std::string result;
+    std::string tostring_header = PrintHeader(indent, "UnknownDocument", this);
+    std::string tostring_result;
 
-    result += PrintPrimitiveField("name: ", name, indent + 1, false);
-    result += PrintMessageField("version ", version, indent + 1, false);
+    tostring_result += PrintPrimitiveField("name: ", name, indent + 1, false);
+    tostring_result += PrintMessageField("version ",
+        version, indent + 1, false);
 
-    std::string tail = PrintTail(indent);
-    return header + result + tail;
+    std::string tostring_tail = PrintTail(indent);
+    return tostring_header + tostring_result + tostring_tail;
 }
 
 std::string firestore_client_MaybeDocument::ToString(int indent) const {
-    std::string header = PrintHeader(indent, "MaybeDocument", this);
-    std::string result;
+    std::string tostring_header = PrintHeader(indent, "MaybeDocument", this);
+    std::string tostring_result;
 
     switch (which_document_type) {
     case firestore_client_MaybeDocument_no_document_tag:
-        result += PrintMessageField("no_document ",
+        tostring_result += PrintMessageField("no_document ",
             no_document, indent + 1, true);
         break;
     case firestore_client_MaybeDocument_document_tag:
-        result += PrintMessageField("document ", document, indent + 1, true);
+        tostring_result += PrintMessageField("document ",
+            document, indent + 1, true);
         break;
     case firestore_client_MaybeDocument_unknown_document_tag:
-        result += PrintMessageField("unknown_document ",
+        tostring_result += PrintMessageField("unknown_document ",
             unknown_document, indent + 1, true);
         break;
     }
-    result += PrintPrimitiveField("has_committed_mutations: ",
+    tostring_result += PrintPrimitiveField("has_committed_mutations: ",
         has_committed_mutations, indent + 1, false);
 
     bool is_root = indent == 0;
-    if (!result.empty() || is_root) {
-      std::string tail = PrintTail(indent);
-      return header + result + tail;
+    if (!tostring_result.empty() || is_root) {
+      std::string tostring_tail = PrintTail(indent);
+      return tostring_header + tostring_result + tostring_tail;
     } else {
       return "";
     }

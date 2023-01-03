@@ -89,41 +89,43 @@ const char* EnumToString(
 }
 
 std::string google_api_ResourceDescriptor::ToString(int indent) const {
-    std::string header = PrintHeader(indent, "ResourceDescriptor", this);
-    std::string result;
+    std::string tostring_header = PrintHeader(indent, "ResourceDescriptor", this);
+    std::string tostring_result;
 
-    result += PrintPrimitiveField("type: ", type, indent + 1, false);
+    tostring_result += PrintPrimitiveField("type: ", type, indent + 1, false);
     for (pb_size_t i = 0; i != pattern_count; ++i) {
-        result += PrintPrimitiveField("pattern: ",
+        tostring_result += PrintPrimitiveField("pattern: ",
             pattern[i], indent + 1, true);
     }
-    result += PrintPrimitiveField("name_field: ",
+    tostring_result += PrintPrimitiveField("name_field: ",
         name_field, indent + 1, false);
-    result += PrintEnumField("history: ", history, indent + 1, false);
-    result += PrintPrimitiveField("plural: ", plural, indent + 1, false);
-    result += PrintPrimitiveField("singular: ", singular, indent + 1, false);
+    tostring_result += PrintEnumField("history: ", history, indent + 1, false);
+    tostring_result += PrintPrimitiveField("plural: ",
+        plural, indent + 1, false);
+    tostring_result += PrintPrimitiveField("singular: ",
+        singular, indent + 1, false);
 
     bool is_root = indent == 0;
-    if (!result.empty() || is_root) {
-      std::string tail = PrintTail(indent);
-      return header + result + tail;
+    if (!tostring_result.empty() || is_root) {
+      std::string tostring_tail = PrintTail(indent);
+      return tostring_header + tostring_result + tostring_tail;
     } else {
       return "";
     }
 }
 
 std::string google_api_ResourceReference::ToString(int indent) const {
-    std::string header = PrintHeader(indent, "ResourceReference", this);
-    std::string result;
+    std::string tostring_header = PrintHeader(indent, "ResourceReference", this);
+    std::string tostring_result;
 
-    result += PrintPrimitiveField("type: ", type, indent + 1, false);
-    result += PrintPrimitiveField("child_type: ",
+    tostring_result += PrintPrimitiveField("type: ", type, indent + 1, false);
+    tostring_result += PrintPrimitiveField("child_type: ",
         child_type, indent + 1, false);
 
     bool is_root = indent == 0;
-    if (!result.empty() || is_root) {
-      std::string tail = PrintTail(indent);
-      return header + result + tail;
+    if (!tostring_result.empty() || is_root) {
+      std::string tostring_tail = PrintTail(indent);
+      return tostring_header + tostring_result + tostring_tail;
     } else {
       return "";
     }

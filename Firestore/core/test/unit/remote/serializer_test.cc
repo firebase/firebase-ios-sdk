@@ -42,6 +42,7 @@
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/core/bound.h"
 #include "Firestore/core/src/core/field_filter.h"
+#include "Firestore/core/src/core/filter.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/model/delete_mutation.h"
@@ -74,7 +75,6 @@ namespace {
 
 namespace v1 = google::firestore::v1;
 using core::Bound;
-using core::FilterList;
 using google::protobuf::util::MessageDifferencer;
 using local::QueryPurpose;
 using local::TargetData;
@@ -108,6 +108,7 @@ using nanopb::ProtobufSerialize;
 using nanopb::StringReader;
 using nanopb::Writer;
 using remote::Serializer;
+using testutil::AndFilters;
 using testutil::Array;
 using testutil::Bytes;
 using testutil::DeletedDoc;
@@ -116,6 +117,7 @@ using testutil::Filter;
 using testutil::Key;
 using testutil::Map;
 using testutil::OrderBy;
+using testutil::OrFilters;
 using testutil::Query;
 using testutil::Ref;
 using testutil::Value;
@@ -554,11 +556,11 @@ class SerializerTest : public ::testing::Test {
 
   void ExpectDeserializationRoundTrip(
       const core::Filter& model, const v1::StructuredQuery::Filter& proto) {
-    FilterList actual_model =
+    std::vector<core::Filter> actual_model =
         Decode<google_firestore_v1_StructuredQuery_Filter>(
             std::mem_fn(&Serializer::DecodeFilters), proto);
 
-    EXPECT_EQ(FilterList{model}, actual_model);
+    EXPECT_EQ(std::vector<core::Filter>{model}, actual_model);
   }
 
   template <typename T>
@@ -1261,6 +1263,76 @@ TEST_F(SerializerTest, EncodesMultipleFiltersOnDeeperCollections) {
       std::move(order2);
 
   SCOPED_TRACE("EncodesMultipleFiltersOnDeeperCollections");
+  ExpectRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, EncodesCompositeFiltersOnDeeperCollections) {
+  // (prop < 42) || (author == "cheryllin" && tags array-contains
+  // "pending")
+  core::Query q =
+      Query("rooms/1/messages/10/attachments")
+          .AddingFilter(OrFilters(
+              {Filter("prop", "<", 42),
+               AndFilters({Filter("author", "==", "cheryllin"),
+                           Filter("tags", "array-contains", "pending")})}));
+  TargetData model = CreateTargetData(std::move(q));
+
+  v1::Target proto;
+  proto.mutable_query()->set_parent(ResourceName("rooms/1/messages/10"));
+  proto.set_target_id(1);
+
+  v1::StructuredQuery::CollectionSelector from;
+  from.set_collection_id("attachments");
+  *proto.mutable_query()->mutable_structured_query()->add_from() =
+      std::move(from);
+
+  v1::StructuredQuery::Filter filter1;
+  v1::StructuredQuery::FieldFilter& field1 = *filter1.mutable_field_filter();
+  field1.mutable_field()->set_field_path("prop");
+  field1.set_op(v1::StructuredQuery::FieldFilter::LESS_THAN);
+  field1.mutable_value()->set_integer_value(42);
+
+  v1::StructuredQuery::Filter filter2;
+  v1::StructuredQuery::FieldFilter& field2 = *filter2.mutable_field_filter();
+  field2.mutable_field()->set_field_path("author");
+  field2.set_op(v1::StructuredQuery::FieldFilter::EQUAL);
+  field2.mutable_value()->set_string_value("cheryllin");
+
+  v1::StructuredQuery::Filter filter3;
+  v1::StructuredQuery::FieldFilter& field3 = *filter3.mutable_field_filter();
+  field3.mutable_field()->set_field_path("tags");
+  field3.set_op(v1::StructuredQuery::FieldFilter::ARRAY_CONTAINS);
+  field3.mutable_value()->set_string_value("pending");
+
+  v1::StructuredQuery::Filter filter4;
+  v1::StructuredQuery::CompositeFilter& and_composite =
+      *filter4.mutable_composite_filter();
+  and_composite.set_op(v1::StructuredQuery::CompositeFilter::AND);
+  *and_composite.add_filters() = std::move(filter2);
+  *and_composite.add_filters() = std::move(filter3);
+
+  v1::StructuredQuery::CompositeFilter& or_composite =
+      *proto.mutable_query()
+           ->mutable_structured_query()
+           ->mutable_where()
+           ->mutable_composite_filter();
+  or_composite.set_op(v1::StructuredQuery::CompositeFilter::OR);
+  *or_composite.add_filters() = std::move(filter1);
+  *or_composite.add_filters() = std::move(filter4);
+
+  v1::StructuredQuery::Order order1;
+  order1.mutable_field()->set_field_path("prop");
+  order1.set_direction(v1::StructuredQuery::ASCENDING);
+  *proto.mutable_query()->mutable_structured_query()->add_order_by() =
+      std::move(order1);
+
+  v1::StructuredQuery::Order order2;
+  order2.mutable_field()->set_field_path(FieldPath::kDocumentKeyPath);
+  order2.set_direction(v1::StructuredQuery::ASCENDING);
+  *proto.mutable_query()->mutable_structured_query()->add_order_by() =
+      std::move(order2);
+
+  SCOPED_TRACE("EncodesCompositeFiltersOnDeeperCollections");
   ExpectRoundTrip(model, proto);
 }
 

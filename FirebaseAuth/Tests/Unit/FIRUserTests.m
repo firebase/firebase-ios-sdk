@@ -18,10 +18,13 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+#import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthTokenResult.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIREmailAuthProvider.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRFacebookAuthProvider.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRGoogleAuthProvider.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIROAuthCredential.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIROAuthProvider.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRUserInfo.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRUserMetadata.h"
 
@@ -363,6 +366,41 @@ static NSTimeInterval const kLastSignInDateTimeIntervalInSeconds = 1505858583;
  */
 static const NSTimeInterval kExpectationTimeout = 2;
 
+/** @var kPhoneInfo
+    @brief The mock multi factor phone info.
+ */
+static NSString *const kPhoneInfo = @"+15555555555";
+
+/** @var kEnrollmentID
+    @brief The mock multi factor enrollment ID.
+ */
+static NSString *const kEnrollmentID = @"mockEnrollmentID";
+
+/** @var kDisplayName
+    @brief The mock multi factor display name.
+ */
+static NSString *const kDisplayName = @"mockDisplayName";
+
+/** @var kEnrolledAt
+    @brief The mock multi factor enroll at date.
+ */
+static NSString *const kEnrolledAt = @"2022-08-01T18:31:15.426458Z";
+
+/** @var kOAuthRequestURI
+    @brief Fake OAuthRequest URI for testing.
+ */
+static NSString *const kOAuthRequestURI = @"requestURI";
+
+/** @var kOAuthSessionID
+    @brief Fake session ID for testing.
+ */
+static NSString *const kOAuthSessionID = @"sessionID";
+
+/** @var kFakeWebSignInUserInteractionFailureReason
+    @brief Fake reason for FIRAuthErrorCodeWebSignInUserInteractionFailure error while testing.
+ */
+static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reason";
+
 /** @extention FIRSecureTokenService
     @brief Extends the FIRSecureTokenService class to expose one private method for testing only.
  */
@@ -464,6 +502,13 @@ static const NSTimeInterval kExpectationTimeout = 2;
   ];
   OCMStub([mockGetAccountInfoResponseUser providerUserInfo]).andReturn(providerUserInfos);
   OCMStub([mockGetAccountInfoResponseUser passwordHash]).andReturn(kPasswordHash);
+  FIRAuthProtoMFAEnrollment *enrollment = [[FIRAuthProtoMFAEnrollment alloc] initWithDictionary:@{
+    @"phoneInfo" : kPhoneInfo,
+    @"mfaEnrollmentId" : kEnrollmentID,
+    @"displayName" : kDisplayName,
+    @"enrolledAt" : kEnrolledAt
+  }];
+  OCMStub([mockGetAccountInfoResponseUser MFAEnrollments]).andReturn(@[ enrollment ]);
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [self
@@ -543,14 +588,20 @@ static const NSTimeInterval kExpectationTimeout = 2;
                                              // Test NSSecureCoding
                                              XCTAssertTrue([FIRUser supportsSecureCoding]);
                                              NSMutableData *data = [NSMutableData data];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                                              NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc]
                                                  initForWritingWithMutableData:data];
+#pragma clang diagnostic pop
                                              [archiver encodeObject:user forKey:kUserArchiverKey];
                                              [archiver finishEncoding];
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                                              NSKeyedUnarchiver *unarchiver =
                                                  [[NSKeyedUnarchiver alloc]
                                                      initForReadingWithData:data];
+#pragma clang diagnostic pop
                                              FIRUser *unarchivedUser =
                                                  [unarchiver decodeObjectForKey:kUserArchiverKey];
 
@@ -640,8 +691,27 @@ static const NSTimeInterval kExpectationTimeout = 2;
                                              XCTAssertEqualObjects(
                                                  unarchivedPhoneUserInfo.phoneNumber,
                                                  phoneUserInfo.phoneNumber);
-#endif
 
+                                             // Verify FIRMultiFactorInfo properties.
+                                             XCTAssertEqualObjects(
+                                                 user.multiFactor.enrolledFactors[0].factorID,
+                                                 FIRPhoneMultiFactorID);
+                                             XCTAssertEqualObjects(
+                                                 user.multiFactor.enrolledFactors[0].UID,
+                                                 kEnrollmentID);
+                                             XCTAssertEqualObjects(
+                                                 user.multiFactor.enrolledFactors[0].displayName,
+                                                 kDisplayName);
+                                             NSDateFormatter *dateFormatter =
+                                                 [[NSDateFormatter alloc] init];
+                                             [dateFormatter
+                                                 setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSSZ"];
+                                             NSDate *date =
+                                                 [dateFormatter dateFromString:kEnrolledAt];
+                                             XCTAssertEqualObjects(
+                                                 user.multiFactor.enrolledFactors[0].enrollmentDate,
+                                                 date);
+#endif
                                              [expectation fulfill];
                                            }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
@@ -2591,6 +2661,134 @@ static const NSTimeInterval kExpectationTimeout = 2;
 }
 
 #if TARGET_OS_IOS
+/** @fn testlinkProviderFailure
+    @brief Tests the flow of a failed @c linkWithProvider:completion:
+        call.
+ */
+- (void)testlinkProviderFailure {
+  [self expectVerifyAssertionRequest:FIRFacebookAuthProviderID
+                         federatedID:kFacebookID
+                         displayName:kFacebookDisplayName
+                             profile:[[self class] googleProfile]
+                     providerIDToken:kFacebookIDToken
+                 providerAccessToken:kFacebookAccessToken];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] signOut:NULL];
+  FIRAuthCredential *facebookCredential =
+      [FIRFacebookAuthProvider credentialWithAccessToken:kFacebookAccessToken];
+  [[FIRAuth auth]
+      signInWithCredential:facebookCredential
+                completion:^(FIRAuthDataResult *_Nullable authResult, NSError *_Nullable error) {
+                  XCTAssertTrue([NSThread isMainThread]);
+                  [self assertUserFacebook:authResult.user];
+                  XCTAssertEqualObjects(authResult.additionalUserInfo.profile,
+                                        [[self class] googleProfile]);
+                  XCTAssertEqualObjects(authResult.additionalUserInfo.username, kUserName);
+                  XCTAssertEqualObjects(authResult.additionalUserInfo.providerID,
+                                        FIRFacebookAuthProviderID);
+                  XCTAssertNil(error);
+
+                  OCMExpect([self->_mockBackend verifyAssertion:[OCMArg any] callback:[OCMArg any]])
+                      .andDispatchError2(
+                          [FIRAuthErrorUtils webSignInUserInteractionFailureWithReason:
+                                                 kFakeWebSignInUserInteractionFailureReason]);
+                  id mockProvider = OCMClassMock([FIROAuthProvider class]);
+                  OCMExpect([mockProvider getCredentialWithUIDelegate:[OCMArg any]
+                                                           completion:[OCMArg any]])
+                      .andCallBlock2(^(id<FIRAuthUIDelegate> delegate,
+                                       FIRAuthCredentialCallback callback) {
+                        dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+                          FIROAuthCredential *credential =
+                              [[FIROAuthCredential alloc] initWithProviderID:FIRGoogleAuthProviderID
+                                                                   sessionID:kOAuthSessionID
+                                                      OAuthResponseURLString:kOAuthRequestURI];
+                          callback(credential, nil);
+                        });
+                      });
+
+                  [authResult.user
+                      linkWithProvider:mockProvider
+                            UIDelegate:nil
+                            completion:^(FIRAuthDataResult *_Nullable result,
+                                         NSError *_Nullable error) {
+                              XCTAssertTrue([NSThread isMainThread]);
+                              XCTAssertEqual(error.code,
+                                             FIRAuthErrorCodeWebSignInUserInteractionFailure);
+                              XCTAssertEqualObjects(
+                                  error.userInfo[NSLocalizedFailureReasonErrorKey],
+                                  kFakeWebSignInUserInteractionFailureReason);
+                              [expectation fulfill];
+                            }];
+                }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testReauthenticateWithProviderFailure
+    @brief Tests the flow of a failed @c reauthenticateWithProvider:completion: call.
+ */
+- (void)testReauthenticateWithProviderFailure {
+  [self expectVerifyAssertionRequest:FIRFacebookAuthProviderID
+                         federatedID:kFacebookID
+                         displayName:kFacebookDisplayName
+                             profile:[[self class] googleProfile]
+                     providerIDToken:kFacebookIDToken
+                 providerAccessToken:kFacebookAccessToken];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] signOut:NULL];
+  FIRAuthCredential *facebookCredential =
+      [FIRFacebookAuthProvider credentialWithAccessToken:kFacebookAccessToken];
+  [[FIRAuth auth]
+      signInWithCredential:facebookCredential
+                completion:^(FIRAuthDataResult *_Nullable authResult, NSError *_Nullable error) {
+                  XCTAssertTrue([NSThread isMainThread]);
+                  [self assertUserFacebook:authResult.user];
+                  XCTAssertEqualObjects(authResult.additionalUserInfo.profile,
+                                        [[self class] googleProfile]);
+                  XCTAssertEqualObjects(authResult.additionalUserInfo.username, kUserName);
+                  XCTAssertEqualObjects(authResult.additionalUserInfo.providerID,
+                                        FIRFacebookAuthProviderID);
+                  XCTAssertNil(error);
+
+                  OCMExpect([self->_mockBackend verifyAssertion:[OCMArg any] callback:[OCMArg any]])
+                      .andDispatchError2(
+                          [FIRAuthErrorUtils webSignInUserInteractionFailureWithReason:
+                                                 kFakeWebSignInUserInteractionFailureReason]);
+                  id mockProvider = OCMClassMock([FIROAuthProvider class]);
+                  OCMExpect([mockProvider getCredentialWithUIDelegate:[OCMArg any]
+                                                           completion:[OCMArg any]])
+                      .andCallBlock2(^(id<FIRAuthUIDelegate> delegate,
+                                       FIRAuthCredentialCallback callback) {
+                        dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+                          FIROAuthCredential *credential =
+                              [[FIROAuthCredential alloc] initWithProviderID:FIRGoogleAuthProviderID
+                                                                   sessionID:kOAuthSessionID
+                                                      OAuthResponseURLString:kOAuthRequestURI];
+                          callback(credential, nil);
+                        });
+                      });
+
+                  [authResult.user
+                      reauthenticateWithProvider:mockProvider
+                                      UIDelegate:nil
+                                      completion:^(FIRAuthDataResult *_Nullable result,
+                                                   NSError *_Nullable error) {
+                                        XCTAssertTrue([NSThread isMainThread]);
+                                        XCTAssertEqual(
+                                            error.code,
+                                            FIRAuthErrorCodeWebSignInUserInteractionFailure);
+                                        XCTAssertEqualObjects(
+                                            error.userInfo[NSLocalizedFailureReasonErrorKey],
+                                            kFakeWebSignInUserInteractionFailureReason);
+                                        [expectation fulfill];
+                                      }];
+                }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
 /** @fn testlinkPhoneAuthCredentialSuccess
     @brief Tests the flow of a successful @c linkWithCredential:completion:
         call using a phoneAuthCredential.

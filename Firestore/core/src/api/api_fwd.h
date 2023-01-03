@@ -20,6 +20,7 @@
 #include <functional>
 #include <memory>
 
+#include "Firestore/core/src/util/statusor.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -54,6 +55,7 @@ using QuerySnapshotListener =
     std::unique_ptr<core::EventListener<QuerySnapshot>>;
 
 using QueryCallback = std::function<void(core::Query, bool)>;
+using CountQueryCallback = std::function<void(const util::StatusOr<int64_t>&)>;
 
 }  // namespace api
 }  // namespace firestore

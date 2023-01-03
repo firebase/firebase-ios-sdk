@@ -67,24 +67,20 @@ class MemoryIndexManager : public IndexManager {
 
   std::vector<model::FieldIndex> GetFieldIndexes() const override;
 
-  absl::optional<model::FieldIndex> GetFieldIndex(
-      const core::Target& target) const override;
+  model::IndexOffset GetMinOffset(const core::Target&) override;
 
-  const model::IndexOffset GetMinOffset(const core::Target&) const override;
+  model::IndexOffset GetMinOffset(const std::string&) const override;
 
-  const model::IndexOffset GetMinOffset(const std::string&) const override;
-
-  IndexType GetIndexType(const core::Target&) const override;
+  IndexType GetIndexType(const core::Target&) override;
 
   absl::optional<std::vector<model::DocumentKey>> GetDocumentsMatchingTarget(
-      const core::Target& target) override;
+      const core::Target&) override;
 
-  absl::optional<std::string> GetNextCollectionGroupToUpdate() override;
+  absl::optional<std::string> GetNextCollectionGroupToUpdate() const override;
 
-  void UpdateCollectionGroup(const std::string& collection_group,
-                             model::IndexOffset offset) override;
+  void UpdateCollectionGroup(const std::string&, model::IndexOffset) override;
 
-  void UpdateIndexEntries(const model::DocumentMap& documents) override;
+  void UpdateIndexEntries(const model::DocumentMap&) override;
 
  private:
   MemoryCollectionParentIndex collection_parents_index_;

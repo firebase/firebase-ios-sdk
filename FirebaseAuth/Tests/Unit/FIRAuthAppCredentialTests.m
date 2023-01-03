@@ -55,9 +55,12 @@ static NSString *const kSecret = @"SECRET";
 
   FIRAuthAppCredential *credential = [[FIRAuthAppCredential alloc] initWithReceipt:kReceipt
                                                                             secret:kSecret];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   NSData *data = [NSKeyedArchiver archivedDataWithRootObject:credential];
   XCTAssertNotNil(data);
   FIRAuthAppCredential *otherCredential = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+#pragma clang diagnostic pop
   XCTAssertEqualObjects(otherCredential.receipt, kReceipt);
   XCTAssertEqualObjects(otherCredential.secret, kSecret);
 }

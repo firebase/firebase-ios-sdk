@@ -28,7 +28,7 @@ final class StorageAPITests: XCTestCase {
     _ = Storage.storage(url: "my-url")
     let storage = Storage.storage(app: app!, url: "my-url")
     _ = storage.app
-    storage.maxUploadRetryTime = storage.maxUploadRetryTime
+    storage.maxUploadRetryTime = storage.maxUploadRetryTime + 1
     storage.maxDownloadRetryTime = storage.maxDownloadRetryTime + 1
     storage.maxOperationRetryTime = storage.maxOperationRetryTime + 1
     let queue: DispatchQueue = storage.callbackQueue
@@ -54,55 +54,58 @@ final class StorageAPITests: XCTestCase {
 
     _ = ref.putData(Data())
     _ = ref.putData(Data(), metadata: metadata)
-    _ = ref.putData(Data(), metadata: metadata) { result in
+    _ = ref.putData(Data(), metadata: metadata) { (result: Result<StorageMetadata, Error>) in
     }
-    _ = ref.putData(Data(), metadata: metadata) { metadata, error in
+    _ = ref.putData(Data(), metadata: metadata) { (result: StorageMetadata?, error: Error?) in
     }
 
     let file = URL(string: "my-url")!
     _ = ref.putFile(from: file)
     _ = ref.putFile(from: file, metadata: metadata)
-    _ = ref.putFile(from: file, metadata: metadata) { result in
+    _ = ref.putFile(from: file, metadata: metadata) { (result: Result<StorageMetadata, Error>) in
     }
-    _ = ref.putFile(from: file, metadata: metadata) { metadata, error in
-    }
-
-    _ = ref.getData(maxSize: 122) { data, error in
-    }
-    _ = ref.getData(maxSize: 122) { result in
+    _ = ref.putFile(from: file, metadata: metadata) { (result: StorageMetadata?, error: Error?) in
     }
 
-    ref.downloadURL { url, error in
+    _ = ref.getData(maxSize: 122) { (result: Data?, error: Error?) in
     }
-    ref.downloadURL { result in
+    _ = ref.getData(maxSize: 122) { (result: Result<Data, Error>) in
+    }
+
+    ref.downloadURL { (result: URL?, error: Error?) in
+    }
+    ref.downloadURL { (result: Result<URL, Error>) in
     }
 
     ref.write(toFile: file)
-    ref.write(toFile: file) { url, error in
+    ref.write(toFile: file) { (result: URL?, error: Error?) in
     }
-    ref.write(toFile: file) { result in
-    }
-
-    ref.listAll { listResult, error in
-    }
-    ref.listAll { result in
+    ref.write(toFile: file) { (result: Result<URL, Error>) in
     }
 
-    ref.list(maxResults: 123) { listResult, error in
+    ref.listAll { (listResult: StorageListResult?, error: Error?) in
     }
-    ref.list(maxResults: 222) { result in
-    }
-    ref.list(maxResults: 123, pageToken: "pageToken") { listResult, error in
-    }
-    ref.list(maxResults: 222, pageToken: "pageToken") { result in
+    ref.listAll { (result: Result<StorageListResult, Error>) in
     }
 
-    ref.getMetadata { result in
+    ref.list(maxResults: 123) { (listResult: StorageListResult?, error: Error?) in
     }
-    ref.getMetadata { metadata, error in
+    ref.list(maxResults: 222) { (result: Result<StorageListResult, Error>) in
+    }
+    ref
+      .list(maxResults: 123,
+            pageToken: "pageToken") { (listResult: StorageListResult?, error: Error?) in
+      }
+    ref
+      .list(maxResults: 222, pageToken: "pageToken") { (result: Result<StorageListResult, Error>) in
+      }
+
+    ref.getMetadata { (result: Result<StorageMetadata, Error>) in
+    }
+    ref.getMetadata { (result: StorageMetadata?, error: Error?) in
     }
 
-    ref.delete { error in
+    ref.delete { (error: Error?) in
     }
   }
 
@@ -163,21 +166,20 @@ final class StorageAPITests: XCTestCase {
   func storageMetadataApis() {
     let metadata = StorageMetadata()
     _ = metadata.bucket
-    metadata.cacheControl = metadata.cacheControl
-    metadata.contentDisposition = metadata.contentDisposition
-    metadata.contentEncoding = metadata.contentEncoding
-    metadata.contentLanguage = metadata.contentLanguage
-    metadata.contentType = metadata.contentType
+    _ = metadata.cacheControl
+    _ = metadata.contentDisposition
+    _ = metadata.contentEncoding
+    _ = metadata.contentLanguage
+    _ = metadata.contentType
     _ = metadata.md5Hash
     _ = metadata.generation
-    metadata.customMetadata = metadata.customMetadata
+    _ = metadata.customMetadata
     _ = metadata.metageneration
     _ = metadata.name
     _ = metadata.path
     _ = metadata.size
     _ = metadata.timeCreated
     _ = metadata.updated
-    _ = metadata.storageReference
     _ = metadata.dictionaryRepresentation()
     _ = metadata.isFile
     _ = metadata.isFolder

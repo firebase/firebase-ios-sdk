@@ -28,16 +28,21 @@
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/core/filter.h"
 #include "Firestore/core/src/core/order_by.h"
-#include "Firestore/core/src/immutable/append_only_list.h"
 #include "Firestore/core/src/model/field_index.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/remote/serializer.h"
 
 namespace firebase {
 namespace firestore {
+
 namespace bundle {
 class BundleSerializer;
-}
+}  // namespace bundle
+
+namespace local {
+class LevelDbIndexManager;
+}  // namespace local
+
 namespace core {
 
 using CollectionGroupId = std::shared_ptr<const std::string>;
@@ -80,17 +85,21 @@ class Target {
   bool IsDocumentQuery() const;
 
   /** The filters on the documents returned by the target. */
-  const FilterList& filters() const {
+  const std::vector<Filter>& filters() const {
     return filters_;
   }
 
   /** Returns the list of ordering constraints by the target. */
-  const OrderByList& order_bys() const {
+  const std::vector<OrderBy>& order_bys() const {
     return order_bys_;
   }
 
   int32_t limit() const {
     return limit_;
+  }
+
+  bool HasLimit() const {
+    return limit_ != kNoLimit;
   }
 
   const absl::optional<Bound>& start_at() const {
@@ -168,8 +177,8 @@ class Target {
    */
   Target(model::ResourcePath path,
          CollectionGroupId collection_group,
-         FilterList filters,
-         OrderByList order_bys,
+         std::vector<Filter> filters,
+         std::vector<OrderBy> order_bys,
          int32_t limit,
          absl::optional<Bound> start_at,
          absl::optional<Bound> end_at)
@@ -184,6 +193,7 @@ class Target {
   friend class Query;
   friend class remote::Serializer;
   friend class bundle::BundleSerializer;
+  friend class local::LevelDbIndexManager;
 
   /** Returns the field filters that target the given field path. */
   std::vector<FieldFilter> GetFieldFiltersForPath(
@@ -210,8 +220,8 @@ class Target {
 
   model::ResourcePath path_;
   std::shared_ptr<const std::string> collection_group_;
-  FilterList filters_;
-  OrderByList order_bys_;
+  std::vector<Filter> filters_;
+  std::vector<OrderBy> order_bys_;
   int32_t limit_ = kNoLimit;
   absl::optional<Bound> start_at_;
   absl::optional<Bound> end_at_;

@@ -1,3 +1,12 @@
+# 10.4.0
+- [changed] On app startup, an APNS Token must be provided to FCM SDK before retrieving an FCM Token otherwise an error will be returned as part of the completion.
+
+# 10.3.0
+- [changed] Allow notification support on iOS 16 Simulator on Xcode 14 (#9968) (Reference: Xcode 14 Release Notes -> Simulator -> New Features: https://developer.apple.com/documentation/xcode-release-notes/xcode-14-release-notes)
+
+# 10.1.0
+- [fixed] App bundle identifier gets incorrectly shortened for watchOS apps created on Xcode 14 (#10147)
+
 # 8.12.0
 - [changed] Improved reporting for SQLite errors when failing to open a local database (#8699).
 

@@ -15,7 +15,6 @@ target 'FirebasePodTest' do
   pod 'FirebaseAppDistribution', :path => '../../../'
   pod 'FirebaseAuth', :path => '../../../'
   pod 'FirebaseCore', :path => '../../../'
-  pod 'FirebaseCoreDiagnostics', :path => '../../../'
   pod 'FirebaseCrashlytics', :path => '../../../'
   pod 'FirebaseDatabase', :path => '../../../'
   pod 'FirebaseDynamicLinks', :path => '../../../'
@@ -29,15 +28,14 @@ target 'FirebasePodTest' do
   pod 'FirebasePerformance', :path => '../../../'
   pod 'FirebaseRemoteConfig', :path => '../../../'
   pod 'FirebaseStorage', :path => '../../../'
-  pod 'FirebaseStorageInternal', :path => '../../../'
 
   # Get dependent pods from the repo also
   pod 'FirebaseAppCheckInterop', :path => '../../../'
   pod 'FirebaseAuthInterop', :path => '../../../'
   pod 'FirebaseMessagingInterop', :path => '../../../'
-  pod 'FirebaseCoreDiagnostics', :path => '../../../'
   pod 'FirebaseCoreInternal', :path => '../../../'
   pod 'FirebaseCoreExtension', :path => '../../../'
+  pod 'FirebaseSharedSwift', :path => '../../../'
 
   pod 'FirebaseAnalytics' # Analytics is not open source
 end

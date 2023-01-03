@@ -35,6 +35,11 @@ namespace util {
 class Executor;
 }  // namespace util
 
+namespace model {
+class MutableDocument;
+class SnapshotVersion;
+}  // namespace model
+
 namespace local {
 
 class LevelDbPersistence;
@@ -51,25 +56,29 @@ class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
            const model::SnapshotVersion& read_time) override;
   void Remove(const model::DocumentKey& key) override;
 
-  model::MutableDocument Get(const model::DocumentKey& key) override;
-  model::MutableDocumentMap GetAll(const model::DocumentKeySet& keys) override;
+  model::MutableDocument Get(const model::DocumentKey& key) const override;
+  model::MutableDocumentMap GetAll(
+      const model::DocumentKeySet& keys) const override;
   model::MutableDocumentMap GetAll(const std::string& collection_group,
                                    const model::IndexOffset& offset,
                                    size_t limit) const override;
-  model::MutableDocumentMap GetAll(const model::ResourcePath& path,
-                                   const model::IndexOffset& offset) override;
+  model::MutableDocumentMap GetAll(
+      const model::ResourcePath& path,
+      const model::IndexOffset& offset,
+      absl::optional<size_t> limit = absl::nullopt) const override;
 
   void SetIndexManager(IndexManager* manager) override;
 
  private:
   /**
    * Looks up a set of entries in the cache, returning only existing entries of
-   * Type::Document.
+   * Type::Document together with its SnapshotVersion.
    */
-  model::MutableDocumentMap GetAllExisting(const model::DocumentKeySet& keys);
+  model::MutableDocumentMap GetAllExisting(
+      model::DocumentVersionMap&& remote_map) const;
 
-  model::MutableDocument DecodeMaybeDocument(absl::string_view encoded,
-                                             const model::DocumentKey& key);
+  model::MutableDocument DecodeMaybeDocument(
+      absl::string_view encoded, const model::DocumentKey& key) const;
 
   // The LevelDbRemoteDocumentCache instance is owned by LevelDbPersistence.
   LevelDbPersistence* db_;

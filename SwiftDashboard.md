@@ -11,13 +11,13 @@ tasks for additional Swift improvements.
 |   :---                | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **Swift Library**     | ✅    | ❌    |❌     | ❌   | n/a  | ❌    |  ✅   | ❌   |  ✅   | ✅    |  ✅   | ❌   | ❌   | ✅    | ❌    |  ✅  | ✅   |
 | **Single Module**     |   ❌  | ✅    |✅     | ✅   | ✅   |  ✅   |  ❌  |  ✅   |  ❌   | ✅    |  ❌  | ✅    |  ✅  | ✅    |  ✅   | ❌   | ✅  |
-| **API Tests**         |  ❌   |  ✅   |❌     | ✅   | ✅   | ❌    |  ✅   | ❌   | 2     |  ✅   | 2     | ✅    | ✅   | 2     | ❌    |  ✅  | ✅  |
+| **API Tests**         |  ✅   |  ✅   |❌     | ✅   | ✅   | ❌    |  ✅   | ❌   | 1     |  ✅   | 1     | ✅    | ✅   | 1     | ❌    |  ✅  | ✅  |
 | **async/await**       |  ✅   |  ✅   | ✅    | ✅   |  ✅  | ✅    |  ✅   | ❌   |  ✅   |  ✅   | ✅   | ✅    | ✅   | ❌    | ✅    |  ✅  | ✅   |
-| **Swift Errors**      |  ✅   |  ✅   | ✅    | 4    | ✅   | 7      | ❌    | ❌   |  ✅   | ❌   | ❌    |  ✅   |  ✅  | ✅    | ✅    |   ✅ | 5    |
+| **Swift Errors**      |  ✅   |  ✅   | ✅    | 2    | ✅   | 5      | ❌    | ❌   |  ✅   | ❌   | ❌    |  ✅   |  ✅  | ✅    | ✅    |   ✅ | 3    |
 | **Codable**           |  n/a  | n/a   | n/a    | n/a  | n/a   | n/a   |  ✅   | n/a   |  ✅   | ✅   | n/a   | n/a   | n/a   | n/a   | n/a   |   ✅  | n/a   |
 | **SwiftUI Lifecycle** |  ❌   | n/a   | n/a   | ❌   | n/a   | n/a   | n/a   | ❌    | n/a   | n/a   | n/a   | n/a   | ❌    | n/a   | ❌    | n/a   | n/a   |
 | **SwiftUI Interop**   |   ✅  | n/a   | ❌    | ❌   | n/a   | ❌    | ❌    | n/a   | ✅   | n/a   | ✅    | n/a   | n/a   | n/a   | ❌    | n/a   | n/a   |
-| **Property Wrappers** |  n/a  | n/a   | n/a   | ❌    | n/a   | n/a   | ❌    | n/a   | 6     | n/a   | n/a   | n/a   | n/a   | n/a   | n/a   | ❌   | n/a   |
+| **Property Wrappers** |  n/a  | n/a   | n/a   | ❌    | n/a   | n/a   | ❌    | n/a   | 4     | n/a   | n/a   | n/a   | n/a   | n/a   | n/a   | ❌   | n/a   |
 | **Swift Doc Scrub**   |   ✅  |  ✅   | ✅    | ✅   | ✅   | ✅    |  ✅   |  ✅   |  ✅  |  ✅   |  ✅    | ✅  |  ✅   | ✅   |  ✅   |  ✅   |  ✅|
 
 ### Other Projects
@@ -26,11 +26,11 @@ tasks for additional Swift improvements.
 - Swift Generics. Update APIs that are using weakly typed information to use proper generics.
 
 ## Notes
-2. Tests exist. Coverage to be confirmed.
-4. `NS_ERROR_ENUM` used but a larger audit is still needed for more localized errors.
-5. Still needs to unify Objective-C and Swift errors.
-6. One property wrapper added in [#8614](https://github.com/firebase/firebase-ios-sdk/pull/8614). More to go.
-7. `record(Error)` API should be expanded to collect Swift Errors as well as NSErrors.
+1. Tests exist. Coverage to be confirmed.
+2. `NS_ERROR_ENUM` used but a larger audit is still needed for more localized errors.
+3. Still needs to unify Objective-C and Swift errors.
+4. One property wrapper added in [#8614](https://github.com/firebase/firebase-ios-sdk/pull/8614). More to go.
+5. `record(Error)` API should be expanded to collect Swift Errors as well as NSErrors.
 
 ## Rows (Swift Capabilities)
 * **Swift Library**: SDK includes public APIs written in Swift, either in the main product library or a Swift-specific extension.

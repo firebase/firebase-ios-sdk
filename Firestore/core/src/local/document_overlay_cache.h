@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_LOCAL_DOCUMENT_OVERLAY_CACHE_H_
 
 #include <cstdlib>
+#include <set>
 #include <unordered_map>
 
 #include "Firestore/core/src/model/document_key.h"
@@ -60,7 +61,7 @@ class DocumentOverlayCache {
    * which there are no overlays.
    */
   virtual void GetOverlays(model::OverlayByDocumentKeyMap& dest,
-                           const model::DocumentKeySet& keys) const;
+                           const std::set<model::DocumentKey>& keys) const;
 
   /**
    * Saves the given document key to mutation map to persistence as overlays.

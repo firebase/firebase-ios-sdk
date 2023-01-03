@@ -113,27 +113,19 @@ class IndexManager {
   virtual std::vector<model::FieldIndex> GetFieldIndexes() const = 0;
 
   /**
-   * Returns an index that can be used to serve the provided target. Returns
-   * `nullopt` if no index is configured.
-   */
-  virtual absl::optional<model::FieldIndex> GetFieldIndex(
-      const core::Target& target) const = 0;
-
-  /**
    * Iterates over all field indexes that are used to serve the given target,
    * and returns the minimum offset of them all. Asserts that the target can be
    * served from index.
    */
-  virtual const model::IndexOffset GetMinOffset(
-      const core::Target& target) const = 0;
+  virtual model::IndexOffset GetMinOffset(const core::Target& target) = 0;
 
   /** Returns the minimum offset for the given collection group. */
-  virtual const model::IndexOffset GetMinOffset(
+  virtual model::IndexOffset GetMinOffset(
       const std::string& collection_group) const = 0;
 
   /** Returns the type of index (if any) that can be used to serve the given
    * target */
-  virtual IndexType GetIndexType(const core::Target& target) const = 0;
+  virtual IndexType GetIndexType(const core::Target& target) = 0;
 
   /**
    * Returns the documents that match the given target based on the provided
@@ -146,7 +138,8 @@ class IndexManager {
    * Returns the next collection group to update. Returns `nullopt` if no
    * group exists.
    */
-  virtual absl::optional<std::string> GetNextCollectionGroupToUpdate() = 0;
+  virtual absl::optional<std::string> GetNextCollectionGroupToUpdate()
+      const = 0;
 
   /**
    * Sets the collection group's latest read time.

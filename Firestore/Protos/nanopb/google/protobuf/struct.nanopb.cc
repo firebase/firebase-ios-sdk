@@ -105,84 +105,87 @@ const char* EnumToString(
 }
 
 std::string google_protobuf_Struct::ToString(int indent) const {
-    std::string header = PrintHeader(indent, "Struct", this);
-    std::string result;
+    std::string tostring_header = PrintHeader(indent, "Struct", this);
+    std::string tostring_result;
 
     for (pb_size_t i = 0; i != fields_count; ++i) {
-        result += PrintMessageField("fields ", fields[i], indent + 1, true);
+        tostring_result += PrintMessageField("fields ",
+            fields[i], indent + 1, true);
     }
 
     bool is_root = indent == 0;
-    if (!result.empty() || is_root) {
-      std::string tail = PrintTail(indent);
-      return header + result + tail;
+    if (!tostring_result.empty() || is_root) {
+      std::string tostring_tail = PrintTail(indent);
+      return tostring_header + tostring_result + tostring_tail;
     } else {
       return "";
     }
 }
 
 std::string google_protobuf_Struct_FieldsEntry::ToString(int indent) const {
-    std::string header = PrintHeader(indent, "FieldsEntry", this);
-    std::string result;
+    std::string tostring_header = PrintHeader(indent, "FieldsEntry", this);
+    std::string tostring_result;
 
-    result += PrintPrimitiveField("key: ", key, indent + 1, false);
-    result += PrintMessageField("value ", value, indent + 1, false);
+    tostring_result += PrintPrimitiveField("key: ", key, indent + 1, false);
+    tostring_result += PrintMessageField("value ", value, indent + 1, false);
 
-    std::string tail = PrintTail(indent);
-    return header + result + tail;
+    std::string tostring_tail = PrintTail(indent);
+    return tostring_header + tostring_result + tostring_tail;
 }
 
 std::string google_protobuf_Value::ToString(int indent) const {
-    std::string header = PrintHeader(indent, "Value", this);
-    std::string result;
+    std::string tostring_header = PrintHeader(indent, "Value", this);
+    std::string tostring_result;
 
     switch (which_kind) {
     case google_protobuf_Value_null_value_tag:
-        result += PrintEnumField("null_value: ", null_value, indent + 1, true);
+        tostring_result += PrintEnumField("null_value: ",
+            null_value, indent + 1, true);
         break;
     case google_protobuf_Value_number_value_tag:
-        result += PrintPrimitiveField("number_value: ",
+        tostring_result += PrintPrimitiveField("number_value: ",
             number_value, indent + 1, true);
         break;
     case google_protobuf_Value_string_value_tag:
-        result += PrintPrimitiveField("string_value: ",
+        tostring_result += PrintPrimitiveField("string_value: ",
             string_value, indent + 1, true);
         break;
     case google_protobuf_Value_bool_value_tag:
-        result += PrintPrimitiveField("bool_value: ",
+        tostring_result += PrintPrimitiveField("bool_value: ",
             bool_value, indent + 1, true);
         break;
     case google_protobuf_Value_struct_value_tag:
-        result += PrintMessageField("struct_value ",
+        tostring_result += PrintMessageField("struct_value ",
             struct_value, indent + 1, true);
         break;
     case google_protobuf_Value_list_value_tag:
-        result += PrintMessageField("list_value ",
+        tostring_result += PrintMessageField("list_value ",
             list_value, indent + 1, true);
         break;
     }
 
     bool is_root = indent == 0;
-    if (!result.empty() || is_root) {
-      std::string tail = PrintTail(indent);
-      return header + result + tail;
+    if (!tostring_result.empty() || is_root) {
+      std::string tostring_tail = PrintTail(indent);
+      return tostring_header + tostring_result + tostring_tail;
     } else {
       return "";
     }
 }
 
 std::string google_protobuf_ListValue::ToString(int indent) const {
-    std::string header = PrintHeader(indent, "ListValue", this);
-    std::string result;
+    std::string tostring_header = PrintHeader(indent, "ListValue", this);
+    std::string tostring_result;
 
     for (pb_size_t i = 0; i != values_count; ++i) {
-        result += PrintMessageField("values ", values[i], indent + 1, true);
+        tostring_result += PrintMessageField("values ",
+            values[i], indent + 1, true);
     }
 
     bool is_root = indent == 0;
-    if (!result.empty() || is_root) {
-      std::string tail = PrintTail(indent);
-      return header + result + tail;
+    if (!tostring_result.empty() || is_root) {
+      std::string tostring_tail = PrintTail(indent);
+      return tostring_header + tostring_result + tostring_tail;
     } else {
       return "";
     }

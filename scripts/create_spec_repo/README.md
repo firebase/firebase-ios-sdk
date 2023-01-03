@@ -35,7 +35,7 @@ job in presubmit.
     if: github.repository == 'Firebase/firebase-ios-sdk' && github.event.pull_request.merged != true && github.event.action != 'closed'
     runs-on: macOS-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
       with:
         ruby-version: '2.7'

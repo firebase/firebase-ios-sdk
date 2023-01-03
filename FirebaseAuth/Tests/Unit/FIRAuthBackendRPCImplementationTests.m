@@ -147,7 +147,7 @@ static NSString *const kTestValue = @"TestValue";
 @interface FIRFakeHeartbeatLogger : NSObject <FIRHeartbeatLoggerProtocol>
 @property(nonatomic, copy, nullable) FIRHeartbeatsPayload * (^onFlushHeartbeatsIntoPayloadHandler)
     (void);
-@property(nonatomic, copy, nullable) FIRHeartbeatInfoCode (^onHeartbeatCodeForTodayHandler)(void);
+@property(nonatomic, copy, nullable) FIRDailyHeartbeatCode (^onHeartbeatCodeForTodayHandler)(void);
 @end
 
 @implementation FIRFakeHeartbeatLogger
@@ -160,12 +160,12 @@ static NSString *const kTestValue = @"TestValue";
   }
 }
 
-- (FIRHeartbeatInfoCode)heartbeatCodeForToday {
+- (FIRDailyHeartbeatCode)heartbeatCodeForToday {
   // This API should not be used by the below tests because the Auth
   // SDK uses only the V2 heartbeat API (`flushHeartbeatsIntoPayload`) for
   // getting heartbeats.
   [self doesNotRecognizeSelector:_cmd];
-  return FIRHeartbeatInfoCodeNone;
+  return FIRDailyHeartbeatCodeNone;
 }
 
 - (void)log {

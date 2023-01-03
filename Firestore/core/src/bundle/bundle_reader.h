@@ -24,6 +24,7 @@
 #include "Firestore/core/src/bundle/bundle_metadata.h"
 #include "Firestore/core/src/bundle/bundle_serializer.h"
 #include "Firestore/core/src/util/byte_stream.h"
+#include "Firestore/core/src/util/json_reader.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -111,7 +112,7 @@ class BundleReader {
   std::unique_ptr<BundleElement> DecodeBundleElementFromBuffer();
 
   BundleSerializer serializer_;
-  JsonReader json_reader_;
+  util::JsonReader json_reader_;
 
   // Input stream holding bundle data.
   std::unique_ptr<util::ByteStream> input_;

@@ -10,8 +10,8 @@ on:
     # Don't run based on any markdown only changes.
     - '!ReleaseTooling/*.md'
   schedule:
-    # Run every day at 10pm(PST) - cron uses UTC times
-    - cron:  '0 6 * * *'
+    # Run every day at 8pm(PST) - cron uses UTC times
+    - cron:  '0 4 * * *'
 
   workflow_dispatch:
     inputs:
@@ -30,8 +30,8 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
     - name: Xcode 13.3.1
@@ -56,7 +56,7 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Xcode 13.3.1
       run: sudo xcode-select -s /Applications/Xcode_13.3.1.app/Contents/Developer
     - name: Build
@@ -70,8 +70,8 @@ jobs:
     needs: build
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v2
-    - uses: mikehardy/buildcache-action@50738c6c77de7f34e66b870e4f8ede333b69d077
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
     - name: Xcode 13.3.1
@@ -103,7 +103,7 @@ jobs:
       SDK: "ABTesting"
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Get framework dir
       uses: actions/download-artifact@v1
       with:
@@ -115,7 +115,7 @@ jobs:
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Setup quickstart
       env:
         LEGACY: true
@@ -123,7 +123,7 @@ jobs:
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseCore.xcframework \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseCoreInternal.xcframework \
-                                               "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/PromisesObjC.xcframework \
+                                               "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FBLPromises.xcframework \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseInstallations.xcframework \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleUtilities.xcframework
     - name: Install Secret GoogleService-Info.plist
@@ -155,7 +155,7 @@ jobs:
       SDK:  "Authentication"
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Get framework dir
       uses: actions/download-artifact@v1
       with:
@@ -199,7 +199,7 @@ jobs:
       SDK: "Config"
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Get framework dir
       uses: actions/download-artifact@v1
       with:
@@ -241,7 +241,7 @@ jobs:
       SDK: "Crashlytics"
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Get framework dir
       uses: actions/download-artifact@v1
       with:
@@ -253,7 +253,7 @@ jobs:
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Setup quickstart
       env:
         LEGACY: true
@@ -306,7 +306,7 @@ jobs:
       SDK: "Database"
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Get framework dir
       uses: actions/download-artifact@v1
       with:
@@ -318,7 +318,7 @@ jobs:
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="FirebaseDatabaseUI" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseDatabase/* \
@@ -352,7 +352,7 @@ jobs:
       SDK: "DynamicLinks"
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Get framework dir
       uses: actions/download-artifact@v1
       with:
@@ -402,7 +402,10 @@ jobs:
       SDK: "Firestore"
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v2
+      # Xcode 14 fails to build FirebaseAuthUI because it includes Resources. See #9886.
+    - name: Xcode 13.3.1
+      run: sudo xcode-select -s /Applications/Xcode_13.3.1.app/Contents/Developer
+    - uses: actions/checkout@v3
     - name: Get framework dir
       uses: actions/download-artifact@v1
       with:
@@ -414,7 +417,7 @@ jobs:
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="SDWebImage FirebaseAuthUI FirebaseEmailAuthUI" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
@@ -446,7 +449,7 @@ jobs:
       SDK: "InAppMessaging"
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Get framework dir
       uses: actions/download-artifact@v1
       with:
@@ -458,7 +461,7 @@ jobs:
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseDynamicLinks/* \
@@ -493,7 +496,7 @@ jobs:
       SDK: "Messaging"
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Get framework dir
       uses: actions/download-artifact@v1
       with:
@@ -505,7 +508,7 @@ jobs:
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseMessaging/* \
@@ -539,7 +542,7 @@ jobs:
       SDK: "Storage"
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Get framework dir
       uses: actions/download-artifact@v1
       with:
@@ -551,7 +554,7 @@ jobs:
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Setup quickstart
       env:
         LEGACY: true

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'FirebaseAnalytics'
-    s.version          = '9.3.0'
+    s.version          = '10.4.0'
     s.summary          = 'Firebase Analytics for iOS'
 
     s.description      = <<-DESC
@@ -13,36 +13,36 @@ Pod::Spec.new do |s|
     s.authors          = 'Google, Inc.'
 
     s.source           = {
-        :http => 'https://dl.google.com/firebase/ios/analytics/2413e2f24a44098e/FirebaseAnalytics-9.3.0.tar.gz'
+        :http => 'https://dl.google.com/firebase/ios/analytics/9836fef1302baacb/FirebaseAnalytics-10.1.0.tar.gz'
     }
 
     s.cocoapods_version = '>= 1.10.0'
     s.swift_version     = '5.3'
 
     s.ios.deployment_target  = '10.0'
-    s.osx.deployment_target  = '10.12'
+    s.osx.deployment_target  = '10.13'
     s.tvos.deployment_target = '12.0'
 
     s.libraries  = 'c++', 'sqlite3', 'z'
     s.frameworks = 'StoreKit'
 
-    s.dependency 'FirebaseCore', '~> 9.0'
-    s.dependency 'FirebaseInstallations', '~> 9.0'
-    s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.7'
-    s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.7'
-    s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.7'
-    s.dependency 'GoogleUtilities/Network', '~> 7.7'
+    s.dependency 'FirebaseCore', '~> 10.0'
+    s.dependency 'FirebaseInstallations', '~> 10.0'
+    s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.8'
+    s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.8'
+    s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.8'
+    s.dependency 'GoogleUtilities/Network', '~> 7.8'
     s.dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
 
     s.default_subspecs = 'AdIdSupport'
 
     s.subspec 'AdIdSupport' do |ss|
-        ss.dependency 'GoogleAppMeasurement', '9.3.0'
+        ss.dependency 'GoogleAppMeasurement', '10.4.0'
         ss.vendored_frameworks = 'Frameworks/FirebaseAnalytics.xcframework'
     end
 
     s.subspec 'WithoutAdIdSupport' do |ss|
-        ss.dependency 'GoogleAppMeasurement/WithoutAdIdSupport', '9.3.0'
+        ss.dependency 'GoogleAppMeasurement/WithoutAdIdSupport', '10.4.0'
         ss.vendored_frameworks = 'Frameworks/FirebaseAnalytics.xcframework'
     end
 

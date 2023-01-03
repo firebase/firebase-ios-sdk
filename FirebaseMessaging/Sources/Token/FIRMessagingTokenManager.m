@@ -180,6 +180,28 @@
     [tokenOptions addEntriesFromDictionary:options];
   }
 
+  // ensure we have an APNS Token
+  if (tokenOptions[kFIRMessagingTokenOptionsAPNSKey] == nil) {
+    // we don't have an APNS token. Don't fetch or return a FCM Token
+    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeAPNSTokenNotAvailableDuringTokenFetch,
+                           @"Declining request for FCM Token since no APNS Token specified");
+    dispatch_async(dispatch_get_main_queue(), ^{
+      NSError *missingAPNSTokenError =
+          [NSError messagingErrorWithCode:kFIRMessagingErrorCodeMissingDeviceToken
+                            failureReason:@"No APNS token specified before fetching FCM Token"];
+      handler(nil, missingAPNSTokenError);
+    });
+    return;
+  }
+
+#if TARGET_OS_SIMULATOR && TARGET_OS_IOS
+  if (tokenOptions[kFIRMessagingTokenOptionsAPNSKey] != nil) {
+    // If APNS token is available on iOS Simulator, we must use the sandbox profile
+    // https://developer.apple.com/documentation/xcode-release-notes/xcode-14-release-notes
+    tokenOptions[kFIRMessagingTokenOptionsAPNSIsSandboxKey] = @(YES);
+  }
+#endif
+
   if (tokenOptions[kFIRMessagingTokenOptionsAPNSKey] != nil &&
       tokenOptions[kFIRMessagingTokenOptionsAPNSIsSandboxKey] == nil) {
     // APNS key was given, but server type is missing. Supply the server type with automatic
@@ -634,7 +656,6 @@
     }
     return;
   }
-  NSInteger type = [userInfo[kFIRMessagingAPNSTokenType] integerValue];
 
   // The APNS token is being added, or has changed (rare)
   if ([self.currentAPNSInfo.deviceToken isEqualToData:APNSToken]) {
@@ -643,10 +664,17 @@
     return;
   }
   // Use this token type for when we have to automatically fetch tokens in the future
+#if TARGET_OS_SIMULATOR && TARGET_OS_IOS
+  // If APNS token is available on iOS Simulator, we must use the sandbox profile
+  // https://developer.apple.com/documentation/xcode-release-notes/xcode-14-release-notes
+  BOOL isSandboxApp = YES;
+#else
+  NSInteger type = [userInfo[kFIRMessagingAPNSTokenType] integerValue];
   BOOL isSandboxApp = (type == FIRMessagingAPNSTokenTypeSandbox);
   if (type == FIRMessagingAPNSTokenTypeUnknown) {
     isSandboxApp = FIRMessagingIsSandboxApp();
   }
+#endif
 
   // Pro-actively invalidate the default token, if the APNs change makes it
   // invalid. Previously, we invalidated just before fetching the token.

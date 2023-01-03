@@ -103,12 +103,14 @@ public final class HeartbeatController {
       )
     }
 
-    // Synchronously gets and returns the stored heartbeats, resetting storage
-    // using the given transform. If the operation throws, assume no
-    // heartbeat(s) were retrieved or set.
-    if let heartbeatsBundle = try? storage.getAndSet(using: resetTransform) {
-      return heartbeatsBundle.makeHeartbeatsPayload()
-    } else {
+    do {
+      // Synchronously gets and returns the stored heartbeats, resetting storage
+      // using the given transform.
+      let heartbeatsBundle = try storage.getAndSet(using: resetTransform)
+      // If no heartbeats bundle was stored, return an empty payload.
+      return heartbeatsBundle?.makeHeartbeatsPayload() ?? HeartbeatsPayload.emptyPayload
+    } catch {
+      // If the operation throws, assume no heartbeat(s) were retrieved or set.
       return HeartbeatsPayload.emptyPayload
     }
   }

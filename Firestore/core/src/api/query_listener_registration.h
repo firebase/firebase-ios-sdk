@@ -21,6 +21,8 @@
 
 #include "Firestore/core/src/api/listener_registration.h"
 #include "Firestore/core/src/core/core_fwd.h"
+#include "absl/base/thread_annotations.h"
+#include "absl/synchronization/mutex.h"
 
 namespace firebase {
 namespace firestore {
@@ -44,14 +46,17 @@ class QueryListenerRegistration : public ListenerRegistration {
   void Remove() override;
 
  private:
+  absl::Mutex mutex_;
+
   /** The client that was used to register this listen. */
-  std::shared_ptr<core::FirestoreClient> client_;
+  std::shared_ptr<core::FirestoreClient> client_ ABSL_GUARDED_BY(mutex_);
 
   /** The async listener that is used to mute events synchronously. */
-  std::weak_ptr<core::AsyncEventListener<core::ViewSnapshot>> async_listener_;
+  std::weak_ptr<core::AsyncEventListener<core::ViewSnapshot>> async_listener_
+      ABSL_GUARDED_BY(mutex_);
 
   /** The internal QueryListener that can be used to unlisten the query. */
-  std::weak_ptr<core::QueryListener> query_listener_;
+  std::weak_ptr<core::QueryListener> query_listener_ ABSL_GUARDED_BY(mutex_);
 };
 
 }  // namespace api

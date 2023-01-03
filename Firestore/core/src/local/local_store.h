@@ -45,6 +45,10 @@ namespace core {
 class Query;
 }  // namespace core
 
+namespace model {
+class FieldIndex;
+}  // namespace model
+
 namespace remote {
 class RemoteEvent;
 class TargetChange;
@@ -64,6 +68,7 @@ class QueryEngine;
 class QueryResult;
 class RemoteDocumentCache;
 class TargetCache;
+class IndexBackfiller;
 
 struct LruResults;
 
@@ -246,6 +251,12 @@ class LocalStore : public bundle::BundleCallback {
   LruResults CollectGarbage(LruGarbageCollector* garbage_collector);
 
   /**
+   * Runs a single backfill operation and returns the number of documents
+   * processed.
+   */
+  int Backfill() const;
+
+  /**
    * Returns whether the given bundle has already been loaded and its create
    * time is newer or equal to the currently loading bundle.
    */
@@ -275,9 +286,26 @@ class LocalStore : public bundle::BundleCallback {
   absl::optional<bundle::NamedQuery> GetNamedQuery(
       const std::string& query_name);
 
+  void ConfigureFieldIndexes(std::vector<model::FieldIndex> new_field_indexes);
+
  private:
-  friend class LocalStoreTest;
+  friend class IndexBackfiller;
+  friend class IndexBackfillerTest;
+  friend class LocalStoreTestBase;
   friend class LevelDbOverlayMigrationManagerTest;
+
+  IndexManager* index_manager() const {
+    return index_manager_;
+  }
+
+  const LocalDocumentsView* local_documents() const {
+    return local_documents_.get();
+  }
+
+  // For testing
+  IndexBackfiller* index_backfiller() const {
+    return index_backfiller_.get();
+  }
 
   struct DocumentChangeResult {
     model::MutableDocumentMap changed_docs;
@@ -338,6 +366,9 @@ class LocalStore : public bundle::BundleCallback {
       const model::DocumentVersionMap& document_versions,
       const model::SnapshotVersion& global_version);
 
+  // For testing
+  std::vector<model::FieldIndex> GetFieldIndexes();
+
   /** Manages our in-memory or durable persistence. Owned by FirestoreClient. */
   Persistence* persistence_ = nullptr;
 
@@ -386,6 +417,11 @@ class LocalStore : public bundle::BundleCallback {
    * remote_document_cache_).
    */
   std::unique_ptr<LocalDocumentsView> local_documents_;
+
+  /**
+   * Implements the steps for backfilling indexes.
+   */
+  std::unique_ptr<IndexBackfiller> index_backfiller_;
 
   /** The set of document references maintained by any local views. */
   ReferenceSet local_view_references_;

@@ -43,7 +43,6 @@ target_compile_definitions(
 target_link_libraries(
   FirebaseCore PRIVATE
   "-framework Foundation"
-  FirebaseCoreDiagnosticsInterop
   GoogleUtilities
 )
 
