@@ -25,7 +25,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-
 NS_ASSUME_NONNULL_END
 
 #endif /* FirebaseSessionsInternal_h */
