@@ -13,21 +13,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+#ifndef FirebaseSessionsInternal_h
+#define FirebaseSessionsInternal_h
 
-#if SWIFT_PACKAGE
-  import FirebaseSessionsObjC
-#endif // SWIFT_PACKAGE
+#import <Foundation/Foundation.h>
 
-extension SessionsSubscriberName: CustomStringConvertible {
-  public var description: String {
-    switch self {
-    case .crashlytics:
-      return "Crashlytics"
-    case .performance:
-      return "Performance"
-    default:
-      return "Unknown"
-    }
-  }
-}
+// This header is necessary for including the Interop header
+// in the Swift part of the codebase under Swift Package Manager
+// TODO(b/264274170) Remove the interop and make the dependency direct
+#import "FirebaseSessions/Internal/FIRSessionsProvider.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+
+NS_ASSUME_NONNULL_END
+
+#endif /* FirebaseSessionsInternal_h */

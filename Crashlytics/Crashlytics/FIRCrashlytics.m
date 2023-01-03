@@ -52,7 +52,7 @@
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
-#import "FirebaseSessions/Interop/FIRSessionsProvider.h"
+#import "FirebaseSessions/Internal/FIRSessionsProvider.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>

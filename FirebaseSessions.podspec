@@ -37,7 +37,7 @@ Pod::Spec.new do |s|
   s.source_files = [
     base_dir + 'Sources/**/*.{swift}',
     base_dir + 'SourcesObjC/**/*.{c,h,m,mm}',
-    # TODO(samedson) Remove Interop when FirebaseSessions releases and move to
+    # TODO(b/264274170) Remove Interop when FirebaseSessions releases and move to
     # FirebaseSessions.swift
     base_dir + 'Interop/*.h',
   ]

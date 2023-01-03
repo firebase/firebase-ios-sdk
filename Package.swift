@@ -1094,7 +1094,7 @@ let package = Package(
       ],
       path: "FirebaseSessions/Sources",
       cSettings: [
-        .headerSearchPath(".."),
+        .headerSearchPath("../.."),
         .define("DISPLAY_VERSION", to: firebaseVersion),
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
@@ -1141,7 +1141,10 @@ let package = Package(
     .testTarget(
       name: "FirebaseSessionsUnit",
       dependencies: ["FirebaseSessions"],
-      path: "FirebaseSessions/Tests/Unit"
+      path: "FirebaseSessions/Tests/Unit",
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
     ),
 
     // MARK: - Firebase Storage

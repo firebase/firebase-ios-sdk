@@ -18,6 +18,9 @@ import Foundation
 @_implementationOnly import FirebaseCoreExtension
 @_implementationOnly import FirebaseInstallations
 @_implementationOnly import GoogleDataTransport
+#if SWIFT_PACKAGE
+  import FirebaseSessionsObjC
+#endif // SWIFT_PACKAGE
 
 private enum GoogleDataTransportConfig {
   static let sessionsLogSource = "1974"
