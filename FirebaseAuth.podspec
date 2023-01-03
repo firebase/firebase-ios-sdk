@@ -19,7 +19,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
 
   s.social_media_url = 'https://twitter.com/Firebase'
 
-  ios_deployment_target = '10.0'
+  ios_deployment_target = '14.0' # TODO: change back to 11.0 after implementation done
   osx_deployment_target = '10.12'
   tvos_deployment_target = '10.0'
   watchos_deployment_target = '6.0'
@@ -51,10 +51,12 @@ supports email and password accounts, as well as several 3rd party authenticatio
   }
   s.framework = 'Security'
   s.ios.framework = 'SafariServices'
+  s.static_framework = true
   s.dependency 'FirebaseCore', '~> 9.0'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.7'
   s.dependency 'GoogleUtilities/Environment', '~> 7.7'
   s.dependency 'GTMSessionFetcher/Core', '>= 1.7', '< 3.0'
+  s.dependency 'RecaptchaEnterprise', '~> 18.0.0'
 
   # Using environment variable because of the dependency on the unpublished
   # HeartbeatLoggingTestUtils.
