@@ -19,6 +19,7 @@
 
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
+#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
@@ -324,6 +325,180 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   // timeout error <end>.
   // This make us sure that there no threads "stucked" on `-checkAndWaitForInitialDatabaseLoad`.
   [self waitForExpectationsWithTimeout:0.5 * kDatabaseLoadTimeoutSecs handler:nil];
+}
+
+- (void)testConfigUpdate_noChange_emptyResponse {
+  NSString *namespace = @"test_namespace";
+
+  // populate fetched config
+  NSMutableDictionary *fetchResponse =
+      [self createFetchResponseWithConfigEntries:@{@"key1" : @"value1"} p13nMetadata:nil];
+  [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
+
+  // active config is the same as fetched config
+  FIRRemoteConfigValue *value =
+      [[FIRRemoteConfigValue alloc] initWithData:[@"value1" dataUsingEncoding:NSUTF8StringEncoding]
+                                          source:FIRRemoteConfigSourceRemote];
+  NSDictionary *namespaceToConfig = @{namespace : @{@"key1" : value}};
+  [_configContent copyFromDictionary:namespaceToConfig
+                            toSource:RCNDBSourceActive
+                        forNamespace:namespace];
+
+  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
+
+  XCTAssertTrue([update updatedParams].count == 0);
+}
+
+- (void)testConfigUpdate_paramAdded_returnsNewKey {
+  NSString *namespace = @"test_namespace";
+  NSString *newParam = @"key2";
+
+  // populate active config
+  FIRRemoteConfigValue *value =
+      [[FIRRemoteConfigValue alloc] initWithData:[@"value1" dataUsingEncoding:NSUTF8StringEncoding]
+                                          source:FIRRemoteConfigSourceRemote];
+  NSDictionary *namespaceToConfig = @{namespace : @{@"key1" : value}};
+  [_configContent copyFromDictionary:namespaceToConfig
+                            toSource:RCNDBSourceActive
+                        forNamespace:namespace];
+
+  // fetch response has new param
+  NSMutableDictionary *fetchResponse =
+      [self createFetchResponseWithConfigEntries:@{@"key1" : @"value1", newParam : @"value2"}
+                                    p13nMetadata:nil];
+  [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
+
+  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
+
+  XCTAssertTrue([update updatedParams].count == 1);
+  XCTAssertTrue([[update updatedParams] containsObject:newParam]);
+}
+
+- (void)testConfigUpdate_paramValueChanged_returnsUpdatedKey {
+  NSString *namespace = @"test_namespace";
+  NSString *existingParam = @"key1";
+  NSString *oldValue = @"value1";
+  NSString *updatedValue = @"value2";
+
+  // active config contains old value
+  FIRRemoteConfigValue *value =
+      [[FIRRemoteConfigValue alloc] initWithData:[oldValue dataUsingEncoding:NSUTF8StringEncoding]
+                                          source:FIRRemoteConfigSourceRemote];
+  NSDictionary *namespaceToConfig = @{namespace : @{existingParam : value}};
+  [_configContent copyFromDictionary:namespaceToConfig
+                            toSource:RCNDBSourceActive
+                        forNamespace:namespace];
+
+  // fetch response contains updated value
+  NSMutableDictionary *fetchResponse =
+      [self createFetchResponseWithConfigEntries:@{existingParam : updatedValue} p13nMetadata:nil];
+  [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
+
+  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
+
+  XCTAssertTrue([update updatedParams].count == 1);
+  XCTAssertTrue([[update updatedParams] containsObject:existingParam]);
+}
+
+- (void)testConfigUpdate_paramDeleted_returnsDeletedKey {
+  NSString *namespace = @"test_namespace";
+  NSString *existingParam = @"key1";
+  NSString *newParam = @"key2";
+  NSString *value1 = @"value1";
+
+  // populate active config
+  FIRRemoteConfigValue *value =
+      [[FIRRemoteConfigValue alloc] initWithData:[value1 dataUsingEncoding:NSUTF8StringEncoding]
+                                          source:FIRRemoteConfigSourceRemote];
+  NSDictionary *namespaceToConfig = @{namespace : @{existingParam : value}};
+  [_configContent copyFromDictionary:namespaceToConfig
+                            toSource:RCNDBSourceActive
+                        forNamespace:namespace];
+
+  // fetch response does not contain existing param
+  NSMutableDictionary *fetchResponse =
+      [self createFetchResponseWithConfigEntries:@{newParam : value1} p13nMetadata:nil];
+  [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
+
+  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
+
+  XCTAssertTrue([update updatedParams].count == 2);
+  XCTAssertTrue([[update updatedParams] containsObject:existingParam]);  // deleted
+  XCTAssertTrue([[update updatedParams] containsObject:newParam]);       // added
+}
+
+- (void)testConfigUpdate_p13nMetadataUpdated_returnsKey {
+  NSString *namespace = @"test_namespace";
+  NSString *existingParam = @"key1";
+  NSString *value1 = @"value1";
+  NSString *oldMetadata = @"metadata1";
+  NSString *updatedMetadata = @"metadata2";
+
+  // popuate fetched config
+  NSMutableDictionary *fetchResponse =
+      [self createFetchResponseWithConfigEntries:@{existingParam : value1}
+                                    p13nMetadata:@{existingParam : oldMetadata}];
+  [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
+
+  // populate active config with the same content
+  [_configContent activatePersonalization];
+  FIRRemoteConfigValue *value =
+      [[FIRRemoteConfigValue alloc] initWithData:[value1 dataUsingEncoding:NSUTF8StringEncoding]
+                                          source:FIRRemoteConfigSourceRemote];
+  NSDictionary *namespaceToConfig = @{namespace : @{existingParam : value}};
+  [_configContent copyFromDictionary:namespaceToConfig
+                            toSource:RCNDBSourceActive
+                        forNamespace:namespace];
+
+  // fetched response has updated p13n metadata
+  [fetchResponse setValue:@{existingParam : updatedMetadata}
+                   forKey:RCNFetchResponseKeyPersonalizationMetadata];
+  [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
+
+  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
+
+  XCTAssertTrue([update updatedParams].count == 1);
+  XCTAssertTrue([[update updatedParams] containsObject:existingParam]);
+}
+
+- (void)testConfigUpdate_valueSourceChanged_returnsKey {
+  NSString *namespace = @"test_namespace";
+  NSString *existingParam = @"key1";
+  NSString *value1 = @"value1";
+
+  // set default config
+  FIRRemoteConfigValue *value =
+      [[FIRRemoteConfigValue alloc] initWithData:[value1 dataUsingEncoding:NSUTF8StringEncoding]
+                                          source:FIRRemoteConfigSourceDefault];
+  NSDictionary *namespaceToConfig = @{namespace : @{existingParam : value}};
+  [_configContent copyFromDictionary:namespaceToConfig
+                            toSource:RCNDBSourceDefault
+                        forNamespace:namespace];
+
+  // fetch response contains same key->value
+  NSMutableDictionary *fetchResponse =
+      [self createFetchResponseWithConfigEntries:@{existingParam : value1} p13nMetadata:nil];
+  [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
+
+  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
+
+  XCTAssertTrue([update updatedParams].count == 1);
+  XCTAssertTrue([[update updatedParams] containsObject:existingParam]);
+}
+
+#pragma mark - Test Helpers
+
+- (NSMutableDictionary *)createFetchResponseWithConfigEntries:(NSDictionary *)config
+                                                 p13nMetadata:(NSDictionary *)metadata {
+  NSMutableDictionary *fetchResponse = [[NSMutableDictionary alloc]
+      initWithObjectsAndKeys:RCNFetchResponseKeyStateUpdate, RCNFetchResponseKeyState, nil];
+  if (config) {
+    [fetchResponse setValue:config forKey:RCNFetchResponseKeyEntries];
+  }
+  if (metadata) {
+    [fetchResponse setValue:metadata forKey:RCNFetchResponseKeyPersonalizationMetadata];
+  }
+  return fetchResponse;
 }
 
 @end

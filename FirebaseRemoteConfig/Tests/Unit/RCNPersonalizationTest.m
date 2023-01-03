@@ -35,7 +35,8 @@
 
 - (void)fetchWithUserProperties:(NSDictionary *)userProperties
                 fetchTypeHeader:(NSString *)fetchTypeHeader
-              completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
+              completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler
+        updateCompletionHandler:(RCNConfigFetchCompletion)updateCompletionHandler;
 @end
 
 @interface RCNPersonalizationTest : XCTestCase {
@@ -247,7 +248,8 @@
         [invocation getArgument:&handler atIndex:3];
         [configFetch fetchWithUserProperties:[[NSDictionary alloc] init]
                              fetchTypeHeader:@"Base/1"
-                           completionHandler:handler];
+                           completionHandler:handler
+                     updateCompletionHandler:nil];
       });
   OCMExpect([configFetch
                 URLSessionDataTaskWithContent:[OCMArg any]

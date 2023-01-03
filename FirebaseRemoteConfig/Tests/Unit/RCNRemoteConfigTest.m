@@ -51,11 +51,11 @@
 - (void)fetchConfigWithExpirationDuration:(NSTimeInterval)expirationDuration
                         completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
 - (void)realtimeFetchConfigWithNoExpirationDuration:(NSInteger)fetchAttemptNumber
-                                  completionHandler:
-                                      (FIRRemoteConfigFetchCompletion)completionHandler;
+                                  completionHandler:(RCNConfigFetchCompletion)completionHandler;
 - (void)fetchWithUserProperties:(NSDictionary *)userProperties
                 fetchTypeHeader:(NSString *)fetchTypeHeader
-              completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
+              completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler
+        updateCompletionHandler:(RCNConfigFetchCompletion)updateCompletionHandler;
 - (NSString *)constructServerURL;
 - (NSURLSession *)currentNetworkSession;
 @end
@@ -74,8 +74,8 @@
 - (void)pauseRealtimeStream;
 
 - (FIRConfigUpdateListenerRegistration *_Nonnull)addConfigUpdateListener:
-    (void (^_Nonnull)(NSError *_Nullable error))listener;
-- (void)removeConfigUpdateListener:(void (^_Nonnull)(NSError *_Nullable error))listener;
+    (RCNConfigUpdateCompletion _Nonnull)listener;
+- (void)removeConfigUpdateListener:(RCNConfigUpdateCompletion _Nonnull)listener;
 - (void)evaluateStreamResponse:(NSDictionary *)response error:(NSError *)dataError;
 
 @end
@@ -253,7 +253,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
       [invocation getArgument:&handler atIndex:3];
       [self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
                                      fetchTypeHeader:@"Base/1"
-                                   completionHandler:handler];
+                                   completionHandler:handler
+                             updateCompletionHandler:nil];
     });
 
     _response[i] = @{@"state" : @"UPDATE", @"entries" : _entries[i]};
@@ -637,7 +638,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
           [invocation getArgument:&handler atIndex:3];
           [self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
                                          fetchTypeHeader:@"Base/1"
-                                       completionHandler:handler];
+                                       completionHandler:handler
+                                 updateCompletionHandler:nil];
         });
 
     _response[i] = @{};
@@ -758,7 +760,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
           [invocation getArgument:&handler atIndex:3];
           [self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
                                          fetchTypeHeader:@"Base/1"
-                                       completionHandler:handler];
+                                       completionHandler:handler
+                                 updateCompletionHandler:nil];
         });
 
     _response[i] = @{};
@@ -853,7 +856,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         [invocation getArgument:&handler atIndex:3];
         [configFetch fetchWithUserProperties:[[NSDictionary alloc] init]
                              fetchTypeHeader:@"Base/1"
-                           completionHandler:handler];
+                           completionHandler:handler
+                     updateCompletionHandler:nil];
       });
   _responseData[0] = [NSJSONSerialization dataWithJSONObject:@{} options:0 error:nil];
 
@@ -966,7 +970,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
           [invocation getArgument:&handler atIndex:3];
           [self->_configFetch[i] fetchWithUserProperties:[[NSDictionary alloc] init]
                                          fetchTypeHeader:@"Base/1"
-                                       completionHandler:handler];
+                                       completionHandler:handler
+                                 updateCompletionHandler:nil];
         });
 
     _response[i] = @{@"state" : @"NO_CHANGE"};
@@ -1559,7 +1564,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
                 stringWithFormat:@"Test Realtime add listener successfully - instance %d", i]];
 
     OCMStub([_configRealtime[i] beginRealtimeStream]).andDo(nil);
-    id completion = ^void(NSError *_Nullable error) {
+    id completion = ^void(FIRRemoteConfigUpdate *_Nullable configUpdate, NSError *_Nullable error) {
       if (error != nil) {
         NSLog(@"Callback");
       }
@@ -1610,7 +1615,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
             [NSString
                 stringWithFormat:@"Test Realtime remove listeners successfully - instance %d", i]];
 
-    id completion = ^void(NSError *_Nullable error) {
+    id completion = ^void(FIRRemoteConfigUpdate *_Nullable configUpdate, NSError *_Nullable error) {
       if (error != nil) {
         NSLog(@"Callback");
       }
@@ -1695,7 +1700,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
 
     OCMStub([_configRealtime[i] beginRealtimeStream]).andDo(nil);
 
-    id completion = ^void(NSError *_Nullable error) {
+    id completion = ^void(FIRRemoteConfigUpdate *_Nullable configUpdate, NSError *_Nullable error) {
       if (error != nil) {
         NSLog(@"Callback");
       }

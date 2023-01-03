@@ -65,9 +65,6 @@ typedef void (^RCNConfigFetchCompletion)(FIRRemoteConfigFetchStatus status,
 /// Add the ability to update NSURLSession's timeout after a session has already been created.
 - (void)recreateNetworkSession;
 
-/// Returns the difference between fetched and active config.
-- (nonnull FIRRemoteConfigUpdate *)getConfigUpdateWithFetchResponse:(NSDictionary *)fetchResponse;
-
 /// Provide fetchSession for tests to override.
 @property(nonatomic, readwrite, strong, nonnull) NSURLSession *fetchSession;
 

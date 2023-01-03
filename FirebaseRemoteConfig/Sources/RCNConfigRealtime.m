@@ -445,7 +445,6 @@ static NSInteger const gMaxRetries = 7;
                                         [strongSelf autoFetch:attempts targetVersion:targetVersion];
                                       }
                                     } else {
-                                      // TODO: does it ever get here? no error and status != success
                                       FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000016",
                                                   @"Fetched config's template version is "
                                                   @"outdated, re-fetching");

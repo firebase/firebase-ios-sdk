@@ -515,11 +515,15 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
       // Fetch was successful. Check if we have data.
       NSError *retError;
       if (!data) {
-        // TODO: what to do here?
         FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000043", @"RCN Fetch: No data in fetch response");
-        return [strongSelf reportCompletionOnHandler:completionHandler
-                                          withStatus:FIRRemoteConfigFetchStatusSuccess
-                                           withError:nil];
+        // There may still be a difference between fetched and active config
+        FIRRemoteConfigUpdate *update =
+            [strongSelf->_content getConfigUpdateForNamespace:strongSelf->_FIRNamespace];
+        return [strongSelf reportCompletionWithStatus:FIRRemoteConfigFetchStatusSuccess
+                                           withUpdate:update
+                                            withError:nil
+                                    completionHandler:completionHandler
+                              updateCompletionHandler:updateCompletionHandler];
       }
 
       // Config fetch succeeded.
@@ -566,11 +570,7 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
       }
 
       // Add the fetched config to the database.
-      FIRRemoteConfigUpdate *update = nil;
       if (fetchedConfig) {
-        // fetchedConfig contains config + p13n + ABT
-        update = [self getConfigUpdateWithFetchResponse:fetchedConfig];
-
         // Update config content to cache and DB.
         [strongSelf->_content updateConfigContentWithResponse:fetchedConfig
                                                  forNamespace:strongSelf->_FIRNamespace];
@@ -594,6 +594,9 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
           !([strongSelf->_settings.lastETag isEqualToString:latestETag])) {
         strongSelf->_settings.lastETag = latestETag;
       }
+      // Compute config update after successful fetch
+      FIRRemoteConfigUpdate *update =
+          [strongSelf->_content getConfigUpdateForNamespace:strongSelf->_FIRNamespace];
 
       [strongSelf->_settings
           updateMetadataWithFetchSuccessStatus:YES
@@ -687,57 +690,6 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
   }
 
   return @"0";
-}
-
-- (FIRRemoteConfigUpdate *)getConfigUpdateWithFetchResponse:(NSDictionary *)fetchResponse {
-  // TODO: handle diff in experiment metadata
-
-  FIRRemoteConfigUpdate *configUpdate;
-  NSMutableSet<NSString *> *updatedParams = [[NSMutableSet alloc] init];
-  //  NSDictionary *activeContent = [_content getConfigAndMetadataForNamespace:_FIRNamespace];
-
-  NSDictionary *fetchedConfig = fetchResponse[RCNFetchResponseKeyEntries]
-                                    ? fetchResponse[RCNFetchResponseKeyEntries]
-                                    : [[NSDictionary alloc] init];
-  NSDictionary *activeConfig = [_content activeConfig][_FIRNamespace]
-                                   ? [_content activeConfig][_FIRNamespace]
-                                   : [[NSDictionary alloc] init];
-
-  NSDictionary *fetchedP13n = fetchResponse[RCNFetchResponseKeyPersonalizationMetadata]
-                                  ? fetchResponse[RCNFetchResponseKeyPersonalizationMetadata]
-                                  : [[NSDictionary alloc] init];
-  NSDictionary *activeP13n = [_content activePersonalization];
-
-  // new = in fetched !in active
-  // updated = fetched != active
-  for (NSString *key in [fetchedConfig allKeys]) {
-    if (activeConfig[key] == nil ||
-        ![[activeConfig[key] stringValue] isEqualToString:fetchedConfig[key]]) {
-      [updatedParams addObject:key];
-    }
-  }
-  // deleted = !in fetched in active
-  for (NSString *activeKey in [activeConfig allKeys]) {
-    if (fetchedConfig[activeKey] == nil) {
-      [updatedParams addObject:activeKey];
-    }
-  }
-
-  // compare fetched and active p13n metadata
-  for (NSString *key in [fetchedP13n allKeys]) {
-    if (activeP13n[key] == nil || ![activeP13n[key] isEqualToString:fetchedP13n[key]]) {
-      [updatedParams addObject:key];
-    }
-  }
-  // deleted = !in fetched in active
-  for (NSString *activeKey in [activeP13n allKeys]) {
-    if (fetchedP13n[activeKey] == nil) {
-      [updatedParams addObject:activeKey];
-    }
-  }
-
-  configUpdate = [[FIRRemoteConfigUpdate alloc] initWithUpdatedParams:updatedParams];
-  return configUpdate;
 }
 
 @end
