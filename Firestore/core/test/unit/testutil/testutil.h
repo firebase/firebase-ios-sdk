@@ -160,6 +160,10 @@ nanopb::Message<google_firestore_v1_Value> Value(
 nanopb::Message<google_firestore_v1_Value> Value(
     const model::ObjectValue& value);
 
+using OverlayTypeMap = std::unordered_map<model::DocumentKey,
+                                          model::Mutation::Type,
+                                          model::DocumentKeyHash>;
+
 namespace details {
 
 /**
@@ -526,12 +530,6 @@ model::FieldIndex MakeFieldIndex(const std::string& collection_group,
                                  model::IndexState state,
                                  const std::string& field_1,
                                  model::Segment::Kind kind_1);
-// Helper function to construct overlay type map
-std::unordered_map<model::DocumentKey,
-                   model::Mutation::Type,
-                   model::DocumentKeyHash>
-OverlayTypeMap(
-    std::vector<std::pair<model::DocumentKey, model::Mutation::Type>> pairs);
 
 }  // namespace testutil
 }  // namespace firestore

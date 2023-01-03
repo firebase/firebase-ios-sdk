@@ -27,7 +27,7 @@ namespace firestore {
 namespace model {
 
 /**
- * Represents a local view (overlay) of a document, and the fields that are //
+ * Represents a local view (overlay) of a document, and the fields that are
  * locally mutated.
  */
 class OverlayedDocument {
