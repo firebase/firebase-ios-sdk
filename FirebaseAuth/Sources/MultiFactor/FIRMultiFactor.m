@@ -181,14 +181,14 @@ static NSString *kUserCodingKey = @"user";
     NSArray<FIRMultiFactorInfo *> *enrolledFactors =
         [aDecoder decodeObjectForKey:kEnrolledFactorsCodingKey];
     _enrolledFactors = enrolledFactors;
-    _user = [aDecoder decodeObjectOfClass:[FIRUser class] forKey:kUserCodingKey];
+    // Do not decode `user` weak property.
   }
   return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
   [aCoder encodeObject:_enrolledFactors forKey:kEnrolledFactorsCodingKey];
-  [aCoder encodeObject:_user forKey:kUserCodingKey];
+  // Do not encode `user` weak property.
 }
 
 @end
