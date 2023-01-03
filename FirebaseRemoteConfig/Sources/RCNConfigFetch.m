@@ -208,6 +208,10 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
 
 - (void)realtimeFetchConfigWithNoExpirationDuration:(NSInteger)fetchAttemptNumber
                                   completionHandler:(RCNConfigFetchCompletion)completionHandler {
+  // Note: We expect the googleAppID to always be available.
+  BOOL hasDeviceContextChanged =
+      FIRRemoteConfigHasDeviceContextChanged(_settings.deviceContext, _options.googleAppID);
+
   __weak RCNConfigFetch *weakSelf = self;
   dispatch_async(_lockQueue, ^{
     RCNConfigFetch *strongSelf = weakSelf;
@@ -215,17 +219,48 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
       return;
     }
 
-    // If a fetch is in progress, return failure to prompt retry
-    // TODO: is this a necessary check?
+    // Check if a fetch is already in progress.
+    // TODO: for this case should we still return a SUCCESS status?
     if (strongSelf->_settings.isFetchInProgress) {
-      FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000053",
-                  @"A fetch is already in progress. Ignoring duplicate request.");
+      // Check if we have some fetched data.
+      if (strongSelf->_settings.lastFetchTimeInterval > 0) {
+        FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000052",
+                    @"A fetch is already in progress. Using previous fetch results.");
+        FIRRemoteConfigUpdate * update = [self->_content getConfigUpdateForNamespace:self->_FIRNamespace];
+        return [strongSelf reportCompletionWithStatus:strongSelf->_settings.lastFetchStatus
+                                           withUpdate:update
+                                            withError:nil
+                                    completionHandler:nil
+                              updateCompletionHandler:completionHandler];
+      } else {
+        FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000053",
+                    @"A fetch is already in progress. Ignoring duplicate request.");
+        NSError *error =
+        [NSError errorWithDomain:FIRRemoteConfigErrorDomain
+                            code:sFIRErrorCodeConfigFailed
+                        userInfo:@{
+          NSLocalizedDescriptionKey :
+            @"FetchError: Duplicate request while the previous one is pending"
+        }];
+        return [strongSelf reportCompletionWithStatus:FIRRemoteConfigFetchStatusFailure
+                                           withUpdate:nil
+                                            withError:error
+                                    completionHandler:nil
+                              updateCompletionHandler:completionHandler];
+      }
+    }
+    // Check whether cache data is within throttle limit.
+    if ([strongSelf->_settings shouldThrottle] && !hasDeviceContextChanged) {
+      // Must set lastFetchStatus before FailReason.
+      strongSelf->_settings.lastFetchStatus = FIRRemoteConfigFetchStatusThrottled;
+      strongSelf->_settings.lastFetchError = FIRRemoteConfigErrorThrottled;
+      NSTimeInterval throttledEndTime = strongSelf->_settings.exponentialBackoffThrottleEndTime;
+
       NSError *error =
           [NSError errorWithDomain:FIRRemoteConfigErrorDomain
-                              code:sFIRErrorCodeConfigFailed
+                              code:FIRRemoteConfigErrorThrottled
                           userInfo:@{
-                            NSLocalizedDescriptionKey :
-                                @"FetchError: Duplicate request while the previous one is pending"
+                            FIRRemoteConfigThrottledEndTimeInSecondsKey : @(throttledEndTime)
                           }];
       return [strongSelf reportCompletionWithStatus:FIRRemoteConfigFetchStatusFailure
                                          withUpdate:nil
