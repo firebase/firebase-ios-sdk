@@ -27,9 +27,9 @@ NS_SWIFT_NAME(SessionsSubscriber)
 
 - (void)onSessionIDChanged:(NSString *)sessionID;
 
-@property (nonatomic, readonly) BOOL isDataCollectionEnabled;
+@property(nonatomic, readonly) BOOL isDataCollectionEnabled;
 
-@property (nonatomic, readonly) FIRSessionsSubscriberName subscriberName;
+@property(nonatomic, readonly) FIRSessionsSubscriberName subscriberName;
 
 @end
 
