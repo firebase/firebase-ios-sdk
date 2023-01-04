@@ -22,9 +22,9 @@
    * - Returns: A valid Auth Exchange token.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
-  func getToken(forceRefresh: Bool) async throws -> String
+  func getTokenInternal(forceRefresh: Bool) async throws -> String
 
-  /** See `getToken(forceRefresh:)`. */
-  @objc(getTokenForcingRefresh:completion:)
-  func getToken(forceRefresh: Bool, completion: (String?, Error?) -> Void)
+  /** See `getTokenInternal(forceRefresh:)`. */
+  @objc(getTokenInternalForcingRefresh:completion:)
+  func getTokenInternal(forceRefresh: Bool, completion: @escaping (String?, Error?) -> Void)
 }

@@ -14,7 +14,6 @@
 
 #import "AppDelegate.h"
 #import <FirebaseCore/FIRApp.h>
-#import <FirebaseInstallations/FirebaseInstallations.h>
 
 @interface AppDelegate ()
 
@@ -28,7 +27,11 @@
   [FIRApp configure];
   FIRAuthExchange *authExchange = [FIRAuthExchange authExchange];
   authExchange.authExchangeDelegate = self;
-  [authExchange clearAuthExchangeToken];
+  [authExchange clearStateWithCompletion:^(NSError *_Nullable error) {
+    if (error) {
+      NSLog(@"Error occured while clearing AuthExchange state");
+    }
+  }];
   return YES;
 }
 
@@ -51,34 +54,25 @@
   // resources that were specific to the discarded scenes, as they will not return.
 }
 
-- (void)authExchangeTokenWithCompletion:(void (^)(FIRAuthExchangeToken *_Nullable authExchangeToken,
-                                                  NSError *_Nullable error))completion {
-  [[FIRInstallations installations]
-      authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable result,
-                                NSError *_Nullable error) {
-        if (error) {
-          NSLog(@"FIRInstallations#authTokenWithCompletion failure");
-          completion(nil, error);
-        } else {
-          [[FIRAuthExchange authExchange]
-              exchangeInstallationsToken:result.authToken
-                              completion:^(FIRAuthExchangeResult *_Nullable result,
-                                           NSError *_Nullable error) {
-                                if (error) {
-                                  NSLog(@"FIRAuthExchange#exchangeInstallationsToken failure");
-                                  completion(nil, error);
-                                } else {
-                                  NSLog(@"FIRAuthExchange#exchangeInstallationsToken success");
-                                  completion(result.authExchangeToken, nil);
-                                }
-                              }];
-        }
-      }];
+- (void)tokenForAuthExchange:(FIRAuthExchange *)authExchange
+                  completion:(void (^)(FIRAuthExchangeToken *_Nullable authExchangeToken,
+                                       NSError *_Nullable error))completion {
+  [authExchange updateWithInstallationsTokenWithCompletion:^(
+                    FIRAuthExchangeResult *_Nullable result, NSError *_Nullable error) {
+    if (error) {
+      NSLog(@"FIRAuthExchange#updateWithInstallationsToken failure");
+      completion(nil, error);
+    } else {
+      NSLog(@"FIRAuthExchange#updateWithInstallationsToken success");
+      completion(result.authExchangeToken, nil);
+    }
+  }];
 }
 
-- (void)refreshAuthExchangeTokenWithCompletion:(void (^_Nonnull)(FIRAuthExchangeToken *_Nullable,
-                                                                 NSError *_Nullable))completion {
-  [self authExchangeTokenWithCompletion:completion];
+- (void)refreshTokenForAuthExchange:(FIRAuthExchange *)authExchange
+                         completion:(void (^_Nonnull)(FIRAuthExchangeToken *_Nullable,
+                                                      NSError *_Nullable))completion {
+  [self tokenForAuthExchange:authExchange completion:completion];
 }
 
 @end

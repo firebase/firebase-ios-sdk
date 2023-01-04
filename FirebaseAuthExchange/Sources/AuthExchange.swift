@@ -19,12 +19,16 @@ import FirebaseCore
    * This method is invoked whenever a new Auth Exchange token is needed. Developers should implement this method to request a
    * new token from an identity provider and then exchange it for a new Auth Exchange token.
    */
-  @objc(refreshAuthExchangeTokenWithCompletion:)
-  func refreshAuthExchangeToken(completion: @escaping (AuthExchangeToken?, Error?) -> Void)
+  @objc(refreshTokenForAuthExchange:completion:)
+  func refreshToken(authExchange: AuthExchange,
+                    completion: @escaping (AuthExchangeToken?, Error?) -> Void)
 }
 
 @objc(FIRAuthExchange) public class AuthExchange: NSObject, AuthExchangeInterop {
   // MARK: - Public APIs
+
+  /** The delegate object used to request a new Auth Exchange token when the current one has expired. */
+  @objc public var authExchangeDelegate: AuthExchangeDelegate?
 
   /** Creates an `AuthExchange` instance, initialized with the default `FirebaseApp`. */
   @objc public static func authExchange() -> AuthExchange {
@@ -39,59 +43,113 @@ import FirebaseCore
     return instance
   }
 
-  /// Returns the current Auth Exchange token if valid and fetches a new one from the backend
-  /// otherwise. If `forceRefresh` is true, then a new token is fetched regardless of the
-  /// validity of the stored token.
-  ///
-  /// In order for a new token to be successfully fetched, a `TokenRefreshHandler` must be
-  /// registered.
+  /**
+   * Returns the current Auth Exchange token if valid and fetches a new one from the backend otherwise. If `forceRefresh` is true,
+   * then a new token is fetched regardless of the validity of the stored token.
+   *
+   * In order for a new token to be successfully fetched, an `AuthExchangeDelegate` must be registered.
+   */
   @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
-  public func getAuthExchangeToken(forceRefresh: Bool) async throws -> AuthExchangeToken? {
+  public func getToken(forceRefresh: Bool) async throws -> AuthExchangeToken? {
     // TODO: Implement methods.
     return authExchangeToken
   }
 
-  /// See `getAuthExchangeToken(forceRefresh:)`.
-  @objc(getAuthExchangeTokenForcingRefresh:completion:)
-  public func getAuthExchangeToken(forceRefresh: Bool,
-                                   completion: (AuthExchangeToken?, Error?) -> Void) {
+  /** See `getToken(forceRefresh:)`. */
+  @objc(getTokenForcingRefresh:completion:)
+  public func getToken(forceRefresh: Bool,
+                       completion: @escaping (AuthExchangeToken?, Error?) -> Void) {
     // TODO: Implement methods.
 
     completion(authExchangeToken, nil)
   }
 
-  /** The delegate object used to request a new Auth Exchange token when the current one has expired. */
-  @objc public var authExchangeDelegate: AuthExchangeDelegate?
-
-  @objc public func clearAuthExchangeToken() {
+  /** Clears the stored Auth Exchange token and delegate, if one is set. */
+  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
+  public func clearState() async throws {
     // TODO: Implement methods.
   }
 
-  // MARK: - Exchange Token APIs
-
-  // TODO: Replace this test function with real implementation.
-  @objc(exchangeInstallationsToken:completion:)
-  public func exchange(installationsToken: String,
-                       handler: @escaping (AuthExchangeResult?, Error?) -> Void) {
-    let token = AuthExchangeToken(token: installationsToken, expirationDate: Date())
-    let result = AuthExchangeResult(
-      authExchangeToken: token,
-      providerIDToken: "ID123",
-      providerRefreshToken: "refresh123"
-    )
-    handler(result, nil)
+  /** See `clearState()`. */
+  @objc(clearStateWithCompletion:)
+  public func clearState(completion: (Error?) -> Void) {
+    // TODO: Implement methods.
   }
 
-  // TODO: Replace this test function with real implementation.
+  /**
+   * Exchanges a custom token for an `AuthExchangeToken` and updates the `AuthExchange` instance with the
+   * `AuthExchangeToken`.
+   */
   @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
-  public func exchange(installationsToken: String) async throws -> AuthExchangeResult? {
-    let token = AuthExchangeToken(token: installationsToken, expirationDate: Date())
+  public func updateWith(customToken: String) async throws -> AuthExchangeResult {
+    // TODO: Replace this test function with real implementation.
+    let token = AuthExchangeToken(token: "token", expirationDate: Date())
     let result = AuthExchangeResult(
-      authExchangeToken: token,
-      providerIDToken: "ID123",
-      providerRefreshToken: "refresh123"
+      authExchangeToken: token
     )
     return result
+  }
+
+  /** See `updateWith(customToken:)`. */
+  @objc public func updateWith(customToken: String,
+                               completion: @escaping (AuthExchangeResult?, Error?) -> Void) {
+    // TODO: Replace this test function with real implementation.
+    let token = AuthExchangeToken(token: "token", expirationDate: Date())
+    let result = AuthExchangeResult(
+      authExchangeToken: token
+    )
+    completion(result, nil)
+  }
+
+  /**
+   * Exchanges a Firebase Installations token for an `AuthExchangeToken` and updates the `AuthExchange` instance with the
+   * `AuthExchangeToken`.
+   */
+  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
+  public func updateWithInstallationsToken() async throws -> AuthExchangeResult {
+    // TODO: Replace this test function with real implementation.
+    let token = AuthExchangeToken(token: "token", expirationDate: Date())
+    let result = AuthExchangeResult(
+      authExchangeToken: token
+    )
+    return result
+  }
+
+  /** See `updateWithInstallationsToken()`. */
+  @objc(updateWithInstallationsTokenWithCompletion:)
+  public func updateWithInstallationsToken(completion: @escaping (AuthExchangeResult?, Error?)
+    -> Void) {
+    // TODO: Replace this test function with real implementation.
+    let token = AuthExchangeToken(token: "token", expirationDate: Date())
+    let result = AuthExchangeResult(
+      authExchangeToken: token
+    )
+    completion(result, nil)
+  }
+
+  /**
+   * Exchanges an OIDC token for an `AuthExchangeToken` and updates the `AuthExchange` instance with the
+   * `AuthExchangeToken`.
+   */
+  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
+  public func updateWith(OIDCToken: String) async throws -> AuthExchangeResult {
+    // TODO: Replace this test function with real implementation.
+    let token = AuthExchangeToken(token: "token", expirationDate: Date())
+    let result = AuthExchangeResult(
+      authExchangeToken: token
+    )
+    return result
+  }
+
+  /** See `updateWith(OIDCToken:)`. */
+  @objc public func updateWith(OIDCToken: String,
+                               completion: @escaping (AuthExchangeResult?, Error?) -> Void) {
+    // TODO: Replace this test function with real implementation.
+    let token = AuthExchangeToken(token: "token", expirationDate: Date())
+    let result = AuthExchangeResult(
+      authExchangeToken: token
+    )
+    completion(result, nil)
   }
 
   // MARK: - Internal APIs
@@ -116,18 +174,19 @@ import FirebaseCore
       print("[delegate] token: \(String(describing: token?.token))")
       // Auth exchange can do sth with this token
     }
-    authExchangeDelegate?.refreshAuthExchangeToken(completion: returnToAuthExchangeHandler)
+    authExchangeDelegate?.refreshToken(authExchange: self, completion: returnToAuthExchangeHandler)
   }
 
   // MARK: - Interop APIs
 
   @available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)
-  public func getToken(forceRefresh: Bool) async throws -> String {
+  public func getTokenInternal(forceRefresh: Bool) async throws -> String {
     // TODO: Implement interop methods.
     return "Unimplemented"
   }
 
-  public func getToken(forceRefresh: Bool, completion: (String?, Error?) -> Void) {
+  public func getTokenInternal(forceRefresh: Bool,
+                               completion: @escaping (String?, Error?) -> Void) {
     // TODO: Implement interop methods.
   }
 }

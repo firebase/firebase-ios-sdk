@@ -20,12 +20,14 @@ import FirebaseCore
 let testAsync = true
 
 class AppDelegate: NSObject, UIApplicationDelegate, AuthExchangeDelegate {
-  func refreshAuthExchangeToken(completion: @escaping (AuthExchangeToken?, Error?) -> Void) {
+  func refreshToken(authExchange: AuthExchange,
+                    completion: @escaping (AuthExchangeToken?, Error?) -> Void) {
     if testAsync {
       Task {
         do {
           // or `try await self.obtainAuthExchangeTokenWithCustomProvider()`
-          let authExchangeToken = try await self.obtainAuthExchangeTokenAsync()
+          let authExchangeToken = try await self
+            .obtainAuthExchangeTokenAsync(authExchange: authExchange)
           completion(authExchangeToken, nil)
         } catch {
           completion(nil, error)
@@ -33,7 +35,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, AuthExchangeDelegate {
       }
 
     } else {
-      obtainAuthExchangeToken(completion: completion)
+      obtainAuthExchangeToken(authExchange: authExchange, completion: completion)
     }
   }
 
@@ -46,49 +48,35 @@ class AppDelegate: NSObject, UIApplicationDelegate, AuthExchangeDelegate {
     authExchange.authExchangeDelegate = self
 
     authExchange.tryDelegate()
-    authExchange.clearAuthExchangeToken()
+    do {
+      try await authExchange.clearState()
+    } catch {
+      print("Error while clearing Auth Exchange state")
+    }
     return true
   }
 
-  func obtainAuthExchangeToken(completion: @escaping (AuthExchangeToken?, Error?) -> Void) {
-    Installations.installations().authToken(completion: { installationResult, error in
-      if let error = error {
-        print("Installations.authToken() failure: \(error).")
-        completion(nil, error)
-        return
-      }
-      guard let installationResult = installationResult else {
-        print("Installations.authToken() failure: Empty result")
-        return
-      }
-      AuthExchange.authExchange()
-        .exchange(installationsToken: installationResult.authToken, handler: { result, error in
-          if let error = error {
-            print("AuthExchange.exchange(installationsToken:) failure")
-            completion(nil, error)
-          } else {
-            print("AuthExchange.exchange(installationsToken:) success")
-            completion(result?.authExchangeToken, nil)
-          }
-        })
-    })
+  func obtainAuthExchangeToken(authExchange: AuthExchange,
+                               completion: @escaping (AuthExchangeToken?, Error?) -> Void) {
+    authExchange
+      .updateWithInstallationsToken(completion: { result, error in
+        if let error = error {
+          print("AuthExchange.updateWithInstallationsToken() failure")
+          completion(nil, error)
+        } else {
+          print("AuthExchange.updateWithInstallationsToken() success")
+          completion(result?.authExchangeToken, nil)
+        }
+      })
   }
 
-  func obtainAuthExchangeTokenAsync() async throws -> AuthExchangeToken? {
+  func obtainAuthExchangeTokenAsync(authExchange: AuthExchange) async throws -> AuthExchangeToken? {
     do {
-      let result = try await Installations.installations().authToken()
-      do {
-        let authExchangeResult = try await AuthExchange.authExchange()
-          .exchange(installationsToken: result.authToken)
-        return authExchangeResult?.authExchangeToken ?? AuthExchangeToken(
-          token: "",
-          expirationDate: Date()
-        )
-      } catch {
-        print("AuthExchange.exchange(installationsToken:) failure")
-      }
+      let authExchangeResult = try await authExchange.updateWithInstallationsToken()
+      print("AuthExchange.updateWithInstallationsToken() success")
+      return authExchangeResult.authExchangeToken
     } catch {
-      print("Installations.authToken() failure: \(error).")
+      print("AuthExchange.updateWithInstallationsToken() failure")
     }
     return nil
   }
