@@ -16,7 +16,6 @@
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIROAuthProvider.h"
 #include <CommonCrypto/CommonCrypto.h>
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRFacebookAuthProvider.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIROAuthCredential.h"
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
@@ -210,9 +209,9 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
   */
 - (nullable instancetype)initWithProviderID:(NSString *)providerID auth:(FIRAuth *)auth {
   if (!auth.requestConfiguration.emulatorHostAndPort) {
-    NSAssert(![providerID isEqual:FIRFacebookAuthProviderID],
-             @"Sign in with Facebook is not supported via generic IDP; the Facebook TOS "
-              "dictate that you must use the Facebook iOS SDK for Facebook login.");
+//    NSAssert(![providerID isEqual:FIRFacebookAuthProviderID],
+//             @"Sign in with Facebook is not supported via generic IDP; the Facebook TOS "
+//              "dictate that you must use the Facebook iOS SDK for Facebook login.");
     NSAssert(![providerID isEqual:@"apple.com"],
              @"Sign in with Apple is not supported via generic IDP; You must use the Apple iOS SDK"
               " for Sign in with Apple.");
