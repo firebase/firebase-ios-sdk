@@ -1089,11 +1089,11 @@ let package = Package(
         "FirebaseInstallations",
         "FirebaseCoreExtension",
         "FirebaseSessionsObjC",
+        .product(name: "Promises", package: "Promises"),
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
       ],
       path: "FirebaseSessions/Sources",
-      publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath(".."),
         .define("DISPLAY_VERSION", to: firebaseVersion),
