@@ -40,9 +40,13 @@ import Foundation
     super.init(provider: GitHubAuthProvider.id)
   }
 
-  func prepareVerifyAssertionRequest(request: FIRVerifyAssertionRequest) {
+  @objc(simpleOverrideTest) func simp() {
+  }
+
+  @objc(prepareVerifyAssertionRequest:) func prepareVerifyAssertionRequest(request: FIRVerifyAssertionRequest) {
     request.providerAccessToken = token
   }
+
 
   static var supportsSecureCoding = true
 
