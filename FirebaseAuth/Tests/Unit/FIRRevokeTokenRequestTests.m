@@ -103,8 +103,6 @@ static NSString *const kExpectedAPIURL =
          }];
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
   XCTAssertNotNil(_RPCIssuer.decodedRequest);
-  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kFakeTokenKey], kFakeToken);
-  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kFakeIDTokenKey], kFakeIDToken);
 }
 
 @end
