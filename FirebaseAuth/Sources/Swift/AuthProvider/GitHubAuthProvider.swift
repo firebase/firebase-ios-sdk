@@ -27,12 +27,12 @@ import Foundation
      @param token The GitHub OAuth access token.
      @return An AuthCredential containing the GitHub credentials.
   */
-  @objc public class func credential(withToken token:String) -> AuthCredential {
+  @objc public class func credential(withToken token:String) -> GitHubAuthCredential {
     return GitHubAuthCredential(withToken: token)
   }
 }
 
-@objc(FIRGitHubAuthCredential) fileprivate class GitHubAuthCredential: AuthCredential, NSSecureCoding {
+@objc(FIRGitHubAuthCredential) open class GitHubAuthCredential: AuthCredential, NSSecureCoding {
   private let token: String
 
   init(withToken token:String) {
@@ -40,17 +40,17 @@ import Foundation
     super.init(provider: GitHubAuthProvider.id)
   }
 
-  func prepareVerifyAssertionRequest(request: FIRVerifyAssertionRequest) {
+  public func prepareVerifyAssertionRequest2(request: FIRVerifyAssertionRequest) {
     request.providerAccessToken = token
   }
 
-  static var supportsSecureCoding = true
+  public static var supportsSecureCoding = true
 
-  func encode(with coder: NSCoder) {
+  public func encode(with coder: NSCoder) {
     coder.encode(token)
   }
 
-  required init?(coder: NSCoder) {
+  public required init?(coder: NSCoder) {
     guard let token = coder.decodeObject(forKey: "token") as? String else {
       return nil
     }
