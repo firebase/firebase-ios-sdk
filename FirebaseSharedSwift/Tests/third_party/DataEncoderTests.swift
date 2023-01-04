@@ -482,10 +482,9 @@ class TestFirebaseDataEncoder: XCTestCase {
                    dataDecodingStrategy: .custom(decode))
   }
 
+  // Tests implicit migration of data that was written with .base64 (String type) using Firestore
+  // 10.0 through 10.3 (see PR #10604).
   func testDecodingBase64StringAsBlobData() throws {
-    // Tests implicit migration of data that was written with .base64 (String type) using
-    // Firestore 10.0 through 10.3 (see PR #10604).
-
     let inputString = "abcdef"
     let data = inputString.data(using: .utf8)!
     let base64String = "YWJjZGVm"
