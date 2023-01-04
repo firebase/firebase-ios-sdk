@@ -965,6 +965,8 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                }];
 }
 
+#endif
+
 - (void)revokeToken:(FIRRevokeTokenRequest *)request
            callback:(FIRRevokeTokenResponseCallback)callback {
   FIRRevokeTokenResponse *response = [[FIRRevokeTokenResponse alloc] init];
@@ -980,8 +982,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                callback(response, nil);
              }];
 }
-
-#endif
 
 - (void)resetPassword:(FIRResetPasswordRequest *)request
              callback:(FIRResetPasswordCallback)callback {
