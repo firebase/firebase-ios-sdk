@@ -43,8 +43,6 @@ NS_SWIFT_NAME(AuthCredential)
  */
 - (instancetype)initWithProvider:(NSString *)provider NS_DESIGNATED_INITIALIZER;
 
-- (void)simpleOverrideTest;
-
 @end
 
 NS_ASSUME_NONNULL_END
