@@ -21,10 +21,12 @@
 - (NSString*)resourcePath {
 #if SWIFT_PACKAGE
   NSBundle* bundle = SWIFTPM_MODULE_BUNDLE;
+  return [bundle.resourcePath stringByAppendingPathComponent:@"machO_data"];
 #else
   NSBundle* bundle = [NSBundle bundleForClass:[self class]];
-#endif
   return bundle.resourcePath;
+
+#endif
 }
 
 - (void)testBundleIdAndExecutablePath {

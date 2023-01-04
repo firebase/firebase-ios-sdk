@@ -536,7 +536,7 @@ let package = Package(
       dependencies: ["FirebaseCrashlytics", "OCMock"],
       path: "Crashlytics/UnitTests",
       resources: [
-        .process("FIRCLSMachO/data"),
+        .copy("FIRCLSMachO/machO_data"),
         .copy("Data"),
       ],
       cSettings: [
