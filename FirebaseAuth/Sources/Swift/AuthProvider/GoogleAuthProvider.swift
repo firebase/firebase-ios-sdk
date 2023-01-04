@@ -37,7 +37,7 @@ import Foundation
   private let IDToken: String
   private let accessToken: String
 
-  init(withIDToken idToken:String , accessToken: String) {
+  init(withIDToken idToken:String, accessToken: String) {
     self.IDToken = idToken
     self.accessToken = accessToken
     super.init(provider: GoogleAuthProvider.id)
