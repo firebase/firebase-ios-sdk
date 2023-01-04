@@ -28,9 +28,12 @@ protocol EventGDTLoggerProtocol {
 ///
 class EventGDTLogger: EventGDTLoggerProtocol {
   let googleDataTransport: GoogleDataTransportProtocol
+  let devEventConsoleLogger: EventGDTLoggerProtocol
 
-  init(googleDataTransport: GoogleDataTransportProtocol) {
+  init(googleDataTransport: GoogleDataTransportProtocol,
+       devEventConsoleLogger: EventGDTLoggerProtocol = DevEventConsoleLogger()) {
     self.googleDataTransport = googleDataTransport
+    self.devEventConsoleLogger = devEventConsoleLogger
   }
 
   /// Logs the event to FireLog, taking into account debugging cases such as running
@@ -43,6 +46,8 @@ class EventGDTLogger: EventGDTLoggerProtocol {
       Logger.logDebug("Logging events using fast QOS due to running on a simulator")
       gdtEvent.qosTier = GDTCOREventQoS.qoSFast
     #endif // targetEnvironment(simulator)
+
+    devEventConsoleLogger.logEvent(event: event) { _ in }
 
     googleDataTransport.logGDTEvent(event: gdtEvent, completion: completion)
   }

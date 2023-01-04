@@ -430,6 +430,16 @@ case "$product-$platform-$method" in
     fi
     ;;
 
+  MessagingSampleStandaloneWatchApp-*-*)
+    if check_secrets; then
+      RunXcodebuild \
+        -workspace 'FirebaseMessaging/Apps/SampleStandaloneWatchApp/SampleStandaloneWatchApp.xcworkspace' \
+        -scheme "SampleStandaloneWatchApp Watch App" \
+        "${xcb_flags[@]}" \
+        build
+    fi
+    ;;
+
   MLModelDownloaderSample-*-*)
   if check_secrets; then
     RunXcodebuild \

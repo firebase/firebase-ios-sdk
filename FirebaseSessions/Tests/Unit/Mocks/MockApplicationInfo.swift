@@ -15,6 +15,12 @@
 
 import Foundation
 
+#if SWIFT_PACKAGE
+  @_implementationOnly import GoogleUtilities_Environment
+#else
+  @_implementationOnly import GoogleUtilities
+#endif // SWIFT_PACKAGE
+
 @testable import FirebaseSessions
 
 class MockApplicationInfo: ApplicationInfoProtocol {
@@ -26,13 +32,35 @@ class MockApplicationInfo: ApplicationInfoProtocol {
 
   var osName: String = ""
 
+  var deviceModel: String = ""
+
   var mccMNC: String = ""
+
+  var environment: DevEnvironment = .prod
+
+  var appBuildVersion: String = ""
+
+  var appDisplayVersion: String = ""
+
+  var osBuildVersion: String = ""
+
+  var osDisplayVersion: String = ""
+
+  var networkInfo: NetworkInfoProtocol = MockNetworkInfo()
 
   static let testAppID = "testAppID"
   static let testBundleID = "testBundleID"
   static let testSDKVersion = "testSDKVersion"
   static let testOSName = "ios"
   static let testMCCMNC = "testMCCMNC"
+  static let testDeviceModel = "testDeviceModel"
+  static let testEnvironment: DevEnvironment = .prod
+  static let testAppBuildVersion = "testAppBuildVersion"
+  static let testAppDisplayVersion = "testAppDisplayVersion"
+  static let testOsBuildVersion = "testOsBuildVersion"
+  static let testOsDisplayVersion = "testOsDisplayVersion"
+  static let testNetworkType = GULNetworkType.WIFI
+  static let testMobileSubtype = "random"
 
   func mockAllInfo() {
     appID = MockApplicationInfo.testAppID
@@ -40,5 +68,11 @@ class MockApplicationInfo: ApplicationInfoProtocol {
     sdkVersion = MockApplicationInfo.testSDKVersion
     osName = MockApplicationInfo.testOSName
     mccMNC = MockApplicationInfo.testMCCMNC
+    deviceModel = MockApplicationInfo.testDeviceModel
+    environment = MockApplicationInfo.testEnvironment
+    appBuildVersion = MockApplicationInfo.testAppBuildVersion
+    appDisplayVersion = MockApplicationInfo.testAppDisplayVersion
+    osBuildVersion = MockApplicationInfo.testOsBuildVersion
+    osDisplayVersion = MockApplicationInfo.testOsDisplayVersion
   }
 }

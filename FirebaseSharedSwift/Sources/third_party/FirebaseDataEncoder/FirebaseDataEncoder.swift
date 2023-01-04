@@ -139,8 +139,11 @@ public class FirebaseDataEncoder {
     /// Defer to `Data` for choosing an encoding.
     case deferredToData
 
-    /// Encoded the `Data` as a Base64-encoded string. This is the default strategy.
+    /// Encode the `Data` as a Base64-encoded string. This is the default strategy.
     case base64
+
+    /// Encode the `Data` as an `NSData` blob.
+    case blob
 
     /// Encode the `Data` as a custom value encoded by the given closure.
     ///
@@ -874,6 +877,9 @@ extension __JSONEncoder {
     case .base64:
       return NSString(string: data.base64EncodedString())
 
+    case .blob:
+      return data as NSData
+
     case .custom(let closure):
       let depth = self.storage.count
       do {
@@ -1091,6 +1097,9 @@ public class FirebaseDataDecoder {
 
     /// Decode the `Data` from a Base64-encoded string. This is the default strategy.
     case base64
+
+    /// Decode the `Data` as an `NSData` blob.
+    case blob
 
     /// Decode the `Data` as a custom value decoded by the given closure.
     case custom((_ decoder: Swift.Decoder) throws -> Data)
@@ -2483,6 +2492,17 @@ extension __JSONDecoder {
       }
 
       return data
+
+    case .blob:
+      if let data = value as? Data {
+        return data
+      } else if let string = value as? String, let data = Data(base64Encoded: string) {
+        // Support implicit migration of data that was written with .base64 (String type) using
+        // Firestore 10.0 through 10.3.
+        return data
+      }
+
+      throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: value)
 
     case .custom(let closure):
       self.storage.push(container: value)

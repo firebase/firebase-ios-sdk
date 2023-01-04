@@ -106,7 +106,8 @@ ViewSnapshot make_empty_view_snapshot(const core::Query& query) {
                       DocumentKeySet{},
                       false,
                       /*sync_state_changed=*/true,
-                      false};
+                      false,
+                      /*has_cached_results=*/false};
 }
 
 TEST(EventManagerTest, NotifiesListenersInTheRightOrder) {

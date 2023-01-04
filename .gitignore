@@ -26,6 +26,7 @@ FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist
 FirebaseMessaging/Apps/Shared/GoogleService-Info.plist
 FirebaseMessaging/Apps/AdvancedSample/SampleWatchWatchKitExtension/GoogleService-Info.plist
 FirebaseMessaging/Apps/AdvancedSample/AppClips/GoogleService-Info.plist
+FirebaseMessaging/Apps/SampleStandaloneWatchApp/SampleStandaloneWatchAppWatchApp/GoogleService-Info.plist
 
 # Credentials for Firebase Storage Integration Tests
 FirebaseStorage/Tests/ObjCIntegration/Credentials.h

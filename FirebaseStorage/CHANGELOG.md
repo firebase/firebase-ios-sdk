@@ -1,5 +1,10 @@
+# 10.3.0
+- [fixed] Use dedicated serial queue for Storage uploads and downloads instead of a (concurrent) global queue.
+  Fixes regression introduced in 10.0.0. (#10487)
+
 # 10.2.0
-- [fixed] Fix a race condition where a download size could exceed the value of the `maxSize` parameter. (#10358)
+- [fixed] Fixed an issue where using Storage with more than one FirebaseApp instance caused non-default Storage instances to deadlock (#10463).
+- [fixed] Fixed a race condition where a download size could exceed the value of the `maxSize` parameter. (#10358)
 
 # 10.1.0
 - [fixed] Fixed a 10.0.0 regression where metadata passed to `putFile` was not properly initialized. (#10353)

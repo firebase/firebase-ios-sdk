@@ -40,6 +40,7 @@ protocol SessionsProvider {
   private let initiator: SessionInitiator
   private let identifiers: Identifiers
   private let appInfo: ApplicationInfo
+  private let settings: SessionsSettings
 
   // MARK: - Initializers
 
@@ -53,36 +54,55 @@ protocol SessionsProvider {
 
     let fireLogger = EventGDTLogger(googleDataTransport: googleDataTransport!)
 
-    let identifiers = Identifiers(installations: installations)
-    let coordinator = SessionCoordinator(identifiers: identifiers, fireLogger: fireLogger)
-    let initiator = SessionInitiator()
+    let identifiers = Identifiers()
+    let coordinator = SessionCoordinator(
+      identifiers: identifiers,
+      installations: installations,
+      fireLogger: fireLogger,
+      sampler: SessionSampler()
+    )
+
     let appInfo = ApplicationInfo(appID: appID)
+    let settings = SessionsSettings(
+      appInfo: appInfo,
+      installations: installations
+    )
+    let initiator = SessionInitiator(settings: settings)
 
     self.init(appID: appID,
               identifiers: identifiers,
               coordinator: coordinator,
               initiator: initiator,
-              appInfo: appInfo)
+              appInfo: appInfo,
+              settings: settings)
   }
 
   // Initializes the SDK and begines the process of listening for lifecycle events and logging events
   init(appID: String, identifiers: Identifiers, coordinator: SessionCoordinator,
-       initiator: SessionInitiator, appInfo: ApplicationInfo) {
+       initiator: SessionInitiator, appInfo: ApplicationInfo, settings: SessionsSettings) {
     self.appID = appID
 
     self.identifiers = identifiers
     self.coordinator = coordinator
     self.initiator = initiator
     self.appInfo = appInfo
+    self.settings = settings
 
     super.init()
 
     self.initiator.beginListening {
+      // On each session start, first update Settings if expired
+      self.settings.updateSettings()
       self.identifiers.generateNewSessionID()
-      let event = SessionStartEvent(identifiers: self.identifiers, appInfo: self.appInfo)
-      DispatchQueue.global().async {
-        self.coordinator.attemptLoggingSessionStart(event: event) { result in
+      // Generate a session start event only when session data collection is enabled.
+      if self.settings.sessionsEnabled {
+        let event = SessionStartEvent(identifiers: self.identifiers, appInfo: self.appInfo)
+        DispatchQueue.global().async {
+          self.coordinator.attemptLoggingSessionStart(event: event) { result in
+          }
         }
+      } else {
+        Logger.logDebug("Session logging is disabled by configuration settings.")
       }
     }
   }

@@ -42,10 +42,10 @@
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 
+using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::core::ViewSnapshot;
-using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentComparator;
@@ -117,7 +117,8 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *oldDocs,
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *docsToAdd,
     BOOL hasPendingWrites,
-    BOOL fromCache) {
+    BOOL fromCache,
+    BOOL hasCachedResults) {
   FSTUserDataReader *reader = FSTTestUserDataReader();
 
   SnapshotMetadata metadata(hasPendingWrites, fromCache);
@@ -154,7 +155,8 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
                             mutatedKeys,
                             static_cast<bool>(fromCache),
                             /*sync_state_changed=*/true,
-                            /*excludes_metadata_changes=*/false};
+                            /*excludes_metadata_changes=*/false,
+                            static_cast<bool>(hasCachedResults)};
   return [[FIRQuerySnapshot alloc] initWithFirestore:FSTTestFirestore().wrapped
                                        originalQuery:Query(path)
                                             snapshot:std::move(viewSnapshot)

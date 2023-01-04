@@ -16,7 +16,7 @@ if(NOT FIREBASE_IOS_BUILD_TESTS OR NOT APPLE)
   return()
 endif()
 
-file(GLOB sources *.h *.mm API/*.h API/*.mm)
+file(GLOB sources *.h *.mm API/*.h API/*.mm ../../App/GoogleService-Info.plist)
 
 firebase_ios_add_objc_test(
   firestore_objc_integration_test
@@ -29,4 +29,9 @@ target_link_libraries(
   FirebaseFirestore
   firestore_core
   firestore_objc_testing
+)
+
+set_target_properties(
+  firestore_objc_integration_test PROPERTIES
+  RESOURCE ../../App/GoogleService-Info.plist
 )

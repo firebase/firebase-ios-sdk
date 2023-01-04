@@ -52,7 +52,11 @@ internal class StorageListTask: StorageTask, StorageTaskManagement {
     self.pageSize = pageSize
     self.previousPageToken = previousPageToken
     super.init(reference: reference, service: fetcherService, queue: queue)
-    taskCompletion = completion
+    taskCompletion = { (listResult: StorageListResult?, error: NSError?) in
+      completion?(listResult, error)
+      // Reference self in completion handler in order to retain self until completion is called.
+      self.taskCompletion = nil
+    }
   }
 
   deinit {
@@ -63,12 +67,18 @@ internal class StorageListTask: StorageTask, StorageTaskManagement {
    * Prepares a task and begins execution.
    */
   internal func enqueue() {
-    weak var weakSelf = self
-    DispatchQueue.global(qos: .background).async {
-      guard let strongSelf = weakSelf else { return }
+    if let completion = taskCompletion {
+      taskCompletion = { (listResult: StorageListResult?, error: NSError?) in
+        completion(listResult, error)
+        // Reference self in completion handler in order to retain self until completion is called.
+        self.taskCompletion = nil
+      }
+    }
+    dispatchQueue.async { [weak self] in
+      guard let self = self else { return }
       var queryParams = [String: String]()
 
-      let prefix = strongSelf.reference.fullPath
+      let prefix = self.reference.fullPath
       if prefix.count > 0 {
         queryParams["prefix"] = "\(prefix)/"
       }
@@ -80,34 +90,32 @@ internal class StorageListTask: StorageTask, StorageTaskManagement {
       // listAll() doesn't set a pageSize as this allows Firebase Storage to determine how many items
       // to return per page. This removes the need to backfill results if Firebase Storage filters
       // objects that are considered invalid (such as items with two consecutive slashes).
-      if let pageSize = strongSelf.pageSize {
+      if let pageSize = self.pageSize {
         queryParams["maxResults"] = "\(pageSize)"
       }
 
-      if let previousPageToken = strongSelf.previousPageToken {
+      if let previousPageToken = self.previousPageToken {
         queryParams["pageToken"] = previousPageToken
       }
 
-      let root = strongSelf.reference.root()
+      let root = self.reference.root()
       var request = StorageUtils.defaultRequestForReference(
         reference: root,
         queryParams: queryParams
       )
 
       request.httpMethod = "GET"
-      request.timeoutInterval = strongSelf.reference.storage.maxOperationRetryTime
+      request.timeoutInterval = self.reference.storage.maxOperationRetryTime
 
-      let callback = strongSelf.taskCompletion
-      strongSelf.taskCompletion = nil
-
-      let fetcher = strongSelf.fetcherService.fetcher(with: request)
+      let fetcher = self.fetcherService.fetcher(with: request)
       fetcher.comment = "ListTask"
-      strongSelf.fetcher = fetcher
+      self.fetcher = fetcher
 
-      strongSelf.fetcherCompletion = { (data: Data?, error: NSError?) in
+      self.fetcherCompletion = { [weak self] (data: Data?, error: NSError?) in
+        guard let self = self else { return }
         var listResult: StorageListResult?
         if let error = error, self.error == nil {
-          self.error = StorageErrorCode.error(withServerError: error, ref: strongSelf.reference)
+          self.error = StorageErrorCode.error(withServerError: error, ref: self.reference)
         } else {
           if let data = data,
              let responseDictionary = try? JSONSerialization
@@ -118,15 +126,12 @@ internal class StorageListTask: StorageTask, StorageTaskManagement {
           }
         }
 
-        callback?(listResult, self.error)
+        self.taskCompletion?(listResult, self.error)
         self.fetcherCompletion = nil
       }
 
-      strongSelf.fetcher?.beginFetch { data, error in
-        let strongSelf = weakSelf
-        if let fetcherCompletion = strongSelf?.fetcherCompletion {
-          fetcherCompletion(data, error as? NSError)
-        }
+      self.fetcher?.beginFetch { [weak self] data, error in
+        self?.fetcherCompletion?(data, error as? NSError)
       }
     }
   }

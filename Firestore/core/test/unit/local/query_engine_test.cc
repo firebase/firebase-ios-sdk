@@ -929,6 +929,54 @@ TEST_P(QueryEngineTest, OrderByEquality) {
   });
 }
 
+TEST_P(QueryEngineTest, InAndNotInFiltersWithObjectValues) {
+  persistence_->Run("InAndNotInFiltersWithObjectValues", [&] {
+    mutation_queue_->Start();
+    index_manager_->Start();
+
+    MutableDocument doc1 = Doc("coll/1", 1, Map("a", 1, "b", 0));
+    MutableDocument doc2 = Doc("coll/2", 1, Map("b", 1));
+    MutableDocument doc3 = Doc("coll/3", 1, Map("a", 3, "b", 2));
+    MutableDocument doc4 = Doc("coll/4", 1, Map("a", 1, "b", 3));
+    MutableDocument doc5 =
+        Doc("coll/5", 1, Map("a", Array(1, 2), "b", Array(1, Array(2, 3))));
+    MutableDocument doc6 = Doc("coll/6", 1, Map("b", Map("c", 2)));
+    AddDocuments({doc1, doc2, doc3, doc4, doc5, doc6});
+
+    // a IN [1,[1,2]] && b IN [2,3]
+    auto query1 = testutil::Query("coll").AddingFilter(
+        AndFilters({Filter("a", "in", Array(1, Array(1, 2))),
+                    Filter("b", "in", Array(2, 3))}));
+    DocumentSet result1 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query1, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result1, DocSet(query1.Comparator(), {doc4}));
+
+    // a != [1,2] && b IN [1, [1,[2,3]]]
+    auto query2 = testutil::Query("coll").AddingFilter(
+        AndFilters({Filter("a", "not-in", Array(Array(1, 2))),
+                    Filter("b", "in", Array(1, Array(1, Array(2, 3))))}));
+    DocumentSet result2 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query2, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result2, DocSet(query2.Comparator(), {}));
+
+    // a IN [1,[1,2]] || b == {c : 2}
+    auto query3 = testutil::Query("coll").AddingFilter(
+        OrFilters({Filter("a", "in", Array(1, Array(1, 2))),
+                   Filter("b", "in", Array(Map("c", 2)))}));
+    DocumentSet result3 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query3, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result3, DocSet(query3.Comparator(), {doc1, doc4, doc5, doc6}));
+
+    // (a != 1 && a != [1,2]) || (b != [1,[2,3]] && b != {c : 2})
+    auto query4 = testutil::Query("coll").AddingFilter(OrFilters(
+        {Filter("a", "not-in", Array(1, Array(1, 2))),
+         Filter("b", "not-in", Array(Array(1, Array(2, 3)), Map("c", 2)))}));
+    DocumentSet result4 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunQuery(query4, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result4, DocSet(query4.Comparator(), {doc1, doc3, doc4}));
+  });
+}
+
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase

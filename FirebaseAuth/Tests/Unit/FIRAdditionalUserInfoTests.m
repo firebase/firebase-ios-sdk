@@ -57,11 +57,11 @@ static NSString *const kProviderID = @"PROVIDER_ID";
   return kProfile;
 }
 
-/** @fn testAditionalUserInfoCreation
+/** @fn testAdditionalUserInfoCreation
     @brief Tests succuessful creation of @c FIRAdditionalUserInfo with
         @c initWithProviderID:profile:username: call.
  */
-- (void)testAditionalUserInfoCreation {
+- (void)testAdditionalUserInfoCreation {
   FIRAdditionalUserInfo *userInfo =
       [[FIRAdditionalUserInfo alloc] initWithProviderID:kProviderID
                                                 profile:[[self class] profile]
@@ -73,11 +73,11 @@ static NSString *const kProviderID = @"PROVIDER_ID";
   XCTAssertEqual(userInfo.isNewUser, kIsNewUser);
 }
 
-/** @fn testAditionalUserInfoCreationWithStaticInitializer
+/** @fn testAdditionalUserInfoCreationWithStaticInitializer
     @brief Tests succuessful creation of @c FIRAdditionalUserInfo with
         @c userInfoWithVerifyAssertionResponse call.
  */
-- (void)testAditionalUserInfoCreationWithStaticInitializer {
+- (void)testAdditionalUserInfoCreationWithStaticInitializer {
   id mockVerifyAssertionResponse = OCMClassMock([FIRVerifyAssertionResponse class]);
   OCMExpect([mockVerifyAssertionResponse providerID]).andReturn(kProviderID);
   OCMExpect([mockVerifyAssertionResponse profile]).andReturn([[self class] profile]);

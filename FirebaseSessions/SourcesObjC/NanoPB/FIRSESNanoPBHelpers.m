@@ -15,13 +15,16 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseSessions/Sources/NanoPB/FIRSESNanoPBHelpers.h"
+#import <GoogleUtilities/GULNetworkInfo.h>
 
-#import "FirebaseSessions/Protogen/nanopb/sessions.nanopb.h"
+#import "FirebaseSessions/SourcesObjC/NanoPB/FIRSESNanoPBHelpers.h"
+
+#import "FirebaseSessions/SourcesObjC/Protogen/nanopb/sessions.nanopb.h"
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
+#import <sys/sysctl.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -29,6 +32,10 @@ NSError *FIRSESMakeEncodeError(NSString *description) {
   return [NSError errorWithDomain:@"FIRSESEncodeError"
                              code:-1
                          userInfo:@{@"NSLocalizedDescriptionKey" : description}];
+}
+
+NSString *FIRSESPBGetError(pb_istream_t istream) {
+  return [NSString stringWithCString:PB_GET_ERROR(&istream) encoding:NSASCIIStringEncoding];
 }
 
 // It seems impossible to specify the nullability of the `fields` parameter below,
@@ -97,6 +104,25 @@ pb_bytes_array_t *_Nullable FIRSESEncodeString(NSString *_Nullable string) {
   return FIRSESEncodeData(stringBytes);
 }
 
+NSData *FIRSESDecodeData(pb_bytes_array_t *pbData) {
+  NSData *data = [NSData dataWithBytes:&(pbData->bytes) length:pbData->size];
+  return data;
+}
+
+NSString *FIRSESDecodeString(pb_bytes_array_t *pbData) {
+  if (pbData->size == 0) {
+    return @"";
+  }
+  NSData *data = FIRSESDecodeData(pbData);
+  // There was a bug where length 32 strings were sometimes null after encoding
+  // and decoding. We found that this was due to the null terminator sometimes not
+  // being included in the decoded code. Using stringWithCString assumes the string
+  // is null terminated, so we switched to initWithBytes because it takes a length.
+  return [[NSString alloc] initWithBytes:data.bytes
+                                  length:data.length
+                                encoding:NSUTF8StringEncoding];
+}
+
 BOOL FIRSESIsPBArrayEqual(pb_bytes_array_t *_Nullable array, pb_bytes_array_t *_Nullable expected) {
   // Treat the empty string as the same as a missing field
   if (array == nil) {
@@ -132,33 +158,20 @@ pb_size_t FIRSESGetAppleApplicationInfoTag(void) {
   return firebase_appquality_sessions_ApplicationInfo_apple_app_info_tag;
 }
 
-#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
-CTTelephonyNetworkInfo *_Nullable FIRSESNetworkInfo(void) {
-  static CTTelephonyNetworkInfo *networkInfo;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    networkInfo = [[CTTelephonyNetworkInfo alloc] init];
-  });
-  return networkInfo;
-}
-#endif
-
-NSString *_Nullable FIRSESNetworkMobileCountryCode(void) {
-#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
-  CTTelephonyNetworkInfo *networkInfo = FIRSESNetworkInfo();
-  CTCarrier *provider = networkInfo.subscriberCellularProvider;
-  return provider.mobileCountryCode;
-#endif
-  return nil;
-}
-
-NSString *_Nullable FIRSESNetworkMobileNetworkCode(void) {
-#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
-  CTTelephonyNetworkInfo *networkInfo = FIRSESNetworkInfo();
-  CTCarrier *provider = networkInfo.subscriberCellularProvider;
-  return provider.mobileNetworkCode;
-#endif
-  return nil;
+/// Copied from a private method in GULAppEnvironmentUtil.
+NSString *_Nullable FIRSESGetSysctlEntry(const char *sysctlKey) {
+  static NSString *entryValue;
+  size_t size;
+  sysctlbyname(sysctlKey, NULL, &size, NULL, 0);
+  if (size > 0) {
+    char *entryValueCStr = malloc(size);
+    sysctlbyname(sysctlKey, entryValueCStr, &size, NULL, 0);
+    entryValue = [NSString stringWithCString:entryValueCStr encoding:NSUTF8StringEncoding];
+    free(entryValueCStr);
+    return entryValue;
+  } else {
+    return nil;
+  }
 }
 
 NSString *_Nullable FIRSESValidateMccMnc(NSString *_Nullable mcc, NSString *_Nullable mnc) {
