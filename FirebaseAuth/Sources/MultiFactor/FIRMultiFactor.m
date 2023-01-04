@@ -178,8 +178,9 @@ static NSString *kUserCodingKey = @"user";
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
   self = [self init];
   if (self) {
-    NSSet *enrolledFactorsClasses =
-        [NSSet setWithArray:@[ [NSArray class], [FIRMultiFactorInfo class], [FIRPhoneMultiFactorInfo class] ]];
+    NSSet *enrolledFactorsClasses = [NSSet setWithArray:@[
+      [NSArray class], [FIRMultiFactorInfo class], [FIRPhoneMultiFactorInfo class]
+    ]];
     NSArray<FIRMultiFactorInfo *> *enrolledFactors =
         [aDecoder decodeObjectOfClasses:enrolledFactorsClasses forKey:kEnrolledFactorsCodingKey];
     _enrolledFactors = enrolledFactors;
