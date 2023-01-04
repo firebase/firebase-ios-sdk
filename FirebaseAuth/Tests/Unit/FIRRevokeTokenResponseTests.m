@@ -108,8 +108,8 @@ static NSString *const kExpectedAPIURL =
 
   [_RPCIssuer respondWithJSON:@{}];
 
-//  XCTAssert(callbackInvoked);
-//  XCTAssertNotNil(RPCResponse);
+  XCTAssert(callbackInvoked);
+  XCTAssertNotNil(RPCResponse);
 }
 
 @end

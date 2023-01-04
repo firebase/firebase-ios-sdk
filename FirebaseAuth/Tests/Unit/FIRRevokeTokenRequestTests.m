@@ -101,10 +101,10 @@ static NSString *const kExpectedAPIURL =
       revokeToken:request
          callback:^(FIRRevokeTokenResponse *_Nullable response, NSError *_Nullable error){
          }];
-//  XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
-//  XCTAssertNotNil(_RPCIssuer.decodedRequest);
-//  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kFakeTokenKey], kFakeToken);
-//  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kFakeIDTokenKey], kFakeIDToken);
+  XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
+  XCTAssertNotNil(_RPCIssuer.decodedRequest);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kFakeTokenKey], kFakeToken);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kFakeIDTokenKey], kFakeIDToken);
 }
 
 @end

@@ -37,9 +37,9 @@ static NSString *const kIDTokenKey = @"idToken";
 
 @implementation FIRRevokeTokenRequest
 
-- (nullable instancetype)initWitToken:(NSString *)token
-                              idToken:(NSString *)idToken
-                 requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+- (nullable instancetype)initWithToken:(NSString *)token
+                               idToken:(NSString *)idToken
+                  requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kRevokeTokenEndpoint requestConfiguration:requestConfiguration];
   if (self) {
     _token = token;
