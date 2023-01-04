@@ -606,12 +606,12 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [[self implementation] verifyClient:request callback:callback];
 }
 
+#endif
+
 + (void)revokeToken:(FIRRevokeTokenRequest *)request
            callback:(FIRRevokeTokenResponseCallback)callback {
   [[self implementation] revokeToken:request callback:callback];
 }
-
-#endif
 
 + (void)resetPassword:(FIRResetPasswordRequest *)request
              callback:(FIRResetPasswordCallback)callback {
