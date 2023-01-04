@@ -482,33 +482,33 @@ class TestFirebaseDataEncoder: XCTestCase {
                    dataDecodingStrategy: .custom(decode))
   }
 
-  func testDecodingBase64StringAsBlobData() {
-    let data = "abcdef".data(using: .utf8)!
+  func testDecodingBase64StringAsBlobData() throws {
+    // Tests implicit migration of data that was written with .base64 (String type) using
+    // Firestore 10.0 through 10.3 (see PR #10604).
+
+    let inputString = "abcdef"
+    let data = inputString.data(using: .utf8)!
     let base64String = "YWJjZGVm"
 
     let encoder = FirebaseDataEncoder()
     encoder.dataEncodingStrategy = .base64
-    var payload: Any! = nil
-    do {
-      payload = try encoder.encode(data)
-    } catch {
-      XCTFail("Failed to encode \(Data.self): \(error)")
-    }
+    let payload = try encoder.encode(data)
 
     XCTAssertEqual(
       base64String,
-      payload as? String,
-      "Encoding did not produce the expected base64-encoded \(String.self)."
+      try XCTUnwrap(payload as? String, "Encoding did not produce a \(String.self)."),
+      "Encoding \"\(inputString)\" did not produce expected the base64 string \"\(base64String)\"."
     )
 
     let decoder = FirebaseDataDecoder()
     decoder.dataDecodingStrategy = .blob
-    do {
-      let decoded = try decoder.decode(Data.self, from: payload!)
-      XCTAssertEqual(data, decoded, "Decoding the base64-encoded payload did not produce a \(Data.self).")
-    } catch {
-      XCTFail("Failed to decode \(Data.self): \(error)")
-    }
+    let decoded = try decoder.decode(Data.self, from: payload)
+
+    XCTAssertEqual(
+      inputString,
+      try XCTUnwrap(String(data: decoded, encoding: .utf8)),
+      "Decoding base64-encoded payload did not produce original value \"\(inputString)\"."
+    )
   }
 
   // MARK: - Non-Conforming Floating Point Strategy Tests
