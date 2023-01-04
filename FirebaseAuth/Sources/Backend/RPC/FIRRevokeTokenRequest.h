@@ -40,9 +40,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** @fn initWithAppToken:isSandbox:requestConfiguration:
     @brief Designated initializer.
-    @param appToken The APNS device token.
-    @param isSandbox The flag indicating whether or not the app token provided is for Sandbox or
-        Production.
+    @param token The token to be revoked.
+    @param idToken The id token associated with the current user.
     @param requestConfiguration An object containing configurations to be added to the request.
  */
 - (nullable instancetype)initWithToken:(NSString *)token
