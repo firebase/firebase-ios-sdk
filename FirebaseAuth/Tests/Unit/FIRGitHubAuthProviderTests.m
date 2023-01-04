@@ -48,11 +48,11 @@ static NSString *const kFirebaseAppID = @"appID";
 - (void)testCredentialWithToken {
   FIRAuthRequestConfiguration *requestConfiguration =
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID];
-  FIRAuthCredential *credential = [FIRGitHubAuthProvider credentialWithToken:kGitHubToken];
+  FIRGitHubAuthCredential *credential = [FIRGitHubAuthProvider credentialWithToken:kGitHubToken];
   FIRVerifyAssertionRequest *request =
       [[FIRVerifyAssertionRequest alloc] initWithProviderID:FIRGitHubAuthProvider.id
                                        requestConfiguration:requestConfiguration];
-  [credential prepareVerifyAssertionRequest:request];
+  [credential prepareVerifyAssertionRequest2:request];
   XCTAssertEqualObjects(request.providerAccessToken, kGitHubToken);
 }
 
