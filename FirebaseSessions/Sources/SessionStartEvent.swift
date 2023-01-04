@@ -78,6 +78,19 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     proto.session_data.data_collection_status.session_sampling_rate = samplingRate
   }
 
+  func set(subscriber: SessionsSubscriberName, isDataCollectionEnabled: Bool) {
+    let dataCollectionState = makeDataCollectionProto(isDataCollectionEnabled)
+    switch subscriber {
+    case .Crashlytics:
+      proto.session_data.data_collection_status.crashlytics = dataCollectionState
+    case .Performance:
+      proto.session_data.data_collection_status.performance = dataCollectionState
+    default:
+      Logger
+        .logWarning("Attempted to set Data Collection status for unknown Subscriber: \(subscriber)")
+    }
+  }
+
   // MARK: - GDTCOREventDataObject
 
   func transportBytes() -> Data {
@@ -95,6 +108,15 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
   }
 
   // MARK: - Data Conversion
+
+  func makeDataCollectionProto(_ isDataCollectionEnabled: Bool)
+    -> firebase_appquality_sessions_DataCollectionState {
+    if isDataCollectionEnabled {
+      return firebase_appquality_sessions_DataCollectionState_COLLECTION_ENABLED
+    } else {
+      return firebase_appquality_sessions_DataCollectionState_COLLECTION_DISABLED
+    }
+  }
 
   private func makeProtoStringOrNil(_ string: String?) -> UnsafeMutablePointer<pb_bytes_array_t>? {
     guard let string = string else {

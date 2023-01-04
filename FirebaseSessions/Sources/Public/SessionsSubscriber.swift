@@ -15,18 +15,20 @@
 
 import Foundation
 
-@objc(FIRSessionsSubscriberName)
-public enum SessionsSubscriberName: Int {
-  case Unknown
-  case Crashlytics
-  case Performance
-}
-
+// Sessions Subscriber is an interface that dependent SDKs
+// must implement.
 @objc(FIRSessionsSubscriber)
 public protocol SessionsSubscriber {
   func onSessionIDChanged(_ sessionID: String)
   var isDataCollectionEnabled: Bool { get }
   var sessionsSubscriberName: SessionsSubscriberName { get }
+}
+
+@objc(FIRSessionsSubscriberName)
+public enum SessionsSubscriberName: Int {
+  case Unknown
+  case Crashlytics
+  case Performance
 }
 
 extension SessionsSubscriberName: CustomStringConvertible {
