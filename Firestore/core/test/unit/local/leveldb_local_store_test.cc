@@ -45,6 +45,7 @@ using testutil::Key;
 using testutil::MakeFieldIndex;
 using testutil::Map;
 using testutil::OrderBy;
+using testutil::OverlayTypeMap;
 using testutil::SetMutation;
 using testutil::UpdateRemoteEvent;
 using testutil::Vector;
@@ -238,6 +239,10 @@ TEST_F(LevelDbLocalStoreTest, UsesPartiallyIndexedOverlaysWhenAvailable) {
       testutil::Query("coll").AddingFilter(Filter("matches", "==", true));
   ExecuteQuery(query);
   FSTAssertOverlaysRead(/* byKey= */ 1, /* byCollection= */ 1);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/a"), model::Mutation::Type::Set},
+                      {Key("coll/b"), model::Mutation::Type::Set}}));
+
   FSTAssertQueryReturned("coll/a", "coll/b");
 }
 
@@ -265,6 +270,9 @@ TEST_F(LevelDbLocalStoreTest, DoesNotUseLimitWhenIndexIsOutdated) {
   // query without limit.
   FSTAssertRemoteDocumentsRead(/* byKey= */ 5, /* byCollection= */ 0);
   FSTAssertOverlaysRead(/* byKey= */ 5, /* byCollection= */ 1);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/b"), model::Mutation::Type::Delete}}));
+
   FSTAssertQueryReturned("coll/a", "coll/c");
 }
 
@@ -289,6 +297,8 @@ TEST_F(LevelDbLocalStoreTest, UsesIndexForLimitQueryWhenIndexIsUpdated) {
   ExecuteQuery(query);
   FSTAssertRemoteDocumentsRead(/* byKey= */ 2, /* byCollection= */ 0);
   FSTAssertOverlaysRead(/* byKey= */ 2, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(OverlayTypeMap({}));
+
   FSTAssertQueryReturned("coll/a", "coll/c");
 }
 
@@ -306,6 +316,9 @@ TEST_F(LevelDbLocalStoreTest, IndexesServerTimestamps) {
 
   ExecuteQuery(query);
   FSTAssertOverlaysRead(/* byKey= */ 1, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/a"), model::Mutation::Type::Set}}));
+
   FSTAssertQueryReturned("coll/a");
 }
 

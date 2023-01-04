@@ -19,7 +19,7 @@ readonly DIR="$( git rev-parse --show-toplevel )"
 
 readonly LIBRARY_DIR="${DIR}/FirebaseSessions/Sources/"
 readonly PROTO_DIR="${DIR}/FirebaseSessions/ProtoSupport/Protos/"
-readonly PROTOGEN_DIR="${DIR}/FirebaseSessions/Protogen/"
-readonly INCLUDE_PREFIX="FirebaseSessions/Protogen/nanopb/"
+readonly PROTOGEN_DIR="${DIR}/FirebaseSessions/SourcesObjC/Protogen/"
+readonly INCLUDE_PREFIX="FirebaseSessions/SourcesObjC/Protogen/nanopb/"
 
 ./scripts/nanopb/generate_protos.sh "$PROTO_DIR" "$PROTOGEN_DIR" "$INCLUDE_PREFIX"

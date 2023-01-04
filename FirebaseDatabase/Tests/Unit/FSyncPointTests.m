@@ -465,7 +465,7 @@ typedef NSDictionary * (^fbt_nsdictionary_void)(void);
 - (NSArray *)loadSpecs {
   static NSArray *json;
 #if SWIFT_PACKAGE
-  NSBundle *bundle = Firebase_DatabaseUnit_SWIFTPM_MODULE_BUNDLE();
+  NSBundle *bundle = SWIFTPM_MODULE_BUNDLE;
 #else
   NSBundle *bundle = [NSBundle bundleForClass:[FSyncPointTests class]];
 #endif

@@ -15,7 +15,11 @@
 
 import Foundation
 
-@_implementationOnly import GoogleUtilities
+#if SWIFT_PACKAGE
+  @_implementationOnly import GoogleUtilities_Environment
+#else
+  @_implementationOnly import GoogleUtilities
+#endif // SWIFT_PACKAGE
 
 protocol SettingsDownloadClient {
   func fetch(completion: @escaping (Result<[String: Any], Error>) -> Void)
@@ -23,13 +27,10 @@ protocol SettingsDownloadClient {
 
 class SettingsDownloader: SettingsDownloadClient {
   private let appInfo: ApplicationInfoProtocol
-  private let identifiers: IdentifierProvider
   private let installations: InstallationsProtocol
 
-  init(appInfo: ApplicationInfoProtocol, identifiers: IdentifierProvider,
-       installations: InstallationsProtocol) {
+  init(appInfo: ApplicationInfoProtocol, installations: InstallationsProtocol) {
     self.appInfo = appInfo
-    self.identifiers = identifiers
     self.installations = installations
   }
 

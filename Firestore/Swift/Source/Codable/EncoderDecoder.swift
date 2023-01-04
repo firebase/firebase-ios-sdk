@@ -23,8 +23,8 @@ public extension Firestore {
     /// The strategy to use in encoding dates. Defaults to `.timestamp`.
     public var dateEncodingStrategy: FirebaseDataEncoder.DateEncodingStrategy = .timestamp
 
-    /// The strategy to use in encoding binary data. Defaults to `.base64`.
-    public var dataEncodingStrategy: FirebaseDataEncoder.DataEncodingStrategy = .base64
+    /// Firestore encodes Data as `NSData` blobs versus the default .base64 strings.
+    public var dataEncodingStrategy: FirebaseDataEncoder.DataEncodingStrategy = .blob
 
     /// The strategy to use in encoding non-conforming numbers. Defaults to `.throw`.
     public var nonConformingFloatEncodingStrategy: FirebaseDataEncoder
@@ -62,8 +62,8 @@ public extension Firestore {
     /// The strategy to use in decoding dates. Defaults to `.timestamp`.
     public var dateDecodingStrategy: FirebaseDataDecoder.DateDecodingStrategy = .timestamp
 
-    /// The strategy to use in decoding binary data. Defaults to `.base64`.
-    public var dataDecodingStrategy: FirebaseDataDecoder.DataDecodingStrategy = .base64
+    /// Firestore decodes Data from `NSData` blobs versus the default .base64 strings.
+    public var dataDecodingStrategy: FirebaseDataDecoder.DataDecodingStrategy = .blob
 
     /// The strategy to use in decoding non-conforming numbers. Defaults to `.throw`.
     public var nonConformingFloatDecodingStrategy: FirebaseDataDecoder

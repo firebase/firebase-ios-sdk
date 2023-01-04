@@ -40,7 +40,7 @@ protocol SessionsProvider {
   private let initiator: SessionInitiator
   private let identifiers: Identifiers
   private let appInfo: ApplicationInfo
-  private let settings: SettingsProtocol
+  private let settings: SessionsSettings
 
   // MARK: - Initializers
 
@@ -63,13 +63,9 @@ protocol SessionsProvider {
     )
     let initiator = SessionInitiator()
     let appInfo = ApplicationInfo(appID: appID)
-    let settings = Settings(
+    let settings = SessionsSettings(
       appInfo: appInfo,
-      downloader: SettingsDownloader(
-        appInfo: appInfo,
-        identifiers: identifiers,
-        installations: installations
-      )
+      installations: installations
     )
 
     self.init(appID: appID,
@@ -82,7 +78,7 @@ protocol SessionsProvider {
 
   // Initializes the SDK and begines the process of listening for lifecycle events and logging events
   init(appID: String, identifiers: Identifiers, coordinator: SessionCoordinator,
-       initiator: SessionInitiator, appInfo: ApplicationInfo, settings: SettingsProtocol) {
+       initiator: SessionInitiator, appInfo: ApplicationInfo, settings: SessionsSettings) {
     self.appID = appID
 
     self.identifiers = identifiers
@@ -95,7 +91,7 @@ protocol SessionsProvider {
 
     self.initiator.beginListening {
       // On each session start, first update Settings if expired
-      self.settings.fetchAndCacheSettings()
+      self.settings.updateSettings()
       self.identifiers.generateNewSessionID()
       let event = SessionStartEvent(identifiers: self.identifiers, appInfo: self.appInfo)
       DispatchQueue.global().async {

@@ -1,4 +1,6 @@
 PODS:
+  - FirebaseABTesting (10.3.0):
+    - FirebaseCore (~> 10.0)
   - FirebaseCore (10.4.0):
     - FirebaseCoreInternal (~> 10.0)
     - GoogleUtilities/Environment (~> 7.8)
@@ -7,11 +9,33 @@ PODS:
     - FirebaseCore (~> 10.0)
   - FirebaseCoreInternal (10.4.0):
     - "GoogleUtilities/NSData+zlib (~> 7.8)"
+  - FirebaseCrashlytics (10.4.0):
+    - FirebaseCore (~> 10.0)
+    - FirebaseInstallations (~> 10.0)
+    - GoogleDataTransport (~> 9.2)
+    - GoogleUtilities/Environment (~> 7.8)
+    - nanopb (< 2.30910.0, >= 2.30908.0)
+    - PromisesObjC (~> 2.1)
   - FirebaseInstallations (10.4.0):
     - FirebaseCore (~> 10.0)
     - GoogleUtilities/Environment (~> 7.8)
     - GoogleUtilities/UserDefaults (~> 7.8)
     - PromisesObjC (~> 2.1)
+  - FirebasePerformance (10.4.0):
+    - FirebaseCore (~> 10.0)
+    - FirebaseInstallations (~> 10.0)
+    - FirebaseRemoteConfig (~> 10.0)
+    - GoogleDataTransport (~> 9.2)
+    - GoogleUtilities/Environment (~> 7.8)
+    - GoogleUtilities/ISASwizzler (~> 7.8)
+    - GoogleUtilities/MethodSwizzler (~> 7.8)
+    - nanopb (< 2.30910.0, >= 2.30908.0)
+  - FirebaseRemoteConfig (10.3.0):
+    - FirebaseABTesting (~> 10.0)
+    - FirebaseCore (~> 10.0)
+    - FirebaseInstallations (~> 10.0)
+    - GoogleUtilities/Environment (~> 7.8)
+    - "GoogleUtilities/NSData+zlib (~> 7.8)"
   - FirebaseSessions (10.0.0):
     - FirebaseCore (~> 10.0)
     - FirebaseCoreExtension (~> 10.0)
@@ -25,8 +49,11 @@ PODS:
     - PromisesObjC (< 3.0, >= 1.2)
   - GoogleUtilities/Environment (7.10.0):
     - PromisesObjC (< 3.0, >= 1.2)
+  - GoogleUtilities/ISASwizzler (7.10.0)
   - GoogleUtilities/Logger (7.10.0):
     - GoogleUtilities/Environment
+  - GoogleUtilities/MethodSwizzler (7.10.0):
+    - GoogleUtilities/Logger
   - "GoogleUtilities/NSData+zlib (7.10.0)"
   - GoogleUtilities/UserDefaults (7.10.0):
     - GoogleUtilities/Logger
@@ -41,11 +68,15 @@ DEPENDENCIES:
   - FirebaseCore (from `../../../`)
   - FirebaseCoreExtension (from `../../../`)
   - FirebaseCoreInternal (from `../../../`)
+  - FirebaseCrashlytics (from `../../../`)
   - FirebaseInstallations (from `../../../`)
+  - FirebasePerformance (from `../../../`)
   - FirebaseSessions (from `../../../`)
 
 SPEC REPOS:
   trunk:
+    - FirebaseABTesting
+    - FirebaseRemoteConfig
     - GoogleDataTransport
     - GoogleUtilities
     - nanopb
@@ -58,22 +89,30 @@ EXTERNAL SOURCES:
     :path: "../../../"
   FirebaseCoreInternal:
     :path: "../../../"
+  FirebaseCrashlytics:
+    :path: "../../../"
   FirebaseInstallations:
+    :path: "../../../"
+  FirebasePerformance:
     :path: "../../../"
   FirebaseSessions:
     :path: "../../../"
 
 SPEC CHECKSUMS:
+  FirebaseABTesting: e6660693429b4663573c82f8d2f1041deff1753a
   FirebaseCore: b8697a177690b69b0dbce9d612b69b893be70469
   FirebaseCoreExtension: d209ada6f48bac53d149e996cf1b2dafa632a615
   FirebaseCoreInternal: e301297f4c15a17489e48ed722d733b1578e0c02
+  FirebaseCrashlytics: fa1a270637b3cfb0dc3a81b5976766bd3767b920
   FirebaseInstallations: 36b38c733fd37e50857e5e8d74138648f466f18c
-  FirebaseSessions: 16b2eba2905da4acf74350ab076508d89d8a18e5
+  FirebasePerformance: b157e90b0fb79c3eb64de3934cfc040d587c95ee
+  FirebaseRemoteConfig: c24f767c17b0440ee63c7e93380d599173556113
+  FirebaseSessions: 9fc370996f515fe470046061292f3539dfbd2ff2
   GoogleDataTransport: 1c8145da7117bd68bbbed00cf304edb6a24de00f
   GoogleUtilities: bad72cb363809015b1f7f19beb1f1cd23c589f95
   nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
   PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
 
-PODFILE CHECKSUM: 1a003bf06c05ee635d13a4c6a952942ff7e13dd0
+PODFILE CHECKSUM: cd3c58b4d5b1111383095d851bca3170844fb9a3
 
 COCOAPODS: 1.11.3
