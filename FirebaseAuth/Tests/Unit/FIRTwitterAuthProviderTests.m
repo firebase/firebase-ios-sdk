@@ -16,8 +16,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTwitterAuthProvider.h"
-
 #import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
 @import FirebaseAuth;
 
@@ -58,7 +56,7 @@ static NSString *const kFirebaseAppID = @"appID";
   FIRAuthRequestConfiguration *requestConfiguration =
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID];
   FIRVerifyAssertionRequest *request =
-      [[FIRVerifyAssertionRequest alloc] initWithProviderID:FIRTwitterAuthProviderID
+      [[FIRVerifyAssertionRequest alloc] initWithProviderID:FIRTwitterAuthProvider.id
                                        requestConfiguration:requestConfiguration];
   [credential prepareVerifyAssertionRequest:request];
   XCTAssertEqualObjects(request.providerAccessToken, kTwitterToken);
