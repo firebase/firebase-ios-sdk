@@ -30,13 +30,14 @@ import Foundation
 ///      and comes to the foreground.
 ///
 class SessionInitiator {
-  let sessionTimeout: TimeInterval = 30 * 60 // 30 minutes
   let currentTime: () -> Date
+  var settings: SessionsSettings
   var backgroundTime = Date.distantFuture
   var initiateSessionStart: () -> Void = {}
 
-  init(currentTimeProvider: @escaping () -> Date = Date.init) {
+  init(settings: SessionsSettings, currentTimeProvider: @escaping () -> Date = Date.init) {
     currentTime = currentTimeProvider
+    self.settings = settings
   }
 
   func beginListening(initiateSessionStart: @escaping () -> Void) {
@@ -95,7 +96,9 @@ class SessionInitiator {
 
   @objc private func appForegrounded() {
     let interval = currentTime().timeIntervalSince(backgroundTime)
-    if interval > sessionTimeout {
+
+    // If the interval is greater the the session timeout duration, generate a new session.
+    if interval > settings.sessionTimeout {
       initiateSessionStart()
     }
   }
