@@ -35,9 +35,6 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (void)simpleOverrideTest {
-}
-
 - (void)prepareVerifyAssertionRequest:(FIRVerifyAssertionRequest *)request {
   @throw [NSException exceptionWithName:@"Attempt to call virtual method."
                                  reason:@"This method must be overridden by a subclass."
