@@ -44,7 +44,6 @@ static NSString *const kFakeTokenKey = @"tokenKey";
  */
 static NSString *const kFakeIDTokenKey = @"idTokenKey";
 
-
 /** @var kFakeAPIKey
     @brief The fake API key to use in the test request.
  */
@@ -97,15 +96,15 @@ static NSString *const kExpectedAPIURL =
   FIRRevokeTokenRequest *request =
       [[FIRRevokeTokenRequest alloc] initWithToken:kFakeToken
                                            idToken:kFakeIDToken
-                                  requestConfiguration:requestConfiguration];
+                              requestConfiguration:requestConfiguration];
   [FIRAuthBackend
       revokeToken:request
-          callback:^(FIRRevokeTokenResponse *_Nullable response, NSError *_Nullable error){
-          }];
+         callback:^(FIRRevokeTokenResponse *_Nullable response, NSError *_Nullable error){
+         }];
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
   XCTAssertNotNil(_RPCIssuer.decodedRequest);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kFakeTokenKey], kFakeToken);
-    XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kFakeIDTokenKey], kFakeIDToken);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kFakeIDTokenKey], kFakeIDToken);
 }
 
 @end
