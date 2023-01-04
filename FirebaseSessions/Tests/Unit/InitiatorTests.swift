@@ -27,6 +27,36 @@ import XCTest
 class InitiatorTests: XCTestCase {
   // 2021-11-01 @ 00:00:00 (EST)
   let date = Date(timeIntervalSince1970: 1_635_739_200)
+  let validSettings: [String: Any] = [:]
+
+  var cache: SettingsCacheClient!
+  var appInfo: MockApplicationInfo!
+  var downloader: MockSettingsDownloader!
+  var remoteSettings: RemoteSettings!
+  var localOverrideSettings: LocalOverrideSettings!
+  var sdkDefaultSettings: SDKDefaultSettings!
+  var sessionSettings: SessionsSettings!
+
+  override func setUp() {
+    super.setUp()
+    appInfo = MockApplicationInfo()
+    cache = SettingsCache()
+    cache.removeCache() // just reinstantiating cache isn't enough because of persistence
+    downloader = MockSettingsDownloader(successResponse: validSettings)
+    remoteSettings = RemoteSettings(appInfo: appInfo, downloader: downloader, cache: cache)
+    remoteSettings.updateSettings(currentTime: Date())
+
+    localOverrideSettings = LocalOverrideSettings()
+    sdkDefaultSettings = SDKDefaultSettings()
+
+    sessionSettings = SessionsSettings(
+      appInfo: appInfo,
+      installations: MockInstallationsProtocol(),
+      sdkDefaults: sdkDefaultSettings,
+      localOverrides: localOverrideSettings,
+      remoteSettings: remoteSettings
+    )
+  }
 
   func postBackgroundedNotification() {
     let notificationCenter = NotificationCenter.default
@@ -61,7 +91,7 @@ class InitiatorTests: XCTestCase {
   }
 
   func test_beginListening_initiatesColdStart() throws {
-    let initiator = SessionInitiator()
+    let initiator = SessionInitiator(settings: sessionSettings)
     var initiateCalled = false
     initiator.beginListening {
       initiateCalled = true
@@ -72,7 +102,10 @@ class InitiatorTests: XCTestCase {
   func test_appForegrounded_initiatesNewSession() throws {
     // Given
     var pausedClock = date
-    let initiator = SessionInitiator(currentTimeProvider: { pausedClock })
+    let initiator = SessionInitiator(
+      settings: sessionSettings,
+      currentTimeProvider: { pausedClock }
+    )
     var sessionCount = 0
     initiator.beginListening {
       sessionCount += 1

@@ -61,12 +61,13 @@ protocol SessionsProvider {
       fireLogger: fireLogger,
       sampler: SessionSampler()
     )
-    let initiator = SessionInitiator()
+
     let appInfo = ApplicationInfo(appID: appID)
     let settings = SessionsSettings(
       appInfo: appInfo,
       installations: installations
     )
+    let initiator = SessionInitiator(settings: settings)
 
     self.init(appID: appID,
               identifiers: identifiers,
@@ -93,10 +94,15 @@ protocol SessionsProvider {
       // On each session start, first update Settings if expired
       self.settings.updateSettings()
       self.identifiers.generateNewSessionID()
-      let event = SessionStartEvent(identifiers: self.identifiers, appInfo: self.appInfo)
-      DispatchQueue.global().async {
-        self.coordinator.attemptLoggingSessionStart(event: event) { result in
+      // Generate a session start event only when session data collection is enabled.
+      if self.settings.sessionsEnabled {
+        let event = SessionStartEvent(identifiers: self.identifiers, appInfo: self.appInfo)
+        DispatchQueue.global().async {
+          self.coordinator.attemptLoggingSessionStart(event: event) { result in
+          }
         }
+      } else {
+        Logger.logDebug("Session logging is disabled by configuration settings.")
       }
     }
   }
