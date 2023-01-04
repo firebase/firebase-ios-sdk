@@ -433,7 +433,7 @@ typedef NS_ERROR_ENUM(FIRAuthErrorDomain, FIRAuthErrorCode){
     /** Raised when an Cloud Function returns a blocking error. Will include a message returned from
      * the function.
      */
-    FIRAuthErrorCodeBlockingCloudFunctionError = 18001,
+    FIRAuthErrorCodeBlockingCloudFunctionError = 17105,
 } NS_SWIFT_NAME(AuthErrorCode);
 
 @end
