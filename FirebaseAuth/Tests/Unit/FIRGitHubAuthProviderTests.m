@@ -16,8 +16,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRGitHubAuthProvider.h"
-
 #import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
 @import FirebaseAuth;
 
@@ -52,7 +50,7 @@ static NSString *const kFirebaseAppID = @"appID";
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID];
   FIRAuthCredential *credential = [FIRGitHubAuthProvider credentialWithToken:kGitHubToken];
   FIRVerifyAssertionRequest *request =
-      [[FIRVerifyAssertionRequest alloc] initWithProviderID:FIRGitHubAuthProviderID
+      [[FIRVerifyAssertionRequest alloc] initWithProviderID:FIRGitHubAuthProvider.id
                                        requestConfiguration:requestConfiguration];
   [credential prepareVerifyAssertionRequest:request];
   XCTAssertEqualObjects(request.providerAccessToken, kGitHubToken);
