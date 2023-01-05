@@ -60,8 +60,8 @@
 #include "Firestore/core/test/unit/testutil/async_testing.h"
 #include "absl/memory/memory.h"
 
-using firebase::firestore::api::LoadBundleTask;
 using firebase::firestore::Error;
+using firebase::firestore::api::LoadBundleTask;
 using firebase::firestore::bundle::BundleReader;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::core::EventListener;
@@ -75,9 +75,9 @@ using firebase::firestore::credentials::EmptyAppCheckCredentialsProvider;
 using firebase::firestore::credentials::EmptyAuthCredentialsProvider;
 using firebase::firestore::credentials::HashUser;
 using firebase::firestore::credentials::User;
-using firebase::firestore::local::QueryEngine;
 using firebase::firestore::local::LocalStore;
 using firebase::firestore::local::Persistence;
+using firebase::firestore::local::QueryEngine;
 using firebase::firestore::local::TargetData;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
@@ -87,9 +87,9 @@ using firebase::firestore::model::MutationResult;
 using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::ConnectivityMonitor;
 using firebase::firestore::remote::CreateFirebaseMetadataProviderNoOp;
 using firebase::firestore::remote::CreateNoOpConnectivityMonitor;
-using firebase::firestore::remote::ConnectivityMonitor;
 using firebase::firestore::remote::FirebaseMetadataProvider;
 using firebase::firestore::remote::MockDatastore;
 using firebase::firestore::remote::RemoteStore;

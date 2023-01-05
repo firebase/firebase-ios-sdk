@@ -14,7 +14,7 @@
 
 import FirebaseAuth
 import FirebaseCore
-import FirebaseStorage
+@testable import FirebaseStorage
 import XCTest
 
 /**
@@ -475,6 +475,42 @@ class StorageResultTests: StorageIntegrationCommon {
     waitForExpectations()
   }
 
+  func testCancelErrorCode() throws {
+    let expectation = self.expectation(description: #function)
+    let ref = storage.reference(withPath: "ios/public/helloworld")
+    let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
+    let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
+    let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
+
+    ref.putData(data) { result in
+      switch result {
+      case .success:
+        let task = ref.write(toFile: fileURL)
+        task.cancel()
+
+        task.observe(StorageTaskStatus.success) { snapshot in
+          XCTFail("Error processing success snapshot")
+          expectation.fulfill()
+        }
+
+        task.observe(StorageTaskStatus.failure) { snapshot in
+          let expected = "User cancelled the upload/download."
+          if let error = snapshot.error {
+            let errorDescription = error.localizedDescription
+            XCTAssertEqual(errorDescription, expected)
+            let code = (error as NSError).code
+            XCTAssertEqual(code, StorageErrorCode.cancelled.rawValue)
+          }
+          expectation.fulfill()
+        }
+      case let .failure(error):
+        XCTFail("Unexpected error \(error) from putData")
+        expectation.fulfill()
+      }
+    }
+    waitForExpectations()
+  }
+
   private func assertMetadata(actualMetadata: StorageMetadata,
                               expectedContentType: String,
                               expectedCustomMetadata: [String: String]) {
@@ -549,6 +585,88 @@ class StorageResultTests: StorageIntegrationCommon {
       }
     }
     waitForExpectations()
+  }
+
+  func testResumeGetFile() {
+    let expectation = self.expectation(description: #function)
+    let expectationPause = self.expectation(description: "pause")
+    let expectationResume = self.expectation(description: "resume")
+    let ref = storage.reference().child("ios/public/1mb")
+
+    let fileURL = URL(fileURLWithPath: "\(NSTemporaryDirectory())/hello.txt")
+    let task = ref.write(toFile: fileURL)
+    var downloadedBytes: Int64 = 0
+    var resumeAtBytes = 256 * 1024
+
+    task.observe(StorageTaskStatus.success) { snapshot in
+      XCTAssertEqual(snapshot.description, "<State: Success>")
+      expectation.fulfill()
+    }
+    task.observe(StorageTaskStatus.progress) { snapshot in
+      let description = snapshot.description
+      XCTAssertTrue(description.contains("State: Progress") ||
+        description.contains("State: Resume"))
+      let progress = snapshot.progress
+      if let completed = progress?.completedUnitCount {
+        XCTAssertGreaterThanOrEqual(completed, downloadedBytes)
+        downloadedBytes = completed
+        if completed > resumeAtBytes {
+          task.pause()
+          expectationPause.fulfill()
+          resumeAtBytes = Int.max
+        }
+      }
+    }
+    task.observe(StorageTaskStatus.pause) { snapshot in
+      XCTAssertEqual(snapshot.description, "<State: Paused>")
+      task.resume()
+      expectationResume.fulfill()
+    }
+    waitForExpectations()
+    XCTAssertEqual(resumeAtBytes, Int.max)
+  }
+
+  func testResumeGetFileInBackgroundQueue() {
+    let expectation = self.expectation(description: #function)
+    let expectationPause = self.expectation(description: "pause")
+    let expectationResume = self.expectation(description: "resume")
+    let ref = storage.reference().child("ios/public/1mb")
+
+    let fileURL = URL(fileURLWithPath: "\(NSTemporaryDirectory())/hello.txt")
+    let task = ref.write(toFile: fileURL)
+    var downloadedBytes: Int64 = 0
+    var resumeAtBytes = 256 * 1024
+
+    task.observe(StorageTaskStatus.success) { snapshot in
+      XCTAssertEqual(snapshot.description, "<State: Success>")
+      expectation.fulfill()
+    }
+    task.observe(StorageTaskStatus.progress) { snapshot in
+      let description = snapshot.description
+      XCTAssertTrue(description.contains("State: Progress") ||
+        description.contains("State: Resume"))
+      let progress = snapshot.progress
+      if let completed = progress?.completedUnitCount {
+        XCTAssertGreaterThanOrEqual(completed, downloadedBytes)
+        downloadedBytes = completed
+        if completed > resumeAtBytes {
+          DispatchQueue.global(qos: .background).async {
+            task.pause()
+          }
+          expectationPause.fulfill()
+          resumeAtBytes = Int.max
+        }
+      }
+    }
+    task.observe(StorageTaskStatus.pause) { snapshot in
+      XCTAssertEqual(snapshot.description, "<State: Paused>")
+      DispatchQueue.global(qos: .background).async {
+        task.resume()
+      }
+      expectationResume.fulfill()
+    }
+    waitForExpectations()
+    XCTAssertEqual(resumeAtBytes, Int.max)
   }
 
   func testPagedListFiles() {

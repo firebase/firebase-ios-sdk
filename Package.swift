@@ -19,7 +19,7 @@
 import PackageDescription
 import class Foundation.ProcessInfo
 
-let firebaseVersion = "10.2.0"
+let firebaseVersion = "10.4.0"
 
 let package = Package(
   name: "Firebase",
@@ -160,7 +160,7 @@ let package = Package(
     .package(
       name: "GoogleUtilities",
       url: "https://github.com/google/GoogleUtilities.git",
-      "7.9.0" ..< "8.0.0"
+      "7.10.0" ..< "8.0.0"
     ),
     .package(
       name: "GTMSessionFetcher",
@@ -531,7 +531,23 @@ let package = Package(
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
       ]
     ),
-
+    .testTarget(
+      name: "FirebaseCrashlyticsUnit",
+      dependencies: ["FirebaseCrashlytics", "OCMock"],
+      path: "Crashlytics/UnitTests",
+      resources: [
+        .process("FIRCLSMachO/data"),
+        .copy("Data"),
+      ],
+      cSettings: [
+        .headerSearchPath("../.."),
+        .define("DISPLAY_VERSION", to: firebaseVersion),
+        .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: [.iOS])),
+        .define("CLS_SDK_NAME", to: "Crashlytics macOS SDK", .when(platforms: [.macOS])),
+        .define("CLS_SDK_NAME", to: "Crashlytics tvOS SDK", .when(platforms: [.tvOS])),
+        .define("CLS_SDK_NAME", to: "Crashlytics watchOS SDK", .when(platforms: [.watchOS])),
+      ]
+    ),
     .target(
       name: "FirebaseDatabase",
       dependencies: [
@@ -1064,6 +1080,70 @@ let package = Package(
       ]
     ),
 
+    // MARK: - Firebase Sessions
+
+    .target(
+      name: "FirebaseSessions",
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseInstallations",
+        "FirebaseCoreExtension",
+        "FirebaseSessionsObjC",
+        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
+      ],
+      path: "FirebaseSessions/Sources",
+      cSettings: [
+        .headerSearchPath(".."),
+        .define("DISPLAY_VERSION", to: firebaseVersion),
+        .define("PB_FIELD_32BIT", to: "1"),
+        .define("PB_NO_PACKED_STRUCTS", to: "1"),
+        .define("PB_ENABLE_MALLOC", to: "1"),
+      ],
+      linkerSettings: [
+        .linkedFramework("Security"),
+        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
+      ]
+    ),
+    // The Sessions SDK is Swift-first with Objective-C code to support
+    // nanopb. Because Swift Package Manager doesn't support mixed
+    // language targets, the ObjC code has been extracted out into
+    // a separate target.
+    .target(
+      name: "FirebaseSessionsObjC",
+      dependencies: [
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
+        .product(name: "nanopb", package: "nanopb"),
+      ],
+      path: "FirebaseSessions",
+      exclude: [
+        "README.md",
+        "Sources/",
+        "Tests/",
+        "ProtoSupport/",
+        "generate_project.sh",
+        "generate_protos.sh",
+        "generate_testapp.sh",
+      ],
+      publicHeadersPath: "SourcesObjC",
+      cSettings: [
+        .headerSearchPath(".."),
+        .define("DISPLAY_VERSION", to: firebaseVersion),
+        .define("PB_FIELD_32BIT", to: "1"),
+        .define("PB_NO_PACKED_STRUCTS", to: "1"),
+        .define("PB_ENABLE_MALLOC", to: "1"),
+      ],
+      linkerSettings: [
+        .linkedFramework("Security"),
+        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
+      ]
+    ),
+    .testTarget(
+      name: "FirebaseSessionsUnit",
+      dependencies: ["FirebaseSessions"],
+      path: "FirebaseSessions/Tests/Unit"
+    ),
+
     // MARK: - Firebase Storage
 
     .target(
@@ -1130,6 +1210,7 @@ let package = Package(
         .target(name: "FirebasePerformance",
                 condition: .when(platforms: [.iOS, .tvOS])),
         "FirebaseRemoteConfig",
+        "FirebaseSessions",
         "FirebaseStorage",
         .product(name: "nanopb", package: "nanopb"),
       ],

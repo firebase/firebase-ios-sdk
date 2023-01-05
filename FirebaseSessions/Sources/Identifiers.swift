@@ -18,10 +18,6 @@ import Foundation
 @_implementationOnly import FirebaseInstallations
 
 protocol IdentifierProvider {
-  var installationID: String {
-    get
-  }
-
   var sessionID: String {
     get
   }
@@ -39,59 +35,14 @@ protocol IdentifierProvider {
 ///   (Maybe) 4) Persisting, reading, and incrementing an increasing index
 ///
 class Identifiers: IdentifierProvider {
-  private let installations: InstallationsProtocol
-
   private var _sessionID: String?
   private var _previousSessionID: String?
-
-  init(installations: InstallationsProtocol) {
-    self.installations = installations
-  }
 
   // Generates a new Session ID. If there was already a generated Session ID
   // from the last session during the app's lifecycle, it will also set the last Session ID
   func generateNewSessionID() {
     _previousSessionID = _sessionID
     _sessionID = UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased()
-  }
-
-  // Fetches the Installation ID from Firebase Installation Service. This method must be run on a background thread due to how Firebase Installations
-  // handles threading.
-  var installationID: String {
-    if Thread.isMainThread {
-      Logger
-        .logError(
-          "Error: Identifiers.installationID getter must be called on a background thread. Using an empty ID"
-        )
-      return ""
-    }
-
-    var localInstallationID = ""
-
-    let semaphore = DispatchSemaphore(value: 0)
-
-    installations.installationID { result in
-      switch result {
-      case let .success(fiid):
-        localInstallationID = fiid
-      case let .failure(error):
-        Logger
-          .logError(
-            "Error getting Firebase Installation ID: \(error). Using an empty ID"
-          )
-      }
-
-      semaphore.signal()
-    }
-
-    switch semaphore.wait(timeout: DispatchTime.now() + 1.0) {
-    case .success:
-      break
-    case .timedOut:
-      Logger.logError("Error: took too long to get the Firebase Installation ID. Using an empty ID")
-    }
-
-    return localInstallationID
   }
 
   var sessionID: String {

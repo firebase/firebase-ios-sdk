@@ -47,28 +47,31 @@ internal class StorageUpdateMetadataTask: StorageTask, StorageTaskManagement {
    * Prepares a task and begins execution.
    */
   internal func enqueue() {
-    weak var weakSelf = self
-    DispatchQueue.global(qos: .background).async {
-      guard let strongSelf = weakSelf else { return }
-      var request = strongSelf.baseRequest
-      let updateDictionary = strongSelf.updateMetadata.updatedMetadata()
+    let completion = taskCompletion
+    taskCompletion = { (metadata: StorageMetadata?, error: Error?) in
+      completion?(metadata, error)
+      // Reference self in completion handler in order to retain self until completion is called.
+      self.taskCompletion = nil
+    }
+    dispatchQueue.async { [weak self] in
+      guard let self = self else { return }
+      var request = self.baseRequest
+      let updateDictionary = self.updateMetadata.updatedMetadata()
       let updateData = try? JSONSerialization.data(withJSONObject: updateDictionary)
       request.httpMethod = "PATCH"
-      request.timeoutInterval = strongSelf.reference.storage.maxOperationRetryTime
+      request.timeoutInterval = self.reference.storage.maxOperationRetryTime
       request.httpBody = updateData
       request.setValue("application/json; charset=UTF-8", forHTTPHeaderField: "Content-Type")
       if let count = updateData?.count {
         request.setValue("\(count)", forHTTPHeaderField: "Content-Length")
       }
 
-      let callback = strongSelf.taskCompletion
-      strongSelf.taskCompletion = nil
-
-      let fetcher = strongSelf.fetcherService.fetcher(with: request)
+      let fetcher = self.fetcherService.fetcher(with: request)
       fetcher.comment = "GetMetadataTask"
-      strongSelf.fetcher = fetcher
+      self.fetcher = fetcher
 
-      strongSelf.fetcherCompletion = { (data: Data?, error: NSError?) in
+      self.fetcherCompletion = { [weak self] (data: Data?, error: NSError?) in
+        guard let self = self else { return }
         var metadata: StorageMetadata?
         if let error = error {
           if self.error == nil {
@@ -84,17 +87,14 @@ internal class StorageUpdateMetadataTask: StorageTask, StorageTaskManagement {
             self.error = StorageErrorCode.error(withInvalidRequest: data)
           }
         }
-        callback?(metadata, self.error)
+        self.taskCompletion?(metadata, self.error)
         self.fetcherCompletion = nil
       }
 
       fetcher.comment = "UpdateMetadataTask"
 
-      strongSelf.fetcher?.beginFetch { data, error in
-        let strongSelf = weakSelf
-        if let fetcherCompletion = strongSelf?.fetcherCompletion {
-          fetcherCompletion(data, error as? NSError)
-        }
+      self.fetcher?.beginFetch { [weak self] data, error in
+        self?.fetcherCompletion?(data, error as? NSError)
       }
     }
   }

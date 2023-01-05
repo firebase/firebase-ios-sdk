@@ -83,6 +83,30 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, assign, readonly) const model::DatabaseId &databaseID;
 @property(nonatomic, strong, readonly) FSTUserDataReader *dataReader;
 
+/**
+ * Creates, caches, and returns named `Firestore` object for the specified `FirebaseApp`. Each
+ * subsequent invocation returns the same `Firestore` object.
+ *
+ * @param app The `FirebaseApp` instance to use for authentication and as a source of the Google
+ * Cloud Project ID for your Firestore Database. If you want the default instance, you should
+ * explicitly set it to `FirebaseApp.app()`.
+ * @param database The database name.
+ *
+ * @return The named `Firestore` instance.
+ */
++ (instancetype)firestoreForApp:(FIRApp *)app
+                       database:(NSString *)database NS_SWIFT_NAME(firestore(app:database:));
+
+/**
+ * Creates, caches, and returns named `Firestore` object for the default _app_. Each subsequent
+ * invocation returns the same `Firestore` object.
+ *
+ * @param database The database name.
+ *
+ * @return The named `Firestore` instance.
+ */
++ (instancetype)firestoreForDatabase:(NSString *)database NS_SWIFT_NAME(firestore(database:));
+
 @end
 
 NS_ASSUME_NONNULL_END
