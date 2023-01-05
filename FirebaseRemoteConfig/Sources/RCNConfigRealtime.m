@@ -359,7 +359,7 @@ static NSInteger const gMaxRetries = 7;
       strongSelf->_remainingRetryCount--;
       [strongSelf->_settings setRealtimeRetryCount:[strongSelf->_settings realtimeRetryCount] + 1];
       dispatch_time_t executionDelay =
-          dispatch_time(DISPATCH_TIME_NOW, (backOffTime * NSEC_PER_SEC));
+          dispatch_time(DISPATCH_TIME_NOW, (backOffInterval * NSEC_PER_SEC));
       dispatch_after(executionDelay, strongSelf->_realtimeLockQueue, ^{
         [strongSelf beginRealtimeStream];
       });
