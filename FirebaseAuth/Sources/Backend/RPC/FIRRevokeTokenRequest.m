@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,8 @@ static NSString *const kRevokeTokenEndpoint =
 static NSString *const kTokenKey = @"token";
 
 /** @var kIDTokenKey
-    @brief The key for the "idToken" value in the request. This is actually the STS Access Token,
-        despite it's confusing (backwards compatiable) parameter name.
+    @brief The key for the "idToken" value in the request. This is actually the Security Token
+   Service access token, despite its confusing (backwards compatiable) parameter name.
  */
 static NSString *const kIDTokenKey = @"idToken";
 

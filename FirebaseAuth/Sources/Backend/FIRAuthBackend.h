@@ -428,9 +428,9 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
 
 #endif
 
-/** @fn verifyClient:callback:
-    @brief Calls the verifyClient endpoint, which is responsible for sending the silent push
-        notification used for app validation to the device provided in the request parameters.
+/** @fn revokeToken:callback:
+    @brief Calls the revokeToken endpoint, which is responsible for revoking the given token
+        provided in the request parameters.
     @param request The request parameters.
     @param callback The callback.
  */
