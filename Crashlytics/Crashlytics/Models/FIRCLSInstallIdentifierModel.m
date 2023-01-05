@@ -32,7 +32,6 @@ static unsigned long long FIRCLSInstallationsWaitTime = 10 * NSEC_PER_SEC;
 @interface FIRCLSInstallIdentifierModel ()
 
 @property(nonatomic, copy) NSString *installID;
-@property(nonatomic, copy) NSString *fiid;
 
 @property(nonatomic, readonly) FIRInstallations *installations;
 
@@ -43,7 +42,6 @@ static unsigned long long FIRCLSInstallationsWaitTime = 10 * NSEC_PER_SEC;
 // This needs to be synthesized so we can set without using the setter in the constructor and
 // overridden setters and getters
 @synthesize installID = _installID;
-@synthesize fiid = _fiid;
 
 - (instancetype)initWithInstallations:(FIRInstallations *)installations {
   self = [super init];
