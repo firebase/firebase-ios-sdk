@@ -300,7 +300,6 @@ class FirebaseAppTests: XCTestCase {
     XCTAssertEqual(app.options.googleAppID, Constants.Options.googleAppID)
     XCTAssertEqual(app.options.gcmSenderID, Constants.Options.gcmSenderID)
     XCTAssertEqual(app.options.deepLinkURLScheme, superSecretURLScheme)
-    XCTAssertNil(app.options.androidClientID)
   }
 
   func testFirebaseDataCollectionDefaultEnabled() throws {

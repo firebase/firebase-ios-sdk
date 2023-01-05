@@ -18,6 +18,37 @@ target 'AppQualityDevApp_iOS' do
   shared_pods
 end
 
+target 'AppQualityDevApp_Crashlytics_iOS' do
+  platform :ios, '11.0'
+
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  shared_pods
+  pod 'FirebaseCrashlytics', :path => '../../../'
+end
+
+target 'AppQualityDevApp_Performance_iOS' do
+  platform :ios, '11.0'
+
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  shared_pods
+  pod 'FirebasePerformance', :path => '../../../'
+end
+
+target 'AppQualityDevApp_CrashlyticsPerformance_iOS' do
+  platform :ios, '11.0'
+
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  shared_pods
+  pod 'FirebaseCrashlytics', :path => '../../../'
+  pod 'FirebasePerformance', :path => '../../../'
+end
+
 target 'AppQualityDevApp_macOS' do
   platform :macos, '10.13'
 

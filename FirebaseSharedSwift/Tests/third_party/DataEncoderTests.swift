@@ -413,6 +413,37 @@ class TestFirebaseDataEncoder: XCTestCase {
     _testRoundTrip(of: Optional(data), expected: expected)
   }
 
+  func testEncodingDataBlob() {
+    let data = Data([0xDE, 0xAD, 0xBE, 0xEF])
+
+    _testRoundTrip(of: data,
+                   expected: data,
+                   dataEncodingStrategy: .blob,
+                   dataDecodingStrategy: .blob)
+
+    // Optional data should encode the same way.
+    _testRoundTrip(of: Optional(data),
+                   expected: data,
+                   dataEncodingStrategy: .blob,
+                   dataDecodingStrategy: .blob)
+  }
+
+  func testEncodingData2Blob() {
+    let string = "abcdef"
+    let data = string.data(using: .utf8)!
+
+    _testRoundTrip(of: data,
+                   expected: data,
+                   dataEncodingStrategy: .blob,
+                   dataDecodingStrategy: .blob)
+
+    // Optional data should encode the same way.
+    _testRoundTrip(of: Optional(data),
+                   expected: data,
+                   dataEncodingStrategy: .blob,
+                   dataDecodingStrategy: .blob)
+  }
+
   func testEncodingDataCustom() {
     // We'll encode a number instead of data.
     let encode = { (_ data: Data, _ encoder: Encoder) throws -> Void in
@@ -449,6 +480,35 @@ class TestFirebaseDataEncoder: XCTestCase {
                    expected: [:] as [String: String],
                    dataEncodingStrategy: .custom(encode),
                    dataDecodingStrategy: .custom(decode))
+  }
+
+  func testDecodingBase64StringAsBlobData() {
+    let data = "abcdef".data(using: .utf8)!
+    let base64String = "YWJjZGVm"
+
+    let encoder = FirebaseDataEncoder()
+    encoder.dataEncodingStrategy = .base64
+    var payload: Any! = nil
+    do {
+      payload = try encoder.encode(data)
+    } catch {
+      XCTFail("Failed to encode \(Data.self): \(error)")
+    }
+
+    XCTAssertEqual(
+      base64String,
+      payload as? String,
+      "Encoding did not produce the expected base64-encoded \(String.self)."
+    )
+
+    let decoder = FirebaseDataDecoder()
+    decoder.dataDecodingStrategy = .blob
+    do {
+      let decoded = try decoder.decode(Data.self, from: payload!)
+      XCTAssertEqual(data, decoded, "Decoding the base64-encoded payload did not produce a \(Data.self).")
+    } catch {
+      XCTFail("Failed to decode \(Data.self): \(error)")
+    }
   }
 
   // MARK: - Non-Conforming Floating Point Strategy Tests

@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSBundle *)getBundle {
 #if SWIFT_PACKAGE
-  return Firebase_ABTestingUnit_SWIFTPM_MODULE_BUNDLE();
+  return SWIFTPM_MODULE_BUNDLE;
 #else
   return [NSBundle bundleForClass:[ABTTestUtilities class]];
 #endif

@@ -51,6 +51,7 @@
 #if TARGET_OS_WATCH
   // TODO: Question - Why does watchOS use a different encoding from the other platforms and the
   // Android SDK?
+  // This broken the unit test on watchOS: https://github.com/firebase/firebase-ios-sdk/pull/10511
   return
       [string stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet
                                                                      URLPathAllowedCharacterSet]];

@@ -624,6 +624,7 @@ NSString *const kTestPassword = KPASSWORD;
                 XCTAssertTrue([[snapshot description] containsString:@"State: Failed"]);
                 if (!fulfilled) {
                   fulfilled = YES;
+                  XCTAssertEqual(snapshot.error.code, FIRStorageErrorCodeCancelled);
                   [expectation fulfill];
                 }
               }];

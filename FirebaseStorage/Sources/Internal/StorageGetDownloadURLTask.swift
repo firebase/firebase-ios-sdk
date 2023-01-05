@@ -44,21 +44,25 @@ internal class StorageGetDownloadURLTask: StorageTask, StorageTaskManagement {
    * Prepares a task and begins execution.
    */
   internal func enqueue() {
-    weak var weakSelf = self
-    DispatchQueue.global(qos: .background).async {
-      guard let strongSelf = weakSelf else { return }
-      var request = strongSelf.baseRequest
+    if let completion = taskCompletion {
+      taskCompletion = { (url: URL?, error: Error?) in
+        completion(url, error)
+        // Reference self in completion handler in order to retain self until completion is called.
+        self.taskCompletion = nil
+      }
+    }
+    dispatchQueue.async { [weak self] in
+      guard let self = self else { return }
+      var request = self.baseRequest
       request.httpMethod = "GET"
-      request.timeoutInterval = strongSelf.reference.storage.maxOperationRetryTime
+      request.timeoutInterval = self.reference.storage.maxOperationRetryTime
 
-      let callback = strongSelf.taskCompletion
-      strongSelf.taskCompletion = nil
-
-      let fetcher = strongSelf.fetcherService.fetcher(with: request)
+      let fetcher = self.fetcherService.fetcher(with: request)
       fetcher.comment = "GetDownloadURLTask"
-      strongSelf.fetcher = fetcher
+      self.fetcher = fetcher
 
-      strongSelf.fetcherCompletion = { (data: Data?, error: NSError?) in
+      self.fetcherCompletion = { [weak self] (data: Data?, error: NSError?) in
+        guard let self = self else { return }
         var downloadURL: URL?
         if let error = error {
           if self.error == nil {
@@ -68,7 +72,7 @@ internal class StorageGetDownloadURLTask: StorageTask, StorageTaskManagement {
           if let data = data,
              let responseDictionary = try? JSONSerialization
              .jsonObject(with: data) as? [String: Any] {
-            downloadURL = strongSelf.downloadURLFromMetadataDictionary(responseDictionary)
+            downloadURL = self.downloadURLFromMetadataDictionary(responseDictionary)
             if downloadURL == nil {
               self.error = NSError(domain: StorageErrorDomain,
                                    code: StorageErrorCode.unknown.rawValue,
@@ -79,15 +83,12 @@ internal class StorageGetDownloadURLTask: StorageTask, StorageTaskManagement {
             self.error = StorageErrorCode.error(withInvalidRequest: data)
           }
         }
-        callback?(downloadURL, self.error)
+        self.taskCompletion?(downloadURL, self.error)
         self.fetcherCompletion = nil
       }
 
-      strongSelf.fetcher?.beginFetch { data, error in
-        let strongSelf = weakSelf
-        if let fetcherCompletion = strongSelf?.fetcherCompletion {
-          fetcherCompletion(data, error as? NSError)
-        }
+      self.fetcher?.beginFetch { [weak self] data, error in
+        self?.fetcherCompletion?(data, error as? NSError)
       }
     }
   }

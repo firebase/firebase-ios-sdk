@@ -19,16 +19,24 @@ import XCTest
 
 class SessionCoordinatorTests: XCTestCase {
   var identifiers = MockIdentifierProvider()
+  var installations = MockInstallationsProtocol()
   var time = MockTimeProvider()
   var fireLogger = MockGDTLogger()
   var appInfo = MockApplicationInfo()
+  var sampler = SessionSampler()
 
   var coordinator: SessionCoordinator!
 
   override func setUp() {
     super.setUp()
 
-    coordinator = SessionCoordinator(identifiers: identifiers, fireLogger: fireLogger)
+    coordinator = SessionCoordinator(
+      identifiers: identifiers,
+      installations: installations,
+      fireLogger: fireLogger,
+      sampler: sampler
+    )
+    sampler.sessionSamplingRate = 1.0
   }
 
   func test_attemptLoggingSessionStart_logsToGDT() throws {
@@ -47,7 +55,7 @@ class SessionCoordinatorTests: XCTestCase {
     // Make sure we've set the Installation ID
     assertEqualProtoString(
       event.proto.session_data.firebase_installation_id,
-      expected: MockIdentifierProvider.testInstallationID,
+      expected: MockInstallationsProtocol.testInstallationId,
       fieldName: "installation_id"
     )
 
@@ -76,12 +84,51 @@ class SessionCoordinatorTests: XCTestCase {
     // Make sure we've set the Installation ID
     assertEqualProtoString(
       event.proto.session_data.firebase_installation_id,
-      expected: MockIdentifierProvider.testInstallationID,
+      expected: MockInstallationsProtocol.testInstallationId,
       fieldName: "installation_id"
     )
 
     // We should have logged the event, but with a failed result
     XCTAssertEqual(fireLogger.loggedEvent, event)
+    XCTAssertFalse(resultSuccess)
+  }
+
+  func test_eventNotDropped_handlesAllEventsAllowed() throws {
+    identifiers.mockAllValidIDs()
+
+    let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
+
+    sampler.sessionSamplingRate = 1.0
+    var resultSuccess = true
+    coordinator.attemptLoggingSessionStart(event: event) { result in
+      switch result {
+      case .success(()):
+        resultSuccess = true
+      case .failure:
+        resultSuccess = false
+      }
+    }
+
+    XCTAssertTrue(resultSuccess)
+  }
+
+  func test_eventDropped_handlesZeroSamplingRate() throws {
+    identifiers.mockAllValidIDs()
+
+    let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
+
+    sampler.sessionSamplingRate = 0.0
+
+    var resultSuccess = true
+    coordinator.attemptLoggingSessionStart(event: event) { result in
+      switch result {
+      case .success(()):
+        resultSuccess = true
+      case .failure:
+        resultSuccess = false
+      }
+    }
+
     XCTAssertFalse(resultSuccess)
   }
 }

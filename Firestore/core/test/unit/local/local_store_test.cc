@@ -16,6 +16,7 @@
 
 #include "Firestore/core/test/unit/local/local_store_test.h"
 
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -31,8 +32,10 @@
 #include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/model/delete_mutation.h"
 #include "Firestore/core/src/model/document.h"
+#include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/field_index.h"
 #include "Firestore/core/src/model/mutable_document.h"
+#include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/model/mutation_batch_result.h"
 #include "Firestore/core/src/model/patch_mutation.h"
 #include "Firestore/core/src/model/set_mutation.h"
@@ -87,6 +90,7 @@ using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Key;
 using testutil::Map;
+using testutil::OverlayTypeMap;
 using testutil::Query;
 using testutil::UnknownDoc;
 using testutil::UpdateRemoteEvent;
@@ -906,6 +910,8 @@ TEST_P(LocalStoreTest, ReadsAllDocumentsForInitialCollectionQueries) {
 
   FSTAssertRemoteDocumentsRead(/* by_key= */ 0, /* by_query= */ 2);
   FSTAssertOverlaysRead(/* by_key= */ 0, /* by_query= */ 1);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("foo/bonk"), model::Mutation::Type::Set}}));
 }
 
 TEST_P(LocalStoreTest, PersistsResumeTokens) {
@@ -1661,6 +1667,21 @@ TEST_P(LocalStoreTest, MultipleFieldPatchesOnLocalDocs) {
       Doc("foo/bar", 0, Map("likes", 1, "stars", 2)).SetHasLocalMutations());
   FSTAssertContains(
       Doc("foo/bar", 0, Map("likes", 1, "stars", 2)).SetHasLocalMutations());
+}
+
+TEST_P(LocalStoreTest, PatchMutationLeadsToPatchOverlay) {
+  AllocateQuery(Query("foo"));
+  ApplyRemoteEvent(UpdateRemoteEvent(Doc("foo/baz", 10, Map("a", 1)), {2}, {}));
+  ApplyRemoteEvent(UpdateRemoteEvent(Doc("foo/bar", 20, Map()), {2}, {}));
+  WriteMutation(testutil::PatchMutation("foo/baz", Map("b", 2)));
+
+  ResetPersistenceStats();
+
+  ExecuteQuery(Query("foo"));
+  FSTAssertRemoteDocumentsRead(0, 2);
+  FSTAssertOverlaysRead(0, 1);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("foo/baz"), model::Mutation::Type::Patch}}));
 }
 
 }  // namespace local

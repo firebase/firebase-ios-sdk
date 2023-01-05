@@ -1334,7 +1334,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
 // Manage different bundle locations for Swift Package Manager, CocoaPods static, CocoaPods dynamic.
 - (void)setDefaultsFor:(FIRRemoteConfig *)config {
 #if SWIFT_PACKAGE
-  NSBundle *bundle = Firebase_RemoteConfigUnit_SWIFTPM_MODULE_BUNDLE();
+  NSBundle *bundle = SWIFTPM_MODULE_BUNDLE;
   NSString *plistFile = [bundle pathForResource:@"Defaults-testInfo" ofType:@"plist"];
 #else
   NSBundle *bundle = [NSBundle mainBundle];
@@ -1774,7 +1774,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
 - (FIROptions *)secondAppOptions {
   NSBundle *bundle = [NSBundle bundleForClass:[self class]];
 #if SWIFT_PACKAGE
-  bundle = Firebase_RemoteConfigUnit_SWIFTPM_MODULE_BUNDLE();
+  bundle = SWIFTPM_MODULE_BUNDLE;
 #endif
   NSString *plistPath = [bundle pathForResource:@"SecondApp-GoogleService-Info" ofType:@"plist"];
   FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:plistPath];

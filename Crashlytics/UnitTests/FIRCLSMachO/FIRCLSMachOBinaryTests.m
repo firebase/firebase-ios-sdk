@@ -19,7 +19,12 @@
 @implementation FIRCLSMachOBinaryTests
 
 - (NSString*)resourcePath {
-  return [[NSBundle bundleForClass:[self class]] resourcePath];
+#if SWIFT_PACKAGE
+  NSBundle* bundle = SWIFTPM_MODULE_BUNDLE;
+#else
+  NSBundle* bundle = [NSBundle bundleForClass:[self class]];
+#endif
+  return bundle.resourcePath;
 }
 
 - (NSURL*)URLForResource:(NSString*)resource {

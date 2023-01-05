@@ -74,6 +74,8 @@ using firebase::firestore::util::ByteStreamApple;
 using firebase::firestore::util::Empty;
 using firebase::firestore::util::Executor;
 using firebase::firestore::util::ExecutorLibdispatch;
+using firebase::firestore::util::kLogLevelDebug;
+using firebase::firestore::util::kLogLevelNotice;
 using firebase::firestore::util::LogSetLevel;
 using firebase::firestore::util::MakeCallback;
 using firebase::firestore::util::MakeNSError;
@@ -83,11 +85,9 @@ using firebase::firestore::util::ObjcThrowHandler;
 using firebase::firestore::util::SetThrowHandler;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
+using firebase::firestore::util::StreamReadResult;
 using firebase::firestore::util::ThrowIllegalState;
 using firebase::firestore::util::ThrowInvalidArgument;
-using firebase::firestore::util::kLogLevelDebug;
-using firebase::firestore::util::kLogLevelNotice;
-using firebase::firestore::util::StreamReadResult;
 
 using UserUpdateBlock = id _Nullable (^)(FIRTransaction *, NSError **);
 using UserTransactionCompletion = void (^)(id _Nullable, NSError *_Nullable);
@@ -126,23 +126,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)firestoreForApp:(FIRApp *)app {
   return [self firestoreForApp:app database:MakeNSString(DatabaseId::kDefault)];
-}
-
-// TODO(b/62410906): make this public
-+ (instancetype)firestoreForApp:(FIRApp *)app database:(NSString *)database {
-  if (!app) {
-    ThrowInvalidArgument("FirebaseApp instance may not be nil. Use FirebaseApp.app() if you'd like "
-                         "to use the default FirebaseApp instance.");
-  }
-  if (!database) {
-    ThrowInvalidArgument("Database identifier may not be nil. Use '%s' if you want the default "
-                         "database",
-                         DatabaseId::kDefault);
-  }
-
-  id<FSTFirestoreMultiDBProvider> provider =
-      FIR_COMPONENT(FSTFirestoreMultiDBProvider, app.container);
-  return [provider firestoreForDatabase:database];
 }
 
 - (instancetype)initWithDatabaseID:(model::DatabaseId)databaseID
@@ -527,6 +510,31 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (const DatabaseId &)databaseID {
   return _firestore->database_id();
+}
+
++ (instancetype)firestoreForApp:(FIRApp *)app database:(NSString *)database {
+  if (!app) {
+    ThrowInvalidArgument("FirebaseApp instance may not be nil. Use FirebaseApp.app() if you'd like "
+                         "to use the default FirebaseApp instance.");
+  }
+  if (!database) {
+    ThrowInvalidArgument("Database identifier may not be nil. Use '%s' if you want the default "
+                         "database",
+                         DatabaseId::kDefault);
+  }
+
+  id<FSTFirestoreMultiDBProvider> provider =
+      FIR_COMPONENT(FSTFirestoreMultiDBProvider, app.container);
+  return [provider firestoreForDatabase:database];
+}
+
++ (instancetype)firestoreForDatabase:(NSString *)database {
+  FIRApp *app = [FIRApp defaultApp];
+  if (!app) {
+    ThrowIllegalState("Failed to get FirebaseApp instance. Please call FirebaseApp.configure() "
+                      "before using Firestore");
+  }
+  return [self firestoreForApp:app database:database];
 }
 
 + (FIRFirestore *)recoverFromFirestore:(std::shared_ptr<Firestore>)firestore {

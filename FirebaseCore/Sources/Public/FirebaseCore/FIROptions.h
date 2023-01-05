@@ -31,7 +31,7 @@ NS_SWIFT_NAME(FirebaseOptions)
 + (nullable FIROptions *)defaultOptions NS_SWIFT_NAME(defaultOptions());
 
 /**
- * An iOS API key used for authenticating requests from your app, e.g.
+ * An API key used for authenticating requests from your Apple app, e.g.
  * The key must begin with "A" and contain exactly 39 alphanumeric characters, used to identify your
  * app to Google servers.
  */
@@ -44,19 +44,19 @@ NS_SWIFT_NAME(FirebaseOptions)
 @property(nonatomic, copy) NSString *bundleID;
 
 /**
- * The OAuth2 client ID for iOS application used to authenticate Google users, for example
+ * The OAuth2 client ID for Apple applications used to authenticate Google users, for example
  * @"12345.apps.googleusercontent.com", used for signing in with Google.
  */
 @property(nonatomic, copy, nullable) NSString *clientID;
 
 /**
- * The tracking ID for Google Analytics, e.g. @"UA-12345678-1", used to configure Google Analytics.
+ * Unused.
  */
-@property(nonatomic, copy, nullable) NSString *trackingID;
+@property(nonatomic, copy, nullable) NSString *trackingID DEPRECATED_ATTRIBUTE;
 
 /**
  * The Project Number from the Google Developer's console, for example @"012345678901", used to
- * configure Google Cloud Messaging.
+ * configure Firebase Cloud Messaging.
  */
 @property(nonatomic, copy) NSString *GCMSenderID NS_SWIFT_NAME(gcmSenderID);
 
@@ -66,10 +66,9 @@ NS_SWIFT_NAME(FirebaseOptions)
 @property(nonatomic, copy, nullable) NSString *projectID;
 
 /**
- * The Android client ID used in Google AppInvite when an iOS app has its Android version, for
- * example @"12345.apps.googleusercontent.com".
+ * Unused.
  */
-@property(nonatomic, copy, nullable) NSString *androidClientID;
+@property(nonatomic, copy, nullable) NSString *androidClientID DEPRECATED_ATTRIBUTE;
 
 /**
  * The Google App ID that is used to uniquely identify an instance of an app.

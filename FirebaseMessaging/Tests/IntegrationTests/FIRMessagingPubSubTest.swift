@@ -35,6 +35,9 @@
 
     override func setUpWithError() throws {
       messaging = try XCTUnwrap(Messaging.messaging())
+      // fake APNS Token
+      messaging.apnsToken = "eb706b132b2f9270faac751e4ceab283f1803b729ac1dd399db3fd2a98bb101b"
+        .data(using: .utf8)
     }
 
     override func tearDown() {

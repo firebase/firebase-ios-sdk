@@ -15,13 +15,16 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseSessions/Sources/NanoPB/FIRSESNanoPBHelpers.h"
+#import <GoogleUtilities/GULNetworkInfo.h>
 
-#import "FirebaseSessions/Protogen/nanopb/sessions.nanopb.h"
+#import "FirebaseSessions/SourcesObjC/NanoPB/FIRSESNanoPBHelpers.h"
+
+#import "FirebaseSessions/SourcesObjC/Protogen/nanopb/sessions.nanopb.h"
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
+#import <sys/sysctl.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -155,33 +158,20 @@ pb_size_t FIRSESGetAppleApplicationInfoTag(void) {
   return firebase_appquality_sessions_ApplicationInfo_apple_app_info_tag;
 }
 
-#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
-CTTelephonyNetworkInfo *_Nullable FIRSESNetworkInfo(void) {
-  static CTTelephonyNetworkInfo *networkInfo;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    networkInfo = [[CTTelephonyNetworkInfo alloc] init];
-  });
-  return networkInfo;
-}
-#endif
-
-NSString *_Nullable FIRSESNetworkMobileCountryCode(void) {
-#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
-  CTTelephonyNetworkInfo *networkInfo = FIRSESNetworkInfo();
-  CTCarrier *provider = networkInfo.subscriberCellularProvider;
-  return provider.mobileCountryCode;
-#endif
-  return nil;
-}
-
-NSString *_Nullable FIRSESNetworkMobileNetworkCode(void) {
-#ifdef TARGET_HAS_MOBILE_CONNECTIVITY
-  CTTelephonyNetworkInfo *networkInfo = FIRSESNetworkInfo();
-  CTCarrier *provider = networkInfo.subscriberCellularProvider;
-  return provider.mobileNetworkCode;
-#endif
-  return nil;
+/// Copied from a private method in GULAppEnvironmentUtil.
+NSString *_Nullable FIRSESGetSysctlEntry(const char *sysctlKey) {
+  static NSString *entryValue;
+  size_t size;
+  sysctlbyname(sysctlKey, NULL, &size, NULL, 0);
+  if (size > 0) {
+    char *entryValueCStr = malloc(size);
+    sysctlbyname(sysctlKey, entryValueCStr, &size, NULL, 0);
+    entryValue = [NSString stringWithCString:entryValueCStr encoding:NSUTF8StringEncoding];
+    free(entryValueCStr);
+    return entryValue;
+  } else {
+    return nil;
+  }
 }
 
 NSString *_Nullable FIRSESValidateMccMnc(NSString *_Nullable mcc, NSString *_Nullable mnc) {

@@ -14,18 +14,41 @@
 // limitations under the License.
 
 import Foundation
+
+#if SWIFT_PACKAGE
+  import FirebaseSessionsObjC
+#endif // SWIFT_PACKAGE
+
+#if SWIFT_PACKAGE
+  @_implementationOnly import GoogleUtilities_Environment
+#else
+  @_implementationOnly import GoogleUtilities
+#endif // SWIFT_PACKAGE
+
 protocol NetworkInfoProtocol {
   var mobileCountryCode: String? { get }
 
   var mobileNetworkCode: String? { get }
+
+  var networkType: GULNetworkType { get }
+
+  var mobileSubtype: String { get }
 }
 
 class NetworkInfo: NetworkInfoProtocol {
   var mobileCountryCode: String? {
-    return FIRSESNetworkMobileCountryCode()
+    return GULNetworkInfo.getNetworkMobileCountryCode()
   }
 
   var mobileNetworkCode: String? {
-    return FIRSESNetworkMobileNetworkCode()
+    return GULNetworkInfo.getNetworkMobileNetworkCode()
+  }
+
+  var networkType: GULNetworkType {
+    return GULNetworkInfo.getNetworkType()
+  }
+
+  var mobileSubtype: String {
+    return GULNetworkInfo.getNetworkRadioType()
   }
 }

@@ -56,12 +56,11 @@ using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::ObjectValue;
-using firebase::firestore::remote::Serializer;
 using firebase::firestore::nanopb::MakeNSData;
+using firebase::firestore::remote::Serializer;
 using firebase::firestore::util::MakeNSString;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::ThrowInvalidArgument;
-using firebase::firestore::google_firestore_v1_Value;
 
 NS_ASSUME_NONNULL_BEGIN
 

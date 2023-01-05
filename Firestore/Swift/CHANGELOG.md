@@ -1,3 +1,9 @@
+# 10.4.0
+- [fixed] Restore 9.x Codable behavior of encoding `Data` types as an `NSData`
+  blob instead of a String.
+- [added] Added support for decoding base64-encoded strings when using the
+  `blob` `DataEncodingStrategy` for `Codable`s with `Data` types.
+
 # 10.0.0
 - [changed] **Breaking Change:** The `DocumentID` constructor from a
   `DocumentReference` is now internal; this does not affect instantiating a

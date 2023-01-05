@@ -36,10 +36,10 @@
 namespace nanopb = firebase::firestore::nanopb;
 using firebase::Timestamp;
 using firebase::firestore::GeoPoint;
-using firebase::firestore::api::MakeGeoPoint;
-using firebase::firestore::api::MakeTimestamp;
 using firebase::firestore::google_firestore_v1_ArrayValue;
 using firebase::firestore::google_firestore_v1_Value;
+using firebase::firestore::api::MakeGeoPoint;
+using firebase::firestore::api::MakeTimestamp;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldPath;
