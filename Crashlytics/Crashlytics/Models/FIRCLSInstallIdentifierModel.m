@@ -32,6 +32,7 @@ static unsigned long long FIRCLSInstallationsWaitTime = 10 * NSEC_PER_SEC;
 @interface FIRCLSInstallIdentifierModel ()
 
 @property(nonatomic, copy) NSString *installID;
+@property(nonatomic, copy) NSString *fiid;
 
 @property(nonatomic, readonly) FIRInstallations *installations;
 
@@ -42,6 +43,7 @@ static unsigned long long FIRCLSInstallationsWaitTime = 10 * NSEC_PER_SEC;
 // This needs to be synthesized so we can set without using the setter in the constructor and
 // overridden setters and getters
 @synthesize installID = _installID;
+@synthesize fiid = _fiid;
 
 - (instancetype)initWithInstallations:(FIRInstallations *)installations {
   self = [super init];
@@ -98,7 +100,7 @@ static unsigned long long FIRCLSInstallationsWaitTime = 10 * NSEC_PER_SEC;
 
 #pragma mark Privacy Shield
 
-- (BOOL)regenerateInstallIDIfNeeded {
+- (BOOL)regenerateInstallIDIfNeededWithBlock:(void (^)(NSString *fiid))block {
   BOOL __block didRotate = false;
 
   dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
@@ -106,6 +108,9 @@ static unsigned long long FIRCLSInstallationsWaitTime = 10 * NSEC_PER_SEC;
   // This runs Completion async, so wait a reasonable amount of time for it to finish.
   [self.installations
       installationIDWithCompletion:^(NSString *_Nullable currentIID, NSError *_Nullable error) {
+        // Provide the IID to the callback
+        block(currentIID);
+
         didRotate = [self rotateCrashlyticsInstallUUIDWithIID:currentIID error:error];
 
         if (didRotate) {

@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
  * which can be a slow operation. This should be run in an Activity or
  * background thread.
  */
-- (BOOL)regenerateInstallIDIfNeeded;
+- (BOOL)regenerateInstallIDIfNeededWithBlock:(void (^)(NSString *fiid))block;
 
 @end
 

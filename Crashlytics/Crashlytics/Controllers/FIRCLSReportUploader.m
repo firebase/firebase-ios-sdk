@@ -45,6 +45,8 @@
 
 @property(nonatomic, readonly) NSString *googleAppID;
 
+@property(nonatomic, copy) NSString *fiid;
+
 @end
 
 @implementation FIRCLSReportUploader
@@ -94,7 +96,9 @@
         dispatch_once(&regenerateOnceToken, ^{
           // Check to see if the FID has rotated before we construct the payload
           // so that the payload has an updated value.
-          [self.installIDModel regenerateInstallIDIfNeeded];
+          [self.installIDModel regenerateInstallIDIfNeededWithBlock:^(NSString * _Nonnull newFIID) {
+            self.fiid = newFIID;
+          }];
         });
 
         // Run on-device symbolication before packaging if we should process
@@ -177,7 +181,8 @@
 
   FIRCLSReportAdapter *adapter = [[FIRCLSReportAdapter alloc] initWithPath:path
                                                                googleAppId:self.googleAppID
-                                                            installIDModel:self.installIDModel];
+                                                            installIDModel:self.installIDModel
+                                                                      fiid:self.fiid];
 
   GDTCOREvent *event = [self.googleTransport eventForTransport];
   event.dataObject = adapter;
