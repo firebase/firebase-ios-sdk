@@ -66,7 +66,8 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
       [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
-  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString * _Nonnull fiid) {}];
+  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid){
+  }];
   sleep(1);
 
   XCTAssertFalse(didRotate);
@@ -84,7 +85,8 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
       [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
-  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString * _Nonnull fiid) {}];
+  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid){
+  }];
 
   XCTAssertFalse(didRotate);
   XCTAssertEqualObjects([_defaults objectForKey:FABInstallationUUIDKey], model.installID);
@@ -133,7 +135,8 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
       [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
-  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString * _Nonnull fiid) {}];
+  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid){
+  }];
   XCTAssertTrue(didRotate);
 
   // Test that the UUID changed.
@@ -155,7 +158,8 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
       [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
-  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString * _Nonnull fiid) {}];
+  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid){
+  }];
   XCTAssertFalse(didRotate);
 
   // Test that the UUID changed.
@@ -176,7 +180,8 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
       [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
-  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString * _Nonnull fiid) {}];
+  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid){
+  }];
   XCTAssertFalse(didRotate);
 
   // Test that the UUID did not change. The FIID can be nil if
@@ -197,7 +202,8 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
       [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
-  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString * _Nonnull fiid) {}];
+  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid){
+  }];
   XCTAssertFalse(didRotate);
 
   // Test that the UUID did not change. The FIID can be nil if
@@ -220,7 +226,8 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
       [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
-  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString * _Nonnull fiid) {}];
+  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid){
+  }];
   XCTAssertFalse(didRotate);
 
   // Test that the UUID didn't change.
@@ -241,7 +248,8 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
       [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
-  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString * _Nonnull fiid) {}];
+  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid){
+  }];
   XCTAssertFalse(didRotate);
 
   // Test that the UUID didn't change.
@@ -264,7 +272,8 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
       [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
-  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString * _Nonnull fiid) {}];
+  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid){
+  }];
   XCTAssertFalse(didRotate);
 
   // Test that the UUID didn't change.
@@ -288,7 +297,8 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
       [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
-  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString * _Nonnull fiid) {}];
+  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid){
+  }];
   XCTAssertTrue(didRotate);
 
   // Test that the UUID change.

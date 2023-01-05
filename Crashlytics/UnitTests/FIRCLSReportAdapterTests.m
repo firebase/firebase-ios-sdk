@@ -31,7 +31,7 @@
 @property(nonatomic, strong) FIRCLSInstallIdentifierModel *installIDModel;
 @end
 
-static NSString * const TestFIID = @"TEST_FIID";
+static NSString *const TestFIID = @"TEST_FIID";
 
 @implementation FIRCLSReportAdapterTests
 
@@ -40,10 +40,13 @@ static NSString * const TestFIID = @"TEST_FIID";
   self.installIDModel = [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
 }
 
-- (FIRCLSReportAdapter *)constructAdapterWithPath:(NSString *)path googleAppId:(NSString *)googleAppID installIDModel:(FIRCLSInstallIdentifierModel *)installIDModel {
+- (FIRCLSReportAdapter *)constructAdapterWithPath:(NSString *)path
+                                      googleAppId:(NSString *)googleAppID
+                                   installIDModel:(FIRCLSInstallIdentifierModel *)installIDModel {
   return [[FIRCLSReportAdapter alloc] initWithPath:path
-                                googleAppId:googleAppID
-                             installIDModel:installIDModel fiid:TestFIID];
+                                       googleAppId:googleAppID
+                                    installIDModel:installIDModel
+                                              fiid:TestFIID];
 }
 
 /// Attempt sending a proto report to the reporting endpoint
@@ -53,8 +56,8 @@ static NSString * const TestFIID = @"TEST_FIID";
 
   FIRCLSReportAdapter *adapter =
       [self constructAdapterWithPath:minCrash
-                                    googleAppId:@"1:17586535263:ios:83778f4dc7e8a26ef794ea"
-                                 installIDModel:self.installIDModel];
+                         googleAppId:@"1:17586535263:ios:83778f4dc7e8a26ef794ea"
+                      installIDModel:self.installIDModel];
 
   GDTCORTransport *transport = [[GDTCORTransport alloc] initWithMappingID:@"1206"
                                                              transformers:nil
@@ -72,8 +75,8 @@ static NSString * const TestFIID = @"TEST_FIID";
 
   FIRCLSReportAdapter *adapter =
       [self constructAdapterWithPath:minCrash
-                                    googleAppId:@"1:17586535263:ios:83778f4dc7e8a26ef794ea"
-                                 installIDModel:self.installIDModel];
+                         googleAppId:@"1:17586535263:ios:83778f4dc7e8a26ef794ea"
+                      installIDModel:self.installIDModel];
 
   NSData *data = adapter.transportBytes;
 
@@ -94,8 +97,8 @@ static NSString * const TestFIID = @"TEST_FIID";
 /// Verify various invalid input cases.
 - (void)testInvalidRecordCases {
   id adapter __unused = [self constructAdapterWithPath:@"nonExistentPath"
-                                                      googleAppId:@"appID"
-                                                   installIDModel:self.installIDModel];
+                                           googleAppId:@"appID"
+                                        installIDModel:self.installIDModel];
 
   id application __unused = [[FIRCLSRecordApplication alloc] initWithDict:nil];
   id host __unused = [[FIRCLSRecordHost alloc] initWithDict:nil];
@@ -133,8 +136,7 @@ static NSString * const TestFIID = @"TEST_FIID";
   XCTAssertEqual(report.platform, google_crashlytics_Platforms_IOS);
   XCTAssertTrue([self isPBData:report.installation_uuid
                  equalToString:self.installIDModel.installID]);
-  XCTAssertTrue([self isPBData:report.firebase_installation_id
-                 equalToString:TestFIID]);
+  XCTAssertTrue([self isPBData:report.firebase_installation_id equalToString:TestFIID]);
   XCTAssertTrue([self isPBData:report.display_version
                  equalToString:adapter.application.display_version]);
 
@@ -155,23 +157,23 @@ static NSString * const TestFIID = @"TEST_FIID";
 
 - (FIRCLSReportAdapter *)adapterForAllCrashes {
   return [self constructAdapterWithPath:[[FIRCLSReportAdapterTests resourcePath]
-                         stringByAppendingPathComponent:@"ios_all_files_crash"]
-         googleAppId:@"appID"
-      installIDModel:self.installIDModel];
+                                            stringByAppendingPathComponent:@"ios_all_files_crash"]
+                            googleAppId:@"appID"
+                         installIDModel:self.installIDModel];
 }
 
 - (FIRCLSReportAdapter *)adapterForCorruptMetadata {
   return [self constructAdapterWithPath:[[FIRCLSReportAdapterTests resourcePath]
-                         stringByAppendingPathComponent:@"corrupt_metadata"]
-         googleAppId:@"appID"
-      installIDModel:self.installIDModel];
+                                            stringByAppendingPathComponent:@"corrupt_metadata"]
+                            googleAppId:@"appID"
+                         installIDModel:self.installIDModel];
 }
 
 - (FIRCLSReportAdapter *)adapterForValidMetadata {
   return [self constructAdapterWithPath:[[FIRCLSReportAdapterTests resourcePath]
-                         stringByAppendingPathComponent:@"valid_metadata"]
-         googleAppId:@"appID"
-      installIDModel:self.installIDModel];
+                                            stringByAppendingPathComponent:@"valid_metadata"]
+                            googleAppId:@"appID"
+                         installIDModel:self.installIDModel];
 }
 
 + (NSString *)resourcePath {

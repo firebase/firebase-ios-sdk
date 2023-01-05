@@ -33,6 +33,7 @@
 #import "Crashlytics/UnitTests/Mocks/FIRMockInstallations.h"
 
 NSString *const TestEndpoint = @"https://reports.crashlytics.com";
+NSString *const TestFIID = @"TestFIID";
 
 @interface FIRCLSReportUploaderTests : XCTestCase
 
@@ -65,8 +66,7 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
   id fakeApp = [[FIRAppFake alloc] init];
   FIRCLSDataCollectionArbiter *dataArbiter =
       [[FIRCLSDataCollectionArbiter alloc] initWithApp:fakeApp withAppInfo:@{}];
-  FIRMockInstallations *mockInstallations =
-      [[FIRMockInstallations alloc] initWithFID:@"test_token"];
+  FIRMockInstallations *mockInstallations = [[FIRMockInstallations alloc] initWithFID:TestFIID];
 
   // Allow nil values only in tests
 #pragma clang diagnostic push
@@ -97,10 +97,14 @@ NSString *const TestEndpoint = @"https://reports.crashlytics.com";
   FIRCLSInternalReport *report = [[FIRCLSInternalReport alloc] initWithPath:path];
   self.fileManager.moveItemAtPathResult = [NSNumber numberWithInt:1];
 
+  XCTAssertNil(self.uploader.fiid);
+
   [self.uploader prepareAndSubmitReport:report
                     dataCollectionToken:FIRCLSDataCollectionToken.validToken
                                asUrgent:YES
                          withProcessing:YES];
+
+  XCTAssertEqual(self.uploader.fiid, TestFIID);
 
   // Verify with the last move operation is from processing -> prepared
   XCTAssertTrue(

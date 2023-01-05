@@ -45,8 +45,6 @@
 
 @property(nonatomic, readonly) NSString *googleAppID;
 
-@property(nonatomic, copy) NSString *fiid;
-
 @end
 
 @implementation FIRCLSReportUploader
@@ -96,8 +94,8 @@
         dispatch_once(&regenerateOnceToken, ^{
           // Check to see if the FID has rotated before we construct the payload
           // so that the payload has an updated value.
-          [self.installIDModel regenerateInstallIDIfNeededWithBlock:^(NSString * _Nonnull newFIID) {
-            self.fiid = newFIID;
+          [self.installIDModel regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull newFIID) {
+            self.fiid = [newFIID copy];
           }];
         });
 
