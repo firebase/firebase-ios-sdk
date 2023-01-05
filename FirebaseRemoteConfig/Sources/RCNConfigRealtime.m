@@ -354,7 +354,7 @@ static NSInteger const gMaxRetries = 7;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
     if (strongSelf->_remainingRetryCount > 0) {
-      NSTimeInterval backOffTime = self->_settings.getRealtimeBackoffInterval;
+      NSTimeInterval backOffInterval = self->_settings.getRealtimeBackoffInterval;
 
       strongSelf->_remainingRetryCount--;
       [strongSelf->_settings setRealtimeRetryCount:[strongSelf->_settings realtimeRetryCount] + 1];
