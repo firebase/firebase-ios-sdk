@@ -16,6 +16,8 @@
 #ifndef FIRSESNanoPBHelpers_h
 #define FIRSESNanoPBHelpers_h
 
+#import <Foundation/Foundation.h>
+
 #import <TargetConditionals.h>
 #if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h") && !TARGET_OS_MACCATALYST && \
                   !TARGET_OS_OSX && !TARGET_OS_TV
@@ -82,11 +84,9 @@ BOOL FIRSESIsPBDataEqual(pb_bytes_array_t* _Nullable pbArray, NSData* _Nullable 
 /// Swift does not support c-style macros.
 pb_size_t FIRSESGetAppleApplicationInfoTag(void);
 
-/// Returns the cellular mobile country code (mnc) if CoreTelephony is supported, otherwise nil
-NSString* _Nullable FIRSESNetworkMobileCountryCode(void);
-
-/// Returns the cellular mobile network code (mnc) if CoreTelephony is supported, otherwise nil
-NSString* _Nullable FIRSESNetworkMobileNetworkCode(void);
+/// Returns sysctl entry, useful for obtaining OS build version from the kernel. Copied from a
+/// private method in GULAppEnvironmentUtil.
+NSString* _Nullable FIRSESGetSysctlEntry(const char* sysctlKey);
 
 /// Returns the validated MccMnc if it is available, or nil if the device does not support telephone
 NSString* _Nullable FIRSESValidateMccMnc(NSString* _Nullable mcc, NSString* _Nullable mnc);

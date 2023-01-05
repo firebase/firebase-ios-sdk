@@ -60,7 +60,7 @@ target 'SymbolCollisionTest' do
     pod 'GooglePlacePicker'
     pod 'GooglePlaces'
     pod 'GooglePlusUtilities'
-    pod 'GoogleSignIn'
+    pod 'GoogleSignIn', '> 6'
     pod 'GTMAppAuth'
     pod 'GoogleSymbolUtilities'
     pod 'GoogleTagManager'

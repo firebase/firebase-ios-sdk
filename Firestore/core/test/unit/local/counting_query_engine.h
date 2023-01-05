@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -26,6 +27,7 @@
 #include "Firestore/core/src/local/mutation_queue.h"
 #include "Firestore/core/src/local/query_engine.h"
 #include "Firestore/core/src/local/remote_document_cache.h"
+#include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/util/hard_assert.h"
 
@@ -90,6 +92,13 @@ class CountingQueryEngine : public QueryEngine {
     return overlays_read_by_key_;
   }
 
+  std::unordered_map<model::DocumentKey,
+                     model::Mutation::Type,
+                     model::DocumentKeyHash>
+  overlay_types() const {
+    return overlay_types_;
+  }
+
  private:
   friend class WrappedDocumentOverlayCache;
   friend class WrappedMutationQueue;
@@ -107,6 +116,10 @@ class CountingQueryEngine : public QueryEngine {
   size_t overlays_read_by_key_ = 0;
   size_t overlays_read_by_collection_ = 0;
   size_t overlays_read_by_collection_group_ = 0;
+  std::unordered_map<model::DocumentKey,
+                     model::Mutation::Type,
+                     model::DocumentKeyHash>
+      overlay_types_;
 };
 
 /** A MutationQueue that counts document reads. */

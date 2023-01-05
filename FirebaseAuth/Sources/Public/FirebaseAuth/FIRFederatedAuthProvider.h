@@ -40,7 +40,7 @@ typedef void (^FIRAuthCredentialCallback)(FIRAuthCredential *_Nullable credentia
 /** @fn getCredentialWithUIDelegate:completion:
     @brief Used to obtain an auth credential via a mobile web flow.
         This method is available on iOS only.
-    @param UIDelegate An optional UI delegate used to presenet the mobile web flow.
+    @param UIDelegate An optional UI delegate used to present the mobile web flow.
     @param completion Optionally; a block which is invoked asynchronously on the main thread when
         the mobile web flow is completed.
  */

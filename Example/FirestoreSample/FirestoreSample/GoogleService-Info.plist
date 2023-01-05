@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyAzlj4APqi5S58nFtE52Da0fYBOHA2MhaY</string>
+	<key>BUNDLE_ID</key>
+	<string>id</string>
+	<key>CLIENT_ID</key>
+	<string>123456789000-hjugbg6ud799v4c49dim8ce2usclthar.apps.googleusercontent.com</string>
+	<key>DATABASE_URL</key>
+	<string>https://mockproject-1234.firebaseio.com</string>
+	<key>GCM_SENDER_ID</key>
+	<string>123456789000</string>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:123456789000:ios:f1bf012572b04063</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>PROJECT_ID</key>
+	<string>mockproject-1234</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.123456789000-hjugbg6ud799v4c49dim8ce2usclthar</string>
+	<key>STORAGE_BUCKET</key>
+	<string>mockproject-1234.appspot.com</string>
+</dict>
+</plist>

@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -30,6 +31,7 @@
 #include "Firestore/core/src/model/document_set.h"
 #include "Firestore/core/src/model/field_index.h"
 #include "Firestore/core/src/model/model_fwd.h"
+#include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/model/precondition.h"
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
@@ -157,6 +159,10 @@ nanopb::Message<google_firestore_v1_Value> Value(
 
 nanopb::Message<google_firestore_v1_Value> Value(
     const model::ObjectValue& value);
+
+using OverlayTypeMap = std::unordered_map<model::DocumentKey,
+                                          model::Mutation::Type,
+                                          model::DocumentKeyHash>;
 
 namespace details {
 

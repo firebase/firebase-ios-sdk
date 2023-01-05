@@ -266,6 +266,9 @@ model::OverlayedDocumentMap LocalDocumentsView::ComputeViews(
           {doc->key(), overlay_it->second.mutation().field_mask()});
       overlay_it->second.mutation().ApplyToLocalView(*doc, absl::nullopt,
                                                      Timestamp::Now());
+    } else {  // No overlay for this document
+      // Using empty mask to indicate there is no overlay for the document.
+      mutated_fields.emplace(doc->key(), FieldMask{});
     }
   }
 

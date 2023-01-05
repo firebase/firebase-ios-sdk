@@ -122,10 +122,12 @@ To develop Firebase software, **install**:
 * [Xcode] (v12.2 or later) (for Googlers, visit [go/xcode](go/xcode)) to
   download.
 * <details>
-  <summary>Code styling tools: <b>clang-format</b> & <b>mint</b></summary>
+  <summary>Code styling tools: <b>clang-format</b>, <b>swiftformat</b> and
+   <b>mint</b></summary>
 
    <!-- The above line is intentionally left blank. -->
-   Firebase use's a style script that requires [clang-format] and [mint].
+   Firebase use's a style script that requires [clang-format] and [mint]. [mint]
+   installs [swiftformat] for Swift styling.
 
    To install [clang-format] and [mint] using [Homebrew]:
 
@@ -250,7 +252,8 @@ the project.
 
 #### **Style Guide**
 
-This code in this repo is styled in accordance to `clang-format` conventions.
+This code in this repo is styled in accordance to `swiftformat` and
+`clang-format` conventions.
 
 #### Styling your code
 

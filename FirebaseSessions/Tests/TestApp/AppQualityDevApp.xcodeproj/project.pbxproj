@@ -7,7 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1242A440A78627992C815FEE /* Pods_AppQualityDevApp_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2F5903A77C9DE64AEA664C98 /* Pods_AppQualityDevApp_iOS.framework */; };
+		11B8D8A180615BBC0D6AA351 /* Pods_AppQualityDevApp_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3811A234E55662F7F459917A /* Pods_AppQualityDevApp_iOS.framework */; };
+		1242A440A78627992C815FEE /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		42270ED35776E973127DB60D /* Pods_AppQualityDevApp_Performance_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEDB83A06DD433EF06A4FFDC /* Pods_AppQualityDevApp_Performance_iOS.framework */; };
+		687EF774F928ABB40381A18D /* Pods_AppQualityDevApp_Crashlytics_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9346F75872574EC9869B351A /* Pods_AppQualityDevApp_Crashlytics_iOS.framework */; };
+		B43C5DD563235C70F18FA91C /* Pods_AppQualityDevApp_CrashlyticsPerformance_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1737E4D779EC21E163AEADE0 /* Pods_AppQualityDevApp_CrashlyticsPerformance_iOS.framework */; };
 		CF94D83D29070DF600308FF7 /* UITestsiOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF94D83C29070DF600308FF7 /* UITestsiOS.swift */; };
 		DF33DA8C28E4941400F7B88B /* AppQualityDevAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF33DA6428E4941100F7B88B /* AppQualityDevAppApp.swift */; };
 		DF33DA8D28E4941400F7B88B /* AppQualityDevAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF33DA6428E4941100F7B88B /* AppQualityDevAppApp.swift */; };
@@ -17,7 +21,21 @@
 		DF33DA9128E4941400F7B88B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DF33DA6628E4941400F7B88B /* Assets.xcassets */; };
 		DF68F14328E4A34B00753C7E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DF68F14228E4A34B00753C7E /* GoogleService-Info.plist */; };
 		DF68F14428E4A34B00753C7E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DF68F14228E4A34B00753C7E /* GoogleService-Info.plist */; };
+		DF8AEF2A295CA3F40013BF14 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF33DA6528E4941100F7B88B /* ContentView.swift */; };
+		DF8AEF2B295CA3F40013BF14 /* AppQualityDevAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF33DA6428E4941100F7B88B /* AppQualityDevAppApp.swift */; };
+		DF8AEF2F295CA3F40013BF14 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DF33DA6628E4941400F7B88B /* Assets.xcassets */; };
+		DF8AEF30295CA3F40013BF14 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DF68F14228E4A34B00753C7E /* GoogleService-Info.plist */; };
+		DF9759AB295CE10700EF01BA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF33DA6528E4941100F7B88B /* ContentView.swift */; };
+		DF9759AC295CE10700EF01BA /* AppQualityDevAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF33DA6428E4941100F7B88B /* AppQualityDevAppApp.swift */; };
+		DF9759B1295CE10700EF01BA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DF33DA6628E4941400F7B88B /* Assets.xcassets */; };
+		DF9759B2295CE10700EF01BA /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DF68F14228E4A34B00753C7E /* GoogleService-Info.plist */; };
+		DF9ABFF8295CD14F00EFFEB7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF33DA6528E4941100F7B88B /* ContentView.swift */; };
+		DF9ABFF9295CD14F00EFFEB7 /* AppQualityDevAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF33DA6428E4941100F7B88B /* AppQualityDevAppApp.swift */; };
+		DF9ABFFD295CD14F00EFFEB7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DF33DA6628E4941400F7B88B /* Assets.xcassets */; };
+		DF9ABFFE295CD14F00EFFEB7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DF68F14228E4A34B00753C7E /* GoogleService-Info.plist */; };
 		E16DE450B5A5D7EC71FCDF4D /* Pods_AppQualityDevApp_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDA875D20BA56FABDFC9A521 /* Pods_AppQualityDevApp_macOS.framework */; };
+		E47C7F742B2E926AAFEFF448 /* Pods_AppQualityDevApp_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3811A234E55662F7F459917A /* Pods_AppQualityDevApp_iOS.framework */; };
+		F0820554CDC281260638D6D7 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -41,19 +59,57 @@
 			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DF8AEF32295CA3F40013BF14 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF9759B4295CE10700EF01BA /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF9AC000295CD14F00EFFEB7 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		07E76FAAB76A1A45E5424480 /* Pods-AppQualityDevApp_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp_iOS.debug.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp_iOS/Pods-AppQualityDevApp_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		08AEDE74D9B112F287377B00 /* Pods-AppQualityDevApp (macOS).debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp (macOS).debug.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp (macOS)/Pods-AppQualityDevApp (macOS).debug.xcconfig"; sourceTree = "<group>"; };
-		2F5903A77C9DE64AEA664C98 /* Pods_AppQualityDevApp_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AppQualityDevApp_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		6FC095AC414056CA646AD6EC /* Pods-AppQualityDevApp_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp_iOS.release.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp_iOS/Pods-AppQualityDevApp_iOS.release.xcconfig"; sourceTree = "<group>"; };
+		0B7EF1F0D8827AB48D0FAD7C /* Pods-AppQualityDevApp_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp_iOS.debug.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp_iOS/Pods-AppQualityDevApp_iOS.debug.xcconfig"; sourceTree = "<group>"; };
+		1737E4D779EC21E163AEADE0 /* Pods_AppQualityDevApp_CrashlyticsPerformance_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AppQualityDevApp_CrashlyticsPerformance_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		34024033D07112CB9568CB94 /* Pods-AppQualityDevApp_CrashlyticsPerformance_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp_CrashlyticsPerformance_iOS.debug.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp_CrashlyticsPerformance_iOS/Pods-AppQualityDevApp_CrashlyticsPerformance_iOS.debug.xcconfig"; sourceTree = "<group>"; };
+		3811A234E55662F7F459917A /* Pods_AppQualityDevApp_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AppQualityDevApp_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3BDFBCF96107B892BD2E7811 /* Pods-AppQualityDevApp_CrashlyticsPerformance_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp_CrashlyticsPerformance_iOS.release.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp_CrashlyticsPerformance_iOS/Pods-AppQualityDevApp_CrashlyticsPerformance_iOS.release.xcconfig"; sourceTree = "<group>"; };
+		3CD2736DE46B13129164D102 /* Pods-AppQualityDevApp_Crashlytics_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp_Crashlytics_iOS.release.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp_Crashlytics_iOS/Pods-AppQualityDevApp_Crashlytics_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		717BB1A07D505205E6624565 /* Pods-AppQualityDevApp (macOS).release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp (macOS).release.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp (macOS)/Pods-AppQualityDevApp (macOS).release.xcconfig"; sourceTree = "<group>"; };
 		8E45D9F3074AFEE870882CC6 /* Pods_AppQualityDevAppWatchOS_WatchKit_Extension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AppQualityDevAppWatchOS_WatchKit_Extension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9346F75872574EC9869B351A /* Pods_AppQualityDevApp_Crashlytics_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AppQualityDevApp_Crashlytics_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A4F168F7AD0260C033B440AA /* Pods-AppQualityDevApp_Crashlytics_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp_Crashlytics_iOS.debug.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp_Crashlytics_iOS/Pods-AppQualityDevApp_Crashlytics_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		AF451CCC16240EE7C1CAE92D /* Pods-AppQualityDevApp (iOS).release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp (iOS).release.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp (iOS)/Pods-AppQualityDevApp (iOS).release.xcconfig"; sourceTree = "<group>"; };
+		BEDB83A06DD433EF06A4FFDC /* Pods_AppQualityDevApp_Performance_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AppQualityDevApp_Performance_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C06F31362C6E829883D925CB /* Pods-AppQualityDevApp_macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp_macOS.release.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp_macOS/Pods-AppQualityDevApp_macOS.release.xcconfig"; sourceTree = "<group>"; };
+		C079FD5B4B6DBBF2D4C3E6CE /* Pods-AppQualityDevApp_Performance_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp_Performance_iOS.release.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp_Performance_iOS/Pods-AppQualityDevApp_Performance_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		CF94D83A29070DF600308FF7 /* UITests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UITests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CF94D83C29070DF600308FF7 /* UITestsiOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestsiOS.swift; sourceTree = "<group>"; };
+		CFF3426B813F69EFC3CC95C2 /* Pods-AppQualityDevApp_Performance_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp_Performance_iOS.debug.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp_Performance_iOS/Pods-AppQualityDevApp_Performance_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		D18C61BD25DEE281DA8E8007 /* Pods-AppQualityDevAppWatchOS WatchKit Extension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevAppWatchOS WatchKit Extension.release.xcconfig"; path = "Target Support Files/Pods-AppQualityDevAppWatchOS WatchKit Extension/Pods-AppQualityDevAppWatchOS WatchKit Extension.release.xcconfig"; sourceTree = "<group>"; };
 		DAA707D0793CF2FF718DDDD6 /* Pods-AppQualityDevApp (iOS).debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp (iOS).debug.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp (iOS)/Pods-AppQualityDevApp (iOS).debug.xcconfig"; sourceTree = "<group>"; };
 		DF33DA6428E4941100F7B88B /* AppQualityDevAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppQualityDevAppApp.swift; sourceTree = "<group>"; };
@@ -63,6 +119,10 @@
 		DF33DA7128E4941400F7B88B /* AppQualityDevApp_macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppQualityDevApp_macOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DF33DA7328E4941400F7B88B /* macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macOS.entitlements; sourceTree = "<group>"; };
 		DF68F14228E4A34B00753C7E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		DF8AEF36295CA3F40013BF14 /* AppQualityDevApp_Crashlytics_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppQualityDevApp_Crashlytics_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF9759B8295CE10700EF01BA /* AppQualityDevApp_CrashlyticsPerformance_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppQualityDevApp_CrashlyticsPerformance_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF9AC004295CD14F00EFFEB7 /* AppQualityDevApp_Performance_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppQualityDevApp_Performance_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E26B04C91ED8B954BD747D36 /* Pods-AppQualityDevApp_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp_iOS.release.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp_iOS/Pods-AppQualityDevApp_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		EDA875D20BA56FABDFC9A521 /* Pods_AppQualityDevApp_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AppQualityDevApp_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F1720B933F39C0D8D6A031E5 /* Pods-AppQualityDevAppWatchOS WatchKit Extension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevAppWatchOS WatchKit Extension.debug.xcconfig"; path = "Target Support Files/Pods-AppQualityDevAppWatchOS WatchKit Extension/Pods-AppQualityDevAppWatchOS WatchKit Extension.debug.xcconfig"; sourceTree = "<group>"; };
 		F76B72FAB04F881C67E2512B /* Pods-AppQualityDevApp_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp_macOS.debug.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp_macOS/Pods-AppQualityDevApp_macOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -80,7 +140,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1242A440A78627992C815FEE /* Pods_AppQualityDevApp_iOS.framework in Frameworks */,
+				1242A440A78627992C815FEE /* BuildFile in Frameworks */,
+				11B8D8A180615BBC0D6AA351 /* Pods_AppQualityDevApp_iOS.framework in Frameworks */,
+				E47C7F742B2E926AAFEFF448 /* Pods_AppQualityDevApp_iOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -89,6 +151,31 @@
 			buildActionMask = 2147483647;
 			files = (
 				E16DE450B5A5D7EC71FCDF4D /* Pods_AppQualityDevApp_macOS.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF8AEF2C295CA3F40013BF14 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F0820554CDC281260638D6D7 /* BuildFile in Frameworks */,
+				687EF774F928ABB40381A18D /* Pods_AppQualityDevApp_Crashlytics_iOS.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF9759AD295CE10700EF01BA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B43C5DD563235C70F18FA91C /* Pods_AppQualityDevApp_CrashlyticsPerformance_iOS.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF9ABFFA295CD14F00EFFEB7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				42270ED35776E973127DB60D /* Pods_AppQualityDevApp_Performance_iOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -104,10 +191,16 @@
 				717BB1A07D505205E6624565 /* Pods-AppQualityDevApp (macOS).release.xcconfig */,
 				F1720B933F39C0D8D6A031E5 /* Pods-AppQualityDevAppWatchOS WatchKit Extension.debug.xcconfig */,
 				D18C61BD25DEE281DA8E8007 /* Pods-AppQualityDevAppWatchOS WatchKit Extension.release.xcconfig */,
-				07E76FAAB76A1A45E5424480 /* Pods-AppQualityDevApp_iOS.debug.xcconfig */,
-				6FC095AC414056CA646AD6EC /* Pods-AppQualityDevApp_iOS.release.xcconfig */,
 				F76B72FAB04F881C67E2512B /* Pods-AppQualityDevApp_macOS.debug.xcconfig */,
 				C06F31362C6E829883D925CB /* Pods-AppQualityDevApp_macOS.release.xcconfig */,
+				A4F168F7AD0260C033B440AA /* Pods-AppQualityDevApp_Crashlytics_iOS.debug.xcconfig */,
+				3CD2736DE46B13129164D102 /* Pods-AppQualityDevApp_Crashlytics_iOS.release.xcconfig */,
+				CFF3426B813F69EFC3CC95C2 /* Pods-AppQualityDevApp_Performance_iOS.debug.xcconfig */,
+				C079FD5B4B6DBBF2D4C3E6CE /* Pods-AppQualityDevApp_Performance_iOS.release.xcconfig */,
+				0B7EF1F0D8827AB48D0FAD7C /* Pods-AppQualityDevApp_iOS.debug.xcconfig */,
+				E26B04C91ED8B954BD747D36 /* Pods-AppQualityDevApp_iOS.release.xcconfig */,
+				34024033D07112CB9568CB94 /* Pods-AppQualityDevApp_CrashlyticsPerformance_iOS.debug.xcconfig */,
+				3BDFBCF96107B892BD2E7811 /* Pods-AppQualityDevApp_CrashlyticsPerformance_iOS.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -116,8 +209,11 @@
 			isa = PBXGroup;
 			children = (
 				8E45D9F3074AFEE870882CC6 /* Pods_AppQualityDevAppWatchOS_WatchKit_Extension.framework */,
-				2F5903A77C9DE64AEA664C98 /* Pods_AppQualityDevApp_iOS.framework */,
 				EDA875D20BA56FABDFC9A521 /* Pods_AppQualityDevApp_macOS.framework */,
+				3811A234E55662F7F459917A /* Pods_AppQualityDevApp_iOS.framework */,
+				BEDB83A06DD433EF06A4FFDC /* Pods_AppQualityDevApp_Performance_iOS.framework */,
+				9346F75872574EC9869B351A /* Pods_AppQualityDevApp_Crashlytics_iOS.framework */,
+				1737E4D779EC21E163AEADE0 /* Pods_AppQualityDevApp_CrashlyticsPerformance_iOS.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -159,6 +255,9 @@
 				DF33DA6B28E4941400F7B88B /* AppQualityDevApp_iOS.app */,
 				DF33DA7128E4941400F7B88B /* AppQualityDevApp_macOS.app */,
 				CF94D83A29070DF600308FF7 /* UITests_iOS.xctest */,
+				DF8AEF36295CA3F40013BF14 /* AppQualityDevApp_Crashlytics_iOS.app */,
+				DF9AC004295CD14F00EFFEB7 /* AppQualityDevApp_Performance_iOS.app */,
+				DF9759B8295CE10700EF01BA /* AppQualityDevApp_CrashlyticsPerformance_iOS.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -231,6 +330,66 @@
 			productReference = DF33DA7128E4941400F7B88B /* AppQualityDevApp_macOS.app */;
 			productType = "com.apple.product-type.application";
 		};
+		DF8AEF27295CA3F40013BF14 /* AppQualityDevApp_Crashlytics_iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DF8AEF33295CA3F40013BF14 /* Build configuration list for PBXNativeTarget "AppQualityDevApp_Crashlytics_iOS" */;
+			buildPhases = (
+				DF8AEF28295CA3F40013BF14 /* [CP] Check Pods Manifest.lock */,
+				DF8AEF29295CA3F40013BF14 /* Sources */,
+				DF8AEF2C295CA3F40013BF14 /* Frameworks */,
+				DF8AEF2E295CA3F40013BF14 /* Resources */,
+				DF8AEF31295CA3F40013BF14 /* [CP] Embed Pods Frameworks */,
+				DF8AEF32295CA3F40013BF14 /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AppQualityDevApp_Crashlytics_iOS;
+			productName = "AppQualityDevApp (iOS)";
+			productReference = DF8AEF36295CA3F40013BF14 /* AppQualityDevApp_Crashlytics_iOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+		DF9759A8295CE10700EF01BA /* AppQualityDevApp_CrashlyticsPerformance_iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DF9759B5295CE10700EF01BA /* Build configuration list for PBXNativeTarget "AppQualityDevApp_CrashlyticsPerformance_iOS" */;
+			buildPhases = (
+				59359140B66596F6EFA6A4B5 /* [CP] Check Pods Manifest.lock */,
+				DF9759AA295CE10700EF01BA /* Sources */,
+				DF9759AD295CE10700EF01BA /* Frameworks */,
+				DF9759B0295CE10700EF01BA /* Resources */,
+				DF9759B4295CE10700EF01BA /* Embed Watch Content */,
+				E6963FDE663B8407688922BE /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AppQualityDevApp_CrashlyticsPerformance_iOS;
+			productName = "AppQualityDevApp (iOS)";
+			productReference = DF9759B8295CE10700EF01BA /* AppQualityDevApp_CrashlyticsPerformance_iOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+		DF9ABFF5295CD14F00EFFEB7 /* AppQualityDevApp_Performance_iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DF9AC001295CD14F00EFFEB7 /* Build configuration list for PBXNativeTarget "AppQualityDevApp_Performance_iOS" */;
+			buildPhases = (
+				DF9ABFF6295CD14F00EFFEB7 /* [CP] Check Pods Manifest.lock */,
+				DF9ABFF7295CD14F00EFFEB7 /* Sources */,
+				DF9ABFFA295CD14F00EFFEB7 /* Frameworks */,
+				DF9ABFFC295CD14F00EFFEB7 /* Resources */,
+				DF9ABFFF295CD14F00EFFEB7 /* [CP] Embed Pods Frameworks */,
+				DF9AC000295CD14F00EFFEB7 /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AppQualityDevApp_Performance_iOS;
+			productName = "AppQualityDevApp (iOS)";
+			productReference = DF9AC004295CD14F00EFFEB7 /* AppQualityDevApp_Performance_iOS.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -267,6 +426,9 @@
 			projectRoot = "";
 			targets = (
 				DF33DA6A28E4941400F7B88B /* AppQualityDevApp_iOS */,
+				DF8AEF27295CA3F40013BF14 /* AppQualityDevApp_Crashlytics_iOS */,
+				DF9ABFF5295CD14F00EFFEB7 /* AppQualityDevApp_Performance_iOS */,
+				DF9759A8295CE10700EF01BA /* AppQualityDevApp_CrashlyticsPerformance_iOS */,
 				DF33DA7028E4941400F7B88B /* AppQualityDevApp_macOS */,
 				CF94D83929070DF600308FF7 /* UITests_iOS */,
 			);
@@ -296,6 +458,33 @@
 			files = (
 				DF33DA9128E4941400F7B88B /* Assets.xcassets in Resources */,
 				DF68F14428E4A34B00753C7E /* GoogleService-Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF8AEF2E295CA3F40013BF14 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DF8AEF2F295CA3F40013BF14 /* Assets.xcassets in Resources */,
+				DF8AEF30295CA3F40013BF14 /* GoogleService-Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF9759B0295CE10700EF01BA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DF9759B1295CE10700EF01BA /* Assets.xcassets in Resources */,
+				DF9759B2295CE10700EF01BA /* GoogleService-Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF9ABFFC295CD14F00EFFEB7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DF9ABFFD295CD14F00EFFEB7 /* Assets.xcassets in Resources */,
+				DF9ABFFE295CD14F00EFFEB7 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -380,6 +569,123 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		59359140B66596F6EFA6A4B5 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-AppQualityDevApp_CrashlyticsPerformance_iOS-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		DF8AEF28295CA3F40013BF14 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-AppQualityDevApp_Crashlytics_iOS-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		DF8AEF31295CA3F40013BF14 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-AppQualityDevApp_Crashlytics_iOS/Pods-AppQualityDevApp_Crashlytics_iOS-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-AppQualityDevApp_Crashlytics_iOS/Pods-AppQualityDevApp_Crashlytics_iOS-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AppQualityDevApp_Crashlytics_iOS/Pods-AppQualityDevApp_Crashlytics_iOS-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		DF9ABFF6295CD14F00EFFEB7 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-AppQualityDevApp_Performance_iOS-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		DF9ABFFF295CD14F00EFFEB7 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-AppQualityDevApp_Performance_iOS/Pods-AppQualityDevApp_Performance_iOS-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-AppQualityDevApp_Performance_iOS/Pods-AppQualityDevApp_Performance_iOS-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AppQualityDevApp_Performance_iOS/Pods-AppQualityDevApp_Performance_iOS-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E6963FDE663B8407688922BE /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-AppQualityDevApp_CrashlyticsPerformance_iOS/Pods-AppQualityDevApp_CrashlyticsPerformance_iOS-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-AppQualityDevApp_CrashlyticsPerformance_iOS/Pods-AppQualityDevApp_CrashlyticsPerformance_iOS-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AppQualityDevApp_CrashlyticsPerformance_iOS/Pods-AppQualityDevApp_CrashlyticsPerformance_iOS-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -406,6 +712,33 @@
 			files = (
 				DF33DA8F28E4941400F7B88B /* ContentView.swift in Sources */,
 				DF33DA8D28E4941400F7B88B /* AppQualityDevAppApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF8AEF29295CA3F40013BF14 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DF8AEF2A295CA3F40013BF14 /* ContentView.swift in Sources */,
+				DF8AEF2B295CA3F40013BF14 /* AppQualityDevAppApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF9759AA295CE10700EF01BA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DF9759AB295CE10700EF01BA /* ContentView.swift in Sources */,
+				DF9759AC295CE10700EF01BA /* AppQualityDevAppApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF9ABFF7295CD14F00EFFEB7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DF9ABFF8295CD14F00EFFEB7 /* ContentView.swift in Sources */,
+				DF9ABFF9295CD14F00EFFEB7 /* AppQualityDevAppApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -575,7 +908,7 @@
 		};
 		DF33DA9528E4941400F7B88B /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 07E76FAAB76A1A45E5424480 /* Pods-AppQualityDevApp_iOS.debug.xcconfig */;
+			baseConfigurationReference = 0B7EF1F0D8827AB48D0FAD7C /* Pods-AppQualityDevApp_iOS.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -611,7 +944,7 @@
 		};
 		DF33DA9628E4941400F7B88B /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 6FC095AC414056CA646AD6EC /* Pods-AppQualityDevApp_iOS.release.xcconfig */;
+			baseConfigurationReference = E26B04C91ED8B954BD747D36 /* Pods-AppQualityDevApp_iOS.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -702,6 +1035,225 @@
 			};
 			name = Release;
 		};
+		DF8AEF34295CA3F40013BF14 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A4F168F7AD0260C033B440AA /* Pods-AppQualityDevApp_Crashlytics_iOS.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = AppQualityDevApp_iOS;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.firebase.AppQualityDevApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		DF8AEF35295CA3F40013BF14 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3CD2736DE46B13129164D102 /* Pods-AppQualityDevApp_Crashlytics_iOS.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = AppQualityDevApp_iOS;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.firebase.AppQualityDevApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		DF9759B6295CE10700EF01BA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 34024033D07112CB9568CB94 /* Pods-AppQualityDevApp_CrashlyticsPerformance_iOS.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = AppQualityDevApp_iOS;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.firebase.AppQualityDevApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		DF9759B7295CE10700EF01BA /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3BDFBCF96107B892BD2E7811 /* Pods-AppQualityDevApp_CrashlyticsPerformance_iOS.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = AppQualityDevApp_iOS;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.firebase.AppQualityDevApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		DF9AC002295CD14F00EFFEB7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = CFF3426B813F69EFC3CC95C2 /* Pods-AppQualityDevApp_Performance_iOS.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = AppQualityDevApp_iOS;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.firebase.AppQualityDevApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		DF9AC003295CD14F00EFFEB7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C079FD5B4B6DBBF2D4C3E6CE /* Pods-AppQualityDevApp_Performance_iOS.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = AppQualityDevApp_iOS;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.firebase.AppQualityDevApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -737,6 +1289,33 @@
 			buildConfigurations = (
 				DF33DA9828E4941400F7B88B /* Debug */,
 				DF33DA9928E4941400F7B88B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DF8AEF33295CA3F40013BF14 /* Build configuration list for PBXNativeTarget "AppQualityDevApp_Crashlytics_iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DF8AEF34295CA3F40013BF14 /* Debug */,
+				DF8AEF35295CA3F40013BF14 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DF9759B5295CE10700EF01BA /* Build configuration list for PBXNativeTarget "AppQualityDevApp_CrashlyticsPerformance_iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DF9759B6295CE10700EF01BA /* Debug */,
+				DF9759B7295CE10700EF01BA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DF9AC001295CD14F00EFFEB7 /* Build configuration list for PBXNativeTarget "AppQualityDevApp_Performance_iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DF9AC002295CD14F00EFFEB7 /* Debug */,
+				DF9AC003295CD14F00EFFEB7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

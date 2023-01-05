@@ -25,9 +25,13 @@
 
 #include "Firestore/core/src/api/query_snapshot.h"
 #include "Firestore/core/src/core/firestore_client.h"
+#include "Firestore/core/src/model/database_id.h"
+#include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/test/unit/testutil/app_testing.h"
 
+using firebase::firestore::model::DatabaseId;
 using firebase::firestore::testutil::AppForUnitTesting;
+using firebase::firestore::util::MakeNSString;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::TimerId;
 
@@ -35,6 +39,11 @@ using firebase::firestore::util::TimerId;
 @end
 
 @implementation FIRDatabaseTests
+
+- (void)tearDown {
+  [FIRApp resetApps];
+  [super tearDown];
+}
 
 - (void)testCanUpdateAnExistingDocument {
   FIRDocumentReference *doc = [self.db documentWithPath:@"rooms/eros"];
@@ -1742,6 +1751,39 @@ using firebase::firestore::util::TimerId;
   [firestore waitForPendingWritesWithCompletion:
                  [self completionForExpectationWithName:@"Wait for pending writes"]];
   [self awaitExpectations];
+}
+
+- (void)testDefaultNamedDbIsSame {
+  [FIRApp configure];
+  FIRApp *app = [FIRApp defaultApp];
+  FIRFirestore *db1 = [FIRFirestore firestore];
+  FIRFirestore *db2 = [FIRFirestore firestoreForApp:app];
+  FIRFirestore *db3 = [FIRFirestore firestoreForApp:app database:@"(default)"];
+  FIRFirestore *db4 = [FIRFirestore firestoreForDatabase:@"(default)"];
+
+  XCTAssertIdentical(db1, db2);
+  XCTAssertIdentical(db1, db3);
+  XCTAssertIdentical(db1, db4);
+}
+
+- (void)testSameNamedDbIsSame {
+  [FIRApp configure];
+  FIRApp *app = [FIRApp defaultApp];
+  FIRFirestore *db1 = [FIRFirestore firestoreForApp:app database:@"myDb"];
+  FIRFirestore *db2 = [FIRFirestore firestoreForDatabase:@"myDb"];
+
+  XCTAssertIdentical(db1, db2);
+}
+
+- (void)testNamedDbHaveDifferentInstance {
+  [FIRApp configure];
+  FIRFirestore *db1 = [FIRFirestore firestore];
+  FIRFirestore *db2 = [FIRFirestore firestoreForDatabase:@"db1"];
+  FIRFirestore *db3 = [FIRFirestore firestoreForDatabase:@"db2"];
+
+  XCTAssertNotIdentical(db1, db2);
+  XCTAssertNotIdentical(db1, db3);
+  XCTAssertNotIdentical(db2, db3);
 }
 
 @end
