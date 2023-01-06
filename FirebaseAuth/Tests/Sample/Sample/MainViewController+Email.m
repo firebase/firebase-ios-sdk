@@ -46,7 +46,7 @@ typedef void (^ShowEmailDialogCompletion)(FIRAuthCredential *credential);
     [StaticContentTableViewCell cellWithTitle:@"Link with Email Link"
                                        action:^{ [weakSelf linkWithEmailLink]; }],
     [StaticContentTableViewCell cellWithTitle:@"Unlink from Email"
-                                       action:^{ [weakSelf unlinkFromProvider:FIREmailAuthProviderID
+                                       action:^{ [weakSelf unlinkFromProvider:FIREmailAuthProvider.id
                                                                    completion:nil]; }],
     ]];
 }

@@ -996,7 +996,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                                         FIRAdditionalUserInfo *additionalUserInfo =
                                                             [[FIRAdditionalUserInfo alloc]
                                                                 initWithProviderID:
-                                                                    FIRPhoneAuthProviderID
+                                                                    FIRPhoneAuthProvider.id
                                                                            profile:nil
                                                                           username:nil
                                                                          isNewUser:response
