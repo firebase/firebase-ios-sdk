@@ -231,7 +231,7 @@ static NSString *const kFakePassword = @"fakePassword";
              [self logFailedTest:@"Could not update phone number."];
            }
            [self logSuccess:@"update phone number test succeeded."];
-           [self unlinkFromProvider:FIRPhoneAuthProviderID completion:^(NSError *error) {
+           [self unlinkFromProvider:FIRPhoneAuthProvider.id completion:^(NSError *error) {
              if (error) {
                [self logFailedTest:@"Could not unlink phone number."];
              }
