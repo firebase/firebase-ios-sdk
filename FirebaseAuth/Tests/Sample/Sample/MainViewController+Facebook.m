@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
                                       action:^{ [weakSelf linkWithFacebook]; }],
     [StaticContentTableViewCell cellWithTitle:@"Unlink from Facebook"
                                       action:^{
-                                        [weakSelf unlinkFromProvider:FIRFacebookAuthProviderID completion:nil];
+                                        [weakSelf unlinkFromProvider:FIRFacebookAuthProvider.id completion:nil];
                                       }],
     [StaticContentTableViewCell cellWithTitle:@"Reauthenticate Facebook"
                                       action:^{ [weakSelf reauthenticateFacebook]; }],
