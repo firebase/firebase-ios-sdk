@@ -52,8 +52,6 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignInWithGameCenterResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserResponse.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRVerifyAssertionRequest.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRVerifyAssertionResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyClientRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyClientResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenRequest.h"
@@ -62,6 +60,8 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberResponse.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRVerifyAssertionRequest.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRVerifyAssertionResponse.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
@@ -963,10 +963,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                // Check whether or not the successful response is actually the special case phone
                // auth flow that returns a temporary proof and phone number.
                if (response.phoneNumber.length && response.temporaryProof.length) {
-                 FIRPhoneAuthCredential *credential =
-                     [[FIRPhoneAuthCredential alloc] initWithTemporaryProof:response.temporaryProof
-                                                                phoneNumber:response.phoneNumber
-                                                                 providerID:FIRPhoneAuthProvider.id];
+                 FIRPhoneAuthCredential *credential = [[FIRPhoneAuthCredential alloc]
+                     initWithTemporaryProof:response.temporaryProof
+                                phoneNumber:response.phoneNumber
+                                 providerID:FIRPhoneAuthProvider.id];
                  callback(nil, [FIRAuthErrorUtils credentialAlreadyInUseErrorWithMessage:nil
                                                                               credential:credential
                                                                                    email:nil]);
