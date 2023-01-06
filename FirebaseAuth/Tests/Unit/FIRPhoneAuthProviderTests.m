@@ -28,8 +28,6 @@
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
-#import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
-#import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 @import FirebaseAuth;
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigRequest.h"
