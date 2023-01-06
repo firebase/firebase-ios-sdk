@@ -17,12 +17,13 @@ import Foundation
 /**
    @brief Utility class for constructing OAuth Sign In credentials.
 */
-@objc(FIROAuthProvider) open class OAuthProvider: NSObject, FederatedAuthProvider {
+// TODO Swift FederatedAuthProvider with a sync and async version.
+@objc(FIROAuthProvider) open class OAuthProvider: NSObject { //}, FederatedAuthProvider {
 
-
-  public func credential(with UIDelegate: AuthUIDelegate?) async throws -> AuthCredential {
-    <#code#>
-  }
+//  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+//  public func credential(with UIDelegate: AuthUIDelegate?) async throws -> AuthCredential {
+//    <#code#>
+//  }
 
 
   @objc static public let id = "OAuth"
@@ -120,10 +121,12 @@ import Foundation
     return OAuthCredential(withProviderID: providerID, IDToken: IDToken, rawNonce: rawNonce)
   }
 
+  #if os(iOS)
   @objc(getCredentialWithUIDelegate:completion:)
   public func getCredentialWith(_ UIDelegate: AuthUIDelegate?, completion: ((AuthCredential?, Error?) -> Void)? = nil) {
     // TODO
   }
+  #endif
 
   private let auth: Auth
   private let callbackScheme: String
@@ -135,10 +138,13 @@ import Foundation
     //if auth.app
     self.callbackScheme = "todo"
     self.usingClientIDScheme = false
+    self.scopes = [""]
+    self.customParameters = [:]
+    self.providerID = OAuthProvider.id
   }
 }
 
-@objc(FIROAuthCredential) public class OAuthCredential: AuthCredential, NSSecureCoding {
+@objc(FIROAuthCredential) public class OAuthCredential: AuthCredential { //}, NSSecureCoding {
   /** @property IDToken
       @brief The ID Token associated with this credential.
    */
@@ -176,6 +182,8 @@ import Foundation
     self.accessToken = accessToken
     self.pendingToken = pendingToken
     self.secret = secret
+    self.OAuthResponseURLString = nil
+    self.sessionID = nil
     super.init(provider: providerID)
   }
 
@@ -187,50 +195,50 @@ import Foundation
     self.accessToken = nil
     self.pendingToken = nil
     self.secret = nil
+    self.IDToken = nil
+    self.rawNonce = nil
     super.init(provider: providerID)
   }
 
-  @objc public init(withVerifyAssertionResponse response:FIRVerifyAssertionResponse,
-                    sessionID:String,
-                    OAuthResponseURLString: String) {
-    self.sessionID = sessionID
-    self.OAuthResponseURLString = OAuthResponseURLString
-    self.accessToken = nil
-    self.pendingToken = nil
-    self.secret = nil
-    super.init(provider: providerID)
+  @objc public convenience init(withVerifyAssertionResponse response:FIRVerifyAssertionResponse) {
+    self.init(withProviderID: response.providerID ?? OAuthProvider.id,
+              IDToken: response.oauthIDToken,
+              rawNonce: nil,
+              accessToken: response.oauthAccessToken,
+              secret: response.oauthSecretToken,
+              pendingToken: response.pendingToken)
   }
-
-  public static var supportsSecureCoding = true
-
-  public func encode(with coder: NSCoder) {
-    coder.encode(verificationID)
-    coder.encode(verificationCode)
-    coder.encode(temporaryProof)
-    coder.encode(OAuthNumber)
-  }
-
-  required public init?(coder: NSCoder) {
-    let verificationID = coder.decodeObject(forKey: "verificationID") as? String
-    let verificationCode = coder.decodeObject(forKey: "verificationCode") as? String
-    let temporaryProof = coder.decodeObject(forKey: "temporaryProof") as? String
-    let OAuthNumber = coder.decodeObject(forKey: "OAuthNumber") as? String
-    if let temporaryProof = temporaryProof,
-       let OAuthNumber = OAuthNumber {
-      self.temporaryProof = temporaryProof
-      self.OAuthNumber = OAuthNumber
-      self.verificationID = nil
-      self.verificationCode = nil
-      super.init(provider: OAuthProvider.id)
-    } else if let verificationID = verificationID,
-              let verificationCode = verificationCode {
-      self.verificationID = verificationID
-      self.verificationCode = verificationCode
-      self.temporaryProof = nil
-      self.OAuthNumber = nil
-      super.init(provider: OAuthProvider.id)
-    } else {
-      return nil
-    }
-  }
+//
+//  public static var supportsSecureCoding = true
+//
+//  public func encode(with coder: NSCoder) {
+//    coder.encode(verificationID)
+//    coder.encode(verificationCode)
+//    coder.encode(temporaryProof)
+//    coder.encode(OAuthNumber)
+//  }
+//
+//  required public init?(coder: NSCoder) {
+//    let verificationID = coder.decodeObject(forKey: "verificationID") as? String
+//    let verificationCode = coder.decodeObject(forKey: "verificationCode") as? String
+//    let temporaryProof = coder.decodeObject(forKey: "temporaryProof") as? String
+//    let OAuthNumber = coder.decodeObject(forKey: "OAuthNumber") as? String
+//    if let temporaryProof = temporaryProof,
+//       let OAuthNumber = OAuthNumber {
+//      self.temporaryProof = temporaryProof
+//      self.OAuthNumber = OAuthNumber
+//      self.verificationID = nil
+//      self.verificationCode = nil
+//      super.init(provider: OAuthProvider.id)
+//    } else if let verificationID = verificationID,
+//              let verificationCode = verificationCode {
+//      self.verificationID = verificationID
+//      self.verificationCode = verificationCode
+//      self.temporaryProof = nil
+//      self.OAuthNumber = nil
+//      super.init(provider: OAuthProvider.id)
+//    } else {
+//      return nil
+//    }
+//  }
 }

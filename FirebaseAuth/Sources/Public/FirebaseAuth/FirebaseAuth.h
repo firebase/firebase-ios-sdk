@@ -30,8 +30,6 @@
 #import "FIRMultiFactorInfo.h"
 #import "FIRMultiFactorResolver.h"
 #import "FIRMultiFactorSession.h"
-#import "FIROAuthCredential.h"
-#import "FIROAuthProvider.h"
 #import "FIRUser.h"
 #import "FIRUserInfo.h"
 #import "FIRUserMetadata.h"
@@ -47,3 +45,4 @@
 #import "FIRAuthRPCRequest.h"
 #import "FIRVerifyAssertionRequest.h"
 #import "FIRAuthRequestConfiguration.h"
+#import "FIRVerifyAssertionResponse.h"
