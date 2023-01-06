@@ -445,13 +445,13 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
 - (void)testUserPropertiesAndNSSecureCoding {
   // Mock auth provider user info for email/password for GetAccountInfo.
   id mockPasswordUserInfo = OCMClassMock([FIRGetAccountInfoResponseProviderUserInfo class]);
-  OCMStub([mockPasswordUserInfo providerID]).andReturn(FIREmailAuthProviderID);
+  OCMStub([mockPasswordUserInfo providerID]).andReturn(FIREmailAuthProvider.id);
   OCMStub([mockPasswordUserInfo federatedID]).andReturn(kEmail);
   OCMStub([mockPasswordUserInfo email]).andReturn(kEmail);
 
   // Mock auth provider user info from Google for GetAccountInfo.
   id mockGoogleUserInfo = OCMClassMock([FIRGetAccountInfoResponseProviderUserInfo class]);
-  OCMStub([mockGoogleUserInfo providerID]).andReturn(FIRGoogleAuthProviderID);
+  OCMStub([mockGoogleUserInfo providerID]).andReturn(FIRGoogleAuthProvider.id);
   OCMStub([mockGoogleUserInfo displayName]).andReturn(kGoogleDisplayName);
   OCMStub([mockGoogleUserInfo photoURL]).andReturn([NSURL URLWithString:kGooglePhotoURL]);
   OCMStub([mockGoogleUserInfo federatedID]).andReturn(kGoogleID);
@@ -459,14 +459,14 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
 
   // Mock auth provider user info from Facebook for GetAccountInfo.
   id mockFacebookUserInfo = OCMClassMock([FIRGetAccountInfoResponseProviderUserInfo class]);
-  OCMStub([mockFacebookUserInfo providerID]).andReturn(FIRFacebookAuthProviderID);
+  OCMStub([mockFacebookUserInfo providerID]).andReturn(FIRFacebookAuthProvider.id);
   OCMStub([mockFacebookUserInfo federatedID]).andReturn(kFacebookID);
   OCMStub([mockFacebookUserInfo email]).andReturn(kFacebookEmail);
 
 #if TARGET_OS_IOS
   // Mock auth provider user info from Phone auth provider for GetAccountInfo.
   id mockPhoneUserInfo = OCMClassMock([FIRGetAccountInfoResponseProviderUserInfo class]);
-  OCMStub([mockPhoneUserInfo providerID]).andReturn(FIRPhoneAuthProviderID);
+  OCMStub([mockPhoneUserInfo providerID]).andReturn(FIRPhoneAuthProvider.id);
   OCMStub([mockPhoneUserInfo phoneNumber]).andReturn(kPhoneNumber);
 #endif
 
@@ -533,7 +533,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
 
                                              // Verify FIRUserInfo properties from email/password.
                                              id<FIRUserInfo> passwordUserInfo =
-                                                 providerMap[FIREmailAuthProviderID];
+                                                 providerMap[FIREmailAuthProvider.id];
                                              XCTAssertEqualObjects(passwordUserInfo.uid, kEmail);
                                              XCTAssertNil(passwordUserInfo.displayName);
                                              XCTAssertNil(passwordUserInfo.photoURL);
@@ -542,7 +542,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                              // Verify FIRUserInfo properties from the Google auth
                                              // provider.
                                              id<FIRUserInfo> googleUserInfo =
-                                                 providerMap[FIRGoogleAuthProviderID];
+                                                 providerMap[FIRGoogleAuthProvider.id];
                                              XCTAssertEqualObjects(googleUserInfo.uid, kGoogleID);
                                              XCTAssertEqualObjects(googleUserInfo.displayName,
                                                                    kGoogleDisplayName);
@@ -555,7 +555,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                              // Verify FIRUserInfo properties from the Facebook auth
                                              // provider.
                                              id<FIRUserInfo> facebookUserInfo =
-                                                 providerMap[FIRFacebookAuthProviderID];
+                                                 providerMap[FIRFacebookAuthProvider.id];
                                              XCTAssertEqualObjects(facebookUserInfo.uid,
                                                                    kFacebookID);
                                              XCTAssertNil(facebookUserInfo.displayName);
@@ -567,7 +567,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                              // Verify FIRUserInfo properties from the phone auth
                                              // provider.
                                              id<FIRUserInfo> phoneUserInfo =
-                                                 providerMap[FIRPhoneAuthProviderID];
+                                                 providerMap[FIRPhoneAuthProvider.id];
                                              XCTAssertEqualObjects(phoneUserInfo.phoneNumber,
                                                                    kPhoneNumber);
 #endif
@@ -628,7 +628,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                              // Verify NSSecureCoding properties from
                                              // email/password.
                                              id<FIRUserInfo> unarchivedPasswordUserInfo =
-                                                 unarchivedProviderMap[FIREmailAuthProviderID];
+                                                 unarchivedProviderMap[FIREmailAuthProvider.id];
                                              XCTAssertEqualObjects(unarchivedPasswordUserInfo.uid,
                                                                    passwordUserInfo.uid);
                                              XCTAssertEqualObjects(
@@ -643,7 +643,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                              // Verify NSSecureCoding properties from the Google
                                              // auth provider.
                                              id<FIRUserInfo> unarchivedGoogleUserInfo =
-                                                 unarchivedProviderMap[FIRGoogleAuthProviderID];
+                                                 unarchivedProviderMap[FIRGoogleAuthProvider.id];
                                              XCTAssertEqualObjects(unarchivedGoogleUserInfo.uid,
                                                                    googleUserInfo.uid);
                                              XCTAssertEqualObjects(
@@ -658,7 +658,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                              // Verify NSSecureCoding properties from the Facebook
                                              // auth provider.
                                              id<FIRUserInfo> unarchivedFacebookUserInfo =
-                                                 unarchivedProviderMap[FIRFacebookAuthProviderID];
+                                                 unarchivedProviderMap[FIRFacebookAuthProvider.id];
                                              XCTAssertEqualObjects(unarchivedFacebookUserInfo.uid,
                                                                    facebookUserInfo.uid);
                                              XCTAssertEqualObjects(
@@ -674,7 +674,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                              // Verify FIRUserInfo properties from the phone auth
                                              // provider.
                                              id<FIRUserInfo> unarchivedPhoneUserInfo =
-                                                 unarchivedProviderMap[FIRPhoneAuthProviderID];
+                                                 unarchivedProviderMap[FIRPhoneAuthProvider.id];
                                              XCTAssertEqualObjects(
                                                  unarchivedPhoneUserInfo.phoneNumber,
                                                  phoneUserInfo.phoneNumber);
@@ -1398,7 +1398,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                                                [tokenResult.expirationDate
                                                                    isKindOfClass:[NSDate class]]);
                                                  XCTAssertEqualObjects(tokenResult.signInProvider,
-                                                                       FIREmailAuthProviderID);
+                                                                       FIREmailAuthProvider.id);
                                                  XCTAssertTrue(
                                                      tokenResult.claims &&
                                                      [tokenResult.claims
@@ -1781,7 +1781,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
         call.
  */
 - (void)testReauthenticateWithCredentialSuccess {
-  [self expectVerifyAssertionRequest:FIRGoogleAuthProviderID
+  [self expectVerifyAssertionRequest:FIRGoogleAuthProvider.id
                          federatedID:kGoogleID
                          displayName:kGoogleDisplayName
                              profile:[[self class] googleProfile]
@@ -1801,10 +1801,10 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                         [[self class] googleProfile]);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.username, kUserName);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.providerID,
-                                        FIRGoogleAuthProviderID);
+                                        FIRGoogleAuthProvider.id);
                   XCTAssertNil(error);
 
-                  [self expectVerifyAssertionRequest:FIRGoogleAuthProviderID
+                  [self expectVerifyAssertionRequest:FIRGoogleAuthProvider.id
                                          federatedID:kGoogleID
                                          displayName:kGoogleDisplayName
                                              profile:[[self class] googleProfile]
@@ -1843,7 +1843,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                               kUserName);
                                           XCTAssertEqualObjects(reauthenticateAuthResult
                                                                     .additionalUserInfo.providerID,
-                                                                FIRGoogleAuthProviderID);
+                                                                FIRGoogleAuthProvider.id);
                                           [expectation fulfill];
                                         }];
                 }];
@@ -2007,7 +2007,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
         call.
  */
 - (void)testlinkAndRetrieveDataSuccess {
-  [self expectVerifyAssertionRequest:FIRFacebookAuthProviderID
+  [self expectVerifyAssertionRequest:FIRFacebookAuthProvider.id
                          federatedID:kFacebookID
                          displayName:kFacebookDisplayName
                              profile:[[self class] googleProfile]
@@ -2027,10 +2027,10 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                         [[self class] googleProfile]);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.username, kUserName);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.providerID,
-                                        FIRFacebookAuthProviderID);
+                                        FIRFacebookAuthProvider.id);
                   XCTAssertNil(error);
 
-                  [self expectVerifyAssertionRequest:FIRGoogleAuthProviderID
+                  [self expectVerifyAssertionRequest:FIRGoogleAuthProvider.id
                                          federatedID:kGoogleID
                                          displayName:kGoogleDisplayName
                                              profile:[[self class] googleProfile]
@@ -2061,7 +2061,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                 XCTAssertEqualObjects(linkAuthResult.additionalUserInfo.username,
                                                       kUserName);
                                 XCTAssertEqualObjects(linkAuthResult.additionalUserInfo.providerID,
-                                                      FIRGoogleAuthProviderID);
+                                                      FIRGoogleAuthProvider.id);
                                 [expectation fulfill];
                               }];
                 }];
@@ -2075,7 +2075,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
         call with an error from the backend.
  */
 - (void)testlinkAndRetrieveDataError {
-  [self expectVerifyAssertionRequest:FIRFacebookAuthProviderID
+  [self expectVerifyAssertionRequest:FIRFacebookAuthProvider.id
                          federatedID:kFacebookID
                          displayName:kFacebookDisplayName
                              profile:[[self class] googleProfile]
@@ -2094,7 +2094,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                         [[self class] googleProfile]);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.username, kUserName);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.providerID,
-                                        FIRFacebookAuthProviderID);
+                                        FIRFacebookAuthProvider.id);
                   XCTAssertNil(error);
 
                   OCMExpect([self->_mockBackend verifyAssertion:[OCMArg any] callback:[OCMArg any]])
@@ -2135,7 +2135,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
         call with FIRAuthErrorCodeProviderAlreadyLinked, which is a client side error.
  */
 - (void)testlinkAndRetrieveDataProviderAlreadyLinked {
-  [self expectVerifyAssertionRequest:FIRFacebookAuthProviderID
+  [self expectVerifyAssertionRequest:FIRFacebookAuthProvider.id
                          federatedID:kFacebookID
                          displayName:kFacebookDisplayName
                              profile:[[self class] googleProfile]
@@ -2154,7 +2154,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                         [[self class] googleProfile]);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.username, kUserName);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.providerID,
-                                        FIRFacebookAuthProviderID);
+                                        FIRFacebookAuthProvider.id);
                   XCTAssertNil(error);
 
                   FIRAuthCredential *linkFacebookCredential =
@@ -2179,7 +2179,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
         call that automatically signs out.
  */
 - (void)testlinkAndRetrieveDataErrorAutoSignOut {
-  [self expectVerifyAssertionRequest:FIRFacebookAuthProviderID
+  [self expectVerifyAssertionRequest:FIRFacebookAuthProvider.id
                          federatedID:kFacebookID
                          displayName:kFacebookDisplayName
                              profile:[[self class] googleProfile]
@@ -2198,7 +2198,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                         [[self class] googleProfile]);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.username, kUserName);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.providerID,
-                                        FIRFacebookAuthProviderID);
+                                        FIRFacebookAuthProvider.id);
                   XCTAssertNil(error);
 
                   OCMExpect([self->_mockBackend verifyAssertion:[OCMArg any] callback:[OCMArg any]])
@@ -2232,7 +2232,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
         invocation for email credential.
  */
 - (void)testlinkEmailAndRetrieveDataSuccess {
-  [self expectVerifyAssertionRequest:FIRFacebookAuthProviderID
+  [self expectVerifyAssertionRequest:FIRFacebookAuthProvider.id
                          federatedID:kFacebookID
                          displayName:kFacebookDisplayName
                              profile:[[self class] googleProfile]
@@ -2252,7 +2252,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                         [[self class] googleProfile]);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.username, kUserName);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.providerID,
-                                        FIRFacebookAuthProviderID);
+                                        FIRFacebookAuthProvider.id);
                   XCTAssertNil(error);
 
                   id mockGetAccountInfoResponseUser =
@@ -2307,7 +2307,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
         side error.
  */
 - (void)testlinkEmailProviderAlreadyLinkedError {
-  [self expectVerifyAssertionRequest:FIRFacebookAuthProviderID
+  [self expectVerifyAssertionRequest:FIRFacebookAuthProvider.id
                          federatedID:kFacebookID
                          displayName:kFacebookDisplayName
                              profile:[[self class] googleProfile]
@@ -2327,7 +2327,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                         [[self class] googleProfile]);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.username, kUserName);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.providerID,
-                                        FIRFacebookAuthProviderID);
+                                        FIRFacebookAuthProvider.id);
                   XCTAssertNil(error);
 
                   id mockGetAccountInfoResponseUser =
@@ -2393,7 +2393,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
         invocation for email credential and an error from the backend.
  */
 - (void)testlinkEmailAndRetrieveDataError {
-  [self expectVerifyAssertionRequest:FIRFacebookAuthProviderID
+  [self expectVerifyAssertionRequest:FIRFacebookAuthProvider.id
                          federatedID:kFacebookID
                          displayName:kFacebookDisplayName
                              profile:[[self class] googleProfile]
@@ -2413,7 +2413,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                         [[self class] googleProfile]);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.username, kUserName);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.providerID,
-                                        FIRFacebookAuthProviderID);
+                                        FIRFacebookAuthProvider.id);
                   XCTAssertNil(error);
 
                   OCMExpect([self->_mockBackend getAccountInfo:[OCMArg any] callback:[OCMArg any]])
@@ -2448,7 +2448,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
         invocation that automatically signs out.
  */
 - (void)testlinkEmailAndRetrieveDataErrorAutoSignOut {
-  [self expectVerifyAssertionRequest:FIRFacebookAuthProviderID
+  [self expectVerifyAssertionRequest:FIRFacebookAuthProvider.id
                          federatedID:kFacebookID
                          displayName:kFacebookDisplayName
                              profile:[[self class] googleProfile]
@@ -2468,7 +2468,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                         [[self class] googleProfile]);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.username, kUserName);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.providerID,
-                                        FIRFacebookAuthProviderID);
+                                        FIRFacebookAuthProvider.id);
                   XCTAssertNil(error);
 
                   OCMExpect([self->_mockBackend getAccountInfo:[OCMArg any] callback:[OCMArg any]])
@@ -2503,7 +2503,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
         IDP data.
  */
 - (void)testlinkCredentialSuccess {
-  [self expectVerifyAssertionRequest:FIRFacebookAuthProviderID
+  [self expectVerifyAssertionRequest:FIRFacebookAuthProvider.id
                          federatedID:kFacebookID
                          displayName:kFacebookDisplayName
                              profile:[[self class] googleProfile]
@@ -2523,10 +2523,10 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                         [[self class] googleProfile]);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.username, kUserName);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.providerID,
-                                        FIRFacebookAuthProviderID);
+                                        FIRFacebookAuthProvider.id);
                   XCTAssertNil(error);
 
-                  [self expectVerifyAssertionRequest:FIRGoogleAuthProviderID
+                  [self expectVerifyAssertionRequest:FIRGoogleAuthProvider.id
                                          federatedID:kGoogleID
                                          displayName:kGoogleDisplayName
                                              profile:[[self class] googleProfile]
@@ -2542,7 +2542,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                            NSError *_Nullable error) {
                                 XCTAssertNil(error);
                                 id<FIRUserInfo> userInfo = result.user.providerData.firstObject;
-                                XCTAssertEqual(userInfo.providerID, FIRGoogleAuthProviderID);
+                                XCTAssertEqual(userInfo.providerID, FIRGoogleAuthProvider.id);
                                 XCTAssertEqual([FIRAuth auth].currentUser, authResult.user);
                                 [expectation fulfill];
                               }];
@@ -2557,7 +2557,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
         from the backend.
  */
 - (void)testlinkCredentialError {
-  [self expectVerifyAssertionRequest:FIRFacebookAuthProviderID
+  [self expectVerifyAssertionRequest:FIRFacebookAuthProvider.id
                          federatedID:kFacebookID
                          displayName:kFacebookDisplayName
                              profile:[[self class] googleProfile]
@@ -2577,7 +2577,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                         [[self class] googleProfile]);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.username, kUserName);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.providerID,
-                                        FIRFacebookAuthProviderID);
+                                        FIRFacebookAuthProvider.id);
                   XCTAssertNil(error);
 
                   OCMExpect([self->_mockBackend verifyAssertion:[OCMArg any] callback:[OCMArg any]])
@@ -2609,7 +2609,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
         side error.
  */
 - (void)testlinkCredentialProviderAlreadyLinkedError {
-  [self expectVerifyAssertionRequest:FIRFacebookAuthProviderID
+  [self expectVerifyAssertionRequest:FIRFacebookAuthProvider.id
                          federatedID:kFacebookID
                          displayName:kFacebookDisplayName
                              profile:[[self class] googleProfile]
@@ -2629,7 +2629,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                         [[self class] googleProfile]);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.username, kUserName);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.providerID,
-                                        FIRFacebookAuthProviderID);
+                                        FIRFacebookAuthProvider.id);
                   XCTAssertNil(error);
 
                   FIRAuthCredential *linkFacebookCredential =
@@ -2653,7 +2653,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
         call.
  */
 - (void)testlinkProviderFailure {
-  [self expectVerifyAssertionRequest:FIRFacebookAuthProviderID
+  [self expectVerifyAssertionRequest:FIRFacebookAuthProvider.id
                          federatedID:kFacebookID
                          displayName:kFacebookDisplayName
                              profile:[[self class] googleProfile]
@@ -2673,7 +2673,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                         [[self class] googleProfile]);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.username, kUserName);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.providerID,
-                                        FIRFacebookAuthProviderID);
+                                        FIRFacebookAuthProvider.id);
                   XCTAssertNil(error);
 
                   OCMExpect([self->_mockBackend verifyAssertion:[OCMArg any] callback:[OCMArg any]])
@@ -2687,7 +2687,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                        FIRAuthCredentialCallback callback) {
                         dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
                           FIROAuthCredential *credential =
-                              [[FIROAuthCredential alloc] initWithProviderID:FIRGoogleAuthProviderID
+                              [[FIROAuthCredential alloc] initWithProviderID:FIRGoogleAuthProvider.id
                                                                    sessionID:kOAuthSessionID
                                                       OAuthResponseURLString:kOAuthRequestURI];
                           callback(credential, nil);
@@ -2716,7 +2716,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
     @brief Tests the flow of a failed @c reauthenticateWithProvider:completion: call.
  */
 - (void)testReauthenticateWithProviderFailure {
-  [self expectVerifyAssertionRequest:FIRFacebookAuthProviderID
+  [self expectVerifyAssertionRequest:FIRFacebookAuthProvider.id
                          federatedID:kFacebookID
                          displayName:kFacebookDisplayName
                              profile:[[self class] googleProfile]
@@ -2736,7 +2736,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                         [[self class] googleProfile]);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.username, kUserName);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.providerID,
-                                        FIRFacebookAuthProviderID);
+                                        FIRFacebookAuthProvider.id);
                   XCTAssertNil(error);
 
                   OCMExpect([self->_mockBackend verifyAssertion:[OCMArg any] callback:[OCMArg any]])
@@ -2750,7 +2750,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                        FIRAuthCredentialCallback callback) {
                         dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
                           FIROAuthCredential *credential =
-                              [[FIROAuthCredential alloc] initWithProviderID:FIRGoogleAuthProviderID
+                              [[FIROAuthCredential alloc] initWithProviderID:FIRGoogleAuthProvider.id
                                                                    sessionID:kOAuthSessionID
                                                       OAuthResponseURLString:kOAuthRequestURI];
                           callback(credential, nil);
@@ -2787,7 +2787,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
     OCMStub([mockGetAccountInfoResponseUser email]).andReturn(kEmail);
     OCMStub([mockGetAccountInfoResponseUser passwordHash]).andReturn(kPasswordHash);
     if (phoneNumber.length) {
-      NSDictionary *userInfoDictionary = @{@"providerId" : FIRPhoneAuthProviderID};
+      NSDictionary *userInfoDictionary = @{@"providerId" : FIRPhoneAuthProvider.id};
       FIRGetAccountInfoResponseProviderUserInfo *userInfo =
           [[FIRGetAccountInfoResponseProviderUserInfo alloc] initWithDictionary:userInfoDictionary];
       OCMStub([mockGetAccountInfoResponseUser providerUserInfo]).andReturn(@[ userInfo ]);
@@ -2826,7 +2826,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                                                [FIRAuth auth]
                                                                    .currentUser.providerData
                                                                    .firstObject.providerID,
-                                                               FIRPhoneAuthProviderID);
+                                                               FIRPhoneAuthProvider.id);
                                                            XCTAssertEqualObjects(
                                                                [FIRAuth auth]
                                                                    .currentUser.phoneNumber,
@@ -2849,7 +2849,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
     OCMStub([mockGetAccountInfoResponseUser email]).andReturn(kEmail);
     OCMStub([mockGetAccountInfoResponseUser passwordHash]).andReturn(kPasswordHash);
     if (phoneNumber.length) {
-      NSDictionary *userInfoDictionary = @{@"providerId" : FIRPhoneAuthProviderID};
+      NSDictionary *userInfoDictionary = @{@"providerId" : FIRPhoneAuthProvider.id};
       FIRGetAccountInfoResponseProviderUserInfo *userInfo =
           [[FIRGetAccountInfoResponseProviderUserInfo alloc] initWithDictionary:userInfoDictionary];
       OCMStub([mockGetAccountInfoResponseUser providerUserInfo]).andReturn(@[ userInfo ]);
@@ -2907,7 +2907,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                                                [FIRAuth auth]
                                                                    .currentUser.providerData
                                                                    .firstObject.providerID,
-                                                               FIRPhoneAuthProviderID);
+                                                               FIRPhoneAuthProvider.id);
                                                            XCTAssertEqualObjects(
                                                                [FIRAuth auth]
                                                                    .currentUser.phoneNumber,
@@ -2916,7 +2916,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                                            // provider.
                                                            [user
                                                                unlinkFromProvider:
-                                                                   FIRPhoneAuthProviderID
+                                                                   FIRPhoneAuthProvider.id
                                                                        completion:^(
                                                                            FIRUser *_Nullable user,
                                                                            NSError
@@ -3010,7 +3010,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
             FIRPhoneAuthCredential *credential =
                 [[FIRPhoneAuthCredential alloc] initWithTemporaryProof:kTemporaryProof
                                                            phoneNumber:kPhoneNumber
-                                                            providerID:FIRPhoneAuthProviderID];
+                                                            providerID:FIRPhoneAuthProvider.id];
             callback(nil, [FIRAuthErrorUtils credentialAlreadyInUseErrorWithMessage:nil
                                                                          credential:credential
                                                                               email:nil]);
@@ -3287,7 +3287,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
   XCTAssertEqualObjects(user.displayName, kGoogleDisplayName);
   XCTAssertEqual(user.providerData.count, 1u);
   id<FIRUserInfo> googleUserInfo = user.providerData[0];
-  XCTAssertEqualObjects(googleUserInfo.providerID, FIRGoogleAuthProviderID);
+  XCTAssertEqualObjects(googleUserInfo.providerID, FIRGoogleAuthProvider.id);
   XCTAssertEqualObjects(googleUserInfo.uid, kGoogleID);
   XCTAssertEqualObjects(googleUserInfo.displayName, kGoogleDisplayName);
   XCTAssertEqualObjects(googleUserInfo.email, kGoogleEmail);
@@ -3304,7 +3304,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
   XCTAssertEqualObjects(user.displayName, kFacebookDisplayName);
   XCTAssertEqual(user.providerData.count, 1u);
   id<FIRUserInfo> googleUserInfo = user.providerData[0];
-  XCTAssertEqualObjects(googleUserInfo.providerID, FIRFacebookAuthProviderID);
+  XCTAssertEqualObjects(googleUserInfo.providerID, FIRFacebookAuthProvider.id);
   XCTAssertEqualObjects(googleUserInfo.uid, kFacebookID);
   XCTAssertEqualObjects(googleUserInfo.displayName, kFacebookDisplayName);
   XCTAssertEqualObjects(googleUserInfo.email, kGoogleEmail);
