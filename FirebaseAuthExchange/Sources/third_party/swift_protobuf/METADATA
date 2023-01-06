@@ -1,0 +1,19 @@
+name: "swift-protobuf"
+description:
+    "ProtobufDurationUtil is a modified derivative of "
+    "Google_Protobuf_Duration+Extensions containing a helper method for parsing "
+    "google.protobuf.Duration protos serialized as JSON."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/apple/swift-protobuf"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/apple/swift-protobuf/tree/1.20.3"
+  }
+  version: "1.20.3"
+  last_upgrade_date { year: 2023 month: 1 day: 6 }
+  license_type: NOTICE
+}
