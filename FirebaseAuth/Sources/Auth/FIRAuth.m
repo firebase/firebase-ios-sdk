@@ -28,13 +28,13 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FirebaseAuth.h"
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
+#import "FirebaseAuth-Swift.h"
 #import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthDispatcher.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthOperationType.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthRequestConfiguration.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInRequest.h"
@@ -53,14 +53,15 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignInWithGameCenterResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserResponse.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRVerifyAssertionRequest.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRVerifyAssertionResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberResponse.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthRequestConfiguration.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRVerifyAssertionRequest.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRVerifyAssertionResponse.h"
 #import "FirebaseAuth/Sources/Storage/FIRAuthKeychainServices.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthStoredUserManager.h"
 #import "FirebaseAuth/Sources/User/FIRAdditionalUserInfo_Internal.h"
@@ -68,7 +69,6 @@
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
-#import "FirebaseAuth-Swift.h"
 
 #if TARGET_OS_IOS
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
@@ -77,8 +77,6 @@
 #import "FirebaseAuth/Sources/SystemService/FIRAuthNotificationManager.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
 #endif
-
-
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -814,8 +812,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                                }
                                                FIRAdditionalUserInfo *additionalUserInfo =
                                                    [[FIRAdditionalUserInfo alloc]
-                                                       initWithProviderID:
-                                                           FIRGameCenterAuthProvider.id
+                                                       initWithProviderID:FIRGameCenterAuthProvider
+                                                                              .id
                                                                   profile:nil
                                                                  username:nil
                                                                 isNewUser:response.isNewUser];
