@@ -43,7 +43,7 @@ import Foundation
     super.init(provider: TwitterAuthProvider.id)
   }
 
-  func prepareVerifyAssertionRequest(request: FIRVerifyAssertionRequest) {
+  @objc override func prepare(_ request: FIRVerifyAssertionRequest) {
     request.providerAccessToken = token
     request.providerOAuthTokenSecret = secret
   }
