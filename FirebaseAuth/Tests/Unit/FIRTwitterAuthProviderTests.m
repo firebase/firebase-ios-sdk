@@ -16,7 +16,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
 @import FirebaseAuth;
 
 /** @var kTwitterToken

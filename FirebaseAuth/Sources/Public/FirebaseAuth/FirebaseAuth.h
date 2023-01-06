@@ -19,7 +19,6 @@
 #import "FIRActionCodeSettings.h"
 #import "FIRAdditionalUserInfo.h"
 #import "FIRAuth.h"
-#import "FIRAuthCredential.h"
 #import "FIRAuthDataResult.h"
 #import "FIRAuthErrors.h"
 #import "FIRAuthTokenResult.h"
