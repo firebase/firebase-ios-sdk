@@ -40,7 +40,7 @@ import Foundation
     super.init(provider: FacebookAuthProvider.id)
   }
 
-  func prepareVerifyAssertionRequest(request: FIRVerifyAssertionRequest) {
+  @objc override func prepare(_ request: FIRVerifyAssertionRequest) {
     request.providerAccessToken = accessToken
   }
 
