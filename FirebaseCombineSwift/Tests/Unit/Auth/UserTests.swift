@@ -245,7 +245,7 @@ class UserTests: XCTestCase {
 
   func testlinkAndRetrieveDataSuccess() {
     let facebookCredentials = ProviderCredentials(
-      providerID: FacebookAuthProviderID,
+      providerID: FacebookAuthProvider.id,
       federatedID: "FACEBOOK_ID",
       displayName: "Facebook Doe",
       idToken: nil,
@@ -273,10 +273,10 @@ class UserTests: XCTestCase {
         XCTAssertEqual(authResult.additionalUserInfo?.username,
                        UserTests.userName)
         XCTAssertEqual(authResult.additionalUserInfo?.providerID,
-                       FacebookAuthProviderID)
+                       FacebookAuthProvider.id)
 
         let googleCredentials = ProviderCredentials(
-          providerID: GoogleAuthProviderID,
+          providerID: GoogleAuthProvider.id,
           federatedID: "GOOGLE_ID",
           displayName: "Google Doe",
           idToken: "GOOGLE_ID_TOKEN",
@@ -312,7 +312,7 @@ class UserTests: XCTestCase {
         XCTAssertEqual(linkAuthResult.additionalUserInfo?.username,
                        UserTests.userName)
         XCTAssertEqual(linkAuthResult.additionalUserInfo?.providerID,
-                       GoogleAuthProviderID)
+                       GoogleAuthProvider.id)
 
         userSignInExpectation.fulfill()
       }
@@ -324,7 +324,7 @@ class UserTests: XCTestCase {
 
   func testLinkAndRetrieveDataError() {
     let facebookCredentials = ProviderCredentials(
-      providerID: FacebookAuthProviderID,
+      providerID: FacebookAuthProvider.id,
       federatedID: "FACEBOOK_ID",
       displayName: "Facebook Doe",
       idToken: nil,
@@ -352,11 +352,11 @@ class UserTests: XCTestCase {
         XCTAssertEqual(authResult.additionalUserInfo?.username,
                        UserTests.userName)
         XCTAssertEqual(authResult.additionalUserInfo?.providerID,
-                       FacebookAuthProviderID)
+                       FacebookAuthProvider.id)
         XCTAssertEqual(Auth.auth().currentUser, authResult.user)
 
         let googleCredentials = ProviderCredentials(
-          providerID: GoogleAuthProviderID,
+          providerID: GoogleAuthProvider.id,
           federatedID: "GOOGLE_ID",
           displayName: "Google Doe",
           idToken: "GOOGLE_ID_TOKEN",
@@ -402,7 +402,7 @@ class UserTests: XCTestCase {
 
   func testLinkAndRetrieveDataProviderAlreadyLinked() {
     let facebookCredentials = ProviderCredentials(
-      providerID: FacebookAuthProviderID,
+      providerID: FacebookAuthProvider.id,
       federatedID: "FACEBOOK_ID",
       displayName: "Facebook Doe",
       idToken: nil,
@@ -430,7 +430,7 @@ class UserTests: XCTestCase {
         XCTAssertEqual(authResult.additionalUserInfo?.username,
                        UserTests.userName)
         XCTAssertEqual(authResult.additionalUserInfo?.providerID,
-                       FacebookAuthProviderID)
+                       FacebookAuthProvider.id)
         XCTAssertEqual(Auth.auth().currentUser, authResult.user)
 
         authBackend.providerCredentials = facebookCredentials
@@ -463,7 +463,7 @@ class UserTests: XCTestCase {
 
   func testLinkAndRetrieveDataErrorAutoSignOut() {
     let facebookCredentials = ProviderCredentials(
-      providerID: FacebookAuthProviderID,
+      providerID: FacebookAuthProvider.id,
       federatedID: "FACEBOOK_ID",
       displayName: "Facebook Doe",
       idToken: nil,
@@ -491,11 +491,11 @@ class UserTests: XCTestCase {
         XCTAssertEqual(authResult.additionalUserInfo?.username,
                        UserTests.userName)
         XCTAssertEqual(authResult.additionalUserInfo?.providerID,
-                       FacebookAuthProviderID)
+                       FacebookAuthProvider.id)
         XCTAssertEqual(Auth.auth().currentUser, authResult.user)
 
         let googleCredentials = ProviderCredentials(
-          providerID: GoogleAuthProviderID,
+          providerID: GoogleAuthProvider.id,
           federatedID: "GOOGLE_ID",
           displayName: "Google Doe",
           idToken: "GOOGLE_ID_TOKEN",
@@ -536,7 +536,7 @@ class UserTests: XCTestCase {
   func testReauthenticateSuccess() {
     // given
     let emailCredentials = ProviderCredentials(
-      providerID: EmailAuthProviderID,
+      providerID: EmailAuthProvider.id,
       federatedID: "EMAIL_ID",
       displayName: "Google Doe",
       idToken: nil,
@@ -589,7 +589,7 @@ class UserTests: XCTestCase {
   func testReauthenticateWithCredentialSuccess() {
     // given
     let googleCredentials = ProviderCredentials(
-      providerID: GoogleAuthProviderID,
+      providerID: GoogleAuthProvider.id,
       federatedID: "GOOGLE_ID",
       displayName: "Google Doe",
       idToken: "GOOGLE_ID_TOKEN",
@@ -619,7 +619,7 @@ class UserTests: XCTestCase {
         XCTAssertEqual(authResult.additionalUserInfo?.username,
                        UserTests.userName)
         XCTAssertEqual(authResult.additionalUserInfo?.providerID,
-                       GoogleAuthProviderID)
+                       GoogleAuthProvider.id)
 
         return authResult.user
           .reauthenticate(with: googleCredential)
@@ -637,7 +637,7 @@ class UserTests: XCTestCase {
         XCTAssertEqual(authResult.additionalUserInfo?.username,
                        UserTests.userName)
         XCTAssertEqual(authResult.additionalUserInfo?.providerID,
-                       GoogleAuthProviderID)
+                       GoogleAuthProvider.id)
 
         userReauthenticateExpectation.fulfill()
       }
@@ -650,7 +650,7 @@ class UserTests: XCTestCase {
   func testReauthenticateFailure() {
     // given
     let emailCredentials = ProviderCredentials(
-      providerID: EmailAuthProviderID,
+      providerID: EmailAuthProvider.id,
       federatedID: "EMAIL_ID",
       displayName: "Google Doe",
       idToken: nil,
@@ -703,7 +703,7 @@ class UserTests: XCTestCase {
   func testReauthenticateUserMismatchFailure() {
     // given
     let emailCredentials = ProviderCredentials(
-      providerID: EmailAuthProviderID,
+      providerID: EmailAuthProvider.id,
       federatedID: "EMAIL_ID",
       displayName: "Google Doe",
       idToken: nil,
@@ -725,7 +725,7 @@ class UserTests: XCTestCase {
       .flatMap { authResult -> Future<AuthDataResult, Error> in
 
         let googleCredentials = ProviderCredentials(
-          providerID: GoogleAuthProviderID,
+          providerID: GoogleAuthProvider.id,
           federatedID: "GOOGLE_ID",
           displayName: "Google Doe",
           idToken: "GOOGLE_ID_TOKEN",
@@ -767,7 +767,7 @@ class UserTests: XCTestCase {
   func testUnlinkPhoneAuthCredentialSuccess() {
     // given
     let emailCredentials = ProviderCredentials(
-      providerID: PhoneAuthProviderID,
+      providerID: PhoneAuthProvider.id,
       federatedID: "EMAIL_ID",
       displayName: "Google Doe",
       idToken: nil,
@@ -790,7 +790,7 @@ class UserTests: XCTestCase {
       .flatMap { authResult -> Future<AuthDataResult, Error> in
 
         authBackend.providerCredentials.phoneNumber = Self.phoneNumber
-        authBackend.providerCredentials.userInfo = ["providerId": PhoneAuthProviderID]
+        authBackend.providerCredentials.userInfo = ["providerId": PhoneAuthProvider.id]
 
         let credential = PhoneAuthProvider.provider()
           .credential(withVerificationID: Self.verificationID,
@@ -802,12 +802,12 @@ class UserTests: XCTestCase {
       .flatMap { authResult -> AnyPublisher<User, Error> in
         XCTAssertEqual(
           Auth.auth().currentUser?.providerData.first?.providerID,
-          PhoneAuthProviderID
+          PhoneAuthProvider.id
         )
         XCTAssertEqual(Auth.auth().currentUser?.phoneNumber, Self.phoneNumber)
 
         return authResult.user
-          .unlink(fromProvider: PhoneAuthProviderID)
+          .unlink(fromProvider: PhoneAuthProvider.id)
           .eraseToAnyPublisher()
       }
       .sink { completion in
@@ -831,7 +831,7 @@ class UserTests: XCTestCase {
   func testSendVerificationEmailSuccess() {
     // given
     let emailCredentials = ProviderCredentials(
-      providerID: PhoneAuthProviderID,
+      providerID: PhoneAuthProvider.id,
       federatedID: "EMAIL_ID",
       displayName: "Google Doe",
       idToken: nil,
@@ -876,7 +876,7 @@ class UserTests: XCTestCase {
   func testSendVerificationEmailWithActionCodeSettingsSuccess() {
     // given
     let emailCredentials = ProviderCredentials(
-      providerID: PhoneAuthProviderID,
+      providerID: PhoneAuthProvider.id,
       federatedID: "EMAIL_ID",
       displayName: "Google Doe",
       idToken: nil,
@@ -926,7 +926,7 @@ class UserTests: XCTestCase {
   func testSendVerificationEmailInvalidRecipientEmail() {
     // given
     let emailCredentials = ProviderCredentials(
-      providerID: PhoneAuthProviderID,
+      providerID: PhoneAuthProvider.id,
       federatedID: "EMAIL_ID",
       displayName: "Google Doe",
       idToken: nil,
