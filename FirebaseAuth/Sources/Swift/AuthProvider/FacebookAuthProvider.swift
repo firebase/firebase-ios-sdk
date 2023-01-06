@@ -15,27 +15,27 @@
 import Foundation
 
 /**
-   @brief Utility class for constructing Facebook Sign In credentials.
-*/
+ @brief Utility class for constructing Facebook Sign In credentials.
+ */
 @objc(FIRFacebookAuthProvider) open class FacebookAuthProvider: NSObject {
-
-  @objc static public let id = "facebook.com"
+  @objc public static let id = "facebook.com"
 
   /**
-     @brief Creates an `AuthCredential` for a Facebook sign in.
+      @brief Creates an `AuthCredential` for a Facebook sign in.
 
-     @param accessToken The Access Token from Facebook.
-     @return An AuthCredential containing the Facebook credentials.
-  */
-  @objc public class func credential(withAccessToken accessToken:String) -> AuthCredential {
+      @param accessToken The Access Token from Facebook.
+      @return An AuthCredential containing the Facebook credentials.
+   */
+  @objc public class func credential(withAccessToken accessToken: String) -> AuthCredential {
     return FacebookAuthCredential(withAccessToken: accessToken)
   }
 }
 
-@objc(FIRFacebookAuthCredential) fileprivate class FacebookAuthCredential: AuthCredential, NSSecureCoding {
+@objc(FIRFacebookAuthCredential) private class FacebookAuthCredential: AuthCredential,
+  NSSecureCoding {
   private let accessToken: String
 
-  init(withAccessToken accessToken:String) {
+  init(withAccessToken accessToken: String) {
     self.accessToken = accessToken
     super.init(provider: FacebookAuthProvider.id)
   }
