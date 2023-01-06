@@ -16,6 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
+
+@class FIRVerifyAssertionRequest;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRAuthCredential
@@ -42,6 +45,14 @@ NS_SWIFT_NAME(AuthCredential)
     @param provider The provider name.
  */
 - (instancetype)initWithProvider:(NSString *)provider NS_DESIGNATED_INITIALIZER;
+
+
+/** @fn prepareVerifyAssertionRequest:
+    @brief Called immediately before a request to the verifyAssertion endpoint is made. Implementers
+        should update the passed request instance with their credentials.
+    @param request The request to be updated with credentials.
+ */
+- (void)prepareVerifyAssertionRequest:(FIRVerifyAssertionRequest *)request;
 
 @end
 
