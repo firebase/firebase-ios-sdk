@@ -15,11 +15,10 @@
 import Foundation
 
 /**
-   @brief A concrete implementation of `AuthProvider` for Email & Password Sign In.
-*/
+ @brief A concrete implementation of `AuthProvider` for Email & Password Sign In.
+ */
 @objc(FIREmailAuthProvider) open class EmailAuthProvider: NSObject {
-
-  @objc static public let id = "password"
+  @objc public static let id = "password"
 
   /**
       @brief Creates an `AuthCredential` for an email & password sign in.
@@ -28,7 +27,7 @@ import Foundation
       @param password The user's password.
       @return An `AuthCredential` containing the email & password credential.
    */
-  @objc public class func credential(withEmail email:String, password: String) -> AuthCredential {
+  @objc public class func credential(withEmail email: String, password: String) -> AuthCredential {
     return EmailAuthCredential(withEmail: email, password: password)
   }
 
@@ -39,13 +38,14 @@ import Foundation
       @param link The email sign-in link.
       @return An `AuthCredential` containing the email & link credential.
    */
-  @objc public class func credential(withEmail email:String, link: String) -> AuthCredential {
+  @objc public class func credential(withEmail email: String, link: String) -> AuthCredential {
     return EmailAuthCredential(withEmail: email, link: link)
   }
 }
 
 // TODO: Change all visibilities to internal and remove objc, once internal dependents are converted.
-@objc(FIREmailPasswordAuthCredential) public class EmailAuthCredential: AuthCredential, NSSecureCoding {
+@objc(FIREmailPasswordAuthCredential) public class EmailAuthCredential: AuthCredential,
+  NSSecureCoding {
   @objc public let email: String
   @objc public let password: String?
   @objc public let link: String?
@@ -53,14 +53,14 @@ import Foundation
   @objc public init(withEmail email: String, password: String) {
     self.email = email
     self.password = password
-    self.link = nil
+    link = nil
     super.init(provider: EmailAuthProvider.id)
   }
 
   @objc public init(withEmail email: String, link: String) {
     self.email = email
     self.link = link
-    self.password = nil
+    password = nil
     super.init(provider: EmailAuthProvider.id)
   }
 
@@ -79,10 +79,10 @@ import Foundation
     self.email = email
     if let password = coder.decodeObject(forKey: "password") as? String {
       self.password = password
-      self.link = nil
+      link = nil
     } else if let link = coder.decodeObject(forKey: "link") as? String {
       self.link = link
-      self.password = nil
+      password = nil
     } else {
       return nil
     }
