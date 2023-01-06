@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
     [StaticContentTableViewCell cellWithTitle:@"Link Game Center"
                                       action:^{ [weakSelf linkWithGameCenter]; }],
     [StaticContentTableViewCell cellWithTitle:@"Unlink Game Center"
-                                      action:^{ [weakSelf unlinkFromProvider:FIRGameCenterAuthProviderID completion:nil]; }],
+                                      action:^{ [weakSelf unlinkFromProvider:FIRGameCenterAuthProvider.id completion:nil]; }],
     [StaticContentTableViewCell cellWithTitle:@"Reauthenticate Game Center"
                                       action:^{ [weakSelf reauthenticateWithGameCenter]; }],
     ]];
