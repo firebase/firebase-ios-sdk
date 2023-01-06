@@ -15,25 +15,18 @@
 import Foundation
 
 /**
-   @brief Utility class for constructing OAuth Sign In credentials.
-*/
-// TODO Swift FederatedAuthProvider with a sync and async version.
-@objc(FIROAuthProvider) open class OAuthProvider: NSObject { //}, FederatedAuthProvider {
-
-//  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-//  public func credential(with UIDelegate: AuthUIDelegate?) async throws -> AuthCredential {
-//    <#code#>
-//  }
-
-
-  @objc static public let id = "OAuth"
+ @brief Utility class for constructing OAuth Sign In credentials.
+ */
+// TODO: Swift FederatedAuthProvider with a sync and async version.
+@objc(FIROAuthProvider) open class OAuthProvider: NSObject, FederatedAuthProvider {
+  @objc public static let id = "OAuth"
 
   /**
       @param providerID The provider ID of the IDP for which this auth provider instance will be
           configured.
       @return An instance of `OAuthProvider` corresponding to the specified provider ID.
    */
-  @objc(providerWithProviderID:) class public func provider(providerID:String) -> OAuthProvider {
+  @objc(providerWithProviderID:) public class func provider(providerID: String) -> OAuthProvider {
     return OAuthProvider(providerID: providerID, auth: Auth.auth())
   }
 
@@ -43,7 +36,8 @@ import Foundation
       @param auth The auth instance to be associated with the `OAuthProvider` instance.
       @return An instance of `OAuthProvider` corresponding to the specified provider ID.
    */
-  @objc(providerWithProviderID:auth:) class public func provider(providerID:String, auth: Auth) -> OAuthProvider {
+  @objc(providerWithProviderID:auth:) public class func provider(providerID: String,
+                                                                 auth: Auth) -> OAuthProvider {
     return OAuthProvider(providerID: providerID, auth: auth)
   }
 
@@ -62,6 +56,33 @@ import Foundation
             represents.
    */
   @objc public let providerID: String
+
+  /**
+      @param providerID The provider ID of the IDP for which this auth provider instance will be
+          configured.
+      @return An instance of `OAuthProvider` corresponding to the specified provider ID.
+   */
+  @objc(providerWithProviderID:) public convenience init(providerID: String) {
+    self.init(providerID: providerID, auth: Auth.auth())
+  }
+
+  /**
+      @param providerID The provider ID of the IDP for which this auth provider instance will be
+          configured.
+      @param auth The auth instance to be associated with the `OAuthProvider` instance.
+      @return An instance of `OAuthProvider` corresponding to the specified provider ID.
+   */
+  @objc(providerWithProviderID:auth:) public init(providerID: String, auth: Auth) {
+    // TODO:
+    self.auth = auth
+
+    // if auth.app
+    callbackScheme = "todo"
+    usingClientIDScheme = false
+    scopes = [""]
+    customParameters = [:]
+    self.providerID = OAuthProvider.id
+  }
 
   /**
       @brief Creates an `AuthCredential` for the OAuth 2 provider identified by provider ID, ID
@@ -103,8 +124,14 @@ import Foundation
       @return A `AuthCredential` for the specified provider ID, ID token and access token.
    */
   @objc(credentialWithProviderID:IDToken:rawNonce:accessToken:)
-  func credential(providerID: String, IDToken: String, rawNonce: String, accessToken: String) -> OAuthCredential {
-    return OAuthCredential(withProviderID: providerID, IDToken: IDToken, rawNonce: rawNonce, accessToken: accessToken)
+  func credential(providerID: String, IDToken: String, rawNonce: String,
+                  accessToken: String) -> OAuthCredential {
+    return OAuthCredential(
+      withProviderID: providerID,
+      IDToken: IDToken,
+      rawNonce: rawNonce,
+      accessToken: accessToken
+    )
   }
 
   /**
@@ -117,34 +144,37 @@ import Foundation
       @return A `AuthCredential`.
    */
   @objc(credentialWithProviderID:IDToken:rawNonce:)
-  func credential(providerID: String, IDToken: String, rawNonce:String) -> OAuthCredential {
+  func credential(providerID: String, IDToken: String, rawNonce: String) -> OAuthCredential {
     return OAuthCredential(withProviderID: providerID, IDToken: IDToken, rawNonce: rawNonce)
   }
 
   #if os(iOS)
-  @objc(getCredentialWithUIDelegate:completion:)
-  public func getCredentialWith(_ UIDelegate: AuthUIDelegate?, completion: ((AuthCredential?, Error?) -> Void)? = nil) {
-    // TODO
-  }
+    @objc(getCredentialWithUIDelegate:completion:)
+    public func getCredentialWith(_ UIDelegate: AuthUIDelegate?,
+                                  completion: ((AuthCredential?, Error?) -> Void)? = nil) {
+      // TODO:
+    }
+
+    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+    public func credential(with UIDelegate: AuthUIDelegate?) async throws -> AuthCredential {
+      return try await withCheckedThrowingContinuation { continuation in
+        getCredentialWith(UIDelegate) { credential, error in
+          if let credential = credential {
+            continuation.resume(returning: credential)
+          } else {
+            continuation.resume(throwing: error!) // TODO: Change to ?? and generate unknown error
+          }
+        }
+      }
+    }
   #endif
 
   private let auth: Auth
   private let callbackScheme: String
   private let usingClientIDScheme: Bool
-
-  private init(providerID: String, auth: Auth) {
-    // TODO
-    self.auth = auth
-    //if auth.app
-    self.callbackScheme = "todo"
-    self.usingClientIDScheme = false
-    self.scopes = [""]
-    self.customParameters = [:]
-    self.providerID = OAuthProvider.id
-  }
 }
 
-@objc(FIROAuthCredential) public class OAuthCredential: AuthCredential { //}, NSSecureCoding {
+@objc(FIROAuthCredential) public class OAuthCredential: AuthCredential { // }, NSSecureCoding {
   /** @property IDToken
       @brief The ID Token associated with this credential.
    */
@@ -171,8 +201,8 @@ import Foundation
   @objc public let rawNonce: String?
 
   // TODO: Remove public objc
-  @objc public init(withProviderID providerID:String,
-                    IDToken:String? = nil,
+  @objc public init(withProviderID providerID: String,
+                    IDToken: String? = nil,
                     rawNonce: String? = nil,
                     accessToken: String? = nil,
                     secret: String? = nil,
@@ -182,25 +212,25 @@ import Foundation
     self.accessToken = accessToken
     self.pendingToken = pendingToken
     self.secret = secret
-    self.OAuthResponseURLString = nil
-    self.sessionID = nil
+    OAuthResponseURLString = nil
+    sessionID = nil
     super.init(provider: providerID)
   }
 
-  @objc public init(withProviderID providerID:String,
-                    sessionID:String,
+  @objc public init(withProviderID providerID: String,
+                    sessionID: String,
                     OAuthResponseURLString: String) {
     self.sessionID = sessionID
     self.OAuthResponseURLString = OAuthResponseURLString
-    self.accessToken = nil
-    self.pendingToken = nil
-    self.secret = nil
-    self.IDToken = nil
-    self.rawNonce = nil
+    accessToken = nil
+    pendingToken = nil
+    secret = nil
+    IDToken = nil
+    rawNonce = nil
     super.init(provider: providerID)
   }
 
-  @objc public convenience init(withVerifyAssertionResponse response:FIRVerifyAssertionResponse) {
+  @objc public convenience init(withVerifyAssertionResponse response: FIRVerifyAssertionResponse) {
     self.init(withProviderID: response.providerID ?? OAuthProvider.id,
               IDToken: response.oauthIDToken,
               rawNonce: nil,

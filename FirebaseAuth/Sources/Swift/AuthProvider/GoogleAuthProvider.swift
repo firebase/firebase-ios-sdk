@@ -15,30 +15,30 @@
 import Foundation
 
 /**
-   @brief Utility class for constructing Google Sign In credentials.
-*/
+ @brief Utility class for constructing Google Sign In credentials.
+ */
 @objc(FIRGoogleAuthProvider) open class GoogleAuthProvider: NSObject {
-
-  @objc static public let id = "google.com"
+  @objc public static let id = "google.com"
 
   /**
-     @brief Creates an `AuthCredential` for a Google sign in.
+      @brief Creates an `AuthCredential` for a Google sign in.
 
-     @param IDToken The ID Token from Google.
-     @param accessToken The Access Token from Google.
-     @return An AuthCredential containing the Google credentials.
-  */
-  @objc public class func credential(withIDToken IDToken:String, accessToken: String) -> AuthCredential {
+      @param IDToken The ID Token from Google.
+      @param accessToken The Access Token from Google.
+      @return An AuthCredential containing the Google credentials.
+   */
+  @objc public class func credential(withIDToken IDToken: String,
+                                     accessToken: String) -> AuthCredential {
     return GoogleAuthCredential(withIDToken: IDToken, accessToken: accessToken)
   }
 }
 
-@objc(FIRGoogleAuthCredential) fileprivate class GoogleAuthCredential: AuthCredential, NSSecureCoding {
+@objc(FIRGoogleAuthCredential) private class GoogleAuthCredential: AuthCredential, NSSecureCoding {
   private let IDToken: String
   private let accessToken: String
 
-  init(withIDToken idToken:String, accessToken: String) {
-    self.IDToken = idToken
+  init(withIDToken idToken: String, accessToken: String) {
+    IDToken = idToken
     self.accessToken = accessToken
     super.init(provider: GoogleAuthProvider.id)
   }

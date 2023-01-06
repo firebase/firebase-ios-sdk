@@ -15,29 +15,29 @@
 import Foundation
 
 /**
-   @brief Utility class for constructing Twitter Sign In credentials.
-*/
+ @brief Utility class for constructing Twitter Sign In credentials.
+ */
 @objc(FIRTwitterAuthProvider) open class TwitterAuthProvider: NSObject {
-
-  @objc static public let id = "twitter.com"
+  @objc public static let id = "twitter.com"
 
   /**
-     @brief Creates an `AuthCredential` for a Twitter sign in.
+      @brief Creates an `AuthCredential` for a Twitter sign in.
 
-     @param token The Twitter OAuth token.
-     @param secret The Twitter OAuth secret.
-     @return An AuthCredential containing the Twitter credentials.
-  */
-  @objc public class func credential(withToken token:String, secret: String) -> AuthCredential {
+      @param token The Twitter OAuth token.
+      @param secret The Twitter OAuth secret.
+      @return An AuthCredential containing the Twitter credentials.
+   */
+  @objc public class func credential(withToken token: String, secret: String) -> AuthCredential {
     return TwitterAuthCredential(withToken: token, secret: secret)
   }
 }
 
-@objc(FIRTwitterAuthCredential) fileprivate class TwitterAuthCredential: AuthCredential, NSSecureCoding {
+@objc(FIRTwitterAuthCredential) private class TwitterAuthCredential: AuthCredential,
+  NSSecureCoding {
   private let token: String
   private let secret: String
 
-  init(withToken token:String, secret: String) {
+  init(withToken token: String, secret: String) {
     self.token = token
     self.secret = secret
     super.init(provider: TwitterAuthProvider.id)
