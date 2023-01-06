@@ -15,10 +15,10 @@
  */
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAdditionalUserInfo.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIROAuthCredential.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRUser.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
+#import "FirebaseAuth-Swift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
