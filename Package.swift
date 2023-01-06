@@ -180,7 +180,7 @@ let package = Package(
     .package(
       name: "gRPC",
       url: "https://github.com/grpc/grpc-ios.git",
-      "1.50.0-grpc" ..< "1.50.1-grpc"
+      "1.50.0-grpc" ..< "1.51.0-grpc"
     ),
     .package(
       name: "OCMock",

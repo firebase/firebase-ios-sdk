@@ -110,7 +110,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
 
   s.library = 'c++'
   s.pod_target_xcconfig = {
-    'CLANG_CXX_LANGUAGE_STANDARD' => 'C++14',
+    'CLANG_CXX_LANGUAGE_STANDARD' => 'c++14',
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       "FIRFirestore_VERSION=#{s.version} " +
