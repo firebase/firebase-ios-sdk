@@ -38,7 +38,7 @@ protocol SessionsProvider {
   /// Top-level Classes in the Sessions SDK
   private let coordinator: SessionCoordinator
   private let initiator: SessionInitiator
-  private let identifiers: Identifiers
+  private let sessionGenerator: SessionGenerator
   private let appInfo: ApplicationInfo
   private let settings: SessionsSettings
 
@@ -54,23 +54,22 @@ protocol SessionsProvider {
 
     let fireLogger = EventGDTLogger(googleDataTransport: googleDataTransport!)
 
-    let identifiers = Identifiers()
-    let coordinator = SessionCoordinator(
-      identifiers: identifiers,
-      installations: installations,
-      fireLogger: fireLogger,
-      sampler: SessionSampler()
-    )
-
     let appInfo = ApplicationInfo(appID: appID)
     let settings = SessionsSettings(
       appInfo: appInfo,
       installations: installations
     )
+
+    let sessionGenerator = SessionGenerator(settings: settings)
+    let coordinator = SessionCoordinator(
+      installations: installations,
+      fireLogger: fireLogger
+    )
+
     let initiator = SessionInitiator(settings: settings)
 
     self.init(appID: appID,
-              identifiers: identifiers,
+              sessionGenerator: sessionGenerator,
               coordinator: coordinator,
               initiator: initiator,
               appInfo: appInfo,
@@ -78,11 +77,11 @@ protocol SessionsProvider {
   }
 
   // Initializes the SDK and begines the process of listening for lifecycle events and logging events
-  init(appID: String, identifiers: Identifiers, coordinator: SessionCoordinator,
+  init(appID: String, sessionGenerator: SessionGenerator, coordinator: SessionCoordinator,
        initiator: SessionInitiator, appInfo: ApplicationInfo, settings: SessionsSettings) {
     self.appID = appID
 
-    self.identifiers = identifiers
+    self.sessionGenerator = sessionGenerator
     self.coordinator = coordinator
     self.initiator = initiator
     self.appInfo = appInfo
@@ -93,10 +92,10 @@ protocol SessionsProvider {
     self.initiator.beginListening {
       // On each session start, first update Settings if expired
       self.settings.updateSettings()
-      self.identifiers.generateNewSessionID()
-      // Generate a session start event only when session data collection is enabled.
-      if self.settings.sessionsEnabled {
-        let event = SessionStartEvent(identifiers: self.identifiers, appInfo: self.appInfo)
+      let session = self.sessionGenerator.generateNewSession()
+      // Generate a session start event only when session data collection is enabled and if the session is allowed to dispatch events
+      if self.settings.sessionsEnabled, session.shouldDispatchEvents {
+        let event = SessionStartEvent(sessionInfo: session, appInfo: self.appInfo)
         DispatchQueue.global().async {
           self.coordinator.attemptLoggingSessionStart(event: event) { result in
           }

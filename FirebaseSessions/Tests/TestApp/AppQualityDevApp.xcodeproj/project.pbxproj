@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		11B8D8A180615BBC0D6AA351 /* Pods_AppQualityDevApp_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3811A234E55662F7F459917A /* Pods_AppQualityDevApp_iOS.framework */; };
-		1242A440A78627992C815FEE /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		1242A440A78627992C815FEE /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		42270ED35776E973127DB60D /* Pods_AppQualityDevApp_Performance_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEDB83A06DD433EF06A4FFDC /* Pods_AppQualityDevApp_Performance_iOS.framework */; };
 		687EF774F928ABB40381A18D /* Pods_AppQualityDevApp_Crashlytics_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9346F75872574EC9869B351A /* Pods_AppQualityDevApp_Crashlytics_iOS.framework */; };
 		B43C5DD563235C70F18FA91C /* Pods_AppQualityDevApp_CrashlyticsPerformance_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1737E4D779EC21E163AEADE0 /* Pods_AppQualityDevApp_CrashlyticsPerformance_iOS.framework */; };
@@ -35,7 +35,7 @@
 		DF9ABFFE295CD14F00EFFEB7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DF68F14228E4A34B00753C7E /* GoogleService-Info.plist */; };
 		E16DE450B5A5D7EC71FCDF4D /* Pods_AppQualityDevApp_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDA875D20BA56FABDFC9A521 /* Pods_AppQualityDevApp_macOS.framework */; };
 		E47C7F742B2E926AAFEFF448 /* Pods_AppQualityDevApp_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3811A234E55662F7F459917A /* Pods_AppQualityDevApp_iOS.framework */; };
-		F0820554CDC281260638D6D7 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		F0820554CDC281260638D6D7 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -102,6 +102,7 @@
 		717BB1A07D505205E6624565 /* Pods-AppQualityDevApp (macOS).release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp (macOS).release.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp (macOS)/Pods-AppQualityDevApp (macOS).release.xcconfig"; sourceTree = "<group>"; };
 		8E45D9F3074AFEE870882CC6 /* Pods_AppQualityDevAppWatchOS_WatchKit_Extension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AppQualityDevAppWatchOS_WatchKit_Extension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9346F75872574EC9869B351A /* Pods_AppQualityDevApp_Crashlytics_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AppQualityDevApp_Crashlytics_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		96059AB02967A2A300154298 /* AppQualityDevApp-iOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "AppQualityDevApp-iOS-Info.plist"; sourceTree = "<group>"; };
 		A4F168F7AD0260C033B440AA /* Pods-AppQualityDevApp_Crashlytics_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp_Crashlytics_iOS.debug.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp_Crashlytics_iOS/Pods-AppQualityDevApp_Crashlytics_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		AF451CCC16240EE7C1CAE92D /* Pods-AppQualityDevApp (iOS).release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp (iOS).release.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp (iOS)/Pods-AppQualityDevApp (iOS).release.xcconfig"; sourceTree = "<group>"; };
 		BEDB83A06DD433EF06A4FFDC /* Pods_AppQualityDevApp_Performance_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AppQualityDevApp_Performance_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -140,7 +141,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1242A440A78627992C815FEE /* BuildFile in Frameworks */,
+				1242A440A78627992C815FEE /* (null) in Frameworks */,
 				11B8D8A180615BBC0D6AA351 /* Pods_AppQualityDevApp_iOS.framework in Frameworks */,
 				E47C7F742B2E926AAFEFF448 /* Pods_AppQualityDevApp_iOS.framework in Frameworks */,
 			);
@@ -158,7 +159,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F0820554CDC281260638D6D7 /* BuildFile in Frameworks */,
+				F0820554CDC281260638D6D7 /* (null) in Frameworks */,
 				687EF774F928ABB40381A18D /* Pods_AppQualityDevApp_Crashlytics_iOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -229,6 +230,7 @@
 		DF33DA5E28E4941100F7B88B = {
 			isa = PBXGroup;
 			children = (
+				96059AB02967A2A300154298 /* AppQualityDevApp-iOS-Info.plist */,
 				DF33DA6328E4941100F7B88B /* Shared */,
 				DF33DA7228E4941400F7B88B /* macOS */,
 				CF94D83B29070DF600308FF7 /* UITestsiOS */,
@@ -918,6 +920,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "AppQualityDevApp-iOS-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = AppQualityDevApp_iOS;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -954,6 +957,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "AppQualityDevApp-iOS-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = AppQualityDevApp_iOS;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

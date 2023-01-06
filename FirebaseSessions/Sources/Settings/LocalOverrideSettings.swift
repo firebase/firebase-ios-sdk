@@ -22,23 +22,30 @@ class LocalOverrideSettings: SettingsProvider, SettingsProtocol {
   static let PlistKey_sessions_samplingRate = "FirebaseSessionsSampingRate"
 
   var sessionsEnabled: Bool? {
-    return plistValueForConfig(configName: LocalOverrideSettings.PlistKey_sessions_enabled) as? Bool
+    let session_enabled = Bundle.main
+      .infoDictionary?[LocalOverrideSettings.PlistKey_sessions_enabled] as? Bool
+    if session_enabled != nil {
+      return Bool(session_enabled!)
+    }
+    return nil
   }
 
   var sessionTimeout: TimeInterval? {
-    return
-      plistValueForConfig(configName: LocalOverrideSettings
-        .PlistKey_sessions_timeout) as? TimeInterval
+    let timeout = Bundle.main
+      .infoDictionary?[LocalOverrideSettings.PlistKey_sessions_timeout] as? String
+    if timeout != nil {
+      return Double(timeout!)
+    }
+    return nil
   }
 
   var samplingRate: Double? {
-    return
-      plistValueForConfig(configName: LocalOverrideSettings
-        .PlistKey_sessions_samplingRate) as? Double
-  }
-
-  private func plistValueForConfig(configName: String) -> Any? {
-    return Bundle.main.object(forInfoDictionaryKey: configName)
+    let rate = Bundle.main
+      .infoDictionary?[LocalOverrideSettings.PlistKey_sessions_samplingRate] as? String
+    if rate != nil {
+      return Double(rate!)
+    }
+    return nil
   }
 }
 

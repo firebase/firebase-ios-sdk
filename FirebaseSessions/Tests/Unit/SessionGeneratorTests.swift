@@ -17,8 +17,18 @@ import XCTest
 
 @testable import FirebaseSessions
 
-class IdentifiersTests: XCTestCase {
-  var identifiers: Identifiers!
+class SessionGeneratorTests: XCTestCase {
+  var generator: SessionGenerator!
+
+  let validSettings: [String: Any] = [:]
+
+  var cache: SettingsCacheClient!
+  var appInfo: MockApplicationInfo!
+  var downloader: MockSettingsDownloader!
+  var remoteSettings: RemoteSettings!
+  var localOverrideSettings: LocalOverrideSettings!
+  var sdkDefaultSettings: SDKDefaultSettings!
+  var sessionSettings: SessionsSettings!
 
   override func setUp() {
     // Clear all UserDefaults
@@ -26,7 +36,24 @@ class IdentifiersTests: XCTestCase {
       UserDefaults.standard.removePersistentDomain(forName: appDomain)
     }
 
-    identifiers = Identifiers()
+    appInfo = MockApplicationInfo()
+    cache = SettingsCache()
+    cache.removeCache() // just reinstantiating cache isn't enough because of persistence
+    downloader = MockSettingsDownloader(successResponse: validSettings)
+    remoteSettings = RemoteSettings(appInfo: appInfo, downloader: downloader, cache: cache)
+    remoteSettings.updateSettings(currentTime: Date())
+
+    localOverrideSettings = LocalOverrideSettings()
+    sdkDefaultSettings = SDKDefaultSettings()
+
+    sessionSettings = SessionsSettings(
+      appInfo: appInfo,
+      installations: MockInstallationsProtocol(),
+      sdkDefaults: sdkDefaultSettings,
+      localOverrides: localOverrideSettings,
+      remoteSettings: remoteSettings
+    )
+    generator = SessionGenerator(settings: sessionSettings)
   }
 
   func isValidSessionID(_ sessionID: String) -> Bool {
@@ -49,30 +76,29 @@ class IdentifiersTests: XCTestCase {
   // with the Sessions SDK, we may want to move to a lazy solution where
   // sessionID can never be empty
   func test_sessionID_beforeGenerateReturnsNothing() throws {
-    XCTAssert(identifiers.sessionID.count == 0)
-    XCTAssertNil(identifiers.previousSessionID)
+    XCTAssertNil(generator.currentSession())
   }
 
   func test_generateNewSessionID_generatesValidID() throws {
-    identifiers.generateNewSessionID()
-    XCTAssert(isValidSessionID(identifiers.sessionID))
-    XCTAssertNil(identifiers.previousSessionID)
+    let sessionInfo = generator.generateNewSession()
+    XCTAssert(isValidSessionID(sessionInfo.sessionId))
+    XCTAssertNil(sessionInfo.previousSessionId)
   }
 
   /// Ensures that generating a Session ID multiple times results in the last Session ID being set in the previousSessionID field
   func test_generateNewSessionID_rotatesPreviousID() throws {
-    identifiers.generateNewSessionID()
+    let firstSessionInfo = generator.generateNewSession()
 
-    let firstSessionID = identifiers.sessionID
-    XCTAssert(isValidSessionID(identifiers.sessionID))
-    XCTAssertNil(identifiers.previousSessionID)
+    let firstSessionID = firstSessionInfo.sessionId
+    XCTAssert(isValidSessionID(firstSessionInfo.sessionId))
+    XCTAssertNil(firstSessionInfo.previousSessionId)
 
-    identifiers.generateNewSessionID()
+    let secondSessionInfo = generator.generateNewSession()
 
-    XCTAssert(isValidSessionID(identifiers.sessionID))
-    XCTAssert(isValidSessionID(identifiers.previousSessionID!))
+    XCTAssert(isValidSessionID(secondSessionInfo.sessionId))
+    XCTAssert(isValidSessionID(secondSessionInfo.previousSessionId!))
 
     // Ensure the new lastSessionID is equal to the sessionID from earlier
-    XCTAssertEqual(identifiers.previousSessionID, firstSessionID)
+    XCTAssertEqual(secondSessionInfo.previousSessionId, firstSessionID)
   }
 }
