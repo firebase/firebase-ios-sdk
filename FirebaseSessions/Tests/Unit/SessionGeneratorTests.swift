@@ -101,4 +101,57 @@ class SessionGeneratorTests: XCTestCase {
     // Ensure the new lastSessionID is equal to the sessionID from earlier
     XCTAssertEqual(secondSessionInfo.previousSessionId, firstSessionID)
   }
+  
+  func test_sessionsNotSampled_AllEventsAllowed() throws {
+    let someSettings: [String: Any] = [
+      "cache_duration": 10,
+      "app_quality": [
+        "sampling_rate": 1.0,
+        "session_timeout_seconds": 50,
+      ],
+    ]
+
+    cache.removeCache()
+    downloader = MockSettingsDownloader(successResponse: someSettings)
+    remoteSettings = RemoteSettings(appInfo: appInfo, downloader: downloader, cache: cache)
+    remoteSettings.updateSettings(currentTime: Date())
+
+    sessionSettings = SessionsSettings(
+      appInfo: appInfo,
+      installations: MockInstallationsProtocol(),
+      sdkDefaults: sdkDefaultSettings,
+      localOverrides: localOverrideSettings,
+      remoteSettings: remoteSettings
+    )
+    
+    let sessionInfo = generator.generateNewSession()
+    XCTAssertTrue(sessionInfo.shouldDispatchEvents)
+  }
+  
+  func test_sessionsSampled_NoEventsAllowed() throws {
+    let someSettings: [String: Any] = [
+      "cache_duration": 10,
+      "app_quality": [
+        "sampling_rate": 0.0,
+        "session_timeout_seconds": 50,
+      ],
+    ]
+
+    cache.removeCache()
+    downloader = MockSettingsDownloader(successResponse: someSettings)
+    remoteSettings = RemoteSettings(appInfo: appInfo, downloader: downloader, cache: cache)
+    remoteSettings.updateSettings(currentTime: Date())
+
+    sessionSettings = SessionsSettings(
+      appInfo: appInfo,
+      installations: MockInstallationsProtocol(),
+      sdkDefaults: sdkDefaultSettings,
+      localOverrides: localOverrideSettings,
+      remoteSettings: remoteSettings
+    )
+    
+    let sessionInfo = generator.generateNewSession()
+    XCTAssertFalse(sessionInfo.shouldDispatchEvents)
+  }
+  
 }
