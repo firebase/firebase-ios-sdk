@@ -685,7 +685,7 @@ static const NSTimeInterval kWaitInterval = .5;
              XCTAssertTrue([NSThread isMainThread]);
              [self assertUser:result.user];
              XCTAssertFalse(result.additionalUserInfo.isNewUser);
-             XCTAssertEqualObjects(result.additionalUserInfo.providerID, FIREmailAuthProviderID);
+             XCTAssertEqualObjects(result.additionalUserInfo.providerID, FIREmailAuthProvider.id);
              XCTAssertNil(error);
              [expectation fulfill];
            }];
@@ -1081,12 +1081,12 @@ static const NSTimeInterval kWaitInterval = .5;
       .andCallBlock2(^(FIRVerifyAssertionRequest *_Nullable request,
                        FIRVerifyAssertionResponseCallback callback) {
         XCTAssertEqualObjects(request.APIKey, kAPIKey);
-        XCTAssertEqualObjects(request.providerID, FIRGoogleAuthProviderID);
+        XCTAssertEqualObjects(request.providerID, FIRGoogleAuthProvider.id);
         XCTAssertTrue(request.returnSecureToken);
         dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
           id mockVerifyAssertionResponse = OCMClassMock([FIRVerifyAssertionResponse class]);
           OCMStub([mockVerifyAssertionResponse federatedID]).andReturn(kGoogleID);
-          OCMStub([mockVerifyAssertionResponse providerID]).andReturn(FIRGoogleAuthProviderID);
+          OCMStub([mockVerifyAssertionResponse providerID]).andReturn(FIRGoogleAuthProvider.id);
           OCMStub([mockVerifyAssertionResponse localID]).andReturn(kLocalID);
           OCMStub([mockVerifyAssertionResponse displayName]).andReturn(kGoogleDisplayName);
           [self stubTokensWithMockResponse:mockVerifyAssertionResponse];
@@ -1101,7 +1101,7 @@ static const NSTimeInterval kWaitInterval = .5;
       .andCallBlock2(^(id<FIRAuthUIDelegate> delegate, FIRAuthCredentialCallback callback) {
         dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
           FIROAuthCredential *credential =
-              [[FIROAuthCredential alloc] initWithProviderID:FIRGoogleAuthProviderID
+              [[FIROAuthCredential alloc] initWithProviderID:FIRGoogleAuthProvider.id
                                                    sessionID:kOAuthSessionID
                                       OAuthResponseURLString:kOAuthRequestURI];
           callback(credential, nil);
@@ -1134,7 +1134,7 @@ static const NSTimeInterval kWaitInterval = .5;
       .andCallBlock2(^(id<FIRAuthUIDelegate> delegate, FIRAuthCredentialCallback callback) {
         dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
           FIROAuthCredential *credential =
-              [[FIROAuthCredential alloc] initWithProviderID:FIRGoogleAuthProviderID
+              [[FIROAuthCredential alloc] initWithProviderID:FIRGoogleAuthProvider.id
                                                    sessionID:kOAuthSessionID
                                       OAuthResponseURLString:kOAuthRequestURI];
           callback(credential, nil);
@@ -1166,7 +1166,7 @@ static const NSTimeInterval kWaitInterval = .5;
       .andCallBlock2(^(FIRVerifyAssertionRequest *_Nullable request,
                        FIRVerifyAssertionResponseCallback callback) {
         XCTAssertEqualObjects(request.APIKey, kAPIKey);
-        XCTAssertEqualObjects(request.providerID, FIRGoogleAuthProviderID);
+        XCTAssertEqualObjects(request.providerID, FIRGoogleAuthProvider.id);
         XCTAssertEqualObjects(request.providerIDToken, kGoogleIDToken);
         XCTAssertEqualObjects(request.providerAccessToken, kGoogleAccessToken);
         XCTAssertTrue(request.returnSecureToken);
@@ -1203,14 +1203,14 @@ static const NSTimeInterval kWaitInterval = .5;
       .andCallBlock2(^(FIRVerifyAssertionRequest *_Nullable request,
                        FIRVerifyAssertionResponseCallback callback) {
         XCTAssertEqualObjects(request.APIKey, kAPIKey);
-        XCTAssertEqualObjects(request.providerID, FIRGoogleAuthProviderID);
+        XCTAssertEqualObjects(request.providerID, FIRGoogleAuthProvider.id);
         XCTAssertEqualObjects(request.providerIDToken, kGoogleIDToken);
         XCTAssertEqualObjects(request.providerAccessToken, kGoogleAccessToken);
         XCTAssertTrue(request.returnSecureToken);
         dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
           id mockVerifyAssertionResponse = OCMClassMock([FIRVerifyAssertionResponse class]);
           OCMStub([mockVerifyAssertionResponse federatedID]).andReturn(kGoogleID);
-          OCMStub([mockVerifyAssertionResponse providerID]).andReturn(FIRGoogleAuthProviderID);
+          OCMStub([mockVerifyAssertionResponse providerID]).andReturn(FIRGoogleAuthProvider.id);
           OCMStub([mockVerifyAssertionResponse localID]).andReturn(kLocalID);
           OCMStub([mockVerifyAssertionResponse displayName]).andReturn(kGoogleDisplayName);
           [self stubTokensWithMockResponse:mockVerifyAssertionResponse];
@@ -1244,14 +1244,14 @@ static const NSTimeInterval kWaitInterval = .5;
       .andCallBlock2(^(FIRVerifyAssertionRequest *_Nullable request,
                        FIRVerifyAssertionResponseCallback callback) {
         XCTAssertEqualObjects(request.APIKey, kAPIKey);
-        XCTAssertEqualObjects(request.providerID, FIRGoogleAuthProviderID);
+        XCTAssertEqualObjects(request.providerID, FIRGoogleAuthProvider.id);
         XCTAssertEqualObjects(request.requestURI, kOAuthRequestURI);
         XCTAssertEqualObjects(request.sessionID, kOAuthSessionID);
         XCTAssertTrue(request.returnSecureToken);
         dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
           id mockVerifyAssertionResponse = OCMClassMock([FIRVerifyAssertionResponse class]);
           OCMStub([mockVerifyAssertionResponse federatedID]).andReturn(kGoogleID);
-          OCMStub([mockVerifyAssertionResponse providerID]).andReturn(FIRGoogleAuthProviderID);
+          OCMStub([mockVerifyAssertionResponse providerID]).andReturn(FIRGoogleAuthProvider.id);
           OCMStub([mockVerifyAssertionResponse localID]).andReturn(kLocalID);
           OCMStub([mockVerifyAssertionResponse displayName]).andReturn(kGoogleDisplayName);
           [self stubTokensWithMockResponse:mockVerifyAssertionResponse];
@@ -1266,7 +1266,7 @@ static const NSTimeInterval kWaitInterval = .5;
       .andCallBlock2(^(id<FIRAuthUIDelegate> delegate, FIRAuthCredentialCallback callback) {
         dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
           FIROAuthCredential *credential =
-              [[FIROAuthCredential alloc] initWithProviderID:FIRGoogleAuthProviderID
+              [[FIROAuthCredential alloc] initWithProviderID:FIRGoogleAuthProvider.id
                                                    sessionID:kOAuthSessionID
                                       OAuthResponseURLString:kOAuthRequestURI];
           callback(credential, nil);
@@ -1305,14 +1305,14 @@ static const NSTimeInterval kWaitInterval = .5;
       .andCallBlock2(^(FIRVerifyAssertionRequest *_Nullable request,
                        FIRVerifyAssertionResponseCallback callback) {
         XCTAssertEqualObjects(request.APIKey, kAPIKey);
-        XCTAssertEqualObjects(request.providerID, FIRGoogleAuthProviderID);
+        XCTAssertEqualObjects(request.providerID, FIRGoogleAuthProvider.id);
         XCTAssertEqualObjects(request.providerIDToken, kGoogleIDToken);
         XCTAssertEqualObjects(request.providerAccessToken, kGoogleAccessToken);
         XCTAssertTrue(request.returnSecureToken);
         dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
           id mockVerifyAssertionResponse = OCMClassMock([FIRVerifyAssertionResponse class]);
           OCMStub([mockVerifyAssertionResponse federatedID]).andReturn(kGoogleID);
-          OCMStub([mockVerifyAssertionResponse providerID]).andReturn(FIRGoogleAuthProviderID);
+          OCMStub([mockVerifyAssertionResponse providerID]).andReturn(FIRGoogleAuthProvider.id);
           OCMStub([mockVerifyAssertionResponse localID]).andReturn(kLocalID);
           OCMStub([mockVerifyAssertionResponse displayName]).andReturn(kGoogleDisplayName);
           OCMStub([mockVerifyAssertionResponse profile]).andReturn([[self class] googleProfile]);
@@ -1335,7 +1335,7 @@ static const NSTimeInterval kWaitInterval = .5;
                                         [[self class] googleProfile]);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.username, kDisplayName);
                   XCTAssertEqualObjects(authResult.additionalUserInfo.providerID,
-                                        FIRGoogleAuthProviderID);
+                                        FIRGoogleAuthProvider.id);
                   XCTAssertNil(error);
                   [expectation fulfill];
                 }];
@@ -2544,7 +2544,7 @@ static const NSTimeInterval kWaitInterval = .5;
         XCTAssertEqualObjects(request.accessToken, kAccessToken);
         dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
           id mockGoogleUserInfo = OCMClassMock([FIRGetAccountInfoResponseProviderUserInfo class]);
-          OCMStub([mockGoogleUserInfo providerID]).andReturn(FIRGoogleAuthProviderID);
+          OCMStub([mockGoogleUserInfo providerID]).andReturn(FIRGoogleAuthProvider.id);
           OCMStub([mockGoogleUserInfo displayName]).andReturn(kGoogleDisplayName);
           OCMStub([mockGoogleUserInfo federatedID]).andReturn(kGoogleID);
           OCMStub([mockGoogleUserInfo email]).andReturn(kGoogleEmail);
@@ -2573,7 +2573,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertEqualObjects(user.displayName, kDisplayName);
   XCTAssertEqual(user.providerData.count, 1u);
   id<FIRUserInfo> googleUserInfo = user.providerData[0];
-  XCTAssertEqualObjects(googleUserInfo.providerID, FIRGoogleAuthProviderID);
+  XCTAssertEqualObjects(googleUserInfo.providerID, FIRGoogleAuthProvider.id);
   XCTAssertEqualObjects(googleUserInfo.uid, kGoogleID);
   XCTAssertEqualObjects(googleUserInfo.displayName, kGoogleDisplayName);
   XCTAssertEqualObjects(googleUserInfo.email, kGoogleEmail);

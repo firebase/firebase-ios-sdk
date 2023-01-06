@@ -35,7 +35,6 @@
 #import "FIRAuthAPNSTokenType.h"
 #import "FIRAuthSettings.h"
 #import "FIRAuthUIDelegate.h"
-#import "FIRPhoneAuthProvider.h"
 #import "FIRPhoneMultiFactorAssertion.h"
 #import "FIRPhoneMultiFactorGenerator.h"
 #import "FIRPhoneMultiFactorInfo.h"

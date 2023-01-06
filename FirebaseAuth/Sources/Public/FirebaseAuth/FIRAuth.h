@@ -106,7 +106,7 @@ typedef void (^FIRAuthResultCallback)(FIRUser *_Nullable user, NSError *_Nullabl
         requested.
 
     @param providers Optionally; a list of provider identifiers, if any.
-        @see GoogleAuthProviderID etc.
+        @see GoogleAuthProvider.id etc.
     @param error Optionally; if an error occurs, this is the NSError object that describes the
         problem. Set to nil otherwise.
  */
