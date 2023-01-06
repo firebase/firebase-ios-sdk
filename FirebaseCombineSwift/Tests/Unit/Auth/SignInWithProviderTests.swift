@@ -63,7 +63,7 @@ class SignInWithProviderTests: XCTestCase {
     override func getCredentialWith(_ UIDelegate: AuthUIDelegate?,
                                     completion: ((AuthCredential?, Error?) -> Void)? = nil) {
       guard let completion = completion else { return }
-      let credential = OAuthCredential(providerID: GoogleAuthProviderID,
+      let credential = OAuthCredential(providerID: GoogleAuthProvider.id,
                                        sessionID: SignInWithProviderTests.oAuthSessionID,
                                        oAuthResponseURLString: SignInWithProviderTests
                                          .oAuthRequestURI)
@@ -73,7 +73,7 @@ class SignInWithProviderTests: XCTestCase {
 
   class MockVerifyAssertionResponse: FIRVerifyAssertionResponse {
     override var federatedID: String? { return SignInWithProviderTests.googleID }
-    override var providerID: String? { return GoogleAuthProviderID }
+    override var providerID: String? { return GoogleAuthProvider.id }
     override var localID: String? { return SignInWithProviderTests.localID }
     override var displayName: String? { return SignInWithProviderTests.displayName }
 
@@ -85,7 +85,7 @@ class SignInWithProviderTests: XCTestCase {
   }
 
   class MockGetAccountInfoResponseProviderUserInfo: FIRGetAccountInfoResponseProviderUserInfo {
-    override var providerID: String? { return GoogleAuthProviderID }
+    override var providerID: String? { return GoogleAuthProvider.id }
     override var displayName: String? { return SignInWithProviderTests.googleDisplayName }
     override var federatedID: String? { return SignInWithProviderTests.googleID }
     override var email: String? { return SignInWithProviderTests.googleEmail }
@@ -109,7 +109,7 @@ class SignInWithProviderTests: XCTestCase {
     override func verifyAssertion(_ request: FIRVerifyAssertionRequest,
                                   callback: @escaping FIRVerifyAssertionResponseCallback) {
       XCTAssertEqual(request.apiKey, EmailPasswordAuthTests.apiKey)
-      XCTAssertEqual(request.providerID, GoogleAuthProviderID)
+      XCTAssertEqual(request.providerID, GoogleAuthProvider.id)
       XCTAssertTrue(request.returnSecureToken)
 
       let response = MockVerifyAssertionResponse()
@@ -151,7 +151,7 @@ class SignInWithProviderTests: XCTestCase {
         XCTAssertEqual(user.displayName, SignInWithProviderTests.displayName)
         XCTAssertEqual(user.providerData.count, 1)
         let userInfo = user.providerData[0]
-        XCTAssertEqual(userInfo.providerID, GoogleAuthProviderID)
+        XCTAssertEqual(userInfo.providerID, GoogleAuthProvider.id)
         XCTAssertEqual(userInfo.uid, SignInWithProviderTests.googleID)
         XCTAssertEqual(userInfo.displayName, SignInWithProviderTests.googleDisplayName)
         XCTAssertEqual(userInfo.email, SignInWithProviderTests.googleEmail)

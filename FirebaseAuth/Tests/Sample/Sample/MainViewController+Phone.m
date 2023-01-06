@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
     [StaticContentTableViewCell cellWithTitle:@"Link Phone Number"
                                        action:^{ [weakSelf linkPhoneNumberWithPrompt]; }],
     [StaticContentTableViewCell cellWithTitle:@"Unlink Phone Number"
-                                       action:^{ [weakSelf unlinkFromProvider:FIRPhoneAuthProviderID completion:nil]; }],
+                                       action:^{ [weakSelf unlinkFromProvider:FIRPhoneAuthProvider.id completion:nil]; }],
     ]];
 }
 
