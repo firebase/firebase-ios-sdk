@@ -40,7 +40,7 @@ import Foundation
     super.init(provider: GitHubAuthProvider.id)
   }
 
-  func prepareVerifyAssertionRequest(request: FIRVerifyAssertionRequest) {
+  @objc override func prepare(_ request: FIRVerifyAssertionRequest) {
     request.providerAccessToken = token
   }
 
