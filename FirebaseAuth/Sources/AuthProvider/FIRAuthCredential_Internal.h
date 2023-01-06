@@ -23,14 +23,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRAuthCredential ()
 
 
-
-/** @fn prepareVerifyAssertionRequest:
-    @brief Called immediately before a request to the verifyAssertion endpoint is made. Implementers
-        should update the passed request instance with their credentials.
-    @param request The request to be updated with credentials.
- */
-- (void)prepareVerifyAssertionRequest:(FIRVerifyAssertionRequest *)request;
-
 @end
 
 NS_ASSUME_NONNULL_END
