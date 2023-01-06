@@ -22,7 +22,6 @@
 #import "FIRAuthDataResult.h"
 #import "FIRAuthErrors.h"
 #import "FIRAuthTokenResult.h"
-#import "FIRFederatedAuthProvider.h"
 #import "FIRMultiFactor.h"
 #import "FIRMultiFactorAssertion.h"
 #import "FIRMultiFactorInfo.h"
@@ -40,6 +39,6 @@
 #import "FIRPhoneMultiFactorInfo.h"
 
 #import "FIRAuthRPCRequest.h"
-#import "FIRVerifyAssertionRequest.h"
 #import "FIRAuthRequestConfiguration.h"
+#import "FIRVerifyAssertionRequest.h"
 #import "FIRVerifyAssertionResponse.h"
