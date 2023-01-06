@@ -14,12 +14,12 @@
 
 import Foundation
 
-// TODO: Consider making this as a Swift only enum to address #9236
 public enum AuthProviderString: String {
-  case google = "abc"
-}
-
-@objc(FIRFunctionsErrorCode) public enum FunctionsErrorCode: Int {
-  /** The operation completed successfully. */
-  case OK = 0
+  case apple = "apple.com"
+  case email = "password"
+  case facebook = "facebook.com"
+  case gameCenter = "gc.apple.com"
+  case gitHub = "github.com"
+  case google = "google.com"
+  case phone = "phone"
 }
