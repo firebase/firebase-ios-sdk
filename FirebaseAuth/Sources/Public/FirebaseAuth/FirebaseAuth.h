@@ -24,7 +24,6 @@
 #import "FIRAuthErrors.h"
 #import "FIRAuthTokenResult.h"
 #import "FIRFederatedAuthProvider.h"
-#import "FIRGameCenterAuthProvider.h"
 #import "FIRMultiFactor.h"
 #import "FIRMultiFactorAssertion.h"
 #import "FIRMultiFactorInfo.h"
