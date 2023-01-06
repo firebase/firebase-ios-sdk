@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-#import "FirebaseAuth/Sources/Backend/FIRAuthRPCResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProtoMFAEnrollment.h"
+@class FIRAuthRPCResponse;
+@class FIRAuthProtoMFAEnrollment;
+
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -23,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
     @brief Represents the response from the verifyAssertion endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyAssertion
  */
-@interface FIRVerifyAssertionResponse : NSObject <FIRAuthRPCResponse>
+@interface FIRVerifyAssertionResponse : NSObject // <FIRAuthRPCResponse>
 
 /** @property federatedID
     @brief The unique ID identifies the IdP account.
