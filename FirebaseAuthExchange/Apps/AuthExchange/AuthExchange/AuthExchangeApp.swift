@@ -48,10 +48,12 @@ class AppDelegate: NSObject, UIApplicationDelegate, AuthExchangeDelegate {
     authExchange.authExchangeDelegate = self
 
     authExchange.tryDelegate()
-    do {
-      try await authExchange.clearState()
-    } catch {
-      print("Error while clearing Auth Exchange state")
+    Task {
+      do {
+        try await authExchange.clearState()
+      } catch {
+        print("Error while clearing Auth Exchange state")
+      }
     }
     return true
   }

@@ -24,10 +24,9 @@ import Foundation
 
 // Skip these directories. Imports should only be repo-relative in libraries
 // and unit tests.
-let skipDirPatterns = ["/Sample/", "/Pods/",
+let skipDirPatterns = ["/Sample/", "/Pods/", "FirebaseAuthExchange/Apps",
                        "FirebaseDynamicLinks/Tests/Integration",
-                       "FirebaseInAppMessaging/Tests/Integration/",
-                       "SymbolCollisionTest/", "/gen/",
+                       "FirebaseInAppMessaging/Tests/Integration/", "SymbolCollisionTest/", "/gen/",
                        "CocoapodsIntegrationTest/", "FirebasePerformance/Tests/TestApp/",
                        "cmake-build-debug/", "build/", "ObjCIntegration/",
                        "FirebasePerformance/Tests/FIRPerfE2E/"] +
