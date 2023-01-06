@@ -2683,16 +2683,16 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                   id mockProvider = OCMClassMock([FIROAuthProvider class]);
                   OCMExpect([mockProvider getCredentialWithUIDelegate:[OCMArg any]
                                                            completion:[OCMArg any]])
-                      .andCallBlock2(^(id<FIRAuthUIDelegate> delegate,
-                                       FIRAuthCredentialCallback callback) {
-                        dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-                          FIROAuthCredential *credential =
-                              [[FIROAuthCredential alloc] initWithProviderID:FIRGoogleAuthProvider.id
-                                                                   sessionID:kOAuthSessionID
-                                                      OAuthResponseURLString:kOAuthRequestURI];
-                          callback(credential, nil);
-                        });
-                      });
+                      .andCallBlock2(
+                          ^(id<FIRAuthUIDelegate> delegate, FIRAuthCredentialCallback callback) {
+                            dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+                              FIROAuthCredential *credential = [[FIROAuthCredential alloc]
+                                      initWithProviderID:FIRGoogleAuthProvider.id
+                                               sessionID:kOAuthSessionID
+                                  OAuthResponseURLString:kOAuthRequestURI];
+                              callback(credential, nil);
+                            });
+                          });
 
                   [authResult.user
                       linkWithProvider:mockProvider
@@ -2746,16 +2746,16 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                   id mockProvider = OCMClassMock([FIROAuthProvider class]);
                   OCMExpect([mockProvider getCredentialWithUIDelegate:[OCMArg any]
                                                            completion:[OCMArg any]])
-                      .andCallBlock2(^(id<FIRAuthUIDelegate> delegate,
-                                       FIRAuthCredentialCallback callback) {
-                        dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-                          FIROAuthCredential *credential =
-                              [[FIROAuthCredential alloc] initWithProviderID:FIRGoogleAuthProvider.id
-                                                                   sessionID:kOAuthSessionID
-                                                      OAuthResponseURLString:kOAuthRequestURI];
-                          callback(credential, nil);
-                        });
-                      });
+                      .andCallBlock2(
+                          ^(id<FIRAuthUIDelegate> delegate, FIRAuthCredentialCallback callback) {
+                            dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+                              FIROAuthCredential *credential = [[FIROAuthCredential alloc]
+                                      initWithProviderID:FIRGoogleAuthProvider.id
+                                               sessionID:kOAuthSessionID
+                                  OAuthResponseURLString:kOAuthRequestURI];
+                              callback(credential, nil);
+                            });
+                          });
 
                   [authResult.user
                       reauthenticateWithProvider:mockProvider

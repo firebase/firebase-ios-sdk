@@ -15,27 +15,26 @@
 import Foundation
 
 /**
-   @brief Utility class for constructing GitHub Sign In credentials.
-*/
+ @brief Utility class for constructing GitHub Sign In credentials.
+ */
 @objc(FIRGitHubAuthProvider) open class GitHubAuthProvider: NSObject {
-
-  @objc static public let id = "github.com"
+  @objc public static let id = "github.com"
 
   /**
-     @brief Creates an `AuthCredential` for a GitHub sign in.
+      @brief Creates an `AuthCredential` for a GitHub sign in.
 
-     @param token The GitHub OAuth access token.
-     @return An AuthCredential containing the GitHub credentials.
-  */
-  @objc public class func credential(withToken token:String) -> AuthCredential {
+      @param token The GitHub OAuth access token.
+      @return An AuthCredential containing the GitHub credentials.
+   */
+  @objc public class func credential(withToken token: String) -> AuthCredential {
     return GitHubAuthCredential(withToken: token)
   }
 }
 
-@objc(FIRGitHubAuthCredential) fileprivate class GitHubAuthCredential: AuthCredential, NSSecureCoding {
+@objc(FIRGitHubAuthCredential) private class GitHubAuthCredential: AuthCredential, NSSecureCoding {
   private let token: String
 
-  init(withToken token:String) {
+  init(withToken token: String) {
     self.token = token
     super.init(provider: GitHubAuthProvider.id)
   }
