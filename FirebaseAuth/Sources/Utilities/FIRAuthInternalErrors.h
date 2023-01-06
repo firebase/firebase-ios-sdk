@@ -477,16 +477,6 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
 
   FIRAuthInternalErrorCodeMalformedJWT = FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMalformedJWT,
 
-  /** Indicates that the recaptcha score sent to backend is invalid.
-   */
-  FIRAuthInternalErrorCodeInvalidRecaptchaScore = FIRAuthPublicErrorCodeFlag |
-                                                  FIRAuthErrorCodeCaptchaCheckFailed,
-
-  /** Indicates that the recaptcha integration is not enabled for this project.
-   */
-  FIRAuthInternalErrorCodeRecaptchaNotEnabled = FIRAuthPublicErrorCodeFlag |
-                                                FIRAuthErrorCodeRecaptchaNotEnabled,
-
   /** @var FIRAuthInternalErrorCodeRPCRequestEncodingError
       @brief Indicates an error encoding the RPC request.
       @remarks This is typically due to some sort of unexpected input value.

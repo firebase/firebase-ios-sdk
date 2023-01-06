@@ -52,10 +52,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (FIRAuthRequestConfiguration *)requestConfiguration;
 
-- (void)injectRecaptchaFields:(NSString *_Nullable)recaptchaResponse
-             recaptchaVersion:(NSString *)recaptchaVersion
-                   clientType:(NSString *)clientType;
-
 @end
 
 NS_ASSUME_NONNULL_END

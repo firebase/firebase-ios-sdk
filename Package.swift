@@ -197,11 +197,6 @@ let package = Package(
       url: "https://github.com/SlaunchaMan/GCDWebServer.git",
       .revision("935e2736044e71e5341663c3cc9a335ba6867a2b")
     ),
-    .package(
-      name: "Recaptcha",
-      url: "https://github.com/GoogleCloudPlatform/recaptcha-enterprise-mobile-sdk.git",
-      .exact("18.0.3")
-    ),
   ],
   targets: [
     .target(
@@ -438,7 +433,6 @@ let package = Package(
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
-        .product(name: "RecaptchaEnterprise", package: "Recaptcha"),
       ],
       path: "FirebaseAuth/Sources",
       publicHeadersPath: "Public",
