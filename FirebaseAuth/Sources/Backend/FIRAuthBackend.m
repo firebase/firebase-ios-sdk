@@ -68,7 +68,6 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthRequestConfiguration.h"
 
 #if TARGET_OS_IOS
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"
 #import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorInfo+Internal.h"
 #endif
 
@@ -967,7 +966,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                  FIRPhoneAuthCredential *credential =
                      [[FIRPhoneAuthCredential alloc] initWithTemporaryProof:response.temporaryProof
                                                                 phoneNumber:response.phoneNumber
-                                                                 providerID:FIRPhoneAuthProviderID];
+                                                                 providerID:FIRPhoneAuthProvider.id];
                  callback(nil, [FIRAuthErrorUtils credentialAlreadyInUseErrorWithMessage:nil
                                                                               credential:credential
                                                                                    email:nil]);
