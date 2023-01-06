@@ -191,7 +191,7 @@ NS_ASSUME_NONNULL_BEGIN
      return;
    }
    FIROAuthCredential *credential =
-   [FIROAuthProvider credentialWithProviderID:FIRGitHubAuthProviderID accessToken:accessToken];
+   [FIROAuthProvider credentialWithProviderID:FIRGitHubAuthProvider.id accessToken:accessToken];
    if (credential) {
      [[AppManager auth] signInWithCredential:credential
                                   completion:^(FIRAuthDataResult *_Nullable result,

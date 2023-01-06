@@ -89,7 +89,7 @@ class SignInWithCredentialTests: XCTestCase {
 
   class MockVerifyAssertionResponse: FIRVerifyAssertionResponse {
     override var federatedID: String? { SignInWithCredentialTests.googleID }
-    override var providerID: String? { GoogleAuthProviderID }
+    override var providerID: String? { GoogleAuthProvider.id }
     override var localID: String? { SignInWithCredentialTests.localID }
     override var displayName: String? { SignInWithCredentialTests.displayName }
     override var username: String? { SignInWithCredentialTests.displayName }
@@ -157,7 +157,7 @@ class SignInWithCredentialTests: XCTestCase {
     override func verifyAssertion(_ request: FIRVerifyAssertionRequest,
                                   callback: @escaping FIRVerifyAssertionResponseCallback) {
       XCTAssertEqual(request.apiKey, SignInWithCredentialTests.apiKey)
-      XCTAssertEqual(request.providerID, GoogleAuthProviderID)
+      XCTAssertEqual(request.providerID, GoogleAuthProvider.id)
       XCTAssertTrue(request.returnSecureToken)
 
       switch verifyAssertionCallBack {
