@@ -25,7 +25,6 @@
 #import "FirebaseAuth/Sources/Auth/FIRAuthSerialTaskQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthTokenResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
-#import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthRequestConfiguration.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRDeleteAccountRequest.h"
@@ -1399,7 +1398,7 @@ static void callInMainThreadWithAuthDataResultAndError(
 #if TARGET_OS_IOS
                       // After successfully unlinking a phone auth provider, remove the phone number
                       // from the cached user info.
-                      if ([provider isEqualToString:FIRPhoneAuthProviderID]) {
+                      if ([provider isEqualToString:FIRPhoneAuthProvider.id]) {
                         self->_phoneNumber = nil;
                       }
 #endif
