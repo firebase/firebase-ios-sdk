@@ -34,7 +34,6 @@
 #import "FirebaseAuth/Sources/Auth/FIRAuthOperationType.h"
 //#import "FirebaseAuth/Sources/AuthProvider/Email/FIREmailPasswordAuthCredential.h"
 #import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
-#import "FirebaseAuth/Sources/AuthProvider/GameCenter/FIRGameCenterAuthCredential.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthRequestConfiguration.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIRequest.h"
@@ -825,7 +824,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                                FIRAdditionalUserInfo *additionalUserInfo =
                                                    [[FIRAdditionalUserInfo alloc]
                                                        initWithProviderID:
-                                                           FIRGameCenterAuthProviderID
+                                                           FIRGameCenterAuthProvider.id
                                                                   profile:nil
                                                                  username:nil
                                                                 isNewUser:response.isNewUser];
