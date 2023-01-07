@@ -27,6 +27,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class RCNConfigSettings;
 
+@interface FIRRemoteConfigUpdate ()
+
+/// Designated initializer.
+- (instancetype)initWithUpdatedParams:(NSSet<NSString *> *)updatedParams;
+@end
+
 @interface FIRRemoteConfig () {
   NSString *_FIRNamespace;
 }

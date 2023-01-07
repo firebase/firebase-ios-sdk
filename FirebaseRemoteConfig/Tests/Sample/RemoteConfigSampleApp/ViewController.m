@@ -109,13 +109,20 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
   }
   // Add realtime listener for firebase namespace
   [self.RCInstances[FIRNamespaceGoogleMobilePlatform][FIRDefaultFIRAppName]
-      addOnConfigUpdateListener:^(NSError *_Nullable error) {
+      addOnConfigUpdateListener:^(FIRRemoteConfigUpdate *_Nullable update,
+                                  NSError *_Nullable error) {
         if (error != nil) {
           [[FRCLog sharedInstance]
               logToConsole:[NSString
                                stringWithFormat:@"Realtime Error: %@", error.localizedDescription]];
         } else {
           [[FRCLog sharedInstance] logToConsole:[NSString stringWithFormat:@"Config updated!"]];
+          if (update != nil) {
+            NSString *updatedParams = [update updatedParams];
+            [[FRCLog sharedInstance]
+                logToConsole:[NSString stringWithFormat:[updatedParams description]]];
+            [self apply];
+          }
         }
       }];
   [[FRCLog sharedInstance] logToConsole:@"RC instances inited"];
