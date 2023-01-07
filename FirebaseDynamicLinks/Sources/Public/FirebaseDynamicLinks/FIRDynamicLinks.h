@@ -19,6 +19,8 @@
 #import "FIRDynamicLink.h"
 #import "FIRDynamicLinksCommon.h"
 
+@class FIRApp;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
