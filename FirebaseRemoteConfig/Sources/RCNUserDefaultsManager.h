@@ -36,7 +36,14 @@ NS_ASSUME_NONNULL_BEGIN
 /// The retry interval increases exponentially for cumulative fetch failures. Refer to
 /// go/rc-client-throttling for details.
 @property(nonatomic, assign) NSTimeInterval currentThrottlingRetryIntervalSeconds;
-// Last fetched template version.
+/// Time when the next request can be made while being throttled.
+@property(nonatomic, assign) NSTimeInterval realtimeThrottleEndTime;
+/// The retry interval increases exponentially for cumulative Realtime failures. Refer to
+/// go/rc-client-throttling for details.
+@property(nonatomic, assign) NSTimeInterval currentRealtimeThrottlingRetryIntervalSeconds;
+/// Realtime retry count.
+@property(nonatomic, assign) int realtimeRetryCount;
+/// Last fetched template version.
 @property(nonatomic, assign) NSString *lastTemplateVersion;
 
 /// Designated initializer.
