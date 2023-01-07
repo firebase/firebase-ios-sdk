@@ -45,6 +45,14 @@ NS_SWIFT_NAME(DynamicLinks)
 + (instancetype)dynamicLinks NS_SWIFT_NAME(dynamicLinks());
 
 /**
+ * @method dynamicLinks
+ * @abstract Shared instance of FIRDynamicLinks.
+ * @param app The app for which to retrieve the associated `FIRDynamicLinks` instance.
+ * @return Shared instance of FIRDynamicLinks.
+ */
++ (instancetype)dynamicLinksWithApp:(FIRApp *)app NS_SWIFT_NAME(dynamicLinks(app:));
+
+/**
  * @method shouldHandleDynamicLinkFromCustomSchemeURL:
  * @abstract Determine whether FIRDynamicLinks should handle the given URL. This does not
  *     guarantee that |dynamicLinkFromCustomSchemeURL:| will return a non-nil value, but it means

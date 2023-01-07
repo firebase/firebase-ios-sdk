@@ -215,6 +215,12 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
   return (FIRDynamicLinks *)instance;
 }
 
++ (instancetype)dynamicLinksWithApp:(FIRApp *)app {
+  id<FIRDynamicLinksInstanceProvider> instance =
+      FIR_COMPONENT(FIRDynamicLinksInstanceProvider, app.container);
+  return (FIRDynamicLinks *)instance;
+}
+
 #else
 + (instancetype)dynamicLinks {
   static FIRDynamicLinks *dynamicLinks;
