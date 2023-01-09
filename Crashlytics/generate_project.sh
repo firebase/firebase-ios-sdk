@@ -20,3 +20,8 @@ readonly DIR="$( git rev-parse --show-toplevel )"
 "$DIR/Crashlytics/ProtoSupport/generate_crashlytics_protos.sh" || echo "Something went wrong generating protos.";
 
 pod gen "${DIR}/FirebaseCrashlytics.podspec" --auto-open --gen-directory="${DIR}/gen" --local-sources="${DIR}" --platforms=ios,macos,tvos --clean
+
+# Upon a `pod install`, Crashlytics will copy these files at the root directory
+# due to a funky interaction with its cocoapod. This line deletes these extra
+# copies of the files as they should only live in Crashlytics/
+rm -f $DIR/run $DIR/upload-symbols

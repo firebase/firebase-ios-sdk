@@ -48,4 +48,10 @@ fi
 echoColor "Running 'pod install'"
 cd $DIR/FirebaseSessions/Tests/TestApp
 pod install
+
+# Upon a `pod install`, Crashlytics will copy these files at the root directory
+# due to a funky interaction with its cocoapod. This line deletes these extra
+# copies of the files as they should only live in Crashlytics/
+rm -f $DIR/run $DIR/upload-symbols
+
 open *.xcworkspace
