@@ -413,7 +413,8 @@ API_AVAILABLE(ios(14))
   XCTAssertTrue([[crashDictionary objectForKey:@"name"] isEqualToString:@"EXC_BREAKPOINT"]);
 
   // This test is failing
-  //  XCTAssertTrue([[crashDictionary objectForKey:@"code_name"] isEqualToString:@"EXC_I386_DIVERR"]);
+  //  XCTAssertTrue([[crashDictionary objectForKey:@"code_name"]
+  //  isEqualToString:@"EXC_I386_DIVERR"]);
 
   NSDictionary *metadata = [crashDictionary objectForKey:@"metadata"];
   NSDictionary *threads =

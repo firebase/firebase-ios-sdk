@@ -87,7 +87,6 @@
   // symbolication operation may be computationally intensive.
   FIRCLSApplicationActivity(
       FIRCLSApplicationActivityDefault, @"Crashlytics Crash Report Processing", ^{
-
         // Check to see if the FID has rotated before we construct the payload
         // so that the payload has an updated value.
         [self.installIDModel regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull newFIID) {
