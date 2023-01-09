@@ -5,8 +5,8 @@ source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
 
 def shared_pods
-  pod 'FirebaseCore' 
-  pod 'FirebaseInstallations'
+  pod 'FirebaseCore', :path => '../../../'
+  pod 'FirebaseInstallations', :path => '../../../'
   pod 'FirebaseAuthExchange', :path => '../../../'
 end
 
@@ -14,6 +14,3 @@ target 'AuthExchange' do
   platform :ios, '13.0'
   shared_pods
 end
-
-
-
