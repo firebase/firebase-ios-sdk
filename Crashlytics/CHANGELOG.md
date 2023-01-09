@@ -1,3 +1,6 @@
+# Unreleased
+- [added] Updated Crashlytics to include the Firebase Installation ID for consistency with other products (#10645).
+
 # 8.13.0
 - [added] Updated upload-symbols to 3.11 and added logic to process Flutter project information (#9379)
 - [fixed] Added native support for ARM / M1 Macs in upload-symbols (#8965)
