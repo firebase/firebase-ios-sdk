@@ -45,6 +45,8 @@ NSString *const TestFIID = @"TestFIID";
 // Add mock prefix to names as there are naming conflicts with FIRCLSReportUploaderDelegate
 @property(nonatomic, strong) FIRMockGDTCORTransport *mockDataTransport;
 @property(nonatomic, strong) FIRCLSMockSettings *mockSettings;
+@property(nonatomic, strong) FIRMockInstallations *mockInstallations;
+@property(nonatomic, strong) FIRCLSDataCollectionArbiter *dataArbiter;
 
 @end
 
@@ -64,30 +66,33 @@ NSString *const TestFIID = @"TestFIID";
   self.fileManager = [[FIRCLSTempMockFileManager alloc] init];
 
   id fakeApp = [[FIRAppFake alloc] init];
-  FIRCLSDataCollectionArbiter *dataArbiter =
-      [[FIRCLSDataCollectionArbiter alloc] initWithApp:fakeApp withAppInfo:@{}];
-  FIRMockInstallations *mockInstallations = [[FIRMockInstallations alloc] initWithFID:TestFIID];
+  self.dataArbiter = [[FIRCLSDataCollectionArbiter alloc] initWithApp:fakeApp withAppInfo:@{}];
+  self.mockInstallations = [[FIRMockInstallations alloc] initWithFID:TestFIID];
 
-  // Allow nil values only in tests
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnonnull"
-  self.managerData = [[FIRCLSManagerData alloc] initWithGoogleAppID:@"someGoogleAppId"
-                                                    googleTransport:self.mockDataTransport
-                                                      installations:mockInstallations
-                                                          analytics:nil
-                                                        fileManager:self.fileManager
-                                                        dataArbiter:dataArbiter
-                                                           settings:self.mockSettings
-                                                      onDemandModel:nil];
-#pragma clang diagnostic pop
-
-  self.uploader = [[FIRCLSReportUploader alloc] initWithManagerData:_managerData];
+  [self setupUploaderWithInstallations:self.mockInstallations];
 }
 
 - (void)tearDown {
   self.uploader = nil;
 
   [super tearDown];
+}
+
+- (void)setupUploaderWithInstallations:(FIRMockInstallations *)installations {
+  // Allow nil values only in tests
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+  self.managerData = [[FIRCLSManagerData alloc] initWithGoogleAppID:@"someGoogleAppId"
+                                                    googleTransport:self.mockDataTransport
+                                                      installations:installations
+                                                          analytics:nil
+                                                        fileManager:self.fileManager
+                                                        dataArbiter:self.dataArbiter
+                                                           settings:self.mockSettings
+                                                      onDemandModel:nil];
+#pragma clang diagnostic pop
+
+  self.uploader = [[FIRCLSReportUploader alloc] initWithManagerData:self.managerData];
 }
 
 #pragma mark - Tests
@@ -109,6 +114,25 @@ NSString *const TestFIID = @"TestFIID";
   // Verify with the last move operation is from processing -> prepared
   XCTAssertTrue(
       [self.fileManager.moveItemAtPath_destDir containsString:self.fileManager.preparedPath]);
+}
+
+- (void)test_NilFIID_DoesNotCrash {
+  NSString *path = [self.fileManager.activePath stringByAppendingPathComponent:@"pkg_uuid"];
+  FIRCLSInternalReport *report = [[FIRCLSInternalReport alloc] initWithPath:path];
+  self.fileManager.moveItemAtPathResult = [NSNumber numberWithInt:1];
+
+  self.mockInstallations = [[FIRMockInstallations alloc]
+      initWithError:[NSError errorWithDomain:@"TestDomain" code:-1 userInfo:nil]];
+  [self setupUploaderWithInstallations:self.mockInstallations];
+
+  XCTAssertNil(self.uploader.fiid);
+
+  [self.uploader prepareAndSubmitReport:report
+                    dataCollectionToken:FIRCLSDataCollectionToken.validToken
+                               asUrgent:YES
+                         withProcessing:YES];
+
+  XCTAssertNil(self.uploader.fiid);
 }
 
 - (void)testUploadPackagedReportWithPath {
