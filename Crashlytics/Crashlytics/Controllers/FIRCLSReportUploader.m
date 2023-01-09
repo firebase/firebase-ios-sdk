@@ -87,17 +87,12 @@
   // symbolication operation may be computationally intensive.
   FIRCLSApplicationActivity(
       FIRCLSApplicationActivityDefault, @"Crashlytics Crash Report Processing", ^{
-        // Run this only once because it can be run multiple times in succession,
-        // and if it's slow it could delay crash upload too much without providing
-        // user benefit.
-        static dispatch_once_t regenerateOnceToken;
-        dispatch_once(&regenerateOnceToken, ^{
-          // Check to see if the FID has rotated before we construct the payload
-          // so that the payload has an updated value.
-          [self.installIDModel regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull newFIID) {
-            self.fiid = [newFIID copy];
-          }];
-        });
+
+        // Check to see if the FID has rotated before we construct the payload
+        // so that the payload has an updated value.
+        [self.installIDModel regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull newFIID) {
+          self.fiid = [newFIID copy];
+        }];
 
         // Run on-device symbolication before packaging if we should process
         if (shouldProcess) {
