@@ -106,7 +106,9 @@ static unsigned long long FIRCLSInstallationsWaitTime = 10 * NSEC_PER_SEC;
   // This runs Completion async, so wait a reasonable amount of time for it to finish.
   [self.installations
       installationIDWithCompletion:^(NSString *_Nullable currentIID, NSError *_Nullable error) {
-        // Provide the IID to the callback
+        // Provide the IID to the callback. For this case we don't care
+        // if the FIID is null because it's the best we can do - we just want
+        // to send up the same FIID that is sent by other SDKs (eg. the Sessions SDK).
         block(currentIID);
 
         didRotate = [self rotateCrashlyticsInstallUUIDWithIID:currentIID error:error];
