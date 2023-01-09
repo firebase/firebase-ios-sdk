@@ -491,6 +491,66 @@ static NSString *const kEmailChangeNeedsVerificationErrorMessage =
  */
 static NSString *const kInvalidPendingToken = @"INVALID_PENDING_TOKEN";
 
+/** @var kMissingRecaptchaToken
+    @brief This is the error message the server will respond with if the recaptcha token is missing
+   in the request.
+ */
+static NSString *const kInvalidRecaptchaScore = @"INVALID_RECAPTCHA_SCORE";
+
+/** @var kMissingRecaptchaToken
+    @brief This is the error message the server will respond with if the recaptcha token is missing
+   in the request.
+ */
+static NSString *const kMissingRecaptchaToken = @"MISSING_RECAPTCHA_TOKEN";
+
+/** @var kMissingRecaptchaToken
+    @brief This is the error message the server will respond with if the recaptcha token is missing
+   in the request.
+ */
+static NSString *const kInvalidRecaptchaToken = @"INVALID_RECAPTCHA_TOKEN";
+
+/** @var kMissingRecaptchaToken
+    @brief This is the error message the server will respond with if the recaptcha token is missing
+   in the request.
+ */
+static NSString *const kInvalidRecaptchaAction = @"INVALID_RECAPTCHA_ACTION";
+
+/** @var kMissingRecaptchaToken
+    @brief This is the error message the server will respond with if the recaptcha token is missing
+   in the request.
+ */
+static NSString *const kInvalidRecaptchaEnforcementState = @"INVALID_RECAPTCHA_ENFORCEMENT_STATE";
+
+/** @var kMissingRecaptchaToken
+    @brief This is the error message the server will respond with if the recaptcha token is missing
+   in the request.
+ */
+static NSString *const kRecaptchaNotEnabled = @"RECAPTCHA_NOT_ENABLED";
+
+/** @var kMissingRecaptchaToken
+    @brief This is the error message the server will respond with if the recaptcha token is missing
+   in the request.
+ */
+static NSString *const kMissingClientType = @"MISSING_CLIENT_TYPE";
+
+/** @var kMissingRecaptchaToken
+    @brief This is the error message the server will respond with if the recaptcha token is missing
+   in the request.
+ */
+static NSString *const kMissingRecaptchaVersion = @"MISSING_RECAPTCHA_VERSION";
+
+/** @var kMissingRecaptchaToken
+    @brief This is the error message the server will respond with if the recaptcha token is missing
+   in the request.
+ */
+static NSString *const kMissingInvalidReqType = @"INVALID_REQ_TYPE";
+
+/** @var kMissingRecaptchaToken
+    @brief This is the error message the server will respond with if the recaptcha token is missing
+   in the request.
+ */
+static NSString *const kInvalidRecaptchaVersion = @"INVALID_RECAPTCHA_VERSION";
+
 /** @var gBackendImplementation
     @brief The singleton FIRAuthBackendImplementation instance to use.
  */
@@ -1535,6 +1595,15 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   if ([shortErrorMessage isEqualToString:kBlockingCloudFunctionErrorResponse]) {
     return
         [FIRAuthErrorUtils blockingCloudFunctionServerResponseWithMessage:serverDetailErrorMessage];
+
+  if ([shortErrorMessage isEqualToString:kInvalidRecaptchaScore]) {
+    return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeCaptchaCheckFailed
+                                    message:serverErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kRecaptchaNotEnabled]) {
+    return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeRecaptchaNotEnabled
+                                    message:serverErrorMessage];
   }
 
   // In this case we handle an error that might be specified in the underlying errors dictionary,

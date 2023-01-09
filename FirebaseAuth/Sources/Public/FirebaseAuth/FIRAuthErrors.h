@@ -440,23 +440,7 @@ typedef NS_ERROR_ENUM(FIRAuthErrorDomain, FIRAuthErrorCode){
 
     /** Indicates that the recaptcha integration is not enabled for this project.
      */
-    FIRAuthErrorCodeRecaptchaNotEnabled = 17100,
-
-    /** Indicates that the recaptcha client type is missing when sending request to the backend.
-     */
-    FIRAuthErrorCodeMissingClientType = 17101,
-
-    /** Indicates that the recaptcha version is missing when sending request to the backend.
-     */
-    FIRAuthErrorCodeMissingRecaptchaVersion = 17102,
-
-    /** Indicates that the recaptcha client type / version is invalid when retrieving the site key.
-     */
-    FIRAuthErrorCodeInvalidReqType = 17103,
-
-    /** Indicates that the recaptcha version is invalid when sending request to the backend.
-     */
-    FIRAuthErrorCodeInvalidRecaptchaVersion = 17104,
+    FIRAuthErrorCodeRecaptchaNotEnabled = 17095,
 
     /** Indicates an error for when the client identifier is missing.
      */
