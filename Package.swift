@@ -491,7 +491,7 @@ let package = Package(
     ),
     .target(
       name: "FirebaseCrashlytics",
-      dependencies: ["FirebaseCore", "FirebaseInstallations", "FirebaseSessions",
+      dependencies: ["FirebaseCore", "FirebaseInstallations",
                      .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
                      .product(name: "GULEnvironment", package: "GoogleUtilities"),
                      .product(name: "FBLPromises", package: "Promises"),
