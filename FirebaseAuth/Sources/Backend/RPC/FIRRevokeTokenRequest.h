@@ -21,13 +21,23 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRRevokeTokenRequest : FIRIdentityToolkitRequest <FIRAuthRPCRequest>
 
-/** @property appToken
-    @brief The APNS device token.
+/** @property providerID
+    @brief The provider that issued the token to revoke.
+ */
+@property(nonatomic, copy, nullable) NSString *providerID;
+
+/** @property tokenType
+    @brief The type of the token to revoke.
+ */
+@property(nonatomic) NSInteger tokenType;
+
+/** @property token
+    @brief The token to be revoked.
  */
 @property(nonatomic, copy, nullable) NSString *token;
 
-/** @property accessToken
-    @brief The STS Access Token of the authenticated user.
+/** @property idToken
+    @brief The ID Token associated with this credential.
  */
 @property(nonatomic, copy, nullable) NSString *idToken;
 
