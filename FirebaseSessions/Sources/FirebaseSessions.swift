@@ -179,7 +179,7 @@ private enum GoogleDataTransportConfig {
         "Registering Sessions SDK subscriber with name: \(subscriber.sessionsSubscriberName), data collection enabled: \(subscriber.isDataCollectionEnabled)"
       )
 
-    self.notificationCenter.addObserver(
+    notificationCenter.addObserver(
       forName: Sessions.SessionIDChangedNotificationName,
       object: nil,
       queue: nil
