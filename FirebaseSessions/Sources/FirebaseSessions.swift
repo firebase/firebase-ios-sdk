@@ -135,13 +135,15 @@ private enum GoogleDataTransportConfig {
         self.addEventDataCollectionState(event: event)
 
         if !(self.settings.sessionsEnabled && sessionInfo.shouldDispatchEvents) {
-          Logger.logDebug("Session Event logging is disabled sessionsEnabled: \(self.settings.sessionsEnabled), shouldDispatchEvents: \(sessionInfo.shouldDispatchEvents)")
+          Logger
+            .logDebug(
+              "Session Event logging is disabled sessionsEnabled: \(self.settings.sessionsEnabled), shouldDispatchEvents: \(sessionInfo.shouldDispatchEvents)"
+            )
           return
         }
 
         self.coordinator.attemptLoggingSessionStart(event: event) { result in
         }
-
       }
     }
   }
@@ -149,14 +151,12 @@ private enum GoogleDataTransportConfig {
   // MARK: - Data Collection
 
   var isAnyDataCollectionEnabled: Bool {
-    get {
-      for subscriber in subscribers {
-        if subscriber.isDataCollectionEnabled {
-          return true
-        }
+    for subscriber in subscribers {
+      if subscriber.isDataCollectionEnabled {
+        return true
       }
-      return false
     }
+    return false
   }
 
   func addEventDataCollectionState(event: SessionStartEvent) {
@@ -169,9 +169,7 @@ private enum GoogleDataTransportConfig {
   // MARK: - SessionsProvider
 
   var currentSessionPayload: SessionPayload {
-    get {
-      return SessionPayload(sessionId: self.sessionGenerator.currentSession?.sessionId ?? "")
-    }
+    return SessionPayload(sessionId: sessionGenerator.currentSession?.sessionId ?? "")
   }
 
   func register(subscriber: SessionsSubscriber) {
@@ -189,7 +187,7 @@ private enum GoogleDataTransportConfig {
     }
     // Immediately call the callback because the Sessions SDK starts
     // before subscribers, so subscribers will miss the first Notification
-    subscriber.onSessionChanged(self.currentSessionPayload)
+    subscriber.onSessionChanged(currentSessionPayload)
 
     // Fulfil this subscriber's promise
     subscribers.append(subscriber)
