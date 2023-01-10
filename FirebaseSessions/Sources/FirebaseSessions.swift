@@ -107,6 +107,8 @@ private enum GoogleDataTransportConfig {
       // Generating a Session ID early is important as Subscriber
       // SDKs will need to read it immediately upon registration.
       let sessionInfo = self.sessionGenerator.generateNewSession()
+
+      // Post a notification so subscriber SDKs can get an updated Session ID
       NotificationCenter.default.post(name: Sessions.SessionIDChangedNotificationName,
                                       object: nil)
 
