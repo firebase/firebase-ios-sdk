@@ -36,7 +36,7 @@ private enum GoogleDataTransportConfig {
   private let initiator: SessionInitiator
   private let sessionGenerator: SessionGenerator
   private let appInfo: ApplicationInfo
-  private let settings: SessionsSettings
+  private let settings: SettingsProtocol
 
   /// Subscribers
   /// `subscribers` are used to determine the Data Collection state of the Sessions SDK.
@@ -86,7 +86,7 @@ private enum GoogleDataTransportConfig {
 
   // Initializes the SDK and begines the process of listening for lifecycle events and logging events
   init(appID: String, sessionGenerator: SessionGenerator, coordinator: SessionCoordinator,
-       initiator: SessionInitiator, appInfo: ApplicationInfo, settings: SessionsSettings) {
+       initiator: SessionInitiator, appInfo: ApplicationInfo, settings: SettingsProtocol) {
     self.appID = appID
 
     self.sessionGenerator = sessionGenerator
@@ -117,7 +117,7 @@ private enum GoogleDataTransportConfig {
       // Wait until all subscriber promises have been fulfilled before
       // doing any data collection.
       all(self.subscriberPromises.values).then(on: .global(qos: .background)) { _ in
-        guard self.isAnyDataCollectionEnabled() else {
+        guard self.isAnyDataCollectionEnabled else {
           Logger
             .logDebug(
               "Data Collection is disabled for all subscribers. Skipping this Session Event"
@@ -125,35 +125,38 @@ private enum GoogleDataTransportConfig {
           return
         }
 
-        if guard self.settings.sessionsEnabled, sessionInfo.shouldDispatchEvents else {
-          Logger.logDebug("Session Event logging is disabled sessionsEnabled: \(self.settings.sessionsEnabled), shouldDispatchEvents: \(sessionInfo.shouldDispatchEvents)")
-          return
-        }
-
         Logger.logDebug("Data Collection is enabled for at least one Subscriber")
 
-        // Fetch settings if they have expired
+        // Fetch settings if they have expired. This muse happen after the check for
+        // data collection, but before the check for sessionsEnabled from Settings
+        // so that re-fetching can happen.
         self.settings.updateSettings()
 
         self.addEventDataCollectionState(event: event)
 
+        if !(self.settings.sessionsEnabled && sessionInfo.shouldDispatchEvents) {
+          Logger.logDebug("Session Event logging is disabled sessionsEnabled: \(self.settings.sessionsEnabled), shouldDispatchEvents: \(sessionInfo.shouldDispatchEvents)")
+          return
+        }
+
         self.coordinator.attemptLoggingSessionStart(event: event) { result in
         }
-      } else {
-        Logger.logDebug("Session logging is disabled by configuration settings.")
+
       }
     }
   }
 
   // MARK: - Data Collection
 
-  func isAnyDataCollectionEnabled() -> Bool {
-    for subscriber in subscribers {
-      if subscriber.isDataCollectionEnabled {
-        return true
+  var isAnyDataCollectionEnabled: Bool {
+    get {
+      for subscriber in subscribers {
+        if subscriber.isDataCollectionEnabled {
+          return true
+        }
       }
+      return false
     }
-    return false
   }
 
   func addEventDataCollectionState(event: SessionStartEvent) {
@@ -164,6 +167,12 @@ private enum GoogleDataTransportConfig {
   }
 
   // MARK: - SessionsProvider
+
+  var currentSessionPayload: SessionPayload {
+    get {
+      return SessionPayload(sessionId: self.sessionGenerator.currentSession?.sessionId ?? "")
+    }
+  }
 
   func register(subscriber: SessionsSubscriber) {
     Logger
@@ -176,11 +185,11 @@ private enum GoogleDataTransportConfig {
       object: nil,
       queue: nil
     ) { notification in
-      subscriber.onSessionIDChanged(self.identifiers.sessionID)
+      subscriber.onSessionChanged(self.currentSessionPayload)
     }
     // Immediately call the callback because the Sessions SDK starts
     // before subscribers, so subscribers will miss the first Notification
-    subscriber.onSessionIDChanged(identifiers.sessionID)
+    subscriber.onSessionChanged(self.currentSessionPayload)
 
     // Fulfil this subscriber's promise
     subscribers.append(subscriber)
