@@ -24,16 +24,43 @@ NS_ASSUME_NONNULL_BEGIN
 static NSString *const kRevokeTokenEndpoint =
     @"revokeToken";  // TODO: Double check the endpoint when backend is ready
 
-/** @var kAppTokenKey
-    @brief The key for the appToken request paramenter.
+/** @var kProviderIDKey
+    @brief The key for the provider that issued the token to revoke.
+ */
+static NSString *const kProviderIDKey = @"providerID";
+
+/** @var kTokenTypeKey
+    @brief The key for the the type of the token to revoke.
+ */
+static NSString *const kTokenTypeKey = @"tokenType";
+
+/** @var kTokenKey
+    @brief The key for the token to be revoked.
  */
 static NSString *const kTokenKey = @"token";
 
 /** @var kIDTokenKey
-    @brief The key for the "idToken" value in the request. This is actually the Security Token
-   Service access token, despite its confusing (backwards compatiable) parameter name.
+    @brief The key for the ID Token associated with this credential.
  */
 static NSString *const kIDTokenKey = @"idToken";
+
+typedef NS_ENUM(NSInteger, FIRTokenType) {
+  /** Indicates that the token type is uspecified.
+   */
+  FIRTokenTypeUnspecified = 0,
+
+  /** Indicates that the token type is refresh token.
+   */
+  FIRTokenTypeRefreshToken = 1,
+
+  /** Indicates that the token type is access token.
+   */
+  FIRTokenTypeAccessToken = 2,
+
+  /** Indicates that the token type is authorization code.
+   */
+  FIRTokenTypeAuthorizationCode = 3,
+};
 
 @implementation FIRRevokeTokenRequest
 
@@ -42,6 +69,9 @@ static NSString *const kIDTokenKey = @"idToken";
                   requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kRevokeTokenEndpoint requestConfiguration:requestConfiguration];
   if (self) {
+    // Apple and Authorization code are the only provider and token type we support for now.
+    _providerID = @"apple.com";
+    _tokenType = FIRTokenTypeAuthorizationCode;
     _token = token;
     _idToken = idToken;
   }
@@ -50,6 +80,12 @@ static NSString *const kIDTokenKey = @"idToken";
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing _Nullable *)error {
   NSMutableDictionary *postBody = [NSMutableDictionary dictionary];
+  if (_providerID) {
+    postBody[kProviderIDKey] = _providerID;
+  }
+  if (_tokenType) {
+    postBody[kTokenTypeKey] = [NSNumber numberWithInteger:_tokenType].stringValue;
+  }
   if (_token) {
     postBody[kTokenKey] = _token;
   }
