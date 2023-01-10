@@ -1,4 +1,4 @@
-# Unreleased
+# 10.4.0
 - [added] Updated Crashlytics to include the Firebase Installation ID for consistency with other products (#10645).
 
 # 8.13.0
