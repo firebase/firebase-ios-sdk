@@ -30,7 +30,7 @@ static NSString *const kRevokeTokenEndpoint =
 static NSString *const kProviderIDKey = @"providerID";
 
 /** @var kTokenTypeKey
-    @brief The key for the the type of the token to revoke.
+    @brief The key for the type of the token to revoke.
  */
 static NSString *const kTokenTypeKey = @"tokenType";
 
@@ -45,7 +45,7 @@ static NSString *const kTokenKey = @"token";
 static NSString *const kIDTokenKey = @"idToken";
 
 typedef NS_ENUM(NSInteger, FIRTokenType) {
-  /** Indicates that the token type is uspecified.
+  /** Indicates that the token type is unspecified.
    */
   FIRTokenTypeUnspecified = 0,
 
