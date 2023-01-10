@@ -27,7 +27,7 @@
 #import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
 
 /** @var kFakeToken
-    @brief The fake  token to use in the test request.
+    @brief The fake token to use in the test request.
  */
 static NSString *const kFakeToken = @"fakeToken";
 
@@ -37,7 +37,7 @@ static NSString *const kFakeToken = @"fakeToken";
 static NSString *const kFakeIDToken = @"fakeIDToken";
 
 /** @var kFakeToken
-    @brief The fake  token to use in the test request.
+    @brief The fake token to use in the test request.
  */
 static NSString *const kFakeTokenKey = @"tokenKey";
 
