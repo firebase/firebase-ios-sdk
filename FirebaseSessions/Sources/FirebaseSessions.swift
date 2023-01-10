@@ -36,7 +36,7 @@ private enum GoogleDataTransportConfig {
   private let initiator: SessionInitiator
   private let sessionGenerator: SessionGenerator
   private let appInfo: ApplicationInfo
-  private let settings: SettingsProtocol
+  private let settings: SessionsSettings
 
   /// Subscribers
   /// `subscribers` are used to determine the Data Collection state of the Sessions SDK.
@@ -46,9 +46,10 @@ private enum GoogleDataTransportConfig {
   /// themselves. Subscribers must have Data Collection state available upon registering.
   private var subscriberPromises: [SessionsSubscriberName: Promise<Void>] = [:]
 
-  /// Constants
+  /// Notifications
   static let SessionIDChangedNotificationName = Notification
     .Name("SessionIDChangedNotificationName")
+  let notificationCenter = NotificationCenter()
 
   // MARK: - Initializers
 
@@ -86,7 +87,7 @@ private enum GoogleDataTransportConfig {
 
   // Initializes the SDK and begines the process of listening for lifecycle events and logging events
   init(appID: String, sessionGenerator: SessionGenerator, coordinator: SessionCoordinator,
-       initiator: SessionInitiator, appInfo: ApplicationInfo, settings: SettingsProtocol) {
+       initiator: SessionInitiator, appInfo: ApplicationInfo, settings: SessionsSettings) {
     self.appID = appID
 
     self.sessionGenerator = sessionGenerator
@@ -109,8 +110,8 @@ private enum GoogleDataTransportConfig {
       let sessionInfo = self.sessionGenerator.generateNewSession()
 
       // Post a notification so subscriber SDKs can get an updated Session ID
-      NotificationCenter.default.post(name: Sessions.SessionIDChangedNotificationName,
-                                      object: nil)
+      self.notificationCenter.post(name: Sessions.SessionIDChangedNotificationName,
+                                   object: nil)
 
       let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: self.appInfo)
 
@@ -178,7 +179,7 @@ private enum GoogleDataTransportConfig {
         "Registering Sessions SDK subscriber with name: \(subscriber.sessionsSubscriberName), data collection enabled: \(subscriber.isDataCollectionEnabled)"
       )
 
-    NotificationCenter.default.addObserver(
+    self.notificationCenter.addObserver(
       forName: Sessions.SessionIDChangedNotificationName,
       object: nil,
       queue: nil
