@@ -37,12 +37,12 @@ static NSString *const kFakeIDToken = @"fakeIDToken";
 /** @var kFakeToken
     @brief The fake token to use in the test request.
  */
-static NSString *const kFakeTokenKey = @"tokenKey";
+static NSString *const kFakeTokenKey = @"token";
 
 /** @var kFakeIDToken
     @brief The fake ID token to use in the test request.
  */
-static NSString *const kFakeIDTokenKey = @"idTokenKey";
+static NSString *const kFakeIDTokenKey = @"idToken";
 
 /** @var kFakeAPIKey
     @brief The fake API key to use in the test request.
@@ -103,6 +103,10 @@ static NSString *const kExpectedAPIURL =
          }];
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
   XCTAssertNotNil(_RPCIssuer.decodedRequest);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kFakeIDTokenKey], kFakeIDToken);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kFakeTokenKey], kFakeToken);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[@"providerID"], @"apple.com");
+  XCTAssertEqual([_RPCIssuer.decodedRequest[@"tokenType"] intValue], 3);
 }
 
 @end
