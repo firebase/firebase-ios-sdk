@@ -43,7 +43,7 @@ import Foundation
     super.init(provider: GoogleAuthProvider.id)
   }
 
-  func prepareVerifyAssertionRequest(request: FIRVerifyAssertionRequest) {
+  @objc override func prepare(_ request: FIRVerifyAssertionRequest) {
     request.providerIDToken = IDToken
     request.accessToken = accessToken
   }
