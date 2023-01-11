@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthRPCRequest.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRIdentityToolkitRequest.h"
+#import "FIRAuthRPCRequest.h"
+#import "FIRIdentityToolkitRequest.h"
 
 @class FIRAuthAppCredential;
 

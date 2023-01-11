@@ -32,12 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAuth () <FIRAuthInterop>
 
-/** @property requestConfiguration
-    @brief The configuration object comprising of paramters needed to make a request to Firebase
-        Auth's backend.
- */
-@property(nonatomic, copy, readonly) FIRAuthRequestConfiguration *requestConfiguration;
-
 #if TARGET_OS_IOS
 
 /** @property tokenManager
@@ -49,11 +43,6 @@ NS_ASSUME_NONNULL_BEGIN
     @brief The manager for app credentials used by phone number auth.
  */
 @property(nonatomic, strong, readonly) FIRAuthAppCredentialManager *appCredentialManager;
-
-/** @property notificationManager
-    @brief The manager for remote notifications used by phone number auth.
- */
-@property(nonatomic, strong, readonly) FIRAuthNotificationManager *notificationManager;
 
 #endif  // TARGET_OS_IOS
 
