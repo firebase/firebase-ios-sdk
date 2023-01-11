@@ -128,9 +128,10 @@ private enum GoogleDataTransportConfig {
 
         Logger.logDebug("Data Collection is enabled for at least one Subscriber")
 
-        // Fetch settings if they have expired. This muse happen after the check for
-        // data collection, but before the check for sessionsEnabled from Settings
-        // so that re-fetching can happen.
+        // Fetch settings if they have expired. This must happen after the check for
+        // data collection because it uses the network, but it must happen before the
+        // check for sessionsEnabled from Settings because otherwise we would permanently
+        // turn off the Sessions SDK when we disabled it.
         self.settings.updateSettings()
 
         self.addEventDataCollectionState(event: event)
