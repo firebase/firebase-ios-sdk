@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthErrorUtils.h"
 
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorResolver+Internal.h"
 
