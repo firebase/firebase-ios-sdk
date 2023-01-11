@@ -31,6 +31,8 @@
 #import "FIRUserInfo.h"
 #import "FIRUserMetadata.h"
 
+// Temporary publics
+
 #import "FIRAuthAPNSTokenType.h"
 #import "FIRAuthSettings.h"
 #import "FIRAuthUIDelegate.h"
@@ -42,3 +44,10 @@
 #import "FIRAuthRequestConfiguration.h"
 #import "FIRVerifyAssertionRequest.h"
 #import "FIRVerifyAssertionResponse.h"
+
+#import "FIRAuthAppCredential.h"
+#import "FIRAuthErrorUtils.h"
+#import "FIRAuthInternalErrors.h"
+#import "FIRAuthNotificationManager.h"
+#import "FIRAuthWebUtils.h"
+#import "FIRSendVerificationCodeRequest.h"
