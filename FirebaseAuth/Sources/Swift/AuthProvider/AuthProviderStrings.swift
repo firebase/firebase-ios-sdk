@@ -21,5 +21,5 @@ public enum AuthProviderString: String {
   case gameCenter = "gc.apple.com"
   case gitHub = "github.com"
   case google = "google.com"
-  case phone = "phone"
+  case phone
 }
