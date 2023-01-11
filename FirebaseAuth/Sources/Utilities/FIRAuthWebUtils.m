@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthWebUtils.h"
 
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigResponse.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthRequestConfiguration.h"
-#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
