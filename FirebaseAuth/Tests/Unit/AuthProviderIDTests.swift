@@ -17,7 +17,6 @@ import XCTest
 import FirebaseAuth
 
 final class AuthProviderIDTests: XCTestCase {
-
   // Verify that AuthProviderID enum values match the class values published for Objective C compatibility.
   func testAuthProviderIDEnumRawValue() {
     XCTAssertEqual(AuthProviderString.apple.rawValue, "apple.com")

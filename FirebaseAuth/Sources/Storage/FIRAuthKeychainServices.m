@@ -21,8 +21,8 @@
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Storage/FIRAuthUserDefaults.h"
-#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 
 /** @var kAccountPrefix
     @brief The prefix string for keychain item account attribute before the key.
