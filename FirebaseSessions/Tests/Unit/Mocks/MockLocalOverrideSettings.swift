@@ -16,7 +16,7 @@
 import Foundation
 @testable import FirebaseSessions
 
-class MockLocalOverrideSettings: SettingsProvider, SettingsProtocol {
+class MockLocalOverrideSettings: SettingsProvider {
   func updateSettings() {
     // Nothing to do here
   }

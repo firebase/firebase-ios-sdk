@@ -13,23 +13,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+import XCTest
+@testable import FirebaseSessions
 
-/// APIs that needs to be implemented by any settings provider
-protocol SettingsProvider {
-  // API to update the settings
-  func updateSettings()
+class MockSessionCoordinator: SessionCoordinatorProtocol {
+  var loggedEvent: FirebaseSessions.SessionStartEvent?
 
-  // API to check if the settings are stale
-  func isSettingsStale() -> Bool
+  func attemptLoggingSessionStart(event: FirebaseSessions.SessionStartEvent,
+                                  callback: @escaping (Result<Void, FirebaseSessionsError>)
+                                    -> Void) {
+    loggedEvent = event
 
-  // Config to show if sessions is enabled
-  var sessionsEnabled: Bool? { get }
-
-  // Config showing the sampling rate for sessions
-
-  var samplingRate: Double? { get }
-
-  // Background timeout config value before which a new session is generated
-  var sessionTimeout: TimeInterval? { get }
+    // Currently there aren't any behaviors predicated on this
+    callback(.success(()))
+  }
 }

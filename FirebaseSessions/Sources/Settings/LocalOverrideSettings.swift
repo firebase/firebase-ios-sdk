@@ -16,7 +16,7 @@
 import Foundation
 
 /// Class that manages the local overrides configs related to the library.
-class LocalOverrideSettings: SettingsProvider, SettingsProtocol {
+class LocalOverrideSettings: SettingsProvider {
   static let PlistKey_sessions_enabled = "FirebaseSessionsEnabled"
   static let PlistKey_sessions_timeout = "FirebaseSessionsTimeout"
   static let PlistKey_sessions_samplingRate = "FirebaseSessionsSampingRate"

@@ -37,9 +37,9 @@ struct SessionInfo {
 ///
 class SessionGenerator {
   private var thisSession: SessionInfo?
-  private var settings: SessionsSettings
+  private var settings: SettingsProtocol
 
-  init(settings: SessionsSettings) {
+  init(settings: SettingsProtocol) {
     self.settings = settings
   }
 
