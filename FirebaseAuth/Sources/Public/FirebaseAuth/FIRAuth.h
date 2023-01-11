@@ -19,6 +19,7 @@
 
 #import "FIRAuthAPNSTokenType.h"
 #import "FIRAuthErrors.h"
+#import "FIRAuthRequestConfiguration.h"
 
 @class FIRActionCodeSettings;
 @class FIRApp;
@@ -27,6 +28,7 @@
 @class FIRAuthDataResult;
 @class FIRAuthSettings;
 @class FIRUser;
+@class FIRAuthNotificationManager;
 @protocol FIRAuthUIDelegate;
 @protocol FIRFederatedAuthProvider;
 
@@ -290,6 +292,14 @@ typedef void (^FIRCheckActionCodeCallBack)(FIRActionCodeInfo *_Nullable info,
 NS_SWIFT_NAME(Auth)
 @interface FIRAuth : NSObject
 
+/** @property notificationManager
+    @brief The manager for remote notifications used by phone number auth.
+ */
+@property(nonatomic, strong, readonly) FIRAuthNotificationManager *notificationManager;
+
+// TODO: Temporary bridge from Swift until completely ported.
++ (dispatch_queue_t)globalWorkQueue;
+
 /** @fn auth
     @brief Gets the auth object for the default Firebase app.
     @remarks The default Firebase app must have already been configured or an exception will be
@@ -354,6 +364,12 @@ NS_SWIFT_NAME(Auth)
         by either setting this property or by calling `setAPNSToken(_:type:)`.
  */
 @property(nonatomic, strong, nullable) NSData *APNSToken API_UNAVAILABLE(macos, tvos, watchos);
+
+/** @property requestConfiguration
+    @brief The configuration object comprising of paramters needed to make a request to Firebase
+        Auth's backend.
+ */
+@property(nonatomic, copy, readonly) FIRAuthRequestConfiguration *requestConfiguration;
 
 /** @fn init
     @brief Please access auth instances using `Auth.auth()` and `Auth.auth(app:)`.

@@ -43,7 +43,8 @@ import Foundation
   }
 }
 
-// TODO: Change all visibilities to internal and remove objc, once internal dependents are converted.
+// TODO: Change all visibilities to internal and remove objc, once internal FIRAuth.m and FIRUser.m
+// dependents are converted.
 @objc(FIREmailPasswordAuthCredential) public class EmailAuthCredential: AuthCredential,
   NSSecureCoding {
   @objc public let email: String

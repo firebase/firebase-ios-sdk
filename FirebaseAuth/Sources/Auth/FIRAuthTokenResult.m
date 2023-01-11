@@ -15,7 +15,7 @@
  */
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthTokenResult_Internal.h"
-#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthErrorUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
