@@ -88,7 +88,7 @@ static NSString *const kExpectedAPIURL =
 }
 
 /** @fn testSuccessfulRevokeTokenResponse
-    @brief Tests a succesful attempt of the verify password flow.
+    @brief Tests a succesful attempt of the token revocation flow.
  */
 - (void)testSuccessfulResponse {
   FIRRevokeTokenRequest *request =
