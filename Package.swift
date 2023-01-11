@@ -25,7 +25,7 @@ let package = Package(
   name: "Firebase",
   platforms: [.iOS(.v11), .macOS(.v10_13), .tvOS(.v12), .watchOS(.v7)],
   products: [
-    //.library(
+    // .library(
     //   name: "FirebaseAnalytics",
     //   targets: ["FirebaseAnalyticsTarget"]
     // ),
@@ -457,7 +457,11 @@ let package = Package(
     ),
     .testTarget(
       name: "AuthUnit",
-      dependencies: ["FirebaseAuth", .product(name: "OCMock", package: "OCMock"), "HeartbeatLoggingTestUtils"],
+      dependencies: [
+        "FirebaseAuth",
+        .product(name: "OCMock", package: "OCMock"),
+        "HeartbeatLoggingTestUtils",
+      ],
       path: "FirebaseAuth/Tests/Unit",
       exclude: [
         "FIRAuthKeychainServicesTests.m", // TODO: figure out SPM keychain testing
