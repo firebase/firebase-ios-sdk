@@ -15,9 +15,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRMultiFactorInfo.h"
-#import "FirebaseAuth/Sources/Utilities/FIRAuthInternalErrors.h"
+#import "FIRAuthInternalErrors.h"
+#import "FIRMultiFactorInfo.h"
 
 @class FIRAuthCredential;
 
