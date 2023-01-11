@@ -45,7 +45,9 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberResponse.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactor+Internal.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthRequestConfiguration.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthWebUtils.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRVerifyAssertionRequest.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRVerifyAssertionResponse.h"
 #import "FirebaseAuth/Sources/SystemService/FIRSecureTokenService.h"
@@ -53,8 +55,6 @@
 #import "FirebaseAuth/Sources/User/FIRUserInfoImpl.h"
 #import "FirebaseAuth/Sources/User/FIRUserMetadata_Internal.h"
 #import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
-#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
-#import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
 
 // #if TARGET_OS_IOS
 // #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"

@@ -20,8 +20,8 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthAppCredential.h"
 #import "FirebaseAuth/Sources/Storage/FIRAuthKeychainServices.h"
-#import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredential.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
 
 #define ANY_ERROR_POINTER ((NSError * __autoreleasing *_Nullable)[OCMArg anyPointer])
