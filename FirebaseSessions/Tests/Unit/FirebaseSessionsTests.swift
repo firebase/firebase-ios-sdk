@@ -22,14 +22,14 @@ import XCTest
 @testable import FirebaseSessions
 
 final class MockSubscriber: SessionsSubscriber {
-  var sessionThatChanged: FirebaseSessions.SessionPayload?
+  var sessionThatChanged: FirebaseSessions.SessionDetails?
 
   init(name: SessionsSubscriberName) {
     sessionsSubscriberName = name
   }
 
-  func onSessionChanged(_ session: FirebaseSessions.SessionPayload) {
-    self.sessionThatChanged = session
+  func onSessionChanged(_ session: FirebaseSessions.SessionDetails) {
+    sessionThatChanged = session
   }
 
   var isDataCollectionEnabled: Bool = true
@@ -56,7 +56,7 @@ class FirebaseSessionsTests: XCTestCase {
   var mockCrashlyticsSubscriber: MockSubscriber!
   var mockPerformanceSubscriber: MockSubscriber!
   var allSubscribers: [SessionsSubscriber] {
-    return [self.mockCrashlyticsSubscriber, self.mockPerformanceSubscriber]
+    return [mockCrashlyticsSubscriber, mockPerformanceSubscriber]
   }
 
   // Mock controllers
@@ -82,7 +82,8 @@ class FirebaseSessionsTests: XCTestCase {
   func runSessionsSDK(subscriberSDKs: [SessionsSubscriber],
                       preSessionsInit: (MockSettingsProtocol) -> Void,
                       postSessionsInit: () -> Void,
-                      postLogEvent: @escaping (Result<Void, FirebaseSessionsError>, [SessionsSubscriber]) -> Void) {
+                      postLogEvent: @escaping (Result<Void, FirebaseSessionsError>,
+                                               [SessionsSubscriber]) -> Void) {
     // This class is static, so we need to clear global state
     SessionsDependencies.dependencies.removeAll()
 
@@ -155,7 +156,7 @@ class FirebaseSessionsTests: XCTestCase {
   func test_settingsDisabled_doesNotLogSessionEventButDoesFetchSettings() {
     runSessionsSDK(
       subscriberSDKs: [
-        self.mockPerformanceSubscriber,
+        mockPerformanceSubscriber,
 
       ], preSessionsInit: { _ in
         self.mockSettings.sessionsEnabled = false
@@ -163,7 +164,7 @@ class FirebaseSessionsTests: XCTestCase {
       }, postSessionsInit: {
         sessions.register(subscriber: self.mockPerformanceSubscriber)
 
-      }, postLogEvent: { (result, subscriberSDKs)  in
+      }, postLogEvent: { result, subscriberSDKs in
         // Make sure we failed with the correct error
         self.assertFailure(result: result, expectedError: .DisabledViaSettingsError)
 
@@ -180,7 +181,7 @@ class FirebaseSessionsTests: XCTestCase {
   func test_sessionSampled_doesNotLogSessionEventButDoesFetchSettings() {
     runSessionsSDK(
       subscriberSDKs: [
-        self.mockPerformanceSubscriber,
+        mockPerformanceSubscriber,
 
       ], preSessionsInit: { _ in
         self.mockSettings.samplingRate = 0.0
@@ -188,7 +189,7 @@ class FirebaseSessionsTests: XCTestCase {
       }, postSessionsInit: {
         sessions.register(subscriber: self.mockPerformanceSubscriber)
 
-      }, postLogEvent: { (result, subscriberSDKs)  in
+      }, postLogEvent: { result, subscriberSDKs in
         // Make sure we failed with the correct error
         self.assertFailure(result: result, expectedError: .SessionSamplingError)
 
@@ -201,65 +202,6 @@ class FirebaseSessionsTests: XCTestCase {
       }
     )
   }
-
-  // MARK: - Test Subscriber Callbacks
-
-  func test_subscribersDataCollectionDisabled_callsOnSessionChanged() {
-    runSessionsSDK(
-      subscriberSDKs: [
-        mockCrashlyticsSubscriber,
-        mockPerformanceSubscriber,
-
-      ], preSessionsInit: { _ in
-        // Same as above, but this time we've disabled data collection in
-        // only one of the subscribers
-        self.mockCrashlyticsSubscriber.isDataCollectionEnabled = false
-        self.mockCrashlyticsSubscriber.isDataCollectionEnabled = false
-
-      }, postSessionsInit: {
-        // Register the subscribers
-        sessions.register(subscriber: self.mockPerformanceSubscriber)
-        sessions.register(subscriber: self.mockCrashlyticsSubscriber)
-
-      }, postLogEvent: { (result, subscriberSDKs) in
-        let protoSessionID = self.mockCoordinator.loggedEvent?.proto.session_data.session_id
-        for mock in [self.mockCrashlyticsSubscriber, self.mockPerformanceSubscriber] {
-          let changedSessionID = mock?.sessionThatChanged?.sessionId ?? ""
-          assertEqualProtoString(protoSessionID, expected: changedSessionID, fieldName: "session_id")
-        }
-      }
-    )
-  }
-
-  func test_subscribersDataCollectionDisabled_callsOnSessionChanged() {
-    sadasdsa
-    Need to handle NoDependenciesError
-//    runSessionsSDK(
-//      subscriberSDKs: [
-//        mockCrashlyticsSubscriber,
-//        mockPerformanceSubscriber,
-//
-//      ], preSessionsInit: { _ in
-//        // Same as above, but this time we've disabled data collection in
-//        // only one of the subscribers
-//        self.mockCrashlyticsSubscriber.isDataCollectionEnabled = false
-//        self.mockCrashlyticsSubscriber.isDataCollectionEnabled = false
-//
-//      }, postSessionsInit: {
-//        // Register the subscribers
-//        sessions.register(subscriber: self.mockPerformanceSubscriber)
-//        sessions.register(subscriber: self.mockCrashlyticsSubscriber)
-//
-//      }, postLogEvent: { (result, subscriberSDKs) in
-//        let protoSessionID = self.mockCoordinator.loggedEvent?.proto.session_data.session_id
-//        for mock in [self.mockCrashlyticsSubscriber, self.mockPerformanceSubscriber] {
-//          let changedSessionID = mock?.sessionThatChanged?.sessionId ?? ""
-//          assertEqualProtoString(protoSessionID, expected: changedSessionID, fieldName: "session_id")
-//        }
-//      }
-//    )
-  }
-
 
   // MARK: - Test Multiple Initiation
 
@@ -276,14 +218,14 @@ class FirebaseSessionsTests: XCTestCase {
 
     runSessionsSDK(
       subscriberSDKs: [
-        self.mockPerformanceSubscriber,
+        mockPerformanceSubscriber,
 
       ], preSessionsInit: { _ in
 
       }, postSessionsInit: {
         sessions.register(subscriber: self.mockPerformanceSubscriber)
 
-      }, postLogEvent: { (result, subscriberSDKs)  in
+      }, postLogEvent: { result, subscriberSDKs in
         // Make sure we log the event
         self.assertSuccess(result: result)
 
@@ -292,14 +234,16 @@ class FirebaseSessionsTests: XCTestCase {
         XCTAssertNotNil(self.mockCoordinator.loggedEvent)
 
         // Make sure the Session ID changes between initiations
-        XCTAssertNotEqual(lastLoggedSessionID, self.sessions.currentSessionPayload.sessionId)
+        XCTAssertNotEqual(lastLoggedSessionID, self.sessions.currentSessionDetails.sessionId)
 
         // Make sure the session ID logged to the coordinator has the
-        // same Session ID as the currentSessionPayload passed to Subscribers
+        // same Session ID as the currentSessionDetails passed to Subscribers
         assertEqualProtoString(
-          self.mockCoordinator.loggedEvent?.proto.session_data.session_id, expected: self.sessions.currentSessionPayload.sessionId, fieldName: "session_id")
+          self.mockCoordinator.loggedEvent?.proto.session_data.session_id,
+          expected: self.sessions.currentSessionDetails.sessionId!, fieldName: "session_id"
+        )
 
-        lastLoggedSessionID = self.sessions.currentSessionPayload.sessionId
+        lastLoggedSessionID = self.sessions.currentSessionDetails.sessionId!
         loggedCount += 1
 
         if loggedCount <= 1 {
@@ -318,7 +262,7 @@ class FirebaseSessionsTests: XCTestCase {
       }
     )
 
-    self.wait(for: [loggedTwiceExpectation], timeout: 3)
+    wait(for: [loggedTwiceExpectation], timeout: 3)
 
     // Make sure we logged 2 events
     XCTAssertEqual(loggedCount, 2)

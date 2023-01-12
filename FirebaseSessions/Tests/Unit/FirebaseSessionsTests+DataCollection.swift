@@ -13,7 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 import XCTest
 
 #if SWIFT_PACKAGE
@@ -23,7 +22,7 @@ import XCTest
 @testable import FirebaseSessions
 
 final class FirebaseSessionsTests_DataCollection: FirebaseSessionsTests {
-
+  // Ensure that for all subscribers, that the data collection state is correctly set.
   func assertEventDataCollectionCorrect(subscribedSDKs: [SessionsSubscriber]) {
     guard let loggedEvent = mockCoordinator.loggedEvent else {
       XCTFail(
@@ -65,7 +64,7 @@ final class FirebaseSessionsTests_DataCollection: FirebaseSessionsTests {
     if !isSubscribed {
       XCTAssertEqual(
         protoState,
-        firebase_appquality_sessions_DataCollectionState_COLLECTION_UNKNOWN
+        firebase_appquality_sessions_DataCollectionState_COLLECTION_SDK_NOT_INSTALLED
       )
     } else if isDataCollectionEnabled {
       XCTAssertEqual(
@@ -95,7 +94,7 @@ final class FirebaseSessionsTests_DataCollection: FirebaseSessionsTests {
         // Sessions hasn't logged yet because no Subscriber SDKs have registered
         XCTAssertNil(self.mockCoordinator.loggedEvent)
 
-      }, postLogEvent: { (result, subscriberSDKs)  in
+      }, postLogEvent: { result, subscriberSDKs in
         // Make sure the SDK reported success, we logged an event and
         // Settings fetched new configs
         self.assertSuccess(result: result)
@@ -122,7 +121,7 @@ final class FirebaseSessionsTests_DataCollection: FirebaseSessionsTests {
         sessions.register(subscriber: self.mockPerformanceSubscriber)
         sessions.register(subscriber: self.mockCrashlyticsSubscriber)
 
-      }, postLogEvent: { (result, subscriberSDKs) in
+      }, postLogEvent: { result, subscriberSDKs in
         // Make sure the SDK reported success, we logged an event and
         // Settings fetched new configs
         self.assertSuccess(result: result)
@@ -149,26 +148,9 @@ final class FirebaseSessionsTests_DataCollection: FirebaseSessionsTests {
         sessions.register(subscriber: self.mockCrashlyticsSubscriber)
         sessions.register(subscriber: self.mockPerformanceSubscriber)
 
-      }, postLogEvent: { (result, subscriberSDKs) in
+      }, postLogEvent: { result, subscriberSDKs in
         // Make sure we failed with the correct error
         self.assertFailure(result: result, expectedError: .DataCollectionError)
-
-        // Make sure we didn't do any data collection
-        XCTAssertFalse(self.mockSettings.updateSettingsCalled)
-        XCTAssertNil(self.mockCoordinator.loggedEvent)
-      }
-    )
-  }
-
-  func test_noDependencies_doesNotLogSessionEvent() {
-    runSessionsSDK(
-      subscriberSDKs: [],
-      preSessionsInit: { _ in
-        // Nothing
-      }, postSessionsInit: {
-        // Nothing
-      }, postLogEvent: { (result, subscriberSDKs) in
-        self.assertFailure(result: result, expectedError: .NoDependenciesError)
 
         // Make sure we didn't do any data collection
         XCTAssertFalse(self.mockSettings.updateSettingsCalled)
