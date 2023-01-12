@@ -21,22 +21,13 @@ import XCTest
 
 @testable import FirebaseSessions
 
-final class MockSubscriber: SessionsSubscriber {
-  var sessionThatChanged: FirebaseSessions.SessionDetails?
-
-  init(name: SessionsSubscriberName) {
-    sessionsSubscriberName = name
-  }
-
-  func onSessionChanged(_ session: FirebaseSessions.SessionDetails) {
-    sessionThatChanged = session
-  }
-
-  var isDataCollectionEnabled: Bool = true
-
-  var sessionsSubscriberName: FirebaseSessions.SessionsSubscriberName
-}
-
+///
+/// This is the parent class for tests that test against the Sessions internal
+/// API or test Sessions `init` functionality.
+///
+/// Test cases should only go in subclasses because all tests in the parent
+/// class will be run by subclasses.
+///
 class FirebaseSessionsTests: XCTestCase {
   let testAppID = "testAppID"
 
