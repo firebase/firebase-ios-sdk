@@ -22,7 +22,41 @@ import XCTest
 @testable import FirebaseSessions
 
 final class FirebaseSessionsTests_Subscribers: FirebaseSessionsTests {
+  // Check that the Session ID that was passed to the Subscriber SDK
+  // matches the Session ID that the Sessions SDK logged, and ensure
+  // both are not empty.
+  func assertValidChangedSessionID() {
+    let expectedSessionID = sessions.currentSessionDetails.sessionId
+    XCTAssert(expectedSessionID!.count > 0)
+    for mock in [mockCrashlyticsSubscriber, mockPerformanceSubscriber] {
+      let mocksChangedSessionID = mock?.sessionThatChanged?.sessionId!
+      XCTAssert(mocksChangedSessionID!.count > 0)
+      XCTAssertEqual(expectedSessionID, mocksChangedSessionID)
+    }
+  }
+
   // MARK: - Test Subscriber Callbacks
+
+  func test_registerSubscriber_callsOnSessionChanged() {
+    runSessionsSDK(
+      subscriberSDKs: [
+        mockCrashlyticsSubscriber,
+        mockPerformanceSubscriber,
+
+      ], preSessionsInit: { _ in
+        // Nothing
+
+      }, postSessionsInit: {
+        // Register the subscribers
+        sessions.register(subscriber: self.mockPerformanceSubscriber)
+        sessions.register(subscriber: self.mockCrashlyticsSubscriber)
+
+      }, postLogEvent: { result, subscriberSDKs in
+        // Ensure the subscribers still get a Session ID from their subscription
+        self.assertValidChangedSessionID()
+      }
+    )
+  }
 
   // Make sure that even if the Sessions SDK is disabled, and data collection
   // is disabled, the Sessions SDK still generates Session IDs and provides
@@ -47,13 +81,7 @@ final class FirebaseSessionsTests_Subscribers: FirebaseSessionsTests {
 
       }, postLogEvent: { result, subscriberSDKs in
         // Ensure the subscribers still get a Session ID from their subscription
-        let expectedSessionID = self.sessions.currentSessionDetails.sessionId
-        XCTAssert(expectedSessionID!.count > 0)
-        for mock in [self.mockCrashlyticsSubscriber, self.mockPerformanceSubscriber] {
-          let mocksChangedSessionID = mock?.sessionThatChanged?.sessionId!
-          XCTAssert(mocksChangedSessionID!.count > 0)
-          XCTAssertEqual(expectedSessionID, mocksChangedSessionID)
-        }
+        self.assertValidChangedSessionID()
       }
     )
   }
