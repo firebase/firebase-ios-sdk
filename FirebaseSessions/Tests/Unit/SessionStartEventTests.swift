@@ -208,11 +208,11 @@ class SessionStartEventTests: XCTestCase {
     testProtoAndDecodedProto(sessionEvent: event) { proto in
       XCTAssertEqual(
         proto.session_data.data_collection_status.performance,
-        firebase_appquality_sessions_DataCollectionState_COLLECTION_UNKNOWN
+        firebase_appquality_sessions_DataCollectionState_COLLECTION_SDK_NOT_INSTALLED
       )
       XCTAssertEqual(
         proto.session_data.data_collection_status.crashlytics,
-        firebase_appquality_sessions_DataCollectionState_COLLECTION_UNKNOWN
+        firebase_appquality_sessions_DataCollectionState_COLLECTION_SDK_NOT_INSTALLED
       )
     }
   }

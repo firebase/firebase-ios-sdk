@@ -1089,6 +1089,7 @@ let package = Package(
         "FirebaseInstallations",
         "FirebaseCoreExtension",
         "FirebaseSessionsObjC",
+        .product(name: "Promises", package: "Promises"),
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
       ],

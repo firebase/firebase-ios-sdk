@@ -76,7 +76,7 @@ class SessionGeneratorTests: XCTestCase {
   // with the Sessions SDK, we may want to move to a lazy solution where
   // sessionID can never be empty
   func test_sessionID_beforeGenerateReturnsNothing() throws {
-    XCTAssertNil(generator.currentSession())
+    XCTAssertNil(generator.currentSession)
   }
 
   func test_generateNewSessionID_generatesValidID() throws {

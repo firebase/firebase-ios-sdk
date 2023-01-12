@@ -62,7 +62,7 @@ class SessionGenerator {
     return newSession
   }
 
-  func currentSession() -> SessionInfo? {
+  var currentSession: SessionInfo? {
     return thisSession
   }
 }
