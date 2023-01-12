@@ -171,13 +171,7 @@ private enum GoogleDataTransportConfig {
   // MARK: - SessionsProvider
 
   var currentSessionDetails: SessionDetails {
-    if sessionGenerator.currentSession == nil {
-      Logger
-        .logError(
-          "Session Details requested before being generated. This Session will not have a valid Session ID"
-        )
-    }
-    return SessionDetails(sessionId: sessionGenerator.currentSession?.sessionId ?? "")
+    return SessionDetails(sessionId: sessionGenerator.currentSession?.sessionId)
   }
 
   func register(subscriber: SessionsSubscriber) {
