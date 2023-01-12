@@ -170,8 +170,14 @@ private enum GoogleDataTransportConfig {
 
   // MARK: - SessionsProvider
 
-  var currentSessionPayload: SessionPayload {
-    return SessionPayload(sessionId: sessionGenerator.currentSession?.sessionId ?? "")
+  var currentSessionDetails: SessionDetails {
+    if sessionGenerator.currentSession == nil {
+      Logger
+        .logError(
+          "Session Details requested before being generated. This Session will not have a valid Session ID"
+        )
+    }
+    return SessionDetails(sessionId: sessionGenerator.currentSession?.sessionId ?? "")
   }
 
   func register(subscriber: SessionsSubscriber) {
@@ -185,11 +191,11 @@ private enum GoogleDataTransportConfig {
       object: nil,
       queue: nil
     ) { notification in
-      subscriber.onSessionChanged(self.currentSessionPayload)
+      subscriber.onSessionChanged(self.currentSessionDetails)
     }
     // Immediately call the callback because the Sessions SDK starts
     // before subscribers, so subscribers will miss the first Notification
-    subscriber.onSessionChanged(currentSessionPayload)
+    subscriber.onSessionChanged(currentSessionDetails)
 
     // Fulfil this subscriber's promise
     subscribers.append(subscriber)

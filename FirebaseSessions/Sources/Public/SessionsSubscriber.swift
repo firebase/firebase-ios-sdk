@@ -19,15 +19,15 @@ import Foundation
 /// must implement.
 @objc(FIRSessionsSubscriber)
 public protocol SessionsSubscriber {
-  func onSessionChanged(_ session: SessionPayload)
+  func onSessionChanged(_ session: SessionDetails)
   var isDataCollectionEnabled: Bool { get }
   var sessionsSubscriberName: SessionsSubscriberName { get }
 }
 
 /// Session Payload is a container for Session Data passed to Subscribers
 /// whenever the Session changes
-@objc(FIRSessionPayload)
-public class SessionPayload: NSObject {
+@objc(FIRSessionDetails)
+public class SessionDetails: NSObject {
   var sessionId: String
 
   public init(sessionId: String) {

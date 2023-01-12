@@ -65,9 +65,9 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     proto.application_info.apple_app_info.mcc_mnc = makeProtoString(appInfo.mccMNC)
 
     proto.session_data.data_collection_status
-      .crashlytics = firebase_appquality_sessions_DataCollectionState_COLLECTION_UNKNOWN
+      .crashlytics = firebase_appquality_sessions_DataCollectionState_COLLECTION_SDK_NOT_INSTALLED
     proto.session_data.data_collection_status
-      .performance = firebase_appquality_sessions_DataCollectionState_COLLECTION_UNKNOWN
+      .performance = firebase_appquality_sessions_DataCollectionState_COLLECTION_SDK_NOT_INSTALLED
   }
 
   func setInstallationID(installationId: String) {
