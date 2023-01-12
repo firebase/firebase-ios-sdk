@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
 
-  # Public repository: Build and run the Integration Tests for the Firebase sessions E2E Test App.
+  # Public repository: Build and run the Integration Tests for the Firebase sessions E2E Test App across all environments.
   sessions-integration-tests:
     if: github.repository == 'Firebase/firebase-ios-sdk'
     env:
