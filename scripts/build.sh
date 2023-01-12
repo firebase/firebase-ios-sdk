@@ -527,9 +527,29 @@ case "$product-$platform-$method" in
     pod_gen FirebaseSessions.podspec --platforms=ios --clean
     cd FirebaseSessions/Tests/TestApp; pod install; cd -
 
+    # Run E2E Integration Tests for Prod.
+    RunXcodebuild \
+      -workspace 'FirebaseSessions/Tests/TestApp/AppQualityDevApp.xcworkspace' \
+      -scheme "AppQualityDevApp_iOS" \
+      "${ios_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+
+    # Run E2E Integration Tests for Staging.
+    RunXcodebuild \
+      -workspace 'FirebaseSessions/Tests/TestApp/AppQualityDevApp.xcworkspace' \
+      -scheme "AppQualityDevApp_iOS" \
+      FirebaseSessionsRunEnvironment=STAGING \
+      "${ios_flags[@]}" \
+      "${xcb_flags[@]}" \
+      build \
+      test
+
     # Run E2E Integration Tests for Autopush.
     RunXcodebuild \
       -workspace 'FirebaseSessions/Tests/TestApp/AppQualityDevApp.xcworkspace' \
+      FirebaseSessionsRunEnvironment=AUTOPUSH \
       -scheme "AppQualityDevApp_iOS" \
       "${ios_flags[@]}" \
       "${xcb_flags[@]}" \
