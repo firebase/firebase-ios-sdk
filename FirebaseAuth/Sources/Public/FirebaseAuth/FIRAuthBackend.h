@@ -16,8 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseAuth/Sources/Backend/FIRAuthRPCResponse.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthRPCRequest.h"
+#import "FIRAuthRPCResponse.h"
+#import "FIRAuthRPCRequest.h"
+#import "FIRSendVerificationCodeRequest.h"
 
 @class FIRAuthRequestConfiguration;
 @class FIRCreateAuthURIRequest;
@@ -48,7 +49,6 @@
 @class FIRVerifyPasswordResponse;
 @class FIRVerifyPhoneNumberRequest;
 @class FIRVerifyPhoneNumberResponse;
-@class FIRSendVerificationCodeRequest;
 @class FIRSendVerificationCodeResponse;
 @class FIRSignInWithGameCenterRequest;
 @class FIRSignInWithGameCenterResponse;
