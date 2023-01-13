@@ -26,7 +26,7 @@
 //#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyClientRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyClientResponse.h"
 //#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRSendVerificationCodeRequest.h"
-#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
 #import <FirebaseCore/FIRApp.h>
 
 static NSString *const kTokenRefreshErrorAlertTitle = @"Get Token Error";

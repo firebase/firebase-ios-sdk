@@ -18,7 +18,7 @@
 
 @import FirebaseAuth;
 
-#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenResponse.h"
 #import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
