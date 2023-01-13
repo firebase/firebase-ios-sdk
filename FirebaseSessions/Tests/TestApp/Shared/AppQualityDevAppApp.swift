@@ -20,6 +20,8 @@ import FirebaseSessions
 @main
 class AppQualityDevAppApp: App {
   required init() {
+    // In other Product SDKs, this is called via `+ load`, but
+    // we're faking that here because Swift doesn't have `+ load`
     MockSubscriberSDK.addDependency()
 
     FirebaseApp.configure()

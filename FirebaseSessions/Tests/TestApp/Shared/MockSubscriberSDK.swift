@@ -24,6 +24,11 @@ protocol MockSubscriberSDKProtocol {
   func emptyProtocol()
 }
 
+///
+/// The MockSubscriberSDK pretends to be Firebase Performance because without
+/// any Integrated Product SDKs installed, the Sessions SDK will not send events. This
+/// is because data collection is handled only in product SDKs.
+///
 @objc(FIRMockSubscriberSDK) final class MockSubscriberSDK: NSObject, Library, SessionsSubscriber,
   MockSubscriberSDKProtocol {
   static func addDependency() {
