@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
 
 #if SWIFT_PACKAGE
 @import GTMSessionFetcherCore;
@@ -44,7 +44,7 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRResetPasswordResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSecureTokenRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSecureTokenResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRSendVerificationCodeResponse.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRSendVerificationCodeResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSetAccountInfoRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSetAccountInfoResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignInWithGameCenterRequest.h"
