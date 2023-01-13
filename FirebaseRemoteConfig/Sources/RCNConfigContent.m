@@ -398,11 +398,12 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   return true;
 }
 
+// Compare fetched config with active config and output what has changed
 - (FIRRemoteConfigUpdate *)getConfigUpdateForNamespace:(NSString *)FIRNamespace {
   // TODO: handle diff in experiment metadata
 
   FIRRemoteConfigUpdate *configUpdate;
-  NSMutableSet<NSString *> *updatedParams = [[NSMutableSet alloc] init];
+  NSMutableSet<NSString *> *updatedKeys = [[NSMutableSet alloc] init];
 
   NSDictionary *fetchedConfig =
       _fetchedConfig[FIRNamespace] ? _fetchedConfig[FIRNamespace] : [[NSDictionary alloc] init];
@@ -415,30 +416,30 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   for (NSString *key in [fetchedConfig allKeys]) {
     if (activeConfig[key] == nil ||
         ![[activeConfig[key] stringValue] isEqualToString:[fetchedConfig[key] stringValue]]) {
-      [updatedParams addObject:key];
+      [updatedKeys addObject:key];
     }
   }
   // add deleted params
   for (NSString *key in [activeConfig allKeys]) {
     if (fetchedConfig[key] == nil) {
-      [updatedParams addObject:key];
+      [updatedKeys addObject:key];
     }
   }
 
   // add params with new/updated p13n metadata
   for (NSString *key in [fetchedP13n allKeys]) {
     if (activeP13n[key] == nil || ![activeP13n[key] isEqualToString:fetchedP13n[key]]) {
-      [updatedParams addObject:key];
+      [updatedKeys addObject:key];
     }
   }
   // add params with deleted p13n metadata
   for (NSString *key in [activeP13n allKeys]) {
     if (fetchedP13n[key] == nil) {
-      [updatedParams addObject:key];
+      [updatedKeys addObject:key];
     }
   }
 
-  configUpdate = [[FIRRemoteConfigUpdate alloc] initWithUpdatedParams:updatedParams];
+  configUpdate = [[FIRRemoteConfigUpdate alloc] initWithUpdatedKeys:updatedKeys];
   return configUpdate;
 }
 

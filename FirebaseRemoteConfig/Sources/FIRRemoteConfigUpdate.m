@@ -19,13 +19,13 @@
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 
 @implementation FIRRemoteConfigUpdate {
-  NSSet<NSString *> *_updatedParams;
+  NSSet<NSString *> *_updatedKeys;
 }
 
-- (instancetype)initWithUpdatedParams:(NSSet<NSString *> *)updatedParams {
+- (instancetype)initWithUpdatedKeys:(NSSet<NSString *> *)updatedKeys {
   self = [super init];
   if (self) {
-    _updatedParams = [updatedParams copy];
+    _updatedKeys = [updatedKeys copy];
   }
   return self;
 }
