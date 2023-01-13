@@ -15,10 +15,15 @@
 
 import SwiftUI
 import FirebaseCore
+import FirebaseSessions
 
 @main
-struct AppQualityDevAppApp: App {
-  init() {
+class AppQualityDevAppApp: App, SessionsSubscriber {
+
+
+  required init() {
+    MockSubscriberSDK.addDependency()
+
     FirebaseApp.configure()
   }
 
@@ -27,4 +32,18 @@ struct AppQualityDevAppApp: App {
       ContentView()
     }
   }
+
+
+  func onSessionChanged(_ session: FirebaseSessions.SessionDetails) {
+
+  }
+
+  var isDataCollectionEnabled: Bool {
+    return true
+  }
+
+  var sessionsSubscriberName: FirebaseSessions.SessionsSubscriberName {
+    return FirebaseSessions.SessionsSubscriberName.Performance
+  }
+
 }
