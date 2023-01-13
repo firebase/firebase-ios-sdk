@@ -51,3 +51,6 @@
 #import "FIRAuthNotificationManager.h"
 #import "FIRAuthWebUtils.h"
 #import "FIRSendVerificationCodeRequest.h"
+#import "FIRAuthRPCResponse.h"
+#import "FIRAuthBackend.h"
+

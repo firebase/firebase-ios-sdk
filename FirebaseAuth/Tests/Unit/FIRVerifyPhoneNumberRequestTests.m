@@ -20,7 +20,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthOperationType.h"
-#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberResponse.h"
 #import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
