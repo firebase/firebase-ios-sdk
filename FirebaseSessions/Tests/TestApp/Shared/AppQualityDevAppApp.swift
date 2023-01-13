@@ -18,9 +18,7 @@ import FirebaseCore
 import FirebaseSessions
 
 @main
-class AppQualityDevAppApp: App, SessionsSubscriber {
-
-
+class AppQualityDevAppApp: App {
   required init() {
     MockSubscriberSDK.addDependency()
 
@@ -32,18 +30,4 @@ class AppQualityDevAppApp: App, SessionsSubscriber {
       ContentView()
     }
   }
-
-
-  func onSessionChanged(_ session: FirebaseSessions.SessionDetails) {
-
-  }
-
-  var isDataCollectionEnabled: Bool {
-    return true
-  }
-
-  var sessionsSubscriberName: FirebaseSessions.SessionsSubscriberName {
-    return FirebaseSessions.SessionsSubscriberName.Performance
-  }
-
 }
