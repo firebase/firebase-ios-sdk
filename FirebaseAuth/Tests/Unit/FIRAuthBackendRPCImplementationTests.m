@@ -18,11 +18,7 @@
 
 @import HeartbeatLoggingTestUtils;
 
-#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
-#import "FirebaseAuth/Sources/Backend/FIRAuthRPCResponse.h"
 @import FirebaseAuth;
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthErrorUtils.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthInternalErrors.h"
 #import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"

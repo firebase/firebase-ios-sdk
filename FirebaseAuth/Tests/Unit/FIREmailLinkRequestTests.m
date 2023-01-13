@@ -21,7 +21,7 @@
 
 @import FirebaseAuth;
 
-#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInResponse.h"
 #import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
