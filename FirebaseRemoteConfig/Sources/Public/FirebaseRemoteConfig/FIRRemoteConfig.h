@@ -171,7 +171,9 @@ NS_SWIFT_NAME(RemoteConfigSettings)
 NS_SWIFT_NAME(RemoteConfigUpdate)
 @interface FIRRemoteConfigUpdate : NSObject
 
-@property(nonatomic, readonly, nonnull) NSSet<NSString *> *updatedParams;
+/// Parameter keys whose values have been updated from the currently activated values. Includes
+/// keys that are added, deleted, and whose value, value source, or metadata has changed.
+@property(nonatomic, readonly, nonnull) NSSet<NSString *> *updatedKeys;
 
 @end
 

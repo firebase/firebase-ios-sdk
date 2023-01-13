@@ -346,7 +346,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
 
   FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
 
-  XCTAssertTrue([update updatedParams].count == 0);
+  XCTAssertTrue([update updatedKeys].count == 0);
 }
 
 - (void)testConfigUpdate_paramAdded_returnsNewKey {
@@ -370,8 +370,8 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
 
   FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
 
-  XCTAssertTrue([update updatedParams].count == 1);
-  XCTAssertTrue([[update updatedParams] containsObject:newParam]);
+  XCTAssertTrue([update updatedKeys].count == 1);
+  XCTAssertTrue([[update updatedKeys] containsObject:newParam]);
 }
 
 - (void)testConfigUpdate_paramValueChanged_returnsUpdatedKey {
@@ -396,8 +396,8 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
 
   FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
 
-  XCTAssertTrue([update updatedParams].count == 1);
-  XCTAssertTrue([[update updatedParams] containsObject:existingParam]);
+  XCTAssertTrue([update updatedKeys].count == 1);
+  XCTAssertTrue([[update updatedKeys] containsObject:existingParam]);
 }
 
 - (void)testConfigUpdate_paramDeleted_returnsDeletedKey {
@@ -422,9 +422,9 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
 
   FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
 
-  XCTAssertTrue([update updatedParams].count == 2);
-  XCTAssertTrue([[update updatedParams] containsObject:existingParam]);  // deleted
-  XCTAssertTrue([[update updatedParams] containsObject:newParam]);       // added
+  XCTAssertTrue([update updatedKeys].count == 2);
+  XCTAssertTrue([[update updatedKeys] containsObject:existingParam]);  // deleted
+  XCTAssertTrue([[update updatedKeys] containsObject:newParam]);       // added
 }
 
 - (void)testConfigUpdate_p13nMetadataUpdated_returnsKey {
@@ -457,8 +457,8 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
 
   FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
 
-  XCTAssertTrue([update updatedParams].count == 1);
-  XCTAssertTrue([[update updatedParams] containsObject:existingParam]);
+  XCTAssertTrue([update updatedKeys].count == 1);
+  XCTAssertTrue([[update updatedKeys] containsObject:existingParam]);
 }
 
 - (void)testConfigUpdate_valueSourceChanged_returnsKey {
@@ -482,8 +482,8 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
 
   FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
 
-  XCTAssertTrue([update updatedParams].count == 1);
-  XCTAssertTrue([[update updatedParams] containsObject:existingParam]);
+  XCTAssertTrue([update updatedKeys].count == 1);
+  XCTAssertTrue([[update updatedKeys] containsObject:existingParam]);
 }
 
 #pragma mark - Test Helpers

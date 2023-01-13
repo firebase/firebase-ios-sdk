@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRRemoteConfigUpdate ()
 
 /// Designated initializer.
-- (instancetype)initWithUpdatedParams:(NSSet<NSString *> *)updatedParams;
+- (instancetype)initWithUpdatedKeys:(NSSet<NSString *> *)updatedKeys;
 @end
 
 @interface FIRRemoteConfig () {

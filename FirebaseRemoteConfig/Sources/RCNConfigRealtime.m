@@ -426,7 +426,7 @@ static NSInteger const gMaxRetries = 7;
                                       if ([strongSelf->_configFetch.templateVersionNumber
                                                   integerValue] >= targetVersion) {
                                         // only notify listeners if there is a change
-                                        if ([update updatedParams].count > 0) {
+                                        if ([update updatedKeys].count > 0) {
                                           for (RCNConfigUpdateCompletion listener in strongSelf
                                                    ->_listeners) {
                                             listener(update, nil);
