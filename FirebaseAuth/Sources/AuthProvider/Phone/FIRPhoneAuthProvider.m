@@ -711,8 +711,8 @@ extern NSString *const FIRPhoneMultiFactorID;
                                      if (error) {
                                        if (completion) {
                                          completion(nil, error);
-                                         return;
                                        }
+                                       return;
                                      }
                                      NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
                                      NSString *clientID = self->_auth.app.options.clientID;
