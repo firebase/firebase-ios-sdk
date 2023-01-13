@@ -13,7 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 import Foundation
 import FirebaseSessions
 
@@ -25,10 +24,13 @@ protocol MockSubscriberSDKProtocol {
   func emptyProtocol()
 }
 
-@objc(FIRMockSubscriberSDK) final class MockSubscriberSDK: NSObject, Library, SessionsSubscriber, MockSubscriberSDKProtocol {
-
+@objc(FIRMockSubscriberSDK) final class MockSubscriberSDK: NSObject, Library, SessionsSubscriber,
+  MockSubscriberSDKProtocol {
   static func addDependency() {
-    FirebaseApp.registerInternalLibrary(MockSubscriberSDK.self, withName: "mock-firebase-sessions-subscriber-sdk")
+    FirebaseApp.registerInternalLibrary(
+      MockSubscriberSDK.self,
+      withName: "mock-firebase-sessions-subscriber-sdk"
+    )
     SessionsDependencies.addDependency(name: SessionsSubscriberName.Performance)
   }
 
@@ -36,7 +38,7 @@ protocol MockSubscriberSDKProtocol {
     super.init()
 
     let sessions = ComponentType<SessionsProvider>.instance(for: SessionsProvider.self,
-                                                           in: app.container)
+                                                            in: app.container)
     sessions.register(subscriber: self)
   }
 
@@ -56,9 +58,7 @@ protocol MockSubscriberSDKProtocol {
 
   // MARK: - SessionsSubscriber Conformance
 
-  func onSessionChanged(_ session: FirebaseSessions.SessionDetails) {
-
-  }
+  func onSessionChanged(_ session: FirebaseSessions.SessionDetails) {}
 
   var isDataCollectionEnabled: Bool {
     return true
