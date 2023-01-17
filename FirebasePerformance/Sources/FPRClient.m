@@ -35,7 +35,11 @@
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
-@interface FPRClient ()
+@protocol FIRPerformanceProvider <NSObject>
+
+@end
+
+@interface FPRClient () <FIRLibrary, FIRPerformanceProvider>
 
 /** The original configuration object used to initialize the client. */
 @property(nonatomic, strong) FPRConfiguration *config;
@@ -48,17 +52,22 @@
 @implementation FPRClient
 
 + (void)load {
-  __weak NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-  __block id listener;
+  [FIRApp registerInternalLibrary:[FPRClient class]
+                         withName:@"fire-perf"
+                      withVersion:[NSString stringWithUTF8String:kFPRSDKVersion]];
+}
 
-  void (^observerBlock)(NSNotification *) = ^(NSNotification *aNotification) {
-    NSDictionary *appInfoDict = aNotification.userInfo;
-    NSNumber *isDefaultApp = appInfoDict[kFIRAppIsDefaultAppKey];
-    if (![isDefaultApp boolValue]) {
-      return;
+#pragma mark - Component registration system
+
++ (nonnull NSArray<FIRComponent *> *)componentsToRegister {
+  
+  FIRComponentCreationBlock creationBlock =
+      ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
+    if (!container.app.isDefaultApp) {
+      return nil;
     }
 
-    NSString *appName = appInfoDict[kFIRAppNameKey];
+    NSString *appName = container.app.name;
     FIRApp *app = [FIRApp appNamed:appName];
     FIROptions *options = app.options;
     NSError *error = nil;
@@ -79,17 +88,18 @@
       FPRLogError(kFPRClientInitialize, @"Failed to initialize the client with error:  %@.", error);
     }
 
-    [notificationCenter removeObserver:listener];
-    listener = nil;
+    *isCacheable = YES;
+        
+    return [self sharedInstance];
   };
-
-  // Register the Perf library for Firebase Core tracking.
-  [FIRApp registerLibrary:@"fire-perf"  // From go/firebase-sdk-platform-info
-              withVersion:[NSString stringWithUTF8String:kFPRSDKVersion]];
-  listener = [notificationCenter addObserverForName:kFIRAppReadyToConfigureSDKNotification
-                                             object:[FIRApp class]
-                                              queue:nil
-                                         usingBlock:observerBlock];
+  
+  FIRComponent *component =
+      [FIRComponent componentWithProtocol:@protocol(FIRPerformanceProvider)
+                      instantiationTiming:FIRInstantiationTimingEagerInDefaultApp
+                             dependencies:@[ ]
+                            creationBlock:creationBlock];
+  
+  return @[ component ];
 }
 
 + (FPRClient *)sharedInstance {
