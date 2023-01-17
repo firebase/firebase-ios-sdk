@@ -763,53 +763,53 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
  */
 - (void)signInAndRetrieveDataWithGameCenterCredential:(FIRGameCenterAuthCredential *)credential
                                              callback:(FIRAuthDataResultCallback)callback {
-    FIRSignInWithGameCenterRequest *request =
-    [[FIRSignInWithGameCenterRequest alloc] initWithPlayerID:credential.playerID
-                                                publicKeyURL:credential.publicKeyURL
-                                                   signature:credential.signature
-                                                        salt:credential.salt
-                                                   timestamp:credential.timestamp
-                                                 displayName:credential.displayName
-                                        requestConfiguration:_requestConfiguration];
-    [FIRAuthBackend
-     signInWithGameCenter:request
-     callback:^(FIRSignInWithGameCenterResponse *_Nullable response,
-                NSError *_Nullable error) {
-        if (error) {
-            if (callback) {
-                callback(nil, error);
-            }
-            return;
-        }
-        
-        [self
-         completeSignInWithAccessToken:response.IDToken
-         accessTokenExpirationDate:response.approximateExpirationDate
-         refreshToken:response.refreshToken
-         anonymous:NO
-         callback:^(FIRUser *_Nullable user,
-                    NSError *_Nullable error) {
-            if (error && callback) {
-                callback(nil, error);
-                return;
-            }
-            FIRAdditionalUserInfo *additionalUserInfo =
-            [[FIRAdditionalUserInfo alloc]
-             initWithProviderID:FIRGameCenterAuthProvider
-                .id
-             profile:nil
-             username:nil
-             isNewUser:response.isNewUser];
-            FIRAuthDataResult *result =
-            user ? [[FIRAuthDataResult alloc]
-                    initWithUser:user
-                    additionalUserInfo:additionalUserInfo]
-            : nil;
-            if (callback) {
-                callback(result, error);
-            }
-        }];
-    }];
+  FIRSignInWithGameCenterRequest *request =
+      [[FIRSignInWithGameCenterRequest alloc] initWithPlayerID:credential.playerID
+                                                  publicKeyURL:credential.publicKeyURL
+                                                     signature:credential.signature
+                                                          salt:credential.salt
+                                                     timestamp:credential.timestamp
+                                                   displayName:credential.displayName
+                                          requestConfiguration:_requestConfiguration];
+  [FIRAuthBackend
+      signInWithGameCenter:request
+                  callback:^(FIRSignInWithGameCenterResponse *_Nullable response,
+                             NSError *_Nullable error) {
+                    if (error) {
+                      if (callback) {
+                        callback(nil, error);
+                      }
+                      return;
+                    }
+
+                    [self
+                        completeSignInWithAccessToken:response.IDToken
+                            accessTokenExpirationDate:response.approximateExpirationDate
+                                         refreshToken:response.refreshToken
+                                            anonymous:NO
+                                             callback:^(FIRUser *_Nullable user,
+                                                        NSError *_Nullable error) {
+                                               if (error && callback) {
+                                                 callback(nil, error);
+                                                 return;
+                                               }
+                                               FIRAdditionalUserInfo *additionalUserInfo =
+                                                   [[FIRAdditionalUserInfo alloc]
+                                                       initWithProviderID:FIRGameCenterAuthProvider
+                                                                              .id
+                                                                  profile:nil
+                                                                 username:nil
+                                                                isNewUser:response.isNewUser];
+                                               FIRAuthDataResult *result =
+                                                   user ? [[FIRAuthDataResult alloc]
+                                                                    initWithUser:user
+                                                              additionalUserInfo:additionalUserInfo]
+                                                        : nil;
+                                               if (callback) {
+                                                 callback(result, error);
+                                               }
+                                             }];
+                  }];
 }
 
 /** @fn internalSignInAndRetrieveDataWithEmail:link:completion:
