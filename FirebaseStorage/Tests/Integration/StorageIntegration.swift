@@ -281,7 +281,7 @@ class StorageResultTests: StorageIntegrationCommon {
     try data.write(to: fileURL, options: .atomicWrite)
 
     // Limit the upload chunk size
-    storage.uploadChunkSize = 256_000
+    storage.uploadChunkSizeBytes = 256_000
 
     let task = ref.putFile(from: fileURL) { result in
       XCTAssertGreaterThanOrEqual(progressCount, 4)
@@ -308,7 +308,7 @@ class StorageResultTests: StorageIntegrationCommon {
       uploadedBytes = progress.completedUnitCount
     }
     waitForExpectations()
-    storage.uploadChunkSize = Int64.max
+    storage.uploadChunkSizeBytes = Int64.max
   }
 
   func testAttemptToUploadDirectoryShouldFail() throws {
