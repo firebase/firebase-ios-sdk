@@ -20,12 +20,8 @@
 #import "FIRAuth.h"
 #import "FIRAuthDataResult.h"
 #import "FIRMultiFactor.h"
-#import "FIRMultiFactorAssertion.h"
-#import "FIRMultiFactorInfo.h"
 #import "FIRMultiFactorResolver.h"
-#import "FIRMultiFactorSession.h"
 #import "FIRUser.h"
-#import "FIRUserInfo.h"
 #import "FIRUserMetadata.h"
 
 // Temporary publics
@@ -33,9 +29,7 @@
 #import "FIRAuthAPNSTokenType.h"
 #import "FIRAuthSettings.h"
 #import "FIRAuthUIDelegate.h"
-#import "FIRPhoneMultiFactorAssertion.h"
 #import "FIRPhoneMultiFactorGenerator.h"
-#import "FIRPhoneMultiFactorInfo.h"
 
 #import "FIRAuthNotificationManager.h"
 #import "FIRAuthWebUtils.h"

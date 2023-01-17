@@ -19,7 +19,6 @@
 #import <XCTest/XCTest.h>
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthTokenResult.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRUserInfo.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRUserMetadata.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
