@@ -26,7 +26,7 @@ private let kGetProjectConfigEndPoint = "getProjectConfig"
     }
 
     public func unencodedHTTPRequestBody() throws -> Any {
-        // XXX TODO
+        // XXX TODO: Probably nicer to throw, but what should we throw?
         fatalError()
     }
 
