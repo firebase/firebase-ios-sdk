@@ -35,10 +35,6 @@
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
-@protocol FIRPerformanceProvider <NSObject>
-
-@end
-
 @interface FPRClient () <FIRLibrary, FIRPerformanceProvider>
 
 /** The original configuration object used to initialize the client. */
