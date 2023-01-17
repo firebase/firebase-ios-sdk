@@ -19,7 +19,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthAppCredential.h"
 #import "FirebaseAuth/Sources/Storage/FIRAuthKeychainServices.h"
 
 NS_ASSUME_NONNULL_BEGIN

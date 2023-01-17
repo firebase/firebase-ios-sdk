@@ -16,12 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRActionCodeSettings.h"
 #import "FIRAdditionalUserInfo.h"
 #import "FIRAuth.h"
 #import "FIRAuthDataResult.h"
-#import "FIRAuthErrors.h"
-#import "FIRAuthTokenResult.h"
 #import "FIRMultiFactor.h"
 #import "FIRMultiFactorAssertion.h"
 #import "FIRMultiFactorInfo.h"
@@ -40,17 +37,7 @@
 #import "FIRPhoneMultiFactorGenerator.h"
 #import "FIRPhoneMultiFactorInfo.h"
 
-#import "FIRAuthRPCRequest.h"
-#import "FIRAuthRequestConfiguration.h"
-#import "FIRVerifyAssertionRequest.h"
-#import "FIRVerifyAssertionResponse.h"
-
-#import "FIRAuthAppCredential.h"
-#import "FIRAuthErrorUtils.h"
-#import "FIRAuthInternalErrors.h"
 #import "FIRAuthNotificationManager.h"
 #import "FIRAuthWebUtils.h"
-#import "FIRSendVerificationCodeRequest.h"
-#import "FIRAuthRPCResponse.h"
 #import "FIRAuthBackend.h"
 

@@ -16,11 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuthRPCResponse.h"
-#import "FIRAuthRPCRequest.h"
-#import "FIRSendVerificationCodeRequest.h"
-//#import "FirebaseAuth-Swift.h"
-
 @protocol FIRAuthRPCRequest;
 @protocol FIRAuthRPCResponse;
 @class FIRAuthRequestConfiguration;

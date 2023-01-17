@@ -21,7 +21,6 @@
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Storage/FIRAuthUserDefaults.h"
 #import "FirebaseAuth-Swift.h"
 
