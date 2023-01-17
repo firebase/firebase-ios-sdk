@@ -60,7 +60,6 @@
 #pragma mark - Component registration system
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
-  
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
     if (!container.app.isDefaultApp) {
@@ -89,16 +88,16 @@
     }
 
     *isCacheable = YES;
-        
+
     return [self sharedInstance];
   };
-  
+
   FIRComponent *component =
       [FIRComponent componentWithProtocol:@protocol(FIRPerformanceProvider)
                       instantiationTiming:FIRInstantiationTimingEagerInDefaultApp
-                             dependencies:@[ ]
+                             dependencies:@[]
                             creationBlock:creationBlock];
-  
+
   return @[ component ];
 }
 
