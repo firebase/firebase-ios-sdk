@@ -1,5 +1,5 @@
-# Unreleased
-- [fixed] Fix an issue that stops some performance optimization being applied.
+# 10.4.0
+- [fixed] Fix an issue that stops some performance optimization being applied (#10579).
 
 # 10.3.0
 - [feature] Add MultiDb support.

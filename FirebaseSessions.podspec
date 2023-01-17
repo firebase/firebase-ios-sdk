@@ -45,6 +45,7 @@ Pod::Spec.new do |s|
   s.dependency 'GoogleDataTransport', '~> 9.2'
   s.dependency 'GoogleUtilities/Environment', '~> 7.10'
   s.dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
+  s.dependency 'PromisesSwift', '~> 2.1'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',

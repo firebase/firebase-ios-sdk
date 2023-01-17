@@ -468,6 +468,11 @@ static NSString *const kSecondFactorLimitExceededErrorMessage = @"SECOND_FACTOR_
  */
 static NSString *const kUnsupportedFirstFactorErrorMessage = @"UNSUPPORTED_FIRST_FACTOR";
 
+/** @var kBlockingCloudFunctionErrorResponse
+ @brief This is the error message blocking Cloud Functions.
+ */
+static NSString *const kBlockingCloudFunctionErrorResponse = @"BLOCKING_FUNCTION_ERROR_RESPONSE";
+
 /** @var kEmailChangeNeedsVerificationErrorMessage
  @brief This is the error message the server will respond with if changing an unverified email.
  */
@@ -1445,6 +1450,11 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
   if ([shortErrorMessage isEqualToString:kUnsupportedTenantOperation]) {
     return [FIRAuthErrorUtils unsupportedTenantOperationError];
+  }
+
+  if ([shortErrorMessage isEqualToString:kBlockingCloudFunctionErrorResponse]) {
+    return
+        [FIRAuthErrorUtils blockingCloudFunctionServerResponseWithMessage:serverDetailErrorMessage];
   }
 
   // In this case we handle an error that might be specified in the underlying errors dictionary,

@@ -477,6 +477,11 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
 
   FIRAuthInternalErrorCodeMalformedJWT = FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMalformedJWT,
 
+  /** Indicates that an authentication blocking cloud function returned an error.
+   */
+  FIRAuthInternalErrorBlockingCloudFunctionError = FIRAuthPublicErrorCodeFlag |
+                                                   FIRAuthErrorCodeBlockingCloudFunctionError,
+
   /** @var FIRAuthInternalErrorCodeRPCRequestEncodingError
       @brief Indicates an error encoding the RPC request.
       @remarks This is typically due to some sort of unexpected input value.

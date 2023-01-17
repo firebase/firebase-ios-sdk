@@ -13,7 +13,6 @@
 		D6E7BFE0293AAD81007A9699 /* SampleStandaloneWatchApp Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = D6E7BFDF293AAD81007A9699 /* SampleStandaloneWatchApp Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D6E7BFE5293AAD81007A9699 /* SampleStandaloneWatchAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6E7BFE4293AAD81007A9699 /* SampleStandaloneWatchAppApp.swift */; };
 		D6E7BFE7293AAD81007A9699 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6E7BFE6293AAD81007A9699 /* ContentView.swift */; };
-		D6E7BFF8293AB0EF007A9699 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = D6E7BFF7293AB0EF007A9699 /* FirebaseMessaging */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,7 +57,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D6E7BFF8293AB0EF007A9699 /* FirebaseMessaging in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -139,7 +137,6 @@
 			);
 			name = "SampleStandaloneWatchApp Watch App";
 			packageProductDependencies = (
-				D6E7BFF7293AB0EF007A9699 /* FirebaseMessaging */,
 			);
 			productName = "SampleStandaloneWatchApp Watch App";
 			productReference = D6E7BFDF293AAD81007A9699 /* SampleStandaloneWatchApp Watch App.app */;
@@ -173,7 +170,6 @@
 			);
 			mainGroup = D6E7BFD2293AAD81007A9699;
 			packageReferences = (
-				D6E7BFF6293AB0EF007A9699 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			productRefGroup = D6E7BFDA293AAD81007A9699 /* Products */;
 			projectDirPath = "";
@@ -480,25 +476,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		D6E7BFF6293AB0EF007A9699 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
-			requirement = {
-				branch = master;
-				kind = branch;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		D6E7BFF7293AB0EF007A9699 /* FirebaseMessaging */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D6E7BFF6293AB0EF007A9699 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseMessaging;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D6E7BFD3293AAD81007A9699 /* Project object */;
 }

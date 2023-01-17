@@ -19,19 +19,13 @@ import Foundation
 /// involved with sending a Session Start event.
 ///
 class SessionCoordinator {
-  let identifiers: IdentifierProvider
   let installations: InstallationsProtocol
   let fireLogger: EventGDTLoggerProtocol
-  let sampler: SessionSamplerProtocol
 
-  init(identifiers: IdentifierProvider,
-       installations: InstallationsProtocol,
-       fireLogger: EventGDTLoggerProtocol,
-       sampler: SessionSamplerProtocol) {
-    self.identifiers = identifiers
+  init(installations: InstallationsProtocol,
+       fireLogger: EventGDTLoggerProtocol) {
     self.installations = installations
     self.fireLogger = fireLogger
-    self.sampler = sampler
   }
 
   // Begins the process of logging a SessionStartEvent to FireLog, while taking into account Data Collection, Sampling, and fetching Settings
@@ -41,38 +35,30 @@ class SessionCoordinator {
     /// 1. Check if the session can be sent. If yes, move to 2. Else, drop the event.
     /// 2. Fetch the installations Id. If successful, move to 3. Else, drop sending the event.
     /// 3. Log the event. If successful, all is good. Else, log the message with error.
-    if sampler.shouldSendEventForSession(sessionId: identifiers.sessionID) {
-      installations.installationID { result in
-        switch result {
-        case let .success(fiid):
-          event.setInstallationID(installationId: fiid)
-          self.fireLogger.logEvent(event: event) { logResult in
-            switch logResult {
-            case .success():
-              Logger.logInfo("Successfully logged Session Start event to GoogleDataTransport")
-              callback(.success(()))
-            case let .failure(error):
-              Logger
-                .logError(
-                  "Error logging Session Start event to GoogleDataTransport: \(error)."
-                )
-              callback(.failure(error))
-            }
+    installations.installationID { result in
+      switch result {
+      case let .success(fiid):
+        event.setInstallationID(installationId: fiid)
+        self.fireLogger.logEvent(event: event) { logResult in
+          switch logResult {
+          case .success():
+            Logger.logInfo("Successfully logged Session Start event to GoogleDataTransport")
+            callback(.success(()))
+          case let .failure(error):
+            Logger
+              .logError(
+                "Error logging Session Start event to GoogleDataTransport: \(error)."
+              )
+            callback(.failure(error))
           }
-        case let .failure(error):
-          Logger
-            .logError(
-              "Error getting Firebase Installation ID: \(error). Skip sending event."
-            )
-          callback(.failure(FirebaseSessionsError.SessionInstallationsError))
         }
+      case let .failure(error):
+        Logger
+          .logError(
+            "Error getting Firebase Installation ID: \(error). Skip sending event."
+          )
+        callback(.failure(FirebaseSessionsError.SessionInstallationsError))
       }
-    } else {
-      Logger
-        .logInfo(
-          "Session event dropped due to sampling."
-        )
-      callback(.failure(FirebaseSessionsError.SessionSamplingError))
     }
   }
 }

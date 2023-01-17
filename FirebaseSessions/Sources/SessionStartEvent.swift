@@ -35,15 +35,15 @@ import Foundation
 class SessionStartEvent: NSObject, GDTCOREventDataObject {
   var proto: firebase_appquality_sessions_SessionEvent
 
-  init(identifiers: IdentifierProvider, appInfo: ApplicationInfoProtocol,
+  init(sessionInfo: SessionInfo, appInfo: ApplicationInfoProtocol,
        time: TimeProvider = Time()) {
     proto = firebase_appquality_sessions_SessionEvent()
 
     super.init()
 
     proto.event_type = firebase_appquality_sessions_EventType_SESSION_START
-    proto.session_data.session_id = makeProtoString(identifiers.sessionID)
-    proto.session_data.previous_session_id = makeProtoStringOrNil(identifiers.previousSessionID)
+    proto.session_data.session_id = makeProtoString(sessionInfo.sessionId)
+    proto.session_data.previous_session_id = makeProtoStringOrNil(sessionInfo.previousSessionId)
     proto.session_data.event_timestamp_us = time.timestampUS
 
     proto.application_info.app_id = makeProtoString(appInfo.appID)
@@ -65,9 +65,9 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     proto.application_info.apple_app_info.mcc_mnc = makeProtoString(appInfo.mccMNC)
 
     proto.session_data.data_collection_status
-      .crashlytics = firebase_appquality_sessions_DataCollectionState_COLLECTION_UNKNOWN
+      .crashlytics = firebase_appquality_sessions_DataCollectionState_COLLECTION_SDK_NOT_INSTALLED
     proto.session_data.data_collection_status
-      .performance = firebase_appquality_sessions_DataCollectionState_COLLECTION_UNKNOWN
+      .performance = firebase_appquality_sessions_DataCollectionState_COLLECTION_SDK_NOT_INSTALLED
   }
 
   func setInstallationID(installationId: String) {
@@ -76,6 +76,19 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
 
   func setSamplingRate(samplingRate: Double) {
     proto.session_data.data_collection_status.session_sampling_rate = samplingRate
+  }
+
+  func set(subscriber: SessionsSubscriberName, isDataCollectionEnabled: Bool) {
+    let dataCollectionState = makeDataCollectionProto(isDataCollectionEnabled)
+    switch subscriber {
+    case .Crashlytics:
+      proto.session_data.data_collection_status.crashlytics = dataCollectionState
+    case .Performance:
+      proto.session_data.data_collection_status.performance = dataCollectionState
+    default:
+      Logger
+        .logWarning("Attempted to set Data Collection status for unknown Subscriber: \(subscriber)")
+    }
   }
 
   // MARK: - GDTCOREventDataObject
@@ -95,6 +108,15 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
   }
 
   // MARK: - Data Conversion
+
+  func makeDataCollectionProto(_ isDataCollectionEnabled: Bool)
+    -> firebase_appquality_sessions_DataCollectionState {
+    if isDataCollectionEnabled {
+      return firebase_appquality_sessions_DataCollectionState_COLLECTION_ENABLED
+    } else {
+      return firebase_appquality_sessions_DataCollectionState_COLLECTION_DISABLED
+    }
+  }
 
   private func makeProtoStringOrNil(_ string: String?) -> UnsafeMutablePointer<pb_bytes_array_t>? {
     guard let string = string else {

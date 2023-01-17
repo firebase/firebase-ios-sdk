@@ -18,12 +18,10 @@ import XCTest
 @testable import FirebaseSessions
 
 class SessionCoordinatorTests: XCTestCase {
-  var identifiers = MockIdentifierProvider()
   var installations = MockInstallationsProtocol()
   var time = MockTimeProvider()
   var fireLogger = MockGDTLogger()
   var appInfo = MockApplicationInfo()
-  var sampler = SessionSampler()
 
   var coordinator: SessionCoordinator!
 
@@ -31,18 +29,18 @@ class SessionCoordinatorTests: XCTestCase {
     super.setUp()
 
     coordinator = SessionCoordinator(
-      identifiers: identifiers,
       installations: installations,
-      fireLogger: fireLogger,
-      sampler: sampler
+      fireLogger: fireLogger
     )
-    sampler.sessionSamplingRate = 1.0
   }
 
   func test_attemptLoggingSessionStart_logsToGDT() throws {
-    identifiers.mockAllValidIDs()
-
-    let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
+    let sessionInfo = SessionInfo(
+      sessionId: "testSessionId",
+      previousSessionId: "testPreviousSessionId",
+      dispatchEvents: true
+    )
+    let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: appInfo, time: time)
     var resultSuccess = false
     coordinator.attemptLoggingSessionStart(event: event) { result in
       switch result {
@@ -65,10 +63,14 @@ class SessionCoordinatorTests: XCTestCase {
   }
 
   func test_attemptLoggingSessionStart_handlesGDTError() throws {
-    identifiers.mockAllValidIDs()
     fireLogger.result = .failure(NSError(domain: "TestError", code: -1))
 
-    let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
+    let sessionInfo = SessionInfo(
+      sessionId: "testSessionId",
+      previousSessionId: "testPreviousSessionId",
+      dispatchEvents: true
+    )
+    let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: appInfo, time: time)
 
     // Start success so it must be set to false
     var resultSuccess = true
@@ -93,12 +95,17 @@ class SessionCoordinatorTests: XCTestCase {
     XCTAssertFalse(resultSuccess)
   }
 
-  func test_eventNotDropped_handlesAllEventsAllowed() throws {
-    identifiers.mockAllValidIDs()
+  func test_attemptLoggingSessionStart_handlesInstallationsError() throws {
+    installations.result = .failure(NSError(domain: "TestInstallationsError", code: -1))
 
-    let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
+    let sessionInfo = SessionInfo(
+      sessionId: "testSessionId",
+      previousSessionId: "testPreviousSessionId",
+      dispatchEvents: true
+    )
+    let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: appInfo, time: time)
 
-    sampler.sessionSamplingRate = 1.0
+    // Start success so it must be set to false
     var resultSuccess = true
     coordinator.attemptLoggingSessionStart(event: event) { result in
       switch result {
@@ -109,26 +116,8 @@ class SessionCoordinatorTests: XCTestCase {
       }
     }
 
-    XCTAssertTrue(resultSuccess)
-  }
-
-  func test_eventDropped_handlesZeroSamplingRate() throws {
-    identifiers.mockAllValidIDs()
-
-    let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
-
-    sampler.sessionSamplingRate = 0.0
-
-    var resultSuccess = true
-    coordinator.attemptLoggingSessionStart(event: event) { result in
-      switch result {
-      case .success(()):
-        resultSuccess = true
-      case .failure:
-        resultSuccess = false
-      }
-    }
-
+    // We should have logged the event, but with a failed result
+    XCTAssertNil(fireLogger.loggedEvent)
     XCTAssertFalse(resultSuccess)
   }
 }

@@ -13,7 +13,8 @@
 // limitations under the License.
 
 import SwiftUI
-import Firebase
+import FirebaseCore
+import FirebaseMessaging
 
 @main
 struct SampleStandaloneWatchApp_Watch_AppApp: App {
