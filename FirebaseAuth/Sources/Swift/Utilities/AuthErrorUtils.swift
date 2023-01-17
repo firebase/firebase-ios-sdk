@@ -287,7 +287,7 @@ private let kFIRAuthErrorMessageMalformedJWT =
     }
 
     @objc public static func networkError(underlyingError: Error) -> Error {
-        error(code: .internal(.networkError), underlyingError: underlyingError)
+        error(code: .networkError, underlyingError: underlyingError)
     }
 
     @objc public static func emailAlreadyInUseError(email: String?) -> Error {
