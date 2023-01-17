@@ -28,7 +28,7 @@ public protocol SessionsSubscriber {
 /// whenever the Session changes
 @objc(FIRSessionDetails)
 public class SessionDetails: NSObject {
-  var sessionId: String?
+  @objc public var sessionId: String?
 
   public init(sessionId: String?) {
     self.sessionId = sessionId
