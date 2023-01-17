@@ -19,10 +19,11 @@ import Foundation
         if let data = dictionary["phoneSessionInfo"] as? [String: Any] {
             enrollmentResponse = AuthProtoStartMFAPhoneResponseInfo(dictionary: data)
         } else {
-            fatalError() // XXX TODO: throw something. original code does not strictly follow
+            fatalError()
+            // XXX TODO: throw something. original code does not strictly follow
             // obj-c error conventions. returning 'false' should be accompanied by an error, but
             // in the code there was none. importing this into swift would throw a built-in 'error missing' error
-//            throw xxx
+            // throw xxx
         }
     }
 

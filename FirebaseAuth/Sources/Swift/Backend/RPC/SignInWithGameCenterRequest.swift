@@ -93,13 +93,3 @@ private let kSignInWithGameCenterEndPoint = "signInWithGameCenter"
         return postBody
     }
 }
-
-// XXX TODO: Borrowed from HeartbeatsPayload. Figure out where to place this
-extension Data {
-    func base64URLEncodedString(options: Data.Base64EncodingOptions = []) -> String {
-        base64EncodedString()
-            .replacingOccurrences(of: "/", with: "_")
-            .replacingOccurrences(of: "+", with: "-")
-            .replacingOccurrences(of: "=", with: "")
-    }
-}
