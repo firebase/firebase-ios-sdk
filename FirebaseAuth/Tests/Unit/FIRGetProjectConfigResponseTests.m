@@ -19,9 +19,9 @@
 @import FirebaseAuth;
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigResponse.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthInternalErrors.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigRequest.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigResponse.h"
+//#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthInternalErrors.h"
 #import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestAPIKey
@@ -103,7 +103,7 @@ static NSString *const kMissingAPIKeyErrorMessage = @"MISSING_API_KEY";
 
   XCTAssert(callbackInvoked);
   XCTAssertNotNil(RPCError);
-  XCTAssertEqualObjects(RPCError.domain, FIRAuthErrorDomain);
+  XCTAssertEqualObjects(RPCError.domain, [FIRAuthErrors FIRAuthErrorDomain]);
   XCTAssertEqual(RPCError.code, FIRAuthErrorCodeInternalError);
   XCTAssertNotNil(RPCError.userInfo[NSUnderlyingErrorKey]);
 }

@@ -19,7 +19,7 @@
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRMultiFactorInfo.h"
 
-#import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProtoMFAEnrollment.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProtoMFAEnrollment.h"
 
 static NSString *kUIDCodingKey = @"uid";
 

@@ -34,27 +34,27 @@
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthOperationType.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRResetPasswordRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRResetPasswordResponse.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIRequest.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIResponse.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInRequest.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInResponse.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeRequest.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeResponse.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRResetPasswordRequest.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRResetPasswordResponse.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRSendVerificationCodeResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRSetAccountInfoRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRSetAccountInfoResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRSignInWithGameCenterRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRSignInWithGameCenterResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberResponse.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRSetAccountInfoRequest.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRSetAccountInfoResponse.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRSignInWithGameCenterRequest.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRSignInWithGameCenterResponse.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserRequest.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserResponse.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenRequest.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenResponse.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordRequest.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordResponse.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberRequest.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberResponse.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthRequestConfiguration.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthWebUtils.h"
@@ -789,53 +789,53 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
  */
 - (void)signInAndRetrieveDataWithGameCenterCredential:(FIRGameCenterAuthCredential *)credential
                                              callback:(FIRAuthDataResultCallback)callback {
-  FIRSignInWithGameCenterRequest *request =
-      [[FIRSignInWithGameCenterRequest alloc] initWithPlayerID:credential.playerID
-                                                  publicKeyURL:credential.publicKeyURL
-                                                     signature:credential.signature
-                                                          salt:credential.salt
-                                                     timestamp:credential.timestamp
-                                                   displayName:credential.displayName
-                                          requestConfiguration:_requestConfiguration];
-  [FIRAuthBackend
-      signInWithGameCenter:request
-                  callback:^(FIRSignInWithGameCenterResponse *_Nullable response,
-                             NSError *_Nullable error) {
-                    if (error) {
-                      if (callback) {
-                        callback(nil, error);
-                      }
-                      return;
-                    }
-
-                    [self
-                        completeSignInWithAccessToken:response.IDToken
-                            accessTokenExpirationDate:response.approximateExpirationDate
-                                         refreshToken:response.refreshToken
-                                            anonymous:NO
-                                             callback:^(FIRUser *_Nullable user,
-                                                        NSError *_Nullable error) {
-                                               if (error && callback) {
-                                                 callback(nil, error);
-                                                 return;
-                                               }
-                                               FIRAdditionalUserInfo *additionalUserInfo =
-                                                   [[FIRAdditionalUserInfo alloc]
-                                                       initWithProviderID:FIRGameCenterAuthProvider
-                                                                              .id
-                                                                  profile:nil
-                                                                 username:nil
-                                                                isNewUser:response.isNewUser];
-                                               FIRAuthDataResult *result =
-                                                   user ? [[FIRAuthDataResult alloc]
-                                                                    initWithUser:user
-                                                              additionalUserInfo:additionalUserInfo]
-                                                        : nil;
-                                               if (callback) {
-                                                 callback(result, error);
-                                               }
-                                             }];
-                  }];
+    FIRSignInWithGameCenterRequest *request =
+    [[FIRSignInWithGameCenterRequest alloc] initWithPlayerID:credential.playerID
+                                                publicKeyURL:credential.publicKeyURL
+                                                   signature:credential.signature
+                                                        salt:credential.salt
+                                                   timestamp:credential.timestamp
+                                                 displayName:credential.displayName
+                                        requestConfiguration:_requestConfiguration];
+    [FIRAuthBackend
+     signInWithGameCenter:request
+     callback:^(FIRSignInWithGameCenterResponse *_Nullable response,
+                NSError *_Nullable error) {
+        if (error) {
+            if (callback) {
+                callback(nil, error);
+            }
+            return;
+        }
+        
+        [self
+         completeSignInWithAccessToken:response.IDToken
+         accessTokenExpirationDate:response.approximateExpirationDate
+         refreshToken:response.refreshToken
+         anonymous:NO
+         callback:^(FIRUser *_Nullable user,
+                    NSError *_Nullable error) {
+            if (error && callback) {
+                callback(nil, error);
+                return;
+            }
+            FIRAdditionalUserInfo *additionalUserInfo =
+            [[FIRAdditionalUserInfo alloc]
+             initWithProviderID:FIRGameCenterAuthProvider
+                .id
+             profile:nil
+             username:nil
+             isNewUser:response.isNewUser];
+            FIRAuthDataResult *result =
+            user ? [[FIRAuthDataResult alloc]
+                    initWithUser:user
+                    additionalUserInfo:additionalUserInfo]
+            : nil;
+            if (callback) {
+                callback(result, error);
+            }
+        }];
+    }];
 }
 
 /** @fn internalSignInAndRetrieveDataWithEmail:link:completion:

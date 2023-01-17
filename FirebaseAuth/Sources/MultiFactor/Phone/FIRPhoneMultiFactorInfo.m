@@ -20,7 +20,7 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRMultiFactorInfo.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneMultiFactorInfo.h"
 
-#import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProtoMFAEnrollment.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProtoMFAEnrollment.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorInfo+Internal.h"
 
 static NSString *kPhoneNumberCodingKey = @"phoneNumber";

@@ -20,6 +20,7 @@
 #import "FIRAuthAPNSTokenType.h"
 #import "FIRAuthErrors.h"
 #import "FIRAuthRequestConfiguration.h"
+//#import "FirebaseAuth-Swift.h"
 
 @class FIRActionCodeSettings;
 @class FIRApp;
@@ -27,6 +28,7 @@
 @class FIRAuthCredential;
 @class FIRAuthDataResult;
 @class FIRAuthSettings;
+@class FIRAuthRequestConfiguration;
 @class FIRUser;
 @class FIRAuthNotificationManager;
 @protocol FIRAuthUIDelegate;

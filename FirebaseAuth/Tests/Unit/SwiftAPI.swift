@@ -31,7 +31,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
   // Each function corresponds with a public header.
   func FIRActionCodeSettings_h() {
     let codeSettings = FirebaseAuth.ActionCodeSettings()
-    codeSettings.setIOSBundleID("abc")
+    codeSettings.iOSBundleID = "abc"
     codeSettings.setAndroidPackageName("name", installIfNotAvailable: true, minimumVersion: "10.0")
   }
 

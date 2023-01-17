@@ -19,8 +19,8 @@
 @import FirebaseAuth;
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRDeleteAccountRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRDeleteAccountResponse.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRDeleteAccountRequest.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRDeleteAccountResponse.h"
 #import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestAPIKey
@@ -87,7 +87,7 @@ static NSString *const kExpectedAPIURL =
   FIRAuthRequestConfiguration *requestConfiguration =
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey appID:kTestFirebaseAppID];
   FIRDeleteAccountRequest *request =
-      [[FIRDeleteAccountRequest alloc] initWitLocalID:kLocalID
+      [[FIRDeleteAccountRequest alloc] initWithLocalID:kLocalID
                                           accessToken:kAccessToken
                                  requestConfiguration:requestConfiguration];
   __block BOOL callbackInvoked;

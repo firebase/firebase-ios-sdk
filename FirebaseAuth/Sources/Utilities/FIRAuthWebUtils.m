@@ -17,10 +17,11 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthWebUtils.h"
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigResponse.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigRequest.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigResponse.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthRequestConfiguration.h"
+#import "FirebaseAuth-Swift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

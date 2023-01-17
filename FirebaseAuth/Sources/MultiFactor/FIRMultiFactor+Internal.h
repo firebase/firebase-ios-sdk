@@ -19,7 +19,7 @@
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRMultiFactor.h"
 
-#import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProtoMFAEnrollment.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProtoMFAEnrollment.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

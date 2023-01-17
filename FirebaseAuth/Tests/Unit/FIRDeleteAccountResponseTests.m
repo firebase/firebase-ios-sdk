@@ -19,8 +19,8 @@
 @import FirebaseAuth;
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRDeleteAccountRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRDeleteAccountResponse.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRDeleteAccountRequest.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRDeleteAccountResponse.h"
 #import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestAPIKey
@@ -99,7 +99,7 @@ static NSString *const kCredentialTooOldErrorMessage = @"CREDENTIAL_TOO_OLD_LOGI
  */
 - (void)testUserDisabledError {
   FIRDeleteAccountRequest *request =
-      [[FIRDeleteAccountRequest alloc] initWitLocalID:kLocalID
+      [[FIRDeleteAccountRequest alloc] initWithLocalID:kLocalID
                                           accessToken:kAccessToken
                                  requestConfiguration:_requestConfiguration];
 
@@ -123,7 +123,7 @@ static NSString *const kCredentialTooOldErrorMessage = @"CREDENTIAL_TOO_OLD_LOGI
  */
 - (void)testinvalidUserTokenError {
   FIRDeleteAccountRequest *request =
-      [[FIRDeleteAccountRequest alloc] initWitLocalID:kLocalID
+      [[FIRDeleteAccountRequest alloc] initWithLocalID:kLocalID
                                           accessToken:kAccessToken
                                  requestConfiguration:_requestConfiguration];
 
@@ -147,7 +147,7 @@ static NSString *const kCredentialTooOldErrorMessage = @"CREDENTIAL_TOO_OLD_LOGI
  */
 - (void)testrequiredRecentLoginError {
   FIRDeleteAccountRequest *request =
-      [[FIRDeleteAccountRequest alloc] initWitLocalID:kLocalID
+      [[FIRDeleteAccountRequest alloc] initWithLocalID:kLocalID
                                           accessToken:kAccessToken
                                  requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
@@ -170,7 +170,7 @@ static NSString *const kCredentialTooOldErrorMessage = @"CREDENTIAL_TOO_OLD_LOGI
  */
 - (void)testSuccessfulDeleteAccountResponse {
   FIRDeleteAccountRequest *request =
-      [[FIRDeleteAccountRequest alloc] initWitLocalID:kLocalID
+      [[FIRDeleteAccountRequest alloc] initWithLocalID:kLocalID
                                           accessToken:kAccessToken
                                  requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;

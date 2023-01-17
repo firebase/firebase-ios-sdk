@@ -19,8 +19,8 @@
 @import FirebaseAuth;
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordResponse.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordRequest.h"
+//#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordResponse.h"
 #import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestPassword
