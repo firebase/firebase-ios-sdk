@@ -1,6 +1,6 @@
 # 10.5.0
 - [fixed] Use team player ID, game player ID and fetchItems for signature verification. (#10441)
-- 
+
 # 10.4.0
 - [fixed] Fix secure coding bugs in MFA. (#10632)
 - [fixed] Added handling of error returned from a blocking cloud function. (#10628)
