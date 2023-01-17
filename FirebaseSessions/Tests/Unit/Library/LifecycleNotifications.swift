@@ -15,6 +15,15 @@
 
 import XCTest
 
+#if os(iOS) || os(tvOS)
+  import UIKit
+#elseif os(macOS)
+  import Cocoa
+  import AppKit
+#elseif os(watchOS)
+  import WatchKit
+#endif
+
 extension XCTestCase {
   func postBackgroundedNotification() {
     let notificationCenter = NotificationCenter.default

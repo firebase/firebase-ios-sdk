@@ -15,15 +15,6 @@
 import XCTest
 @testable import FirebaseSessions
 
-#if os(iOS) || os(tvOS)
-  import UIKit
-#elseif os(macOS)
-  import Cocoa
-  import AppKit
-#elseif os(watchOS)
-  import WatchKit
-#endif
-
 class InitiatorTests: XCTestCase {
   // 2021-11-01 @ 00:00:00 (EST)
   let date = Date(timeIntervalSince1970: 1_635_739_200)
