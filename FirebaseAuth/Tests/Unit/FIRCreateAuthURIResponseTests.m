@@ -19,8 +19,6 @@
 @import FirebaseAuth;
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
-//#import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIRequest.h"
-//#import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIResponse.h"
 #import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestAPIKey

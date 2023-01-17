@@ -16,8 +16,6 @@
 
 #import <XCTest/XCTest.h>
 
-//#import "FirebaseAuth/Sources/Backend/RPC/FIRSecureTokenRequest.h"
-
 @import FirebaseAuth;
 
 /** @var kAPIKey
