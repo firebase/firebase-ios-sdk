@@ -15,6 +15,8 @@
 
 import XCTest
 
+import Dispatch
+
 #if os(iOS) || os(tvOS)
   import UIKit
 #elseif os(macOS)
@@ -26,34 +28,40 @@ import XCTest
 
 extension XCTestCase {
   func postBackgroundedNotification() {
-    let notificationCenter = NotificationCenter.default
-    #if os(iOS) || os(tvOS)
-      notificationCenter.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
-    #elseif os(macOS)
-      notificationCenter.post(name: NSApplication.didResignActiveNotification, object: nil)
-    #elseif os(watchOS)
-      if #available(watchOSApplicationExtension 7.0, *) {
-        notificationCenter.post(
-          name: WKExtension.applicationDidEnterBackgroundNotification,
-          object: nil
-        )
-      }
-    #endif
+    // On Catalyst, the notifications can only be called on a the main thread
+    DispatchQueue.main.sync {
+      let notificationCenter = NotificationCenter.default
+      #if os(iOS) || os(tvOS)
+        notificationCenter.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+      #elseif os(macOS)
+        notificationCenter.post(name: NSApplication.didResignActiveNotification, object: nil)
+      #elseif os(watchOS)
+        if #available(watchOSApplicationExtension 7.0, *) {
+          notificationCenter.post(
+            name: WKExtension.applicationDidEnterBackgroundNotification,
+            object: nil
+          )
+        }
+      #endif
+    }
   }
 
   func postForegroundedNotification() {
-    let notificationCenter = NotificationCenter.default
-    #if os(iOS) || os(tvOS)
-      notificationCenter.post(name: UIApplication.didBecomeActiveNotification, object: nil)
-    #elseif os(macOS)
-      notificationCenter.post(name: NSApplication.didBecomeActiveNotification, object: nil)
-    #elseif os(watchOS)
-      if #available(watchOSApplicationExtension 7.0, *) {
-        notificationCenter.post(
-          name: WKExtension.applicationDidBecomeActiveNotification,
-          object: nil
-        )
-      }
-    #endif
+    // On Catalyst, the notifications can only be called on a the main thread
+    DispatchQueue.main.sync {
+      let notificationCenter = NotificationCenter.default
+      #if os(iOS) || os(tvOS)
+        notificationCenter.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+      #elseif os(macOS)
+        notificationCenter.post(name: NSApplication.didBecomeActiveNotification, object: nil)
+      #elseif os(watchOS)
+        if #available(watchOSApplicationExtension 7.0, *) {
+          notificationCenter.post(
+            name: WKExtension.applicationDidBecomeActiveNotification,
+            object: nil
+          )
+        }
+      #endif
+    }
   }
 }
