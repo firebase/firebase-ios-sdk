@@ -29,39 +29,55 @@ import Dispatch
 extension XCTestCase {
   func postBackgroundedNotification() {
     // On Catalyst, the notifications can only be called on a the main thread
-    DispatchQueue.main.sync {
-      let notificationCenter = NotificationCenter.default
-      #if os(iOS) || os(tvOS)
-        notificationCenter.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
-      #elseif os(macOS)
-        notificationCenter.post(name: NSApplication.didResignActiveNotification, object: nil)
-      #elseif os(watchOS)
-        if #available(watchOSApplicationExtension 7.0, *) {
-          notificationCenter.post(
-            name: WKExtension.applicationDidEnterBackgroundNotification,
-            object: nil
-          )
-        }
-      #endif
+    if Thread.isMainThread {
+      postBackgroundedNotificationInternal()
+    } else {
+      DispatchQueue.main.sync {
+        self.postBackgroundedNotificationInternal()
+      }
     }
+  }
+
+  private func postBackgroundedNotificationInternal() {
+    let notificationCenter = NotificationCenter.default
+    #if os(iOS) || os(tvOS)
+      notificationCenter.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+    #elseif os(macOS)
+      notificationCenter.post(name: NSApplication.didResignActiveNotification, object: nil)
+    #elseif os(watchOS)
+      if #available(watchOSApplicationExtension 7.0, *) {
+        notificationCenter.post(
+          name: WKExtension.applicationDidEnterBackgroundNotification,
+          object: nil
+        )
+      }
+    #endif
   }
 
   func postForegroundedNotification() {
     // On Catalyst, the notifications can only be called on a the main thread
-    DispatchQueue.main.sync {
-      let notificationCenter = NotificationCenter.default
-      #if os(iOS) || os(tvOS)
-        notificationCenter.post(name: UIApplication.didBecomeActiveNotification, object: nil)
-      #elseif os(macOS)
-        notificationCenter.post(name: NSApplication.didBecomeActiveNotification, object: nil)
-      #elseif os(watchOS)
-        if #available(watchOSApplicationExtension 7.0, *) {
-          notificationCenter.post(
-            name: WKExtension.applicationDidBecomeActiveNotification,
-            object: nil
-          )
-        }
-      #endif
+    if Thread.isMainThread {
+      postForegroundedNotificationInternal()
+    } else {
+      DispatchQueue.main.sync {
+        self.postForegroundedNotificationInternal()
+      }
     }
+  }
+
+  private func postForegroundedNotificationInternal() {
+    let notificationCenter = NotificationCenter.default
+    #if os(iOS) || os(tvOS)
+      notificationCenter.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+    #elseif os(macOS)
+      notificationCenter.post(name: NSApplication.didBecomeActiveNotification, object: nil)
+    #elseif os(watchOS)
+      if #available(watchOSApplicationExtension 7.0, *) {
+        notificationCenter.post(
+          name: WKExtension.applicationDidBecomeActiveNotification,
+          object: nil
+        )
+      }
+    #endif
   }
 }
