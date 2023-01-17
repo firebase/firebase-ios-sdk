@@ -368,7 +368,7 @@
 }
 
 - (FIRSessionsSubscriberName)sessionsSubscriberName {
-  return FIRSessionsSubscriberNameCrashlytics;
+  return FIRSessionsSubscriberNamePerformance;
 }
 
 @end
