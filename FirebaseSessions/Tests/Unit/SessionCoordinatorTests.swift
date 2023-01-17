@@ -94,4 +94,30 @@ class SessionCoordinatorTests: XCTestCase {
     XCTAssertEqual(fireLogger.loggedEvent, event)
     XCTAssertFalse(resultSuccess)
   }
+
+  func test_attemptLoggingSessionStart_handlesInstallationsError() throws {
+    installations.result = .failure(NSError(domain: "TestInstallationsError", code: -1))
+
+    let sessionInfo = SessionInfo(
+      sessionId: "testSessionId",
+      previousSessionId: "testPreviousSessionId",
+      dispatchEvents: true
+    )
+    let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: appInfo, time: time)
+
+    // Start success so it must be set to false
+    var resultSuccess = true
+    coordinator.attemptLoggingSessionStart(event: event) { result in
+      switch result {
+      case .success(()):
+        resultSuccess = true
+      case .failure:
+        resultSuccess = false
+      }
+    }
+
+    // We should have logged the event, but with a failed result
+    XCTAssertNil(fireLogger.loggedEvent)
+    XCTAssertFalse(resultSuccess)
+  }
 }
