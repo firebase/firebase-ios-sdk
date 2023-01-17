@@ -71,7 +71,7 @@
     FIROptions *options = app.options;
     NSError *error = nil;
 
-    // Based on the environment variable SDK decides if events are dispatchd to Autopush or Prod.
+    // Based on the environment variable SDK decides if events are dispatched to Autopush or Prod.
     // By default, events are sent to Prod.
     BOOL useAutoPush = NO;
     NSDictionary<NSString *, NSString *> *environment = [NSProcessInfo processInfo].environment;
