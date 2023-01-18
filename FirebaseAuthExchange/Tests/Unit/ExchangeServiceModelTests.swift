@@ -113,7 +113,9 @@ final class ModelTests: XCTestCase {
 
   func testDecodeExchangeTokenResponse() throws {
     let accessToken = "test-access-token"
-    let timeToLive = "3.141592653s"
+    let timeToLiveSeconds: Int64 = 3
+    let timeToLiveNanos: Int32 = 141592653
+    let timeToLive = "\(timeToLiveSeconds).\(timeToLiveNanos)s"
     let responseJSON = """
     {
       "token": {
@@ -129,6 +131,8 @@ final class ModelTests: XCTestCase {
 
     let response = try jsonDecoder.decode(ExchangeTokenResponse.self, from: responseJSON)
 
+    XCTAssertEqual(response.token.timeToLive.seconds, timeToLiveSeconds)
+    XCTAssertEqual(response.token.timeToLive.nanoseconds, timeToLiveNanos)
     XCTAssertEqual(response, expectedResponse)
   }
 }
