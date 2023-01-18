@@ -25,6 +25,10 @@ final class ModelTests: XCTestCase {
     return encoder
   }()
 
+  let jsonDecoder = JSONDecoder()
+
+  // MARK: - Request Model Encoding Tests
+
   func testEncodeExchangeInstallationAuthTokenRequest() throws {
     let installationAuthToken = "test-installation-token"
     let request = ExchangeInstallationAuthTokenRequest(
@@ -38,7 +42,7 @@ final class ModelTests: XCTestCase {
 
     let json = try encodeAsJSON(request)
 
-    XCTAssertEqual(expectedJSON, json)
+    XCTAssertEqual(json, expectedJSON)
   }
 
   func testEncodeExchangeCustomTokenRequest() throws {
@@ -54,7 +58,7 @@ final class ModelTests: XCTestCase {
 
     let json = try encodeAsJSON(request)
 
-    XCTAssertEqual(expectedJSON, json)
+    XCTAssertEqual(json, expectedJSON)
   }
 
   func testEncodeExchangeOidcTokenRequestWithImplicitCredentials() throws {
@@ -73,7 +77,7 @@ final class ModelTests: XCTestCase {
 
     let json = try encodeAsJSON(request)
 
-    XCTAssertEqual(expectedJSON, json)
+    XCTAssertEqual(json, expectedJSON)
   }
 
   func testEncodeExchangeOidcTokenRequestWithAuthCodeCredentials() throws {
@@ -97,11 +101,45 @@ final class ModelTests: XCTestCase {
 
     let json = try encodeAsJSON(request)
 
-    XCTAssertEqual(expectedJSON, json)
+    XCTAssertEqual(json, expectedJSON)
   }
 
   private func encodeAsJSON(_ entity: Encodable) throws -> String {
     let data = try jsonEncoder.encode(entity)
     return String(data: data, encoding: .utf8)!
+  }
+
+  // MARK: - Response Model Decoding Tests
+
+  func testDecodeExchangeTokenResponse() throws {
+    let accessToken = "test-access-token"
+    let timeToLiveSeconds: Int64 = 3
+    let timeToLiveNanos: Int32 = 141_592_653
+    let timeToLive = "\(timeToLiveSeconds).\(timeToLiveNanos)s"
+    let responseJSON = """
+    {
+      "token": {
+        "accessToken": "\(accessToken)",
+        "ttl": "\(timeToLive)"
+      }
+    }
+    """
+    let expectedResponse = ExchangeTokenResponse(token: ExchangeTokenResponse.AuthExchangeToken(
+      accessToken: accessToken,
+      timeToLive: try ProtobufDuration(json: timeToLive)
+    ))
+
+    let response = try jsonDecoder.decode(ExchangeTokenResponse.self, from: responseJSON)
+
+    XCTAssertEqual(response.token.timeToLive.seconds, timeToLiveSeconds)
+    XCTAssertEqual(response.token.timeToLive.nanoseconds, timeToLiveNanos)
+    XCTAssertEqual(response, expectedResponse)
+  }
+}
+
+private extension JSONDecoder {
+  func decode<T>(_ type: T.Type, from string: String) throws -> T where T: Decodable {
+    let data: Data = string.data(using: .utf8)!
+    return try decode(T.self, from: data)
   }
 }
