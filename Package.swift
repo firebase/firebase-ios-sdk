@@ -948,6 +948,7 @@ let package = Package(
         "FirebaseCore",
         "FirebaseInstallations",
         "FirebaseRemoteConfig",
+        "FirebaseSessions",
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULISASwizzler", package: "GoogleUtilities"),
