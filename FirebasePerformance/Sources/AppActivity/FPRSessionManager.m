@@ -28,8 +28,6 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
 
 @property(nonatomic, readwrite) NSNotificationCenter *sessionNotificationCenter;
 
-@property(nonatomic) BOOL trackingApplicationStateChanges;
-
 /**
  * Creates an instance of FPRSesssionManager with the notification center provided. All the
  * notifications from the session manager will sent using this notification center.
@@ -57,41 +55,23 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
   self = [super init];
   if (self) {
     _sessionNotificationCenter = notificationCenter;
-    _trackingApplicationStateChanges = NO;
-    [self updateSessionId:nil];
   }
   return self;
 }
 
-- (void)startTrackingAppStateChanges {
-  if (!self.trackingApplicationStateChanges) {
-    // Starts tracking the application life cycle events during which the session Ids change.
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(updateSessionId:)
-                                                 name:UIApplicationWillEnterForegroundNotification
-                                               object:[UIApplication sharedApplication]];
-    self.trackingApplicationStateChanges = YES;
-  }
-}
-
-- (void)renewSessionIdIfRunningTooLong {
+- (void)stopGaugesIfRunningTooLong {
   NSUInteger maxSessionLength = [[FPRConfigurations sharedInstance] maxSessionLengthInMinutes];
   if (self.sessionDetails.sessionLengthInMinutes > maxSessionLength) {
-    [self updateSessionId:nil];
+    [[FPRGaugeManager sharedInstance] stopCollectingGauges:FPRGaugeCPU | FPRGaugeMemory];
   }
 }
 
 /**
- * Updates the sessionId on the arrival of a notification.
+ * Stops current session, and create a new session with new session id.
  *
- * @param notification Notification received.
+ * @param sessionIdString New session id.
  */
-- (void)updateSessionId:(NSNotification *)notification {
-  NSUUID *uuid = [NSUUID UUID];
-  NSString *sessionIdString = [uuid UUIDString];
-  sessionIdString = [sessionIdString stringByReplacingOccurrencesOfString:@"-" withString:@""];
-  sessionIdString = [sessionIdString lowercaseString];
-
+- (void)updateSessionId:(NSString *)sessionIdString {
   FPRSessionOptions sessionOptions = FPRSessionOptionsNone;
   FPRGaugeManager *gaugeManager = [FPRGaugeManager sharedInstance];
   if ([self isGaugeCollectionEnabledForSessionId:sessionIdString]) {
@@ -124,14 +104,6 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
   double randomNumberBetween0And1 = ((double)arc4random() / UINT_MAX);
   BOOL sessionsEnabled = randomNumberBetween0And1 * 100 < sessionSamplePercentage;
   return sessionsEnabled;
-}
-
-- (void)dealloc {
-  if (self.trackingApplicationStateChanges) {
-    [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:UIApplicationDidBecomeActiveNotification
-                                                  object:[UIApplication sharedApplication]];
-  }
 }
 
 @end

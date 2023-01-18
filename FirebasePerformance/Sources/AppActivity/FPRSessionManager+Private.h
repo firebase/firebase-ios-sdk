@@ -25,10 +25,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property(atomic, nullable, readwrite) FPRSessionDetails *sessionDetails;
 
 /**
- * Checks if the currently active session is beyond maximum allowed time. If so renew the session,
+ * Checks if the currently active session is beyond maximum allowed time for gauge-collection. If so stop gauges,
  * else no-op.
  */
-- (void)renewSessionIdIfRunningTooLong;
+- (void)stopGaugesIfRunningTooLong;
+
+- (void)updateSessionId:(nonnull NSString *)sessionIdString;
 
 @end
 

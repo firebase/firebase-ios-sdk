@@ -268,7 +268,7 @@
   });
 
   // Check and update the sessionID if the session is running for too long.
-  [[FPRSessionManager sharedInstance] renewSessionIdIfRunningTooLong];
+  [[FPRSessionManager sharedInstance] stopGaugesIfRunningTooLong];
 }
 
 - (void)processAndLogEvent:(firebase_perf_v1_PerfMetric)event {
@@ -361,6 +361,7 @@
 
 - (void)onSessionChanged:(FIRSessionDetails *_Nonnull)session {
   FPRLogDebug(kFPRSessionId, @"Session ID changed: %@", session.sessionId);
+  [[FPRSessionManager sharedInstance] updateSessionId:session.sessionId];
 }
 
 - (BOOL)isDataCollectionEnabled {

@@ -46,9 +46,4 @@ NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions."
 
 - (nullable instancetype)init NS_UNAVAILABLE;
 
-/**
- * Starts tracking the application state changes to begin session ID state changes.
- */
-- (void)startTrackingAppStateChanges;
-
 @end
