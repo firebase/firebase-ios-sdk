@@ -87,7 +87,7 @@ final class FirebaseSessionsTests_BaseBehaviors: FirebaseSessionsTests {
     // We wanted to make sure that since we've introduced promises,
     // once the promise has been fulfilled, that .then'ing on the promise
     // in future initiations still results in a log
-    func test_multipleInitiatiations_logsSessionEventEachInitiation() {
+    func test_multipleInitiations_logsSessionEventEachInitiation() {
       var loggedCount = 0
       var lastLoggedSessionID = ""
       let loggedTwiceExpectation = expectation(description: "Sessions SDK logged events twice")

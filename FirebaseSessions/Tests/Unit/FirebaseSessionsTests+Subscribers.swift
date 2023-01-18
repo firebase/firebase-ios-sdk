@@ -102,7 +102,7 @@ final class FirebaseSessionsTests_Subscribers: FirebaseSessionsTests {
     )
   }
 
-  func test_noSubscribersWithRegistrations_doesNotBlowUp() {
+  func test_noSubscribersWithRegistrations_doesNotCrash() {
     runSessionsSDK(
       subscriberSDKs: [],
       preSessionsInit: { _ in
