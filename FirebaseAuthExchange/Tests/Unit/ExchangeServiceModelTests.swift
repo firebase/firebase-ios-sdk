@@ -114,7 +114,7 @@ final class ModelTests: XCTestCase {
   func testDecodeExchangeTokenResponse() throws {
     let accessToken = "test-access-token"
     let timeToLiveSeconds: Int64 = 3
-    let timeToLiveNanos: Int32 = 141592653
+    let timeToLiveNanos: Int32 = 141_592_653
     let timeToLive = "\(timeToLiveSeconds).\(timeToLiveNanos)s"
     let responseJSON = """
     {
