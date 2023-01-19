@@ -176,7 +176,7 @@ private enum GoogleDataTransportConfig {
         // turn off the Sessions SDK when we disabled it.
         self.settings.updateSettings()
 
-        self.addEventDataCollectionState(event: event)
+        self.addSubscriberFields(event: event)
 
         guard sessionInfo.shouldDispatchEvents else {
           loggedEventCallback(.failure(.SessionSamplingError))
@@ -206,10 +206,13 @@ private enum GoogleDataTransportConfig {
     return false
   }
 
-  func addEventDataCollectionState(event: SessionStartEvent) {
+  func addSubscriberFields(event: SessionStartEvent) {
     subscribers.forEach { subscriber in
       event.set(subscriber: subscriber.sessionsSubscriberName,
                 isDataCollectionEnabled: subscriber.isDataCollectionEnabled)
+
+      event.setRestrictedFields(subscriber: subscriber.sessionsSubscriberName,
+                                appInfo: self.appInfo)
     }
   }
 
