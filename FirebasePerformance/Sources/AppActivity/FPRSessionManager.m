@@ -55,7 +55,11 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
   self = [super init];
   if (self) {
     _sessionNotificationCenter = notificationCenter;
-    _sessionDetails = [[FPRSessionDetails alloc] initWithSessionId:@"placeholder"
+    // Empty string is immediately replaced when FirebaseCore runs Fireperf's
+    // FIRComponentCreationBlock, because in the creation block we register Fireperf with Sessions,
+    // and the registration function immediately propagates real sessionId. This is at an early time
+    // in initialization that any trace is yet to be created.
+    _sessionDetails = [[FPRSessionDetails alloc] initWithSessionId:@""
                                                            options:FPRSessionOptionsNone];
   }
   return self;
@@ -63,7 +67,6 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
 
 - (void)stopGaugesIfRunningTooLong:(NSDate *)now {
   NSUInteger maxSessionLength = [[FPRConfigurations sharedInstance] maxSessionLengthInMinutes];
-  NSUInteger sessionLengthMinutes = [self.sessionDetails sessionLengthInMinutes:now];
   if ([self.sessionDetails sessionLengthInMinutes:now] >= maxSessionLength) {
     [[FPRGaugeManager sharedInstance] stopCollectingGauges:FPRGaugeCPU | FPRGaugeMemory];
   }
