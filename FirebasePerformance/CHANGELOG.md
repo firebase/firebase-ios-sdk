@@ -1,5 +1,6 @@
 # Unreleased
-- [added] Added dependency on Firebase Sessions SDK to power future metrics and debugging features in Performance Monitoring
+- [added] Added dependency on Firebase Sessions SDK to power future metrics and debugging features in Performance Monitoring.
+- [changed] Changed definition of sessions, as Performance Monitoring now depends on the new Firebase Sessions SDK.
 
 # 9.3.0
 - [changed] Update the console logging URL to troubleshooting page.
