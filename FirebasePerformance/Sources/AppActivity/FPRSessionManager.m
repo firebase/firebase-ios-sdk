@@ -61,9 +61,10 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
   return self;
 }
 
-- (void)stopGaugesIfRunningTooLong {
+- (void)stopGaugesIfRunningTooLong:(NSDate *)now {
   NSUInteger maxSessionLength = [[FPRConfigurations sharedInstance] maxSessionLengthInMinutes];
-  if (self.sessionDetails.sessionLengthInMinutes > maxSessionLength) {
+  NSUInteger sessionLengthMinutes = [self.sessionDetails sessionLengthInMinutes:now];
+  if ([self.sessionDetails sessionLengthInMinutes:now] >= maxSessionLength) {
     [[FPRGaugeManager sharedInstance] stopCollectingGauges:FPRGaugeCPU | FPRGaugeMemory];
   }
 }
@@ -74,9 +75,13 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
  * @param sessionIdString New session id.
  */
 - (void)updateSessionId:(NSString *)sessionIdString {
+  [self updateSessionId:sessionIdString forceGauges:false];
+}
+
+- (void)updateSessionId:(NSString *)sessionIdString forceGauges:(BOOL)forceGauges {
   FPRSessionOptions sessionOptions = FPRSessionOptionsNone;
   FPRGaugeManager *gaugeManager = [FPRGaugeManager sharedInstance];
-  if ([self isGaugeCollectionEnabledForSessionId:sessionIdString]) {
+  if (forceGauges || [self isGaugeCollectionEnabledForSessionId:sessionIdString]) {
     [gaugeManager startCollectingGauges:FPRGaugeCPU | FPRGaugeMemory forSessionId:sessionIdString];
     sessionOptions = FPRSessionOptionsGauges;
   } else {

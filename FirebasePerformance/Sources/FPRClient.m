@@ -268,7 +268,7 @@
   });
 
   // Check and update the sessionID if the session is running for too long.
-  [[FPRSessionManager sharedInstance] stopGaugesIfRunningTooLong];
+  [[FPRSessionManager sharedInstance] stopGaugesIfRunningTooLong:[NSDate date]];
 }
 
 - (void)processAndLogEvent:(firebase_perf_v1_PerfMetric)event {

@@ -16,8 +16,13 @@
 
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager+Private.h"
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
-
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
+#import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags+Private.h"
+#import "FirebasePerformance/Sources/Gauges/FPRGaugeManager+Private.h"
+#import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
+
+#import "FirebasePerformance/Tests/Unit/Configurations/FPRFakeRemoteConfig.h"
+#import "FirebasePerformance/Tests/Unit/Fakes/FPRFakeConfigurations.h"
 
 #import <OCMock/OCMock.h>
 
@@ -39,10 +44,21 @@ NSString *const testSessionId = @"testSessionId";
 /** Validate that gauge collection does not change when calling renew method immediately. */
 - (void)testGaugeDoesNotStopBeforeMaxDuration {
   FPRSessionManager *instance = [FPRSessionManager sharedInstance];
-  [instance updateSessionId:testSessionId];
-  NSString *sessionId = instance.sessionDetails.sessionId;
-  [instance stopGaugesIfRunningTooLong];
-  XCTAssertEqualObjects(sessionId, instance.sessionDetails.sessionId);
+  [instance updateSessionId:testSessionId forceGauges:true];
+  [instance stopGaugesIfRunningTooLong:[NSDate date]];
+  XCTAssertNotNil([FPRGaugeManager sharedInstance].cpuGaugeCollector);
+  XCTAssertNotNil([FPRGaugeManager sharedInstance].memoryGaugeCollector);
+}
+
+/** Validate that gauge collection stops when calling renew method after max duration reached. */
+- (void)testGaugeStopsAfterMaxDuration {
+  FPRSessionManager *instance = [FPRSessionManager sharedInstance];
+  [instance updateSessionId:testSessionId forceGauges:true];
+  NSTimeInterval maxDurationSeconds =
+      [[FPRConfigurations sharedInstance] maxSessionLengthInMinutes] * 60;
+  [instance stopGaugesIfRunningTooLong:[[NSDate date] dateByAddingTimeInterval:maxDurationSeconds]];
+  XCTAssertNil([FPRGaugeManager sharedInstance].cpuGaugeCollector);
+  XCTAssertNil([FPRGaugeManager sharedInstance].memoryGaugeCollector);
 }
 
 /** Validate that sessionId changes on new session. */

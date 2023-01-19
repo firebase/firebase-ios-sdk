@@ -34,9 +34,10 @@
   FPRSessionDetails *details = [[FPRSessionDetails alloc] initWithSessionId:@"random"
                                                                     options:FPRSessionOptionsNone];
   FPRSessionDetails *detailsCopy = [details copy];
+  NSDate *now = [NSDate date];
   XCTAssertEqual(details.sessionId, detailsCopy.sessionId);
   XCTAssertEqual(details.options, detailsCopy.options);
-  XCTAssertEqual(details.sessionLengthInMinutes, detailsCopy.sessionLengthInMinutes);
+  XCTAssertEqual([details sessionLengthInMinutes:now], [detailsCopy sessionLengthInMinutes:now]);
   XCTAssertNotNil(details);
 }
 
@@ -46,7 +47,7 @@
                                                                     options:FPRSessionOptionsNone];
   XCTAssertEqual(details.sessionId, @"random");
   XCTAssertEqual(details.options, FPRSessionOptionsNone);
-  XCTAssertEqual(details.sessionLengthInMinutes, 0);
+  XCTAssertEqual([details sessionLengthInMinutes:[NSDate date]], 0);
 }
 
 /** Validates that the session details equality with another object. */
