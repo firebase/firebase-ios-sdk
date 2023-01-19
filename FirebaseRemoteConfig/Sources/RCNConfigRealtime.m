@@ -25,7 +25,7 @@
 #import "FirebaseRemoteConfig/Sources/RCNDevice.h"
 
 /// URL params
-static NSString *const kServerURLDomain = @"https://firebaseremoteconfig.googleapis.com";
+static NSString *const kServerURLDomain = @"https://firebaseremoteconfigrealtime.googleapis.com";
 static NSString *const kServerURLVersion = @"/v1";
 static NSString *const kServerURLProjects = @"/projects/";
 static NSString *const kServerURLNamespaces = @"/namespaces/";
