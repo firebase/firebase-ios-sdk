@@ -46,4 +46,6 @@ NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions."
 
 - (nullable instancetype)init NS_UNAVAILABLE;
 
+- (void)updateSessionId:(nonnull NSString *)sessionIdString;
+
 @end

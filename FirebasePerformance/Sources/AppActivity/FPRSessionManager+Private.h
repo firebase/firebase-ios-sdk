@@ -30,8 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)stopGaugesIfRunningTooLong;
 
-- (void)updateSessionId:(nonnull NSString *)sessionIdString;
-
 @end
 
 NS_ASSUME_NONNULL_END

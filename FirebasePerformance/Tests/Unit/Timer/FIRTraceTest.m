@@ -15,6 +15,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FirebasePerformance/Sources/AppActivity/FPRAppActivityTracker.h"
+#import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
 #import "FirebasePerformance/Sources/Common/FPRConstants.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
@@ -723,12 +724,8 @@
 /** Validates if every trace contains a session Id. */
 - (void)testSessionId {
   FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
+  [[FPRSessionManager sharedInstance] updateSessionId:@"testSessionId"];
   [trace start];
-
-  NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
-  [defaultCenter postNotificationName:UIApplicationDidBecomeActiveNotification
-                               object:[UIApplication sharedApplication]];
-
   [trace stop];
   XCTAssertNotNil(trace.sessions);
   XCTAssertTrue(trace.sessions.count > 0);
@@ -737,17 +734,10 @@
 /** Validates if every trace contains multiple session Ids on changing app state. */
 - (void)testMultipleSessionIds {
   FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
+  [[FPRSessionManager sharedInstance] updateSessionId:@"testSessionId"];
   [trace start];
-  NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
-  [defaultCenter postNotificationName:UIWindowDidBecomeVisibleNotification
-                               object:[UIApplication sharedApplication]];
-  [defaultCenter postNotificationName:UIApplicationDidBecomeActiveNotification
-                               object:[UIApplication sharedApplication]];
-  [defaultCenter postNotificationName:UIApplicationWillEnterForegroundNotification
-                               object:[UIApplication sharedApplication]];
-
-  [defaultCenter postNotificationName:UIApplicationWillEnterForegroundNotification
-                               object:[UIApplication sharedApplication]];
+  [[FPRSessionManager sharedInstance] updateSessionId:@"testSessionId2"];
+  [[FPRSessionManager sharedInstance] updateSessionId:@"testSessionId3"];
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"Expectation - Wait for 2s"];
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)),

@@ -55,6 +55,8 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
   self = [super init];
   if (self) {
     _sessionNotificationCenter = notificationCenter;
+    _sessionDetails = [[FPRSessionDetails alloc] initWithSessionId:@"placeholder"
+                                                           options:FPRSessionOptionsNone];
   }
   return self;
 }
