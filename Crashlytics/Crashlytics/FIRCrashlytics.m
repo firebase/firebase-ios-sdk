@@ -41,6 +41,7 @@
 #import "Crashlytics/Shared/FIRCLSFABHost.h"
 
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSAnalyticsManager.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSContextManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSExistingReportManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSNotificationManager.h"
@@ -129,15 +130,6 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     _googleAppID = app.options.googleAppID;
     _dataArbiter = [[FIRCLSDataCollectionArbiter alloc] initWithApp:app withAppInfo:appInfo];
 
-    if (sessions) {
-      FIRCLSDebugLog(@"Registering Sessions SDK subscription for session data");
-
-      // Subscription should be made after the DataCollectionArbiter
-      // is initialized so that the Sessions SDK can immediately get
-      // the data collection state.
-      [sessions registerWithSubscriber:self];
-    }
-
     FIRCLSApplicationIdentifierModel *appModel = [[FIRCLSApplicationIdentifierModel alloc] init];
     FIRCLSSettings *settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager
                                                                 appIDModel:appModel];
@@ -152,6 +144,18 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
                                                       dataArbiter:_dataArbiter
                                                          settings:settings
                                                     onDemandModel:onDemandModel];
+
+    if (sessions) {
+      FIRCLSDebugLog(@"Registering Sessions SDK subscription for session data");
+
+      // Subscription should be made after the DataCollectionArbiter
+      // is initialized so that the Sessions SDK can immediately get
+      // the data collection state.
+      //
+      // It should also be made after managerData is initialized so
+      // that the ContextManager can accept data
+      [sessions registerWithSubscriber:self];
+    }
 
     _reportUploader = [[FIRCLSReportUploader alloc] initWithManagerData:_managerData];
 
@@ -390,7 +394,9 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 #pragma mark - FIRSessionsSubscriber
 
 - (void)onSessionChanged:(FIRSessionDetails *_Nonnull)session {
-  FIRCLSDebugLog(@"Session ID changed: %@", session.sessionId);
+  FIRCLSDebugLog(@"Session ID changed: %@", session.sessionId.copy);
+
+  [self.managerData.contextManager setAppQualitySessionId:session.sessionId.copy];
 }
 
 - (BOOL)isDataCollectionEnabled {

@@ -15,6 +15,7 @@
 #import <XCTest/XCTest.h>
 
 #include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSContextManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSExecutionIdentifierModel.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
@@ -96,7 +97,10 @@
       [[FIRCLSInternalReport alloc] initWithPath:reportPath
                              executionIdentifier:@"TEST_EXECUTION_IDENTIFIER"];
 
-  FIRCLSContextInitialize(report, self.mockSettings, self.fileManager);
+  FIRCLSContextManager *contextManager = [[FIRCLSContextManager alloc] init];
+  [contextManager initContextWithReport:report
+                               settings:self.mockSettings
+                            fileManager:self.fileManager];
 }
 
 - (void)tearDown {
