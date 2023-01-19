@@ -723,8 +723,8 @@
 
 /** Validates if every trace contains a session Id. */
 - (void)testSessionId {
-  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
   [[FPRSessionManager sharedInstance] updateSessionId:@"testSessionId"];
+  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
   [trace start];
   [trace stop];
   XCTAssertNotNil(trace.sessions);
@@ -733,8 +733,8 @@
 
 /** Validates if every trace contains multiple session Ids on changing app state. */
 - (void)testMultipleSessionIds {
-  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
   [[FPRSessionManager sharedInstance] updateSessionId:@"testSessionId"];
+  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
   [trace start];
   [[FPRSessionManager sharedInstance] updateSessionId:@"testSessionId2"];
   [[FPRSessionManager sharedInstance] updateSessionId:@"testSessionId3"];
