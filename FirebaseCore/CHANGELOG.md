@@ -1,6 +1,3 @@
-# unreleased
-- Removed unused methods from FirebaseOptions. (#10712)
-
 # Firebase 10.4.0
 - Deprecate `androidClientID` and `trackingID` from FirebaseOptions. (#10520)
 
