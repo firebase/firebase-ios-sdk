@@ -81,7 +81,7 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
     [gaugeManager stopCollectingGauges:FPRGaugeCPU | FPRGaugeMemory];
   }
 
-  FPRLogDebug(kFPRSessionId, @"Session Id generated - %@", sessionIdString);
+  FPRLogDebug(kFPRSessionId, @"Session Id changed - %@", sessionIdString);
   FPRSessionDetails *sessionInfo = [[FPRSessionDetails alloc] initWithSessionId:sessionIdString
                                                                         options:sessionOptions];
   self.sessionDetails = sessionInfo;

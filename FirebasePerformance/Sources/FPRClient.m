@@ -360,7 +360,6 @@
 #pragma mark - FIRSessionsSubscriber
 
 - (void)onSessionChanged:(FIRSessionDetails *_Nonnull)session {
-  FPRLogDebug(kFPRSessionId, @"Session ID changed: %@", session.sessionId);
   [[FPRSessionManager sharedInstance] updateSessionId:session.sessionId];
 }
 
