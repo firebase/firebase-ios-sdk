@@ -24,13 +24,13 @@ NS_ASSUME_NONNULL_BEGIN
 /** The current active session managed by the session manager. Modifiable for unit tests */
 @property(atomic, nullable, readwrite) FPRSessionDetails *sessionDetails;
 
-- (void)updateSessionId:(NSString *)sessionIdString forceGauges:(BOOL)forceGauges;
-
 /**
  * Checks if the currently active session is beyond maximum allowed time for gauge-collection. If so
  * stop gauges, else no-op.
  */
 - (void)stopGaugesIfRunningTooLong:(NSDate *)now;
+
+- (BOOL)isGaugeCollectionEnabledForSessionId:(NSString *)sessionId;
 
 @end
 

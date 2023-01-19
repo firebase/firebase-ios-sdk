@@ -40,7 +40,7 @@
   return detailsCopy;
 }
 
-- (NSUInteger)sessionLengthInMinutes:(NSDate *)now {
+- (NSUInteger)sessionLengthInMinutesFromDate:(NSDate *)now {
   NSTimeInterval sessionLengthInSeconds = ABS([now timeIntervalSinceDate:self.sessionCreationTime]);
   return (NSUInteger)(sessionLengthInSeconds / 60);
 }

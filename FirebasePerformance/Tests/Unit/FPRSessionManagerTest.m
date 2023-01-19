@@ -43,8 +43,9 @@ NSString *const testSessionId = @"testSessionId";
 
 /** Validate that gauge collection does not change when calling renew method immediately. */
 - (void)testGaugeDoesNotStopBeforeMaxDuration {
-  FPRSessionManager *instance = [FPRSessionManager sharedInstance];
-  [instance updateSessionId:testSessionId forceGauges:true];
+  id instance = [OCMockObject partialMockForObject:[FPRSessionManager sharedInstance]];
+  OCMStub([instance isGaugeCollectionEnabledForSessionId:[OCMArg any]]).andReturn(true);
+  [instance updateSessionId:testSessionId];
   [instance stopGaugesIfRunningTooLong:[NSDate date]];
   XCTAssertNotNil([FPRGaugeManager sharedInstance].cpuGaugeCollector);
   XCTAssertNotNil([FPRGaugeManager sharedInstance].memoryGaugeCollector);
@@ -52,8 +53,9 @@ NSString *const testSessionId = @"testSessionId";
 
 /** Validate that gauge collection stops when calling renew method after max duration reached. */
 - (void)testGaugeStopsAfterMaxDuration {
-  FPRSessionManager *instance = [FPRSessionManager sharedInstance];
-  [instance updateSessionId:testSessionId forceGauges:true];
+  id instance = [OCMockObject partialMockForObject:[FPRSessionManager sharedInstance]];
+  OCMStub([instance isGaugeCollectionEnabledForSessionId:[OCMArg any]]).andReturn(true);
+  [instance updateSessionId:testSessionId];
   NSTimeInterval maxDurationSeconds =
       [[FPRConfigurations sharedInstance] maxSessionLengthInMinutes] * 60;
   [instance stopGaugesIfRunningTooLong:[[NSDate date] dateByAddingTimeInterval:maxDurationSeconds]];

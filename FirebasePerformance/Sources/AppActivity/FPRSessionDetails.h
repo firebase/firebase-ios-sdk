@@ -31,7 +31,7 @@ typedef NS_OPTIONS(NSUInteger, FPRSessionOptions) {
 @property(nonatomic, readonly) FPRSessionOptions options;
 
 /* Length of the session in minutes. */
-- (NSUInteger)sessionLengthInMinutes:(nonnull NSDate *)now;
+- (NSUInteger)sessionLengthInMinutesFromDate:(nonnull NSDate *)now;
 
 /**
  * Creates an instance of FPRSessionDetails with the provided sessionId and the list of available
