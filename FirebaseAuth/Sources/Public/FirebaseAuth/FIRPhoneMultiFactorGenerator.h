@@ -16,9 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRPhoneMultiFactorAssertion.h"
-
 @class FIRPhoneAuthCredential;
+@class FIRPhoneMultiFactorAssertion;
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -26,44 +26,7 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FirebaseAuth.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRDeleteAccountRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRDeleteAccountResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRResetPasswordRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRResetPasswordResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRSecureTokenRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRSecureTokenResponse.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRSendVerificationCodeResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRSetAccountInfoRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRSetAccountInfoResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRSignInWithGameCenterRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRSignInWithGameCenterResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyClientRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyClientResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberResponse.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthErrorUtils.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRSendVerificationCodeRequest.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRVerifyAssertionRequest.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRVerifyAssertionResponse.h"
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthRequestConfiguration.h"
 
 #if TARGET_OS_IOS
 #import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorInfo+Internal.h"
@@ -1395,52 +1358,52 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   }
 
   if ([shortErrorMessage isEqualToString:kMissingMFAPendingCredentialErrorMessage]) {
-    return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeMissingMultiFactorSession
+    return [FIRAuthErrorUtils errorWithCode:FIRAuthErrorCodeMissingMultiFactorSession
                                     message:serverErrorMessage];
   }
 
   if ([shortErrorMessage isEqualToString:kMissingMFAEnrollmentIDErrorMessage]) {
-    return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeMissingMultiFactorInfo
+    return [FIRAuthErrorUtils errorWithCode:FIRAuthErrorCodeMissingMultiFactorInfo
                                     message:serverErrorMessage];
   }
 
   if ([shortErrorMessage isEqualToString:kInvalidMFAPendingCredentialErrorMessage]) {
-    return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeInvalidMultiFactorSession
+    return [FIRAuthErrorUtils errorWithCode:FIRAuthErrorCodeInvalidMultiFactorSession
                                     message:serverErrorMessage];
   }
 
   if ([shortErrorMessage isEqualToString:kMFAEnrollmentNotFoundErrorMessage]) {
-    return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeMultiFactorInfoNotFound
+    return [FIRAuthErrorUtils errorWithCode:FIRAuthErrorCodeMultiFactorInfoNotFound
                                     message:serverErrorMessage];
   }
 
   if ([shortErrorMessage isEqualToString:kAdminOnlyOperationErrorMessage]) {
-    return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeAdminRestrictedOperation
+    return [FIRAuthErrorUtils errorWithCode:FIRAuthErrorCodeAdminRestrictedOperation
                                     message:serverErrorMessage];
   }
 
   if ([shortErrorMessage isEqualToString:kUnverifiedEmailErrorMessage]) {
-    return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeUnverifiedEmail
+    return [FIRAuthErrorUtils errorWithCode:FIRAuthErrorCodeUnverifiedEmail
                                     message:serverErrorMessage];
   }
 
   if ([shortErrorMessage isEqualToString:kSecondFactorExistsErrorMessage]) {
-    return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeSecondFactorAlreadyEnrolled
+    return [FIRAuthErrorUtils errorWithCode:FIRAuthErrorCodeSecondFactorAlreadyEnrolled
                                     message:serverErrorMessage];
   }
 
   if ([shortErrorMessage isEqualToString:kSecondFactorLimitExceededErrorMessage]) {
-    return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeMaximumSecondFactorCountExceeded
+    return [FIRAuthErrorUtils errorWithCode:FIRAuthErrorCodeMaximumSecondFactorCountExceeded
                                     message:serverErrorMessage];
   }
 
   if ([shortErrorMessage isEqualToString:kUnsupportedFirstFactorErrorMessage]) {
-    return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeUnsupportedFirstFactor
+    return [FIRAuthErrorUtils errorWithCode:FIRAuthErrorCodeUnsupportedFirstFactor
                                     message:serverErrorMessage];
   }
 
   if ([shortErrorMessage isEqualToString:kEmailChangeNeedsVerificationErrorMessage]) {
-    return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeEmailChangeNeedsVerification
+    return [FIRAuthErrorUtils errorWithCode:FIRAuthErrorCodeEmailChangeNeedsVerification
                                     message:serverErrorMessage];
   }
 
