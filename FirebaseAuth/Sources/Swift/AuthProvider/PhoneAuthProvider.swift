@@ -75,14 +75,14 @@ import FirebaseCore
                                 completion: ((String?, Error?) -> Void)?) {
       guard phoneNumber.count > 0 else {
         if let completion = completion {
-          completion(nil, FIRAuthErrorUtils.missingPhoneNumberError(withMessage: nil))
+          completion(nil, AuthErrorUtils.missingPhoneNumberError(message: nil))
         }
         return
       }
       auth.notificationManager.checkNotificationForwarding { isNotificationBeingForwarded in
         guard isNotificationBeingForwarded else {
           if let completion = completion {
-            completion(nil, FIRAuthErrorUtils.notificationNotForwardedError())
+            completion(nil, AuthErrorUtils.notificationNotForwardedError())
           }
           return
         }
@@ -110,15 +110,14 @@ import FirebaseCore
                                                  callback: @escaping (String?, Error?) -> Void) {
       if let settings = auth.settings,
          settings.isAppVerificationDisabledForTesting {
-        if let request = FIRSendVerificationCodeRequest(
+        let request = SendVerificationCodeRequest(
           phoneNumber: phoneNumber,
           appCredential: nil,
           reCAPTCHAToken: nil,
           requestConfiguration: auth.requestConfiguration
-        ) {
-            FIRAuthBackend.sendVerificationCode(request) { response, error in
-              callback(response?.verificationID, error)
-          }
+        )
+        FIRAuthBackend.sendVerificationCode(request) { response, error in
+          callback(response?.verificationID, error)
         }
         return
       }
@@ -198,7 +197,7 @@ import FirebaseCore
       @param completion The callback to be invoked when the client verification flow is finished.
    */
   private func verifyClient(withUIDelegate UIDelegate: AuthUIDelegate,
-                            completion: (FIRAuthAppCredential?, Error?)) {
+                            completion: (AuthAppCredential?, Error?)) {
     // Remove the simulator check below after FCM supports APNs in simulators
 #if targetEnvironment(simulator)
     let environment = ProcessInfo().environment
@@ -214,7 +213,7 @@ import FirebaseCore
       @param completion The callback to be invoked when the client verification flow is finished.
    */
   private func reCAPTCHAFlowWithUIDelegate(withUIDelegate UIDelegate: AuthUIDelegate,
-                                           completion: @escaping (FIRAuthAppCredential?, String?, Error?) -> Void) {
+                                           completion: @escaping (AuthAppCredential?, String?, Error?) -> Void) {
     let eventID = FIRAuthWebUtils.randomString(withLength: 10)
     self.reCAPTCHAURL(withEventID: eventID) { reCAPTCHAURL, error in
       if let error = error {
@@ -285,7 +284,7 @@ import FirebaseCore
         let bundleID = Bundle.main.bundleIdentifier
         let clientID = self.auth.app?.options.clientID
         let appID = self.auth.app?.options.googleAppID
-        let apiKey = self.auth.requestConfiguration.apiKey
+        let apiKey = self.auth.requestConfiguration.APIKey
         var queryItems = [URLQueryItem(name: "apiKey", value: apiKey),
                           URLQueryItem(name: "authType", value: self.kAuthTypeVerifyApp),
                           URLQueryItem(name: "ibi", value: bundleID ?? ""),
