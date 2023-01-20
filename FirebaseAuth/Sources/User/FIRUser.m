@@ -18,38 +18,12 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
-#import "FirebaseAuth-Swift.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
-#import "FirebaseAuth/Sources/Auth/FIRAuthOperationType.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthSerialTaskQueue.h"
-#import "FirebaseAuth/Sources/Auth/FIRAuthTokenResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRDeleteAccountRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRDeleteAccountResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRSetAccountInfoRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRSetAccountInfoResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRSignInWithGameCenterRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRSignInWithGameCenterResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberResponse.h"
-#import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactor+Internal.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthErrorUtils.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthRequestConfiguration.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthWebUtils.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRVerifyAssertionRequest.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRVerifyAssertionResponse.h"
 #import "FirebaseAuth/Sources/SystemService/FIRSecureTokenService.h"
 #import "FirebaseAuth/Sources/User/FIRAdditionalUserInfo_Internal.h"
 #import "FirebaseAuth/Sources/User/FIRUserInfoImpl.h"
@@ -1477,7 +1451,7 @@ static void callInMainThreadWithAuthDataResultAndError(
             return;
           }
           FIRDeleteAccountRequest *deleteUserRequest =
-              [[FIRDeleteAccountRequest alloc] initWitLocalID:self->_userID
+              [[FIRDeleteAccountRequest alloc] initWithLocalID:self->_userID
                                                   accessToken:accessToken
                                          requestConfiguration:self->_auth.requestConfiguration];
           [FIRAuthBackend deleteAccount:deleteUserRequest
