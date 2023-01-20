@@ -15,17 +15,17 @@
 import Foundation
 
 @objc(FIRSecureTokenRequestGrantType) enum SecureTokenRequestGrantType: Int {
-    case authorizationCode
-    case refreshToken
+  case authorizationCode
+  case refreshToken
 
-    var value: String {
-        switch self {
-        case .refreshToken:
-            return kFIRSecureTokenServiceGrantTypeRefreshToken;
-        case .authorizationCode:
-            return kFIRSecureTokenServiceGrantTypeAuthorizationCode
-        }
+  var value: String {
+    switch self {
+    case .refreshToken:
+      return kFIRSecureTokenServiceGrantTypeRefreshToken
+    case .authorizationCode:
+      return kFIRSecureTokenServiceGrantTypeAuthorizationCode
     }
+  }
 }
 
 /** @var kFIRSecureTokenServiceGetTokenURLFormat
@@ -75,93 +75,107 @@ private let kCodeKey = "code"
  */
 private var gAPIHost = "securetoken.googleapis.com"
 
-
 /** @class FIRSecureTokenRequest
     @brief Represents the parameters for the token endpoint.
  */
 @objc(FIRSecureTokenRequest) public class SecureTokenRequest: NSObject, AuthRPCRequest {
+  /** @property grantType
+      @brief The type of grant requested.
+      @see FIRSecureTokenRequestGrantType
+   */
+  var grantType: SecureTokenRequestGrantType
 
-    /** @property grantType
-        @brief The type of grant requested.
-        @see FIRSecureTokenRequestGrantType
-     */
-    var grantType: SecureTokenRequestGrantType
+  /** @property scope
+      @brief The scopes requested (a comma-delimited list of scope strings.)
+   */
+  var scope: String?
 
-    /** @property scope
-        @brief The scopes requested (a comma-delimited list of scope strings.)
-     */
-    var scope: String?
+  /** @property refreshToken
+      @brief The client's refresh token.
+   */
+  var refreshToken: String?
 
-    /** @property refreshToken
-        @brief The client's refresh token.
-     */
-    var refreshToken: String?
+  /** @property code
+      @brief The client's authorization code (legacy Gitkit "ID Token").
+   */
+  var code: String?
 
-    /** @property code
-        @brief The client's authorization code (legacy Gitkit "ID Token").
-     */
-    var code: String?
+  /** @property APIKey
+      @brief The client's API Key.
+   */
+  let APIKey: String
 
-    /** @property APIKey
-        @brief The client's API Key.
-     */
-    let APIKey: String
+  let _requestConfiguration: AuthRequestConfiguration
+  public func requestConfiguration() -> AuthRequestConfiguration {
+    _requestConfiguration
+  }
 
-    let _requestConfiguration: AuthRequestConfiguration
-    public func requestConfiguration() -> AuthRequestConfiguration {
-        _requestConfiguration
+  @objc public static func authCodeRequest(code: String,
+                                           requestConfiguration: AuthRequestConfiguration)
+    -> SecureTokenRequest {
+    SecureTokenRequest(
+      grantType: .authorizationCode,
+      scope: nil,
+      refreshToken: nil,
+      code: code,
+      requestConfiguration: requestConfiguration
+    )
+  }
+
+  @objc public static func refreshRequest(refreshToken: String,
+                                          requestConfiguration: AuthRequestConfiguration)
+    -> SecureTokenRequest {
+    SecureTokenRequest(
+      grantType: .refreshToken,
+      scope: nil,
+      refreshToken: refreshToken,
+      code: nil,
+      requestConfiguration: requestConfiguration
+    )
+  }
+
+  init(grantType: SecureTokenRequestGrantType, scope: String?, refreshToken: String?,
+       code: String?, requestConfiguration: AuthRequestConfiguration) {
+    self.grantType = grantType
+    self.scope = scope
+    self.refreshToken = refreshToken
+    self.code = code
+    APIKey = requestConfiguration.APIKey
+    _requestConfiguration = requestConfiguration
+  }
+
+  public func requestURL() -> URL {
+    let urlString: String
+    if let emulatorHostAndPort = _requestConfiguration.emulatorHostAndPort {
+      urlString = "http://\(emulatorHostAndPort)/\(gAPIHost)/v1/token?key=\(APIKey)"
+    } else {
+      urlString = "https://\(gAPIHost)/v1/token?key=\(APIKey)"
     }
+    return URL(string: urlString)!
+  }
 
-    @objc public static func authCodeRequest(code: String, requestConfiguration: AuthRequestConfiguration) -> SecureTokenRequest {
-        SecureTokenRequest(grantType: .authorizationCode, scope: nil, refreshToken: nil, code: code, requestConfiguration: requestConfiguration)
+  var containsPostBody: Bool { true }
+
+  public func unencodedHTTPRequestBody() throws -> Any {
+    var postBody: [String: Any] = [
+      kGrantTypeKey: grantType.value,
+    ]
+    if let scope = scope {
+      postBody[kScopeKey] = scope
     }
-
-    @objc public static func refreshRequest(refreshToken: String, requestConfiguration: AuthRequestConfiguration) -> SecureTokenRequest {
-        SecureTokenRequest(grantType: .refreshToken, scope: nil, refreshToken: refreshToken, code: nil, requestConfiguration: requestConfiguration)
+    if let refreshToken = refreshToken {
+      postBody[kRefreshTokenKey] = refreshToken
     }
-
-
-    init(grantType: SecureTokenRequestGrantType, scope: String?, refreshToken: String?, code: String?, requestConfiguration: AuthRequestConfiguration) {
-        self.grantType = grantType
-        self.scope = scope
-        self.refreshToken = refreshToken
-        self.code = code
-        self.APIKey = requestConfiguration.APIKey
-        self._requestConfiguration = requestConfiguration
+    if let code = code {
+      postBody[kCodeKey] = code
     }
+    return postBody
+  }
 
-    public func requestURL() -> URL {
+  // MARK: Internal API for development
 
-        let urlString: String
-        if let emulatorHostAndPort = _requestConfiguration.emulatorHostAndPort {
-            urlString = "http://\(emulatorHostAndPort)/\(gAPIHost)/v1/token?key=\(APIKey)"
-        } else {
-            urlString = "https://\(gAPIHost)/v1/token?key=\(APIKey)"
-        }
-        return URL(string: urlString)!
-    }
-
-    var containsPostBody: Bool { true }
-
-    public func unencodedHTTPRequestBody() throws -> Any {
-        var postBody: [String: Any] = [
-            kGrantTypeKey: grantType.value
-        ]
-        if let scope = scope {
-            postBody[kScopeKey] = scope
-        }
-        if let refreshToken = refreshToken {
-            postBody[kRefreshTokenKey] = refreshToken
-        }
-        if let code = code {
-            postBody[kCodeKey] = code
-        }
-        return postBody
-    }
-
-    // MARK: Internal API for development
-    static var host: String { gAPIHost }
-    static func setHost(_ host: String) {
-        gAPIHost = host
-    }
+  static var host: String { gAPIHost }
+  static func setHost(_ host: String) {
+    gAPIHost = host
+  }
 }

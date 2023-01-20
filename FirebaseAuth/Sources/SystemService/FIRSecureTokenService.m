@@ -22,8 +22,8 @@
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseAuth-Swift.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

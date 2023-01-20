@@ -431,10 +431,8 @@ static NSString *const kTestValue = @"TestValue";
   _RPCImplementation = nil;
 }
 
-
 #ifdef TODO
 // Restore Heartbeats for CocoaPods.
-
 
 /** @fn testRequest_IncludesHeartbeatPayload_WhenHeartbeatsNeedSending
     @brief This test checks the behavior of @c postWithRequest:response:callback:
