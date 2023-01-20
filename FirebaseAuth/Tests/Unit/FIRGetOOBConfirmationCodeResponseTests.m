@@ -16,12 +16,9 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRActionCodeSettings.h"
 @import FirebaseAuth;
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeResponse.h"
 #import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestEmail
@@ -239,7 +236,7 @@ static NSString *const kIosBundleID = @"testBundleID";
 
   XCTAssert(callbackInvoked);
   XCTAssertNotNil(RPCError);
-  XCTAssertEqualObjects(RPCError.domain, FIRAuthErrorDomain);
+  XCTAssertEqualObjects(RPCError.domain, [FIRAuthErrors FIRAuthErrorDomain]);
   XCTAssertEqual(RPCError.code, FIRAuthErrorCodeUserNotFound);
   XCTAssertNil(RPCResponse);
 }
@@ -269,7 +266,7 @@ static NSString *const kIosBundleID = @"testBundleID";
 
   XCTAssert(callbackInvoked);
   XCTAssertNotNil(RPCError);
-  XCTAssertEqualObjects(RPCError.domain, FIRAuthErrorDomain);
+  XCTAssertEqualObjects(RPCError.domain, [FIRAuthErrors FIRAuthErrorDomain]);
   XCTAssertEqual(RPCError.code, FIRAuthErrorCodeMissingEmail);
   XCTAssertNil(RPCResponse);
 }
@@ -297,7 +294,7 @@ static NSString *const kIosBundleID = @"testBundleID";
 
   XCTAssert(callbackInvoked);
   XCTAssertNotNil(RPCError);
-  XCTAssertEqualObjects(RPCError.domain, FIRAuthErrorDomain);
+  XCTAssertEqualObjects(RPCError.domain, [FIRAuthErrors FIRAuthErrorDomain]);
   XCTAssertEqual(RPCError.code, FIRAuthErrorCodeInvalidEmail);
   XCTAssertNil(RPCResponse);
 }

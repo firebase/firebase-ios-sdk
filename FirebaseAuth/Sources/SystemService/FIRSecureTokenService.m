@@ -19,14 +19,11 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthSerialTaskQueue.h"
-#import "FirebaseAuth/Sources/Auth/FIRAuthTokenResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRSecureTokenRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRSecureTokenResponse.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthRequestConfiguration.h"
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import "FirebaseAuth-Swift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
