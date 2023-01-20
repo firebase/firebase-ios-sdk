@@ -230,7 +230,7 @@ import Foundation
     super.init(provider: providerID)
   }
 
-  @objc public convenience init(withVerifyAssertionResponse response: FIRVerifyAssertionResponse) {
+  @objc public convenience init(withVerifyAssertionResponse response: VerifyAssertionResponse) {
     self.init(withProviderID: response.providerID ?? OAuthProvider.id,
               IDToken: response.oauthIDToken,
               rawNonce: nil,
