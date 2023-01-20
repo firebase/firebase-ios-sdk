@@ -84,6 +84,15 @@ typedef void (^FIRSendEmailVerificationCallback)(NSError *_Nullable error)
 NS_SWIFT_NAME(User)
 @interface FIRUser : NSObject <FIRUserInfo>
 
+// TODO: rawAccessToken is internal
+/** @property rawAccessToken
+    @brief The cached access token.
+    @remarks This method is specifically for providing the access token to internal clients during
+        deserialization and sign-in events, and should not be used to retrieve the access token by
+        anyone else.
+ */
+@property(nonatomic, copy, readonly) NSString *rawAccessToken;
+
 /** @property anonymous
     @brief Indicates the user represents an anonymous user.
  */
