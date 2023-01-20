@@ -15,10 +15,10 @@
 import Foundation
 
 extension Data {
-    func base64URLEncodedString(options: Data.Base64EncodingOptions = []) -> String {
-        base64EncodedString()
-            .replacingOccurrences(of: "/", with: "_")
-            .replacingOccurrences(of: "+", with: "-")
-            .replacingOccurrences(of: "=", with: "")
-    }
+  func base64URLEncodedString(options: Data.Base64EncodingOptions = []) -> String {
+    base64EncodedString()
+      .replacingOccurrences(of: "/", with: "_")
+      .replacingOccurrences(of: "+", with: "-")
+      .replacingOccurrences(of: "=", with: "")
+  }
 }

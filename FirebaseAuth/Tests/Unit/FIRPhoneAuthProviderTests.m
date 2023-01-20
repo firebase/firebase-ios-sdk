@@ -29,11 +29,11 @@
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
 @import FirebaseAuth;
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthURLPresenter.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthNotificationManager.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthURLPresenter.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
 #import "FirebaseAuth/Tests/Unit/FIRFakeAppCheck.h"
 #import "FirebaseAuth/Tests/Unit/OCMStubRecorder+FIRAuthUnitTests.h"
