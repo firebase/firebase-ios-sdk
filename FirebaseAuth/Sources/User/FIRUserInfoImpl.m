@@ -15,8 +15,7 @@
  */
 
 #import "FirebaseAuth/Sources/User/FIRUserInfoImpl.h"
-
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoResponse.h"
+#import "FirebaseAuth-Swift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
