@@ -23,6 +23,26 @@
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
+// XXX TODO, can't declare globals in Swift for Obj-C consumption
+static NSString *const FIRAuthErrorDomain = @"FIRAuthErrorDomain";
+
+static NSString *const FIRAuthInternalErrorDomain = @"FIRAuthInternalErrorDomain";
+
+static NSString *const FIRAuthErrorUserInfoDeserializedResponseKey =
+    @"FIRAuthErrorUserInfoDeserializedResponseKey";
+
+static NSString *const FIRAuthErrorUserInfoDataKey = @"FIRAuthErrorUserInfoDataKey";
+
+static NSString *const FIRAuthErrorUserInfoEmailKey = @"FIRAuthErrorUserInfoEmailKey";
+
+static NSString *const FIRAuthErrorUserInfoUpdatedCredentialKey =
+    @"FIRAuthErrorUserInfoUpdatedCredentialKey";
+
+static NSString *const FIRAuthErrorUserInfoNameKey = @"FIRAuthErrorUserInfoNameKey";
+
+static NSString *const FIRAuthErrorUserInfoMultiFactorResolverKey =
+    @"FIRAuthErrorUserInfoMultiFactorResolverKey";
+
 /** @var kFakeRequestURL
     @brief Used as a fake URL for a fake RPC request. We don't test this here, since it's tested
         for the specific RPC requests in their various unit tests.
