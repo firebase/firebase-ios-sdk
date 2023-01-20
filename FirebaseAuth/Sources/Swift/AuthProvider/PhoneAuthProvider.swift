@@ -220,30 +220,93 @@ import FirebaseCore
         completion(nil, nil, error)
         return
       }
+      guard let reCAPTCHAURL = reCAPTCHAURL else {
+        fatalError("Internal error: reCAPTCHAURL returned neither a value nor an error. Report issue")
+      }
+      let callbackMatcher: (URL?) -> Bool = { callbackURL in
+        return FIRAuthWebUtils.isExpectedCallbackURL(callbackURL, eventID: eventID, authType: self.kAuthTypeVerifyApp, callbackScheme: self.callbackScheme)
+      }
+      self.auth.authURLPresenter.present(reCAPTCHAURL,
+                                          uiDelegate: UIDelegate,
+                                          callbackMatcher: callbackMatcher) { callbackURL, error in
+        if let error = error {
+          completion(nil, nil, error)
+          return
+        }
+        let reCAPTHAtoken = self.reCAPTCHAToken
+      }
     }
   }
 
+  /**
+      @brief Parses the reCAPTCHA URL and returns the reCAPTCHA token.
+      @param URL The url to be parsed for a reCAPTCHA token.
+      @param error The error that occurred if any.
+      @return The reCAPTCHA token if successful.
+   */
+  private func reCAPTCHAToken(forURL url: URL, error: NSError) -> String? {
+    let actualURLComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
+    guard let queryItems = actualURLComponents?.queryItems else {
+      return nil
+    }
+    guard let deepLinkURL = FIRAuthWebUtils.queryItemValue("deep_link_id", from: queryItems) else {
+      return nil
+    }
+    let deepLinkComponents = URLComponents(string: deepLinkURL)
+    if let queryItems = deepLinkComponents?.queryItems {
+      return FIRAuthWebUtils.queryItemValue("recaptchaToken", from: queryItems)
+    }
+  }
+
+//  - (nullable NSString *)reCAPTCHATokenForURL:(NSURL *)URL error:(NSError **_Nonnull)error {
+//    NSURLComponents *actualURLComponents = [NSURLComponents componentsWithURL:URL
+//                                                      resolvingAgainstBaseURL:NO];
+//    NSArray<NSURLQueryItem *> *queryItems = [actualURLComponents queryItems];
+//    NSString *deepLinkURL = [FIRAuthWebUtils queryItemValue:@"deep_link_id" from:queryItems];
+//    NSData *errorData;
+//    if (deepLinkURL) {
+//      actualURLComponents = [NSURLComponents componentsWithString:deepLinkURL];
+//      queryItems = [actualURLComponents queryItems];
+//      NSString *recaptchaToken = [FIRAuthWebUtils queryItemValue:@"recaptchaToken" from:queryItems];
+//      if (recaptchaToken) {
+//        return recaptchaToken;
+//      }
+//      NSString *firebaseError = [FIRAuthWebUtils queryItemValue:@"firebaseError" from:queryItems];
+//      errorData = [firebaseError dataUsingEncoding:NSUTF8StringEncoding];
+//    } else {
+//      errorData = nil;
+//    }
+//    if (error != NULL && errorData != nil) {
+//      NSError *jsonError;
+//      NSDictionary *errorDict = [NSJSONSerialization JSONObjectWithData:errorData
+//                                                                options:0
+//                                                                  error:&jsonError];
+//      if (jsonError) {
+//        *error = [FIRAuthErrorUtils JSONSerializationErrorWithUnderlyingError:jsonError];
+//        return nil;
+//      }
+//      *error = [FIRAuthErrorUtils URLResponseErrorWithCode:errorDict[@"code"]
+//                                                   message:errorDict[@"message"]];
+//      if (!*error) {
+//        NSString *reason;
+//        if (errorDict[@"code"] && errorDict[@"message"]) {
+//          reason =
+//              [NSString stringWithFormat:@"[%@] - %@", errorDict[@"code"], errorDict[@"message"]];
+//        } else {
+//          reason = [NSString stringWithFormat:@"An unknown error occurred with the following "
+//                                               "response: %@",
+//                                              deepLinkURL];
+//        }
+//        *error = [FIRAuthErrorUtils appVerificationUserInteractionFailureWithReason:reason];
+//      }
+//    }
+//    return nil;
+//  }
 
 
-  //    NSString *eventID = [FIRAuthWebUtils randomStringWithLength:10];
-  //    [self
-  //        reCAPTCHAURLWithEventID:eventID
-  //                     completion:^(NSURL *_Nullable reCAPTCHAURL, NSError *_Nullable error) {
-  //                       if (error) {
-  //                         completion(nil, nil, error);
-  //                         return;
-  //                       }
-  //                       FIRAuthURLCallbackMatcher callbackMatcher =
-  //                           ^BOOL(NSURL *_Nullable callbackURL) {
-  //                             return [FIRAuthWebUtils isExpectedCallbackURL:callbackURL
-  //                                                                   eventID:eventID
-  //                                                                  authType:kAuthTypeVerifyApp
-  //                                                            callbackScheme:self->_callbackScheme];
-  //                           };
-  //                       [self->_auth.authURLPresenter
-  //                                presentURL:reCAPTCHAURL
-  //                                UIDelegate:UIDelegate
-  //                           callbackMatcher:callbackMatcher
+
+
+
   //                                completion:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
   //                                  if (error) {
   //                                    completion(nil, nil, error);
