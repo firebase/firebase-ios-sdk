@@ -46,7 +46,7 @@
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
-#import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthURLPresenter.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
