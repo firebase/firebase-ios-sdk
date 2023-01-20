@@ -24,6 +24,7 @@
 #import "FirebaseAuth/Sources/Utilities/FIRAuthDefaultUIDelegate.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebViewController.h"
+#import "FirebaseAuth-Swift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
