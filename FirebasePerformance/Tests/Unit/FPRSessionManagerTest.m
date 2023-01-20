@@ -16,13 +16,7 @@
 
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager+Private.h"
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
-#import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags+Private.h"
-#import "FirebasePerformance/Sources/Gauges/FPRGaugeManager+Private.h"
-#import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
-
-#import "FirebasePerformance/Tests/Unit/Configurations/FPRFakeRemoteConfig.h"
-#import "FirebasePerformance/Tests/Unit/Fakes/FPRFakeConfigurations.h"
+#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 
 #import <OCMock/OCMock.h>
 
