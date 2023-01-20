@@ -30,9 +30,17 @@ NSString *const testSessionId = @"testSessionId";
 
 @interface FPRSessionManagerTest : XCTestCase
 
+@property FPRSessionManager *instance;
+
 @end
 
 @implementation FPRSessionManagerTest
+
+- (void)setUp {
+  [super setUp];
+  NSNotificationCenter *notificationCenter = [[NSNotificationCenter alloc] init];
+  _instance = [[FPRSessionManager alloc] initWithNotificationCenter:notificationCenter];
+}
 
 /** Validate the instance gets created and it is a singleton. */
 - (void)testInstanceCreation {
@@ -43,66 +51,62 @@ NSString *const testSessionId = @"testSessionId";
 
 /** Validate that gauge collection does not change when calling renew method immediately. */
 - (void)testGaugeDoesNotStopBeforeMaxDuration {
-  id instance = [OCMockObject partialMockForObject:[FPRSessionManager sharedInstance]];
+  id instance = [OCMockObject partialMockForObject:self.instance];
   OCMStub([instance isGaugeCollectionEnabledForSessionId:[OCMArg any]]).andReturn(true);
   [instance updateSessionId:testSessionId];
-  [instance stopGaugesIfRunningTooLong:[NSDate date]];
-  XCTAssertNotNil([FPRGaugeManager sharedInstance].cpuGaugeCollector);
-  XCTAssertNotNil([FPRGaugeManager sharedInstance].memoryGaugeCollector);
+  BOOL gaugeStopped = [instance stopGaugesIfRunningTooLong:[NSDate date]];
+  XCTAssertFalse(gaugeStopped);
 }
 
 /** Validate that gauge collection stops when calling renew method after max duration reached. */
 - (void)testGaugeStopsAfterMaxDuration {
-  id instance = [OCMockObject partialMockForObject:[FPRSessionManager sharedInstance]];
+  id instance = [OCMockObject partialMockForObject:self.instance];
   OCMStub([instance isGaugeCollectionEnabledForSessionId:[OCMArg any]]).andReturn(true);
   [instance updateSessionId:testSessionId];
   NSTimeInterval maxDurationSeconds =
       [[FPRConfigurations sharedInstance] maxSessionLengthInMinutes] * 60;
-  [instance stopGaugesIfRunningTooLong:[[NSDate date] dateByAddingTimeInterval:maxDurationSeconds]];
-  XCTAssertNil([FPRGaugeManager sharedInstance].cpuGaugeCollector);
-  XCTAssertNil([FPRGaugeManager sharedInstance].memoryGaugeCollector);
+  BOOL gaugeStopped = [instance
+      stopGaugesIfRunningTooLong:[[NSDate date] dateByAddingTimeInterval:maxDurationSeconds]];
+  XCTAssertTrue(gaugeStopped);
 }
 
 /** Validate that sessionId changes on new session. */
 - (void)testUpdateSessionId {
-  FPRSessionManager *instance = [FPRSessionManager sharedInstance];
-  [instance updateSessionId:testSessionId];
-  NSString *sessionId = instance.sessionDetails.sessionId;
-  [instance updateSessionId:@"testSessionId2"];
-  XCTAssertNotEqual(sessionId, instance.sessionDetails.sessionId);
+  [self.instance updateSessionId:testSessionId];
+  NSString *sessionId = self.instance.sessionDetails.sessionId;
+  [self.instance updateSessionId:@"testSessionId2"];
+  XCTAssertNotEqual(sessionId, self.instance.sessionDetails.sessionId);
 }
 
 /** Validate that sessionId changes sends notifications. */
 - (void)testUpdateSessionIdPostsNotification {
-  FPRSessionManager *instance = [FPRSessionManager sharedInstance];
-  [instance updateSessionId:testSessionId];
-  NSString *sessionId = instance.sessionDetails.sessionId;
+  [self.instance updateSessionId:testSessionId];
+  NSString *sessionId = self.instance.sessionDetails.sessionId;
 
   __block BOOL receivedNotification = NO;
-  [instance.sessionNotificationCenter addObserverForName:kFPRSessionIdUpdatedNotification
-                                                  object:instance
-                                                   queue:[NSOperationQueue mainQueue]
-                                              usingBlock:^(NSNotification *note) {
-                                                receivedNotification = YES;
-                                              }];
+  [self.instance.sessionNotificationCenter addObserverForName:kFPRSessionIdUpdatedNotification
+                                                       object:self.instance
+                                                        queue:[NSOperationQueue mainQueue]
+                                                   usingBlock:^(NSNotification *note) {
+                                                     receivedNotification = YES;
+                                                   }];
 
-  [instance updateSessionId:@"testSessionId2"];
+  [self.instance updateSessionId:@"testSessionId2"];
 
   XCTAssertTrue(receivedNotification);
-  XCTAssertNotEqual(sessionId, instance.sessionDetails.sessionId);
+  XCTAssertNotEqual(sessionId, self.instance.sessionDetails.sessionId);
 }
 
 /** Validate that sessionId changes sends notifications with the session details. */
-- (void)testSessionIdUpdationSendsNotificationWithSessionDetails {
-  FPRSessionManager *instance = [FPRSessionManager sharedInstance];
-  [instance updateSessionId:testSessionId];
-  NSString *sessionId = instance.sessionDetails.sessionId;
+- (void)testUpdateSessionIdPostsNotificationWithSessionDetails {
+  [self.instance updateSessionId:testSessionId];
+  NSString *sessionId = self.instance.sessionDetails.sessionId;
 
   __block BOOL containsSessionDetails = NO;
   __block FPRSessionDetails *updatedSessionDetails = nil;
-  [instance.sessionNotificationCenter
+  [self.instance.sessionNotificationCenter
       addObserverForName:kFPRSessionIdUpdatedNotification
-                  object:instance
+                  object:self.instance
                    queue:[NSOperationQueue mainQueue]
               usingBlock:^(NSNotification *note) {
                 NSDictionary<NSString *, FPRSessionDetails *> *userInfo = note.userInfo;
@@ -114,11 +118,11 @@ NSString *const testSessionId = @"testSessionId";
                 }
               }];
 
-  [instance updateSessionId:@"testSessionId2"];
+  [self.instance updateSessionId:@"testSessionId2"];
 
   XCTAssertTrue(containsSessionDetails);
-  XCTAssertNotEqual(sessionId, instance.sessionDetails.sessionId);
-  XCTAssertEqual(updatedSessionDetails.sessionId, instance.sessionDetails.sessionId);
+  XCTAssertNotEqual(sessionId, self.instance.sessionDetails.sessionId);
+  XCTAssertEqual(updatedSessionDetails.sessionId, self.instance.sessionDetails.sessionId);
 }
 
 @end

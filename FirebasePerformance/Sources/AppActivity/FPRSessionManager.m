@@ -65,11 +65,13 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
   return self;
 }
 
-- (void)stopGaugesIfRunningTooLong:(NSDate *)now {
+- (BOOL)stopGaugesIfRunningTooLong:(NSDate *)now {
   NSUInteger maxSessionLength = [[FPRConfigurations sharedInstance] maxSessionLengthInMinutes];
   if ([self.sessionDetails sessionLengthInMinutesFromDate:now] >= maxSessionLength) {
     [[FPRGaugeManager sharedInstance] stopCollectingGauges:FPRGaugeCPU | FPRGaugeMemory];
+    return true;
   }
+  return false;
 }
 
 /**

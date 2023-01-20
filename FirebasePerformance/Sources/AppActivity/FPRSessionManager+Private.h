@@ -25,11 +25,27 @@ NS_ASSUME_NONNULL_BEGIN
 @property(atomic, nullable, readwrite) FPRSessionDetails *sessionDetails;
 
 /**
+ * Creates an instance of FPRSesssionManager with the notification center provided. All the
+ * notifications from the session manager will sent using this notification center.
+ *
+ * @param notificationCenter Notification center with which the session manager with be initialized.
+ * @return Returns an instance of the session manager.
+ */
+- (FPRSessionManager *)initWithNotificationCenter:(NSNotificationCenter *)notificationCenter;
+
+/**
  * Checks if the currently active session is beyond maximum allowed time for gauge-collection. If so
  * stop gauges, else no-op.
+ * @return YES if gauge collection is running too long and stopped, NO otherwise.
  */
-- (void)stopGaugesIfRunningTooLong:(NSDate *)now;
+- (BOOL)stopGaugesIfRunningTooLong:(NSDate *)now;
 
+/**
+ * Checks if the provided sessionId can have gauge data collection enabled.
+ *
+ * @param sessionId Session Id for which the check is done.
+ * @return YES if gauge collection is enabled, NO otherwise.
+ */
 - (BOOL)isGaugeCollectionEnabledForSessionId:(NSString *)sessionId;
 
 @end
