@@ -29,31 +29,31 @@ private let kIDTokenKey = "idToken"
     @brief Represents the parameters for the getAccountInfo endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/getAccountInfo
  */
-@objc(FIRGetAccountInfoRequest) public class GetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
+@objc(FIRGetAccountInfoRequest) public class GetAccountInfoRequest: IdentityToolkitRequest,
+  AuthRPCRequest {
+  /** @property accessToken
+      @brief The STS Access Token for the authenticated user.
+   */
+  let accessToken: String
 
-    /** @property accessToken
-        @brief The STS Access Token for the authenticated user.
-     */
-    let accessToken: String
+  /** @fn initWithEndpoint:requestConfiguration:requestConfiguration
+      @brief Please use initWithAccessToken:requestConfiguration: instead.
+   */
+  override init(endpoint: String, requestConfiguration: AuthRequestConfiguration) {
+    fatalError("-")
+  }
 
-    /** @fn initWithEndpoint:requestConfiguration:requestConfiguration
-        @brief Please use initWithAccessToken:requestConfiguration: instead.
-     */
-    override init(endpoint: String, requestConfiguration: AuthRequestConfiguration) {
-        fatalError("-")
-    }
+  /** @fn initWithAccessToken:requestConfiguration
+      @brief Designated initializer.
+      @param accessToken The Access Token of the authenticated user.
+      @param requestConfiguration An object containing configurations to be added to the request.
+   */
+  @objc public init(accessToken: String, requestConfiguration: AuthRequestConfiguration) {
+    self.accessToken = accessToken
+    super.init(endpoint: kGetAccountInfoEndpoint, requestConfiguration: requestConfiguration)
+  }
 
-    /** @fn initWithAccessToken:requestConfiguration
-        @brief Designated initializer.
-        @param accessToken The Access Token of the authenticated user.
-        @param requestConfiguration An object containing configurations to be added to the request.
-     */
-    @objc public init(accessToken: String, requestConfiguration: AuthRequestConfiguration) {
-        self.accessToken = accessToken
-        super.init(endpoint: kGetAccountInfoEndpoint, requestConfiguration: requestConfiguration)
-    }
-
-    public func unencodedHTTPRequestBody() throws -> Any {
-        return [kIDTokenKey: accessToken]
-    }
+  public func unencodedHTTPRequestBody() throws -> Any {
+    return [kIDTokenKey: accessToken]
+  }
 }
