@@ -18,10 +18,10 @@ import Foundation
 // warnings about forward declaration of protocol. So until FIRUser and
 // friends are converted, just use the Objective-C implementation.
 
-///**
+/// **
 //    @brief Represents user data returned from an identity provider.
 // */
-//@objc(FIRUserInfo) public protocol UserInfo: NSObjectProtocol {
+// @objc(FIRUserInfo) public protocol UserInfo: NSObjectProtocol {
 //    /** @property providerID
 //     @brief The provider identifier.
 //     */
@@ -52,4 +52,4 @@ import Foundation
 //        @remarks This property is only available for users authenticated via phone number auth.
 //     */
 //    var phoneNumber: String? { get }
-//}
+// }
