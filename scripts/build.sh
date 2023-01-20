@@ -549,8 +549,8 @@ case "$product-$platform-$method" in
     # Run E2E Integration Tests for Autopush.
     RunXcodebuild \
       -workspace 'FirebaseSessions/Tests/TestApp/AppQualityDevApp.xcworkspace' \
-      FirebaseSessionsRunEnvironment=AUTOPUSH \
       -scheme "AppQualityDevApp_iOS" \
+      FirebaseSessionsRunEnvironment=AUTOPUSH \
       "${ios_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
