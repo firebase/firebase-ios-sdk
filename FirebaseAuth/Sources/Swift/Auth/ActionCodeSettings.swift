@@ -58,16 +58,15 @@ import Foundation
      */
     @objc public var dynamicLinkDomain: String?
 
-    /** @fn setIOSBundleID
+    /** @fn
         @brief Sets the iOS bundle Id.
-        @param iOSBundleID The iOS bundle ID.
      */
 
     @objc public override init() {
         self.iOSBundleID = Bundle.main.bundleIdentifier
     }
 
-    /** @fn setAndroidPackageName:installIfNotAvailable:minimumVersion:
+    /** @fn
         @brief Sets the Android package name, the flag to indicate whether or not to install the app
             and the minimum Android version supported.
         @param androidPackageName The Android package name.
