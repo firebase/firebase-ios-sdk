@@ -346,8 +346,7 @@ static void callInMainThreadWithAuthDataResultAndError(
     _tenantID = tenantID;
     // The `heartbeatLogger` will be set later via a property update.
     _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey
-                                                                          appID:appID
-                                                                heartbeatLogger:nil];
+                                                                          appID:appID];
 #if TARGET_OS_IOS
     _multiFactor = multiFactor ?: [[FIRMultiFactor alloc] init];
     _multiFactor.user = self;

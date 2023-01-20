@@ -18,6 +18,7 @@
 
 @class FIRMultiFactorSession;
 @class FIRMultiFactorInfo;
+@class FIRAuthProtoMFAEnrollment;
 
 NS_ASSUME_NONNULL_BEGIN
 

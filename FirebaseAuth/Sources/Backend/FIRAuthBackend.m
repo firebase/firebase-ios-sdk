@@ -29,7 +29,7 @@
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #if TARGET_OS_IOS
-#import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorInfo+Internal.h"
+//#import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorInfo+Internal.h"
 #endif
 
 #import "FirebaseAuth-Swift.h"
@@ -592,9 +592,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [request setValue:bundleID forHTTPHeaderField:kIosBundleIdentifierHeader];
   NSString *appID = requestConfiguration.appID;
   [request setValue:appID forHTTPHeaderField:kFirebaseAppIDHeader];
-  [request setValue:FIRHeaderValueFromHeartbeatsPayload(
-                        [requestConfiguration.heartbeatLogger flushHeartbeatsIntoPayload])
-      forHTTPHeaderField:kFirebaseHeartbeatHeader];
+  // TODO:
+//  [request setValue:FIRHeaderValueFromHeartbeatsPayload(
+//                        [requestConfiguration.heartbeatLogger flushHeartbeatsIntoPayload])
+//      forHTTPHeaderField:kFirebaseHeartbeatHeader];
   NSArray<NSString *> *preferredLocalizations = [NSBundle mainBundle].preferredLocalizations;
   if (preferredLocalizations.count) {
     NSString *acceptLanguage = preferredLocalizations.firstObject;
