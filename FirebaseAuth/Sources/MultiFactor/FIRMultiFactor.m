@@ -21,27 +21,10 @@
 #import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend+MultiFactor.h"
-#import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/Enroll/FIRStartMFAEnrollmentRequest.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactor+Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorInfo+Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorSession+Internal.h"
 #import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
-
-#if TARGET_OS_IOS
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneMultiFactorAssertion.h"
-
-#import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorAssertion+Internal.h"
-#import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorInfo+Internal.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneMultiFactorAssertion.h"
-
-#import "FirebaseAuth/Sources/MultiFactor/TOTP/FIRTOTPMultiFactorAssertion+Internal.h"
-#import "FirebaseAuth/Sources/MultiFactor/TOTP/FIRTOTPMultiFactorInfo.h"
-#import "FirebaseAuth/Sources/MultiFactor/TOTP/FIRTOTPSecret+Internal.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPMultiFactorAssertion.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPMultiFactorGenerator.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPSecret.h"
-
-#endif
 
 #import "FirebaseAuth-Swift.h"
 

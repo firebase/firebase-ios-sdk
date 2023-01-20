@@ -19,11 +19,11 @@
 @import FirebaseAuth;
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeResponse.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthInternalErrors.h"
 #import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
+
+// XXX TODO, can't declare globals in Swift for Obj-C consumption
+static NSString *const FIRAuthErrorUserInfoDeserializedResponseKey =
+@"FIRAuthErrorUserInfoDeserializedResponseKey";
 
 /** @var kTestAPIKey
     @brief Fake API key used for testing.
@@ -178,7 +178,7 @@ static NSString *const kEmailVerifiedKey = @"emailVerified";
 
   XCTAssert(callbackInvoked);
   XCTAssertNotNil(RPCError);
-  XCTAssertEqualObjects(RPCError.domain, FIRAuthErrorDomain);
+  XCTAssertEqualObjects(RPCError.domain, [FIRAuthErrors FIRAuthErrorDomain]);
   XCTAssertEqual(RPCError.code, FIRAuthErrorCodeInternalError);
   XCTAssertNotNil(RPCError.userInfo[NSUnderlyingErrorKey]);
   NSError *underlyingError = RPCError.userInfo[NSUnderlyingErrorKey];
