@@ -27,6 +27,9 @@ import Foundation
 let skipDirPatterns = ["/Sample/", "/Pods/",
                        "FirebaseDynamicLinks/Tests/Integration",
                        "FirebaseInAppMessaging/Tests/Integration/",
+                       "FirebaseAuth/",
+                       // TODO: Turn Combine back on without Auth includes.
+                       "FirebaseCombineSwift/Tests/Unit/FirebaseCombine-unit-Bridging-Header.h",
                        "SymbolCollisionTest/", "/gen/",
                        "CocoapodsIntegrationTest/", "FirebasePerformance/Tests/TestApp/",
                        "cmake-build-debug/", "build/", "ObjCIntegration/",
