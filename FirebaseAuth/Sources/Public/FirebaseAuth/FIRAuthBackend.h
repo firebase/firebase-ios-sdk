@@ -16,10 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuthRPCResponse.h"
-#import "FIRAuthRPCRequest.h"
-#import "FIRSendVerificationCodeRequest.h"
-
+@protocol FIRAuthRPCRequest;
+@protocol FIRAuthRPCResponse;
 @class FIRAuthRequestConfiguration;
 @class FIRCreateAuthURIRequest;
 @class FIRCreateAuthURIResponse;
