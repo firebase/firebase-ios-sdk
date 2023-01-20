@@ -18,6 +18,9 @@
 #import <Foundation/Foundation.h>
 
 #import "FIRAuthAPNSTokenType.h"
+#import "FIRAuthErrors.h"
+#import "FIRAuthRequestConfiguration.h"
+#import "FIRAuthURLPresenter.h"
 
 @class FIRActionCodeSettings;
 @class FIRApp;
@@ -290,6 +293,11 @@ typedef void (^FIRCheckActionCodeCallBack)(FIRActionCodeInfo *_Nullable info,
  */
 NS_SWIFT_NAME(Auth)
 @interface FIRAuth : NSObject
+
+/** @property authURLPresenter
+    @brief An object that takes care of presenting URLs via the auth instance.
+ */
+@property(nonatomic, strong, readonly) FIRAuthURLPresenter *authURLPresenter;
 
 /** @property notificationManager
     @brief The manager for remote notifications used by phone number auth.
