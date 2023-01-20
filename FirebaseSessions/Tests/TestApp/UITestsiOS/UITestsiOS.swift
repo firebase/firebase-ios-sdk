@@ -22,8 +22,8 @@ final class UITestsiOS: XCTestCase {
 
     // Collect necessary environment variables and propagate them as necessary
     let environment = ProcessInfo.processInfo.environment["FirebaseSessionsRunEnvironment"]
-    if (environment != nil) {
-      let variables = ["FirebaseSessionsRunEnvironment":environment!]
+    if environment != nil {
+      let variables = ["FirebaseSessionsRunEnvironment": environment!]
       app.launchEnvironment = variables
     }
 
