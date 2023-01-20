@@ -15,16 +15,15 @@
 import Foundation
 
 #if os(iOS)
-private let kUIDCodingKey = "uid"
+  private let kUIDCodingKey = "uid"
 
-private let kDisplayNameCodingKey = "displayName"
+  private let kDisplayNameCodingKey = "displayName"
 
-private let kEnrollmentDateCodingKey = "enrollmentDate"
+  private let kEnrollmentDateCodingKey = "enrollmentDate"
 
-private let kFactorIDCodingKey = "factorID"
+  private let kFactorIDCodingKey = "factorID"
 
-@objc(FIRMultiFactorSession) public class MultiFactorSession: NSObject {
-
+  @objc(FIRMultiFactorSession) public class MultiFactorSession: NSObject {
     // XXX TODO SHOULD BE INTERNAL
     @objc public var IDToken: String?
 
@@ -35,14 +34,14 @@ private let kFactorIDCodingKey = "factorID"
     @objc public var multiFactorInfo: MultiFactorInfo?
 
     @objc public static var sessionForCurrentUser: MultiFactorSession {
-        let currentUser = Auth.auth().currentUser
-        let idToken = currentUser?.rawAccessToken
-        return .init(IDToken: idToken)
+      let currentUser = Auth.auth().currentUser
+      let idToken = currentUser?.rawAccessToken
+      return .init(IDToken: idToken)
     }
 
     @objc public init(IDToken: String?) {
-        self.IDToken = IDToken
+      self.IDToken = IDToken
     }
-}
+  }
 
 #endif

@@ -1,12 +1,18 @@
+// Copyright 2023 Google LLC
 //
-//  File.swift
-//  
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//  Created by Morten Bek Ditlevsen on 20/01/2023.
+//      http://www.apache.org/licenses/LICENSE-2.0
 //
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 import Foundation
-
 
 /** @var kVerifyPhoneNumberEndPoint
     @brief The "verifyPhoneNumber" endpoint.
@@ -49,112 +55,113 @@ private let kOperationKey = "operation"
 private let kTenantIDKey = "tenantId"
 
 extension AuthOperationType {
-    /** @fn FIRAuthOperationString
-        @brief Returns a string object corresponding to the provided FIRAuthOperationType value.
-        @param operationType The value of the FIRAuthOperationType enum which will be translated to its
-            corresponding string value.
-        @return The string value corresponding to the FIRAuthOperationType argument.
-     */
-    var operationString: String {
-        switch self {
-        case .unspecified:
-            return "VERIFY_OP_UNSPECIFIED"
-        case .signUpOrSignIn:
-            return "SIGN_UP_OR_IN"
-        case .reauth:
-            return "REAUTH"
-        case .link:
-            return "LINK"
-        case .update:
-            return "UPDATE"
-        }
+  /** @fn FIRAuthOperationString
+      @brief Returns a string object corresponding to the provided FIRAuthOperationType value.
+      @param operationType The value of the FIRAuthOperationType enum which will be translated to its
+          corresponding string value.
+      @return The string value corresponding to the FIRAuthOperationType argument.
+   */
+  var operationString: String {
+    switch self {
+    case .unspecified:
+      return "VERIFY_OP_UNSPECIFIED"
+    case .signUpOrSignIn:
+      return "SIGN_UP_OR_IN"
+    case .reauth:
+      return "REAUTH"
+    case .link:
+      return "LINK"
+    case .update:
+      return "UPDATE"
     }
+  }
 }
 
-@objc(FIRVerifyPhoneNumberRequest) public class VerifyPhoneNumberRequest: IdentityToolkitRequest, AuthRPCRequest {
+@objc(FIRVerifyPhoneNumberRequest) public class VerifyPhoneNumberRequest: IdentityToolkitRequest,
+  AuthRPCRequest {
+  /** @property verificationID
+       @brief The verification ID obtained from the response of @c sendVerificationCode.
+   */
+  @objc public var verificationID: String?
 
-    /** @property verificationID
-        @brief The verification ID obtained from the response of @c sendVerificationCode.
-    */
-    @objc public var verificationID: String?
+  /** @property verificationCode
+       @brief The verification code provided by the user.
+   */
+  @objc public var verificationCode: String?
 
-    /** @property verificationCode
-        @brief The verification code provided by the user.
-    */
-    @objc public var verificationCode: String?
+  /** @property accessToken
+      @brief The STS Access Token for the authenticated user.
+   */
+  @objc public var accessToken: String?
 
-    /** @property accessToken
-        @brief The STS Access Token for the authenticated user.
-     */
-    @objc public var accessToken: String?
+  /** @var temporaryProof
+      @brief The temporary proof code, previously returned from the backend.
+   */
+  @objc public var temporaryProof: String?
 
-    /** @var temporaryProof
-        @brief The temporary proof code, previously returned from the backend.
-     */
-    @objc public var temporaryProof: String?
+  /** @var phoneNumber
+      @brief The phone number to be verified in the request.
+   */
+  @objc public var phoneNumber: String?
 
-    /** @var phoneNumber
-        @brief The phone number to be verified in the request.
-     */
-    @objc public var phoneNumber: String?
+  /** @var operation
+      @brief The type of operation triggering this verify phone number request.
+   */
+  @objc public var operation: AuthOperationType
 
-    /** @var operation
-        @brief The type of operation triggering this verify phone number request.
-     */
-    @objc public var operation: AuthOperationType
+  /** @fn initWithTemporaryProof:phoneNumberAPIKey
+      @brief Designated initializer.
+      @param temporaryProof The temporary proof sent by the backed.
+      @param phoneNumber The phone number associated with the credential to be signed in.
+      @param operation Indicates what operation triggered the verify phone number request.
+      @param requestConfiguration An object containing configurations to be added to the request.
+   */
+  @objc public init(temporaryProof: String, phoneNumber: String, operation: AuthOperationType,
+                    requestConfiguration: AuthRequestConfiguration) {
+    self.temporaryProof = temporaryProof
+    self.phoneNumber = phoneNumber
+    self.operation = operation
+    super.init(endpoint: kVerifyPhoneNumberEndPoint, requestConfiguration: requestConfiguration)
+  }
 
-    /** @fn initWithTemporaryProof:phoneNumberAPIKey
-        @brief Designated initializer.
-        @param temporaryProof The temporary proof sent by the backed.
-        @param phoneNumber The phone number associated with the credential to be signed in.
-        @param operation Indicates what operation triggered the verify phone number request.
-        @param requestConfiguration An object containing configurations to be added to the request.
-     */
-    @objc public init(temporaryProof: String, phoneNumber: String, operation: AuthOperationType, requestConfiguration: AuthRequestConfiguration) {
-        self.temporaryProof = temporaryProof
-        self.phoneNumber = phoneNumber
-        self.operation = operation
-        super.init(endpoint: kVerifyPhoneNumberEndPoint, requestConfiguration: requestConfiguration)
+  /** @fn initWithVerificationID:verificationCode:requestConfiguration
+      @brief Designated initializer.
+      @param verificationID The verification ID obtained from the response of @c sendVerificationCode.
+      @param verificationCode The verification code provided by the user.
+      @param operation Indicates what operation triggered the verify phone number request.
+      @param requestConfiguration An object containing configurations to be added to the request.
+   */
+  @objc public init(verificationID: String,
+                    verificationCode: String,
+                    operation: AuthOperationType,
+                    requestConfiguration: AuthRequestConfiguration) {
+    self.verificationID = verificationID
+    self.verificationCode = verificationCode
+    self.operation = operation
+    super.init(endpoint: kVerifyPhoneNumberEndPoint, requestConfiguration: requestConfiguration)
+  }
+
+  public func unencodedHTTPRequestBody() throws -> Any {
+    var postBody: [String: Any] = [:]
+    if let verificationID {
+      postBody[kVerificationIDKey] = verificationID
     }
-
-    /** @fn initWithVerificationID:verificationCode:requestConfiguration
-        @brief Designated initializer.
-        @param verificationID The verification ID obtained from the response of @c sendVerificationCode.
-        @param verificationCode The verification code provided by the user.
-        @param operation Indicates what operation triggered the verify phone number request.
-        @param requestConfiguration An object containing configurations to be added to the request.
-     */
-    @objc public init(verificationID: String,
-                      verificationCode: String,
-                      operation: AuthOperationType,
-                      requestConfiguration: AuthRequestConfiguration) {
-        self.verificationID = verificationID
-        self.verificationCode = verificationCode
-        self.operation = operation
-        super.init(endpoint: kVerifyPhoneNumberEndPoint, requestConfiguration: requestConfiguration)
+    if let verificationCode {
+      postBody[kVerificationCodeKey] = verificationCode
     }
-
-    public func unencodedHTTPRequestBody() throws -> Any {
-        var postBody: [String: Any] = [:]
-        if let verificationID {
-            postBody[kVerificationIDKey] = verificationID
-        }
-        if let verificationCode {
-            postBody[kVerificationCodeKey] = verificationCode
-        }
-        if let accessToken {
-            postBody[kIDTokenKey] = accessToken
-        }
-        if let temporaryProof {
-            postBody[kTemporaryProofKey] = temporaryProof
-        }
-        if let phoneNumber {
-            postBody[kPhoneNumberKey] = phoneNumber
-        }
-        if let tenantID {
-            postBody[kTenantIDKey] = tenantID
-        }
-        postBody[kOperationKey] = operation.operationString
-        return postBody
+    if let accessToken {
+      postBody[kIDTokenKey] = accessToken
     }
+    if let temporaryProof {
+      postBody[kTemporaryProofKey] = temporaryProof
+    }
+    if let phoneNumber {
+      postBody[kPhoneNumberKey] = phoneNumber
+    }
+    if let tenantID {
+      postBody[kTenantIDKey] = tenantID
+    }
+    postBody[kOperationKey] = operation.operationString
+    return postBody
+  }
 }

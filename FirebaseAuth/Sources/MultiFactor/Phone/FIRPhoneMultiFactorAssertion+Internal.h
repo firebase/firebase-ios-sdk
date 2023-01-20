@@ -14,14 +14,14 @@
 // * limitations under the License.
 // */
 //
-//#import <TargetConditionals.h>
-//#if TARGET_OS_IOS
+// #import <TargetConditionals.h>
+// #if TARGET_OS_IOS
 //
-//#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneMultiFactorAssertion.h"
+// #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneMultiFactorAssertion.h"
 //
-//#import "FirebaseAuth-Swift.h"
+// #import "FirebaseAuth-Swift.h"
 //
-//NS_ASSUME_NONNULL_BEGIN
+// NS_ASSUME_NONNULL_BEGIN
 //
 //@interface FIRPhoneMultiFactorAssertion ()
 //
@@ -29,6 +29,6 @@
 //
 //@end
 //
-//NS_ASSUME_NONNULL_END
+// NS_ASSUME_NONNULL_END
 //
-//#endif
+// #endif

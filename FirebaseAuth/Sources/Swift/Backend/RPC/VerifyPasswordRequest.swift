@@ -58,67 +58,67 @@ private let kTenantIDKey = "tenantId"
     @brief Represents the parameters for the verifyPassword endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyPassword
  */
-@objc(FIRVerifyPasswordRequest) public class VerifyPasswordRequest: IdentityToolkitRequest, AuthRPCRequest {
+@objc(FIRVerifyPasswordRequest) public class VerifyPasswordRequest: IdentityToolkitRequest,
+  AuthRPCRequest {
+  /** @property email
+      @brief The email of the user.
+   */
+  @objc public var email: String
 
-    /** @property email
-        @brief The email of the user.
-     */
-    @objc public var email: String
+  /** @property password
+      @brief The password inputed by the user.
+   */
+  @objc public var password: String
 
-    /** @property password
-        @brief The password inputed by the user.
-     */
-    @objc public var password: String
+  /** @property pendingIDToken
+      @brief The GITKit token for the non-trusted IDP, which is to be confirmed by the user.
+   */
+  @objc public var pendingIDToken: String?
 
-    /** @property pendingIDToken
-        @brief The GITKit token for the non-trusted IDP, which is to be confirmed by the user.
-     */
-    @objc public var pendingIDToken: String?
+  /** @property captchaChallenge
+      @brief The captcha challenge.
+   */
+  @objc public var captchaChallenge: String?
 
-    /** @property captchaChallenge
-        @brief The captcha challenge.
-     */
-    @objc public var captchaChallenge: String?
+  /** @property captchaResponse
+      @brief Response to the captcha.
+   */
+  @objc public var captchaResponse: String?
 
-    /** @property captchaResponse
-        @brief Response to the captcha.
-     */
-    @objc public var captchaResponse: String?
+  /** @property returnSecureToken
+      @brief Whether the response should return access token and refresh token directly.
+      @remarks The default value is @c YES .
+   */
+  @objc public var returnSecureToken: Bool
 
-    /** @property returnSecureToken
-        @brief Whether the response should return access token and refresh token directly.
-        @remarks The default value is @c YES .
-     */
-    @objc public var returnSecureToken: Bool
+  @objc public init(email: String, password: String,
+                    requestConfiguration: AuthRequestConfiguration) {
+    self.email = email
+    self.password = password
+    returnSecureToken = true
+    super.init(endpoint: kVerifyPasswordEndpoint, requestConfiguration: requestConfiguration)
+  }
 
-    @objc public init(email: String, password: String, requestConfiguration: AuthRequestConfiguration) {
-        self.email = email
-        self.password = password
-        self.returnSecureToken = true
-        super.init(endpoint: kVerifyPasswordEndpoint, requestConfiguration: requestConfiguration)
+  public func unencodedHTTPRequestBody() throws -> Any {
+    var body: [String: Any] = [
+      kEmailKey: email,
+      kPasswordKey: password,
+    ]
+    if let pendingIDToken = pendingIDToken {
+      body[kPendingIDTokenKey] = pendingIDToken
     }
-
-    public func unencodedHTTPRequestBody() throws -> Any {
-        var body: [String: Any] = [
-            kEmailKey: email,
-            kPasswordKey: password
-        ]
-        if let pendingIDToken = pendingIDToken {
-            body[kPendingIDTokenKey] = pendingIDToken
-        }
-        if let captchaChallenge = captchaChallenge {
-            body[kCaptchaChallengeKey] = captchaChallenge
-        }
-        if let captchaResponse = captchaResponse {
-            body[kCaptchaResponseKey] = captchaResponse
-        }
-        if returnSecureToken {
-            body[kReturnSecureTokenKey] = true
-        }
-        if let tenantID = tenantID {
-            body[kTenantIDKey] = tenantID
-        }
-        return body
-
+    if let captchaChallenge = captchaChallenge {
+      body[kCaptchaChallengeKey] = captchaChallenge
     }
+    if let captchaResponse = captchaResponse {
+      body[kCaptchaResponseKey] = captchaResponse
+    }
+    if returnSecureToken {
+      body[kReturnSecureTokenKey] = true
+    }
+    if let tenantID = tenantID {
+      body[kTenantIDKey] = tenantID
+    }
+    return body
+  }
 }
