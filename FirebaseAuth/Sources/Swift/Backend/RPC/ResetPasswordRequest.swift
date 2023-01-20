@@ -34,40 +34,41 @@ private let kCurrentPasswordKey = "newPassword"
  */
 private let kTenantIDKey = "tenantId"
 
-@objc(FIRResetPasswordRequest) public class ResetPasswordRequest: IdentityToolkitRequest, AuthRPCRequest {
-    /** @property oobCode
-        @brief The oobCode sent in the request.
-     */
-    let oobCode: String
+@objc(FIRResetPasswordRequest) public class ResetPasswordRequest: IdentityToolkitRequest,
+  AuthRPCRequest {
+  /** @property oobCode
+      @brief The oobCode sent in the request.
+   */
+  let oobCode: String
 
-    /** @property updatedPassword
-        @brief The new password sent in the request.
-     */
-    let updatedPassword: String?
+  /** @property updatedPassword
+      @brief The new password sent in the request.
+   */
+  let updatedPassword: String?
 
+  /** @fn initWithOobCode:newPassword:requestConfiguration:
+      @brief Designated initializer.
+      @param oobCode The OOB Code.
+      @param newPassword The new password.
+      @param requestConfiguration An object containing configurations to be added to the request.
+   */
+  @objc public init(oobCode: String, newPassword: String?,
+                    requestConfiguration: AuthRequestConfiguration) {
+    self.oobCode = oobCode
+    updatedPassword = newPassword
+    super.init(endpoint: kResetPasswordEndpoint, requestConfiguration: requestConfiguration)
+  }
 
-    /** @fn initWithOobCode:newPassword:requestConfiguration:
-        @brief Designated initializer.
-        @param oobCode The OOB Code.
-        @param newPassword The new password.
-        @param requestConfiguration An object containing configurations to be added to the request.
-     */
-    @objc public init(oobCode: String, newPassword: String?, requestConfiguration: AuthRequestConfiguration) {
-        self.oobCode = oobCode
-        self.updatedPassword = newPassword
-        super.init(endpoint: kResetPasswordEndpoint, requestConfiguration: requestConfiguration)
+  public func unencodedHTTPRequestBody() throws -> Any {
+    var postBody: [String: Any] = [:]
+
+    postBody[kOOBCodeKey] = oobCode
+    if let updatedPassword {
+      postBody[kCurrentPasswordKey] = updatedPassword
     }
-
-    public func unencodedHTTPRequestBody() throws -> Any {
-        var postBody: [String: Any] = [:]
-
-        postBody[kOOBCodeKey] = oobCode
-        if let updatedPassword {
-          postBody[kCurrentPasswordKey] = updatedPassword;
-        }
-        if let tenantID {
-          postBody[kTenantIDKey] = tenantID
-        }
-        return postBody
+    if let tenantID {
+      postBody[kTenantIDKey] = tenantID
     }
+    return postBody
+  }
 }
