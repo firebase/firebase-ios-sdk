@@ -34,28 +34,28 @@ private let kReturnSecureTokenKey = "returnSecureToken"
  */
 private let kTenantIDKey = "tenantId"
 
-@objc(FIRVerifyCustomTokenRequest) public class VerifyCustomTokenRequest: IdentityToolkitRequest, AuthRPCRequest {
+@objc(FIRVerifyCustomTokenRequest) public class VerifyCustomTokenRequest: IdentityToolkitRequest,
+  AuthRPCRequest {
+  @objc public let token: String
 
-    @objc public let token: String
+  @objc public var returnSecureToken: Bool
 
-    @objc public var returnSecureToken: Bool
+  @objc public init(token: String, requestConfiguration: AuthRequestConfiguration) {
+    self.token = token
+    returnSecureToken = true
+    super.init(endpoint: kVerifyCustomTokenEndpoint, requestConfiguration: requestConfiguration)
+  }
 
-    @objc public init(token: String, requestConfiguration: AuthRequestConfiguration) {
-        self.token = token
-        self.returnSecureToken = true
-        super.init(endpoint: kVerifyCustomTokenEndpoint, requestConfiguration: requestConfiguration)
+  public func unencodedHTTPRequestBody() throws -> Any {
+    var postBody: [String: Any] = [
+      kTokenKey: token,
+    ]
+    if returnSecureToken {
+      postBody[kReturnSecureTokenKey] = true
     }
-
-    public func unencodedHTTPRequestBody() throws -> Any {
-        var postBody: [String: Any] = [
-            kTokenKey: token
-        ]
-        if returnSecureToken {
-            postBody[kReturnSecureTokenKey] = true
-        }
-        if let tenantID = tenantID {
-            postBody[kTenantIDKey] = tenantID
-        }
-        return postBody
+    if let tenantID = tenantID {
+      postBody[kTenantIDKey] = tenantID
     }
+    return postBody
+  }
 }

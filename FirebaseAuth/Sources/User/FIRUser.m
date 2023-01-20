@@ -1453,8 +1453,8 @@ static void callInMainThreadWithAuthDataResultAndError(
           }
           FIRDeleteAccountRequest *deleteUserRequest =
               [[FIRDeleteAccountRequest alloc] initWithLocalID:self->_userID
-                                                  accessToken:accessToken
-                                         requestConfiguration:self->_auth.requestConfiguration];
+                                                   accessToken:accessToken
+                                          requestConfiguration:self->_auth.requestConfiguration];
           [FIRAuthBackend deleteAccount:deleteUserRequest
                                callback:^(NSError *_Nullable error) {
                                  if (error) {

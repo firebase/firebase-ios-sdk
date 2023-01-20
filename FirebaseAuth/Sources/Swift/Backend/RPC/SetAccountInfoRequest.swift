@@ -114,140 +114,141 @@ private let kTenantIDKey = "tenantId"
     @brief Represents the parameters for the setAccountInfo endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/setAccountInfo
  */
-@objc(FIRSetAccountInfoRequest) public class SetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
-    /** @property accessToken
-        @brief The STS Access Token of the authenticated user.
-     */
-    @objc public var accessToken: String?
+@objc(FIRSetAccountInfoRequest) public class SetAccountInfoRequest: IdentityToolkitRequest,
+  AuthRPCRequest {
+  /** @property accessToken
+      @brief The STS Access Token of the authenticated user.
+   */
+  @objc public var accessToken: String?
 
-    /** @property displayName
-        @brief The name of the user.
-     */
-    @objc public var displayName: String?
+  /** @property displayName
+      @brief The name of the user.
+   */
+  @objc public var displayName: String?
 
-    /** @property localID
-        @brief The local ID of the user.
-     */
-    @objc public var localID: String?
+  /** @property localID
+      @brief The local ID of the user.
+   */
+  @objc public var localID: String?
 
-    /** @property email
-        @brief The email of the user.
-     */
-    @objc public var email: String?
+  /** @property email
+      @brief The email of the user.
+   */
+  @objc public var email: String?
 
-    /** @property photoURL
-        @brief The photoURL of the user.
-     */
-    @objc public var photoURL: URL?
+  /** @property photoURL
+      @brief The photoURL of the user.
+   */
+  @objc public var photoURL: URL?
 
-    /** @property password
-        @brief The new password of the user.
-     */
-    @objc public var password: String?
+  /** @property password
+      @brief The new password of the user.
+   */
+  @objc public var password: String?
 
-    /** @property providers
-        @brief The associated identity providers of the user.
-     */
-    @objc public var providers: [String]?
+  /** @property providers
+      @brief The associated identity providers of the user.
+   */
+  @objc public var providers: [String]?
 
-    /** @property OOBCode
-        @brief The out-of-band code of the change email request.
-     */
-    @objc public var OOBCode: String?
+  /** @property OOBCode
+      @brief The out-of-band code of the change email request.
+   */
+  @objc public var OOBCode: String?
 
-    /** @property emailVerified
-        @brief Whether to mark the email as verified or not.
-     */
-    @objc public var emailVerified: Bool = false
+  /** @property emailVerified
+      @brief Whether to mark the email as verified or not.
+   */
+  @objc public var emailVerified: Bool = false
 
-    /** @property upgradeToFederatedLogin
-        @brief Whether to mark the user to upgrade to federated login.
-     */
-    @objc public var upgradeToFederatedLogin: Bool = false
+  /** @property upgradeToFederatedLogin
+      @brief Whether to mark the user to upgrade to federated login.
+   */
+  @objc public var upgradeToFederatedLogin: Bool = false
 
-    /** @property captchaChallenge
-        @brief The captcha challenge.
-     */
-    @objc public var captchaChallenge: String?
+  /** @property captchaChallenge
+      @brief The captcha challenge.
+   */
+  @objc public var captchaChallenge: String?
 
-    /** @property captchaResponse
-        @brief Response to the captcha.
-     */
-    @objc public var captchaResponse: String?
+  /** @property captchaResponse
+      @brief Response to the captcha.
+   */
+  @objc public var captchaResponse: String?
 
-    /** @property deleteAttributes
-        @brief The list of user attributes to delete.
-        @remarks Every element of the list must be one of the predefined constant starts with
-            "FIRSetAccountInfoUserAttribute".
-     */
-    @objc public var deleteAttributes: [String]?
+  /** @property deleteAttributes
+      @brief The list of user attributes to delete.
+      @remarks Every element of the list must be one of the predefined constant starts with
+          "FIRSetAccountInfoUserAttribute".
+   */
+  @objc public var deleteAttributes: [String]?
 
-    /** @property deleteProviders
-        @brief The list of identity providers to delete.
-     */
-    @objc public var deleteProviders: [String]?
+  /** @property deleteProviders
+      @brief The list of identity providers to delete.
+   */
+  @objc public var deleteProviders: [String]?
 
-    /** @property returnSecureToken
-        @brief Whether the response should return access token and refresh token directly.
-        @remarks The default value is @c YES .
-     */
-    @objc public var returnSecureToken: Bool = false
+  /** @property returnSecureToken
+      @brief Whether the response should return access token and refresh token directly.
+      @remarks The default value is @c YES .
+   */
+  @objc public var returnSecureToken: Bool = false
 
-    @objc public init(requestConfiguration: AuthRequestConfiguration) {
-        self.returnSecureToken = true
-        super.init(endpoint: kSetAccountInfoEndpoint, requestConfiguration: requestConfiguration)
+  @objc public init(requestConfiguration: AuthRequestConfiguration) {
+    returnSecureToken = true
+    super.init(endpoint: kSetAccountInfoEndpoint, requestConfiguration: requestConfiguration)
+  }
+
+  public func unencodedHTTPRequestBody() throws -> Any {
+    var postBody: [String: Any] = [:]
+    if let accessToken {
+      postBody[kIDTokenKey] = accessToken
     }
-
-    public func unencodedHTTPRequestBody() throws -> Any {
-        var postBody: [String: Any] = [:]
-        if let accessToken {
-            postBody[kIDTokenKey] = accessToken
-        }
-        if let displayName {
-            postBody[kDisplayNameKey] = displayName
-        }
-        if let localID {
-            postBody[kLocalIDKey] = localID
-        }
-        if let email {
-            postBody[kEmailKey] = email
-        }
-        if let password {
-            postBody[kPasswordKey] = password
-        }
-        if let photoURL {
-            postBody[kPhotoURLKey] = photoURL.absoluteString
-        }
-        if let providers {
-            postBody[kProvidersKey] = providers
-        }
-        if let OOBCode {
-            postBody[kOOBCodeKey] = OOBCode
-        }
-        if emailVerified {
-            postBody[kEmailVerifiedKey] = true
-        }
-        if upgradeToFederatedLogin {
-            postBody[kUpgradeToFederatedLoginKey] = true
-        }
-        if let captchaChallenge {
-            postBody[kCaptchaChallengeKey] = captchaChallenge
-        }
-        if let captchaResponse {
-            postBody[kCaptchaResponseKey] = captchaResponse
-        }
-        if let deleteAttributes {
-            postBody[kDeleteAttributesKey] = deleteAttributes
-        }
-        if let deleteProviders {
-            postBody[kDeleteProvidersKey] = deleteProviders
-        }
-        if returnSecureToken {
-            postBody[kReturnSecureTokenKey] = true
-        }
-        if let tenantID {
-            postBody[kTenantIDKey] = tenantID
-        }
-        return postBody
+    if let displayName {
+      postBody[kDisplayNameKey] = displayName
     }
+    if let localID {
+      postBody[kLocalIDKey] = localID
+    }
+    if let email {
+      postBody[kEmailKey] = email
+    }
+    if let password {
+      postBody[kPasswordKey] = password
+    }
+    if let photoURL {
+      postBody[kPhotoURLKey] = photoURL.absoluteString
+    }
+    if let providers {
+      postBody[kProvidersKey] = providers
+    }
+    if let OOBCode {
+      postBody[kOOBCodeKey] = OOBCode
+    }
+    if emailVerified {
+      postBody[kEmailVerifiedKey] = true
+    }
+    if upgradeToFederatedLogin {
+      postBody[kUpgradeToFederatedLoginKey] = true
+    }
+    if let captchaChallenge {
+      postBody[kCaptchaChallengeKey] = captchaChallenge
+    }
+    if let captchaResponse {
+      postBody[kCaptchaResponseKey] = captchaResponse
+    }
+    if let deleteAttributes {
+      postBody[kDeleteAttributesKey] = deleteAttributes
+    }
+    if let deleteProviders {
+      postBody[kDeleteProvidersKey] = deleteProviders
+    }
+    if returnSecureToken {
+      postBody[kReturnSecureTokenKey] = true
+    }
+    if let tenantID {
+      postBody[kTenantIDKey] = tenantID
+    }
+    return postBody
+  }
 }

@@ -21,30 +21,33 @@ private let kFinalizeMFASignInEndPoint = "accounts/mfaSignIn:finalize"
  */
 private let kTenantIDKey = "tenantId"
 
-@objc(FIRFinalizeMFASignInRequest) public class FinalizeMFASignInRequest: IdentityToolkitRequest, AuthRPCRequest {
-    var MFAPendingCredential: String?
-    var verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?
+@objc(FIRFinalizeMFASignInRequest) public class FinalizeMFASignInRequest: IdentityToolkitRequest,
+  AuthRPCRequest {
+  var MFAPendingCredential: String?
+  var verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?
 
-    @objc public init(MFAPendingCredential: String?, verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?, requestConfiguration: AuthRequestConfiguration) {
-        self.MFAPendingCredential = MFAPendingCredential
-        self.verificationInfo = verificationInfo
-        super.init(endpoint: kFinalizeMFASignInEndPoint,
-                   requestConfiguration: requestConfiguration,
-                   useIdentityPlatform: true,
-                   useStaging: false)
-    }
+  @objc public init(MFAPendingCredential: String?,
+                    verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?,
+                    requestConfiguration: AuthRequestConfiguration) {
+    self.MFAPendingCredential = MFAPendingCredential
+    self.verificationInfo = verificationInfo
+    super.init(endpoint: kFinalizeMFASignInEndPoint,
+               requestConfiguration: requestConfiguration,
+               useIdentityPlatform: true,
+               useStaging: false)
+  }
 
-    public func unencodedHTTPRequestBody() throws -> Any {
-        var body: [String: Any] = [:]
-        if let MFAPendingCredential = MFAPendingCredential {
-            body["mfaPendingCredential"] = MFAPendingCredential
-        }
-        if let verificationInfo = verificationInfo {
-            body["phoneVerificationInfo"] = verificationInfo.dictionary
-        }
-        if let tenantID = tenantID {
-            body[kTenantIDKey] = tenantID
-        }
-        return body
+  public func unencodedHTTPRequestBody() throws -> Any {
+    var body: [String: Any] = [:]
+    if let MFAPendingCredential = MFAPendingCredential {
+      body["mfaPendingCredential"] = MFAPendingCredential
     }
+    if let verificationInfo = verificationInfo {
+      body["phoneVerificationInfo"] = verificationInfo.dictionary
+    }
+    if let tenantID = tenantID {
+      body[kTenantIDKey] = tenantID
+    }
+    return body
+  }
 }

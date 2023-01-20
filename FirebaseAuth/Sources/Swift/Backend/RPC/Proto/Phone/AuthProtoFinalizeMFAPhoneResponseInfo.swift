@@ -15,9 +15,9 @@
 import Foundation
 
 public class AuthProtoFinalizeMFAPhoneResponseInfo: NSObject, AuthProto {
-    var phoneNumber: String?
+  var phoneNumber: String?
 
-    required public init(dictionary: [String: Any]) {
-        self.phoneNumber = dictionary["phoneNumber"] as? String
-    }
+  public required init(dictionary: [String: Any]) {
+    phoneNumber = dictionary["phoneNumber"] as? String
+  }
 }
