@@ -17,9 +17,10 @@
 #import <Foundation/Foundation.h>
 
 #import "FIRAuth.h"
-#import "FIRMultiFactorAssertion.h"
-#import "FIRMultiFactorInfo.h"
-#import "FIRMultiFactorSession.h"
+
+@class FIRMultiFactorSession;
+@class FIRMultiFactorInfo;
+@class FIRMultiFactorAssertion;
 
 NS_ASSUME_NONNULL_BEGIN
 
