@@ -86,8 +86,8 @@ static NSString *const kExpectedAPIURL =
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey appID:kTestFirebaseAppID];
   FIRDeleteAccountRequest *request =
       [[FIRDeleteAccountRequest alloc] initWithLocalID:kLocalID
-                                          accessToken:kAccessToken
-                                 requestConfiguration:requestConfiguration];
+                                           accessToken:kAccessToken
+                                  requestConfiguration:requestConfiguration];
   __block BOOL callbackInvoked;
   __block NSError *RPCError;
   [FIRAuthBackend deleteAccount:request
