@@ -16,9 +16,7 @@
 
 #import "UserInfoViewController.h"
 
-#import <FirebaseAuth/FIRUser.h>
-#import <FirebaseAuth/FIRUserInfo.h>
-#import <FirebaseAuth/FIRUserMetadata.h>
+@import FirebaseAuth;
 #import "StaticContentTableViewManager.h"
 
 /** @fn stringWithBool
