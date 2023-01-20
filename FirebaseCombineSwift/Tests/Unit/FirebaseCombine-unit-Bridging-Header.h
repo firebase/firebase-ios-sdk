@@ -64,6 +64,5 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRSendVerificationCodeRequest.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRSendVerificationCodeResponse.h"
-#import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthURLPresenter.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
