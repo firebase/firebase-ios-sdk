@@ -97,7 +97,6 @@ NS_SWIFT_NAME(MultiFactor) API_UNAVAILABLE(macos, tvos, watchos) @interface FIRM
 */
 - (instancetype)initWithMFAEnrollments:(NSArray<FIRAuthProtoMFAEnrollment *> *)MFAEnrollments;
 
-
 @end
 
 NS_ASSUME_NONNULL_END
