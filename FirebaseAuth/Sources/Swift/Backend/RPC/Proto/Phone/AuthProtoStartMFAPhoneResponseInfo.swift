@@ -15,9 +15,9 @@
 import Foundation
 
 class AuthProtoStartMFAPhoneResponseInfo: NSObject, AuthProto {
-    var sessionInfo: String?
+  var sessionInfo: String?
 
-    required init(dictionary: [String: Any]) {
-        self.sessionInfo = dictionary["sessionInfo"] as? String
-    }
+  required init(dictionary: [String: Any]) {
+    sessionInfo = dictionary["sessionInfo"] as? String
+  }
 }

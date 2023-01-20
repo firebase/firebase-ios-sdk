@@ -30,28 +30,30 @@ private let kIDTokenKey = "idToken"
  */
 private let kLocalIDKey = "localId"
 
-@objc(FIRDeleteAccountRequest) public class DeleteAccountRequest: IdentityToolkitRequest, AuthRPCRequest {
+@objc(FIRDeleteAccountRequest) public class DeleteAccountRequest: IdentityToolkitRequest,
+  AuthRPCRequest {
+  /** @var _accessToken
+      @brief The STS Access Token of the authenticated user.
+   */
+  @objc public let accessToken: String
 
-    /** @var _accessToken
-        @brief The STS Access Token of the authenticated user.
-     */
-    @objc public let accessToken: String
+  /** @var _localID
+      @brief The localID of the user.
+   */
+  @objc public let localID: String
 
-    /** @var _localID
-        @brief The localID of the user.
-     */
-    @objc public let localID: String
+  @objc(initWithLocalID:accessToken:requestConfiguration:) public init(localID: String,
+                                                                       accessToken: String,
+                                                                       requestConfiguration: AuthRequestConfiguration) {
+    self.localID = localID
+    self.accessToken = accessToken
+    super.init(endpoint: kDeleteAccountEndpoint, requestConfiguration: requestConfiguration)
+  }
 
-    @objc(initWithLocalID:accessToken:requestConfiguration:) public init(localID: String, accessToken: String, requestConfiguration: AuthRequestConfiguration) {
-        self.localID = localID
-        self.accessToken = accessToken
-        super.init(endpoint: kDeleteAccountEndpoint, requestConfiguration: requestConfiguration)
-    }
-
-    public func unencodedHTTPRequestBody() throws -> Any {
-        [
-            kIDTokenKey: accessToken,
-            kLocalIDKey: localID
-        ]
-    }
+  public func unencodedHTTPRequestBody() throws -> Any {
+    [
+      kIDTokenKey: accessToken,
+      kLocalIDKey: localID,
+    ]
+  }
 }

@@ -15,57 +15,62 @@
 import Foundation
 
 #if os(iOS)
-private let kUIDCodingKey = "uid"
+  private let kUIDCodingKey = "uid"
 
-private let kDisplayNameCodingKey = "displayName"
+  private let kDisplayNameCodingKey = "displayName"
 
-private let kEnrollmentDateCodingKey = "enrollmentDate"
+  private let kEnrollmentDateCodingKey = "enrollmentDate"
 
-private let kFactorIDCodingKey = "factorID"
+  private let kFactorIDCodingKey = "factorID"
 
-@objc(FIRMultiFactorInfo) public class MultiFactorInfo: NSObject, NSSecureCoding {
-
+  @objc(FIRMultiFactorInfo) public class MultiFactorInfo: NSObject, NSSecureCoding {
     @objc public var UID: String?
 
- /**
-    @brief The user friendly name of the current second factor.
- */
+    /**
+        @brief The user friendly name of the current second factor.
+     */
     @objc public var displayName: String?
 
- /**
-    @brief The second factor enrollment date.
- */
+    /**
+        @brief The second factor enrollment date.
+     */
     @objc public var enrollmentDate: Date?
 
- /**
-    @brief The identifier of the second factor.
- */
+    /**
+        @brief The identifier of the second factor.
+     */
     @objc internal var factorID: String?
 
     @objc public init(proto: AuthProtoMFAEnrollment) {
-        self.UID = proto.MFAEnrollmentID
-        self.displayName = proto.displayName
-        self.enrollmentDate = proto.enrolledAt
+      UID = proto.MFAEnrollmentID
+      displayName = proto.displayName
+      enrollmentDate = proto.enrolledAt
     }
 
     // MARK: - NSSecureCoding
 
     public static var supportsSecureCoding: Bool {
-        true
+      true
     }
 
     public required init?(coder: NSCoder) {
-        self.UID = coder.decodeObject(of: [NSString.self], forKey: kUIDCodingKey) as? String
-        self.displayName = coder.decodeObject(of: [NSString.self], forKey: kDisplayNameCodingKey) as? String
-        self.enrollmentDate = coder.decodeObject(of: [NSString.self], forKey: kEnrollmentDateCodingKey) as? Date
-        self.factorID = coder.decodeObject(of: [NSString.self], forKey: kFactorIDCodingKey) as? String
+      UID = coder.decodeObject(of: [NSString.self], forKey: kUIDCodingKey) as? String
+      displayName = coder.decodeObject(
+        of: [NSString.self],
+        forKey: kDisplayNameCodingKey
+      ) as? String
+      enrollmentDate = coder.decodeObject(
+        of: [NSString.self],
+        forKey: kEnrollmentDateCodingKey
+      ) as? Date
+      factorID = coder.decodeObject(of: [NSString.self], forKey: kFactorIDCodingKey) as? String
     }
 
     public func encode(with coder: NSCoder) {
-        coder.encode(UID, forKey: kUIDCodingKey)
-        coder.encode(displayName, forKey: kDisplayNameCodingKey)
-        coder.encode(enrollmentDate, forKey: kEnrollmentDateCodingKey)
-        coder.encode(factorID, forKey: kFactorIDCodingKey)
+      coder.encode(UID, forKey: kUIDCodingKey)
+      coder.encode(displayName, forKey: kDisplayNameCodingKey)
+      coder.encode(enrollmentDate, forKey: kEnrollmentDateCodingKey)
+      coder.encode(factorID, forKey: kFactorIDCodingKey)
     }
-}
+  }
 #endif

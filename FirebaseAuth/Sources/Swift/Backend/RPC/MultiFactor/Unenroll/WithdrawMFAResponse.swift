@@ -15,11 +15,11 @@
 import Foundation
 
 @objc(FIRWithdrawMFAResponse) public class WithdrawMFAResponse: NSObject, AuthRPCResponse {
-    @objc public var IDToken: String?
-    @objc public var refreshToken: String?
+  @objc public var IDToken: String?
+  @objc public var refreshToken: String?
 
-    public func setFields(dictionary: [String: Any]) throws {
-        self.IDToken = dictionary["idToken"] as? String
-        self.refreshToken = dictionary["refreshToken"] as? String
-    }
+  public func setFields(dictionary: [String: Any]) throws {
+    IDToken = dictionary["idToken"] as? String
+    refreshToken = dictionary["refreshToken"] as? String
+  }
 }
