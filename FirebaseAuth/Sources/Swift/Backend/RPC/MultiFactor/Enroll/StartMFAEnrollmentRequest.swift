@@ -21,33 +21,35 @@ private let kStartMFAEnrollmentEndPoint = "accounts/mfaEnrollment:start"
  */
 private let kTenantIDKey = "tenantId"
 
-@objc(FIRStartMFAEnrollmentRequest) public class StartMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest {
-    private(set) var IDToken: String?
-    private(set) var enrollmentInfo: AuthProtoStartMFAPhoneRequestInfo?
+@objc(FIRStartMFAEnrollmentRequest) public class StartMFAEnrollmentRequest: IdentityToolkitRequest,
+  AuthRPCRequest {
+  private(set) var IDToken: String?
+  private(set) var enrollmentInfo: AuthProtoStartMFAPhoneRequestInfo?
 
-    init(
-        IDToken: String?,
-        enrollmentInfo: AuthProtoStartMFAPhoneRequestInfo?,
-        requestConfiguration: AuthRequestConfiguration) {
-            self.IDToken = IDToken
-            self.enrollmentInfo = enrollmentInfo
-            super.init(
-                endpoint: kStartMFAEnrollmentEndPoint,
-                requestConfiguration: requestConfiguration,
-                useIdentityPlatform: true,
-                useStaging: false)
-        }
-    public func unencodedHTTPRequestBody() throws -> Any {
-        var body: [String: Any] = [:]
-        if let IDToken = IDToken {
-            body["idToken"] = IDToken
-        }
-        if let enrollmentInfo = enrollmentInfo {
-            body["phoneEnrollmentInfo"] = enrollmentInfo.dictionary
-        }
-        if let tenantID = tenantID {
-            body[kTenantIDKey] = tenantID
-        }
-        return body
+  init(IDToken: String?,
+       enrollmentInfo: AuthProtoStartMFAPhoneRequestInfo?,
+       requestConfiguration: AuthRequestConfiguration) {
+    self.IDToken = IDToken
+    self.enrollmentInfo = enrollmentInfo
+    super.init(
+      endpoint: kStartMFAEnrollmentEndPoint,
+      requestConfiguration: requestConfiguration,
+      useIdentityPlatform: true,
+      useStaging: false
+    )
+  }
+
+  public func unencodedHTTPRequestBody() throws -> Any {
+    var body: [String: Any] = [:]
+    if let IDToken = IDToken {
+      body["idToken"] = IDToken
     }
+    if let enrollmentInfo = enrollmentInfo {
+      body["phoneEnrollmentInfo"] = enrollmentInfo.dictionary
+    }
+    if let tenantID = tenantID {
+      body[kTenantIDKey] = tenantID
+    }
+    return body
+  }
 }

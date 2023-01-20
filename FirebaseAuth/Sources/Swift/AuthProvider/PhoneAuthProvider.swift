@@ -192,71 +192,79 @@ import FirebaseCore
 //                        }];
 //  }
 
-  /** @fn
-      @brief Continues the flow to verify the client via silent push notification.
-      @param completion The callback to be invoked when the client verification flow is finished.
-   */
-  private func verifyClient(withUIDelegate UIDelegate: AuthUIDelegate,
-                            completion: (AuthAppCredential?, Error?)) {
-    // Remove the simulator check below after FCM supports APNs in simulators
-#if targetEnvironment(simulator)
-    let environment = ProcessInfo().environment
-    if environment["XCTestConfigurationFilePath"] == nil {
-      //self.
+    /** @fn
+        @brief Continues the flow to verify the client via silent push notification.
+        @param completion The callback to be invoked when the client verification flow is finished.
+     */
+    private func verifyClient(withUIDelegate UIDelegate: AuthUIDelegate,
+                              completion: (AuthAppCredential?, Error?)) {
+      // Remove the simulator check below after FCM supports APNs in simulators
+      #if targetEnvironment(simulator)
+        let environment = ProcessInfo().environment
+        if environment["XCTestConfigurationFilePath"] == nil {
+          // self.
+        }
+      #endif
     }
-#endif
-  }
 
-
-  /** @fn
-      @brief Continues the flow to verify the client via silent push notification.
-      @param completion The callback to be invoked when the client verification flow is finished.
-   */
-  private func reCAPTCHAFlowWithUIDelegate(withUIDelegate UIDelegate: AuthUIDelegate,
-                                           completion: @escaping (AuthAppCredential?, String?, Error?) -> Void) {
-    let eventID = FIRAuthWebUtils.randomString(withLength: 10)
-    self.reCAPTCHAURL(withEventID: eventID) { reCAPTCHAURL, error in
-      if let error = error {
-        completion(nil, nil, error)
-        return
-      }
-      guard let reCAPTCHAURL = reCAPTCHAURL else {
-        fatalError("Internal error: reCAPTCHAURL returned neither a value nor an error. Report issue")
-      }
-      let callbackMatcher: (URL?) -> Bool = { callbackURL in
-        return FIRAuthWebUtils.isExpectedCallbackURL(callbackURL, eventID: eventID, authType: self.kAuthTypeVerifyApp, callbackScheme: self.callbackScheme)
-      }
-      self.auth.authURLPresenter.present(reCAPTCHAURL,
-                                          uiDelegate: UIDelegate,
-                                          callbackMatcher: callbackMatcher) { callbackURL, error in
+    /** @fn
+        @brief Continues the flow to verify the client via silent push notification.
+        @param completion The callback to be invoked when the client verification flow is finished.
+     */
+    private func reCAPTCHAFlowWithUIDelegate(withUIDelegate UIDelegate: AuthUIDelegate,
+                                             completion: @escaping (AuthAppCredential?, String?,
+                                                                    Error?) -> Void) {
+      let eventID = FIRAuthWebUtils.randomString(withLength: 10)
+      reCAPTCHAURL(withEventID: eventID) { reCAPTCHAURL, error in
         if let error = error {
           completion(nil, nil, error)
           return
         }
-        let reCAPTHAtoken = self.reCAPTCHAToken
+        guard let reCAPTCHAURL = reCAPTCHAURL else {
+          fatalError(
+            "Internal error: reCAPTCHAURL returned neither a value nor an error. Report issue"
+          )
+        }
+        let callbackMatcher: (URL?) -> Bool = { callbackURL in
+          FIRAuthWebUtils.isExpectedCallbackURL(
+            callbackURL,
+            eventID: eventID,
+            authType: self.kAuthTypeVerifyApp,
+            callbackScheme: self.callbackScheme
+          )
+        }
+        self.auth.authURLPresenter.present(reCAPTCHAURL,
+                                           uiDelegate: UIDelegate,
+                                           callbackMatcher: callbackMatcher) { callbackURL, error in
+          if let error = error {
+            completion(nil, nil, error)
+            return
+          }
+          let reCAPTHAtoken = self.reCAPTCHAToken
+        }
       }
     }
-  }
 
-  /**
-      @brief Parses the reCAPTCHA URL and returns the reCAPTCHA token.
-      @param URL The url to be parsed for a reCAPTCHA token.
-      @param error The error that occurred if any.
-      @return The reCAPTCHA token if successful.
-   */
-  private func reCAPTCHAToken(forURL url: URL, error: NSError) -> String? {
-    let actualURLComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
-    guard let queryItems = actualURLComponents?.queryItems else {
-      return nil
+    /**
+        @brief Parses the reCAPTCHA URL and returns the reCAPTCHA token.
+        @param URL The url to be parsed for a reCAPTCHA token.
+        @param error The error that occurred if any.
+        @return The reCAPTCHA token if successful.
+     */
+    private func reCAPTCHAToken(forURL url: URL, error: NSError) -> String? {
+      let actualURLComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
+      guard let queryItems = actualURLComponents?.queryItems else {
+        return nil
+      }
+      guard let deepLinkURL = FIRAuthWebUtils.queryItemValue("deep_link_id", from: queryItems)
+      else {
+        return nil
+      }
+      let deepLinkComponents = URLComponents(string: deepLinkURL)
+      if let queryItems = deepLinkComponents?.queryItems {
+        return FIRAuthWebUtils.queryItemValue("recaptchaToken", from: queryItems)
+      }
     }
-    guard let deepLinkURL = FIRAuthWebUtils.queryItemValue("deep_link_id", from: queryItems) else {
-      return nil
-    }
-    let deepLinkComponents = URLComponents(string: deepLinkURL)
-    if let queryItems = deepLinkComponents?.queryItems {
-      return FIRAuthWebUtils.queryItemValue("recaptchaToken", from: queryItems)
-    }
-  }
 
 //  - (nullable NSString *)reCAPTCHATokenForURL:(NSURL *)URL error:(NSError **_Nonnull)error {
 //    NSURLComponents *actualURLComponents = [NSURLComponents componentsWithURL:URL
@@ -303,76 +311,67 @@ import FirebaseCore
 //    return nil;
 //  }
 
+    //                                completion:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
+    //                                  if (error) {
+    //                                    completion(nil, nil, error);
+    //                                    return;
+    //                                  }
+    //                                  NSError *reCAPTCHAError;
+    //                                  NSString *reCAPTCHAToken =
+    //                                      [self reCAPTCHATokenForURL:callbackURL error:&reCAPTCHAError];
+    //                                  if (!reCAPTCHAToken) {
+    //                                    completion(nil, nil, reCAPTCHAError);
+    //                                    return;
+    //                                  } else {
+    //                                    completion(nil, reCAPTCHAToken, nil);
+    //                                    return;
+    //                                  }
+    //                                }];
+    //                     }];
+    //  }
 
+    // POp back up with ObjC below after this
 
-
-
-  //                                completion:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
-  //                                  if (error) {
-  //                                    completion(nil, nil, error);
-  //                                    return;
-  //                                  }
-  //                                  NSError *reCAPTCHAError;
-  //                                  NSString *reCAPTCHAToken =
-  //                                      [self reCAPTCHATokenForURL:callbackURL error:&reCAPTCHAError];
-  //                                  if (!reCAPTCHAToken) {
-  //                                    completion(nil, nil, reCAPTCHAError);
-  //                                    return;
-  //                                  } else {
-  //                                    completion(nil, reCAPTCHAToken, nil);
-  //                                    return;
-  //                                  }
-  //                                }];
-  //                     }];
-  //  }
-
-  // POp back up with ObjC below after this
-
-
-  /** @fn
-      @brief Constructs a URL used for opening a reCAPTCHA app verification flow using a given event
-          ID.
-      @param eventID The event ID used for this purpose.
-      @param completion The callback invoked after the URL has been constructed or an error
-          has been encountered.
-   */
-  private func reCAPTCHAURL(withEventID eventID: String,
-                                           completion: @escaping ((URL?, Error?) -> Void)) {
-    FIRAuthWebUtils.fetchAuthDomain(with: self.auth.requestConfiguration) { authDomain, error in
-      if let error = error {
-        completion(nil, error)
-        return
-      }
-      if let authDomain = authDomain {
-        let bundleID = Bundle.main.bundleIdentifier
-        let clientID = self.auth.app?.options.clientID
-        let appID = self.auth.app?.options.googleAppID
-        let apiKey = self.auth.requestConfiguration.APIKey
-        var queryItems = [URLQueryItem(name: "apiKey", value: apiKey),
-                          URLQueryItem(name: "authType", value: self.kAuthTypeVerifyApp),
-                          URLQueryItem(name: "ibi", value: bundleID ?? ""),
-                          URLQueryItem(name: "v", value: FIRAuthBackend.authUserAgent()),
-                          URLQueryItem(name: "eventID", value: eventID)]
-        if self.usingClientIDScheme {
-          queryItems.append(URLQueryItem(name: "clientID", value: clientID))
-        } else {
-          queryItems.append(URLQueryItem(name: "appId", value: appID))
+    /** @fn
+        @brief Constructs a URL used for opening a reCAPTCHA app verification flow using a given event
+            ID.
+        @param eventID The event ID used for this purpose.
+        @param completion The callback invoked after the URL has been constructed or an error
+            has been encountered.
+     */
+    private func reCAPTCHAURL(withEventID eventID: String,
+                              completion: @escaping ((URL?, Error?) -> Void)) {
+      FIRAuthWebUtils.fetchAuthDomain(with: auth.requestConfiguration) { authDomain, error in
+        if let error = error {
+          completion(nil, error)
+          return
         }
-        if let languageCode = self.auth.requestConfiguration.languageCode {
-          queryItems.append(URLQueryItem(name: "hl", value: languageCode))
-        }
-        var components = URLComponents(string: "https://\(authDomain)/__/auth/handler?")
-        components?.queryItems = queryItems
-        if let url = components?.url {
-          completion(url, nil)
+        if let authDomain = authDomain {
+          let bundleID = Bundle.main.bundleIdentifier
+          let clientID = self.auth.app?.options.clientID
+          let appID = self.auth.app?.options.googleAppID
+          let apiKey = self.auth.requestConfiguration.APIKey
+          var queryItems = [URLQueryItem(name: "apiKey", value: apiKey),
+                            URLQueryItem(name: "authType", value: self.kAuthTypeVerifyApp),
+                            URLQueryItem(name: "ibi", value: bundleID ?? ""),
+                            URLQueryItem(name: "v", value: FIRAuthBackend.authUserAgent()),
+                            URLQueryItem(name: "eventID", value: eventID)]
+          if self.usingClientIDScheme {
+            queryItems.append(URLQueryItem(name: "clientID", value: clientID))
+          } else {
+            queryItems.append(URLQueryItem(name: "appId", value: appID))
+          }
+          if let languageCode = self.auth.requestConfiguration.languageCode {
+            queryItems.append(URLQueryItem(name: "hl", value: languageCode))
+          }
+          var components = URLComponents(string: "https://\(authDomain)/__/auth/handler?")
+          components?.queryItems = queryItems
+          if let url = components?.url {
+            completion(url, nil)
+          }
         }
       }
     }
-  }
-
-
-
-
 
 //  - (void)verifyClientWithUIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
 //                          completion:(FIRVerifyClientCallback)completion {
@@ -438,8 +437,6 @@ import FirebaseCore
 //              }];
 //    }];
 //  }
-
-
 
     /**
          @brief Verify ownership of the second factor phone number by the current user.
@@ -511,7 +508,7 @@ import FirebaseCore
       usingClientIDScheme = false
     }
 
-  private let kAuthTypeVerifyApp = "verifyApp"
+    private let kAuthTypeVerifyApp = "verifyApp"
   #endif
 }
 

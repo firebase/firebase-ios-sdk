@@ -14,11 +14,11 @@
 
 import Foundation
 
-@objc(FIRSendVerificationCodeResponse) public class SendVerificationCodeResponse: NSObject, AuthRPCResponse {
+@objc(FIRSendVerificationCodeResponse) public class SendVerificationCodeResponse: NSObject,
+  AuthRPCResponse {
+  @objc public var verificationID: String?
 
-    @objc public var verificationID: String?
-
-    @objc public func setFields(dictionary: [String: Any]) throws {
-        self.verificationID = dictionary["sessionInfo"] as? String
-    }
+  @objc public func setFields(dictionary: [String: Any]) throws {
+    verificationID = dictionary["sessionInfo"] as? String
+  }
 }

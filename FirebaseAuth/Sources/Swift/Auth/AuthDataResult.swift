@@ -14,6 +14,4 @@
 
 import Foundation
 
-@objc public protocol AuthDataResultWrapper: NSObjectProtocol {
-    
-}
+@objc public protocol AuthDataResultWrapper: NSObjectProtocol {}

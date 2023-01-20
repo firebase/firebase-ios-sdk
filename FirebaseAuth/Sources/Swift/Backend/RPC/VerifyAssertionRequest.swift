@@ -99,145 +99,148 @@ private let kTenantIDKey = "tenantId"
     @brief Represents the parameters for the verifyAssertion endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyAssertion
  */
-@objc(FIRVerifyAssertionRequest) public class VerifyAssertionRequest: IdentityToolkitRequest, AuthRPCRequest {
+@objc(FIRVerifyAssertionRequest) public class VerifyAssertionRequest: IdentityToolkitRequest,
+  AuthRPCRequest {
+  /** @property requestURI
+      @brief The URI to which the IDP redirects the user back. It may contain federated login result
+          params added by the IDP.
+   */
+  @objc public var requestURI: String?
 
-     /** @property requestURI
-         @brief The URI to which the IDP redirects the user back. It may contain federated login result
-             params added by the IDP.
-      */
-    @objc public var requestURI: String?
+  /** @property pendingToken
+      @brief The Firebase ID Token for the IDP pending to be confirmed by the user.
+   */
+  @objc public var pendingToken: String?
 
-     /** @property pendingToken
-         @brief The Firebase ID Token for the IDP pending to be confirmed by the user.
-      */
-    @objc public var pendingToken: String?
+  /** @property accessToken
+      @brief The STS Access Token for the authenticated user, only needed for linking the user.
+   */
+  @objc public var accessToken: String?
 
-     /** @property accessToken
-         @brief The STS Access Token for the authenticated user, only needed for linking the user.
-      */
-    @objc public var accessToken: String?
+  /** @property returnSecureToken
+      @brief Whether the response should return access token and refresh token directly.
+      @remarks The default value is @c YES .
+   */
+  @objc public var returnSecureToken: Bool = false
 
-     /** @property returnSecureToken
-         @brief Whether the response should return access token and refresh token directly.
-         @remarks The default value is @c YES .
-      */
-    @objc public var returnSecureToken: Bool = false
+  // MARK: - Components of "postBody"
 
-    // MARK: - Components of "postBody"
+  /** @property providerID
+      @brief The ID of the IDP whose credentials are being presented to the endpoint.
+   */
+  @objc public let providerID: String
 
-     /** @property providerID
-         @brief The ID of the IDP whose credentials are being presented to the endpoint.
-      */
-    @objc public let providerID: String
+  /** @property providerAccessToken
+      @brief An access token from the IDP.
+   */
+  @objc public var providerAccessToken: String?
 
-     /** @property providerAccessToken
-         @brief An access token from the IDP.
-      */
-    @objc public var providerAccessToken: String?
+  /** @property providerIDToken
+      @brief An ID Token from the IDP.
+   */
+  @objc public var providerIDToken: String?
 
-     /** @property providerIDToken
-         @brief An ID Token from the IDP.
-      */
-    @objc public var providerIDToken: String?
+  /** @property providerRawNonce
+      @brief An raw nonce from the IDP.
+   */
+  @objc public var providerRawNonce: String?
 
-     /** @property providerRawNonce
-         @brief An raw nonce from the IDP.
-      */
-    @objc public var providerRawNonce: String?
+  /** @property returnIDPCredential
+      @brief Whether the response should return the IDP credential directly.
+   */
+  @objc public var returnIDPCredential: Bool = false
 
-     /** @property returnIDPCredential
-         @brief Whether the response should return the IDP credential directly.
-      */
-    @objc public var returnIDPCredential: Bool = false
+  /** @property providerOAuthTokenSecret
+      @brief A session ID used to map this request to a headful-lite flow.
+   */
+  @objc public var sessionID: String?
 
-     /** @property providerOAuthTokenSecret
-         @brief A session ID used to map this request to a headful-lite flow.
-      */
-    @objc public var sessionID: String?
+  /** @property providerOAuthTokenSecret
+      @brief An OAuth client secret from the IDP.
+   */
+  @objc public var providerOAuthTokenSecret: String?
 
-     /** @property providerOAuthTokenSecret
-         @brief An OAuth client secret from the IDP.
-      */
-    @objc public var providerOAuthTokenSecret: String?
+  /** @property inputEmail
+      @brief The originally entered email in the UI.
+   */
+  @objc public var inputEmail: String?
 
-     /** @property inputEmail
-         @brief The originally entered email in the UI.
-      */
-    @objc public var inputEmail: String?
+  /** @property autoCreate
+      @brief A flag that indicates whether or not the user should be automatically created.
+   */
+  @objc public var autoCreate: Bool = false
 
-     /** @property autoCreate
-         @brief A flag that indicates whether or not the user should be automatically created.
-      */
-    @objc public var autoCreate: Bool = false
+  @objc public init(providerID: String, requestConfiguration: AuthRequestConfiguration) {
+    self.providerID = providerID
+    returnSecureToken = true
+    autoCreate = true
+    returnIDPCredential = true
 
-    @objc public init(providerID: String, requestConfiguration: AuthRequestConfiguration) {
+    super.init(endpoint: kVerifyAssertionEndpoint, requestConfiguration: requestConfiguration)
+  }
 
-        self.providerID = providerID
-        self.returnSecureToken = true
-        self.autoCreate = true
-        self.returnIDPCredential = true
-
-        super.init(endpoint: kVerifyAssertionEndpoint, requestConfiguration: requestConfiguration)
+  public func unencodedHTTPRequestBody() throws -> Any {
+    var components = URLComponents()
+    var queryItems: [URLQueryItem] = [URLQueryItem(name: kProviderIDKey, value: providerID)]
+    if let providerIDToken = providerIDToken {
+      queryItems.append(URLQueryItem(name: kProviderIDTokenKey, value: providerIDToken))
+    }
+    if let providerRawNonce = providerRawNonce {
+      queryItems.append(URLQueryItem(name: kProviderNonceKey, value: providerRawNonce))
+    }
+    if let providerAccessToken = providerAccessToken {
+      queryItems
+        .append(URLQueryItem(name: kProviderAccessTokenKey, value: providerAccessToken))
+    }
+    guard providerIDToken != nil || providerAccessToken != nil || pendingToken != nil ||
+      requestURI != nil else {
+      fatalError("One of IDToken, accessToken, pendingToken, or requestURI must be supplied.")
+    }
+    if let providerOAuthTokenSecret = providerOAuthTokenSecret {
+      queryItems
+        .append(URLQueryItem(name: kProviderOAuthTokenSecretKey,
+                             value: providerOAuthTokenSecret))
+    }
+    if let inputEmail = inputEmail {
+      queryItems.append(URLQueryItem(name: kIdentifierKey, value: inputEmail))
     }
 
-    public func unencodedHTTPRequestBody() throws -> Any {
-        var components = URLComponents()
-        var queryItems: [URLQueryItem] = [URLQueryItem(name: kProviderIDKey, value: providerID)]
-        if let providerIDToken = providerIDToken {
-            queryItems.append(URLQueryItem(name: kProviderIDTokenKey, value: providerIDToken))
-        }
-        if let providerRawNonce = providerRawNonce {
-            queryItems.append(URLQueryItem(name: kProviderNonceKey, value: providerRawNonce))
-        }
-        if let providerAccessToken = providerAccessToken {
-            queryItems.append(URLQueryItem(name: kProviderAccessTokenKey, value: providerAccessToken))
-        }
-        guard providerIDToken != nil || providerAccessToken != nil || pendingToken != nil || requestURI != nil else {
-            fatalError("One of IDToken, accessToken, pendingToken, or requestURI must be supplied.")
-        }
-        if let providerOAuthTokenSecret = providerOAuthTokenSecret {
-            queryItems.append(URLQueryItem(name: kProviderOAuthTokenSecretKey, value: providerOAuthTokenSecret))
-        }
-        if let inputEmail = inputEmail {
-            queryItems.append(URLQueryItem(name: kIdentifierKey, value: inputEmail))
-        }
+    components.queryItems = queryItems
 
-        components.queryItems = queryItems
+    var body: [String: Any] = [
+      kRequestURIKey: requestURI ?? "http://localhost", // Unused by server, but required
+    ]
 
-        var body: [String: Any] = [
-            kRequestURIKey: requestURI ?? "http://localhost"  // Unused by server, but required
-        ]
-
-        if let query = components.query {
-            body[kPostBodyKey] = query
-        }
-
-        if let pendingToken = pendingToken {
-            body[kPendingTokenKey] = pendingToken
-        }
-        
-        if let accessToken = accessToken {
-            body[kIDTokenKey] = accessToken
-        }
-
-        if (returnSecureToken) {
-          body[kReturnSecureTokenKey] = true
-        }
-
-        if (returnIDPCredential) {
-          body[kReturnIDPCredentialKey] = true
-        }
-
-        if let sessionID = sessionID {
-            body[kSessionIDKey] = sessionID
-        }
-
-        if let tenantID = tenantID {
-            body[kTenantIDKey] = tenantID
-        }
-
-        body[kAutoCreateKey] = autoCreate
-
-        return body
+    if let query = components.query {
+      body[kPostBodyKey] = query
     }
+
+    if let pendingToken = pendingToken {
+      body[kPendingTokenKey] = pendingToken
+    }
+
+    if let accessToken = accessToken {
+      body[kIDTokenKey] = accessToken
+    }
+
+    if returnSecureToken {
+      body[kReturnSecureTokenKey] = true
+    }
+
+    if returnIDPCredential {
+      body[kReturnIDPCredentialKey] = true
+    }
+
+    if let sessionID = sessionID {
+      body[kSessionIDKey] = sessionID
+    }
+
+    if let tenantID = tenantID {
+      body[kTenantIDKey] = tenantID
+    }
+
+    body[kAutoCreateKey] = autoCreate
+
+    return body
+  }
 }
