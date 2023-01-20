@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+import FirebaseCoreInternal
 
 /** @class FIRAuthRequestConfiguration
     @brief Defines configurations to be added to a request to Firebase Auth's backend.
@@ -38,7 +39,8 @@ import Foundation
     ///** @property heartbeatLogger
     //    @brief The heartbeat logger used to add heartbeats to the corresponding request's header.
     // */
-    @objc public var heartbeatLogger: FIRHeartbeatLoggerProtocol?
+    // TODO
+    //@objc public var heartbeatLogger: FIRHeartbeatLoggerProtocol?
     //@property(nonatomic, copy, nullable) id<FIRHeartbeatLoggerProtocol> heartbeatLogger;
 
     /** @property additionalFrameworkMarker
@@ -60,11 +62,13 @@ import Foundation
         self.appID = appID
     }
 
-    @objc public init(APIKey: String, appID: String, heartbeatLogger: FIRHeartbeatLoggerProtocol?) {
-        self.APIKey = APIKey
-        self.appID = appID
-        self.heartbeatLogger = heartbeatLogger
-    }
+  // TODO
+//  @objc public init(APIKey: String, appID: String) { // }, heartbeatLogger: FIRHeartbeatLoggerProtocol?) {
+//        self.APIKey = APIKey
+//        self.appID = appID
+//
+//        // self.heartbeatLogger = heartbeatLogger
+//    }
 
 }
 
