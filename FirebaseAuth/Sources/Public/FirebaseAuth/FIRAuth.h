@@ -18,8 +18,6 @@
 #import <Foundation/Foundation.h>
 
 #import "FIRAuthAPNSTokenType.h"
-#import "FIRAuthErrors.h"
-#import "FIRAuthRequestConfiguration.h"
 
 @class FIRActionCodeSettings;
 @class FIRApp;
@@ -27,6 +25,7 @@
 @class FIRAuthCredential;
 @class FIRAuthDataResult;
 @class FIRAuthSettings;
+@class FIRAuthRequestConfiguration;
 @class FIRUser;
 @class FIRAuthNotificationManager;
 @protocol FIRAuthUIDelegate;
