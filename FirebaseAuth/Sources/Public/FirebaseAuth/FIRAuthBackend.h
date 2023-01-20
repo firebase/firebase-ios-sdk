@@ -52,8 +52,7 @@
 @class FIRSignInWithGameCenterResponse;
 @class FIRSignUpNewUserRequest;
 @class FIRSignUpNewUserResponse;
-@class FIRRevokeTokenRequest;
-@class FIRRevokeTokenResponse;
+@class FIRSendVerificationCodeRequest;
 
 @protocol FIRAuthBackendImplementation;
 @protocol FIRAuthBackendRPCIssuer;
