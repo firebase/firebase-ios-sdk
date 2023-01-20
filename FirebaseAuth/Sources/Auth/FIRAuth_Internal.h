@@ -46,11 +46,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 #endif  // TARGET_OS_IOS
 
-/** @property authURLPresenter
-    @brief An object that takes care of presenting URLs via the auth instance.
- */
-@property(nonatomic, strong, readonly) FIRAuthURLPresenter *authURLPresenter;
-
 /** @fn initWithAPIKey:appName:
     @brief Designated initializer.
     @param APIKey The Google Developers Console API key for making requests from your app.
