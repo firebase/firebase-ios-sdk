@@ -36,14 +36,6 @@ typedef void (^FIRVerifyBeforeUpdateEmailCallback)(NSError *_Nullable error);
 
 @interface FIRUser () <NSSecureCoding>
 
-/** @property rawAccessToken
-    @brief The cached access token.
-    @remarks This method is specifically for providing the access token to internal clients during
-        deserialization and sign-in events, and should not be used to retrieve the access token by
-        anyone else.
- */
-@property(nonatomic, copy, readonly) NSString *rawAccessToken;
-
 /** @property auth
     @brief A weak reference to a FIRAuth instance associated with this instance.
  */

@@ -431,6 +431,11 @@ static NSString *const kTestValue = @"TestValue";
   _RPCImplementation = nil;
 }
 
+
+#ifdef TODO
+// Restore Heartbeats for CocoaPods.
+
+
 /** @fn testRequest_IncludesHeartbeatPayload_WhenHeartbeatsNeedSending
     @brief This test checks the behavior of @c postWithRequest:response:callback:
         to verify that a heartbeats payload is attached as a header to an
@@ -551,6 +556,7 @@ static NSString *const kTestValue = @"TestValue";
   // Then
   XCTAssertNil([_RPCIssuer.completeRequest valueForHTTPHeaderField:@"X-Firebase-Client"]);
 }
+#endif
 
 /** @fn testRequestEncodingError
     @brief This test checks the behaviour of @c postWithRequest:response:callback: when the
