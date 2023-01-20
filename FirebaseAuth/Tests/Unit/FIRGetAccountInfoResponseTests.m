@@ -23,7 +23,7 @@
 
 // XXX TODO, can't declare globals in Swift for Obj-C consumption
 static NSString *const FIRAuthErrorUserInfoDeserializedResponseKey =
-@"FIRAuthErrorUserInfoDeserializedResponseKey";
+    @"FIRAuthErrorUserInfoDeserializedResponseKey";
 
 /** @var kTestAPIKey
     @brief Fake API key used for testing.

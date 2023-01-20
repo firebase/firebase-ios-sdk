@@ -98,8 +98,8 @@ static NSString *const kCredentialTooOldErrorMessage = @"CREDENTIAL_TOO_OLD_LOGI
 - (void)testUserDisabledError {
   FIRDeleteAccountRequest *request =
       [[FIRDeleteAccountRequest alloc] initWithLocalID:kLocalID
-                                          accessToken:kAccessToken
-                                 requestConfiguration:_requestConfiguration];
+                                           accessToken:kAccessToken
+                                  requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block NSError *RPCError;
@@ -122,8 +122,8 @@ static NSString *const kCredentialTooOldErrorMessage = @"CREDENTIAL_TOO_OLD_LOGI
 - (void)testinvalidUserTokenError {
   FIRDeleteAccountRequest *request =
       [[FIRDeleteAccountRequest alloc] initWithLocalID:kLocalID
-                                          accessToken:kAccessToken
-                                 requestConfiguration:_requestConfiguration];
+                                           accessToken:kAccessToken
+                                  requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block NSError *RPCError;
@@ -146,8 +146,8 @@ static NSString *const kCredentialTooOldErrorMessage = @"CREDENTIAL_TOO_OLD_LOGI
 - (void)testrequiredRecentLoginError {
   FIRDeleteAccountRequest *request =
       [[FIRDeleteAccountRequest alloc] initWithLocalID:kLocalID
-                                          accessToken:kAccessToken
-                                 requestConfiguration:_requestConfiguration];
+                                           accessToken:kAccessToken
+                                  requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block NSError *RPCError;
   [FIRAuthBackend deleteAccount:request
@@ -169,8 +169,8 @@ static NSString *const kCredentialTooOldErrorMessage = @"CREDENTIAL_TOO_OLD_LOGI
 - (void)testSuccessfulDeleteAccountResponse {
   FIRDeleteAccountRequest *request =
       [[FIRDeleteAccountRequest alloc] initWithLocalID:kLocalID
-                                          accessToken:kAccessToken
-                                 requestConfiguration:_requestConfiguration];
+                                           accessToken:kAccessToken
+                                  requestConfiguration:_requestConfiguration];
   __block BOOL callbackInvoked;
   __block NSError *RPCError;
   [FIRAuthBackend deleteAccount:request
