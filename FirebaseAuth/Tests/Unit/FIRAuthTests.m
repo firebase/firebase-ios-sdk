@@ -39,10 +39,10 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthCredential.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"
 
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthURLPresenter.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthNotificationManager.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthURLPresenter.h"
 #endif  // TARGET_OS_IOS
 
 /** @var kAPIKey

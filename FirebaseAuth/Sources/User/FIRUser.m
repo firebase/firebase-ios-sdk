@@ -345,8 +345,7 @@ static void callInMainThreadWithAuthDataResultAndError(
     _metadata = metadata ?: [[FIRUserMetadata alloc] initWithCreationDate:nil lastSignInDate:nil];
     _tenantID = tenantID;
     // The `heartbeatLogger` will be set later via a property update.
-    _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey
-                                                                          appID:appID];
+    _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey appID:appID];
 #if TARGET_OS_IOS
     _multiFactor = multiFactor ?: [[FIRMultiFactor alloc] init];
     _multiFactor.user = self;
@@ -1448,8 +1447,8 @@ static void callInMainThreadWithAuthDataResultAndError(
           }
           FIRDeleteAccountRequest *deleteUserRequest =
               [[FIRDeleteAccountRequest alloc] initWithLocalID:self->_userID
-                                                  accessToken:accessToken
-                                         requestConfiguration:self->_auth.requestConfiguration];
+                                                   accessToken:accessToken
+                                          requestConfiguration:self->_auth.requestConfiguration];
           [FIRAuthBackend deleteAccount:deleteUserRequest
                                callback:^(NSError *_Nullable error) {
                                  if (error) {

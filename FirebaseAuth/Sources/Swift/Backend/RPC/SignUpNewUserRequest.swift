@@ -44,65 +44,64 @@ private let kReturnSecureTokenKey = "returnSecureToken"
  */
 private let kTenantIDKey = "tenantId"
 
+@objc(FIRSignUpNewUserRequest) public class SignUpNewUserRequest: IdentityToolkitRequest,
+  AuthRPCRequest {
+  /** @property email
+      @brief The email of the user.
+   */
+  @objc public var email: String?
 
-@objc(FIRSignUpNewUserRequest) public class SignUpNewUserRequest: IdentityToolkitRequest, AuthRPCRequest {
+  /** @property password
+      @brief The password inputed by the user.
+   */
+  @objc public var password: String?
 
-    /** @property email
-        @brief The email of the user.
-     */
-    @objc public var email: String?
+  /** @property displayName
+      @brief The password inputed by the user.
+   */
+  @objc public var displayName: String?
 
-    /** @property password
-        @brief The password inputed by the user.
-     */
-    @objc public var password: String?
+  /** @property returnSecureToken
+      @brief Whether the response should return access token and refresh token directly.
+      @remarks The default value is @c YES .
+   */
+  @objc public var returnSecureToken: Bool = true
 
-    /** @property displayName
-        @brief The password inputed by the user.
-     */
-    @objc public var displayName: String?
+  @objc public init(requestConfiguration: AuthRequestConfiguration) {
+    super.init(endpoint: kSignupNewUserEndpoint, requestConfiguration: requestConfiguration)
+  }
 
-    /** @property returnSecureToken
-        @brief Whether the response should return access token and refresh token directly.
-        @remarks The default value is @c YES .
-     */
-    @objc public var returnSecureToken: Bool = true
+  /** @fn initWithAPIKey:email:password:displayName:requestConfiguration
+      @brief Designated initializer.
+      @param requestConfiguration An object containing configurations to be added to the request.
+   */
+  @objc public init(email: String?,
+                    password: String?,
+                    displayName: String?,
+                    requestConfiguration: AuthRequestConfiguration) {
+    self.email = email
+    self.password = password
+    self.displayName = displayName
+    super.init(endpoint: kSignupNewUserEndpoint, requestConfiguration: requestConfiguration)
+  }
 
-    @objc public init(requestConfiguration: AuthRequestConfiguration) {
-        super.init(endpoint: kSignupNewUserEndpoint, requestConfiguration: requestConfiguration)
+  public func unencodedHTTPRequestBody() throws -> Any {
+    var postBody: [String: Any] = [:]
+    if let email {
+      postBody[kEmailKey] = email
     }
-
-    /** @fn initWithAPIKey:email:password:displayName:requestConfiguration
-        @brief Designated initializer.
-        @param requestConfiguration An object containing configurations to be added to the request.
-     */
-    @objc public init(email: String?,
-                      password: String?,
-                      displayName: String?,
-                      requestConfiguration: AuthRequestConfiguration) {
-        self.email = email
-        self.password = password
-        self.displayName = displayName
-        super.init(endpoint: kSignupNewUserEndpoint, requestConfiguration: requestConfiguration)
+    if let password {
+      postBody[kPasswordKey] = password
     }
-
-    public func unencodedHTTPRequestBody() throws -> Any {
-        var postBody: [String: Any] = [:]
-        if let email {
-            postBody[kEmailKey] = email
-        }
-        if let password {
-            postBody[kPasswordKey] = password
-        }
-        if let displayName {
-            postBody[kDisplayNameKey] = displayName
-        }
-        if returnSecureToken {
-            postBody[kReturnSecureTokenKey] = true
-        }
-        if let tenantID {
-            postBody[kTenantIDKey] = tenantID
-        }
-        return postBody
+    if let displayName {
+      postBody[kDisplayNameKey] = displayName
     }
+    if returnSecureToken {
+      postBody[kReturnSecureTokenKey] = true
+    }
+    if let tenantID {
+      postBody[kTenantIDKey] = tenantID
+    }
+    return postBody
+  }
 }

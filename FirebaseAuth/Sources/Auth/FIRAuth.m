@@ -42,10 +42,10 @@
 
 #if TARGET_OS_IOS
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthNotificationManager.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthURLPresenter.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthURLPresenter.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -459,10 +459,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   self = [super init];
   if (self) {
     _listenerHandles = [NSMutableArray array];
-    _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey
-                                                                          appID:appID];
-                             //TODO
-                                                                //heartbeatLogger:heartbeatLogger];
+    _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey appID:appID];
+    // TODO
+    // heartbeatLogger:heartbeatLogger];
     _firebaseAppName = [appName copy];
 #if TARGET_OS_IOS
     _settings = [[FIRAuthSettings alloc] init];
