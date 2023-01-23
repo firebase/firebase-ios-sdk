@@ -38,8 +38,8 @@
     }
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-      OSStatus result = SecKeychainCreate([keychainPath cStringUsingEncoding:NSUTF8StringEncoding], 0,
-                                          "1", false, nil, &privateKeychain);
+    OSStatus result = SecKeychainCreate([keychainPath cStringUsingEncoding:NSUTF8StringEncoding], 0,
+                                        "1", false, nil, &privateKeychain);
 #pragma clang diagnostic pop
     if (result != errSecSuccess) {
       NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:result userInfo:nil];
@@ -55,7 +55,7 @@
   if (self.testKeychainRef) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-      OSStatus result = SecKeychainDelete(self.testKeychainRef);
+    OSStatus result = SecKeychainDelete(self.testKeychainRef);
 #pragma clang diagnostic pop
     if (result != errSecSuccess) {
       NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:result userInfo:nil];
