@@ -213,7 +213,13 @@ class SessionStartEventTests: XCTestCase {
   func test_newtworkInfo_onlyPresentWhenPerformanceInstalled() {
     let mockNetworkInfo = MockNetworkInfo()
     mockNetworkInfo.networkType = .mobile
-    mockNetworkInfo.mobileSubtype = CTRadioAccessTechnologyHSUPA
+    // Mobile Subtypes are always empty on non-iOS platforms, and
+    // Performance doesn't support those platforms anyways
+    #if os(iOS) && !targetEnvironment(macCatalyst)
+      mockNetworkInfo.mobileSubtype = CTRadioAccessTechnologyHSUPA
+    #else
+      mockNetworkInfo.mobileSubtype = ""
+    #endif
     appInfo.networkInfo = mockNetworkInfo
 
     let sessionInfo = SessionInfo(
@@ -252,10 +258,19 @@ class SessionStartEventTests: XCTestCase {
         event.proto.application_info.apple_app_info.network_connection_info.network_type,
         firebase_appquality_sessions_NetworkConnectionInfo_NetworkType_MOBILE
       )
-      XCTAssertEqual(
-        event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype,
-        firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSUPA
-      )
+      // Mobile Subtypes are always empty on non-iOS platforms, and
+      // Performance doesn't support those platforms anyways
+      #if os(iOS) && !targetEnvironment(macCatalyst)
+        XCTAssertEqual(
+          event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype,
+          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSUPA
+        )
+      #else
+        XCTAssertEqual(
+          event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype,
+          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE
+        )
+      #endif
       assertEqualProtoString(
         proto.application_info.apple_app_info.mcc_mnc,
         expected: MockApplicationInfo.testMCCMNC,
