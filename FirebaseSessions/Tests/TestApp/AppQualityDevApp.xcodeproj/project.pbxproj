@@ -8,11 +8,16 @@
 
 /* Begin PBXBuildFile section */
 		11B8D8A180615BBC0D6AA351 /* Pods_AppQualityDevApp_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3811A234E55662F7F459917A /* Pods_AppQualityDevApp_iOS.framework */; };
-		1242A440A78627992C815FEE /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		1242A440A78627992C815FEE /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		42270ED35776E973127DB60D /* Pods_AppQualityDevApp_Performance_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEDB83A06DD433EF06A4FFDC /* Pods_AppQualityDevApp_Performance_iOS.framework */; };
 		687EF774F928ABB40381A18D /* Pods_AppQualityDevApp_Crashlytics_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9346F75872574EC9869B351A /* Pods_AppQualityDevApp_Crashlytics_iOS.framework */; };
 		B43C5DD563235C70F18FA91C /* Pods_AppQualityDevApp_CrashlyticsPerformance_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1737E4D779EC21E163AEADE0 /* Pods_AppQualityDevApp_CrashlyticsPerformance_iOS.framework */; };
 		CF94D83D29070DF600308FF7 /* UITestsiOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF94D83C29070DF600308FF7 /* UITestsiOS.swift */; };
+		DF240E1F2971E996009F38CD /* MockSubscriberSDK.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF240E1E2971E996009F38CD /* MockSubscriberSDK.swift */; };
+		DF240E202971E996009F38CD /* MockSubscriberSDK.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF240E1E2971E996009F38CD /* MockSubscriberSDK.swift */; };
+		DF240E212971E996009F38CD /* MockSubscriberSDK.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF240E1E2971E996009F38CD /* MockSubscriberSDK.swift */; };
+		DF240E222971E996009F38CD /* MockSubscriberSDK.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF240E1E2971E996009F38CD /* MockSubscriberSDK.swift */; };
+		DF240E232971E996009F38CD /* MockSubscriberSDK.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF240E1E2971E996009F38CD /* MockSubscriberSDK.swift */; };
 		DF33DA8C28E4941400F7B88B /* AppQualityDevAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF33DA6428E4941100F7B88B /* AppQualityDevAppApp.swift */; };
 		DF33DA8D28E4941400F7B88B /* AppQualityDevAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF33DA6428E4941100F7B88B /* AppQualityDevAppApp.swift */; };
 		DF33DA8E28E4941400F7B88B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF33DA6528E4941100F7B88B /* ContentView.swift */; };
@@ -35,7 +40,7 @@
 		DF9ABFFE295CD14F00EFFEB7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DF68F14228E4A34B00753C7E /* GoogleService-Info.plist */; };
 		E16DE450B5A5D7EC71FCDF4D /* Pods_AppQualityDevApp_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDA875D20BA56FABDFC9A521 /* Pods_AppQualityDevApp_macOS.framework */; };
 		E47C7F742B2E926AAFEFF448 /* Pods_AppQualityDevApp_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3811A234E55662F7F459917A /* Pods_AppQualityDevApp_iOS.framework */; };
-		F0820554CDC281260638D6D7 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		F0820554CDC281260638D6D7 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -112,6 +117,7 @@
 		CFF3426B813F69EFC3CC95C2 /* Pods-AppQualityDevApp_Performance_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp_Performance_iOS.debug.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp_Performance_iOS/Pods-AppQualityDevApp_Performance_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		D18C61BD25DEE281DA8E8007 /* Pods-AppQualityDevAppWatchOS WatchKit Extension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevAppWatchOS WatchKit Extension.release.xcconfig"; path = "Target Support Files/Pods-AppQualityDevAppWatchOS WatchKit Extension/Pods-AppQualityDevAppWatchOS WatchKit Extension.release.xcconfig"; sourceTree = "<group>"; };
 		DAA707D0793CF2FF718DDDD6 /* Pods-AppQualityDevApp (iOS).debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp (iOS).debug.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp (iOS)/Pods-AppQualityDevApp (iOS).debug.xcconfig"; sourceTree = "<group>"; };
+		DF240E1E2971E996009F38CD /* MockSubscriberSDK.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockSubscriberSDK.swift; sourceTree = "<group>"; };
 		DF33DA6428E4941100F7B88B /* AppQualityDevAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppQualityDevAppApp.swift; sourceTree = "<group>"; };
 		DF33DA6528E4941100F7B88B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		DF33DA6628E4941400F7B88B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -140,7 +146,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1242A440A78627992C815FEE /* BuildFile in Frameworks */,
+				1242A440A78627992C815FEE /* (null) in Frameworks */,
 				11B8D8A180615BBC0D6AA351 /* Pods_AppQualityDevApp_iOS.framework in Frameworks */,
 				E47C7F742B2E926AAFEFF448 /* Pods_AppQualityDevApp_iOS.framework in Frameworks */,
 			);
@@ -158,7 +164,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F0820554CDC281260638D6D7 /* BuildFile in Frameworks */,
+				F0820554CDC281260638D6D7 /* (null) in Frameworks */,
 				687EF774F928ABB40381A18D /* Pods_AppQualityDevApp_Crashlytics_iOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -244,6 +250,7 @@
 				DF68F14228E4A34B00753C7E /* GoogleService-Info.plist */,
 				DF33DA6428E4941100F7B88B /* AppQualityDevAppApp.swift */,
 				DF33DA6528E4941100F7B88B /* ContentView.swift */,
+				DF240E1E2971E996009F38CD /* MockSubscriberSDK.swift */,
 				DF33DA6628E4941400F7B88B /* Assets.xcassets */,
 			);
 			path = Shared;
@@ -703,6 +710,7 @@
 			files = (
 				DF33DA8E28E4941400F7B88B /* ContentView.swift in Sources */,
 				DF33DA8C28E4941400F7B88B /* AppQualityDevAppApp.swift in Sources */,
+				DF240E1F2971E996009F38CD /* MockSubscriberSDK.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -712,6 +720,7 @@
 			files = (
 				DF33DA8F28E4941400F7B88B /* ContentView.swift in Sources */,
 				DF33DA8D28E4941400F7B88B /* AppQualityDevAppApp.swift in Sources */,
+				DF240E232971E996009F38CD /* MockSubscriberSDK.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -721,6 +730,7 @@
 			files = (
 				DF8AEF2A295CA3F40013BF14 /* ContentView.swift in Sources */,
 				DF8AEF2B295CA3F40013BF14 /* AppQualityDevAppApp.swift in Sources */,
+				DF240E202971E996009F38CD /* MockSubscriberSDK.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -730,6 +740,7 @@
 			files = (
 				DF9759AB295CE10700EF01BA /* ContentView.swift in Sources */,
 				DF9759AC295CE10700EF01BA /* AppQualityDevAppApp.swift in Sources */,
+				DF240E222971E996009F38CD /* MockSubscriberSDK.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -739,6 +750,7 @@
 			files = (
 				DF9ABFF8295CD14F00EFFEB7 /* ContentView.swift in Sources */,
 				DF9ABFF9295CD14F00EFFEB7 /* AppQualityDevAppApp.swift in Sources */,
+				DF240E212971E996009F38CD /* MockSubscriberSDK.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -13,23 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SwiftUI
-import FirebaseCore
-import FirebaseSessions
+import Foundation
 
-@main
-class AppQualityDevAppApp: App {
-  required init() {
-    // In other Product SDKs, this is called via `+ load`, but
-    // we're faking that here because Swift doesn't have `+ load`
-    MockSubscriberSDK.addDependency()
-
-    FirebaseApp.configure()
-  }
-
-  var body: some Scene {
-    WindowGroup {
-      ContentView()
-    }
-  }
+// Sessions Provider is the Session SDK's internal
+// interface for other 1P SDKs to talk to.
+@objc(FIRSessionsProvider)
+public protocol SessionsProvider {
+  @objc func register(subscriber: SessionsSubscriber)
 }

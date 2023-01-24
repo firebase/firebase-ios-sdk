@@ -18,15 +18,11 @@ import Foundation
 @_implementationOnly import FirebaseCoreExtension
 @_implementationOnly import FirebaseInstallations
 @_implementationOnly import GoogleDataTransport
+@_implementationOnly import Promises
 
 private enum GoogleDataTransportConfig {
   static let sessionsLogSource = "1974"
   static let sessionsTarget = GDTCORTarget.FLL
-}
-
-@objc(FIRSessionsProvider)
-protocol SessionsProvider {
-  @objc static func sessions() -> Void
 }
 
 @objc(FIRSessions) final class Sessions: NSObject, Library, SessionsProvider {
@@ -38,9 +34,22 @@ protocol SessionsProvider {
   /// Top-level Classes in the Sessions SDK
   private let coordinator: SessionCoordinator
   private let initiator: SessionInitiator
-  private let identifiers: Identifiers
+  private let sessionGenerator: SessionGenerator
   private let appInfo: ApplicationInfo
   private let settings: SessionsSettings
+
+  /// Subscribers
+  /// `subscribers` are used to determine the Data Collection state of the Sessions SDK.
+  /// If any Subscribers has Data Collection enabled, the Sessions SDK will send events
+  private var subscribers: [SessionsSubscriber] = []
+  /// `subscriberPromises` are used to wait until all Subscribers have registered
+  /// themselves. Subscribers must have Data Collection state available upon registering.
+  private var subscriberPromises: [SessionsSubscriberName: Promise<Void>] = [:]
+
+  /// Notifications
+  static let SessionIDChangedNotificationName = Notification
+    .Name("SessionIDChangedNotificationName")
+  let notificationCenter = NotificationCenter()
 
   // MARK: - Initializers
 
@@ -54,22 +63,22 @@ protocol SessionsProvider {
 
     let fireLogger = EventGDTLogger(googleDataTransport: googleDataTransport!)
 
-    let identifiers = Identifiers()
-    let coordinator = SessionCoordinator(
-      identifiers: identifiers,
-      installations: installations,
-      fireLogger: fireLogger,
-      sampler: SessionSampler()
-    )
-    let initiator = SessionInitiator()
     let appInfo = ApplicationInfo(appID: appID)
     let settings = SessionsSettings(
       appInfo: appInfo,
       installations: installations
     )
 
+    let sessionGenerator = SessionGenerator(settings: settings)
+    let coordinator = SessionCoordinator(
+      installations: installations,
+      fireLogger: fireLogger
+    )
+
+    let initiator = SessionInitiator(settings: settings)
+
     self.init(appID: appID,
-              identifiers: identifiers,
+              sessionGenerator: sessionGenerator,
               coordinator: coordinator,
               initiator: initiator,
               appInfo: appInfo,
@@ -77,11 +86,11 @@ protocol SessionsProvider {
   }
 
   // Initializes the SDK and begines the process of listening for lifecycle events and logging events
-  init(appID: String, identifiers: Identifiers, coordinator: SessionCoordinator,
+  init(appID: String, sessionGenerator: SessionGenerator, coordinator: SessionCoordinator,
        initiator: SessionInitiator, appInfo: ApplicationInfo, settings: SessionsSettings) {
     self.appID = appID
 
-    self.identifiers = identifiers
+    self.sessionGenerator = sessionGenerator
     self.coordinator = coordinator
     self.initiator = initiator
     self.appInfo = appInfo
@@ -89,16 +98,102 @@ protocol SessionsProvider {
 
     super.init()
 
+    SessionsDependencies.dependencies.forEach { subscriberName in
+      self.subscriberPromises[subscriberName] = Promise<Void>.pending()
+    }
+
+    Logger.logDebug("Expecting subscriptions from: \(SessionsDependencies.dependencies)")
+
     self.initiator.beginListening {
-      // On each session start, first update Settings if expired
-      self.settings.updateSettings()
-      self.identifiers.generateNewSessionID()
-      let event = SessionStartEvent(identifiers: self.identifiers, appInfo: self.appInfo)
-      DispatchQueue.global().async {
+      // Generating a Session ID early is important as Subscriber
+      // SDKs will need to read it immediately upon registration.
+      let sessionInfo = self.sessionGenerator.generateNewSession()
+
+      // Post a notification so subscriber SDKs can get an updated Session ID
+      self.notificationCenter.post(name: Sessions.SessionIDChangedNotificationName,
+                                   object: nil)
+
+      let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: self.appInfo)
+
+      // Wait until all subscriber promises have been fulfilled before
+      // doing any data collection.
+      all(self.subscriberPromises.values).then(on: .global(qos: .background)) { _ in
+        guard self.isAnyDataCollectionEnabled else {
+          Logger
+            .logDebug(
+              "Data Collection is disabled for all subscribers. Skipping this Session Event"
+            )
+          return
+        }
+
+        Logger.logDebug("Data Collection is enabled for at least one Subscriber")
+
+        // Fetch settings if they have expired. This must happen after the check for
+        // data collection because it uses the network, but it must happen before the
+        // check for sessionsEnabled from Settings because otherwise we would permanently
+        // turn off the Sessions SDK when we disabled it.
+        self.settings.updateSettings()
+
+        self.addEventDataCollectionState(event: event)
+
+        if !(self.settings.sessionsEnabled && sessionInfo.shouldDispatchEvents) {
+          Logger
+            .logDebug(
+              "Session Event logging is disabled sessionsEnabled: \(self.settings.sessionsEnabled), shouldDispatchEvents: \(sessionInfo.shouldDispatchEvents)"
+            )
+          return
+        }
+
         self.coordinator.attemptLoggingSessionStart(event: event) { result in
         }
       }
     }
+  }
+
+  // MARK: - Data Collection
+
+  var isAnyDataCollectionEnabled: Bool {
+    for subscriber in subscribers {
+      if subscriber.isDataCollectionEnabled {
+        return true
+      }
+    }
+    return false
+  }
+
+  func addEventDataCollectionState(event: SessionStartEvent) {
+    subscribers.forEach { subscriber in
+      event.set(subscriber: subscriber.sessionsSubscriberName,
+                isDataCollectionEnabled: subscriber.isDataCollectionEnabled)
+    }
+  }
+
+  // MARK: - SessionsProvider
+
+  var currentSessionDetails: SessionDetails {
+    return SessionDetails(sessionId: sessionGenerator.currentSession?.sessionId)
+  }
+
+  func register(subscriber: SessionsSubscriber) {
+    Logger
+      .logDebug(
+        "Registering Sessions SDK subscriber with name: \(subscriber.sessionsSubscriberName), data collection enabled: \(subscriber.isDataCollectionEnabled)"
+      )
+
+    notificationCenter.addObserver(
+      forName: Sessions.SessionIDChangedNotificationName,
+      object: nil,
+      queue: nil
+    ) { notification in
+      subscriber.onSessionChanged(self.currentSessionDetails)
+    }
+    // Immediately call the callback because the Sessions SDK starts
+    // before subscribers, so subscribers will miss the first Notification
+    subscriber.onSessionChanged(currentSessionDetails)
+
+    // Fulfil this subscriber's promise
+    subscribers.append(subscriber)
+    subscriberPromises[subscriber.sessionsSubscriberName]?.fulfill(())
   }
 
   // MARK: - Library conformance
@@ -114,8 +209,4 @@ protocol SessionsProvider {
         return self.init(appID: app.options.googleAppID, installations: installations)
       }]
   }
-
-  // MARK: - SessionsProvider conformance
-
-  static func sessions() {}
 }

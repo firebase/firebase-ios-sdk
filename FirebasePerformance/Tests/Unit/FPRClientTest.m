@@ -14,6 +14,8 @@
 
 #import <XCTest/XCTest.h>
 
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
 #import "FirebasePerformance/Sources/FPRClient+Private.h"
 #import "FirebasePerformance/Sources/FPRClient.h"
@@ -250,6 +252,45 @@ NSString *const kFPRMockInstallationId = @"mockId";
 
   XCTAssertFalse(logDirectoryExists);
   XCTAssertNoThrow([FPRClient cleanupClearcutCacheDirectory]);
+}
+
+#pragma mark - Component Registration Tests
+
+- (void)testRegistersAsLibrary {
+  // Configure a test FIRApp.
+  NSString *appName = @"__FIRAPP_DEFAULT";
+  [FIRApp configureWithName:appName options:[self fakeOptions]];
+  FIRApp *app = [FIRApp appNamed:appName];
+
+  // Attempt to fetch the component and verify it's a valid instance.
+  id<FIRPerformanceProvider> provider = FIR_COMPONENT(FIRPerformanceProvider, app.container);
+  XCTAssertNotNil(provider);
+
+  // Ensure that the instance that comes from the container is cached.
+  id<FIRPerformanceProvider> sameProvider = FIR_COMPONENT(FIRPerformanceProvider, app.container);
+  XCTAssertNotNil(sameProvider);
+  XCTAssertEqual(provider, sameProvider);
+}
+
+- (void)testFailsRegistrationForNonDefaultApp {
+  // Configure a test FIRApp.
+  NSString *appName = @"some_random_app";
+  [FIRApp configureWithName:appName options:[self fakeOptions]];
+  FIRApp *app = [FIRApp appNamed:appName];
+
+  // Attempt to fetch the component and verify it's a valid instance.
+  id<FIRPerformanceProvider> provider = FIR_COMPONENT(FIRPerformanceProvider, app.container);
+  XCTAssertNil(provider);
+}
+
+#pragma mark - Helpers
+
+- (FIROptions *)fakeOptions {
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"1:123:ios:123abc"
+                                                    GCMSenderID:@"correct_gcm_sender_id"];
+  options.APIKey = @"AIzaSy-ApiKeyWithValidFormat_0123456789";
+  options.projectID = @"project-id";
+  return options;
 }
 
 @end
