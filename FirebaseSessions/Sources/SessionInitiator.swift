@@ -31,11 +31,11 @@ import Foundation
 ///
 class SessionInitiator {
   let currentTime: () -> Date
-  var settings: SessionsSettings
+  var settings: SettingsProtocol
   var backgroundTime = Date.distantFuture
   var initiateSessionStart: () -> Void = {}
 
-  init(settings: SessionsSettings, currentTimeProvider: @escaping () -> Date = Date.init) {
+  init(settings: SettingsProtocol, currentTimeProvider: @escaping () -> Date = Date.init) {
     currentTime = currentTimeProvider
     self.settings = settings
   }

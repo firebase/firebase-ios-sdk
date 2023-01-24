@@ -19,7 +19,15 @@ enum FirebaseSessionsError: Error {
   /// Event sampling related error
   case SessionSamplingError
   /// Firebase Installation ID related error
-  case SessionInstallationsError
-  /// Settings related error
-  case SettingsError(String)
+  case SessionInstallationsError(Error)
+  /// Error from the GoogleDataTransport SDK
+  case DataTransportError(Error)
+  /// Sessions SDK is disabled via settings error
+  case DisabledViaSettingsError
+  /// Sessions SDK is disabled because all Subscribers have their
+  /// data collection disabled
+  case DataCollectionError
+  /// Sessions SDK didn't have any Subscribers depend
+  /// on it via addDependency in SessionDependencies
+  case NoDependenciesError
 }

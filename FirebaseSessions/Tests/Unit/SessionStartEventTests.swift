@@ -77,8 +77,6 @@ class SessionStartEventTests: XCTestCase {
   }
 
   func test_init_setsApplicationInfo() {
-    appInfo.mockAllInfo()
-
     let sessionInfo = SessionInfo(
       sessionId: "session_id",
       previousSessionId: "previous_session_id",

@@ -14,11 +14,16 @@
 
 import Foundation
 
+protocol SessionCoordinatorProtocol {
+  func attemptLoggingSessionStart(event: SessionStartEvent,
+                                  callback: @escaping (Result<Void, FirebaseSessionsError>) -> Void)
+}
+
 ///
 /// SessionCoordinator is responsible for coordinating the systems in this SDK
 /// involved with sending a Session Start event.
 ///
-class SessionCoordinator {
+class SessionCoordinator: SessionCoordinatorProtocol {
   let installations: InstallationsProtocol
   let fireLogger: EventGDTLoggerProtocol
 
@@ -30,7 +35,8 @@ class SessionCoordinator {
 
   // Begins the process of logging a SessionStartEvent to FireLog, while taking into account Data Collection, Sampling, and fetching Settings
   func attemptLoggingSessionStart(event: SessionStartEvent,
-                                  callback: @escaping (Result<Void, Error>) -> Void) {
+                                  callback: @escaping (Result<Void, FirebaseSessionsError>)
+                                    -> Void) {
     /// Order of execution
     /// 1. Check if the session can be sent. If yes, move to 2. Else, drop the event.
     /// 2. Fetch the installations Id. If successful, move to 3. Else, drop sending the event.
@@ -42,22 +48,13 @@ class SessionCoordinator {
         self.fireLogger.logEvent(event: event) { logResult in
           switch logResult {
           case .success():
-            Logger.logInfo("Successfully logged Session Start event to GoogleDataTransport")
             callback(.success(()))
           case let .failure(error):
-            Logger
-              .logError(
-                "Error logging Session Start event to GoogleDataTransport: \(error)."
-              )
-            callback(.failure(error))
+            callback(.failure(FirebaseSessionsError.DataTransportError(error)))
           }
         }
       case let .failure(error):
-        Logger
-          .logError(
-            "Error getting Firebase Installation ID: \(error). Skip sending event."
-          )
-        callback(.failure(FirebaseSessionsError.SessionInstallationsError))
+        callback(.failure(FirebaseSessionsError.SessionInstallationsError(error)))
       }
     }
   }

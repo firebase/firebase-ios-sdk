@@ -14,22 +14,18 @@
 // limitations under the License.
 
 import Foundation
+@testable import FirebaseSessions
 
-/// APIs that needs to be implemented by any settings provider
-protocol SettingsProvider {
-  // API to update the settings
-  func updateSettings()
+class MockSettingsProtocol: SettingsProtocol {
+  var updateSettingsCalled = false
 
-  // API to check if the settings are stale
-  func isSettingsStale() -> Bool
+  func updateSettings() {
+    updateSettingsCalled = true
+  }
 
-  // Config to show if sessions is enabled
-  var sessionsEnabled: Bool? { get }
+  var sessionsEnabled: Bool = true
 
-  // Config showing the sampling rate for sessions
+  var samplingRate: Double = 1.0
 
-  var samplingRate: Double? { get }
-
-  // Background timeout config value before which a new session is generated
-  var sessionTimeout: TimeInterval? { get }
+  var sessionTimeout: TimeInterval = 30 * 60
 }

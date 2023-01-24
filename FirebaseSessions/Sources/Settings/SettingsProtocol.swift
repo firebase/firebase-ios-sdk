@@ -17,13 +17,15 @@ import Foundation
 
 /// Provides the APIs to access Settings and their configuration values
 protocol SettingsProtocol {
+  // Update the settings for all the settings providers
+  func updateSettings()
+
   // Config to show if sessions is enabled
-  var sessionsEnabled: Bool? { get }
+  var sessionsEnabled: Bool { get }
 
   // Config showing the sampling rate for sessions
-
-  var samplingRate: Double? { get }
+  var samplingRate: Double { get }
 
   // Background timeout config value before which a new session is generated
-  var sessionTimeout: TimeInterval? { get }
+  var sessionTimeout: TimeInterval { get }
 }
