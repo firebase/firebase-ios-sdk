@@ -17,8 +17,6 @@
 #import <Security/Security.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAuth/Sources/Storage/FIRAuthKeychainServices.h"
-
 /** @var kAccountPrefix
     @brief The keychain account prefix assumed by the tests.
  */
@@ -107,7 +105,7 @@ static NSError *fakeError() {
   [self setPassword:nil account:kKey service:nil];  // legacy form
   FIRAuthKeychainServices *keychain = [[FIRAuthKeychainServices alloc] initWithService:kService];
   NSError *error = fakeError();
-  XCTAssertNil([keychain dataForKey:kKey error:&error]);
+  XCTAssertNil([[keychain dataForKey:kKey error:&error] data]);
   XCTAssertNil(error);
 }
 
@@ -118,7 +116,7 @@ static NSError *fakeError() {
   [self setPassword:kData account:accountFromKey(kKey) service:kService];
   FIRAuthKeychainServices *keychain = [[FIRAuthKeychainServices alloc] initWithService:kService];
   NSError *error = fakeError();
-  XCTAssertEqualObjects([keychain dataForKey:kKey error:&error], dataFromString(kData));
+  XCTAssertEqualObjects([[keychain dataForKey:kKey error:&error] data], dataFromString(kData));
   XCTAssertNil(error);
   [self deletePasswordWithAccount:accountFromKey(kKey) service:kService];
 }
@@ -155,7 +153,7 @@ static NSError *fakeError() {
   [self setPassword:kData account:accountFromKey(kKey) service:kOtherService];
   FIRAuthKeychainServices *keychain = [[FIRAuthKeychainServices alloc] initWithService:kService];
   NSError *error = fakeError();
-  XCTAssertNil([keychain dataForKey:kKey error:&error]);
+  XCTAssertNil([[keychain dataForKey:kKey error:&error] data]);
   XCTAssertNil(error);
   [self deletePasswordWithAccount:accountFromKey(kKey) service:kOtherService];
 }
@@ -211,7 +209,7 @@ static NSError *fakeError() {
   [self setPassword:kData account:kKey service:nil];  // legacy form
   FIRAuthKeychainServices *keychain = [[FIRAuthKeychainServices alloc] initWithService:kService];
   NSError *error = fakeError();
-  XCTAssertEqualObjects([keychain dataForKey:kKey error:&error], dataFromString(kData));
+  XCTAssertEqualObjects([[keychain dataForKey:kKey error:&error] data], dataFromString(kData));
   XCTAssertNil(error);
   // Legacy item should have been moved to current form.
   XCTAssertEqualObjects([self passwordWithAccount:accountFromKey(kKey) service:kService], kData);
@@ -227,7 +225,7 @@ static NSError *fakeError() {
   [self setPassword:kOtherData account:kKey service:nil];  // legacy form
   FIRAuthKeychainServices *keychain = [[FIRAuthKeychainServices alloc] initWithService:kService];
   NSError *error = fakeError();
-  XCTAssertEqualObjects([keychain dataForKey:kKey error:&error], dataFromString(kData));
+  XCTAssertEqualObjects([[keychain dataForKey:kKey error:&error] data], dataFromString(kData));
   XCTAssertNil(error);
   // Legacy item should have leave untouched.
   XCTAssertEqualObjects([self passwordWithAccount:accountFromKey(kKey) service:kService], kData);
