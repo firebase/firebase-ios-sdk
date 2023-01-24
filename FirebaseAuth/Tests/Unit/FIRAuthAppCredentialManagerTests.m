@@ -20,7 +20,6 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAuth/Sources/Storage/FIRAuthKeychainServices.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
 
 #define ANY_ERROR_POINTER ((NSError * __autoreleasing *_Nullable)[OCMArg anyPointer])
@@ -84,7 +83,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)testCompletion {
   // Initial empty state.
-  OCMExpect([_mockKeychain dataForKey:OCMOCK_ANY error:ANY_ERROR_POINTER]).andReturn(nil);
+  OCMExpect([[_mockKeychain dataForKey:OCMOCK_ANY error:ANY_ERROR_POINTER] data]).andReturn(nil);
   FIRAuthAppCredentialManager *manager =
       [[FIRAuthAppCredentialManager alloc] initWithKeychain:_mockKeychain];
   XCTAssertNil(manager.credential);
@@ -128,7 +127,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)testTimeout {
   // Initial empty state.
-  OCMExpect([_mockKeychain dataForKey:OCMOCK_ANY error:ANY_ERROR_POINTER]).andReturn(nil);
+  OCMExpect([[_mockKeychain dataForKey:OCMOCK_ANY error:ANY_ERROR_POINTER] data]).andReturn(nil);
   FIRAuthAppCredentialManager *manager =
       [[FIRAuthAppCredentialManager alloc] initWithKeychain:_mockKeychain];
   XCTAssertNil(manager.credential);
@@ -167,7 +166,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)testMaximumPendingReceipt {
   // Initial empty state.
-  OCMExpect([_mockKeychain dataForKey:OCMOCK_ANY error:ANY_ERROR_POINTER]).andReturn(nil);
+  OCMExpect([[_mockKeychain dataForKey:OCMOCK_ANY error:ANY_ERROR_POINTER] data]).andReturn(nil);
   FIRAuthAppCredentialManager *manager =
       [[FIRAuthAppCredentialManager alloc] initWithKeychain:_mockKeychain];
   XCTAssertNil(manager.credential);
@@ -260,7 +259,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)testKeychain {
   // Initial empty state.
-  OCMExpect([_mockKeychain dataForKey:OCMOCK_ANY error:ANY_ERROR_POINTER]).andReturn(nil);
+  OCMExpect([[_mockKeychain dataForKey:OCMOCK_ANY error:ANY_ERROR_POINTER] data]).andReturn(nil);
   FIRAuthAppCredentialManager *manager =
       [[FIRAuthAppCredentialManager alloc] initWithKeychain:_mockKeychain];
   XCTAssertNil(manager.credential);
@@ -287,7 +286,7 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertNil(manager.credential);
 
   // Start a new manager with saved data in keychain.
-  OCMExpect([_mockKeychain dataForKey:key error:ANY_ERROR_POINTER]).andReturn(data);
+  OCMExpect([[_mockKeychain dataForKey:key error:ANY_ERROR_POINTER] data]).andReturn(data);
   manager = [[FIRAuthAppCredentialManager alloc] initWithKeychain:_mockKeychain];
   XCTAssertNil(manager.credential);
   OCMVerifyAll(_mockKeychain);
@@ -302,7 +301,7 @@ NS_ASSUME_NONNULL_BEGIN
   OCMVerifyAll(_mockKeychain);
 
   // Start yet another new manager with saved data in keychain.
-  OCMExpect([_mockKeychain dataForKey:key error:ANY_ERROR_POINTER]).andReturn(data);
+  OCMExpect([[_mockKeychain dataForKey:key error:ANY_ERROR_POINTER] data]).andReturn(data);
   manager = [[FIRAuthAppCredentialManager alloc] initWithKeychain:_mockKeychain];
   XCTAssertNotNil(manager.credential);
   XCTAssertEqualObjects(manager.credential.receipt, kReceipt);
