@@ -16,6 +16,7 @@
 
 #import "FirebaseAuth/Sources/SystemService/FIRAuthStoredUserManager.h"
 
+#import "FirebaseAuth-Swift.h"
 #import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
 
 /** @var kUserAccessGroupKey
@@ -77,7 +78,7 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
   NSMutableDictionary *query = [self keychainQueryForAccessGroup:accessGroup
                                      shareAuthStateAcrossDevices:shareAuthStateAcrossDevices
                                                projectIdentifier:projectIdentifier];
-  NSData *data = [self.keychainServices getItemWithQuery:query error:outError];
+  NSData *data = [[self.keychainServices getItemWithQuery:query error:outError] data];
   // If there's an outError parameter and it's populated, or there's no data, return.
   if ((outError && *outError) || !data) {
     return nil;
