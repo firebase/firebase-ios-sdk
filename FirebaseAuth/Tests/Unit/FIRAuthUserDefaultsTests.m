@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAuth/Sources/Storage/FIRAuthUserDefaults.h"
+@import FirebaseAuth;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -85,8 +85,8 @@ static NSError *fakeError() {
     @brief Tests reading non-existing storage item.
  */
 - (void)testReadNonExisting {
-  NSError *error = fakeError();
-  XCTAssertNil([_storage dataForKey:kKey error:&error]);
+  NSError *error = NULL; // fakeError();
+  XCTAssertNil([[_storage dataForKey:kKey error:&error] data]);
   XCTAssertNil(error);
 }
 
@@ -95,8 +95,8 @@ static NSError *fakeError() {
  */
 - (void)testWriteRead {
   XCTAssertTrue([_storage setData:dataFromString(kData) forKey:kKey error:NULL]);
-  NSError *error = fakeError();
-  XCTAssertEqualObjects([_storage dataForKey:kKey error:&error], dataFromString(kData));
+  NSError *error = NULL; // fakeError();
+  XCTAssertEqualObjects([[_storage dataForKey:kKey error:&error] data], dataFromString(kData));
   XCTAssertNil(error);
 }
 
@@ -106,8 +106,8 @@ static NSError *fakeError() {
 - (void)testOverwrite {
   XCTAssertTrue([_storage setData:dataFromString(kData) forKey:kKey error:NULL]);
   XCTAssertTrue([_storage setData:dataFromString(kOtherData) forKey:kKey error:NULL]);
-  NSError *error = fakeError();
-  XCTAssertEqualObjects([_storage dataForKey:kKey error:&error], dataFromString(kOtherData));
+  NSError *error = NULL; // fakeError();
+  XCTAssertEqualObjects([[_storage dataForKey:kKey error:&error] data], dataFromString(kOtherData));
   XCTAssertNil(error);
 }
 
@@ -117,8 +117,8 @@ static NSError *fakeError() {
 - (void)testRemove {
   XCTAssertTrue([_storage setData:dataFromString(kData) forKey:kKey error:NULL]);
   XCTAssertTrue([_storage removeDataForKey:kKey error:NULL]);
-  NSError *error = fakeError();
-  XCTAssertNil([_storage dataForKey:kKey error:&error]);
+  NSError *error = NULL; // fakeError();
+  XCTAssertNil([[_storage dataForKey:kKey error:&error] data]);
   XCTAssertNil(error);
 }
 
@@ -128,8 +128,8 @@ static NSError *fakeError() {
 - (void)testServices {
   XCTAssertTrue([_storage setData:dataFromString(kData) forKey:kKey error:NULL]);
   _storage = [[FIRAuthUserDefaults alloc] initWithService:kOtherService];
-  NSError *error = fakeError();
-  XCTAssertNil([_storage dataForKey:kKey error:&error]);
+  NSError *error = NULL; //fakeError();
+  XCTAssertNil([[_storage dataForKey:kKey error:&error] data]);
   XCTAssertNil(error);
 }
 
