@@ -34,7 +34,6 @@
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthWebUtils.h"
-#import "FirebaseAuth/Sources/Storage/FIRAuthKeychainServices.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthStoredUserManager.h"
 #import "FirebaseAuth/Sources/User/FIRAdditionalUserInfo_Internal.h"
 #import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
@@ -2096,7 +2095,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     NSString *userKey = [NSString stringWithFormat:kUserKey, _firebaseAppName];
 
     NSError *keychainError;
-    NSData *encodedUserData = [_keychainServices dataForKey:userKey error:&keychainError];
+    NSData *encodedUserData = [[_keychainServices dataForKey:userKey error:&keychainError] data];
     if (keychainError) {
       if (error) {
         *error = keychainError;
@@ -2284,7 +2283,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   FIRUser *user;
   if (!accessGroup) {
     NSString *userKey = [NSString stringWithFormat:kUserKey, _firebaseAppName];
-    NSData *encodedUserData = [_keychainServices dataForKey:userKey error:outError];
+    NSData *encodedUserData = [[_keychainServices dataForKey:userKey error:outError] data];
     if (!encodedUserData) {
       return nil;
     }
