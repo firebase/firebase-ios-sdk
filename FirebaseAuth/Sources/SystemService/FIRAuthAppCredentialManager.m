@@ -19,7 +19,6 @@
 
 #import "FirebaseAuth-Swift.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
-#import "FirebaseAuth/Sources/Storage/FIRAuthKeychainServices.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -67,7 +66,7 @@ static const NSUInteger kMaximumNumberOfPendingReceipts = 32;
     _keychainServices = keychain;
     // Load the credentials from keychain if possible.
     NSError *error;
-    NSData *encodedData = [_keychainServices dataForKey:kKeychainDataKey error:&error];
+    NSData *encodedData = [[_keychainServices dataForKey:kKeychainDataKey error:&error] data];
     if (!error && encodedData) {
 #if TARGET_OS_WATCH
       NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:encodedData
