@@ -28,7 +28,7 @@ import XCTest
 /// Test cases should only go in subclasses because all tests in the parent
 /// class will be run by subclasses.
 ///
-class FirebaseSessionsTests: XCTestCase {
+class FirebaseSessionsTestsBase: XCTestCase {
   let testAppID = "testAppID"
 
   // Mocks
@@ -59,7 +59,7 @@ class FirebaseSessionsTests: XCTestCase {
     mockPerformanceSubscriber = MockSubscriber(name: SessionsSubscriberName.Performance)
   }
 
-  /// This function forms the basis for all tests of type `FirebaseSessionsTests`. It's written
+  /// This function forms the basis for all tests of type `FirebaseSessionsTestsBase`. It's written
   /// so that you don't need to setup expectations for each test individually.
   ///
   /// It has 4 parts:

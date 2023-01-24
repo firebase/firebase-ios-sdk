@@ -21,7 +21,7 @@ import XCTest
 
 @testable import FirebaseSessions
 
-final class FirebaseSessionsTests_DataCollection: FirebaseSessionsTests {
+final class FirebaseSessionsTestsBase_DataCollection: FirebaseSessionsTestsBase {
   // Ensure that for all subscribers, that the data collection state is correctly set.
   func assertEventDataCollectionCorrect(subscribedSDKs: [SessionsSubscriber]) {
     guard let loggedEvent = mockCoordinator.loggedEvent else {

@@ -21,7 +21,7 @@ import XCTest
 
 @testable import FirebaseSessions
 
-final class FirebaseSessionsTests_Subscribers: FirebaseSessionsTests {
+final class FirebaseSessionsTestsBase_Subscribers: FirebaseSessionsTestsBase {
   // Check that the Session ID that was passed to the Subscriber SDK
   // matches the Session ID that the Sessions SDK logged, and ensure
   // both are not empty.

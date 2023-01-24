@@ -21,7 +21,7 @@ import XCTest
 
 @testable import FirebaseSessions
 
-final class FirebaseSessionsTests_BaseBehaviors: FirebaseSessionsTests {
+final class FirebaseSessionsTestsBase_BaseBehaviors: FirebaseSessionsTestsBase {
   // MARK: - Test Settings & Sampling
 
   func test_settingsDisabled_doesNotLogSessionEventButDoesFetchSettings() {
