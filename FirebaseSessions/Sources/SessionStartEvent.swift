@@ -58,10 +58,10 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     proto.application_info.apple_app_info
       .bundle_short_version = makeProtoString(appInfo.appDisplayVersion)
     proto.application_info.apple_app_info.os_name = convertOSName(osName: appInfo.osName)
-    proto.application_info.apple_app_info.mcc_mnc = makeProtoString(appInfo.mccMNC)
 
     // Set network info to base values but don't fill them in with the real
     // value because these are only tracked when Performance is installed
+    proto.application_info.apple_app_info.mcc_mnc = makeProtoString("")
     proto.application_info.apple_app_info.network_connection_info
       .network_type = convertNetworkType(networkType: .none)
     proto.application_info.apple_app_info.network_connection_info
@@ -99,6 +99,7 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
   func setRestrictedFields(subscriber: SessionsSubscriberName, appInfo: ApplicationInfoProtocol) {
     switch subscriber {
     case .Performance:
+      proto.application_info.apple_app_info.mcc_mnc = makeProtoString(appInfo.mccMNC)
       proto.application_info.apple_app_info.network_connection_info
         .network_type = convertNetworkType(networkType: appInfo.networkInfo.networkType)
       proto.application_info.apple_app_info.network_connection_info

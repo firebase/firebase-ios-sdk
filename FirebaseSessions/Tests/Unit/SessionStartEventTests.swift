@@ -105,11 +105,6 @@ class SessionStartEventTests: XCTestCase {
         expected: MockApplicationInfo.testDeviceModel,
         fieldName: "device_model"
       )
-      assertEqualProtoString(
-        proto.application_info.apple_app_info.mcc_mnc,
-        expected: MockApplicationInfo.testMCCMNC,
-        fieldName: "mcc_mnc"
-      )
 
       // Ensure we convert the test OS name into the enum.
       XCTAssertEqual(
@@ -241,6 +236,11 @@ class SessionStartEventTests: XCTestCase {
         event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype,
         firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE
       )
+      assertEqualProtoString(
+        proto.application_info.apple_app_info.mcc_mnc,
+        expected: "",
+        fieldName: "mcc_mnc"
+      )
     }
 
     // These fields will only be filled in when the Perf SDK is installed
@@ -255,6 +255,11 @@ class SessionStartEventTests: XCTestCase {
       XCTAssertEqual(
         event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype,
         firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSUPA
+      )
+      assertEqualProtoString(
+        proto.application_info.apple_app_info.mcc_mnc,
+        expected: MockApplicationInfo.testMCCMNC,
+        fieldName: "mcc_mnc"
       )
     }
   }
