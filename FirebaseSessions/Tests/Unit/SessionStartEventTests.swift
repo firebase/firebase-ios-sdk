@@ -105,11 +105,6 @@ class SessionStartEventTests: XCTestCase {
         expected: MockApplicationInfo.testDeviceModel,
         fieldName: "device_model"
       )
-      assertEqualProtoString(
-        proto.application_info.apple_app_info.mcc_mnc,
-        expected: MockApplicationInfo.testMCCMNC,
-        fieldName: "mcc_mnc"
-      )
 
       // Ensure we convert the test OS name into the enum.
       XCTAssertEqual(
@@ -215,6 +210,75 @@ class SessionStartEventTests: XCTestCase {
     }
   }
 
+  func test_newtworkInfo_onlyPresentWhenPerformanceInstalled() {
+    let mockNetworkInfo = MockNetworkInfo()
+    mockNetworkInfo.networkType = .mobile
+    // Mobile Subtypes are always empty on non-iOS platforms, and
+    // Performance doesn't support those platforms anyways
+    #if os(iOS) && !targetEnvironment(macCatalyst)
+      mockNetworkInfo.mobileSubtype = CTRadioAccessTechnologyHSUPA
+    #else
+      mockNetworkInfo.mobileSubtype = ""
+    #endif
+    appInfo.networkInfo = mockNetworkInfo
+
+    let sessionInfo = SessionInfo(
+      sessionId: "session_id",
+      previousSessionId: "previous_session_id",
+      dispatchEvents: true
+    )
+    let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: appInfo, time: time)
+
+    // These fields will not be filled in when Crashlytics is installed
+    event.setRestrictedFields(subscriber: .Crashlytics, appInfo: appInfo)
+
+    // Expect empty because Crashlytics is installed, but not Perf
+    testProtoAndDecodedProto(sessionEvent: event) { proto in
+      XCTAssertEqual(
+        event.proto.application_info.apple_app_info.network_connection_info.network_type,
+        firebase_appquality_sessions_NetworkConnectionInfo_NetworkType_DUMMY
+      )
+      XCTAssertEqual(
+        event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype,
+        firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE
+      )
+      assertEqualProtoString(
+        proto.application_info.apple_app_info.mcc_mnc,
+        expected: "",
+        fieldName: "mcc_mnc"
+      )
+    }
+
+    // These fields will only be filled in when the Perf SDK is installed
+    event.setRestrictedFields(subscriber: .Performance, appInfo: appInfo)
+
+    // Now the field should be set with the real thing
+    testProtoAndDecodedProto(sessionEvent: event) { proto in
+      XCTAssertEqual(
+        event.proto.application_info.apple_app_info.network_connection_info.network_type,
+        firebase_appquality_sessions_NetworkConnectionInfo_NetworkType_MOBILE
+      )
+      // Mobile Subtypes are always empty on non-iOS platforms, and
+      // Performance doesn't support those platforms anyways
+      #if os(iOS) && !targetEnvironment(macCatalyst)
+        XCTAssertEqual(
+          event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype,
+          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSUPA
+        )
+      #else
+        XCTAssertEqual(
+          event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype,
+          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE
+        )
+      #endif
+      assertEqualProtoString(
+        proto.application_info.apple_app_info.mcc_mnc,
+        expected: MockApplicationInfo.testMCCMNC,
+        fieldName: "mcc_mnc"
+      )
+    }
+  }
+
   func test_convertNetworkType_convertsCorrectly() {
     let expectations: [(
       given: GULNetworkType,
@@ -248,6 +312,9 @@ class SessionStartEventTests: XCTestCase {
         dispatchEvents: true
       )
       let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: appInfo, time: time)
+
+      // These fields will only be filled in when the Perf SDK is installed
+      event.setRestrictedFields(subscriber: .Performance, appInfo: appInfo)
 
       testProtoAndDecodedProto(sessionEvent: event) { proto in
         XCTAssertEqual(
@@ -330,6 +397,9 @@ class SessionStartEventTests: XCTestCase {
             dispatchEvents: true
           )
           let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: appInfo, time: time)
+
+          // These fields will only be filled in when the Perf SDK is installed
+          event.setRestrictedFields(subscriber: .Performance, appInfo: appInfo)
 
           testProtoAndDecodedProto(sessionEvent: event) { proto in
             XCTAssertEqual(
@@ -421,6 +491,9 @@ class SessionStartEventTests: XCTestCase {
             dispatchEvents: true
           )
           let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: appInfo, time: time)
+
+          // These fields will only be filled in when the Perf SDK is installed
+          event.setRestrictedFields(subscriber: .Performance, appInfo: appInfo)
 
           testProtoAndDecodedProto(sessionEvent: event) { proto in
             XCTAssertEqual(
