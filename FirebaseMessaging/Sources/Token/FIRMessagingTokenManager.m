@@ -247,6 +247,13 @@
           return;
         }
 
+        if (!self) {
+          NSError *noSelf = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+                                              failureReason:@"Lost Reference to TokenManager"];
+          handler(nil, noSelf);
+          return;
+        }
+
         FIRMessaging_WEAKIFY(self);
         [self->_installations installationIDWithCompletion:^(NSString *_Nullable identifier,
                                                              NSError *_Nullable error) {
@@ -300,6 +307,14 @@
           handler(nil, error);
           return;
         }
+
+        if (!self) {
+          NSError *noSelf = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+                                              failureReason:@"Lost Reference to TokenManager"];
+          handler(nil, noSelf);
+          return;
+        }
+
         if ([self isDefaultTokenWithAuthorizedEntity:authorizedEntity scope:scope]) {
           [self postTokenRefreshNotificationWithDefaultFCMToken:token];
         }
@@ -456,6 +471,15 @@
       handler(error);
       return;
     }
+
+    if (!self) {
+      NSError *noSelf = [NSError
+          messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+                   failureReason:@"Cannot delete. Lost reference to FIRMessagingTokenManager"];
+      handler(noSelf);
+      return;
+    }
+
     [self deleteAllTokensLocallyWithHandler:^(NSError *localError) {
       [self postTokenRefreshNotificationWithDefaultFCMToken:nil];
       self->_defaultFCMToken = nil;
