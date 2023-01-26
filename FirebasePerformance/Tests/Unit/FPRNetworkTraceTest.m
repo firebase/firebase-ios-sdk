@@ -14,6 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
+#import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
 #import "FirebasePerformance/Sources/Common/FPRConstants.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
@@ -437,6 +438,7 @@
 
 /** Validates that every trace contains a session Id. */
 - (void)testSessionId {
+  [[FPRSessionManager sharedInstance] updateSessionId:@"testSessionId"];
   FPRNetworkTrace *trace = [[FPRNetworkTrace alloc] initWithURLRequest:self.testURLRequest];
   [trace start];
   [trace checkpointState:FPRNetworkTraceCheckpointStateInitiated];
@@ -451,10 +453,6 @@
   NSString *string = @"Successful response";
   NSData *data = [string dataUsingEncoding:NSUTF8StringEncoding];
 
-  NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
-  [defaultCenter postNotificationName:UIApplicationDidBecomeActiveNotification
-                               object:[UIApplication sharedApplication]];
-
   [trace didReceiveData:data];
   [trace didCompleteRequestWithResponse:response error:nil];
   XCTAssertNotNil(trace.sessions);
@@ -463,20 +461,14 @@
 
 /** Validates if a trace contains multiple session Ids on changing app state. */
 - (void)testMultipleSessionIds {
+  [[FPRSessionManager sharedInstance] updateSessionId:@"testSessionId"];
   FPRNetworkTrace *trace = [[FPRNetworkTrace alloc] initWithURLRequest:self.testURLRequest];
   [trace start];
   [trace checkpointState:FPRNetworkTraceCheckpointStateInitiated];
   [trace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
 
-  NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
-  [defaultCenter postNotificationName:UIWindowDidBecomeVisibleNotification
-                               object:[UIApplication sharedApplication]];
-  [defaultCenter postNotificationName:UIApplicationDidBecomeActiveNotification
-                               object:[UIApplication sharedApplication]];
-  [defaultCenter postNotificationName:UIApplicationWillEnterForegroundNotification
-                               object:[UIApplication sharedApplication]];
-  [defaultCenter postNotificationName:UIApplicationWillEnterForegroundNotification
-                               object:[UIApplication sharedApplication]];
+  [[FPRSessionManager sharedInstance] updateSessionId:@"testSessionId2"];
+  [[FPRSessionManager sharedInstance] updateSessionId:@"testSessionId3"];
 
   NSDictionary<NSString *, NSString *> *headerFields = @{@"Content-Type" : @"text/json"};
   NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:self.testURLRequest.URL
