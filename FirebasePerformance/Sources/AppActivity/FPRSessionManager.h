@@ -48,4 +48,7 @@ NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions."
 
 - (void)updateSessionId:(nonnull NSString *)sessionIdString;
 
+// Collects all the enabled gauge metrics once.
+- (void)collectAllGaugesOnce;
+
 @end

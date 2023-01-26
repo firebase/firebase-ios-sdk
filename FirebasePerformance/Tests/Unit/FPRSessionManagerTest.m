@@ -17,6 +17,7 @@
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager+Private.h"
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
+#import "FirebasePerformance/Sources/Gauges/FPRGaugeManager+Private.h"
 
 #import <OCMock/OCMock.h>
 
@@ -26,6 +27,8 @@ NSString *const testSessionId = @"testSessionId";
 
 @property FPRSessionManager *instance;
 
+@property FPRGaugeManager *gaugeManager;
+
 @end
 
 @implementation FPRSessionManagerTest
@@ -33,7 +36,9 @@ NSString *const testSessionId = @"testSessionId";
 - (void)setUp {
   [super setUp];
   NSNotificationCenter *notificationCenter = [[NSNotificationCenter alloc] init];
-  _instance = [[FPRSessionManager alloc] initWithNotificationCenter:notificationCenter];
+  _gaugeManager = [[FPRGaugeManager alloc] initWithGauges:FPRGaugeCPU | FPRGaugeMemory];
+  _instance = [[FPRSessionManager alloc] initWithGaugeManager:_gaugeManager
+                                           notificationCenter:notificationCenter];
 }
 
 /** Validate the instance gets created and it is a singleton. */
@@ -45,23 +50,36 @@ NSString *const testSessionId = @"testSessionId";
 
 /** Validate that gauge collection does not change when calling renew method immediately. */
 - (void)testGaugeDoesNotStopBeforeMaxDuration {
-  id instance = [OCMockObject partialMockForObject:self.instance];
-  OCMStub([instance isGaugeCollectionEnabledForSessionId:[OCMArg any]]).andReturn(true);
-  [instance updateSessionId:testSessionId];
-  BOOL gaugeStopped = [instance stopGaugesIfRunningTooLong:[NSDate date]];
-  XCTAssertFalse(gaugeStopped);
+  FPRSessionManager *manager =
+      [[FPRSessionManager alloc] initWithGaugeManager:self.gaugeManager
+                                   notificationCenter:[NSNotificationCenter defaultCenter]];
+  id mockInstance = [OCMockObject partialMockForObject:[FPRConfigurations sharedInstance]];
+  OCMStub([mockInstance sessionsSamplingPercentage]).andReturn(100);
+  [manager updateSessionId:testSessionId];
+  XCTAssertTrue([manager isGaugeCollectionEnabledForSessionId:testSessionId]);
+
+  OCMStub([mockInstance maxSessionLengthInMinutes]).andReturn(5);
+  XCTAssertTrue([manager isGaugeCollectionEnabledForSessionId:testSessionId]);
+
+  [mockInstance stopMocking];
 }
 
 /** Validate that gauge collection stops when calling renew method after max duration reached. */
 - (void)testGaugeStopsAfterMaxDuration {
-  id instance = [OCMockObject partialMockForObject:self.instance];
-  OCMStub([instance isGaugeCollectionEnabledForSessionId:[OCMArg any]]).andReturn(true);
-  [instance updateSessionId:testSessionId];
-  NSTimeInterval maxDurationSeconds =
-      [[FPRConfigurations sharedInstance] maxSessionLengthInMinutes] * 60;
-  BOOL gaugeStopped = [instance
-      stopGaugesIfRunningTooLong:[[NSDate date] dateByAddingTimeInterval:maxDurationSeconds]];
-  XCTAssertTrue(gaugeStopped);
+  FPRSessionManager *manager =
+      [[FPRSessionManager alloc] initWithGaugeManager:self.gaugeManager
+                                   notificationCenter:[NSNotificationCenter defaultCenter]];
+  id mockInstance = [OCMockObject partialMockForObject:[FPRConfigurations sharedInstance]];
+  OCMStub([mockInstance sessionsSamplingPercentage]).andReturn(100);
+  [manager updateSessionId:testSessionId];
+  XCTAssertTrue([manager isGaugeCollectionEnabledForSessionId:testSessionId]);
+
+  XCTAssertEqual(manager.sessionDetails.options & FPRSessionOptionsGauges, FPRSessionOptionsGauges);
+  OCMStub([mockInstance maxSessionLengthInMinutes]).andReturn(0);
+  [manager stopGaugesIfRunningTooLong];
+  XCTAssertEqual(manager.gaugeManager.activeGauges, 0);
+
+  [mockInstance stopMocking];
 }
 
 /** Validate that sessionId changes on new session. */

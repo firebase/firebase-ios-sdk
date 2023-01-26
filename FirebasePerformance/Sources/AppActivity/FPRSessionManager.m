@@ -17,7 +17,6 @@
 
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 #import "FirebasePerformance/Sources/FPRConsoleLogger.h"
-#import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
 
 #import <UIKit/UIKit.h>
 
@@ -28,15 +27,6 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
 
 @property(nonatomic, readwrite) NSNotificationCenter *sessionNotificationCenter;
 
-/**
- * Creates an instance of FPRSesssionManager with the notification center provided. All the
- * notifications from the session manager will sent using this notification center.
- *
- * @param notificationCenter Notification center with which the session manager with be initialized.
- * @return Returns an instance of the session manager.
- */
-- (instancetype)initWithNotificationCenter:(NSNotificationCenter *)notificationCenter;
-
 @end
 
 @implementation FPRSessionManager
@@ -46,14 +36,18 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     NSNotificationCenter *notificationCenter = [[NSNotificationCenter alloc] init];
-    instance = [[FPRSessionManager alloc] initWithNotificationCenter:notificationCenter];
+    FPRGaugeManager *gaugeManager = [FPRGaugeManager sharedInstance];
+    instance = [[FPRSessionManager alloc] initWithGaugeManager:gaugeManager
+                                            notificationCenter:notificationCenter];
   });
   return instance;
 }
 
-- (FPRSessionManager *)initWithNotificationCenter:(NSNotificationCenter *)notificationCenter {
+- (FPRSessionManager *)initWithGaugeManager:(FPRGaugeManager *)gaugeManager
+                         notificationCenter:(NSNotificationCenter *)notificationCenter {
   self = [super init];
   if (self) {
+    _gaugeManager = gaugeManager;
     _sessionNotificationCenter = notificationCenter;
     // Empty string is immediately replaced when FirebaseCore runs Fireperf's
     // FIRComponentCreationBlock, because in the creation block we register Fireperf with Sessions,
@@ -65,13 +59,11 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
   return self;
 }
 
-- (BOOL)stopGaugesIfRunningTooLong:(NSDate *)now {
+- (void)stopGaugesIfRunningTooLong {
   NSUInteger maxSessionLength = [[FPRConfigurations sharedInstance] maxSessionLengthInMinutes];
-  if ([self.sessionDetails sessionLengthInMinutesFromDate:now] >= maxSessionLength) {
-    [[FPRGaugeManager sharedInstance] stopCollectingGauges:FPRGaugeCPU | FPRGaugeMemory];
-    return true;
+  if ([self.sessionDetails sessionLengthInMinutesFromDate:[NSDate date]] >= maxSessionLength) {
+    [self.gaugeManager stopCollectingGauges:FPRGaugeCPU | FPRGaugeMemory];
   }
-  return false;
 }
 
 /**
@@ -81,12 +73,12 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
  */
 - (void)updateSessionId:(NSString *)sessionIdString {
   FPRSessionOptions sessionOptions = FPRSessionOptionsNone;
-  FPRGaugeManager *gaugeManager = [FPRGaugeManager sharedInstance];
   if ([self isGaugeCollectionEnabledForSessionId:sessionIdString]) {
-    [gaugeManager startCollectingGauges:FPRGaugeCPU | FPRGaugeMemory forSessionId:sessionIdString];
+    [self.gaugeManager startCollectingGauges:FPRGaugeCPU | FPRGaugeMemory
+                                forSessionId:sessionIdString];
     sessionOptions = FPRSessionOptionsGauges;
   } else {
-    [gaugeManager stopCollectingGauges:FPRGaugeCPU | FPRGaugeMemory];
+    [self.gaugeManager stopCollectingGauges:FPRGaugeCPU | FPRGaugeMemory];
   }
 
   FPRLogDebug(kFPRSessionId, @"Session Id changed - %@", sessionIdString);
@@ -99,6 +91,10 @@ NSString *const kFPRSessionIdNotificationKey = @"kFPRSessionIdNotificationKey";
   [self.sessionNotificationCenter postNotificationName:kFPRSessionIdUpdatedNotification
                                                 object:self
                                               userInfo:[userInfo copy]];
+}
+
+- (void)collectAllGaugesOnce {
+  [self.gaugeManager collectAllGauges];
 }
 
 /**

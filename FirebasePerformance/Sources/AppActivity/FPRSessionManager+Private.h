@@ -15,11 +15,14 @@
 #import <Foundation/Foundation.h>
 
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
+#import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** This extension should only be used for testing. */
 @interface FPRSessionManager ()
+
+@property(nonatomic) FPRGaugeManager *gaugeManager;
 
 /** The current active session managed by the session manager. Modifiable for unit tests */
 @property(atomic, nullable, readwrite) FPRSessionDetails *sessionDetails;
@@ -28,17 +31,18 @@ NS_ASSUME_NONNULL_BEGIN
  * Creates an instance of FPRSesssionManager with the notification center provided. All the
  * notifications from the session manager will sent using this notification center.
  *
+ * @param gaugeManager Gauge manager used by the session manager to work with gauges.
  * @param notificationCenter Notification center with which the session manager with be initialized.
  * @return Returns an instance of the session manager.
  */
-- (FPRSessionManager *)initWithNotificationCenter:(NSNotificationCenter *)notificationCenter;
+- (FPRSessionManager *)initWithGaugeManager:(FPRGaugeManager *)gaugeManager
+                         notificationCenter:(NSNotificationCenter *)notificationCenter;
 
 /**
  * Checks if the currently active session is beyond maximum allowed time for gauge-collection. If so
  * stop gauges, else no-op.
- * @return YES if gauge collection is running too long and stopped, NO otherwise.
  */
-- (BOOL)stopGaugesIfRunningTooLong:(NSDate *)now;
+- (void)stopGaugesIfRunningTooLong;
 
 /**
  * Checks if the provided sessionId can have gauge data collection enabled.
