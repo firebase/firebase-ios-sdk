@@ -257,9 +257,6 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
       }
     });
   }
-
-  // Let the session manager to start tracking app activity changes.
-  [[FPRSessionManager sharedInstance] startTrackingAppStateChanges];
 }
 
 /**
