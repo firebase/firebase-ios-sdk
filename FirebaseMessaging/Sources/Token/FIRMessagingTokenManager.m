@@ -239,24 +239,25 @@
   }
 
   FIRMessaging_WEAKIFY(self);
-  [_authService
-      fetchCheckinInfoWithHandler:^(FIRMessagingCheckinPreferences *preferences, NSError *error) {
-        FIRMessaging_STRONGIFY(self);
-        if (error) {
-          newHandler(nil, error);
-          return;
-        }
+  [_authService fetchCheckinInfoWithHandler:^(FIRMessagingCheckinPreferences *preferences,
+                                              NSError *error) {
+    FIRMessaging_STRONGIFY(self);
+    if (error) {
+      newHandler(nil, error);
+      return;
+    }
 
-        if (!self) {
-          NSError *noSelf = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
-                                              failureReason:@"Lost Reference to TokenManager"];
-          handler(nil, noSelf);
-          return;
-        }
+    if (!self) {
+      NSError *derefErr =
+          [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+                            failureReason:@"Unable to fetch token. Lost Reference to TokenManager"];
+      handler(nil, derefErr);
+      return;
+    }
 
-        FIRMessaging_WEAKIFY(self);
-        [self->_installations installationIDWithCompletion:^(NSString *_Nullable identifier,
-                                                             NSError *_Nullable error) {
+    FIRMessaging_WEAKIFY(self);
+    [self->_installations
+        installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
           FIRMessaging_STRONGIFY(self);
 
           if (error) {
@@ -282,7 +283,7 @@
                                             handler:newHandler];
           }
         }];
-      }];
+  }];
 }
 
 - (void)fetchNewTokenWithAuthorizedEntity:(NSString *)authorizedEntity
@@ -309,9 +310,9 @@
         }
 
         if (!self) {
-          NSError *noSelf = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+          NSError *lostRefError = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
                                               failureReason:@"Lost Reference to TokenManager"];
-          handler(nil, noSelf);
+          handler(nil, lostRefError);
           return;
         }
 
@@ -473,10 +474,10 @@
     }
 
     if (!self) {
-      NSError *noSelf = [NSError
-          messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
-                   failureReason:@"Cannot delete. Lost reference to FIRMessagingTokenManager"];
-      handler(noSelf);
+      NSError *lostRefError =
+          [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+                            failureReason:@"Cannot delete token. Lost reference to TokenManager"];
+      handler(lostRefError);
       return;
     }
 
