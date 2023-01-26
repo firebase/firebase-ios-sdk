@@ -56,10 +56,10 @@ NSString *const testSessionId = @"testSessionId";
   id mockInstance = [OCMockObject partialMockForObject:[FPRConfigurations sharedInstance]];
   OCMStub([mockInstance sessionsSamplingPercentage]).andReturn(100);
   [manager updateSessionId:testSessionId];
-  XCTAssertTrue([manager isGaugeCollectionEnabledForSessionId:testSessionId]);
+  XCTAssertTrue(manager.gaugeManager.activeGauges > 0);
 
   OCMStub([mockInstance maxSessionLengthInMinutes]).andReturn(5);
-  XCTAssertTrue([manager isGaugeCollectionEnabledForSessionId:testSessionId]);
+  XCTAssertTrue(manager.gaugeManager.activeGauges > 0);
 
   [mockInstance stopMocking];
 }
@@ -72,7 +72,7 @@ NSString *const testSessionId = @"testSessionId";
   id mockInstance = [OCMockObject partialMockForObject:[FPRConfigurations sharedInstance]];
   OCMStub([mockInstance sessionsSamplingPercentage]).andReturn(100);
   [manager updateSessionId:testSessionId];
-  XCTAssertTrue([manager isGaugeCollectionEnabledForSessionId:testSessionId]);
+  XCTAssertTrue(manager.gaugeManager.activeGauges > 0);
 
   XCTAssertEqual(manager.sessionDetails.options & FPRSessionOptionsGauges, FPRSessionOptionsGauges);
   OCMStub([mockInstance maxSessionLengthInMinutes]).andReturn(0);

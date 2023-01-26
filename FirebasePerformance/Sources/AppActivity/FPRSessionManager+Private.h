@@ -44,14 +44,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)stopGaugesIfRunningTooLong;
 
-/**
- * Checks if the provided sessionId can have gauge data collection enabled.
- *
- * @param sessionId Session Id for which the check is done.
- * @return YES if gauge collection is enabled, NO otherwise.
- */
-- (BOOL)isGaugeCollectionEnabledForSessionId:(NSString *)sessionId;
-
 @end
 
 NS_ASSUME_NONNULL_END
