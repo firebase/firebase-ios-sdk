@@ -64,6 +64,11 @@ class RemoteDocumentCacheTest : public ::testing::TestWithParam<FactoryFunc> {
                                          int read_time);
   model::MutableDocument SetTestDocument(
       absl::string_view path,
+      int update_time,
+      int read_time,
+      nanopb::Message<google_firestore_v1_Value> data);
+  model::MutableDocument SetTestDocument(
+      absl::string_view path,
       nanopb::Message<google_firestore_v1_Value> data,
       int update_time,
       int read_time);
