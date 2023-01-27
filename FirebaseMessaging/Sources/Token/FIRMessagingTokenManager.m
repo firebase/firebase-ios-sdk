@@ -249,7 +249,7 @@
 
     if (!self) {
       NSError *derefErr =
-          [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+          [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInternal
                             failureReason:@"Unable to fetch token. Lost Reference to TokenManager"];
       handler(nil, derefErr);
       return;
@@ -310,7 +310,7 @@
     }
 
     if (!self) {
-      NSError *lostRefError = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+      NSError *lostRefError = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInternal
                                                 failureReason:@"Lost Reference to TokenManager"];
       handler(nil, lostRefError);
       return;
@@ -475,7 +475,7 @@
 
     if (!self) {
       NSError *lostRefError =
-          [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+          [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInternal
                             failureReason:@"Cannot delete token. Lost reference to TokenManager"];
       handler(lostRefError);
       return;
