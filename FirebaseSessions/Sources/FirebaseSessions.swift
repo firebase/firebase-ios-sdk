@@ -210,7 +210,7 @@ private enum GoogleDataTransportConfig {
     subscribers.forEach { subscriber in
       event.set(subscriber: subscriber.sessionsSubscriberName,
                 isDataCollectionEnabled: subscriber.isDataCollectionEnabled,
-                appInfo:self.appInfo)
+                appInfo: self.appInfo)
     }
   }
 
