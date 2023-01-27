@@ -19,6 +19,7 @@
 
 #include <string>
 
+#include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/model_fwd.h"
 
 namespace firebase {
@@ -107,10 +108,11 @@ class RemoteDocumentCache {
    * If the limit is not defined, returns all matching documents.
    * @return The set of matching documents.
    */
-  virtual model::MutableDocumentMap GetAll(
-      const model::ResourcePath& path,
+  virtual model::MutableDocumentMap GetDocumentsMatchingQuery(
+      const core::Query& query,
       const model::IndexOffset& offset,
-      absl::optional<size_t> limit = absl::nullopt) const = 0;
+      absl::optional<size_t> limit = absl::nullopt,
+      const model::OverlayByDocumentKeyMap& mutated_docs = {}) const = 0;
 
   /**
    * Sets the index manager used by remote document cache.

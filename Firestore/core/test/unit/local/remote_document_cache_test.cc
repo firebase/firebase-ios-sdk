@@ -27,6 +27,7 @@
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/document_key_set.h"
 #include "Firestore/core/src/model/object_value.h"
+#include "Firestore/core/src/model/overlay.h"
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/util/string_apple.h"
@@ -205,7 +206,7 @@ TEST_P(RemoteDocumentCacheTest, DocumentsMatchingQuery) {
 
     core::Query query = Query("b");
     MutableDocumentMap results =
-        cache_->GetAll(query.path(), model::IndexOffset::None());
+        cache_->GetDocumentsMatchingQuery(query, model::IndexOffset::None());
     std::vector<MutableDocument> docs = {
         Doc("b/1", kVersion, Map("a", 1, "b", 2)),
         Doc("b/2", kVersion, Map("a", 1, "b", 2)),
@@ -221,8 +222,8 @@ TEST_P(RemoteDocumentCacheTest, DocumentsMatchingQuerySinceReadTime) {
     SetTestDocument("b/new", /* updateTime= */ 3, /* readTime= = */ 13);
 
     core::Query query = Query("b");
-    MutableDocumentMap results = cache_->GetAll(
-        query.path(), model::IndexOffset::CreateSuccessor(Version(12)));
+    MutableDocumentMap results = cache_->GetDocumentsMatchingQuery(
+        query, model::IndexOffset::CreateSuccessor(Version(12)));
     std::vector<MutableDocument> docs = {
         Doc("b/new", 3, Map("a", 1, "b", 2)),
     };
@@ -237,8 +238,8 @@ TEST_P(RemoteDocumentCacheTest, DocumentsMatchingUsesReadTimeNotUpdateTime) {
         SetTestDocument("b/new", /* updateTime= */ 2, /* readTime= */ 1);
 
         core::Query query = Query("b");
-        MutableDocumentMap results = cache_->GetAll(
-            query.path(), model::IndexOffset::CreateSuccessor(Version(1)));
+        MutableDocumentMap results = cache_->GetDocumentsMatchingQuery(
+            query, model::IndexOffset::CreateSuccessor(Version(1)));
         std::vector<MutableDocument> docs = {
             Doc("b/old", 1, Map("a", 1, "b", 2)),
         };
@@ -265,8 +266,8 @@ TEST_P(RemoteDocumentCacheTest, DoesNotApplyDocumentModificationsToCache) {
     EXPECT_EQ(document.value(), *Map("value", "old"));
     document.data().Set(Field("value"), Value("new"));
 
-    documents =
-        cache_->GetAll(Query("coll").path(), model::IndexOffset::None());
+    documents = cache_->GetDocumentsMatchingQuery(Query("coll"),
+                                                  model::IndexOffset::None());
     document = documents.find(Key("coll/doc"))->second;
     EXPECT_EQ(document.value(), *Map("value", "old"));
     document.data().Set(Field("value"), Value("new"));
