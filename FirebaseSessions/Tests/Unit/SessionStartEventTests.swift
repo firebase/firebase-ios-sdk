@@ -230,7 +230,10 @@ class SessionStartEventTests: XCTestCase {
     let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: appInfo, time: time)
 
     // These fields will not be filled in when Crashlytics is installed
-    event.setRestrictedFields(subscriber: .Crashlytics, appInfo: appInfo)
+    event.set(subscriber: .Crashlytics, isDataCollectionEnabled: true, appInfo: appInfo)
+
+    // They should also not be filled in when Performance data collection is disabled
+    event.set(subscriber: .Performance, isDataCollectionEnabled: false, appInfo: appInfo)
 
     // Expect empty because Crashlytics is installed, but not Perf
     testProtoAndDecodedProto(sessionEvent: event) { proto in
@@ -250,7 +253,7 @@ class SessionStartEventTests: XCTestCase {
     }
 
     // These fields will only be filled in when the Perf SDK is installed
-    event.setRestrictedFields(subscriber: .Performance, appInfo: appInfo)
+    event.set(subscriber: .Performance, isDataCollectionEnabled: true, appInfo: appInfo)
 
     // Now the field should be set with the real thing
     testProtoAndDecodedProto(sessionEvent: event) { proto in
@@ -314,7 +317,7 @@ class SessionStartEventTests: XCTestCase {
       let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: appInfo, time: time)
 
       // These fields will only be filled in when the Perf SDK is installed
-      event.setRestrictedFields(subscriber: .Performance, appInfo: appInfo)
+      event.set(subscriber: .Performance, isDataCollectionEnabled: true, appInfo: appInfo)
 
       testProtoAndDecodedProto(sessionEvent: event) { proto in
         XCTAssertEqual(
@@ -399,7 +402,7 @@ class SessionStartEventTests: XCTestCase {
           let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: appInfo, time: time)
 
           // These fields will only be filled in when the Perf SDK is installed
-          event.setRestrictedFields(subscriber: .Performance, appInfo: appInfo)
+          event.set(subscriber: .Performance, isDataCollectionEnabled: true, appInfo: appInfo)
 
           testProtoAndDecodedProto(sessionEvent: event) { proto in
             XCTAssertEqual(
@@ -493,7 +496,7 @@ class SessionStartEventTests: XCTestCase {
           let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: appInfo, time: time)
 
           // These fields will only be filled in when the Perf SDK is installed
-          event.setRestrictedFields(subscriber: .Performance, appInfo: appInfo)
+          event.set(subscriber: .Performance, isDataCollectionEnabled: true, appInfo: appInfo)
 
           testProtoAndDecodedProto(sessionEvent: event) { proto in
             XCTAssertEqual(
