@@ -26,6 +26,7 @@
 #include "Firestore/core/src/local/leveldb_index_manager.h"
 #include "Firestore/core/src/local/remote_document_cache.h"
 #include "Firestore/core/src/model/model_fwd.h"
+#include "Firestore/core/src/model/overlay.h"
 #include "Firestore/core/src/model/types.h"
 #include "absl/strings/string_view.h"
 #include "absl/types/optional.h"
