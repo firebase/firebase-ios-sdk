@@ -21,7 +21,7 @@ import XCTest
 
 // TODO(#10752) - Update and fix the Facebook login Sample app and tests.
 //
-//class FacebookTests: TestsBase {
+// class FacebookTests: TestsBase {
 //  func testSignInWithFacebook() throws {
 //    let auth = Auth.auth()
 //    let userInfoDict = createFacebookTestingAccount()
@@ -210,4 +210,4 @@ import XCTest
 //      try await fetcher.beginFetch()
 //    }
 //  #endif
-//}
+// }
