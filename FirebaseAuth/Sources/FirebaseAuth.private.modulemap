@@ -1,0 +1,5 @@
+framework module FirebaseAuth_Private {
+  header "MyPrivateClass.h"
+  export *
+  requires swift
+}

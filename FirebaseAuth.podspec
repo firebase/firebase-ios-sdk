@@ -41,7 +41,10 @@ supports email and password accounts, as well as several 3rd party authenticatio
     'FirebaseCore/Extension/*.h',
     'FirebaseAuth/Interop/*.h',
   ]
+  s.module_map = source + 'Public/FirebaseAuth/FirebaseAuth.modulemap'
   s.public_header_files = source + 'Public/FirebaseAuth/*.h'
+  s.private_header_files = source + 'Private/*.h'
+
   s.preserve_paths = [
     'FirebaseAuth/README.md',
     'FirebaseAuth/CHANGELOG.md'
@@ -49,7 +52,9 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     # The second path is to find FirebaseAuth-Swift.h from a pod gen project
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}" "${OBJECT_FILE_DIR_normal}/${NATIVE_ARCH_ACTUAL}"'
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}" "${OBJECT_FILE_DIR_normal}/${NATIVE_ARCH_ACTUAL}"',
+    # Point to the private module map.
+    'MODULEMAP_PRIVATE_FILE' => '${SRCROOT}/../../../FirebaseAuth/Sources/FirebaseAuth.private.modulemap'
   }
   s.framework = 'Security'
   s.ios.framework = 'SafariServices'

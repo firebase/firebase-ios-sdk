@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+@_implementationOnly import FirebaseAuth_Private
 
 /** @class FIRActionCodeSettings
     @brief Used to set and retrieve settings related to handling action codes.
@@ -79,6 +80,7 @@ import Foundation
   @objc public func setAndroidPackageName(_ androidPackageName: String,
                                           installIfNotAvailable: Bool,
                                           minimumVersion: String?) {
+    let _ = MyPrivateClass()
     self.androidPackageName = androidPackageName
     androidInstallIfNotAvailable = installIfNotAvailable
     androidMinimumVersion = minimumVersion
