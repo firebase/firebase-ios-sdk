@@ -101,11 +101,13 @@ class RemoteDocumentCache {
    *
    * Cached DeletedDocument entries have no bearing on query results.
    *
-   * @param path The collection path to match documents against.
+   * @param query The query to match documents against.
    * @param offset The read time and document key to start scanning at
    * (exclusive).
    * @param limit The maximum number of results to return.
    * If the limit is not defined, returns all matching documents.
+   * @param mutated_docs The documents with local mutations, they are read
+   * regardless if the remote version matches the given query.
    * @return The set of matching documents.
    */
   virtual model::MutableDocumentMap GetDocumentsMatchingQuery(
