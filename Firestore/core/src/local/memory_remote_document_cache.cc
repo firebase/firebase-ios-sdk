@@ -21,6 +21,7 @@
 #include "Firestore/core/src/local/memory_persistence.h"
 #include "Firestore/core/src/local/sizer.h"
 #include "Firestore/core/src/model/document.h"
+#include "Firestore/core/src/model/overlay.h"
 #include "Firestore/core/src/util/hard_assert.h"
 
 namespace firebase {

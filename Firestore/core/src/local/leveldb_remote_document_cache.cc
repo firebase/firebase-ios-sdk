@@ -28,6 +28,7 @@
 #include "Firestore/core/src/model/document_key_set.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/mutable_document.h"
+#include "Firestore/core/src/model/overlay.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/reader.h"
 #include "Firestore/core/src/util/background_queue.h"
