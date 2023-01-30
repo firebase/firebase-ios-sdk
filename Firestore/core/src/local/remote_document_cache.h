@@ -21,6 +21,7 @@
 
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/model_fwd.h"
+#include "Firestore/core/src/model/overlay.h"
 
 namespace firebase {
 namespace firestore {
