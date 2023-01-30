@@ -358,7 +358,9 @@ static const char* FIRCLSContextAppendToRoot(NSString* root, NSString* component
       [[root stringByAppendingPathComponent:component] fileSystemRepresentation]);
 }
 
-static bool FIRCLSContextRecordIdentity(FIRCLSFile* file, const char* sessionId, const char* betaToken) {
+static bool FIRCLSContextRecordIdentity(FIRCLSFile* file,
+                                        const char* sessionId,
+                                        const char* betaToken) {
   FIRCLSFileWriteSectionStart(file, "identity");
 
   FIRCLSFileWriteHashStart(file);
