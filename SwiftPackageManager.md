@@ -1,15 +1,8 @@
 # Swift Package Manager for Firebase
 
-## Introduction
-
-Starting with the 8.0.0 release, Firebase officially supports installation via [Swift
-Package Manager](https://swift.org/package-manager/).
-
-Prior to version 8.0.0 (starting with version 6.31.0) support was in Beta.
-
 ## Requirements
 
-- Requires Xcode 12.5 or above
+- Requires Xcode 13.3.1 or above
 - Analytics requires clients to add `-ObjC` linker option.
 - See [Package.swift](Package.swift) for supported platform versions.
 
@@ -35,7 +28,7 @@ Search for the Firebase Apple SDK using the repo's URL:
 https://github.com/firebase/firebase-ios-sdk.git
 ```
 
-Next, set the **Dependency Rule** to be `Up to Next Major Version` and specify `8.10.0` as the lower bound.
+Next, set the **Dependency Rule** to be `Up to Next Major Version`.
 
 Then, select **Add Package**.
 
@@ -80,7 +73,7 @@ dependencies: [
   .package(
     name: "Firebase",
     url: "https://github.com/firebase/firebase-ios-sdk.git",
-    .upToNextMajor(from: "8.10.0")
+    .upToNextMajor(from: "10.4.0")
   ),
 
   // Any other dependencies you have...
