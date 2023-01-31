@@ -428,7 +428,7 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
 
   // add params with new/updated p13n metadata
   for (NSString *key in [fetchedP13n allKeys]) {
-    if (activeP13n[key] == nil || ![activeP13n[key] isEqualToString:fetchedP13n[key]]) {
+    if (activeP13n[key] == nil || ![activeP13n[key] isEqualToDictionary:fetchedP13n[key]]) {
       [updatedKeys addObject:key];
     }
   }
