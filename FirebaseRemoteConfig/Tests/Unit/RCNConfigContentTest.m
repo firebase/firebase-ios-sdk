@@ -431,8 +431,8 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   NSString *namespace = @"test_namespace";
   NSString *existingParam = @"key1";
   NSString *value1 = @"value1";
-  NSString *oldMetadata = @"metadata1";
-  NSString *updatedMetadata = @"metadata2";
+  NSDictionary *oldMetadata = @{@"arm_index" : @"1"};
+  NSDictionary *updatedMetadata = @{@"arm_index" : @"2"};
 
   // popuate fetched config
   NSMutableDictionary *fetchResponse =
