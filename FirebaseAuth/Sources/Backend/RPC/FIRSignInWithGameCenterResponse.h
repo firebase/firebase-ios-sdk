@@ -44,6 +44,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, readonly, nullable) NSString *playerID;
 
+/** @property teamPlayerID
+    @breif @breif The verified team player ID.
+ */
+@property(nonatomic, copy, readonly, nullable) NSString *teamPlayerID;
+
+/** @property gamePlayerID
+    @breif @breif The verified game player ID.
+ */
+@property(nonatomic, copy, readonly, nullable) NSString *gamePlayerID;
+
 /** @property approximateExpirationDate
     @breif The approximate expiration date of the access token.
  */
