@@ -29,6 +29,7 @@
 #import "FirebaseAuth/Sources/User/FIRUserInfoImpl.h"
 #import "FirebaseAuth/Sources/User/FIRUserMetadata_Internal.h"
 #import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
+#import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactor+Internal.h"
 
 // #if TARGET_OS_IOS
 // #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"
