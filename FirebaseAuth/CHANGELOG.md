@@ -1,8 +1,8 @@
 # 10.5.0
 - [fixed] Prevent keychain pop-up when accessing Auth keychain in a Mac
-   app. Note that using Firebase Auth in Mac apps requires that the app
+   app. Note that using Firebase Auth in a Mac app requires that the app
    is signed with a provisioning profile that has the Keychain Sharing
-   capability enabled (see Firebase 9.6.0 relase notes). (#10582)
+   capability enabled (see Firebase 9.6.0 release notes). (#10582)
 
 # 10.4.0
 - [fixed] Fix secure coding bugs in MFA. (#10632)
