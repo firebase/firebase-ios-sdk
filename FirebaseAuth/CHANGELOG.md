@@ -1,3 +1,6 @@
+# 10.5.0
+- [fixed] Prevent keychain pop-up when accessing Auth keychain. (#10582)
+
 # 10.4.0
 - [fixed] Fix secure coding bugs in MFA. (#10632)
 - [fixed] Added handling of error returned from a blocking cloud function. (#10628)
