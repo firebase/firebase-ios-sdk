@@ -57,12 +57,15 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     proto.application_info.which_platform_info = FIRSESGetAppleApplicationInfoTag()
     proto.application_info.apple_app_info
       .bundle_short_version = makeProtoString(appInfo.appDisplayVersion)
-    proto.application_info.apple_app_info.network_connection_info
-      .network_type = convertNetworkType(networkType: appInfo.networkInfo.networkType)
-    proto.application_info.apple_app_info.network_connection_info
-      .mobile_subtype = convertMobileSubtype(mobileSubtype: appInfo.networkInfo.mobileSubtype)
     proto.application_info.apple_app_info.os_name = convertOSName(osName: appInfo.osName)
-    proto.application_info.apple_app_info.mcc_mnc = makeProtoString(appInfo.mccMNC)
+
+    // Set network info to base values but don't fill them in with the real
+    // value because these are only tracked when Performance is installed
+    proto.application_info.apple_app_info.mcc_mnc = makeProtoString("")
+    proto.application_info.apple_app_info.network_connection_info
+      .network_type = convertNetworkType(networkType: .none)
+    proto.application_info.apple_app_info.network_connection_info
+      .mobile_subtype = convertMobileSubtype(mobileSubtype: "")
 
     proto.session_data.data_collection_status
       .crashlytics = firebase_appquality_sessions_DataCollectionState_COLLECTION_SDK_NOT_INSTALLED
@@ -78,7 +81,8 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     proto.session_data.data_collection_status.session_sampling_rate = samplingRate
   }
 
-  func set(subscriber: SessionsSubscriberName, isDataCollectionEnabled: Bool) {
+  func set(subscriber: SessionsSubscriberName, isDataCollectionEnabled: Bool,
+           appInfo: ApplicationInfoProtocol) {
     let dataCollectionState = makeDataCollectionProto(isDataCollectionEnabled)
     switch subscriber {
     case .Crashlytics:
@@ -88,6 +92,29 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     default:
       Logger
         .logWarning("Attempted to set Data Collection status for unknown Subscriber: \(subscriber)")
+    }
+
+    // Only set restricted fields if Data Collection is enabled. If it's disabled,
+    // we're treating that as if the product isn't installed.
+    if isDataCollectionEnabled {
+      setRestrictedFields(subscriber: subscriber,
+                          appInfo: appInfo)
+    }
+  }
+
+  /// This method should be called for every subscribed Subscriber. This is for cases where
+  /// fields should only be collected if a specific SDK is installed.
+  private func setRestrictedFields(subscriber: SessionsSubscriberName,
+                                   appInfo: ApplicationInfoProtocol) {
+    switch subscriber {
+    case .Performance:
+      proto.application_info.apple_app_info.mcc_mnc = makeProtoString(appInfo.mccMNC)
+      proto.application_info.apple_app_info.network_connection_info
+        .network_type = convertNetworkType(networkType: appInfo.networkInfo.networkType)
+      proto.application_info.apple_app_info.network_connection_info
+        .mobile_subtype = convertMobileSubtype(mobileSubtype: appInfo.networkInfo.mobileSubtype)
+    default:
+      break
     }
   }
 

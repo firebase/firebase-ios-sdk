@@ -76,7 +76,7 @@ import Foundation
       let uploadFetcher = GTMSessionUploadFetcher(
         request: request,
         uploadMIMEType: contentType,
-        chunkSize: Int64.max,
+        chunkSize: self.reference.storage.uploadChunkSizeBytes,
         fetcherService: self.fetcherService
       )
       if let data = self.uploadData {

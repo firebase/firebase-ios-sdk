@@ -124,6 +124,12 @@ import FirebaseAuthInterop
   }
 
   /**
+   * Specify the maximum upload chunk size. Values less than 256K (262144) will be rounded up to 256K. Values
+   * above 256K will be rounded down to the nearest 256K multiple. The default is no maximum.
+   */
+  @objc public var uploadChunkSizeBytes: Int64 = .max
+
+  /**
    * A `DispatchQueue` that all developer callbacks are fired on. Defaults to the main queue.
    */
   @objc public var callbackQueue: DispatchQueue {

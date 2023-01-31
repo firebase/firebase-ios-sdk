@@ -15,15 +15,6 @@
 import XCTest
 @testable import FirebaseSessions
 
-#if os(iOS) || os(tvOS)
-  import UIKit
-#elseif os(macOS)
-  import Cocoa
-  import AppKit
-#elseif os(watchOS)
-  import WatchKit
-#endif
-
 class InitiatorTests: XCTestCase {
   // 2021-11-01 @ 00:00:00 (EST)
   let date = Date(timeIntervalSince1970: 1_635_739_200)
@@ -56,38 +47,6 @@ class InitiatorTests: XCTestCase {
       localOverrides: localOverrideSettings,
       remoteSettings: remoteSettings
     )
-  }
-
-  func postBackgroundedNotification() {
-    let notificationCenter = NotificationCenter.default
-    #if os(iOS) || os(tvOS)
-      notificationCenter.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
-    #elseif os(macOS)
-      notificationCenter.post(name: NSApplication.didResignActiveNotification, object: nil)
-    #elseif os(watchOS)
-      if #available(watchOSApplicationExtension 7.0, *) {
-        notificationCenter.post(
-          name: WKExtension.applicationDidEnterBackgroundNotification,
-          object: nil
-        )
-      }
-    #endif
-  }
-
-  func postForegroundedNotification() {
-    let notificationCenter = NotificationCenter.default
-    #if os(iOS) || os(tvOS)
-      notificationCenter.post(name: UIApplication.didBecomeActiveNotification, object: nil)
-    #elseif os(macOS)
-      notificationCenter.post(name: NSApplication.didBecomeActiveNotification, object: nil)
-    #elseif os(watchOS)
-      if #available(watchOSApplicationExtension 7.0, *) {
-        notificationCenter.post(
-          name: WKExtension.applicationDidBecomeActiveNotification,
-          object: nil
-        )
-      }
-    #endif
   }
 
   func test_beginListening_initiatesColdStart() throws {

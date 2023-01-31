@@ -16,7 +16,7 @@
 import Foundation
 
 /// Class that manages the local overrides configs related to the library.
-class LocalOverrideSettings: SettingsProvider, SettingsProtocol {
+class LocalOverrideSettings: SettingsProvider {
   static let PlistKey_sessions_enabled = "FirebaseSessionsEnabled"
   static let PlistKey_sessions_timeout = "FirebaseSessionsTimeout"
   static let PlistKey_sessions_samplingRate = "FirebaseSessionsSampingRate"
@@ -32,7 +32,7 @@ class LocalOverrideSettings: SettingsProvider, SettingsProtocol {
 
   var sessionTimeout: TimeInterval? {
     let timeout = plistValueForConfig(configName: LocalOverrideSettings
-      .PlistKey_sessions_timeout) as? String
+      .PlistKey_sessions_timeout) as? Double
     if timeout != nil {
       return Double(timeout!)
     }
@@ -41,7 +41,7 @@ class LocalOverrideSettings: SettingsProvider, SettingsProtocol {
 
   var samplingRate: Double? {
     let rate = plistValueForConfig(configName: LocalOverrideSettings
-      .PlistKey_sessions_samplingRate) as? String
+      .PlistKey_sessions_samplingRate) as? Double
     if rate != nil {
       return Double(rate!)
     }

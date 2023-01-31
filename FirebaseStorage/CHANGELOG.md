@@ -1,3 +1,6 @@
+# 10.5.0
+- [added] Added Storage API to limit upload chunk size. (#10137)
+
 # 10.3.0
 - [fixed] Use dedicated serial queue for Storage uploads and downloads instead of a (concurrent) global queue.
   Fixes regression introduced in 10.0.0. (#10487)
