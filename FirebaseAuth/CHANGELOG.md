@@ -1,4 +1,5 @@
 # 10.5.0
+- [fixed] Use team player ID, game player ID and fetchItems for signature verification. (#10441)
 - [fixed] Prevent keychain pop-up when accessing Auth keychain in a Mac
    app. Note that using Firebase Auth in a Mac app requires that the app
    is signed with a provisioning profile that has the Keychain Sharing
