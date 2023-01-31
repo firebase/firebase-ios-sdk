@@ -17,8 +17,8 @@ import Foundation
 // When building for CocoaPods, non-public headers are exposed to Swift via a
 // private module map.
 #if COCOAPODS
-@_implementationOnly import FirebaseAuth_Private
-#endif  // COCOAPODS
+  @_implementationOnly import FirebaseAuth_Private
+#endif // COCOAPODS
 
 /** @class FIRActionCodeSettings
     @brief Used to set and retrieve settings related to handling action codes.
@@ -85,7 +85,7 @@ import Foundation
   @objc public func setAndroidPackageName(_ androidPackageName: String,
                                           installIfNotAvailable: Bool,
                                           minimumVersion: String?) {
-    let _ = MyPrivateClass()
+    _ = MyPrivateClass()
     self.androidPackageName = androidPackageName
     androidInstallIfNotAvailable = installIfNotAvailable
     androidMinimumVersion = minimumVersion

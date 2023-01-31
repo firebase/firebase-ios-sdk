@@ -19,7 +19,6 @@
 @implementation MyPrivateClass
 
 - (void)doStuff {
-
 }
 
 @end
