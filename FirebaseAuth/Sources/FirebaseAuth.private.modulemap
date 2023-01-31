@@ -1,3 +1,4 @@
+// TODO(ncooke3): This may be able to be generated in the build's script phase.
 framework module FirebaseAuth_Private {
   header "FIRAdditionalUserInfo_Internal.h"
   header "FIRAuthBackend+MultiFactor.h"
