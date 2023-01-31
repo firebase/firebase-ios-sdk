@@ -40,10 +40,25 @@ supports email and password accounts, as well as several 3rd party authenticatio
     source + '**/*.[mh]',
     'FirebaseCore/Extension/*.h',
     'FirebaseAuth/Interop/*.h',
+    source + 'FirebaseAuth.private.modulemap'
   ]
   s.module_map = source + 'Public/FirebaseAuth/FirebaseAuth.modulemap'
   s.public_header_files = source + 'Public/FirebaseAuth/*.h'
-  s.private_header_files = source + 'Private/*.h'
+
+  # TODO(ncooke3): Maybe set this to a filtering of `s.source_files`
+  s.private_header_files = [
+    # All headers except the ones in the `Public` should be private.
+    source + 'Private/**/*.h',
+    source + 'Auth/**/*.h',
+    source + 'Backend/**/*.h',
+    source + 'MultiFactor/**/*.h',
+    source + 'Swift/**/*.h',
+    source + 'SystemService/**/*.h',
+    source + 'User/**/*.h',
+    source + 'Utilities/**/*.h',
+    'FirebaseCore/Extension/*.h',
+    'FirebaseAuth/Interop/*.h'
+  ]
 
   s.preserve_paths = [
     'FirebaseAuth/README.md',
@@ -54,7 +69,8 @@ supports email and password accounts, as well as several 3rd party authenticatio
     # The second path is to find FirebaseAuth-Swift.h from a pod gen project
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}" "${OBJECT_FILE_DIR_normal}/${NATIVE_ARCH_ACTUAL}"',
     # Point to the private module map.
-    'MODULEMAP_PRIVATE_FILE' => '${SRCROOT}/../../../FirebaseAuth/Sources/FirebaseAuth.private.modulemap'
+    'MODULEMAP_PRIVATE_FILE' =>
+        '${PODS_TARGET_SRCROOT}/FirebaseAuth/Sources/FirebaseAuth.private.modulemap'
   }
   s.framework = 'Security'
   s.ios.framework = 'SafariServices'

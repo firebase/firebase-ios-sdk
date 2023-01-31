@@ -1,5 +1,51 @@
 framework module FirebaseAuth_Private {
+  header "FIRAdditionalUserInfo_Internal.h"
+  header "FIRAuthBackend+MultiFactor.h"
+  header "FIRAuthExceptionUtils.h"
+  header "FIRAuthWebView.h"
+  header "FIRMultiFactorResolver+Internal.h"
+  header "FIRUserMetadata_Internal.h"
+  header "FIRAuthAPNSToken.h"
+  header "FIRAuthDataResult_Internal.h"
+  header "FIRAuthGlobalWorkQueue.h"
+  header "FIRAuthWebViewController.h"
+  header "FIRPhoneMultiFactorAssertion+Internal.h"
+  header "FIRUser_Internal.h"
+  header "FIRAuthAPNSTokenManager.h"
+  header "FIRAuthDefaultUIDelegate.h"
+  header "FIRAuthSerialTaskQueue.h"
+  header "FIRAuth_Internal.h"
+  header "FIRSecureTokenService.h"
   header "MyPrivateClass.h"
+  header "FIRAuthAppCredentialManager.h"
+  header "FIRAuthDispatcher.h"
+  header "FIRAuthStoredUserManager.h"
+  header "FIRMultiFactor+Internal.h"
+  header "FIRUserInfoImpl.h"
+  header "NSData+FIRBase64.h"
+
+  // AuthInterop
+  header "FIRAuthInterop.h"
+  
+  // CoreExtension
+  header "FIRAppInternal.h"
+  header "FIRComponent.h"
+  header "FIRComponentContainer.h"
+  header "FIRComponentType.h"
+  header "FIRDependency.h"
+  header "FIRHeartbeatLogger.h"
+  header "FIRLibrary.h"
+  header "FIRLogger.h"
+  header "FIROptionsInternal.h"
+  header "FirebaseCoreInternal.h"
+
   export *
+  
+  // Makes it so this module is only importable within a Swift context.
+  // Prevents client Objective-C targets from doing:
+  //
+  //    // ClientHeader.h
+  //    @import FirebaseAuth_Private;
+  //
   requires swift
 }
