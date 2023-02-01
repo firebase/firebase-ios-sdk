@@ -100,7 +100,7 @@ class SessionGeneratorTests: XCTestCase {
 
     XCTAssert(isValidSessionID(secondSessionInfo.sessionId))
     XCTAssert(isValidSessionID(secondSessionInfo.firstSessionId))
-    // Ensure the new firstSessionId is equal to the sessionID from earlier
+    // Ensure the new firstSessionId is equal to the first Session ID from earlier
     XCTAssertEqual(secondSessionInfo.firstSessionId, firstSessionInfo.sessionId)
     // Session Index should increase
     XCTAssertEqual(secondSessionInfo.sessionIndex, 1)
@@ -110,7 +110,7 @@ class SessionGeneratorTests: XCTestCase {
 
     XCTAssert(isValidSessionID(thirdSessionInfo.sessionId))
     XCTAssert(isValidSessionID(thirdSessionInfo.firstSessionId))
-    // Ensure the new firstSessionId is equal to the sessionID from earlier
+    // Ensure the new firstSessionId is equal to the first Session ID from earlier
     XCTAssertEqual(thirdSessionInfo.firstSessionId, firstSessionInfo.sessionId)
     // Session Index should increase
     XCTAssertEqual(thirdSessionInfo.sessionIndex, 2)

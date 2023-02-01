@@ -58,9 +58,9 @@ class SessionGenerator {
     // If firstSessionId is set, use it. Otherwise set it to the
     // first generated Session ID
     let firstSessionId = self.firstSessionId ?? newSessionId
+    self.firstSessionId = firstSessionId
 
     sessionIndex += 1
-    self.firstSessionId = firstSessionId
 
     var collectEvents = true
     let randomValue = Double.random(in: 0 ... 1)
