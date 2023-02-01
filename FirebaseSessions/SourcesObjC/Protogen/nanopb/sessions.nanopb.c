@@ -39,12 +39,13 @@ const pb_field_t firebase_appquality_sessions_NetworkConnectionInfo_fields[3] = 
     PB_LAST_FIELD
 };
 
-const pb_field_t firebase_appquality_sessions_SessionInfo_fields[6] = {
+const pb_field_t firebase_appquality_sessions_SessionInfo_fields[7] = {
     PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, firebase_appquality_sessions_SessionInfo, session_id, session_id, 0),
-    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, firebase_appquality_sessions_SessionInfo, previous_session_id, session_id, 0),
-    PB_FIELD(  3, BYTES   , SINGULAR, POINTER , OTHER, firebase_appquality_sessions_SessionInfo, firebase_installation_id, previous_session_id, 0),
+    PB_FIELD(  3, BYTES   , SINGULAR, POINTER , OTHER, firebase_appquality_sessions_SessionInfo, firebase_installation_id, session_id, 0),
     PB_FIELD(  4, INT64   , SINGULAR, STATIC  , OTHER, firebase_appquality_sessions_SessionInfo, event_timestamp_us, firebase_installation_id, 0),
     PB_FIELD(  6, MESSAGE , SINGULAR, STATIC  , OTHER, firebase_appquality_sessions_SessionInfo, data_collection_status, event_timestamp_us, &firebase_appquality_sessions_DataCollectionStatus_fields),
+    PB_FIELD(  7, BYTES   , SINGULAR, POINTER , OTHER, firebase_appquality_sessions_SessionInfo, first_session_id, data_collection_status, 0),
+    PB_FIELD(  8, INT32   , SINGULAR, STATIC  , OTHER, firebase_appquality_sessions_SessionInfo, session_index, first_session_id, 0),
     PB_LAST_FIELD
 };
 
