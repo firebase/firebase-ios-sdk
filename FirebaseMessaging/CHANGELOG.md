@@ -1,4 +1,4 @@
-# 10.4.0
+# 10.5.0
 - [fixed] Fixed a crash for strongSelf dereference (#10707).
 
 # 10.4.0
