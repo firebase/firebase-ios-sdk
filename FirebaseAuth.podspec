@@ -26,9 +26,9 @@ supports email and password accounts, as well as several 3rd party authenticatio
 
   s.swift_version = '5.3'
 
-#  s.prepare_command = <<-CMD
-#    ruby scripts/build_private_module_map.rb FirebaseAuth
-#  CMD
+  s.prepare_command = <<-CMD
+    ruby scripts/build_private_module_map.rb FirebaseAuth
+  CMD
 
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
