@@ -41,7 +41,7 @@ class SessionGenerator {
   private var thisSession: SessionInfo?
   private var settings: SettingsProtocol
 
-  private var firstSessionId: String?
+  private var firstSessionId = ""
   private var sessionIndex: Int32
 
   init(settings: SettingsProtocol) {
@@ -57,8 +57,7 @@ class SessionGenerator {
 
     // If firstSessionId is set, use it. Otherwise set it to the
     // first generated Session ID
-    let firstSessionId = self.firstSessionId ?? newSessionId
-    self.firstSessionId = firstSessionId
+    firstSessionId = firstSessionId.isEmpty ? newSessionId : firstSessionId
 
     sessionIndex += 1
 
