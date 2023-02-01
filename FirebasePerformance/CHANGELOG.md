@@ -1,3 +1,7 @@
+# 9.5.0
+- [changed] Initialize Firebase Performance using Component system. (#10692)
+
+
 # 9.3.0
 - [changed] Update the console logging URL to troubleshooting page.
 
