@@ -1,3 +1,6 @@
+# 10.5.0
+- [fixed] Add @discardableResult to addDcoument API for easy handling unused return value. (#10640)
+
 # 10.4.0
 - [fixed] Fix an issue that stops some performance optimization being applied (#10579).
 
