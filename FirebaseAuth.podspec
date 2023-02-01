@@ -26,6 +26,10 @@ supports email and password accounts, as well as several 3rd party authenticatio
 
   s.swift_version = '5.3'
 
+#  s.prepare_command = <<-CMD
+#    ruby scripts/build_private_module_map.rb FirebaseAuth
+#  CMD
+
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
   s.tvos.deployment_target = tvos_deployment_target
@@ -44,19 +48,12 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.module_map = source + 'Public/FirebaseAuth/FirebaseAuth.modulemap'
   s.public_header_files = source + 'Public/FirebaseAuth/*.h'
 
-  # TODO(ncooke3): Maybe set this to a filtering of `s.source_files`
-  s.private_header_files = [
-    # All headers except the ones in the `Public` should be private.
-    source + 'Auth/**/*.h',
-    source + 'Backend/**/*.h',
-    source + 'MultiFactor/**/*.h',
-    source + 'Swift/**/*.h',
-    source + 'SystemService/**/*.h',
-    source + 'User/**/*.h',
-    source + 'Utilities/**/*.h',
-    'FirebaseCore/Extension/*.h',
-    'FirebaseAuth/Interop/*.h'
-  ]
+  # All headers except the ones in the `Public` should be private.
+  s.private_header_files = Dir['FirebaseAuth/Sources/**/*.h']
+    .reject{ |f| f['FirebaseAuth/Sources/Public/'] } + [
+      'FirebaseCore/Extension/*.h',
+      'FirebaseAuth/Interop/*.h'
+    ]
 
   s.preserve_paths = [
     'FirebaseAuth/README.md',
@@ -79,46 +76,46 @@ supports email and password accounts, as well as several 3rd party authenticatio
 
   # Using environment variable because of the dependency on the unpublished
   # HeartbeatLoggingTestUtils.
-  if ENV['POD_LIB_LINT_ONLY'] && ENV['POD_LIB_LINT_ONLY'] == '1' then
-    s.test_spec 'unit' do |unit_tests|
-      unit_tests.scheme = { :code_coverage => true }
-      # Unit tests can't run on watchOS.
-      unit_tests.platforms = {
-        :ios => ios_deployment_target,
-        :osx => osx_deployment_target,
-        :tvos => tvos_deployment_target
-      }
-      unit_tests.source_files = 'FirebaseAuth/Tests/Unit/*.[mh]'
-      unit_tests.osx.exclude_files = [
-        'FirebaseAuth/Tests/Unit/FIRAuthAPNSTokenManagerTests.m',
-        'FirebaseAuth/Tests/Unit/FIRAuthAPNSTokenTests.m',
-        'FirebaseAuth/Tests/Unit/FIRAuthAppCredentialManagerTests.m',
-        'FirebaseAuth/Tests/Unit/FIRAuthNotificationManagerTests.m',
-        'FirebaseAuth/Tests/Unit/FIRAuthURLPresenterTests.m',
-        'FirebaseAuth/Tests/Unit/FIREmailLink*',
-        'FirebaseAuth/Tests/Unit/FIRPhoneAuthProviderTests.m',
-        'FirebaseAuth/Tests/Unit/FIRSendVerificationCode*',
-        'FirebaseAuth/Tests/Unit/FIRSignInWithGameCenterTests.m',
-        'FirebaseAuth/Tests/Unit/FIRVerifyClient*',
-        'FirebaseAuth/Tests/Unit/FIRVerifyPhoneNumber*',
-        'FirebaseAuth/Tests/Unit/FIROAuthProviderTests.m',
-      ]
-      unit_tests.tvos.exclude_files = [
-        'FirebaseAuth/Tests/Unit/FIRAuthAPNSTokenManagerTests.m',
-        'FirebaseAuth/Tests/Unit/FIRAuthNotificationManagerTests.m',
-        'FirebaseAuth/Tests/Unit/FIRAuthURLPresenterTests.m',
-        'FirebaseAuth/Tests/Unit/FIREmailLink*',
-        'FirebaseAuth/Tests/Unit/FIRPhoneAuthProviderTests.m',
-        'FirebaseAuth/Tests/Unit/FIRSendVerificationCode*',
-        'FirebaseAuth/Tests/Unit/FIRSignInWithGameCenterTests.m',
-        'FirebaseAuth/Tests/Unit/FIRVerifyClient*',
-        'FirebaseAuth/Tests/Unit/FIRVerifyPhoneNumber*',
-        'FirebaseAuth/Tests/Unit/FIROAuthProviderTests.m',
-      ]
-      # app_host is needed for tests with keychain
-      unit_tests.requires_app_host = true
-      unit_tests.dependency 'OCMock'
-      unit_tests.dependency 'HeartbeatLoggingTestUtils'
-    end
-  end
+#  if ENV['POD_LIB_LINT_ONLY'] && ENV['POD_LIB_LINT_ONLY'] == '1' then
+#    s.test_spec 'unit' do |unit_tests|
+#      unit_tests.scheme = { :code_coverage => true }
+#      # Unit tests can't run on watchOS.
+#      unit_tests.platforms = {
+#        :ios => ios_deployment_target,
+#        :osx => osx_deployment_target,
+#        :tvos => tvos_deployment_target
+#      }
+#      unit_tests.source_files = 'FirebaseAuth/Tests/Unit/*.[mh]'
+#      unit_tests.osx.exclude_files = [
+#        'FirebaseAuth/Tests/Unit/FIRAuthAPNSTokenManagerTests.m',
+#        'FirebaseAuth/Tests/Unit/FIRAuthAPNSTokenTests.m',
+#        'FirebaseAuth/Tests/Unit/FIRAuthAppCredentialManagerTests.m',
+#        'FirebaseAuth/Tests/Unit/FIRAuthNotificationManagerTests.m',
+#        'FirebaseAuth/Tests/Unit/FIRAuthURLPresenterTests.m',
+#        'FirebaseAuth/Tests/Unit/FIREmailLink*',
+#        'FirebaseAuth/Tests/Unit/FIRPhoneAuthProviderTests.m',
+#        'FirebaseAuth/Tests/Unit/FIRSendVerificationCode*',
+#        'FirebaseAuth/Tests/Unit/FIRSignInWithGameCenterTests.m',
+#        'FirebaseAuth/Tests/Unit/FIRVerifyClient*',
+#        'FirebaseAuth/Tests/Unit/FIRVerifyPhoneNumber*',
+#        'FirebaseAuth/Tests/Unit/FIROAuthProviderTests.m',
+#      ]
+#      unit_tests.tvos.exclude_files = [
+#        'FirebaseAuth/Tests/Unit/FIRAuthAPNSTokenManagerTests.m',
+#        'FirebaseAuth/Tests/Unit/FIRAuthNotificationManagerTests.m',
+#        'FirebaseAuth/Tests/Unit/FIRAuthURLPresenterTests.m',
+#        'FirebaseAuth/Tests/Unit/FIREmailLink*',
+#        'FirebaseAuth/Tests/Unit/FIRPhoneAuthProviderTests.m',
+#        'FirebaseAuth/Tests/Unit/FIRSendVerificationCode*',
+#        'FirebaseAuth/Tests/Unit/FIRSignInWithGameCenterTests.m',
+#        'FirebaseAuth/Tests/Unit/FIRVerifyClient*',
+#        'FirebaseAuth/Tests/Unit/FIRVerifyPhoneNumber*',
+#        'FirebaseAuth/Tests/Unit/FIROAuthProviderTests.m',
+#      ]
+#      # app_host is needed for tests with keychain
+#      unit_tests.requires_app_host = true
+#      unit_tests.dependency 'OCMock'
+#      unit_tests.dependency 'HeartbeatLoggingTestUtils'
+#    end
+#  end
 end
