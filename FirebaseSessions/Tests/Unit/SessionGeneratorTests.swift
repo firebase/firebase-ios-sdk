@@ -138,6 +138,9 @@ class SessionGeneratorTests: XCTestCase {
       remoteSettings: remoteSettings
     )
 
+    // Rebuild the SessionGenerator with the new settings
+    generator = SessionGenerator(settings: sessionSettings)
+
     let sessionInfo = generator.generateNewSession()
     XCTAssertTrue(sessionInfo.shouldDispatchEvents)
   }
@@ -150,7 +153,6 @@ class SessionGeneratorTests: XCTestCase {
         "session_timeout_seconds": 50,
       ],
     ]
-
     cache.removeCache()
     downloader = MockSettingsDownloader(successResponse: someSettings)
     remoteSettings = RemoteSettings(appInfo: appInfo, downloader: downloader, cache: cache)
@@ -164,7 +166,35 @@ class SessionGeneratorTests: XCTestCase {
       remoteSettings: remoteSettings
     )
 
+    // Rebuild the SessionGenerator with the new settings
+    generator = SessionGenerator(settings: sessionSettings)
+
     let sessionInfo = generator.generateNewSession()
     XCTAssertFalse(sessionInfo.shouldDispatchEvents)
+  }
+
+  func test_sessionsSampling_persistsPerRun() throws {
+    var shouldCollectEvents = false
+
+    // Rebuild the SessionGenerator with the new settings
+    generator = SessionGenerator(settings: sessionSettings, calculateCollectEvents: { _ in
+      shouldCollectEvents
+    })
+
+    let sessionInfo = generator.generateNewSession()
+    XCTAssertFalse(sessionInfo.shouldDispatchEvents)
+
+    // Try again
+    let sessionInfo2 = generator.generateNewSession()
+    XCTAssertFalse(sessionInfo2.shouldDispatchEvents)
+
+    // Start returning true from the calculator
+    shouldCollectEvents = true
+
+    // Try again after the calculator starts returning true.
+    // It should still be false in the sessionInfo because the
+    // sampling rate is calculated per-run
+    let sessionInfo3 = generator.generateNewSession()
+    XCTAssertFalse(sessionInfo3.shouldDispatchEvents)
   }
 }
