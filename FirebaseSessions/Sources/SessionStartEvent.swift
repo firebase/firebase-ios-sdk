@@ -43,7 +43,7 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
 
     proto.event_type = firebase_appquality_sessions_EventType_SESSION_START
     proto.session_data.session_id = makeProtoString(sessionInfo.sessionId)
-    proto.session_data.previous_session_id = makeProtoStringOrNil(sessionInfo.previousSessionId)
+//    proto.session_data.previous_session_id = makeProtoStringOrNil(sessionInfo.previousSessionId)
     proto.session_data.event_timestamp_us = time.timestampUS
 
     proto.application_info.app_id = makeProtoString(appInfo.appID)
