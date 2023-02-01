@@ -348,7 +348,11 @@ static NSInteger const gMaxRetries = 7;
   __weak RCNConfigRealtime *weakSelf = self;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
-    if (strongSelf->_remainingRetryCount > 0) {
+    bool noRunningConnection =
+        strongSelf->_dataTask == nil || strongSelf->_dataTask.state != NSURLSessionTaskStateRunning;
+    bool canMakeConnection = noRunningConnection && [strongSelf->_listeners count] > 0 &&
+                             !strongSelf->_isInBackground && !strongSelf->_isRealtimeDisabled;
+    if (canMakeConnection && strongSelf->_remainingRetryCount > 0) {
       NSTimeInterval backOffInterval = self->_settings.getRealtimeBackoffInterval;
 
       strongSelf->_remainingRetryCount--;
@@ -358,7 +362,7 @@ static NSInteger const gMaxRetries = 7;
       dispatch_after(executionDelay, strongSelf->_realtimeLockQueue, ^{
         [strongSelf beginRealtimeStream];
       });
-    } else {
+    } else if (!strongSelf->_isInBackground) {
       NSError *error = [NSError
           errorWithDomain:FIRRemoteConfigUpdateErrorDomain
                      code:FIRRemoteConfigUpdateErrorStreamError
