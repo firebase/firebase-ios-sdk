@@ -38,6 +38,24 @@ class SessionStartEventTests: XCTestCase {
     appInfo = MockApplicationInfo()
   }
 
+  var defaultSessionInfo: SessionInfo {
+    return SessionInfo(
+      sessionId: "test_session_id",
+      firstSessionId: "test_first_session_id",
+      dispatchEvents: true,
+      sessionIndex: 0
+    )
+  }
+
+  var thirdSessionInfo: SessionInfo {
+    return SessionInfo(
+      sessionId: "test_session_id",
+      firstSessionId: "test_first_session_id",
+      dispatchEvents: true,
+      sessionIndex: 2
+    )
+  }
+
   /// This function runs the `testCase` twice, once for the proto object stored in
   /// the event, and once after encoding and decoding the proto. This is useful for
   /// testing cases where the proto hasn't been encoded correctly.
@@ -52,13 +70,8 @@ class SessionStartEventTests: XCTestCase {
     testCase(decodedProto)
   }
 
-  func test_init_setsSessionIDs() {
-    let sessionInfo = SessionInfo(
-      sessionId: "test_session_id",
-      previousSessionId: "test_previous_session_id",
-      dispatchEvents: true
-    )
-    let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: appInfo, time: time)
+  func test_init_setsSessionData() {
+    let event = SessionStartEvent(sessionInfo: thirdSessionInfo, appInfo: appInfo, time: time)
 
     testProtoAndDecodedProto(sessionEvent: event) { proto in
       assertEqualProtoString(
@@ -66,18 +79,19 @@ class SessionStartEventTests: XCTestCase {
         expected: "test_session_id",
         fieldName: "session_id"
       )
+      assertEqualProtoString(
+        proto.session_data.first_session_id,
+        expected: "test_first_session_id",
+        fieldName: "first_session_id"
+      )
+      XCTAssertEqual(proto.session_data.session_index, 2)
 
       XCTAssertEqual(proto.session_data.event_timestamp_us, 123)
     }
   }
 
   func test_init_setsApplicationInfo() {
-    let sessionInfo = SessionInfo(
-      sessionId: "session_id",
-      previousSessionId: "previous_session_id",
-      dispatchEvents: true
-    )
-    let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: appInfo, time: time)
+    let event = SessionStartEvent(sessionInfo: defaultSessionInfo, appInfo: appInfo, time: time)
 
     testProtoAndDecodedProto(sessionEvent: event) { proto in
       assertEqualProtoString(
@@ -110,12 +124,7 @@ class SessionStartEventTests: XCTestCase {
   }
 
   func test_setInstallationID_setsInstallationID() {
-    let sessionInfo = SessionInfo(
-      sessionId: "session_id",
-      previousSessionId: "previous_session_id",
-      dispatchEvents: true
-    )
-    let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: appInfo, time: time)
+    let event = SessionStartEvent(sessionInfo: defaultSessionInfo, appInfo: appInfo, time: time)
 
     event.setInstallationID(installationId: "testInstallationID")
 
@@ -143,12 +152,11 @@ class SessionStartEventTests: XCTestCase {
     expectations.forEach { (given: String, expected: firebase_appquality_sessions_OsName) in
       appInfo.osName = given
 
-      let sessionInfo = SessionInfo(
-        sessionId: "session_id",
-        previousSessionId: "previous_session_id",
-        dispatchEvents: true
+      let event = SessionStartEvent(
+        sessionInfo: self.defaultSessionInfo,
+        appInfo: appInfo,
+        time: time
       )
-      let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: appInfo, time: time)
 
       testProtoAndDecodedProto(sessionEvent: event) { proto in
         XCTAssertEqual(event.proto.application_info.apple_app_info.os_name, expected)
@@ -174,24 +182,18 @@ class SessionStartEventTests: XCTestCase {
                             expected: firebase_appquality_sessions_LogEnvironment) in
         appInfo.environment = given
 
-        let sessionInfo = SessionInfo(
-          sessionId: "session_id",
-          previousSessionId: "previous_session_id",
-          dispatchEvents: true
+        let event = SessionStartEvent(
+          sessionInfo: self.defaultSessionInfo,
+          appInfo: appInfo,
+          time: time
         )
-        let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: appInfo, time: time)
 
         XCTAssertEqual(event.proto.application_info.log_environment, expected)
     }
   }
 
   func test_dataCollectionState_defaultIsUnknown() {
-    let sessionInfo = SessionInfo(
-      sessionId: "session_id",
-      previousSessionId: "previous_session_id",
-      dispatchEvents: true
-    )
-    let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: appInfo, time: time)
+    let event = SessionStartEvent(sessionInfo: defaultSessionInfo, appInfo: appInfo, time: time)
 
     testProtoAndDecodedProto(sessionEvent: event) { proto in
       XCTAssertEqual(
@@ -217,12 +219,7 @@ class SessionStartEventTests: XCTestCase {
     #endif
     appInfo.networkInfo = mockNetworkInfo
 
-    let sessionInfo = SessionInfo(
-      sessionId: "session_id",
-      previousSessionId: "previous_session_id",
-      dispatchEvents: true
-    )
-    let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: appInfo, time: time)
+    let event = SessionStartEvent(sessionInfo: defaultSessionInfo, appInfo: appInfo, time: time)
 
     // These fields will not be filled in when Crashlytics is installed
     event.set(subscriber: .Crashlytics, isDataCollectionEnabled: true, appInfo: appInfo)
@@ -304,12 +301,11 @@ class SessionStartEventTests: XCTestCase {
       mockNetworkInfo.networkType = given
       appInfo.networkInfo = mockNetworkInfo
 
-      let sessionInfo = SessionInfo(
-        sessionId: "session_id",
-        previousSessionId: "previous_session_id",
-        dispatchEvents: true
+      let event = SessionStartEvent(
+        sessionInfo: self.defaultSessionInfo,
+        appInfo: appInfo,
+        time: time
       )
-      let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: appInfo, time: time)
 
       // These fields will only be filled in when the Perf SDK is installed
       event.set(subscriber: .Performance, isDataCollectionEnabled: true, appInfo: appInfo)
@@ -389,12 +385,11 @@ class SessionStartEventTests: XCTestCase {
           mockNetworkInfo.mobileSubtype = given
           appInfo.networkInfo = mockNetworkInfo
 
-          let sessionInfo = SessionInfo(
-            sessionId: "session_id",
-            previousSessionId: "previous_session_id",
-            dispatchEvents: true
+          let event = SessionStartEvent(
+            sessionInfo: self.defaultSessionInfo,
+            appInfo: appInfo,
+            time: time
           )
-          let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: appInfo, time: time)
 
           // These fields will only be filled in when the Perf SDK is installed
           event.set(subscriber: .Performance, isDataCollectionEnabled: true, appInfo: appInfo)
@@ -483,12 +478,11 @@ class SessionStartEventTests: XCTestCase {
           mockNetworkInfo.mobileSubtype = given
           appInfo.networkInfo = mockNetworkInfo
 
-          let sessionInfo = SessionInfo(
-            sessionId: "session_id",
-            previousSessionId: "previous_session_id",
-            dispatchEvents: true
+          let event = SessionStartEvent(
+            sessionInfo: self.defaultSessionInfo,
+            appInfo: appInfo,
+            time: time
           )
-          let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: appInfo, time: time)
 
           // These fields will only be filled in when the Perf SDK is installed
           event.set(subscriber: .Performance, isDataCollectionEnabled: true, appInfo: appInfo)

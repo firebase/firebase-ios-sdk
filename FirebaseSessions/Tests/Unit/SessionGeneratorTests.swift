@@ -82,24 +82,38 @@ class SessionGeneratorTests: XCTestCase {
   func test_generateNewSessionID_generatesValidID() throws {
     let sessionInfo = generator.generateNewSession()
     XCTAssert(isValidSessionID(sessionInfo.sessionId))
-    XCTAssertNil(sessionInfo.previousSessionId)
+    XCTAssert(isValidSessionID(sessionInfo.firstSessionId))
+    XCTAssertEqual(sessionInfo.firstSessionId, sessionInfo.sessionId)
   }
 
-  /// Ensures that generating a Session ID multiple times results in the last Session ID being set in the previousSessionID field
+  /// Ensures that generating a Session ID multiple times results in the fist Session ID being set
+  /// in the firstSessionId field
   func test_generateNewSessionID_rotatesPreviousID() throws {
     let firstSessionInfo = generator.generateNewSession()
 
-    let firstSessionID = firstSessionInfo.sessionId
     XCTAssert(isValidSessionID(firstSessionInfo.sessionId))
-    XCTAssertNil(firstSessionInfo.previousSessionId)
+    XCTAssert(isValidSessionID(firstSessionInfo.firstSessionId))
+    XCTAssertEqual(firstSessionInfo.firstSessionId, firstSessionInfo.sessionId)
+    XCTAssertEqual(firstSessionInfo.sessionIndex, 0)
 
     let secondSessionInfo = generator.generateNewSession()
 
     XCTAssert(isValidSessionID(secondSessionInfo.sessionId))
-    XCTAssert(isValidSessionID(secondSessionInfo.previousSessionId!))
+    XCTAssert(isValidSessionID(secondSessionInfo.firstSessionId))
+    // Ensure the new firstSessionId is equal to the sessionID from earlier
+    XCTAssertEqual(secondSessionInfo.firstSessionId, firstSessionInfo.sessionId)
+    // Session Index should increase
+    XCTAssertEqual(secondSessionInfo.sessionIndex, 1)
 
-    // Ensure the new lastSessionID is equal to the sessionID from earlier
-    XCTAssertEqual(secondSessionInfo.previousSessionId, firstSessionID)
+    // Do a third round just in case
+    let thirdSessionInfo = generator.generateNewSession()
+
+    XCTAssert(isValidSessionID(thirdSessionInfo.sessionId))
+    XCTAssert(isValidSessionID(thirdSessionInfo.firstSessionId))
+    // Ensure the new firstSessionId is equal to the sessionID from earlier
+    XCTAssertEqual(thirdSessionInfo.firstSessionId, firstSessionInfo.sessionId)
+    // Session Index should increase
+    XCTAssertEqual(thirdSessionInfo.sessionIndex, 2)
   }
 
   func test_sessionsNotSampled_AllEventsAllowed() throws {
