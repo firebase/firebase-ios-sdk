@@ -54,9 +54,9 @@
                              executionIdentifier:@"TEST_EXECUTION_IDENTIFIER"];
 
   FIRCLSContextManager *contextManager = [[FIRCLSContextManager alloc] init];
-  [contextManager initContextWithReport:report
-                               settings:self.mockSettings
-                            fileManager:self.fileManager];
+  [contextManager setupContextWithReport:report
+                                settings:self.mockSettings
+                             fileManager:self.fileManager];
 }
 
 - (void)tearDown {

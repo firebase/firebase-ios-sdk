@@ -68,9 +68,9 @@ NSString *const TestContextSessionID2 = @"TestContextSessionID2";
 }
 
 - (void)test_notSettingSessionID_protoHasNilSessionID {
-  [self.contextManager initContextWithReport:self.report
-                                    settings:self.mockSettings
-                                 fileManager:self.fileManager];
+  [self.contextManager setupContextWithReport:self.report
+                                     settings:self.mockSettings
+                                  fileManager:self.fileManager];
 
   FIRCLSReportAdapter *adapter = [[FIRCLSReportAdapter alloc] initWithPath:self.report.path
                                                                googleAppId:@"TestGoogleAppID"
@@ -81,13 +81,13 @@ NSString *const TestContextSessionID2 = @"TestContextSessionID2";
 }
 
 - (void)test_settingSessionIDMultipleTimes_protoHasLastSessionID {
-  [self.contextManager updateAppQualitySessionId:TestContextSessionID];
+  [self.contextManager setAppQualitySessionId:TestContextSessionID];
 
-  [self.contextManager initContextWithReport:self.report
-                                    settings:self.mockSettings
-                                 fileManager:self.fileManager];
+  [self.contextManager setupContextWithReport:self.report
+                                     settings:self.mockSettings
+                                  fileManager:self.fileManager];
 
-  [self.contextManager updateAppQualitySessionId:TestContextSessionID2];
+  [self.contextManager setAppQualitySessionId:TestContextSessionID2];
 
   FIRCLSReportAdapter *adapter = [[FIRCLSReportAdapter alloc] initWithPath:self.report.path
                                                                googleAppId:@"TestGoogleAppID"
@@ -99,13 +99,13 @@ NSString *const TestContextSessionID2 = @"TestContextSessionID2";
 }
 
 - (void)test_settingSessionIDOutOfOrder_protoHasLastSessionID {
-  [self.contextManager initContextWithReport:self.report
-                                    settings:self.mockSettings
-                                 fileManager:self.fileManager];
+  [self.contextManager setupContextWithReport:self.report
+                                     settings:self.mockSettings
+                                  fileManager:self.fileManager];
 
-  [self.contextManager updateAppQualitySessionId:TestContextSessionID];
+  [self.contextManager setAppQualitySessionId:TestContextSessionID];
 
-  [self.contextManager updateAppQualitySessionId:TestContextSessionID2];
+  [self.contextManager setAppQualitySessionId:TestContextSessionID2];
 
   FIRCLSReportAdapter *adapter = [[FIRCLSReportAdapter alloc] initWithPath:self.report.path
                                                                googleAppId:@"TestGoogleAppID"
