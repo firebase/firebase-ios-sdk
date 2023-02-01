@@ -15,6 +15,10 @@
 import Foundation
 import FirebaseCore
 
+#if COCOAPODS
+@_implementationOnly import FirebaseAuth_Private
+#endif // COCOAPODS
+
 /**
  @brief A concrete implementation of `AuthProvider` for phone auth providers.
      This class is available on iOS only.

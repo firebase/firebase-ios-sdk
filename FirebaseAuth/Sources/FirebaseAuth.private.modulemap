@@ -1,7 +1,9 @@
 // TODO(ncooke3): This may be able to be generated in the build's script phase.
 framework module FirebaseAuth_Private {
   header "FIRAdditionalUserInfo_Internal.h"
+  header "FIRAuthBackend.h"
   header "FIRAuthBackend+MultiFactor.h"
+  header "FIRAuthURLPresenter.h"
   header "FIRAuthExceptionUtils.h"
   header "FIRAuthWebView.h"
   header "FIRMultiFactorResolver+Internal.h"
@@ -40,7 +42,7 @@ framework module FirebaseAuth_Private {
   header "FIROptionsInternal.h"
   header "FirebaseCoreInternal.h"
 
-  export *
+//  export *
   
   // Makes it so this module is only importable within a Swift context.
   // Prevents client Objective-C targets from doing:
@@ -48,5 +50,5 @@ framework module FirebaseAuth_Private {
   //    // ClientHeader.h
   //    @import FirebaseAuth_Private;
   //
-  requires swift
+//  requires swift
 }
