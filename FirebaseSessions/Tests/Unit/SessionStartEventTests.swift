@@ -66,11 +66,6 @@ class SessionStartEventTests: XCTestCase {
         expected: "test_session_id",
         fieldName: "session_id"
       )
-//      assertEqualProtoString(
-//        proto.session_data.previous_session_id,
-//        expected: "test_previous_session_id",
-//        fieldName: "previous_session_id"
-//      )
 
       XCTAssertEqual(proto.session_data.event_timestamp_us, 123)
     }
