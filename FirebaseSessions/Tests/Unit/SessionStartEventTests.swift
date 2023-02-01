@@ -49,7 +49,7 @@ class SessionStartEventTests: XCTestCase {
 
   var thirdSessionInfo: SessionInfo {
     return SessionInfo(
-      sessionId: "test_session_id",
+      sessionId: "test_third_session_id",
       firstSessionId: "test_first_session_id",
       dispatchEvents: true,
       sessionIndex: 2
@@ -76,7 +76,7 @@ class SessionStartEventTests: XCTestCase {
     testProtoAndDecodedProto(sessionEvent: event) { proto in
       assertEqualProtoString(
         proto.session_data.session_id,
-        expected: "test_session_id",
+        expected: "test_third_session_id",
         fieldName: "session_id"
       )
       assertEqualProtoString(
