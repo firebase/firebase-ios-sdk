@@ -76,46 +76,46 @@ supports email and password accounts, as well as several 3rd party authenticatio
 
   # Using environment variable because of the dependency on the unpublished
   # HeartbeatLoggingTestUtils.
-#  if ENV['POD_LIB_LINT_ONLY'] && ENV['POD_LIB_LINT_ONLY'] == '1' then
-#    s.test_spec 'unit' do |unit_tests|
-#      unit_tests.scheme = { :code_coverage => true }
-#      # Unit tests can't run on watchOS.
-#      unit_tests.platforms = {
-#        :ios => ios_deployment_target,
-#        :osx => osx_deployment_target,
-#        :tvos => tvos_deployment_target
-#      }
-#      unit_tests.source_files = 'FirebaseAuth/Tests/Unit/*.[mh]'
-#      unit_tests.osx.exclude_files = [
-#        'FirebaseAuth/Tests/Unit/FIRAuthAPNSTokenManagerTests.m',
-#        'FirebaseAuth/Tests/Unit/FIRAuthAPNSTokenTests.m',
-#        'FirebaseAuth/Tests/Unit/FIRAuthAppCredentialManagerTests.m',
-#        'FirebaseAuth/Tests/Unit/FIRAuthNotificationManagerTests.m',
-#        'FirebaseAuth/Tests/Unit/FIRAuthURLPresenterTests.m',
-#        'FirebaseAuth/Tests/Unit/FIREmailLink*',
-#        'FirebaseAuth/Tests/Unit/FIRPhoneAuthProviderTests.m',
-#        'FirebaseAuth/Tests/Unit/FIRSendVerificationCode*',
-#        'FirebaseAuth/Tests/Unit/FIRSignInWithGameCenterTests.m',
-#        'FirebaseAuth/Tests/Unit/FIRVerifyClient*',
-#        'FirebaseAuth/Tests/Unit/FIRVerifyPhoneNumber*',
-#        'FirebaseAuth/Tests/Unit/FIROAuthProviderTests.m',
-#      ]
-#      unit_tests.tvos.exclude_files = [
-#        'FirebaseAuth/Tests/Unit/FIRAuthAPNSTokenManagerTests.m',
-#        'FirebaseAuth/Tests/Unit/FIRAuthNotificationManagerTests.m',
-#        'FirebaseAuth/Tests/Unit/FIRAuthURLPresenterTests.m',
-#        'FirebaseAuth/Tests/Unit/FIREmailLink*',
-#        'FirebaseAuth/Tests/Unit/FIRPhoneAuthProviderTests.m',
-#        'FirebaseAuth/Tests/Unit/FIRSendVerificationCode*',
-#        'FirebaseAuth/Tests/Unit/FIRSignInWithGameCenterTests.m',
-#        'FirebaseAuth/Tests/Unit/FIRVerifyClient*',
-#        'FirebaseAuth/Tests/Unit/FIRVerifyPhoneNumber*',
-#        'FirebaseAuth/Tests/Unit/FIROAuthProviderTests.m',
-#      ]
-#      # app_host is needed for tests with keychain
-#      unit_tests.requires_app_host = true
-#      unit_tests.dependency 'OCMock'
-#      unit_tests.dependency 'HeartbeatLoggingTestUtils'
-#    end
-#  end
+  if ENV['POD_LIB_LINT_ONLY'] && ENV['POD_LIB_LINT_ONLY'] == '1' then
+    s.test_spec 'unit' do |unit_tests|
+      unit_tests.scheme = { :code_coverage => true }
+      # Unit tests can't run on watchOS.
+      unit_tests.platforms = {
+        :ios => ios_deployment_target,
+        :osx => osx_deployment_target,
+        :tvos => tvos_deployment_target
+      }
+      unit_tests.source_files = 'FirebaseAuth/Tests/Unit/*.[mh]'
+      unit_tests.osx.exclude_files = [
+        'FirebaseAuth/Tests/Unit/FIRAuthAPNSTokenManagerTests.m',
+        'FirebaseAuth/Tests/Unit/FIRAuthAPNSTokenTests.m',
+        'FirebaseAuth/Tests/Unit/FIRAuthAppCredentialManagerTests.m',
+        'FirebaseAuth/Tests/Unit/FIRAuthNotificationManagerTests.m',
+        'FirebaseAuth/Tests/Unit/FIRAuthURLPresenterTests.m',
+        'FirebaseAuth/Tests/Unit/FIREmailLink*',
+        'FirebaseAuth/Tests/Unit/FIRPhoneAuthProviderTests.m',
+        'FirebaseAuth/Tests/Unit/FIRSendVerificationCode*',
+        'FirebaseAuth/Tests/Unit/FIRSignInWithGameCenterTests.m',
+        'FirebaseAuth/Tests/Unit/FIRVerifyClient*',
+        'FirebaseAuth/Tests/Unit/FIRVerifyPhoneNumber*',
+        'FirebaseAuth/Tests/Unit/FIROAuthProviderTests.m',
+      ]
+      unit_tests.tvos.exclude_files = [
+        'FirebaseAuth/Tests/Unit/FIRAuthAPNSTokenManagerTests.m',
+        'FirebaseAuth/Tests/Unit/FIRAuthNotificationManagerTests.m',
+        'FirebaseAuth/Tests/Unit/FIRAuthURLPresenterTests.m',
+        'FirebaseAuth/Tests/Unit/FIREmailLink*',
+        'FirebaseAuth/Tests/Unit/FIRPhoneAuthProviderTests.m',
+        'FirebaseAuth/Tests/Unit/FIRSendVerificationCode*',
+        'FirebaseAuth/Tests/Unit/FIRSignInWithGameCenterTests.m',
+        'FirebaseAuth/Tests/Unit/FIRVerifyClient*',
+        'FirebaseAuth/Tests/Unit/FIRVerifyPhoneNumber*',
+        'FirebaseAuth/Tests/Unit/FIROAuthProviderTests.m',
+      ]
+      # app_host is needed for tests with keychain
+      unit_tests.requires_app_host = true
+      unit_tests.dependency 'OCMock'
+      unit_tests.dependency 'HeartbeatLoggingTestUtils'
+    end
+  end
 end
