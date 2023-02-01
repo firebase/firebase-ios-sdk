@@ -47,7 +47,6 @@ supports email and password accounts, as well as several 3rd party authenticatio
   # TODO(ncooke3): Maybe set this to a filtering of `s.source_files`
   s.private_header_files = [
     # All headers except the ones in the `Public` should be private.
-    source + 'Private/**/*.h',
     source + 'Auth/**/*.h',
     source + 'Backend/**/*.h',
     source + 'MultiFactor/**/*.h',

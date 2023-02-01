@@ -15,6 +15,8 @@
 import Foundation
 import FirebaseCore
 
+// When building for CocoaPods, non-public headers are exposed to Swift via a
+// private module map.
 #if COCOAPODS
 @_implementationOnly import FirebaseAuth_Private
 #endif // COCOAPODS

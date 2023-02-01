@@ -19,7 +19,6 @@ framework module FirebaseAuth_Private {
   header "FIRAuthSerialTaskQueue.h"
   header "FIRAuth_Internal.h"
   header "FIRSecureTokenService.h"
-  header "MyPrivateClass.h"
   header "FIRAuthAppCredentialManager.h"
   header "FIRAuthDispatcher.h"
   header "FIRAuthStoredUserManager.h"
