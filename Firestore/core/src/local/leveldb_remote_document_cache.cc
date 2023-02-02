@@ -179,7 +179,7 @@ MutableDocumentMap LevelDbRemoteDocumentCache::GetAllExisting(
   BackgroundQueue tasks(executor_.get());
   AsyncResults<std::pair<DocumentKey, MutableDocument>> results;
   for (const auto& key_version : remote_map) {
-    tasks.Execute([this, &results, key_version, &query, &mutated_docs] {
+    tasks.Execute([this, &results, &key_version, query, &mutated_docs] {
       auto document = Get(key_version.first).WithReadTime(key_version.second);
       if (document.is_found_document() &&
           // Either the document matches the given query, or it is mutated.
