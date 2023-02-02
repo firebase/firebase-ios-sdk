@@ -28,7 +28,7 @@
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 @import FirebaseAuth;
 #import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
 #import "FirebaseAuth/Tests/Unit/FIRApp+FIRAuthUnitTests.h"
@@ -39,7 +39,7 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthCredential.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"
 
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthURLPresenter.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthNotificationManager.h"
