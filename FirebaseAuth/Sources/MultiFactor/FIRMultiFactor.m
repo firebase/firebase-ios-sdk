@@ -22,8 +22,6 @@
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend+MultiFactor.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactor+Internal.h"
-#import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorInfo+Internal.h"
-#import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorSession+Internal.h"
 #import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
 
 #import "FirebaseAuth-Swift.h"
@@ -149,7 +147,7 @@ static NSString *kUserCodingKey = @"user";
   if (self) {
     NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfoArray = [[NSMutableArray alloc] init];
     for (FIRAuthProtoMFAEnrollment *MFAEnrollment in MFAEnrollments) {
-      if (MFAEnrollment.phoneInfo) {
+      if (MFAEnrollment.MFAValue) {
         FIRMultiFactorInfo *multiFactorInfo =
             [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
         [multiFactorInfoArray addObject:multiFactorInfo];

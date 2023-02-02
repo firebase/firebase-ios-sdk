@@ -20,6 +20,7 @@
 #import <Foundation/Foundation.h>
 
 @class FIRAuthAppCredential;
+@class FIRAuthKeychainServices;
 
 NS_ASSUME_NONNULL_BEGIN
 

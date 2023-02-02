@@ -19,6 +19,17 @@
 
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 
+@class FIRStartMFAEnrollmentResponse;
+@class FIRFinalizeMFAEnrollmentResponse;
+@class FIRStartMFASignInResponse;
+@class FIRFinalizeMFASignInResponse;
+@class FIRWithdrawMFAResponse;
+@class FIRStartMFAEnrollmentRequest;
+@class FIRFinalizeMFAEnrollmentRequest;
+@class FIRStartMFASignInRequest;
+@class FIRFinalizeMFASignInRequest;
+@class FIRWithdrawMFARequest;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** @typedef FIRStartMFAEnrollmentResponseCallback

@@ -541,18 +541,18 @@ private let kFIRAuthErrorMessageMalformedJWT =
   }
 
   #if os(iOS)
-
-    @objc public static func secondFactorRequiredError(resolver: MultiFactorResolverWrapper?)
+    @objc public static func secondFactorRequiredError(pendingCredential: String?,
+                                                       hints: [MultiFactorInfo]?)
       -> Error {
       var userInfo: [String: Any] = [:]
 
-      if let resolver {
+      if let pendingCredential, let hints {
+        let resolver = MultiFactorResolver(mfaPendingCredential: pendingCredential, hints: hints)
         userInfo[FIRAuthErrorUserInfoMultiFactorResolverKey] = resolver
       }
 
       return error(code: .secondFactorRequired, userInfo: userInfo)
     }
-
   #endif
 }
 

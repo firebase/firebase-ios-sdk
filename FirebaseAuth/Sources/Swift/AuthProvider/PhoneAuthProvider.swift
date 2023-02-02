@@ -114,19 +114,22 @@ import FirebaseCore
                                                  retryOnInvalidAppCredential: Bool,
                                                  UIDelegate: AuthUIDelegate,
                                                  callback: @escaping (String?, Error?) -> Void) {
-      if let settings = auth.settings,
-         settings.isAppVerificationDisabledForTesting {
-        let request = SendVerificationCodeRequest(
-          phoneNumber: phoneNumber,
-          appCredential: nil,
-          reCAPTCHAToken: nil,
-          requestConfiguration: auth.requestConfiguration
-        )
-        FIRAuthBackend.sendVerificationCode(request) { response, error in
-          callback(response?.verificationID, error)
-        }
-        return
-      }
+      // TODO(ncooke3): Uncomment below lines when `FIRAuthBackend` is
+      // written in Swift.
+//      if let settings = auth.settings,
+//         settings.isAppVerificationDisabledForTesting {
+//        let request = SendVerificationCodeRequest(
+//          phoneNumber: phoneNumber,
+//          appCredential: nil,
+//          reCAPTCHAToken: nil,
+//          requestConfiguration: auth.requestConfiguration
+//        )
+//
+//        FIRAuthBackend.sendVerificationCode(request) { response, error in
+//          callback(response?.verificationID, error)
+//        }
+//        return
+//      }
       // self.verifyClient(withUIDelegate ...
     }
 
@@ -270,6 +273,7 @@ import FirebaseCore
       if let queryItems = deepLinkComponents?.queryItems {
         return FIRAuthWebUtils.queryItemValue("recaptchaToken", from: queryItems)
       }
+      return nil
     }
 
 //  - (nullable NSString *)reCAPTCHATokenForURL:(NSURL *)URL error:(NSError **_Nonnull)error {

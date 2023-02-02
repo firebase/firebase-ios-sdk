@@ -28,10 +28,6 @@
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
-#if TARGET_OS_IOS
-// #import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorInfo+Internal.h"
-#endif
-
 #import "FirebaseAuth-Swift.h"
 
 NS_ASSUME_NONNULL_BEGIN

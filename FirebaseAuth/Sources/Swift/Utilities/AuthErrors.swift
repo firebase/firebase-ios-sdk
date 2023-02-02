@@ -56,7 +56,7 @@ import Foundation
    */
   @objc(
     FIRAuthErrorUserInfoUpdatedCredentialKey
-  ) static var AuthErrorUserInfoUpdatedCredentialKey: String =
+  ) public static var AuthErrorUserInfoUpdatedCredentialKey: String =
     "FIRAuthErrorUserInfoUpdatedCredentialKey"
 
   /**
