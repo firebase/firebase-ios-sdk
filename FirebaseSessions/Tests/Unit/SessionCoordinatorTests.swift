@@ -34,13 +34,17 @@ class SessionCoordinatorTests: XCTestCase {
     )
   }
 
-  func test_attemptLoggingSessionStart_logsToGDT() throws {
-    let sessionInfo = SessionInfo(
-      sessionId: "testSessionId",
-      previousSessionId: "testPreviousSessionId",
-      dispatchEvents: true
+  var defaultSessionInfo: SessionInfo {
+    return SessionInfo(
+      sessionId: "test_session_id",
+      firstSessionId: "test_first_session_id",
+      dispatchEvents: true,
+      sessionIndex: 0
     )
-    let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: appInfo, time: time)
+  }
+
+  func test_attemptLoggingSessionStart_logsToGDT() throws {
+    let event = SessionStartEvent(sessionInfo: defaultSessionInfo, appInfo: appInfo, time: time)
     var resultSuccess = false
     coordinator.attemptLoggingSessionStart(event: event) { result in
       switch result {
@@ -65,12 +69,7 @@ class SessionCoordinatorTests: XCTestCase {
   func test_attemptLoggingSessionStart_handlesGDTError() throws {
     fireLogger.result = .failure(NSError(domain: "TestError", code: -1))
 
-    let sessionInfo = SessionInfo(
-      sessionId: "testSessionId",
-      previousSessionId: "testPreviousSessionId",
-      dispatchEvents: true
-    )
-    let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: appInfo, time: time)
+    let event = SessionStartEvent(sessionInfo: defaultSessionInfo, appInfo: appInfo, time: time)
 
     // Start success so it must be set to false
     var resultSuccess = true
@@ -98,12 +97,7 @@ class SessionCoordinatorTests: XCTestCase {
   func test_attemptLoggingSessionStart_handlesInstallationsError() throws {
     installations.result = .failure(NSError(domain: "TestInstallationsError", code: -1))
 
-    let sessionInfo = SessionInfo(
-      sessionId: "testSessionId",
-      previousSessionId: "testPreviousSessionId",
-      dispatchEvents: true
-    )
-    let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: appInfo, time: time)
+    let event = SessionStartEvent(sessionInfo: defaultSessionInfo, appInfo: appInfo, time: time)
 
     // Start success so it must be set to false
     var resultSuccess = true

@@ -358,7 +358,9 @@ static const char* FIRCLSContextAppendToRoot(NSString* root, NSString* component
       [[root stringByAppendingPathComponent:component] fileSystemRepresentation]);
 }
 
-static bool FIRCLSContextRecordIdentity(FIRCLSFile* file, const FIRCLSContextInitData* initData) {
+static bool FIRCLSContextRecordIdentity(FIRCLSFile* file,
+                                        const char* sessionId,
+                                        const char* betaToken) {
   FIRCLSFileWriteSectionStart(file, "identity");
 
   FIRCLSFileWriteHashStart(file);
@@ -368,11 +370,11 @@ static bool FIRCLSContextRecordIdentity(FIRCLSFile* file, const FIRCLSContextIni
   FIRCLSFileWriteHashEntryString(file, "build_version", FIRCLSSDKVersion().UTF8String);
   FIRCLSFileWriteHashEntryUint64(file, "started_at", time(NULL));
 
-  FIRCLSFileWriteHashEntryString(file, "session_id", initData->sessionId);
+  FIRCLSFileWriteHashEntryString(file, "session_id", sessionId);
   // install_id is written into the proto directly. This is only left here to
   // support Apple Report Converter.
   FIRCLSFileWriteHashEntryString(file, "install_id", "");
-  FIRCLSFileWriteHashEntryString(file, "beta_token", initData->betaToken);
+  FIRCLSFileWriteHashEntryString(file, "beta_token", betaToken);
   FIRCLSFileWriteHashEntryBoolean(file, "absolute_log_timestamps", true);
 
   FIRCLSFileWriteHashEnd(file);
@@ -403,6 +405,10 @@ static bool FIRCLSContextRecordApplication(FIRCLSFile* file, const char* customB
 }
 
 static bool FIRCLSContextRecordMetadata(const char* path, const FIRCLSContextInitData* initData) {
+  const char* sessionId = initData->sessionId;
+  const char* betaToken = initData->betaToken;
+  const char* customBundleId = initData->customBundleId;
+
   if (!FIRCLSUnlinkIfExists(path)) {
     FIRCLSSDKLog("Unable to unlink existing metadata file %s\n", strerror(errno));
   }
@@ -414,7 +420,7 @@ static bool FIRCLSContextRecordMetadata(const char* path, const FIRCLSContextIni
     return false;
   }
 
-  if (!FIRCLSContextRecordIdentity(&file, initData)) {
+  if (!FIRCLSContextRecordIdentity(&file, sessionId, betaToken)) {
     FIRCLSSDKLog("Unable to write out identity metadata\n");
   }
 
@@ -422,7 +428,7 @@ static bool FIRCLSContextRecordMetadata(const char* path, const FIRCLSContextIni
     FIRCLSSDKLog("Unable to write out host metadata\n");
   }
 
-  if (!FIRCLSContextRecordApplication(&file, initData->customBundleId)) {
+  if (!FIRCLSContextRecordApplication(&file, customBundleId)) {
     FIRCLSSDKLog("Unable to write out application metadata\n");
   }
 

@@ -43,7 +43,8 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
 
     proto.event_type = firebase_appquality_sessions_EventType_SESSION_START
     proto.session_data.session_id = makeProtoString(sessionInfo.sessionId)
-    proto.session_data.previous_session_id = makeProtoStringOrNil(sessionInfo.previousSessionId)
+    proto.session_data.first_session_id = makeProtoString(sessionInfo.firstSessionId)
+    proto.session_data.session_index = sessionInfo.sessionIndex
     proto.session_data.event_timestamp_us = time.timestampUS
 
     proto.application_info.app_id = makeProtoString(appInfo.appID)
@@ -81,7 +82,8 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     proto.session_data.data_collection_status.session_sampling_rate = samplingRate
   }
 
-  func set(subscriber: SessionsSubscriberName, isDataCollectionEnabled: Bool) {
+  func set(subscriber: SessionsSubscriberName, isDataCollectionEnabled: Bool,
+           appInfo: ApplicationInfoProtocol) {
     let dataCollectionState = makeDataCollectionProto(isDataCollectionEnabled)
     switch subscriber {
     case .Crashlytics:
@@ -92,11 +94,19 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
       Logger
         .logWarning("Attempted to set Data Collection status for unknown Subscriber: \(subscriber)")
     }
+
+    // Only set restricted fields if Data Collection is enabled. If it's disabled,
+    // we're treating that as if the product isn't installed.
+    if isDataCollectionEnabled {
+      setRestrictedFields(subscriber: subscriber,
+                          appInfo: appInfo)
+    }
   }
 
   /// This method should be called for every subscribed Subscriber. This is for cases where
   /// fields should only be collected if a specific SDK is installed.
-  func setRestrictedFields(subscriber: SessionsSubscriberName, appInfo: ApplicationInfoProtocol) {
+  private func setRestrictedFields(subscriber: SessionsSubscriberName,
+                                   appInfo: ApplicationInfoProtocol) {
     switch subscriber {
     case .Performance:
       proto.application_info.apple_app_info.mcc_mnc = makeProtoString(appInfo.mccMNC)
