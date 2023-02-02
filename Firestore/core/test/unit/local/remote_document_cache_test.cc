@@ -250,12 +250,12 @@ TEST_P(RemoteDocumentCacheTest, DocumentsMatchingUsesReadTimeNotUpdateTime) {
 
 TEST_P(RemoteDocumentCacheTest, DocumentsMatchingAppliesQueryCheck) {
   persistence_->Run("test_documents_matching_query_applies_query_check", [&] {
-    SetTestDocument("a/1", /* updateTime= */ 1, /* readTime= */ 1,
-                    Map("matches", true));
-    SetTestDocument("a/2", /* updateTime= */ 1, /* readTime= */ 2,
-                    Map("matches", true));
-    SetTestDocument("a/3", /* updateTime= */ 1, /* readTime= */ 3,
-                    Map("matches", false));
+    SetTestDocument("a/1", Map("matches", true), /* update_time= */ 1,
+                    /* read_time= */ 1);
+    SetTestDocument("a/2", Map("matches", true), /* update_time= */ 1,
+                    /* read_time= */ 2);
+    SetTestDocument("a/3", Map("matches", false), /* update_time= */ 1,
+                    /* read_time= */ 3);
 
     core::Query query =
         Query("a").AddingFilter(testutil::Filter("matches", "==", true));
@@ -270,10 +270,10 @@ TEST_P(RemoteDocumentCacheTest, DocumentsMatchingAppliesQueryCheck) {
 
 TEST_P(RemoteDocumentCacheTest, DocumentsMatchingRespectsMutatedDocs) {
   persistence_->Run("test_documents_matching_query_respects_mutated_docs", [&] {
-    SetTestDocument("a/1", /* updateTime= */ 1, /* readTime= */ 1,
-                    Map("matches", true));
-    SetTestDocument("a/2", /* updateTime= */ 1, /* readTime= */ 2,
-                    Map("matches", false));
+    SetTestDocument("a/1", Map("matches", true), /* update_time= */ 1,
+                    /* read_time= */ 1);
+    SetTestDocument("a/2", Map("matches", false), /* update_time= */ 1,
+                    /* read_time= */ 2);
 
     core::Query query =
         Query("a").AddingFilter(testutil::Filter("matches", "==", true));
@@ -332,14 +332,6 @@ MutableDocument RemoteDocumentCacheTest::SetTestDocument(absl::string_view path,
                                                          int update_time,
                                                          int read_time) {
   return SetTestDocument(path, Map("a", 1, "b", 2), update_time, read_time);
-}
-
-MutableDocument RemoteDocumentCacheTest::SetTestDocument(
-    absl::string_view path,
-    int update_time,
-    int read_time,
-    Message<google_firestore_v1_Value> data) {
-  return SetTestDocument(path, std::move(data), update_time, read_time);
 }
 
 MutableDocument RemoteDocumentCacheTest::SetTestDocument(
