@@ -1,3 +1,0 @@
-framework module FirebaseAuth {
-    umbrella header "FirebaseAuth.h"
-}
