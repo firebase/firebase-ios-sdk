@@ -46,7 +46,7 @@ class SessionGenerator {
 
   init(collectEvents: Bool) {
     // This will be incremented to 0 on the first generation
-    self.sessionIndex = -1
+    sessionIndex = -1
 
     self.collectEvents = collectEvents
   }

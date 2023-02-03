@@ -69,7 +69,8 @@ private enum GoogleDataTransportConfig {
       installations: installations
     )
 
-    let sessionGenerator = SessionGenerator(collectEvents: Sessions.calculateCollectEvents(settings: settings))
+    let sessionGenerator = SessionGenerator(collectEvents: Sessions
+      .calculateCollectEvents(settings: settings))
     let coordinator = SessionCoordinator(
       installations: installations,
       fireLogger: fireLogger
