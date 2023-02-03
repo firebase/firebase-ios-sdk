@@ -75,7 +75,6 @@ def main(args)
             private_module_map_contents
         )
     end
-    
 end
 
 main(ARGV)
