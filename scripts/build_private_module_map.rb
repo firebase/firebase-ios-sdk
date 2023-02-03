@@ -46,7 +46,12 @@ def main(args)
 
     STDOUT.sync = true
 
-    spec = Pod::Spec.from_file(args[0])
+    begin
+        spec = Pod::Spec.from_file(args[0])
+    rescue => e
+        STDERR.puts "#{e}"
+        exit(1)
+    end
 
     private_module_map_contents = "framework module #{spec.module_name}_Private {\n"
 
