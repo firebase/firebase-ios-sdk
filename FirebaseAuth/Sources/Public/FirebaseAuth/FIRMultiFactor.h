@@ -89,14 +89,6 @@ NS_SWIFT_NAME(MultiFactor) API_UNAVAILABLE(macos, tvos, watchos) @interface FIRM
 - (void)unenrollWithFactorUID:(NSString *)factorUID
                    completion:(nullable void (^)(NSError *_Nullable error))completion;
 
-// TODO: internal below
-@property(nonatomic, weak) FIRUser *user;
-
-/** @fn initWithMFAEnrollments:
-    @brief Initialize a multi factor instance with a list of MFA enrollments.
-*/
-- (instancetype)initWithMFAEnrollments:(NSArray<FIRAuthProtoMFAEnrollment *> *)MFAEnrollments;
-
 @end
 
 NS_ASSUME_NONNULL_END
