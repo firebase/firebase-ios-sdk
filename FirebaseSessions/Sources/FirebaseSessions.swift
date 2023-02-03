@@ -209,10 +209,8 @@ private enum GoogleDataTransportConfig {
   func addSubscriberFields(event: SessionStartEvent) {
     subscribers.forEach { subscriber in
       event.set(subscriber: subscriber.sessionsSubscriberName,
-                isDataCollectionEnabled: subscriber.isDataCollectionEnabled)
-
-      event.setRestrictedFields(subscriber: subscriber.sessionsSubscriberName,
-                                appInfo: self.appInfo)
+                isDataCollectionEnabled: subscriber.isDataCollectionEnabled,
+                appInfo: self.appInfo)
     }
   }
 

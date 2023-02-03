@@ -1,3 +1,6 @@
+# 10.5.0
+- [fixed] Fixed a crash for strongSelf dereference (#10707).
+
 # 10.4.0
 - [changed] On app startup, an APNS Token must be provided to FCM SDK before retrieving an FCM Token otherwise an error will be returned as part of the completion.
 

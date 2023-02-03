@@ -98,6 +98,13 @@ supports email and password accounts, as well as several 3rd party authenticatio
       unit_tests.requires_app_host = true
       unit_tests.dependency 'OCMock'
       unit_tests.dependency 'HeartbeatLoggingTestUtils'
+
+      # This pre-processor directive is used to selectively disable keychain
+      # related code that blocks unit testing on macOS.
+      s.osx.pod_target_xcconfig = {
+        'GCC_PREPROCESSOR_DEFINITIONS' => 'FIREBASE_AUTH_MACOS_TESTING=1'
+      }
+
     end
   end
 end

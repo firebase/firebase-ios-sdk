@@ -22,11 +22,14 @@
 #include <thread>  // NOLINT(build/c++11)
 #include <vector>
 
+#include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/local/leveldb_index_manager.h"
 #include "Firestore/core/src/local/remote_document_cache.h"
 #include "Firestore/core/src/model/model_fwd.h"
+#include "Firestore/core/src/model/overlay.h"
 #include "Firestore/core/src/model/types.h"
 #include "absl/strings/string_view.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -62,10 +65,11 @@ class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
   model::MutableDocumentMap GetAll(const std::string& collection_group,
                                    const model::IndexOffset& offset,
                                    size_t limit) const override;
-  model::MutableDocumentMap GetAll(
-      const model::ResourcePath& path,
+  model::MutableDocumentMap GetDocumentsMatchingQuery(
+      const core::Query& query,
       const model::IndexOffset& offset,
-      absl::optional<size_t> limit = absl::nullopt) const override;
+      absl::optional<size_t> limit = absl::nullopt,
+      const model::OverlayByDocumentKeyMap& mutated_docs = {}) const override;
 
   void SetIndexManager(IndexManager* manager) override;
 
@@ -75,7 +79,9 @@ class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
    * Type::Document together with its SnapshotVersion.
    */
   model::MutableDocumentMap GetAllExisting(
-      model::DocumentVersionMap&& remote_map) const;
+      model::DocumentVersionMap&& remote_map,
+      const core::Query& query,
+      const model::OverlayByDocumentKeyMap& mutated_docs = {}) const;
 
   model::MutableDocument DecodeMaybeDocument(
       absl::string_view encoded, const model::DocumentKey& key) const;
