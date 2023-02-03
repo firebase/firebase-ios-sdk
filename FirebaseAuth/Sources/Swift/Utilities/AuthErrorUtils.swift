@@ -14,7 +14,9 @@
 
 import Foundation
 
-@_implementationOnly import FirebaseAuth_Private
+#if COCOAPODS
+  @_implementationOnly import FirebaseAuth_Private
+#endif // COCOAPODS
 
 private let FIRAuthErrorDomain = "FIRAuthErrorDomain"
 
