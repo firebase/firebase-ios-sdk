@@ -27,9 +27,8 @@
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 @import FirebaseAuth;
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthURLPresenter.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
@@ -1038,7 +1037,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
         [invocation getArgument:&unretainedArgument atIndex:5];
         FIRAuthURLPresentationCompletion completion = unretainedArgument;
         dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-          completion(nil, [NSError errorWithDomain:FIRAuthErrorDomain
+          completion(nil, [NSError errorWithDomain:FIRAuthErrors.FIRAuthErrorDomain
                                               code:FIRAuthErrorCodeMissingAppToken
                                           userInfo:nil]);
         });
@@ -1431,7 +1430,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
   OCMExpect([_mockAppCredentialManager credential]).andReturn(nil);
   OCMExpect([_mockAPNSTokenManager getTokenWithCallback:OCMOCK_ANY])
       .andCallBlock1(^(FIRAuthAPNSTokenCallback callback) {
-        NSError *error = [NSError errorWithDomain:FIRAuthErrorDomain
+        NSError *error = [NSError errorWithDomain:FIRAuthErrors.FIRAuthErrorDomain
                                              code:FIRAuthErrorCodeMissingAppToken
                                          userInfo:nil];
         callback(nil, error);

@@ -18,7 +18,6 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthTokenResult.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRUserMetadata.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
@@ -667,7 +666,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                              // Verify FIRMultiFactorInfo properties.
                                              XCTAssertEqualObjects(
                                                  user.multiFactor.enrolledFactors[0].factorID,
-                                                 FIRPhoneMultiFactorID);
+                                                 FIRPhoneMultiFactorInfo.FIRPhoneMultiFactorID);
                                              XCTAssertEqualObjects(
                                                  user.multiFactor.enrolledFactors[0].UID,
                                                  kEnrollmentID);
@@ -2105,8 +2104,9 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                 XCTAssertEqual(
                                     error.code,
                                     FIRAuthErrorCodeAccountExistsWithDifferentCredential);
-                                XCTAssertEqual(error.userInfo[FIRAuthErrorUserInfoEmailKey],
-                                               kEmail);
+                                XCTAssertEqual(
+                                    error.userInfo[FIRAuthErrors.FIRAuthErrorUserInfoEmailKey],
+                                    kEmail);
                                 XCTAssertEqual([FIRAuth auth].currentUser, authResult.user);
                                 [expectation fulfill];
                               }];
@@ -2669,7 +2669,8 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                   OCMExpect([mockProvider getCredentialWithUIDelegate:[OCMArg any]
                                                            completion:[OCMArg any]])
                       .andCallBlock2(
-                          ^(id<FIRAuthUIDelegate> delegate, FIRAuthCredentialCallback callback) {
+                          ^(id<FIRAuthUIDelegate> delegate,
+                            void (^callback)(FIRAuthCredential *_Nullable, NSError *_Nullable)) {
                             dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
                               FIROAuthCredential *credential = [[FIROAuthCredential alloc]
                                       initWithProviderID:FIRGoogleAuthProvider.id
@@ -2732,7 +2733,8 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                   OCMExpect([mockProvider getCredentialWithUIDelegate:[OCMArg any]
                                                            completion:[OCMArg any]])
                       .andCallBlock2(
-                          ^(id<FIRAuthUIDelegate> delegate, FIRAuthCredentialCallback callback) {
+                          ^(id<FIRAuthUIDelegate> delegate,
+                            void (^callback)(FIRAuthCredential *_Nullable, NSError *_Nullable)) {
                             dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
                               FIROAuthCredential *credential = [[FIROAuthCredential alloc]
                                       initWithProviderID:FIRGoogleAuthProvider.id
@@ -3026,7 +3028,8 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                                                FIRAuthErrorCodeCredentialAlreadyInUse);
                                                            FIRPhoneAuthCredential *credential =
                                                                error.userInfo
-                                                                   [FIRAuthErrorUserInfoUpdatedCredentialKey];
+                                                                   [FIRAuthErrors
+                                                                        .FIRAuthErrorUserInfoUpdatedCredentialKey];
                                                            XCTAssertEqual(credential.temporaryProof,
                                                                           kTemporaryProof);
                                                            XCTAssertEqual(credential.phoneNumber,

@@ -14,6 +14,8 @@
 
 import Foundation
 
+@_implementationOnly import FirebaseAuth_Private
+
 private let FIRAuthErrorDomain = "FIRAuthErrorDomain"
 
 private let FIRAuthInternalErrorDomain = "FIRAuthInternalErrorDomain"
@@ -541,19 +543,22 @@ private let kFIRAuthErrorMessageMalformedJWT =
   }
 
   #if os(iOS)
+    // TODO(ncooke3): Address the optionality of these arguments.
     @objc public static func secondFactorRequiredError(pendingCredential: String?,
                                                        hints: [MultiFactorInfo]?)
       -> Error {
       var userInfo: [String: Any] = [:]
-
-      if let pendingCredential, let hints {
-        let resolver = MultiFactorResolver(mfaPendingCredential: pendingCredential, hints: hints)
+      if let pendingCredential = pendingCredential, let hints = hints {
+        let resolver = MultiFactorResolver(
+          mfaPendingCredential: pendingCredential,
+          hints: hints
+        )
         userInfo[FIRAuthErrorUserInfoMultiFactorResolverKey] = resolver
       }
 
       return error(code: .secondFactorRequired, userInfo: userInfo)
     }
-  #endif
+  #endif // os(iOS)
 }
 
 @objc public protocol MultiFactorResolverWrapper: NSObjectProtocol {}

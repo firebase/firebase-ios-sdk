@@ -60,7 +60,7 @@ private let kErrorKey = "error"
    @brief Designated initializer.
    @param dictionary The provider user info data from endpoint.
    */
-  init(dictionary: [String: Any]) {
+  @objc public init(dictionary: [String: Any]) {
     providerID = dictionary["providerId"] as? String
     displayName = dictionary["displayName"] as? String
     if let photoURL = dictionary["photoUrl"] as? String {

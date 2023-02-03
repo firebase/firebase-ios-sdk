@@ -16,6 +16,7 @@
 
 import Foundation
 import FirebaseAuth
+import FirebaseAuth_Private
 import XCTest
 
 class TestsBase: XCTestCase {
@@ -36,6 +37,7 @@ class TestsBase: XCTestCase {
   #endif
 
   func signInAnonymously() {
+    _ = MyPrivateClass()
     let auth = Auth.auth()
 
     let expectation = self.expectation(description: "Anonymous sign-in finished.")

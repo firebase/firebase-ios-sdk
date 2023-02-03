@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-import FirebaseCore
+@_implementationOnly import FirebaseCore
 
 // When building for CocoaPods, non-public headers are exposed to Swift via a
 // private module map.
@@ -39,7 +39,8 @@ import FirebaseCore
         @brief Returns an instance of `PhoneAuthProvider` for the provided `Auth` object.
         @param auth The auth object to associate with the phone auth provider instance.
      */
-    @objc(providerWithAuth:) public class func provider(auth: Auth) -> PhoneAuthProvider {
+    @objc(providerWithAuth:)
+    public class func provider(auth: Auth) -> PhoneAuthProvider {
       return PhoneAuthProvider(auth: auth)
     }
 
@@ -493,7 +494,7 @@ import FirebaseCore
             provided.
      */
     @objc(credentialWithVerificationID:verificationCode:)
-    func credential(verificationID: String, verificationCode: String) -> AuthCredential {
+    public func credential(verificationID: String, verificationCode: String) -> AuthCredential {
       return PhoneAuthCredential(withProviderID: PhoneAuthProvider.id,
                                  verificationID: verificationID,
                                  verificationCode: verificationCode)

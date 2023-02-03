@@ -46,7 +46,9 @@ import Foundation
    associated with this key is an NSString of the email address of the account that already
    exists.
    */
-  @objc(FIRAuthErrorUserInfoEmailKey) static var AuthErrorUserInfoEmailKey: String =
+  @objc(
+    FIRAuthErrorUserInfoEmailKey
+  ) public static var AuthErrorUserInfoEmailKey: String =
     "FIRAuthErrorUserInfoEmailKey"
 
   /**

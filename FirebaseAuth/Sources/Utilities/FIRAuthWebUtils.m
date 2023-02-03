@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthWebUtils.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
 
 #import "FirebaseAuth-Swift.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
