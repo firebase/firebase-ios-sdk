@@ -1,4 +1,5 @@
 # Unreleased
+- [fixed] Fixed issue where if an error is thrown by Google Cloud Storage, FirebaseStorage would upload using the wrong byte offset and would infinitely retry
 - [changed] FirebaseStorage now uses version 3.1.0 of GTMSessionFetcher
 
 # 10.5.0
