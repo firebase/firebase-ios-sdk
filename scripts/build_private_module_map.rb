@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'cocoapods'
+
 def main(args)
     # TODO(ncooke3): Generalize this to take a module name as an argument.
     if args.length != 1
@@ -21,6 +23,9 @@ def main(args)
 
     STDOUT.sync = true
 
+    module_name = args[0]
+    spec = Pod::Spec.from_file("#{module_name}.podspec")
+
     # Build of the private module map in the following template:
     #
     #       framework module FirebaseAuth_Private {
@@ -29,9 +34,8 @@ def main(args)
     #         header "PrivateHeader_3.h"
     #       }
     #
-    module_name = "framework module FirebaseAuth_Private {\n"
+    private_module_map_contents = "framework module #{module_name}_Private {\n"
 
-    # TODO(ncooke3): This could hopefully be read from the podspec.
     Dir[
         'FirebaseAuth/Sources/**/*.h',
         'FirebaseCore/Extension/*.h',
@@ -40,15 +44,15 @@ def main(args)
         .reject{ |f| f['FirebaseAuth/Sources/Public/'] }
         .each do |filepath|
             filename = File.basename(filepath)
-            module_name << "  header \"#{filename}\"\n"
+            private_module_map_contents << "  header \"#{filename}\"\n"
         end
 
-    module_name << "}\n"
+    private_module_map_contents << "}\n"
 
     # Overwrite the private module map with the generated contents.
     File.write(
         'FirebaseAuth/Sources/FirebaseAuth.private.modulemap', 
-        module_name
+        private_module_map_contents
     )
     
 end
