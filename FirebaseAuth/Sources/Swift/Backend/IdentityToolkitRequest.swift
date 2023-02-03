@@ -35,12 +35,12 @@ private let kIdentityPlatformStagingAPIHost =
   /** @property endpoint
    @brief Gets the RPC's endpoint.
    */
-  let endpoint: String
+  @objc public let endpoint: String
 
   /** @property APIKey
    @brief Gets the client's API key used for the request.
    */
-  var APIKey: String
+  @objc public var APIKey: String
 
   /** @property tenantID
    @brief The tenant ID of the request. nil if none is available.

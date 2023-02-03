@@ -14,9 +14,8 @@
 
 import Foundation
 
-@objc(
-  FIRAuthProtoFinalizeMFAPhoneRequestInfo
-) public class AuthProtoFinalizeMFAPhoneRequestInfo: NSObject,
+@objc(FIRAuthProtoFinalizeMFAPhoneRequestInfo)
+public class AuthProtoFinalizeMFAPhoneRequestInfo: NSObject,
   AuthProto {
   public required init(dictionary: [String: Any]) {
     fatalError()

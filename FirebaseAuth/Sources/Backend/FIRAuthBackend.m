@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 
 #if SWIFT_PACKAGE
 @import GTMSessionFetcherCore;
@@ -29,10 +29,6 @@
 #import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
-#if TARGET_OS_IOS
-// #import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorInfo+Internal.h"
-#endif
 
 #import "FirebaseAuth-Swift.h"
 
