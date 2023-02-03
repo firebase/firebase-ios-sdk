@@ -20,16 +20,11 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+@import FirebaseCore;
 @import FirebaseAuth;
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthUIDelegate.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIROAuthProvider.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
-#import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
-@import FirebaseAuth;
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
 #import "FirebaseAuth/Tests/Unit/OCMStubRecorder+FIRAuthUnitTests.h"

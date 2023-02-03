@@ -12,4 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-internal let FIRPhoneMultiFactorID = "1"
+import Foundation
+
+@objc(FIRVerifyClientResponse)
+public class VerifyClientResponse: NSObject, AuthRPCResponse {
+  /// Receipt that the APNS token was successfully validated with APNS.
+  @objc public private(set) var receipt: String?
+
+  /// The date after which delivery of the silent push notification is considered to have failed.
+  @objc public private(set) var suggestedTimeOutDate: Date?
+
+  public func setFields(dictionary: [String: Any]) throws {
+    receipt = dictionary["receipt"] as? String
+    suggestedTimeOutDate = dictionary["suggestedTimeOutDate"] as? Date
+  }
+}
