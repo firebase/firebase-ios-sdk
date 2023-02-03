@@ -39,7 +39,7 @@ import Foundation
     /**
         @brief The identifier of the second factor.
      */
-    @objc internal var factorID: String?
+    @objc public var factorID: String?
 
     @objc public init(proto: AuthProtoMFAEnrollment) {
       UID = proto.MFAEnrollmentID
