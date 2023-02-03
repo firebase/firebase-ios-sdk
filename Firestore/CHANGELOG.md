@@ -1,3 +1,7 @@
+
+# Unreleased
+- [fixed] Fix a potential high memory usage issue.
+
 # 10.5.0
 - [fixed] Add @discardableResult to addDocument API for easy handling unused return value. (#10640)
 

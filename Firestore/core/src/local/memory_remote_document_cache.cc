@@ -21,6 +21,7 @@
 #include "Firestore/core/src/local/memory_persistence.h"
 #include "Firestore/core/src/local/sizer.h"
 #include "Firestore/core/src/model/document.h"
+#include "Firestore/core/src/model/overlay.h"
 #include "Firestore/core/src/util/hard_assert.h"
 
 namespace firebase {
@@ -83,14 +84,16 @@ MutableDocumentMap MemoryRemoteDocumentCache::GetAll(const std::string&,
       "getAll(String, IndexOffset, int) is not supported.");
 }
 
-MutableDocumentMap MemoryRemoteDocumentCache::GetAll(
-    const model::ResourcePath& path,
+MutableDocumentMap MemoryRemoteDocumentCache::GetDocumentsMatchingQuery(
+    const core::Query& query,
     const model::IndexOffset& offset,
-    const absl::optional<size_t>) const {
+    absl::optional<size_t>,
+    const model::OverlayByDocumentKeyMap& mutated_docs) const {
   MutableDocumentMap results;
 
   // Documents are ordered by key, so we can use a prefix scan to narrow down
   // the documents we need to match the query against.
+  auto path = query.path();
   DocumentKey prefix{path.Append("")};
   size_t immediate_children_path_length = path.size() + 1;
   for (auto it = docs_.lower_bound(prefix); it != docs_.end(); ++it) {
@@ -107,6 +110,11 @@ MutableDocumentMap MemoryRemoteDocumentCache::GetAll(
     if (model::IndexOffset::FromDocument(document).CompareTo(offset) !=
         util::ComparisonResult::Descending) {
       // The document sorts before the offset.
+      continue;
+    }
+
+    if (mutated_docs.find(document.key()) == mutated_docs.end() &&
+        !query.Matches(document)) {
       continue;
     }
 
