@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] FirebaseStorage now uses version 3.1.0 of GTMSessionFetcher
+
 # 10.5.0
 - [added] Added Storage API to limit upload chunk size. (#10137)
 
