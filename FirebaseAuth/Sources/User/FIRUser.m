@@ -31,12 +31,6 @@
 #import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
 
-// #if TARGET_OS_IOS
-// #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"
-//
-// #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
-// #endif
-
 NS_ASSUME_NONNULL_BEGIN
 
 /** @var kUserIDCodingKey
