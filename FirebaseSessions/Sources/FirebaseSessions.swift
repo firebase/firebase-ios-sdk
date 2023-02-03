@@ -69,7 +69,7 @@ private enum GoogleDataTransportConfig {
       installations: installations
     )
 
-    let sessionGenerator = SessionGenerator(settings: settings)
+    let sessionGenerator = SessionGenerator(collectEvents: Sessions.calculateCollectEvents(settings: settings))
     let coordinator = SessionCoordinator(
       installations: installations,
       fireLogger: fireLogger
@@ -193,6 +193,15 @@ private enum GoogleDataTransportConfig {
         }
       }
     }
+  }
+
+  // MARK: - Sampling
+
+  static func calculateCollectEvents(settings: SettingsProtocol) -> Bool {
+    // Calculate whether we should sample events using settings data
+    // Sampling rate of 1 means we do not sample.
+    let randomValue = Double.random(in: 0 ... 1)
+    return randomValue <= settings.samplingRate
   }
 
   // MARK: - Data Collection

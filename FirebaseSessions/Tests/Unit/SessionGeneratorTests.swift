@@ -53,7 +53,7 @@ class SessionGeneratorTests: XCTestCase {
       localOverrides: localOverrideSettings,
       remoteSettings: remoteSettings
     )
-    generator = SessionGenerator(settings: sessionSettings)
+    generator = SessionGenerator(collectEvents: Sessions.calculateCollectEvents(settings: sessionSettings))
   }
 
   func isValidSessionID(_ sessionID: String) -> Bool {
@@ -139,7 +139,7 @@ class SessionGeneratorTests: XCTestCase {
     )
 
     // Rebuild the SessionGenerator with the new settings
-    generator = SessionGenerator(settings: sessionSettings)
+    generator = SessionGenerator(collectEvents: Sessions.calculateCollectEvents(settings: sessionSettings))
 
     let sessionInfo = generator.generateNewSession()
     XCTAssertTrue(sessionInfo.shouldDispatchEvents)
@@ -167,19 +167,18 @@ class SessionGeneratorTests: XCTestCase {
     )
 
     // Rebuild the SessionGenerator with the new settings
-    generator = SessionGenerator(settings: sessionSettings)
+    generator = SessionGenerator(collectEvents: Sessions.calculateCollectEvents(settings: sessionSettings))
 
     let sessionInfo = generator.generateNewSession()
     XCTAssertFalse(sessionInfo.shouldDispatchEvents)
   }
 
   func test_sessionsSampling_persistsPerRun() throws {
-    var shouldCollectEvents = false
+    let mockSettings = MockSettingsProtocol()
+    mockSettings.samplingRate = 0
 
     // Rebuild the SessionGenerator with the new settings
-    generator = SessionGenerator(settings: sessionSettings, calculateCollectEvents: { _ in
-      shouldCollectEvents
-    })
+    generator = SessionGenerator(collectEvents: Sessions.calculateCollectEvents(settings: mockSettings))
 
     let sessionInfo = generator.generateNewSession()
     XCTAssertFalse(sessionInfo.shouldDispatchEvents)
@@ -189,7 +188,7 @@ class SessionGeneratorTests: XCTestCase {
     XCTAssertFalse(sessionInfo2.shouldDispatchEvents)
 
     // Start returning true from the calculator
-    shouldCollectEvents = true
+    mockSettings.samplingRate = 1
 
     // Try again after the calculator starts returning true.
     // It should still be false in the sessionInfo because the

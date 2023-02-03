@@ -39,27 +39,16 @@ struct SessionInfo {
 ///
 class SessionGenerator {
   private var thisSession: SessionInfo?
-  private var settings: SettingsProtocol
 
   private var firstSessionId = ""
   private var sessionIndex: Int32
   private var collectEvents: Bool
 
-  init(settings: SettingsProtocol,
-       calculateCollectEvents: (SettingsProtocol) -> Bool = SessionGenerator
-         .calculateCollectEvents) {
-    self.settings = settings
+  init(collectEvents: Bool) {
     // This will be incremented to 0 on the first generation
-    sessionIndex = -1
+    self.sessionIndex = -1
 
-    collectEvents = calculateCollectEvents(settings)
-  }
-
-  // Calculate whether we should sample events using settings data
-  // Sampling rate of 1 means we do not sample.
-  static func calculateCollectEvents(settings: SettingsProtocol) -> Bool {
-    let randomValue = Double.random(in: 0 ... 1)
-    return randomValue <= settings.samplingRate
+    self.collectEvents = collectEvents
   }
 
   // Generates a new Session ID. If there was already a generated Session ID
