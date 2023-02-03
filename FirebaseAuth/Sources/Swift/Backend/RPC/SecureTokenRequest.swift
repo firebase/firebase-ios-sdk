@@ -93,7 +93,7 @@ private var gAPIHost = "securetoken.googleapis.com"
   /** @property refreshToken
       @brief The client's refresh token.
    */
-  var refreshToken: String?
+  @objc public var refreshToken: String?
 
   /** @property code
       @brief The client's authorization code (legacy Gitkit "ID Token").
@@ -103,7 +103,7 @@ private var gAPIHost = "securetoken.googleapis.com"
   /** @property APIKey
       @brief The client's API Key.
    */
-  let APIKey: String
+  @objc public let APIKey: String
 
   let _requestConfiguration: AuthRequestConfiguration
   public func requestConfiguration() -> AuthRequestConfiguration {
