@@ -17,6 +17,8 @@
 #import <Security/Security.h>
 #import <XCTest/XCTest.h>
 
+@import FirebaseAuth;
+
 /** @var kAccountPrefix
     @brief The keychain account prefix assumed by the tests.
  */
