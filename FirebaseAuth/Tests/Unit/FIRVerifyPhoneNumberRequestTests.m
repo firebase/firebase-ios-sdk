@@ -19,9 +19,9 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberResponse.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
+@import FirebaseAuth;
+
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestAPIKey
@@ -98,7 +98,7 @@ static NSString *const kExpectedAPIURL =
 /** @Extension FIRVerifyPhoneNumberRequest
     @brief Exposes FIRAuthOperationString from FIRVerifyPhoneNumberRequest to assist testing.
  */
-@interface FIRVerifyPhoneNumberRequest ()
+@interface FIRVerifyPhoneNumberRequest (Testing)
 
 /** @fn FIRAuthOperationString
     @brief Exposes FIRAuthOperationString from FIRVerifyPhoneNumberRequest to assist testing.
@@ -108,6 +108,25 @@ static NSString *const kExpectedAPIURL =
 
  */
 NSString *const FIRAuthOperationString(FIRAuthOperationType operationType);
+
+@end
+
+@implementation FIRVerifyPhoneNumberRequest (Testing)
+
+NSString *const FIRAuthOperationString(FIRAuthOperationType operationType) {
+  switch (operationType) {
+    case FIRAuthOperationTypeUnspecified:
+      return @"VERIFY_OP_UNSPECIFIED";
+    case FIRAuthOperationTypeSignUpOrSignIn:
+      return @"SIGN_UP_OR_IN";
+    case FIRAuthOperationTypeReauth:
+      return @"REAUTH";
+    case FIRAuthOperationTypeLink:
+      return @"LINK";
+    case FIRAuthOperationTypeUpdate:
+      return @"UPDATE";
+  }
+}
 
 @end
 

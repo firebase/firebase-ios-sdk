@@ -14,6 +14,14 @@
  * limitations under the License.
  */
 
+@import FirebaseCore;
+// TODO(ncooke3): Uncomment the above import and the following error appears:
+//
+//      Definition of 'FIRApp' must be imported from module
+//      'FirebaseCore.FIRApp' before it is required.
+//
+// Investigate if the error can be resolved by creating a custom module map
+// for FirebaseInternal that re-exports custom modules.
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 /** @category FIRApp (FIRAuthUnitTests)

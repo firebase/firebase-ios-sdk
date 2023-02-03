@@ -134,9 +134,8 @@ private let kVerifyBeforeUpdateEmailRequestTypeValue = "VERIFY_AND_CHANGE_EMAIL"
  */
 private let kTenantIDKey = "tenantId"
 
-@objc(
-  FIRGetOOBConfirmationCodeRequest
-) public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest,
+@objc(FIRGetOOBConfirmationCodeRequest)
+public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest,
   AuthRPCRequest {
   /** @property requestType
       @brief The types of OOB Confirmation Code to request.

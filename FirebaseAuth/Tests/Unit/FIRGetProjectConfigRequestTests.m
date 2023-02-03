@@ -16,7 +16,13 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
+#if SWIFT_PACKAGE
+#import <FirebaseAuth-Swift.h>
+#else
+#import <FirebaseAuth/FirebaseAuth-Swift.h>
+#endif
+
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
 
 /** @var kGetProjectConfigEndPoint
