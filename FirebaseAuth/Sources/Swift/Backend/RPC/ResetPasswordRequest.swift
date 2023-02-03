@@ -39,12 +39,12 @@ private let kTenantIDKey = "tenantId"
   /** @property oobCode
       @brief The oobCode sent in the request.
    */
-  let oobCode: String
+  @objc public let oobCode: String
 
   /** @property updatedPassword
       @brief The new password sent in the request.
    */
-  let updatedPassword: String?
+  @objc public let updatedPassword: String?
 
   /** @fn initWithOobCode:newPassword:requestConfiguration:
       @brief Designated initializer.
