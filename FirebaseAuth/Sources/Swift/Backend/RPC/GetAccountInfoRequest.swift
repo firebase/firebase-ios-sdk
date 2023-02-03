@@ -34,7 +34,7 @@ private let kIDTokenKey = "idToken"
   /** @property accessToken
       @brief The STS Access Token for the authenticated user.
    */
-  let accessToken: String
+  @objc public let accessToken: String
 
   /** @fn initWithEndpoint:requestConfiguration:requestConfiguration
       @brief Please use initWithAccessToken:requestConfiguration: instead.

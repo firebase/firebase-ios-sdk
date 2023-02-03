@@ -17,11 +17,13 @@ import Foundation
 #if os(iOS)
 
   @objc(FIRPhoneMultiFactorInfo) public class PhoneMultiFactorInfo: MultiFactorInfo {
+    @objc public static let FIRPhoneMultiFactorID = "FIRPhoneMultiFactorID"
+
     @objc public var phoneNumber: String?
     @objc override public init(proto: AuthProtoMFAEnrollment) {
       super.init(proto: proto)
-      factorID = FIRPhoneMultiFactorID
-      phoneNumber = proto.MFAValue
+      factorID = Self.FIRPhoneMultiFactorID
+      phoneNumber = proto.phoneInfo
     }
 
     @available(*, unavailable)

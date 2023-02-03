@@ -19,6 +19,8 @@
 
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend+MultiFactor.h"
 
+#import "FirebaseAuth-Swift.h"
+
 @implementation FIRAuthBackend (MultiFactor)
 
 + (void)startMultiFactorEnrollment:(FIRStartMFAEnrollmentRequest *)request
