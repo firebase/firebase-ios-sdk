@@ -140,7 +140,10 @@ private enum GoogleDataTransportConfig {
       self.subscriberPromises[subscriberName] = Promise<Void>.pending()
     }
 
-    Logger.logDebug("Expecting subscriptions from: \(SessionsDependencies.dependencies)")
+    Logger
+      .logDebug(
+        "Version \(FirebaseVersion()). Expecting subscriptions from: \(SessionsDependencies.dependencies)"
+      )
 
     self.initiator.beginListening {
       // Generating a Session ID early is important as Subscriber
