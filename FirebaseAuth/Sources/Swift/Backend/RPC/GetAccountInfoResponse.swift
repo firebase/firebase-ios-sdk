@@ -23,9 +23,8 @@ private let kErrorKey = "error"
     @brief Represents the provider user info part of the response from the getAccountInfo endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/getAccountInfo
  */
-@objc(
-  FIRGetAccountInfoResponseProviderUserInfo
-) public class GetAccountInfoResponseProviderUserInfo: NSObject {
+@objc(FIRGetAccountInfoResponseProviderUserInfo)
+public class GetAccountInfoResponseProviderUserInfo: NSObject {
   /** @property providerID
    @brief The ID of the identity provider.
    */
@@ -60,7 +59,7 @@ private let kErrorKey = "error"
    @brief Designated initializer.
    @param dictionary The provider user info data from endpoint.
    */
-  init(dictionary: [String: Any]) {
+  @objc public init(dictionary: [String: Any]) {
     providerID = dictionary["providerId"] as? String
     displayName = dictionary["displayName"] as? String
     if let photoURL = dictionary["photoUrl"] as? String {

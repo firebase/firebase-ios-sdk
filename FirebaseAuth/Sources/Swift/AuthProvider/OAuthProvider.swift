@@ -95,7 +95,9 @@ import Foundation
       @return A `AuthCredential` for the specified provider ID, ID token and access token.
    */
   @objc(credentialWithProviderID:IDToken:accessToken:)
-  func credential(providerID: String, IDToken: String, accessToken: String?) -> OAuthCredential {
+  public static func credential(providerID: String,
+                                IDToken: String,
+                                accessToken: String?) -> OAuthCredential {
     return OAuthCredential(withProviderID: providerID, IDToken: IDToken, accessToken: accessToken)
   }
 
@@ -108,7 +110,8 @@ import Foundation
       @return An `AuthCredential`.
    */
   @objc(credentialWithProviderID:accessToken:)
-  func credential(providerID: String, accessToken: String) -> OAuthCredential {
+  public static func credential(providerID: String,
+                                accessToken: String) -> OAuthCredential {
     return OAuthCredential(withProviderID: providerID, accessToken: accessToken)
   }
 
