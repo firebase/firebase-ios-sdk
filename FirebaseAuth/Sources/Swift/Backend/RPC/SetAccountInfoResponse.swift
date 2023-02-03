@@ -18,9 +18,8 @@ import Foundation
     @brief Represents the provider user info part of the response from the setAccountInfo endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/setAccountInfo
  */
-@objc(
-  FIRSetAccountInfoResponseProviderUserInfo
-) public class SetAccountInfoResponseProviderUserInfo: NSObject {
+@objc(FIRSetAccountInfoResponseProviderUserInfo)
+public class SetAccountInfoResponseProviderUserInfo: NSObject {
   /** @property providerID
       @brief The ID of the identity provider.
    */

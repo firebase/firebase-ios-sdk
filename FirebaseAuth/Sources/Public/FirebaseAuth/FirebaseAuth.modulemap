@@ -1,0 +1,5 @@
+// TODO(ncooke3): Investigate if this file is necessary for the private
+// module map to work.
+framework module FirebaseAuth {
+    umbrella header "FirebaseAuth.h"
+}

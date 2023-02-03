@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-import FirebaseCoreInternal
+@_implementationOnly import FirebaseCoreInternal
 
 /** @class FIRAuthRequestConfiguration
    @brief Defines configurations to be added to a request to Firebase Auth's backend.
