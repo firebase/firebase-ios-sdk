@@ -23,7 +23,7 @@ import Foundation
     @objc override public init(proto: AuthProtoMFAEnrollment) {
       super.init(proto: proto)
       factorID = Self.FIRPhoneMultiFactorID
-      phoneNumber = proto.MFAValue
+      phoneNumber = proto.phoneInfo
     }
 
     @available(*, unavailable)

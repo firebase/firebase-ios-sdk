@@ -147,7 +147,7 @@ static NSString *kUserCodingKey = @"user";
   if (self) {
     NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfoArray = [[NSMutableArray alloc] init];
     for (FIRAuthProtoMFAEnrollment *MFAEnrollment in MFAEnrollments) {
-      if (MFAEnrollment.MFAValue) {
+      if (MFAEnrollment.phoneInfo) {
         FIRMultiFactorInfo *multiFactorInfo =
             [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
         [multiFactorInfoArray addObject:multiFactorInfo];
