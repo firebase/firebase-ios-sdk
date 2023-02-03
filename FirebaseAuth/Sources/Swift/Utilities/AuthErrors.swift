@@ -46,7 +46,8 @@ import Foundation
    associated with this key is an NSString of the email address of the account that already
    exists.
    */
-  @objc(FIRAuthErrorUserInfoEmailKey) static var AuthErrorUserInfoEmailKey: String =
+  @objc(FIRAuthErrorUserInfoEmailKey)
+  public static var AuthErrorUserInfoEmailKey: String =
     "FIRAuthErrorUserInfoEmailKey"
 
   /**
@@ -54,18 +55,16 @@ import Foundation
    NSError object returned. This is the updated auth credential the developer should use for
    recovery if applicable.
    */
-  @objc(
-    FIRAuthErrorUserInfoUpdatedCredentialKey
-  ) static var AuthErrorUserInfoUpdatedCredentialKey: String =
+  @objc(FIRAuthErrorUserInfoUpdatedCredentialKey)
+  public static var AuthErrorUserInfoUpdatedCredentialKey: String =
     "FIRAuthErrorUserInfoUpdatedCredentialKey"
 
   /**
    @brief The key used to read the MFA resolver from the userInfo dictionary of the NSError object
    returned when 2FA is required for sign-incompletion.
    */
-  @objc(
-    FIRAuthErrorUserInfoMultiFactorResolverKey
-  ) static var AuthErrorUserInfoMultiFactorResolverKey: String =
+  @objc(FIRAuthErrorUserInfoMultiFactorResolverKey)
+  static var AuthErrorUserInfoMultiFactorResolverKey: String =
     "FIRAuthErrorUserInfoMultiFactorResolverKey"
 }
 
