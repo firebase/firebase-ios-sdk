@@ -16,7 +16,7 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRMultiFactorResolver.h"
+#import <FirebaseAuth/FIRMultiFactorResolver.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

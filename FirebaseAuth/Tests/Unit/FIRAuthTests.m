@@ -27,8 +27,7 @@
 #import "FirebaseAuth/Sources/Auth/FIRAuthDispatcher.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
-#import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 @import FirebaseAuth;
 #import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
 #import "FirebaseAuth/Tests/Unit/FIRApp+FIRAuthUnitTests.h"
@@ -36,13 +35,11 @@
 
 #if TARGET_OS_IOS
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthUIDelegate.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthCredential.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"
 
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthURLPresenter.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthNotificationManager.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
 #endif  // TARGET_OS_IOS
 
 /** @var kAPIKey
@@ -1073,7 +1070,8 @@ static const NSTimeInterval kWaitInterval = .5;
   [[FIRAuth auth] signOut:NULL];
   id mockProvider = OCMClassMock([FIROAuthProvider class]);
   OCMExpect([mockProvider getCredentialWithUIDelegate:[OCMArg any] completion:[OCMArg any]])
-      .andCallBlock2(^(id<FIRAuthUIDelegate> delegate, FIRAuthCredentialCallback callback) {
+      .andCallBlock2(^(id<FIRAuthUIDelegate> delegate,
+                       void (^callback)(FIRAuthCredential *_Nullable, NSError *_Nullable)) {
         dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
           FIROAuthCredential *credential =
               [[FIROAuthCredential alloc] initWithProviderID:FIRGoogleAuthProvider.id
@@ -1106,7 +1104,8 @@ static const NSTimeInterval kWaitInterval = .5;
   [[FIRAuth auth] signOut:NULL];
   id mockProvider = OCMClassMock([FIROAuthProvider class]);
   OCMExpect([mockProvider getCredentialWithUIDelegate:[OCMArg any] completion:[OCMArg any]])
-      .andCallBlock2(^(id<FIRAuthUIDelegate> delegate, FIRAuthCredentialCallback callback) {
+      .andCallBlock2(^(id<FIRAuthUIDelegate> delegate,
+                       void (^callback)(FIRAuthCredential *_Nullable, NSError *_Nullable)) {
         dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
           FIROAuthCredential *credential =
               [[FIROAuthCredential alloc] initWithProviderID:FIRGoogleAuthProvider.id
@@ -1162,7 +1161,8 @@ static const NSTimeInterval kWaitInterval = .5;
                 completion:^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
                   XCTAssertTrue([NSThread isMainThread]);
                   XCTAssertEqual(error.code, FIRAuthErrorCodeAccountExistsWithDifferentCredential);
-                  XCTAssertEqualObjects(error.userInfo[FIRAuthErrorUserInfoEmailKey], kEmail);
+                  XCTAssertEqualObjects(error.userInfo[FIRAuthErrors.FIRAuthErrorUserInfoEmailKey],
+                                        kEmail);
                   [expectation fulfill];
                 }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
@@ -1238,7 +1238,8 @@ static const NSTimeInterval kWaitInterval = .5;
   [[FIRAuth auth] signOut:NULL];
   id mockProvider = OCMClassMock([FIROAuthProvider class]);
   OCMExpect([mockProvider getCredentialWithUIDelegate:[OCMArg any] completion:[OCMArg any]])
-      .andCallBlock2(^(id<FIRAuthUIDelegate> delegate, FIRAuthCredentialCallback callback) {
+      .andCallBlock2(^(id<FIRAuthUIDelegate> delegate,
+                       void (^callback)(FIRAuthCredential *_Nullable, NSError *_Nullable)) {
         dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
           FIROAuthCredential *credential =
               [[FIROAuthCredential alloc] initWithProviderID:FIRGoogleAuthProvider.id

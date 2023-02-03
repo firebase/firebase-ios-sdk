@@ -20,7 +20,7 @@ import Foundation
     @objc public var authCredential: PhoneAuthCredential?
 
     @objc public init() {
-      super.init(factorID: FIRPhoneMultiFactorID)
+      super.init(factorID: PhoneMultiFactorInfo.FIRPhoneMultiFactorID)
     }
   }
 

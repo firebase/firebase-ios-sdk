@@ -13,7 +13,13 @@
 // limitations under the License.
 
 import Foundation
-import FirebaseCore
+@_implementationOnly import FirebaseCore
+
+// When building for CocoaPods, non-public headers are exposed to Swift via a
+// private module map.
+#if COCOAPODS
+  @_implementationOnly import FirebaseAuth_Private
+#endif // COCOAPODS
 
 /**
  @brief A concrete implementation of `AuthProvider` for phone auth providers.
@@ -33,7 +39,8 @@ import FirebaseCore
         @brief Returns an instance of `PhoneAuthProvider` for the provided `Auth` object.
         @param auth The auth object to associate with the phone auth provider instance.
      */
-    @objc(providerWithAuth:) public class func provider(auth: Auth) -> PhoneAuthProvider {
+    @objc(providerWithAuth:)
+    public class func provider(auth: Auth) -> PhoneAuthProvider {
       return PhoneAuthProvider(auth: auth)
     }
 
@@ -108,19 +115,22 @@ import FirebaseCore
                                                  retryOnInvalidAppCredential: Bool,
                                                  UIDelegate: AuthUIDelegate,
                                                  callback: @escaping (String?, Error?) -> Void) {
-      if let settings = auth.settings,
-         settings.isAppVerificationDisabledForTesting {
-        let request = SendVerificationCodeRequest(
-          phoneNumber: phoneNumber,
-          appCredential: nil,
-          reCAPTCHAToken: nil,
-          requestConfiguration: auth.requestConfiguration
-        )
-        FIRAuthBackend.sendVerificationCode(request) { response, error in
-          callback(response?.verificationID, error)
-        }
-        return
-      }
+      // TODO(ncooke3): Uncomment below lines when `FIRAuthBackend` is
+      // written in Swift.
+//      if let settings = auth.settings,
+//         settings.isAppVerificationDisabledForTesting {
+//        let request = SendVerificationCodeRequest(
+//          phoneNumber: phoneNumber,
+//          appCredential: nil,
+//          reCAPTCHAToken: nil,
+//          requestConfiguration: auth.requestConfiguration
+//        )
+//
+//        FIRAuthBackend.sendVerificationCode(request) { response, error in
+//          callback(response?.verificationID, error)
+//        }
+//        return
+//      }
       // self.verifyClient(withUIDelegate ...
     }
 
@@ -264,6 +274,7 @@ import FirebaseCore
       if let queryItems = deepLinkComponents?.queryItems {
         return FIRAuthWebUtils.queryItemValue("recaptchaToken", from: queryItems)
       }
+      return nil
     }
 
 //  - (nullable NSString *)reCAPTCHATokenForURL:(NSURL *)URL error:(NSError **_Nonnull)error {
@@ -483,7 +494,7 @@ import FirebaseCore
             provided.
      */
     @objc(credentialWithVerificationID:verificationCode:)
-    func credential(verificationID: String, verificationCode: String) -> AuthCredential {
+    public func credential(verificationID: String, verificationCode: String) -> AuthCredential {
       return PhoneAuthCredential(withProviderID: PhoneAuthProvider.id,
                                  verificationID: verificationID,
                                  verificationCode: verificationCode)

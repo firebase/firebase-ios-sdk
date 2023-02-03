@@ -39,7 +39,8 @@ import Foundation
       return .init(IDToken: idToken)
     }
 
-    @objc public init(IDToken: String?) {
+    @objc public convenience init(IDToken: String?) {
+      self.init()
       self.IDToken = IDToken
     }
   }
