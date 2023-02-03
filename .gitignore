@@ -157,4 +157,4 @@ FirebaseAppCheck/Apps/AppCheckCustomProvideApp/AppCheckCustomProvideApp/GoogleSe
 /Example/FirestoreSample/firestore-debug.log
 
 # Private module map generation
-**/*.private.modulemap
+FirebaseAuth/Sources/FirebaseAuth.private.modulemap
