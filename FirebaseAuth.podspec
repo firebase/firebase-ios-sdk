@@ -45,7 +45,6 @@ supports email and password accounts, as well as several 3rd party authenticatio
     'FirebaseCore/Extension/*.h',
     'FirebaseAuth/Interop/*.h',
   ]
-  s.module_map = source + 'Public/FirebaseAuth/FirebaseAuth.modulemap'
   s.public_header_files = source + 'Public/FirebaseAuth/*.h'
 
   # All headers except the ones in the `Public` should be private.
