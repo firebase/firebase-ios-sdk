@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+@_implementationOnly import FirebaseCore
 
 private let kHttpsProtocol = "https:"
 private let kHttpProtocol = "http:"
@@ -67,9 +68,14 @@ private let kIdentityPlatformStagingAPIHost =
 
     // Automatically set the tenant ID. If the request is initialized before FIRAuth is configured,
     // set tenant ID to nil.
-    tenantID = Auth.auth().tenantID
+    if FirebaseApp.app() == nil {
+      tenantID = nil
+    } else {
+      tenantID = Auth.auth().tenantID
+    }
   }
 
+  // TODO: Is there a way to share code between two designated intializers?
   @objc public init(endpoint: String, requestConfiguration: AuthRequestConfiguration,
                     useIdentityPlatform: Bool, useStaging: Bool) {
     self.endpoint = endpoint
@@ -80,7 +86,11 @@ private let kIdentityPlatformStagingAPIHost =
 
     // Automatically set the tenant ID. If the request is initialized before FIRAuth is configured,
     // set tenant ID to nil.
-    tenantID = Auth.auth().tenantID
+    if FirebaseApp.app() == nil {
+      tenantID = nil
+    } else {
+      tenantID = Auth.auth().tenantID
+    }
   }
 
   @objc public func containsPostBody() -> Bool {
