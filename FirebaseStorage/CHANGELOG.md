@@ -1,3 +1,7 @@
+# Unreleased
+- [unchanged] Please update `GTMSessionFetcher` to version `3.1.0` to fix an issue where if FirebaseStorage returns a 500 response, it may 
+attempt to infinitely retry the same request.
+
 # 10.5.0
 - [added] Added Storage API to limit upload chunk size. (#10137)
 
