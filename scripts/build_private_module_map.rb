@@ -75,7 +75,6 @@ def main(args)
     else
         # Overwrite the private module map with the generated contents.
         File.write(
-            # TODO(ncooke3): See if you can throw it in the public headers directory?
             "#{spec.module_name}/Sources/#{spec.module_name}.private.modulemap",
             private_module_map_contents
         )
