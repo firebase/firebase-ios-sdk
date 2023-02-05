@@ -39,7 +39,7 @@ private let kIDTokenKey = "idToken"
   /** @fn initWithEndpoint:requestConfiguration:requestConfiguration
       @brief Please use initWithAccessToken:requestConfiguration: instead.
    */
-  override init(endpoint: String, requestConfiguration: AuthRequestConfiguration) {
+  init(endpoint: String, requestConfiguration: AuthRequestConfiguration) {
     fatalError("-")
   }
 

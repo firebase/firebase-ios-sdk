@@ -41,8 +41,8 @@ public class VerifyClientRequest: IdentityToolkitRequest, AuthRPCRequest {
   @objc public private(set) var isSandbox: Bool
 
   // TODO(ncooke3): This API should be unneccessary...
-  @objc override public init(endpoint: String,
-                             requestConfiguration: AuthRequestConfiguration) {
+  @objc public init(endpoint: String,
+                    requestConfiguration: AuthRequestConfiguration) {
     fatalError("-")
   }
 

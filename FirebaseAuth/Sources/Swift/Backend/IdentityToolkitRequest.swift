@@ -54,30 +54,8 @@ private let kIdentityPlatformStagingAPIHost =
 
   let _useStaging: Bool
 
-  /** @fn initWithEndpoint:APIKey:
-   @brief Designated initializer.
-   @param endpoint The endpoint name.
-   @param requestConfiguration An object containing configurations to be added to the request.
-   */
-  @objc public init(endpoint: String, requestConfiguration: AuthRequestConfiguration) {
-    self.endpoint = endpoint
-    APIKey = requestConfiguration.APIKey
-    _requestConfiguration = requestConfiguration
-    _useIdentityPlatform = false
-    _useStaging = false
-
-    // Automatically set the tenant ID. If the request is initialized before FIRAuth is configured,
-    // set tenant ID to nil.
-    if FirebaseApp.app() == nil {
-      tenantID = nil
-    } else {
-      tenantID = Auth.auth().tenantID
-    }
-  }
-
-  // TODO: Is there a way to share code between two designated intializers?
   @objc public init(endpoint: String, requestConfiguration: AuthRequestConfiguration,
-                    useIdentityPlatform: Bool, useStaging: Bool) {
+                    useIdentityPlatform: Bool = false, useStaging: Bool = false) {
     self.endpoint = endpoint
     APIKey = requestConfiguration.APIKey
     _requestConfiguration = requestConfiguration
