@@ -62,6 +62,8 @@ private let kIdentityPlatformStagingAPIHost =
     _useIdentityPlatform = useIdentityPlatform
     _useStaging = useStaging
 
+    // TODO: tenantID should be set via a parameter, since it might not be the default app (#10748)
+    // TODO: remove FirebaseCore import when #10748 is fixed.
     // Automatically set the tenant ID. If the request is initialized before FIRAuth is configured,
     // set tenant ID to nil.
     if FirebaseApp.app() == nil {
