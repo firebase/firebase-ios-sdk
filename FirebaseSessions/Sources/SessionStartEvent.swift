@@ -126,10 +126,11 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     var error: NSError?
     let data = FIRSESEncodeProto(&fields.0, &proto, &error)
     if error != nil {
-      Logger.logError(error.debugDescription)
+      Logger
+        .logError("Session Event failed to encode as proto with error: \(error.debugDescription)")
     }
     guard let data = data else {
-      Logger.logError("Session event generated nil transportBytes. Returning empty data.")
+      Logger.logError("Session Event generated nil transportBytes. Returning empty data.")
       return Data()
     }
     return data
@@ -193,7 +194,7 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     if !pb_decode(&istream, &fields.0, &proto) {
       let errorMessage = FIRSESPBGetError(istream)
       if errorMessage.count > 0 {
-        Logger.logInfo("Failed to decode transportBytes: \(errorMessage)")
+        Logger.logError("Session Event failed to decode transportBytes: \(errorMessage)")
       }
     }
     return proto
