@@ -36,13 +36,6 @@ private let kIDTokenKey = "idToken"
    */
   @objc public let accessToken: String
 
-  /** @fn initWithEndpoint:requestConfiguration:requestConfiguration
-      @brief Please use initWithAccessToken:requestConfiguration: instead.
-   */
-  override init(endpoint: String, requestConfiguration: AuthRequestConfiguration) {
-    fatalError("-")
-  }
-
   /** @fn initWithAccessToken:requestConfiguration
       @brief Designated initializer.
       @param accessToken The Access Token of the authenticated user.
