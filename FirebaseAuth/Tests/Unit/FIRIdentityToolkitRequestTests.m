@@ -55,7 +55,9 @@ static NSString *const kEmulatorHostAndPort = @"emulatorhost:12345";
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID];
   FIRIdentityToolkitRequest *request =
       [[FIRIdentityToolkitRequest alloc] initWithEndpoint:kEndpoint
-                                     requestConfiguration:requestConfiguration];
+                                     requestConfiguration:requestConfiguration
+                                      useIdentityPlatform:NO
+                                               useStaging:NO];
   NSString *expectedURL = [NSString
       stringWithFormat:@"https://www.googleapis.com/identitytoolkit/v3/relyingparty/%@?key=%@",
                        kEndpoint, kAPIKey];
@@ -130,7 +132,9 @@ static NSString *const kEmulatorHostAndPort = @"emulatorhost:12345";
   requestConfiguration.emulatorHostAndPort = kEmulatorHostAndPort;
   FIRIdentityToolkitRequest *request =
       [[FIRIdentityToolkitRequest alloc] initWithEndpoint:kEndpoint
-                                     requestConfiguration:requestConfiguration];
+                                     requestConfiguration:requestConfiguration
+                                      useIdentityPlatform:NO
+                                               useStaging:NO];
   NSString *expectedURL = [NSString
       stringWithFormat:@"http://%@/www.googleapis.com/identitytoolkit/v3/relyingparty/%@?key=%@",
                        kEmulatorHostAndPort, kEndpoint, kAPIKey];

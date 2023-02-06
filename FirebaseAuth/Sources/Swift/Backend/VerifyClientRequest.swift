@@ -40,12 +40,6 @@ public class VerifyClientRequest: IdentityToolkitRequest, AuthRPCRequest {
   /// The flag that denotes if the appToken  pertains to Sandbox or Production.
   @objc public private(set) var isSandbox: Bool
 
-  // TODO(ncooke3): This API should be unneccessary...
-  @objc override public init(endpoint: String,
-                             requestConfiguration: AuthRequestConfiguration) {
-    fatalError("-")
-  }
-
   @objc public init(withAppToken: String?,
                     isSandbox: Bool,
                     requestConfiguration: AuthRequestConfiguration) {
