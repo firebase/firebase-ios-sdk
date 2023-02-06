@@ -39,15 +39,16 @@ struct SessionInfo {
 ///
 class SessionGenerator {
   private var thisSession: SessionInfo?
-  private var settings: SettingsProtocol
 
   private var firstSessionId = ""
   private var sessionIndex: Int32
+  private var collectEvents: Bool
 
-  init(settings: SettingsProtocol) {
-    self.settings = settings
+  init(collectEvents: Bool) {
     // This will be incremented to 0 on the first generation
     sessionIndex = -1
+
+    self.collectEvents = collectEvents
   }
 
   // Generates a new Session ID. If there was already a generated Session ID
@@ -60,12 +61,6 @@ class SessionGenerator {
     firstSessionId = firstSessionId.isEmpty ? newSessionId : firstSessionId
 
     sessionIndex += 1
-
-    var collectEvents = true
-    let randomValue = Double.random(in: 0 ... 1)
-    if randomValue > settings.samplingRate {
-      collectEvents = false
-    }
 
     let newSession = SessionInfo(sessionId: newSessionId,
                                  firstSessionId: firstSessionId,
