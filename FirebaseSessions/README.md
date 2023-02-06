@@ -35,7 +35,7 @@ You can access command line parameters by following: Press `CMD-Shift-,` => Run 
 You can override the Settings values fetched from the server using the app's Info.plist. The full list of override plist keys can be found in `LocalOverrideSettings.swift`.
 
  - **FirebaseSessionsEnabled**: Bool representing whether to send Session Events (does not affect Settings requests). We would recommend apps against using this to disable data collection, and instead disable it via products' public data collection APIs.
-     - If any apps use this flag to disable the Firebase Sessions SDK, keep in mind this may break future features with products like FirePerf and Crashlytics. 
+     - If any apps use this flag to disable the Firebase Sessions SDK, keep in mind this may break future metrics features with products like FirePerf and Crashlytics.
      - This flag is internal and may break in a future version of FirebaseSessions
  - **FirebaseSessionsTimeout**: Float number of seconds representing the time that an app must be backgrounded before generating a new session
  - **FirebaseSessionsSampingRate**: Float between 0 and 1 representing how often events are sent. 0 is drop everything, 1 is send everything.

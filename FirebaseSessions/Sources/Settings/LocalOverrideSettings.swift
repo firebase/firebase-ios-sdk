@@ -19,7 +19,7 @@ import Foundation
 class LocalOverrideSettings: SettingsProvider {
   // This will disable Sessions SDK Events, but not Settings requests.
   // If any apps use this flag to disable the Firebase Sessions SDK,
-  // keep in mind this may break future features with products like
+  // keep in mind this may break metrics future features with products like
   // FirePerf and Crashlytics. As a result, we would recommend apps
   // use another way to disable data collection (like disabling it via
   // the product public data collection APIs themselves).
