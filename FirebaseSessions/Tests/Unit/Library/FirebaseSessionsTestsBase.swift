@@ -97,7 +97,7 @@ class FirebaseSessionsTestsBase: XCTestCase {
     preSessionsInit(mockSettings)
 
     generator = SessionGenerator(collectEvents: Sessions
-      .calculateCollectEvents(settings: mockSettings))
+      .shouldCollectEvents(settings: mockSettings))
     initiator = SessionInitiator(settings: mockSettings, currentTimeProvider: {
       self.pausedClock
     })

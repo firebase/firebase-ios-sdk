@@ -54,7 +54,7 @@ class SessionGeneratorTests: XCTestCase {
       remoteSettings: remoteSettings
     )
     generator = SessionGenerator(collectEvents: Sessions
-      .calculateCollectEvents(settings: sessionSettings))
+      .shouldCollectEvents(settings: sessionSettings))
   }
 
   func isValidSessionID(_ sessionID: String) -> Bool {
@@ -141,7 +141,7 @@ class SessionGeneratorTests: XCTestCase {
 
     // Rebuild the SessionGenerator with the new settings
     generator = SessionGenerator(collectEvents: Sessions
-      .calculateCollectEvents(settings: sessionSettings))
+      .shouldCollectEvents(settings: sessionSettings))
 
     let sessionInfo = generator.generateNewSession()
     XCTAssertTrue(sessionInfo.shouldDispatchEvents)
@@ -170,7 +170,7 @@ class SessionGeneratorTests: XCTestCase {
 
     // Rebuild the SessionGenerator with the new settings
     generator = SessionGenerator(collectEvents: Sessions
-      .calculateCollectEvents(settings: sessionSettings))
+      .shouldCollectEvents(settings: sessionSettings))
 
     let sessionInfo = generator.generateNewSession()
     XCTAssertFalse(sessionInfo.shouldDispatchEvents)
@@ -182,7 +182,7 @@ class SessionGeneratorTests: XCTestCase {
 
     // Rebuild the SessionGenerator with the new settings
     generator = SessionGenerator(collectEvents: Sessions
-      .calculateCollectEvents(settings: mockSettings))
+      .shouldCollectEvents(settings: mockSettings))
 
     let sessionInfo = generator.generateNewSession()
     XCTAssertFalse(sessionInfo.shouldDispatchEvents)
