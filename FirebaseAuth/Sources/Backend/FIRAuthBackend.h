@@ -222,8 +222,8 @@ typedef void (^FIRVerifyPhoneNumberResponseCallback)(
 typedef void (^FIRVerifyClientResponseCallback)(FIRVerifyClientResponse *_Nullable response,
                                                 NSError *_Nullable error);
 
-/** @typedef FIRVerifyClientResponseCallback
-    @brief The type of block used to return the result of a call to the verifyClient endpoint.
+/** @typedef FIRRevokeTokenResponseCallback
+    @brief The type of block used to return the result of a call to the revokeToken endpoint.
     @param response The received response, if any.
     @param error The error which occurred, if any.
     @remarks One of response or error will be non-nil.
@@ -602,9 +602,9 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
 
 #endif
 
-/** @fn verifyClient:callback:
-    @brief Calls the verifyClient endpoint, which is responsible for sending the silent push
-        notification used for app validation to the device provided in the request parameters.
+/** @fn revokeToken:callback:
+    @brief Calls the revokeToken endpoint, which is responsible for revoking the given token
+        provided in the request parameters.
     @param request The request parameters.
     @param callback The callback.
  */
