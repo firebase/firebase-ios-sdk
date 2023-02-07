@@ -53,9 +53,9 @@ Pod::Spec.new do |s|
     cp -f ./Crashlytics/upload-symbols ./upload-symbols
   PREPARE_COMMAND_END
 
-  s.dependency 'FirebaseCore', '~> 10.0'
+  s.dependency 'FirebaseCore', '~> 10.5'
   s.dependency 'FirebaseInstallations', '~> 10.0'
-  s.dependency 'FirebaseSessions', '~> 10.0'
+  s.dependency 'FirebaseSessions', '~> 10.5'
   s.dependency 'PromisesObjC', '~> 2.1'
   s.dependency 'GoogleDataTransport', '~> 9.2'
   s.dependency 'GoogleUtilities/Environment', '~> 7.8'
