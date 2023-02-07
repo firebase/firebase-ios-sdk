@@ -94,9 +94,9 @@ extension firebase_appquality_sessions_LogEnvironment: CustomStringConvertible {
     case firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_STAGING:
       return "STAGING"
     case firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_AUTOPUSH:
-      return "Autopush"
+      return "AUTOPUSH"
     case firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_UNKNOWN:
-      return "Unknown"
+      return "UNKNOWN"
     default:
       return "Unrecognized LogEnvironment. Please update the firebase_appquality_sessions_LogEnvironment CustomStringConvertible extension"
     }
