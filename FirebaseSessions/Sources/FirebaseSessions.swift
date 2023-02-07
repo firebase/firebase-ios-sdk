@@ -181,6 +181,7 @@ private enum GoogleDataTransportConfig {
         self.settings.updateSettings()
 
         self.addSubscriberFields(event: event)
+        event.setSamplingRate(samplingRate: self.settings.samplingRate)
 
         guard sessionInfo.shouldDispatchEvents else {
           loggedEventCallback(.failure(.SessionSamplingError))
