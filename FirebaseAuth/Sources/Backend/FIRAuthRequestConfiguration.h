@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #import "FirebaseAuth/Sources/Backend/FIRAuthRPCRequest.h"
+#import "FirebaseAppCheck/Interop/FirAppCheckInterop.h"
 
 @protocol FIRHeartbeatLoggerProtocol;
 
@@ -41,6 +42,10 @@ NS_ASSUME_NONNULL_BEGIN
     @brief The heartbeat logger used to add heartbeats to the corresponding request's header.
  */
 @property(nonatomic, copy, nullable) id<FIRHeartbeatLoggerProtocol> heartbeatLogger;
+/** @property appcheck
+    @brief The appcheck is used to .
+ */
+@property(nonatomic, copy, nullable) id<FIRAppCheckInterop> appcheck;
 
 /** @property LanguageCode
     @brief The language code used in the request.
@@ -76,6 +81,19 @@ NS_ASSUME_NONNULL_BEGIN
                                   appID:(NSString *)appID
                         heartbeatLogger:(nullable id<FIRHeartbeatLoggerProtocol>)heartbeatLogger
     NS_DESIGNATED_INITIALIZER;
+
+/** @fn initWithAPIKey:appID:heartbeatLogger:
+    @brief Designated initializer.
+    @param APIKey The API key to be used in the request.
+    @param appID The Firebase app ID to be passed in the request header.
+    @param heartbeatLogger The heartbeat logger used to add heartbeats to the request header.
+ */
+- (nullable instancetype)initWithAPIKey:(NSString *)APIKey
+                                  appID:(NSString *)appID
+                        heartbeatLogger:(nullable id<FIRHeartbeatLoggerProtocol>)heartbeatLogger
+                               appcheck:(nullable id<FIRAppCheckInterop>)appcheck
+    NS_DESIGNATED_INITIALIZER;
+
 
 @end
 

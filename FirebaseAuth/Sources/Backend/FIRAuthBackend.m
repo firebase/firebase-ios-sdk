@@ -69,6 +69,8 @@
 
 #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorInfo+Internal.h"
+#import "FirebaseAppCheck/Interop/FirAppCheckInterop.h"
+#import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -615,9 +617,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                                     GTMFetcherStandardUserAgentString(nil)];
 }
 
-+ (NSMutableURLRequest *)requestWithURL:(NSURL *)URL
++ (void)requestWithURL:(NSURL *)URL
                             contentType:(NSString *)contentType
-                   requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+                   requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                       completionHandler:(void (^)(NSMutableURLRequest *_Nullable))completionHandler {
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
   [request setValue:contentType forHTTPHeaderField:@"Content-Type"];
   NSString *additionalFrameworkMarker =
@@ -641,7 +644,14 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   if (languageCode.length) {
     [request setValue:languageCode forHTTPHeaderField:kFirebaseLocalHeader];
   }
-  return request;
+  if (requestConfiguration.appcheck) {
+      [requestConfiguration.appcheck getTokenForcingRefresh:false completion:^(id<FIRAppCheckTokenResultInterop>  _Nonnull tokenResult) {
+          [request setValue:tokenResult.token forHTTPHeaderField: @"X-Firebase-AppCheck"];
+          completionHandler(request);
+      }];
+  } else{
+      completionHandler(request);
+  }
 }
 
 @end
@@ -675,17 +685,19 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                                    contentType:(NSString *)contentType
                              completionHandler:
                                  (void (^)(NSData *_Nullable, NSError *_Nullable))handler {
-  NSMutableURLRequest *request = [FIRAuthBackend requestWithURL:URL
-                                                    contentType:contentType
-                                           requestConfiguration:requestConfiguration];
-  GTMSessionFetcher *fetcher = [_fetcherService fetcherWithRequest:request];
-  NSString *emulatorHostAndPort = requestConfiguration.emulatorHostAndPort;
-  if (emulatorHostAndPort) {
-    fetcher.allowLocalhostRequest = YES;
-    fetcher.allowedInsecureSchemes = @[ @"http" ];
-  }
-  fetcher.bodyData = body;
-  [fetcher beginFetchWithCompletionHandler:handler];
+  [FIRAuthBackend requestWithURL:URL
+                     contentType:contentType
+            requestConfiguration:requestConfiguration
+                completionHandler: ^(NSMutableURLRequest* request) {
+      GTMSessionFetcher *fetcher = [self->_fetcherService fetcherWithRequest:request];
+      NSString *emulatorHostAndPort = requestConfiguration.emulatorHostAndPort;
+      if (emulatorHostAndPort) {
+        fetcher.allowLocalhostRequest = YES;
+        fetcher.allowedInsecureSchemes = @[ @"http" ];
+      }
+      fetcher.bodyData = body;
+      [fetcher beginFetchWithCompletionHandler:handler];
+  }];
 }
 
 @end

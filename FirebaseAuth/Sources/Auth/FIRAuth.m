@@ -77,6 +77,7 @@
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthNotificationManager.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
+#import "FirebaseAppCheck/Interop/FirAppCheckInterop.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -357,10 +358,12 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 @property(nonatomic, strong, nullable) FIRAuthStoredUserManager *storedUserManager;
 
 /** @fn initWithApp:
-    @brief Creates a @c FIRAuth instance associated with the provided @c FIRApp instance.
+    @brief Creates a @c FIRAuth instance associated with the provided @c FIRApp instance and AppCheck Interop.
     @param app The application to associate the auth instance with.
+    @param appCheck The AppCheck Interop.
  */
-- (instancetype)initWithApp:(FIRApp *)app;
+- (instancetype)initWithApp:(FIRApp *)app
+                   appCheck: (nullable id<FIRAppCheckInterop>)appCheck;
 
 @end
 
@@ -457,7 +460,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   return (FIRAuth *)auth;
 }
 
-- (instancetype)initWithApp:(FIRApp *)app {
+- (instancetype)initWithApp:(FIRApp *)app
+                   appCheck: (nullable id<FIRAppCheckInterop>)appCheck{
   [FIRAuth setKeychainServiceNameForApp:app];
   self = [self initWithAPIKey:app.options.APIKey
                       appName:app.name
@@ -2175,13 +2179,17 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   FIRComponentCreationBlock authCreationBlock =
       ^id _Nullable(FIRComponentContainer *_Nonnull container, BOOL *_Nonnull isCacheable) {
     *isCacheable = YES;
-    return [[FIRAuth alloc] initWithApp:container.app];
+    id<FIRAppCheckInterop> appCheckInterop = FIR_COMPONENT(FIRAppCheckInterop, container);
+        
+    return [[FIRAuth alloc] initWithApp:container.app
+                               appCheck:appCheckInterop];
   };
+    
   FIRComponent *authInterop = [FIRComponent componentWithProtocol:@protocol(FIRAuthInterop)
                                               instantiationTiming:FIRInstantiationTimingAlwaysEager
                                                      dependencies:@[]
                                                     creationBlock:authCreationBlock];
-  return @[ authInterop ];
+    return @[ authInterop ];
 }
 
 #pragma mark - FIRComponentLifecycleMaintainer
