@@ -1,3 +1,6 @@
+# Unreleased
+- [added] Added dependency on Firebase Sessions SDK to power future metrics and debugging features in Crashlytics
+
 # 10.4.0
 - [added] Updated Crashlytics to include the Firebase Installation ID for consistency with other products (#10645).
 

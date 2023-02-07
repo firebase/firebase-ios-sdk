@@ -16,16 +16,30 @@
 
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager+Private.h"
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
-
-#import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
+#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
+#import "FirebasePerformance/Sources/Gauges/FPRGaugeManager+Private.h"
 
 #import <OCMock/OCMock.h>
 
+NSString *const testSessionId = @"testSessionId";
+
 @interface FPRSessionManagerTest : XCTestCase
+
+@property FPRSessionManager *instance;
+
+@property FPRGaugeManager *gaugeManager;
 
 @end
 
 @implementation FPRSessionManagerTest
+
+- (void)setUp {
+  [super setUp];
+  NSNotificationCenter *notificationCenter = [[NSNotificationCenter alloc] init];
+  _gaugeManager = [[FPRGaugeManager alloc] initWithGauges:FPRGaugeCPU | FPRGaugeMemory];
+  _instance = [[FPRSessionManager alloc] initWithGaugeManager:_gaugeManager
+                                           notificationCenter:notificationCenter];
+}
 
 /** Validate the instance gets created and it is a singleton. */
 - (void)testInstanceCreation {
@@ -34,74 +48,77 @@
   XCTAssertEqual(instance, [FPRSessionManager sharedInstance]);
 }
 
-/** Validate that valid sessionId always exists. */
-- (void)testSessionIdExistance {
-  FPRSessionManager *instance = [FPRSessionManager sharedInstance];
-  [instance startTrackingAppStateChanges];
+/** Validate that gauge collection does not change when calling renew method immediately. */
+- (void)testGaugeDoesNotStopBeforeMaxDuration {
+  FPRSessionManager *manager =
+      [[FPRSessionManager alloc] initWithGaugeManager:self.gaugeManager
+                                   notificationCenter:[NSNotificationCenter defaultCenter]];
+  id mockInstance = [OCMockObject partialMockForObject:[FPRConfigurations sharedInstance]];
+  OCMStub([mockInstance sessionsSamplingPercentage]).andReturn(100);
+  [manager updateSessionId:testSessionId];
+  XCTAssertTrue(manager.gaugeManager.activeGauges > 0);
 
-  NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-  [notificationCenter postNotificationName:UIApplicationWillEnterForegroundNotification
-                                    object:[UIApplication sharedApplication]];
+  OCMStub([mockInstance maxSessionLengthInMinutes]).andReturn(5);
+  XCTAssertTrue(manager.gaugeManager.activeGauges > 0);
 
-  XCTAssertNotNil(instance.sessionDetails.sessionId);
-
-  NSString *lowercaseSessionId = [instance.sessionDetails.sessionId lowercaseString];
-  XCTAssertEqualObjects(lowercaseSessionId, instance.sessionDetails.sessionId);
+  [mockInstance stopMocking];
 }
 
-/** Validate that sessionId does not change when calling renew method immediately. */
-- (void)testSessionIdNotGettingRenewed {
-  FPRSessionManager *instance = [FPRSessionManager sharedInstance];
-  [instance startTrackingAppStateChanges];
-  NSString *sessionId = instance.sessionDetails.sessionId;
-  [instance renewSessionIdIfRunningTooLong];
-  XCTAssertEqualObjects(sessionId, instance.sessionDetails.sessionId);
+/** Validate that gauge collection stops when calling renew method after max duration reached. */
+- (void)testGaugeStopsAfterMaxDuration {
+  FPRSessionManager *manager =
+      [[FPRSessionManager alloc] initWithGaugeManager:self.gaugeManager
+                                   notificationCenter:[NSNotificationCenter defaultCenter]];
+  id mockInstance = [OCMockObject partialMockForObject:[FPRConfigurations sharedInstance]];
+  OCMStub([mockInstance sessionsSamplingPercentage]).andReturn(100);
+  [manager updateSessionId:testSessionId];
+  XCTAssertTrue(manager.gaugeManager.activeGauges > 0);
+
+  XCTAssertEqual(manager.sessionDetails.options & FPRSessionOptionsGauges, FPRSessionOptionsGauges);
+  OCMStub([mockInstance maxSessionLengthInMinutes]).andReturn(0);
+  [manager stopGaugesIfRunningTooLong];
+  XCTAssertEqual(manager.gaugeManager.activeGauges, 0);
+
+  [mockInstance stopMocking];
 }
 
-/** Validate that sessionId changes on application state changes. */
-- (void)testSessionIdUpdation {
-  FPRSessionManager *instance = [FPRSessionManager sharedInstance];
-  [instance startTrackingAppStateChanges];
-  NSString *sessionId = instance.sessionDetails.sessionId;
-  NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-  [notificationCenter postNotificationName:UIApplicationWillEnterForegroundNotification
-                                    object:[UIApplication sharedApplication]];
-  XCTAssertNotEqual(sessionId, instance.sessionDetails.sessionId);
+/** Validate that sessionId changes on new session. */
+- (void)testUpdateSessionId {
+  [self.instance updateSessionId:testSessionId];
+  NSString *sessionId = self.instance.sessionDetails.sessionId;
+  [self.instance updateSessionId:@"testSessionId2"];
+  XCTAssertNotEqual(sessionId, self.instance.sessionDetails.sessionId);
 }
 
 /** Validate that sessionId changes sends notifications. */
-- (void)testSessionIdUpdationThrowsNotification {
-  FPRSessionManager *instance = [FPRSessionManager sharedInstance];
-  [instance startTrackingAppStateChanges];
-  NSString *sessionId = instance.sessionDetails.sessionId;
+- (void)testUpdateSessionIdPostsNotification {
+  [self.instance updateSessionId:testSessionId];
+  NSString *sessionId = self.instance.sessionDetails.sessionId;
 
   __block BOOL receivedNotification = NO;
-  [instance.sessionNotificationCenter addObserverForName:kFPRSessionIdUpdatedNotification
-                                                  object:instance
-                                                   queue:[NSOperationQueue mainQueue]
-                                              usingBlock:^(NSNotification *note) {
-                                                receivedNotification = YES;
-                                              }];
+  [self.instance.sessionNotificationCenter addObserverForName:kFPRSessionIdUpdatedNotification
+                                                       object:self.instance
+                                                        queue:[NSOperationQueue mainQueue]
+                                                   usingBlock:^(NSNotification *note) {
+                                                     receivedNotification = YES;
+                                                   }];
 
-  NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-  [notificationCenter postNotificationName:UIApplicationWillEnterForegroundNotification
-                                    object:[UIApplication sharedApplication]];
+  [self.instance updateSessionId:@"testSessionId2"];
 
   XCTAssertTrue(receivedNotification);
-  XCTAssertNotEqual(sessionId, instance.sessionDetails.sessionId);
+  XCTAssertNotEqual(sessionId, self.instance.sessionDetails.sessionId);
 }
 
 /** Validate that sessionId changes sends notifications with the session details. */
-- (void)testSessionIdUpdationSendsNotificationWithSessionDetails {
-  FPRSessionManager *instance = [FPRSessionManager sharedInstance];
-  [instance startTrackingAppStateChanges];
-  NSString *sessionId = instance.sessionDetails.sessionId;
+- (void)testUpdateSessionIdPostsNotificationWithSessionDetails {
+  [self.instance updateSessionId:testSessionId];
+  NSString *sessionId = self.instance.sessionDetails.sessionId;
 
   __block BOOL containsSessionDetails = NO;
   __block FPRSessionDetails *updatedSessionDetails = nil;
-  [instance.sessionNotificationCenter
+  [self.instance.sessionNotificationCenter
       addObserverForName:kFPRSessionIdUpdatedNotification
-                  object:instance
+                  object:self.instance
                    queue:[NSOperationQueue mainQueue]
               usingBlock:^(NSNotification *note) {
                 NSDictionary<NSString *, FPRSessionDetails *> *userInfo = note.userInfo;
@@ -113,13 +130,11 @@
                 }
               }];
 
-  NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-  [notificationCenter postNotificationName:UIApplicationWillEnterForegroundNotification
-                                    object:[UIApplication sharedApplication]];
+  [self.instance updateSessionId:@"testSessionId2"];
 
   XCTAssertTrue(containsSessionDetails);
-  XCTAssertNotEqual(sessionId, instance.sessionDetails.sessionId);
-  XCTAssertEqual(updatedSessionDetails.sessionId, instance.sessionDetails.sessionId);
+  XCTAssertNotEqual(sessionId, self.instance.sessionDetails.sessionId);
+  XCTAssertEqual(updatedSessionDetails.sessionId, self.instance.sessionDetails.sessionId);
 }
 
 @end
