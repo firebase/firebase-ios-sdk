@@ -28,6 +28,7 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FirebaseAuth.h"
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
+#import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthDispatcher.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
@@ -69,7 +70,6 @@
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
-#import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
 
 #if TARGET_OS_IOS
 #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
