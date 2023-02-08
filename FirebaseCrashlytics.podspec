@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
   s.authors          = 'Google, Inc.'
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => 'CocoaPods-' + s.version.to_s
+    :tag => 'CocoaPods-10.5.0.nightly'
   }
 
   ios_deployment_target = '11.0'
@@ -21,7 +21,7 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
   s.tvos.deployment_target = tvos_deployment_target
-  s.watchos.deployment_target = watchos_deployment_target
+  # s.watchos.deployment_target = watchos_deployment_target
 
   s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false

@@ -13,7 +13,7 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => 'CocoaPods-' + s.version.to_s
+    :tag => 'CocoaPods-10.5.0.nightly'
   }
   s.social_media_url = 'https://twitter.com/Firebase'
 
@@ -69,53 +69,53 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.8'
   s.dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
 
-  s.test_spec 'unit' do |unit_tests|
-    unit_tests.platforms = {:ios => ios_deployment_target, :tvos => tvos_deployment_target}
-    unit_tests.scheme = { :code_coverage => true }
-    unit_tests.source_files = [
-      'FirebasePerformance/Tests/Unit/**/*.{m,h,plist}',
-      'SharedTestUtilities/*.[hm]',
-    ]
-    unit_tests.resources = ['FirebasePerformance/Tests/Unit/Server/*File']
-    unit_tests.requires_arc = true
-    unit_tests.requires_app_host = true
-    unit_tests.pod_target_xcconfig = {
-     'CLANG_ENABLE_OBJC_WEAK' => 'YES',
-    }
-    unit_tests.info_plist = {
-      'FPRTestingDummyFeature' => true,
-      'FPRScreenTracesForContainerVC' => true,
-      'FPRDelegateSwizzling' => true,
-      'FPRNSURLConnection' => true,
-      'FPRScreenTracesSwizzling' => true,
-      'FPRScreenTraces' => false,
-    }
+  # s.test_spec 'unit' do |unit_tests|
+    # unit_tests.platforms = {:ios => ios_deployment_target, :tvos => tvos_deployment_target}
+    # unit_tests.scheme = { :code_coverage => true }
+    # unit_tests.source_files = [
+    #   'FirebasePerformance/Tests/Unit/**/*.{m,h,plist}',
+    #   'SharedTestUtilities/*.[hm]',
+    # ]
+    # unit_tests.resources = ['FirebasePerformance/Tests/Unit/Server/*File']
+    # unit_tests.requires_arc = true
+    # unit_tests.requires_app_host = true
+    # unit_tests.pod_target_xcconfig = {
+    #  'CLANG_ENABLE_OBJC_WEAK' => 'YES',
+    # }
+    # unit_tests.info_plist = {
+    #   'FPRTestingDummyFeature' => true,
+    #   'FPRScreenTracesForContainerVC' => true,
+    #   'FPRDelegateSwizzling' => true,
+    #   'FPRNSURLConnection' => true,
+    #   'FPRScreenTracesSwizzling' => true,
+    #   'FPRScreenTraces' => false,
+    # }
 
-    unit_tests.dependency 'GoogleUtilities/SwizzlerTestHelpers'
-    unit_tests.dependency 'OCMock'
-    unit_tests.dependency 'GCDWebServer'
-  end
+    # unit_tests.dependency 'GoogleUtilities/SwizzlerTestHelpers'
+    # unit_tests.dependency 'OCMock'
+    # unit_tests.dependency 'GCDWebServer'
+  # end
 
-  s.app_spec 'TestApp' do |app_spec|
-    app_spec.platforms = {:ios => ios_deployment_target, :tvos => tvos_deployment_target}
-    app_spec.source_files = ['FirebasePerformance/Tests/TestApp/Source/**/*.{m,h}']
-    ios_resources = ['FirebasePerformance/Tests/TestApp/Resources/*.*']
-    if ENV['FPR_AUTOPUSH_ENV'] && ENV['FPR_AUTOPUSH_ENV'] == '1' then
-      ios_resources += ['FirebasePerformance/Tests/TestApp/Plists/Autopush/**/*.plist']
-      app_spec.info_plist = {
-        'CFBundleIdentifier' => 'com.google.FIRPerfTestAppAutopush'
-      }
-      app_spec.scheme = {
-        :environment_variables => { "FPR_AUTOPUSH_ENV" => "1" }
-      }
-    else
-      ios_resources += ['FirebasePerformance/Tests/TestApp/Plists/Prod/**/*.plist']
-      app_spec.info_plist = {
-        'CFBundleIdentifier' => 'com.google.FIRPerfTestApp'
-      }
-    end
-    app_spec.ios.resources = ios_resources
-    app_spec.requires_arc = true
-  end
+  # s.app_spec 'TestApp' do |app_spec|
+  #   app_spec.platforms = {:ios => ios_deployment_target, :tvos => tvos_deployment_target}
+  #   app_spec.source_files = ['FirebasePerformance/Tests/TestApp/Source/**/*.{m,h}']
+  #   ios_resources = ['FirebasePerformance/Tests/TestApp/Resources/*.*']
+  #   if ENV['FPR_AUTOPUSH_ENV'] && ENV['FPR_AUTOPUSH_ENV'] == '1' then
+  #     ios_resources += ['FirebasePerformance/Tests/TestApp/Plists/Autopush/**/*.plist']
+  #     app_spec.info_plist = {
+  #       'CFBundleIdentifier' => 'com.google.FIRPerfTestAppAutopush'
+  #     }
+  #     app_spec.scheme = {
+  #       :environment_variables => { "FPR_AUTOPUSH_ENV" => "1" }
+  #     }
+  #   else
+  #     ios_resources += ['FirebasePerformance/Tests/TestApp/Plists/Prod/**/*.plist']
+  #     app_spec.info_plist = {
+  #       'CFBundleIdentifier' => 'com.google.FIRPerfTestApp'
+  #     }
+  #   end
+  #   app_spec.ios.resources = ios_resources
+  #   app_spec.requires_arc = true
+  # end
 
 end
