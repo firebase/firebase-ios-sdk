@@ -71,13 +71,13 @@
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
 
 #if TARGET_OS_IOS
+#import "FirebaseAppCheck/Interop/FirAppCheckInterop.h"
 #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthNotificationManager.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
-#import "FirebaseAppCheck/Interop/FirAppCheckInterop.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -358,12 +358,12 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 @property(nonatomic, strong, nullable) FIRAuthStoredUserManager *storedUserManager;
 
 /** @fn initWithApp:
-    @brief Creates a @c FIRAuth instance associated with the provided @c FIRApp instance and AppCheck Interop.
+    @brief Creates a @c FIRAuth instance associated with the provided @c FIRApp instance and
+   AppCheck Interop.
     @param app The application to associate the auth instance with.
     @param appCheck The AppCheck Interop.
  */
-- (instancetype)initWithApp:(FIRApp *)app
-                   appCheck: (nullable id<FIRAppCheckInterop>)appCheck;
+- (instancetype)initWithApp:(FIRApp *)app appCheck:(nullable id<FIRAppCheckInterop>)appCheck;
 
 @end
 
@@ -460,8 +460,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   return (FIRAuth *)auth;
 }
 
-- (instancetype)initWithApp:(FIRApp *)app
-                   appCheck: (nullable id<FIRAppCheckInterop>)appCheck{
+- (instancetype)initWithApp:(FIRApp *)app appCheck:(nullable id<FIRAppCheckInterop>)appCheck {
   [FIRAuth setKeychainServiceNameForApp:app];
   self = [self initWithAPIKey:app.options.APIKey
                       appName:app.name
@@ -2180,16 +2179,15 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       ^id _Nullable(FIRComponentContainer *_Nonnull container, BOOL *_Nonnull isCacheable) {
     *isCacheable = YES;
     id<FIRAppCheckInterop> appCheckInterop = FIR_COMPONENT(FIRAppCheckInterop, container);
-        
-    return [[FIRAuth alloc] initWithApp:container.app
-                               appCheck:appCheckInterop];
+
+    return [[FIRAuth alloc] initWithApp:container.app appCheck:appCheckInterop];
   };
-    
+
   FIRComponent *authInterop = [FIRComponent componentWithProtocol:@protocol(FIRAuthInterop)
                                               instantiationTiming:FIRInstantiationTimingAlwaysEager
                                                      dependencies:@[]
                                                     creationBlock:authCreationBlock];
-    return @[ authInterop ];
+  return @[ authInterop ];
 }
 
 #pragma mark - FIRComponentLifecycleMaintainer

@@ -16,8 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseAuth/Sources/Backend/FIRAuthRPCRequest.h"
 #import "FirebaseAppCheck/Interop/FirAppCheckInterop.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthRPCRequest.h"
 
 @protocol FIRHeartbeatLoggerProtocol;
 
@@ -93,7 +93,6 @@ NS_ASSUME_NONNULL_BEGIN
                         heartbeatLogger:(nullable id<FIRHeartbeatLoggerProtocol>)heartbeatLogger
                                appcheck:(nullable id<FIRAppCheckInterop>)appcheck
     NS_DESIGNATED_INITIALIZER;
-
 
 @end
 

@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey
                                   appID:(NSString *)appID
-                        heartbeatLogger:(nullable id<FIRHeartbeatLoggerProtocol>)heartbeatLogger{
+                        heartbeatLogger:(nullable id<FIRHeartbeatLoggerProtocol>)heartbeatLogger {
   self = [super init];
   if (self) {
     _APIKey = [APIKey copy];
@@ -41,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey
                                   appID:(NSString *)appID
                         heartbeatLogger:(nullable id<FIRHeartbeatLoggerProtocol>)heartbeatLogger
-                               appcheck:(nullable id<FIRAppCheckInterop>)appcheck{
+                               appcheck:(nullable id<FIRAppCheckInterop>)appcheck {
   self = [super init];
   if (self) {
     _APIKey = [APIKey copy];

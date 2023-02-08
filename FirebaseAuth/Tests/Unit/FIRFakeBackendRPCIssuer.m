@@ -47,12 +47,12 @@ static NSString *const kFakeErrorDomain = @"fake domain";
     // Use the real implementation so that the complete request can
     // be verified during testing.
     [FIRAuthBackend requestWithURL:URL
-                                          contentType:contentType
-                                 requestConfiguration:requestConfiguration
-                 completionHandler: ^(NSMutableURLRequest* request){
-        _completeRequest = request;
-    }];
-    
+                       contentType:contentType
+              requestConfiguration:requestConfiguration
+                 completionHandler:^(NSMutableURLRequest *request) {
+                   _completeRequest = request;
+                 }];
+
     NSDictionary *JSON = [NSJSONSerialization JSONObjectWithData:body options:0 error:nil];
     _decodedRequest = JSON;
   }

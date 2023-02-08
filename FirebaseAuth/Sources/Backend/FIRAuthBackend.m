@@ -67,10 +67,10 @@
 #if TARGET_OS_IOS
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"
 
+#import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
+#import "FirebaseAppCheck/Interop/FirAppCheckInterop.h"
 #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorInfo+Internal.h"
-#import "FirebaseAppCheck/Interop/FirAppCheckInterop.h"
-#import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -618,9 +618,9 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 }
 
 + (void)requestWithURL:(NSURL *)URL
-                            contentType:(NSString *)contentType
-                   requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                       completionHandler:(void (^)(NSMutableURLRequest *_Nullable))completionHandler {
+             contentType:(NSString *)contentType
+    requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+       completionHandler:(void (^)(NSMutableURLRequest *_Nullable))completionHandler {
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
   [request setValue:contentType forHTTPHeaderField:@"Content-Type"];
   NSString *additionalFrameworkMarker =
@@ -645,12 +645,15 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     [request setValue:languageCode forHTTPHeaderField:kFirebaseLocalHeader];
   }
   if (requestConfiguration.appcheck) {
-      [requestConfiguration.appcheck getTokenForcingRefresh:false completion:^(id<FIRAppCheckTokenResultInterop>  _Nonnull tokenResult) {
-          [request setValue:tokenResult.token forHTTPHeaderField: @"X-Firebase-AppCheck"];
-          completionHandler(request);
-      }];
-  } else{
-      completionHandler(request);
+    [requestConfiguration.appcheck
+        getTokenForcingRefresh:false
+                    completion:^(id<FIRAppCheckTokenResultInterop> _Nonnull tokenResult) {
+                      [request setValue:tokenResult.token
+                          forHTTPHeaderField:@"X-Firebase-AppCheck"];
+                      completionHandler(request);
+                    }];
+  } else {
+    completionHandler(request);
   }
 }
 
@@ -688,16 +691,16 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [FIRAuthBackend requestWithURL:URL
                      contentType:contentType
             requestConfiguration:requestConfiguration
-                completionHandler: ^(NSMutableURLRequest* request) {
-      GTMSessionFetcher *fetcher = [self->_fetcherService fetcherWithRequest:request];
-      NSString *emulatorHostAndPort = requestConfiguration.emulatorHostAndPort;
-      if (emulatorHostAndPort) {
-        fetcher.allowLocalhostRequest = YES;
-        fetcher.allowedInsecureSchemes = @[ @"http" ];
-      }
-      fetcher.bodyData = body;
-      [fetcher beginFetchWithCompletionHandler:handler];
-  }];
+               completionHandler:^(NSMutableURLRequest *request) {
+                 GTMSessionFetcher *fetcher = [self->_fetcherService fetcherWithRequest:request];
+                 NSString *emulatorHostAndPort = requestConfiguration.emulatorHostAndPort;
+                 if (emulatorHostAndPort) {
+                   fetcher.allowLocalhostRequest = YES;
+                   fetcher.allowedInsecureSchemes = @[ @"http" ];
+                 }
+                 fetcher.bodyData = body;
+                 [fetcher beginFetchWithCompletionHandler:handler];
+               }];
 }
 
 @end
