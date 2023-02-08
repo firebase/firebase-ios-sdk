@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseAppCheck/Interop/FirAppCheckInterop.h"
+#import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthRPCRequest.h"
 
 @protocol FIRHeartbeatLoggerProtocol;
@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, nullable) id<FIRHeartbeatLoggerProtocol> heartbeatLogger;
 /** @property appcheck
-    @brief The appcheck is used to .
+    @brief The appcheck is used to generate a token.
  */
 @property(nonatomic, copy, nullable) id<FIRAppCheckInterop> appcheck;
 
@@ -87,6 +87,7 @@ NS_ASSUME_NONNULL_BEGIN
     @param APIKey The API key to be used in the request.
     @param appID The Firebase app ID to be passed in the request header.
     @param heartbeatLogger The heartbeat logger used to add heartbeats to the request header.
+    @param appcheck The appcheck interop is a library to generate app check token.
  */
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey
                                   appID:(NSString *)appID
