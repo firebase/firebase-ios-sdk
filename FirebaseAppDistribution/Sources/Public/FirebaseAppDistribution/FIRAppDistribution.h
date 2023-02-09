@@ -60,6 +60,9 @@ NS_SWIFT_NAME(AppDistribution)
  * Take a screenshot, prompt the tester to sign in if they haven't already, the start a modal view
  * controller to collect and submit feedback from the tester.
  *
+ * Note: The programmatic screenshot may not be able to capture everything on the tester's display.
+ *       Consider using `enableFeedbackOnScreenshot`.
+ *
  * @param infoText Text to display to the tester before collecting feedback data (eg. Terms and
  * Conditions).
  */
@@ -71,10 +74,11 @@ NS_SWIFT_NAME(AppDistribution)
  *
  * @param infoText Text to display to the tester before collecting feedback data (eg. Terms and
  * Conditions).
+ * @param image UIImage to attach to the feedback.
  */
 - (void)startFeedbackWithInfoText:(NSString *)infoText
                         image:(UIImage *)image
-    NS_SWIFT_NAME(startFeedback(infoText:withImage:));
+    NS_SWIFT_NAME(startFeedback(infoText:image:));
 
 /**
  * After calling the method, whenever a tester takes a screenshot, request access to it if needed,
